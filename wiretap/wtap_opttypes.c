@@ -374,6 +374,36 @@ wtap_opttype_return_val wtap_optionblock_get_option_string(wtap_optionblock_t bl
     return WTAP_OPTTYPE_SUCCESS;
 }
 
+wtap_opttype_return_val wtap_optionblock_get_string_options(wtap_optionblock_t block, guint option_id, GArray **value)
+{
+    guint n_options;
+    guint i;
+    wtap_optblock_value_t* opt_value;
+    GArray *opt_values;
+
+    n_options = 0;
+    for (i = 0; i < block->option_values->len; i++)
+    {
+        opt_value = g_array_index(block->option_values, wtap_optblock_value_t*, i);
+        if (opt_value->info->number == option_id) {
+            if (opt_value->info->type != WTAP_OPTTYPE_STRING)
+                return WTAP_OPTTYPE_TYPE_MISMATCH;
+            n_options++;
+        }
+    }
+
+    opt_values = g_array_sized_new(FALSE, FALSE, sizeof (char *), n_options);
+    for (i = 0; i < block->option_values->len; i++)
+    {
+        opt_value = g_array_index(block->option_values, wtap_optblock_value_t*, i);
+        if (opt_value->info->number == option_id)
+            g_array_append_val(opt_values, opt_value->option.stringval);
+    }
+
+    *value = opt_values;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
 wtap_opttype_return_val wtap_optionblock_set_option_uint64(wtap_optionblock_t block, guint option_id, guint64 value)
 {
     wtap_optblock_value_t* opt_value = wtap_optionblock_get_option(block, option_id);

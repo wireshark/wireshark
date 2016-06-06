@@ -190,6 +190,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   iface_options iface;
   wtap_optionblock_t shb_inf;
   unsigned int  i;
+  GArray       *opts;
 
   if (summary_dlg != NULL) {
     /* There's already a Summary dialog box; reactivate it. */
@@ -292,11 +293,14 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (comment_view));
     gtk_text_buffer_set_text (buffer, "", -1);
     if (shb_inf != NULL) {
-      char *str;
-
-      wtap_optionblock_get_option_string(shb_inf, OPT_COMMENT, &str);
-      if (str != NULL && str[0] != '\0')
-        gtk_text_buffer_set_text (buffer, str, -1);
+      wtap_optionblock_get_string_options(shb_inf, OPT_COMMENT, &opts);
+      for (i = 0; i < opts->len; i++) {
+        /* XXX - this only shows the last comment */
+        char *opt_comment = g_array_index(opts, char *, i);
+        if (opt_comment != NULL && opt_comment[0] != '\0')
+          gtk_text_buffer_set_text (buffer, opt_comment, -1);
+      }
+      g_array_free(opts, TRUE);
     }
     gtk_box_pack_start(GTK_BOX(comment_vbox), comment_view, TRUE, TRUE, 0);
     gtk_widget_show (comment_view);
@@ -661,6 +665,7 @@ summary_to_texbuff(GtkTextBuffer *buffer)
   gchar         string_buff[SUM_STR_MAX];
   gchar         tmp_buff[SUM_STR_MAX];
   wtap_optionblock_t shb_inf;
+  GArray       *opts;
   unsigned int  i;
   unsigned int  elapsed_time;
   iface_options iface;
@@ -896,11 +901,13 @@ summary_to_texbuff(GtkTextBuffer *buffer)
   /* Trace file comments from SHB */
   shb_inf = wtap_file_get_shb(cfile.wth);
   if (shb_inf != NULL) {
-    char *str;
-
-    wtap_optionblock_get_option_string(shb_inf, OPT_COMMENT, &str);
-    if (str != NULL && str[0] != '\0')
-      gtk_text_buffer_insert_at_cursor(buffer, str, -1);
+    wtap_optionblock_get_string_options(shb_inf, OPT_COMMENT, &opts);
+    for (i = 0; i < opts->len; i++) {
+      /* XXX - separator between comments? */
+      char *opt_comment = g_array_index(opts, char *, i);
+      if (opt_comment != NULL && opt_comment[0] != '\0')
+        gtk_text_buffer_insert_at_cursor(buffer, opt_comment, -1);
+    }
   }
 
 

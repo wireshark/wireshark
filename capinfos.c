@@ -559,86 +559,15 @@ string_replace_newlines(gchar *str)
 }
 
 static void
-show_comment(wtap_optionblock_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_option_type* option, void* user_data _U_)
+show_option_string(const char *prefix, const char *option_str)
 {
-  char *opt_str;
+  char *str;
 
-  switch(option_id)
-  {
-  case OPT_COMMENT:
-    if (option != NULL && option->stringval != NULL) {
-      opt_str = g_strdup(option->stringval);
-      string_replace_newlines(opt_str);
-      printf("Capture comment:     %s\n", opt_str);
-      g_free(opt_str);
-    }
-    break;
-  default:
-    /* Don't show other options */
-    break;
-  }
-}
-
-static void
-show_capture_hardware(wtap_optionblock_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_option_type* option, void* user_data _U_)
-{
-  char *opt_str;
-
-  switch(option_id)
-  {
-  case OPT_SHB_HARDWARE:
-    if (option != NULL && option->stringval != NULL) {
-      opt_str = g_strdup(option->stringval);
-      string_replace_newlines(opt_str);
-      printf("Capture hardware:    %s\n", opt_str);
-      g_free(opt_str);
-    }
-    break;
-  default:
-    /* Don't show other options */
-    break;
-  }
-}
-
-static void
-show_capture_os(wtap_optionblock_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_option_type* option, void* user_data _U_)
-{
-  char *opt_str;
-
-  switch(option_id)
-  {
-  case OPT_SHB_OS:
-    if (option != NULL && option->stringval != NULL) {
-      opt_str = g_strdup(option->stringval);
-      string_replace_newlines(opt_str);
-      printf("Capture oper-sys:    %s\n", opt_str);
-      g_free(opt_str);
-    }
-    break;
-  default:
-    /* Don't show other options */
-    break;
-  }
-}
-
-static void
-show_capture_userappl(wtap_optionblock_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_option_type* option, void* user_data _U_)
-{
-  char *opt_str;
-
-  switch(option_id)
-  {
-  case OPT_SHB_USERAPPL:
-    if (option != NULL && option->stringval != NULL) {
-      opt_str = g_strdup(option->stringval);
-      string_replace_newlines(opt_str);
-      printf("Capture application: %s\n", opt_str);
-      g_free(opt_str);
-    }
-    break;
-  default:
-    /* Don't show other options */
-    break;
+  if (option_str != NULL && option_str[0] != '\0') {
+    str = g_strdup(option_str);
+    string_replace_newlines(str);
+    printf("%s%s\n", prefix, str);
+    g_free(str);
   }
 }
 
@@ -766,12 +695,24 @@ print_stats(const gchar *filename, capture_info *cf_info)
   if (cap_order)          printf     ("Strict time order:   %s\n", order_string(cf_info->order));
 
   if (cap_comment) {
-    wtap_optionblock_foreach_option(cf_info->shb, show_comment, NULL);
+    GArray *opts;
+    unsigned int i;
+
+    wtap_optionblock_get_string_options(cf_info->shb, OPT_COMMENT, &opts);
+    for (i = 0; i < opts->len; i++) {
+      show_option_string("Capture comment:     ", g_array_index(opts, char *, i));
+    }
+    g_array_free(opts, TRUE);
   }
   if (cap_file_more_info) {
-    wtap_optionblock_foreach_option(cf_info->shb, show_capture_hardware, NULL);
-    wtap_optionblock_foreach_option(cf_info->shb, show_capture_os, NULL);
-    wtap_optionblock_foreach_option(cf_info->shb, show_capture_userappl, NULL);
+    char *str;
+
+    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_HARDWARE, &str);
+    show_option_string("Capture hardware:    ", str);
+    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_OS, &str);
+    show_option_string("Capture oper-sys:    ", str);
+    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_USERAPPL, &str);
+    show_option_string("Capture application: ", str);
   }
 
   if (cap_file_idb && cf_info->num_interfaces != 0) {
@@ -847,82 +788,6 @@ print_stats_table_header(void)
   }
 
   printf("\n");
-}
-
-static void
-put_comment(wtap_optionblock_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_option_type* option, void* user_data _U_)
-{
-  switch(option_id)
-  {
-  case OPT_COMMENT:
-    if (option != NULL && option->stringval != NULL) {
-      putsep();
-      putquote();
-      printf("%s", option->stringval);
-      putquote();
-    }
-    break;
-  default:
-    /* Don't show other options */
-    break;
-  }
-}
-
-static void
-put_capture_hardware(wtap_optionblock_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_option_type* option, void* user_data _U_)
-{
-  switch(option_id)
-  {
-  case OPT_SHB_HARDWARE:
-    if (option != NULL && option->stringval != NULL) {
-      putsep();
-      putquote();
-      printf("%s", option->stringval);
-      putquote();
-    }
-    break;
-  default:
-    /* Don't show other options */
-    break;
-  }
-}
-
-static void
-put_capture_os(wtap_optionblock_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_option_type* option, void* user_data _U_)
-{
-  switch(option_id)
-  {
-  case OPT_SHB_OS:
-    if (option != NULL && option->stringval != NULL) {
-      putsep();
-      putquote();
-      printf("%s", option->stringval);
-      putquote();
-    }
-    break;
-  default:
-    /* Don't show other options */
-    break;
-  }
-}
-
-static void
-put_capture_userappl(wtap_optionblock_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_option_type* option, void* user_data _U_)
-{
-  switch(option_id)
-  {
-  case OPT_SHB_USERAPPL:
-    if (option != NULL && option->stringval != NULL) {
-      putsep();
-      putquote();
-      printf("%s", option->stringval);
-      putquote();
-    }
-    break;
-  default:
-    /* Don't show other options */
-    break;
-  }
 }
 
 static void
@@ -1107,15 +972,47 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
    * of options
    */
   if (cap_comment) {
-    wtap_optionblock_foreach_option(cf_info->shb, put_comment, NULL);
+    GArray *opts;
+    unsigned int i;
+
+    wtap_optionblock_get_string_options(cf_info->shb, OPT_COMMENT, &opts);
+    for (i = 0; i < opts->len; i++) {
+      const char *opt_comment = g_array_index(opts, char *, i);
+
+      if (opt_comment != NULL) {
+        putsep();
+        putquote();
+        printf("%s", opt_comment);
+        putquote();
+      }
+    }
+    g_array_free(opts, TRUE);
   }
 
   if (cap_file_more_info) {
-    wtap_optionblock_foreach_option(cf_info->shb, put_capture_hardware, NULL);
+    char *str;
 
-    wtap_optionblock_foreach_option(cf_info->shb, put_capture_os, NULL);
-
-    wtap_optionblock_foreach_option(cf_info->shb, put_capture_userappl, NULL);
+    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_HARDWARE, &str);
+    if (str != NULL) {
+      putsep();
+      putquote();
+      printf("%s", str);
+      putquote();
+    }
+    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_OS, &str);
+    if (str != NULL) {
+      putsep();
+      putquote();
+      printf("%s", str);
+      putquote();
+    }
+    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_USERAPPL, &str);
+    if (str != NULL) {
+      putsep();
+      putquote();
+      printf("%s", str);
+      putquote();
+    }
   }
 
   printf("\n");

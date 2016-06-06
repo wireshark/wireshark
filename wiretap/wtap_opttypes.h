@@ -262,6 +262,17 @@ wtap_optionblock_set_option_string_format(wtap_optionblock_t block, guint option
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_optionblock_get_option_string(wtap_optionblock_t block, guint option_id, char** value);
 
+/** Get array of string option values from an option block
+ *
+ * @param[in] block Block from which to get option values
+ * @param[in] option_id Identifier value for option
+ * @param[out] value Returned GArray of option values
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_optionblock_get_string_options(wtap_optionblock_t block, guint option_id, GArray **value);
+
 /** Set UINT64 option value in an option block
  *
  * @param[in] block Block in which to set the option value
