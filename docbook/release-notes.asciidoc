@@ -14,13 +14,84 @@ The following vulnerabilities have been fixed:
 
 * ws-salink:2016-29[]
 +
-A dissector went awry.
+The SPOOLS dissector could go into an infinite loop.
 (ws-buglink:xxxxx[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: xxxxx
-// Fixed in master-2.0: xxxxx
-// Fixed in master-1.12: xxxxx
+// Fixed in master: b4d16b4
+// Fixed in master-2.0: 9753ea8
+// Fixed in master-1.12: 9310b88
 
+* ws-salink:2016-30[]
++
+The IEEE 802.11 dissector could crash.
+(ws-buglink:11585[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 9b0b20b
+// Fixed in master-2.0: 3456d09
+// Fixed in master-1.12: f2c0a28, 2297b62
+
+* ws-salink:2016-31[]
++
+The IEEE 802.11 dissector could crash. Discovered by Mateusz Jurczyk.
+(ws-buglink:12175[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: b6d838e
+// Fixed in master-2.0: f39d93c
+// Fixed in master-1.12: n/a
+
+* ws-salink:2016-32[]
++
+The UMTS FP dissector could crash.
+(ws-buglink:12191[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 7d71906
+// Fixed in master-2.0: ff27d85
+// Fixed in master-1.12: fb9dcfa
+
+* ws-salink:2016-33[]
++
+Some USB dissectors could crash. Discovered by Mateusz Jurczyk.
+(ws-buglink:12356[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 2cb5985
+// Fixed in master-2.0: 20e7875
+// Fixed in master-1.12: 7f77886
+
+* ws-salink:2016-34[]
++
+The Toshiba file parser could crash. Discovered by iDefense Labs.
+(ws-buglink:12394[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 3270dfa
+// Fixed in master-2.0: f5e7e03
+// Fixed in master-1.12: edbed5a
+
+* ws-salink:2016-35[]
++
+The CoSine file parser could crash. Discovered by iDefense Labs.
+(ws-buglink:12395[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: a66628e
+// Fixed in master-2.0: 45fc804
+// Fixed in master-1.12: 1635420
+
+* ws-salink:2016-36[]
++
+The NetScreen file parser could crash. Discovered by iDefense Labs.
+(ws-buglink:12396[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 11edc83
+// Fixed in master-2.0: 2916518
+// Fixed in master-1.12: 4f4e1cb
+
+* ws-salink:2016-37[]
++
+The Ethernet dissector could crash.
+(ws-buglink:12440[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: n/a
+// Fixed in master-2.0: 2c13e97
+// Fixed in master-1.12: n/a
 
 The following bugs have been fixed:
 
@@ -30,6 +101,69 @@ The following bugs have been fixed:
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.4rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+* Saving pcap capture file with ERF encapsulation creates an invalid pcap file. (ws-buglink:3606[])
+
+* Questionable calling of Ethernet dissector by encapsulating protocol dissectors. (ws-buglink:9933[])
+
+* Wireshark 1.12.0 does not dissect HTTP correctly. (ws-buglink:10335[])
+
+* Don't copy details of hidden columns. (ws-buglink:11788[])
+
+* Crash when saving RTP audio Telephony->RTP->RTP Streams->Analyze->Save->Audio. (ws-buglink:12211[])
+
+* Edit - preferences - add column field not showing dropdown for choices. (ws-buglink:12321[])
+
+* Using _ws.expert in a filter can cause a crash. (ws-buglink:12335[])
+
+* Crash in SCCP dissector UAT (Qt UI only). (ws-buglink:12364[])
+
+* J1939 frame without data = malformed packet ? (ws-buglink:12366[])
+
+* The stream number in tshark's "-z follow,tcp,<stream number>" option is 0-origin rather than 1-origin. (ws-buglink:12383[])
+
+* IP Header Length display filter should show calculated value. (ws-buglink:12387[])
+
+* Multiple file radio buttons should be check boxes. (ws-buglink:12388[])
+
+* Wrong check for getaddrinfo and gethostbyname on Solaris 11. (ws-buglink:12391[])
+
+* ICMPv6 dissector doesn't respect actual packet length. (ws-buglink:12400[])
+
+* Format DIS header timestamp mm:ss.nnnnnn. (ws-buglink:12402[])
+
+* RTP Stream Analysis can no longer be sorted in 2.0.3. (ws-buglink:12405[])
+
+* RTP Stream Analysis fails to complete in 2.0.3 when packets are sliced. (ws-buglink:12406[])
+
+* Network-Layer Name Resolution uses first 32-bits of IPv6 DNS address as IPv4 address in some circumstances. (ws-buglink:12412[])
+
+* BACnet decoder incorrectly flags a valid APDU as a "Malformed Packet". (ws-buglink:12422[])
+
+* Valid ISUP messages marked with warnings. (ws-buglink:12423[])
+
+* Profile command line switch "-C" not working in Qt interface. (ws-buglink:12425[])
+
+* MRCPv2: info column not showing info correctly. (ws-buglink:12426[])
+
+* Diameter: Experimental result code 5142. (ws-buglink:12428[])
+
+* Tshark crashes when analyzing RTP due to pointer being freed not allocated. (ws-buglink:12430[])
+
+* NFS: missing information in getattr for supported exclusive create attributes. (ws-buglink:12435[])
+
+* Ethernet type field with a value of 9100 is shown as "Unknown". (ws-buglink:12441[])
+
+* Documentation does not include support for Windows Server 2012 R2. (ws-buglink:12455[])
+
+* Column preferences ruined too easily. (ws-buglink:12465[])
+
+* SMB Open andX extended response decoded incorrectly. (ws-buglink:12472[])
+
+* SMB NtCreate andX with extended response sometimes incorrect. (ws-buglink:12473[])
+
+* Viewing NFSv3 Data, checking SRTs doesn't work. (ws-buglink:12478[])
+
+* Make wireshark with Qt enabled buildable on ARM. (ws-buglink:12483[])
 
 Windows installers and PortableApps(R) packages are dual signed using SHA-1 and SHA-256
 in order to comply with
@@ -57,12 +191,49 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+ANSI IS-637 A
+BACapp
+BT BNEP
+Cisco FabricPath MiM
+CSN.1
+DCERPC SPOOLS
+DIS
+Ethernet
+GSM A RR
+ICMPv6
+IEEE 802.11
+IPv4
+ISUP
+J1939
+JXTA
+LAPSat
+LPADm
+LTE-RRC
+MRCPv2
+NFS
+OpenFlow
+SGsAP
+SMB
+STT
+UMTS FP
+USB
+TZSP
 --sort-and-group--
 
 === New and Updated Capture File Support
 
 //There is no new or updated capture file support in this release.
 --sort-and-group--
+Aethra
+Catapult DCT2000
+CoSine
+DBS Etherwatch
+ERF
+iSeries
+Ixia IxVeriWave
+NetScreen
+VMS TCPIPtrace
+Toshiba
 --sort-and-group--
 
 === New and Updated Capture Interfaces support
