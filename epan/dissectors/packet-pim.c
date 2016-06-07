@@ -949,8 +949,8 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             switch(hello_opt) {
             case PIM_HELLO_HOLD_T: /* Hello Hold Time Option */
 
-                ti_hold = proto_tree_add_item_ret_uint(pimopt_tree, hf_pim_holdtime, tvb,
-                                           offset, 2, ENC_BIG_ENDIAN, &holdtime);
+                ti_hold = proto_tree_add_item_ret_uint(opt_tree, hf_pim_holdtime, tvb,
+                                           offset+4, 2, ENC_BIG_ENDIAN, &holdtime);
                 switch(holdtime){
                     case 0:
                         proto_item_append_text(ti_hold, " (goodbye)");
