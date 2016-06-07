@@ -954,14 +954,14 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 switch(holdtime){
                     case 0:
                         proto_item_append_text(ti_hold, " (goodbye)");
-                        proto_item_append_text(opt_item, " (goodbye)");
+                        proto_item_append_text(opt_item, ": %u (goodbye)", holdtime);
                     break;
                     case 0xFFFF:
                         proto_item_append_text(ti_hold, " (Infinity)");
-                        proto_item_append_text(opt_item, " (Infinity)");
+                        proto_item_append_text(opt_item, ": %u (Infinity)", holdtime);
                     break;
                     default:
-                        /* no default action */
+                        proto_item_append_text(opt_item, ": %u", holdtime);
                     break;
                 }
                 break;
