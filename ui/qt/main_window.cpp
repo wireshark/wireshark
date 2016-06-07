@@ -847,6 +847,9 @@ void MainWindow::dropEvent(QDropEvent *event)
 // Apply recent settings to the main window geometry.
 // We haven't loaded the preferences at this point so we assume that the
 // position and size preference are enabled.
+// Note we might end up with unexpected screen geometries if the user
+// unplugs or plugs in a monitor:
+// https://bugreports.qt.io/browse/QTBUG-44213
 void MainWindow::loadWindowGeometry()
 {
     int min_sensible_dimension = 200;
@@ -860,7 +863,13 @@ void MainWindow::loadWindowGeometry()
         QRect recent_geom(recent.gui_geometry_main_x, recent.gui_geometry_main_y,
                           recent.gui_geometry_main_width, recent.gui_geometry_main_height);
         if (!rect_on_screen(recent_geom)) {
-            // We're not visible on any screens. Give up and use the default geometry.
+            // We're not visible on any screens. See if we can move onscreen
+            // without resizing.
+            recent_geom.moveTo(50, 50); // recent.c defaults to 20.
+        }
+
+        if (!rect_on_screen(recent_geom)) {
+            // Give up and use the default geometry.
             return;
         }
 

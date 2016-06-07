@@ -87,6 +87,8 @@ typedef struct recent_settings_tag {
 
     gint        gui_geometry_main_x;
     gint        gui_geometry_main_y;
+    gint        gui_gtk_geometry_main_x;
+    gint        gui_gtk_geometry_main_y;
     gint        gui_geometry_main_width;
     gint        gui_geometry_main_height;
 

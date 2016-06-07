@@ -1088,8 +1088,8 @@ main_load_window_geometry(GtkWidget *widget)
     window_geometry_t geom;
 
     geom.set_pos        = prefs.gui_geometry_save_position;
-    geom.x              = recent.gui_geometry_main_x;
-    geom.y              = recent.gui_geometry_main_y;
+    geom.x              = recent.gui_gtk_geometry_main_x;
+    geom.y              = recent.gui_gtk_geometry_main_y;
     geom.set_size       = prefs.gui_geometry_save_size;
     if (recent.gui_geometry_main_width > 0 &&
         recent.gui_geometry_main_height > 0) {
@@ -1121,8 +1121,8 @@ main_save_window_geometry(GtkWidget *widget)
     window_get_geometry(widget, &geom);
 
     if (prefs.gui_geometry_save_position) {
-        recent.gui_geometry_main_x = geom.x;
-        recent.gui_geometry_main_y = geom.y;
+        recent.gui_gtk_geometry_main_x = geom.x;
+        recent.gui_gtk_geometry_main_y = geom.y;
     }
 
     if (prefs.gui_geometry_save_size) {
