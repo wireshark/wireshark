@@ -863,7 +863,7 @@ ddict_free(ddict_t* d)
 
 	for (v = d->vendors; v; v = vn) {
 		vn = v->next;
-		if (!v->desc)  g_free(v->desc);
+		if (v->desc)  g_free(v->desc);
 		FREE_NAMEANDOBJ(v);
 	}
 
@@ -874,7 +874,7 @@ ddict_free(ddict_t* d)
 
 	for (t = d->typedefns; t; t = tn) {
 		tn = t->next;
-		if (!t->parent)  g_free(t->parent);
+		if (t->parent)  g_free(t->parent);
 		FREE_NAMEANDOBJ(t);
 	}
 
@@ -893,9 +893,9 @@ ddict_free(ddict_t* d)
 			FREE_NAMEANDOBJ(e);
 		}
 
-		if (!a->vendor)  g_free(a->vendor);
-		if (!a->type)  g_free(a->type);
-		if (!a->description)  g_free(a->description);
+		if (a->vendor)  g_free(a->vendor);
+		if (a->type)  g_free(a->type);
+		if (a->description)  g_free(a->description);
 		FREE_NAMEANDOBJ(a);
 	}
 
