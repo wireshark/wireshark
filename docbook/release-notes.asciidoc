@@ -15,7 +15,8 @@ The following vulnerabilities have been fixed:
 * ws-salink:2016-29[]
 +
 The SPOOLS dissector could go into an infinite loop.
-(ws-buglink:xxxxx[])
+Discovered by the CESG.
+//(ws-buglink:xxxxx[])
 //cve-idlink:2015-XXXX[]
 // Fixed in master: b4d16b4
 // Fixed in master-2.0: 9753ea8
@@ -109,6 +110,8 @@ The following bugs have been fixed:
 
 * Don't copy details of hidden columns. (ws-buglink:11788[])
 
+* RTP audio player crashes. (ws-buglink:12166[])
+
 * Crash when saving RTP audio Telephony->RTP->RTP Streams->Analyze->Save->Audio. (ws-buglink:12211[])
 
 * Edit - preferences - add column field not showing dropdown for choices. (ws-buglink:12321[])
@@ -191,6 +194,7 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+AFS
 ANSI IS-637 A
 BACapp
 BT BNEP

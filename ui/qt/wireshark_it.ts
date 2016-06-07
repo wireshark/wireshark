@@ -2490,17 +2490,17 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <location filename="field_filter_edit.cpp" line="70"/>
         <source>Display filter entry</source>
-        <translation type="unfinished">Mostra la voce del filtro</translation>
+        <translation>Voce del filtro di visualizzazione</translation>
     </message>
     <message>
         <location filename="field_filter_edit.cpp" line="91"/>
         <source>Enter a field %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Digita un campo %1</translation>
     </message>
     <message>
         <location filename="field_filter_edit.cpp" line="154"/>
         <source>Invalid filter: </source>
-        <translation type="unfinished">Filtro non valido: </translation>
+        <translation>Filtro non valido: </translation>
     </message>
 </context>
 <context>
@@ -4172,168 +4172,168 @@ per i file di filtro: %2.</translation>
         <translation>Formato della marca temporale:</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="179"/>
-        <location filename="import_text_dialog.ui" line="189"/>
+        <location filename="import_text_dialog.ui" line="181"/>
+        <location filename="import_text_dialog.ui" line="191"/>
         <source>Whether or not the file contains information indicating the direction (inbound or outbound) of the packet.</source>
         <translation>Il file contiene o meno le informazioni che indicano la direzione (ingresso o uscita) del pacchetto.</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="182"/>
+        <location filename="import_text_dialog.ui" line="184"/>
         <source>Direction indication:</source>
         <translation>Indicazione della direzione:</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="201"/>
+        <location filename="import_text_dialog.ui" line="441"/>
         <source>Maximum frame length:</source>
         <translation>Lunghezza massima del frame:</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="208"/>
+        <location filename="import_text_dialog.ui" line="448"/>
         <source>The maximum size of the frames to write to the import capture file (max 64000)</source>
         <translation>Dimensione massima dei frame da scrivere sul file di importazione della cattura (max 64000)</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="227"/>
+        <location filename="import_text_dialog.ui" line="216"/>
         <source>Encapsulation</source>
         <translation>Incapsulamento</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="241"/>
+        <location filename="import_text_dialog.ui" line="230"/>
         <source>Encapsulation Type:</source>
         <translation>Tipo di incapsulamento:</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="248"/>
+        <location filename="import_text_dialog.ui" line="237"/>
         <source>Encapsulation type of the frames in the import capture file</source>
         <translation>Tipo di incapsulamento dei frame nel file di importazione della cattura</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="272"/>
+        <location filename="import_text_dialog.ui" line="261"/>
         <source>The UDP, TCP or SCTP source port for each frame</source>
         <translation>Porta sorgente UDP, TCP o SCTP per ogni frame</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="279"/>
+        <location filename="import_text_dialog.ui" line="268"/>
         <source>The SCTP DATA payload protocol identifier for each frame</source>
         <translation>Identificatore del protocollo del payload SCTP DATA per ogni frame</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="286"/>
+        <location filename="import_text_dialog.ui" line="275"/>
         <source>The UDP, TCP or SCTP destination port for each frame</source>
         <translation>Porta di destinazione UDP, TCP o SCTP per ogni frame</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="293"/>
+        <location filename="import_text_dialog.ui" line="282"/>
         <source>Prefix each frame with an Ethernet header</source>
         <translation>Anteponi un&apos;intestazione ethernet a ogni frame</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="296"/>
+        <location filename="import_text_dialog.ui" line="285"/>
         <source>Ethernet</source>
         <translation>Ethernet</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="303"/>
+        <location filename="import_text_dialog.ui" line="292"/>
         <source>Prefix each frame with an Ethernet, IPv4 and SCTP header</source>
         <translation>Anteponi a ogni frame un&apos;intestazione Ethernet, IPv4 e SCTP</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="306"/>
+        <location filename="import_text_dialog.ui" line="295"/>
         <source>SCTP</source>
         <translation>SCTP</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="313"/>
+        <location filename="import_text_dialog.ui" line="302"/>
         <source>PPI:</source>
         <translation>PPI:</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="320"/>
+        <location filename="import_text_dialog.ui" line="309"/>
         <source>Protocol (dec):</source>
         <translation>Protocollo (dec):</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="327"/>
+        <location filename="import_text_dialog.ui" line="316"/>
         <source>Leave frames unchanged</source>
         <translation>Lascia i frame inalterati</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="330"/>
+        <location filename="import_text_dialog.ui" line="319"/>
         <source>No dummy header</source>
         <translation>Nessuna intestazione fittizia</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="353"/>
+        <location filename="import_text_dialog.ui" line="342"/>
         <source>Tag:</source>
         <translation>Tag:</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="360"/>
+        <location filename="import_text_dialog.ui" line="349"/>
         <source>Prefix each frame with an Ethernet, IPv4 and UDP header</source>
         <translation>Anteponi a ogni frame un&apos;intestazione Ethernet, IPv4 e UDP</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="363"/>
+        <location filename="import_text_dialog.ui" line="352"/>
         <source>UDP</source>
         <translation>UDP</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="370"/>
+        <location filename="import_text_dialog.ui" line="359"/>
         <source>Source port:</source>
         <translation>Porta sorgente:</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="377"/>
+        <location filename="import_text_dialog.ui" line="366"/>
         <source>The Ethertype value of each frame</source>
         <translation>Il valore di Ethertype per ogni frame</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="387"/>
+        <location filename="import_text_dialog.ui" line="376"/>
         <source>Prefix each frame with an Ethernet, IPv4 and TCP header</source>
         <translation>Anteponi a ogni frame un&apos;intestazione Ethernet, IPv4 e TCP</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="390"/>
+        <location filename="import_text_dialog.ui" line="379"/>
         <source>TCP</source>
         <translation>TCP</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="397"/>
+        <location filename="import_text_dialog.ui" line="386"/>
         <source>The SCTP verification tag for each frame</source>
         <translation>Il tag di verifica SCTP per ogni frame</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="404"/>
+        <location filename="import_text_dialog.ui" line="393"/>
         <source>Destination port:</source>
         <translation>Porta di destinazione:</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="411"/>
+        <location filename="import_text_dialog.ui" line="400"/>
         <source>Ethertype (hex):</source>
         <translation>Ethertype (esa):</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="418"/>
+        <location filename="import_text_dialog.ui" line="407"/>
         <source>The IPv4 protocol ID for each frame</source>
         <translation>ID di protocollo IPv4 per ogni frame</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="425"/>
+        <location filename="import_text_dialog.ui" line="414"/>
         <source>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</source>
         <translation>Anteponi a ogni frame un&apos;intestazione Ethernet, IPv4 e SCTP (DATA)</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="428"/>
+        <location filename="import_text_dialog.ui" line="417"/>
         <source>SCTP (Data)</source>
         <translation>SCTP (Dati)</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="435"/>
+        <location filename="import_text_dialog.ui" line="424"/>
         <source>Prefix each frame with an Ethernet and IPv4 header</source>
         <translation>Anteponi a ogni frame un&apos;intestazione Ethernet e IPv4</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="438"/>
+        <location filename="import_text_dialog.ui" line="427"/>
         <source>IPv4</source>
         <translation>IPv4</translation>
     </message>
@@ -11547,7 +11547,7 @@ a:hover {
     <name>RtpPlayerDialog</name>
     <message>
         <location filename="rtp_player_dialog.ui" line="14"/>
-        <location filename="rtp_player_dialog.cpp" line="111"/>
+        <location filename="rtp_player_dialog.cpp" line="112"/>
         <source>RTP Player</source>
         <translation>Lettore RTP</translation>
     </message>
@@ -11858,37 +11858,37 @@ a:hover {
         <translation>Spazio</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="169"/>
+        <location filename="rtp_player_dialog.cpp" line="170"/>
         <source>Play Streams</source>
         <translation>Riproduci flussi</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="275"/>
+        <location filename="rtp_player_dialog.cpp" line="276"/>
         <source>Out of Sequence</source>
         <translation>Fuori sequenza</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="290"/>
+        <location filename="rtp_player_dialog.cpp" line="291"/>
         <source>Jitter Drops</source>
         <translation>Scarti jitter</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="305"/>
+        <location filename="rtp_player_dialog.cpp" line="306"/>
         <source>Wrong Timestamps</source>
         <translation>Marche temporali errate</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="320"/>
+        <location filename="rtp_player_dialog.cpp" line="321"/>
         <source>Inserted Silence</source>
         <translation>Silenzio inserito</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="500"/>
+        <location filename="rtp_player_dialog.cpp" line="501"/>
         <source>%1. Press &quot;G&quot; to go to packet %2</source>
         <translation>%1. Premi &quot;G&quot; per andare al pacchetto %2</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="684"/>
+        <location filename="rtp_player_dialog.cpp" line="685"/>
         <source>Unknown</source>
         <translation>Sconosciuto</translation>
     </message>
