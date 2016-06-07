@@ -129,7 +129,7 @@ void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     else {
         proto_tree_add_uint64(tree, hf_fti_transfer_length, tvb, offset+2, 6, transfer_length);
         ti = proto_tree_add_item(tree, hf_instance_id, tvb,  offset+8, 2, ENC_BIG_ENDIAN);
-        if ((encoding_id < 128) && (instance_id != 0)) {
+        if ((encoding_id < 128) && (encoding_id != 0)) {
             expert_add_info(pinfo, ti, &ei_fec_encoding_id);
         }
     }
