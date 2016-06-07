@@ -6220,34 +6220,13 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                }
                break;
             case CM_ES_INVALID_CONFIGURATION_SIZE:
-               if (add_stat_size < 1)
-               {
-                  expert_add_info(pinfo, status_item, &ei_mal_inv_config_size);
-               }
-               else
-               {
-                  proto_tree_add_item(status_tree, hf_cip_cm_ext126_size, tvb, offset+6, 2, ENC_LITTLE_ENDIAN );
-               }
+               proto_tree_add_item(status_tree, hf_cip_cm_ext126_size, tvb, offset+6, 2, ENC_LITTLE_ENDIAN );
                break;
             case CM_ES_INVALID_OT_SIZE:
-               if (add_stat_size < 1)
-               {
-                  expert_add_info(pinfo, status_item, &ei_mal_ot_size);
-               }
-               else
-               {
-                  proto_tree_add_item(status_tree, hf_cip_cm_ext127_size, tvb, offset+6, 2, ENC_LITTLE_ENDIAN );
-               }
+               proto_tree_add_item(status_tree, hf_cip_cm_ext127_size, tvb, offset+6, 2, ENC_LITTLE_ENDIAN );
                break;
             case CM_ES_INVALID_TO_SIZE:
-               if (add_stat_size < 1)
-               {
-                  expert_add_info(pinfo, status_item, &ei_mal_to_size);
-               }
-               else
-               {
-                  proto_tree_add_item(status_tree, hf_cip_cm_ext128_size, tvb, offset+6, 2, ENC_LITTLE_ENDIAN );
-               }
+               proto_tree_add_item(status_tree, hf_cip_cm_ext128_size, tvb, offset+6, 2, ENC_LITTLE_ENDIAN );
                break;
             default:
                /* Add additional status */
