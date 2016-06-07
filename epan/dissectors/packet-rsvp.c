@@ -4602,7 +4602,8 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *
     }
 
     for (i=1, l = 0; l < obj_length - 4; i++) {
-        j = tvb_get_guint8(tvb, offset+l) & 0x7f;
+        j = tvb_get_guint8(tvb, offset+l);
+        if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE) j &= 0x7f;
         switch(j) {
         case 1: /* IPv4 */
             k = tvb_get_guint8(tvb, offset+l) & 0x80;
