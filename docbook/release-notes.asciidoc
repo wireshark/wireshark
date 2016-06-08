@@ -24,6 +24,11 @@ used for troubleshooting, analysis, development and education.
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
+since version 2.1.0:
+
+*
+
+The following features are new (or have been significantly updated)
 since version 2.0.0:
 
 * You can now switch between between Capture and File Format dissection of
@@ -43,6 +48,7 @@ are still available).
 * The Follow Stream dialog now supports UTF-16.
 * The Firewall ACL Rules dialog has returned.
 * The Flow (Sequence) Analysis dialog has been improved.
+* We no longer provide packages for 32-bit versions of OS X.
 
 //=== Removed Dissectors
 
