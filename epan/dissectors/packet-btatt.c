@@ -8879,7 +8879,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             proto_tree_add_item(tree, hf_btatt_ots_list_result_code, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            switch (opcode) {
+            switch (tvb_get_guint8(tvb, offset - 2)) {
             case 0x01: /* First */
             case 0x02: /* Last */
             case 0x03: /* Previous */
