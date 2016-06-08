@@ -371,9 +371,9 @@ CMake Generator: `Visual Studio 10`
 Remarks:: Installers created using express editions require a $$C++$$ redistributable
 '$$vcredist_x86.exe$$' (3MB free
 download) is required to build
-Wireshark-win32-wireshark-major-minor-version:[].x.exe, and
+Wireshark-win32-{wireshark-version}.exe, and
 '$$vcredist_x64.exe$$' is required to build
-Wireshark-win64-wireshark-major-minor-version:[].x.exe. The version of
+Wireshark-win64-{wireshark-version}.exe. The version of
 '$$vcredist_x86.exe$$' or '$$vcredist_x64.exe$$' _must_ match the version for your
 compiler including any service packs installed for the compiler.]
 
@@ -1109,7 +1109,7 @@ installation should be straightforward.
 === Windows: NSIS (optional)
 
 The NSIS (Nullsoft Scriptable Install System) is used to generate
-'wireshark-win32-wireshark-major-minor-version:[].x.exe' from all the files
+'Wireshark-win32-{wireshark-version}.exe' from all the files
 needed to be installed, including all required DLLs, plugins, and supporting
 files.
 
@@ -1127,7 +1127,7 @@ You can find more instructions on using NSIS in <<ChSrcNSIS>>.
 === Windows: PortableApps (optional)
 
 The PortableApps.com Installer is used to generate
-'WiresharkPortable-wireshark-major-minor-version:[].paf.exe' from all the files
+'WiresharkPortable-{wireshark-version}.paf.exe' from all the files
 needed to be installed, including all required DLLs, plugins, and supporting
 files.
 

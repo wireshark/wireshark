@@ -497,7 +497,7 @@ to build Wireshark.
 . For the older GTK version run `C:\Development\wsbuild32\run\RelWithDebInfo\wireshark-gtk.exe`.
 
 . Open 'Help -> About'. If it shows your "private" program
-version, e.g.: Version wireshark-major-minor-version:[].x-myprotocol123
+version, e.g.: Version {wireshark-version}-myprotocol123
 congratulations! You have compiled your own version of Wireshark!
 
 You may also open the Wireshark solution file (Wireshark.sln) in the Visual Studio IDE and build there.
@@ -524,7 +524,7 @@ Note: You should have successfully built Wireshark
 before doing the following.
 
 If you want to build your own
-'wireshark-win32-wireshark-major-minor-version:[].x-myprotocol123.exe',
+'Wireshark-win32-{wireshark-version}-myprotocol123.exe',
 you'll need NSIS.
 
 . NSIS:
@@ -557,7 +557,7 @@ to build a Wireshark installer.
 +
 --
 ----
-> C:\Development\wireshark\packaging\nsis\wireshark-win32-wireshark-major-minor-version:[].x-myprotocol123.exe
+> C:\Development\wireshark\packaging\nsis\wireshark-win32-{wireshark-version}-myprotocol123.exe
 ----
 to test your new installer. It's a good idea to test on a different machine
 than the developer machine. Note that if you've built an x64 version, the installer will be named accordingly.

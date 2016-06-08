@@ -1097,7 +1097,7 @@ It might take some time, even on fast machines.
 ====
 
 If everything went well, you will now find something like:
-'wireshark-setup-wireshark-version:[].exe' in
+'wireshark-setup-{wireshark-version}.exe' in
 the 'packaging/nsis' directory in the source tree.
 
 [[ChSrcPortableApps]]
@@ -1132,7 +1132,7 @@ It might take some time, even on fast machines.
 ====
 
 If everything went well, you will now find something like:
-'WiresharkPortable_wireshark-major-minor-version:[].paf.exe' in
+'WiresharkPortable_{wireshark-version}.paf.exe' in
 the 'packaging/portableapps' directory.
 
 ++++++++++++++++++++++++++++++++++++++

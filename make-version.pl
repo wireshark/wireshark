@@ -512,8 +512,8 @@ sub update_release_notes
 	while ($line = <ADOC_CONF>) {
 		# wireshark-version:\[\]=1.9.1
 
-		if ($line =~ /^wireshark-version:\\\[\\\]=.*([\r\n]+)$/) {
-			$line = sprintf("wireshark-version:\\\[\\\]=%d.%d.%d$1",
+		if ($line =~ /^wireshark-version=.*([\r\n]+)$/) {
+			$line = sprintf("wireshark-version=%d.%d.%d$1",
 					$version_pref{"version_major"},
 					$version_pref{"version_minor"},
 					$version_pref{"version_micro"},

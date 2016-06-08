@@ -1,7 +1,7 @@
 ++++++++++++++++++++++++++++++++++++++
 <!-- WSUG Chapter BuildInstall -->
 ++++++++++++++++++++++++++++++++++++++
-    
+
 [[ChapterBuildInstall]]
 
 == Building and Installing Wireshark
@@ -19,20 +19,20 @@ If you are running another operating system such as Linux or FreeBSD you might
 want to install from source. Several Linux distributions offer Wireshark
 packages but they commonly ship out-of-date versions. No other versions of UNIX
 ship Wireshark so far. For that reason, you will need to know where to get the
-latest version of Wireshark and how to install it. 
+latest version of Wireshark and how to install it.
 
 This chapter shows you how to obtain source and binary packages and how to
-build Wireshark from source should you choose to do so. 
+build Wireshark from source should you choose to do so.
 
-The following are the general steps you would use: 
+The following are the general steps you would use:
 
 . Download the relevant package for your needs, e.g. source or binary
-  distribution. 
+  distribution.
 
-. Compile the source into a binary if needed. 
-  This may involve building and/or installing other necessary packages. 
-    
-. Install the binaries into their final destinations. 
+. Compile the source into a binary if needed.
+  This may involve building and/or installing other necessary packages.
+
+. Install the binaries into their final destinations.
 
 [[ChBuildInstallDistro]]
 
@@ -45,17 +45,17 @@ binary or source package.
 [NOTE]
 .Download all required files
 ====
-If you are building Wireshark from source you will 
+If you are building Wireshark from source you will
 In general, unless you have already downloaded Wireshark before, you will most
 likely need to download several source packages if you are building Wireshark
-from source. This is covered in more detail below. 
+from source. This is covered in more detail below.
 
 ++++++++++++++++++++++++++++++++++++++
 <!-- Make a ref -->
 ++++++++++++++++++++++++++++++++++++++
 ====
 
-Once you have downloaded the relevant files, you can go on to the next step. 
+Once you have downloaded the relevant files, you can go on to the next step.
 
 //
 // Windows
@@ -65,9 +65,10 @@ Once you have downloaded the relevant files, you can go on to the next step.
 
 === Installing Wireshark under Windows
 
-Windows installers contain the platform and version, e.g.
-Wireshark-win__xx__-wireshark-major-minor-version:[]._x_.exe. The Wireshark
-installer includes WinPcap which is required for packet capture.
+Windows installer names contain the platform and version. For example,
+Wireshark-win64-{wireshark-version}.exe installs Wireshark {wireshark-version}
+for 64-bit Windows. The Wireshark installer includes WinPcap which is required
+for packet capture.
 
 Simply download the Wireshark installer from: wireshark-download-page:[] and
 execute it. Official packages are signed by the *Wireshark Foundation*. You can
@@ -90,44 +91,44 @@ On the _Choose Components_ page of the installer you can select from the followi
 * *Plugins &amp; Extensions* - Extras for the Wireshark and TShark dissection engines
 
   - *Dissector Plugins* - Plugins with some extended dissections.
-  
-  - *Tree Statistics Plugins* - Extended statistics. 
 
-  - *Mate - Meta Analysis and Tracing Engine* - User configurable extension(s) of the display filter engine, see wireshark-wiki-site:[]Mate for details. 
+  - *Tree Statistics Plugins* - Extended statistics.
 
-  - *SNMP MIBs* - SNMP MIBs for a more detailed SNMP dissection. 
+  - *Mate - Meta Analysis and Tracing Engine* - User configurable extension(s) of the display filter engine, see wireshark-wiki-site:[]Mate for details.
+
+  - *SNMP MIBs* - SNMP MIBs for a more detailed SNMP dissection.
 
 * *Tools* - Additional command line tools to work with capture files
 
   - *Editcap* - Reads a capture file and writes some or all of the packets into
-    another capture file. 
+    another capture file.
 
   - *Text2Pcap* - Reads in an ASCII hex dump and writes the data into a
-    pcap capture file. 
+    pcap capture file.
 
-  - *Reordercap* - Reorders a capture file by timestamp. 
+  - *Reordercap* - Reorders a capture file by timestamp.
 
-  - *Mergecap* - Combines multiple saved capture files into a single output file. 
+  - *Mergecap* - Combines multiple saved capture files into a single output file.
 
-  - *Capinfos* - Provides information on capture files. 
+  - *Capinfos* - Provides information on capture files.
 
-  - *Rawshark* - Raw packet filter. 
+  - *Rawshark* - Raw packet filter.
 
 * *User's Guide* - Local installation of the User's Guide. The Help buttons on
   most dialogs will require an internet connection to show help pages if the
-  User's Guide is not installed locally. 
+  User's Guide is not installed locally.
 
 [[ChBuildInstallWinAdditionalTasks]]
 
 ==== Additional Tasks
- 
-* *Start Menu Shortcuts* - Add some start menu shortcuts. 
 
-* *Desktop Icon* - Add a Wireshark icon to the desktop. 
+* *Start Menu Shortcuts* - Add some start menu shortcuts.
 
-* *Quick Launch Icon* - add a Wireshark icon to the Explorer quick launch toolbar. 
+* *Desktop Icon* - Add a Wireshark icon to the desktop.
 
-* *Associate file extensions to Wireshark* - Associate standard network trace files to Wireshark.  
+* *Quick Launch Icon* - add a Wireshark icon to the Explorer quick launch toolbar.
+
+* *Associate file extensions to Wireshark* - Associate standard network trace files to Wireshark.
 
 [[ChBuildInstallWinLocation]]
 
@@ -141,7 +142,7 @@ Files\Wireshark` on most systems.
 
 ==== Installing WinPcap
 
-The Wireshark installer contains the latest WinPcap installer. 
+The Wireshark installer contains the latest WinPcap installer.
 
 If you don't have WinPcap installed you won't be able to capture live network
 traffic but you will still be able to open saved capture files. By default the
@@ -151,36 +152,36 @@ you wish to reinstall WinPcap you can check the _Install WinPcap_ box as needed.
 For more information about WinPcap see winpcap-web-site:[] and
 wireshark-wiki-site:[]WinPcap.
 
- 
+
 [[ChBuildInstallWinWiresharkCommandLine]]
 
 ==== Windows installer command line options
 
-For special cases, there are some command line parameters available: 
+For special cases, there are some command line parameters available:
 
 * `/S` runs the installer or uninstaller silently with default values. The
   silent installer *will not* install WinPCap.
-    
+
 * `/desktopicon` installation of the desktop icon, `=yes` - force installation,
   `=no` - don't install, otherwise use default settings. This option can be
-  useful for a silent installer. 
-    
+  useful for a silent installer.
+
 * `/quicklaunchicon` installation of the quick launch icon, `=yes` - force
-  installation, `=no` - don't install, otherwise use default settings. 
-    
+  installation, `=no` - don't install, otherwise use default settings.
+
 * `/D` sets the default installation directory ($INSTDIR), overriding InstallDir
   and InstallDirRegKey. It must be the last parameter used in the command line
-  and must not contain any quotes even if the path contains spaces. 
+  and must not contain any quotes even if the path contains spaces.
 
 * `/NCRC` disables the CRC check. We recommend against using this flag.
 
-Example: 
+Example:
 ----
 > Wireshark-win64-wireshark-2.0.5.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\Program Files\Foo
 ----
 
 Running the installer without any parameters shows the normal interactive installer.
- 
+
 [[ChBuildInstallWinPcapManually]]
 
 ==== Manual WinPcap Installation
@@ -188,7 +189,7 @@ Running the installer without any parameters shows the normal interactive instal
 As mentioned above, the Wireshark installer takes care of installing WinPcap.
 The following is only necessary if you want to use a different version than the
 one included in the Wireshark installer, e.g. because a new WinPcap version was
-released. 
+released.
 
 Additional WinPcap versions (including newer alpha or beta releases) can be
 downloaded from the main WinPcap site: winpcap-web-site:[]. The _Installer for
@@ -207,7 +208,7 @@ details on subscribing to this list.
 New versions of Wireshark are usually released every four to six weeks. Updating
 Wireshark is done the same way as installing it. Simply download and start the
 installer exe. A reboot is usually not required and all your personal settings
-remain unchanged. 
+remain unchanged.
 
 [[ChBuildInstallWinPcapUpdate]]
 
@@ -215,7 +216,7 @@ remain unchanged.
 
 New versions of WinPcap are less frequently available. You will find WinPcap
 update instructions the WinPcap web site at winpcap-web-site:[]. You may have to
-reboot your machine after installing a new WinPcap version. 
+reboot your machine after installing a new WinPcap version.
 
 [[ChBuildInstallWinUninstall]]
 
@@ -226,7 +227,7 @@ Select the "Wireshark" entry to start the uninstallation procedure.
 
 The Wireshark uninstaller provides several options for removal. The default is
 to remove the core components but keep your personal settings and WinPcap.
-WinPcap is left installed by default in case other programs need it. 
+WinPcap is left installed by default in case other programs need it.
 
 [[ChBuildInstallWinPcapUninstall]]
 
@@ -234,7 +235,7 @@ WinPcap is left installed by default in case other programs need it.
 
 You can uninstall WinPcap independently of Wireshark using the _WinPcap_ entry
 in the _Programs and Features_ control panel. Remember that if you uninstall
-WinPcap you won't be able to capture anything with Wireshark. 
+WinPcap you won't be able to capture anything with Wireshark.
 
 //
 // OS X
@@ -260,54 +261,54 @@ Building Wireshark requires the proper build environment including a compiler
 and many supporting libraries. See the Developer's Guide at
 wireshark-developers-guide-url:[] for more information.
 
-Use the following general steps to build Wireshark from source under UNIX or Linux: 
+Use the following general steps to build Wireshark from source under UNIX or Linux:
 
 . Unpack the source from its compressed `tar` file. If you are using Linux or
-  your version of UNIX uses GNU `tar` you can use the following command: 
+  your version of UNIX uses GNU `tar` you can use the following command:
 +
 --
 ----
 $ tar xaf wireshark-2.0.5.tar.bz2
 ----
-In other cases you will have to use the following commands: 
+In other cases you will have to use the following commands:
 ----
 $ bzip2 -d wireshark-2.0.5.tar.bz2
 $ tar xf wireshark-2.0.5.tar
-----    
+----
 --
 
-. Change directory to the Wireshark source directory. 
+. Change directory to the Wireshark source directory.
 +
 ----
 $ cd wireshark-2.0.5
 ----
 
 . Configure your source so it will build correctly for your version of UNIX. You
-  can do this with the following command: 
+  can do this with the following command:
 +
 ----
 $ ./configure
 ----
 +
 If this step fails you will have to rectify the problems and rerun `configure`.
-Troubleshooting hints are provided in <<ChBuildInstallUnixTrouble>>. 
+Troubleshooting hints are provided in <<ChBuildInstallUnixTrouble>>.
 
-. Build the sources. 
+. Build the sources.
 +
 ----
 $ make
 ----
-   
+
 . Install the software in its final destination.
 +
 ----
-$ make install    
+$ make install
 ----
 
 // XXX To do: CMake
 
 Once you have installed Wireshark with _make install_ above, you should be able
-to run it by entering `wireshark`. 
+to run it by entering `wireshark`.
 
 [[ChBuildInstallUnixInstallBins]]
 
@@ -316,7 +317,7 @@ to run it by entering `wireshark`.
 In general installing the binary under your version of UNIX will be specific to
 the installation methods used with your version of UNIX. For example, under AIX,
 you would use _smit_ to install the Wireshark binary package, while under Tru64
-UNIX (formerly Digital UNIX) you would use _setld_. 
+UNIX (formerly Digital UNIX) you would use _setld_.
 
 ==== Installing from RPM's under Red Hat and alike
 
@@ -348,25 +349,25 @@ rpm -ivh wireshark-2.0.0-1.x86_64.rpm wireshark-qt-2.0.0-1.x86_64.rpm
 ----
 
 If the above command fails because of missing dependencies, install the
-dependencies first, and then retry the step above. 
+dependencies first, and then retry the step above.
 
 ==== Installing from deb's under Debian, Ubuntu and other Debian derivatives
 
 If you can just install from the repository then use
 
 ----
-$ aptitude install wireshark 
+$ aptitude install wireshark
 ----
 
-Aptitude should take care of all of the dependency issues for you. 
+Aptitude should take care of all of the dependency issues for you.
 
-Use the following command to install downloaded Wireshark deb's under Debian: 
+Use the following command to install downloaded Wireshark deb's under Debian:
 
 ----
 $ dpkg -i wireshark-common_2.0.5.0-1_i386.deb wireshark_wireshark-2.0.5.0-1_i386.deb
 ----
 
-dpkg doesn't take care of all dependencies, but reports what's missing. 
+dpkg doesn't take care of all dependencies, but reports what's missing.
 
 
 [NOTE]
@@ -375,13 +376,13 @@ dpkg doesn't take care of all dependencies, but reports what's missing.
 By installing Wireshark packages non-root users won't gain rights automatically
 to capture packets. To allow non-root users to capture packets follow the
 procedure described in
-file:///usr/share/doc/wireshark-common/README.Debian[/usr/share/doc/wireshark-common/README.Debian] 
+file:///usr/share/doc/wireshark-common/README.Debian[/usr/share/doc/wireshark-common/README.Debian]
 ====
 
 ==== Installing from portage under Gentoo Linux
 
 Use the following command to install Wireshark under Gentoo Linux with all of
-the extra features: 
+the extra features:
 
 ----
 $ USE="c-ares gtk ipv6 portaudio snmp ssl kerberos threads selinux" emerge wireshark
@@ -389,13 +390,13 @@ $ USE="c-ares gtk ipv6 portaudio snmp ssl kerberos threads selinux" emerge wires
 
 ==== Installing from packages under FreeBSD
 
-Use the following command to install Wireshark under FreeBSD: 
+Use the following command to install Wireshark under FreeBSD:
 
 ----
 $ pkg_add -r wireshark
 ----
 
-pkg_add should take care of all of the dependency issues for you. 
+pkg_add should take care of all of the dependency issues for you.
 
 [[ChBuildInstallUnixTrouble]]
 
@@ -417,7 +418,7 @@ the required include files) on your system.
 If you cannot determine what the problems are, send an email to the
 _wireshark-dev_ mailing list explaining your problem. Include the output from
 `config.log` and anything else you think is relevant such as a trace of the
-`make` stage. 
+`make` stage.
 
 [[ChBuildInstallWinBuild]]
 
@@ -429,11 +430,11 @@ want to start developing Wireshark on the Windows platform.
 For further information how to build Wireshark for Windows from the sources
 see the Developer's Guide at wireshark-developers-guide-url:[]
 
-You may also want to have a look at the Development Wiki 
+You may also want to have a look at the Development Wiki
 (wireshark-wiki-site:[]Development) for the latest available development
-documentation. 
+documentation.
 
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSUG Chapter 2 -->
 ++++++++++++++++++++++++++++++++++++++
-    
+

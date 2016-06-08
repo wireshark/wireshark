@@ -1,4 +1,4 @@
-= Wireshark wireshark-version:[] Release Notes
+= Wireshark {wireshark-version} Release Notes
 // AsciiDoc quick reference: http://powerman.name/doc/asciidoc
 
 This is a semi-experimental release intended to test new features for Wireshark 2.2.
@@ -19,12 +19,13 @@ used for troubleshooting, analysis, development and education.
 //* cve-idlink:2014-2486[]
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
 
-_Non-empty section placeholder._
+//_Non-empty section placeholder._
 
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
 since version 2.0.0:
+
 * You can now switch between between Capture and File Format dissection of
 the current capture file via the View menu in the Qt GUI.
 * You can now show selected packet bytes as ASCII, HTML, Image, ISO 8859-1, Raw, UTF-8,
@@ -55,13 +56,13 @@ Open File dialog.
 
 New files that Wireshark can open in this mode include:
 
-_Non-empty section placeholder._
+//_Non-empty section placeholder._
 --sort-and-group--
 --sort-and-group--
 
 === New Protocol Support
 
-// Items in --sort-and-group-- blocks will be sorted and comma-separated.
+// Add one protocol per line between the --sort-and-group-- delimiters.
 --sort-and-group--
 CISCO ERSPAN3 Marker
 Nokia Intelligent Service Interface (ISI)
@@ -94,11 +95,12 @@ DecodeAs it over USB, TCP and UDP.
 A preference was added to TCP dissector for handling IPFIX process
 information.  It has been disabled by default.
 
-Too many protocols have been updated to list here.
+//Too many protocols have been updated to list here.
 
 === New and Updated Capture File Support
 
 //_Non-empty section placeholder._
+// Add one file type per line between the --sort-and-group-- delimiters.
 --sort-and-group--
 Micropross mplog
 --sort-and-group--
