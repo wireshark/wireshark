@@ -680,8 +680,6 @@ EXTRA_DIST = \
 	INSTALL.configure	\
 	Makefile.am.inc		\
 	Makefile.common		\
-	Makefile.nmake		\
-	Makefile.nmake.inc	\
 	README.aix		\
 	README.bsd		\
 	README.DECT		\
@@ -695,8 +693,6 @@ EXTRA_DIST = \
 	autogen.sh		\
 	cfilters		\
 	colorfilters		\
-	config.h.win32		\
-	config.nmake		\
 	debian			\
 	dfilters		\
 	doxygen_global.cfg	\

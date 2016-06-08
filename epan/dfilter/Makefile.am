@@ -70,7 +70,6 @@ EXTRA_DIST = \
 	.editorconfig		\
 	$(GENERATOR_FILES)	\
 	Makefile.common		\
-	Makefile.nmake		\
 	CMakeLists.txt
 
 scanner_lex.h : scanner.c

@@ -29,11 +29,7 @@ isEqual(QT_MAJOR_VERSION, 4) {
     QT += core widgets printsupport multimedia
 }
 
-isEqual(QT_MAJOR_VERSION, 5): greaterThan(QT_MINOR_VERSION, 1): win32 {
-    QT += winextras
-}
-
-win32|macx {
+macx {
     TARGET = Wireshark
 } else {
     TARGET = wireshark
@@ -62,8 +58,6 @@ xxx {
 isEmpty (QMAKE_EXTENSION_SHLIB) {
     macx {
         QMAKE_EXTENSION_SHLIB=".dylib"
-    } else: win32 {
-        QMAKE_EXTENSION_SHLIB=".dll"
     } else { # Everyone else runs Linux or Solaris, right?
         QMAKE_EXTENSION_SHLIB=".so"
     }
@@ -111,55 +105,6 @@ unix {
     }
 }
 
-win32 {
-    # Note:
-    # Windows Wireshark is compiled with /MD and thus must
-    #  be linked with the "release" versions of the Qt libraries
-    #  which are also compiled with /MD.
-    #
-    # Also: Windows Wireshark is compiled with /Zi and linked with /DEBUG
-    #  which enables source level Wireshark debugging using the
-    #  Windows Visual Studio debugger.
-    #  So: QMAKE_CFLAGS, QMAKE_CXXFLAGS and QMAKE_LFLAGS are set to match
-    #  those used building Windows Wireshark. (See config.pri).
-    #  Among other things source-level debugging of the Qt version of Wireshark
-    # (including the ui/qt source) is thus enabled.
-    #
-    #  Note that in this case source level debugging of the Qt
-    #  *libraries* will not be possible since the Qt release libs are
-    #  not compiled with /Zi (and not linked with /DEBUG).
-    #  The Qt "debug" libraries are compiled with /MDd. To build a
-    #  Wireshark-Qt debug version with the ability to do source level debugging
-    #  of the Qt libraries themselves requires that Wireshark first be built with /MDd.
-    #  Presumably doing source-level Qt library debugging shoyuld rarely be needed.
-
-    # We want to build only the Wireshark linked with the Qt "release" libraries
-    #  so disable debug & etc.
-##    CONFIG -= release
-    CONFIG -= debug
-    CONFIG -= debug_and_release
-
-    # Use only Wireshark CFLAGS, CXXFLAGS and LDFLAGS from config.nmake (as provided via config.pri)
-    #  for building the "release" version of Wireshark-Qt
-    # (e.g., so we don't get the Qt release CFLAGS [specifically /O2]
-    QMAKE_CFLAGS_RELEASE   = ""
-    QMAKE_CXXFLAGS_RELEASE = ""
-    QMAKE_LFLAGS_RELEASE   = ""
-
-    # XXX We need to figure out how to pull this in from config.nmake.
-    !include( config.pri ) {
-        error("Can't find config.pri. Have you run 'nmake -f Makefile.nmake' two directories up?")
-    }
-
-    !wireshark_manifest_info_required {
-        CONFIG -= embed_manifest_dll
-        CONFIG -= embed_manifest_exe
-    }
-
-    # Use xcopy instead of copy so as to ensure that newer version of files are copied
-    QMAKE_COPY_FILE = xcopy /d /y
-}
-
 SOURCES_TAP = \
     "stats_tree_dialog.cpp"
 
@@ -167,23 +112,11 @@ tap_register.name = Generate wireshark-tap-register.c
 tap_register.input = SOURCES_TAP
 tap_register.output = wireshark-tap-register.c
 tap_register.variable_out = SOURCES
-win32 {
-    tap_register.commands = $${PYTHON} "../../tools/make-tap-reg.py" "\"""$$PWD""\"" taps $$SOURCES_TAP
-} else {
-    tap_register.commands = python ../../tools/make-tap-reg.py "\"""$$PWD""\"" taps $$SOURCES_TAP
-}
+tap_register.commands = python ../../tools/make-tap-reg.py "\"""$$PWD""\"" taps $$SOURCES_TAP
 #tap_register.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += tap_register
 
 INCLUDEPATH += ../..
-win32:INCLUDEPATH += \
-    $${WIRESHARK_LIB_DIR}/gtk2/include/glib-2.0 $${WIRESHARK_LIB_DIR}/gtk2/lib/glib-2.0/include \
-    $${WIRESHARK_LIB_DIR}/gtk3/include/glib-2.0 $${WIRESHARK_LIB_DIR}/gtk3/lib/glib-2.0/include \
-    $${WIRESHARK_LIB_DIR}/WpdPack/Include \
-    $${WIRESHARK_LIB_DIR}/AirPcap_Devpack_4_1_0_1622/Airpcap_Devpack/include \
-    $${GNUTLS_DIR}/include \
-    $${GEOIP_DIR}/include \
-    $${ZLIB_DIR}
 
 # We have to manually trigger relinking each time one of these is modified.
 # Is there any way to do this automatically?
@@ -200,10 +133,6 @@ SOURCES_WS_C = \
     ../../summary.c \
     ../../sync_pipe_write.c \
     ../../ws_version_info.c
-
-win32:SOURCES_WS_C += \
-    ../../ui/win32/console_win32.c \
-    ../../ui/win32/file_dlg_win32.c
 
 HEADERS_WS_C  = \
     ../../wsutil/privileges.h
@@ -388,15 +317,8 @@ HEADERS += $$HEADERS_WS_C \
     wireless_frame.h \
     wlan_statistics_dialog.h
 
-win32 {
-    OBJECTS_WS_C = $$SOURCES_WS_C
-    OBJECTS_WS_C ~= s/[.]c/.obj/g
-    OBJECTS_WS_C ~= s,/,\\,g
-    OBJECTS_WS_C += ../../image/file_dlg_win32.res
-} else {
 ## XXX: Shouldn't need to (re)compile WS_C sources ??
-    SOURCES += $$SOURCES_WS_C
-}
+SOURCES += $$SOURCES_WS_C
 
 DEFINES += REENTRANT
 unix:DEFINES += _U_=\"__attribute__((unused))\"
@@ -481,106 +403,6 @@ macx {
     QMAKE_POST_LINK += $$quote(chmod 444 \"$${FRAMEWORKS_DIR}/\"*.dylib$$escape_expand(\\n\\t))
 }
 
-win32 {
-    DEFINES+=HAVE_PCAP_REMOTE
-    DEFINES+=HAVE_PCAP_SETSAMPLING
-    # Add the wireshark objects to LIBS
-    LIBS += $$OBJECTS_WS_C
-    LIBS += $$PA_OBJECTS
-    LIBS += \
-        $${guilibsdll} $${HHC_LIBS} \
-        -L../../epan -llibwireshark -L../../wsutil -llibwsutil \
-        -L../../wiretap -lwiretap-$${WTAP_VERSION} \
-        -L../../capchild -llibcapchild -L../../caputils -llibcaputils \
-        -L.. -llibui -L../../codecs -llibwscodecs \
-        -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0 \
-        -L$${ZLIB_DIR}/lib -lzdll \
-        -L$${WINSPARKLE_DIR} -lWinSparkle
-
-    !isEmpty(MSVCR_DLL) {
-        EXTRA_BINFILES += \"$${MSVCR_DLL}\"
-    }
-
-    PLATFORM_DLL_DIR = $(DESTDIR)platforms
-    CONFIG(debug, debug|release) {
-        isEqual(QT_MAJOR_VERSION, 4) {
-            EXTRA_DLLS = QtCored4 QtGuid4
-        } else: lessThan(QT_MINOR_VERSION, 3) {
-            # The QT lib parts are copied by windeployqt post 5.3
-            EXTRA_DLLS = Qt5Cored Qt5Guid Qt5Widgetsd Qt5PrintSupportd Qt5Multimediad
-            EXTRA_PLATFORM_DLLS = qwindowsd
-            QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${PLATFORM_DLL_DIR} $(MKDIR) $${PLATFORM_DLL_DIR}$$escape_expand(\\n\\t))
-        }
-    }
-    CONFIG(release, debug|release) {
-        isEqual(QT_MAJOR_VERSION, 4) {
-            EXTRA_DLLS = QtCore4 QtGui4
-        } else: lessThan(QT_MINOR_VERSION, 3) {
-            # The QT lib parts are copied by windeployqt post 5.3
-            EXTRA_DLLS = Qt5Core Qt5Gui Qt5Widgets Qt5PrintSupport Qt5Multimedia
-            EXTRA_PLATFORM_DLLS = qwindows
-            QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${PLATFORM_DLL_DIR} $(MKDIR) $${PLATFORM_DLL_DIR}$$escape_expand(\\n\\t))
-        }
-    }
-    for(DLL,EXTRA_DLLS){
-        EXTRA_BINFILES += $$[QT_INSTALL_BINS]/$${DLL}.dll
-    }
-    INSTALL_PLATFORM_DIR = $$[QT_INSTALL_PLUGINS]/platforms
-    INSTALL_PLATFORM_DIR ~= s,/,\\,g
-    for(DLL,EXTRA_PLATFORM_DLLS){
-        QMAKE_POST_LINK +=$$quote($(COPY_FILE) $${INSTALL_PLATFORM_DIR}\\$${DLL}.dll $${PLATFORM_DLL_DIR}$$escape_expand(\\n\\t))
-        EXTRA_BINFILES +=
-    }
-
-    EXTRA_BINFILES += \
-        ../../dumpcap.exe \
-        ../../epan/libwireshark.dll ../../wiretap/wiretap-$${WTAP_VERSION}.dll \
-        ../../wsutil/libwsutil.dll ../../codecs/libwscodecs.dll \
-        $${GLIB_DIR}/bin/libglib-2.0-0.dll $${GLIB_DIR}/bin/libgmodule-2.0-0.dll \
-        $${GLIB_DIR}/bin/$${INTL_DLL} \
-        $${GLIB_DIR}/bin/gspawn-$${WIRESHARK_TARGET_PLATFORM}-helper.exe \
-        $${GLIB_DIR}/bin/gspawn-$${WIRESHARK_TARGET_PLATFORM}-helper-console.exe \
-        $${C_ARES_DIR}/bin/libcares-2.dll $${ZLIB_DIR}/zlib1.dll \
-        $${GNUTLS_DIR}/bin/libffi-6.dll $${GNUTLS_DIR}/bin/$${GCC_DLL} \
-        $${GNUTLS_DIR}/bin/libgcrypt-20.dll $${GNUTLS_DIR}/bin/libgmp-10.dll \
-        $${GNUTLS_DIR}/bin/libgnutls-28.dll $${GNUTLS_DIR}/bin/$${GPGERROR_DLL} \
-        $${GNUTLS_DIR}/bin/libhogweed-2-4.dll $${GNUTLS_DIR}/bin/libnettle-4-6.dll \
-        $${GNUTLS_DIR}/bin/libp11-kit-0.dll $${GNUTLS_DIR}/bin/libtasn1-6.dll \
-        $${GNUTLS_DIR}/bin/libintl-8.dll $${SMI_DIR}/bin/libsmi-2.dll \
-        $${LUA_DIR}/lua52.dll \
-        $${GEOIP_DIR}/bin/libGeoIP-1.dll \
-        $${LIBSSH_DIR}/bin/libssh.dll \
-        $${WINSPARKLE_DIR}/WinSparkle.dll \
-        ../../colorfilters ../../dfilters ../../cfilters
-
-    wireshark_use_kfw {
-        EXTRA_BINFILES += \
-            $${KFW_DIR}/bin/$${COMERR_DLL} $${KFW_DIR}/bin/$${KRB5_DLL} $${KFW_DIR}/bin/$${K5SPRT_DLL}
-    }
-
-    EXTRA_BINFILES ~= s,/,\\,g
-    for(FILE,EXTRA_BINFILES){
-        QMAKE_POST_LINK +=$$quote($(COPY_FILE) $${FILE} $(DESTDIR)$$escape_expand(\\n\\t))
-    }
-    PLUGINS_DIR = $(DESTDIR)plugins
-    QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${PLUGINS_DIR} $(MKDIR) $${PLUGINS_DIR}$$escape_expand(\\n\\t))
-    QMAKE_POST_LINK +=$$quote($(COPY_FILE) ..\\..\\$${INSTALL_DIR}\\plugins\\*.dll $(DESTDIR)plugins$$escape_expand(\\n\\t))
-
-    # This doesn't depend on wireshark-gtk2. It also doesn't work.
-    #PLUGINS_IN_PWD=$${IN_PWD}
-    #PLUGINS_OUT_PWD=$${OUT_PWD}
-    #QMAKE_POST_LINK +=$$quote(cd $$replace(PLUGINS_IN_PWD, /, \\)\\..\\..\\plugins$$escape_expand(\\n\\t))
-    #QMAKE_POST_LINK +=$$quote(nmake -f Makefile.nmake INSTALL_DIR=$$replace(PLUGINS_OUT_PWD, /, \\)\\$(DESTDIR)$$escape_expand(\\n\\t))
-    #QMAKE_POST_LINK +=$$quote(cd $$replace(PLUGINS_IN_PWD, /, \\)$$escape_expand(\\n\\t))
-
-    # Use windeployqt to copy the required QT libs.
-    # Currently the QT bin dir has to be on the path for windeployqt to work
-    isEqual(QT_MAJOR_VERSION, 5):greaterThan(QT_MINOR_VERSION, 2) {
-      QMAKE_POST_LINK +=$$quote(set PATH=%PATH%;$${QT5_BASE_DIR}\\bin$$escape_expand(\\n\\t))
-      QMAKE_POST_LINK +=$$quote(windeployqt --release --no-compiler-runtime --verbose 10 $(DESTDIR)wireshark.exe)$$escape_expand(\\n\\t))
-    }
-}
-
 RESOURCES += \
     ../../image/about.qrc \
     ../../image/languages/languages.qrc \
@@ -609,8 +431,7 @@ RC_FILE = ../../image/wireshark.rc
 !isEmpty(TRANSLATIONS) {
 
     isEmpty(QMAKE_LRELEASE) {
-        win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\\lrelease.exe
-        else:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
+        QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
     }
 
     isEmpty(TS_DIR):TS_DIR = Translations
@@ -625,8 +446,6 @@ RC_FILE = ../../image/wireshark.rc
 } else {
     message(No translation files in project)
 }
-
-win32: QMAKE_CLEAN += *.pdb *.pri
 
 HEADERS += \
     byte_view_tab.h \

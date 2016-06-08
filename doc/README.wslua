@@ -44,11 +44,10 @@ Lua tables. (you can do so, but it's not advisable)
 Both of the perl scripts above are given the C-source files to search through
 by the make process, generated from the lists in epan/wslua/CMakeLists.txt.
 Naturally if you add new source files, you need to add them to the list in
-epan/wslua/CMakeLists.txt, as well as epan/wslua/Makefile.am and
-epan/wslua/Makefile.nmake. You also have to add the module name into
-docbook/user-guide.xml and docbook/wsluarm.xml, and the source files into
-docbook/CMakeLists.txt and docbook/Makefile.common, to get it to be generated
-in the user guide.
+epan/wslua/CMakeLists.txt and epan/wslua/Makefile.am. You also have to add
+the module name into docbook/user-guide.xml and docbook/wsluarm.xml, and the
+source files into docbook/CMakeLists.txt and docbook/Makefile.common, to get
+it to be generated in the user guide.
 
 Another Perl script is used as well, called 'make-init-lua.pl', which
 generates the init.lua script.  A large part of it deals with exposing #define

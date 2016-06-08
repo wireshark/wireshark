@@ -39,7 +39,6 @@ libftypes_la_SOURCES = $(NONGENERATED_C_FILES) $(NONGENERATED_HEADER_FILES)
 EXTRA_DIST = \
 	.editorconfig		\
 	Makefile.common		\
-	Makefile.nmake		\
 	CMakeLists.txt
 
 checkapi:

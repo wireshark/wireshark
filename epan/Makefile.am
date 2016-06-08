@@ -85,7 +85,6 @@ EXTRA_DIST = \
 	dtd_preparse.l		\
 	enterprise-numbers	\
 	Makefile.common		\
-	Makefile.nmake		\
 	radius_dict.l		\
 	uat_load.l		\
 	doxygen.cfg.in		\

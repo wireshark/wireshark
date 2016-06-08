@@ -37,7 +37,6 @@ EXTRA_DIST = \
 	V2P.pl			\
 	TPG.pm			\
 	tpg.pl			\
-	Makefile.nmake		\
 	README
 
 TPG.pm: tpg.yp

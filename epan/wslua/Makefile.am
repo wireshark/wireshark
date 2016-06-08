@@ -109,7 +109,6 @@ EXTRA_DIST = \
 	template-init.lua	\
 	make-init-lua.pl	\
 	make-taps.pl		\
-	Makefile.nmake		\
 	CMakeLists.txt
 
 taps_used = \

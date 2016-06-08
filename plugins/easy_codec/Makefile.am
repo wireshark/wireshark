@@ -25,8 +25,6 @@ EXTRA_DIST = \
 	$(NONGENERATED_C_FILES)	\
 	$(CLEAN_HEADER_FILES)	\
 	Makefile.common		\
-	Makefile.nmake		\
-	moduleinfo.nmake	\
 	plugin.rc.in		\
 	ReadMe.txt
 

@@ -38,7 +38,7 @@
 #   pkg_format   - Like "format", but used for the local package version.
 #
 # If run with the "-r" or "--set-release" argument the AC_INIT macro in
-# configure.ac and the VERSION macro in config.nmake will have the
+# configure.ac and the VERSION macro in CMakeLists.txt will have the
 # pkg_format template appended to the version number. version.h will
 # _not_ be generated if either argument is present.
 #
@@ -255,20 +255,6 @@ sub read_repo_info {
 		unlink($tortoise_file);
 	}
 
-	if ($num_commits == 0) {
-		# Fall back to config.nmake
-		$info_source = "Prodding config.nmake";
-		my $filepath = "$srcdir/config.nmake";
-		open(CFGNMAKE, "< $filepath") || die "Can't read $filepath!";
-		while ($line = <CFGNMAKE>) {
-			if ($line =~ /^VCS_REVISION=(\d+)/) {
-				$num_commits = $1;
-				$do_hack = 0;
-				last;
-			}
-		}
-		close (CFGNMAKE);
-	}
 	if ($num_commits == 0 and -d "$srcdir/.git") {
 
 		# Try git...
@@ -461,41 +447,6 @@ sub update_configure_ac
 	print "$filepath has been updated.\n";
 }
 
-# Read config.nmake, then write it back out with an updated
-# "VERSION" line.
-sub update_config_nmake
-{
-	my $line;
-	my $contents = "";
-	my $version = "";
-	my $filepath = "$srcdir/config.nmake";
-	my $win_package_string = "\$(WIRESHARK_VERSION_EXTRA)";
-
-	if ($package_string ne "") { $win_package_string = $package_string; }
-
-
-	open(CFGNMAKE, "< $filepath") || die "Can't read $filepath!";
-	while ($line = <CFGNMAKE>) {
-		if ($line =~ /^VCS_REVISION=.*([\r\n]+)$/) {
-			$line = sprintf("VCS_REVISION=%d$1", $num_commits);
-		} elsif ($set_version && $line =~ /^VERSION_MAJOR=.*([\r\n]+)$/) {
-			$line = sprintf("VERSION_MAJOR=%d$1", $version_pref{"version_major"});
-		} elsif ($set_version && $line =~ /^VERSION_MINOR=.*([\r\n]+)$/) {
-			$line = sprintf("VERSION_MINOR=%d$1", $version_pref{"version_minor"});
-		} elsif ($set_version && $line =~ /^VERSION_MICRO=.*([\r\n]+)$/) {
-			$line = sprintf("VERSION_MICRO=%d$1", $version_pref{"version_micro"});
-		} elsif ($line =~ /^VERSION_EXTRA=.*([\r\n]+)$/) {
-			$line = "VERSION_EXTRA=$win_package_string$1";
-		}
-		$contents .= $line
-	}
-
-	open(CFGNMAKE, "> $filepath") || die "Can't write $filepath!";
-	print(CFGNMAKE $contents);
-	close(CFGNMAKE);
-	print "$filepath has been updated.\n";
-}
-
 # Read docbook/asciidoc.conf, then write it back out with an updated
 # wireshark-version replacement line.
 sub update_release_notes
@@ -626,7 +577,6 @@ sub update_versioned_files
                 $package_string;
 	&update_cmakelists_txt;
 	&update_configure_ac;
-	&update_config_nmake;
 	if ($set_version) {
 		&update_release_notes;
 		&update_debian_changelog;
@@ -795,15 +745,13 @@ make-version.pl [options] [source directory]
     --print-vcs                Print the vcs version to standard output
     --set-version, -v          Set the major, minor, and micro versions in
                                the top-level CMakeLists.txt, configure.ac,
-                               config.nmake, docbook/asciidoc.conf,
-                               debian/changelog, the Makefile.am for all
-                               libraries, and the CMakeLists.txt for all
-                               libraries.
+                               docbook/asciidoc.conf, debian/changelog,
+                               the Makefile.am for all libraries, and the
+                               CMakeLists.txt for all libraries.
                                Resets the release information when used by
                                itself.
     --set-release, -r          Set the release information in the top-level
-                               CMakeLists.txt, configure.ac, and
-                               config.nmake.
+                               CMakeLists.txt, configure.ac
     --package-version, -p      Deprecated. Same as --set-release.
     --verbose                  Print diagnostic messages to STDERR.
 

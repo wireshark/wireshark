@@ -15,8 +15,8 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-# Autotools, Make, Nmake
-[{Makefile.am,Makefile,Makefile.nmake,config.nmake}]
+# Autotools, Make
+[{Makefile.am,Makefile}]
 indent_style = tab
 indent_size = 8
 

@@ -40,8 +40,7 @@ EXTRA_DIST = \
 	$(GENERATOR_FILES)	\
 	CMakeLists.txt		\
 	doxygen.cfg.in		\
-	Makefile.common		\
-	Makefile.nmake
+	Makefile.common
 
 # All sources that should be put in the source distribution tarball
 libwritecap_a_SOURCES = \

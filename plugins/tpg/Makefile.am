@@ -54,7 +54,6 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST = \
 	http.tpg	\
-	Makefile.nmake	\
 	CMakeLists.txt
 
 TPG = $(top_builddir)/tools/tpg

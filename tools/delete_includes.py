@@ -41,7 +41,7 @@ if lastdir == 'tools':
 
 # Make command depends upon platform.
 if sys.platform.startswith('win'):
-    default_make_command = ['nmake', '-f', 'Makefile.nmake']
+    default_make_command = ['msbuild', '/m', '/p:Configuration=RelWithDebInfo', 'Wireshark.sln']
 else:
     default_make_command = ['make']
 

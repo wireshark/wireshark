@@ -44,7 +44,6 @@ libnghttp2_la_SOURCES =	\
 EXTRA_DIST = \
 	.editorconfig	\
 	Makefile.common	\
-	Makefile.nmake	\
 	README.nghttp2	\
 	CMakeLists.txt
 

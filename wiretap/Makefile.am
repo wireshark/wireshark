@@ -64,7 +64,6 @@ EXTRA_DIST = \
 	README.airmagnet	\
 	README.developer	\
 	Makefile.common		\
-	Makefile.nmake		\
 	CMakeLists.txt		\
 	$(GENERATOR_FILES) 	\
 	$(GENERATED_FILES)

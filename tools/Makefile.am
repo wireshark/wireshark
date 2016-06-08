@@ -59,7 +59,6 @@ EXTRA_DIST = \
 	install_rpms_for_devel.sh			\
 	lex.py						\
 	list_protos_in_cap.sh				\
-	Makefile.nmake					\
 	make-dissector-reg.py				\
 	make-manuf					\
 	make-sminmpec.pl				\
@@ -69,7 +68,6 @@ EXTRA_DIST = \
 	make-usb.py					\
 	make_charset_table.c				\
 	msnchat						\
-	native-nmake.cmd				\
 	ncp2222.py					\
 	netscreen2dump.py				\
 	npl						\
@@ -95,7 +93,6 @@ EXTRA_DIST = \
 	valgrind-wireshark.sh				\
 	vg-suppressions					\
 	win-setup.ps1					\
-	win-setup.sh					\
 	wireshark_be.py					\
 	wireshark_gen.py				\
 	WiresharkXML.py					\

@@ -6,7 +6,7 @@ This directory contains the source files needed to build the:
  - Lua Reference
 
 
-To build everything, just do 'make' (for Win32: 'nmake -f Makefile.nmake')
+To build everything, just do 'make' (for Win32: see README.cmake)
 but see the requirements below.
 
 The guides are written in Docbook/XML (formerly Docbook/SGML). The release
@@ -17,18 +17,6 @@ stylesheets, which provides a flexible way for these conversions.
 
 By default the Makefile generates HTML in single page and multiple (chunked)
 formats and two PDF's.
-
-Win32 only: The optional output format CHM has to be enabled by setting
-HHC_EXE in ..\config.nmake. Microsoft has dropped support for HTML Help
-
-
-Settings:
----------
-
-Win32 only: ..\config.nmake
----------------------------
-Settings moved to: ..\config.nmake.
-
 
 Requirements:
 -------------
@@ -59,8 +47,7 @@ http://xml.apache.org/fop/
 
 FOP is a Java program, so you need to have a Java environment installed.
 The makefiles look for fop-2.1 in the docbook directory. You can change
-this location by setting the FOP environment variable or by changing
-config.nmake.
+this location by setting the FOP environment variable.
 
 FOP might return an OutOfMemoryException. You can limit its memory usage
 by adding " -Xmx256m" to the FOP_OPTS environment variable. The Windows
@@ -126,7 +113,6 @@ http://www.microsoft.com/en-us/download/details.aspx?id=21138
 
 Packages for Win32
 ------------------
-See ..\config.nmake for Win32 settings.
 Installing the asciidoc package will pull in almost all the other required Cygwin packages.
 You may need to run "build-docbook-catalog" from a Cygwin bash prompt in order to register your catalog properly.
 
@@ -139,7 +125,7 @@ docbookx.dtd:       Text/docbook-xml42      M           a later version may be r
 docbookx.dtd:       Text/docbook-xml45      M           current asciidoc installations require this
 lynx:               Web/lynx                M
 dblatex             Text/dblatex            O           A number of dependencies will also be installed
-fop:                -                       O           URL: http://xml.apache.org/fop/ - install it into docbok\fop-1.x or wireshark_lib_dir\fop-1.x to use defaults from config.nmake
+fop:                -                       O           URL: http://xml.apache.org/fop/ - install it into docbok\fop-1.x or wireshark_lib_dir\fop-1.x
 hhc:                -                       O           URL: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp
 zip:                Archive/zip             O
 getopt:             Base/util-linux         O           Required to run "build-docbook-catalog"
@@ -207,7 +193,7 @@ fop:                fop                     O           See above
 
 
 
-Makefile / Makefile.nmake:
+Makefile:
 --------------------------
 There are several ways and tools to do these conversion, following is a short
 description of the way the makefile targets are doing things and which output
@@ -249,7 +235,6 @@ Using the prefix wsdg_ instead of wsug_ will build the same targets but for the
 Wireshark Developer's Guide.
 
 The makefile is written to be run with make on UNIX/Linux platforms.
-Win32 platforms have to use nmake -f Makefile.nmake
 
 
 Notes to authors

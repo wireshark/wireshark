@@ -41,7 +41,7 @@ TOOL_SEARCH_PATHS="
 
 check_dut() {
 	TEST_EXE=""
-	# WS_BIN_PATH must be checked first, otherwise when using Nmake
+	# WS_BIN_PATH must be checked first, otherwise
 	# we'll find a non-functional program in epan or epan/wmem.
 	for TEST_PATH in $TOOL_SEARCH_PATHS ; do
 		if [ -x "$TEST_PATH/$1" ]; then

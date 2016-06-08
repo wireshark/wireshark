@@ -43,7 +43,6 @@ libairpdcap_la_SOURCES =	\
 EXTRA_DIST = \
 	Custom.common \
 	Makefile.common	\
-	Makefile.nmake	\
 	CMakeLists.txt	\
 	CMakeListsCustom.txt.example
 

@@ -291,8 +291,7 @@ is encouraged to update their plugins as outlined below:
     o Add a new Makefile.common file with the lists of source files and
       headers.
 
-    o Change the Makefile.am and Makefile.nmake files to match those of
-      the DOCSIS plugin.
+    o Change the Makefile.am file to match the one of the DOCSIS plugin.
 
 
 6 How to plugin related interface options

@@ -326,8 +326,6 @@ endif		# HAVE_DOXYGEN
 
 #checkapi: checkapi-base checkapi-todo
 
-# XXX to be created
-#	Makefile.nmake
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
 	$(UI_FILES)			\

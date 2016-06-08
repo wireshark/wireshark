@@ -34,7 +34,6 @@ help_DATA = \
 
 EXTRA_DIST = \
 	$(help_DATA)		\
-	Makefile.nmake		\
 	$(srcdir)/faq.py	\
 	faq.txt
 

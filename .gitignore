@@ -259,7 +259,6 @@ packaging/nsis/config.nsh
 packaging/nsis/qt-dll-manifest.nsh
 packaging/portableapps/Files/
 packaging/portableapps/appinfo.ini
-packaging/portableapps/distribution.nmake
 packaging/rpm/SPECS/wireshark.spec
 packaging/svr4/checkinstall
 packaging/svr4/pkginfo

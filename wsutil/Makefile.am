@@ -87,7 +87,6 @@ EXTRA_DIST = \
 	cfutils.h	\
 	CMakeLists.txt	\
 	Makefile.common	\
-	Makefile.nmake	\
 	file_util.c	\
 	file_util.h	\
 	getopt_long.c	\

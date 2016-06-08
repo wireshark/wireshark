@@ -51,7 +51,6 @@ libwmem_la_SOURCES =	\
 
 EXTRA_DIST = \
 	Makefile.common	\
-	Makefile.nmake	\
 	CMakeLists.txt
 
 checkapi:

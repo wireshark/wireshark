@@ -30,8 +30,6 @@
 /* both .../plugins/m2m and .../plugins/wimax.  If either    */
 /* one needs to be modified, please be sure to copy the file */
 /* to the sister directory and check it in there also.       */
-/* This prevents having to generate a complicated            */
-/* Makefile.nmake in .../plugins/m2m.                        */
 /*************************************************************/
 
 #include "config.h"

@@ -213,7 +213,6 @@ EXTRA_DIST = \
 	dfilter2xml.pl		\
 	make-wsluarm.pl		\
 	README.txt		\
-	Makefile.nmake		\
 	CMakeLists.txt
 
 MAINTAINERCLEANFILES = \

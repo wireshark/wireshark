@@ -386,8 +386,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 	)
 	set_target_properties(wix_package_prep PROPERTIES FOLDER "Packaging")
 
-	# Dump the installer into ${CMAKE_CURRENT_SOURCE_DIR}/packaging/wix to match
-	# the NMake environment for now.
+	# Dump the installer into ${CMAKE_CURRENT_SOURCE_DIR}/packaging/wix
 	# Note that executables and DLLs *must* be built separately
 	add_custom_target(wix_package
 		COMMAND ${WIX_CANDLE_EXECUTABLE} ${WIX_CANDLE_DEFINES} ${WIX_SOURCE_FILES}

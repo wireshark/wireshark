@@ -48,8 +48,7 @@ elif registertype in ("dissectors", "dissectorsinfile"):
  * Do not modify this file. Changes will be overwritten.
  *
  * Generated automatically by the "register.c" target in
- * epan/dissectors/Makefile or Makefile.nmake using
- * %s
+ * epan/dissectors/Makefile using %s
  * and information in epan/dissectors/register-cache.pkl.
  *
  * You can force this file to be regenerated completely by deleting

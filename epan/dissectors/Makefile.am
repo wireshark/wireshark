@@ -51,7 +51,6 @@ EXTRA_DIST = \
 	.editorconfig		\
 	Custom.common		\
 	Makefile.common		\
-	Makefile.nmake		\
 	packet-ncp2222.inc	\
 	README.X11		\
 	x11-fields		\

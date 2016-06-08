@@ -290,7 +290,6 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 EXTRA_DIST =				\
-	Makefile.nmake			\
 	README.capture			\
 	README.design			\
 	README.developer		\

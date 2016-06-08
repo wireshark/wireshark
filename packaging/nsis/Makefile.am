@@ -6,13 +6,11 @@ EXTRA_DIST = \
 	CMakeLists.txt	\
 	common.nsh	\
 	config.nsh.in	\
-	Custom.nmake \
 	custom_diameter_xmls.txt \
 	custom_mibs.txt	\
 	custom_plugins.txt	\
 	custom_radius_dict.txt	\
 	GetWindowsVersion.nsh \
-	Makefile.nmake \
 	servicelib.nsh \
 	uninstall.nsi	\
 	VersionCompare.nsh \

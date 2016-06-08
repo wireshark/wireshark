@@ -21,5 +21,4 @@
 MAKE_CNF_EXPORT = $(MAKE) generate_export
 
 EXTRA_DIST_COMMON = \
-	CMakeLists.txt \
-	Makefile.nmake
+	CMakeLists.txt

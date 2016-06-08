@@ -62,7 +62,6 @@ noinst_HEADERS = \
 EXTRA_DIST = \
 	CMakeLists.txt			\
 	Makefile.common			\
-	Makefile.nmake			\
 	speex/README.txt
 
 CLEANFILES = \

@@ -49,11 +49,6 @@ There are several ways of building the Qt UI:
 
    Qt (--with-qt) is enabled by default.
 
-4) Qt Creator + Wireshark.pro:
-
-   Wireshark.pro (formerly QtShark.pro) was used to bootstrap the UI porting
-   effort. It is still used by Nmake but will likely be removed at some point.
-
 1.1 Prerequisites
 
 Before compiling you need the Qt SDK and Qt Creator.
@@ -79,7 +74,7 @@ select "Build Settings" and do the following:
 
 - In "Edit build configuration" make sure the "Release" build is selected.
   (The "Debug" build won't work unless Wireshark is recompiled to link with a "debug"
-   the "debug" C runtime library (using /MDd). See ui\qt\Wireshark.pro for details).
+   the "debug" C runtime library (using /MDd)).
 
 - Make sure "Qt version" matches your version of Visual Studio.
 - Make sure "Tool chain" matches your Visual C++ version.
@@ -96,19 +91,10 @@ XXX: (WMeier): I've not had too much satisfaction using the "native Windows debu
 
 1.1.2.2 Command Line
 
-- Setup environment:
-    c:\qt\4.8.0\bin\qtvars.bat [vsvars]     ;;; optional 'vsvars' to also setup VC env vars
-
 - [Create and] Switch to a working dir to be used for .obj files, etc for Wireshark-qt compilation
 
-- Use qmake to create Windows Makefile (based upon info in ui\qt\Wireshark.pro and config.pri)
-    qmake -o Makefile.nmake ..\..\ui\qt\QtShark.pro
-                                  ;; (Only needs to be run once;
-                                  ;; nmake -f Makefile.nmake  will redo qmake if any
-                                  ;; dependendencies (e.g., Wireshark.pro) change.
+- Use CMake to create Windows Makefile and compile (see README.cmake)
 
-- Compile & Build
-    nmake -f Makefile.nmake       ;; wireshark.exe + all DLL's will be in <working-dir>\wireshark-qt-debug
 - Run:
     <working-dir>\wireshark-qt-debug
 
@@ -116,7 +102,7 @@ XXX: (WMeier): I've not had too much satisfaction using the "native Windows debu
     Start Visual Studio;
     File ! Open ! Project/Solution  ! .../<working-dir>/wireshark-qt-debug/wireshark.exe
     (Using  Solution Explorer ! Properties ! Environment to
-     add PATH=C:\Qt\4.8.0\bin;%PATH% will pobably be required).
+     add PATH=C:\Qt\4.8.0\bin;%PATH% will probably be required).
     ... Debug in the usual manner
 
 

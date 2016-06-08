@@ -72,8 +72,6 @@ EXTRA_DIST = \
 	mate_grammar.lemon	\
 	mate_parser.l		\
 	Makefile.common		\
-	Makefile.nmake		\
-	moduleinfo.nmake	\
 	plugin.rc.in		\
 	CMakeLists.txt		\
 	examples/call.mate	\

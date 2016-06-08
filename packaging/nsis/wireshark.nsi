@@ -408,7 +408,7 @@ Delete "$INSTDIR\vcredist_${TARGET_MACHINE}.exe"
 !else
 !ifdef MSVCR_DLL
 ; msvcr*.dll (MSVC V7 or V7.1) - simply copy the dll file
-!echo "IF YOU GET AN ERROR HERE, check the MSVC_VARIANT setting in config.nmake: MSVC2005 vs. MSVC2005EE."
+!echo "IF YOU GET AN ERROR HERE, check the CMAKE_GENERATOR setting"
 File "${MSVCR_DLL}"
 !endif ; MSVCR_DLL
 !endif ; VCREDIST_EXE

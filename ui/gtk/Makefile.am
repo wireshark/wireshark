@@ -67,7 +67,6 @@ EXTRA_DIST = \
 	main_airpcap_toolbar.c		\
 	main_airpcap_toolbar.h		\
 	Makefile.common			\
-	Makefile.nmake			\
 	Makefile_custom.common		\
 	pixbuf-csource.c		\
 	pixbuf-csource.h

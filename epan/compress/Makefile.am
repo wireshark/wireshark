@@ -41,8 +41,7 @@ liblzxpress_la_SOURCES =	\
 	$(LIBLZXPRESS_INCLUDES)
 
 EXTRA_DIST = \
-	Makefile.common	\
-	Makefile.nmake
+	Makefile.common
 
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \

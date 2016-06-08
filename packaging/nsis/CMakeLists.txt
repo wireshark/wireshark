@@ -43,16 +43,6 @@ set(NSIS_FILES
 	PARENT_SCOPE
 )
 
-# Check for leftover NMake-generated files.
-foreach(_nsh_file all-manifest.nsh config.nsh gtk-dll-manifest.nsh qt-dll-manifest.nsh)
-	if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_nsh_file})
-		message(FATAL_ERROR
-			"Found ${CMAKE_CURRENT_SOURCE_DIR}/${_nsh_file}.\n"
-			"Please run nmake -f Makefile.nmake distclean in ${CMAKE_SOURCE_DIR}."
-		)
-	endif()
-endforeach()
-
 # Variables required for config.nsh
 set(PROGRAM_NAME ${CMAKE_PROJECT_NAME})
 file(TO_NATIVE_PATH "${CMAKE_SOURCE_DIR}" TOP_SRC_DIR)
@@ -83,7 +73,7 @@ set(PRODUCT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_
 set(WTAP_VERSION ${PROJECT_VERSION})
 
 # To do:
-# - Sync the various version names between CMake, NMake, and NSIS.
+# - Sync the various version names between CMake and NSIS.
 # - Set CMakeLists.txt version strings in make-version.pl
 # - Add a VERSION_EXTRA cmake option
 set (VERSION "${PROJECT_VERSION}")
@@ -218,8 +208,7 @@ macro( ADD_NSIS_PACKAGE_TARGET )
 	)
 	set_target_properties(nsis_package_prep PROPERTIES FOLDER "Packaging")
 
-	# Dump the installer into ${CMAKE_CURRENT_SOURCE_DIR}/packaging/nsis to match
-	# the NMake environment for now.
+	# Dump the installer into ${CMAKE_CURRENT_SOURCE_DIR}/packaging/nsis
 	# Note that executables and DLLs *must* be built separately
 	add_custom_target(nsis_package
 		COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_DEFINES}

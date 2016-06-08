@@ -76,5 +76,4 @@ checkapi:
 EXTRA_DIST = \
 	.editorconfig		\
 	$(GENERATOR_FILES)	\
-	Makefile.common			\
-	Makefile.nmake
+	Makefile.common

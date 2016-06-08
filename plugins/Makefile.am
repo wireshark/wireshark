@@ -40,10 +40,8 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 EXTRA_DIST = \
 	$(_CUSTOM_EXTRA_DIST_) \
 	Makefile.common.inc \
-	Makefile.nmake \
 	Custom.make.example \
-	Custom.m4.example \
-	Custom.nmake.example
+	Custom.m4.example
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

@@ -37,8 +37,7 @@
 #	but we don't distribute Lemon-generated files, as we distribute
 #	Lemon and can run it in the build process;
 #
-#	"make maintainer-clean" on UN*X and "nmake maintainer-clean" on
-#	Windows remove all generated files;
+#	"make maintainer-clean" on UN*X remove all generated files;
 #
 #	"make distclean" on UN*X removes Lemon-generated files, as they're
 #	not in the distribution, but not Flex-generated files, as they

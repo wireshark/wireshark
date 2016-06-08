@@ -1,11 +1,10 @@
 # Plugin convenience macros.
 
-# Set information similar to moduleinfo.nmake
+# Set information
 macro(SET_MODULE_INFO _plugin _ver_major _ver_minor _ver_micro _ver_extra)
 	# Create the Windows .rc file for the plugin.
 	# The values come from several files in the source, I can't see how to reuse them
 
-	# This info is from moduleinfo.nmake
 	set(PACKAGE ${_plugin})
 	set(MODULE_VERSION_MAJOR ${_ver_major})
 	set(MODULE_VERSION_MINOR ${_ver_minor})
@@ -17,7 +16,6 @@ macro(SET_MODULE_INFO _plugin _ver_major _ver_minor _ver_micro _ver_extra)
 	# This info is from Makefile.common
 	set(PLUGIN_NAME ${PACKAGE})
 
-	# This info is from config.nmake
 	set(MSVC_VARIANT "${CMAKE_GENERATOR}")
 
 	# The rc.in requires a plain VERSION variable
