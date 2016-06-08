@@ -694,36 +694,38 @@ print_stats(const gchar *filename, capture_info *cf_info)
 #endif /* HAVE_LIBGCRYPT */
   if (cap_order)          printf     ("Strict time order:   %s\n", order_string(cf_info->order));
 
-  if (cap_comment) {
-    GArray *opts;
-    unsigned int i;
+  if (cf_info->shb != NULL) {
+    if (cap_comment) {
+      GArray *opts;
+      unsigned int i;
 
-    wtap_optionblock_get_string_options(cf_info->shb, OPT_COMMENT, &opts);
-    for (i = 0; i < opts->len; i++) {
-      show_option_string("Capture comment:     ", g_array_index(opts, char *, i));
+      wtap_optionblock_get_string_options(cf_info->shb, OPT_COMMENT, &opts);
+      for (i = 0; i < opts->len; i++) {
+        show_option_string("Capture comment:     ", g_array_index(opts, char *, i));
+      }
+      g_array_free(opts, TRUE);
     }
-    g_array_free(opts, TRUE);
-  }
-  if (cap_file_more_info) {
-    char *str;
+    if (cap_file_more_info) {
+      char *str;
 
-    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_HARDWARE, &str);
-    show_option_string("Capture hardware:    ", str);
-    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_OS, &str);
-    show_option_string("Capture oper-sys:    ", str);
-    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_USERAPPL, &str);
-    show_option_string("Capture application: ", str);
-  }
+      wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_HARDWARE, &str);
+      show_option_string("Capture hardware:    ", str);
+      wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_OS, &str);
+      show_option_string("Capture oper-sys:    ", str);
+      wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_USERAPPL, &str);
+      show_option_string("Capture application: ", str);
+    }
 
-  if (cap_file_idb && cf_info->num_interfaces != 0) {
-    guint i;
-    g_assert(cf_info->num_interfaces == cf_info->idb_info_strings->len);
-    printf     ("Number of interfaces in file: %u\n", cf_info->num_interfaces);
-    for (i = 0; i < cf_info->idb_info_strings->len; i++) {
-      gchar *s = g_array_index(cf_info->idb_info_strings, gchar*, i);
-      printf   ("Interface #%u info:\n", i);
-      printf   ("%s", s);
-      printf   ("                     Number of packets = %u\n", cf_info->interface_ids[i]);
+    if (cap_file_idb && cf_info->num_interfaces != 0) {
+      guint i;
+      g_assert(cf_info->num_interfaces == cf_info->idb_info_strings->len);
+      printf     ("Number of interfaces in file: %u\n", cf_info->num_interfaces);
+      for (i = 0; i < cf_info->idb_info_strings->len; i++) {
+        gchar *s = g_array_index(cf_info->idb_info_strings, gchar*, i);
+        printf   ("Interface #%u info:\n", i);
+        printf   ("%s", s);
+        printf   ("                     Number of packets = %u\n", cf_info->interface_ids[i]);
+      }
     }
   }
 }
@@ -966,52 +968,54 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
     putquote();
   }
 
-  /*
-   * this is silly to put into a table format, but oh well
-   * note that there may be *more than one* of each of these types
-   * of options
-   */
-  if (cap_comment) {
-    GArray *opts;
-    unsigned int i;
+  if (cf_info->shb != NULL) {
+    /*
+     * this is silly to put into a table format, but oh well
+     * note that there may be *more than one* of each of these types
+     * of options
+     */
+    if (cap_comment) {
+      GArray *opts;
+      unsigned int i;
 
-    wtap_optionblock_get_string_options(cf_info->shb, OPT_COMMENT, &opts);
-    for (i = 0; i < opts->len; i++) {
-      const char *opt_comment = g_array_index(opts, char *, i);
+      wtap_optionblock_get_string_options(cf_info->shb, OPT_COMMENT, &opts);
+      for (i = 0; i < opts->len; i++) {
+        const char *opt_comment = g_array_index(opts, char *, i);
 
-      if (opt_comment != NULL) {
+        if (opt_comment != NULL) {
+          putsep();
+          putquote();
+          printf("%s", opt_comment);
+          putquote();
+        }
+      }
+      g_array_free(opts, TRUE);
+    }
+
+    if (cap_file_more_info) {
+      char *str;
+
+      wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_HARDWARE, &str);
+      if (str != NULL) {
         putsep();
         putquote();
-        printf("%s", opt_comment);
+        printf("%s", str);
         putquote();
       }
-    }
-    g_array_free(opts, TRUE);
-  }
-
-  if (cap_file_more_info) {
-    char *str;
-
-    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_HARDWARE, &str);
-    if (str != NULL) {
-      putsep();
-      putquote();
-      printf("%s", str);
-      putquote();
-    }
-    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_OS, &str);
-    if (str != NULL) {
-      putsep();
-      putquote();
-      printf("%s", str);
-      putquote();
-    }
-    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_USERAPPL, &str);
-    if (str != NULL) {
-      putsep();
-      putquote();
-      printf("%s", str);
-      putquote();
+      wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_OS, &str);
+      if (str != NULL) {
+        putsep();
+        putquote();
+        printf("%s", str);
+        putquote();
+      }
+      wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_USERAPPL, &str);
+      if (str != NULL) {
+        putsep();
+        putquote();
+        printf("%s", str);
+        putquote();
+      }
     }
   }
 
