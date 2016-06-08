@@ -141,12 +141,14 @@ leave it as a basic placeholder.
 .Dissection.
 ====
 ----
-static void
-dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
 {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
     /* Clear out stuff in the info column */
     col_clear(pinfo->cinfo,COL_INFO);
+
+    return tvb_captured_length(tvb);
 }
 ----
 ====
@@ -206,8 +208,8 @@ This helps to keep things looking nice in the detailed display.
 .Plugin Packet Dissection.
 ====
 ----
-static void
-dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
@@ -215,6 +217,8 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo,COL_INFO);
 
     proto_item *ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, ENC_NA);
+
+    return tvb_captured_length(tvb);
 }
 ----
 ====
@@ -347,8 +351,8 @@ static int hf_foo_sequenceno = -1;
 static int hf_foo_initialip = -1;
 ...
 
-static void
-dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     gint offset = 0;
 
@@ -364,6 +368,8 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(foo_tree, hf_foo_initialip, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     ...
+
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -451,8 +457,8 @@ static int hf_foo_startflag = -1;
 static int hf_foo_endflag = -1;
 static int hf_foo_priorityflag = -1;
 
-static void
-dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     ...
         ...
@@ -463,6 +469,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += 1;
         ...
     ...
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -515,9 +522,10 @@ window.
 .Enhancing the display.
 ====
 ----
-static void
-dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
+    gint offset = 0;
     guint8 packet_type = tvb_get_guint8(tvb, 0);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
@@ -526,14 +534,14 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s",
              val_to_str(packet_type, packettypenames, "Unknown (0x%02x)"));
 
-    gint offset = 0;
-
     proto_item *ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, ENC_NA);
     proto_item_append_text(ti, ", Type %s",
         val_to_str(packet_type, packettypenames, "Unknown (0x%02x)"));
     proto_tree *foo_tree = proto_item_add_subtree(ti, ett_foo);
     proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
+
+    return tvb_captured_length(tvb);
 }
 ----
 ====
@@ -912,7 +920,7 @@ This function is implemented in 'epan/dissectors/packet-tcp.h'.
 
 /* This method dissects fully reassembled messages */
 static int
-dissect_foo_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_foo_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
 {
     /* TODO: implement your dissecting code */
     return tvb_captured_length(tvb);
@@ -1010,7 +1018,8 @@ of the dissector.
 .Calling a protocol tap
 ====
 ----
-void dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
        ...
     fooinfo = wmem_alloc(wmem_packet_scope(), sizeof(struct FooTap));
@@ -1018,6 +1027,8 @@ void dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fooinfo->priority = tvb_get_ntohs(tvb, 8);
        ...
     tap_queue_packet(foo_tap, pinfo, fooinfo);
+
+    return tvb_captured_length(tvb);
 }
 ----
 ====
