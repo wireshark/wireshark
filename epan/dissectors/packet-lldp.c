@@ -2756,12 +2756,6 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 			while (LCI_Length > 0)
 			{
 				/* Get CA Type */
-				if (LCI_Length < 1)
-				{
-					proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, offset, tlvLen);
-					return;
-				}
-
 				proto_tree_add_item(tree, hf_media_civic_addr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 				offset++;
