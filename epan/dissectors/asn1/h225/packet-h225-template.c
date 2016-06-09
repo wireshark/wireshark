@@ -34,6 +34,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/proto_data.h>
 
 #include <epan/prefs.h>
 #include <epan/oids.h>
@@ -62,7 +63,7 @@
 #define TLS_PORT_CS   1300
 
 void proto_register_h225(void);
-static void reset_h225_packet_info(h225_packet_info *pi);
+static h225_packet_info* create_h225_packet_info(packet_info *pinfo);
 static void h225_init_routine(void);
 static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, h225_packet_info *pi);
 
@@ -83,10 +84,6 @@ typedef struct _h225ras_call_info_key {
   guint reqSeqNum;
   conversation_t *conversation;
 } h225ras_call_info_key;
-
-static h225_packet_info pi_arr[5]; /* We assuming a maximum of 5 H.225 messages per packet */
-static int pi_current=0;
-static h225_packet_info *h225_pi=&pi_arr[0];
 
 /* Global Memory Chunks for lists and Global hash tables*/
 
@@ -367,16 +364,12 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   proto_item *it;
   proto_tree *tr;
   int offset = 0;
-
-  pi_current++;
-  if(pi_current==5){
-    pi_current=0;
-  }
-  h225_pi=&pi_arr[pi_current];
+  h225_packet_info* h225_pi;
 
   /* Init struct for collecting h225_packet_info */
-  reset_h225_packet_info(h225_pi);
+  h225_pi = create_h225_packet_info(pinfo);
   h225_pi->msg_type = H225_CS;
+  p_add_proto_data(wmem_packet_scope(), pinfo, proto_h225, 0, h225_pi);
 
   next_tvb_init(&h245_list);
   next_tvb_init(&tp_list);
@@ -406,16 +399,12 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   proto_item *it;
   proto_tree *tr;
   guint32 offset=0;
-
-  pi_current++;
-  if(pi_current==5){
-    pi_current=0;
-  }
-  h225_pi=&pi_arr[pi_current];
+  h225_packet_info* h225_pi;
 
   /* Init struct for collecting h225_packet_info */
-  reset_h225_packet_info(h225_pi);
+  h225_pi = create_h225_packet_info(pinfo);
   h225_pi->msg_type = H225_RAS;
+  p_add_proto_data(wmem_packet_scope(), pinfo, proto_h225, 0, h225_pi);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
@@ -962,29 +951,16 @@ proto_reg_handoff_h225(void)
   ssl_dissector_add(saved_h225_tls_port, q931_tpkt_handle);
 }
 
-
-static void reset_h225_packet_info(h225_packet_info *pi)
+static h225_packet_info* create_h225_packet_info(packet_info *pinfo)
 {
-  if(pi == NULL) {
-    return;
-  }
+  h225_packet_info* pi = wmem_new0(pinfo->pool, h225_packet_info);
 
   pi->msg_type = H225_OTHERS;
   pi->cs_type = H225_OTHER;
   pi->msg_tag = -1;
   pi->reason = -1;
-  pi->requestSeqNum = 0;
-  memset(&pi->guid,0,sizeof pi->guid);
-  pi->is_duplicate = FALSE;
-  pi->request_available = FALSE;
-  pi->is_faststart = FALSE;
-  pi->is_h245 = FALSE;
-  pi->is_h245Tunneling = FALSE;
-  pi->h245_address = 0;
-  pi->h245_port = 0;
-  pi->frame_label[0] = '\0';
-  pi->dialedDigits[0] = '\0';
-  pi->is_destinationInfo = FALSE;
+
+  return pi;
 }
 
 /*
