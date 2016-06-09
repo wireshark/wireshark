@@ -225,6 +225,7 @@ typedef struct _capture_info {
   GArray        *idb_info_strings;       /* array of IDB info strings */
 } capture_info;
 
+static char *decimal_point;
 
 static void
 enable_all_infos(void)
@@ -323,36 +324,41 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
 
       case WTAP_TSPREC_DSEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%lu.%01d",
+                   "%lu%s%01d",
                    (unsigned long)timer->secs,
+                   decimal_point,
                    timer->nsecs / 100000000);
         break;
 
       case WTAP_TSPREC_CSEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%lu.%02d",
+                   "%lu%s%02d",
                    (unsigned long)timer->secs,
+                   decimal_point,
                    timer->nsecs / 10000000);
         break;
 
       case WTAP_TSPREC_MSEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%lu.%03d",
+                   "%lu%s%03d",
                    (unsigned long)timer->secs,
+                   decimal_point,
                    timer->nsecs / 1000000);
         break;
 
       case WTAP_TSPREC_USEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%lu.%06d",
+                   "%lu%s%06d",
                    (unsigned long)timer->secs,
+                   decimal_point,
                    timer->nsecs / 1000);
         break;
 
       case WTAP_TSPREC_NSEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%lu.%09d",
+                   "%lu%s%09d",
                    (unsigned long)timer->secs,
+                   decimal_point,
                    timer->nsecs);
         break;
 
@@ -384,61 +390,66 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
 
       case WTAP_TSPREC_DSEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%04d-%02d-%02d %02d:%02d:%02d.%01d",
+                   "%04d-%02d-%02d %02d:%02d:%02d%s%01d",
                    ti_tm->tm_year + 1900,
                    ti_tm->tm_mon + 1,
                    ti_tm->tm_mday,
                    ti_tm->tm_hour,
                    ti_tm->tm_min,
                    ti_tm->tm_sec,
+                   decimal_point,
                    timer->nsecs / 100000000);
         break;
 
       case WTAP_TSPREC_CSEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%04d-%02d-%02d %02d:%02d:%02d.%02d",
+                   "%04d-%02d-%02d %02d:%02d:%02d%s%02d",
                    ti_tm->tm_year + 1900,
                    ti_tm->tm_mon + 1,
                    ti_tm->tm_mday,
                    ti_tm->tm_hour,
                    ti_tm->tm_min,
                    ti_tm->tm_sec,
+                   decimal_point,
                    timer->nsecs / 10000000);
         break;
 
       case WTAP_TSPREC_MSEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%04d-%02d-%02d %02d:%02d:%02d.%03d",
+                   "%04d-%02d-%02d %02d:%02d:%02d%s%03d",
                    ti_tm->tm_year + 1900,
                    ti_tm->tm_mon + 1,
                    ti_tm->tm_mday,
                    ti_tm->tm_hour,
                    ti_tm->tm_min,
                    ti_tm->tm_sec,
+                   decimal_point,
                    timer->nsecs / 1000000);
         break;
 
       case WTAP_TSPREC_USEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%04d-%02d-%02d %02d:%02d:%02d.%06d",
+                   "%04d-%02d-%02d %02d:%02d:%02d%s%06d",
                    ti_tm->tm_year + 1900,
                    ti_tm->tm_mon + 1,
                    ti_tm->tm_mday,
                    ti_tm->tm_hour,
                    ti_tm->tm_min,
                    ti_tm->tm_sec,
+                   decimal_point,
                    timer->nsecs / 1000);
         break;
 
       case WTAP_TSPREC_NSEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%04d-%02d-%02d %02d:%02d:%02d.%09d",
+                   "%04d-%02d-%02d %02d:%02d:%02d%s%09d",
                    ti_tm->tm_year + 1900,
                    ti_tm->tm_mon + 1,
                    ti_tm->tm_mday,
                    ti_tm->tm_hour,
                    ti_tm->tm_min,
                    ti_tm->tm_sec,
+                   decimal_point,
                    timer->nsecs);
         break;
 
@@ -476,8 +487,9 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
 
     case WTAP_TSPREC_DSEC:
       g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%lu.%01d%s%s",
+                 "%lu%s%01d%s%s",
                  (unsigned long)timer->secs,
+                 decimal_point,
                  timer->nsecs / 100000000,
                  second,
                  (timer->secs == 1 && timer->nsecs == 0) ? "" : plural);
@@ -485,8 +497,9 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
 
     case WTAP_TSPREC_CSEC:
       g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%lu.%02d%s%s",
+                 "%lu%s%02d%s%s",
                  (unsigned long)timer->secs,
+                 decimal_point,
                  timer->nsecs / 10000000,
                  second,
                  (timer->secs == 1 && timer->nsecs == 0) ? "" : plural);
@@ -494,8 +507,9 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
 
     case WTAP_TSPREC_MSEC:
       g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%lu.%03d%s%s",
+                 "%lu%s%03d%s%s",
                  (unsigned long)timer->secs,
+                 decimal_point,
                  timer->nsecs / 1000000,
                  second,
                  (timer->secs == 1 && timer->nsecs == 0) ? "" : plural);
@@ -503,8 +517,9 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
 
     case WTAP_TSPREC_USEC:
       g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%lu.%06d%s%s",
+                 "%lu%s%06d%s%s",
                  (unsigned long)timer->secs,
+                 decimal_point,
                  timer->nsecs / 1000,
                  second,
                  (timer->secs == 1 && timer->nsecs == 0) ? "" : plural);
@@ -512,8 +527,9 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
 
     case WTAP_TSPREC_NSEC:
       g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%lu.%09d%s%s",
+                 "%lu%s%09d%s%s",
                  (unsigned long)timer->secs,
+                 decimal_point,
                  timer->nsecs,
                  second,
                  (timer->secs == 1 && timer->nsecs == 0) ? "" : plural);
@@ -1399,6 +1415,9 @@ main(int argc, char *argv[])
 
   /* Set the C-language locale to the native environment. */
   setlocale(LC_ALL, "");
+
+  /* Get the decimal point. */
+  decimal_point = g_strdup(localeconv()->decimal_point);
 
   /* Get the compile-time version information string */
   comp_info_str = get_compiled_version_info(NULL, NULL);
