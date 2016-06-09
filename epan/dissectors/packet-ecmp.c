@@ -1787,6 +1787,7 @@ static void file_open(int offset, gboolean request, tvbuff_t *tvb, proto_tree* e
 		};
 
 		proto_tree_add_bitmask(ecmp_tree, tvb, offset, hf_ecmp_access_mode, ett_ecmp_access_mode, fields, ENC_BIG_ENDIAN);
+		relative = (tvb_get_guint8(tvb, offset) & 0x40) ? 1 : 0;
 		offset++;
 
 		/*display additional scheme*/
