@@ -411,6 +411,20 @@ static int hf_content_extendedrlc_mac_controlmessagesegmentionscapability = -1;
 static int hf_content_dtm_enhancementscapability = -1;
 static int hf_content_dtm_gprs_highmultislotclass = -1;
 static int hf_content_ps_handovercapability = -1;
+static int hf_content_dtm_handover_capability = -1;
+static int hf_content_multislot_capability_reduction_for_dl_dual_carrier_exist = -1;
+static int hf_content_multislot_capability_reduction_for_dl_dual_carrier = -1;
+static int hf_content_dual_carrier_for_dtm = -1;
+static int hf_content_flexible_timeslot_assignment = -1;
+static int hf_content_gan_ps_handover_capability = -1;
+static int hf_content_rlc_non_persistent_mode = -1;
+static int hf_content_reduced_latency_capability = -1;
+static int hf_content_uplink_egprs2 = -1;
+static int hf_content_downlink_egprs2 = -1;
+static int hf_content_eutra_fdd_support = -1;
+static int hf_content_eutra_tdd_support = -1;
+static int hf_content_geran_to_eutran_support_in_geran_ptm = -1;
+static int hf_content_priority_based_reselection_support = -1;
 static int hf_additional_accessechnologies_struct_t_access_technology_type = -1;
 static int hf_additional_accessechnologies_struct_t_gmsk_power_class = -1;
 static int hf_additional_accessechnologies_struct_t_eight_psk_power_class = -1;
@@ -418,7 +432,7 @@ static int hf_additional_access_technology_exist = -1;
 /* static int hf_ms_radio_access_capability_iei = -1; */
 /* static int hf_ms_radio_access_capability_length = -1; */
 static int hf_content_dissector = -1;
-static int hf_additonal_access_dissector = -1;
+static int hf_additional_access_dissector = -1;
 static int hf_ms_ra_capability_value_choice = -1;
 static int hf_ms_ra_capability_value = -1;
 
@@ -2513,6 +2527,12 @@ CSN_DESCR_BEGIN       (DTM_EGPRS_HighMultislotClass_t)
 CSN_DESCR_END         (DTM_EGPRS_HighMultislotClass_t)
 
 static const
+CSN_DESCR_BEGIN       (DownlinkDualCarrierCapability_r7_t)
+  M_NEXT_EXIST        (DownlinkDualCarrierCapability_r7_t, MultislotCapabilityReductionForDL_DualCarrier, 1, &hf_content_multislot_capability_reduction_for_dl_dual_carrier),
+  M_UINT              (DownlinkDualCarrierCapability_r7_t, DL_DualCarrierForDTM,  3, &hf_content_dual_carrier_for_dtm),
+CSN_DESCR_END         (DownlinkDualCarrierCapability_r7_t)
+
+static const
 CSN_DESCR_BEGIN       (Multislot_capability_t)
   M_NEXT_EXIST_OR_NULL(Multislot_capability_t, Exist_HSCSD_multislot_class, 1, &hf_multislot_capability_hscsd_multislot_class_exist),
   M_UINT              (Multislot_capability_t,  HSCSD_multislot_class,  5, &hf_multislot_capability_hscsd_multislot_class),
@@ -2590,6 +2610,25 @@ CSN_DESCR_BEGIN       (Content_t)
   M_TYPE              (Content_t, DTM_EGPRS_HighMultislotClass, DTM_EGPRS_HighMultislotClass_t),
 
   M_UINT_OR_NULL      (Content_t,  PS_HandoverCapability,  1, &hf_content_ps_handovercapability),
+
+  /* additions in release 7 */
+  M_UINT_OR_NULL      (Content_t,  DTM_Handover_Capability,  1, &hf_content_dtm_handover_capability),
+  M_NEXT_EXIST_OR_NULL(Content_t, Exist_DownlinkDualCarrierCapability_r7, 1, &hf_content_multislot_capability_reduction_for_dl_dual_carrier_exist),
+  M_TYPE              (Content_t, DownlinkDualCarrierCapability_r7, DownlinkDualCarrierCapability_r7_t),
+
+  M_UINT_OR_NULL      (Content_t,  FlexibleTimeslotAssignment,  1, &hf_content_flexible_timeslot_assignment),
+  M_UINT_OR_NULL      (Content_t,  GAN_PS_HandoverCapability,  1, &hf_content_gan_ps_handover_capability),
+  M_UINT_OR_NULL      (Content_t,  RLC_Non_persistentMode,  1, &hf_content_rlc_non_persistent_mode),
+  M_UINT_OR_NULL      (Content_t,  ReducedLatencyCapability,  1, &hf_content_reduced_latency_capability),
+  M_UINT_OR_NULL      (Content_t,  UplinkEGPRS2,  2, &hf_content_uplink_egprs2),
+  M_UINT_OR_NULL      (Content_t,  DownlinkEGPRS2,  2, &hf_content_downlink_egprs2),
+
+  /* additions in release 8 */
+  M_UINT_OR_NULL      (Content_t,  EUTRA_FDD_Support,  1, &hf_content_eutra_fdd_support),
+  M_UINT_OR_NULL      (Content_t,  EUTRA_TDD_Support,  1, &hf_content_eutra_tdd_support),
+  M_UINT_OR_NULL      (Content_t,  GERAN_To_EUTRAN_supportInGERAN_PTM,  2, &hf_content_geran_to_eutran_support_in_geran_ptm),
+  M_UINT_OR_NULL      (Content_t,  PriorityBasedReselectionSupport,  1, &hf_content_priority_based_reselection_support),
+
 CSN_DESCR_END         (Content_t)
 
 static gint16 Content_Dissector(proto_tree *tree, csnStream_t* ar, tvbuff_t *tvb, void* data, int ett_csn1 _U_)
@@ -2619,10 +2658,19 @@ CSN_ChoiceElement_t MS_RA_capability_value_Choice[] =
 {
   {4, AccTech_GSMP,     0, M_SERIALIZE (MS_RA_capability_value_t, u.Content, 7, &hf_content_dissector, Content_Dissector)}, /* Long Form */
   {4, AccTech_GSME,     0, M_SERIALIZE (MS_RA_capability_value_t, u.Content, 7, &hf_content_dissector, Content_Dissector)}, /* Long Form */
+  {4, AccTech_GSMR,     0, M_SERIALIZE (MS_RA_capability_value_t, u.Content, 7, &hf_content_dissector, Content_Dissector)}, /* Long Form */
   {4, AccTech_GSM1800,  0, M_SERIALIZE (MS_RA_capability_value_t, u.Content, 7, &hf_content_dissector, Content_Dissector)}, /* Long Form */
   {4, AccTech_GSM1900,  0, M_SERIALIZE (MS_RA_capability_value_t, u.Content, 7, &hf_content_dissector, Content_Dissector)}, /* Long Form */
+  {4, AccTech_GSM450,   0, M_SERIALIZE (MS_RA_capability_value_t, u.Content, 7, &hf_content_dissector, Content_Dissector)}, /* Long Form */
+  {4, AccTech_GSM480,   0, M_SERIALIZE (MS_RA_capability_value_t, u.Content, 7, &hf_content_dissector, Content_Dissector)}, /* Long Form */
   {4, AccTech_GSM850,   0, M_SERIALIZE (MS_RA_capability_value_t, u.Content, 7, &hf_content_dissector, Content_Dissector)}, /* Long Form */
-  {4, AccTech_GSMOther, 0, M_SERIALIZE (MS_RA_capability_value_t, u.Additional_access_technologies, 7, &hf_additonal_access_dissector, Additional_access_technologies_Dissector)}, /* Short Form */
+  {4, AccTech_GSM750,   0, M_SERIALIZE (MS_RA_capability_value_t, u.Content, 7, &hf_content_dissector, Content_Dissector)}, /* Long Form */
+  {4, AccTech_GSMT830,  0, M_SERIALIZE (MS_RA_capability_value_t, u.Content, 7, &hf_content_dissector, Content_Dissector)}, /* Long Form */
+  {4, AccTech_GSMT410,  0, M_SERIALIZE (MS_RA_capability_value_t, u.Content, 7, &hf_content_dissector, Content_Dissector)}, /* Long Form */
+  {4, AccTech_GSMT900,  0, M_SERIALIZE (MS_RA_capability_value_t, u.Content, 7, &hf_content_dissector, Content_Dissector)}, /* Long Form */
+  {4, AccTech_GSM710,   0, M_SERIALIZE (MS_RA_capability_value_t, u.Content, 7, &hf_content_dissector, Content_Dissector)}, /* Long Form */
+  {4, AccTech_GSMT810,  0, M_SERIALIZE (MS_RA_capability_value_t, u.Content, 7, &hf_content_dissector, Content_Dissector)}, /* Long Form */
+  {4, AccTech_GSMOther, 0, M_SERIALIZE (MS_RA_capability_value_t, u.Additional_access_technologies, 7, &hf_additional_access_dissector, Additional_access_technologies_Dissector)}, /* Short Form */
 };
 
 static const
@@ -2870,7 +2918,7 @@ CSN_DESCR_BEGIN       (Packet_Resource_Request_t)
   M_NEXT_EXIST        (Packet_Resource_Request_t, Exist_SIGN_VAR, 1, &hf_packet_resource_request_sign_var_exist),
   M_UINT              (Packet_Resource_Request_t,  SIGN_VAR,  6, &hf_packet_resource_request_sign_var),
 
-  M_TYPE_ARRAY        (Packet_Resource_Request_t, Slot, InterferenceMeasurementReport_t, 8),
+  M_TYPE_ARRAY        (Packet_Resource_Request_t,  I_LEVEL_TN, InterferenceMeasurementReport_t, 8),
 
   M_NEXT_EXIST_OR_NULL(Packet_Resource_Request_t, Exist_AdditionsR99, 1, &hf_additionsr99_exist),
   M_TYPE              (Packet_Resource_Request_t, AdditionsR99, PRR_AdditionsR99_t),
@@ -7049,7 +7097,7 @@ CSN_DESCR_BEGIN  (DL_Data_Block_EGPRS_Header_Type3_t)
 CSN_DESCR_END    (DL_Data_Block_EGPRS_Header_Type3_t)
 
 
-  static const value_string dl_rlc_message_type_vals[] = {
+static const value_string dl_rlc_message_type_vals[] = {
   /* {0x00,  "Invalid Message Type"},                  */
   {0x01, "PACKET_CELL_CHANGE_ORDER"},
   {0x02, "PACKET_DOWNLINK_ASSIGNMENT"},
@@ -7573,6 +7621,25 @@ static const value_string nas_container_for_ps_ho_type_of_ciphering[] = {
   { 5, "GPRS Encryption Algorithm GEA/5"},
   { 6, "GPRS Encryption Algorithm GEA/6"},
   { 7, "GPRS Encryption Algorithm GEA/7"},
+  { 0, NULL}
+};
+
+static const value_string access_tech_type_vals[] = {
+  { AccTech_GSMP,     "GSM P"},
+  { AccTech_GSME,     "GSM E"},
+  { AccTech_GSMR,     "GSM R"},
+  { AccTech_GSM1800,  "GSM 1800"},
+  { AccTech_GSM1900,  "GSM 1900"},
+  { AccTech_GSM450,   "GSM 450"},
+  { AccTech_GSM480,   "GSM 480"},
+  { AccTech_GSM850,   "GSM 850"},
+  { AccTech_GSM750,   "GSM 750"},
+  { AccTech_GSMT830,  "GSM T 830"},
+  { AccTech_GSMT410,  "GSM T 410"},
+  { AccTech_GSMT900,  "GSM T 900"},
+  { AccTech_GSM710,   "GSM 710"},
+  { AccTech_GSMT810,  "GSM T 810"},
+  { AccTech_GSMOther, "Additional access technologies"},
   { 0, NULL}
 };
 
@@ -10199,7 +10266,91 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
-    { &hf_additional_accessechnologies_struct_t_access_technology_type,
+    { &hf_content_dtm_handover_capability ,
+      { "DTM_HandoverCapability",        "gsm_rlcmac.ul.dtm_handover_capability",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_content_multislot_capability_reduction_for_dl_dual_carrier_exist ,
+      { "Exist_MultislotCapabilityReductionForDL_DualCarrier",        "gsm_rlcmac.ul.multislot_capability_reduction_for_dl_dual_carrier_exist",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_content_multislot_capability_reduction_for_dl_dual_carrier ,
+      { "MultislotCapabilityReductionForDL_DualCarrier",        "gsm_rlcmac.ul.multislot_capability_reduction_for_dl_dual_carrier",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_content_dual_carrier_for_dtm ,
+      { "DL_DualCarrierForDTM",        "gsm_rlcmac.ul.dual_carrier_for_dtm",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_content_flexible_timeslot_assignment ,
+      { "FlexibleTimeslotAssignment",        "gsm_rlcmac.ul.flexible_timeslot_assignment",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_content_gan_ps_handover_capability ,
+      { "GAN_PS_HandoverCapability",        "gsm_rlcmac.ul.gan_ps_handover_capability",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_content_rlc_non_persistent_mode ,
+      { "RLC_Non_persistentMode",        "gsm_rlcmac.ul.rlc_non_persistent_mode",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_content_reduced_latency_capability ,
+      { "ReducedLatencyCapability",        "gsm_rlcmac.ul.reduced_latency_capability",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_content_uplink_egprs2 ,
+      { "UplinkEGPRS2",        "gsm_rlcmac.ul.uplink_egprs2",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_content_downlink_egprs2 ,
+      { "DownlinkEGPRS2",        "gsm_rlcmac.ul.downlink_egprs2",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+	},
+    { &hf_content_eutra_fdd_support  ,
+      { "EUTRA_FDD_Support",        "gsm_rlcmac.ul.eutra_fdd_support",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_content_eutra_tdd_support  ,
+      { "EUTRA_TDD_Support",        "gsm_rlcmac.ul.eutra_tdd_support",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_content_geran_to_eutran_support_in_geran_ptm ,
+      { "GERAN_To_EUTRAN_supportInGERAN_PTM",        "gsm_rlcmac.ul.geran_to_eutran_support_in_geran_ptm",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_content_priority_based_reselection_support ,
+      { "PriorityBasedReselectionSupport",        "gsm_rlcmac.ul.priority_based_reselection_support",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+	{ &hf_additional_accessechnologies_struct_t_access_technology_type,
       { "Access_Technology_Type",        "gsm_rlcmac.ul.access_technology_type",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
@@ -10229,15 +10380,15 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
-    { &hf_additonal_access_dissector,
-      { "Additional Access Dissector",        "gsm_rlcmac.additonal_access_dissector",
+    { &hf_additional_access_dissector,
+      { "Additional Access Dissector",        "gsm_rlcmac.additional_access_dissector",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
     { &hf_ms_ra_capability_value_choice,
       { "Capability Value Choice",        "gsm_rlcmac.ms_ra_capability_value_choice",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, VALS(access_tech_type_vals), 0x0,
         NULL, HFILL
       }
     },
@@ -14514,49 +14665,49 @@ proto_register_gsm_rlcmac(void)
       }
     },
     { &hf_timeslot_allocation_power_ctrl_param_slot0_exist,
-      { "Slot[0].Exist", "gsm_rlcmac.timeslot_allocation_power_ctrl_param.slot0_exist",
+      { "USF_TN0.Exist", "gsm_rlcmac.timeslot_allocation_power_ctrl_param.slot0_exist",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
     { &hf_timeslot_allocation_power_ctrl_param_slot1_exist,
-      { "Slot[1].Exist", "gsm_rlcmac.timeslot_allocation_power_ctrl_param.slot1_exist",
+      { "USF_TN1.Exist", "gsm_rlcmac.timeslot_allocation_power_ctrl_param.slot1_exist",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
     { &hf_timeslot_allocation_power_ctrl_param_slot2_exist,
-      { "Slot[2].Exist", "gsm_rlcmac.timeslot_allocation_power_ctrl_param.slot2_exist",
+      { "USF_TN2.Exist", "gsm_rlcmac.timeslot_allocation_power_ctrl_param.slot2_exist",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
     { &hf_timeslot_allocation_power_ctrl_param_slot3_exist,
-      { "Slot[3].Exist", "gsm_rlcmac.timeslot_allocation_power_ctrl_param.slot3_exist",
+      { "USF_TN3.Exist", "gsm_rlcmac.timeslot_allocation_power_ctrl_param.slot3_exist",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
     { &hf_timeslot_allocation_power_ctrl_param_slot4_exist,
-      { "Slot[4].Exist", "gsm_rlcmac.timeslot_allocation_power_ctrl_param.slot4_exist",
+      { "USF_TN4.Exist", "gsm_rlcmac.timeslot_allocation_power_ctrl_param.slot4_exist",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
     { &hf_timeslot_allocation_power_ctrl_param_slot5_exist,
-      { "Slot[5].Exist", "gsm_rlcmac.timeslot_allocation_power_ctrl_param.slot5_exist",
+      { "USF_TN5.Exist", "gsm_rlcmac.timeslot_allocation_power_ctrl_param.slot5_exist",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
     { &hf_timeslot_allocation_power_ctrl_param_slot6_exist,
-      { "Slot[6].Exist", "gsm_rlcmac.timeslot_allocation_power_ctrl_param.slot6_exist",
+      { "USF_TN6.Exist", "gsm_rlcmac.timeslot_allocation_power_ctrl_param.slot6_exist",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
     { &hf_timeslot_allocation_power_ctrl_param_slot7_exist,
-      { "Slot[7].Exist", "gsm_rlcmac.timeslot_allocation_power_ctrl_param.slot7_exist",
+      { "USF_TN7.Exist", "gsm_rlcmac.timeslot_allocation_power_ctrl_param.slot7_exist",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }

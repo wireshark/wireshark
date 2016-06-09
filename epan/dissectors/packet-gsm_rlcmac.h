@@ -1098,6 +1098,12 @@ typedef struct
 
 typedef struct
 {
+  guint8 MultislotCapabilityReductionForDL_DualCarrier;
+  guint8 DL_DualCarrierForDTM;
+} DownlinkDualCarrierCapability_r7_t;
+
+typedef struct
+{
   guint8 Exist_HSCSD_multislot_class;
   guint8 HSCSD_multislot_class;
 
@@ -1183,6 +1189,25 @@ typedef struct
   guint8 DTM_GPRS_HighMultislotClass;
   DTM_EGPRS_HighMultislotClass_t DTM_EGPRS_HighMultislotClass;
   guint8 PS_HandoverCapability;
+
+  /* -------- R7 additions */
+  guint8 DTM_Handover_Capability;
+  guint8 Exist_DownlinkDualCarrierCapability_r7;
+  DownlinkDualCarrierCapability_r7_t DownlinkDualCarrierCapability_r7;
+
+  guint8 FlexibleTimeslotAssignment;
+  guint8 GAN_PS_HandoverCapability;
+  guint8 RLC_Non_persistentMode;
+  guint8 ReducedLatencyCapability;
+  guint8 UplinkEGPRS2;
+  guint8 DownlinkEGPRS2;
+
+  /* -------- R8 additions */
+  guint8 EUTRA_FDD_Support;
+  guint8 EUTRA_TDD_Support;
+  guint8 GERAN_To_EUTRAN_supportInGERAN_PTM;
+  guint8 PriorityBasedReselectionSupport;
+
 } Content_t;
 
 #define ABSOLUTE_MAX_BANDS            2 /*  New fields for R4 extend the length of the capabilities message so we can only send 2 */
@@ -1190,12 +1215,21 @@ typedef struct
 #define MAX_ACCESS_TECHNOLOGIES_COUNT 16 /* No more than 16 instances */
 
 typedef enum
-{/* See TS 24.008 table 10.5.146, GSM R and GSM 450/480 excluded */
+{/* See TS 24.008 table 10.5.146 */
   AccTech_GSMP     = 0x0,
   AccTech_GSME     = 0x1,
+  AccTech_GSMR     = 0x2,
   AccTech_GSM1800  = 0x3,
   AccTech_GSM1900  = 0x4,
+  AccTech_GSM450   = 0x5,
+  AccTech_GSM480   = 0x6,
   AccTech_GSM850   = 0x7,
+  AccTech_GSM750   = 0x8,
+  AccTech_GSMT830  = 0x9,
+  AccTech_GSMT410  = 0xa,
+  AccTech_GSMT900  = 0xb,
+  AccTech_GSM710   = 0xc,
+  AccTech_GSMT810  = 0xd,
   AccTech_GSMOther = 0xf
 } AccessTechnology_t;
 
@@ -1448,7 +1482,7 @@ typedef struct
   guint8 Exist_SIGN_VAR;
   guint8 SIGN_VAR;
 
-  InterferenceMeasurementReport_t  Slot[8];
+  InterferenceMeasurementReport_t  I_LEVEL_TN[8];
 
   guint8                            Exist_AdditionsR99;
   PRR_AdditionsR99_t               AdditionsR99;
