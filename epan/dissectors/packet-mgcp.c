@@ -259,7 +259,7 @@ static gboolean global_mgcp_message_count = FALSE;
 /* Some basic utility functions that are specific to this dissector */
 static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, const gchar **verb_name);
 static gboolean is_mgcp_rspcode(tvbuff_t *tvb, gint offset, gint maxlength);
-static gint tvb_parse_param(tvbuff_t *tvb, gint offset, gint maxlength, int** hf);
+static gint tvb_parse_param(tvbuff_t *tvb, gint offset, gint maxlength, int** hf, mgcp_info_t* mi);
 
 /*
  * The various functions that either dissect some
@@ -268,8 +268,8 @@ static gint tvb_parse_param(tvbuff_t *tvb, gint offset, gint maxlength, int** hf
  */
 static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 proto_tree *mgcp_tree, proto_tree *ti);
-static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree);
+static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, mgcp_info_t* mi);
+static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree, mgcp_info_t* mi);
 static void dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb,
 					  gint offset, gint param_type_len,
 					  gint param_val_len);
@@ -544,11 +544,6 @@ static int dissect_tpkt_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	return offset;
 }
 
-#define MAX_MGCP_MESSAGES_IN_PACKET 5
-static mgcp_info_t pi_arr[MAX_MGCP_MESSAGES_IN_PACKET];
-static int pi_current = 0;
-static mgcp_info_t *mi;
-
 /* Dissect an individual MGCP message */
 static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 proto_tree *mgcp_tree, proto_tree *ti)
@@ -558,30 +553,9 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	gint tvb_sectionend, tvb_sectionbegin, tvb_len;
 	tvbuff_t *next_tvb;
 	const gchar *verb_name = "";
-
-	/* Initialise stat info for passing to tap */
-	pi_current++;
-	if (pi_current == MAX_MGCP_MESSAGES_IN_PACKET)
-	{
-		/* Overwrite info in first struct if run out of space... */
-		pi_current = 0;
-	}
-	mi = &pi_arr[pi_current];
-
+    mgcp_info_t* mi = wmem_new0(pinfo->pool, mgcp_info_t);
 
 	mi->mgcp_type = MGCP_OTHERS;
-	mi->code[0] = '\0';
-	mi->transid = 0;
-	mi->req_time.secs = 0;
-	mi->req_time.nsecs = 0;
-	mi->is_duplicate = FALSE;
-	mi->request_available = FALSE;
-	mi->req_num = 0;
-	mi->endpointId = NULL;
-	mi->observedEvents = NULL;
-	mi->rspcode = 0;
-	mi->signalReq = NULL;
-	mi->hasDigitMap = FALSE;
 
 	/* Initialize variables */
 	tvb_len = tvb_reported_length(tvb);
@@ -601,7 +575,7 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		{
 			dissect_mgcp_firstline(tvb_new_subset(tvb, tvb_sectionbegin,
 			                       sectionlen, sectionlen), pinfo,
-			                       mgcp_tree);
+			                       mgcp_tree, mi);
 		}
 		tvb_sectionbegin = tvb_sectionend;
 
@@ -613,7 +587,7 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			if (sectionlen > 0)
 			{
 				dissect_mgcp_params(tvb_new_subset(tvb, tvb_sectionbegin, sectionlen, sectionlen),
-				                                   mgcp_tree);
+				                                   mgcp_tree, mi);
 			}
 		}
 
@@ -809,7 +783,7 @@ static gboolean is_rfc2234_alpha(guint8 c)
  * Returns: The offset in tvb where the value of the MGCP parameter
  *          begins.
  */
-static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
+static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf, mgcp_info_t* mi)
 {
 	gint returnvalue = -1, tvb_current_offset, counter;
 	guint8 tempchar, plus_minus;
@@ -1113,7 +1087,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
  * tree - The tree from which to hang the structured information parsed
  *        from the first line of the MGCP message.
  */
-static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, mgcp_info_t* mi)
 {
 	gint tvb_current_offset, tvb_previous_offset, tvb_len, tvb_current_len;
 	gint tokennum, tokenlen;
@@ -1502,7 +1476,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
  * tree - The tree from which to hang the structured information parsed
  *        from the parameters of the MGCP message.
  */
-static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree)
+static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree, mgcp_info_t* mi)
 {
 	int linelen, tokenlen, *my_param;
 	gint tvb_lineend, tvb_linebegin, tvb_len, old_lineend;
@@ -1523,7 +1497,7 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree)
 	{
 		old_lineend = tvb_lineend;
 		linelen = tvb_find_line_end(tvb, tvb_linebegin, -1, &tvb_lineend, FALSE);
-		tvb_tokenbegin = tvb_parse_param(tvb, tvb_linebegin, linelen, &my_param);
+		tvb_tokenbegin = tvb_parse_param(tvb, tvb_linebegin, linelen, &my_param, mi);
 
 		if (my_param)
 		{
