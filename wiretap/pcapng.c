@@ -3139,10 +3139,17 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
             }
             namelen = (guint16)(hostnamelen + 1);
             nrb.record_len = 4 + namelen;
+            /* 2 bytes record type, 2 bytes length field */
             tot_rec_len = 4 + nrb.record_len + PADDING4(nrb.record_len);
 
             if (rec_off + tot_rec_len > NRES_REC_MAX_SIZE){
-                /* We know the total length now; copy the block header. */
+                /*
+                 * This record would overflow our maximum size for Name
+                 * Resolution Blocks; write out all the records we created
+                 * before it, and start a new NRB.
+                 */
+
+                /* First, copy the block header. */
                 memcpy(rec_data, &bh, sizeof(bh));
 
                 /* End of record */
