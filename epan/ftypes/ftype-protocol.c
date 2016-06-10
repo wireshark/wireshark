@@ -205,8 +205,8 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 static gboolean
 cmp_eq(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
-	protocol_value_t	*a = (protocol_value_t*)&fv_a->value.protocol;
-	protocol_value_t	*b = (protocol_value_t*)&fv_b->value.protocol;
+	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
+	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
 	volatile gboolean	eq = FALSE;
 
 	TRY {
@@ -230,8 +230,8 @@ cmp_eq(const fvalue_t *fv_a, const fvalue_t *fv_b)
 static gboolean
 cmp_ne(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
-	protocol_value_t	*a = (protocol_value_t*)&fv_a->value.protocol;
-	protocol_value_t	*b = (protocol_value_t*)&fv_b->value.protocol;
+	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
+	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
 	volatile gboolean	ne = TRUE;
 
 	TRY {
@@ -255,8 +255,8 @@ cmp_ne(const fvalue_t *fv_a, const fvalue_t *fv_b)
 static gboolean
 cmp_gt(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
-	protocol_value_t	*a = (protocol_value_t*)&fv_a->value.protocol;
-	protocol_value_t	*b = (protocol_value_t*)&fv_b->value.protocol;
+	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
+	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
 	volatile gboolean	gt = FALSE;
 
 	TRY {
@@ -284,8 +284,8 @@ cmp_gt(const fvalue_t *fv_a, const fvalue_t *fv_b)
 static gboolean
 cmp_ge(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
-	protocol_value_t	*a = (protocol_value_t*)&fv_a->value.protocol;
-	protocol_value_t	*b = (protocol_value_t*)&fv_b->value.protocol;
+	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
+	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
 	volatile gboolean	ge = FALSE;
 
 	TRY {
@@ -313,8 +313,8 @@ cmp_ge(const fvalue_t *fv_a, const fvalue_t *fv_b)
 static gboolean
 cmp_lt(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
-	protocol_value_t	*a = (protocol_value_t*)&fv_a->value.protocol;
-	protocol_value_t	*b = (protocol_value_t*)&fv_b->value.protocol;
+	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
+	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
 	volatile gboolean	lt = FALSE;
 
 	TRY {
@@ -342,8 +342,8 @@ cmp_lt(const fvalue_t *fv_a, const fvalue_t *fv_b)
 static gboolean
 cmp_le(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
-	protocol_value_t	*a = (protocol_value_t*)&fv_a->value.protocol;
-	protocol_value_t	*b = (protocol_value_t*)&fv_b->value.protocol;
+	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
+	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
 	volatile gboolean	le = FALSE;
 
 	TRY {
@@ -398,7 +398,7 @@ cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
 static gboolean
 cmp_matches(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
-	protocol_value_t *a = (protocol_value_t*)&fv_a->value.protocol;
+	const protocol_value_t *a = (const protocol_value_t *)&fv_a->value.protocol;
 	GRegex *regex = fv_b->value.re;
 	volatile gboolean rc = FALSE;
 	const char *data = NULL; /* tvb data */
