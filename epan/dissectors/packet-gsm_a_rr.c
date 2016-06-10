@@ -73,6 +73,7 @@ const value_string gsm_a_dtap_msg_rr_strings[] = {
     { 0x3f, "Immediate Assignment" },
     { 0x39, "Immediate Assignment Extended" },
     { 0x3a, "Immediate Assignment Reject" },
+    { 0x6a, "EC-Immediate Assignment Type 1"},
 
     { 0x48, "DTM Assignment Failure" },
     { 0x49, "DTM Reject" },
@@ -170,6 +171,17 @@ const value_string gsm_a_dtap_msg_rr_strings[] = {
     { 0xc0, "UTRAN Classmark Change/Handover To UTRAN Command" }, /* spec conflict */
 
     { 0x38, "Application Information" },
+
+    {    0, NULL }
+};
+
+const value_string gsm_a_dtap_msg_rr_ec_ccch_strings[] = {
+    /* Channel establishment messages */
+    { 0x01, "EC-Immediate Assignment Type 2" },
+    { 0x02, "EC-Immediate Assignment Reject" },
+    { 0x03, "EC-Dummy" },
+    { 0x04, "EC-Downlink Assignment" },
+    { 0x09, "EC-Paging Request" },
 
     {    0, NULL }
 };
@@ -306,6 +318,27 @@ static const value_string gsm_rr_elem_strings[] = {
  * 10.5.2.68 VGCS AMR Configuration
  */
     { DE_RR_CARRIER_IND, "Carrier Indication" },                        /* 10.5.2.69 Carrier Indication */
+/*
+ * 10.5.2.70 SI10bis Rest Octets
+ * 10.5.2.71 SI10ter Rest Octets
+ * 10.5.2.72 Application Data
+ * 10.5.2.73 Data Identity
+ * 10.5.2.74 Uplink Access Indication
+ * 10.5.2.75 Individual priorities
+ */
+    { DE_RR_FEATURE_INDICATOR, "Feature Indicator" },                   /* 10.5.2.76 Feature Indicator */
+/*
+ * 10.5.2.77 (void)
+ * 10.5.2.78 IPA Rest Octets
+ * 10.5.2.79 DL-DCCH-Message
+ * 10.5.2.80 CN to MS transparent information
+ * 10.5.2.81 PLMN Index
+ * 10.5.2.82 Extended TSC Set
+ */
+    { DE_RR_EC_REQUEST_REFERENCE, "EC Request Reference" },             /* 10.5.2.83 EC Request reference */
+    { DE_RR_EC_PKT_CH_DSC1, "EC Packet Channel Description Type 1" },   /* 10.5.2.84 EC Packet Channel Description Type 1 */
+    { DE_RR_EC_PKT_CH_DSC2, "EC Packet Channel Description Type 2" },   /* 10.5.2.85 EC Packet Channel Description Type 2 */
+    { DE_RR_EC_FUA, "EC Fixed Uplink Allocation"},                      /* 10.5.2.86 EC Fixed Uplink Allocation */
     {    0, NULL }
 };
 value_string_ext gsm_rr_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_rr_elem_strings);
@@ -413,6 +446,13 @@ static const value_string gsm_a_rr_algorithm_identifier_vals[] = {
     { 0, NULL }
 };
 
+static const value_string gsm_a_rr_ec_cc_vals[] = {
+    {0x00, "Coverage Class 1"},
+    {0x01, "Coverage Class 2"},
+    {0x02, "Coverage Class 3"},
+    {0x03, "Coverage Class 4"},
+    {0, NULL }
+};
 
 #define DTAP_PD_MASK            0x0f
 #define DTAP_SKIP_MASK          0xf0
@@ -425,9 +465,12 @@ static const value_string gsm_a_rr_algorithm_identifier_vals[] = {
 /* Initialize the protocol and registered fields */
 static int proto_a_rr = -1;
 static int proto_a_ccch = -1;
+static int proto_a_ec_ccch = -1;
 static int proto_a_sacch = -1;
 
 static int hf_gsm_a_dtap_msg_rr_type = -1;
+static int hf_gsm_a_dtap_msg_rr_ec_ccch_type = -1;
+
 int hf_gsm_a_rr_elem_id = -1;
 
 static int hf_gsm_a_rr_short_pd_msg_type = -1;
@@ -1103,9 +1146,51 @@ static int hf_gsm_a_rr_utran_csg_fdd_uarfcn = -1;
 static int hf_gsm_a_rr_utran_csg_tdd_uarfcn = -1;
 static int hf_gsm_a_rr_csg_earfcn = -1;
 static int hf_gsm_a_rr_3g_control_param_desc_meas_ctrl_utran = -1;
+static int hf_gsm_a_rr_feat_ind_peo_bcch_change_mark = -1;
+static int hf_gsm_a_rr_feat_ind_cs_ir = -1;
+static int hf_gsm_a_rr_feat_ind_ps_ir = -1;
+
+/* Additions for EC-GSM-IoT rel. 13 */
+static int hf_gsm_a_rr_ec_qhfi = -1;
+static int hf_gsm_a_rr_ec_dl_cc = -1;
+static int hf_gsm_a_rr_ec_ul_cc = -1;
+static int hf_gsm_a_rr_tsc_set = -1;
+static int hf_gsm_a_rr_ec_tsc = -1;
+static int hf_gsm_a_rr_ec_ma_number = -1;
+
+static int hf_gsm_a_rr_ec_enhanced_access_burst = -1;
+static int hf_gsm_a_rr_ec_starting_ul_timeslot = -1;
+static int hf_gsm_a_rr_ec_starting_dl_timeslot = -1;
+static int hf_gsm_a_rr_ec_starting_dl_timeslot_offset = -1;
+static int hf_gsm_a_rr_ec_starting_ul_timeslot_offset = -1;
+static int hf_gsm_a_rr_ec_overlaid_cdma_code = -1;
+static int hf_gsm_a_rr_ec_mcs_exist = -1;
+static int hf_gsm_a_rr_ec_start_first_ul_data_block = -1;
+static int hf_gsm_a_rr_ec_fua_gap_list = -1;
+static int hf_gsm_a_rr_ec_start_fn_next_data_block_exist = -1;
+static int hf_gsm_a_rr_ec_start_fn_next_data_block = -1;
+
+static int hf_gsm_a_rr_ec_used_dl_cc = -1;
+static int hf_gsm_a_rr_ec_page_extension_exist = -1;
+static int hf_gsm_a_rr_ec_page_extension = -1;
+static int hf_gsm_a_rr_ec_last_tdma_frame = -1;
+static int hf_gsm_a_rr_ec_echoed_random_bits = -1;
+
+static int hf_gsm_a_rr_ec_wait_timer = -1;
+static int hf_gsm_a_rr_ec_req_ref_2_present = -1;
+static int hf_gsm_a_rr_ec_req_ref_3_present = -1;
+
+static int hf_gsm_a_rr_ec_ptmsi_imsi_select = -1;
+static int hf_gsm_a_rr_ec_imsi_digits = -1;
+static int hf_gsm_a_rr_ec_imsi = -1;
+static int hf_gsm_a_rr_ec_mobile_identity_2_exist = -1;
+
+static int hf_gsm_a_rr_ec_cc1_timeslot_multiplier = -1;
+static int hf_gsm_a_rr_ec_alpha_enable = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ccch_msg = -1;
+static gint ett_ec_ccch_msg = -1;
 static gint ett_ccch_oct_1 = -1;
 static gint ett_sacch_msg = -1;
 
@@ -1195,17 +1280,17 @@ gint ett_gsm_rr_rest_octets_elem[NUM_GSM_RR_REST_OCTETS_ELEM];
 static const true_false_string tfs_tfi_multi_block_allocation_present = {"TFI Assignment Present", "Multi Block Allocation Present"};
 static const true_false_string tfs_fixed_dynamic_allocation = {"Fixed Allocation (not to be used after Rel-4)", "Dynamic Allocation (mandatory after Rel-4)"};
 static const true_false_string tfs_mode_b_mode_a = {"Mode B (not to be used after Rel-4)", "Mode A (mandatory after Rel-4)"};
-static const true_false_string tfs_downlink_assignment = {"default 0 bit", "Reserved Value"};
+static const true_false_string tfs_downlink_assignment = {"Default 0 bit", "Reserved Value"};
 static const true_false_string tfs_non_distribution_distribution = {"(Non-distribution)", "(Distribution)"};
 static const true_false_string tfs_normal_single_block = {"Normal", "Single Block"};
 static const true_false_string tfs_early_r97_version_later_than_r97_version = {"Early R97 version", "Later than R97 version"};
 static const true_false_string tfs_later_than_r97_version_early_r97_version = {"Later than R97 version", "Early R97 version"};
 static const true_false_string tfs_earlier_version_current_version = {"Earlier version", "Current version"};
-static const true_false_string tfs_downlink_uplink_discriminator_bit = {"reserved for future use", "EGPRS Packet Uplink Assignment or Multiple blocks Packet Downlink Assignment"};
+static const true_false_string tfs_downlink_uplink_discriminator_bit = {"Reserved for future use", "EGPRS Packet Uplink Assignment or Multiple blocks Packet Downlink Assignment"};
 static const true_false_string tfs_downlink_uplink = {"Multiple blocks Packet Downlink Assignment", "EGPRS Packet Uplink Assignment"};
 static const true_false_string tfs_second_part_packet_assignment = {"Second Part Packet Assignment", "Packet Assignment"};
 static const true_false_string tfs_packet_downlink_uplink_assignment = {"Packet Downlink Assignment", "Packet Uplink Assignment"};
-static const true_false_string tfs_shall_be_shall_not_be_used = {"shall be used", "shall not be used"};
+static const true_false_string tfs_shall_be_shall_not_be_used = {"Shall be used", "Shall not be used"};
 static const true_false_string tfs_current_version_earlier_version = {"Current version", "Earlier version"};
 static const true_false_string tfs_member_not_member_of_set = {"is a member of the set", "is not a member of the set"};
 static const true_false_string tfs_not_present_present = {"Not Present", "Present"};
@@ -1215,6 +1300,7 @@ static const true_false_string tfs_tdd_fdd = {"TDD", "FDD"};
 static const true_false_string tfs_ec_no_rscp = {"Ec/No", "RSCP"};
 static const true_false_string tfs_short_lsa_id_lsa_id = {"Short LSA ID", "LSA ID"};
 static const true_false_string tfs_present_not_present_in_cell = {"Present In Cell", "Not Present In Cell"};
+static const true_false_string tfs_ec_ptmsi_imsi = {"IMSI", "P-TMSI"};
 
 /* this function is used for dissecting the 0/1 presence flags in CSN.1 coded IEs */
 static gboolean gsm_rr_csn_flag(tvbuff_t *tvb, proto_tree *tree, gint bit_offset, int hf_bit)
@@ -8475,6 +8561,184 @@ de_rr_carrier_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     return(curr_offset - offset);
 }
 
+/*
+ * [3] 10.5.2.76 Feature Indicator
+ */
+static const true_false_string gsm_a_rr_feat_ind_cs_ir = {
+    "An implicit reject is indicated for the CS domain",
+    "An implicit reject is not indicated for the CS domain"
+};
+
+static const true_false_string gsm_a_rr_feat_ind_ps_ir = {
+    "An implicit reject is indicated for the PS domain",
+    "An implicit reject is not indicated for the PS domain"
+};
+
+static guint16
+de_rr_feature_indicator(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset;
+
+    curr_offset = offset;
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_feat_ind_peo_bcch_change_mark, tvb, curr_offset<<3, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_feat_ind_cs_ir, tvb, (curr_offset<<3)+2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_feat_ind_ps_ir, tvb, (curr_offset<<3)+3, 1, ENC_BIG_ENDIAN);
+
+    curr_offset += 1;
+
+    return(curr_offset - offset);
+}
+
+ /*
+  * 10.5.2.83 EC Request reference
+  */
+static guint16
+de_rr_ec_request_reference(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 bit_offset, gchar *add_string)
+{
+    proto_tree *subtree;
+    guint32     curr_bit_offset = bit_offset;
+
+    subtree = proto_tree_add_subtree_format(tree, tvb, curr_bit_offset>>3, 2, ett_gsm_rr_elem[DE_RR_EC_REQUEST_REFERENCE], NULL,
+                             "%s%s", val_to_str_ext_const(DE_RR_EC_REQUEST_REFERENCE, &gsm_rr_elem_strings_ext, ""),
+                             (add_string == NULL) || (add_string[0] == '\0') ? "" : add_string);
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_last_tdma_frame, tvb, curr_bit_offset, 10, ENC_BIG_ENDIAN);
+    curr_bit_offset += 10;
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_echoed_random_bits, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
+    curr_bit_offset += 3;
+
+    return curr_bit_offset-bit_offset; /*Bits!*/
+}
+
+/*
+ * [3] 10.5.2.84        EC Packet Channel Description type 1
+ */
+static void
+gsm_a_rr_ec_ma_number_fmt(gchar *s, guint32 v)
+{
+    g_snprintf(s, ITEM_LABEL_LENGTH, "EC-EGPRS Mobile Allocation set %u (%u)", v+1, v);
+}
+
+static guint16
+de_rr_ec_pkt_ch_dsc1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    guint32     curr_offset;
+    guint32     bit_offset;
+
+    curr_offset = offset;
+    bit_offset  = curr_offset << 3;
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_qhfi, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+    bit_offset += 2;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_dl_cc, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+    bit_offset += 2;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_ul_cc, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+    bit_offset += 2;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_tsc_set, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset += 1;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_tsc, tvb, bit_offset, 3, ENC_BIG_ENDIAN); /*FIXME: use same tsc variable as other msgs (doesn't work with bits_item)*/
+    bit_offset += 3;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_ma_number, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
+
+    return 2;
+
+}
+
+/*
+ * [3] 10.5.2.85        EC Packet Channel Description type 2
+ */
+static guint16
+de_rr_ec_pkt_ch_dsc2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 bit_offset)
+{
+    proto_tree *subtree;
+    guint32     curr_bit_offset = bit_offset;
+
+    subtree = proto_tree_add_subtree(tree, tvb, curr_bit_offset>>3, 2, ett_gsm_rr_elem[DE_RR_EC_PKT_CH_DSC2], NULL,
+                             val_to_str_ext_const(DE_RR_EC_PKT_CH_DSC2, &gsm_rr_elem_strings_ext, ""));
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_qhfi, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
+    curr_bit_offset += 2;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_dl_cc, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
+    curr_bit_offset += 2;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_ul_cc, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
+    curr_bit_offset += 2;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tsc_set, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset += 1;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_tsc, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN); /*FIXME: use same tsc variable as other msgs (doesn't work with bits_item)*/
+    curr_bit_offset += 3;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_ma_number, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
+    curr_bit_offset += 5;
+
+    return curr_bit_offset-bit_offset; /*Bits!*/
+}
+
+/*
+ * [3] 10.5.2.86        EC Fixed Uplink Allocation
+ */
+static guint16
+de_rr_ec_fua(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32     bit_offset;
+
+    bit_offset  = offset << 3;
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_enhanced_access_burst, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset +=1;
+
+    if (gsm_rr_csn_flag(tvb, tree, bit_offset++, hf_gsm_a_rr_timing_adv_present))
+    { /* Timing Advance Description */
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_timing_adv, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
+        bit_offset += 6;
+    }
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_starting_ul_timeslot, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+    bit_offset += 3;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_tfi_assignment, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
+    bit_offset += 5;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_starting_dl_timeslot_offset, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+    bit_offset += 2;
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_overlaid_cdma_code, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+    bit_offset += 2;
+
+    if (gsm_rr_csn_flag(tvb, tree, bit_offset++, hf_gsm_a_rr_ec_mcs_exist))
+    { /* MCS Description */
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_egprs_mcs, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+        bit_offset += 4;
+    }
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_gamma, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
+    bit_offset += 5;
+
+    if (gsm_rr_csn_flag(tvb, tree, bit_offset++, hf_gsm_a_rr_p0_present))
+    {
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_p0, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+        bit_offset += 4;
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_pr_mode, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+        bit_offset += 1;
+    }
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_start_first_ul_data_block, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+    bit_offset += 4;
+
+    while(gsm_rr_csn_flag(tvb, tree, bit_offset++, hf_gsm_a_rr_ec_fua_gap_list))
+    {
+        if (!gsm_rr_csn_flag(tvb, tree, bit_offset++, hf_gsm_a_rr_ec_start_fn_next_data_block_exist))
+        {
+            proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_start_fn_next_data_block, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+            bit_offset += 3;
+        }
+        else
+        {
+            proto_tree_add_uint(tree, hf_gsm_a_rr_ec_start_fn_next_data_block, tvb, (bit_offset>>3), 0, 0);
+        }
+    }
+
+    return len;
+}
+
 guint16 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len) = {
     /* Radio Resource Management  Information Elements 10.5.2, most are from 10.5.1 */
 
@@ -8620,6 +8884,27 @@ guint16 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
  * 10.5.2.68 VGCS AMR Configuration
  */
     de_rr_carrier_ind,                          /* 10.5.2.69 Carrier Indication                         */
+/*
+ * 10.5.2.70 SI10bis Rest Octets
+ * 10.5.2.71 SI10ter Rest Octets
+ * 10.5.2.72 Application Data
+ * 10.5.2.73 Data Identity
+ * 10.5.2.74 Uplink Access Indication
+ * 10.5.2.75 Individual priorities
+ */
+    de_rr_feature_indicator,                    /* 10.5.2.76 Feature Indicator                          */
+/*
+ * 10.5.2.77 (void)
+ * 10.5.2.78 IPA Rest Octets
+ * 10.5.2.79 DL-DCCH-Message
+ * 10.5.2.80 CN to MS transparent information
+ * 10.5.2.81 PLMN Index
+ * 10.5.2.82 Extended TSC Set
+ */
+    NULL,                                       /* 10.5.2.83 EC Request reference */
+    de_rr_ec_pkt_ch_dsc1,                       /* 10.5.2.84 EC Packet Channel Description  Type 1      */
+    NULL,                                       /* 10.5.2.85 EC Packet Channel Description  Type 1      */
+    de_rr_ec_fua,                               /* 10.5.2.86 EC Fixed Uplink Allocation                 */
     NULL,       /* NONE */
 };
 
@@ -9531,9 +9816,9 @@ dtap_rr_imm_ass_ext(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     curr_len = len;
 
     /* Page Mode                                                10.5.2.26       M V 1/2 */
-    /* Spare Half Octet                                         10.5.1.8        M V 1/2 */
+    /* Feature Indicator                                        10.5.2.76       M V 1/2 */
     ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE,
-                       GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE);
+                       GSM_A_PDU_TYPE_COMMON, DE_RR_FEATURE_INDICATOR);
     /* Channel Description 1    Channel Description             10.5.2.5        M V 3 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, " - Channel Description 1");
     /* Request Reference 1      Request Reference               10.5.2.30       M V 3   */
@@ -10701,6 +10986,313 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     gsm_rr_csn_padding_bits(tree, tvb, bit_offset, tvb_len);
 }
 
+/*
+ * [4] 9.1.59 EC-Immediate Assignment Type 1
+ */
+static void
+dtap_rr_ec_imm_ass_type_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* Page Mode                                                10.5.2.26       M V 1/2 */
+    /* Feature indicator                                        10.5.2.76       M V 1/2 */
+    ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE,
+                       GSM_A_PDU_TYPE_RR, DE_RR_FEATURE_INDICATOR);
+
+    /* Request Reference 1      Request Reference               10.5.2.30       M V 3   */
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, NULL);
+    /* EC Channel Description   EC Channel Description          10.5.2.84       M V 2 */
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_EC_PKT_CH_DSC1, NULL);
+    /* Timing Advance 1 Timing Advance                          10.5.2.86       M V 3-14   */
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_EC_FUA, NULL);
+
+}
+
+
+/*
+ * [4] 9.1.60 EC-Immediate Assignment Type 2
+ */
+static void
+dtap_rr_ec_imm_ass_type_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_)
+{
+    proto_tree *subtree;
+    guint32     curr_offset;
+    guint32     curr_bit_offset;
+
+    curr_offset = offset;
+    curr_bit_offset  = curr_offset << 3;
+
+    curr_bit_offset += 4; /* Skip msgtype */
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_used_dl_cc, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
+    curr_bit_offset += 2;
+
+    if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, hf_gsm_a_rr_ec_page_extension_exist))
+    {
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_page_extension, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
+        curr_bit_offset += 4;
+    }
+
+    curr_bit_offset += de_rr_ec_request_reference(tvb, tree, pinfo, curr_bit_offset, NULL);
+
+    curr_bit_offset += de_rr_ec_pkt_ch_dsc2(tvb, tree, pinfo, curr_bit_offset);
+
+    /*TODO: reuse legacy FN - use subtree there?*/
+    /*de_rr_ec_fua(tvb, tree, pinfo, (1<<31)|curr_bit_offset, len, NULL, 0);*/
+    subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gsm_rr_elem[DE_RR_EC_FUA], NULL,
+                               val_to_str_ext_const(DE_RR_EC_FUA, &gsm_rr_elem_strings_ext, ""));
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_enhanced_access_burst, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset +=1;
+
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_timing_adv_present))
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_timing_adv, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
+        curr_bit_offset += 6;
+    }
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_starting_ul_timeslot, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
+    curr_bit_offset += 3;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tfi_assignment, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
+    curr_bit_offset += 5;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_starting_dl_timeslot_offset, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
+    curr_bit_offset += 2;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_overlaid_cdma_code, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
+    curr_bit_offset += 2;
+
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_ec_mcs_exist))
+    { /* MCS Description */
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_egprs_mcs, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
+        curr_bit_offset += 4;
+    }
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gamma, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
+    curr_bit_offset += 5;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_alpha_enable, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset += 1;
+
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_p0_present))
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
+        curr_bit_offset += 4;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+        curr_bit_offset += 1;
+    }
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_start_first_ul_data_block, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
+    curr_bit_offset += 4;
+
+    while(gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_ec_fua_gap_list))
+    {
+        if (!gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_ec_start_fn_next_data_block_exist))
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_start_fn_next_data_block, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
+            curr_bit_offset += 3;
+        }
+        else
+        {
+            proto_tree_add_uint(subtree, hf_gsm_a_rr_ec_start_fn_next_data_block, tvb, (curr_bit_offset>>3), 0, 0);
+        }
+    }
+
+}
+
+
+/*
+ * [4] 9.1.61 EC-Immediate Assignment Reject
+ */
+static void
+dtap_rr_ec_imm_ass_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_)
+{
+    guint32     curr_offset;
+    guint32     curr_bit_offset;
+
+    curr_offset = offset;
+    curr_bit_offset  = curr_offset << 3;
+
+    curr_bit_offset += 4; /* Skip msgtype */
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_used_dl_cc, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
+    curr_bit_offset += 2;
+
+    if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, hf_gsm_a_rr_ec_page_extension_exist))
+    {
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_page_extension, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
+        curr_bit_offset += 4;
+    }
+
+    curr_bit_offset += de_rr_ec_request_reference(tvb, tree, pinfo, curr_bit_offset, " - 1");
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_wait_timer, tvb, curr_bit_offset, 8, ENC_BIG_ENDIAN);
+    curr_bit_offset += 8;
+
+    if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, hf_gsm_a_rr_ec_req_ref_2_present))
+    {
+        curr_bit_offset += de_rr_ec_request_reference(tvb, tree, pinfo, curr_bit_offset, " - 2");
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_wait_timer, tvb, curr_bit_offset, 8, ENC_BIG_ENDIAN);
+        curr_bit_offset += 8;
+    }
+
+    if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, hf_gsm_a_rr_ec_req_ref_3_present))
+    {
+        curr_bit_offset += de_rr_ec_request_reference(tvb, tree, pinfo, curr_bit_offset, " - 3");
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_wait_timer, tvb, curr_bit_offset, 8, ENC_BIG_ENDIAN);
+    }
+
+}
+
+/*
+ * [4] 9.1.62 EC-Dummy
+ */
+static void
+dtap_rr_ec_dummy(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_)
+{
+    guint32     curr_bit_offset;
+    curr_bit_offset  = offset << 3;
+
+    curr_bit_offset += 4; /* Skip msgtype */
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_used_dl_cc, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
+}
+
+/*
+ * [4] 9.1.63 EC-Paging Request
+ */
+static const gchar digits[16] = {
+    /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f*/
+       '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
+};
+
+static guint32
+dtap_rr_ec_paging_imsi(tvbuff_t *tvb, proto_tree *tree, guint32 curr_bit_offset)
+{
+    guint64 imsi_digits;
+    guint8 i;
+    wmem_strbuf_t *imsi_str;
+    guint32 sav_bit_offset;
+
+    proto_tree_add_bits_ret_val(tree, hf_gsm_a_rr_ec_imsi_digits, tvb, curr_bit_offset, 4, &imsi_digits, ENC_BIG_ENDIAN);
+    curr_bit_offset += 4;
+    sav_bit_offset = curr_bit_offset;
+    imsi_str = wmem_strbuf_sized_new(wmem_packet_scope(), (gsize)imsi_digits+2, 0);
+    for (i = 0; i <= (guint8)imsi_digits; i++) {
+        wmem_strbuf_append_c(imsi_str, digits[tvb_get_bits8(tvb, curr_bit_offset, 4)]);
+        curr_bit_offset += 4;
+    }
+    proto_tree_add_string(tree, hf_gsm_a_rr_ec_imsi, tvb, sav_bit_offset,
+                          (curr_bit_offset-sav_bit_offset+7)>>3, wmem_strbuf_finalize(imsi_str));
+    return curr_bit_offset;
+}
+
+static void
+dtap_rr_ec_paging_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_)
+{
+    guint32     curr_bit_offset;
+    curr_bit_offset  = offset << 3;
+
+    curr_bit_offset += 4; /* Skip msgtype */
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_used_dl_cc, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
+    curr_bit_offset += 2;
+
+    if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, hf_gsm_a_rr_ec_page_extension_exist))
+    {
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_page_extension, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
+        curr_bit_offset += 4;
+    }
+
+    if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, hf_gsm_a_rr_ec_ptmsi_imsi_select))
+    { /* IMSI */
+        curr_bit_offset = dtap_rr_ec_paging_imsi(tvb, tree, curr_bit_offset);
+    }
+    else
+    { /* P-TMSI*/
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_tmsi_ptmsi, tvb, curr_bit_offset, 32, ENC_BIG_ENDIAN);
+        curr_bit_offset += 32;
+    }
+
+    if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, hf_gsm_a_rr_ec_mobile_identity_2_exist))
+    { /* Mobile identity 2 */
+        if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, hf_gsm_a_rr_ec_ptmsi_imsi_select))
+        { /* IMSI */
+            dtap_rr_ec_paging_imsi(tvb, tree, curr_bit_offset);
+        }
+        else
+        { /* P-TMSI*/
+            proto_tree_add_bits_item(tree, hf_gsm_a_rr_tmsi_ptmsi, tvb, curr_bit_offset, 32, ENC_BIG_ENDIAN);
+        }
+    }
+
+}
+
+/*
+ * [4] 9.1.64 EC-Downlink Assignment
+ */
+static void
+dtap_rr_ec_dl_ass(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_)
+{
+    proto_tree* subtree;
+    guint32     curr_offset;
+    guint32     curr_bit_offset;
+
+    curr_offset = offset;
+    curr_bit_offset  = curr_offset << 3;
+
+    curr_bit_offset += 4; /* Skip msgtype */
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_used_dl_cc, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
+    curr_bit_offset += 2;
+
+    if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, hf_gsm_a_rr_ec_page_extension_exist))
+    {
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_ec_page_extension, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
+        curr_bit_offset += 4;
+    }
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_tlli, tvb, curr_bit_offset, 32, ENC_BIG_ENDIAN);
+    curr_bit_offset += 32;
+
+    curr_bit_offset += de_rr_ec_pkt_ch_dsc2(tvb, tree, pinfo, curr_bit_offset);
+
+    /* FIXME:where to put "ett"? subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gsm_rr_elem[DE_RR_EC_FUA], NULL,
+                                     "EC Downlink Allocation"); */
+    subtree = tree;
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_timing_adv, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
+    curr_bit_offset += 6;
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_starting_dl_timeslot, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
+    curr_bit_offset += 3;
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tfi_assignment, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
+    curr_bit_offset += 5;
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_cc1_timeslot_multiplier, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
+    curr_bit_offset += 2;
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_starting_ul_timeslot_offset, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
+    curr_bit_offset += 2;
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gamma, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
+    curr_bit_offset += 5;
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ec_alpha_enable, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset += 1;
+
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_p0_present))
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
+        curr_bit_offset += 4;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    }
+
+}
+
 #define NUM_GSM_DTAP_MSG_RR (sizeof(gsm_a_dtap_msg_rr_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_rr[NUM_GSM_DTAP_MSG_RR];
 static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
@@ -10709,6 +11301,7 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     dtap_rr_imm_ass,            /* 9.1.18 Immediate assignment  */
     dtap_rr_imm_ass_ext,        /* Immediate Assignment Extended */
     dtap_rr_imm_ass_rej,        /* Immediate Assignment Reject */
+    dtap_rr_ec_imm_ass_type_1,  /* EC-Immediate Assignment Type 1 */
 
     dtap_rr_dtm_ass_fail,       /* DTM Assignment Failure */
     dtap_rr_dtm_rej,            /* DTM Reject */
@@ -10799,8 +11392,8 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     NULL,                       /* UTRAN Classmark Change/Handover To UTRAN Command */  /* spec conflict */
 
     dtap_rr_app_inf,            /* Application Information */
+    NULL                       /* NONE */
 
-    NULL,                       /* NONE */
 };
 
 void get_rr_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
@@ -10919,9 +11512,9 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                                                    "GSM CCCH - %s", msg_str);
 
         ccch_tree = proto_item_add_subtree(ccch_item, ett_tree);
-    }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
+    }
 
     /*  L2 Pseudo Length 10.5.2.19 */
     /* note: dissected out of sequence! */
@@ -10964,6 +11557,94 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
     return tvb_captured_length(tvb);
 }
+
+
+#define NUM_GSM_DTAP_EC_CCCH_MSG_RR (sizeof(gsm_a_dtap_msg_rr_ec_ccch_strings)/sizeof(value_string))
+static gint ett_gsm_dtap_ec_ccch_msg_rr[NUM_GSM_DTAP_EC_CCCH_MSG_RR];
+static void (*dtap_msg_rr_ec_ccch_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
+  dtap_rr_ec_imm_ass_type_2,                  /* EC-Immediate Assignment Type 2 */
+  dtap_rr_ec_imm_ass_rej,                     /* EC-Immediate Assignment Reject */
+  dtap_rr_ec_dummy,                           /* EC-Dummy */
+  dtap_rr_ec_dl_ass,                          /* EC-Downlink Assignment */
+  dtap_rr_ec_paging_req,                      /* EC-Paging Request */
+};
+
+static void
+get_rr_ec_ccch_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
+{
+    gint idx;
+
+    *msg_str = try_val_to_str_idx((guint32) (oct & DTAP_RR_IEI_MASK), gsm_a_dtap_msg_rr_ec_ccch_strings, &idx);
+    *hf_idx = hf_gsm_a_dtap_msg_rr_ec_ccch_type;
+    if (*msg_str != NULL) {
+        *ett_tree = ett_gsm_dtap_ec_ccch_msg_rr[idx];
+        *msg_fcn_p  = dtap_msg_rr_ec_ccch_fcn[idx];
+    }
+
+    return;
+}
+
+static int
+dissect_ec_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+
+    void                  (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
+    guint8                  msgtype;
+    guint32                 offset;
+    guint32                 len;
+    proto_item             *ec_ccch_item   = NULL;
+    proto_tree             *ec_ccch_tree   = NULL;
+    const gchar            *msg_str;
+    gint                    ett_tree;
+    int                     hf_idx;
+    len = tvb_reported_length(tvb);
+
+    col_append_str(pinfo->cinfo, COL_INFO, "(EC-CCCH) (RR) ");
+
+    offset = 0;
+    msgtype = tvb_get_bits8(tvb, offset, 4);
+
+    msg_str = NULL;
+    ett_tree = -1;
+    hf_idx = -1;
+    msg_fcn_p = NULL;
+
+    get_rr_ec_ccch_msg_params(msgtype, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
+
+    /*
+     * create the protocol tree
+     */
+    if (msg_str == NULL){
+        ec_ccch_item = proto_tree_add_protocol_format(tree, proto_a_ec_ccch, tvb, 0, len,
+                                                   "GSM EC-CCCH - Message Type (0x%02x)",
+                                                   msgtype);
+
+        ec_ccch_tree = proto_item_add_subtree(ec_ccch_item, ett_ec_ccch_msg);
+    }else{
+        ec_ccch_item = proto_tree_add_protocol_format(tree, proto_a_ec_ccch, tvb, 0, -1,
+                                                   "GSM EC-CCCH - %s", msg_str);
+
+        ec_ccch_tree = proto_item_add_subtree(ec_ccch_item, ett_tree);
+
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
+    }
+
+    /*
+     * add DTAP message name
+     */
+    proto_tree_add_uint_format(ec_ccch_tree, hf_idx, tvb, offset, 1, msgtype,
+                               "Message Type: %s",msg_str ? msg_str : "(Unknown)");
+    /*
+     * decode elements
+     */
+    if (msg_fcn_p == NULL){
+        proto_tree_add_item(ec_ccch_tree, hf_gsm_a_rr_message_elements, tvb, offset, len - offset, ENC_NA);
+    }else{
+        (*msg_fcn_p)(tvb, ec_ccch_tree, pinfo, offset, len - offset);
+    }
+    return tvb_captured_length(tvb);
+}
+
 
 const value_string gsm_a_rr_short_pd_msg_strings[] = {
     { 0x00, "System Information Type 10" },
@@ -12925,6 +13606,212 @@ proto_register_gsm_a_rr(void)
                 FT_UINT16, BASE_DEC, NULL, 0x00,
                 NULL, HFILL }
             },
+            { &hf_gsm_a_rr_feat_ind_peo_bcch_change_mark,
+              { "PEO BCCH CHANGE MARK","gsm_a.rr.feature_indicator.peo_bcch_change_mark",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_feat_ind_cs_ir,
+              { "CS IR","gsm_a.rr.feature_indicator.cs_ir",
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_feat_ind_cs_ir), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_feat_ind_ps_ir,
+              { "pS IR","gsm_a.rr.feature_indicator.cs_ir",
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_feat_ind_ps_ir), 0x00,
+                NULL, HFILL }
+            },
+            /* ---> EC <---*/
+            { &hf_gsm_a_rr_ec_qhfi,
+              { "QUARTER_HYPERFRAME_INDICATOR", "gsm_a.rr.ec_quarter_hyperframe_indicator",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_ec_dl_cc,
+              { "DL_COVERAGE_CLASS", "gsm_a.rr.ec_dl_cc",
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_ec_cc_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_ec_ul_cc,
+              { "UL_COVERAGE_CLASS", "gsm_a.rr.ec_ul_cc",
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_ec_cc_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_tsc_set,
+              { "TSC Set", "gsm_a.rr.tsc_set",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_ec_tsc,
+              { "TSC (EC)", "gsm_a.rr.ec_tsc",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_ec_ma_number,
+              { "MA_NUMBER", "gsm_a.rr.ma_number",
+                FT_UINT8, BASE_CUSTOM, CF_FUNC(gsm_a_rr_ec_ma_number_fmt), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_ec_enhanced_access_burst,
+              { "ENHANCED_ACCESS_BURST", "gsm_a.rr.ec_enhanced_access_burst",
+                FT_BOOLEAN, BASE_NONE, TFS(&tfs_shall_be_shall_not_be_used), 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_starting_ul_timeslot,
+              { "STARTING_UL_TIMESLOT", "gsm_a.rr.ec_starting_ul_timeslot",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_starting_dl_timeslot,
+              { "STARTING_DL_TIMESLOT", "gsm_a.rr.ec_starting_dl_timeslot",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_starting_dl_timeslot_offset,
+              { "STARTING_DL_TIMESLOT_OFFSET", "gsm_a.rr.ec_starting_dl_timeslot_offset",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_starting_ul_timeslot_offset,
+              { "STARTING_UL_TIMESLOT_OFFSET", "gsm_a.rr.ec_starting_ul_timeslot_offset",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_overlaid_cdma_code,
+              { "OVERLAID_CDMA_CODE", "gsm_a.rr.ec_overlaid_cdma_code",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_mcs_exist,
+              { "MCS Exist (EC)", "gsm_a.rr.ec_mcs_exist",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_start_first_ul_data_block,
+              { "START_FIRST_UL_DATA_BLOCK", "gsm_a.rr.ec_start_first_ul_data_block",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_fua_gap_list,
+              { "FUA_GAP List", "gsm_a.rr.ec_fua_gap_list",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_start_fn_next_data_block_exist,
+              { "START_FN_NEXT_DATA_BLOCK Present", "gsm_a.rr.ec_start_fn_next_data_block_exist",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_start_fn_next_data_block,
+              { "START_FN_NEXT_DATA_BLOCK", "gsm_a.rr.ec_start_fn_next_data_block",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_dtap_msg_rr_ec_ccch_type,
+              { "DTAP Radio Resources Management Message Type (EC)", "gsm_a.dtap.msg_rr_ec_ccch_type",
+                FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_rr_ec_ccch_strings), 0x0,
+                NULL, HFILL }
+            },
+
+            { &hf_gsm_a_rr_ec_used_dl_cc,
+              { "USED_DL_COVERAGE_CLASS", "gsm_a.rr.ec_used_dl_cc",
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_ec_cc_vals), 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_page_extension_exist,
+              { "EC_PAGE_EXTENSION Exist", "gsm_a.rr.ec_page_extension_exist",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_page_extension,
+              { "EC_PAGE_EXTENSION", "gsm_a.rr.ec_page_extension",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_last_tdma_frame,
+              { "Last TDMA Frame", "gsm_a.rr.ec_last_tdma_frame",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_echoed_random_bits,
+              { "Echoed Random Bits", "gsm_a.rr.ec_echoed_random_bits",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_wait_timer,
+              { "EC-Wait Timer", "gsm_a.rr.ec_wait_timer",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_req_ref_2_present,
+              { "EC Request Reference 2 Exist", "gsm_a.rr.ec_request_reference_2_exist",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_req_ref_3_present,
+              { "EC Request Reference 3 Exist", "gsm_a.rr.ec_request_reference_3_exist",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_ptmsi_imsi_select,
+              { "Mobile Identity", "gsm_a.rr.ec_ptmsi_imsi_select",
+                FT_BOOLEAN, BASE_NONE, TFS(&tfs_ec_ptmsi_imsi), 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_imsi_digits,
+              { "Number of IMSI Digits", "gsm_a.rr.ec_imsi_digits",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_imsi,
+              { "IMSI", "gsm_a.rr.ec_imsi",
+                FT_STRING, STR_ASCII, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_mobile_identity_2_exist,
+              { "EC Mobile Identity 2 Exist", "gsm_a.rr.ec_mobile_identity_2_exist",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_cc1_timeslot_multiplier,
+              { "EC CC1 Timeslot Multiplier", "gsm_a.rr.ec_cc1_ts_multiplier",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_gsm_a_rr_ec_alpha_enable,
+              { "EC ALPHA Enable", "gsm_a.rr.ec_alpha_enable",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+
+
+
+
 
             /* Generated from convert_proto_tree_add_text.pl */
             { &hf_gsm_a_rr_padding, { "Padding Bits", "gsm_a.rr.padding_bits", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -13256,7 +14143,7 @@ proto_register_gsm_a_rr(void)
         };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    3
+#define NUM_INDIVIDUAL_ELEMS    4
     gint *ett[NUM_INDIVIDUAL_ELEMS +
               NUM_GSM_DTAP_MSG_RR +
               NUM_GSM_RR_ELEM +
@@ -13276,6 +14163,7 @@ proto_register_gsm_a_rr(void)
     ett[0] = &ett_ccch_msg;
     ett[1] = &ett_ccch_oct_1;
     ett[2] = &ett_sacch_msg;
+    ett[3] = &ett_ec_ccch_msg;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
@@ -13326,6 +14214,12 @@ proto_register_gsm_a_rr(void)
 
     /* subdissector code */
     register_dissector("gsm_a_sacch", dissect_sacch, proto_a_sacch);
+    /* Register the protocol name and description */
+
+    proto_a_ec_ccch =
+        proto_register_protocol("GSM EC-CCCH", "GSM EC-CCCH", "gsm_a.ec_ccch");
+    /* subdissector code */
+    register_dissector("gsm_a_ec_ccch", dissect_ec_ccch, proto_a_ec_ccch);
 
     /* subtree array (for both sub-dissectors) */
     proto_register_subtree_array(ett, array_length(ett));

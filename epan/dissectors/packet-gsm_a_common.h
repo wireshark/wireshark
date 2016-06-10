@@ -1325,6 +1325,12 @@ typedef enum
  * 10.5.2.68 VGCS AMR Configuration
  */
     DE_RR_CARRIER_IND,              /* 10.5.2.69 Carrier Indication */
+    DE_RR_FEATURE_INDICATOR,        /* 10.5.2.76 feature Inticator */
+    DE_RR_EC_REQUEST_REFERENCE,     /* 10.5.2.83 EC Request reference */
+    DE_RR_EC_PKT_CH_DSC1,           /* 10.5.2.84 EC Packet Channel Description Type 1 */
+    DE_RR_EC_PKT_CH_DSC2,           /* 10.5.2.85 EC Packet Channel Description Type 2 */
+    DE_RR_EC_FUA,                   /* 10.5.2.86 EC Fixed Uplink Allocation */
+
     DE_RR_NONE                          /* NONE */
 }
 rr_elem_idx_t;
