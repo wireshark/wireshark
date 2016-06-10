@@ -1105,6 +1105,7 @@ process_cap_file(wtap *wth, const char *filename)
 
   g_assert(idb_info->interface_data != NULL);
 
+  cf_info.num_interfaces = idb_info->interface_data->len;
   cf_info.interface_packet_counts  = g_array_sized_new(FALSE, TRUE, sizeof(guint32), cf_info.num_interfaces);
   cf_info.pkt_interface_id_unknown = 0;
 
