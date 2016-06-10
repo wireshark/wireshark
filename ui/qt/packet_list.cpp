@@ -74,6 +74,11 @@
 #include <QTimerEvent>
 #include <QTreeWidget>
 
+#ifdef Q_OS_WIN
+#include "wsutil/file_util.h"
+#include <QSysInfo>
+#endif
+
 // To do:
 // - Fix "apply as filter" behavior.
 // - Add colorize conversation.
@@ -377,6 +382,60 @@ PacketList::PacketList(QWidget *parent) :
 
     g_assert(gbl_cur_packet_list == NULL);
     gbl_cur_packet_list = this;
+
+    bool style_inactive_selected = true;
+
+#ifdef Q_OS_WIN // && Qt version >= 4.8.6
+    if (QSysInfo::WinVersion() < QSysInfo::WV_WINDOWS8) {
+        // See if we're running Vista or 7 and we have a theme applied.
+        HMODULE uxtheme_lib = (HMODULE) ws_load_library("uxtheme.dll");
+
+        if (uxtheme_lib) {
+            typedef BOOL (WINAPI *IsAppThemedHandler)(void);
+            typedef BOOL (WINAPI *IsThemeActiveHandler)(void);
+
+            IsAppThemedHandler PIsAppThemed = (IsAppThemedHandler) GetProcAddress(uxtheme_lib, "IsAppThemed");
+            IsThemeActiveHandler PIsThemeActive = (IsThemeActiveHandler) GetProcAddress(uxtheme_lib, "IsThemeActive");
+            if (PIsAppThemed && PIsAppThemed() && PIsThemeActive && PIsThemeActive()) {
+                style_inactive_selected = false;
+            }
+        }
+    }
+#endif
+
+    if (style_inactive_selected) {
+        // XXX Style the protocol tree as well?
+        QPalette inactive_pal = palette();
+        inactive_pal.setCurrentColorGroup(QPalette::Inactive);
+        QColor border = QColor::fromRgb(ColorUtils::alphaBlend(
+                                                inactive_pal.highlightedText(),
+                                                inactive_pal.highlight(),
+                                                0.25));
+        QColor shadow = QColor::fromRgb(ColorUtils::alphaBlend(
+                                                inactive_pal.highlightedText(),
+                                                inactive_pal.highlight(),
+                                                0.07));
+        setStyleSheet(QString(
+                          "QTreeView::item:selected:first:!active {"
+                          "  border-left: 1px solid %1;"
+                          "}"
+                          "QTreeView::item:selected:last:!active {"
+                          "  border-right: 1px solid %1;"
+                          "}"
+                          "QTreeView::item:selected:!active {"
+                          "  border-top: 1px solid %1;"
+                          "  border-bottom: 1px solid %1;"
+                          "  color: %2;"
+                          // Try to approximate a subtle box shadow.
+                          "  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1"
+                          "    stop: 0 %4, stop: 0.2 %3, stop: 0.8 %3, stop: 1 %4);"
+                          "}")
+                      .arg(border.name())
+                      .arg(inactive_pal.highlightedText().color().name())
+                      .arg(inactive_pal.highlight().color().name())
+                      .arg(shadow.name())
+                      );
+    }
 
     connect(packet_list_model_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
     connect(packet_list_model_, SIGNAL(itemHeightChanged(const QModelIndex&)), this, SLOT(updateRowHeights(const QModelIndex&)));
