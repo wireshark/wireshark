@@ -295,8 +295,9 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/Zo")
 	elseif(MSVC14)
 		# /Zo                               Enhanced debugging of optimised code
+		# /utf-8                            Set Source and Executable character sets to UTF-8
 		#                                   VS2015(MSVC14): On by default when /Zi or /Z7 used.
-		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/Zo")
+		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/Zo" "/utf-8")
 	endif()
 
 	if(ENABLE_CODE_ANALYSIS)
