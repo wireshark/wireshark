@@ -82,7 +82,7 @@ static gboolean dissect_lanforge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 
     /* check for magic number */
-    magic = tvb_get_ntohl(tvb,0);
+    magic = tvb_get_ntohl(tvb, 4);
     if(magic != LANFORGE_MAGIC){
         /* Not a LANforge packet. */
         return FALSE;
