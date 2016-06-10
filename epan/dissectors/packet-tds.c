@@ -3396,7 +3396,8 @@ dissect_tds_type_info(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tr
         case TDS_DATA_TYPE_NUMERICN:        /* Numeric */
             proto_tree_add_item(sub_tree, hf_tds_type_info_precision, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
             *offset += 1;
-            break;
+            /* fallthrough */
+
         /* SCALE */
         case TDS_DATA_TYPE_TIMEN:           /* (introduced in TDS 7.3) */
         case TDS_DATA_TYPE_DATETIME2N:      /* (introduced in TDS 7.3) */
