@@ -27,6 +27,11 @@
 
 #include "config.h"
 
+#include <epan/packet.h>
+#include <epan/asn1.h>
+
+#include "packet-ber.h"
+#include "packet-isup.h"
 #include "packet-h248.h"
 
 void proto_reg_handoff_q1950(void);

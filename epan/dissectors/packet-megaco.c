@@ -44,13 +44,17 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/gcp.h>
 #include <epan/tap.h>
 #include <epan/rtd_table.h>
+#include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/exported_pdu.h>
+#include <epan/asn1.h>
+#include <epan/sctpppids.h>
+#include "packet-ber.h"
 #include "packet-tpkt.h"
 #include "packet-h245.h"
+#include "packet-h248.h"
 #include "packet-ip.h"
 
 void proto_register_megaco(void);
