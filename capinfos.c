@@ -232,8 +232,8 @@ typedef struct _capture_info {
 
   int           *encap_counts;           /* array of per_packet encap counts; array has one entry per wtap_encap type */
 
-  guint          num_interfaces;         /* number of IDBs, and thus size of interface_ids array */
-  guint32       *interface_ids;          /* array of per_packet interface_id counts; one entry per file IDB */
+  guint          num_interfaces;         /* number of IDBs, and thus size of interface_packet_counts array */
+  GArray        *interface_packet_counts;  /* array of per_packet interface_id counts; one entry per file IDB */
   guint32        pkt_interface_id_unknown; /* counts if packet interface_id didn't match a known one */
   GArray        *idb_info_strings;       /* array of IDB info strings */
 } capture_info;
@@ -693,7 +693,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
       gchar *s = g_array_index(cf_info->idb_info_strings, gchar*, i);
       printf   ("Interface #%u info:\n", i);
       printf   ("%s", s);
-      printf   ("                     Number of packets = %u\n", cf_info->interface_ids[i]);
+      printf   ("                     Number of packets = %u\n", g_array_index(cf_info->interface_packet_counts, guint32, i));
     }
   }
 }
@@ -985,8 +985,8 @@ cleanup_capture_info(capture_info *cf_info)
   g_free(cf_info->encap_counts);
   cf_info->encap_counts = NULL;
 
-  g_free(cf_info->interface_ids);
-  cf_info->interface_ids = NULL;
+  g_array_free(cf_info->interface_packet_counts, TRUE);
+  cf_info->interface_packet_counts = NULL;
 
   if (cf_info->idb_info_strings) {
     for (i = 0; i < cf_info->idb_info_strings->len; i++) {
@@ -1067,18 +1067,8 @@ process_cap_file(wtap *wth, const char *filename)
 
   g_assert(idb_info->interface_data != NULL);
 
-  cf_info.num_interfaces = idb_info->interface_data->len;
-  cf_info.interface_ids  = g_new0(guint32, cf_info.num_interfaces);
+  cf_info.interface_packet_counts  = g_array_sized_new(FALSE, TRUE, sizeof(guint32), cf_info.num_interfaces);
   cf_info.pkt_interface_id_unknown = 0;
-
-  cf_info.idb_info_strings = g_array_sized_new(FALSE, FALSE, sizeof(gchar*), cf_info.num_interfaces);
-
-  /* get IDB info strings */
-  for (i = 0; i < cf_info.num_interfaces; i++) {
-    const wtapng_if_descr_t *if_descr = &g_array_index(idb_info->interface_data, wtapng_if_descr_t, i);
-    gchar *s = wtap_get_debug_if_descr(if_descr, 21, "\n");
-    g_array_append_val(cf_info.idb_info_strings, s);
-  }
 
   g_free(idb_info);
   idb_info = NULL;
@@ -1141,8 +1131,23 @@ process_cap_file(wtap *wth, const char *filename)
       /* Packet interface_id info */
       if (phdr->presence_flags & WTAP_HAS_INTERFACE_ID) {
         /* cf_info.num_interfaces is size, not index, so it's one more than max index */
+        if (phdr->interface_id >= cf_info.num_interfaces) {
+          /*
+           * OK, re-fetch the number of interfaces, as there might have
+           * been an interface that was in the middle of packets, and
+           * grow the array to be big enough for the new number of
+           * interfaces.
+           */
+          idb_info = wtap_file_get_idb_info(wth);
+
+          cf_info.num_interfaces = idb_info->interface_data->len;
+          g_array_set_size(cf_info.interface_packet_counts, cf_info.num_interfaces);
+
+          g_free(idb_info);
+          idb_info = NULL;
+        }
         if (phdr->interface_id < cf_info.num_interfaces) {
-          cf_info.interface_ids[phdr->interface_id] += 1;
+          g_array_index(cf_info.interface_packet_counts, guint32, phdr->interface_id) += 1;
         }
         else {
           cf_info.pkt_interface_id_unknown += 1;
@@ -1151,7 +1156,7 @@ process_cap_file(wtap *wth, const char *filename)
       else {
         /* it's for interface_id 0 */
         if (cf_info.num_interfaces != 0) {
-          cf_info.interface_ids[0] += 1;
+          g_array_index(cf_info.interface_packet_counts, guint32, 0) += 1;
         }
         else {
           cf_info.pkt_interface_id_unknown += 1;
@@ -1160,6 +1165,24 @@ process_cap_file(wtap *wth, const char *filename)
     }
 
   } /* while */
+
+  /*
+   * Get IDB info strings.
+   * We do this at the end, so we can get information for all IDBs in
+   * the file, even those that come after packet records.
+   */
+  idb_info = wtap_file_get_idb_info(wth);
+
+  cf_info.idb_info_strings = g_array_sized_new(FALSE, FALSE, sizeof(gchar*), cf_info.num_interfaces);
+  cf_info.num_interfaces = idb_info->interface_data->len;
+  for (i = 0; i < cf_info.num_interfaces; i++) {
+    const wtapng_if_descr_t *if_descr = &g_array_index(idb_info->interface_data, wtapng_if_descr_t, i);
+    gchar *s = wtap_get_debug_if_descr(if_descr, 21, "\n");
+    g_array_append_val(cf_info.idb_info_strings, s);
+  }
+
+  g_free(idb_info);
+  idb_info = NULL;
 
   if (err != 0) {
     fprintf(stderr,
