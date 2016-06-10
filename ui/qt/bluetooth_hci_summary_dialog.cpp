@@ -192,19 +192,15 @@ void BluetoothHciSummaryDialog::tableContextMenu(const QPoint &pos)
     context_menu_.exec(ui->tableTreeWidget->viewport()->mapToGlobal(pos));
 }
 
-void BluetoothHciSummaryDialog::tableItemExpanded(QTreeWidgetItem *item)
+void BluetoothHciSummaryDialog::tableItemExpanded(QTreeWidgetItem *)
 {
-    Q_UNUSED(item);
-
     for (int i = 0; i < ui->tableTreeWidget->columnCount(); i++) {
         ui->tableTreeWidget->resizeColumnToContents(i);
     }
 }
 
-void BluetoothHciSummaryDialog::tableItemCollapsed(QTreeWidgetItem *item)
+void BluetoothHciSummaryDialog::tableItemCollapsed(QTreeWidgetItem *)
 {
-    Q_UNUSED(item);
-
     for (int i = 0; i < ui->tableTreeWidget->columnCount(); i++) {
         ui->tableTreeWidget->resizeColumnToContents(i);
     }
