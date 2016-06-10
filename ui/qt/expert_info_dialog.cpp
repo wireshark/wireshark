@@ -70,7 +70,8 @@ public:
         setData(group_col_, Qt::UserRole, QVariant(group));
 
         setText(severity_col_, val_to_str_const(severity, expert_severity_vals, "Unknown"));
-        setText(summary_col_, summary);
+        QString summary_raw = summary; // Might contain CR, LF, etc.
+        setText(summary_col_, summary_raw.simplified());
         setText(group_col_, val_to_str_const(group, expert_group_vals, "Unknown"));
         setText(protocol_col_, protocol);
         setText(count_col_, "0");
@@ -121,6 +122,7 @@ public:
             hf_id_ = expert_info->hf_index;
             protocol_ = expert_info->protocol;
             summary_ = expert_info->summary;
+            info_ = col_get_text(expert_info->pitem->tree_data->pinfo->cinfo, COL_INFO);
         }
         setTextAlignment(severity_col_, Qt::AlignRight);
     }
@@ -131,11 +133,11 @@ public:
                 return QString::number(packet_num_);
                 break;
             case summary_col_:
-                if (!group_by_summary_) {
-                    return summary_;
+                if (group_by_summary_) {
+                    return QString(info_).simplified();
+                } else {
+                    return QString(summary_).simplified();
                 }
-                // XXX Else we end up with a bunch of white space. Should we
-                // add extra information, e.g. the info column contents here?
                 break;
             default:
                 break;
@@ -154,7 +156,7 @@ public:
         QString key = QString("%1|%2|%3")
                 .arg(severity_)
                 .arg(group_)
-                .arg(protocol_);
+                .arg(QString(protocol_));
         if (group_by_summary) {
             key += "|";
             key += summary_;
@@ -179,8 +181,11 @@ private:
     int group_;
     int severity_;
     int hf_id_;
-    QString protocol_;
-    QString summary_;
+    // Half-hearted attempt at conserving memory. If this isn't sufficient,
+    // PacketListRecord interns column strings in a GStringChunk.
+    QByteArray protocol_;
+    QByteArray summary_;
+    QByteArray info_;
 };
 
 ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file) :
@@ -296,7 +301,7 @@ void ExpertInfoDialog::retapPackets()
     if (!registerTapListener("expert",
                              this,
                              NULL,
-                             TL_REQUIRES_NOTHING,
+                             TL_REQUIRES_COLUMNS,
                              tapReset,
                              tapPacket,
                              tapDraw)) {
@@ -611,6 +616,12 @@ void ExpertInfoDialog::captureFileClosing()
 
 void ExpertInfoDialog::on_expertInfoTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *)
 {
+    QString first_col_title = tr("Severity");
+    if (current && current->type() == packet_type_) {
+        first_col_title = tr("Packet");
+    }
+    ui->expertInfoTreeWidget->headerItem()->setText(severity_col_, first_col_title);
+
     // Ignore top-level items.
     if (!current || !current->parent() || file_closed_) return;
 
