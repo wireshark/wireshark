@@ -3757,7 +3757,8 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
             hostnamelen = strlen(ipv4_hash_list_entry->name);
             if (hostnamelen > (G_MAXUINT16 - 4) - 1) {
                 /*
-                 * This won't fit in a maximum-sized record; discard it.
+                 * This won't fit in the largest possible NRB record;
+                 * discard it.
                  */
                 i++;
                 ipv4_hash_list_entry = (hashipv4_t *)g_list_nth_data(wdh->addrinfo_lists->ipv4_addr_list, i);
@@ -3826,7 +3827,8 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
             hostnamelen = strlen(ipv6_hash_list_entry->name);
             if (hostnamelen > (G_MAXUINT16 - 16) - 1) {
                 /*
-                 * This won't fit in a maximum-sized record; discard it.
+                 * This won't fit in the largest possible NRB record;
+                 * discard it.
                  */
                 i++;
                 ipv6_hash_list_entry = (hashipv6_t *)g_list_nth_data(wdh->addrinfo_lists->ipv6_addr_list, i);
