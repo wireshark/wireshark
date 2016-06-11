@@ -2049,11 +2049,12 @@ dissect_dcerpc_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     guint8 data;
 
     data = tvb_get_guint8(tvb, offset);
-    if (tree && hfindex != -1) {
+    if (hfindex != -1) {
         proto_tree_add_item(tree, hfindex, tvb, offset, 1, DREP_ENC_INTEGER(drep));
     }
     if (pdata)
         *pdata = data;
+    tvb_ensure_bytes_exist(tvb, offset, 1);
     return offset + 1;
 }
 
@@ -2068,11 +2069,12 @@ dissect_dcerpc_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
             ? tvb_get_letohs(tvb, offset)
             : tvb_get_ntohs(tvb, offset));
 
-    if (tree && hfindex != -1) {
+    if (hfindex != -1) {
         proto_tree_add_item(tree, hfindex, tvb, offset, 2, DREP_ENC_INTEGER(drep));
     }
     if (pdata)
         *pdata = data;
+    tvb_ensure_bytes_exist(tvb, offset, 2);
     return offset + 2;
 }
 
@@ -2087,11 +2089,12 @@ dissect_dcerpc_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
             ? tvb_get_letohl(tvb, offset)
             : tvb_get_ntohl(tvb, offset));
 
-    if (tree && hfindex != -1) {
+    if (hfindex != -1) {
         proto_tree_add_item(tree, hfindex, tvb, offset, 4, DREP_ENC_INTEGER(drep));
     }
     if (pdata)
         *pdata = data;
+    tvb_ensure_bytes_exist(tvb, offset, 4);
     return offset+4;
 }
 
@@ -2110,7 +2113,7 @@ dissect_dcerpc_time_t(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
     tv.secs = data;
     tv.nsecs = 0;
-    if (tree && hfindex != -1) {
+    if (hfindex != -1) {
         if (data == 0xffffffff) {
             /* special case,   no time specified */
             proto_tree_add_time_format_value(tree, hfindex, tvb, offset, 4, &tv, "No time specified");
@@ -2121,6 +2124,7 @@ dissect_dcerpc_time_t(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     if (pdata)
         *pdata = data;
 
+    tvb_ensure_bytes_exist(tvb, offset, 4);
     return offset+4;
 }
 
@@ -2135,7 +2139,7 @@ dissect_dcerpc_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
             ? tvb_get_letoh64(tvb, offset)
             : tvb_get_ntoh64(tvb, offset));
 
-    if (tree && hfindex != -1) {
+    if (hfindex != -1) {
         header_field_info *hfinfo;
 
         /* This might be a field that is either 32bit, in NDR or
@@ -2160,6 +2164,7 @@ dissect_dcerpc_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     }
     if (pdata)
         *pdata = data;
+    tvb_ensure_bytes_exist(tvb, offset, 8);
     return offset+8;
 }
 
@@ -2194,6 +2199,7 @@ dissect_dcerpc_float(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     }
     if (pdata)
         *pdata = data;
+    tvb_ensure_bytes_exist(tvb, offset, 4);
     return offset + 4;
 }
 
@@ -2228,6 +2234,7 @@ dissect_dcerpc_double(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     }
     if (pdata)
         *pdata = data;
+    tvb_ensure_bytes_exist(tvb, offset, 8);
     return offset + 8;
 }
 
@@ -2326,17 +2333,11 @@ dissect_ndr_ucarray_core(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         /* real run, dissect the elements */
         if (fnct_block) {
-                old_offset = offset;
                 offset = (*fnct_block)(tvb, offset, di->array_max_count,
                                        pinfo, tree, di, drep);
-                if (offset <= old_offset)
-                    THROW(ReportedBoundsError);
         } else {
             for (i=0 ;i<di->array_max_count; i++) {
-                old_offset = offset;
                 offset = (*fnct_bytes)(tvb, offset, pinfo, tree, di, drep);
-                if (offset <= old_offset)
-                    THROW(ReportedBoundsError);
             }
         }
     }
@@ -2409,17 +2410,11 @@ dissect_ndr_ucvarray_core(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         /* real run, dissect the elements */
         if (fnct_block) {
-                old_offset = offset;
                 offset = (*fnct_block)(tvb, offset, di->array_actual_count,
                                        pinfo, tree, di, drep);
-                if (offset <= old_offset)
-                    THROW(ReportedBoundsError);
         } else if (fnct_bytes) {
             for (i=0 ;i<di->array_actual_count; i++) {
-                old_offset = offset;
                 offset = (*fnct_bytes)(tvb, offset, pinfo, tree, di, drep);
-                if (offset <= old_offset)
-                    THROW(ReportedBoundsError);
             }
         }
     }
