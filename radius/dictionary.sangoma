@@ -1,0 +1,112 @@
+# -*- text -*-
+#
+# dictionary.sangoma
+#
+# jma@sangoma.com
+#
+# Version:	$Id: dictionary.sangoma
+#
+
+VENDOR		NetBorder			35987
+
+#
+#	Standard attribute
+#
+BEGIN-VENDOR	NetBorder
+
+ATTRIBUTE	NetBorder-AVPair			1	string
+ATTRIBUTE	NetBorder-CLID				2	string
+ATTRIBUTE	NetBorder-Dialplan			3	string
+ATTRIBUTE	NetBorder-Src				4	string
+ATTRIBUTE	NetBorder-Dst				5	string
+ATTRIBUTE	NetBorder-Src-Channel			6	string
+ATTRIBUTE	NetBorder-Dst-Channel			7	string
+ATTRIBUTE	NetBorder-Ani				8	string
+ATTRIBUTE	NetBorder-Aniii				9	string
+ATTRIBUTE	NetBorder-Lastapp			10	string
+ATTRIBUTE	NetBorder-Lastdata			11	string
+ATTRIBUTE	NetBorder-Disposition			12	string
+ATTRIBUTE	NetBorder-Hangupcause			13	integer
+ATTRIBUTE	NetBorder-Billusec			15	integer
+ATTRIBUTE	NetBorder-AMAFlags			16	integer
+ATTRIBUTE	NetBorder-RDNIS				17	string
+ATTRIBUTE	NetBorder-Context			18	string
+ATTRIBUTE	NetBorder-Source			19	string
+ATTRIBUTE	NetBorder-Callstartdate			20	string
+ATTRIBUTE	NetBorder-Callanswerdate		21	string
+ATTRIBUTE	NetBorder-Calltransferdate		22	string
+ATTRIBUTE	NetBorder-Callenddate			23	string
+ATTRIBUTE	NetBorder-Signalbond			24	string
+
+#
+#  NetBorder-Hangupcause
+#
+VALUE	NetBorder-Hangupcause		None			0
+VALUE	NetBorder-Hangupcause		Unallocated-Number	1
+VALUE	NetBorder-Hangupcause		No-Route-Transit-Net	2
+VALUE	NetBorder-Hangupcause		No-Route-Destination	3
+VALUE	NetBorder-Hangupcause		Channel-Unacceptable	6
+VALUE	NetBorder-Hangupcause		Call-Awarded-Delivery	7
+VALUE	NetBorder-Hangupcause		Normal-Clearing		16
+VALUE	NetBorder-Hangupcause		User-Busy		17
+VALUE	NetBorder-Hangupcause		No-User-Response	18
+VALUE	NetBorder-Hangupcause		No-Answer		19
+VALUE	NetBorder-Hangupcause		Subscriber-Absent	20
+VALUE	NetBorder-Hangupcause		Call-Rejected		21
+VALUE	NetBorder-Hangupcause		Number-Changed		22
+VALUE	NetBorder-Hangupcause		Redirecto-To-New-Destination 23
+VALUE	NetBorder-Hangupcause		Exchange-Routing-Error	25
+VALUE	NetBorder-Hangupcause		Destination-Out-Of-Order 27
+VALUE	NetBorder-Hangupcause		Invalid-Number-Format	28
+VALUE	NetBorder-Hangupcause		Facility-Rejected	29
+VALUE	NetBorder-Hangupcause		Response-To-Status-Enquiry 30
+VALUE	NetBorder-Hangupcause		Normal-Unspecified	31
+VALUE	NetBorder-Hangupcause		Normal-Circuit-Congestion 34
+VALUE	NetBorder-Hangupcause		Network-Out-Of-Order	38
+VALUE	NetBorder-Hangupcause		Normal-Temporary-Failure 41
+VALUE	NetBorder-Hangupcause		Switch-Congestion	42
+VALUE	NetBorder-Hangupcause		Access-Info-Discarded	43
+VALUE	NetBorder-Hangupcause		Requested-Chan-Unavail	44
+VALUE	NetBorder-Hangupcause		Pre-Empted		45
+VALUE	NetBorder-Hangupcause		Facility-Not-Subscribed	50
+VALUE	NetBorder-Hangupcause		Outgoing-Call-Barred	52
+VALUE	NetBorder-Hangupcause		Incoming-Call-Barred	54
+VALUE	NetBorder-Hangupcause		Bearercapability-Notauth 57
+VALUE	NetBorder-Hangupcause		Bearercapability-Notavail 58
+VALUE	NetBorder-Hangupcause		Service-Unavailable	63
+VALUE	NetBorder-Hangupcause		Bearercapability-Notimpl 65
+VALUE	NetBorder-Hangupcause		Chan-Not-Implemented	66
+VALUE	NetBorder-Hangupcause		Facility-Not-Implemented 69
+VALUE	NetBorder-Hangupcause		Service-Not-Implemented	79
+VALUE	NetBorder-Hangupcause		Invalid-Call-Reference	81
+VALUE	NetBorder-Hangupcause		Incompatible-Destination 88
+VALUE	NetBorder-Hangupcause		Invalid-Msg-Unspecified	95
+VALUE	NetBorder-Hangupcause		Mandatory-IE-Missing	96
+VALUE	NetBorder-Hangupcause		Message-Type-Nonexist	97
+VALUE	NetBorder-Hangupcause		Wrong-Message		98
+VALUE	NetBorder-Hangupcause		IE-Nonexist		99
+VALUE	NetBorder-Hangupcause		Invalid-IE-Contents	100
+VALUE	NetBorder-Hangupcause		Wrong-Call-State	101
+VALUE	NetBorder-Hangupcause		Recovery-On-Timer-Expire 102
+VALUE	NetBorder-Hangupcause		Mandatory-IE-Length-Error 103
+VALUE	NetBorder-Hangupcause		Protocol-Error		111
+VALUE	NetBorder-Hangupcause		Interworking		127
+VALUE	NetBorder-Hangupcause		Success			142
+VALUE	NetBorder-Hangupcause		Originator-Cancel	487
+VALUE	NetBorder-Hangupcause		Crash			500
+VALUE	NetBorder-Hangupcause		System-Shutdown		501
+VALUE	NetBorder-Hangupcause		Lose-Race		502
+VALUE	NetBorder-Hangupcause		Manager-Request		503
+VALUE	NetBorder-Hangupcause		Blind-Transfer		600
+VALUE	NetBorder-Hangupcause		Attended-Transfer	601
+VALUE	NetBorder-Hangupcause		Allotted-Timeout	602
+VALUE	NetBorder-Hangupcause		User-Challenge		603
+VALUE	NetBorder-Hangupcause		Media-Timeout		604
+VALUE	NetBorder-Hangupcause		Picked-Off		605
+VALUE	NetBorder-Hangupcause		User-Not-Registered	606
+
+#
+#
+#
+
+END-VENDOR	NetBorder

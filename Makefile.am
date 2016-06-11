@@ -282,6 +282,7 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.roaringpenguin \
 	radius/dictionary.ruckus \
 	radius/dictionary.ruggedcom \
+	radius/dictionary.sangoma \
 	radius/dictionary.sg \
 	radius/dictionary.shasta \
 	radius/dictionary.shiva \
