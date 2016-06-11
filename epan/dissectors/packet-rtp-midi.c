@@ -6975,7 +6975,6 @@ decode_sj_chapter_x( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 
 	}
 
-	/* XXX: 'cmdlen' in the following is always 0 (since initialized to 0 above) ??? */
 	if ( header & RTP_MIDI_SJ_CHAPTER_X_FLAG_D ) {
 		ti = proto_tree_add_text( rtp_midi_sj_chapter_tree, tvb, offset,  max_length - consumed, RTP_MIDI_TREE_NAME_SJ_CHAPTER_X_DATA );
 		rtp_midi_sj_data_tree = proto_item_add_subtree( ti, ett_rtp_midi_sj_chapter_x_data );
@@ -6985,6 +6984,8 @@ decode_sj_chapter_x( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 				proto_tree_add_item( rtp_midi_sj_data_tree, hf_rtp_midi_sj_chapter_x_data, tvb, offset, cmdlen, ENC_NA );
 				offset += cmdlen;
 				cmdlen	= 0;
+			} else {
+				cmdlen += 1;
 			}
 			consumed += 1;
 		}
