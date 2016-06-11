@@ -359,7 +359,7 @@ static int dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 				case RNG_RSP_SS_MAC_ADDRESS:
 					if (tlv_len == 6)
 					{
-						add_tlv_subtree(&tlv_info, rng_rsp_tree, hf_rng_rsp_ss_mac_address, tvb, offset, ENC_NA);
+						ss_mac_address_item = add_tlv_subtree(&tlv_info, rng_rsp_tree, hf_rng_rsp_ss_mac_address, tvb, offset, ENC_NA);
 					} else {
 						add_tlv_subtree(&tlv_info, rng_rsp_tree, hf_rng_invalid_tlv, tvb, offset, ENC_NA);
 					}
