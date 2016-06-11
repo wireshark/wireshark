@@ -1109,6 +1109,9 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         }
         ti = _proto_tree_add_ipv6_vector_address(rthdr_tree, hf_ipv6_routing_srh_addr, tvb,
                                 offset, IPv6_ADDR_SIZE, addr, 0);
+        if (rt.ip6r_segleft == 1) {
+            proto_item_append_text(ti, " [next segment]");
+        }
         dst_addr = addr;
         offset += IPv6_ADDR_SIZE;
         for (idx = 1; offset < offlim; offset += IPv6_ADDR_SIZE, idx++) {
@@ -1118,6 +1121,9 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             }
             ti = _proto_tree_add_ipv6_vector_address(rthdr_tree, hf_ipv6_routing_srh_addr, tvb,
                                 offset, IPv6_ADDR_SIZE, &srh_addr, idx);
+            if (idx == rt.ip6r_segleft - 1) {
+                proto_item_append_text(ti, " [next segment]");
+            }
         }
 
         rthdr_srh_addr_tree = proto_tree_add_subtree_format(rthdr_tree, tvb, offstart, srh_addr_count * IPv6_ADDR_SIZE,
@@ -1126,8 +1132,11 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         offset -= IPv6_ADDR_SIZE;
         for (idx = srh_first_seg; offset >= offstart; offset -= IPv6_ADDR_SIZE, idx--) {
             tvb_get_ipv6(tvb, offset, &srh_addr);
-            _proto_tree_add_ipv6_vector_address(rthdr_srh_addr_tree, hf_ipv6_routing_srh_addr, tvb,
+            ti = _proto_tree_add_ipv6_vector_address(rthdr_srh_addr_tree, hf_ipv6_routing_srh_addr, tvb,
                                 offset, IPv6_ADDR_SIZE, &srh_addr, idx);
+            if (idx == rt.ip6r_segleft - 1) {
+                proto_item_append_text(ti, " [next segment]");
+            }
         }
     }
 
