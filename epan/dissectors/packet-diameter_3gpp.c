@@ -158,6 +158,34 @@ static int hf_diameter_3gpp_cms_user_unknown = -1;
 static int hf_diameter_3gpp_cms_auth_rej = -1;
 static int hf_diameter_3gpp_cms_credit_ctrl_not_applicable = -1;
 static int hf_diameter_3gpp_cms_end_user_serv_status = -1;
+static int hf_diameter_3gpp_qos_subscribed = -1;
+static int hf_diameter_3gpp_qos_reliability_cls = -1;
+static int hf_diameter_3gpp_qos_prec_class = -1;
+static int hf_diameter_3gpp_qos_delay_cls = -1;
+static int hf_diameter_3gpp_qos_peak_thr = -1;
+static int hf_diameter_3gpp_qos_mean_thr = -1;
+static int hf_diameter_3gpp_qos_al_ret_priority = -1;
+static int hf_diameter_3gpp_qos_del_of_err_sdu = -1;
+static int hf_diameter_3gpp_qos_del_order = -1;
+static int hf_diameter_3gpp_qos_traffic_cls = -1;
+static int hf_diameter_3gpp_qos_maximum_sdu_size = -1;
+static int hf_diameter_3gpp_qos_max_bitrate_upl = -1;
+static int hf_diameter_3gpp_qos_max_bitrate_downl = -1;
+static int hf_diameter_3gpp_qos_sdu_err_rat = -1;
+static int hf_diameter_3gpp_qos_ber = -1;
+static int hf_diameter_3gpp_qos_traff_hdl_pri = -1;
+static int hf_diameter_3gpp_qos_trans_delay = -1;
+static int hf_diameter_3gpp_qos_guar_bitrate_upl = -1;
+static int hf_diameter_3gpp_qos_guar_bitrate_downl = -1;
+static int hf_diameter_3gpp_qos_source_stat_desc = -1;
+static int hf_diameter_3gpp_qos_signalling_ind  = -1;
+static int hf_diameter_3gpp_qos_max_bitrate_downl_ext = -1;
+static int hf_diameter_3gpp_qos_guar_bitrate_downl_ext = -1;
+static int hf_diameter_3gpp_qos_max_bitrate_upl_ext = -1;
+static int hf_diameter_3gpp_qos_guar_bitrate_upl_ext = -1;
+static int hf_diameter_3gpp_qos_pre_emption_vulnerability = -1;
+static int hf_diameter_3gpp_qos_priority_level = -1;
+static int hf_diameter_3gpp_qos_pre_emption_capability = -1;
 static int hf_diameter_3gpp_ulr_flags = -1;
 static int hf_diameter_3gpp_ulr_flags_bit0 = -1;
 static int hf_diameter_3gpp_ulr_flags_bit1 = -1;
@@ -258,6 +286,7 @@ static gint diameter_3gpp_feature_list_ett = -1;
 static gint diameter_3gpp_uar_flags_ett = -1;
 static gint diameter_3gpp_tmgi_ett  = -1;
 static gint diameter_3gpp_cms_ett = -1;
+static gint diameter_3gpp_qos_subscribed_ett = -1;
 static gint diameter_3gpp_ulr_flags_ett = -1;
 static gint diameter_3gpp_ula_flags_ett = -1;
 static gint diameter_3gpp_dsr_flags_ett = -1;
@@ -1034,6 +1063,311 @@ dissect_diameter_3gpp_credit_management_status(tvbuff_t *tvb, packet_info *pinfo
     return 4;
 }
 
+
+/* Helper function returning the main bitrates in kbps */
+static guint32
+qos_calc_bitrate(guint8 oct)
+{
+    if (oct <= 0x3f)
+        return oct;
+    if (oct <= 0x7f)
+        return 64 + (oct - 0x40) * 8;
+
+    return 576 + (oct - 0x80) * 64;
+}
+
+/* Helper function returning the extended bitrates in kbps */
+static guint32
+qos_calc_ext_bitrate(guint8 oct)
+{
+    if (oct <= 0x4a)
+        return 8600 + oct * 100;
+    if (oct <= 0xba)
+        return 16000 + (oct - 0x4a) * 1000;
+
+    return 128000 + (oct - 0xba) * 2000;
+}
+
+
+/* 3GPP TS 29.272
+ * 7.3.77 QoS-Subscribed
+ * AVP Code: 1404 QoS-Subscribed
+ *
+ * The QoS-Subscribed AVP is of type OctetString. Octets are coded according to 3GPP TS 29.002
+ * (octets of QoS-Subscribed, Ext-QoS-Subscribed, Ext2-QoS-Subscribed, Ext3-QoS-Subscribed and
+ * Ext4-QoS-Subscribed values are concatenated).
+ *
+ */
+static int
+dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint offset = 0;
+    guint length = tvb_reported_length(tvb);
+    proto_tree *subtree;
+    proto_item *item;
+    guchar oct, tmp_oct;
+    const gchar *str;
+    guint32 tmp32;
+
+    item = proto_tree_add_item(tree, hf_diameter_3gpp_qos_subscribed, tvb, offset, length, ENC_NA);
+    subtree = proto_item_add_subtree(item, diameter_3gpp_qos_subscribed_ett);
+
+    /* QoS-Subscribed:: SIZE(3)
+    * 1-3   Octets are coded according to TS 3GPP TS 24.008 Quality of Service Octets 3-5
+    */
+    if (length >= 3) {
+        proto_tree_add_item(subtree, hf_diameter_3gpp_qos_reliability_cls, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_diameter_3gpp_qos_delay_cls, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(subtree, hf_diameter_3gpp_spare_bits, tvb, offset << 3, 2, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(subtree, hf_diameter_3gpp_qos_prec_class, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(subtree, hf_diameter_3gpp_spare_bits, tvb, (offset << 3) + 4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_diameter_3gpp_qos_peak_thr, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(subtree, hf_diameter_3gpp_qos_mean_thr, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(subtree, hf_diameter_3gpp_spare_bits, tvb, (offset << 3), 3, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+
+    /* Ext-QoS-Subscribed:: SIZE(1..9)
+    *   1   Allocation / Retention Priority (This octet encodes each priority level defined in
+    *           23.107 as the binary value of the priority level, declaration in 29.060).
+    * 2-9   Octets are coded according to 3GPP TS 24.008 Quality of Service Octets 6-13
+    */
+    if (length >= 4) {
+        proto_tree_add_item(subtree, hf_diameter_3gpp_qos_al_ret_priority, tvb, offset, 1, ENC_NA);
+        offset += 1;
+    }
+
+    if (length >= 5) {
+        proto_tree_add_item(subtree, hf_diameter_3gpp_qos_del_of_err_sdu, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_diameter_3gpp_qos_del_order, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_diameter_3gpp_qos_traffic_cls, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+
+    if (length >= 6) {
+        oct = tvb_get_guint8(tvb, offset);
+        switch (oct) {
+            case 0x00: str = "Subscribed maximum SDU size (MS to net); Reserved (net to MS)"; break;
+            case 0x97: str = "1502 octets"; break;
+            case 0x98: str = "1510 octets"; break;
+            case 0x99: str = "1520 octets"; break;
+            case 0xff: str = "Reserved"; break;
+            default:   str = "Unspecified/Reserved";
+        }
+
+        if ((oct >= 1) && (oct <= 0x96))
+            proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_maximum_sdu_size, tvb, offset, 1, oct, "%u octets (%u)", oct * 10, oct);
+        else
+            proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_maximum_sdu_size, tvb, offset, 1, oct, "%s (%u)", str, oct);
+
+        offset += 1;
+    }
+
+    if (length >= 7) {
+        oct = tvb_get_guint8(tvb, offset);
+
+        switch (oct) {
+            case 0x00: str = "Subscribed maximum bit rate for uplink (MS to net); Reserved (net to MS)"; break;
+            case 0xfe: str = "8640 kbps; Check extended"; break;
+            case 0xff: str = "0 kbps"; break;
+            default:   str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", qos_calc_bitrate(oct));
+        }
+
+        proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_max_bitrate_upl, tvb, offset, 1, oct, "%s (%u)", str, oct);
+        offset += 1;
+    }
+
+    if (length >= 8) {
+        oct = tvb_get_guint8(tvb, offset);
+
+        switch (oct) {
+            case 0x00: str = "Subscribed maximum bit rate for downlink (MS to net); Reserved (net to MS)"; break;
+            case 0xfe: str = "8640 kbps; Check extended"; break;
+            case 0xff: str = "0 kbps"; break;
+            default:   str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", qos_calc_bitrate(oct));
+        }
+
+        proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_max_bitrate_downl, tvb, offset, 1, oct, "%s (%u)", str, oct);
+        offset += 1;
+    }
+
+    if (length >= 9) {
+        proto_tree_add_item(subtree, hf_diameter_3gpp_qos_sdu_err_rat, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_diameter_3gpp_qos_ber, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+
+    if (length >= 10) {
+        proto_tree_add_item(subtree, hf_diameter_3gpp_qos_traff_hdl_pri, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+        oct = tvb_get_guint8(tvb, offset);
+        tmp_oct = oct >> 2;
+        switch (tmp_oct) {
+            case 0x00: str = "Subscribed transfer delay (MS to net); Reserved (net to MS)"; break;
+            case 0x3f: str = "Reserved"; break;
+            default:
+                if (oct <= 0x0f)
+                    tmp32 = tmp_oct * 10;
+                else if (oct <= 0x1f)
+                    tmp32 = (tmp_oct - 0x10) * 50 + 200;
+                else
+                    tmp32 = (tmp_oct - 0x20) * 100 + 1000;
+                str = wmem_strdup_printf(wmem_packet_scope(), "%u ms", tmp32);
+        }
+        proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_trans_delay, tvb, offset, 1, oct, "%s (%u)", str, tmp_oct);
+        offset += 1;
+    }
+
+    if (length >= 11) {
+        oct = tvb_get_guint8(tvb, offset);
+
+        switch (oct) {
+        case 0x00: str = "Subscribed guaranteed bit rate for uplink (MS to net); Reserved (net to MS)"; break;
+        case 0xfe: str = "8640 kbps; Check extended"; break;
+        case 0xff: str = "0 kbps"; break;
+        default:   str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", qos_calc_bitrate(oct));
+        }
+
+        proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_guar_bitrate_upl, tvb, offset, 1, oct, "%s (%u)", str, oct);
+        offset += 1;
+    }
+
+    if (length >= 12) {
+        oct = tvb_get_guint8(tvb, offset);
+
+        switch (oct) {
+        case 0x00: str = "Subscribed guaranteed bit rate for downlink (MS to net); Reserved (net to MS)"; break;
+        case 0xfe: str = "8640 kbps; Check extended"; break;
+        case 0xff: str = "0 kbps"; break;
+        default:   str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", qos_calc_bitrate(oct));
+        }
+
+        proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_guar_bitrate_downl, tvb, offset, 1, oct, "%s (%u)", str, oct);
+        offset += 1;
+    }
+
+    /* Ext2-QoS-Subscribed:: SIZE(1..3)
+    * 1-3   Octets are coded according to 3GPP TS 24.008 Quality of Service Octets 14-16
+    */
+    if (length >= 13) {
+        oct = tvb_get_guint8(tvb, offset);
+        tmp_oct = oct & 0x0f;
+        if (tmp_oct == 0x01)
+            str = "speech (MS to net); spare bits (net to MS)";
+        else
+            str = "unknown (MS to net); spare bits (net to MS)";
+
+        proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_source_stat_desc, tvb, offset, 1, oct, "%s (%u)", str, tmp_oct);
+        proto_tree_add_item(subtree, hf_diameter_3gpp_qos_signalling_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(subtree, hf_diameter_3gpp_spare_bits, tvb, (offset << 3), 3, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+
+    if (length >= 14) {
+        oct = tvb_get_guint8(tvb, offset);
+
+        if (oct == 0x00)
+            str = "Use the value indicated by the Maximum bit rate for downlink";
+        else if (oct > 0xfa)  /* shouldn't go past 256 MBps */
+            str = "undefined";
+        else if (oct == 0xfa)
+            str = "256 Mbps; Check extended 2";
+        else {
+            tmp32 = qos_calc_ext_bitrate(oct);
+            if (oct >= 0x4a)
+                str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", tmp32 / 1000);
+            else
+                str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", tmp32);
+        }
+        proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_max_bitrate_downl_ext, tvb, offset, 1, oct, "%s (%u)", str, oct);
+        offset += 1;
+    }
+
+    if (length >= 15) {
+        oct = tvb_get_guint8(tvb, offset);
+
+        if (oct == 0x00)
+            str = "Use the value indicated by the Guaranteed bit rate for downlink";
+        else if (oct > 0xfa)  /* shouldn't go past 256 MBps */
+            str = "undefined";
+        else if (oct == 0xfa)
+            str = "256 Mbps; Check extended 2";
+        else {
+            tmp32 = qos_calc_ext_bitrate(oct);
+            if (oct >= 0x4a)
+                str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", tmp32 / 1000);
+            else
+                str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", tmp32);
+        }
+        proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_guar_bitrate_downl_ext, tvb, offset, 1, oct, "%s (%u)", str, oct);
+        offset += 1;
+    }
+
+    /* Ext3-QoS-Susbcribed:: SIZE(1..2)
+    * 1-2   Octets are coded according to 3GPP TS 24.008 Quality of Service Octets 17-18
+    */
+    if (length >= 16) {
+        oct = tvb_get_guint8(tvb, offset);
+
+        if (oct == 0x00)
+            str = "Use the value indicated by the Maximum bit rate for uplink";
+        else if (oct > 0xfa)  /* shouldn't go past 256 MBps */
+            str = "undefined";
+        else if (oct == 0xfa)
+            str = "256 Mbps; Check extended 2";
+        else {
+            tmp32 = qos_calc_ext_bitrate(oct);
+            if (oct >= 0x4a)
+                str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", tmp32 / 1000);
+            else
+                str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", tmp32);
+        }
+        proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_max_bitrate_upl_ext, tvb, offset, 1, oct, "%s (%u)", str, oct);
+        offset += 1;
+    }
+
+    if (length >= 17) {
+        oct = tvb_get_guint8(tvb, offset);
+
+        if (oct == 0x00)
+            str = "Use the value indicated by the Guaranteed bit rate for uplink";
+        else if (oct > 0xfa)  /* shouldn't go past 256 MBps */
+            str = "undefined";
+        else if (oct == 0xfa)
+            str = "256 Mbps; Check extended 2";
+        else {
+            tmp32 = qos_calc_ext_bitrate(oct);
+            if (oct >= 0x4a)
+                str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", tmp32 / 1000);
+            else
+                str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", tmp32);
+        }
+        proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_guar_bitrate_upl_ext, tvb, offset, 1, oct, "%s (%u)", str, oct);
+        offset += 1;
+    }
+
+    /* Ext4-QoS-Subscribed:: SIZE(1)
+    *   1   Evolved Allocation / Retention Priority.  This octet encodes the Priority Level (PL),
+    *       the Preemption Capability (PCI) and Preemption Vulnerability (PVI) values, as described
+    *       in 3GPP TS 29.060.
+    */
+
+    if (length >= 18) {
+        proto_tree_add_item(subtree, hf_diameter_3gpp_qos_pre_emption_vulnerability, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(subtree, hf_diameter_3gpp_spare_bits, tvb, (offset << 3) + 6 , 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_diameter_3gpp_qos_priority_level, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_diameter_3gpp_qos_pre_emption_capability, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(subtree, hf_diameter_3gpp_spare_bits, tvb, (offset << 3), 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+
+    return length;
+}
+
 /* 3GPP TS 29.272
  * 7.3.7 ULR-Flags
  * AVP Code: 1405 ULR-Flags
@@ -1540,6 +1874,9 @@ proto_reg_handoff_diameter_3gpp(void)
     /* AVP Code: 1005 Credit-Management-Status */
     dissector_add_uint("diameter.3gpp", 1082, create_dissector_handle(dissect_diameter_3gpp_credit_management_status, proto_diameter_3gpp));
 
+    /* AVP Code: 1404 QoS-Subscribed */
+    dissector_add_uint("diameter.3gpp", 1404, create_dissector_handle(dissect_diameter_3ggp_qos_susbscribed, proto_diameter_3gpp));
+
     /* AVP Code: 1405 ULR-Flags */
     dissector_add_uint("diameter.3gpp", 1405, create_dissector_handle(dissect_diameter_3gpp_ulr_flags, proto_diameter_3gpp));
 
@@ -1581,6 +1918,153 @@ proto_reg_handoff_diameter_3gpp(void)
 
     xml_handle = find_dissector_add_dependency("xml", proto_diameter_3gpp);
 }
+
+
+/*
+ *  3GPP TS 24.008 Quality of service
+ */
+static const value_string diameter_3gpp_qos_reliability_vals[] = {
+    { 0x00, "Subscribed reliability class (in MS to net); Reserved (in net to MS)" },
+    { 0x01, "Unused. Interpreted as Unacknowledged GTP, Ack LLC/RLC, Protected data." },
+    { 0x02, "Unacknowledged GTP, Ack LLC/RLC, Protected data" },
+    { 0x03, "Unacknowledged GTP/LLC, Ack RLC, Protected data" },
+    { 0x04, "Unacknowledged GTP/LLC/RLC, Protected data" },
+    { 0x05, "Unacknowledged GTP/LLC/RLC, Unprotected data" },
+    { 0x06, "Interpreted as Unacknowledged GTP/LLC, Ack RLC, Protected data" }, /* other value */
+    { 0x07, "Reserved" },
+    { 0, NULL }
+};
+
+const range_string diameter_3gpp_qos_delay_cls_vals[] = {
+    { 0x00, 0x00, "Subscribed delay class (in MS to net); Reserved (in net to MS)" },
+    { 0x01, 0x01, "Delay class 1" },
+    { 0x02, 0x02, "Delay class 2" },
+    { 0x03, 0x03, "Delay class 3" },
+    { 0x04, 0x04, "Delay class 4 (best effort)" },
+    { 0x05, 0x06, "Interpreted as Delay class 4 (best effort)" },
+    { 0x07, 0x00, "Reserved" },
+    { 0, 0, NULL }
+};
+
+const range_string diameter_3gpp_qos_prec_class_vals[] = {
+    { 0x00, 0x00, "Subscribed precedence (MS to net); Reserved (net to MS)" },
+    { 0x01, 0x01, "High priority" },
+    { 0x02, 0x02, "Normal priority" },
+    { 0x03, 0x03, "Low priority" },
+    { 0x04, 0x06, "Interpreted as Normal priority" },
+    { 0x07, 0x07, "Reserved" },
+    { 0, 0, NULL }
+};
+
+const range_string diameter_3gpp_qos_peak_thr_vals[] = {
+    { 0x00, 0x00, "Subscribed peak throughput (MS to net); Reserved (net to MS)" },
+    { 0x01, 0x01, "Up to 1 000 octet/s" },
+    { 0x02, 0x02, "Up to 2 000 octet/s" },
+    { 0x03, 0x03, "Up to 4 000 octet/s" },
+    { 0x04, 0x04, "Up to 8 000 octet/s" },
+    { 0x05, 0x05, "Up to 16 000 octet/s" },
+    { 0x06, 0x06, "Up to 32 000 octet/s" },
+    { 0x07, 0x07, "Up to 64 000 octet/s" },
+    { 0x08, 0x08, "Up to 128 000 octet/s" },
+    { 0x09, 0x09, "Up to 256 000 octet/s" },
+    { 0x0a, 0x0e, "Interpreted as Up to 1 000 octet/s" },
+    { 0x0f, 0x0f, "Reserved" },
+    { 0, 0, NULL }
+};
+
+const range_string diameter_3gpp_qos_mean_thr_vals[] = {
+    { 0x00, 0x00, "Subscribed peak throughput (MS to net); Reserved (net to MS)" },
+    { 0x01, 0x01, "100 octet/h" },
+    { 0x02, 0x02, "200 octet/h" },
+    { 0x03, 0x03, "500 octet/h" },
+    { 0x04, 0x04, "1 000 octet/h" },
+    { 0x05, 0x05, "2 000 octet/h" },
+    { 0x06, 0x06, "5 000 octet/h" },
+    { 0x07, 0x07, "10 000 octet/h" },
+    { 0x08, 0x08, "20 000 octet/h" },
+    { 0x09, 0x09, "50 000 octet/h" },
+    { 0x0a, 0x0a, "100 000 octet/h" },
+    { 0x0b, 0x0b, "200 000 octet/h" },
+    { 0x0c, 0x0c, "500 000 octet/h" },
+    { 0x0d, 0x0d, "1 000 000 octet/h" },
+    { 0x0e, 0x0e, "2 000 000 octet/h" },
+    { 0x0f, 0x0f, "5 000 000 octet/h" },
+    { 0x10, 0x10, "10 000 000 octet/h" },
+    { 0x11, 0x11, "20 000 000 octet/h" },
+    { 0x12, 0x12, "50 000 000 octet/h" },
+    { 0x13, 0x1d, "Interpreted as Best effort" },
+    { 0x1e, 0x1e, "Reserved" },
+    { 0x1f, 0x1f, "Best effort" },
+    { 0, 0, NULL }
+};
+
+const value_string diameter_3gpp_qos_del_of_err_sdu_vals[] = {
+    { 0x00, "Subscribed delivery of erroneous SDUs (MS to net); Reserved (net to MS)" },
+    { 0x01, "No detect ('-')" },
+    { 0x02, "Erroneous SDUs are delivered ('yes')" },
+    { 0x03, "Erroneous SDUs are not delivered ('no')" },
+    { 0x07, "Reserved" },
+    { 0, NULL }
+};
+
+const value_string diameter_3gpp_qos_del_order_vals[] = {
+    { 0x00, "Subscribed delivery order (MS to net); Reserved (net to MS)" },
+    { 0x01, "With delivery order ('yes')" },
+    { 0x02, "Without delivery order ('no')" },
+    { 0x03, "Reserved" },
+    { 0, NULL }
+};
+
+const value_string diameter_3gpp_qos_traffic_cls_vals[] = {
+    { 0x00, "Subscribed traffic class (MS to net); Reserved (net to MS)" },
+    { 0x01, "Conversational class" },
+    { 0x02, "Streaming class" },
+    { 0x03, "Interactive class" },
+    { 0x04, "Background class" },
+    { 0x07, "Reserved" },
+    { 0, NULL }
+};
+
+const value_string diameter_3gpp_qos_sdu_err_rat_vals[] = {
+    { 0x00, "Subscribed SDU error ratio (MS to net); Reserved (net to MS)" },
+    { 0x01, "1E-2" },
+    { 0x02, "7E-3" },
+    { 0x03, "1E-3" },
+    { 0x04, "1E-4" },
+    { 0x05, "1E-5" },
+    { 0x06, "1E-6" },
+    { 0x07, "1E-1" },
+    { 0x15, "Reserved" },
+    { 0, NULL }
+};
+
+const value_string diameter_3gpp_qos_ber_vals[] = {
+    { 0x00, "Subscribed residual BER (MS to net); Reserved (net to MS)" },
+    { 0x01, "5E-2" },
+    { 0x02, "1E-2" },
+    { 0x03, "5E-3" },
+    { 0x04, "4E-3" },
+    { 0x05, "1E-3" },
+    { 0x06, "1E-4" },
+    { 0x07, "1E-5" },
+    { 0x08, "1E-6" },
+    { 0x09, "6E-8" },
+    { 0x15, "Reserved" },
+    { 0, NULL }
+};
+
+const value_string diameter_3gpp_qos_traff_hdl_pri_vals[] = {
+    { 0x00, "Subscribed traffic handling priority (MS to net); Reserved (net to MS)" },
+    { 0x01, "Priority level 1" },
+    { 0x02, "Priority level 2" },
+    { 0x03, "Priority level 3" },
+    { 0, NULL }
+};
+
+const true_false_string diameter_3gpp_qos_signalling_ind_value = {
+    "Optimised for signalling traffic",
+    "Not optimised for signalling traffic"
+};
 
 void
 proto_register_diameter_3gpp(void)
@@ -2154,6 +2638,147 @@ proto_register_diameter_3gpp(void)
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
             NULL, HFILL }
         },
+        { &hf_diameter_3gpp_qos_subscribed,
+            { "QoS-Subscribed", "diameter.3gpp.qos_subscribed",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_reliability_cls,
+            { "Reliability class", "diameter.3gpp.qos.reliability_cls",
+            FT_UINT8, BASE_DEC, VALS(diameter_3gpp_qos_reliability_vals), 0x07,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_delay_cls,
+            { "Quality of Service Delay class", "diameter.3gpp.qos.delay_cls",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(diameter_3gpp_qos_delay_cls_vals), 0x38,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_prec_class,
+            { "Precedence class", "diameter.3gpp.qos.prec_class",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(diameter_3gpp_qos_prec_class_vals), 0x07,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_peak_thr,
+            { "Peak throughput", "diameter.3gpp.qos.qos.peak_throughput",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(diameter_3gpp_qos_peak_thr_vals), 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_mean_thr,
+            { "Mean throughput", "diameter.3gpp.qos.mean_throughput",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(diameter_3gpp_qos_mean_thr_vals), 0x1f,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_al_ret_priority,
+            { "Allocation/Retention priority", "diameter.3gpp.qos.al_ret_priority",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_del_of_err_sdu,
+            { "Delivery of erroneous SDUs", "diameter.3gpp.qos.del_of_err_sdu",
+            FT_UINT8, BASE_DEC, VALS(diameter_3gpp_qos_del_of_err_sdu_vals), 0x07,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_del_order,
+            { "Delivery order", "diameter.3gpp.qos.del_order",
+            FT_UINT8, BASE_DEC, VALS(diameter_3gpp_qos_del_order_vals), 0x18,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_traffic_cls,
+            { "Traffic class", "diameter.3gpp.qos.traffic_cls",
+            FT_UINT8, BASE_DEC, VALS(diameter_3gpp_qos_traffic_cls_vals), 0xe0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_maximum_sdu_size,
+            { "Maximum SDU size", "diameter.3gpp.qos.qos.maximum_sdu_size",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_max_bitrate_upl,
+            { "Maximum bitrate for uplink", "diameter.3gpp.qos.max_bitrate_upl",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_max_bitrate_downl,
+            { "Maximum bitrate for downlink", "diameter.3gpp.qos.max_bitrate_downl",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_sdu_err_rat,
+            { "SDU error ratio", "diameter.3gpp.qos.sdu_err_rat",
+            FT_UINT8, BASE_DEC, VALS(diameter_3gpp_qos_sdu_err_rat_vals), 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_ber,
+            { "Residual Bit Error Rate (BER)", "diameter.3gpp.qos.ber",
+            FT_UINT8, BASE_DEC, VALS(diameter_3gpp_qos_ber_vals), 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_traff_hdl_pri,
+            { "Traffic handling priority", "diameter.3gpp.qos.traff_hdl_pri",
+            FT_UINT8, BASE_DEC, VALS(gsm_a_sm_qos_traff_hdl_pri_vals), 0x03,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_trans_delay,
+            { "Transfer delay", "diameter.3gpp.qos.trans_delay",
+            FT_UINT8, BASE_DEC, NULL, 0xfc,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_guar_bitrate_upl,
+            { "Guaranteed bitrate for uplink", "diameter.3gpp.qos.guar_bitrate_upl",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_guar_bitrate_downl,
+            { "Guaranteed bitrate for downlink", "diameter.3gpp.qos.guar_bitrate_downl",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_diameter_3gpp_qos_source_stat_desc,
+            { "Source statistics description", "diameter.3gpp.qos.source_stat_desc",
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_signalling_ind,
+            { "Signalling indication", "diameter.3gpp.qos.signalling_ind",
+            FT_BOOLEAN, SEP_DOT, TFS(&diameter_3gpp_qos_signalling_ind_value), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_max_bitrate_downl_ext,
+            { "Maximum bitrate for downlink (extended)", "diameter.3gpp.qos.max_bitrate_downl_ext",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_guar_bitrate_downl_ext,
+            { "Guaranteed bitrate for downlink (extended)", "diameter.3gpp.qos.guar_bitrate_downl_ext",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_max_bitrate_upl_ext,
+            { "Maximum bitrate for uplink (extended)", "diameter.3gpp.qos.max_bitrate_upl_ext",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_guar_bitrate_upl_ext,
+            { "Guaranteed bitrate for uplink (extended)", "diameter.3gpp.qos.guar_bitrate_upl_ext",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_pre_emption_vulnerability,
+            { "Pre-emption vulnerability", "diameter.3gpp.qos.pre_emption_vulnerability",
+            FT_BOOLEAN, SEP_DOT, TFS(&tfs_set_notset), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_priority_level,
+            { "Priority level", "diameter.3gpp.qos.priority_level",
+            FT_UINT8, BASE_DEC, NULL, 0x3c,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_qos_pre_emption_capability,
+            { "Pre-emption capability", "diameter.3gpp.qos.pre_emption_capability",
+            FT_BOOLEAN, SEP_DOT, TFS(&tfs_set_notset), 0x40,
+            NULL, HFILL }
+        },
         { &hf_diameter_3gpp_ulr_flags,
             { "ULR Flags", "diameter.3gpp.ulr_flags",
             FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -2635,6 +3260,7 @@ proto_register_diameter_3gpp(void)
         &diameter_3gpp_feature_list_ett,
         &diameter_3gpp_tmgi_ett,
         &diameter_3gpp_cms_ett,
+        &diameter_3gpp_qos_subscribed_ett,
         &diameter_3gpp_ulr_flags_ett,
         &diameter_3gpp_ula_flags_ett,
         &diameter_3gpp_dsr_flags_ett,
