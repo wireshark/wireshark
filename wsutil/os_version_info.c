@@ -199,6 +199,7 @@ void
 get_os_version_info(GString *str)
 {
 #if defined(_WIN32)
+	HMODULE kernel_dll_handle;
 	OSVERSIONINFOEX info;
 	SYSTEM_INFO system_info;
 	nativesi_func_ptr nativesi_func;
@@ -238,7 +239,15 @@ get_os_version_info(GString *str)
 	memset(&system_info, '\0', sizeof system_info);
 	/* Look for and use the GetNativeSystemInfo() function if available to get the correct processor
 	 * architecture even when running 32-bit Wireshark in WOW64 (x86 emulation on 64-bit Windows) */
-	nativesi_func = (nativesi_func_ptr)GetProcAddress(GetModuleHandle(_T("kernel32.dll")), "GetNativeSystemInfo");
+	kernel_dll_handle = GetModuleHandle(_T("kernel32.dll");
+	if (kernel_dll_handle == NULL) {
+		/*
+		 * XXX - get the failure reason.
+		 */
+		g_string_append(str, "unknown Windows version");
+		return;
+	}
+	nativesi_func = (nativesi_func_ptr)GetProcAddress(kernel_dll_handle), "GetNativeSystemInfo");
 	if(nativesi_func)
 		nativesi_func(&system_info);
 	else
