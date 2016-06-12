@@ -11015,6 +11015,7 @@ mountd          20048/udp # NFS mount protocol [Nicolas_Williams] [Nicolas_Willi
 nfsrdma         20049/tcp # Network File System (NFS) over RDMA [RFC5666]
 nfsrdma         20049/udp # Network File System (NFS) over RDMA [RFC5666]
 nfsrdma         20049/sctp # Network File System (NFS) over RDMA [RFC5666]
+avesterra       20057/tcp # AvesTerra Hypergraph Transfer Protocol (HGTP) [Georgetown_University] [J.C._Smart] 2016-06-06
 tolfab          20167/tcp # TOLfab Data Change [Pierre_Couderc] [Pierre_Couderc] 2006-03
 tolfab          20167/udp # TOLfab Data Change [Pierre_Couderc] [Pierre_Couderc] 2006-03
 ipdtp-port      20202/tcp # IPD Tunneling Port [Vikki_Yin_Wei] [Vikki_Yin_Wei] 2003-01

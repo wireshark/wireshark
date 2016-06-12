@@ -2499,7 +2499,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="field_filter_edit.cpp" line="154"/>
         <source>Invalid filter: </source>
-        <translation type="unfinished">无效的过滤器:</translation>
+        <translation>无效的过滤器:</translation>
     </message>
 </context>
 <context>
