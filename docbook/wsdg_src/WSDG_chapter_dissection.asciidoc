@@ -187,7 +187,7 @@ You can find a good example for these files in the gryphon plugin directory.
 files and dissector name. 'CMakeLists.txt' has to be modified with the correct
 plugin name and version info, along with the relevant files to compile.
 In the main top-level source directory, copy CMakeListsCustom.txt.example to
-CMakeCustomLists.txt and add the path of your plugin to the list in
+CMakeListsCustom.txt and add the path of your plugin to the list in
 CUSTOM_PLUGIN_SRC_DIR.
 
 Compile the dissector to a DLL or shared library and either run Wireshark from
