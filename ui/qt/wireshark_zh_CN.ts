@@ -151,6 +151,195 @@
     </message>
 </context>
 <context>
+    <name>BluetoothDeviceDialog</name>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="23"/>
+        <source>Bluetooth Device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="78"/>
+        <source>BD_ADDR</source>
+        <translation type="unfinished">BD_ADDR</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="83"/>
+        <source>OUI</source>
+        <translation type="unfinished">OUI</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="88"/>
+        <source>Name</source>
+        <translation type="unfinished">名称</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="93"/>
+        <source>Class of Device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="98"/>
+        <source>LMP Version</source>
+        <translation type="unfinished">LMP 版本</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="103"/>
+        <source>LMP Subverion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="108"/>
+        <source>Manufacturer</source>
+        <translation type="unfinished">制造商</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="113"/>
+        <source>HCI Version</source>
+        <translation type="unfinished">HCI 版本</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="118"/>
+        <source>HCI Revision</source>
+        <translation type="unfinished">HCI 修订</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="123"/>
+        <source>Scan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="128"/>
+        <source>Authentication</source>
+        <translation type="unfinished">认证</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="133"/>
+        <source>Encryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="138"/>
+        <source>ACL MTU</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="143"/>
+        <source>ACL Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="148"/>
+        <source>SCO MTU</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="153"/>
+        <source>SCO Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="158"/>
+        <source>LE ACL MTU</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="163"/>
+        <source>LE ACL Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="168"/>
+        <source>Inquiry Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="173"/>
+        <source>Page Timeout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="178"/>
+        <source>Simple Pairing Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="183"/>
+        <source>Voice Setting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="188"/>
+        <source>Value</source>
+        <translation type="unfinished">值</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="193"/>
+        <source>Changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="206"/>
+        <location filename="bluetooth_device_dialog.cpp" line="586"/>
+        <source>%1 changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="223"/>
+        <source>Copy Cell</source>
+        <translation type="unfinished">复制单元</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="228"/>
+        <source>Copy Rows</source>
+        <translation type="unfinished">复制行</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="233"/>
+        <source>Copy All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="238"/>
+        <source>Save as image</source>
+        <translation type="unfinished">另存为图像</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.cpp" line="180"/>
+        <source>Unknown</source>
+        <translation type="unfinished">未知</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.cpp" line="189"/>
+        <source>Bluetooth Device - %1%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.cpp" line="521"/>
+        <source>enabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.cpp" line="521"/>
+        <source>disabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.cpp" line="529"/>
+        <source>%1 ms (%2 slots)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.cpp" line="621"/>
+        <source>Save Table Image</source>
+        <translation type="unfinished">保存表格图像</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.cpp" line="623"/>
+        <source>PNG Image (*.png)</source>
+        <translation type="unfinished">PNG 图像 (*.png)</translation>
+    </message>
+</context>
+<context>
     <name>BluetoothDevicesDialog</name>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="20"/>
@@ -213,38 +402,44 @@
         <translation>显示信息的步骤</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.ui" line="156"/>
+        <location filename="bluetooth_devices_dialog.ui" line="146"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="329"/>
+        <source>%1 items; Right click for more option; Double click for device details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_devices_dialog.ui" line="163"/>
         <source>Copy Cell</source>
         <translation>复制单元</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.ui" line="161"/>
+        <location filename="bluetooth_devices_dialog.ui" line="168"/>
         <source>Copy Rows</source>
         <translation>复制行</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.ui" line="166"/>
+        <location filename="bluetooth_devices_dialog.ui" line="173"/>
         <source>Copy All</source>
         <translation>复制所有</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.ui" line="171"/>
+        <location filename="bluetooth_devices_dialog.ui" line="178"/>
         <source>Save as image</source>
         <translation>另存为图像</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="274"/>
-        <location filename="bluetooth_devices_dialog.cpp" line="293"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="290"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="310"/>
         <source>true</source>
         <translation>是</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="378"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="398"/>
         <source>Save Table Image</source>
         <translation>保存表格图像</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="380"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="400"/>
         <source>PNG Image (*.png)</source>
         <translation>PNG 图像 (*.png)</translation>
     </message>
@@ -323,8 +518,10 @@
         <location filename="bluetooth_hci_summary_dialog.ui" line="330"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="359"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="388"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="417"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="446"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="475"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="504"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="533"/>
         <source>0</source>
         <translation>0</translation>
@@ -455,37 +652,37 @@
         <translation>另存为图像</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="312"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="308"/>
         <source>Unknown</source>
         <translation>未知</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="330"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="326"/>
         <source>Adapter %1</source>
         <translation>适配器 %1</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="418"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="468"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="505"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="539"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="576"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="610"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="414"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="464"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="501"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="535"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="572"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="606"/>
         <source>Frame %1</source>
         <translation>帧 %1</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="528"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="524"/>
         <source>Pending</source>
         <translation>等待中</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="721"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="717"/>
         <source>Save Table Image</source>
         <translation>保存表格图像</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="723"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="719"/>
         <source>PNG Image (*.png)</source>
         <translation>PNG 图像 (*.png)</translation>
     </message>
@@ -2171,129 +2368,139 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="expert_info_dialog.ui" line="32"/>
+        <source>Summary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="expert_info_dialog.ui" line="37"/>
         <source>Group</source>
         <translation>组</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="37"/>
+        <location filename="expert_info_dialog.ui" line="42"/>
         <source>Protocol</source>
         <translation>协议</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="42"/>
+        <location filename="expert_info_dialog.ui" line="47"/>
         <source>Count</source>
         <translation>计数</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="50"/>
+        <location filename="expert_info_dialog.ui" line="55"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;提示&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="59"/>
+        <location filename="expert_info_dialog.ui" line="64"/>
         <source>Limit to Display Filter</source>
         <translation>显示过滤器的限制</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="79"/>
-        <location filename="expert_info_dialog.ui" line="89"/>
+        <location filename="expert_info_dialog.ui" line="84"/>
+        <source>Group by summary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="expert_info_dialog.ui" line="107"/>
+        <location filename="expert_info_dialog.ui" line="117"/>
         <source>Search expert summaries.</source>
         <translation>搜索专家概要。</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="82"/>
+        <location filename="expert_info_dialog.ui" line="110"/>
         <source>Search:</source>
         <translation>搜索：</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="109"/>
+        <location filename="expert_info_dialog.ui" line="137"/>
         <source>Show…</source>
         <oldsource>Show...</oldsource>
         <translation>显示…</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="131"/>
+        <location filename="expert_info_dialog.ui" line="159"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="134"/>
+        <location filename="expert_info_dialog.ui" line="162"/>
         <source>Show error packets.</source>
         <translation>显示错误分组。</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="142"/>
+        <location filename="expert_info_dialog.ui" line="170"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="145"/>
+        <location filename="expert_info_dialog.ui" line="173"/>
         <source>Show warning packets.</source>
         <translation>显示警告分组。</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="153"/>
+        <location filename="expert_info_dialog.ui" line="181"/>
         <source>Note</source>
         <translation>注意</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="156"/>
+        <location filename="expert_info_dialog.ui" line="184"/>
         <source>Show note packets.</source>
         <translation>显示注意分组。</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="164"/>
+        <location filename="expert_info_dialog.ui" line="192"/>
         <source>Chat</source>
         <translation>聊天</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="167"/>
+        <location filename="expert_info_dialog.ui" line="195"/>
         <source>Show chat packets.</source>
         <translation>显示聊天分组。</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="175"/>
+        <location filename="expert_info_dialog.ui" line="203"/>
         <source>Comment</source>
         <translation>注释</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="178"/>
+        <location filename="expert_info_dialog.ui" line="206"/>
         <source>Show comment packets.</source>
         <translation>显示注释分组。</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="142"/>
+        <location filename="expert_info_dialog.cpp" line="193"/>
         <source>Expert Information</source>
         <translation>专家信息</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="257"/>
+        <location filename="expert_info_dialog.cpp" line="308"/>
         <source>Endpoint expert failed to set filter</source>
         <translation>专家端点设置过滤器失败</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="458"/>
-        <location filename="expert_info_dialog.cpp" line="459"/>
+        <location filename="expert_info_dialog.cpp" line="529"/>
+        <location filename="expert_info_dialog.cpp" line="530"/>
         <source>Capture file closed.</source>
         <translation>捕获文件已关闭。</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="461"/>
+        <location filename="expert_info_dialog.cpp" line="532"/>
         <source>No display filter</source>
         <translation>无显示过滤器</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="462"/>
+        <location filename="expert_info_dialog.cpp" line="533"/>
         <source>No display filter set.</source>
         <translation>没有设置显示过滤器。</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="464"/>
+        <location filename="expert_info_dialog.cpp" line="535"/>
         <source>Limit information to &quot;%1&quot;.</source>
         <translation>限制信息至“%1”。</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="465"/>
+        <location filename="expert_info_dialog.cpp" line="536"/>
         <source>Display filter: &quot;%1&quot;</source>
         <translation>显示过滤器：“%1”</translation>
     </message>
@@ -2456,7 +2663,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="field_filter_edit.cpp" line="70"/>
         <source>Display filter entry</source>
-        <translation type="unfinished">显示过滤器</translation>
+        <translation>显示过滤器</translation>
     </message>
     <message>
         <location filename="field_filter_edit.cpp" line="91"/>
@@ -2466,7 +2673,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="field_filter_edit.cpp" line="154"/>
         <source>Invalid filter: </source>
-        <translation type="unfinished">无效的过滤器:</translation>
+        <translation>无效的过滤器:</translation>
     </message>
 </context>
 <context>
@@ -2700,82 +2907,82 @@ for filter files: %2.</source>
     <message>
         <location filename="firewall_rules_dialog.ui" line="22"/>
         <source>Create rules for</source>
-        <translation type="unfinished"></translation>
+        <translation>创建规则为</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.ui" line="45"/>
         <source>Inbound</source>
-        <translation type="unfinished"></translation>
+        <translation>入站</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.ui" line="68"/>
         <source>Deny</source>
-        <translation type="unfinished"></translation>
+        <translation>拒绝</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="57"/>
         <source>Firewall ACL Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>防火墙 ACL 规则</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="59"/>
         <source>Copy</source>
-        <translation type="unfinished">复制</translation>
+        <translation>复制</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="116"/>
         <source>IPv4 source address.</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4 源地址。</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="117"/>
         <source>IPv4 destination address.</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4 目标地址。</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="121"/>
         <source>Source port.</source>
-        <translation type="unfinished"></translation>
+        <translation>源端口。</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="122"/>
         <source>Destination port.</source>
-        <translation type="unfinished"></translation>
+        <translation>目标端口。</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="127"/>
         <source>IPv4 source address and port.</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4 源地址和端口。</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="128"/>
         <source>IPv4 destination address and port.</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4 目标地址和端口。</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="132"/>
         <source>MAC source address.</source>
-        <translation type="unfinished"></translation>
+        <translation>MAC 源地址。</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="133"/>
         <source>MAC destination address.</source>
-        <translation type="unfinished"></translation>
+        <translation>MAC 目标地址。</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="188"/>
         <source>Text file (*.txt);;All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>文本文件 (*.txt);;所有文件 (</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="199"/>
         <source>Warning</source>
-        <translation type="unfinished">警告</translation>
+        <translation>警告</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="199"/>
         <source>Unable to save %1</source>
-        <translation type="unfinished">无法保存 %1</translation>
+        <translation>无法保存 %1</translation>
     </message>
 </context>
 <context>
@@ -2837,7 +3044,7 @@ for filter files: %2.</source>
     <message>
         <location filename="follow_stream_dialog.cpp" line="119"/>
         <source>UTF-16</source>
-        <translation type="unfinished">UTF-16</translation>
+        <translation>UTF-16</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="120"/>
@@ -8024,12 +8231,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2916"/>
         <source>Firewall ACL Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>防火墙 ACL 规则</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2919"/>
         <source>Create firewall ACL rules</source>
-        <translation type="unfinished"></translation>
+        <translation>创建防火墙 ACL 规则</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1169"/>
@@ -10894,12 +11101,12 @@ text-decoration: underline;
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="118"/>
         <source>default</source>
-        <translation type="unfinished"></translation>
+        <translation>默认</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="120"/>
         <source>DLT %1</source>
-        <translation type="unfinished"></translation>
+        <translation>DLT %1</translation>
     </message>
 </context>
 <context>
@@ -13478,30 +13685,7 @@ text-decoration: underline;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-
-&lt;h3&gt;有价值的和惊人的时间节省键盘快捷方式&lt;/h3&gt;
-&lt;table&gt;&lt;tbody&gt;
-
-&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;图形重置为初始状态&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右移 10 个像素&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;左移 10 个像素&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;上移 10 个像素&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;下移 10 个像素&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;右移 1 个像素&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;左移 1 个像素&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;上移 1 个像素&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;下移 1 个像素&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;转到光标下的数据包&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;n&lt;/th&gt;&lt;td&gt;转到下一个数据包&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;p&lt;/th&gt;&lt;td&gt;转到上一个数据包&lt;/td&gt;&lt;/th&gt;
-
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="74"/>
@@ -13567,23 +13751,23 @@ text-decoration: underline;
         <location filename="sequence_dialog.ui" line="235"/>
         <location filename="sequence_dialog.ui" line="238"/>
         <source>Zoom In</source>
-        <translation type="unfinished">放大</translation>
+        <translation>放大</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="241"/>
         <source>+</source>
-        <translation type="unfinished">+</translation>
+        <translation>+</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="246"/>
         <location filename="sequence_dialog.ui" line="249"/>
         <source>Zoom Out</source>
-        <translation type="unfinished">缩小</translation>
+        <translation>缩小</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="252"/>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="257"/>

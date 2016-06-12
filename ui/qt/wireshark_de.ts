@@ -151,6 +151,195 @@
     </message>
 </context>
 <context>
+    <name>BluetoothDeviceDialog</name>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="23"/>
+        <source>Bluetooth Device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="78"/>
+        <source>BD_ADDR</source>
+        <translation type="unfinished">BD_ADDR</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="83"/>
+        <source>OUI</source>
+        <translation type="unfinished">OUI</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="88"/>
+        <source>Name</source>
+        <translation type="unfinished">Name</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="93"/>
+        <source>Class of Device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="98"/>
+        <source>LMP Version</source>
+        <translation type="unfinished">LMP Version</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="103"/>
+        <source>LMP Subverion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="108"/>
+        <source>Manufacturer</source>
+        <translation type="unfinished">Hersteller</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="113"/>
+        <source>HCI Version</source>
+        <translation type="unfinished">HCI Version</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="118"/>
+        <source>HCI Revision</source>
+        <translation type="unfinished">HCI Revision</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="123"/>
+        <source>Scan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="128"/>
+        <source>Authentication</source>
+        <translation type="unfinished">Authentifizierung</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="133"/>
+        <source>Encryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="138"/>
+        <source>ACL MTU</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="143"/>
+        <source>ACL Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="148"/>
+        <source>SCO MTU</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="153"/>
+        <source>SCO Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="158"/>
+        <source>LE ACL MTU</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="163"/>
+        <source>LE ACL Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="168"/>
+        <source>Inquiry Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="173"/>
+        <source>Page Timeout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="178"/>
+        <source>Simple Pairing Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="183"/>
+        <source>Voice Setting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="188"/>
+        <source>Value</source>
+        <translation type="unfinished">Wert</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="193"/>
+        <source>Changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="206"/>
+        <location filename="bluetooth_device_dialog.cpp" line="586"/>
+        <source>%1 changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="223"/>
+        <source>Copy Cell</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="228"/>
+        <source>Copy Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="233"/>
+        <source>Copy All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="238"/>
+        <source>Save as image</source>
+        <translation type="unfinished">Als Bild speichern</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.cpp" line="180"/>
+        <source>Unknown</source>
+        <translation type="unfinished">Unbekannt</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.cpp" line="189"/>
+        <source>Bluetooth Device - %1%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.cpp" line="521"/>
+        <source>enabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.cpp" line="521"/>
+        <source>disabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.cpp" line="529"/>
+        <source>%1 ms (%2 slots)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.cpp" line="621"/>
+        <source>Save Table Image</source>
+        <translation type="unfinished">Tabelle als Grafik speichern</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.cpp" line="623"/>
+        <source>PNG Image (*.png)</source>
+        <translation type="unfinished">PNG Bild (*.png)</translation>
+    </message>
+</context>
+<context>
     <name>BluetoothDevicesDialog</name>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="20"/>
@@ -213,38 +402,44 @@
         <translation>Einzelne Schritte anzeigen</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.ui" line="156"/>
+        <location filename="bluetooth_devices_dialog.ui" line="146"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="329"/>
+        <source>%1 items; Right click for more option; Double click for device details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_devices_dialog.ui" line="163"/>
         <source>Copy Cell</source>
         <translation>Kopiere Zelle</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.ui" line="161"/>
+        <location filename="bluetooth_devices_dialog.ui" line="168"/>
         <source>Copy Rows</source>
         <translation>Kopiere Zeile</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.ui" line="166"/>
+        <location filename="bluetooth_devices_dialog.ui" line="173"/>
         <source>Copy All</source>
         <translation>Kopiere Alles</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.ui" line="171"/>
+        <location filename="bluetooth_devices_dialog.ui" line="178"/>
         <source>Save as image</source>
         <translation>Als Bild speichern</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="274"/>
-        <location filename="bluetooth_devices_dialog.cpp" line="293"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="290"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="310"/>
         <source>true</source>
         <translation>Wahr</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="378"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="398"/>
         <source>Save Table Image</source>
         <translation>Tabelle als Grafik speichern</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="380"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="400"/>
         <source>PNG Image (*.png)</source>
         <translation>PNG Bild (*.png)</translation>
     </message>
@@ -323,8 +518,10 @@
         <location filename="bluetooth_hci_summary_dialog.ui" line="330"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="359"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="388"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="417"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="446"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="475"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="504"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="533"/>
         <source>0</source>
         <translation>0</translation>
@@ -455,37 +652,37 @@
         <translation>Als Bild speichern</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="312"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="308"/>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="330"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="326"/>
         <source>Adapter %1</source>
         <translation>Adapter %1</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="418"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="468"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="505"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="539"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="576"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="610"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="414"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="464"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="501"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="535"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="572"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="606"/>
         <source>Frame %1</source>
         <translation>Frame %1</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="528"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="524"/>
         <source>Pending</source>
         <translation>Ausstehend</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="721"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="717"/>
         <source>Save Table Image</source>
         <translation>Tabelle als Grafik speichern</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="723"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="719"/>
         <source>PNG Image (*.png)</source>
         <translation>PNG Bild (*.png)</translation>
     </message>
@@ -2172,129 +2369,139 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <location filename="expert_info_dialog.ui" line="32"/>
+        <source>Summary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="expert_info_dialog.ui" line="37"/>
         <source>Group</source>
         <translation>Gruppe</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="37"/>
+        <location filename="expert_info_dialog.ui" line="42"/>
         <source>Protocol</source>
         <translation>Protokoll</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="42"/>
+        <location filename="expert_info_dialog.ui" line="47"/>
         <source>Count</source>
         <translation>Anzahl</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="50"/>
+        <location filename="expert_info_dialog.ui" line="55"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Hinweis&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="59"/>
+        <location filename="expert_info_dialog.ui" line="64"/>
         <source>Limit to Display Filter</source>
         <translation>Auf Anzeigenfilter beschränken</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="79"/>
-        <location filename="expert_info_dialog.ui" line="89"/>
+        <location filename="expert_info_dialog.ui" line="84"/>
+        <source>Group by summary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="expert_info_dialog.ui" line="107"/>
+        <location filename="expert_info_dialog.ui" line="117"/>
         <source>Search expert summaries.</source>
         <translation>In den Experten Informationen suchen.</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="82"/>
+        <location filename="expert_info_dialog.ui" line="110"/>
         <source>Search:</source>
         <translation>Suchen:</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="109"/>
+        <location filename="expert_info_dialog.ui" line="137"/>
         <source>Show…</source>
         <oldsource>Show...</oldsource>
         <translation>Zeige...</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="131"/>
+        <location filename="expert_info_dialog.ui" line="159"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="134"/>
+        <location filename="expert_info_dialog.ui" line="162"/>
         <source>Show error packets.</source>
         <translation>Pakete mit Fehler anzeigen.</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="142"/>
+        <location filename="expert_info_dialog.ui" line="170"/>
         <source>Warning</source>
         <translation>Warnungen</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="145"/>
+        <location filename="expert_info_dialog.ui" line="173"/>
         <source>Show warning packets.</source>
         <translation>Pakete mit Warnungen anzeigen.</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="153"/>
+        <location filename="expert_info_dialog.ui" line="181"/>
         <source>Note</source>
         <translation>Hinweise</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="156"/>
+        <location filename="expert_info_dialog.ui" line="184"/>
         <source>Show note packets.</source>
         <translation>Pakete mit Hinweise anzeigen.</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="164"/>
+        <location filename="expert_info_dialog.ui" line="192"/>
         <source>Chat</source>
         <translation>Informationen</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="167"/>
+        <location filename="expert_info_dialog.ui" line="195"/>
         <source>Show chat packets.</source>
         <translation>Pakete mit Informationen anzeigen.</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="175"/>
+        <location filename="expert_info_dialog.ui" line="203"/>
         <source>Comment</source>
         <translation>Kommentare</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.ui" line="178"/>
+        <location filename="expert_info_dialog.ui" line="206"/>
         <source>Show comment packets.</source>
         <translation>Pakete mit Kommentare anzeigen.</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="142"/>
+        <location filename="expert_info_dialog.cpp" line="193"/>
         <source>Expert Information</source>
         <translation>Experteninformationen</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="257"/>
+        <location filename="expert_info_dialog.cpp" line="308"/>
         <source>Endpoint expert failed to set filter</source>
         <translation>Endpunkteexperte konnte einen Filter nicht setzen</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="458"/>
-        <location filename="expert_info_dialog.cpp" line="459"/>
+        <location filename="expert_info_dialog.cpp" line="529"/>
+        <location filename="expert_info_dialog.cpp" line="530"/>
         <source>Capture file closed.</source>
         <translation>Mitschnittdatei geschlossen.</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="461"/>
+        <location filename="expert_info_dialog.cpp" line="532"/>
         <source>No display filter</source>
         <translation>Kein Anzeigefilter vorhanden</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="462"/>
+        <location filename="expert_info_dialog.cpp" line="533"/>
         <source>No display filter set.</source>
         <translation>Kein Anzeigenfilter angewendet.</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="464"/>
+        <location filename="expert_info_dialog.cpp" line="535"/>
         <source>Limit information to &quot;%1&quot;.</source>
         <translation>Informationen beschränken auf &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="465"/>
+        <location filename="expert_info_dialog.cpp" line="536"/>
         <source>Display filter: &quot;%1&quot;</source>
         <translation>Anzeigefilter: &quot;%1&quot;</translation>
     </message>
@@ -13494,11 +13701,13 @@ text-decoration: underline;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;Nützliche Tastenkürzel zur Zeitersparnis&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
 
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Vergrößern&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Verkleinern&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Graph in Ursprungszustand zurücksetzen&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;10 Bildpunkte nach rechts&lt;/td&gt;&lt;/th&gt;
@@ -13581,23 +13790,23 @@ text-decoration: underline;
         <location filename="sequence_dialog.ui" line="235"/>
         <location filename="sequence_dialog.ui" line="238"/>
         <source>Zoom In</source>
-        <translation type="unfinished">Vergrößern</translation>
+        <translation>Vergrößern</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="241"/>
         <source>+</source>
-        <translation type="unfinished">+</translation>
+        <translation>+</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="246"/>
         <location filename="sequence_dialog.ui" line="249"/>
         <source>Zoom Out</source>
-        <translation type="unfinished">Verkleinern</translation>
+        <translation>Verkleinern</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="252"/>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="257"/>
