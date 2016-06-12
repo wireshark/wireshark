@@ -371,9 +371,6 @@ WS_DLL_PUBLIC dissector_handle_t dissector_get_guid_handle(
 WS_DLL_PUBLIC void dissector_add_for_decode_as(const char *name,
     dissector_handle_t handle);
 
-/* DEPRECATED, do not use in new code, call dissector_add_for_decode_as directly! */
-#define dissector_add_handle dissector_add_for_decode_as
-
 /** Get the list of handles for a dissector table
  */
 WS_DLL_PUBLIC GSList *dissector_table_get_dissector_handles(dissector_table_t dissector_table);
