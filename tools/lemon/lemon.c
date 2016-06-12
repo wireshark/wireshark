@@ -412,9 +412,9 @@ struct lemon {
   char *argv0;             /* Name of the program */
 };
 
-void memory_error(void);
 #define MemoryCheck(X) if((X)==0){ \
-  memory_error(); \
+  fprintf(stderr,"Out of memory.  Aborting...\n"); \
+  exit(1); \
 }
 
 /**************** From the file "table.h" *********************************/
@@ -1465,14 +1465,6 @@ void ErrorMsg(const char *filename, int lineno, const char *format, ...){
 /*
 ** Main program file for the LEMON parser generator.
 */
-
-/* Report an out-of-memory condition and abort.  This function
-** is used mostly by the "MemoryCheck" macro in struct.h
-*/
-void memory_error(void){
-  fprintf(stderr,"Out of memory.  Aborting...\n");
-  exit(1);
-}
 
 /* Locates the basename in a string possibly containing paths,
  * including forward-slash and backward-slash delimiters on Windows,
@@ -4533,9 +4525,7 @@ void SetSize(int n)
 char *SetNew(void){
   char *s;
   s = (char*)calloc( size, 1);
-  if( s==0 ){
-    memory_error();
-  }
+  MemoryCheck( s );
   return s;
 }
 
