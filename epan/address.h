@@ -199,6 +199,14 @@ cmp_address(const address *addr1, const address *addr2) {
     if (addr1->type < addr2->type) return -1;
     if (addr1->len  > addr2->len) return 1;
     if (addr1->len  < addr2->len) return -1;
+    if (addr1->len == 0) {
+        /*
+         * memcmp(NULL, NULL, 0) is *not* guaranteed to work, so
+         * if both addresses are zero-length, don't compare them
+         * (there's nothing to compare, so they're equal).
+         */
+        return 0;
+    }
     return memcmp(addr1->data, addr2->data, addr1->len);
 }
 
