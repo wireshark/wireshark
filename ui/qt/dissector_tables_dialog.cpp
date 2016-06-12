@@ -20,7 +20,7 @@
  */
 
 #include "dissector_tables_dialog.h"
-#include "ui_dissector_tables_dialog.h"
+#include <ui_dissector_tables_dialog.h>
 
 #include "config.h"
 

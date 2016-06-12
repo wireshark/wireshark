@@ -24,7 +24,7 @@
  */
 
 #include "mtp3_summary_dialog.h"
-#include "ui_mtp3_summary_dialog.h"
+#include <ui_mtp3_summary_dialog.h>
 
 #include "config.h"
 

@@ -20,7 +20,7 @@
  */
 
 #include "conversation_hash_tables_dialog.h"
-#include "ui_conversation_hash_tables_dialog.h"
+#include <ui_conversation_hash_tables_dialog.h>
 
 #include "config.h"
 

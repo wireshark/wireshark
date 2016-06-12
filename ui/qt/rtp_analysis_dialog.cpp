@@ -20,7 +20,7 @@
  */
 
 #include "rtp_analysis_dialog.h"
-#include "ui_rtp_analysis_dialog.h"
+#include <ui_rtp_analysis_dialog.h>
 
 #include "file.h"
 #include "frame_tvbuff.h"

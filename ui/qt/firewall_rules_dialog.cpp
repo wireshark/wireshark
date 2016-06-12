@@ -22,7 +22,7 @@
 #include <config.h>
 
 #include "firewall_rules_dialog.h"
-#include "ui_firewall_rules_dialog.h"
+#include <ui_firewall_rules_dialog.h>
 
 #include "epan/packet_info.h"
 #include "epan/to_str.h"

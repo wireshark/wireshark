@@ -20,7 +20,7 @@
  */
 
 #include "enabled_protocols_dialog.h"
-#include "ui_enabled_protocols_dialog.h"
+#include <ui_enabled_protocols_dialog.h>
 
 #include <errno.h>
 

@@ -20,7 +20,7 @@
  */
 
 #include "funnel_text_dialog.h"
-#include "ui_funnel_text_dialog.h"
+#include <ui_funnel_text_dialog.h>
 
 #include <QPushButton>
 #include <QRegExp>

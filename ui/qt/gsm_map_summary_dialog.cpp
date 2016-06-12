@@ -24,7 +24,7 @@
  */
 
 #include "gsm_map_summary_dialog.h"
-#include "ui_gsm_map_summary_dialog.h"
+#include <ui_gsm_map_summary_dialog.h>
 
 #include "config.h"
 

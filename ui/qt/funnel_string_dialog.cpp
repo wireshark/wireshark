@@ -20,7 +20,7 @@
  */
 
 #include "funnel_string_dialog.h"
-#include "ui_funnel_string_dialog.h"
+#include <ui_funnel_string_dialog.h>
 
 #include <QLabel>
 #include <QLineEdit>

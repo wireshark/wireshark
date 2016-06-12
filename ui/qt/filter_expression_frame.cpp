@@ -20,7 +20,7 @@
  */
 
 #include "filter_expression_frame.h"
-#include "ui_filter_expression_frame.h"
+#include <ui_filter_expression_frame.h>
 
 #include <epan/filter_expressions.h>
 #include <ui/preference_utils.h>

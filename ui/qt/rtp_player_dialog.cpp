@@ -20,7 +20,7 @@
  */
 
 #include "rtp_player_dialog.h"
-#include "ui_rtp_player_dialog.h"
+#include <ui_rtp_player_dialog.h>
 
 #ifdef QT_MULTIMEDIA_LIB
 

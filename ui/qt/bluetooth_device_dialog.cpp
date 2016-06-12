@@ -20,7 +20,7 @@
  */
 
 #include "bluetooth_device_dialog.h"
-#include "ui_bluetooth_device_dialog.h"
+#include <ui_bluetooth_device_dialog.h>
 
 #include "epan/epan.h"
 #include "epan/addr_resolv.h"

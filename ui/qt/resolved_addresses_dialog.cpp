@@ -20,7 +20,7 @@
  */
 
 #include "resolved_addresses_dialog.h"
-#include "ui_resolved_addresses_dialog.h"
+#include <ui_resolved_addresses_dialog.h>
 
 #include "config.h"
 

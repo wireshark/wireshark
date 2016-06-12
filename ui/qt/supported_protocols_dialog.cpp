@@ -26,7 +26,7 @@
 #endif
 
 #include "supported_protocols_dialog.h"
-#include "ui_supported_protocols_dialog.h"
+#include <ui_supported_protocols_dialog.h>
 
 #include "config.h"
 
