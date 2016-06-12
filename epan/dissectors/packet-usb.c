@@ -3340,9 +3340,9 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
                     next_tvb, 1, usb_conv_info);
         } else if (data_tvb) {
             proto_tree_add_item(setup_tree, hf_usb_request_unknown_class,
-                    tvb, 0, 1, ENC_LITTLE_ENDIAN);
+                    tvb, setup_offset, 1, ENC_LITTLE_ENDIAN);
             dissect_usb_setup_generic(pinfo, setup_tree,
-                    tvb, setup_offset, usb_conv_info);
+                    tvb, setup_offset+1, usb_conv_info);
         }
     }
 
