@@ -452,7 +452,8 @@ MainWindow::MainWindow(QWidget *parent) :
     updateRecentActions();
     setForCaptureInProgress(false);
 
-    setTabOrder(df_combo_box_, packet_list_);
+    setTabOrder(df_combo_box_->lineEdit(), packet_list_);
+    setTabOrder(packet_list_, proto_tree_);
 
     connect(&capture_file_, SIGNAL(captureCapturePrepared(capture_session *)),
             this, SLOT(captureCapturePrepared(capture_session *)));
@@ -640,6 +641,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(byte_view_tab_, SIGNAL(byteFieldHovered(const QString&)),
             main_ui_->statusBar, SLOT(pushByteStatus(const QString&)));
+    connect(byte_view_tab_, SIGNAL(currentChanged(int)),
+            this, SLOT(byteViewTabChanged(int)));
 
     connect(main_ui_->statusBar, SIGNAL(showExpertInfo()),
             this, SLOT(on_actionAnalyzeExpertInfo_triggered()));

@@ -346,6 +346,8 @@ private slots:
     void openTapParameterDialog(const QString cfg_str, const QString arg, void *userdata);
     void openTapParameterDialog();
 
+    void byteViewTabChanged(int tab_index);
+
     // Automatically connected slots ("on_<object>_<signal>").
     //
     // The slots below follow the naming conventaion described in

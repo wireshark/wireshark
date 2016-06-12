@@ -1603,6 +1603,15 @@ void MainWindow::openTapParameterDialog()
     openTapParameterDialog(cfg_str, NULL, NULL);
 }
 
+void MainWindow::byteViewTabChanged(int tab_index)
+{
+    QWidget *new_tab = byte_view_tab_->widget(tab_index);
+    if (new_tab) {
+        setTabOrder(proto_tree_, new_tab);
+        setTabOrder(new_tab, df_combo_box_->lineEdit()); // XXX Toolbar instead?
+    }
+}
+
 // File Menu
 
 void MainWindow::on_actionFileOpen_triggered()

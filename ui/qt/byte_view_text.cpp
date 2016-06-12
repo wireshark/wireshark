@@ -85,6 +85,10 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
     connect(format_actions_, SIGNAL(triggered(QAction*)), this, SLOT(setHexDisplayFormat(QAction*)));
 
     setMouseTracking(true);
+
+#ifdef Q_OS_MAC
+    setAttribute(Qt::WA_MacShowFocusRect, true);
+#endif
 }
 
 ByteViewText::~ByteViewText()
@@ -211,6 +215,10 @@ void ByteViewText::paintEvent(QPaintEvent *)
         row_y += line_spacing_;
     }
     painter.restore();
+
+    QStyleOptionFocusRect option;
+    option.initFrom(this);
+    style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &painter, this);
 }
 
 void ByteViewText::resizeEvent(QResizeEvent *)
