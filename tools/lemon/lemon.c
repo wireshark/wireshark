@@ -621,10 +621,7 @@ PRIVATE void acttab_action(acttab *p, int lookahead, int action){
     p->nLookaheadAlloc += 25;
     p->aLookahead = (struct lookahead_action *) realloc( p->aLookahead,
                              sizeof(p->aLookahead[0])*p->nLookaheadAlloc );
-    if( p->aLookahead==0 ){
-      fprintf(stderr,"malloc failed\n");
-      exit(1);
-    }
+    MemoryCheck( p->aLookahead );
   }
   if( p->nLookahead==0 ){
     p->mxLookahead = lookahead;
@@ -663,10 +660,7 @@ PRIVATE int acttab_insert(acttab *p){
     p->nActionAlloc = p->nAction + n + p->nActionAlloc + 20;
     p->aAction = (struct lookahead_action *) realloc( p->aAction,
                           sizeof(p->aAction[0])*p->nActionAlloc);
-    if( p->aAction==0 ){
-      fprintf(stderr,"malloc failed\n");
-      exit(1);
-    }
+    MemoryCheck( p->aAction );
     for(i=oldAlloc; i<p->nActionAlloc; i++){
       p->aAction[i].lookahead = -1;
       p->aAction[i].action = -1;
@@ -1503,12 +1497,14 @@ make_basename(char* fullname)
 
   if (!cp) {
     new_string = (char *) malloc( strlen(fullname) + 1 );
+    MemoryCheck( new_string );
     strcpy(new_string, fullname);
   }
   else {
     /* skip the slash */
     cp++;
     new_string = (char *) malloc( strlen(cp) + 1 );
+    MemoryCheck( new_string );
     strcpy(new_string, cp);
   }
 
@@ -1526,16 +1522,10 @@ static void handle_D_option(void *arg){
   char **paz;
   nDefine++;
   azDefine = (char **) realloc(azDefine, sizeof(azDefine[0])*nDefine);
-  if( azDefine==0 ){
-    fprintf(stderr,"out of memory\n");
-    exit(1);
-  }
+  MemoryCheck( azDefine );
   paz = &azDefine[nDefine-1];
   *paz = (char *) malloc( lemonStrlen(z)+1 );
-  if( *paz==0 ){
-    fprintf(stderr,"out of memory\n");
-    exit(1);
-  }
+  MemoryCheck( *paz );
   lemon_strcpy(*paz, z);
   for(z=*paz; *z && *z!='='; z++){}
   *z = 0;
@@ -1545,9 +1535,7 @@ static char *user_templatename = NULL;
 static void handle_T_option(void *arg){
   char *z = (char *)arg;
   user_templatename = (char *) malloc( lemonStrlen(z)+1 );
-  if( user_templatename==0 ){
-    memory_error();
-  }
+  MemoryCheck( user_templatename );
   lemon_strcpy(user_templatename, z);
 }
 
@@ -2355,6 +2343,7 @@ to follow the previous rule.");
         msp->nsubsym++;
         msp->subsym = (struct symbol **) realloc(msp->subsym,
           sizeof(struct symbol*)*msp->nsubsym);
+        MemoryCheck( msp->subsym );
         msp->subsym[msp->nsubsym-1] = Symbol_new(&x[1]);
         if( ISLOWER(x[1]) || ISLOWER(msp->subsym[0]->name[0]) ){
           ErrorMsg(psp->filename,psp->tokenlineno,
@@ -2557,6 +2546,7 @@ to follow the previous rule.");
           n += nLine + lemonStrlen(psp->filename) + nBack;
         }
         *psp->declargslot = (char *) realloc(*psp->declargslot, n);
+        MemoryCheck( *psp->declargslot );
         zBuf = *psp->declargslot + nOld;
         if( addLineMacro ){
           if( nOld && zBuf[-1]!='\n' ){
@@ -2652,6 +2642,7 @@ to follow the previous rule.");
         msp->nsubsym++;
         msp->subsym = (struct symbol **) realloc(msp->subsym,
           sizeof(struct symbol*)*msp->nsubsym);
+        MemoryCheck( msp->subsym );
         if( !ISUPPER(x[0]) ) x++;
         msp->subsym[msp->nsubsym-1] = Symbol_new(x);
       }else{
@@ -3524,6 +3515,7 @@ PRIVATE char *append_str(const char *zText, int n, int p1, int p2){
   if( (int) (n+sizeof(zInt)*2+used) >= alloced ){
     alloced = (int)(n + sizeof(zInt)*2 + used + 200);
     z = (char *) realloc(z,  alloced);
+    MemoryCheck( z );
   }
   if( z==0 ) return empty;
   while( n-- > 0 ){
@@ -3709,10 +3701,7 @@ PRIVATE void print_stack_union(
     if( len>maxdtlength ) maxdtlength = len;
   }
   stddt = (char*)malloc( maxdtlength*2 + 1 );
-  if( stddt==0 ){
-    fprintf(stderr,"Out of memory.\n");
-    exit(1);
-  }
+  MemoryCheck( stddt );
 
   /* Build a hash table of datatypes. The ".dtnum" field of each symbol
   ** is filled in with the hash index plus 1.  A ".dtnum" value of 0 is
@@ -3758,10 +3747,7 @@ PRIVATE void print_stack_union(
     if( types[hash]==0 ){
       sp->dtnum = hash + 1;
       types[hash] = (char*)malloc( lemonStrlen(stddt)+1 );
-      if( types[hash]==0 ){
-        fprintf(stderr,"Out of memory.\n");
-        exit(1);
-      }
+      MemoryCheck( types[hash] );
       lemon_strcpy(types[hash],stddt);
     }
   }
@@ -3975,10 +3961,7 @@ void ReportTable(
   ** we need to know how many states can be eliminated.
   */
   ax = (struct axset *) calloc(lemp->nxstate*2, sizeof(ax[0]));
-  if( ax==0 ){
-    fprintf(stderr,"malloc failed\n");
-    exit(1);
-  }
+  MemoryCheck( ax );
   for(i=0; i<lemp->nxstate; i++){
     stp = lemp->sorted[i];
     ax[i*2].stp = stp;
