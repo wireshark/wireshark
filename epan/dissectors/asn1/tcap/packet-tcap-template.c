@@ -30,6 +30,7 @@
 #include <epan/prefs.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/address_types.h>
 #include <epan/strutil.h>
 #include <epan/show_exception.h>
 
@@ -69,6 +70,8 @@ gint ett_tcap_stat = -1;
 static struct tcapsrt_info_t * gp_tcapsrt_info;
 static gboolean tcap_subdissector_used=FALSE;
 static dissector_handle_t requested_subdissector_handle = NULL;
+
+static int ss7pc_address_type = -1;
 
 static struct tcaphash_context_t * gp_tcap_context=NULL;
 
@@ -973,7 +976,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* prepare the key data */
   tcaphash_begin_key.tid = p_tcapsrt_info->src_tid;
-  if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+  if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
   {
     /* We have MTP3 PCs (so we can safely do this cast) */
     tcaphash_begin_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
@@ -1165,7 +1168,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   /* look only for matching request, if matching conversation is available. */
   tcaphash_cont_key.src_tid = p_tcapsrt_info->src_tid;
   tcaphash_cont_key.dst_tid = p_tcapsrt_info->dst_tid;
-  if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+  if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
   {
     /* We have MTP3 PCs (so we can safely do this cast) */
     tcaphash_cont_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
@@ -1194,7 +1197,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
     /* Find the TCAP transaction according to the TC_BEGIN (from dtid,dst) */
     tcaphash_begin_key.tid = p_tcapsrt_info->dst_tid;
-    if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+    if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
     {
       /* We have MTP3 PCs (so we can safely do this cast) */
       tcaphash_begin_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
@@ -1217,7 +1220,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
         /* Do we have a continue from the same source? (stid,src) */
         tcaphash_begin_key.tid = p_tcapsrt_info->src_tid;
-        if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+        if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
         {
           /* We have MTP3 PCs (so we can safely do this cast) */
           tcaphash_begin_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
@@ -1250,7 +1253,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       /* Create END for (stid,src) */
       tcaphash_end_key.tid = p_tcapsrt_info->src_tid;
-      if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+      if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
       {
         /* We have MTP3 PCs (so we can safely do this cast) */
         tcaphash_end_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
@@ -1321,7 +1324,7 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
   /* look only for matching request, if matching conversation is available. */
   tcaphash_end_key.tid = p_tcapsrt_info->dst_tid;
-  if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+  if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
   {
     /* We have MTP3 PCs (so we can safely do this cast) */
     tcaphash_end_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
@@ -1343,7 +1346,7 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dbg(12,"EnotFound ");
 #endif
     tcaphash_begin_key.tid = p_tcapsrt_info->dst_tid;
-    if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+    if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
     {
       /* We have MTP3 PCs (so we can safely do this cast) */
       tcaphash_begin_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
@@ -1439,7 +1442,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* prepare the key data */
   tcaphash_ansi_key.tid = p_tcapsrt_info->src_tid;
-  if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+  if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
   {
     /* We have MTP3 PCs (so we can safely do this cast) */
     tcaphash_ansi_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
@@ -2063,6 +2066,8 @@ proto_reg_handoff_tcap(void)
   data_handle = find_dissector("data");
   ansi_tcap_handle = find_dissector_add_dependency("ansi_tcap", proto_tcap);
   ber_oid_dissector_table = find_dissector_table("ber.oid");
+
+  ss7pc_address_type = address_type_get_by_name("AT_SS7PC");
 
 #include "packet-tcap-dis-tab.c"
 }

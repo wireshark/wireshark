@@ -39,6 +39,7 @@
 #include <epan/asn1.h>
 #include <epan/prefs.h>
 #include <epan/exported_pdu.h>
+#include <epan/address_types.h>
 #include "packet-alcap.h"
 #include "packet-ber.h"
 #include "packet-tpkt.h"
@@ -402,7 +403,7 @@ static int hf_h248_NotifyCompletion_otherReason = -1;
 static int hf_h248_NotifyCompletion_onIteration = -1;
 
 /*--- End of included file: packet-h248-hf.c ---*/
-#line 79 "./asn1/h248/packet-h248-template.c"
+#line 80 "./asn1/h248/packet-h248-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h248 = -1;
@@ -570,7 +571,7 @@ static gint ett_h248_EventParameterV1 = -1;
 static gint ett_h248_SigParameterV1 = -1;
 
 /*--- End of included file: packet-h248-ett.c ---*/
-#line 99 "./asn1/h248/packet-h248-template.c"
+#line 100 "./asn1/h248/packet-h248-template.c"
 
 static expert_field ei_h248_errored_command = EI_INIT;
 static expert_field ei_h248_transactionId64 = EI_INIT;
@@ -578,6 +579,8 @@ static expert_field ei_h248_context_id64 = EI_INIT;
 static expert_field ei_h248_octet_string_expected = EI_INIT;
 
 static dissector_table_t subdissector_table;
+
+static int ss7pc_address_type = -1;
 
 /* Gateway Control Protocol -- Context Tracking */
 
@@ -674,14 +677,16 @@ gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
             memcpy((guint8*)&(m->hi_addr),hi_addr->data,4);
             memcpy((guint8*)&(m->lo_addr),lo_addr->data,4);
             break;
-        case AT_SS7PC:
-            m->hi_addr = mtp3_pc_hash((const mtp3_addr_pc_t *)hi_addr->data);
-            m->lo_addr = mtp3_pc_hash((const mtp3_addr_pc_t *)lo_addr->data);
-            break;
         default:
-            /* XXX: heuristic and error prone */
-            m->hi_addr = g_str_hash(address_to_str(wmem_packet_scope(), hi_addr));
-            m->lo_addr = g_str_hash(address_to_str(wmem_packet_scope(), lo_addr));
+            if (lo_addr->type == ss7pc_address_type) {
+                m->hi_addr = mtp3_pc_hash((const mtp3_addr_pc_t *)hi_addr->data);
+                m->lo_addr = mtp3_pc_hash((const mtp3_addr_pc_t *)lo_addr->data);
+            }
+            else {
+                /* XXX: heuristic and error prone */
+                m->hi_addr = g_str_hash(address_to_str(wmem_packet_scope(), hi_addr));
+                m->lo_addr = g_str_hash(address_to_str(wmem_packet_scope(), lo_addr));
+            }
         break;
     }
 
@@ -6090,7 +6095,7 @@ dissect_h248_SigParameterV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 2168 "./asn1/h248/packet-h248-template.c"
+#line 2173 "./asn1/h248/packet-h248-template.c"
 
 static int dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -7516,7 +7521,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 2337 "./asn1/h248/packet-h248-template.c"
+#line 2342 "./asn1/h248/packet-h248-template.c"
 
         GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -7682,7 +7687,7 @@ void proto_register_h248(void) {
     &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 2355 "./asn1/h248/packet-h248-template.c"
+#line 2360 "./asn1/h248/packet-h248-template.c"
     };
 
     static ei_register_info ei[] = {
@@ -7768,6 +7773,7 @@ void proto_reg_handoff_h248(void) {
         dissector_add_uint("tcp.port", tcp_port, h248_tpkt_handle);
     }
 
+    ss7pc_address_type = address_type_get_by_name("AT_SS7PC");
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 }
 

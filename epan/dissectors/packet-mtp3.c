@@ -41,6 +41,7 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
 #include <epan/prefs.h>
+#include <epan/address_types.h>
 #include <wiretap/wtap.h>
 
 #include "packet-q708.h"
@@ -101,6 +102,8 @@ static gint ett_mtp3_label_dpc = -1;
 static gint ett_mtp3_label_opc = -1;
 
 static dissector_table_t mtp3_sio_dissector_table;
+
+static int mtp3_address_type = -1;
 
 typedef enum {
   ITU_PC_STRUCTURE_NONE    = 1,
@@ -233,7 +236,7 @@ const value_string mtp3_network_indicator_vals[] = {
  * helper routine to format a point code in structured form
  */
 
-void
+static void
 mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len)
 {
   switch (mtp3_standard)
@@ -308,7 +311,7 @@ mtp3_pc_structured(void)
  * helper routine to format address to string
  */
 
-void
+static void
 mtp3_addr_to_str_buf(const mtp3_addr_pc_t  *addr_pc_p,
                      gchar *buf, int buf_len)
 {
@@ -403,6 +406,22 @@ mtp3_pc_hash(const mtp3_addr_pc_t *addr_pc_p) {
   }
 
   return pc;
+}
+
+static int mtp3_addr_to_str(const address* addr, gchar *buf, int buf_len)
+{
+    mtp3_addr_to_str_buf((const mtp3_addr_pc_t *)addr->data, buf, buf_len);
+    return (int)(strlen(buf)+1);
+}
+
+static int mtp3_str_addr_len(const address* addr _U_)
+{
+    return 50;
+}
+
+int mtp3_addr_len(void)
+{
+    return sizeof(mtp3_addr_pc_t);
 }
 
 /*  Common function for dissecting 3-byte (ANSI or China) PCs. */
@@ -608,11 +627,11 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
 
   mtp3_addr_opc->type = (Standard_Type)mtp3_standard;
   mtp3_addr_opc->pc = opc;
-  set_address(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);
+  set_address(&pinfo->src, mtp3_address_type, mtp3_addr_len(), (guint8 *) mtp3_addr_opc);
 
   mtp3_addr_dpc->type = (Standard_Type)mtp3_standard;
   mtp3_addr_dpc->pc = dpc;
-  set_address(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
+  set_address(&pinfo->dst, mtp3_address_type, mtp3_addr_len(), (guint8 *) mtp3_addr_dpc);
 }
 
 static void
@@ -1056,6 +1075,10 @@ proto_register_mtp3(void)
   mtp3_sio_dissector_table = register_dissector_table("mtp3.service_indicator",
                   "MTP3 Service indicator",
                   proto_mtp3, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+
+  mtp3_address_type = address_type_dissector_register("AT_SS7PC", "SS7 Point Code", mtp3_addr_to_str, mtp3_str_addr_len, NULL,
+                                                            mtp3_addr_len, NULL, NULL);
+
 
   mtp3_tap = register_tap("mtp3");
 

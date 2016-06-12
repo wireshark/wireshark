@@ -428,22 +428,6 @@ static int fcwwn_name_res_len(void)
 }
 
 /******************************************************************************
- * AT_SS7PC
- * XXX - This should really be a dissector address type as its address string
- * is partially determined by a dissector preference.
- ******************************************************************************/
-static int ss7pc_to_str(const address* addr, gchar *buf, int buf_len)
-{
-    mtp3_addr_to_str_buf((const mtp3_addr_pc_t *)addr->data, buf, buf_len);
-    return (int)(strlen(buf)+1);
-}
-
-static int ss7pc_str_len(const address* addr _U_)
-{
-    return 50;
-}
-
-/******************************************************************************
  * AT_STRINGZ
  ******************************************************************************/
 static int stringz_addr_to_str(const address* addr, gchar *buf, int buf_len)
@@ -672,18 +656,6 @@ void address_types_initialize(void)
         fcwwn_name_res_len, /* addr_name_res_len */
     };
 
-    static address_type_t ss7pc_address = {
-        AT_SS7PC,          /* addr_type */
-        "AT_SS7PC",        /* name */
-        "SS7 Point Code",  /* pretty_name */
-        ss7pc_to_str,      /* addr_to_str */
-        ss7pc_str_len,     /* addr_str_len */
-        NULL,              /* addr_col_filter */
-        NULL,              /* addr_fixed_len */
-        NULL,              /* addr_name_res_str */
-        NULL,              /* addr_name_res_len */
-    };
-
     static address_type_t stringz_address = {
         AT_STRINGZ,          /* addr_type */
         "AT_STRINGZ",        /* name */
@@ -758,7 +730,6 @@ void address_types_initialize(void)
     address_type_register(AT_VINES, &vines_address );
     address_type_register(AT_FC, &fc_address );
     address_type_register(AT_FCWWN, &fcwwn_address );
-    address_type_register(AT_SS7PC, &ss7pc_address );
     address_type_register(AT_STRINGZ, &stringz_address );
     address_type_register(AT_EUI64, &eui64_address );
     address_type_register(AT_IB, &ib_address );

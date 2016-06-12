@@ -175,6 +175,8 @@ typedef struct _exp_pdu_data_t {
 WS_DLL_PUBLIC exp_pdu_data_t *load_export_pdu_tags(packet_info *pinfo, guint tag_type, const char* proto_name,
                                                    guint8 *wanted_exp_tags, guint16 wanted_exp_tags_len);
 
+extern void export_pdu_init(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

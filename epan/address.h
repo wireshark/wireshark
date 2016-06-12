@@ -49,7 +49,6 @@ typedef enum {
     AT_VINES,              /* Banyan Vines */
     AT_FC,                 /* Fibre Channel */
     AT_FCWWN,              /* Fibre Channel WWN */
-    AT_SS7PC,              /* SS7 Point Code */
     AT_STRINGZ,            /* null-terminated string */
     AT_EUI64,              /* IEEE EUI-64 */
     AT_IB,                 /* Infiniband GID/LID */

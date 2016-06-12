@@ -26,6 +26,7 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 #include <epan/to_str.h>
+#include <epan/address_types.h>
 #include <epan/exported_pdu.h>
 #include "packet-mtp3.h"
 #include "packet-dvbci.h"
@@ -66,6 +67,8 @@ static int hf_exported_pdu_col_proto_str = -1;
 /* Initialize the subtree pointers */
 static gint ett_exported_pdu = -1;
 static gint ett_exported_pdu_tag = -1;
+
+static int ss7pc_address_type = -1;
 
 #define EXPORTED_PDU_NEXT_PROTO_STR      0
 #define EXPORTED_PDU_NEXT_HEUR_PROTO_STR 1
@@ -213,7 +216,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 mtp3_addr->pc = tvb_get_ntohl(tvb, offset);
                 mtp3_addr->type = (Standard_Type)tvb_get_ntohs(tvb, offset+4);
                 mtp3_addr->ni = tvb_get_guint8(tvb, offset+6);
-                set_address(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr);
+                set_address(&pinfo->src, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr);
                 break;
             case EXP_PDU_TAG_SS7_DPC:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ss7_dpc, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -221,7 +224,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 mtp3_addr->pc = tvb_get_ntohl(tvb, offset);
                 mtp3_addr->type = (Standard_Type)tvb_get_ntohs(tvb, offset+4);
                 mtp3_addr->ni = tvb_get_guint8(tvb, offset+6);
-                set_address(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr);
+                set_address(&pinfo->dst, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr);
                 break;
             case EXP_PDU_TAG_ORIG_FNO:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_orig_fno, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -457,6 +460,8 @@ proto_reg_handoff_exported_pdu(void)
         dissector_add_uint("wtap_encap", WTAP_ENCAP_WIRESHARK_UPPER_PDU, exported_pdu_handle);
         initialized = TRUE;
     }
+
+    ss7pc_address_type = address_type_get_by_name("AT_SS7PC");
 
     /* Get the hf id of some fields from the IP dissectors to be able to use them here*/
     hf_ip_addr    = proto_registrar_get_id_byname("ip.addr");

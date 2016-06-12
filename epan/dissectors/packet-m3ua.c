@@ -34,6 +34,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/address_types.h>
 #include <epan/sctpppids.h>
 #include <wsutil/str_util.h>
 #include "packet-mtp3.h"
@@ -312,6 +313,8 @@ static gint ett_q708_dpc = -1;
 static module_t *m3ua_module;
 static dissector_handle_t mtp3_handle;
 static dissector_table_t si_dissector_table;
+
+static int ss7pc_address_type = -1;
 
 /* stuff for supporting multiple versions */
 typedef enum {
@@ -1194,13 +1197,13 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   mtp3_tap->addr_dpc.type = (Standard_Type)mtp3_standard;
   mtp3_tap->addr_dpc.pc = dpc;
   mtp3_tap->addr_dpc.ni = tvb_get_guint8(parameter_tvb, DATA_NI_OFFSET);
-  set_address(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) &mtp3_tap->addr_dpc);
+  set_address(&pinfo->dst, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) &mtp3_tap->addr_dpc);
 
 
   mtp3_tap->addr_opc.type = (Standard_Type)mtp3_standard;
   mtp3_tap->addr_opc.pc = opc;
   mtp3_tap->addr_opc.ni = tvb_get_guint8(parameter_tvb, DATA_NI_OFFSET);
-  set_address(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) &mtp3_tap->addr_opc);
+  set_address(&pinfo->src, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) &mtp3_tap->addr_opc);
 
   mtp3_tap->mtp3_si_code = tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET);
   mtp3_tap->size = 0;
@@ -2159,6 +2162,8 @@ proto_reg_handoff_m3ua(void)
   dissector_add_uint("sctp.port", SCTP_PORT_M3UA, m3ua_handle);
 
   si_dissector_table = find_dissector_table("mtp3.service_indicator");
+
+  ss7pc_address_type = address_type_get_by_name("AT_SS7PC");
 }
 
 /*

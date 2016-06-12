@@ -40,6 +40,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <epan/address_types.h>
 #include <epan/asn1.h>
 #include <epan/uat.h>
 #include <epan/expert.h>
@@ -719,6 +720,8 @@ static gboolean sccp_reassemble = TRUE;
 static gboolean show_key_params = FALSE;
 static gboolean set_addresses = FALSE;
 
+static int ss7pc_address_type = -1;
+
 static int sccp_tap = -1;
 
 
@@ -1334,8 +1337,8 @@ get_sccp_assoc(packet_info *pinfo, guint offset, sccp_decode_context_t* value)
   if (value->assoc)
     return value->assoc;
 
-  opck = opc->type == AT_SS7PC ? mtp3_pc_hash((const mtp3_addr_pc_t *)opc->data) : g_str_hash(address_to_str(wmem_packet_scope(), opc));
-  dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash((const mtp3_addr_pc_t *)dpc->data) : g_str_hash(address_to_str(wmem_packet_scope(), dpc));
+  opck = opc->type == ss7pc_address_type ? mtp3_pc_hash((const mtp3_addr_pc_t *)opc->data) : g_str_hash(address_to_str(wmem_packet_scope(), opc));
+  dpck = dpc->type == ss7pc_address_type ? mtp3_pc_hash((const mtp3_addr_pc_t *)dpc->data) : g_str_hash(address_to_str(wmem_packet_scope(), dpc));
 
 
   switch (value->message_type) {
@@ -2311,7 +2314,7 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, scc
   }
 
 
-  if ((num_sccp_users) && (pinfo->src.type == AT_SS7PC)) {
+  if ((num_sccp_users) && (pinfo->src.type == ss7pc_address_type)) {
     guint i;
     dissector_handle_t handle = NULL;
     gboolean uses_tcap = FALSE;
@@ -3336,7 +3339,7 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_tree *sccp_tree = NULL;
   const mtp3_addr_pc_t *mtp3_addr_p;
 
-  if ((pinfo->src.type == AT_SS7PC) &&
+  if ((pinfo->src.type == ss7pc_address_type) &&
       ((mtp3_addr_p = (const mtp3_addr_pc_t *)pinfo->src.data)->type <= CHINESE_ITU_STANDARD)) {
     /*
      *  Allow a protocol beneath to specify how the SCCP layer should be
@@ -3378,7 +3381,7 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   /* Set whether message is UPLINK, DOWNLINK, or of UNKNOWN direction */
 
-  if (pinfo->src.type == AT_SS7PC) {
+  if (pinfo->src.type == ss7pc_address_type) {
     /*
      * XXX - we assume that the "data" pointers of the source and destination
      * addresses are set to point to "mtp3_addr_pc_t" structures, so that
@@ -4162,6 +4165,8 @@ proto_reg_handoff_sccp(void)
     gsmmap_handle = find_dissector_add_dependency("gsm_map_sccp", proto_sccp);
     camel_handle  = find_dissector_add_dependency("camel", proto_sccp);
     inap_handle   = find_dissector_add_dependency("inap", proto_sccp);
+
+    ss7pc_address_type = address_type_get_by_name("AT_SS7PC");
 
     initialised = TRUE;
   }

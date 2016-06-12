@@ -53,6 +53,7 @@
 #include "expert.h"
 #include "print.h"
 #include "capture_dissectors.h"
+#include "exported_pdu.h"
 
 #ifdef HAVE_LUA
 #include <lua.h>
@@ -130,6 +131,7 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 		final_registration_all_protocols();
 		print_cache_field_handles();
 		expert_packet_init();
+		export_pdu_init();
 #ifdef HAVE_LUA
 		wslua_init(cb, client_data);
 #endif

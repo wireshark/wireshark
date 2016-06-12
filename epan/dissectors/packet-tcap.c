@@ -38,6 +38,7 @@
 #include <epan/prefs.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/address_types.h>
 #include <epan/strutil.h>
 #include <epan/show_exception.h>
 
@@ -136,7 +137,7 @@ static int hf_tcap_AARQ_protocol_version_version1 = -1;
 static int hf_tcap_AARE_protocol_version_version1 = -1;
 
 /*--- End of included file: packet-tcap-hf.c ---*/
-#line 60 "./asn1/tcap/packet-tcap-template.c"
+#line 61 "./asn1/tcap/packet-tcap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
@@ -149,6 +150,8 @@ gint ett_tcap_stat = -1;
 static struct tcapsrt_info_t * gp_tcapsrt_info;
 static gboolean tcap_subdissector_used=FALSE;
 static dissector_handle_t requested_subdissector_handle = NULL;
+
+static int ss7pc_address_type = -1;
 
 static struct tcaphash_context_t * gp_tcap_context=NULL;
 
@@ -190,7 +193,7 @@ static gint ett_tcap_ABRT_user_information = -1;
 static gint ett_tcap_Associate_source_diagnostic = -1;
 
 /*--- End of included file: packet-tcap-ett.c ---*/
-#line 76 "./asn1/tcap/packet-tcap-template.c"
+#line 79 "./asn1/tcap/packet-tcap-template.c"
 
 /* When several Tcap components are received in a single TCAP message,
    we have to use several buffers for the stored parameters
@@ -1420,7 +1423,7 @@ static int dissect_DialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-tcap-fn.c ---*/
-#line 154 "./asn1/tcap/packet-tcap-template.c"
+#line 157 "./asn1/tcap/packet-tcap-template.c"
 
 /*
  * DEBUG functions
@@ -2243,7 +2246,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* prepare the key data */
   tcaphash_begin_key.tid = p_tcapsrt_info->src_tid;
-  if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+  if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
   {
     /* We have MTP3 PCs (so we can safely do this cast) */
     tcaphash_begin_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
@@ -2435,7 +2438,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   /* look only for matching request, if matching conversation is available. */
   tcaphash_cont_key.src_tid = p_tcapsrt_info->src_tid;
   tcaphash_cont_key.dst_tid = p_tcapsrt_info->dst_tid;
-  if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+  if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
   {
     /* We have MTP3 PCs (so we can safely do this cast) */
     tcaphash_cont_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
@@ -2464,7 +2467,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
     /* Find the TCAP transaction according to the TC_BEGIN (from dtid,dst) */
     tcaphash_begin_key.tid = p_tcapsrt_info->dst_tid;
-    if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+    if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
     {
       /* We have MTP3 PCs (so we can safely do this cast) */
       tcaphash_begin_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
@@ -2487,7 +2490,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
         /* Do we have a continue from the same source? (stid,src) */
         tcaphash_begin_key.tid = p_tcapsrt_info->src_tid;
-        if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+        if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
         {
           /* We have MTP3 PCs (so we can safely do this cast) */
           tcaphash_begin_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
@@ -2520,7 +2523,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       /* Create END for (stid,src) */
       tcaphash_end_key.tid = p_tcapsrt_info->src_tid;
-      if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+      if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
       {
         /* We have MTP3 PCs (so we can safely do this cast) */
         tcaphash_end_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
@@ -2591,7 +2594,7 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
   /* look only for matching request, if matching conversation is available. */
   tcaphash_end_key.tid = p_tcapsrt_info->dst_tid;
-  if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+  if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
   {
     /* We have MTP3 PCs (so we can safely do this cast) */
     tcaphash_end_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
@@ -2613,7 +2616,7 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dbg(12,"EnotFound ");
 #endif
     tcaphash_begin_key.tid = p_tcapsrt_info->dst_tid;
-    if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+    if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
     {
       /* We have MTP3 PCs (so we can safely do this cast) */
       tcaphash_begin_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
@@ -2709,7 +2712,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* prepare the key data */
   tcaphash_ansi_key.tid = p_tcapsrt_info->src_tid;
-  if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+  if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
   {
     /* We have MTP3 PCs (so we can safely do this cast) */
     tcaphash_ansi_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
@@ -3334,6 +3337,8 @@ proto_reg_handoff_tcap(void)
   ansi_tcap_handle = find_dissector_add_dependency("ansi_tcap", proto_tcap);
   ber_oid_dissector_table = find_dissector_table("ber.oid");
 
+  ss7pc_address_type = address_type_get_by_name("AT_SS7PC");
+
 
 /*--- Included file: packet-tcap-dis-tab.c ---*/
 #line 1 "./asn1/tcap/packet-tcap-dis-tab.c"
@@ -3342,7 +3347,7 @@ proto_reg_handoff_tcap(void)
 
 
 /*--- End of included file: packet-tcap-dis-tab.c ---*/
-#line 2068 "./asn1/tcap/packet-tcap-template.c"
+#line 2073 "./asn1/tcap/packet-tcap-template.c"
 }
 
 static void init_tcap(void);
@@ -3684,7 +3689,7 @@ proto_register_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 2141 "./asn1/tcap/packet-tcap-template.c"
+#line 2146 "./asn1/tcap/packet-tcap-template.c"
   };
 
 /* Setup protocol subtree array */
@@ -3732,7 +3737,7 @@ proto_register_tcap(void)
     &ett_tcap_Associate_source_diagnostic,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 2151 "./asn1/tcap/packet-tcap-template.c"
+#line 2156 "./asn1/tcap/packet-tcap-template.c"
   };
 
   /*static enum_val_t tcap_options[] = {

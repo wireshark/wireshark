@@ -30,6 +30,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/address_types.h>
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
 #include <epan/tap.h>
@@ -381,6 +382,8 @@ static heur_dissector_list_t heur_subdissector_list;
 
 static guint32  message_class, message_type, drn, srn;
 
+static int ss7pc_address_type = -1;
+
 #define INVALID_SSN 0xff
 static guint next_assoc_id = 1;
 
@@ -436,8 +439,8 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
             return &no_sua_assoc;
     }
 
-    opck = opc->type == AT_SS7PC ? mtp3_pc_hash((const mtp3_addr_pc_t *)opc->data) : g_str_hash(address_to_str(wmem_packet_scope(), opc));
-    dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash((const mtp3_addr_pc_t *)dpc->data) : g_str_hash(address_to_str(wmem_packet_scope(), dpc));
+    opck = opc->type == ss7pc_address_type ? mtp3_pc_hash((const mtp3_addr_pc_t *)opc->data) : g_str_hash(address_to_str(wmem_packet_scope(), opc));
+    dpck = dpc->type == ss7pc_address_type ? mtp3_pc_hash((const mtp3_addr_pc_t *)dpc->data) : g_str_hash(address_to_str(wmem_packet_scope(), dpc));
 
     switch (message_type) {
         case MESSAGE_TYPE_CORE:
@@ -2242,9 +2245,9 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
 
   if (set_addresses) {
     if (sua_opc->type)
-      set_address(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) sua_opc);
+      set_address(&pinfo->src, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) sua_opc);
     if (sua_dpc->type)
-      set_address(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) sua_dpc);
+      set_address(&pinfo->dst, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) sua_dpc);
 
     if (sua_source_gt)
       set_address(&pinfo->src, AT_STRINGZ, 1+(int)strlen(sua_source_gt), wmem_strdup(pinfo->pool, sua_source_gt));
@@ -2486,6 +2489,7 @@ proto_reg_handoff_sua(void)
 
   sccp_ssn_dissector_table = find_dissector_table("sccp.ssn");
 
+  ss7pc_address_type = address_type_get_by_name("AT_SS7PC");
 }
 
 /*

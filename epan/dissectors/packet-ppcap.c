@@ -23,8 +23,9 @@
 
 #include "config.h"
 #include <epan/packet.h>
-#include "packet-mtp3.h"
+#include <epan/address_types.h>
 #include <epan/prefs.h>
+#include "packet-mtp3.h"
 
 #define INVALID_SSN	0xff
 
@@ -47,6 +48,8 @@ static dissector_table_t sccp_ssn_dissector_table;
 
 static mtp3_addr_pc_t* mtp3_addr_opc;
 static mtp3_addr_pc_t* mtp3_addr_dpc;
+
+static int ss7pc_address_type = -1;
 
 static gint ett_ppcap = -1;
 static gint ett_ppcap1 = -1;
@@ -277,8 +280,8 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 		mtp3_addr_opc->pc = (guint32 )tvb_get_ntoh24(tvb, offset);
 		mtp3_addr_opc->type = ITU_STANDARD;
 		mtp3_addr_opc->ni = 0;
-		/*set_address(&pinfo->net_src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);*/
-		set_address(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);
+		/*set_address(&pinfo->net_src, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);*/
+		set_address(&pinfo->src, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);
 		if (msg_len%4)
 			msg_len = msg_len + (4 - (msg_len%4));
 
@@ -294,7 +297,7 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 		mtp3_addr_opc->pc = tvb_get_ntohl(tvb, offset);
 		mtp3_addr_opc->type = ITU_STANDARD;
 		mtp3_addr_opc->ni = 0;
-		set_address(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);
+		set_address(&pinfo->src, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);
 	}
 	else if (key1 == 3)
 	{
@@ -367,7 +370,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 		mtp3_addr_dpc->pc = (guint32)tvb_get_ntoh24(tvb, offset);
 		mtp3_addr_dpc->type = ITU_STANDARD;
 		mtp3_addr_dpc->ni = 0;
-		set_address(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
+		set_address(&pinfo->dst, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
 
 		if (msg_len%4)
 			msg_len = msg_len + (4 - (msg_len%4));
@@ -385,7 +388,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 		mtp3_addr_dpc->pc = tvb_get_ntohl(tvb, offset);
 		mtp3_addr_dpc->type = ITU_STANDARD;
 		mtp3_addr_dpc->ni = 0;
-		set_address(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
+		set_address(&pinfo->dst, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
 	}
 	else if (key2 == 3)
 	{
@@ -700,6 +703,7 @@ void proto_reg_handoff_ppcap(void)
 
 	sccp_ssn_dissector_table = find_dissector_table("sccp.ssn");
 
+	ss7pc_address_type = address_type_get_by_name("AT_SS7PC");
 }
 
 /*

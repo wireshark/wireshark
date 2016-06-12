@@ -31,6 +31,7 @@
 #include <epan/asn1.h>
 #include <epan/prefs.h>
 #include <epan/exported_pdu.h>
+#include <epan/address_types.h>
 #include "packet-alcap.h"
 #include "packet-ber.h"
 #include "packet-tpkt.h"
@@ -103,6 +104,8 @@ static expert_field ei_h248_context_id64 = EI_INIT;
 static expert_field ei_h248_octet_string_expected = EI_INIT;
 
 static dissector_table_t subdissector_table;
+
+static int ss7pc_address_type = -1;
 
 /* Gateway Control Protocol -- Context Tracking */
 
@@ -199,14 +202,16 @@ gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
             memcpy((guint8*)&(m->hi_addr),hi_addr->data,4);
             memcpy((guint8*)&(m->lo_addr),lo_addr->data,4);
             break;
-        case AT_SS7PC:
-            m->hi_addr = mtp3_pc_hash((const mtp3_addr_pc_t *)hi_addr->data);
-            m->lo_addr = mtp3_pc_hash((const mtp3_addr_pc_t *)lo_addr->data);
-            break;
         default:
-            /* XXX: heuristic and error prone */
-            m->hi_addr = g_str_hash(address_to_str(wmem_packet_scope(), hi_addr));
-            m->lo_addr = g_str_hash(address_to_str(wmem_packet_scope(), lo_addr));
+            if (lo_addr->type == ss7pc_address_type) {
+                m->hi_addr = mtp3_pc_hash((const mtp3_addr_pc_t *)hi_addr->data);
+                m->lo_addr = mtp3_pc_hash((const mtp3_addr_pc_t *)lo_addr->data);
+            }
+            else {
+                /* XXX: heuristic and error prone */
+                m->hi_addr = g_str_hash(address_to_str(wmem_packet_scope(), hi_addr));
+                m->lo_addr = g_str_hash(address_to_str(wmem_packet_scope(), lo_addr));
+            }
         break;
     }
 
@@ -2437,6 +2442,7 @@ void proto_reg_handoff_h248(void) {
         dissector_add_uint("tcp.port", tcp_port, h248_tpkt_handle);
     }
 
+    ss7pc_address_type = address_type_get_by_name("AT_SS7PC");
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 }
 

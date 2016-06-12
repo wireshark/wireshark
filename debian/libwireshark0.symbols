@@ -824,7 +824,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  memory_usage_get@Base 1.12.0~rc1
  mibenum_charset_to_encoding@Base 2.1.0
  mibenum_vals_character_sets_ext@Base 2.1.0
- mtp3_addr_to_str_buf@Base 1.9.1
  mtp3_network_indicator_vals@Base 1.9.1
  mtp3_service_indicator_code_short_vals@Base 1.9.1
  mtp3_standard_vals@Base 1.9.1
