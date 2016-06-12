@@ -1902,9 +1902,10 @@ dictionary_load(void)
 	}
 
 	/* load the dictionary */
-	dir = wmem_strdup_printf(wmem_epan_scope(), "%s" G_DIR_SEPARATOR_S "diameter" G_DIR_SEPARATOR_S, get_datafile_dir());
+	dir = wmem_strdup_printf(NULL, "%s" G_DIR_SEPARATOR_S "diameter" G_DIR_SEPARATOR_S, get_datafile_dir());
 	/* XXX We don't call ddict_free anywhere. */
 	d = ddict_scan(dir,"dictionary.xml",do_debug_parser);
+	wmem_free(NULL, dir);
 	if (d == NULL) {
 		g_hash_table_destroy(vendors);
 		g_array_free(vnd_shrt_arr, TRUE);
