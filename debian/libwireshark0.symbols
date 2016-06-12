@@ -49,6 +49,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  address_with_resolution_to_str@Base 1.99.3
  address_to_str_buf@Base 1.9.1
  address_type_dissector_register@Base 2.0.0
+ address_type_get_by_name@Base 2.1.0
  addresses_ports_reassembly_table_functions@Base 1.9.1
  addresses_reassembly_table_functions@Base 1.9.1
  airpdcap_ctx@Base 1.9.1

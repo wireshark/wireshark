@@ -3045,7 +3045,7 @@ proto_register_tipc(void)
 	/* Register configuration options */
 	tipc_module = prefs_register_protocol(proto_tipc, proto_reg_handoff_tipc);
 
-	tipc_address_type = address_type_dissector_register("tipc_address_type", "TIPC Address Zone,Subnetwork,Processor",
+	tipc_address_type = address_type_dissector_register("AT_TIPC", "TIPC Address Zone,Subnetwork,Processor",
 														tipc_addr_to_str_buf, tipc_addr_str_len, NULL, NULL, NULL, NULL);
 
 	/* Set default ports */

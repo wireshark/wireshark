@@ -44,6 +44,8 @@ WS_DLL_PUBLIC int address_type_dissector_register(const char* name, const char* 
                                     AddrColFilterString col_filter_str_func, AddrFixedLen fixed_len_func,
                                     AddrNameResolutionToString name_res_str_func, AddrNameResolutionLen name_res_len_func);
 
+WS_DLL_PUBLIC int address_type_get_by_name(const char* name);
+
 void address_types_initialize(void);
 
 /* Address type functions used by multiple (dissector) address types */

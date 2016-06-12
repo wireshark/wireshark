@@ -121,6 +121,22 @@ int address_type_dissector_register(const char* name, const char* pretty_name,
     return addr_type;
 }
 
+int address_type_get_by_name(const char* name)
+{
+    address_type_t** addr;
+
+    for (addr = type_list; addr != NULL; addr++)
+    {
+        if (!strcmp((*addr)->name, name))
+        {
+            return (*addr)->addr_type;
+        }
+    }
+
+    return -1;
+}
+
+
 /******************************************************************************
  * AT_NONE
  ******************************************************************************/
