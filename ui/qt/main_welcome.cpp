@@ -65,9 +65,11 @@ MainWelcome::MainWelcome(QWidget *parent) :
 {
     welcome_ui_->setupUi(this);
 
+    recent_files_ = welcome_ui_->recentList;
+
     welcome_ui_->interfaceTree->resetColumnCount();
 
-    recent_files_ = welcome_ui_->recentList;
+    welcome_ui_->captureFilterComboBox->setEnabled(false);
 
     setStyleSheet(QString(
                       "MainWelcome {"
@@ -247,6 +249,8 @@ void MainWelcome::appInitialized()
 
     // Trigger interfacesUpdated.
     welcome_ui_->interfaceTree->selectedInterfaceChanged();
+
+    welcome_ui_->captureFilterComboBox->setEnabled(true);
 
     delete splash_overlay_;
     splash_overlay_ = NULL;

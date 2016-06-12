@@ -87,7 +87,7 @@ CaptureFilterCombo::CaptureFilterCombo(QWidget *parent, bool plain) :
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(rebuildFilterList()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(rebuildFilterList()));
 
-    lineEdit()->setReadOnly(true);
+    rebuildFilterList();
     clearEditText();
 }
 
@@ -118,7 +118,6 @@ void CaptureFilterCombo::rebuildFilterList()
         insertItem(0, (const gchar *) li->data);
     }
     lineEdit()->blockSignals(false);
-    lineEdit()->setReadOnly(false);
 }
 
 /*
