@@ -1083,8 +1083,8 @@ void TCPStreamDialog::on_streamNumberSpinBox_valueChanged(int new_stream)
 {
     if (new_stream >= 0 && new_stream < int(get_tcp_stream_count())) {
         graph_.stream = new_stream;
-        graph_.src_address.type = AT_NONE;
-        graph_.dst_address.type = AT_NONE;
+        clear_address(&graph_.src_address);
+        clear_address(&graph_.dst_address);
         findStream();
         fillGraph();
     }

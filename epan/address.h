@@ -91,6 +91,15 @@ clear_address(address *addr)
  */
 static inline void
 set_address(address *addr, int addr_type, int addr_len, const void *addr_data) {
+    if (addr_len == 0) {
+        /* Zero length must mean no data */
+        g_assert(addr_data == NULL);
+    } else {
+        /* Must not be AT_NONE - AT_NONE must have no data */
+        g_assert(addr_type != AT_NONE);
+        /* Make sure we *do* have data */
+        g_assert(addr_data != NULL);
+    }
     addr->type = addr_type;
     addr->len  = addr_len;
     addr->data = addr_data;
@@ -116,9 +125,11 @@ static inline void
 set_address_tvb(address *addr, int addr_type, int addr_len, tvbuff_t *tvb, int offset) {
     const void *p;
 
-    if (addr_len != 0)
+    if (addr_len != 0) {
+        /* Must not be AT_NONE - AT_NONE must have no data */
+        g_assert(addr_type != AT_NONE);
         p = tvb_get_ptr(tvb, offset, addr_len);
-    else
+    } else
         p = NULL;
     set_address(addr, addr_type, addr_len, p);
 }
@@ -139,11 +150,16 @@ alloc_address_wmem(wmem_allocator_t *scope, address *addr,
     g_assert(addr);
     clear_address(addr);
     addr->type = addr_type;
-    if (addr_type == AT_NONE || addr_len <= 0 || addr_data == NULL) {
-        g_assert(addr_len <= 0);
+    if (addr_len == 0) {
+        /* Zero length must mean no data */
         g_assert(addr_data == NULL);
+        /* Nothing to copy */
         return;
     }
+    /* Must not be AT_NONE - AT_NONE must have no data */
+    g_assert(addr_type != AT_NONE);
+    /* Make sure we *do* have data to copy */
+    g_assert(addr_data != NULL);
     addr->data = addr->priv = wmem_memdup(scope, addr_data, addr_len);
     addr->len = addr_len;
 }
@@ -189,9 +205,9 @@ cmp_address(const address *addr1, const address *addr2) {
 /** Check two addresses for equality.
  *
  * Given two addresses, return "true" if they're equal, "false" otherwise.
- * Addresses are equal only if they have the same type; if the type is
- * AT_NONE, they are then equal, otherwise they must have the same
- * amount of data and the data must be the same.
+ * Addresses are equal only if they have the same type and length; if the
+ * length is zero, they are then equal, otherwise the data must be the
+ * same.
  *
  * @param addr1 [in] The first address to compare.
  * @param addr2 [in] The second address to compare.
@@ -199,13 +215,16 @@ cmp_address(const address *addr1, const address *addr2) {
  */
 static inline gboolean
 addresses_equal(const address *addr1, const address *addr2) {
-    if (addr1->type == addr2->type
-            && ( addr1->type == AT_NONE
-                 || ( addr1->len == addr2->len
-                      && memcmp(addr1->data, addr2->data, addr1->len) == 0
-                      )
-                 )
-            ) return TRUE;
+    /*
+     * memcmp(NULL, NULL, 0) is *not* guaranteed to work, so
+     * if both addresses are zero-length, don't compare them
+     * (there's nothing to compare, so they're equal).
+     */
+    if (addr1->type == addr2->type &&
+        addr1->len == addr2->len &&
+        (addr1->len == 0 ||
+         memcmp(addr1->data, addr2->data, addr1->len) == 0))
+        return TRUE;
     return FALSE;
 }
 

@@ -1517,14 +1517,13 @@ static guint32 dissect_iax2_command(tvbuff_t *tvb, guint32 offset,
                                     iax_packet_data *iax_packet)
 {
   guint8         csub = tvb_get_guint8(tvb, offset);
-  guint8         address_data[MAX_ADDRESS];
   proto_item*    ti;
   iax2_ie_data   ie_data;
   iax_call_data *iax_call;
 
   ie_data.peer_address.type = AT_NONE;
   ie_data.peer_address.len  = 0;
-  ie_data.peer_address.data = address_data;
+  ie_data.peer_address.data = NULL;
   ie_data.peer_ptype        = PT_NONE;
   ie_data.peer_port         = 0;
   ie_data.peer_callno       = 0;

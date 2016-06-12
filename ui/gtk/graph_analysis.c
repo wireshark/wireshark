@@ -106,9 +106,7 @@ static void graph_analysis_init_dlg(graph_analysis_data_t *user_data)
 	user_data->on_destroy_user_data = NULL;
 	user_data->data = NULL;
 	for (i=0; i<MAX_NUM_NODES; i++) {
-		user_data->graph_info->nodes[i].type = AT_NONE;
-		user_data->graph_info->nodes[i].len = 0;
-		user_data->graph_info->nodes[i].data = NULL;
+		clear_address(&user_data->graph_info->nodes[i]);
 	}
 
 	user_data->dlg.first_node = 0;

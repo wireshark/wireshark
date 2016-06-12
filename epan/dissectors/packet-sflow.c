@@ -765,7 +765,7 @@ dissect_sflow_245_address_type(tvbuff_t *tvb, packet_info *pinfo,
         break;
     default:
         /* Invalid address type, or a type we don't understand; we don't
-           know the length. W e treat it as having no contents; that
+           know the length. We treat it as having no contents; that
            doesn't trap us in an endless loop, as we at least include
            the address type and thus at least advance the offset by 4.
            Note that we have a problem, though. */
@@ -776,6 +776,9 @@ dissect_sflow_245_address_type(tvbuff_t *tvb, packet_info *pinfo,
 
     if (addr) {
         switch (len) {
+        default:
+            clear_address(addr);
+            break;
         case 4:
             set_address_tvb(addr, AT_IPv4, len, tvb, offset);
             break;
@@ -2346,16 +2349,12 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
        /* Unknown version; assume it's not an sFlow packet. */
        return 0;
     }
+
     sflow_addr_type = tvb_get_ntohl(tvb, offset + 4);
     switch (sflow_addr_type) {
         case ADDR_TYPE_UNKNOWN:
-            addr_details.type = AT_NONE;
-            break;
         case ADDR_TYPE_IPV4:
-            addr_details.type = AT_IPv4;
-            break;
         case ADDR_TYPE_IPV6:
-            addr_details.type = AT_IPv6;
             break;
 
         default:
@@ -2365,7 +2364,6 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
              */
             return 0;
     }
-
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "sFlow");
 

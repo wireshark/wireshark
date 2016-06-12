@@ -1989,8 +1989,7 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         tmp_h323info->guid = (e_guid_t *)g_memdup(&pi->guid, sizeof pi->guid);
         DUMP_PTR1(tmp_h323info->guid);
 
-        tmp_h323info->h225SetupAddr.type = AT_NONE;
-        tmp_h323info->h225SetupAddr.len = 0;
+        clear_address(&tmp_h323info->h225SetupAddr);
         tmp_h323info->h245_list = NULL;
         tmp_h323info->is_faststart_Setup = FALSE;
         tmp_h323info->is_faststart_Proc = FALSE;
