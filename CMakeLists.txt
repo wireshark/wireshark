@@ -140,7 +140,6 @@ if(WIN32)
 endif(WIN32)
 
 include(UseCustomIncludes)
-ADD_CUSTOM_CMAKE_INCLUDE()
 
 # This cannot be implemented via option(...)
 if( NOT CMAKE_BUILD_TYPE )
@@ -2687,6 +2686,8 @@ CHECKAPI(
 	  ${WIRESHARK_SRC}
 	  ${TSHARK_TAP_SRC}
 )
+
+ADD_CUSTOM_CMAKE_INCLUDE()
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
