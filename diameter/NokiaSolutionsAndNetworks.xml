@@ -51,11 +51,11 @@
     <type type-name="UTF8String"/>
   </avp>
 
-  <avp name="Account-State" code="60528" mandatory-flag="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+  <avp name="Account-State" code="60528" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
         <type type-name="UTF8String" />
     </avp>
 
-    <avp name="Subscriber-Specific-Info" code="60530" mandatory-flag="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <avp name="Subscriber-Specific-Info" code="60530" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
         <grouped>
             <gavp name="Account-State" />
             <gavp name="Active-Product-Offer" />
@@ -63,15 +63,15 @@
         </grouped>
     </avp>
 
-    <avp name="Offer-Name" code="60551" mandatory-flag="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <avp name="Offer-Name" code="60551" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
         <type type-name="UTF8String" />
     </avp>
 
-    <avp name="Version" code="60552" mandatory-flag="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <avp name="Version" code="60552" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
         <type type-name="UTF8String" />
     </avp>
 
-    <avp name="Active-Product-Offer" code="60553" mandatory-flag="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <avp name="Active-Product-Offer" code="60553" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
         <grouped>
             <gavp name="Offer-Name" />
             <gavp name="Version" />
@@ -79,11 +79,11 @@
         </grouped>
     </avp>
 
-    <avp name="Expiry-Date" code="60554" mandatory-flag="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <avp name="Expiry-Date" code="60554" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
         <type type-name="Time" />
     </avp>
 
-    <avp name="Billing-Account" code="60557" mandatory-flag="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <avp name="Billing-Account" code="60557" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
         <grouped>
             <gavp name="Billing-Account-Number" />
             <gavp name="Account-Type" />
@@ -91,15 +91,15 @@
         </grouped>
     </avp>
 
-    <avp name="Billing-Account-Number" code="60558" mandatory-flag="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <avp name="Billing-Account-Number" code="60558" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
         <type type-name="Integer32" />
     </avp>
 
-    <avp name="Account-Type" code="60559" mandatory-flag="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <avp name="Account-Type" code="60559" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
         <type type-name="UTF8String" />
     </avp>
 
-    <avp name="Account-Subtype" code="60560" mandatory-flag="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <avp name="Account-Subtype" code="60560" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
         <type type-name="UTF8String" />
     </avp>
 
