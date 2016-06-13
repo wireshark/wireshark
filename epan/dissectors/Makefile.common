@@ -201,7 +201,8 @@ ASN1_DISSECTOR_SRC = \
 #
 # idl2wrs-generated CORBA IDL dissectors without warnings.
 #
-CORBA_IDL_DISSECTOR_SRC =
+CORBA_IDL_DISSECTOR_SRC = \
+	packet-coseventcomm.c
 
 #
 # asn2wrs-generated ASN.1 dissectors with warnings.
@@ -421,7 +422,6 @@ DISSECTOR_SRC = \
 	packet-cops.c		\
 	packet-corosync-totemnet.c	\
 	packet-corosync-totemsrp.c	\
-	packet-coseventcomm.c	\
 	packet-cosine.c		\
 	packet-couchbase.c	\
 	packet-cp2179.c		\
@@ -1809,4 +1809,5 @@ ALL_DISSECTORS_SRC =	\
 	$(PIDL_DISSECTOR_SRC)	\
 	$(ASN1_DISSECTOR_SRC)	\
 	$(DIRTY_ASN1_DISSECTOR_SRC)	\
+	$(CORBA_IDL_DISSECTOR_SRC)	\
 	$(DIRTY_CORBA_IDL_DISSECTOR_SRC)

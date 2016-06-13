@@ -232,6 +232,7 @@ add_library(epan ${LINK_MODE_LIB}
 	$<TARGET_OBJECTS:crypt>
 	$<TARGET_OBJECTS:dfilter>
 	$<TARGET_OBJECTS:dissectors>
+	$<TARGET_OBJECTS:dissectors-corba>
 	$<TARGET_OBJECTS:ftypes>
 	$<TARGET_OBJECTS:nghttp2>
 	$<TARGET_OBJECTS:wmem>
