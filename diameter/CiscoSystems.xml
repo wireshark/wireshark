@@ -1,8 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <!--
 Ref:
 http://www.cisco.com/c/dam/en/us/td/docs/wireless/asr_5000/20/AAA/20-AAA-Reference.pdf
 -->
-<?xml version="1.0" encoding="utf-8"?>
 
 <vendor vendor-id="CiscoSystems" code="9" name="Cisco">
   <avp name="DSCP" vendor-id="CiscoSystems" code="131178" >
