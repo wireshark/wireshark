@@ -1023,6 +1023,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_add_bitmask@Base 1.9.1
  proto_tree_add_bitmask_len@Base 1.9.1
  proto_tree_add_bitmask_list@Base 1.99.4
+ proto_tree_add_bitmask_list_value@Base 2.1.0
  proto_tree_add_bitmask_ret_uint64@Base 2.1.0
  proto_tree_add_bitmask_text@Base 1.9.1
  proto_tree_add_bitmask_value@Base 1.99.4

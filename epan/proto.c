@@ -9138,6 +9138,16 @@ proto_tree_add_bitmask_list(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 	}
 }
 
+WS_DLL_PUBLIC void
+proto_tree_add_bitmask_list_value(proto_tree *tree, tvbuff_t *tvb, const guint offset,
+								const int len, const int **fields, const guint64 value)
+{
+	if (tree) {
+		proto_item_add_bitmask_tree(NULL, tvb, offset, len, -1, fields,
+		    BMT_NO_APPEND, FALSE, TRUE, tree, value);
+	}
+}
+
 
 /* The same as proto_tree_add_bitmask(), but using a caller-supplied length.
  * This is intended to support bitmask fields whose lengths can vary, perhaps
