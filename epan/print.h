@@ -108,6 +108,12 @@ WS_DLL_PUBLIC void write_pdml_preamble(FILE *fh, const gchar* filename);
 WS_DLL_PUBLIC void write_pdml_proto_tree(epan_dissect_t *edt, FILE *fh);
 WS_DLL_PUBLIC void write_pdml_finale(FILE *fh);
 
+WS_DLL_PUBLIC void write_json_preamble(FILE *fh);
+WS_DLL_PUBLIC void write_json_proto_tree(print_args_t *print_args, gchar *jsonfilter, epan_dissect_t *edt, FILE *fh);
+WS_DLL_PUBLIC void write_json_finale(FILE *fh);
+
+WS_DLL_PUBLIC void write_ek_proto_tree(print_args_t *print_args, gchar *jsonfilter, epan_dissect_t *edt, FILE *fh);
+
 WS_DLL_PUBLIC void write_psml_preamble(column_info *cinfo, FILE *fh);
 WS_DLL_PUBLIC void write_psml_columns(epan_dissect_t *edt, FILE *fh);
 WS_DLL_PUBLIC void write_psml_finale(FILE *fh);

@@ -158,7 +158,9 @@ static gboolean perform_two_pass_analysis;
 typedef enum {
   WRITE_TEXT,   /* summary or detail text */
   WRITE_XML,    /* PDML or PSML */
-  WRITE_FIELDS  /* User defined list of fields */
+  WRITE_FIELDS, /* User defined list of fields */
+  WRITE_JSON,    /* JSON */
+  WRITE_EK      /* JSON bulk insert to Elasticsearch */
   /* Add CSV and the like here */
 } output_action_e;
 
@@ -175,6 +177,7 @@ static print_format_e print_format = PR_FMT_TEXT;
 static print_stream_t *print_stream;
 
 static output_fields_t* output_fields  = NULL;
+static gchar *jsonfilter = NULL;
 
 /* The line separator used between packets, changeable via the -S option */
 static const char *separator = "";
@@ -372,8 +375,10 @@ print_usage(FILE *output)
   fprintf(output, "  -P                       print packet summary even when writing to a file\n");
   fprintf(output, "  -S <separator>           the line separator to print between packets\n");
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
-  fprintf(output, "  -T pdml|ps|psml|text|fields\n");
+  fprintf(output, "  -T pdml|ps|psml|json|ek|text|fields\n");
   fprintf(output, "                           format of text output (def: text)\n");
+  fprintf(output, "  -j <jsonfilter>          only protocols layers to include if -Tjson, -Tek selected,\n");
+  fprintf(output, "                           (e.g. \"http tcp ip\",\n");
   fprintf(output, "  -e <field>               field to print if -Tfields selected (e.g. tcp.port,\n");
   fprintf(output, "                           _ws.col.Info)\n");
   fprintf(output, "                           this option can be repeated to print multiple fields\n");
@@ -1020,7 +1025,7 @@ main(int argc, char *argv[])
  * We do *not* use a leading - because the behavior of a leading - is
  * platform-dependent.
  */
-#define OPTSTRING "+2" OPTSTRING_CAPTURE_COMMON "C:d:e:E:F:gG:hH:" "K:lnN:o:O:PqQr:R:S:t:T:u:U:vVw:W:xX:Y:z:"
+#define OPTSTRING "+2" OPTSTRING_CAPTURE_COMMON "C:d:e:E:F:gG:hH:j:" "K:lnN:o:O:PqQr:R:S:t:T:u:U:vVw:W:xX:Y:z:"
 
   static const char    optstring[] = OPTSTRING;
 
@@ -1479,6 +1484,9 @@ main(int argc, char *argv[])
         return 1;
       }
       break;
+    case 'j':
+      jsonfilter = optarg;
+      break;
     case 'W':        /* Select extra information to save in our capture file */
       /* This is patterned after the -N flag which may not be the best idea. */
       if (strchr(optarg, 'n')) {
@@ -1639,7 +1647,16 @@ main(int argc, char *argv[])
         output_action = WRITE_FIELDS;
         print_details = TRUE;   /* Need full tree info */
         print_summary = FALSE;  /* Don't allow summary */
-      } else {
+      } else if (strcmp(optarg, "json") == 0) {
+        output_action = WRITE_JSON;
+        print_details = TRUE;   /* Need details */
+        print_summary = FALSE;  /* Don't allow summary */
+      } else if (strcmp(optarg, "ek") == 0) {
+        output_action = WRITE_EK;
+        print_details = TRUE;   /* Need details */
+        print_summary = FALSE;  /* Don't allow summary */
+      }
+      else {
         cmdarg_err("Invalid -T parameter \"%s\"; it must be one of:", optarg);                   /* x */
         cmdarg_err_cont("\t\"fields\" The values of fields specified with the -e option, in a form\n"
                         "\t         specified by the -E option.\n"
@@ -1653,6 +1670,12 @@ main(int argc, char *argv[])
                         "\t         summary information of a decoded packet. This information is\n"
                         "\t         equivalent to the information shown in the one-line summary\n"
                         "\t         printed by default.\n"
+                        "\t\"json\"   Packet Summary, an JSON-based format for the details\n"
+                        "\t         summary information of a decoded packet. This information is \n"
+                        "\t         equivalent to the packet details printed with the -V flag.\n"
+                        "\t\"ek\"   Packet Summary, an EK JSON-based format for the bulk insert \n"
+                        "\t         into elastic search cluster. This information is \n"
+                        "\t         equivalent to the packet details printed with the -V flag.\n"
                         "\t\"text\"   Text of a human-readable one-line summary of each of the\n"
                         "\t         packets, or a multi-line view of the details of each of the\n"
                         "\t         packets, depending on whether the -V flag was specified.\n"
@@ -1844,8 +1867,8 @@ main(int argc, char *argv[])
   }
 
   if (print_hex) {
-    if (output_action != WRITE_TEXT) {
-      cmdarg_err("Raw packet hex data can only be printed as text or PostScript");
+    if (output_action != WRITE_TEXT && output_action != WRITE_JSON && output_action != WRITE_EK) {
+      cmdarg_err("Raw packet hex data can only be printed as text, PostScript, JSON or EK JSON");
       return 1;
     }
   }
@@ -3883,6 +3906,13 @@ write_preamble(capture_file *cf)
     write_fields_preamble(output_fields, stdout);
     return !ferror(stdout);
 
+  case WRITE_JSON:
+    write_json_preamble(stdout);
+    return !ferror(stdout);
+
+  case WRITE_EK:
+    return !ferror(stdout);
+
   default:
     g_assert_not_reached();
     return FALSE;
@@ -4186,6 +4216,8 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
         write_psml_columns(edt, stdout);
         return !ferror(stdout);
       case WRITE_FIELDS: /*No non-verbose "fields" format */
+      case WRITE_JSON:
+      case WRITE_EK:
         g_assert_not_reached();
         break;
       }
@@ -4224,6 +4256,16 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       write_fields_proto_tree(output_fields, edt, &cf->cinfo, stdout);
       printf("\n");
       return !ferror(stdout);
+    case WRITE_JSON:
+      print_args.print_hex = print_hex;
+      write_json_proto_tree(&print_args, jsonfilter, edt, stdout);
+      printf("\n");
+      return !ferror(stdout);
+    case WRITE_EK:
+      print_args.print_hex = print_hex;
+      write_ek_proto_tree(&print_args, jsonfilter, edt, stdout);
+      printf("\n");
+      return !ferror(stdout);
     }
   }
   if (print_hex) {
@@ -4256,6 +4298,13 @@ write_finale(void)
 
   case WRITE_FIELDS:
     write_fields_finale(output_fields, stdout);
+    return !ferror(stdout);
+
+  case WRITE_JSON:
+    write_json_finale(stdout);
+    return !ferror(stdout);
+
+  case WRITE_EK:
     return !ferror(stdout);
 
   default:

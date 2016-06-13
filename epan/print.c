@@ -63,6 +63,15 @@ typedef struct {
 } write_pdml_data;
 
 typedef struct {
+    int             level;
+    FILE           *fh;
+    GSList         *src_list;
+    epan_dissect_t *edt;
+    gchar          *filter;
+    gboolean        print_hex;
+} write_json_data;
+
+typedef struct {
     output_fields_t *fields;
     epan_dissect_t  *edt;
 } write_field_data_t;
@@ -83,11 +92,16 @@ struct _output_fields {
 static gchar *get_field_hex_value(GSList *src_list, field_info *fi);
 static void proto_tree_print_node(proto_node *node, gpointer data);
 static void proto_tree_write_node_pdml(proto_node *node, gpointer data);
+static void proto_tree_write_node_json(proto_node *node, gpointer data);
+static void proto_tree_write_node_ek(proto_node *node, gpointer data);
 static const guint8 *get_field_data(GSList *src_list, field_info *fi);
 static void pdml_write_field_hex_value(write_pdml_data *pdata, field_info *fi);
+static void json_write_field_hex_value(write_json_data *pdata, field_info *fi);
 static gboolean print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
                                       guint length, packet_char_enc encoding);
 static void print_escaped_xml(FILE *fh, const char *unescaped_string);
+static void print_escaped_json(FILE *fh, const char *unescaped_string);
+static void print_escaped_ek(FILE *fh, const char *unescaped_string);
 
 static void print_pdml_geninfo(proto_tree *tree, FILE *fh);
 
@@ -243,6 +257,12 @@ write_pdml_preamble(FILE *fh, const gchar *filename)
 }
 
 void
+write_json_preamble(FILE *fh)
+{
+    fputs("{\n", fh);
+}
+
+void
 write_pdml_proto_tree(epan_dissect_t *edt, FILE *fh)
 {
     write_pdml_data data;
@@ -262,6 +282,87 @@ write_pdml_proto_tree(epan_dissect_t *edt, FILE *fh)
                                 &data);
 
     fprintf(fh, "</packet>\n\n");
+}
+
+void
+write_json_proto_tree(print_args_t *print_args, gchar *jsonfilter, epan_dissect_t *edt, FILE *fh)
+{
+    write_json_data data;
+    char ts[30];
+    time_t t = time(NULL);
+    struct tm * timeinfo;
+
+    /* Create the output */
+    data.level    = 0;
+    data.fh       = fh;
+    data.src_list = edt->pi.data_src;
+    data.edt      = edt;
+    data.filter   = jsonfilter;
+    data.print_hex = print_args->print_hex;
+
+    timeinfo = localtime(&t);
+    strftime(ts, 30, "%Y-%m-%d", timeinfo);
+
+    fprintf(fh, "  \"_index\": \"packets-%s\",\n", ts);
+    fputs("  \"_type\": \"pcap_file\",\n", fh);
+    fputs("  \"_score\": null,\n", fh);
+    fputs("  \"_source\": {\n", fh);
+    fputs("    \"layers\": {\n", fh);
+
+    proto_tree_children_foreach(edt->tree, proto_tree_write_node_json,
+                                &data);
+
+    fputs("    }\n", fh);
+
+    fputs("  },\n", fh);
+
+}
+
+void
+write_ek_proto_tree(print_args_t *print_args, gchar *jsonfilter, epan_dissect_t *edt, FILE *fh)
+{
+    write_json_data data;
+    char ts[30];
+    time_t t = time(NULL);
+    struct tm  *timeinfo;
+    nstime_t   *timestamp;
+    GPtrArray  *finfo_array;
+
+    /* Create the output */
+    data.level    = 0;
+    data.fh       = fh;
+    data.src_list = edt->pi.data_src;
+    data.edt      = edt;
+    data.filter   = jsonfilter;
+    data.print_hex = print_args->print_hex;
+
+
+    timeinfo = localtime(&t);
+    strftime(ts, 30, "%Y-%m-%d", timeinfo);
+
+
+    /* Get frame protocol's finfo. */
+    finfo_array = proto_find_finfo(edt->tree, proto_frame);
+    if (g_ptr_array_len(finfo_array) < 1) {
+        return;
+    }
+    /* frame.time --> geninfo.timestamp */
+    finfo_array = proto_find_finfo(edt->tree, hf_frame_arrival_time);
+    if (g_ptr_array_len(finfo_array) < 1) {
+        return;
+    }
+    timestamp = (nstime_t *)fvalue_get(&((field_info*)finfo_array->pdata[0])->value);
+    g_ptr_array_free(finfo_array, TRUE);
+
+
+    fprintf(fh, "{\"index\" : {\"_index\": \"packets-%s\", \"_type\": \"pcap_file\", \"_score\": null}}\n", ts);
+    /* Timestamp added for time indexing in Elasticsearch */
+    fprintf(fh, "{\"timestamp\" : \"%ld%03d\", \"layers\" : {", timestamp->secs, timestamp->nsecs/1000000);
+
+
+    proto_tree_children_foreach(edt->tree, proto_tree_write_node_ek,
+                                &data);
+    fputs("}}\n", fh);
 }
 
 /* Write out a tree's data, and any child nodes, as PDML */
@@ -340,7 +441,6 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
     /* Uninterpreted data, i.e., the "Data" protocol, is
      * printed as a field instead of a protocol. */
     else if (fi->hfinfo->id == proto_data) {
-
         /* Write out field with data */
         fputs("<field name=\"data\" value=\"", pdata->fh);
         pdml_write_field_hex_value(pdata, fi);
@@ -511,6 +611,403 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
     }
 }
 
+
+/* Write out a tree's data, and any child nodes, as JSON */
+static void
+proto_tree_write_node_json(proto_node *node, gpointer data)
+{
+    field_info      *fi    = PNODE_FINFO(node);
+    write_json_data *pdata = (write_json_data*) data;
+    const gchar     *label_ptr;
+    char            *dfilter_string;
+    int              i;
+
+    /* dissection with an invisible proto tree? */
+    g_assert(fi);
+
+    /* Indent to the correct level */
+    for (i = -3; i < pdata->level; i++) {
+        fputs("  ", pdata->fh);
+    }
+
+    /* Text label. It's printed as a field with no name. */
+    if (fi->hfinfo->id == hf_text_only) {
+        /* Get the text */
+        if (fi->rep) {
+            label_ptr = fi->rep->representation;
+        }
+        else {
+            label_ptr = "";
+        }
+
+        /* Show empty name since it is a required field */
+        fputs("\"", pdata->fh);
+        print_escaped_json(pdata->fh, label_ptr);
+
+        if (node->first_child != NULL) {
+            fputs("\": {\n", pdata->fh);
+        }
+        else {
+            if (node->next == NULL) {
+              fputs("\": \"\"\n",  pdata->fh);
+            } else {
+              fputs("\": \"\",\n",  pdata->fh);
+            }
+        }
+    }
+
+    /* Normal protocols and fields */
+    else {
+        /*
+         * Hex dump -x
+         */
+        if (pdata->print_hex && fi->length > 0) {
+            fputs("\"", pdata->fh);
+            print_escaped_json(pdata->fh, fi->hfinfo->abbrev);
+            fputs("_raw", pdata->fh);
+            fputs("\": \"", pdata->fh);
+
+            if (fi->hfinfo->bitmask!=0) {
+                switch (fi->value.ftype->ftype) {
+                    case FT_INT8:
+                    case FT_INT16:
+                    case FT_INT24:
+                    case FT_INT32:
+                        fprintf(pdata->fh, "%X", (guint) fvalue_get_sinteger(&fi->value));
+                        break;
+                    case FT_UINT8:
+                    case FT_UINT16:
+                    case FT_UINT24:
+                    case FT_UINT32:
+                        fprintf(pdata->fh, "%X", fvalue_get_uinteger(&fi->value));
+                        break;
+                    case FT_INT40:
+                    case FT_INT48:
+                    case FT_INT56:
+                    case FT_INT64:
+                        fprintf(pdata->fh, "%" G_GINT64_MODIFIER "X", fvalue_get_sinteger64(&fi->value));
+                        break;
+                    case FT_UINT40:
+                    case FT_UINT48:
+                    case FT_UINT56:
+                    case FT_UINT64:
+                    case FT_BOOLEAN:
+                        fprintf(pdata->fh, "%" G_GINT64_MODIFIER "X", fvalue_get_uinteger64(&fi->value));
+                        break;
+                    default:
+                        g_assert_not_reached();
+                }
+                fputs("\",\n", pdata->fh);
+            }
+            else {
+                json_write_field_hex_value(pdata, fi);
+                fputs("\",\n", pdata->fh);
+            }
+
+            /* Indent to the correct level */
+            for (i = -3; i < pdata->level; i++) {
+                fputs("  ", pdata->fh);
+            }
+        }
+
+
+        fputs("\"", pdata->fh);
+
+        print_escaped_json(pdata->fh, fi->hfinfo->abbrev);
+
+        /* show, value, and unmaskedvalue attributes */
+        switch (fi->hfinfo->type)
+        {
+        case FT_PROTOCOL:
+            if (node->first_child != NULL) {
+                fputs("\": {\n", pdata->fh);
+            }
+            break;
+        case FT_NONE:
+            if (node->first_child != NULL) {
+                fputs("\": {\n", pdata->fh);
+            } else {
+                if (node->next == NULL) {
+                  fputs("\": \"\"\n",  pdata->fh);
+                } else {
+                  fputs("\": \"\",\n",  pdata->fh);
+                }
+            }
+            break;
+        default:
+            dfilter_string = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
+            if (dfilter_string != NULL) {
+              if (node->first_child == NULL) {
+                fputs("\": \"", pdata->fh);
+                print_escaped_json(pdata->fh, dfilter_string);
+              } else {
+                fputs("\": {\n", pdata->fh);
+              }
+            }
+            wmem_free(NULL, dfilter_string);
+
+            if (node->first_child == NULL) {
+              if (node->next == NULL) {
+                  fputs("\"\n", pdata->fh);
+              } else {
+                  fputs("\",\n", pdata->fh);
+              }
+            }
+        }
+
+    }
+
+    /* We print some levels for JSON. Recurse here. */
+    if (node->first_child != NULL) {
+        if (pdata->filter != NULL) {
+          if(strstr(pdata->filter, fi->hfinfo->abbrev) != NULL) {
+            pdata->level++;
+            proto_tree_children_foreach(node,
+                                        proto_tree_write_node_json, pdata);
+            pdata->level--;
+          }
+        } else {
+            pdata->level++;
+            proto_tree_children_foreach(node,
+                                        proto_tree_write_node_json, pdata);
+            pdata->level--;
+        }
+    }
+
+    if (node->first_child != NULL) {
+        /* Indent to correct level */
+        for (i = -3; i < pdata->level; i++) {
+            fputs("  ", pdata->fh);
+        }
+        /* Close off current element */
+        if (node->next == NULL) {
+            fputs("}\n", pdata->fh);
+        } else {
+            fputs("},\n", pdata->fh);
+        }
+    }
+}
+
+/* Write out a tree's data, and any child nodes, as JSON for EK */
+static void
+proto_tree_write_node_ek(proto_node *node, gpointer data)
+{
+    field_info      *fi    = PNODE_FINFO(node);
+    field_info      *fi_parent    = PNODE_FINFO(node->parent);
+    write_json_data *pdata = (write_json_data*) data;
+    const gchar     *label_ptr;
+    char            *dfilter_string;
+    int              i;
+    gchar           *abbrev_escaped = NULL;
+    size_t           abbrev_escaped_len = 0;
+
+    /* dissection with an invisible proto tree? */
+    g_assert(fi);
+
+    /* Text label. It's printed as a field with no name. */
+    if (fi->hfinfo->id == hf_text_only) {
+        /* Get the text */
+        if (fi->rep) {
+            label_ptr = fi->rep->representation;
+        }
+        else {
+            label_ptr = "";
+        }
+
+        /* Show empty name since it is a required field */
+        fputs("\"", pdata->fh);
+        if (fi_parent != NULL) {
+            print_escaped_ek(pdata->fh, fi_parent->hfinfo->abbrev);
+            fputs("_", pdata->fh);
+        }
+        print_escaped_ek(pdata->fh, fi->hfinfo->abbrev);
+
+        if (node->first_child != NULL) {
+            fputs("\": \"", pdata->fh);
+            print_escaped_json(pdata->fh, label_ptr);
+            fputs("\",", pdata->fh);
+
+        }
+        else {
+            if (node->next == NULL) {
+              fputs("\": \"",  pdata->fh);
+              print_escaped_json(pdata->fh, label_ptr);
+              fputs("\"", pdata->fh);
+            } else {
+              fputs("\": \"",  pdata->fh);
+              print_escaped_json(pdata->fh, label_ptr);
+               fputs("\",", pdata->fh);
+            }
+        }
+    }
+
+    /* Normal protocols and fields */
+    else {
+        /*
+         * Hex dump -x
+         */
+        if (pdata->print_hex && fi->length > 0) {
+            fputs("\"", pdata->fh);
+            if (fi_parent != NULL) {
+                print_escaped_ek(pdata->fh, fi_parent->hfinfo->abbrev);
+                fputs("_", pdata->fh);
+            }
+            print_escaped_ek(pdata->fh, fi->hfinfo->abbrev);
+            fputs("_raw", pdata->fh);
+            fputs("\": \"", pdata->fh);
+
+            if (fi->hfinfo->bitmask!=0) {
+                switch (fi->value.ftype->ftype) {
+                    case FT_INT8:
+                    case FT_INT16:
+                    case FT_INT24:
+                    case FT_INT32:
+                        fprintf(pdata->fh, "%X", (guint) fvalue_get_sinteger(&fi->value));
+                        break;
+                    case FT_UINT8:
+                    case FT_UINT16:
+                    case FT_UINT24:
+                    case FT_UINT32:
+                        fprintf(pdata->fh, "%X", fvalue_get_uinteger(&fi->value));
+                        break;
+                    case FT_INT40:
+                    case FT_INT48:
+                    case FT_INT56:
+                    case FT_INT64:
+                        fprintf(pdata->fh, "%" G_GINT64_MODIFIER "X", fvalue_get_sinteger64(&fi->value));
+                        break;
+                    case FT_UINT40:
+                    case FT_UINT48:
+                    case FT_UINT56:
+                    case FT_UINT64:
+                    case FT_BOOLEAN:
+                        fprintf(pdata->fh, "%" G_GINT64_MODIFIER "X", fvalue_get_uinteger64(&fi->value));
+                        break;
+                    default:
+                        g_assert_not_reached();
+                }
+                fputs("\",", pdata->fh);
+            }
+            else {
+                json_write_field_hex_value(pdata, fi);
+                fputs("\",", pdata->fh);
+            }
+        }
+
+
+
+        fputs("\"", pdata->fh);
+
+        if (fi_parent != NULL) {
+            print_escaped_ek(pdata->fh, fi_parent->hfinfo->abbrev);
+            fputs("_", pdata->fh);
+        }
+        print_escaped_ek(pdata->fh, fi->hfinfo->abbrev);
+
+        /* show, value, and unmaskedvalue attributes */
+        switch (fi->hfinfo->type)
+        {
+        case FT_PROTOCOL:
+            if (node->first_child != NULL) {
+                fputs("\": {", pdata->fh);
+            }
+            break;
+        case FT_NONE:
+            if (node->first_child != NULL) {
+                fputs("\": \"\",",  pdata->fh);
+            } else {
+                if (node->next == NULL) {
+                  fputs("\": \"\"",  pdata->fh);
+                } else {
+                  fputs("\": \"\",",  pdata->fh);
+                }
+            }
+            break;
+        default:
+            dfilter_string = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
+            if (dfilter_string != NULL) {
+              if (node->first_child == NULL) {
+                fputs("\": \"", pdata->fh);
+                print_escaped_json(pdata->fh, dfilter_string);
+              } else {
+                  fputs("\": \"\",", pdata->fh);
+              }
+            }
+            wmem_free(NULL, dfilter_string);
+
+            if (node->first_child == NULL) {
+              if (node->next == NULL) {
+                  fputs("\"", pdata->fh);
+              } else {
+                  fputs("\",", pdata->fh);
+              }
+            }
+        }
+
+    }
+
+    /* We print some levels for JSON. Recurse here. */
+    if (node->first_child != NULL) {
+
+        if (pdata->filter != NULL) {
+
+          /* to to thread the '.' and '_' equally. The '.' is replace by print_escaped_ek for '_' */
+          if (fi->hfinfo->abbrev != NULL) {
+            abbrev_escaped_len = strlen(fi->hfinfo->abbrev) + 1;
+            if (abbrev_escaped_len > 0) {
+                abbrev_escaped = g_strdup(fi->hfinfo->abbrev);
+
+                i = 0;
+                while(abbrev_escaped[i]!='\0') {
+                   if(abbrev_escaped[i]=='.')
+                   {
+                       abbrev_escaped[i]='_';
+                   }
+                   i++;
+                 }
+            }
+          }
+
+          if((strstr(pdata->filter, fi->hfinfo->abbrev) != NULL) || (strstr(pdata->filter, abbrev_escaped) != NULL)) {
+            pdata->level++;
+            proto_tree_children_foreach(node,
+                                        proto_tree_write_node_ek, pdata);
+            pdata->level--;
+          } else {
+              /* print dummy field */
+              fputs("\"filtered\": \"\"", pdata->fh);
+          }
+
+          /* release abbrev_escaped string */
+          if (abbrev_escaped != NULL) {
+              abbrev_escaped_len = 0;
+              g_free(abbrev_escaped);
+          }
+
+        } else {
+            pdata->level++;
+            proto_tree_children_foreach(node,
+                                        proto_tree_write_node_ek, pdata);
+            pdata->level--;
+        }
+    }
+
+    if (node->first_child != NULL) {
+      if (fi->hfinfo->type == FT_PROTOCOL) {
+        /* Close off current element */
+          if (node->next == NULL) {
+              fputs("}", pdata->fh);
+          } else {
+              fputs("},", pdata->fh);
+          }
+      } else {
+          if (node->next != NULL) {
+              fputs(",", pdata->fh);
+          }
+      }
+    }
+}
+
 /* Print info for a 'geninfo' pseudo-protocol. This is required by
  * the PDML spec. The information is contained in Wireshark's 'frame' protocol,
  * but we produce a 'geninfo' protocol in the PDML to conform to spec.
@@ -602,6 +1099,13 @@ void
 write_pdml_finale(FILE *fh)
 {
     fputs("</pdml>\n", fh);
+}
+
+void
+write_json_finale(FILE *fh)
+{
+    fputs("}\n", fh);
+
 }
 
 void
@@ -843,8 +1347,84 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
     }
 }
 
+/* Print a string, escaping out certain characters that need to
+ * escaped out for JSON. */
+static void
+print_escaped_json(FILE *fh, const char *unescaped_string)
+{
+    const char *p;
+    char        temp_str[8];
+
+    for (p = unescaped_string; *p != '\0'; p++) {
+        switch (*p) {
+        case '"':
+            fputs("&quot;", fh);
+            break;
+        default:
+            if (g_ascii_isprint(*p))
+                fputc(*p, fh);
+            else {
+                g_snprintf(temp_str, sizeof(temp_str), "%x", (guint8)*p);
+                fputs(temp_str, fh);
+            }
+        }
+    }
+}
+
+/* Print a string, escaping out certain characters that need to
+ * escaped out for Elasticsearch title. */
+static void
+print_escaped_ek(FILE *fh, const char *unescaped_string)
+{
+    const char *p;
+    char        temp_str[8];
+
+    for (p = unescaped_string; *p != '\0'; p++) {
+        switch (*p) {
+        case '"':
+                    fputs("&quot;", fh);
+                    break;
+        case '.':
+            fputs("_", fh);
+            break;
+        default:
+            if (g_ascii_isprint(*p))
+                fputc(*p, fh);
+            else {
+                g_snprintf(temp_str, sizeof(temp_str), "\\x%x", (guint8)*p);
+                fputs(temp_str, fh);
+            }
+        }
+    }
+}
+
 static void
 pdml_write_field_hex_value(write_pdml_data *pdata, field_info *fi)
+{
+    int           i;
+    const guint8 *pd;
+
+    if (!fi->ds_tvb)
+        return;
+
+    if (fi->length > tvb_captured_length_remaining(fi->ds_tvb, fi->start)) {
+        fprintf(pdata->fh, "field length invalid!");
+        return;
+    }
+
+    /* Find the data for this field. */
+    pd = get_field_data(pdata->src_list, fi);
+
+    if (pd) {
+        /* Print a simple hex dump */
+        for (i = 0 ; i < fi->length; i++) {
+            fprintf(pdata->fh, "%02x", pd[i]);
+        }
+    }
+}
+
+static void
+json_write_field_hex_value(write_json_data *pdata, field_info *fi)
 {
     int           i;
     const guint8 *pd;
