@@ -840,6 +840,12 @@ parse_token (token_t token, char *str)
             } else
                 state = READ_OFFSET;
             break;
+        case T_BYTE:
+            if (offset_base == 0) {
+                write_byte(str);
+                state = READ_BYTE;
+            }
+            break;
         default:
             break;
         }
