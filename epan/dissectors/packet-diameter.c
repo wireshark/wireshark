@@ -1194,8 +1194,6 @@ static const int *diameter_flags_fields[] = {
 	NULL
 };
 
-static void register_diameter_fields(const char *);
-
 static int
 dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1221,7 +1219,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	/* Load header fields if not already done */
 	if (hf_diameter_code == -1)
-		register_diameter_fields("");
+		proto_registrar_get_byname("diameter.code");
 
 	diam_sub_dis_inf->application_id = tvb_get_ntohl(tvb,8);
 

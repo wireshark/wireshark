@@ -2081,9 +2081,6 @@ match_ver_value_string(
     return res? res->vs.strptr : NULL;
 }
 
-static void register_wimaxasncp_fields(const char*);
-
-
 static int
 dissect_wimaxasncp(
     tvbuff_t    *tvb,
@@ -2158,9 +2155,9 @@ dissect_wimaxasncp(
     offset = 0;
 
     /* Register protocol fields, etc if haven't done yet. */
-    if (wimaxasncp_dict == NULL)
+    if (hf_wimaxasncp_version == -1)
     {
-        register_wimaxasncp_fields(NULL);
+        proto_registrar_get_byname("wimaxasncp.version");
     }
 
     if (tree)

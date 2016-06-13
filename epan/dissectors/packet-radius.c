@@ -1357,8 +1357,6 @@ vsa_buffer_table_destroy(void *table)
 	}
 }
 
-static void register_radius_fields(const char *);
-
 void
 dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, guint length)
 {
@@ -1373,7 +1371,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 	GHashTable *vsa_buffer_table = NULL;
 
 	if (hf_radius_code == -1)
-		register_radius_fields("");
+		proto_registrar_get_byname("radius.code");
 
 	/*
 	 * In case we throw an exception, clean up whatever stuff we've
@@ -1847,7 +1845,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 	/* Load header fields if not already done */
 	if (hf_radius_code == -1)
-		register_radius_fields("");
+		proto_registrar_get_byname("radius.code");
 
 	ti = proto_tree_add_item(tree, proto_radius, tvb, 0, rh.rh_pktlength, ENC_NA);
 	radius_tree = proto_item_add_subtree(ti, ett_radius);
@@ -2371,7 +2369,9 @@ radius_init_protocol(void)
 	radius_calls = wmem_map_new(wmem_file_scope(), radius_call_hash, radius_call_equal);
 }
 
-static void register_radius_fields(const char *unused _U_) {
+static void
+register_radius_fields(const char *unused _U_)
+{
 	hf_register_info base_hf[] = {
 		{ &hf_radius_req,
 		{ "Request", "radius.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
