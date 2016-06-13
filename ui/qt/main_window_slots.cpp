@@ -178,6 +178,7 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
     gchar *err_msg;
     int err;
     gboolean name_param;
+    gboolean ret = true;
 
     // was a file name given as function parameter?
     name_param = !cf_path.isEmpty();
@@ -190,13 +191,15 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
             if (open_dlg.open(file_name, type)) {
                 cf_path = file_name;
             } else {
-                return false;
+                ret = false;
+                goto finish;
             }
         }
 
         QString before_what(tr(" before opening another file"));
         if (!testCaptureFileClose(before_what)) {
-            return false;
+            ret = false;
+            goto finish;
         }
 
         if (dfilter_compile(read_filter.toUtf8().constData(), &rfcode, &err_msg)) {
@@ -249,7 +252,8 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
                string and return (without changing the last containing
                directory). */
             capture_file_.setCapFile(NULL);
-            return false;
+            ret = false;
+            goto finish;
         }
         break;
     }
@@ -258,7 +262,10 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
 
     main_ui_->statusBar->showExpert();
 
-    return true;
+finish:
+    if (global_capture_opts.quit_after_cap)
+        exit(0);
+    return ret;
 }
 
 void MainWindow::filterPackets(QString new_filter, bool force)

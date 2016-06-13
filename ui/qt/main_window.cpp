@@ -246,6 +246,11 @@ simple_message_box(ESD_TYPE_E type, gboolean *notagain,
 void
 vsimple_error_message_box(const char *msg_format, va_list ap)
 {
+    // We want to quit after reading the capture file, hence
+    // we don't actually open the error dialog.
+    if (global_capture_opts.quit_after_cap)
+        exit(0);
+
     SimpleDialog sd(gbl_cur_main_window_, ESD_TYPE_ERROR, ESD_BTN_OK, msg_format, ap);
     sd.exec();
 }
