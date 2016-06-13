@@ -247,7 +247,7 @@ get_os_version_info(GString *str)
 		g_string_append(str, "unknown Windows version");
 		return;
 	}
-	nativesi_func = (nativesi_func_ptr)GetProcAddress(kernel_dll_handle), "GetNativeSystemInfo");
+	nativesi_func = (nativesi_func_ptr)GetProcAddress(kernel_dll_handle, "GetNativeSystemInfo");
 	if(nativesi_func)
 		nativesi_func(&system_info);
 	else
