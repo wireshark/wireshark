@@ -310,6 +310,31 @@ set(DIRTY_CORBA_IDL_DISSECTOR_SRC
 	dissectors/packet-tango.c
 )
 
+set(CORBA_IDL_DISSECTOR_SRC
+	dissectors/packet-coseventcomm.c
+)
+
+set(CORBA_IDL_DISSECTOR_FILES
+	${CORBA_IDL_DISSECTOR_SRC}
+	${DIRTY_CORBA_IDL_DISSECTOR_SRC}
+)
+
+source_group(dissectors-corba FILES ${CORBA_IDL_DISSECTOR_FILES})
+
+add_library(dissectors-corba OBJECT
+	${CORBA_IDL_DISSECTOR_FILES}
+)
+
+set_target_properties(dissectors-corba PROPERTIES
+	FOLDER "Libs/epan"
+	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+)
+
+if(WIN32 AND "${CMAKE_GENERATOR}" STREQUAL "Visual Studio 12 2013 Win64")
+	# CORBA IDL dissectors are triggering a MSVC 2013 x64 /O2 bug leading to a NULL pointer dereference (see bug 12495)
+	target_compile_options(dissectors-corba PRIVATE $<$<CONFIG:Release>:/Ox> $<$<CONFIG:RelWithDebInfo>:/Ox>)
+endif()
+
 set(DISSECTOR_SRC
 	dissectors/file-btsnoop.c
 	dissectors/file-elf.c
@@ -507,7 +532,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-cops.c
 	dissectors/packet-corosync-totemnet.c
 	dissectors/packet-corosync-totemsrp.c
-	dissectors/packet-coseventcomm.c
 	dissectors/packet-cosine.c
 	dissectors/packet-couchbase.c
 	dissectors/packet-cp2179.c
@@ -1506,7 +1530,6 @@ set(DISSECTOR_FILES
 	${PIDL_DISSECTOR_AUTOGEN_SRC}
 	${ASN1_DISSECTOR_SRC}
 	${DIRTY_ASN1_DISSECTOR_SRC}
-	${DIRTY_CORBA_IDL_DISSECTOR_SRC}
 	${CUSTOM_DISSECTOR_SRC}
 	${CUSTOM_DIRTY_ASN1_DISSECTOR_SRC}
 )
@@ -1515,6 +1538,7 @@ source_group(dissectors FILES ${DISSECTOR_FILES})
 register_dissector_files(register.c
 	dissectors
 	${DISSECTOR_FILES}
+	${CORBA_IDL_DISSECTOR_FILES}
 )
 
 set(FTYPE_FILES
@@ -1717,6 +1741,7 @@ set(CLEAN_FILES
 	${DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
 	${ASN1_DISSECTOR_SRC}
+	${CORBA_IDL_DISSECTOR_SRC}
 	# ${DISSECTOR_FILES } end
 	${DISSECTOR_SUPPORT_SRC}
 	${LIBWIRESHARK_ASM_FILES}
@@ -1748,6 +1773,7 @@ add_library(epan ${LINK_MODE_LIB}
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
 	${LIBWIRESHARK_ASM_FILES}
+	$<TARGET_OBJECTS:dissectors-corba>
 	${CMAKE_BINARY_DIR}/image/libwireshark.rc
 )
 
