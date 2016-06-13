@@ -901,12 +901,14 @@ dissect_routing6_rpl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 {
     proto_item *pi = proto_tree_get_parent(rthdr_tree);
     proto_item *ti;
-    guint8 cmprI, cmprE, pad;
+    guint8 cmprI, cmprE, cmprX, pad;
     guint32 reserved;
     gint idx;
     gint rpl_addr_count;
     struct e_in6_addr rpl_fulladdr;
     const struct e_in6_addr *ip6_dst_addr, *ip6_src_addr;
+    wmem_array_t *rpl_addr_vector = NULL;
+    guint i;
 
     /* IPv6 destination address used for elided bytes */
     ip6_dst_addr = (const struct e_in6_addr *)pinfo->dst.data;
@@ -963,17 +965,23 @@ dissect_routing6_rpl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
     if (rpl_addr_count > 0) {
         offset += 4;
 
+        if (g_ipv6_rpl_srh_strict_rfc_checking)
+            rpl_addr_vector = wmem_array_sized_new(wmem_packet_scope(), IPv6_ADDR_SIZE, rpl_addr_count);
+
         /* We use cmprI for internal (e.g.: not last) address for how many bytes to elide, so actual bytes present = 16-CmprI */
-        for (idx = 1; rpl_addr_count > 1; idx++) {
-            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_addr, tvb, offset, (16-cmprI), ENC_NA);
+        for (idx = 1; idx <= rpl_addr_count; idx++) {
+            if (idx == rpl_addr_count)
+                cmprX = 16 - cmprE;
+            else
+                cmprX = 16 - cmprI;
+            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_addr, tvb, offset, cmprX, ENC_NA);
             /* Display Full Address */
             memcpy(&rpl_fulladdr, ip6_dst_addr, IPv6_ADDR_SIZE);
-            tvb_memcpy(tvb, (guint8 *)&rpl_fulladdr + cmprI, offset, (16-cmprI));
+            tvb_memcpy(tvb, &rpl_fulladdr.bytes[16-cmprX], offset, cmprX);
             ti = _proto_tree_add_ipv6_vector_address(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb,
-                                offset, 16-cmprI, &rpl_fulladdr, idx);
+                                offset, cmprX, &rpl_fulladdr, idx);
             PROTO_ITEM_SET_GENERATED(ti);
-            offset += (16-cmprI);
-            rpl_addr_count--;
+            offset += cmprX;
 
             /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
             if (memcmp(&rpl_fulladdr, ip6_src_addr, IPv6_ADDR_SIZE) == 0) {
@@ -991,60 +999,16 @@ dissect_routing6_rpl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
             if (g_ipv6_rpl_srh_strict_rfc_checking) {
                 /* from RFC6554: */
                 /* The SRH MUST NOT specify a path that visits a node more than once. */
-                /* To do this, we will just check the current 'addr' against the next addresses */
-                gint tempSegments;
-                gint tempOffset;
-                tempSegments = rpl_addr_count; /* Has already been decremented above */
-                tempOffset = offset; /* Has already been moved */
-                while(tempSegments > 1) {
-                    struct e_in6_addr tempAddr;
-                    memcpy(&tempAddr, ip6_dst_addr, IPv6_ADDR_SIZE);
-                    tvb_memcpy(tvb, (guint8 *)&tempAddr + cmprI, tempOffset, (16-cmprI));
+                /* To do this, we will just check the current 'addr' against the previous addresses */
+                for (i = 0; i < wmem_array_get_count(rpl_addr_vector); i++) {
                     /* Compare the addresses */
-                    if (memcmp(&rpl_fulladdr, &tempAddr, IPv6_ADDR_SIZE) == 0) {
-                        /* Found a later address that is the same */
+                    if (memcmp(&rpl_fulladdr, wmem_array_index(rpl_addr_vector, i), IPv6_ADDR_SIZE) == 0) {
+                        /* Found a previous that is the same */
                         expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_mult_inst_same_addr);
                         break;
                     }
-                    tempOffset += (16-cmprI);
-                    tempSegments--;
                 }
-                if (tempSegments == 1) {
-                    struct e_in6_addr tempAddr;
-
-                    memcpy(&tempAddr, ip6_dst_addr, IPv6_ADDR_SIZE);
-                    tvb_memcpy(tvb, (guint8 *)&tempAddr + cmprE, tempOffset, (16-cmprE));
-                    /* Compare the addresses */
-                    if (memcmp(&rpl_fulladdr, &tempAddr, IPv6_ADDR_SIZE) == 0) {
-                        /* Found a later address that is the same */
-                        expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_mult_inst_same_addr);
-                    }
-                }
-            }
-        }
-
-        /* We use cmprE for last address for how many bytes to elide, so actual bytes present = 16-CmprE */
-        if (rpl_addr_count == 1) {
-            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_addr, tvb, offset, (16-cmprE), ENC_NA);
-            /* Display Full Address */
-            memcpy(&rpl_fulladdr, ip6_dst_addr, IPv6_ADDR_SIZE);
-            tvb_memcpy(tvb, (guint8 *)&rpl_fulladdr + cmprE, offset, (16-cmprE));
-            ti = _proto_tree_add_ipv6_vector_address(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb,
-                                offset, 16-cmprE, &rpl_fulladdr, idx);
-            PROTO_ITEM_SET_GENERATED(ti);
-            /* offset += (16-cmprE); */
-
-            /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
-            if (memcmp(&rpl_fulladdr, ip6_src_addr, IPv6_ADDR_SIZE) == 0) {
-                expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_src_addr);
-            }
-            if (memcmp(&rpl_fulladdr, ip6_dst_addr, IPv6_ADDR_SIZE) == 0) {
-                expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_dst_addr);
-            }
-
-            /* Multicast addresses MUST NOT appear in the in SRH */
-            if (in6_is_addr_multicast(&rpl_fulladdr)) {
-                expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
+                wmem_array_append(rpl_addr_vector, &rpl_fulladdr, 1);
             }
 
             if (rt.ip6r_segleft > 0) {
