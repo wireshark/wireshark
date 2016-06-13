@@ -386,7 +386,7 @@ PacketList::PacketList(QWidget *parent) :
     bool style_inactive_selected = true;
 
 #ifdef Q_OS_WIN // && Qt version >= 4.8.6
-    if (QSysInfo::WinVersion() < QSysInfo::WV_WINDOWS8) {
+    if (QSysInfo::windowsVersion() < QSysInfo::WV_WINDOWS8) {
         // See if we're running Vista or 7 and we have a theme applied.
         HMODULE uxtheme_lib = (HMODULE) ws_load_library("uxtheme.dll");
 
