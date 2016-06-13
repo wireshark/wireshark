@@ -169,19 +169,18 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, packet_info *pinfo,
 
 			host=address_to_str(wmem_packet_scope(), &pinfo->dst);
 			len=tvb_get_ntohl(tvb, offset);
-			if (len >= ITEM_LABEL_LENGTH)
-				THROW(ReportedBoundsError);
+			if (len < ITEM_LABEL_LENGTH) {
+				name=(unsigned char *)g_malloc(strlen(host)+1+len+1+200);
+				ptr=name;
+				memcpy(ptr, host, strlen(host));
+				ptr+=strlen(host);
+				*ptr++=':';
+				tvb_memcpy(tvb, ptr, offset+4, len);
+				ptr+=len;
+				*ptr=0;
 
-			name=(unsigned char *)g_malloc(strlen(host)+1+len+1+200);
-			ptr=name;
-			memcpy(ptr, host, strlen(host));
-			ptr+=strlen(host);
-			*ptr++=':';
-			tvb_memcpy(tvb, ptr, offset+4, len);
-			ptr+=len;
-			*ptr=0;
-
-			nfs_name_snoop_add_name(civ->xid, tvb, -1, (gint)strlen(name), 0, 0, name);
+				nfs_name_snoop_add_name(civ->xid, tvb, -1, (gint)strlen(name), 0, 0, name);
+			}
 		}
 	}
 
