@@ -884,8 +884,14 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
     proto_item_append_text(attr_item, ": %s", val_to_str_ext_const(tag, &isns_attribute_tags_ext, "Unknown"));
 
     /* it seems that an empty attribute is always valid, the original code had a similar statement */
-    if (len==0)
+    if (len==0) {
+        if ((tag==ISNS_ATTR_TAG_PORTAL_GROUP_TAG) &&
+                ((function_id==ISNS_FUNC_DEVATTRREG) || (function_id==ISNS_FUNC_RSP_DEVATTRREG))) {
+            /* 5.6.5.1 */
+            proto_tree_add_uint_format_value(tree, hf_isns_portal_group_tag, tvb, offset, 8, 0, "<NULL>");
+        }
         return offset;
+    }
 
     switch( tag )
     {
@@ -986,14 +992,8 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
             dissect_isns_attr_port(tvb, offset, attr_tree, hf_isns_pg_portal_port, ISNS_OTHER_PORT, pinfo);
             break;
         case ISNS_ATTR_TAG_PORTAL_GROUP_TAG:
-            if((len==0) && ((function_id==ISNS_FUNC_DEVATTRREG) || (function_id==ISNS_FUNC_RSP_DEVATTRREG))) {
-                /* 5.6.5.1 */
-                proto_tree_add_uint_format_value(tree, hf_isns_portal_group_tag, tvb, offset, 8, 0, "<NULL>");
-            }
-            else {
-                ISNS_REQUIRE_ATTR_LEN(4);
-                proto_tree_add_item(attr_tree, hf_isns_portal_group_tag, tvb, offset, len, ENC_BIG_ENDIAN);
-            }
+            ISNS_REQUIRE_ATTR_LEN(4);
+            proto_tree_add_item(attr_tree, hf_isns_portal_group_tag, tvb, offset, len, ENC_BIG_ENDIAN);
             break;
         case ISNS_ATTR_TAG_PORTAL_GROUP_INDEX:
             ISNS_REQUIRE_ATTR_LEN(4);
