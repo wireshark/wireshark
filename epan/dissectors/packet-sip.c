@@ -2859,8 +2859,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     const char *descr;
     guint token_1_len = 0;
     guint current_method_idx = SIP_METHOD_INVALID;
-    proto_item *ts = NULL, *ti_a = NULL, *th = NULL;
-    proto_tree *sip_tree  = NULL, *reqresp_tree      = NULL, *hdr_tree  = NULL,
+    proto_item *ts, *ti_a = NULL, *th = NULL;
+    proto_tree *sip_tree, *reqresp_tree      = NULL, *hdr_tree  = NULL,
         *message_body_tree = NULL, *cseq_tree = NULL,
         *via_tree         = NULL, *reason_tree       = NULL, *rack_tree = NULL,
         *route_tree       = NULL, *security_client_tree = NULL, *session_id_tree = NULL,
@@ -2993,10 +2993,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         break;
     }
 
-    if (tree) {
-        ts = proto_tree_add_item(tree, proto_sip, tvb, offset, -1, ENC_NA);
-        sip_tree = proto_item_add_subtree(ts, ett_sip);
-    }
+    ts = proto_tree_add_item(tree, proto_sip, tvb, offset, -1, ENC_NA);
+    sip_tree = proto_item_add_subtree(ts, ett_sip);
 
     switch (line_type) {
 
@@ -4315,9 +4313,7 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gin
     response_code = atoi((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 3, ENC_UTF_8|ENC_NA));
 
     /* Add numerical response code to tree */
-    if (tree) {
-        proto_tree_add_uint(tree, hf_sip_Status_Code, tvb, offset, 3, response_code);
-    }
+    proto_tree_add_uint(tree, hf_sip_Status_Code, tvb, offset, 3, response_code);
 
     /* Add response code for sending to tap */
     stat_info->response_code = response_code;
@@ -4518,15 +4514,13 @@ static gint sip_is_known_sip_header(gchar *header_name, guint header_len)
 static void
 tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
-    proto_tree *raw_tree = NULL;
-    proto_item *ti = NULL;
+    proto_tree *raw_tree;
+    proto_item *ti;
     int next_offset, linelen, end_offset;
     char *str;
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_raw_sip, tvb, offset, length, ENC_NA);
-        raw_tree = proto_item_add_subtree(ti, ett_raw_text);
-    }
+    ti = proto_tree_add_item(tree, proto_raw_sip, tvb, offset, length, ENC_NA);
+    raw_tree = proto_item_add_subtree(ti, ett_raw_text);
 
     end_offset = offset + length;
 
