@@ -105,6 +105,7 @@ reset(void *arg)
 
 		if (info->frame_numbers != NULL)
 		{
+			g_list_foreach(info->frame_numbers, free_first, NULL);
 			g_list_free(info->frame_numbers);
 			info->frame_numbers = NULL;
 		}
@@ -735,6 +736,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 			}
 			if (info->verification_tag1 != 0 || info->verification_tag2 != 0)
 			{
+				guint32 *number;
 				store = (address *)g_malloc(sizeof (address));
 				store->type = tmp_info.src.type;
 				store->len  = tmp_info.src.len;
@@ -749,7 +751,9 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 				memcpy(addr,(tmp_info.dst.data),tmp_info.dst.len);
 				store->data = addr;
 				info = add_address(store, info, 2);
-				info->frame_numbers=g_list_prepend(info->frame_numbers,&(pinfo->num));
+				number = (guint32 *)g_malloc(sizeof(guint32));
+				*number = pinfo->num;
+				info->frame_numbers=g_list_prepend(info->frame_numbers,number);
 				if (datachunk || forwardchunk)
 					info->tsn1 = g_list_prepend(info->tsn1, tsn);
 				if (sackchunk == TRUE)
@@ -784,13 +788,14 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 	} /* endif (!info) */
 	else
 	{
-	    info->direction = sctp_info->direction;
+		guint32 *number;
+		info->direction = sctp_info->direction;
 
-	    if (info->verification_tag1 == 0 && info->verification_tag2 != sctp_info->verification_tag) {
-	            info->verification_tag1 = sctp_info->verification_tag;
-	    } else if (info->verification_tag2 == 0 && info->verification_tag1 != sctp_info->verification_tag) {
-	            info->verification_tag2 = sctp_info->verification_tag;
-	    }
+		if (info->verification_tag1 == 0 && info->verification_tag2 != sctp_info->verification_tag) {
+			info->verification_tag1 = sctp_info->verification_tag;
+		} else if (info->verification_tag2 == 0 && info->verification_tag1 != sctp_info->verification_tag) {
+			info->verification_tag2 = sctp_info->verification_tag;
+		}
 		if (((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_CHUNK_ID) ||
 		    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_ACK_CHUNK_ID) ||
 		    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_DATA_CHUNK_ID) ||
@@ -848,7 +853,9 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 			}
 			sack->frame_number = tsn->frame_number = pinfo->num;
 		}
-		info->frame_numbers = g_list_prepend(info->frame_numbers,&(pinfo->num));
+		number = (guint32 *)g_malloc(sizeof(guint32));
+		*number = pinfo->num;
+		info->frame_numbers=g_list_prepend(info->frame_numbers,number);
 
 		store = (address *)g_malloc(sizeof (address));
 		store->type = tmp_info.src.type;
