@@ -106,7 +106,6 @@ Exec '"$SYSDIR\ie4uinit.exe" -ClearIconCache'
     Push ".rf5"
     Push ".pkt"
     Push ".pklg"
-    Push ".pfx"
     Push ".pcapng"
     Push ".pcap"
     Push ".out"

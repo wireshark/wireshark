@@ -193,10 +193,9 @@
   <mime-type type="application/ipfix">
     <comment>Packet Capture (IPFIX)</comment>
     <generic-icon name="application-wireshark-doc"/>
-    <glob pattern="*.pfx"/>
     <glob pattern="*.ipfix"/>
-    <glob pattern="*.pfx.gz"/>
     <glob pattern="*.ipfix.gz"/>
+    <!-- Don't register for .pfx: that extension has another (more common) use -->
   </mime-type>
 
   <mime-type type="application/x-ixia-vwr">

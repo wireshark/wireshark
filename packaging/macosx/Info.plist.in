@@ -76,9 +76,10 @@
 			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>ipfix</string>
-				<string>pfx</string>
 				<string>ipfix.gz</string>
-				<string>pfx.gz</string>
+				<!-- Don't register for .pfx: that extension
+				     has another (more common) use.
+				-->
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>Wiresharkdoc.icns</string>

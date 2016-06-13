@@ -663,15 +663,6 @@
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="out" Type="integer" Value="1" KeyPath="yes"/>
         <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
       </Component>
-      <Component Id="cmpFApfx">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="pfx">
-          <Extension Id="pfx">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pfx" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
-      </Component>
       <Component Id="cmpFApcap">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="pcap">
           <Extension Id="pcap">
@@ -911,15 +902,6 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="out" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFApfxLegacy" Guid="BED5062C-1D71-4EE5-A7D6-AE8E576A3DA8">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="pfx">
-          <Extension Id="pfx">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pfx" Type="integer" Value="1" KeyPath="yes"/>
         <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFApcapLegacy" Guid="B419D3B0-2ECA-4F56-A23B-56A9A3FAAB35">
