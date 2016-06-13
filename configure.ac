@@ -2527,8 +2527,8 @@ AC_ARG_ENABLE(sshdump,
 if test "x$have_extcap" != xyes; then
 	AC_MSG_RESULT([no, extcap disabled])
 	enable_sshdump=no
-elif test "x$have_good_libssh" != xyes; then
-	AC_MSG_RESULT([no, libssh not available])
+elif test "x$have_libssh_pointsix" != xyes; then
+	AC_MSG_RESULT([no, libssh >= 0.6.0 not available])
 	enable_sshdump=no
 elif test "x$enable_sshdump" = "xyes" ; then
 	AC_MSG_RESULT(yes)
@@ -2557,8 +2557,8 @@ AC_ARG_ENABLE(ciscodump,
 if test "x$have_extcap" != xyes; then
 	AC_MSG_RESULT([no, extcap disabled])
 	enable_ciscodump=no
-elif test "x$have_good_libssh" != xyes; then
-	AC_MSG_RESULT([no, libssh not available])
+elif test "x$have_libssh_pointsix" != xyes; then
+	AC_MSG_RESULT([no, libssh >= 0.6.0 not available])
 	enable_ciscodump=no
 elif test "x$enable_ciscodump" = "xyes" ; then
 	AC_MSG_RESULT(yes)

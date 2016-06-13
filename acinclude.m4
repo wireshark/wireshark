@@ -1146,13 +1146,25 @@ AC_DEFUN([AC_WIRESHARK_LIBSSH_CHECK],
 			have_good_libssh=yes
 		  ],,
 		)
-		AC_CHECK_LIB(ssh, ssh_userauth_agent,
+		AC_MSG_CHECKING([whether libssh >= 0.6.0 for sshdump, ciscodump])
+		PKG_CHECK_EXISTS([libssh >= 0.6.0],
 		  [
-		    LIBSSH_LIBS=-lssh
-			AC_DEFINE(HAVE_SSH_USERAUTH_AGENT, 1, [Libssh library has ssh_userauth_agent])
-			have_ssh_userauth_agent=yes
-		  ],,
+		   AC_MSG_RESULT(yes)
+		   AC_DEFINE(HAVE_LIBSSH_POINTSIX, 1, [Defined if libssh >= 0.6.0])
+		   have_libssh_pointsix=yes
+		  ],
+		  [AC_MSG_RESULT(no)]
 		)
+		if test "x$have_libssh_pointsix" = "xyes"; then
+			# ssh_userauth_agent exists only >= 0.6.0, but not on Windows
+			# so check explicitly
+			AC_CHECK_LIB(ssh, ssh_userauth_agent,
+			  [
+			    AC_DEFINE(HAVE_SSH_USERAUTH_AGENT, 1, [Libssh library has ssh_userauth_agent])
+			    have_ssh_userauth_agent=yes
+			  ],,
+			)
+		fi
 	else
 		AC_MSG_RESULT(not required)
 	fi
