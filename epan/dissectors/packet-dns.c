@@ -4938,7 +4938,7 @@ proto_register_dns(void)
         NULL, HFILL }},
 
     { &hf_dns_loc_vertical_precision,
-      { "Vertial Precision", "dns.loc.vertial_precision",
+      { "Vertical Precision", "dns.loc.vertical_precision",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
