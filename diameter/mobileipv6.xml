@@ -15,7 +15,6 @@
 			<gavp name="MIP-Home-Agent-Address"/>
 			<gavp name="MIP-Home-Agent-Host"/>
 			<gavp name="MIP6-Home-Link-Prefix"/>
-			<gavp name="AVP"/>
 		</grouped>
 	</avp>
 
@@ -43,7 +42,6 @@
 			<gavp name="MIP-MN-HA-SPI"/>
 			<gavp name="MIP-Algorithm-Type"/>
 			<gavp name="MIP-Replay-Mode"/>
-			<gavp name="AVP"/>
 		</grouped>
 	</avp>
 	<avp name="Service-Selection" code="493" mandatory="must" protected="may" vendor-bit="mustnot" may-encrypt="yes">
@@ -70,7 +68,6 @@
 		<grouped>
 			<gavp name="MIP6-Agent-Info"/>
 			<gavp name="Service-Selection"/>
-			<gavp name="AVP"/>
 		</grouped>
 	</avp>
 
