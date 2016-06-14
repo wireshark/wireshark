@@ -16,7 +16,7 @@
    Lots of changes to support flags like in the draft, and to support commands
 
 -->
-<!ELEMENT dictionary (base, application*, vendor*)>
+<!ELEMENT dictionary (base, (application|vendor)*)>
 <!ELEMENT base (command*, typedefn+, avp+)>
 <!ATTLIST base
 	uri CDATA #IMPLIED
