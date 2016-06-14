@@ -63,6 +63,7 @@
 #define OUI_SONY_ERICSSON_7 0x001813    /* Sony Ericsson Mobile Communications AB */
 #define OUI_BLUETOOTH       0x001958    /* Bluetooth SIG */
 #define OUI_SONY_ERICSSON_8 0x001963    /* Sony Ericsson Mobile Communications AB */
+#define OUI_AIROHIVE        0x001977    /* Airohive AP to AP communication */
 #define OUI_DCBX            0x001B21    /* Data Center Bridging Capabilities Exchange Protocol */
 #define OUI_CISCO_UBI       0X001B67    /* Cisco/Ubiquisys */
 #define OUI_IEEE_802_1QBG   0x001B3F    /* IEEE 802.1 Qbg */

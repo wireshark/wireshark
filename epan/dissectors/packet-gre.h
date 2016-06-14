@@ -27,6 +27,7 @@
 #define GRE_ERSPAN_88BE		0x88BE
 #define GRE_ERSPAN_22EB		0x22EB
 #define GRE_MIKROTIK_EOIP	0x6400
+#define GRE_AIROHIVE		0xFEAE
 /* ************************************************************************* */
 /*              Aruba GRE Encapsulation ID                                   */
 /* ************************************************************************* */
