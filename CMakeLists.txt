@@ -472,21 +472,6 @@ else()
 		)
 	endif()
 
-	set(WIRESHARK_ASAN_FLAGS
-		# With Clang >= 3.5 Leak detection is enable by default
-		# and no yet all leak is fixed...
-		# use ASAN_OPTIONS=detect_leaks=0 to disable detect_leaks
-		-fsanitize=address
-		-fsanitize=undefined # compile and runtime checks
-		# -fsanitize=float-divide-by-zero
-		# -fsanitize=float-cast-overflow
-		# -fno-sanitize-recover # Abort during runtime
-	)
-
-	if(ENABLE_ASAN)
-		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_ASAN_FLAGS})
-	endif()
-
 	if(ENABLE_EXTRA_COMPILER_WARNINGS)   # This overrides -Werror
 		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_EXTRA_COMPILER_COMMON_FLAGS})
 		set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS} ${WIRESHARK_EXTRA_COMPILER_C_ONLY_FLAGS})
@@ -540,6 +525,18 @@ foreach(THIS_FLAG ${CXX_FLAG_TESTS})
 	endif()
 endforeach()
 set(CMAKE_CXX_FLAGS "${ADDED_CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
+
+if(ENABLE_ASAN)
+	set(CMAKE_REQUIRED_LIBRARIES "-fsanitize=address")
+	check_c_compiler_flag(-fsanitize=address C__fsanitize_address_VALID)
+	check_cxx_compiler_flag(-fsanitize=address CXX__fsanitize_address_VALID)
+	set(CMAKE_REQUIRED_LIBRARIES "")
+	if(NOT C__fsanitize_address_VALID OR NOT CXX__fsanitize_address_VALID)
+		message(FATAL_ERROR "ENABLE_ASAN was requested, but not supported!")
+	endif()
+	set(CMAKE_C_FLAGS "-fsanitize=address ${CMAKE_C_FLAGS}")
+	set(CMAKE_CXX_FLAGS "-fsanitize=address ${CMAKE_CXX_FLAGS}")
+endif()
 
 if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_COMPILER_WARNINGS)
 	if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
