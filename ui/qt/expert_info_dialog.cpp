@@ -108,7 +108,7 @@ public:
 class ExpertPacketTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    ExpertPacketTreeWidgetItem(expert_info_t *expert_info = NULL) :
+    ExpertPacketTreeWidgetItem(expert_info_t *expert_info = NULL, column_info *cinfo = NULL) :
         QTreeWidgetItem (packet_type_),
         group_by_summary_(true),
         packet_num_(0),
@@ -122,7 +122,9 @@ public:
             hf_id_ = expert_info->hf_index;
             protocol_ = expert_info->protocol;
             summary_ = expert_info->summary;
-            info_ = col_get_text(expert_info->pitem->tree_data->pinfo->cinfo, COL_INFO);
+            if (cinfo) {
+                info_ = col_get_text(cinfo, COL_INFO);
+            }
         }
         setTextAlignment(severity_col_, Qt::AlignRight);
     }
@@ -359,7 +361,7 @@ void ExpertInfoDialog::addExpertInfo(struct expert_info_s *expert_info)
 {
     if (!expert_info) return;
 
-    ExpertPacketTreeWidgetItem *packet_ti = new ExpertPacketTreeWidgetItem(expert_info);
+    ExpertPacketTreeWidgetItem *packet_ti = new ExpertPacketTreeWidgetItem(expert_info, &(cap_file_.capFile()->cinfo));
 
     addExpertInfo(packet_ti);
 }
