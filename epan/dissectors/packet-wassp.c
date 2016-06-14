@@ -773,7 +773,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	tvbuff_t *snmp_tvb;
 
 	/* Don't add SNMP stuff to the info column */
-	col_set_writable(pinfo->cinfo, FALSE);
+	col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
 
 	snmp_tvb = tvb_new_subset_length(tvb, offset, length);
 
@@ -784,7 +784,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 		show_exception(snmp_tvb, pinfo, wassp_tree, EXCEPT_CODE, GET_MESSAGE);
 	} ENDTRY;
 
-	col_set_writable(pinfo->cinfo, TRUE);
+	col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
 
 	offset += length;
 
@@ -798,7 +798,7 @@ dissect_ieee80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	tvbuff_t *ieee80211_tvb;
 
 	/* Don't add IEEE 802.11 stuff to the info column */
-	col_set_writable(pinfo->cinfo, FALSE);
+	col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
 
 	ieee80211_tvb = tvb_new_subset_length(tvb, offset, length);
 
@@ -809,7 +809,7 @@ dissect_ieee80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 		show_exception(ieee80211_tvb, pinfo, wassp_tree, EXCEPT_CODE, GET_MESSAGE);
 	} ENDTRY;
 
-	col_set_writable(pinfo->cinfo, TRUE);
+	col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
 
 	offset += length;
 

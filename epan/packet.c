@@ -782,8 +782,8 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 	saved_proto = pinfo->current_proto;
 	saved_can_desegment = pinfo->can_desegment;
 
-	save_writable = col_get_writable(pinfo->cinfo);
-	col_set_writable(pinfo->cinfo, FALSE);
+	save_writable = col_get_writable(pinfo->cinfo, -1);
+	col_set_writable(pinfo->cinfo, -1, FALSE);
 	copy_address_shallow(&save_dl_src, &pinfo->dl_src);
 	copy_address_shallow(&save_dl_dst, &pinfo->dl_dst);
 	copy_address_shallow(&save_net_src, &pinfo->net_src);
@@ -799,7 +799,7 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 		/*
 		* Restore the column writability and addresses.
 		*/
-		col_set_writable(pinfo->cinfo, save_writable);
+		col_set_writable(pinfo->cinfo, -1, save_writable);
 		copy_address_shallow(&pinfo->dl_src, &save_dl_src);
 		copy_address_shallow(&pinfo->dl_dst, &save_dl_dst);
 		copy_address_shallow(&pinfo->net_src, &save_net_src);
@@ -841,7 +841,7 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 	}
 	ENDTRY;
 
-	col_set_writable(pinfo->cinfo, save_writable);
+	col_set_writable(pinfo->cinfo, -1, save_writable);
 	copy_address_shallow(&pinfo->dl_src, &save_dl_src);
 	copy_address_shallow(&pinfo->dl_dst, &save_dl_dst);
 	copy_address_shallow(&pinfo->net_src, &save_net_src);

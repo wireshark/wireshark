@@ -5991,8 +5991,7 @@ fObjectIdentifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             Vendor_Proprietary_Fmt),
         object_id_instance(object_id));
 
-    if (col_get_writable(pinfo->cinfo))
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s,%u ",
+     col_append_fstr(pinfo->cinfo, COL_INFO, "%s,%u ",
             val_to_split_str(object_type,
                 128,
                 BACnetObjectType,
@@ -6255,8 +6254,7 @@ fPropertyIdentifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
                 BACnetPropertyIdentifier,
                 ASHRAE_Reserved_Fmt,
                 Vendor_Proprietary_Fmt), propertyIdentifier);
-        if (col_get_writable(pinfo->cinfo))
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
                 val_to_split_str(propertyIdentifier, 512,
                     BACnetPropertyIdentifier,
                     ASHRAE_Reserved_Fmt,
@@ -7390,8 +7388,7 @@ fConfirmedPrivateTransferRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
     fUnsigned32(tvb, offset+len, lvt, &vendor_identifier);
-    if (col_get_writable(pinfo->cinfo))
-        col_append_fstr(pinfo->cinfo, COL_INFO, "V=%u ", vendor_identifier);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "V=%u ", vendor_identifier);
     offset = fVendorIdentifier(tvb, pinfo, subtree, offset);
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -7422,8 +7419,7 @@ fConfirmedPrivateTransferRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             /* vendorID is now parsed above */
         case 1: /* serviceNumber */
             fUnsigned32(tvb, offset+len, lvt, &service_number);
-            if (col_get_writable(pinfo->cinfo))
-                col_append_fstr(pinfo->cinfo, COL_INFO, "SN=%u ",   service_number);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "SN=%u ",   service_number);
             offset = fUnsignedTag(tvb, pinfo, subtree, offset, "service Number: ");
             break;
         case 2: /*serviceParameters */
@@ -9124,7 +9120,7 @@ fLOPR(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
     guint8  tag_no, tag_info;
     guint32 lvt;
 
-    col_set_writable(pinfo->cinfo, FALSE); /* don't set all infos into INFO column */
+    col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;
         fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
@@ -9172,7 +9168,7 @@ fAddListElementRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
     guint32     lvt;
     proto_tree *subtree    = tree;
 
-    col_set_writable(pinfo->cinfo, FALSE); /* don't set all infos into INFO column */
+    col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;
@@ -9503,7 +9499,7 @@ fWritePropertyMultipleRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (offset >= tvb_reported_length(tvb))
         return offset;
 
-    col_set_writable(pinfo->cinfo, FALSE); /* don't set all infos into INFO column */
+    col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
     return fWriteAccessSpecification(tvb, pinfo, tree, offset);
 }
 
@@ -9543,7 +9539,7 @@ fPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 static guint
 fBACnetPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 list)
 {
-    col_set_writable(pinfo->cinfo, FALSE); /* don't set all infos into INFO column */
+    col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
     return fPropertyReference(tvb, pinfo, tree, offset, 0, list);
 }
 
@@ -9561,7 +9557,7 @@ fBACnetObjectPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             break;
         case 1: /* PropertyIdentifier and propertyArrayIndex */
             offset = fPropertyReference(tvb, pinfo, tree, offset, 1, 0);
-            col_set_writable(pinfo->cinfo, FALSE); /* don't set all infos into INFO column */
+            col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
         default:
             lastoffset = offset; /* Set loop end condition */
             break;
@@ -10034,7 +10030,7 @@ fReadRangeAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
     /* itemData */
     fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
     if (tag_is_opening(tag_info)) {
-        col_set_writable(pinfo->cinfo, FALSE); /* don't set all infos into INFO column */
+        col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
         subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "itemData");
         offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
         offset  = fAbstractSyntaxNType(tvb, pinfo, subtree, offset);
@@ -10135,14 +10131,14 @@ fAtomicReadFileAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 static guint
 fReadPropertyMultipleRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, guint offset)
 {
-    col_set_writable(pinfo->cinfo, FALSE); /* don't set all infos into INFO column */
+    col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
     return fReadAccessSpecification(tvb, pinfo, subtree, offset);
 }
 
 static guint
 fReadPropertyMultipleAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-    col_set_writable(pinfo->cinfo, FALSE); /* don't set all infos into INFO column */
+    col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
     return fReadAccessResult(tvb, pinfo, tree, offset);
 }
 
@@ -10352,7 +10348,7 @@ fWhoIsRequest(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint offset)
         switch (tag_no) {
         case 0:
             /* DeviceInstanceRangeLowLimit Optional */
-            if (col_get_writable(pinfo->cinfo) && fUnsigned32(tvb, offset+tag_len, lvt, &val))
+            if (fUnsigned32(tvb, offset+tag_len, lvt, &val))
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%d ", val);
             offset = fDevice_Instance(tvb, pinfo, tree, offset,
                 hf_Device_Instance_Range_Low_Limit);
@@ -10360,7 +10356,7 @@ fWhoIsRequest(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint offset)
         case 1:
             /* DeviceInstanceRangeHighLimit Optional but
                 required if DeviceInstanceRangeLowLimit is there */
-            if (col_get_writable(pinfo->cinfo) && fUnsigned32(tvb, offset+tag_len, lvt, &val))
+            if (fUnsigned32(tvb, offset+tag_len, lvt, &val))
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%d ", val);
             offset = fDevice_Instance(tvb, pinfo, tree, offset,
                 hf_Device_Instance_Range_High_Limit);
@@ -10590,14 +10586,12 @@ fConfirmedPrivateTransferError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             break;
         case 1: /* vendorID */
             fUnsigned32(tvb, offset+tag_len, lvt, &vendor_identifier);
-            if (col_get_writable(pinfo->cinfo))
-                col_append_fstr(pinfo->cinfo, COL_INFO, "V=%u ",    vendor_identifier);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "V=%u ",    vendor_identifier);
             offset = fVendorIdentifier(tvb, pinfo, subtree, offset);
             break;
         case 2: /* serviceNumber */
             fUnsigned32(tvb, offset+tag_len, lvt, &service_number);
-            if (col_get_writable(pinfo->cinfo))
-                col_append_fstr(pinfo->cinfo, COL_INFO, "SN=%u ",   service_number);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "SN=%u ",   service_number);
             offset = fUnsignedTag(tvb, pinfo, subtree, offset, "service Number: ");
             break;
         case 3: /* errorParameters */
@@ -10680,7 +10674,7 @@ fWritePropertyMultipleError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8  tag_no     = 0, tag_info = 0;
     guint32 lvt        = 0;
 
-    col_set_writable(pinfo->cinfo, FALSE); /* don't set all infos into INFO column */
+    col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;
         switch (fTagNo(tvb, offset)) {

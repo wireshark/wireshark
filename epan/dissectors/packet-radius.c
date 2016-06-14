@@ -1701,12 +1701,12 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 					 * this as an RADIUS packet, not
 					 * as an EAP packet.
 					 */
-					save_writable = col_get_writable(pinfo->cinfo);
-					col_set_writable(pinfo->cinfo, FALSE);
+					save_writable = col_get_writable(pinfo->cinfo, -1);
+					col_set_writable(pinfo->cinfo, -1, FALSE);
 
 					call_dissector(eap_handle, eap_tvb, pinfo, eap_tree);
 
-					col_set_writable(pinfo->cinfo, save_writable);
+					col_set_writable(pinfo->cinfo, -1, save_writable);
 				} else {
 					proto_item_append_text(avp_item, " Segment[%u]",
 							       eap_seg_num);

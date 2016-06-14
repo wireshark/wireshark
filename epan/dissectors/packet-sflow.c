@@ -679,7 +679,7 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
     next_tvb = tvb_new_subset(tvb, offset, header_length, frame_length);
 
     /* save some state */
-    save_writable = col_get_writable(pinfo->cinfo);
+    save_writable = col_get_writable(pinfo->cinfo, -1);
 
     /*
        If sFlow samples a TCP packet it is very likely that the
@@ -705,7 +705,7 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
         pinfo->flags.in_error_pkt = TRUE;
     }
 
-    col_set_writable(pinfo->cinfo, FALSE);
+    col_set_writable(pinfo->cinfo, -1, FALSE);
     copy_address_shallow(&save_dl_src, &pinfo->dl_src);
     copy_address_shallow(&save_dl_dst, &pinfo->dl_dst);
     copy_address_shallow(&save_net_src, &pinfo->net_src);
@@ -727,7 +727,7 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
     ENDTRY;
 
     /* restore saved state */
-    col_set_writable(pinfo->cinfo, save_writable);
+    col_set_writable(pinfo->cinfo, -1, save_writable);
     pinfo->flags.in_error_pkt = save_in_error_pkt;
     copy_address_shallow(&pinfo->dl_src, &save_dl_src);
     copy_address_shallow(&pinfo->dl_dst, &save_dl_dst);

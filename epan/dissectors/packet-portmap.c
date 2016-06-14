@@ -304,7 +304,7 @@ dissect_callit_call(tvbuff_t *tvb, packet_info *pinfo,
 	/* Dissect the arguments for this procedure.
 	   Make the columns non-writable, so the dissector won't change
 	   them out from under us. */
-	col_set_writable(pinfo->cinfo, FALSE);
+	col_set_writable(pinfo->cinfo, -1, FALSE);
 	offset = dissect_rpc_indir_call(tvb, pinfo, tree, offset,
 		hf_portmap_args, prog, vers, proc);
 
@@ -325,7 +325,7 @@ dissect_callit_reply(tvbuff_t *tvb, packet_info *pinfo,
 	/* Dissect the result of this procedure.
 	   Make the columns non-writable, so the dissector won't change
 	   them out from under us. */
-	col_set_writable(pinfo->cinfo, FALSE);
+	col_set_writable(pinfo->cinfo, -1, FALSE);
 	offset = dissect_rpc_indir_reply(tvb, pinfo, tree, offset,
 		hf_portmap_result, hf_portmap_prog, hf_portmap_version,
 		hf_portmap_proc);
@@ -460,7 +460,7 @@ dissect_rpcb_rmtcallres(tvbuff_t *tvb, packet_info *pinfo _U_,
 	/* Dissect the result of this procedure.
 	   Make the columns non-writable, so the dissector won't change
 	   them out from under us. */
-	col_set_writable(pinfo->cinfo, FALSE);
+	col_set_writable(pinfo->cinfo, -1, FALSE);
 	offset = dissect_rpc_indir_reply(tvb, pinfo, tree, offset,
 		hf_portmap_result, hf_portmap_prog, hf_portmap_version,
 		hf_portmap_proc);

@@ -56,6 +56,7 @@ typedef struct {
   const gchar        *col_data;             /**< Column data */
   gchar              *col_buf;              /**< Buffer into which to copy data for column */
   int                 col_fence;            /**< Stuff in column buffer before this index is immutable */
+  gboolean            writable;             /**< writable or not */
 } col_item_t;
 
 /** Column info */

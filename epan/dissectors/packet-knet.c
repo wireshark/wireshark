@@ -353,7 +353,6 @@ dissect_messageid(tvbuff_t *buffer, int *offset, proto_tree *tree, packet_info *
 {
     gint   messageid_length;
     guint8 messageid;
-    gboolean col_write;
 
     messageid = tvb_get_guint8(buffer, (*offset));
 
@@ -374,16 +373,9 @@ dissect_messageid(tvbuff_t *buffer, int *offset, proto_tree *tree, packet_info *
     proto_tree_add_uint_format_value(tree, hf_knet_messageid, buffer, *offset, messageid_length, messageid,
             "%s (%d)", val_to_str_const(messageid, packettypenames, "AppData or Malformed Message ID"), messageid);
 
-    /* XXX - TCP reassembly disables writing columns which prevents populating COL_INFO if multiple KNET messages
-       appear in a single packet that needed to be reassembled.
-       Force making columns writable.
-    */
     if (separator)
     {
-        col_write = col_get_writable(pinfo->cinfo);
-        col_set_writable(pinfo->cinfo, TRUE);
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s (%d)", val_to_str_const(messageid, packettypenames, "AppData"), messageid);
-        col_set_writable(pinfo->cinfo, col_write);
     }
     else
     {

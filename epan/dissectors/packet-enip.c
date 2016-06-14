@@ -1513,13 +1513,13 @@ dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item *it
    else
    {
       /* Dissect ARP PDU, but don't have it change column info */
-      save_info = col_get_writable(pinfo->cinfo);
-      col_set_writable(pinfo->cinfo, FALSE);
+      save_info = col_get_writable(pinfo->cinfo, -1);
+      col_set_writable(pinfo->cinfo, -1, FALSE);
 
       next_tvb = tvb_new_subset_length(tvb, offset+7, 28);
       call_dissector(arp_handle, next_tvb, pinfo, tree);
 
-      col_set_writable(pinfo->cinfo, save_info);
+      col_set_writable(pinfo->cinfo, -1, save_info);
    }
 
    return 35;

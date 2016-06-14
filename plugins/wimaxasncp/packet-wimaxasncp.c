@@ -1632,14 +1632,14 @@ static void wimaxasncp_dissect_tlv_value(
             eap_tvb = tvb_new_subset_remaining(tvb, offset);
 
             /* Disable writing to info column while calling eap dissector */
-            save_writable = col_get_writable(pinfo->cinfo);
-            col_set_writable(pinfo->cinfo, FALSE);
+            save_writable = col_get_writable(pinfo->cinfo, -1);
+            col_set_writable(pinfo->cinfo, -1, FALSE);
 
             /* Call the EAP dissector. */
             call_dissector(eap_handle, eap_tvb, pinfo, eap_tree);
 
             /* Restore previous writable state of info column */
-            col_set_writable(pinfo->cinfo, save_writable);
+            col_set_writable(pinfo->cinfo, -1, save_writable);
         }
 
         return;

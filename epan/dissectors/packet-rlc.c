@@ -1322,7 +1322,7 @@ rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
             /* assume transparent PDCP for now */
             call_dissector(ip_handle, tvb, pinfo, tree);
             /* once the packet has been dissected, protect it from further changes */
-            col_set_writable(pinfo->cinfo, FALSE);
+            col_set_writable(pinfo->cinfo, -1, FALSE);
             break;
         default:
             return; /* stop dissecting */
@@ -1339,7 +1339,7 @@ rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
         rrcinf->msgtype[fpinf->cur_tb] = msgtype;
         call_dissector(rrc_handle, tvb, pinfo, tree);
         /* once the packet has been dissected, protect it from further changes */
-        col_set_writable(pinfo->cinfo, FALSE);
+        col_set_writable(pinfo->cinfo, -1, FALSE);
     }
 }
 

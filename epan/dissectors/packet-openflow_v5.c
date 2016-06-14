@@ -2049,7 +2049,7 @@ dissect_openflow_packet_in_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         data_tree = proto_tree_add_subtree(tree, tvb, offset, length - offset, ett_openflow_v5_packet_in_data, NULL, "Data");
 
         /* save some state */
-        save_writable = col_get_writable(pinfo->cinfo);
+        save_writable = col_get_writable(pinfo->cinfo, -1);
         save_in_error_pkt = pinfo->flags.in_error_pkt;
         copy_address_shallow(&save_dl_src, &pinfo->dl_src);
         copy_address_shallow(&save_dl_dst, &pinfo->dl_dst);
@@ -2059,12 +2059,12 @@ dissect_openflow_packet_in_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         copy_address_shallow(&save_dst, &pinfo->dst);
 
         /* dissect data */
-        col_set_writable(pinfo->cinfo, FALSE);
+        col_set_writable(pinfo->cinfo, -1, FALSE);
         next_tvb = tvb_new_subset_length(tvb, offset, length - offset);
         call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, data_tree);
 
         /* restore saved state */
-        col_set_writable(pinfo->cinfo, save_writable);
+        col_set_writable(pinfo->cinfo, -1, save_writable);
         pinfo->flags.in_error_pkt = save_in_error_pkt;
         copy_address_shallow(&pinfo->dl_src, &save_dl_src);
         copy_address_shallow(&pinfo->dl_dst, &save_dl_dst);
@@ -2788,7 +2788,7 @@ dissect_openflow_packet_out_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         data_tree = proto_tree_add_subtree(tree, tvb, offset, length - offset, ett_openflow_v5_packet_out_data, NULL, "Data");
 
         /* save some state */
-        save_writable = col_get_writable(pinfo->cinfo);
+        save_writable = col_get_writable(pinfo->cinfo, -1);
         save_in_error_pkt = pinfo->flags.in_error_pkt;
         copy_address_shallow(&save_dl_src, &pinfo->dl_src);
         copy_address_shallow(&save_dl_dst, &pinfo->dl_dst);
@@ -2798,12 +2798,12 @@ dissect_openflow_packet_out_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         copy_address_shallow(&save_dst, &pinfo->dst);
 
         /* dissect data */
-        col_set_writable(pinfo->cinfo, FALSE);
+        col_set_writable(pinfo->cinfo, -1, FALSE);
         next_tvb = tvb_new_subset_length(tvb, offset, length - offset);
         call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, data_tree);
 
         /* restore saved state */
-        col_set_writable(pinfo->cinfo, save_writable);
+        col_set_writable(pinfo->cinfo, -1, save_writable);
         pinfo->flags.in_error_pkt = save_in_error_pkt;
         copy_address_shallow(&pinfo->dl_src, &save_dl_src);
         copy_address_shallow(&pinfo->dl_dst, &save_dl_dst);

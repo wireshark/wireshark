@@ -2991,7 +2991,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	wmem_map_t *frags;
 	conversation_t *conversation;
 	proto_item *vers_item;
-	gboolean save_fragmented, save_writable;
+	gboolean save_fragmented, save_info_writable, save_proto_writable;
 	gboolean do_frag = TRUE;
 	tvbuff_t* new_tvb = NULL;
 	fragment_head *frag_msg = NULL;
@@ -3212,8 +3212,10 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	 * multiple fragments, the column becomes unwritable.
 	 * Temporarily change that so that the correct header can be
 	 * applied */
-	save_writable = col_get_writable(pinfo->cinfo);
-	col_set_writable(pinfo->cinfo, TRUE);
+	save_info_writable = col_get_writable(pinfo->cinfo, COL_INFO);
+	save_proto_writable = col_get_writable(pinfo->cinfo, COL_PROTOCOL);
+	col_set_writable(pinfo->cinfo, COL_PROTOCOL, TRUE);
+	col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -3292,7 +3294,8 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 	/* restore saved variables */
 	pinfo->fragmented = save_fragmented;
-	col_set_writable(pinfo->cinfo, save_writable);
+	col_set_writable(pinfo->cinfo, COL_INFO, save_info_writable);
+	col_set_writable(pinfo->cinfo, COL_PROTOCOL, save_proto_writable);
 
 	return tvb_captured_length(tvb);
 }

@@ -2317,15 +2317,14 @@ dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info
 
   size = tvb_reported_length_remaining(tvb, offset);
 
-  save_info = col_get_writable(pinfo->cinfo);
-  col_set_writable(pinfo->cinfo, FALSE);
+  save_info = col_get_writable(pinfo->cinfo, COL_INFO);
+  col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
 
   next_tvb = tvb_new_subset_length(tvb, offset, length);
 
-  /* XXX: Assumption: OK to call dmx-chan dissector under 'if (tree)' */
   call_dissector(dmx_chan_handle, next_tvb, pinfo, base_tree);
 
-  col_set_writable(pinfo->cinfo, save_info);
+  col_set_writable(pinfo->cinfo, COL_INFO, save_info);
 
   return offset + size;
 }
@@ -2813,15 +2812,14 @@ dissect_artnet_rdm(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_info *
 
   size = tvb_reported_length_remaining(tvb, offset);
 
-  save_info = col_get_writable(pinfo->cinfo);
-  col_set_writable(pinfo->cinfo, FALSE);
+  save_info = col_get_writable(pinfo->cinfo, COL_INFO);
+  col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-  /* XXX: Assumption: OK to call rdm dissector under 'if (tree)' */
   call_dissector(rdm_handle, next_tvb, pinfo, base_tree);
 
-  col_set_writable(pinfo->cinfo, save_info);
+  col_set_writable(pinfo->cinfo, COL_INFO, save_info);
 
   return offset + size;
 }
@@ -3322,7 +3320,6 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
       break;
 
     case ARTNET_OP_OUTPUT:
-      if (tree) {
         hi = proto_tree_add_item(artnet_tree,
                                  hf_artnet_output,
                                  tvb,
@@ -3336,7 +3333,6 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         size -= offset;
         proto_item_set_len(si, size );
         offset += size;
-      }
       break;
 
 
@@ -3435,7 +3431,6 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
       break;
 
     case ARTNET_OP_RDM:
-      if (tree) {
         hi = proto_tree_add_item(artnet_tree,
                                  hf_artnet_rdm,
                                  tvb,
@@ -3448,7 +3443,6 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
         proto_item_set_len( si, size );
         offset += size;
-      }
       break;
 
     case ARTNET_OP_RDM_SUB:

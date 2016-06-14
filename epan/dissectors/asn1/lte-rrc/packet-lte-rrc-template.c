@@ -3007,13 +3007,13 @@ dissect_lte_rrc_Handover_Preparation_Info(tvbuff_t *tvb, packet_info *pinfo, pro
   /* Don't want elements inside message updating Info column, so set now and
      freeze during dissection of PDU */
   col_set_str(pinfo->cinfo, COL_INFO, "HandoverPreparationInformation");
-  col_set_writable(pinfo->cinfo, FALSE);
+  col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
 
   ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
   lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
   dissect_lte_rrc_HandoverPreparationInformation_PDU(tvb, pinfo, lte_rrc_tree, NULL);
 
-  col_set_writable(pinfo->cinfo, TRUE);
+  col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
   return tvb_captured_length(tvb);
 }
 

@@ -149,16 +149,18 @@ WS_DLL_PUBLIC void	col_fill_in_error(column_info *cinfo, frame_data *fdata, cons
 /** Are the columns writable?
  *
  * @param cinfo the current packet row
+ * @param col the writable column, -1 for checking the state of all columns
  * @return TRUE if it's writable, FALSE if not
  */
-WS_DLL_PUBLIC gboolean	col_get_writable(column_info *cinfo);
+WS_DLL_PUBLIC gboolean	col_get_writable(column_info *cinfo, const gint col);
 
 /** Set the columns writable.
  *
  * @param cinfo the current packet row
+ * @param col the column to set, -1 for all
  * @param writable TRUE if it's writable, FALSE if not
  */
-WS_DLL_PUBLIC void	col_set_writable(column_info *cinfo, const gboolean writable);
+WS_DLL_PUBLIC void	col_set_writable(column_info *cinfo, const gint col, const gboolean writable);
 
 /** Sets a fence for the current column content,
  * so this content won't be affected by further col_... function calls.

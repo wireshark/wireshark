@@ -1376,10 +1376,10 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
         /*
          * OK, we've set the Protocol and Info columns for the
-         * first RTSP message; make the columns non-writable,
-         * so that we don't change it for subsequent RTSP messages.
+         * first RTSP message; set fence so changes are kept for
+         * subsequent RTSP messages.
          */
-        col_set_writable(pinfo->cinfo, FALSE);
+        col_set_fence(pinfo->cinfo, COL_INFO);
     }
     return tvb_captured_length(tvb);
 }

@@ -316,7 +316,7 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
                  * reflect the MSDP packet rather than the
                  * encapsulated packet.
                  */
-                col_set_writable(pinfo->cinfo, FALSE);
+                col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
                 call_dissector(ip_handle, next_tvb, pinfo, enc_tree);
         }
         *offset += length;

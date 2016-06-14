@@ -138,6 +138,7 @@ col_init(column_info *cinfo, const struct epan_session *epan)
     col_item->col_buf[0] = '\0';
     col_item->col_data = col_item->col_buf;
     col_item->col_fence = 0;
+    col_item->writable = TRUE;
     cinfo->col_expr.col_expr[i] = "";
     cinfo->col_expr.col_expr_val[i][0] = '\0';
   }
@@ -145,25 +146,55 @@ col_init(column_info *cinfo, const struct epan_session *epan)
   cinfo->epan = epan;
 }
 
-#define COL_GET_WRITABLE(cinfo) (cinfo ? cinfo->writable : FALSE)
-
 gboolean
-col_get_writable(column_info *cinfo)
+col_get_writable(column_info *cinfo, const gint col)
 {
-  return COL_GET_WRITABLE(cinfo);
+  int i;
+  col_item_t* col_item;
+
+  if (cinfo == NULL)
+    return FALSE;
+
+  /* "global" (not) writeability will always override
+     an individual column */
+  if ((col == -1) || (cinfo->writable == FALSE))
+    return cinfo->writable;
+
+  if (cinfo->col_first[col] >= 0) {
+    for (i = cinfo->col_first[col]; i <= cinfo->col_last[col]; i++) {
+      col_item = &cinfo->columns[i];
+      if (col_item->fmt_matx[col]) {
+        return col_item->writable;
+      }
+    }
+  }
+  return FALSE;
 }
 
 void
-col_set_writable(column_info *cinfo, const gboolean writable)
+col_set_writable(column_info *cinfo, const gint col, const gboolean writable)
 {
-  if (cinfo)
-    cinfo->writable = writable;
+  int i;
+  col_item_t* col_item;
+
+  if (cinfo) {
+    if (col == -1) {
+      cinfo->writable = writable;
+    } else if (cinfo->col_first[col] >= 0) {
+      for (i = cinfo->col_first[col]; i <= cinfo->col_last[col]; i++) {
+        col_item = &cinfo->columns[i];
+        if (col_item->fmt_matx[col]) {
+          col_item->writable = writable;
+        }
+      }
+    }
+  }
 }
 
 /* Checks to see if a particular packet information element is needed for the packet list */
 #define CHECK_COL(cinfo, el) \
     /* We are constructing columns, and they're writable */ \
-    (COL_GET_WRITABLE(cinfo) && \
+    (col_get_writable(cinfo, el) && \
       /* There is at least one column in that format */ \
     ((cinfo)->col_first[el] >= 0))
 

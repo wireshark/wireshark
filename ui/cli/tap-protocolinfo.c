@@ -59,7 +59,7 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 	 * To prevent a crash, we check whether INFO column is writable
 	 * and, if not, we report that error and exit.
 	 */
-	if (!col_get_writable(pinfo->cinfo)) {
+	if (!col_get_writable(pinfo->cinfo, COL_INFO)) {
 		fprintf(stderr, "tshark: the proto,colinfo tap doesn't work if the INFO column isn't being printed.\n");
 		exit(1);
 	}

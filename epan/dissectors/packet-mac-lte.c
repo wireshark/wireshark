@@ -2583,7 +2583,7 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
 
             /* Don't want columns to be replaced now */
             if (global_mac_lte_layer_to_show == ShowPHYLayer) {
-                col_set_writable(pinfo->cinfo, FALSE);
+                col_set_writable(pinfo->cinfo, -1, FALSE);
             }
         }
     }
@@ -2670,7 +2670,7 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
 
             /* Don't want columns to be replaced now */
             if (global_mac_lte_layer_to_show == ShowPHYLayer) {
-                col_set_writable(pinfo->cinfo, FALSE);
+                col_set_writable(pinfo->cinfo, -1, FALSE);
             }
         }
     }
@@ -3169,7 +3169,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     if (global_mac_lte_layer_to_show != ShowRLCLayer) {
         /* Don't want these columns replaced */
-        col_set_writable(pinfo->cinfo, FALSE);
+        col_set_writable(pinfo->cinfo, -1, FALSE);
     }
     else {
         /* Clear info column before first RLC PDU */
@@ -3188,7 +3188,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     call_with_catch_all(rlc_lte_handle, rb_tvb, pinfo, tree);
 
     /* Let columns be written to again */
-    col_set_writable(pinfo->cinfo, TRUE);
+    col_set_writable(pinfo->cinfo, -1, TRUE);
 }
 
 

@@ -1202,7 +1202,7 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   next_tvb = tvb_new_subset_remaining(tvb, advance);
 
   if (g_ah_payload_in_subtree) {
-    col_set_writable(pinfo->cinfo, FALSE);
+    col_set_writable(pinfo->cinfo, -1, FALSE);
   }
 
   /* do lookup with the subdissector table */

@@ -333,7 +333,7 @@ tvbuff_t *parameter_tvb=NULL;
 
 	if (g_s1ap_dissect_container) {
 		/* Don't want elements inside container to write to info column */
-		col_set_writable(actx->pinfo->cinfo, FALSE);
+		col_set_writable(actx->pinfo->cinfo, COL_INFO, FALSE);
 		subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToTargetTransparentContainer);
 
     	switch(handover_type_value){
@@ -378,7 +378,7 @@ tvbuff_t *parameter_tvb=NULL;
 			break;
 		}
 		/* Enable writing of the column again */
-		col_set_writable(actx->pinfo->cinfo, TRUE);
+		col_set_writable(actx->pinfo->cinfo, COL_INFO, TRUE);
 	}
 #.FN_BODY Target-ToSource-TransparentContainer VAL_PTR = &parameter_tvb
 # I think the message is "directly encoded" into the octet string(no "double encoding")

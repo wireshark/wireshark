@@ -729,7 +729,6 @@ dissect_etch_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     }
     gbl_old_frame_num = pinfo->num;
 
-    col_set_writable(pinfo->cinfo, TRUE);
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", wmem_strbuf_get_str(colInfo));
   }
 
@@ -785,7 +784,6 @@ dissect_etch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                    dissect_etch_message, data);
 
   if (gbl_pdu_counter > 0) {
-    col_set_writable(pinfo->cinfo, TRUE);
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "[%d] ", gbl_pdu_counter + 1);
   }
 

@@ -1095,12 +1095,11 @@ again:
             int old_len;
 
             /*
-             * Unblock and reset column in case multiple SSL segments form the
+             * Reset column in case multiple SSL segments form the
              * PDU and this last SSL segment is not in the first TCP segment of
              * this frame.
              * XXX prevent clearing the column if the last layer is not SSL?
              */
-            col_set_writable(pinfo->cinfo, TRUE);
             /* Clear column during the first pass. */
             col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1339,11 +1338,9 @@ again:
          * PROTOCOL and INFO colums since what follows may be an
          * incomplete PDU and we don't want it be changed back from
          *  <Protocol>   to <TCP>
-         * XXX There is no good way to block the PROTOCOL column
-         * from being changed yet so we set the entire row unwritable.
          */
         col_set_fence(pinfo->cinfo, COL_INFO);
-        col_set_writable(pinfo->cinfo, FALSE);
+        col_set_writable(pinfo->cinfo, COL_PROTOCOL, FALSE);
         offset += another_pdu_follows;
         seq += another_pdu_follows;
         goto again;
