@@ -686,6 +686,9 @@ then
 	fi
 fi
 
+#Clang only
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wc99-extensions, C)
+
 #
 # Try to add some additional checks to CFLAGS.
 # These are not enabled by default, because the warnings they produce
