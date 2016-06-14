@@ -60,6 +60,7 @@ static gint ett_badfield = -1;
 static gint ett_checksum = -1;
 
 static expert_field ei_fix_checksum_bad = EI_INIT;
+static expert_field ei_fix_missing_field = EI_INIT;
 
 static int hf_fix_data = -1; /* continuation data */
 static int hf_fix_checksum_good = -1;
@@ -251,6 +252,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     /* begin string */
     ctrla_offset = tvb_find_guint8(tvb, offset, -1, 0x01);
     if (ctrla_offset == -1) {
+        expert_add_info_format(pinfo, ti, &ei_fix_missing_field, "Missing BeginString field");
         return tvb_captured_length(tvb);
     }
     offset = ctrla_offset + 1;
@@ -258,18 +260,16 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     /* msg length */
     ctrla_offset = tvb_find_guint8(tvb, offset, -1, 0x01);
     if (ctrla_offset == -1) {
+        expert_add_info_format(pinfo, ti, &ei_fix_missing_field, "Missing BodyLength field");
         return tvb_captured_length(tvb);
     }
     offset = ctrla_offset + 1;
 
     /* msg type */
     if (!(tag = fix_param(tvb, offset)) || tag->value_len < 1) {
+        expert_add_info_format(pinfo, ti, &ei_fix_missing_field, "Missing MsgType field");
         return tvb_captured_length(tvb);
     }
-
-    value = tvb_get_string_enc(wmem_packet_scope(), tvb, tag->value_offset, tag->value_len, ENC_ASCII);
-    msg_type = str_to_str(value, messages_val, "FIX Message (%s)");
-    col_add_str(pinfo->cinfo, COL_INFO, msg_type);
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
      * necessary to generate protocol tree items.
@@ -315,6 +315,12 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                     case 1: /* strings */
                         proto_tree_add_string_format_value(fix_tree, fix_fields[i].hf_id, tvb, field_offset, tag->field_len, value,
                             "%s (%s)", value, str_to_str(value, (const string_string *)fix_fields[i].table, "unknown %s"));
+                        if (tag_value == 35) {
+                            /* Make message type part of the Info column */
+                            msg_type = str_to_str(value, messages_val, "FIX Message (%s)");
+                            col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", msg_type);
+                            col_set_fence(pinfo->cinfo, COL_INFO);
+                        }
                         break;
                     case 2: /* char */
                         proto_tree_add_string_format_value(fix_tree, fix_fields[i].hf_id, tvb, field_offset, tag->field_len, value,
@@ -503,6 +509,7 @@ proto_register_fix(void)
 
     static ei_register_info ei[] = {
         { &ei_fix_checksum_bad, { "fix.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+        { &ei_fix_missing_field, { "fix.missing_field", PI_MALFORMED, PI_ERROR, "Missing mandatory field", EXPFILL }},
     };
 
     module_t *fix_module;
