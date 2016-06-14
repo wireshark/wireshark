@@ -3801,7 +3801,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_item_append_text(tf, " %s",
                 val_to_str_const(opcode, opcode_vals, "Unknown operation"));
   if (flags & F_RESPONSE) {
-  proto_item_append_text(tf, " response, %s",
+    proto_item_append_text(tf, " response, %s",
                 val_to_str_const(rcode, rcode_vals, "Unknown error"));
   }
   field_tree = proto_item_add_subtree(tf, ett_dns_flags);
@@ -3893,29 +3893,11 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
   cur_off = offset + DNS_HDRLEN;
 
-  /* Collect stats */
-  dns_stats = wmem_new0(wmem_packet_scope(), struct DnsTap);
-  dns_stats->packet_rcode = rcode;
-  dns_stats->packet_opcode = opcode;
-  dns_stats->packet_qr = flags >> 15;
-  if (quest > 0) {
-    get_dns_name_type_class(tvb, cur_off, dns_data_offset, &name, &name_len, &qtype, &qclass);
-    dns_stats->packet_qtype = qtype;
-    dns_stats->packet_qclass = qclass;
-  }
-  dns_stats->payload_size = tvb_captured_length(tvb);
-  dns_stats->nquestions = quest;
-  dns_stats->nanswers = ans;
-  dns_stats->nauthorities = auth;
-  dns_stats->nadditionals = add;
-
   if (quest > 0) {
     /* If this is a response, don't add information about the queries
        to the summary, just add information about the answers. */
     cur_off += dissect_query_records(tvb, cur_off, dns_data_offset, quest, pinfo,
                                      dns_tree, isupdate, is_mdns);
-    dns_stats->qname_len = name_len;
-    dns_stats->qname_labels = qname_labels_count(name, name_len);
   }
 
   if (ans > 0) {
@@ -3940,7 +3922,33 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dissect_answer_records(tvb, cur_off, dns_data_offset, add, dns_tree, "Additional records",
                                       pinfo, is_mdns);
   }
-  tap_queue_packet(dns_tap, pinfo, dns_stats);
+
+  /* Collect stats */
+  if (is_mdns) {
+    /* TODO */
+  } else if (is_llmnr) {
+    /* TODO */
+  } else {
+    dns_stats = wmem_new0(wmem_packet_scope(), struct DnsTap);
+    dns_stats->packet_rcode = rcode;
+    dns_stats->packet_opcode = opcode;
+    dns_stats->packet_qr = flags >> 15;
+    if (quest > 0) {
+      get_dns_name_type_class(tvb, offset + DNS_HDRLEN, dns_data_offset, &name, &name_len, &qtype, &qclass);
+      dns_stats->packet_qtype = qtype;
+      dns_stats->packet_qclass = qclass;
+    }
+    dns_stats->payload_size = tvb_captured_length(tvb);
+    dns_stats->nquestions = quest;
+    dns_stats->nanswers = ans;
+    dns_stats->nauthorities = auth;
+    dns_stats->nadditionals = add;
+    if (quest > 0) {
+      dns_stats->qname_len = name_len;
+      dns_stats->qname_labels = qname_labels_count(name, name_len);
+    }
+    tap_queue_packet(dns_tap, pinfo, dns_stats);
+  }
 }
 
 static int
