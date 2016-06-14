@@ -54,6 +54,7 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
+#include "packet-ptp.h"
 
 /**********************************************************/
 /* Port definition's for PTP                              */
@@ -1133,7 +1134,7 @@ static const value_string ptp_as_TLV_oid_vals[] = {
     {0                                              , NULL}
 };
 
-static const value_string ptp2_networkProtocol_vals[] = {
+static const value_string ptp_v2_networkProtocol_vals[] = {
     {0x0000,  "Reserved"},
     {0x0001,  "UDP/IPv4"},
     {0x0002,  "UDP/IPv6"},
@@ -1146,8 +1147,9 @@ static const value_string ptp2_networkProtocol_vals[] = {
     {0xFFFF,  "Reserved"},
     {0,              NULL          }
 };
-static value_string_ext ptp2_networkProtocol_vals_ext =
-    VALUE_STRING_EXT_INIT(ptp2_networkProtocol_vals);
+/* Exposed in packet-ptp.h */
+value_string_ext ptp_v2_networkProtocol_vals_ext =
+    VALUE_STRING_EXT_INIT(ptp_v2_networkProtocol_vals);
 
 
 static const value_string ptp_v2_messageid_vals[] = {
@@ -1166,7 +1168,7 @@ static const value_string ptp_v2_messageid_vals[] = {
 static value_string_ext ptp_v2_messageid_vals_ext =
     VALUE_STRING_EXT_INIT(ptp_v2_messageid_vals);
 
-static const value_string ptp_v2_clockaccuracy_vals[] = {
+static const value_string ptp_v2_clockAccuracy_vals[] = {
     {0x20,  "The time is accurate to within 25 ns"},
     {0x21,  "The time is accurate to within 100 ns"},
     {0x22,  "The time is accurate to within 250 ns"},
@@ -1191,10 +1193,11 @@ static const value_string ptp_v2_clockaccuracy_vals[] = {
     {0xFF,  "reserved"},
     {0,              NULL          }
 };
-static value_string_ext ptp_v2_clockaccuracy_vals_ext =
-    VALUE_STRING_EXT_INIT(ptp_v2_clockaccuracy_vals);
+/* Exposed in packet-ptp.h */
+value_string_ext ptp_v2_clockAccuracy_vals_ext =
+    VALUE_STRING_EXT_INIT(ptp_v2_clockAccuracy_vals);
 
-static const value_string ptp_v2_timesource_vals[] = {
+static const value_string ptp_v2_timeSource_vals[] = {
     {0x10,  "ATOMIC_CLOCK"},
     {0x20,  "GPS"},
     {0x30,  "TERRESTRIAL_RADIO"},
@@ -1206,8 +1209,9 @@ static const value_string ptp_v2_timesource_vals[] = {
     {0xFF,  "reserved"},
     {0,              NULL          }
 };
-static value_string_ext ptp_v2_timesource_vals_ext =
-    VALUE_STRING_EXT_INIT(ptp_v2_timesource_vals);
+/* Exposed in packet-ptp.h */
+value_string_ext ptp_v2_timeSource_vals_ext =
+    VALUE_STRING_EXT_INIT(ptp_v2_timeSource_vals);
 
 static const value_string ptp_v2_mm_action_vals[] = {
     {0x0,  "GET"},
@@ -1218,7 +1222,7 @@ static const value_string ptp_v2_mm_action_vals[] = {
     {0,              NULL          }
 };
 
-static const value_string ptp2_severityCode_vals[] = {
+static const value_string ptp_v2_severityCode_vals[] = {
     {0x00,  "Emergency: system is unusable"},
     {0x01,  "Alert: immediate action needed"},
     {0x02,  "Critical: critical conditions"},
@@ -1231,10 +1235,10 @@ static const value_string ptp2_severityCode_vals[] = {
     {0xFF,  "Reserved"},
     {0,      NULL}
 };
-static value_string_ext ptp2_severityCode_vals_ext =
-    VALUE_STRING_EXT_INIT(ptp2_severityCode_vals);
+static value_string_ext ptp_v2_severityCode_vals_ext =
+    VALUE_STRING_EXT_INIT(ptp_v2_severityCode_vals);
 
-static const value_string ptp2_portState_vals[] = {
+static const value_string ptp_v2_portState_vals[] = {
     {0x01,  "INITIALIZING"},
     {0x02,  "FAULTY"},
     {0x03,  "DISABLED"},
@@ -1246,17 +1250,19 @@ static const value_string ptp2_portState_vals[] = {
     {0x09,  "SLAVE"},
     {0,     NULL}
 };
-static value_string_ext ptp2_portState_vals_ext =
-    VALUE_STRING_EXT_INIT(ptp2_portState_vals);
+/* Exposed in packet-ptp.h */
+value_string_ext ptp_v2_portState_vals_ext =
+    VALUE_STRING_EXT_INIT(ptp_v2_portState_vals);
 
-static const value_string ptp2_delayMechanism_vals[] = {
+/* Exposed in packet-ptp.h */
+const value_string ptp_v2_delayMechanism_vals[] = {
     {0x01,  "E2E"},
     {0x02,  "P2P"},
     {0xFE,  "DISABLED"},
     {0,     NULL}
 };
 
-static const value_string ptp2_managementErrorId_vals[] = {
+static const value_string ptp_v2_managementErrorId_vals[] = {
     {0x0000,  "Reserved"},
     {0x0001,  "RESPONSE_TOO_BIG"},
     {0x0002,  "NO_SUCH_ID"},
@@ -1269,26 +1275,26 @@ static const value_string ptp2_managementErrorId_vals[] = {
     {0xFFFF,  "Reserved"},
     {0,     NULL}
 };
-static value_string_ext ptp2_managementErrorId_vals_ext =
-    VALUE_STRING_EXT_INIT(ptp2_managementErrorId_vals);
+static value_string_ext ptp_v2_managementErrorId_vals_ext =
+    VALUE_STRING_EXT_INIT(ptp_v2_managementErrorId_vals);
 
-static const value_string ptp2_organizationExtensionOrgId_vals[] = {
+static const value_string ptp_v2_organizationExtensionOrgId_vals[] = {
     {PTP_V2_OE_ORG_ID_IEEE_C37_238,  "IEEE C37.238"},
     {PTP_v2_OE_ORG_ID_SMPTE,         "Society of Motion Picture and Television Engineers"},
     {0,                              NULL}
 };
 
-static const value_string ptp2_org_iee_c37_238_subtype_vals[] = {
+static const value_string ptp_v2_org_iee_c37_238_subtype_vals[] = {
     {PTP_V2_OE_ORG_IEEE_C37_238_SUBTYPE_C37238TLV,  "IEEE_C37_238 TLV"},
     {0,                                             NULL}
 };
 
-static const value_string ptp2_org_smpte_subtype_vals[] = {
+static const value_string ptp_v2_org_smpte_subtype_vals[] = {
     {PTP_V2_OE_ORG_SMPTE_SUBTYPE_VERSION_TLV,  "Version"},
     {0,                                             NULL}
 };
 
-static const value_string ptp2_org_smpte_subypte_masterlockingstatus_vals[] = {
+static const value_string ptp_v2_org_smpte_subtype_masterlockingstatus_vals[] = {
     {0,  "Not in use"},
     {1,  "Free Run"},
     {2,  "Cold Locking"},
@@ -2460,7 +2466,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 /* Get the managementErrorId */
                 ptp_v2_mm_managementId = tvb_get_ntohs(tvb, PTP_V2_MM_TLV_MANAGEMENTERRORID_OFFSET);
                 col_add_fstr(pinfo->cinfo, COL_INFO, "Management Error Message (%s)",
-                    val_to_str_ext(ptp_v2_mm_managementId, &ptp2_managementErrorId_vals_ext, "Unknown Error Id %u"));
+                    val_to_str_ext(ptp_v2_mm_managementId, &ptp_v2_managementErrorId_vals_ext, "Unknown Error Id %u"));
                 break;
             }
             default:
@@ -5081,7 +5087,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_an_timesource,
           { "TimeSource",           "ptp.v2.timesource",
-            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ptp_v2_timesource_vals_ext, 0x00,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ptp_v2_timeSource_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_an_localstepsremoved,
@@ -5101,7 +5107,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_an_grandmasterclockaccuracy,
           { "grandmasterClockAccuracy",           "ptp.v2.an.grandmasterclockaccuracy",
-            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ptp_v2_clockaccuracy_vals_ext, 0x00,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ptp_v2_clockAccuracy_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_an_grandmasterclockvariance,
@@ -5134,12 +5140,12 @@ proto_register_ptp(void)
         /* Fields for ORGANIZATION_EXTENSION TLV */
         { &hf_ptp_v2_oe_tlv_organizationid,
           { "organizationId", "ptp.v2.an.oe.organizationId",
-            FT_UINT24, BASE_HEX, VALS(ptp2_organizationExtensionOrgId_vals), 0x00,
+            FT_UINT24, BASE_HEX, VALS(ptp_v2_organizationExtensionOrgId_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_oe_tlv_organizationsubtype,
           { "organizationSubType", "ptp.v2.an.oe.organizationSubType",
-            FT_UINT24, BASE_HEX, VALS(ptp2_org_iee_c37_238_subtype_vals), 0x00,
+            FT_UINT24, BASE_HEX, VALS(ptp_v2_org_iee_c37_238_subtype_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_oe_tlv_datafield,
@@ -5618,7 +5624,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_protocolAddress_networkProtocol,
           { "network protocol",           "ptp.v2.mm.networkProtocol",
-            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &ptp2_networkProtocol_vals_ext, 0x00,
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &ptp_v2_networkProtocol_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_protocolAddress_length,
@@ -5700,7 +5706,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_severityCode,
           { "severity code",           "ptp.v2.mm.severityCode",
-            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ptp2_severityCode_vals_ext, 0x00,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ptp_v2_severityCode_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_faultName,
@@ -5762,7 +5768,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_clockAccuracy,
           { "Clock accuracy",           "ptp.v2.mm.clockaccuracy",
-            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ptp_v2_clockaccuracy_vals_ext, 0x00,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ptp_v2_clockAccuracy_vals_ext, 0x00,
             NULL, HFILL }
         },
 
@@ -5798,7 +5804,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_clockaccuracy,
           { "Clock accuracy",           "ptp.v2.mm.clockaccuracy",
-            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ptp_v2_clockaccuracy_vals_ext, 0x00,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ptp_v2_clockAccuracy_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_clockvariance,
@@ -5868,7 +5874,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_grandmasterclockaccuracy,
           { "Grandmaster clock accuracy", "ptp.v2.mm.grandmasterclockaccuracy",
-            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ptp_v2_clockaccuracy_vals_ext, 0x00,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ptp_v2_clockAccuracy_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_grandmasterclockvariance,
@@ -5918,7 +5924,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_timesource,
           { "TimeSource",           "ptp.v2.mm.timesource",
-            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ptp_v2_timesource_vals_ext, 0x00,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ptp_v2_timeSource_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_offset_ns,
@@ -5948,7 +5954,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_portState,
           { "Port state",           "ptp.v2.mm.portState",
-            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ptp2_portState_vals_ext, 0x00,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ptp_v2_portState_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_logMinDelayReqInterval,
@@ -5983,7 +5989,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_delayMechanism,
           { "Delay mechanism",           "ptp.v2.mm.delayMechanism",
-            FT_UINT8, BASE_DEC, VALS(ptp2_delayMechanism_vals), 0x00,
+            FT_UINT8, BASE_DEC, VALS(ptp_v2_delayMechanism_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_logMinPdelayReqInterval,
@@ -6009,7 +6015,7 @@ proto_register_ptp(void)
 
         { &hf_ptp_v2_mm_managementErrorId,
           { "managementErrorId",  "ptp.v2.mm.managementErrorId",
-            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &ptp2_managementErrorId_vals_ext, 0x00,
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &ptp_v2_managementErrorId_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_displayData,
@@ -6089,7 +6095,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_oe_tlv_smpte_subtype,
           { "SMPTE SubType", "ptp.v2.oe.smpte.SubType",
-            FT_UINT24, BASE_HEX, VALS(ptp2_org_smpte_subtype_vals), 0x00,
+            FT_UINT24, BASE_HEX, VALS(ptp_v2_org_smpte_subtype_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_oe_tlv_subtype_smpte_data,
@@ -6114,7 +6120,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_oe_tlv_subtype_smpte_masterlockingstatus,
           { "masterLockingStatus", "ptp.v2.oe.smpte.masterlockingstatus",
-            FT_UINT8, BASE_DEC, VALS(ptp2_org_smpte_subypte_masterlockingstatus_vals), 0x00,
+            FT_UINT8, BASE_DEC, VALS(ptp_v2_org_smpte_subtype_masterlockingstatus_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags,
