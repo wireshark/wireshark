@@ -144,11 +144,10 @@ static gboolean wlan_check_checksum = TRUE;
 static gboolean wlan_ignore_draft_ht = FALSE;
 
 /* Ignore the Protection bit; assume packet is decrypted */
-/* (The term "WEP" is historical.) */
-#define WLAN_IGNORE_WEP_NO     0
-#define WLAN_IGNORE_WEP_WO_IV  1
-#define WLAN_IGNORE_WEP_W_IV   2
-static gint wlan_ignore_wep = WLAN_IGNORE_WEP_NO;
+#define WLAN_IGNORE_PROT_NO     0
+#define WLAN_IGNORE_PROT_WO_IV  1
+#define WLAN_IGNORE_PROT_W_IV   2
+static gint wlan_ignore_prot = WLAN_IGNORE_PROT_NO;
 
 /* Table for reassembly of fragments. */
 static reassembly_table wlan_reassembly_table;
@@ -5172,10 +5171,10 @@ static const fragment_items frag_items = {
   "fragments"
 };
 
-static const enum_val_t wlan_ignore_wep_options[] = {
-  { "no",         "No",               WLAN_IGNORE_WEP_NO    },
-  { "without_iv", "Yes - without IV", WLAN_IGNORE_WEP_WO_IV },
-  { "with_iv",    "Yes - with IV",    WLAN_IGNORE_WEP_W_IV  },
+static const enum_val_t wlan_ignore_prot_options[] = {
+  { "no",         "No",               WLAN_IGNORE_PROT_NO    },
+  { "without_iv", "Yes - without IV", WLAN_IGNORE_PROT_WO_IV },
+  { "with_iv",    "Yes - with IV",    WLAN_IGNORE_PROT_W_IV  },
   { NULL,         NULL,               0                     }
 };
 
@@ -5653,7 +5652,7 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
 
   fcf = pletoh16 (&pd[offset]);
 
-  if (IS_PROTECTED(FCF_FLAGS(fcf)) && (wlan_ignore_wep == WLAN_IGNORE_WEP_NO))
+  if (IS_PROTECTED(FCF_FLAGS(fcf)) && (wlan_ignore_prot == WLAN_IGNORE_PROT_NO))
     return FALSE;
 
   switch (COMPOSE_FRAME_TYPE (fcf)) {
@@ -18056,7 +18055,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 
   if (IS_PROTECTED(FCF_FLAGS(fcf))
       && !phdr->decrypted
-      && (wlan_ignore_wep != WLAN_IGNORE_WEP_WO_IV)) {
+      && (wlan_ignore_prot != WLAN_IGNORE_PROT_WO_IV)) {
     /*
      * It's a WEP or WPA encrypted frame, and it hasn't already been
      * decrypted; dissect the protections parameters and decrypt the data,
@@ -18297,7 +18296,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       }
       /* Davide Schiera (2006-11-21) ----------------------------------  */
 
-      if ((!(option_flags & IEEE80211_COMMON_OPT_IS_CENTRINO)) && (wlan_ignore_wep == WLAN_IGNORE_WEP_NO)) {
+      if ((!(option_flags & IEEE80211_COMMON_OPT_IS_CENTRINO)) && (wlan_ignore_prot == WLAN_IGNORE_PROT_NO)) {
         /* Some wireless drivers (such as Centrino) WEP payload already decrypted */
         call_data_dissector(next_tvb, pinfo, tree);
         goto end_of_wlan;
@@ -27420,7 +27419,7 @@ proto_register_ieee80211 (void)
     "Ignore the Protection bit",
     "Some 802.11 cards leave the Protection bit set even though the packet is decrypted, "
     "and some also leave the IV (initialization vector).",
-    &wlan_ignore_wep, wlan_ignore_wep_options, TRUE);
+    &wlan_ignore_prot, wlan_ignore_prot_options, TRUE);
 
   prefs_register_obsolete_preference(wlan_module, "wep_keys");
 
