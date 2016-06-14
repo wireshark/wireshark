@@ -1666,6 +1666,7 @@ DISSECTOR_INCLUDES = \
 	packet-ppi-geolocation-common.h	\
 	packet-ppp.h		\
 	packet-pres.h		\
+	packet-ptp.h		\
 	packet-ptpip.h		\
 	packet-pw-atm.h		\
 	packet-pw-common.h	\
