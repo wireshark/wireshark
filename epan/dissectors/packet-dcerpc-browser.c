@@ -104,7 +104,7 @@ dissect_browser_TYPE_4_data(tvbuff_t *tvb, int offset,
 		ENC_NA);
 	offset += len;
 
-	return len;
+	return offset;
 }
 static int
 dissect_browser_TYPE_4(tvbuff_t *tvb, int offset,
@@ -149,7 +149,7 @@ dissect_browser_TYPE_3_data(tvbuff_t *tvb, int offset,
 		ENC_NA);
 	offset += len;
 
-	return len;
+	return offset;
 }
 static int
 dissect_browser_TYPE_3(tvbuff_t *tvb, int offset,
@@ -751,7 +751,7 @@ dissect_browser_TYPE_9_data(tvbuff_t *tvb, int offset,
 		ENC_NA);
 	offset += len;
 
-	return len;
+	return offset;
 }
 static int
 dissect_browser_TYPE_9(tvbuff_t *tvb, int offset,
