@@ -121,6 +121,8 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_EPL_V2,               "ETHERNET Powerlink v2" },
 	{ ETHERTYPE_XIMETA,               "XiMeta Technology" },
 	{ ETHERTYPE_CSM_ENCAPS,           "CSM_ENCAPS Protocol" },
+	{ ETHERTYPE_EXPERIMENTAL_ETH1,    "Local Experimental Ethertype 1" },
+	{ ETHERTYPE_EXPERIMENTAL_ETH2,    "Local Experimental Ethertype 2" },
 	{ ETHERTYPE_IEEE802_OUI_EXTENDED, "IEEE 802a OUI Extended Ethertype" },
 	{ ETHERTYPE_IEC61850_GOOSE,       "IEC 61850/GOOSE" },
 	{ ETHERTYPE_IEC61850_GSE,         "IEC 61850/GSE management services" },

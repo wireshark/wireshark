@@ -449,6 +449,7 @@ set(DISSECTOR_SRC
 	packet-cisco-metadata.c
 	packet-cisco-oui.c
 	packet-cisco-sm.c
+	packet-cisco-ttag.c
 	packet-cisco-wids.c
 	packet-classicstun.c
 	packet-clearcase.c

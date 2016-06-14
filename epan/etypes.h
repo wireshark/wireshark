@@ -385,6 +385,13 @@ extern "C" {
 						    equipment by using an EtherType Field to
 						    accomplish authentication. */
 
+#ifndef ETHERTYPE_EXPERIMENTAL_ETH1
+#define ETHERTYPE_EXPERIMENTAL_ETH1	0x88B5	/* IEEE Std 802 - Local Experimental Ethertype 1. */
+#endif
+
+#ifndef ETHERTYPE_EXPERIMENTAL_ETH2
+#define ETHERTYPE_EXPERIMENTAL_ETH2	0x88B6	/* IEEE Std 802 - Local Experimental Ethertype 2. */
+#endif
 
 #ifndef ETHERTYPE_IEEE802_OUI_EXTENDED
 #define ETHERTYPE_IEEE802_OUI_EXTENDED	0x88B7	/* IEEE 802a OUI Extended Ethertype */
