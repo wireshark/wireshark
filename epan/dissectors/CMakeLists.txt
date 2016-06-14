@@ -240,14 +240,18 @@ set(DIRTY_CORBA_IDL_DISSECTOR_SRC
 )
 
 set(CORBA_IDL_DISSECTOR_SRC
-	${DIRTY_CORBA_IDL_DISSECTOR_SRC}
 	packet-coseventcomm.c
 )
 
-source_group(dissectors-corba FILES ${CORBA_IDL_DISSECTOR_SRC})
+set(CORBA_IDL_DISSECTOR_FILES
+	${CORBA_IDL_DISSECTOR_SRC}
+	${DIRTY_CORBA_IDL_DISSECTOR_SRC}
+)
+
+source_group(dissectors-corba FILES ${CORBA_IDL_DISSECTOR_FILES})
 
 add_library(dissectors-corba OBJECT
-	${CORBA_IDL_DISSECTOR_SRC}
+	${CORBA_IDL_DISSECTOR_FILES}
 )
 
 set_target_properties(dissectors-corba PROPERTIES
@@ -1476,7 +1480,7 @@ source_group(dissectors FILES ${DISSECTOR_FILES})
 register_dissector_files(register.c
 	dissectors
 	${DISSECTOR_FILES}
-	${CORBA_IDL_DISSECTOR_SRC}
+	${CORBA_IDL_DISSECTOR_FILES}
 )
 
 set(CLEAN_FILES
@@ -1509,7 +1513,7 @@ set_target_properties(dissectors PROPERTIES
 
 set(CHECKAPI_FILE_LIST "${CMAKE_CURRENT_BINARY_DIR}/files.txt")
 file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
-file(WRITE "${CHECKAPI_FILE_LIST}" "${DISSECTOR_FILES}" "${CORBA_IDL_DISSECTOR_SRC}")
+file(WRITE "${CHECKAPI_FILE_LIST}" "${DISSECTOR_FILES}" "${CORBA_IDL_DISSECTOR_FILES}")
 CHECKAPI(
 	NAME
 	  dissectors
