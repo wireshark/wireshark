@@ -162,24 +162,27 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, packet_info *pinfo,
 		rpc_call_info_value *civ=(rpc_call_info_value *)data;
 
 		if(civ->request && (civ->proc==1)){
-			const gchar *host;
-			unsigned char *name;
-			guint32 len;
-			unsigned char *ptr;
+			guint32 len_field;
 
-			host=address_to_str(wmem_packet_scope(), &pinfo->dst);
-			len=tvb_get_ntohl(tvb, offset);
-			if (len < ITEM_LABEL_LENGTH) {
-				name=(unsigned char *)g_malloc(strlen(host)+1+len+1+200);
-				ptr=name;
-				memcpy(ptr, host, strlen(host));
-				ptr+=strlen(host);
-				*ptr++=':';
-				tvb_memcpy(tvb, ptr, offset+4, len);
-				ptr+=len;
-				*ptr=0;
+			len_field = tvb_get_ntohl(tvb, offset);
+			if (len_field < ITEM_LABEL_LENGTH) {
+				gchar *name, *ptr;
+				int addr_len, name_len;
 
-				nfs_name_snoop_add_name(civ->xid, tvb, -1, (gint)strlen(name), 0, 0, name);
+				name = address_to_str(wmem_packet_scope(), &pinfo->dst);
+				addr_len = (int)strlen(name);
+				/* IP address, colon, path, terminating 0 */
+				name_len = addr_len + 1 + len_field + 1;
+
+				name = (gchar *)wmem_realloc(wmem_packet_scope(),
+						(void *)name, name_len);
+				ptr = name + addr_len;
+				*ptr++ = ':';
+				tvb_memcpy(tvb, ptr, offset+4, len_field);
+				ptr += len_field;
+				*ptr = 0;
+
+				nfs_name_snoop_add_name(civ->xid, tvb, -1, name_len, 0, 0, name);
 			}
 		}
 	}
