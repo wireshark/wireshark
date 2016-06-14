@@ -2470,6 +2470,13 @@ main(int argc, char *argv[])
     g_thread_init(NULL);
 #endif
 
+    /* Disable liboverlay scrollbar which broke Wireshark on Ubuntu */
+#if !GTK_CHECK_VERSION(3,16,0)
+    if (NULL == g_getenv("LIBOVERLAY_SCROLLBAR")) {
+        g_setenv("LIBOVERLAY_SCROLLBAR", "0", FALSE);
+    }
+#endif
+
     /* Set the current locale according to the program environment.
      * We haven't localized anything, but some GTK widgets are localized
      * (the file selection dialogue, for example).
