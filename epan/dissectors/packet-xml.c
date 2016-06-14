@@ -59,6 +59,7 @@ static int hf_comment = -1;
 static int hf_xmlpi = -1;
 static int hf_dtd_tag = -1;
 static int hf_doctype = -1;
+static int hf_cdatasection = -1;
 
 static expert_field ei_xml_closing_unopened_tag = EI_INIT;
 static expert_field ei_xml_closing_unopened_xmpli_tag = EI_INIT;
@@ -684,6 +685,13 @@ static void init_xml_parser(void)
                                       TP_UNTIL_INCLUDE),
                                NULL);
 
+    tvbparse_wanted_t *want_cdatasection = tvbparse_set_seq(hf_cdatasection, NULL, NULL, after_token,
+                               tvbparse_string(-1, "<![CDATA[", NULL, NULL, NULL),
+                               tvbparse_until(-1, NULL, NULL, NULL,
+                                       tvbparse_string(-1, "]]>", NULL, NULL, NULL),
+                                       TP_UNTIL_INCLUDE),
+                                NULL);
+
     tvbparse_wanted_t *want_xmlpi = tvbparse_set_seq(hf_xmlpi, NULL, before_xmpli, NULL,
                              tvbparse_string(-1, "<?", NULL, NULL, NULL),
                              want_name,
@@ -755,6 +763,7 @@ static void init_xml_parser(void)
 
     want = tvbparse_set_oneof(-1, NULL, NULL, NULL,
                   want_comment,
+                  want_cdatasection,
                   want_xmlpi,
                   want_closing_tag,
                   want_doctype_start,
@@ -767,6 +776,7 @@ static void init_xml_parser(void)
 
     want_heur = tvbparse_set_oneof(-1, NULL, NULL, NULL,
                        want_comment,
+                       want_cdatasection,
                        want_xmlpi,
                        want_doctype_start,
                        want_dtd_tag,
@@ -1369,6 +1379,11 @@ proto_register_xml(void)
     static hf_register_info hf_base[] = {
         { &hf_xmlpi,
           {"XMLPI", "xml.xmlpi",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_cdatasection,
+          {"CDATASection", "xml.cdatasection",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL }
         },
