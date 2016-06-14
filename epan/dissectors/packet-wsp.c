@@ -7335,7 +7335,8 @@ proto_register_sir(void)
         NULL,
         sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item), wsp_stat_fields,
         sizeof(wsp_stat_params)/sizeof(tap_param), wsp_stat_params,
-        NULL
+        NULL,
+        0
     };
 
 

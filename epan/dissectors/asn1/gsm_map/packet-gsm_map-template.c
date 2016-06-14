@@ -3120,7 +3120,8 @@ void proto_register_gsm_map(void) {
     NULL,
     sizeof(gsm_map_stat_fields)/sizeof(stat_tap_table_item), gsm_map_stat_fields,
     sizeof(gsm_map_stat_params)/sizeof(tap_param), gsm_map_stat_params,
-    NULL
+    NULL,
+    0
   };
 
   /* Register protocol */

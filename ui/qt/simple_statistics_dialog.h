@@ -49,6 +49,8 @@ private:
     static void tapReset(void *sd_ptr);
     static void tapDraw(void *sd_ptr);
 
+    ~SimpleStatisticsDialog();
+
 private slots:
     virtual void fillTree();
 

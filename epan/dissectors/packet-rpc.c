@@ -4354,7 +4354,8 @@ proto_register_rpc(void)
 		NULL,
 		sizeof(rpc_prog_stat_fields)/sizeof(stat_tap_table_item), rpc_prog_stat_fields,
 		sizeof(rpc_prog_stat_params)/sizeof(tap_param), rpc_prog_stat_params,
-		NULL
+		NULL,
+		0
 	};
 
 	proto_rpc = proto_register_protocol("Remote Procedure Call", "RPC", "rpc");

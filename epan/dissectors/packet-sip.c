@@ -6573,7 +6573,8 @@ void proto_register_sip(void)
       NULL,
       sizeof(sip_stat_fields)/sizeof(stat_tap_table_item), sip_stat_fields,
       sizeof(sip_stat_params)/sizeof(tap_param), sip_stat_params,
-      NULL
+      NULL,
+      0
     };
 
     /* UAT for header fields */

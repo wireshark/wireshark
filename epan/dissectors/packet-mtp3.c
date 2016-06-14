@@ -1060,7 +1060,8 @@ proto_register_mtp3(void)
     NULL,
     sizeof(mtp3_stat_fields)/sizeof(stat_tap_table_item), mtp3_stat_fields,
     sizeof(mtp3_stat_params)/sizeof(tap_param), mtp3_stat_params,
-    NULL
+    NULL,
+    0
   };
 
  /* Register the protocol name and description */

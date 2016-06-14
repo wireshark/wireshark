@@ -12763,7 +12763,8 @@ proto_register_ansi_a(void)
         NULL,
         sizeof(dtap_stat_fields)/sizeof(stat_tap_table_item), dtap_stat_fields,
         0, NULL,
-        NULL
+        NULL,
+        0
     };
 
     static stat_tap_table_ui bsmap_stat_table = {
@@ -12778,7 +12779,8 @@ proto_register_ansi_a(void)
         NULL,
         sizeof(bsmap_stat_fields)/sizeof(stat_tap_table_item), bsmap_stat_fields,
         0, NULL,
-        NULL
+        NULL,
+        0
     };
 
     memset((void *) ett_dtap_msg, -1, sizeof(ett_dtap_msg));

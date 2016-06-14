@@ -158,6 +158,7 @@ SimpleStatisticsDialog::SimpleStatisticsDialog(QWidget &parent, CaptureFile &cf,
     TapParameterDialog(parent, cf, help_topic),
     stu_(stu)
 {
+    stu->refcount++;
     setWindowSubtitle(stu_->title);
     loadGeometry(0, 0, stu_->title);
 
@@ -285,7 +286,15 @@ void SimpleStatisticsDialog::fillTree()
     tapDraw(&stat_data);
 
     removeTapListeners();
-    free_stat_tables(stu_, NULL, NULL);
+}
+
+SimpleStatisticsDialog::~SimpleStatisticsDialog()
+{
+    stu_->refcount--;
+    if (stu_->refcount == 0) {
+        if (stu_->tables)
+            free_stat_tables(stu_, NULL, NULL);
+    }
 }
 
 /*

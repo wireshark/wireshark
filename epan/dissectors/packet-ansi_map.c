@@ -19519,7 +19519,8 @@ void proto_register_ansi_map(void) {
         NULL,
         sizeof(stat_fields)/sizeof(stat_tap_table_item), stat_fields,
         0, NULL,
-        NULL
+        NULL,
+        0
     };
 
     /* Register protocol */

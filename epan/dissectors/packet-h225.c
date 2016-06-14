@@ -1565,7 +1565,7 @@ static const per_sequence_t H221NonStandard_sequence[] = {
 
 static int
 dissect_h225_H221NonStandard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 792 "./asn1/h225/h225.cnf"
+#line 790 "./asn1/h225/h225.cnf"
   t35CountryCode = 0;
   t35Extension = 0;
   manufacturerCode = 0;
@@ -1573,7 +1573,7 @@ dissect_h225_H221NonStandard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h225_H221NonStandard, H221NonStandard_sequence);
 
-#line 796 "./asn1/h225/h225.cnf"
+#line 794 "./asn1/h225/h225.cnf"
   h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
   proto_tree_add_uint(tree, hf_h221Manufacturer, tvb, (offset>>3)-4, 4, h221NonStandard);
 
@@ -1595,7 +1595,7 @@ static const per_choice_t NonStandardIdentifier_choice[] = {
 
 static int
 dissect_h225_NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 773 "./asn1/h225/h225.cnf"
+#line 771 "./asn1/h225/h225.cnf"
   gint32 value;
 
   nsiOID = "";
@@ -1624,7 +1624,7 @@ dissect_h225_NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_h225_T_nsp_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 807 "./asn1/h225/h225.cnf"
+#line 805 "./asn1/h225/h225.cnf"
   tvbuff_t *next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -1647,7 +1647,7 @@ static const per_sequence_t NonStandardParameter_sequence[] = {
 
 int
 dissect_h225_NonStandardParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 805 "./asn1/h225/h225.cnf"
+#line 803 "./asn1/h225/h225.cnf"
   nsp_handle = NULL;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -2046,7 +2046,7 @@ dissect_h225_PartyNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_h225_TBCD_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 902 "./asn1/h225/h225.cnf"
+#line 900 "./asn1/h225/h225.cnf"
   int min_len, max_len;
   gboolean has_extension;
 
@@ -2845,13 +2845,13 @@ static const per_sequence_t TunnelledProtocol_sequence[] = {
 
 int
 dissect_h225_TunnelledProtocol(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 750 "./asn1/h225/h225.cnf"
+#line 748 "./asn1/h225/h225.cnf"
   tpOID = "";
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h225_TunnelledProtocol, TunnelledProtocol_sequence);
 
-#line 752 "./asn1/h225/h225.cnf"
+#line 750 "./asn1/h225/h225.cnf"
   tp_handle = dissector_get_string_handle(tp_dissector_table, tpOID);
 
   return offset;
@@ -3835,7 +3835,7 @@ dissect_h225_CircuitIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_h225_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 864 "./asn1/h225/h225.cnf"
+#line 862 "./asn1/h225/h225.cnf"
   guint32 value_int = (guint32)-1;
   gef_ctx_t *gefx;
 
@@ -3853,7 +3853,7 @@ dissect_h225_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_h225_T_oid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 873 "./asn1/h225/h225.cnf"
+#line 871 "./asn1/h225/h225.cnf"
   const gchar *oid_str = NULL;
   gef_ctx_t *gefx;
 
@@ -3883,7 +3883,7 @@ static const per_choice_t GenericIdentifier_choice[] = {
 
 int
 dissect_h225_GenericIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 850 "./asn1/h225/h225.cnf"
+#line 848 "./asn1/h225/h225.cnf"
   gef_ctx_t *gefx;
   proto_item* ti;
 
@@ -3891,7 +3891,7 @@ dissect_h225_GenericIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                  ett_h225_GenericIdentifier, GenericIdentifier_choice,
                                  NULL);
 
-#line 853 "./asn1/h225/h225.cnf"
+#line 851 "./asn1/h225/h225.cnf"
   gef_ctx_update_key(gef_ctx_get(actx->private_data));
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
@@ -3908,7 +3908,7 @@ dissect_h225_GenericIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_h225_T_raw(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 883 "./asn1/h225/h225.cnf"
+#line 881 "./asn1/h225/h225.cnf"
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;
   proto_item* ti;
@@ -4026,7 +4026,7 @@ static const per_sequence_t EnumeratedParameter_sequence[] = {
 
 static int
 dissect_h225_EnumeratedParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 832 "./asn1/h225/h225.cnf"
+#line 830 "./asn1/h225/h225.cnf"
   gef_ctx_t *parent_gefx;
 
   parent_gefx = gef_ctx_get(actx->private_data);
@@ -4035,7 +4035,7 @@ dissect_h225_EnumeratedParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h225_EnumeratedParameter, EnumeratedParameter_sequence);
 
-#line 837 "./asn1/h225/h225.cnf"
+#line 835 "./asn1/h225/h225.cnf"
   actx->private_data = parent_gefx;
 
   return offset;
@@ -4050,7 +4050,7 @@ static const per_sequence_t GenericData_sequence[] = {
 
 int
 dissect_h225_GenericData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 818 "./asn1/h225/h225.cnf"
+#line 816 "./asn1/h225/h225.cnf"
   void *priv_data = actx->private_data;
   gef_ctx_t *gefx;
 
@@ -4064,7 +4064,7 @@ dissect_h225_GenericData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h225_GenericData, GenericData_sequence);
 
-#line 828 "./asn1/h225/h225.cnf"
+#line 826 "./asn1/h225/h225.cnf"
   actx->private_data = priv_data;
 
   return offset;
@@ -4103,13 +4103,13 @@ dissect_h225_CircuitInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_h225_FeatureDescriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 842 "./asn1/h225/h225.cnf"
+#line 840 "./asn1/h225/h225.cnf"
   void *priv_data = actx->private_data;
   actx->private_data = gef_ctx_alloc(NULL, "FeatureDescriptor");
 
   offset = dissect_h225_GenericData(tvb, offset, actx, tree, hf_index);
 
-#line 845 "./asn1/h225/h225.cnf"
+#line 843 "./asn1/h225/h225.cnf"
   actx->private_data = priv_data;
 
   return offset;
@@ -5105,7 +5105,7 @@ dissect_h225_CallLinkage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_h225_T_messageContent_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 760 "./asn1/h225/h225.cnf"
+#line 758 "./asn1/h225/h225.cnf"
   tvbuff_t *next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -5141,7 +5141,7 @@ static const per_sequence_t T_tunnelledSignallingMessage_sequence[] = {
 
 static int
 dissect_h225_T_tunnelledSignallingMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 758 "./asn1/h225/h225.cnf"
+#line 756 "./asn1/h225/h225.cnf"
   tp_handle = NULL;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -11762,7 +11762,8 @@ void proto_register_h225(void) {
     NULL,
     sizeof(h225_stat_fields)/sizeof(stat_tap_table_item), h225_stat_fields,
     sizeof(h225_stat_params)/sizeof(tap_param), h225_stat_params,
-    NULL
+    NULL,
+    0
   };
 
   module_t *h225_module;

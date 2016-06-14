@@ -8553,7 +8553,8 @@ proto_register_bootp(void)
 		NULL,
 		sizeof(bootp_stat_fields)/sizeof(stat_tap_table_item), bootp_stat_fields,
 		sizeof(bootp_stat_params)/sizeof(tap_param), bootp_stat_params,
-		NULL
+		NULL,
+		0
 	};
 
 	module_t *bootp_module;

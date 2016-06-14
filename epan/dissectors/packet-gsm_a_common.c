@@ -4680,7 +4680,8 @@ proto_register_gsm_a_common(void)
         NULL,
         sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
         sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
-        NULL
+        NULL,
+        0
     };
 
     static stat_tap_table_ui gsm_a_dtap_mm_stat_table = {
@@ -4695,7 +4696,8 @@ proto_register_gsm_a_common(void)
         NULL,
         sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
         sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
-        NULL
+        NULL,
+        0
     };
 
     static stat_tap_table_ui gsm_a_dtap_rr_stat_table = {
@@ -4710,7 +4712,8 @@ proto_register_gsm_a_common(void)
         NULL,
         sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
         sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
-        NULL
+        NULL,
+        0
     };
 
     static stat_tap_table_ui gsm_a_dtap_cc_stat_table = {
@@ -4725,7 +4728,8 @@ proto_register_gsm_a_common(void)
         NULL,
         sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
         sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
-        NULL
+        NULL,
+        0
     };
 
     static stat_tap_table_ui gsm_a_dtap_gmm_stat_table = {
@@ -4740,7 +4744,8 @@ proto_register_gsm_a_common(void)
         NULL,
         sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
         sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
-        NULL
+        NULL,
+        0
     };
 
     static stat_tap_table_ui gsm_a_dtap_sm_stat_table = {
@@ -4755,7 +4760,8 @@ proto_register_gsm_a_common(void)
         NULL,
         sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
         sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
-        NULL
+        NULL,
+        0
     };
 
     static stat_tap_table_ui gsm_a_dtap_sms_stat_table = {
@@ -4770,7 +4776,8 @@ proto_register_gsm_a_common(void)
         NULL,
         sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
         sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
-        NULL
+        NULL,
+        0
     };
 
     static stat_tap_table_ui gsm_a_dtap_tp_stat_table = {
@@ -4785,7 +4792,8 @@ proto_register_gsm_a_common(void)
         NULL,
         sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
         sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
-        NULL
+        NULL,
+        0
     };
 
     static stat_tap_table_ui gsm_a_dtap_ss_stat_table = {
@@ -4800,7 +4808,8 @@ proto_register_gsm_a_common(void)
         NULL,
         sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
         sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
-        NULL
+        NULL,
+        0
     };
 
     static stat_tap_table_ui gsm_a_sacch_rr_stat_table = {
@@ -4815,7 +4824,8 @@ proto_register_gsm_a_common(void)
         NULL,
         sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
         sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
-        NULL
+        NULL,
+        0
     };
 
     last_offset = NUM_INDIVIDUAL_ELEMS;

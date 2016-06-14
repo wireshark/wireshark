@@ -31113,7 +31113,8 @@ void proto_register_gsm_map(void) {
     NULL,
     sizeof(gsm_map_stat_fields)/sizeof(stat_tap_table_item), gsm_map_stat_fields,
     sizeof(gsm_map_stat_params)/sizeof(tap_param), gsm_map_stat_params,
-    NULL
+    NULL,
+    0
   };
 
   /* Register protocol */
@@ -31221,7 +31222,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 3148 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3149 "./asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

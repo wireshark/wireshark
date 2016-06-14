@@ -10663,7 +10663,8 @@ void proto_register_camel(void) {
     NULL,
     sizeof(camel_stat_fields)/sizeof(stat_tap_table_item), camel_stat_fields,
     sizeof(camel_stat_params)/sizeof(tap_param), camel_stat_params,
-    NULL
+    NULL,
+    0
   };
 
   /* Register protocol */

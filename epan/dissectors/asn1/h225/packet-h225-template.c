@@ -862,7 +862,8 @@ void proto_register_h225(void) {
     NULL,
     sizeof(h225_stat_fields)/sizeof(stat_tap_table_item), h225_stat_fields,
     sizeof(h225_stat_params)/sizeof(tap_param), h225_stat_params,
-    NULL
+    NULL,
+    0
   };
 
   module_t *h225_module;

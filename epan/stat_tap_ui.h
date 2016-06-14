@@ -149,6 +149,7 @@ typedef struct _stat_tap_table_ui {
     size_t                 nparams;    /* number of parameters */
     tap_param             *params;     /* pointer to table of parameter info */
     GArray                *tables;     /* An array of stat_tap_table* */
+    guint                  refcount;   /* a reference count for deallocation */
 } stat_tap_table_ui;
 
 
