@@ -220,8 +220,8 @@ register_dissector_param_value(const char *name, const char *value)
 	}
 	dpv->next=dissector_param_list;
 	dissector_param_list=dpv;
-	dpv->name=g_strndup(name, strlen(name));
-	dpv->value=g_strndup(value, strlen(value));
+	dpv->name=g_strdup(name);
+	dpv->value=g_strdup(value);
 }
 
 static const char *
@@ -783,12 +783,12 @@ register_new_type(const char *name, const char *dissectorname, const char *ft_ty
 		exit(10);
 	}
 	new_type->next=type_list;
-	new_type->name=g_strndup(name, strlen(name));
-	new_type->dissector=g_strndup(dissectorname, strlen(dissectorname));
+	new_type->name=g_strdup(name);
+	new_type->dissector=g_strdup(dissectorname);
 	new_type->ft_type=g_strndup(ft_type, strlen(ft_type));
 	new_type->base_type=g_strndup(base_type, strlen(base_type));
-	new_type->mask=g_strndup(mask, strlen(mask));
-	new_type->vals=g_strndup(valsstring, strlen(valsstring));
+	new_type->mask=g_strdup(mask);
+	new_type->vals=g_strdup(valsstring);
 	new_type->alignment=alignment;
 	type_list=new_type;
 
@@ -1020,7 +1020,7 @@ static void tokenize(FILE *fh)
 				insidequote=0;
 				qs[qspos++]='"';
 				qs[qspos]=0;
-				pushtoken(g_strndup(qs, strlen(qs)));
+				pushtoken(g_strdup(qs));
 				continue;
 			} else {
 				qs[qspos++]=(char)ch;
@@ -1042,7 +1042,7 @@ static void tokenize(FILE *fh)
 			if(insidetoken){
 				insidetoken=0;
 				token[tokenpos]=0;
-				pushtoken(g_strndup(token, strlen(token)));
+				pushtoken(g_strdup(token));
 			}
 			line[linepos]=0;
 
@@ -1054,7 +1054,7 @@ static void tokenize(FILE *fh)
 			if(insidetoken){
 				insidetoken=0;
 				token[tokenpos]=0;
-				pushtoken(g_strndup(token, strlen(token)));
+				pushtoken(g_strdup(token));
 			}
 			break;
 		case '[':
@@ -1068,11 +1068,11 @@ static void tokenize(FILE *fh)
 			if(insidetoken){
 				insidetoken=0;
 				token[tokenpos]=0;
-				pushtoken(g_strndup(token, strlen(token)));
+				pushtoken(g_strdup(token));
 			}
 			token[0]=(char)ch;
 			token[1]=0;
-			pushtoken(g_strndup(token, strlen(token)));
+			pushtoken(g_strdup(token));
 			break;
 		default:
 			if(!insidetoken){
@@ -1708,7 +1708,7 @@ static void parsetypedefstruct(int pass)
 			const char *hf;
 
 			g_snprintf(tmpstr, BASE_BUFFER_SIZE, "%s_dissect_%s_%s", ifname, struct_name, field_name);
-			ptmpstr=g_strndup(tmpstr, 26);
+			ptmpstr=g_strdup(tmpstr);
 
 			if(check_if_to_emit(tmpstr)){
 			  g_snprintf(filter_name, BASE_BUFFER_SIZE, "%s.%s.%s", ifname, struct_name, field_name);
@@ -1741,7 +1741,7 @@ static void parsetypedefstruct(int pass)
 				  FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
 				}
 
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 			} else if(fixed_array_size){
 				g_snprintf(tmpstr, BASE_BUFFER_SIZE, "fixedarray_%s", ptmpstr);
 				if(check_if_to_emit(tmpstr)){
@@ -1759,7 +1759,7 @@ static void parsetypedefstruct(int pass)
 				} else {
 				  FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
 				}
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 			}
 
 			/* handle switch_is */
@@ -1780,7 +1780,7 @@ static void parsetypedefstruct(int pass)
 				} else {
 				  FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
 				}
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 				break;
 			  case BI_LENGTH_IS:
 				g_snprintf(tmpstr, BASE_BUFFER_SIZE, "uvarray_%s", ptmpstr);
@@ -1795,7 +1795,7 @@ static void parsetypedefstruct(int pass)
 				} else {
 				  FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
 				}
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 				break;
 			  case BI_SIZE_IS|BI_LENGTH_IS:
 				g_snprintf(tmpstr, BASE_BUFFER_SIZE, "ucvarray_%s", ptmpstr);
@@ -1810,7 +1810,7 @@ static void parsetypedefstruct(int pass)
 				} else {
 				  FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
 				}
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 				break;
 			  default:
 				FPRINTF(stderr, "ERROR: typedefstruct can not handle this combination of sizeis/lengthis\n");
@@ -1835,20 +1835,20 @@ static void parsetypedefstruct(int pass)
 				  FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
 				}
 
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 			}
 		}
 
 		if(pass==1){
 			g_snprintf(tmpstr, BASE_BUFFER_SIZE, "%s_dissect_%s_%s", ifname, struct_name, field_name);
-			ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+			ptmpstr=g_strdup(tmpstr);
 
 			/* handle fixedsizearrays */
 			if(is_array_of_pointers){
 				pointer_type=pi->type;
 				pi=pi->next;
 				g_snprintf(tmpstr, BASE_BUFFER_SIZE, "%s_%s", pointer_type, ptmpstr);
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 			} else if(fixed_array_size){
 				g_snprintf(tmpstr, BASE_BUFFER_SIZE, "fixedarray_%s", ptmpstr);
 				ptmpstr=g_strndup(tmpstr,  strlen(tmpstr));
@@ -1861,15 +1861,15 @@ static void parsetypedefstruct(int pass)
 				break;
 			  case BI_SIZE_IS:
 				g_snprintf(tmpstr, BASE_BUFFER_SIZE, "ucarray_%s", ptmpstr);
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 				break;
 			  case BI_LENGTH_IS:
 				g_snprintf(tmpstr, BASE_BUFFER_SIZE, "uvarray_%s", ptmpstr);
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 				break;
 			  case BI_SIZE_IS|BI_LENGTH_IS:
 				g_snprintf(tmpstr, BASE_BUFFER_SIZE, "ucvarray_%s", ptmpstr);
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 				break;
 			  default:
 				FPRINTF(stderr, "ERROR: typedefstruct can not handle this combination of sizeis/lengthis\n");
@@ -1882,7 +1882,7 @@ static void parsetypedefstruct(int pass)
 				pointer_type=pi->type;
 				pi=pi->next;
 				g_snprintf(tmpstr, BASE_BUFFER_SIZE, "%s_%s", pointer_type, ptmpstr);
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 			}
 
 			FPRINTF(eth_code, "    offset=%s(tvb, offset, pinfo, tree, di, drep);\n", ptmpstr);
@@ -2178,7 +2178,7 @@ case2str(const char *str)
 	if(str[0]!='-'){
 		return str;
 	}
-	newstr=g_strndup(str, strlen(str));
+	newstr=g_strdup(str);
 	newstr[0]='m';
 	return newstr;
 }
@@ -2416,7 +2416,7 @@ static void parsetypedefunion(int pass)
 			const char *hf;
 
 			g_snprintf(tmpstr, BASE_BUFFER_SIZE, "%s_dissect_union_%s_%s_%s", ifname, union_name, case2str(bi->case_name), ti->str);
-			ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+			ptmpstr=g_strdup(tmpstr);
 
 			g_snprintf(filter_name, BASE_BUFFER_SIZE, "%s.%s.%s", ifname, union_name, ti->str);
 			hf=register_hf_field(hf_index, ti->str, filter_name, type_item->ft_type, type_item->base_type, type_item->vals, type_item->mask, "");
@@ -2441,7 +2441,7 @@ static void parsetypedefunion(int pass)
 				FPRINTF(eth_code, "}\n");
 				FPRINTF(eth_code, "\n");
 
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 
 			}
 		}
@@ -2452,7 +2452,7 @@ static void parsetypedefunion(int pass)
 			ptmpstr=g_strndup(tmpstr, 26);
 			while(num_pointers--){
 				g_snprintf(tmpstr, BASE_BUFFER_SIZE, "%s_%s", ptmpstr, "unique");
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 			}
 
 			if(bi->flags&BI_CASE_DEFAULT){
@@ -2657,7 +2657,7 @@ static void parsefunction(int pass)
 			const char *hf;
 
 			g_snprintf(tmpstr, BASE_BUFFER_SIZE, "%s_dissect_%s_%s", ifname, function_name, ti->str);
-			ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+			ptmpstr=g_strdup(tmpstr);
 
 			g_snprintf(filter_name, BASE_BUFFER_SIZE, "%s.%s.%s", ifname, function_name, ti->str);
 			hf=register_hf_field(hf_index, ti->str, filter_name, type_item->ft_type, type_item->base_type, type_item->vals, type_item->mask, "");
@@ -2686,7 +2686,7 @@ static void parsefunction(int pass)
 				FPRINTF(eth_code, "    return offset;\n");
 				FPRINTF(eth_code, "}\n");
 				FPRINTF(eth_code, "\n");
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 				break;
 			  case BI_SIZE_IS:
 				g_snprintf(tmpstr, BASE_BUFFER_SIZE, "ucarray_%s", ptmpstr);
@@ -2697,7 +2697,7 @@ static void parsefunction(int pass)
 				FPRINTF(eth_code, "    return offset;\n");
 				FPRINTF(eth_code, "}\n");
 				FPRINTF(eth_code, "\n");
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 				break;
 			  default:
 				FPRINTF(stderr, "ERROR: typedeffunction can not handle this combination of sizeis/lengthis\n");
@@ -2718,14 +2718,14 @@ static void parsefunction(int pass)
 				FPRINTF(eth_code, "}\n");
 				FPRINTF(eth_code, "\n");
 
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 
 			}
 		}
 
 		if((pass==1)||(pass==2)){
 			g_snprintf(tmpstr, BASE_BUFFER_SIZE, "%s_dissect_%s_%s", ifname, function_name, ti->str);
-			ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+			ptmpstr=g_strdup(tmpstr);
 
 			if(bi){
 			  switch(bi->flags&(BI_SIZE_IS|BI_LENGTH_IS)){
@@ -2733,11 +2733,11 @@ static void parsefunction(int pass)
 				break;
 			  case BI_SIZE_IS|BI_LENGTH_IS:
 				g_snprintf(tmpstr, BASE_BUFFER_SIZE, "ucvarray_%s", ptmpstr);
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 				break;
 			  case BI_SIZE_IS:
 				g_snprintf(tmpstr, BASE_BUFFER_SIZE, "ucarray_%s", ptmpstr);
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 				break;
 			  default:
 				FPRINTF(stderr, "ERROR: typedeffunction can not handle this combination of sizeis/lengthis\n");
@@ -2750,7 +2750,7 @@ static void parsefunction(int pass)
 				pointer_type=pi->type;
 				pi=pi->next;
 				g_snprintf(tmpstr, BASE_BUFFER_SIZE, "%s_%s", pointer_type, ptmpstr);
-				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 			}
 
 			if((pass==1)&&(bi->flags&BI_IN)){
@@ -3081,7 +3081,7 @@ str_read_string(char *str, char **name)
 	while(1){
 		if(!*str){
 			*strptr=0;
-			*name=g_strndup(tmpstr, strlen(tmpstr));
+			*name=g_strdup(tmpstr);
 			return str;
 		}
 		if(skip_blanks){
@@ -3102,12 +3102,12 @@ str_read_string(char *str, char **name)
 				continue;
 			}
 			*strptr=0;
-			*name=g_strndup(tmpstr, strlen(tmpstr));
+			*name=g_strdup(tmpstr);
 			return str;
 		}
 		if( (*str=='"') || (*str=='\n') ){
 			*strptr=0;
-			*name=g_strndup(tmpstr, strlen(tmpstr));
+			*name=g_strdup(tmpstr);
 			return ++str;
 		}
 		*strptr++ = *str++;
