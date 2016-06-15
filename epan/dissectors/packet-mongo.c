@@ -263,12 +263,13 @@ dissect_bson_document(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
 
   if (nest_level > BSON_MAX_NESTING) {
       expert_add_info_format(pinfo, ti, &ei_mongo_document_recursion_exceeded, "BSON document recursion exceeds %u", BSON_MAX_NESTING);
-      return document_length;
+      /* return the number of bytes we consumed, these are at least the 4 bytes for the length field */
+      return MAX(4, document_length);
   }
 
   if (document_length < 5) {
       expert_add_info_format(pinfo, ti, &ei_mongo_document_length_bad, "BSON document length too short: %u", document_length);
-      return document_length;
+      return MAX(4, document_length); /* see the comment above */
   }
 
   if (document_length > BSON_MAX_DOC_SIZE) {
