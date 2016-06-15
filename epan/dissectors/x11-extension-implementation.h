@@ -3745,34 +3745,34 @@ static const value_string glx_render_op_name[] = {
 static void dispatch_glx_render(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order, int length)
 {
     while (length >= 4) {
-	guint32 op, len;
-	int next;
-	proto_item *ti;
-	proto_tree *tt;
+        guint32 op, len;
+        int next;
+        proto_item *ti;
+        proto_tree *tt;
 
-	len = VALUE16(tvb, *offsetp);
+        len = VALUE16(tvb, *offsetp);
 
-	op = VALUE16(tvb, *offsetp + 2);
-	ti = proto_tree_add_uint(t, hf_x11_glx_render_op_name, tvb, *offsetp, len, op);
+        op = VALUE16(tvb, *offsetp + 2);
+        ti = proto_tree_add_uint(t, hf_x11_glx_render_op_name, tvb, *offsetp, len, op);
 
-	tt = proto_item_add_subtree(ti, ett_x11_list_of_rectangle);
+        tt = proto_item_add_subtree(ti, ett_x11_list_of_rectangle);
 
-	ti = proto_tree_add_item(tt, hf_x11_request_length, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(tt, hf_x11_glx_render_op_name, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
+        ti = proto_tree_add_item(tt, hf_x11_request_length, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(tt, hf_x11_glx_render_op_name, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
 
-	if (len < 4) {
-	    expert_add_info(pinfo, ti, &ei_x11_request_length);
-	    /* Eat the rest of the packet, mark it undecoded */
-	    len = length;
-	    op = -1;
-	}
-	len -= 4;
+        if (len < 4) {
+            expert_add_info(pinfo, ti, &ei_x11_request_length);
+            /* Eat the rest of the packet, mark it undecoded */
+            len = length;
+            op = -1;
+        }
+        len -= 4;
 
-	next = *offsetp + len;
+        next = *offsetp + len;
 
-	switch (op) {
+        switch (op) {
 	case 1:
 	    mesa_CallList(tvb, offsetp, tt, byte_order, len);
 	    break;
@@ -4906,8 +4906,8 @@ static void dispatch_bigreq(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, bigreq_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, bigreq_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	bigreqEnable(tvb, pinfo, offsetp, t, byte_order, length);
@@ -4926,11 +4926,11 @@ static void struct_xproto_RECTANGLE(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xproto_RECTANGLE, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xproto_RECTANGLE, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xproto_RECTANGLE_x, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
 	proto_tree_add_item(t, hf_x11_struct_xproto_RECTANGLE_y, tvb, *offsetp, 2, byte_order);
@@ -4955,12 +4955,12 @@ static void struct_xproto_STR(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_name_len;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xproto_STR, tvb, *offsetp, struct_size_xproto_STR(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xproto_STR, tvb, *offsetp, struct_size_xproto_STR(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	f_name_len = VALUE8(tvb, *offsetp);
 	proto_tree_add_item(t, hf_x11_struct_xproto_STR_name_len, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
@@ -4972,11 +4972,11 @@ static void struct_render_DIRECTFORMAT(tvbuff_t *tvb, int *offsetp, proto_tree *
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_render_DIRECTFORMAT, tvb, *offsetp, 16, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_render_DIRECTFORMAT, tvb, *offsetp, 16, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_red_shift, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
 	proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_red_mask, tvb, *offsetp, 2, byte_order);
@@ -5000,11 +5000,11 @@ static void struct_render_PICTFORMINFO(tvbuff_t *tvb, int *offsetp, proto_tree *
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_render_PICTFORMINFO, tvb, *offsetp, 28, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_render_PICTFORMINFO, tvb, *offsetp, 28, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_render_PICTFORMINFO_id, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	field8(tvb, offsetp, t, hf_x11_struct_render_PICTFORMINFO_type, byte_order);
@@ -5021,11 +5021,11 @@ static void struct_render_PICTVISUAL(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_render_PICTVISUAL, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_render_PICTVISUAL, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_render_PICTVISUAL_visual, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_render_PICTVISUAL_format, tvb, *offsetp, 4, byte_order);
@@ -5046,12 +5046,12 @@ static void struct_render_PICTDEPTH(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_num_visuals;
 
-	item = proto_tree_add_item(root, hf_x11_struct_render_PICTDEPTH, tvb, *offsetp, struct_size_render_PICTDEPTH(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_render_PICTDEPTH, tvb, *offsetp, struct_size_render_PICTDEPTH(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_render_PICTDEPTH_depth, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
 	UNUSED(1);
@@ -5080,12 +5080,12 @@ static void struct_render_PICTSCREEN(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_num_depths;
 
-	item = proto_tree_add_item(root, hf_x11_struct_render_PICTSCREEN, tvb, *offsetp, struct_size_render_PICTSCREEN(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_render_PICTSCREEN, tvb, *offsetp, struct_size_render_PICTSCREEN(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	f_num_depths = VALUE32(tvb, *offsetp);
 	proto_tree_add_item(t, hf_x11_struct_render_PICTSCREEN_num_depths, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
@@ -5099,11 +5099,11 @@ static void struct_render_INDEXVALUE(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_render_INDEXVALUE, tvb, *offsetp, 12, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_render_INDEXVALUE, tvb, *offsetp, 12, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_render_INDEXVALUE_pixel, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_render_INDEXVALUE_red, tvb, *offsetp, 2, byte_order);
@@ -5121,11 +5121,11 @@ static void struct_render_COLOR(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_render_COLOR, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_render_COLOR, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_render_COLOR_red, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
 	proto_tree_add_item(t, hf_x11_struct_render_COLOR_green, tvb, *offsetp, 2, byte_order);
@@ -5141,11 +5141,11 @@ static void struct_render_POINTFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_render_POINTFIX, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_render_POINTFIX, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_render_POINTFIX_x, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_render_POINTFIX_y, tvb, *offsetp, 4, byte_order);
@@ -5157,11 +5157,11 @@ static void struct_render_LINEFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_render_LINEFIX, tvb, *offsetp, 16, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_render_LINEFIX, tvb, *offsetp, 16, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
 	struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
     }
@@ -5171,11 +5171,11 @@ static void struct_render_TRIANGLE(tvbuff_t *tvb, int *offsetp, proto_tree *root
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_render_TRIANGLE, tvb, *offsetp, 24, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_render_TRIANGLE, tvb, *offsetp, 24, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
 	struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
 	struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
@@ -5186,11 +5186,11 @@ static void struct_render_TRAPEZOID(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_render_TRAPEZOID, tvb, *offsetp, 40, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_render_TRAPEZOID, tvb, *offsetp, 40, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_render_TRAPEZOID_top, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_render_TRAPEZOID_bottom, tvb, *offsetp, 4, byte_order);
@@ -5204,11 +5204,11 @@ static void struct_render_GLYPHINFO(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_render_GLYPHINFO, tvb, *offsetp, 12, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_render_GLYPHINFO, tvb, *offsetp, 12, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_render_GLYPHINFO_width, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
 	proto_tree_add_item(t, hf_x11_struct_render_GLYPHINFO_height, tvb, *offsetp, 2, byte_order);
@@ -5228,11 +5228,11 @@ static void struct_render_TRANSFORM(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_render_TRANSFORM, tvb, *offsetp, 36, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_render_TRANSFORM, tvb, *offsetp, 36, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix11, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix12, tvb, *offsetp, 4, byte_order);
@@ -5258,11 +5258,11 @@ static void struct_render_ANIMCURSORELT(tvbuff_t *tvb, int *offsetp, proto_tree 
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_render_ANIMCURSORELT, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_render_ANIMCURSORELT, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_render_ANIMCURSORELT_cursor, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_render_ANIMCURSORELT_delay, tvb, *offsetp, 4, byte_order);
@@ -5274,11 +5274,11 @@ static void struct_render_SPANFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_render_SPANFIX, tvb, *offsetp, 12, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_render_SPANFIX, tvb, *offsetp, 12, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_render_SPANFIX_l, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_render_SPANFIX_r, tvb, *offsetp, 4, byte_order);
@@ -5292,11 +5292,11 @@ static void struct_render_TRAP(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_render_TRAP, tvb, *offsetp, 24, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_render_TRAP, tvb, *offsetp, 24, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	struct_render_SPANFIX(tvb, offsetp, t, byte_order, 1);
 	struct_render_SPANFIX(tvb, offsetp, t, byte_order, 1);
     }
@@ -5435,8 +5435,8 @@ static void dispatch_composite(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, composite_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, composite_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	compositeQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -5557,8 +5557,8 @@ static void dispatch_damage(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, damage_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, damage_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	damageQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -5734,8 +5734,8 @@ static void dispatch_dpms(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, dpms_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, dpms_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	dpmsGetVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -5775,11 +5775,11 @@ static void struct_dri2_DRI2Buffer(tvbuff_t *tvb, int *offsetp, proto_tree *root
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_dri2_DRI2Buffer, tvb, *offsetp, 20, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_dri2_DRI2Buffer, tvb, *offsetp, 20, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field32(tvb, offsetp, t, hf_x11_struct_dri2_DRI2Buffer_attachment, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_dri2_DRI2Buffer_name, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
@@ -5796,11 +5796,11 @@ static void struct_dri2_AttachFormat(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_dri2_AttachFormat, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_dri2_AttachFormat, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field32(tvb, offsetp, t, hf_x11_struct_dri2_AttachFormat_attachment, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_dri2_AttachFormat_format, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
@@ -6239,8 +6239,8 @@ static void dispatch_dri2(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, dri2_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, dri2_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	dri2QueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -6463,8 +6463,8 @@ static void dispatch_dri3(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, dri3_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, dri3_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	dri3QueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -6540,8 +6540,8 @@ static void dispatch_ge(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_t
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, ge_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, ge_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	geQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -9286,8 +9286,8 @@ static void dispatch_glx(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, glx_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, glx_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 1:
 	glxRender(tvb, pinfo, offsetp, t, byte_order, length);
@@ -9606,11 +9606,11 @@ static void struct_randr_ScreenSize(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_randr_ScreenSize, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_randr_ScreenSize, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_randr_ScreenSize_width, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
 	proto_tree_add_item(t, hf_x11_struct_randr_ScreenSize_height, tvb, *offsetp, 2, byte_order);
@@ -9635,12 +9635,12 @@ static void struct_randr_RefreshRates(tvbuff_t *tvb, int *offsetp, proto_tree *r
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_nRates;
 
-	item = proto_tree_add_item(root, hf_x11_struct_randr_RefreshRates, tvb, *offsetp, struct_size_randr_RefreshRates(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_randr_RefreshRates, tvb, *offsetp, struct_size_randr_RefreshRates(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	f_nRates = VALUE16(tvb, *offsetp);
 	proto_tree_add_item(t, hf_x11_struct_randr_RefreshRates_nRates, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
@@ -9652,11 +9652,11 @@ static void struct_randr_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_randr_ModeInfo, tvb, *offsetp, 32, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_randr_ModeInfo, tvb, *offsetp, 32, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_id, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_width, tvb, *offsetp, 2, byte_order);
@@ -9707,11 +9707,11 @@ static void struct_randr_CrtcChange(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_randr_CrtcChange, tvb, *offsetp, 28, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_randr_CrtcChange, tvb, *offsetp, 28, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_timestamp, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_window, tvb, *offsetp, 4, byte_order);
@@ -9747,11 +9747,11 @@ static void struct_randr_OutputChange(tvbuff_t *tvb, int *offsetp, proto_tree *r
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_randr_OutputChange, tvb, *offsetp, 28, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_randr_OutputChange, tvb, *offsetp, 28, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_timestamp, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_config_timestamp, tvb, *offsetp, 4, byte_order);
@@ -9784,11 +9784,11 @@ static void struct_randr_OutputProperty(tvbuff_t *tvb, int *offsetp, proto_tree 
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_randr_OutputProperty, tvb, *offsetp, 28, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_randr_OutputProperty, tvb, *offsetp, 28, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_randr_OutputProperty_window, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_randr_OutputProperty_output, tvb, *offsetp, 4, byte_order);
@@ -9806,11 +9806,11 @@ static void struct_randr_ProviderChange(tvbuff_t *tvb, int *offsetp, proto_tree 
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_randr_ProviderChange, tvb, *offsetp, 28, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_randr_ProviderChange, tvb, *offsetp, 28, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_randr_ProviderChange_timestamp, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_randr_ProviderChange_window, tvb, *offsetp, 4, byte_order);
@@ -9825,11 +9825,11 @@ static void struct_randr_ProviderProperty(tvbuff_t *tvb, int *offsetp, proto_tre
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_randr_ProviderProperty, tvb, *offsetp, 28, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_randr_ProviderProperty, tvb, *offsetp, 28, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_randr_ProviderProperty_window, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_randr_ProviderProperty_provider, tvb, *offsetp, 4, byte_order);
@@ -9848,11 +9848,11 @@ static void struct_randr_ResourceChange(tvbuff_t *tvb, int *offsetp, proto_tree 
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_randr_ResourceChange, tvb, *offsetp, 28, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_randr_ResourceChange, tvb, *offsetp, 28, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_randr_ResourceChange_timestamp, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_randr_ResourceChange_window, tvb, *offsetp, 4, byte_order);
@@ -9874,12 +9874,12 @@ static void struct_randr_MonitorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_nOutput;
 
-	item = proto_tree_add_item(root, hf_x11_struct_randr_MonitorInfo, tvb, *offsetp, struct_size_randr_MonitorInfo(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_randr_MonitorInfo, tvb, *offsetp, struct_size_randr_MonitorInfo(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_name, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_primary, tvb, *offsetp, 1, byte_order);
@@ -9909,11 +9909,11 @@ static void struct_sync_INT64(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_sync_INT64, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_sync_INT64, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_sync_INT64_hi, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_sync_INT64_lo, tvb, *offsetp, 4, byte_order);
@@ -9934,12 +9934,12 @@ static void struct_sync_SYSTEMCOUNTER(tvbuff_t *tvb, int *offsetp, proto_tree *r
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_name_len;
 
-	item = proto_tree_add_item(root, hf_x11_struct_sync_SYSTEMCOUNTER, tvb, *offsetp, struct_size_sync_SYSTEMCOUNTER(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_sync_SYSTEMCOUNTER, tvb, *offsetp, struct_size_sync_SYSTEMCOUNTER(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_sync_SYSTEMCOUNTER_counter, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
@@ -9954,11 +9954,11 @@ static void struct_sync_TRIGGER(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_sync_TRIGGER, tvb, *offsetp, 20, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_sync_TRIGGER, tvb, *offsetp, 20, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_sync_TRIGGER_counter, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	field32(tvb, offsetp, t, hf_x11_struct_sync_TRIGGER_wait_type, byte_order);
@@ -9971,11 +9971,11 @@ static void struct_sync_WAITCONDITION(tvbuff_t *tvb, int *offsetp, proto_tree *r
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_sync_WAITCONDITION, tvb, *offsetp, 28, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_sync_WAITCONDITION, tvb, *offsetp, 28, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	struct_sync_TRIGGER(tvb, offsetp, t, byte_order, 1);
 	struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
     }
@@ -9985,11 +9985,11 @@ static void struct_present_Notify(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_present_Notify, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_present_Notify, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_present_Notify_window, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_present_Notify_serial, tvb, *offsetp, 4, byte_order);
@@ -10226,8 +10226,8 @@ static void dispatch_present(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, present_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, present_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	presentQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -11437,10 +11437,10 @@ static void struct_randr_NotifyData(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     int i;
     int base = *offsetp;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
-	item = proto_tree_add_item(root, hf_x11_union_randr_NotifyData, tvb, base, 28, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        proto_item *item;
+        proto_tree *t;
+        item = proto_tree_add_item(root, hf_x11_union_randr_NotifyData, tvb, base, 28, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 
         *offsetp = base;
 	struct_randr_CrtcChange(tvb, offsetp, t, byte_order, 1);
@@ -11600,8 +11600,8 @@ static void dispatch_randr(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, randr_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, randr_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	randrQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -11746,11 +11746,11 @@ static void struct_record_Range8(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_record_Range8, tvb, *offsetp, 2, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_record_Range8, tvb, *offsetp, 2, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_record_Range8_first, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
 	proto_tree_add_item(t, hf_x11_struct_record_Range8_last, tvb, *offsetp, 1, byte_order);
@@ -11762,11 +11762,11 @@ static void struct_record_Range16(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_record_Range16, tvb, *offsetp, 4, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_record_Range16, tvb, *offsetp, 4, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_record_Range16_first, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
 	proto_tree_add_item(t, hf_x11_struct_record_Range16_last, tvb, *offsetp, 2, byte_order);
@@ -11778,11 +11778,11 @@ static void struct_record_ExtRange(tvbuff_t *tvb, int *offsetp, proto_tree *root
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_record_ExtRange, tvb, *offsetp, 6, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_record_ExtRange, tvb, *offsetp, 6, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	struct_record_Range8(tvb, offsetp, t, byte_order, 1);
 	struct_record_Range16(tvb, offsetp, t, byte_order, 1);
     }
@@ -11792,11 +11792,11 @@ static void struct_record_Range(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_record_Range, tvb, *offsetp, 24, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_record_Range, tvb, *offsetp, 24, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	struct_record_Range8(tvb, offsetp, t, byte_order, 1);
 	struct_record_Range8(tvb, offsetp, t, byte_order, 1);
 	struct_record_ExtRange(tvb, offsetp, t, byte_order, 1);
@@ -11824,12 +11824,12 @@ static void struct_record_ClientInfo(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_num_ranges;
 
-	item = proto_tree_add_item(root, hf_x11_struct_record_ClientInfo, tvb, *offsetp, struct_size_record_ClientInfo(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_record_ClientInfo, tvb, *offsetp, struct_size_record_ClientInfo(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_record_ClientInfo_client_resource, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	f_num_ranges = VALUE32(tvb, *offsetp);
@@ -12027,8 +12027,8 @@ static void dispatch_record(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, record_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, record_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	recordQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -12727,8 +12727,8 @@ static void dispatch_render(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, render_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, render_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	renderQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -12837,11 +12837,11 @@ static void struct_res_Client(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_res_Client, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_res_Client, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_res_Client_resource_base, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_res_Client_resource_mask, tvb, *offsetp, 4, byte_order);
@@ -12853,11 +12853,11 @@ static void struct_res_Type(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_res_Type, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_res_Type, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_res_Type_resource_type, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_res_Type_count, tvb, *offsetp, 4, byte_order);
@@ -12869,11 +12869,11 @@ static void struct_res_ClientIdSpec(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_res_ClientIdSpec, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_res_ClientIdSpec, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_res_ClientIdSpec_client, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	{
@@ -12899,12 +12899,12 @@ static void struct_res_ClientIdValue(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_length;
 
-	item = proto_tree_add_item(root, hf_x11_struct_res_ClientIdValue, tvb, *offsetp, struct_size_res_ClientIdValue(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_res_ClientIdValue, tvb, *offsetp, struct_size_res_ClientIdValue(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	struct_res_ClientIdSpec(tvb, offsetp, t, byte_order, 1);
 	f_length = VALUE32(tvb, *offsetp);
 	proto_tree_add_item(t, hf_x11_struct_res_ClientIdValue_length, tvb, *offsetp, 4, byte_order);
@@ -12917,11 +12917,11 @@ static void struct_res_ResourceIdSpec(tvbuff_t *tvb, int *offsetp, proto_tree *r
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_res_ResourceIdSpec, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_res_ResourceIdSpec, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_res_ResourceIdSpec_resource, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_res_ResourceIdSpec_type, tvb, *offsetp, 4, byte_order);
@@ -12933,11 +12933,11 @@ static void struct_res_ResourceSizeSpec(tvbuff_t *tvb, int *offsetp, proto_tree 
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_res_ResourceSizeSpec, tvb, *offsetp, 20, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_res_ResourceSizeSpec, tvb, *offsetp, 20, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	struct_res_ResourceIdSpec(tvb, offsetp, t, byte_order, 1);
 	proto_tree_add_item(t, hf_x11_struct_res_ResourceSizeSpec_bytes, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
@@ -12961,12 +12961,12 @@ static void struct_res_ResourceSizeValue(tvbuff_t *tvb, int *offsetp, proto_tree
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_num_cross_references;
 
-	item = proto_tree_add_item(root, hf_x11_struct_res_ResourceSizeValue, tvb, *offsetp, struct_size_res_ResourceSizeValue(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_res_ResourceSizeValue, tvb, *offsetp, struct_size_res_ResourceSizeValue(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	struct_res_ResourceSizeSpec(tvb, offsetp, t, byte_order, 1);
 	f_num_cross_references = VALUE32(tvb, *offsetp);
 	proto_tree_add_item(t, hf_x11_struct_res_ResourceSizeValue_num_cross_references, tvb, *offsetp, 4, byte_order);
@@ -13171,8 +13171,8 @@ static void dispatch_res(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, res_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, res_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	resQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -13465,8 +13465,8 @@ static void dispatch_screensaver(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, screensaver_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, screensaver_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	screensaverQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -13707,8 +13707,8 @@ static void dispatch_shape(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, shape_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, shape_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	shapeQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -13956,8 +13956,8 @@ static void dispatch_shm(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, shm_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, shm_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	shmQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -14358,8 +14358,8 @@ static void dispatch_sync(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, sync_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, sync_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	syncInitialize(tvb, pinfo, offsetp, t, byte_order, length);
@@ -14530,8 +14530,8 @@ static void dispatch_xc_misc(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, xc_misc_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, xc_misc_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	xc_miscGetVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -14628,11 +14628,11 @@ static void struct_xevie_Event(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xevie_Event, tvb, *offsetp, 32, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xevie_Event, tvb, *offsetp, 32, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	UNUSED(32);
     }
 }
@@ -14709,8 +14709,8 @@ static void dispatch_xevie(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, xevie_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, xevie_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	xevieQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -14741,11 +14741,11 @@ static void struct_xf86dri_DrmClipRect(tvbuff_t *tvb, int *offsetp, proto_tree *
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xf86dri_DrmClipRect, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xf86dri_DrmClipRect, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xf86dri_DrmClipRect_x1, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
 	proto_tree_add_item(t, hf_x11_struct_xf86dri_DrmClipRect_y1, tvb, *offsetp, 2, byte_order);
@@ -15090,8 +15090,8 @@ static void dispatch_xf86dri(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, xf86dri_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, xf86dri_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	xf86driQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -15143,11 +15143,11 @@ static void struct_xf86vidmode_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree 
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xf86vidmode_ModeInfo, tvb, *offsetp, 48, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xf86vidmode_ModeInfo, tvb, *offsetp, 48, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_dotclock, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_hdisplay, tvb, *offsetp, 2, byte_order);
@@ -15964,8 +15964,8 @@ static void dispatch_xf86vidmode(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, xf86vidmode_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, xf86vidmode_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	xf86vidmodeQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -16568,8 +16568,8 @@ static void dispatch_xfixes(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, xfixes_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, xfixes_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	xfixesQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -16684,11 +16684,11 @@ static void struct_xinerama_ScreenInfo(tvbuff_t *tvb, int *offsetp, proto_tree *
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinerama_ScreenInfo, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinerama_ScreenInfo, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xinerama_ScreenInfo_x_org, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
 	proto_tree_add_item(t, hf_x11_struct_xinerama_ScreenInfo_y_org, tvb, *offsetp, 2, byte_order);
@@ -16880,8 +16880,8 @@ static void dispatch_xinerama(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, xinerama_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, xinerama_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	xineramaQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -16915,11 +16915,11 @@ static void struct_xinput_FP3232(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_FP3232, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_FP3232, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xinput_FP3232_integral, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_xinput_FP3232_frac, tvb, *offsetp, 4, byte_order);
@@ -16965,11 +16965,11 @@ static void struct_xinput_DeviceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_DeviceInfo, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_DeviceInfo, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xinput_DeviceInfo_device_type, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_xinput_DeviceInfo_device_id, tvb, *offsetp, 1, byte_order);
@@ -16985,11 +16985,11 @@ static void struct_xinput_AxisInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_AxisInfo, tvb, *offsetp, 12, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_AxisInfo, tvb, *offsetp, 12, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xinput_AxisInfo_resolution, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_xinput_AxisInfo_minimum, tvb, *offsetp, 4, byte_order);
@@ -17009,12 +17009,12 @@ static void struct_xinput_InputInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_class_id;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_InputInfo, tvb, *offsetp, struct_size_xinput_InputInfo(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_InputInfo, tvb, *offsetp, struct_size_xinput_InputInfo(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	f_class_id = field8(tvb, offsetp, t, hf_x11_struct_xinput_InputInfo_class_id, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_len, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
@@ -17080,11 +17080,11 @@ static void struct_xinput_InputClassInfo(tvbuff_t *tvb, int *offsetp, proto_tree
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_InputClassInfo, tvb, *offsetp, 2, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_InputClassInfo, tvb, *offsetp, 2, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xinput_InputClassInfo_class_id, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xinput_InputClassInfo_event_type_base, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
@@ -17255,11 +17255,11 @@ static void struct_xinput_DeviceTimeCoord(tvbuff_t *tvb, int *offsetp, proto_tre
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_DeviceTimeCoord, tvb, *offsetp, struct_size_xinput_DeviceTimeCoord(tvb, offsetp, byte_order, p_num_axes), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_DeviceTimeCoord, tvb, *offsetp, struct_size_xinput_DeviceTimeCoord(tvb, offsetp, byte_order, p_num_axes), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xinput_DeviceTimeCoord_time, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	listOfInt32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceTimeCoord_axisvalues, hf_x11_struct_xinput_DeviceTimeCoord_axisvalues_item, p_num_axes, byte_order);
@@ -17579,12 +17579,12 @@ static void struct_xinput_FeedbackState(tvbuff_t *tvb, int *offsetp, proto_tree 
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_class_id;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_FeedbackState, tvb, *offsetp, struct_size_xinput_FeedbackState(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_FeedbackState, tvb, *offsetp, struct_size_xinput_FeedbackState(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	f_class_id = field8(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackState_class_id, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_feedback_id, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
@@ -17691,12 +17691,12 @@ static void struct_xinput_FeedbackCtl(tvbuff_t *tvb, int *offsetp, proto_tree *r
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_class_id;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_FeedbackCtl, tvb, *offsetp, struct_size_xinput_FeedbackCtl(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_FeedbackCtl, tvb, *offsetp, struct_size_xinput_FeedbackCtl(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	f_class_id = field8(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackCtl_class_id, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_feedback_id, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
@@ -17966,12 +17966,12 @@ static void struct_xinput_InputState(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_class_id;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_InputState, tvb, *offsetp, struct_size_xinput_InputState(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_InputState, tvb, *offsetp, struct_size_xinput_InputState(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	f_class_id = field8(tvb, offsetp, t, hf_x11_struct_xinput_InputState_class_id, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xinput_InputState_len, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
@@ -18111,12 +18111,12 @@ static void struct_xinput_DeviceState(tvbuff_t *tvb, int *offsetp, proto_tree *r
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_control_id;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_DeviceState, tvb, *offsetp, struct_size_xinput_DeviceState(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_DeviceState, tvb, *offsetp, struct_size_xinput_DeviceState(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	f_control_id = field16(tvb, offsetp, t, hf_x11_struct_xinput_DeviceState_control_id, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_len, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
@@ -18213,12 +18213,12 @@ static void struct_xinput_DeviceCtl(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_control_id;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_DeviceCtl, tvb, *offsetp, struct_size_xinput_DeviceCtl(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_DeviceCtl, tvb, *offsetp, struct_size_xinput_DeviceCtl(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	f_control_id = field16(tvb, offsetp, t, hf_x11_struct_xinput_DeviceCtl_control_id, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_len, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
@@ -18445,11 +18445,11 @@ static void struct_xinput_GroupInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_GroupInfo, tvb, *offsetp, 4, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_GroupInfo, tvb, *offsetp, 4, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xinput_GroupInfo_base, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
 	proto_tree_add_item(t, hf_x11_struct_xinput_GroupInfo_latched, tvb, *offsetp, 1, byte_order);
@@ -18465,11 +18465,11 @@ static void struct_xinput_ModifierInfo(tvbuff_t *tvb, int *offsetp, proto_tree *
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_ModifierInfo, tvb, *offsetp, 16, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_ModifierInfo, tvb, *offsetp, 16, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xinput_ModifierInfo_base, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_xinput_ModifierInfo_latched, tvb, *offsetp, 4, byte_order);
@@ -18568,12 +18568,12 @@ static void struct_xinput_HierarchyChange(tvbuff_t *tvb, int *offsetp, proto_tre
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_type;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_HierarchyChange, tvb, *offsetp, struct_size_xinput_HierarchyChange(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_HierarchyChange, tvb, *offsetp, struct_size_xinput_HierarchyChange(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	f_type = field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_type, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyChange_len, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
@@ -18667,12 +18667,12 @@ static void struct_xinput_EventMask(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_mask_len;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_EventMask, tvb, *offsetp, struct_size_xinput_EventMask(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_EventMask, tvb, *offsetp, struct_size_xinput_EventMask(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field16(tvb, offsetp, t, hf_x11_struct_xinput_EventMask_deviceid, byte_order);
 	f_mask_len = VALUE16(tvb, *offsetp);
 	proto_tree_add_item(t, hf_x11_struct_xinput_EventMask_mask_len, tvb, *offsetp, 2, byte_order);
@@ -18732,12 +18732,12 @@ static void struct_xinput_DeviceClass(tvbuff_t *tvb, int *offsetp, proto_tree *r
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_type;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_DeviceClass, tvb, *offsetp, struct_size_xinput_DeviceClass(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_DeviceClass, tvb, *offsetp, struct_size_xinput_DeviceClass(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	f_type = field16(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_type, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_len, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
@@ -18814,13 +18814,13 @@ static void struct_xinput_XIDeviceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_num_classes;
 	int f_name_len;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_XIDeviceInfo, tvb, *offsetp, struct_size_xinput_XIDeviceInfo(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_XIDeviceInfo, tvb, *offsetp, struct_size_xinput_XIDeviceInfo(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field16(tvb, offsetp, t, hf_x11_struct_xinput_XIDeviceInfo_deviceid, byte_order);
 	field16(tvb, offsetp, t, hf_x11_struct_xinput_XIDeviceInfo_type, byte_order);
 	field16(tvb, offsetp, t, hf_x11_struct_xinput_XIDeviceInfo_attachment, byte_order);
@@ -18961,11 +18961,11 @@ static void struct_xinput_GrabModifierInfo(tvbuff_t *tvb, int *offsetp, proto_tr
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_GrabModifierInfo, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_GrabModifierInfo, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field32(tvb, offsetp, t, hf_x11_struct_xinput_GrabModifierInfo_modifiers, byte_order);
 	field8(tvb, offsetp, t, hf_x11_struct_xinput_GrabModifierInfo_status, byte_order);
 	UNUSED(3);
@@ -19198,11 +19198,11 @@ static void struct_xinput_BarrierReleasePointerInfo(tvbuff_t *tvb, int *offsetp,
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_BarrierReleasePointerInfo, tvb, *offsetp, 12, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_BarrierReleasePointerInfo, tvb, *offsetp, 12, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xinput_BarrierReleasePointerInfo_deviceid, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
 	UNUSED(2);
@@ -19552,11 +19552,11 @@ static void struct_xinput_HierarchyInfo(tvbuff_t *tvb, int *offsetp, proto_tree 
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xinput_HierarchyInfo, tvb, *offsetp, 12, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xinput_HierarchyInfo, tvb, *offsetp, 12, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyInfo_deviceid, byte_order);
 	field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyInfo_attachment, byte_order);
 	field8(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyInfo_type, byte_order);
@@ -19967,8 +19967,8 @@ static void dispatch_xinput(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, xinput_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, xinput_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 1:
 	xinputGetExtensionVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -20167,11 +20167,11 @@ static void struct_xkb_IndicatorMap(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_IndicatorMap, tvb, *offsetp, 12, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_IndicatorMap, tvb, *offsetp, 12, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_IndicatorMap_flags, byte_order);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_IndicatorMap_whichGroups, byte_order);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_IndicatorMap_groups, byte_order);
@@ -20250,11 +20250,11 @@ static void struct_xkb_ModDef(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_ModDef, tvb, *offsetp, 4, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_ModDef, tvb, *offsetp, 4, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	{
 	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_ModDef_mask, tvb, *offsetp, 1, byte_order);
 	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -20311,11 +20311,11 @@ static void struct_xkb_KeyName(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_KeyName, tvb, *offsetp, 4, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_KeyName, tvb, *offsetp, 4, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_KeyName_name, 4, byte_order);
     }
 }
@@ -20324,11 +20324,11 @@ static void struct_xkb_KeyAlias(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_KeyAlias, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_KeyAlias, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_KeyAlias_real, 4, byte_order);
 	listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_KeyAlias_alias, 4, byte_order);
     }
@@ -20348,12 +20348,12 @@ static void struct_xkb_CountedString16(tvbuff_t *tvb, int *offsetp, proto_tree *
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_length;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_CountedString16, tvb, *offsetp, struct_size_xkb_CountedString16(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_CountedString16, tvb, *offsetp, struct_size_xkb_CountedString16(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	f_length = VALUE16(tvb, *offsetp);
 	proto_tree_add_item(t, hf_x11_struct_xkb_CountedString16_length, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
@@ -20366,11 +20366,11 @@ static void struct_xkb_KTMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_KTMapEntry, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_KTMapEntry, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_active, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
 	{
@@ -20444,13 +20444,13 @@ static void struct_xkb_KeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_nMapEntries;
 	int f_hasPreserve;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_KeyType, tvb, *offsetp, struct_size_xkb_KeyType(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_KeyType, tvb, *offsetp, struct_size_xkb_KeyType(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	{
 	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_mods_mask, tvb, *offsetp, 1, byte_order);
 	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -20527,12 +20527,12 @@ static void struct_xkb_KeySymMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_nSyms;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_KeySymMap, tvb, *offsetp, struct_size_xkb_KeySymMap(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_KeySymMap, tvb, *offsetp, struct_size_xkb_KeySymMap(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_KeySymMap_kt_index, 4, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xkb_KeySymMap_groupInfo, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
@@ -20549,11 +20549,11 @@ static void struct_xkb_CommonBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *r
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_CommonBehavior, tvb, *offsetp, 2, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_CommonBehavior, tvb, *offsetp, 2, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xkb_CommonBehavior_type, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
 	proto_tree_add_item(t, hf_x11_struct_xkb_CommonBehavior_data, tvb, *offsetp, 1, byte_order);
@@ -20565,11 +20565,11 @@ static void struct_xkb_DefaultBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_DefaultBehavior, tvb, *offsetp, 2, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_DefaultBehavior, tvb, *offsetp, 2, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xkb_DefaultBehavior_type, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
 	UNUSED(1);
@@ -20580,11 +20580,11 @@ static void struct_xkb_RadioGroupBehavior(tvbuff_t *tvb, int *offsetp, proto_tre
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_RadioGroupBehavior, tvb, *offsetp, 2, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_RadioGroupBehavior, tvb, *offsetp, 2, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xkb_RadioGroupBehavior_type, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
 	proto_tree_add_item(t, hf_x11_struct_xkb_RadioGroupBehavior_group, tvb, *offsetp, 1, byte_order);
@@ -20596,11 +20596,11 @@ static void struct_xkb_OverlayBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_OverlayBehavior, tvb, *offsetp, 2, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_OverlayBehavior, tvb, *offsetp, 2, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xkb_OverlayBehavior_type, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
 	proto_tree_add_item(t, hf_x11_struct_xkb_OverlayBehavior_key, tvb, *offsetp, 1, byte_order);
@@ -20613,10 +20613,10 @@ static void struct_xkb_Behavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
     int i;
     int base = *offsetp;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
-	item = proto_tree_add_item(root, hf_x11_union_xkb_Behavior, tvb, base, 2, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        proto_item *item;
+        proto_tree *t;
+        item = proto_tree_add_item(root, hf_x11_union_xkb_Behavior, tvb, base, 2, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 
         *offsetp = base;
 	struct_xkb_CommonBehavior(tvb, offsetp, t, byte_order, 1);
@@ -20650,11 +20650,11 @@ static void struct_xkb_SetBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SetBehavior, tvb, *offsetp, 4, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SetBehavior, tvb, *offsetp, 4, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xkb_SetBehavior_keycode, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
 	struct_xkb_Behavior(tvb, offsetp, t, byte_order, 1);
@@ -20666,11 +20666,11 @@ static void struct_xkb_SetExplicit(tvbuff_t *tvb, int *offsetp, proto_tree *root
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SetExplicit, tvb, *offsetp, 2, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SetExplicit, tvb, *offsetp, 2, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xkb_SetExplicit_keycode, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
 	{
@@ -20693,11 +20693,11 @@ static void struct_xkb_KeyModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_KeyModMap, tvb, *offsetp, 2, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_KeyModMap, tvb, *offsetp, 2, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xkb_KeyModMap_keycode, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
 	{
@@ -20721,11 +20721,11 @@ static void struct_xkb_KeyVModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_KeyVModMap, tvb, *offsetp, 4, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_KeyVModMap, tvb, *offsetp, 4, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xkb_KeyVModMap_keycode, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
 	UNUSED(1);
@@ -20757,11 +20757,11 @@ static void struct_xkb_KTSetMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_KTSetMapEntry, tvb, *offsetp, 4, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_KTSetMapEntry, tvb, *offsetp, 4, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xkb_KTSetMapEntry_level, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
 	{
@@ -20818,13 +20818,13 @@ static void struct_xkb_SetKeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_nMapEntries;
 	int f_preserve;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SetKeyType, tvb, *offsetp, struct_size_xkb_SetKeyType(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SetKeyType, tvb, *offsetp, struct_size_xkb_SetKeyType(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	{
 	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_mask, tvb, *offsetp, 1, byte_order);
 	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -20901,12 +20901,12 @@ static void struct_xkb_Listing(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_length;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_Listing, tvb, *offsetp, struct_size_xkb_Listing(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_Listing, tvb, *offsetp, struct_size_xkb_Listing(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xkb_Listing_flags, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
 	f_length = VALUE16(tvb, *offsetp);
@@ -20932,13 +20932,13 @@ static void struct_xkb_DeviceLedInfo(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_namesPresent;
 	int f_mapsPresent;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_DeviceLedInfo, tvb, *offsetp, struct_size_xkb_DeviceLedInfo(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_DeviceLedInfo, tvb, *offsetp, struct_size_xkb_DeviceLedInfo(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field16(tvb, offsetp, t, hf_x11_struct_xkb_DeviceLedInfo_ledClass, byte_order);
 	field16(tvb, offsetp, t, hf_x11_struct_xkb_DeviceLedInfo_ledID, byte_order);
 	f_namesPresent = VALUE32(tvb, *offsetp);
@@ -20960,11 +20960,11 @@ static void struct_xkb_SANoAction(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SANoAction, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SANoAction, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_SANoAction_type, byte_order);
 	UNUSED(7);
     }
@@ -20974,11 +20974,11 @@ static void struct_xkb_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SASetMods, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SASetMods, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetMods_type, byte_order);
 	{
 	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetMods_flags, tvb, *offsetp, 1, byte_order);
@@ -21050,11 +21050,11 @@ static void struct_xkb_SASetGroup(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SASetGroup, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SASetGroup, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetGroup_type, byte_order);
 	{
 	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetGroup_flags, tvb, *offsetp, 1, byte_order);
@@ -21074,11 +21074,11 @@ static void struct_xkb_SAMovePtr(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SAMovePtr, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SAMovePtr, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_SAMovePtr_type, byte_order);
 	{
 	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAMovePtr_flags, tvb, *offsetp, 1, byte_order);
@@ -21104,11 +21104,11 @@ static void struct_xkb_SAPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SAPtrBtn, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SAPtrBtn, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_SAPtrBtn_type, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xkb_SAPtrBtn_flags, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
@@ -21124,11 +21124,11 @@ static void struct_xkb_SALockPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SALockPtrBtn, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SALockPtrBtn, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_SALockPtrBtn_type, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xkb_SALockPtrBtn_flags, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
@@ -21143,11 +21143,11 @@ static void struct_xkb_SASetPtrDflt(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SASetPtrDflt, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SASetPtrDflt, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetPtrDflt_type, byte_order);
 	{
 	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetPtrDflt_flags, tvb, *offsetp, 1, byte_order);
@@ -21173,11 +21173,11 @@ static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SAIsoLock, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SAIsoLock, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_SAIsoLock_type, byte_order);
 	{
 	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_flags, tvb, *offsetp, 1, byte_order);
@@ -21260,11 +21260,11 @@ static void struct_xkb_SATerminate(tvbuff_t *tvb, int *offsetp, proto_tree *root
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SATerminate, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SATerminate, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_SATerminate_type, byte_order);
 	UNUSED(7);
     }
@@ -21274,11 +21274,11 @@ static void struct_xkb_SASwitchScreen(tvbuff_t *tvb, int *offsetp, proto_tree *r
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SASwitchScreen, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SASwitchScreen, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_SASwitchScreen_type, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xkb_SASwitchScreen_flags, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
@@ -21292,11 +21292,11 @@ static void struct_xkb_SASetControls(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SASetControls, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SASetControls, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetControls_type, byte_order);
 	UNUSED(3);
 	{
@@ -21330,11 +21330,11 @@ static void struct_xkb_SAActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SAActionMessage, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SAActionMessage, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_SAActionMessage_type, byte_order);
 	{
 	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAActionMessage_flags, tvb, *offsetp, 1, byte_order);
@@ -21352,11 +21352,11 @@ static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SARedirectKey, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SARedirectKey, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_SARedirectKey_type, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_newkey, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
@@ -21447,11 +21447,11 @@ static void struct_xkb_SADeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SADeviceBtn, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SADeviceBtn, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_SADeviceBtn_type, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceBtn_flags, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
@@ -21469,11 +21469,11 @@ static void struct_xkb_SALockDeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SALockDeviceBtn, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SALockDeviceBtn, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_SALockDeviceBtn_type, byte_order);
 	{
 	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SALockDeviceBtn_flags, tvb, *offsetp, 1, byte_order);
@@ -21495,11 +21495,11 @@ static void struct_xkb_SADeviceValuator(tvbuff_t *tvb, int *offsetp, proto_tree 
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SADeviceValuator, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SADeviceValuator, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_SADeviceValuator_type, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceValuator_device, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
@@ -21520,11 +21520,11 @@ static void struct_xkb_SIAction(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SIAction, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SIAction, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	field8(tvb, offsetp, t, hf_x11_struct_xkb_SIAction_type, byte_order);
 	listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_SIAction_data, 7, byte_order);
     }
@@ -21534,11 +21534,11 @@ static void struct_xkb_SymInterpret(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xkb_SymInterpret, tvb, *offsetp, 16, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xkb_SymInterpret, tvb, *offsetp, 16, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xkb_SymInterpret_sym, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	{
@@ -21580,10 +21580,10 @@ static void struct_xkb_Action(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
     int i;
     int base = *offsetp;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
-	item = proto_tree_add_item(root, hf_x11_union_xkb_Action, tvb, base, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        proto_item *item;
+        proto_tree *t;
+        item = proto_tree_add_item(root, hf_x11_union_xkb_Action, tvb, base, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 
         *offsetp = base;
 	struct_xkb_SANoAction(tvb, offsetp, t, byte_order, 1);
@@ -25465,8 +25465,8 @@ static void dispatch_xkb(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, xkb_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, xkb_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	xkbUseExtension(tvb, pinfo, offsetp, t, byte_order, length);
@@ -25566,13 +25566,13 @@ static void struct_xprint_PRINTER(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_nameLen;
 	int f_descLen;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xprint_PRINTER, tvb, *offsetp, struct_size_xprint_PRINTER(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xprint_PRINTER, tvb, *offsetp, struct_size_xprint_PRINTER(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	f_nameLen = VALUE32(tvb, *offsetp);
 	proto_tree_add_item(t, hf_x11_struct_xprint_PRINTER_nameLen, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
@@ -26097,8 +26097,8 @@ static void dispatch_xprint(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, xprint_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, xprint_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	xprintPrintQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -26364,13 +26364,13 @@ static void struct_xselinux_ListItem(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_object_context_len;
 	int f_data_context_len;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xselinux_ListItem, tvb, *offsetp, struct_size_xselinux_ListItem(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xselinux_ListItem, tvb, *offsetp, struct_size_xselinux_ListItem(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xselinux_ListItem_name, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	f_object_context_len = VALUE32(tvb, *offsetp);
@@ -26770,8 +26770,8 @@ static void dispatch_xselinux(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, xselinux_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, xselinux_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	xselinuxQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -26953,8 +26953,8 @@ static void dispatch_xtest(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, xtest_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, xtest_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	xtestGetVersion(tvb, pinfo, offsetp, t, byte_order, length);
@@ -26982,11 +26982,11 @@ static void struct_xv_Rational(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xv_Rational, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xv_Rational, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xv_Rational_numerator, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_xv_Rational_denominator, tvb, *offsetp, 4, byte_order);
@@ -26998,11 +26998,11 @@ static void struct_xv_Format(tvbuff_t *tvb, int *offsetp, proto_tree *root, guin
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xv_Format, tvb, *offsetp, 8, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xv_Format, tvb, *offsetp, 8, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xv_Format_visual, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_xv_Format_depth, tvb, *offsetp, 1, byte_order);
@@ -27028,13 +27028,13 @@ static void struct_xv_AdaptorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_name_size;
 	int f_num_formats;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xv_AdaptorInfo, tvb, *offsetp, struct_size_xv_AdaptorInfo(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xv_AdaptorInfo, tvb, *offsetp, struct_size_xv_AdaptorInfo(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_base_id, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	f_name_size = VALUE16(tvb, *offsetp);
@@ -27077,12 +27077,12 @@ static void struct_xv_EncodingInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_name_size;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xv_EncodingInfo, tvb, *offsetp, struct_size_xv_EncodingInfo(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xv_EncodingInfo, tvb, *offsetp, struct_size_xv_EncodingInfo(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xv_EncodingInfo_encoding, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	f_name_size = VALUE16(tvb, *offsetp);
@@ -27111,12 +27111,12 @@ static void struct_xv_AttributeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 	int f_size;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xv_AttributeInfo, tvb, *offsetp, struct_size_xv_AttributeInfo(tvb, offsetp, byte_order), ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xv_AttributeInfo, tvb, *offsetp, struct_size_xv_AttributeInfo(tvb, offsetp, byte_order), ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	{
 	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xv_AttributeInfo_flags, tvb, *offsetp, 4, byte_order);
 	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -27139,11 +27139,11 @@ static void struct_xv_ImageFormatInfo(tvbuff_t *tvb, int *offsetp, proto_tree *r
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xv_ImageFormatInfo, tvb, *offsetp, 128, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xv_ImageFormatInfo, tvb, *offsetp, 128, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_id, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	field8(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_type, byte_order);
@@ -27726,8 +27726,8 @@ static void dispatch_xv(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_t
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, xv_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, xv_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	xvQueryExtension(tvb, pinfo, offsetp, t, byte_order, length);
@@ -27803,11 +27803,11 @@ static void struct_xvmc_SurfaceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 {
     int i;
     for (i = 0; i < count; i++) {
-	proto_item *item;
-	proto_tree *t;
+        proto_item *item;
+        proto_tree *t;
 
-	item = proto_tree_add_item(root, hf_x11_struct_xvmc_SurfaceInfo, tvb, *offsetp, 24, ENC_NA);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
+        item = proto_tree_add_item(root, hf_x11_struct_xvmc_SurfaceInfo, tvb, *offsetp, 24, ENC_NA);
+        t = proto_item_add_subtree(item, ett_x11_rectangle);
 	proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_id, tvb, *offsetp, 4, byte_order);
 	*offsetp += 4;
 	proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_chroma_format, tvb, *offsetp, 2, byte_order);
@@ -28067,8 +28067,8 @@ static void dispatch_xvmc(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-			  val_to_str(minor, xvmc_extension_minor,
-				     "<Unknown opcode %d>"));
+                          val_to_str(minor, xvmc_extension_minor,
+                                     "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
 	xvmcQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
