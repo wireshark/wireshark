@@ -78,6 +78,25 @@ void proto_reg_handoff_juniper(void);
 #define EXT_TLV_TTP_IFD_MEDIATYPE 7
 #define EXT_TLV_TTP_IFL_ENCAPS    8
 
+/* VN related defines */
+#define VN_TLV_HDR_SIZE   2
+#define VN_FLAG_ALERT     0x00000001
+#define VN_FLAG_DROP      0x00000002
+#define VN_FLAG_DENY      0x00000004
+#define VN_FLAG_LOG       0x00000008
+#define VN_FLAG_PASS      0x00000010
+#define VN_FLAG_REJECT    0x00000020
+#define VN_FLAG_MIRROR    0x00000040
+#define VN_FLAG_DIRECTION 0x40000000
+#define VN_FLAG_MASK      0xFFFFFFFF
+enum {
+    VN_TLV_HOST_IP = 1,
+    VN_TLV_FLAGS   = 2,
+    VN_TLV_SRC_VN  = 3,
+    VN_TLV_DST_VN  = 4,
+    VN_TLV_LAST    = 255
+};
+
 static const value_string ext_tlv_vals[] = {
   { EXT_TLV_IFD_IDX,           "Device Interface Index" },
   { EXT_TLV_IFD_NAME,          "Device Interface Name" },
@@ -378,8 +397,23 @@ static int hf_juniper_ext_ttp_ifle = -1;
 static int hf_juniper_unknown_data = -1;
 
 static expert_field ei_juniper_no_magic = EI_INIT;
+static expert_field ei_juniper_vn_incorrect_format = EI_INIT;
+
+static int hf_juniper_vn_host_ip = -1;
+static int hf_juniper_vn_src = -1;
+static int hf_juniper_vn_dst = -1;
+static int hf_juniper_vn_flags = -1;
+static int hf_juniper_vn_flag_alert = -1;
+static int hf_juniper_vn_flag_drop = -1;
+static int hf_juniper_vn_flag_deny = -1;
+static int hf_juniper_vn_flag_log = -1;
+static int hf_juniper_vn_flag_pass = -1;
+static int hf_juniper_vn_flag_reject = -1;
+static int hf_juniper_vn_flag_mirror = -1;
+static int hf_juniper_vn_flag_direction = -1;
 
 static gint ett_juniper = -1;
+static gint ett_juniper_vn_flags = -1;
 
 static dissector_handle_t ipv4_handle;
 
@@ -414,6 +448,18 @@ static const value_string juniper_proto_vals[] = {
   {JUNIPER_PROTO_CHDLC, "C-HDLC"},
   {0,                    NULL}
 };
+
+static const int * vn_flags[] = {
+  &hf_juniper_vn_flag_direction,
+  &hf_juniper_vn_flag_mirror,
+  &hf_juniper_vn_flag_reject,
+  &hf_juniper_vn_flag_pass,
+  &hf_juniper_vn_flag_log,
+  &hf_juniper_vn_flag_deny,
+  &hf_juniper_vn_flag_drop,
+  &hf_juniper_vn_flag_alert,
+  NULL
+  };
 
 /* return a TLV value based on TLV length and TLV type (host/network order) */
 static int
@@ -1181,6 +1227,57 @@ dissect_juniper_svcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   return tvb_captured_length(tvb);
 }
 
+static int dissect_juniper_vn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+{
+  proto_item *ti;
+  proto_tree* juniper_subtree;
+  guint offset = 0;
+  guint32 tlv_type, tlv_len;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL,
+          "Juniper Virtual Network Information");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  juniper_subtree = proto_tree_add_subtree(tree, tvb, offset, 20,
+          ett_juniper, &ti, "Juniper Virtual Network Information");
+
+  tlv_type = tvb_get_guint8(tvb, offset);
+  tlv_len = tvb_get_guint8(tvb, (offset + 1));
+  offset += VN_TLV_HDR_SIZE;
+
+  while (tlv_type != 255) {
+
+      switch (tlv_type) {
+          case VN_TLV_HOST_IP:
+              proto_tree_add_item(juniper_subtree, hf_juniper_vn_host_ip, tvb,
+                      offset, 4, ENC_BIG_ENDIAN);
+              break;
+          case VN_TLV_FLAGS:
+              proto_tree_add_bitmask(tree, tvb, offset, hf_juniper_vn_flags, ett_juniper_vn_flags, vn_flags, ENC_BIG_ENDIAN);
+              break;
+          case VN_TLV_SRC_VN:
+              proto_tree_add_item(juniper_subtree, hf_juniper_vn_src, tvb, offset, tlv_len, ENC_NA|ENC_ASCII);
+              break;
+          case VN_TLV_DST_VN:
+              proto_tree_add_item(juniper_subtree, hf_juniper_vn_dst, tvb, offset, tlv_len, ENC_NA|ENC_ASCII);
+              break;
+          default:
+              proto_tree_add_expert(juniper_subtree, pinfo, &ei_juniper_vn_incorrect_format, tvb, 0, 0);
+              return offset;
+      }
+
+      offset += tlv_len;
+      tlv_type = tvb_get_guint8(tvb, offset);
+      tlv_len = tvb_get_guint8(tvb, (offset + 1));
+      offset += VN_TLV_HDR_SIZE;
+  }
+
+  offset+=tlv_len;
+  dissect_juniper_payload_proto(tvb, pinfo, tree, ti, JUNIPER_PROTO_ETHER, offset);
+
+  return tvb_captured_length(tvb);
+}
+
 /* list of Juniper supported PPP proto IDs */
 static gboolean
 ppp_heuristic_guess(guint16 proto) {
@@ -1397,14 +1494,52 @@ proto_register_juniper(void)
     { &hf_juniper_unknown_data,
       { "Unknown data", "juniper.unknown_data", FT_BYTES, BASE_NONE,
         NULL, 0x0, NULL, HFILL }},
+    { &hf_juniper_vn_host_ip,
+      { "Host IP", "juniper.vn.host_ip", FT_IPv4, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_juniper_vn_src,
+      { "Src VN", "juniper.vn.src", FT_STRING, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_juniper_vn_dst,
+      { "Dst VN", "juniper.vn.dst", FT_STRING, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_juniper_vn_flags,
+      { "Flags", "juniper.vn.flags", FT_UINT32, BASE_HEX, NULL, VN_FLAG_MASK,
+        NULL, HFILL }},
+    { &hf_juniper_vn_flag_alert,
+        { "Action Alert", "juniper.vn.flags.alert", FT_BOOLEAN, 32,
+          TFS(&tfs_set_notset), VN_FLAG_ALERT, NULL, HFILL }},
+    { &hf_juniper_vn_flag_drop,
+        { "Action Drop", "juniper.vn.flags.drop", FT_BOOLEAN, 32,
+          TFS(&tfs_set_notset), VN_FLAG_DROP, NULL, HFILL }},
+    { &hf_juniper_vn_flag_deny,
+        { "Action Deny", "juniper.vn.flags.deny", FT_BOOLEAN, 32,
+          TFS(&tfs_set_notset), VN_FLAG_DENY, NULL, HFILL }},
+    { &hf_juniper_vn_flag_log,
+        { "Action Log", "juniper.vn.flags.log", FT_BOOLEAN, 32,
+          TFS(&tfs_set_notset), VN_FLAG_LOG, NULL, HFILL }},
+    { &hf_juniper_vn_flag_pass,
+        { "Action Pass", "juniper.vn.flags.pass", FT_BOOLEAN, 32,
+          TFS(&tfs_set_notset), VN_FLAG_PASS, NULL, HFILL }},
+    { &hf_juniper_vn_flag_reject,
+        { "Action Reject", "juniper.vn.flags.reject", FT_BOOLEAN, 32,
+          TFS(&tfs_set_notset), VN_FLAG_REJECT, NULL, HFILL }},
+    { &hf_juniper_vn_flag_mirror,
+        { "Action Mirror", "juniper.vn.flags.mirror", FT_BOOLEAN, 32,
+          TFS(&tfs_set_notset), VN_FLAG_MIRROR, NULL, HFILL }},
+    { &hf_juniper_vn_flag_direction,
+        { "Direction Ingress", "juniper.vn.flags.direction", FT_BOOLEAN, 32,
+          TFS(&tfs_set_notset), VN_FLAG_DIRECTION, NULL, HFILL }},
   };
 
   static gint *ett[] = {
     &ett_juniper,
+    &ett_juniper_vn_flags,
   };
 
   static ei_register_info ei[] = {
     { &ei_juniper_no_magic, { "juniper.magic-number.none", PI_PROTOCOL, PI_WARN, "No Magic-Number found!", EXPFILL }},
+    { &ei_juniper_vn_incorrect_format, { "juniper.vn.incorrect_format", PI_PROTOCOL, PI_WARN, "Incorrect format", EXPFILL }},
   };
 
   expert_module_t* expert_juniper;
@@ -1434,6 +1569,7 @@ proto_reg_handoff_juniper(void)
   dissector_handle_t juniper_ggsn_handle;
   dissector_handle_t juniper_vp_handle;
   dissector_handle_t juniper_svcs_handle;
+  dissector_handle_t juniper_vn_handle;
 
   ipv4_handle   = find_dissector_add_dependency("ip", proto_juniper);
 
@@ -1449,6 +1585,7 @@ proto_reg_handoff_juniper(void)
   juniper_ggsn_handle   = create_dissector_handle(dissect_juniper_ggsn,   proto_juniper);
   juniper_vp_handle     = create_dissector_handle(dissect_juniper_vp,     proto_juniper);
   juniper_svcs_handle   = create_dissector_handle(dissect_juniper_svcs,   proto_juniper);
+  juniper_vn_handle     = create_dissector_handle(dissect_juniper_vn,     proto_juniper);
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_ATM2,   juniper_atm2_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_ATM1,   juniper_atm1_handle);
@@ -1462,7 +1599,7 @@ proto_reg_handoff_juniper(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_GGSN,   juniper_ggsn_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_VP,     juniper_vp_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_SVCS,   juniper_svcs_handle);
-
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_VN,     juniper_vn_handle);
 }
 
 

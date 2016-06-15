@@ -326,6 +326,8 @@ static const struct {
 	{ 181,		WTAP_ENCAP_JUNIPER_CHDLC },
 	/* VOIP Frames prepended with meta-information */
 	{ 183,		WTAP_ENCAP_JUNIPER_VP },
+	/* Virtual Network Frames prepended with meta-information */
+	{ 184,		WTAP_ENCAP_JUNIPER_VN },
 	/* USB packets from FreeBSD's USB BPF tap */
 	{ 186,		WTAP_ENCAP_USB_FREEBSD },
 	/* Bluetooth HCI UART transport (part H:4) frames, like hcidump */
