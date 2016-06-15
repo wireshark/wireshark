@@ -838,6 +838,24 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     guint8             srrflags;
     proto_item        *ti;
     proto_tree        *gen_flag_tree, *srr_flag_tree, *proc_flag_tree, *cos_flag_tree;
+    static const int * pri_flags[] = {
+        &hf_bundle_procflags_fragment,
+        &hf_bundle_procflags_admin,
+        &hf_bundle_procflags_dont_fragment,
+        &hf_bundle_procflags_cust_xfer_req,
+        &hf_bundle_procflags_dest_singleton,
+        &hf_bundle_procflags_application_ack,
+        NULL
+    };
+
+    static const int * srr_flags[] = {
+        &hf_bundle_srrflags_report_receipt,
+        &hf_bundle_srrflags_report_cust_accept,
+        &hf_bundle_srrflags_report_forward,
+        &hf_bundle_srrflags_report_delivery,
+        &hf_bundle_srrflags_report_deletion,
+        NULL
+    };
 
     bundle_processing_control_flags = evaluate_sdnv_64(tvb, offset, &sdnv_length);
 
@@ -857,18 +875,10 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
                                         sdnv_length, *pri_hdr_procflags);
     gen_flag_tree = proto_item_add_subtree(ti, ett_gen_flags);
 
-    proto_tree_add_boolean(gen_flag_tree, hf_bundle_procflags_fragment,
-                                        tvb, offset, sdnv_length, *pri_hdr_procflags);
-    proto_tree_add_boolean(gen_flag_tree, hf_bundle_procflags_admin,
-                                        tvb, offset, sdnv_length, *pri_hdr_procflags);
-    proto_tree_add_boolean(gen_flag_tree, hf_bundle_procflags_dont_fragment,
-                                        tvb, offset, sdnv_length, *pri_hdr_procflags);
-    proto_tree_add_boolean(gen_flag_tree, hf_bundle_procflags_cust_xfer_req,
-                                        tvb, offset, sdnv_length, *pri_hdr_procflags);
-    proto_tree_add_boolean(gen_flag_tree, hf_bundle_procflags_dest_singleton,
-                                        tvb, offset, sdnv_length, *pri_hdr_procflags);
-    proto_tree_add_boolean(gen_flag_tree, hf_bundle_procflags_application_ack,
-                                        tvb, offset, sdnv_length, *pri_hdr_procflags);
+    /* With the variability of sdnv_length, proto_tree_add_bitmask_value
+       can't be used */
+
+    proto_tree_add_bitmask_list_value(gen_flag_tree, tvb, offset, sdnv_length, pri_flags, *pri_hdr_procflags);
 
     /* Primary Header COS Flags */
     cosflags = (guint8) ((bundle_processing_control_flags >> 7) & 0x7f);
@@ -884,16 +894,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
                                         sdnv_length, srrflags);
     srr_flag_tree = proto_item_add_subtree(ti, ett_srr_flags);
 
-    proto_tree_add_boolean(srr_flag_tree, hf_bundle_srrflags_report_receipt,
-                                                tvb, offset, sdnv_length, srrflags);
-    proto_tree_add_boolean(srr_flag_tree, hf_bundle_srrflags_report_cust_accept,
-                                                tvb, offset, sdnv_length, srrflags);
-    proto_tree_add_boolean(srr_flag_tree, hf_bundle_srrflags_report_forward,
-                                                tvb, offset, sdnv_length, srrflags);
-    proto_tree_add_boolean(srr_flag_tree, hf_bundle_srrflags_report_delivery,
-                                                tvb, offset, sdnv_length, srrflags);
-    proto_tree_add_boolean(srr_flag_tree, hf_bundle_srrflags_report_deletion,
-                                                tvb, offset, sdnv_length, srrflags);
+    proto_tree_add_bitmask_list_value(srr_flag_tree, tvb, offset, sdnv_length, srr_flags, srrflags);
     offset += sdnv_length;
 
     /* -- hdr_length -- */

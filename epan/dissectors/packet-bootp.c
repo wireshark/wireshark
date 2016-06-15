@@ -4725,9 +4725,14 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 			}
 			subtree = proto_item_add_subtree(ti, ett_bootp_option);
 			if (raw_val == PKT_MDC_PROV_FLOWS) {
-				proto_tree_add_boolean(subtree, hf_bootp_pkt_mdc_supp_flow_secure, tvb, off + 4, 4, flow_val);
-				proto_tree_add_boolean(subtree, hf_bootp_pkt_mdc_supp_flow_hybrid, tvb, off + 4, 4, flow_val);
-				proto_tree_add_boolean(subtree, hf_bootp_pkt_mdc_supp_flow_basic, tvb, off + 4, 4, flow_val);
+				static const int * flows[] = {
+					&hf_bootp_pkt_mdc_supp_flow_secure,
+					&hf_bootp_pkt_mdc_supp_flow_hybrid,
+					&hf_bootp_pkt_mdc_supp_flow_basic,
+					NULL
+				};
+
+				proto_tree_add_bitmask_list_value(subtree, tvb, off + 4, 4, flows, flow_val);
 			} else if (raw_val == PKT_MDC_MIBS) {
 			/* 17 06 02 00 38 02 01 07 */
 				subopt_off = off + 4;
@@ -4762,31 +4767,49 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 					}
 					switch (raw_val) {
 
-					case PKT_MDC_MIB_CL:
-						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_cl_mta, tvb, subopt_off, 2, mib_val);
-						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_cl_signaling, tvb, subopt_off, 2, mib_val);
-						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_cl_management_event, tvb, subopt_off, 2, mib_val);
-						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_cl_mta_extension, tvb, subopt_off, 2, mib_val);
-						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_cl_mta_signaling_extension, tvb, subopt_off, 2, mib_val);
-						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_cl_mta_mem_extention, tvb, subopt_off, 2, mib_val);
-						proto_tree_add_uint(subtree2, hf_bootp_pkt_mdc_mib_cl_reserved, tvb, subopt_off, 2, mib_val);
+					case PKT_MDC_MIB_CL: {
+						static const int * cl_flags[] = {
+							&hf_bootp_pkt_mdc_mib_cl_mta,
+							&hf_bootp_pkt_mdc_mib_cl_signaling,
+							&hf_bootp_pkt_mdc_mib_cl_management_event,
+							&hf_bootp_pkt_mdc_mib_cl_mta_extension,
+							&hf_bootp_pkt_mdc_mib_cl_mta_signaling_extension,
+							&hf_bootp_pkt_mdc_mib_cl_mta_mem_extention,
+							&hf_bootp_pkt_mdc_mib_cl_reserved,
+							NULL
+						};
+
+						proto_tree_add_bitmask_list_value(subtree2, tvb, subopt_off, 2, cl_flags, mib_val);
+                        }
 						break;
 
-					case PKT_MDC_MIB_IETF:
-						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_ietf_mta, tvb, subopt_off, 2, mib_val);
-						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_ietf_signaling, tvb, subopt_off, 2, mib_val);
-						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_ietf_management_event, tvb, subopt_off, 2, mib_val);
-						proto_tree_add_uint(subtree2, hf_bootp_pkt_mdc_mib_ietf_reserved, tvb, subopt_off, 2, mib_val);
+					case PKT_MDC_MIB_IETF: {
+						static const int * ietf_flags[] = {
+							&hf_bootp_pkt_mdc_mib_ietf_mta,
+							&hf_bootp_pkt_mdc_mib_ietf_signaling,
+							&hf_bootp_pkt_mdc_mib_ietf_management_event,
+							&hf_bootp_pkt_mdc_mib_ietf_reserved,
+							NULL
+						};
+
+						proto_tree_add_bitmask_list_value(subtree2, tvb, subopt_off, 2, ietf_flags, mib_val);
+                        }
 						break;
 
-					case PKT_MDC_MIB_EURO:
-						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_euro_mta, tvb, subopt_off, 2, mib_val);
-						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_euro_signaling, tvb, subopt_off, 2, mib_val);
-						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_euro_management_event, tvb, subopt_off, 2, mib_val);
-						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_euro_mta_extension, tvb, subopt_off, 2, mib_val);
-						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_euro_mta_signaling_extension, tvb, subopt_off, 2, mib_val);
-						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_euro_mta_mem_extention, tvb, subopt_off, 2, mib_val);
-						proto_tree_add_uint(subtree2, hf_bootp_pkt_mdc_mib_euro_reserved, tvb, subopt_off, 2, mib_val);
+					case PKT_MDC_MIB_EURO: {
+						static const int * euro_flags[] = {
+							&hf_bootp_pkt_mdc_mib_euro_mta,
+							&hf_bootp_pkt_mdc_mib_euro_signaling,
+							&hf_bootp_pkt_mdc_mib_euro_management_event,
+							&hf_bootp_pkt_mdc_mib_euro_mta_extension,
+							&hf_bootp_pkt_mdc_mib_euro_mta_signaling_extension,
+							&hf_bootp_pkt_mdc_mib_euro_mta_mem_extention,
+							&hf_bootp_pkt_mdc_mib_euro_reserved,
+							NULL
+						};
+
+						proto_tree_add_bitmask_list_value(subtree2, tvb, subopt_off, 2, euro_flags, mib_val);
+                        }
 						break;
 
 					default:
@@ -5322,49 +5345,64 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 		subtree = proto_item_add_subtree(ti, ett_bootp_option);
 		if (tlv_type == DOCSIS_CM_CAP_RNGHLDOFF_SUP && tlv_len >= 4)
 		{
+			const int * flags[] = {
+				&hf_bootp_docsis_cm_cap_ranging_hold_off_cm,
+				&hf_bootp_docsis_cm_cap_ranging_hold_off_eps,
+				&hf_bootp_docsis_cm_cap_ranging_hold_off_emta,
+				&hf_bootp_docsis_cm_cap_ranging_hold_off_dsg,
+				NULL
+			};
 			val_uint16 = (val_other[2] << sizeof(guint8)) + val_other[3];
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ranging_hold_off_cm, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ranging_hold_off_eps, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ranging_hold_off_emta, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ranging_hold_off_dsg, tvb, off + 2, 4, val_uint16);
+
+			proto_tree_add_bitmask_list_value(subtree, tvb, off + 2, 4, flags, val_uint16);
 		}
 		if (tlv_type == DOCSIS_CM_CAP_USSYMRATE_SUP)
 		{
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ussymrate_160, tvb, off + 2, 1, val_byte);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ussymrate_320, tvb, off + 2, 1, val_byte);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ussymrate_640, tvb, off + 2, 1, val_byte);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ussymrate_1280, tvb, off + 2, 1, val_byte);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ussymrate_2560, tvb, off + 2, 1, val_byte);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ussymrate_5120, tvb, off + 2, 1, val_byte);
+			const int * flags[] = {
+				&hf_bootp_docsis_cm_cap_ussymrate_160,
+				&hf_bootp_docsis_cm_cap_ussymrate_320,
+				&hf_bootp_docsis_cm_cap_ussymrate_640,
+				&hf_bootp_docsis_cm_cap_ussymrate_1280,
+				&hf_bootp_docsis_cm_cap_ussymrate_2560,
+				&hf_bootp_docsis_cm_cap_ussymrate_5120,
+				NULL
+			};
+
+			proto_tree_add_bitmask_list_value(subtree, tvb, off + 2, 1, flags, val_byte);
 		}
 		if (tlv_type == DOCSIS_CM_CAP_Opt802MPLSSup && tlv_len >= 4)
 		{
+			const int * flags[] = {
+				&hf_bootp_docsis_cm_cap_mpls_stpid,
+				&hf_bootp_docsis_cm_cap_mpls_svid,
+				&hf_bootp_docsis_cm_cap_mpls_spcp,
+				&hf_bootp_docsis_cm_cap_mpls_sdei,
+				&hf_bootp_docsis_cm_cap_mpls_ctpid,
+				&hf_bootp_docsis_cm_cap_mpls_cvid,
+				&hf_bootp_docsis_cm_cap_mpls_cpcp,
+				&hf_bootp_docsis_cm_cap_mpls_ccfi,
+				&hf_bootp_docsis_cm_cap_mpls_stci,
+				&hf_bootp_docsis_cm_cap_mpls_ctci,
+				&hf_bootp_docsis_cm_cap_mpls_itpid,
+				&hf_bootp_docsis_cm_cap_mpls_isid,
+				&hf_bootp_docsis_cm_cap_mpls_itci,
+				&hf_bootp_docsis_cm_cap_mpls_ipcp,
+				&hf_bootp_docsis_cm_cap_mpls_idei,
+				&hf_bootp_docsis_cm_cap_mpls_iuca,
+				&hf_bootp_docsis_cm_cap_mpls_btpid,
+				&hf_bootp_docsis_cm_cap_mpls_btci,
+				&hf_bootp_docsis_cm_cap_mpls_bpcp,
+				&hf_bootp_docsis_cm_cap_mpls_bdei,
+				&hf_bootp_docsis_cm_cap_mpls_bvid,
+				&hf_bootp_docsis_cm_cap_mpls_bda,
+				&hf_bootp_docsis_cm_cap_mpls_bsa,
+				&hf_bootp_docsis_cm_cap_mpls_tc,
+				&hf_bootp_docsis_cm_cap_mpls_label,
+				NULL
+			};
 			val_uint16 = (val_other[2] << sizeof(guint8)) + val_other[3];
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_stpid, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_svid, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_spcp, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_sdei, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_ctpid, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_cvid, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_cpcp, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_ccfi, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_stci, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_ctci, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_itpid, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_isid, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_itci, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_ipcp, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_idei, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_iuca, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_btpid, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_btci, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_bpcp, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_bdei, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_bvid, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_bda, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_bsa, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_tc, tvb, off + 2, 4, val_uint16);
-			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_label, tvb, off + 2, 4, val_uint16);
+
+			proto_tree_add_bitmask_list_value(subtree, tvb, off + 2, 4, flags, val_uint16);
 		}
 		if (opt125)
 		{

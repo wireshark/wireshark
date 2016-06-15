@@ -350,21 +350,25 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		if (pinfo->phdr->presence_flags & WTAP_HAS_PACK_FLAGS) {
 			proto_tree *flags_tree;
 			proto_item *flags_item;
+			static const int * flags[] = {
+				&hf_frame_pack_direction,
+				&hf_frame_pack_reception_type,
+				&hf_frame_pack_fcs_length,
+				&hf_frame_pack_reserved,
+				&hf_frame_pack_crc_error,
+				&hf_frame_pack_wrong_packet_too_long_error,
+				&hf_frame_pack_wrong_packet_too_short_error,
+				&hf_frame_pack_wrong_inter_frame_gap_error,
+				&hf_frame_pack_unaligned_frame_error,
+				&hf_frame_pack_start_frame_delimiter_error,
+				&hf_frame_pack_preamble_error,
+				&hf_frame_pack_symbol_error,
+				NULL
+			};
 
 			flags_item = proto_tree_add_uint(fh_tree, hf_frame_pack_flags, tvb, 0, 0, pinfo->phdr->pack_flags);
 			flags_tree = proto_item_add_subtree(flags_item, ett_flags);
-			proto_tree_add_uint(flags_tree, hf_frame_pack_direction, tvb, 0, 0, pinfo->phdr->pack_flags);
-			proto_tree_add_uint(flags_tree, hf_frame_pack_reception_type, tvb, 0, 0, pinfo->phdr->pack_flags);
-			proto_tree_add_uint(flags_tree, hf_frame_pack_fcs_length, tvb, 0, 0, pinfo->phdr->pack_flags);
-			proto_tree_add_uint(flags_tree, hf_frame_pack_reserved, tvb, 0, 0, pinfo->phdr->pack_flags);
-			proto_tree_add_boolean(flags_tree, hf_frame_pack_crc_error, tvb, 0, 0, pinfo->phdr->pack_flags);
-			proto_tree_add_boolean(flags_tree, hf_frame_pack_wrong_packet_too_long_error, tvb, 0, 0, pinfo->phdr->pack_flags);
-			proto_tree_add_boolean(flags_tree, hf_frame_pack_wrong_packet_too_short_error, tvb, 0, 0, pinfo->phdr->pack_flags);
-			proto_tree_add_boolean(flags_tree, hf_frame_pack_wrong_inter_frame_gap_error, tvb, 0, 0, pinfo->phdr->pack_flags);
-			proto_tree_add_boolean(flags_tree, hf_frame_pack_unaligned_frame_error, tvb, 0, 0, pinfo->phdr->pack_flags);
-			proto_tree_add_boolean(flags_tree, hf_frame_pack_start_frame_delimiter_error, tvb, 0, 0, pinfo->phdr->pack_flags);
-			proto_tree_add_boolean(flags_tree, hf_frame_pack_preamble_error, tvb, 0, 0, pinfo->phdr->pack_flags);
-			proto_tree_add_boolean(flags_tree, hf_frame_pack_symbol_error, tvb, 0, 0, pinfo->phdr->pack_flags);
+			proto_tree_add_bitmask_list_value(flags_tree, tvb, 0, 0, flags, pinfo->phdr->pack_flags);
 		}
 
 		if (pinfo->phdr->rec_type == REC_TYPE_PACKET)

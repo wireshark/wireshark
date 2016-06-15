@@ -1323,20 +1323,24 @@ typedef struct _smb_uid_t {
 static void
 smb_file_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 mask)
 {
+	static const int * mask_flags[] = {
+		&hf_smb_file_access_mask_write_attribute,
+		&hf_smb_file_access_mask_read_attribute,
+		&hf_smb_file_access_mask_execute,
+		&hf_smb_file_access_mask_write_ea,
+		&hf_smb_file_access_mask_read_ea,
+		&hf_smb_file_access_mask_append_data,
+		&hf_smb_file_access_mask_write_data,
+		&hf_smb_file_access_mask_read_data,
+		NULL
+	};
+
 	mask &= 0x0000ffff;
 	if (mask == 0x000001ff) {
 		proto_tree_add_uint(tree, hf_smb_file_access_mask_full_control, tvb, offset, 4, mask);
 	}
 
-
-	proto_tree_add_boolean(tree, hf_smb_file_access_mask_write_attribute, tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_access_mask_read_attribute, tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_access_mask_execute, tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_access_mask_write_ea, tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_access_mask_read_ea, tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_access_mask_append_data, tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_access_mask_write_data, tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_access_mask_read_data, tvb, offset, 4, mask);
+	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, mask_flags, mask);
 }
 struct access_mask_info smb_file_access_mask_info = {
 	"FILE",				/* Name of specific rights */
@@ -1349,20 +1353,25 @@ struct access_mask_info smb_file_access_mask_info = {
 static void
 smb_dir_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 mask)
 {
+	static const int * mask_flags[] = {
+		&hf_smb_dir_access_mask_write_attribute,
+		&hf_smb_dir_access_mask_read_attribute,
+		&hf_smb_dir_access_mask_delete_child,
+		&hf_smb_dir_access_mask_traverse,
+		&hf_smb_dir_access_mask_write_ea,
+		&hf_smb_dir_access_mask_read_ea,
+		&hf_smb_dir_access_mask_add_subdir,
+		&hf_smb_dir_access_mask_add_file,
+		&hf_smb_dir_access_mask_list,
+		NULL
+	};
+
 	mask &= 0x0000ffff;
 	if (mask == 0x000001ff) {
 		proto_tree_add_uint(tree, hf_smb_dir_access_mask_full_control, tvb, offset, 4, mask);
 	}
 
-	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_write_attribute, tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_read_attribute, tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_delete_child, tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_traverse, tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_write_ea, tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_read_ea, tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_add_subdir, tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_add_file, tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_list, tvb, offset, 4, mask);
+	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, mask_flags, mask);
 }
 struct access_mask_info smb_dir_access_mask_info = {
 	"DIR",				/* Name of specific rights */

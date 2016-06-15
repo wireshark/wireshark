@@ -334,7 +334,6 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
   guint16 msti_bridge_identifier_priority, msti_port_identifier_priority;
   int   total_msti_length, offset, msti, msti_format;
   int   msti_length_remaining;
-  guint8 agree_num = 0, dagree_num = 0;
 
   int spt_offset = 0;
 
@@ -933,6 +932,14 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
         /* version 4 length is 55 or more.
          */
         if (version_4_length >= 53) {
+          static const int * agreements[] = {
+              &hf_bpdu_flags_agree_num,
+              &hf_bpdu_flags_dagree_num,
+              &hf_bpdu_flags_agree_valid,
+              &hf_bpdu_flags_restricted_role,
+              NULL
+          };
+
           spt_tree = proto_tree_add_subtree(bpdu_tree, tvb, bpdu_version_4_length, -1,
               ett_spt, NULL, "SPT Extension");
 
@@ -963,27 +970,12 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
           spt_agree_data = tvb_get_guint8(tvb, spt_offset);
 
           sep = initial_sep;
-          if (agreement_item) {
-            agree_num = (spt_agree_data & 0x03);
-            proto_item_append_text(agreement_item, "%sAN: %d", sep, agree_num );
-          }
+          proto_item_append_text(agreement_item, "%sAN: %d", sep, (spt_agree_data & 0x03));
 
-          proto_tree_add_uint(agreement_tree, hf_bpdu_flags_agree_num,
-                              tvb, spt_offset, 1, spt_agree_data);
+          proto_tree_add_bitmask_list_value(agreement_tree, tvb, spt_offset, 1, agreements, spt_agree_data);
           sep = cont_sep;
 
-          if (agreement_item) {
-            dagree_num = ((spt_agree_data & 0x0C) >> 2);
-            proto_item_append_text(agreement_item, "%sDAN: %d", sep, dagree_num);
-          }
-          proto_tree_add_uint(agreement_tree, hf_bpdu_flags_dagree_num,
-                              tvb, spt_offset, 1, spt_agree_data);
-
-          proto_tree_add_boolean(agreement_tree, hf_bpdu_flags_agree_valid,
-                                 tvb, spt_offset, 1, spt_agree_data);
-
-          proto_tree_add_boolean(agreement_tree, hf_bpdu_flags_restricted_role,
-                                 tvb, spt_offset, 1, spt_agree_data);
+          proto_item_append_text(agreement_item, "%sDAN: %d", sep, ((spt_agree_data & 0x0C) >> 2));
 
           if (sep != initial_sep) {
             proto_item_append_text(agreement_item, ")");

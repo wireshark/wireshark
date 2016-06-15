@@ -1072,31 +1072,35 @@ dissect_aim_tlv_value_time(proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tv
 }
 
 int
-dissect_aim_userclass(tvbuff_t *tvb, int offset, int len, proto_item *ti, guint32 flags)
+dissect_aim_userclass(tvbuff_t *tvb, int offset, int len, proto_item *ti, guint32 value)
 {
 	proto_tree *entry;
+	static const int * flags[] = {
+		&hf_aim_userclass_unconfirmed,
+		&hf_aim_userclass_administrator,
+		&hf_aim_userclass_aol,
+		&hf_aim_userclass_commercial,
+		&hf_aim_userclass_aim,
+		&hf_aim_userclass_away,
+		&hf_aim_userclass_icq,
+		&hf_aim_userclass_wireless,
+		&hf_aim_userclass_unknown100,
+		&hf_aim_userclass_imf,
+		&hf_aim_userclass_bot,
+		&hf_aim_userclass_unknown800,
+		&hf_aim_userclass_one_way_wireless,
+		&hf_aim_userclass_unknown2000,
+		&hf_aim_userclass_unknown4000,
+		&hf_aim_userclass_unknown8000,
+		&hf_aim_userclass_unknown10000,
+		&hf_aim_userclass_unknown20000,
+		&hf_aim_userclass_no_knock_knock,
+		&hf_aim_userclass_forward_mobile,
+		NULL
+	};
 
 	entry = proto_item_add_subtree(ti, ett_aim_userclass);
-	proto_tree_add_boolean(entry, hf_aim_userclass_unconfirmed, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_administrator, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_aol, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_commercial, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_aim, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_away, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_icq, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_wireless, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_unknown100, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_imf, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_bot, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_unknown800, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_one_way_wireless, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_unknown2000, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_unknown4000, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_unknown8000, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_unknown10000, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_unknown20000, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_no_knock_knock, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_forward_mobile, tvb, offset, len, flags);
+	proto_tree_add_bitmask_list_value(entry, tvb, offset, len, flags, value);
 
 	return offset+len;
 }

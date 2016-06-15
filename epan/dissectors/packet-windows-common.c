@@ -1691,6 +1691,45 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	proto_tree *subtree, *generic_tree, *standard_tree, *specific_tree;
 	guint32 access;
 
+	static const int * generic_access_flags[] = {
+		&hf_access_generic_read,
+		&hf_access_generic_write,
+		&hf_access_generic_execute,
+		&hf_access_generic_all,
+		&hf_access_maximum_allowed,
+		&hf_access_sacl,
+		NULL
+	};
+
+	static const int * standard_access_flags[] = {
+		&hf_access_standard_synchronise,
+		&hf_access_standard_write_owner,
+		&hf_access_standard_write_dac,
+		&hf_access_standard_read_control,
+		&hf_access_standard_delete,
+		NULL
+	};
+
+	static const int * access_specific_flags[] = {
+		&hf_access_specific_15,
+		&hf_access_specific_14,
+		&hf_access_specific_13,
+		&hf_access_specific_12,
+		&hf_access_specific_11,
+		&hf_access_specific_10,
+		&hf_access_specific_9,
+		&hf_access_specific_8,
+		&hf_access_specific_7,
+		&hf_access_specific_6,
+		&hf_access_specific_5,
+		&hf_access_specific_4,
+		&hf_access_specific_3,
+		&hf_access_specific_2,
+		&hf_access_specific_1,
+		&hf_access_specific_0,
+		NULL
+	};
+
 	if (drep != NULL) {
 		/*
 		 * Called from a DCE RPC protocol dissector, for a
@@ -1725,33 +1764,7 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				   ett_nt_access_mask_generic, NULL, "Generic rights: 0x%08x",
 				   access & GENERIC_RIGHTS_MASK);
 
-	proto_tree_add_boolean(
-		generic_tree, hf_access_generic_read, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		generic_tree, hf_access_generic_write, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		generic_tree, hf_access_generic_execute, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		generic_tree, hf_access_generic_all, tvb, offset - 4, 4,
-		access);
-
-	/* Reserved (??) */
-
-	proto_tree_add_boolean(
-		subtree, hf_access_maximum_allowed, tvb, offset - 4, 4,
-		access);
-
-	/* Access system security */
-
-	proto_tree_add_boolean(
-		subtree, hf_access_sacl, tvb, offset - 4, 4,
-		access);
+	proto_tree_add_bitmask_list_value(generic_tree, tvb, offset - 4, 4, generic_access_flags, access);
 
 	/* Standard access rights */
 
@@ -1759,25 +1772,7 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				   ett_nt_access_mask_standard, NULL, "Standard rights: 0x%08x",
 				   access & STANDARD_RIGHTS_MASK);
 
-	proto_tree_add_boolean(
-		standard_tree, hf_access_standard_synchronise, tvb,
-		offset - 4, 4, access);
-
-	proto_tree_add_boolean(
-		standard_tree, hf_access_standard_write_owner, tvb,
-		offset - 4, 4, access);
-
-	proto_tree_add_boolean(
-		standard_tree, hf_access_standard_write_dac, tvb,
-		offset - 4, 4, access);
-
-	proto_tree_add_boolean(
-		standard_tree, hf_access_standard_read_control, tvb,
-		offset - 4, 4, access);
-
-	proto_tree_add_boolean(
-		standard_tree, hf_access_standard_delete, tvb, offset - 4, 4,
-		access);
+	proto_tree_add_bitmask_list_value(standard_tree, tvb, offset - 4, 4, standard_access_flags, access);
 
 	/* Specific access rights.  Call the specific_rights_fn
 	   pointer if we have one, otherwise just display bits 0-15 in
@@ -1818,69 +1813,7 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		return offset;
 	}
 
-	proto_tree_add_boolean(
-		specific_tree, hf_access_specific_15, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		specific_tree, hf_access_specific_14, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		specific_tree, hf_access_specific_13, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		specific_tree, hf_access_specific_12, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		specific_tree, hf_access_specific_11, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		specific_tree, hf_access_specific_10, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		specific_tree, hf_access_specific_9, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		specific_tree, hf_access_specific_8, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		specific_tree, hf_access_specific_7, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		specific_tree, hf_access_specific_6, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		specific_tree, hf_access_specific_5, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		specific_tree, hf_access_specific_4, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		specific_tree, hf_access_specific_3, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		specific_tree, hf_access_specific_2, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		specific_tree, hf_access_specific_1, tvb, offset - 4, 4,
-		access);
-
-	proto_tree_add_boolean(
-		specific_tree, hf_access_specific_0, tvb, offset - 4, 4,
-		access);
+	proto_tree_add_bitmask_list_value(specific_tree, tvb, offset - 4, 4, access_specific_flags, access);
 
 	return offset;
 }

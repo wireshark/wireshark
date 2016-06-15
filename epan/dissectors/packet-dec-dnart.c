@@ -430,16 +430,16 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             break;
         }
     } else if (msg_flags & RT_FLAGS_LONG_MSG){
-        proto_tree_add_uint(flags_tree, hf_dec_rt_long_msg,
-                tvb, offset, 1, msg_flags);
-        proto_tree_add_boolean(flags_tree, hf_dec_rt_rqr, tvb,
-                    offset, 1, msg_flags);
-        proto_tree_add_boolean(flags_tree, hf_dec_rt_rts, tvb,
-                    offset, 1, msg_flags);
-        proto_tree_add_boolean(flags_tree, hf_dec_rt_inter_eth, tvb,
-                    offset, 1, msg_flags);
-        proto_tree_add_boolean(flags_tree, hf_dec_rt_discard, tvb,
-                    offset, 1, msg_flags);
+       const int * msg_bit_flags[] = {
+           &hf_dec_rt_long_msg,
+           &hf_dec_rt_rqr,
+           &hf_dec_rt_rts,
+           &hf_dec_rt_inter_eth,
+           &hf_dec_rt_discard,
+           NULL
+        };
+
+        proto_tree_add_bitmask_list_value(flags_tree, tvb, offset, 1, msg_bit_flags, msg_flags);
 
         /* Increment offset by three:
                 1 to get past the flags field
@@ -884,8 +884,8 @@ handle_nsp_msg(
             /* This is the last field, the rest are data */
             proto_tree_add_item(tree, hf_dec_rt_segnum,
                 tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_boolean(tree, hf_dec_rt_delay,
-                tvb, my_offset, 2, seg_num);
+            proto_tree_add_item(tree, hf_dec_rt_delay,
+                tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
             my_offset += 2;
             /* Compute the number of bytes in this data segment */
             data_length =
@@ -912,8 +912,8 @@ handle_nsp_msg(
                 /* There are no ack/nak fields */
                 proto_tree_add_item(tree, hf_dec_rt_segnum,
                     tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
-                proto_tree_add_boolean(tree, hf_dec_rt_delay,
-                    tvb, my_offset, 2, ack_num);
+                proto_tree_add_item(tree, hf_dec_rt_delay,
+                    tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
                 my_offset += 2;
                 /* We are done, return my_offset */
                 break;
@@ -932,8 +932,8 @@ handle_nsp_msg(
             /* This is the last field, the rest are data */
             proto_tree_add_item(tree, hf_dec_rt_segnum,
                 tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_boolean(tree, hf_dec_rt_delay,
-                tvb, my_offset, 2, seg_num);
+            proto_tree_add_item(tree, hf_dec_rt_delay,
+                tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
             my_offset += 2;
             /* We are done, return my_offset */
             break;
@@ -952,8 +952,8 @@ handle_nsp_msg(
                 /* There are no ack/nak fields */
                 proto_tree_add_item(tree, hf_dec_rt_segnum,
                     tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
-                proto_tree_add_boolean(tree, hf_dec_rt_delay,
-                    tvb, my_offset, 2, ack_num);
+                proto_tree_add_item(tree, hf_dec_rt_delay,
+                    tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
                 my_offset += 2;
                 /* We are done, return my_offset */
                 break;
@@ -971,8 +971,8 @@ handle_nsp_msg(
             seg_num = tvb_get_letohs(tvb, my_offset);
             proto_tree_add_item(tree, hf_dec_rt_segnum,
                 tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_boolean(tree, hf_dec_rt_delay,
-                tvb, my_offset, 2, seg_num);
+            proto_tree_add_item(tree, hf_dec_rt_delay,
+                tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
             my_offset += 2;
             /* Now follows the ls_flags field */
             ls_flags = tvb_get_guint8(tvb, my_offset);

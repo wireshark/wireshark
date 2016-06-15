@@ -1705,23 +1705,20 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
 static void
 ldap_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-  proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_CONTROL_ACCESS, tvb, offset, 4, access);
+  static const int * access_flags[] = {
+    &hf_ldap_AccessMask_ADS_CONTROL_ACCESS,
+    &hf_ldap_AccessMask_ADS_LIST_OBJECT,
+    &hf_ldap_AccessMask_ADS_DELETE_TREE,
+    &hf_ldap_AccessMask_ADS_WRITE_PROP,
+    &hf_ldap_AccessMask_ADS_READ_PROP,
+    &hf_ldap_AccessMask_ADS_SELF_WRITE,
+    &hf_ldap_AccessMask_ADS_LIST,
+    &hf_ldap_AccessMask_ADS_DELETE_CHILD,
+    &hf_ldap_AccessMask_ADS_CREATE_CHILD,
+    NULL
+  };
 
-  proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_LIST_OBJECT, tvb, offset, 4, access);
-
-  proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_DELETE_TREE, tvb, offset, 4, access);
-
-  proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_WRITE_PROP, tvb, offset, 4, access);
-
-  proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_READ_PROP, tvb, offset, 4, access);
-
-  proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_SELF_WRITE, tvb, offset, 4, access);
-
-  proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_LIST, tvb, offset, 4, access);
-
-  proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_DELETE_CHILD, tvb, offset, 4, access);
-
-  proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_CREATE_CHILD, tvb, offset, 4, access);
+  proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
 struct access_mask_info ldap_access_mask_info = {
   "LDAP",                 /* Name of specific rights */
