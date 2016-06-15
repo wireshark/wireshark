@@ -112,6 +112,7 @@ public:
         QTreeWidgetItem (packet_type_),
         group_by_summary_(true),
         packet_num_(0),
+        group_(0),
         severity_(0),
         hf_id_(-1)
     {
