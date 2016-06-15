@@ -9209,120 +9209,34 @@ mapi_dissect_struct_OpenMessage_recipients(tvbuff_t *tvb _U_, int offset _U_, pa
 int
 mapi_dissect_bitmap_ulEventType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * mapi_ulEventType_fields[] = {
+		&hf_mapi_ulEventType_fnevCriticalError,
+		&hf_mapi_ulEventType_fnevNewMail,
+		&hf_mapi_ulEventType_fnevObjectCreated,
+		&hf_mapi_ulEventType_fnevObjectDeleted,
+		&hf_mapi_ulEventType_fnevObjectModified,
+		&hf_mapi_ulEventType_fnevObjectMoved,
+		&hf_mapi_ulEventType_fnevObjectCopied,
+		&hf_mapi_ulEventType_fnevSearchComplete,
+		&hf_mapi_ulEventType_fnevTableModified,
+		&hf_mapi_ulEventType_fnevStatusObjectModified,
+		&hf_mapi_ulEventType_fnevReservedForMapi,
+		&hf_mapi_ulEventType_fnevExtended,
+	};
 	guint16 flags;
 	ALIGN_TO_2_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 2, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_mapi_ulEventType);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_mapi_ulEventType, mapi_ulEventType_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_mapi_ulEventType_fnevCriticalError, tvb, offset-2, 2, flags);
-	if (flags&( 0x00000001 )){
-		proto_item_append_text(item, "fnevCriticalError");
-		if (flags & (~( 0x00000001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000001 ));
-
-	proto_tree_add_boolean(tree, hf_mapi_ulEventType_fnevNewMail, tvb, offset-2, 2, flags);
-	if (flags&( 0x00000002 )){
-		proto_item_append_text(item, "fnevNewMail");
-		if (flags & (~( 0x00000002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000002 ));
-
-	proto_tree_add_boolean(tree, hf_mapi_ulEventType_fnevObjectCreated, tvb, offset-2, 2, flags);
-	if (flags&( 0x00000004 )){
-		proto_item_append_text(item, "fnevObjectCreated");
-		if (flags & (~( 0x00000004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000004 ));
-
-	proto_tree_add_boolean(tree, hf_mapi_ulEventType_fnevObjectDeleted, tvb, offset-2, 2, flags);
-	if (flags&( 0x00000008 )){
-		proto_item_append_text(item, "fnevObjectDeleted");
-		if (flags & (~( 0x00000008 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000008 ));
-
-	proto_tree_add_boolean(tree, hf_mapi_ulEventType_fnevObjectModified, tvb, offset-2, 2, flags);
-	if (flags&( 0x00000010 )){
-		proto_item_append_text(item, "fnevObjectModified");
-		if (flags & (~( 0x00000010 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000010 ));
-
-	proto_tree_add_boolean(tree, hf_mapi_ulEventType_fnevObjectMoved, tvb, offset-2, 2, flags);
-	if (flags&( 0x00000020 )){
-		proto_item_append_text(item, "fnevObjectMoved");
-		if (flags & (~( 0x00000020 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000020 ));
-
-	proto_tree_add_boolean(tree, hf_mapi_ulEventType_fnevObjectCopied, tvb, offset-2, 2, flags);
-	if (flags&( 0x00000040 )){
-		proto_item_append_text(item, "fnevObjectCopied");
-		if (flags & (~( 0x00000040 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000040 ));
-
-	proto_tree_add_boolean(tree, hf_mapi_ulEventType_fnevSearchComplete, tvb, offset-2, 2, flags);
-	if (flags&( 0x00000080 )){
-		proto_item_append_text(item, "fnevSearchComplete");
-		if (flags & (~( 0x00000080 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000080 ));
-
-	proto_tree_add_boolean(tree, hf_mapi_ulEventType_fnevTableModified, tvb, offset-2, 2, flags);
-	if (flags&( 0x00000100 )){
-		proto_item_append_text(item, "fnevTableModified");
-		if (flags & (~( 0x00000100 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000100 ));
-
-	proto_tree_add_boolean(tree, hf_mapi_ulEventType_fnevStatusObjectModified, tvb, offset-2, 2, flags);
-	if (flags&( 0x00000200 )){
-		proto_item_append_text(item, "fnevStatusObjectModified");
-		if (flags & (~( 0x00000200 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000200 ));
-
-	proto_tree_add_boolean(tree, hf_mapi_ulEventType_fnevReservedForMapi, tvb, offset-2, 2, flags);
-	if (flags&( 0x40000000 )){
-		proto_item_append_text(item, "fnevReservedForMapi");
-		if (flags & (~( 0x40000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x40000000 ));
-
-	proto_tree_add_boolean(tree, hf_mapi_ulEventType_fnevExtended, tvb, offset-2, 2, flags);
-	if (flags&( 0x80000000 )){
-		proto_item_append_text(item, "fnevExtended");
-		if (flags & (~( 0x80000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x80000000 ));
-
-	if (flags) {
+	if (flags & (~0xc00003ff)) {
+		flags &= (~0xc00003ff);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 

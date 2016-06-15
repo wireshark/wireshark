@@ -200,6 +200,8 @@ sub Bitmap($$$$)
 {
 	my ($self,$e,$name,$ifname) = @_;
 	my $dissectorname = "$ifname\_dissect\_bitmap\_".StripPrefixes($name, $self->{conformance}->{strip_prefixes});
+	my $element_count = 0;
+	my $total_ev = 0;
 
 	$self->register_ett("ett_$ifname\_$name");
 
@@ -210,9 +212,26 @@ sub Bitmap($$$$)
 	$self->pidl_code("$dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)");
 	$self->pidl_code("{");
 	$self->indent;
-	$self->pidl_code("proto_item *item = NULL;");
-	$self->pidl_code("proto_tree *tree = NULL;");
-	$self->pidl_code("");
+	foreach (@{$e->{ELEMENTS}}) {
+		next unless (/([^ ]*) (.*)/);
+		$element_count++;
+	}
+	if ($element_count > 0) {
+		$self->pidl_code("proto_item *item;");
+		$self->pidl_code("static const int * $ifname\_$name\_fields[] = {");
+		$self->indent;
+		foreach (@{$e->{ELEMENTS}}) {
+			next unless (/([^ ]*) (.*)/);
+			my ($en,$ev) = ($1,$2);
+			my $hf_bitname = "hf_$ifname\_$name\_$1";
+
+			$ev =~ s/[()\s]//g;
+			$total_ev += hex($ev);
+			$self->pidl_code("&$hf_bitname,");
+		}
+		$self->deindent;
+		$self->pidl_code("};");
+	}
 
 	$self->pidl_code("g$e->{BASE_TYPE} flags;");
 	if ($e->{ALIGN} > 1) {
@@ -221,18 +240,23 @@ sub Bitmap($$$$)
 
 	$self->pidl_code("");
 
-	$self->pidl_code("if (parent_tree) {");
-	$self->indent;
-	$self->pidl_code("item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, $e->{ALIGN}, DREP_ENC_INTEGER(drep));");
-	$self->pidl_code("tree = proto_item_add_subtree(item,ett_$ifname\_$name);");
-	$self->deindent;
-	$self->pidl_code("}\n");
+	if ($element_count > 0) {
+		$self->pidl_code("item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,");
+		$self->pidl_code("\t\t\tett_$ifname\_$name, $ifname\_$name\_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);");
+		$self->pidl_code("");
 
-	$self->pidl_code("offset = dissect_ndr_$e->{BASE_TYPE}(tvb, offset, pinfo, tree, di, drep, -1, &flags);");
+		$self->pidl_code("offset = dissect_ndr_$e->{BASE_TYPE}(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);");
+		$self->pidl_code("");
 
-	$self->pidl_code("proto_item_append_text(item, \": \");\n");
-	$self->pidl_code("if (!flags)");
-	$self->pidl_code("\tproto_item_append_text(item, \"(No values set)\");\n");
+		$self->pidl_code("if (!flags)");
+		$self->pidl_code("\tproto_item_append_text(item, \": (No values set)\");\n");
+	} else {
+		$self->pidl_code("proto_tree_add_item(parent_tree, hf_index, tvb, offset, $e->{ALIGN}, DREP_ENC_INTEGER(drep));");
+		$self->pidl_code("");
+
+		$self->pidl_code("offset = dissect_ndr_$e->{BASE_TYPE}(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);");
+		$self->pidl_code("");
+	}
 
 	foreach (@{$e->{ELEMENTS}}) {
 		next unless (/([^ ]*) (.*)/);
@@ -254,20 +278,15 @@ sub Bitmap($$$$)
 			$self->pidl_def("   \"$en is NOT SET\",");
 		}
 		$self->pidl_def("};");
-
-		$self->pidl_code("proto_tree_add_boolean(tree, $hf_bitname, tvb, offset-$e->{ALIGN}, $e->{ALIGN}, flags);");
-		$self->pidl_code("if (flags&$ev){");
-		$self->pidl_code("\tproto_item_append_text(item, \"$en\");");
-		$self->pidl_code("\tif (flags & (~$ev))");
-		$self->pidl_code("\t\tproto_item_append_text(item, \", \");");
-		$self->pidl_code("}");
-		$self->pidl_code("flags&=(~$ev);");
-		$self->pidl_code("");
 	}
 
-	$self->pidl_code("if (flags) {");
-	$self->pidl_code("\tproto_item_append_text(item, \"Unknown bitmap value 0x%x\", flags);");
-	$self->pidl_code("}\n");
+	if ($element_count > 0) {
+		my $total_ev_hex = sprintf("0x%08x", $total_ev);
+		$self->pidl_code("if (flags & (~$total_ev_hex)) {");
+		$self->pidl_code("\tflags &= (~$total_ev_hex);");
+		$self->pidl_code("\tproto_item_append_text(item, \"Unknown bitmap value 0x%x\", flags);");
+		$self->pidl_code("}\n");
+	}
 	$self->pidl_code("return offset;");
 	$self->deindent;
 	$self->pidl_code("}\n");

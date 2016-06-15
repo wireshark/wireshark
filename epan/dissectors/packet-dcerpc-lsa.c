@@ -1614,26 +1614,12 @@ lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_(tvbuff_t *tvb _U_, int offset
 int
 lsarpc_dissect_bitmap_security_secinfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_lsarpc_security_secinfo);
-	}
+	proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
-
-	if (!flags)
-		proto_item_append_text(item, "(No values set)");
-
-	if (flags) {
-		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
-	}
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	return offset;
 }

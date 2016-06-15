@@ -201,40 +201,24 @@ initshutdown_dissect_enum_ReasonMinor(tvbuff_t *tvb _U_, int offset _U_, packet_
 int
 initshutdown_dissect_bitmap_ReasonFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * initshutdown_initshutdown_ReasonFlags_fields[] = {
+		&hf_initshutdown_initshutdown_ReasonFlags_SHTDN_REASON_FLAG_USER_DEFINED,
+		&hf_initshutdown_initshutdown_ReasonFlags_SHTDN_REASON_FLAG_PLANNED,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_initshutdown_initshutdown_ReasonFlags);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_initshutdown_initshutdown_ReasonFlags, initshutdown_initshutdown_ReasonFlags_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_initshutdown_initshutdown_ReasonFlags_SHTDN_REASON_FLAG_USER_DEFINED, tvb, offset-4, 4, flags);
-	if (flags&( 0x40000000 )){
-		proto_item_append_text(item, "SHTDN_REASON_FLAG_USER_DEFINED");
-		if (flags & (~( 0x40000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x40000000 ));
-
-	proto_tree_add_boolean(tree, hf_initshutdown_initshutdown_ReasonFlags_SHTDN_REASON_FLAG_PLANNED, tvb, offset-4, 4, flags);
-	if (flags&( 0x80000000 )){
-		proto_item_append_text(item, "SHTDN_REASON_FLAG_PLANNED");
-		if (flags & (~( 0x80000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x80000000 ));
-
-	if (flags) {
+	if (flags & (~0xc0000000)) {
+		flags &= (~0xc0000000);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 

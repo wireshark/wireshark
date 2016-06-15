@@ -362,272 +362,53 @@ static int atsvc_dissect_element_JobGetInfo_job_info__(tvbuff_t *tvb _U_, int of
 int
 atsvc_dissect_bitmap_DaysOfMonth(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * atsvc_atsvc_DaysOfMonth_fields[] = {
+		&hf_atsvc_atsvc_DaysOfMonth_First,
+		&hf_atsvc_atsvc_DaysOfMonth_Second,
+		&hf_atsvc_atsvc_DaysOfMonth_Third,
+		&hf_atsvc_atsvc_DaysOfMonth_Fourth,
+		&hf_atsvc_atsvc_DaysOfMonth_Fifth,
+		&hf_atsvc_atsvc_DaysOfMonth_Sixth,
+		&hf_atsvc_atsvc_DaysOfMonth_Seventh,
+		&hf_atsvc_atsvc_DaysOfMonth_Eight,
+		&hf_atsvc_atsvc_DaysOfMonth_Ninth,
+		&hf_atsvc_atsvc_DaysOfMonth_Tenth,
+		&hf_atsvc_atsvc_DaysOfMonth_Eleventh,
+		&hf_atsvc_atsvc_DaysOfMonth_Twelfth,
+		&hf_atsvc_atsvc_DaysOfMonth_Thitteenth,
+		&hf_atsvc_atsvc_DaysOfMonth_Fourteenth,
+		&hf_atsvc_atsvc_DaysOfMonth_Fifteenth,
+		&hf_atsvc_atsvc_DaysOfMonth_Sixteenth,
+		&hf_atsvc_atsvc_DaysOfMonth_Seventeenth,
+		&hf_atsvc_atsvc_DaysOfMonth_Eighteenth,
+		&hf_atsvc_atsvc_DaysOfMonth_Ninteenth,
+		&hf_atsvc_atsvc_DaysOfMonth_Twentyth,
+		&hf_atsvc_atsvc_DaysOfMonth_Twentyfirst,
+		&hf_atsvc_atsvc_DaysOfMonth_Twentysecond,
+		&hf_atsvc_atsvc_DaysOfMonth_Twentythird,
+		&hf_atsvc_atsvc_DaysOfMonth_Twentyfourth,
+		&hf_atsvc_atsvc_DaysOfMonth_Twentyfifth,
+		&hf_atsvc_atsvc_DaysOfMonth_Twentysixth,
+		&hf_atsvc_atsvc_DaysOfMonth_Twentyseventh,
+		&hf_atsvc_atsvc_DaysOfMonth_Twentyeighth,
+		&hf_atsvc_atsvc_DaysOfMonth_Twentyninth,
+		&hf_atsvc_atsvc_DaysOfMonth_Thirtieth,
+		&hf_atsvc_atsvc_DaysOfMonth_Thirtyfirst,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_atsvc_atsvc_DaysOfMonth);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_atsvc_atsvc_DaysOfMonth, atsvc_atsvc_DaysOfMonth_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_First, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000001 )){
-		proto_item_append_text(item, "First");
-		if (flags & (~( 0x00000001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000001 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Second, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000002 )){
-		proto_item_append_text(item, "Second");
-		if (flags & (~( 0x00000002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000002 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Third, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000004 )){
-		proto_item_append_text(item, "Third");
-		if (flags & (~( 0x00000004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000004 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Fourth, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000008 )){
-		proto_item_append_text(item, "Fourth");
-		if (flags & (~( 0x00000008 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000008 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Fifth, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000010 )){
-		proto_item_append_text(item, "Fifth");
-		if (flags & (~( 0x00000010 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000010 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Sixth, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000020 )){
-		proto_item_append_text(item, "Sixth");
-		if (flags & (~( 0x00000020 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000020 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Seventh, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000040 )){
-		proto_item_append_text(item, "Seventh");
-		if (flags & (~( 0x00000040 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000040 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Eight, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000080 )){
-		proto_item_append_text(item, "Eight");
-		if (flags & (~( 0x00000080 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000080 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Ninth, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000100 )){
-		proto_item_append_text(item, "Ninth");
-		if (flags & (~( 0x00000100 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000100 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Tenth, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000200 )){
-		proto_item_append_text(item, "Tenth");
-		if (flags & (~( 0x00000200 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000200 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Eleventh, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000400 )){
-		proto_item_append_text(item, "Eleventh");
-		if (flags & (~( 0x00000400 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000400 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Twelfth, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000800 )){
-		proto_item_append_text(item, "Twelfth");
-		if (flags & (~( 0x00000800 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000800 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Thitteenth, tvb, offset-4, 4, flags);
-	if (flags&( 0x00001000 )){
-		proto_item_append_text(item, "Thitteenth");
-		if (flags & (~( 0x00001000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00001000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Fourteenth, tvb, offset-4, 4, flags);
-	if (flags&( 0x00002000 )){
-		proto_item_append_text(item, "Fourteenth");
-		if (flags & (~( 0x00002000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00002000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Fifteenth, tvb, offset-4, 4, flags);
-	if (flags&( 0x00004000 )){
-		proto_item_append_text(item, "Fifteenth");
-		if (flags & (~( 0x00004000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00004000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Sixteenth, tvb, offset-4, 4, flags);
-	if (flags&( 0x00008000 )){
-		proto_item_append_text(item, "Sixteenth");
-		if (flags & (~( 0x00008000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00008000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Seventeenth, tvb, offset-4, 4, flags);
-	if (flags&( 0x00010000 )){
-		proto_item_append_text(item, "Seventeenth");
-		if (flags & (~( 0x00010000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00010000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Eighteenth, tvb, offset-4, 4, flags);
-	if (flags&( 0x00020000 )){
-		proto_item_append_text(item, "Eighteenth");
-		if (flags & (~( 0x00020000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00020000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Ninteenth, tvb, offset-4, 4, flags);
-	if (flags&( 0x00040000 )){
-		proto_item_append_text(item, "Ninteenth");
-		if (flags & (~( 0x00040000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00040000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Twentyth, tvb, offset-4, 4, flags);
-	if (flags&( 0x00080000 )){
-		proto_item_append_text(item, "Twentyth");
-		if (flags & (~( 0x00080000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00080000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Twentyfirst, tvb, offset-4, 4, flags);
-	if (flags&( 0x00100000 )){
-		proto_item_append_text(item, "Twentyfirst");
-		if (flags & (~( 0x00100000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00100000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Twentysecond, tvb, offset-4, 4, flags);
-	if (flags&( 0x00200000 )){
-		proto_item_append_text(item, "Twentysecond");
-		if (flags & (~( 0x00200000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00200000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Twentythird, tvb, offset-4, 4, flags);
-	if (flags&( 0x00400000 )){
-		proto_item_append_text(item, "Twentythird");
-		if (flags & (~( 0x00400000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00400000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Twentyfourth, tvb, offset-4, 4, flags);
-	if (flags&( 0x00800000 )){
-		proto_item_append_text(item, "Twentyfourth");
-		if (flags & (~( 0x00800000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00800000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Twentyfifth, tvb, offset-4, 4, flags);
-	if (flags&( 0x01000000 )){
-		proto_item_append_text(item, "Twentyfifth");
-		if (flags & (~( 0x01000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x01000000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Twentysixth, tvb, offset-4, 4, flags);
-	if (flags&( 0x02000000 )){
-		proto_item_append_text(item, "Twentysixth");
-		if (flags & (~( 0x02000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x02000000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Twentyseventh, tvb, offset-4, 4, flags);
-	if (flags&( 0x04000000 )){
-		proto_item_append_text(item, "Twentyseventh");
-		if (flags & (~( 0x04000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x04000000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Twentyeighth, tvb, offset-4, 4, flags);
-	if (flags&( 0x08000000 )){
-		proto_item_append_text(item, "Twentyeighth");
-		if (flags & (~( 0x08000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x08000000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Twentyninth, tvb, offset-4, 4, flags);
-	if (flags&( 0x10000000 )){
-		proto_item_append_text(item, "Twentyninth");
-		if (flags & (~( 0x10000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x10000000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Thirtieth, tvb, offset-4, 4, flags);
-	if (flags&( 0x20000000 )){
-		proto_item_append_text(item, "Thirtieth");
-		if (flags & (~( 0x20000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x20000000 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfMonth_Thirtyfirst, tvb, offset-4, 4, flags);
-	if (flags&( 0x40000000 )){
-		proto_item_append_text(item, "Thirtyfirst");
-		if (flags & (~( 0x40000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x40000000 ));
-
-	if (flags) {
+	if (flags & (~0x7fffffff)) {
+		flags &= (~0x7fffffff);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -646,63 +427,26 @@ atsvc_dissect_bitmap_DaysOfMonth(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 int
 atsvc_dissect_bitmap_Flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * atsvc_atsvc_Flags_fields[] = {
+		&hf_atsvc_atsvc_Flags_JOB_RUN_PERIODICALLY,
+		&hf_atsvc_atsvc_Flags_JOB_EXEC_ERROR,
+		&hf_atsvc_atsvc_Flags_JOB_RUNS_TODAY,
+		&hf_atsvc_atsvc_Flags_JOB_ADD_CURRENT_DATE,
+		&hf_atsvc_atsvc_Flags_JOB_NONINTERACTIVE,
+	};
 	guint8 flags;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 1, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_atsvc_atsvc_Flags);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_atsvc_atsvc_Flags, atsvc_atsvc_Flags_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint8(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_Flags_JOB_RUN_PERIODICALLY, tvb, offset-1, 1, flags);
-	if (flags&( 0x01 )){
-		proto_item_append_text(item, "JOB_RUN_PERIODICALLY");
-		if (flags & (~( 0x01 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x01 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_Flags_JOB_EXEC_ERROR, tvb, offset-1, 1, flags);
-	if (flags&( 0x02 )){
-		proto_item_append_text(item, "JOB_EXEC_ERROR");
-		if (flags & (~( 0x02 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x02 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_Flags_JOB_RUNS_TODAY, tvb, offset-1, 1, flags);
-	if (flags&( 0x04 )){
-		proto_item_append_text(item, "JOB_RUNS_TODAY");
-		if (flags & (~( 0x04 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x04 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_Flags_JOB_ADD_CURRENT_DATE, tvb, offset-1, 1, flags);
-	if (flags&( 0x08 )){
-		proto_item_append_text(item, "JOB_ADD_CURRENT_DATE");
-		if (flags & (~( 0x08 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x08 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_Flags_JOB_NONINTERACTIVE, tvb, offset-1, 1, flags);
-	if (flags&( 0x10 )){
-		proto_item_append_text(item, "JOB_NONINTERACTIVE");
-		if (flags & (~( 0x10 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x10 ));
-
-	if (flags) {
+	if (flags & (~0x0000001f)) {
+		flags &= (~0x0000001f);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -723,79 +467,28 @@ atsvc_dissect_bitmap_Flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
 int
 atsvc_dissect_bitmap_DaysOfWeek(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * atsvc_atsvc_DaysOfWeek_fields[] = {
+		&hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_MONDAY,
+		&hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_TUESDAY,
+		&hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_WEDNESDAY,
+		&hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_THURSDAY,
+		&hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_FRIDAY,
+		&hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_SATURDAY,
+		&hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_SUNDAY,
+	};
 	guint8 flags;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 1, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_atsvc_atsvc_DaysOfWeek);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_atsvc_atsvc_DaysOfWeek, atsvc_atsvc_DaysOfWeek_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint8(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_MONDAY, tvb, offset-1, 1, flags);
-	if (flags&( 0x01 )){
-		proto_item_append_text(item, "DAYSOFWEEK_MONDAY");
-		if (flags & (~( 0x01 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x01 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_TUESDAY, tvb, offset-1, 1, flags);
-	if (flags&( 0x02 )){
-		proto_item_append_text(item, "DAYSOFWEEK_TUESDAY");
-		if (flags & (~( 0x02 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x02 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_WEDNESDAY, tvb, offset-1, 1, flags);
-	if (flags&( 0x04 )){
-		proto_item_append_text(item, "DAYSOFWEEK_WEDNESDAY");
-		if (flags & (~( 0x04 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x04 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_THURSDAY, tvb, offset-1, 1, flags);
-	if (flags&( 0x08 )){
-		proto_item_append_text(item, "DAYSOFWEEK_THURSDAY");
-		if (flags & (~( 0x08 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x08 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_FRIDAY, tvb, offset-1, 1, flags);
-	if (flags&( 0x10 )){
-		proto_item_append_text(item, "DAYSOFWEEK_FRIDAY");
-		if (flags & (~( 0x10 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x10 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_SATURDAY, tvb, offset-1, 1, flags);
-	if (flags&( 0x20 )){
-		proto_item_append_text(item, "DAYSOFWEEK_SATURDAY");
-		if (flags & (~( 0x20 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x20 ));
-
-	proto_tree_add_boolean(tree, hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_SUNDAY, tvb, offset-1, 1, flags);
-	if (flags&( 0x40 )){
-		proto_item_append_text(item, "DAYSOFWEEK_SUNDAY");
-		if (flags & (~( 0x40 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x40 ));
-
-	if (flags) {
+	if (flags & (~0x0000007f)) {
+		flags &= (~0x0000007f);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 

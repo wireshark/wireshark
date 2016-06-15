@@ -887,168 +887,40 @@ frsrpc_dissect_struct_CommPktGSVN(tvbuff_t *tvb _U_, int offset _U_, packet_info
 int
 frsrpc_dissect_bitmap_CommPktCoCmdFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * frsrpc_frsrpc_CommPktCoCmdFlags_fields[] = {
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_ABORT_CO,
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_VV_ACTIVATED,
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_CONTENT_CMD,
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_LOCATION_CMD,
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_ONLIST,
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_LOCALCO,
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_RETRY,
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_OUT_OF_ORDER,
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_NEW_FILE,
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_CONTROL,
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_DIRECTED_CO,
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_VVJOIN_TO_ORIG,
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_SKIP_ORIG_REC_C,
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_MOVEIN_GEN,
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_MORPH_GEN_HEAD,
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_JUST_OID_RESET,
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_COMPRESSED_STAGE,
+		&hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_SKIP_VV_UPDATE,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_frsrpc_frsrpc_CommPktCoCmdFlags);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_frsrpc_frsrpc_CommPktCoCmdFlags, frsrpc_frsrpc_CommPktCoCmdFlags_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_ABORT_CO, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000001 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_ABORT_CO");
-		if (flags & (~( 0x00000001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000001 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_VV_ACTIVATED, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000002 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_VV_ACTIVATED");
-		if (flags & (~( 0x00000002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000002 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_CONTENT_CMD, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000004 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_CONTENT_CMD");
-		if (flags & (~( 0x00000004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000004 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_LOCATION_CMD, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000008 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_LOCATION_CMD");
-		if (flags & (~( 0x00000008 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000008 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_ONLIST, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000010 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_ONLIST");
-		if (flags & (~( 0x00000010 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000010 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_LOCALCO, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000020 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_LOCALCO");
-		if (flags & (~( 0x00000020 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000020 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_RETRY, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000040 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_RETRY");
-		if (flags & (~( 0x00000040 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000040 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_OUT_OF_ORDER, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000200 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_OUT_OF_ORDER");
-		if (flags & (~( 0x00000200 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000200 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_NEW_FILE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000400 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_NEW_FILE");
-		if (flags & (~( 0x00000400 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000400 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_CONTROL, tvb, offset-4, 4, flags);
-	if (flags&( 0x00001000 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_CONTROL");
-		if (flags & (~( 0x00001000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00001000 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_DIRECTED_CO, tvb, offset-4, 4, flags);
-	if (flags&( 0x00002000 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_DIRECTED_CO");
-		if (flags & (~( 0x00002000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00002000 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_VVJOIN_TO_ORIG, tvb, offset-4, 4, flags);
-	if (flags&( 0x00040000 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_VVJOIN_TO_ORIG");
-		if (flags & (~( 0x00040000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00040000 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_SKIP_ORIG_REC_C, tvb, offset-4, 4, flags);
-	if (flags&( 0x00100000 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_SKIP_ORIG_REC_C");
-		if (flags & (~( 0x00100000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00100000 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_MOVEIN_GEN, tvb, offset-4, 4, flags);
-	if (flags&( 0x00200000 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_MOVEIN_GEN");
-		if (flags & (~( 0x00200000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00200000 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_MORPH_GEN_HEAD, tvb, offset-4, 4, flags);
-	if (flags&( 0x00400000 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_MORPH_GEN_HEAD");
-		if (flags & (~( 0x00400000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00400000 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_JUST_OID_RESET, tvb, offset-4, 4, flags);
-	if (flags&( 0x00800000 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_JUST_OID_RESET");
-		if (flags & (~( 0x00800000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00800000 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_COMPRESSED_STAGE, tvb, offset-4, 4, flags);
-	if (flags&( 0x01000000 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_COMPRESSED_STAGE");
-		if (flags & (~( 0x01000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x01000000 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_SKIP_VV_UPDATE, tvb, offset-4, 4, flags);
-	if (flags&( 0x02000000 )){
-		proto_item_append_text(item, "FRSRPC_CO_FLAG_SKIP_VV_UPDATE");
-		if (flags & (~( 0x02000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x02000000 ));
-
-	if (flags) {
+	if (flags & (~0x03f4367f)) {
+		flags &= (~0x03f4367f);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -1065,48 +937,25 @@ frsrpc_dissect_bitmap_CommPktCoCmdFlags(tvbuff_t *tvb _U_, int offset _U_, packe
 int
 frsrpc_dissect_bitmap_CommPktCoCmdIFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * frsrpc_frsrpc_CommPktCoCmdIFlags_fields[] = {
+		&hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_VVRETIRE_EXEC,
+		&hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_CO_ABORT,
+		&hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_DIR_ENUM_PENDING,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_frsrpc_frsrpc_CommPktCoCmdIFlags);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_frsrpc_frsrpc_CommPktCoCmdIFlags, frsrpc_frsrpc_CommPktCoCmdIFlags_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_VVRETIRE_EXEC, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000001 )){
-		proto_item_append_text(item, "FRSRPC_CO_IFLAG_VVRETIRE_EXEC");
-		if (flags & (~( 0x00000001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000001 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_CO_ABORT, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000002 )){
-		proto_item_append_text(item, "FRSRPC_CO_IFLAG_CO_ABORT");
-		if (flags & (~( 0x00000002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000002 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_DIR_ENUM_PENDING, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000004 )){
-		proto_item_append_text(item, "FRSRPC_CO_IFLAG_DIR_ENUM_PENDING");
-		if (flags & (~( 0x00000004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000004 ));
-
-	if (flags) {
+	if (flags & (~0x00000007)) {
+		flags &= (~0x00000007);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -1174,136 +1023,36 @@ frsrpc_dissect_enum_CommPktCoCmdStatus(tvbuff_t *tvb _U_, int offset _U_, packet
 int
 frsrpc_dissect_bitmap_CommPktCoCmdContentCmd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * frsrpc_frsrpc_CommPktCoCmdContentCmd_fields[] = {
+		&hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_OVERWRITE,
+		&hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_EXTEND,
+		&hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_TRUNCATION,
+		&hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_OVERWRITE,
+		&hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_EXTEND,
+		&hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_TRUNCATION,
+		&hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_FILE_CREATE,
+		&hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_FILE_DELETE,
+		&hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_EA_CHANGE,
+		&hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_SECURITY_CHANGE,
+		&hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_OLD_NAME,
+		&hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NEW_NAME,
+		&hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_BASIC_INFO_CHANGE,
+		&hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_COMPRESSION_CHANGE,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_frsrpc_frsrpc_CommPktCoCmdContentCmd);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_frsrpc_frsrpc_CommPktCoCmdContentCmd, frsrpc_frsrpc_CommPktCoCmdContentCmd_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_OVERWRITE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000001 )){
-		proto_item_append_text(item, "FRSRPC_CONTENT_REASON_DATA_OVERWRITE");
-		if (flags & (~( 0x00000001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000001 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_EXTEND, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000002 )){
-		proto_item_append_text(item, "FRSRPC_CONTENT_REASON_DATA_EXTEND");
-		if (flags & (~( 0x00000002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000002 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_TRUNCATION, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000004 )){
-		proto_item_append_text(item, "FRSRPC_CONTENT_REASON_DATA_TRUNCATION");
-		if (flags & (~( 0x00000004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000004 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_OVERWRITE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000010 )){
-		proto_item_append_text(item, "FRSRPC_CONTENT_REASON_NAMED_DATA_OVERWRITE");
-		if (flags & (~( 0x00000010 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000010 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_EXTEND, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000020 )){
-		proto_item_append_text(item, "FRSRPC_CONTENT_REASON_NAMED_DATA_EXTEND");
-		if (flags & (~( 0x00000020 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000020 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_TRUNCATION, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000040 )){
-		proto_item_append_text(item, "FRSRPC_CONTENT_REASON_NAMED_DATA_TRUNCATION");
-		if (flags & (~( 0x00000040 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000040 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_FILE_CREATE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000100 )){
-		proto_item_append_text(item, "FRSRPC_CONTENT_REASON_FILE_CREATE");
-		if (flags & (~( 0x00000100 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000100 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_FILE_DELETE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000200 )){
-		proto_item_append_text(item, "FRSRPC_CONTENT_REASON_FILE_DELETE");
-		if (flags & (~( 0x00000200 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000200 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_EA_CHANGE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000400 )){
-		proto_item_append_text(item, "FRSRPC_CONTENT_REASON_EA_CHANGE");
-		if (flags & (~( 0x00000400 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000400 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_SECURITY_CHANGE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000800 )){
-		proto_item_append_text(item, "FRSRPC_CONTENT_REASON_SECURITY_CHANGE");
-		if (flags & (~( 0x00000800 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000800 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_OLD_NAME, tvb, offset-4, 4, flags);
-	if (flags&( 0x00001000 )){
-		proto_item_append_text(item, "FRSRPC_CONTENT_REASON_OLD_NAME");
-		if (flags & (~( 0x00001000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00001000 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NEW_NAME, tvb, offset-4, 4, flags);
-	if (flags&( 0x00002000 )){
-		proto_item_append_text(item, "FRSRPC_CONTENT_REASON_NEW_NAME");
-		if (flags & (~( 0x00002000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00002000 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_BASIC_INFO_CHANGE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00004000 )){
-		proto_item_append_text(item, "FRSRPC_CONTENT_REASON_BASIC_INFO_CHANGE");
-		if (flags & (~( 0x00004000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00004000 ));
-
-	proto_tree_add_boolean(tree, hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_COMPRESSION_CHANGE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00020000 )){
-		proto_item_append_text(item, "FRSRPC_CONTENT_REASON_COMPRESSION_CHANGE");
-		if (flags & (~( 0x00020000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00020000 ));
-
-	if (flags) {
+	if (flags & (~0x00027f77)) {
+		flags &= (~0x00027f77);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 

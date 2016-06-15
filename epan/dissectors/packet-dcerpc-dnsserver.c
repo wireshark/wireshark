@@ -753,112 +753,33 @@ dnsserver_dissect_enum_DNS_RPC_BOOT_METHOD(tvbuff_t *tvb _U_, int offset _U_, pa
 int
 dnsserver_dissect_bitmap_DNS_LOG_LEVELS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * dnsserver_DNS_LOG_LEVELS_fields[] = {
+		&hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_QUERY,
+		&hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_NOTIFY,
+		&hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_UPDATE,
+		&hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_QUESTIONS,
+		&hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_ANSWERS,
+		&hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_SEND,
+		&hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_RECV,
+		&hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_UDP,
+		&hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_TCP,
+		&hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_FULL_PACKETS,
+		&hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_WRITE_THROUGH,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_dnsserver_DNS_LOG_LEVELS);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_dnsserver_DNS_LOG_LEVELS, dnsserver_DNS_LOG_LEVELS_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_QUERY, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000001 )){
-		proto_item_append_text(item, "DNS_LOG_LEVEL_QUERY");
-		if (flags & (~( 0x00000001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000001 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_NOTIFY, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000010 )){
-		proto_item_append_text(item, "DNS_LOG_LEVEL_NOTIFY");
-		if (flags & (~( 0x00000010 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000010 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_UPDATE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000020 )){
-		proto_item_append_text(item, "DNS_LOG_LEVEL_UPDATE");
-		if (flags & (~( 0x00000020 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000020 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_QUESTIONS, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000100 )){
-		proto_item_append_text(item, "DNS_LOG_LEVEL_QUESTIONS");
-		if (flags & (~( 0x00000100 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000100 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_ANSWERS, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000200 )){
-		proto_item_append_text(item, "DNS_LOG_LEVEL_ANSWERS");
-		if (flags & (~( 0x00000200 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000200 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_SEND, tvb, offset-4, 4, flags);
-	if (flags&( 0x00001000 )){
-		proto_item_append_text(item, "DNS_LOG_LEVEL_SEND");
-		if (flags & (~( 0x00001000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00001000 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_RECV, tvb, offset-4, 4, flags);
-	if (flags&( 0x00002000 )){
-		proto_item_append_text(item, "DNS_LOG_LEVEL_RECV");
-		if (flags & (~( 0x00002000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00002000 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_UDP, tvb, offset-4, 4, flags);
-	if (flags&( 0x00004000 )){
-		proto_item_append_text(item, "DNS_LOG_LEVEL_UDP");
-		if (flags & (~( 0x00004000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00004000 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_TCP, tvb, offset-4, 4, flags);
-	if (flags&( 0x00008000 )){
-		proto_item_append_text(item, "DNS_LOG_LEVEL_TCP");
-		if (flags & (~( 0x00008000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00008000 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_FULL_PACKETS, tvb, offset-4, 4, flags);
-	if (flags&( 0x01000000 )){
-		proto_item_append_text(item, "DNS_LOG_LEVEL_FULL_PACKETS");
-		if (flags & (~( 0x01000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x01000000 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_WRITE_THROUGH, tvb, offset-4, 4, flags);
-	if (flags&( 0x80000000 )){
-		proto_item_append_text(item, "DNS_LOG_LEVEL_WRITE_THROUGH");
-		if (flags & (~( 0x80000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x80000000 ));
-
-	if (flags) {
+	if (flags & (~0x8100f331)) {
+		flags &= (~0x8100f331);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -875,48 +796,25 @@ dnsserver_dissect_bitmap_DNS_LOG_LEVELS(tvbuff_t *tvb _U_, int offset _U_, packe
 int
 dnsserver_dissect_bitmap_DNS_RPC_PROTOCOLS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * dnsserver_DNS_RPC_PROTOCOLS_fields[] = {
+		&hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_TCPIP,
+		&hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_NAMED_PIPE,
+		&hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_LPC,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_dnsserver_DNS_RPC_PROTOCOLS);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_dnsserver_DNS_RPC_PROTOCOLS, dnsserver_DNS_RPC_PROTOCOLS_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_TCPIP, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000001 )){
-		proto_item_append_text(item, "DNS_RPC_USE_TCPIP");
-		if (flags & (~( 0x00000001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000001 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_NAMED_PIPE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000002 )){
-		proto_item_append_text(item, "DNS_RPC_USE_NAMED_PIPE");
-		if (flags & (~( 0x00000002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000002 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_LPC, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000004 )){
-		proto_item_append_text(item, "DNS_RPC_USE_LPC");
-		if (flags & (~( 0x00000004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000004 ));
-
-	if (flags) {
+	if (flags & (~0x00000007)) {
+		flags &= (~0x00000007);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -1015,80 +913,29 @@ dnsserver_dissect_enum_DNS_RECORD_TYPE(tvbuff_t *tvb _U_, int offset _U_, packet
 int
 dnsserver_dissect_bitmap_DNS_SELECT_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * dnsserver_DNS_SELECT_FLAGS_fields[] = {
+		&hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_AUTHORITY_DATA,
+		&hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_CACHE_DATA,
+		&hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_GLUE_DATA,
+		&hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ROOT_HINT_DATA,
+		&hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ADDITIONAL_DATA,
+		&hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_NO_CHILDREN,
+		&hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ONLY_CHILDREN,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_dnsserver_DNS_SELECT_FLAGS);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_dnsserver_DNS_SELECT_FLAGS, dnsserver_DNS_SELECT_FLAGS_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_AUTHORITY_DATA, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000001 )){
-		proto_item_append_text(item, "DNS_RPC_VIEW_AUTHORITY_DATA");
-		if (flags & (~( 0x00000001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000001 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_CACHE_DATA, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000002 )){
-		proto_item_append_text(item, "DNS_RPC_VIEW_CACHE_DATA");
-		if (flags & (~( 0x00000002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000002 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_GLUE_DATA, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000004 )){
-		proto_item_append_text(item, "DNS_RPC_VIEW_GLUE_DATA");
-		if (flags & (~( 0x00000004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000004 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ROOT_HINT_DATA, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000008 )){
-		proto_item_append_text(item, "DNS_RPC_VIEW_ROOT_HINT_DATA");
-		if (flags & (~( 0x00000008 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000008 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ADDITIONAL_DATA, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000010 )){
-		proto_item_append_text(item, "DNS_RPC_VIEW_ADDITIONAL_DATA");
-		if (flags & (~( 0x00000010 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000010 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_NO_CHILDREN, tvb, offset-4, 4, flags);
-	if (flags&( 0x00010000 )){
-		proto_item_append_text(item, "DNS_RPC_VIEW_NO_CHILDREN");
-		if (flags & (~( 0x00010000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00010000 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ONLY_CHILDREN, tvb, offset-4, 4, flags);
-	if (flags&( 0x00020000 )){
-		proto_item_append_text(item, "DNS_RPC_VIEW_ONLY_CHILDREN");
-		if (flags & (~( 0x00020000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00020000 ));
-
-	if (flags) {
+	if (flags & (~0x0003001f)) {
+		flags &= (~0x0003001f);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -1114,120 +961,34 @@ dnsserver_dissect_bitmap_DNS_SELECT_FLAGS(tvbuff_t *tvb _U_, int offset _U_, pac
 int
 dnsserver_dissect_bitmap_DNS_RPC_NODE_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * dnsserver_DNS_RPC_NODE_FLAGS_fields[] = {
+		&hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_CACHE_DATA,
+		&hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_ZONE_ROOT,
+		&hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_AUTH_ZONE_ROOT,
+		&hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_ZONE_DELEGATION,
+		&hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECOR_DEFAULT_TTL,
+		&hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECORD_TTL_CHANGE,
+		&hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECORD_CREATE_PTR,
+		&hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_NODE_STICKY,
+		&hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_NODE_COMPLETE,
+		&hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_OPEN_ACL,
+		&hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_AGING_ON,
+		&hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_SUPPRESS_NOTIFY,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_dnsserver_DNS_RPC_NODE_FLAGS);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_dnsserver_DNS_RPC_NODE_FLAGS, dnsserver_DNS_RPC_NODE_FLAGS_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_CACHE_DATA, tvb, offset-4, 4, flags);
-	if (flags&( 0x80000000 )){
-		proto_item_append_text(item, "DNS_RPC_FLAG_CACHE_DATA");
-		if (flags & (~( 0x80000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x80000000 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_ZONE_ROOT, tvb, offset-4, 4, flags);
-	if (flags&( 0x40000000 )){
-		proto_item_append_text(item, "DNS_RPC_FLAG_ZONE_ROOT");
-		if (flags & (~( 0x40000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x40000000 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_AUTH_ZONE_ROOT, tvb, offset-4, 4, flags);
-	if (flags&( 0x20000000 )){
-		proto_item_append_text(item, "DNS_RPC_FLAG_AUTH_ZONE_ROOT");
-		if (flags & (~( 0x20000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x20000000 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_ZONE_DELEGATION, tvb, offset-4, 4, flags);
-	if (flags&( 0x10000000 )){
-		proto_item_append_text(item, "DNS_RPC_FLAG_ZONE_DELEGATION");
-		if (flags & (~( 0x10000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x10000000 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECOR_DEFAULT_TTL, tvb, offset-4, 4, flags);
-	if (flags&( 0x08000000 )){
-		proto_item_append_text(item, "DNS_RPC_FLAG_RECOR_DEFAULT_TTL");
-		if (flags & (~( 0x08000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x08000000 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECORD_TTL_CHANGE, tvb, offset-4, 4, flags);
-	if (flags&( 0x04000000 )){
-		proto_item_append_text(item, "DNS_RPC_FLAG_RECORD_TTL_CHANGE");
-		if (flags & (~( 0x04000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x04000000 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECORD_CREATE_PTR, tvb, offset-4, 4, flags);
-	if (flags&( 0x02000000 )){
-		proto_item_append_text(item, "DNS_RPC_FLAG_RECORD_CREATE_PTR");
-		if (flags & (~( 0x02000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x02000000 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_NODE_STICKY, tvb, offset-4, 4, flags);
-	if (flags&( 0x01000000 )){
-		proto_item_append_text(item, "DNS_RPC_FLAG_NODE_STICKY");
-		if (flags & (~( 0x01000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x01000000 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_NODE_COMPLETE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00800000 )){
-		proto_item_append_text(item, "DNS_RPC_FLAG_NODE_COMPLETE");
-		if (flags & (~( 0x00800000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00800000 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_OPEN_ACL, tvb, offset-4, 4, flags);
-	if (flags&( 0x00040000 )){
-		proto_item_append_text(item, "DNS_RPC_FLAG_OPEN_ACL");
-		if (flags & (~( 0x00040000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00040000 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_AGING_ON, tvb, offset-4, 4, flags);
-	if (flags&( 0x00020000 )){
-		proto_item_append_text(item, "DNS_RPC_FLAG_AGING_ON");
-		if (flags & (~( 0x00020000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00020000 ));
-
-	proto_tree_add_boolean(tree, hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_SUPPRESS_NOTIFY, tvb, offset-4, 4, flags);
-	if (flags&( 0x00010000 )){
-		proto_item_append_text(item, "DNS_RPC_FLAG_SUPPRESS_NOTIFY");
-		if (flags & (~( 0x00010000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00010000 ));
-
-	if (flags) {
+	if (flags & (~0xff870000)) {
+		flags &= (~0xff870000);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 

@@ -407,48 +407,25 @@ witness_dissect_enum_interfaceInfo_state(tvbuff_t *tvb _U_, int offset _U_, pack
 int
 witness_dissect_bitmap_interfaceInfo_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * witness_witness_interfaceInfo_flags_fields[] = {
+		&hf_witness_witness_interfaceInfo_flags_WITNESS_INFO_IPv4_VALID,
+		&hf_witness_witness_interfaceInfo_flags_WITNESS_INFO_IPv6_VALID,
+		&hf_witness_witness_interfaceInfo_flags_WITNESS_INFO_WITNESS_IF,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_witness_witness_interfaceInfo_flags);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_witness_witness_interfaceInfo_flags, witness_witness_interfaceInfo_flags_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_witness_witness_interfaceInfo_flags_WITNESS_INFO_IPv4_VALID, tvb, offset-4, 4, flags);
-	if (flags&( 0x01 )){
-		proto_item_append_text(item, "WITNESS_INFO_IPv4_VALID");
-		if (flags & (~( 0x01 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x01 ));
-
-	proto_tree_add_boolean(tree, hf_witness_witness_interfaceInfo_flags_WITNESS_INFO_IPv6_VALID, tvb, offset-4, 4, flags);
-	if (flags&( 0x02 )){
-		proto_item_append_text(item, "WITNESS_INFO_IPv6_VALID");
-		if (flags & (~( 0x02 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x02 ));
-
-	proto_tree_add_boolean(tree, hf_witness_witness_interfaceInfo_flags_WITNESS_INFO_WITNESS_IF, tvb, offset-4, 4, flags);
-	if (flags&( 0x04 )){
-		proto_item_append_text(item, "WITNESS_INFO_WITNESS_IF");
-		if (flags & (~( 0x04 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x04 ));
-
-	if (flags) {
+	if (flags & (~0x00000007)) {
+		flags &= (~0x00000007);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -730,56 +707,26 @@ witness_dissect_struct_ResourceChange(tvbuff_t *tvb _U_, int offset _U_, packet_
 int
 witness_dissect_bitmap_IPaddrInfo_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * witness_witness_IPaddrInfo_flags_fields[] = {
+		&hf_witness_witness_IPaddrInfo_flags_WITNESS_IPADDR_V4,
+		&hf_witness_witness_IPaddrInfo_flags_WITNESS_IPADDR_V6,
+		&hf_witness_witness_IPaddrInfo_flags_WITNESS_IPADDR_ONLINE,
+		&hf_witness_witness_IPaddrInfo_flags_WITNESS_IPADDR_OFFLINE,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_witness_witness_IPaddrInfo_flags);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_witness_witness_IPaddrInfo_flags, witness_witness_IPaddrInfo_flags_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_witness_witness_IPaddrInfo_flags_WITNESS_IPADDR_V4, tvb, offset-4, 4, flags);
-	if (flags&( 0x01 )){
-		proto_item_append_text(item, "WITNESS_IPADDR_V4");
-		if (flags & (~( 0x01 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x01 ));
-
-	proto_tree_add_boolean(tree, hf_witness_witness_IPaddrInfo_flags_WITNESS_IPADDR_V6, tvb, offset-4, 4, flags);
-	if (flags&( 0x02 )){
-		proto_item_append_text(item, "WITNESS_IPADDR_V6");
-		if (flags & (~( 0x02 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x02 ));
-
-	proto_tree_add_boolean(tree, hf_witness_witness_IPaddrInfo_flags_WITNESS_IPADDR_ONLINE, tvb, offset-4, 4, flags);
-	if (flags&( 0x08 )){
-		proto_item_append_text(item, "WITNESS_IPADDR_ONLINE");
-		if (flags & (~( 0x08 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x08 ));
-
-	proto_tree_add_boolean(tree, hf_witness_witness_IPaddrInfo_flags_WITNESS_IPADDR_OFFLINE, tvb, offset-4, 4, flags);
-	if (flags&( 0x10 )){
-		proto_item_append_text(item, "WITNESS_IPADDR_OFFLINE");
-		if (flags & (~( 0x10 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x10 ));
-
-	if (flags) {
+	if (flags & (~0x0000001b)) {
+		flags &= (~0x0000001b);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -1010,40 +957,24 @@ witness_dissect_element_notifyResponse_num(tvbuff_t *tvb _U_, int offset _U_, pa
 int
 witness_dissect_bitmap_RegisterEx_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * witness_witness_RegisterEx_flags_fields[] = {
+		&hf_witness_witness_RegisterEx_flags_WITNESS_REGISTER_NONE,
+		&hf_witness_witness_RegisterEx_flags_WITNESS_REGISTER_IP_NOTIFICATION,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_witness_witness_RegisterEx_flags);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_witness_witness_RegisterEx_flags, witness_witness_RegisterEx_flags_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_witness_witness_RegisterEx_flags_WITNESS_REGISTER_NONE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00 )){
-		proto_item_append_text(item, "WITNESS_REGISTER_NONE");
-		if (flags & (~( 0x00 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00 ));
-
-	proto_tree_add_boolean(tree, hf_witness_witness_RegisterEx_flags_WITNESS_REGISTER_IP_NOTIFICATION, tvb, offset-4, 4, flags);
-	if (flags&( 0x01 )){
-		proto_item_append_text(item, "WITNESS_REGISTER_IP_NOTIFICATION");
-		if (flags & (~( 0x01 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x01 ));
-
-	if (flags) {
+	if (flags & (~0x00000001)) {
+		flags &= (~0x00000001);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 

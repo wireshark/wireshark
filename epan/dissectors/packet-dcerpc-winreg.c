@@ -645,26 +645,12 @@ cnf_dissect_winreg_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 int
 winreg_dissect_bitmap_security_secinfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_winreg_security_secinfo);
-	}
+	proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
-
-	if (!flags)
-		proto_item_append_text(item, "(No values set)");
-
-	if (flags) {
-		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
-	}
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	return offset;
 }
@@ -895,56 +881,26 @@ winreg_dissect_struct_SecBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 int
 winreg_dissect_bitmap_KeyOptions(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * winreg_winreg_KeyOptions_fields[] = {
+		&hf_winreg_winreg_KeyOptions_REG_OPTION_VOLATILE,
+		&hf_winreg_winreg_KeyOptions_REG_OPTION_CREATE_LINK,
+		&hf_winreg_winreg_KeyOptions_REG_OPTION_BACKUP_RESTORE,
+		&hf_winreg_winreg_KeyOptions_REG_OPTION_OPEN_LINK,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_winreg_winreg_KeyOptions);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_winreg_winreg_KeyOptions, winreg_winreg_KeyOptions_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_winreg_winreg_KeyOptions_REG_OPTION_VOLATILE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000001 )){
-		proto_item_append_text(item, "REG_OPTION_VOLATILE");
-		if (flags & (~( 0x00000001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000001 ));
-
-	proto_tree_add_boolean(tree, hf_winreg_winreg_KeyOptions_REG_OPTION_CREATE_LINK, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000002 )){
-		proto_item_append_text(item, "REG_OPTION_CREATE_LINK");
-		if (flags & (~( 0x00000002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000002 ));
-
-	proto_tree_add_boolean(tree, hf_winreg_winreg_KeyOptions_REG_OPTION_BACKUP_RESTORE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000004 )){
-		proto_item_append_text(item, "REG_OPTION_BACKUP_RESTORE");
-		if (flags & (~( 0x00000004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000004 ));
-
-	proto_tree_add_boolean(tree, hf_winreg_winreg_KeyOptions_REG_OPTION_OPEN_LINK, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000008 )){
-		proto_item_append_text(item, "REG_OPTION_OPEN_LINK");
-		if (flags & (~( 0x00000008 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000008 ));
-
-	if (flags) {
+	if (flags & (~0x0000000f)) {
+		flags &= (~0x0000000f);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -1143,56 +1099,26 @@ winreg_dissect_struct_ValNameBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 int
 winreg_dissect_bitmap_NotifyChangeType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * winreg_winreg_NotifyChangeType_fields[] = {
+		&hf_winreg_winreg_NotifyChangeType_REG_NOTIFY_CHANGE_NAME,
+		&hf_winreg_winreg_NotifyChangeType_REG_NOTIFY_CHANGE_ATTRIBUTES,
+		&hf_winreg_winreg_NotifyChangeType_REG_NOTIFY_CHANGE_LAST_SET,
+		&hf_winreg_winreg_NotifyChangeType_REG_NOTIFY_CHANGE_SECURITY,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_winreg_winreg_NotifyChangeType);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_winreg_winreg_NotifyChangeType, winreg_winreg_NotifyChangeType_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_winreg_winreg_NotifyChangeType_REG_NOTIFY_CHANGE_NAME, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000001 )){
-		proto_item_append_text(item, "REG_NOTIFY_CHANGE_NAME");
-		if (flags & (~( 0x00000001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000001 ));
-
-	proto_tree_add_boolean(tree, hf_winreg_winreg_NotifyChangeType_REG_NOTIFY_CHANGE_ATTRIBUTES, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000002 )){
-		proto_item_append_text(item, "REG_NOTIFY_CHANGE_ATTRIBUTES");
-		if (flags & (~( 0x00000002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000002 ));
-
-	proto_tree_add_boolean(tree, hf_winreg_winreg_NotifyChangeType_REG_NOTIFY_CHANGE_LAST_SET, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000004 )){
-		proto_item_append_text(item, "REG_NOTIFY_CHANGE_LAST_SET");
-		if (flags & (~( 0x00000004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000004 ));
-
-	proto_tree_add_boolean(tree, hf_winreg_winreg_NotifyChangeType_REG_NOTIFY_CHANGE_SECURITY, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000008 )){
-		proto_item_append_text(item, "REG_NOTIFY_CHANGE_SECURITY");
-		if (flags & (~( 0x00000008 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000008 ));
-
-	if (flags) {
+	if (flags & (~0x0000000f)) {
+		flags &= (~0x0000000f);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -1210,56 +1136,26 @@ winreg_dissect_bitmap_NotifyChangeType(tvbuff_t *tvb _U_, int offset _U_, packet
 int
 winreg_dissect_bitmap_RestoreKeyFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * winreg_winreg_RestoreKeyFlags_fields[] = {
+		&hf_winreg_winreg_RestoreKeyFlags_REG_WHOLE_HIVE_VOLATILE,
+		&hf_winreg_winreg_RestoreKeyFlags_REG_REFRESH_HIVE,
+		&hf_winreg_winreg_RestoreKeyFlags_REG_NO_LAZY_FLUSH,
+		&hf_winreg_winreg_RestoreKeyFlags_REG_FORCE_RESTORE,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_winreg_winreg_RestoreKeyFlags);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_winreg_winreg_RestoreKeyFlags, winreg_winreg_RestoreKeyFlags_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_winreg_winreg_RestoreKeyFlags_REG_WHOLE_HIVE_VOLATILE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000001 )){
-		proto_item_append_text(item, "REG_WHOLE_HIVE_VOLATILE");
-		if (flags & (~( 0x00000001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000001 ));
-
-	proto_tree_add_boolean(tree, hf_winreg_winreg_RestoreKeyFlags_REG_REFRESH_HIVE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000002 )){
-		proto_item_append_text(item, "REG_REFRESH_HIVE");
-		if (flags & (~( 0x00000002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000002 ));
-
-	proto_tree_add_boolean(tree, hf_winreg_winreg_RestoreKeyFlags_REG_NO_LAZY_FLUSH, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000004 )){
-		proto_item_append_text(item, "REG_NO_LAZY_FLUSH");
-		if (flags & (~( 0x00000004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000004 ));
-
-	proto_tree_add_boolean(tree, hf_winreg_winreg_RestoreKeyFlags_REG_FORCE_RESTORE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000008 )){
-		proto_item_append_text(item, "REG_FORCE_RESTORE");
-		if (flags & (~( 0x00000008 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000008 ));
-
-	if (flags) {
+	if (flags & (~0x0000000f)) {
+		flags &= (~0x0000000f);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 

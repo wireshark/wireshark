@@ -2348,184 +2348,42 @@ samr_dissect_enum_RejectReason(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 int
 samr_dissect_bitmap_AcctFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * samr_samr_AcctFlags_fields[] = {
+		&hf_samr_samr_AcctFlags_ACB_DISABLED,
+		&hf_samr_samr_AcctFlags_ACB_HOMDIRREQ,
+		&hf_samr_samr_AcctFlags_ACB_PWNOTREQ,
+		&hf_samr_samr_AcctFlags_ACB_TEMPDUP,
+		&hf_samr_samr_AcctFlags_ACB_NORMAL,
+		&hf_samr_samr_AcctFlags_ACB_MNS,
+		&hf_samr_samr_AcctFlags_ACB_DOMTRUST,
+		&hf_samr_samr_AcctFlags_ACB_WSTRUST,
+		&hf_samr_samr_AcctFlags_ACB_SVRTRUST,
+		&hf_samr_samr_AcctFlags_ACB_PWNOEXP,
+		&hf_samr_samr_AcctFlags_ACB_AUTOLOCK,
+		&hf_samr_samr_AcctFlags_ACB_ENC_TXT_PWD_ALLOWED,
+		&hf_samr_samr_AcctFlags_ACB_SMARTCARD_REQUIRED,
+		&hf_samr_samr_AcctFlags_ACB_TRUSTED_FOR_DELEGATION,
+		&hf_samr_samr_AcctFlags_ACB_NOT_DELEGATED,
+		&hf_samr_samr_AcctFlags_ACB_USE_DES_KEY_ONLY,
+		&hf_samr_samr_AcctFlags_ACB_DONT_REQUIRE_PREAUTH,
+		&hf_samr_samr_AcctFlags_ACB_PW_EXPIRED,
+		&hf_samr_samr_AcctFlags_ACB_TRUST_AUTH_DELEGAT,
+		&hf_samr_samr_AcctFlags_ACB_NO_AUTH_DATA_REQD,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_samr_samr_AcctFlags);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_samr_samr_AcctFlags, samr_samr_AcctFlags_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_DISABLED, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000001 )){
-		proto_item_append_text(item, "ACB_DISABLED");
-		if (flags & (~( 0x00000001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000001 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_HOMDIRREQ, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000002 )){
-		proto_item_append_text(item, "ACB_HOMDIRREQ");
-		if (flags & (~( 0x00000002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000002 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_PWNOTREQ, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000004 )){
-		proto_item_append_text(item, "ACB_PWNOTREQ");
-		if (flags & (~( 0x00000004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000004 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_TEMPDUP, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000008 )){
-		proto_item_append_text(item, "ACB_TEMPDUP");
-		if (flags & (~( 0x00000008 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000008 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_NORMAL, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000010 )){
-		proto_item_append_text(item, "ACB_NORMAL");
-		if (flags & (~( 0x00000010 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000010 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_MNS, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000020 )){
-		proto_item_append_text(item, "ACB_MNS");
-		if (flags & (~( 0x00000020 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000020 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_DOMTRUST, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000040 )){
-		proto_item_append_text(item, "ACB_DOMTRUST");
-		if (flags & (~( 0x00000040 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000040 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_WSTRUST, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000080 )){
-		proto_item_append_text(item, "ACB_WSTRUST");
-		if (flags & (~( 0x00000080 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000080 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_SVRTRUST, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000100 )){
-		proto_item_append_text(item, "ACB_SVRTRUST");
-		if (flags & (~( 0x00000100 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000100 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_PWNOEXP, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000200 )){
-		proto_item_append_text(item, "ACB_PWNOEXP");
-		if (flags & (~( 0x00000200 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000200 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_AUTOLOCK, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000400 )){
-		proto_item_append_text(item, "ACB_AUTOLOCK");
-		if (flags & (~( 0x00000400 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000400 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_ENC_TXT_PWD_ALLOWED, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000800 )){
-		proto_item_append_text(item, "ACB_ENC_TXT_PWD_ALLOWED");
-		if (flags & (~( 0x00000800 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000800 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_SMARTCARD_REQUIRED, tvb, offset-4, 4, flags);
-	if (flags&( 0x00001000 )){
-		proto_item_append_text(item, "ACB_SMARTCARD_REQUIRED");
-		if (flags & (~( 0x00001000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00001000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_TRUSTED_FOR_DELEGATION, tvb, offset-4, 4, flags);
-	if (flags&( 0x00002000 )){
-		proto_item_append_text(item, "ACB_TRUSTED_FOR_DELEGATION");
-		if (flags & (~( 0x00002000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00002000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_NOT_DELEGATED, tvb, offset-4, 4, flags);
-	if (flags&( 0x00004000 )){
-		proto_item_append_text(item, "ACB_NOT_DELEGATED");
-		if (flags & (~( 0x00004000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00004000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_USE_DES_KEY_ONLY, tvb, offset-4, 4, flags);
-	if (flags&( 0x00008000 )){
-		proto_item_append_text(item, "ACB_USE_DES_KEY_ONLY");
-		if (flags & (~( 0x00008000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00008000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_DONT_REQUIRE_PREAUTH, tvb, offset-4, 4, flags);
-	if (flags&( 0x00010000 )){
-		proto_item_append_text(item, "ACB_DONT_REQUIRE_PREAUTH");
-		if (flags & (~( 0x00010000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00010000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_PW_EXPIRED, tvb, offset-4, 4, flags);
-	if (flags&( 0x00020000 )){
-		proto_item_append_text(item, "ACB_PW_EXPIRED");
-		if (flags & (~( 0x00020000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00020000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_TRUST_AUTH_DELEGAT, tvb, offset-4, 4, flags);
-	if (flags&( 0x00040000 )){
-		proto_item_append_text(item, "ACB_TRUST_AUTH_DELEGAT");
-		if (flags & (~( 0x00040000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00040000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_NO_AUTH_DATA_REQD, tvb, offset-4, 4, flags);
-	if (flags&( 0x00080000 )){
-		proto_item_append_text(item, "ACB_NO_AUTH_DATA_REQD");
-		if (flags & (~( 0x00080000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00080000 ));
-
-	if (flags) {
+	if (flags & (~0x000fffff)) {
+		flags &= (~0x000fffff);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -2778,72 +2636,28 @@ samr_dissect_enum_Role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_
 int
 samr_dissect_bitmap_PasswordProperties(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * samr_samr_PasswordProperties_fields[] = {
+		&hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_COMPLEX,
+		&hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_NO_ANON_CHANGE,
+		&hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_NO_CLEAR_CHANGE,
+		&hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_LOCKOUT_ADMINS,
+		&hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_STORE_CLEARTEXT,
+		&hf_samr_samr_PasswordProperties_DOMAIN_REFUSE_PASSWORD_CHANGE,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_samr_samr_PasswordProperties);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_samr_samr_PasswordProperties, samr_samr_PasswordProperties_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_COMPLEX, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000001 )){
-		proto_item_append_text(item, "DOMAIN_PASSWORD_COMPLEX");
-		if (flags & (~( 0x00000001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000001 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_NO_ANON_CHANGE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000002 )){
-		proto_item_append_text(item, "DOMAIN_PASSWORD_NO_ANON_CHANGE");
-		if (flags & (~( 0x00000002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000002 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_NO_CLEAR_CHANGE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000004 )){
-		proto_item_append_text(item, "DOMAIN_PASSWORD_NO_CLEAR_CHANGE");
-		if (flags & (~( 0x00000004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000004 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_LOCKOUT_ADMINS, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000008 )){
-		proto_item_append_text(item, "DOMAIN_PASSWORD_LOCKOUT_ADMINS");
-		if (flags & (~( 0x00000008 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000008 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_STORE_CLEARTEXT, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000010 )){
-		proto_item_append_text(item, "DOMAIN_PASSWORD_STORE_CLEARTEXT");
-		if (flags & (~( 0x00000010 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000010 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_PasswordProperties_DOMAIN_REFUSE_PASSWORD_CHANGE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000020 )){
-		proto_item_append_text(item, "DOMAIN_REFUSE_PASSWORD_CHANGE");
-		if (flags & (~( 0x00000020 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000020 ));
-
-	if (flags) {
+	if (flags & (~0x0000003f)) {
+		flags &= (~0x0000003f);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -3881,80 +3695,29 @@ samr_dissect_struct_Ids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U
 int
 samr_dissect_bitmap_GroupAttrs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * samr_samr_GroupAttrs_fields[] = {
+		&hf_samr_samr_GroupAttrs_SE_GROUP_MANDATORY,
+		&hf_samr_samr_GroupAttrs_SE_GROUP_ENABLED_BY_DEFAULT,
+		&hf_samr_samr_GroupAttrs_SE_GROUP_ENABLED,
+		&hf_samr_samr_GroupAttrs_SE_GROUP_OWNER,
+		&hf_samr_samr_GroupAttrs_SE_GROUP_USE_FOR_DENY_ONLY,
+		&hf_samr_samr_GroupAttrs_SE_GROUP_RESOURCE,
+		&hf_samr_samr_GroupAttrs_SE_GROUP_LOGON_ID,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_samr_samr_GroupAttrs);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_samr_samr_GroupAttrs, samr_samr_GroupAttrs_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_samr_samr_GroupAttrs_SE_GROUP_MANDATORY, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000001 )){
-		proto_item_append_text(item, "SE_GROUP_MANDATORY");
-		if (flags & (~( 0x00000001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000001 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_GroupAttrs_SE_GROUP_ENABLED_BY_DEFAULT, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000002 )){
-		proto_item_append_text(item, "SE_GROUP_ENABLED_BY_DEFAULT");
-		if (flags & (~( 0x00000002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000002 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_GroupAttrs_SE_GROUP_ENABLED, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000004 )){
-		proto_item_append_text(item, "SE_GROUP_ENABLED");
-		if (flags & (~( 0x00000004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000004 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_GroupAttrs_SE_GROUP_OWNER, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000008 )){
-		proto_item_append_text(item, "SE_GROUP_OWNER");
-		if (flags & (~( 0x00000008 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000008 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_GroupAttrs_SE_GROUP_USE_FOR_DENY_ONLY, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000010 )){
-		proto_item_append_text(item, "SE_GROUP_USE_FOR_DENY_ONLY");
-		if (flags & (~( 0x00000010 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000010 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_GroupAttrs_SE_GROUP_RESOURCE, tvb, offset-4, 4, flags);
-	if (flags&( 0x20000000 )){
-		proto_item_append_text(item, "SE_GROUP_RESOURCE");
-		if (flags & (~( 0x20000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x20000000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_GroupAttrs_SE_GROUP_LOGON_ID, tvb, offset-4, 4, flags);
-	if (flags&( 0xC0000000 )){
-		proto_item_append_text(item, "SE_GROUP_LOGON_ID");
-		if (flags & (~( 0xC0000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0xC0000000 ));
-
-	if (flags) {
+	if (flags & (~0xe000001f)) {
+		flags &= (~0xe000001f);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -5940,264 +5703,52 @@ samr_dissect_struct_UserInfo20(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 int
 samr_dissect_bitmap_FieldsPresent(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * samr_samr_FieldsPresent_fields[] = {
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_ACCOUNT_NAME,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_FULL_NAME,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_RID,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_PRIMARY_GID,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_DESCRIPTION,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_COMMENT,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_HOME_DIRECTORY,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_HOME_DRIVE,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_LOGON_SCRIPT,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_PROFILE_PATH,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_WORKSTATIONS,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_LAST_LOGON,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_LAST_LOGOFF,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_LOGON_HOURS,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_BAD_PWD_COUNT,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_NUM_LOGONS,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_ALLOW_PWD_CHANGE,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_FORCE_PWD_CHANGE,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_LAST_PWD_CHANGE,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_ACCT_EXPIRY,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_ACCT_FLAGS,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_PARAMETERS,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_COUNTRY_CODE,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_CODE_PAGE,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_NT_PASSWORD_PRESENT,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_LM_PASSWORD_PRESENT,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_PRIVATE_DATA,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_EXPIRED_FLAG,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_SEC_DESC,
+		&hf_samr_samr_FieldsPresent_SAMR_FIELD_OWF_PWD,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_samr_samr_FieldsPresent);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_samr_samr_FieldsPresent, samr_samr_FieldsPresent_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_ACCOUNT_NAME, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000001 )){
-		proto_item_append_text(item, "SAMR_FIELD_ACCOUNT_NAME");
-		if (flags & (~( 0x00000001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000001 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_FULL_NAME, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000002 )){
-		proto_item_append_text(item, "SAMR_FIELD_FULL_NAME");
-		if (flags & (~( 0x00000002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000002 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_RID, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000004 )){
-		proto_item_append_text(item, "SAMR_FIELD_RID");
-		if (flags & (~( 0x00000004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000004 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_PRIMARY_GID, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000008 )){
-		proto_item_append_text(item, "SAMR_FIELD_PRIMARY_GID");
-		if (flags & (~( 0x00000008 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000008 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_DESCRIPTION, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000010 )){
-		proto_item_append_text(item, "SAMR_FIELD_DESCRIPTION");
-		if (flags & (~( 0x00000010 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000010 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_COMMENT, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000020 )){
-		proto_item_append_text(item, "SAMR_FIELD_COMMENT");
-		if (flags & (~( 0x00000020 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000020 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_HOME_DIRECTORY, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000040 )){
-		proto_item_append_text(item, "SAMR_FIELD_HOME_DIRECTORY");
-		if (flags & (~( 0x00000040 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000040 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_HOME_DRIVE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000080 )){
-		proto_item_append_text(item, "SAMR_FIELD_HOME_DRIVE");
-		if (flags & (~( 0x00000080 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000080 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_LOGON_SCRIPT, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000100 )){
-		proto_item_append_text(item, "SAMR_FIELD_LOGON_SCRIPT");
-		if (flags & (~( 0x00000100 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000100 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_PROFILE_PATH, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000200 )){
-		proto_item_append_text(item, "SAMR_FIELD_PROFILE_PATH");
-		if (flags & (~( 0x00000200 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000200 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_WORKSTATIONS, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000400 )){
-		proto_item_append_text(item, "SAMR_FIELD_WORKSTATIONS");
-		if (flags & (~( 0x00000400 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000400 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_LAST_LOGON, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000800 )){
-		proto_item_append_text(item, "SAMR_FIELD_LAST_LOGON");
-		if (flags & (~( 0x00000800 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000800 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_LAST_LOGOFF, tvb, offset-4, 4, flags);
-	if (flags&( 0x00001000 )){
-		proto_item_append_text(item, "SAMR_FIELD_LAST_LOGOFF");
-		if (flags & (~( 0x00001000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00001000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_LOGON_HOURS, tvb, offset-4, 4, flags);
-	if (flags&( 0x00002000 )){
-		proto_item_append_text(item, "SAMR_FIELD_LOGON_HOURS");
-		if (flags & (~( 0x00002000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00002000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_BAD_PWD_COUNT, tvb, offset-4, 4, flags);
-	if (flags&( 0x00004000 )){
-		proto_item_append_text(item, "SAMR_FIELD_BAD_PWD_COUNT");
-		if (flags & (~( 0x00004000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00004000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_NUM_LOGONS, tvb, offset-4, 4, flags);
-	if (flags&( 0x00008000 )){
-		proto_item_append_text(item, "SAMR_FIELD_NUM_LOGONS");
-		if (flags & (~( 0x00008000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00008000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_ALLOW_PWD_CHANGE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00010000 )){
-		proto_item_append_text(item, "SAMR_FIELD_ALLOW_PWD_CHANGE");
-		if (flags & (~( 0x00010000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00010000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_FORCE_PWD_CHANGE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00020000 )){
-		proto_item_append_text(item, "SAMR_FIELD_FORCE_PWD_CHANGE");
-		if (flags & (~( 0x00020000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00020000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_LAST_PWD_CHANGE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00040000 )){
-		proto_item_append_text(item, "SAMR_FIELD_LAST_PWD_CHANGE");
-		if (flags & (~( 0x00040000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00040000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_ACCT_EXPIRY, tvb, offset-4, 4, flags);
-	if (flags&( 0x00080000 )){
-		proto_item_append_text(item, "SAMR_FIELD_ACCT_EXPIRY");
-		if (flags & (~( 0x00080000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00080000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_ACCT_FLAGS, tvb, offset-4, 4, flags);
-	if (flags&( 0x00100000 )){
-		proto_item_append_text(item, "SAMR_FIELD_ACCT_FLAGS");
-		if (flags & (~( 0x00100000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00100000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_PARAMETERS, tvb, offset-4, 4, flags);
-	if (flags&( 0x00200000 )){
-		proto_item_append_text(item, "SAMR_FIELD_PARAMETERS");
-		if (flags & (~( 0x00200000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00200000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_COUNTRY_CODE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00400000 )){
-		proto_item_append_text(item, "SAMR_FIELD_COUNTRY_CODE");
-		if (flags & (~( 0x00400000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00400000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_CODE_PAGE, tvb, offset-4, 4, flags);
-	if (flags&( 0x00800000 )){
-		proto_item_append_text(item, "SAMR_FIELD_CODE_PAGE");
-		if (flags & (~( 0x00800000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00800000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_NT_PASSWORD_PRESENT, tvb, offset-4, 4, flags);
-	if (flags&( 0x01000000 )){
-		proto_item_append_text(item, "SAMR_FIELD_NT_PASSWORD_PRESENT");
-		if (flags & (~( 0x01000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x01000000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_LM_PASSWORD_PRESENT, tvb, offset-4, 4, flags);
-	if (flags&( 0x02000000 )){
-		proto_item_append_text(item, "SAMR_FIELD_LM_PASSWORD_PRESENT");
-		if (flags & (~( 0x02000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x02000000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_PRIVATE_DATA, tvb, offset-4, 4, flags);
-	if (flags&( 0x04000000 )){
-		proto_item_append_text(item, "SAMR_FIELD_PRIVATE_DATA");
-		if (flags & (~( 0x04000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x04000000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_EXPIRED_FLAG, tvb, offset-4, 4, flags);
-	if (flags&( 0x08000000 )){
-		proto_item_append_text(item, "SAMR_FIELD_EXPIRED_FLAG");
-		if (flags & (~( 0x08000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x08000000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_SEC_DESC, tvb, offset-4, 4, flags);
-	if (flags&( 0x10000000 )){
-		proto_item_append_text(item, "SAMR_FIELD_SEC_DESC");
-		if (flags & (~( 0x10000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x10000000 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_OWF_PWD, tvb, offset-4, 4, flags);
-	if (flags&( 0x20000000 )){
-		proto_item_append_text(item, "SAMR_FIELD_OWF_PWD");
-		if (flags & (~( 0x20000000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x20000000 ));
-
-	if (flags) {
+	if (flags & (~0x3fffffff)) {
+		flags &= (~0x3fffffff);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -8319,72 +7870,28 @@ samr_dissect_ConnectInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _
 int
 samr_dissect_bitmap_ValidateFieldsPresent(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * samr_samr_ValidateFieldsPresent_fields[] = {
+		&hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_PASSWORD_LAST_SET,
+		&hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_BAD_PASSWORD_TIME,
+		&hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_LOCKOUT_TIME,
+		&hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_BAD_PASSWORD_COUNT,
+		&hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_PASSWORD_HISTORY_LENGTH,
+		&hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_PASSWORD_HISTORY,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_samr_samr_ValidateFieldsPresent);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_samr_samr_ValidateFieldsPresent, samr_samr_ValidateFieldsPresent_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_PASSWORD_LAST_SET, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000001 )){
-		proto_item_append_text(item, "SAMR_VALIDATE_FIELD_PASSWORD_LAST_SET");
-		if (flags & (~( 0x00000001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000001 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_BAD_PASSWORD_TIME, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000002 )){
-		proto_item_append_text(item, "SAMR_VALIDATE_FIELD_BAD_PASSWORD_TIME");
-		if (flags & (~( 0x00000002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000002 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_LOCKOUT_TIME, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000004 )){
-		proto_item_append_text(item, "SAMR_VALIDATE_FIELD_LOCKOUT_TIME");
-		if (flags & (~( 0x00000004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000004 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_BAD_PASSWORD_COUNT, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000008 )){
-		proto_item_append_text(item, "SAMR_VALIDATE_FIELD_BAD_PASSWORD_COUNT");
-		if (flags & (~( 0x00000008 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000008 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_PASSWORD_HISTORY_LENGTH, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000010 )){
-		proto_item_append_text(item, "SAMR_VALIDATE_FIELD_PASSWORD_HISTORY_LENGTH");
-		if (flags & (~( 0x00000010 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000010 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_PASSWORD_HISTORY, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000020 )){
-		proto_item_append_text(item, "SAMR_VALIDATE_FIELD_PASSWORD_HISTORY");
-		if (flags & (~( 0x00000020 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000020 ));
-
-	if (flags) {
+	if (flags & (~0x0000003f)) {
+		flags &= (~0x0000003f);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 

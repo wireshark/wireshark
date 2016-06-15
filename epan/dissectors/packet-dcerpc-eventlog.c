@@ -380,56 +380,26 @@ eventlog_dissect_element_Record_strings(tvbuff_t *tvb, int offset, packet_info *
 int
 eventlog_dissect_bitmap_eventlogReadFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * eventlog_eventlogReadFlags_fields[] = {
+		&hf_eventlog_eventlogReadFlags_EVENTLOG_SEQUENTIAL_READ,
+		&hf_eventlog_eventlogReadFlags_EVENTLOG_SEEK_READ,
+		&hf_eventlog_eventlogReadFlags_EVENTLOG_FORWARDS_READ,
+		&hf_eventlog_eventlogReadFlags_EVENTLOG_BACKWARDS_READ,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_eventlog_eventlogReadFlags);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_eventlog_eventlogReadFlags, eventlog_eventlogReadFlags_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_eventlog_eventlogReadFlags_EVENTLOG_SEQUENTIAL_READ, tvb, offset-4, 4, flags);
-	if (flags&( 0x0001 )){
-		proto_item_append_text(item, "EVENTLOG_SEQUENTIAL_READ");
-		if (flags & (~( 0x0001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x0001 ));
-
-	proto_tree_add_boolean(tree, hf_eventlog_eventlogReadFlags_EVENTLOG_SEEK_READ, tvb, offset-4, 4, flags);
-	if (flags&( 0x0002 )){
-		proto_item_append_text(item, "EVENTLOG_SEEK_READ");
-		if (flags & (~( 0x0002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x0002 ));
-
-	proto_tree_add_boolean(tree, hf_eventlog_eventlogReadFlags_EVENTLOG_FORWARDS_READ, tvb, offset-4, 4, flags);
-	if (flags&( 0x0004 )){
-		proto_item_append_text(item, "EVENTLOG_FORWARDS_READ");
-		if (flags & (~( 0x0004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x0004 ));
-
-	proto_tree_add_boolean(tree, hf_eventlog_eventlogReadFlags_EVENTLOG_BACKWARDS_READ, tvb, offset-4, 4, flags);
-	if (flags&( 0x0008 )){
-		proto_item_append_text(item, "EVENTLOG_BACKWARDS_READ");
-		if (flags & (~( 0x0008 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x0008 ));
-
-	if (flags) {
+	if (flags & (~0x0000000f)) {
+		flags &= (~0x0000000f);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -449,72 +419,28 @@ eventlog_dissect_bitmap_eventlogReadFlags(tvbuff_t *tvb _U_, int offset _U_, pac
 int
 eventlog_dissect_bitmap_eventlogEventTypes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * eventlog_eventlogEventTypes_fields[] = {
+		&hf_eventlog_eventlogEventTypes_EVENTLOG_SUCCESS,
+		&hf_eventlog_eventlogEventTypes_EVENTLOG_ERROR_TYPE,
+		&hf_eventlog_eventlogEventTypes_EVENTLOG_WARNING_TYPE,
+		&hf_eventlog_eventlogEventTypes_EVENTLOG_INFORMATION_TYPE,
+		&hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_SUCCESS,
+		&hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_FAILURE,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_eventlog_eventlogEventTypes);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_eventlog_eventlogEventTypes, eventlog_eventlogEventTypes_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_eventlog_eventlogEventTypes_EVENTLOG_SUCCESS, tvb, offset-4, 4, flags);
-	if (flags&( 0x0000 )){
-		proto_item_append_text(item, "EVENTLOG_SUCCESS");
-		if (flags & (~( 0x0000 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x0000 ));
-
-	proto_tree_add_boolean(tree, hf_eventlog_eventlogEventTypes_EVENTLOG_ERROR_TYPE, tvb, offset-4, 4, flags);
-	if (flags&( 0x0001 )){
-		proto_item_append_text(item, "EVENTLOG_ERROR_TYPE");
-		if (flags & (~( 0x0001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x0001 ));
-
-	proto_tree_add_boolean(tree, hf_eventlog_eventlogEventTypes_EVENTLOG_WARNING_TYPE, tvb, offset-4, 4, flags);
-	if (flags&( 0x0002 )){
-		proto_item_append_text(item, "EVENTLOG_WARNING_TYPE");
-		if (flags & (~( 0x0002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x0002 ));
-
-	proto_tree_add_boolean(tree, hf_eventlog_eventlogEventTypes_EVENTLOG_INFORMATION_TYPE, tvb, offset-4, 4, flags);
-	if (flags&( 0x0004 )){
-		proto_item_append_text(item, "EVENTLOG_INFORMATION_TYPE");
-		if (flags & (~( 0x0004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x0004 ));
-
-	proto_tree_add_boolean(tree, hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_SUCCESS, tvb, offset-4, 4, flags);
-	if (flags&( 0x0008 )){
-		proto_item_append_text(item, "EVENTLOG_AUDIT_SUCCESS");
-		if (flags & (~( 0x0008 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x0008 ));
-
-	proto_tree_add_boolean(tree, hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_FAILURE, tvb, offset-4, 4, flags);
-	if (flags&( 0x0010 )){
-		proto_item_append_text(item, "EVENTLOG_AUDIT_FAILURE");
-		if (flags & (~( 0x0010 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x0010 ));
-
-	if (flags) {
+	if (flags & (~0x0000001f)) {
+		flags &= (~0x0000001f);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 

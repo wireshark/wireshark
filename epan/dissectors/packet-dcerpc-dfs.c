@@ -659,72 +659,28 @@ netdfs_dissect_struct_dfs_Info1(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 int
 netdfs_dissect_bitmap_dfs_VolumeState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * netdfs_dfs_VolumeState_fields[] = {
+		&hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_OK,
+		&hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_INCONSISTENT,
+		&hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_OFFLINE,
+		&hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_ONLINE,
+		&hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_STANDALONE,
+		&hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_AD_BLOB,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_netdfs_dfs_VolumeState);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_netdfs_dfs_VolumeState, netdfs_dfs_VolumeState_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_OK, tvb, offset-4, 4, flags);
-	if (flags&( 0x1 )){
-		proto_item_append_text(item, "DFS_VOLUME_STATE_OK");
-		if (flags & (~( 0x1 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x1 ));
-
-	proto_tree_add_boolean(tree, hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_INCONSISTENT, tvb, offset-4, 4, flags);
-	if (flags&( 0x2 )){
-		proto_item_append_text(item, "DFS_VOLUME_STATE_INCONSISTENT");
-		if (flags & (~( 0x2 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x2 ));
-
-	proto_tree_add_boolean(tree, hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_OFFLINE, tvb, offset-4, 4, flags);
-	if (flags&( 0x4 )){
-		proto_item_append_text(item, "DFS_VOLUME_STATE_OFFLINE");
-		if (flags & (~( 0x4 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x4 ));
-
-	proto_tree_add_boolean(tree, hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_ONLINE, tvb, offset-4, 4, flags);
-	if (flags&( 0x8 )){
-		proto_item_append_text(item, "DFS_VOLUME_STATE_ONLINE");
-		if (flags & (~( 0x8 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x8 ));
-
-	proto_tree_add_boolean(tree, hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_STANDALONE, tvb, offset-4, 4, flags);
-	if (flags&( DFS_VOLUME_FLAVOR_STANDALONE )){
-		proto_item_append_text(item, "DFS_VOLUME_STATE_STANDALONE");
-		if (flags & (~( DFS_VOLUME_FLAVOR_STANDALONE )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( DFS_VOLUME_FLAVOR_STANDALONE ));
-
-	proto_tree_add_boolean(tree, hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_AD_BLOB, tvb, offset-4, 4, flags);
-	if (flags&( DFS_VOLUME_FLAVOR_AD_BLOB )){
-		proto_item_append_text(item, "DFS_VOLUME_STATE_AD_BLOB");
-		if (flags & (~( DFS_VOLUME_FLAVOR_AD_BLOB )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( DFS_VOLUME_FLAVOR_AD_BLOB ));
-
-	if (flags) {
+	if (flags & (~0x000001cd)) {
+		flags &= (~0x000001cd);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -838,48 +794,25 @@ netdfs_dissect_struct_dfs_Info2(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 int
 netdfs_dissect_bitmap_dfs_StorageState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * netdfs_dfs_StorageState_fields[] = {
+		&hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_OFFLINE,
+		&hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_ONLINE,
+		&hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_ACTIVE,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_netdfs_dfs_StorageState);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_netdfs_dfs_StorageState, netdfs_dfs_StorageState_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_OFFLINE, tvb, offset-4, 4, flags);
-	if (flags&( 1 )){
-		proto_item_append_text(item, "DFS_STORAGE_STATE_OFFLINE");
-		if (flags & (~( 1 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 1 ));
-
-	proto_tree_add_boolean(tree, hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_ONLINE, tvb, offset-4, 4, flags);
-	if (flags&( 2 )){
-		proto_item_append_text(item, "DFS_STORAGE_STATE_ONLINE");
-		if (flags & (~( 2 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 2 ));
-
-	proto_tree_add_boolean(tree, hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_ACTIVE, tvb, offset-4, 4, flags);
-	if (flags&( 4 )){
-		proto_item_append_text(item, "DFS_STORAGE_STATE_ACTIVE");
-		if (flags & (~( 4 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 4 ));
-
-	if (flags) {
+	if (flags & (~0x00000007)) {
+		flags &= (~0x00000007);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -1254,64 +1187,27 @@ netdfs_dissect_struct_dfs_Info4(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 int
 netdfs_dissect_bitmap_dfs_PropertyFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
+	proto_item *item;
+	static const int * netdfs_dfs_PropertyFlags_fields[] = {
+		&hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_INSITE_REFERRALS,
+		&hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_ROOT_SCALABILITY,
+		&hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_SITE_COSTING,
+		&hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_TARGET_FAILBACK,
+		&hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_CLUSTER_ENABLED,
+	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
-		tree = proto_item_add_subtree(item,ett_netdfs_dfs_PropertyFlags);
-	}
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_netdfs_dfs_PropertyFlags, netdfs_dfs_PropertyFlags_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, ": (No values set)");
 
-	proto_tree_add_boolean(tree, hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_INSITE_REFERRALS, tvb, offset-4, 4, flags);
-	if (flags&( 0x01 )){
-		proto_item_append_text(item, "DFS_PROPERTY_FLAG_INSITE_REFERRALS");
-		if (flags & (~( 0x01 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x01 ));
-
-	proto_tree_add_boolean(tree, hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_ROOT_SCALABILITY, tvb, offset-4, 4, flags);
-	if (flags&( 0x02 )){
-		proto_item_append_text(item, "DFS_PROPERTY_FLAG_ROOT_SCALABILITY");
-		if (flags & (~( 0x02 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x02 ));
-
-	proto_tree_add_boolean(tree, hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_SITE_COSTING, tvb, offset-4, 4, flags);
-	if (flags&( 0x04 )){
-		proto_item_append_text(item, "DFS_PROPERTY_FLAG_SITE_COSTING");
-		if (flags & (~( 0x04 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x04 ));
-
-	proto_tree_add_boolean(tree, hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_TARGET_FAILBACK, tvb, offset-4, 4, flags);
-	if (flags&( 0x08 )){
-		proto_item_append_text(item, "DFS_PROPERTY_FLAG_TARGET_FAILBACK");
-		if (flags & (~( 0x08 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x08 ));
-
-	proto_tree_add_boolean(tree, hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_CLUSTER_ENABLED, tvb, offset-4, 4, flags);
-	if (flags&( 0x10 )){
-		proto_item_append_text(item, "DFS_PROPERTY_FLAG_CLUSTER_ENABLED");
-		if (flags & (~( 0x10 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x10 ));
-
-	if (flags) {
+	if (flags & (~0x0000001f)) {
+		flags &= (~0x0000001f);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
