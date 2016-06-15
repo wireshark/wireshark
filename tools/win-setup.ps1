@@ -101,8 +101,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2016-06-03"
-$Win32CurrentTag = "2016-05-10"
+$Win64CurrentTag = "2016-06-15"
+$Win32CurrentTag = "2016-06-15"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -110,7 +110,7 @@ $Win64Archives = @{
     "c-ares-1.11.0-win64ws.zip" = "";
     "GeoIP-1.6.6-win64ws.zip" = "GeoIP-1.6.6-win64ws";
     "gnutls-3.2.15-2.9-win64ws.zip" = "";
-    "gtk+-bundle_2.24.23-3.39-1_win64ws.zip" = "gtk2";
+    "gtk+-bundle_2.24.23-3.39-2_win64ws.zip" = "gtk2";
     "kfw-3-2-2-x64-ws.zip" = "";
     "libsmi-svn-40773-win64ws.zip" = "";
     "libssh-0.7.2-win64ws.zip" = "";
@@ -127,7 +127,7 @@ $Win32Archives = @{
     "c-ares-1.11.0-win32ws.zip" = "";
     "GeoIP-1.6.6-win32ws.zip" = "GeoIP-1.6.6-win32ws";
     "gnutls-3.2.15-2.7-win32ws.zip" = "";
-    "gtk+-bundle_2.24.23-1.1_win32ws.zip" = "gtk2";
+    "gtk+-bundle_2.24.23-1.1-1_win32ws.zip" = "gtk2";
     "kfw-3-2-2-i386-ws-vc6.zip" = "";
     "libsmi-svn-40773-win32ws.zip" = "";
     "libssh-0.7.2-win32ws.zip" = "";
