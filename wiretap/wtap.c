@@ -933,8 +933,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "ITU-T G.7041/Y.1303 Generic Framing Procedure Transparent mode", "gfp-t" },
 
 	/* WTAP_ENCAP_GFP_F */
-	{ "ITU-T G.7041/Y.1303 Generic Framing Procedure Frame-mapped mode", "gfp-f" }
+	{ "ITU-T G.7041/Y.1303 Generic Framing Procedure Frame-mapped mode", "gfp-f" },
 
+	/* WTAP_ENCAP_IP_OVER_IB_PCAP */
+	{ "IP over IB", "ip-ib" }
 };
 
 WS_DLL_LOCAL
