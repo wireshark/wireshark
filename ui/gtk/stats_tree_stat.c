@@ -345,7 +345,7 @@ clear_node_pr(stat_node* n)
 		clear_node_pr(c);
 	}
 
-	if (n->pr->iter) {
+	if (n->pr && n->pr->iter) {
 		gtk_tree_store_remove(n->st->pr->store, n->pr->iter);
 		n->pr->iter = NULL;
 	}
