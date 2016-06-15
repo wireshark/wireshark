@@ -88,6 +88,7 @@ void proto_reg_handoff_ieee802154(void);
 /* Dissection Options for dissect_ieee802154_common */
 #define DISSECT_IEEE802154_OPTION_CC24xx    0x00000001  /* FCS field contains a TI CC24xx style FCS. */
 #define DISSECT_IEEE802154_OPTION_LINUX     0x00000002  /* Addressing fields are padded DLT_IEEE802_15_4_LINUX, not implemented. */
+#define DISSECT_IEEE802154_OPTION_ZBOSS     0x00000003  /* ZBOSS traffic dump */
 
 /* ethertype for 802.15.4 tag - encapsulating an Ethernet packet */
 static unsigned int ieee802154_ethertype = 0x809A;
@@ -368,6 +369,7 @@ static heur_dissector_list_t    ieee802154_heur_subdissector_list;
 
 static dissector_handle_t  zigbee_beacon_handle;
 static dissector_handle_t  zigbee_ie_handle;
+static dissector_handle_t  zigbee_nwk_handle;
 
 /* Versions */
 static const value_string ieee802154_frame_versions[] = {
@@ -721,7 +723,7 @@ dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
     /* Call the common dissector. */
     dissect_ieee802154_common(new_tvb, pinfo, tree,
-                              ((ieee802154_cc24xx || new_tvb != tvb) ? DISSECT_IEEE802154_OPTION_CC24xx : 0));
+                              ((ieee802154_cc24xx || new_tvb != tvb) ? (DISSECT_IEEE802154_OPTION_CC24xx | DISSECT_IEEE802154_OPTION_ZBOSS) : 0));
     return tvb_captured_length(tvb);
 } /* dissect_ieee802154 */
 
@@ -1507,6 +1509,10 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                 /* Sanity-check. */
                 if ((!fcs_ok && ieee802154_fcs_ok) || !tvb_reported_length(payload_tvb)) {
                     call_data_dissector(payload_tvb, pinfo, tree);
+                    break;
+                }
+                if (options & DISSECT_IEEE802154_OPTION_ZBOSS) {
+                    call_dissector_with_data(zigbee_nwk_handle, payload_tvb, pinfo, tree, packet);
                     break;
                 }
                 /* Try the PANID dissector table for stateful dissection. */
@@ -3638,6 +3644,7 @@ void proto_reg_handoff_ieee802154(void)
         ieee802154_nofcs_handle = find_dissector("wpan_nofcs");
         zigbee_beacon_handle = find_dissector_add_dependency("zbee_beacon", proto_ieee802154);
         zigbee_ie_handle = find_dissector_add_dependency("zbee_ie", proto_ieee802154);
+        zigbee_nwk_handle = find_dissector("zbee_nwk");
 
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4, ieee802154_handle);
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4_NONASK_PHY, ieee802154_nonask_phy_handle);

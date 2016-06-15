@@ -397,7 +397,7 @@ dissect_zbee_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
     /* All ZigBee frames must always have a 16-bit source and destination address. */
     if (packet == NULL) return FALSE;
-    if (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) return FALSE;
+    if (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT && packet->src_addr_mode != IEEE802154_FCF_ADDR_EXT) return FALSE;
     if (packet->dst_addr_mode != IEEE802154_FCF_ADDR_SHORT) return FALSE;
 
     /* If the frame type and version are not sane, then it's probably not ZigBee. */
