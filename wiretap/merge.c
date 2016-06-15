@@ -699,8 +699,6 @@ map_phdr_interface_id(struct wtap_pkthdr *phdr, const merge_in_file_t *in_file)
 
     if (phdr->presence_flags & WTAP_HAS_INTERFACE_ID) {
         current_interface_id = phdr->interface_id;
-    } else {
-        return TRUE;
     }
 
     if (current_interface_id >= in_file->idb_index_map->len) {
@@ -1009,9 +1007,17 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
         }
 
         if (file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
-            if (!map_phdr_interface_id(phdr, in_file)) {
-                status = MERGE_ERR_BAD_PHDR_INTERFACE_ID;
-                break;
+            /*
+             * XXX - We should do this only for record types
+             * that pertain to a particular interface; for
+             * now, we hardcode that, but we need to figure
+             * out a more general way to handle this.
+             */
+            if (phdr->rec_type == REC_TYPE_PACKET) {
+                if (!map_phdr_interface_id(phdr, in_file)) {
+                    status = MERGE_ERR_BAD_PHDR_INTERFACE_ID;
+                    break;
+                }
             }
         }
 
