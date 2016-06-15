@@ -163,14 +163,14 @@ dissect_nsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 		/*NSH Base Header*/
 
-		proto_tree_add_item(nsh_tree, hf_nsh_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(nsh_tree, hf_nsh_oam, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(nsh_tree, hf_nsh_critical_metadata, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(nsh_tree, hf_nsh_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(nsh_tree, hf_nsh_oam, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(nsh_tree, hf_nsh_critical_metadata, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 
 		/* Bits 4 - 9 are reserved */
 		proto_tree_add_item(nsh_tree, hf_nsh_reservedbits, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(nsh_tree, hf_nsh_length, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(nsh_tree, hf_nsh_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 
 		md_type = tvb_get_guint8(tvb, offset + 2);
