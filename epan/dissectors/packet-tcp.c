@@ -5914,7 +5914,7 @@ proto_register_tcp(void)
             BASE_DEC, NULL, 0x0, "Logarithmically encoded power of 2 scale factor", HFILL}},
 
         { &hf_tcp_option_wscale_multiplier,
-          { "Multiplier", "tcp.options.wscale.multiplier",  FT_UINT8,
+          { "Multiplier", "tcp.options.wscale.multiplier",  FT_UINT16,
             BASE_DEC, NULL, 0x0, "Multiply segment window size by this for scaled window size", HFILL}},
 
         { &hf_tcp_option_exp,
