@@ -659,6 +659,11 @@ intercaps for functions and variable names. This is especially important if you
 are writing code that will be called from outside your code.  We are just
 trying to keep things consistent for other developers.
 
+C symbols exported from libraries shipped with Wireshark should start with a
+prefix that helps avoiding name collision with public symbols from other shared
+libraries. The current suggested prefixes for newly added symbols are
+ws_, wslua_, wmem_ and wtap_.
+
 5. White space convention.
 
 Please avoid using tab expansions different from 8 column widths, as not all
