@@ -6982,7 +6982,6 @@ static int hf_x11_xkb_GetNames_reply_Compat_compatName = -1;
 static int hf_x11_xkb_GetNames_reply_KeyTypeNames_typeNames = -1;
 static int hf_x11_xkb_GetNames_reply_KeyTypeNames_typeNames_item = -1;
 static int hf_x11_xkb_GetNames_reply_KTLevelNames_nLevelsPerType = -1;
-static int hf_x11_xkb_GetNames_reply_KTLevelNames_alignment_pad = -1;
 static int hf_x11_xkb_GetNames_reply_KTLevelNames_ktLevelNames = -1;
 static int hf_x11_xkb_GetNames_reply_KTLevelNames_ktLevelNames_item = -1;
 static int hf_x11_xkb_GetNames_reply_IndicatorNames_indicatorNames = -1;

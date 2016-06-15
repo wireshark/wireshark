@@ -6982,7 +6982,6 @@
 { &hf_x11_xkb_GetNames_reply_KeyTypeNames_typeNames, { "typeNames", "x11.xkb.GetNames.reply.KeyTypeNames.typeNames", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 { &hf_x11_xkb_GetNames_reply_KeyTypeNames_typeNames_item, { "typeNames", "x11.xkb.GetNames.reply.KeyTypeNames.typeNames", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 { &hf_x11_xkb_GetNames_reply_KTLevelNames_nLevelsPerType, { "nLevelsPerType", "x11.xkb.GetNames.reply.KTLevelNames.nLevelsPerType", FT_UINT8, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
-{ &hf_x11_xkb_GetNames_reply_KTLevelNames_alignment_pad, { "alignment_pad", "x11.xkb.GetNames.reply.KTLevelNames.alignment_pad", FT_UINT8, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
 { &hf_x11_xkb_GetNames_reply_KTLevelNames_ktLevelNames, { "ktLevelNames", "x11.xkb.GetNames.reply.KTLevelNames.ktLevelNames", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 { &hf_x11_xkb_GetNames_reply_KTLevelNames_ktLevelNames_item, { "ktLevelNames", "x11.xkb.GetNames.reply.KTLevelNames.ktLevelNames", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 { &hf_x11_xkb_GetNames_reply_IndicatorNames_indicatorNames, { "indicatorNames", "x11.xkb.GetNames.reply.IndicatorNames.indicatorNames", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
