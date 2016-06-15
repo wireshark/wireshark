@@ -2290,6 +2290,7 @@ void proto_reg_handoff_zbee_zcl(void)
     dissector_add_uint("zbee.profile", ZBEE_PROFILE_SE,    zbee_zcl_handle);
     dissector_add_uint("zbee.profile", ZBEE_PROFILE_RS,    zbee_zcl_handle);
     dissector_add_uint("zbee.profile", ZBEE_PROFILE_GP,    zbee_zcl_handle);
+    dissector_add_uint("zbee.profile", ZBEE_PROFILE_ZLL,   zbee_zcl_handle);
 
     dissector_add_uint("zbee.profile", ZBEE_PROFILE_C4_CL, zbee_zcl_handle);
 } /* proto_reg_handoff_zbee_zcl */

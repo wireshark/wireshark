@@ -205,6 +205,7 @@ static const value_string zbee_aps_frame_types[] = {
     { ZBEE_APS_FCF_DATA,            "Data" },
     { ZBEE_APS_FCF_CMD,             "Command" },
     { ZBEE_APS_FCF_ACK,             "Ack" },
+    { ZBEE_APS_FCF_INTERPAN,        "Interpan" },
     { 0, NULL }
 };
 
@@ -379,6 +380,7 @@ const range_string zbee_aps_apid_names[] = {
     { ZBEE_PROFILE_BM_MIN,          ZBEE_PROFILE_BM_MAX,            ZBEE_MFG_BM },
     { ZBEE_PROFILE_AWAREPOINT_MIN,  ZBEE_PROFILE_AWAREPOINT_MAX,    ZBEE_MFG_AWAREPOINT },
     { ZBEE_PROFILE_SAN_JUAN_1_MIN,  ZBEE_PROFILE_SAN_JUAN_1_MAX,    ZBEE_MFG_SAN_JUAN },
+    { ZBEE_PROFILE_ZLL,             ZBEE_PROFILE_ZLL,               "ZLL" },
     { ZBEE_PROFILE_PHILIPS_MIN,     ZBEE_PROFILE_PHILIPS_MAX,       ZBEE_MFG_PHILIPS },
     { ZBEE_PROFILE_LUXOFT_MIN,      ZBEE_PROFILE_LUXOFT_MAX,        ZBEE_MFG_LUXOFT },
     { ZBEE_PROFILE_KORWIN_MIN,      ZBEE_PROFILE_KORWIN_MAX,        ZBEE_MFG_KORWIN },
@@ -652,6 +654,7 @@ const value_string zbee_aps_cid_names[] = {
     {ZBEE_ZCL_CID_APPLIANCE_EVENTS_AND_ALERT,       "Appliance Events And Alerts"},
     {ZBEE_ZCL_CID_APPLIANCE_STATISTICS,             "Appliance Statistics"},
 
+    {ZBEE_ZCL_CID_ZLL,                              "ZLL Commissioning"},
     { 0, NULL }
 };
 
@@ -808,57 +811,64 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             }
             break;
 
+        case ZBEE_APS_FCF_INTERPAN:
+            packet.dst_present = FALSE;
+            packet.src_present = FALSE;
+            break;
+
         default:
         case ZBEE_APS_FCF_CMD:
             /* Endpoint addressing does not exist for these frames. */
             goto dissect_zbee_aps_no_endpt;
     } /* switch */
 
-    /* Determine whether the source and/or destination endpoints are present.
-     * We should only get here for endpoint-addressed data or ack frames.
-     */
-    if ((packet.delivery == ZBEE_APS_FCF_UNICAST) || (packet.delivery == ZBEE_APS_FCF_BCAST)) {
-        /* Source and destination endpoints exist. (Although, I strongly
-         * disagree with the presence of the endpoint in broadcast delivery
-         * mode).
+    if (packet.type != ZBEE_APS_FCF_INTERPAN) {
+        /* Determine whether the source and/or destination endpoints are present.
+         * We should only get here for endpoint-addressed data or ack frames.
          */
-        packet.dst_present = TRUE;
-        packet.src_present = TRUE;
-    }
-    else if ((packet.delivery == ZBEE_APS_FCF_INDIRECT) && (nwk->version <= ZBEE_VERSION_2004)) {
-        /* Indirect addressing was removed in ZigBee 2006, basically because it
-         * was a useless, broken feature which only complicated things. Treat
-         * this mode as invalid for ZigBee 2006 and later. When using indirect
-         * addressing, only one of the source and destination endpoints exist,
-         * and is controlled by the setting of indirect_mode.
-         */
-        packet.dst_present = (!packet.indirect_mode);
-        packet.src_present = (packet.indirect_mode);
-    }
-    else if ((packet.delivery == ZBEE_APS_FCF_GROUP) && (nwk->version >= ZBEE_VERSION_2007)) {
-        /* Group addressing was added in ZigBee 2006, and contains only the
-         * source endpoint. (IMO, Broacast deliveries should do the same).
-         */
-        packet.dst_present = FALSE;
-        packet.src_present = TRUE;
-    }
-    else {
-        /* Illegal Delivery Mode. */
-        expert_add_info(pinfo, proto_root, &ei_zbee_aps_invalid_delivery_mode);
-        return tvb_captured_length(tvb);
+        if ((packet.delivery == ZBEE_APS_FCF_UNICAST) || (packet.delivery == ZBEE_APS_FCF_BCAST)) {
+            /* Source and destination endpoints exist. (Although, I strongly
+             * disagree with the presence of the endpoint in broadcast delivery
+             * mode).
+             */
+            packet.dst_present = TRUE;
+            packet.src_present = TRUE;
+        }
+        else if ((packet.delivery == ZBEE_APS_FCF_INDIRECT) && (nwk->version <= ZBEE_VERSION_2004)) {
+            /* Indirect addressing was removed in ZigBee 2006, basically because it
+             * was a useless, broken feature which only complicated things. Treat
+             * this mode as invalid for ZigBee 2006 and later. When using indirect
+             * addressing, only one of the source and destination endpoints exist,
+             * and is controlled by the setting of indirect_mode.
+             */
+            packet.dst_present = (!packet.indirect_mode);
+            packet.src_present = (packet.indirect_mode);
+        }
+        else if ((packet.delivery == ZBEE_APS_FCF_GROUP) && (nwk->version >= ZBEE_VERSION_2007)) {
+            /* Group addressing was added in ZigBee 2006, and contains only the
+             * source endpoint. (IMO, Broacast deliveries should do the same).
+             */
+            packet.dst_present = FALSE;
+            packet.src_present = TRUE;
+        }
+        else {
+            /* Illegal Delivery Mode. */
+            expert_add_info(pinfo, proto_root, &ei_zbee_aps_invalid_delivery_mode);
+            return tvb_captured_length(tvb);
 
-    }
+        }
 
-    /* If the destination endpoint is present, get and display it. */
-    if (packet.dst_present) {
-        packet.dst = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint(aps_tree, hf_zbee_aps_dst, tvb, offset, 1, packet.dst);
-        proto_item_append_text(proto_root, ", Dst Endpt: %d", packet.dst);
-        offset += 1;
+        /* If the destination endpoint is present, get and display it. */
+        if (packet.dst_present) {
+            packet.dst = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(aps_tree, hf_zbee_aps_dst, tvb, offset, 1, packet.dst);
+            proto_item_append_text(proto_root, ", Dst Endpt: %d", packet.dst);
+            offset += 1;
 
-        /* Update the info column. */
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst Endpt: %d", packet.dst);
-    }
+            /* Update the info column. */
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst Endpt: %d", packet.dst);
+        }
+    } /* if !interpan */
 
     /* If the group address is present, display it. */
     if (packet.delivery == ZBEE_APS_FCF_GROUP) {
@@ -909,7 +919,8 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     offset +=2;
 
     /* The source endpoint is present for all cases except indirect /w indirect_mode == FALSE */
-    if ((packet.delivery != ZBEE_APS_FCF_INDIRECT) || (!packet.indirect_mode)) {
+    if (packet.type != ZBEE_APS_FCF_INTERPAN &&
+        ((packet.delivery != ZBEE_APS_FCF_INDIRECT) || (!packet.indirect_mode))) {
         packet.src = tvb_get_guint8(tvb, offset);
         proto_tree_add_uint(aps_tree, hf_zbee_aps_src, tvb, offset, 1, packet.src);
         proto_item_append_text(proto_root, ", Src Endpt: %d", packet.src);
@@ -929,7 +940,7 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 dissect_zbee_aps_no_endpt:
 
     /* Get and display the APS counter. Only present on ZigBee 2007 and later. */
-    if (nwk->version >= ZBEE_VERSION_2007) {
+    if (nwk->version >= ZBEE_VERSION_2007 && packet.type != ZBEE_APS_FCF_INTERPAN) {
         packet.counter = tvb_get_guint8(tvb, offset);
         proto_tree_add_uint(aps_tree, hf_zbee_aps_counter, tvb, offset, 1, packet.counter);
         offset += 1;
@@ -1035,6 +1046,7 @@ dissect_zbee_aps_no_endpt:
     /* Handle the packet type. */
     switch (packet.type) {
         case ZBEE_APS_FCF_DATA:
+        case ZBEE_APS_FCF_INTERPAN:
             if (!payload_tvb) {
                 break;
             }

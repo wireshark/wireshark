@@ -113,7 +113,8 @@
 #define ZBEE_PROFILE_AWAREPOINT_MAX         0xc057
 #define ZBEE_PROFILE_SAN_JUAN_1_MIN         0xc058
 #define ZBEE_PROFILE_SAN_JUAN_1_MAX         0xc05d
-#define ZBEE_PROFILE_PHILIPS_MIN            0xc05e
+#define ZBEE_PROFILE_ZLL                    0xc05e
+#define ZBEE_PROFILE_PHILIPS_MIN            0xc05f
 #define ZBEE_PROFILE_PHILIPS_MAX            0xc067
 #define ZBEE_PROFILE_LUXOFT_MIN             0xc068
 #define ZBEE_PROFILE_LUXOFT_MAX             0xc071

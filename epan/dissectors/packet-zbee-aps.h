@@ -37,6 +37,7 @@
 #define ZBEE_APS_FCF_DATA           0x00
 #define ZBEE_APS_FCF_CMD            0x01
 #define ZBEE_APS_FCF_ACK            0x02
+#define ZBEE_APS_FCF_INTERPAN       0x03
 
 #define ZBEE_APS_FCF_UNICAST        0x00
 #define ZBEE_APS_FCF_INDIRECT       0x01
@@ -227,6 +228,8 @@
 #define ZBEE_ZCL_CID_METER_IDENTIFICATION           0x0b01
 #define ZBEE_ZCL_CID_APPLIANCE_EVENTS_AND_ALERT     0x0b02
 #define ZBEE_ZCL_CID_APPLIANCE_STATISTICS           0x0b03
+
+#define ZBEE_ZCL_CID_ZLL                            0x1000
 
 /* ZCL Test Profile #2 Clusters */
 #define ZBEE_APS_T2_CID_TCP                         0x0001

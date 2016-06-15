@@ -38,6 +38,7 @@
 /*  ZigBee NWK FCF Frame Types */
 #define ZBEE_NWK_FCF_DATA                   0x0000
 #define ZBEE_NWK_FCF_CMD                    0x0001
+#define ZBEE_NWK_FCF_INTERPAN               0x0003
 
 /* ZigBee NWK Discovery Modes. */
 #define ZBEE_NWK_FCF_DISCOVERY_SUPPRESS     0x0000
