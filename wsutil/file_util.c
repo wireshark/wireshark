@@ -575,19 +575,6 @@ ws_load_library(const gchar *library_name)
             }
       }
 
-      /* At last try the Npcap directory */
-      full_path = g_module_build_path(npcap_path, library_name);
-      full_path_w = g_utf8_to_utf16(full_path, -1, NULL, NULL, NULL);
-
-      if (full_path && full_path_w) {
-            dll_h = LoadLibraryW(full_path_w);
-            if (dll_h) {
-                  g_free(full_path);
-                  g_free(full_path_w);
-                  return dll_h;
-            }
-      }
-
       return NULL;
 }
 
