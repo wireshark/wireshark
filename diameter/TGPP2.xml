@@ -31,14 +31,14 @@
 		<enum name="ESTABLISHMENT" code="1"/>
 		<enum name="MODIFICATION" code="2"/>
 	</avp>
-	<avp name="Charging-Rule-Install" code="801" vendor-bit="must" vendor-id="TGPP2">
+	<avp name="3GPP2-Charging-Rule-Install" code="801" vendor-bit="must" vendor-id="TGPP2">
 		<grouped>
-			<gavp name="Charging-Rule-Definition"/>
+			<gavp name="3GPP2-Charging-Rule-Definition"/>
 			<gavp name="Charging-Rule-Name"/>
 			<gavp name="Charging-Rule-Base-Name"/>
 		</grouped>
 	</avp>
-	<avp name="Charging-Rule-Definition" code="802" vendor-bit="must" vendor-id="TGPP2">
+	<avp name="3GPP2-Charging-Rule-Definition" code="802" vendor-bit="must" vendor-id="TGPP2">
 		<grouped>
 			<gavp name="Charging-Rule-Name"/>
 			<gavp name="Service-Identifier"/>
@@ -46,7 +46,7 @@
 			<gavp name="Flow-Identifier"/>
 			<gavp name="Flow-Description"/>
 			<gavp name="Flow-Status"/>
-			<gavp name="QoS-Information"/>
+			<gavp name="3GPP2-QoS-Information"/>
 			<gavp name="Reporting-Level"/>
 			<gavp name="Online"/>
 			<gavp name="Offline"/>
@@ -56,7 +56,7 @@
 			<gavp name="Flows"/>
 		</grouped>
 	</avp>
-	<avp name="Event-Trigger" code="803" vendor-bit="must" vendor-id="TGPP2">
+	<avp name="3GPP2-Event-Trigger" code="803" vendor-bit="must" vendor-id="TGPP2">
 		<type type-name="Enumerated"/>
 		<enum name="PCF_CHANGE" code="0"/>
 		<enum name="QOS_CHANGE" code="1"/>
@@ -69,7 +69,7 @@
 		<enum name="PCC_RULE_FAILURE" code="8"/>
 		<enum name="ACCESS_NETWORK_PHYSICAL_ACCESS_ID_CHANGE" code="9"/>
 	</avp>
-	<avp name="QoS-Information" code="804" vendor-bit="must" vendor-id="TGPP2">
+	<avp name="3GPP2-QoS-Information" code="804" vendor-bit="must" vendor-id="TGPP2">
 		<grouped>
 			<gavp name="QoS-Class-Identifier"/>
 			<gavp name="Max-Requested-Bandwidth-UL"/>
@@ -78,7 +78,7 @@
 			<gavp name="Guaranteed-Bitrate-DL"/>
 		</grouped>
 	</avp>
-	<avp name="Charging-Rule-Report" code="805" vendor-bit="must" vendor-id="TGPP2">
+	<avp name="3GPP2-Charging-Rule-Report" code="805" vendor-bit="must" vendor-id="TGPP2">
 		<grouped>
 			<gavp name="Charging-Rule-Name"/>
 			<gavp name="Charging-Rule-Base-Name"/>
@@ -92,7 +92,7 @@
 	<avp name="AGW-IPv6-Address" code="807" vendor-bit="must" vendor-id="TGPP2">
 		<type type-name="IPAddress"/>
 	</avp>
-	<avp name="RAT-Type" code="808" vendor-bit="must" vendor-id="TGPP2">
+	<avp name="3GPP2-RAT-Type" code="808" vendor-bit="must" vendor-id="TGPP2">
 		<type type-name="Enumerated"/>
 		<enum name="CDMA2000-1X" code="0"/>
 		<enum name="HRPD" code="1"/>

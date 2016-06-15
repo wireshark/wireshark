@@ -28,19 +28,19 @@
 	</avp>
 
 	<!-- ************************** SCAP AVPS, see 155 19-FAY 112 51/2 rev B ********************* -->
-	<avp name="Currency-Code" code="544" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Currency-Code" code="544" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 	    <type type-name="Unsigned32"/>
 	</avp>
-	<avp name="Subscription-Id" code="553" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Subscription-Id" code="553" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<grouped>
-			<gavp name="Subscription-Id-Data"/>
-			<gavp name="Subscription-Id-Type"/>
+			<gavp name="SCAP-Subscription-Id-Data"/>
+			<gavp name="SCAP-Subscription-Id-Type"/>
 		</grouped>
 	</avp>
-	<avp name="Subscription-Id-Data" code="554" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Subscription-Id-Data" code="554" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<type type-name="UTF8String"/>
 	</avp>
-	<avp name="Subscription-Id-Type" code="555" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Subscription-Id-Type" code="555" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<type type-name="Enumerated"/>
 		<enum name="End User MSISDN" code="0"/>
 		<enum name="End User IMSI" code="1"/>
@@ -50,8 +50,8 @@
 	</avp>
 	<avp name="Original-Subscription-Id" code="559" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<grouped>
-			<gavp name="Subscription-Id-Data"/>
-			<gavp name="Subscription-Id-Type"/>
+			<gavp name="SCAP-Subscription-Id-Data"/>
+			<gavp name="SCAP-Subscription-Id-Type"/>
 		</grouped>
 	</avp>
 
@@ -60,43 +60,43 @@
 		<enum name="Service Element Termination" code="0"/>
 		<enum name="Connection to User Broken" code="1"/>
 	</avp>
-	<avp name="Final-Unit-Indication" code="601" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Final-Unit-Indication" code="601" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<type type-name="Unsigned32"/>
 	</avp>
-	<avp name="Granted-Service-Unit" code="602" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Granted-Service-Unit" code="602" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<grouped>
-			<gavp name="Unit-Type"/>
-			<gavp name="Unit-Value"/>
-			<gavp name="Currency-Code"/>
+			<gavp name="SCAP-Unit-Type"/>
+			<gavp name="SCAP-Unit-Value"/>
+			<gavp name="SCAP-Currency-Code"/>
 		</grouped>
 	</avp>
 	<avp name="Cost" code="603" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<type type-name="Float64"/>
 	</avp>
-	<avp name="Cost-Information" code="604" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Cost-Information" code="604" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<grouped>
 			<gavp name="Cost"/>
-			<gavp name="Currency-Code"/>
+			<gavp name="SCAP-Currency-Code"/>
 		</grouped>
 	</avp>
 	<avp name="Accounting-Correlation-Id" code="605" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<type type-name="UTF8String"/>
 	</avp>
 
-	<avp name="Requested-Service-Unit" code="606" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Requested-Service-Unit" code="606" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<grouped>
-			<gavp name="Unit-Type"/>
-			<gavp name="Unit-Value"/>
-			<gavp name="Currency-Code"/>
+			<gavp name="SCAP-Unit-Type"/>
+			<gavp name="SCAP-Unit-Value"/>
+			<gavp name="SCAP-Currency-Code"/>
 		</grouped>
 	</avp>
-	<avp name="Service-Parameter-Info" code="607" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Service-Parameter-Info" code="607" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<grouped>
-			<gavp name="Service-Parameter-Type"/>
-			<gavp name="Service-Parameter-Value"/>
+			<gavp name="SCAP-Service-Parameter-Type"/>
+			<gavp name="SCAP-Service-Parameter-Value"/>
 		</grouped>
 	</avp>
-	<avp name="Service-Parameter-Type" code="608" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Service-Parameter-Type" code="608" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<type type-name="Enumerated"/>
 		<!-- CCN Specific Interpretation, see 1553-HSD 108 06/1 rev A -->
 		<enum name="Service Provider Id (CCN)" code="0"/>
@@ -120,45 +120,45 @@
 		<enum name="Tele Service Code (CCN)" code="18"/>
 		<enum name="Service Key (CCN)" code="19"/>
 	</avp>
-	<avp name="Service-Parameter-Value" code="609" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Service-Parameter-Value" code="609" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<type type-name="OctetString"/>
 	</avp>
-	<avp name="Event-Timestamp" code="610" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Event-Timestamp" code="610" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<type type-name="Time"/>
 	</avp>
-	<avp name="Unit-Type" code="611" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Unit-Type" code="611" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<type type-name="Enumerated"/>
 		<enum name="Service Credit Time (seconds)" code="0"/>
 		<enum name="Service Credit Volume (bytes)" code="1"/>
 		<enum name="Service Credit Events (number of events)" code="2"/>
 		<enum name="Serivce Credit Money (monetary value)" code="3"/>
 	</avp>
-	<avp name="Unit-Value" code="612" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Unit-Value" code="612" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<grouped>
 			<gavp name="Value-Digits"/>
 			<gavp name="Exponent"/>
 		</grouped>
 	</avp>
-	<avp name="Used-Service-Unit" code="613" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Used-Service-Unit" code="613" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<grouped>
-			<gavp name="Unit-Type"/>
-			<gavp name="Unit-Value"/>
-			<gavp name="Currency-Code"/>
+			<gavp name="SCAP-Unit-Type"/>
+			<gavp name="SCAP-Unit-Value"/>
+			<gavp name="SCAP-Currency-Code"/>
 		</grouped>
 	</avp>
-	<avp name="Check-Balance-Result" code="614" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Check-Balance-Result" code="614" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<type type-name="Enumerated"/>
 		<enum name="Enough Credit" code="0"/>
 		<enum name="No Credit" code="1"/>
 	</avp>
-	<avp name="Requested-Action" code="615" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Requested-Action" code="615" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<type type-name="Enumerated"/>
 		<enum name="Direct Debiting" code="0"/>
 		<enum name="Refund Account" code="1"/>
 		<enum name="Check Balance" code="2"/>
 		<enum name="Price Enquiry" code="3"/>
 	</avp>
-	<avp name="Exponent" code="616" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Exponent" code="616" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<type type-name="Integer32"/>
 	</avp>
 	<avp name="Value-Digits" code="617" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">

@@ -242,13 +242,13 @@
 	</avp>
 	<avp name="SIP-Auth-Data-Item(Obsolete CN#25)" code="13" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 		<grouped>
-			<gavp name="SIP-Item-Number"/>
-			<gavp name="SIP-Authentication-Scheme"/>
-			<gavp name="SIP-Authenticate"/>
-			<gavp name="SIP-Authorization"/>
-			<gavp name="SIP-Authentication-Context"/>
-			<gavp name="Confidentiality-Key"/>
-			<gavp name="Integrity-Key"/>
+			<gavp name="SIP-Item-Number(Obsolete CN#25)"/>
+			<gavp name="SIP-Authentication-Scheme(Obsolete CN#25)"/>
+			<gavp name="SIP-Authenticate(Obsolete CN#25)"/>
+			<gavp name="SIP-Authorization(Obsolete CN#25)"/>
+			<gavp name="SIP-Authentication-Context(Obsolete CN#25)"/>
+			<gavp name="Confidentiality-Key(Obsolete CN#25)"/>
+			<gavp name="Integrity-Key(Obsolete CN#25)"/>
 		</grouped>
 	</avp>
 	<avp name="SIP-Item-Number(Obsolete CN#25)" code="14" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
@@ -622,30 +622,30 @@
 	<avp name="Optional-Capability" code="605" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 		<type type-name="Unsigned32"/>
 	</avp>
-	<avp name="User-Data" code="606" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+	<avp name="Cx-User-Data" code="606" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 		<type type-name="OctetString"/>
 	</avp>
-	<avp name="SIP-Number-Auth-Items" code="607" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+	<avp name="3GPP-SIP-Number-Auth-Items" code="607" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 		<type type-name="Unsigned32"/>
 	</avp>
-	<avp name="SIP-Authentication-Scheme" code="608" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+	<avp name="3GPP-SIP-Authentication-Scheme" code="608" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 		<type type-name="UTF8String"/>
 	</avp>
-	<avp name="SIP-Authenticate" code="609" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+	<avp name="3GPP-SIP-Authenticate" code="609" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 		<type type-name="OctetString"/>
 	</avp>
-	<avp name="SIP-Authorization" code="610" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+	<avp name="3GPP-SIP-Authorization" code="610" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 		<type type-name="OctetString"/>
 	</avp>
 	<avp name="SIP-Authentication-Context" code="611" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 		<type type-name="OctetString"/>
 	</avp>
-	<avp name="SIP-Auth-Data-Item" code="612" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+	<avp name="3GPP-SIP-Auth-Data-Item" code="612" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 		<grouped>
 			<gavp name="SIP-Item-Number"/>
-			<gavp name="SIP-Authentication-Scheme"/>
-			<gavp name="SIP-Authenticate"/>
-			<gavp name="SIP-Authorization"/>
+			<gavp name="3GPP-SIP-Authentication-Scheme"/>
+			<gavp name="3GPP-SIP-Authenticate"/>
+			<gavp name="3GPP-SIP-Authorization"/>
 			<gavp name="SIP-Authentication-Context"/>
 			<gavp name="Confidentiality-Key"/>
 			<gavp name="Integrity-Key"/>
@@ -659,7 +659,7 @@
 			<gavp name="Authorization -Information-SIM"/>
 		</grouped>
 	</avp>
-	<avp name="SIP-Item-Number" code="613" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+	<avp name="3GPP-SIP-Item-Number" code="613" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 		<type type-name="Unsigned32"/>
 	</avp>
 	<avp name="Server-Assignment-Type" code="614" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
@@ -890,7 +890,7 @@
 	<avp name="MSISDN" code="701" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 		<type type-name="OctetString"/>
 	</avp>
-	<avp name="User-Data" code="702" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+	<avp name="Sh-User-Data" code="702" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 		<type type-name="OctetString"/>
 	</avp>
 	<avp name="Data-Reference" code="703" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">

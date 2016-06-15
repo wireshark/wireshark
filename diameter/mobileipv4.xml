@@ -32,9 +32,6 @@
 	</avp>
 
 	<!-- 324 Unassigned -->
-	<avp name="Unassigned" code="324" mandatory="may">
-		<type type-name="OctetString"/>
-	</avp>
 	<avp name="MIP-MN-to-FA-MSA" code="325" mandatory="must" protected="may" vendor-bit="mustnot" may-encrypt="yes">
 		<grouped>
 			<gavp name="MIP-MN-AAA-SPI"/>
@@ -51,9 +48,6 @@
 	</avp>
 
 	<!-- 327 Unassigned -->
-	<avp name="Unassigned" code="327" mandatory="may">
-		<type type-name="OctetString"/>
-	</avp>
 	<avp name="MIP-FA-to-HA-MSA" code="328" mandatory="must" protected="may" vendor-bit="mustnot" may-encrypt="yes">
 		<grouped>
 			<gavp name="MIP-FA-to-HA-SPI"/>
@@ -70,9 +64,6 @@
 	</avp>
 
 	<!-- 330 Unassigned -->
-	<avp name="Unassigned" code="330" mandatory="may">
-		<type type-name="OctetString"/>
-	</avp>
 
 	<avp name="MIP-MN-to-HA-MSA" code="331" mandatory="must" protected="may" vendor-bit="mustnot" may-encrypt="yes">
 		<grouped>

@@ -1116,7 +1116,7 @@
 		<avp name="Tunnel-Server-Auth-Id" code="91" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
-		<avp name="NAS-Filter-Rule" code="92" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+		<avp name="RADIUS-NAS-Filter-Rule" code="92" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
 		<!-- AVP 93 unassigned -->
@@ -2055,17 +2055,7 @@
 		433 Redirect-Address-Type [RFC4006]
 		434 Redirect-Server [RFC4006]
 		435 Redirect-Server-Address [RFC4006]
-		-->
-
-		<avp name="Requested-Action" code="436" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
-			<type type-name="Enumerated"/>
-			<enum name="DIRECT_DEBITING" code="0"/>
-			<enum name="REFUND_ACCOUNT" code="1"/>
-			<enum name="CHECK_BALANCE" code="2"/>
-			<enum name="PRICE_ENQUIRY" code="3"/>
-		</avp>
-
-		<!--
+		436 Requested-Action [RFC4006]
 		437 Requested-Service-Unit [RFC4006]
 		438 Restriction-Filter-Rule [RFC4006]
 		439 Service-Identifier [RFC4006]
@@ -2550,14 +2540,14 @@
 
 		<avp name="Event-Type" code="823" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot" vendor-id="TGPP">
 			<grouped>
-				<gavp name="SIP-Method"/>
+				<gavp name="3GPP-SIP-Method"/>
 				<gavp name="Event"/>
 				<gavp name="Content-Type"/>
 				<gavp name="Content-Length"/>
 				<gavp name="Content-Disposition"/>
 			</grouped>
 		</avp>
-		<avp name="SIP-Method" code="824" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<avp name="3GPP-SIP-Method" code="824" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Event" code="825" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
@@ -2923,7 +2913,7 @@
 				<gavp name="3GPP-Charging-Id"/>
 				<gavp name="PDN-Connection-ID"/>
 				<gavp name="Node-Id"/>
-				<gavp name="3GPP-PDP Type"/>
+				<gavp name="3GPP-PDP-Type"/>
 				<gavp name="PDP-Address"/>
 				<gavp name="Dynamic-Address-Flag"/>
 				<gavp name="Dynamic-Address-Flag-Extension"/>
@@ -3814,19 +3804,19 @@
 		</avp>
 		<avp name="Initial-Recipient-Address" code="1105" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
-				<gavp name="Sequence-Number"/>
+				<gavp name="MM10-Sequence-Number"/>
 				<gavp name="MM10-Recipient-Address"/>
 			</grouped>
 		</avp>
 		<avp name="Result-Recipient-Address" code="1106" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
-				<gavp name="Sequence-Number"/>
+				<gavp name="MM10-Sequence-Number"/>
 				<gavp name="MM10-Recipient-Address"/>
 				<gavp name="Routeing-Address"/>
 				<gavp name="Sender-Address"/>
 			</grouped>
 		</avp>
-		<avp name="Sequence-Number" code="1107" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<avp name="MM10-Sequence-Number" code="1107" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="MM10-Recipient-Address" code="1108" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
