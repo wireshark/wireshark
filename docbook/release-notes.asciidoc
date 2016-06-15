@@ -31,6 +31,8 @@ since version 2.1.0:
 The following features are new (or have been significantly updated)
 since version 2.0.0:
 
+* The intelligent scroll bar now sits to the left of a normal scroll bar and
+  provides a clickable map of nearby packets.
 * You can now switch between between Capture and File Format dissection of
 the current capture file via the View menu in the Qt GUI.
 * You can now show selected packet bytes as ASCII, HTML, Image, ISO 8859-1, Raw, UTF-8,
