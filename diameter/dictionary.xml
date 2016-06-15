@@ -3815,13 +3815,13 @@
 		<avp name="Initial-Recipient-Address" code="1105" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Sequence-Number"/>
-				<gavp name="Recipient-Address"/>
+				<gavp name="MM10-Recipient-Address"/>
 			</grouped>
 		</avp>
 		<avp name="Result-Recipient-Address" code="1106" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Sequence-Number"/>
-				<gavp name="Recipient-Address"/>
+				<gavp name="MM10-Recipient-Address"/>
 				<gavp name="Routeing-Address"/>
 				<gavp name="Sender-Address"/>
 			</grouped>
@@ -3829,7 +3829,7 @@
 		<avp name="Sequence-Number" code="1107" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Recipient-Address" code="1108" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<avp name="MM10-Recipient-Address" code="1108" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Routeing-Address" code="1109" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
@@ -4796,12 +4796,12 @@
 		</avp>
 		<avp name="LCS-Info" code="1473" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
-				<gavp name="GMLC-Address"/>
+				<gavp name="GMLC-Number"/>
 				<gavp name="LCS-PrivacyException"/>
 				<gavp name="MO-LR"/>
 			</grouped>
 		</avp>
-		<avp name="GMLC-Address" code="1474" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<avp name="GMLC-Number" code="1474" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="LCS-PrivacyException" code="1475" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
@@ -4811,7 +4811,7 @@
 				<gavp name="Notification-To-UE-User"/>
 				<gavp name="External-Client"/>
 				<gavp name="PLMN-Client"/>
-				<gavp name="Service-Type"/>
+				<gavp name="3GPP-Service-Type"/>
 			</grouped>
 		</avp>
 		<avp name="SS-Code" code="1476" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
@@ -4850,7 +4850,7 @@
 			<enum name="ANONYMOUS_LOCATION" code="3"/>
 			<enum name="TARGET_UE_SUBSCRIBED_SERVICE" code="4"/>
 		</avp>
-		<avp name="Service-Type" code="1483" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<avp name="3GPP-Service-Type" code="1483" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
 				<gavp name="ServiceTypeIdentity"/>
 				<gavp name="GMLC-Restriction"/>
@@ -5439,12 +5439,16 @@
 			<enum name="Early Ssession Setting-up event" code="3"/>
 			<enum name="PoC Talk Burst" code="4"/>
 		</avp>
-		<avp name="Recipients" code="2026" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Recipient-Info" code="2026" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
+				<gavp name="Destination-Interface"/>
 				<gavp name="Recipient-Address"/>
+				<gavp name="Recipient-Received-Address"/>
+				<gavp name="Recipient-SCCP-Address "/>
+				<gavp name="SM-Protocol-ID"/>
 			</grouped>
 		</avp>
-		<avp name="Destination-Interface" code="2027" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Originator-Received-Address" code="2027" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Address-Type"/>
 				<gavp name="Address-Data"/>
@@ -5612,7 +5616,7 @@
 		</avp>
 		<avp name="Supplementary-Service" code="2048" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
-				<gavp name="Service-Type"/>
+				<gavp name="3GPP-Service-Type"/>
 				<gavp name="Service-Mode"/>
 				<gavp name="Number-Of-Diversions"/>
 				<gavp name="Associated-Party-Address"/>
@@ -5629,7 +5633,7 @@
 			<enum name="INVITE_INTO_CONF" code="2"/>
 			<enum name="QUIT_CONF" code="3"/>
 		</avp>
-		<avp name="PDN-Connection-ID" code="2050" vendor-bit="must" vendor-id="TGPP">
+		<avp name="PDN-Connection-Charging-ID" code="2050" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Dynamic-Address-Flag" code="2051" vendor-bit="must" vendor-id="TGPP">
@@ -5993,7 +5997,7 @@
 		Note: The AVP codes from 2412 to 2499 are reserved for TS 29.173
 		-->
 
-		<avp name="Location-Type" code="2500" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Slg-Location-Type" code="2500" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="Enumerated"/>
 			<enum name="CURRENT_LOCATION" code="0"/>
 			<enum name="CURRENT_OR_LAST_KNOWN_LOCATION" code="1"/>
@@ -6377,7 +6381,7 @@
 				<gavp name="LMSI"/>
 			</grouped>
 		</avp>
-		<avp name="Service-ID" code="3103" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<avp name="S6-Service-ID" code="3103" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="DEVICE_TRIGGER" code="0"/>
 		</avp>
@@ -6416,6 +6420,9 @@
 		<avp name="External-Identifier" code="3111" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
+		<!--
+		Note: The AVP codes from 3112 to 3199 are reserved for TS 29.336
+		-->
 
 		<avp name="SM-Delivery-Outcome-T4" code="3200" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
