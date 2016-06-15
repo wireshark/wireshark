@@ -3155,7 +3155,7 @@ Michael Bernhard	<michael.bernhard[AT]bfh.ch> {
 	IEC 61850 dissector
 }
 
-Holger Hans Peter Freyther	<zecke[AT]selfish.org> {
+Holger Hans Peter Freyther <zecke[AT]selfish.org> {
 	NexusWare C7 MTP over UDP dissector
 	DVB-H IPDC ESG
 }
@@ -3592,7 +3592,7 @@ John Miner		<wiresharkdissectorcoder[AT]gmail.com> {
 	Dissector for OptoMMP
 }
 
-竹下 恵 (Megumi Takeshita)		<megumi@ikeriri.ne.jp> {
+竹下 恵 (Megumi Takeshita) <megumi@ikeriri.ne.jp> {
 	Japanese translation of the Qt User Interface
 }
 
