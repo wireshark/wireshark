@@ -8846,7 +8846,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 	guint64            tmpval;
 	header_field_info *hf;
 
-	if (len <= 0 || len > 8)
+	if (len < 0 || len > 8)
 		g_assert_not_reached();
 	bitshift = (8 - (guint)len)*8;
 	available_bits = G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF) >> bitshift;
