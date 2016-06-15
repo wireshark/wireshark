@@ -10,6 +10,9 @@
 #cmakedefine _LARGE_FILES
 #cmakedefine _FILE_OFFSET_BITS @_FILE_OFFSET_BITS@
 
+/* detect failure even with -Wno-error on command line */
+#pragma GCC diagnostic error "-Werror"
+
 #include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,9 +23,15 @@ int main(int argc, char **argv)
    * and make sure we have ftello / fseeko.
    */
 #define LARGE_OFF_T (((off_t) 1 << 62) - 1 + ((off_t) 1 << 62))
-  int off_t_is_large[ (LARGE_OFF_T % 2147483629 == 721 && LARGE_OFF_T % 2147483647 == 1) ? 1 : -1 ];  
-  FILE *fp = fopen(argv[0],"r");
-  off_t offset = ftello( fp );
+  int off_t_is_large[ (LARGE_OFF_T % 2147483629 == 721 && LARGE_OFF_T % 2147483647 == 1) ? 1 : -1 ];
+  /* silence unused warnings */
+  FILE *fp;
+  off_t offset;
+  (void)off_t_is_large;
+  (void)argc;
+  (void)argv;
+  fp = fopen(argv[0],"r");
+  offset = ftello( fp );
 
   fseeko( fp, offset, SEEK_CUR );
   fclose(fp);
