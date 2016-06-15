@@ -54,6 +54,7 @@ CaptureInfo* push_CaptureInfo(lua_State* L, wtap *wth, const gboolean first_time
 
     if (!wth) {
         luaL_error(L, "Internal error: wth is NULL!");
+        return NULL;
     }
 
     f = (CaptureInfo) g_malloc0(sizeof(struct _wslua_captureinfo));
@@ -327,6 +328,7 @@ CaptureInfoConst* push_CaptureInfoConst(lua_State* L, wtap_dumper *wdh) {
 
     if (!wdh) {
         luaL_error(L, "Internal error: wdh is NULL!");
+        return NULL;
     }
 
     f = (CaptureInfoConst) g_malloc0(sizeof(struct _wslua_captureinfo));
