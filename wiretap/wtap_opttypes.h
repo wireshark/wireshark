@@ -180,7 +180,7 @@ typedef struct wtap_optblock_reg {
  * initialized yet.  Should handle "registration" when code is
  * refactored to do so.
  */
-void wtap_opttypes_initialize(void);
+WS_DLL_PUBLIC void wtap_opttypes_initialize(void);
 
 /** Create an option block by type
  *

@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "wsutil/file_util.h"
+#include <wiretap/wtap_opttypes.h>
 
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
@@ -676,6 +677,8 @@ gboolean randpkt_example_close(randpkt_example* example)
 void randpkt_example_init(randpkt_example* example, char* produce_filename, int produce_max_bytes)
 {
 	int err;
+
+	wtap_opttypes_initialize();
 
 	if (strcmp(produce_filename, "-") == 0) {
 		/* Write to the standard output. */
