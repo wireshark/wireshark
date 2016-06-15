@@ -708,7 +708,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     if (offset >= tvb_captured_length(tvb)) {
         /* Non-existent or truncated payload. */
         expert_add_info(pinfo, proto_root, &ei_zbee_nwk_missing_payload);
-        THROW(BoundsError);
+        return tvb_captured_length(tvb);
     }
     /* Payload is encrypted, attempt security operations. */
     else if (packet.security) {
