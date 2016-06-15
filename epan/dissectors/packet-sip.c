@@ -2714,16 +2714,16 @@ static void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, proto_tree *
             par_name_end_offset = equals_offset;
             /* Extract the parameter name */
             param_name = tvb_get_string_enc(wmem_packet_scope(), tvb, current_offset, par_name_end_offset - current_offset, ENC_UTF_8 | ENC_NA);
+            /* Access-Info fields  */
+            if ((param_name != NULL)&&(g_ascii_strcasecmp(param_name, "utran-cell-id-3gpp") == 0)) {
+                proto_tree_add_item(tree, hf_sip_p_acc_net_i_ucid_3gpp, tvb,
+                    equals_offset + 1, semi_colon_offset - equals_offset - 1, ENC_UTF_8 | ENC_NA);
+            }
+            else {
+                proto_tree_add_format_text(tree, tvb, current_offset, length);
+            }
         }
 
-        /* Access-Info fields  */
-        if (g_ascii_strcasecmp(param_name, "utran-cell-id-3gpp") == 0) {
-            proto_tree_add_item(tree, hf_sip_p_acc_net_i_ucid_3gpp, tvb,
-                equals_offset + 1, semi_colon_offset - equals_offset - 1, ENC_UTF_8 | ENC_NA);
-        }
-        else{
-            proto_tree_add_format_text(tree, tvb, current_offset, length);
-        }
         current_offset = semi_colon_offset + 1;
     }
 }
