@@ -1315,46 +1315,58 @@ static int lsarpc_dissect_element_lsa_LookupNames4_count_(tvbuff_t *tvb _U_, int
 static int lsarpc_dissect_element_lsa_LookupNames4_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames4_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static void
-lsarpc_policy_specific_rights(tvbuff_t *tvb _U_, gint offset _U_, proto_tree *tree _U_, guint32 access _U_)
+lsarpc_policy_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_NOTIFICATION, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_LOOKUP_NAMES, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SERVER_ADMIN, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_AUDIT_LOG_ADMIN, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SET_AUDIT_REQUIREMENTS, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SET_DEFAULT_QUOTA_LIMITS, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_PRIVILEGE, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_SECRET, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_ACCOUNT, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_TRUST_ADMIN, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_GET_PRIVATE_INFORMATION, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_VIEW_AUDIT_INFORMATION, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_VIEW_LOCAL_INFORMATION, tvb, offset, 4, access);
+	static const int* access_flags[] = {
+		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_NOTIFICATION,
+		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_LOOKUP_NAMES,
+		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SERVER_ADMIN,
+		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_AUDIT_LOG_ADMIN,
+		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SET_AUDIT_REQUIREMENTS,
+		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SET_DEFAULT_QUOTA_LIMITS,
+		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_PRIVILEGE,
+		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_SECRET,
+		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_ACCOUNT,
+		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_TRUST_ADMIN,
+		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_GET_PRIVATE_INFORMATION,
+		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_VIEW_AUDIT_INFORMATION,
+		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_VIEW_LOCAL_INFORMATION
+	};
+	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
 static void
-lsarpc_account_specific_rights(tvbuff_t *tvb _U_, gint offset _U_, proto_tree *tree _U_, guint32 access _U_)
+lsarpc_account_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_SYSTEM_ACCESS, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_QUOTAS, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_PRIVILEGES, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_VIEW, tvb, offset, 4, access);
+	static const int* access_flags[] = {
+		&hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_SYSTEM_ACCESS,
+		&hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_QUOTAS,
+		&hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_PRIVILEGES,
+		&hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_VIEW
+	};
+	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
 static void
-lsarpc_secret_specific_rights(tvbuff_t *tvb _U_, gint offset _U_, proto_tree *tree _U_, guint32 access _U_)
+lsarpc_secret_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_QUERY_VALUE, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_SET_VALUE, tvb, offset, 4, access);
+	static const int* access_flags[] = {
+		&hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_QUERY_VALUE,
+		&hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_SET_VALUE
+	};
+	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
 static void
-lsarpc_domain_specific_rights(tvbuff_t *tvb _U_, gint offset _U_, proto_tree *tree _U_, guint32 access _U_)
+lsarpc_domain_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_AUTH, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_AUTH, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_POSIX, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_POSIX, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_CONTROLLERS, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_CONTROLLERS, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_DOMAIN_NAME, tvb, offset, 4, access);
+	static const int* access_flags[] = {
+		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_AUTH,
+		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_AUTH,
+		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_POSIX,
+		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_POSIX,
+		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_CONTROLLERS,
+		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_CONTROLLERS,
+		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_DOMAIN_NAME
+	};
+	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
 struct access_mask_info lsarpc_policy_access_mask_info = {
 	"LSA Policy",			/* Name of specific rights */

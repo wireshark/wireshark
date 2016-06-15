@@ -566,14 +566,17 @@ static int winreg_dissect_element_DeleteKeyEx_reserved(tvbuff_t *tvb _U_, int of
 static void
 winreg_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_KEY_WOW64_32KEY, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_KEY_WOW64_64KEY, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_KEY_CREATE_LINK, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_KEY_NOTIFY, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_KEY_ENUMERATE_SUB_KEYS, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_KEY_CREATE_SUB_KEY, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_KEY_SET_VALUE, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_KEY_QUERY_VALUE, tvb, offset, 4, access);
+	static const int* access_flags[] = {
+		&hf_winreg_winreg_AccessMask_KEY_WOW64_32KEY,
+		&hf_winreg_winreg_AccessMask_KEY_WOW64_64KEY,
+		&hf_winreg_winreg_AccessMask_KEY_CREATE_LINK,
+		&hf_winreg_winreg_AccessMask_KEY_NOTIFY,
+		&hf_winreg_winreg_AccessMask_KEY_ENUMERATE_SUB_KEYS,
+		&hf_winreg_winreg_AccessMask_KEY_CREATE_SUB_KEY,
+		&hf_winreg_winreg_AccessMask_KEY_SET_VALUE,
+		&hf_winreg_winreg_AccessMask_KEY_QUERY_VALUE
+	};
+	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
 struct access_mask_info winreg_access_mask_info = {
 	"WINREG",		/* Name of specific rights */
