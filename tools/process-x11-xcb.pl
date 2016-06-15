@@ -600,9 +600,9 @@ sub dump_enum_values($)
 
     my $value = $enum{$e}{value};
     for my $val (sort { $a <=> $b } keys %$value) {
-        say $enum sprintf("\t{ %3d, \"%s\" },", $val, $$value{$val});
+        say $enum sprintf("    { %3d, \"%s\" },", $val, $$value{$val});
     }
-    say $enum sprintf("\t{ %3d, NULL },", 0);
+    say $enum sprintf("    { %3d, NULL },", 0);
     say $enum '};';
     say $enum '';
 
@@ -1155,7 +1155,7 @@ eot
         reference_elements($e, $refs);
     }
     foreach my $e (@elements) {
-        register_element($e, $varpat, $humanpat, $refs, "\t");
+        register_element($e, $varpat, $humanpat, $refs, "        ");
     }
 
     $prefs = "";
@@ -1174,7 +1174,7 @@ eot
 ;
     my $length = 0;
     foreach my $e (@elements) {
-        $length = dissect_element($e, $varpat, $humanpat, $length, $refs, 0, "\t");
+        $length = dissect_element($e, $varpat, $humanpat, $length, $refs, 0, "        ");
     }
 
     print $impl "    }\n}\n";
@@ -1239,7 +1239,7 @@ eot
         reference_elements($e, $refs);
     }
     foreach my $e (@elements) {
-        register_element($e, $varpat, $humanpat, $refs, "\t");
+        register_element($e, $varpat, $humanpat, $refs, "        ");
     }
 
     print $impl <<eot
@@ -1251,7 +1251,7 @@ eot
 
     foreach my $e (@elements) {
         say $impl '        *offsetp = base;';
-        dissect_element($e, $varpat, $humanpat, 0, $refs, 0, "\t");
+        dissect_element($e, $varpat, $humanpat, 0, $refs, 0, "        ");
     }
     say $impl "        base += $size;";
     say $impl '    }';
@@ -1663,9 +1663,9 @@ sub xcb {
         say $impl 'static const x11_generic_event_info '.$genevent_name.'[] = {';
 
         for my $val (sort { $a <=> $b } keys %genericevent) {
-            say $impl sprintf("\t{ %3d, %s },", $val, $header.$genericevent{$val});
+            say $impl sprintf("        { %3d, %s },", $val, $header.$genericevent{$val});
         }
-        say $impl sprintf("\t{ %3d, NULL },", 0);
+        say $impl sprintf("        { %3d, NULL },", 0);
         say $impl '};';
         say $impl '';
     }
@@ -1696,8 +1696,8 @@ eot
 
     foreach my $req (sort {$a <=> $b} keys %request) {
         print $impl "    case $req:\n";
-        print $impl "\t$header$request{$req}(tvb, pinfo, offsetp, t, byte_order, length);\n";
-        print $impl "\tbreak;\n";
+        print $impl "        $header$request{$req}(tvb, pinfo, offsetp, t, byte_order, length);\n";
+        print $impl "        break;\n";
     }
     say $impl "    /* No need for a default case here, since Unknown is printed above,";
     say $impl "       and UNDECODED() is taken care of by dissect_x11_request */";
@@ -1869,20 +1869,20 @@ static void dispatch_glx_render(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
 eot
     ;
     foreach my $req (sort {$a <=> $b} keys %request) {
-        print $impl "\tcase $req:\n";
-        print $impl "\t    mesa_$request{$req}(tvb, offsetp, tt, byte_order, len);\n";
-        print $impl "\t    break;\n";
+        print $impl "        case $req:\n";
+        print $impl "            mesa_$request{$req}(tvb, offsetp, tt, byte_order, len);\n";
+        print $impl "            break;\n";
     }
-    print $impl "\tdefault:\n";
-    print $impl "\t    proto_tree_add_item(tt, hf_x11_undecoded, tvb, *offsetp, len, ENC_NA);\n";
-    print $impl "\t    *offsetp += len;\n";
+    print $impl "        default:\n";
+    print $impl "            proto_tree_add_item(tt, hf_x11_undecoded, tvb, *offsetp, len, ENC_NA);\n";
+    print $impl "            *offsetp += len;\n";
 
-    print $impl "\t}\n";
-    print $impl "\tif (*offsetp < next) {\n";
-    print $impl "\t    proto_tree_add_item(tt, hf_x11_unused, tvb, *offsetp, next - *offsetp, ENC_NA);\n";
-    print $impl "\t    *offsetp = next;\n";
-    print $impl "\t}\n";
-    print $impl "\tlength -= (len + 4);\n";
+    print $impl "        }\n";
+    print $impl "        if (*offsetp < next) {\n";
+    print $impl "            proto_tree_add_item(tt, hf_x11_unused, tvb, *offsetp, next - *offsetp, ENC_NA);\n";
+    print $impl "            *offsetp = next;\n";
+    print $impl "        }\n";
+    print $impl "        length -= (len + 4);\n";
     print $impl "    }\n}\n";
 }
 

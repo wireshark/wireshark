@@ -3773,1095 +3773,1095 @@ static void dispatch_glx_render(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
         next = *offsetp + len;
 
         switch (op) {
-	case 1:
-	    mesa_CallList(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2:
-	    mesa_CallLists(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 3:
-	    mesa_ListBase(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4:
-	    mesa_Begin(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 5:
-	    mesa_Bitmap(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 6:
-	    mesa_Color3bv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 7:
-	    mesa_Color3dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 8:
-	    mesa_Color3fv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 9:
-	    mesa_Color3iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 10:
-	    mesa_Color3sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 11:
-	    mesa_Color3ubv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 12:
-	    mesa_Color3uiv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 13:
-	    mesa_Color3usv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 14:
-	    mesa_Color4bv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 15:
-	    mesa_Color4dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 16:
-	    mesa_Color4fv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 17:
-	    mesa_Color4iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 18:
-	    mesa_Color4sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 19:
-	    mesa_Color4ubv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 20:
-	    mesa_Color4uiv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 21:
-	    mesa_Color4usv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 22:
-	    mesa_EdgeFlagv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 23:
-	    mesa_End(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 24:
-	    mesa_Indexdv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 25:
-	    mesa_Indexfv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 26:
-	    mesa_Indexiv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 27:
-	    mesa_Indexsv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 28:
-	    mesa_Normal3bv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 29:
-	    mesa_Normal3dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 30:
-	    mesa_Normal3fv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 31:
-	    mesa_Normal3iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 32:
-	    mesa_Normal3sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 33:
-	    mesa_RasterPos2dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 34:
-	    mesa_RasterPos2fv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 35:
-	    mesa_RasterPos2iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 36:
-	    mesa_RasterPos2sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 37:
-	    mesa_RasterPos3dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 38:
-	    mesa_RasterPos3fv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 39:
-	    mesa_RasterPos3iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 40:
-	    mesa_RasterPos3sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 41:
-	    mesa_RasterPos4dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 42:
-	    mesa_RasterPos4fv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 43:
-	    mesa_RasterPos4iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 44:
-	    mesa_RasterPos4sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 45:
-	    mesa_Rectdv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 46:
-	    mesa_Rectfv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 47:
-	    mesa_Rectiv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 48:
-	    mesa_Rectsv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 49:
-	    mesa_TexCoord1dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 50:
-	    mesa_TexCoord1fv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 51:
-	    mesa_TexCoord1iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 52:
-	    mesa_TexCoord1sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 53:
-	    mesa_TexCoord2dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 54:
-	    mesa_TexCoord2fv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 55:
-	    mesa_TexCoord2iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 56:
-	    mesa_TexCoord2sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 57:
-	    mesa_TexCoord3dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 58:
-	    mesa_TexCoord3fv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 59:
-	    mesa_TexCoord3iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 60:
-	    mesa_TexCoord3sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 61:
-	    mesa_TexCoord4dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 62:
-	    mesa_TexCoord4fv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 63:
-	    mesa_TexCoord4iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 64:
-	    mesa_TexCoord4sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 65:
-	    mesa_Vertex2dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 66:
-	    mesa_Vertex2fv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 67:
-	    mesa_Vertex2iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 68:
-	    mesa_Vertex2sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 69:
-	    mesa_Vertex3dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 70:
-	    mesa_Vertex3fv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 71:
-	    mesa_Vertex3iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 72:
-	    mesa_Vertex3sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 73:
-	    mesa_Vertex4dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 74:
-	    mesa_Vertex4fv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 75:
-	    mesa_Vertex4iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 76:
-	    mesa_Vertex4sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 77:
-	    mesa_ClipPlane(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 78:
-	    mesa_ColorMaterial(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 79:
-	    mesa_CullFace(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 80:
-	    mesa_Fogf(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 81:
-	    mesa_Fogfv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 82:
-	    mesa_Fogi(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 83:
-	    mesa_Fogiv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 84:
-	    mesa_FrontFace(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 85:
-	    mesa_Hint(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 86:
-	    mesa_Lightf(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 87:
-	    mesa_Lightfv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 88:
-	    mesa_Lighti(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 89:
-	    mesa_Lightiv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 90:
-	    mesa_LightModelf(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 91:
-	    mesa_LightModelfv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 92:
-	    mesa_LightModeli(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 93:
-	    mesa_LightModeliv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 94:
-	    mesa_LineStipple(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 95:
-	    mesa_LineWidth(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 96:
-	    mesa_Materialf(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 97:
-	    mesa_Materialfv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 98:
-	    mesa_Materiali(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 99:
-	    mesa_Materialiv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 100:
-	    mesa_PointSize(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 101:
-	    mesa_PolygonMode(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 102:
-	    mesa_PolygonStipple(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 103:
-	    mesa_Scissor(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 104:
-	    mesa_ShadeModel(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 105:
-	    mesa_TexParameterf(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 106:
-	    mesa_TexParameterfv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 107:
-	    mesa_TexParameteri(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 108:
-	    mesa_TexParameteriv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 109:
-	    mesa_TexImage1D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 110:
-	    mesa_TexImage2D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 111:
-	    mesa_TexEnvf(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 112:
-	    mesa_TexEnvfv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 113:
-	    mesa_TexEnvi(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 114:
-	    mesa_TexEnviv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 115:
-	    mesa_TexGend(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 116:
-	    mesa_TexGendv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 117:
-	    mesa_TexGenf(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 118:
-	    mesa_TexGenfv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 119:
-	    mesa_TexGeni(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 120:
-	    mesa_TexGeniv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 121:
-	    mesa_InitNames(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 122:
-	    mesa_LoadName(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 123:
-	    mesa_PassThrough(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 124:
-	    mesa_PopName(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 125:
-	    mesa_PushName(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 126:
-	    mesa_DrawBuffer(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 127:
-	    mesa_Clear(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 128:
-	    mesa_ClearAccum(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 129:
-	    mesa_ClearIndex(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 130:
-	    mesa_ClearColor(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 131:
-	    mesa_ClearStencil(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 132:
-	    mesa_ClearDepth(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 133:
-	    mesa_StencilMask(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 134:
-	    mesa_ColorMask(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 135:
-	    mesa_DepthMask(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 136:
-	    mesa_IndexMask(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 137:
-	    mesa_Accum(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 138:
-	    mesa_Disable(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 139:
-	    mesa_Enable(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 141:
-	    mesa_PopAttrib(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 142:
-	    mesa_PushAttrib(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 143:
-	    mesa_Map1d(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 144:
-	    mesa_Map1f(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 145:
-	    mesa_Map2d(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 146:
-	    mesa_Map2f(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 147:
-	    mesa_MapGrid1d(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 148:
-	    mesa_MapGrid1f(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 149:
-	    mesa_MapGrid2d(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 150:
-	    mesa_MapGrid2f(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 151:
-	    mesa_EvalCoord1dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 152:
-	    mesa_EvalCoord1fv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 153:
-	    mesa_EvalCoord2dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 154:
-	    mesa_EvalCoord2fv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 155:
-	    mesa_EvalMesh1(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 156:
-	    mesa_EvalPoint1(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 157:
-	    mesa_EvalMesh2(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 158:
-	    mesa_EvalPoint2(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 159:
-	    mesa_AlphaFunc(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 160:
-	    mesa_BlendFunc(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 161:
-	    mesa_LogicOp(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 162:
-	    mesa_StencilFunc(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 163:
-	    mesa_StencilOp(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 164:
-	    mesa_DepthFunc(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 165:
-	    mesa_PixelZoom(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 166:
-	    mesa_PixelTransferf(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 167:
-	    mesa_PixelTransferi(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 168:
-	    mesa_PixelMapfv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 169:
-	    mesa_PixelMapuiv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 170:
-	    mesa_PixelMapusv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 171:
-	    mesa_ReadBuffer(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 172:
-	    mesa_CopyPixels(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 173:
-	    mesa_DrawPixels(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 174:
-	    mesa_DepthRange(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 175:
-	    mesa_Frustum(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 176:
-	    mesa_LoadIdentity(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 177:
-	    mesa_LoadMatrixf(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 178:
-	    mesa_LoadMatrixd(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 179:
-	    mesa_MatrixMode(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 180:
-	    mesa_MultMatrixf(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 181:
-	    mesa_MultMatrixd(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 182:
-	    mesa_Ortho(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 183:
-	    mesa_PopMatrix(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 184:
-	    mesa_PushMatrix(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 185:
-	    mesa_Rotated(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 186:
-	    mesa_Rotatef(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 187:
-	    mesa_Scaled(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 188:
-	    mesa_Scalef(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 189:
-	    mesa_Translated(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 190:
-	    mesa_Translatef(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 191:
-	    mesa_Viewport(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 192:
-	    mesa_PolygonOffset(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 193:
-	    mesa_DrawArrays(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 194:
-	    mesa_Indexubv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 195:
-	    mesa_ColorSubTable(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 196:
-	    mesa_CopyColorSubTable(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 197:
-	    mesa_ActiveTexture(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 198:
-	    mesa_MultiTexCoord1dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 199:
-	    mesa_MultiTexCoord1fvARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 200:
-	    mesa_MultiTexCoord1iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 201:
-	    mesa_MultiTexCoord1sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 202:
-	    mesa_MultiTexCoord2dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 203:
-	    mesa_MultiTexCoord2fvARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 204:
-	    mesa_MultiTexCoord2iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 205:
-	    mesa_MultiTexCoord2sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 206:
-	    mesa_MultiTexCoord3dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 207:
-	    mesa_MultiTexCoord3fvARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 208:
-	    mesa_MultiTexCoord3iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 209:
-	    mesa_MultiTexCoord3sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 210:
-	    mesa_MultiTexCoord4dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 211:
-	    mesa_MultiTexCoord4fvARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 212:
-	    mesa_MultiTexCoord4iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 213:
-	    mesa_MultiTexCoord4sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 214:
-	    mesa_CompressedTexImage1D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 215:
-	    mesa_CompressedTexImage2D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 216:
-	    mesa_CompressedTexImage3D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 217:
-	    mesa_CompressedTexSubImage1D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 218:
-	    mesa_CompressedTexSubImage2D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 219:
-	    mesa_CompressedTexSubImage3D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 229:
-	    mesa_SampleCoverage(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 230:
-	    mesa_WindowPos3fv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 231:
-	    mesa_BeginQuery(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 232:
-	    mesa_EndQuery(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 233:
-	    mesa_DrawBuffers(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2048:
-	    mesa_SampleMaskSGIS(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2049:
-	    mesa_SamplePatternSGIS(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2050:
-	    mesa_TagSampleBufferSGIX(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2051:
-	    mesa_DetailTexFuncSGIS(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2052:
-	    mesa_SharpenTexFuncSGIS(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2053:
-	    mesa_ColorTable(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2054:
-	    mesa_ColorTableParameterfv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2055:
-	    mesa_ColorTableParameteriv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2056:
-	    mesa_CopyColorTable(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2057:
-	    mesa_TexImage4DSGIS(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2058:
-	    mesa_TexSubImage4DSGIS(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2059:
-	    mesa_PixelTexGenSGIX(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2064:
-	    mesa_TexFilterFuncSGIS(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2065:
-	    mesa_PointParameterf(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2066:
-	    mesa_PointParameterfv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2067:
-	    mesa_FogFuncSGIS(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2071:
-	    mesa_ReferencePlaneSGIX(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2072:
-	    mesa_FrameZoomSGIX(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 2082:
-	    mesa_TextureColorMaskSGIS(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4096:
-	    mesa_BlendColor(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4097:
-	    mesa_BlendEquation(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4098:
-	    mesa_PolygonOffsetEXT(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4099:
-	    mesa_TexSubImage1D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4100:
-	    mesa_TexSubImage2D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4101:
-	    mesa_ConvolutionFilter1D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4102:
-	    mesa_ConvolutionFilter2D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4103:
-	    mesa_ConvolutionParameterf(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4104:
-	    mesa_ConvolutionParameterfv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4105:
-	    mesa_ConvolutionParameteri(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4106:
-	    mesa_ConvolutionParameteriv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4107:
-	    mesa_CopyConvolutionFilter1D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4108:
-	    mesa_CopyConvolutionFilter2D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4109:
-	    mesa_SeparableFilter2D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4110:
-	    mesa_Histogram(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4111:
-	    mesa_Minmax(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4112:
-	    mesa_ResetHistogram(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4113:
-	    mesa_ResetMinmax(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4114:
-	    mesa_TexImage3D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4115:
-	    mesa_TexSubImage3D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4117:
-	    mesa_BindTexture(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4118:
-	    mesa_PrioritizeTextures(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4119:
-	    mesa_CopyTexImage1D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4120:
-	    mesa_CopyTexImage2D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4121:
-	    mesa_CopyTexSubImage1D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4122:
-	    mesa_CopyTexSubImage2D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4123:
-	    mesa_CopyTexSubImage3D(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4124:
-	    mesa_FogCoordfvEXT(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4125:
-	    mesa_FogCoorddv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4126:
-	    mesa_SecondaryColor3bv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4127:
-	    mesa_SecondaryColor3sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4128:
-	    mesa_SecondaryColor3iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4129:
-	    mesa_SecondaryColor3fvEXT(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4130:
-	    mesa_SecondaryColor3dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4131:
-	    mesa_SecondaryColor3ubv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4132:
-	    mesa_SecondaryColor3usv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4133:
-	    mesa_SecondaryColor3uiv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4134:
-	    mesa_BlendFuncSeparate(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4135:
-	    mesa_VertexWeightfvEXT(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4136:
-	    mesa_CombinerParameterfNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4137:
-	    mesa_CombinerParameterfvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4138:
-	    mesa_CombinerParameteriNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4139:
-	    mesa_CombinerParameterivNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4140:
-	    mesa_CombinerInputNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4141:
-	    mesa_CombinerOutputNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4142:
-	    mesa_FinalCombinerInputNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4180:
-	    mesa_BindProgramARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4181:
-	    mesa_ExecuteProgramNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4182:
-	    mesa_RequestResidentProgramsNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4183:
-	    mesa_LoadProgramNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4184:
-	    mesa_ProgramEnvParameter4fvARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4185:
-	    mesa_ProgramEnvParameter4dvARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4186:
-	    mesa_ProgramParameters4fvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4187:
-	    mesa_ProgramParameters4dvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4188:
-	    mesa_TrackMatrixNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4189:
-	    mesa_VertexAttrib1sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4190:
-	    mesa_VertexAttrib2sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4191:
-	    mesa_VertexAttrib3sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4192:
-	    mesa_VertexAttrib4sv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4193:
-	    mesa_VertexAttrib1fvARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4194:
-	    mesa_VertexAttrib2fvARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4195:
-	    mesa_VertexAttrib3fvARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4196:
-	    mesa_VertexAttrib4fvARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4197:
-	    mesa_VertexAttrib1dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4198:
-	    mesa_VertexAttrib2dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4199:
-	    mesa_VertexAttrib3dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4200:
-	    mesa_VertexAttrib4dv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4201:
-	    mesa_VertexAttrib4Nubv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4202:
-	    mesa_VertexAttribs1svNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4203:
-	    mesa_VertexAttribs2svNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4204:
-	    mesa_VertexAttribs3svNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4205:
-	    mesa_VertexAttribs4svNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4206:
-	    mesa_VertexAttribs1fvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4207:
-	    mesa_VertexAttribs2fvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4208:
-	    mesa_VertexAttribs3fvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4209:
-	    mesa_VertexAttribs4fvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4210:
-	    mesa_VertexAttribs1dvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4211:
-	    mesa_VertexAttribs2dvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4212:
-	    mesa_VertexAttribs3dvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4213:
-	    mesa_VertexAttribs4dvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4214:
-	    mesa_VertexAttribs4ubvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4215:
-	    mesa_ProgramLocalParameter4fvARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4216:
-	    mesa_ProgramLocalParameter4dvARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4217:
-	    mesa_ProgramStringARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4218:
-	    mesa_ProgramNamedParameter4fvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4219:
-	    mesa_ProgramNamedParameter4dvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4220:
-	    mesa_ActiveStencilFaceEXT(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4221:
-	    mesa_PointParameteri(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4222:
-	    mesa_PointParameteriv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4228:
-	    mesa_BlendEquationSeparate(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4229:
-	    mesa_DepthBoundsEXT(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4230:
-	    mesa_VertexAttrib4bv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4231:
-	    mesa_VertexAttrib4iv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4232:
-	    mesa_VertexAttrib4ubv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4233:
-	    mesa_VertexAttrib4usv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4234:
-	    mesa_VertexAttrib4uiv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4235:
-	    mesa_VertexAttrib4Nbv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4236:
-	    mesa_VertexAttrib4Nsv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4237:
-	    mesa_VertexAttrib4Niv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4238:
-	    mesa_VertexAttrib4Nusv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4239:
-	    mesa_VertexAttrib4Nuiv(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4265:
-	    mesa_VertexAttrib1svNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4266:
-	    mesa_VertexAttrib2svNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4267:
-	    mesa_VertexAttrib3svNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4268:
-	    mesa_VertexAttrib4svNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4269:
-	    mesa_VertexAttrib1fvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4270:
-	    mesa_VertexAttrib2fvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4271:
-	    mesa_VertexAttrib3fvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4272:
-	    mesa_VertexAttrib4fvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4273:
-	    mesa_VertexAttrib1dvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4274:
-	    mesa_VertexAttrib2dvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4275:
-	    mesa_VertexAttrib3dvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4276:
-	    mesa_VertexAttrib4dvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4277:
-	    mesa_VertexAttrib4ubvNV(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4326:
-	    mesa_MatrixIndexubvARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4327:
-	    mesa_MatrixIndexusvARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4328:
-	    mesa_MatrixIndexuivARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	case 4329:
-	    mesa_CurrentPaletteMatrixARB(tvb, offsetp, tt, byte_order, len);
-	    break;
-	default:
-	    proto_tree_add_item(tt, hf_x11_undecoded, tvb, *offsetp, len, ENC_NA);
-	    *offsetp += len;
-	}
-	if (*offsetp < next) {
-	    proto_tree_add_item(tt, hf_x11_unused, tvb, *offsetp, next - *offsetp, ENC_NA);
-	    *offsetp = next;
-	}
-	length -= (len + 4);
+        case 1:
+            mesa_CallList(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2:
+            mesa_CallLists(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 3:
+            mesa_ListBase(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4:
+            mesa_Begin(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 5:
+            mesa_Bitmap(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 6:
+            mesa_Color3bv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 7:
+            mesa_Color3dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 8:
+            mesa_Color3fv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 9:
+            mesa_Color3iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 10:
+            mesa_Color3sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 11:
+            mesa_Color3ubv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 12:
+            mesa_Color3uiv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 13:
+            mesa_Color3usv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 14:
+            mesa_Color4bv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 15:
+            mesa_Color4dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 16:
+            mesa_Color4fv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 17:
+            mesa_Color4iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 18:
+            mesa_Color4sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 19:
+            mesa_Color4ubv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 20:
+            mesa_Color4uiv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 21:
+            mesa_Color4usv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 22:
+            mesa_EdgeFlagv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 23:
+            mesa_End(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 24:
+            mesa_Indexdv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 25:
+            mesa_Indexfv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 26:
+            mesa_Indexiv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 27:
+            mesa_Indexsv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 28:
+            mesa_Normal3bv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 29:
+            mesa_Normal3dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 30:
+            mesa_Normal3fv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 31:
+            mesa_Normal3iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 32:
+            mesa_Normal3sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 33:
+            mesa_RasterPos2dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 34:
+            mesa_RasterPos2fv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 35:
+            mesa_RasterPos2iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 36:
+            mesa_RasterPos2sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 37:
+            mesa_RasterPos3dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 38:
+            mesa_RasterPos3fv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 39:
+            mesa_RasterPos3iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 40:
+            mesa_RasterPos3sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 41:
+            mesa_RasterPos4dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 42:
+            mesa_RasterPos4fv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 43:
+            mesa_RasterPos4iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 44:
+            mesa_RasterPos4sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 45:
+            mesa_Rectdv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 46:
+            mesa_Rectfv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 47:
+            mesa_Rectiv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 48:
+            mesa_Rectsv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 49:
+            mesa_TexCoord1dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 50:
+            mesa_TexCoord1fv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 51:
+            mesa_TexCoord1iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 52:
+            mesa_TexCoord1sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 53:
+            mesa_TexCoord2dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 54:
+            mesa_TexCoord2fv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 55:
+            mesa_TexCoord2iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 56:
+            mesa_TexCoord2sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 57:
+            mesa_TexCoord3dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 58:
+            mesa_TexCoord3fv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 59:
+            mesa_TexCoord3iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 60:
+            mesa_TexCoord3sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 61:
+            mesa_TexCoord4dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 62:
+            mesa_TexCoord4fv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 63:
+            mesa_TexCoord4iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 64:
+            mesa_TexCoord4sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 65:
+            mesa_Vertex2dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 66:
+            mesa_Vertex2fv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 67:
+            mesa_Vertex2iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 68:
+            mesa_Vertex2sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 69:
+            mesa_Vertex3dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 70:
+            mesa_Vertex3fv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 71:
+            mesa_Vertex3iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 72:
+            mesa_Vertex3sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 73:
+            mesa_Vertex4dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 74:
+            mesa_Vertex4fv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 75:
+            mesa_Vertex4iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 76:
+            mesa_Vertex4sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 77:
+            mesa_ClipPlane(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 78:
+            mesa_ColorMaterial(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 79:
+            mesa_CullFace(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 80:
+            mesa_Fogf(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 81:
+            mesa_Fogfv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 82:
+            mesa_Fogi(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 83:
+            mesa_Fogiv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 84:
+            mesa_FrontFace(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 85:
+            mesa_Hint(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 86:
+            mesa_Lightf(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 87:
+            mesa_Lightfv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 88:
+            mesa_Lighti(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 89:
+            mesa_Lightiv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 90:
+            mesa_LightModelf(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 91:
+            mesa_LightModelfv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 92:
+            mesa_LightModeli(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 93:
+            mesa_LightModeliv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 94:
+            mesa_LineStipple(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 95:
+            mesa_LineWidth(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 96:
+            mesa_Materialf(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 97:
+            mesa_Materialfv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 98:
+            mesa_Materiali(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 99:
+            mesa_Materialiv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 100:
+            mesa_PointSize(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 101:
+            mesa_PolygonMode(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 102:
+            mesa_PolygonStipple(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 103:
+            mesa_Scissor(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 104:
+            mesa_ShadeModel(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 105:
+            mesa_TexParameterf(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 106:
+            mesa_TexParameterfv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 107:
+            mesa_TexParameteri(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 108:
+            mesa_TexParameteriv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 109:
+            mesa_TexImage1D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 110:
+            mesa_TexImage2D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 111:
+            mesa_TexEnvf(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 112:
+            mesa_TexEnvfv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 113:
+            mesa_TexEnvi(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 114:
+            mesa_TexEnviv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 115:
+            mesa_TexGend(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 116:
+            mesa_TexGendv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 117:
+            mesa_TexGenf(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 118:
+            mesa_TexGenfv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 119:
+            mesa_TexGeni(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 120:
+            mesa_TexGeniv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 121:
+            mesa_InitNames(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 122:
+            mesa_LoadName(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 123:
+            mesa_PassThrough(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 124:
+            mesa_PopName(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 125:
+            mesa_PushName(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 126:
+            mesa_DrawBuffer(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 127:
+            mesa_Clear(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 128:
+            mesa_ClearAccum(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 129:
+            mesa_ClearIndex(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 130:
+            mesa_ClearColor(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 131:
+            mesa_ClearStencil(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 132:
+            mesa_ClearDepth(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 133:
+            mesa_StencilMask(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 134:
+            mesa_ColorMask(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 135:
+            mesa_DepthMask(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 136:
+            mesa_IndexMask(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 137:
+            mesa_Accum(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 138:
+            mesa_Disable(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 139:
+            mesa_Enable(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 141:
+            mesa_PopAttrib(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 142:
+            mesa_PushAttrib(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 143:
+            mesa_Map1d(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 144:
+            mesa_Map1f(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 145:
+            mesa_Map2d(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 146:
+            mesa_Map2f(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 147:
+            mesa_MapGrid1d(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 148:
+            mesa_MapGrid1f(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 149:
+            mesa_MapGrid2d(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 150:
+            mesa_MapGrid2f(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 151:
+            mesa_EvalCoord1dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 152:
+            mesa_EvalCoord1fv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 153:
+            mesa_EvalCoord2dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 154:
+            mesa_EvalCoord2fv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 155:
+            mesa_EvalMesh1(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 156:
+            mesa_EvalPoint1(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 157:
+            mesa_EvalMesh2(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 158:
+            mesa_EvalPoint2(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 159:
+            mesa_AlphaFunc(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 160:
+            mesa_BlendFunc(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 161:
+            mesa_LogicOp(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 162:
+            mesa_StencilFunc(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 163:
+            mesa_StencilOp(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 164:
+            mesa_DepthFunc(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 165:
+            mesa_PixelZoom(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 166:
+            mesa_PixelTransferf(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 167:
+            mesa_PixelTransferi(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 168:
+            mesa_PixelMapfv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 169:
+            mesa_PixelMapuiv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 170:
+            mesa_PixelMapusv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 171:
+            mesa_ReadBuffer(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 172:
+            mesa_CopyPixels(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 173:
+            mesa_DrawPixels(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 174:
+            mesa_DepthRange(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 175:
+            mesa_Frustum(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 176:
+            mesa_LoadIdentity(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 177:
+            mesa_LoadMatrixf(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 178:
+            mesa_LoadMatrixd(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 179:
+            mesa_MatrixMode(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 180:
+            mesa_MultMatrixf(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 181:
+            mesa_MultMatrixd(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 182:
+            mesa_Ortho(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 183:
+            mesa_PopMatrix(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 184:
+            mesa_PushMatrix(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 185:
+            mesa_Rotated(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 186:
+            mesa_Rotatef(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 187:
+            mesa_Scaled(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 188:
+            mesa_Scalef(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 189:
+            mesa_Translated(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 190:
+            mesa_Translatef(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 191:
+            mesa_Viewport(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 192:
+            mesa_PolygonOffset(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 193:
+            mesa_DrawArrays(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 194:
+            mesa_Indexubv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 195:
+            mesa_ColorSubTable(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 196:
+            mesa_CopyColorSubTable(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 197:
+            mesa_ActiveTexture(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 198:
+            mesa_MultiTexCoord1dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 199:
+            mesa_MultiTexCoord1fvARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 200:
+            mesa_MultiTexCoord1iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 201:
+            mesa_MultiTexCoord1sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 202:
+            mesa_MultiTexCoord2dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 203:
+            mesa_MultiTexCoord2fvARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 204:
+            mesa_MultiTexCoord2iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 205:
+            mesa_MultiTexCoord2sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 206:
+            mesa_MultiTexCoord3dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 207:
+            mesa_MultiTexCoord3fvARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 208:
+            mesa_MultiTexCoord3iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 209:
+            mesa_MultiTexCoord3sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 210:
+            mesa_MultiTexCoord4dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 211:
+            mesa_MultiTexCoord4fvARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 212:
+            mesa_MultiTexCoord4iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 213:
+            mesa_MultiTexCoord4sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 214:
+            mesa_CompressedTexImage1D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 215:
+            mesa_CompressedTexImage2D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 216:
+            mesa_CompressedTexImage3D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 217:
+            mesa_CompressedTexSubImage1D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 218:
+            mesa_CompressedTexSubImage2D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 219:
+            mesa_CompressedTexSubImage3D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 229:
+            mesa_SampleCoverage(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 230:
+            mesa_WindowPos3fv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 231:
+            mesa_BeginQuery(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 232:
+            mesa_EndQuery(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 233:
+            mesa_DrawBuffers(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2048:
+            mesa_SampleMaskSGIS(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2049:
+            mesa_SamplePatternSGIS(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2050:
+            mesa_TagSampleBufferSGIX(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2051:
+            mesa_DetailTexFuncSGIS(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2052:
+            mesa_SharpenTexFuncSGIS(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2053:
+            mesa_ColorTable(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2054:
+            mesa_ColorTableParameterfv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2055:
+            mesa_ColorTableParameteriv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2056:
+            mesa_CopyColorTable(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2057:
+            mesa_TexImage4DSGIS(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2058:
+            mesa_TexSubImage4DSGIS(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2059:
+            mesa_PixelTexGenSGIX(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2064:
+            mesa_TexFilterFuncSGIS(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2065:
+            mesa_PointParameterf(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2066:
+            mesa_PointParameterfv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2067:
+            mesa_FogFuncSGIS(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2071:
+            mesa_ReferencePlaneSGIX(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2072:
+            mesa_FrameZoomSGIX(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 2082:
+            mesa_TextureColorMaskSGIS(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4096:
+            mesa_BlendColor(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4097:
+            mesa_BlendEquation(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4098:
+            mesa_PolygonOffsetEXT(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4099:
+            mesa_TexSubImage1D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4100:
+            mesa_TexSubImage2D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4101:
+            mesa_ConvolutionFilter1D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4102:
+            mesa_ConvolutionFilter2D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4103:
+            mesa_ConvolutionParameterf(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4104:
+            mesa_ConvolutionParameterfv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4105:
+            mesa_ConvolutionParameteri(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4106:
+            mesa_ConvolutionParameteriv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4107:
+            mesa_CopyConvolutionFilter1D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4108:
+            mesa_CopyConvolutionFilter2D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4109:
+            mesa_SeparableFilter2D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4110:
+            mesa_Histogram(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4111:
+            mesa_Minmax(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4112:
+            mesa_ResetHistogram(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4113:
+            mesa_ResetMinmax(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4114:
+            mesa_TexImage3D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4115:
+            mesa_TexSubImage3D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4117:
+            mesa_BindTexture(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4118:
+            mesa_PrioritizeTextures(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4119:
+            mesa_CopyTexImage1D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4120:
+            mesa_CopyTexImage2D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4121:
+            mesa_CopyTexSubImage1D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4122:
+            mesa_CopyTexSubImage2D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4123:
+            mesa_CopyTexSubImage3D(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4124:
+            mesa_FogCoordfvEXT(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4125:
+            mesa_FogCoorddv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4126:
+            mesa_SecondaryColor3bv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4127:
+            mesa_SecondaryColor3sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4128:
+            mesa_SecondaryColor3iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4129:
+            mesa_SecondaryColor3fvEXT(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4130:
+            mesa_SecondaryColor3dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4131:
+            mesa_SecondaryColor3ubv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4132:
+            mesa_SecondaryColor3usv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4133:
+            mesa_SecondaryColor3uiv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4134:
+            mesa_BlendFuncSeparate(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4135:
+            mesa_VertexWeightfvEXT(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4136:
+            mesa_CombinerParameterfNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4137:
+            mesa_CombinerParameterfvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4138:
+            mesa_CombinerParameteriNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4139:
+            mesa_CombinerParameterivNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4140:
+            mesa_CombinerInputNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4141:
+            mesa_CombinerOutputNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4142:
+            mesa_FinalCombinerInputNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4180:
+            mesa_BindProgramARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4181:
+            mesa_ExecuteProgramNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4182:
+            mesa_RequestResidentProgramsNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4183:
+            mesa_LoadProgramNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4184:
+            mesa_ProgramEnvParameter4fvARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4185:
+            mesa_ProgramEnvParameter4dvARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4186:
+            mesa_ProgramParameters4fvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4187:
+            mesa_ProgramParameters4dvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4188:
+            mesa_TrackMatrixNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4189:
+            mesa_VertexAttrib1sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4190:
+            mesa_VertexAttrib2sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4191:
+            mesa_VertexAttrib3sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4192:
+            mesa_VertexAttrib4sv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4193:
+            mesa_VertexAttrib1fvARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4194:
+            mesa_VertexAttrib2fvARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4195:
+            mesa_VertexAttrib3fvARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4196:
+            mesa_VertexAttrib4fvARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4197:
+            mesa_VertexAttrib1dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4198:
+            mesa_VertexAttrib2dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4199:
+            mesa_VertexAttrib3dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4200:
+            mesa_VertexAttrib4dv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4201:
+            mesa_VertexAttrib4Nubv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4202:
+            mesa_VertexAttribs1svNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4203:
+            mesa_VertexAttribs2svNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4204:
+            mesa_VertexAttribs3svNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4205:
+            mesa_VertexAttribs4svNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4206:
+            mesa_VertexAttribs1fvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4207:
+            mesa_VertexAttribs2fvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4208:
+            mesa_VertexAttribs3fvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4209:
+            mesa_VertexAttribs4fvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4210:
+            mesa_VertexAttribs1dvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4211:
+            mesa_VertexAttribs2dvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4212:
+            mesa_VertexAttribs3dvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4213:
+            mesa_VertexAttribs4dvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4214:
+            mesa_VertexAttribs4ubvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4215:
+            mesa_ProgramLocalParameter4fvARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4216:
+            mesa_ProgramLocalParameter4dvARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4217:
+            mesa_ProgramStringARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4218:
+            mesa_ProgramNamedParameter4fvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4219:
+            mesa_ProgramNamedParameter4dvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4220:
+            mesa_ActiveStencilFaceEXT(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4221:
+            mesa_PointParameteri(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4222:
+            mesa_PointParameteriv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4228:
+            mesa_BlendEquationSeparate(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4229:
+            mesa_DepthBoundsEXT(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4230:
+            mesa_VertexAttrib4bv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4231:
+            mesa_VertexAttrib4iv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4232:
+            mesa_VertexAttrib4ubv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4233:
+            mesa_VertexAttrib4usv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4234:
+            mesa_VertexAttrib4uiv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4235:
+            mesa_VertexAttrib4Nbv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4236:
+            mesa_VertexAttrib4Nsv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4237:
+            mesa_VertexAttrib4Niv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4238:
+            mesa_VertexAttrib4Nusv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4239:
+            mesa_VertexAttrib4Nuiv(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4265:
+            mesa_VertexAttrib1svNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4266:
+            mesa_VertexAttrib2svNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4267:
+            mesa_VertexAttrib3svNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4268:
+            mesa_VertexAttrib4svNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4269:
+            mesa_VertexAttrib1fvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4270:
+            mesa_VertexAttrib2fvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4271:
+            mesa_VertexAttrib3fvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4272:
+            mesa_VertexAttrib4fvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4273:
+            mesa_VertexAttrib1dvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4274:
+            mesa_VertexAttrib2dvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4275:
+            mesa_VertexAttrib3dvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4276:
+            mesa_VertexAttrib4dvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4277:
+            mesa_VertexAttrib4ubvNV(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4326:
+            mesa_MatrixIndexubvARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4327:
+            mesa_MatrixIndexusvARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4328:
+            mesa_MatrixIndexuivARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        case 4329:
+            mesa_CurrentPaletteMatrixARB(tvb, offsetp, tt, byte_order, len);
+            break;
+        default:
+            proto_tree_add_item(tt, hf_x11_undecoded, tvb, *offsetp, len, ENC_NA);
+            *offsetp += len;
+        }
+        if (*offsetp < next) {
+            proto_tree_add_item(tt, hf_x11_unused, tvb, *offsetp, next - *offsetp, ENC_NA);
+            *offsetp = next;
+        }
+        length -= (len + 4);
     }
 }
 #include "x11-enum.h"
@@ -4910,8 +4910,8 @@ static void dispatch_bigreq(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	bigreqEnable(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        bigreqEnable(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -4931,14 +4931,14 @@ static void struct_xproto_RECTANGLE(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 
         item = proto_tree_add_item(root, hf_x11_struct_xproto_RECTANGLE, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xproto_RECTANGLE_x, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xproto_RECTANGLE_y, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xproto_RECTANGLE_width, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xproto_RECTANGLE_height, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xproto_RECTANGLE_x, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xproto_RECTANGLE_y, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xproto_RECTANGLE_width, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xproto_RECTANGLE_height, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
     }
 }
 
@@ -4957,14 +4957,14 @@ static void struct_xproto_STR(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_name_len;
+        int f_name_len;
 
         item = proto_tree_add_item(root, hf_x11_struct_xproto_STR, tvb, *offsetp, struct_size_xproto_STR(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	f_name_len = VALUE8(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xproto_STR_name_len, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xproto_STR_name, f_name_len, byte_order);
+        f_name_len = VALUE8(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xproto_STR_name_len, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xproto_STR_name, f_name_len, byte_order);
     }
 }
 
@@ -4977,22 +4977,22 @@ static void struct_render_DIRECTFORMAT(tvbuff_t *tvb, int *offsetp, proto_tree *
 
         item = proto_tree_add_item(root, hf_x11_struct_render_DIRECTFORMAT, tvb, *offsetp, 16, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_red_shift, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_red_mask, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_green_shift, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_green_mask, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_blue_shift, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_blue_mask, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_alpha_shift, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_alpha_mask, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_red_shift, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_red_mask, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_green_shift, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_green_mask, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_blue_shift, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_blue_mask, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_alpha_shift, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_DIRECTFORMAT_alpha_mask, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
     }
 }
 
@@ -5005,15 +5005,15 @@ static void struct_render_PICTFORMINFO(tvbuff_t *tvb, int *offsetp, proto_tree *
 
         item = proto_tree_add_item(root, hf_x11_struct_render_PICTFORMINFO, tvb, *offsetp, 28, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_render_PICTFORMINFO_id, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	field8(tvb, offsetp, t, hf_x11_struct_render_PICTFORMINFO_type, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_render_PICTFORMINFO_depth, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(2);
-	struct_render_DIRECTFORMAT(tvb, offsetp, t, byte_order, 1);
-	proto_tree_add_item(t, hf_x11_struct_render_PICTFORMINFO_colormap, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_PICTFORMINFO_id, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        field8(tvb, offsetp, t, hf_x11_struct_render_PICTFORMINFO_type, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_render_PICTFORMINFO_depth, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(2);
+        struct_render_DIRECTFORMAT(tvb, offsetp, t, byte_order, 1);
+        proto_tree_add_item(t, hf_x11_struct_render_PICTFORMINFO_colormap, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -5026,10 +5026,10 @@ static void struct_render_PICTVISUAL(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 
         item = proto_tree_add_item(root, hf_x11_struct_render_PICTVISUAL, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_render_PICTVISUAL_visual, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_render_PICTVISUAL_format, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_PICTVISUAL_visual, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_PICTVISUAL_format, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -5048,18 +5048,18 @@ static void struct_render_PICTDEPTH(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_num_visuals;
+        int f_num_visuals;
 
         item = proto_tree_add_item(root, hf_x11_struct_render_PICTDEPTH, tvb, *offsetp, struct_size_render_PICTDEPTH(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_render_PICTDEPTH_depth, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(1);
-	f_num_visuals = VALUE16(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_render_PICTDEPTH_num_visuals, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	UNUSED(4);
-	struct_render_PICTVISUAL(tvb, offsetp, t, byte_order, f_num_visuals);
+        proto_tree_add_item(t, hf_x11_struct_render_PICTDEPTH_depth, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(1);
+        f_num_visuals = VALUE16(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_render_PICTDEPTH_num_visuals, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        UNUSED(4);
+        struct_render_PICTVISUAL(tvb, offsetp, t, byte_order, f_num_visuals);
     }
 }
 
@@ -5082,16 +5082,16 @@ static void struct_render_PICTSCREEN(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_num_depths;
+        int f_num_depths;
 
         item = proto_tree_add_item(root, hf_x11_struct_render_PICTSCREEN, tvb, *offsetp, struct_size_render_PICTSCREEN(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	f_num_depths = VALUE32(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_render_PICTSCREEN_num_depths, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_render_PICTSCREEN_fallback, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	struct_render_PICTDEPTH(tvb, offsetp, t, byte_order, f_num_depths);
+        f_num_depths = VALUE32(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_render_PICTSCREEN_num_depths, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_PICTSCREEN_fallback, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        struct_render_PICTDEPTH(tvb, offsetp, t, byte_order, f_num_depths);
     }
 }
 
@@ -5104,16 +5104,16 @@ static void struct_render_INDEXVALUE(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 
         item = proto_tree_add_item(root, hf_x11_struct_render_INDEXVALUE, tvb, *offsetp, 12, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_render_INDEXVALUE_pixel, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_render_INDEXVALUE_red, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_INDEXVALUE_green, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_INDEXVALUE_blue, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_INDEXVALUE_alpha, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_INDEXVALUE_pixel, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_INDEXVALUE_red, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_INDEXVALUE_green, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_INDEXVALUE_blue, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_INDEXVALUE_alpha, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
     }
 }
 
@@ -5126,14 +5126,14 @@ static void struct_render_COLOR(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
 
         item = proto_tree_add_item(root, hf_x11_struct_render_COLOR, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_render_COLOR_red, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_COLOR_green, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_COLOR_blue, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_COLOR_alpha, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_COLOR_red, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_COLOR_green, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_COLOR_blue, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_COLOR_alpha, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
     }
 }
 
@@ -5146,10 +5146,10 @@ static void struct_render_POINTFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root
 
         item = proto_tree_add_item(root, hf_x11_struct_render_POINTFIX, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_render_POINTFIX_x, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_render_POINTFIX_y, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_POINTFIX_x, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_POINTFIX_y, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -5162,8 +5162,8 @@ static void struct_render_LINEFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 
         item = proto_tree_add_item(root, hf_x11_struct_render_LINEFIX, tvb, *offsetp, 16, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
-	struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
+        struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
+        struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
     }
 }
 
@@ -5176,9 +5176,9 @@ static void struct_render_TRIANGLE(tvbuff_t *tvb, int *offsetp, proto_tree *root
 
         item = proto_tree_add_item(root, hf_x11_struct_render_TRIANGLE, tvb, *offsetp, 24, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
-	struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
-	struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
+        struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
+        struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
+        struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
     }
 }
 
@@ -5191,12 +5191,12 @@ static void struct_render_TRAPEZOID(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 
         item = proto_tree_add_item(root, hf_x11_struct_render_TRAPEZOID, tvb, *offsetp, 40, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_render_TRAPEZOID_top, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_render_TRAPEZOID_bottom, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	struct_render_LINEFIX(tvb, offsetp, t, byte_order, 1);
-	struct_render_LINEFIX(tvb, offsetp, t, byte_order, 1);
+        proto_tree_add_item(t, hf_x11_struct_render_TRAPEZOID_top, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_TRAPEZOID_bottom, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        struct_render_LINEFIX(tvb, offsetp, t, byte_order, 1);
+        struct_render_LINEFIX(tvb, offsetp, t, byte_order, 1);
     }
 }
 
@@ -5209,18 +5209,18 @@ static void struct_render_GLYPHINFO(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 
         item = proto_tree_add_item(root, hf_x11_struct_render_GLYPHINFO, tvb, *offsetp, 12, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_render_GLYPHINFO_width, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_GLYPHINFO_height, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_GLYPHINFO_x, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_GLYPHINFO_y, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_GLYPHINFO_x_off, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_render_GLYPHINFO_y_off, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_GLYPHINFO_width, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_GLYPHINFO_height, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_GLYPHINFO_x, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_GLYPHINFO_y, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_GLYPHINFO_x_off, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_render_GLYPHINFO_y_off, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
     }
 }
 
@@ -5233,24 +5233,24 @@ static void struct_render_TRANSFORM(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 
         item = proto_tree_add_item(root, hf_x11_struct_render_TRANSFORM, tvb, *offsetp, 36, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix11, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix12, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix13, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix21, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix22, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix23, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix31, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix32, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix33, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix11, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix12, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix13, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix21, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix22, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix23, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix31, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix32, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_TRANSFORM_matrix33, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -5263,10 +5263,10 @@ static void struct_render_ANIMCURSORELT(tvbuff_t *tvb, int *offsetp, proto_tree 
 
         item = proto_tree_add_item(root, hf_x11_struct_render_ANIMCURSORELT, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_render_ANIMCURSORELT_cursor, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_render_ANIMCURSORELT_delay, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_ANIMCURSORELT_cursor, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_ANIMCURSORELT_delay, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -5279,12 +5279,12 @@ static void struct_render_SPANFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 
         item = proto_tree_add_item(root, hf_x11_struct_render_SPANFIX, tvb, *offsetp, 12, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_render_SPANFIX_l, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_render_SPANFIX_r, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_render_SPANFIX_y, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_SPANFIX_l, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_SPANFIX_r, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_render_SPANFIX_y, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -5297,8 +5297,8 @@ static void struct_render_TRAP(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
 
         item = proto_tree_add_item(root, hf_x11_struct_render_TRAP, tvb, *offsetp, 24, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	struct_render_SPANFIX(tvb, offsetp, t, byte_order, 1);
-	struct_render_SPANFIX(tvb, offsetp, t, byte_order, 1);
+        struct_render_SPANFIX(tvb, offsetp, t, byte_order, 1);
+        struct_render_SPANFIX(tvb, offsetp, t, byte_order, 1);
     }
 }
 
@@ -5439,32 +5439,32 @@ static void dispatch_composite(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	compositeQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        compositeQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	compositeRedirectWindow(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        compositeRedirectWindow(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	compositeRedirectSubwindows(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        compositeRedirectSubwindows(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	compositeUnredirectWindow(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        compositeUnredirectWindow(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	compositeUnredirectSubwindows(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        compositeUnredirectSubwindows(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	compositeCreateRegionFromBorderClip(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        compositeCreateRegionFromBorderClip(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	compositeNameWindowPixmap(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        compositeNameWindowPixmap(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	compositeGetOverlayWindow(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        compositeGetOverlayWindow(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 8:
-	compositeReleaseOverlayWindow(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        compositeReleaseOverlayWindow(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -5561,20 +5561,20 @@ static void dispatch_damage(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	damageQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        damageQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	damageCreate(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        damageCreate(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	damageDestroy(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        damageDestroy(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	damageSubtract(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        damageSubtract(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	damageAdd(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        damageAdd(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -5738,29 +5738,29 @@ static void dispatch_dpms(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	dpmsGetVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dpmsGetVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	dpmsCapable(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dpmsCapable(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	dpmsGetTimeouts(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dpmsGetTimeouts(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	dpmsSetTimeouts(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dpmsSetTimeouts(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	dpmsEnable(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dpmsEnable(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	dpmsDisable(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dpmsDisable(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	dpmsForceLevel(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dpmsForceLevel(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	dpmsInfo(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dpmsInfo(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -5780,15 +5780,15 @@ static void struct_dri2_DRI2Buffer(tvbuff_t *tvb, int *offsetp, proto_tree *root
 
         item = proto_tree_add_item(root, hf_x11_struct_dri2_DRI2Buffer, tvb, *offsetp, 20, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field32(tvb, offsetp, t, hf_x11_struct_dri2_DRI2Buffer_attachment, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_dri2_DRI2Buffer_name, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_dri2_DRI2Buffer_pitch, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_dri2_DRI2Buffer_cpp, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_dri2_DRI2Buffer_flags, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        field32(tvb, offsetp, t, hf_x11_struct_dri2_DRI2Buffer_attachment, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_dri2_DRI2Buffer_name, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_dri2_DRI2Buffer_pitch, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_dri2_DRI2Buffer_cpp, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_dri2_DRI2Buffer_flags, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -5801,9 +5801,9 @@ static void struct_dri2_AttachFormat(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 
         item = proto_tree_add_item(root, hf_x11_struct_dri2_AttachFormat, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field32(tvb, offsetp, t, hf_x11_struct_dri2_AttachFormat_attachment, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_dri2_AttachFormat_format, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        field32(tvb, offsetp, t, hf_x11_struct_dri2_AttachFormat_attachment, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_dri2_AttachFormat_format, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -6243,47 +6243,47 @@ static void dispatch_dri2(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	dri2QueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri2QueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	dri2Connect(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri2Connect(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	dri2Authenticate(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri2Authenticate(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	dri2CreateDrawable(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri2CreateDrawable(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	dri2DestroyDrawable(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri2DestroyDrawable(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	dri2GetBuffers(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri2GetBuffers(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	dri2CopyRegion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri2CopyRegion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	dri2GetBuffersWithFormat(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri2GetBuffersWithFormat(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 8:
-	dri2SwapBuffers(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri2SwapBuffers(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 9:
-	dri2GetMSC(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri2GetMSC(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 10:
-	dri2WaitMSC(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri2WaitMSC(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 11:
-	dri2WaitSBC(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri2WaitSBC(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 12:
-	dri2SwapInterval(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri2SwapInterval(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 13:
-	dri2GetParam(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri2GetParam(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -6467,23 +6467,23 @@ static void dispatch_dri3(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	dri3QueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri3QueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	dri3Open(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri3Open(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	dri3PixmapFromBuffer(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri3PixmapFromBuffer(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	dri3BufferFromPixmap(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri3BufferFromPixmap(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	dri3FenceFromFD(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri3FenceFromFD(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	dri3FDFromFence(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        dri3FDFromFence(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -6544,8 +6544,8 @@ static void dispatch_ge(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_t
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	geQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        geQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -9290,308 +9290,308 @@ static void dispatch_glx(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 1:
-	glxRender(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxRender(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	glxRenderLarge(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxRenderLarge(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	glxCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	glxDestroyContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxDestroyContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	glxMakeCurrent(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxMakeCurrent(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	glxIsDirect(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxIsDirect(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	glxQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 8:
-	glxWaitGL(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxWaitGL(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 9:
-	glxWaitX(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxWaitX(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 10:
-	glxCopyContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxCopyContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 11:
-	glxSwapBuffers(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxSwapBuffers(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 12:
-	glxUseXFont(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxUseXFont(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 13:
-	glxCreateGLXPixmap(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxCreateGLXPixmap(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 14:
-	glxGetVisualConfigs(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetVisualConfigs(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 15:
-	glxDestroyGLXPixmap(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxDestroyGLXPixmap(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 16:
-	glxVendorPrivate(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxVendorPrivate(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 17:
-	glxVendorPrivateWithReply(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxVendorPrivateWithReply(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 18:
-	glxQueryExtensionsString(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxQueryExtensionsString(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 19:
-	glxQueryServerString(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxQueryServerString(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 20:
-	glxClientInfo(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxClientInfo(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 21:
-	glxGetFBConfigs(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetFBConfigs(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 22:
-	glxCreatePixmap(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxCreatePixmap(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 23:
-	glxDestroyPixmap(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxDestroyPixmap(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 24:
-	glxCreateNewContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxCreateNewContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 25:
-	glxQueryContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxQueryContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 26:
-	glxMakeContextCurrent(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxMakeContextCurrent(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 27:
-	glxCreatePbuffer(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxCreatePbuffer(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 28:
-	glxDestroyPbuffer(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxDestroyPbuffer(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 29:
-	glxGetDrawableAttributes(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetDrawableAttributes(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 30:
-	glxChangeDrawableAttributes(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxChangeDrawableAttributes(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 31:
-	glxCreateWindow(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxCreateWindow(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 32:
-	glxDeleteWindow(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxDeleteWindow(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 33:
-	glxSetClientInfoARB(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxSetClientInfoARB(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 34:
-	glxCreateContextAttribsARB(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxCreateContextAttribsARB(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 35:
-	glxSetClientInfo2ARB(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxSetClientInfo2ARB(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 101:
-	glxNewList(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxNewList(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 102:
-	glxEndList(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxEndList(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 103:
-	glxDeleteLists(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxDeleteLists(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 104:
-	glxGenLists(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGenLists(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 105:
-	glxFeedbackBuffer(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxFeedbackBuffer(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 106:
-	glxSelectBuffer(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxSelectBuffer(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 107:
-	glxRenderMode(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxRenderMode(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 108:
-	glxFinish(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxFinish(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 109:
-	glxPixelStoref(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxPixelStoref(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 110:
-	glxPixelStorei(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxPixelStorei(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 111:
-	glxReadPixels(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxReadPixels(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 112:
-	glxGetBooleanv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetBooleanv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 113:
-	glxGetClipPlane(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetClipPlane(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 114:
-	glxGetDoublev(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetDoublev(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 115:
-	glxGetError(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetError(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 116:
-	glxGetFloatv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetFloatv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 117:
-	glxGetIntegerv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetIntegerv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 118:
-	glxGetLightfv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetLightfv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 119:
-	glxGetLightiv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetLightiv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 120:
-	glxGetMapdv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetMapdv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 121:
-	glxGetMapfv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetMapfv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 122:
-	glxGetMapiv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetMapiv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 123:
-	glxGetMaterialfv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetMaterialfv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 124:
-	glxGetMaterialiv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetMaterialiv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 125:
-	glxGetPixelMapfv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetPixelMapfv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 126:
-	glxGetPixelMapuiv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetPixelMapuiv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 127:
-	glxGetPixelMapusv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetPixelMapusv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 128:
-	glxGetPolygonStipple(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetPolygonStipple(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 129:
-	glxGetString(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetString(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 130:
-	glxGetTexEnvfv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetTexEnvfv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 131:
-	glxGetTexEnviv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetTexEnviv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 132:
-	glxGetTexGendv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetTexGendv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 133:
-	glxGetTexGenfv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetTexGenfv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 134:
-	glxGetTexGeniv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetTexGeniv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 135:
-	glxGetTexImage(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetTexImage(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 136:
-	glxGetTexParameterfv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetTexParameterfv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 137:
-	glxGetTexParameteriv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetTexParameteriv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 138:
-	glxGetTexLevelParameterfv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetTexLevelParameterfv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 139:
-	glxGetTexLevelParameteriv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetTexLevelParameteriv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 140:
-	glxIsEnabled(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxIsEnabled(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 141:
-	glxIsList(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxIsList(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 142:
-	glxFlush(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxFlush(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 143:
-	glxAreTexturesResident(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxAreTexturesResident(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 144:
-	glxDeleteTextures(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxDeleteTextures(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 145:
-	glxGenTextures(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGenTextures(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 146:
-	glxIsTexture(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxIsTexture(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 147:
-	glxGetColorTable(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetColorTable(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 148:
-	glxGetColorTableParameterfv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetColorTableParameterfv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 149:
-	glxGetColorTableParameteriv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetColorTableParameteriv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 150:
-	glxGetConvolutionFilter(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetConvolutionFilter(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 151:
-	glxGetConvolutionParameterfv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetConvolutionParameterfv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 152:
-	glxGetConvolutionParameteriv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetConvolutionParameteriv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 153:
-	glxGetSeparableFilter(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetSeparableFilter(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 154:
-	glxGetHistogram(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetHistogram(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 155:
-	glxGetHistogramParameterfv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetHistogramParameterfv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 156:
-	glxGetHistogramParameteriv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetHistogramParameteriv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 157:
-	glxGetMinmax(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetMinmax(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 158:
-	glxGetMinmaxParameterfv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetMinmaxParameterfv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 159:
-	glxGetMinmaxParameteriv(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetMinmaxParameteriv(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 160:
-	glxGetCompressedTexImageARB(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetCompressedTexImageARB(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 161:
-	glxDeleteQueriesARB(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxDeleteQueriesARB(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 162:
-	glxGenQueriesARB(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGenQueriesARB(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 163:
-	glxIsQueryARB(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxIsQueryARB(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 164:
-	glxGetQueryivARB(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetQueryivARB(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 165:
-	glxGetQueryObjectivARB(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetQueryObjectivARB(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 166:
-	glxGetQueryObjectuivARB(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        glxGetQueryObjectuivARB(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -9611,14 +9611,14 @@ static void struct_randr_ScreenSize(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 
         item = proto_tree_add_item(root, hf_x11_struct_randr_ScreenSize, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_randr_ScreenSize_width, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_ScreenSize_height, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_ScreenSize_mwidth, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_ScreenSize_mheight, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_ScreenSize_width, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_ScreenSize_height, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_ScreenSize_mwidth, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_ScreenSize_mheight, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
     }
 }
 
@@ -9637,14 +9637,14 @@ static void struct_randr_RefreshRates(tvbuff_t *tvb, int *offsetp, proto_tree *r
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_nRates;
+        int f_nRates;
 
         item = proto_tree_add_item(root, hf_x11_struct_randr_RefreshRates, tvb, *offsetp, struct_size_randr_RefreshRates(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	f_nRates = VALUE16(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_randr_RefreshRates_nRates, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	listOfCard16(tvb, offsetp, t, hf_x11_struct_randr_RefreshRates_rates, hf_x11_struct_randr_RefreshRates_rates_item, f_nRates, byte_order);
+        f_nRates = VALUE16(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_randr_RefreshRates_nRates, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        listOfCard16(tvb, offsetp, t, hf_x11_struct_randr_RefreshRates_rates, hf_x11_struct_randr_RefreshRates_rates_item, f_nRates, byte_order);
     }
 }
 
@@ -9657,49 +9657,49 @@ static void struct_randr_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 
         item = proto_tree_add_item(root, hf_x11_struct_randr_ModeInfo, tvb, *offsetp, 32, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_id, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_width, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_height, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_dot_clock, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_hsync_start, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_hsync_end, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_htotal, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_hskew, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_vsync_start, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_vsync_end, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_vtotal, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_name_len, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_mode_flags, tvb, *offsetp, 4, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_HsyncPositive, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_HsyncNegative, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_VsyncPositive, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_VsyncNegative, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_Interlace, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_DoubleScan, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_Csync, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_CsyncPositive, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_CsyncNegative, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_HskewPresent, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_Bcast, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_PixelMultiplex, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_DoubleClock, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_HalveClock, tvb, *offsetp, 4, byte_order);
-	}
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_id, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_width, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_height, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_dot_clock, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_hsync_start, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_hsync_end, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_htotal, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_hskew, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_vsync_start, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_vsync_end, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_vtotal, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_name_len, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_mode_flags, tvb, *offsetp, 4, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_HsyncPositive, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_HsyncNegative, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_VsyncPositive, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_VsyncNegative, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_Interlace, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_DoubleScan, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_Csync, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_CsyncPositive, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_CsyncNegative, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_HskewPresent, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_Bcast, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_PixelMultiplex, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_DoubleClock, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_HalveClock, tvb, *offsetp, 4, byte_order);
+        }
+        *offsetp += 4;
     }
 }
 
@@ -9712,34 +9712,34 @@ static void struct_randr_CrtcChange(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 
         item = proto_tree_add_item(root, hf_x11_struct_randr_CrtcChange, tvb, *offsetp, 28, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_timestamp, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_window, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_crtc, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_mode, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_rotation, tvb, *offsetp, 2, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_0, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_90, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_180, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_270, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Reflect_X, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Reflect_Y, tvb, *offsetp, 2, byte_order);
-	}
-	*offsetp += 2;
-	UNUSED(2);
-	proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_x, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_y, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_width, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_height, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_timestamp, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_window, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_crtc, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_mode, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_rotation, tvb, *offsetp, 2, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_0, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_90, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_180, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_270, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Reflect_X, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Reflect_Y, tvb, *offsetp, 2, byte_order);
+        }
+        *offsetp += 2;
+        UNUSED(2);
+        proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_x, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_y, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_width, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_height, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
     }
 }
 
@@ -9752,31 +9752,31 @@ static void struct_randr_OutputChange(tvbuff_t *tvb, int *offsetp, proto_tree *r
 
         item = proto_tree_add_item(root, hf_x11_struct_randr_OutputChange, tvb, *offsetp, 28, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_timestamp, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_config_timestamp, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_window, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_output, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_crtc, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_mode, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_rotation, tvb, *offsetp, 2, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_0, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_90, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_180, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_270, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Reflect_X, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Reflect_Y, tvb, *offsetp, 2, byte_order);
-	}
-	*offsetp += 2;
-	field8(tvb, offsetp, t, hf_x11_struct_randr_OutputChange_connection, byte_order);
-	field8(tvb, offsetp, t, hf_x11_struct_randr_OutputChange_subpixel_order, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_timestamp, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_config_timestamp, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_window, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_output, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_crtc, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_mode, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_rotation, tvb, *offsetp, 2, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_0, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_90, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_180, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_270, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Reflect_X, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Reflect_Y, tvb, *offsetp, 2, byte_order);
+        }
+        *offsetp += 2;
+        field8(tvb, offsetp, t, hf_x11_struct_randr_OutputChange_connection, byte_order);
+        field8(tvb, offsetp, t, hf_x11_struct_randr_OutputChange_subpixel_order, byte_order);
     }
 }
 
@@ -9789,16 +9789,16 @@ static void struct_randr_OutputProperty(tvbuff_t *tvb, int *offsetp, proto_tree 
 
         item = proto_tree_add_item(root, hf_x11_struct_randr_OutputProperty, tvb, *offsetp, 28, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_randr_OutputProperty_window, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_OutputProperty_output, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_OutputProperty_atom, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_OutputProperty_timestamp, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	field8(tvb, offsetp, t, hf_x11_struct_randr_OutputProperty_status, byte_order);
-	UNUSED(11);
+        proto_tree_add_item(t, hf_x11_struct_randr_OutputProperty_window, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_OutputProperty_output, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_OutputProperty_atom, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_OutputProperty_timestamp, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        field8(tvb, offsetp, t, hf_x11_struct_randr_OutputProperty_status, byte_order);
+        UNUSED(11);
     }
 }
 
@@ -9811,13 +9811,13 @@ static void struct_randr_ProviderChange(tvbuff_t *tvb, int *offsetp, proto_tree 
 
         item = proto_tree_add_item(root, hf_x11_struct_randr_ProviderChange, tvb, *offsetp, 28, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_randr_ProviderChange_timestamp, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_ProviderChange_window, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_ProviderChange_provider, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	UNUSED(16);
+        proto_tree_add_item(t, hf_x11_struct_randr_ProviderChange_timestamp, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_ProviderChange_window, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_ProviderChange_provider, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        UNUSED(16);
     }
 }
 
@@ -9830,17 +9830,17 @@ static void struct_randr_ProviderProperty(tvbuff_t *tvb, int *offsetp, proto_tre
 
         item = proto_tree_add_item(root, hf_x11_struct_randr_ProviderProperty, tvb, *offsetp, 28, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_randr_ProviderProperty_window, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_ProviderProperty_provider, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_ProviderProperty_atom, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_ProviderProperty_timestamp, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_ProviderProperty_state, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(11);
+        proto_tree_add_item(t, hf_x11_struct_randr_ProviderProperty_window, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_ProviderProperty_provider, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_ProviderProperty_atom, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_ProviderProperty_timestamp, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_ProviderProperty_state, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(11);
     }
 }
 
@@ -9853,11 +9853,11 @@ static void struct_randr_ResourceChange(tvbuff_t *tvb, int *offsetp, proto_tree 
 
         item = proto_tree_add_item(root, hf_x11_struct_randr_ResourceChange, tvb, *offsetp, 28, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_randr_ResourceChange_timestamp, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_ResourceChange_window, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	UNUSED(20);
+        proto_tree_add_item(t, hf_x11_struct_randr_ResourceChange_timestamp, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_ResourceChange_window, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        UNUSED(20);
     }
 }
 
@@ -9876,32 +9876,32 @@ static void struct_randr_MonitorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_nOutput;
+        int f_nOutput;
 
         item = proto_tree_add_item(root, hf_x11_struct_randr_MonitorInfo, tvb, *offsetp, struct_size_randr_MonitorInfo(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_name, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_primary, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_automatic, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	f_nOutput = VALUE16(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_nOutput, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_x, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_y, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_width, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_height, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_width_in_millimeters, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_height_in_millimeters, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	listOfCard32(tvb, offsetp, t, hf_x11_struct_randr_MonitorInfo_outputs, hf_x11_struct_randr_MonitorInfo_outputs_item, f_nOutput, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_name, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_primary, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_automatic, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        f_nOutput = VALUE16(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_nOutput, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_x, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_y, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_width, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_height, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_width_in_millimeters, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_height_in_millimeters, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        listOfCard32(tvb, offsetp, t, hf_x11_struct_randr_MonitorInfo_outputs, hf_x11_struct_randr_MonitorInfo_outputs_item, f_nOutput, byte_order);
     }
 }
 
@@ -9914,10 +9914,10 @@ static void struct_sync_INT64(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
 
         item = proto_tree_add_item(root, hf_x11_struct_sync_INT64, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_sync_INT64_hi, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_sync_INT64_lo, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_sync_INT64_hi, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_sync_INT64_lo, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -9936,17 +9936,17 @@ static void struct_sync_SYSTEMCOUNTER(tvbuff_t *tvb, int *offsetp, proto_tree *r
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_name_len;
+        int f_name_len;
 
         item = proto_tree_add_item(root, hf_x11_struct_sync_SYSTEMCOUNTER, tvb, *offsetp, struct_size_sync_SYSTEMCOUNTER(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_sync_SYSTEMCOUNTER_counter, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
-	f_name_len = VALUE16(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_sync_SYSTEMCOUNTER_name_len, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	listOfByte(tvb, offsetp, t, hf_x11_struct_sync_SYSTEMCOUNTER_name, f_name_len, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_sync_SYSTEMCOUNTER_counter, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
+        f_name_len = VALUE16(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_sync_SYSTEMCOUNTER_name_len, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        listOfByte(tvb, offsetp, t, hf_x11_struct_sync_SYSTEMCOUNTER_name, f_name_len, byte_order);
     }
 }
 
@@ -9959,11 +9959,11 @@ static void struct_sync_TRIGGER(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
 
         item = proto_tree_add_item(root, hf_x11_struct_sync_TRIGGER, tvb, *offsetp, 20, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_sync_TRIGGER_counter, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	field32(tvb, offsetp, t, hf_x11_struct_sync_TRIGGER_wait_type, byte_order);
-	struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
-	field32(tvb, offsetp, t, hf_x11_struct_sync_TRIGGER_test_type, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_sync_TRIGGER_counter, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        field32(tvb, offsetp, t, hf_x11_struct_sync_TRIGGER_wait_type, byte_order);
+        struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
+        field32(tvb, offsetp, t, hf_x11_struct_sync_TRIGGER_test_type, byte_order);
     }
 }
 
@@ -9976,8 +9976,8 @@ static void struct_sync_WAITCONDITION(tvbuff_t *tvb, int *offsetp, proto_tree *r
 
         item = proto_tree_add_item(root, hf_x11_struct_sync_WAITCONDITION, tvb, *offsetp, 28, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	struct_sync_TRIGGER(tvb, offsetp, t, byte_order, 1);
-	struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
+        struct_sync_TRIGGER(tvb, offsetp, t, byte_order, 1);
+        struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
     }
 }
 
@@ -9990,10 +9990,10 @@ static void struct_present_Notify(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 
         item = proto_tree_add_item(root, hf_x11_struct_present_Notify, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_present_Notify_window, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_present_Notify_serial, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_present_Notify_window, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_present_Notify_serial, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -10207,10 +10207,10 @@ const x11_event_info present_events[] = {
     { NULL, NULL }
 };
 static const x11_generic_event_info present_generic_events[] = {
-	{   1, presentCompleteNotify },
-	{   2, presentIdleNotify },
-	{   3, presentRedirectNotify },
-	{   0, NULL },
+        {   1, presentCompleteNotify },
+        {   2, presentIdleNotify },
+        {   3, presentRedirectNotify },
+        {   0, NULL },
 };
 
 static x11_reply_info present_replies[] = {
@@ -10230,20 +10230,20 @@ static void dispatch_present(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	presentQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        presentQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	presentPixmap(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        presentPixmap(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	presentNotifyMSC(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        presentNotifyMSC(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	presentSelectInput(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        presentSelectInput(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	presentQueryCapabilities(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        presentQueryCapabilities(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -11443,17 +11443,17 @@ static void struct_randr_NotifyData(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         t = proto_item_add_subtree(item, ett_x11_rectangle);
 
         *offsetp = base;
-	struct_randr_CrtcChange(tvb, offsetp, t, byte_order, 1);
+        struct_randr_CrtcChange(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_randr_OutputChange(tvb, offsetp, t, byte_order, 1);
+        struct_randr_OutputChange(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_randr_OutputProperty(tvb, offsetp, t, byte_order, 1);
+        struct_randr_OutputProperty(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_randr_ProviderChange(tvb, offsetp, t, byte_order, 1);
+        struct_randr_ProviderChange(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_randr_ProviderProperty(tvb, offsetp, t, byte_order, 1);
+        struct_randr_ProviderProperty(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_randr_ResourceChange(tvb, offsetp, t, byte_order, 1);
+        struct_randr_ResourceChange(tvb, offsetp, t, byte_order, 1);
         base += 28;
     }
     *offsetp = base;
@@ -11604,134 +11604,134 @@ static void dispatch_randr(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	randrQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	randrSetScreenConfig(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrSetScreenConfig(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	randrSelectInput(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrSelectInput(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	randrGetScreenInfo(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrGetScreenInfo(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	randrGetScreenSizeRange(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrGetScreenSizeRange(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	randrSetScreenSize(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrSetScreenSize(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 8:
-	randrGetScreenResources(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrGetScreenResources(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 9:
-	randrGetOutputInfo(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrGetOutputInfo(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 10:
-	randrListOutputProperties(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrListOutputProperties(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 11:
-	randrQueryOutputProperty(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrQueryOutputProperty(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 12:
-	randrConfigureOutputProperty(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrConfigureOutputProperty(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 13:
-	randrChangeOutputProperty(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrChangeOutputProperty(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 14:
-	randrDeleteOutputProperty(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrDeleteOutputProperty(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 15:
-	randrGetOutputProperty(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrGetOutputProperty(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 16:
-	randrCreateMode(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrCreateMode(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 17:
-	randrDestroyMode(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrDestroyMode(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 18:
-	randrAddOutputMode(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrAddOutputMode(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 19:
-	randrDeleteOutputMode(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrDeleteOutputMode(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 20:
-	randrGetCrtcInfo(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrGetCrtcInfo(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 21:
-	randrSetCrtcConfig(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrSetCrtcConfig(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 22:
-	randrGetCrtcGammaSize(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrGetCrtcGammaSize(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 23:
-	randrGetCrtcGamma(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrGetCrtcGamma(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 24:
-	randrSetCrtcGamma(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrSetCrtcGamma(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 25:
-	randrGetScreenResourcesCurrent(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrGetScreenResourcesCurrent(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 26:
-	randrSetCrtcTransform(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrSetCrtcTransform(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 27:
-	randrGetCrtcTransform(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrGetCrtcTransform(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 28:
-	randrGetPanning(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrGetPanning(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 29:
-	randrSetPanning(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrSetPanning(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 30:
-	randrSetOutputPrimary(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrSetOutputPrimary(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 31:
-	randrGetOutputPrimary(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrGetOutputPrimary(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 32:
-	randrGetProviders(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrGetProviders(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 33:
-	randrGetProviderInfo(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrGetProviderInfo(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 34:
-	randrSetProviderOffloadSink(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrSetProviderOffloadSink(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 35:
-	randrSetProviderOutputSource(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrSetProviderOutputSource(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 36:
-	randrListProviderProperties(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrListProviderProperties(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 37:
-	randrQueryProviderProperty(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrQueryProviderProperty(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 38:
-	randrConfigureProviderProperty(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrConfigureProviderProperty(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 39:
-	randrChangeProviderProperty(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrChangeProviderProperty(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 40:
-	randrDeleteProviderProperty(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrDeleteProviderProperty(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 41:
-	randrGetProviderProperty(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrGetProviderProperty(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 42:
-	randrGetMonitors(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrGetMonitors(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 43:
-	randrSetMonitor(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrSetMonitor(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 44:
-	randrDeleteMonitor(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        randrDeleteMonitor(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -11751,10 +11751,10 @@ static void struct_record_Range8(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
 
         item = proto_tree_add_item(root, hf_x11_struct_record_Range8, tvb, *offsetp, 2, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_record_Range8_first, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_record_Range8_last, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_record_Range8_first, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_record_Range8_last, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
     }
 }
 
@@ -11767,10 +11767,10 @@ static void struct_record_Range16(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 
         item = proto_tree_add_item(root, hf_x11_struct_record_Range16, tvb, *offsetp, 4, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_record_Range16_first, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_record_Range16_last, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_record_Range16_first, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_record_Range16_last, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
     }
 }
 
@@ -11783,8 +11783,8 @@ static void struct_record_ExtRange(tvbuff_t *tvb, int *offsetp, proto_tree *root
 
         item = proto_tree_add_item(root, hf_x11_struct_record_ExtRange, tvb, *offsetp, 6, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	struct_record_Range8(tvb, offsetp, t, byte_order, 1);
-	struct_record_Range16(tvb, offsetp, t, byte_order, 1);
+        struct_record_Range8(tvb, offsetp, t, byte_order, 1);
+        struct_record_Range16(tvb, offsetp, t, byte_order, 1);
     }
 }
 
@@ -11797,17 +11797,17 @@ static void struct_record_Range(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
 
         item = proto_tree_add_item(root, hf_x11_struct_record_Range, tvb, *offsetp, 24, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	struct_record_Range8(tvb, offsetp, t, byte_order, 1);
-	struct_record_Range8(tvb, offsetp, t, byte_order, 1);
-	struct_record_ExtRange(tvb, offsetp, t, byte_order, 1);
-	struct_record_ExtRange(tvb, offsetp, t, byte_order, 1);
-	struct_record_Range8(tvb, offsetp, t, byte_order, 1);
-	struct_record_Range8(tvb, offsetp, t, byte_order, 1);
-	struct_record_Range8(tvb, offsetp, t, byte_order, 1);
-	proto_tree_add_item(t, hf_x11_struct_record_Range_client_started, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_record_Range_client_died, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
+        struct_record_Range8(tvb, offsetp, t, byte_order, 1);
+        struct_record_Range8(tvb, offsetp, t, byte_order, 1);
+        struct_record_ExtRange(tvb, offsetp, t, byte_order, 1);
+        struct_record_ExtRange(tvb, offsetp, t, byte_order, 1);
+        struct_record_Range8(tvb, offsetp, t, byte_order, 1);
+        struct_record_Range8(tvb, offsetp, t, byte_order, 1);
+        struct_record_Range8(tvb, offsetp, t, byte_order, 1);
+        proto_tree_add_item(t, hf_x11_struct_record_Range_client_started, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_record_Range_client_died, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
     }
 }
 
@@ -11826,16 +11826,16 @@ static void struct_record_ClientInfo(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_num_ranges;
+        int f_num_ranges;
 
         item = proto_tree_add_item(root, hf_x11_struct_record_ClientInfo, tvb, *offsetp, struct_size_record_ClientInfo(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_record_ClientInfo_client_resource, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	f_num_ranges = VALUE32(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_record_ClientInfo_num_ranges, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	struct_record_Range(tvb, offsetp, t, byte_order, f_num_ranges);
+        proto_tree_add_item(t, hf_x11_struct_record_ClientInfo_client_resource, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        f_num_ranges = VALUE32(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_record_ClientInfo_num_ranges, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        struct_record_Range(tvb, offsetp, t, byte_order, f_num_ranges);
     }
 }
 
@@ -12031,29 +12031,29 @@ static void dispatch_record(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	recordQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        recordQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	recordCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        recordCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	recordRegisterClients(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        recordRegisterClients(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	recordUnregisterClients(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        recordUnregisterClients(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	recordGetContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        recordGetContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	recordEnableContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        recordEnableContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	recordDisableContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        recordDisableContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	recordFreeContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        recordFreeContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -12731,98 +12731,98 @@ static void dispatch_render(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	renderQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	renderQueryPictFormats(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderQueryPictFormats(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	renderQueryPictIndexValues(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderQueryPictIndexValues(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	renderCreatePicture(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderCreatePicture(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	renderChangePicture(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderChangePicture(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	renderSetPictureClipRectangles(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderSetPictureClipRectangles(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	renderFreePicture(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderFreePicture(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 8:
-	renderComposite(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderComposite(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 10:
-	renderTrapezoids(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderTrapezoids(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 11:
-	renderTriangles(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderTriangles(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 12:
-	renderTriStrip(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderTriStrip(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 13:
-	renderTriFan(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderTriFan(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 17:
-	renderCreateGlyphSet(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderCreateGlyphSet(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 18:
-	renderReferenceGlyphSet(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderReferenceGlyphSet(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 19:
-	renderFreeGlyphSet(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderFreeGlyphSet(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 20:
-	renderAddGlyphs(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderAddGlyphs(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 22:
-	renderFreeGlyphs(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderFreeGlyphs(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 23:
-	renderCompositeGlyphs8(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderCompositeGlyphs8(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 24:
-	renderCompositeGlyphs16(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderCompositeGlyphs16(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 25:
-	renderCompositeGlyphs32(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderCompositeGlyphs32(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 26:
-	renderFillRectangles(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderFillRectangles(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 27:
-	renderCreateCursor(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderCreateCursor(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 28:
-	renderSetPictureTransform(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderSetPictureTransform(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 29:
-	renderQueryFilters(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderQueryFilters(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 30:
-	renderSetPictureFilter(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderSetPictureFilter(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 31:
-	renderCreateAnimCursor(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderCreateAnimCursor(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 32:
-	renderAddTraps(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderAddTraps(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 33:
-	renderCreateSolidFill(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderCreateSolidFill(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 34:
-	renderCreateLinearGradient(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderCreateLinearGradient(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 35:
-	renderCreateRadialGradient(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderCreateRadialGradient(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 36:
-	renderCreateConicalGradient(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        renderCreateConicalGradient(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -12842,10 +12842,10 @@ static void struct_res_Client(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
 
         item = proto_tree_add_item(root, hf_x11_struct_res_Client, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_res_Client_resource_base, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_res_Client_resource_mask, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_res_Client_resource_base, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_res_Client_resource_mask, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -12858,10 +12858,10 @@ static void struct_res_Type(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint
 
         item = proto_tree_add_item(root, hf_x11_struct_res_Type, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_res_Type_resource_type, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_res_Type_count, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_res_Type_resource_type, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_res_Type_count, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -12874,15 +12874,15 @@ static void struct_res_ClientIdSpec(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 
         item = proto_tree_add_item(root, hf_x11_struct_res_ClientIdSpec, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_res_ClientIdSpec_client, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_res_ClientIdSpec_mask, tvb, *offsetp, 4, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_res_ClientIdSpec_mask_mask_ClientXID, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_res_ClientIdSpec_mask_mask_LocalClientPID, tvb, *offsetp, 4, byte_order);
-	}
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_res_ClientIdSpec_client, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_res_ClientIdSpec_mask, tvb, *offsetp, 4, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_res_ClientIdSpec_mask_mask_ClientXID, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_res_ClientIdSpec_mask_mask_LocalClientPID, tvb, *offsetp, 4, byte_order);
+        }
+        *offsetp += 4;
     }
 }
 
@@ -12901,15 +12901,15 @@ static void struct_res_ClientIdValue(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_length;
+        int f_length;
 
         item = proto_tree_add_item(root, hf_x11_struct_res_ClientIdValue, tvb, *offsetp, struct_size_res_ClientIdValue(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	struct_res_ClientIdSpec(tvb, offsetp, t, byte_order, 1);
-	f_length = VALUE32(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_res_ClientIdValue_length, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	listOfCard32(tvb, offsetp, t, hf_x11_struct_res_ClientIdValue_value, hf_x11_struct_res_ClientIdValue_value_item, f_length, byte_order);
+        struct_res_ClientIdSpec(tvb, offsetp, t, byte_order, 1);
+        f_length = VALUE32(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_res_ClientIdValue_length, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        listOfCard32(tvb, offsetp, t, hf_x11_struct_res_ClientIdValue_value, hf_x11_struct_res_ClientIdValue_value_item, f_length, byte_order);
     }
 }
 
@@ -12922,10 +12922,10 @@ static void struct_res_ResourceIdSpec(tvbuff_t *tvb, int *offsetp, proto_tree *r
 
         item = proto_tree_add_item(root, hf_x11_struct_res_ResourceIdSpec, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_res_ResourceIdSpec_resource, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_res_ResourceIdSpec_type, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_res_ResourceIdSpec_resource, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_res_ResourceIdSpec_type, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -12938,13 +12938,13 @@ static void struct_res_ResourceSizeSpec(tvbuff_t *tvb, int *offsetp, proto_tree 
 
         item = proto_tree_add_item(root, hf_x11_struct_res_ResourceSizeSpec, tvb, *offsetp, 20, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	struct_res_ResourceIdSpec(tvb, offsetp, t, byte_order, 1);
-	proto_tree_add_item(t, hf_x11_struct_res_ResourceSizeSpec_bytes, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_res_ResourceSizeSpec_ref_count, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_res_ResourceSizeSpec_use_count, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        struct_res_ResourceIdSpec(tvb, offsetp, t, byte_order, 1);
+        proto_tree_add_item(t, hf_x11_struct_res_ResourceSizeSpec_bytes, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_res_ResourceSizeSpec_ref_count, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_res_ResourceSizeSpec_use_count, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -12963,15 +12963,15 @@ static void struct_res_ResourceSizeValue(tvbuff_t *tvb, int *offsetp, proto_tree
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_num_cross_references;
+        int f_num_cross_references;
 
         item = proto_tree_add_item(root, hf_x11_struct_res_ResourceSizeValue, tvb, *offsetp, struct_size_res_ResourceSizeValue(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	struct_res_ResourceSizeSpec(tvb, offsetp, t, byte_order, 1);
-	f_num_cross_references = VALUE32(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_res_ResourceSizeValue_num_cross_references, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	struct_res_ResourceSizeSpec(tvb, offsetp, t, byte_order, f_num_cross_references);
+        struct_res_ResourceSizeSpec(tvb, offsetp, t, byte_order, 1);
+        f_num_cross_references = VALUE32(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_res_ResourceSizeValue_num_cross_references, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        struct_res_ResourceSizeSpec(tvb, offsetp, t, byte_order, f_num_cross_references);
     }
 }
 
@@ -13175,23 +13175,23 @@ static void dispatch_res(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	resQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        resQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	resQueryClients(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        resQueryClients(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	resQueryClientResources(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        resQueryClientResources(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	resQueryClientPixmapBytes(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        resQueryClientPixmapBytes(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	resQueryClientIds(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        resQueryClientIds(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	resQueryResourceBytes(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        resQueryResourceBytes(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -13469,23 +13469,23 @@ static void dispatch_screensaver(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	screensaverQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        screensaverQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	screensaverQueryInfo(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        screensaverQueryInfo(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	screensaverSelectInput(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        screensaverSelectInput(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	screensaverSetAttributes(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        screensaverSetAttributes(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	screensaverUnsetAttributes(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        screensaverUnsetAttributes(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	screensaverSuspend(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        screensaverSuspend(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -13711,32 +13711,32 @@ static void dispatch_shape(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	shapeQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        shapeQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	shapeRectangles(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        shapeRectangles(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	shapeMask(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        shapeMask(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	shapeCombine(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        shapeCombine(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	shapeOffset(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        shapeOffset(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	shapeQueryExtents(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        shapeQueryExtents(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	shapeSelectInput(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        shapeSelectInput(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	shapeInputSelected(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        shapeInputSelected(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 8:
-	shapeGetRectangles(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        shapeGetRectangles(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -13960,29 +13960,29 @@ static void dispatch_shm(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	shmQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        shmQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	shmAttach(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        shmAttach(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	shmDetach(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        shmDetach(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	shmPutImage(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        shmPutImage(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	shmGetImage(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        shmGetImage(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	shmCreatePixmap(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        shmCreatePixmap(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	shmAttachFd(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        shmAttachFd(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	shmCreateSegment(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        shmCreateSegment(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -14362,65 +14362,65 @@ static void dispatch_sync(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	syncInitialize(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncInitialize(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	syncListSystemCounters(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncListSystemCounters(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	syncCreateCounter(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncCreateCounter(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	syncSetCounter(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncSetCounter(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	syncChangeCounter(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncChangeCounter(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	syncQueryCounter(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncQueryCounter(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	syncDestroyCounter(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncDestroyCounter(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	syncAwait(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncAwait(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 8:
-	syncCreateAlarm(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncCreateAlarm(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 9:
-	syncChangeAlarm(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncChangeAlarm(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 10:
-	syncQueryAlarm(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncQueryAlarm(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 11:
-	syncDestroyAlarm(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncDestroyAlarm(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 12:
-	syncSetPriority(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncSetPriority(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 13:
-	syncGetPriority(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncGetPriority(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 14:
-	syncCreateFence(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncCreateFence(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 15:
-	syncTriggerFence(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncTriggerFence(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 16:
-	syncResetFence(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncResetFence(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 17:
-	syncDestroyFence(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncDestroyFence(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 18:
-	syncQueryFence(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncQueryFence(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 19:
-	syncAwaitFence(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        syncAwaitFence(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -14534,14 +14534,14 @@ static void dispatch_xc_misc(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	xc_miscGetVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xc_miscGetVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	xc_miscGetXIDRange(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xc_miscGetXIDRange(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	xc_miscGetXIDList(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xc_miscGetXIDList(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -14633,7 +14633,7 @@ static void struct_xevie_Event(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
 
         item = proto_tree_add_item(root, hf_x11_struct_xevie_Event, tvb, *offsetp, 32, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	UNUSED(32);
+        UNUSED(32);
     }
 }
 
@@ -14713,20 +14713,20 @@ static void dispatch_xevie(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	xevieQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xevieQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	xevieStart(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xevieStart(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	xevieEnd(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xevieEnd(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	xevieSend(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xevieSend(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	xevieSelectInput(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xevieSelectInput(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -14746,14 +14746,14 @@ static void struct_xf86dri_DrmClipRect(tvbuff_t *tvb, int *offsetp, proto_tree *
 
         item = proto_tree_add_item(root, hf_x11_struct_xf86dri_DrmClipRect, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xf86dri_DrmClipRect_x1, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xf86dri_DrmClipRect_y1, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xf86dri_DrmClipRect_x2, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xf86dri_DrmClipRect_x3, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xf86dri_DrmClipRect_x1, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xf86dri_DrmClipRect_y1, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xf86dri_DrmClipRect_x2, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xf86dri_DrmClipRect_x3, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
     }
 }
 
@@ -15094,41 +15094,41 @@ static void dispatch_xf86dri(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	xf86driQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86driQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	xf86driQueryDirectRenderingCapable(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86driQueryDirectRenderingCapable(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	xf86driOpenConnection(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86driOpenConnection(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	xf86driCloseConnection(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86driCloseConnection(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	xf86driGetClientDriverName(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86driGetClientDriverName(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	xf86driCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86driCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	xf86driDestroyContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86driDestroyContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	xf86driCreateDrawable(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86driCreateDrawable(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 8:
-	xf86driDestroyDrawable(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86driDestroyDrawable(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 9:
-	xf86driGetDrawableInfo(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86driGetDrawableInfo(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 10:
-	xf86driGetDeviceInfo(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86driGetDeviceInfo(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 11:
-	xf86driAuthConnection(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86driAuthConnection(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -15148,48 +15148,48 @@ static void struct_xf86vidmode_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree 
 
         item = proto_tree_add_item(root, hf_x11_struct_xf86vidmode_ModeInfo, tvb, *offsetp, 48, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_dotclock, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_hdisplay, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_hsyncstart, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_hsyncend, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_htotal, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_hskew, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_vdisplay, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_vsyncstart, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_vsyncend, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_vtotal, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	UNUSED(4);
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_flags, tvb, *offsetp, 4, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Positive_HSync, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Negative_HSync, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Positive_VSync, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Negative_VSync, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Interlace, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Composite_Sync, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Positive_CSync, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Negative_CSync, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_HSkew, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Broadcast, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Pixmux, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Double_Clock, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Half_Clock, tvb, *offsetp, 4, byte_order);
-	}
-	*offsetp += 4;
-	UNUSED(12);
-	proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_privsize, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_dotclock, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_hdisplay, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_hsyncstart, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_hsyncend, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_htotal, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_hskew, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_vdisplay, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_vsyncstart, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_vsyncend, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_vtotal, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        UNUSED(4);
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_flags, tvb, *offsetp, 4, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Positive_HSync, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Negative_HSync, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Positive_VSync, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Negative_VSync, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Interlace, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Composite_Sync, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Positive_CSync, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Negative_CSync, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_HSkew, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Broadcast, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Pixmux, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Double_Clock, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Half_Clock, tvb, *offsetp, 4, byte_order);
+        }
+        *offsetp += 4;
+        UNUSED(12);
+        proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_privsize, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -15968,68 +15968,68 @@ static void dispatch_xf86vidmode(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	xf86vidmodeQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	xf86vidmodeGetModeLine(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeGetModeLine(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	xf86vidmodeModModeLine(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeModModeLine(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	xf86vidmodeSwitchMode(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeSwitchMode(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	xf86vidmodeGetMonitor(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeGetMonitor(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	xf86vidmodeLockModeSwitch(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeLockModeSwitch(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	xf86vidmodeGetAllModeLines(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeGetAllModeLines(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	xf86vidmodeAddModeLine(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeAddModeLine(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 8:
-	xf86vidmodeDeleteModeLine(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeDeleteModeLine(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 9:
-	xf86vidmodeValidateModeLine(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeValidateModeLine(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 10:
-	xf86vidmodeSwitchToMode(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeSwitchToMode(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 11:
-	xf86vidmodeGetViewPort(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeGetViewPort(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 12:
-	xf86vidmodeSetViewPort(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeSetViewPort(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 13:
-	xf86vidmodeGetDotClocks(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeGetDotClocks(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 14:
-	xf86vidmodeSetClientVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeSetClientVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 15:
-	xf86vidmodeSetGamma(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeSetGamma(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 16:
-	xf86vidmodeGetGamma(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeGetGamma(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 17:
-	xf86vidmodeGetGammaRamp(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeGetGammaRamp(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 18:
-	xf86vidmodeSetGammaRamp(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeSetGammaRamp(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 19:
-	xf86vidmodeGetGammaRampSize(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeGetGammaRampSize(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 20:
-	xf86vidmodeGetPermissions(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xf86vidmodeGetPermissions(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -16572,104 +16572,104 @@ static void dispatch_xfixes(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	xfixesQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	xfixesChangeSaveSet(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesChangeSaveSet(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	xfixesSelectSelectionInput(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesSelectSelectionInput(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	xfixesSelectCursorInput(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesSelectCursorInput(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	xfixesGetCursorImage(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesGetCursorImage(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	xfixesCreateRegion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesCreateRegion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	xfixesCreateRegionFromBitmap(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesCreateRegionFromBitmap(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	xfixesCreateRegionFromWindow(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesCreateRegionFromWindow(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 8:
-	xfixesCreateRegionFromGC(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesCreateRegionFromGC(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 9:
-	xfixesCreateRegionFromPicture(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesCreateRegionFromPicture(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 10:
-	xfixesDestroyRegion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesDestroyRegion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 11:
-	xfixesSetRegion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesSetRegion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 12:
-	xfixesCopyRegion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesCopyRegion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 13:
-	xfixesUnionRegion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesUnionRegion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 14:
-	xfixesIntersectRegion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesIntersectRegion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 15:
-	xfixesSubtractRegion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesSubtractRegion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 16:
-	xfixesInvertRegion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesInvertRegion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 17:
-	xfixesTranslateRegion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesTranslateRegion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 18:
-	xfixesRegionExtents(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesRegionExtents(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 19:
-	xfixesFetchRegion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesFetchRegion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 20:
-	xfixesSetGCClipRegion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesSetGCClipRegion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 21:
-	xfixesSetWindowShapeRegion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesSetWindowShapeRegion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 22:
-	xfixesSetPictureClipRegion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesSetPictureClipRegion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 23:
-	xfixesSetCursorName(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesSetCursorName(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 24:
-	xfixesGetCursorName(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesGetCursorName(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 25:
-	xfixesGetCursorImageAndName(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesGetCursorImageAndName(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 26:
-	xfixesChangeCursor(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesChangeCursor(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 27:
-	xfixesChangeCursorByName(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesChangeCursorByName(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 28:
-	xfixesExpandRegion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesExpandRegion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 29:
-	xfixesHideCursor(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesHideCursor(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 30:
-	xfixesShowCursor(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesShowCursor(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 31:
-	xfixesCreatePointerBarrier(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesCreatePointerBarrier(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 32:
-	xfixesDeletePointerBarrier(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xfixesDeletePointerBarrier(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -16689,14 +16689,14 @@ static void struct_xinerama_ScreenInfo(tvbuff_t *tvb, int *offsetp, proto_tree *
 
         item = proto_tree_add_item(root, hf_x11_struct_xinerama_ScreenInfo, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xinerama_ScreenInfo_x_org, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xinerama_ScreenInfo_y_org, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xinerama_ScreenInfo_width, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xinerama_ScreenInfo_height, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xinerama_ScreenInfo_x_org, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xinerama_ScreenInfo_y_org, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xinerama_ScreenInfo_width, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xinerama_ScreenInfo_height, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
     }
 }
 
@@ -16884,23 +16884,23 @@ static void dispatch_xinerama(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	xineramaQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xineramaQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	xineramaGetState(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xineramaGetState(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	xineramaGetScreenCount(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xineramaGetScreenCount(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	xineramaGetScreenSize(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xineramaGetScreenSize(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	xineramaIsActive(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xineramaIsActive(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	xineramaQueryScreens(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xineramaQueryScreens(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -16920,10 +16920,10 @@ static void struct_xinput_FP3232(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_FP3232, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xinput_FP3232_integral, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xinput_FP3232_frac, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xinput_FP3232_integral, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xinput_FP3232_frac, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -16970,14 +16970,14 @@ static void struct_xinput_DeviceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_DeviceInfo, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xinput_DeviceInfo_device_type, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xinput_DeviceInfo_device_id, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xinput_DeviceInfo_num_class_info, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	field8(tvb, offsetp, t, hf_x11_struct_xinput_DeviceInfo_device_use, byte_order);
-	UNUSED(1);
+        proto_tree_add_item(t, hf_x11_struct_xinput_DeviceInfo_device_type, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xinput_DeviceInfo_device_id, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xinput_DeviceInfo_num_class_info, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        field8(tvb, offsetp, t, hf_x11_struct_xinput_DeviceInfo_device_use, byte_order);
+        UNUSED(1);
     }
 }
 
@@ -16990,12 +16990,12 @@ static void struct_xinput_AxisInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_AxisInfo, tvb, *offsetp, 12, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xinput_AxisInfo_resolution, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xinput_AxisInfo_minimum, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xinput_AxisInfo_maximum, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xinput_AxisInfo_resolution, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xinput_AxisInfo_minimum, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xinput_AxisInfo_maximum, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -17011,36 +17011,36 @@ static void struct_xinput_InputInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_class_id;
+        int f_class_id;
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_InputInfo, tvb, *offsetp, struct_size_xinput_InputInfo(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	f_class_id = field8(tvb, offsetp, t, hf_x11_struct_xinput_InputInfo_class_id, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_len, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	if (f_class_id == 0) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Key_min_keycode, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Key_max_keycode, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Key_num_keys, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    UNUSED(2);
-	}
-	if (f_class_id == 1) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Button_num_buttons, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	}
-	if (f_class_id == 2) {
-	    int f_axes_len;
-	    f_axes_len = VALUE8(tvb, *offsetp);
-	    proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Valuator_axes_len, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    field8(tvb, offsetp, t, hf_x11_struct_xinput_InputInfo_Valuator_mode, byte_order);
-	    proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Valuator_motion_size, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    struct_xinput_AxisInfo(tvb, offsetp, t, byte_order, f_axes_len);
-	}
+        f_class_id = field8(tvb, offsetp, t, hf_x11_struct_xinput_InputInfo_class_id, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_len, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        if (f_class_id == 0) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Key_min_keycode, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Key_max_keycode, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Key_num_keys, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            UNUSED(2);
+        }
+        if (f_class_id == 1) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Button_num_buttons, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+        }
+        if (f_class_id == 2) {
+            int f_axes_len;
+            f_axes_len = VALUE8(tvb, *offsetp);
+            proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Valuator_axes_len, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            field8(tvb, offsetp, t, hf_x11_struct_xinput_InputInfo_Valuator_mode, byte_order);
+            proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Valuator_motion_size, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            struct_xinput_AxisInfo(tvb, offsetp, t, byte_order, f_axes_len);
+        }
     }
 }
 
@@ -17085,9 +17085,9 @@ static void struct_xinput_InputClassInfo(tvbuff_t *tvb, int *offsetp, proto_tree
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_InputClassInfo, tvb, *offsetp, 2, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xinput_InputClassInfo_class_id, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xinput_InputClassInfo_event_type_base, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
+        field8(tvb, offsetp, t, hf_x11_struct_xinput_InputClassInfo_class_id, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xinput_InputClassInfo_event_type_base, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
     }
 }
 
@@ -17260,9 +17260,9 @@ static void struct_xinput_DeviceTimeCoord(tvbuff_t *tvb, int *offsetp, proto_tre
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_DeviceTimeCoord, tvb, *offsetp, struct_size_xinput_DeviceTimeCoord(tvb, offsetp, byte_order, p_num_axes), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xinput_DeviceTimeCoord_time, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	listOfInt32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceTimeCoord_axisvalues, hf_x11_struct_xinput_DeviceTimeCoord_axisvalues_item, p_num_axes, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xinput_DeviceTimeCoord_time, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        listOfInt32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceTimeCoord_axisvalues, hf_x11_struct_xinput_DeviceTimeCoord_axisvalues_item, p_num_axes, byte_order);
     }
 }
 
@@ -17581,74 +17581,74 @@ static void struct_xinput_FeedbackState(tvbuff_t *tvb, int *offsetp, proto_tree 
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_class_id;
+        int f_class_id;
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_FeedbackState, tvb, *offsetp, struct_size_xinput_FeedbackState(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	f_class_id = field8(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackState_class_id, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_feedback_id, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_len, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	if (f_class_id == 0) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Keyboard_pitch, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Keyboard_duration, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Keyboard_led_mask, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Keyboard_led_values, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Keyboard_global_auto_repeat, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Keyboard_click, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Keyboard_percent, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    UNUSED(1);
-	    listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackState_Keyboard_auto_repeats, 32, byte_order);
-	}
-	if (f_class_id == 1) {
-	    UNUSED(2);
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Pointer_accel_num, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Pointer_accel_denom, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Pointer_threshold, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	}
-	if (f_class_id == 2) {
-	    int f_num_keysyms;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_String_max_symbols, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    f_num_keysyms = VALUE16(tvb, *offsetp);
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_String_num_keysyms, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackState_String_keysyms, hf_x11_struct_xinput_FeedbackState_String_keysyms_item, f_num_keysyms, byte_order);
-	}
-	if (f_class_id == 3) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Integer_resolution, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Integer_min_value, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Integer_max_value, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	}
-	if (f_class_id == 4) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Led_led_mask, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Led_led_values, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	}
-	if (f_class_id == 5) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Bell_percent, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    UNUSED(3);
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Bell_pitch, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Bell_duration, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	}
+        f_class_id = field8(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackState_class_id, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_feedback_id, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_len, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        if (f_class_id == 0) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Keyboard_pitch, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Keyboard_duration, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Keyboard_led_mask, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Keyboard_led_values, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Keyboard_global_auto_repeat, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Keyboard_click, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Keyboard_percent, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            UNUSED(1);
+            listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackState_Keyboard_auto_repeats, 32, byte_order);
+        }
+        if (f_class_id == 1) {
+            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Pointer_accel_num, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Pointer_accel_denom, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Pointer_threshold, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+        }
+        if (f_class_id == 2) {
+            int f_num_keysyms;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_String_max_symbols, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            f_num_keysyms = VALUE16(tvb, *offsetp);
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_String_num_keysyms, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackState_String_keysyms, hf_x11_struct_xinput_FeedbackState_String_keysyms_item, f_num_keysyms, byte_order);
+        }
+        if (f_class_id == 3) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Integer_resolution, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Integer_min_value, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Integer_max_value, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+        }
+        if (f_class_id == 4) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Led_led_mask, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Led_led_values, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+        }
+        if (f_class_id == 5) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Bell_percent, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            UNUSED(3);
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Bell_pitch, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Bell_duration, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+        }
     }
 }
 
@@ -17693,69 +17693,69 @@ static void struct_xinput_FeedbackCtl(tvbuff_t *tvb, int *offsetp, proto_tree *r
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_class_id;
+        int f_class_id;
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_FeedbackCtl, tvb, *offsetp, struct_size_xinput_FeedbackCtl(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	f_class_id = field8(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackCtl_class_id, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_feedback_id, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_len, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	if (f_class_id == 0) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_key, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_auto_repeat_mode, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_key_click_percent, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_bell_percent, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_bell_pitch, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_bell_duration, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_led_mask, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_led_values, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	}
-	if (f_class_id == 1) {
-	    UNUSED(2);
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Pointer_num, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Pointer_denom, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Pointer_threshold, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	}
-	if (f_class_id == 2) {
-	    int f_num_keysyms;
-	    UNUSED(2);
-	    f_num_keysyms = VALUE16(tvb, *offsetp);
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_String_num_keysyms, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackCtl_String_keysyms, hf_x11_struct_xinput_FeedbackCtl_String_keysyms_item, f_num_keysyms, byte_order);
-	}
-	if (f_class_id == 3) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Integer_int_to_display, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	}
-	if (f_class_id == 4) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Led_led_mask, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Led_led_values, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	}
-	if (f_class_id == 5) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Bell_percent, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    UNUSED(3);
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Bell_pitch, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Bell_duration, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	}
+        f_class_id = field8(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackCtl_class_id, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_feedback_id, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_len, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        if (f_class_id == 0) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_key, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_auto_repeat_mode, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_key_click_percent, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_bell_percent, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_bell_pitch, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_bell_duration, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_led_mask, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_led_values, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+        }
+        if (f_class_id == 1) {
+            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Pointer_num, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Pointer_denom, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Pointer_threshold, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+        }
+        if (f_class_id == 2) {
+            int f_num_keysyms;
+            UNUSED(2);
+            f_num_keysyms = VALUE16(tvb, *offsetp);
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_String_num_keysyms, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackCtl_String_keysyms, hf_x11_struct_xinput_FeedbackCtl_String_keysyms_item, f_num_keysyms, byte_order);
+        }
+        if (f_class_id == 3) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Integer_int_to_display, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+        }
+        if (f_class_id == 4) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Led_led_mask, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Led_led_values, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+        }
+        if (f_class_id == 5) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Bell_percent, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            UNUSED(3);
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Bell_pitch, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Bell_duration, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+        }
     }
 }
 
@@ -17968,39 +17968,39 @@ static void struct_xinput_InputState(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_class_id;
+        int f_class_id;
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_InputState, tvb, *offsetp, struct_size_xinput_InputState(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	f_class_id = field8(tvb, offsetp, t, hf_x11_struct_xinput_InputState_class_id, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xinput_InputState_len, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	if (f_class_id == 0) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_InputState_Key_num_keys, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    UNUSED(1);
-	    listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_InputState_Key_keys, 32, byte_order);
-	}
-	if (f_class_id == 1) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_InputState_Button_num_buttons, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    UNUSED(1);
-	    listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_InputState_Button_buttons, 32, byte_order);
-	}
-	if (f_class_id == 2) {
-	    int f_num_valuators;
-	    f_num_valuators = VALUE8(tvb, *offsetp);
-	    proto_tree_add_item(t, hf_x11_struct_xinput_InputState_Valuator_num_valuators, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    {
-	        proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xinput_InputState_Valuator_mode, tvb, *offsetp, 1, byte_order);
-	        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	        proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_InputState_Valuator_mode_mask_DeviceModeAbsolute, tvb, *offsetp, 1, byte_order);
-	        proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_InputState_Valuator_mode_mask_OutOfProximity, tvb, *offsetp, 1, byte_order);
-	    }
-	    *offsetp += 1;
-	    listOfInt32(tvb, offsetp, t, hf_x11_struct_xinput_InputState_Valuator_valuators, hf_x11_struct_xinput_InputState_Valuator_valuators_item, f_num_valuators, byte_order);
-	}
+        f_class_id = field8(tvb, offsetp, t, hf_x11_struct_xinput_InputState_class_id, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xinput_InputState_len, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        if (f_class_id == 0) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_InputState_Key_num_keys, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            UNUSED(1);
+            listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_InputState_Key_keys, 32, byte_order);
+        }
+        if (f_class_id == 1) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_InputState_Button_num_buttons, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            UNUSED(1);
+            listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_InputState_Button_buttons, 32, byte_order);
+        }
+        if (f_class_id == 2) {
+            int f_num_valuators;
+            f_num_valuators = VALUE8(tvb, *offsetp);
+            proto_tree_add_item(t, hf_x11_struct_xinput_InputState_Valuator_num_valuators, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            {
+                proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xinput_InputState_Valuator_mode, tvb, *offsetp, 1, byte_order);
+                proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+                proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_InputState_Valuator_mode_mask_DeviceModeAbsolute, tvb, *offsetp, 1, byte_order);
+                proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_InputState_Valuator_mode_mask_OutOfProximity, tvb, *offsetp, 1, byte_order);
+            }
+            *offsetp += 1;
+            listOfInt32(tvb, offsetp, t, hf_x11_struct_xinput_InputState_Valuator_valuators, hf_x11_struct_xinput_InputState_Valuator_valuators_item, f_num_valuators, byte_order);
+        }
     }
 }
 
@@ -18113,66 +18113,66 @@ static void struct_xinput_DeviceState(tvbuff_t *tvb, int *offsetp, proto_tree *r
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_control_id;
+        int f_control_id;
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_DeviceState, tvb, *offsetp, struct_size_xinput_DeviceState(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	f_control_id = field16(tvb, offsetp, t, hf_x11_struct_xinput_DeviceState_control_id, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_len, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	if (f_control_id == 1) {
-	    int f_num_valuators;
-	    f_num_valuators = VALUE32(tvb, *offsetp);
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_resolution_num_valuators, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceState_resolution_resolution_values, hf_x11_struct_xinput_DeviceState_resolution_resolution_values_item, f_num_valuators, byte_order);
-	    listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceState_resolution_resolution_min, hf_x11_struct_xinput_DeviceState_resolution_resolution_min_item, f_num_valuators, byte_order);
-	    listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceState_resolution_resolution_max, hf_x11_struct_xinput_DeviceState_resolution_resolution_max_item, f_num_valuators, byte_order);
-	}
-	if (f_control_id == 2) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_min_x, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_max_x, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_min_y, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_max_y, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_flip_x, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_flip_y, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_rotation, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_button_threshold, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	}
-	if (f_control_id == 3) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_core_status, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_core_iscore, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    UNUSED(2);
-	}
-	if (f_control_id == 4) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_enable_enable, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    UNUSED(3);
-	}
-	if (f_control_id == 5) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_area_offset_x, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_area_offset_y, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_area_width, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_area_height, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_area_screen, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_area_following, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	}
+        f_control_id = field16(tvb, offsetp, t, hf_x11_struct_xinput_DeviceState_control_id, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_len, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        if (f_control_id == 1) {
+            int f_num_valuators;
+            f_num_valuators = VALUE32(tvb, *offsetp);
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_resolution_num_valuators, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceState_resolution_resolution_values, hf_x11_struct_xinput_DeviceState_resolution_resolution_values_item, f_num_valuators, byte_order);
+            listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceState_resolution_resolution_min, hf_x11_struct_xinput_DeviceState_resolution_resolution_min_item, f_num_valuators, byte_order);
+            listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceState_resolution_resolution_max, hf_x11_struct_xinput_DeviceState_resolution_resolution_max_item, f_num_valuators, byte_order);
+        }
+        if (f_control_id == 2) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_min_x, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_max_x, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_min_y, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_max_y, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_flip_x, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_flip_y, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_rotation, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_button_threshold, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+        }
+        if (f_control_id == 3) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_core_status, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_core_iscore, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            UNUSED(2);
+        }
+        if (f_control_id == 4) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_enable_enable, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            UNUSED(3);
+        }
+        if (f_control_id == 5) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_area_offset_x, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_area_offset_y, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_area_width, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_area_height, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_area_screen, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_area_following, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+        }
     }
 }
 
@@ -18215,65 +18215,65 @@ static void struct_xinput_DeviceCtl(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_control_id;
+        int f_control_id;
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_DeviceCtl, tvb, *offsetp, struct_size_xinput_DeviceCtl(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	f_control_id = field16(tvb, offsetp, t, hf_x11_struct_xinput_DeviceCtl_control_id, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_len, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	if (f_control_id == 1) {
-	    int f_num_valuators;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_resolution_first_valuator, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    f_num_valuators = VALUE8(tvb, *offsetp);
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_resolution_num_valuators, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    UNUSED(2);
-	    listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceCtl_resolution_resolution_values, hf_x11_struct_xinput_DeviceCtl_resolution_resolution_values_item, f_num_valuators, byte_order);
-	}
-	if (f_control_id == 2) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_min_x, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_max_x, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_min_y, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_max_y, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_flip_x, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_flip_y, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_rotation, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_button_threshold, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	}
-	if (f_control_id == 3) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_core_status, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    UNUSED(3);
-	}
-	if (f_control_id == 4) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_enable_enable, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    UNUSED(3);
-	}
-	if (f_control_id == 5) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_area_offset_x, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_area_offset_y, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_area_width, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_area_height, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_area_screen, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_area_following, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	}
+        f_control_id = field16(tvb, offsetp, t, hf_x11_struct_xinput_DeviceCtl_control_id, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_len, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        if (f_control_id == 1) {
+            int f_num_valuators;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_resolution_first_valuator, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            f_num_valuators = VALUE8(tvb, *offsetp);
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_resolution_num_valuators, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            UNUSED(2);
+            listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceCtl_resolution_resolution_values, hf_x11_struct_xinput_DeviceCtl_resolution_resolution_values_item, f_num_valuators, byte_order);
+        }
+        if (f_control_id == 2) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_min_x, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_max_x, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_min_y, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_max_y, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_flip_x, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_flip_y, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_rotation, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_button_threshold, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+        }
+        if (f_control_id == 3) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_core_status, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            UNUSED(3);
+        }
+        if (f_control_id == 4) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_enable_enable, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            UNUSED(3);
+        }
+        if (f_control_id == 5) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_area_offset_x, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_area_offset_y, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_area_width, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_area_height, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_area_screen, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_area_following, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+        }
     }
 }
 
@@ -18450,14 +18450,14 @@ static void struct_xinput_GroupInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_GroupInfo, tvb, *offsetp, 4, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xinput_GroupInfo_base, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xinput_GroupInfo_latched, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xinput_GroupInfo_locked, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xinput_GroupInfo_effective, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xinput_GroupInfo_base, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xinput_GroupInfo_latched, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xinput_GroupInfo_locked, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xinput_GroupInfo_effective, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
     }
 }
 
@@ -18470,14 +18470,14 @@ static void struct_xinput_ModifierInfo(tvbuff_t *tvb, int *offsetp, proto_tree *
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_ModifierInfo, tvb, *offsetp, 16, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xinput_ModifierInfo_base, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xinput_ModifierInfo_latched, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xinput_ModifierInfo_locked, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xinput_ModifierInfo_effective, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xinput_ModifierInfo_base, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xinput_ModifierInfo_latched, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xinput_ModifierInfo_locked, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xinput_ModifierInfo_effective, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -18570,42 +18570,42 @@ static void struct_xinput_HierarchyChange(tvbuff_t *tvb, int *offsetp, proto_tre
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_type;
+        int f_type;
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_HierarchyChange, tvb, *offsetp, struct_size_xinput_HierarchyChange(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	f_type = field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_type, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyChange_len, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	if (f_type == 1) {
-	    int f_name_len;
-	    f_name_len = VALUE16(tvb, *offsetp);
-	    proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyChange_AddMaster_name_len, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyChange_AddMaster_send_core, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyChange_AddMaster_enable, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	    listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_AddMaster_name, f_name_len, byte_order);
-	    if (*offsetp % 4) {
-	        UNUSED(4 - *offsetp % 4);
-	    }
-	}
-	if (f_type == 2) {
-	    field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_RemoveMaster_deviceid, byte_order);
-	    field8(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_RemoveMaster_return_mode, byte_order);
-	    UNUSED(1);
-	    field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_RemoveMaster_return_pointer, byte_order);
-	    field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_RemoveMaster_return_keyboard, byte_order);
-	}
-	if (f_type == 3) {
-	    field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_AttachSlave_deviceid, byte_order);
-	    field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_AttachSlave_master, byte_order);
-	}
-	if (f_type == 4) {
-	    field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_DetachSlave_deviceid, byte_order);
-	    UNUSED(2);
-	}
+        f_type = field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_type, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyChange_len, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        if (f_type == 1) {
+            int f_name_len;
+            f_name_len = VALUE16(tvb, *offsetp);
+            proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyChange_AddMaster_name_len, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyChange_AddMaster_send_core, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyChange_AddMaster_enable, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_AddMaster_name, f_name_len, byte_order);
+            if (*offsetp % 4) {
+                UNUSED(4 - *offsetp % 4);
+            }
+        }
+        if (f_type == 2) {
+            field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_RemoveMaster_deviceid, byte_order);
+            field8(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_RemoveMaster_return_mode, byte_order);
+            UNUSED(1);
+            field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_RemoveMaster_return_pointer, byte_order);
+            field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_RemoveMaster_return_keyboard, byte_order);
+        }
+        if (f_type == 3) {
+            field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_AttachSlave_deviceid, byte_order);
+            field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_AttachSlave_master, byte_order);
+        }
+        if (f_type == 4) {
+            field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_DetachSlave_deviceid, byte_order);
+            UNUSED(2);
+        }
     }
 }
 
@@ -18669,15 +18669,15 @@ static void struct_xinput_EventMask(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_mask_len;
+        int f_mask_len;
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_EventMask, tvb, *offsetp, struct_size_xinput_EventMask(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field16(tvb, offsetp, t, hf_x11_struct_xinput_EventMask_deviceid, byte_order);
-	f_mask_len = VALUE16(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xinput_EventMask_mask_len, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_EventMask_mask, hf_x11_struct_xinput_EventMask_mask_item, f_mask_len, byte_order);
+        field16(tvb, offsetp, t, hf_x11_struct_xinput_EventMask_deviceid, byte_order);
+        f_mask_len = VALUE16(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xinput_EventMask_mask_len, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_EventMask_mask, hf_x11_struct_xinput_EventMask_mask_item, f_mask_len, byte_order);
     }
 }
 
@@ -18734,62 +18734,62 @@ static void struct_xinput_DeviceClass(tvbuff_t *tvb, int *offsetp, proto_tree *r
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_type;
+        int f_type;
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_DeviceClass, tvb, *offsetp, struct_size_xinput_DeviceClass(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	f_type = field16(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_type, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_len, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_sourceid, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	if (f_type == 0) {
-	    int f_num_keys;
-	    f_num_keys = VALUE16(tvb, *offsetp);
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Key_num_keys, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Key_keys, hf_x11_struct_xinput_DeviceClass_Key_keys_item, f_num_keys, byte_order);
-	}
-	if (f_type == 1) {
-	    int f_num_buttons;
-	    f_num_buttons = VALUE16(tvb, *offsetp);
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Button_num_buttons, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Button_state, hf_x11_struct_xinput_DeviceClass_Button_state_item, ((f_num_buttons + 31) / 32), byte_order);
-	    listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Button_labels, hf_x11_struct_xinput_DeviceClass_Button_labels_item, f_num_buttons, byte_order);
-	}
-	if (f_type == 2) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Valuator_number, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Valuator_label, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    struct_xinput_FP3232(tvb, offsetp, t, byte_order, 1);
-	    struct_xinput_FP3232(tvb, offsetp, t, byte_order, 1);
-	    struct_xinput_FP3232(tvb, offsetp, t, byte_order, 1);
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Valuator_resolution, tvb, *offsetp, 4, byte_order);
-	    *offsetp += 4;
-	    field8(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Valuator_mode, byte_order);
-	    UNUSED(3);
-	}
-	if (f_type == 3) {
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Scroll_number, tvb, *offsetp, 2, byte_order);
-	    *offsetp += 2;
-	    field16(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Scroll_scroll_type, byte_order);
-	    UNUSED(2);
-	    {
-	        proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Scroll_flags, tvb, *offsetp, 4, byte_order);
-	        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	        proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_DeviceClass_Scroll_flags_mask_NoEmulation, tvb, *offsetp, 4, byte_order);
-	        proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_DeviceClass_Scroll_flags_mask_Preferred, tvb, *offsetp, 4, byte_order);
-	    }
-	    *offsetp += 4;
-	    struct_xinput_FP3232(tvb, offsetp, t, byte_order, 1);
-	}
-	if (f_type == 8) {
-	    field8(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Touch_mode, byte_order);
-	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Touch_num_touches, tvb, *offsetp, 1, byte_order);
-	    *offsetp += 1;
-	}
+        f_type = field16(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_type, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_len, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_sourceid, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        if (f_type == 0) {
+            int f_num_keys;
+            f_num_keys = VALUE16(tvb, *offsetp);
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Key_num_keys, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Key_keys, hf_x11_struct_xinput_DeviceClass_Key_keys_item, f_num_keys, byte_order);
+        }
+        if (f_type == 1) {
+            int f_num_buttons;
+            f_num_buttons = VALUE16(tvb, *offsetp);
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Button_num_buttons, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Button_state, hf_x11_struct_xinput_DeviceClass_Button_state_item, ((f_num_buttons + 31) / 32), byte_order);
+            listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Button_labels, hf_x11_struct_xinput_DeviceClass_Button_labels_item, f_num_buttons, byte_order);
+        }
+        if (f_type == 2) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Valuator_number, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Valuator_label, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            struct_xinput_FP3232(tvb, offsetp, t, byte_order, 1);
+            struct_xinput_FP3232(tvb, offsetp, t, byte_order, 1);
+            struct_xinput_FP3232(tvb, offsetp, t, byte_order, 1);
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Valuator_resolution, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            field8(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Valuator_mode, byte_order);
+            UNUSED(3);
+        }
+        if (f_type == 3) {
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Scroll_number, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            field16(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Scroll_scroll_type, byte_order);
+            UNUSED(2);
+            {
+                proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Scroll_flags, tvb, *offsetp, 4, byte_order);
+                proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+                proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_DeviceClass_Scroll_flags_mask_NoEmulation, tvb, *offsetp, 4, byte_order);
+                proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_DeviceClass_Scroll_flags_mask_Preferred, tvb, *offsetp, 4, byte_order);
+            }
+            *offsetp += 4;
+            struct_xinput_FP3232(tvb, offsetp, t, byte_order, 1);
+        }
+        if (f_type == 8) {
+            field8(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Touch_mode, byte_order);
+            proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Touch_num_touches, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+        }
     }
 }
 
@@ -18816,28 +18816,28 @@ static void struct_xinput_XIDeviceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_num_classes;
-	int f_name_len;
+        int f_num_classes;
+        int f_name_len;
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_XIDeviceInfo, tvb, *offsetp, struct_size_xinput_XIDeviceInfo(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field16(tvb, offsetp, t, hf_x11_struct_xinput_XIDeviceInfo_deviceid, byte_order);
-	field16(tvb, offsetp, t, hf_x11_struct_xinput_XIDeviceInfo_type, byte_order);
-	field16(tvb, offsetp, t, hf_x11_struct_xinput_XIDeviceInfo_attachment, byte_order);
-	f_num_classes = VALUE16(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xinput_XIDeviceInfo_num_classes, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	f_name_len = VALUE16(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xinput_XIDeviceInfo_name_len, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xinput_XIDeviceInfo_enabled, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(1);
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_XIDeviceInfo_name, f_name_len, byte_order);
-	if (*offsetp % 4) {
-	    UNUSED(4 - *offsetp % 4);
-	}
-	struct_xinput_DeviceClass(tvb, offsetp, t, byte_order, f_num_classes);
+        field16(tvb, offsetp, t, hf_x11_struct_xinput_XIDeviceInfo_deviceid, byte_order);
+        field16(tvb, offsetp, t, hf_x11_struct_xinput_XIDeviceInfo_type, byte_order);
+        field16(tvb, offsetp, t, hf_x11_struct_xinput_XIDeviceInfo_attachment, byte_order);
+        f_num_classes = VALUE16(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xinput_XIDeviceInfo_num_classes, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        f_name_len = VALUE16(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xinput_XIDeviceInfo_name_len, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xinput_XIDeviceInfo_enabled, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(1);
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_XIDeviceInfo_name, f_name_len, byte_order);
+        if (*offsetp % 4) {
+            UNUSED(4 - *offsetp % 4);
+        }
+        struct_xinput_DeviceClass(tvb, offsetp, t, byte_order, f_num_classes);
     }
 }
 
@@ -18966,9 +18966,9 @@ static void struct_xinput_GrabModifierInfo(tvbuff_t *tvb, int *offsetp, proto_tr
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_GrabModifierInfo, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field32(tvb, offsetp, t, hf_x11_struct_xinput_GrabModifierInfo_modifiers, byte_order);
-	field8(tvb, offsetp, t, hf_x11_struct_xinput_GrabModifierInfo_status, byte_order);
-	UNUSED(3);
+        field32(tvb, offsetp, t, hf_x11_struct_xinput_GrabModifierInfo_modifiers, byte_order);
+        field8(tvb, offsetp, t, hf_x11_struct_xinput_GrabModifierInfo_status, byte_order);
+        UNUSED(3);
     }
 }
 
@@ -19203,13 +19203,13 @@ static void struct_xinput_BarrierReleasePointerInfo(tvbuff_t *tvb, int *offsetp,
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_BarrierReleasePointerInfo, tvb, *offsetp, 12, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xinput_BarrierReleasePointerInfo_deviceid, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	UNUSED(2);
-	proto_tree_add_item(t, hf_x11_struct_xinput_BarrierReleasePointerInfo_barrier, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xinput_BarrierReleasePointerInfo_eventid, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xinput_BarrierReleasePointerInfo_deviceid, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        UNUSED(2);
+        proto_tree_add_item(t, hf_x11_struct_xinput_BarrierReleasePointerInfo_barrier, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xinput_BarrierReleasePointerInfo_eventid, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -19557,25 +19557,25 @@ static void struct_xinput_HierarchyInfo(tvbuff_t *tvb, int *offsetp, proto_tree 
 
         item = proto_tree_add_item(root, hf_x11_struct_xinput_HierarchyInfo, tvb, *offsetp, 12, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyInfo_deviceid, byte_order);
-	field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyInfo_attachment, byte_order);
-	field8(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyInfo_type, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyInfo_enabled, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(2);
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyInfo_flags, tvb, *offsetp, 4, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_MasterAdded, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_MasterRemoved, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveAdded, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveRemoved, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveAttached, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveDetached, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_DeviceEnabled, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_DeviceDisabled, tvb, *offsetp, 4, byte_order);
-	}
-	*offsetp += 4;
+        field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyInfo_deviceid, byte_order);
+        field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyInfo_attachment, byte_order);
+        field8(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyInfo_type, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyInfo_enabled, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(2);
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyInfo_flags, tvb, *offsetp, 4, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_MasterAdded, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_MasterRemoved, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveAdded, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveRemoved, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveAttached, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveDetached, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_DeviceEnabled, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_DeviceDisabled, tvb, *offsetp, 4, byte_order);
+        }
+        *offsetp += 4;
     }
 }
 
@@ -19908,19 +19908,19 @@ const x11_event_info xinput_events[] = {
     { NULL, NULL }
 };
 static const x11_generic_event_info xinput_generic_events[] = {
-	{   1, xinputDeviceChanged },
-	{   2, xinputKeyPress },
-	{   4, xinputButtonPress },
-	{   7, xinputEnter },
-	{  11, xinputHierarchy },
-	{  12, xinputProperty },
-	{  13, xinputRawKeyPress },
-	{  15, xinputRawButtonPress },
-	{  18, xinputTouchBegin },
-	{  21, xinputTouchOwnership },
-	{  22, xinputRawTouchBegin },
-	{  25, xinputBarrierHit },
-	{   0, NULL },
+        {   1, xinputDeviceChanged },
+        {   2, xinputKeyPress },
+        {   4, xinputButtonPress },
+        {   7, xinputEnter },
+        {  11, xinputHierarchy },
+        {  12, xinputProperty },
+        {  13, xinputRawKeyPress },
+        {  15, xinputRawButtonPress },
+        {  18, xinputTouchBegin },
+        {  21, xinputTouchOwnership },
+        {  22, xinputRawTouchBegin },
+        {  25, xinputBarrierHit },
+        {   0, NULL },
 };
 
 static x11_reply_info xinput_replies[] = {
@@ -19971,188 +19971,188 @@ static void dispatch_xinput(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 1:
-	xinputGetExtensionVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputGetExtensionVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	xinputListInputDevices(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputListInputDevices(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	xinputOpenDevice(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputOpenDevice(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	xinputCloseDevice(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputCloseDevice(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	xinputSetDeviceMode(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputSetDeviceMode(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	xinputSelectExtensionEvent(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputSelectExtensionEvent(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	xinputGetSelectedExtensionEvents(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputGetSelectedExtensionEvents(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 8:
-	xinputChangeDeviceDontPropagateList(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputChangeDeviceDontPropagateList(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 9:
-	xinputGetDeviceDontPropagateList(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputGetDeviceDontPropagateList(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 10:
-	xinputGetDeviceMotionEvents(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputGetDeviceMotionEvents(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 11:
-	xinputChangeKeyboardDevice(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputChangeKeyboardDevice(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 12:
-	xinputChangePointerDevice(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputChangePointerDevice(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 13:
-	xinputGrabDevice(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputGrabDevice(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 14:
-	xinputUngrabDevice(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputUngrabDevice(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 15:
-	xinputGrabDeviceKey(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputGrabDeviceKey(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 16:
-	xinputUngrabDeviceKey(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputUngrabDeviceKey(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 17:
-	xinputGrabDeviceButton(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputGrabDeviceButton(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 18:
-	xinputUngrabDeviceButton(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputUngrabDeviceButton(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 19:
-	xinputAllowDeviceEvents(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputAllowDeviceEvents(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 20:
-	xinputGetDeviceFocus(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputGetDeviceFocus(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 21:
-	xinputSetDeviceFocus(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputSetDeviceFocus(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 22:
-	xinputGetFeedbackControl(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputGetFeedbackControl(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 23:
-	xinputChangeFeedbackControl(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputChangeFeedbackControl(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 24:
-	xinputGetDeviceKeyMapping(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputGetDeviceKeyMapping(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 25:
-	xinputChangeDeviceKeyMapping(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputChangeDeviceKeyMapping(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 26:
-	xinputGetDeviceModifierMapping(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputGetDeviceModifierMapping(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 27:
-	xinputSetDeviceModifierMapping(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputSetDeviceModifierMapping(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 28:
-	xinputGetDeviceButtonMapping(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputGetDeviceButtonMapping(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 29:
-	xinputSetDeviceButtonMapping(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputSetDeviceButtonMapping(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 30:
-	xinputQueryDeviceState(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputQueryDeviceState(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 31:
-	xinputSendExtensionEvent(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputSendExtensionEvent(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 32:
-	xinputDeviceBell(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputDeviceBell(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 33:
-	xinputSetDeviceValuators(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputSetDeviceValuators(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 34:
-	xinputGetDeviceControl(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputGetDeviceControl(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 35:
-	xinputChangeDeviceControl(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputChangeDeviceControl(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 36:
-	xinputListDeviceProperties(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputListDeviceProperties(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 37:
-	xinputChangeDeviceProperty(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputChangeDeviceProperty(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 38:
-	xinputDeleteDeviceProperty(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputDeleteDeviceProperty(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 39:
-	xinputGetDeviceProperty(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputGetDeviceProperty(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 40:
-	xinputXIQueryPointer(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIQueryPointer(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 41:
-	xinputXIWarpPointer(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIWarpPointer(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 42:
-	xinputXIChangeCursor(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIChangeCursor(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 43:
-	xinputXIChangeHierarchy(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIChangeHierarchy(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 44:
-	xinputXISetClientPointer(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXISetClientPointer(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 45:
-	xinputXIGetClientPointer(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIGetClientPointer(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 46:
-	xinputXISelectEvents(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXISelectEvents(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 47:
-	xinputXIQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 48:
-	xinputXIQueryDevice(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIQueryDevice(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 49:
-	xinputXISetFocus(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXISetFocus(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 50:
-	xinputXIGetFocus(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIGetFocus(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 51:
-	xinputXIGrabDevice(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIGrabDevice(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 52:
-	xinputXIUngrabDevice(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIUngrabDevice(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 53:
-	xinputXIAllowEvents(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIAllowEvents(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 54:
-	xinputXIPassiveGrabDevice(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIPassiveGrabDevice(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 55:
-	xinputXIPassiveUngrabDevice(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIPassiveUngrabDevice(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 56:
-	xinputXIListProperties(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIListProperties(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 57:
-	xinputXIChangeProperty(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIChangeProperty(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 58:
-	xinputXIDeleteProperty(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIDeleteProperty(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 59:
-	xinputXIGetProperty(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIGetProperty(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 60:
-	xinputXIGetSelectedEvents(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIGetSelectedEvents(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 61:
-	xinputXIBarrierReleasePointer(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xinputXIBarrierReleasePointer(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -20172,77 +20172,77 @@ static void struct_xkb_IndicatorMap(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_IndicatorMap, tvb, *offsetp, 12, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_IndicatorMap_flags, byte_order);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_IndicatorMap_whichGroups, byte_order);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_IndicatorMap_groups, byte_order);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_IndicatorMap_whichMods, byte_order);
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_IndicatorMap_mods, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_IndicatorMap_realMods, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_IndicatorMap_vmods, tvb, *offsetp, 2, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_0, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_1, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_2, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_3, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_4, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_5, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_6, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_7, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_8, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_9, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_10, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_11, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_12, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_13, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_14, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_15, tvb, *offsetp, 2, byte_order);
-	}
-	*offsetp += 2;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_IndicatorMap_ctrls, tvb, *offsetp, 4, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
-	}
-	*offsetp += 4;
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_IndicatorMap_flags, byte_order);
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_IndicatorMap_whichGroups, byte_order);
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_IndicatorMap_groups, byte_order);
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_IndicatorMap_whichMods, byte_order);
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_IndicatorMap_mods, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_IndicatorMap_realMods, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_IndicatorMap_vmods, tvb, *offsetp, 2, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_0, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_1, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_2, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_3, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_4, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_5, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_6, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_7, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_8, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_9, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_10, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_11, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_12, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_13, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_14, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_15, tvb, *offsetp, 2, byte_order);
+        }
+        *offsetp += 2;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_IndicatorMap_ctrls, tvb, *offsetp, 4, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+        }
+        *offsetp += 4;
     }
 }
 
@@ -20255,55 +20255,55 @@ static void struct_xkb_ModDef(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_ModDef, tvb, *offsetp, 4, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_ModDef_mask, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_ModDef_realMods, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_ModDef_vmods, tvb, *offsetp, 2, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_0, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_1, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_2, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_3, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_4, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_5, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_6, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_7, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_8, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_9, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_10, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_11, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_12, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_13, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_14, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_15, tvb, *offsetp, 2, byte_order);
-	}
-	*offsetp += 2;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_ModDef_mask, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_ModDef_realMods, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_ModDef_vmods, tvb, *offsetp, 2, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_0, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_1, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_2, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_3, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_4, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_5, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_6, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_7, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_8, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_9, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_10, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_11, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_12, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_13, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_14, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_15, tvb, *offsetp, 2, byte_order);
+        }
+        *offsetp += 2;
     }
 }
 
@@ -20316,7 +20316,7 @@ static void struct_xkb_KeyName(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_KeyName, tvb, *offsetp, 4, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_KeyName_name, 4, byte_order);
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_KeyName_name, 4, byte_order);
     }
 }
 
@@ -20329,8 +20329,8 @@ static void struct_xkb_KeyAlias(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_KeyAlias, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_KeyAlias_real, 4, byte_order);
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_KeyAlias_alias, 4, byte_order);
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_KeyAlias_real, 4, byte_order);
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_KeyAlias_alias, 4, byte_order);
     }
 }
 
@@ -20350,15 +20350,15 @@ static void struct_xkb_CountedString16(tvbuff_t *tvb, int *offsetp, proto_tree *
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_length;
+        int f_length;
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_CountedString16, tvb, *offsetp, struct_size_xkb_CountedString16(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	f_length = VALUE16(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xkb_CountedString16_length, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_CountedString16_string, f_length, byte_order);
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_CountedString16_alignment_pad, (((f_length + 5) & (~3)) - (f_length + 2)), byte_order);
+        f_length = VALUE16(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xkb_CountedString16_length, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_CountedString16_string, f_length, byte_order);
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_CountedString16_alignment_pad, (((f_length + 5) & (~3)) - (f_length + 2)), byte_order);
     }
 }
 
@@ -20371,60 +20371,60 @@ static void struct_xkb_KTMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_KTMapEntry, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_active, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_mods_mask, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_level, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_mods_mods, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_mods_vmods, tvb, *offsetp, 2, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_0, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_1, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_2, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_3, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_4, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_5, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_6, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_7, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_8, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_9, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_10, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_11, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_12, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_13, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_14, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_15, tvb, *offsetp, 2, byte_order);
-	}
-	*offsetp += 2;
-	UNUSED(2);
+        proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_active, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_mods_mask, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_level, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_mods_mods, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_mods_vmods, tvb, *offsetp, 2, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_0, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_1, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_2, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_3, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_4, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_5, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_6, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_7, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_8, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_9, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_10, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_11, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_12, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_13, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_14, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_15, tvb, *offsetp, 2, byte_order);
+        }
+        *offsetp += 2;
+        UNUSED(2);
     }
 }
 
@@ -20446,71 +20446,71 @@ static void struct_xkb_KeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_nMapEntries;
-	int f_hasPreserve;
+        int f_nMapEntries;
+        int f_hasPreserve;
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_KeyType, tvb, *offsetp, struct_size_xkb_KeyType(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_mods_mask, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_mods_mods, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_mods_vmods, tvb, *offsetp, 2, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_0, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_1, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_2, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_3, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_4, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_5, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_6, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_7, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_8, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_9, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_10, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_11, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_12, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_13, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_14, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_15, tvb, *offsetp, 2, byte_order);
-	}
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_numLevels, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	f_nMapEntries = VALUE8(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_nMapEntries, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	f_hasPreserve = VALUE8(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_hasPreserve, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(1);
-	struct_xkb_KTMapEntry(tvb, offsetp, t, byte_order, f_nMapEntries);
-	struct_xkb_ModDef(tvb, offsetp, t, byte_order, (f_hasPreserve * f_nMapEntries));
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_mods_mask, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_mods_mods, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_mods_vmods, tvb, *offsetp, 2, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_0, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_1, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_2, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_3, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_4, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_5, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_6, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_7, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_8, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_9, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_10, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_11, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_12, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_13, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_14, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_15, tvb, *offsetp, 2, byte_order);
+        }
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_numLevels, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        f_nMapEntries = VALUE8(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_nMapEntries, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        f_hasPreserve = VALUE8(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_hasPreserve, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(1);
+        struct_xkb_KTMapEntry(tvb, offsetp, t, byte_order, f_nMapEntries);
+        struct_xkb_ModDef(tvb, offsetp, t, byte_order, (f_hasPreserve * f_nMapEntries));
     }
 }
 
@@ -20529,19 +20529,19 @@ static void struct_xkb_KeySymMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_nSyms;
+        int f_nSyms;
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_KeySymMap, tvb, *offsetp, struct_size_xkb_KeySymMap(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_KeySymMap_kt_index, 4, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xkb_KeySymMap_groupInfo, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_KeySymMap_width, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	f_nSyms = VALUE16(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xkb_KeySymMap_nSyms, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	listOfCard32(tvb, offsetp, t, hf_x11_struct_xkb_KeySymMap_syms, hf_x11_struct_xkb_KeySymMap_syms_item, f_nSyms, byte_order);
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_KeySymMap_kt_index, 4, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xkb_KeySymMap_groupInfo, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_KeySymMap_width, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        f_nSyms = VALUE16(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xkb_KeySymMap_nSyms, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        listOfCard32(tvb, offsetp, t, hf_x11_struct_xkb_KeySymMap_syms, hf_x11_struct_xkb_KeySymMap_syms_item, f_nSyms, byte_order);
     }
 }
 
@@ -20554,10 +20554,10 @@ static void struct_xkb_CommonBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *r
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_CommonBehavior, tvb, *offsetp, 2, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xkb_CommonBehavior_type, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_CommonBehavior_data, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_CommonBehavior_type, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_CommonBehavior_data, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
     }
 }
 
@@ -20570,9 +20570,9 @@ static void struct_xkb_DefaultBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_DefaultBehavior, tvb, *offsetp, 2, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xkb_DefaultBehavior_type, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(1);
+        proto_tree_add_item(t, hf_x11_struct_xkb_DefaultBehavior_type, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(1);
     }
 }
 
@@ -20585,10 +20585,10 @@ static void struct_xkb_RadioGroupBehavior(tvbuff_t *tvb, int *offsetp, proto_tre
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_RadioGroupBehavior, tvb, *offsetp, 2, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xkb_RadioGroupBehavior_type, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_RadioGroupBehavior_group, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_RadioGroupBehavior_type, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_RadioGroupBehavior_group, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
     }
 }
 
@@ -20601,10 +20601,10 @@ static void struct_xkb_OverlayBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_OverlayBehavior, tvb, *offsetp, 2, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xkb_OverlayBehavior_type, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_OverlayBehavior_key, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_OverlayBehavior_type, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_OverlayBehavior_key, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
     }
 }
 
@@ -20619,28 +20619,28 @@ static void struct_xkb_Behavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
         t = proto_item_add_subtree(item, ett_x11_rectangle);
 
         *offsetp = base;
-	struct_xkb_CommonBehavior(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_CommonBehavior(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_DefaultBehavior(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_DefaultBehavior(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_DefaultBehavior(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_DefaultBehavior(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_RadioGroupBehavior(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_RadioGroupBehavior(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_OverlayBehavior(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_OverlayBehavior(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_OverlayBehavior(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_OverlayBehavior(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_DefaultBehavior(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_DefaultBehavior(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_RadioGroupBehavior(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_RadioGroupBehavior(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_OverlayBehavior(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_OverlayBehavior(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_OverlayBehavior(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_OverlayBehavior(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	proto_tree_add_item(t, hf_x11_union_xkb_Behavior_type, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
+        proto_tree_add_item(t, hf_x11_union_xkb_Behavior_type, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
         base += 2;
     }
     *offsetp = base;
@@ -20655,10 +20655,10 @@ static void struct_xkb_SetBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SetBehavior, tvb, *offsetp, 4, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xkb_SetBehavior_keycode, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	struct_xkb_Behavior(tvb, offsetp, t, byte_order, 1);
-	UNUSED(1);
+        proto_tree_add_item(t, hf_x11_struct_xkb_SetBehavior_keycode, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        struct_xkb_Behavior(tvb, offsetp, t, byte_order, 1);
+        UNUSED(1);
     }
 }
 
@@ -20671,21 +20671,21 @@ static void struct_xkb_SetExplicit(tvbuff_t *tvb, int *offsetp, proto_tree *root
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SetExplicit, tvb, *offsetp, 2, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xkb_SetExplicit_keycode, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SetExplicit_explicit, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_Interpret, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_AutoRepeat, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_Behavior, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_VModMap, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SetExplicit_keycode, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SetExplicit_explicit, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_Interpret, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_AutoRepeat, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_Behavior, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_VModMap, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
     }
 }
 
@@ -20698,22 +20698,22 @@ static void struct_xkb_KeyModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_KeyModMap, tvb, *offsetp, 2, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xkb_KeyModMap_keycode, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KeyModMap_mods, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_KeyModMap_keycode, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KeyModMap_mods, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
     }
 }
 
@@ -20726,30 +20726,30 @@ static void struct_xkb_KeyVModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_KeyVModMap, tvb, *offsetp, 4, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xkb_KeyVModMap_keycode, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(1);
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KeyVModMap_vmods, tvb, *offsetp, 2, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_0, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_1, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_2, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_3, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_4, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_5, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_6, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_7, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_8, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_9, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_10, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_11, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_12, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_13, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_14, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_15, tvb, *offsetp, 2, byte_order);
-	}
-	*offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xkb_KeyVModMap_keycode, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(1);
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KeyVModMap_vmods, tvb, *offsetp, 2, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_0, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_1, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_2, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_3, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_4, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_5, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_6, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_7, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_8, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_9, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_10, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_11, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_12, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_13, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_14, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_15, tvb, *offsetp, 2, byte_order);
+        }
+        *offsetp += 2;
     }
 }
 
@@ -20762,43 +20762,43 @@ static void struct_xkb_KTSetMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_KTSetMapEntry, tvb, *offsetp, 4, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xkb_KTSetMapEntry_level, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KTSetMapEntry_realMods, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KTSetMapEntry_virtualMods, tvb, *offsetp, 2, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_0, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_1, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_2, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_3, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_4, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_5, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_6, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_7, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_8, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_9, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_10, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_11, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_12, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_13, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_14, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
-	}
-	*offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xkb_KTSetMapEntry_level, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KTSetMapEntry_realMods, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KTSetMapEntry_virtualMods, tvb, *offsetp, 2, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_0, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_1, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_2, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_3, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_4, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_5, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_6, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_7, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_8, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_9, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_10, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_11, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_12, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_13, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_14, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
+        }
+        *offsetp += 2;
     }
 }
 
@@ -20820,71 +20820,71 @@ static void struct_xkb_SetKeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_nMapEntries;
-	int f_preserve;
+        int f_nMapEntries;
+        int f_preserve;
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SetKeyType, tvb, *offsetp, struct_size_xkb_SetKeyType(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_mask, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_realMods, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_virtualMods, tvb, *offsetp, 2, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_0, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_1, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_2, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_3, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_4, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_5, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_6, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_7, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_8, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_9, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_10, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_11, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_12, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_13, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_14, tvb, *offsetp, 2, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
-	}
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_numLevels, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	f_nMapEntries = VALUE8(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_nMapEntries, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	f_preserve = VALUE8(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_preserve, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(1);
-	struct_xkb_KTSetMapEntry(tvb, offsetp, t, byte_order, f_nMapEntries);
-	struct_xkb_KTSetMapEntry(tvb, offsetp, t, byte_order, (f_preserve * f_nMapEntries));
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_mask, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_realMods, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_virtualMods, tvb, *offsetp, 2, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_0, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_1, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_2, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_3, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_4, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_5, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_6, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_7, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_8, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_9, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_10, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_11, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_12, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_13, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_14, tvb, *offsetp, 2, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
+        }
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_numLevels, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        f_nMapEntries = VALUE8(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_nMapEntries, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        f_preserve = VALUE8(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_preserve, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(1);
+        struct_xkb_KTSetMapEntry(tvb, offsetp, t, byte_order, f_nMapEntries);
+        struct_xkb_KTSetMapEntry(tvb, offsetp, t, byte_order, (f_preserve * f_nMapEntries));
     }
 }
 
@@ -20903,16 +20903,16 @@ static void struct_xkb_Listing(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_length;
+        int f_length;
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_Listing, tvb, *offsetp, struct_size_xkb_Listing(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xkb_Listing_flags, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	f_length = VALUE16(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xkb_Listing_length, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_Listing_string, f_length, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xkb_Listing_flags, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        f_length = VALUE16(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xkb_Listing_length, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_Listing_string, f_length, byte_order);
     }
 }
 
@@ -20934,25 +20934,25 @@ static void struct_xkb_DeviceLedInfo(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_namesPresent;
-	int f_mapsPresent;
+        int f_namesPresent;
+        int f_mapsPresent;
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_DeviceLedInfo, tvb, *offsetp, struct_size_xkb_DeviceLedInfo(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field16(tvb, offsetp, t, hf_x11_struct_xkb_DeviceLedInfo_ledClass, byte_order);
-	field16(tvb, offsetp, t, hf_x11_struct_xkb_DeviceLedInfo_ledID, byte_order);
-	f_namesPresent = VALUE32(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xkb_DeviceLedInfo_namesPresent, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	f_mapsPresent = VALUE32(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xkb_DeviceLedInfo_mapsPresent, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xkb_DeviceLedInfo_physIndicators, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xkb_DeviceLedInfo_state, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	listOfCard32(tvb, offsetp, t, hf_x11_struct_xkb_DeviceLedInfo_names, hf_x11_struct_xkb_DeviceLedInfo_names_item, popcount(f_namesPresent), byte_order);
-	struct_xkb_IndicatorMap(tvb, offsetp, t, byte_order, popcount(f_mapsPresent));
+        field16(tvb, offsetp, t, hf_x11_struct_xkb_DeviceLedInfo_ledClass, byte_order);
+        field16(tvb, offsetp, t, hf_x11_struct_xkb_DeviceLedInfo_ledID, byte_order);
+        f_namesPresent = VALUE32(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xkb_DeviceLedInfo_namesPresent, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        f_mapsPresent = VALUE32(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xkb_DeviceLedInfo_mapsPresent, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xkb_DeviceLedInfo_physIndicators, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xkb_DeviceLedInfo_state, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        listOfCard32(tvb, offsetp, t, hf_x11_struct_xkb_DeviceLedInfo_names, hf_x11_struct_xkb_DeviceLedInfo_names_item, popcount(f_namesPresent), byte_order);
+        struct_xkb_IndicatorMap(tvb, offsetp, t, byte_order, popcount(f_mapsPresent));
     }
 }
 
@@ -20965,8 +20965,8 @@ static void struct_xkb_SANoAction(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SANoAction, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SANoAction_type, byte_order);
-	UNUSED(7);
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SANoAction_type, byte_order);
+        UNUSED(7);
     }
 }
 
@@ -20979,70 +20979,70 @@ static void struct_xkb_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SASetMods, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetMods_type, byte_order);
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetMods_flags, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_flags_mask_ClearLocks, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_flags_mask_LatchToLock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_flags_mask_GroupAbsolute, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetMods_mask, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetMods_realMods, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetMods_vmodsHigh, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_8, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_9, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_10, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_11, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_12, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_13, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_14, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_15, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetMods_vmodsLow, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_0, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_6, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_7, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	UNUSED(2);
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetMods_type, byte_order);
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetMods_flags, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_flags_mask_ClearLocks, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_flags_mask_LatchToLock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_flags_mask_GroupAbsolute, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetMods_mask, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetMods_realMods, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetMods_vmodsHigh, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_8, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_9, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_10, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_11, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_12, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_13, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_14, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_15, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetMods_vmodsLow, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_0, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_6, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_7, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        UNUSED(2);
     }
 }
 
@@ -21055,18 +21055,18 @@ static void struct_xkb_SASetGroup(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SASetGroup, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetGroup_type, byte_order);
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetGroup_flags, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetGroup_flags_mask_ClearLocks, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetGroup_flags_mask_LatchToLock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetGroup_flags_mask_GroupAbsolute, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SASetGroup_group, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(5);
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetGroup_type, byte_order);
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetGroup_flags, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetGroup_flags_mask_ClearLocks, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetGroup_flags_mask_LatchToLock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetGroup_flags_mask_GroupAbsolute, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SASetGroup_group, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(5);
     }
 }
 
@@ -21079,24 +21079,24 @@ static void struct_xkb_SAMovePtr(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SAMovePtr, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SAMovePtr_type, byte_order);
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAMovePtr_flags, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAMovePtr_flags_mask_NoAcceleration, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAMovePtr_flags_mask_MoveAbsoluteX, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAMovePtr_flags_mask_MoveAbsoluteY, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SAMovePtr_xHigh, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SAMovePtr_xLow, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SAMovePtr_yHigh, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SAMovePtr_yLow, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(2);
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SAMovePtr_type, byte_order);
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAMovePtr_flags, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAMovePtr_flags_mask_NoAcceleration, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAMovePtr_flags_mask_MoveAbsoluteX, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAMovePtr_flags_mask_MoveAbsoluteY, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SAMovePtr_xHigh, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SAMovePtr_xLow, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SAMovePtr_yHigh, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SAMovePtr_yLow, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(2);
     }
 }
 
@@ -21109,14 +21109,14 @@ static void struct_xkb_SAPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SAPtrBtn, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SAPtrBtn_type, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xkb_SAPtrBtn_flags, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SAPtrBtn_count, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SAPtrBtn_button, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(4);
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SAPtrBtn_type, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xkb_SAPtrBtn_flags, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SAPtrBtn_count, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SAPtrBtn_button, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(4);
     }
 }
 
@@ -21129,13 +21129,13 @@ static void struct_xkb_SALockPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SALockPtrBtn, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SALockPtrBtn_type, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xkb_SALockPtrBtn_flags, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(1);
-	proto_tree_add_item(t, hf_x11_struct_xkb_SALockPtrBtn_button, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(4);
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SALockPtrBtn_type, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xkb_SALockPtrBtn_flags, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(1);
+        proto_tree_add_item(t, hf_x11_struct_xkb_SALockPtrBtn_button, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(4);
     }
 }
 
@@ -21148,24 +21148,24 @@ static void struct_xkb_SASetPtrDflt(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SASetPtrDflt, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetPtrDflt_type, byte_order);
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetPtrDflt_flags, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetPtrDflt_flags_mask_AffectDfltButton, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetPtrDflt_flags_mask_DfltBtnAbsolute, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetPtrDflt_affect, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetPtrDflt_affect_mask_AffectDfltButton, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetPtrDflt_affect_mask_DfltBtnAbsolute, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SASetPtrDflt_value, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(4);
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetPtrDflt_type, byte_order);
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetPtrDflt_flags, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetPtrDflt_flags_mask_AffectDfltButton, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetPtrDflt_flags_mask_DfltBtnAbsolute, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetPtrDflt_affect, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetPtrDflt_affect_mask_AffectDfltButton, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetPtrDflt_affect_mask_DfltBtnAbsolute, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SASetPtrDflt_value, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(4);
     }
 }
 
@@ -21178,81 +21178,81 @@ static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SAIsoLock, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SAIsoLock_type, byte_order);
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_flags, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_flags_mask_NoLock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_flags_mask_NoUnlock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_flags_mask_GroupAbsolute, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_flags_mask_ISODfltIsGroup, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_mask, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_realMods, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_group, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_affect, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_affect_mask_Ctrls, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_affect_mask_Ptr, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_affect_mask_Group, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_affect_mask_Mods, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_vmodsHigh, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_8, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_9, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_10, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_11, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_12, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_13, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_14, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_15, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_vmodsLow, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_0, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_6, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_7, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SAIsoLock_type, byte_order);
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_flags, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_flags_mask_NoLock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_flags_mask_NoUnlock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_flags_mask_GroupAbsolute, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_flags_mask_ISODfltIsGroup, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_mask, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_realMods, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_group, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_affect, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_affect_mask_Ctrls, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_affect_mask_Ptr, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_affect_mask_Group, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_affect_mask_Mods, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_vmodsHigh, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_8, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_9, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_10, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_11, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_12, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_13, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_14, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_15, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_vmodsLow, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_0, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_6, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_7, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
     }
 }
 
@@ -21265,8 +21265,8 @@ static void struct_xkb_SATerminate(tvbuff_t *tvb, int *offsetp, proto_tree *root
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SATerminate, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SATerminate_type, byte_order);
-	UNUSED(7);
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SATerminate_type, byte_order);
+        UNUSED(7);
     }
 }
 
@@ -21279,12 +21279,12 @@ static void struct_xkb_SASwitchScreen(tvbuff_t *tvb, int *offsetp, proto_tree *r
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SASwitchScreen, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SASwitchScreen_type, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xkb_SASwitchScreen_flags, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SASwitchScreen_newScreen, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(5);
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SASwitchScreen_type, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xkb_SASwitchScreen_flags, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SASwitchScreen_newScreen, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(5);
     }
 }
 
@@ -21297,32 +21297,32 @@ static void struct_xkb_SASetControls(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SASetControls, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetControls_type, byte_order);
-	UNUSED(3);
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_AccessXFeedback, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_AudibleBell, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_Overlay1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_Overlay2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_IgnoreGroupLock, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetControls_boolCtrlsLow, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_RepeatKeys, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_SlowKeys, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_BounceKeys, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_StickyKeys, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_MouseKeys, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_MouseKeysAccel, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_AccessXKeys, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_AccessXTimeout, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	UNUSED(2);
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetControls_type, byte_order);
+        UNUSED(3);
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_AccessXFeedback, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_AudibleBell, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_Overlay1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_Overlay2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_IgnoreGroupLock, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetControls_boolCtrlsLow, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_RepeatKeys, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_SlowKeys, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_BounceKeys, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_StickyKeys, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_MouseKeys, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_MouseKeysAccel, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_AccessXKeys, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_AccessXTimeout, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        UNUSED(2);
     }
 }
 
@@ -21335,16 +21335,16 @@ static void struct_xkb_SAActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SAActionMessage, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SAActionMessage_type, byte_order);
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAActionMessage_flags, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAActionMessage_flags_mask_OnPress, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAActionMessage_flags_mask_OnRelease, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAActionMessage_flags_mask_GenKeyEvent, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_SAActionMessage_message, 6, byte_order);
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SAActionMessage_type, byte_order);
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAActionMessage_flags, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAActionMessage_flags_mask_OnPress, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAActionMessage_flags_mask_OnRelease, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAActionMessage_flags_mask_GenKeyEvent, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_SAActionMessage_message, 6, byte_order);
     }
 }
 
@@ -21357,89 +21357,89 @@ static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SARedirectKey, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SARedirectKey_type, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_newkey, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_mask, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_realModifiers, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_8, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_9, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_10, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_11, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_12, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_13, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_14, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_15, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_0, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_6, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_7, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_vmodsHigh, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_8, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_9, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_10, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_11, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_12, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_13, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_14, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_15, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_vmodsLow, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_0, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_6, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_7, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SARedirectKey_type, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_newkey, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_mask, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_realModifiers, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_8, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_9, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_10, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_11, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_12, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_13, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_14, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_15, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_0, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_6, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_7, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_vmodsHigh, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_8, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_9, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_10, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_11, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_12, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_13, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_14, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_15, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_vmodsLow, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_0, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_6, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_7, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
     }
 }
 
@@ -21452,16 +21452,16 @@ static void struct_xkb_SADeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SADeviceBtn, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SADeviceBtn_type, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceBtn_flags, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceBtn_count, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceBtn_button, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceBtn_device, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(3);
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SADeviceBtn_type, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceBtn_flags, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceBtn_count, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceBtn_button, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceBtn_device, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(3);
     }
 }
 
@@ -21474,20 +21474,20 @@ static void struct_xkb_SALockDeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SALockDeviceBtn, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SALockDeviceBtn_type, byte_order);
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SALockDeviceBtn_flags, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SALockDeviceBtn_flags_mask_NoLock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SALockDeviceBtn_flags_mask_NoUnlock, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	UNUSED(1);
-	proto_tree_add_item(t, hf_x11_struct_xkb_SALockDeviceBtn_button, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SALockDeviceBtn_device, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(3);
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SALockDeviceBtn_type, byte_order);
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SALockDeviceBtn_flags, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SALockDeviceBtn_flags_mask_NoLock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SALockDeviceBtn_flags_mask_NoUnlock, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        UNUSED(1);
+        proto_tree_add_item(t, hf_x11_struct_xkb_SALockDeviceBtn_button, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SALockDeviceBtn_device, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(3);
     }
 }
 
@@ -21500,19 +21500,19 @@ static void struct_xkb_SADeviceValuator(tvbuff_t *tvb, int *offsetp, proto_tree 
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SADeviceValuator, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SADeviceValuator_type, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceValuator_device, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SADeviceValuator_val1what, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceValuator_val1index, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceValuator_val1value, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SADeviceValuator_val2what, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceValuator_val2index, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceValuator_val2value, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SADeviceValuator_type, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceValuator_device, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SADeviceValuator_val1what, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceValuator_val1index, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceValuator_val1value, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SADeviceValuator_val2what, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceValuator_val2index, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceValuator_val2value, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
     }
 }
 
@@ -21525,8 +21525,8 @@ static void struct_xkb_SIAction(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SIAction, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SIAction_type, byte_order);
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_SIAction_data, 7, byte_order);
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SIAction_type, byte_order);
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_SIAction_data, 7, byte_order);
     }
 }
 
@@ -21539,39 +21539,39 @@ static void struct_xkb_SymInterpret(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SymInterpret, tvb, *offsetp, 16, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xkb_SymInterpret_sym, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SymInterpret_mods, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_Control, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_Any, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	field8(tvb, offsetp, t, hf_x11_struct_xkb_SymInterpret_match, byte_order);
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SymInterpret_virtualMod, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_0, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_1, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_2, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_3, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_4, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_5, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_6, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_7, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xkb_SymInterpret_flags, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	struct_xkb_SIAction(tvb, offsetp, t, byte_order, 1);
+        proto_tree_add_item(t, hf_x11_struct_xkb_SymInterpret_sym, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SymInterpret_mods, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_Control, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_Any, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        field8(tvb, offsetp, t, hf_x11_struct_xkb_SymInterpret_match, byte_order);
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SymInterpret_virtualMod, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_0, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_1, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_2, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_3, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_4, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_5, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_6, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_7, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xkb_SymInterpret_flags, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        struct_xkb_SIAction(tvb, offsetp, t, byte_order, 1);
     }
 }
 
@@ -21586,49 +21586,49 @@ static void struct_xkb_Action(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
         t = proto_item_add_subtree(item, ett_x11_rectangle);
 
         *offsetp = base;
-	struct_xkb_SANoAction(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SANoAction(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SASetMods(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SASetMods(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SASetMods(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SASetMods(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SASetMods(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SASetMods(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SASetGroup(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SASetGroup(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SASetGroup(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SASetGroup(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SASetGroup(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SASetGroup(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SAMovePtr(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SAMovePtr(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SAPtrBtn(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SAPtrBtn(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SALockPtrBtn(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SALockPtrBtn(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SASetPtrDflt(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SASetPtrDflt(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SAIsoLock(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SAIsoLock(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SATerminate(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SATerminate(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SASwitchScreen(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SASwitchScreen(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SASetControls(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SASetControls(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SASetControls(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SASetControls(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SAActionMessage(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SAActionMessage(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SARedirectKey(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SARedirectKey(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SADeviceBtn(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SADeviceBtn(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SALockDeviceBtn(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SALockDeviceBtn(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	struct_xkb_SADeviceValuator(tvb, offsetp, t, byte_order, 1);
+        struct_xkb_SADeviceValuator(tvb, offsetp, t, byte_order, 1);
         *offsetp = base;
-	field8(tvb, offsetp, t, hf_x11_union_xkb_Action_type, byte_order);
+        field8(tvb, offsetp, t, hf_x11_union_xkb_Action_type, byte_order);
         base += 8;
     }
     *offsetp = base;
@@ -25469,77 +25469,77 @@ static void dispatch_xkb(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	xkbUseExtension(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbUseExtension(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	xkbSelectEvents(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbSelectEvents(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	xkbBell(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbBell(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	xkbGetState(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbGetState(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	xkbLatchLockState(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbLatchLockState(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	xkbGetControls(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbGetControls(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	xkbSetControls(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbSetControls(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 8:
-	xkbGetMap(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbGetMap(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 9:
-	xkbSetMap(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbSetMap(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 10:
-	xkbGetCompatMap(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbGetCompatMap(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 11:
-	xkbSetCompatMap(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbSetCompatMap(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 12:
-	xkbGetIndicatorState(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbGetIndicatorState(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 13:
-	xkbGetIndicatorMap(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbGetIndicatorMap(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 14:
-	xkbSetIndicatorMap(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbSetIndicatorMap(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 15:
-	xkbGetNamedIndicator(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbGetNamedIndicator(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 16:
-	xkbSetNamedIndicator(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbSetNamedIndicator(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 17:
-	xkbGetNames(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbGetNames(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 18:
-	xkbSetNames(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbSetNames(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 21:
-	xkbPerClientFlags(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbPerClientFlags(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 22:
-	xkbListComponents(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbListComponents(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 23:
-	xkbGetKbdByName(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbGetKbdByName(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 24:
-	xkbGetDeviceInfo(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbGetDeviceInfo(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 25:
-	xkbSetDeviceInfo(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbSetDeviceInfo(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 101:
-	xkbSetDebuggingFlags(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xkbSetDebuggingFlags(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -25568,19 +25568,19 @@ static void struct_xprint_PRINTER(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_nameLen;
-	int f_descLen;
+        int f_nameLen;
+        int f_descLen;
 
         item = proto_tree_add_item(root, hf_x11_struct_xprint_PRINTER, tvb, *offsetp, struct_size_xprint_PRINTER(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	f_nameLen = VALUE32(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xprint_PRINTER_nameLen, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xprint_PRINTER_name, f_nameLen, byte_order);
-	f_descLen = VALUE32(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xprint_PRINTER_descLen, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xprint_PRINTER_description, f_descLen, byte_order);
+        f_nameLen = VALUE32(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xprint_PRINTER_nameLen, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xprint_PRINTER_name, f_nameLen, byte_order);
+        f_descLen = VALUE32(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xprint_PRINTER_descLen, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xprint_PRINTER_description, f_descLen, byte_order);
     }
 }
 
@@ -26101,80 +26101,80 @@ static void dispatch_xprint(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	xprintPrintQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	xprintPrintGetPrinterList(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintGetPrinterList(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	xprintCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	xprintPrintSetContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintSetContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	xprintPrintGetContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintGetContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	xprintPrintDestroyContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintDestroyContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	xprintPrintGetScreenOfContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintGetScreenOfContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	xprintPrintStartJob(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintStartJob(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 8:
-	xprintPrintEndJob(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintEndJob(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 9:
-	xprintPrintStartDoc(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintStartDoc(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 10:
-	xprintPrintEndDoc(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintEndDoc(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 11:
-	xprintPrintPutDocumentData(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintPutDocumentData(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 12:
-	xprintPrintGetDocumentData(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintGetDocumentData(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 13:
-	xprintPrintStartPage(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintStartPage(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 14:
-	xprintPrintEndPage(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintEndPage(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 15:
-	xprintPrintSelectInput(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintSelectInput(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 16:
-	xprintPrintInputSelected(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintInputSelected(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 17:
-	xprintPrintGetAttributes(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintGetAttributes(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 18:
-	xprintPrintSetAttributes(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintSetAttributes(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 19:
-	xprintPrintGetOneAttributes(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintGetOneAttributes(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 20:
-	xprintPrintRehashPrinterList(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintRehashPrinterList(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 21:
-	xprintPrintGetPageDimensions(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintGetPageDimensions(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 22:
-	xprintPrintQueryScreens(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintQueryScreens(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 23:
-	xprintPrintSetImageResolution(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintSetImageResolution(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 24:
-	xprintPrintGetImageResolution(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xprintPrintGetImageResolution(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -26366,21 +26366,21 @@ static void struct_xselinux_ListItem(tvbuff_t *tvb, int *offsetp, proto_tree *ro
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_object_context_len;
-	int f_data_context_len;
+        int f_object_context_len;
+        int f_data_context_len;
 
         item = proto_tree_add_item(root, hf_x11_struct_xselinux_ListItem, tvb, *offsetp, struct_size_xselinux_ListItem(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xselinux_ListItem_name, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	f_object_context_len = VALUE32(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xselinux_ListItem_object_context_len, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	f_data_context_len = VALUE32(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xselinux_ListItem_data_context_len, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xselinux_ListItem_object_context, f_object_context_len, byte_order);
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xselinux_ListItem_data_context, f_data_context_len, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xselinux_ListItem_name, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        f_object_context_len = VALUE32(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xselinux_ListItem_object_context_len, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        f_data_context_len = VALUE32(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xselinux_ListItem_data_context_len, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xselinux_ListItem_object_context, f_object_context_len, byte_order);
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xselinux_ListItem_data_context, f_data_context_len, byte_order);
     }
 }
 
@@ -26774,74 +26774,74 @@ static void dispatch_xselinux(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	xselinuxQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	xselinuxSetDeviceCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxSetDeviceCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	xselinuxGetDeviceCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxGetDeviceCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	xselinuxSetDeviceContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxSetDeviceContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	xselinuxGetDeviceContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxGetDeviceContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	xselinuxSetWindowCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxSetWindowCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	xselinuxGetWindowCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxGetWindowCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	xselinuxGetWindowContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxGetWindowContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 8:
-	xselinuxSetPropertyCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxSetPropertyCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 9:
-	xselinuxGetPropertyCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxGetPropertyCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 10:
-	xselinuxSetPropertyUseContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxSetPropertyUseContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 11:
-	xselinuxGetPropertyUseContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxGetPropertyUseContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 12:
-	xselinuxGetPropertyContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxGetPropertyContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 13:
-	xselinuxGetPropertyDataContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxGetPropertyDataContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 14:
-	xselinuxListProperties(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxListProperties(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 15:
-	xselinuxSetSelectionCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxSetSelectionCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 16:
-	xselinuxGetSelectionCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxGetSelectionCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 17:
-	xselinuxSetSelectionUseContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxSetSelectionUseContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 18:
-	xselinuxGetSelectionUseContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxGetSelectionUseContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 19:
-	xselinuxGetSelectionContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxGetSelectionContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 20:
-	xselinuxGetSelectionDataContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxGetSelectionDataContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 21:
-	xselinuxListSelections(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxListSelections(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 22:
-	xselinuxGetClientContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xselinuxGetClientContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -26957,17 +26957,17 @@ static void dispatch_xtest(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	xtestGetVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xtestGetVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	xtestCompareCursor(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xtestCompareCursor(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	xtestFakeInput(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xtestFakeInput(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	xtestGrabControl(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xtestGrabControl(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -26987,10 +26987,10 @@ static void struct_xv_Rational(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
 
         item = proto_tree_add_item(root, hf_x11_struct_xv_Rational, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xv_Rational_numerator, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xv_Rational_denominator, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xv_Rational_numerator, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xv_Rational_denominator, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -27003,11 +27003,11 @@ static void struct_xv_Format(tvbuff_t *tvb, int *offsetp, proto_tree *root, guin
 
         item = proto_tree_add_item(root, hf_x11_struct_xv_Format, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xv_Format_visual, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xv_Format_depth, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(3);
+        proto_tree_add_item(t, hf_x11_struct_xv_Format_visual, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xv_Format_depth, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(3);
     }
 }
 
@@ -27030,37 +27030,37 @@ static void struct_xv_AdaptorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_name_size;
-	int f_num_formats;
+        int f_name_size;
+        int f_num_formats;
 
         item = proto_tree_add_item(root, hf_x11_struct_xv_AdaptorInfo, tvb, *offsetp, struct_size_xv_AdaptorInfo(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_base_id, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	f_name_size = VALUE16(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_name_size, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_num_ports, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	f_num_formats = VALUE16(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_num_formats, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_type, tvb, *offsetp, 1, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AdaptorInfo_type_mask_InputMask, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AdaptorInfo_type_mask_OutputMask, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AdaptorInfo_type_mask_VideoMask, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AdaptorInfo_type_mask_StillMask, tvb, *offsetp, 1, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AdaptorInfo_type_mask_ImageMask, tvb, *offsetp, 1, byte_order);
-	}
-	*offsetp += 1;
-	UNUSED(1);
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xv_AdaptorInfo_name, f_name_size, byte_order);
-	if (*offsetp % 4) {
-	    UNUSED(4 - *offsetp % 4);
-	}
-	struct_xv_Format(tvb, offsetp, t, byte_order, f_num_formats);
+        proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_base_id, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        f_name_size = VALUE16(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_name_size, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_num_ports, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        f_num_formats = VALUE16(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_num_formats, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_type, tvb, *offsetp, 1, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AdaptorInfo_type_mask_InputMask, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AdaptorInfo_type_mask_OutputMask, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AdaptorInfo_type_mask_VideoMask, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AdaptorInfo_type_mask_StillMask, tvb, *offsetp, 1, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AdaptorInfo_type_mask_ImageMask, tvb, *offsetp, 1, byte_order);
+        }
+        *offsetp += 1;
+        UNUSED(1);
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xv_AdaptorInfo_name, f_name_size, byte_order);
+        if (*offsetp % 4) {
+            UNUSED(4 - *offsetp % 4);
+        }
+        struct_xv_Format(tvb, offsetp, t, byte_order, f_num_formats);
     }
 }
 
@@ -27079,22 +27079,22 @@ static void struct_xv_EncodingInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_name_size;
+        int f_name_size;
 
         item = proto_tree_add_item(root, hf_x11_struct_xv_EncodingInfo, tvb, *offsetp, struct_size_xv_EncodingInfo(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xv_EncodingInfo_encoding, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	f_name_size = VALUE16(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xv_EncodingInfo_name_size, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xv_EncodingInfo_width, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xv_EncodingInfo_height, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	UNUSED(2);
-	struct_xv_Rational(tvb, offsetp, t, byte_order, 1);
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xv_EncodingInfo_name, f_name_size, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xv_EncodingInfo_encoding, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        f_name_size = VALUE16(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xv_EncodingInfo_name_size, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xv_EncodingInfo_width, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xv_EncodingInfo_height, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        UNUSED(2);
+        struct_xv_Rational(tvb, offsetp, t, byte_order, 1);
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xv_EncodingInfo_name, f_name_size, byte_order);
     }
 }
 
@@ -27113,25 +27113,25 @@ static void struct_xv_AttributeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     for (i = 0; i < count; i++) {
         proto_item *item;
         proto_tree *t;
-	int f_size;
+        int f_size;
 
         item = proto_tree_add_item(root, hf_x11_struct_xv_AttributeInfo, tvb, *offsetp, struct_size_xv_AttributeInfo(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	{
-	    proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xv_AttributeInfo_flags, tvb, *offsetp, 4, byte_order);
-	    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AttributeInfo_flags_mask_Gettable, tvb, *offsetp, 4, byte_order);
-	    proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AttributeInfo_flags_mask_Settable, tvb, *offsetp, 4, byte_order);
-	}
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xv_AttributeInfo_min, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xv_AttributeInfo_max, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	f_size = VALUE32(tvb, *offsetp);
-	proto_tree_add_item(t, hf_x11_struct_xv_AttributeInfo_size, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xv_AttributeInfo_name, f_size, byte_order);
+        {
+            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xv_AttributeInfo_flags, tvb, *offsetp, 4, byte_order);
+            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AttributeInfo_flags_mask_Gettable, tvb, *offsetp, 4, byte_order);
+            proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AttributeInfo_flags_mask_Settable, tvb, *offsetp, 4, byte_order);
+        }
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xv_AttributeInfo_min, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xv_AttributeInfo_max, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        f_size = VALUE32(tvb, *offsetp);
+        proto_tree_add_item(t, hf_x11_struct_xv_AttributeInfo_size, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xv_AttributeInfo_name, f_size, byte_order);
     }
 }
 
@@ -27144,49 +27144,49 @@ static void struct_xv_ImageFormatInfo(tvbuff_t *tvb, int *offsetp, proto_tree *r
 
         item = proto_tree_add_item(root, hf_x11_struct_xv_ImageFormatInfo, tvb, *offsetp, 128, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_id, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	field8(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_type, byte_order);
-	field8(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_byte_order, byte_order);
-	UNUSED(2);
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_guid, 16, byte_order);
-	proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_bpp, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_num_planes, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(2);
-	proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_depth, tvb, *offsetp, 1, byte_order);
-	*offsetp += 1;
-	UNUSED(3);
-	proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_red_mask, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_green_mask, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_blue_mask, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	field8(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_format, byte_order);
-	UNUSED(3);
-	proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_y_sample_bits, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_u_sample_bits, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_v_sample_bits, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_vhorz_y_period, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_vhorz_u_period, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_vhorz_v_period, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_vvert_y_period, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_vvert_u_period, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_vvert_v_period, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	listOfByte(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_vcomp_order, 32, byte_order);
-	field8(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_vscanline_order, byte_order);
-	UNUSED(11);
+        proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_id, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        field8(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_type, byte_order);
+        field8(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_byte_order, byte_order);
+        UNUSED(2);
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_guid, 16, byte_order);
+        proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_bpp, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_num_planes, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(2);
+        proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_depth, tvb, *offsetp, 1, byte_order);
+        *offsetp += 1;
+        UNUSED(3);
+        proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_red_mask, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_green_mask, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_blue_mask, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        field8(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_format, byte_order);
+        UNUSED(3);
+        proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_y_sample_bits, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_u_sample_bits, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_v_sample_bits, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_vhorz_y_period, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_vhorz_u_period, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_vhorz_v_period, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_vvert_y_period, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_vvert_u_period, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_vvert_v_period, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        listOfByte(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_vcomp_order, 32, byte_order);
+        field8(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_vscanline_order, byte_order);
+        UNUSED(11);
     }
 }
 
@@ -27730,65 +27730,65 @@ static void dispatch_xv(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_t
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	xvQueryExtension(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvQueryExtension(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	xvQueryAdaptors(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvQueryAdaptors(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	xvQueryEncodings(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvQueryEncodings(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	xvGrabPort(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvGrabPort(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	xvUngrabPort(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvUngrabPort(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	xvPutVideo(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvPutVideo(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	xvPutStill(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvPutStill(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	xvGetVideo(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvGetVideo(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 8:
-	xvGetStill(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvGetStill(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 9:
-	xvStopVideo(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvStopVideo(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 10:
-	xvSelectVideoNotify(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvSelectVideoNotify(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 11:
-	xvSelectPortNotify(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvSelectPortNotify(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 12:
-	xvQueryBestSize(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvQueryBestSize(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 13:
-	xvSetPortAttribute(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvSetPortAttribute(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 14:
-	xvGetPortAttribute(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvGetPortAttribute(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 15:
-	xvQueryPortAttributes(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvQueryPortAttributes(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 16:
-	xvListImageFormats(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvListImageFormats(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 17:
-	xvQueryImageAttributes(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvQueryImageAttributes(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 18:
-	xvPutImage(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvPutImage(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 19:
-	xvShmPutImage(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvShmPutImage(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
@@ -27808,24 +27808,24 @@ static void struct_xvmc_SurfaceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 
         item = proto_tree_add_item(root, hf_x11_struct_xvmc_SurfaceInfo, tvb, *offsetp, 24, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-	proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_id, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_chroma_format, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_pad0, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_max_width, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_max_height, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_subpicture_max_width, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_subpicture_max_height, tvb, *offsetp, 2, byte_order);
-	*offsetp += 2;
-	proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_mc_type, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
-	proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_flags, tvb, *offsetp, 4, byte_order);
-	*offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_id, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_chroma_format, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_pad0, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_max_width, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_max_height, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_subpicture_max_width, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_subpicture_max_height, tvb, *offsetp, 2, byte_order);
+        *offsetp += 2;
+        proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_mc_type, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
+        proto_tree_add_item(t, hf_x11_struct_xvmc_SurfaceInfo_flags, tvb, *offsetp, 4, byte_order);
+        *offsetp += 4;
     }
 }
 
@@ -28071,32 +28071,32 @@ static void dispatch_xvmc(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
-	xvmcQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvmcQueryVersion(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 1:
-	xvmcListSurfaceTypes(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvmcListSurfaceTypes(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 2:
-	xvmcCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvmcCreateContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 3:
-	xvmcDestroyContext(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvmcDestroyContext(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 4:
-	xvmcCreateSurface(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvmcCreateSurface(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 5:
-	xvmcDestroySurface(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvmcDestroySurface(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 6:
-	xvmcCreateSubpicture(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvmcCreateSubpicture(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 7:
-	xvmcDestroySubpicture(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvmcDestroySubpicture(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     case 8:
-	xvmcListSubpictureTypes(tvb, pinfo, offsetp, t, byte_order, length);
-	break;
+        xvmcListSubpictureTypes(tvb, pinfo, offsetp, t, byte_order, length);
+        break;
     /* No need for a default case here, since Unknown is printed above,
        and UNDECODED() is taken care of by dissect_x11_request */
     }
