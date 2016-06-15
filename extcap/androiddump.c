@@ -627,6 +627,8 @@ static void new_interface(extcap_parameters * extcap_conf, const gchar *interfac
     } else if (is_specified_interface(interface, INTERFACE_ANDROID_WIFI_TCPDUMP)) {
         extcap_base_register_interface(extcap_conf, interface, ifdisplay, 1, "Ethernet");
     }
+    g_free(interface);
+    g_free(ifdisplay);
 }
 
 
