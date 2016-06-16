@@ -928,7 +928,6 @@ handle_nsp_msg(
                    ack_dat & 0xfff);
                 my_offset += 2;
             }
-            seg_num = tvb_get_letohs(tvb, my_offset);
             /* This is the last field, the rest are data */
             proto_tree_add_item(tree, hf_dec_rt_segnum,
                 tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
@@ -968,7 +967,6 @@ handle_nsp_msg(
                    ack_dat & 0xfff);
                 my_offset += 2;
             }
-            seg_num = tvb_get_letohs(tvb, my_offset);
             proto_tree_add_item(tree, hf_dec_rt_segnum,
                 tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_dec_rt_delay,
