@@ -1091,6 +1091,7 @@ main_load_window_geometry(GtkWidget *widget)
     geom.x              = recent.gui_gtk_geometry_main_x;
     geom.y              = recent.gui_gtk_geometry_main_y;
     geom.set_size       = prefs.gui_geometry_save_size;
+    geom.set_maximized  = FALSE;
     if (recent.gui_geometry_main_width > 0 &&
         recent.gui_geometry_main_height > 0) {
         geom.width          = recent.gui_geometry_main_width;
