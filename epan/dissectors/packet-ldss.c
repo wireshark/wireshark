@@ -467,7 +467,9 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	 * earlier broadcast dissection (see prepare_ldss_transfer_conv) */
 	transfer_conv = find_conversation (pinfo->num, &pinfo->src, &pinfo->dst,
 					   PT_TCP, pinfo->srcport, pinfo->destport, 0);
+	DISSECTOR_ASSERT(transfer_conv);
 	transfer_info = (ldss_transfer_info_t *)conversation_get_proto_data(transfer_conv, proto_ldss);
+	DISSECTOR_ASSERT(transfer_info);
 
 	/* For a pull, the first packet in the TCP connection is the file request.
 	 * First packet is identified by relative seq/ack numbers of 1.
