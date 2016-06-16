@@ -75,6 +75,7 @@ private:
     QPushButton *prepare_button_;
     QPushButton *sequence_button_;
     QPushButton *player_button_;
+    QPushButton *copy_button_;
     QMenu ctx_menu_;
 
     // Tap callbacks
@@ -88,11 +89,15 @@ private:
     void showSequence();
     void showPlayer();
 
+    QList<QVariant> streamRowData(int row) const;
+
 private slots:
     void captureFileClosing();
     void on_callTreeWidget_itemActivated(QTreeWidgetItem *item, int);
     void on_callTreeWidget_itemSelectionChanged();
     void on_actionSelect_All_triggered();
+    void on_actionCopyAsCsv_triggered();
+    void on_actionCopyAsYaml_triggered();
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_buttonBox_helpRequested();
 };

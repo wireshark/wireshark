@@ -139,6 +139,36 @@ public:
         setText(comments_col_, call_comments);
     }
 
+    // Return a QString, int, double, or invalid QVariant representing the raw column data.
+    QVariant colData(int col) const {
+        if (!call_info_) {
+            return QVariant();
+        }
+
+        switch(col) {
+        case start_time_col_:
+            return nstime_to_sec(&call_info_->start_rel_ts);
+            break;
+        case stop_time_col_:
+            return nstime_to_sec(&call_info_->stop_rel_ts);
+            break;
+        case initial_speaker_col_:
+        case from_col_:
+        case to_col_:
+        case protocol_col_:
+        case state_col_:
+        case comments_col_:
+            return text(col);
+            break;
+        case packets_col_:
+            return call_info_->npackets;
+            break;
+        default:
+            break;
+        }
+        return QVariant();
+    }
+
     bool operator< (const QTreeWidgetItem &other) const
     {
         if (other.type() != voip_calls_type_) return QTreeWidgetItem::operator< (other);
@@ -183,11 +213,25 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
     ui->callTreeWidget->sortByColumn(start_time_col_, Qt::AscendingOrder);
     setWindowSubtitle(all_flows ? tr("SIP Flows") : tr("VoIP Calls"));
 
-    ctx_menu_.addActions(QList<QAction *>() << ui->actionSelect_All);
+    ctx_menu_.addAction(ui->actionSelect_All);
+    ctx_menu_.addSeparator();
+    ctx_menu_.addAction(ui->actionCopyAsCsv);
+    ctx_menu_.addAction(ui->actionCopyAsYaml);
 
     prepare_button_ = ui->buttonBox->addButton(tr("Prepare Filter"), QDialogButtonBox::ApplyRole);
     sequence_button_ = ui->buttonBox->addButton(tr("Flow Sequence"), QDialogButtonBox::ApplyRole);
     player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox);
+
+    copy_button_ = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ApplyRole);
+    QMenu *copy_menu = new QMenu();
+    QAction *ca;
+    ca = copy_menu->addAction(tr("as CSV"));
+    ca->setToolTip(ui->actionCopyAsCsv->toolTip());
+    connect(ca, SIGNAL(triggered()), this, SLOT(on_actionCopyAsCsv_triggered()));
+    ca = copy_menu->addAction(tr("as YAML"));
+    ca->setToolTip(ui->actionCopyAsYaml->toolTip());
+    connect(ca, SIGNAL(triggered()), this, SLOT(on_actionCopyAsYaml_triggered()));
+    copy_button_->setMenu(copy_menu);
 
     memset (&tapinfo_, 0, sizeof(tapinfo_));
     tapinfo_.tap_packet = tapPacket;
@@ -525,6 +569,27 @@ void VoipCallsDialog::showPlayer()
 #endif // QT_MULTIMEDIA_LIB
 }
 
+QList<QVariant> VoipCallsDialog::streamRowData(int row) const
+{
+    QList<QVariant> row_data;
+
+    if (row >= ui->callTreeWidget->topLevelItemCount()) {
+        return row_data;
+    }
+
+    for (int col = 0; col < ui->callTreeWidget->columnCount(); col++) {
+        if (row < 0) {
+            row_data << ui->callTreeWidget->headerItem()->text(col);
+        } else {
+            VoipCallsTreeWidgetItem *vcti = static_cast<VoipCallsTreeWidgetItem*>(ui->callTreeWidget->topLevelItem(row));
+            if (vcti) {
+                row_data << vcti->colData(col);
+            }
+        }
+    }
+    return row_data;
+}
+
 void VoipCallsDialog::on_callTreeWidget_itemActivated(QTreeWidgetItem *item, int)
 {
     VoipCallsTreeWidgetItem *vc_ti = static_cast<VoipCallsTreeWidgetItem *>(item);
@@ -543,6 +608,40 @@ void VoipCallsDialog::on_callTreeWidget_itemSelectionChanged()
 void VoipCallsDialog::on_actionSelect_All_triggered()
 {
     ui->callTreeWidget->selectAll();
+}
+
+void VoipCallsDialog::on_actionCopyAsCsv_triggered()
+{
+    QString csv;
+    QTextStream stream(&csv, QIODevice::Text);
+    for (int row = -1; row < ui->callTreeWidget->topLevelItemCount(); row++) {
+        QStringList rdsl;
+        foreach (QVariant v, streamRowData(row)) {
+            if (!v.isValid()) {
+                rdsl << "\"\"";
+            } else if ((int) v.type() == (int) QMetaType::QString) {
+                rdsl << QString("\"%1\"").arg(v.toString());
+            } else {
+                rdsl << v.toString();
+            }
+        }
+        stream << rdsl.join(",") << endl;
+    }
+    wsApp->clipboard()->setText(stream.readAll());
+}
+
+void VoipCallsDialog::on_actionCopyAsYaml_triggered()
+{
+    QString yaml;
+    QTextStream stream(&yaml, QIODevice::Text);
+    stream << "---" << endl;
+    for (int row = -1; row < ui->callTreeWidget->topLevelItemCount(); row ++) {
+        stream << "-" << endl;
+        foreach (QVariant v, streamRowData(row)) {
+            stream << " - " << v.toString() << endl;
+        }
+    }
+    wsApp->clipboard()->setText(stream.readAll());
 }
 
 void VoipCallsDialog::on_buttonBox_clicked(QAbstractButton *button)
