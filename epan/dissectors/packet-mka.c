@@ -123,6 +123,14 @@ static const value_string macsec_capability_type_vals[] = {
   { 0, NULL }
 };
 
+static const val64_string  macsec_cipher_suite_vals[] = {
+  { G_GINT64_CONSTANT(0x0080C20001000001),           "GCM-AES-128" },
+  { G_GINT64_CONSTANT(0x0080C20001000002),           "GCM-AES-256" },
+  { G_GINT64_CONSTANT(0x0080C20001000003),           "GCM-AES-XPN-128" },
+  { G_GINT64_CONSTANT(0x0080C20001000004),           "GCM-AES-XPN-256" },
+  { 0, NULL }
+};
+
 static void
 dissect_basic_paramset(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
 {
@@ -345,7 +353,7 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
     offset += 24;
     break;
 
-  case 50:
+  case 52:
     proto_tree_add_item(distributed_sak_tree, hf_mka_key_number,
                         tvb, offset, 4, ENC_NA);
     offset += 4;
@@ -355,8 +363,8 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
     offset += 8;
 
     proto_tree_add_item(distributed_sak_tree, hf_mka_aes_key_wrap_sak,
-                        tvb, offset, 38, ENC_NA);
-    offset += 38;
+                        tvb, offset, 40, ENC_NA);
+    offset += 40;
     break;
 
   default:
@@ -731,7 +739,7 @@ proto_register_mka(void)
 
     { &hf_mka_macsec_cipher_suite, {
         "MACsec Cipher Suite", "mka.macsec_cipher_suite",
-        FT_UINT64, BASE_HEX, NULL, 0x0,
+        FT_UINT64, BASE_HEX|BASE_VAL64_STRING, VALS64(macsec_cipher_suite_vals), 0x0,
         NULL, HFILL }},
 
     { &hf_mka_kmd, {
