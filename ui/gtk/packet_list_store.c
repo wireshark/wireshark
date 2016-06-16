@@ -585,7 +585,9 @@ packet_list_store_clear(PacketList *packet_list)
 	/* Generate new number */
 	packet_list->stamp = g_random_int();
 
-	g_string_chunk_clear(packet_list->string_pool);
+	if (packet_list->string_pool) {
+		g_string_chunk_clear(packet_list->string_pool);
+	}
 
 #ifdef PACKET_LIST_STATISTICS
 	g_warning("Const strings: %u", packet_list->const_strings);
