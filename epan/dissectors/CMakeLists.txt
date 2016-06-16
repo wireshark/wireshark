@@ -22,52 +22,13 @@
 ADD_CUSTOM_CMAKE_INCLUDE()
 
 add_subdirectory(asn1 EXCLUDE_FROM_ALL)
-add_subdirectory(dcerpc)
+add_subdirectory(dcerpc EXCLUDE_FROM_ALL)
 add_subdirectory(pidl EXCLUDE_FROM_ALL)
 
 include_directories(
 	${CMAKE_CURRENT_BINARY_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
-
-if(AUTOGEN_dcerpc)
-	foreach(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
-		list(APPEND PIDL_DISSECTOR_AUTOGEN_SRC
-			dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}.c
-		)
-	endforeach()
-
-	foreach(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
-		set(CUR_PROTO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dcerpc/${PROTOCOL_NAME})
-		set(CUR_PROTO_C_FILE packet-dcerpc-${PROTOCOL_NAME}.c)
-		set(CUR_PROTO_H_FILE packet-dcerpc-${PROTOCOL_NAME}.h)
-		add_custom_command(
-			OUTPUT
-			${CUR_PROTO_DIR}/${CUR_PROTO_C_FILE}
-			${CUR_PROTO_DIR}/${CUR_PROTO_H_FILE}
-			COMMAND
-				idl2wrs ${PROTOCOL_NAME}
-			COMMAND
-				${CMAKE_COMMAND} -E copy_if_different ${CUR_PROTO_DIR}/${CUR_PROTO_C_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/${CUR_PROTO_C_FILE}
-			COMMAND
-				${CMAKE_COMMAND} -E copy_if_different ${CUR_PROTO_DIR}/${CUR_PROTO_H_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/${CUR_PROTO_H_FILE}
-			WORKING_DIRECTORY
-				${CUR_PROTO_DIR}
-			DEPENDS
-				${CUR_PROTO_DIR}/${PROTOCOL_NAME}.idl
-				${CUR_PROTO_DIR}/${PROTOCOL_NAME}.cnf
-				${CUR_PROTO_DIR}/packet-dcerpc-${PROTOCOL_NAME}-template.c
-				${CUR_PROTO_DIR}/packet-dcerpc-${PROTOCOL_NAME}-template.h
-		)
-	endforeach()
-else()
-	foreach(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
-		set(PIDL_DISSECTOR_AUTOGEN_SRC
-		${PIDL_DISSECTOR_AUTOGEN_SRC}
-		packet-dcerpc-${PROTOCOL_NAME}.c
-		)
-	endforeach()
-endif()
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/packet-ncp2222.c

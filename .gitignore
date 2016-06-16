@@ -28,6 +28,7 @@
 init.lua
 epan/declare_wslua.h
 epan/dissectors/dcerpc/idl2wrs
+epan/dissectors/dcerpc/*/packet-dcerpc-*.[hc]
 epan/dissectors/mesa
 epan/dissectors/xcbproto
 epan/dissectors/packet-ncp2222.c
@@ -137,6 +138,7 @@ rules.ninja
 .ninja_log
 epan/dissectors/asn1/*/*-stamp
 epan/dissectors/pidl/*-stamp
+epan/dissectors/dcerpc/*-stamp
 
 
 # Generated dir #
