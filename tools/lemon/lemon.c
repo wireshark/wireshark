@@ -2734,7 +2734,7 @@ void Parse(struct lemon *gp)
     gp->errorcnt++;
     return;
   }
-  fseek(fp,0,2);
+  fseek(fp, 0, SEEK_END);
   filesize = ftell(fp);
   rewind(fp);
   filebuf = (char *)malloc( filesize+1 );
