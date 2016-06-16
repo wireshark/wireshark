@@ -53,6 +53,7 @@
 //   - Fake a splitter widget by catching mouse events in the plot area.
 //     Drawing a QCPItemLine or QCPItemPixmap over each Y axis might make
 //     this easier.
+// - For general flows, let the user show columns other than COL_INFO.
 // - Add UTF8 to text dump
 // - Save to XMI? http://www.umlgraph.org/
 // - Time: abs vs delta
