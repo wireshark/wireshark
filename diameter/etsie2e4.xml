@@ -91,7 +91,7 @@
 		<type type-name="Unsigned32"/>
 	</avp>
 	<!-- Removed from ETSI ES 283 034 V1.2.0 (2007-05) -->
-	<avp name="Maximum-Priority(deprecated)" code="310" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+	<avp name="Maximum-Priority-DEPRECATED" code="310" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 		<type type-name="Unsigned32"/>
 	</avp>
 	<avp name="Transport-Class" code="311" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
@@ -112,7 +112,7 @@
 
 	<!-- ************************* e2 AVPs ************************ -->
 
-	<avp name="Location-Information" code="350" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+	<avp name="ETSI-Location-Information" code="350" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 		<grouped>
 			<gavp name="Line-Identifier"/>
 		</grouped>
@@ -123,7 +123,7 @@
 	<avp name="Terminal-Type" code="352" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 		<type type-name="OctetString"/>
 	</avp>
-	<avp name="Requested-Information" code="353" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+	<avp name="Requested-Information-353" code="353" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 		<type type-name="Enumerated"/>
 		<enum name="SUBSCRIBER-ID" code="0"/>
 		<enum name="LOCATION-INFORMATION" code="1"/>
@@ -139,7 +139,7 @@
 		<enum name="QOS-PROFILE" code="9"/>
 		<enum name="IP-CONNECTIVITY-STATUS" code="10"/>
 	</avp>
-	<avp name="Event-Type" code="354" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+	<avp name="ETSI-Event-Type-354" code="354" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 		<type type-name="Enumerated"/>
 		<enum name="USER-LOGON" code="0"/>
 		<enum name="LOCATION-INFORMATION-CHANGED" code="1"/>
@@ -166,7 +166,7 @@
 	</avp>
 
 	<!--- ETSI TS 183 066 V2.1.1 (2009-01) -->
-	<avp name="Event-Type" code="420" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+	<avp name="ETSI-Event-Type-420" code="420" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 		<type type-name="Enumerated"/>
 		<enum name="UPDATE" code="0"/>
 		<enum name="REMOVE" code="1"/>
@@ -209,7 +209,7 @@
 	<avp name="Reservation-Class" code="456" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
 		<type type-name="Unsigned32"/>
 	</avp>
-	<avp name="Requested-Information" code="457" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+	<avp name="Requested-Information-457" code="457" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 		<type type-name="Enumerated"/>
 		<enum name="LATCH" code="0"/>
 		<enum name="RELATCH" code="1"/>
@@ -225,7 +225,7 @@
 		<enum name="PRIORITY-SIX" code="6"/>
 		<enum name="PRIORITY-SEVEN" code="7"/>
 	</avp>
-	<avp name="Service-Class" code="459" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+	<avp name="ETSI-Service-Class" code="459" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 		<type type-name="UTF8String"/>
 	</avp>
 

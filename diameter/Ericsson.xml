@@ -135,8 +135,8 @@
 	</avp>
 	<avp name="SCAP-Unit-Value" code="612" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<grouped>
-			<gavp name="Value-Digits"/>
-			<gavp name="Exponent"/>
+			<gavp name="SCAP-Value-Digits"/>
+			<gavp name="SCAP-Exponent"/>
 		</grouped>
 	</avp>
 	<avp name="SCAP-Used-Service-Unit" code="613" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
@@ -161,7 +161,7 @@
 	<avp name="SCAP-Exponent" code="616" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<type type-name="Integer32"/>
 	</avp>
-	<avp name="Value-Digits" code="617" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
+	<avp name="SCAP-Value-Digits" code="617" mandatory="must" vendor-bit="must" vendor-id="Ericsson" protected="may" may-encrypt="yes">
 		<type type-name="Unsigned64"/>
 	</avp>
 	<!-- ************************ END SCAP AVPS ******************* -->
@@ -201,7 +201,7 @@
 	<avp name="Gx-Capability-List" code="1060" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
 		<type type-name="Unsigned32"/>
 	</avp>
-	<avp name="Customer-Id" code="1146" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+	<avp name="Ericsson-Customer-Id" code="1146" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
 		<type type-name="UTF8String"/>
 	</avp>
 

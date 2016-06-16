@@ -2,7 +2,7 @@
 
 <vendor vendor-id="Cisco" code="5771" name="Cisco">
 
-	<avp name="Flow-Description" code="507" vendor-id="Cisco" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must">
+	<avp name="Cisco-Flow-Description-507" code="507" vendor-id="Cisco" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must">
 		<type type-name="IPFilterRule"/>
 	</avp>
 
@@ -79,9 +79,9 @@
 			<gavp name="Dual-Billing-Basis"/>
 			<gavp name="Service-Reporting-Level"/>
 			<gavp name="Service-CDR-Threshold"/>
-			<gavp name="Service Activation"/>
+			<gavp name="Service-Activation"/>
 			<gavp name="Advice-Of-Charge"/>
-			<gavp name="Service-Class"/>
+			<gavp name="Cisco-Service-Class"/>
 			<gavp name="Service-Idle-Time"/>
 			<gavp name="Owner-Id"/>
 			<gavp name="Owner-Name"/>
@@ -95,7 +95,7 @@
 			<gavp name="Meter-Include-Imap"/>
 			<gavp name="Metering-Granularity"/>
 			<gavp name="Verify"/>
-			<gavp name="Quota-Consumption-Time"/>
+			<gavp name="Cisco-Quota-Consumption-Time"/>
 			<gavp name="Service-Rating-Group"/>
 			<gavp name="Cisco-QoS-Profile-Uplink"/>
 			<gavp name="Cisco-QoS-Profile-Downlink"/>
@@ -236,7 +236,7 @@
 	<avp name="Advice-Of-Charge" code="131097" vendor-id="Cisco" mandatory="mustnot" may-encrypt="yes" protected="mustnot" vendor-bit="must">
 		<grouped>
 			<gavp name="Append-URL"/>
-			<gavp name="Confirm-Token"/>
+			<gavp name="Confirm-Token-131099"/>
 		</grouped>
 	</avp>
 
@@ -246,12 +246,12 @@
 		<enum name="ENABLE_APPEND_URL" code="1"/>
 	</avp>
 
-	<avp name="Confirm-Token" code="131099" vendor-id="Cisco" mandatory="mustnot" may-encrypt="yes" protected="mustnot" vendor-bit="must">
+	<avp name="Confirm-Token-131099" code="131099" vendor-id="Cisco" mandatory="mustnot" may-encrypt="yes" protected="mustnot" vendor-bit="must">
 		<type type-name="OctetString"/>
 
 	</avp>
 
-	<avp name="Service-Class" code="131100" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+	<avp name="Cisco-Service-Class" code="131100" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
 		<type type-name="Unsigned32"/>
 	</avp>
 
@@ -335,11 +335,11 @@
 
 	<avp name="Verify" code="131116" vendor-id="Cisco" mandatory="mustnot" may-encrypt="yes" protected="mustnot" vendor-bit="must">
 		<grouped>
-			<gavp name="Confirm-Token"/>
+			<gavp name="Confirm-Token-131117"/>
 		</grouped>
 	</avp>
 
-	<avp name="Confirm-Token" code="131117" vendor-id="Cisco" mandatory="mustnot" may-encrypt="yes" protected="mustnot" vendor-bit="must">
+	<avp name="Confirm-Token-131117" code="131117" vendor-id="Cisco" mandatory="mustnot" may-encrypt="yes" protected="mustnot" vendor-bit="must">
 		<type type-name="OctetString"/>
 	</avp>
 
@@ -392,7 +392,7 @@
 			<gavp name="Charging-Rule-Name"/>
 			<gavp name="Charging-Rule-Trigger-Type"/>
 			<gavp name="Volume-Usage"/>
-			<gavp name="Time-Usage"/>
+			<gavp name="Cisco-Time-Usage"/>
 			<gavp name="Cisco-Report-Usage"/>
 		</grouped>
 	</avp>
@@ -560,7 +560,7 @@
 		<type type-name="Unsigned64"/>
 	</avp>
 
-	<avp name="Time-Usage" code="131156" vendor-id="Cisco" mandatory="must" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+	<avp name="Cisco-Time-Usage" code="131156" vendor-id="Cisco" mandatory="must" protected="mustnot" may-encrypt="yes" vendor-bit="must">
 		<grouped>
 			<gavp name="Duration"/>
 			<gavp name="First-Packet-Timestanp"/>
@@ -582,7 +582,7 @@
 
 	<avp name="Cisco-Flow-Description" code="131160" vendor-id="Cisco" mandatory="must" may-encrypt="yes" protected="mustnot" vendor-bit="must">
 		<grouped>
-			<gavp name="Flow-Description"/>
+			<gavp name="Cisco-Flow-Description-507"/>
 			<gavp name="Content-Name"/>
 			<gavp name="Precedence"/>
 			<gavp name="Flow-Information"/>
@@ -679,26 +679,26 @@
 
 	<avp name="Rate-Limit-Conform-Action" code="131175" vendor-id="Cisco" mandatory="must" protected="mustnot" may-encrypt="yes" vendor-bit="must">
 		<grouped>
-			<gavp name="Rate-Limit-Action"/>
-			<gavp name="DSCP"/>
+			<gavp name="Cisco-Rate-Limit-Action"/>
+			<gavp name="Cisco-DSCP"/>
 		</grouped>
 	</avp>
 
 	<avp name="Rate-Limit-Exceed-Action" code="131176" vendor-id="Cisco" mandatory="must" protected="mustnot" may-encrypt="yes" vendor-bit="must">
 		<grouped>
-			<gavp name="Rate-Limit-Action"/>
-			<gavp name="DSCP"/>
+			<gavp name="Cisco-Rate-Limit-Action"/>
+			<gavp name="Cisco-DSCP"/>
 		</grouped>
 	</avp>
 
-	<avp name="Rate-Limit-Action" code="131177" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+	<avp name="Cisco-Rate-Limit-Action" code="131177" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
 		<type type-name="Enumerated"/>
 		<enum name="FORWARD" code="0"/>
 		<enum name="DROP" code="1"/>
 		<enum name="MARK_DSCP" code="2"/>
 	</avp>
 
-	<avp name="DSCP" code="131178" vendor-id="Cisco" mandatory="mustnot" may-encrypt="yes" protected="mustnot" vendor-bit="must">
+	<avp name="Cisco-DSCP" code="131178" vendor-id="Cisco" mandatory="mustnot" may-encrypt="yes" protected="mustnot" vendor-bit="must">
 		<type type-name="Unsigned32"/>
 	</avp>
 
@@ -815,7 +815,7 @@
 			<gavp name="Cisco-Event-Trigger-Type"/>
 			<gavp name="TCP-SYN"/>
 			<gavp name="Volume-Usage"/>
-			<gavp name="Time-Usage"/>
+			<gavp name="Cisco-Time-Usage"/>
 			<gavp name="Cisco-Report-Usage"/>
 			<gavp name="User-Agent"/>
 		</grouped>
@@ -851,7 +851,7 @@
 		<enum name="ENABLED" code="1"/>
 	</avp>
 
-	<avp name="Priority" code="131201" vendor-id="Cisco" mandatory="mustnot" may-encrypt="yes" protected="mustnot" vendor-bit="must">
+	<avp name="Cisco-Priority" code="131201" vendor-id="Cisco" mandatory="mustnot" may-encrypt="yes" protected="mustnot" vendor-bit="must">
 		<type type-name="Unsigned32"/>
 	</avp>
 
@@ -862,7 +862,7 @@
 	<avp name="Domain-Group-Definition" code="131203" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
 		<grouped>
 			<gavp name="Domain-Group-Name"/>
-			<gavp name="Priority"/>
+			<gavp name="Cisco-Priority"/>
 			<gavp name="Match-String"/>
 		</grouped>
 	</avp>
@@ -919,7 +919,7 @@
 		<enum name="ENABLED" code="1"/>
 	</avp>
 
-	<avp name="Quota-Consumption-Time" code="131213" vendor-id="Cisco" mandatory="mustnot" may-encrypt="yes" protected="mustnot" vendor-bit="must">
+	<avp name="Cisco-Quota-Consumption-Time" code="131213" vendor-id="Cisco" mandatory="mustnot" may-encrypt="yes" protected="mustnot" vendor-bit="must">
 		<type type-name="Unsigned32"/>
 	</avp>
 
@@ -1141,7 +1141,7 @@
 		<grouped>
 			<gavp name="Cisco-Request-Usage-Type"/>
 			<gavp name="Volume-Usage"/>
-			<gavp name="Time-Usage"/>
+			<gavp name="Cisco-Time-Usage"/>
 		</grouped>
 	</avp>
 
@@ -1171,7 +1171,7 @@
 			<gavp name="Charging-Rule-Name"/>
 			<gavp name="Cisco-Request-Usage-Type"/>
 			<gavp name="Volume-Usage"/>
-			<gavp name="Time-Usage"/>
+			<gavp name="Cisco-Time-Usage"/>
 		</grouped>
 	</avp>
 	<avp name="Cisco-Answer-Service-Group-Usage" code="131255" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
@@ -1179,7 +1179,7 @@
 			<gavp name="Service-Group-Name"/>
 			<gavp name="Cisco-Request-Usage-Type"/>
 			<gavp name="Volume-Usage"/>
-			<gavp name="Time-Usage"/>
+			<gavp name="Cisco-Time-Usage"/>
 		</grouped>
 	</avp>
 

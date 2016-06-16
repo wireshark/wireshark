@@ -18,7 +18,7 @@
 		<type type-name="OctetString"/>
 	</avp>
 
-	<avp name="Customer-Id" code="1146" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+	<avp name="SN-Customer-Id" code="1146" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
 		<type type-name="UTF8String"/>
 	</avp>
 
@@ -44,11 +44,11 @@
 		<type type-name="OctetString"/>
 	</avp>
 
-	<avp name="SN-Fast-Reauth-Username" code="11010" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+	<avp name="SN-Fast-Reauth-Username-11010" code="11010" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
 		<type type-name="OctetString"/>
 	</avp>
 
-	<avp name="SN-Firewall-Policy" code="515" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+	<avp name="SN-Firewall-Policy-515" code="515" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
 		<type type-name="UTF8String"/>
 	</avp>
 
@@ -60,7 +60,7 @@
 		<type type-name="UTF8String"/>
 	</avp>
 
-	<avp name="SN-Pseudonym-Username" code="11011" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+	<avp name="SN-Pseudonym-Username-11011" code="11011" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
 		<type type-name="OctetString"/>
 	</avp>
 
@@ -139,7 +139,7 @@
 		<type type-name="Unsigned32"/>
 	</avp>
 
-	<avp name="Session-Start-Indicator" code="522" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+	<avp name="SN-Session-Start-Indicator" code="522" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
 		<type type-name="OctetString"/>
 	</avp>
 
@@ -989,7 +989,7 @@
 	<type type-name="IPAddress"/>
 	</avp>
 
-	<avp name="SN-Fast-Reauth-Username" code="304" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+	<avp name="SN-Fast-Reauth-Username-304" code="304" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
 	<type type-name="OctetString"/>
 	</avp>
 
@@ -999,7 +999,7 @@
 	<enum name="True" code="1"/>
 	</avp>
 
-	<avp name="SN-Firewall-Policy" code="239" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+	<avp name="SN-Firewall-Policy-239" code="239" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
 	<type type-name="OctetString"/>
 	</avp>
 
@@ -1638,7 +1638,7 @@
 	<enum name="Enabled" code="1"/>
 	</avp>
 
-	<avp name="SN-Pseudonym-Username" code="305" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+	<avp name="SN-Pseudonym-Username-305" code="305" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
 	<type type-name="OctetString"/>
 	</avp>
 
@@ -2220,10 +2220,6 @@
 
 	<avp name="SN-WLAN-UE-Identifier" code="320" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
 	<type type-name="OctetString"/>
-	</avp>
-
-	<avp name="SN-Home-Behavior" code="119" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
-	<type type-name="Unsigned32"/>
 	</avp>
 
 </vendor>

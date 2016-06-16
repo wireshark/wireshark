@@ -11,27 +11,27 @@
 		<type type-name="Unsigned32"/>
 	</avp>
 
-	<avp name="Time-Of-First-Usage" code="5103" vendor-id="Nokia">
+	<avp name="Nokia-Time-Of-First-Usage" code="5103" vendor-id="Nokia">
 		<type type-name="Time"/>
 	</avp>
 
-	<avp name="Time-Of-Last-Usage" code="5104" vendor-id="Nokia">
+	<avp name="Nokia-Time-Of-Last-Usage" code="5104" vendor-id="Nokia">
 		<type type-name="Time"/>
 	</avp>
 
-	<avp name="Session-Start-Indicator" code="5105" vendor-id="Nokia">
+	<avp name="Nokia-Session-Start-Indicator" code="5105" vendor-id="Nokia">
 		<type type-name="OctetString"/>
 	</avp>
 
-	<avp name="Rulebase-Id" code="5106" vendor-id="Nokia">
+	<avp name="Nokia-Rulebase-Id" code="5106" vendor-id="Nokia">
 		<type type-name="UTF8String"/>
 	</avp>
 
-	<avp name="Quota-Consumption-Time" code="5109" vendor-id="Nokia">
+	<avp name="Nokia-Quota-Consumption-Time" code="5109" vendor-id="Nokia">
 		<type type-name="Unsigned32"/>
 	</avp>
 
-	<avp name="Quota-Holding-Time" code="5110" vendor-id="Nokia">
+	<avp name="Nokia-Quota-Holding-Time" code="5110" vendor-id="Nokia">
 		<type type-name="Unsigned32"/>
 	</avp>
 

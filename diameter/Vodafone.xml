@@ -9,13 +9,13 @@
 		<enum name="PRIMARY" code="0"/>
 		<enum name="SECONDARY" code="1"/>
 	</avp>
-	<avp name="Quota-Consumption-Time" code="257" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
+	<avp name="Vodafone-Quota-Consumption-Time" code="257" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
 		<type type-name="Unsigned32"/>
 	</avp>
-	<avp name="Quota-Holding-Time" code="258" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
+	<avp name="Vodafone-Quota-Holding-Time" code="258" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
 		<type type-name="Unsigned32"/>
 	</avp>
-	<avp name="Time-Quota-Threshold" code="259" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
+	<avp name="Vodafone-Time-Quota-Threshold" code="259" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
 		<type type-name="Unsigned32"/>
 	</avp>
 	<avp name="Radio-Access-Technology" code="260" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
@@ -24,7 +24,7 @@
 		<enum name="GERAN" code="1"/>
 		<enum name="WLAN" code="2"/>
 	</avp>
-	<avp name="Reporting-Reason" code="261" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
+	<avp name="Vodafone-Reporting-Reason" code="261" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
 		<type type-name="Enumerated"/>
 		<enum name="THRESHOLD" code="0"/>
 		<enum name="QHT" code="1"/>
@@ -35,21 +35,21 @@
 		<enum name="RATING_CONDITION_CHANGE" code="6"/>
 		<enum name="FORCED_REAUTHORISATION " code="7"/>
 	</avp>
-	<avp name="Rulebase-Id" code="262" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
+	<avp name="Vodafone-Rulebase-Id" code="262" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
 		<type type-name="UTF8String"/>
 	</avp>
-	<avp name="Time-Of-First-Usage" code="263" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
+	<avp name="Vodafone-Time-Of-First-Usage" code="263" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
 		<type type-name="Time"/>
 	</avp>
-	<avp name="Time-Of-Last-Usage" code="264" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
+	<avp name="Vodafone-Time-Of-Last-Usage" code="264" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
 		<type type-name="Time"/>
 	</avp>
-	<avp name="Trigger" code="265" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
+	<avp name="Vodafone-Trigger" code="265" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
 		<grouped>
-			<gavp name="Trigger-Type"/>
+			<gavp name="Vodafone-Trigger-Type"/>
 		</grouped>
 	</avp>
-	<avp name="Trigger-Type" code="266" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
+	<avp name="Vodafone-Trigger-Type" code="266" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
 		<type type-name="Enumerated"/>
 		<enum name="CHANGE_IN_SGSN_IP_ADDRESS" code="1"/>
 		<enum name="CHANGEINQOS_ANY" code="2"/>
@@ -70,7 +70,7 @@
 	<avp name="User-Location-Information" code="267" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
 		<type type-name="OctetString"/>
 	</avp>
-	<avp name="Volume-Quota-Threshold" code="268" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
+	<avp name="Vodafone-Volume-Quota-Threshold" code="268" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
 		<type type-name="Unsigned32"/>
 	</avp>
 
