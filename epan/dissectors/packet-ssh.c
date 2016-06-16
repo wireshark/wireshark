@@ -437,6 +437,7 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
         gboolean *need_desegmentation)
 {
     proto_item *ssh2_tree=NULL;
+    int last_offset=offset;
 
     struct ssh_peer_data *peer_data = &global_data->peer_data[is_response];
 
@@ -473,6 +474,10 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
     } else {
         offset = ssh_dissect_encrypted_packet(tvb, pinfo,
                 &global_data->peer_data[is_response], offset, ssh2_tree);
+    }
+
+    if (ssh2_tree) {
+        proto_item_set_len(ssh2_tree, offset - last_offset);
     }
 
     return offset;
@@ -684,7 +689,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_uint(tree, hf_ssh_padding_length, tvb, offset, 1, padding_length);
     offset += 1;
 
-    key_ex_tree=proto_tree_add_subtree(tree, tvb, offset, -1, ett_key_exchange, NULL, "Key Exchange");
+    key_ex_tree=proto_tree_add_subtree(tree, tvb, offset, plen-1, ett_key_exchange, NULL, "Key Exchange");
 
     /* msg_code */
     msg_code = tvb_get_guint8(tvb, offset);
