@@ -82,6 +82,7 @@ struct ssh_peer_data {
 
     guint32 frame_key_start;
     guint32 frame_key_end;
+    int frame_key_end_offset;
 
     gchar*  kex_proposal;
 
@@ -464,7 +465,8 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 
     if ((peer_data->frame_key_start == 0) ||
         ((peer_data->frame_key_start <= pinfo->num) &&
-        ((peer_data->frame_key_end == 0) || (pinfo->num <= peer_data->frame_key_end)))) {
+        ((peer_data->frame_key_end == 0) || (pinfo->num < peer_data->frame_key_end) ||
+                ((pinfo->num == peer_data->frame_key_end) && (offset < peer_data->frame_key_end_offset))))) {
         offset = ssh_dissect_key_exchange(tvb, pinfo, global_data,
             offset, ssh2_tree, is_response,
             need_desegmentation);
@@ -708,6 +710,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
         case SSH_MSG_NEWKEYS:
             if (peer_data->frame_key_end == 0) {
                 peer_data->frame_key_end = pinfo->num;
+                peer_data->frame_key_end_offset = offset;
                 ssh_choose_algo(global_data->peer_data[CLIENT_PEER_DATA].enc_proposals[is_response],
                                 global_data->peer_data[SERVER_PEER_DATA].enc_proposals[is_response],
                                 &peer_data->enc);
