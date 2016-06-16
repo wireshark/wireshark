@@ -4350,8 +4350,8 @@ static int parse_CBaseStorageVariant(tvbuff_t *tvb, int offset, proto_tree *pare
 
 	parse_vType(tvb, offset, &value->vType);
 	value->type = vType_get_type(value->vType);
-
 	DISSECTOR_ASSERT(value->type != NULL);
+
 	ti_type = proto_tree_add_string(tree, hf_mswsp_cbasestorvariant_vtype, tvb, offset, 2, value->type->str);
 	offset += 2;
 
@@ -4364,10 +4364,6 @@ static int parse_CBaseStorageVariant(tvbuff_t *tvb, int offset, proto_tree *pare
 	offset += 1;
 
 	highType = (enum vType)(value->vType & 0xFF00);
-
-	if (value->type == NULL) {
-		goto not_supported;
-	}
 
 	ti_val = proto_tree_add_string(tree, hf_mswsp_cbasestorvariant_vvalue, tvb, offset, 0, "");
 
@@ -4426,11 +4422,6 @@ static int parse_CBaseStorageVariant(tvbuff_t *tvb, int offset, proto_tree *pare
 	proto_item_append_text(ti_val, " %s", str_CBaseStorageVariant(value, FALSE));
 	proto_item_append_text(ti, " %s", str_CBaseStorageVariant(value, TRUE));
 
-	goto done;
-
-not_supported:
-	proto_item_append_text(ti, ": sorry, vType %02x not handled yet!", (unsigned)value->vType);
-done:
 	return offset;
 }
 
