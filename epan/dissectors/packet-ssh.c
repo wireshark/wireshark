@@ -139,7 +139,9 @@ static int hf_ssh_mpint_e= -1;
 static int hf_ssh_mpint_f= -1;
 static int hf_ssh_mpint_length= -1;
 static int hf_ssh_kexdh_host_key= -1;
-static int hf_ssh_kexdh_host_key_length= -1;
+static int hf_ssh_hostkey_length= -1;
+static int hf_ssh_hostkey_type= -1;
+static int hf_ssh_hostkey_data= -1;
 static int hf_ssh_kexdh_h_sig= -1;
 static int hf_ssh_kexdh_h_sig_length= -1;
 static int hf_ssh_kex_algorithms = -1;
@@ -167,6 +169,7 @@ static int hf_ssh_kex_reserved = -1;
 
 static gint ett_ssh = -1;
 static gint ett_key_exchange = -1;
+static gint ett_key_exchange_host_key = -1;
 static gint ett_key_init = -1;
 static gint ett_ssh1 = -1;
 static gint ett_ssh2 = -1;
@@ -616,6 +619,42 @@ ssh_tree_add_string(tvbuff_t *tvb, int offset, proto_tree *tree,
 }
 
 static int
+ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const char *tree_name,
+                     int ett_idx)
+{
+    proto_tree *tree = NULL;
+    int last_offset;
+    int remaining_len;
+    guint key_len, type_len;
+    guint8* key_type;
+    gchar *tree_title;
+
+    last_offset = offset;
+
+    key_len = tvb_get_ntohl(tvb, offset);
+    offset += 4;
+
+    /* Read the key type before creating the tree so we can append it as info. */
+    type_len = tvb_get_ntohl(tvb, offset);
+    offset += 4;
+    key_type = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, type_len, ENC_ASCII|ENC_NA);
+
+    tree_title = wmem_strdup_printf(wmem_packet_scope(), "%s (type: %s)", tree_name, key_type);
+    tree = proto_tree_add_subtree(parent_tree, tvb, last_offset, key_len, ett_idx, NULL,
+                                  tree_title);
+
+    proto_tree_add_uint(tree, hf_ssh_hostkey_length, tvb, last_offset, 4, key_len);
+    proto_tree_add_string(tree, hf_ssh_hostkey_type, tvb, offset, type_len, key_type);
+    offset += type_len;
+
+    remaining_len = key_len - (type_len + 4);
+    proto_tree_add_item(tree, hf_ssh_hostkey_data, tvb, offset, remaining_len, ENC_NA);
+    offset += remaining_len;
+
+    return 4+key_len;
+}
+
+static int
 ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_flow_data *global_data,
         int offset, proto_tree *tree, int is_response,
@@ -774,7 +813,7 @@ static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
         break;
 
     case SSH_MSG_KEXDH_REPLY:
-        offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kexdh_host_key, hf_ssh_kexdh_host_key_length);
+        offset += ssh_tree_add_hostkey(tvb, offset, tree, "KEX DH host key", ett_key_exchange_host_key);
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_mpint_f);
         offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kexdh_h_sig, hf_ssh_kexdh_h_sig_length);
         break;
@@ -808,7 +847,7 @@ static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
         break;
 
     case SSH_MSG_KEX_DH_GEX_REPLY:
-        offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kexdh_host_key, hf_ssh_kexdh_host_key_length);
+        offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kexdh_host_key, hf_ssh_hostkey_length);
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_mpint_f);
         offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kexdh_h_sig, hf_ssh_kexdh_h_sig_length);
         break;
@@ -1205,10 +1244,20 @@ proto_register_ssh(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "SSH KEX DH H signature", HFILL }},
 
-        { &hf_ssh_kexdh_host_key_length,
-          { "KEX DH host key length",         "ssh.kexdh.host_key_length",
+        { &hf_ssh_hostkey_length,
+          { "Host key length",         "ssh.host_key.length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
-            "SSH KEX DH host key length", HFILL }},
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_type,
+          { "Host key type",         "ssh.host_key.type",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_data,
+          { "Host key data",         "ssh.host_key.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
 
         { &hf_ssh_kexdh_h_sig_length,
           { "KEX DH H signature length",         "ssh.kexdh.h_sig_length",
@@ -1374,6 +1423,7 @@ proto_register_ssh(void)
     static gint *ett[] = {
         &ett_ssh,
         &ett_key_exchange,
+        &ett_key_exchange_host_key,
         &ett_ssh1,
         &ett_ssh2,
         &ett_key_init
