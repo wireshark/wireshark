@@ -496,7 +496,10 @@ void FollowStreamDialog::addText(QString text, gboolean is_from_server, guint32 
     {
         size_t nwritten;
         int FileDescriptor = file_.handle();
-        FILE* fh = ws_fdopen(ws_dup(FileDescriptor), "wb");
+        int fd_new = ws_dup(FileDescriptor);
+        if (fd_new == -1)
+            return;
+        FILE* fh = ws_fdopen(fd_new, "wb");
         if (show_type_ == SHOW_RAW) {
             QByteArray binstream = QByteArray::fromHex(text.toUtf8());
             nwritten = fwrite(binstream.constData(), binstream.length(), 1, fh);
