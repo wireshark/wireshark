@@ -47,7 +47,7 @@
 	<avp name="Address-Realm" code="301" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 		<type type-name="OctetString"/>
 	</avp>
-	<avp name="Logical-Access-Id" code="302" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+	<avp name="Logical-Access-ID" code="302" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 		<type type-name="OctetString"/>
 	</avp>
 	<avp name="Initial-Gate-Setting" code="303" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
@@ -132,8 +132,8 @@
 		<enum name="TERMINAL-TYPE" code="4"/>
 		<!-- The following values are reserved for future use and
 		     are out of scope in ETSI ES 283 035 V1.2.1 (2007-06). -->
-		<enum name="LOGICAL-ACCESS-ID" code="5"/>
-		<enum name="PHYSICAL-ACCESS-ID" code="6"/>
+		<enum name="Logical-Access-ID" code="5"/>
+		<enum name="Physical-Access-ID" code="6"/>
 		<enum name="ACCESS-NETWORK-TYPE" code="7"/>
 		<enum name="INITIAL-GATE-SETTING" code="8"/>
 		<enum name="QOS-PROFILE" code="9"/>
@@ -191,7 +191,7 @@
 			<gavp name="V4-Transport-Address"/>
 		</grouped>
 	</avp>
-	<avp name="V6-Transport-address" code="453" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+	<avp name="V6-Transport-Address" code="453" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 		<grouped>
 			<gavp name="Framed-IPv6-Prefix"/>
 			<gavp name="Port-Number"/>
@@ -227,6 +227,9 @@
 	</avp>
 	<avp name="ETSI-Service-Class" code="459" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Media-Authorization-Context-Id" code="462" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+		<type type-name="UTF8String" />
 	</avp>
 
 	<!--- ETSI TS 183 033 V1.2.0 (2007-10) -->

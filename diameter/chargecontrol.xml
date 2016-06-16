@@ -102,7 +102,7 @@
 			<gavp name="CC-Money"/>
 			<gavp name="CC-Total-Octets"/>
 			<gavp name="CC-Input-Octets"/>
-			<gavp name="CC-output-Octets"/>
+			<gavp name="CC-Output-Octets"/>
 			<gavp name="CC-Service-Specific-Units"/>
 		</grouped>
 	</avp>
@@ -138,11 +138,11 @@
 			<gavp name="CC-Money"/>
 			<gavp name="CC-Total-Octets"/>
 			<gavp name="CC-Input-Octets"/>
-			<gavp name="CC-output-Octets"/>
+			<gavp name="CC-Output-Octets"/>
 			<gavp name="CC-Service-Specific-Units"/>
 		</grouped>
 	</avp>
-	<avp name="Restricted-Filter-Rule" code="438" mandatory="must">
+	<avp name="Restriction-Filter-Rule" code="438" mandatory="must">
 		<type type-name="IPFilterRule"/>
 	</avp>
 	<avp name="Service-Identifier" code="439" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
@@ -183,7 +183,7 @@
 			<gavp name="CC-Money"/>
 			<gavp name="CC-Total-Octets"/>
 			<gavp name="CC-Input-Octets"/>
-			<gavp name="CC-output-Octets"/>
+			<gavp name="CC-Output-Octets"/>
 			<gavp name="CC-Service-Specific-Units"/>
 		</grouped>
 	</avp>

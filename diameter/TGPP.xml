@@ -25,7 +25,7 @@
 	<avp name="3GPP-CG-Address" code="4" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="IPAddress"/>
 	</avp>
-	<avp name="3GPP-GPRS-Negotiated-QoS-profile" code="5" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+	<avp name="3GPP-GPRS-Negotiated-QoS-Profile" code="5" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="UTF8String"/>
 	</avp>
 	<avp name="3GPP-SGSN-Address" code="6" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
@@ -740,7 +740,7 @@
 	</avp>
 	<avp name="Supported-Features" code="628" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 		<grouped>
-			<gavp name="Vendor-ID"/>
+			<gavp name="Vendor-Id"/>
 			<gavp name="Feature-List-ID"/>
 			<gavp name="Feature-List"/>
 		</grouped>
@@ -774,7 +774,7 @@
 		<grouped>
 			<gavp name="Digest-Realm"/>
 			<gavp name="Digest-Algorithm"/>
-			<gavp name="Digest-QoP"/>
+			<gavp name="Digest-Qop"/>
 			<gavp name="Digest-HA1"/>
 		</grouped>
 	</avp>
@@ -1164,9 +1164,9 @@
 			<gavp name="Packet-Filter-Operation"/>
 			<gavp name="QoS-Information"/>
 			<gavp name="Framed-IP-Address"/>
-			<gavp name="Framed-IPv6-Address"/>
+			<gavp name="Framed-IPv6-Prefix"/>
 			<gavp name="CoA-Information"/>
-			<gavp name="Called-Station-ID"/>
+			<gavp name="Called-Station-Id"/>
 			<gavp name="PDN-Connection-ID"/>
 			<gavp name="Bearer-Usage"/>
 			<gavp name="TFT-Packet-Filter-Information"/>

@@ -17,32 +17,32 @@
 
   <avp name="NSN-IN-Information" code="100" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
     <grouped>
-      <gavp name="NSN-Calling-Partys-Category"/>
-      <gavp name="NSN-High-Layer-Compatibility"/>
-      <gavp name="NSN-VLR-Number"/>
-      <gavp name="NSN-Answer-Time-Stamp"/>
-      <gavp name="NSN-Time-Zone"/>
-      <gavp name="NSN-Redirecting-Party-Id"/>
-      <gavp name="NSN-Generic-Service-Data"/>
-      <gavp name="NSN-Roaming-Indication"/>
-      <gavp name="NSN-IN-Bearer-Service"/>
-      <gavp name="NSN-NP-Information"/>
-      <gavp name="NSN-Connection-Type"/>
-      <gavp name="NSN-A-Party-Member-Type"/>
-      <gavp name="NSN-B-Party-Member-Type"/>
-      <gavp name="NSN-Access-Type"/>
-      <gavp name="NSN-AoC-Tariff"/>
-      <gavp name="NSN-Account-Information"/>
-      <gavp name="NSN-Subscriber-Status"/>
-      <gavp name="NSN-Message-Warning-Time"/>
-      <gavp name="NSN-Language-ID"/>
+      <!-- <gavp name="NSN-Calling-Partys-Category"/> -->
+      <!-- <gavp name="NSN-High-Layer-Compatibility"/> -->
+      <!-- <gavp name="NSN-VLR-Number"/> -->
+      <!-- <gavp name="NSN-Answer-Time-Stamp"/> -->
+      <!-- <gavp name="NSN-Time-Zone"/> -->
+      <!-- <gavp name="NSN-Redirecting-Party-Id"/> -->
+      <!-- <gavp name="NSN-Generic-Service-Data"/> -->
+      <!-- <gavp name="NSN-Roaming-Indication"/> -->
+      <!-- <gavp name="NSN-IN-Bearer-Service"/> -->
+      <!-- <gavp name="NSN-NP-Information"/> -->
+      <!-- <gavp name="NSN-Connection-Type"/> -->
+      <!-- <gavp name="NSN-A-Party-Member-Type"/> -->
+      <!-- <gavp name="NSN-B-Party-Member-Type"/> -->
+      <!-- <gavp name="NSN-Access-Type"/> -->
+      <!-- <gavp name="NSN-AoC-Tariff"/> -->
+      <!-- <gavp name="NSN-Account-Information"/> -->
+      <!-- <gavp name="NSN-Subscriber-Status"/> -->
+      <!-- <gavp name="NSN-Message-Warning-Time"/> -->
+      <!-- <gavp name="NSN-Language-ID"/> -->
       <gavp name="Currency-Code"/>
-      <gavp name="NSN-Customer-Group-ID"/>
-      <gavp name="NSN-GSM-Charge-Advice-Information"/>
-      <gavp name="NSN-Method-Name"/>
-      <gavp name="NSN-Reference-Number"/>
-      <gavp name="NSN-Inband-Announcement"/>
-      <gavp name="NSN-Outband-Information"/>
+      <!-- <gavp name="NSN-Customer-Group-ID"/> -->
+      <!-- <gavp name="NSN-GSM-Charge-Advice-Information"/> -->
+      <!-- <gavp name="NSN-Method-Name"/> -->
+      <!-- <gavp name="NSN-Reference-Number"/> -->
+      <!-- <gavp name="NSN-Inband-Announcement"/> -->
+      <!-- <gavp name="NSN-Outband-Information"/> -->
       <gavp name="NSN-Account-Location-Id"/>
     </grouped>
   </avp>

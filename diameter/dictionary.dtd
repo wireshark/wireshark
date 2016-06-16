@@ -48,7 +48,7 @@
 >
 <!ELEMENT avp ((type | grouped), (enum*))>
 <!ATTLIST avp
-	name IDREF #REQUIRED
+	name ID #REQUIRED
 	description CDATA #IMPLIED
 	code CDATA #REQUIRED
 	may-encrypt (yes | no) "yes"

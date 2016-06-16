@@ -75,7 +75,6 @@
 	</avp>
 	<avp name="MIP-HA-to-MN-MSA" code="332" mandatory="must" protected="may" vendor-bit="mustnot" may-encrypt="yes">
 		<grouped>
-			<gavp name="MIP-HA-to-MN-SPI"/>
 			<gavp name="MIP-Algorithm-Type"/>
 			<gavp name="MIP-Replay-Mode"/>
 			<gavp name="MIP-Session-Key"/>

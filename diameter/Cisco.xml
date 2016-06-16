@@ -122,7 +122,7 @@
 
 	<avp name="Billing-Plan-Definition" code="131079" vendor-id="Cisco" mandatory="must" may-encrypt="yes" protected="mustnot" vendor-bit="must">
 		<grouped>
-			<gavp name="Billing-plan-Name"/>
+			<gavp name="Billing-Plan-Name"/>
 			<gavp name="Online"/>
 			<gavp name="Offline"/>
 			<gavp name="Virtual-Online"/>
@@ -187,7 +187,7 @@
 		<type type-name="OctetString"/>
 
 	</avp>
-		<avp name="Biling-Policy-Name" code="131088" vendor-id="Cisco" mandatory="mustnot" may-encrypt="yes" protected="mustnot" vendor-bit="must">
+		<avp name="Billing-Policy-Name" code="131088" vendor-id="Cisco" mandatory="mustnot" may-encrypt="yes" protected="mustnot" vendor-bit="must">
 		<type type-name="OctetString"/>
 	</avp>
 		<avp name="Policy-Map-Name" code="131089" vendor-id="Cisco" mandatory="mustnot" may-encrypt="yes" protected="mustnot" vendor-bit="must">
@@ -293,7 +293,7 @@
 
 	</avp>
 
-	<avp name="Refund-policy" code="131109" vendor-id="Cisco" mandatory="mustnot" may-encrypt="yes" protected="mustnot" vendor-bit="must">
+	<avp name="Refund-Policy" code="131109" vendor-id="Cisco" mandatory="mustnot" may-encrypt="yes" protected="mustnot" vendor-bit="must">
 		<type type-name="OctetString"/>
 
 	</avp>
@@ -1098,7 +1098,7 @@
 		<grouped>
 			<gavp name="Service-Group-Name"/>
 			<gavp name="Cisco-Event-Trigger"/>
-			<gavp name="Cisco-QoS"/>
+			<!-- <gavp name="Cisco-QoS"/> -->
 			<gavp name="Cisco-Flow-Status"/>
 			<gavp name="Redirect-Server"/>
 		</grouped>

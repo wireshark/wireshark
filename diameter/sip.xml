@@ -78,7 +78,7 @@
 			<gavp name="Digest-Opaque"/>
 			<gavp name="Digest-Stale"/>
 			<gavp name="Digest-Algorithm"/>
-			<gavp name="Digest-QoP"/>
+			<gavp name="Digest-Qop"/>
 			<gavp name="Digest-HA1"/>
 			<gavp name="Digest-Auth-Param"/>
 		</grouped>
@@ -93,7 +93,7 @@
 			<gavp name="Digest-Algorithm"/>
 			<gavp name="Digest-CNonce"/>
 			<gavp name="Digest-Opaque"/>
-			<gavp name="Digest-QoP"/>
+			<gavp name="Digest-Qop"/>
 			<gavp name="Digest-Nonce-Count"/>
 			<gavp name="Digest-Method"/>
 			<gavp name="Digest-Entity-Body-Hash"/>
@@ -103,7 +103,7 @@
 	<avp name="SIP-Authentication-Info" code="381" mandatory="may" may-encrypt="no" protected="may" vendor-bit="mustnot">
 		<grouped>
 			<gavp name="Digest-Nextnonce"/>
-			<gavp name="Digest-QoP"/>
+			<gavp name="Digest-Qop"/>
 			<gavp name="Digest-Response-Auth"/>
 			<gavp name="Digest-CNonce"/>
 			<gavp name="Digest-Nonce-Count"/>
