@@ -142,6 +142,8 @@ static int hf_ssh_kexdh_host_key= -1;
 static int hf_ssh_hostkey_length= -1;
 static int hf_ssh_hostkey_type= -1;
 static int hf_ssh_hostkey_data= -1;
+static int hf_ssh_hostkey_rsa_n= -1;
+static int hf_ssh_hostkey_rsa_e= -1;
 static int hf_ssh_kexdh_h_sig= -1;
 static int hf_ssh_kexdh_h_sig_length= -1;
 static int hf_ssh_kex_algorithms = -1;
@@ -647,9 +649,14 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const c
     proto_tree_add_string(tree, hf_ssh_hostkey_type, tvb, offset, type_len, key_type);
     offset += type_len;
 
-    remaining_len = key_len - (type_len + 4);
-    proto_tree_add_item(tree, hf_ssh_hostkey_data, tvb, offset, remaining_len, ENC_NA);
-    offset += remaining_len;
+    if (0 == strcmp(key_type, "ssh-rsa")) {
+        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_rsa_e);
+        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_rsa_n);
+    } else {
+        remaining_len = key_len - (type_len + 4);
+        proto_tree_add_item(tree, hf_ssh_hostkey_data, tvb, offset, remaining_len, ENC_NA);
+        offset += remaining_len;
+    }
 
     return 4+key_len;
 }
@@ -1256,6 +1263,16 @@ proto_register_ssh(void)
 
         { &hf_ssh_hostkey_data,
           { "Host key data",         "ssh.host_key.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_rsa_n,
+          { "RSA modulus (N)",         "ssh.host_key.rsa.n",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_rsa_e,
+          { "RSA public exponent (e)",         "ssh.host_key.rsa.e",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
