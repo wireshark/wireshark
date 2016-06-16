@@ -126,7 +126,8 @@ CPackSourceConfig.cmake
 lib/
 WiresharkConfig.cmake
 WiresharkConfigVersion.cmake
-epan/_regc.tmp
+epan/dissectors/_regc.tmp
+epan/dissectors/files.txt
 wireshark.pc
 run/
 tshark-tap-register-cache.pkl
@@ -134,7 +135,7 @@ build.ninja
 rules.ninja
 .ninja_deps
 .ninja_log
-asn1/*/*-stamp
+epan/dissectors/asn1/*/*-stamp
 
 
 # Generated dir #
