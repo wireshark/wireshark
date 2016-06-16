@@ -383,6 +383,7 @@ int main(int argc, char *argv[])
     g_log(NULL, G_LOG_LEVEL_DEBUG, "progfile_dir: %s", get_progfile_dir());
 
 #ifdef _WIN32
+    ws_init_dll_search_path();
     /* Load wpcap if possible. Do this before collecting the run-time version information */
     load_wpcap();
 

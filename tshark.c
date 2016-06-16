@@ -649,6 +649,7 @@ main(int argc, char *argv[])
   initialize_funnel_ops();
 
 #ifdef _WIN32
+  ws_init_dll_search_path();
   /* Load wpcap if possible. Do this before collecting the run-time version information */
   load_wpcap();
 

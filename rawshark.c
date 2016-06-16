@@ -574,6 +574,7 @@ main(int argc, char *argv[])
     }
 
 #ifdef _WIN32
+    ws_init_dll_search_path();
     /* Load Wpcap, if possible */
     load_wpcap();
 #endif

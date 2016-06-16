@@ -514,6 +514,8 @@ ws_init_dll_search_path()
 {
       gboolean dll_dir_set = FALSE;
       wchar_t *program_path_w;
+      wchar_t npcap_path_w[MAX_PATH];
+      unsigned int retval;
 
       typedef BOOL (WINAPI *SetDllDirectoryHandler)(LPCTSTR);
       SetDllDirectoryHandler PSetDllDirectory;
@@ -521,6 +523,13 @@ ws_init_dll_search_path()
       PSetDllDirectory = (SetDllDirectoryHandler) GetProcAddress(GetModuleHandle(_T("kernel32.dll")), "SetDllDirectoryW");
       if (PSetDllDirectory) {
             dll_dir_set = PSetDllDirectory(_T(""));
+            if (dll_dir_set) {
+                  retval = GetSystemDirectoryW(npcap_path_w, MAX_PATH);
+                  if (0 < retval && retval <= MAX_PATH) {
+                        wcscat_s(npcap_path_w, MAX_PATH, L"\\Npcap");
+                        dll_dir_set = PSetDllDirectory(npcap_path_w);
+                  }
+            }
       }
 
       if (!dll_dir_set && init_dll_load_paths()) {
