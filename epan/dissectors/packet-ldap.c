@@ -2606,6 +2606,7 @@ static const value_string ldap_T_operation_vals[] = {
   {   0, "add" },
   {   1, "delete" },
   {   2, "replace" },
+  {   3, "increment" },
   { 0, NULL }
 };
 

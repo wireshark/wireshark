@@ -278,7 +278,7 @@ ModifyRequest ::= [APPLICATION 6]  SEQUENCE {
   object        LDAPDN,
   modification
     SEQUENCE OF
-      SEQUENCE {operation     ENUMERATED {add(0), delete(1), replace(2)},
+      SEQUENCE {operation     ENUMERATED {add(0), delete(1), replace(2), increment(3)},
                 modification  AttributeTypeAndValues}
 }
 

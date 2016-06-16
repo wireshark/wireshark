@@ -78,6 +78,7 @@
 #define LDAP_MOD_ADD            0
 #define LDAP_MOD_DELETE         1
 #define LDAP_MOD_REPLACE        2
+#define LDAP_MOD_INCREMENT      3
 
 #define LDAP_SASL_MAX_BUF	1024*1024
 
