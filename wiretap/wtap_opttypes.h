@@ -347,7 +347,7 @@ wtap_optionblock_get_option_custom(wtap_optionblock_t block, guint option_id, vo
  * @param[in] dest_block Block to be copied to
  * @param[in] src_block Block to be copied from
  */
-void wtap_optionblock_copy_options(wtap_optionblock_t dest_block, wtap_optionblock_t src_block);
+WS_DLL_PUBLIC void wtap_optionblock_copy_options(wtap_optionblock_t dest_block, wtap_optionblock_t src_block);
 
 
 typedef void (*wtap_optionblock_foreach_func)(wtap_optionblock_t block, guint option_id, wtap_opttype_e option_type, wtap_option_type* option, void* user_data);
