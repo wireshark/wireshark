@@ -305,8 +305,8 @@ register_hf_rename(const char *old_name, const char *new_name)
 	new_item->next=hf_rename_list;
 	hf_rename_list=new_item;
 	new_item->refcount=0;
-	new_item->old_name=g_strndup(old_name, strlen(old_name));
-	new_item->new_name=g_strndup(new_name, strlen(new_name));
+	new_item->old_name=g_strdup(old_name);
+	new_item->new_name=g_strdup(new_name);
 }
 
 /* this function checks that all hf_rename fields have actually been referenced
@@ -376,8 +376,8 @@ register_hf_field(const char *hf_name, const char *title, const char *filter_nam
 	}
 	hfi->next=hf_field_list;
 	hf_field_list=hfi;
-	hfi->name=g_strndup(hf_name, strlen(hf_name));
-	hfi->ft_type=g_strndup(ft_type, strlen(ft_type));
+	hfi->name=g_strdup(hf_name);
+	hfi->ft_type=g_strdup(ft_type);
 
 	FPRINTF(eth_hf, "static int %s = -1;\n", hf_name);
 	FPRINTF(eth_hfarr, "		{ &%s,\n", hf_name);
@@ -437,7 +437,7 @@ rename_tokens(const char *old_name, const char *new_name)
 
 	for(ti=token_list;ti;ti=ti->next){
 		if(!g_strcmp0(ti->str, old_name)){
-			ti->str=g_strndup(new_name, strlen(new_name));
+			ti->str=g_strdup(new_name);
 		}
 	}
 }
@@ -785,8 +785,8 @@ register_new_type(const char *name, const char *dissectorname, const char *ft_ty
 	new_type->next=type_list;
 	new_type->name=g_strdup(name);
 	new_type->dissector=g_strdup(dissectorname);
-	new_type->ft_type=g_strndup(ft_type, strlen(ft_type));
-	new_type->base_type=g_strndup(base_type, strlen(base_type));
+	new_type->ft_type=g_strdup(ft_type);
+	new_type->base_type=g_strdup(base_type);
 	new_type->mask=g_strdup(mask);
 	new_type->vals=g_strdup(valsstring);
 	new_type->alignment=alignment;
@@ -1851,7 +1851,7 @@ static void parsetypedefstruct(int pass)
 				ptmpstr=g_strdup(tmpstr);
 			} else if(fixed_array_size){
 				g_snprintf(tmpstr, BASE_BUFFER_SIZE, "fixedarray_%s", ptmpstr);
-				ptmpstr=g_strndup(tmpstr,  strlen(tmpstr));
+				ptmpstr=g_strdup(tmpstr);
 			}
 
 			/* handle switch_is */
@@ -2449,7 +2449,7 @@ static void parsetypedefunion(int pass)
 		if(pass==1){
 			/* handle pointers */
 			g_snprintf(tmpstr, BASE_BUFFER_SIZE, "%s_dissect_union_%s_%s_%s", ifname, union_name, case2str(bi->case_name), ti->str);
-			ptmpstr=g_strndup(tmpstr, 26);
+			ptmpstr=g_strdup(tmpstr);
 			while(num_pointers--){
 				g_snprintf(tmpstr, BASE_BUFFER_SIZE, "%s_%s", ptmpstr, "unique");
 				ptmpstr=g_strdup(tmpstr);
@@ -3015,7 +3015,7 @@ static void preparetrimprefix(char *prefix_name)
 	}
 	new_prefix->next=prefixes_to_trim;
 	prefixes_to_trim=new_prefix;
-	new_prefix->name=g_strndup(prefix_name, strlen(prefix_name));
+	new_prefix->name=g_strdup(prefix_name);
 }
 
 static void
@@ -3214,7 +3214,7 @@ readcnffile(FILE *fh)
 			}
 			utsi->next=union_tag_size_list;
 			union_tag_size_list=utsi;
-			utsi->name=g_strndup(union_name, strlen(union_name));
+			utsi->name=g_strdup(union_name);
 			utsi->size=union_tag_size;
 		} else if(!strncmp(cnfline, "STRIP_PREFIX", 12)){
 			char *prefix_name;
