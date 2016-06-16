@@ -33,8 +33,14 @@
 #include "ui/gtk/gtkglobals.h"
 
 void macros_post_update(void) {
-	g_free (cfile.dfilter);
-	cfile.dfilter = NULL;
+	dfilter_t *dfp;
+	/* invalidate filter if it stops being valid */
+	if (!dfilter_compile(cfile.dfilter, &dfp, NULL)) {
+		g_free(cfile.dfilter);
+		cfile.dfilter = NULL;
+	} else if (dfp) {
+		g_free(dfp);
+	}
 	g_signal_emit_by_name(main_display_filter_widget, "changed");
 }
 
