@@ -143,7 +143,7 @@ static const int *sdo_cmd_fields_ccs6[] = {
   NULL
 };
 
-static const int **sdo_cmd_fields_ccs[] = {
+static const int **_sdo_cmd_fields_ccs[] = {
   sdo_cmd_fields_ccs0,
   sdo_cmd_fields_ccs1,
   sdo_cmd_fields_ccs2,
@@ -152,6 +152,14 @@ static const int **sdo_cmd_fields_ccs[] = {
   sdo_cmd_fields_ccs5,
   sdo_cmd_fields_ccs6
 };
+
+static inline const int **
+sdo_cmd_fields_ccs(guint cs)
+{
+    if (cs < array_length(_sdo_cmd_fields_ccs))
+        return _sdo_cmd_fields_ccs[cs];
+    return NULL;
+}
 
 
 /* (scs=0) decode mask */
@@ -200,7 +208,7 @@ static const int *sdo_cmd_fields_scs6[] = {
 };
 
 
-static const int **sdo_cmd_fields_scs[] = {
+static const int **_sdo_cmd_fields_scs[] = {
   sdo_cmd_fields_scs0,
   sdo_cmd_fields_scs1,
   sdo_cmd_fields_scs2,
@@ -209,6 +217,14 @@ static const int **sdo_cmd_fields_scs[] = {
   sdo_cmd_fields_scs5,
   sdo_cmd_fields_scs6
 };
+
+static inline const int **
+sdo_cmd_fields_scs(guint cs)
+{
+    if (cs < array_length(_sdo_cmd_fields_scs))
+        return _sdo_cmd_fields_scs[cs];
+    return NULL;
+}
 
 /* Initialize the subtree pointers */
 static gint ett_canopen = -1;
@@ -605,6 +621,7 @@ dissect_sdo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, gu
     int offset = 0;
     guint8 sdo_mux = 0, sdo_data = 0;
     guint8 sdo_cs = 0;
+    const gint **sdo_cmd_fields;
 
     /* get SDO command specifier */
     sdo_cs = tvb_get_bits8(tvb, 0, 3);
@@ -614,8 +631,14 @@ dissect_sdo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, gu
                 ": %s", val_to_str(sdo_cs, sdo_ccs,
                     "Unknown (0x%x)"));
 
+        sdo_cmd_fields = sdo_cmd_fields_ccs(sdo_cs);
+        if (sdo_cmd_fields == NULL) {
+            proto_tree_add_item(canopen_type_tree, hf_canopen_sdo_cmd, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+            /* XXX Add expert info */
+            return;
+        }
         proto_tree_add_bitmask(canopen_type_tree, tvb, offset,
-                hf_canopen_sdo_cmd, ett_canopen_sdo_cmd, sdo_cmd_fields_ccs[sdo_cs], ENC_LITTLE_ENDIAN);
+                hf_canopen_sdo_cmd, ett_canopen_sdo_cmd, sdo_cmd_fields, ENC_LITTLE_ENDIAN);
         offset++;
 
         switch (sdo_cs) {
@@ -649,8 +672,14 @@ dissect_sdo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, gu
                 ": %s", val_to_str(sdo_cs, sdo_scs,
                     "Unknown (0x%x)"));
 
+        sdo_cmd_fields = sdo_cmd_fields_scs(sdo_cs);
+        if (sdo_cmd_fields == NULL) {
+            proto_tree_add_item(canopen_type_tree, hf_canopen_sdo_cmd, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+            /* XXX Add expert info */
+            return;
+        }
         proto_tree_add_bitmask(canopen_type_tree, tvb, offset,
-                hf_canopen_sdo_cmd, ett_canopen_sdo_cmd, sdo_cmd_fields_scs[sdo_cs], ENC_LITTLE_ENDIAN);
+                hf_canopen_sdo_cmd, ett_canopen_sdo_cmd, sdo_cmd_fields, ENC_LITTLE_ENDIAN);
         offset++;
 
         switch (sdo_cs) {
