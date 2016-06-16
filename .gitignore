@@ -136,6 +136,7 @@ rules.ninja
 .ninja_deps
 .ninja_log
 epan/dissectors/asn1/*/*-stamp
+epan/dissectors/pidl/*-stamp
 
 
 # Generated dir #

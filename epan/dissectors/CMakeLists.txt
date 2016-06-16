@@ -23,15 +23,12 @@ ADD_CUSTOM_CMAKE_INCLUDE()
 
 add_subdirectory(asn1 EXCLUDE_FROM_ALL)
 add_subdirectory(dcerpc)
+add_subdirectory(pidl EXCLUDE_FROM_ALL)
 
 include_directories(
 	${CMAKE_CURRENT_BINARY_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
-
-if(AUTOGEN_pidl)
-	# TODO
-endif()
 
 if(AUTOGEN_dcerpc)
 	foreach(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
@@ -97,32 +94,6 @@ add_custom_target(x11-dissector
 )
 
 set_target_properties(x11-dissector PROPERTIES FOLDER "Generated Dissectors/X11")
-
-# Note that some dissectors are added in dcerpc/CMakeLists.txt
-set(PIDL_DISSECTOR_SRC
-	packet-dcerpc-atsvc.c
-#	packet-dcerpc-budb.c
-#	packet-dcerpc-butc.c
-	packet-dcerpc-dfs.c
-	packet-dcerpc-dnsserver.c
-#	packet-dcerpc-drsuapi.c
-	packet-dcerpc-dssetup.c
-	packet-dcerpc-efs.c
-	packet-dcerpc-eventlog.c
-	packet-dcerpc-frstrans.c
-	packet-dcerpc-initshutdown.c
-	packet-dcerpc-lsa.c
-	packet-dcerpc-mapi.c
-	packet-dcerpc-mdssvc.c
-	packet-dcerpc-misc.c
-	packet-dcerpc-nspi.c
-	packet-dcerpc-rfr.c
-	packet-dcerpc-srvsvc.c
-	packet-dcerpc-winreg.c
-	packet-dcerpc-witness.c
-	packet-dcerpc-wkssvc.c
-	packet-dcerpc-wzcsvc.c
-)
 
 set(ASN1_DISSECTOR_SRC
 	packet-ansi_map.c
