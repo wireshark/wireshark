@@ -85,6 +85,9 @@ static int hf_http_citrix_session = -1;
 static int hf_http_request_method = -1;
 static int hf_http_request_uri = -1;
 static int hf_http_request_full_uri = -1;
+static int hf_http_request_path = -1;
+static int hf_http_request_query = -1;
+static int hf_http_request_query_parameter = -1;
 static int hf_http_version = -1;
 static int hf_http_response_code = -1;
 static int hf_http_response_phrase = -1;
@@ -138,6 +141,8 @@ static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
 static gint ett_http_kerberos = -1;
 static gint ett_http_request = -1;
+static gint ett_http_request_path = -1;
+static gint ett_http_request_query = -1;
 static gint ett_http_chunked_response = -1;
 static gint ett_http_chunk_data = -1;
 static gint ett_http_encoded_entity = -1;
@@ -1631,7 +1636,10 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 {
 	const guchar *next_token;
 	const gchar *request_uri;
-	int tokenlen;
+	gchar *query_str, *parameter_str, *path_str;
+	int tokenlen, query_offset, path_len;
+	proto_item *ti, *tj;
+	proto_tree *query_tree, *path_tree;
 
 	/* The first token is the method. */
 	tokenlen = get_token_len(line, lineend, &next_token);
@@ -1654,8 +1662,23 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	stat_info->request_uri = wmem_strdup(wmem_packet_scope(), request_uri);
 	conv_data->request_uri = wmem_strdup(wmem_file_scope(), request_uri);
 
-	proto_tree_add_string(tree, hf_http_request_uri, tvb, offset, tokenlen,
-			      request_uri);
+	tj = proto_tree_add_string(tree, hf_http_request_uri, tvb, offset, tokenlen, request_uri);
+	if (( query_str = strchr(request_uri, '?')) != NULL) {
+		if (strlen(query_str) > 1) {
+			query_str++;
+			path_len = strlen(request_uri) - strlen(query_str);
+			query_offset = offset + path_len;
+			path_tree = proto_item_add_subtree(tj, ett_http_request_path);
+			path_str = wmem_strndup(wmem_packet_scope(), request_uri, path_len-1);
+			proto_tree_add_string(path_tree, hf_http_request_path, tvb, offset, path_len-1, path_str);
+			ti = proto_tree_add_string(path_tree, hf_http_request_query, tvb, query_offset,strlen(query_str), query_str);
+			query_tree = proto_item_add_subtree(ti, ett_http_request_query);
+			for ( parameter_str = strtok(query_str, "&"); parameter_str; parameter_str = strtok(NULL, "&") ) {
+				proto_tree_add_string(query_tree, hf_http_request_query_parameter, tvb, query_offset, strlen(parameter_str), parameter_str);
+				query_offset += (int) strlen(parameter_str) + 1;
+			}
+		}
+	}
 	offset += (int) (next_token - line);
 	line = next_token;
 
@@ -3311,6 +3334,18 @@ proto_register_http(void)
 	      { "Request URI",	"http.request.uri",
 		FT_STRING, STR_UNICODE, NULL, 0x0,
 		"HTTP Request-URI", HFILL }},
+	    { &hf_http_request_path,
+	      { "Request URI Path",	"http.request.uri.path",
+		FT_STRING, STR_UNICODE, NULL, 0x0,
+		"HTTP Request-URI Path", HFILL }},
+	    { &hf_http_request_query,
+	      { "Request URI Query",	"http.request.uri.query",
+		FT_STRING, STR_UNICODE, NULL, 0x0,
+		"HTTP Request-URI Query", HFILL }},
+	    { &hf_http_request_query_parameter,
+	      { "Request URI Query Parameter",	"http.request.uri.query.parameter",
+		FT_STRING, STR_UNICODE, NULL, 0x0,
+		"HTTP Request-URI Query Parameter", HFILL }},
 	    { &hf_http_version,
 	      { "Request Version",	"http.request.version",
 		FT_STRING, BASE_NONE, NULL, 0x0,
@@ -3513,6 +3548,8 @@ proto_register_http(void)
 		&ett_http_ntlmssp,
 		&ett_http_kerberos,
 		&ett_http_request,
+		&ett_http_request_path,
+		&ett_http_request_query,
 		&ett_http_chunked_response,
 		&ett_http_chunk_data,
 		&ett_http_encoded_entity,
