@@ -1111,6 +1111,7 @@ void PacketList::setCaptureFile(capture_file *cf)
     }
     packet_list_model_->setCaptureFile(cf);
     create_near_overlay_ = true;
+    sortByColumn(-1, Qt::AscendingOrder);
 }
 
 void PacketList::setMonospaceFont(const QFont &mono_font)
