@@ -140,7 +140,8 @@ dissect_basic_paramset(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
   guint16 basic_param_set_len;
   guint16 cak_len;
 
-  ti = proto_tree_add_item(mka_tree, hf_mka_basic_param_set, tvb, offset, 0, ENC_NA);
+  basic_param_set_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
+  ti = proto_tree_add_item(mka_tree, hf_mka_basic_param_set, tvb, offset, basic_param_set_len + 4, ENC_NA);
   basic_param_set_tree = proto_item_add_subtree(ti, ett_mka_basic_param_set);
 
   proto_tree_add_item(basic_param_set_tree, hf_mka_version_id,
@@ -158,7 +159,6 @@ dissect_basic_paramset(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
   proto_tree_add_item(basic_param_set_tree, hf_mka_macsec_capability,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
 
-  basic_param_set_len = (tvb_get_ntohs(tvb, offset)) & 0x0fff;
   proto_tree_add_uint(basic_param_set_tree, hf_mka_param_body_length,
                       tvb, offset, 2, basic_param_set_len);
   offset += 2;
@@ -202,14 +202,14 @@ dissect_peer_list(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
     hf_peer = hf_mka_potential_peer_list_set;
   }
 
-  ti = proto_tree_add_item(mka_tree, hf_peer, tvb, offset, 0, ENC_NA);
+  peer_list_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
+  ti = proto_tree_add_item(mka_tree, hf_peer, tvb, offset, peer_list_len + 4, ENC_NA);
   peer_list_set_tree = proto_item_add_subtree(ti, ett_mka_peer_list_set);
 
   proto_tree_add_item(peer_list_set_tree, hf_mka_param_set_type,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 2;
 
-  peer_list_len = (tvb_get_ntohs(tvb, offset)) & 0x0fff;
   proto_tree_add_uint(peer_list_set_tree, hf_mka_param_body_length,
                       tvb, offset, 2, peer_list_len);
   offset += 2;
@@ -237,7 +237,8 @@ dissect_sak_use(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
   proto_tree *ti;
   guint16 sak_use_len;
 
-  ti = proto_tree_add_item(mka_tree, hf_mka_macsec_sak_use_set, tvb, offset, 0, ENC_NA);
+  sak_use_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
+  ti = proto_tree_add_item(mka_tree, hf_mka_macsec_sak_use_set, tvb, offset, sak_use_len + 4, ENC_NA);
   sak_use_set_tree = proto_item_add_subtree(ti, ett_mka_sak_use_set);
 
   proto_tree_add_item(sak_use_set_tree, hf_mka_param_set_type,
@@ -269,7 +270,6 @@ dissect_sak_use(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
   proto_tree_add_item(sak_use_set_tree, hf_mka_delay_protect,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
 
-  sak_use_len = (tvb_get_ntohs(tvb, offset)) & 0x0fff;
   proto_tree_add_uint(sak_use_set_tree, hf_mka_param_body_length,
                       tvb, offset, 2, sak_use_len);
 
@@ -311,19 +311,20 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
   proto_tree *distributed_sak_tree;
   proto_tree *ti;
 
-  ti = proto_tree_add_item(mka_tree, hf_mka_distributed_sak_set, tvb, offset, 0, ENC_NA);
+  distributed_sak_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
+  ti = proto_tree_add_item(mka_tree, hf_mka_distributed_sak_set, tvb, offset, distributed_sak_len + 4, ENC_NA);
   distributed_sak_tree = proto_item_add_subtree(ti, ett_mka_distributed_sak_set);
 
   proto_tree_add_item(distributed_sak_tree, hf_mka_param_set_type,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
 
   proto_tree_add_item(distributed_sak_tree, hf_mka_distributed_an,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(distributed_sak_tree, hf_mka_confidentiality_offset,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
-  offset += 2;
+  offset += 1;
 
-  distributed_sak_len = (tvb_get_ntohs(tvb, offset)) & 0x0fff;
   proto_tree_add_uint(distributed_sak_tree, hf_mka_param_body_length,
                       tvb, offset, 2, distributed_sak_len);
   offset += 2;
@@ -384,14 +385,14 @@ dissect_distributed_cak(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
   proto_tree *ti;
   guint16 cak_len;
 
-  ti = proto_tree_add_item(mka_tree, hf_mka_distributed_cak_set, tvb, offset, 0, ENC_NA);
+  distributed_cak_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
+  ti = proto_tree_add_item(mka_tree, hf_mka_distributed_cak_set, tvb, offset, distributed_cak_len + 4, ENC_NA);
   distributed_cak_tree = proto_item_add_subtree(ti, ett_mka_distributed_cak_set);
 
   proto_tree_add_item(distributed_cak_tree, hf_mka_param_set_type,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 2;
 
-  distributed_cak_len = (tvb_get_ntohs(tvb, offset)) & 0x0fff;
   proto_tree_add_uint(distributed_cak_tree, hf_mka_param_body_length,
                       tvb, offset, 2, distributed_cak_len);
   offset += 2;
@@ -416,14 +417,14 @@ dissect_kmd(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
   proto_tree *kmd_set_tree;
   proto_tree *ti;
 
-  ti = proto_tree_add_item(mka_tree, hf_mka_kmd_set, tvb, offset, 0, ENC_NA);
+  kmd_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
+  ti = proto_tree_add_item(mka_tree, hf_mka_kmd_set, tvb, offset, kmd_len + 4, ENC_NA);
   kmd_set_tree = proto_item_add_subtree(ti, ett_mka_kmd_set);
 
   proto_tree_add_item(kmd_set_tree, hf_mka_param_set_type,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 2;
 
-  kmd_len = (tvb_get_ntohs(tvb, offset)) & 0x0fff;
   proto_tree_add_uint(kmd_set_tree, hf_mka_param_body_length,
                       tvb, offset, 2, kmd_len);
   offset += 2;
@@ -443,14 +444,14 @@ dissect_icv(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
   proto_tree *icv_set_tree;
   proto_tree *ti;
 
-  ti = proto_tree_add_item(mka_tree, hf_mka_icv_set, tvb, offset, 0, ENC_NA);
+  icv_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
+  ti = proto_tree_add_item(mka_tree, hf_mka_icv_set, tvb, offset, icv_len + 4, ENC_NA);
   icv_set_tree = proto_item_add_subtree(ti, ett_mka_icv_set);
 
   proto_tree_add_item(icv_set_tree, hf_mka_param_set_type,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 2;
 
-  icv_len = (tvb_get_ntohs(tvb, offset)) & 0x0fff;
   proto_tree_add_uint(icv_set_tree, hf_mka_param_body_length,
                       tvb, offset, 2, icv_len);
   offset += 2;
