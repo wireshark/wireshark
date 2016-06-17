@@ -397,28 +397,78 @@ void
 dissect_zbee_zdp_req_mgmt_nwkupdate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint   offset = 0;
-    /*guint32 channels;*/
     guint8  duration;
-    /*guint8  count;*/
-    /*guint8  update_id;*/
-    /*guint16 manager;*/
 
-    /*channels =*/ zdp_parse_chanmask(tree, tvb, &offset, hf_zbee_zdp_channel_mask);
+    zdp_parse_chanmask(tree, tvb, &offset, hf_zbee_zdp_channel_page, hf_zbee_zdp_channel_mask);
     duration = zbee_parse_uint(tree, hf_zbee_zdp_duration, tvb, &offset, 1, NULL);
     if (duration == ZBEE_ZDP_NWKUPDATE_PARAMETERS) {
-        /*update_id =*/ zbee_parse_uint(tree, hf_zbee_zdp_update_id, tvb, &offset, 1, NULL);
-        /*manager =*/ zbee_parse_uint(tree, hf_zbee_zdp_manager, tvb, &offset, 2, NULL);
+        zbee_parse_uint(tree, hf_zbee_zdp_update_id, tvb, &offset, 1, NULL);
+        zbee_parse_uint(tree, hf_zbee_zdp_manager, tvb, &offset, 2, NULL);
     }
     else if (duration == ZBEE_ZDP_NWKUPDATE_CHANNEL_HOP) {
-        /*update_id =*/ zbee_parse_uint(tree, hf_zbee_zdp_update_id, tvb, &offset, 1, NULL);
+        zbee_parse_uint(tree, hf_zbee_zdp_update_id, tvb, &offset, 1, NULL);
     }
     else if (duration <= ZBEE_ZDP_NWKUPDATE_SCAN_MAX) {
-        /*count =*/ zbee_parse_uint(tree, hf_zbee_zdp_scan_count, tvb, &offset, 1, NULL);
+        zbee_parse_uint(tree, hf_zbee_zdp_scan_count, tvb, &offset, 1, NULL);
     }
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_req_mgmt_nwkupdate */
+
+/**
+ *ZigBee Device Profile dissector for the enhanced nwk update request.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+void
+dissect_zbee_zdp_req_mgmt_nwkupdate_enh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint   offset = 0;
+    guint8  duration;
+    guint8  count;
+    int i;
+
+    count = zbee_parse_uint(tree, hf_zbee_zdp_channel_page_count, tvb, &offset, 1, NULL);
+    for (i=0; i<count; i++) {
+        zdp_parse_chanmask(tree, tvb, &offset, hf_zbee_zdp_channel_page, hf_zbee_zdp_channel_mask);
+    }
+
+    duration = zbee_parse_uint(tree, hf_zbee_zdp_duration, tvb, &offset, 1, NULL);
+    if (duration == ZBEE_ZDP_NWKUPDATE_PARAMETERS) {
+        zbee_parse_uint(tree, hf_zbee_zdp_update_id, tvb, &offset, 1, NULL);
+        zbee_parse_uint(tree, hf_zbee_zdp_manager, tvb, &offset, 2, NULL);
+    }
+    else if (duration == ZBEE_ZDP_NWKUPDATE_CHANNEL_HOP) {
+        zbee_parse_uint(tree, hf_zbee_zdp_update_id, tvb, &offset, 1, NULL);
+    }
+    else if (duration <= ZBEE_ZDP_NWKUPDATE_SCAN_MAX) {
+        zbee_parse_uint(tree, hf_zbee_zdp_scan_count, tvb, &offset, 1, NULL);
+    }
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_req_mgmt_nwkupdate_enh */
+
+/**
+ *ZigBee Device Profile dissector for the IEEE Joining List Request.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+void
+dissect_zbee_zdp_req_mgmt_ieee_join_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint offset = 0;
+
+    zbee_parse_uint(tree, hf_zbee_zdp_ieee_join_start_index, tvb, &offset, 1, NULL);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_req_mgmt_ieee_join_list */
 
 /**************************************
  * MANAGEMENT RESPONSES
@@ -703,7 +753,7 @@ dissect_zbee_zdp_rsp_mgmt_nwkupdate(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     guint8      channel_count;
 
     /*status      =*/ zdp_parse_status(tree, tvb, &offset);
-    channels    = zdp_parse_chanmask(tree, tvb, &offset, hf_zbee_zdp_channel_mask);
+    channels    = zdp_parse_chanmask(tree, tvb, &offset, hf_zbee_zdp_channel_page, hf_zbee_zdp_channel_mask);
     /*tx_total    =*/ zbee_parse_uint(tree, hf_zbee_zdp_tx_total, tvb, &offset, 2, NULL);
     /*tx_fail     =*/ zbee_parse_uint(tree, hf_zbee_zdp_tx_fail, tvb, &offset, 2, NULL);
     channel_count     = zbee_parse_uint(tree, hf_zbee_zdp_channel_count, tvb, &offset, 1, NULL);
@@ -731,6 +781,40 @@ dissect_zbee_zdp_rsp_mgmt_nwkupdate(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_rsp_mgmt_nwkupdate */
+
+/**
+ *ZigBee Device Profile dissector for the IEEE Joining List Response.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+void
+dissect_zbee_zdp_rsp_mgmt_ieee_join_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint8      status;
+    guint8      list_total;
+    guint8      list_count;
+    guint       offset = 0;
+    int i;
+
+    status = zbee_parse_uint(tree, hf_zbee_zdp_ieee_join_status, tvb, &offset, 1, NULL);
+    if (status == 0x00) {
+        zbee_parse_uint(tree, hf_zbee_zdp_ieee_join_update_id, tvb, &offset, 1, NULL);
+        zbee_parse_uint(tree, hf_zbee_zdp_ieee_join_policy, tvb, &offset, 1, NULL);
+        list_total = zbee_parse_uint(tree, hf_zbee_zdp_ieee_join_list_total, tvb, &offset, 1, NULL);
+        if (list_total > 0) {
+            zbee_parse_uint(tree, hf_zbee_zdp_ieee_join_list_start, tvb, &offset, 1, NULL);
+            list_count = zbee_parse_uint(tree, hf_zbee_zdp_ieee_join_list_count, tvb, &offset, 1, NULL);
+
+            for(i=0; i<list_count; i++) {
+                zbee_parse_eui64(tree, hf_zbee_zdp_ieee_join_list_ieee, tvb, &offset, 8, NULL);
+            }
+        }
+    }
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_rsp_mgmt_ieee_join_list */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

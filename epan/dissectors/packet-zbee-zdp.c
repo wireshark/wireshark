@@ -100,6 +100,7 @@ static int hf_zbee_zdp_node_user = -1;
 static int hf_zbee_zdp_node_freq_868 = -1;
 static int hf_zbee_zdp_node_freq_900 = -1;
 static int hf_zbee_zdp_node_freq_2400 = -1;
+static int hf_zbee_zdp_node_freq_eu_sub_ghz = -1;
 static int hf_zbee_zdp_node_manufacturer = -1;
 static int hf_zbee_zdp_node_max_buffer = -1;
 static int hf_zbee_zdp_node_max_incoming_transfer = -1;
@@ -163,6 +164,8 @@ static int hf_zbee_zdp_complex = -1;
        int hf_zbee_zdp_tx_fail = -1;
        int hf_zbee_zdp_channel_count = -1;
        int hf_zbee_zdp_channel_mask = -1;
+       int hf_zbee_zdp_channel_page = -1;
+       int hf_zbee_zdp_channel_page_count = -1;
        int hf_zbee_zdp_channel_energy = -1;
        int hf_zbee_zdp_pan_eui64 = -1;
        int hf_zbee_zdp_pan_uint = -1;
@@ -183,6 +186,14 @@ static int hf_zbee_zdp_complex = -1;
        int hf_zbee_zdp_permit_joining_03 = -1;
        int hf_zbee_zdp_lqi = -1;
 static int hf_zbee_zdp_scan_channel = -1;
+       int hf_zbee_zdp_ieee_join_start_index = -1;
+       int hf_zbee_zdp_ieee_join_status = -1;
+       int hf_zbee_zdp_ieee_join_update_id = -1;
+       int hf_zbee_zdp_ieee_join_policy = -1;
+       int hf_zbee_zdp_ieee_join_list_total = -1;
+       int hf_zbee_zdp_ieee_join_list_start = -1;
+       int hf_zbee_zdp_ieee_join_list_count = -1;
+       int hf_zbee_zdp_ieee_join_list_ieee = -1;
 
 /* Routing Table */
        int hf_zbee_zdp_rtg = -1;
@@ -273,6 +284,8 @@ const value_string zbee_zdp_cluster_names[] = {
     { ZBEE_ZDP_REQ_MGMT_PERMIT_JOIN,              "Permit Join Request" },
     { ZBEE_ZDP_REQ_MGMT_CACHE,                    "Cache Request" },
     { ZBEE_ZDP_REQ_MGMT_NWKUPDATE,                "Network Update Request" },
+    { ZBEE_ZDP_REQ_MGMT_NWKUPDATE_ENH,            "Network Update Enhanced Request" },
+    { ZBEE_ZDP_REQ_MGMT_IEEE_JOIN_LIST,           "IEEE Joining List Request" },
 
     { ZBEE_ZDP_RSP_NWK_ADDR,                      "Network Address Response" },
     { ZBEE_ZDP_RSP_IEEE_ADDR,                     "Extended Address Response" },
@@ -315,6 +328,7 @@ const value_string zbee_zdp_cluster_names[] = {
     { ZBEE_ZDP_RSP_MGMT_PERMIT_JOIN,              "Permit Join Response" },
     { ZBEE_ZDP_RSP_MGMT_CACHE,                    "Cache Response" },
     { ZBEE_ZDP_RSP_MGMT_NWKUPDATE,                "Network Update Notify" },
+    { ZBEE_ZDP_RSP_MGMT_IEEE_JOIN_LIST,           "IEEE Joining List Response" },
     { 0, NULL }
 };
 
@@ -343,6 +357,13 @@ const value_string zbee_zdp_rtg_status_vals[] = {
     { 0x01,  "Discovery Underway" },
     { 0x02,  "Discovery Failed" },
     { 0x03,  "Inactive" },
+    { 0, NULL }
+};
+
+const value_string zbee_zdp_ieee_join_policy_vals[] = {
+    { 0x00,  "All Join" },
+    { 0x01,  "IEEE Join" },
+    { 0x02,  "No Join" },
     { 0, NULL }
 };
 
@@ -575,15 +596,20 @@ zdp_parse_status(proto_tree *tree, tvbuff_t *tvb, guint *offset)
  *@param offset offset into the tvb to find the status value.
 */
 guint32
-zdp_parse_chanmask(proto_tree *tree, tvbuff_t *tvb, guint *offset, int hf_channel)
+zdp_parse_chanmask(proto_tree *tree, tvbuff_t *tvb, guint *offset, int hf_page, int hf_channel)
 {
     int         i;
     guint32     mask;
+    guint8      page;
     proto_item  *ti;
 
     /* Get and display the channel mask. */
     mask = tvb_get_letohl(tvb, *offset);
 
+    page = (guint8)((mask & ZBEE_ZDP_NWKUPDATE_PAGE) >> 27);
+    mask &= ZBEE_ZDP_NWKUPDATE_CHANNEL;
+
+    proto_tree_add_uint(tree, hf_page, tvb, *offset, 4, page);
     ti = proto_tree_add_uint_format(tree, hf_channel, tvb, *offset, 4, mask, "Channels: ");
 
     /* Check if there are any channels to display. */
@@ -712,6 +738,7 @@ zdp_parse_node_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offse
         &hf_zbee_zdp_node_freq_868,
         &hf_zbee_zdp_node_freq_900,
         &hf_zbee_zdp_node_freq_2400,
+        &hf_zbee_zdp_node_freq_eu_sub_ghz,
         NULL
     };
 
@@ -1132,6 +1159,12 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         case ZBEE_ZDP_REQ_MGMT_NWKUPDATE:
             dissect_zbee_zdp_req_mgmt_nwkupdate(zdp_tvb, pinfo, zdp_tree);
             break;
+        case ZBEE_ZDP_REQ_MGMT_NWKUPDATE_ENH:
+            dissect_zbee_zdp_req_mgmt_nwkupdate_enh(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_REQ_MGMT_IEEE_JOIN_LIST:
+            dissect_zbee_zdp_req_mgmt_ieee_join_list(zdp_tvb, pinfo, zdp_tree);
+            break;
         case ZBEE_ZDP_RSP_NWK_ADDR:
             dissect_zbee_zdp_rsp_nwk_addr(zdp_tvb, pinfo, zdp_tree);
             break;
@@ -1254,6 +1287,9 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             break;
         case ZBEE_ZDP_RSP_MGMT_NWKUPDATE:
             dissect_zbee_zdp_rsp_mgmt_nwkupdate(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_RSP_MGMT_IEEE_JOIN_LIST:
+            dissect_zbee_zdp_rsp_mgmt_ieee_join_list(zdp_tvb, pinfo, zdp_tree);
             break;
         default:
             /* Invalid Cluster Identifier. */
@@ -1446,15 +1482,19 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_freq_868,
-        { "868MHz Band",                "zbee_zdp.node.freq.868mhz", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_FREQ_868MHZ,
+        { "868MHz BPSK Band",           "zbee_zdp.node.freq.868mhz", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_FREQ_868MHZ,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_freq_900,
-        { "900MHz Band",                "zbee_zdp.node.freq.900mhz", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_FREQ_900MHZ,
+        { "902MHz BPSK Band",           "zbee_zdp.node.freq.900mhz", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_FREQ_900MHZ,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_freq_2400,
-        { "2.4GHz Band",                "zbee_zdp.node.freq.2400mhz", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_FREQ_2400MHZ,
+        { "2.4GHz OQPSK Band",          "zbee_zdp.node.freq.2400mhz", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_FREQ_2400MHZ,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_node_freq_eu_sub_ghz,
+        { "EU Sub-GHz FSK Band",        "zbee_zdp.node.freq.eu_sub_ghz", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_FREQ_EU_SUB_GHZ,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_manufacturer,
@@ -1637,6 +1677,14 @@ void proto_register_zbee_zdp(void)
         { "Channel List Count",         "zbee_zdp.channel_count", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_zbee_zdp_channel_page_count,
+        { "Channel Page Count",         "zbee_zdp.channel_page_count", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_channel_page,
+        { "Channel Page",               "zbee_zdp.channel_page", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_zbee_zdp_channel_mask,
         { "Channels",                   "zbee_zdp.channel_mask", FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
@@ -1724,18 +1772,54 @@ void proto_register_zbee_zdp(void)
         { &hf_zbee_zdp_rtg,
         { "Routing Table",         "zbee_zdp.routing", FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
+
         { &hf_zbee_zdp_rtg_entry,
         { "Routing Table Entry",         "zbee_zdp.routing.entry", FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
+
         { &hf_zbee_zdp_rtg_destination,
         { "Destination",         "zbee_zdp.routing.destination", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
+
         { &hf_zbee_zdp_rtg_status,
         { "Status",         "zbee_zdp.routing.status", FT_UINT8, BASE_DEC, VALS(zbee_zdp_rtg_status_vals), 0x0,
             NULL, HFILL }},
+
         { &hf_zbee_zdp_rtg_next_hop,
         { "Next Hop",         "zbee_zdp.routing.next_hop", FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }}
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_ieee_join_start_index,
+        { "Start Index",                "zbee_zdp.ieee_joining_list.start_index", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_ieee_join_status,
+        { "Status",                "zbee_zdp.ieee_joining_list.status", FT_UINT8, BASE_HEX, VALS(zbee_zdp_status_names), 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_ieee_join_update_id,
+        { "Update Id",                "zbee_zdp.ieee_joining_list.update_id", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_ieee_join_policy,
+        { "Policy",                "zbee_zdp.ieee_joining_list.policy", FT_UINT8, BASE_DEC, VALS(zbee_zdp_ieee_join_policy_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_ieee_join_list_total,
+        { "List Total Count",                "zbee_zdp.ieee_joining_list.total", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_ieee_join_list_start,
+        { "List Start",                "zbee_zdp.ieee_joining_list.start", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_ieee_join_list_count,
+        { "List Count",                "zbee_zdp.ieee_joining_list.count", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_ieee_join_list_ieee,
+        { "IEEE",                "zbee_zdp.ieee_joining_list.ieee", FT_EUI64, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
 
     };
 

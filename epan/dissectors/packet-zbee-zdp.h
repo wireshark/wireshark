@@ -72,6 +72,8 @@
 #define ZBEE_ZDP_REQ_MGMT_PERMIT_JOIN             0x0036  /* ZigBee 2006 & later. */
 #define ZBEE_ZDP_REQ_MGMT_CACHE                   0x0037  /* ZigBee 2006 & later. */
 #define ZBEE_ZDP_REQ_MGMT_NWKUPDATE               0x0038  /* ZigBee 2007 & later. */
+#define ZBEE_ZDP_REQ_MGMT_NWKUPDATE_ENH           0x0039  /* R22 */
+#define ZBEE_ZDP_REQ_MGMT_IEEE_JOIN_LIST          0x003a  /* R22 */
 
 #define ZBEE_ZDP_RSP_NWK_ADDR                     0x8000
 #define ZBEE_ZDP_RSP_IEEE_ADDR                    0x8001
@@ -114,6 +116,8 @@
 #define ZBEE_ZDP_RSP_MGMT_PERMIT_JOIN             0x8036  /* ZigBee 2006 & later. */
 #define ZBEE_ZDP_RSP_MGMT_CACHE                   0x8037  /* ZigBee 2006 & later. */
 #define ZBEE_ZDP_RSP_MGMT_NWKUPDATE               0x8038  /* ZigBee 2007 & later. */
+/* ZBEE_ZDP_REQ_MGMT_NWKUPDATE_ENH returns ZBEE_ZDP_RSP_MGMT_NWKUPDATE so cluster 0x8039 is unused */
+#define ZBEE_ZDP_RSP_MGMT_IEEE_JOIN_LIST          0x803a  /* R22 */
 
 #define ZBEE_ZDP_MSG_RESPONSE_BIT                 0x8000
 #define ZBEE_ZDP_MSG_MASK                         (ZBEE_ZDP_MSG_RESPONSE_BIT-1)
@@ -151,6 +155,7 @@
 #define ZBEE_ZDP_NODE_FREQ_868MHZ                 0x0800
 #define ZBEE_ZDP_NODE_FREQ_900MHZ                 0x2000
 #define ZBEE_ZDP_NODE_FREQ_2400MHZ                0x4000
+#define ZBEE_ZDP_NODE_FREQ_EU_SUB_GHZ             0x8000
 
 #define ZBEE_ZDP_NODE_SERVER_PRIMARY_TRUST        0x0001
 #define ZBEE_ZDP_NODE_SERVER_BACKUP_TRUST         0x0002
@@ -189,8 +194,13 @@
 #define ZBEE_ZDP_NWKUPDATE_CHANNEL_HOP              0xfe
 #define ZBEE_ZDP_NWKUPDATE_PARAMETERS               0xff
 
+#define ZBEE_ZDP_NWKUPDATE_PAGE               0xF8000000
+#define ZBEE_ZDP_NWKUPDATE_CHANNEL            0x07FFFFFF
+
 #define ZBEE_ZDP_DCF_EAELA                          0x01
 #define ZBEE_ZDP_DCF_ESDLA                          0x02
+
+
 
 /**************************************
  * Field Indicies
@@ -253,6 +263,8 @@ extern int hf_zbee_zdp_tx_total;
 extern int hf_zbee_zdp_tx_fail;
 extern int hf_zbee_zdp_channel_count;
 extern int hf_zbee_zdp_channel_mask;
+extern int hf_zbee_zdp_channel_page;
+extern int hf_zbee_zdp_channel_page_count;
 extern int hf_zbee_zdp_channel_energy;
 extern int hf_zbee_zdp_pan_eui64;
 extern int hf_zbee_zdp_pan_uint;
@@ -272,6 +284,14 @@ extern int hf_zbee_zdp_table_entry_relationship_18;
 extern int hf_zbee_zdp_depth;
 extern int hf_zbee_zdp_permit_joining_03;
 extern int hf_zbee_zdp_lqi;
+extern int hf_zbee_zdp_ieee_join_start_index;
+extern int hf_zbee_zdp_ieee_join_status;
+extern int hf_zbee_zdp_ieee_join_update_id;
+extern int hf_zbee_zdp_ieee_join_policy;
+extern int hf_zbee_zdp_ieee_join_list_total;
+extern int hf_zbee_zdp_ieee_join_list_start;
+extern int hf_zbee_zdp_ieee_join_list_count;
+extern int hf_zbee_zdp_ieee_join_list_ieee;
 
 /* Routing Table */
 extern int hf_zbee_zdp_rtg;
@@ -321,7 +341,7 @@ extern void     zdp_parse_complex_desc     (proto_tree *tree, gint ettindex, tvb
 extern void     zdp_parse_bind_table_entry (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 version);
 
 extern guint8   zdp_parse_status           (proto_tree *tree, tvbuff_t *tvb, guint *offset);
-extern guint32  zdp_parse_chanmask         (proto_tree *tree, tvbuff_t *tvb, guint *offset, int hf_channel);
+extern guint32  zdp_parse_chanmask         (proto_tree *tree, tvbuff_t *tvb, guint *offset, int hf_page, int hf_channel);
 extern guint8   zdp_parse_cinfo            (proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset);
 extern guint16  zdp_parse_server_flags     (proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset);
 
@@ -371,6 +391,8 @@ extern void dissect_zbee_zdp_req_mgmt_direct_join       (tvbuff_t *tvb, packet_i
 extern void dissect_zbee_zdp_req_mgmt_permit_join       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_req_mgmt_cache             (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_req_mgmt_nwkupdate         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+extern void dissect_zbee_zdp_req_mgmt_nwkupdate_enh     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+extern void dissect_zbee_zdp_req_mgmt_ieee_join_list    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 extern void dissect_zbee_zdp_rsp_nwk_addr               (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_rsp_ext_addr               (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -415,6 +437,7 @@ extern void dissect_zbee_zdp_rsp_mgmt_direct_join       (tvbuff_t *tvb, packet_i
 extern void dissect_zbee_zdp_rsp_mgmt_permit_join       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_rsp_mgmt_cache             (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_rsp_mgmt_nwkupdate         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+extern void dissect_zbee_zdp_rsp_mgmt_ieee_join_list    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 extern const value_string zbee_zdp_cluster_names[];
 extern const value_string zbee_zdp_rtg_status_vals[];
