@@ -156,6 +156,7 @@ static int hf_zbee_nwk_cmd_end_device_timeout_resp_status = -1;
 static int hf_zbee_nwk_cmd_end_device_timeout_resp_parent_info = -1;
 static int hf_zbee_nwk_cmd_prnt_info_mac_data_poll_keepalive_supported = -1;
 static int hf_zbee_nwk_cmd_prnt_info_ed_to_req_keepalive_supported = -1;
+static int hf_zbee_nwk_cmd_prnt_info_power_negotiation_supported = -1;
 static int hf_zbee_nwk_cmd_link_pwr_list_count = -1;
 static int hf_zbee_nwk_cmd_link_pwr_type = -1;
 static int hf_zbee_nwk_cmd_link_pwr_device_address = -1;
@@ -1272,6 +1273,7 @@ dissect_zbee_nwk_ed_timeout_response(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     static const int * end_device_parent_info[] = {
         &hf_zbee_nwk_cmd_prnt_info_mac_data_poll_keepalive_supported,
         &hf_zbee_nwk_cmd_prnt_info_ed_to_req_keepalive_supported,
+        &hf_zbee_nwk_cmd_prnt_info_power_negotiation_supported,
         NULL
     };
     guint status = tvb_get_guint8(tvb, offset);
@@ -2058,6 +2060,11 @@ void proto_register_zbee_nwk(void)
             { &hf_zbee_nwk_cmd_prnt_info_ed_to_req_keepalive_supported,
             { "End Device Timeout Request Keepalive",           "zbee_nwk.cmd.ed_prnt_info.ed_tmo_req_keepalive", FT_BOOLEAN, 8, NULL,
               ZBEE_NWK_CMD_ED_TIMEO_RSP_PRNT_INFO_ED_TIMOU_REQ_KEEPAL_SUPP,
+              NULL, HFILL }},
+
+            { &hf_zbee_nwk_cmd_prnt_info_power_negotiation_supported,
+            { "Power Negotiation Supported",           "zbee_nwk.cmd.power_negotiation_supported", FT_BOOLEAN, 8, NULL,
+              ZBEE_NWK_CMD_ED_TIMEO_RSP_PRNT_INFO_PWR_NEG_SUPP,
               NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_link_pwr_type,

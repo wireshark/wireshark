@@ -107,6 +107,7 @@
 /* ZigBee NWK Values of the Parent Information Bitmask (Table 3.47) */
 #define ZBEE_NWK_CMD_ED_TIMEO_RSP_PRNT_INFO_MAC_DATA_POLL_KEEPAL_SUPP  0x01
 #define ZBEE_NWK_CMD_ED_TIMEO_RSP_PRNT_INFO_ED_TIMOU_REQ_KEEPAL_SUPP   0x02
+#define ZBEE_NWK_CMD_ED_TIMEO_RSP_PRNT_INFO_PWR_NEG_SUPP               0x04
 
 /* ZigBee NWK Link Power Delta Options */
 #define ZBEE_NWK_CMD_NWK_LINK_PWR_DELTA_TYPE_MASK   0x03
