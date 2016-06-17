@@ -4418,6 +4418,8 @@ static int hf_ieee80211_wfa_ie_wme_acp_reserved = -1;
 static int hf_ieee80211_wfa_ie_wme_acp_ecw = -1;
 static int hf_ieee80211_wfa_ie_wme_acp_ecw_max = -1;
 static int hf_ieee80211_wfa_ie_wme_acp_ecw_min = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_cw_max = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_cw_min = -1;
 static int hf_ieee80211_wfa_ie_wme_acp_txop_limit = -1;
 static int hf_ieee80211_wfa_ie_wme_tspec_tsinfo = -1;
 static int hf_ieee80211_wfa_ie_wme_tspec_tsinfo_tid = -1;
@@ -10131,7 +10133,8 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
           {
             proto_item *ac_item, *aci_aifsn_item, *ecw_item;
             proto_tree *ac_tree, *aci_aifsn_tree, *ecw_tree;
-            guint8 aci_aifsn, ecw;
+            guint8 aci_aifsn, ecw, ecwmin, ecwmax;
+            guint16 cwmin, cwmax;
 
             ac_item = proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_ac_parameters, tvb, offset, 4, ENC_NA);
             ac_tree = proto_item_add_subtree(ac_item, ett_wme_ac);
@@ -10157,10 +10160,16 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
             /* ECWmin/ECWmax field */
             ecw_item = proto_tree_add_item(ac_tree, hf_ieee80211_wfa_ie_wme_acp_ecw, tvb, offset, 1, ENC_NA);
             ecw_tree = proto_item_add_subtree(ecw_item, ett_wme_ecw);
+            ecw = tvb_get_guint8(tvb, offset);
+            ecwmin = ecw & 0x0f;
+            ecwmax = (ecw & 0xf0) >> 4;
+            cwmin= (1 << ecwmin) - 1;
+            cwmax= (1 << ecwmax) - 1;
             proto_tree_add_item(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_ecw_max, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_ecw_min, tvb, offset, 1, ENC_NA);
-            ecw = tvb_get_guint8(tvb, offset);
-            proto_item_append_text(ac_item, ", ECWmin %u, ECWmax %u", ecw & 0x0f, (ecw & 0xf0) >> 4);
+            proto_tree_add_uint_format_value(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_cw_max, tvb, offset, 1, cwmax, "%u", cwmax);
+            proto_tree_add_uint_format_value(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_cw_min, tvb, offset, 1, cwmin, "%u", cwmin);
+            proto_item_append_text(ac_item, ", ECWmin/max %u/%u (CWmin/max %u/%u)", ecwmin, ecwmax, cwmin, cwmax);
             offset += 1;
 
             /* TXOP Limit */
@@ -25679,6 +25688,16 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_wfa_ie_wme_acp_ecw_min,
      {"ECW Min", "wlan_mgt.wfa.ie.wme.acp.ecw.min",
       FT_UINT8, BASE_DEC, NULL, 0x0F,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_cw_max,
+     {"CW Max", "wlan_mgt.wfa.ie.wme.acp.cw.max",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_cw_min,
+     {"CW Min", "wlan_mgt.wfa.ie.wme.acp.cw.min",
+      FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_wme_acp_txop_limit,
