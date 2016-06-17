@@ -36,6 +36,7 @@
 #include "stock_icon.h"
 #include "wireshark_application.h"
 
+#include <QClipboard>
 #include <QContextMenuEvent>
 #include <QPushButton>
 
