@@ -48,6 +48,7 @@ static int proto_diameter_3gpp          = -1;
 
 static int hf_diameter_3gpp_timezone                = -1;
 static int hf_diameter_3gpp_timezone_adjustment     = -1;
+static int hf_diameter_3gpp_rat_type                = -1;
 static int hf_diameter_3gpp_visited_nw_id           = -1;
 static int hf_diameter_3gpp_path                    = -1;
 static int hf_diameter_3gpp_contact                 = -1;
@@ -346,6 +347,38 @@ dissect_diameter_3gpp_imeisv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         PROTO_ITEM_SET_GENERATED(item);
         diam_sub_dis->avp_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8 | ENC_NA);
     }
+
+    return length;
+}
+
+/* AVP Code: 21 3GPP-RAT-Type
+* 3GPP TS 29.061, 29.274
+*/
+static const value_string diameter_3gpp_rat_type_vals[] = {
+    { 0, "Reserved" },
+    { 1, "UTRAN" },
+    { 2, "GERAN" },
+    { 3, "WLAN" },
+    { 4, "GAN" },
+    { 5, "HSPA Evolution" },
+    { 6, "EUTRAN (WB-E-UTRAN)" },
+    { 7, "Virtual" },
+    { 8, "EUTRAN-NB-IoT" },
+    { 101, "IEEE 802.16e" },
+    { 102, "3GPP2 eHRPD" },
+    { 103, "3GPP2 HRPD" },
+    { 104, "3GPP2 1xRTT" },
+    { 105, "3GPP2 UMB" },
+    { 0, NULL }
+};
+
+static int
+dissect_diameter_3gpp_rat_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
+
+    proto_tree_add_item(tree, hf_diameter_3gpp_rat_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return length;
 }
@@ -1787,6 +1820,10 @@ proto_reg_handoff_diameter_3gpp(void)
     /* AVP Code: 20 3GPP-IMEISV */
     dissector_add_uint("diameter.3gpp", 20, create_dissector_handle(dissect_diameter_3gpp_imeisv, proto_diameter_3gpp));
 
+    /* AVP Code: 21 3GPP-RAT-Access-Type */
+    dissector_add_uint("diameter.3gpp", 21, create_dissector_handle(dissect_diameter_3gpp_rat_type, proto_diameter_3gpp));
+
+
     /* AVP Code: 22 3GPP-User-Location-Info
      * Registered by packet-gtpv2.c
      */
@@ -2080,6 +2117,11 @@ proto_register_diameter_3gpp(void)
         { &hf_diameter_3gpp_timezone_adjustment,
             { "Adjustment",           "diameter.3gpp.timezone_adjustment",
             FT_UINT8, BASE_DEC, VALS(daylight_saving_time_vals), 0x03,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_rat_type,
+            { "RAT Type",            "diameter.3gpp.rat-type",
+            FT_UINT8, BASE_DEC, VALS(diameter_3gpp_rat_type_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_path,
