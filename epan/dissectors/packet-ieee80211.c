@@ -5126,6 +5126,7 @@ static expert_field ei_ieee80211_not_enough_room_for_anqp_header = EI_INIT;
 static expert_field ei_ieee80211_ff_query_request_length = EI_INIT;
 static expert_field ei_ieee80211_wfa_ie_wme_qos_info_bad_ftype = EI_INIT;
 static expert_field ei_ieee80211_qos_info_bad_ftype = EI_INIT;
+static expert_field ei_ieee80211_qos_bad_aifsn = EI_INIT;
 static expert_field ei_ieee80211_pmkid_count_too_large = EI_INIT;
 static expert_field ei_ieee80211_ff_anqp_venue_length = EI_INIT;
 static expert_field ei_ieee80211_ff_anqp_roaming_consortium_oi_len = EI_INIT;
@@ -10143,6 +10144,11 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
             proto_tree_add_item(aci_aifsn_tree, hf_ieee80211_wfa_ie_wme_acp_aifsn, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(aci_aifsn_tree, hf_ieee80211_wfa_ie_wme_acp_reserved, tvb, offset, 1, ENC_NA);
             aci_aifsn = tvb_get_guint8(tvb, offset);
+            /* 802.11-2012, 8.4.2.31 EDCA Parameter Set element */
+            if (aci_aifsn < 2) {
+               expert_add_info_format(pinfo, aci_aifsn_tree, &ei_ieee80211_qos_bad_aifsn,
+                 "The minimum value for the AIFSN subfield is 2 (found %u).", aci_aifsn);
+            }
             proto_item_append_text(ac_item, " ACI %u (%s), ACM %s, AIFSN %u",
               (aci_aifsn & 0x60) >> 5, try_val_to_str((aci_aifsn & 0x60) >> 5, ieee80211_wfa_ie_wme_acs_vals),
               (aci_aifsn & 0x10) ? "yes" : "no", aci_aifsn & 0x0f);
@@ -27322,6 +27328,7 @@ proto_register_ieee80211 (void)
     { &ei_ieee80211_tdls_setup_confirm_malformed, { "wlan_mgt.tdls_setup_confirm_malformed", PI_MALFORMED, PI_ERROR, "TDLS Setup Confirm (success) does not include mandatory fields", EXPFILL }},
     { &ei_ieee80211_wfa_ie_wme_qos_info_bad_ftype, { "wlan_mgt.wfa.ie.wme.qos_info.bad_ftype", PI_UNDECODED, PI_WARN, "Could not deduce direction to decode correctly", EXPFILL }},
     { &ei_ieee80211_qos_info_bad_ftype, { "wlan_mgt.qos_info.bad_ftype", PI_UNDECODED, PI_WARN, "Could not deduce direction to decode correctly", EXPFILL }},
+    { &ei_ieee80211_qos_bad_aifsn, { "wlan_mgt.qos_info.bad_aifsn", PI_MALFORMED, PI_WARN, "Invalid AIFSN", EXPFILL }},
     { &ei_ieee80211_rsn_pcs_count, { "wlan_mgt.rsn.pcs.count.invalid", PI_MALFORMED, PI_ERROR, "Pairwise Cipher Suite Count too large", EXPFILL }},
     { &ei_ieee80211_rsn_pmkid_count, { "wlan_mgt.rsn.akms.count.invalid", PI_MALFORMED, PI_ERROR, "Auth Key Management (AKM) Suite Count too large", EXPFILL }},
     { &ei_ieee80211_pmkid_count_too_large, { "wlan_mgt.rsn.pmkid.count.invalid", PI_MALFORMED, PI_ERROR, "PMKID Count too large", EXPFILL }},
