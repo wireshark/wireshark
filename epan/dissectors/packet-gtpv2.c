@@ -317,6 +317,8 @@ static int hf_gtpv2_CauseProtocol = -1;
 static int hf_gtpv2_CauseMisc = -1;
 static int hf_gtpv2_target_type = -1;
 static int hf_gtpv2_macro_enodeb_id = -1;
+static int hf_gtpv2_enodebid = -1;
+static int hf_gtpv2_cellid = -1;
 
 static int hf_gtpv2_node_type= -1;
 static int hf_gtpv2_fqdn = -1;
@@ -563,6 +565,7 @@ static gint ett_gtpv2_preaa_rais = -1;
 static gint ett_gtpv2_preaa_sais = -1;
 static gint ett_gtpv2_preaa_cgis = -1;
 static gint ett_gtpv2_load_control_inf = -1;
+static gint ett_gtpv2_eci = -1;
 
 static expert_field ei_gtpv2_ie_data_not_dissected = EI_INIT;
 static expert_field ei_gtpv2_ie_len_invalid = EI_INIT;
@@ -2187,6 +2190,10 @@ dissect_gtpv2_ecgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *off
     guint32     octet4;
     guint8      spare;
     guint32     ECGI;
+    guint32     enodebid;
+    guint8      cellid;
+    proto_tree  *subtree;
+    proto_item  *item;
 
     mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, E212_NONE, TRUE);
     *offset += 3;
@@ -2199,11 +2206,16 @@ dissect_gtpv2_ecgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *off
     spare = octet & 0xF0;
     octet4 = tvb_get_ntohl(tvb, *offset);
     ECGI = octet4 & 0x0FFFFFFF;
+    enodebid = ECGI >> 8;
+    cellid = (guint8)ECGI & 0xFF;
     proto_tree_add_uint(tree, hf_gtpv2_ecgi_eci_spare, tvb, *offset, 1, spare);
     /* The coding of the E-UTRAN cell identifier is the responsibility of each administration.
      * Coding using full hexadecimal representation shall be used.
      */
-    proto_tree_add_uint(tree, hf_gtpv2_ecgi_eci, tvb, *offset, 4, ECGI);
+    item = proto_tree_add_uint(tree, hf_gtpv2_ecgi_eci, tvb, *offset, 4, ECGI);
+    subtree = proto_item_add_subtree(item, ett_gtpv2_eci);
+    proto_tree_add_uint(subtree, hf_gtpv2_enodebid, tvb, *offset, 3, enodebid);
+    proto_tree_add_uint(subtree, hf_gtpv2_cellid, tvb, *offset + 3, 1, cellid);
     /*proto_tree_add_item(tree, hf_gtpv2_ecgi_eci, tvb, offset, 4, ENC_BIG_ENDIAN);*/
     *offset += 4;
     str = wmem_strdup_printf(wmem_packet_scope(), "%s, ECGI 0x%x",
@@ -8027,6 +8039,16 @@ void proto_register_gtpv2(void)
           FT_UINT24, BASE_HEX, NULL, 0x0fffff,
           NULL, HFILL}
         },
+        {&hf_gtpv2_cellid,
+         {"CellId", "gtpv2.cellid",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_enodebid,
+         { "eNodeB Id", "gtpv2.enodebid",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }
+         },
         { &hf_gtpv2_CauseProtocol,
           {"Protocol Cause", "gtpv2.CauseProtocol",
            FT_UINT8, BASE_DEC, VALS(s1ap_CauseProtocol_vals), 0x0,
@@ -8556,6 +8578,7 @@ void proto_register_gtpv2(void)
         &ett_gtpv2_preaa_sais,
         &ett_gtpv2_preaa_cgis,
         &ett_gtpv2_load_control_inf,
+        &ett_gtpv2_eci,
     };
 
     static ei_register_info ei[] = {
