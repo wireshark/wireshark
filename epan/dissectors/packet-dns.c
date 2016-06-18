@@ -3612,9 +3612,7 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
                                 is_mdns);
     cur_off += add_off;
   }
-  if (ti) {
-    proto_item_set_len(ti, cur_off - start_off);
-  }
+  proto_item_set_len(ti, cur_off - start_off);
   return cur_off - start_off;
 }
 
@@ -3624,21 +3622,17 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
     packet_info *pinfo, gboolean is_mdns)
 {
   int         start_off, add_off;
-  proto_tree *qatree = NULL;
-  proto_item *ti     = NULL;
+  proto_tree *qatree;
+  proto_item *ti;
 
   start_off = cur_off;
-  if (dns_tree) {
-    qatree = proto_tree_add_subtree(dns_tree, tvb, start_off, -1, ett_dns_ans, &ti, name);
-  }
+  qatree = proto_tree_add_subtree(dns_tree, tvb, start_off, -1, ett_dns_ans, &ti, name);
   while (count-- > 0) {
     add_off = dissect_dns_answer(
       tvb, cur_off, dns_data_offset, qatree, pinfo, is_mdns);
     cur_off += add_off;
   }
-  if (ti) {
-    proto_item_set_len(ti, cur_off - start_off);
-  }
+  proto_item_set_len(ti, cur_off - start_off);
   return cur_off - start_off;
 }
 
@@ -3648,7 +3642,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
   int                offset   = is_tcp ? 2 : 0;
   int                dns_data_offset;
-  proto_tree        *dns_tree = NULL, *field_tree;
+  proto_tree        *dns_tree, *field_tree;
   proto_item        *ti, *tf;
   guint16            flags, opcode, rcode, quest, ans, auth, add;
   guint              id;
@@ -3690,20 +3684,19 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   } else {
     isupdate = FALSE;
   }
-  if (tree) {
-    if (is_llmnr) {
-      ti = proto_tree_add_protocol_format(tree, proto_llmnr, tvb, 0, -1,
-        "Link-local Multicast Name Resolution (%s)", (flags & F_RESPONSE) ? "response" : "query");
-    } else if (is_mdns){
-      ti = proto_tree_add_protocol_format(tree, proto_mdns, tvb, 0, -1,
-        "Multicast Domain Name System (%s)", (flags & F_RESPONSE) ? "response" : "query");
-    } else {
-      ti = proto_tree_add_protocol_format(tree, proto_dns, tvb, 0, -1,
-        "Domain Name System (%s)", (flags & F_RESPONSE) ? "response" : "query");
-    }
 
-    dns_tree = proto_item_add_subtree(ti, ett_dns);
+  if (is_llmnr) {
+    ti = proto_tree_add_protocol_format(tree, proto_llmnr, tvb, 0, -1,
+        "Link-local Multicast Name Resolution (%s)", (flags & F_RESPONSE) ? "response" : "query");
+  } else if (is_mdns){
+    ti = proto_tree_add_protocol_format(tree, proto_mdns, tvb, 0, -1,
+        "Multicast Domain Name System (%s)", (flags & F_RESPONSE) ? "response" : "query");
+  } else {
+    ti = proto_tree_add_protocol_format(tree, proto_dns, tvb, 0, -1,
+        "Domain Name System (%s)", (flags & F_RESPONSE) ? "response" : "query");
   }
+
+  dns_tree = proto_item_add_subtree(ti, ett_dns);
 
   /*
    * Do we have a conversation for this connection?
@@ -3855,41 +3848,33 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   quest = tvb_get_ntohs(tvb, offset + DNS_QUEST);
-  if (tree) {
-    if (isupdate) {
-      proto_tree_add_uint(dns_tree, hf_dns_count_zones, tvb,
-                          offset + DNS_QUEST, 2, quest);
-    } else {
-      proto_tree_add_uint(dns_tree, hf_dns_count_questions, tvb,
-                          offset + DNS_QUEST, 2, quest);
-    }
+  if (isupdate) {
+    proto_tree_add_uint(dns_tree, hf_dns_count_zones, tvb,
+        offset + DNS_QUEST, 2, quest);
+  } else {
+    proto_tree_add_uint(dns_tree, hf_dns_count_questions, tvb,
+        offset + DNS_QUEST, 2, quest);
   }
   ans = tvb_get_ntohs(tvb, offset + DNS_ANS);
-  if (tree) {
-    if (isupdate) {
-      proto_tree_add_uint(dns_tree, hf_dns_count_prerequisites, tvb,
-                          offset + DNS_ANS, 2, ans);
-    } else {
-      proto_tree_add_uint(dns_tree, hf_dns_count_answers, tvb,
-                          offset + DNS_ANS, 2, ans);
-    }
+  if (isupdate) {
+    proto_tree_add_uint(dns_tree, hf_dns_count_prerequisites, tvb,
+        offset + DNS_ANS, 2, ans);
+  } else {
+    proto_tree_add_uint(dns_tree, hf_dns_count_answers, tvb,
+        offset + DNS_ANS, 2, ans);
   }
   auth = tvb_get_ntohs(tvb, offset + DNS_AUTH);
-  if (tree) {
-    if (isupdate) {
-      proto_tree_add_uint(dns_tree, hf_dns_count_updates, tvb,
-                          offset + DNS_AUTH, 2, auth);
-    } else {
-      proto_tree_add_uint(dns_tree, hf_dns_count_auth_rr, tvb,
-                          offset + DNS_AUTH, 2, auth);
-    }
+  if (isupdate) {
+    proto_tree_add_uint(dns_tree, hf_dns_count_updates, tvb,
+        offset + DNS_AUTH, 2, auth);
+  } else {
+    proto_tree_add_uint(dns_tree, hf_dns_count_auth_rr, tvb,
+        offset + DNS_AUTH, 2, auth);
   }
   add = tvb_get_ntohs(tvb, offset + DNS_ADD);
-  if (tree) {
-    proto_tree_add_uint(dns_tree, hf_dns_count_add_rr, tvb,
-                        offset + DNS_ADD, 2, add);
+  proto_tree_add_uint(dns_tree, hf_dns_count_add_rr, tvb,
+      offset + DNS_ADD, 2, add);
 
-  }
   cur_off = offset + DNS_HDRLEN;
 
   if (quest > 0) {
