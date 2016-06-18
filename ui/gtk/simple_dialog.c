@@ -26,6 +26,8 @@
 
 #include "epan/strutil.h"
 
+#include "wsutil/utf8_entities.h"
+
 #include "simple_dialog.h"
 
 #include "gtkglobals.h"
@@ -413,13 +415,15 @@ simple_dialog_format_message(const char *msg)
   return str;
 }
 
+#define MAX_MESSAGE_LEN 200
+#define MAX_SECONDARY_MESSAGE_LEN 500
 static void
 do_simple_message_box(ESD_TYPE_E type, gboolean *notagain,
                       const char *secondary_msg, const char *msg_format,
                       va_list ap)
 {
   GtkMessageType  gtk_message_type;
-  gchar          *message;
+  GString        *message = g_string_new("");
   GtkWidget      *msg_dialog;
   GtkWidget      *checkbox = NULL;
 
@@ -454,16 +458,34 @@ do_simple_message_box(ESD_TYPE_E type, gboolean *notagain,
   }
 
   /* Format the message. */
-  message = g_strdup_vprintf(msg_format, ap);
+  g_string_vprintf(message, msg_format, ap);
+
+  if (g_utf8_strlen(message->str, message->len) > MAX_MESSAGE_LEN) {
+    const gchar *end = message->str + MAX_MESSAGE_LEN;
+    g_utf8_validate(message->str, MAX_MESSAGE_LEN, &end);
+    g_string_truncate(message, end - message->str);
+    g_string_append(message, UTF8_HORIZONTAL_ELLIPSIS);
+  }
+
   msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
                                       (GtkDialogFlags)(GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT),
                                       gtk_message_type,
                                       GTK_BUTTONS_OK,
-                                      "%s", message);
-  g_free(message);
-  if (secondary_msg != NULL)
+                                      "%s", message->str);
+
+  if (secondary_msg != NULL) {
+    g_string_overwrite(message, 0, secondary_msg);
+    if (g_utf8_strlen(message->str, message->len) > MAX_SECONDARY_MESSAGE_LEN) {
+      const gchar *end = message->str + MAX_SECONDARY_MESSAGE_LEN;
+      g_utf8_validate(message->str, MAX_SECONDARY_MESSAGE_LEN, &end);
+      g_string_truncate(message, end - message->str);
+      g_string_append(message, UTF8_HORIZONTAL_ELLIPSIS);
+    }
     gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
-                                             "%s", secondary_msg);
+                                             "%s", message->str);
+  }
+
+  g_string_free(message, TRUE);
 
   if (notagain != NULL) {
     checkbox = gtk_check_button_new_with_label("Don't show this message again.");
