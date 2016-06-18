@@ -641,7 +641,6 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr)
 				/* Fix for bug 4119/5902: don't insert too many silence frames.
 				 * XXX - is there a better thing to do here?
 				 */
-#define MAX_SILENCE_FRAMES 240000
 				if (silence_frames > MAX_SILENCE_FRAMES)
 					silence_frames = MAX_SILENCE_FRAMES;
 

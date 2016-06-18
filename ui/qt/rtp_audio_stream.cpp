@@ -175,7 +175,7 @@ static const int sample_bytes_ = sizeof(SAMPLE) / sizeof(char);
 /* Fix for bug 4119/5902: don't insert too many silence frames.
  * XXX - is there a better thing to do here?
  */
-static const int max_silence_samples_ = 240000;
+static const int max_silence_samples_ = MAX_SILENCE_FRAMES;
 void RtpAudioStream::decode()
 {
     if (rtp_packets_.size() < 1) return;

@@ -169,6 +169,8 @@ gboolean rtp_stream_info_is_reverse(const rtp_stream_info_t *stream_a, rtp_strea
 */
 void rtpstream_mark(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtp_stream_info_t* stream_fwd, rtp_stream_info_t* stream_rev);
 
+#define MAX_SILENCE_FRAMES 14400000
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
