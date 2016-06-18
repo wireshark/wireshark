@@ -386,6 +386,7 @@ eventlog_dissect_bitmap_eventlogReadFlags(tvbuff_t *tvb _U_, int offset _U_, pac
 		&hf_eventlog_eventlogReadFlags_EVENTLOG_SEEK_READ,
 		&hf_eventlog_eventlogReadFlags_EVENTLOG_FORWARDS_READ,
 		&hf_eventlog_eventlogReadFlags_EVENTLOG_BACKWARDS_READ,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
@@ -427,6 +428,7 @@ eventlog_dissect_bitmap_eventlogEventTypes(tvbuff_t *tvb _U_, int offset _U_, pa
 		&hf_eventlog_eventlogEventTypes_EVENTLOG_INFORMATION_TYPE,
 		&hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_SUCCESS,
 		&hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_FAILURE,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;

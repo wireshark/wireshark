@@ -229,6 +229,7 @@ sub Bitmap($$$$)
 			$total_ev += hex($ev);
 			$self->pidl_code("&$hf_bitname,");
 		}
+		$self->pidl_code("NULL");
 		$self->deindent;
 		$self->pidl_code("};");
 	}

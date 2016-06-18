@@ -395,6 +395,7 @@ atsvc_dissect_bitmap_DaysOfMonth(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 		&hf_atsvc_atsvc_DaysOfMonth_Twentyninth,
 		&hf_atsvc_atsvc_DaysOfMonth_Thirtieth,
 		&hf_atsvc_atsvc_DaysOfMonth_Thirtyfirst,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
@@ -434,6 +435,7 @@ atsvc_dissect_bitmap_Flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
 		&hf_atsvc_atsvc_Flags_JOB_RUNS_TODAY,
 		&hf_atsvc_atsvc_Flags_JOB_ADD_CURRENT_DATE,
 		&hf_atsvc_atsvc_Flags_JOB_NONINTERACTIVE,
+		NULL
 	};
 	guint8 flags;
 
@@ -476,6 +478,7 @@ atsvc_dissect_bitmap_DaysOfWeek(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 		&hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_FRIDAY,
 		&hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_SATURDAY,
 		&hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_SUNDAY,
+		NULL
 	};
 	guint8 flags;
 

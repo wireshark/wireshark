@@ -78,7 +78,8 @@ lsarpc_policy_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guin
 		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_TRUST_ADMIN,
 		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_GET_PRIVATE_INFORMATION,
 		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_VIEW_AUDIT_INFORMATION,
-		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_VIEW_LOCAL_INFORMATION
+		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_VIEW_LOCAL_INFORMATION,
+		NULL
 	};
 
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
@@ -91,7 +92,8 @@ lsarpc_account_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, gui
 		&hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_SYSTEM_ACCESS,
 		&hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_QUOTAS,
 		&hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_PRIVILEGES,
-		&hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_VIEW
+		&hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_VIEW,
+		NULL
 	};
 
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
@@ -102,7 +104,8 @@ lsarpc_secret_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guin
 {
 	static const int* access_flags[] = {
 		&hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_QUERY_VALUE,
-		&hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_SET_VALUE
+		&hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_SET_VALUE,
+		NULL
 	};
 
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
@@ -118,7 +121,8 @@ lsarpc_domain_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guin
 		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_POSIX,
 		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_CONTROLLERS,
 		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_CONTROLLERS,
-		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_DOMAIN_NAME
+		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_DOMAIN_NAME,
+		NULL
 	};
 
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);

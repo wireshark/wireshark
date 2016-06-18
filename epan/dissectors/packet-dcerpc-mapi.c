@@ -9223,6 +9223,7 @@ mapi_dissect_bitmap_ulEventType(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 		&hf_mapi_ulEventType_fnevStatusObjectModified,
 		&hf_mapi_ulEventType_fnevReservedForMapi,
 		&hf_mapi_ulEventType_fnevExtended,
+		NULL
 	};
 	guint16 flags;
 	ALIGN_TO_2_BYTES;

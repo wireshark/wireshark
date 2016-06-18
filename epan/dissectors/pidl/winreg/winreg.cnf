@@ -146,7 +146,8 @@ winreg_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 acc
 		&hf_winreg_winreg_AccessMask_KEY_ENUMERATE_SUB_KEYS,
 		&hf_winreg_winreg_AccessMask_KEY_CREATE_SUB_KEY,
 		&hf_winreg_winreg_AccessMask_KEY_SET_VALUE,
-		&hf_winreg_winreg_AccessMask_KEY_QUERY_VALUE
+		&hf_winreg_winreg_AccessMask_KEY_QUERY_VALUE,
+		NULL
 	};
 
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);

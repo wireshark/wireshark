@@ -205,6 +205,7 @@ initshutdown_dissect_bitmap_ReasonFlags(tvbuff_t *tvb _U_, int offset _U_, packe
 	static const int * initshutdown_initshutdown_ReasonFlags_fields[] = {
 		&hf_initshutdown_initshutdown_ReasonFlags_SHTDN_REASON_FLAG_USER_DEFINED,
 		&hf_initshutdown_initshutdown_ReasonFlags_SHTDN_REASON_FLAG_PLANNED,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;

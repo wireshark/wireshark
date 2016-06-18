@@ -365,6 +365,7 @@ frstrans_dissect_bitmap_TransportFlags(tvbuff_t *tvb _U_, int offset _U_, packet
 	proto_item *item;
 	static const int * frstrans_frstrans_TransportFlags_fields[] = {
 		&hf_frstrans_frstrans_TransportFlags_FRSTRANS_TRANSPORT_SUPPORTS_RDC_SIMILARITY,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;

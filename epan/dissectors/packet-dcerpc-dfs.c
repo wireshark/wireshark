@@ -667,6 +667,7 @@ netdfs_dissect_bitmap_dfs_VolumeState(tvbuff_t *tvb _U_, int offset _U_, packet_
 		&hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_ONLINE,
 		&hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_STANDALONE,
 		&hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_AD_BLOB,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
@@ -799,6 +800,7 @@ netdfs_dissect_bitmap_dfs_StorageState(tvbuff_t *tvb _U_, int offset _U_, packet
 		&hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_OFFLINE,
 		&hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_ONLINE,
 		&hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_ACTIVE,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
@@ -1194,6 +1196,7 @@ netdfs_dissect_bitmap_dfs_PropertyFlags(tvbuff_t *tvb _U_, int offset _U_, packe
 		&hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_SITE_COSTING,
 		&hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_TARGET_FAILBACK,
 		&hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_CLUSTER_ENABLED,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;

@@ -1993,7 +1993,8 @@ samr_connect_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint
 		&hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_CREATE_DOMAIN,
 		&hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_INITIALIZE_SERVER,
 		&hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_SHUTDOWN_SERVER,
-		&hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_CONNECT_TO_SERVER
+		&hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_CONNECT_TO_SERVER,
+		NULL
 	};
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
@@ -2019,7 +2020,8 @@ samr_alias_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32
 		&hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_REMOVE_MEMBER,
 		&hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_GET_MEMBERS,
 		&hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_LOOKUP_INFO,
-		&hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_SET_INFO
+		&hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_SET_INFO,
+		NULL
 	};
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
@@ -2045,7 +2047,8 @@ samr_group_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32
 		&hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_REMOVE_MEMBER,
 		&hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_ADD_MEMBER,
 		&hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_SET_INFO,
-		&hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_LOOKUP_INFO
+		&hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_LOOKUP_INFO,
+		NULL
 	};
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
@@ -2077,7 +2080,8 @@ samr_domain_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint3
 		&hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_LOOKUP_ALIAS,
 		&hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_ENUM_ACCOUNTS,
 		&hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_OPEN_ACCOUNT,
-		&hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_SET_INFO_3
+		&hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_SET_INFO_3,
+		NULL
 	};
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
@@ -2109,7 +2113,8 @@ samr_user_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 
 		&hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_LOGONINFO,
 		&hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_SET_LOC_COM,
 		&hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_LOCALE,
-		&hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_NAME_ETC
+		&hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_NAME_ETC,
+		NULL
 	};
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
@@ -2385,6 +2390,7 @@ samr_dissect_bitmap_AcctFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 		&hf_samr_samr_AcctFlags_ACB_PW_EXPIRED,
 		&hf_samr_samr_AcctFlags_ACB_TRUST_AUTH_DELEGAT,
 		&hf_samr_samr_AcctFlags_ACB_NO_AUTH_DATA_REQD,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
@@ -2659,6 +2665,7 @@ samr_dissect_bitmap_PasswordProperties(tvbuff_t *tvb _U_, int offset _U_, packet
 		&hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_LOCKOUT_ADMINS,
 		&hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_STORE_CLEARTEXT,
 		&hf_samr_samr_PasswordProperties_DOMAIN_REFUSE_PASSWORD_CHANGE,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
@@ -3719,6 +3726,7 @@ samr_dissect_bitmap_GroupAttrs(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 		&hf_samr_samr_GroupAttrs_SE_GROUP_USE_FOR_DENY_ONLY,
 		&hf_samr_samr_GroupAttrs_SE_GROUP_RESOURCE,
 		&hf_samr_samr_GroupAttrs_SE_GROUP_LOGON_ID,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
@@ -5750,6 +5758,7 @@ samr_dissect_bitmap_FieldsPresent(tvbuff_t *tvb _U_, int offset _U_, packet_info
 		&hf_samr_samr_FieldsPresent_SAMR_FIELD_EXPIRED_FLAG,
 		&hf_samr_samr_FieldsPresent_SAMR_FIELD_SEC_DESC,
 		&hf_samr_samr_FieldsPresent_SAMR_FIELD_OWF_PWD,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
@@ -7893,6 +7902,7 @@ samr_dissect_bitmap_ValidateFieldsPresent(tvbuff_t *tvb _U_, int offset _U_, pac
 		&hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_BAD_PASSWORD_COUNT,
 		&hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_PASSWORD_HISTORY_LENGTH,
 		&hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_PASSWORD_HISTORY,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;

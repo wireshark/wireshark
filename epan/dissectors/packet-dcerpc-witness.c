@@ -412,6 +412,7 @@ witness_dissect_bitmap_interfaceInfo_flags(tvbuff_t *tvb _U_, int offset _U_, pa
 		&hf_witness_witness_interfaceInfo_flags_WITNESS_INFO_IPv4_VALID,
 		&hf_witness_witness_interfaceInfo_flags_WITNESS_INFO_IPv6_VALID,
 		&hf_witness_witness_interfaceInfo_flags_WITNESS_INFO_WITNESS_IF,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
@@ -713,6 +714,7 @@ witness_dissect_bitmap_IPaddrInfo_flags(tvbuff_t *tvb _U_, int offset _U_, packe
 		&hf_witness_witness_IPaddrInfo_flags_WITNESS_IPADDR_V6,
 		&hf_witness_witness_IPaddrInfo_flags_WITNESS_IPADDR_ONLINE,
 		&hf_witness_witness_IPaddrInfo_flags_WITNESS_IPADDR_OFFLINE,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
@@ -961,6 +963,7 @@ witness_dissect_bitmap_RegisterEx_flags(tvbuff_t *tvb _U_, int offset _U_, packe
 	static const int * witness_witness_RegisterEx_flags_fields[] = {
 		&hf_witness_witness_RegisterEx_flags_WITNESS_REGISTER_NONE,
 		&hf_witness_witness_RegisterEx_flags_WITNESS_REGISTER_IP_NOTIFICATION,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;

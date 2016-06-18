@@ -574,7 +574,8 @@ winreg_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 acc
 		&hf_winreg_winreg_AccessMask_KEY_ENUMERATE_SUB_KEYS,
 		&hf_winreg_winreg_AccessMask_KEY_CREATE_SUB_KEY,
 		&hf_winreg_winreg_AccessMask_KEY_SET_VALUE,
-		&hf_winreg_winreg_AccessMask_KEY_QUERY_VALUE
+		&hf_winreg_winreg_AccessMask_KEY_QUERY_VALUE,
+		NULL
 	};
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
@@ -890,6 +891,7 @@ winreg_dissect_bitmap_KeyOptions(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 		&hf_winreg_winreg_KeyOptions_REG_OPTION_CREATE_LINK,
 		&hf_winreg_winreg_KeyOptions_REG_OPTION_BACKUP_RESTORE,
 		&hf_winreg_winreg_KeyOptions_REG_OPTION_OPEN_LINK,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
@@ -1108,6 +1110,7 @@ winreg_dissect_bitmap_NotifyChangeType(tvbuff_t *tvb _U_, int offset _U_, packet
 		&hf_winreg_winreg_NotifyChangeType_REG_NOTIFY_CHANGE_ATTRIBUTES,
 		&hf_winreg_winreg_NotifyChangeType_REG_NOTIFY_CHANGE_LAST_SET,
 		&hf_winreg_winreg_NotifyChangeType_REG_NOTIFY_CHANGE_SECURITY,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
@@ -1145,6 +1148,7 @@ winreg_dissect_bitmap_RestoreKeyFlags(tvbuff_t *tvb _U_, int offset _U_, packet_
 		&hf_winreg_winreg_RestoreKeyFlags_REG_REFRESH_HIVE,
 		&hf_winreg_winreg_RestoreKeyFlags_REG_NO_LAZY_FLUSH,
 		&hf_winreg_winreg_RestoreKeyFlags_REG_FORCE_RESTORE,
+		NULL
 	};
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
