@@ -53,9 +53,11 @@
  */
 
 /** Global compile time version string */
-extern GString *comp_info_str;
+extern void get_wireshark_gtk_compiled_info(GString *str);
+extern void get_gui_compiled_info(GString *str);
 /** Global runtime version string */
-extern GString *runtime_info_str;
+extern void get_wireshark_runtime_info(GString *str);
+
 
 extern GtkWidget* wireless_tb;
 

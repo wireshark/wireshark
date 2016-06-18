@@ -45,6 +45,7 @@ WIRESHARK_UI_SRC = \
 	alert_box.c		\
 	capture.c		\
 	capture_ui_utils.c	\
+	commandline.c	\
 	console.c		\
 	decode_as_utils.c	\
 	export_object.c		\
@@ -89,6 +90,7 @@ noinst_HEADERS = \
 	capture.h		\
 	capture_globals.h	\
 	capture_ui_utils.h	\
+	commandline.h	\
 	console.h		\
 	decode_as_utils.h	\
 	export_object.h		\

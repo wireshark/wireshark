@@ -301,6 +301,7 @@ about_wireshark_page_new(void)
 {
   GtkWidget *main_box, *msg_label /*, *icon*/;
   gchar     *message;
+  GString   *comp_info_str, *runtime_info_str;
 
   main_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_box), 12);
@@ -309,6 +310,10 @@ about_wireshark_page_new(void)
     "gtk-label-select-on-focus", FALSE, NULL);
 
   about_wireshark(top_level, main_box);
+
+  comp_info_str = get_compiled_version_info(get_wireshark_gtk_compiled_info,
+                                              get_gui_compiled_info);
+  runtime_info_str = get_runtime_version_info(get_wireshark_runtime_info);
 
   /* Construct the message string */
   message = g_strdup_printf(

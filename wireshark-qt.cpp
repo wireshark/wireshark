@@ -53,6 +53,7 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/column.h>
 #include <epan/disabled_protos.h>
+#include <epan/prefs.h>
 
 #ifdef HAVE_KERBEROS
 #include <epan/packet.h>
@@ -84,6 +85,7 @@
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
 #include "ui/util.h"
+#include "ui/commandline.h"
 
 #include "ui/qt/conversation_dialog.h"
 #include "ui/qt/color_utils.h"
@@ -124,8 +126,6 @@
 capture_options global_capture_opts;
 #endif
 
-GString *comp_info_str, *runtime_info_str;
-
 /* update the main window */
 void main_window_update(void)
 {
@@ -148,115 +148,6 @@ void main_window_quit(void)
 }
 
 #endif /* HAVE_LIBPCAP */
-
-
-// xxx copied from ../gtk/main.c
-static void
-print_usage(gboolean for_help_option) {
-    FILE *output;
-
-#ifdef _WIN32
-    create_console();
-#endif
-
-    if (for_help_option) {
-        output = stdout;
-        fprintf(output, "Wireshark %s\n"
-                "Interactively dump and analyze network traffic.\n"
-                "See https://www.wireshark.org for more information.\n",
-                get_ws_vcs_version_info());
-    } else {
-        output = stderr;
-    }
-    fprintf(output, "\n");
-    fprintf(output, "Usage: wireshark [options] ... [ <infile> ]\n");
-    fprintf(output, "\n");
-
-#ifdef HAVE_LIBPCAP
-    fprintf(output, "Capture interface:\n");
-    fprintf(output, "  -i <interface>           name or idx of interface (def: first non-loopback)\n");
-    fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
-    fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
-    fprintf(output, "  -p                       don't capture in promiscuous mode\n");
-    fprintf(output, "  -k                       start capturing immediately (def: do nothing)\n");
-    fprintf(output, "  -S                       update packet display when new packets are captured\n");
-    fprintf(output, "  -l                       turn on automatic scrolling while -S is in use\n");
-#ifdef HAVE_PCAP_CREATE
-    fprintf(output, "  -I                       capture in monitor mode, if available\n");
-#endif
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
-    fprintf(output, "  -B <buffer size>         size of kernel buffer (def: %dMB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
-#endif
-    fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
-    fprintf(output, "  -D                       print list of interfaces and exit\n");
-    fprintf(output, "  -L                       print list of link-layer types of iface and exit\n");
-    fprintf(output, "\n");
-    fprintf(output, "Capture stop conditions:\n");
-    fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
-    fprintf(output, "  -a <autostop cond.> ...  duration:NUM - stop after NUM seconds\n");
-    fprintf(output, "                           filesize:NUM - stop this file after NUM KB\n");
-    fprintf(output, "                              files:NUM - stop after NUM files\n");
-    /*fprintf(output, "\n");*/
-    fprintf(output, "Capture output:\n");
-    fprintf(output, "  -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs\n");
-    fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
-    fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
-#endif  /* HAVE_LIBPCAP */
-#ifdef HAVE_PCAP_REMOTE
-    fprintf(output, "RPCAP options:\n");
-    fprintf(output, "  -A <user>:<password>     use RPCAP password authentication\n");
-#endif
-    /*fprintf(output, "\n");*/
-    fprintf(output, "Input file:\n");
-    fprintf(output, "  -r <infile>              set the filename to read from (no pipes or stdin!)\n");
-
-    fprintf(output, "\n");
-    fprintf(output, "Processing:\n");
-    fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");
-    fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
-    fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtd\"\n");
-    fprintf(output, "  --disable-protocol <proto_name>\n");
-    fprintf(output, "                           disable dissection of proto_name\n");
-    fprintf(output, "  --enable-heuristic <short_name>\n");
-    fprintf(output, "                           enable dissection of heuristic protocol\n");
-    fprintf(output, "  --disable-heuristic <short_name>\n");
-    fprintf(output, "                           disable dissection of heuristic protocol\n");
-
-    fprintf(output, "\n");
-    fprintf(output, "User interface:\n");
-    fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
-    fprintf(output, "  -Y <display filter>      start with the given display filter\n");
-    fprintf(output, "  -g <packet number>       go to specified packet number after \"-r\"\n");
-    fprintf(output, "  -J <jump filter>         jump to the first packet matching the (display)\n");
-    fprintf(output, "                           filter\n");
-    fprintf(output, "  -j                       search backwards for a matching packet after \"-J\"\n");
-    fprintf(output, "  -m <font>                set the font name used for most text\n");
-    fprintf(output, "  -t a|ad|d|dd|e|r|u|ud    output format of time stamps (def: r: rel. to first)\n");
-    fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
-    fprintf(output, "  -X <key>:<value>         eXtension options, see man page for details\n");
-    fprintf(output, "  -z <statistics>          show various statistics, see man page for details\n");
-
-    fprintf(output, "\n");
-    fprintf(output, "Output:\n");
-    fprintf(output, "  -w <outfile|->           set the output filename (or '-' for stdout)\n");
-
-    fprintf(output, "\n");
-    fprintf(output, "Miscellaneous:\n");
-    fprintf(output, "  -h                       display this help and exit\n");
-    fprintf(output, "  -v                       display version info and exit\n");
-    fprintf(output, "  -P <key>:<path>          persconf:path - personal configuration files\n");
-    fprintf(output, "                           persdata:path - personal data files\n");
-    fprintf(output, "  -o <name>:<value> ...    override preference or recent setting\n");
-    fprintf(output, "  -K <keytab>              keytab file to use for kerberos decryption\n");
-#ifndef _WIN32
-    fprintf(output, "  --display=DISPLAY        X display to use\n");
-#endif
-    fprintf(output, "\nNOTE: Not all options are implemented in the Qt port.\n");
-
-#ifdef _WIN32
-    destroy_console();
-#endif
-}
 
 /*
  * Report an error in command-line arguments.
@@ -292,7 +183,7 @@ wireshark_cmdarg_err_cont(const char *fmt, va_list ap)
 }
 
 // xxx based from ../gtk/main.c:get_gtk_compiled_info
-static void
+void
 get_wireshark_qt_compiled_info(GString *str)
 {
     g_string_append(str, "with ");
@@ -309,7 +200,7 @@ get_wireshark_qt_compiled_info(GString *str)
 }
 
 // xxx copied from ../gtk/main.c
-static void
+void
 get_gui_compiled_info(GString *str)
 {
     epan_get_compiled_version_info(str);
@@ -330,7 +221,7 @@ get_gui_compiled_info(GString *str)
 }
 
 // xxx copied from ../gtk/main.c
-static void
+void
 get_wireshark_runtime_info(GString *str)
 {
 #ifdef HAVE_LIBPCAP
@@ -423,7 +314,6 @@ int main(int argc, char *argv[])
     MainWindow *main_w;
 
     int                  opt, ret_val;
-    gboolean             arg_error = FALSE;
     char               **ws_argv = argv;
 
 #ifdef _WIN32
@@ -434,10 +324,6 @@ int main(int argc, char *argv[])
     int                  rf_open_errno;
     char                *gdp_path, *dp_path;
 #ifdef HAVE_LIBPCAP
-    int                  err;
-    gboolean             start_capture = FALSE;
-    gboolean             list_link_layer_types = FALSE;
-    GList               *if_list;
     gchar               *err_str;
     int                  status;
 #else
@@ -448,14 +334,13 @@ int main(int argc, char *argv[])
 #endif
 #endif
 #endif
-    e_prefs             *prefs_p;
-    char                 badopt;
-    guint                go_to_packet = 0;
+    commandline_capture_param_info_t capture_param_info;
+    commandline_param_info_t commandline_info;
 
     QString              dfilter, read_filter;
-    GSList              *disable_protocol_slist = NULL;
-    GSList              *enable_heur_slist = NULL;
-    GSList              *disable_heur_slist = NULL;
+
+    /* Initialize the capture arguments */
+    memset(&capture_param_info, 0, sizeof(capture_param_info));
 
     cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
 
@@ -549,13 +434,11 @@ int main(int argc, char *argv[])
 #endif /* _WIN32 */
 
     /* Get the compile-time version information string */
-    // XXX qtshark
-    comp_info_str = get_compiled_version_info(get_wireshark_qt_compiled_info,
+    capture_param_info.comp_info_str = get_compiled_version_info(get_wireshark_qt_compiled_info,
                                               get_gui_compiled_info);
 
     /* Assemble the run-time version information string */
-    // xxx qtshark
-    runtime_info_str = get_runtime_version_info(get_wireshark_runtime_info);
+    capture_param_info.runtime_info_str = get_runtime_version_info(get_wireshark_runtime_info);
 
     profile_store_persconffiles(TRUE);
 
@@ -568,128 +451,7 @@ int main(int argc, char *argv[])
         g_free(rf_path);
     }
 
-    /*
-     * In order to have the -X opts assigned before the wslua machine starts
-     * we need to call getopt_long before epan_init() gets called.
-     *
-     * In addition, we process "console only" parameters (ones where we
-     * send output to the console and exit) here, so we don't start Qt
-     * if we're only showing command-line help or version information.
-     *
-     * XXX - this pre-scan is done before we start Qt, so we haven't
-     * run WiresharkApplication's constructor on the arguments.  That
-     * means that Qt arguments have not been removed from the argument
-     * list; those arguments begin with "-", and may be treated as
-     * errors by getopt_long().
-     *
-     * We thus ignore errors - *and* set "opterr" to 0 to suppress the
-     * error messages.
-     *
-     * XXX - is there some way to parse and remove Qt arguments without
-     * starting up the GUI, which we can call before calling this?
-     *
-     * In order to handle, for example, -o options, we also need to call it
-     * *after* epan_init() gets called, so that the dissectors have had a
-     * chance to register their preferences, so we have another getopt_long()
-     * call later.
-     *
-     * XXX - can we do this all with one getopt_long() call, saving the
-     * arguments we can't handle until after initializing libwireshark,
-     * and then process them after initializing libwireshark?
-     *
-     * Note that we don't want to initialize libwireshark until after the
-     * GUI is up, as that can take a while, and we want a window of some
-     * sort up to show progress while that's happening.
-     */
-    // XXX Should the remaining code be in WiresharkApplcation::WiresharkApplication?
-#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:g:Hh" "jJ:kK:lm:nN:o:P:r:R:St:u:vw:X:Y:z:"
-    static const struct option long_options[] = {
-        {"help", no_argument, NULL, 'h'},
-        {"read-file", required_argument, NULL, 'r' },
-        {"read-filter", required_argument, NULL, 'R' },
-        {"display-filter", required_argument, NULL, 'Y' },
-        {"version", no_argument, NULL, 'v'},
-        LONGOPT_CAPTURE_COMMON
-        {0, 0, 0, 0 }
-    };
-    static const char optstring[] = OPTSTRING;
-
-    opterr = 0;
-
-    while ((opt = getopt_long(argc, ws_argv, optstring, long_options, NULL)) != -1) {
-        switch (opt) {
-            case 'C':        /* Configuration Profile */
-                if (profile_exists (optarg, FALSE)) {
-                    set_profile_name (optarg);
-                } else {
-                    cmdarg_err("Configuration Profile \"%s\" does not exist", optarg);
-                    exit(1);
-                }
-                break;
-            case 'D':        /* Print a list of capture devices and exit */
-#ifdef HAVE_LIBPCAP
-                if_list = capture_interface_list(&err, &err_str, NULL);
-                if (if_list == NULL) {
-                    if (err == 0)
-                        cmdarg_err("There are no interfaces on which a capture can be done");
-                    else {
-                        cmdarg_err("%s", err_str);
-                        g_free(err_str);
-                    }
-                    exit(2);
-                }
-#ifdef _WIN32
-                create_console();
-#endif /* _WIN32 */
-                capture_opts_print_interfaces(if_list);
-                free_interface_list(if_list);
-#ifdef _WIN32
-                destroy_console();
-#endif /* _WIN32 */
-                exit(0);
-#else /* HAVE_LIBPCAP */
-                capture_option_specified = TRUE;
-                arg_error = TRUE;
-#endif /* HAVE_LIBPCAP */
-                break;
-            case 'h':        /* Print help and exit */
-                print_usage(TRUE);
-                exit(0);
-                break;
-#ifdef _WIN32
-            case 'i':
-                if (strcmp(optarg, "-") == 0)
-                    set_stdin_capture(TRUE);
-                break;
-#endif
-            case 'P':        /* Personal file directory path settings - change these before the Preferences and alike are processed */
-                if (!persfilepath_opt(opt, optarg)) {
-                    cmdarg_err("-P flag \"%s\" failed (hint: is it quoted and existing?)", optarg);
-                    exit(2);
-                }
-                break;
-            case 'v':        /* Show version and exit */
-#ifdef _WIN32
-                create_console();
-#endif
-                show_version("Wireshark", comp_info_str, runtime_info_str);
-#ifdef _WIN32
-                destroy_console();
-#endif
-                exit(0);
-                break;
-            case 'X':
-                /*
-                 *  Extension command line options have to be processed before
-                 *  we call epan_init() as they are supposed to be used by dissectors
-                 *  or taps very early in the registration process.
-                 */
-                ex_opt_add(optarg);
-                break;
-            case '?':        /* Ignore errors - the "real" scan will catch them. */
-                break;
-        }
-    }
+    commandline_capture_options(argc, ws_argv, &capture_param_info);
 
 #ifdef _WIN32
     reset_library_path();
@@ -714,7 +476,7 @@ int main(int argc, char *argv[])
            "%s"
            "\n"
            "%s",
-        get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
+        get_ws_vcs_version_info(), capture_param_info.comp_info_str->str, capture_param_info.runtime_info_str->str);
 
 #ifdef _WIN32
     /* Start windows sockets */
@@ -831,309 +593,39 @@ int main(int argc, char *argv[])
 
     splash_update(RA_PREFERENCES, NULL, NULL);
 
-    prefs_p = ws_app.readConfigurationFiles(&gdp_path, &dp_path, false);
+    commandline_info.prefs_p = ws_app.readConfigurationFiles(&gdp_path, &dp_path, false);
 
-    /*
-     * To reset the options parser, set optreset to 1 on platforms that
-     * have optreset (documented in *BSD and OS X, apparently present but
-     * not documented in Solaris - the Illumos repository seems to
-     * suggest that the first Solaris getopt_long(), at least as of 2004,
-     * was based on the NetBSD one, it had optreset) and set optind to 1,
-     * and set optind to 0 otherwise (documented as working in the GNU
-     * getopt_long().  Setting optind to 0 didn't originally work in the
-     * NetBSD one, but that was added later - we don't want to depend on
-     * it if we have optreset).
-     *
-     * Also reset opterr to 1, so that error messages are printed by
-     * getopt_long().
-     *
-     * XXX - if we want to control all the command-line option errors, so
-     * that we can display them where we choose (e.g., in a window), we'd
-     * want to leave opterr as 0, and produce our own messages using optopt.
-     * We'd have to check the value of optopt to see if it's a valid option
-     * letter, in which case *presumably* the error is "this option requires
-     * an argument but none was specified", or not a valid option letter,
-     * in which case *presumably* the error is "this option isn't valid".
-     * Some versions of getopt() let you supply a option string beginning
-     * with ':', which means that getopt() will return ':' rather than '?'
-     * for "this option requires an argument but none was specified", but
-     * not all do.  But we're now using getopt_long() - what does it do?
-     */
-#ifdef HAVE_OPTRESET
-    optreset = 1;
-    optind = 1;
-#else
-    optind = 0;
+    /* Initialize commandline_info with default values */
+    commandline_info.jump_backwards = SD_FORWARD;
+    commandline_info.go_to_packet = 0;
+    commandline_info.jfilter = NULL;
+    commandline_info.cf_name = NULL;
+    commandline_info.rfilter = NULL;
+    commandline_info.dfilter = NULL;
+#ifdef HAVE_LIBPCAP
+    commandline_info.start_capture = FALSE;
+    commandline_info.list_link_layer_types = FALSE;
 #endif
-    opterr = 1;
+    commandline_info.disable_protocol_slist = NULL;
+    commandline_info.enable_heur_slist = NULL;
+    commandline_info.disable_heur_slist = NULL;
+
+    /* Transfer capture option data to other options structure */
+    commandline_info.arg_error = capture_param_info.arg_error;
+#ifndef HAVE_LIBPCAP
+    commandline_info.capture_option_specified = capture_param_info.capture_option_specified;
+#endif
 
     /* Now get our args */
-    while ((opt = getopt_long(argc, ws_argv, optstring, long_options, NULL)) != -1) {
-        switch (opt) {
-        /*** capture option specific ***/
-        case 'a':        /* autostop criteria */
-        case 'b':        /* Ringbuffer option */
-        case 'c':        /* Capture xxx packets */
-        case 'f':        /* capture filter */
-        case 'k':        /* Start capture immediately */
-        case 'H':        /* Hide capture info dialog box */
-        case 'p':        /* Don't capture in promiscuous mode */
-        case 'i':        /* Use interface x */
-#ifdef HAVE_PCAP_CREATE
-        case 'I':        /* Capture in monitor mode, if available */
-#endif
-#ifdef HAVE_PCAP_REMOTE
-        case 'A':        /* Authentication */
-#endif
-        case 's':        /* Set the snapshot (capture) length */
-        case 'S':        /* "Sync" mode: used for following file ala tail -f */
-        case 'w':        /* Write to capture file xxx */
-        case 'y':        /* Set the pcap data link type */
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
-        case 'B':        /* Buffer size */
-#endif
-#ifdef HAVE_LIBPCAP
-            status = capture_opts_add_opt(&global_capture_opts, opt, optarg,
-                                          &start_capture);
-            if(status != 0) {
-                exit(status);
-            }
-#else
-            capture_option_specified = TRUE;
-            arg_error = TRUE;
-#endif
-            break;
-#ifdef HAVE_KERBEROS
-        case 'K':        /* Kerberos keytab file */
-            read_keytab_file(optarg);
-            break;
-#endif
+    commandline_other_options(argc, argv, &commandline_info, TRUE);
 
-        /*** all non capture option specific ***/
-        case 'C':
-            /* Configuration profile settings were already processed just ignore them this time*/
-            break;
-        case 'j':        /* Search backwards for a matching packet from filter in option J */
-            /* Not supported yet */
-            break;
-        case 'g':        /* Go to packet with the given packet number */
-            go_to_packet = get_positive_int(optarg, "go to packet");
-            break;
-        case 'J':        /* Jump to the first packet which matches the filter criteria */
-            /* Not supported yet */
-            break;
-        case 'l':        /* Automatic scrolling in live capture mode */
-#ifdef HAVE_LIBPCAP
-            /* Not supported yet */
-#else
-            capture_option_specified = TRUE;
-            arg_error = TRUE;
-#endif
-            break;
-        case 'L':        /* Print list of link-layer types and exit */
-#ifdef HAVE_LIBPCAP
-                list_link_layer_types = TRUE;
-#else
-                capture_option_specified = TRUE;
-                arg_error = TRUE;
-#endif
-            break;
-        case 'm':        /* Fixed-width font for the display */
-            /* Not supported yet */
-            break;
-        case 'n':        /* No name resolution */
-            disable_name_resolution();
-            break;
-        case 'N':        /* Select what types of addresses/port #s to resolve */
-            badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
-            if (badopt != '\0') {
-                cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'd', m', 'n', 'N', and 't'",
-                           badopt);
-                exit(1);
-            }
-            break;
-        case 'o':        /* Override preference from command line */
-            switch (prefs_set_pref(optarg)) {
-                case PREFS_SET_OK:
-                    break;
-                case PREFS_SET_SYNTAX_ERR:
-                    cmdarg_err("Invalid -o flag \"%s\"", optarg);
-                    exit(1);
-                    break;
-                case PREFS_SET_NO_SUCH_PREF:
-                /* not a preference, might be a recent setting */
-                    switch (recent_set_arg(optarg)) {
-                        case PREFS_SET_OK:
-                            break;
-                        case PREFS_SET_SYNTAX_ERR:
-                            /* shouldn't happen, checked already above */
-                            cmdarg_err("Invalid -o flag \"%s\"", optarg);
-                            exit(1);
-                            break;
-                        case PREFS_SET_NO_SUCH_PREF:
-                        case PREFS_SET_OBSOLETE:
-                            cmdarg_err("-o flag \"%s\" specifies unknown preference/recent value",
-                                       optarg);
-                            exit(1);
-                            break;
-                        default:
-                            g_assert_not_reached();
-                    }
-                    break;
-                case PREFS_SET_OBSOLETE:
-                    cmdarg_err("-o flag \"%s\" specifies obsolete preference",
-                               optarg);
-                    exit(1);
-                    break;
-                default:
-                    g_assert_not_reached();
-            }
-            break;
-        case 'P':
-            /* Path settings were already processed just ignore them this time*/
-            break;
-        case 'r':
-            cf_name = optarg;
-            break;
-        case 'R':        /* Read file filter */
-            read_filter = QString(optarg);
-            break;
-        case 't':        /* Time stamp type */
-            if (strcmp(optarg, "r") == 0)
-                timestamp_set_type(TS_RELATIVE);
-            else if (strcmp(optarg, "a") == 0)
-                timestamp_set_type(TS_ABSOLUTE);
-            else if (strcmp(optarg, "ad") == 0)
-                timestamp_set_type(TS_ABSOLUTE_WITH_YMD);
-            else if (strcmp(optarg, "adoy") == 0)
-                timestamp_set_type(TS_ABSOLUTE_WITH_YDOY);
-            else if (strcmp(optarg, "d") == 0)
-                timestamp_set_type(TS_DELTA);
-            else if (strcmp(optarg, "dd") == 0)
-                timestamp_set_type(TS_DELTA_DIS);
-            else if (strcmp(optarg, "e") == 0)
-                timestamp_set_type(TS_EPOCH);
-            else if (strcmp(optarg, "u") == 0)
-                timestamp_set_type(TS_UTC);
-            else if (strcmp(optarg, "ud") == 0)
-                timestamp_set_type(TS_UTC_WITH_YMD);
-            else if (strcmp(optarg, "udoy") == 0)
-                timestamp_set_type(TS_UTC_WITH_YDOY);
-            else {
-                cmdarg_err("Invalid time stamp type \"%s\"", optarg);
-                cmdarg_err_cont(
-"It must be \"a\" for absolute, \"ad\" for absolute with YYYY-MM-DD date,");
-                cmdarg_err_cont(
-"\"adoy\" for absolute with YYYY/DOY date, \"d\" for delta,");
-                cmdarg_err_cont(
-"\"dd\" for delta displayed, \"e\" for epoch, \"r\" for relative,");
-                cmdarg_err_cont(
-"\"u\" for absolute UTC, \"ud\" for absolute UTC with YYYY-MM-DD date,");
-                cmdarg_err_cont(
-"or \"udoy\" for absolute UTC with YYYY/DOY date.");
-                exit(1);
-            }
-            break;
-        case 'u':        /* Seconds type */
-            if (strcmp(optarg, "s") == 0)
-                timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
-            else if (strcmp(optarg, "hms") == 0)
-                timestamp_set_seconds_type(TS_SECONDS_HOUR_MIN_SEC);
-            else {
-                cmdarg_err("Invalid seconds type \"%s\"", optarg);
-                cmdarg_err_cont(
-"It must be \"s\" for seconds or \"hms\" for hours, minutes and seconds.");
-                exit(1);
-            }
-            break;
-        case 'X':
-            /* ext ops were already processed just ignore them this time*/
-            break;
-        case 'Y':
-            dfilter = QString(optarg);
-            break;
-        case 'z':
-            /* We won't call the init function for the stat this soon
-             as it would disallow MATE's fields (which are registered
-             by the preferences set callback) from being used as
-             part of a tap filter.  Instead, we just add the argument
-             to a list of stat arguments. */
-            if (strcmp("help", optarg) == 0) {
-              fprintf(stderr, "wireshark: The available statistics for the \"-z\" option are:\n");
-              list_stat_cmd_args();
-              exit(0);
-            }
-            if (!process_stat_cmd_arg(optarg)) {
-                cmdarg_err("Invalid -z argument.");
-                cmdarg_err_cont("  -z argument must be one of :");
-                list_stat_cmd_args();
-                exit(1);
-            }
-            break;
-        case LONGOPT_DISABLE_PROTOCOL: /* disable dissection of protocol */
-            disable_protocol_slist = g_slist_append(disable_protocol_slist, optarg);
-            break;
-        case LONGOPT_ENABLE_HEURISTIC: /* enable heuristic dissection of protocol */
-            enable_heur_slist = g_slist_append(enable_heur_slist, optarg);
-            break;
-        case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
-            disable_heur_slist = g_slist_append(disable_heur_slist, optarg);
-            break;
-
-        default:
-        case '?':        /* Bad flag - print usage message */
-            print_usage(FALSE);
-            exit(0);
-            break;
-        }
-    }
-
-    if (!arg_error) {
-        argc -= optind;
-        ws_argv += optind;
-        if (argc >= 1) {
-            if (!cf_name.isEmpty()) {
-                /*
-                 * Input file name specified with "-r" *and* specified as a regular
-                 * command-line argument.
-                 */
-                cmdarg_err("File name specified both with -r and regular argument");
-                arg_error = TRUE;
-            } else {
-                /*
-                 * Input file name not specified with "-r", and a command-line argument
-                 * was specified; treat it as the input file name.
-                 *
-                 * Yes, this is different from tshark, where non-flag command-line
-                 * arguments are a filter, but this works better on GUI desktops
-                 * where a command can be specified to be run to open a particular
-                 * file - yes, you could have "-r" as the last part of the command,
-                 * but that's a bit ugly.
-                 */
-                cf_name = ws_argv[0];
-
-            }
-            argc--;
-            ws_argv++;
-        }
-
-        if (argc != 0) {
-            /*
-             * Extra command line arguments were specified; complain.
-             */
-            cmdarg_err("Invalid argument: %s", ws_argv[0]);
-            arg_error = TRUE;
-        }
-    }
-    if (arg_error) {
-#ifndef HAVE_LIBPCAP
-        if (capture_option_specified) {
-            cmdarg_err("This version of Wireshark was not built with support for capturing packets.");
-        }
-#endif
-        print_usage(FALSE);
-        exit(1);
-    }
+    /* Convert some command-line parameters to QStrings */
+    if (commandline_info.cf_name != NULL)
+        cf_name = QString(commandline_info.cf_name);
+    if (commandline_info.rfilter != NULL)
+        read_filter = QString(commandline_info.rfilter);
+    if (commandline_info.dfilter != NULL)
+        dfilter = QString(commandline_info.dfilter);
 
     /* Removed thread code:
      * https://code.wireshark.org/review/gitweb?p=wireshark.git;a=commit;h=9e277ae6154fd04bf6a0a34ec5655a73e5a736a3
@@ -1147,13 +639,13 @@ int main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
     fill_in_local_interfaces(main_window_update);
 
-    if (start_capture && list_link_layer_types) {
+    if (commandline_info.start_capture && commandline_info.list_link_layer_types) {
         /* Specifying *both* is bogus. */
         cmdarg_err("You can't specify both -L and a live capture.");
         exit(1);
     }
 
-    if (list_link_layer_types) {
+    if (commandline_info.list_link_layer_types) {
         /* We're supposed to list the link-layer types for an interface;
            did the user also specify a capture file to be read? */
         if (!cf_name.isEmpty()) {
@@ -1169,7 +661,7 @@ int main(int argc, char *argv[])
     } else {
         /* We're supposed to do a live capture; did the user also specify
            a capture file to be read? */
-        if (start_capture && !cf_name.isEmpty()) {
+        if (commandline_info.start_capture && !cf_name.isEmpty()) {
             /* Yes - that's bogus. */
             cmdarg_err("You can't specify both a live capture and a capture file to be read.");
             exit(1);
@@ -1195,18 +687,18 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (start_capture || list_link_layer_types) {
+    if (commandline_info.start_capture || commandline_info.list_link_layer_types) {
         /* We're supposed to do a live capture or get a list of link-layer
            types for a live capture device; if the user didn't specify an
            interface to use, pick a default. */
         status = capture_opts_default_iface_if_necessary(&global_capture_opts,
-        ((prefs_p->capture_device) && (*prefs_p->capture_device != '\0')) ? get_if_name(prefs_p->capture_device) : NULL);
+        ((commandline_info.prefs_p->capture_device) && (*commandline_info.prefs_p->capture_device != '\0')) ? get_if_name(commandline_info.prefs_p->capture_device) : NULL);
         if (status != 0) {
             exit(status);
         }
     }
 
-    if (list_link_layer_types) {
+    if (commandline_info.list_link_layer_types) {
         /* Get the list of link-layer types for the capture devices. */
         if_capabilities_t *caps;
         guint i;
@@ -1280,31 +772,31 @@ int main(int argc, char *argv[])
         set_disabled_heur_dissector_list();
     }
 
-    if(disable_protocol_slist) {
+    if(commandline_info.disable_protocol_slist) {
         GSList *proto_disable;
-        for (proto_disable = disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
+        for (proto_disable = commandline_info.disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
         {
             proto_disable_proto_by_name((char*)proto_disable->data);
         }
     }
 
-    if(enable_heur_slist) {
+    if(commandline_info.enable_heur_slist) {
         GSList *heur_enable;
-        for (heur_enable = enable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable))
+        for (heur_enable = commandline_info.enable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable))
         {
             proto_enable_heuristic_by_name((char*)heur_enable->data, TRUE);
         }
     }
 
-    if(disable_heur_slist) {
+    if(commandline_info.disable_heur_slist) {
         GSList *heur_disable;
-        for (heur_disable = disable_heur_slist; heur_disable != NULL; heur_disable = g_slist_next(heur_disable))
+        for (heur_disable = commandline_info.disable_heur_slist; heur_disable != NULL; heur_disable = g_slist_next(heur_disable))
         {
             proto_enable_heuristic_by_name((char*)heur_disable->data, FALSE);
         }
     }
 
-    build_column_format_array(&CaptureFile::globalCapFile()->cinfo, prefs_p->num_cols, TRUE);
+    build_column_format_array(&CaptureFile::globalCapFile()->cinfo, commandline_info.prefs_p->num_cols, TRUE);
     wsApp->emitAppSignal(WiresharkApplication::ColumnsChanged); // We read "recent" widths above.
     wsApp->emitAppSignal(WiresharkApplication::RecentFilesRead); // Must be emitted after PreferencesChanged.
 
@@ -1342,7 +834,7 @@ int main(int argc, char *argv[])
 
 #ifdef HAVE_LIBPCAP
     /* if the user didn't supply a capture filter, use the one to filter out remote connections like SSH */
-    if (!start_capture && !global_capture_opts.default_options.cfilter) {
+    if (!commandline_info.start_capture && !global_capture_opts.default_options.cfilter) {
         global_capture_opts.default_options.cfilter = g_strdup(get_conn_cfilter());
     }
 #else /* HAVE_LIBPCAP */
@@ -1368,16 +860,16 @@ int main(int argc, char *argv[])
                filter. */
             start_requested_stats();
 
-            if(go_to_packet != 0) {
+            if(commandline_info.go_to_packet != 0) {
                 /* Jump to the specified frame number, kept for backward
                    compatibility. */
-                cf_goto_frame(CaptureFile::globalCapFile(), go_to_packet);
+                cf_goto_frame(CaptureFile::globalCapFile(), commandline_info.go_to_packet);
             }
         }
     }
 #ifdef HAVE_LIBPCAP
     else {
-        if (start_capture) {
+        if (commandline_info.start_capture) {
             if (global_capture_opts.save_file != NULL) {
                 /* Save the directory name for future file dialogs. */
                 /* (get_dirname overwrites filename) */
@@ -1406,7 +898,7 @@ int main(int argc, char *argv[])
             }
         }
     /* if the user didn't supply a capture filter, use the one to filter out remote connections like SSH */
-        if (!start_capture && !global_capture_opts.default_options.cfilter) {
+        if (!commandline_info.start_capture && !global_capture_opts.default_options.cfilter) {
             global_capture_opts.default_options.cfilter = g_strdup(get_conn_cfilter());
         }
     }

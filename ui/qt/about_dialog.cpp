@@ -159,6 +159,9 @@ AboutDialog::AboutDialog(QWidget *parent) :
     gint i;
     gchar **resultArray;
 #endif
+  GString *comp_info_str = get_compiled_version_info(get_wireshark_qt_compiled_info,
+                                              get_gui_compiled_info);
+  GString *runtime_info_str = get_runtime_version_info(get_wireshark_runtime_info);
 
     /* Wireshark tab */
 

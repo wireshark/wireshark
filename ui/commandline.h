@@ -1,0 +1,86 @@
+/* commandline.h
+ * Common command line handling between GUIs
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+#ifndef __COMMANDLINE_H__
+#define __COMMANDLINE_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+extern void commandline_print_usage(gboolean for_help_option);
+
+typedef struct commandline_capture_param_info
+{
+    GString *comp_info_str;
+    GString *runtime_info_str;
+    gboolean arg_error;
+#ifndef HAVE_LIBPCAP
+    gboolean capture_option_specified;
+#endif
+} commandline_capture_param_info_t;
+
+extern void commandline_capture_options(int argc, char *argv[], commandline_capture_param_info_t* param_info);
+
+/* Command-line options that don't have direct API calls to handle the data */
+typedef struct commandline_param_info
+{
+    gboolean arg_error;
+#ifdef HAVE_LIBPCAP
+    gboolean list_link_layer_types;
+    gboolean start_capture;
+#else
+    gboolean capture_option_specified;
+#endif
+    e_prefs *prefs_p;
+    search_direction jump_backwards;
+    guint go_to_packet;
+    gchar* jfilter;
+    gchar* cf_name;
+    gchar* rfilter;
+    gchar* dfilter;
+    GSList *disable_protocol_slist;
+    GSList *enable_heur_slist;
+    GSList *disable_heur_slist;
+
+} commandline_param_info_t;
+
+extern void commandline_other_options(int argc, char *argv[], commandline_param_info_t* param_info, gboolean opt_reset);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __COMMANDLINE_H__ */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

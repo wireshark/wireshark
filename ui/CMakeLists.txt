@@ -24,6 +24,7 @@ set(COMMON_UI_SRC
 	alert_box.c
 	capture.c
 	capture_ui_utils.c
+	commandline.c
 	console.c
 	decode_as_utils.c
 	export_object.c
