@@ -3671,6 +3671,10 @@ Barbu Paul - Gheorghe	<barbu.paul.gheorghe[AT]gmail.com> {
 	Developer documentation improvements
 }
 
+Martin Kacer	<kacer.martin[AT]gmail.com> {
+	JSON and Elasticsearch tshark output
+}
+
 
 and by:
 
@@ -4080,6 +4084,7 @@ Jun Wang		<sdn_app[AT]163.com>
 JustinKu		<jiunrong[AT]gmail.com>
 Jérôme LAFORGE		<jerome.laforge[AT]gmail.com>
 Kary Rogers		<kary.rogers[AT]gmail.com>
+Kenny Root		<kenny[AT]the-b.org>
 Kevin Bracey		<kevin.bracey[AT]arm.com>
 Kevin Grigorenko	<kevin.grigorenko[AT]us.ibm.com>
 Krishna Chaitanya	<chaitanya.mgit[AT]gmail.com>
@@ -4093,6 +4098,7 @@ Lucas Simopoulos	<lsimopoulos[AT]gmail.com>
 Lukas Emersberger	<lukas.emersberger[AT]gmail.com>
 Luke Chou		<luke.chou[AT]gmail.com>
 Luke Mewburn		<luke[AT]mewburn.net>
+Léo Gaspard		<leo[AT]gaspard.io>
 Maarten Bezemer		<maarten.bezemer[AT]gmail.com>
 Malcolm Walters		<malcolm.walters[AT]acano.com>
 Marc Bevand		<mbevand[AT]google.com>
@@ -4175,9 +4181,11 @@ Robert P		<tehownt[AT]gmail.com>
 Roland Knall		<rknall[AT]gmail.com>
 Roman Leonhartsberger	<ro.leonhartsberger[AT]gmail.com>
 Roman Volkov		<volkoff_roman[AT]ukr.net>
+Rudra Rugge		<rudrarugge[AT]gmail.com>
 Russel Howe		<russel[AT]appliedinvention.com>
 Rustam Safargalin	<rustam.safargalin[AT]sifox.ru>
 Ryan Mullen		<rmmullen[AT]gmail.com>
+Samiran Saha		<ssahasamiran[AT]gmail.com>
 Sebastian Kloeppel	<sk[AT]nakedape.net>
 Sebastian Schildt	<sebastian[AT]frozenlight.de>
 Selva Kumar		<v.selvamuthukumar[AT]gmail.com>
@@ -4206,7 +4214,9 @@ Sven Schnelle		<svens[AT]stackframe.org>
 Sylvain Munaut		<tnt[AT]246tNt.com>
 T. Scholz		<scholzt234[AT]googlemail.com>
 Tatsuhiro Tsujikawa	<tatsuhiro.t[AT]gmail.com>
+Thibault Gerondal	<github[AT]tycale.be>
 Thies Moeller		<thies.moeller[AT]baslerweb.com>
+Thomas Shen		<thomashen[AT]gmail.com>
 Tigran Mkrtchyan	<tigran.mkrtchyan[AT]desy.de>
 Tim (Thanh) Nguyen	<tnnguyen[AT]broadcom.com>
 Tim Furlong		<tim.furlong[AT]gmail.com>
@@ -4218,6 +4228,7 @@ Tom Haynes		<loghyr[AT]primarydata.com>
 Trond Myklebust		<trond.myklebust[AT]primarydata.com>
 Umberto Corponi		<umberto.corponi[AT]athonet.com>
 Vasil Velichckov	<vvvelichkov[AT]gmail.com>
+Victor Barratault	<victor.barratault[AT]gmail.com>
 Victor Dodon		<dodonvictor[AT]gmail.com>
 Victor Voronkov		<victor.voronkov[AT]gmail.com>
 Vik			<vkp129+ubuntu[AT]gmail.com>

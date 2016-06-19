@@ -11231,6 +11231,7 @@ voxelstorm      28200/tcp # VoxelStorm game server [VoxelStorm] [Eugene_Hopkinso
 voxelstorm      28200/udp # VoxelStorm game server [VoxelStorm] [Eugene_Hopkinson] 2012-11-08
 siemensgsm      28240/tcp # Siemens GSM [David_Anuszewski] [David_Anuszewski] 2004-11
 siemensgsm      28240/udp # Siemens GSM [David_Anuszewski] [David_Anuszewski] 2004-11
+bosswave        28589/tcp # Building operating system services wide area verified exchange [University_of_California_Berkeley] [Michael_Andersen] 2016-06-13
 sgsap           29118/sctp # SGsAP in 3GPP [GPP_Specifications] [GPP_Specifications] 2009-06-11
 otmp            29167/tcp # ObTools Message Protocol [Paul_Clark] [Paul_Clark] 2006-02
 otmp            29167/udp # ObTools Message Protocol [Paul_Clark] [Paul_Clark] 2006-02
