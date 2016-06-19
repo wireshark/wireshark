@@ -172,6 +172,7 @@
      <addaction name="separator"/>
      <addaction name="actionFileExportAsPSML"/>
      <addaction name="actionFileExportAsPDML"/>
+     <addaction name="actionFileExportAsJSON"/>
     </widget>
     <widget class="QMenu" name="menuFileExportObjects">
      <property name="title">
@@ -1234,6 +1235,11 @@
   <action name="actionFileExportAsPDML">
    <property name="text">
     <string>As PDML XML…</string>
+   </property>
+  </action>
+  <action name="actionFileExportAsJSON">
+   <property name="text">
+    <string>As JSON…</string>
    </property>
   </action>
   <action name="actionFileExportObjectsHTTP">

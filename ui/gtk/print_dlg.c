@@ -60,7 +60,8 @@ typedef enum {
   output_action_export_psml,    /* export to packet summary markup language */
   output_action_export_pdml,    /* export to packet data markup language */
   output_action_export_csv,     /* export to csv file */
-  output_action_export_carrays  /* export to C array file */
+  output_action_export_carrays, /* export to C array file */
+  output_action_export_json     /* export to json */
 } output_action_e;
 
 
@@ -89,6 +90,7 @@ static void print_destroy_cb(GtkWidget *win, gpointer user_data);
 #define PRINT_PSML_RB_KEY         "printer_psml_radio_button"
 #define PRINT_CSV_RB_KEY          "printer_csv_radio_button"
 #define PRINT_CARRAYS_RB_KEY      "printer_carrays_radio_button"
+#define PRINT_JSON_RB_KEY         "printer_json_radio_button"
 #define PRINT_DEST_CB_KEY         "printer_destination_check_button"
 
 #define PRINT_SUMMARY_CB_KEY      "printer_summary_check_button"
@@ -491,6 +493,60 @@ export_carrays_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 }
 #endif
 
+/*
+ * Keep a static pointer to the current "Export JSON" window, if any, so that if
+ * somebody tries to do "File:Export to JSON" while there's already a "Export JSON" window
+ * up, we just pop up the existing one, rather than creating a new one.
+ */
+static GtkWidget *export_json_win = NULL;
+
+static print_args_t  export_json_args;
+
+static gboolean export_json_prefs_init = FALSE;
+
+
+#ifdef _WIN32
+void
+export_json_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+  win32_export_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), &cfile, export_type_json);
+  return;
+}
+#else
+void
+export_json_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+  print_args_t *args = &export_json_args;
+
+  if (export_json_win != NULL) {
+    /* There's already a "Export JSON" dialog box; reactivate it. */
+    reactivate_window(export_json_win);
+    return;
+  }
+
+  /* get settings from preferences (and other initial values) only once */
+  if(export_json_prefs_init == FALSE) {
+    export_json_prefs_init    = TRUE;
+    args->format              = PR_FMT_TEXT;   /* XXX */
+    args->to_file             = TRUE;
+    args->file                = g_strdup("");
+    args->cmd                 = g_strdup("");
+    args->print_summary       = TRUE;
+    args->print_col_headings  = TRUE;
+    args->print_dissections   = print_dissections_as_displayed;
+    args->print_hex           = FALSE;
+    args->print_formfeed      = FALSE;
+  }
+
+  /* init the printing range */
+  packet_range_init(&args->range, &cfile);
+  args->range.process_filtered = TRUE;
+
+  export_json_win = open_print_dialog("Wireshark: Export as \"JSON\" file", output_action_export_json, args);
+  g_signal_connect(export_json_win, "destroy", G_CALLBACK(print_destroy_cb), &export_json_win);
+}
+#endif
+
 static void
 print_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 {
@@ -508,7 +564,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   GtkWidget *main_vb;
 
   GtkWidget *printer_fr, *printer_vb, *export_format_lb;
-  GtkWidget *text_rb, *ps_rb, *pdml_rb, *psml_rb, *csv_rb, *carrays_rb;
+  GtkWidget *text_rb, *ps_rb, *pdml_rb, *psml_rb, *csv_rb, *carrays_rb, *json_rb;
   GtkWidget *printer_grid, *dest_cb;
 #ifndef _WIN32
   GtkWidget *cmd_lb, *cmd_te;
@@ -607,6 +663,14 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
       "a text file suitable for use in C/C++ programs. "
       "One char[] for each packet.");
   gtk_box_pack_start(GTK_BOX(printer_vb), carrays_rb, FALSE, FALSE, 0);
+  /* gtk_widget_show(carrays_rb); */
+
+  json_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(text_rb), "JSON");
+  if (action == output_action_export_json)
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(json_rb), TRUE);
+  gtk_widget_set_tooltip_text(json_rb,
+      "Print output \"JavaScript Object Notation\" (JSON).");
+  gtk_box_pack_start(GTK_BOX(printer_vb), json_rb, FALSE, FALSE, 0);
   /* gtk_widget_show(carrays_rb); */
 
   /* printer grid */
@@ -817,6 +881,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   g_object_set_data(G_OBJECT(ok_bt), PRINT_PSML_RB_KEY, psml_rb);
   g_object_set_data(G_OBJECT(ok_bt), PRINT_CSV_RB_KEY, csv_rb);
   g_object_set_data(G_OBJECT(ok_bt), PRINT_CARRAYS_RB_KEY, carrays_rb);
+  g_object_set_data(G_OBJECT(ok_bt), PRINT_JSON_RB_KEY, json_rb);
   g_object_set_data(G_OBJECT(ok_bt), PRINT_DEST_CB_KEY, dest_cb);
 #ifndef _WIN32
   g_object_set_data(G_OBJECT(ok_bt), PRINT_CMD_TE_KEY, cmd_te);
@@ -944,7 +1009,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   gchar             *f_name;
   gchar             *dirname;
   gboolean           export_as_pdml    = FALSE, export_as_psml = FALSE;
-  gboolean           export_as_csv     = FALSE;
+  gboolean           export_as_csv     = FALSE, export_as_json = FALSE;
   gboolean           export_as_carrays = FALSE;
 #ifdef _WIN32
   gboolean           win_printer       = FALSE;
@@ -1026,6 +1091,9 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   button = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), PRINT_CARRAYS_RB_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button)))
     export_as_carrays = TRUE;
+  button = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), PRINT_JSON_RB_KEY);
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button)))
+    export_as_json = TRUE;
 
   button = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), PRINT_SUMMARY_CB_KEY);
   args->print_summary = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
@@ -1070,6 +1138,8 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     status = cf_write_csv_packets(&cfile, args);
   else if (export_as_carrays)
     status = cf_write_carrays_packets(&cfile, args);
+  else if (export_as_json)
+    status = cf_write_json_packets(&cfile, args);
   else {
     switch (args->format) {
 

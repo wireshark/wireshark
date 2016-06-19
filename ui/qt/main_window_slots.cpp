@@ -1706,6 +1706,11 @@ void MainWindow::on_actionFileExportAsPDML_triggered()
     exportDissections(export_type_pdml);
 }
 
+void MainWindow::on_actionFileExportAsJSON_triggered()
+{
+    exportDissections(export_type_json);
+}
+
 void MainWindow::on_actionFileExportPacketBytes_triggered()
 {
     QString file_name;

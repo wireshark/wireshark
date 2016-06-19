@@ -463,6 +463,15 @@ cf_print_status_t cf_write_csv_packets(capture_file *cf, print_args_t *print_arg
 cf_print_status_t cf_write_carrays_packets(capture_file *cf, print_args_t *print_args);
 
 /**
+ * Print (export) the capture file into JSON format.
+ *
+ * @param cf the capture file
+ * @param print_args the arguments what and how to export
+ * @return one of cf_print_status_t
+ */
+cf_print_status_t cf_write_json_packets(capture_file *cf, print_args_t *print_args);
+
+/**
  * Find packet with a protocol tree item that contains a specified text string.
  *
  * @param cf the capture file

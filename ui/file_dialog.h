@@ -46,7 +46,8 @@ typedef enum {
     export_type_csv,
     export_type_psml,
     export_type_pdml,
-    export_type_carrays
+    export_type_carrays,
+    export_type_json
 } export_type_e;
 
 #ifdef __cplusplus

@@ -2530,6 +2530,7 @@ cf_print_packets(capture_file *cf, print_args_t *print_args,
 typedef struct {
   FILE *fh;
   epan_dissect_t edt;
+  print_args_t *print_args;
 } write_packet_callback_args_t;
 
 static gboolean
@@ -2568,6 +2569,7 @@ cf_write_pdml_packets(capture_file *cf, print_args_t *print_args)
   }
 
   callback_args.fh = fh;
+  callback_args.print_args = print_args;
   epan_dissect_init(&callback_args.edt, cf->epan, TRUE, TRUE);
 
   /* Iterate through the list of packets, printing the packets we were
@@ -2646,6 +2648,7 @@ cf_write_psml_packets(capture_file *cf, print_args_t *print_args)
   }
 
   callback_args.fh = fh;
+  callback_args.print_args = print_args;
 
   /* Fill in the column information, only create the protocol tree
      if having custom columns or field extractors. */
@@ -2727,6 +2730,7 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
   }
 
   callback_args.fh = fh;
+  callback_args.print_args = print_args;
 
   /* only create the protocol tree if having custom columns or field extractors. */
   proto_tree_needed = have_custom_cols(&cf->cinfo) || have_field_extractors();
@@ -2794,6 +2798,7 @@ cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
   }
 
   callback_args.fh = fh;
+  callback_args.print_args = print_args;
   epan_dissect_init(&callback_args.edt, cf->epan, TRUE, TRUE);
 
   /* Iterate through the list of packets, printing the packets we were
@@ -2819,6 +2824,81 @@ cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
   }
 
   fclose(fh);
+  return CF_PRINT_OK;
+}
+
+static gboolean
+write_json_packet(capture_file *cf, frame_data *fdata,
+                  struct wtap_pkthdr *phdr, const guint8 *pd,
+          void *argsp)
+{
+  write_packet_callback_args_t *args = (write_packet_callback_args_t *)argsp;
+
+  /* Create the protocol tree, but don't fill in the column information. */
+  epan_dissect_run(&args->edt, cf->cd_t, phdr, frame_tvbuff_new(fdata, pd), fdata, NULL);
+
+  /* Write out the information in that tree. */
+  write_json_proto_tree(args->print_args, NULL, &args->edt, args->fh);
+
+  epan_dissect_reset(&args->edt);
+
+  return !ferror(args->fh);
+}
+
+cf_print_status_t
+cf_write_json_packets(capture_file *cf, print_args_t *print_args)
+{
+  write_packet_callback_args_t callback_args;
+  FILE         *fh;
+  psp_return_t  ret;
+
+  fh = ws_fopen(print_args->file, "w");
+  if (fh == NULL)
+    return CF_PRINT_OPEN_ERROR; /* attempt to open destination failed */
+
+  write_json_preamble(fh);
+  if (ferror(fh)) {
+    fclose(fh);
+    return CF_PRINT_WRITE_ERROR;
+  }
+
+  callback_args.fh = fh;
+  callback_args.print_args = print_args;
+  epan_dissect_init(&callback_args.edt, cf->epan, TRUE, TRUE);
+
+  /* Iterate through the list of packets, printing the packets we were
+     told to print. */
+  ret = process_specified_records(cf, &print_args->range, "Writing PDML",
+                                  "selected packets", TRUE,
+                                  write_json_packet, &callback_args, TRUE);
+
+  epan_dissect_cleanup(&callback_args.edt);
+
+  switch (ret) {
+
+  case PSP_FINISHED:
+    /* Completed successfully. */
+    break;
+
+  case PSP_STOPPED:
+    /* Well, the user decided to abort the printing. */
+    break;
+
+  case PSP_FAILED:
+    /* Error while printing. */
+    fclose(fh);
+    return CF_PRINT_WRITE_ERROR;
+  }
+
+  write_json_finale(fh);
+  if (ferror(fh)) {
+    fclose(fh);
+    return CF_PRINT_WRITE_ERROR;
+  }
+
+  /* XXX - check for an error */
+  fclose(fh);
+
   return CF_PRINT_OK;
 }
 

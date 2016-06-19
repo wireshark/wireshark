@@ -813,6 +813,7 @@ static const char *ui_desc_menubar =
 "        <separator/>\n"
 "        <menuitem name='AsPSML' action='/File/ExportPacketDissections/PSML'/>\n"
 "        <menuitem name='AsPDML' action='/File/ExportPacketDissections/PDML'/>\n"
+"        <menuitem name='AsJSON' action='/File/ExportPacketDissections/JSON'/>\n"
 "        <separator/>\n"
 "      </menu>\n"
 "      <menuitem name='ExportSelectedPacketBytes' action='/File/ExportSelectedPacketBytes'/>\n"
@@ -1275,6 +1276,8 @@ static const GtkActionEntry main_menu_bar_entries[] = {
                                                                                          NULL,                   NULL,           G_CALLBACK(export_psml_cmd_cb) },
   { "/File/ExportPacketDissections/PDML",       NULL,       "as XML - \"P_DML\" (packet details) file...",
                                                                                          NULL,                   NULL,           G_CALLBACK(export_pdml_cmd_cb) },
+  { "/File/ExportPacketDissections/JSON",       NULL,       "as \"_JSON\" file...",
+                                                                                         NULL,                   NULL,           G_CALLBACK(export_json_cmd_cb) },
   { "/File/ExportObjects/HTTP",           NULL,       "_HTTP",                           NULL,                   NULL,           G_CALLBACK(eo_http_cb) },
   { "/File/ExportObjects/DICOM",          NULL,       "_DICOM",                          NULL,                   NULL,           G_CALLBACK(eo_dicom_cb) },
   { "/File/ExportObjects/SMB",            NULL,       "_SMB/SMB2",                            NULL,                   NULL,           G_CALLBACK(eo_smb_cb) },

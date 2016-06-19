@@ -96,12 +96,14 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
             << tr("Comma Separated Values - summary (*.csv)")
             << tr("PSML - summary (*.psml, *.xml)")
             << tr("PDML - details (*.pdml, *.xml)")
+            << tr("JSON (*.json)")
             << tr("C Arrays - bytes (*.c, *.h)");
     export_type_map_[name_filters[0]] = export_type_text;
     export_type_map_[name_filters[1]] = export_type_csv;
     export_type_map_[name_filters[2]] = export_type_psml;
     export_type_map_[name_filters[3]] = export_type_pdml;
-    export_type_map_[name_filters[4]] = export_type_carrays;
+    export_type_map_[name_filters[4]] = export_type_json;
+    export_type_map_[name_filters[5]] = export_type_carrays;
     setNameFilters(name_filters);
     selectNameFilter(export_type_map_.key(export_type));
     exportTypeChanged(export_type_map_.key(export_type));
@@ -205,6 +207,9 @@ int ExportDissectionDialog::exec()
             break;
         case export_type_pdml:      /* PDML */
             status = cf_write_pdml_packets(cap_file_, &print_args_);
+            break;
+        case export_type_json:      /* JSON */
+            status = cf_write_json_packets(cap_file_, &print_args_);
             break;
         default:
             return QDialog::Rejected;

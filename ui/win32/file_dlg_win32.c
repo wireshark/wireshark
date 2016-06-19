@@ -64,7 +64,8 @@
     _T("CSV (Comma Separated Values summary) (*.csv)\0") _T("*.csv\0")   \
     _T("PSML (XML packet summary) (*.psml)\0")           _T("*.psml\0")  \
     _T("PDML (XML packet detail) (*.pdml)\0")            _T("*.pdml\0")  \
-    _T("C Arrays (packet bytes) (*.c)\0")                _T("*.c\0")
+    _T("C Arrays (packet bytes) (*.c)\0")                _T("*.c\0")     \
+    _T("JSON (*.json)\0")                                _T("*.json\0")
 
 #define FILE_TYPES_RAW \
     _T("Raw data (*.bin, *.dat, *.raw)\0")               _T("*.bin;*.dat;*.raw\0") \
@@ -719,6 +720,9 @@ win32_export_file(HWND h_wnd, capture_file *cf, export_type_e export_type) {
                 break;
             case export_type_pdml:      /* PDML */
                 status = cf_write_pdml_packets(cf, &print_args);
+                break;
+            case export_type_json:      /* JSON */
+                status = cf_write_json_packets(cf, &print_args);
                 break;
             default:
                 g_free( (void *) ofn);
