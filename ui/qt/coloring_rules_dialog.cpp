@@ -41,6 +41,7 @@
 #include "color_utils.h"
 #include "display_filter_combo.h"
 #include "syntax_line_edit.h"
+#include "display_filter_edit.h"
 #include "wireshark_application.h"
 
 #include <QColorDialog>
@@ -402,7 +403,7 @@ QWidget *ColoringRulesTreeDelegate::createEditor(QWidget *parent, const QStyleOp
 
     case filter_col_:
     {
-        SyntaxLineEdit *dfe = new SyntaxLineEdit(parent);
+        DisplayFilterEdit *dfe = new DisplayFilterEdit(parent);
         connect(dfe, SIGNAL(textChanged(QString)), dfe, SLOT(checkDisplayFilter(QString)));
         dfe->setText(ti->text(filter_col_));
         w = (QWidget*) dfe;
