@@ -116,7 +116,7 @@ void
 graph_segment_list_get(capture_file *cf, struct tcp_graph *tg, gboolean stream_known)
 {
     struct segment current;
-    gchar    *error_string;
+    GString    *error_string;
     tcp_scan_t  ts;
 
     g_log(NULL, G_LOG_LEVEL_DEBUG, "graph_segment_list_get()");
@@ -152,8 +152,8 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg, gboolean stream_k
     error_string = register_tap_listener("tcp", &ts, "tcp", 0, NULL, tapall_tcpip_packet, NULL);
     if (error_string) {
         fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
-                error_string);
-        wmem_free(NULL, error_string);
+                error_string->str);
+        g_string_free(error_string, TRUE);
         exit(1);   /* XXX: fix this */
     }
     cf_retap_packets(cf);
@@ -288,7 +288,7 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     epan_dissect_t  edt;
     dfilter_t      *sfcode;
     gchar          *err_msg;
-    gchar          *error_string;
+    GString        *error_string;
     nstime_t        rel_ts;
     th_t th = {0, {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}};
 
@@ -312,8 +312,8 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     error_string=register_tap_listener("tcp", &th, NULL, 0, NULL, tap_tcpip_packet, NULL);
     if (error_string) {
         fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
-                error_string);
-        wmem_free(NULL, error_string);
+                error_string->str);
+        g_string_free(error_string, TRUE);
         exit(1);
     }
 

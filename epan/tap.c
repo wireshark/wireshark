@@ -39,7 +39,6 @@
 #include <epan/packet_info.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/tap.h>
-#include <epan/wmem/wmem_list.h>
 
 static gboolean tapping_is_active=FALSE;
 
@@ -119,7 +118,7 @@ typedef struct {
 	void (*register_tap_listener_fn)(void);   /* routine to call to register tap listener */
 } tap_plugin;
 
-static wmem_list_t *tap_plugins = NULL;
+static GSList *tap_plugins = NULL;
 
 /*
  * Callback for each plugin found.
@@ -149,9 +148,9 @@ DIAG_ON(pedantic)
 	/*
 	 * Add this one to the list of tap plugins.
 	 */
-	plugin = wmem_new(NULL, tap_plugin);
+	plugin = (tap_plugin *)g_malloc(sizeof (tap_plugin));
 	plugin->register_tap_listener_fn = register_tap_listener_fn;
-	wmem_list_append(tap_plugins, plugin);
+	tap_plugins = g_slist_append(tap_plugins, plugin);
 	return TRUE;
 }
 
@@ -175,7 +174,7 @@ register_tap_plugin_listener(gpointer data, gpointer user_data _U_)
 void
 register_all_plugin_tap_listeners(void)
 {
-	wmem_list_foreach(tap_plugins, register_tap_plugin_listener, NULL);
+	g_slist_foreach(tap_plugins, register_tap_plugin_listener, NULL);
 }
 #endif /* HAVE_PLUGINS */
 
@@ -189,7 +188,6 @@ void
 tap_init(void)
 {
 	tap_packet_index=0;
-	tap_plugins = wmem_list_new(NULL);
 }
 
 /* **********************************************************************
@@ -224,9 +222,9 @@ register_tap(const char *name)
 			return tap_id;
 	}
 
-	td=wmem_new(NULL, tap_dissector_t);
+	td=(tap_dissector_t *)g_malloc(sizeof(tap_dissector_t));
 	td->next=NULL;
-	td->name = wmem_strdup(NULL, name);
+	td->name = g_strdup(name);
 
 	if(!tap_dissector_list){
 		tap_dissector_list=td;
@@ -508,8 +506,10 @@ free_tap_listener(volatile tap_listener_t *tl)
 	if(tl->code){
 		dfilter_free(tl->code);
 	}
-	wmem_free(NULL, tl->fstring);
-	wmem_free(NULL, (void*)tl);
+	g_free(tl->fstring);
+DIAG_OFF(cast-qual)
+	g_free((gpointer)tl);
+DIAG_ON(cast-qual)
 }
 
 /* this function attaches the tap_listener to the named tap.
@@ -518,28 +518,30 @@ free_tap_listener(volatile tap_listener_t *tl)
  * non-NULL: error, return value points to GString containing error
  *           message.
  */
-gchar *
+GString *
 register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 		      guint flags, tap_reset_cb reset, tap_packet_cb packet, tap_draw_cb draw)
 {
 	volatile tap_listener_t *tl;
 	int tap_id;
 	dfilter_t *code=NULL;
-	gchar *error_string = NULL;
+	GString *error_string;
 	gchar *err_msg;
 
 	tap_id=find_tap_id(tapname);
 	if(!tap_id){
-		error_string = wmem_strdup_printf(NULL, "Tap %s not found", tapname);
+		error_string = g_string_new("");
+		g_string_printf(error_string, "Tap %s not found", tapname);
 		return error_string;
 	}
 
-	tl=wmem_new0(NULL, volatile tap_listener_t);
+	tl=(volatile tap_listener_t *)g_malloc0(sizeof(tap_listener_t));
 	tl->needs_redraw=TRUE;
 	tl->flags=flags;
 	if(fstring){
 		if(!dfilter_compile(fstring, &code, &err_msg)){
-			error_string = wmem_strdup_printf(NULL,
+			error_string = g_string_new("");
+			g_string_printf(error_string,
 			    "Filter \"%s\" is invalid - %s",
 			    fstring, err_msg);
 			g_free(err_msg);
@@ -547,7 +549,7 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 			return error_string;
 		}
 	}
-	tl->fstring=wmem_strdup(NULL, fstring);
+	tl->fstring=g_strdup(fstring);
 	tl->code=code;
 
 	tl->tap_id=tap_id;
@@ -564,12 +566,12 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 
 /* this function sets a new dfilter to a tap listener
  */
-gchar *
+GString *
 set_tap_dfilter(void *tapdata, const char *fstring)
 {
 	volatile tap_listener_t *tl=NULL,*tl2;
 	dfilter_t *code=NULL;
-	gchar *error_string;
+	GString *error_string;
 	gchar *err_msg;
 
 	if(!tap_listener_queue){
@@ -594,19 +596,19 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 			tl->code=NULL;
 		}
 		tl->needs_redraw=TRUE;
-		wmem_free(NULL, tl->fstring);
+		g_free(tl->fstring);
 		if(fstring){
 			if(!dfilter_compile(fstring, &code, &err_msg)){
 				tl->fstring=NULL;
-				error_string = wmem_strdup_printf(
-						NULL,
+				error_string = g_string_new("");
+				g_string_printf(error_string,
 						 "Filter \"%s\" is invalid - %s",
 						 fstring, err_msg);
-				wmem_free(NULL, err_msg);
+				g_free(err_msg);
 				return error_string;
 			}
 		}
-		tl->fstring=wmem_strdup(NULL, fstring);
+		tl->fstring=g_strdup(fstring);
 		tl->code=code;
 	}
 

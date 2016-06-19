@@ -1068,11 +1068,11 @@ tap_iostat_draw(void *g)
    be able to pick up the field values after the edt tree has been
    pruned
 */
-static gchar *
+static GString *
 enable_graph(io_stat_graph_t *gio, const char *filter, const char *field)
 {
     GString *real_filter = NULL;
-    gchar *err_msg;
+    GString *err_msg;
 
     gio->display = TRUE;
 
@@ -1155,7 +1155,7 @@ iostat_init(const char *opt_arg _U_, void* userdata _U_)
         {1.0, 0.314, 1.0,   1.0}  /* Light brilliant magenta */
     };
 
-    gchar *error_string;
+    GString *error_string;
 
     io = g_new(io_stat_t,1);
     io->needs_redraw         = TRUE;

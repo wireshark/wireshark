@@ -913,6 +913,16 @@ main(int argc, char *argv[])
 
   init_open_routines();
 
+#ifdef HAVE_PLUGINS
+  /* Register all the plugin types we have. */
+  epan_register_plugin_types(); /* Types known to libwireshark */
+
+  /* Scan for plugins.  This does *not* call their registration routines;
+     that's done later. */
+  scan_plugins();
+
+#endif
+
   /* Register all dissectors; we must do this before checking for the
      "-G" flag, as the "-G" flag dumps information registered by the
      dissectors, and we must do it before we read the preferences, in

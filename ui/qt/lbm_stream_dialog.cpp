@@ -372,7 +372,7 @@ void LBMStreamDialog::setCaptureFile(capture_file * cfile)
 
 void LBMStreamDialog::fillTree(void)
 {
-    gchar * error_string;
+    GString * error_string;
 
     if (m_capture_file == NULL)
     {
@@ -390,8 +390,8 @@ void LBMStreamDialog::fillTree(void)
     if (error_string)
     {
         QMessageBox::critical(this, tr("LBM Stream failed to attach to tap"),
-            error_string);
-        wmem_free(NULL, error_string);
+            error_string->str);
+        g_string_free(error_string, TRUE);
         reject();
     }
 

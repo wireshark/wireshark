@@ -399,7 +399,7 @@ init_gtk_tree(const char* opt_arg, void *userdata _U_)
 	tree_pres* pr = (tree_pres *)g_malloc(sizeof(tree_pres));
 	gchar* title = NULL;
 	gchar* window_name = NULL;
-	gchar* error_string;
+	GString* error_string;
 	GtkWidget *scr_win;
 	size_t init_strlen;
 	GtkWidget *main_vb, *bbox, *bt_close, *bt_copy, *bt_saveas;
@@ -510,8 +510,8 @@ init_gtk_tree(const char* opt_arg, void *userdata _U_)
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		/* destroy_stat_tree_window(st); */
-		report_failure("stats_tree for: %s failed to attach to the tap: %s",cfg->name,error_string);
-		wmem_free(NULL, error_string);
+		report_failure("stats_tree for: %s failed to attach to the tap: %s",cfg->name,error_string->str);
+		g_string_free(error_string, TRUE);
 	}
 
 	/* Button row. */

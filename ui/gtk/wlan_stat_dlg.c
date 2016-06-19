@@ -158,7 +158,7 @@ wlanstat_reset (void *phs)
     wlan_ep_t    *list      = wlan_stat->ep_list;
     char         *display_name;
     char          title[256];
-    gchar        *error_string;
+    GString      *error_string;
     GtkListStore *store;
     const char   *filter    = NULL;
 
@@ -176,8 +176,8 @@ wlanstat_reset (void *phs)
 
     error_string = set_tap_dfilter (wlan_stat, filter);
     if (error_string) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
-        wmem_free(NULL, error_string);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+        g_string_free(error_string, TRUE);
         return;
     }
 
@@ -1745,7 +1745,7 @@ static void
 wlanstat_dlg_create (void)
 {
     wlanstat_t        *hs;
-    gchar             *error_string;
+    GString           *error_string;
     GtkWidget         *scrolled_window;
     GtkWidget         *bbox;
     GtkWidget         *vbox;
@@ -1918,8 +1918,8 @@ wlanstat_dlg_create (void)
                         wlanstat_reset, wlanstat_packet,
                         wlanstat_draw);
     if (error_string) {
-        simple_dialog (ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
-        wmem_free(NULL, error_string);
+        simple_dialog (ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+        g_string_free (error_string, TRUE);
         g_free (hs);
         return;
     }

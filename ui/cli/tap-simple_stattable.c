@@ -103,7 +103,7 @@ simple_draw(void *arg)
 static void
 init_stat_table(stat_tap_table_ui *new_stat_tap, const char *filter)
 {
-	gchar *error_string;
+	GString *error_string;
 	table_stat_t* ui;
 
 	ui = g_new0(table_stat_t, 1);
@@ -116,8 +116,8 @@ init_stat_table(stat_tap_table_ui *new_stat_tap, const char *filter)
 	error_string = register_tap_listener(new_stat_tap->tap_name, &ui->stats, filter, 0, NULL, new_stat_tap->packet_func, simple_draw);
 	if (error_string) {
 /*		free_rtd_table(&ui->rtd.stat_table, NULL, NULL); */
-		fprintf(stderr, "tshark: Couldn't register tap: %s\n", error_string);
-		wmem_free(NULL, error_string);
+		fprintf(stderr, "tshark: Couldn't register tap: %s\n", error_string->str);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 }

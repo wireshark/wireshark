@@ -143,7 +143,7 @@ expert_comp_select_filter_cb(GtkWidget *widget, gpointer callback_data, guint ca
 {
     expert_comp_dlg_t *ss = (expert_comp_dlg_t *)callback_data;
     const char *filter;
-    gchar *error_string;
+    GString *error_string;
 
     ss->use_dfilter = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
     if (ss->use_dfilter) {
@@ -153,14 +153,14 @@ expert_comp_select_filter_cb(GtkWidget *widget, gpointer callback_data, guint ca
     }
     error_string = set_tap_dfilter (ss, filter);
     if (error_string) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
-        wmem_free(NULL, error_string);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+        g_string_free(error_string, TRUE);
         return;
     }
     error_string = set_tap_dfilter (ss->etd, filter);
     if (error_string) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
-        wmem_free(NULL, error_string);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+        g_string_free(error_string, TRUE);
         return;
     }
 
@@ -791,7 +791,7 @@ static void
 expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
 {
     expert_comp_dlg_t *ss;
-    gchar *error_string;
+    GString *error_string;
     GtkWidget *temp_page, *details_page, *comments_page;
     GtkWidget *main_nb;
     GtkWidget *vbox;
@@ -950,8 +950,8 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
                                        expert_dlg_packet,
                                        expert_dlg_draw);
     if(error_string){
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
-        wmem_free(NULL, error_string);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+        g_string_free(error_string, TRUE);
         g_free(ss->etd);
         return;
     }
@@ -964,8 +964,8 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
     error_string=register_tap_listener("expert", ss, NULL,
         TL_REQUIRES_NOTHING, error_reset, error_packet, expert_comp_draw);
     if(error_string){
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
-        wmem_free(NULL, error_string);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+        g_string_free(error_string, TRUE);
         g_free(ss);
         return;
     }

@@ -6887,7 +6887,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	const ntlmssp_header_t *ntlmssph;
 
 	if (!ntlmssp_tap_id) {
-		gchar *error_string;
+		GString *error_string;
 		/* We don't specify any callbacks at all.
 		 * Instead we manually fetch the tapped data after the
 		 * security blob has been fully dissected and before
@@ -6898,7 +6898,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		if (!error_string) {
 			ntlmssp_tap_id = find_tap_id("ntlmssp");
 		} else {
-			wmem_free(NULL, error_string);
+			g_string_free(error_string, TRUE);
 		}
 	}
 

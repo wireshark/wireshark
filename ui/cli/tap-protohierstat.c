@@ -170,7 +170,7 @@ protohierstat_init(const char *opt_arg, void *userdata _U_)
 	phs_t *rs;
 	int pos = 0;
 	const char *filter = NULL;
-	gchar *error_string;
+	GString *error_string;
 
 	if (strcmp("io,phs", opt_arg) == 0) {
 		/* No arguments */
@@ -198,8 +198,8 @@ protohierstat_init(const char *opt_arg, void *userdata _U_)
 		g_free(rs);
 
 		fprintf(stderr, "tshark: Couldn't register io,phs tap: %s\n",
-			error_string);
-		wmem_free(NULL, error_string);
+			error_string->str);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 }

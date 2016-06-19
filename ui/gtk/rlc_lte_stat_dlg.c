@@ -1257,7 +1257,7 @@ static void gtk_rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
 {
     rlc_lte_stat_t    *hs;
     const char        *filter = NULL;
-    gchar             *error_string;
+    GString           *error_string;
     GtkWidget         *ues_scrolled_window;
     GtkWidget         *channels_scrolled_window;
     GtkWidget         *bbox;
@@ -1615,8 +1615,8 @@ static void gtk_rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
                                          rlc_lte_stat_packet,
                                          rlc_lte_stat_draw);
     if (error_string) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
-        wmem_free(NULL, error_string);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+        g_string_free(error_string, TRUE);
         g_free(hs);
         return;
     }

@@ -191,7 +191,7 @@ gtk_rpcstat_init(const char *opt_arg, void* userdata _U_)
 	GtkWidget *close_bt;
 	int program, version, pos;
 	const char *filter=NULL;
-	gchar *error_string;
+	GString *error_string;
 	rpcstat_tap_data_t* tap_data;
 
 	pos=0;
@@ -263,8 +263,8 @@ gtk_rpcstat_init(const char *opt_arg, void* userdata _U_)
 
 	error_string=register_tap_listener("rpc", &rs->data, filter, 0, rpcstat_reset, get_srt_packet_func(rs->srt), rpcstat_draw);
 	if(error_string){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
-		wmem_free(NULL, error_string);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+		g_string_free(error_string, TRUE);
 		free_srt_table(rs->srt, rs->data.srt_array, NULL, NULL);
 		g_free(rs);
 		return;

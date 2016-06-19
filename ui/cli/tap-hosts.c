@@ -95,7 +95,7 @@ hosts_draw(void *dummy _U_)
 static void
 hosts_init(const char *opt_arg, void *userdata _U_)
 {
-	gchar *error_string;
+	GString *error_string;
 	gchar **tokens;
 	gint opt_count;
 
@@ -128,8 +128,8 @@ hosts_init(const char *opt_arg, void *userdata _U_)
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		fprintf(stderr, "tshark: Couldn't register " TAP_NAME " tap: %s\n",
-			error_string);
-		wmem_free(NULL, error_string);
+			error_string->str);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 }

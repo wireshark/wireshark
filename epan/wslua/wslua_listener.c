@@ -210,7 +210,7 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
     const gchar* filter = luaL_optstring(L,WSLUA_OPTARG_Listener_new_FILTER,NULL);
     const gboolean all_fields = wslua_optbool(L, WSLUA_OPTARG_Listener_new_ALLFIELDS, FALSE);
     Listener tap;
-    gchar* error;
+    GString* error;
 
     tap = (Listener)g_malloc(sizeof(struct _wslua_tap));
 
@@ -237,8 +237,8 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
         g_free(tap->name);
         g_free(tap);
         /* WSLUA_ERROR(new_tap,"tap registration error"); */
-        lua_pushfstring(L,"Error while registering tap:\n%s",error);
-        wmem_free(NULL, error);
+        lua_pushfstring(L,"Error while registering tap:\n%s",error->str);
+        g_string_free(error,TRUE);
         luaL_error(L,lua_tostring(L,-1));
     }
 

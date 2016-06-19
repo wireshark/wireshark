@@ -591,15 +591,15 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
 
     if (fake_tap && fake_tap_filter->len > strlen("frame")) {
         /* a boring tap :-) */
-        gchar* error = register_tap_listener("frame",
+        GString* error = register_tap_listener("frame",
                 &fake_tap,
                 fake_tap_filter->str,
                 0, /* XXX - do we need the protocol tree or columns? */
                 NULL, NULL, NULL);
 
         if (error) {
-            report_failure("while registering lua_fake_tap:\n%s", error);
-            wmem_free(NULL, error);
+            report_failure("while registering lua_fake_tap:\n%s",error->str);
+            g_string_free(error,TRUE);
         } else if (!dfilter_compile(fake_tap_filter->str, &wslua_dfilter, &err_msg)) {
             report_failure("while compiling dfilter \"%s\" for wslua: %s", fake_tap_filter->str, err_msg);
             g_free(err_msg);

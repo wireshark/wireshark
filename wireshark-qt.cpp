@@ -540,16 +540,6 @@ int main(int argc, char *argv[])
 
     init_open_routines();
 
-    /* Register all dissectors; we must do this before checking for the
-       "-G" flag, as the "-G" flag dumps information registered by the
-       dissectors, and we must do it before we read the preferences, in
-       case any dissectors register preferences. */
-    if (!epan_init(register_all_protocols,register_all_protocol_handoffs,
-                   splash_update, NULL)) {
-        SimpleDialog::displayQueuedMessages(main_w);
-        return 2;
-    }
-
 #ifdef HAVE_PLUGINS
     /* Register all the plugin types we have. */
     epan_register_plugin_types(); /* Types known to libwireshark */
@@ -566,6 +556,16 @@ int main(int argc, char *argv[])
     /* Register all audio codec plugins. */
     register_all_codecs();
 #endif
+
+    /* Register all dissectors; we must do this before checking for the
+       "-G" flag, as the "-G" flag dumps information registered by the
+       dissectors, and we must do it before we read the preferences, in
+       case any dissectors register preferences. */
+    if (!epan_init(register_all_protocols,register_all_protocol_handoffs,
+                   splash_update, NULL)) {
+        SimpleDialog::displayQueuedMessages(main_w);
+        return 2;
+    }
 
     splash_update(RA_LISTENERS, NULL, NULL);
 

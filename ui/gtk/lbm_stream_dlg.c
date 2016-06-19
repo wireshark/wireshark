@@ -738,7 +738,7 @@ static void lbmc_stream_dlg_tap_draw(void * tap_data _U_)
 /**************************************************************/
 void lbmc_stream_dlg_stream_menu_cb(gpointer arg _U_)
 {
-    gchar * err_msg;
+    GString * err_msg;
 
     if (global_stream_dialog_info != NULL)
     {
@@ -755,8 +755,8 @@ void lbmc_stream_dlg_stream_menu_cb(gpointer arg _U_)
         lbmc_stream_dlg_tap_draw);
     if (err_msg != NULL)
     {
-        fprintf(stderr, "register_tap_listener: %s\n", err_msg);
-        wmem_free(NULL, err_msg);
+        fprintf(stderr, "register_tap_listener: %s\n", err_msg->str);
+        g_string_free(err_msg, TRUE);
     }
     cf_retap_packets(&cfile);
 }

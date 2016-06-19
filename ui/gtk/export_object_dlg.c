@@ -322,7 +322,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	GtkTreeViewColumn *column;
 	GtkTreeSelection *selection;
 	GtkWidget *vbox, *bbox, *help_bt, *cancel_bt, *save_bt, *save_all_bt;
-	gchar *error_msg;
+	GString *error_msg;
 	export_object_list_t *object_list;
 	gchar *window_title;
 
@@ -340,8 +340,8 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 
 	if (error_msg) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "Can't register %s tap: %s\n", name, error_msg);
-		wmem_free(NULL, error_msg);
+			      "Can't register %s tap: %s\n", name, error_msg->str);
+		g_string_free(error_msg, TRUE);
 		g_free(object_list);
 		return;
 	}

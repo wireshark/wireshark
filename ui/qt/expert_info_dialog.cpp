@@ -312,11 +312,11 @@ void ExpertInfoDialog::retapPackets()
     }
 
     if (ui->limitCheckBox->isChecked()) {
-        gchar *error_string = set_tap_dfilter(this, display_filter_.toUtf8().constData());
+        GString *error_string = set_tap_dfilter(this, display_filter_.toUtf8().constData());
         if (error_string) {
             QMessageBox::warning(this, tr("Endpoint expert failed to set filter"),
-                                 error_string);
-            wmem_free(NULL, error_string);
+                                 error_string->str);
+            g_string_free(error_string, TRUE);
             return;
         }
     }

@@ -1220,7 +1220,7 @@ iostat_draw(void *arg)
 static void
 register_io_tap(io_stat_t *io, int i, const char *filter)
 {
-    gchar *error_string;
+    GString *error_string;
     const char *flt;
     int j;
     size_t namelen;
@@ -1372,8 +1372,8 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
         g_free(io->items);
         g_free(io);
         fprintf(stderr, "\ntshark: Couldn't register io,stat tap: %s\n",
-            error_string);
-        wmem_free(NULL, error_string);
+            error_string->str);
+        g_string_free(error_string, TRUE);
         exit(1);
     }
 }

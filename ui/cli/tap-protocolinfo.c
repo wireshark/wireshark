@@ -87,7 +87,7 @@ protocolinfo_init(const char *opt_arg, void *userdata _U_)
 	const char *field = NULL;
 	const char *filter = NULL;
 	header_field_info *hfi;
-	gchar *error_string;
+	GString *error_string;
 
 	if (!strncmp("proto,colinfo,", opt_arg, 14)) {
 		filter = opt_arg+14;
@@ -120,8 +120,8 @@ protocolinfo_init(const char *opt_arg, void *userdata _U_)
 	if (error_string) {
 		/* error, we failed to attach to the tap. complain and clean up */
 		fprintf(stderr, "tshark: Couldn't register proto,colinfo tap: %s\n",
-		    error_string);
-		wmem_free(NULL, error_string);
+		    error_string->str);
+		g_string_free(error_string, TRUE);
 		g_free(rs->filter);
 		g_free(rs);
 

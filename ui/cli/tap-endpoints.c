@@ -113,7 +113,7 @@ endpoints_draw(void *arg)
 void init_hostlists(struct register_ct *ct, const char *filter)
 {
 	endpoints_t *iu;
-	gchar *error_string;
+	GString *error_string;
 
 	iu = g_new0(endpoints_t, 1);
 	iu->type = proto_get_protocol_short_name(find_protocol_by_id(get_conversation_proto_id(ct)));
@@ -124,8 +124,8 @@ void init_hostlists(struct register_ct *ct, const char *filter)
 	if (error_string) {
 		g_free(iu);
 		fprintf(stderr, "tshark: Couldn't register endpoint tap: %s\n",
-		    error_string);
-		wmem_free(NULL, error_string);
+		    error_string->str);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 

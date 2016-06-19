@@ -210,7 +210,7 @@ static void camelsrt_draw(void *phs)
 static void camelsrt_init(const char *opt_arg, void *userdata _U_)
 {
   struct camelsrt_t *p_camelsrt;
-  gchar *error_string;
+  GString *error_string;
 
   p_camelsrt = g_new(struct camelsrt_t, 1);
   if (!strncmp(opt_arg, "camel,srt,", 9)) {
@@ -234,8 +234,8 @@ static void camelsrt_init(const char *opt_arg, void *userdata _U_)
     g_free(p_camelsrt);
 
     fprintf(stderr, "tshark: Couldn't register camel,srt tap: %s\n",
-            error_string);
-    wmem_free(NULL, error_string);
+            error_string->str);
+    g_string_free(error_string, TRUE);
     exit(1);
   }
 

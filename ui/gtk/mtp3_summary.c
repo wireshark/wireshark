@@ -530,7 +530,7 @@ mtp3_summary_packet(
 void
 register_tap_listener_gtk_mtp3_summary(void)
 {
-    gchar     *err_p;
+    GString     *err_p;
 
     memset((void *) &mtp3_stat, 0, sizeof(mtp3_stat));
 
@@ -542,8 +542,8 @@ register_tap_listener_gtk_mtp3_summary(void)
 
     if (err_p != NULL)
     {
-        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "%s", err_p);
-        wmem_free(NULL, err_p);
+        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "%s", err_p->str);
+        g_string_free(err_p, TRUE);
 
         exit(1);
     }

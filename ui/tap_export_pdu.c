@@ -177,11 +177,13 @@ exp_pdu_close(exp_pdu_t *exp_pdu_tap_data)
 char *
 exp_pdu_pre_open(const char *tap_name, const char *filter, exp_pdu_t *exp_pdu_tap_data)
 {
+    GString        *error_string;
+
     /* XXX: can we always assume WTAP_ENCAP_WIRESHARK_UPPER_PDU? */
     exp_pdu_tap_data->pkt_encap = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU);
 
     /* Register this tap listener now */
-    return register_tap_listener(tap_name,             /* The name of the tap we want to listen to */
+    error_string = register_tap_listener(tap_name,             /* The name of the tap we want to listen to */
                                          exp_pdu_tap_data,     /* instance identifier/pointer to a struct holding
                                                                 * all state variables */
                                          filter,               /* pointer to a filter string */
@@ -189,6 +191,10 @@ exp_pdu_pre_open(const char *tap_name, const char *filter, exp_pdu_t *exp_pdu_ta
                                          NULL,
                                          export_pdu_packet,
                                          NULL);
+    if (error_string != NULL)
+        return g_string_free(error_string, FALSE);
+
+    return NULL;
 }
 
 

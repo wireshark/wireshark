@@ -275,7 +275,7 @@ init_rtd_tables(register_rtd_t* rtd, const char *filter)
 {
 	rtd_t *rr;
 	gchar *str;
-	gchar *error_string;
+	GString *error_string;
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
 
@@ -304,8 +304,8 @@ init_rtd_tables(register_rtd_t* rtd, const char *filter)
 
 	error_string = register_tap_listener(get_rtd_tap_listener_name(rtd), &rr->data, filter, 0, rtd_reset, get_rtd_packet_func(rtd), rtd_draw);
 	if(error_string){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
-		wmem_free(NULL, error_string);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+		g_string_free(error_string, TRUE);
 		free_rtd_table(&rr->data.stat_table, NULL, NULL);
 		g_free(rr);
 		return;

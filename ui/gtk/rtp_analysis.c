@@ -2038,7 +2038,7 @@ static void draw_stat(user_data_t *user_data);
 static void
 on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 {
-	gchar *error_string;
+	GString *error_string;
 
 	/* remove tap listener */
 	remove_tap_listener(user_data);
@@ -2047,8 +2047,8 @@ on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 	error_string = register_tap_listener("rtp", user_data, NULL, 0,
 		rtp_reset, rtp_packet, rtp_draw);
 	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
-			wmem_free(NULL, error_string);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+			g_string_free(error_string, TRUE);
 		return;
 	}
 

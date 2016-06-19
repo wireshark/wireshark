@@ -320,7 +320,7 @@ static void
 gsm_a_stat_init(const char *opt_arg _U_, void *userdata _U_)
 {
     gsm_a_stat_t        *stat_p;
-    gchar               *err_p;
+    GString             *err_p;
 
     stat_p = g_new(gsm_a_stat_t, 1);
 
@@ -335,7 +335,7 @@ gsm_a_stat_init(const char *opt_arg _U_, void *userdata _U_)
     if (err_p != NULL)
     {
         g_free(stat_p);
-        wmem_free(NULL, err_p);
+        g_string_free(err_p, TRUE);
 
         exit(1);
     }

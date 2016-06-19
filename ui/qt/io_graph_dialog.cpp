@@ -1650,7 +1650,7 @@ IOGraph::IOGraph(QCustomPlot *parent) :
     graph_ = parent_->addGraph(parent_->xAxis, parent_->yAxis);
     Q_ASSERT(graph_ != NULL);
 
-    gchar *error_string;
+    GString *error_string;
     error_string = register_tap_listener("frame",
                           this,
                           "",
@@ -1661,7 +1661,7 @@ IOGraph::IOGraph(QCustomPlot *parent) :
     if (error_string) {
 //        QMessageBox::critical(this, tr("%1 failed to register tap listener").arg(name_),
 //                             error_string->str);
-        wmem_free(NULL, error_string);
+        g_string_free(error_string, TRUE);
     }
 
     setFilter(QString());
@@ -1682,7 +1682,6 @@ IOGraph::~IOGraph() {
 void IOGraph::setFilter(const QString &filter)
 {
     GString *error_string;
-    gchar* filter_error_string;
     QString full_filter(filter.trimmed());
 
     config_err_.clear();
@@ -1720,10 +1719,10 @@ void IOGraph::setFilter(const QString &filter)
         }
     }
 
-    filter_error_string = set_tap_dfilter(this, full_filter.toUtf8().constData());
-    if (filter_error_string) {
-        config_err_ = filter_error_string;
-        wmem_free(NULL, filter_error_string);
+    error_string = set_tap_dfilter(this, full_filter.toUtf8().constData());
+    if (error_string) {
+        config_err_ = error_string->str;
+        g_string_free(error_string, TRUE);
         return;
     } else {
         if (filter_.compare(filter) && visible_) {

@@ -1239,13 +1239,13 @@ sctp_stat_get_info(void)
 void
 register_tap_listener_sctp_stat(void)
 {
-	gchar *error_string;
+	GString *error_string;
 
 	if (!sctp_tapinfo_struct.is_registered)
 	{
 		if ((error_string = register_tap_listener("sctp", &sctp_tapinfo_struct, NULL, 0, reset, packet, NULL))) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
-			wmem_free(NULL, error_string);
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+			g_string_free(error_string, TRUE);
 			return;
 		}
 		sctp_tapinfo_struct.is_registered=TRUE;

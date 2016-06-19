@@ -365,7 +365,7 @@ static void rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
 {
     rlc_lte_stat_t    *hs;
     const char        *filter = NULL;
-    gchar             *error_string;
+    GString           *error_string;
 
     /* Check for a filter string */
     if (strncmp(opt_arg, "rlc-lte,stat,", 13) == 0) {
@@ -392,7 +392,7 @@ static void rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
                                          rlc_lte_stat_packet,
                                          rlc_lte_stat_draw);
     if (error_string) {
-        wmem_free(NULL, error_string);
+        g_string_free(error_string, TRUE);
         g_free(hs);
         exit(1);
     }

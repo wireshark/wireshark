@@ -24,7 +24,6 @@
 #include <stdarg.h>
 
 #include <wsutil/wsgcrypt.h>
-#include <wsutil/plugins.h>
 
 #ifdef HAVE_LIBGNUTLS
 #include <gnutls/gnutls.h>
@@ -119,12 +118,6 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 #ifdef HAVE_LIBGNUTLS
 	gnutls_global_init();
 #endif
-
-#ifdef HAVE_PLUGINS
-	/* Register all the plugin types we have. */
-	epan_register_plugin_types(); /* Types known to libwireshark */
-#endif
-
 	TRY {
 		tap_init();
 		prefs_init();
@@ -162,13 +155,6 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 		status = FALSE;
 	}
 	ENDTRY;
-
-#ifdef HAVE_PLUGINS
-	/* Scan for plugins.  This does *not* call their registration routines;
-	that's done later. */
-	scan_plugins();
-#endif
-
 	return status;
 }
 

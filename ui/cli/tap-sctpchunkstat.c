@@ -198,7 +198,7 @@ static void
 sctpstat_init(const char *opt_arg, void *userdata _U_)
 {
 	sctpstat_t *hs;
-	gchar	   *error_string;
+	GString	   *error_string;
 
 	hs = (sctpstat_t *)g_malloc(sizeof(sctpstat_t));
 	if (!strncmp(opt_arg, "sctp,stat,", 11)) {
@@ -218,8 +218,8 @@ sctpstat_init(const char *opt_arg, void *userdata _U_)
 		g_free(hs);
 
 		fprintf(stderr, "tshark: Couldn't register sctp,stat tap: %s\n",
-			error_string);
-		wmem_free(NULL, error_string);
+			error_string->str);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 }

@@ -220,7 +220,7 @@ diameteravp_init(const char *opt_arg, void *userdata _U_)
 	guint		opt_count    = 0;
 	guint		opt_idx	     = 0;
 	GString	       *filter	     = NULL;
-	gchar	       *error_string = NULL;
+	GString	       *error_string = NULL;
 
 	ds = g_new(diameteravp_t, 1);
 	ds->frame	      = 0;
@@ -263,8 +263,8 @@ diameteravp_init(const char *opt_arg, void *userdata _U_)
 		g_free(ds);
 
 		fprintf(stderr, "tshark: Couldn't register diam,csv tap: %s\n",
-				error_string);
-		wmem_free(NULL, error_string);
+				error_string->str);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 }

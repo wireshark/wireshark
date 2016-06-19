@@ -75,7 +75,7 @@ reset_host_table_data(hostlist_table *hosts)
 {
     char *display_name;
     char title[256];
-    gchar *error_string;
+    GString *error_string;
     const char *filter;
     GtkListStore *store;
 
@@ -86,8 +86,8 @@ reset_host_table_data(hostlist_table *hosts)
     }
     error_string = set_tap_dfilter (&hosts->hash, filter);
     if (error_string) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
-        wmem_free(NULL, error_string);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+        g_string_free(error_string, TRUE);
         return;
     }
 
@@ -850,7 +850,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
   const char *filter, tap_packet_cb packet_func)
 {
     guint i;
-    gchar *error_string;
+    GString *error_string;
     char title[256];
     GtkListStore *store;
     GtkWidget *tree;
@@ -1009,8 +1009,8 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     /* register the tap and rerun the taps on the packet list */
     error_string=register_tap_listener(tap_name, &hosttable->hash, filter, 0, reset_hostlist_table_data_cb, packet_func, draw_hostlist_table_data_cb);
     if(error_string){
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
-        wmem_free(NULL, error_string);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+        g_string_free(error_string, TRUE);
         g_free(hosttable);
         return FALSE;
     }

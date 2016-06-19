@@ -195,7 +195,7 @@ static void expert_stat_init(const char *opt_arg, void *userdata _U_)
 {
     const char       *args   = NULL;
     const char       *filter = NULL;
-    gchar            *error_string;
+    GString          *error_string;
     expert_tapdata_t *hs;
     int               n;
 
@@ -257,8 +257,8 @@ static void expert_stat_init(const char *opt_arg, void *userdata _U_)
                                          expert_stat_packet,
                                          expert_stat_draw);
     if (error_string) {
-        printf("Expert tap error (%s)!\n", error_string);
-        wmem_free(NULL, error_string);
+        printf("Expert tap error (%s)!\n", error_string->str);
+        g_string_free(error_string, TRUE);
         g_free(hs);
         exit(1);
     }

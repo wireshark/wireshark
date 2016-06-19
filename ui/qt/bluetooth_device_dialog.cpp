@@ -96,7 +96,7 @@ bluetooth_device_tap_reset(void *tapinfo_ptr)
 static void
 bluetooth_devices_tap(void *data)
 {
-    gchar *error_string;
+    GString *error_string;
 
     error_string = register_tap_listener("bluetooth.device", data, NULL,
             0,
@@ -107,8 +107,8 @@ bluetooth_devices_tap(void *data)
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string);
-        g_free(error_string);
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
     }
 }
 

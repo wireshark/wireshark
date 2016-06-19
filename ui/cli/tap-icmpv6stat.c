@@ -271,7 +271,7 @@ icmpv6stat_init(const char *opt_arg, void *userdata _U_)
 {
     icmpv6stat_t *icmpv6stat;
     const char *filter = NULL;
-    gchar *error_string;
+    GString *error_string;
 
     if (strstr(opt_arg, "icmpv6,srt,"))
         filter = opt_arg + strlen("icmpv6,srt,");
@@ -306,8 +306,8 @@ icmpv6stat_init(const char *opt_arg, void *userdata _U_)
         g_free(icmpv6stat);
 
         fprintf(stderr, "tshark: Couldn't register icmpv6,srt tap: %s\n",
-            error_string);
-        wmem_free(NULL, error_string);
+            error_string->str);
+        g_string_free(error_string, TRUE);
         exit(1);
     }
 }
