@@ -191,8 +191,8 @@ static const char optstring[] = OPTSTRING;
 void commandline_capture_options(int argc, char *argv[], commandline_capture_param_info_t* param_info)
 {
     int opt;
-    int err;
 #ifdef HAVE_LIBPCAP
+    int err;
     GList *if_list;
     gchar *err_str;
 #endif
@@ -382,7 +382,7 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
                     exit(status);
                 }
 #else
-                capture_option_specified = TRUE;
+                param_info->capture_option_specified = TRUE;
                 param_info->arg_error = TRUE;
 #endif
                 break;
