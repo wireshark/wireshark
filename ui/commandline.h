@@ -33,10 +33,6 @@ typedef struct commandline_capture_param_info
 {
     GString *comp_info_str;
     GString *runtime_info_str;
-    gboolean arg_error;
-#ifndef HAVE_LIBPCAP
-    gboolean capture_option_specified;
-#endif
 } commandline_capture_param_info_t;
 
 extern void commandline_early_options(int argc, char *argv[], commandline_capture_param_info_t* param_info);
@@ -44,12 +40,9 @@ extern void commandline_early_options(int argc, char *argv[], commandline_captur
 /* Command-line options that don't have direct API calls to handle the data */
 typedef struct commandline_param_info
 {
-    gboolean arg_error;
 #ifdef HAVE_LIBPCAP
     gboolean list_link_layer_types;
     gboolean start_capture;
-#else
-    gboolean capture_option_specified;
 #endif
     e_prefs *prefs_p;
     search_direction jump_backwards;

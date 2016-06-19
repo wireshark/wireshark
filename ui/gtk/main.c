@@ -2377,12 +2377,6 @@ main(int argc, char *argv[])
     commandline_info.enable_heur_slist = NULL;
     commandline_info.disable_heur_slist = NULL;
 
-    /* Transfer capture option data to other options structure */
-    commandline_info.arg_error = capture_param_info.arg_error;
-#ifndef HAVE_LIBPCAP
-    commandline_info.capture_option_specified = capture_param_info.capture_option_specified;
-#endif
-
     /* Now get our args */
     commandline_other_options(argc, argv, &commandline_info, TRUE);
 

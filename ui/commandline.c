@@ -192,6 +192,13 @@ static const struct option long_options[] = {
     };
 static const char optstring[] = OPTSTRING;
 
+#ifndef HAVE_LIBPCAP
+static void print_no_capture_support_error(void)
+{
+    cmdarg_err("This version of Wireshark was not built with support for capturing packets.");
+}
+#endif
+
 void commandline_early_options(int argc, char *argv[], commandline_capture_param_info_t* param_info)
 {
     int opt;
@@ -199,6 +206,8 @@ void commandline_early_options(int argc, char *argv[], commandline_capture_param
     int err;
     GList *if_list;
     gchar *err_str;
+#else
+    gboolean capture_option_specified;
 #endif
 
     /*
@@ -236,7 +245,7 @@ void commandline_early_options(int argc, char *argv[], commandline_capture_param
     opterr = 0;
 
 #ifndef HAVE_LIBPCAP
-    param_info->capture_option_specified = FALSE;
+    capture_option_specified = FALSE;
 #endif
     while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
@@ -270,8 +279,7 @@ void commandline_early_options(int argc, char *argv[], commandline_capture_param
 #endif /* _WIN32 */
                 exit(0);
 #else /* HAVE_LIBPCAP */
-                param_info->capture_option_specified = TRUE;
-                param_info->arg_error = TRUE;
+                capture_option_specified = TRUE;
 #endif /* HAVE_LIBPCAP */
                 break;
             case 'h':        /* Print help and exit */
@@ -312,13 +320,24 @@ void commandline_early_options(int argc, char *argv[], commandline_capture_param
                 break;
         }
     }
+
+#ifndef HAVE_LIBPCAP
+    if (capture_option_specified) {
+        print_no_capture_support_error();
+        commandline_print_usage(FALSE);
+        exit(1);
+    }
+#endif
 }
 
 void commandline_other_options(int argc, char *argv[], commandline_param_info_t* param_info, gboolean opt_reset)
 {
     int opt;
+    gboolean arg_error = FALSE;
 #ifdef HAVE_LIBPCAP
     int status;
+#else
+    gboolean capture_option_specified;
 #endif
     char badopt;
 
@@ -389,8 +408,8 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
                     exit(status);
                 }
 #else
-                param_info->capture_option_specified = TRUE;
-                param_info->arg_error = TRUE;
+                capture_option_specified = TRUE;
+                arg_error = TRUE;
 #endif
                 break;
 
@@ -421,16 +440,16 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
 #ifdef HAVE_LIBPCAP
                 auto_scroll_live = TRUE;
 #else
-                param_info->capture_option_specified = TRUE;
-                param_info->arg_error = TRUE;
+                capture_option_specified = TRUE;
+                arg_error = TRUE;
 #endif
                 break;
             case 'L':        /* Print list of link-layer types and exit */
 #ifdef HAVE_LIBPCAP
                 param_info->list_link_layer_types = TRUE;
 #else
-                param_info->capture_option_specified = TRUE;
-                param_info->arg_error = TRUE;
+                capture_option_specified = TRUE;
+                arg_error = TRUE;
 #endif
                 break;
             case 'm':        /* Fixed-width font for the display */
@@ -574,12 +593,12 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
                 break;
             default:
             case '?':        /* Bad flag - print usage message */
-                param_info->arg_error = TRUE;
+                arg_error = TRUE;
                 break;
             }
     }
 
-    if (!param_info->arg_error) {
+    if (!arg_error) {
         argc -= optind;
         argv += optind;
         if (argc >= 1) {
@@ -589,7 +608,7 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
                  * command-line argument.
                  */
                 cmdarg_err("File name specified both with -r and regular argument");
-                param_info->arg_error = TRUE;
+                arg_error = TRUE;
             } else {
                 /*
                  * Input file name not specified with "-r", and a command-line argument
@@ -619,14 +638,14 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
              * Extra command line arguments were specified; complain.
              */
             cmdarg_err("Invalid argument: %s", argv[0]);
-            param_info->arg_error = TRUE;
+            arg_error = TRUE;
         }
     }
 
-    if (param_info->arg_error) {
+    if (arg_error) {
 #ifndef HAVE_LIBPCAP
-        if (param_info->capture_option_specified) {
-            cmdarg_err("This version of Wireshark was not built with support for capturing packets.");
+        if (capture_option_specified) {
+            print_no_capture_support_error();
         }
 #endif
         commandline_print_usage(FALSE);
