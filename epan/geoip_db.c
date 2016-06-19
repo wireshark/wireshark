@@ -228,7 +228,7 @@ geoip_db_pref_init(module_t *nameres)
 
 guint
 geoip_db_num_dbs(void) {
-    return geoip_dat_arr->len;
+    return (geoip_dat_arr == NULL) ? 0 : geoip_dat_arr->len;
 }
 
 const gchar *
