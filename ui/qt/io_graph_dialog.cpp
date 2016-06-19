@@ -37,6 +37,8 @@
 #include "progress_frame.h"
 #include "stock_icon.h"
 #include "syntax_line_edit.h"
+#include "display_filter_edit.h"
+#include "field_filter_edit.h"
 #include "wireshark_application.h"
 
 #include <QClipboard>
@@ -1202,7 +1204,7 @@ void IOGraphDialog::on_graphTreeWidget_itemActivated(QTreeWidgetItem *item, int 
     name_line_edit_ = new QLineEdit();
     name_line_edit_->setText(item->text(name_col_));
 
-    dfilter_line_edit_ = new SyntaxLineEdit();
+    dfilter_line_edit_ = new DisplayFilterEdit();
     connect(dfilter_line_edit_, SIGNAL(textChanged(QString)),
             dfilter_line_edit_, SLOT(checkDisplayFilter(QString)));
     dfilter_line_edit_->setText(item->text(dfilter_col_));
@@ -1248,7 +1250,7 @@ void IOGraphDialog::on_graphTreeWidget_itemActivated(QTreeWidgetItem *item, int 
     }
     yaxis_combo_box_->setFocusPolicy(Qt::StrongFocus);
 
-    yfield_line_edit_ = new SyntaxLineEdit();
+    yfield_line_edit_ = new FieldFilterEdit();
     connect(yfield_line_edit_, SIGNAL(textChanged(QString)),
             yfield_line_edit_, SLOT(checkFieldName(QString)));
     yfield_line_edit_->setText(item->text(yfield_col_));
