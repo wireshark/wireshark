@@ -313,7 +313,10 @@ int main(int argc, char *argv[])
 {
     MainWindow *main_w;
 
-    int                  opt, ret_val;
+#ifdef _WIN32
+    int                  opt;
+#endif
+    int                  ret_val;
     char               **ws_argv = argv;
 
 #ifdef _WIN32
