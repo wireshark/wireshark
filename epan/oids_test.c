@@ -395,7 +395,7 @@ oids_test_2struct_encoded(void)
 {
     guint matched;
     guint left;
-    guint32 *subids = NULL;;
+    guint32 *subids = NULL;
     oid_info_t *st;
     guint len, i;
 
