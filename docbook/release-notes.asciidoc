@@ -26,7 +26,8 @@ used for troubleshooting, analysis, development and education.
 The following features are new (or have been significantly updated)
 since version 2.1.0:
 
-*
+* Added -d option for Decode As support in Wireshark (mimics TShark
+  functionality)
 
 The following features are new (or have been significantly updated)
 since version 2.0.0:

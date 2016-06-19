@@ -73,6 +73,14 @@ void decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
  */
 void decode_clear_all(void);
 
+/*
+* This is the template for the decode as option; it is shared between the
+* various functions that output the usage for this parameter.
+*/
+#define DECODE_AS_ARG_TEMPLATE "<layer_type>==<selector>,<decode_as_protocol>"
+
+gboolean decode_as_command_option(const gchar *cl_param);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

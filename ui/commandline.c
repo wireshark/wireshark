@@ -1,4 +1,4 @@
-/* commandline.h
+/* commandline.c
  * Common command line handling between GUIs
  *
  * Wireshark - Network traffic analyzer
@@ -56,6 +56,7 @@
 #include "preference_utils.h"
 #include "console.h"
 #include "recent.h"
+#include "decode_as_utils.h"
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 #include <epan/asn1.h>
@@ -134,6 +135,9 @@ commandline_print_usage(gboolean for_help_option) {
     fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");
     fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
     fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtd\"\n");
+    fprintf(output, "  -d %s ...\n", DECODE_AS_ARG_TEMPLATE);
+    fprintf(output, "                           \"Decode As\", see the man page for details\n");
+    fprintf(output, "                           Example: tcp.port==8888,http\n");
     fprintf(output, "  --disable-protocol <proto_name>\n");
     fprintf(output, "                           disable dissection of proto_name\n");
     fprintf(output, "  --enable-heuristic <short_name>\n");
@@ -176,7 +180,7 @@ commandline_print_usage(gboolean for_help_option) {
 #endif
 }
 
-#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:g:Hh" "jJ:kK:lm:nN:o:P:r:R:St:u:vw:X:Y:z:"
+#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:d:g:Hh" "jJ:kK:lm:nN:o:P:r:R:St:u:vw:X:Y:z:"
 static const struct option long_options[] = {
         {"help", no_argument, NULL, 'h'},
         {"read-file", required_argument, NULL, 'r' },
@@ -399,6 +403,10 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
             /*** all non capture option specific ***/
             case 'C':
                 /* Configuration profile settings were already processed just ignore them this time*/
+                break;
+            case 'd':        /* Decode as rule */
+                if (!decode_as_command_option(optarg))
+                    exit(1);
                 break;
             case 'j':        /* Search backwards for a matching packet from filter in option J */
                 param_info->jump_backwards = SD_BACKWARD;

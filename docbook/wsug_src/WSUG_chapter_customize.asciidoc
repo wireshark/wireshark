@@ -77,6 +77,9 @@ Processing:
   -R <read filter>         packet filter in Wireshark display filter syntax
   -n                       disable all name resolutions (def: all enabled)
   -N <name resolve flags>  enable specific name resolution(s): "mnNtCd"
+  -d <layer_type>==<selector>,<decode_as_protocol> ...
+                           "Decode As", see the man page for details
+                           Example: tcp.port==8888,http
   --disable-protocol <proto_name>
                            disable dissection of proto_name
   --enable-heuristic <short_name>
