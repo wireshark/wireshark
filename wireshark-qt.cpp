@@ -453,7 +453,7 @@ int main(int argc, char *argv[])
         g_free(rf_path);
     }
 
-    commandline_capture_options(argc, ws_argv, &capture_param_info);
+    commandline_early_options(argc, ws_argv, &capture_param_info);
 
 #ifdef _WIN32
     reset_library_path();

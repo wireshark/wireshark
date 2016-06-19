@@ -2203,7 +2203,7 @@ main(int argc, char *argv[])
                       rf_path, g_strerror(rf_open_errno));
     }
 
-    commandline_capture_options(argc, argv, &capture_param_info);
+    commandline_early_options(argc, argv, &capture_param_info);
 
     /* Init the "Open file" dialog directory */
     /* (do this after the path settings are processed) */

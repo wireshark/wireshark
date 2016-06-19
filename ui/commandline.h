@@ -39,7 +39,7 @@ typedef struct commandline_capture_param_info
 #endif
 } commandline_capture_param_info_t;
 
-extern void commandline_capture_options(int argc, char *argv[], commandline_capture_param_info_t* param_info);
+extern void commandline_early_options(int argc, char *argv[], commandline_capture_param_info_t* param_info);
 
 /* Command-line options that don't have direct API calls to handle the data */
 typedef struct commandline_param_info

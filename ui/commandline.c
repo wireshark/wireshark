@@ -192,7 +192,7 @@ static const struct option long_options[] = {
     };
 static const char optstring[] = OPTSTRING;
 
-void commandline_capture_options(int argc, char *argv[], commandline_capture_param_info_t* param_info)
+void commandline_early_options(int argc, char *argv[], commandline_capture_param_info_t* param_info)
 {
     int opt;
 #ifdef HAVE_LIBPCAP
