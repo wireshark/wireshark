@@ -2068,7 +2068,6 @@ main(int argc, char *argv[])
     gchar               *err_str;
     int                  status;
 #else
-    gboolean             capture_option_specified = FALSE;
 #ifdef _WIN32
 #ifdef HAVE_AIRPCAP
     gchar               *err_str;
