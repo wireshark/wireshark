@@ -13013,77 +13013,77 @@ text-decoration: underline;
         <translation>帧</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="32"/>
+        <location filename="search_frame.ui" line="45"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the packet list (summary pane), decoded packet display labels (tree view pane) or the ASCII-converted packet data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;搜索分组列表 (概要窗格) 的“信息”列、解码分组显示标签 (树形视图窗格) 或转换为 ASCII 字符的分组数据 (十六进制视图窗格)。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="36"/>
+        <location filename="search_frame.ui" line="49"/>
         <source>Packet list</source>
         <translation>分组列表</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="41"/>
+        <location filename="search_frame.ui" line="54"/>
         <source>Packet details</source>
         <translation>分组详情</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="46"/>
+        <location filename="search_frame.ui" line="59"/>
         <source>Packet bytes</source>
         <translation>分组字节流</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="67"/>
+        <location filename="search_frame.ui" line="80"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for strings containing narrow (UTF-8 and ASCII) or wide (UTF-16) characters.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;搜索包含窄字符集 (UTF-8 与 ASCII) 或宽字符集 (UTF-16) 的字符串。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="71"/>
+        <location filename="search_frame.ui" line="84"/>
         <source>Narrow &amp; Wide</source>
         <translation>宽窄</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="76"/>
+        <location filename="search_frame.ui" line="89"/>
         <source>Narrow (UTF-8 / ASCII)</source>
         <translation>窄 (UTF-8 / ASCII)</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="81"/>
+        <location filename="search_frame.ui" line="94"/>
         <source>Wide (UTF-16)</source>
         <translation>宽 (UTF-16)</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="89"/>
+        <location filename="search_frame.ui" line="102"/>
         <source>Case sensitive</source>
         <translation>区分大小写</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="109"/>
+        <location filename="search_frame.ui" line="122"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5) or a plain string (e.g. My String).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;以显示筛过滤语法 (如 ip.addr==10.1.1.1)、十六进制字符串 (如 fffffda5) 或纯字符串 (如 My String) 搜索数据。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="113"/>
+        <location filename="search_frame.ui" line="126"/>
         <source>Display filter</source>
         <translation>显示过滤器</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="118"/>
+        <location filename="search_frame.ui" line="131"/>
         <source>Hex value</source>
         <translation>十六进制值</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="123"/>
+        <location filename="search_frame.ui" line="136"/>
         <source>String</source>
         <translation>字符串</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="141"/>
+        <location filename="search_frame.ui" line="160"/>
         <source>Find</source>
         <translation>查找</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="157"/>
+        <location filename="search_frame.ui" line="176"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>

@@ -13025,77 +13025,77 @@ text-decoration: underline;
         <translation>Frame</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="32"/>
+        <location filename="search_frame.ui" line="45"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the packet list (summary pane), decoded packet display labels (tree view pane) or the ASCII-converted packet data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Durchsuchen der Infospalte der Paketliste (Zusammenfassungs-Fenster) oder die Beschriftung der Pakete (Baumansicht-Fenster) oder die nach ASCII konvertierten Paketdaten (Hex-Ansichts-Fenster).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="36"/>
+        <location filename="search_frame.ui" line="49"/>
         <source>Packet list</source>
         <translation>Paketliste</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="41"/>
+        <location filename="search_frame.ui" line="54"/>
         <source>Packet details</source>
         <translation>Paketdetails</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="46"/>
+        <location filename="search_frame.ui" line="59"/>
         <source>Packet bytes</source>
         <translation>Paket Bytes</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="67"/>
+        <location filename="search_frame.ui" line="80"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for strings containing narrow (UTF-8 and ASCII) or wide (UTF-16) characters.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zeichenketten suchen, die schmale (UTF-8 oder ASCII) or breite (UTF-16) Zeichen enthalten.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="71"/>
+        <location filename="search_frame.ui" line="84"/>
         <source>Narrow &amp; Wide</source>
         <translation>Schmale und weite Zeichen</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="76"/>
+        <location filename="search_frame.ui" line="89"/>
         <source>Narrow (UTF-8 / ASCII)</source>
         <translation>Schmale Zeichen (UTF-8 / ASCII)</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="81"/>
+        <location filename="search_frame.ui" line="94"/>
         <source>Wide (UTF-16)</source>
         <translation>Breite Zeichen (UTF-16)</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="89"/>
+        <location filename="search_frame.ui" line="102"/>
         <source>Case sensitive</source>
         <translation>Groß- / Kleinschreibung beachten</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="109"/>
+        <location filename="search_frame.ui" line="122"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5) or a plain string (e.g. My String).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nach Daten suchen, durch Angabe eine Anzeigefilter (z.B. ip.addr==10.1.1.1), oder mit einer Hexadezimalen Zeichenkette (z.B. fffffda5) oder einer einfachen Zeichenkette (z.B. Meine Zeichenkette).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="113"/>
+        <location filename="search_frame.ui" line="126"/>
         <source>Display filter</source>
         <translation>Anzeigefilter</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="118"/>
+        <location filename="search_frame.ui" line="131"/>
         <source>Hex value</source>
         <translation>Hex-Wert</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="123"/>
+        <location filename="search_frame.ui" line="136"/>
         <source>String</source>
         <translation>Zeichenkette</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="141"/>
+        <location filename="search_frame.ui" line="160"/>
         <source>Find</source>
         <translation>Finden</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="157"/>
+        <location filename="search_frame.ui" line="176"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>

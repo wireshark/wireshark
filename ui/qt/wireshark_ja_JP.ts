@@ -12969,77 +12969,77 @@ a:hover {
         <translation>フレーム</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="32"/>
+        <location filename="search_frame.ui" line="45"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the packet list (summary pane), decoded packet display labels (tree view pane) or the ASCII-converted packet data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;パケット一覧(概要部分)やデコードされたパケット表示ラベル(ツリー表示部分)やアスキー変換されたパケットデータ(16進数表示部分)を検索します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="36"/>
+        <location filename="search_frame.ui" line="49"/>
         <source>Packet list</source>
         <translation>パケット一覧</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="41"/>
+        <location filename="search_frame.ui" line="54"/>
         <source>Packet details</source>
         <translation>パケット詳細</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="46"/>
+        <location filename="search_frame.ui" line="59"/>
         <source>Packet bytes</source>
         <translation>パケットバイト列</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="67"/>
+        <location filename="search_frame.ui" line="80"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for strings containing narrow (UTF-8 and ASCII) or wide (UTF-16) characters.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ナロー文字列 (UTF-8とASCII)もしくはワイド(UTF-16)文字を検索&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="71"/>
+        <location filename="search_frame.ui" line="84"/>
         <source>Narrow &amp; Wide</source>
         <translation>ナローとワイド</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="76"/>
+        <location filename="search_frame.ui" line="89"/>
         <source>Narrow (UTF-8 / ASCII)</source>
         <translation>ナロー(UTF-8/ASCII)</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="81"/>
+        <location filename="search_frame.ui" line="94"/>
         <source>Wide (UTF-16)</source>
         <translation>ワイド(UTF-16)</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="89"/>
+        <location filename="search_frame.ui" line="102"/>
         <source>Case sensitive</source>
         <translation>大文字小文字を区別</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="109"/>
+        <location filename="search_frame.ui" line="122"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5) or a plain string (e.g. My String).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;以下を用いて検索します  表示フィルタの文法 (例えば ip.addr==10.1.1.1), １６進数表記文字列 (例えば fffffda5), 平文テキスト文字列 (例えば My String)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="113"/>
+        <location filename="search_frame.ui" line="126"/>
         <source>Display filter</source>
         <translation>表示フィルタ</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="118"/>
+        <location filename="search_frame.ui" line="131"/>
         <source>Hex value</source>
         <translation>16進数値</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="123"/>
+        <location filename="search_frame.ui" line="136"/>
         <source>String</source>
         <translation>文字列</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="141"/>
+        <location filename="search_frame.ui" line="160"/>
         <source>Find</source>
         <translation>検索</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="157"/>
+        <location filename="search_frame.ui" line="176"/>
         <source>Cancel</source>
         <translation>キャンセル</translation>
     </message>

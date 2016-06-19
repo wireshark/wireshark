@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2016-06-11)
+(last updated 2016-06-17)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -24092,7 +24092,7 @@ Decimal
 6032
   Stainless Steel Networks
     Tim Kennedy
-      tkennedy&sugarat.net
+      iana&timkennedy.net
 6033
   e-talk Corporation
     Steve Graff
@@ -28162,7 +28162,7 @@ Decimal
     Rafael Gonzalez
       epicom&idecnet.com
 7052
-  IKOM - Ingenieurbüro
+  Dipl.-Ing. Markus Leist
     Markus Leist
       leist&ing-buero-ikom.de
 7053
@@ -28302,9 +28302,9 @@ Decimal
     John Yang
       ravi&gtong.com
 7087
-  Selis Networks Inc.
-    Yigal Korolevski, Vice President and CTO
-      ykorol&selis-networks.com
+  KMC Technologies (formerly 'Selis Networks Inc.')
+    Yigal Korolevski, Managing Director
+      ykorol&nms-guru.com
 7088
   Network Systems
     Vladislav Bogdanov
@@ -38443,8 +38443,8 @@ Decimal
       info&molo.co.za
 9622
   QuesCom
-    Fabrice Lemenorel
-      lemenore&quescom.com
+    Stephan Malric
+      stephan.malric&quescom.eu
 9623
   Copenhagen Airports
     IT Hostmaster
@@ -55408,8 +55408,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       vtapia&qoslabs.com
 13963
   R.V.R. Elettronica SpA
-    Daniele Canazza
-      dcanazza&rvr.it
+    Alessandro Franceschi
+      afranceschi&rvr.it
 13964
   SWCS Chan Pak Sha School
     Anderson Tung
@@ -146228,7 +146228,7 @@ Decentralization / Helenic Public Administra
     Olivier Diserens
       dev&mailcleaner.net
 36662
-  Tognum AG
+  MTU Friedrichshafen GmbH (formerly 'Tognum AG')
     Herbert Roth
       registration&tognum.com
 36663
@@ -153320,9 +153320,9 @@ Decentralization / Helenic Public Administra
     Bruno Bonfils
       bbonfils&opencsi.com
 38435
-  abegglen-IT Consulting
+  IQantum GmbH
     Daniel Abegglen
-      iana&myserver.ch
+      info&iqantum.ch
 38436
   ReiniNET
     Patrick Reinhart
@@ -160278,7 +160278,7 @@ Decentralization / Helenic Public Administra
 40174
   BlueFinch
     Richard Verkaik
-      info&bluefinch.nl
+      info&bluefinch.com
 40175
   RIPAS
     Pavel Karasin
@@ -165097,8 +165097,8 @@ Decentralization / Helenic Public Administra
       alexey&rodnik.ru
 41379
   Miros AS
-    Edward Woodhouse
-      edward.woodhouse&miros.no
+    Julius Ræstad
+      julius.raestad&miros.no
 41380
   KORUS Consulting SNG Ltd
     Alex Zaharow
@@ -186312,9 +186312,9 @@ Decentralization / Helenic Public Administra
     Mark Siejka
       mark_siejka&ao-inc.com
 46683
-  Zdravec Bulgaria Ltd
+  OkAlfred (formerly 'Zdravec Bulgaria Ltd')
     Alexander Atanasov
-      hw&zdravec-bulgaria.com
+      hw&okalfred.com
 46684
   Nazessen
     Peter Breur
@@ -191431,6 +191431,166 @@ Decentralization / Helenic Public Administra
   Ezam Automotive Parts
     Ali Karimi
       Karimi&ezamco.com
+47963
+  Schwyzer Kantonalbank
+    Martin Annen
+      netadmin&szkb.ch
+47964
+  Landkreis Oberhavel
+    Uwe Volwarski
+      it&oberhavel.de
+47965
+  Dedicated Computing LLC
+    Greg Krimmer
+      administrator&dedicatedcomputing.com
+47966
+  NooBaa
+    Yuval Dimnik
+      yuval.dimnik&noobaa.com
+47967
+  IT-Consulting Mario Bergmann
+    Mario Bergmann
+      mb&mabecon.de
+47968
+  KOMSET-servis LLC
+    Ilya Orlenko
+      support&komset.ru
+47969
+  Mills College
+    Christopher Paul
+      chris.paul&rexconsulting.net
+47970
+  Neulinger Consulting
+    Nathan Neulinger
+      nneul&neulinger.org
+47971
+  Martin Sprocket and Gear, Inc.
+    Network Admin
+      netadmin&martinsprocket.com
+47972
+  Sam Yaple
+    Sam Yaple
+      sam&yaple.net
+47973
+  Servosity Inc
+    Sam Yaple
+      syaple&servosity.com
+47974
+  WANSecurity, Inc.
+    Robert Smith
+      iana.org&wansecurity.com
+47975
+  kezhi-controls
+    gen.xu
+      gen.xu&kezhi-controls.com
+47976
+  gematik Gesellschaft für Telematikanwendungen der Gesundheitskarte mbH
+    Ingo Bahn
+      ingo.bahn&gematik.de
+47977
+  Tivaci Corporation
+    Edward Kwa
+      ed.k&tivacicorp.com
+47978
+  ALPEIN Software SWISS AG
+    Sergey Gamov
+      devteam&alpeinsoft.ch
+47979
+  BG Klinikum Hamburg gGmbH
+    A.-R. Schmidt
+      edv&bgk-hamburg.de
+47980
+  Jernbaneverket
+    Herman Seip
+      enterprise_oid_snmp&jbv.no
+47981
+  Prowise B.V.
+    Paul de Laat
+      systeembeheer&prowise.com
+47982
+  6PM PLC
+    David Vassallo
+      david.vassallo&6pmplc.com
+47983
+  Hanseatic Bank
+    Stephan Jacobsen
+      Stephan.jacobsen&hanseaticbank.de
+47984
+  Atos IT Solutions and Services AG
+    Sebastian Manthey
+      sebastian.manthey&atos.net
+47985
+  IDnomic
+    Ahmadou DEM
+      securite-audit&idnomic.com
+47986
+  Green Communications
+    Khaldoun Al Agha
+      admin&green-communications.fr
+47987
+  Eraldo Gandini
+    Eraldo Gandini
+      io&eraldogandini.it
+47988
+  PDS s.r.o.
+    Lukas Plachy
+      lukas.plachy&pds.eu
+47989
+  Software Workers srl
+    Riccardo Scartozzi
+      riccardo.scartozzi&softwareworkers.it
+47990
+  Juergen M. Bruckner
+    Juergen M. Bruckner
+      info&bruckner.xyz
+47991
+  shadowhunt
+    Alexander Dreweke
+      iana&shadowhunt.de
+47992
+  Gettysburg Cancer Center
+    Bansari Mandalia
+      bamandalia&gettysburgoncology.com 
+47993
+  Brazen Technologies
+    Jason Southern
+      jason&brazen.com
+47994
+  bba solutions
+    Darrick Buralli
+      dburalli&bbasolutions.com
+47995
+  American University
+    Hosein Nahidian
+      nahidian&american.edu
+47996
+  DataBoost LLC
+    Bradley Giesbrecht
+      iana&databoost.com
+47997
+  Securilytics, LLC
+    Alex Senkevitch
+      tech-poc&securilytics.com
+47998
+  DASSAULT FALCON SERVICE
+    Nicolas SAINT-VAL
+      nicolas.saint-val&dassault-falcon.com
+47999
+  Port of Portland
+    IT Technical Services - IANA Admin
+      iana&portofportland.com
+48000
+  Steelwedge Software
+    Chris Callison
+      ccallison&steelwedge.com
+48001
+  OOOGLEEE FOUNDATION
+    JAYANTA KACHARI
+      jayantasumitra2011&gmail.com
+48002
+  schoeller network control Datenverarbeitung GmbH
+    Wilhelm Pichler
+      wilhelm.pichler&schoeller.at
 
 
 End of Document
