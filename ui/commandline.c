@@ -199,7 +199,8 @@ static void print_no_capture_support_error(void)
 }
 #endif
 
-void commandline_early_options(int argc, char *argv[], commandline_capture_param_info_t* param_info)
+void commandline_early_options(int argc, char *argv[],
+    GString *comp_info_str, GString *runtime_info_str)
 {
     int opt;
 #ifdef HAVE_LIBPCAP
@@ -302,7 +303,7 @@ void commandline_early_options(int argc, char *argv[], commandline_capture_param
 #ifdef _WIN32
                 create_console();
 #endif
-                show_version("Wireshark", param_info->comp_info_str, param_info->runtime_info_str);
+                show_version("Wireshark", comp_info_str, runtime_info_str);
 #ifdef _WIN32
                 destroy_console();
 #endif

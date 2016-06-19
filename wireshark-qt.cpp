@@ -336,13 +336,11 @@ int main(int argc, char *argv[])
 #endif
 #endif
 #endif
-    commandline_capture_param_info_t capture_param_info;
+    GString             *comp_info_str = NULL;
+    GString             *runtime_info_str = NULL;
     commandline_param_info_t commandline_info;
 
     QString              dfilter, read_filter;
-
-    /* Initialize the capture arguments */
-    memset(&capture_param_info, 0, sizeof(capture_param_info));
 
     cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
 
@@ -436,11 +434,11 @@ int main(int argc, char *argv[])
 #endif /* _WIN32 */
 
     /* Get the compile-time version information string */
-    capture_param_info.comp_info_str = get_compiled_version_info(get_wireshark_qt_compiled_info,
+    comp_info_str = get_compiled_version_info(get_wireshark_qt_compiled_info,
                                               get_gui_compiled_info);
 
     /* Assemble the run-time version information string */
-    capture_param_info.runtime_info_str = get_runtime_version_info(get_wireshark_runtime_info);
+    runtime_info_str = get_runtime_version_info(get_wireshark_runtime_info);
 
     profile_store_persconffiles(TRUE);
 
@@ -453,7 +451,7 @@ int main(int argc, char *argv[])
         g_free(rf_path);
     }
 
-    commandline_early_options(argc, ws_argv, &capture_param_info);
+    commandline_early_options(argc, ws_argv, comp_info_str, runtime_info_str);
 
 #ifdef _WIN32
     reset_library_path();
@@ -478,7 +476,7 @@ int main(int argc, char *argv[])
            "%s"
            "\n"
            "%s",
-        get_ws_vcs_version_info(), capture_param_info.comp_info_str->str, capture_param_info.runtime_info_str->str);
+        get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
 
 #ifdef _WIN32
     /* Start windows sockets */

@@ -2085,11 +2085,9 @@ main(int argc, char *argv[])
 #ifdef HAVE_GTKOSXAPPLICATION
     GtkosxApplication   *theApp;
 #endif
-    commandline_capture_param_info_t capture_param_info;
+    GString             *comp_info_str = NULL;
+    GString             *runtime_info_str = NULL;
     commandline_param_info_t commandline_info;
-
-    /* Initialize the capture arguments */
-    memset(&capture_param_info, 0, sizeof(capture_param_info));
 
 #ifdef HAVE_GDK_GRESOURCE
     main_register_resource();
@@ -2173,11 +2171,11 @@ main(int argc, char *argv[])
 #endif  /* _WIN32 */
 
     /* Get the compile-time version information string */
-    capture_param_info.comp_info_str = get_compiled_version_info(get_wireshark_gtk_compiled_info,
+    comp_info_str = get_compiled_version_info(get_wireshark_gtk_compiled_info,
                                               get_gui_compiled_info);
 
     /* Get the run-time version information string */
-    capture_param_info.runtime_info_str = get_runtime_version_info(get_wireshark_runtime_info);
+    runtime_info_str = get_runtime_version_info(get_wireshark_runtime_info);
 
     /* Add it to the information to be reported on a crash. */
     ws_add_crash_info("Wireshark %s\n"
@@ -2185,7 +2183,7 @@ main(int argc, char *argv[])
         "%s"
         "\n"
         "%s",
-        get_ws_vcs_version_info(), capture_param_info.comp_info_str->str, capture_param_info.runtime_info_str->str);
+        get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
 
 #ifdef _WIN32
     /* Start windows sockets */
@@ -2203,7 +2201,7 @@ main(int argc, char *argv[])
                       rf_path, g_strerror(rf_open_errno));
     }
 
-    commandline_early_options(argc, argv, &capture_param_info);
+    commandline_early_options(argc, argv, comp_info_str, runtime_info_str);
 
     /* Init the "Open file" dialog directory */
     /* (do this after the path settings are processed) */
