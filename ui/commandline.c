@@ -652,6 +652,54 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
         commandline_print_usage(FALSE);
         exit(1);
     }
+
+    if (param_info->start_capture && param_info->list_link_layer_types) {
+        /* Specifying *both* is bogus. */
+        cmdarg_err("You can't specify both -L and a live capture.");
+        exit(1);
+    }
+
+    if (param_info->list_link_layer_types) {
+        /* We're supposed to list the link-layer types for an interface;
+           did the user also specify a capture file to be read? */
+        if (param_info->cf_name) {
+            /* Yes - that's bogus. */
+            cmdarg_err("You can't specify -L and a capture file to be read.");
+            exit(1);
+        }
+        /* No - did they specify a ring buffer option? */
+        if (global_capture_opts.multi_files_on) {
+            cmdarg_err("Ring buffer requested, but a capture isn't being done.");
+            exit(1);
+        }
+    } else {
+        /* We're supposed to do a live capture; did the user also specify
+           a capture file to be read? */
+        if (param_info->start_capture && param_info->cf_name) {
+            /* Yes - that's bogus. */
+            cmdarg_err("You can't specify both a live capture and a capture file to be read.");
+            exit(1);
+        }
+
+        /* No - was the ring buffer option specified and, if so, does it make
+           sense? */
+        if (global_capture_opts.multi_files_on) {
+            /* Ring buffer works only under certain conditions:
+             a) ring buffer does not work with temporary files;
+             b) real_time_mode and multi_files_on are mutually exclusive -
+             real_time_mode takes precedence;
+             c) it makes no sense to enable the ring buffer if the maximum
+             file size is set to "infinite". */
+            if (global_capture_opts.save_file == NULL) {
+                cmdarg_err("Ring buffer requested, but capture isn't being saved to a permanent file.");
+                global_capture_opts.multi_files_on = FALSE;
+            }
+            if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_duration) {
+                cmdarg_err("Ring buffer requested, but no maximum capture file size or duration were specified.");
+                /* XXX - this must be redesigned as the conditions changed */
+            }
+        }
+    }
 }
 
 /*
