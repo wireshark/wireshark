@@ -396,7 +396,7 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
             case 'K':        /* Kerberos keytab file */
-                    read_keytab_file(optarg);
+                read_keytab_file(optarg);
                 break;
 #endif
 
