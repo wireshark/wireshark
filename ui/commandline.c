@@ -231,6 +231,9 @@ void commandline_capture_options(int argc, char *argv[], commandline_capture_par
      */
     opterr = 0;
 
+#ifndef HAVE_LIBPCAP
+    param_info->capture_option_specified = FALSE;
+#endif
     while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
             case 'C':        /* Configuration Profile */
