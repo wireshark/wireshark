@@ -79,4 +79,10 @@ netlogon_dissect_PAC_S4U_DELEGATION_INFO(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			dcerpc_info *di, guint8 *drep);
 
+/* needed to decrypt PAC_DEVICE_INFO in kerberos */
+int
+netlogon_dissect_PAC_DEVICE_INFO(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
+			dcerpc_info *di, guint8 *drep);
+
 #endif /* packet-dcerpc-netlogon.h */

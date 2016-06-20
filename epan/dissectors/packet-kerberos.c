@@ -434,6 +434,7 @@ static gint ett_krb_pac_logon_info = -1;
 static gint ett_krb_pac_credential_info = -1;
 static gint ett_krb_pac_s4u_delegation_info = -1;
 static gint ett_krb_pac_upn_dns_info = -1;
+static gint ett_krb_pac_device_info = -1;
 static gint ett_krb_pac_server_checksum = -1;
 static gint ett_krb_pac_privsvr_checksum = -1;
 static gint ett_krb_pac_client_info_type = -1;
@@ -518,7 +519,7 @@ static gint ett_kerberos_PA_FX_FAST_REPLY = -1;
 static gint ett_kerberos_KrbFastArmoredRep = -1;
 
 /*--- End of included file: packet-kerberos-ett.c ---*/
-#line 225 "./asn1/kerberos/packet-kerberos-template.c"
+#line 226 "./asn1/kerberos/packet-kerberos-template.c"
 
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
 static expert_field ei_kerberos_address = EI_INIT;
@@ -639,7 +640,7 @@ typedef enum _KERBEROS_PADATA_TYPE_enum {
 } KERBEROS_PADATA_TYPE_enum;
 
 /*--- End of included file: packet-kerberos-val.h ---*/
-#line 237 "./asn1/kerberos/packet-kerberos-template.c"
+#line 238 "./asn1/kerberos/packet-kerberos-template.c"
 
 static void
 call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag, kerberos_callbacks *cb)
@@ -2693,6 +2694,12 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 static int
 dissect_krb5_PAC_CLIENT_CLAIMS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
+	int length = tvb_captured_length_remaining(tvb, offset);
+
+	if (length == 0) {
+		return offset;
+	}
+
 	proto_tree_add_item(parent_tree, hf_krb_pac_client_claims_info, tvb, offset, -1, ENC_NA);
 
 	return offset;
@@ -2701,7 +2708,29 @@ dissect_krb5_PAC_CLIENT_CLAIMS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int 
 static int
 dissect_krb5_PAC_DEVICE_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	proto_tree_add_item(parent_tree, hf_krb_pac_device_info, tvb, offset, -1, ENC_NA);
+	proto_item *item;
+	proto_tree *tree;
+	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
+	static dcerpc_info di;      /* fake dcerpc_info struct */
+	static dcerpc_call_value call_data;
+
+	item = proto_tree_add_item(parent_tree, hf_krb_pac_device_info, tvb, offset, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_krb_pac_device_info);
+
+	/* skip the first 16 bytes, they are some magic created by the idl
+	 * compiler   the first 4 bytes might be flags?
+	 */
+	offset = dissect_krb5_PAC_NDRHEADERBLOB(tree, tvb, offset, &drep[0], actx);
+
+	/* the PAC_DEVICE_INFO blob */
+	/* fake whatever state the dcerpc runtime support needs */
+	di.conformant_run=0;
+	/* we need di->call_data->flags.NDR64 == 0 */
+	di.call_data=&call_data;
+	init_ndr_pointer_list(&di);
+	offset = dissect_ndr_pointer(tvb, offset, actx->pinfo, tree, &di, drep,
+				     netlogon_dissect_PAC_DEVICE_INFO, NDR_POINTER_UNIQUE,
+				     "PAC_DEVICE_INFO:", -1);
 
 	return offset;
 }
@@ -2709,6 +2738,12 @@ dissect_krb5_PAC_DEVICE_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset,
 static int
 dissect_krb5_PAC_DEVICE_CLAIMS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
+	int length = tvb_captured_length_remaining(tvb, offset);
+
+	if (length == 0) {
+		return offset;
+	}
+
 	proto_tree_add_item(parent_tree, hf_krb_pac_device_claims_info, tvb, offset, -1, ENC_NA);
 
 	return offset;
@@ -5403,7 +5438,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 2469 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2504 "./asn1/kerberos/packet-kerberos-template.c"
 
 #ifdef HAVE_KERBEROS
 static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
@@ -6706,7 +6741,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 2939 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2974 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -6720,6 +6755,7 @@ void proto_register_kerberos(void) {
 		&ett_krb_pac_credential_info,
 		&ett_krb_pac_s4u_delegation_info,
 		&ett_krb_pac_upn_dns_info,
+		&ett_krb_pac_device_info,
 		&ett_krb_pac_server_checksum,
 		&ett_krb_pac_privsvr_checksum,
 		&ett_krb_pac_client_info_type,
@@ -6804,7 +6840,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_KrbFastArmoredRep,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 2961 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2997 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {
