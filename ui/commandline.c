@@ -653,6 +653,7 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
         exit(1);
     }
 
+#ifdef HAVE_LIBPCAP
     if (param_info->start_capture && param_info->list_link_layer_types) {
         /* Specifying *both* is bogus. */
         cmdarg_err("You can't specify both -L and a live capture.");
@@ -700,6 +701,7 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
             }
         }
     }
+#endif
 }
 
 /*
