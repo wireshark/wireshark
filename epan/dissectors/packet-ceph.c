@@ -1545,30 +1545,29 @@ c_pkt_data_init(c_pkt_data *d, packet_info *pinfo, guint off)
 	if (!d->convd) /* New conversation. */
 	{
 		d->convd = c_conv_data_new();
-
-		/* Note: Server sends banner first. */
-
-		copy_address_wmem(wmem_file_scope(), &d->convd->server.addr, &pinfo->src);
-		d->convd->server.port = pinfo->srcport;
-		copy_address_wmem(wmem_file_scope(), &d->convd->client.addr, &pinfo->dst);
-		d->convd->client.port = pinfo->destport;
 		conversation_add_proto_data(d->conv, proto_ceph, d->convd);
 	}
 
-	/*** Set up src and dst pointers correctly. ***/
-	if (addresses_equal(&d->convd->client.addr, &pinfo->src) &&
-	    d->convd->client.port == pinfo->srcport)
-	{
-		d->src = &d->convd->client;
-		d->dst = &d->convd->server;
+	/*
+	 * Set up src and dst pointers correctly, if the client port is
+	 * already set. Otherwise, we need to wait until we have enough
+	 * data to determine which is which.
+	 */
+	if (d->convd->client.port != 0xFFFF) {
+		if (addresses_equal(&d->convd->client.addr, &pinfo->src) &&
+		    d->convd->client.port == pinfo->srcport)
+		{
+			d->src = &d->convd->client;
+			d->dst = &d->convd->server;
+		}
+		else
+		{
+			d->src = &d->convd->server;
+			d->dst = &d->convd->client;
+		}
+		DISSECTOR_ASSERT(d->src);
+		DISSECTOR_ASSERT(d->dst);
 	}
-	else
-	{
-		d->src = &d->convd->server;
-		d->dst = &d->convd->client;
-	}
-	DISSECTOR_ASSERT(d->src);
-	DISSECTOR_ASSERT(d->dst);
 
 	c_header_init(&d->header);
 	d->item_root = NULL;
@@ -6918,8 +6917,41 @@ guint c_dissect_pdu(proto_tree *root,
 }
 
 static
-guint c_pdu_end(tvbuff_t *tvb, guint off, c_pkt_data *data)
+guint c_pdu_end(tvbuff_t *tvb, packet_info *pinfo, guint off, c_pkt_data *data)
 {
+	c_inet	af;
+
+	/*
+	 * If we don't already know, then figure out which end of the
+	 * connection is the client. It's icky, but the only way to know is to
+	 * see whether the info after the first entity_addr_t looks like
+	 * another entity_addr_t.
+	 */
+	if (data->convd->client.port == 0xFFFF) {
+		if (!tvb_bytes_exist(tvb, off, C_BANNER_SIZE + C_SIZE_ENTITY_ADDR + 8 + 2))
+			return C_NEEDMORE;
+
+		/* We have enough to determine client vs. server */
+		af = (c_inet)tvb_get_ntohs(tvb, off + C_BANNER_SIZE + C_SIZE_ENTITY_ADDR + 8);
+		if (af != C_IPv4 && af != C_IPv6) {
+			/* Client */
+			copy_address_wmem(wmem_file_scope(), &data->convd->client.addr, &pinfo->src);
+			data->convd->client.port = pinfo->srcport;
+			copy_address_wmem(wmem_file_scope(), &data->convd->server.addr, &pinfo->dst);
+			data->convd->server.port = pinfo->destport;
+			data->src = &data->convd->client;
+			data->dst = &data->convd->server;
+		} else {
+			/* Server */
+			copy_address_wmem(wmem_file_scope(), &data->convd->server.addr, &pinfo->src);
+			data->convd->server.port = pinfo->srcport;
+			copy_address_wmem(wmem_file_scope(), &data->convd->client.addr, &pinfo->dst);
+			data->convd->client.port = pinfo->destport;
+			data->src = &data->convd->server;
+			data->dst = &data->convd->client;
+		}
+	}
+
 	switch (data->src->state)
 	{
 	case C_STATE_NEW:
@@ -7010,7 +7042,7 @@ int dissect_ceph(tvbuff_t *tvb, packet_info *pinfo,
 		if (off)
 			c_pkt_data_save(&data, pinfo, off);
 
-		offt = c_pdu_end(tvb, off, &data);
+		offt = c_pdu_end(tvb, pinfo, off, &data);
 		if (offt == C_INVALID)
 		{
 			return 0;
