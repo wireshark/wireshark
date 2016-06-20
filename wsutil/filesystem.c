@@ -62,6 +62,7 @@
 #include <wsutil/report_err.h>
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
+#include <wsutil/utf8_entities.h>
 
 #include <wiretap/wtap.h>   /* for WTAP_ERR_SHORT_WRITE */
 
@@ -1863,6 +1864,13 @@ file_open_error_message(int err, gboolean for_writing)
     case EINVAL:
         errmsg = "The file \"%s\" could not be created because an invalid filename was specified.";
         break;
+
+#ifdef ENAMETOOLONG
+    case ENAMETOOLONG:
+        /* XXX Make sure we truncate on a character boundary. */
+        errmsg = "The file name \"%.80s" UTF8_HORIZONTAL_ELLIPSIS "\" is too long.";
+        break;
+#endif
 
     case ENOMEM:
         /*
