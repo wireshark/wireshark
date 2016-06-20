@@ -283,7 +283,7 @@ add_selection(char *sel, guint* max_selection)
 
         selectfrm[max_selected].inclusive = FALSE;
         selectfrm[max_selected].first = (guint)strtoul(sel, NULL, 10);
-        if (selectfrm[max_selected].first < *max_selection)
+        if (selectfrm[max_selected].first > *max_selection)
             *max_selection = selectfrm[max_selected].first;
 
         if (verbose)
@@ -302,7 +302,7 @@ add_selection(char *sel, guint* max_selection)
             /* Not a valid number, presume all */
             selectfrm[max_selected].second = *max_selection = G_MAXUINT;
         }
-        else if (selectfrm[max_selected].second < *max_selection)
+        else if (selectfrm[max_selected].second > *max_selection)
             *max_selection = selectfrm[max_selected].second;
 
         if (verbose)
@@ -961,7 +961,7 @@ main(int argc, char *argv[])
     gchar        *fprefix            = NULL;
     gchar        *fsuffix            = NULL;
     guint32       change_offset      = 0;
-    guint         max_packet_number  = G_MAXUINT;
+    guint         max_packet_number  = 0;
     const struct wtap_pkthdr    *phdr;
     struct wtap_pkthdr           temp_phdr;
     wtapng_iface_descriptions_t *idb_inf = NULL;
