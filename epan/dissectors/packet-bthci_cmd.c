@@ -602,301 +602,334 @@ static const value_string bthci_cmd_ogf_vals[] = {
 };
 value_string_ext bthci_cmd_ogf_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ogf_vals);
 
+# define LINK_CONTROL_VALS(base) \
+/* Bluetooth Core 4.0 */ \
+    { (base) | 0x001,  "Inquiry" }, \
+    { (base) | 0x002,  "Inquiry Cancel" }, \
+    { (base) | 0x003,  "Periodic Inquiry Mode" }, \
+    { (base) | 0x004,  "Exit Periodic Inquiry Mode" }, \
+    { (base) | 0x005,  "Create Connection" }, \
+    { (base) | 0x006,  "Disconnect" }, \
+    { (base) | 0x007,  "Add SCO Connection" }, \
+    { (base) | 0x008,  "Create Connection Cancel" }, \
+    { (base) | 0x009,  "Accept Connection Request" }, \
+    { (base) | 0x00A,  "Reject Connection Request" }, \
+    { (base) | 0x00B,  "Link Key Request Reply" }, \
+    { (base) | 0x00C,  "Link Key Request Negative Reply" }, \
+    { (base) | 0x00D,  "PIN Code Request Reply" }, \
+    { (base) | 0x00E,  "PIN Code Request Negative Reply" }, \
+    { (base) | 0x00F,  "Change Connection Packet Type" }, \
+    { (base) | 0x011,  "Authentication Requested" }, \
+    { (base) | 0x013,  "Set Connection Encryption" }, \
+    { (base) | 0x015,  "Change Connection Link Key" }, \
+    { (base) | 0x017,  "Master Link Key" }, \
+    { (base) | 0x019,  "Remote Name Request" }, \
+    { (base) | 0x01A,  "Remote Name Request Cancel" }, \
+    { (base) | 0x01B,  "Read Remote Supported Features" }, \
+    { (base) | 0x01C,  "Read Remote Extended Features" }, \
+    { (base) | 0x01D,  "Read Remote Version Information" }, \
+    { (base) | 0x01F,  "Read Clock offset" }, \
+    { (base) | 0x020,  "Read LMP Handle" }, \
+    { (base) | 0x028,  "Setup Synchronous Connection" }, \
+    { (base) | 0x029,  "Accept Synchronous Connection Request" }, \
+    { (base) | 0x02A,  "Reject Synchronous Connection Request" }, \
+    { (base) | 0x02B,  "IO Capability Request Reply" }, \
+    { (base) | 0x02C,  "User Confirmation Request Reply" }, \
+    { (base) | 0x02D,  "User Confirmation Request Negative Reply" }, \
+    { (base) | 0x02E,  "User Passkey Request Reply" }, \
+    { (base) | 0x02F,  "User Passkey Request Negative Reply" }, \
+    { (base) | 0x030,  "Remote OOB Data Request Reply" }, \
+    { (base) | 0x033,  "Remote OOB Data Request Negative Reply" }, \
+    { (base) | 0x034,  "IO Capability Request Negative Reply" }, \
+    { (base) | 0x035,  "Create Physical Link" }, \
+    { (base) | 0x036,  "Accept Physical Link" }, \
+    { (base) | 0x037,  "Disconnect Physical Link" }, \
+    { (base) | 0x038,  "Create Logical Link" }, \
+    { (base) | 0x039,  "Accept Logical Link" }, \
+    { (base) | 0x03A,  "Disconnect Logical Link" }, \
+    { (base) | 0x03B,  "Logical Link Cancel" }, \
+    { (base) | 0x03C,  "Flow Spec Modify" }, \
+/* Bluetooth Core Specification Addendum 2 */ \
+    { (base) | 0x03D,  "Enhanced Setup Synchronous Connection" }, \
+    { (base) | 0x03E,  "Enhanced Accept Synchronous Connection Request" }, \
+/* Bluetooth Core Specification Addendum 4 */ \
+    { (base) | 0x03F,  "Truncated Page" }, \
+    { (base) | 0x040,  "Truncated Page Cancel" }, \
+    { (base) | 0x041,  "Set Connectionless Slave Broadcast" }, \
+    { (base) | 0x042,  "Set Connectionless Slave Broadcast Receive" }, \
+    { (base) | 0x043,  "Start Synchronization Train" }, \
+    { (base) | 0x044,  "Receive Synchronization Train" }
+
 static const value_string bthci_cmd_ocf_link_control_vals[] = {
-/* Bluetooth Core 4.0 */
-    { 0x001,  "Inquiry" },
-    { 0x002,  "Inquiry Cancel" },
-    { 0x003,  "Periodic Inquiry Mode" },
-    { 0x004,  "Exit Periodic Inquiry Mode" },
-    { 0x005,  "Create Connection" },
-    { 0x006,  "Disconnect" },
-    { 0x007,  "Add SCO Connection" },
-    { 0x008,  "Create Connection Cancel" },
-    { 0x009,  "Accept Connection Request" },
-    { 0x00A,  "Reject Connection Request" },
-    { 0x00B,  "Link Key Request Reply" },
-    { 0x00C,  "Link Key Request Negative Reply" },
-    { 0x00D,  "PIN Code Request Reply" },
-    { 0x00E,  "PIN Code Request Negative Reply" },
-    { 0x00F,  "Change Connection Packet Type" },
-    { 0x011,  "Authentication Requested" },
-    { 0x013,  "Set Connection Encryption" },
-    { 0x015,  "Change Connection Link Key" },
-    { 0x017,  "Master Link Key" },
-    { 0x019,  "Remote Name Request" },
-    { 0x01A,  "Remote Name Request Cancel" },
-    { 0x01B,  "Read Remote Supported Features" },
-    { 0x01C,  "Read Remote Extended Features" },
-    { 0x01D,  "Read Remote Version Information" },
-    { 0x01F,  "Read Clock offset" },
-    { 0x020,  "Read LMP Handle" },
-    { 0x028,  "Setup Synchronous Connection" },
-    { 0x029,  "Accept Synchronous Connection Request" },
-    { 0x02A,  "Reject Synchronous Connection Request" },
-    { 0x02B,  "IO Capability Request Reply" },
-    { 0x02C,  "User Confirmation Request Reply" },
-    { 0x02D,  "User Confirmation Request Negative Reply" },
-    { 0x02E,  "User Passkey Request Reply" },
-    { 0x02F,  "User Passkey Request Negative Reply" },
-    { 0x030,  "Remote OOB Data Request Reply" },
-    { 0x033,  "Remote OOB Data Request Negative Reply" },
-    { 0x034,  "IO Capability Request Negative Reply" },
-    { 0x035,  "Create Physical Link" },
-    { 0x036,  "Accept Physical Link" },
-    { 0x037,  "Disconnect Physical Link" },
-    { 0x038,  "Create Logical Link" },
-    { 0x039,  "Accept Logical Link" },
-    { 0x03A,  "Disconnect Logical Link" },
-    { 0x03B,  "Logical Link Cancel" },
-    { 0x03C,  "Flow Spec Modify" },
-/* Bluetooth Core Specification Addendum 2 */
-    { 0x03D,  "Enhanced Setup Synchronous Connection" },
-    { 0x03E,  "Enhanced Accept Synchronous Connection Request" },
-/* Bluetooth Core Specification Addendum 4 */
-    { 0x03F,  "Truncated Page" },
-    { 0x040,  "Truncated Page Cancel" },
-    { 0x041,  "Set Connectionless Slave Broadcast" },
-    { 0x042,  "Set Connectionless Slave Broadcast Receive" },
-    { 0x043,  "Start Synchronization Train" },
-    { 0x044,  "Receive Synchronization Train" },
+    LINK_CONTROL_VALS(0x0), \
     { 0, NULL }
 };
+
 value_string_ext bthci_cmd_ocf_link_control_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ocf_link_control_vals);
 
+#define LINK_POLICY_VALS(base) \
+/* Bluetooth Core 4.0 */              \
+    { (base) | 0x001,  "Hold Mode" }, \
+    { (base) | 0x003,  "Sniff Mode" }, \
+    { (base) | 0x004,  "Exit Sniff Mode" }, \
+    { (base) | 0x005,  "Park Mode" }, \
+    { (base) | 0x006,  "Exit Park Mode" }, \
+    { (base) | 0x007,  "QoS Setup" }, \
+    { (base) | 0x009,  "Role Discovery" }, \
+    { (base) | 0x00b,  "Switch Role" }, \
+    { (base) | 0x00c,  "Read Link Policy Settings" }, \
+    { (base) | 0x00d,  "Write Link Policy Settings" }, \
+    { (base) | 0x00e,  "Read Default Link Policy Settings" }, \
+    { (base) | 0x00f,  "Write Default Link Policy Settings" }, \
+    { (base) | 0x010,  "Flow Specification" }, \
+    { (base) | 0x011,  "Sniff Subrating" }
+
 static const value_string bthci_cmd_ocf_link_policy_vals[] = {
-/* Bluetooth Core 4.0 */
-    { 0x001,  "Hold Mode" },
-    { 0x003,  "Sniff Mode" },
-    { 0x004,  "Exit Sniff Mode" },
-    { 0x005,  "Park Mode" },
-    { 0x006,  "Exit Park Mode" },
-    { 0x007,  "QoS Setup" },
-    { 0x009,  "Role Discovery" },
-    { 0x00b,  "Switch Role" },
-    { 0x00c,  "Read Link Policy Settings" },
-    { 0x00d,  "Write Link Policy Settings" },
-    { 0x00e,  "Read Default Link Policy Settings" },
-    { 0x00f,  "Write Default Link Policy Settings" },
-    { 0x010,  "Flow Specification" },
-    { 0x011,  "Sniff Subrating" },
+LINK_POLICY_VALS(0x0),
     { 0, NULL }
 };
+
 value_string_ext bthci_cmd_ocf_link_policy_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ocf_link_policy_vals);
 
+#define HOST_CONTROLLER_AND_BASEBAND_VALS(base) \
+/* Bluetooth Core 4.0 */ \
+    { (base) | 0x001,  "Set Event Mask" }, \
+    { (base) | 0x003,  "Reset" }, \
+    { (base) | 0x005,  "Set Event Filter" }, \
+    { (base) | 0x008,  "Flush" }, \
+    { (base) | 0x009,  "Read PIN Type" }, \
+    { (base) | 0x00A,  "Write PIN Type" }, \
+    { (base) | 0x00B,  "Create New Unit Key" }, \
+    { (base) | 0x00D,  "Read Stored Link Key" }, \
+    { (base) | 0x011,  "Write Stored Link Key" }, \
+    { (base) | 0x012,  "Delete Stored Link Key" }, \
+    { (base) | 0x013,  "Change Local Name" }, \
+    { (base) | 0x014,  "Read Local Name" }, \
+    { (base) | 0x015,  "Read Connection Accept Timeout" }, \
+    { (base) | 0x016,  "Write Connection Accept Timeout" }, \
+    { (base) | 0x017,  "Read Page Timeout" }, \
+    { (base) | 0x018,  "Write Page Timeout" }, \
+    { (base) | 0x019,  "Read Scan Enable" }, \
+    { (base) | 0x01A,  "Write Scan Enable" }, \
+    { (base) | 0x01B,  "Read Page Scan Activity" }, \
+    { (base) | 0x01C,  "Write Page Scan Activity" }, \
+    { (base) | 0x01D,  "Read Inquiry Scan Activity" }, \
+    { (base) | 0x01E,  "Write Inquiry Scan Activity" }, \
+    { (base) | 0x01F,  "Read Authentication Enable" }, \
+    { (base) | 0x020,  "Write Authentication Enable" }, \
+    { (base) | 0x021,  "Read Encryption Mode" }, \
+    { (base) | 0x022,  "Write Encryption Mode" }, \
+    { (base) | 0x023,  "Read Class of Device" }, \
+    { (base) | 0x024,  "Write Class of Device" }, \
+    { (base) | 0x025,  "Read Voice Setting" }, \
+    { (base) | 0x026,  "Write Voice Setting" }, \
+    { (base) | 0x027,  "Read Automatic Flush Timeout" }, \
+    { (base) | 0x028,  "Write Automatic Flush Timeout" }, \
+    { (base) | 0x029,  "Read Num Broadcast Retransmissions" }, \
+    { (base) | 0x02A,  "Write Num Broadcast Retransmissions" }, \
+    { (base) | 0x02B,  "Read Hold Mode Activity" }, \
+    { (base) | 0x02C,  "Write Hold Mode Activity" }, \
+    { (base) | 0x02D,  "Read Tx Power Level" }, \
+    { (base) | 0x02E,  "Read SCO Flow Control Enable" }, \
+    { (base) | 0x02F,  "Write SCO Flow Control Enable" }, \
+    { (base) | 0x031,  "Set Host Controller To Host Flow Control" }, \
+    { (base) | 0x033,  "Host Buffer Size" }, \
+    { (base) | 0x035,  "Host Number of Completed Packets" }, \
+    { (base) | 0x036,  "Read Link Supervision Timeout" }, \
+    { (base) | 0x037,  "Write Link Supervision Timeout" }, \
+    { (base) | 0x038,  "Read Number of Supported IAC" }, \
+    { (base) | 0x039,  "Read Current IAC LAP" }, \
+    { (base) | 0x03A,  "Write Current IAC LAP" }, \
+    { (base) | 0x03B,  "Read Page Scan Period Mode" }, \
+    { (base) | 0x03C,  "Write Page Scan Period Mode" }, \
+    { (base) | 0x03D,  "Read Page Scan Mode" }, \
+    { (base) | 0x03E,  "Write Page Scan Mode" }, \
+    { (base) | 0x03F,  "Set AFH Host Channel Classification" }, \
+    { (base) | 0x042,  "Read Inquiry Scan Type" }, \
+    { (base) | 0x043,  "Write Inquiry Scan Type" }, \
+    { (base) | 0x044,  "Read Inquiry Mode" }, \
+    { (base) | 0x045,  "Write Inquiry Mode" }, \
+    { (base) | 0x046,  "Read Page Scan Type" }, \
+    { (base) | 0x047,  "Write Page Scan Type" }, \
+    { (base) | 0x048,  "Read AFH Channel Assessment Mode" }, \
+    { (base) | 0x049,  "Write AFH Channel Assessment Mode" }, \
+    { (base) | 0x051,  "Read Extended Inquiry Response" }, \
+    { (base) | 0x052,  "Write Extended Inquiry Response" }, \
+    { (base) | 0x053,  "Refresh Encryption Key" }, \
+    { (base) | 0x055,  "Read Simple Pairing Mode" }, \
+    { (base) | 0x056,  "Write Simple Pairing Mode" }, \
+    { (base) | 0x057,  "Read Local OOB Data" }, \
+    { (base) | 0x058,  "Read Inquiry Response Tx Power Level" }, \
+    { (base) | 0x059,  "Write Inquiry Tx Power Level" }, \
+    { (base) | 0x05A,  "Read Default Erroneous Data Reporting" }, \
+    { (base) | 0x05B,  "Write Default Erroneous Data Reporting" }, \
+    { (base) | 0x05F,  "Enhanced Flush" }, \
+    { (base) | 0x060,  "Send Keypress Notification" }, \
+    { (base) | 0x061,  "Read Logical Link Accept Timeout" }, \
+    { (base) | 0x062,  "Write Logical Link Accept Timeout" }, \
+    { (base) | 0x063,  "Set Event Mask Page 2" }, \
+    { (base) | 0x064,  "Read Location Data" }, \
+    { (base) | 0x065,  "Write Location Data" }, \
+    { (base) | 0x066,  "Read Flow Control Mode" }, \
+    { (base) | 0x067,  "Write Flow Control Mode" }, \
+    { (base) | 0x068,  "Read Enhanced Transmit Power Level" }, \
+    { (base) | 0x069,  "Read Best Effort Flush Timeout" }, \
+    { (base) | 0x06A,  "Write Best Effort Flush Timeout" }, \
+    { (base) | 0x06B,  "Short Range Mode" }, \
+    { (base) | 0x06C,  "Read LE Host Supported" }, \
+    { (base) | 0x06D,  "Write LE Host Supported" }, \
+/* Bluetooth Core Specification Addendum 3 */ \
+    { (base) | 0x06E,  "Set MWS Channel Parameters"}, \
+    { (base) | 0x06F,  "Set External Frame Configuration"}, \
+    { (base) | 0x070,  "Set MWS Signaling"}, \
+    { (base) | 0x071,  "Set MWS Transport Layer"}, \
+    { (base) | 0x072,  "Set MWS Scan Frequency Table"}, \
+    { (base) | 0x073,  "Set MWS Pattern Configuration"}, \
+/* Bluetooth Core Specification Addendum 4 */ \
+    { (base) | 0x074,  "Set Reserved LT_ADDR" }, \
+    { (base) | 0x075,  "Delete Reserved LT_ADDR" }, \
+    { (base) | 0x076,  "Set Connectionless Slave Broadcast Data" }, \
+    { (base) | 0x077,  "Read Synchronization Train Parameters" }, \
+    { (base) | 0x078,  "Write Synchronization Train Parameters" }
+
 static const value_string bthci_cmd_ocf_host_controller_and_baseband_vals[] = {
-/* Bluetooth Core 4.0 */
-    { 0x001,  "Set Event Mask" },
-    { 0x003,  "Reset" },
-    { 0x005,  "Set Event Filter" },
-    { 0x008,  "Flush" },
-    { 0x009,  "Read PIN Type" },
-    { 0x00A,  "Write PIN Type" },
-    { 0x00B,  "Create New Unit Key" },
-    { 0x00D,  "Read Stored Link Key" },
-    { 0x011,  "Write Stored Link Key" },
-    { 0x012,  "Delete Stored Link Key" },
-    { 0x013,  "Change Local Name" },
-    { 0x014,  "Read Local Name" },
-    { 0x015,  "Read Connection Accept Timeout" },
-    { 0x016,  "Write Connection Accept Timeout" },
-    { 0x017,  "Read Page Timeout" },
-    { 0x018,  "Write Page Timeout" },
-    { 0x019,  "Read Scan Enable" },
-    { 0x01A,  "Write Scan Enable" },
-    { 0x01B,  "Read Page Scan Activity" },
-    { 0x01C,  "Write Page Scan Activity" },
-    { 0x01D,  "Read Inquiry Scan Activity" },
-    { 0x01E,  "Write Inquiry Scan Activity" },
-    { 0x01F,  "Read Authentication Enable" },
-    { 0x020,  "Write Authentication Enable" },
-    { 0x021,  "Read Encryption Mode" },
-    { 0x022,  "Write Encryption Mode" },
-    { 0x023,  "Read Class of Device" },
-    { 0x024,  "Write Class of Device" },
-    { 0x025,  "Read Voice Setting" },
-    { 0x026,  "Write Voice Setting" },
-    { 0x027,  "Read Automatic Flush Timeout" },
-    { 0x028,  "Write Automatic Flush Timeout" },
-    { 0x029,  "Read Num Broadcast Retransmissions" },
-    { 0x02A,  "Write Num Broadcast Retransmissions" },
-    { 0x02B,  "Read Hold Mode Activity" },
-    { 0x02C,  "Write Hold Mode Activity" },
-    { 0x02D,  "Read Tx Power Level" },
-    { 0x02E,  "Read SCO Flow Control Enable" },
-    { 0x02F,  "Write SCO Flow Control Enable" },
-    { 0x031,  "Set Host Controller To Host Flow Control" },
-    { 0x033,  "Host Buffer Size" },
-    { 0x035,  "Host Number of Completed Packets" },
-    { 0x036,  "Read Link Supervision Timeout" },
-    { 0x037,  "Write Link Supervision Timeout" },
-    { 0x038,  "Read Number of Supported IAC" },
-    { 0x039,  "Read Current IAC LAP" },
-    { 0x03A,  "Write Current IAC LAP" },
-    { 0x03B,  "Read Page Scan Period Mode" },
-    { 0x03C,  "Write Page Scan Period Mode" },
-    { 0x03D,  "Read Page Scan Mode" },
-    { 0x03E,  "Write Page Scan Mode" },
-    { 0x03F,  "Set AFH Host Channel Classification" },
-    { 0x042,  "Read Inquiry Scan Type" },
-    { 0x043,  "Write Inquiry Scan Type" },
-    { 0x044,  "Read Inquiry Mode" },
-    { 0x045,  "Write Inquiry Mode" },
-    { 0x046,  "Read Page Scan Type" },
-    { 0x047,  "Write Page Scan Type" },
-    { 0x048,  "Read AFH Channel Assessment Mode" },
-    { 0x049,  "Write AFH Channel Assessment Mode" },
-    { 0x051,  "Read Extended Inquiry Response" },
-    { 0x052,  "Write Extended Inquiry Response" },
-    { 0x053,  "Refresh Encryption Key" },
-    { 0x055,  "Read Simple Pairing Mode" },
-    { 0x056,  "Write Simple Pairing Mode" },
-    { 0x057,  "Read Local OOB Data" },
-    { 0x058,  "Read Inquiry Response Tx Power Level" },
-    { 0x059,  "Write Inquiry Tx Power Level" },
-    { 0x05A,  "Read Default Erroneous Data Reporting" },
-    { 0x05B,  "Write Default Erroneous Data Reporting" },
-    { 0x05F,  "Enhanced Flush" },
-    { 0x060,  "Send Keypress Notification" },
-    { 0x061,  "Read Logical Link Accept Timeout" },
-    { 0x062,  "Write Logical Link Accept Timeout" },
-    { 0x063,  "Set Event Mask Page 2" },
-    { 0x064,  "Read Location Data" },
-    { 0x065,  "Write Location Data" },
-    { 0x066,  "Read Flow Control Mode" },
-    { 0x067,  "Write Flow Control Mode" },
-    { 0x068,  "Read Enhanced Transmit Power Level" },
-    { 0x069,  "Read Best Effort Flush Timeout" },
-    { 0x06A,  "Write Best Effort Flush Timeout" },
-    { 0x06B,  "Short Range Mode" },
-    { 0x06C,  "Read LE Host Supported" },
-    { 0x06D,  "Write LE Host Supported" },
-/* Bluetooth Core Specification Addendum 3 */
-    { 0x06E,  "Set MWS Channel Parameters"},
-    { 0x06F,  "Set External Frame Configuration"},
-    { 0x070,  "Set MWS Signaling"},
-    { 0x071,  "Set MWS Transport Layer"},
-    { 0x072,  "Set MWS Scan Frequency Table"},
-    { 0x073,  "Set MWS Pattern Configuration"},
-/* Bluetooth Core Specification Addendum 4 */
-    { 0x074,  "Set Reserved LT_ADDR" },
-    { 0x075,  "Delete Reserved LT_ADDR" },
-    { 0x076,  "Set Connectionless Slave Broadcast Data" },
-    { 0x077,  "Read Synchronization Train Parameters" },
-    { 0x078,  "Write Synchronization Train Parameters" },
+    HOST_CONTROLLER_AND_BASEBAND_VALS(0x0),
     { 0, NULL }
 };
+
 value_string_ext bthci_cmd_ocf_host_controller_and_baseband_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ocf_host_controller_and_baseband_vals);
 
+#define INFORMATIONAL_VALS(base) \
+/* Bluetooth Core 4.0 */ \
+    { (base) | 0x001,  "Read Local Version Information" }, \
+    { (base) | 0x002,  "Read Local Supported Commands" }, \
+    { (base) | 0x003,  "Read Local Supported Features" }, \
+    { (base) | 0x004,  "Read Local Extended Features" }, \
+    { (base) | 0x005,  "Read Buffer Size" }, \
+    { (base) | 0x007,  "Read Country Code" }, \
+    { (base) | 0x009,  "Read BD ADDR" }, \
+    { (base) | 0x00A,  "Read Data Block Size" }, \
+/* Bluetooth Core Specification Addendum 2 */ \
+    { (base) | 0x00B,  "Read Local Supported Codecs" }
+
 static const value_string bthci_cmd_ocf_informational_vals[] = {
-/* Bluetooth Core 4.0 */
-    { 0x001,  "Read Local Version Information" },
-    { 0x002,  "Read Local Supported Commands" },
-    { 0x003,  "Read Local Supported Features" },
-    { 0x004,  "Read Local Extended Features" },
-    { 0x005,  "Read Buffer Size" },
-    { 0x007,  "Read Country Code" },
-    { 0x009,  "Read BD ADDR" },
-    { 0x00A,  "Read Data Block Size" },
-/* Bluetooth Core Specification Addendum 2 */
-    { 0x00B,  "Read Local Supported Codecs" },
+    INFORMATIONAL_VALS(0x0),
     { 0, NULL }
 };
+
 value_string_ext bthci_cmd_ocf_informational_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ocf_informational_vals);
 
 
+#define STATUS_VALS(base) \
+/* Bluetooth Core 4.0 */ \
+    { (base) | 0x001, "Read Failed Contact Counter" }, \
+    { (base) | 0x002, "Reset Failed Contact Counter" }, \
+    { (base) | 0x003, "Read Link Quality" }, \
+    { (base) | 0x005, "Read RSSI" }, \
+    { (base) | 0x006, "Read AFH Channel Map" }, \
+    { (base) | 0x007, "Read Clock" }, \
+    { (base) | 0x008, "Read Encryption Key Size" }, \
+    { (base) | 0x009, "Read Local AMP Info" }, \
+    { (base) | 0x00A, "Read Local AMP Assoc" }, \
+    { (base) | 0x00B, "Write Remote AMP Assoc" }, \
+/* Bluetooth Core Specification Addendum 3 */ \
+    { (base) | 0x00C,  "Get MWS Transport Layer Configuration" }, \
+/* Bluetooth Core Specification Addendum 4 */ \
+    { (base) | 0x00D,  "Set Triggered Clock Capture" }
+
 static const value_string bthci_cmd_ocf_status_vals[] = {
-/* Bluetooth Core 4.0 */
-    { 0x001, "Read Failed Contact Counter" },
-    { 0x002, "Reset Failed Contact Counter" },
-    { 0x003, "Read Link Quality" },
-    { 0x005, "Read RSSI" },
-    { 0x006, "Read AFH Channel Map" },
-    { 0x007, "Read Clock" },
-    { 0x008, "Read Encryption Key Size" },
-    { 0x009, "Read Local AMP Info" },
-    { 0x00A, "Read Local AMP Assoc" },
-    { 0x00B, "Write Remote AMP Assoc" },
-/* Bluetooth Core Specification Addendum 3 */
-    { 0x00C,  "Get MWS Transport Layer Configuration" },
-/* Bluetooth Core Specification Addendum 4 */
-    { 0x00D,  "Set Triggered Clock Capture" },
+    STATUS_VALS(0x0),
     { 0, NULL }
 };
+
 value_string_ext bthci_cmd_ocf_status_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ocf_status_vals);
 
+#define TESTING_VALS(base) \
+/* Bluetooth Core 4.0 */ \
+    { (base) | 0x001,  "Read Loopback Mode" }, \
+    { (base) | 0x002,  "Write Loopback Mode" }, \
+    { (base) | 0x003,  "Enable Device Under Test Mode" }, \
+    { (base) | 0x004,  "Write Simple Pairing Debug Mode" }, \
+    { (base) | 0x007,  "Enable AMP Receiver Reports" }, \
+    { (base) | 0x008,  "AMP Test End" }, \
+    { (base) | 0x009,  "AMP Test" }
+
 static const value_string bthci_cmd_ocf_testing_vals[] = {
-/* Bluetooth Core 4.0 */
-    { 0x001,  "Read Loopback Mode" },
-    { 0x002,  "Write Loopback Mode" },
-    { 0x003,  "Enable Device Under Test Mode" },
-    { 0x004,  "Write Simple Pairing Debug Mode" },
-    { 0x007,  "Enable AMP Receiver Reports" },
-    { 0x008,  "AMP Test End" },
-    { 0x009,  "AMP Test" },
+    TESTING_VALS(0x0),
     { 0, NULL }
 };
+
 value_string_ext bthci_cmd_ocf_testing_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ocf_testing_vals);
 
+#define LOW_ENERGY_VALS(base)\
+/* Bluetooth Core 4.0 */ \
+    { (base) | 0x001,  "LE Set Event Mask" }, \
+    { (base) | 0x002,  "LE Read Buffer Size" }, \
+    { (base) | 0x003,  "LE Read Local Supported Features" }, \
+    { (base) | 0x005,  "LE Set Random Address" }, \
+    { (base) | 0x006,  "LE Set Advertising Parameters" }, \
+    { (base) | 0x007,  "LE Read Advertising Channel Tx Power" }, \
+    { (base) | 0x008,  "LE Set Advertising Data" }, \
+    { (base) | 0x009,  "LE Set Scan Response Data" }, \
+    { (base) | 0x00A,  "LE Set Advertise Enable" }, \
+    { (base) | 0x00B,  "LE Set Scan Parameters" }, \
+    { (base) | 0x00C,  "LE Set Scan Enable" }, \
+    { (base) | 0x00D,  "LE Create Connection" }, \
+    { (base) | 0x00E,  "LE Create Connection Cancel" }, \
+    { (base) | 0x00F,  "LE Read White List Size" }, \
+    { (base) | 0x010,  "LE Clear White List" }, \
+    { (base) | 0x011,  "LE Add Device To White List" }, \
+    { (base) | 0x012,  "LE Remove Device From White List" }, \
+    { (base) | 0x013,  "LE Connection Update" }, \
+    { (base) | 0x014,  "LE Set Host Channel Classification" }, \
+    { (base) | 0x015,  "LE Read Channel Map" }, \
+    { (base) | 0x016,  "LE Read Remote Used Features" }, \
+    { (base) | 0x017,  "LE Encrypt" }, \
+    { (base) | 0x018,  "LE Rand" }, \
+    { (base) | 0x019,  "LE Start Encryption" }, \
+    { (base) | 0x01A,  "LE Long Term Key Request Reply" }, \
+    { (base) | 0x01B,  "LE Long Term Key Request Negative Reply" }, \
+    { (base) | 0x01C,  "LE Read Supported States" }, \
+    { (base) | 0x01D,  "LE Receiver Test" }, \
+    { (base) | 0x01E,  "LE Transmitter Test" }, \
+    { (base) | 0x01F,  "LE Test End" }, \
+    { (base) | 0x020,  "LE Remote Connection Parameter Request Reply" }, \
+    { (base) | 0x021,  "LE Remote Connection Parameter Request Negative Reply" }, \
+    { (base) | 0x022,  "LE Set Data Length" }, \
+    { (base) | 0x023,  "LE Read Suggested Default Data Length" }, \
+    { (base) | 0x024,  "LE Write Suggested Default Data Length" }, \
+    { (base) | 0x025,  "LE Read Local P-256 Public Key" }, \
+    { (base) | 0x026,  "LE Generate DHKey" }, \
+    { (base) | 0x027,  "LE Add Device to Resolving List" }, \
+    { (base) | 0x028,  "LE Remove Device From Resolving List" }, \
+    { (base) | 0x029,  "LE Clear Resolving List" }, \
+    { (base) | 0x02A,  "LE Read Resolving List Size" }, \
+    { (base) | 0x02B,  "LE Read Peer Resolvable Address" }, \
+    { (base) | 0x02C,  "LE Read Local Resolvable Address" }, \
+    { (base) | 0x02D,  "LE Set Address Resolution Enable" }, \
+    { (base) | 0x02E,  "LE Set Resolvable Private Address Timeout" }, \
+    { (base) | 0x02F,  "LE Read Maximum Data Length" }
+
 static const value_string bthci_cmd_ocf_low_energy_vals[] = {
-/* Bluetooth Core 4.0 */
-    { 0x001,  "LE Set Event Mask" },
-    { 0x002,  "LE Read Buffer Size" },
-    { 0x003,  "LE Read Local Supported Features" },
-    { 0x005,  "LE Set Random Address" },
-    { 0x006,  "LE Set Advertising Parameters" },
-    { 0x007,  "LE Read Advertising Channel Tx Power" },
-    { 0x008,  "LE Set Advertising Data" },
-    { 0x009,  "LE Set Scan Response Data" },
-    { 0x00A,  "LE Set Advertise Enable" },
-    { 0x00B,  "LE Set Scan Parameters" },
-    { 0x00C,  "LE Set Scan Enable" },
-    { 0x00D,  "LE Create Connection" },
-    { 0x00E,  "LE Create Connection Cancel" },
-    { 0x00F,  "LE Read White List Size" },
-    { 0x010,  "LE Clear White List" },
-    { 0x011,  "LE Add Device To White List" },
-    { 0x012,  "LE Remove Device From White List" },
-    { 0x013,  "LE Connection Update" },
-    { 0x014,  "LE Set Host Channel Classification" },
-    { 0x015,  "LE Read Channel Map" },
-    { 0x016,  "LE Read Remote Used Features" },
-    { 0x017,  "LE Encrypt" },
-    { 0x018,  "LE Rand" },
-    { 0x019,  "LE Start Encryption" },
-    { 0x01A,  "LE Long Term Key Request Reply" },
-    { 0x01B,  "LE Long Term Key Request Negative Reply" },
-    { 0x01C,  "LE Read Supported States" },
-    { 0x01D,  "LE Receiver Test" },
-    { 0x01E,  "LE Transmitter Test" },
-    { 0x01F,  "LE Test End" },
-    { 0x020,  "LE Remote Connection Parameter Request Reply" },
-    { 0x021,  "LE Remote Connection Parameter Request Negative Reply" },
-    { 0x022,  "LE Set Data Length" },
-    { 0x023,  "LE Read Suggested Default Data Length" },
-    { 0x024,  "LE Write Suggested Default Data Length" },
-    { 0x025,  "LE Read Local P-256 Public Key" },
-    { 0x026,  "LE Generate DHKey" },
-    { 0x027,  "LE Add Device to Resolving List" },
-    { 0x028,  "LE Remove Device From Resolving List" },
-    { 0x029,  "LE Clear Resolving List" },
-    { 0x02A,  "LE Read Resolving List Size" },
-    { 0x02B,  "LE Read Peer Resolvable Address" },
-    { 0x02C,  "LE Read Local Resolvable Address" },
-    { 0x02D,  "LE Set Address Resolution Enable" },
-    { 0x02E,  "LE Set Resolvable Private Address Timeout" },
-    { 0x02F,  "LE Read Maximum Data Length" },
+    LOW_ENERGY_VALS(0x0),
     { 0, NULL }
 };
+
 value_string_ext bthci_cmd_ocf_low_energy_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ocf_low_energy_vals);
 
 
-static value_string bthci_cmd_opcode_vals[array_length(bthci_cmd_ocf_link_control_vals) - 1 +
-        array_length(bthci_cmd_ocf_link_policy_vals) - 1 +
-        array_length(bthci_cmd_ocf_host_controller_and_baseband_vals) - 1 +
-        array_length(bthci_cmd_ocf_informational_vals) - 1 +
-        array_length(bthci_cmd_ocf_status_vals) - 1 +
-        array_length(bthci_cmd_ocf_testing_vals) - 1 +
-        array_length(bthci_cmd_ocf_low_energy_vals) - 1 + 2];
+static const value_string bthci_cmd_opcode_vals[] = {
+    {0x0, "No Operation"},
+    LINK_CONTROL_VALS(0x01 << 10),
+    LINK_POLICY_VALS(0x02 << 10),
+    HOST_CONTROLLER_AND_BASEBAND_VALS(0x03 << 10),
+    INFORMATIONAL_VALS(0x04 << 10),
+    STATUS_VALS(0x05 << 10),
+    TESTING_VALS(0x06 << 10),
+    LOW_ENERGY_VALS(0x08 << 10),
+    { 0, NULL }
+};
+
 value_string_ext bthci_cmd_opcode_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_opcode_vals);
 
 static const value_string bthci_cmd_status_vals[] = {
@@ -3473,9 +3506,6 @@ proto_register_bthci_cmd(void)
 {
     module_t         *module;
     expert_module_t  *expert_bthci_cmd;
-    guint             i_opcode = 0;
-    guint             i_array;
-    guint             i_string_array;
 
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
@@ -4969,32 +4999,6 @@ proto_register_bthci_cmd(void)
     static decode_as_value_t bthci_cmd_vendor_da_values = {bthci_cmd_vendor_prompt, 1, bthci_cmd_vendor_da_build_value};
     static decode_as_t bthci_cmd_vendor_da = {"bthci_evt", "Vendor", "bthci_cmd.vendor", 1, 0, &bthci_cmd_vendor_da_values, NULL, NULL,
             decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
-
-    /* Dynamically fill "bthci_cmd_opcode_vals" */
-    static const struct _opcode_value_string_arrays {
-        guint                ogf;
-        const value_string  *string_array;
-        guint                length;
-    } opcode_value_string_arrays[] = {
-        { 0x01, bthci_cmd_ocf_link_control_vals, array_length(bthci_cmd_ocf_link_control_vals) },
-        { 0x02, bthci_cmd_ocf_link_policy_vals, array_length(bthci_cmd_ocf_link_policy_vals) },
-        { 0x03, bthci_cmd_ocf_host_controller_and_baseband_vals, array_length(bthci_cmd_ocf_host_controller_and_baseband_vals) },
-        { 0x04, bthci_cmd_ocf_informational_vals, array_length(bthci_cmd_ocf_informational_vals) },
-        { 0x05, bthci_cmd_ocf_status_vals, array_length(bthci_cmd_ocf_status_vals) },
-        { 0x06, bthci_cmd_ocf_testing_vals, array_length(bthci_cmd_ocf_testing_vals) },
-        { 0x08, bthci_cmd_ocf_low_energy_vals, array_length(bthci_cmd_ocf_low_energy_vals) },
-    };
-
-    bthci_cmd_opcode_vals[i_opcode].value = 0;
-    bthci_cmd_opcode_vals[i_opcode].strptr = "No Operation";
-    i_opcode += 1;
-    for (i_array = 0; i_array < array_length(opcode_value_string_arrays); i_array += 1) {
-        for (i_string_array = 0; i_string_array < opcode_value_string_arrays[i_array].length - 1; i_string_array += 1) {
-            bthci_cmd_opcode_vals[i_opcode].value = opcode_value_string_arrays[i_array].string_array[i_string_array].value | (opcode_value_string_arrays[i_array].ogf << 10);
-            bthci_cmd_opcode_vals[i_opcode].strptr = opcode_value_string_arrays[i_array].string_array[i_string_array].strptr;
-            i_opcode += 1;
-        }
-    }
 
     proto_bthci_cmd = proto_register_protocol("Bluetooth HCI Command", "HCI_CMD", "bthci_cmd");
     bthci_cmd_handle = register_dissector("bthci_cmd", dissect_bthci_cmd, proto_bthci_cmd);

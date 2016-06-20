@@ -145,42 +145,48 @@ static expert_field ei_unexpected_data = EI_INIT;
 static dissector_handle_t bthci_vendor_broadcom_handle;
 static dissector_handle_t btcommon_ad_handle;
 
-static const value_string opcode_ocf_vals[] = {
-/* Bluetooth Core 4.0 */
-    { 0x0001,  "Write BD ADDR" },
-    { 0x0018,  "Update Baudrate" },
-    { 0x001C,  "Write SCO PCM INT Parameter" },
-    { 0x001E,  "Write PCM Data Format Parameter" },
-    { 0x0027,  "Write Sleep Mode" },
-    { 0x002E,  "Download MiniDriver" },
-    { 0x003B,  "Enable USB HID Emulation" },
-    { 0x0045,  "Write UART Clock Setting" },
-    { 0x004C,  "Write Firmware" }, /* Unknown name, but it is part of firmware,
+# define OPCODE_VALS(base) \
+/* Bluetooth Core 4.0 */ \
+    { (base) | 0x0001,  "Write BD ADDR" }, \
+    { (base) | 0x0018,  "Update Baudrate" }, \
+    { (base) | 0x001C,  "Write SCO PCM INT Parameter" }, \
+    { (base) | 0x001E,  "Write PCM Data Format Parameter" }, \
+    { (base) | 0x0027,  "Write Sleep Mode" }, \
+    { (base) | 0x002E,  "Download MiniDriver" }, \
+    { (base) | 0x003B,  "Enable USB HID Emulation" }, \
+    { (base) | 0x0045,  "Write UART Clock Setting" }, \
+    { (base) | 0x004C,  "Write Firmware" }, /* Unknown name, but it is part of firmware,
                                       which is set of this command and one
                                       "Launch RAM" at the end of file.
                                       Procedure of load firmware seems to be
-                                      initiated by command "Download MiniDriver" */
-    { 0x004E,  "Launch RAM" },
-    { 0x0057,  "Set ACL Priority" },
-    { 0x005A,  "Read VID PID" },
-    { 0x006D,  "Write I2S PCM Interface Parameter" },
-    { 0x0079,  "Read Verbose Config Version Info" },
-    { 0x007E,  "Enable WBS" },
-    { 0x0102,  "Enable WBS Modified" },
-    { 0x0111,  "Set ConnectionLess Broadcast Stream" },
-    { 0x0112,  "Receive ConnectionLess Broadcast Stream" },
-    { 0x0113,  "Write ConnectionLess Broadcast Stream Data" },
-    { 0x0114,  "ConnectionLess Broadcast Stream Flush" },
-    { 0x0153,  "LE Get Vendor Capabilities" },
-    { 0x0154,  "LE Multi Adveritising" },
-    { 0x0156,  "LE Batch Scan" },
-    { 0x0157,  "LE Advertising Filter" },
-    { 0x0158,  "LE Tracking Advertising" },
-    { 0x0159,  "LE Energy Info" },
+                                      initiated by command "Download MiniDriver" */ \
+    { (base) | 0x004E,  "Launch RAM" }, \
+    { (base) | 0x0057,  "Set ACL Priority" }, \
+    { (base) | 0x005A,  "Read VID PID" }, \
+    { (base) | 0x006D,  "Write I2S PCM Interface Parameter" }, \
+    { (base) | 0x0079,  "Read Verbose Config Version Info" }, \
+    { (base) | 0x007E,  "Enable WBS" }, \
+    { (base) | 0x0102,  "Enable WBS Modified" }, \
+    { (base) | 0x0111,  "Set ConnectionLess Broadcast Stream" }, \
+    { (base) | 0x0112,  "Receive ConnectionLess Broadcast Stream" }, \
+    { (base) | 0x0113,  "Write ConnectionLess Broadcast Stream Data" }, \
+    { (base) | 0x0114,  "ConnectionLess Broadcast Stream Flush" }, \
+    { (base) | 0x0153,  "LE Get Vendor Capabilities" }, \
+    { (base) | 0x0154,  "LE Multi Adveritising" }, \
+    { (base) | 0x0156,  "LE Batch Scan" }, \
+    { (base) | 0x0157,  "LE Advertising Filter" }, \
+    { (base) | 0x0158,  "LE Tracking Advertising" }, \
+    { (base) | 0x0159,  "LE Energy Info" }
+
+static const value_string opcode_ocf_vals[] = {
+    OPCODE_VALS(0x0),
     { 0, NULL }
 };
 
-static value_string opcode_vals[array_length(opcode_ocf_vals)];
+static const value_string opcode_vals[] = {
+    OPCODE_VALS(0x3F << 10),
+    { 0, NULL }
+};
 
 static const value_string le_subcode_advertising_filter_vals[] = {
     { 0x00,  "Enable" },
@@ -1058,9 +1064,6 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 void
 proto_register_bthci_vendor_broadcom(void)
 {
-    guint             i_opcode = 0;
-    guint             i_array;
-    guint             i_string_array;
     expert_module_t  *expert_module;
 
     static hf_register_info hf[] = {
@@ -1532,24 +1535,6 @@ proto_register_bthci_vendor_broadcom(void)
         { &ei_unexpected_parameter,  { "bthci_vendor.broadcom.unexpected_parameter", PI_PROTOCOL, PI_WARN, "Unexpected parameter", EXPFILL }},
         { &ei_unexpected_data,       { "bthci_vendor.broadcom.unexpected_data",      PI_PROTOCOL, PI_WARN, "Unexpected data", EXPFILL }},
     };
-
-    static const struct _opcode_value_string_arrays {
-        guint                ogf;
-        const value_string  *string_array;
-        guint                length;
-    } opcode_value_string_arrays[] = {
-        { 0x3F, opcode_ocf_vals, array_length(opcode_vals) },
-    };
-
-    for (i_array = 0; i_array < array_length(opcode_value_string_arrays); i_array += 1) {
-        for (i_string_array = 0; i_string_array < opcode_value_string_arrays[i_array].length - 1; i_string_array += 1) {
-            opcode_vals[i_opcode].value = opcode_value_string_arrays[i_array].string_array[i_string_array].value | (opcode_value_string_arrays[i_array].ogf << 10);
-            opcode_vals[i_opcode].strptr = opcode_value_string_arrays[i_array].string_array[i_string_array].strptr;
-            i_opcode += 1;
-        }
-    }
-    opcode_vals[i_opcode].value = 0;
-    opcode_vals[i_opcode].strptr = NULL;
 
     proto_bthci_vendor_broadcom = proto_register_protocol("Bluetooth Broadcom HCI",
             "HCI BROADCOM", "bthci_vendor.broadcom");
