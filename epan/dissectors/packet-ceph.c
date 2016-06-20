@@ -1881,7 +1881,7 @@ typedef struct _c_sockaddr {
  */
 static
 guint c_dissect_sockaddr(proto_tree *root, c_sockaddr *out,
-			 tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+			 tvbuff_t *tvb, guint off)
 {
 	proto_item *ti;
 	proto_tree *tree;
@@ -1956,7 +1956,7 @@ typedef struct _c_entity_addr {
 
 static
 guint c_dissect_entityaddr(proto_tree *root, int hf, c_entityaddr *out,
-			   tvbuff_t *tvb, guint off, c_pkt_data *data)
+			   tvbuff_t *tvb, guint off)
 {
 	proto_item *ti;
 	proto_tree *tree;
@@ -1975,7 +1975,7 @@ guint c_dissect_entityaddr(proto_tree *root, int hf, c_entityaddr *out,
 	proto_tree_add_item(tree, hf_node_nonce,
 			    tvb, off, 4, ENC_LITTLE_ENDIAN);
 	off += 4;
-	off = c_dissect_sockaddr(tree, &d.addr, tvb, off, data);
+	off = c_dissect_sockaddr(tree, &d.addr, tvb, off);
 
 	proto_item_append_text(ti, ", Type: %s, Address: %s",
 			       d.type_str, d.addr.str);
@@ -2058,7 +2058,7 @@ guint c_dissect_entityinst(proto_tree *root, int hf, c_entityinst *out,
 	tree = proto_item_add_subtree(ti, ett_entityinst);
 
 	off = c_dissect_entityname(tree, hf_entityinst_name, &d.name, tvb, off, data);
-	off = c_dissect_entityaddr(tree, hf_entityinst_addr, &d.addr, tvb, off, data);
+	off = c_dissect_entityaddr(tree, hf_entityinst_addr, &d.addr, tvb, off);
 
 	proto_item_append_text(ti, ", Name: %s, Address: %s", d.name.slug, d.addr.addr.str);
 
@@ -2951,7 +2951,7 @@ guint c_dissect_monmap(proto_tree *root,
 
 		off = c_dissect_str(subtree, hf_monmap_address_name, &str, tvb, off);
 		off = c_dissect_entityaddr(subtree, hf_monmap_address_addr, &addr,
-					   tvb, off, data);
+					   tvb, off);
 
 		proto_item_append_text(ti2, ", Name: %s, Address: %s",
 				       str.str, addr.addr.addr_str);
@@ -3502,7 +3502,7 @@ guint c_dissect_osdmap(proto_tree *root,
 	while (i--)
 	{
 		off = c_dissect_entityaddr(subtree, hf_osdmap_osd_addr, NULL,
-					   tvb, off, data);
+					   tvb, off);
 	}
 
 	i = tvb_get_letohl(tvb, off);
@@ -3613,7 +3613,7 @@ guint c_dissect_osdmap(proto_tree *root,
 	while (i--)
 	{
 		off = c_dissect_entityaddr(subtree, hf_osdmap_hbaddr_back, NULL,
-					   tvb, off, data);
+					   tvb, off);
 	}
 
 	i = tvb_get_letohl(tvb, off);
@@ -3635,7 +3635,7 @@ guint c_dissect_osdmap(proto_tree *root,
 		bltree = proto_item_add_subtree(blti, ett_osd_map_blacklist);
 
 		off = c_dissect_entityaddr(bltree, hf_osdmap_blacklist_addr, NULL,
-					   tvb, off, data);
+					   tvb, off);
 
 		proto_tree_add_item(bltree, hf_osdmap_blacklist_time,
 				    tvb, off, 8, ENC_LITTLE_ENDIAN);
@@ -3649,7 +3649,7 @@ guint c_dissect_osdmap(proto_tree *root,
 	while (i--)
 	{
 		off = c_dissect_entityaddr(subtree, hf_osdmap_cluster_addr, NULL,
-					   tvb, off, data);
+					   tvb, off);
 	}
 
 	proto_tree_add_item(subtree, hf_osdmap_cluster_snapepoch,
@@ -3679,7 +3679,7 @@ guint c_dissect_osdmap(proto_tree *root,
 	while (i--)
 	{
 		off = c_dissect_entityaddr(subtree, hf_osdmap_hbaddr_front, NULL,
-					   tvb, off, data);
+					   tvb, off);
 	}
 
 	c_warn_size(subtree, tvb, off, enc2.end, data);
@@ -5943,11 +5943,11 @@ guint c_dissect_msg_osd_boot(proto_tree *root,
 
 	off = c_dissect_osd_superblock(tree, tvb, off, data);
 
-	off = c_dissect_entityaddr(tree, hf_msg_osd_boot_addr_back, NULL, tvb, off, data);
+	off = c_dissect_entityaddr(tree, hf_msg_osd_boot_addr_back, NULL, tvb, off);
 
 	if (data->header.ver >= 2)
 	{
-		off = c_dissect_entityaddr(tree, hf_msg_osd_boot_addr_cluster, NULL, tvb, off, data);
+		off = c_dissect_entityaddr(tree, hf_msg_osd_boot_addr_cluster, NULL, tvb, off);
 	}
 	if (data->header.ver >= 3)
 	{
@@ -5957,7 +5957,7 @@ guint c_dissect_msg_osd_boot(proto_tree *root,
 	}
 	if (data->header.ver >= 4)
 	{
-		off = c_dissect_entityaddr(tree, hf_msg_osd_boot_addr_front, NULL, tvb, off, data);
+		off = c_dissect_entityaddr(tree, hf_msg_osd_boot_addr_front, NULL, tvb, off);
 	}
 	if (data->header.ver >= 5)
 	{
@@ -6737,9 +6737,9 @@ guint c_dissect_new(proto_tree *tree,
 	c_set_type(data, "Connect");
 
 	if (c_from_server(data))
-		off = c_dissect_entityaddr(tree, hf_server_info, NULL, tvb, off, data);
+		off = c_dissect_entityaddr(tree, hf_server_info, NULL, tvb, off);
 
-	off = c_dissect_entityaddr(tree, hf_client_info, NULL, tvb, off, data);
+	off = c_dissect_entityaddr(tree, hf_client_info, NULL, tvb, off);
 
 	if (c_from_client(data))
 		off = c_dissect_connect(tree, tvb, off, data);
