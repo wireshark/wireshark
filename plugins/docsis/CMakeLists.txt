@@ -55,6 +55,7 @@ set(DISSECTOR_SRC
 	packet-macmgmt.c
 	packet-map.c
 	packet-mdd.c
+	packet-ocd.c
 	packet-regack.c
 	packet-regreq.c
 	packet-regreqmp.c

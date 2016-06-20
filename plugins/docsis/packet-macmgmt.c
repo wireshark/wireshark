@@ -70,6 +70,12 @@
 #define MGT_CM_CTRL_RSP 43
 #define MGT_REG_REQ_MP 44
 #define MGT_REG_RSP_MP 45
+#define MGT_EM_REQ 46
+#define MGT_EM_RSP 47
+#define MGT_STATUS_ACK 48
+#define MGT_OCD 49
+#define MGT_DPD 50
+
 
 void proto_register_docsis_mgmt(void);
 void proto_reg_handoff_docsis_mgmt(void);
@@ -138,6 +144,11 @@ static const value_string mgmt_type_vals[] = {
   {MGT_CM_CTRL_RSP,    "CM Control Response"},
   {MGT_REG_REQ_MP,     "Multipart Registration Request"},
   {MGT_REG_RSP_MP,     "Multipart Registration Response"},
+  {MGT_EM_REQ,         "Energy Management Request"},
+  {MGT_EM_RSP,         "Energy Management Response"},
+  {MGT_STATUS_ACK,     "Status Report Acknowledge"},
+  {MGT_OCD,            "OFDM Channel Descriptor"},
+  {MGT_DPD,            "Downstream Profile Descriptor"},
   {0, NULL}
 };
 

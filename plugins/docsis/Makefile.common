@@ -55,6 +55,7 @@ NONGENERATED_REGISTER_C_FILES = \
 	packet-macmgmt.c \
 	packet-map.c \
 	packet-mdd.c \
+	packet-ocd.c \
 	packet-regack.c \
 	packet-regreq.c \
 	packet-regreqmp.c \
