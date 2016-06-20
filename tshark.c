@@ -168,7 +168,7 @@ static print_format_e print_format = PR_FMT_TEXT;
 static print_stream_t *print_stream;
 
 static output_fields_t* output_fields  = NULL;
-static gchar *jsonfilter = NULL;
+static gchar **protocolfilter = NULL;
 
 /* The line separator used between packets, changeable via the -S option */
 static const char *separator = "";
@@ -368,7 +368,7 @@ print_usage(FILE *output)
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
   fprintf(output, "  -T pdml|ps|psml|json|ek|text|fields\n");
   fprintf(output, "                           format of text output (def: text)\n");
-  fprintf(output, "  -j <jsonfilter>          only protocols layers to include if -Tjson, -Tek selected,\n");
+  fprintf(output, "  -j <protocolfilter>      protocols layers filter if -T ek|pdml|json selected,\n");
   fprintf(output, "                           (e.g. \"http tcp ip\",\n");
   fprintf(output, "  -e <field>               field to print if -Tfields selected (e.g. tcp.port,\n");
   fprintf(output, "                           _ws.col.Info)\n");
@@ -1070,7 +1070,7 @@ main(int argc, char *argv[])
       }
       break;
     case 'j':
-      jsonfilter = optarg;
+      protocolfilter = wmem_strsplit(wmem_epan_scope(), optarg, " ", -1);
       break;
     case 'W':        /* Select extra information to save in our capture file */
       /* This is patterned after the -N flag which may not be the best idea. */
@@ -3834,7 +3834,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       break;
 
     case WRITE_XML:
-      write_pdml_proto_tree(edt, stdout);
+      write_pdml_proto_tree(protocolfilter, edt, stdout);
       printf("\n");
       return !ferror(stdout);
     case WRITE_FIELDS:
@@ -3843,12 +3843,12 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       return !ferror(stdout);
     case WRITE_JSON:
       print_args.print_hex = print_hex;
-      write_json_proto_tree(&print_args, jsonfilter, edt, stdout);
+      write_json_proto_tree(&print_args, protocolfilter, edt, stdout);
       printf("\n");
       return !ferror(stdout);
     case WRITE_EK:
       print_args.print_hex = print_hex;
-      write_ek_proto_tree(&print_args, jsonfilter, edt, stdout);
+      write_ek_proto_tree(&print_args, protocolfilter, edt, stdout);
       printf("\n");
       return !ferror(stdout);
     }

@@ -22,7 +22,7 @@ S<[ B<-g> ]>
 S<[ B<-h> ]>
 S<[ B<-H> E<lt>input hosts fileE<gt> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
-S<[ B<-j> E<lt>json match filterE<gt> ]>
+S<[ B<-j> E<lt>protocol match filterE<gt> ]>
 S<[ B<-I> ]>
 S<[ B<-K> E<lt>keytabE<gt> ]>
 S<[ B<-l> ]>
@@ -535,10 +535,10 @@ If used after an B<-i> option, it enables the monitor mode for
 the interface specified by the last B<-i> option occurring before
 this option.
 
-=item -j  E<lt>json match filterE<gt>
+=item -j  E<lt>protocol match filterE<gt>
 
-JSON match filter used for json|ek output file types.
-JSON parent node containing multiple child nodes is only included,
+Protocol match filter used for ek|json|pdml output file types.
+Parent node containing multiple child nodes is only included,
 if the name is found in the filter.
 
 Example: B<-j "http tcp ip">

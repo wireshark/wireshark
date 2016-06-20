@@ -60,6 +60,7 @@ typedef struct {
     FILE           *fh;
     GSList         *src_list;
     epan_dissect_t *edt;
+    gchar         **filter;
 } write_pdml_data;
 
 typedef struct {
@@ -67,7 +68,7 @@ typedef struct {
     FILE           *fh;
     GSList         *src_list;
     epan_dissect_t *edt;
-    gchar          *filter;
+    gchar         **filter;
     gboolean        print_hex;
 } write_json_data;
 
@@ -259,11 +260,32 @@ write_pdml_preamble(FILE *fh, const gchar *filename)
 void
 write_json_preamble(FILE *fh)
 {
-    fputs("{\n", fh);
+    fputs("[\n", fh);
+}
+
+/* Check if the str match the protocolfilter. json_filter is space
+   delimited string and str need to exact-match to one of the value. */
+gboolean check_protocolfilter(gchar **protocolfilter, const char *str)
+{
+    gboolean res = FALSE;
+    gchar **ptr;
+
+    if (str == NULL || protocolfilter == NULL) {
+        return FALSE;
+    }
+
+    for (ptr = protocolfilter; *ptr; ptr++) {
+        if (strcmp(*ptr, str) == 0) {
+            res = TRUE;
+            break;
+        }
+    }
+
+    return res;
 }
 
 void
-write_pdml_proto_tree(epan_dissect_t *edt, FILE *fh)
+write_pdml_proto_tree(gchar **protocolfilter, epan_dissect_t *edt, FILE *fh)
 {
     write_pdml_data data;
 
@@ -272,6 +294,7 @@ write_pdml_proto_tree(epan_dissect_t *edt, FILE *fh)
     data.fh       = fh;
     data.src_list = edt->pi.data_src;
     data.edt      = edt;
+    data.filter   = protocolfilter;
 
     fprintf(fh, "<packet>\n");
 
@@ -285,41 +308,48 @@ write_pdml_proto_tree(epan_dissect_t *edt, FILE *fh)
 }
 
 void
-write_json_proto_tree(print_args_t *print_args, gchar *jsonfilter, epan_dissect_t *edt, FILE *fh)
+write_json_proto_tree(print_args_t *print_args, gchar **protocolfilter, epan_dissect_t *edt, FILE *fh)
 {
     write_json_data data;
     char ts[30];
     time_t t = time(NULL);
     struct tm * timeinfo;
+    static gboolean is_first = TRUE;
 
     /* Create the output */
-    data.level    = 0;
+    data.level    = 1;
     data.fh       = fh;
     data.src_list = edt->pi.data_src;
     data.edt      = edt;
-    data.filter   = jsonfilter;
+    data.filter   = protocolfilter;
     data.print_hex = print_args->print_hex;
 
     timeinfo = localtime(&t);
     strftime(ts, 30, "%Y-%m-%d", timeinfo);
 
-    fprintf(fh, "  \"_index\": \"packets-%s\",\n", ts);
-    fputs("  \"_type\": \"pcap_file\",\n", fh);
-    fputs("  \"_score\": null,\n", fh);
-    fputs("  \"_source\": {\n", fh);
-    fputs("    \"layers\": {\n", fh);
+    if (!is_first)
+        fputs("  ,\n", fh);
+    else
+        is_first = FALSE;
+
+    fputs("  {\n", fh);
+    fprintf(fh, "    \"_index\": \"packets-%s\",\n", ts);
+    fputs("    \"_type\": \"pcap_file\",\n", fh);
+    fputs("    \"_score\": null,\n", fh);
+    fputs("    \"_source\": {\n", fh);
+    fputs("      \"layers\": {\n", fh);
 
     proto_tree_children_foreach(edt->tree, proto_tree_write_node_json,
                                 &data);
 
+    fputs("      }\n", fh);
     fputs("    }\n", fh);
-
-    fputs("  },\n", fh);
+    fputs("  }", fh);
 
 }
 
 void
-write_ek_proto_tree(print_args_t *print_args, gchar *jsonfilter, epan_dissect_t *edt, FILE *fh)
+write_ek_proto_tree(print_args_t *print_args, gchar **protocolfilter, epan_dissect_t *edt, FILE *fh)
 {
     write_json_data data;
     char ts[30];
@@ -333,7 +363,7 @@ write_ek_proto_tree(print_args_t *print_args, gchar *jsonfilter, epan_dissect_t 
     data.fh       = fh;
     data.src_list = edt->pi.data_src;
     data.edt      = edt;
-    data.filter   = jsonfilter;
+    data.filter   = protocolfilter;
     data.print_hex = print_args->print_hex;
 
 
@@ -357,7 +387,7 @@ write_ek_proto_tree(print_args_t *print_args, gchar *jsonfilter, epan_dissect_t 
 
     fprintf(fh, "{\"index\" : {\"_index\": \"packets-%s\", \"_type\": \"pcap_file\", \"_score\": null}}\n", ts);
     /* Timestamp added for time indexing in Elasticsearch */
-    fprintf(fh, "{\"timestamp\" : \"%ld%03d\", \"layers\" : {", timestamp->secs, timestamp->nsecs/1000000);
+    fprintf(fh, "{\"timestamp\" : \"%" G_GUINT64_FORMAT "%03d\", \"layers\" : {", (guint64)timestamp->secs, timestamp->nsecs/1000000);
 
 
     proto_tree_children_foreach(edt->tree, proto_tree_write_node_ek,
@@ -573,12 +603,23 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
         }
     }
 
-    /* We always print all levels for PDML. Recurse here. */
+    /* We print some levels for PDML. Recurse here. */
     if (node->first_child != NULL) {
-        pdata->level++;
-        proto_tree_children_foreach(node,
-                                    proto_tree_write_node_pdml, pdata);
-        pdata->level--;
+        if(check_protocolfilter(pdata->filter, fi->hfinfo->abbrev)) {
+            pdata->level++;
+            proto_tree_children_foreach(node,
+                                        proto_tree_write_node_pdml, pdata);
+            pdata->level--;
+        } else {
+            /* Indent to the correct level */
+            for (i = -2; i < pdata->level; i++) {
+                fputs("  ", pdata->fh);
+            }
+            /* print dummy field */
+            fputs("<field name=\"filtered\" value=\"", pdata->fh);
+            print_escaped_xml(pdata->fh, fi->hfinfo->abbrev);
+            fputs("\" />\n", pdata->fh);
+        }
     }
 
     /* Take back the extra level we added for fake wrapper protocol */
@@ -760,11 +801,20 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
     /* We print some levels for JSON. Recurse here. */
     if (node->first_child != NULL) {
         if (pdata->filter != NULL) {
-          if(strstr(pdata->filter, fi->hfinfo->abbrev) != NULL) {
+          if(check_protocolfilter(pdata->filter, fi->hfinfo->abbrev)) {
             pdata->level++;
             proto_tree_children_foreach(node,
                                         proto_tree_write_node_json, pdata);
             pdata->level--;
+          } else {
+              /* Indent to the correct level */
+              for (i = -4; i < pdata->level; i++) {
+                  fputs("  ", pdata->fh);
+              }
+              /* print dummy field */
+              fputs("\"filtered\": \"", pdata->fh);
+              print_escaped_ek(pdata->fh, fi->hfinfo->abbrev);
+              fputs("\"\n", pdata->fh);
           }
         } else {
             pdata->level++;
@@ -799,7 +849,6 @@ proto_tree_write_node_ek(proto_node *node, gpointer data)
     char            *dfilter_string;
     int              i;
     gchar           *abbrev_escaped = NULL;
-    size_t           abbrev_escaped_len = 0;
 
     /* dissection with an invisible proto tree? */
     g_assert(fi);
@@ -953,8 +1002,7 @@ proto_tree_write_node_ek(proto_node *node, gpointer data)
 
           /* to to thread the '.' and '_' equally. The '.' is replace by print_escaped_ek for '_' */
           if (fi->hfinfo->abbrev != NULL) {
-            abbrev_escaped_len = strlen(fi->hfinfo->abbrev) + 1;
-            if (abbrev_escaped_len > 0) {
+            if (strlen(fi->hfinfo->abbrev) > 0) {
                 abbrev_escaped = g_strdup(fi->hfinfo->abbrev);
 
                 i = 0;
@@ -968,19 +1016,20 @@ proto_tree_write_node_ek(proto_node *node, gpointer data)
             }
           }
 
-          if((strstr(pdata->filter, fi->hfinfo->abbrev) != NULL) || (strstr(pdata->filter, abbrev_escaped) != NULL)) {
+          if(check_protocolfilter(pdata->filter, fi->hfinfo->abbrev) || check_protocolfilter(pdata->filter, abbrev_escaped)) {
             pdata->level++;
             proto_tree_children_foreach(node,
                                         proto_tree_write_node_ek, pdata);
             pdata->level--;
           } else {
               /* print dummy field */
-              fputs("\"filtered\": \"\"", pdata->fh);
+              fputs("\"filtered\": \"", pdata->fh);
+              print_escaped_ek(pdata->fh, fi->hfinfo->abbrev);
+              fputs("\"", pdata->fh);
           }
 
           /* release abbrev_escaped string */
           if (abbrev_escaped != NULL) {
-              abbrev_escaped_len = 0;
               g_free(abbrev_escaped);
           }
 
@@ -1104,8 +1153,7 @@ write_pdml_finale(FILE *fh)
 void
 write_json_finale(FILE *fh)
 {
-    fputs("}\n", fh);
-
+    fputs("]\n", fh);
 }
 
 void
@@ -1358,13 +1406,34 @@ print_escaped_json(FILE *fh, const char *unescaped_string)
     for (p = unescaped_string; *p != '\0'; p++) {
         switch (*p) {
         case '"':
-            fputs("&quot;", fh);
+            fputs("\\\"", fh);
+            break;
+        case '\\':
+            fputs("\\\\", fh);
+            break;
+        case '/':
+            fputs("\\/", fh);
+            break;
+        case '\b':
+            fputs("\\b", fh);
+            break;
+        case '\f':
+            fputs("\\f", fh);
+            break;
+        case '\n':
+            fputs("\\n", fh);
+            break;
+        case '\r':
+            fputs("\\r", fh);
+            break;
+        case '\t':
+            fputs("\\t", fh);
             break;
         default:
             if (g_ascii_isprint(*p))
                 fputc(*p, fh);
             else {
-                g_snprintf(temp_str, sizeof(temp_str), "%x", (guint8)*p);
+                g_snprintf(temp_str, sizeof(temp_str), "\\u00%u", (guint8)*p);
                 fputs(temp_str, fh);
             }
         }
@@ -1382,8 +1451,29 @@ print_escaped_ek(FILE *fh, const char *unescaped_string)
     for (p = unescaped_string; *p != '\0'; p++) {
         switch (*p) {
         case '"':
-                    fputs("&quot;", fh);
-                    break;
+            fputs("\\\"", fh);
+            break;
+        case '\\':
+            fputs("\\\\", fh);
+            break;
+        case '/':
+            fputs("\\/", fh);
+            break;
+        case '\b':
+            fputs("\\b", fh);
+            break;
+        case '\f':
+            fputs("\\f", fh);
+            break;
+        case '\n':
+            fputs("\\n", fh);
+            break;
+        case '\r':
+            fputs("\\r", fh);
+            break;
+        case '\t':
+            fputs("\\t", fh);
+            break;
         case '.':
             fputs("_", fh);
             break;
@@ -1391,7 +1481,7 @@ print_escaped_ek(FILE *fh, const char *unescaped_string)
             if (g_ascii_isprint(*p))
                 fputc(*p, fh);
             else {
-                g_snprintf(temp_str, sizeof(temp_str), "\\x%x", (guint8)*p);
+                g_snprintf(temp_str, sizeof(temp_str), "\\u00%u", (guint8)*p);
                 fputs(temp_str, fh);
             }
         }
