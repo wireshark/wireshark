@@ -378,6 +378,21 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
         opterr = 1;
     }
 
+    /* Initialize with default values */
+    param_info->jump_backwards = SD_FORWARD;
+    param_info->go_to_packet = 0;
+    param_info->jfilter = NULL;
+    param_info->cf_name = NULL;
+    param_info->rfilter = NULL;
+    param_info->dfilter = NULL;
+#ifdef HAVE_LIBPCAP
+    param_info->start_capture = FALSE;
+    param_info->list_link_layer_types = FALSE;
+#endif
+    param_info->disable_protocol_slist = NULL;
+    param_info->enable_heur_slist = NULL;
+    param_info->disable_heur_slist = NULL;
+
     while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
             /*** capture option specific ***/

@@ -2360,21 +2360,6 @@ main(int argc, char *argv[])
     fill_in_local_interfaces();
 #endif*/
 
-    /* Initialize commandline_info with default values */
-    commandline_info.jump_backwards = SD_FORWARD;
-    commandline_info.go_to_packet = 0;
-    commandline_info.jfilter = NULL;
-    commandline_info.cf_name = NULL;
-    commandline_info.rfilter = NULL;
-    commandline_info.dfilter = NULL;
-#ifdef HAVE_LIBPCAP
-    commandline_info.start_capture = FALSE;
-    commandline_info.list_link_layer_types = FALSE;
-#endif
-    commandline_info.disable_protocol_slist = NULL;
-    commandline_info.enable_heur_slist = NULL;
-    commandline_info.disable_heur_slist = NULL;
-
     /* Now get our args */
     commandline_other_options(argc, argv, &commandline_info, TRUE);
 
