@@ -264,14 +264,33 @@ bool SyntaxLineEdit::isComplexFilter(const QString &filter)
 bool SyntaxLineEdit::event(QEvent *event)
 {
     if (event->type() == QEvent::ShortcutOverride) {
-        // Keep shortcuts in the main window from stealing keyPressEvents from
-        // from us. This is a particular problem for many AltGr combinations
-        // since they tend to match the time display format shortcuts. Ideally
-        // we should only accept the event if we detect Qt::Key_AltGr but that
-        // doesn't seem to work too well in practice.
+        // You can't set time display formats while the display filter edit
+        // has focus.
 
-        event->accept();
-        return true;
+        // Keep shortcuts in the main window from stealing keyPressEvents
+        // with Ctrl+Alt modifiers from us. This is a problem for many AltGr
+        // combinations since they are delivered with Ctrl+Alt modifiers
+        // instead of Qt::Key_AltGr and they tend to match the time display
+        // format shortcuts.
+
+        // Uncommenting the qDebug line below prints the following here:
+        //
+        // US Keyboard:
+        // Ctrl+o: 79 QFlags<Qt::KeyboardModifiers>(ControlModifier) "\u000F"
+        // Ctrl+Alt+2: 50 QFlags<Qt::KeyboardModifiers>(ControlModifier|AltModifier) "2"
+        //
+        // Swedish (Sweden) Keyboard:
+        // Ctrl+o: 79 QFlags<Qt::KeyboardModifiers>(ControlModifier) "\u000F"
+        // Ctrl+Alt+2: 64 QFlags<Qt::KeyboardModifiers>(ControlModifier|AltModifier) "@"
+        // AltGr+{: 123 QFlags<Qt::KeyboardModifiers>(ControlModifier|AltModifier) "{"
+
+        QKeyEvent* key_event = static_cast<QKeyEvent*>(event);
+        // qDebug() << "=so" << key_event->key() << key_event->modifiers() << key_event->text();
+
+        if (key_event->modifiers() == Qt::KeyboardModifiers(Qt::ControlModifier|Qt::AltModifier)) {
+            event->accept();
+            return true;
+        }
     }
     return QLineEdit::event(event);
 }
