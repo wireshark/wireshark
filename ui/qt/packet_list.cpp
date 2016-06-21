@@ -824,6 +824,7 @@ void PacketList::freeze()
 {
     setUpdatesEnabled(false);
     column_state_ = header()->saveState();
+    selectionModel()->clear();
     setModel(NULL);
     // It looks like GTK+ sends a cursor-changed signal at this point but Qt doesn't
     // call selectionChanged.
@@ -848,6 +849,7 @@ void PacketList::thaw()
 void PacketList::clear() {
     //    packet_history_clear();
     related_packet_delegate_.clear();
+    selectionModel()->clear();
     packet_list_model_->clear();
     proto_tree_->clear();
     byte_view_tab_->clear();
