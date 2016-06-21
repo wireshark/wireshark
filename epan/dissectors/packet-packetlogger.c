@@ -52,6 +52,9 @@ static dissector_table_t hci_h1_table;
 #define PKT_RECV_ACL_DATA   0x03
 #define PKT_LMP_SEND        0x0A
 #define PKT_LMP_RECV        0x0B
+#define PKT_KERNEL          0xF8
+#define PKT_KERNEL_DEBUG    0xF9
+#define PKT_ERROR           0xFA
 #define PKT_POWER           0xFB
 #define PKT_NOTE            0xFC
 #define PKT_NEW_CONTROLLER  0xFE
@@ -63,6 +66,9 @@ static const value_string type_vals[] = {
   { PKT_RECV_ACL_DATA,   "Recv ACL Data"   },
   { PKT_LMP_SEND,        "Sent LMP Data"   },
   { PKT_LMP_RECV,        "Recv LMP Data"   },
+  { PKT_KERNEL,          "Kernel"          },
+  { PKT_KERNEL_DEBUG,    "Kernel Debug"    },
+  { PKT_ERROR,           "Error"           },
   { PKT_POWER,           "Power"           },
   { PKT_NOTE,            "Note"            },
   { PKT_NEW_CONTROLLER,  "New Controller"  },
@@ -135,6 +141,9 @@ static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
   } else {
     /* PacketLogger data */
     switch (pl_type) {
+    case PKT_KERNEL:
+    case PKT_KERNEL_DEBUG:
+    case PKT_ERROR:
     case PKT_POWER:
     case PKT_NOTE:
     case PKT_NEW_CONTROLLER:
