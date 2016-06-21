@@ -931,8 +931,15 @@ dissector_add_uint(const char *name, const guint32 pattern, dissector_handle_t h
 	sub_dissectors = find_dissector_table(name);
 
 	/*
-	 * Make sure the dissector table exists.
+	 * Make sure the handle and the dissector table exist.
 	 */
+	if (handle == NULL) {
+		fprintf(stderr, "OOPS: handle to register \"%s\" to doesn't exist\n",
+		    name);
+		if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+			abort();
+		return;
+	}
 	if (sub_dissectors == NULL) {
 		fprintf(stderr, "OOPS: dissector table \"%s\" doesn't exist\n",
 		    name);
@@ -943,8 +950,6 @@ dissector_add_uint(const char *name, const guint32 pattern, dissector_handle_t h
 		return;
 	}
 
-	/* sanity checks */
-	g_assert(handle!=NULL);
 	switch (sub_dissectors->type) {
 
 	case FT_UINT8:
