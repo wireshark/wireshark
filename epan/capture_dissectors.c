@@ -23,6 +23,7 @@
 #include "config.h"
 
 #include <glib.h>
+#include <stdio.h>
 #include "packet.h"
 
 #include "capture_dissectors.h"
@@ -89,6 +90,12 @@ void register_capture_dissector(const char* name, const guint32 pattern, capture
 
     /* Make sure table exists */
     sub_dissectors = (struct capture_dissector_table*)g_hash_table_lookup( capture_dissector_tables, name );
+    if (sub_dissectors == NULL) {
+            fprintf(stderr, "OOPS: Subdissector \"%s\" not found in capture_dissector_tables\n", name);
+            if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+                    abort();
+            return;
+    }
     g_assert(sub_dissectors != NULL);
 
     /* Make sure the registration is unique */
