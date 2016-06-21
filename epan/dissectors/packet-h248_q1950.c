@@ -410,10 +410,11 @@ static h248_pkg_param_t  h248_pkg_h248_pkg_bcg_sig_bdt_params[] = {
 };
 
 static const value_string h248_pkg_bcg_signals_vals[] = {
-    { 0x0041, "Dial Tone (bdt)" },
-    { 0x0042, "Ringing Tone (brt)" },
-    { 0x0043, "Busy Tone (bbt)" },
-    { 0x0044, "Congestion Tone (bct)" },
+    { 0x0040, "Dial Tone (bdt)" },
+    { 0x0041, "Ringing Tone (brt)" },
+    { 0x0042, "Busy Tone (bbt)" },
+    { 0x0043, "Congestion Tone (bct)" },
+    { 0x0044, "Special information tone (bsit)" },
     { 0x0045, "Warning Tone (bwt)" },
     { 0x0046, "Payphone Recognition Tone (bpt)" },
     { 0x0047, "Call Waiting Tone (bcw)" },
