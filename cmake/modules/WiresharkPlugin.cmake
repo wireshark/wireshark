@@ -13,7 +13,7 @@ macro(SET_MODULE_INFO _plugin _ver_major _ver_minor _ver_micro _ver_extra)
 	set(MODULE_VERSION "${MODULE_VERSION_MAJOR}.${MODULE_VERSION_MINOR}.${MODULE_VERSION_MICRO}.${MODULE_VERSION_EXTRA}")
 	set(RC_MODULE_VERSION "${MODULE_VERSION_MAJOR},${MODULE_VERSION_MINOR},${MODULE_VERSION_MICRO},${MODULE_VERSION_EXTRA}")
 
-	# This info is from Makefile.common
+	# This info is from Makefile.am
 	set(PLUGIN_NAME ${PACKAGE})
 
 	set(MSVC_VARIANT "${CMAKE_GENERATOR}")

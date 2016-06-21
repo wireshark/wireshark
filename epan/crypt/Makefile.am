@@ -19,12 +19,35 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS)
 
 noinst_LTLIBRARIES = libairpdcap.la
+
+include Custom.common
+
+libairpdcap_la_SOURCES =	\
+	airpdcap.c		\
+	airpdcap_ccmp.c		\
+	airpdcap_debug.c	\
+	airpdcap_rijndael.c	\
+	airpdcap_tkip.c		\
+	airpdcap_debug.h	\
+	airpdcap_interop.h	\
+	airpdcap_int.h		\
+	airpdcap_rijndael.h	\
+	airpdcap_system.h	\
+	airpdcap_user.h		\
+	airpdcap_ws.h		\
+	kasumi.h		\
+	wep-wpadefs.h		\
+	$(CUSTOM_CRYPTO_SRC)
+
+EXTRA_DIST = \
+	Custom.common \
+	CMakeLists.txt	\
+	CMakeListsCustom.txt.example
 
 CLEANFILES = \
 	libairpdcap.a	\
@@ -36,17 +59,7 @@ DISTCLEANFILES =
 MAINTAINERCLEANFILES =	\
 	Makefile.in
 
-libairpdcap_la_SOURCES =	\
-	$(LIBAIRPDCAP_SRC)	\
-	$(LIBAIRPDCAP_INCLUDES)
-
-EXTRA_DIST = \
-	Custom.common \
-	Makefile.common	\
-	CMakeLists.txt	\
-	CMakeListsCustom.txt.example
-
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \
 	-sourcedir=$(srcdir) \
-	$(LIBAIRPDCAP_SRC)
+	$(libairpdcap_la_SOURCES)

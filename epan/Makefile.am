@@ -21,7 +21,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
 if HAVE_LIBLUA
@@ -45,77 +44,267 @@ AM_CPPFLAGS = $(INCLUDEDIRS) -I$(builddir)/wslua $(WS_CPPFLAGS) \
 
 noinst_LTLIBRARIES = libwireshark_generated.la libwireshark_asmopt.la
 lib_LTLIBRARIES = libwireshark.la
-# http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-libwireshark_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
+
+LIBWIRESHARK_SRC = \
+	addr_and_mask.c		\
+	addr_resolv.c		\
+	address_types.c		\
+	afn.c			\
+	aftypes.c		\
+	app_mem_usage.c		\
+	asn1.c			\
+	capture_dissectors.c	\
+	charsets.c		\
+	circuit.c		\
+	color_filters.c		\
+	column.c		\
+	column-utils.c		\
+	conversation.c		\
+	conversation_table.c	\
+	crc10-tvb.c		\
+	crc16-tvb.c		\
+	crc32-tvb.c		\
+	crc6-tvb.c		\
+	crc8-tvb.c		\
+	decode_as.c		\
+	disabled_protos.c	\
+	dissector_filters.c	\
+	dvb_chartbl.c		\
+	dwarf.c			\
+	epan.c			\
+	ex-opt.c		\
+	except.c		\
+	expert.c		\
+	exported_pdu.c		\
+	plugin_if.c		\
+	filter_expressions.c	\
+	follow.c		\
+	frame_data.c		\
+	frame_data_sequence.c	\
+	funnel.c		\
+	g_int64_hash_routines.c	\
+	geoip_db.c		\
+	golay.c			\
+	guid-utils.c		\
+	iana_charsets.c		\
+	in_cksum.c		\
+	ipproto.c		\
+	ipv4.c			\
+	next_tvb.c		\
+	oids.c			\
+	osi-utils.c		\
+	oui.c			\
+	packet-range.c		\
+	packet.c		\
+	prefs.c			\
+	print.c			\
+	print_stream.c		\
+	proto.c			\
+	proto_data.c		\
+	range.c			\
+	reassemble.c		\
+	reedsolomon.c		\
+	req_resp_hdrs.c		\
+	rtd_table.c		\
+	show_exception.c	\
+	sminmpec.c		\
+	srt_table.c		\
+	stat_tap_ui.c		\
+	stats_tree.c		\
+	strutil.c		\
+	stream.c		\
+	t35.c			\
+	tap.c			\
+	timestamp.c		\
+	timestats.c		\
+	tfs.c			\
+	to_str.c		\
+	tvbparse.c		\
+	tvbuff_base64.c		\
+	tvbuff_composite.c	\
+	tvbuff_real.c		\
+	tvbuff_subset.c		\
+	tvbuff_zlib.c		\
+	tvbuff.c		\
+	uat.c			\
+	value_string.c		\
+	xdlc.c
+
+#
+# We distribute Lemon and rdps.py with Wireshark, so we don't distribute the
+# files they produce.
+#
+NODIST_LIBWIRESHARK_GENERATED_C_FILES = \
+	dtd_grammar.c			\
+	ps.c
+
+NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES = \
+	dtd_grammar.h
+
+#
+# These don't get removed on "make distclean", as the tools we use to
+# generate them aren't part of the Wireshark distribution, and aren't
+# tools assumed to be present for any system capable of compiling
+# from a tarball (e.g., make and a C compiler are assumed to be present,
+# but Flex isn't).
+#
+LIBWIRESHARK_GENERATED_C_FILES = \
+	diam_dict.c		\
+	dtd_parse.c		\
+	dtd_preparse.c		\
+	radius_dict.c		\
+	uat_load.c
+
+LIBWIRESHARK_GENERATED_HEADER_FILES = \
+	diam_dict_lex.h		\
+	dtd_parse_lex.h		\
+	dtd_preparse_lex.h	\
+	radius_dict_lex.h	\
+	uat_load_lex.h
+
+LIBWIRESHARK_GENERATED_SRC = \
+	$(LIBWIRESHARK_GENERATED_C_FILES) \
+	$(NODIST_LIBWIRESHARK_GENERATED_C_FILES)
+
+LIBWIRESHARK_ALL_SRC = \
+	$(LIBWIRESHARK_SRC)	\
+	$(LIBWIRESHARK_GENERATED_SRC)
+
+LIBWIRESHARK_INCLUDES = \
+	addr_and_mask.h		\
+	addr_resolv.h		\
+	address.h		\
+	address_types.h		\
+	afn.h			\
+	aftypes.h		\
+	app_mem_usage.h		\
+	arcnet_pids.h		\
+	arptypes.h		\
+	asn1.h			\
+	ax25_pids.h		\
+	bridged_pids.h		\
+	capture_dissectors.h	\
+	charsets.h		\
+	chdlctypes.h		\
+	circuit.h		\
+	color_filters.h		\
+	column.h		\
+	column-info.h		\
+	column-utils.h		\
+	conversation.h		\
+	conversation_debug.h	\
+	conversation_table.h	\
+	conv_id.h		\
+	crc10-tvb.h		\
+	crc16-tvb.h		\
+	crc32-tvb.h		\
+	crc6-tvb.h		\
+	crc8-tvb.h		\
+	decode_as.h		\
+	diam_dict.h		\
+	disabled_protos.h	\
+	dissector_filters.h	\
+	dtd.h			\
+	dtd_parse.h		\
+	dvb_chartbl.h		\
+	dwarf.h			\
+	eap.h			\
+	eapol_keydes_types.h	\
+	epan-int.h		\
+	epan.h			\
+	epan_dissect.h		\
+	etypes.h		\
+	ex-opt.h		\
+	except.h		\
+	exceptions.h		\
+	expert.h		\
+	exported_pdu.h		\
+	plugin_if.h		\
+	filter_expressions.h	\
+	follow.h		\
+	frame_data.h		\
+	frame_data_sequence.h	\
+	funnel.h		\
+	g_int64_hash_routines.h	\
+	garrayfix.h		\
+	geoip_db.h		\
+	golay.h			\
+	guid-utils.h		\
+	iana_charsets.h		\
+	iax2_codec_type.h	\
+	in_cksum.h		\
+	ip_opts.h		\
+	ipproto.h		\
+	ipv4.h			\
+	ipv6.h			\
+	lapd_sapi.h		\
+	llcsaps.h		\
+	next_tvb.h		\
+	nlpid.h			\
+	oids.h			\
+	osi-utils.h		\
+	oui.h			\
+	packet-range.h		\
+	packet.h		\
+	packet_info.h		\
+	params.h		\
+	ppptypes.h		\
+	print.h			\
+	print_stream.h		\
+	prefs.h			\
+	prefs-int.h		\
+	proto.h			\
+	proto_data.h		\
+	ps.h			\
+	ptvcursor.h		\
+	range.h			\
+	reassemble.h		\
+	reedsolomon.h		\
+	req_resp_hdrs.h		\
+	rtd_table.h		\
+	rtp_pt.h		\
+	sctpppids.h		\
+	show_exception.h	\
+	slow_protocol_subtypes.h \
+	sminmpec.h		\
+	srt_table.h		\
+	stat_tap_ui.h		\
+	stat_groups.h		\
+	stats_tree.h		\
+	stats_tree_priv.h	\
+	stream.h		\
+	strutil.h		\
+	t35.h			\
+	tap.h			\
+	tap-voip.h		\
+	timestamp.h		\
+	timestats.h		\
+	tfs.h			\
+	time_fmt.h		\
+	to_str.h		\
+	to_str-int.h		\
+	tvbparse.h		\
+	tvbuff.h		\
+	tvbuff-int.h		\
+	uat.h			\
+	uat-int.h		\
+	value_string.h		\
+	x264_prt_id.h		\
+	xdlc.h
 
 #Since code generated by lex may trigger gcc warnings, we are now generating two
 #libraries. A single library is generated with the lex code without the barrier
 #"stop on warning". An other library is generated from the remaining source
 #files with the "stop on warning" barrier.
 libwireshark_la_SOURCES = \
-	$(LIBWIRESHARK_SRC)	\
+	$(LIBWIRESHARK_SRC)		\
 	$(LIBWIRESHARK_INCLUDES)	\
 	ws_version_info.c
 
 libwireshark_la_CPPFLAGS = $(AM_CPPFLAGS) -DWS_BUILD_DLL
 
-libwireshark_generated_la_SOURCES = \
-	$(LIBWIRESHARK_GENERATED_C_FILES) \
-	$(LIBWIRESHARK_GENERATED_HEADER_FILES)
-
-libwireshark_generated_la_CFLAGS = $(GENERATED_CFLAGS)
-
-nodist_libwireshark_generated_la_SOURCES = \
-	$(NODIST_LIBWIRESHARK_GENERATED_C_FILES) \
-	$(NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES)
-
-# code optionally implemented in assembler
-# only C source available for platforms other than Win32
-libwireshark_asmopt_la_SOURCES = \
-	asm_utils.c		\
-	asm_utils.h		\
-	asm_utils_win32_x86.asm
-
-EXTRA_DIST = \
-	.editorconfig		\
-	diam_dict.l		\
-	dtd_grammar.lemon	\
-	dtd_parse.l		\
-	dtd_parse.h		\
-	dtd_preparse.l		\
-	enterprise-numbers	\
-	Makefile.common		\
-	radius_dict.l		\
-	uat_load.l		\
-	doxygen.cfg.in		\
-	CMakeLists.txt		\
-	print.ps
-
-CLEANFILES = \
-	doxygen-epan.tag		\
-	libwireshark.a			\
-	libwireshark.la			\
-	libwireshark_generated.a	\
-	libwireshark_generated.la	\
-	libwireshark_asmopt.a		\
-	libwireshark_asmopt.la		\
-	*~
-
-DISTCLEANFILES = \
-	$(NODIST_LIBWIRESHARK_GENERATED_C_FILES) \
-	$(NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES) \
-	dtd_grammar.out \
-	ws_version_info.c
-
-MAINTAINERCLEANFILES = \
-	$(LIBWIRESHARK_GENERATED_C_FILES) \
-	$(LIBWIRESHARK_GENERATED_HEADER_FILES) \
-	Makefile.in
-
-BUILT_SOURCES = \
-	$(LIBWIRESHARK_GENERATED_HEADER_FILES) \
-	$(NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES) \
-	ws_version_info.c
+# http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
+libwireshark_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
 
 #
 # Add the object files for missing routines, if any.
@@ -157,6 +346,63 @@ libwireshark_la_DEPENDENCIES = \
 	$(wslua_lib)				\
 	${top_builddir}/wsutil/libwsutil.la	\
 	${top_builddir}/wiretap/libwiretap.la
+
+libwireshark_generated_la_SOURCES = \
+	$(LIBWIRESHARK_GENERATED_C_FILES) \
+	$(LIBWIRESHARK_GENERATED_HEADER_FILES)
+
+nodist_libwireshark_generated_la_SOURCES = \
+	$(NODIST_LIBWIRESHARK_GENERATED_C_FILES) \
+	$(NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES)
+
+libwireshark_generated_la_CFLAGS = $(GENERATED_CFLAGS)
+
+# code optionally implemented in assembler
+# only C source available for platforms other than Win32
+libwireshark_asmopt_la_SOURCES = \
+	asm_utils.c		\
+	asm_utils.h		\
+	asm_utils_win32_x86.asm
+
+EXTRA_DIST = \
+	.editorconfig		\
+	diam_dict.l		\
+	dtd_grammar.lemon	\
+	dtd_parse.l		\
+	dtd_parse.h		\
+	dtd_preparse.l		\
+	enterprise-numbers	\
+	radius_dict.l		\
+	uat_load.l		\
+	doxygen.cfg.in		\
+	CMakeLists.txt		\
+	print.ps
+
+CLEANFILES = \
+	doxygen-epan.tag		\
+	libwireshark.a			\
+	libwireshark.la			\
+	libwireshark_generated.a	\
+	libwireshark_generated.la	\
+	libwireshark_asmopt.a		\
+	libwireshark_asmopt.la		\
+	*~
+
+DISTCLEANFILES = \
+	$(NODIST_LIBWIRESHARK_GENERATED_C_FILES) \
+	$(NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES) \
+	dtd_grammar.out \
+	ws_version_info.c
+
+MAINTAINERCLEANFILES = \
+	$(LIBWIRESHARK_GENERATED_C_FILES) \
+	$(LIBWIRESHARK_GENERATED_HEADER_FILES) \
+	Makefile.in
+
+BUILT_SOURCES = \
+	$(LIBWIRESHARK_GENERATED_HEADER_FILES) \
+	$(NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES) \
+	ws_version_info.c
 
 EXTRA_PROGRAMS = reassemble_test tvbtest oids_test exntest
 

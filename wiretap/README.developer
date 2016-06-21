@@ -87,4 +87,4 @@ To add the ability to write a new capture file format, you have to:
 	in the "dump_open_table_base[]" entry for that file type.
 
 In the wiretap directory, add your source file to CMakelists.txt and
-your source and header file to Makefile.common.
+your source and header file to Makefile.am.

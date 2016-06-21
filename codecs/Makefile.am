@@ -19,7 +19,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
 AM_CPPFLAGS = -DWS_BUILD_DLL $(INCLUDEDIRS) $(WS_CPPFLAGS) \
@@ -27,13 +26,17 @@ AM_CPPFLAGS = -DWS_BUILD_DLL $(INCLUDEDIRS) $(WS_CPPFLAGS) \
 
 lib_LTLIBRARIES = libwscodecs.la
 
-if HAVE_SBC
-LIBWSCODECS_SRC += sbc/sbc.c
-endif
-
 # All sources that should be put in the source distribution tarball
 libwscodecs_la_SOURCES = \
-	$(LIBWSCODECS_SRC)
+	codecs.c		\
+	G711a/G711adecode.c	\
+	G711u/G711udecode.c	\
+	G722/G722decode.c	\
+	G726/G726decode.c
+
+if HAVE_SBC
+libwscodecs_la_SOURCES += sbc/sbc.c
+endif
 
 if !HAVE_SPEEXDSP
 libwscodecs_la_SOURCES += speex/resample.c
@@ -61,7 +64,6 @@ noinst_HEADERS = \
 
 EXTRA_DIST = \
 	CMakeLists.txt			\
-	Makefile.common			\
 	speex/README.txt
 
 CLEANFILES = \
@@ -74,4 +76,4 @@ MAINTAINERCLEANFILES =	\
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \
 	-sourcedir=$(srcdir) \
-	$(LIBWSCODECS_SRC)
+	$(libwscodecs_la_SOURCES)

@@ -1,5 +1,4 @@
 # Makefile.am
-# Automake file for stats_tree Wireshark plugin
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -18,11 +17,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#
 
-include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 include ../Makefile.am.inc
+
+# the name of the plugin
+PLUGIN_NAME = stats_tree
+
+# Non-generated sources
+NONGENERATED_C_FILES = \
+	$(NONGENERATED_REGISTER_C_FILES) \
+	stats_tree_plugin.c	\
+	pinfo_stats_tree.c
+
+# Headers.
+CLEAN_HEADER_FILES = \
+	pinfo_stats_tree.h
+
+HEADER_FILES = \
+	$(CLEAN_HEADER_FILES)
 
 plugin_LTLIBRARIES = stats_tree.la
 
@@ -44,6 +57,5 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 EXTRA_DIST = \
-	Makefile.common		\
 	plugin.rc.in		\
 	CMakeLists.txt

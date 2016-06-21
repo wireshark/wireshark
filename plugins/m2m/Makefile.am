@@ -1,5 +1,4 @@
 # Makefile.am
-# Automake file for M2M plugin
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -18,11 +17,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#
 
-include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 include ../Makefile.am.inc
+
+# the name of the plugin
+PLUGIN_NAME = m2m
+
+# the dissector sources (without any helpers)
+# Non-generated sources to be scanned for registration routines
+NONGENERATED_REGISTER_C_FILES = \
+	packet-m2m.c
+
+# Non-generated sources
+NONGENERATED_C_FILES = \
+	$(NONGENERATED_REGISTER_C_FILES) \
+	wimax_tlv.c
 
 plugin_LTLIBRARIES = m2m.la
 
@@ -47,6 +57,5 @@ MAINTAINERCLEANFILES = \
 	plugin.c
 
 EXTRA_DIST = \
-	Makefile.common		\
 	plugin.rc.in		\
 	CMakeLists.txt

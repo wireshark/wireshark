@@ -19,7 +19,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS)
@@ -37,8 +36,8 @@ MAINTAINERCLEANFILES = \
 
 # All sources that should be put in the source distribution tarball
 librandpkt_core_a_SOURCES = \
-	$(RANDPKT_CORE_SRC) \
-	$(noinst_HEADERS)
+	randpkt_core.c	\
+	randpkt_core.h
 
 librandpkt_core_a_DEPENDENCIES =
 
@@ -57,15 +56,14 @@ checkapi: checkapi-base checkapi-todo
 checkapi-base:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g deprecated-gtk -build \
 	-sourcedir=$(srcdir) \
-	$(RANDPKT_CORE_SRC)
+	$(librandpkt_core_a_SOURCES)
 
 checkapi-todo:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -M -g deprecated-gtk-todo -build \
 	-sourcedir=$(srcdir) \
-	$(RANDPKT_CORE_SRC)
+	$(librandpkt_core_a_SOURCES)
 
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
 	CMakeLists.txt			\
-	doxygen.cfg.in			\
-	Makefile.common
+	doxygen.cfg.in

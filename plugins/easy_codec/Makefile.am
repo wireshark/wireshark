@@ -1,5 +1,4 @@
 # Makefile.am
-# Automake file for the easy_codec plugin
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -19,12 +18,29 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-include Makefile.common
+# the name of the plugin
+PLUGIN_NAME = easy_codec
+
+# Non-generated sources
+NONGENERATED_C_FILES = \
+	easy_codec_plugin.c	\
+	codec-g729a.c \
+	codec-g7231.c \
+	codec-g722.c
+
+# Headers.
+CLEAN_HEADER_FILES = \
+	codec-g729a.h \
+	codec-g7231.h \
+	codec-g722.h
+
+HEADER_FILES = \
+	$(FLEX_GENERATED_HEADER_FILES) \
+	$(CLEAN_HEADER_FILES)
 
 EXTRA_DIST = \
 	$(NONGENERATED_C_FILES)	\
 	$(CLEAN_HEADER_FILES)	\
-	Makefile.common		\
 	plugin.rc.in		\
 	ReadMe.txt
 

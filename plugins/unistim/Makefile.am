@@ -1,6 +1,4 @@
 # Makefile.am
-# Automake file for Nortel Unistim plugin
-# Copyright 2007, Don Newton <dnewton@cypresscom.net>
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -19,11 +17,36 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#
 
-include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 include ../Makefile.am.inc
+
+# the name of the plugin
+PLUGIN_NAME = unistim
+
+# Non-generated sources to be scanned for registration routines
+NONGENERATED_REGISTER_C_FILES = \
+	packet-unistim.c
+
+# Non-generated sources
+NONGENERATED_C_FILES = \
+	$(NONGENERATED_REGISTER_C_FILES)
+
+# Headers.
+CLEAN_HEADER_FILES = \
+	audio.h        \
+	basic.h        \
+	broadcast.h    \
+	defines.h      \
+	display.h      \
+	expansion.h    \
+	key.h          \
+	network.h      \
+	uftp.h         \
+	packet-unistim.h
+
+HEADER_FILES = \
+	$(CLEAN_HEADER_FILES)
 
 plugin_LTLIBRARIES = unistim.la
 
@@ -48,6 +71,5 @@ MAINTAINERCLEANFILES = \
 	plugin.c
 
 EXTRA_DIST = \
-	Makefile.common		\
 	plugin.rc.in		\
 	CMakeLists.txt

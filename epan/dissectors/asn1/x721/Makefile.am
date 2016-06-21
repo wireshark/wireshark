@@ -16,7 +16,20 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
-include ../Makefile.preinc
-include Makefile.common
 include ../Makefile.inc
+
+#Dummy entry to pass the clean target
+PROTOCOL_NAME = dummy
+
+ASN_FILE_LIST =
+
+INCLUDED_ASN_FILE_LIST =
+
+EXTRA_DIST = \
+	$(EXTRA_DIST_COMMON) \
+	$(ASN_FILE_LIST) \
+	$(INCLUDED_ASN_FILE_LIST) \
+	Attribute-ASN1Module.asn \
+	ManagedObjectClassesDefinitions.asn \
+	Notification-ASN1Module.asn \
+	Parameter-ASN1Module.asn

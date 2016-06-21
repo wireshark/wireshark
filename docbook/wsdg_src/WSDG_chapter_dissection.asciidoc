@@ -172,8 +172,6 @@ are required, besides the dissector source in 'packet-foo.c':
 
 * 'Makefile.am' - The UNIX/Linux makefile template.
 
-* 'Makefile.common' - Contains the file names of this plugin.
-
 * 'CMakeLists.txt' - Contains the CMake file and version info for this plugin.
 
 * 'moduleinfo.h' - Contains plugin version information.
@@ -183,8 +181,8 @@ are required, besides the dissector source in 'packet-foo.c':
 * 'plugin.rc.in' - Contains the DLL resource template for Windows.
 
 You can find a good example for these files in the gryphon plugin directory.
-'Makefile.common' and 'Makefile.am' have to be modified to reflect the relevant
-files and dissector name. 'CMakeLists.txt' has to be modified with the correct
+'Makefile.am' has to be modified to reflect the relevant files and dissector
+name. 'CMakeLists.txt' has to be modified with the correct
 plugin name and version info, along with the relevant files to compile.
 In the main top-level source directory, copy CMakeListsCustom.txt.example to
 CMakeListsCustom.txt and add the path of your plugin to the list in
@@ -1257,7 +1255,7 @@ Wireshark source directory.
 $ cp packet-test-idl.c /dir/where/wireshark/lives/epan/dissectors/
 ----
 
-The new dissector has to be added to Makefile.common in the same directory. Look
+The new dissector has to be added to Makefile.am in the same directory. Look
 for the declaration CLEAN_DISSECTOR_SRC and add the new dissector there. For
 example,
 

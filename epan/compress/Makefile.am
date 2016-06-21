@@ -19,12 +19,17 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS)
 
 noinst_LTLIBRARIES = liblzxpress.la
+
+liblzxpress_la_SOURCES = \
+	lzxpress.c	\
+	lzxpress.h
+
+EXTRA_DIST =
 
 CLEANFILES = \
 	liblzxpress.a	\
@@ -33,16 +38,9 @@ CLEANFILES = \
 
 DISTCLEANFILES =
 
-MAINTAINERCLEANFILES =	\
+MAINTAINERCLEANFILES = \
 	Makefile.in
-
-liblzxpress_la_SOURCES =	\
-	$(LIBLZXPRESS_SRC)	\
-	$(LIBLZXPRESS_INCLUDES)
-
-EXTRA_DIST = \
-	Makefile.common
 
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \
-	$(LIBLZXPRESS_SRC)
+	$(liblzxpress_la_SOURCES)

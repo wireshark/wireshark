@@ -18,13 +18,33 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
 AM_CPPFLAGS = $(INCLUDEDIRS) -I$(top_srcdir)/epan $(WS_CPPFLAGS) \
 	$(GLIB_CFLAGS) $(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS)
 
 noinst_LTLIBRARIES = libftypes.la
+
+libftypes_la_SOURCES = \
+	ftypes.c	\
+	ftype-bytes.c	\
+	ftype-double.c	\
+	ftype-ieee-11073-float.c	\
+	ftype-integer.c	\
+	ftype-ipv4.c	\
+	ftype-ipv6.c	\
+	ftype-guid.c	\
+	ftype-none.c	\
+	ftype-pcre.c	\
+	ftype-protocol.c	\
+	ftype-string.c	\
+	ftype-time.c	\
+	ftypes.h	\
+	ftypes-int.h
+
+EXTRA_DIST = \
+	.editorconfig		\
+	CMakeLists.txt
 
 CLEANFILES = \
 	libftypes.a	\
@@ -34,14 +54,7 @@ CLEANFILES = \
 MAINTAINERCLEANFILES = \
 	Makefile.in
 
-libftypes_la_SOURCES = $(NONGENERATED_C_FILES) $(NONGENERATED_HEADER_FILES)
-
-EXTRA_DIST = \
-	.editorconfig		\
-	Makefile.common		\
-	CMakeLists.txt
-
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \
 	-sourcedir=$(srcdir) \
-	$(NONGENERATED_C_FILES)
+	$(libftypes_la_SOURCES)

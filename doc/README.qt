@@ -184,7 +184,7 @@ https://www.wireshark.org/docs/wsdg_html_chunked/ChUIQt.html
 
 Qt makes translating the Wireshark UI into different languages easy.
 
-- Add your translation (ui/qt/wireshark_XX.ts) in ui/qt/Makefile.common and ui/qt/CMakeLists.txt
+- Add your translation (ui/qt/wireshark_XX.ts) in ui/qt/Makefile.am and ui/qt/CMakeLists.txt
 - Please add flag (image) for your language in images/languages/XX.svg and image/languages/languages.qrc
 - Run "lupdate ui/qt -ts ui/qt/wireshark_XX.ts" to generate/update your translation file.
 - Translate with Qt Linguist (in console: "linguist ui/qt/wireshark_XX.ts")

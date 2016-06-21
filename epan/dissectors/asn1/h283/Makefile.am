@@ -16,7 +16,25 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
-include ../Makefile.preinc
-include Makefile.common
 include ../Makefile.inc
+
+PROTOCOL_NAME = h283
+
+EXT_ASN_FILE_LIST =
+
+ASN_FILE_LIST = \
+	LCT-PROTOCOL.asn
+
+EXTRA_DIST = \
+	$(EXTRA_DIST_COMMON) \
+	$(ASN_FILE_LIST) \
+	packet-$(PROTOCOL_NAME)-template.c \
+	$(PROTOCOL_NAME).cnf
+
+SRC_FILES = \
+	$(EXTRA_DIST) \
+	$(EXT_ASN_FILE_LIST)
+
+A2W_FLAGS =
+
+EXTRA_CNF =

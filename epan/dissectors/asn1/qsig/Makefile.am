@@ -16,7 +16,59 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
-include ../Makefile.preinc
-include Makefile.common
 include ../Makefile.inc
+
+PROTOCOL_NAME = qsig
+
+EXPORT_FILES = $(PROTOCOL_NAME)-exp.cnf
+
+EXT_ASN_FILE_LIST =
+
+ASN_FILE_LIST = \
+	General-Error-List.asn \
+	qsig-gf-ext.asn	\
+	qsig-gf-gp.asn	\
+	qsig-gf-ade.asn	\
+	QSIG-NA.asn	\
+	QSIG-CF.asn	\
+	QSIG-PR.asn	\
+	QSIG-CT.asn	\
+	QSIG-CC.asn	\
+	QSIG-CO.asn	\
+	QSIG-DND.asn	\
+	QSIG-CI.asn	\
+	QSIG-AOC.asn	\
+	QSIG-RE.asn	\
+	SYNC-SIG.asn	\
+	QSIG-CINT.asn	\
+	QSIG-CMN.asn	\
+	QSIG-CPI.asn	\
+	QSIG-PUMR.asn	\
+	QSIG-PUMCH.asn	\
+	QSIG-SSCT.asn	\
+	QSIG-WTMLR.asn	\
+	QSIG-WTMCH.asn	\
+	QSIG-WTMAU.asn	\
+	QSIG-SD.asn	\
+	QSIG-CIDL.asn	\
+	QSIG-SMS.asn	\
+	QSIG-MCR.asn	\
+	QSIG-MCM.asn	\
+	QSIG-MID.asn
+
+EXTRA_DIST = \
+	$(EXTRA_DIST_COMMON) \
+	$(ASN_FILE_LIST) \
+	packet-$(PROTOCOL_NAME)-template.c \
+	packet-$(PROTOCOL_NAME)-template.h \
+	$(PROTOCOL_NAME).cnf
+
+SRC_FILES = \
+	$(EXTRA_DIST) \
+	$(EXT_ASN_FILE_LIST)
+
+# need empty -p <proto> option, default is -p $(PROTOCOL_NAME)
+PROTO_OPT =
+A2W_FLAGS =
+
+EXTRA_CNF =

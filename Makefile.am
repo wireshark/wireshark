@@ -362,7 +362,68 @@ plugin_ldadd =
 
 endif		# HAVE_PLUGINS
 
-include Makefile.common
+# "BUILT_SOURCES" are built before any "make all" or "make check" targets.
+BUILT_HEADER_FILES = \
+	version.h
+
+BUILT_C_FILES =
+
+BUILT_SOURCES =	$(BUILT_C_FILES) $(BUILT_HEADER_FILES)
+
+# Header files generated from source files.
+GENERATED_HEADER_FILES = \
+	text2pcap-scanner_lex.h \
+	$(BUILT_HEADER_FILES)
+
+# C source files generated from source files.
+GENERATED_C_FILES =
+
+# All the generated files.
+GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
+
+EXTCAP_COMMON_SRC = \
+	extcap.c		\
+	extcap_parser.c
+
+EXTCAP_COMMON_INCLUDES = \
+	extcap.h		\
+	extcap_parser.h
+
+# sources common for wireshark, tshark, and rawshark
+SHARK_COMMON_SRC = \
+	cfile.c			\
+	frame_tvbuff.c		\
+	sync_pipe_write.c
+
+# corresponding headers
+SHARK_COMMON_INCLUDES = \
+	cfile.h			\
+	file.h			\
+	fileset.h		\
+	frame_tvbuff.h		\
+	register.h		\
+	ws_symbol_export.h
+
+# wireshark specifics
+WIRESHARK_COMMON_SRC = \
+	$(SHARK_COMMON_SRC)	\
+	capture_info.c		\
+	capture_opts.c		\
+	file.c			\
+	fileset.c		\
+	filter_files.c		\
+	summary.c		\
+	ws_version_info.c
+
+# corresponding headers
+WIRESHARK_COMMON_INCLUDES = \
+	capture_info.h		\
+	capture_opts.h		\
+	filter_files.h		\
+	globals.h		\
+	log.h			\
+	summary.h		\
+	sync_pipe.h
 
 if HAVE_EXTCAP
 SHARK_COMMON_SRC += $(EXTCAP_COMMON_SRC)
@@ -433,6 +494,13 @@ wireshark_gtk_LDADD = \
 	@PORTAUDIO_LIBS@
 endif
 
+tshark_SOURCES = \
+	$(SHARK_COMMON_SRC)	\
+	capture_opts.c		\
+	filter_files.c		\
+	tshark.c		\
+	ws_version_info.c
+
 tshark_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
 tshark_LDFLAGS = $(AM_LDFLAGS) $(EXTRALINKFLAGS)
@@ -458,6 +526,11 @@ tshark_LDADD = \
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
 
+tfshark_SOURCES = \
+	$(SHARK_COMMON_SRC)	\
+	tfshark.c		\
+	ws_version_info.c
+
 tfshark_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
 tfshark_LDFLAGS = $(AM_LDFLAGS) $(EXTRALINKFLAGS)
@@ -478,6 +551,11 @@ tfshark_LDADD = \
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
+
+rawshark_SOURCES = \
+	$(SHARK_COMMON_SRC)	\
+	rawshark.c		\
+	ws_version_info.c
 
 rawshark_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -502,6 +580,11 @@ rawshark_LDADD = \
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
 
+text2pcap_SOURCES = \
+	text2pcap.c		\
+	text2pcap-scanner.l	\
+	ws_version_info.c
+
 text2pcap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
 # Don't turn on -Werror for text2pcap: its source includes text2pcap-scanner.c
@@ -516,6 +599,10 @@ text2pcap_LDADD = \
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
 
+mergecap_SOURCES = \
+	mergecap.c	\
+	ws_version_info.c
+
 mergecap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
 # Libraries with which to link mergecap.
@@ -523,6 +610,10 @@ mergecap_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
+
+capinfos_SOURCES = \
+	capinfos.c	\
+	ws_version_info.c
 
 capinfos_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -533,6 +624,10 @@ capinfos_LDADD = \
 	@GLIB_LIBS@			\
 	@LIBGCRYPT_LIBS@
 
+captype_SOURCES = \
+	captype.c	\
+	ws_version_info.c
+
 captype_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
 # Libraries with which to link captype.
@@ -540,6 +635,10 @@ captype_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
+
+editcap_SOURCES = \
+	editcap.c	\
+	ws_version_info.c
 
 editcap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -549,6 +648,10 @@ editcap_LDADD = \
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
 
+reordercap_SOURCES = \
+	reordercap.c	\
+	ws_version_info.c
+
 reordercap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
 # Libraries with which to link reordercap.
@@ -556,6 +659,10 @@ reordercap_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
+
+randpkt_SOURCES = \
+	randpkt.c	\
+	ws_version_info.c
 
 randpkt_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -567,6 +674,9 @@ randpkt_LDADD = \
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
 	@C_ARES_LIBS@
+
+dftest_SOURCES = \
+	dftest.c
 
 dftest_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -586,7 +696,16 @@ dftest_LDADD = \
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
 
-echld_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
+echld_test_SOURCES = \
+	echld_test.c			\
+	capture_opts.c			\
+	capture_stop_conditions.c	\
+	cfile.c				\
+	conditions.c			\
+	ringbuffer.c			\
+	sync_pipe_write.c
+
+echld_test_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
 echld_test_LDADD = \
 	epan/libwireshark.la		\
@@ -598,8 +717,18 @@ echld_test_LDADD = \
 	@C_ARES_LIBS@
 
 echld_test_DEPENDENCIES = \
-	echld/libechld.la \
+	echld/libechld.la	\
 	epan/libwireshark.la
+
+dumpcap_SOURCES = \
+	capture_opts.c			\
+	capture_stop_conditions.c	\
+	conditions.c			\
+	dumpcap.c			\
+	filter_files.c			\
+	ringbuffer.c			\
+	sync_pipe_write.c		\
+	ws_version_info.c
 
 dumpcap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -618,6 +747,17 @@ dumpcap_LDADD = \
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@LIBCAP_LIBS@			\
 	@LIBNL_LIBS@
+
+# this target needed for distribution only
+noinst_HEADERS = \
+	$(SHARK_COMMON_INCLUDES)	\
+	$(EXTCAP_COMMON_INCLUDES)	\
+	$(WIRESHARK_COMMON_INCLUDES)	\
+	capture_stop_conditions.h	\
+	conditions.h			\
+	ringbuffer.h			\
+	ws_diag_control.h		\
+	ws_version_info.h
 
 #
 # Build the version string
@@ -642,7 +782,7 @@ SUFFIXES = .sh
 services:
 	$(PYTHON) $(srcdir)/tools/make-services.py
 
-CLEANFILES =		\
+CLEANFILES = \
 	*~		\
 	doxygen-core.tag	\
 	vgcore.*
@@ -661,7 +801,7 @@ DISTCLEANFILES = \
 	ps.c			\
 	version.h
 
-MAINTAINERCLEANFILES =		\
+MAINTAINERCLEANFILES = \
 	$(GENERATED_FILES)	\
 	Makefile.in		\
 	aclocal.m4		\
@@ -679,7 +819,6 @@ EXTRA_DIST = \
 	.mailmap		\
 	INSTALL.configure	\
 	Makefile.am.inc		\
-	Makefile.common		\
 	README.aix		\
 	README.bsd		\
 	README.DECT		\

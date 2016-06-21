@@ -1,5 +1,4 @@
 # Makefile.am
-# Automake file for MATE Wireshark plugin
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -20,7 +19,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 include ../Makefile.am.inc
 

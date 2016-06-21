@@ -18,30 +18,24 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
 AM_CPPFLAGS = -DWS_BUILD_DLL $(INCLUDEDIRS) $(WS_CPPFLAGS) \
 	$(GLIB_CFLAGS)
 
-# Optional objects that I know how to build. These will be
-# linked into libechld.
-echld_optional_objects = $(LIBECHLD_SRC)
-
 lib_LTLIBRARIES = libechld.la
 
-libechld_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
-
 libechld_la_SOURCES = \
-	$(LIBECHLD_SRC)		\
-	$(LIBECHLD_INCLUDES)
+	echld-util.c	\
+	dispatcher.c	\
+	child.c		\
+	parent.c	\
+	common.c	\
+	echld-int.h	\
+	echld-util.h	\
+	echld.h
 
-libechld_la_DEPENDENCIES = \
-	../caputils/libcaputils.a	\
-	../epan/libwireshark.la		\
-	../wiretap/libwiretap.la	\
-	../wsutil/libwsutil.la
-
+libechld_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
 
 libechld_la_LIBADD =			\
 	../caputils/libcaputils.a	\
@@ -50,9 +44,14 @@ libechld_la_LIBADD =			\
 	../wiretap/libwiretap.la	\
 	@GLIB_LIBS@
 
+libechld_la_DEPENDENCIES = \
+	../caputils/libcaputils.a	\
+	../epan/libwireshark.la		\
+	../wiretap/libwiretap.la	\
+	../wsutil/libwsutil.la
+
 EXTRA_DIST = \
-	CMakeLists.txt	\
-	Makefile.common
+	CMakeLists.txt
 
 CLEANFILES = \
 	libechld.a	\

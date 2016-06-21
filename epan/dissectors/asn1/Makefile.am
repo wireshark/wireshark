@@ -134,8 +134,7 @@ DIST_SUBDIRS = $(SUBDIRS) $(DONT_BUILD_SUBDIRS)
 
 EXTRA_DIST = \
 	CMakeLists.txt	\
-	Makefile.inc	\
-	Makefile.preinc
+	Makefile.inc
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

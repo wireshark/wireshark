@@ -18,6 +18,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+MAKE_CNF_EXPORT = $(MAKE) generate_export
+
+EXTRA_DIST_COMMON = \
+	CMakeLists.txt
+
 DISSECTOR = $(top_srcdir)/epan/dissectors/packet-$(PROTOCOL_NAME).c
 # This header file need not exist/get generated.  It is only used when cleaning.
 DISSECTOR_HEADER=$(top_srcdir)/epan/dissectors/packet-$(PROTOCOL_NAME).h

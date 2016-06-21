@@ -69,7 +69,7 @@ Usually, you will put your newly created dissector file into the directory
 epan/dissectors/, just like all the other packet-*.c files already in there.
 
 Also, please add your dissector file to the corresponding makefiles,
-described in section "1.8 Editing Makefile.common and CMakeLists.txt
+described in section "1.8 Editing Makefile.am and CMakeLists.txt
 to add your dissector" below.
 
 Dissectors that use the dissector registration API to register with a lower
@@ -627,7 +627,7 @@ generated automatically; to arrange that a protocol's register routine
 be called at startup:
 
     the file containing a dissector's "register" routine must be
-    added to "DISSECTOR_SRC" in "epan/dissectors/Makefile.common"
+    added to "DISSECTOR_SRC" in "epan/dissectors/Makefile.am"
     (and in "epan/dissectors/CMakeLists.txt");
 
     the "register" routine must have a name of the form
@@ -2217,17 +2217,17 @@ This allows dissection of a packet to be expanded outside of dissector without
 having to modify the dissector directly.
 
 
-1.8 Editing Makefile.common and CMakeLists.txt to add your dissector.
+1.8 Editing Makefile.am and CMakeLists.txt to add your dissector.
 
 To arrange that your dissector will be built as part of Wireshark, you
 must add the name of the source file for your dissector to the
-'DISSECTOR_SRC' macro in the 'Makefile.common' file in the 'epan/dissectors'
+'DISSECTOR_SRC' macro in the 'Makefile.am' file in the 'epan/dissectors'
 directory.  (Note that this is for modern versions of UNIX, so there
 is no 14-character limitation on file names, and for modern versions of
 Windows, so there is no 8.3-character limitation on file names.)
 
 If your dissector also has its own header file or files, you must add
-them to the 'DISSECTOR_INCLUDES' macro in the 'Makefile.common' file in
+them to the 'DISSECTOR_INCLUDES' macro in the 'Makefile.am' file in
 the 'epan/dissectors' directory, so that it's included when release source
 tarballs are built (otherwise, the source in the release tarballs won't
 compile).

@@ -25,8 +25,8 @@
 %global package_version @VERSION@
 
 # Set this variable to 1 if you have modified this file to patch Wireshark in
-# such a way that automake needs to be re-run (e.g., you modified a Makefile.am
-# or Makefile.common, for example to add a dissector).
+# such a way that automake needs to be re-run (e.g., you modified a Makefile.am,
+# for example to add a dissector).
 # Setting this causes ./autogen.sh to be re-run (which runs automake, etc.).
 %global run_automake 0
 

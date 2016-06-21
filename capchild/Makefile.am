@@ -19,12 +19,24 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS)
 
 noinst_LIBRARIES = libcapchild.a
+
+# All sources that should be put in the source distribution tarball
+libcapchild_a_SOURCES = \
+	capture_ifinfo.c	\
+	capture_sync.c		\
+	capture_session.h	\
+	capture_sync.h
+
+libcapchild_a_DEPENDENCIES =
+
+EXTRA_DIST = \
+	CMakeLists.txt			\
+	doxygen.cfg.in
 
 CLEANFILES = \
 	doxygen-capchild.tag	\
@@ -32,15 +44,7 @@ CLEANFILES = \
 	*~
 
 MAINTAINERCLEANFILES = \
-	$(GENERATED_FILES)	\
 	Makefile.in
-
-# All sources that should be put in the source distribution tarball
-libcapchild_a_SOURCES = \
-	$(CAPCHILD_SRC) \
-	$(noinst_HEADERS)
-
-libcapchild_a_DEPENDENCIES =
 
 doxygen:
 if HAVE_DOXYGEN
@@ -57,15 +61,9 @@ checkapi: checkapi-base checkapi-todo
 checkapi-base:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g deprecated-gtk -build \
 	-sourcedir=$(srcdir) \
-	$(CAPCHILD_SRC)
+	$(libcapchild_a_SOURCES)
 
 checkapi-todo:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -M -g deprecated-gtk-todo -build \
 	-sourcedir=$(srcdir) \
-	$(CAPCHILD_SRC)
-
-EXTRA_DIST = \
-	$(GENERATOR_FILES)		\
-	CMakeLists.txt			\
-	doxygen.cfg.in			\
-	Makefile.common
+	$(libcapchild_a_SOURCES)

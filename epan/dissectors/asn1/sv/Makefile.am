@@ -16,7 +16,26 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
-include ../Makefile.preinc
-include Makefile.common
 include ../Makefile.inc
+
+PROTOCOL_NAME=sv
+
+EXT_ASN_FILE_LIST =
+
+ASN_FILE_LIST = \
+	$(PROTOCOL_NAME).asn
+
+# The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
+# files do not exist for all protocols: Please add/remove as required.
+EXTRA_DIST = \
+	$(EXTRA_DIST_COMMON) \
+	$(ASN_FILE_LIST) \
+	packet-$(PROTOCOL_NAME)-template.c \
+	packet-$(PROTOCOL_NAME)-template.h \
+	$(PROTOCOL_NAME).cnf
+
+SRC_FILES = \
+	$(EXTRA_DIST) \
+	$(EXT_ASN_FILE_LIST)
+
+A2W_FLAGS= -b

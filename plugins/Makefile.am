@@ -39,7 +39,6 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 
 EXTRA_DIST = \
 	$(_CUSTOM_EXTRA_DIST_) \
-	Makefile.common.inc \
 	Custom.make.example \
 	Custom.m4.example
 

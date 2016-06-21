@@ -19,7 +19,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-include Makefile.common
 include ../Makefile.am.inc
 
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS)
@@ -28,16 +27,19 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 EXTRA_DIST = \
-	.editorconfig	\
-	Makefile.common
+	.editorconfig
 
 extcap_PROGRAMS = \
 	@androiddump_bin@	\
 	@randpktdump_bin@	\
-	@sshdump_bin@	\
+	@sshdump_bin@		\
 	@ciscodump_bin@
 
 EXTRA_PROGRAMS = androiddump randpktdump sshdump ciscodump
+
+androiddump_SOURCES = \
+	androiddump.c	\
+	extcap-base.c
 
 if ENABLE_STATIC
 androiddump_LDFLAGS = -Wl,-static -all-static
@@ -51,6 +53,10 @@ androiddump_LDADD = \
 	../wsutil/libwsutil.la		\
 	@GLIB_LIBS@
 
+randpktdump_SOURCES = \
+	randpktdump.c	\
+	extcap-base.c
+
 if ENABLE_STATIC
 	randpktdump_LDFLAGS = -Wl,-static -all-static
 else
@@ -59,10 +65,15 @@ endif
 
 # Libraries and plugin flags with which to link randpktdump.
 randpktdump_LDADD = \
-	../randpkt_core/librandpkt_core.a \
+	../randpkt_core/librandpkt_core.a	\
 	../wiretap/libwiretap.la	\
 	../wsutil/libwsutil.la		\
 	@GLIB_LIBS@
+
+sshdump_SOURCES = \
+	sshdump.c	\
+	extcap-base.c	\
+	ssh-base.c
 
 if ENABLE_STATIC
 	sshdump_LDFLAGS = -Wl,-static -all-static
@@ -77,6 +88,11 @@ sshdump_LDADD = \
 	@GLIB_LIBS@			\
 	@LIBSSH_LIBS@
 
+ciscodump_SOURCES = \
+	ciscodump.c	\
+	extcap-base.c	\
+	ssh-base.c
+
 if ENABLE_STATIC
 	ciscodump_LDFLAGS = -Wl,-static -all-static
 else
@@ -89,3 +105,7 @@ ciscodump_LDADD = \
 	../wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
 	@LIBSSH_LIBS@
+
+noinst_HEADERS = \
+	extcap-base.h	\
+	ssh-base.h

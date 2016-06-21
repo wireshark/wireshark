@@ -22,7 +22,6 @@ COPYING
 ChangeLog
 CMakeLists.txt
 Makefile.am
-Makefile.common
 moduleinfo.h
 plugin.rc.in
 
@@ -47,9 +46,7 @@ For your plugins/foo/Makefile.am file, see the corresponding file in
 plugins/gryphon.  Replace all occurrences of "gryphon" in those files
 with "foo".
 
-2.4 Makefile.common
-
-Your plugins/foo/Makefile.common should only list the main source file(s),
+Your plugins/foo/Makefile.am also needs to list the main source file(s),
 which exports register_*() and handoff_*(), for your dissector in the
 DISSECTOR_SRC variable.  All other supporting source files should be
 listed in the DISSECTOR_SUPPORT_SRC variable.
@@ -57,12 +54,12 @@ The header files for your dissector, if any, must be listed in the
 DISSECTOR_INCLUDES variable.  The DISSECTOR_INCLUDES variable should not
 include moduleinfo.h.
 
-2.5 moduleinfo.h
+2.4 moduleinfo.h
 
 Your plugins/foo/moduleinfo.h file is used to set the version information
 for the plugin.
 
-2.6 plugin.rc.in
+2.5 plugin.rc.in
 
 Your plugins/foo/plugin.rc.in is the Windows resource template file used
 to add the plugin specific information as resources to the DLL.
@@ -287,9 +284,6 @@ is encouraged to update their plugins as outlined below:
 	#include "plugins/plugin_api_defs.h"
 
     o Remove the init function.
-
-    o Add a new Makefile.common file with the lists of source files and
-      headers.
 
     o Change the Makefile.am file to match the one of the DOCSIS plugin.
 

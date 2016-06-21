@@ -19,13 +19,35 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(LIBNGHTTP2_CFLAGS) \
 	$(GLIB_CFLAGS)
 
 noinst_LTLIBRARIES = libnghttp2.la
+
+libnghttp2_la_SOURCES =	\
+	nghttp2_buf.c			\
+	nghttp2_hd.c			\
+	nghttp2_hd_huffman.c		\
+	nghttp2_hd_huffman_data.c	\
+	nghttp2_helper.c		\
+	nghttp2_mem.c			\
+	nghttp2_rcbuf.c			\
+	nghttp2_buf.h			\
+	nghttp2_hd.h			\
+	nghttp2_hd_huffman.h		\
+	nghttp2_helper.h		\
+	nghttp2_int.h			\
+	nghttp2_mem.h			\
+	nghttp2_rcbuf.h			\
+	nghttp2.h			\
+	nghttp2ver.h
+
+EXTRA_DIST = \
+	.editorconfig	\
+	README.nghttp2	\
+	CMakeLists.txt
 
 CLEANFILES = \
 	libnghttp2.a	\
@@ -36,16 +58,6 @@ DISTCLEANFILES =
 
 MAINTAINERCLEANFILES =	\
 	Makefile.in
-
-libnghttp2_la_SOURCES =	\
-	$(LIBNGHTTP2_SRC)	\
-	$(LIBNGHTTP2_INCLUDES)
-
-EXTRA_DIST = \
-	.editorconfig	\
-	Makefile.common	\
-	README.nghttp2	\
-	CMakeLists.txt
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html

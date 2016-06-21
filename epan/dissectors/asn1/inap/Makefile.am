@@ -16,7 +16,67 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
-include ../Makefile.preinc
-include Makefile.common
 include ../Makefile.inc
+
+PROTOCOL_NAME=inap
+
+EXPORT_FILES = $(PROTOCOL_NAME)-exp.cnf
+
+EXT_ASN_FILE_LIST_LATE = \
+	../ros/Remote-Operations-Information-Objects.asn \
+	../ros/Remote-Operations-Generic-ROS-PDUs.asn
+
+1248_1_ASN_FILES= \
+	IN-operationcodes.asn \
+	IN-object-identifiers.asn \
+	IN-common-datatypes.asn
+
+1248_2_ASN_FILES= \
+	IN-SSF-SCF-datatypes.asn \
+	IN-SSF-SCF-ops-args.asn
+
+1248_3_ASN_FILES= \
+	IN-SCF-SRF-datatypes.asn \
+	IN-SCF-SRF-ops-args.asn
+
+1248_CLASSES_ASN= \
+	IN-common-classes.asn  \
+	IN-SSF-SCF-Classes.asn  \
+	IN-SCF-SRF-Classes.asn
+
+ASN_FILE_LIST= \
+	$(1248_CLASSES_ASN) \
+	$(1248_1_ASN_FILES) \
+	$(1248_2_ASN_FILES) \
+	$(1248_3_ASN_FILES) \
+	IN-errorcodes.asn	\
+	IN-errortypes.asn
+
+INCLUDED_ASN_FILE_LIST = \
+	inap.asn
+
+# The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
+# files do not exist for all protocols: Please add/remove as required.
+EXTRA_DIST = \
+	$(EXTRA_DIST_COMMON) \
+	$(ASN_FILE_LIST) \
+	$(INCLUDED_ASN_FILE_LIST) \
+	packet-$(PROTOCOL_NAME)-template.c \
+	packet-$(PROTOCOL_NAME)-template.h \
+	$(PROTOCOL_NAME).cnf
+
+SRC_FILES = \
+	$(EXTRA_DIST) \
+	$(EXT_ASN_FILE_LIST)
+
+A2W_FLAGS= -b
+
+EXTRA_CNF= \
+	$(builddir)/../dap/dap-exp.cnf \
+	$(builddir)/../dsp/dsp-exp.cnf
+
+$(builddir)/../dap/dap-exp.cnf:
+	(cd $(builddir)/../dap && $(MAKE_CNF_EXPORT))
+
+$(builddir)/../dsp/dsp-exp.cnf:
+	(cd $(builddir)/../dsp && $(MAKE_CNF_EXPORT))

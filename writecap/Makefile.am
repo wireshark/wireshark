@@ -19,7 +19,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS)
@@ -39,13 +38,12 @@ EXTRA_DIST = \
 	.editorconfig		\
 	$(GENERATOR_FILES)	\
 	CMakeLists.txt		\
-	doxygen.cfg.in		\
-	Makefile.common
+	doxygen.cfg.in
 
 # All sources that should be put in the source distribution tarball
 libwritecap_a_SOURCES = \
-	$(WRITECAP_SRC) \
-	$(noinst_HEADERS)
+	pcapio.c	\
+	pcapio.h
 
 #
 # This is used to build dumpcap, and dumpcap is, if possible, built as
