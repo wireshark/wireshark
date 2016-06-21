@@ -24,6 +24,7 @@
 
 #include <glib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "packet.h"
 
 #include "capture_dissectors.h"
