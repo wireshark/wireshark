@@ -107,7 +107,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 
     /* If this frame's relative time is negative, set its relative time to last_relative_time
        rather than disincluding it from the calculations. */
-    if (pinfo->rel_ts.secs >= 0) {
+    if ((pinfo->rel_ts.secs >= 0) && (pinfo->rel_ts.nsecs >= 0)) {
         relative_time = ((guint64)pinfo->rel_ts.secs * G_GUINT64_CONSTANT(1000000)) +
                         ((guint64)((pinfo->rel_ts.nsecs+500)/1000));
         last_relative_time = relative_time;
