@@ -1303,8 +1303,15 @@ dissector_add_string(const char *name, const gchar *pattern,
 	char *key;
 
 	/*
-	 * Make sure the dissector table exists.
+	 * Make sure the handle and the dissector table exist.
 	 */
+	if (handle == NULL) {
+		fprintf(stderr, "OOPS: handle to register \"%s\" to doesn't exist\n",
+		    name);
+		if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+			abort();
+		return;
+	}
 	if (sub_dissectors == NULL) {
 		fprintf(stderr, "OOPS: dissector table \"%s\" doesn't exist\n",
 		    name);
@@ -1315,8 +1322,6 @@ dissector_add_string(const char *name, const gchar *pattern,
 		return;
 	}
 
-	/* sanity checks */
-	g_assert(handle!=NULL);
 	switch (sub_dissectors->type) {
 
 	case FT_STRING:
@@ -1600,8 +1605,15 @@ void dissector_add_guid(const char *name, guid_key* guid_val, dissector_handle_t
 	sub_dissectors = find_dissector_table(name);
 
 	/*
-	 * Make sure the dissector table exists.
+	 * Make sure the handle and the dissector table exist.
 	 */
+	if (handle == NULL) {
+		fprintf(stderr, "OOPS: handle to register \"%s\" to doesn't exist\n",
+		    name);
+		if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+			abort();
+		return;
+	}
 	if (sub_dissectors == NULL) {
 		fprintf(stderr, "OOPS: dissector table \"%s\" doesn't exist\n",
 		    name);
@@ -1612,9 +1624,7 @@ void dissector_add_guid(const char *name, guid_key* guid_val, dissector_handle_t
 		return;
 	}
 
-	/* sanity checks */
-	g_assert(handle!=NULL);
-    if (sub_dissectors->type != FT_GUID) {
+	if (sub_dissectors->type != FT_GUID) {
 		g_assert_not_reached();
 	}
 
