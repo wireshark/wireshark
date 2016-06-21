@@ -353,7 +353,7 @@ SetShellVarContext all
 
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\${UNINSTALLER_NAME}"
-File "${STAGING_DIR}\wiretap-${WTAP_VERSION}.dll"
+File "${STAGING_DIR}\libwiretap.dll"
 !ifdef ENABLE_LIBWIRESHARK
 File "${STAGING_DIR}\libwireshark.dll"
 !endif

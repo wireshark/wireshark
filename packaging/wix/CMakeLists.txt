@@ -93,8 +93,6 @@ string(REPLACE "_" "." PCAP_DISPLAY_VERSION "${WINPCAP_PACKAGE_VERSION}")
 set(USBPCAP_DISPLAY_VERSION "1.1.0.0-g794bf26-3")
 
 set(PRODUCT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}.${PROJECT_BUILD_VERSION})
-# XXX Shouldn't this reflect the API / ABI version?
-set(WTAP_VERSION ${PROJECT_VERSION})
 
 # To do:
 # - Sync the various version names between CMake and Wix.
@@ -300,7 +298,6 @@ set(WIX_CANDLE_DEFINES
 	-dPlatform=${TARGET_MACHINE}
 	-dWiresharkName=${CMAKE_PROJECT_NAME}
 	-dWiresharkVersion=${PRODUCT_VERSION}
-	-dWiretapVersion=${WTAP_VERSION}
 	-dAssetDir=${CMAKE_SOURCE_DIR}/packaging/wix
 	-dBuildOutputDir=${EXECUTABLE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}
 	-dVCRedistVersion=${MSVC_CRT_VERSION}

@@ -119,14 +119,12 @@ add_dependencies(wiretap version)
 set(FULL_SO_VERSION "0.0.0")
 
 set_target_properties(wiretap PROPERTIES
+	PREFIX "lib"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	VERSION ${FULL_SO_VERSION} SOVERSION 0
 	FOLDER "DLLs"
 )
-IF(MSVC)
-	set_target_properties(wiretap PROPERTIES OUTPUT_NAME "wiretap-${PROJECT_VERSION}")
-ENDIF()
 
 if(ENABLE_APPLICATION_BUNDLE)
 	set_target_properties(wiretap PROPERTIES

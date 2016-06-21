@@ -19,7 +19,7 @@
     <Fragment>
       <DirectoryRef Id="INSTALLFOLDER">
         <Component Id="cmpWiretap_dll" Guid="*">
-          <File Id="filWiretap_dll" KeyPath="yes" Source="$(var.Staging.Dir)\wiretap-$(var.WiretapVersion).dll" />
+          <File Id="filWiretap_dll" KeyPath="yes" Source="$(var.Staging.Dir)\libwiretap.dll" />
         </Component>
         <?ifdef ENABLE_LIBWIRESHARK?>
           <Component Id="cmpLibwireshark_dll" Guid="*">
