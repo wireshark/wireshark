@@ -52,8 +52,6 @@ typedef enum {
     AT_STRINGZ,            /* null-terminated string */
     AT_EUI64,              /* IEEE EUI-64 */
     AT_IB,                 /* Infiniband GID/LID */
-    AT_USB,                /* USB Device address
-                            * (0xffffffff represents the host) */
     AT_AX25,               /* AX.25 */
 
     AT_END_OF_LIST         /* Must be last in list */

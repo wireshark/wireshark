@@ -31,8 +31,6 @@
 #include "wsutil/str_util.h"
 #include "wsutil/inet_addr.h"
 
-#include <epan/dissectors/packet-mtp3.h>
-
 struct _address_type_t {
     int                     addr_type; /* From address_type enumeration or registered value */
     const char             *name;
@@ -489,30 +487,6 @@ static int ib_str_len(const address* addr _U_)
 }
 
 /******************************************************************************
- * AT_USB
- * XXX - This functionality should really be in packet-usb.c as a dissector
- * address type, but currently need support of AT_USB in conversation_table.c
- ******************************************************************************/
-static int usb_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
-{
-    const guint8 *addrp = (const guint8 *)addr->data;
-
-    if(pletoh32(&addrp[0])==0xffffffff){
-        g_strlcpy(buf, "host", buf_len);
-    } else {
-        g_snprintf(buf, buf_len, "%d.%d.%d", pletoh16(&addrp[8]),
-                        pletoh32(&addrp[0]), pletoh32(&addrp[4]));
-    }
-
-    return (int)(strlen(buf)+1);
-}
-
-static int usb_addr_str_len(const address* addr _U_)
-{
-    return 50;
-}
-
-/******************************************************************************
  * AT_AX25
  ******************************************************************************/
 static int ax25_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
@@ -692,18 +666,6 @@ void address_types_initialize(void)
         NULL,              /* addr_name_res_len */
     };
 
-    static address_type_t usb_address = {
-        AT_USB,          /* addr_type */
-        "AT_USB",        /* name */
-        "USB Address",   /* pretty_name */
-        usb_addr_to_str, /* addr_to_str */
-        usb_addr_str_len, /* addr_str_len */
-        NULL,              /* addr_col_filter */
-        NULL,              /* addr_fixed_len */
-        NULL,              /* addr_name_res_str */
-        NULL,              /* addr_name_res_len */
-    };
-
     static address_type_t ax25_address = {
         AT_AX25,          /* addr_type */
         "AT_AX25",        /* name */
@@ -733,7 +695,6 @@ void address_types_initialize(void)
     address_type_register(AT_STRINGZ, &stringz_address );
     address_type_register(AT_EUI64, &eui64_address );
     address_type_register(AT_IB, &ib_address );
-    address_type_register(AT_USB, &usb_address );
     address_type_register(AT_AX25, &ax25_address );
 }
 

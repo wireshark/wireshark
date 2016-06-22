@@ -29,6 +29,7 @@
 #include "packet_info.h"
 #include "conversation_table.h"
 #include "addr_resolv.h"
+#include "address_types.h"
 
 #include "stat_tap_ui.h"
 
@@ -396,24 +397,30 @@ ct_port_to_str(port_type ptype, guint32 port)
     return NULL;
 }
 
+static int usb_address_type = -1;
+
 char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e direction)
 {
     char *sport, *dport, *src_addr, *dst_addr;
     char *str;
+
+    /* XXX - Hack until we find something better */
+    if (usb_address_type == -1)
+        usb_address_type = address_type_get_by_name("AT_USB");
 
     sport = ct_port_to_str(conv_item->ptype, conv_item->src_port);
     dport = ct_port_to_str(conv_item->ptype, conv_item->dst_port);
     src_addr = address_to_str(NULL, &conv_item->src_address);
     dst_addr = address_to_str(NULL, &conv_item->dst_address);
 
-    if (conv_item->src_address.type == AT_STRINGZ || conv_item->src_address.type == AT_USB) {
+    if (conv_item->src_address.type == AT_STRINGZ || conv_item->src_address.type == usb_address_type) {
         char *new_addr;
 
         new_addr = wmem_strdup_printf(NULL, "\"%s\"", src_addr);
         wmem_free(NULL, src_addr);
         src_addr = new_addr;
     }
-    if (conv_item->dst_address.type == AT_STRINGZ || conv_item->dst_address.type == AT_USB) {
+    if (conv_item->dst_address.type == AT_STRINGZ || conv_item->dst_address.type == usb_address_type) {
         char *new_addr;
 
         new_addr = wmem_strdup_printf(NULL, "\"%s\"", dst_addr);
@@ -555,9 +562,13 @@ char *get_hostlist_filter(hostlist_talker_t *host)
     char *sport, *src_addr;
     char *str;
 
+    /* XXX - Hack until we find something better */
+    if (usb_address_type == -1)
+        usb_address_type = address_type_get_by_name("AT_USB");
+
     sport = ct_port_to_str(host->ptype, host->port);
     src_addr = address_to_str(NULL, &host->myaddress);
-    if (host->myaddress.type == AT_STRINGZ || host->myaddress.type == AT_USB) {
+    if (host->myaddress.type == AT_STRINGZ || host->myaddress.type == usb_address_type) {
         char *new_addr;
 
         new_addr = wmem_strdup_printf(NULL, "\"%s\"", src_addr);

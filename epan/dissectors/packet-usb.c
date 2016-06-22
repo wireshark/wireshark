@@ -31,11 +31,13 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/addr_resolv.h>
+#include <epan/address_types.h>
 #include <epan/conversation_table.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
+#include <wsutil/pint.h>
 
 #include "packet-usb.h"
 #include "packet-mausb.h"
@@ -254,6 +256,8 @@ static expert_field ei_usb_bLength_even = EI_INIT;
 static expert_field ei_usb_bLength_too_short = EI_INIT;
 static expert_field ei_usb_desc_length_invalid = EI_INIT;
 static expert_field ei_usb_invalid_setup = EI_INIT;
+
+static int usb_address_type = -1;
 
 static const int *usb_endpoint_fields[] = {
     &hf_usb_endpoint_direction,
@@ -1255,6 +1259,27 @@ static value_string_ext usb_app_usb_test_and_measurement_protocol_vals_ext = VAL
 void proto_register_usb(void);
 void proto_reg_handoff_usb(void);
 
+/* USB address handling */
+static int usb_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
+{
+    const guint8 *addrp = (const guint8 *)addr->data;
+
+    if(pletoh32(&addrp[0])==0xffffffff){
+        g_strlcpy(buf, "host", buf_len);
+    } else {
+        g_snprintf(buf, buf_len, "%d.%d.%d", pletoh16(&addrp[8]),
+                        pletoh32(&addrp[0]), pletoh32(&addrp[4]));
+    }
+
+    return (int)(strlen(buf)+1);
+}
+
+static int usb_addr_str_len(const address* addr _U_)
+{
+    return 50;
+}
+
+
 /* This keys provide information for DecodeBy and other dissector via
    per packet data: p_get_proto_data()/p_add_proto_data() */
 #define USB_BUS_ID           0
@@ -1441,13 +1466,13 @@ get_usb_iface_conv_info(packet_info *pinfo, guint8 interface_num)
 
 static const char* usb_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
 {
-    if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_USB))
+    if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == usb_address_type))
         return "usb.src";
 
-    if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == AT_USB))
+    if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == usb_address_type))
         return "usb.dst";
 
-    if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == AT_USB))
+    if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == usb_address_type))
         return "usb.addr";
 
     return CONV_FILTER_INVALID;
@@ -1466,7 +1491,7 @@ usb_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
 
 static const char* usb_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
 {
-    if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == AT_USB))
+    if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == usb_address_type))
         return "usb.addr";
 
     return CONV_FILTER_INVALID;
@@ -2102,7 +2127,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
             usb_addr->bus_id = ((const usb_address_t *)(pinfo->src.data))->bus_id;
             usb_addr->device = ((const usb_address_t *)(pinfo->src.data))->device;
             usb_addr->endpoint = GUINT32_TO_LE(endpoint);
-            set_address(&tmp_addr, AT_USB, USB_ADDR_LEN, (char *)usb_addr);
+            set_address(&tmp_addr, usb_address_type, USB_ADDR_LEN, (char *)usb_addr);
             conversation = get_usb_conversation(pinfo, &tmp_addr, &pinfo->dst, usb_addr->endpoint, pinfo->destport);
         }
 
@@ -3107,7 +3132,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
                     dst_addr->bus_id = usb_conv_info->bus_id;
                     dst_addr->device = usb_conv_info->device_address;
                     dst_addr->endpoint = dst_endpoint = GUINT32_TO_LE(endpoint);
-                    set_address(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)dst_addr);
+                    set_address(&endpoint_addr, usb_address_type, USB_ADDR_LEN, (char *)dst_addr);
 
                     conversation = get_usb_conversation(pinfo, &pinfo->src, &endpoint_addr, pinfo->srcport, dst_endpoint);
                 }
@@ -3116,7 +3141,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
                     src_addr->bus_id = usb_conv_info->bus_id;
                     src_addr->device = usb_conv_info->device_address;
                     src_addr->endpoint = src_endpoint = GUINT32_TO_LE(endpoint);
-                    set_address(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)src_addr);
+                    set_address(&endpoint_addr, usb_address_type, USB_ADDR_LEN, (char *)src_addr);
 
                     conversation  = get_usb_conversation(pinfo, &endpoint_addr, &pinfo->dst, src_endpoint, pinfo->destport);
                 }
@@ -3517,9 +3542,9 @@ usb_set_addr(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint16 bus_id
     src_addr->bus_id = GUINT16_TO_LE(bus_id);
     dst_addr->bus_id = GUINT16_TO_LE(bus_id);
 
-    set_address(&pinfo->net_src, AT_USB, USB_ADDR_LEN, (char *)src_addr);
+    set_address(&pinfo->net_src, usb_address_type, USB_ADDR_LEN, (char *)src_addr);
     copy_address_shallow(&pinfo->src, &pinfo->net_src);
-    set_address(&pinfo->net_dst, AT_USB, USB_ADDR_LEN, (char *)dst_addr);
+    set_address(&pinfo->net_dst, usb_address_type, USB_ADDR_LEN, (char *)dst_addr);
     copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
     pinfo->ptype = PT_USB;
@@ -5289,6 +5314,8 @@ proto_register_usb(void)
     register_decode_as(&usb_protocol_da);
     register_decode_as(&usb_product_da);
     register_decode_as(&usb_device_da);
+
+    usb_address_type = address_type_dissector_register("AT_USB", "USB Address", usb_addr_to_str, usb_addr_str_len, NULL, NULL, NULL, NULL);
 
     register_conversation_table(proto_usb, TRUE, usb_conversation_packet, usb_hostlist_packet);
 }
