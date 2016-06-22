@@ -37,6 +37,7 @@ struct _address_type_t {
     const char             *pretty_name;
     AddrValueToString       addr_to_str;
     AddrValueToStringLen    addr_str_len;
+    AddrValueToByte         addr_to_byte;
     AddrColFilterString     addr_col_filter;
     AddrFixedLen            addr_fixed_len;
     AddrNameResolutionToString addr_name_res_str;
@@ -84,7 +85,7 @@ static void address_type_register(int addr_type, address_type_t *at)
 
 int address_type_dissector_register(const char* name, const char* pretty_name,
                                     AddrValueToString to_str_func, AddrValueToStringLen str_len_func,
-                                    AddrColFilterString col_filter_str_func, AddrFixedLen fixed_len_func,
+                                    AddrValueToByte to_bytes_func, AddrColFilterString col_filter_str_func, AddrFixedLen fixed_len_func,
                                     AddrNameResolutionToString name_res_str_func, AddrNameResolutionLen name_res_len_func)
 {
     int addr_type;
@@ -107,6 +108,7 @@ int address_type_dissector_register(const char* name, const char* pretty_name,
     dissector_type_addresses[num_dissector_addr_type].pretty_name = pretty_name;
     dissector_type_addresses[num_dissector_addr_type].addr_to_str = to_str_func;
     dissector_type_addresses[num_dissector_addr_type].addr_str_len = str_len_func;
+    dissector_type_addresses[num_dissector_addr_type].addr_to_byte = to_bytes_func;
     dissector_type_addresses[num_dissector_addr_type].addr_col_filter = col_filter_str_func;
     dissector_type_addresses[num_dissector_addr_type].addr_fixed_len = fixed_len_func;
     dissector_type_addresses[num_dissector_addr_type].addr_name_res_str = name_res_str_func;
@@ -133,7 +135,6 @@ int address_type_get_by_name(const char* name)
 
     return -1;
 }
-
 
 /******************************************************************************
  * AT_NONE
@@ -512,6 +513,7 @@ void address_types_initialize(void)
         "No address",       /* pretty_name */
         none_addr_to_str,   /* addr_to_str */
         none_addr_str_len,  /* addr_str_len */
+        NULL,               /* addr_to_byte */
         NULL,               /* addr_col_filter */
         none_addr_len,      /* addr_fixed_len */
         none_name_res_str, /* addr_name_res_str */
@@ -524,6 +526,7 @@ void address_types_initialize(void)
         "Ethernet address", /* pretty_name */
         ether_to_str,       /* addr_to_str */
         ether_str_len,      /* addr_str_len */
+        NULL,               /* addr_to_byte */
         ether_col_filter_str, /* addr_col_filter */
         ether_len,          /* addr_fixed_len */
         ether_name_resolution_str, /* addr_name_res_str */
@@ -536,6 +539,7 @@ void address_types_initialize(void)
         "IPv4 address",     /* pretty_name */
         ipv4_to_str,        /* addr_to_str */
         ipv4_str_len,       /* addr_str_len */
+        NULL,               /* addr_to_byte */
         ipv4_col_filter_str, /* addr_col_filter */
         ipv4_len,           /* addr_fixed_len */
         ipv4_name_res_str, /* addr_name_res_str */
@@ -548,6 +552,7 @@ void address_types_initialize(void)
         "IPv6 address",     /* pretty_name */
         ipv6_to_str,        /* addr_to_str */
         ipv6_str_len,       /* addr_str_len */
+        NULL,               /* addr_to_byte */
         ipv6_col_filter_str, /* addr_col_filter */
         ipv6_len,            /* addr_fixed_len */
         ipv6_name_res_str, /* addr_name_res_str */
@@ -560,6 +565,7 @@ void address_types_initialize(void)
         "IPX address",      /* pretty_name */
         ipx_to_str,         /* addr_to_str */
         ipx_str_len,        /* addr_str_len */
+        NULL,               /* addr_to_byte */
         NULL,               /* addr_col_filter */
         ipx_len,            /* addr_fixed_len */
         NULL,               /* addr_name_res_str */
@@ -572,6 +578,7 @@ void address_types_initialize(void)
         "FC address",   /* pretty_name */
         fc_to_str,      /* addr_to_str */
         fc_str_len,     /* addr_str_len */
+        NULL,           /* addr_to_byte */
         NULL,           /* addr_col_filter */
         fc_len,         /* addr_fixed_len */
         NULL,           /* addr_name_res_str */
@@ -584,6 +591,7 @@ void address_types_initialize(void)
         "Fibre Channel WWN",    /* pretty_name */
         fcwwn_to_str,   /* addr_to_str */
         fcwwn_str_len,  /* addr_str_len */
+        NULL,           /* addr_to_byte */
         NULL,           /* addr_col_filter */
         fcwwn_len,         /* addr_fixed_len */
         fcwwn_name_res_str, /* addr_name_res_str */
@@ -596,6 +604,7 @@ void address_types_initialize(void)
         "String address",   /* pretty_name */
         stringz_addr_to_str, /* addr_to_str */
         stringz_addr_str_len, /* addr_str_len */
+        NULL,              /* addr_to_byte */
         NULL,              /* addr_col_filter */
         NULL,              /* addr_fixed_len */
         NULL,              /* addr_name_res_str */
@@ -608,6 +617,7 @@ void address_types_initialize(void)
         "IEEE EUI-64",     /* pretty_name */
         eui64_addr_to_str, /* addr_to_str */
         eui64_str_len,     /* addr_str_len */
+        NULL,              /* addr_to_byte */
         NULL,              /* addr_col_filter */
         eui64_len,         /* addr_fixed_len */
         NULL,              /* addr_name_res_str */
@@ -620,6 +630,7 @@ void address_types_initialize(void)
         "Infiniband GID/LID",   /* pretty_name */
         ib_addr_to_str,  /* addr_to_str */
         ib_str_len,      /* addr_str_len */
+        NULL,              /* addr_to_byte */
         NULL,              /* addr_col_filter */
         NULL,              /* addr_fixed_len */
         NULL,              /* addr_name_res_str */
@@ -632,6 +643,7 @@ void address_types_initialize(void)
         "AX.25 Address",  /* pretty_name */
         ax25_addr_to_str, /* addr_to_str */
         ax25_addr_str_len,/* addr_str_len */
+        NULL,             /* addr_to_byte */
         ax25_col_filter_str, /* addr_col_filter */
         ax25_len,          /* addr_fixed_len */
         NULL,              /* addr_name_res_str */
@@ -705,6 +717,34 @@ void address_to_str_buf(const address* addr, gchar *buf, int buf_len)
     }
 
     at->addr_to_str(addr, buf, buf_len);
+}
+
+
+guint address_to_bytes(const address *addr, guint8 *buf, guint buf_len)
+{
+    address_type_t *at;
+    guint copy_len = 0;
+
+    if (!buf || !buf_len)
+        return 0;
+
+    ADDR_TYPE_LOOKUP(addr->type, at);
+
+    if (at == NULL)
+        return 0;
+
+    if (at->addr_to_byte == NULL)
+    {
+        /* If a specific function isn't provided, just do a memcpy */
+        copy_len = MIN(((guint)addr->len), buf_len);
+        memcpy(buf, addr->data, copy_len);
+    }
+    else
+    {
+        copy_len = at->addr_to_byte(addr, buf, buf_len);
+    }
+
+    return copy_len;
 }
 
 const gchar *

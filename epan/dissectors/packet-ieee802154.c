@@ -3551,7 +3551,7 @@ void proto_register_ieee802154(void)
     expert_register_field_array(expert_ieee802154, ei, array_length(ei));
 
     ieee802_15_4_short_address_type = address_type_dissector_register("AT_IEEE_802_15_4_SHORT", "IEEE 802.15.4 16-bit short address",
-                                        ieee802_15_4_short_address_to_str, ieee802_15_4_short_address_str_len, NULL, ieee802_15_4_short_address_len, NULL, NULL);
+                                        ieee802_15_4_short_address_to_str, ieee802_15_4_short_address_str_len, NULL, NULL, ieee802_15_4_short_address_len, NULL, NULL);
 
     /* add a user preference to set the 802.15.4 ethertype */
     ieee802154_module = prefs_register_protocol(proto_ieee802154,

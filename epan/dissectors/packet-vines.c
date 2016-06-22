@@ -726,7 +726,7 @@ proto_register_vines_ip(void)
 	vines_ip_handle = create_dissector_handle(dissect_vines_ip,
 	    proto_vines_ip);
 
-	vines_address_type = address_type_dissector_register("AT_VINES", "Banyan Vines address", vines_to_str, vines_str_len, NULL, vines_len, NULL, NULL);
+	vines_address_type = address_type_dissector_register("AT_VINES", "Banyan Vines address", vines_to_str, vines_str_len, NULL, NULL, vines_len, NULL, NULL);
 }
 
 void

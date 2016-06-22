@@ -352,6 +352,8 @@ add_address_to_hash64(guint64 hash_val, const address *addr) {
     return hash_val;
 }
 
+WS_DLL_PUBLIC guint address_to_bytes(const address *addr, guint8 *buf, guint buf_len);
+
 /* Types of port numbers Wireshark knows about. */
 typedef enum {
     PT_NONE,            /* no port number */

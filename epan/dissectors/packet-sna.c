@@ -3468,7 +3468,7 @@ proto_register_sna(void)
 	    "Systems Network Architecture XID", "SNA XID", "sna_xid");
 	register_dissector("sna_xid", dissect_sna_xid, proto_sna_xid);
 
-	sna_address_type = address_type_dissector_register("AT_SNA", "SNA Address", sna_fid_to_str_buf, sna_address_str_len, NULL, NULL, NULL, NULL);
+	sna_address_type = address_type_dissector_register("AT_SNA", "SNA Address", sna_fid_to_str_buf, sna_address_str_len, NULL, NULL, NULL, NULL, NULL);
 
 	/* Register configuration options */
 	sna_module = prefs_register_protocol(proto_sna, NULL);

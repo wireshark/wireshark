@@ -2230,7 +2230,7 @@ void proto_register_irda(void)
     }
     proto_register_subtree_array(ett_iap_e, MAX_IAP_ENTRIES);
 
-    irda_address_type = address_type_dissector_register("AT_IRDA", "IRDA Address", irda_addr_to_str, irda_addr_str_len, irda_col_filter_str, irda_addr_len, NULL, NULL);
+    irda_address_type = address_type_dissector_register("AT_IRDA", "IRDA Address", irda_addr_to_str, irda_addr_str_len, NULL, irda_col_filter_str, irda_addr_len, NULL, NULL);
 }
 
 

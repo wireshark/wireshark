@@ -1538,7 +1538,7 @@ proto_register_mp2t(void)
     expert_mp2t = expert_register_protocol(proto_mp2t);
     expert_register_field_array(expert_mp2t, ei, array_length(ei));
 
-    mp2t_no_address_type = address_type_dissector_register("AT_MP2T_NONE", "No MP2T Address", none_addr_to_str, none_addr_str_len, NULL, none_addr_len, NULL, NULL);
+    mp2t_no_address_type = address_type_dissector_register("AT_MP2T_NONE", "No MP2T Address", none_addr_to_str, none_addr_str_len, NULL, NULL, none_addr_len, NULL, NULL);
 
     heur_subdissector_list = register_heur_dissector_list("mp2t.pid", proto_mp2t);
     /* Register init of processing of fragmented DEPI packets */

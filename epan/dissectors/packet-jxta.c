@@ -2355,7 +2355,7 @@ void proto_register_jxta(void)
     /* Register JXTA Sub-tree */
     proto_register_subtree_array(ett, array_length(ett));
 
-    uri_address_type = address_type_dissector_register("AT_URI", "URI/URL/URN", uri_to_str, uri_str_len, uri_col_filter_str, NULL, NULL, NULL);
+    uri_address_type = address_type_dissector_register("AT_URI", "URI/URL/URN", uri_to_str, uri_str_len, NULL, uri_col_filter_str, NULL, NULL, NULL);
 
     /* Register preferences */
     /* register re-init routine */

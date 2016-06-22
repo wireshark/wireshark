@@ -465,7 +465,7 @@ proto_register_mstp(void)
 	    "MSTP Vendor specific Frametypes", proto_mstp, FT_UINT24, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 	/* Table_type: (Vendor ID << 16) + Frametype */
 
-	mstp_address_type = address_type_dissector_register("AT_MSTP", "BACnet MS/TP Address", mstp_to_str, mstp_str_len, mstp_col_filter_str, mstp_len, NULL, NULL);
+	mstp_address_type = address_type_dissector_register("AT_MSTP", "BACnet MS/TP Address", mstp_to_str, mstp_str_len, NULL, mstp_col_filter_str, mstp_len, NULL, NULL);
 }
 
 void

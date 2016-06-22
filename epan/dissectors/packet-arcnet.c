@@ -394,7 +394,7 @@ proto_register_arcnet (void)
   arcnet_dissector_table = register_dissector_table ("arcnet.protocol_id", "ARCNET Protocol ID",
                                                      proto_arcnet, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-  arcnet_address_type = address_type_dissector_register("AT_ARCNET", "ARCNET Address", arcnet_to_str, arcnet_str_len, arcnet_col_filter_str, arcnet_len, NULL, NULL);
+  arcnet_address_type = address_type_dissector_register("AT_ARCNET", "ARCNET Address", arcnet_to_str, arcnet_str_len, NULL, arcnet_col_filter_str, arcnet_len, NULL, NULL);
 }
 
 
