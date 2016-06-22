@@ -1135,7 +1135,7 @@ void MainWindow::importCaptureFile() {
     openCaptureFile(import_dlg.capfileName());
 }
 
-void MainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
+bool MainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
     QString file_name;
     gboolean discard_comments;
 
@@ -1147,7 +1147,7 @@ void MainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
            probably pcap-ng, which supports comments and, if it's
            not pcap-ng, let the user decide what they want to do
            if they've added comments. */
-        saveAsCaptureFile(cf, FALSE, dont_reopen);
+        return saveAsCaptureFile(cf, FALSE, dont_reopen);
     } else {
         if (cf->unsaved_changes) {
             cf_write_status_t status;
@@ -1182,18 +1182,17 @@ void MainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
                    support comments, and the user said not to delete the
                    comments.  Do a "Save As" so the user can select
                    one of those formats and choose a file name. */
-                saveAsCaptureFile(cf, TRUE, dont_reopen);
-                return;
+                return saveAsCaptureFile(cf, TRUE, dont_reopen);
 
             case CANCELLED:
                 /* The user said "forget it".  Just return. */
-                return;
+                return false;
 
             default:
                 /* Squelch warnings that discard_comments is being used
                    uninitialized. */
                 g_assert_not_reached();
-                return;
+                return false;
             }
 
             /* XXX - cf->filename might get freed out from under us, because
@@ -1225,14 +1224,16 @@ void MainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
 
             case CF_WRITE_ABORTED:
                 /* The write was aborted; just drive on. */
-                break;
+                return false;
             }
         }
         /* Otherwise just do nothing. */
     }
+
+    return true;
 }
 
-void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments, bool dont_reopen) {
+bool MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments, bool dont_reopen) {
     QString file_name = "";
     int file_type;
     gboolean compressed;
@@ -1241,7 +1242,7 @@ void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
     gboolean discard_comments = FALSE;
 
     if (!cf) {
-        return;
+        return false;
     }
 
     for (;;) {
@@ -1279,7 +1280,7 @@ void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
         case CANCELLED:
             /* The user said "forget it".  Just get rid of the dialog box
                and return. */
-            return;
+            return false;
         }
         file_type = save_as_dlg.selectedFileType();
         compressed = save_as_dlg.isCompressed();
@@ -1313,7 +1314,7 @@ void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
 
             cf->unsaved_changes = false; //we just saved so we signal that we have no unsaved changes
             updateForUnsavedChanges(); // we update the title bar to remove the *
-            return;
+            return true;
 
         case CF_WRITE_ERROR:
             /* The save failed; let the user try again. */
@@ -1321,10 +1322,10 @@ void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
 
         case CF_WRITE_ABORTED:
             /* The user aborted the save; just return. */
-            return;
+            return false;
         }
     }
-    return;
+    return true;
 }
 
 void MainWindow::exportSelectedPackets() {
@@ -1631,7 +1632,8 @@ bool MainWindow::testCaptureFileClose(QString before_what, FileCloseContext cont
                     captureStop();
 #endif
                 /* Save the file and close it */
-                saveCaptureFile(capture_file_.capFile(), true);
+                if (saveCaptureFile(capture_file_.capFile(), true) == false)
+                    return false;
                 do_close_file = true;
             } else if(msg_dialog.clickedButton() == discard_button) {
                 /* Just close the file, discarding changes */
