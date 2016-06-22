@@ -651,11 +651,10 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const c
 
     if (0 == strcmp(key_type, "ssh-rsa")) {
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_rsa_e);
-        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_rsa_n);
+        ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_rsa_n);
     } else {
         remaining_len = key_len - (type_len + 4);
         proto_tree_add_item(tree, hf_ssh_hostkey_data, tvb, offset, remaining_len, ENC_NA);
-        offset += remaining_len;
     }
 
     return 4+key_len;
