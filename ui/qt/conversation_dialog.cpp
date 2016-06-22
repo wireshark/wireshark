@@ -48,6 +48,7 @@
 // - Add follow, copy & graph actions to context menu.
 
 // Bugs:
+// - Slow for large numbers of items.
 // - Name resolution doesn't do anything if its preference is disabled.
 // - Columns don't resize correctly.
 // - Closing the capture file clears conversation data.
@@ -56,7 +57,7 @@
 // - Friendly unit displays https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9231
 // - Misleading bps calculation https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8703
 
-const QString table_name_ = QObject::tr("Conversation");
+static const QString table_name_ = QObject::tr("Conversation");
 ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
     TrafficTableDialog(parent, cf, filter, table_name_)
 {
@@ -310,21 +311,26 @@ void init_conversation_table(struct register_ct* ct, const char *filter)
 
 // Minimum bandwidth calculation duration
 // https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8703
-const double min_bw_calc_duration_ = 5 / 1000.0; // seconds
-const QString bps_na_ = QObject::tr("N/A");
+static const double min_bw_calc_duration_ = 5 / 1000.0; // seconds
+static const char *bps_na_ = UTF8_EM_DASH;
 
-const int ci_col_ = 0;
-const int pkts_col_ = 1;
 class ConversationTreeWidgetItem : public TrafficTableTreeWidgetItem
 {
 public:
-    ConversationTreeWidgetItem(QTreeWidget *tree) : TrafficTableTreeWidgetItem(tree)  {}
-    ConversationTreeWidgetItem(QTreeWidget *parent, const QStringList &strings)
-                   : TrafficTableTreeWidgetItem (parent, strings)  {}
+    ConversationTreeWidgetItem(QTreeWidget *tree, GArray *conv_array, guint conv_idx) :
+        TrafficTableTreeWidgetItem(tree),
+        conv_array_(conv_array),
+        conv_idx_(conv_idx),
+        last_packets_(0)
+    {}
+
+    conv_item_t *convItem() {
+        return &g_array_index(conv_array_, conv_item_t, conv_idx_);
+    }
 
     // Set column text to its cooked representation.
     void update(gboolean resolve_names, bool force) {
-        conv_item_t *conv_item = data(ci_col_, Qt::UserRole).value<conv_item_t *>();
+        conv_item_t *conv_item = &g_array_index(conv_array_, conv_item_t, conv_idx_);
         char *src_addr, *dst_addr, *src_port, *dst_port;
 
         if (!conv_item) {
@@ -332,13 +338,8 @@ public:
         }
 
         quint64 packets = conv_item->tx_frames + conv_item->rx_frames;
-        if (!force) {
-            bool ok;
-            quint64 cur_packets = data(pkts_col_, Qt::UserRole).toULongLong(&ok);
-
-            if (ok && cur_packets == packets) {
-                return;
-            }
+        if (!force && last_packets_ == packets) {
+            return;
         }
 
         src_addr = (char*)get_conversation_address(NULL, &conv_item->src_address, resolve_names);
@@ -377,12 +378,12 @@ public:
         }
         setText(CONV_COLUMN_BPS_AB, bps_ab);
         setText(CONV_COLUMN_BPS_BA, bps_ba);
-        setData(pkts_col_, Qt::UserRole, qVariantFromValue(packets));
+        last_packets_ = packets;
     }
 
     // Return a QString, qulonglong, double, or invalid QVariant representing the raw column data.
     QVariant colData(int col, bool resolve_names) const {
-        conv_item_t *conv_item = data(ci_col_, Qt::UserRole).value<conv_item_t *>();
+        conv_item_t *conv_item = &g_array_index(conv_array_, conv_item_t, conv_idx_);
 
         if (!conv_item) {
             return QVariant();
@@ -455,8 +456,9 @@ public:
 
     bool operator< (const QTreeWidgetItem &other) const
     {
-        conv_item_t *conv_item = data(ci_col_, Qt::UserRole).value<conv_item_t *>();
-        conv_item_t *other_item = other.data(ci_col_, Qt::UserRole).value<conv_item_t *>();
+        const ConversationTreeWidgetItem *other_row = static_cast<const ConversationTreeWidgetItem *>(&other);
+        conv_item_t *conv_item = &g_array_index(conv_array_, conv_item_t, conv_idx_);
+        conv_item_t *other_item = &g_array_index(other_row->conv_array_, conv_item_t, other_row->conv_idx_);
 
         if (!conv_item || !other_item) {
             return false;
@@ -499,6 +501,10 @@ public:
             return false;
         }
     }
+private:
+    GArray *conv_array_;
+    guint conv_idx_;
+    quint64 last_packets_;
 };
 
 // ConversationTreeWidget
@@ -610,7 +616,7 @@ ConversationTreeWidget::~ConversationTreeWidget() {
 void ConversationTreeWidget::tapReset(void *conv_hash_ptr)
 {
     conv_hash_t *hash = (conv_hash_t*)conv_hash_ptr;
-    ConversationTreeWidget *conv_tree = static_cast<ConversationTreeWidget *>(hash->user_data);
+    ConversationTreeWidget *conv_tree = qobject_cast<ConversationTreeWidget *>((ConversationTreeWidget *)hash->user_data);
     if (!conv_tree) return;
 
     conv_tree->clear();
@@ -620,7 +626,7 @@ void ConversationTreeWidget::tapReset(void *conv_hash_ptr)
 void ConversationTreeWidget::tapDraw(void *conv_hash_ptr)
 {
     conv_hash_t *hash = (conv_hash_t*)conv_hash_ptr;
-    ConversationTreeWidget *conv_tree = static_cast<ConversationTreeWidget *>(hash->user_data);
+    ConversationTreeWidget *conv_tree = qobject_cast<ConversationTreeWidget *>((ConversationTreeWidget *)hash->user_data);
     if (!conv_tree) return;
 
     conv_tree->updateItems(false);
@@ -659,9 +665,7 @@ void ConversationTreeWidget::updateItems(bool force) {
 
     setSortingEnabled(false);
     for (int i = topLevelItemCount(); i < (int) hash_.conv_array->len; i++) {
-        ConversationTreeWidgetItem *ctwi = new ConversationTreeWidgetItem(this);
-        conv_item_t *conv_item = &g_array_index(hash_.conv_array, conv_item_t, i);
-        ctwi->setData(ci_col_, Qt::UserRole, qVariantFromValue(conv_item));
+        ConversationTreeWidgetItem *ctwi = new ConversationTreeWidgetItem(this, hash_.conv_array, i);
         addTopLevelItem(ctwi);
 
         for (int col = 0; col < columnCount(); col++) {
@@ -697,7 +701,7 @@ void ConversationTreeWidget::filterActionTriggered()
         return;
     }
 
-    conv_item_t *conv_item = ctwi->data(ci_col_, Qt::UserRole).value<conv_item_t *>();
+    conv_item_t *conv_item = ctwi->convItem();
     if (!conv_item) {
         return;
     }
