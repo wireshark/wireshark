@@ -44,7 +44,7 @@
 #include <QPushButton>
 #include <QUrl>
 
-const QString table_name_ = QObject::tr("Endpoint");
+static const QString table_name_ = QObject::tr("Endpoint");
 EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
     TrafficTableDialog(parent, cf, filter, table_name_)
 {
@@ -210,21 +210,25 @@ void init_endpoint_table(struct register_ct* ct, const char *filter)
 // EndpointTreeWidgetItem
 // TrafficTableTreeWidgetItem / QTreeWidgetItem subclass that allows sorting
 
-const int ei_col_ = 0;
-const int pkts_col_ = 1;
-
-const char *geoip_none_ = "-";
+static const char *geoip_none_ = UTF8_EM_DASH;
 
 class EndpointTreeWidgetItem : public TrafficTableTreeWidgetItem
 {
 public:
-    EndpointTreeWidgetItem(QTreeWidget *tree) : TrafficTableTreeWidgetItem(tree)  {}
-    EndpointTreeWidgetItem(QTreeWidget *parent, const QStringList &strings)
-                   : TrafficTableTreeWidgetItem (parent, strings)  {}
+    EndpointTreeWidgetItem(QTreeWidget *tree, GArray *conv_array, guint conv_idx) :
+        TrafficTableTreeWidgetItem(tree),
+        conv_array_(conv_array),
+        conv_idx_(conv_idx),
+        last_packets_(0)
+    {}
+
+    hostlist_talker_t *hostlistTalker() {
+        return &g_array_index(conv_array_, hostlist_talker_t, conv_idx_);
+    }
 
     // Set column text to its cooked representation.
     void update(gboolean resolve_names, bool force) {
-        hostlist_talker_t *endp_item = data(ei_col_, Qt::UserRole).value<hostlist_talker_t *>();
+        hostlist_talker_t *endp_item = &g_array_index(conv_array_, hostlist_talker_t, conv_idx_);
         char *addr_str, *port_str;
 
         if (!endp_item) {
@@ -232,13 +236,8 @@ public:
         }
 
         quint64 packets = endp_item->tx_frames + endp_item->rx_frames;
-        if (!force) {
-            bool ok;
-            quint64 cur_packets = data(pkts_col_, Qt::UserRole).toULongLong(&ok);
-
-            if (ok && cur_packets == packets) {
-                return;
-            }
+        if (!force && last_packets_ == packets) {
+            return;
         }
 
         addr_str = get_conversation_address(NULL, &endp_item->myaddress, resolve_names);
@@ -262,7 +261,7 @@ public:
         setText(ENDP_COLUMN_PKT_BA, QString::number(endp_item->rx_frames));
         col_str = gchar_free_to_qstring(format_size(endp_item->rx_bytes, format_size_unit_none|format_size_prefix_si));
         setText(ENDP_COLUMN_BYTES_BA, col_str);
-        setData(pkts_col_, Qt::UserRole, qVariantFromValue(packets));
+        last_packets_ = packets;
 
 #ifdef HAVE_GEOIP
         /* Filled in from the GeoIP config, if any */
@@ -290,7 +289,7 @@ public:
 
     // Return a string, qulonglong, double, or invalid QVariant representing the raw column data.
     QVariant colData(int col, bool resolve_names) const {
-        hostlist_talker_t *endp_item = data(ei_col_, Qt::UserRole).value<hostlist_talker_t *>();
+        hostlist_talker_t *endp_item = &g_array_index(conv_array_, hostlist_talker_t, conv_idx_);
 
         if (!endp_item) {
             return QVariant();
@@ -357,8 +356,9 @@ public:
 
     bool operator< (const QTreeWidgetItem &other) const
     {
-        hostlist_talker_t *endp_item = data(ei_col_, Qt::UserRole).value<hostlist_talker_t *>();
-        hostlist_talker_t *other_item = other.data(ei_col_, Qt::UserRole).value<hostlist_talker_t *>();
+        const EndpointTreeWidgetItem *other_row = static_cast<const EndpointTreeWidgetItem *>(&other);
+        hostlist_talker_t *endp_item = &g_array_index(conv_array_, hostlist_talker_t, conv_idx_);
+        hostlist_talker_t *other_item = &g_array_index(other_row->conv_array_, hostlist_talker_t, other_row->conv_idx_);
 
         if (!endp_item || !other_item) {
             return false;
@@ -406,7 +406,10 @@ public:
 #endif
         }
     }
-
+private:
+    GArray *conv_array_;
+    guint conv_idx_;
+    quint64 last_packets_;
 };
 
 //
@@ -519,7 +522,7 @@ EndpointTreeWidget::~EndpointTreeWidget()
 void EndpointTreeWidget::tapReset(void *conv_hash_ptr)
 {
     conv_hash_t *hash = (conv_hash_t*)conv_hash_ptr;
-    EndpointTreeWidget *endp_tree = static_cast<EndpointTreeWidget *>(hash->user_data);
+    EndpointTreeWidget *endp_tree = qobject_cast<EndpointTreeWidget *>((EndpointTreeWidget *)hash->user_data);
     if (!endp_tree) return;
 
     endp_tree->clear();
@@ -529,7 +532,7 @@ void EndpointTreeWidget::tapReset(void *conv_hash_ptr)
 void EndpointTreeWidget::tapDraw(void *conv_hash_ptr)
 {
     conv_hash_t *hash = (conv_hash_t*)conv_hash_ptr;
-    EndpointTreeWidget *endp_tree = static_cast<EndpointTreeWidget *>(hash->user_data);
+    EndpointTreeWidget *endp_tree = qobject_cast<EndpointTreeWidget *>((EndpointTreeWidget *)hash->user_data);
     if (!endp_tree) return;
 
     endp_tree->updateItems(false);
@@ -563,9 +566,7 @@ void EndpointTreeWidget::updateItems(bool force)
 
     setSortingEnabled(false);
     for (int i = topLevelItemCount(); i < (int) hash_.conv_array->len; i++) {
-        EndpointTreeWidgetItem *etwi = new EndpointTreeWidgetItem(this);
-        hostlist_talker_t *endp_item = &g_array_index(hash_.conv_array, hostlist_talker_t, i);
-        etwi->setData(ei_col_, Qt::UserRole, qVariantFromValue(endp_item));
+        EndpointTreeWidgetItem *etwi = new EndpointTreeWidgetItem(this, hash_.conv_array, i);
         addTopLevelItem(etwi);
 
         for (int col = 0; col < columnCount(); col++) {
@@ -596,7 +597,7 @@ void EndpointTreeWidget::filterActionTriggered()
         return;
     }
 
-    hostlist_talker_t *endp_item = etwi->data(ei_col_, Qt::UserRole).value<hostlist_talker_t *>();
+    hostlist_talker_t *endp_item = etwi->hostlistTalker();
     if (!endp_item) {
         return;
     }
