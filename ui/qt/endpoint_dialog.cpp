@@ -210,7 +210,9 @@ void init_endpoint_table(struct register_ct* ct, const char *filter)
 // EndpointTreeWidgetItem
 // TrafficTableTreeWidgetItem / QTreeWidgetItem subclass that allows sorting
 
+#ifdef HAVE_GEOIP
 static const char *geoip_none_ = UTF8_EM_DASH;
+#endif
 
 class EndpointTreeWidgetItem : public TrafficTableTreeWidgetItem
 {
