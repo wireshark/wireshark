@@ -93,7 +93,7 @@ private slots:
 
 signals:
     void titleChanged(QWidget *tree, const QString &text);
-    void filterAction(QString& filter, FilterAction::Action action, FilterAction::ActionType type);
+    void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
 };
 
 class TrafficTableDialog : public WiresharkDialog
@@ -114,7 +114,7 @@ public:
 public slots:
 
 signals:
-    void filterAction(QString& filter, FilterAction::Action action, FilterAction::ActionType type);
+    void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
     void openFollowStreamDialog(follow_type_t type);
     void openTcpStreamGraph(int graph_type);
 

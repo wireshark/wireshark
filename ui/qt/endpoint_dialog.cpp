@@ -117,8 +117,8 @@ void EndpointDialog::captureFileClosing()
     // on a live capture file.
     for (int i = 0; i < trafficTableTabWidget()->count(); i++) {
         EndpointTreeWidget *cur_tree = qobject_cast<EndpointTreeWidget *>(trafficTableTabWidget()->widget(i));
-        disconnect(cur_tree, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
-                   this, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+        disconnect(cur_tree, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+                   this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     }
     displayFilterCheckBox()->setEnabled(false);
     enabledTypesPushButton()->setEnabled(false);
@@ -144,8 +144,8 @@ bool EndpointDialog::addTrafficTable(register_ct_t *table)
             this, SLOT(itemSelectionChanged()));
     connect(endp_tree, SIGNAL(titleChanged(QWidget*,QString)),
             this, SLOT(setTabText(QWidget*,QString)));
-    connect(endp_tree, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
-            this, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    connect(endp_tree, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+            this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     connect(nameResolutionCheckBox(), SIGNAL(toggled(bool)),
             endp_tree, SLOT(setNameResolutionEnabled(bool)));
 

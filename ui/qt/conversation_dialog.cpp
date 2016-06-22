@@ -128,8 +128,8 @@ void ConversationDialog::captureFileClosing()
     // on a live capture file.
     for (int i = 0; i < trafficTableTabWidget()->count(); i++) {
         ConversationTreeWidget *cur_tree = qobject_cast<ConversationTreeWidget *>(trafficTableTabWidget()->widget(i));
-        disconnect(cur_tree, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
-                   this, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+        disconnect(cur_tree, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+                   this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     }
     displayFilterCheckBox()->setEnabled(false);
     enabledTypesPushButton()->setEnabled(false);
@@ -157,8 +157,8 @@ bool ConversationDialog::addTrafficTable(register_ct_t* table)
             this, SLOT(itemSelectionChanged()));
     connect(conv_tree, SIGNAL(titleChanged(QWidget*,QString)),
             this, SLOT(setTabText(QWidget*,QString)));
-    connect(conv_tree, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
-            this, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    connect(conv_tree, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+            this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     connect(nameResolutionCheckBox(), SIGNAL(toggled(bool)),
             conv_tree, SLOT(setNameResolutionEnabled(bool)));
 

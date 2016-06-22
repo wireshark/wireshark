@@ -76,7 +76,7 @@ public:
     void drawTreeItems();
 
 signals:
-    void filterAction(QString& filter, FilterAction::Action action, FilterAction::ActionType type);
+    void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
     void updateFilter(QString filter);
 
 public slots:

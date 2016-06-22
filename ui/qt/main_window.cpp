@@ -319,6 +319,12 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->actionAnalyzeReloadLuaPlugins->setVisible(false);
 #endif
 
+    qRegisterMetaType<FilterAction::Action>("FilterAction::Action");
+    qRegisterMetaType<FilterAction::ActionType>("FilterAction::ActionType");
+    connect(this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+            this, SLOT(queuedFilterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+            Qt::QueuedConnection);
+
     //To prevent users use features before initialization complete
     //Otherwise unexpected problems may occur
     setFeaturesEnabled(false);

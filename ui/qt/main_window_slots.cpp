@@ -491,7 +491,8 @@ void MainWindow::updateRecentActions()
     main_ui_->actionViewColorizePacketList->setChecked(recent.packet_list_colorize);
 }
 
-void MainWindow::filterAction(QString &action_filter, FilterAction::Action action, FilterAction::ActionType type)
+// Don't connect to this directly. Connect to or emit fiterAction(...) instead.
+void MainWindow::queuedFilterAction(QString action_filter, FilterAction::Action action, FilterAction::ActionType type)
 {
     QString cur_filter, new_filter;
 
@@ -1588,8 +1589,8 @@ void MainWindow::openTapParameterDialog(const QString cfg_str, const QString arg
     TapParameterDialog *tp_dialog = TapParameterDialog::showTapParameterStatistics(*this, capture_file_, cfg_str, arg, userdata);
     if (!tp_dialog) return;
 
-    connect(tp_dialog, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
-            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    connect(tp_dialog, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+            this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     connect(tp_dialog, SIGNAL(updateFilter(QString)),
             df_combo_box_->lineEdit(), SLOT(setText(QString)));
     tp_dialog->show();
@@ -2542,7 +2543,7 @@ void MainWindow::matchFieldFilter(FilterAction::Action action, FilterAction::Act
         return;
     }
 
-    filterAction(field_filter, action, filter_type);
+    emit filterAction(field_filter, action, filter_type);
 }
 
 static FilterDialog *display_filter_dlg_ = NULL;
@@ -2787,8 +2788,8 @@ void MainWindow::on_actionSCTPFilterThisAssociation_triggered()
 void MainWindow::statCommandWlanStatistics(const char *arg, void *)
 {
     WlanStatisticsDialog *wlan_stats_dlg = new WlanStatisticsDialog(*this, capture_file_, arg);
-    connect(wlan_stats_dlg, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
-            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    connect(wlan_stats_dlg, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+            this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     wlan_stats_dlg->show();
 }
 
@@ -2807,8 +2808,8 @@ void MainWindow::statCommandExpertInfo(const char *, void *)
 
     connect(expert_dialog, SIGNAL(goToPacket(int, int)),
             packet_list_, SLOT(goToPacket(int, int)));
-    connect(expert_dialog, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
-            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    connect(expert_dialog, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+            this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
 
     expert_dialog->show();
 }
@@ -2872,8 +2873,8 @@ void MainWindow::on_actionStatisticsTcpStreamWindowScaling_triggered()
 void MainWindow::statCommandMulticastStatistics(const char *arg, void *)
 {
     MulticastStatisticsDialog *mcast_stats_dlg = new MulticastStatisticsDialog(*this, capture_file_, arg);
-    connect(mcast_stats_dlg, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
-            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    connect(mcast_stats_dlg, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+            this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     mcast_stats_dlg->show();
 }
 
@@ -3018,8 +3019,8 @@ void MainWindow::on_actionStatisticsCollectd_triggered()
 void MainWindow::statCommandConversations(const char *arg, void *userdata)
 {
     ConversationDialog *conv_dialog = new ConversationDialog(*this, capture_file_, GPOINTER_TO_INT(userdata), arg);
-    connect(conv_dialog, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
-            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    connect(conv_dialog, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+            this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     connect(conv_dialog, SIGNAL(openFollowStreamDialog(follow_type_t)),
             this, SLOT(openFollowStreamDialog(follow_type_t)));
     connect(conv_dialog, SIGNAL(openTcpStreamGraph(int)),
@@ -3036,8 +3037,8 @@ void MainWindow::on_actionStatisticsConversations_triggered()
 void MainWindow::statCommandEndpoints(const char *arg, void *userdata)
 {
     EndpointDialog *endp_dialog = new EndpointDialog(*this, capture_file_, GPOINTER_TO_INT(userdata), arg);
-    connect(endp_dialog, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
-            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    connect(endp_dialog, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+            this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     connect(endp_dialog, SIGNAL(openFollowStreamDialog(follow_type_t)),
             this, SLOT(openFollowStreamDialog(follow_type_t)));
     connect(endp_dialog, SIGNAL(openTcpStreamGraph(int)),
@@ -3153,8 +3154,8 @@ void MainWindow::on_actionTelephonyISUPMessages_triggered()
 void MainWindow::statCommandLteMacStatistics(const char *arg, void *)
 {
     LteMacStatisticsDialog *lte_mac_stats_dlg = new LteMacStatisticsDialog(*this, capture_file_, arg);
-    connect(lte_mac_stats_dlg, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
-            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    connect(lte_mac_stats_dlg, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+            this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     lte_mac_stats_dlg->show();
 }
 
@@ -3166,8 +3167,8 @@ void MainWindow::on_actionTelephonyLteMacStatistics_triggered()
 void MainWindow::statCommandLteRlcStatistics(const char *arg, void *)
 {
     LteRlcStatisticsDialog *lte_rlc_stats_dlg = new LteRlcStatisticsDialog(*this, capture_file_, arg);
-    connect(lte_rlc_stats_dlg, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
-            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    connect(lte_rlc_stats_dlg, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+            this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     // N.B. It is necessary for the RLC Statistics window to launch the RLC graph in this way, to ensure
     // that the goToPacket() signal/slot connection gets set up...
     connect(lte_rlc_stats_dlg, SIGNAL(launchRLCGraph(bool, guint16, guint8, guint16, guint16, guint8)),
@@ -3594,8 +3595,8 @@ void MainWindow::on_actionStatisticsResolvedAddresses_triggered()
 void MainWindow::on_actionStatisticsProtocolHierarchy_triggered()
 {
     ProtocolHierarchyDialog *phd = new ProtocolHierarchyDialog(*this, capture_file_);
-    connect(phd, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
-            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    connect(phd, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+            this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     phd->show();
 }
 

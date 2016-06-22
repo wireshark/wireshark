@@ -63,7 +63,7 @@ public slots:
     void captureFileClosing();
 
 signals:
-    void filterAction(QString& filter, FilterAction::Action action, FilterAction::ActionType type);
+    void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
     void openFollowStreamDialog(follow_type_t type);
     void openTcpStreamGraph(int graph_type);
 

@@ -231,6 +231,7 @@ signals:
     void reloadFields();
     void packetInfoChanged(struct _packet_info *pinfo);
     void fieldFilterChanged(const QByteArray field_filter);
+    void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
 
 public slots:
     // in main_window_slots.cpp
@@ -329,7 +330,7 @@ private slots:
     void displayFilterButtonClicked();
 
     // Handle FilterAction signals
-    void filterAction(QString& filter, FilterAction::Action action, FilterAction::ActionType type);
+    void queuedFilterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
 
     /** Pass stat cmd arguments to a slot.
      * @param menu_path slot Partial slot name, e.g. "StatisticsIOGraph".

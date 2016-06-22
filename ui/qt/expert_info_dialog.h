@@ -55,7 +55,7 @@ public:
 
 signals:
     void goToPacket(int packet_num, int hf_id);
-    void filterAction(QString& filter, FilterAction::Action action, FilterAction::ActionType type);
+    void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
 
 private:
     Ui::ExpertInfoDialog *ui;

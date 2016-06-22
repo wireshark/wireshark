@@ -44,7 +44,7 @@ public:
     ~ProtocolHierarchyDialog();
 
 signals:
-    void filterAction(QString& filter, FilterAction::Action action, FilterAction::ActionType type);
+    void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
 
 private slots:
     void showProtoHierMenu(QPoint pos);
