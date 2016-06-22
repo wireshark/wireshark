@@ -306,34 +306,6 @@ static int ipx_len(void)
 }
 
 /******************************************************************************
- * AT_VINES
- * XXX - This functionality should really be in packet-vines.c as a dissector
- * address type, but need to resolve "address type" as "field type"
- ******************************************************************************/
-static int vines_to_str(const address* addr, gchar *buf, int buf_len _U_)
-{
-    const guint8 *addr_data = (const guint8 *)addr->data;
-    gchar *bufp = buf;
-
-    bufp = dword_to_hex(bufp, pntoh32(&addr_data[0])); /* 8 bytes */
-    *bufp++ = '.'; /* 1 byte */
-    bufp = word_to_hex(bufp, pntoh16(&addr_data[4])); /* 4 bytes */
-    *bufp++ = '\0'; /* NULL terminate */
-
-    return (int)(bufp - buf);
-}
-
-static int vines_str_len(const address* addr _U_)
-{
-    return 14;
-}
-
-static int vines_len(void)
-{
-    return VINES_ADDR_LEN;
-}
-
-/******************************************************************************
  * AT_FC
  ******************************************************************************/
 static int fc_to_str(const address* addr, gchar *buf, int buf_len _U_)
@@ -594,18 +566,6 @@ void address_types_initialize(void)
         NULL,               /* addr_name_res_len */
     };
 
-    static address_type_t vines_address = {
-        AT_VINES,           /* addr_type */
-        "AT_VINES",         /* name */
-        "Banyan Vines address", /* pretty_name */
-        vines_to_str,       /* addr_to_str */
-        vines_str_len,      /* addr_str_len */
-        NULL,               /* addr_col_filter */
-        vines_len,          /* addr_fixed_len */
-        NULL,               /* addr_name_res_str */
-        NULL,               /* addr_name_res_len */
-    };
-
     static address_type_t fc_address = {
         AT_FC,          /* addr_type */
         "AT_FC",        /* name */
@@ -689,7 +649,6 @@ void address_types_initialize(void)
     address_type_register(AT_IPv4, &ipv4_address );
     address_type_register(AT_IPv6, &ipv6_address );
     address_type_register(AT_IPX, &ipx_address );
-    address_type_register(AT_VINES, &vines_address );
     address_type_register(AT_FC, &fc_address );
     address_type_register(AT_FCWWN, &fcwwn_address );
     address_type_register(AT_STRINGZ, &stringz_address );

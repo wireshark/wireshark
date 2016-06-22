@@ -46,7 +46,6 @@ typedef enum {
     AT_IPv4,               /* IPv4 */
     AT_IPv6,               /* IPv6 */
     AT_IPX,                /* IPX */
-    AT_VINES,              /* Banyan Vines */
     AT_FC,                 /* Fibre Channel */
     AT_FCWWN,              /* Fibre Channel WWN */
     AT_STRINGZ,            /* null-terminated string */

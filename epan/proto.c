@@ -368,6 +368,9 @@ static void save_same_name_hfinfo(gpointer data)
 	same_name_hfinfo = (header_field_info*)data;
 }
 
+/* Cached value for VINES address type (used for FT_VINES) */
+static int vines_address_type = -1;
+
 /* Points to the first element of an array of bits, indexed by
    a subtree item type; that array element is TRUE if subtrees of
    an item of that type are to be expanded. */
@@ -522,6 +525,9 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	   do. */
 	register_all_protocols_func(cb, client_data);
 
+	/* Now that the VINES dissector has registered it's address
+	   type, grab the value for the field type */
+	vines_address_type = address_type_get_by_name("AT_VINES");
 #ifdef HAVE_PLUGINS
 	/* Now call the registration routines for all disssector
 	   plugins. */
@@ -7148,7 +7154,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_VINES:
-			addr.type = AT_VINES;
+			addr.type = vines_address_type;
 			addr.len  = VINES_ADDR_LEN;
 			addr.data = (guint8 *)fvalue_get(&fi->value);
 

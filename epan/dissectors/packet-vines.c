@@ -90,6 +90,8 @@
 #include <epan/arcnet_pids.h>
 #include <epan/llcsaps.h>
 #include <epan/to_str.h>
+#include <epan/address_types.h>
+#include <wsutil/pint.h>
 
 void proto_register_vines_frp(void);
 void proto_reg_handoff_vines_frp(void);
@@ -263,6 +265,8 @@ static int hf_vines_icp_metric = -1;
 static int hf_vines_icp_packet_type = -1;
 
 static gint ett_vines_icp = -1;
+
+static int vines_address_type = -1;
 
 /* VINES IP structs and definitions */
 
@@ -556,9 +560,9 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 			val_to_str_const(vip_tctl, proto_vals, "Unknown VIP protocol"),
 			vip_tctl);
 
-	set_address_tvb(&pinfo->net_src, AT_VINES, VINES_ADDR_LEN, tvb, offset+12);
+	set_address_tvb(&pinfo->net_src, vines_address_type, VINES_ADDR_LEN, tvb, offset+12);
 	copy_address_shallow(&pinfo->src, &pinfo->net_src);
-	set_address_tvb(&pinfo->net_dst, AT_VINES, VINES_ADDR_LEN, tvb, offset+6);
+	set_address_tvb(&pinfo->net_dst, vines_address_type, VINES_ADDR_LEN, tvb, offset+6);
 	copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
 	/* helpers to transport control */
@@ -615,6 +619,29 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		call_data_dissector(next_tvb, pinfo, tree);
 
 	return tvb_captured_length(tvb);
+}
+
+static int vines_to_str(const address* addr, gchar *buf, int buf_len _U_)
+{
+	const guint8 *addr_data = (const guint8 *)addr->data;
+	gchar *bufp = buf;
+
+	bufp = dword_to_hex(bufp, pntoh32(&addr_data[0])); /* 8 bytes */
+	*bufp++ = '.'; /* 1 byte */
+	bufp = word_to_hex(bufp, pntoh16(&addr_data[4])); /* 4 bytes */
+	*bufp++ = '\0'; /* NULL terminate */
+
+	return (int)(bufp - buf);
+}
+
+static int vines_str_len(const address* addr _U_)
+{
+	return 14;
+}
+
+static int vines_len(void)
+{
+	return VINES_ADDR_LEN;
 }
 
 void
@@ -698,6 +725,8 @@ proto_register_vines_ip(void)
 
 	vines_ip_handle = create_dissector_handle(dissect_vines_ip,
 	    proto_vines_ip);
+
+	vines_address_type = address_type_dissector_register("AT_VINES", "Banyan Vines address", vines_to_str, vines_str_len, NULL, vines_len, NULL, NULL);
 }
 
 void
@@ -1229,7 +1258,7 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		if (packet_type == VARP_ASSIGNMENT_RESP) {
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 					    ", Address = %s",
-					    tvb_address_to_str(wmem_packet_scope(), tvb, AT_VINES, 2));
+					    tvb_address_to_str(wmem_packet_scope(), tvb, vines_address_type, 2));
 			proto_tree_add_item(vines_arp_tree, hf_vines_arp_address, tvb, 2, VINES_ADDR_LEN, ENC_NA);
 		}
 		proto_tree_add_item(vines_arp_tree, hf_vines_arp_sequence_number, tvb, 2+VINES_ADDR_LEN, 4, ENC_BIG_ENDIAN);
@@ -1251,7 +1280,7 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		if (packet_type == VARP_ASSIGNMENT_RESP) {
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 					    ", Address = %s",
-					    tvb_address_to_str(wmem_packet_scope(), tvb, AT_VINES, 2));
+					    tvb_address_to_str(wmem_packet_scope(), tvb, vines_address_type, 2));
 
 			proto_tree_add_item(vines_arp_tree, hf_vines_arp_address, tvb, 2, VINES_ADDR_LEN, ENC_NA);
 		}
