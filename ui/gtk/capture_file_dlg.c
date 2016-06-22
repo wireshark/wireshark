@@ -74,8 +74,8 @@
 #include "ui/win32/file_dlg_win32.h"
 #endif
 
-static void do_file_save(capture_file *cf, gboolean dont_reopen);
-static void file_save_as_cmd(capture_file *cf,
+static gboolean do_file_save(capture_file *cf, gboolean dont_reopen);
+static gboolean file_save_as_cmd(capture_file *cf,
                             gboolean must_support_all_comments,
                             gboolean dont_reopen);
 static void file_select_file_type_cb(GtkWidget *w, gpointer data);
@@ -1238,7 +1238,8 @@ test_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
           do_capture_stop(cf);
 #endif
         /* Save the file and close it */
-        do_file_save(cf, TRUE);
+        if (do_file_save(cf, TRUE) == FALSE)
+          return FALSE;
         break;
 
       case GTK_RESPONSE_REJECT:
@@ -1392,7 +1393,7 @@ check_save_with_comments(capture_file *cf)
  * Save the capture file in question, prompting the user for a file
  * name to save to if necessary.
  */
-static void
+static gboolean
 do_file_save(capture_file *cf, gboolean dont_reopen)
 {
   char     *fname;
@@ -1407,7 +1408,7 @@ do_file_save(capture_file *cf, gboolean dont_reopen)
        probably pcap-ng, which supports comments and, if it's
        not pcap-ng, let the user decide what they want to do
        if they've added comments. */
-    file_save_as_cmd(cf, FALSE, dont_reopen);
+    return file_save_as_cmd(cf, FALSE, dont_reopen);
   } else {
     if (cf->unsaved_changes) {
       /* This is not a temporary capture file, but it has unsaved
@@ -1440,18 +1441,17 @@ do_file_save(capture_file *cf, gboolean dont_reopen)
            support comments, and the user said not to delete the
            comments.  Do a "Save As" so the user can select
            one of those formats and choose a file name. */
-        file_save_as_cmd(cf, TRUE, dont_reopen);
-        return;
+        return file_save_as_cmd(cf, TRUE, dont_reopen);
 
       case CANCELLED:
         /* The user said "forget it".  Just return. */
-        return;
+        return FALSE;
 
       default:
         /* Squelch warnings that discard_comments is being used
            uninitialized. */
         g_assert_not_reached();
-        return;
+        return TRUE;
       }
 
       /* XXX - cf->filename might get freed out from under us, because
@@ -1486,6 +1486,8 @@ do_file_save(capture_file *cf, gboolean dont_reopen)
     }
     /* Otherwise just do nothing. */
   }
+
+  return TRUE;
 }
 
 void
@@ -1820,7 +1822,7 @@ file_add_extension(GString *file_name, int file_type, gboolean compressed) {
  *   Close the window.
  */
 
-static void
+static gboolean
 file_save_as_cmd(capture_file *cf, gboolean must_support_all_comments,
                 gboolean dont_reopen)
 {
@@ -1882,7 +1884,7 @@ file_save_as_cmd(capture_file *cf, gboolean must_support_all_comments,
         /* The user said "forget it".  Just get rid of the dialog box
            and return. */
         g_string_free(file_name, TRUE);
-        return;
+        return FALSE;
       }
 
       file_add_extension(file_name, file_type, compressed);
@@ -1919,11 +1921,14 @@ file_save_as_cmd(capture_file *cf, gboolean must_support_all_comments,
       case CF_WRITE_ABORTED:
         /* The user aborted the save; just return. */
         g_string_free(file_name, TRUE);
-        return;
+        return FALSE;
       }
+    } else {
+        g_string_free(file_name, TRUE);
+        return FALSE;
     }
     g_string_free(file_name, TRUE);
-    return;
+    return TRUE;
   }
 }
 
