@@ -1537,6 +1537,7 @@ void MainWindow::setFeaturesEnabled(bool enabled)
     if(enabled)
     {
         main_ui_->statusBar->clearMessage();
+        main_ui_->actionGoAutoScroll->setChecked(auto_scroll_live);
     }
     else
     {

@@ -1027,9 +1027,9 @@ void MainWindow::mergeCaptureFile()
             gchar *err_msg;
 
             if (!dfilter_compile(read_filter.toUtf8().constData(), &rfcode, &err_msg)) {
-                /* Not valid.  Tell the user, and go back and run the file
+                /* Not valid. Tell the user, and go back and run the file
                    selection box again once they dismiss the alert. */
-                //bad_dfilter_alert_box(top_level, read_filter->str);
+                // Similar to commandline_info.jfilter section in main().
                 QMessageBox::warning(this, tr("Invalid Read Filter"),
                                      QString(tr("The filter expression %1 isn't a valid read filter. (%2).").arg(read_filter, err_msg)),
                                      QMessageBox::Ok);

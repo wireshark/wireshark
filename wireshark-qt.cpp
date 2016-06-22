@@ -796,6 +796,22 @@ int main(int argc, char *argv[])
                 /* Jump to the specified frame number, kept for backward
                    compatibility. */
                 cf_goto_frame(CaptureFile::globalCapFile(), commandline_info.go_to_packet);
+            } else if (commandline_info.jfilter != NULL) {
+                dfilter_t *jump_to_filter = NULL;
+                /* try to compile given filter */
+                if (!dfilter_compile(commandline_info.jfilter, &jump_to_filter, &err_msg)) {
+                    // Similar code in MainWindow::mergeCaptureFile().
+                    QMessageBox::warning(main_w, QObject::tr("Invalid Display Filter"),
+                                         QObject::tr("The filter expression %1 isn't a valid display filter. (%2).")
+                                                 .arg(commandline_info.jfilter, err_msg),
+                                         QMessageBox::Ok);
+                    g_free(err_msg);
+                } else {
+                    /* Filter ok, jump to the first packet matching the filter
+                       conditions. Default search direction is forward, but if
+                       option d was given, search backwards */
+                    cf_find_packet_dfilter(CaptureFile::globalCapFile(), jump_to_filter, commandline_info.jump_backwards);
+                }
             }
         }
     }

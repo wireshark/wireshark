@@ -468,7 +468,7 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
                 arg_error = TRUE;
 #endif
                 break;
-            case 'm':        /* Fixed-width font for the display */
+            case 'm':        /* Fixed-width font for the display. GTK+ only. */
                 g_free(param_info->prefs_p->gui_gtk2_font_name);
                 param_info->prefs_p->gui_gtk2_font_name = g_strdup(optarg);
                 break;

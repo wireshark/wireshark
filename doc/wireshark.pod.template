@@ -446,10 +446,12 @@ List the data link types supported by the interface and exit.
 
 =item -m  E<lt>fontE<gt>
 
-Set the name of the font used by B<Wireshark> for most text.  B<Wireshark>
-will construct the name of the bold font used for the data in the byte
-view pane that corresponds to the field selected in the packet details
-pane from the name of the main text font.
+GTK+ only. Deprecated.
+
+Set the name of the monospace font used in the packet list, packet detail,
+packet bytes, and other views. This option is deprecated and will be removed
+in a future version of Wireshark. Use B<-o gui.qt.font_name> or
+B<-o gui.gtk2.font_name> instead.
 
 =item -n
 

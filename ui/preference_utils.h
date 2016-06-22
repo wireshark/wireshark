@@ -70,7 +70,7 @@ extern void reset_stashed_pref(pref_t *pref);
 
 /** If autoscroll in live captures is active or not
  */
-extern gboolean auto_scroll_live; /* GTK+ only. */
+extern gboolean auto_scroll_live;
 
 /** Fill in capture options with values from the preferences
  */
