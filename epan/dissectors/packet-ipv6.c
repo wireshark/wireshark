@@ -2442,7 +2442,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         }
         return tvb_captured_length(tvb);
     }
-    if (plen > (tvb_reported_length(tvb) - 40)) {
+    if (!pinfo->flags.in_error_pkt && plen > (tvb_reported_length(tvb) - 40)) {
         expert_add_info_format(pinfo, ti_ipv6_plen, &ei_ipv6_bogus_payload_length,
                     "IPv6 payload length exceeds framing length (%d bytes)",
                     tvb_reported_length(tvb) - 40);
