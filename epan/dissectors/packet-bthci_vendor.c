@@ -1013,6 +1013,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                     expert_add_info(pinfo, sub_item, &ei_unexpected_parameter);
                     offset += tvb_captured_length_remaining(tvb, offset);
                 }
+                break;
             default:
                 if (length > 0) {
                     sub_item = proto_tree_add_item(main_tree, hf_data, tvb, offset, length, ENC_NA);
