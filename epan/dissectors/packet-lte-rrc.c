@@ -8168,6 +8168,7 @@ typedef struct lte_rrc_private_data_t
   pdcp_security_info_t pdcp_security;
   meas_capabilities_item_band_mappings_t meas_capabilities_item_band_mappings;
   simult_pucch_pusch_cell_type cell_type;
+  gboolean bcch_dl_sch_msg_br;
 } lte_rrc_private_data_t;
 
 /* Helper function to get or create a struct that will be actx->private_data */
@@ -8341,6 +8342,19 @@ static void private_data_set_simult_pucch_pusch_cell_type(asn1_ctx_t *actx, simu
 {
   lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
   private_data->cell_type = cell_type;
+}
+
+/* Is top message a BCCH DL-SCH BR */
+static gboolean private_data_get_bcch_dl_sch_msg_br(asn1_ctx_t *actx)
+{
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  return private_data->bcch_dl_sch_msg_br;
+}
+
+static void private_data_set_bcch_dl_sch_msg_br(asn1_ctx_t *actx, gboolean is_br)
+{
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  private_data->bcch_dl_sch_msg_br = is_br;
 }
 
 /*****************************************************************************/
@@ -25490,7 +25504,9 @@ static const per_sequence_t SystemInformationBlockType1_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformationBlockType1");
+  if (private_data_get_bcch_dl_sch_msg_br(actx) == FALSE) {
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformationBlockType1");
+    }
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType1, SystemInformationBlockType1_sequence);
@@ -37999,13 +38015,17 @@ static const per_sequence_t SystemInformation_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation [ ");
+  if (private_data_get_bcch_dl_sch_msg_br(actx) == FALSE) {
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation [ ");
+  }
 
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformation, SystemInformation_sequence);
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "]");
+  if (private_data_get_bcch_dl_sch_msg_br(actx) == FALSE) {
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "]");
+  }
 
 
   return offset;
@@ -38087,6 +38107,7 @@ dissect_lte_rrc_BCCH_DL_SCH_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int
 dissect_lte_rrc_SystemInformation_BR_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
+  private_data_set_bcch_dl_sch_msg_br(actx, TRUE);
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation-BR-r13 [ ");
 
 
@@ -38103,6 +38124,7 @@ dissect_lte_rrc_SystemInformation_BR_r13(tvbuff_t *tvb _U_, int offset _U_, asn1
 static int
 dissect_lte_rrc_SystemInformationBlockType1_BR_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
+  private_data_set_bcch_dl_sch_msg_br(actx, TRUE);
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformationBlockType1-BR-r13");
 
   offset = dissect_lte_rrc_SystemInformationBlockType1(tvb, offset, actx, tree, hf_index);
@@ -59137,7 +59159,7 @@ static int dissect_UE_EUTRA_Capability_v9a0_IEs_PDU(tvbuff_t *tvb _U_, packet_in
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2861 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2875 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -74654,7 +74676,7 @@ void proto_register_lte_rrc(void) {
         "BIT_STRING_SIZE_19", HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 3077 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3091 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -77176,7 +77198,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_MasterInformationBlock_SL,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 3804 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3818 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -77262,7 +77284,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 3871 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3885 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
   register_cleanup_routine(&lte_rrc_cleanup_protocol);

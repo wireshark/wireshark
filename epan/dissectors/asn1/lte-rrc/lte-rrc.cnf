@@ -1285,19 +1285,26 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 
 #.FN_HDR SystemInformation
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation [ ");
+  if (private_data_get_bcch_dl_sch_msg_br(actx) == FALSE) {
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation [ ");
+  }
 
 #.FN_BODY SystemInformation
 
 %(DEFAULT_BODY)s
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "]");
+  if (private_data_get_bcch_dl_sch_msg_br(actx) == FALSE) {
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "]");
+  }
 
 #.FN_HDR SystemInformationBlockType1
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformationBlockType1");
+  if (private_data_get_bcch_dl_sch_msg_br(actx) == FALSE) {
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformationBlockType1");
+    }
 
 #.FN_HDR SystemInformation-BR-r13
 
+  private_data_set_bcch_dl_sch_msg_br(actx, TRUE);
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation-BR-r13 [ ");
 
 #.FN_BODY SystemInformation-BR-r13
@@ -1307,6 +1314,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 
 #.FN_HDR SystemInformationBlockType1-BR-r13
 
+  private_data_set_bcch_dl_sch_msg_br(actx, TRUE);
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformationBlockType1-BR-r13");
 
 #.FN_HDR SystemInformationBlockType2
