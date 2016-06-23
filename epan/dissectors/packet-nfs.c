@@ -515,6 +515,10 @@ static int hf_nfs4_devaddr_scsi_vpd_code_set = -1;
 static int hf_nfs4_devaddr_scsi_vpd_designator_type = -1;
 static int hf_nfs4_devaddr_scsi_vpd_designator = -1;
 static int hf_nfs4_devaddr_scsi_private_key = -1;
+static int hf_nfs4_scsil_ext_file_offset = -1;
+static int hf_nfs4_scsil_ext_length = -1;
+static int hf_nfs4_scsil_ext_vol_offset = -1;
+static int hf_nfs4_scsil_ext_state = -1;
 static int hf_nfs4_return_on_close = -1;
 static int hf_nfs4_slotid = -1;
 static int hf_nfs4_high_slotid = -1;
@@ -8758,6 +8762,18 @@ static const value_string scsi_vpd_code_set_names[] = {
     { 0, NULL }
 };
 
+static const value_string scsi_extent_state_names[] = {
+#define PNFS_SCSI_EXT_READ_WRITE_DATA      0
+	{	PNFS_SCSI_EXT_READ_WRITE_DATA,    "READ_WRITE_DATA"},
+#define PNFS_SCSI_EXT_READ_DATA			   1
+	{	PNFS_SCSI_EXT_READ_DATA,          "READ_DATA"      },
+#define PNFS_SCSI_EXT_INVALID_DATA		   2
+	{	PNFS_SCSI_EXT_INVALID_DATA,       "INVALID_DATA"   },
+#define PNFS_SCSI_EXT_NONE_DATA            3
+	{	PNFS_SCSI_EXT_NONE_DATA,          "NONE_DATA"      },
+	{	0,	NULL	}
+};
+
 static int
 dissect_nfs4_devices_scsi_base_volume(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
@@ -9245,6 +9261,32 @@ dissect_nfs4_layoutget(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 				offset = dissect_rpc_uint32(tvb, newtree,
 						hf_nfs4_ff_stats_collect_hint,
 						offset);
+		} else if (layout_type == LAYOUT4_SCSI) {
+			guint	ext_count;
+			proto_tree *ext_tree;
+
+			offset += 4; /* Skip past opaque count */
+
+			ext_count = tvb_get_ntohl(tvb, offset);
+
+			subtree = proto_tree_add_subtree_format(newtree, tvb, offset, 4,
+						ett_nfs4_layoutseg_sub, NULL, "SCSI Extents (count: %u)",
+						ext_count);
+			offset +=4;
+
+			for (i = 0; i < ext_count; i++) {
+				ext_tree = proto_tree_add_subtree_format(subtree, tvb, offset, 4,
+							ett_nfs4_layoutseg_sub, NULL, "extent %u", i);
+				offset = dissect_nfs4_deviceid(tvb, offset, ext_tree);
+				offset = dissect_rpc_uint64(tvb, ext_tree,
+							hf_nfs4_scsil_ext_file_offset, offset);
+				offset = dissect_rpc_uint64(tvb, ext_tree,
+							hf_nfs4_scsil_ext_length, offset);
+				offset = dissect_rpc_uint64(tvb, ext_tree,
+							hf_nfs4_scsil_ext_vol_offset, offset);
+				offset = dissect_rpc_uint32(tvb, ext_tree,
+							hf_nfs4_scsil_ext_state, offset);
+			}
 		} else {
 			offset = dissect_nfsdata(tvb, offset, newtree, hf_nfs4_layout);
 			continue;
@@ -12870,6 +12912,22 @@ proto_register_nfs(void)
 		{ &hf_nfs4_devaddr_scsi_private_key, {
 			"private key", "nfs.devaddr.scsi_private_key",
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_scsil_ext_file_offset, {
+			"file offset", "nfs.scsil_ext_file_offset", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_scsil_ext_length, {
+			"length", "nfs.scsil_ext_length", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_scsil_ext_vol_offset, {
+			"volume offset", "nfs.scsill_ext_vol_offset", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_scsil_ext_state, {
+			"extent state", "nfs.scsil_ext_state", FT_UINT32, BASE_DEC,
+			VALS(scsi_extent_state_names), 0, NULL, HFILL }},
 
 		{ &hf_nfs4_return_on_close, {
 			"return on close?", "nfs.retclose4", FT_BOOLEAN, BASE_NONE,
