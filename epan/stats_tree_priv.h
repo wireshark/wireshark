@@ -222,10 +222,10 @@ WS_DLL_PUBLIC gint stats_tree_get_default_sort_col (stats_tree *st);
 WS_DLL_PUBLIC gboolean stats_tree_is_default_sort_DESC (stats_tree *st);
 
 /** returns the column name for a given column index */
-WS_DLL_PUBLIC const gchar* stats_tree_get_column_name (gint index);
+WS_DLL_PUBLIC const gchar* stats_tree_get_column_name (gint col_index);
 
 /** returns the maximum number of characters in the value of a column */
-WS_DLL_PUBLIC gint stats_tree_get_column_size (gint index);
+WS_DLL_PUBLIC gint stats_tree_get_column_size (gint col_index);
 
 /** returns the formatted column values for the current node
   as array of gchar*. Caller must free entries and free array */
