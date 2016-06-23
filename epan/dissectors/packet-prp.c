@@ -93,6 +93,13 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     if(length < 14)
         return 0;
 
+    /*
+     * This is horribly broken.  It assumes the frame is an Ethernet
+     * frame, with a type field at an offset of 12 bytes from the header.
+     * That is not guaranteed to be true.
+     */
+    if (!tvb_bytes_exist(tvb, 12, 2))
+        return 0;
     if(ETHERTYPE_VLAN == tvb_get_ntohs(tvb, 12)) /* tagged frame */
     {
         offset = 18;
@@ -104,6 +111,13 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
     if (!tree)
         return tvb_captured_length(tvb);
+
+    /*
+     * Is there enough data in the packet to every try to search for a
+     * trailer?
+     */
+    if (!tvb_bytes_exist(tvb, (length-4)+2, 2))
+        return 0;  /* no */
 
     /* search for PRP-0 trailer */
     /* If the frame is >  64 bytes, the PRP-0 trailer is always at the end. */
