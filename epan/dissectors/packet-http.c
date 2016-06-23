@@ -1637,6 +1637,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	const guchar *next_token;
 	const gchar *request_uri;
 	gchar *query_str, *parameter_str, *path_str;
+	int request_uri_len, query_str_len, parameter_str_len;
 	int tokenlen, query_offset, path_len;
 	proto_item *ti, *tj;
 	proto_tree *query_tree, *path_tree;
@@ -1666,16 +1667,19 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (( query_str = strchr(request_uri, '?')) != NULL) {
 		if (strlen(query_str) > 1) {
 			query_str++;
-			path_len = strlen(request_uri) - strlen(query_str);
+			query_str_len = (int)strlen(query_str);
+			request_uri_len = (int)strlen(request_uri);
+			path_len = request_uri_len - query_str_len;
 			query_offset = offset + path_len;
 			path_tree = proto_item_add_subtree(tj, ett_http_request_path);
 			path_str = wmem_strndup(wmem_packet_scope(), request_uri, path_len-1);
 			proto_tree_add_string(path_tree, hf_http_request_path, tvb, offset, path_len-1, path_str);
-			ti = proto_tree_add_string(path_tree, hf_http_request_query, tvb, query_offset,strlen(query_str), query_str);
+			ti = proto_tree_add_string(path_tree, hf_http_request_query, tvb, query_offset, query_str_len, query_str);
 			query_tree = proto_item_add_subtree(ti, ett_http_request_query);
 			for ( parameter_str = strtok(query_str, "&"); parameter_str; parameter_str = strtok(NULL, "&") ) {
-				proto_tree_add_string(query_tree, hf_http_request_query_parameter, tvb, query_offset, strlen(parameter_str), parameter_str);
-				query_offset += (int) strlen(parameter_str) + 1;
+				parameter_str_len = (int) strlen(parameter_str);
+				proto_tree_add_string(query_tree, hf_http_request_query_parameter, tvb, query_offset, parameter_str_len, parameter_str);
+				query_offset += parameter_str_len + 1;
 			}
 		}
 	}
