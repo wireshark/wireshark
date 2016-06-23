@@ -190,15 +190,15 @@ memory_usage_component_register(const ws_mem_usage_t *component)
 }
 
 const char *
-memory_usage_get(guint index, gsize *value)
+memory_usage_get(guint idx, gsize *value)
 {
-	if (index >= memory_register_num)
+	if (idx >= memory_register_num)
 		return NULL;
 
 	if (value)
-		*value = memory_components[index]->fetch();
+		*value = memory_components[idx]->fetch();
 
-	return memory_components[index]->name;
+	return memory_components[idx]->name;
 }
 
 void

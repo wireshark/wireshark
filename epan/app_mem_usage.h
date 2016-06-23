@@ -35,6 +35,6 @@ WS_DLL_PUBLIC void memory_usage_component_register(const ws_mem_usage_t *compone
 
 WS_DLL_PUBLIC void memory_usage_gc(void);
 
-WS_DLL_PUBLIC const char *memory_usage_get(guint index, gsize *value);
+WS_DLL_PUBLIC const char *memory_usage_get(guint idx, gsize *value);
 
 #endif /* APP_MEM_USAGE_H */
