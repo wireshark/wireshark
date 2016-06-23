@@ -57,7 +57,7 @@ filter_expression_new(const gchar *label, const gchar *expr,
 		while (prev->next != NULL)
 			prev = prev->next;
 		prev->next = expression;
-		expression->index = prev->index + 1;
+		expression->filter_index = prev->filter_index + 1;
 	}
 
 	return(expression);

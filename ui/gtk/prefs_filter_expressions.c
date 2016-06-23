@@ -160,7 +160,7 @@ filter_expressions_prefs_show(void) {
 
     fe = *pfilter_expression_head;
     while (fe != NULL) {
-        fe->index = -1;
+        fe->filter_index = -1;
         gtk_list_store_insert_with_values(store, &iter, G_MAXINT,
                 ENABLED_COLUMN, fe->enabled,
                 LABEL_COLUMN, fe->label,
@@ -342,7 +342,7 @@ filter_expressions_prefs_fetch(GtkWidget *w)
     while (items_left) {
         gtk_tree_model_get(model, &iter, DATA_COLUMN, &fe, -1);
         if (fe != NULL)
-            fe->index = indx++;
+            fe->filter_index = indx++;
         items_left = gtk_tree_model_iter_next (model, &iter);
     }
 
@@ -351,7 +351,7 @@ filter_expressions_prefs_fetch(GtkWidget *w)
     gtk_list_store_clear(store);
     fe = *pfilter_expression_head;
     while (fe != NULL) {
-        fe->index = -1;
+        fe->filter_index = -1;
         gtk_list_store_insert_with_values(store, &iter, G_MAXINT,
                 ENABLED_COLUMN, fe->enabled,
                 LABEL_COLUMN, fe->label,

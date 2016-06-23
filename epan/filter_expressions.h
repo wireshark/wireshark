@@ -38,7 +38,7 @@ struct filter_expression {
 	gchar	*label;
 	gchar	*expression;
 
-	gint	 index;
+	gint	 filter_index;
 	gboolean enabled;	/* Can be set to FALSE by Preferences Dialog */
 	gboolean deleted;	/* Can be set to TRUE by Preferences Dialog (GTK+ only) */
 

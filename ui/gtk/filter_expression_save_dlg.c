@@ -112,7 +112,7 @@ filter_expression_reinit(int what)
 		gint maxindx = -1, indx;
 		fe = *pfilter_expression_head;
 		while (fe != NULL) {
-			maxindx = MAX(maxindx, fe->index);
+			maxindx = MAX(maxindx, fe->filter_index);
 			fe = fe->next;
 		}
 
@@ -126,7 +126,7 @@ filter_expression_reinit(int what)
 		for (indx = 0; indx <= maxindx; indx++) {
 			if (prevhead != NULL) {
 				fe = prevhead;
-				while (fe != NULL && fe->index != indx)
+				while (fe != NULL && fe->filter_index != indx)
 					fe = fe->next;
 			}
 			if (fe == NULL)
