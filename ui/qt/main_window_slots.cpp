@@ -2251,6 +2251,7 @@ void MainWindow::setNameResolution()
     if (packet_list_) {
         packet_list_->resetColumns();
     }
+    wsApp->emitAppSignal(WiresharkApplication::NameResolutionChanged);
 }
 
 void MainWindow::on_actionViewNameResolutionPhysical_triggered()

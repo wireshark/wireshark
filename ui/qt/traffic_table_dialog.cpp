@@ -25,10 +25,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 
-//#include <epan/dissectors/packet-tcp.h>
-
 #include "ui/recent.h"
-//#include "ui/tap-tcp-stream.h"
 
 #include "progress_frame.h"
 #include "wireshark_application.h"
@@ -50,7 +47,7 @@
 // - Add "copy" items to the menu.
 
 // Bugs:
-// - Name resolution doesn't do anything if its preference is disabled.
+// - Tabs and menu items don't always end up in the same order.
 // - Columns don't resize correctly.
 // - Closing the capture file clears conversation data.
 
@@ -79,11 +76,12 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const c
     copy_bt_->setMenu(copy_menu);
 
     ui->enabledTypesPushButton->setMenu(&traffic_type_menu_);
-    ui->nameResolutionCheckBox->setChecked(gbl_resolv_flags.network_name);
     ui->trafficTableTabWidget->setFocus();
 
+    connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(currentTabChanged()));
+    connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(updateWidgets()));
     connect(ui->trafficTableTabWidget, SIGNAL(currentChanged(int)),
-            this, SLOT(itemSelectionChanged()));
+            this, SLOT(currentTabChanged()));
     connect(&cap_file_, SIGNAL(captureFileRetapStarted()),
             this, SLOT(retapStarted()));
     connect(&cap_file_, SIGNAL(captureFileRetapFinished()),
@@ -151,9 +149,29 @@ QPushButton *TrafficTableDialog::enabledTypesPushButton() const
     return ui->enabledTypesPushButton;
 }
 
+void TrafficTableDialog::currentTabChanged()
+{
+    bool has_resolution = false;
+    TrafficTableTreeWidget *cur_tree = qobject_cast<TrafficTableTreeWidget *>(ui->trafficTableTabWidget->currentWidget());
+    if (cur_tree) has_resolution = cur_tree->hasNameResolution();
+
+    bool block = blockSignals(true);
+    if (has_resolution) {
+        // Don't change the actual setting.
+        ui->nameResolutionCheckBox->setEnabled(true);
+    } else {
+        ui->nameResolutionCheckBox->setChecked(false);
+        ui->nameResolutionCheckBox->setEnabled(false);
+    }
+    blockSignals(block);
+
+    if (cur_tree) cur_tree->setNameResolutionEnabled(ui->nameResolutionCheckBox->isChecked());
+}
+
 void TrafficTableDialog::on_nameResolutionCheckBox_toggled(bool)
 {
-    updateWidgets();
+    QWidget *cw = ui->trafficTableTabWidget->currentWidget();
+    if (cw) cw->update();
 }
 
 void TrafficTableDialog::on_displayFilterCheckBox_toggled(bool checked)
@@ -225,12 +243,12 @@ void TrafficTableDialog::updateWidgets()
     QWidget *cur_w = ui->trafficTableTabWidget->currentWidget();
     ui->trafficTableTabWidget->setUpdatesEnabled(false);
     ui->trafficTableTabWidget->clear();
+
     foreach (QAction *ca, traffic_type_menu_.actions()) {
         int proto_id = ca->data().value<int>();
         if (proto_id_to_tree_.contains(proto_id) && ca->isChecked()) {
             ui->trafficTableTabWidget->addTab(proto_id_to_tree_[proto_id],
                                               proto_id_to_tree_[proto_id]->trafficTreeTitle());
-            proto_id_to_tree_[proto_id]->setNameResolutionEnabled(ui->nameResolutionCheckBox->isChecked());
         }
     }
     ui->trafficTableTabWidget->setCurrentWidget(cur_w);
@@ -293,7 +311,6 @@ void TrafficTableDialog::copyAsYaml()
     wsApp->clipboard()->setText(stream.readAll());
 }
 
-
 TrafficTableTreeWidget::TrafficTableTreeWidget(QWidget *parent, register_ct_t *table) :
     QTreeWidget(parent),
     table_(table),
@@ -335,11 +352,32 @@ QList<QVariant> TrafficTableTreeWidget::rowData(int row) const
     return row_data;
 }
 
+// True if name resolution is enabled for the table's address type, false
+// otherwise.
+// XXX We need a more reliable method of fetching the address type(s) for
+// a table.
+bool TrafficTableTreeWidget::hasNameResolution() const
+{
+    if (!table_) return false;
+
+    QStringList mac_protos = QStringList() << "eth" << "tr"<< "wlan";
+    QStringList net_protos = QStringList() << "ip" << "ipv6" << "jxta"
+                                           << "mptcp" << "rsvp" << "sctp"
+                                           << "tcp" << "udp";
+
+    QString table_proto = proto_get_protocol_filter_name(get_conversation_proto_id(table_));
+
+    if (mac_protos.contains(table_proto) && gbl_resolv_flags.mac_name) return true;
+    if (net_protos.contains(table_proto) && gbl_resolv_flags.network_name) return true;
+
+    return false;
+}
+
 void TrafficTableTreeWidget::setNameResolutionEnabled(bool enable)
 {
     if (resolve_names_ != enable) {
         resolve_names_ = enable;
-        updateItems(true);
+        updateItems();
     }
 }
 
@@ -357,7 +395,7 @@ void TrafficTableTreeWidget::contextMenuEvent(QContextMenuEvent *event)
 
 void TrafficTableTreeWidget::updateItemsForSettingChange()
 {
-    updateItems(true);
+    updateItems();
 }
 
 /*

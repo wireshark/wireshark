@@ -83,11 +83,12 @@ EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_i
 
     fillTypeMenu(endp_protos);
 
-    updateWidgets();
 #ifdef HAVE_GEOIP
     tabChanged();
 #endif
-    itemSelectionChanged();
+
+    updateWidgets();
+//    currentTabChanged();
 
     cap_file_.delayedRetapPackets();
 }
@@ -140,8 +141,6 @@ bool EndpointDialog::addTrafficTable(register_ct_t *table)
 
     trafficTableTabWidget()->addTab(endp_tree, table_name);
 
-    connect(endp_tree, SIGNAL(itemSelectionChanged()),
-            this, SLOT(itemSelectionChanged()));
     connect(endp_tree, SIGNAL(titleChanged(QWidget*,QString)),
             this, SLOT(setTabText(QWidget*,QString)));
     connect(endp_tree, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
@@ -217,80 +216,56 @@ static const char *geoip_none_ = UTF8_EM_DASH;
 class EndpointTreeWidgetItem : public TrafficTableTreeWidgetItem
 {
 public:
-    EndpointTreeWidgetItem(QTreeWidget *tree, GArray *conv_array, guint conv_idx) :
-        TrafficTableTreeWidgetItem(tree),
+    EndpointTreeWidgetItem(GArray *conv_array, guint conv_idx, bool *resolve_names_ptr) :
+        TrafficTableTreeWidgetItem(NULL),
         conv_array_(conv_array),
         conv_idx_(conv_idx),
-        last_packets_(0)
+        resolve_names_ptr_(resolve_names_ptr)
     {}
 
     hostlist_talker_t *hostlistTalker() {
         return &g_array_index(conv_array_, hostlist_talker_t, conv_idx_);
     }
 
-    // Set column text to its cooked representation.
-    void update(gboolean resolve_names, bool force) {
-        hostlist_talker_t *endp_item = &g_array_index(conv_array_, hostlist_talker_t, conv_idx_);
-        char *addr_str, *port_str;
+    virtual QVariant data(int column, int role) const {
+        if (role == Qt::DisplayRole) {
+            // Column text cooked representation.
+            hostlist_talker_t *endp_item = &g_array_index(conv_array_, hostlist_talker_t, conv_idx_);
 
-        if (!endp_item) {
-            return;
-        }
-
-        quint64 packets = endp_item->tx_frames + endp_item->rx_frames;
-        if (!force && last_packets_ == packets) {
-            return;
-        }
-
-        addr_str = get_conversation_address(NULL, &endp_item->myaddress, resolve_names);
-        port_str = get_conversation_port(NULL, endp_item->port, endp_item->ptype, resolve_names);
-        setText(ENDP_COLUMN_ADDR, addr_str);
-        setText(ENDP_COLUMN_PORT, port_str);
-        wmem_free(NULL, addr_str);
-        wmem_free(NULL, port_str);
-
-        QString col_str;
-
-        col_str = QString("%L1").arg(packets);
-        setText(ENDP_COLUMN_PACKETS, col_str);
-        col_str = gchar_free_to_qstring(format_size(endp_item->tx_bytes + endp_item->rx_bytes, format_size_unit_none|format_size_prefix_si));
-        setText(ENDP_COLUMN_BYTES, col_str);
-        col_str = QString("%L1").arg(endp_item->tx_frames);
-        setText(ENDP_COLUMN_PKT_AB, QString::number(endp_item->tx_frames));
-        col_str = gchar_free_to_qstring(format_size(endp_item->tx_bytes, format_size_unit_none|format_size_prefix_si));
-        setText(ENDP_COLUMN_BYTES_AB, col_str);
-        col_str = QString("%L1").arg(endp_item->rx_frames);
-        setText(ENDP_COLUMN_PKT_BA, QString::number(endp_item->rx_frames));
-        col_str = gchar_free_to_qstring(format_size(endp_item->rx_bytes, format_size_unit_none|format_size_prefix_si));
-        setText(ENDP_COLUMN_BYTES_BA, col_str);
-        last_packets_ = packets;
-
+            bool resolve_names = false;
+            if (resolve_names_ptr_ && *resolve_names_ptr_) resolve_names = true;
+            switch (column) {
+            case ENDP_COLUMN_PACKETS:
+                return QString("%L1").arg(endp_item->tx_frames + endp_item->rx_frames);
+            case ENDP_COLUMN_BYTES:
+                return gchar_free_to_qstring(format_size(endp_item->tx_bytes + endp_item->rx_bytes, format_size_unit_none|format_size_prefix_si));
+            case ENDP_COLUMN_PKT_AB:
+                return QString("%L1").arg(endp_item->tx_frames);
+            case ENDP_COLUMN_BYTES_AB:
+                return gchar_free_to_qstring(format_size(endp_item->tx_bytes, format_size_unit_none|format_size_prefix_si));
+            case ENDP_COLUMN_PKT_BA:
+                return QString("%L1").arg(endp_item->rx_frames);
+            case ENDP_COLUMN_BYTES_BA:
+                return gchar_free_to_qstring(format_size(endp_item->rx_bytes, format_size_unit_none|format_size_prefix_si));
 #ifdef HAVE_GEOIP
-        /* Filled in from the GeoIP config, if any */
-        EndpointTreeWidget *ep_tree = qobject_cast<EndpointTreeWidget *>(treeWidget());
-        if (ep_tree) {
-            for (int col = ENDP_NUM_COLUMNS; col < ep_tree->columnCount(); col++) {
-                char *col_text = NULL;
-                foreach (unsigned db, ep_tree->columnToDb(col)) {
-                    if (endp_item->myaddress.type == AT_IPv4) {
-                        col_text = geoip_db_lookup_ipv4(db, pntoh32(endp_item->myaddress.data), NULL);
-                    } else if (endp_item->myaddress.type == AT_IPv6) {
-                        const struct e_in6_addr *addr = (const struct e_in6_addr *) endp_item->myaddress.data;
-                        col_text = geoip_db_lookup_ipv6(db, *addr, NULL);
-                    }
-                    if (col_text) {
-                        break;
-                    }
-                }
-                setText(col, col_text ? col_text : geoip_none_);
-                wmem_free(NULL, col_text);
+            default:
+            {
+                QString geoip_str = colData(column, resolve_names, true).toString();
+                if (geoip_str.isEmpty()) geoip_str = geoip_none_;
+                return geoip_str;
+            }
+#else
+            default:
+                return colData(column, resolve_names, true);
+#endif
             }
         }
-#endif
+        return QTreeWidgetItem::data(column, role);
     }
 
+    // Column text raw representation.
     // Return a string, qulonglong, double, or invalid QVariant representing the raw column data.
-    QVariant colData(int col, bool resolve_names) const {
+    QVariant colData(int col, bool resolve_names, bool strings_only) const {
         hostlist_talker_t *endp_item = &g_array_index(conv_array_, hostlist_talker_t, conv_idx_);
 
         if (!endp_item) {
@@ -329,24 +304,42 @@ public:
 #ifdef HAVE_GEOIP
         default:
         {
+            QString geoip_str;
+            /* Filled in from the GeoIP config, if any */
+            EndpointTreeWidget *ep_tree = qobject_cast<EndpointTreeWidget *>(treeWidget());
+            if (!ep_tree) return geoip_str;
+            foreach (unsigned db, ep_tree->columnToDb(col)) {
+                if (endp_item->myaddress.type == AT_IPv4) {
+                    geoip_str = geoip_db_lookup_ipv4(db, pntoh32(endp_item->myaddress.data), NULL);
+                } else if (endp_item->myaddress.type == AT_IPv6) {
+                    const struct e_in6_addr *addr = (const struct e_in6_addr *) endp_item->myaddress.data;
+                    geoip_str = geoip_db_lookup_ipv6(db, *addr, NULL);
+                }
+                if (!geoip_str.isEmpty()) {
+                    break;
+                }
+            }
+
+            if (strings_only) return geoip_str;
+
             bool ok;
 
-            double dval = text(col).toDouble(&ok);
+            double dval = geoip_str.toDouble(&ok);
             if (ok) { // Assume lat / lon
                 return dval;
             }
 
-            qulonglong ullval = text(col).toULongLong(&ok);
+            qulonglong ullval = geoip_str.toULongLong(&ok);
             if (ok) { // Assume uint
                 return ullval;
             }
 
-            qlonglong llval = text(col).toLongLong(&ok);
+            qlonglong llval = geoip_str.toLongLong(&ok);
             if (ok) { // Assume int
                 return llval;
             }
 
-            return text(col);
+            return geoip_str;
             break;
         }
 #else
@@ -355,6 +348,7 @@ public:
 #endif
         }
     }
+    virtual QVariant colData(int col, bool resolve_names) const { return colData(col, resolve_names, false); }
 
     bool operator< (const QTreeWidgetItem &other) const
     {
@@ -411,7 +405,7 @@ public:
 private:
     GArray *conv_array_;
     guint conv_idx_;
-    quint64 last_packets_;
+    bool *resolve_names_ptr_;
 };
 
 //
@@ -426,6 +420,7 @@ EndpointTreeWidget::EndpointTreeWidget(QWidget *parent, register_ct_t *table) :
 #endif
 {
     setColumnCount(ENDP_NUM_COLUMNS);
+    setUniformRowHeights(true);
 
     for (int i = 0; i < ENDP_NUM_COLUMNS; i++) {
         headerItem()->setText(i, endp_column_titles[i]);
@@ -512,7 +507,7 @@ EndpointTreeWidget::EndpointTreeWidget(QWidget *parent, register_ct_t *table) :
         connect(fa, SIGNAL(triggered()), this, SLOT(filterActionTriggered()));
     }
 
-    updateItems(false);
+    updateItems();
 
 }
 
@@ -537,11 +532,12 @@ void EndpointTreeWidget::tapDraw(void *conv_hash_ptr)
     EndpointTreeWidget *endp_tree = qobject_cast<EndpointTreeWidget *>((EndpointTreeWidget *)hash->user_data);
     if (!endp_tree) return;
 
-    endp_tree->updateItems(false);
+    endp_tree->updateItems();
 }
 
-void EndpointTreeWidget::updateItems(bool force)
+void EndpointTreeWidget::updateItems()
 {
+    bool resize = topLevelItemCount() < resizeThreshold();
     title_ = proto_get_protocol_short_name(find_protocol_by_id(get_conversation_proto_id(table_)));
 
     if (hash_.conv_array && hash_.conv_array->len > 0) {
@@ -567,9 +563,11 @@ void EndpointTreeWidget::updateItems(bool force)
 #endif
 
     setSortingEnabled(false);
+
+    QList<QTreeWidgetItem *>new_items;
     for (int i = topLevelItemCount(); i < (int) hash_.conv_array->len; i++) {
-        EndpointTreeWidgetItem *etwi = new EndpointTreeWidgetItem(this, hash_.conv_array, i);
-        addTopLevelItem(etwi);
+        EndpointTreeWidgetItem *etwi = new EndpointTreeWidgetItem(hash_.conv_array, i, &resolve_names_);
+        new_items << etwi;
 
         for (int col = 0; col < columnCount(); col++) {
             if (col != ENDP_COLUMN_ADDR && col < ENDP_NUM_COLUMNS) {
@@ -577,16 +575,13 @@ void EndpointTreeWidget::updateItems(bool force)
             }
         }
     }
-    QTreeWidgetItemIterator iter(this);
-    while (*iter) {
-        EndpointTreeWidgetItem *ei = static_cast<EndpointTreeWidgetItem *>(*iter);
-        ei->update(resolve_names_, force);
-        ++iter;
-    }
+    addTopLevelItems(new_items);
     setSortingEnabled(true);
 
-    for (int col = 0; col < columnCount(); col++) {
-        resizeColumnToContents(col);
+    if (resize) {
+        for (int col = 0; col < columnCount(); col++) {
+            resizeColumnToContents(col);
+        }
     }
 }
 

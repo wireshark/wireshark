@@ -38,7 +38,7 @@ public:
 
 private:
     void initDirectionMap();
-    void updateItems(bool force);
+    void updateItems();
 
 private slots:
     void filterActionTriggered();
@@ -75,7 +75,7 @@ private:
     conv_item_t *currentConversation();
 
 private slots:
-    void itemSelectionChanged();
+    void currentTabChanged();
     void on_displayFilterCheckBox_toggled(bool checked);
     void followStream();
     void graphTcp();

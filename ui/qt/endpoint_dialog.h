@@ -53,7 +53,7 @@ private:
 #endif
 
 private:
-    void updateItems(bool force);
+    void updateItems();
 
 private slots:
     void filterActionTriggered();

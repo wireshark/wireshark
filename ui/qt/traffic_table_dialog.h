@@ -68,6 +68,8 @@ public:
     // Passing -1 returns titles.
     QList<QVariant> rowData(int row) const;
 
+    bool hasNameResolution() const;
+
 public slots:
     void setNameResolutionEnabled(bool enable);
 
@@ -82,10 +84,12 @@ protected:
     bool resolve_names_;
     QMenu ctx_menu_;
 
+    // When adding rows, resize to contents up to this number.
+    int resizeThreshold() const { return 200; }
     void contextMenuEvent(QContextMenuEvent *event);
 
 private:
-    virtual void updateItems(bool) {}
+    virtual void updateItems() {}
 
 private slots:
     // Updates all items
@@ -142,12 +146,14 @@ protected:
     QPushButton *enabledTypesPushButton() const;
 
 protected slots:
-    virtual void itemSelectionChanged() {}
+    virtual void currentTabChanged();
     void updateWidgets();
 
 private:
-    QList<QVariant> curTreeRowData(int row) const;
     QString window_name_;
+
+    QList<QVariant> curTreeRowData(int row) const;
+
 
 private slots:
     void on_nameResolutionCheckBox_toggled(bool checked);

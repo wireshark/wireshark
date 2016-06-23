@@ -66,6 +66,7 @@ public:
         CaptureFilterListChanged,
         DisplayFilterListChanged,
         FilterExpressionsChanged,
+        NameResolutionChanged,
         PacketDissectionChanged,
         PreferencesChanged,
         RecentFilesRead,

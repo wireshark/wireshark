@@ -28,6 +28,14 @@ since version 2.1.0:
 
 * Added -d option for Decode As support in Wireshark (mimics TShark
   functionality)
+* The Qt UI, GTK+ UI, and TShark can now export packets as JSON.
+  TShark can additionally export packets as Elasticsearch-compatible
+  JSON.
+* The Qt UI now supports the -j, -J, and -l flags. The -m flag is now
+  deprecated.
+* The Conversations and Endpoints dialogs are more responsive when
+  viewing large numbers of items.
+* The RTP player now allows up to 30 minutes of silence frames.
 
 The following features are new (or have been significantly updated)
 since version 2.0.0:

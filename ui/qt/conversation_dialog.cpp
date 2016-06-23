@@ -98,7 +98,7 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli
     fillTypeMenu(conv_protos);
 
     updateWidgets();
-    itemSelectionChanged();
+//    currentTabChanged();
 
     cap_file_.delayedRetapPackets();
 }
@@ -153,8 +153,6 @@ bool ConversationDialog::addTrafficTable(register_ct_t* table)
 
     trafficTableTabWidget()->addTab(conv_tree, table_name);
 
-    connect(conv_tree, SIGNAL(itemSelectionChanged()),
-            this, SLOT(itemSelectionChanged()));
     connect(conv_tree, SIGNAL(titleChanged(QWidget*,QString)),
             this, SLOT(setTabText(QWidget*,QString)));
     connect(conv_tree, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
@@ -252,7 +250,7 @@ void ConversationDialog::graphTcp()
     openTcpStreamGraph(GRAPH_TSEQ_TCPTRACE);
 }
 
-void ConversationDialog::itemSelectionChanged()
+void ConversationDialog::currentTabChanged()
 {
     bool copy_enable = trafficTableTabWidget()->currentWidget() ? true : false;
     bool follow_enable = false, graph_enable = false;
@@ -274,6 +272,8 @@ void ConversationDialog::itemSelectionChanged()
     copy_bt_->setEnabled(copy_enable);
     follow_bt_->setEnabled(follow_enable);
     graph_bt_->setEnabled(graph_enable);
+
+    TrafficTableDialog::currentTabChanged();
 }
 
 void ConversationDialog::on_displayFilterCheckBox_toggled(bool checked)
@@ -320,70 +320,63 @@ static const char *bps_na_ = UTF8_EM_DASH;
 class ConversationTreeWidgetItem : public TrafficTableTreeWidgetItem
 {
 public:
-    ConversationTreeWidgetItem(QTreeWidget *tree, GArray *conv_array, guint conv_idx) :
-        TrafficTableTreeWidgetItem(tree),
+    ConversationTreeWidgetItem(GArray *conv_array, guint conv_idx, bool *resolve_names_ptr) :
+        TrafficTableTreeWidgetItem(NULL),
         conv_array_(conv_array),
         conv_idx_(conv_idx),
-        last_packets_(0)
+        resolve_names_ptr_(resolve_names_ptr)
     {}
 
     conv_item_t *convItem() {
         return &g_array_index(conv_array_, conv_item_t, conv_idx_);
     }
 
-    // Set column text to its cooked representation.
-    void update(gboolean resolve_names, bool force) {
-        conv_item_t *conv_item = &g_array_index(conv_array_, conv_item_t, conv_idx_);
-        char *src_addr, *dst_addr, *src_port, *dst_port;
+    virtual QVariant data(int column, int role) const {
+        if (role == Qt::DisplayRole) {
+            // Column text cooked representation.
+            conv_item_t *conv_item = &g_array_index(conv_array_, conv_item_t, conv_idx_);
+            if (!conv_item) return QVariant();
 
-        if (!conv_item) {
-            return;
+            bool resolve_names = false;
+            if (resolve_names_ptr_ && *resolve_names_ptr_) resolve_names = true;
+            double duration = nstime_to_sec(&conv_item->stop_time) - nstime_to_sec(&conv_item->start_time);
+            QString bps_ab = bps_na_, bps_ba = bps_na_;
+
+            switch (column) {
+            case CONV_COLUMN_PACKETS:
+                return QString("%L1").arg(conv_item->tx_frames + conv_item->rx_frames);
+            case CONV_COLUMN_BYTES:
+                return gchar_free_to_qstring(format_size(conv_item->tx_bytes + conv_item->rx_bytes, format_size_unit_none|format_size_prefix_si));
+            case CONV_COLUMN_PKT_AB:
+                return QString("%L1").arg(conv_item->tx_frames);
+            case CONV_COLUMN_BYTES_AB:
+                return gchar_free_to_qstring(format_size(conv_item->tx_bytes, format_size_unit_none|format_size_prefix_si));
+            case CONV_COLUMN_PKT_BA:
+                return QString("%L1").arg(conv_item->rx_frames);
+            case CONV_COLUMN_BYTES_BA:
+                return gchar_free_to_qstring(format_size(conv_item->rx_bytes, format_size_unit_none|format_size_prefix_si));
+            case CONV_COLUMN_START:
+                return QString::number(nstime_to_sec(&conv_item->start_time), 'f', 9);
+            case CONV_COLUMN_DURATION:
+                return QString::number(duration, 'f', 6);
+            case CONV_COLUMN_BPS_AB:
+                if (duration > min_bw_calc_duration_) {
+                    bps_ab = gchar_free_to_qstring(format_size((gint64) conv_item->tx_bytes * 8 / duration, format_size_unit_none|format_size_prefix_si));
+                }
+                return bps_ab;
+            case CONV_COLUMN_BPS_BA:
+                if (duration > min_bw_calc_duration_) {
+                    bps_ba = gchar_free_to_qstring(format_size((gint64) conv_item->rx_bytes * 8 / duration, format_size_unit_none|format_size_prefix_si));
+                }
+                return bps_ba;
+            default:
+                return colData(column, resolve_names).toString();
+            }
         }
-
-        quint64 packets = conv_item->tx_frames + conv_item->rx_frames;
-        if (!force && last_packets_ == packets) {
-            return;
-        }
-
-        src_addr = get_conversation_address(NULL, &conv_item->src_address, resolve_names);
-        dst_addr = get_conversation_address(NULL, &conv_item->dst_address, resolve_names);
-        src_port = get_conversation_port(NULL, conv_item->src_port, conv_item->ptype, resolve_names);
-        dst_port = get_conversation_port(NULL, conv_item->dst_port, conv_item->ptype, resolve_names);
-        setText(CONV_COLUMN_SRC_ADDR, src_addr);
-        setText(CONV_COLUMN_SRC_PORT, src_port);
-        setText(CONV_COLUMN_DST_ADDR, dst_addr);
-        setText(CONV_COLUMN_DST_PORT, dst_port);
-        wmem_free(NULL, src_addr);
-        wmem_free(NULL, dst_addr);
-        wmem_free(NULL, src_port);
-        wmem_free(NULL, dst_port);
-
-        double duration = nstime_to_sec(&conv_item->stop_time) - nstime_to_sec(&conv_item->start_time);
-        QString col_str, bps_ab = bps_na_, bps_ba = bps_na_;
-
-        col_str = QString("%L1").arg(packets);
-        setText(CONV_COLUMN_PACKETS, col_str);
-        col_str = gchar_free_to_qstring(format_size(conv_item->tx_bytes + conv_item->rx_bytes, format_size_unit_none|format_size_prefix_si));
-        setText(CONV_COLUMN_BYTES, col_str);
-        col_str = QString("%L1").arg(conv_item->tx_frames);
-        setText(CONV_COLUMN_PKT_AB, QString::number(conv_item->tx_frames));
-        col_str = gchar_free_to_qstring(format_size(conv_item->tx_bytes, format_size_unit_none|format_size_prefix_si));
-        setText(CONV_COLUMN_BYTES_AB, col_str);
-        col_str = QString("%L1").arg(conv_item->rx_frames);
-        setText(CONV_COLUMN_PKT_BA, QString::number(conv_item->rx_frames));
-        col_str = gchar_free_to_qstring(format_size(conv_item->rx_bytes, format_size_unit_none|format_size_prefix_si));
-        setText(CONV_COLUMN_BYTES_BA, col_str);
-        setText(CONV_COLUMN_START, QString::number(nstime_to_sec(&conv_item->start_time), 'f', 9));
-        setText(CONV_COLUMN_DURATION, QString::number(duration, 'f', 6));
-        if (duration > min_bw_calc_duration_) {
-            bps_ab = gchar_free_to_qstring(format_size((gint64) conv_item->tx_bytes * 8 / duration, format_size_unit_none|format_size_prefix_si));
-            bps_ba = gchar_free_to_qstring(format_size((gint64) conv_item->rx_bytes * 8 / duration, format_size_unit_none|format_size_prefix_si));
-        }
-        setText(CONV_COLUMN_BPS_AB, bps_ab);
-        setText(CONV_COLUMN_BPS_BA, bps_ba);
-        last_packets_ = packets;
+        return QTreeWidgetItem::data(column, role);
     }
 
+    // Column text raw representation.
     // Return a QString, qulonglong, double, or invalid QVariant representing the raw column data.
     QVariant colData(int col, bool resolve_names) const {
         conv_item_t *conv_item = &g_array_index(conv_array_, conv_item_t, conv_idx_);
@@ -507,7 +500,7 @@ public:
 private:
     GArray *conv_array_;
     guint conv_idx_;
-    quint64 last_packets_;
+    bool *resolve_names_ptr_;
 };
 
 // ConversationTreeWidget
@@ -517,6 +510,7 @@ ConversationTreeWidget::ConversationTreeWidget(QWidget *parent, register_ct_t* t
     TrafficTableTreeWidget(parent, table)
 {
     setColumnCount(CONV_NUM_COLUMNS);
+    setUniformRowHeights(true);
 
     for (int i = 0; i < CONV_NUM_COLUMNS; i++) {
         headerItem()->setText(i, conv_column_titles[i]);
@@ -608,7 +602,7 @@ ConversationTreeWidget::ConversationTreeWidget(QWidget *parent, register_ct_t* t
         connect(fa, SIGNAL(triggered()), this, SLOT(filterActionTriggered()));
     }
 
-    updateItems(false);
+    updateItems();
 }
 
 ConversationTreeWidget::~ConversationTreeWidget() {
@@ -632,7 +626,7 @@ void ConversationTreeWidget::tapDraw(void *conv_hash_ptr)
     ConversationTreeWidget *conv_tree = qobject_cast<ConversationTreeWidget *>((ConversationTreeWidget *)hash->user_data);
     if (!conv_tree) return;
 
-    conv_tree->updateItems(false);
+    conv_tree->updateItems();
 }
 
 QMap<FilterAction::ActionDirection, conv_direction_e> fad_to_cd_;
@@ -654,7 +648,8 @@ void ConversationTreeWidget::initDirectionMap()
     fad_to_cd_[FilterAction::ActionDirectionAnyFromB] = CONV_DIR_ANY_FROM_B;
 }
 
-void ConversationTreeWidget::updateItems(bool force) {
+void ConversationTreeWidget::updateItems() {
+    bool resize = topLevelItemCount() < resizeThreshold();
     title_ = proto_get_protocol_short_name(find_protocol_by_id(get_conversation_proto_id(table_)));
 
     if (hash_.conv_array && hash_.conv_array->len > 0) {
@@ -667,9 +662,11 @@ void ConversationTreeWidget::updateItems(bool force) {
     }
 
     setSortingEnabled(false);
+
+    QList<QTreeWidgetItem *>new_items;
     for (int i = topLevelItemCount(); i < (int) hash_.conv_array->len; i++) {
-        ConversationTreeWidgetItem *ctwi = new ConversationTreeWidgetItem(this, hash_.conv_array, i);
-        addTopLevelItem(ctwi);
+        ConversationTreeWidgetItem *ctwi = new ConversationTreeWidgetItem(hash_.conv_array, i, &resolve_names_);
+        new_items << ctwi;
 
         for (int col = 0; col < columnCount(); col++) {
             switch (col) {
@@ -682,16 +679,14 @@ void ConversationTreeWidget::updateItems(bool force) {
             }
         }
     }
-    QTreeWidgetItemIterator iter(this);
-    while (*iter) {
-        ConversationTreeWidgetItem *ci = static_cast<ConversationTreeWidgetItem *>(*iter);
-        ci->update(resolve_names_, force);
-        ++iter;
-    }
+    addTopLevelItems(new_items);
+
     setSortingEnabled(true);
 
-    for (int col = 0; col < columnCount(); col++) {
-        resizeColumnToContents(col);
+    if (resize) {
+        for (int col = 0; col < columnCount(); col++) {
+            resizeColumnToContents(col);
+        }
     }
 }
 
