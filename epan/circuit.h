@@ -42,7 +42,7 @@ typedef struct circuit {
 	struct circuit *next;		/**< pointer to next circuit with given circuit ID */
 	guint32 first_frame;		/**< # of first frame for that circuit */
 	guint32 last_frame;			/**< # of last frame for that circuit */
-	guint32	index;				/**< unique ID for circuit */
+	guint32	circuit_index;		/**< unique ID for circuit */
 	GSList *data_list;			/**< list of data associated with circuit */
 	dissector_handle_t dissector_handle; /**< handle for protocol dissector client associated with circuit */
 	guint	options;			/**< wildcard flags */

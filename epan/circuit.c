@@ -120,7 +120,7 @@ circuit_new(circuit_type ctype, guint32 circuit_id, guint32 first_frame)
 	circuit->next = NULL;
 	circuit->first_frame = first_frame;
 	circuit->last_frame = 0;	/* not known yet */
-	circuit->index = new_index;
+	circuit->circuit_index = new_index;
 	circuit->data_list = NULL;
 	circuit->dissector_handle = NULL;
 	circuit->key_ptr = new_key;
