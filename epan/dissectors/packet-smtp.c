@@ -439,7 +439,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
        */
       spd_frame_data = (struct smtp_proto_data *)wmem_alloc0(wmem_file_scope(), sizeof(struct smtp_proto_data));
 
-      spd_frame_data->conversation_id = conversation->index;
+      spd_frame_data->conversation_id = conversation->conv_index;
       spd_frame_data->more_frags = TRUE;
 
       p_add_proto_data(wmem_file_scope(), pinfo, proto_smtp, 0, spd_frame_data);

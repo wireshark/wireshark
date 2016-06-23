@@ -989,7 +989,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
                                  0);
         if (conv) {
           /* Found a conversation, also use index for the generated dst_ref */
-          dst_ref += (conv->index << 16);
+          dst_ref += (conv->conv_index << 16);
         }
         if (!fragment) {
           cotp_dst_ref++;

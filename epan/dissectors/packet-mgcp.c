@@ -418,7 +418,7 @@ static guint mgcp_call_hash(gconstpointer k)
 {
 	const mgcp_call_info_key* key = (const mgcp_call_info_key*) k;
 
-	return key->transid  + key->conversation->index;
+	return key->transid  + key->conversation->conv_index;
 }
 
 

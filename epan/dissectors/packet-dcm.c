@@ -6682,7 +6682,7 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         */
         DISSECTOR_ASSERT(conv);
 
-        reassembly_id = (((conv->index) & 0x00FFFFFF) << 8) + pdv->pctx_id;
+        reassembly_id = (((conv->conv_index) & 0x00FFFFFF) << 8) + pdv->pctx_id;
 
         head = fragment_add_seq_next(&dcm_pdv_reassembly_table,
                                 tvb, offset, pinfo, reassembly_id, NULL,

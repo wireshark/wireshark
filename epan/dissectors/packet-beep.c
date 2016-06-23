@@ -782,14 +782,14 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       /*
        * Check for and insert an entry in the request table if does not exist
        */
-      request_key.conversation = conversation->index;
+      request_key.conversation = conversation->conv_index;
 
       request_val = (struct beep_request_val *)g_hash_table_lookup(beep_request_hash, &request_key);
 
       if (!request_val) { /* Create one */
 
         new_request_key = wmem_new(wmem_file_scope(), struct beep_request_key);
-        new_request_key->conversation = conversation->index;
+        new_request_key->conversation = conversation->conv_index;
 
         request_val = wmem_new(wmem_file_scope(), struct beep_request_val);
         request_val->processed = 0;

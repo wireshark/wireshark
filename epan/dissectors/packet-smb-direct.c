@@ -150,7 +150,7 @@ dissect_smb_direct_payload(tvbuff_t *tvb, packet_info *pinfo,
 		pinfo->fd->flags.visited = 0;
 		fd_head = fragment_add_seq_next(&smb_direct_reassembly_table,
 						tvb, 0, pinfo,
-						conversation->index,
+						conversation->conv_index,
 						NULL, tvb_captured_length(tvb),
 						more_frags);
 	}
@@ -165,7 +165,7 @@ dissect_smb_direct_payload(tvbuff_t *tvb, packet_info *pinfo,
 		 */
 		fd_head = fragment_get_reassembled_id(&smb_direct_reassembly_table,
 						      pinfo,
-						      conversation->index);
+						      conversation->conv_index);
 	}
 
 	if (fd_head == NULL) {

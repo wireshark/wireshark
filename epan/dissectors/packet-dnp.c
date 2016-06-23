@@ -3352,7 +3352,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
          * conversation and the DNP src and dst addresses
          */
 
-        dl_conversation_key.conversation = conversation->index;
+        dl_conversation_key.conversation = conversation->conv_index;
         dl_conversation_key.src = dl_src;
         dl_conversation_key.dst = dl_dst;
 

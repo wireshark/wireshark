@@ -798,11 +798,11 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AJP13");
 
   if (mag == 0x1234 && !fd->is_request_body)
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%d:REQ:", conv->index);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%d:REQ:", conv->conv_index);
   else if (mag == 0x1234 && fd->is_request_body)
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%d:REQ:Body", conv->index);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%d:REQ:Body", conv->conv_index);
   else if (mag == 0x4142)
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%d:RSP:", conv->index);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%d:RSP:", conv->conv_index);
   else
     col_set_str(pinfo->cinfo, COL_INFO, "AJP13 Error?");
 

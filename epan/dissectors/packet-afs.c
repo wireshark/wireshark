@@ -2766,7 +2766,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	 */
 	conversation = find_or_create_conversation(pinfo);
 
-	request_key.conversation = conversation->index;
+	request_key.conversation = conversation->conv_index;
 	request_key.service = rxinfo->serviceid;
 	request_key.epoch = rxinfo->epoch;
 	request_key.cid = rxinfo->cid;

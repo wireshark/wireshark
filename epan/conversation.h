@@ -74,7 +74,7 @@ typedef struct conversation {
 	struct conversation *last;	/** pointer to the last conversation on hash chain */
 	struct conversation *latest_found;
 								/** pointer to the last conversation on hash chain */
-	guint32	index;				/** unique ID for conversation */
+	guint32	conv_index;				/** unique ID for conversation */
 	guint32 setup_frame;		/** frame number that setup this conversation */
 	/* Assume that setup_frame is also the lowest frame number for now. */
 	guint32 last_frame;		/** highest frame number in this conversation */

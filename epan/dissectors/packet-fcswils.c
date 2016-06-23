@@ -1722,7 +1722,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                                             fchdr->rxid, NO_PORT2);
         }
 
-        ckey.conv_idx = conversation->index;
+        ckey.conv_idx = conversation->conv_index;
 
         cdata = (fcswils_conv_data_t *)g_hash_table_lookup(fcswils_req_hash,
                                                            &ckey);
@@ -1735,7 +1735,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         }
         else {
             req_key = wmem_new(wmem_file_scope(), fcswils_conv_key_t);
-            req_key->conv_idx = conversation->index;
+            req_key->conv_idx = conversation->conv_index;
 
             cdata = wmem_new(wmem_file_scope(), fcswils_conv_data_t);
             cdata->opcode = opcode;
@@ -1757,7 +1757,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             }
         }
         else {
-            ckey.conv_idx = conversation->index;
+            ckey.conv_idx = conversation->conv_index;
 
             cdata = (fcswils_conv_data_t *)g_hash_table_lookup(fcswils_req_hash, &ckey);
 

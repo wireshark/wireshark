@@ -1036,7 +1036,7 @@ static void _9p_hash_set(packet_info *pinfo, guint16 tag, guint32 fid, struct _9
 
 	key = wmem_new(wmem_file_scope(), struct _9p_hashkey);
 
-	key->conv_index = conv->index;
+	key->conv_index = conv->conv_index;
 	key->tag = tag;
 	key->fid = fid;
 
@@ -1055,7 +1055,7 @@ static struct _9p_hashval *_9p_hash_get(packet_info *pinfo, guint16 tag, guint32
 
 	conv = find_or_create_conversation(pinfo);
 
-	key.conv_index = conv->index;
+	key.conv_index = conv->conv_index;
 	key.tag = tag;
 	key.fid = fid;
 
@@ -1069,7 +1069,7 @@ static void _9p_hash_free(packet_info *pinfo, guint16 tag, guint32 fid)
 
 	conv = find_or_create_conversation(pinfo);
 
-	key.conv_index = conv->index;
+	key.conv_index = conv->conv_index;
 	key.tag = tag;
 	key.fid = fid;
 

@@ -7472,7 +7472,7 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 
     /* Now build the request key */
     memset(&request_key, 0, sizeof(request_key));
-    request_key.conversation = conversation->index;
+    request_key.conversation = conversation->conv_index;
     request_key.session_type = rsvph->session_type;
 
     switch (request_key.session_type) {
@@ -7563,7 +7563,7 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         copy_address_wmem(wmem_file_scope(), &new_request_key->source_info.source, &rsvph->source);
 
         request_val = wmem_new(wmem_file_scope(), struct rsvp_request_val);
-        request_val->value = conversation->index;
+        request_val->value = conversation->conv_index;
 
         g_hash_table_insert(rsvp_request_hash, new_request_key, request_val);
     }

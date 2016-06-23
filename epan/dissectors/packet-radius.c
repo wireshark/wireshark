@@ -573,7 +573,7 @@ radius_call_hash(gconstpointer k)
 {
 	const radius_call_info_key *key = (const radius_call_info_key *) k;
 
-	return key->ident + key->conversation->index;
+	return key->ident + key->conversation->conv_index;
 }
 
 

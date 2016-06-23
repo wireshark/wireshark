@@ -1007,7 +1007,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 						   &pinfo->src, &pinfo->dst, pinfo->ptype,
 						   pinfo->srcport, pinfo->destport, 0);
 		if (conversation != NULL) {
-			ses_id = conversation->index;
+			ses_id = conversation->conv_index;
 		}
 		fragment_len = tvb_reported_length_remaining (tvb, offset);
 		ti = proto_tree_add_item (ses_tree, hf_ses_segment_data, tvb, offset,

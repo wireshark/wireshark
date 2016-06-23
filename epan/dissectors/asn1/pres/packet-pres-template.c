@@ -145,7 +145,7 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, const char *oid)
 	conversation=find_conversation (pinfo->num, &pinfo->src, &pinfo->dst,
 			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	if (conversation) {
-		pco->idx = conversation->index;
+		pco->idx = conversation->conv_index;
 	} else {
 		pco->idx = 0;
 	}
@@ -186,7 +186,7 @@ find_oid_by_pres_ctx_id(packet_info *pinfo, guint32 idx)
 	conversation=find_conversation (pinfo->num, &pinfo->src, &pinfo->dst,
 			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	if (conversation) {
-		pco.idx = conversation->index;
+		pco.idx = conversation->conv_index;
 	} else {
 		pco.idx = 0;
 	}

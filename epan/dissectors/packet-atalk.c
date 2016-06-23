@@ -746,7 +746,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   if (atp_defragment) {
     asp_request_key request_key;
 
-    request_key.conversation = conversation->index;
+    request_key.conversation = conversation->conv_index;
     memcpy(request_key.src, (!aspinfo.reply)?pinfo->src.data:pinfo->dst.data, 4);
     request_key.seq = aspinfo.seq;
 
@@ -994,7 +994,7 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo, struct aspinfo *aspinfo)
 
   conversation = find_or_create_conversation(pinfo);
 
-  request_key.conversation = conversation->index;
+  request_key.conversation = conversation->conv_index;
   memcpy(request_key.src, (!aspinfo->reply)?pinfo->src.data:pinfo->dst.data, 4);
   request_key.seq = aspinfo->seq;
 

@@ -650,7 +650,7 @@ static int dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
                               pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
     if (conv) {
         /* Found a conversation, also use index for the generated dst_ref */
-        dst_ref = conv->index;
+        dst_ref = conv->conv_index;
     }
 
     /* save parent_tree so subdissectors can create new top nodes */

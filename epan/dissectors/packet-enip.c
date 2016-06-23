@@ -2278,7 +2278,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                     */
                    request_key->session_handle = GPOINTER_TO_UINT(conversation);
                    request_key->sender_context = trans_id;
-                   request_key->conversation   = conversation->index;
+                   request_key->conversation   = conversation->conv_index;
                }
 
 
@@ -2713,7 +2713,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
    request_key.type           = EPDT_UNKNOWN;
    request_key.session_handle = tvb_get_letohl( tvb, 4 );
    request_key.sender_context = tvb_get_letoh64( tvb, 12 );
-   request_key.conversation   = conversation->index;
+   request_key.conversation   = conversation->conv_index;
 
    encap_data_length = tvb_get_letohs( tvb, 2 );
    enip_tree = NULL;

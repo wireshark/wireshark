@@ -3406,7 +3406,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 */
 	if (conversation == NULL)
 		conversation = get_conversation_for_tcp(pinfo);
-	old_rfk.conv_id = conversation->index;
+	old_rfk.conv_id = conversation->conv_index;
 	old_rfk.seq = seq;
 	old_rfk.port = pinfo->srcport;
 	rfk = (rpc_fragment_key *)g_hash_table_lookup(rpc_reassembly_table, &old_rfk);
@@ -3447,7 +3447,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 */
 
 			rfk = wmem_new(wmem_file_scope(), rpc_fragment_key);
-			rfk->conv_id = conversation->index;
+			rfk->conv_id = conversation->conv_index;
 			rfk->seq = seq;
 			rfk->port = pinfo->srcport;
 			rfk->offset = 0;

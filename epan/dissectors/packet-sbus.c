@@ -698,7 +698,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
        conversation = find_or_create_conversation(pinfo);
 
-       request_key.conversation = conversation->index;
+       request_key.conversation = conversation->conv_index;
        request_key.sequence = tvb_get_ntohs(tvb,6);
 
        request_val = (sbus_request_val *) g_hash_table_lookup(sbus_request_hash,

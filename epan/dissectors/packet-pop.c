@@ -204,7 +204,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         frame_data_p = wmem_new(wmem_file_scope(), struct pop_proto_data);
 
-        frame_data_p->conversation_id = conversation->index;
+        frame_data_p->conversation_id = conversation->conv_index;
         frame_data_p->more_frags = data_val->msg_read_len < data_val->msg_tot_len;
 
         p_add_proto_data(wmem_file_scope(), pinfo, proto_pop, 0, frame_data_p);
