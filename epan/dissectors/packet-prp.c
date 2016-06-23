@@ -105,7 +105,7 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
      * That is not guaranteed to be true.
      */
     if (!tvb_bytes_exist(tvb, 12, 2))
-        return 0;
+        return;
     if(ETHERTYPE_VLAN == tvb_get_ntohs(tvb, 12)) /* tagged frame */
     {
         offset = 18;
@@ -120,7 +120,7 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
      * trailer?
      */
     if (!tvb_bytes_exist(tvb, (length-4)+2, 2))
-        return 0;  /* no */
+        return;  /* no */
 
     /* search for PRP-0 trailer */
     /* If the frame is >  64 bytes, the PRP-0 trailer is always at the end. */
