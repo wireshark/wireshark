@@ -54,6 +54,7 @@ static int hf_lacp_actor_key = -1;
 static int hf_lacp_actor_port_priority = -1;
 static int hf_lacp_actor_port = -1;
 static int hf_lacp_actor_state = -1;
+static int hf_lacp_actor_state_str = -1;
 static int hf_lacp_flags_a_activity = -1;
 static int hf_lacp_flags_a_timeout = -1;
 static int hf_lacp_flags_a_aggregation = -1;
@@ -72,6 +73,7 @@ static int hf_lacp_partner_key = -1;
 static int hf_lacp_partner_port_priority = -1;
 static int hf_lacp_partner_port = -1;
 static int hf_lacp_partner_state = -1;
+static int hf_lacp_partner_state_str = -1;
 static int hf_lacp_flags_p_activity = -1;
 static int hf_lacp_flags_p_timeout = -1;
 static int hf_lacp_flags_p_aggregation = -1;
@@ -97,6 +99,29 @@ static gint ett_lacp = -1;
 static gint ett_lacp_a_flags = -1;
 static gint ett_lacp_p_flags = -1;
 
+static const true_false_string tfs_active_passive = { "Active", "Passive" };
+static const true_false_string tfs_short_long_timeout = { "Short Timeout", "Long Timeout" };
+static const true_false_string tfs_aggregatable_individual = { "Aggregatable", "Individual" };
+static const true_false_string tfs_in_sync_out_sync = { "In Sync", "Out of Sync" };
+
+static const char * lacp_state_flags_to_str(guint32 value)
+{
+    wmem_strbuf_t *buf = wmem_strbuf_new(wmem_packet_scope(), "");
+    const unsigned int flags_count = 8;
+    const char first_letters[] = "EFDCSGSA";
+    unsigned int i;
+
+    for (i = 0; i < flags_count; i++) {
+        if (((value >> (flags_count - 1 - i)) & 1)) {
+            wmem_strbuf_append_c(buf, first_letters[i]);
+        } else {
+            wmem_strbuf_append_c(buf, '*');
+        }
+    }
+
+    return wmem_strbuf_finalize(buf);
+}
+
 /*
  * Name: dissect_lacp
  *
@@ -121,7 +146,7 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     guint8  raw_octet;
 
     proto_tree *lacpdu_tree;
-    proto_item *lacpdu_item;
+    proto_item *lacpdu_item, *ti;
     static const int * actor_flags[] = {
         &hf_lacp_flags_a_activity,
         &hf_lacp_flags_a_timeout,
@@ -208,6 +233,8 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     /* Actor State */
     proto_tree_add_bitmask_with_flags(lacpdu_tree, tvb, offset, hf_lacp_actor_state,
                            ett_lacp_a_flags, actor_flags, ENC_NA, BMT_NO_INT|BMT_NO_TFS|BMT_NO_FALSE);
+    ti = proto_tree_add_string(lacpdu_tree, hf_lacp_actor_state_str, tvb, offset, 1, lacp_state_flags_to_str(tvb_get_guint8(tvb, offset)));
+    PROTO_ITEM_SET_GENERATED(ti);
     offset += 1;
 
     /* Actor Reserved */
@@ -265,6 +292,8 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         proto_tree_add_bitmask_with_flags(lacpdu_tree, tvb, offset, hf_lacp_partner_state,
                            ett_lacp_p_flags, partner_flags, ENC_NA, BMT_NO_INT|BMT_NO_TFS|BMT_NO_FALSE);
 
+        ti = proto_tree_add_string(lacpdu_tree, hf_lacp_partner_state_str, tvb, offset, 1, lacp_state_flags_to_str(tvb_get_guint8(tvb, offset)));
+        PROTO_ITEM_SET_GENERATED(ti);
         offset += 1;
 
         /* Partner Reserved */
@@ -369,35 +398,40 @@ proto_register_lacp(void)
             FT_UINT8,    BASE_HEX,    NULL,    0x0,
             "The Actor's state variables for the port, encoded as bits within a single octet", HFILL }},
 
+        { &hf_lacp_actor_state_str,
+          { "Actor State Flags",            "lacp.actorState.str",
+            FT_STRING,    BASE_NONE,    NULL,    0x0,
+            "The Actor's state flags as a string value", HFILL }},
+
         { &hf_lacp_flags_a_activity,
           { "LACP Activity",        "lacp.actorState.activity",
-            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_ACTIVITY,
-            "Activity control value for this link. Active = 1, Passive = 0", HFILL }},
+            FT_BOOLEAN,    8,        TFS(&tfs_active_passive),    LACPDU_FLAGS_ACTIVITY,
+            NULL, HFILL }},
 
         { &hf_lacp_flags_a_timeout,
           { "LACP Timeout",        "lacp.actorState.timeout",
-            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_TIMEOUT,
-            "Timeout control value for this link. Short Timeout = 1, Long Timeout = 0", HFILL }},
+            FT_BOOLEAN,    8,        TFS(&tfs_short_long_timeout),    LACPDU_FLAGS_TIMEOUT,
+            NULL, HFILL }},
 
         { &hf_lacp_flags_a_aggregation,
           { "Aggregation",        "lacp.actorState.aggregation",
-            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_AGGREGATION,
-            "Aggregatable = 1, Individual = 0", HFILL }},
+            FT_BOOLEAN,    8,        TFS(&tfs_aggregatable_individual),    LACPDU_FLAGS_AGGREGATION,
+            NULL, HFILL }},
 
         { &hf_lacp_flags_a_sync,
           { "Synchronization",        "lacp.actorState.synchronization",
-            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_SYNC,
-            "In Sync = 1, Out of Sync = 0", HFILL }},
+            FT_BOOLEAN,    8,        TFS(&tfs_in_sync_out_sync),    LACPDU_FLAGS_SYNC,
+            NULL, HFILL }},
 
         { &hf_lacp_flags_a_collecting,
           { "Collecting",        "lacp.actorState.collecting",
-            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_COLLECTING,
-            "Collection of incoming frames is: Enabled = 1, Disabled = 0", HFILL }},
+            FT_BOOLEAN,    8,        TFS(&tfs_enabled_disabled),    LACPDU_FLAGS_COLLECTING,
+            NULL, HFILL }},
 
         { &hf_lacp_flags_a_distrib,
           { "Distributing",        "lacp.actorState.distributing",
-            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_DISTRIB,
-            "Distribution of outgoing frames is: Enabled = 1, Disabled = 0", HFILL }},
+            FT_BOOLEAN,    8,        TFS(&tfs_enabled_disabled),    LACPDU_FLAGS_DISTRIB,
+            NULL, HFILL }},
 
         { &hf_lacp_flags_a_defaulted,
           { "Defaulted",        "lacp.actorState.defaulted",
@@ -454,35 +488,40 @@ proto_register_lacp(void)
             FT_UINT8,    BASE_HEX,    NULL,    0x0,
             "The Partner's state variables for the port, encoded as bits within a single octet", HFILL }},
 
+        { &hf_lacp_partner_state_str,
+          { "Partner State Flags",            "lacp.partnerState.str",
+            FT_STRING,    BASE_NONE,    NULL,    0x0,
+            "The Partner's state flags as a string value", HFILL }},
+
         { &hf_lacp_flags_p_activity,
           { "LACP Activity",        "lacp.partnerState.activity",
-            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_ACTIVITY,
-            "Activity control value for this link. Active = 1, Passive = 0", HFILL }},
+            FT_BOOLEAN,    8,        TFS(&tfs_active_passive),    LACPDU_FLAGS_ACTIVITY,
+            NULL, HFILL }},
 
         { &hf_lacp_flags_p_timeout,
           { "LACP Timeout",        "lacp.partnerState.timeout",
-            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_TIMEOUT,
-            "Timeout control value for this link. Short Timeout = 1, Long Timeout = 0", HFILL }},
+            FT_BOOLEAN,    8,        TFS(&tfs_short_long_timeout),    LACPDU_FLAGS_TIMEOUT,
+            NULL, HFILL }},
 
         { &hf_lacp_flags_p_aggregation,
           { "Aggregation",        "lacp.partnerState.aggregation",
-            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_AGGREGATION,
-            "Aggregatable = 1, Individual = 0", HFILL }},
+            FT_BOOLEAN,    8,        TFS(&tfs_aggregatable_individual),    LACPDU_FLAGS_AGGREGATION,
+            NULL, HFILL }},
 
         { &hf_lacp_flags_p_sync,
           { "Synchronization",        "lacp.partnerState.synchronization",
-            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_SYNC,
-            "In Sync = 1, Out of Sync = 0", HFILL }},
+            FT_BOOLEAN,    8,        TFS(&tfs_in_sync_out_sync),    LACPDU_FLAGS_SYNC,
+            NULL, HFILL }},
 
         { &hf_lacp_flags_p_collecting,
           { "Collecting",        "lacp.partnerState.collecting",
-            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_COLLECTING,
-            "Collection of incoming frames is: Enabled = 1, Disabled = 0", HFILL }},
+            FT_BOOLEAN,    8,        TFS(&tfs_enabled_disabled),    LACPDU_FLAGS_COLLECTING,
+            NULL, HFILL }},
 
         { &hf_lacp_flags_p_distrib,
           { "Distributing",        "lacp.partnerState.distributing",
-            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_DISTRIB,
-            "Distribution of outgoing frames is: Enabled = 1, Disabled = 0", HFILL }},
+            FT_BOOLEAN,    8,        TFS(&tfs_enabled_disabled),    LACPDU_FLAGS_DISTRIB,
+            NULL, HFILL }},
 
         { &hf_lacp_flags_p_defaulted,
           { "Defaulted",        "lacp.partnerState.defaulted",
