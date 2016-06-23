@@ -40,7 +40,7 @@ WS_DLL_PUBLIC gboolean ex_opt_add(const gchar* optarg);
 WS_DLL_PUBLIC gint ex_opt_count(const gchar* key);
 
 /* fetches the nth argument of a given key returns NULL if there isn't */
-WS_DLL_PUBLIC const gchar* ex_opt_get_nth(const gchar* key, guint index);
+WS_DLL_PUBLIC const gchar* ex_opt_get_nth(const gchar* key, guint key_index);
 
 /* extracts the next value of a given key */
 WS_DLL_PUBLIC const gchar* ex_opt_get_next(const gchar* key);

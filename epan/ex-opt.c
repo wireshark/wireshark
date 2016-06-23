@@ -75,7 +75,7 @@ gint ex_opt_count(const gchar* key) {
     }
 }
 
-const gchar* ex_opt_get_nth(const gchar* key, guint index) {
+const gchar* ex_opt_get_nth(const gchar* key, guint key_index) {
     GPtrArray* this_opts;
 
     if (! ex_opts)
@@ -84,8 +84,8 @@ const gchar* ex_opt_get_nth(const gchar* key, guint index) {
     this_opts = (GPtrArray *)g_hash_table_lookup(ex_opts,key);
 
     if (this_opts) {
-        if (this_opts->len > index) {
-            return (const gchar *)g_ptr_array_index(this_opts,index);
+        if (this_opts->len > key_index) {
+            return (const gchar *)g_ptr_array_index(this_opts,key_index);
         } else {
             /* XXX: assert? */
             return NULL;
