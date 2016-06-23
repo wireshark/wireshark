@@ -82,6 +82,7 @@ static gint ett_lapd_address = -1;
 static gint ett_lapd_control = -1;
 static gint ett_lapd_checksum = -1;
 static gint pref_lapd_rtp_payload_type = 0;
+static guint pref_lapd_sctp_payload_protocol_identifier = 0;
 
 static expert_field ei_lapd_abort = EI_INIT;
 static expert_field ei_lapd_checksum_bad = EI_INIT;
@@ -746,6 +747,13 @@ proto_register_lapd(void)
 				       "RTP payload type for embedded LAPD. It must be one of the dynamic types "
 				       "from 96 to 127. Set it to 0 to disable.",
 				       10, &pref_lapd_rtp_payload_type);
+	prefs_register_uint_preference(lapd_module, "sctp_payload_protocol_identifier",
+				       "SCTP Payload protocol Identifier for LAPD",
+				       "SCTP Payload protocol Identifier for LAPD. Its a "
+				       "32 bits value from 0 to 4294967295. Set it to 0 to disable.",
+				       10, &pref_lapd_sctp_payload_protocol_identifier);
+
+
 }
 
 void
@@ -754,15 +762,20 @@ proto_reg_handoff_lapd(void)
 	static gboolean init = FALSE;
 	static dissector_handle_t lapd_bitstream_handle;
 	static gint lapd_rtp_payload_type;
+	static guint lapd_sctp_payload_protocol_identifier;
+
+	dissector_handle_t lapd_handle;
+	lapd_handle = find_dissector("lapd");
 
 	if (!init) {
-		dissector_handle_t lapd_handle;
 
-		lapd_handle = find_dissector("lapd");
 		dissector_add_uint("wtap_encap", WTAP_ENCAP_LINUX_LAPD, lapd_handle);
 		dissector_add_uint("wtap_encap", WTAP_ENCAP_LAPD, lapd_handle);
 		dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_LAPD, lapd_handle);
 		heur_dissector_add("udp", dissect_udp_lapd, "LAPD over UDP", "lapd_udp", proto_lapd, HEURISTIC_ENABLE);
+
+		dissector_add_for_decode_as("sctp.ppi", lapd_handle);
+		dissector_add_for_decode_as("sctp.port", lapd_handle);
 
 		register_dissector("lapd-bitstream", dissect_lapd_bitstream, proto_lapd);
 		lapd_bitstream_handle = find_dissector("lapd-bitstream");
@@ -771,11 +784,20 @@ proto_reg_handoff_lapd(void)
 	} else {
 		if ((lapd_rtp_payload_type > 95) && (lapd_rtp_payload_type < 128))
 			dissector_delete_uint("rtp.pt", lapd_rtp_payload_type, lapd_bitstream_handle);
+
+                /* If "previous" value is a valid protocol id, then clean up the dissector preference mapping. */
+		if (lapd_sctp_payload_protocol_identifier != 0)
+			dissector_delete_uint("sctp.ppi", lapd_sctp_payload_protocol_identifier, lapd_handle);
 	}
 
 	lapd_rtp_payload_type = pref_lapd_rtp_payload_type;
 	if ((lapd_rtp_payload_type > 95) && (lapd_rtp_payload_type < 128))
 		dissector_add_uint("rtp.pt", lapd_rtp_payload_type, lapd_bitstream_handle);
+
+        /* Only update the protocol identifier preference if there is a valid identifier (value > 0). */
+	lapd_sctp_payload_protocol_identifier = pref_lapd_sctp_payload_protocol_identifier;
+	if ( lapd_sctp_payload_protocol_identifier > 0)
+		dissector_add_uint("sctp.ppi", lapd_sctp_payload_protocol_identifier, lapd_handle);
 }
 
 /*
