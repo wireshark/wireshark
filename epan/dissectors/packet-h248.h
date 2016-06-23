@@ -103,7 +103,7 @@ typedef struct _gcp_msg_t {
 	guint32 lo_addr;
 	guint32 hi_addr;
 	guint32 framenum;
-	nstime_t time;
+	nstime_t frametime;
 	struct _gcp_trx_msg_t* trxs;
 	gboolean committed;
 } gcp_msg_t;

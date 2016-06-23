@@ -368,7 +368,7 @@ megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const 
         else {
             ms->time_stats[0].open_req_num--;
             /* calculate time delta between request and response */
-            nstime_delta(&delta, &pinfo->abs_ts, &mi->trx->initial->time);
+            nstime_delta(&delta, &pinfo->abs_ts, &mi->trx->initial->frametime);
 
             switch(mi->type) {
 
