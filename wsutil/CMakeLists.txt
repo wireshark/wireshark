@@ -75,6 +75,7 @@ if(WIN32)
 		file_util.c
 		inet_ntop.c
 		inet_pton.c
+		win32-utils.c
 	)
 ENDIF(WIN32)
 

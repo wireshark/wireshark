@@ -100,6 +100,8 @@ EXTRA_DIST = \
 	popcount.h	\
 	strptime.c	\
 	strptime.h	\
+	win32-utils.c	\
+	win32-utils.h	\
 	ws_mempbrk_sse42.c \
 	wsgcrypt.h	\
 	wsgetopt.h
