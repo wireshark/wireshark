@@ -102,8 +102,6 @@ static frame_data prev_dis_frame;
 static frame_data *prev_cap;
 static frame_data prev_cap_frame;
 
-static const char* prev_display_dissector_name = NULL;
-
 static gboolean perform_two_pass_analysis;
 
 /*
