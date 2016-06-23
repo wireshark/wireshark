@@ -300,14 +300,15 @@ int hf_text_only = -1;
 
 /* Structure for information about a protocol */
 struct _protocol {
-	const char *name;         /* long description */
-	const char *short_name;   /* short description */
-	const char *filter_name;  /* name of this protocol in filters */
-	GPtrArray  *fields;       /* fields for this protocol */
-	int         proto_id;     /* field ID for this protocol */
-	gboolean    is_enabled;   /* TRUE if protocol is enabled */
-	gboolean    can_toggle;   /* TRUE if is_enabled can be changed */
-	GList      *heur_list;    /* Heuristic dissectors associated with this protocol */
+	const char *name;               /* long description */
+	const char *short_name;         /* short description */
+	const char *filter_name;        /* name of this protocol in filters */
+	GPtrArray  *fields;             /* fields for this protocol */
+	int         proto_id;           /* field ID for this protocol */
+	gboolean    is_enabled;         /* TRUE if protocol is enabled */
+	gboolean    enabled_by_default; /* TRUE if protocol is enabled by default */
+	gboolean    can_toggle;         /* TRUE if is_enabled can be changed */
+	GList      *heur_list;          /* Heuristic dissectors associated with this protocol */
 };
 
 /* List of all protocols */
@@ -5700,6 +5701,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	protocol->filter_name = filter_name;
 	protocol->fields = g_ptr_array_new();
 	protocol->is_enabled = TRUE; /* protocol is enabled by default */
+	protocol->enabled_by_default = TRUE; /* see previous comment */
 	protocol->can_toggle = TRUE;
 	protocol->heur_list = NULL;
 	/* list will be sorted later by name, when all protocols completed registering */
@@ -6045,6 +6047,17 @@ proto_can_toggle_protocol(const int proto_id)
 }
 
 void
+proto_disable_by_default(const int proto_id)
+{
+	protocol_t *protocol;
+
+	protocol = find_protocol_by_id(proto_id);
+	DISSECTOR_ASSERT(protocol->can_toggle);
+	protocol->is_enabled = FALSE;
+	protocol->enabled_by_default = FALSE;
+}
+
+void
 proto_set_decoding(const int proto_id, const gboolean enabled)
 {
 	protocol_t *protocol;
@@ -6065,7 +6078,7 @@ proto_enable_all(void)
 
 	while (list_item) {
 		protocol = (protocol_t *)list_item->data;
-		if (protocol->can_toggle)
+		if (protocol->can_toggle && protocol->enabled_by_default)
 			protocol->is_enabled = TRUE;
 		list_item = g_list_next(list_item);
 	}

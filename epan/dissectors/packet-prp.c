@@ -272,6 +272,8 @@ void proto_reg_handoff_prp(void)
         prefs_initialized = TRUE;
     }
 
+    if (!prp_enable_dissector)
+        proto_disable_by_default(proto_prp);
     proto_set_decoding(proto_prp, prp_enable_dissector);
 }
 

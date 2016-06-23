@@ -2285,6 +2285,10 @@ WS_DLL_PUBLIC void proto_get_frame_protocols(const wmem_list_t *layers,
  */
 WS_DLL_PUBLIC gboolean proto_is_frame_protocol(const wmem_list_t *layers, const char* proto_name);
 
+/** Mark protocol with the given item number as disabled by default.
+ @param proto_id protocol id (0-indexed) */
+WS_DLL_PUBLIC void proto_disable_by_default(const int proto_id);
+
 /** Enable / Disable protocol of the given item number.
  @param proto_id protocol id (0-indexed)
  @param enabled enable / disable the protocol */
