@@ -46,7 +46,7 @@ struct _address_type_t {
     /* XXX - Some sort of compare functions (like ftype)? ***/
 };
 
-#define MAX_DISSECTOR_ADDR_TYPE     20
+#define MAX_DISSECTOR_ADDR_TYPE     30
 #define MAX_ADDR_TYPE_VALUE (AT_END_OF_LIST+MAX_DISSECTOR_ADDR_TYPE)
 
 static int num_dissector_addr_type;
