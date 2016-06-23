@@ -93,7 +93,7 @@ public:
     }
 
     void draw() {
-        setText(SRT_COLUMN_INDEX, QString::number(procedure_->index));
+        setText(SRT_COLUMN_INDEX, QString::number(procedure_->proc_index));
         setText(SRT_COLUMN_CALLS, QString::number(procedure_->stats.num));
         setText(SRT_COLUMN_MIN, QString::number(nstime_to_sec(&procedure_->stats.min), 'f', 6));
         setText(SRT_COLUMN_MAX, QString::number(nstime_to_sec(&procedure_->stats.max), 'f', 6));
@@ -115,7 +115,7 @@ public:
 
         switch (treeWidget()->sortColumn()) {
         case SRT_COLUMN_INDEX:
-            return procedure_->index < other_row->procedure_->index;
+            return procedure_->proc_index < other_row->procedure_->proc_index;
         case SRT_COLUMN_CALLS:
             return procedure_->stats.num < other_row->procedure_->stats.num;
         case SRT_COLUMN_MIN:
@@ -137,7 +137,7 @@ public:
         return QTreeWidgetItem::operator< (other);
     }
     QList<QVariant> rowData() {
-        return QList<QVariant>() << QString(procedure_->procedure) << procedure_->index << procedure_->stats.num
+        return QList<QVariant>() << QString(procedure_->procedure) << procedure_->proc_index << procedure_->stats.num
                                  << nstime_to_sec(&procedure_->stats.min) << nstime_to_sec(&procedure_->stats.max)
                                  << get_average(&procedure_->stats.tot, procedure_->stats.num) / 1000.0
                                  << nstime_to_sec(&procedure_->stats.tot);

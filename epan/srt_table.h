@@ -32,7 +32,7 @@ extern "C" {
 
 /** Procedure data */
 typedef struct _srt_procedure_t {
-	int  index;
+	int  proc_index;
 	timestat_t stats;   /**< stats */
 	char *procedure;   /**< column entries */
 } srt_procedure_t;
@@ -206,19 +206,19 @@ WS_DLL_PUBLIC srt_stat_table* init_srt_table(const char *name, const char *short
 /** Init an srt table row data structure.
  *
  * @param rst the srt table
- * @param index number of procedure
+ * @param proc_index number of procedure
  * @param procedure the procedures name
  */
-WS_DLL_PUBLIC void init_srt_table_row(srt_stat_table *rst, int index, const char *procedure);
+WS_DLL_PUBLIC void init_srt_table_row(srt_stat_table *rst, int proc_index, const char *procedure);
 
 /** Add srt response to table row data.
  *
  * @param rst the srt table
- * @param index number of procedure
+ * @param proc_index number of procedure
  * @param req_time the time of the corresponding request
  * @param pinfo current packet info
  */
-WS_DLL_PUBLIC void add_srt_table_data(srt_stat_table *rst, int index, const nstime_t *req_time, packet_info *pinfo);
+WS_DLL_PUBLIC void add_srt_table_data(srt_stat_table *rst, int proc_index, const nstime_t *req_time, packet_info *pinfo);
 
 
 #ifdef __cplusplus

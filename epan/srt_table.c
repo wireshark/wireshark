@@ -254,7 +254,7 @@ init_srt_table(const char *name, const char *short_name, GArray *srt_array, int 
     table->procedures=(srt_procedure_t *)g_malloc(sizeof(srt_procedure_t)*num_procs);
     for(i=0;i<num_procs;i++){
         time_stat_init(&table->procedures[i].stats);
-        table->procedures[i].index = 0;
+        table->procedures[i].proc_index = 0;
         table->procedures[i].procedure = NULL;
     }
 
@@ -280,11 +280,11 @@ init_srt_table_row(srt_stat_table *rst, int indx, const char *procedure)
         rst->procedures=(srt_procedure_t *)g_realloc(rst->procedures, sizeof(srt_procedure_t)*(rst->num_procs));
         for(i=old_num_procs;i<rst->num_procs;i++){
             time_stat_init(&rst->procedures[i].stats);
-            rst->procedures[i].index = i;
+            rst->procedures[i].proc_index = i;
             rst->procedures[i].procedure=NULL;
         }
     }
-    rst->procedures[indx].index = indx;
+    rst->procedures[indx].proc_index = indx;
     rst->procedures[indx].procedure=g_strdup(procedure);
 }
 
