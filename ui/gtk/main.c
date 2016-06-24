@@ -2095,7 +2095,10 @@ main(int argc, char *argv[])
 
     cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
 
-    /* Set the C-language locale to the native environment. */
+    /* Set the current locale according to the program environment.
+     * We haven't localized anything, but some GTK widgets are localized
+     * (the file selection dialogue, for example).
+     * This also sets the C-language locale to the native environment. */
     setlocale(LC_ALL, "");
 #ifdef _WIN32
     arg_list_utf_16to8(argc, argv);
@@ -2234,12 +2237,6 @@ main(int argc, char *argv[])
         g_setenv("LIBOVERLAY_SCROLLBAR", "0", FALSE);
     }
 #endif
-
-    /* Set the current locale according to the program environment.
-     * We haven't localized anything, but some GTK widgets are localized
-     * (the file selection dialogue, for example).
-     * This also sets the C-language locale to the native environment. */
-    setlocale (LC_ALL, "");
 
     /* Let GTK get its args (will need an X server, so do this after command line only commands handled) */
     gtk_init (&argc, &argv);
