@@ -41,8 +41,8 @@
 // - Use a dynamic property + Q_PROPERTY for the subtitle.
 // - Make our nested event loop more robust. See tryDeleteLater for details.
 
-WiresharkDialog::WiresharkDialog(QWidget &, CaptureFile &capture_file) :
-    GeometryStateDialog(NULL, Qt::Window),
+WiresharkDialog::WiresharkDialog(QWidget &parent, CaptureFile &capture_file) :
+    GeometryStateDialog(&parent, Qt::Window),
     cap_file_(capture_file),
     file_closed_(false),
     retap_depth_(0),

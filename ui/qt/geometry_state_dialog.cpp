@@ -24,13 +24,6 @@
 #include "ui/recent.h"
 #include "ui/ui_util.h"
 
-
-GeometryStateDialog::GeometryStateDialog(QWidget *parent, Qt::WindowFlags f) :
-    QDialog(parent, f)
-{
-
-}
-
 GeometryStateDialog::~GeometryStateDialog()
 {
     saveGeometry();

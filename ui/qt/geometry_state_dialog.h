@@ -29,7 +29,43 @@ class GeometryStateDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit GeometryStateDialog(QWidget *parent, Qt::WindowFlags f = 0);
+
+// As discussed in change 7072, QDialogs have different minimize and "on
+// top" behaviors depending on their parents, flags, and platforms.
+//
+// W = Windows, L = Linux, X = OS X
+//
+// QDialog(parent)
+//
+//   W,L: Always on top, no minimize button.
+//   X: Independent, no minimize button.
+//
+// QDialog(parent, Qt::Window)
+//
+//   W: Always on top, minimize button. Minimizes to a small title bar
+//      attached to the taskbar and not the taskbar itself. (The GTK+
+//      UI used to do this.)
+//   L: Always on top, minimize button.
+//   X: Independent, minimize button.
+//
+// QDialog(NULL)
+//
+//   W, L, X: Independent, no minimize button.
+//
+// QDialog(NULL, Qt::Window)
+//
+//   W, L, X: Independent, minimize button.
+//
+// Additionally, maximized, parent-less dialogs can close to a black screen
+// on OS X: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12544
+//
+// Pass in the parent on OS X and NULL elsewhere so that we have an
+// independent window that un-maximizes correctly.
+#ifdef Q_OS_MAC
+    explicit GeometryStateDialog(QWidget *parent, Qt::WindowFlags f = 0) : QDialog(parent, f) {}
+#else
+    explicit GeometryStateDialog(QWidget *, Qt::WindowFlags f = 0) : QDialog(NULL, f) {}
+#endif
     ~GeometryStateDialog();
 
 protected:

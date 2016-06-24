@@ -47,7 +47,7 @@ class WiresharkDialog : public GeometryStateDialog
 
 public:
     // XXX Unlike the entire QWidget API, parent is mandatory here.
-    explicit WiresharkDialog(QWidget &, CaptureFile &capture_file);
+    explicit WiresharkDialog(QWidget &parent, CaptureFile &capture_file);
 
 signals:
 
