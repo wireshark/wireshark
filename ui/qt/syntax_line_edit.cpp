@@ -350,6 +350,17 @@ void SyntaxLineEdit::completionFocusInEvent(QFocusEvent *event)
     SyntaxLineEdit::focusInEvent(event);
 }
 
+void SyntaxLineEdit::focusOutEvent(QFocusEvent *event)
+{
+    if (completer_ && completer_->popup()->isVisible() && event->reason() == Qt::PopupFocusReason) {
+        // Pretend we still have focus so that we'll draw our cursor.
+        // If cursorRect() were more precise we could just draw the cursor
+        // during a paintEvent.
+        return;
+    }
+    QLineEdit::focusOutEvent(event);
+}
+
 void SyntaxLineEdit::insertFieldCompletion(const QString &completion_text)
 {
     if (!completer_) return;
