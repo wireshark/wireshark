@@ -48,13 +48,11 @@ FilterAction::FilterAction(QObject *parent, FilterAction::Action action) :
     setText(actionName(action));
 }
 
-
 const QList<FilterAction::Action> FilterAction::actions() {
     static const QList<Action> actions_ = QList<Action>()
             << ActionApply
             << ActionPrepare
             << ActionFind
-            << ActionConversation
             << ActionColorize
             << ActionWebLookup
             << ActionCopy;
@@ -71,9 +69,6 @@ const QString FilterAction::actionName(Action action) {
         break;
     case ActionFind:
         return QObject::tr("Find");
-        break;
-    case ActionConversation:
-        return QObject::tr("Conversation Filter");
         break;
     case ActionColorize:
         return QObject::tr("Colorize");

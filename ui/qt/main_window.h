@@ -206,6 +206,7 @@ private:
     void addMenuActions(QList<QAction *> &actions, int menu_group);
     void removeMenuActions(QList<QAction *> &actions, int menu_group);
     void goToConversationFrame(bool go_next);
+    void colorizeWithFilter(QByteArray filter, int color_number = -1);
 
 signals:
     void setCaptureFile(capture_file *cf);
@@ -412,7 +413,7 @@ private slots:
     void on_actionViewColorizePacketList_triggered(bool checked);
     void on_actionViewColoringRules_triggered();
     void colorizeConversation(bool create_rule = false);
-    void colorizeWithFilter();
+    void colorizeActionTriggered();
     void on_actionViewColorizeResetColorization_triggered();
     void on_actionViewColorizeNewColoringRule_triggered();
     void on_actionViewResizeColumns_triggered();

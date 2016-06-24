@@ -224,6 +224,7 @@ ProtocolHierarchyDialog::ProtocolHierarchyDialog(QWidget &parent, CaptureFile &c
 
     fa = new FilterAction(&ctx_menu_, FilterAction::ActionColorize);
     ctx_menu_.addAction(fa);
+    connect(fa, SIGNAL(triggered()), this, SLOT(filterActionTriggered()));
 
     ctx_menu_.addSeparator();
     ctx_menu_.addAction(ui->actionCopyAsCsv);

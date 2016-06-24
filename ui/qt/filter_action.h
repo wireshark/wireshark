@@ -35,12 +35,11 @@ public:
     /* Filter actions */
     enum Action {
         ActionApply,
-        ActionPrepare,
-        ActionFind,
-        ActionConversation,
         ActionColorize,
-        ActionWebLookup,
-        ActionCopy
+        ActionCopy,
+        ActionFind,
+        ActionPrepare,
+        ActionWebLookup
     };
 
     /* Action type - says what to do with the filter */
