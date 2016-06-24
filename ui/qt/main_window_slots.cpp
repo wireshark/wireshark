@@ -859,9 +859,6 @@ void MainWindow::startCapture() {
         capture_options *capture_opts = cap_session_.capture_opts;
         GString *interface_names;
 
-        /* enable autoscroll timer as needed. */
-        packet_list_->setVerticalAutoScroll(main_ui_->actionGoAutoScroll->isChecked());
-
         /* Add "interface name<live capture in progress>" on main status bar */
         interface_names = get_iface_list_string(capture_opts, 0);
         if (strlen (interface_names->str) > 0) {
@@ -989,9 +986,6 @@ void MainWindow::stopCapture() {
 
     /* Pop the "<live capture in progress>" message off the status bar. */
     main_ui_->statusBar->setFileName(capture_file_);
-
-    /* disable autoscroll timer if any. */
-    packet_list_->setVerticalAutoScroll(false);
 }
 
 // Keep focus rects from showing through the welcome screen. Primarily for

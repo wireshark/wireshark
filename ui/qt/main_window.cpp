@@ -1728,7 +1728,6 @@ void MainWindow::initMainToolbarIcons()
     main_ui_->actionGoAutoScroll->setIcon(StockIcon("x-stay-last"));
 
     main_ui_->actionViewColorizePacketList->setIcon(StockIcon("x-colorize-packets"));
-//    main_ui_->actionViewAutoScroll->setIcon(StockIcon("x-stay-last"));
 
     QList<QKeySequence> zi_seq = main_ui_->actionViewZoomIn->shortcuts();
     zi_seq << QKeySequence(Qt::CTRL + Qt::Key_Equal);
@@ -2184,7 +2183,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 }
 
 /* Update main window items based on whether there's a capture in progress. */
-void MainWindow::setForCaptureInProgress(gboolean capture_in_progress)
+void MainWindow::setForCaptureInProgress(bool capture_in_progress)
 {
     setMenusForCaptureInProgress(capture_in_progress);
 
@@ -2192,7 +2191,7 @@ void MainWindow::setForCaptureInProgress(gboolean capture_in_progress)
 
 #ifdef HAVE_LIBPCAP
     packet_list_->setCaptureInProgress(capture_in_progress);
-//    set_toolbar_for_capture_in_progress(capture_in_progress);
+    packet_list_->setVerticalAutoScroll(capture_in_progress && main_ui_->actionGoAutoScroll->isChecked());
 
 //    set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
 #endif

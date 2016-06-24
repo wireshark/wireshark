@@ -212,7 +212,7 @@ private:
 
     void externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint depth);
 
-    void setForCaptureInProgress(gboolean capture_in_progress = false);
+    void setForCaptureInProgress(bool capture_in_progress = false);
     QMenu* findOrAddMenu(QMenu *parent_menu, QString& menu_text);
 
     void recursiveCopyProtoTreeItems(QTreeWidgetItem *item, QString &clip, int ident_level);
