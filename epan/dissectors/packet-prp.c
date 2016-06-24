@@ -97,6 +97,13 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
      * This is horribly broken.  It assumes the frame is an Ethernet
      * frame, with a type field at an offset of 12 bytes from the header.
      * That is not guaranteed to be true.
+     *
+     * Ideally, this should be a heuristic dissector registered in
+     * the "eth.trailer" heuristic dissector table (and it can
+     * be registered as "disabled by default" there); unfortunately,
+     * it needs to know the length of the entire frame for the
+     * PRP-0 heuristic, so it'd have to be passed that length
+     * out of band.
      */
     if (!tvb_bytes_exist(tvb, 12, 2))
         return 0;
