@@ -778,21 +778,21 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
         default:
             dfilter_string = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
             if (dfilter_string != NULL) {
-              if (node->first_child == NULL) {
-                fputs("\": \"", pdata->fh);
-                print_escaped_json(pdata->fh, dfilter_string);
-              } else {
-                fputs("\": {\n", pdata->fh);
-              }
+                if (node->first_child == NULL) {
+                    fputs("\": \"", pdata->fh);
+                    print_escaped_json(pdata->fh, dfilter_string);
+                } else {
+                    fputs("\": {\n", pdata->fh);
+                }
             }
             wmem_free(NULL, dfilter_string);
 
             if (node->first_child == NULL) {
-              if (node->next == NULL) {
-                  fputs("\"\n", pdata->fh);
-              } else {
-                  fputs("\",\n", pdata->fh);
-              }
+                if (node->next == NULL) {
+                    fputs("\"\n", pdata->fh);
+                } else {
+                    fputs("\",\n", pdata->fh);
+                }
             }
         }
 
@@ -801,21 +801,20 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
     /* We print some levels for JSON. Recurse here. */
     if (node->first_child != NULL) {
         if (pdata->filter != NULL) {
-          if(check_protocolfilter(pdata->filter, fi->hfinfo->abbrev)) {
-            pdata->level++;
-            proto_tree_children_foreach(node,
-                                        proto_tree_write_node_json, pdata);
-            pdata->level--;
-          } else {
-              /* Indent to the correct level */
-              for (i = -4; i < pdata->level; i++) {
-                  fputs("  ", pdata->fh);
-              }
-              /* print dummy field */
-              fputs("\"filtered\": \"", pdata->fh);
-              print_escaped_ek(pdata->fh, fi->hfinfo->abbrev);
-              fputs("\"\n", pdata->fh);
-          }
+            if(check_protocolfilter(pdata->filter, fi->hfinfo->abbrev)) {
+                pdata->level++;
+                proto_tree_children_foreach(node, proto_tree_write_node_json, pdata);
+                pdata->level--;
+            } else {
+                /* Indent to the correct level */
+                for (i = -4; i < pdata->level; i++) {
+                    fputs("  ", pdata->fh);
+                }
+                /* print dummy field */
+                fputs("\"filtered\": \"", pdata->fh);
+                print_escaped_ek(pdata->fh, fi->hfinfo->abbrev);
+                fputs("\"\n", pdata->fh);
+            }
         } else {
             pdata->level++;
             proto_tree_children_foreach(node,
@@ -879,13 +878,13 @@ proto_tree_write_node_ek(proto_node *node, gpointer data)
         }
         else {
             if (node->next == NULL) {
-              fputs("\": \"",  pdata->fh);
-              print_escaped_json(pdata->fh, label_ptr);
-              fputs("\"", pdata->fh);
+                fputs("\": \"",  pdata->fh);
+                print_escaped_json(pdata->fh, label_ptr);
+                fputs("\"", pdata->fh);
             } else {
-              fputs("\": \"",  pdata->fh);
-              print_escaped_json(pdata->fh, label_ptr);
-               fputs("\",", pdata->fh);
+                fputs("\": \"",  pdata->fh);
+                print_escaped_json(pdata->fh, label_ptr);
+                fputs("\",", pdata->fh);
             }
         }
     }
@@ -966,30 +965,30 @@ proto_tree_write_node_ek(proto_node *node, gpointer data)
                 fputs("\": \"\",",  pdata->fh);
             } else {
                 if (node->next == NULL) {
-                  fputs("\": \"\"",  pdata->fh);
+                    fputs("\": \"\"",  pdata->fh);
                 } else {
-                  fputs("\": \"\",",  pdata->fh);
+                    fputs("\": \"\",",  pdata->fh);
                 }
             }
             break;
         default:
             dfilter_string = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
             if (dfilter_string != NULL) {
-              if (node->first_child == NULL) {
-                fputs("\": \"", pdata->fh);
-                print_escaped_json(pdata->fh, dfilter_string);
-              } else {
-                  fputs("\": \"\",", pdata->fh);
-              }
+                if (node->first_child == NULL) {
+                    fputs("\": \"", pdata->fh);
+                    print_escaped_json(pdata->fh, dfilter_string);
+                } else {
+                    fputs("\": \"\",", pdata->fh);
+                }
             }
             wmem_free(NULL, dfilter_string);
 
             if (node->first_child == NULL) {
-              if (node->next == NULL) {
-                  fputs("\"", pdata->fh);
-              } else {
-                  fputs("\",", pdata->fh);
-              }
+                if (node->next == NULL) {
+                    fputs("\"", pdata->fh);
+                } else {
+                    fputs("\",", pdata->fh);
+                }
             }
         }
 
@@ -1001,37 +1000,35 @@ proto_tree_write_node_ek(proto_node *node, gpointer data)
         if (pdata->filter != NULL) {
 
           /* to to thread the '.' and '_' equally. The '.' is replace by print_escaped_ek for '_' */
-          if (fi->hfinfo->abbrev != NULL) {
-            if (strlen(fi->hfinfo->abbrev) > 0) {
-                abbrev_escaped = g_strdup(fi->hfinfo->abbrev);
+            if (fi->hfinfo->abbrev != NULL) {
+                if (strlen(fi->hfinfo->abbrev) > 0) {
+                    abbrev_escaped = g_strdup(fi->hfinfo->abbrev);
 
-                i = 0;
-                while(abbrev_escaped[i]!='\0') {
-                   if(abbrev_escaped[i]=='.')
-                   {
-                       abbrev_escaped[i]='_';
-                   }
-                   i++;
-                 }
+                    i = 0;
+                    while(abbrev_escaped[i]!='\0') {
+                        if(abbrev_escaped[i]=='.') {
+                            abbrev_escaped[i]='_';
+                        }
+                        i++;
+                    }
+                }
             }
-          }
 
-          if(check_protocolfilter(pdata->filter, fi->hfinfo->abbrev) || check_protocolfilter(pdata->filter, abbrev_escaped)) {
-            pdata->level++;
-            proto_tree_children_foreach(node,
-                                        proto_tree_write_node_ek, pdata);
-            pdata->level--;
-          } else {
-              /* print dummy field */
-              fputs("\"filtered\": \"", pdata->fh);
-              print_escaped_ek(pdata->fh, fi->hfinfo->abbrev);
-              fputs("\"", pdata->fh);
-          }
+            if(check_protocolfilter(pdata->filter, fi->hfinfo->abbrev) || check_protocolfilter(pdata->filter, abbrev_escaped)) {
+                pdata->level++;
+                proto_tree_children_foreach(node, proto_tree_write_node_ek, pdata);
+                pdata->level--;
+            } else {
+                /* print dummy field */
+                fputs("\"filtered\": \"", pdata->fh);
+                print_escaped_ek(pdata->fh, fi->hfinfo->abbrev);
+                fputs("\"", pdata->fh);
+            }
 
-          /* release abbrev_escaped string */
-          if (abbrev_escaped != NULL) {
-              g_free(abbrev_escaped);
-          }
+            /* release abbrev_escaped string */
+            if (abbrev_escaped != NULL) {
+                g_free(abbrev_escaped);
+            }
 
         } else {
             pdata->level++;
@@ -1042,18 +1039,18 @@ proto_tree_write_node_ek(proto_node *node, gpointer data)
     }
 
     if (node->first_child != NULL) {
-      if (fi->hfinfo->type == FT_PROTOCOL) {
-        /* Close off current element */
-          if (node->next == NULL) {
-              fputs("}", pdata->fh);
-          } else {
-              fputs("},", pdata->fh);
-          }
-      } else {
-          if (node->next != NULL) {
-              fputs(",", pdata->fh);
-          }
-      }
+        if (fi->hfinfo->type == FT_PROTOCOL) {
+            /* Close off current element */
+            if (node->next == NULL) {
+                fputs("}", pdata->fh);
+            } else {
+                fputs("},", pdata->fh);
+            }
+        } else {
+            if (node->next != NULL) {
+                fputs(",", pdata->fh);
+            }
+        }
     }
 }
 
