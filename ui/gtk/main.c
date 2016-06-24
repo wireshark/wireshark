@@ -2361,6 +2361,8 @@ main(int argc, char *argv[])
     commandline_other_options(argc, argv, &commandline_info, TRUE);
 
 #ifdef HAVE_LIBPCAP
+    splash_update(RA_INTERFACES, NULL, (gpointer)splash_win);
+
     fill_in_local_interfaces(main_window_update);
 
     if (commandline_info.start_capture || commandline_info.list_link_layer_types) {

@@ -617,6 +617,8 @@ int main(int argc, char *argv[])
     timestamp_set_seconds_type (recent.gui_seconds_format);
 
 #ifdef HAVE_LIBPCAP
+    splash_update(RA_INTERFACES, NULL, NULL);
+
     fill_in_local_interfaces(main_window_update);
 
     if (commandline_info.start_capture || commandline_info.list_link_layer_types) {

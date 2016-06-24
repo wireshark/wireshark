@@ -32,17 +32,18 @@ extern "C" {
 #include <glib.h>
 
 typedef enum {
-  RA_NONE,              /* for initialization */
+  RA_NONE,              /* For initialization */
   RA_DISSECTORS,        /* Initializing dissectors */
   RA_LISTENERS,         /* Tap listeners */
-  RA_REGISTER,          /* register */
-  RA_PLUGIN_REGISTER,   /* plugin register */
-  RA_HANDOFF,           /* handoff */
-  RA_PLUGIN_HANDOFF,    /* plugin handoff */
-  RA_LUA_PLUGINS,       /* lua plugin register */
-  RA_LUA_DEREGISTER,    /* lua plugin deregister */
-  RA_PREFERENCES,       /* module preferences */
-  RA_CONFIGURATION      /* configuration files */
+  RA_REGISTER,          /* Built-in register */
+  RA_PLUGIN_REGISTER,   /* Plugin register */
+  RA_HANDOFF,           /* Built-in handoff */
+  RA_PLUGIN_HANDOFF,    /* Plugin handoff */
+  RA_LUA_PLUGINS,       /* Lua plugin register */
+  RA_LUA_DEREGISTER,    /* Lua plugin deregister */
+  RA_PREFERENCES,       /* Module preferences */
+  RA_INTERFACES,        /* Local interfaces */
+  RA_CONFIGURATION      /* Configuration files */
 } register_action_e;
 
 typedef void (*register_cb)(register_action_e action, const char *message, gpointer client_data);
