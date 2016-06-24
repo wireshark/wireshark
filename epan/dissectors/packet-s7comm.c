@@ -576,10 +576,39 @@ static const value_string blocklanguage_names[] = {
  * Names of types in userdata parameter part
  */
 
+#define S7COMM_UD_TYPE_NCPUSH               0x3
+#define S7COMM_UD_TYPE_NCREQ                0x7
+#define S7COMM_UD_TYPE_NCRES                0xb
+
 static const value_string userdata_type_names[] = {
-    { S7COMM_UD_TYPE_PUSH,                  "Push" },         /* this type occurs when 2 telegrams follow after another from the same partner, or initiated from PLC */
+    { S7COMM_UD_TYPE_PUSH,                  "Push" },               /* this type occurs when 2 telegrams follow after another from the same partner, or initiated from PLC */
     { S7COMM_UD_TYPE_REQ,                   "Request" },
     { S7COMM_UD_TYPE_RES,                   "Response" },
+    { S7COMM_UD_TYPE_NCPUSH,                "NC Push" },            /* used only by Sinumerik NC */
+    { S7COMM_UD_TYPE_NCREQ,                 "NC Request" },         /* used only by Sinumerik NC */
+    { S7COMM_UD_TYPE_NCRES,                 "NC Response" },        /* used only by Sinumerik NC */
+    { 0,                                    NULL }
+};
+
+/**************************************************************************
+ * Subfunctions only used in Sinumerik NC file download
+ */
+#define S7COMM_NCPRG_FUNCREQUESTDOWNLOAD    1
+#define S7COMM_NCPRG_FUNCDOWNLOADBLOCK      2
+#define S7COMM_NCPRG_FUNCCONTDOWNLOAD       3
+#define S7COMM_NCPRG_FUNCDOWNLOADENDED      4
+#define S7COMM_NCPRG_FUNCSTARTUPLOAD        6
+#define S7COMM_NCPRG_FUNCUPLOAD             7
+#define S7COMM_NCPRG_FUNCCONTUPLOAD         8
+
+static const value_string userdata_ncprg_subfunc_names[] = {
+    { S7COMM_NCPRG_FUNCREQUESTDOWNLOAD,     "Request download" },
+    { S7COMM_NCPRG_FUNCDOWNLOADBLOCK,       "Download block" },
+    { S7COMM_NCPRG_FUNCCONTDOWNLOAD,        "Continue download" },
+    { S7COMM_NCPRG_FUNCDOWNLOADENDED,       "Download ended" },
+    { S7COMM_NCPRG_FUNCSTARTUPLOAD,         "Start upload" },
+    { S7COMM_NCPRG_FUNCUPLOAD,              "Upload" },
+    { S7COMM_NCPRG_FUNCCONTUPLOAD,          "Continue upload" },
     { 0,                                    NULL }
 };
 
@@ -606,6 +635,7 @@ static const value_string userdata_lastdataunit_names[] = {
 #define S7COMM_UD_FUNCGROUP_SEC             0x5                     /* Security functions e.g. plc password */
 #define S7COMM_UD_FUNCGROUP_PBC             0x6                     /* PBC = Programmable Block Communication (PBK in german) */
 #define S7COMM_UD_FUNCGROUP_TIME            0x7
+#define S7COMM_UD_FUNCGROUP_NCPRG           0xf
 
 static const value_string userdata_functiongroup_names[] = {
     { S7COMM_UD_FUNCGROUP_MODETRANS,        "Mode-transition" },
@@ -616,6 +646,7 @@ static const value_string userdata_functiongroup_names[] = {
     { S7COMM_UD_FUNCGROUP_SEC,              "Security" },
     { S7COMM_UD_FUNCGROUP_PBC,              "PBC BSEND/BRECV" },
     { S7COMM_UD_FUNCGROUP_TIME,             "Time functions" },
+    { S7COMM_UD_FUNCGROUP_NCPRG,            "NC programming" },
     { 0,                                    NULL }
 };
 
@@ -1068,6 +1099,7 @@ static gint hf_s7comm_userdata_param_subfunc_block = -1;
 static gint hf_s7comm_userdata_param_subfunc_cpu = -1;
 static gint hf_s7comm_userdata_param_subfunc_sec = -1;
 static gint hf_s7comm_userdata_param_subfunc_time = -1;
+static gint hf_s7comm_userdata_param_subfunc_ncprg = -1;
 static gint hf_s7comm_userdata_param_subfunc = -1;          /* for all other subfunctions */
 static gint hf_s7comm_userdata_param_seq_num = -1;
 static gint hf_s7comm_userdata_param_dataunitref = -1;
@@ -1401,6 +1433,7 @@ static const int *s7comm_data_blockcontrol_status_fields[] = {
 };
 
 static gint ett_s7comm_plcfilename = -1;
+static gint hf_s7comm_data_ncprg_unackcount = -1;
 
 /* Variable table */
 static gint hf_s7comm_vartab_data_type = -1;                /* Type of data, 1 byte, stringlist userdata_prog_vartab_type_names */
@@ -3664,6 +3697,71 @@ s7comm_decode_ud_pbc_subfunc(tvbuff_t *tvb,
 
 /*******************************************************************************************************
  *
+ * PDU Type: User Data -> NC programming functions (file download/upload)
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_decode_ud_ncprg_subfunc(tvbuff_t *tvb,
+                               packet_info *pinfo,
+                               proto_tree *data_tree,
+                               guint8 type,                /* Type of data (request/response) */
+                               guint8 subfunc,             /* Subfunction */
+                               guint16 dlength,            /* length of data part given in header */
+                               guint32 offset)             /* Offset on data part +4 */
+{
+    const guint8 *str_filename;
+
+    dlength -= 4;   /* There are always 4 bytes header information in data part */
+    if (dlength >= 2) {
+        if (type == S7COMM_UD_TYPE_NCREQ && subfunc == S7COMM_NCPRG_FUNCREQUESTDOWNLOAD) {
+            proto_tree_add_item_ret_string(data_tree, hf_s7comm_data_blockcontrol_filename, tvb, offset, dlength,
+                                           ENC_ASCII|ENC_NA, wmem_packet_scope(), &str_filename);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " File:[%s]", str_filename);
+            offset += dlength;
+        } else if (type == S7COMM_UD_TYPE_NCREQ && subfunc == S7COMM_NCPRG_FUNCSTARTUPLOAD) {
+            proto_tree_add_item(data_tree, hf_s7comm_data_ncprg_unackcount, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            dlength -= 1;
+            proto_tree_add_item(data_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            dlength -= 1;
+            proto_tree_add_item_ret_string(data_tree, hf_s7comm_data_blockcontrol_filename, tvb, offset, dlength,
+                                           ENC_ASCII|ENC_NA, wmem_packet_scope(), &str_filename);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " File:[%s]", str_filename);
+            offset += dlength;
+        } else if (type == S7COMM_UD_TYPE_NCRES && subfunc == S7COMM_NCPRG_FUNCREQUESTDOWNLOAD) {
+                proto_tree_add_item(data_tree, hf_s7comm_data_ncprg_unackcount, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                dlength -= 1;
+                proto_tree_add_item(data_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                dlength -= 1;
+        } else if (type == S7COMM_UD_TYPE_NCPUSH && (subfunc == S7COMM_NCPRG_FUNCCONTUPLOAD || subfunc == S7COMM_NCPRG_FUNCCONTDOWNLOAD)) {
+                proto_tree_add_item(data_tree, hf_s7comm_data_ncprg_unackcount, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                dlength -= 1;
+                /* Guess: If 1, then this is the last telegram of up/download, otherwise 0 */
+                proto_tree_add_item(data_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                dlength -= 1;
+        } else {
+            /* There is always a 2 bytes header before the data.
+             * Guess: first byte is used as "data unit reference"
+             */
+            proto_tree_add_item(data_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 2, ENC_NA);
+            offset += 2;
+            dlength -= 2;
+            if (dlength >= 4) {
+                proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength, ENC_NA);
+                offset += dlength;
+            }
+        }
+    }
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
  * PDU Type: User Data -> Message services
  *
  *******************************************************************************************************/
@@ -4625,6 +4723,12 @@ s7comm_decode_ud(tvbuff_t *tvb,
                 val_to_str(subfunc, modetrans_param_subfunc_names, "Unknown subfunc: 0x%02x"));
             proto_item_append_text(param_tree, " ->(%s)", val_to_str(subfunc, modetrans_param_subfunc_names, "Unknown subfunc: 0x%02x"));
             break;
+        case S7COMM_UD_FUNCGROUP_NCPRG:
+            proto_tree_add_uint(param_tree, hf_s7comm_userdata_param_subfunc_ncprg, tvb, offset_temp, 1, subfunc);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " -> [%s]",
+                val_to_str(subfunc, userdata_ncprg_subfunc_names, "Unknown subfunc: 0x%02x"));
+            proto_item_append_text(param_tree, " ->(%s)", val_to_str(subfunc, userdata_ncprg_subfunc_names, "Unknown subfunc: 0x%02x"));
+            break;
         default:
             proto_tree_add_uint(param_tree, hf_s7comm_userdata_param_subfunc, tvb, offset_temp, 1, subfunc);
             break;
@@ -4715,6 +4819,9 @@ s7comm_decode_ud(tvbuff_t *tvb,
                     break;
                 case S7COMM_UD_FUNCGROUP_TIME:
                     offset = s7comm_decode_ud_time_subfunc(tvb, data_tree, type, subfunc, ret_val, dlength, offset);
+                    break;
+                case S7COMM_UD_FUNCGROUP_NCPRG:
+                    offset = s7comm_decode_ud_ncprg_subfunc(tvb, pinfo, data_tree, type, subfunc, dlength, offset);
                     break;
                 default:
                     break;
@@ -5198,6 +5305,9 @@ proto_register_s7comm (void)
           NULL, HFILL }},
         { &hf_s7comm_userdata_param_subfunc,
         { "Subfunction", "s7comm.param.userdata.subfunc", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_userdata_param_subfunc_ncprg,
+        { "Subfunction", "s7comm.param.userdata.subfunc", FT_UINT8, BASE_DEC, VALS(userdata_ncprg_subfunc_names), 0x0,
           NULL, HFILL }},
 
         { &hf_s7comm_userdata_param_seq_num,
@@ -5698,6 +5808,12 @@ proto_register_s7comm (void)
         { &hf_s7comm_data_blockcontrol_functionstatus_error,
         { "Error", "s7comm.param.blockcontrol.functionstatus.error", FT_BOOLEAN, 8, NULL, 0x02,
           "An error occured", HFILL }},
+
+        /* NC programming functions */
+        { &hf_s7comm_data_ncprg_unackcount,
+        { "Number of telegrams sent without acknowledge", "s7comm.data.ncprg.unackcount", FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+
         /* Variable table */
         { &hf_s7comm_vartab_data_type,
         { "Type of data", "s7comm.vartab.data_type", FT_UINT8, BASE_DEC, VALS(userdata_prog_vartab_type_names), 0x0,
