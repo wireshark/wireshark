@@ -1041,7 +1041,7 @@ static void switchTranslator(QTranslator& myTranslator, const QString& filename,
         wsApp->installTranslator(&myTranslator);
 }
 
-void WiresharkApplication::loadLanguage(const QString& newLanguage)
+void WiresharkApplication::loadLanguage(const QString newLanguage)
 {
     QLocale locale;
     QString localeLanguage;

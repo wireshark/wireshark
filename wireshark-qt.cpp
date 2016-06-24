@@ -31,6 +31,8 @@
 #include <zlib.h>       /* to get the libz version number */
 #endif
 
+#include <locale.h>
+
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #endif
@@ -494,8 +496,8 @@ int main(int argc, char *argv[])
 #endif
 
     /* Set the C-language locale to the native environment. */
-    // The GTK+ UI calls this. Should we as well?
-    //setlocale(LC_ALL, "");
+    setlocale(LC_ALL, "");
+
 #ifdef _WIN32
     // QCoreApplication clobbers argv. Let's have a local copy.
     ws_argv = (char **) g_malloc(sizeof(char *) * argc);
@@ -730,7 +732,6 @@ DIAG_ON(cast-qual)
 
     AirPDcapInitContext(&airpdcap_ctx);
 
-    QString locale;
     QString cf_name;
     unsigned int in_file_type = WTAP_TYPE_AUTO;
 
@@ -761,10 +762,9 @@ DIAG_ON(cast-qual)
 
     // Initialize our language
     read_language_prefs();
-    locale = QString(language);
-    wsApp->loadLanguage(locale);
+    wsApp->loadLanguage(language);
 
-    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Translator %s", locale.toStdString().c_str());
+    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Translator %s", language);
 
     // Init the main window (and splash)
     main_w = new(MainWindow);

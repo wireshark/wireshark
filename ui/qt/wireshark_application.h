@@ -117,7 +117,7 @@ public:
 
     QTranslator translator;
     QTranslator translatorQt;
-    void loadLanguage(const QString& language);
+    void loadLanguage(const QString language);
 
 private:
     bool initialized_;
