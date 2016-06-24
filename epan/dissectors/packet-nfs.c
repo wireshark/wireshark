@@ -8729,49 +8729,49 @@ dissect_nfs4_devices_flexfile(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static const value_string scsi_vol_type_names[] = {
-#define PNFS_SCSI_VOLUME_SLICE      1
-	{	PNFS_SCSI_VOLUME_SLICE,    "Slice" },
-#define PNFS_SCSI_VOLUME_CONCAT     2
-	{	PNFS_SCSI_VOLUME_CONCAT,   "Concat"},
-#define PNFS_SCSI_VOLUME_STRIPE     3
-	{	PNFS_SCSI_VOLUME_STRIPE,   "Stripe"},
-#define PNFS_SCSI_VOLUME_BASE       4
-	{	PNFS_SCSI_VOLUME_BASE,     "Base"  },
-	{	0,	NULL	}
+#define PNFS_SCSI_VOLUME_SLICE	1
+	{	PNFS_SCSI_VOLUME_SLICE,		"Slice" },
+#define PNFS_SCSI_VOLUME_CONCAT	2
+	{	PNFS_SCSI_VOLUME_CONCAT,	"Concat" },
+#define PNFS_SCSI_VOLUME_STRIPE	3
+	{	PNFS_SCSI_VOLUME_STRIPE,	"Stripe" },
+#define PNFS_SCSI_VOLUME_BASE	4
+	{	PNFS_SCSI_VOLUME_BASE,		"Base" },
+	{	0,	NULL }
 };
 
 static const value_string scsi_vpd_designator_type_names[] = {
-#define PS_DESIGNATOR_T10       1
-    {   PS_DESIGNATOR_T10,     "T10"  },
-#define PS_DESIGNATOR_EUI64     2
-    {   PS_DESIGNATOR_EUI64,   "EUI64"},
-#define PS_DESIGNATOR_NAA       3
-    {   PS_DESIGNATOR_NAA,     "NAA"  },
-#define PS_DESIGNATOR_NAME      8
-    {   PS_DESIGNATOR_NAME,    "Name" },
-    {   0,  NULL    }
+#define PS_DESIGNATOR_T10	1
+	{	PS_DESIGNATOR_T10,	"T10" },
+#define PS_DESIGNATOR_EUI64	2
+	{	PS_DESIGNATOR_EUI64,	"EUI64" },
+#define PS_DESIGNATOR_NAA	3
+	{	PS_DESIGNATOR_NAA,	"NAA" },
+#define PS_DESIGNATOR_NAME	8
+	{	PS_DESIGNATOR_NAME,	"Name" },
+	{	0,	NULL }
 };
 
 static const value_string scsi_vpd_code_set_names[] = {
-#define PS_CODE_SET_BINARY   1
-    {   PS_CODE_SET_BINARY, "binary"},
-#define PS_CODE_SET_ASCII    2
-    {   PS_CODE_SET_ASCII,  "ASCII" },
-#define PS_CODE_SET_UTF8     3
-    {   PS_CODE_SET_UTF8,   "UTF8"  },
-    { 0, NULL }
+#define PS_CODE_SET_BINARY	1
+	{	PS_CODE_SET_BINARY,	"binary" },
+#define PS_CODE_SET_ASCII	2
+	{	PS_CODE_SET_ASCII,	"ASCII" },
+#define PS_CODE_SET_UTF8	3
+	{	PS_CODE_SET_UTF8,	"UTF8" },
+	{	0,	NULL }
 };
 
 static const value_string scsi_extent_state_names[] = {
-#define PNFS_SCSI_EXT_READ_WRITE_DATA      0
-	{	PNFS_SCSI_EXT_READ_WRITE_DATA,    "READ_WRITE_DATA"},
-#define PNFS_SCSI_EXT_READ_DATA			   1
-	{	PNFS_SCSI_EXT_READ_DATA,          "READ_DATA"      },
-#define PNFS_SCSI_EXT_INVALID_DATA		   2
-	{	PNFS_SCSI_EXT_INVALID_DATA,       "INVALID_DATA"   },
-#define PNFS_SCSI_EXT_NONE_DATA            3
-	{	PNFS_SCSI_EXT_NONE_DATA,          "NONE_DATA"      },
-	{	0,	NULL	}
+#define PNFS_SCSI_EXT_READ_WRITE_DATA	   0
+	{	PNFS_SCSI_EXT_READ_WRITE_DATA,	"READ_WRITE_DATA" },
+#define PNFS_SCSI_EXT_READ_DATA		   1
+	{	PNFS_SCSI_EXT_READ_DATA,	"READ_DATA" },
+#define PNFS_SCSI_EXT_INVALID_DATA	   2
+	{	PNFS_SCSI_EXT_INVALID_DATA,	"INVALID_DATA" },
+#define PNFS_SCSI_EXT_NONE_DATA		   3
+	{	PNFS_SCSI_EXT_NONE_DATA,	"NONE_DATA" },
+	{	0,	NULL }
 };
 
 static int
