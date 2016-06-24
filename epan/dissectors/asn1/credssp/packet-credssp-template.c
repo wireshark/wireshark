@@ -106,13 +106,7 @@ dissect_credssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
           ver = tvb_get_guint8(tvb, offset);
           if((length == 1) && ((ver == 2) || (ver == 3))) {
             if (have_tap_listener(exported_pdu_tap)) {
-              exp_pdu_data_t *exp_pdu_data;
-              guint8 tags_bit_field;
-
-              tags_bit_field = EXP_PDU_TAG_IP_SRC_BIT + EXP_PDU_TAG_IP_DST_BIT + EXP_PDU_TAG_SRC_PORT_BIT+
-                  EXP_PDU_TAG_DST_PORT_BIT + EXP_PDU_TAG_ORIG_FNO_BIT;
-
-              exp_pdu_data = load_export_pdu_tags(pinfo, EXP_PDU_TAG_PROTO_NAME, "credssp", &tags_bit_field, 1);
+              exp_pdu_data_t *exp_pdu_data = export_pdu_create_common_tags(pinfo, "credssp", EXP_PDU_TAG_PROTO_NAME);
 
               exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
               exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);

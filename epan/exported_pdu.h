@@ -135,27 +135,11 @@ typedef struct _exp_pdu_data_t {
     tvbuff_t    *pdu_tvb;
 } exp_pdu_data_t;
 
-/* 1st byte of optional tags bitmap */
-#define EXP_PDU_TAG_IP_SRC_BIT          0x01
-#define EXP_PDU_TAG_IP_DST_BIT          0x02
-#define EXP_PDU_TAG_SRC_PORT_BIT        0x04
-#define EXP_PDU_TAG_DST_PORT_BIT        0x08
-#define EXP_PDU_TAG_SS7_OPC_BIT         0x20
-#define EXP_PDU_TAG_SS7_DPC_BIT         0x40
-#define EXP_PDU_TAG_ORIG_FNO_BIT        0x80
-
-/* 2nd byte of optional tags bitmap */
-#define EXP_PDU_TAG_DVBCI_EVT_BIT       0x01
-#define EXP_PDU_TAG_COL_PROT_BIT        0x02
-
-#define EXP_PDU_TAG_IPV4_SRC_LEN        4
-#define EXP_PDU_TAG_IPV4_DST_LEN        4
-#define EXP_PDU_TAG_IPV6_SRC_LEN        16
-#define EXP_PDU_TAG_IPV6_DST_LEN        16
+#define EXP_PDU_TAG_IPV4_LEN            4
+#define EXP_PDU_TAG_IPV6_LEN            16
 
 #define EXP_PDU_TAG_PORT_TYPE_LEN       4
-#define EXP_PDU_TAG_SRC_PORT_LEN        4
-#define EXP_PDU_TAG_DST_PORT_LEN        4
+#define EXP_PDU_TAG_PORT_LEN            4
 
 #define EXP_PDU_TAG_SS7_OPC_LEN         8 /* 4 bytes PC, 2 bytes standard type, 1 byte NI, 1 byte padding */
 #define EXP_PDU_TAG_SS7_DPC_LEN         8 /* 4 bytes PC, 2 bytes standard type, 1 byte NI, 1 byte padding */
@@ -164,16 +148,67 @@ typedef struct _exp_pdu_data_t {
 
 #define EXP_PDU_TAG_DVBCI_EVT_LEN       1
 
+/** Compute the size (in bytes) of a pdu item
+*
+@param pinfo Packet info that may contain data for the pdu item
+@param data optional data of the pdu item
+@return the size of the pdu item
+*/
+typedef int (*exp_pdu_get_size)(packet_info *pinfo, void* data);
+
+/** Populate a buffer with pdu item data
+*
+@param pinfo Packet info that may contain data for the PDU item
+@param data optional data of the PDU item
+@param tlv_buffer buffer to be populated with PDU item
+@param tlv_buffer_size size of buffer to be populated
+@return the number of bytes populated to the buffer (typically PDU item size)
+*/
+typedef int (*exp_pdu_populate_data)(packet_info *pinfo, void* data, guint8 *tlv_buffer, guint32 tlv_buffer_size);
+
+typedef struct exp_pdu_data_item
+{
+    exp_pdu_get_size size_func;
+    exp_pdu_populate_data populate_data;
+    void* data;
+} exp_pdu_data_item_t;
+
 /**
- * Allocates and fills the exp_pdu_data_t struct according to the wanted_exp_tags
- * bit field of wanted_exp_tags_len bytes length
- * tag_type should be either EXP_PDU_TAG_PROTO_NAME or EXP_PDU_TAG_HEUR_PROTO_NAME
- * proto_name interpretation depends on tag_type value
- *
- * The tags in the tag buffer SHOULD be added in numerical order.
- */
-WS_DLL_PUBLIC exp_pdu_data_t *load_export_pdu_tags(packet_info *pinfo, guint tag_type, const char* proto_name,
-                                                   guint8 *wanted_exp_tags, guint16 wanted_exp_tags_len);
+ Allocates and fills the exp_pdu_data_t struct according to the list of items
+
+ The tags in the tag buffer SHOULD be added in numerical order.
+
+ @param pinfo Packet info that may contain data for the PDU items
+ @param proto_name Name of protocol that is exporting PDU
+ @param tag_type. Tag type for protocol's PDU. Must be EXP_PDU_TAG_PROTO_NAME or EXP_PDU_TAG_HEUR_PROTO_NAME.
+ @param items PDU items to be exported
+ @return filled exp_pdu_data_t struct
+*/
+WS_DLL_PUBLIC exp_pdu_data_t *export_pdu_create_tags(packet_info *pinfo, const char* proto_name, guint16 tag_type, const exp_pdu_data_item_t **items);
+
+/**
+ Allocates and fills the exp_pdu_data_t struct with a common list of items
+ The items that will be exported as the PDU are:
+ 1. Source IP
+ 2. Destintaiton IP
+ 3. Port type
+ 4. Source Port
+ 5. Destination Port
+ 6. Original frame number
+
+ @param pinfo Packet info that may contain data for the PDU items
+ @param tag_type. Tag type for protocol's PDU. Must be EXP_PDU_TAG_PROTO_NAME or EXP_PDU_TAG_HEUR_PROTO_NAME.
+ @param proto_name Name of protocol that is exporting PDU
+ @return filled exp_pdu_data_t struct
+*/
+WS_DLL_PUBLIC exp_pdu_data_t *export_pdu_create_common_tags(packet_info *pinfo, const char *proto_name, guint16 tag_type);
+
+WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_src_ip;
+WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_dst_ip;
+WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_port_type;
+WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_src_port;
+WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_dst_port;
+WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_orig_frame_num;
 
 extern void export_pdu_init(void);
 

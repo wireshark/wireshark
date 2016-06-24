@@ -1671,8 +1671,7 @@ dvbci_set_addrs(guint8 event, packet_info *pinfo)
     return 1;
 }
 
-
-guint8
+static guint8
 dvbci_get_evt_from_addrs(packet_info *pinfo)
 {
     /* this should be working from C89 on */
@@ -3344,6 +3343,23 @@ dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
   }
 }
 
+static int exp_pdu_data_dvbci_size(packet_info *pinfo _U_, void* data _U_)
+{
+  return EXP_PDU_TAG_DVBCI_EVT_LEN + 4;
+}
+
+static int exp_pdu_data_dvbci_populate_data(packet_info *pinfo, void* data, guint8 *tlv_buffer, guint32 buffer_size _U_)
+{
+  tlv_buffer[0] = 0;
+  tlv_buffer[1] = EXP_PDU_TAG_DVBCI_EVT;
+  tlv_buffer[2] = 0;
+  tlv_buffer[3] = EXP_PDU_TAG_DVBCI_EVT_LEN;
+  tlv_buffer[4] = dvbci_get_evt_from_addrs(pinfo);
+
+  return exp_pdu_data_dvbci_size(pinfo, data);
+}
+
+static exp_pdu_data_item_t exp_pdu_dvbci = {exp_pdu_data_dvbci_size, exp_pdu_data_dvbci_populate_data, NULL};
 
 static void
 dissect_sac_msg(guint32 tag, tvbuff_t *tvb, gint offset,
@@ -3438,10 +3454,13 @@ dissect_sac_msg(guint32 tag, tvbuff_t *tvb, gint offset,
     /* we call this function also to dissect exported SAC messages,
         don't try to export them a second time */
     if (!exported && is_exportable && have_tap_listener(exported_pdu_tap)) {
+        static const exp_pdu_data_item_t *dvbci_exp_pdu_items[] = {
+            &exp_pdu_dvbci,
+            NULL
+        };
 
         tvbuff_t       *clear_sac_msg_tvb;
         exp_pdu_data_t *exp_pdu_data;
-        guint8          tags[2];
 
         clear_sac_msg_tvb = tvb_new_composite();
         tvb_composite_append(clear_sac_msg_tvb,
@@ -3449,10 +3468,7 @@ dissect_sac_msg(guint32 tag, tvbuff_t *tvb, gint offset,
         tvb_composite_append(clear_sac_msg_tvb, clear_sac_body_tvb);
         tvb_composite_finalize(clear_sac_msg_tvb);
 
-        tags[0] = 0;
-        tags[1] = EXP_PDU_TAG_DVBCI_EVT_BIT;
-        exp_pdu_data = load_export_pdu_tags(
-                pinfo, EXP_PDU_TAG_PROTO_NAME, EXPORTED_SAC_MSG_PROTO, tags, 2);
+        exp_pdu_data = export_pdu_create_tags(pinfo, EXPORTED_SAC_MSG_PROTO, EXP_PDU_TAG_PROTO_NAME, dvbci_exp_pdu_items);
 
         exp_pdu_data->tvb_captured_length = tvb_captured_length(clear_sac_msg_tvb);
         exp_pdu_data->tvb_reported_length = tvb_reported_length(clear_sac_msg_tvb);
