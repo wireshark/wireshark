@@ -1,6 +1,6 @@
 /* packet-geneve.c
  * Routines for Geneve - Generic Network Virtualization Encapsulation
- * http://tools.ietf.org/html/draft-gross-geneve-00
+ * http://tools.ietf.org/html/draft-ietf-nvo3-geneve
  *
  * Copyright (c) 2014 VMware, Inc. All Rights Reserved.
  * Author: Jesse Gross <jesse@nicira.com>
@@ -45,7 +45,12 @@
 
 static const range_string class_id_names[] = {
     { 0, 0xFF, "Standard" },
-    { 0xFFFF, 0xFFFF, "Experimental" },
+    { 0x0100, 0x0100, "Linux" },
+    { 0x0101, 0x0101, "Open vSwitch" },
+    { 0x0102, 0x0102, "Open Virtual Networking (OVN)" },
+    { 0x0103, 0x0103, "In-band Network Telemetry (INT)" },
+    { 0x0104, 0x0104, "VMware" },
+    { 0xFFF0, 0xFFFF, "Experimental" },
     { 0, 0, NULL }
 };
 
