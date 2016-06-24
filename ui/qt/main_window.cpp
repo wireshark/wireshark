@@ -1874,14 +1874,14 @@ void MainWindow::initConversationMenus()
             conv_action->setColorNumber(i++);
             submenu->addAction(conv_action);
             connect(this, SIGNAL(packetInfoChanged(_packet_info*)), conv_action, SLOT(setPacketInfo(_packet_info*)));
-            connect(conv_action, SIGNAL(triggered()), this, SLOT(colorizeWithFilter()));
+            connect(conv_action, SIGNAL(triggered()), this, SLOT(colorizeActionTriggered()));
         }
 
         conv_action = new ConversationAction(submenu, conv_filter);
         conv_action->setText(main_ui_->actionViewColorizeNewColoringRule->text());
         submenu->addAction(conv_action);
         connect(this, SIGNAL(packetInfoChanged(_packet_info*)), conv_action, SLOT(setPacketInfo(_packet_info*)));
-        connect(conv_action, SIGNAL(triggered()), this, SLOT(colorizeWithFilter()));
+        connect(conv_action, SIGNAL(triggered()), this, SLOT(colorizeActionTriggered()));
 
         // Proto tree conversation menu is filled in in ProtoTree::contextMenuEvent.
         // We should probably do that here.
@@ -1897,14 +1897,14 @@ void MainWindow::initConversationMenus()
         colorize_action->setColorNumber(i++);
         proto_tree_->colorizeMenu()->addAction(colorize_action);
         connect(this, SIGNAL(fieldFilterChanged(QByteArray)), colorize_action, SLOT(setFieldFilter(QByteArray)));
-        connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeWithFilter()));
+        connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeActionTriggered()));
     }
 
     colorize_action = new ColorizeAction(proto_tree_->colorizeMenu());
     colorize_action->setText(main_ui_->actionViewColorizeNewColoringRule->text());
     proto_tree_->colorizeMenu()->addAction(colorize_action);
     connect(this, SIGNAL(fieldFilterChanged(QByteArray)), colorize_action, SLOT(setFieldFilter(QByteArray)));
-    connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeWithFilter()));
+    connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeActionTriggered()));
 }
 
 // Titlebar

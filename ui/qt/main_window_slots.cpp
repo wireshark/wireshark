@@ -155,7 +155,6 @@
 #include <QToolBar>
 #include <QDesktopServices>
 #include <QUrl>
-#include <QDebug>
 
 // XXX You must uncomment QT_WINEXTRAS_LIB lines in CMakeList.txt and
 // cmakeconfig.h.in.
@@ -551,6 +550,15 @@ void MainWindow::queuedFilterAction(QString action_filter, FilterAction::Action 
         df_combo_box_->lineEdit()->setText(new_filter);
         df_combo_box_->applyDisplayFilter();
         break;
+    case FilterAction::ActionColorize:
+        colorizeWithFilter(new_filter.toUtf8());
+        break;
+    case FilterAction::ActionCopy:
+        wsApp->clipboard()->setText(new_filter);
+        break;
+    case FilterAction::ActionFind:
+        main_ui_->searchFrame->findFrameWithFilter(new_filter);
+        break;
     case FilterAction::ActionPrepare:
         df_combo_box_->lineEdit()->setText(new_filter);
         df_combo_box_->lineEdit()->setFocus();
@@ -561,11 +569,8 @@ void MainWindow::queuedFilterAction(QString action_filter, FilterAction::Action 
         QDesktopServices::openUrl(QUrl(url));
         break;
     }
-    case FilterAction::ActionCopy:
-        wsApp->clipboard()->setText(new_filter);
-        break;
     default:
-        qDebug() << "FIX FilterAction::Action" << action << "not implemented";
+        g_assert_not_reached();
         break;
     }
 }
@@ -2369,7 +2374,7 @@ void MainWindow::colorizeConversation(bool create_rule)
     setMenusForSelectedPacket();
 }
 
-void MainWindow::colorizeWithFilter()
+void MainWindow::colorizeActionTriggered()
 {
     QByteArray filter;
     int color_number = -1;
@@ -2386,6 +2391,11 @@ void MainWindow::colorizeWithFilter()
         }
     }
 
+    colorizeWithFilter(filter, color_number);
+}
+
+void MainWindow::colorizeWithFilter(QByteArray filter, int color_number)
+{
     if (filter.isEmpty()) return;
 
     if (color_number > 0) {

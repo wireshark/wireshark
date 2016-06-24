@@ -125,8 +125,10 @@ void SearchFrame::findFrameWithFilter(QString &filter)
 {
     animatedShow();
     sf_ui_->searchLineEdit->setText(filter);
+    sf_ui_->searchLineEdit->setCursorPosition(0);
     sf_ui_->searchTypeComboBox->setCurrentIndex(df_search_);
     updateWidgets();
+    on_findButton_clicked();
 }
 
 void SearchFrame::keyPressEvent(QKeyEvent *event)
