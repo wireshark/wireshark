@@ -361,7 +361,7 @@ static const struct mcs_vht_info ieee80211_vhtinfo[MAX_MCS_VHT_INDEX+1] = {
 		},
 		/* MCS  9  */
 		{	"256-QAM",	"5/6",
-				{		/* 20 Mhz */  {    0.0f,		/* SGI */    0.0f, },
+				{		/* 20 Mhz */  {   86.7f,		/* SGI */   96.3f, },
 						/* 40 Mhz */  {  180.0f,		/* SGI */  200.0f, },
 						/* 80 Mhz */  {  390.0f,		/* SGI */  433.3f, },
 						/* 160 Mhz */ {  780.0f,		/* SGI */  866.7f, }
