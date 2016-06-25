@@ -59,25 +59,25 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
         idx = idx + step_w;
     }
 
-    QStyleOptionViewItemV4 optv4 = option;
-    QStyledItemDelegate::initStyleOption(&optv4, index);
+    QStyleOptionViewItem option_vi = option;
+    QStyledItemDelegate::initStyleOption(&option_vi, index);
 
     painter->save();
 
     if (QApplication::style()->objectName().contains("vista")) {
         // QWindowsVistaStyle::drawControl does this internally. Unfortunately there
         // doesn't appear to be a more general way to do this.
-        optv4.palette.setColor(QPalette::All, QPalette::HighlightedText, optv4.palette.color(QPalette::Active, QPalette::Text));
+        option_vi.palette.setColor(QPalette::All, QPalette::HighlightedText, option_vi.palette.color(QPalette::Active, QPalette::Text));
     }
 
-    QPalette::ColorGroup cg = optv4.state & QStyle::State_Enabled
+    QPalette::ColorGroup cg = option_vi.state & QStyle::State_Enabled
                               ? QPalette::Normal : QPalette::Disabled;
-    if (cg == QPalette::Normal && !(optv4.state & QStyle::State_Active))
+    if (cg == QPalette::Normal && !(option_vi.state & QStyle::State_Active))
         cg = QPalette::Inactive;
-    if (optv4.state & QStyle::State_Selected) {
-        painter->setPen(optv4.palette.color(cg, QPalette::HighlightedText));
+    if (option_vi.state & QStyle::State_Selected) {
+        painter->setPen(option_vi.palette.color(cg, QPalette::HighlightedText));
     } else {
-        painter->setPen(optv4.palette.color(cg, QPalette::Text));
+        painter->setPen(option_vi.palette.color(cg, QPalette::Text));
     }
 
     painter->setRenderHint(QPainter::Antialiasing, true);
