@@ -49,16 +49,24 @@ RelatedPacketDelegate::RelatedPacketDelegate(QWidget *parent) :
 void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                               const QModelIndex &index) const
 {
-    QStyleOptionViewItemV4 optv4 = option;
-    QStyledItemDelegate::initStyleOption(&optv4, index);
-    int em_w = optv4.fontMetrics.height();
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    QStyleOptionViewItemV4 option_vi = option;
+#else
+    QStyleOptionViewItem option_vi = option;
+#endif
+    QStyledItemDelegate::initStyleOption(&option_vi, index);
+    int em_w = option_vi.fontMetrics.height();
     int en_w = (em_w + 1) / 2;
-    int line_w = (optv4.fontMetrics.lineWidth());
+    int line_w = (option_vi.fontMetrics.lineWidth());
 
-    optv4.features |= QStyleOptionViewItemV4::HasDecoration;
-    optv4.decorationSize.setHeight(1);
-    optv4.decorationSize.setWidth(em_w);
-    QStyledItemDelegate::paint(painter, optv4, index);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    option_vi.features |= QStyleOptionViewItemV4::HasDecoration;
+#else
+    option_vi.features |= QStyleOptionViewItem::HasDecoration;
+#endif
+    option_vi.decorationSize.setHeight(1);
+    option_vi.decorationSize.setWidth(em_w);
+    QStyledItemDelegate::paint(painter, option_vi, index);
 
     guint32 setup_frame = 0, last_frame = 0;
     if (conv_) {
@@ -77,30 +85,30 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
     if (QApplication::style()->objectName().contains("vista")) {
         // QWindowsVistaStyle::drawControl does this internally. Unfortunately there
         // doesn't appear to be a more general way to do this.
-        optv4.palette.setColor(QPalette::All, QPalette::HighlightedText, optv4.palette.color(QPalette::Active, QPalette::Text));
+        option_vi.palette.setColor(QPalette::All, QPalette::HighlightedText, option_vi.palette.color(QPalette::Active, QPalette::Text));
     }
 
-    QPalette::ColorGroup cg = optv4.state & QStyle::State_Enabled
+    QPalette::ColorGroup cg = option_vi.state & QStyle::State_Enabled
                               ? QPalette::Normal : QPalette::Disabled;
     QColor fg;
-    if (cg == QPalette::Normal && !(optv4.state & QStyle::State_Active))
+    if (cg == QPalette::Normal && !(option_vi.state & QStyle::State_Active))
         cg = QPalette::Inactive;
-    if (optv4.state & QStyle::State_Selected) {
-        fg = optv4.palette.color(cg, QPalette::HighlightedText);
+    if (option_vi.state & QStyle::State_Selected) {
+        fg = option_vi.palette.color(cg, QPalette::HighlightedText);
     } else {
-        fg = optv4.palette.color(cg, QPalette::Text);
+        fg = option_vi.palette.color(cg, QPalette::Text);
     }
 
-    fg = ColorUtils::alphaBlend(fg, optv4.palette.color(cg, QPalette::Base), 0.5);
+    fg = ColorUtils::alphaBlend(fg, option_vi.palette.color(cg, QPalette::Base), 0.5);
     QPen line_pen(fg);
     line_pen.setWidth(line_w);
     line_pen.setJoinStyle(Qt::RoundJoin);
 
     painter->setPen(line_pen);
-    painter->translate(optv4.rect.x(), optv4.rect.y());
+    painter->translate(option_vi.rect.x(), option_vi.rect.y());
     painter->translate(en_w + 0.5, 0.5);
     painter->setRenderHint(QPainter::Antialiasing, true);
-    int height = optv4.rect.height();
+    int height = option_vi.rect.height();
 
     // Uncomment to make the boundary visible.
 //    painter->save();
@@ -181,7 +189,7 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
         }
         case FT_FRAMENUM_NONE:
         default:
-            painter->drawEllipse(QPointF(0.0, optv4.rect.height() / 2), 2, 2);
+            painter->drawEllipse(QPointF(0.0, option_vi.rect.height() / 2), 2, 2);
         }
     }
 
