@@ -381,18 +381,6 @@ static const value_string cosflags_priority_vals[] = {
     {0, NULL}
 };
 
-static const value_string ecos_flags[] = {
-    {0x00, "None"},
-    {0x01, "ECOS Critical"},
-    {0x02, "ECOS Streaming"},
-    {0x03, "ECOS Critical+Streaming"},
-    {0x04, "ECOS Ordinal"},
-    {0x05, "ECOS Critical+Ordinal"},
-    {0x06, "ECOS Streaming+Ordinal"},
-    {0x07, "ECOS Critical+Streaming+Ordinal"},
-    {0, NULL}
-};
-
 /*
  * SDNV has a zero in high-order bit position of last byte. The high-order
  * bit of all preceding bytes is set to one. This returns the numeric value
@@ -600,7 +588,7 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
         }
 
         /* remember custodian, for use in checking cteb validity */
-        col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
+        col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
         col_clear_fence(pinfo->cinfo, COL_INFO);
         if (col_text && strstr(col_text, " > ")) {
             if (! strstr(col_text, "[multiple]")) {
@@ -661,7 +649,7 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
          * Add Source/Destination to INFO Field
          */
 
-        col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
+        col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
         col_clear_fence(pinfo->cinfo, COL_INFO);
         if (col_text && strstr(col_text, " > "))
             col_append_str(pinfo->cinfo, COL_INFO, ", [multiple]");
@@ -2884,22 +2872,22 @@ proto_register_bundle(void)
         },
         {&hf_ecos_flags,
          {"ECOS Flags", "bundle.block.ecos.flags",
-          FT_UINT8, BASE_HEX, VALS(ecos_flags), 0x0, NULL, HFILL}
+          FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         {&hf_ecos_flags_critical,
-         {"ECOS Critical Flag", "bundle.block.ecos.flags.critical",
+         {"Critical", "bundle.block.ecos.flags.critical",
           FT_BOOLEAN, 8, NULL, ECOS_FLAGS_CRITICAL, NULL, HFILL}
         },
         {&hf_ecos_flags_streaming,
-         {"ECOS Streaming Flag", "bundle.block.ecos.flags.streaming",
+         {"Streaming", "bundle.block.ecos.flags.streaming",
           FT_BOOLEAN, 8, NULL, ECOS_FLAGS_STREAMING, NULL, HFILL}
         },
         {&hf_ecos_flags_flowlabel,
-         {"ECOS Flow Label Flag", "bundle.block.ecos.flags.flowlabel",
+         {"Flow Label", "bundle.block.ecos.flags.flowlabel",
           FT_BOOLEAN, 8, NULL, ECOS_FLAGS_FLOWLABEL, NULL, HFILL}
         },
         {&hf_ecos_flags_reliable,
-         {"ECOS Reliable Flag", "bundle.block.ecos.flags.reliable",
+         {"Reliable", "bundle.block.ecos.flags.reliable",
           FT_BOOLEAN, 8, NULL, ECOS_FLAGS_RELIABLE, NULL, HFILL}
         },
         {&hf_ecos_flow_label,
