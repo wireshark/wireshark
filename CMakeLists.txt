@@ -916,6 +916,17 @@ if (Qt5Widgets_FOUND)
 		#
 		list(REMOVE_ITEM Qt5Widgets_EXECUTABLE_COMPILE_FLAGS "-fPIC")
 	endif()
+	if (Qt5Widgets_VERSION VERSION_GREATER 5.6
+	    AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang"))
+		# Qt 5.7 and later require C++ 11. If our minmimu required CMake version
+		# is ever >= 3.1 we can use CXX_STANDARD + CXX_STANDARD_REQUIRED.
+		message(STATUS "Checking for C++ 11 support (Required by Qt 5.7 and later)")
+		check_cxx_compiler_flag(-std=c++11 CXX__std_c__11_VALID)
+		if(NOT CXX__std_c__11_VALID)
+			message(FATAL_ERROR "Qt ${Qt5Widgets_VERSION} requires C++ 11")
+		endif()
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+	endif()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 	set (QT_FOUND ON)
 	set (QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5PrintSupport_LIBRARIES})
