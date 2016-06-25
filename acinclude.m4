@@ -1757,6 +1757,14 @@ AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 	    [
 	      qt_version_to_check=$qt_version
 	      QT_VERSION=$mod_version
+	      QT_VERSION_MAJOR=`echo "$QT_VERSION" | cut -f1 -d.`
+	      QT_VERSION_MINOR=`echo "$QT_VERSION" | cut -f2 -d.`
+	      QT_VERSION_MICRO=`echo "$QT_VERSION" | cut -f3 -d.`
+
+	      # Qt 5.7 and later requires C++11
+	      AS_IF([test $QT_VERSION_MAJOR -eq 5 -a $QT_VERSION_MINOR -ge 7],
+		[AS_IF([test "$HAVE_CXX11" -eq 0], [AC_MSG_ERROR([Qt 5.7 and later requires C++11])])])
+
 	    ],
 	    [no_qt=yes])
 

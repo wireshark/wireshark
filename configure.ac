@@ -110,6 +110,10 @@ if test ! -z "$CXX"; then
 	AC_LANG_POP([C++])
 fi
 
+# Qt 5.7 or later requires C++11
+AS_IF([test -n "$CXX"],
+	[AX_CXX_COMPILE_STDCXX([11], [noext], [optional])])
+
 # Set CC_FOR_BUILD (the *local* gcc to use for building e.g. lemon)
 if test "x$cross_compiling" = xno -a -z "$CC_FOR_BUILD"; then
 	CC_FOR_BUILD="$CC"
@@ -1321,17 +1325,13 @@ if test "x$enable_wireshark" = "xyes"; then
 
 			if test -z "${MOC_OPTIONS+1}"
 			then
-				if test $qt_version -eq 5
+				# Squelch moc verbose "nothing to do" output
+				if test $QT_VERSION_MAJOR -eq 5
 				then
-					# Squelch moc verbose "nothing to do" output
 					MOC_OPTIONS="-nn"
-				elif test $qt_version -eq 4
+				elif test $QT_VERSION_MAJOR -eq 4 -a $QT_VERSION_MINOR -ge 8
 				then
-					qt_minor_version=`echo "$QT_VERSION" | cut -f2 -d.`
-					if test $qt_minor_version -ge 8
-					then
-						MOC_OPTIONS="-nn"
-					fi
+					MOC_OPTIONS="-nn"
 				fi
 			fi
 			AC_SUBST(MOC_OPTIONS)
