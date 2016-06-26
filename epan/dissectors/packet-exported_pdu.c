@@ -116,9 +116,9 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     guint16 tag;
     int tag_len;
     int next_proto_type = -1;
-    char *proto_name = NULL;
-    char *dissector_table = NULL;
-    char *col_proto_str = NULL;
+    const guint8 *proto_name = NULL;
+    const guint8 *dissector_table = NULL;
+    const guint8 *col_proto_str = NULL;
     dissector_handle_t proto_handle;
     mtp3_addr_pc_t *mtp3_addr;
     guint8 dvb_ci_dir;
@@ -143,18 +143,15 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         switch(tag) {
             case EXP_PDU_TAG_PROTO_NAME:
                 next_proto_type = EXPORTED_PDU_NEXT_PROTO_STR;
-                proto_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tag_len, ENC_UTF_8|ENC_NA);
-                proto_tree_add_item(tag_tree, hf_exported_pdu_prot_name, tvb, offset, tag_len, ENC_UTF_8|ENC_NA);
+                proto_tree_add_item_ret_string(tag_tree, hf_exported_pdu_prot_name, tvb, offset, tag_len, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &proto_name);
                 break;
             case EXP_PDU_TAG_HEUR_PROTO_NAME:
                 next_proto_type = EXPORTED_PDU_NEXT_HEUR_PROTO_STR;
-                proto_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tag_len, ENC_UTF_8|ENC_NA);
-                proto_tree_add_item(tag_tree, hf_exported_pdu_heur_prot_name, tvb, offset, tag_len, ENC_UTF_8|ENC_NA);
+                proto_tree_add_item_ret_string(tag_tree, hf_exported_pdu_heur_prot_name, tvb, offset, tag_len, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &proto_name);
                 break;
             case EXP_PDU_TAG_DISSECTOR_TABLE_NAME:
                 next_proto_type = EXPORTED_PDU_NEXT_DIS_TABLE_STR;
-                dissector_table = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tag_len, ENC_UTF_8 | ENC_NA);
-                proto_tree_add_item(tag_tree, hf_exported_pdu_dis_table_name, tvb, offset, tag_len, ENC_UTF_8 | ENC_NA);
+                proto_tree_add_item_ret_string(tag_tree, hf_exported_pdu_dis_table_name, tvb, offset, tag_len, ENC_UTF_8 | ENC_NA, wmem_packet_scope(), &dissector_table);
                 break;
             case EXP_PDU_TAG_IPV4_SRC:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ipv4_src, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -240,8 +237,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 proto_tree_add_item(tag_tree, hf_exported_pdu_dis_table_val, tvb, offset, 4, ENC_BIG_ENDIAN);
                 break;
             case EXP_PDU_TAG_COL_PROT_TEXT:
-                col_proto_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tag_len, ENC_UTF_8 | ENC_NA);
-                proto_tree_add_item(tag_tree, hf_exported_pdu_col_proto_str, tvb, offset, tag_len, ENC_UTF_8 | ENC_NA);
+                proto_tree_add_item_ret_string(tag_tree, hf_exported_pdu_col_proto_str, tvb, offset, tag_len, ENC_UTF_8 | ENC_NA, wmem_packet_scope(), &col_proto_str);
                 break;
             case EXP_PDU_TAG_END_OF_OPT:
                 break;

@@ -536,8 +536,9 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
     }
 
     if (tvb_strneql(tvb, item_offset, "marking", 7) == 0) {
-      proto_item_append_text(item, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset, value_length, ENC_ASCII));
-      proto_tree_add_item(tree, hf_imf_siolabel_marking, tvb, value_offset, value_length, ENC_ASCII|ENC_NA);
+      const guint8* marking;
+      proto_tree_add_item_ret_string(tree, hf_imf_siolabel_marking, tvb, value_offset, value_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &marking);
+      proto_item_append_text(item, ": %s", marking);
 
     } else if (tvb_strneql(tvb, item_offset, "fgcolor", 7) == 0) {
       proto_tree_add_item(tree, hf_imf_siolabel_fgcolor, tvb, value_offset, value_length, ENC_ASCII|ENC_NA);
@@ -586,7 +587,7 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
 
 static void
 dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, proto_item *item,
-                         char **type, char **parameters)
+                         const guint8 **type, const guint8 **parameters)
 {
   int first_colon;
   int end_offset;
@@ -609,22 +610,14 @@ dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, proto_item *item
     ct_tree = proto_item_add_subtree(item, ett_imf_content_type);
 
     len = first_colon - offset;
-    proto_tree_add_item(ct_tree, hf_imf_content_type_type, tvb, offset, len, ENC_ASCII|ENC_NA);
-    if(type) {
-      /* This string will be automatically freed */
-      (*type) = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
-    }
+    proto_tree_add_item_ret_string(ct_tree, hf_imf_content_type_type, tvb, offset, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), type);
     end_offset = imf_find_field_end (tvb, first_colon + 1, offset + length, NULL);
     if (end_offset == -1) {
        /* No end found */
        return;
     }
     len = end_offset - (first_colon + 1) - 2;  /* Do not include the last CRLF */
-    proto_tree_add_item(ct_tree, hf_imf_content_type_parameters, tvb, first_colon + 1, len, ENC_ASCII|ENC_NA);
-    if(parameters) {
-      /* This string will be automatically freed */
-      (*parameters) = tvb_get_string_enc(wmem_packet_scope(), tvb, first_colon + 1, len, ENC_ASCII);
-    }
+    proto_tree_add_item_ret_string(ct_tree, hf_imf_content_type_parameters, tvb, first_colon + 1, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), parameters);
   }
 }
 
@@ -685,9 +678,9 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item  *item;
   proto_tree  *unknown_tree, *text_tree;
-  char  *content_type_str = NULL;
+  const guint8 *content_type_str = NULL;
   char  *content_encoding_str = NULL;
-  char  *parameters = NULL;
+  const guint8 *parameters = NULL;
   int   hf_id;
   gint  start_offset = 0;
   gint  value_offset = 0;
@@ -830,7 +823,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       next_tvb = tvb_new_subset_remaining(tvb, end_offset);
     }
 
-    dissector_try_string(media_type_dissector_table, content_type_str, next_tvb, pinfo, tree, parameters);
+    dissector_try_string(media_type_dissector_table, content_type_str, next_tvb, pinfo, tree, (void*)parameters);
   } else {
 
     /* just show the lines or highlight the rest of the buffer as message text */

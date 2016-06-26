@@ -2168,8 +2168,8 @@ static void
 dissect_mip6_opt_mnid(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
               guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item)
 {
-    int    len;
-    gchar *str;
+    int           len;
+    const guint8 *str;
 
     /* offset points to tag(opt) */
     offset++;
@@ -2183,8 +2183,7 @@ dissect_mip6_opt_mnid(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
     len = optlen - MIP6_MNID_MNID_OFF;
 
     if (len > 0) {
-        str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_UTF_8|ENC_NA);
-        proto_tree_add_string(opt_tree, hf_mip6_mnid_identifier, tvb, offset, len, str);
+        proto_tree_add_item_ret_string(opt_tree, hf_mip6_mnid_identifier, tvb, offset, len, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &str);
         proto_item_append_text(hdr_item, ": %s", str);
     }
 }
@@ -2393,8 +2392,8 @@ static void
 dissect_mip6_opt_ssm(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
-    int    len;
-    guint8 *str;
+    int           len;
+    const guint8 *str;
 
     /* offset points to tag(opt) */
     offset++;
@@ -2417,8 +2416,7 @@ dissect_mip6_opt_ssm(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
      */
 
     if (len > 0) {
-        str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_UTF_8|ENC_NA);
-        proto_tree_add_string(opt_tree, hf_mip6_opt_ss_identifier, tvb, offset, len, str);
+        proto_tree_add_item_ret_string(opt_tree, hf_mip6_opt_ss_identifier, tvb, offset, len, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &str);
         proto_item_append_text(hdr_item, ": %s", str);
     }
 }
@@ -3323,6 +3321,7 @@ dissect_pmip6_opt_acc_net_id(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset
     proto_tree *subopt_tree;
     gint16 length, sub_opt_len;
     guint8 sub_opt, e_bit, net_name_len, ap_name_len;
+    const guint8 *ap_name;
     gint offset_end;
 
     /* offset points to tag(opt) */
@@ -3372,8 +3371,9 @@ dissect_pmip6_opt_acc_net_id(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset
             offset++;
 
             if(e_bit == 0x80){
-                proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name, tvb, offset, net_name_len, ENC_BIG_ENDIAN|ENC_UTF_8);
-                proto_item_append_text(ti, " Network Name: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, net_name_len, ENC_UTF_8));
+                const guint8* name;
+                proto_tree_add_item_ret_string(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name, tvb, offset, net_name_len, ENC_BIG_ENDIAN|ENC_UTF_8, wmem_packet_scope(), &name);
+                proto_item_append_text(ti, " Network Name: %s", name);
             }else{
                 proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name_data, tvb, offset, net_name_len, ENC_BIG_ENDIAN|ENC_UTF_8);
             };
@@ -3383,8 +3383,8 @@ dissect_pmip6_opt_acc_net_id(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset
             proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_ap_name_len, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
-            proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_ap_name, tvb, offset, ap_name_len, ENC_BIG_ENDIAN|ENC_UTF_8);
-            proto_item_append_text(ti, " AP Name: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, ap_name_len, ENC_UTF_8));
+            proto_tree_add_item_ret_string(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_ap_name, tvb, offset, ap_name_len, ENC_BIG_ENDIAN|ENC_UTF_8, wmem_packet_scope(), &ap_name);
+            proto_item_append_text(ti, " AP Name: %s", ap_name);
 
             offset = offset+ap_name_len;
             break;

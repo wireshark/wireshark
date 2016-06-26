@@ -982,13 +982,11 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 static gint
 process_vendor(proto_tree *tree, gint hfindex, tvbuff_t *tvb, gint offset)
 {
-	gchar *vendor;
+	const guint8 *vendor;
 	proto_item *ti;
 
 	if (tree) {
-		vendor = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
-
-		ti = proto_tree_add_string(tree, hfindex, tvb, offset, 4, vendor);
+		ti = proto_tree_add_item_ret_string(tree, hfindex, tvb, offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &vendor);
 
 		if(g_ascii_strcasecmp(vendor, "STDV") == 0)
 			proto_item_append_text(ti, " (Standard VNC vendor)");
@@ -1012,15 +1010,13 @@ process_tight_capabilities(proto_tree *tree,
 	/* See vnc_unixsrc/include/rfbproto.h:rfbCapabilityInfo */
 
 	for (i = 0; i < num_capabilities; i++) {
-		char *name;
 
 		proto_tree_add_item(tree, type_index, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		offset = process_vendor(tree, vendor_index, tvb, offset);
 
-		name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 8, ENC_ASCII);
-		proto_tree_add_string(tree, name_index, tvb, offset, 8, name);
+		proto_tree_add_item(tree, name_index, tvb, offset, 8, ENC_ASCII|ENC_NA);
 		offset += 8;
 	}
 
@@ -1286,7 +1282,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 		{
 			int i;
-			guint8 *vendor, *signature;
+			const guint8 *vendor, *signature;
 			for (i = 0; i < 1; i++) {
 				auth_code = tvb_get_ntohl(tvb, offset);
 				auth_item = proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1294,8 +1290,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				vendor = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
 				process_vendor(tree, hf_vnc_tight_server_vendor, tvb, offset);
 				offset += 4;
-				signature = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 8, ENC_ASCII);
-				proto_tree_add_string(tree, hf_vnc_tight_signature, tvb, offset, 8, signature);
+				proto_tree_add_item_ret_string(tree, hf_vnc_tight_signature, tvb, offset, 8, ENC_ASCII|ENC_NA, wmem_packet_scope(), &signature);
 				offset += 8;
 
 				switch(auth_code) {

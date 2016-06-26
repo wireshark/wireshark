@@ -912,12 +912,11 @@ dissect_payload_id(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
 	if (tree) {
 		proto_item* parent;
-		proto_tree_add_item(tree, hf_mikey[POS_ID], tvb, 4, length, ENC_ASCII|ENC_NA);
+		const guint8* pos_id;
+		proto_tree_add_item_ret_string(tree, hf_mikey[POS_ID], tvb, 4, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pos_id);
 
 		parent = proto_tree_get_parent(tree);
-		proto_item_append_text(parent, " %s: %s",
-				       val_to_str_const(type, id_type_vals, "Unknown"),
-				       tvb_get_string_enc(wmem_packet_scope(), tvb, 4, length, ENC_ASCII));
+		proto_item_append_text(parent, " %s: %s", val_to_str_const(type, id_type_vals, "Unknown"), pos_id);
 	}
 
 	return 4 + length;
@@ -940,12 +939,11 @@ dissect_payload_idr(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, p
 
 	if (tree) {
 		proto_item *parent;
-		proto_tree_add_item(tree, hf_mikey[POS_ID], tvb, 5, length, ENC_ASCII|ENC_NA);
+		const guint8* pos_id;
+		proto_tree_add_item_ret_string(tree, hf_mikey[POS_ID], tvb, 5, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pos_id);
 
 		parent = proto_tree_get_parent(tree);
-		proto_item_append_text(parent, " %s: %s",
-				       val_to_str_const(type, id_type_vals, "Unknown"),
-				       tvb_get_string_enc(wmem_packet_scope(), tvb, 5, length, ENC_ASCII));
+		proto_item_append_text(parent, " %s: %s", val_to_str_const(type, id_type_vals, "Unknown"), pos_id);
 	}
 
 	return 5 + length;

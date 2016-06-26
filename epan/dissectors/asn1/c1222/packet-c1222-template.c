@@ -374,8 +374,8 @@ static void
 parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cmd, guint32 *length, int *offset)
 {
   guint16 user_id = 0;
-  guint8 *user_name = NULL;
-  guint8 *password = NULL;
+  const guint8 *user_name = NULL;
+  const guint8 *password = NULL;
   guint8 auth_len = 0;
   gchar *auth_req = NULL;
   guint16 table = 0;
@@ -408,8 +408,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
         user_id = tvb_get_ntohs(tvb, *offset);
         proto_tree_add_uint(tree, hf_c1222_logon_id, tvb, *offset, 2, user_id);
         *offset += 2;
-        user_name = tvb_get_string_enc(wmem_packet_scope(),tvb, *offset, 10, ENC_ASCII);
-        proto_tree_add_string(tree, hf_c1222_logon_user, tvb, *offset, 10, user_name);
+        proto_tree_add_item_ret_string(tree, hf_c1222_logon_user, tvb, *offset, 10, ENC_ASCII|ENC_NA, wmem_packet_scope(), &user_name);
         *offset += 10;
         *length -= 12;
         proto_item_set_text(tree, "C12.22 EPSEM: %s (id %d, user \"%s\")",
@@ -420,8 +419,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
       break;
     case C1222_CMD_SECURITY:
       if (*length >= 20) {
-        password = tvb_get_string_enc(wmem_packet_scope(),tvb, *offset, 20, ENC_ASCII);
-        proto_tree_add_string(tree, hf_c1222_security_password, tvb, *offset, 20, password);
+        proto_tree_add_item_ret_string(tree, hf_c1222_security_password, tvb, *offset, 20, ENC_ASCII|ENC_NA, wmem_packet_scope(), &password);
         *offset += 20;
         *length -= 20;
         if (*length >= 2) {

@@ -910,7 +910,6 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
     guint32      curr_offset;
     guint8       coding_scheme, num_spare_bits;
     guint32      num_text_bits;
-    gchar       *net_name     = NULL;
     proto_item  *item;
 
     curr_offset = offset;
@@ -941,8 +940,7 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
         proto_tree_add_ts_23_038_7bits_item(tree, hf_gsm_a_dtap_text_string, tvb, curr_offset<<3, num_text_bits/7);
         break;
     case 1:
-        net_name = tvb_get_string_enc(wmem_packet_scope(), tvb, curr_offset, (len - 1), ENC_UCS_2|ENC_BIG_ENDIAN);
-        proto_tree_add_string(tree, hf_gsm_a_dtap_text_string, tvb, curr_offset, len - 1, net_name);
+        proto_tree_add_item(tree, hf_gsm_a_dtap_text_string, tvb, curr_offset, len - 1, ENC_UCS_2|ENC_BIG_ENDIAN);
         break;
     default:
         proto_tree_add_expert(tree, pinfo, &ei_gsm_a_dtap_coding_scheme, tvb, curr_offset, len - 1);

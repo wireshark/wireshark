@@ -2456,11 +2456,11 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             if (strcmp(protocol_name, "comment") == 0) {
                 /* Extract & add the string. */
                 proto_item *string_ti;
-                char *string = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
+                const guint8 *string;
 
                 /* Show comment string */
-                string_ti = proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_comment, tvb,
-                                                offset, -1, ENC_ASCII|ENC_NA);
+                string_ti = proto_tree_add_item_ret_string(dct2000_tree, hf_catapult_dct2000_comment, tvb,
+                                                offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA, wmem_packet_scope(), &string);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s", string);
 
                 if (catapult_dct2000_dissect_mac_lte_oob_messages) {
@@ -2483,11 +2483,11 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             else
             if (strcmp(protocol_name, "sprint") == 0) {
                 /* Extract & add the string. */
-                char *string = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
+                const guint8 *string;
 
                 /* Show sprint string */
-                proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_sprint, tvb,
-                                                offset, -1, ENC_ASCII|ENC_NA);
+                proto_tree_add_item_ret_string(dct2000_tree, hf_catapult_dct2000_sprint, tvb,
+                                                offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA, wmem_packet_scope(), &string);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s", string);
 
                 return tvb_captured_length(tvb);

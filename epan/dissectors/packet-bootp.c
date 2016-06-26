@@ -2921,7 +2921,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 	case 242: {	/* Avaya IP Telephone */
 		proto_tree *o242avaya_v_tree;
 		proto_item *avaya_ti;
-		gchar *avaya_option = NULL;
+		const guint8 *avaya_option = NULL;
 		gchar *field = NULL;
 		wmem_strbuf_t *avaya_param_buf = NULL;
 
@@ -2931,11 +2931,10 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 			optoff += optlen;
 			break;
 		}
-		avaya_option = (gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, optoff, optlen, ENC_ASCII);
-		avaya_ti = proto_tree_add_string(v_tree, hf_bootp_option242_avaya, tvb, optoff, optlen, avaya_option);
+		avaya_ti = proto_tree_add_item_ret_string(v_tree, hf_bootp_option242_avaya, tvb, optoff, optlen, ENC_ASCII|ENC_NA, wmem_packet_scope(), &avaya_option);
 		o242avaya_v_tree = proto_item_add_subtree(avaya_ti, ett_bootp_option242_suboption);
 		avaya_param_buf = wmem_strbuf_new(wmem_packet_scope(), "");
-		for ( field = strtok(avaya_option, ","); field; field = strtok(NULL, ",") ) {
+		for ( field = strtok((char*)avaya_option, ","); field; field = strtok(NULL, ",") ) {
 			if (!strchr(field, '=')) {
 				if (wmem_strbuf_get_len(avaya_param_buf) == 0) {
 					expert_add_info_format(pinfo, vti, &hf_bootp_subopt_unknown_type, "ERROR, Unknown parameter %s", field);

@@ -708,18 +708,16 @@ dissect_printerdata_data(tvbuff_t *tvb, int offset,
 
 		switch(type) {
 		case DCERPC_REG_SZ: {
-			char *data = tvb_get_string_enc(wmem_packet_scope(), tvb, offset - size, size, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+			const guint8 *data;
+
+			hidden_item = proto_tree_add_item_ret_string(
+				tree, hf_printerdata_data_sz, tvb,
+				offset - size, size, ENC_UTF_16|ENC_LITTLE_ENDIAN, wmem_packet_scope(), &data);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			proto_item_append_text(item, ": %s", data);
 
-			col_append_fstr(
-					pinfo->cinfo, COL_INFO, " = %s", data);
-
-			hidden_item = proto_tree_add_string(
-				tree, hf_printerdata_data_sz, tvb,
-				offset - size, size, data);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
-
+			col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", data);
 			break;
 		}
 		case DCERPC_REG_DWORD: {

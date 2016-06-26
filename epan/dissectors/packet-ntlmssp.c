@@ -1220,13 +1220,13 @@ dissect_ntlmssp_target_info_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   item_offset = target_info_offset;
 
   while (item_offset < (target_info_offset + target_info_length) && (item_type != NTLM_TARGET_INFO_END)) {
-    proto_item *target_info_tf;
-    proto_tree *target_info_tree;
-    guint32     content_offset;
-    guint16     content_length;
-    guint32     type_offset;
-    guint32     len_offset;
-    const gchar *text = NULL;
+    proto_item   *target_info_tf;
+    proto_tree   *target_info_tree;
+    guint32       content_offset;
+    guint16       content_length;
+    guint32       type_offset;
+    guint32       len_offset;
+    const guint8 *text = NULL;
 
     int **hf_array_p = tif_p->hf_attr_array_p;
 
@@ -1256,8 +1256,7 @@ dissect_ntlmssp_target_info_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       case NTLM_TARGET_INFO_DNS_DOMAIN_NAME:
       case NTLM_TARGET_INFO_DNS_TREE_NAME:
       case NTLM_TARGET_INFO_TARGET_NAME:
-        text = tvb_get_string_enc(wmem_packet_scope(), tvb, content_offset, content_length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
-        proto_tree_add_string(target_info_tree, *hf_array_p[item_type], tvb, content_offset, content_length, text);
+        proto_tree_add_item_ret_string(target_info_tree, *hf_array_p[item_type], tvb, content_offset, content_length, ENC_UTF_16|ENC_LITTLE_ENDIAN, wmem_packet_scope(), &text);
         proto_item_append_text(target_info_tf, ": %s", text);
         break;
 

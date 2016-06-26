@@ -251,13 +251,12 @@ static gint ett_deliver_report = -1;
 
 /* Helper functions */
 
-static char*
+static const guint8*
 cmpp_octet_string(proto_tree *tree, tvbuff_t *tvb, gint field, gint offset, gint length)
 {
-	char *display;
+	const guint8 *display;
 
-	display = (char *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
-	proto_tree_add_string(tree, field, tvb, offset, length, display);
+	proto_tree_add_item_ret_string(tree, field, tvb, offset, length, ENC_ASCII, wmem_packet_scope(), &display);
 	return display;
 }
 

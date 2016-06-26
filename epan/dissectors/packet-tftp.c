@@ -53,17 +53,17 @@ void proto_register_tftp(void);
 
 /* Things we may want to remember for a whole conversation */
 typedef struct _tftp_conv_info_t {
-  guint16  blocksize;
-  gchar   *source_file, *destination_file;
+  guint16      blocksize;
+  const guint8 *source_file, *destination_file;
 
   /* Sequence analysis */
-  guint    next_block_num;
-  gboolean blocks_missing;
+  guint        next_block_num;
+  gboolean     blocks_missing;
 
   /* When exporting file object, build up list of data blocks here */
-  guint    next_tap_block_num;
-  GSList   *block_list;
-  guint    file_length;
+  guint        next_tap_block_num;
+  GSList       *block_list;
+  guint        file_length;
 } tftp_conv_info_t;
 
 
@@ -251,10 +251,9 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
   case TFTP_RRQ:
     i1 = tvb_strsize(tvb, offset);
-    proto_tree_add_item(tftp_tree, hf_tftp_source_file,
-                        tvb, offset, i1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item_ret_string(tftp_tree, hf_tftp_source_file,
+                        tvb, offset, i1, ENC_ASCII|ENC_NA, wmem_file_scope(), &tftp_info->source_file);
 
-    tftp_info->source_file = tvb_get_string_enc(wmem_file_scope(), tvb, offset, i1, ENC_ASCII);
     /* we either have a source file name (for read requests) or a
        destination file name (for write requests) 
        when we set one of the names, we clear the other */
@@ -280,11 +279,9 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
   case TFTP_WRQ:
     i1 = tvb_strsize(tvb, offset);
-    proto_tree_add_item(tftp_tree, hf_tftp_destination_file,
-                        tvb, offset, i1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item_ret_string(tftp_tree, hf_tftp_destination_file,
+                        tvb, offset, i1, ENC_ASCII|ENC_NA, wmem_file_scope(), &tftp_info->destination_file);
 
-    tftp_info->destination_file =
-      tvb_get_string_enc(wmem_file_scope(), tvb, offset, i1, ENC_ASCII);
     tftp_info->source_file = NULL; /* see above */
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",

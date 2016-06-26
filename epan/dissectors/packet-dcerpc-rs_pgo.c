@@ -161,9 +161,10 @@ dissect_sec_rgy_pname_t (tvbuff_t * tvb, int offset,
 {
 
 
-  proto_item *item = NULL;
-  proto_tree *tree = NULL;
+  proto_item *item;
+  proto_tree *tree;
   int old_offset = offset;
+  const guint8 *principal;
 #define    sec_rgy_pname_t_size 257
 /*
 dissect    sec_rgy_pname const signed32        sec_rgy_pname_t_size  = 257; * Include final '\0' *
@@ -177,11 +178,7 @@ dissect    sec_rgy_pname const signed32        sec_rgy_pname_t_size  = 257; * In
     }
 
 
-  if (parent_tree)
-    {
-      tree =
-        proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_sec_rgy_pname_t, &item, "sec_rgy_pname_t");
-    }
+  tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_sec_rgy_pname_t, &item, "sec_rgy_pname_t");
 
   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
                                hf_sec_rgy_pname_t_size, &string_size);
@@ -190,12 +187,11 @@ dissect    sec_rgy_pname const signed32        sec_rgy_pname_t_size  = 257; * In
     {
 /* proto_tree_add_string(tree, id, tvb, start, length, value_ptr); */
 
-      proto_tree_add_item (tree, hf_sec_rgy_pname_t_principalName_string,
-                           tvb, offset, string_size, ENC_ASCII|ENC_NA);
+      proto_tree_add_item_ret_string(tree, hf_sec_rgy_pname_t_principalName_string,
+                           tvb, offset, string_size, ENC_ASCII|ENC_NA, wmem_packet_scope(), &principal);
       if (string_size > 1)
         {
-          col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s",
-                             tvb_get_string_enc(wmem_packet_scope(), tvb, offset, string_size, ENC_ASCII));
+          col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s", principal);
         }
       offset += string_size;
     }
@@ -372,9 +368,10 @@ dissect_sec_rgy_name_t (tvbuff_t * tvb, int offset,
 {
 
 
-  proto_item *item = NULL;
-  proto_tree *tree = NULL;
+  proto_item *item;
+  proto_tree *tree;
   int old_offset = offset;
+  const guint8 *principal;
 #define    sec_rgy_name_t_size  1025
 /*    typedef [string] char sec_rgy_name_t[sec_rgy_name_t_size]; */
   guint32 string_size;
@@ -385,11 +382,7 @@ dissect_sec_rgy_name_t (tvbuff_t * tvb, int offset,
     }
 
 
-  if (parent_tree)
-    {
-      tree =
-        proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_sec_rgy_name_t, &item, "sec_rgy_name_t");
-    }
+  tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_sec_rgy_name_t, &item, "sec_rgy_name_t");
 
   offset =
     dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
@@ -399,12 +392,11 @@ dissect_sec_rgy_name_t (tvbuff_t * tvb, int offset,
     {
 /* proto_tree_add_string(tree, id, tvb, start, length, value_ptr); */
 
-      proto_tree_add_item (tree, hf_sec_rgy_name_t_principalName_string,
-                           tvb, offset, string_size, ENC_ASCII|ENC_NA);
+      proto_tree_add_item_ret_string(tree, hf_sec_rgy_name_t_principalName_string,
+                           tvb, offset, string_size, ENC_ASCII|ENC_NA, wmem_packet_scope(), &principal);
       if (string_size > 1)
         {
-          col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s",
-                             tvb_get_string_enc(wmem_packet_scope(), tvb, offset, string_size, ENC_ASCII));
+          col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s", principal);
         }
       offset += string_size;
     }

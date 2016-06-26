@@ -533,7 +533,7 @@ static struct dmp_data {
   gint     prec;
   gint     body_format;
   gint     notif_type;
-  guchar  *struct_id;
+  const guint8 *struct_id;
   gint32   subm_time;
   guint8   msg_id_type;
   guint8   mts_id_length;
@@ -3100,8 +3100,7 @@ static void dissect_dmp_structured_id (tvbuff_t *tvb, proto_tree *body_tree,
     break;
 
   case STRUCT_ID_STRING:
-    dmp.struct_id = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, (gint) dmp_struct_length, ENC_ASCII);
-    proto_tree_add_item (body_tree, hf_message_bodyid_string, tvb, offset, dmp_struct_length, ENC_ASCII|ENC_NA);
+    proto_tree_add_item_ret_string(body_tree, hf_message_bodyid_string, tvb, offset, dmp_struct_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &dmp.struct_id);
     break;
 
   case STRUCT_ID_ZSTRING:

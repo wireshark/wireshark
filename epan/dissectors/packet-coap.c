@@ -347,11 +347,9 @@ dissect_coap_opt_uint(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree,
 static void
 dissect_coap_opt_uri_host(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length)
 {
-	guint8 *str;
+	const guint8 *str;
 
-	str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, opt_length, ENC_ASCII);
-
-	proto_tree_add_string(subtree, hf_coap_opt_uri_host, tvb, offset, opt_length, str);
+	proto_tree_add_item_ret_string(subtree, hf_coap_opt_uri_host, tvb, offset, opt_length, ENC_ASCII, wmem_packet_scope(), &str);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": %s", str);

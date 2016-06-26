@@ -2015,15 +2015,13 @@ dissect_rtcp_bye( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
     }
 
     if ( tvb_reported_length_remaining( tvb, offset ) > 0 ) {
-        char *reason_text;
         /* Bye reason consists of an 8 bit length l and a string with length l */
         reason_length = tvb_get_guint8( tvb, offset );
         proto_tree_add_item( tree, hf_rtcp_sdes_length, tvb, offset, 1, ENC_BIG_ENDIAN );
         offset++;
 
         reason_offset = offset;
-        reason_text = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, reason_length, ENC_ASCII);
-        proto_tree_add_string( tree, hf_rtcp_sdes_text, tvb, offset, reason_length, reason_text );
+        proto_tree_add_item( tree, hf_rtcp_sdes_text, tvb, offset, reason_length, ENC_ASCII|ENC_NA);
         offset += reason_length;
     }
 

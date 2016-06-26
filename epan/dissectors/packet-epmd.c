@@ -119,9 +119,9 @@ const value_string epmd_version_vals[] = {
 
 static void
 dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree) {
-    guint8       type;
-    guint16      name_length = 0;
-    const gchar *name        = NULL;
+    guint8        type;
+    guint16       name_length = 0;
+    const guint8 *name        = NULL;
 
     proto_tree_add_item(tree, hf_epmd_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -144,8 +144,7 @@ dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree 
             offset += 2;
             name_length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(tree, hf_epmd_name_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tree, hf_epmd_name, tvb, offset + 2, name_length, ENC_ASCII|ENC_NA);
-            name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, name_length, ENC_ASCII);
+            proto_tree_add_item_ret_string(tree, hf_epmd_name, tvb, offset + 2, name_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &name);
             offset += 2 + name_length;
             if (tvb_reported_length_remaining(tvb, offset) >= 2) {
                 guint16 elen=0;
@@ -160,16 +159,14 @@ dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree 
         case EPMD_PORT_REQ:
         case EPMD_PORT2_REQ:
             name_length = tvb_captured_length_remaining(tvb, offset);
-            proto_tree_add_item(tree, hf_epmd_name, tvb, offset, name_length, ENC_ASCII|ENC_NA);
-            name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, name_length, ENC_ASCII);
+            proto_tree_add_item_ret_string(tree, hf_epmd_name, tvb, offset, name_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &name);
             break;
 
         case EPMD_ALIVE_REQ:
             proto_tree_add_item(tree, hf_epmd_port_no, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             name_length = tvb_captured_length_remaining(tvb, offset);
-            proto_tree_add_item(tree, hf_epmd_name, tvb, offset, name_length, ENC_ASCII|ENC_NA);
-            name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, name_length, ENC_ASCII);
+            proto_tree_add_item_ret_string(tree, hf_epmd_name, tvb, offset, name_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &name);
             break;
 
         case EPMD_NAMES_REQ:
@@ -195,7 +192,7 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree
     guint8          type, result;
     guint32         port;
     guint16         name_length = 0;
-    const gchar    *name        = NULL;
+    const guint8   *name        = NULL;
     conversation_t *conv        = NULL;
 
     port = tvb_get_ntohl(tvb, offset);
@@ -247,8 +244,7 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree
             offset += 2;
             name_length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(tree, hf_epmd_name_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tree, hf_epmd_name, tvb, offset + 2, name_length, ENC_ASCII|ENC_NA);
-            name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, name_length, ENC_ASCII);
+            proto_tree_add_item_ret_string(tree, hf_epmd_name, tvb, offset + 2, name_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &name);
             offset += 2 + name_length;
             if (tvb_reported_length_remaining(tvb, offset) >= 2) {
                 guint16 elen=0;

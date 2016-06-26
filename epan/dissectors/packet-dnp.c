@@ -1932,18 +1932,19 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
           case AL_OBJ_DA_CONF:    /* Device Attributes - DNP Subset and Conformance (Obj:00, Var:249) */
           case AL_OBJ_DA_PROD:    /* Device Attributes - Device Product Name and Model (Obj:00, Var:250) */
           case AL_OBJ_DA_MFG:     /* Device Attributes - Device Manufacturers Name (Obj:00, Var:252) */
-
+          {
+            const guint8* da_value;
             proto_tree_add_item(point_tree, hf_dnp3_al_datatype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
             da_len = tvb_get_guint8(tvb, offset+1);
             proto_tree_add_item(point_tree, hf_dnp3_al_da_length, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
 
-            proto_tree_add_item(point_tree, hf_dnp3_al_da_value, tvb, offset+2, da_len, ENC_ASCII|ENC_NA);
-            proto_item_append_text(object_item, ", Value: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset+2, da_len, ENC_ASCII));
+            proto_tree_add_item_ret_string(point_tree, hf_dnp3_al_da_value, tvb, offset+2, da_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &da_value);
+            proto_item_append_text(object_item, ", Value: %s", da_value);
 
             offset += 2 + da_len;
             break;
-
+          }
           /* Bit-based Data objects here */
           case AL_OBJ_BI_1BIT:    /* Single-Bit Binary Input (Obj:01, Var:01) */
           case AL_OBJ_BO:         /* Binary Output (Obj:10, Var:01) */

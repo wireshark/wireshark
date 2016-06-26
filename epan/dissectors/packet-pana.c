@@ -381,10 +381,8 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                         break;
                                 }
                                 case PANA_UTF8STRING: {
-                                        guint8 *data = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, avp_data_length, ENC_UTF_8);
-                                        proto_tree_add_string_format(single_avp_tree, hf_pana_avp_data_string, tvb,
-                                                                     offset, avp_data_length, data,
-                                                                     "UTF8String: %s", data);
+                                        proto_tree_add_item(single_avp_tree, hf_pana_avp_data_string, tvb,
+                                                                     offset, avp_data_length, ENC_UTF_8|ENC_NA);
                                         break;
                                 }
                                 case PANA_OCTET_STRING: {
@@ -849,7 +847,7 @@ proto_register_pana(void)
                     NULL, HFILL }
                 },
                 { &hf_pana_avp_data_string,
-                  { "Value", "pana.avp.data.string",
+                  { "UTF8String", "pana.avp.data.string",
                     FT_STRING, BASE_NONE, NULL, 0x0,
                     NULL, HFILL }
                 },

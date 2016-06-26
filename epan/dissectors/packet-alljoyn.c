@@ -712,7 +712,7 @@ pad_according_to_type(gint offset, gint field_starting_offset, gint max_offset, 
  */
 static void
 append_struct_signature(proto_item   *item,
-                        guint8       *signature,
+                        const guint8 *signature,
                         gint          signature_max_length,
                         const guint8  type_stop)
 {
@@ -752,7 +752,7 @@ append_struct_signature(proto_item   *item,
  * @param signature_length is a pointer to the length of the signature.
  */
 static void
-advance_to_end_of_signature(guint8 **signature,
+advance_to_end_of_signature(const guint8 **signature,
                             guint8  *signature_length)
 {
     gboolean done = FALSE;
@@ -859,18 +859,18 @@ static void add_padding_item(gint padding_start, gint padding_end, tvbuff_t *tvb
  *         parameters come in.
  */
 static gint
-parse_arg(tvbuff_t     *tvb,
-          packet_info  *pinfo,
-          proto_item   *header_item,
-          guint         encoding,
-          gint          offset,
-          proto_tree   *field_tree,
-          gboolean      is_reply_to,
-          guint8        type_id,
-          guint8        field_code,
-          guint8      **signature,
-          guint8       *signature_length,
-          gint          field_starting_offset)
+parse_arg(tvbuff_t      *tvb,
+          packet_info   *pinfo,
+          proto_item    *header_item,
+          guint          encoding,
+          gint           offset,
+          proto_tree    *field_tree,
+          gboolean       is_reply_to,
+          guint8         type_id,
+          guint8         field_code,
+          const guint8 **signature,
+          guint8        *signature_length,
+          gint           field_starting_offset)
 {
     gint length;
     gint padding_start;
@@ -889,7 +889,7 @@ parse_arg(tvbuff_t     *tvb,
             static gchar  bad_array_format[]  = "BAD DATA: Array length (in bytes) is %d. Remaining packet length is %d.";
             proto_item   *item;
             proto_tree   *tree;
-            guint8       *sig_saved;
+            const guint8 *sig_saved;
             gint          starting_offset;
             gint          number_of_items      = 0;
             guint8        remaining_sig_length = *signature_length;
@@ -931,7 +931,7 @@ parse_arg(tvbuff_t     *tvb,
                 advance_to_end_of_signature(signature, &remaining_sig_length);
             } else {
                 while((offset - starting_offset) < length) {
-                    guint8 *sig_pointer;
+                    const guint8 *sig_pointer;
 
                     number_of_items++;
                     sig_pointer = sig_saved;
@@ -1001,9 +1001,7 @@ parse_arg(tvbuff_t     *tvb,
         proto_tree_add_item(field_tree, hf_alljoyn_mess_body_signature_length, tvb, offset, 1, encoding);
         offset += 1;
 
-        proto_tree_add_item(field_tree, hf_alljoyn_mess_body_signature, tvb, offset, length, ENC_ASCII|ENC_NA);
-
-        *signature = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
+        proto_tree_add_item_ret_string(field_tree, hf_alljoyn_mess_body_signature, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), signature);
 
         if(HDR_SIGNATURE == field_code) {
             col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", *signature);
@@ -1072,6 +1070,9 @@ parse_arg(tvbuff_t     *tvb,
         break;
 
     case ARG_STRING:     /* AllJoyn UTF-8 NULL terminated string basic type */
+        {
+        const guint8 *member_name;
+
         header_type_name = "string";
         padding_start = offset;
         offset = round_to_4byte(offset, field_starting_offset);
@@ -1091,16 +1092,14 @@ parse_arg(tvbuff_t     *tvb,
         length += 1;    /* Include the '\0'. */
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_alljoyn_string_data, tvb, offset, length, ENC_UTF_8|ENC_NA);
+        proto_tree_add_item_ret_string(field_tree, hf_alljoyn_string_data, tvb, offset, length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &member_name);
 
         if(HDR_MEMBER == field_code) {
-            guint8 *member_name;
-
-            member_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8);
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s", member_name);
         }
 
         offset += length;
+        }
         break;
 
     case ARG_UINT64:     /* AllJoyn 64-bit unsigned integer basic type */
@@ -1141,11 +1140,11 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_VARIANT:    /* AllJoyn variant container type */
         {
-            proto_item *item;
-            proto_tree *tree;
-            guint8     *sig_saved;
-            guint8     *sig_pointer;
-            guint8      variant_sig_length;
+            proto_item   *item;
+            proto_tree   *tree;
+            const guint8 *sig_saved;
+            const guint8 *sig_pointer;
+            guint8        variant_sig_length;
 
             header_type_name = "variant";
 
@@ -1171,9 +1170,7 @@ parse_arg(tvbuff_t     *tvb,
             offset += 1;
 
             tree = proto_item_add_subtree(item, ett_alljoyn_mess_body_parameters);
-            proto_tree_add_item(tree, hf_alljoyn_mess_body_signature, tvb, offset, length, ENC_ASCII|ENC_NA);
-
-            sig_saved = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
+            proto_tree_add_item_ret_string(tree, hf_alljoyn_mess_body_signature, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &sig_saved);
 
             offset += length;
             sig_pointer = sig_saved;
@@ -1318,13 +1315,13 @@ alljoyn_typeid( gchar *result, guint32 type )
  *         the message.
  */
 static gint
-handle_message_field(tvbuff_t     *tvb,
-                     packet_info  *pinfo,
-                     proto_item   *header_tree,
-                     guint         encoding,
-                     gint          offset,
-                     guint8      **signature,
-                     guint8       *signature_length)
+handle_message_field(tvbuff_t      *tvb,
+                     packet_info   *pinfo,
+                     proto_item    *header_tree,
+                     guint          encoding,
+                     gint           offset,
+                     const guint8 **signature,
+                     guint8        *signature_length)
 {
     proto_tree *field_tree;
     proto_item *item, *field_item;
@@ -1394,7 +1391,7 @@ handle_message_field(tvbuff_t     *tvb,
  * @param header_length contains the length of the message fields.
  * @param signature_length contains the signature field length.
  */
-static guint8 *
+static const guint8 *
 handle_message_header_fields(tvbuff_t    *tvb,
                              packet_info *pinfo,
                              proto_item  *header_tree,
@@ -1406,7 +1403,7 @@ handle_message_header_fields(tvbuff_t    *tvb,
     gint        end_of_header;
     proto_item *item;
     proto_tree *tree;
-    guint8     *signature = NULL;
+    const guint8 *signature = NULL;
 
     item = proto_tree_add_item(header_tree, hf_alljoyn_mess_header_fields, tvb, offset, header_length, ENC_NA);
     tree = proto_item_add_subtree(item, ett_alljoyn_mess_header);
@@ -1430,14 +1427,14 @@ handle_message_header_fields(tvbuff_t    *tvb,
  * @param signature_length contains the signature field length.
  */
 static gint
-handle_message_body_parameters(tvbuff_t    *tvb,
-                               packet_info *pinfo,
-                               proto_tree  *header_tree,
-                               guint       encoding,
-                               gint        offset,
-                               gint32      body_length,
-                               guint8      *signature,
-                               guint8      signature_length)
+handle_message_body_parameters(tvbuff_t     *tvb,
+                               packet_info  *pinfo,
+                               proto_tree   *header_tree,
+                               guint         encoding,
+                               gint          offset,
+                               gint32        body_length,
+                               const guint8 *signature,
+                               guint8        signature_length)
 {
     gint        packet_length, end_of_body;
     proto_tree *tree;
@@ -1500,14 +1497,14 @@ handle_message_header_body(tvbuff_t    *tvb,
                            proto_item  *message_tree,
                            gboolean    is_ardp)
 {
-    gint        remaining_packet_length;
-    guint8     *signature;
-    guint8      signature_length = 0;
-    proto_tree *header_tree, *flag_tree;
-    proto_item *header_item, *flag_item;
-    guint       encoding;
-    gint        packet_length_needed;
-    gint        header_length = 0, body_length = 0;
+    gint          remaining_packet_length;
+    const guint8 *signature;
+    guint8        signature_length = 0;
+    proto_tree   *header_tree, *flag_tree;
+    proto_item   *header_item, *flag_item;
+    guint         encoding;
+    gint          packet_length_needed;
+    gint          header_length = 0, body_length = 0;
 
     remaining_packet_length = tvb_reported_length_remaining(tvb, offset);
     encoding = get_message_header_endianness(tvb, offset);

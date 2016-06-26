@@ -437,7 +437,7 @@ rtpproxy_add_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_t
 }
 
 static rtpproxy_info_t *
-rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_tree, rtpproxy_conv_info_t *rtpproxy_conv, gchar* cookie)
+rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_tree, rtpproxy_conv_info_t *rtpproxy_conv, const guint8* cookie)
 {
     rtpproxy_info_t *rtpproxy_info;
     proto_item *pi;
@@ -532,13 +532,13 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     guint tmp2;
     gint realsize = 0;
     guint8* rawstr;
-    guint8* tmpstr;
+    const guint8* tmpstr;
     proto_item *ti;
     proto_item *ti2;
     proto_tree *rtpproxy_tree;
     conversation_t *conversation;
     rtpproxy_conv_info_t *rtpproxy_conv;
-    gchar* cookie = NULL;
+    const guint8* cookie = NULL;
     /* For RT(C)P setup */
     address addr;
     guint16 port;
@@ -566,8 +566,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     ti = proto_tree_add_item(tree, proto_rtpproxy, tvb, 0, -1, ENC_NA);
     rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy);
 
-    proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_cookie, tvb, 0, offset, ENC_ASCII | ENC_NA);
-    cookie = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, offset, ENC_ASCII);
+    proto_tree_add_item_ret_string(rtpproxy_tree, hf_rtpproxy_cookie, tvb, 0, offset, ENC_ASCII | ENC_NA, wmem_packet_scope(), &cookie);
 
     /* Skip whitespace */
     offset = tvb_skip_wsp(tvb, offset+1, -1);
@@ -650,8 +649,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             if ((tmp == 'v') && (offset + (gint)strlen("VF YYYYMMDD") <= realsize)){
                 /* Skip whitespace between "VF" and "YYYYMMDD" tokens */
                 new_offset = tvb_skip_wsp(tvb, offset + ((guint)strlen("VF") + 1), -1);
-                ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_version_request, tvb, new_offset, (gint)strlen("YYYYMMDD"), ENC_ASCII | ENC_NA);
-                tmpstr = tvb_get_string_enc(wmem_packet_scope(), tvb, new_offset, (gint)strlen("YYYYMMDD"), ENC_ASCII);
+                ti = proto_tree_add_item_ret_string(rtpproxy_tree, hf_rtpproxy_version_request, tvb, new_offset, (gint)strlen("YYYYMMDD"), ENC_ASCII | ENC_NA, wmem_packet_scope(), &tmpstr);
                 proto_item_append_text(ti, " (%s)", str_to_str(tmpstr, versiontypenames, "Unknown"));
                 break;
             }

@@ -2748,7 +2748,7 @@ s7comm_decode_pistart_parameters(tvbuff_t *tvb,
                                  packet_info *pinfo,
                                  proto_tree *tree,
                                  proto_tree *param_tree,
-                                 gchar *servicename,
+                                 const guint8 *servicename,
                                  guint8 nfields,      /* number of fields used */
                                  guint hf[12],        /* array with header fields */
                                  guint32 offset)
@@ -2794,9 +2794,9 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
     guint32 paramoffset;
     guint8 count;
     guint8 i;
-    gchar *servicename;
-    gchar *str;
-    gchar *str1;
+    const guint8 *servicename;
+    const guint8 *str;
+    const guint8 *str1;
     guint16 blocktype;
     guint hf[13];
     int pi_servicename_idx;
@@ -2833,8 +2833,7 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
     len = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(tree, hf_s7comm_piservice_string_len, tvb, offset, 1, len);
     offset += 1;
-    servicename = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
-    item = proto_tree_add_item(tree, hf_s7comm_piservice_servicename, tvb, offset, len, ENC_ASCII|ENC_NA);
+    item = proto_tree_add_item_ret_string(tree, hf_s7comm_piservice_servicename, tvb, offset, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &servicename);
     offset += len;
 
     /* get the index position in pi_service_names, and add infotext with description to the item */
@@ -2863,8 +2862,7 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
                 itemadd = proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_block_type, tvb, paramoffset, 2, ENC_ASCII|ENC_NA);
                 proto_item_append_text(itemadd, " (%s)", val_to_str(blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
                 paramoffset += 2;
-                str = tvb_get_string_enc(wmem_packet_scope(), tvb, paramoffset, 5, ENC_ASCII);
-                proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_block_num, tvb, paramoffset, 5, ENC_ASCII|ENC_NA);
+                proto_tree_add_item_ret_string(file_tree, hf_s7comm_data_blockcontrol_block_num, tvb, paramoffset, 5, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
                 paramoffset += 5;
                 proto_item_append_text(file_tree, " [%s %d]",
                     val_to_str(blocktype, blocktype_names, "Unknown Block type: 0x%04x"),
@@ -2889,8 +2887,7 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
                 proto_item_append_text(tree, " -> %s()", servicename);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s()", servicename);
             } else {
-                str1 = tvb_get_string_enc(wmem_packet_scope(), tvb, paramoffset, paramlen, ENC_ASCII);
-                proto_tree_add_item(param_tree, hf_s7comm_data_plccontrol_argument, tvb, paramoffset, paramlen, ENC_ASCII|ENC_NA);
+                proto_tree_add_item_ret_string(param_tree, hf_s7comm_data_plccontrol_argument, tvb, paramoffset, paramlen, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str1);
                 proto_item_append_text(param_tree, ": (\"%s\")", str1);
                 proto_item_append_text(tree, " -> %s(\"%s\")", servicename, str1);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s(\"%s\")", servicename, str1);
@@ -3190,7 +3187,7 @@ s7comm_decode_plc_controls_filename(tvbuff_t *tvb,
                                     guint32 offset)
 {
     guint8 len;
-    guint8 *str;
+    const guint8 *str;
     guint16 blocktype;
     gboolean is_plcfilename;
     proto_item *item = NULL;
@@ -3217,8 +3214,7 @@ s7comm_decode_plc_controls_filename(tvbuff_t *tvb,
             itemadd = proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_block_type, tvb, offset, 2, ENC_ASCII|ENC_NA);
             proto_item_append_text(itemadd, " (%s)", val_to_str(blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
             offset += 2;
-            str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 5, ENC_ASCII);
-            proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_block_num, tvb, offset, 5, ENC_ASCII|ENC_NA);
+            proto_tree_add_item_ret_string(file_tree, hf_s7comm_data_blockcontrol_block_num, tvb, offset, 5, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
             offset += 5;
             proto_item_append_text(file_tree, " [%s %d]",
                 val_to_str(blocktype, blocktype_names, "Unknown Block type: 0x%04x"),
@@ -4284,7 +4280,7 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
 {
     guint16 count;
     guint16 i;
-    guint8 *pBlocknumber;
+    const guint8 *pBlocknumber;
     guint16 blocknumber;
     guint8 blocktype;
     guint16 blocktype16;
@@ -4370,8 +4366,7 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                     itemadd = proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 2, ENC_ASCII|ENC_NA);
                     proto_item_append_text(itemadd, " (%s)", val_to_str(blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
                     offset += 2;
-                    proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_block_num_ascii, tvb, offset, 5, ENC_ASCII|ENC_NA);
-                    pBlocknumber = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 5, ENC_ASCII);
+                    proto_tree_add_item_ret_string(data_tree, hf_s7comm_ud_blockinfo_block_num_ascii, tvb, offset, 5, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pBlocknumber);
                     proto_item_append_text(data_tree, " [%s %d]",
                         val_to_str(blocktype16, blocktype_names, "Unknown Block type: 0x%04x"),
                         atoi(pBlocknumber));

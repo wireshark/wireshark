@@ -595,8 +595,11 @@ static int dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
         break;
       case ATP_STRING:
-        proto_tree_add_item(attr_tree, hf_tnef_attribute_string, tvb, offset, length, ENC_ASCII|ENC_NA);
-        proto_item_append_text(attr_item, " %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII));
+        {
+        const guint8* atp;
+        proto_tree_add_item_ret_string(attr_tree, hf_tnef_attribute_string, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &atp);
+        proto_item_append_text(attr_item, " %s", atp);
+        }
         break;
       default:
         proto_tree_add_item(attr_tree, hf_tnef_attribute_value, tvb, offset, length, ENC_NA);

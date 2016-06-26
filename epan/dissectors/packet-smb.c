@@ -7499,11 +7499,11 @@ dissect_connect_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 static int
 dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree, smb_info_t *si)
 {
-	guint8      wc, cmd    = 0xff;
-	guint16     bc;
-	guint16     andxoffset = 0, pwlen = 0;
-	int         an_len;
-	const char *an;
+	guint8        wc, cmd    = 0xff;
+	guint16       bc;
+	guint16       andxoffset = 0, pwlen = 0;
+	int           an_len;
+	const guint8 *an;
 
 	DISSECTOR_ASSERT(si);
 
@@ -7573,9 +7573,8 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	/* XXX - what if this runs past bc? */
 	an_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(an_len);
-	an = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, an_len, ENC_ASCII);
-	proto_tree_add_string(tree, hf_smb_service, tvb,
-		offset, an_len, an);
+	proto_tree_add_item_ret_string(tree, hf_smb_service, tvb,
+		offset, an_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &an);
 	COUNT_BYTES(an_len);
 
 	END_OF_SMB
@@ -7594,11 +7593,11 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static int
 dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree, smb_info_t *si)
 {
-	guint8      wc, cmd = 0xff;
-	guint16     andxoffset     = 0;
-	guint16     bc;
-	int         an_len;
-	const char *an;
+	guint8        wc, cmd = 0xff;
+	guint16       andxoffset     = 0;
+	guint16       bc;
+	int           an_len;
+	const guint8 *an;
 
 	DISSECTOR_ASSERT(si);
 
@@ -7680,9 +7679,8 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	/* XXX - what if this runs past bc? */
 	an_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(an_len);
-	an = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, an_len, ENC_ASCII);
-	proto_tree_add_string(tree, hf_smb_service, tvb,
-		offset, an_len, an);
+	proto_tree_add_item_ret_string(tree, hf_smb_service, tvb,
+		offset, an_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &an);
 	COUNT_BYTES(an_len);
 
 	/* Now when we know the service type, store it so that we know it for later commands down

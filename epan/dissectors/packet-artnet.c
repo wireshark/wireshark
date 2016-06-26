@@ -3172,34 +3172,25 @@ dissect_artnet_file_fn_reply(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _
 
 static int
 dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
-  gint        offset = 0;
-  guint       size;
-  guint16     opcode;
-  proto_tree *ti = NULL, *hi = NULL, *si = NULL, *artnet_tree = NULL, *artnet_header_tree = NULL;
+  gint          offset = 0;
+  guint         size;
+  guint16       opcode;
+  const guint8 *header;
+  proto_tree   *ti, *hi, *si = NULL, *artnet_tree, *artnet_header_tree;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARTNET");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_artnet, tvb, offset, -1, ENC_NA);
-    artnet_tree = proto_item_add_subtree(ti, ett_artnet);
+  ti = proto_tree_add_item(tree, proto_artnet, tvb, offset, -1, ENC_NA);
+  artnet_tree = proto_item_add_subtree(ti, ett_artnet);
 
-    hi = proto_tree_add_item(artnet_tree,
-                             hf_artnet_header,
-                             tvb,
-                             offset,
-                             ARTNET_HEADER_LENGTH ,
-                             ENC_NA);
+  hi = proto_tree_add_item(artnet_tree, hf_artnet_header, tvb,
+                             offset, ARTNET_HEADER_LENGTH, ENC_NA);
+  artnet_header_tree = proto_item_add_subtree(hi, ett_artnet);
 
-    artnet_header_tree = proto_item_add_subtree(hi, ett_artnet);
-  }
-
-  col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
-                  tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 8, ENC_ASCII|ENC_NA));
-  if (tree) {
-    proto_tree_add_item(artnet_header_tree, hf_artnet_header_id,
-                        tvb, offset, 8, ENC_ASCII|ENC_NA);
-  }
+  proto_tree_add_item_ret_string(artnet_header_tree, hf_artnet_header_id,
+                        tvb, offset, 8, ENC_ASCII|ENC_NA, wmem_packet_scope(), &header);
+  col_append_fstr(pinfo->cinfo, COL_INFO, "%s", header);
   offset += 8;
 
   opcode = tvb_get_letohs(tvb, offset);

@@ -138,7 +138,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 {
     proto_item *ti;
     proto_tree *subtree;
-    guint8* pstr;
+    const guint8* pstr;
     guint i, len;
 
     /* create command subtree */
@@ -277,8 +277,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                         len = tvb_get_guint8(tvb, i+1);
                         ti = proto_tree_add_item(subtree, hf_a_item, tvb, i, len+2, ENC_NA);
                         infotree = proto_item_add_subtree(ti, ett_a_item);
-                        proto_tree_add_item(infotree, hf_a_weekday, tvb, i+2, len, ENC_ASCII|ENC_NA);
-                        pstr = tvb_get_string_enc(wmem_packet_scope(), tvb, i+2, len, ENC_ASCII|ENC_NA);
+                        proto_tree_add_item_ret_string(infotree, hf_a_weekday, tvb, i+2, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pstr);
                         if(pstr)
                             proto_item_append_text(ti, ", Weekday: '%s'", pstr);
 
@@ -290,8 +289,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                         len = tvb_get_guint8(tvb, i+1);
                         ti = proto_tree_add_item(subtree, hf_a_item, tvb, i, len+2, ENC_NA);
                         infotree = proto_item_add_subtree(ti, ett_a_item);
-                        proto_tree_add_item(infotree, hf_a_month_name, tvb, i+2, len, ENC_ASCII|ENC_NA);
-                        pstr = tvb_get_string_enc(wmem_packet_scope(), tvb, i+2, len, ENC_ASCII|ENC_NA);
+                        proto_tree_add_item_ret_string(infotree, hf_a_month_name, tvb, i+2, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pstr);
                         if(pstr)
                             proto_item_append_text(ti, ", Month name: '%s'", pstr);
                         i += len +2;
@@ -302,8 +300,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                         len = tvb_get_guint8(tvb, i+1);
                         ti = proto_tree_add_item(subtree, hf_a_item, tvb, i, len+2, ENC_NA);
                         infotree = proto_item_add_subtree(ti, ett_a_item);
-                        proto_tree_add_item(infotree, hf_a_weekofyear_prefix, tvb, i+2, len, ENC_ASCII|ENC_NA);
-                        pstr = tvb_get_string_enc(wmem_packet_scope(), tvb, i+2, len, ENC_ASCII|ENC_NA);
+                        proto_tree_add_item_ret_string(infotree, hf_a_weekofyear_prefix, tvb, i+2, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pstr);
                         if(pstr)
                             proto_item_append_text(ti, ", Week of the year prefix: '%s'", pstr);
                         i += len +2;

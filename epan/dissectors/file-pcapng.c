@@ -337,17 +337,17 @@ void proto_reg_handoff_pcapng(void);
 static gint dissect_options(proto_tree *tree, packet_info *pinfo,
         guint32 block_type, tvbuff_t *tvb, guint encoding, void *user_data)
 {
-    proto_tree  *options_tree;
-    proto_item  *options_item;
-    proto_tree  *option_tree;
-    proto_item  *option_item;
-    proto_item  *p_item;
-    gint         offset = 0;
-    guint16      option_code;
-    gint         option_length;
-    gint         hfj_pcapng_option_code;
-    const gchar *str = NULL;
-    address      addr;
+    proto_tree   *options_tree;
+    proto_item   *options_item;
+    proto_tree   *option_tree;
+    proto_item   *option_item;
+    proto_item   *p_item;
+    gint          offset = 0;
+    guint16       option_code;
+    gint          option_length;
+    gint          hfj_pcapng_option_code;
+    const guint8 *str = NULL;
+    address       addr;
     address      addr_mask;
     const value_string  *vals = NULL;
     union       value {
@@ -411,25 +411,21 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
         if (option_code == 0 && option_length == 0) {
             break;
         } else if (option_code == 1) {
-            proto_tree_add_item(option_tree, hf_pcapng_option_data_comment, tvb, offset, option_length, ENC_NA | ENC_UTF_8);
-            str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, option_length, ENC_UTF_8);
+            proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_comment, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
             offset += option_length;
         } else switch (block_type) {
         case BLOCK_SECTION_HEADER:
             switch (option_code) {
             case 0x0002:
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_section_header_hardware, tvb, offset, option_length, ENC_NA | ENC_UTF_8);
-                str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, option_length, ENC_UTF_8);
+                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_section_header_hardware, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
                 break;
             case 0x0003:
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_section_header_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8);
-                str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, option_length, ENC_UTF_8);
+                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_section_header_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
                 break;
             case 0x0004:
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_section_header_user_application, tvb, offset, option_length, ENC_NA | ENC_UTF_8);
-                str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, option_length, ENC_UTF_8);
+                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_section_header_user_application, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
                 break;
             default:
@@ -442,16 +438,12 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
             switch (option_code) {
             case 0x0002:
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_description_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8);
-                str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, option_length, ENC_UTF_8);
+                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_description_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
-
                 break;
             case 0x0003:
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_description_description, tvb, offset, option_length, ENC_NA | ENC_UTF_8);
-                str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, option_length, ENC_UTF_8);
+                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_description_description, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
-
                 break;
             case 0x0004:
                 if (option_length != 8) {
@@ -576,14 +568,12 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
                 break;
             case 0x000B:
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_filter, tvb, offset, option_length, ENC_NA | ENC_UTF_8);
-                str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, option_length, ENC_UTF_8);
+                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_filter, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
 
                 break;
             case 0x000C:
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8);
-                str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, option_length, ENC_UTF_8);
+                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
 
                 break;
@@ -664,8 +654,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
         case BLOCK_NAME_RESOLUTION:
             switch (option_code) {
             case 0x0002:
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_dns_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8);
-                str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, option_length, ENC_UTF_8);
+                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_dns_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
 
                 break;

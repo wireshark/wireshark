@@ -88,7 +88,6 @@ dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, int direction _U_)
 {
     proto_tree *cl_tree;
-    guint8  *text;
     int  len;
     int  offset;
 
@@ -104,9 +103,8 @@ dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset = 4;
 
     len = tvb_captured_length_remaining(tvb, offset);
-    text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
-    proto_tree_add_string(cl_tree, hf_quake2_connectionless_text,
-            tvb, offset, len, text);
+    proto_tree_add_item(cl_tree, hf_quake2_connectionless_text,
+            tvb, offset, len, ENC_ASCII|ENC_NA);
     /*offset += len;*/
 
     /* we should analyse the result 'text' a bit further */

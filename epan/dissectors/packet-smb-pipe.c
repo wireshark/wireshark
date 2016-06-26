@@ -793,11 +793,8 @@ static const item_t lm_params_resp_netshareenum[] = {
 static proto_item *
 netshareenum_share_entry(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	if (tree) {
-		return proto_tree_add_string(tree, hf_share, tvb, offset, -1,
+	return proto_tree_add_string(tree, hf_share, tvb, offset, -1,
 						tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 13, ENC_ASCII));
-	} else
-		return NULL;
 }
 
 static const item_t lm_null[] = {
@@ -993,11 +990,8 @@ static const item_t lm_params_req_netserverenum2[] = {
 static proto_item *
 netserverenum2_server_entry(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	if (tree) {
-		return proto_tree_add_string(tree, hf_server, tvb, offset, -1,
+	return proto_tree_add_string(tree, hf_server, tvb, offset, -1,
 						tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 16, ENC_ASCII));
-	} else
-		return NULL;
 }
 
 static const item_t lm_params_resp_netserverenum2[] = {

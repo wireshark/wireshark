@@ -5134,9 +5134,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 341: /* informationElementName */
             {
-                char *string = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
-                ti = proto_tree_add_item(pdutree, hf_cflow_information_element_name,
-                                         tvb, offset, length, ENC_UTF_8|ENC_NA);
+                const guint8 *string;
+                ti = proto_tree_add_item_ret_string(pdutree, hf_cflow_information_element_name,
+                                         tvb, offset, length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &string);
                 /* Add name of element to root for this flow */
                 proto_item_append_text(pdutree, " [%s]", string);
             }
@@ -6395,9 +6395,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_IXIA << 16) | 111):
             {
-            char *string = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
-            ti = proto_tree_add_item(pdutree, hf_pie_ixia_l7_application_name,
-                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            const guint8 *string;
+            ti = proto_tree_add_item_ret_string(pdutree, hf_pie_ixia_l7_application_name,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &string);
             proto_item_append_text(pdutree, " (%s)", string);
             }
 

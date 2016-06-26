@@ -1960,11 +1960,13 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
 
                     break;
                 case 0x44: /* Time (ISO8601) */
-                    proto_tree_add_item(hdr_tree, hf_time_iso8601, tvb, offset, value_length, ENC_ASCII | ENC_NA);
-                    proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
+                    {
+                    const guint8* time_str;
+                    proto_tree_add_item_ret_string(hdr_tree, hf_time_iso8601, tvb, offset, value_length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &time_str);
+                    proto_item_append_text(hdr_tree, ": \"%s\"", time_str);
 
                     offset += value_length;
-
+                    }
                     break;
                 case 0x48: /* Body */
                 case 0x49: /* End Of Body */
@@ -2058,11 +2060,13 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
 
                     break;
                 case 0x51: /* Object Class */
-                    proto_tree_add_item(hdr_tree, hf_object_class, tvb, offset, value_length, ENC_ASCII | ENC_NA);
-                    proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
+                    {
+                    const guint8* obj_str;
+                    proto_tree_add_item_ret_string(hdr_tree, hf_object_class, tvb, offset, value_length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &obj_str);
+                    proto_item_append_text(hdr_tree, ": \"%s\"", obj_str);
 
                     offset += value_length;
-
+                    }
                     break;
                 case 0x52: /* Session Parameter */
                     while (value_length) {

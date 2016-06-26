@@ -2162,12 +2162,9 @@ gint rtps_util_add_string(proto_tree *tree, tvbuff_t *tvb, gint offset,
   guint8 *retVal = NULL;
   guint32 size = NEXT_guint32(tvb, offset, little_endian);
 
-  if (size > 0) {
-    retVal = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, size, ENC_ASCII);
-  }
+  retVal = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, size, ENC_ASCII);
 
-  proto_tree_add_string(tree, hf_item, tvb, offset, size+4,
-                        (size == 0) ? (const guint8 *)"" : retVal);
+  proto_tree_add_string(tree, hf_item, tvb, offset, size+4, retVal);
 
   /* NDDS align strings at 4-bytes word. So:
    *  string_length: 4 -> buffer_length = 4;
@@ -2297,11 +2294,7 @@ gint rtps_util_add_seq_string(proto_tree *tree, tvbuff_t *tvb, gint offset,
   for (i = 0; i < num_strings; ++i) {
     size = NEXT_guint32(tvb, offset, little_endian);
 
-    if (size > 0) {
-      retVal = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, size, ENC_ASCII);
-    } else {
-      retVal = (const guint8 *)"";
-    }
+    retVal = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, size, ENC_ASCII);
 
     proto_tree_add_string_format(string_tree, hf_string, tvb, offset, size+4, retVal,
         "%s[%d]: %s", label, i, retVal);
@@ -5279,11 +5272,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
           temp_offset = offset+4;
           while(seq_size-- > 0) {
             prop_size = NEXT_guint32(tvb, temp_offset, little_endian);
-            if (prop_size > 0) {
-              propName = tvb_get_string_enc(wmem_packet_scope(), tvb, temp_offset+4, prop_size, ENC_ASCII);
-            } else {
-              propName = (const guint8 *)"";
-            }
+            propName = tvb_get_string_enc(wmem_packet_scope(), tvb, temp_offset+4, prop_size, ENC_ASCII);
 
             /* NDDS align strings at 4-bytes word. */
             str_length = (4 + ((prop_size + 3) & 0xfffffffc));
@@ -5292,11 +5281,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
             temp_offset += str_length;
 
             prop_size = NEXT_guint32(tvb, temp_offset, little_endian);
-            if (prop_size > 0) {
-              propValue = tvb_get_string_enc(wmem_packet_scope(), tvb, temp_offset+4, prop_size, ENC_ASCII);
-            } else {
-              propValue = (const guint8 *)"";
-            }
+            propValue = tvb_get_string_enc(wmem_packet_scope(), tvb, temp_offset+4, prop_size, ENC_ASCII);
 
             /* NDDS align strings at 4-bytes word. */
             str_length = (4 + ((prop_size + 3) & 0xfffffffc));

@@ -190,12 +190,12 @@ static void
 dissect_text_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
    guint16 if_id_length;
+   const guint8* str;
 
    if_id_length = tvb_get_ntohs(parameter_tvb, TEXT_IF_ID_LENGTH_OFFSET) - TEXT_IF_ID_HEADER_LENGTH;
 
-   proto_tree_add_item(parameter_tree, hf_text_if_id, parameter_tvb, TEXT_IF_ID_VALUE_OFFSET, if_id_length, ENC_ASCII|ENC_NA);
-   proto_item_append_text(parameter_item, " (0x%.*s)", if_id_length,
-         tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, TEXT_IF_ID_VALUE_OFFSET, if_id_length, ENC_ASCII));
+   proto_tree_add_item_ret_string(parameter_tree, hf_text_if_id, parameter_tvb, TEXT_IF_ID_VALUE_OFFSET, if_id_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+   proto_item_append_text(parameter_item, " (0x%.*s)", if_id_length, str);
 }
 /*----------------------Text Interface Identifier (RFC)------------------------*/
 
@@ -468,20 +468,20 @@ dissect_draft_tei_status_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
 static void
 dissect_asp_msg_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
+   const guint8* str;
    guint16 adaptation_layer_id_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
 
-   proto_tree_add_item(parameter_tree, hf_adaptation_layer_id, parameter_tvb, PARAMETER_VALUE_OFFSET, adaptation_layer_id_length, ENC_ASCII|ENC_NA);
-   proto_item_append_text(parameter_item, " (%.*s)", adaptation_layer_id_length,
-         tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, PARAMETER_VALUE_OFFSET, adaptation_layer_id_length, ENC_ASCII));
+   proto_tree_add_item_ret_string(parameter_tree, hf_adaptation_layer_id, parameter_tvb, PARAMETER_VALUE_OFFSET, adaptation_layer_id_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+   proto_item_append_text(parameter_item, " (%.*s)", adaptation_layer_id_length, str);
 }
 
 static void
 dissect_scn_protocol_id_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
+   const guint8* str;
    guint16 id_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-   proto_tree_add_item(parameter_tree, hf_scn_protocol_id, parameter_tvb, PARAMETER_VALUE_OFFSET, id_length, ENC_ASCII|ENC_NA);
-   proto_item_append_text(parameter_item, " (%.*s)", id_length,
-         tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, PARAMETER_VALUE_OFFSET, id_length, ENC_ASCII));
+   proto_tree_add_item_ret_string(parameter_tree, hf_scn_protocol_id, parameter_tvb, PARAMETER_VALUE_OFFSET, id_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+   proto_item_append_text(parameter_item, " (%.*s)", id_length, str);
 }
 
 /*----------------------ASP (Draft)--------------------------------------------*/
@@ -766,14 +766,14 @@ static void
 dissect_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
    guint16 info_string_length;
+   const guint8* str;
 
    info_string_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
    if(iua_version == DRAFT) info_string_length += 4;
    if(info_string_length > 4){
       info_string_length -= PARAMETER_HEADER_LENGTH;
-      proto_tree_add_item(parameter_tree, hf_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, ENC_ASCII|ENC_NA);
-      proto_item_append_text(parameter_item, " (%.*s)", info_string_length,
-            tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, INFO_STRING_OFFSET, info_string_length, ENC_ASCII));
+      proto_tree_add_item_ret_string(parameter_tree, hf_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+      proto_item_append_text(parameter_item, " (%.*s)", info_string_length, str);
    }
 }
 

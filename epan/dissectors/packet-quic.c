@@ -1158,13 +1158,14 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
     while(tag_number){
         proto_tree *tag_tree, *ti_len, *ti_tag, *ti_type;
         guint32 offset_end, tag;
+        const guint8* tag_str;
 
         ti_tag = proto_tree_add_item(quic_tree, hf_quic_tags, tvb, offset, 8, ENC_NA);
         tag_tree = proto_item_add_subtree(ti_tag, ett_quic_tag_value);
-        ti_type = proto_tree_add_item(tag_tree, hf_quic_tag_type, tvb, offset, 4, ENC_ASCII|ENC_NA);
+        ti_type = proto_tree_add_item_ret_string(tag_tree, hf_quic_tag_type, tvb, offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
         tag = tvb_get_ntohl(tvb, offset);
         proto_item_append_text(ti_type, " (%s)", val_to_str(tag, tag_vals, "Unknown"));
-        proto_item_append_text(ti_tag, ": %s (%s)", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII|ENC_NA), val_to_str(tag, tag_vals, "Unknown"));
+        proto_item_append_text(ti_tag, ": %s (%s)", tag_str, val_to_str(tag, tag_vals, "Unknown"));
         offset += 4;
 
         proto_tree_add_item(tag_tree, hf_quic_tag_offset_end, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1192,14 +1193,14 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
                 tag_len -= tag_len;
             break;
             case TAG_SNI:
-                proto_tree_add_item(tag_tree, hf_quic_tag_sni, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA);
-                proto_item_append_text(ti_tag, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA));
+                proto_tree_add_item_ret_string(tag_tree, hf_quic_tag_sni, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                proto_item_append_text(ti_tag, ": %s", tag_str);
                 tag_offset += tag_len;
                 tag_len -= tag_len;
             break;
             case TAG_VER:
-                proto_tree_add_item(tag_tree, hf_quic_tag_ver, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
-                proto_item_append_text(ti_tag, " %s", tvb_get_string_enc(wmem_packet_scope(), tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA));
+                proto_tree_add_item_ret_string(tag_tree, hf_quic_tag_ver, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                proto_item_append_text(ti_tag, " %s", tag_str);
                 tag_offset += 4;
                 tag_len -= 4;
             break;
@@ -1211,14 +1212,14 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
                 }
             break;
             case TAG_PDMD:
-                proto_tree_add_item(tag_tree, hf_quic_tag_pdmd, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA);
-                proto_item_append_text(ti_tag, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA));
+                proto_tree_add_item_ret_string(tag_tree, hf_quic_tag_pdmd, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                proto_item_append_text(ti_tag, ": %s", tag_str);
                 tag_offset += tag_len;
                 tag_len -= tag_len;
             break;
             case TAG_UAID:
-                proto_tree_add_item(tag_tree, hf_quic_tag_uaid, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA);
-                proto_item_append_text(ti_tag, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA));
+                proto_tree_add_item_ret_string(tag_tree, hf_quic_tag_uaid, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                proto_item_append_text(ti_tag, ": %s", tag_str);
                 tag_offset += tag_len;
                 tag_len -= tag_len;
             break;
@@ -1571,6 +1572,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
     }
     else { /* Special Frame Types */
         guint32 stream_id = 0, message_tag;
+        const guint8* message_tag_str;
         ftflags_tree = proto_item_add_subtree(ti_ftflags, ett_quic_ftflags);
         proto_tree_add_item(ftflags_tree, hf_quic_frame_type_stream , tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
@@ -1603,10 +1605,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 offset += len_data;
             }
 
-            ti = proto_tree_add_item(ft_tree, hf_quic_tag, tvb, offset, 4, ENC_ASCII|ENC_NA);
+            ti = proto_tree_add_item_ret_string(ft_tree, hf_quic_tag, tvb, offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &message_tag_str);
             message_tag = tvb_get_ntohl(tvb, offset);
             proto_item_append_text(ti, " (%s)", val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
-            proto_item_append_text(ti_ft, " Stream ID:%u, Type: %s (%s)", stream_id, tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII|ENC_NA), val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
+            proto_item_append_text(ti_ft, " Stream ID:%u, Type: %s (%s)", stream_id, message_tag_str, val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
             col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(message_tag, message_tag_vals, "Unknown"));
             offset += 4;
 

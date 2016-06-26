@@ -5110,7 +5110,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
     proto_tree *sub_tree2;
     guint8 variableParameterType, numVariable, entity_marking_character_set;
     guint32 i;
-    char *entity_marking_text;
+    const guint8 *entity_marking_text;
 
     entitySite = tvb_get_ntohs(tvb, offset);
     entityApplication = tvb_get_ntohs(tvb, offset+2);
@@ -5249,14 +5249,13 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
     entity_marking_character_set = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(sub_tree, hf_dis_entity_marking_character_set, tvb, offset, 1, entity_marking_character_set);
     offset += 1;
-    entity_marking_text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset , 11, ENC_ASCII);
     switch (entity_marking_character_set)
     {
         case 0:/* Unused */
             break;/* Don't translate it, nothing to be translated */
         case 1:/* ASCII */
+            proto_tree_add_item_ret_string(sub_tree, hf_dis_entity_marking, tvb, offset, 11, ENC_ASCII|ENC_NA, wmem_packet_scope(), &entity_marking_text);
             col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", entity_marking_text);
-            proto_tree_add_item(sub_tree, hf_dis_entity_marking, tvb, offset, 11, ENC_ASCII|ENC_NA);
         case 2:/* Army Marking (CCTT) */
             /* TODO: Complete this */
             break;
@@ -6235,7 +6234,7 @@ static int dissect_DIS_PARSER_AGGREGATE_STATE_PDU(tvbuff_t *tvb, packet_info *pi
 {
     guint32 number_of_variable_datum_records;
     proto_tree *sub_tree;
-    char *marking_text;
+    const guint8 *marking_text;
     static guint32 entitySite, entityApplication, entityEntity;
     guint16 number_of_aggregates, number_of_entities, number_of_silent_aggregates_types, padding;
     int i;
@@ -6262,9 +6261,8 @@ static int dissect_DIS_PARSER_AGGREGATE_STATE_PDU(tvbuff_t *tvb, packet_info *pi
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_aggregate_marking_text, NULL, "Aggregate Marking");
     proto_tree_add_item(sub_tree, hf_dis_aggregate_marking_character_set, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    marking_text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 31, ENC_ASCII);
+    proto_tree_add_item_ret_string(sub_tree, hf_dis_aggregate_marking, tvb, offset, 31, ENC_ASCII|ENC_NA, wmem_packet_scope(), &marking_text);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", marking_text);
-    proto_tree_add_item(sub_tree, hf_dis_aggregate_marking, tvb, offset, 31, ENC_ASCII|ENC_NA);
     offset += 31;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_aggregate_dimensions, NULL, "Dimensions");

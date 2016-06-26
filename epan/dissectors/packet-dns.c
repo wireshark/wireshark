@@ -2501,7 +2501,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int           offset = cur_offset;
       guint16       order;
       guint16       preference;
-      gchar        *flags;
+      const guint8 *flags;
       guint8        flags_len;
       guint8        service_len;
       guint8        regex_len;
@@ -2523,8 +2523,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_tree_add_item(rr_tree, hf_dns_naptr_flags_length, tvb, offset, 1, ENC_BIG_ENDIAN);
       flags_len = tvb_get_guint8(tvb, offset);
       offset += 1;
-      proto_tree_add_item(rr_tree, hf_dns_naptr_flags, tvb, offset, flags_len, ENC_ASCII|ENC_NA);
-      flags = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, flags_len, ENC_ASCII|ENC_NA);
+      proto_tree_add_item_ret_string(rr_tree, hf_dns_naptr_flags, tvb, offset, flags_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &flags);
       offset += flags_len;
 
       /* Service */

@@ -483,11 +483,13 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 					}
 					break;
 				case PPPOE_TAG_AC_NAME:
-					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_ac_name, tvb,
-					                    tagstart+4, poe_tag_length, ENC_ASCII|ENC_NA);
+					{
+					const guint8* str;
+					proto_tree_add_item_ret_string(pppoe_tree, hf_pppoed_tag_ac_name, tvb,
+					                    tagstart+4, poe_tag_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
 					/* Show AC-Name in info column */
-					col_append_fstr(pinfo->cinfo, COL_INFO, " AC-Name='%s'",
-						               tvb_get_string_enc(wmem_packet_scope(), tvb, tagstart+4, poe_tag_length, ENC_ASCII|ENC_NA));
+					col_append_fstr(pinfo->cinfo, COL_INFO, " AC-Name='%s'", str);
+					}
 					break;
 				case PPPOE_TAG_HOST_UNIQ:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_host_uniq, tvb,

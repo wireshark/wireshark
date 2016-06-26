@@ -306,13 +306,13 @@ get_bfd_checksum_len(guint8 auth_type)
 static void
 dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int         offset    = 24;
-    guint8      auth_type;
-    guint8      auth_len;
-    proto_item *ti        = NULL;
-    proto_item *auth_item = NULL;
-    proto_tree *auth_tree = NULL;
-    guint8     *password;
+    int           offset    = 24;
+    guint8        auth_type;
+    guint8        auth_len;
+    proto_item   *ti        = NULL;
+    proto_item   *auth_item = NULL;
+    proto_tree   *auth_tree = NULL;
+    const guint8 *password;
 
     auth_type = tvb_get_guint8(tvb, offset);
     auth_len  = tvb_get_guint8(tvb, offset + 1);
@@ -334,12 +334,9 @@ dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch (auth_type) {
         case BFD_AUTH_SIMPLE:
-            if (tree) {
-                password = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+3, auth_len-3, ENC_ASCII);
-                proto_tree_add_string(auth_tree, hf_bfd_auth_password, tvb, offset+3,
-                                      auth_len-3, password);
-                proto_item_append_text(auth_item, ": %s", password);
-            }
+            proto_tree_add_item_ret_string(auth_tree, hf_bfd_auth_password, tvb, offset+3,
+                                    auth_len-3, ENC_ASCII|ENC_NA, wmem_packet_scope(), &password);
+            proto_item_append_text(auth_item, ": %s", password);
             break;
         case BFD_AUTH_MD5:
         case BFD_AUTH_MET_MD5:

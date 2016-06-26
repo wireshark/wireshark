@@ -995,18 +995,13 @@ void dissect_ptp_transactionID(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  */
 void dissect_ptpIP_unicode_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
 {
-    guint8 *name;
-    gint    nameLen;
+    const guint8 *name;
+    gint          nameLen;
 
     nameLen = tvb_unicode_strsize(tvb, *offset);
-    name = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, nameLen, ENC_UTF_16|ENC_LITTLE_ENDIAN);
-    proto_tree_add_string(tree, hf_ptpIP_name, tvb, *offset, nameLen, name);
+    proto_tree_add_item_ret_string(tree, hf_ptpIP_name, tvb, *offset, nameLen, ENC_UTF_16|ENC_LITTLE_ENDIAN, wmem_packet_scope(), &name);
     *offset += nameLen;
-    col_append_fstr(
-        pinfo->cinfo,
-        COL_INFO,
-        " Name: %s",
-        name);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " Name: %s", name);
 }
 
 /** Method dissects the protocol version from the packets.

@@ -1593,14 +1593,10 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    /* Response: Firmware version */
                             case SBUS_RD_PROGRAM_VERSION:
                                    /*PCD type*/
-                                   tmp_string = tvb_get_string_enc(wmem_packet_scope(), tvb , offset, 5, ENC_ASCII);
-                                   proto_tree_add_string(sbus_tree,
-                                                         hf_sbus_cpu_type, tvb, offset, 5, tmp_string);
+                                   proto_tree_add_item(sbus_tree, hf_sbus_cpu_type, tvb, offset, 5, ENC_ASCII|ENC_NA);
                                    offset += 5;
                                    /*FW version*/
-                                   tmp_string = tvb_get_string_enc(wmem_packet_scope(), tvb , offset, 3, ENC_ASCII);
-                                   proto_tree_add_string(sbus_tree,
-                                                         hf_sbus_fw_version, tvb, offset, 3, tmp_string);
+                                   proto_tree_add_item(sbus_tree, hf_sbus_fw_version, tvb, offset, 3, ENC_ASCII|ENC_NA);
                                    offset += 4;
                                    break;
 

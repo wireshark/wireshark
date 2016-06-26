@@ -320,12 +320,14 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         if (tvb_reported_length_remaining(tvb, offset) <= 0) return offset;
 
         if (status == STATUS_FAIL) {
-            sub_item = proto_tree_add_item(main_tree, hf_fail_reason, tvb, offset, -1, ENC_NA | ENC_ASCII);
+            const guint8* str;
+            sub_item = proto_tree_add_item_ret_string(main_tree, hf_fail_reason, tvb, offset,
+                            tvb_reported_length_remaining(tvb, offset), ENC_NA | ENC_ASCII, wmem_packet_scope(), &str);
             if (length < tvb_reported_length_remaining(tvb, offset)) {
                 expert_add_info(pinfo, sub_item, &ei_incomplete_message);
             }
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, " Fail=<%s>", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " Fail=<%s>", str);
             return tvb_captured_length(tvb);
         }
 

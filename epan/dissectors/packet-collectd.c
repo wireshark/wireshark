@@ -33,7 +33,7 @@
 
 #include <wsutil/str_util.h>
 
-#define STR_NONNULL(str) ((str) ? (str) : "(null)")
+#define STR_NONNULL(str) ((str) ? ((gchar*)str) : "(null)")
 
 #define TYPE_HOST            0x0000
 #define TYPE_TIME            0x0001
@@ -53,36 +53,36 @@
 void proto_register_collectd(void);
 
 typedef struct value_data_s {
-	gchar *host;
+	const guint8 *host;
 	gint host_off;
 	gint host_len;
 	guint64 time_value;
 	gint time_off;
 	guint64 interval;
 	gint interval_off;
-	gchar *plugin;
+	const guint8 *plugin;
 	gint plugin_off;
 	gint plugin_len;
-	gchar *plugin_instance;
+	const guint8 *plugin_instance;
 	gint plugin_instance_off;
 	gint plugin_instance_len;
-	gchar *type;
+	const guint8 *type;
 	gint type_off;
 	gint type_len;
-	gchar *type_instance;
+	const guint8 *type_instance;
 	gint type_instance_off;
 	gint type_instance_len;
 } value_data_t;
 
 typedef struct notify_data_s {
-	gchar *host;
+	const guint8 *host;
 	gint host_off;
 	gint host_len;
 	guint64 time_value;
 	gint time_off;
 	guint64 severity;
 	gint severity_off;
-	gchar *message;
+	const guint8 *message;
 	gint message_off;
 	gint message_len;
 } notify_data_t;
@@ -355,7 +355,7 @@ collectd_proto_tree_add_assembled_notification (tvbuff_t *tvb,
 static int
 dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 			 gint offset, gint *ret_offset, gint *ret_length,
-			 gchar **ret_string, proto_tree *tree_root,
+			 const guint8 **ret_string, proto_tree *tree_root,
 			 proto_item **ret_item)
 {
 	proto_tree *pt;
@@ -391,15 +391,14 @@ dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	*ret_offset = offset + 4;
 	*ret_length = length - 4;
 
-	*ret_string = tvb_get_string_enc(wmem_packet_scope(), tvb, *ret_offset, *ret_length, ENC_ASCII);
+	proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
+	proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2, length);
+	proto_tree_add_item_ret_string (pt, type_hf, tvb, *ret_offset, *ret_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), ret_string);
+
 	proto_item_append_text(pt, "\"%s\"", *ret_string);
 
 	if (ret_item != NULL)
 		*ret_item = pi;
-
-	proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
-	proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2, length);
-	proto_tree_add_item (pt, type_hf, tvb, *ret_offset, *ret_length, ENC_ASCII|ENC_NA);
 
 	return (0);
 } /* int dissect_collectd_string */
@@ -917,7 +916,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
 	gint offset;
 	gint size;
-	gchar *pkt_host = NULL;
+	const guint8 *pkt_host = NULL;
 	gint pkt_plugins = 0, pkt_values = 0, pkt_messages = 0, pkt_unknown = 0, pkt_errors = 0;
 	value_data_t vdispatch;
 	notify_data_t ndispatch;

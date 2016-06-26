@@ -2011,7 +2011,7 @@ static void
 dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset){
 
     gint  current_offset, semi_colon_offset, length;
-    gchar *param_name = NULL;
+    const guint8 *param_name = NULL;
     guint cause_value;
     proto_item* ti;
 
@@ -2031,9 +2031,8 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gi
         return;
 
     length = semi_colon_offset - current_offset;
-    proto_tree_add_item(tree, hf_sip_reason_protocols, tvb, start_offset, length, ENC_UTF_8|ENC_NA);
+    proto_tree_add_item_ret_string(tree, hf_sip_reason_protocols, tvb, start_offset, length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &param_name);
 
-    param_name = tvb_get_string_enc(wmem_packet_scope(), tvb, start_offset, length, ENC_UTF_8|ENC_NA);
     if (g_ascii_strcasecmp(param_name, "Q.850") == 0){
         current_offset = tvb_find_guint8(tvb, semi_colon_offset, line_end_offset-semi_colon_offset, '=')+1;
         length = line_end_offset - current_offset;

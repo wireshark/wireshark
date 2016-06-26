@@ -246,13 +246,13 @@ typedef struct {
 
 /* Data that is retrieved from a packet, but does not need to be kept */
 typedef struct {
-    char  *connection_address; /* there should actually be SDP_MAX_RTP_CHANNELS of these too */
-    char  *connection_type;
+    char         *connection_address; /* there should actually be SDP_MAX_RTP_CHANNELS of these too */
+    const guint8 *connection_type;
     /* media_type is for 'audio', 'video', etc, so per-stream */
-    char  *media_type[SDP_MAX_RTP_CHANNELS];
-    char  *media_port[SDP_MAX_RTP_CHANNELS];
-    char  *media_proto[SDP_MAX_RTP_CHANNELS];
-    guint8 media_count;
+    const guint8 *media_type[SDP_MAX_RTP_CHANNELS];
+    const guint8 *media_port[SDP_MAX_RTP_CHANNELS];
+    const guint8 *media_proto[SDP_MAX_RTP_CHANNELS];
+    guint8        media_count;
 
     /* MSRP transport info (as set while parsing path attribute) */
     gboolean msrp_transport_address_set;
@@ -544,13 +544,10 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
         return;
 
     /* Save connection address type */
-    media_info->connection_type = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
-
-    DPRINT(("parsed connection line type=%s", media_info->connection_type));
-
-    proto_tree_add_item(sdp_connection_info_tree,
+    proto_tree_add_item_ret_string(sdp_connection_info_tree,
                         hf_connection_info_address_type, tvb, offset, tokenlen,
-                        ENC_UTF_8|ENC_NA);
+                        ENC_UTF_8|ENC_NA, wmem_packet_scope(), &media_info->connection_type);
+    DPRINT(("parsed connection line type=%s", media_info->connection_type));
     offset = next_offset + 1;
 
     /* Find the connection address */
@@ -751,15 +748,15 @@ static void dissect_sdp_encryption_key(tvbuff_t *tvb, proto_item * ti) {
 }
 
 static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti) {
-    gchar      *data_p      = NULL;
-    gchar      *prtcl_id    = NULL;
-    gint        len;
-    tvbuff_t   *keymgmt_tvb;
-    int         found_match = 0;
-    proto_tree *key_tree;
-    gint        next_offset;
-    gint        offset      = 0;
-    gint        tokenlen;
+    gchar        *data_p      = NULL;
+    const guint8 *prtcl_id    = NULL;
+    gint          len;
+    tvbuff_t     *keymgmt_tvb;
+    int           found_match = 0;
+    proto_tree   *key_tree;
+    gint          next_offset;
+    gint          offset      = 0;
+    gint          tokenlen;
 
     key_tree = proto_item_add_subtree(ti, ett_sdp_key_mgmt);
 
@@ -767,9 +764,7 @@ static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti
     if (tokenlen == 0)
         return;
 
-    prtcl_id = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
-
-    proto_tree_add_item(key_tree, hf_key_mgmt_prtcl_id, tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
+    proto_tree_add_item_ret_string(key_tree, hf_key_mgmt_prtcl_id, tvb, offset, tokenlen, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &prtcl_id);
 
     offset = next_offset + 1;
 
@@ -801,9 +796,9 @@ static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti
 
 
 static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti) {
-    proto_tree *sdp_session_attribute_tree;
-    gint        offset, next_offset, tokenlen;
-    guint8     *field_name;
+    proto_tree   *sdp_session_attribute_tree;
+    gint          offset, next_offset, tokenlen;
+    const guint8 *field_name;
 
     offset = 0;
 
@@ -817,10 +812,8 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
 
     tokenlen = next_offset - offset;
 
-    proto_tree_add_item(sdp_session_attribute_tree, hf_session_attribute_field,
-                        tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
-
-    field_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
+    proto_tree_add_item_ret_string(sdp_session_attribute_tree, hf_session_attribute_field,
+                        tvb, offset, tokenlen, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &field_name);
 
     offset = next_offset + 1;
 
@@ -885,10 +878,8 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
         return;
 
     /* Type of media session */
-    proto_tree_add_item(sdp_media_tree, hf_media_media, tvb, offset, tokenlen,
-                        ENC_UTF_8|ENC_NA);
-
-    media_info->media_type[media_info->media_count] = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
+    proto_tree_add_item_ret_string(sdp_media_tree, hf_media_media, tvb, offset, tokenlen,
+                        ENC_UTF_8|ENC_NA, wmem_packet_scope(), &media_info->media_type[media_info->media_count]);
 
     DPRINT(("parsed media_type=%s, for media_count=%d",
             media_info->media_type[media_info->media_count],
@@ -905,14 +896,11 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
     if (next_offset != -1) {
         tokenlen = next_offset - offset;
         /* Save port info */
-        media_info->media_port[media_info->media_count] = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
-
+        it = proto_tree_add_item_ret_string(sdp_media_tree, hf_media_port_string, tvb, offset, tokenlen,
+                                   ENC_UTF_8|ENC_NA, wmem_packet_scope(), &media_info->media_port[media_info->media_count]);
         DPRINT(("parsed media_port=%s, for media_count=%d",
                 media_info->media_port[media_info->media_count],
                 media_info->media_count));
-
-        it = proto_tree_add_string(sdp_media_tree, hf_media_port_string, tvb, offset, tokenlen,
-                                   media_info->media_port[media_info->media_count]);
         if (g_ascii_isdigit(media_info->media_port[media_info->media_count][0])) {
             PROTO_ITEM_SET_HIDDEN(it);
             proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
@@ -935,13 +923,11 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
             return;
 
         /* Save port info */
-        media_info->media_port[media_info->media_count] = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
+        it = proto_tree_add_item_ret_string(sdp_media_tree, hf_media_port_string, tvb, offset, tokenlen,
+                                   ENC_UTF_8|ENC_NA, wmem_packet_scope(), &media_info->media_port[media_info->media_count]);
         DPRINT(("parsed media_port=%s, for media_count=%d",
                 media_info->media_port[media_info->media_count],
                 media_info->media_count));
-        /* XXX Remember Port */
-        it = proto_tree_add_string(sdp_media_tree, hf_media_port_string, tvb, offset, tokenlen,
-                                   media_info->media_port[media_info->media_count]);
         if (g_ascii_isdigit(media_info->media_port[media_info->media_count][0])) {
             PROTO_ITEM_SET_HIDDEN(it);
             proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
@@ -955,15 +941,11 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
         return;
 
     /* Save port protocol */
-    media_info->media_proto[media_info->media_count] = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
-
+    proto_tree_add_item_ret_string(sdp_media_tree, hf_media_proto, tvb, offset, tokenlen,
+                        ENC_UTF_8|ENC_NA, wmem_packet_scope(), &media_info->media_proto[media_info->media_count]);
     DPRINT(("parsed media_proto=%s, for media_count=%d",
             media_info->media_proto[media_info->media_count],
             media_info->media_count));
-
-    /* XXX Remember Protocol */
-    proto_tree_add_item(sdp_media_tree, hf_media_proto, tvb, offset, tokenlen,
-                        ENC_UTF_8|ENC_NA);
 
     do {
         offset = next_offset + 1;
@@ -1245,7 +1227,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
                takes place.  A comma is used to separate any
                pair of parameter sets in the list.
             */
-            gchar *data_p = NULL;
+            const guint8 *data_p = NULL;
             gint   comma_offset;
 
 
@@ -1258,8 +1240,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
                 tokenlen = end_offset - offset;
             }
 
-            data_p = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
-            proto_tree_add_string(tree, hf_sdp_nal_unit_1_string, tvb, offset, tokenlen, data_p);
+            proto_tree_add_item_ret_string(tree, hf_sdp_nal_unit_1_string, tvb, offset, tokenlen, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &data_p);
 
             data_tvb = base64_to_tvb(tvb, data_p);
             add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets");
@@ -1276,8 +1257,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
                     /* Second NAL unit */
                     offset   = comma_offset +1;
                     tokenlen = end_offset - offset;
-                    data_p   = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
-                    proto_tree_add_string(tree, hf_sdp_nal_unit_2_string, tvb, offset, tokenlen, data_p);
+                    proto_tree_add_item_ret_string(tree, hf_sdp_nal_unit_2_string, tvb, offset, tokenlen, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &data_p);
                     data_tvb = base64_to_tvb(tvb, data_p);
                     add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets 2");
                     dissect_h264_nal_unit(data_tvb, pinfo, tree);
@@ -1324,20 +1304,20 @@ static gint find_sdp_media_attribute_names(tvbuff_t *tvb, int offset, guint len)
 
 static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_item * ti, int length,
                                         transport_info_t *transport_info, disposable_media_info_t *media_info) {
-    proto_tree *sdp_media_attribute_tree, *parameter_item;
-    proto_item *fmtp_item, *media_format_item, *parameter_tree;
-    proto_tree *fmtp_tree;
-    gint        offset, next_offset, tokenlen, n, colon_offset;
-    /*??guint8 *field_name;*/
-    guint8     *payload_type;
-    guint8     *attribute_value;
-    guint8      pt;
-    gint        sdp_media_attrbute_code;
-    const char *msrp_res           = "msrp://";
-    const char *h324ext_h223lcparm = "h324ext/h223lcparm";
-    gboolean    has_more_pars      = TRUE;
-    tvbuff_t   *h245_tvb;
-    guint8      master_key_length  = 0, master_salt_length = 0;
+    proto_tree   *sdp_media_attribute_tree, *parameter_item;
+    proto_item   *fmtp_item, *media_format_item, *parameter_tree;
+    proto_tree   *fmtp_tree;
+    gint          offset, next_offset, tokenlen, n, colon_offset;
+    /*??guint8   *field_name;*/
+    const guint8 *payload_type;
+    guint8       *attribute_value;
+    guint8        pt;
+    gint          sdp_media_attrbute_code;
+    const char   *msrp_res           = "msrp://";
+    const char   *h324ext_h223lcparm = "h324ext/h223lcparm";
+    gboolean      has_more_pars      = TRUE;
+    tvbuff_t     *h245_tvb;
+    guint8        master_key_length  = 0, master_salt_length = 0;
 
     offset = 0;
 
@@ -1381,10 +1361,8 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
             tokenlen = next_offset - offset;
 
-            proto_tree_add_item(sdp_media_attribute_tree, hf_media_format, tvb,
-                                offset, tokenlen, ENC_UTF_8|ENC_NA);
-
-            payload_type = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
+            proto_tree_add_item_ret_string(sdp_media_attribute_tree, hf_media_format, tvb,
+                                offset, tokenlen, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &payload_type);
 
             offset = next_offset + 1;
 

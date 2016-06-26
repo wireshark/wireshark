@@ -214,7 +214,7 @@ struct CFullPropSpec {
 	enum PRSPEC_Kind kind;
 	union {
 		guint32 propid;
-		char *name;
+		const guint8 *name;
 	} u;
 };
 
@@ -260,7 +260,7 @@ struct CCoercionRestriction {
 /* 2.2.1.3 */
 struct CContentRestriction {
 	struct CFullPropSpec property;
-	const char *phrase;
+	const guint8 *phrase;
 	guint32 lcid;
 	guint32 method;
 };
@@ -273,7 +273,7 @@ struct CReuseWhere /*Restriction*/ {
 /* 2.2.1.5 */
 struct CNatLanguageRestriction {
 	struct CFullPropSpec property;
-	const char *phrase;
+	const guint8 *phrase;
 	guint32 lcid;
 };
 
@@ -3388,8 +3388,7 @@ static int parse_CFullPropSpec(tvbuff_t *tvb, int offset, proto_tree *parent_tre
 
 	if (v->kind == PRSPEC_LPWSTR) {
 		int len = 2*v->u.propid;
-		v->u.name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_LITTLE_ENDIAN | ENC_UCS_2);
-		proto_tree_add_string(tree, hf_mswsp_cfullpropspec_propname, tvb, offset, len, v->u.name);
+		proto_tree_add_item_ret_string(tree, hf_mswsp_cfullpropspec_propname, tvb, offset, len, ENC_LITTLE_ENDIAN | ENC_UCS_2, wmem_packet_scope(), &v->u.name);
 		offset += len;
 	}
 
@@ -3562,7 +3561,7 @@ static int parse_CContentRestriction(tvbuff_t *tvb, int offset, proto_tree *pare
 	proto_item *item;
 	va_list ap;
 	guint32 cc;
-	const char *str, *txt;
+	const char *txt;
 
 
 	va_start(ap, fmt);
@@ -3579,9 +3578,7 @@ static int parse_CContentRestriction(tvbuff_t *tvb, int offset, proto_tree *pare
 	proto_tree_add_uint(tree, hf_mswsp_ccontentrestrict_cc, tvb, offset, 4, cc);
 	offset += 4;
 
-	str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 2*cc, ENC_LITTLE_ENDIAN | ENC_UCS_2);
-	v->phrase = str;
-	proto_tree_add_string(tree, hf_mswsp_ccontentrestrict_phrase, tvb, offset, 2*cc, str);
+	proto_tree_add_item_ret_string(tree, hf_mswsp_ccontentrestrict_phrase, tvb, offset, 2*cc, ENC_LITTLE_ENDIAN | ENC_UCS_2, wmem_packet_scope(), &v->phrase);
 	offset += 2*cc;
 
 	offset = parse_padding(tvb, offset, 4, pad_tree, "Padding2");
@@ -3603,7 +3600,7 @@ int parse_CNatLanguageRestriction(tvbuff_t *tvb, int offset, proto_tree *parent_
 	proto_item *item;
 	va_list ap;
 	guint32 cc;
-	const char *str, *txt;
+	const char *txt;
 
 
 	va_start(ap, fmt);
@@ -3620,9 +3617,7 @@ int parse_CNatLanguageRestriction(tvbuff_t *tvb, int offset, proto_tree *parent_
 	proto_tree_add_uint(tree, hf_mswsp_natlangrestrict_cc, tvb, offset, 4, cc);
 	offset += 4;
 
-	str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 2*cc, ENC_LITTLE_ENDIAN | ENC_UCS_2);
-	v->phrase = str;
-	proto_tree_add_string(tree, hf_mswsp_natlangrestrict_phrase, tvb, offset, 2*cc, str);
+	proto_tree_add_item_ret_string(tree, hf_mswsp_natlangrestrict_phrase, tvb, offset, 2*cc, ENC_LITTLE_ENDIAN | ENC_UCS_2, wmem_packet_scope(), &v->phrase);
 	offset += 2*cc;
 
 	offset = parse_padding(tvb, offset, 4, pad_tree, "padding_lcid");
@@ -4649,14 +4644,15 @@ int parse_RANGEBOUNDARY(tvbuff_t *tvb, int offset, proto_tree *parent_tree, prot
 
 	if (labelPresent) {
 		guint32 ccLabel;
+		const guint8* label;
 		offset = parse_padding(tvb, offset, 4, pad_tree, "paddingLabelPresent");
 
 		ccLabel = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item_ret_uint(tree, hf_mswsp_rangeboundry_cclabel, tvb, offset, 4, ENC_LITTLE_ENDIAN, &ccLabel);
 		offset += 4;
 
-		proto_tree_add_item(tree, hf_mswsp_rangeboundry_label, tvb, offset, 2*ccLabel, ENC_LITTLE_ENDIAN | ENC_UCS_2);
-		proto_item_append_text(item, " Label: \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 2*ccLabel, ENC_LITTLE_ENDIAN | ENC_UCS_2));
+		proto_tree_add_item_ret_string(tree, hf_mswsp_rangeboundry_label, tvb, offset, 2*ccLabel, ENC_LITTLE_ENDIAN | ENC_UCS_2, wmem_packet_scope(), &label);
+		proto_item_append_text(item, " Label: \"%s\"", label);
 		offset += 2*ccLabel;
 	}
 
@@ -4732,7 +4728,7 @@ static int parse_CAggregSpec(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	va_list ap;
 	guint8 type;
 	guint32 ccAlias, idColumn;
-	const char *alias, *txt;
+	const char *txt;
 
 	va_start(ap, fmt);
 	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
@@ -4750,8 +4746,7 @@ static int parse_CAggregSpec(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	proto_tree_add_uint(tree, hf_mswsp_caggregspec_ccalias, tvb, offset, 1, ccAlias);
 	offset += 4;
 
-	alias = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 2*ccAlias, ENC_LITTLE_ENDIAN | ENC_UCS_2);
-	proto_tree_add_string(tree, hf_mswsp_caggregspec_alias, tvb, offset, 2*ccAlias, alias);
+	proto_tree_add_item(tree, hf_mswsp_caggregspec_alias, tvb, offset, 2*ccAlias, ENC_LITTLE_ENDIAN | ENC_UCS_2);
 	offset += 2*ccAlias;
 
 	idColumn = tvb_get_letohl(tvb, offset);

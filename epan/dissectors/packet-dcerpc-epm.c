@@ -157,7 +157,7 @@ epm_dissect_ept_entry_t(tvbuff_t *tvb, int offset,
     proto_tree *tree=NULL;
     int old_offset=offset;
     guint32 len;
-    const char *str;
+    const guint8 *str;
 
     if(di->conformant_run){
         return offset;
@@ -178,8 +178,7 @@ epm_dissect_ept_entry_t(tvbuff_t *tvb, int offset,
                                  hf_epm_ann_offset, NULL);
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                                  hf_epm_ann_len, &len);
-    str=tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
-    proto_tree_add_item(tree, hf_epm_annotation, tvb, offset, len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item_ret_string(tree, hf_epm_annotation, tvb, offset, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
     offset += len;
 
     if(str&&str[0]){
@@ -315,6 +314,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
     guint16 num_floors, ii;
     const char *uuid_name;
     guint8   u8little_endian = DREP_LITTLE_ENDIAN;
+    const guint8 *str;
 
     if(di->conformant_run){
         return offset;
@@ -425,18 +425,18 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
             break;
 
         case PROTO_ID_NAMED_PIPES: /* \\PIPE\xxx   named pipe */
-            proto_tree_add_item(tr, hf_epm_proto_named_pipes, tvb, offset, len, ENC_ASCII|ENC_NA);
-            proto_item_append_text(tr, "NamedPipe:%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII));
+            proto_tree_add_item_ret_string(tr, hf_epm_proto_named_pipes, tvb, offset, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+            proto_item_append_text(tr, "NamedPipe:%s", str);
             break;
 
         case PROTO_ID_NAMED_PIPES_2: /* PIPENAME  named pipe */
-            proto_tree_add_item(tr, hf_epm_proto_named_pipes, tvb, offset, len, ENC_ASCII|ENC_NA);
-            proto_item_append_text(tr, "PIPE:%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII));
+            proto_tree_add_item_ret_string(tr, hf_epm_proto_named_pipes, tvb, offset, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+            proto_item_append_text(tr, "PIPE:%s", str);
             break;
 
         case PROTO_ID_NETBIOS: /* \\NETBIOS   netbios name */
-            proto_tree_add_item(tr, hf_epm_proto_netbios_name, tvb, offset, len, ENC_ASCII|ENC_NA);
-            proto_item_append_text(tr, "NetBIOS:%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII));
+            proto_tree_add_item_ret_string(tr, hf_epm_proto_netbios_name, tvb, offset, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+            proto_item_append_text(tr, "NetBIOS:%s", str);
             break;
         case PROTO_ID_HTTP: /* RPC over HTTP */
             proto_tree_add_item(tr, hf_epm_proto_http_port, tvb, offset, 2, ENC_BIG_ENDIAN);

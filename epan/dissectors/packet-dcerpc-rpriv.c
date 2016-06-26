@@ -65,8 +65,8 @@ rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
 	 */
 
 	guint32 authn_svc, authz_svc, key_size, key_size2, var1;
-	const char *key_t1 = NULL;
-	const char *key_t2 = NULL;
+	const guint8 *key_t1 = NULL;
+	const guint8 *key_t2 = NULL;
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_rpriv_get_eptgt_rqst_authn_svc, &authn_svc);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_rpriv_get_eptgt_rqst_authz_svc, &authz_svc);
@@ -75,14 +75,12 @@ rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_rpriv_get_eptgt_rqst_key_size2, &key_size);
 	/* advance to get size of cell, and princ */
 
-	proto_tree_add_item (tree, hf_rpriv_get_eptgt_rqst_key_t, tvb, offset, key_size, ENC_ASCII|ENC_NA);
-	key_t1 = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, key_size, ENC_ASCII);
+	proto_tree_add_item_ret_string(tree, hf_rpriv_get_eptgt_rqst_key_t, tvb, offset, key_size, ENC_ASCII|ENC_NA, wmem_packet_scope(), &key_t1);
 	offset += key_size;
 
 	offset += 8;
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_rpriv_get_eptgt_rqst_key_size2, &key_size2);
-	proto_tree_add_item (tree, hf_rpriv_get_eptgt_rqst_key_t2, tvb, offset, key_size2, ENC_ASCII|ENC_NA);
-	key_t2 = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, key_size2, ENC_ASCII);
+	proto_tree_add_item_ret_string(tree, hf_rpriv_get_eptgt_rqst_key_t2, tvb, offset, key_size2, ENC_ASCII|ENC_NA, wmem_packet_scope(), &key_t2);
 	offset += key_size2;
 
 

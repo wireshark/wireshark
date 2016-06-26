@@ -5974,11 +5974,11 @@ dissect_rsvp_call_id(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
                      int offset, int obj_length,
                      int rsvp_class _U_, int c_type)
 {
-    int         type    = 0;
-    const char *str;
-    int         offset2 = offset + 4;
-    int         offset3, offset4, len;
-    proto_tree *ti2 = NULL;
+    int           type    = 0;
+    const guint8 *str;
+    int           offset2 = offset + 4;
+    int           offset3, offset4, len;
+    proto_tree   *ti2 = NULL;
 
     proto_item_set_text(ti, "CALL-ID: ");
     switch(c_type) {
@@ -6008,12 +6008,10 @@ dissect_rsvp_call_id(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
             proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
                                 c_type, "2 (globally unique)");
             ti2 = proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_address_type, tvb, offset2, 1, ENC_BIG_ENDIAN);
-            str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset2 + 1, 3, ENC_ASCII);
-            proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_international_segment, tvb, offset2 + 1, 3, ENC_NA|ENC_ASCII);
+            proto_tree_add_item_ret_string(rsvp_object_tree, hf_rsvp_call_id_international_segment, tvb, offset2 + 1, 3, ENC_NA|ENC_ASCII, wmem_packet_scope(), &str);
             proto_item_append_text(ti, "Globally-Unique. Addr Type: %s. Intl Segment: %s. ",
                                    val_to_str(type, address_type_vals, "Unknown (%u)"), str);
-            str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset2 + 4, 12, ENC_ASCII);
-            proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_national_segment, tvb, offset2 + 4, 12, ENC_NA|ENC_ASCII);
+            proto_tree_add_item_ret_string(rsvp_object_tree, hf_rsvp_call_id_national_segment, tvb, offset2 + 4, 12, ENC_NA|ENC_ASCII, wmem_packet_scope(), &str);
             proto_item_append_text(ti, "Natl Segment: %s. ", str);
         }
 

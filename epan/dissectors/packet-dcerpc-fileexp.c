@@ -566,8 +566,7 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
   col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
   if (string_size < AFS_NAMEMAX)
     {
-      proto_tree_add_item (tree, hf_fileexp_afsNameString_t_principalName_string, tvb, offset, string_size, ENC_ASCII|ENC_NA);
-      namestring = tvb_get_string_enc (wmem_packet_scope(), tvb, offset, string_size, ENC_ASCII);
+      proto_tree_add_item_ret_string(tree, hf_fileexp_afsNameString_t_principalName_string, tvb, offset, string_size, ENC_ASCII|ENC_NA, wmem_packet_scope(), &namestring);
       offset += string_size;
       col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s", namestring);
     }

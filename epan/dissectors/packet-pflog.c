@@ -166,7 +166,7 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   proto_item *ti = NULL, *ti_len;
   int length;
   guint8 af, action;
-  guint8 *ifname;
+  const guint8 *ifname;
   guint32 rulenr;
   guint8 pad_len = 3;
   gint offset = 0;
@@ -197,8 +197,7 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   proto_tree_add_item(pflog_tree, hf_pflog_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  proto_tree_add_item(pflog_tree, hf_pflog_ifname, tvb, offset, 16, ENC_ASCII|ENC_NA);
-  ifname = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 16, ENC_ASCII);
+  proto_tree_add_item_ret_string(pflog_tree, hf_pflog_ifname, tvb, offset, 16, ENC_ASCII|ENC_NA, wmem_packet_scope(), &ifname);
   offset += 16;
 
   proto_tree_add_item(pflog_tree, hf_pflog_ruleset, tvb, offset, 16, ENC_ASCII|ENC_NA);
@@ -428,7 +427,7 @@ dissect_old_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   proto_tree *pflog_tree;
   proto_item *ti;
   guint32 af;
-  guint8 *ifname;
+  const guint8 *ifname;
   guint16 rnr, action;
   gint offset = 0;
 
@@ -442,8 +441,7 @@ dissect_old_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   af = tvb_get_ntohl(tvb, offset);
   offset +=4;
 
-  proto_tree_add_item(pflog_tree, hf_old_pflog_ifname, tvb, offset, 16, ENC_ASCII|ENC_NA);
-  ifname = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 16, ENC_ASCII);
+  proto_tree_add_item_ret_string(pflog_tree, hf_old_pflog_ifname, tvb, offset, 16, ENC_ASCII|ENC_NA, wmem_packet_scope(), &ifname);
   offset +=16;
 
   proto_tree_add_item(pflog_tree, hf_old_pflog_rnr, tvb, offset, 2, ENC_BIG_ENDIAN);

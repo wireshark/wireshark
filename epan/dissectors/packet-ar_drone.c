@@ -519,6 +519,8 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
         }else if (!strncmp(command, "AT*CTRL", 7))
         {
+            const guint8* CTRL_mode_str;
+
             /** Parse according to the CTRL layout: */
             sub_tree = proto_item_add_subtree(sub_item, ett_CTRL);
 
@@ -539,9 +541,8 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
-            ti = proto_tree_add_item(sub_tree, hf_CTRL_mode, tvb, offset, length, ENC_ASCII|ENC_NA);
-            proto_item_append_text(ti, "%s",
-                    str_to_str(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII|ENC_NA), CTRL_mode_vs, " (Unknown Mode)"));
+            ti = proto_tree_add_item_ret_string(sub_tree, hf_CTRL_mode, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &CTRL_mode_str);
+            proto_item_append_text(ti, "%s", str_to_str(CTRL_mode_str, CTRL_mode_vs, " (Unknown Mode)"));
             offset += (length + 1);
 
             /* Add File Size */

@@ -874,11 +874,14 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
                 /* Deprecated STUN RFC3489 attributes */
             case PASSWORD:
-                proto_tree_add_item(att_tree, hf_stun_att_password, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
-                proto_item_append_text(att_tree, " (Deprecated): %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, att_length, ENC_UTF_8|ENC_NA));
+                {
+                const guint8* dep_password;
+                proto_tree_add_item_ret_string(att_tree, hf_stun_att_password, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &dep_password);
+                proto_item_append_text(att_tree, " (Deprecated): %s", dep_password);
                 if (att_length % 4 != 0)
                     proto_tree_add_uint(att_tree, hf_stun_att_padding,
                                         tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
+                }
                 break;
 
             case MAPPED_ADDRESS:
@@ -934,10 +937,9 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
             case USERNAME:
             {
-                const gchar       *user_name_str;
+                const guint8 *user_name_str;
 
-                proto_tree_add_item(att_tree, hf_stun_att_username, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
-                user_name_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, att_length, ENC_UTF_8 | ENC_NA);
+                proto_tree_add_item_ret_string(att_tree, hf_stun_att_username, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &user_name_str);
                 proto_item_append_text(att_tree, ": %s", user_name_str);
                 col_append_fstr(
                     pinfo->cinfo, COL_INFO,
@@ -983,16 +985,12 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 }
                 if (att_length < 5)
                     break;
-                proto_tree_add_item(att_tree, hf_stun_att_error_reason, tvb, offset + 4, att_length - 4, ENC_UTF_8 | ENC_NA);
                 {
-                    const gchar  *error_reas_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 4, att_length - 4, ENC_UTF_8 | ENC_NA);
+                const guint8 *error_reas_str;
+                proto_tree_add_item_ret_string(att_tree, hf_stun_att_error_reason, tvb, offset + 4, att_length - 4, ENC_UTF_8 | ENC_NA, wmem_packet_scope(), &error_reas_str);
 
-                    proto_item_append_text(att_tree, ": %s", error_reas_str);
-                    col_append_fstr(
-                        pinfo->cinfo, COL_INFO,
-                        " %s",
-                        error_reas_str
-                        );
+                proto_item_append_text(att_tree, ": %s", error_reas_str);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " %s", error_reas_str);
                 }
 
                 if (att_length % 4 != 0)
@@ -1008,28 +1006,24 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
             case REALM:
             {
-                const gchar  *realm_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, att_length, ENC_UTF_8 | ENC_NA);
-                proto_tree_add_item(att_tree, hf_stun_att_realm, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
+                const guint8 *realm_str;
+                proto_tree_add_item_ret_string(att_tree, hf_stun_att_realm, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &realm_str);
                 proto_item_append_text(att_tree, ": %s", realm_str);
-                col_append_fstr(
-                    pinfo->cinfo, COL_INFO,
-                    " realm: %s",
-                    realm_str
-                    );
+                col_append_fstr(pinfo->cinfo, COL_INFO, " realm: %s", realm_str);
                 if (att_length % 4 != 0)
                     proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
             }
             case NONCE:
-                proto_tree_add_item(att_tree, hf_stun_att_nonce, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
-                proto_item_append_text(att_tree, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, att_length, ENC_UTF_8|ENC_NA));
-                col_append_str(
-                    pinfo->cinfo, COL_INFO,
-                    " with nonce"
-                    );
+            {
+                const guint8 *nonce_str;
+                proto_tree_add_item_ret_string(att_tree, hf_stun_att_nonce, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &nonce_str);
+                proto_item_append_text(att_tree, ": %s", nonce_str);
+                col_append_str(pinfo->cinfo, COL_INFO, " with nonce");
                 if (att_length % 4 != 0)
                     proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
+            }
 
             case XOR_MAPPED_ADDRESS:
             case XOR_PEER_ADDRESS:

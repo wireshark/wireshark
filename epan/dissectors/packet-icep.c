@@ -170,7 +170,7 @@ static const value_string icep_mode_vals[] = {
  * "*dest" is a null terminated version of the dissected Ice string.
  */
 static void dissect_ice_string(packet_info *pinfo, proto_tree *tree, proto_item *item, int hf_icep,
-                               tvbuff_t *tvb, guint32 offset, gint32 *consumed, char **dest)
+                               tvbuff_t *tvb, guint32 offset, gint32 *consumed, const guint8 **dest)
 {
     /* p. 586 chapter 23.2.1 and p. 588 chapter 23.2.5
      * string == Size + content
@@ -180,7 +180,7 @@ static void dissect_ice_string(packet_info *pinfo, proto_tree *tree, proto_item 
      */
 
     guint32 Size = 0;
-    char *s = NULL;
+    const guint8 *s = NULL;
 
     (*consumed) = 0;
 
@@ -240,8 +240,7 @@ static void dissect_ice_string(packet_info *pinfo, proto_tree *tree, proto_item 
 
 
     if ( Size != 0 ) {
-        s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, Size, ENC_ASCII);
-        proto_tree_add_string(tree, hf_icep, tvb, offset, Size, s);
+        proto_tree_add_item_ret_string(tree, hf_icep, tvb, offset, Size, ENC_ASCII, wmem_packet_scope(), &s);
     } else {
         s = wmem_strdup(wmem_packet_scope(), "(empty)");
         /* display the 0x00 Size byte when click on a empty ice_string */
@@ -412,10 +411,10 @@ static void dissect_ice_context(packet_info *pinfo, proto_tree *tree, proto_item
     for ( i = 0; i < Size; i++ ) {
         /* key */
         gint32 consumed_key = 0;
-        char *str_key = NULL;
+        const guint8 *str_key = NULL;
         /* value */
         gint32 consumed_value = 0;
-        char *str_value = NULL;
+        const guint8 *str_value = NULL;
         proto_item *ti;
         proto_tree *context_tree;
 
@@ -555,8 +554,8 @@ static void dissect_icep_request_common(tvbuff_t *tvb, guint32 offset,
      */
 
     gint32 consumed = 0;
-    char *namestr = NULL;
-    char *opstr = NULL;
+    const guint8 *namestr = NULL;
+    const guint8 *opstr = NULL;
 
     (*total_consumed) = 0;
 

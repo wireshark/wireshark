@@ -343,9 +343,9 @@ dissect_diameter_3gpp_imeisv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             if (!g_ascii_isprint(tvb_get_guint8(tvb, i)))
                 return length;
 
-        item = proto_tree_add_item(tree, hf_diameter_3gpp_imeisv, tvb, offset, length, ENC_UTF_8 | ENC_NA);
+        item = proto_tree_add_item_ret_string(tree, hf_diameter_3gpp_imeisv, tvb, offset, length,
+                                              ENC_UTF_8 | ENC_NA, wmem_packet_scope(), (const guint8**)&diam_sub_dis->avp_str);
         PROTO_ITEM_SET_GENERATED(item);
-        diam_sub_dis->avp_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8 | ENC_NA);
     }
 
     return length;
@@ -449,9 +449,9 @@ dissect_diameter_3gpp_af_application_identifier(tvbuff_t *tvb, packet_info *pinf
             if (!g_ascii_isprint(tvb_get_guint8(tvb, i)))
                 return length;
 
-        item = proto_tree_add_item(tree, hf_diameter_3gpp_af_application_identifier, tvb, offset, length, ENC_UTF_8 | ENC_NA);
+        item = proto_tree_add_item_ret_string(tree, hf_diameter_3gpp_af_application_identifier, tvb, offset, length,
+                                                ENC_UTF_8 | ENC_NA, wmem_packet_scope(), (const guint8**)&diam_sub_dis->avp_str);
         PROTO_ITEM_SET_GENERATED(item);
-        diam_sub_dis->avp_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8 | ENC_NA);
     }
 
     return length;
@@ -474,9 +474,9 @@ dissect_diameter_3gpp_af_charging_identifier(tvbuff_t *tvb, packet_info *pinfo _
             if (!g_ascii_isprint(tvb_get_guint8(tvb, i)))
                 return length;
 
-        item = proto_tree_add_item(tree, hf_diameter_3gpp_af_charging_identifier, tvb, offset, length, ENC_UTF_8 | ENC_NA);
+        item = proto_tree_add_item_ret_string(tree, hf_diameter_3gpp_af_charging_identifier, tvb, offset, length,
+                                              ENC_UTF_8 | ENC_NA, wmem_packet_scope(), (const guint8**)&diam_sub_dis->avp_str);
         PROTO_ITEM_SET_GENERATED(item);
-        diam_sub_dis->avp_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8 | ENC_NA);
     }
 
     return length;
@@ -1069,9 +1069,9 @@ dissect_diameter_3gpp_charging_rule_name(tvbuff_t *tvb, packet_info *pinfo _U_, 
             if (!g_ascii_isprint(tvb_get_guint8(tvb, i)))
                 return length;
 
-        item = proto_tree_add_item(tree, hf_diameter_3gpp_charging_rule_name, tvb, offset, length, ENC_UTF_8 | ENC_NA);
+        item = proto_tree_add_item_ret_string(tree, hf_diameter_3gpp_charging_rule_name, tvb, offset, length,
+                                              ENC_UTF_8 | ENC_NA, wmem_packet_scope(), (const guint8**)&diam_sub_dis->avp_str);
         PROTO_ITEM_SET_GENERATED(item);
-        diam_sub_dis->avp_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8 | ENC_NA);
     }
 
     return length;

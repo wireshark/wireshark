@@ -1613,7 +1613,7 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
     case BUNDLE_BLOCK_TYPE_CUSTODY_TRANSFER:
     {
         int custody_id;
-        const char *cteb_creator_custodian_eid;
+        const guint8 *cteb_creator_custodian_eid;
         int cteb_creator_custodian_eid_length;
 
         /* check requirements for Block Processing Control Flags */
@@ -1631,9 +1631,8 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
 
         /* and second is the creator custodian EID */
         cteb_creator_custodian_eid_length = block_length - sdnv_length;
-        cteb_creator_custodian_eid = (char *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, cteb_creator_custodian_eid_length, ENC_ASCII);
-        ti = proto_tree_add_string(block_tree, hf_block_control_block_cteb_creator_custodian_eid, tvb, offset,
-                                cteb_creator_custodian_eid_length, cteb_creator_custodian_eid);
+        ti = proto_tree_add_item_ret_string(block_tree, hf_block_control_block_cteb_creator_custodian_eid, tvb, offset,
+                                cteb_creator_custodian_eid_length, ENC_ASCII, wmem_packet_scope(), &cteb_creator_custodian_eid);
 
         /* also check if CTEB is valid, i.e. custodians match */
         if (bundle_custodian == NULL) {

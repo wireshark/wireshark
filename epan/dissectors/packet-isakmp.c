@@ -3759,6 +3759,7 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
   guint16               port;
   proto_item            *idit;
   proto_tree            *idtree;
+  const guint8          *str;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -3806,12 +3807,12 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
       proto_item_append_text(idit, "%s", tvb_ip_to_str(tvb, offset));
       break;
     case IKE_ID_FQDN:
-      proto_tree_add_item(idtree, hf_isakmp_id_data_fqdn, tvb, offset, length, ENC_ASCII|ENC_NA);
-      proto_item_append_text(idit, "%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,length, ENC_ASCII));
+      proto_tree_add_item_ret_string(idtree, hf_isakmp_id_data_fqdn, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+      proto_item_append_text(idit, "%s", str);
       break;
     case IKE_ID_USER_FQDN:
-      proto_tree_add_item(idtree, hf_isakmp_id_data_user_fqdn, tvb, offset, length, ENC_ASCII|ENC_NA);
-      proto_item_append_text(idit, "%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,length, ENC_ASCII));
+      proto_tree_add_item_ret_string(idtree, hf_isakmp_id_data_user_fqdn, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+      proto_item_append_text(idit, "%s", str);
       break;
     case IKE_ID_IPV4_ADDR_SUBNET:
       proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -4453,6 +4454,7 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr
   proto_item *cfg_attr_type_item = NULL;
   proto_tree *sub_cfg_attr_type_tree = NULL;
   guint i;
+  const guint8* str;
 
   cfg_attr_type = tvb_get_ntohs(tvb, offset);
   optlen = tvb_get_ntohs(tvb, offset+2);
@@ -4538,8 +4540,8 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr
       }
       break;
     case APPLICATION_VERSION: /* 7 */
-      proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_application_version, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-      proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+      proto_tree_add_item_ret_string(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_application_version, tvb, offset, optlen, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+      proto_item_append_text(cfg_attr_type_item," : %s", str);
       break;
     case INTERNAL_IP6_ADDRESS: /* 8 */
       if (optlen%17 == 0)
@@ -4661,49 +4663,49 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr
       proto_item_append_text(cfg_attr_type_item," : %s", rval_to_str(tvb_get_ntohs(tvb, offset), cfgattr_xauth_type, "Unknown %d"));
       break;
     case XAUTH_USER_NAME: /* 16521 */
-      proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_user_name, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-      proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+      proto_tree_add_item_ret_string(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_user_name, tvb, offset, optlen, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+      proto_item_append_text(cfg_attr_type_item," : %s", str);
       break;
     case XAUTH_USER_PASSWORD: /* 16522 */
-      proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_user_password, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-      proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+      proto_tree_add_item_ret_string(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_user_password, tvb, offset, optlen, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+      proto_item_append_text(cfg_attr_type_item," : %s", str);
       break;
     case XAUTH_PASSCODE: /* 16523 */
-      proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_passcode, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-      proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+      proto_tree_add_item_ret_string(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_passcode, tvb, offset, optlen, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+      proto_item_append_text(cfg_attr_type_item," : %s", str);
       break;
     case XAUTH_MESSAGE: /* 16524 */
-      proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_message, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-      proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+      proto_tree_add_item_ret_string(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_message, tvb, offset, optlen, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+      proto_item_append_text(cfg_attr_type_item," : %s", str);
       break;
     case XAUTH_CHALLENGE: /* 16525 */
-      proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_challenge, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-      proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+      proto_tree_add_item_ret_string(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_challenge, tvb, offset, optlen, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+      proto_item_append_text(cfg_attr_type_item," : %s", str);
       break;
     case XAUTH_DOMAIN: /* 16526 */
-      proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_domain, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-      proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+      proto_tree_add_item_ret_string(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_domain, tvb, offset, optlen, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+      proto_item_append_text(cfg_attr_type_item," : %s", str);
       break;
     case XAUTH_STATUS: /* 16527 */
       proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_status, tvb, offset, optlen, ENC_BIG_ENDIAN);
       proto_item_append_text(cfg_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), cfgattr_xauth_status, "Unknown %d"));
       break;
     case XAUTH_NEXT_PIN: /* 16528 */
-      proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_next_pin, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-      proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+      proto_tree_add_item_ret_string(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_next_pin, tvb, offset, optlen, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+      proto_item_append_text(cfg_attr_type_item," : %s", str);
       break;
     case XAUTH_ANSWER: /* 16527 */
-      proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_answer, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-      proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+      proto_tree_add_item_ret_string(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_answer, tvb, offset, optlen, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+      proto_item_append_text(cfg_attr_type_item," : %s", str);
       break;
 
     case UNITY_BANNER: /* 28672 */
-      proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_unity_banner, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-      proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+      proto_tree_add_item_ret_string(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_unity_banner, tvb, offset, optlen, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+      proto_item_append_text(cfg_attr_type_item," : %s", str);
       break;
     case UNITY_DEF_DOMAIN: /* 28674 */
-      proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_unity_def_domain, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-      proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+      proto_tree_add_item_ret_string(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_unity_def_domain, tvb, offset, optlen, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+      proto_item_append_text(cfg_attr_type_item," : %s", str);
       break;
 /* TODO: Support other UNITY Attributes ! */
     default:

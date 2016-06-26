@@ -1908,6 +1908,8 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         break;
     case 33: /* Get Firmware Revision Number */
+        {
+        const guint8* firmware;
         proto_tree_add_item(main_tree, hf_reserved, tvb, offset, 2, ENC_NA);
         offset += 2;
 
@@ -1915,10 +1917,10 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         length = tvb_get_guint8(tvb, offset);
         offset += 1;
 
-        proto_tree_add_item(main_tree, hf_firmware_revision, tvb, offset, length, ENC_NA | ENC_ASCII);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII));
+        proto_tree_add_item_ret_string(main_tree, hf_firmware_revision, tvb, offset, length, ENC_NA | ENC_ASCII, wmem_packet_scope(), &firmware);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", firmware);
         offset += length;
-
+        }
         break;
     case 35: /* Get Hardware Board ID */
         proto_tree_add_item(main_tree, hf_board_id, tvb, offset, 1, ENC_NA);
@@ -1985,14 +1987,16 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         break;
     case 55: /* Get Compile Info */
+        {
+        const guint8* compile;
         proto_tree_add_item(main_tree, hf_length, tvb, offset, 1, ENC_NA);
         length = tvb_get_guint8(tvb, offset);
         offset += 1;
 
-        proto_tree_add_item(main_tree, hf_firmware_compile_info, tvb, offset, length, ENC_NA | ENC_ASCII);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII));
+        proto_tree_add_item_ret_string(main_tree, hf_firmware_compile_info, tvb, offset, length, ENC_NA | ENC_ASCII, wmem_packet_scope(), &compile);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", compile);
         offset += length;
-
+        }
         break;
     }
 

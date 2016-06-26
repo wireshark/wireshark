@@ -376,7 +376,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	gboolean bogus_poffset;
 	guint16 opcode, option_length;
 	guint8 htype, reject_reason, message_digest_type, binding_status;
-	guint8 *vendor_class_str;
+	const guint8 *vendor_class_str;
 	const gchar *htype_str;
 	gchar *lease_expiration_time_str, *grace_expiration_time_str, *potential_expiration_time_str,
 		  *client_last_transaction_time_str, *start_time_of_state_str;
@@ -563,15 +563,18 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			break;
 
 		case DHCP_FO_PD_CLIENT_IDENTIFIER:
+			{
+			const guint8* identifier;
 			/*
 			 * XXX - if this is truly like DHCP option 81,
 			 * we need to dissect it as such.
 			 */
-			proto_item_append_text(oi,", \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, option_length, ENC_ASCII));
-
-			proto_tree_add_item(option_tree,
+			proto_tree_add_item_ret_string(option_tree,
 			    hf_dhcpfo_client_identifier, tvb, offset,
-			    option_length, ENC_ASCII|ENC_NA);
+			    option_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &identifier);
+
+			proto_item_append_text(oi,", \"%s\"", identifier);
+			}
 			break;
 
 		case DHCP_FO_PD_CLIENT_HARDWARE_ADDRESS:
@@ -631,13 +634,11 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			break;
 
 		case DHCP_FO_PD_VENDOR_CLASS:
-			vendor_class_str =
-			    tvb_get_string_enc(wmem_packet_scope(), tvb, offset, option_length, ENC_ASCII);
+			proto_tree_add_item_ret_string(option_tree,
+			    hf_dhcpfo_vendor_class, tvb, offset,
+			    option_length, ENC_ASCII, wmem_packet_scope(), &vendor_class_str);
 			proto_item_append_text(oi,", \"%s\"",
 			    format_text(vendor_class_str, option_length));
-			proto_tree_add_string(option_tree,
-			    hf_dhcpfo_vendor_class, tvb, offset,
-			    option_length, vendor_class_str);
 			break;
 
 		case DHCP_FO_PD_LEASE_EXPIRATION_TIME:

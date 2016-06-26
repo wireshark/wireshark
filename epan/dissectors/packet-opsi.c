@@ -428,27 +428,23 @@ static gboolean opsi_desegment = TRUE;
 static void
 decode_string_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, int* hfValue, int offset, int length)
 {
-	guint8* pbuffer;
 	if (length < 4) {
 		expert_add_info(pinfo, item, &ei_opsi_short_attribute);
 		return;
 	}
 
-	pbuffer=tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, length-4, ENC_ASCII);
-	proto_tree_add_string(tree, *hfValue, tvb, offset+4, length-4, pbuffer);
+	proto_tree_add_item(tree, *hfValue, tvb, offset+4, length-4, ENC_ASCII|ENC_NA);
 }
 
 
 static void
 decode_ipv4_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, int* hfValue, int offset, int length)
 {
-	guint32 ip_address;
 	if (length < 8) {
 		expert_add_info(pinfo, item, &ei_opsi_short_attribute);
 		return;
 	}
-	ip_address = tvb_get_ipv4(tvb, offset+4);
-	proto_tree_add_ipv4(tree, *hfValue, tvb, offset+4, 4, ip_address);
+	proto_tree_add_item(tree, *hfValue, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -458,7 +454,7 @@ decode_longint_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
 		expert_add_info(pinfo, item, &ei_opsi_short_attribute);
 		return;
 	}
-	proto_tree_add_uint(tree, *hfValue, tvb, offset+4, 4, tvb_get_ntohl(tvb, offset+4));
+	proto_tree_add_item(tree, *hfValue, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 }
 
 static void

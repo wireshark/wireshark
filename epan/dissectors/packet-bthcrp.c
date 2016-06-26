@@ -245,10 +245,9 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Number Of Bytes: %u", number);
                 offset += 2;
             } else {
-                guint8 *id;
+                const guint8 *id;
 
-                proto_tree_add_item(tree, hf_bthcrp_control_1284_id, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII | ENC_NA);
-                id = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
+                proto_tree_add_item_ret_string(tree, hf_bthcrp_control_1284_id, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII | ENC_NA, wmem_packet_scope(), &id);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - 1284 ID: %s", id);
                 offset += tvb_reported_length_remaining(tvb, offset);
             }

@@ -464,11 +464,12 @@ static int
 dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, struct netlink_route_info *info, proto_tree *tree, int rta_type, int offset, int len)
 {
 	enum ws_ifla_attr_type type = (enum ws_ifla_attr_type) rta_type;
+	const guint8* str;
 
 	switch (type) {
 		case WS_IFLA_IFNAME:
-			proto_item_append_text(tree, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII | ENC_NA));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_ifname, tvb, offset, len, ENC_ASCII | ENC_NA);
+			proto_tree_add_item_ret_string(tree, hfi_netlink_route_ifla_ifname.id, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
+			proto_item_append_text(tree, ": %s", str);
 			return 1;
 
 		case WS_IFLA_MTU:
@@ -575,11 +576,12 @@ static int
 dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, struct netlink_route_info *info _U_, proto_tree *tree, int rta_type, int offset, int len)
 {
 	enum ws_ifa_attr_type type = (enum ws_ifa_attr_type) rta_type;
+	const guint8* str;
 
 	switch (type) {
 		case WS_IFA_LABEL:
-			proto_item_append_text(tree, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII | ENC_NA));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifa_label, tvb, offset, len, ENC_ASCII | ENC_NA);
+			proto_tree_add_item_ret_string(tree, hfi_netlink_route_ifa_label.id, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
+			proto_item_append_text(tree, ": %s", str);
 			return 1;
 
 		default:

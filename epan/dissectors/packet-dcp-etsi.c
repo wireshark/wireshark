@@ -153,7 +153,8 @@ static gboolean
 dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
 {
   guint8 *sync;
-  proto_tree *dcp_tree = NULL;
+  proto_tree *dcp_tree;
+  proto_item *ti;
   guint16 word;
 
   /* 6.1 AF packet structure
@@ -196,11 +197,8 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCP (ETSI)");
     /*col_append_fstr (pinfo->cinfo, COL_INFO, " tvb %d", tvb_length(tvb));*/
 
-  if(tree) {
-    proto_item *ti = NULL;
-    ti = proto_tree_add_item (tree, proto_dcp_etsi, tvb, 0, -1, ENC_NA);
-    dcp_tree = proto_item_add_subtree (ti, ett_edcp);
-  }
+  ti = proto_tree_add_item (tree, proto_dcp_etsi, tvb, 0, -1, ENC_NA);
+  dcp_tree = proto_item_add_subtree (ti, ett_edcp);
 
   sync = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, 2, ENC_ASCII);
   dissector_try_string(dcp_dissector_table, (char*)sync, tvb, pinfo, dcp_tree, NULL);

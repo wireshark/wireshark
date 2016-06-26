@@ -489,8 +489,9 @@ dissect_rpcap_findalldevs_if (tvbuff_t *tvb, packet_info *pinfo _U_,
   offset += 2;
 
   if (namelen) {
-    proto_item_append_text (ti, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, namelen, ENC_ASCII));
-    proto_tree_add_item (tree, hf_if_name, tvb, offset, namelen, ENC_ASCII|ENC_NA);
+    const guint8* name;
+    proto_tree_add_item_ret_string(tree, hf_if_name, tvb, offset, namelen, ENC_ASCII|ENC_NA, wmem_packet_scope(), &name);
+    proto_item_append_text (ti, ": %s", name);
     offset += namelen;
   }
 
@@ -654,14 +655,12 @@ dissect_rpcap_auth_request (tvbuff_t *tvb, packet_info *pinfo _U_,
   if (type == RPCAP_RMTAUTH_NULL) {
     proto_item_append_text (ti, " (none)");
   } else if (type == RPCAP_RMTAUTH_PWD) {
-    guint8 *username, *password;
+    const guint8 *username, *password;
 
-    username = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, slen1, ENC_ASCII);
-    proto_tree_add_item (tree, hf_auth_username, tvb, offset, slen1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item_ret_string(tree, hf_auth_username, tvb, offset, slen1, ENC_ASCII|ENC_NA, wmem_packet_scope(), &username);
     offset += slen1;
 
-    password = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, slen2, ENC_ASCII);
-    proto_tree_add_item (tree, hf_auth_password, tvb, offset, slen2, ENC_ASCII|ENC_NA);
+    proto_tree_add_item_ret_string(tree, hf_auth_password, tvb, offset, slen2, ENC_ASCII|ENC_NA, wmem_packet_scope(), &password);
     offset += slen2;
 
     proto_item_append_text (ti, " (%s/%s)", username, password);

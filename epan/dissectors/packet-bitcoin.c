@@ -1540,9 +1540,9 @@ dissect_bitcoin_msg_empty(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 static int dissect_bitcoin_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  proto_item *ti;
-  guint32     offset = 0;
-  guint8*     command;
+  proto_item   *ti;
+  guint32       offset = 0;
+  const guint8* command;
   dissector_handle_t command_handle;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Bitcoin");
@@ -1552,13 +1552,12 @@ static int dissect_bitcoin_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
   /* add basic protocol data */
   proto_tree_add_item(tree, &hfi_bitcoin_magic,   tvb,  0,  4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(tree, &hfi_bitcoin_command, tvb,  4, 12, ENC_ASCII|ENC_NA);
+  proto_tree_add_item_ret_string(tree, hfi_bitcoin_command.id, tvb,  4, 12, ENC_ASCII|ENC_NA, wmem_packet_scope(), &command);
   proto_tree_add_item(tree, &hfi_bitcoin_length,  tvb, 16,  4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(tree, &hfi_bitcoin_checksum, tvb, 20,  4, ENC_BIG_ENDIAN);
 
   offset = 24;
 
-  command = tvb_get_string_enc(wmem_packet_scope(), tvb, 4, 12, ENC_ASCII|ENC_NA);
   command_handle = dissector_get_string_handle(bitcoin_command_table, command);
   if (command_handle != NULL)
   {

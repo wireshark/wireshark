@@ -699,14 +699,18 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             proto_item_append_text(actx->created_item, " - %s", digit_str);
             break;
         case 2:
+            {
+            const guint8* digits;
             /* IA5 Coding */
             octet_len = tvb_get_guint8(tvb,offset);
             proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, ENC_BIG_ENDIAN);
             if(octet_len == 0)
                 return;
             offset++;
-            proto_tree_add_item(subtree, hf_ansi_map_ia5_digits, tvb, offset, -1, ENC_ASCII|ENC_NA);
-            proto_item_append_text(actx->created_item, " - %s", tvb_get_string_enc(wmem_packet_scope(),tvb,offset,tvb_reported_length_remaining(tvb,offset),ENC_ASCII|ENC_NA));
+            proto_tree_add_item_ret_string(subtree, hf_ansi_map_ia5_digits, tvb, offset, tvb_reported_length_remaining(tvb,offset),
+                                            ENC_ASCII|ENC_NA, wmem_packet_scope(), &digits);
+            proto_item_append_text(actx->created_item, " - %s", digits);
+            }
             break;
         case 3:
             /* Octet string */
@@ -737,9 +741,13 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             proto_item_append_text(actx->created_item, " - %s", digit_str);
             break;
         case 2:
+            {
+            const guint8* digits;
             /* IA5 Coding */
-            proto_tree_add_item(subtree, hf_ansi_map_ia5_digits, tvb, offset, -1, ENC_ASCII|ENC_NA);
-            proto_item_append_text(actx->created_item, " - %s", tvb_get_string_enc(wmem_packet_scope(),tvb,offset,tvb_reported_length_remaining(tvb,offset),ENC_ASCII|ENC_NA));
+            proto_tree_add_item_ret_string(subtree, hf_ansi_map_ia5_digits, tvb, offset, tvb_reported_length_remaining(tvb,offset),
+                                            ENC_ASCII|ENC_NA, wmem_packet_scope(), &digits);
+            proto_item_append_text(actx->created_item, " - %s", digits);
+            }
             break;
         case 3:
             /* Octet string */

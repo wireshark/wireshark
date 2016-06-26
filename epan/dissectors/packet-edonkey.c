@@ -1133,16 +1133,15 @@ static int dissect_kademlia_tag_bsob(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 
 static int dissect_kademlia_tag_string(tvbuff_t *tvb, packet_info *pinfo _U_,
-                                 int offset, proto_tree *tree, const gchar** string_value)
+                                 int offset, proto_tree *tree, const guint8** string_value)
 {
     proto_item *hidden_item;
     guint16 string_length = tvb_get_letohs(tvb, offset);
 
     hidden_item = proto_tree_add_uint(tree, hf_edonkey_string_length, tvb, offset, 2, string_length);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
-    hidden_item = proto_tree_add_item(tree, hf_edonkey_string, tvb, offset + 2, string_length, ENC_ASCII|ENC_NA);
+    hidden_item = proto_tree_add_item_ret_string(tree, hf_edonkey_string, tvb, offset + 2, string_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), string_value);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
-    *string_value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, string_length, ENC_ASCII|ENC_NA);
 
     proto_tree_add_item(tree, hf_kademlia_tag_string, tvb, offset + 2, string_length, ENC_ASCII|ENC_NA);
     return offset + 2 + string_length;
@@ -2371,7 +2370,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo,
             break;
         case KADEMLIA_TAGTYPE_STRING:
             {
-                const gchar* value;
+                const guint8* value;
                 offset = dissect_kademlia_tag_string( tvb, pinfo, offset, subtree, &value );
 
                 proto_item_append_text( tag_node, "\"%s\"", value );
