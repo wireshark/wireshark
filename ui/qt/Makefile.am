@@ -353,5 +353,4 @@ EXTRA_DIST = \
 	i18n.qrc.in			\
 	Makefile.common			\
 	Makefile_custom.common		\
-	Wireshark.pro			\
 	gpl-template.txt

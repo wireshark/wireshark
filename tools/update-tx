@@ -7,8 +7,9 @@
 tx pull -f
 
 #Regenerate last translation for repo
-lupdate ui/qt/Wireshark.pro
-lrelease ui/qt/Wireshark.pro
+for i in ui/qt/*.ts ; do
+        lupdate ui/qt/*.h ui/qt/*.cpp wireshark-qt.cpp ui/qt/*.ui -ts $i
+done
 
 #Push last change tranlastion on Transifex
 tx push -t -s
