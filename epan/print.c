@@ -660,6 +660,7 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
     field_info      *fi    = PNODE_FINFO(node);
     write_json_data *pdata = (write_json_data*) data;
     const gchar     *label_ptr;
+    gchar            label_str[ITEM_LABEL_LENGTH];
     char            *dfilter_string;
     int              i;
 
@@ -762,6 +763,21 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
         case FT_PROTOCOL:
             if (node->first_child != NULL) {
                 fputs("\": {\n", pdata->fh);
+            } else {
+                fputs("\": \"", pdata->fh);
+                if (fi->rep) {
+                    print_escaped_json(pdata->fh, fi->rep->representation);
+                }
+                else {
+                    label_ptr = label_str;
+                    proto_item_fill_label(fi, label_str);
+                    print_escaped_json(pdata->fh, label_ptr);
+                }
+                if (node->next == NULL) {
+                    fputs("\"\n",  pdata->fh);
+                } else {
+                    fputs("\",\n",  pdata->fh);
+                }
             }
             break;
         case FT_NONE:
@@ -845,6 +861,7 @@ proto_tree_write_node_ek(proto_node *node, gpointer data)
     field_info      *fi_parent    = PNODE_FINFO(node->parent);
     write_json_data *pdata = (write_json_data*) data;
     const gchar     *label_ptr;
+    gchar            label_str[ITEM_LABEL_LENGTH];
     char            *dfilter_string;
     int              i;
     gchar           *abbrev_escaped = NULL;
@@ -958,6 +975,21 @@ proto_tree_write_node_ek(proto_node *node, gpointer data)
         case FT_PROTOCOL:
             if (node->first_child != NULL) {
                 fputs("\": {", pdata->fh);
+            } else {
+                fputs("\": \"", pdata->fh);
+                if (fi->rep) {
+                    print_escaped_json(pdata->fh, fi->rep->representation);
+                }
+                else {
+                    label_ptr = label_str;
+                    proto_item_fill_label(fi, label_str);
+                    print_escaped_json(pdata->fh, label_ptr);
+                }
+                if (node->next == NULL) {
+                    fputs("\"",  pdata->fh);
+                } else {
+                    fputs("\",",  pdata->fh);
+                }
             }
             break;
         case FT_NONE:
