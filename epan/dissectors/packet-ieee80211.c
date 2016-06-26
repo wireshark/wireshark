@@ -3594,6 +3594,7 @@ static int hf_ieee80211_tim_bmapctl = -1;
 static int hf_ieee80211_tim_bmapctl_mcast = -1;
 static int hf_ieee80211_tim_bmapctl_offset = -1;
 static int hf_ieee80211_tim_partial_virtual_bitmap = -1;
+static int hf_ieee80211_tim_aid = -1;
 static int hf_ieee80211_tag_ibss_atim_window = -1;
 static int hf_ieee80211_tag_country_info_code = -1;
 static int hf_ieee80211_tag_country_info_env = -1;
@@ -13786,8 +13787,9 @@ ieee80211_tag_tim(packet_info *pinfo, proto_tree *tree,
 {
   proto_tree *bmapctl_tree;
   proto_item *bmapctl_item;
+  guint aid, pvb_len, n1, i, j, byte;
 
-  /* 7.3.2.6 TIM (5) */
+  /* 802.11-2012: 8.4.2.7 TIM element (5) */
   if (tag_len < 4) {
     expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "Tag length %u too short, must be >= 4", tag_len);
@@ -13813,11 +13815,23 @@ ieee80211_tag_tim(packet_info *pinfo, proto_tree *tree,
                       tvb, offset, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bmapctl_tree, hf_ieee80211_tim_bmapctl_offset,
                       tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  pvb_len = tag_len - 3;
+  n1 = tvb_get_guint8(tvb, offset) & 0xFE;
   offset += 1;
 
   proto_tree_add_item(tree, hf_ieee80211_tim_partial_virtual_bitmap,
-                      tvb, offset, tag_len - 3, ENC_NA);
-  offset += tag_len - 3;
+                      tvb, offset, pvb_len, ENC_NA);
+  /* FIXME: Handles dot11MgmtOptionMultiBSSIDActivated = false only */
+  for (i = 0; i < pvb_len; i++) {
+    byte = tvb_get_guint8(tvb, offset + i);
+    for (j = 0; j < 8; j++) {
+      if (byte & (1 << j)) {
+        aid = 8*n1 + 8*i + j;
+        proto_tree_add_uint_format_value(tree, hf_ieee80211_tim_aid, tvb, offset + i, 1, aid, "%d", aid);
+      }
+    }
+  }
+  offset += pvb_len;
 
   return offset;
 }
@@ -19293,14 +19307,14 @@ proto_register_ieee80211 (void)
       "Strictly ordered flag", HFILL }},
 
     {&hf_ieee80211_assoc_id,
-     {"Association ID","wlan.aid"
-      ,FT_UINT16, BASE_DEC, NULL, 0x3FFF,
-      "Association-ID field", HFILL }},
+     {"Association ID","wlan.aid",
+      FT_UINT16, BASE_DEC, NULL, 0x3FFF,
+      NULL, HFILL }},
 
     {&hf_ieee80211_did_duration,
      {"Duration", "wlan.duration",
       FT_UINT16, BASE_DEC, NULL, 0x7FFF,
-      "Duration field", HFILL }},
+      NULL, HFILL }},
 
     {&hf_ieee80211_addr_da,
      {"Destination address", "wlan.da",
@@ -19309,8 +19323,8 @@ proto_register_ieee80211 (void)
 
     { &hf_ieee80211_addr_da_resolved,
       {"Destination address (resolved)", "wlan.da_resolved", FT_STRING,
-        BASE_NONE, NULL, 0x0, "Destination Hardware Address (resolved)",
-        HFILL }},
+        BASE_NONE, NULL, 0x0,
+        "Destination Hardware Address (resolved)", HFILL }},
 
     {&hf_ieee80211_addr_sa,
      {"Source address", "wlan.sa",
@@ -19318,8 +19332,9 @@ proto_register_ieee80211 (void)
       "Source Hardware Address", HFILL }},
 
     { &hf_ieee80211_addr_sa_resolved,
-      {"Source address (resolved)", "wlan.sa_resolved", FT_STRING, BASE_NONE,
-        NULL, 0x0, "Source Hardware Address (resolved)", HFILL }},
+      {"Source address (resolved)", "wlan.sa_resolved", FT_STRING,
+       BASE_NONE, NULL, 0x0,
+       "Source Hardware Address (resolved)", HFILL }},
 
     { &hf_ieee80211_addr,
       {"Hardware address", "wlan.addr",
@@ -22831,6 +22846,11 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_tim_partial_virtual_bitmap,
      {"Partial Virtual Bitmap", "wlan_mgt.tim.partial_virtual_bitmap",
       FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tim_aid,
+     {"Association ID", "wlan.tim.aid",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ibss_atim_window,
