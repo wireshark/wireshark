@@ -30,32 +30,11 @@
  */
 
 /*
- * 09/12/2003 - Added dissection of country information tag
- *
- * Ritchie<at>tipsybottle.com
- *
- * 03/22/2004 - Added dissection of RSN IE
- * Jouni Malinen <jkmaline@cc.hut.fi>
- *
  * 10/24/2005 - Add dissection for 802.11e
  * Zhu Yi <yi.zhu@intel.com>
  *
- * Dutin Johnson - 802.11n and portions of 802.11k and 802.11ma
- * dustin@dustinj.us & dustin.johnson@cacetech.com
- *
- * 01/31/2008 - Added dissection of 802.11s
- * Javier Cardona <javier@cozybit.com>
- *
  * 04/21/2008 - Added dissection for 802.11p
  * Arada Systems <http://www.aradasystems.com>
- *
- * 05/29/2011 - UATification of decryption keys
- * Michael Mann <mmann78@netscape.net>
- *
- * 07/30/2011 - Update 802.11s packet dissecting to the ratified standard (v12.0)
- * Brian Cavagnolo <brian@cozybit.com>
- *
- * Enhance 802.11 dissector by Alexis La Goutte
  *
  * 04/20/2013 - Added dissection of 802.11ad according to the 9th draft of the standard.
  * Extended as a project in the Laboratory of Computer Communication & Networking (LCCN), Computer Science Department, Technion, Israel.
@@ -109,9 +88,7 @@
 #include "packet-sflow.h"
 #include "packet-gre.h"
 
-/*     Davide Schiera (2006-11-22): including AirPDcap project                */
 #include <epan/crypt/airpdcap_ws.h>
-/* Davide Schiera (2006-11-22) ---------------------------------------------- */
 
 void proto_register_ieee80211(void);
 void proto_reg_handoff_ieee80211(void);
@@ -247,7 +224,6 @@ static void
 ieee_80211_add_tagged_parameters (tvbuff_t *tvb, int offset, packet_info *pinfo,
                                   proto_tree *tree, int tagged_parameters_len, int ftype);
 
-/* Davide Schiera (2006-11-26): created function to decrypt WEP and WPA/WPA2  */
 static tvbuff_t *try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer, PAIRPDCAP_KEY_ITEM used_key);
 
 static int weak_iv(guchar *iv);
@@ -18001,16 +17977,12 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         }
 
       } /* end of qos control field */
-      /* Davide Schiera (2006-11-21): process handshake packet with AirPDcap    */
-      /* the processing will take care of 4-way handshake sessions for WPA    */
-      /* and WPA2 decryption                                  */
       if (enable_decryption && !pinfo->fd->flags.visited) {
         const guint8 *enc_data = tvb_get_ptr(tvb, 0, hdr_len+reported_len);
+        /* The processing will take care of 4-way handshake sessions for WPA and WPA2 decryption */
         AirPDcapPacketProcess(&airpdcap_ctx, enc_data, hdr_len, hdr_len+reported_len, NULL, 0, NULL, TRUE);
 
       }
-      /* Davide Schiera --------------------------------------------------------  */
-
       /*
        * No-data frames don't have a body.
        */
@@ -18095,34 +18067,24 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
     guint32     iv;
     guint8      key, keybyte;
 
-    /* Davide Schiera (2006-11-27): define algorithms constants and macros  */
 #define PROTECTION_ALG_WEP  AIRPDCAP_KEY_TYPE_WEP
 #define PROTECTION_ALG_TKIP  AIRPDCAP_KEY_TYPE_TKIP
 #define PROTECTION_ALG_CCMP  AIRPDCAP_KEY_TYPE_CCMP
 #define PROTECTION_ALG_RSNA  PROTECTION_ALG_CCMP | PROTECTION_ALG_TKIP
     guint8 algorithm=G_MAXUINT8;
-    /* Davide Schiera (2006-11-27): added macros to check the algorithm    */
-    /* used could be TKIP or CCMP                            */
 #define IS_TKIP(tvb, hdr_len)  (tvb_get_guint8(tvb, hdr_len + 1) == \
   ((tvb_get_guint8(tvb, hdr_len) | 0x20) & 0x7f))
 #define IS_CCMP(tvb, hdr_len)  (tvb_get_guint8(tvb, hdr_len + 2) == 0)
-    /* Davide Schiera -----------------------------------------------------  */
-
-    /* Davide Schiera (2006-11-21): recorded original lengths to pass them  */
-    /* to the packets process function                        */
     guint32 sec_header=0;
     guint32 sec_trailer=0;
 
     next_tvb = try_decrypt(tvb, hdr_len, reported_len, &algorithm, &sec_header, &sec_trailer, &used_key);
-    /* Davide Schiera -----------------------------------------------------  */
 
     keybyte = tvb_get_guint8(tvb, hdr_len + 3);
     key = KEY_OCTET_WEP_KEY(keybyte);
     if ((keybyte & KEY_EXTIV) && (len >= EXTIV_LEN)) {
       /* Extended IV; this frame is likely encrypted with TKIP or CCMP */
       if (tree) {
-        /* Davide Schiera (2006-11-27): differentiated CCMP and TKIP if  */
-        /* it's possible                                */
         if (algorithm==PROTECTION_ALG_TKIP)
           wep_tree = proto_tree_add_subtree(hdr_tree, tvb, hdr_len, 8,
               ett_wep_parameters, NULL, "TKIP parameters");
@@ -18130,9 +18092,6 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           wep_tree = proto_tree_add_subtree(hdr_tree, tvb, hdr_len, 8,
             ett_wep_parameters, NULL, "CCMP parameters");
         else {
-          /* Davide Schiera --------------------------------------------  */
-          /* Davide Schiera (2006-11-27): differentiated CCMP and TKIP if*/
-          /* it's possible                              */
           if (IS_TKIP(tvb, hdr_len)) {
             algorithm=PROTECTION_ALG_TKIP;
             wep_tree = proto_tree_add_subtree(hdr_tree, tvb, hdr_len, 8,
@@ -18173,7 +18132,6 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       /* It is unknown whether this is TKIP or CCMP, so let's not even try to
        * parse TKIP Michael MIC+ICV or CCMP MIC. */
 
-      /* Davide Schiera (2006-11-21): enable TKIP and CCMP decryption      */
       /* checking for the trailer                            */
       if (next_tvb!=NULL) {
         if (reported_len < (gint) sec_trailer) {
@@ -18213,7 +18171,6 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           }
         }
       }
-      /* Davide Schiera --------------------------------------------------  */
     } else {
       /* No Ext. IV - WEP packet */
       /*
@@ -18247,8 +18204,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       reported_len -= 4;
       ivlen         = 4;
 
-      /* Davide Schiera (2006-11-27): Even if the decryption was not */
-      /* successful, set the algorithm                               */
+      /* Even if the decryption was not successful, set the algorithm */
       algorithm=PROTECTION_ALG_WEP;
 
       /*
@@ -18301,7 +18257,6 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       g_strlcpy (wlan_stats.protection, "Unknown", MAX_PROTECT_LEN);
     }
 
-    /* Davide Schiera (2006-11-26): decrypted before parsing header and    */
     /* protection header                                  */
     if (!can_decrypt || (next_tvb == NULL)) {
       /*
@@ -18311,7 +18266,6 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       next_tvb = tvb_new_subset(tvb, hdr_len + ivlen, len, reported_len);
 
       if (tree) {
-        /* Davide Schiera (2006-11-21): added WEP or WPA separation      */
         if (algorithm == PROTECTION_ALG_WEP) {
           if (can_decrypt)
             proto_tree_add_uint_format_value(wep_tree, hf_ieee80211_wep_icv, tvb,
@@ -18323,7 +18277,6 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         } else if (algorithm == PROTECTION_ALG_TKIP) {
         }
       }
-      /* Davide Schiera (2006-11-21) ----------------------------------  */
 
       if ((!(option_flags & IEEE80211_COMMON_OPT_IS_CENTRINO)) && (wlan_ignore_prot == WLAN_IGNORE_PROT_NO)) {
         /* Some wireless drivers (such as Centrino) WEP payload already decrypted */
@@ -18331,7 +18284,6 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         goto end_of_wlan;
       }
     } else {
-      /* Davide Schiera (2006-11-21): added WEP or WPA separation        */
       if (algorithm == PROTECTION_ALG_WEP) {
         if (tree)
           proto_tree_add_uint_format_value(wep_tree, hf_ieee80211_wep_icv, tvb,
@@ -18346,14 +18298,11 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       } else if (algorithm==PROTECTION_ALG_TKIP) {
         add_new_data_source(pinfo, next_tvb, "Decrypted TKIP data");
       }
-      /* Davide Schiera (2006-11-21) -------------------------------------  */
-      /* Davide Schiera (2006-11-27): undefine macros and definitions  */
 #undef IS_TKIP
 #undef IS_CCMP
 #undef PROTECTION_ALG_CCMP
 #undef PROTECTION_ALG_TKIP
 #undef PROTECTION_ALG_WEP
-      /* Davide Schiera --------------------------------------------------  */
     }
 
     /*
@@ -18966,10 +18915,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   return tvb_captured_length(tvb);
 }
 
-/* Davide Schiera (2006-11-26): this function will try to decrypt with WEP or  */
-/* WPA and return a tvb to the caller to add a new tab. It returns the    */
-/* algorithm used for decryption (WEP, TKIP, CCMP) and the header and    */
-/* trailer lengths.                                      */
+/* It returns the algorithm used for decryption and the header and trailer lengths. */
 static tvbuff_t *
 try_decrypt(tvbuff_t *tvb, guint offset, guint len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer, PAIRPDCAP_KEY_ITEM used_key)
 {
@@ -19019,8 +18965,6 @@ try_decrypt(tvbuff_t *tvb, guint offset, guint len, guint8 *algorithm, guint32 *
 
   return decr_tvb;
 }
-/*  Davide Schiera -----------------------------------------------------------  */
-
 
 /* Collect our WEP and WPA keys */
 static void
@@ -27460,7 +27404,6 @@ proto_register_ieee80211 (void)
     "Whether to validate the FCS checksum or not.",
     &wlan_check_checksum);
 
-  /* Davide Schiera (2006-11-26): changed "WEP bit" in "Protection bit"    */
   prefs_register_enum_preference(wlan_module, "ignore_wep",
     "Ignore the Protection bit",
     "Some 802.11 cards leave the Protection bit set even though the packet is decrypted, "
@@ -27469,7 +27412,6 @@ proto_register_ieee80211 (void)
 
   prefs_register_obsolete_preference(wlan_module, "wep_keys");
 
-  /* Davide Schiera (2006-11-26): added reference to WPA/WPA2 decryption    */
   prefs_register_bool_preference(wlan_module, "enable_decryption",
     "Enable decryption", "Enable WEP and WPA/WPA2 decryption",
     &enable_decryption);
