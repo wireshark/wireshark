@@ -39,14 +39,14 @@ typedef struct circuit_key {
 } circuit_key;
 
 typedef struct circuit {
-	struct circuit *next;		/**< pointer to next circuit with given circuit ID */
-	guint32 first_frame;		/**< # of first frame for that circuit */
+	struct circuit *next;			/**< pointer to next circuit with given circuit ID */
+	guint32 first_frame;			/**< # of first frame for that circuit */
 	guint32 last_frame;			/**< # of last frame for that circuit */
-	guint32	circuit_index;		/**< unique ID for circuit */
+	guint32 circuit_index;			/**< unique ID for circuit */
 	GSList *data_list;			/**< list of data associated with circuit */
-	dissector_handle_t dissector_handle; /**< handle for protocol dissector client associated with circuit */
-	guint	options;			/**< wildcard flags */
-	circuit_key *key_ptr;		/**< pointer to the key for this circuit */
+	dissector_handle_t dissector_handle;	/**< handle for protocol dissector client associated with circuit */
+	guint options;				/**< wildcard flags */
+	circuit_key *key_ptr;			/**< pointer to the key for this circuit */
 } circuit_t;
 
 /**
@@ -64,16 +64,14 @@ extern void circuit_init(void);
  * Given a circuit type and circuit ID for a packet, create a new circuit
  * to contain packets for that circuit.
  */
-WS_DLL_PUBLIC circuit_t *circuit_new(circuit_type ctype, guint32 circuit_id,
-    guint32 first_frame);
+WS_DLL_PUBLIC circuit_t *circuit_new(circuit_type ctype, guint32 circuit_id, guint32 first_frame);
 
 /**
  * Given a circuit type and ID, and a frame number, search for a circuit with
  * that type and ID whose range of frames includes that frame number.
  * Returns NULL if not found.
  */
-WS_DLL_PUBLIC circuit_t *find_circuit(circuit_type ctype, guint32 circuit_id,
-    guint32 frame);
+WS_DLL_PUBLIC circuit_t *find_circuit(circuit_type ctype, guint32 circuit_id, guint32 frame);
 
 /**
  * Set the last frame of a circuit, if it's not already known,
@@ -81,13 +79,11 @@ WS_DLL_PUBLIC circuit_t *find_circuit(circuit_type ctype, guint32 circuit_id,
  */
 extern void close_circuit(circuit_t *circuit, guint32 last_frame);
 
-WS_DLL_PUBLIC void circuit_add_proto_data(circuit_t *conv, int proto,
-    void *proto_data);
+WS_DLL_PUBLIC void circuit_add_proto_data(circuit_t *conv, int proto, void *proto_data);
 WS_DLL_PUBLIC void *circuit_get_proto_data(circuit_t *conv, int proto);
 void circuit_delete_proto_data(circuit_t *conv, int proto);
 
-extern void circuit_set_dissector(circuit_t *circuit,
-    dissector_handle_t handle);
+extern void circuit_set_dissector(circuit_t *circuit, dissector_handle_t handle);
 extern dissector_handle_t circuit_get_dissector(circuit_t *circuit);
 
 /**
@@ -96,11 +92,23 @@ extern dissector_handle_t circuit_get_dissector(circuit_t *circuit);
  * call that dissector and return TRUE, otherwise return FALSE.
  */
 extern gboolean
-try_circuit_dissector(circuit_type ctype, guint32 circuit_id, guint32 frame,
-   tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, void* data);
+try_circuit_dissector(circuit_type ctype, guint32 circuit_id, guint32 frame, tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, void* data);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
 #endif /* circuit.h */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
