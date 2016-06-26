@@ -3578,7 +3578,7 @@ Anish Bhatt		<anish[AT]chelsio.com> {
 	Dissector for Congestion Notification (802.1Qau)
 }
 
-Dmitry Bazhenov		<dima_b@[AT]pigeonpoint.com> {
+Dmitry Bazhenov		<dima_b[AT]pigeonpoint.com> {
 	Dissector for IPMI Trace
 }
 
@@ -3592,7 +3592,7 @@ John Miner		<wiresharkdissectorcoder[AT]gmail.com> {
 	Dissector for OptoMMP
 }
 
-竹下 恵 (Megumi Takeshita) <megumi@ikeriri.ne.jp> {
+竹下 恵 (Megumi Takeshita) <megumi[AT]ikeriri.ne.jp> {
 	Japanese translation of the Qt User Interface
 }
 
