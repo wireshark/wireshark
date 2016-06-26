@@ -1594,62 +1594,62 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>背景色</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="86"/>
+        <location filename="coloring_rules_dialog.cpp" line="87"/>
         <source>Coloring Rules</source>
         <translation>色付けルール</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="114"/>
+        <location filename="coloring_rules_dialog.cpp" line="115"/>
         <source>Import</source>
         <translation>インポート</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="115"/>
+        <location filename="coloring_rules_dialog.cpp" line="116"/>
         <source>Select a file and add its filters to the end of the list.</source>
         <translation>ファイルを選択してリストの末尾にフィルタを追加します</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="116"/>
+        <location filename="coloring_rules_dialog.cpp" line="117"/>
         <source>Export</source>
         <translation>エクスポート</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="117"/>
+        <location filename="coloring_rules_dialog.cpp" line="118"/>
         <source>Save filters in a file.</source>
         <translation>ファイルにフィルタを保存します</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="182"/>
+        <location filename="coloring_rules_dialog.cpp" line="183"/>
         <source>the &quot;@&quot; symbol will be ignored.</source>
         <translation>この &quot;@&quot; シンボルは無視されます</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="208"/>
+        <location filename="coloring_rules_dialog.cpp" line="209"/>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
         <translation>ダブルクリックして編集します。ドラッグして動かします。ルールは一致が見つかるまで順番に処理されます</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="331"/>
+        <location filename="coloring_rules_dialog.cpp" line="332"/>
         <source>Import Coloring Rules</source>
         <translation>色付けルールをインポート</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="343"/>
+        <location filename="coloring_rules_dialog.cpp" line="344"/>
         <source>Export %1 Coloring Rules</source>
         <translation>%1 色付けルールをエクスポート</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="359"/>
+        <location filename="coloring_rules_dialog.cpp" line="360"/>
         <source>Your coloring rules file contains unknown rules</source>
         <translation>あなたの色付けルールのファイルは未知のルールを含んでいます。</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="360"/>
+        <location filename="coloring_rules_dialog.cpp" line="361"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</source>
         <translation>Wiresharkはひとつかそれ以上の色付けルールを認識できません。保存は破棄されます。</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="370"/>
+        <location filename="coloring_rules_dialog.cpp" line="371"/>
         <source>Unable to save coloring rules</source>
         <translation>色分けルールを保存できません。</translation>
     </message>
@@ -1742,24 +1742,24 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>ConversationDialog</name>
     <message>
-        <location filename="conversation_dialog.cpp" line="63"/>
+        <location filename="conversation_dialog.cpp" line="64"/>
         <source>Follow Stream</source>
         <oldsource>Follow Stream...</oldsource>
         <translation>ストリームを追跡</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="64"/>
+        <location filename="conversation_dialog.cpp" line="65"/>
         <source>Follow a TCP or UDP stream.</source>
         <translation>TCPかUDPストリームを追跡</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="67"/>
+        <location filename="conversation_dialog.cpp" line="68"/>
         <source>Graph</source>
         <oldsource>Graph...</oldsource>
         <translation>グラフ</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="68"/>
+        <location filename="conversation_dialog.cpp" line="69"/>
         <source>Graph a TCP conversation.</source>
         <translation>TCP対話をグラフ化します</translation>
     </message>
@@ -3164,7 +3164,7 @@ for filter files: %2.</source>
 <context>
     <name>IOGraph</name>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1828"/>
+        <location filename="io_graph_dialog.cpp" line="1830"/>
         <source>Unknown</source>
         <translation>不明</translation>
     </message>
@@ -3596,143 +3596,143 @@ for filter files: %2.</source>
         <translation>Shift+Y</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="198"/>
+        <location filename="io_graph_dialog.cpp" line="200"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation>として保存</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="208"/>
+        <location filename="io_graph_dialog.cpp" line="210"/>
         <source>0.001 sec</source>
         <translation>0.001 秒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="209"/>
+        <location filename="io_graph_dialog.cpp" line="211"/>
         <source>0.01 sec</source>
         <translation>0.01 秒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="210"/>
+        <location filename="io_graph_dialog.cpp" line="212"/>
         <source>0.1 sec</source>
         <translation>0.1 秒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="211"/>
+        <location filename="io_graph_dialog.cpp" line="213"/>
         <source>1 sec</source>
         <translation>1秒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="212"/>
+        <location filename="io_graph_dialog.cpp" line="214"/>
         <source>10 sec</source>
         <translation>10秒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="213"/>
+        <location filename="io_graph_dialog.cpp" line="215"/>
         <source>1 min</source>
         <translation>1分</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="214"/>
+        <location filename="io_graph_dialog.cpp" line="216"/>
         <source>10 min</source>
         <translation>10分</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="244"/>
+        <location filename="io_graph_dialog.cpp" line="246"/>
         <source>Time (s)</source>
         <translation>時間(秒)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="193"/>
+        <location filename="io_graph_dialog.cpp" line="195"/>
         <source>IO Graphs</source>
         <translation>入出力グラフ</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="200"/>
+        <location filename="io_graph_dialog.cpp" line="202"/>
         <source>Copy</source>
         <translation>コピー</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="252"/>
+        <location filename="io_graph_dialog.cpp" line="254"/>
         <source>Wireshark IO Graphs: %1</source>
         <translation>Wireshark入出力グラフ: %1</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="379"/>
+        <location filename="io_graph_dialog.cpp" line="381"/>
         <source>All packets</source>
         <translation>すべてのパケット</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="383"/>
+        <location filename="io_graph_dialog.cpp" line="385"/>
         <source>TCP errors</source>
         <translation>TCPエラー</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="870"/>
+        <location filename="io_graph_dialog.cpp" line="872"/>
         <source>Hover over the graph for details.</source>
         <translation>詳細はグラフの上にマウスをのせてください</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="872"/>
+        <location filename="io_graph_dialog.cpp" line="874"/>
         <source>No packets in interval</source>
         <translation>この間隔にパケットはありません</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="877"/>
+        <location filename="io_graph_dialog.cpp" line="879"/>
         <source>Click to select packet</source>
         <translation>クリックしてパケットを選んでください</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="877"/>
+        <location filename="io_graph_dialog.cpp" line="879"/>
         <source>Packet</source>
         <translation>パケット</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="881"/>
+        <location filename="io_graph_dialog.cpp" line="883"/>
         <source>%1 (%2s%3).</source>
         <translation>%1 (%2s%3).</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="892"/>
+        <location filename="io_graph_dialog.cpp" line="894"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation>離してズーム, x = %1 から %2, y = %3 から %4</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="898"/>
+        <location filename="io_graph_dialog.cpp" line="900"/>
         <source>Unable to select range.</source>
         <translation>範囲を選択できません</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="901"/>
+        <location filename="io_graph_dialog.cpp" line="903"/>
         <source>Click to select a portion of the graph.</source>
         <translation>クリックしてグラフの割合を選びます</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1520"/>
+        <location filename="io_graph_dialog.cpp" line="1522"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1521"/>
+        <location filename="io_graph_dialog.cpp" line="1523"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1522"/>
+        <location filename="io_graph_dialog.cpp" line="1524"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windowsビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1524"/>
+        <location filename="io_graph_dialog.cpp" line="1526"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1525"/>
+        <location filename="io_graph_dialog.cpp" line="1527"/>
         <source>Comma Separated Values (*.csv)</source>
         <translation>カンマ区切りテキスト形式 (*.csv)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1537"/>
+        <location filename="io_graph_dialog.cpp" line="1539"/>
         <source>Save Graph As</source>
         <translation>としてグラフを保存</translation>
     </message>
@@ -9569,7 +9569,7 @@ a:hover {
         <translation>この列を削除</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1019"/>
+        <location filename="packet_list.cpp" line="1021"/>
         <source>Frame %1: %2
 
 </source>
@@ -9578,7 +9578,7 @@ a:hover {
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1023"/>
+        <location filename="packet_list.cpp" line="1025"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ コメントテキスト超過 %1 停止中 ]</translation>
     </message>
@@ -10122,97 +10122,97 @@ a:hover {
         <translation>ウインドウサイズ(バイト)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1922"/>
+        <location filename="io_graph_dialog.cpp" line="1924"/>
         <source>Packets/s</source>
         <translation>パケット/秒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1923"/>
+        <location filename="io_graph_dialog.cpp" line="1925"/>
         <source>Bytes/s</source>
         <translation>バイト/秒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1924"/>
+        <location filename="io_graph_dialog.cpp" line="1926"/>
         <source>Bits/s</source>
         <translation>ビット/秒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1925"/>
+        <location filename="io_graph_dialog.cpp" line="1927"/>
         <source>SUM(Y Field)</source>
         <translation>SUM(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1926"/>
+        <location filename="io_graph_dialog.cpp" line="1928"/>
         <source>COUNT FRAMES(Y Field)</source>
         <translation>COUNT FRAMES(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1927"/>
+        <location filename="io_graph_dialog.cpp" line="1929"/>
         <source>COUNT FIELDS(Y Field)</source>
         <translation>COUNT FIELDS(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1928"/>
+        <location filename="io_graph_dialog.cpp" line="1930"/>
         <source>MAX(Y Field)</source>
         <translation>MAX(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1929"/>
+        <location filename="io_graph_dialog.cpp" line="1931"/>
         <source>MIN(Y Field)</source>
         <translation>MIN(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1930"/>
+        <location filename="io_graph_dialog.cpp" line="1932"/>
         <source>AVG(Y Field)</source>
         <translation>AVG(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1931"/>
+        <location filename="io_graph_dialog.cpp" line="1933"/>
         <source>LOAD(Y Field)</source>
         <translation>LOAD(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1940"/>
+        <location filename="io_graph_dialog.cpp" line="1942"/>
         <source>Line</source>
         <translation>線</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1941"/>
+        <location filename="io_graph_dialog.cpp" line="1943"/>
         <source>Impulse</source>
         <translation>点線</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1942"/>
+        <location filename="io_graph_dialog.cpp" line="1944"/>
         <source>Bar</source>
         <translation>棒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1943"/>
+        <location filename="io_graph_dialog.cpp" line="1945"/>
         <source>Stacked Bar</source>
         <translation>積み棒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1944"/>
+        <location filename="io_graph_dialog.cpp" line="1946"/>
         <source>Dot</source>
         <translation>点</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1945"/>
+        <location filename="io_graph_dialog.cpp" line="1947"/>
         <source>Square</source>
         <translation>四角</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1946"/>
+        <location filename="io_graph_dialog.cpp" line="1948"/>
         <source>Diamond</source>
         <translation>菱形</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1957"/>
+        <location filename="io_graph_dialog.cpp" line="1959"/>
         <source>None</source>
         <translation>なし</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1959"/>
+        <location filename="io_graph_dialog.cpp" line="1961"/>
         <source>%1 interval SMA</source>
         <translation>%1 インターバル SMA</translation>
     </message>
@@ -10222,19 +10222,18 @@ a:hover {
         <translation>[キャプチャファイルなし]</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="78"/>
+        <location filename="coloring_rules_dialog.cpp" line="79"/>
         <source>New coloring rule</source>
         <translation>新規色付けルール</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="59"/>
+        <location filename="conversation_dialog.cpp" line="60"/>
         <source>Conversation</source>
         <translation>対話</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="314"/>
         <source>N/A</source>
-        <translation>未指定</translation>
+        <translation type="vanished">未指定</translation>
     </message>
     <message>
         <location filename="endpoint_dialog.cpp" line="45"/>

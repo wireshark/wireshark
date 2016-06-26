@@ -1597,62 +1597,62 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Sfondo</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="86"/>
+        <location filename="coloring_rules_dialog.cpp" line="87"/>
         <source>Coloring Rules</source>
         <translation>Regole di colorazione</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="114"/>
+        <location filename="coloring_rules_dialog.cpp" line="115"/>
         <source>Import</source>
         <translation>Importa</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="115"/>
+        <location filename="coloring_rules_dialog.cpp" line="116"/>
         <source>Select a file and add its filters to the end of the list.</source>
         <translation>Seleziona un file e aggiungi i suoi filtri alla fine dell&apos;elenco.</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="116"/>
+        <location filename="coloring_rules_dialog.cpp" line="117"/>
         <source>Export</source>
         <translation>Esporta</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="117"/>
+        <location filename="coloring_rules_dialog.cpp" line="118"/>
         <source>Save filters in a file.</source>
         <translation>Salva i filtri in un file.</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="182"/>
+        <location filename="coloring_rules_dialog.cpp" line="183"/>
         <source>the &quot;@&quot; symbol will be ignored.</source>
         <translation>il simbolo &quot;@&quot; sarà ignorato.</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="208"/>
+        <location filename="coloring_rules_dialog.cpp" line="209"/>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
         <translation>Doppio clic per modificare. Trascina per spostare. Le regole sono elaborate in ordine fino alla prima corrispondenza.</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="331"/>
+        <location filename="coloring_rules_dialog.cpp" line="332"/>
         <source>Import Coloring Rules</source>
         <translation>Importazione regole di colorazione</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="343"/>
+        <location filename="coloring_rules_dialog.cpp" line="344"/>
         <source>Export %1 Coloring Rules</source>
         <translation>Esporta %1 regole di colorazione</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="359"/>
+        <location filename="coloring_rules_dialog.cpp" line="360"/>
         <source>Your coloring rules file contains unknown rules</source>
         <translation>Il file delle tue regole di colorazione contiene regole sconosciute</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="360"/>
+        <location filename="coloring_rules_dialog.cpp" line="361"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</source>
         <translation>Wireshark non riconosce una o più delle tue regole di colorazione. Il salvataggio le rimuoverà.</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="370"/>
+        <location filename="coloring_rules_dialog.cpp" line="371"/>
         <source>Unable to save coloring rules</source>
         <translation>Impossibile salvare le regole di colorazione</translation>
     </message>
@@ -1745,24 +1745,24 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
 <context>
     <name>ConversationDialog</name>
     <message>
-        <location filename="conversation_dialog.cpp" line="63"/>
+        <location filename="conversation_dialog.cpp" line="64"/>
         <source>Follow Stream</source>
         <oldsource>Follow Stream...</oldsource>
         <translation>Segui il flusso</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="64"/>
+        <location filename="conversation_dialog.cpp" line="65"/>
         <source>Follow a TCP or UDP stream.</source>
         <translation>Segui un flusso TCP o UDP.</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="67"/>
+        <location filename="conversation_dialog.cpp" line="68"/>
         <source>Graph</source>
         <oldsource>Graph...</oldsource>
         <translation>Grafico</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="68"/>
+        <location filename="conversation_dialog.cpp" line="69"/>
         <source>Graph a TCP conversation.</source>
         <translation>Crea il grafico di una connessione TCP.</translation>
     </message>
@@ -3190,7 +3190,7 @@ per i file di filtro: %2.</translation>
 <context>
     <name>IOGraph</name>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1828"/>
+        <location filename="io_graph_dialog.cpp" line="1830"/>
         <source>Unknown</source>
         <translation>Sconosciuto</translation>
     </message>
@@ -3622,143 +3622,143 @@ per i file di filtro: %2.</translation>
         <translation>Maiusc+Y</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="198"/>
+        <location filename="io_graph_dialog.cpp" line="200"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation>Salva come</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="208"/>
+        <location filename="io_graph_dialog.cpp" line="210"/>
         <source>0.001 sec</source>
         <translation>0.001 sec</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="209"/>
+        <location filename="io_graph_dialog.cpp" line="211"/>
         <source>0.01 sec</source>
         <translation>0.01 sec</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="210"/>
+        <location filename="io_graph_dialog.cpp" line="212"/>
         <source>0.1 sec</source>
         <translation>0.1 sec</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="211"/>
+        <location filename="io_graph_dialog.cpp" line="213"/>
         <source>1 sec</source>
         <translation>1 sec</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="212"/>
+        <location filename="io_graph_dialog.cpp" line="214"/>
         <source>10 sec</source>
         <translation>10 sec</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="213"/>
+        <location filename="io_graph_dialog.cpp" line="215"/>
         <source>1 min</source>
         <translation>1 min</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="214"/>
+        <location filename="io_graph_dialog.cpp" line="216"/>
         <source>10 min</source>
         <translation>10 min</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="244"/>
+        <location filename="io_graph_dialog.cpp" line="246"/>
         <source>Time (s)</source>
         <translation>Tempo (s)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="193"/>
+        <location filename="io_graph_dialog.cpp" line="195"/>
         <source>IO Graphs</source>
         <translation>Grafici IO</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="200"/>
+        <location filename="io_graph_dialog.cpp" line="202"/>
         <source>Copy</source>
         <translation>Copia</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="252"/>
+        <location filename="io_graph_dialog.cpp" line="254"/>
         <source>Wireshark IO Graphs: %1</source>
         <translation>Grafici di IO di Wireshark: %1</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="379"/>
+        <location filename="io_graph_dialog.cpp" line="381"/>
         <source>All packets</source>
         <translation>Tutti i pacchetti</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="383"/>
+        <location filename="io_graph_dialog.cpp" line="385"/>
         <source>TCP errors</source>
         <translation>Errori TCP</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="870"/>
+        <location filename="io_graph_dialog.cpp" line="872"/>
         <source>Hover over the graph for details.</source>
         <translation>Sposta il mouse sul grafico per i dettagli.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="872"/>
+        <location filename="io_graph_dialog.cpp" line="874"/>
         <source>No packets in interval</source>
         <translation>Nessun pacchetto nell&apos;intervallo</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="877"/>
+        <location filename="io_graph_dialog.cpp" line="879"/>
         <source>Click to select packet</source>
         <translation>Fai clic per selezionare il pacchetto</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="877"/>
+        <location filename="io_graph_dialog.cpp" line="879"/>
         <source>Packet</source>
         <translation>Pacchetto</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="881"/>
+        <location filename="io_graph_dialog.cpp" line="883"/>
         <source>%1 (%2s%3).</source>
         <translation>%1 (%2s%3).</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="892"/>
+        <location filename="io_graph_dialog.cpp" line="894"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation>Rilascia per lo zoom, x = %1 a %2, y = %3 a %4</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="898"/>
+        <location filename="io_graph_dialog.cpp" line="900"/>
         <source>Unable to select range.</source>
         <translation>Impossibile selezionare la serie.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="901"/>
+        <location filename="io_graph_dialog.cpp" line="903"/>
         <source>Click to select a portion of the graph.</source>
         <translation>Fai clic per selezionare una porzione del grafico.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1520"/>
+        <location filename="io_graph_dialog.cpp" line="1522"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1521"/>
+        <location filename="io_graph_dialog.cpp" line="1523"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1522"/>
+        <location filename="io_graph_dialog.cpp" line="1524"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1524"/>
+        <location filename="io_graph_dialog.cpp" line="1526"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG File Interchange Format (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1525"/>
+        <location filename="io_graph_dialog.cpp" line="1527"/>
         <source>Comma Separated Values (*.csv)</source>
         <translation>Valori separati da virgola (*.csv)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1537"/>
+        <location filename="io_graph_dialog.cpp" line="1539"/>
         <source>Save Graph As</source>
         <translation>Salva i grafici come</translation>
     </message>
@@ -9623,7 +9623,7 @@ a:hover {
         <translation>Rimuovi questa colonna</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1019"/>
+        <location filename="packet_list.cpp" line="1021"/>
         <source>Frame %1: %2
 
 </source>
@@ -9632,7 +9632,7 @@ a:hover {
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1023"/>
+        <location filename="packet_list.cpp" line="1025"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Il testo del commento supera %1. Interruzione. ]</translation>
     </message>
@@ -10176,97 +10176,97 @@ a:hover {
         <translation>Dimensione della finestra (B)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1922"/>
+        <location filename="io_graph_dialog.cpp" line="1924"/>
         <source>Packets/s</source>
         <translation>Pacchetti/s</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1923"/>
+        <location filename="io_graph_dialog.cpp" line="1925"/>
         <source>Bytes/s</source>
         <translation>Byte/s</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1924"/>
+        <location filename="io_graph_dialog.cpp" line="1926"/>
         <source>Bits/s</source>
         <translation>Bit/s</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1925"/>
+        <location filename="io_graph_dialog.cpp" line="1927"/>
         <source>SUM(Y Field)</source>
         <translation>SOMMA (Campo Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1926"/>
+        <location filename="io_graph_dialog.cpp" line="1928"/>
         <source>COUNT FRAMES(Y Field)</source>
         <translation>CONTA FRAME (Campo Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1927"/>
+        <location filename="io_graph_dialog.cpp" line="1929"/>
         <source>COUNT FIELDS(Y Field)</source>
         <translation>CONTA CAMPI (Campo Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1928"/>
+        <location filename="io_graph_dialog.cpp" line="1930"/>
         <source>MAX(Y Field)</source>
         <translation>MAX (Campo Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1929"/>
+        <location filename="io_graph_dialog.cpp" line="1931"/>
         <source>MIN(Y Field)</source>
         <translation>MIN (Campo Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1930"/>
+        <location filename="io_graph_dialog.cpp" line="1932"/>
         <source>AVG(Y Field)</source>
         <translation>MED (Campo Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1931"/>
+        <location filename="io_graph_dialog.cpp" line="1933"/>
         <source>LOAD(Y Field)</source>
         <translation>CARICO (Campo Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1940"/>
+        <location filename="io_graph_dialog.cpp" line="1942"/>
         <source>Line</source>
         <translation>Linea</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1941"/>
+        <location filename="io_graph_dialog.cpp" line="1943"/>
         <source>Impulse</source>
         <translation>Impulso</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1942"/>
+        <location filename="io_graph_dialog.cpp" line="1944"/>
         <source>Bar</source>
         <translation>Barra</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1943"/>
+        <location filename="io_graph_dialog.cpp" line="1945"/>
         <source>Stacked Bar</source>
         <translation>Barre impilate</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1944"/>
+        <location filename="io_graph_dialog.cpp" line="1946"/>
         <source>Dot</source>
         <translation>Punto</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1945"/>
+        <location filename="io_graph_dialog.cpp" line="1947"/>
         <source>Square</source>
         <translation>Quadrato</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1946"/>
+        <location filename="io_graph_dialog.cpp" line="1948"/>
         <source>Diamond</source>
         <translation>Diamante</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1957"/>
+        <location filename="io_graph_dialog.cpp" line="1959"/>
         <source>None</source>
         <translation>Nessuno</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1959"/>
+        <location filename="io_graph_dialog.cpp" line="1961"/>
         <source>%1 interval SMA</source>
         <translation>%1 intervallo SMA</translation>
     </message>
@@ -10276,19 +10276,18 @@ a:hover {
         <translation>[nessun file di cattura]</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="78"/>
+        <location filename="coloring_rules_dialog.cpp" line="79"/>
         <source>New coloring rule</source>
         <translation>Nuova regola di colorazione</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="59"/>
+        <location filename="conversation_dialog.cpp" line="60"/>
         <source>Conversation</source>
         <translation>Conversazione</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="314"/>
         <source>N/A</source>
-        <translation>N/D</translation>
+        <translation type="vanished">N/D</translation>
     </message>
     <message>
         <location filename="endpoint_dialog.cpp" line="45"/>
