@@ -215,13 +215,14 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
         break;
 
     case(cf_cb_file_fast_save_finished):
-        // Ignored for now
+        // gtk/main.c calls main_cf_cb_file_rescan_finished. Should we do
+        // the equivalent?
         break;
 
     case(cf_cb_packet_selected):
     case(cf_cb_packet_unselected):
     case(cf_cb_field_unselected):
-        // Signals and slots handled elsewhere.
+        // GTK+ only. Handled in Qt via signals and slots.
         break;
 
     case(cf_cb_file_save_started):
@@ -244,12 +245,12 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
     case cf_cb_file_export_specified_packets_finished:
     case cf_cb_file_export_specified_packets_failed:
     case cf_cb_file_export_specified_packets_stopped:
-        // Ignored for now
+        // GTK+ only.
         break;
 
     default:
-        g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: main_cf_callback %d %p", event, data);
         g_warning("CaptureFile::captureFileCallback: event %u unknown", event);
+        g_assert_not_reached();
         break;
     }
 }

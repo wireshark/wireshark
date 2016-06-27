@@ -73,18 +73,18 @@ typedef enum {
     cf_cb_file_rescan_finished,
     cf_cb_file_retap_started,
     cf_cb_file_retap_finished,
-    cf_cb_file_fast_save_finished,
-    cf_cb_packet_selected,
-    cf_cb_packet_unselected,
-    cf_cb_field_unselected,
+    cf_cb_file_fast_save_finished, /* GTK+ only? */
+    cf_cb_packet_selected, /* GTK+ only. */
+    cf_cb_packet_unselected, /* GTK+ only. */
+    cf_cb_field_unselected, /* GTK+ only. */
     cf_cb_file_save_started,
     cf_cb_file_save_finished,
     cf_cb_file_save_failed,
     cf_cb_file_save_stopped,
-    cf_cb_file_export_specified_packets_started,
-    cf_cb_file_export_specified_packets_finished,
-    cf_cb_file_export_specified_packets_failed,
-    cf_cb_file_export_specified_packets_stopped
+    cf_cb_file_export_specified_packets_started, /* GTK+ only. */
+    cf_cb_file_export_specified_packets_finished, /* GTK+ only. */
+    cf_cb_file_export_specified_packets_failed, /* GTK+ only. */
+    cf_cb_file_export_specified_packets_stopped /* GTK+ only. */
 } cf_cbs;
 
 typedef void (*cf_callback_t) (gint event, gpointer data, gpointer user_data);
