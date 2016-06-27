@@ -146,8 +146,8 @@
 #define ECOS_FLAGS_FLOWLABEL            0x04
 #define ECOS_FLAGS_RELIABLE             0x08
 
-#define DTN_SCHEME_STR			"dtn"
-#define IPN_SCHEME_STR			"ipn"
+#define DTN_SCHEME_STR                  "dtn"
+#define IPN_SCHEME_STR                  "ipn"
 
 int evaluate_sdnv(tvbuff_t *tvb, int offset, int *bytecount);
 gint64 evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount);
@@ -161,3 +161,16 @@ gint64 evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount);
  */
 int evaluate_sdnv32(tvbuff_t *tvb, int offset, int *bytecount, guint32 *value);
 int evaluate_sdnv64(tvbuff_t *tvb, int offset, int *bytecount, guint64 *value);
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

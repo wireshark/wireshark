@@ -3081,7 +3081,7 @@ proto_register_bundle(void)
     expert_register_field_array(expert_tcpcl, ei_tcpcl, array_length(ei_tcpcl));
 
     register_init_routine(bundle_defragment_init);
-	register_cleanup_routine(bundle_defragment_cleanup);
+    register_cleanup_routine(bundle_defragment_cleanup);
 }
 
 void
