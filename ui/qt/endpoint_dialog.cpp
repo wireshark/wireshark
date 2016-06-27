@@ -272,10 +272,6 @@ public:
 #endif
         hostlist_talker_t *endp_item = &g_array_index(conv_array_, hostlist_talker_t, conv_idx_);
 
-        if (!endp_item) {
-            return QVariant();
-        }
-
         switch (col) {
         case ENDP_COLUMN_ADDR:
         {
@@ -359,10 +355,6 @@ public:
         const EndpointTreeWidgetItem *other_row = static_cast<const EndpointTreeWidgetItem *>(&other);
         hostlist_talker_t *endp_item = &g_array_index(conv_array_, hostlist_talker_t, conv_idx_);
         hostlist_talker_t *other_item = &g_array_index(other_row->conv_array_, hostlist_talker_t, other_row->conv_idx_);
-
-        if (!endp_item || !other_item) {
-            return false;
-        }
 
         int sort_col = treeWidget()->sortColumn();
 
