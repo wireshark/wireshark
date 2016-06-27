@@ -1658,6 +1658,9 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				can_calculate_rate = FALSE;	/* no bandwidth */
 			}
 
+			phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_FEC;
+			phdr.phy_info.info_11ac.fec = tvb_get_guint8(tvb, offset + 8);
+
 			for(i=0; i<4; i++) {
 				mcs_nss = tvb_get_guint8(tvb, offset + 4 + i);
 				nss = (mcs_nss & IEEE80211_RADIOTAP_VHT_NSS);
@@ -1675,7 +1678,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						phdr.phy = PHDR_802_11_PHY_11AC;
 						phdr.phy_info.info_11ac.presence_flags = 0;
 					}
-					phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_FEC;
 					if (vht_tree) {
 						it = proto_tree_add_item(vht_tree, hf_radiotap_vht_user,
 							tvb, offset + 4, 5, ENC_NA);
@@ -1723,7 +1725,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					}
 				}
 			}
-			phdr.phy_info.info_11ac.fec = tvb_get_guint8(tvb, offset + 8);
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_GID) {
 				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_GROUP_ID;
@@ -2542,22 +2543,22 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_vht_coding[0],
 		 {"Coding 0", "radiotap.vht.coding.0",
-		  FT_UINT8, BASE_DEC, VALS(mcs_fec), 0x0,
+		  FT_UINT8, BASE_DEC, VALS(mcs_fec), 0x01,
 		  "Coding", HFILL}},
 
 		{&hf_radiotap_vht_coding[1],
 		 {"Coding 1", "radiotap.vht.coding.1",
-		  FT_UINT8, BASE_DEC, VALS(mcs_fec), 0x0,
+		  FT_UINT8, BASE_DEC, VALS(mcs_fec), 0x02,
 		  "Coding", HFILL}},
 
 		{&hf_radiotap_vht_coding[2],
 		 {"Coding 2", "radiotap.vht.coding.2",
-		  FT_UINT8, BASE_DEC, VALS(mcs_fec), 0x0,
+		  FT_UINT8, BASE_DEC, VALS(mcs_fec), 0x04,
 		  "Coding", HFILL}},
 
 		{&hf_radiotap_vht_coding[3],
 		 {"Coding 3", "radiotap.vht.coding.3",
-		  FT_UINT8, BASE_DEC, VALS(mcs_fec), 0x0,
+		  FT_UINT8, BASE_DEC, VALS(mcs_fec), 0x08,
 		  "Coding", HFILL}},
 
 		{&hf_radiotap_vht_datarate[0],
