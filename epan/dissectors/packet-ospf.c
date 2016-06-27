@@ -528,7 +528,8 @@ static int hf_ospf_v2_options = -1;
 static int hf_ospf_v2_options_mt = -1;
 static int hf_ospf_v2_options_e = -1;
 static int hf_ospf_v2_options_mc = -1;
-static int hf_ospf_v2_options_np = -1;
+static int hf_ospf_v2_options_n = -1;
+static int hf_ospf_v2_options_p = -1;
 static int hf_ospf_v2_options_l = -1;
 static int hf_ospf_v2_options_dc = -1;
 static int hf_ospf_v2_options_o = -1;
@@ -817,7 +818,17 @@ static int *bf_v2_options[] = {
     &hf_ospf_v2_options_o,
     &hf_ospf_v2_options_dc,
     &hf_ospf_v2_options_l,
-    &hf_ospf_v2_options_np,
+    &hf_ospf_v2_options_n,
+    &hf_ospf_v2_options_mc,
+    &hf_ospf_v2_options_e,
+    &hf_ospf_v2_options_mt
+};
+static int *bf_v2_options_lsa7[] = {
+    &hf_ospf_v2_options_dn,
+    &hf_ospf_v2_options_o,
+    &hf_ospf_v2_options_dc,
+    &hf_ospf_v2_options_l,
+    &hf_ospf_v2_options_p,
     &hf_ospf_v2_options_mc,
     &hf_ospf_v2_options_e,
     &hf_ospf_v2_options_mt
@@ -888,6 +899,10 @@ static bitfield_info bfinfo_v3_as_external_flags = {
 static bitfield_info bfinfo_v2_options = {
     &hf_ospf_v2_options, &ett_ospf_v2_options,
     bf_v2_options, array_length(bf_v2_options)
+};
+static bitfield_info bfinfo_v2_options_lsa7 = {
+    &hf_ospf_v2_options, &ett_ospf_v2_options,
+    bf_v2_options_lsa7, array_length(bf_v2_options_lsa7)
 };
 static bitfield_info bfinfo_v3_options = {
     &hf_ospf_v3_options, &ett_ospf_v3_options,
@@ -2470,7 +2485,10 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_donotage, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
     options = tvb_get_guint8 (tvb, offset + 2);
-    dissect_ospf_bitfield(ospf_lsa_tree, tvb, offset + 2, &bfinfo_v2_options);
+    if (ls_type != 7)
+        dissect_ospf_bitfield(ospf_lsa_tree, tvb, offset + 2, &bfinfo_v2_options);
+    else
+        dissect_ospf_bitfield(ospf_lsa_tree, tvb, offset + 2, &bfinfo_v2_options_lsa7);
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_type, tvb,
                         offset + 3, 1, ENC_BIG_ENDIAN);
     if (ospf_ls_type_to_filter(ls_type) != -1) {
@@ -3419,9 +3437,12 @@ proto_register_ospf(void)
         {&hf_ospf_v2_options_mc,
          { "(MC) Multicast", "ospf.v2.options.mc", FT_BOOLEAN, 8,
            TFS(&tfs_capable_not_capable), OSPF_V2_OPTIONS_MC, NULL, HFILL }},
-        {&hf_ospf_v2_options_np,
-         { "(N) NSSA", "ospf.v2.options.np", FT_BOOLEAN, 8,
+        {&hf_ospf_v2_options_n,
+         { "(N) NSSA", "ospf.v2.options.n", FT_BOOLEAN, 8,
            TFS(&tfs_supported_not_supported), OSPF_V2_OPTIONS_NP, NULL, HFILL }},
+        {&hf_ospf_v2_options_p,
+         { "(P) Propagate", "ospf.v2.options.p", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), OSPF_V2_OPTIONS_NP, NULL, HFILL }},
         {&hf_ospf_v2_options_l,
          { "(L) LLS Data block", "ospf.v2.options.l", FT_BOOLEAN, 8,
            TFS(&tfs_present_not_present), OSPF_V2_OPTIONS_L, NULL, HFILL }},
