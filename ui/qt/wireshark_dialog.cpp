@@ -39,13 +39,51 @@
 // - Save and load recent geometry.
 // - Make our nested event loop more robust. See tryDeleteLater for details.
 
-WiresharkDialog::WiresharkDialog(QWidget &, CaptureFile &capture_file) :
+
+// As discussed in change 7072, QDialogs have different minimize and "on
+// top" behaviors depending on their parents, flags, and platforms.
+//
+// W = Windows, L = Linux, X = OS X
+//
+// QDialog(parent)
+//
+//   W,L: Always on top, no minimize button.
+//   X: Independent, no minimize button.
+//
+// QDialog(parent, Qt::Window)
+//
+//   W: Always on top, minimize button. Minimizes to a small title bar
+//      attached to the taskbar and not the taskbar itself. (The GTK+
+//      UI used to do this.)
+//   L: Always on top, minimize button.
+//   X: Independent, minimize button.
+//
+// QDialog(NULL)
+//
+//   W, L, X: Independent, no minimize button.
+//
+// QDialog(NULL, Qt::Window)
+//
+//   W, L, X: Independent, minimize button.
+//
+// Additionally, maximized, parent-less dialogs can close to a black screen
+// on OS X: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12544
+//
+// Pass in the parent on OS X and NULL elsewhere so that we have an
+// independent window that un-maximizes correctly.
+
+WiresharkDialog::WiresharkDialog(QWidget &parent, CaptureFile &capture_file) :
     QDialog(NULL, Qt::Window),
     cap_file_(capture_file),
     file_closed_(false),
     retap_depth_(0),
     dialog_closed_(false)
 {
+#ifdef Q_OS_MAC
+    QDialog::setParent(&parent, windowFlags());
+#else
+    Q_UNUSED(parent)
+#endif
     setWindowIcon(wsApp->normalIcon());
     setWindowTitleFromSubtitle();
 
