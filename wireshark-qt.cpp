@@ -124,10 +124,6 @@
 #include <QTextCodec>
 #endif
 
-#if defined(HAVE_LIBPCAP) || defined(HAVE_EXTCAP)
-capture_options global_capture_opts;
-#endif
-
 /* update the main window */
 void main_window_update(void)
 {
