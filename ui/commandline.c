@@ -67,7 +67,7 @@
 
 #include "ui/commandline.h"
 
-#ifdef HAVE_LIBPCAP
+#if defined(HAVE_LIBPCAP) || defined(HAVE_EXTCAP)
 capture_options global_capture_opts;
 #endif
 
