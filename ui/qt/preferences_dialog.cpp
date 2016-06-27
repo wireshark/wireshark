@@ -51,8 +51,6 @@
 #include <QSpacerItem>
 #include <QTreeWidgetItemIterator>
 
-#include <QDebug>
-
 Q_DECLARE_METATYPE(pref_t *)
 Q_DECLARE_METATYPE(QStackedWidget *)
 
@@ -63,7 +61,205 @@ pref_t *prefFromPrefPtr(void *pref_ptr)
     return pref_ptr_to_pref_[pref_ptr];
 }
 
-guint
+enum {
+    module_type_ = 1000,
+    advanced_type_,
+};
+
+enum {
+    adv_name_col_,
+    adv_status_col_,
+    adv_type_col_,
+    adv_value_col_
+};
+
+enum {
+    stacked_role_ = Qt::UserRole + 1,
+    module_name_role_,
+    mpsa_role_
+};
+
+class AdvancedPrefTreeWidgetItem : public QTreeWidgetItem
+{
+public:
+    AdvancedPrefTreeWidgetItem(pref_t *pref, module_t *module) :
+        QTreeWidgetItem (advanced_type_),
+        pref_(pref),
+        module_(module)
+    {}
+    pref_t *pref() { return pref_; }
+    void updatePref() { emitDataChanged(); }
+
+    virtual QVariant data(int column, int role) const {
+        bool is_default = stashedPrefIsDefault();
+        switch (role) {
+        case Qt::DisplayRole:
+            switch (column) {
+            case adv_name_col_:
+            {
+                QString full_name = QString(module_->name ? module_->name : module_->parent->name);
+                full_name += QString(".%1").arg(pref_->name);
+                return full_name;
+            }
+            case adv_status_col_:
+                if ((pref_->type == PREF_UAT && (pref_->gui == GUI_ALL || pref_->gui == GUI_QT))|| pref_->type == PREF_CUSTOM) {
+                    return QObject::tr("Unknown");
+                } else if (is_default) {
+                    return QObject::tr("Default");
+                } else {
+                    return QObject::tr("Changed");
+                }
+            case adv_type_col_:
+                return QString(prefs_pref_type_name(pref_));
+            case adv_value_col_:
+            {
+                QString cur_value = gchar_free_to_qstring(prefs_pref_to_str(pref_, pref_stashed)).remove(QRegExp("\n\t"));
+                return cur_value;
+            }
+            default:
+                break;
+        }
+        case Qt::ToolTipRole:
+            switch (column) {
+            case adv_name_col_:
+                return QString("<span>%1</span>").arg(pref_->description);
+            case adv_status_col_:
+                return QObject::tr("Has this preference been changed?");
+            case adv_type_col_:
+            {
+                QString type_desc = gchar_free_to_qstring(prefs_pref_type_description(pref_));
+                return QString("<span>%1</span>").arg(type_desc);
+            }
+            case adv_value_col_:
+            {
+                QString default_value = gchar_free_to_qstring(prefs_pref_to_str(pref_, pref_stashed));
+                return QString("<span>%1</span>").arg(
+                            default_value.isEmpty() ? default_value : QObject::tr("Default value is empty"));
+            }
+            default:
+                break;
+            }
+        case Qt::FontRole:
+            if (!is_default && treeWidget()) {
+                QFont font = treeWidget()->font();
+                font.setBold(true);
+                return font;
+            }
+            break;
+        default:
+            break;
+        }
+        return QTreeWidgetItem::data(column, role);
+    }
+
+private:
+    // Copied from prefs.c:prefs_pref_is_default. We may want to move this to
+    // prefs.c as well.
+    bool stashedPrefIsDefault() const
+    {
+        if (!pref_) return false;
+
+        switch (pref_->type) {
+
+        case PREF_UINT:
+            if (pref_->default_val.uint == pref_->stashed_val.uint)
+                return true;
+            break;
+
+        case PREF_BOOL:
+            if (pref_->default_val.boolval == pref_->stashed_val.boolval)
+                return true;
+            break;
+
+        case PREF_ENUM:
+            if (pref_->default_val.enumval == pref_->stashed_val.enumval)
+                return true;
+            break;
+
+        case PREF_STRING:
+        case PREF_FILENAME:
+        case PREF_DIRNAME:
+            if (!(g_strcmp0(pref_->default_val.string, pref_->stashed_val.string)))
+                return true;
+            break;
+
+        case PREF_RANGE:
+        {
+            if ((ranges_are_equal(pref_->default_val.range, pref_->stashed_val.range)))
+                return true;
+            break;
+        }
+
+        case PREF_COLOR:
+        {
+            if ((pref_->default_val.color.red == pref_->stashed_val.color.red) &&
+                    (pref_->default_val.color.green == pref_->stashed_val.color.green) &&
+                    (pref_->default_val.color.blue == pref_->stashed_val.color.blue))
+                return true;
+            break;
+        }
+
+        case PREF_CUSTOM:
+        case PREF_OBSOLETE:
+        case PREF_STATIC_TEXT:
+        case PREF_UAT:
+            return false;
+            break;
+        }
+        return false;
+    }
+
+    pref_t *pref_;
+    module_t *module_;
+};
+
+class ModulePrefTreeWidgetItem : public QTreeWidgetItem
+{
+public:
+    ModulePrefTreeWidgetItem(QTreeWidgetItem *parent, module_t *module) :
+        QTreeWidgetItem (parent, module_type_),
+        module_(module),
+        mpsa_(0)
+    {}
+    void ensureModulePreferencesScrollArea(QStackedWidget *sw) {
+        /*
+         * We create pages for interior nodes even if they don't have
+         * preferences, so that we at least have something to show
+         * if the user clicks on them, even if it's empty.
+         */
+
+        /* Scrolled window */
+        if (!mpsa_) {
+            mpsa_ = new ModulePreferencesScrollArea(module_);
+            if (sw->indexOf(mpsa_) < 0) sw->addWidget(mpsa_);
+        }
+    }
+
+    virtual QVariant data(int column, int role) const {
+        if (column == 0) {
+            switch (role) {
+            case Qt::DisplayRole:
+                return QString(module_->title);
+            case module_name_role_:
+                return QString (module_->name);
+            case mpsa_role_:
+                return qVariantFromValue(mpsa_);
+            default:
+                break;
+            }
+        }
+        return QTreeWidgetItem::data(column, role);
+    }
+
+private:
+    module_t *module_;
+    ModulePreferencesScrollArea *mpsa_;
+};
+
+extern "C" {
+// Callbacks prefs routines
+
+static guint
 fill_advanced_prefs(module_t *module, gpointer root_ptr)
 {
     QTreeWidgetItem *root_item = static_cast<QTreeWidgetItem *>(root_ptr);
@@ -78,6 +274,10 @@ fill_advanced_prefs(module_t *module, gpointer root_ptr)
     tl_item->setText(0, module_title);
     tl_item->setToolTip(0, QString("<span>%1</span>").arg(module->description));
     tl_item->setFirstColumnSpanned(true);
+    Qt::ItemFlags item_flags = tl_item->flags();
+    item_flags &= ~(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+    tl_item->setFlags(item_flags);
+
 
     QList<QTreeWidgetItem *>tl_children;
     for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = g_list_next(pref_l)) {
@@ -90,19 +290,7 @@ fill_advanced_prefs(module_t *module, gpointer root_ptr)
 
         pref_stash(pref, NULL);
 
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        QString full_name = QString(module->name ? module->name : module->parent->name) + "." + pref->name;
-        QString type_desc = gchar_free_to_qstring(prefs_pref_type_description(pref));
-        QString default_value = gchar_free_to_qstring(prefs_pref_to_str(pref, pref_stashed));
-
-        item->setData(0, Qt::UserRole, qVariantFromValue(pref));
-        item->setText(0, full_name);
-        item->setToolTip(0, QString("<span>%1</span>").arg(pref->description));
-        item->setToolTip(1, QObject::tr("Has this preference been changed?"));
-        item->setText(2, type_name);
-        item->setToolTip(2, QString("<span>%1</span>").arg(type_desc));
-        item->setToolTip(3, QString("<span>%1</span>").arg(
-                             default_value.isEmpty() ? default_value : QObject::tr("Default value is empty")));
+        AdvancedPrefTreeWidgetItem *item = new AdvancedPrefTreeWidgetItem(pref, module);
         tl_children << item;
 
         // .uat is a void * so it wins the "useful key value" prize.
@@ -118,10 +306,6 @@ fill_advanced_prefs(module_t *module, gpointer root_ptr)
     return 0;
 }
 
-
-extern "C" {
-// Callbacks prefs routines
-
 static guint
 pref_exists(pref_t *, gpointer)
 {
@@ -129,13 +313,13 @@ pref_exists(pref_t *, gpointer)
 }
 
 static guint
-module_prefs_show(module_t *module, gpointer ti_ptr)
+fill_module_prefs(module_t *module, gpointer ti_ptr)
 {
     QTreeWidgetItem *item = static_cast<QTreeWidgetItem *>(ti_ptr);
 
     if (!item) return 0;
 
-    QStackedWidget *stacked_widget = item->data(0, Qt::UserRole).value<QStackedWidget *>();
+    QStackedWidget *stacked_widget = item->data(0, stacked_role_).value<QStackedWidget *>();
 
     if (!stacked_widget) return 0;
 
@@ -170,9 +354,8 @@ module_prefs_show(module_t *module, gpointer ti_ptr)
     /*
      * Add this module to the tree.
      */
-    QTreeWidgetItem *new_item = new QTreeWidgetItem(item);
-    new_item->setText(0, module->title);
-    new_item->setData(0, Qt::UserRole, item->data(0, Qt::UserRole));
+    ModulePrefTreeWidgetItem *new_mpti = new ModulePrefTreeWidgetItem(item, module);
+    new_mpti->setData(0, stacked_role_, item->data(0, stacked_role_));
 
     /*
      * Is this an interior node?
@@ -181,23 +364,8 @@ module_prefs_show(module_t *module, gpointer ti_ptr)
         /*
          * Yes. Walk the subtree and attach stuff to it.
          */
-        prefs_modules_foreach_submodules(module, module_prefs_show, (gpointer) new_item);
+        prefs_modules_foreach_submodules(module, fill_module_prefs, (gpointer) new_mpti);
     }
-
-    /*
-     * We create pages for interior nodes even if they don't have
-     * preferences, so that we at least have something to show
-     * if the user clicks on them, even if it's empty.
-     */
-
-    /* Scrolled window */
-    ModulePreferencesScrollArea *mpsa = new ModulePreferencesScrollArea(module);
-
-    /* Add the page to the notebook */
-    stacked_widget->addWidget(mpsa);
-
-    /* Attach the page to the tree item */
-    new_item->setData(0, Qt::UserRole, qVariantFromValue(qobject_cast<QWidget *>(mpsa)));
 
     return 0;
 }
@@ -251,9 +419,6 @@ module_prefs_clean_stash(module_t *module, gpointer)
 const int appearance_item_ = 0;
 const int capture_item_    = 1;
 
-// We store the saved and current preference values in the "Advanced" tree columns
-const int pref_ptr_col_ = 0;
-
 PreferencesDialog::PreferencesDialog(QWidget *parent) :
     GeometryStateDialog(parent),
     pd_ui_(new Ui::PreferencesDialog),
@@ -270,12 +435,6 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 
     setWindowTitle(wsApp->windowTitleString(tr("Preferences")));
     pd_ui_->advancedTree->invisibleRootItem()->addChildren(tmp_item.takeChildren());
-    QTreeWidgetItemIterator pref_it(pd_ui_->advancedTree, QTreeWidgetItemIterator::NoChildren);
-    while (*pref_it) {
-        updateItem(*(*pref_it));
-        ++pref_it;
-    }
-    qDebug() << "FIX: Auto-size each preference pane.";
 
     pd_ui_->splitter->setStretchFactor(0, 1);
     pd_ui_->splitter->setStretchFactor(1, 5);
@@ -297,11 +456,11 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 
     // PreferencesPane, prefsTree, and stackedWidget must all correspond to each other.
     // This may not be the best way to go about enforcing that.
-    QTreeWidgetItem *item = pd_ui_->prefsTree->itemAt(0,0);
+    QTreeWidgetItem *item = pd_ui_->prefsTree->topLevelItem(0);
     item->setSelected(true);
     pd_ui_->stackedWidget->setCurrentIndex(0);
     for (int i = 0; i < pd_ui_->stackedWidget->count() && item; i++) {
-        item->setData(0, Qt::UserRole, qVariantFromValue(pd_ui_->stackedWidget->widget(i)));
+        item->setData(0, mpsa_role_, qVariantFromValue(pd_ui_->stackedWidget->widget(i)));
         item = pd_ui_->prefsTree->itemBelow(item);
     }
     item = pd_ui_->prefsTree->topLevelItem(0);
@@ -320,8 +479,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     while (tmp_item.childCount() > 0) {
         tmp_item.removeChild(tmp_item.child(0));
     }
-    tmp_item.setData(0, Qt::UserRole, qVariantFromValue(pd_ui_->stackedWidget));
-    prefs_modules_foreach_submodules(NULL, module_prefs_show, (gpointer) &tmp_item);
+    tmp_item.setData(0, stacked_role_, qVariantFromValue(pd_ui_->stackedWidget));
+    prefs_modules_foreach_submodules(NULL, fill_module_prefs, (gpointer) &tmp_item);
     pd_ui_->prefsTree->invisibleRootItem()->insertChildren(
                 pd_ui_->prefsTree->invisibleRootItem()->childCount() - 1, tmp_item.takeChildren());
 }
@@ -343,10 +502,21 @@ void PreferencesDialog::setPane(const QString module_name)
 {
     QTreeWidgetItemIterator pref_it(pd_ui_->prefsTree);
     while (*pref_it) {
-        ModulePreferencesScrollArea *mpsa = qobject_cast<ModulePreferencesScrollArea *>((*pref_it)->data(0, Qt::UserRole).value<QWidget *>());
-        if (mpsa && mpsa->name() == module_name) {
-            pd_ui_->prefsTree->setCurrentItem((*pref_it));
-            break;
+        if ((*pref_it)->type() == module_type_) {
+            ModulePrefTreeWidgetItem *mp_ti = dynamic_cast<ModulePrefTreeWidgetItem *>(*pref_it);
+            // Ensure that the module's scroll area exists and that it's in the
+            // widget stack.
+            if (mp_ti) {
+                QString mpsa_name = (*pref_it)->data(0, module_name_role_).toString();
+                if (mpsa_name == module_name) {
+                    mp_ti->ensureModulePreferencesScrollArea(pd_ui_->stackedWidget);
+                    QWidget *mpsa = (*pref_it)->data(0, mpsa_role_).value<QWidget *>();
+                    if (mpsa) {
+                        pd_ui_->prefsTree->setCurrentItem((*pref_it));
+                        break;
+                    }
+                }
+            }
         }
         ++pref_it;
     }
@@ -367,15 +537,17 @@ void PreferencesDialog::showEvent(QShowEvent *)
     sizes[1] += sizes[0] - new_prefs_tree_width;
     sizes[0] = new_prefs_tree_width;
     pd_ui_->splitter->setSizes(sizes);
-    pd_ui_->splitter->setStretchFactor(0, 0);
+    pd_ui_->splitter->setStretchFactor(0, 1);
 
     pd_ui_->advancedTree->expandAll();
     pd_ui_->advancedTree->setSortingEnabled(true);
     pd_ui_->advancedTree->sortByColumn(0, Qt::AscendingOrder);
-    pd_ui_->advancedTree->setColumnWidth(0, pd_ui_->stackedWidget->width() / 2); // Don't let long items widen things too much
-    pd_ui_->advancedTree->resizeColumnToContents(1);
-    pd_ui_->advancedTree->resizeColumnToContents(2);
-    pd_ui_->advancedTree->resizeColumnToContents(3);
+
+    int one_em = fontMetrics().height();
+    pd_ui_->advancedTree->setColumnWidth(adv_name_col_, one_em * 12); // Don't let long items widen things too much
+    pd_ui_->advancedTree->resizeColumnToContents(adv_status_col_);
+    pd_ui_->advancedTree->resizeColumnToContents(adv_type_col_);
+    pd_ui_->advancedTree->setColumnWidth(adv_value_col_, one_em * 30);
 }
 
 void PreferencesDialog::keyPressEvent(QKeyEvent *evt)
@@ -424,134 +596,51 @@ void PreferencesDialog::keyPressEvent(QKeyEvent *evt)
     QDialog::keyPressEvent(evt);
 }
 
-// Copied from prefs.c:prefs_pref_is_default. We may want to move this to
-// prefs.c as well.
-bool PreferencesDialog::stashedPrefIsDefault(pref_t *pref)
-{
-    if (!pref) return false;
-
-    switch (pref->type) {
-
-    case PREF_UINT:
-        if (pref->default_val.uint == pref->stashed_val.uint)
-            return true;
-        break;
-
-    case PREF_BOOL:
-        if (pref->default_val.boolval == pref->stashed_val.boolval)
-            return true;
-        break;
-
-    case PREF_ENUM:
-        if (pref->default_val.enumval == pref->stashed_val.enumval)
-            return true;
-        break;
-
-    case PREF_STRING:
-    case PREF_FILENAME:
-    case PREF_DIRNAME:
-        if (!(g_strcmp0(pref->default_val.string, pref->stashed_val.string)))
-            return true;
-        break;
-
-    case PREF_RANGE:
-    {
-        if ((ranges_are_equal(pref->default_val.range, pref->stashed_val.range)))
-            return true;
-        break;
-    }
-
-    case PREF_COLOR:
-    {
-        if ((pref->default_val.color.red == pref->stashed_val.color.red) &&
-                (pref->default_val.color.green == pref->stashed_val.color.green) &&
-                (pref->default_val.color.blue == pref->stashed_val.color.blue))
-            return true;
-        break;
-    }
-
-    case PREF_CUSTOM:
-    case PREF_OBSOLETE:
-    case PREF_STATIC_TEXT:
-    case PREF_UAT:
-        return false;
-        break;
-    }
-    return false;
-}
-
-
-void PreferencesDialog::updateItem(QTreeWidgetItem &item)
-{
-    pref_t *pref = item.data(pref_ptr_col_, Qt::UserRole).value<pref_t *>();
-    if (!pref) return;
-
-    QString cur_value = gchar_free_to_qstring(prefs_pref_to_str(pref, pref_stashed)).remove(QRegExp("\n\t"));
-    bool is_changed = false;
-    QFont font = item.font(0);
-
-    if ((pref->type == PREF_UAT && (pref->gui == GUI_ALL || pref->gui == GUI_QT))|| pref->type == PREF_CUSTOM) {
-        item.setText(1, tr("Unknown"));
-    } else if (stashedPrefIsDefault(pref)) {
-        item.setText(1, tr("Default"));
-    } else {
-        item.setText(1, tr("Changed"));
-        is_changed = true;
-    }
-    font.setBold(is_changed);
-    item.setFont(0, font);
-    item.setFont(0, font);
-    item.setFont(1, font);
-    item.setFont(2, font);
-    item.setFont(3, font);
-
-    item.setText(3, cur_value);
-}
-
 void PreferencesDialog::on_prefsTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *)
 {
     if (!current) return;
-    QWidget *new_item = current->data(0, Qt::UserRole).value<QWidget *>();
+    QWidget *new_item = NULL;
+
+    if (current->type() == module_type_) {
+        ModulePrefTreeWidgetItem *mp_ti = dynamic_cast<ModulePrefTreeWidgetItem *>(current);
+        // Ensure that the module's scroll area exists and that it's in the
+        // widget stack.
+        if (mp_ti) mp_ti->ensureModulePreferencesScrollArea(pd_ui_->stackedWidget);
+    }
+
+    new_item = current->data(0, mpsa_role_).value<QWidget *>();
     if (new_item) {
         pd_ui_->stackedWidget->setCurrentWidget(new_item);
-        if (new_item == pd_ui_->advancedFrame) {
-            QTreeWidgetItemIterator it(pd_ui_->advancedTree, QTreeWidgetItemIterator::NoChildren);
-            while (*it) {
-                updateItem(*(*it));
-                ++it;
-            }
-        }
     }
 }
 
 void PreferencesDialog::on_advancedSearchLineEdit_textEdited(const QString &search_re)
 {
-    // Hide or show each branch
     QTreeWidgetItemIterator branch_it(pd_ui_->advancedTree);
     QRegExp regex(search_re, Qt::CaseInsensitive);
+
+    // Hide or show everything
     while (*branch_it) {
-        if ((*branch_it)->data(pref_ptr_col_, Qt::UserRole).value<pref_t *>() == NULL) {
-            (*branch_it)->setHidden(!search_re.isEmpty());
-        }
+        (*branch_it)->setHidden(!search_re.isEmpty());
         ++branch_it;
     }
+    if (search_re.isEmpty()) return;
 
     // Hide or show each item, showing its parents if needed
     QTreeWidgetItemIterator pref_it(pd_ui_->advancedTree);
     while (*pref_it) {
         bool hidden = true;
 
-        if ((*pref_it)->data(pref_ptr_col_, Qt::UserRole).value<pref_t *>()) {
-            QTreeWidgetItem *parent = (*pref_it)->parent();
+        if ((*pref_it)->type() == advanced_type_) {
 
-            if (search_re.isEmpty() ||
-                (*pref_it)->text(0).contains(regex) ||
+            if ((*pref_it)->text(0).contains(regex) ||
                 (*pref_it)->toolTip(0).contains(regex)) {
                 hidden = false;
             }
 
             (*pref_it)->setHidden(hidden);
             if (!hidden) {
+                QTreeWidgetItem *parent = (*pref_it)->parent();
                 while (parent) {
                     parent->setHidden(false);
                     parent = parent->parent();
@@ -571,12 +660,19 @@ void PreferencesDialog::on_advancedTree_currentItemChanged(QTreeWidgetItem *, QT
 
 void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int column)
 {
-    pref_t *pref = item->data(pref_ptr_col_, Qt::UserRole).value<pref_t *>();
+    AdvancedPrefTreeWidgetItem *adv_ti;
+    pref_t *pref = NULL;
+
+    if (item->type() == advanced_type_) {
+        adv_ti = dynamic_cast<AdvancedPrefTreeWidgetItem *>(item);
+        if (adv_ti) pref = adv_ti->pref();
+    }
+
     if (!pref || cur_line_edit_ || cur_combo_box_) return;
 
     if (column < 3) { // Reset to default
         reset_stashed_pref(pref);
-        updateItem(*item);
+        adv_ti->updatePref();
     } else {
         QWidget *editor = NULL;
 
@@ -592,7 +688,7 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
         }
         case PREF_BOOL:
             pref->stashed_val.boolval = !pref->stashed_val.boolval;
-            updateItem(*item);
+            adv_ti->updatePref();
             break;
         case PREF_ENUM:
         {
@@ -631,7 +727,7 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
             if (!filename.isEmpty()) {
                 g_free((void *)pref->stashed_val.string);
                 pref->stashed_val.string = qstring_strdup(QDir::toNativeSeparators(filename));
-                updateItem(*item);
+                adv_ti->updatePref();
             }
             break;
         }
@@ -660,7 +756,7 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
                 pref->stashed_val.color.red = cc.red() << 8 | cc.red();
                 pref->stashed_val.color.green = cc.green() << 8 | cc.green();
                 pref->stashed_val.color.blue = cc.blue() << 8 | cc.blue();
-                updateItem(*item);
+                adv_ti->updatePref();
             }
             break;
         }
@@ -718,53 +814,53 @@ void PreferencesDialog::enumPrefDestroyed()
 
 void PreferencesDialog::uintPrefEditingFinished()
 {
-    QTreeWidgetItem *item = pd_ui_->advancedTree->currentItem();
-    if (!cur_line_edit_ || !item) return;
+    AdvancedPrefTreeWidgetItem *adv_ti = dynamic_cast<AdvancedPrefTreeWidgetItem *>(pd_ui_->advancedTree->currentItem());
+    if (!cur_line_edit_ || !adv_ti) return;
 
-    pref_t *pref = item->data(pref_ptr_col_, Qt::UserRole).value<pref_t *>();
+    pref_t *pref = adv_ti->pref();
     if (!pref) return;
 
     bool ok;
     guint new_val = cur_line_edit_->text().toUInt(&ok, pref->info.base);
 
     if (ok) pref->stashed_val.uint = new_val;
-    pd_ui_->advancedTree->removeItemWidget(item, 3);
-    updateItem(*item);
+    pd_ui_->advancedTree->removeItemWidget(adv_ti, 3);
+    adv_ti->updatePref();
 }
 
 void PreferencesDialog::enumPrefCurrentIndexChanged(int index)
 {
-    QTreeWidgetItem *item = pd_ui_->advancedTree->currentItem();
-    if (!cur_combo_box_ || !item || index < 0) return;
+    AdvancedPrefTreeWidgetItem *adv_ti = dynamic_cast<AdvancedPrefTreeWidgetItem *>(pd_ui_->advancedTree->currentItem());
+    if (!cur_combo_box_ || !adv_ti || index < 0) return;
 
-    pref_t *pref = item->data(pref_ptr_col_, Qt::UserRole).value<pref_t *>();
+    pref_t *pref = adv_ti->pref();
     if (!pref) return;
 
     pref->stashed_val.enumval = cur_combo_box_->itemData(index).toInt();
-    updateItem(*item);
+    adv_ti->updatePref();
 }
 
 void PreferencesDialog::stringPrefEditingFinished()
 {
-    QTreeWidgetItem *item = pd_ui_->advancedTree->currentItem();
-    if (!cur_line_edit_ || !item) return;
+    AdvancedPrefTreeWidgetItem *adv_ti = dynamic_cast<AdvancedPrefTreeWidgetItem *>(pd_ui_->advancedTree->currentItem());
+    if (!cur_line_edit_ || !adv_ti) return;
 
-    pref_t *pref = item->data(pref_ptr_col_, Qt::UserRole).value<pref_t *>();
+    pref_t *pref = adv_ti->pref();
     if (!pref) return;
 
     g_free((void *)pref->stashed_val.string);
     pref->stashed_val.string = qstring_strdup(cur_line_edit_->text());
-    pd_ui_->advancedTree->removeItemWidget(item, 3);
-    updateItem(*item);
+    pd_ui_->advancedTree->removeItemWidget(adv_ti, 3);
+    adv_ti->updatePref();
 }
 
 void PreferencesDialog::rangePrefTextChanged(const QString &text)
 {
     SyntaxLineEdit *syntax_edit = qobject_cast<SyntaxLineEdit *>(cur_line_edit_);
-    QTreeWidgetItem *item = pd_ui_->advancedTree->currentItem();
-    if (!syntax_edit || !item) return;
+    AdvancedPrefTreeWidgetItem *adv_ti = dynamic_cast<AdvancedPrefTreeWidgetItem *>(pd_ui_->advancedTree->currentItem());
+    if (!syntax_edit || !adv_ti) return;
 
-    pref_t *pref = item->data(pref_ptr_col_, Qt::UserRole).value<pref_t *>();
+    pref_t *pref = adv_ti->pref();
     if (!pref) return;
 
     if (text.isEmpty()) {
@@ -785,10 +881,10 @@ void PreferencesDialog::rangePrefTextChanged(const QString &text)
 void PreferencesDialog::rangePrefEditingFinished()
 {
     SyntaxLineEdit *syntax_edit = qobject_cast<SyntaxLineEdit *>(QObject::sender());
-    QTreeWidgetItem *item = pd_ui_->advancedTree->currentItem();
-    if (!syntax_edit || !item) return;
+    AdvancedPrefTreeWidgetItem *adv_ti = dynamic_cast<AdvancedPrefTreeWidgetItem *>(pd_ui_->advancedTree->currentItem());
+    if (!syntax_edit || !adv_ti) return;
 
-    pref_t *pref = item->data(pref_ptr_col_, Qt::UserRole).value<pref_t *>();
+    pref_t *pref = adv_ti->pref();
     if (!pref) return;
 
     range_t *newrange;
@@ -798,8 +894,8 @@ void PreferencesDialog::rangePrefEditingFinished()
         g_free(pref->stashed_val.range);
         pref->stashed_val.range = newrange;
     }
-    pd_ui_->advancedTree->removeItemWidget(item, 3);
-    updateItem(*item);
+    pd_ui_->advancedTree->removeItemWidget(adv_ti, 3);
+    adv_ti->updatePref();
 }
 
 void PreferencesDialog::on_buttonBox_accepted()

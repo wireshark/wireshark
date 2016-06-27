@@ -36,7 +36,6 @@
 class QComboBox;
 
 extern pref_t *prefFromPrefPtr(void *pref_ptr);
-extern guint fill_advanced_prefs(module_t *module, gpointer root_ptr);
 
 namespace Ui {
 class PreferencesDialog;

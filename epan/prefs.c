@@ -2462,7 +2462,7 @@ prefs_register_modules(void)
      * preference "string compare list" in set_pref()
      */
     console_module = prefs_register_module(NULL, "console", "Console",
-        "CONSOLE", NULL, FALSE);
+        "Console logging and debugging output", NULL, FALSE);
 
     custom_cbs.free_cb = custom_pref_no_cb;
     custom_cbs.reset_cb = console_log_level_reset_cb;
@@ -2472,7 +2472,7 @@ prefs_register_modules(void)
     custom_cbs.is_default_cb = console_log_level_is_default_cb;
     custom_cbs.to_str_cb = console_log_level_to_str_cb;
     prefs_register_uint_custom_preference(console_module, "log.level", "logging level",
-        "A bitmask of glib log levels", &custom_cbs, &prefs.console_log_level);
+        "A bitmask of GLib log levels", &custom_cbs, &prefs.console_log_level);
 
     /* Capture
      * These are preferences that can be read/written using the
@@ -2481,7 +2481,7 @@ prefs_register_modules(void)
      * preference "string compare list" in set_pref()
      */
     capture_module = prefs_register_module(NULL, "capture", "Capture",
-        "CAPTURE", NULL, FALSE);
+        "Capture preferences", NULL, FALSE);
 
     register_string_like_preference(capture_module, "device", "Default capture device",
         "Default capture device",
