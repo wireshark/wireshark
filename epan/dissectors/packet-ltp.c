@@ -264,7 +264,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	int sdnv_status;
 
 	proto_tree *ltp_data_tree;
-        proto_item *ti;
+	proto_item *ti;
 
 	fragment_head *frag_msg = NULL;
 	gboolean more_frags = TRUE;
@@ -1025,8 +1025,8 @@ proto_register_ltp(void)
 	static ei_register_info ei[] = {
 		{ &ei_ltp_neg_reception_claim_count, { "ltp.neg_reception_claim_count", PI_UNDECODED, PI_ERROR, "Negative reception claim count", EXPFILL }},
 		{ &ei_ltp_mal_reception_claim, { "ltp.mal_reception_claim", PI_MALFORMED, PI_ERROR, "Reception claim count impossibly large", EXPFILL }},
-                { &ei_ltp_sdnv_length, { "ltp.sdnv_length_invalid", PI_PROTOCOL, PI_ERROR, "SDNV length error", EXPFILL }},
-                { &ei_ltp_sno_larger_than_ccsds, { "ltp.serial_number_too_large", PI_PROTOCOL, PI_WARN, "Serial number larger than CCSDS specification", EXPFILL }}
+		{ &ei_ltp_sdnv_length, { "ltp.sdnv_length_invalid", PI_PROTOCOL, PI_ERROR, "SDNV length error", EXPFILL }},
+		{ &ei_ltp_sno_larger_than_ccsds, { "ltp.serial_number_too_large", PI_PROTOCOL, PI_WARN, "Serial number larger than CCSDS specification", EXPFILL }}
 	};
 
 	expert_module_t* expert_ltp;
