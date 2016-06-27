@@ -265,7 +265,11 @@ public:
 
     // Column text raw representation.
     // Return a string, qulonglong, double, or invalid QVariant representing the raw column data.
+#ifdef HAVE_GEOIP
     QVariant colData(int col, bool resolve_names, bool strings_only) const {
+#else
+    QVariant colData(int col, bool resolve_names, bool strings_only _U_) const {
+#endif
         hostlist_talker_t *endp_item = &g_array_index(conv_array_, hostlist_talker_t, conv_idx_);
 
         if (!endp_item) {
@@ -274,12 +278,12 @@ public:
 
         switch (col) {
         case ENDP_COLUMN_ADDR:
-            {
+        {
             char* addr_str = get_conversation_address(NULL, &endp_item->myaddress, resolve_names);
             QString q_addr_str(addr_str);
             wmem_free(NULL, addr_str);
             return q_addr_str;
-            }
+        }
         case ENDP_COLUMN_PORT:
             if (resolve_names) {
                 char* port_str = get_conversation_port(NULL, endp_item->port, endp_item->ptype, resolve_names);
@@ -340,7 +344,6 @@ public:
             }
 
             return geoip_str;
-            break;
         }
 #else
         default:
@@ -348,6 +351,7 @@ public:
 #endif
         }
     }
+
     virtual QVariant colData(int col, bool resolve_names) const { return colData(col, resolve_names, false); }
 
     bool operator< (const QTreeWidgetItem &other) const
