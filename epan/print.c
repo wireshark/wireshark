@@ -605,7 +605,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 
     /* We print some levels for PDML. Recurse here. */
     if (node->first_child != NULL) {
-        if(check_protocolfilter(pdata->filter, fi->hfinfo->abbrev)) {
+        if (pdata->filter == NULL || check_protocolfilter(pdata->filter, fi->hfinfo->abbrev)) {
             pdata->level++;
             proto_tree_children_foreach(node,
                                         proto_tree_write_node_pdml, pdata);
@@ -816,26 +816,19 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
 
     /* We print some levels for JSON. Recurse here. */
     if (node->first_child != NULL) {
-        if (pdata->filter != NULL) {
-            if(check_protocolfilter(pdata->filter, fi->hfinfo->abbrev)) {
-                pdata->level++;
-                proto_tree_children_foreach(node, proto_tree_write_node_json, pdata);
-                pdata->level--;
-            } else {
-                /* Indent to the correct level */
-                for (i = -4; i < pdata->level; i++) {
-                    fputs("  ", pdata->fh);
-                }
-                /* print dummy field */
-                fputs("\"filtered\": \"", pdata->fh);
-                print_escaped_ek(pdata->fh, fi->hfinfo->abbrev);
-                fputs("\"\n", pdata->fh);
-            }
-        } else {
+        if (pdata->filter == NULL || check_protocolfilter(pdata->filter, fi->hfinfo->abbrev)) {
             pdata->level++;
-            proto_tree_children_foreach(node,
-                                        proto_tree_write_node_json, pdata);
+            proto_tree_children_foreach(node, proto_tree_write_node_json, pdata);
             pdata->level--;
+        } else {
+            /* Indent to the correct level */
+            for (i = -4; i < pdata->level; i++) {
+                fputs("  ", pdata->fh);
+            }
+            /* print dummy field */
+            fputs("\"filtered\": \"", pdata->fh);
+            print_escaped_ek(pdata->fh, fi->hfinfo->abbrev);
+            fputs("\"\n", pdata->fh);
         }
     }
 
@@ -1031,7 +1024,7 @@ proto_tree_write_node_ek(proto_node *node, gpointer data)
 
         if (pdata->filter != NULL) {
 
-          /* to to thread the '.' and '_' equally. The '.' is replace by print_escaped_ek for '_' */
+            /* to to thread the '.' and '_' equally. The '.' is replace by print_escaped_ek for '_' */
             if (fi->hfinfo->abbrev != NULL) {
                 if (strlen(fi->hfinfo->abbrev) > 0) {
                     abbrev_escaped = g_strdup(fi->hfinfo->abbrev);
