@@ -2707,22 +2707,22 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_vht_coding[0],
 		 {"Coding 0", "radiotap.vht.coding.0",
-		  FT_UINT8, BASE_DEC, VALS(mcs_fec), 0x0,
+		  FT_UINT8, BASE_DEC, VALS(mcs_fec), 0x01,
 		  "Coding", HFILL}},
 
 		{&hf_radiotap_vht_coding[1],
 		 {"Coding 1", "radiotap.vht.coding.1",
-		  FT_UINT8, BASE_DEC, VALS(mcs_fec), 0x0,
+		  FT_UINT8, BASE_DEC, VALS(mcs_fec), 0x02,
 		  "Coding", HFILL}},
 
 		{&hf_radiotap_vht_coding[2],
 		 {"Coding 2", "radiotap.vht.coding.2",
-		  FT_UINT8, BASE_DEC, VALS(mcs_fec), 0x0,
+		  FT_UINT8, BASE_DEC, VALS(mcs_fec), 0x04,
 		  "Coding", HFILL}},
 
 		{&hf_radiotap_vht_coding[3],
 		 {"Coding 3", "radiotap.vht.coding.3",
-		  FT_UINT8, BASE_DEC, VALS(mcs_fec), 0x0,
+		  FT_UINT8, BASE_DEC, VALS(mcs_fec), 0x08,
 		  "Coding", HFILL}},
 
 		{&hf_radiotap_vht_datarate[0],
