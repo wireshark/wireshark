@@ -4253,7 +4253,7 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint 
 			 * of the tvbuff: we throw an exception in that
 			 * case.
 			 */
-			*length = tvb_ensure_captured_length_remaining(tvb, start);
+			*length = tvb_captured_length(tvb) ? tvb_ensure_captured_length_remaining(tvb, start) : 0;
 			DISSECTOR_ASSERT(*length >= 0);
 			break;
 
