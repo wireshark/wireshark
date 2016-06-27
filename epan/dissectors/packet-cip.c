@@ -2646,11 +2646,12 @@ static void add_cip_class_to_info_column(packet_info *pinfo, guint32 class_id, i
 {
    cip_req_info_t *cip_req_info;
 
-   /* Skip printing the top level class for Unconnected Sends because it gets
-      too wordy in the Info column, and it's misleading for responses. */
+   /* Skip printing the top level class for certain common messages because it gets
+      too wordy in the Info column. */
    cip_req_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
    if (cip_req_info
-       && (cip_req_info->bService == SC_CM_UNCON_SEND && class_id == CI_CLS_CM))
+       && ((cip_req_info->bService == SC_CM_UNCON_SEND && class_id == CI_CLS_CM)
+       || (cip_req_info->bService == SC_MULT_SERV_PACK && class_id == CI_CLS_MR)))
    {
        return;
    }
@@ -7166,9 +7167,17 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
       proto_item_append_text( status_item, "%s: ", val_to_str_ext( gen_status,
                      &cip_gs_vals_ext , "Unknown Response (%x)")   );
 
-      /* Add reply status to info column */
-      col_append_fstr(pinfo->cinfo, COL_INFO, "%s: ",
-               val_to_str_ext( gen_status, &cip_gs_vals_ext, "Unknown Response (%x)") );
+      if (is_msp_item == FALSE)
+      {
+          /* Add reply status to info column */
+          col_append_fstr(pinfo->cinfo, COL_INFO, "%s: ",
+              val_to_str_ext(gen_status, &cip_gs_vals_ext, "Unknown Response (%x)"));
+      }
+      else
+      {
+          proto_item_append_text(msp_item, "%s: ",
+              val_to_str_ext(gen_status, &cip_gs_vals_ext, "Unknown Response (%x)"));
+      }
 
       /* Add additional status size */
       add_stat_size = tvb_get_guint8( tvb, offset+3 );
