@@ -324,6 +324,8 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
             hfid = proto->hfid;
             type = FT_PROTOCOL;
             ett = proto->ett;
+        } else if (lua_isnil(L, 1)) {
+            return luaL_error(L, "first argument to TreeItem:add is nil!");
         }
     } else {
         hfid = field->hfid;
