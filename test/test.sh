@@ -77,7 +77,7 @@ source $MYDIR/test-backend.sh
 source $MYDIR/config.sh
 
 # needed by some tests
-TEST_OUTDIR="$PWD/$(mktemp -d wstest.XXXXXXXXXX)"
+TEST_OUTDIR="$(mktemp -d 2>/dev/null || mktemp -d ${TMPDIR:-/tmp}/wstest.XXXXXXXXXX)"
 if [ $? -ne 0 ] || [ ! -d "$TEST_OUTDIR" ] || ! cd "$TEST_OUTDIR"; then
 	# Error out if TEST_OUTDIR cannot be created
 	echo "Failed to create directory '$TEST_OUTDIR'"
