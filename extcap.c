@@ -51,6 +51,7 @@
 
 #include "extcap.h"
 #include "extcap_parser.h"
+#include "extcap_spawn.h"
 
 #ifdef _WIN32
 static HANDLE pipe_h = NULL;
@@ -153,29 +154,8 @@ static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
     GDir *dir;
     const gchar *file;
     gboolean keep_going;
-    gint i;
-    gchar **argv;
-#ifdef _WIN32
-    gchar **dll_search_envp;
-    gchar *progfile_dir;
-#endif
 
     keep_going = TRUE;
-
-    argv = (gchar **) g_malloc0(sizeof(gchar *) * (argc + 2));
-
-#ifdef _WIN32
-    /*
-     * Make sure executables can find dependent DLLs and that they're *our*
-     * DLLs: https://msdn.microsoft.com/en-us/library/windows/desktop/ms682586.aspx
-     * Alternatively we could create a simple wrapper exe similar to Create
-     * Hidden Process (http://www.commandline.co.uk/chp/).
-     */
-    dll_search_envp = g_get_environ();
-    progfile_dir = g_strdup_printf("%s;%s", get_progfile_dir(), g_environ_getenv(dll_search_envp, "Path"));
-    dll_search_envp = g_environ_setenv(dll_search_envp, "Path", progfile_dir, TRUE);
-    g_free(progfile_dir);
-#endif
 
     if ((dir = g_dir_open(dirname, 0, NULL)) != NULL) {
         GString *extcap_path = NULL;
@@ -183,37 +163,19 @@ static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
         extcap_path = g_string_new("");
         while (keep_going && (file = g_dir_read_name(dir)) != NULL ) {
             gchar *command_output = NULL;
-            gboolean status = FALSE;
-            gint exit_status = 0;
-            gchar **envp = NULL;
 
             /* full path to extcap binary */
 #ifdef _WIN32
             g_string_printf(extcap_path, "%s\\%s", dirname, file);
-            envp = dll_search_envp;
 #else
             g_string_printf(extcap_path, "%s/%s", dirname, file);
 #endif
             if ( extcap_if_exists(ifname) && !extcap_if_exists_for_extcap(ifname, extcap_path->str ) )
                 continue;
 
-#ifdef _WIN32
-            argv[0] = g_strescape(extcap_path->str, NULL);
-#else
-            argv[0] = g_strdup(extcap_path->str);
-#endif
-            for (i = 0; i < argc; ++i)
-                argv[i+1] = args[i];
-            argv[argc+1] = NULL;
-
-            status = g_spawn_sync(dirname, argv, envp,
-                (GSpawnFlags) 0, NULL, NULL,
-                    &command_output, NULL, &exit_status, NULL);
-
-            if (status && exit_status == 0)
+            if ( extcap_spawn_sync ( (gchar *) dirname, extcap_path->str, argc, args, &command_output ) )
                 keep_going = cb(extcap_path->str, ifname, command_output, cb_data, err_str);
 
-            g_free(argv[0]);
             g_free(command_output);
         }
 
@@ -221,10 +183,6 @@ static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
         g_string_free(extcap_path, TRUE);
     }
 
-#ifdef _WIN32
-    g_strfreev(dll_search_envp);
-#endif
-    g_free(argv);
 }
 
 static gboolean dlt_cb(const gchar *extcap _U_, const gchar *ifname _U_, gchar *output, void *data,
@@ -644,7 +602,7 @@ void extcap_cleanup(capture_options * capture_opts) {
 
         /* skip native interfaces */
         if (interface_opts.if_type != IF_EXTCAP)
-        continue;
+            continue;
 
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
                 "Extcap [%s] - Cleaning up fifo: %s; PID: %d", interface_opts.name,
@@ -730,34 +688,20 @@ static void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
     }
 }
 
-/* call mkfifo for each extcap,
- * returns FALSE if there's an error creating a FIFO */
-gboolean
-extcap_init_interfaces(capture_options *capture_opts)
+static
+GPtrArray * extcap_prepare_arguments(interface_options interface_opts)
 {
-    guint i;
-    interface_options interface_opts;
+	GPtrArray *result = NULL;
+#if ARG_DEBUG
+    gchar **tmp;
+    int tmp_i;
+#endif
 
-    for (i = 0; i < capture_opts->ifaces->len; i++)
-    {
-        GPtrArray *args = NULL;
-        GPid pid = INVALID_EXTCAP_PID;
-        gchar **tmp;
-        int tmp_i;
+	if (interface_opts.if_type == IF_EXTCAP )
+	{
+		result = g_ptr_array_new();
 
-        interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
-
-        /* skip native interfaces */
-        if (interface_opts.if_type != IF_EXTCAP )
-            continue;
-
-        /* create pipe for fifo */
-        if ( ! extcap_create_pipe ( &interface_opts.extcap_fifo ) )
-            return FALSE;
-
-        /* Create extcap call */
-        args = g_ptr_array_new();
-#define add_arg(X) g_ptr_array_add(args, g_strdup(X))
+#define add_arg(X) g_ptr_array_add(result, g_strdup(X))
 
         add_arg(interface_opts.extcap);
         add_arg(EXTCAP_ARGUMENT_RUN_CAPTURE);
@@ -824,26 +768,62 @@ extcap_init_interfaces(capture_options *capture_opts)
         }
         else
         {
-            g_hash_table_foreach_remove(interface_opts.extcap_args, extcap_add_arg_and_remove_cb, args);
+            g_hash_table_foreach_remove(interface_opts.extcap_args, extcap_add_arg_and_remove_cb, result);
         }
         add_arg(NULL);
 #undef add_arg
 
+#if ARG_DEBUG
         /* Dump commandline parameters sent to extcap. */
-        for (tmp = (gchar **)args->pdata, tmp_i = 0; *tmp && **tmp; ++tmp_i, ++tmp)
+        for (tmp = (gchar **)result->pdata, tmp_i = 0; *tmp && **tmp; ++tmp_i, ++tmp)
         {
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "argv[%d]: %s", tmp_i, *tmp);
         }
+#endif
 
-        /* Wireshark for windows crashes here sometimes *
-         * Access violation reading location 0x...      */
-        g_spawn_async(NULL, (gchar **)args->pdata, NULL,
-                    (GSpawnFlags) G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL,
-                    &pid,NULL);
+	}
+
+	return result;
+}
+
+/* call mkfifo for each extcap,
+ * returns FALSE if there's an error creating a FIFO */
+gboolean
+extcap_init_interfaces(capture_options *capture_opts)
+{
+    guint i;
+    interface_options interface_opts;
+
+    for (i = 0; i < capture_opts->ifaces->len; i++)
+    {
+        GPtrArray *args = NULL;
+        GPid pid = INVALID_EXTCAP_PID;
+
+        interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
+
+        /* skip native interfaces */
+        if (interface_opts.if_type != IF_EXTCAP )
+            continue;
+
+        /* create pipe for fifo */
+        if ( ! extcap_create_pipe ( &interface_opts.extcap_fifo ) )
+            return FALSE;
+
+        /* Create extcap call */
+        args = extcap_prepare_arguments(interface_opts);
+
+        interface_opts.extcap_userdata = NULL;
+
+        pid = extcap_spawn_async(&interface_opts, args );
 
         g_ptr_array_foreach(args, (GFunc)g_free, NULL);
         g_ptr_array_free(args, TRUE);
+
+        if ( pid == INVALID_EXTCAP_PID )
+            continue;
+
         interface_opts.extcap_pid = pid;
+
         interface_opts.extcap_child_watch =
             g_child_watch_add(pid, extcap_child_watch_cb, (gpointer)capture_opts);
         capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, i);
@@ -861,60 +841,7 @@ extcap_init_interfaces(capture_options *capture_opts)
          */
         if (pid != INVALID_EXTCAP_PID)
         {
-            DWORD dw;
-            HANDLE handles[2];
-            OVERLAPPED ov;
-            ov.Pointer = 0;
-            ov.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-
-            ConnectNamedPipe(pipe_h, &ov);
-            handles[0] = ov.hEvent;
-            handles[1] = pid;
-
-            if (GetLastError() == ERROR_PIPE_CONNECTED)
-            {
-                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap connected to pipe");
-            }
-            else
-            {
-                dw = WaitForMultipleObjects(2, handles, FALSE, 30000);
-                if (dw == WAIT_OBJECT_0)
-                {
-                    /* ConnectNamedPipe finished. */
-                    DWORD code;
-
-                    code = GetLastError();
-                    if (code == ERROR_IO_PENDING)
-                    {
-                        DWORD dummy;
-                        if (!GetOverlappedResult(ov.hEvent, &ov, &dummy, TRUE))
-                        {
-                            code = GetLastError();
-                        }
-                        else
-                        {
-                            code = ERROR_SUCCESS;
-                        }
-                    }
-
-                    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "ConnectNamedPipe code: %d", code);
-                }
-                else if (dw == (WAIT_OBJECT_0 + 1))
-                {
-                    /* extcap process terminated. */
-                    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap terminated without connecting to pipe!");
-                }
-                else if (dw == WAIT_TIMEOUT)
-                {
-                    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap didn't connect to pipe within 30 seconds!");
-                }
-                else
-                {
-                    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "WaitForMultipleObjects returned 0x%08X. Error %d", dw, GetLastError());
-                }
-            }
-
-            CloseHandle(ov.hEvent);
+            extcap_wait_for_pipe(pipe_h, pid);
         }
 #endif
     }

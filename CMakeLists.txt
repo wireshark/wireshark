@@ -1280,6 +1280,7 @@ if(ENABLE_EXTCAP)
 		${SHARK_COMMON_SRC}
 		extcap.c
 		extcap_parser.c
+		extcap_spawn.c
 	)
 endif()
 

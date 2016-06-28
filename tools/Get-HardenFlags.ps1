@@ -77,8 +77,6 @@ $SoftBins = (
     "libgail.dll",
     "airpcap.dll",
     "comerr32.dll",
-    "gspawn-win32-helper-console.exe",
-    "gspawn-win32-helper.exe",
     "k5sprt32.dll",
     "krb5_32.dll",
     "libatk-1.0-0.dll",

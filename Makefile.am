@@ -383,11 +383,13 @@ GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
 
 EXTCAP_COMMON_SRC = \
 	extcap.c		\
-	extcap_parser.c
+	extcap_parser.c	\
+	extcap_spawn.c
 
 EXTCAP_COMMON_INCLUDES = \
 	extcap.h		\
-	extcap_parser.h
+	extcap_parser.h	\
+	extcap_spawn.h
 
 # sources common for wireshark, tshark, and rawshark
 SHARK_COMMON_SRC = \

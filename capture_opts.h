@@ -233,6 +233,7 @@ typedef struct interface_options_tag {
     gchar            *extcap_fifo;
     GHashTable       *extcap_args;
     GPid              extcap_pid;           /* pid of running process or INVALID_EXTCAP_PID */
+    gpointer          extcap_userdata;
     guint             extcap_child_watch;
 #endif
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE

@@ -125,8 +125,6 @@ foreach(_dll ${GLIB2_DLLS} ${CARES_DLL} ${GCRYPT_DLLS} ${GEOIP_DLL}
 	)
 	set(_all_manifest_contents "${_all_manifest_contents}File \"\${STAGING_DIR}\\${_dll}\"\n")
 endforeach()
-set(_all_manifest_contents "${_all_manifest_contents}File \"\${STAGING_DIR}\\gspawn-${WIRESHARK_TARGET_PLATFORM}-helper.exe\"\n")
-set(_all_manifest_contents "${_all_manifest_contents}File \"\${STAGING_DIR}\\gspawn-${WIRESHARK_TARGET_PLATFORM}-helper-console.exe\"\n")
 foreach(_script "init.lua" "console.lua" "dtd_gen.lua")
 	set(_all_manifest_contents "${_all_manifest_contents}File \"\${STAGING_DIR}\\${_script}\"\n")
 endforeach()
