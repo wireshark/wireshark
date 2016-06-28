@@ -388,8 +388,8 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
 #ifdef HAVE_LIBPCAP
     param_info->start_capture = FALSE;
     param_info->list_link_layer_types = FALSE;
-#endif
     param_info->quit_after_cap = getenv("WIRESHARK_QUIT_AFTER_CAPTURE") ? TRUE : FALSE;
+#endif
     param_info->disable_protocol_slist = NULL;
     param_info->enable_heur_slist = NULL;
     param_info->disable_heur_slist = NULL;
