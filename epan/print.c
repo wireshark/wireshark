@@ -827,7 +827,7 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
             }
             /* print dummy field */
             fputs("\"filtered\": \"", pdata->fh);
-            print_escaped_ek(pdata->fh, fi->hfinfo->abbrev);
+            print_escaped_json(pdata->fh, fi->hfinfo->abbrev);
             fputs("\"\n", pdata->fh);
         }
     }
