@@ -265,7 +265,7 @@ write_json_preamble(FILE *fh)
 
 /* Check if the str match the protocolfilter. json_filter is space
    delimited string and str need to exact-match to one of the value. */
-gboolean check_protocolfilter(gchar **protocolfilter, const char *str)
+static gboolean check_protocolfilter(gchar **protocolfilter, const char *str)
 {
     gboolean res = FALSE;
     gchar **ptr;
