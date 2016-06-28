@@ -35,6 +35,12 @@
  *   Broadcast Call Control (BCC) protocol
  *   (3GPP TS 44.069 version 11.0.0 Release 11)
  *
+ *   Reference [11]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 13.6.0 Release 13)
+ *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
  *
@@ -1118,7 +1124,8 @@ typedef enum
     DE_ADD_UPD_TYPE,                /* [11] 10.5.5.0 Additional Update Type */
     DE_ATTACH_RES,                  /* [7] 10.5.5.1 Attach Result*/
     DE_ATTACH_TYPE,                 /* [7] 10.5.5.2 Attach Type */
-    DE_CIPH_ALG,                    /* [7] 10.5.5.3 Cipher Algorithm */
+    DE_CIPH_ALG,                    /* [7] 10.5.5.3 Ciphering Algorithm */
+    DE_INTEG_PROT_ALG,              /* [11] 10.5.5.3a Integrity Protection Algorithm */
     DE_TMSI_STAT,                   /* [7] 10.5.5.4 TMSI Status */
     DE_DETACH_TYPE,                 /* [7] 10.5.5.5 Detach Type */
     DE_DRX_PARAM,                   /* [7] 10.5.5.6 DRX Parameter */
@@ -1151,7 +1158,8 @@ typedef enum
     DE_PTMSI_TYPE,                  /* [10] 10.5.5.29 P-TMSI type */
     DE_LAI_2,                       /* [10] 10.5.5.30 Location Area Identification 2 */
     DE_NET_RES_ID_CONT,             /* [11] 10.5.5.31 Network resource identifier container */
-    DE_EXT_DRX_PARAMS,              /* 10.5.5.32 Extended DRX parameters */
+    DE_EXT_DRX_PARAMS,              /* [11] 10.5.5.32 Extended DRX parameters */
+    DE_MAC,                         /* [11] 10.5.5.33 Message Authentication Code */
     /* Session Management Information Elements [3] 10.5.6 */
     DE_ACC_POINT_NAME,              /* Access Point Name */
     DE_NET_SAPI,                    /* Network Service Access Point Identifier */
