@@ -51,6 +51,7 @@
 #include <QSpacerItem>
 #include <QTreeWidgetItemIterator>
 
+Q_DECLARE_METATYPE(ModulePreferencesScrollArea *)
 Q_DECLARE_METATYPE(pref_t *)
 Q_DECLARE_METATYPE(QStackedWidget *)
 
