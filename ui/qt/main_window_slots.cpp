@@ -262,8 +262,10 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
     main_ui_->statusBar->showExpert();
 
 finish:
-    if (global_capture_opts.quit_after_cap)
+#ifdef HAVE_LIBPCAP
+    if (quit_after_cap)
         exit(0);
+#endif
     return ret;
 }
 
@@ -621,7 +623,7 @@ void MainWindow::captureCaptureUpdateFinished(capture_session *) {
 
     setWindowIcon(wsApp->normalIcon());
 
-    if (global_capture_opts.quit_after_cap) {
+    if (quit_after_cap) {
         // Command line asked us to quit after capturing.
         // Don't pop up a dialog to ask for unsaved files etc.
         exit(0);
@@ -644,7 +646,7 @@ void MainWindow::captureCaptureFixedFinished(capture_session *) {
 
     setWindowIcon(wsApp->normalIcon());
 
-    if (global_capture_opts.quit_after_cap) {
+    if (quit_after_cap) {
         // Command line asked us to quit after capturing.
         // Don't pop up a dialog to ask for unsaved files etc.
         exit(0);
@@ -668,7 +670,7 @@ void MainWindow::captureCaptureFailed(capture_session *) {
 
     setWindowIcon(wsApp->normalIcon());
 
-    if (global_capture_opts.quit_after_cap) {
+    if (quit_after_cap) {
         // Command line asked us to quit after capturing.
         // Don't pop up a dialog to ask for unsaved files etc.
         exit(0);
@@ -780,8 +782,10 @@ void MainWindow::captureFileClosed() {
     setMenusForSelectedPacket();
     setMenusForSelectedTreeRow();
 
+#ifdef HAVE_LIBPCAP
     if (!global_capture_opts.multi_files_on)
         main_ui_->mainStack->setCurrentWidget(main_welcome_);
+#endif
 }
 
 void MainWindow::captureFileSaveStarted(const QString &file_path)

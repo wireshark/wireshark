@@ -256,6 +256,7 @@ void MainWelcome::appInitialized()
     splash_overlay_ = NULL;
 }
 
+#ifdef HAVE_LIBPCAP
 // Update each selected device cfilter when the user changes the contents
 // of the capture filter lineedit. We do so here so that we don't clobber
 // filters set in the Capture Options / Interfaces dialog or ones set via
@@ -287,6 +288,12 @@ void MainWelcome::captureFilterTextEdited(const QString capture_filter)
     }
     welcome_ui_->interfaceTree->updateToolTips();
 }
+#else
+// No-op if we don't have capturing.
+void MainWelcome::captureFilterTextEdited(const QString)
+{
+}
+#endif
 
 // The interface list selection has changed. At this point the user might
 // have entered a filter or we might have pre-filled one from a number of

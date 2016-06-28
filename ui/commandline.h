@@ -54,6 +54,10 @@ typedef struct commandline_param_info
 
 extern void commandline_other_options(int argc, char *argv[], commandline_param_info_t* param_info, gboolean opt_reset);
 
+#if defined(HAVE_LIBPCAP) || defined(HAVE_EXTCAP)
+gboolean quit_after_cap;        /**< Makes a "capture only mode". Implies -k */
+#endif
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -97,7 +97,6 @@ capture_opts_init(capture_options *capture_opts)
 #endif
     capture_opts->real_time_mode                  = TRUE;
     capture_opts->show_info                       = TRUE;
-    capture_opts->quit_after_cap                  = getenv("WIRESHARK_QUIT_AFTER_CAPTURE") ? TRUE : FALSE;
     capture_opts->restart                         = FALSE;
     capture_opts->orig_save_file                  = NULL;
 
@@ -220,7 +219,6 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "Fileformat          : %s", (capture_opts->use_pcapng) ? "PCAPNG" : "PCAP");
     g_log(log_domain, log_level, "RealTimeMode        : %u", capture_opts->real_time_mode);
     g_log(log_domain, log_level, "ShowInfo            : %u", capture_opts->show_info);
-    g_log(log_domain, log_level, "QuitAfterCap        : %u", capture_opts->quit_after_cap);
 
     g_log(log_domain, log_level, "MultiFilesOn        : %u", capture_opts->multi_files_on);
     g_log(log_domain, log_level, "FileDuration    (%u) : %u", capture_opts->has_file_duration, capture_opts->file_duration);

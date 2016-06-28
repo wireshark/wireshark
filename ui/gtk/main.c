@@ -1508,7 +1508,7 @@ main_capture_cb_capture_update_finished(capture_session *cap_session)
     }
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 
-    if(global_capture_opts.quit_after_cap) {
+    if(quit_after_cap) {
         /* command line asked us to quit after the capture */
         /* don't pop up a dialog to ask for unsaved files etc. */
         main_do_quit();
@@ -1562,7 +1562,7 @@ main_capture_cb_capture_fixed_finished(capture_session *cap_session _U_)
     /* We don't have loaded the capture file, this will be done later.
      * For now we still have simply a blank screen. */
 
-    if(global_capture_opts.quit_after_cap) {
+    if(quit_after_cap) {
         /* command line asked us to quit after the capture */
         /* don't pop up a dialog to ask for unsaved files etc. */
         main_do_quit();
@@ -1614,7 +1614,7 @@ main_capture_cb_capture_failed(capture_session *cap_session _U_)
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 
 
-    if(global_capture_opts.quit_after_cap) {
+    if(quit_after_cap) {
         /* command line asked us to quit after the capture */
         /* don't pop up a dialog to ask for unsaved files etc. */
         main_do_quit();
