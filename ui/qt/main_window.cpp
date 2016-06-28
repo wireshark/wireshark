@@ -31,6 +31,8 @@
 #include <epan/stats_tree_priv.h>
 #include <epan/plugin_if.h>
 
+#include "ui/commandline.h"
+
 #ifdef HAVE_LIBPCAP
 #include "ui/capture.h"
 #include <capchild/capture_session.h>
@@ -249,7 +251,7 @@ vsimple_error_message_box(const char *msg_format, va_list ap)
 #ifdef HAVE_LIBPCAP
     // We want to quit after reading the capture file, hence
     // we don't actually open the error dialog.
-    if (quit_after_cap)
+    if (global_commandline_info.quit_after_cap)
         exit(0);
 #endif
 

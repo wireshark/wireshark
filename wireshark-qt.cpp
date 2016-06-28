@@ -336,7 +336,6 @@ int main(int argc, char *argv[])
 #endif
     GString             *comp_info_str = NULL;
     GString             *runtime_info_str = NULL;
-    commandline_param_info_t commandline_info;
 
     QString              dfilter, read_filter;
 
@@ -590,18 +589,18 @@ int main(int argc, char *argv[])
 
     splash_update(RA_PREFERENCES, NULL, NULL);
 
-    commandline_info.prefs_p = ws_app.readConfigurationFiles(&gdp_path, &dp_path, false);
+    global_commandline_info.prefs_p = ws_app.readConfigurationFiles(&gdp_path, &dp_path, false);
 
     /* Now get our args */
-    commandline_other_options(argc, argv, &commandline_info, TRUE);
+    commandline_other_options(argc, argv, &global_commandline_info, TRUE);
 
     /* Convert some command-line parameters to QStrings */
-    if (commandline_info.cf_name != NULL)
-        cf_name = QString(commandline_info.cf_name);
-    if (commandline_info.rfilter != NULL)
-        read_filter = QString(commandline_info.rfilter);
-    if (commandline_info.dfilter != NULL)
-        dfilter = QString(commandline_info.dfilter);
+    if (global_commandline_info.cf_name != NULL)
+        cf_name = QString(global_commandline_info.cf_name);
+    if (global_commandline_info.rfilter != NULL)
+        read_filter = QString(global_commandline_info.rfilter);
+    if (global_commandline_info.dfilter != NULL)
+        dfilter = QString(global_commandline_info.dfilter);
 
     /* Removed thread code:
      * https://code.wireshark.org/review/gitweb?p=wireshark.git;a=commit;h=9e277ae6154fd04bf6a0a34ec5655a73e5a736a3
@@ -617,18 +616,18 @@ int main(int argc, char *argv[])
 
     fill_in_local_interfaces(main_window_update);
 
-    if (commandline_info.start_capture || commandline_info.list_link_layer_types) {
+    if (global_commandline_info.start_capture || global_commandline_info.list_link_layer_types) {
         /* We're supposed to do a live capture or get a list of link-layer
            types for a live capture device; if the user didn't specify an
            interface to use, pick a default. */
         status = capture_opts_default_iface_if_necessary(&global_capture_opts,
-        ((commandline_info.prefs_p->capture_device) && (*commandline_info.prefs_p->capture_device != '\0')) ? get_if_name(commandline_info.prefs_p->capture_device) : NULL);
+        ((global_commandline_info.prefs_p->capture_device) && (*global_commandline_info.prefs_p->capture_device != '\0')) ? get_if_name(global_commandline_info.prefs_p->capture_device) : NULL);
         if (status != 0) {
             exit(status);
         }
     }
 
-    if (commandline_info.list_link_layer_types) {
+    if (global_commandline_info.list_link_layer_types) {
         /* Get the list of link-layer types for the capture devices. */
         if_capabilities_t *caps;
         guint i;
@@ -702,31 +701,31 @@ int main(int argc, char *argv[])
         set_disabled_heur_dissector_list();
     }
 
-    if(commandline_info.disable_protocol_slist) {
+    if(global_commandline_info.disable_protocol_slist) {
         GSList *proto_disable;
-        for (proto_disable = commandline_info.disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
+        for (proto_disable = global_commandline_info.disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
         {
             proto_disable_proto_by_name((char*)proto_disable->data);
         }
     }
 
-    if(commandline_info.enable_heur_slist) {
+    if(global_commandline_info.enable_heur_slist) {
         GSList *heur_enable;
-        for (heur_enable = commandline_info.enable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable))
+        for (heur_enable = global_commandline_info.enable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable))
         {
             proto_enable_heuristic_by_name((char*)heur_enable->data, TRUE);
         }
     }
 
-    if(commandline_info.disable_heur_slist) {
+    if(global_commandline_info.disable_heur_slist) {
         GSList *heur_disable;
-        for (heur_disable = commandline_info.disable_heur_slist; heur_disable != NULL; heur_disable = g_slist_next(heur_disable))
+        for (heur_disable = global_commandline_info.disable_heur_slist; heur_disable != NULL; heur_disable = g_slist_next(heur_disable))
         {
             proto_enable_heuristic_by_name((char*)heur_disable->data, FALSE);
         }
     }
 
-    build_column_format_array(&CaptureFile::globalCapFile()->cinfo, commandline_info.prefs_p->num_cols, TRUE);
+    build_column_format_array(&CaptureFile::globalCapFile()->cinfo, global_commandline_info.prefs_p->num_cols, TRUE);
     wsApp->emitAppSignal(WiresharkApplication::ColumnsChanged); // We read "recent" widths above.
     wsApp->emitAppSignal(WiresharkApplication::RecentFilesRead); // Must be emitted after PreferencesChanged.
 
@@ -764,7 +763,7 @@ int main(int argc, char *argv[])
 
 #ifdef HAVE_LIBPCAP
     /* if the user didn't supply a capture filter, use the one to filter out remote connections like SSH */
-    if (!commandline_info.start_capture && !global_capture_opts.default_options.cfilter) {
+    if (!global_commandline_info.start_capture && !global_capture_opts.default_options.cfilter) {
         global_capture_opts.default_options.cfilter = g_strdup(get_conn_cfilter());
     }
 #else /* HAVE_LIBPCAP */
@@ -790,32 +789,32 @@ int main(int argc, char *argv[])
                filter. */
             start_requested_stats();
 
-            if(commandline_info.go_to_packet != 0) {
+            if(global_commandline_info.go_to_packet != 0) {
                 /* Jump to the specified frame number, kept for backward
                    compatibility. */
-                cf_goto_frame(CaptureFile::globalCapFile(), commandline_info.go_to_packet);
-            } else if (commandline_info.jfilter != NULL) {
+                cf_goto_frame(CaptureFile::globalCapFile(), global_commandline_info.go_to_packet);
+            } else if (global_commandline_info.jfilter != NULL) {
                 dfilter_t *jump_to_filter = NULL;
                 /* try to compile given filter */
-                if (!dfilter_compile(commandline_info.jfilter, &jump_to_filter, &err_msg)) {
+                if (!dfilter_compile(global_commandline_info.jfilter, &jump_to_filter, &err_msg)) {
                     // Similar code in MainWindow::mergeCaptureFile().
                     QMessageBox::warning(main_w, QObject::tr("Invalid Display Filter"),
                                          QObject::tr("The filter expression %1 isn't a valid display filter. (%2).")
-                                                 .arg(commandline_info.jfilter, err_msg),
+                                                 .arg(global_commandline_info.jfilter, err_msg),
                                          QMessageBox::Ok);
                     g_free(err_msg);
                 } else {
                     /* Filter ok, jump to the first packet matching the filter
                        conditions. Default search direction is forward, but if
                        option d was given, search backwards */
-                    cf_find_packet_dfilter(CaptureFile::globalCapFile(), jump_to_filter, commandline_info.jump_backwards);
+                    cf_find_packet_dfilter(CaptureFile::globalCapFile(), jump_to_filter, global_commandline_info.jump_backwards);
                 }
             }
         }
     }
 #ifdef HAVE_LIBPCAP
     else {
-        if (commandline_info.start_capture) {
+        if (global_commandline_info.start_capture) {
             if (global_capture_opts.save_file != NULL) {
                 /* Save the directory name for future file dialogs. */
                 /* (get_dirname overwrites filename) */
@@ -844,7 +843,7 @@ int main(int argc, char *argv[])
             }
         }
     /* if the user didn't supply a capture filter, use the one to filter out remote connections like SSH */
-        if (!commandline_info.start_capture && !global_capture_opts.default_options.cfilter) {
+        if (!global_commandline_info.start_capture && !global_capture_opts.default_options.cfilter) {
             global_capture_opts.default_options.cfilter = g_strdup(get_conn_cfilter());
         }
     }

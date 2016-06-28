@@ -69,8 +69,6 @@
 
 #if defined(HAVE_LIBPCAP) || defined(HAVE_EXTCAP)
 capture_options global_capture_opts;
-
-gboolean quit_after_cap;
 #endif
 
 void
@@ -391,11 +389,10 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
     param_info->start_capture = FALSE;
     param_info->list_link_layer_types = FALSE;
 #endif
+    param_info->quit_after_cap = getenv("WIRESHARK_QUIT_AFTER_CAPTURE") ? TRUE : FALSE;
     param_info->disable_protocol_slist = NULL;
     param_info->enable_heur_slist = NULL;
     param_info->disable_heur_slist = NULL;
-
-    quit_after_cap = getenv("WIRESHARK_QUIT_AFTER_CAPTURE") ? TRUE : FALSE;
 
     while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {

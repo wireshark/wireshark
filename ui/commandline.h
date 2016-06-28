@@ -38,6 +38,7 @@ typedef struct commandline_param_info
 #ifdef HAVE_LIBPCAP
     gboolean list_link_layer_types;
     gboolean start_capture;
+    gboolean quit_after_cap;
 #endif
     e_prefs *prefs_p;
     search_direction jump_backwards;
@@ -54,9 +55,7 @@ typedef struct commandline_param_info
 
 extern void commandline_other_options(int argc, char *argv[], commandline_param_info_t* param_info, gboolean opt_reset);
 
-#if defined(HAVE_LIBPCAP) || defined(HAVE_EXTCAP)
-gboolean quit_after_cap;        /**< Makes a "capture only mode". Implies -k */
-#endif
+static commandline_param_info_t global_commandline_info;
 
 #ifdef __cplusplus
 }

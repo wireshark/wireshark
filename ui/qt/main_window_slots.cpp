@@ -34,6 +34,8 @@
 #include <windows.h>
 #endif
 
+#include "ui/commandline.h"
+
 #ifdef HAVE_LIBPCAP
 #include "ui/capture.h"
 #endif
@@ -263,7 +265,7 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
 
 finish:
 #ifdef HAVE_LIBPCAP
-    if (quit_after_cap)
+    if (global_commandline_info.quit_after_cap)
         exit(0);
 #endif
     return ret;
@@ -623,7 +625,7 @@ void MainWindow::captureCaptureUpdateFinished(capture_session *) {
 
     setWindowIcon(wsApp->normalIcon());
 
-    if (quit_after_cap) {
+    if (global_commandline_info.quit_after_cap) {
         // Command line asked us to quit after capturing.
         // Don't pop up a dialog to ask for unsaved files etc.
         exit(0);
@@ -646,7 +648,7 @@ void MainWindow::captureCaptureFixedFinished(capture_session *) {
 
     setWindowIcon(wsApp->normalIcon());
 
-    if (quit_after_cap) {
+    if (global_commandline_info.quit_after_cap) {
         // Command line asked us to quit after capturing.
         // Don't pop up a dialog to ask for unsaved files etc.
         exit(0);
@@ -670,7 +672,7 @@ void MainWindow::captureCaptureFailed(capture_session *) {
 
     setWindowIcon(wsApp->normalIcon());
 
-    if (quit_after_cap) {
+    if (global_commandline_info.quit_after_cap) {
         // Command line asked us to quit after capturing.
         // Don't pop up a dialog to ask for unsaved files etc.
         exit(0);

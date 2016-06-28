@@ -1508,7 +1508,7 @@ main_capture_cb_capture_update_finished(capture_session *cap_session)
     }
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 
-    if(quit_after_cap) {
+    if(global_commandline_info.quit_after_cap) {
         /* command line asked us to quit after the capture */
         /* don't pop up a dialog to ask for unsaved files etc. */
         main_do_quit();
@@ -1562,7 +1562,7 @@ main_capture_cb_capture_fixed_finished(capture_session *cap_session _U_)
     /* We don't have loaded the capture file, this will be done later.
      * For now we still have simply a blank screen. */
 
-    if(quit_after_cap) {
+    if(global_commandline_info.quit_after_cap) {
         /* command line asked us to quit after the capture */
         /* don't pop up a dialog to ask for unsaved files etc. */
         main_do_quit();
@@ -1614,7 +1614,7 @@ main_capture_cb_capture_failed(capture_session *cap_session _U_)
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 
 
-    if(quit_after_cap) {
+    if(global_commandline_info.quit_after_cap) {
         /* command line asked us to quit after the capture */
         /* don't pop up a dialog to ask for unsaved files etc. */
         main_do_quit();
@@ -2087,7 +2087,6 @@ main(int argc, char *argv[])
 #endif
     GString             *comp_info_str = NULL;
     GString             *runtime_info_str = NULL;
-    commandline_param_info_t commandline_info;
 
 #ifdef HAVE_GDK_GRESOURCE
     main_register_resource();
@@ -2341,7 +2340,7 @@ main(int argc, char *argv[])
 
     splash_update(RA_PREFERENCES, NULL, (gpointer)splash_win);
 
-    commandline_info.prefs_p = read_configuration_files (&gdp_path, &dp_path);
+    global_commandline_info.prefs_p = read_configuration_files (&gdp_path, &dp_path);
     /* Removed thread code:
      * https://code.wireshark.org/review/gitweb?p=wireshark.git;a=commit;h=9e277ae6154fd04bf6a0a34ec5655a73e5a736a3
      */
@@ -2358,25 +2357,25 @@ main(int argc, char *argv[])
 #endif*/
 
     /* Now get our args */
-    commandline_other_options(argc, argv, &commandline_info, TRUE);
+    commandline_other_options(argc, argv, &global_commandline_info, TRUE);
 
 #ifdef HAVE_LIBPCAP
     splash_update(RA_INTERFACES, NULL, (gpointer)splash_win);
 
     fill_in_local_interfaces(main_window_update);
 
-    if (commandline_info.start_capture || commandline_info.list_link_layer_types) {
+    if (global_commandline_info.start_capture || global_commandline_info.list_link_layer_types) {
         /* We're supposed to do a live capture or get a list of link-layer
            types for a live capture device; if the user didn't specify an
            interface to use, pick a default. */
         status = capture_opts_default_iface_if_necessary(&global_capture_opts,
-        ((commandline_info.prefs_p->capture_device) && (*commandline_info.prefs_p->capture_device != '\0')) ? get_if_name(commandline_info.prefs_p->capture_device) : NULL);
+        ((global_commandline_info.prefs_p->capture_device) && (*global_commandline_info.prefs_p->capture_device != '\0')) ? get_if_name(global_commandline_info.prefs_p->capture_device) : NULL);
         if (status != 0) {
             exit(status);
         }
     }
 
-    if (commandline_info.list_link_layer_types) {
+    if (global_commandline_info.list_link_layer_types) {
         /* Get the list of link-layer types for the capture devices. */
         if_capabilities_t *caps;
         guint i;
@@ -2435,8 +2434,8 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
     if ((global_capture_opts.num_selected == 0) &&
         ((prefs.capture_device != NULL) &&
-         (commandline_info.prefs_p != NULL) &&
-         (*commandline_info.prefs_p->capture_device != '\0'))) {
+         (global_commandline_info.prefs_p != NULL) &&
+         (*global_commandline_info.prefs_p->capture_device != '\0'))) {
         guint i;
         interface_t device;
         for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
@@ -2465,31 +2464,31 @@ main(int argc, char *argv[])
         set_disabled_heur_dissector_list();
     }
 
-    if(commandline_info.disable_protocol_slist) {
+    if(global_commandline_info.disable_protocol_slist) {
         GSList *proto_disable;
-        for (proto_disable = commandline_info.disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
+        for (proto_disable = global_commandline_info.disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
         {
             proto_disable_proto_by_name((char*)proto_disable->data);
         }
     }
 
-    if(commandline_info.enable_heur_slist) {
+    if(global_commandline_info.enable_heur_slist) {
         GSList *heur_enable;
-        for (heur_enable = commandline_info.enable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable))
+        for (heur_enable = global_commandline_info.enable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable))
         {
             proto_enable_heuristic_by_name((char*)heur_enable->data, TRUE);
         }
     }
 
-    if(commandline_info.disable_heur_slist) {
+    if(global_commandline_info.disable_heur_slist) {
         GSList *heur_disable;
-        for (heur_disable = commandline_info.disable_heur_slist; heur_disable != NULL; heur_disable = g_slist_next(heur_disable))
+        for (heur_disable = global_commandline_info.disable_heur_slist; heur_disable != NULL; heur_disable = g_slist_next(heur_disable))
         {
             proto_enable_heuristic_by_name((char*)heur_disable->data, FALSE);
         }
     }
 
-    build_column_format_array(&cfile.cinfo, commandline_info.prefs_p->num_cols, TRUE);
+    build_column_format_array(&cfile.cinfo, global_commandline_info.prefs_p->num_cols, TRUE);
 
     /* read in rc file from global and personal configuration paths. */
     rc_file = get_datafile_path(RC_FILE);
@@ -2516,7 +2515,7 @@ main(int argc, char *argv[])
     /* Everything is prepared now, preferences and command line was read in */
 
     /* Pop up the main window. */
-    create_main_window(pl_size, tv_size, bv_size, commandline_info.prefs_p);
+    create_main_window(pl_size, tv_size, bv_size, global_commandline_info.prefs_p);
 
     /* Read the dynamic part of the recent file, as we have the gui now ready for it. */
     if (!recent_read_dynamic(&rf_path, &rf_open_errno)) {
@@ -2578,7 +2577,7 @@ main(int argc, char *argv[])
     g_timeout_add(info_update_freq, resolv_update_cb, NULL);
 
     /* this is to keep tap extensions updating once every 3 seconds */
-    tap_update_timer_id = g_timeout_add(commandline_info.prefs_p->tap_update_interval, tap_update_cb, NULL);
+    tap_update_timer_id = g_timeout_add(global_commandline_info.prefs_p->tap_update_interval, tap_update_cb, NULL);
 
     /* If we were given the name of a capture file, read it in now;
      we defer it until now, so that, if we can't open it, and pop
@@ -2586,12 +2585,12 @@ main(int argc, char *argv[])
      top of the main window - but before the preference-file-error
      alert box, so, if we get one of those, it's more likely to come
      up on top of us. */
-    if (commandline_info.cf_name) {
+    if (global_commandline_info.cf_name) {
         show_main_window(TRUE);
-        check_and_warn_user_startup(commandline_info.cf_name);
-        if (commandline_info.rfilter != NULL) {
-            if (!dfilter_compile(commandline_info.rfilter, &rfcode, &err_msg)) {
-                bad_dfilter_alert_box(top_level, commandline_info.rfilter, err_msg);
+        check_and_warn_user_startup(global_commandline_info.cf_name);
+        if (global_commandline_info.rfilter != NULL) {
+            if (!dfilter_compile(global_commandline_info.rfilter, &rfcode, &err_msg)) {
+                bad_dfilter_alert_box(top_level, global_commandline_info.rfilter, err_msg);
                 g_free(err_msg);
                 rfilter_parse_failed = TRUE;
             }
@@ -2600,7 +2599,7 @@ main(int argc, char *argv[])
             in_file_type = open_info_name_to_type(ex_opt_get_next("read_format"));
         }
         if (!rfilter_parse_failed) {
-            if (cf_open(&cfile, commandline_info.cf_name, in_file_type, FALSE, &err) == CF_OK) {
+            if (cf_open(&cfile, global_commandline_info.cf_name, in_file_type, FALSE, &err) == CF_OK) {
                 /* "cf_open()" succeeded, so it closed the previous
                  capture file, and thus destroyed any previous read filter
                  attached to "cf". */
@@ -2624,20 +2623,20 @@ main(int argc, char *argv[])
                            to read any of the file; we handle what we could get from the
                            file. */
                         /* if the user told us to jump to a specific packet, do it now */
-                        if(commandline_info.go_to_packet != 0) {
+                        if(global_commandline_info.go_to_packet != 0) {
                             /* Jump to the specified frame number, kept for backward
                                compatibility. */
-                            cf_goto_frame(&cfile, commandline_info.go_to_packet);
-                        } else if (commandline_info.jfilter != NULL) {
+                            cf_goto_frame(&cfile, global_commandline_info.go_to_packet);
+                        } else if (global_commandline_info.jfilter != NULL) {
                             /* try to compile given filter */
-                            if (!dfilter_compile(commandline_info.jfilter, &jump_to_filter, &err_msg)) {
-                                bad_dfilter_alert_box(top_level, commandline_info.jfilter, err_msg);
+                            if (!dfilter_compile(global_commandline_info.jfilter, &jump_to_filter, &err_msg)) {
+                                bad_dfilter_alert_box(top_level, global_commandline_info.jfilter, err_msg);
                                 g_free(err_msg);
                             } else {
                             /* Filter ok, jump to the first packet matching the filter
                                conditions. Default search direction is forward, but if
                                option d was given, search backwards */
-                            cf_find_packet_dfilter(&cfile, jump_to_filter, commandline_info.jump_backwards);
+                            cf_find_packet_dfilter(&cfile, jump_to_filter, global_commandline_info.jump_backwards);
                             }
                         }
                         break;
@@ -2650,10 +2649,10 @@ main(int argc, char *argv[])
 
                 /* If the filename is not the absolute path, prepend the current dir. This happens
                    when wireshark is invoked from a cmd shell (e.g.,'wireshark -r file.pcap'). */
-                if (!g_path_is_absolute(commandline_info.cf_name)) {
-                    char *old_cf_name = commandline_info.cf_name;
+                if (!g_path_is_absolute(global_commandline_info.cf_name)) {
+                    char *old_cf_name = global_commandline_info.cf_name;
                     char *pwd = g_get_current_dir();
-                    commandline_info.cf_name = g_strdup_printf("%s%s%s", pwd, G_DIR_SEPARATOR_S, commandline_info.cf_name);
+                    global_commandline_info.cf_name = g_strdup_printf("%s%s%s", pwd, G_DIR_SEPARATOR_S, global_commandline_info.cf_name);
                     g_free(old_cf_name);
                     g_free(pwd);
                 }
@@ -2662,10 +2661,10 @@ main(int argc, char *argv[])
                    path name, if any; we can write over cf_name, which is a
                    good thing, given that "get_dirname()" does write over its
                    argument. */
-                s = get_dirname(commandline_info.cf_name);
+                s = get_dirname(global_commandline_info.cf_name);
                 set_last_open_dir(s);
-                g_free(commandline_info.cf_name);
-                commandline_info.cf_name = NULL;
+                g_free(global_commandline_info.cf_name);
+                global_commandline_info.cf_name = NULL;
             } else {
                 if (rfcode != NULL)
                     dfilter_free(rfcode);
@@ -2678,7 +2677,7 @@ main(int argc, char *argv[])
         }
     } else {
 #ifdef HAVE_LIBPCAP
-        if (commandline_info.start_capture) {
+        if (global_commandline_info.start_capture) {
             if (global_capture_opts.save_file != NULL) {
                 /* Save the directory name for future file dialogs. */
                 /* (get_dirname overwrites filename) */
@@ -2688,7 +2687,7 @@ main(int argc, char *argv[])
             }
             /* "-k" was specified; start a capture. */
             show_main_window(FALSE);
-            check_and_warn_user_startup(commandline_info.cf_name);
+            check_and_warn_user_startup(global_commandline_info.cf_name);
 
             /* If no user interfaces were specified on the command line,
                copy the list of selected interfaces to the set of interfaces
@@ -2706,29 +2705,29 @@ main(int argc, char *argv[])
             }
         } else {
             show_main_window(FALSE);
-            check_and_warn_user_startup(commandline_info.cf_name);
+            check_and_warn_user_startup(global_commandline_info.cf_name);
             main_set_for_capture_in_progress(FALSE);
             set_capture_if_dialog_for_capture_in_progress(FALSE);
         }
     /* if the user didn't supply a capture filter, use the one to filter out remote connections like SSH */
-        if (!commandline_info.start_capture && !global_capture_opts.default_options.cfilter) {
+        if (!global_commandline_info.start_capture && !global_capture_opts.default_options.cfilter) {
             global_capture_opts.default_options.cfilter = g_strdup(get_conn_cfilter());
         }
 #else /* HAVE_LIBPCAP */
         show_main_window(FALSE);
-        check_and_warn_user_startup(commandline_info.cf_name);
+        check_and_warn_user_startup(global_commandline_info.cf_name);
         main_set_for_capture_in_progress(FALSE);
         set_capture_if_dialog_for_capture_in_progress(FALSE);
 #endif /* HAVE_LIBPCAP */
     }
 
-    if (commandline_info.dfilter) {
+    if (global_commandline_info.dfilter) {
         GtkWidget *filter_te;
         filter_te = gtk_bin_get_child(GTK_BIN(g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY)));
-        gtk_entry_set_text(GTK_ENTRY(filter_te), commandline_info.dfilter);
+        gtk_entry_set_text(GTK_ENTRY(filter_te), global_commandline_info.dfilter);
 
         /* Run the display filter so it goes in effect. */
-        main_filter_packets(&cfile, commandline_info.dfilter, FALSE);
+        main_filter_packets(&cfile, global_commandline_info.dfilter, FALSE);
     }
 
     profile_store_persconffiles (FALSE);
