@@ -76,6 +76,7 @@ OverlayScrollBar::OverlayScrollBar(Qt::Orientation orientation, QWidget *parent)
     packet_map_img_(QImage()),
     packet_map_width_(0),
     marked_packet_width_(0),
+    packet_count_(-1),
     start_pos_(-1),
     end_pos_(-1),
     selected_pos_(-1)
@@ -99,10 +100,11 @@ QSize OverlayScrollBar::sizeHint() const
                  QScrollBar::sizeHint().height());
 }
 
-void OverlayScrollBar::setNearOverlayImage(QImage &overlay_image, int start_pos, int end_pos, int selected_pos)
+void OverlayScrollBar::setNearOverlayImage(QImage &overlay_image, int packet_count, int start_pos, int end_pos, int selected_pos)
 {
     int old_width = packet_map_img_.width();
     packet_map_img_ = overlay_image;
+    packet_count_ = packet_count;
     start_pos_ = start_pos;
     end_pos_ = end_pos;
     selected_pos_ = selected_pos;
@@ -242,11 +244,13 @@ void OverlayScrollBar::mouseReleaseEvent(QMouseEvent *event)
 {
     QRect pm_r(0, 0, packet_map_width_, height());
 
-    if (pm_r.contains(event->pos())) {
-        qreal map_ratio = qreal(end_pos_ - start_pos_) / geometry().height();
+    if (pm_r.contains(event->pos()) && geometry().height() > 0 && packet_count_ > 0 && pageStep() > 0) {
+        double map_ratio = double(end_pos_ - start_pos_) / geometry().height();
+        int clicked_packet = (event->pos().y() * map_ratio) + start_pos_;
+        double packet_to_sb_value = double(maximum() - minimum()) / packet_count_;
+        int top_pad = pageStep() / 4; // Land near, but not at, the top.
 
-        // Try to put the clicked packet near but not at the top.
-        setValue((event->pos().y() * map_ratio) + start_pos_ - (pageStep() / 4));
+        setValue((clicked_packet * packet_to_sb_value) + top_pad);
     }
 }
 

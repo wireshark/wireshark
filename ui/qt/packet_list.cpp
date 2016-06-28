@@ -1565,7 +1565,7 @@ void PacketList::drawNearOverlay()
             }
         }
 
-        overlay_sb_->setNearOverlayImage(overlay, start, end, selected_pos);
+        overlay_sb_->setNearOverlayImage(overlay, packet_list_model_->rowCount(), start, end, selected_pos);
     } else {
         QImage overlay;
         overlay_sb_->setNearOverlayImage(overlay);
