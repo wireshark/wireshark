@@ -1389,6 +1389,10 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
     const char *p;
     char        temp_str[8];
 
+    if (fh == NULL || unescaped_string == NULL) {
+        return;
+    }
+
     for (p = unescaped_string; *p != '\0'; p++) {
         switch (*p) {
         case '&':
@@ -1422,6 +1426,10 @@ print_escaped_bare(FILE *fh, const char *unescaped_string, gboolean change_dot)
 {
     const char *p;
     char        temp_str[8];
+
+    if (fh == NULL || unescaped_string == NULL) {
+        return;
+    }
 
     for (p = unescaped_string; *p != '\0'; p++) {
         switch (*p) {
