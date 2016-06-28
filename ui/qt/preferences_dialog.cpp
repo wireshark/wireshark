@@ -75,9 +75,9 @@ enum {
 };
 
 enum {
-    stacked_role_ = Qt::UserRole + 1,
-    module_name_role_,
-    mpsa_role_
+    stacked_role_ = Qt::UserRole + 1,   // pd_ui_->stackedWidget
+    module_name_role_,                  // QString
+    mpsa_role_                          // QWidget *
 };
 
 class AdvancedPrefTreeWidgetItem : public QTreeWidgetItem
@@ -254,7 +254,7 @@ public:
 
 private:
     module_t *module_;
-    ModulePreferencesScrollArea *mpsa_;
+    QWidget *mpsa_;
 };
 
 extern "C" {
@@ -499,6 +499,7 @@ void PreferencesDialog::setPane(PreferencesDialog::PreferencesPane start_pane)
     }
 }
 
+// Only valid for ModulePrefTreeWidgetItems.
 void PreferencesDialog::setPane(const QString module_name)
 {
     QTreeWidgetItemIterator pref_it(pd_ui_->prefsTree);
@@ -602,17 +603,18 @@ void PreferencesDialog::on_prefsTree_currentItemChanged(QTreeWidgetItem *current
     if (!current) return;
     QWidget *new_item = NULL;
 
+    // "current" might be a QTreeWidgetItem from our .ui file, e.g. "Columns"
+    // or a ModulePrefTreeWidgetItem created by fill_module_prefs, e.g. a
+    // protocol preference. If it's the latter, ensure that the module's
+    // scroll area exists and that it's in the widget stack.
     if (current->type() == module_type_) {
         ModulePrefTreeWidgetItem *mp_ti = dynamic_cast<ModulePrefTreeWidgetItem *>(current);
-        // Ensure that the module's scroll area exists and that it's in the
-        // widget stack.
         if (mp_ti) mp_ti->ensureModulePreferencesScrollArea(pd_ui_->stackedWidget);
     }
 
     new_item = current->data(0, mpsa_role_).value<QWidget *>();
-    if (new_item) {
-        pd_ui_->stackedWidget->setCurrentWidget(new_item);
-    }
+    g_assert(new_item != NULL);
+    pd_ui_->stackedWidget->setCurrentWidget(new_item);
 }
 
 void PreferencesDialog::on_advancedSearchLineEdit_textEdited(const QString &search_re)
