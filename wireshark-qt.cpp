@@ -592,7 +592,7 @@ int main(int argc, char *argv[])
     global_commandline_info.prefs_p = ws_app.readConfigurationFiles(&gdp_path, &dp_path, false);
 
     /* Now get our args */
-    commandline_other_options(argc, argv, &global_commandline_info, TRUE);
+    commandline_other_options(argc, argv, TRUE);
 
     /* Convert some command-line parameters to QStrings */
     if (global_commandline_info.cf_name != NULL)

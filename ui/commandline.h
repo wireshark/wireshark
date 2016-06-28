@@ -53,7 +53,7 @@ typedef struct commandline_param_info
 
 } commandline_param_info_t;
 
-extern void commandline_other_options(int argc, char *argv[], commandline_param_info_t* param_info, gboolean opt_reset);
+extern void commandline_other_options(int argc, char *argv[], gboolean opt_reset);
 
 static commandline_param_info_t global_commandline_info;
 

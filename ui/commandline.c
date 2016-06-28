@@ -331,7 +331,7 @@ void commandline_early_options(int argc, char *argv[],
 #endif
 }
 
-void commandline_other_options(int argc, char *argv[], commandline_param_info_t* param_info, gboolean opt_reset)
+void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
 {
     int opt;
     gboolean arg_error = FALSE;
@@ -379,20 +379,20 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
     }
 
     /* Initialize with default values */
-    param_info->jump_backwards = SD_FORWARD;
-    param_info->go_to_packet = 0;
-    param_info->jfilter = NULL;
-    param_info->cf_name = NULL;
-    param_info->rfilter = NULL;
-    param_info->dfilter = NULL;
+    global_commandline_info.jump_backwards = SD_FORWARD;
+    global_commandline_info.go_to_packet = 0;
+    global_commandline_info.jfilter = NULL;
+    global_commandline_info.cf_name = NULL;
+    global_commandline_info.rfilter = NULL;
+    global_commandline_info.dfilter = NULL;
 #ifdef HAVE_LIBPCAP
-    param_info->start_capture = FALSE;
-    param_info->list_link_layer_types = FALSE;
-    param_info->quit_after_cap = getenv("WIRESHARK_QUIT_AFTER_CAPTURE") ? TRUE : FALSE;
+    global_commandline_info.start_capture = FALSE;
+    global_commandline_info.list_link_layer_types = FALSE;
+    global_commandline_info.quit_after_cap = getenv("WIRESHARK_QUIT_AFTER_CAPTURE") ? TRUE : FALSE;
 #endif
-    param_info->disable_protocol_slist = NULL;
-    param_info->enable_heur_slist = NULL;
-    param_info->disable_heur_slist = NULL;
+    global_commandline_info.disable_protocol_slist = NULL;
+    global_commandline_info.enable_heur_slist = NULL;
+    global_commandline_info.disable_heur_slist = NULL;
 
     while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
@@ -420,7 +420,7 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
 #endif
 #ifdef HAVE_LIBPCAP
                 status = capture_opts_add_opt(&global_capture_opts, opt, optarg,
-                                              &param_info->start_capture);
+                                              &global_commandline_info.start_capture);
                 if(status != 0) {
                     exit(status);
                 }
@@ -445,13 +445,13 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
                     exit(1);
                 break;
             case 'j':        /* Search backwards for a matching packet from filter in option J */
-                param_info->jump_backwards = SD_BACKWARD;
+                global_commandline_info.jump_backwards = SD_BACKWARD;
                 break;
             case 'g':        /* Go to packet with the given packet number */
-                param_info->go_to_packet = get_positive_int(optarg, "go to packet");
+                global_commandline_info.go_to_packet = get_positive_int(optarg, "go to packet");
                 break;
             case 'J':        /* Jump to the first packet which matches the filter criteria */
-                param_info->jfilter = optarg;
+                global_commandline_info.jfilter = optarg;
                 break;
             case 'l':        /* Automatic scrolling in live capture mode */
 #ifdef HAVE_LIBPCAP
@@ -463,15 +463,15 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
                 break;
             case 'L':        /* Print list of link-layer types and exit */
 #ifdef HAVE_LIBPCAP
-                param_info->list_link_layer_types = TRUE;
+                global_commandline_info.list_link_layer_types = TRUE;
 #else
                 capture_option_specified = TRUE;
                 arg_error = TRUE;
 #endif
                 break;
             case 'm':        /* Fixed-width font for the display. GTK+ only. */
-                g_free(param_info->prefs_p->gui_gtk2_font_name);
-                param_info->prefs_p->gui_gtk2_font_name = g_strdup(optarg);
+                g_free(global_commandline_info.prefs_p->gui_gtk2_font_name);
+                global_commandline_info.prefs_p->gui_gtk2_font_name = g_strdup(optarg);
                 break;
             case 'n':        /* No name resolution */
                 disable_name_resolution();
@@ -528,10 +528,10 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
                 /* We may set "last_open_dir" to "cf_name", and if we change
                  "last_open_dir" later, we free the old value, so we have to
                  set "cf_name" to something that's been allocated. */
-                param_info->cf_name = g_strdup(optarg);
+                global_commandline_info.cf_name = g_strdup(optarg);
                 break;
             case 'R':        /* Read file filter */
-                param_info->rfilter = optarg;
+                global_commandline_info.rfilter = optarg;
                 break;
             case 't':        /* Time stamp type */
                 if (strcmp(optarg, "r") == 0)
@@ -579,7 +579,7 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
                 /* ext ops were already processed just ignore them this time*/
                 break;
             case 'Y':
-                param_info->dfilter = optarg;
+                global_commandline_info.dfilter = optarg;
                 break;
             case 'z':
                 /* We won't call the init function for the stat this soon
@@ -600,13 +600,13 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
                 }
                 break;
             case LONGOPT_DISABLE_PROTOCOL: /* disable dissection of protocol */
-                param_info->disable_protocol_slist = g_slist_append(param_info->disable_protocol_slist, optarg);
+                global_commandline_info.disable_protocol_slist = g_slist_append(global_commandline_info.disable_protocol_slist, optarg);
                 break;
             case LONGOPT_ENABLE_HEURISTIC: /* enable heuristic dissection of protocol */
-                param_info->enable_heur_slist = g_slist_append(param_info->enable_heur_slist, optarg);
+                global_commandline_info.enable_heur_slist = g_slist_append(global_commandline_info.enable_heur_slist, optarg);
                 break;
             case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
-                param_info->disable_heur_slist = g_slist_append(param_info->disable_heur_slist, optarg);
+                global_commandline_info.disable_heur_slist = g_slist_append(global_commandline_info.disable_heur_slist, optarg);
                 break;
             default:
             case '?':        /* Bad flag - print usage message */
@@ -619,7 +619,7 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
         argc -= optind;
         argv += optind;
         if (argc >= 1) {
-            if (param_info->cf_name != NULL) {
+            if (global_commandline_info.cf_name != NULL) {
                 /*
                  * Input file name specified with "-r" *and* specified as a regular
                  * command-line argument.
@@ -643,7 +643,7 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
                  * through grag-and-drop and opened twice sometimes causing crashes.
                  * Subject to report to GTK+ MAC.
                  */
-                param_info->cf_name = g_strdup(argv[0]);
+                global_commandline_info.cf_name = g_strdup(argv[0]);
 #endif
             }
             argc--;
@@ -670,16 +670,16 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
     }
 
 #ifdef HAVE_LIBPCAP
-    if (param_info->start_capture && param_info->list_link_layer_types) {
+    if (global_commandline_info.start_capture && global_commandline_info.list_link_layer_types) {
         /* Specifying *both* is bogus. */
         cmdarg_err("You can't specify both -L and a live capture.");
         exit(1);
     }
 
-    if (param_info->list_link_layer_types) {
+    if (global_commandline_info.list_link_layer_types) {
         /* We're supposed to list the link-layer types for an interface;
            did the user also specify a capture file to be read? */
-        if (param_info->cf_name) {
+        if (global_commandline_info.cf_name) {
             /* Yes - that's bogus. */
             cmdarg_err("You can't specify -L and a capture file to be read.");
             exit(1);
@@ -692,7 +692,7 @@ void commandline_other_options(int argc, char *argv[], commandline_param_info_t*
     } else {
         /* We're supposed to do a live capture; did the user also specify
            a capture file to be read? */
-        if (param_info->start_capture && param_info->cf_name) {
+        if (global_commandline_info.start_capture && global_commandline_info.cf_name) {
             /* Yes - that's bogus. */
             cmdarg_err("You can't specify both a live capture and a capture file to be read.");
             exit(1);

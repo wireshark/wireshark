@@ -2357,7 +2357,7 @@ main(int argc, char *argv[])
 #endif*/
 
     /* Now get our args */
-    commandline_other_options(argc, argv, &global_commandline_info, TRUE);
+    commandline_other_options(argc, argv, TRUE);
 
 #ifdef HAVE_LIBPCAP
     splash_update(RA_INTERFACES, NULL, (gpointer)splash_win);
