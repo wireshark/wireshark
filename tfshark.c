@@ -2072,7 +2072,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       break;
 
     case WRITE_XML:
-      write_pdml_proto_tree(NULL, edt, stdout);
+      write_pdml_proto_tree(NULL, NULL, edt, stdout);
       printf("\n");
       return !ferror(stdout);
     case WRITE_FIELDS:

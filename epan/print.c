@@ -78,16 +78,17 @@ typedef struct {
 } write_field_data_t;
 
 struct _output_fields {
-    gboolean     print_bom;
-    gboolean     print_header;
-    gchar        separator;
-    gchar        occurrence;
-    gchar        aggregator;
-    GPtrArray   *fields;
-    GHashTable  *field_indicies;
-    GPtrArray  **field_values;
-    gchar        quote;
-    gboolean     includes_col_fields;
+    gboolean      print_bom;
+    gboolean      print_header;
+    gchar         separator;
+    gchar         occurrence;
+    gchar         aggregator;
+    GPtrArray    *fields;
+    GHashTable   *field_indicies;
+    GPtrArray   **field_values;
+    gchar         quote;
+    gboolean      includes_col_fields;
+    fields_format format;
 };
 
 static gchar *get_field_hex_value(GSList *src_list, field_info *fi);
@@ -285,9 +286,12 @@ static gboolean check_protocolfilter(gchar **protocolfilter, const char *str)
 }
 
 void
-write_pdml_proto_tree(gchar **protocolfilter, epan_dissect_t *edt, FILE *fh)
+write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, epan_dissect_t *edt, FILE *fh)
 {
     write_pdml_data data;
+
+    g_assert(edt);
+    g_assert(fh);
 
     /* Create the output */
     data.level    = 0;
@@ -301,20 +305,28 @@ write_pdml_proto_tree(gchar **protocolfilter, epan_dissect_t *edt, FILE *fh)
     /* Print a "geninfo" protocol as required by PDML */
     print_pdml_geninfo(edt->tree, fh);
 
-    proto_tree_children_foreach(edt->tree, proto_tree_write_node_pdml,
-                                &data);
+    if (fields == NULL || fields->fields == NULL) {
+        proto_tree_children_foreach(edt->tree, proto_tree_write_node_pdml,
+                                    &data);
+    } else {
+        fields->format = FORMAT_XML;
+        write_fields_proto_tree(fields, edt, NULL, fh);
+    }
 
     fprintf(fh, "</packet>\n\n");
 }
 
 void
-write_json_proto_tree(print_args_t *print_args, gchar **protocolfilter, epan_dissect_t *edt, FILE *fh)
+write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **protocolfilter, epan_dissect_t *edt, FILE *fh)
 {
     write_json_data data;
     char ts[30];
     time_t t = time(NULL);
     struct tm * timeinfo;
     static gboolean is_first = TRUE;
+
+    g_assert(edt);
+    g_assert(fh);
 
     /* Create the output */
     data.level    = 1;
@@ -339,8 +351,13 @@ write_json_proto_tree(print_args_t *print_args, gchar **protocolfilter, epan_dis
     fputs("    \"_source\": {\n", fh);
     fputs("      \"layers\": {\n", fh);
 
-    proto_tree_children_foreach(edt->tree, proto_tree_write_node_json,
-                                &data);
+    if (fields == NULL || fields->fields == NULL) {
+        proto_tree_children_foreach(edt->tree, proto_tree_write_node_json,
+                                    &data);
+    } else {
+        fields->format = FORMAT_JSON;
+        write_fields_proto_tree(fields, edt, NULL, fh);
+    }
 
     fputs("      }\n", fh);
     fputs("    }\n", fh);
@@ -349,7 +366,7 @@ write_json_proto_tree(print_args_t *print_args, gchar **protocolfilter, epan_dis
 }
 
 void
-write_ek_proto_tree(print_args_t *print_args, gchar **protocolfilter, epan_dissect_t *edt, FILE *fh)
+write_ek_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **protocolfilter, epan_dissect_t *edt, FILE *fh)
 {
     write_json_data data;
     char ts[30];
@@ -358,6 +375,9 @@ write_ek_proto_tree(print_args_t *print_args, gchar **protocolfilter, epan_disse
     nstime_t   *timestamp;
     GPtrArray  *finfo_array;
 
+    g_assert(edt);
+    g_assert(fh);
+
     /* Create the output */
     data.level    = 0;
     data.fh       = fh;
@@ -365,7 +385,6 @@ write_ek_proto_tree(print_args_t *print_args, gchar **protocolfilter, epan_disse
     data.edt      = edt;
     data.filter   = protocolfilter;
     data.print_hex = print_args->print_hex;
-
 
     timeinfo = localtime(&t);
     strftime(ts, 30, "%Y-%m-%d", timeinfo);
@@ -390,8 +409,14 @@ write_ek_proto_tree(print_args_t *print_args, gchar **protocolfilter, epan_disse
     fprintf(fh, "{\"timestamp\" : \"%" G_GUINT64_FORMAT "%03d\", \"layers\" : {", (guint64)timestamp->secs, timestamp->nsecs/1000000);
 
 
-    proto_tree_children_foreach(edt->tree, proto_tree_write_node_ek,
-                                &data);
+    if (fields == NULL || fields->fields == NULL) {
+        proto_tree_children_foreach(edt->tree, proto_tree_write_node_ek,
+                                    &data);
+    } else {
+        fields->format = FORMAT_EK;
+        write_fields_proto_tree(fields, edt, NULL, fh);
+    }
+
     fputs("}}\n", fh);
 }
 
@@ -2048,44 +2073,152 @@ void write_fields_proto_tree(output_fields_t *fields, epan_dissect_t *edt, colum
     proto_tree_children_foreach(edt->tree, proto_tree_get_node_field_values,
                                 &data);
 
-    if (fields->includes_col_fields) {
-        for (col = 0; col < cinfo->num_cols; col++) {
-            /* Prepend COLUMN_FIELD_FILTER as the field name */
-            col_name = g_strdup_printf("%s%s", COLUMN_FIELD_FILTER, cinfo->columns[col].col_title);
-            field_index = g_hash_table_lookup(fields->field_indicies, col_name);
-            g_free(col_name);
+    switch (fields->format) {
+    case FORMAT_CSV:
+        if (fields->includes_col_fields) {
+            for (col = 0; col < cinfo->num_cols; col++) {
+                /* Prepend COLUMN_FIELD_FILTER as the field name */
+                col_name = g_strdup_printf("%s%s", COLUMN_FIELD_FILTER, cinfo->columns[col].col_title);
+                field_index = g_hash_table_lookup(fields->field_indicies, col_name);
+                g_free(col_name);
 
-            if (NULL != field_index) {
-                format_field_values(fields, field_index, g_strdup(cinfo->columns[col].col_data));
+                if (NULL != field_index) {
+                    format_field_values(fields, field_index, g_strdup(cinfo->columns[col].col_data));
+                }
             }
         }
-    }
 
-    for(i = 0; i < fields->fields->len; ++i) {
-        if (0 != i) {
-            fputc(fields->separator, fh);
-        }
-        if (NULL != fields->field_values[i]) {
-            GPtrArray *fv_p;
-            gchar * str;
-            gsize j;
-            fv_p = fields->field_values[i];
-            if (fields->quote != '\0') {
-                fputc(fields->quote, fh);
+        for(i = 0; i < fields->fields->len; ++i) {
+            if (0 != i) {
+                fputc(fields->separator, fh);
             }
+            if (NULL != fields->field_values[i]) {
+                GPtrArray *fv_p;
+                gchar * str;
+                gsize j;
+                fv_p = fields->field_values[i];
+                if (fields->quote != '\0') {
+                    fputc(fields->quote, fh);
+                }
 
-            /* Output the array of (partial) field values */
-            for (j = 0; j < g_ptr_array_len(fv_p); j++ ) {
-                str = (gchar *)g_ptr_array_index(fv_p, j);
-                fputs(str, fh);
-                g_free(str);
+                /* Output the array of (partial) field values */
+                for (j = 0; j < g_ptr_array_len(fv_p); j++ ) {
+                    str = (gchar *)g_ptr_array_index(fv_p, j);
+                    fputs(str, fh);
+                    g_free(str);
+                }
+                if (fields->quote != '\0') {
+                    fputc(fields->quote, fh);
+                }
+                g_ptr_array_free(fv_p, TRUE);  /* get ready for the next packet */
+                fields->field_values[i] = NULL;
             }
-            if (fields->quote != '\0') {
-                fputc(fields->quote, fh);
-            }
-            g_ptr_array_free(fv_p, TRUE);  /* get ready for the next packet */
-            fields->field_values[i] = NULL;
         }
+        break;
+    case FORMAT_XML:
+        for(i = 0; i < fields->fields->len; ++i) {
+            gchar *field = (gchar *)g_ptr_array_index(fields->fields, i);
+
+            if (NULL != fields->field_values[i]) {
+                GPtrArray *fv_p;
+                gchar * str;
+                gsize j;
+                fv_p = fields->field_values[i];
+
+                /* Output the array of (partial) field values */
+                for (j = 0; j < (g_ptr_array_len(fv_p)) - 1; j+=2 ) {
+                    str = (gchar *)g_ptr_array_index(fv_p, j);
+
+                    fprintf(fh, "  <field name=\"%s\" value=", field);
+                    fputs("\"", fh);
+                    print_escaped_xml(fh, str);
+                    fputs("\"/>\n", fh);
+                    g_free(str);
+                }
+                g_ptr_array_free(fv_p, TRUE);  /* get ready for the next packet */
+                fields->field_values[i] = NULL;
+            }
+        }
+        break;
+    case FORMAT_JSON:
+        for(i = 0; i < fields->fields->len; ++i) {
+            gchar *field = (gchar *)g_ptr_array_index(fields->fields, i);
+
+            if (NULL != fields->field_values[i]) {
+                GPtrArray *fv_p;
+                gchar * str;
+                gsize j;
+                fv_p = fields->field_values[i];
+
+                /* Output the array of (partial) field values */
+                for (j = 0; j < (g_ptr_array_len(fv_p)) - 1; j+=2 ) {
+                    str = (gchar *)g_ptr_array_index(fv_p, j);
+
+                    if (j == 0) {
+                        fprintf(fh, "        \"%s\": [", field);
+                    }
+                    fputs("\"", fh);
+                    print_escaped_json(fh, str);
+                    fputs("\"", fh);
+                    g_free(str);
+
+                    if (j + 2 < (g_ptr_array_len(fv_p)) - 1) {
+                        fputs(",", fh);
+                    } else {
+                        fputs("]", fh);
+
+                        if ( (i + 1 < fields->fields->len) && (g_ptr_array_len(fields->field_values[i + 1]) > 1) ) {
+                            fputs(",\n", fh);
+                        } else {
+                            fputs("\n", fh);
+                        }
+                    }
+                }
+                g_ptr_array_free(fv_p, TRUE);  /* get ready for the next packet */
+                fields->field_values[i] = NULL;
+            }
+        }
+        break;
+    case FORMAT_EK:
+        for(i = 0; i < fields->fields->len; ++i) {
+            gchar *field = (gchar *)g_ptr_array_index(fields->fields, i);
+
+            if (NULL != fields->field_values[i]) {
+                GPtrArray *fv_p;
+                gchar * str;
+                gsize j;
+                fv_p = fields->field_values[i];
+
+                /* Output the array of (partial) field values */
+                for (j = 0; j < (g_ptr_array_len(fv_p)) - 1; j+=2 ) {
+                    str = (gchar *)g_ptr_array_index(fv_p, j);
+
+                    if (j == 0) {
+                        fputs("\"", fh);
+                        print_escaped_ek(fh, field);
+                        fputs("\": [", fh);
+                    }
+                    fputs("\"", fh);
+                    print_escaped_json(fh, str);
+                    fputs("\"", fh);
+                    g_free(str);
+
+                    if (j + 2 < (g_ptr_array_len(fv_p)) - 1) {
+                        fputs(",", fh);
+                    } else {
+                        fputs("]", fh);
+
+                        if ( (i + 1 < fields->fields->len) && (g_ptr_array_len(fields->field_values[i + 1]) > 1) ) {
+                            fputs(",", fh);
+                        } else {
+                        }
+                    }
+                }
+                g_ptr_array_free(fv_p, TRUE);  /* get ready for the next packet */
+                fields->field_values[i] = NULL;
+            }
+        }
+        break;
     }
 }
 

@@ -1365,9 +1365,9 @@ main(int argc, char *argv[])
   }
 
   /* If we specified output fields, but not the output field type... */
-  if (WRITE_FIELDS != output_action && 0 != output_fields_num_fields(output_fields)) {
+  if ((WRITE_FIELDS != output_action && WRITE_XML != output_action && WRITE_JSON != output_action && WRITE_EK != output_action) && 0 != output_fields_num_fields(output_fields)) {
         cmdarg_err("Output fields were specified with \"-e\", "
-            "but \"-Tfields\" was not specified.");
+            "but \"-Tek, -Tfields, -Tjson or -Tpdml\" was not specified.");
         return 1;
   } else if (WRITE_FIELDS == output_action && 0 == output_fields_num_fields(output_fields)) {
         cmdarg_err("\"-Tfields\" was specified, but no fields were "
@@ -3834,7 +3834,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       break;
 
     case WRITE_XML:
-      write_pdml_proto_tree(protocolfilter, edt, stdout);
+      write_pdml_proto_tree(output_fields, protocolfilter, edt, stdout);
       printf("\n");
       return !ferror(stdout);
     case WRITE_FIELDS:
@@ -3843,12 +3843,12 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       return !ferror(stdout);
     case WRITE_JSON:
       print_args.print_hex = print_hex;
-      write_json_proto_tree(&print_args, protocolfilter, edt, stdout);
+      write_json_proto_tree(output_fields, &print_args, protocolfilter, edt, stdout);
       printf("\n");
       return !ferror(stdout);
     case WRITE_EK:
       print_args.print_hex = print_hex;
-      write_ek_proto_tree(&print_args, protocolfilter, edt, stdout);
+      write_ek_proto_tree(output_fields, &print_args, protocolfilter, edt, stdout);
       printf("\n");
       return !ferror(stdout);
     }

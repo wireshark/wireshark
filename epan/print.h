@@ -79,6 +79,13 @@ typedef struct {
                                  * each new packet */
 } print_args_t;
 
+typedef enum {
+  FORMAT_CSV,     /* CSV */
+  FORMAT_JSON,    /* JSON */
+  FORMAT_EK,      /* JSON bulk insert to Elasticsearch */
+  FORMAT_XML,      /* PDML output */
+} fields_format;
+
 /*
  * Print user selected list of fields
  */
@@ -105,14 +112,14 @@ WS_DLL_PUBLIC gboolean proto_tree_print(print_args_t *print_args,
 WS_DLL_PUBLIC gboolean print_hex_data(print_stream_t *stream, epan_dissect_t *edt);
 
 WS_DLL_PUBLIC void write_pdml_preamble(FILE *fh, const gchar* filename);
-WS_DLL_PUBLIC void write_pdml_proto_tree(gchar **protocolfilter, epan_dissect_t *edt, FILE *fh);
+WS_DLL_PUBLIC void write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, epan_dissect_t *edt, FILE *fh);
 WS_DLL_PUBLIC void write_pdml_finale(FILE *fh);
 
 WS_DLL_PUBLIC void write_json_preamble(FILE *fh);
-WS_DLL_PUBLIC void write_json_proto_tree(print_args_t *print_args, gchar **protocolfilter, epan_dissect_t *edt, FILE *fh);
+WS_DLL_PUBLIC void write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **protocolfilter, epan_dissect_t *edt, FILE *fh);
 WS_DLL_PUBLIC void write_json_finale(FILE *fh);
 
-WS_DLL_PUBLIC void write_ek_proto_tree(print_args_t *print_args, gchar **protocolfilter, epan_dissect_t *edt, FILE *fh);
+WS_DLL_PUBLIC void write_ek_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **protocolfilter, epan_dissect_t *edt, FILE *fh);
 
 WS_DLL_PUBLIC void write_psml_preamble(column_info *cinfo, FILE *fh);
 WS_DLL_PUBLIC void write_psml_columns(epan_dissect_t *edt, FILE *fh);
