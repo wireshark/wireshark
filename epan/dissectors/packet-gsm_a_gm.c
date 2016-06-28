@@ -6253,7 +6253,7 @@ dtap_gmm_auth_ciph_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
 
 	ELEM_OPT_TLV(0x28, GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_AUTN, NULL);
 
-	ELEM_OPT_TLV(0x31, GSM_A_PDU_TYPE_GM, DE_MS_NET_CAP, "Replayed MS network capability");
+	ELEM_OPT_TLV(0x31, GSM_A_PDU_TYPE_GM, DE_MS_NET_CAP, " - Replayed MS network capability");
 
 	ELEM_OPT_TLV(0x42, GSM_A_PDU_TYPE_GM, DE_INTEG_PROT_ALG, NULL);
 
