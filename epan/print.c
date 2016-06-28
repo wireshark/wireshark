@@ -1417,55 +1417,8 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
     }
 }
 
-/* Print a string, escaping out certain characters that need to
- * escaped out for JSON. */
 static void
-print_escaped_json(FILE *fh, const char *unescaped_string)
-{
-    const char *p;
-    char        temp_str[8];
-
-    for (p = unescaped_string; *p != '\0'; p++) {
-        switch (*p) {
-        case '"':
-            fputs("\\\"", fh);
-            break;
-        case '\\':
-            fputs("\\\\", fh);
-            break;
-        case '/':
-            fputs("\\/", fh);
-            break;
-        case '\b':
-            fputs("\\b", fh);
-            break;
-        case '\f':
-            fputs("\\f", fh);
-            break;
-        case '\n':
-            fputs("\\n", fh);
-            break;
-        case '\r':
-            fputs("\\r", fh);
-            break;
-        case '\t':
-            fputs("\\t", fh);
-            break;
-        default:
-            if (g_ascii_isprint(*p))
-                fputc(*p, fh);
-            else {
-                g_snprintf(temp_str, sizeof(temp_str), "\\u00%u", (guint8)*p);
-                fputs(temp_str, fh);
-            }
-        }
-    }
-}
-
-/* Print a string, escaping out certain characters that need to
- * escaped out for Elasticsearch title. */
-static void
-print_escaped_ek(FILE *fh, const char *unescaped_string)
+print_escaped_bare(FILE *fh, const char *unescaped_string, gboolean change_dot)
 {
     const char *p;
     char        temp_str[8];
@@ -1497,7 +1450,10 @@ print_escaped_ek(FILE *fh, const char *unescaped_string)
             fputs("\\t", fh);
             break;
         case '.':
-            fputs("_", fh);
+            if (change_dot)
+                fputs("_", fh);
+            else
+                fputs(".", fh);
             break;
         default:
             if (g_ascii_isprint(*p))
@@ -1508,6 +1464,22 @@ print_escaped_ek(FILE *fh, const char *unescaped_string)
             }
         }
     }
+}
+
+/* Print a string, escaping out certain characters that need to
+ * escaped out for JSON. */
+static void
+print_escaped_json(FILE *fh, const char *unescaped_string)
+{
+    print_escaped_bare(fh, unescaped_string, FALSE);
+}
+
+/* Print a string, escaping out certain characters that need to
+ * escaped out for Elasticsearch title. */
+static void
+print_escaped_ek(FILE *fh, const char *unescaped_string)
+{
+    print_escaped_bare(fh, unescaped_string, TRUE);
 }
 
 static void
