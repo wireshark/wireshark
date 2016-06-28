@@ -117,6 +117,9 @@ How to do an out of tree build using Visual C++ 2013:
    build dir and start form step 2) again.
 6) The executables can be run from the appropriate directory, e.g. run\RelWithDebInfo for VS solutions
    or run\ for NMake files.
+   On macOS CMake creates an application bundle by default and places executables in
+   run/Wireshark.app/Contents/MacOS. It also creates a convenience wrapper script
+   (run/wireshark) which will run the Wireshark executable in the bundle.
 7) To build an installer, build the nsis_package_prep and then the nsis_package projects, e.g.
    msbuild /m /p:Configuration=RelWithDebInfo nsis_package_prep.vcxproj
    msbuild /m /p:Configuration=RelWithDebInfo nsis_package.vcxproj
