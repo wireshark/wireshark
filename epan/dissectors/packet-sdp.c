@@ -817,7 +817,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
 
     offset = next_offset + 1;
 
-    if (strcmp((char*)field_name, "ipbcp") == 0) {
+    if (strcmp((const char *)field_name, "ipbcp") == 0) {
         offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, -1,&pbrk_digits, NULL);
 
         if (offset == -1)
@@ -840,7 +840,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
             return;
 
         proto_tree_add_item(sdp_session_attribute_tree, hf_ipbcp_type, tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
-    } else if (strcmp((char*)field_name, "key-mgmt") == 0) {
+    } else if (strcmp((const char *)field_name, "key-mgmt") == 0) {
         tvbuff_t   *key_tvb;
         proto_item *key_ti;
 
@@ -1377,7 +1377,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
             proto_tree_add_item(sdp_media_attribute_tree, hf_media_encoding_name, tvb,
                                 offset, tokenlen, ENC_UTF_8|ENC_NA);
 
-            pt = atoi((char*)payload_type);
+            pt = atoi((const char *)payload_type);
             if (pt >= SDP_NO_OF_PT) {
                 return;   /* Invalid */
             }
