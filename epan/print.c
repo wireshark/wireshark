@@ -101,6 +101,9 @@ static void pdml_write_field_hex_value(write_pdml_data *pdata, field_info *fi);
 static void json_write_field_hex_value(write_json_data *pdata, field_info *fi);
 static gboolean print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
                                       guint length, packet_char_enc encoding);
+static void write_specified_fields(output_fields_t *fields,
+                                   epan_dissect_t *edt, column_info *cinfo,
+                                   FILE *fh);
 static void print_escaped_xml(FILE *fh, const char *unescaped_string);
 static void print_escaped_json(FILE *fh, const char *unescaped_string);
 static void print_escaped_ek(FILE *fh, const char *unescaped_string);
@@ -294,23 +297,25 @@ write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, epan_diss
     g_assert(fh);
 
     /* Create the output */
-    data.level    = 0;
-    data.fh       = fh;
-    data.src_list = edt->pi.data_src;
-    data.edt      = edt;
-    data.filter   = protocolfilter;
-
     fprintf(fh, "<packet>\n");
 
     /* Print a "geninfo" protocol as required by PDML */
     print_pdml_geninfo(edt->tree, fh);
 
     if (fields == NULL || fields->fields == NULL) {
+        /* Write out all fields */
+        data.level    = 0;
+        data.fh       = fh;
+        data.src_list = edt->pi.data_src;
+        data.edt      = edt;
+        data.filter   = protocolfilter;
+
         proto_tree_children_foreach(edt->tree, proto_tree_write_node_pdml,
                                     &data);
     } else {
+        /* Write out specified fields */
         fields->format = FORMAT_XML;
-        write_fields_proto_tree(fields, edt, NULL, fh);
+        write_specified_fields(fields, edt, NULL, fh);
     }
 
     fprintf(fh, "</packet>\n\n");
@@ -329,13 +334,6 @@ write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar *
     g_assert(fh);
 
     /* Create the output */
-    data.level    = 1;
-    data.fh       = fh;
-    data.src_list = edt->pi.data_src;
-    data.edt      = edt;
-    data.filter   = protocolfilter;
-    data.print_hex = print_args->print_hex;
-
     timeinfo = localtime(&t);
     strftime(ts, 30, "%Y-%m-%d", timeinfo);
 
@@ -352,11 +350,20 @@ write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar *
     fputs("      \"layers\": {\n", fh);
 
     if (fields == NULL || fields->fields == NULL) {
+        /* Write out all fields */
+        data.level    = 1;
+        data.fh       = fh;
+        data.src_list = edt->pi.data_src;
+        data.edt      = edt;
+        data.filter   = protocolfilter;
+        data.print_hex = print_args->print_hex;
+
         proto_tree_children_foreach(edt->tree, proto_tree_write_node_json,
                                     &data);
     } else {
+        /* Write out specified fields */
         fields->format = FORMAT_JSON;
-        write_fields_proto_tree(fields, edt, NULL, fh);
+        write_specified_fields(fields, edt, NULL, fh);
     }
 
     fputs("      }\n", fh);
@@ -379,16 +386,8 @@ write_ek_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **p
     g_assert(fh);
 
     /* Create the output */
-    data.level    = 0;
-    data.fh       = fh;
-    data.src_list = edt->pi.data_src;
-    data.edt      = edt;
-    data.filter   = protocolfilter;
-    data.print_hex = print_args->print_hex;
-
     timeinfo = localtime(&t);
     strftime(ts, 30, "%Y-%m-%d", timeinfo);
-
 
     /* Get frame protocol's finfo. */
     finfo_array = proto_find_finfo(edt->tree, proto_frame);
@@ -403,21 +402,39 @@ write_ek_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **p
     timestamp = (nstime_t *)fvalue_get(&((field_info*)finfo_array->pdata[0])->value);
     g_ptr_array_free(finfo_array, TRUE);
 
-
     fprintf(fh, "{\"index\" : {\"_index\": \"packets-%s\", \"_type\": \"pcap_file\", \"_score\": null}}\n", ts);
     /* Timestamp added for time indexing in Elasticsearch */
     fprintf(fh, "{\"timestamp\" : \"%" G_GUINT64_FORMAT "%03d\", \"layers\" : {", (guint64)timestamp->secs, timestamp->nsecs/1000000);
 
-
     if (fields == NULL || fields->fields == NULL) {
+        /* Write out all fields */
+        data.level    = 0;
+        data.fh       = fh;
+        data.src_list = edt->pi.data_src;
+        data.edt      = edt;
+        data.filter   = protocolfilter;
+        data.print_hex = print_args->print_hex;
+
         proto_tree_children_foreach(edt->tree, proto_tree_write_node_ek,
                                     &data);
     } else {
+        /* Write out specified fields */
         fields->format = FORMAT_EK;
-        write_fields_proto_tree(fields, edt, NULL, fh);
+        write_specified_fields(fields, edt, NULL, fh);
     }
 
     fputs("}}\n", fh);
+}
+
+void
+write_fields_proto_tree(output_fields_t* fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh)
+{
+    g_assert(edt);
+    g_assert(fh);
+
+    /* Create the output */
+    fields->format = FORMAT_CSV;
+    write_specified_fields(fields, edt, cinfo, fh);
 }
 
 /* Write out a tree's data, and any child nodes, as PDML */
@@ -2029,7 +2046,7 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
     }
 }
 
-void write_fields_proto_tree(output_fields_t *fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh)
+static void write_specified_fields(output_fields_t *fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh)
 {
     gsize     i;
     gint      col;
@@ -2218,6 +2235,11 @@ void write_fields_proto_tree(output_fields_t *fields, epan_dissect_t *edt, colum
                 fields->field_values[i] = NULL;
             }
         }
+        break;
+
+    default:
+        fprintf(stderr, "Unknown fields format %d\n", fields->format);
+        g_assert_not_reached();
         break;
     }
 }
