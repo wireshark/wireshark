@@ -350,6 +350,7 @@ EXTRA_DIST = \
 	$(TS_FILES)			\
 	CMakeLists.txt			\
 	doxygen.cfg.in			\
+	i18n.qrc.in			\
 	Makefile.common			\
 	Makefile_custom.common		\
 	Wireshark.pro			\
