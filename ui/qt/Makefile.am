@@ -162,8 +162,8 @@ i18n_qresource := $(foreach qm, $(QM_FILES),<file>$(qm)</file>)
 i18n.qrc: i18n.qrc.in $(QM_FILES)
 	$(AM_V_SED)$(SED) \
 		-e 's,@i18n_qresource\@,$(i18n_qresource),' \
-		-e 's,> *<file>,>\n    <file>,g' \
-		< $< > $@
+		-e 's,> *<file>,>%    <file>,g' \
+		< $< | tr '%' '\n' > $@
 
 #
 # Explicit dependencies to force the ui_ headers to be built.
