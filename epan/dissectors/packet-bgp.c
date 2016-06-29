@@ -2676,7 +2676,7 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
           break;
       proto_item_set_len(filter_item,filter_len+1);
     }
-    return(tot_flow_len);
+    return(tot_flow_len+offset_len-1);
 }
 
 /*
@@ -7996,7 +7996,7 @@ proto_register_bgp(void)
         { "Filter type", "bgp.flowspec_nlri.filter_type", FT_UINT8, BASE_DEC,
           VALS(flowspec_nlri_opvaluepair_type), 0x0, NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_length,
-        { "NRLI length", "bgp.flowspec_nlri.length", FT_UINT32, BASE_DEC,
+        { "NRLI length", "bgp.flowspec_nlri.length", FT_UINT16, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_op_flags,
         { "Operator flags", "bgp.flowspec_nlri.opflags", FT_UINT8, BASE_HEX,
