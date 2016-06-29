@@ -111,8 +111,7 @@ XXX: (WMeier): I've not had too much satisfaction using the "native Windows debu
 Install the Qt libraries and Qt Creator via your package manager or from
 http://qt-project.org/downloads/. On Debian and Ubuntu the "qt-sdk" (and qttools5-dev when use Qt5) meta-package
 should provide everything you need. Build the top-level directory using CMake
-(see section "Using cmake" above). As an alternative do an in-tree build without
-QT and then inside ui/qt/ do "qtcreate Wireshark.pro".
+(see section "Using cmake" above).
 
 1.2 Other tools
 
@@ -165,14 +164,11 @@ https://www.wireshark.org/docs/wsdg_html_chunked/ChUIQt.html
 
 Qt makes translating the Wireshark UI into different languages easy.
 
-- Add your translation (ui/qt/wireshark_XX.ts) in ui/qt/Wireshark.pro, ui/qt/i18n.qrc,
-    ui/qt/Makefile.common and ui/qt/CMakeLists.txt
+- Add your translation (ui/qt/wireshark_XX.ts) in ui/qt/Makefile.common and ui/qt/CMakeLists.txt
 - Please add flag (image) for your language in images/languages/XX.svg and image/languages/languages.qrc
-- Run "lupdate ui/qt/Wireshark.pro" to generate/update your translation file.
-  or "lupdate ui/qt -ts ui/qt/wireshark_XX.ts" for specified translation
+- Run "lupdate ui/qt -ts ui/qt/wireshark_XX.ts" to generate/update your translation file.
 - Translate with Qt Linguist (in console: "linguist ui/qt/wireshark_XX.ts")
-- Run "lrelease Wireshark.pro" or
-  "lrelease ui/qt/wireshark_XX.ts -qm ui/qt/wireshark_XX.qm" to create/update wireshark_XX.qm file.
+- Do a test build and make sure the generated wireshark_XX.qm binary file is included.
 - Push your translation to Gerrit for review ("git push").
 
 Alternatively you can only put your QM and flag files in "languages" directory in
