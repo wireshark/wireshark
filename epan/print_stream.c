@@ -108,13 +108,6 @@ typedef struct {
 
 #define MAX_INDENT    160
 
-#ifdef _WIN32
-static char *to_codeset = "UTF-16LE";
-#else
-static char *tty_codeset = NULL;
-static char *to_codeset = NULL;
-#endif
-
 static gboolean
 print_line_text(print_stream_t *self, int indent, const char *line)
 {
@@ -141,26 +134,12 @@ print_line_text(print_stream_t *self, int indent, const char *line)
     if (ret == num_spaces) {
         gchar *tty_out = NULL;
 
-#ifndef _WIN32
-        /* Is there a more reliable way to do this? */
-        if (!tty_codeset) {
-            const gchar *charset;
-            gboolean is_utf8;
-
-            is_utf8 = g_get_charset(&charset);
-            tty_codeset = g_strdup(charset);
-            if (!is_utf8) {
-                to_codeset = tty_codeset;
-            }
-        }
-#endif
-
-        if (ws_isatty(ws_fileno(output->fh)) && to_codeset) {
+        if (self->isatty && self->to_codeset) {
             /* XXX Allocating a fresh buffer every line probably isn't the
              * most efficient way to do this. However, this has the side
              * effect of scrubbing invalid output.
              */
-            tty_out = g_convert_with_fallback(line, -1, to_codeset, "UTF-8", "?", NULL, NULL, NULL);
+            tty_out = g_convert_with_fallback(line, -1, self->to_codeset, "UTF-8", "?", NULL, NULL, NULL);
         }
 
         if (tty_out) {
@@ -214,13 +193,28 @@ print_stream_text_alloc(gboolean to_file, FILE *fh)
 {
     print_stream_t *stream;
     output_text    *output;
+#ifndef _WIN32
+    const gchar *charset;
+    gboolean is_utf8;
+#endif
 
     output          = (output_text *)g_malloc(sizeof *output);
     output->to_file = to_file;
     output->fh      = fh;
-    stream          = (print_stream_t *)g_malloc(sizeof (print_stream_t));
+    stream          = (print_stream_t *)g_malloc0(sizeof (print_stream_t));
     stream->ops     = &print_text_ops;
+    stream->isatty  = ws_isatty(ws_fileno(fh));
     stream->data    = output;
+
+#ifndef _WIN32
+    /* Is there a more reliable way to do this? */
+    is_utf8 = g_get_charset(&charset);
+    if (!is_utf8) {
+        stream->to_codeset = charset;
+    }
+#else
+    stream->to_codeset = "UTF-16LE";
+#endif
 
     return stream;
 }
