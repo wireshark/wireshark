@@ -2311,7 +2311,7 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
     if (tot_flow_len >= 240)
     {
         len_16 = tvb_get_ntohs(tvb, offset);
-        tot_flow_len = len_16 >> 4; /* move 4 bits to the right to remove first f */
+        tot_flow_len = len_16 & 0x0FFF; /* remove most significant nibble */
         offset_len = 2;
     } else {
         offset_len = 1;
