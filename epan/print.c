@@ -59,7 +59,6 @@ typedef struct {
     int             level;
     FILE           *fh;
     GSList         *src_list;
-    epan_dissect_t *edt;
     gchar         **filter;
 } write_pdml_data;
 
@@ -306,7 +305,6 @@ write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, epan_diss
         data.level    = 0;
         data.fh       = fh;
         data.src_list = edt->pi.data_src;
-        data.edt      = edt;
         data.filter   = protocolfilter;
 
         proto_tree_children_foreach(edt->tree, proto_tree_write_node_pdml,
