@@ -41,6 +41,7 @@ set(DISSECTOR_SRC
 	packet-dccreq.c
 	packet-dccrsp.c
 	packet-dcd.c
+	packet-dpd.c
 	packet-dpvreq.c
 	packet-dpvrsp.c
 	packet-docsis.c

@@ -41,6 +41,7 @@ NONGENERATED_REGISTER_C_FILES = \
 	packet-dccreq.c \
 	packet-dccrsp.c \
 	packet-dcd.c \
+	packet-dpd.c \
 	packet-dpvreq.c \
 	packet-dpvrsp.c \
 	packet-docsis.c \
