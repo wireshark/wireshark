@@ -67,7 +67,6 @@ typedef struct {
     int             level;
     FILE           *fh;
     GSList         *src_list;
-    epan_dissect_t *edt;
     gchar         **filter;
     gboolean        print_hex;
 } write_json_data;
@@ -354,7 +353,6 @@ write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar *
         data.level    = 1;
         data.fh       = fh;
         data.src_list = edt->pi.data_src;
-        data.edt      = edt;
         data.filter   = protocolfilter;
         data.print_hex = print_args->print_hex;
 
@@ -411,7 +409,6 @@ write_ek_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **p
         data.level    = 0;
         data.fh       = fh;
         data.src_list = edt->pi.data_src;
-        data.edt      = edt;
         data.filter   = protocolfilter;
         data.print_hex = print_args->print_hex;
 
