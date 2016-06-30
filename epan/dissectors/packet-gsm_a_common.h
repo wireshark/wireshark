@@ -1400,6 +1400,7 @@ typedef enum
     DE_EMM_VOICE_DMN_PREF,      /* 9.9.3.44 Voice domain preference and UE's usage setting */
     DE_EMM_GUTI_TYPE,           /* 9.9.3.45 GUTI type */
     DE_EMM_EXT_DRX_PARAMS,      /* 9.9.3.46 Extended DRX parameters */
+    DE_EMM_DATA_SERV_TYPE,      /* 9.9.3.47 Data service type */
     DE_EMM_NONE                 /* NONE */
 
 }
