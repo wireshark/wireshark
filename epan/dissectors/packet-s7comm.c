@@ -3728,18 +3728,14 @@ s7comm_decode_ud_ncprg_subfunc(tvbuff_t *tvb,
         } else if (type == S7COMM_UD_TYPE_NCRES && subfunc == S7COMM_NCPRG_FUNCREQUESTDOWNLOAD) {
                 proto_tree_add_item(data_tree, hf_s7comm_data_ncprg_unackcount, tvb, offset, 1, ENC_NA);
                 offset += 1;
-                dlength -= 1;
                 proto_tree_add_item(data_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 1, ENC_NA);
                 offset += 1;
-                dlength -= 1;
         } else if (type == S7COMM_UD_TYPE_NCPUSH && (subfunc == S7COMM_NCPRG_FUNCCONTUPLOAD || subfunc == S7COMM_NCPRG_FUNCCONTDOWNLOAD)) {
                 proto_tree_add_item(data_tree, hf_s7comm_data_ncprg_unackcount, tvb, offset, 1, ENC_NA);
                 offset += 1;
-                dlength -= 1;
                 /* Guess: If 1, then this is the last telegram of up/download, otherwise 0 */
                 proto_tree_add_item(data_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 1, ENC_NA);
                 offset += 1;
-                dlength -= 1;
         } else {
             /* There is always a 2 bytes header before the data.
              * Guess: first byte is used as "data unit reference"
