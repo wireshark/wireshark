@@ -278,9 +278,9 @@ value_string_ext_new(const value_string *vs, guint vs_tot_num_entries,
 }
 
 void
-value_string_ext_free(const value_string_ext *vse)
+value_string_ext_free(value_string_ext *vse)
 {
-    wmem_free(wmem_epan_scope(), (void *)vse);
+    wmem_free(wmem_epan_scope(), vse);
 }
 
 /* Like try_val_to_str for extended value strings */

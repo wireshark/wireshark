@@ -197,7 +197,7 @@ value_string_ext_new(const value_string *vs, guint vs_tot_num_entries, const gch
 
 WS_DLL_PUBLIC
 void
-value_string_ext_free(const value_string_ext *vse);
+value_string_ext_free(value_string_ext *vse);
 
 WS_DLL_PUBLIC
 const gchar *
