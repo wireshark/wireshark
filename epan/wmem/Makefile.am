@@ -74,6 +74,8 @@ wmem_test_LDADD = \
 	libwmem.la \
 	$(GLIB_LIBS)
 
+test-programs: wmem_test
+
 CLEANFILES = \
 	libwmem.a	\
 	libwmem.la	\
