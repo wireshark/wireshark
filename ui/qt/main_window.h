@@ -324,6 +324,7 @@ private slots:
 
     void startInterfaceCapture(bool valid, const QString capture_filter);
 
+    void applyGlobalCommandLineOptions();
     void setFeaturesEnabled(bool enabled = true);
 
     void on_actionDisplayFilterExpression_triggered();

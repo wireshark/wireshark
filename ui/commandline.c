@@ -387,6 +387,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
     global_commandline_info.cf_name = NULL;
     global_commandline_info.rfilter = NULL;
     global_commandline_info.dfilter = NULL;
+    global_commandline_info.time_format = TS_NOT_SET;
 #ifdef HAVE_LIBPCAP
     global_commandline_info.start_capture = FALSE;
     global_commandline_info.list_link_layer_types = FALSE;
@@ -537,25 +538,25 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                 break;
             case 't':        /* Time stamp type */
                 if (strcmp(optarg, "r") == 0)
-                    timestamp_set_type(TS_RELATIVE);
+                    global_commandline_info.time_format = TS_RELATIVE;
                 else if (strcmp(optarg, "a") == 0)
-                    timestamp_set_type(TS_ABSOLUTE);
+                    global_commandline_info.time_format = TS_ABSOLUTE;
                 else if (strcmp(optarg, "ad") == 0)
-                    timestamp_set_type(TS_ABSOLUTE_WITH_YMD);
+                    global_commandline_info.time_format = TS_ABSOLUTE_WITH_YMD;
                 else if (strcmp(optarg, "adoy") == 0)
-                    timestamp_set_type(TS_ABSOLUTE_WITH_YDOY);
+                    global_commandline_info.time_format = TS_ABSOLUTE_WITH_YDOY;
                 else if (strcmp(optarg, "d") == 0)
-                    timestamp_set_type(TS_DELTA);
+                    global_commandline_info.time_format = TS_DELTA;
                 else if (strcmp(optarg, "dd") == 0)
-                    timestamp_set_type(TS_DELTA_DIS);
+                    global_commandline_info.time_format = TS_DELTA_DIS;
                 else if (strcmp(optarg, "e") == 0)
-                    timestamp_set_type(TS_EPOCH);
+                    global_commandline_info.time_format = TS_EPOCH;
                 else if (strcmp(optarg, "u") == 0)
-                    timestamp_set_type(TS_UTC);
+                    global_commandline_info.time_format = TS_UTC;
                 else if (strcmp(optarg, "ud") == 0)
-                    timestamp_set_type(TS_UTC_WITH_YMD);
+                    global_commandline_info.time_format = TS_UTC_WITH_YMD;
                 else if (strcmp(optarg, "udoy") == 0)
-                    timestamp_set_type(TS_UTC_WITH_YDOY);
+                    global_commandline_info.time_format = TS_UTC_WITH_YDOY;
                 else {
                     cmdarg_err("Invalid time stamp type \"%s\"", optarg);
                     cmdarg_err_cont("It must be \"a\" for absolute, \"ad\" for absolute with YYYY-MM-DD date,");

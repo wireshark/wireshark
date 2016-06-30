@@ -47,6 +47,7 @@ typedef struct commandline_param_info
     gchar* cf_name;
     gchar* rfilter;
     gchar* dfilter;
+    ts_type time_format;
     GSList *disable_protocol_slist;
     GSList *enable_heur_slist;
     GSList *disable_heur_slist;

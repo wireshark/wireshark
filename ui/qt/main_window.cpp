@@ -338,6 +338,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //Otherwise unexpected problems may occur
     setFeaturesEnabled(false);
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(setFeaturesEnabled()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(applyGlobalCommandLineOptions()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(zoomText()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(initViewColorizeMenu()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addStatsPluginsToMenu()));

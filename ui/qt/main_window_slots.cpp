@@ -494,6 +494,7 @@ void MainWindow::updateRecentActions()
     foreach (QAction* tpa, tp_actions.keys()) {
         if (recent.gui_time_precision == tp_actions[tpa]) {
             tpa->setChecked(true);
+            break;
         }
     }
     main_ui_->actionViewTimeDisplaySecondsWithHoursAndMinutes->setChecked(recent.gui_seconds_format == TS_SECONDS_HOUR_MIN_SEC);
@@ -1376,6 +1377,20 @@ void MainWindow::startInterfaceCapture(bool valid, const QString capture_filter)
     // The interface tree will update the selected interfaces via its timer
     // so no need to do anything here.
     startCapture();
+}
+
+void MainWindow::applyGlobalCommandLineOptions()
+{
+    if (global_commandline_info.time_format != TS_NOT_SET) {
+        foreach (QAction* tda, td_actions.keys()) {
+            if (global_commandline_info.time_format == td_actions[tda]) {
+                tda->setChecked(true);
+                recent.gui_time_format = global_commandline_info.time_format;
+                timestamp_set_type(global_commandline_info.time_format);
+                break;
+            }
+        }
+    }
 }
 
 void MainWindow::redissectPackets()

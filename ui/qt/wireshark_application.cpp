@@ -360,7 +360,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
         test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {
         set_last_open_dir(recent.gui_fileopen_remembered_dir);
     }
-    timestamp_set_type (recent.gui_time_format);
+    timestamp_set_type(recent.gui_time_format);
     timestamp_set_precision(recent.gui_time_precision);
     timestamp_set_seconds_type (recent.gui_seconds_format);
     packet_list_enable_color(recent.packet_list_colorize);
