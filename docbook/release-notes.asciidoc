@@ -36,6 +36,7 @@ since version 2.1.0:
 * The Conversations and Endpoints dialogs are more responsive when
   viewing large numbers of items.
 * The RTP player now allows up to 30 minutes of silence frames.
+* Packet bytes can now be displayed as EBCDIC.
 
 The following features are new (or have been significantly updated)
 since version 2.0.0:

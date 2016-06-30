@@ -46,6 +46,7 @@
 // QPainter::drawText for each individual character.
 
 Q_DECLARE_METATYPE(bytes_view_type)
+Q_DECLARE_METATYPE(packet_char_enc)
 
 ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTreeWidget *tree_widget, packet_char_enc encoding) :
     QAbstractScrollArea(parent),
@@ -53,8 +54,9 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
     proto_tree_(tree),
     tree_widget_(tree_widget),
     bold_highlight_(false),
-    encoding_(encoding),
     format_actions_(new QActionGroup(this)),
+    encoding_actions_(new QActionGroup(this)),
+    encoding_(encoding),
     hovered_byte_offset(-1),
     p_bound_(0, 0),
     f_bound_(0, 0),
@@ -80,9 +82,25 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
     }
 
     ctx_menu_.addActions(format_actions_->actions());
+    connect(format_actions_, SIGNAL(triggered(QAction*)), this, SLOT(setHexDisplayFormat(QAction*)));
+
     ctx_menu_.addSeparator();
 
-    connect(format_actions_, SIGNAL(triggered(QAction*)), this, SLOT(setHexDisplayFormat(QAction*)));
+    action = encoding_actions_->addAction(tr("Show bytes as ASCII"));
+    action->setData(qVariantFromValue(PACKET_CHAR_ENC_CHAR_ASCII));
+    action->setCheckable(true);
+    if (encoding_ == PACKET_CHAR_ENC_CHAR_ASCII) {
+        action->setChecked(true);
+    }
+    action = encoding_actions_->addAction(tr("Show bytes as EBCDIC"));
+    action->setData(qVariantFromValue(PACKET_CHAR_ENC_CHAR_EBCDIC));
+    action->setCheckable(true);
+    if (encoding_ == PACKET_CHAR_ENC_CHAR_EBCDIC) {
+        action->setChecked(true);
+    }
+
+    ctx_menu_.addActions(encoding_actions_->actions());
+    connect(encoding_actions_, SIGNAL(triggered(QAction*)), this, SLOT(setCharacterEncoding(QAction*)));
 
     setMouseTracking(true);
 
@@ -94,12 +112,6 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
 ByteViewText::~ByteViewText()
 {
     ctx_menu_.clear();
-}
-
-void ByteViewText::setEncoding(packet_char_enc encoding)
-{
-    encoding_ = encoding;
-    viewport()->update();
 }
 
 bool ByteViewText::hasDataSource(const tvbuff_t *ds_tvb) {
@@ -576,6 +588,16 @@ void ByteViewText::setHexDisplayFormat(QAction *action)
 
     recent.gui_bytes_view = action->data().value<bytes_view_type>();
     row_width_ = recent.gui_bytes_view == BYTES_HEX ? 16 : 8;
+    viewport()->update();
+}
+
+void ByteViewText::setCharacterEncoding(QAction *action)
+{
+    if (!action) {
+        return;
+    }
+
+    encoding_ = action->data().value<packet_char_enc>();
     viewport()->update();
 }
 

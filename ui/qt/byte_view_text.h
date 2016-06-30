@@ -46,7 +46,6 @@ public:
     ~ByteViewText();
 
     bool hasDataSource(const tvbuff_t *ds_tvb = NULL);
-    void setEncoding(packet_char_enc encoding);
     void setFormat(bytes_view_type format);
     void setHighlightStyle(bool bold) { bold_highlight_ = bold; }
     void setProtocolHighlight(int start, int end);
@@ -104,8 +103,9 @@ private:
     gboolean bold_highlight_;
 
     // Data
-    packet_char_enc encoding_;  // ASCII or EBCDIC
     QActionGroup *format_actions_;
+    QActionGroup *encoding_actions_;
+    packet_char_enc encoding_;  // ASCII or EBCDIC
     QMenu ctx_menu_;
 
     // Data highlight
@@ -131,6 +131,8 @@ private:
 
 private slots:
     void setHexDisplayFormat(QAction *action);
+    void setCharacterEncoding(QAction *action);
+
 };
 
 #endif // BYTE_VIEW_TEXT_H
