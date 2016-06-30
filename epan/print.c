@@ -85,7 +85,6 @@ struct _output_fields {
     GPtrArray   **field_values;
     gchar         quote;
     gboolean      includes_col_fields;
-    fields_format format;
 };
 
 static gchar *get_field_hex_value(GSList *src_list, field_info *fi);
@@ -98,7 +97,8 @@ static void pdml_write_field_hex_value(write_pdml_data *pdata, field_info *fi);
 static void json_write_field_hex_value(write_json_data *pdata, field_info *fi);
 static gboolean print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
                                       guint length, packet_char_enc encoding);
-static void write_specified_fields(output_fields_t *fields,
+static void write_specified_fields(fields_format format,
+                                   output_fields_t *fields,
                                    epan_dissect_t *edt, column_info *cinfo,
                                    FILE *fh);
 static void print_escaped_xml(FILE *fh, const char *unescaped_string);
@@ -309,8 +309,7 @@ write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, epan_diss
                                     &data);
     } else {
         /* Write out specified fields */
-        fields->format = FORMAT_XML;
-        write_specified_fields(fields, edt, NULL, fh);
+        write_specified_fields(FORMAT_XML, fields, edt, NULL, fh);
     }
 
     fprintf(fh, "</packet>\n\n");
@@ -356,8 +355,7 @@ write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar *
                                     &data);
     } else {
         /* Write out specified fields */
-        fields->format = FORMAT_JSON;
-        write_specified_fields(fields, edt, NULL, fh);
+        write_specified_fields(FORMAT_JSON, fields, edt, NULL, fh);
     }
 
     fputs("      }\n", fh);
@@ -412,8 +410,7 @@ write_ek_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **p
                                     &data);
     } else {
         /* Write out specified fields */
-        fields->format = FORMAT_EK;
-        write_specified_fields(fields, edt, NULL, fh);
+        write_specified_fields(FORMAT_EK, fields, edt, NULL, fh);
     }
 
     fputs("}}\n", fh);
@@ -426,8 +423,7 @@ write_fields_proto_tree(output_fields_t* fields, epan_dissect_t *edt, column_inf
     g_assert(fh);
 
     /* Create the output */
-    fields->format = FORMAT_CSV;
-    write_specified_fields(fields, edt, cinfo, fh);
+    write_specified_fields(FORMAT_CSV, fields, edt, cinfo, fh);
 }
 
 /* Write out a tree's data, and any child nodes, as PDML */
@@ -2039,7 +2035,7 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
     }
 }
 
-static void write_specified_fields(output_fields_t *fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh)
+static void write_specified_fields(fields_format format, output_fields_t *fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh)
 {
     gsize     i;
     gint      col;
@@ -2082,7 +2078,7 @@ static void write_specified_fields(output_fields_t *fields, epan_dissect_t *edt,
     proto_tree_children_foreach(edt->tree, proto_tree_get_node_field_values,
                                 &data);
 
-    switch (fields->format) {
+    switch (format) {
     case FORMAT_CSV:
         if (fields->includes_col_fields) {
             for (col = 0; col < cinfo->num_cols; col++) {
@@ -2230,7 +2226,7 @@ static void write_specified_fields(output_fields_t *fields, epan_dissect_t *edt,
         break;
 
     default:
-        fprintf(stderr, "Unknown fields format %d\n", fields->format);
+        fprintf(stderr, "Unknown fields format %d\n", format);
         g_assert_not_reached();
         break;
     }
