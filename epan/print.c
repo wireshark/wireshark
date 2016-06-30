@@ -51,7 +51,6 @@ typedef struct {
     print_dissections_e  print_dissections;
     gboolean             print_hex_for_data;
     packet_char_enc      encoding;
-    epan_dissect_t      *edt;
     GHashTable          *output_only_tables; /* output only these protocols */
 } print_data;
 
@@ -145,7 +144,6 @@ proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
     /* If we're printing the entire packet in hex, don't
        print uninterpreted data fields in hex as well. */
     data.print_hex_for_data = !print_args->print_hex;
-    data.edt                = edt;
     data.output_only_tables = output_only_tables;
 
     proto_tree_children_foreach(edt->tree, proto_tree_print_node, &data);
@@ -2056,7 +2054,6 @@ static void write_specified_fields(output_fields_t *fields, epan_dissect_t *edt,
     g_assert(fh);
 
     data.fields = fields;
-    data.edt = edt;
 
     if (NULL == fields->field_indicies) {
         /* Prepare a lookup table from string abbreviation for field to its index. */
