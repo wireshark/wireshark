@@ -2038,6 +2038,7 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
 static void write_specified_fields(fields_format format, output_fields_t *fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh)
 {
     gsize     i;
+    gboolean first = TRUE;
     gint      col;
     gchar    *col_name;
     gpointer  field_index;
@@ -2131,7 +2132,7 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
                 fv_p = fields->field_values[i];
 
                 /* Output the array of (partial) field values */
-                for (j = 0; j < (g_ptr_array_len(fv_p)) - 1; j+=2 ) {
+                for (j = 0; j < (g_ptr_array_len(fv_p)); j+=2 ) {
                     str = (gchar *)g_ptr_array_index(fv_p, j);
 
                     fprintf(fh, "  <field name=\"%s\" value=", field);
@@ -2156,10 +2157,13 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
                 fv_p = fields->field_values[i];
 
                 /* Output the array of (partial) field values */
-                for (j = 0; j < (g_ptr_array_len(fv_p)) - 1; j+=2 ) {
+                for (j = 0; j < (g_ptr_array_len(fv_p)); j += 2) {
                     str = (gchar *)g_ptr_array_index(fv_p, j);
 
                     if (j == 0) {
+                        if (!first) {
+                            fputs(",\n", fh);
+                        }
                         fprintf(fh, "        \"%s\": [", field);
                     }
                     fputs("\"", fh);
@@ -2167,22 +2171,21 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
                     fputs("\"", fh);
                     g_free(str);
 
-                    if (j + 2 < (g_ptr_array_len(fv_p)) - 1) {
+                    if (j + 2 < (g_ptr_array_len(fv_p))) {
                         fputs(",", fh);
-                    } else {
+                    }
+                    else {
                         fputs("]", fh);
 
-                        if ( (i + 1 < fields->fields->len) && (g_ptr_array_len(fields->field_values[i + 1]) > 1) ) {
-                            fputs(",\n", fh);
-                        } else {
-                            fputs("\n", fh);
                         }
                     }
-                }
+
+                first = FALSE;
                 g_ptr_array_free(fv_p, TRUE);  /* get ready for the next packet */
                 fields->field_values[i] = NULL;
             }
         }
+        fputc('\n',fh);
         break;
     case FORMAT_EK:
         for(i = 0; i < fields->fields->len; ++i) {
@@ -2195,10 +2198,13 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
                 fv_p = fields->field_values[i];
 
                 /* Output the array of (partial) field values */
-                for (j = 0; j < (g_ptr_array_len(fv_p)) - 1; j+=2 ) {
+                for (j = 0; j < (g_ptr_array_len(fv_p)); j += 2) {
                     str = (gchar *)g_ptr_array_index(fv_p, j);
 
                     if (j == 0) {
+                        if (!first) {
+                            fputs(",", fh);
+                        }
                         fputs("\"", fh);
                         print_escaped_ek(fh, field);
                         fputs("\": [", fh);
@@ -2208,17 +2214,16 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
                     fputs("\"", fh);
                     g_free(str);
 
-                    if (j + 2 < (g_ptr_array_len(fv_p)) - 1) {
+                    if (j + 2 < (g_ptr_array_len(fv_p))) {
                         fputs(",", fh);
-                    } else {
+                    }
+                    else {
                         fputs("]", fh);
 
-                        if ( (i + 1 < fields->fields->len) && (g_ptr_array_len(fields->field_values[i + 1]) > 1) ) {
-                            fputs(",", fh);
-                        } else {
                         }
                     }
-                }
+
+                first = FALSE;
                 g_ptr_array_free(fv_p, TRUE);  /* get ready for the next packet */
                 fields->field_values[i] = NULL;
             }
