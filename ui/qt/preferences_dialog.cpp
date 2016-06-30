@@ -119,7 +119,8 @@ public:
             }
             default:
                 break;
-        }
+            }
+            break;
         case Qt::ToolTipRole:
             switch (column) {
             case adv_name_col_:
@@ -140,6 +141,7 @@ public:
             default:
                 break;
             }
+            break;
         case Qt::FontRole:
             if (!is_default && treeWidget()) {
                 QFont font = treeWidget()->font();
