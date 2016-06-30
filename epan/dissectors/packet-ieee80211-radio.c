@@ -634,7 +634,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                */
               if (can_calculate_rate && info_ac->mcs[i] <= MAX_MCS_VHT_INDEX &&
                   info_ac->nss[i] <= MAX_VHT_NSS &&
-                  ieee80211_vhtvalid[info_ac->mcs[i]-1].valid[bandwidth][info_ac->nss[i]]) {
+                  ieee80211_vhtvalid[info_ac->mcs[i]].valid[bandwidth][info_ac->nss[i]]) {
                 data_rate = ieee80211_vhtrate(info_ac->mcs[i], bandwidth, info_ac->short_gi) * info_ac->nss[i];
                 if (data_rate != 0.0f) {
                   proto_tree_add_float_format_value(user_tree, hf_wlan_radio_data_rate, tvb, 0, 0,
