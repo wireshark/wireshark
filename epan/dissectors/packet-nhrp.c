@@ -30,6 +30,7 @@
 
 
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include <epan/etypes.h>
@@ -150,6 +151,8 @@ static expert_field ei_nhrp_ext_not_allowed = EI_INIT;
 static expert_field ei_nhrp_hdr_extoff = EI_INIT;
 static expert_field ei_nhrp_ext_malformed = EI_INIT;
 static expert_field ei_nhrp_ext_extra = EI_INIT;
+
+static gboolean pref_auth_ext_has_addr = TRUE;
 
 /* NHRP Packet Types */
 #define NHRP_RESOLUTION_REQ     1
@@ -881,6 +884,12 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
                 break;
 
             case NHRP_EXT_AUTH:
+                /* This is ugly, but this is the only place srcLen is actually
+                 * used so we manipulate it here.
+                 */
+                if (!pref_auth_ext_has_addr)
+                    srcLen = 0;
+                /* fallthrough */
             case NHRP_EXT_MOBILE_AUTH:
                 if (len < (4 + srcLen)) {
                     proto_tree_add_expert_format(nhrp_tree, pinfo, &ei_nhrp_ext_malformed, tvb, offset, len,
@@ -891,7 +900,7 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
 
                     auth_tree = proto_tree_add_subtree_format(nhrp_tree, tvb, offset, len,
                         ett_nhrp_auth_ext, NULL, "Extension Data: SPI=%u: Data=%s", tvb_get_ntohs(tvb, offset + 2),
-                        tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 4, len - 4));
+                        tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 4 + srcLen, len - (4 + srcLen)));
                     proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_spi, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                     if (srcLen == 4)
@@ -1369,11 +1378,18 @@ proto_register_nhrp(void)
         { &ei_nhrp_ext_extra, { "nhrp.ext.extra", PI_MALFORMED, PI_ERROR, "Superfluous data follows End Extension", EXPFILL }},
     };
 
+    module_t *nhrp_module;
     expert_module_t* expert_nhrp;
 
     proto_nhrp = proto_register_protocol("NBMA Next Hop Resolution Protocol", "NHRP", "nhrp");
     proto_register_field_array(proto_nhrp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    nhrp_module = prefs_register_protocol(proto_nhrp, NULL);
+    prefs_register_bool_preference(nhrp_module, "auth_ext_has_addr",
+                                   "Authentication Extension data contains the source address",
+                                   "Whether the Authentication Extension data contains the source address. "
+                                   "Some Cisco IOS implementations forgo this part of RFC2332.",
+                                   &pref_auth_ext_has_addr);
     expert_nhrp = expert_register_protocol(proto_nhrp);
     expert_register_field_array(expert_nhrp, ei, array_length(ei));
 }
