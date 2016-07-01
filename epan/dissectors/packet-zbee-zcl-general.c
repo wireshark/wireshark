@@ -12492,6 +12492,15 @@ static const value_string zbee_zcl_gp_channels[] = {
     { 0, NULL }
 };
 
+static const value_string zbee_gp_pc_actions[] = {
+    { 0, "No action" },
+    { 1, "Extend Sink Table entry" },
+    { 2, "Replace Sink Table entry" },
+    { 3, "Remove a pairing" },
+    { 4, "Remove GPD" },
+    { 0, NULL }
+};
+
 #define ZBEE_ZCL_GP_PROXY_COMMISSIONING_MODE_OPTION_ACTION                             1
 #define ZBEE_ZCL_GP_PROXY_COMMISSIONING_MODE_OPTION_EXIT_MODE                          (7<<1)
 #define ZBEE_ZCL_GP_PROXY_COMMISSIONING_MODE_OPTION_ON_COMMISSIONING_WINDOW_EXPIRATION ((1<<0)<<1)
@@ -12540,6 +12549,29 @@ static const value_string zbee_zcl_gp_channels[] = {
 #define ZBEE_ZCL_GP_RESPONSE_OPTION_TX_ON_ENDPOINT_MATCH                               (1<<3)
 
 #define ZBEE_ZCL_GP_RESPONSE_TX_CHANNEL                                                (0xf<<0)
+
+#define ZBEE_ZCL_GP_CMD_PC_ACTIONS_ACTION                                              (7<<0)
+#define ZBEE_ZCL_GP_CMD_PC_ACTIONS_SEND_GP_PAIRING                                     (1<<3)
+
+#define ZBEE_ZCL_GP_CMD_PC_OPT_APP_ID                                                  (7<<0)
+#define ZBEE_ZCL_GP_CMD_PC_OPT_COMMUNICATION_MODE                                      (3<<3)
+#define ZBEE_ZCL_GP_CMD_PC_OPT_SEQ_NUMBER_CAP                                          (1<<5)
+#define ZBEE_ZCL_GP_CMD_PC_OPT_RX_ON_CAP                                               (1<<6)
+#define ZBEE_ZCL_GP_CMD_PC_OPT_FIXED_LOCATION                                          (1<<7)
+#define ZBEE_ZCL_GP_CMD_PC_OPT_ASSIGNED_ALIAS                                          (1<<8)
+#define ZBEE_ZCL_GP_CMD_PC_OPT_SECURITY_USE                                            (1<<9)
+#define ZBEE_ZCL_GP_CMD_PC_OPT_APP_INFO_PRESENT                                        (1<<10)
+#define ZBEE_ZCL_GP_COMMUNICATION_MODE_GROUPCAST_PRECOMMISSIONED                       2
+#define ZBEE_ZCL_GP_PAIRING_CONFIGURATION_OPTION_COMMUNICATION_MODE_SHIFT              3
+#define ZBEE_ZCL_GP_CMD_PC_SECUR_LEVEL                                                 (3<<0)
+#define ZBEE_ZCL_GP_CMD_PC_SECUR_KEY_TYPE                                              (7<<2)
+#define ZBEE_ZCL_GP_CMD_PC_APP_INFO_MANUF_ID_PRESENT                                   (1<<0)
+#define ZBEE_ZCL_GP_CMD_PC_APP_INFO_MODEL_ID_PRESENT                                   (1<<1)
+#define ZBEE_ZCL_GP_CMD_PC_APP_INFO_GPD_COMMANDS_PRESENT                               (1<<2)
+#define ZBEE_ZCL_GP_CMD_PC_APP_INFO_CLUSTER_LIST_PRESENT                               (1<<3)
+#define ZBEE_ZCL_GP_CLUSTER_LIST_LEN_SRV                                               (0xf<<0)
+#define ZBEE_ZCL_GP_CLUSTER_LIST_LEN_CLI                                               (0xf<<4)
+#define ZBEE_ZCL_GP_CLUSTER_LIST_LEN_CLI_SHIFT                                         4
 
 /*************************/
 /* Global Variables      */
@@ -12638,6 +12670,50 @@ static gint hf_zbee_gp_cmd_resp_opt_app_id = -1;
 static gint hf_zbee_gp_cmd_resp_opt_tx_on_ep_match = -1;
 static gint hf_zbee_gp_tmp_master_short_addr = -1;
 static gint hf_zbee_gp_cmd_resp_tx_channel = -1;
+
+/* GP_PAIRING_CONFIGURATION */
+static guint hf_zbee_gp_cmd_pc_actions_action = -1;
+static guint hf_zbee_gp_cmd_pc_actions_send_gp_pairing = -1;
+static guint hf_zbee_gp_cmd_pc_opt_app_id = -1;
+static guint hf_zbee_gp_cmd_pc_opt_communication_mode = -1;
+static guint hf_zbee_gp_cmd_pc_opt_seq_number_cap = -1;
+static guint hf_zbee_gp_cmd_px_opt_rx_on_cap = -1;
+static guint hf_zbee_gp_cmd_pc_opt_fixed_location = -1;
+static guint hf_zbee_gp_cmd_pc_opt_assigned_alias = -1;
+static guint hf_zbee_gp_cmd_pc_opt_security_use = -1;
+static guint hf_zbee_gp_cmd_pc_opt_app_info_present = -1;
+static guint hf_zbee_gp_cmd_pc_secur_level = -1;
+static guint hf_zbee_gp_cmd_pc_secur_key_type = -1;
+static guint hf_zbee_gp_cmd_pc_app_info_manuf_id_present = -1;
+static guint hf_zbee_gp_cmd_pc_app_info_model_id_present = -1;
+static guint hf_zbee_gp_cmd_pc_app_info_gpd_commands_present = -1;
+static guint hf_zbee_gp_cmd_pc_app_info_cluster_list_present = -1;
+static guint hf_zbee_gp_cmd_pc_actions = -1;
+static guint ett_zbee_gp_cmd_pc_actions = -1;
+static guint hf_zbee_gp_cmd_pc_options = -1;
+static guint ett_zbee_gp_cmd_pc_options = -1;
+static guint ett_zbee_zcl_gp_group_list = -1;
+static guint hf_zbee_gp_group_list_len = -1;
+static guint hf_zbee_gp_group_list_group_id = -1;
+static guint hf_zbee_gp_group_list_alias = -1;
+static guint hf_zbee_gp_cmd_pc_secur_options = -1;
+static guint ett_zbee_gp_cmd_pc_secur_options = -1;
+static guint hf_zbee_gp_n_paired_endpoints = -1;
+static guint hf_zbee_gp_paired_endpoint = -1;
+static guint hf_zbee_gp_cmd_pc_app_info = -1;
+static guint ett_zbee_gp_cmd_pc_app_info = -1;
+static guint hf_zbee_zcl_gp_manufacturer_id = -1;
+static guint hf_zbee_zcl_gp_model_id = -1;
+static guint hf_zbee_gp_n_gpd_commands = -1;
+static guint hf_zbee_gp_gpd_command = -1;
+static guint hf_zbee_gp_n_srv_clusters = -1;
+static guint hf_zbee_gp_n_cli_clusters = -1;
+static guint hf_zbee_gp_gpd_cluster_id = -1;
+static guint ett_zbee_zcl_gp_ep = -1;
+static guint ett_zbee_zcl_gp_cmds = -1;
+static guint ett_zbee_zcl_gp_clusters = -1;
+static guint ett_zbee_zcl_gp_srv_clusters = -1;
+static guint ett_zbee_zcl_gp_cli_clusters = -1;
 
 /* reuse ZGPD command names */
 extern value_string_ext zbee_nwk_gp_cmd_names_ext;
@@ -12837,10 +12913,174 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                 break;
             }
 
+            case ZBEE_CMD_ID_GP_PAIRING_CONFIGURATION:
+            {
+                static const int * pc_actions[] = {
+                    &hf_zbee_gp_cmd_pc_actions_action,
+                    &hf_zbee_gp_cmd_pc_actions_send_gp_pairing,
+                    NULL
+                };
+                static const int * pc_options[] = {
+                    &hf_zbee_gp_cmd_pc_opt_app_id,
+                    &hf_zbee_gp_cmd_pc_opt_communication_mode,
+                    &hf_zbee_gp_cmd_pc_opt_seq_number_cap,
+                    &hf_zbee_gp_cmd_px_opt_rx_on_cap,
+                    &hf_zbee_gp_cmd_pc_opt_fixed_location,
+                    &hf_zbee_gp_cmd_pc_opt_assigned_alias,
+                    &hf_zbee_gp_cmd_pc_opt_security_use,
+                    &hf_zbee_gp_cmd_pc_opt_app_info_present,
+                    NULL
+                };
+                guint16 options;
+
+                proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_gp_cmd_pc_actions,
+                                       ett_zbee_gp_cmd_pc_actions, pc_actions, ENC_NA);
+                offset += 1;
+
+                options = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+
+                proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_gp_cmd_pc_options,
+                                       ett_zbee_gp_cmd_pc_options, pc_options, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                if ((options & ZBEE_ZCL_GP_CMD_PC_OPT_APP_ID) == 0) {
+                    proto_tree_add_item(tree, hf_zbee_gp_src_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                    offset += 4;
+                }
+                else {
+                    proto_tree_add_item(tree, hf_zbee_gp_ieee, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+                    offset += 8;
+                    proto_tree_add_item(tree, hf_zbee_gp_endpoint, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                }
+
+                proto_tree_add_item(tree, hf_zbee_gp_device_id, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                if (((options & ZBEE_ZCL_GP_CMD_PC_OPT_COMMUNICATION_MODE) >> ZBEE_ZCL_GP_PAIRING_CONFIGURATION_OPTION_COMMUNICATION_MODE_SHIFT)
+                    == ZBEE_ZCL_GP_COMMUNICATION_MODE_GROUPCAST_PRECOMMISSIONED) {
+                    guint8      len = tvb_get_guint8(tvb, offset);
+                    proto_tree  *gl_tree  = proto_tree_add_subtree_format(tree, tvb, offset, len*4+1, ett_zbee_zcl_gp_group_list, NULL, "GroupList #%d", len);
+
+                    proto_tree_add_item(gl_tree, hf_zbee_gp_group_list_len, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                    while (len)
+                    {
+                        proto_tree_add_item(gl_tree, hf_zbee_gp_group_list_group_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        offset += 2;
+                        proto_tree_add_item(gl_tree, hf_zbee_gp_group_list_alias, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        offset += 2;
+                        len--;
+                    }
+                }
+
+                if (options & ZBEE_ZCL_GP_CMD_PC_OPT_ASSIGNED_ALIAS) {
+                    proto_tree_add_item(tree, hf_zbee_gp_assigned_alias, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+                }
+
+                proto_tree_add_item(tree, hf_zbee_gp_forwarding_radius, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                if (options & ZBEE_ZCL_GP_CMD_PC_OPT_SECURITY_USE) {
+                    static const int * secur_options[] = {
+                        &hf_zbee_gp_cmd_pc_secur_level,
+                        &hf_zbee_gp_cmd_pc_secur_key_type,
+                        NULL
+                    };
+                    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_gp_cmd_pc_secur_options,
+                                           ett_zbee_gp_cmd_pc_secur_options, secur_options, ENC_NA);
+                    offset += 1;
+                    proto_tree_add_item(tree, hf_zbee_gp_secur_frame_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                    offset += 4;
+                    proto_tree_add_item(tree, hf_zbee_gp_gpd_key, tvb, offset, 16, ENC_NA);
+                    offset += 16;
+                }
+                {
+                    guint8 n_paired_endpoints = tvb_get_guint8(tvb, offset);
+                    proto_tree  *ep_tree  = proto_tree_add_subtree_format(tree, tvb, offset, n_paired_endpoints+1, ett_zbee_zcl_gp_ep, NULL, "Paired Endpoints #%d", n_paired_endpoints);
+                    proto_tree_add_item(ep_tree, hf_zbee_gp_n_paired_endpoints, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                    if (n_paired_endpoints != 0 && n_paired_endpoints != 0xfd
+                        && n_paired_endpoints != 0xfe && n_paired_endpoints != 0xff)
+                    {
+                        while (n_paired_endpoints)
+                        {
+                            proto_tree_add_item(ep_tree, hf_zbee_gp_paired_endpoint, tvb, offset, 1, ENC_NA);
+                            offset += 1;
+                            n_paired_endpoints--;
+                        }
+                    }
+                }
+                if (options & ZBEE_ZCL_GP_CMD_PC_OPT_APP_INFO_PRESENT) {
+                    static const int * app_info[] = {
+                        &hf_zbee_gp_cmd_pc_app_info_manuf_id_present,
+                        &hf_zbee_gp_cmd_pc_app_info_model_id_present,
+                        &hf_zbee_gp_cmd_pc_app_info_gpd_commands_present,
+                        &hf_zbee_gp_cmd_pc_app_info_cluster_list_present,
+                        NULL
+                    };
+                    guint8 appi = tvb_get_guint8(tvb, offset);
+
+                    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_gp_cmd_pc_app_info,
+                                           ett_zbee_gp_cmd_pc_app_info, app_info, ENC_NA);
+                    offset += 1;
+                    if (appi & ZBEE_ZCL_GP_CMD_PC_APP_INFO_MANUF_ID_PRESENT) {
+                        proto_tree_add_item(tree, hf_zbee_zcl_gp_manufacturer_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        offset += 2;
+                    }
+                    if (appi & ZBEE_ZCL_GP_CMD_PC_APP_INFO_MODEL_ID_PRESENT) {
+                        proto_tree_add_item(tree, hf_zbee_zcl_gp_model_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        offset += 2;
+                    }
+                    if (appi & ZBEE_ZCL_GP_CMD_PC_APP_INFO_GPD_COMMANDS_PRESENT) {
+                        guint8 n_commands = tvb_get_guint8(tvb, offset);
+                        proto_tree  *c_tree  = proto_tree_add_subtree_format(tree, tvb, offset, n_commands+1, ett_zbee_zcl_gp_cmds, NULL, "GPD CommandID list #%d", n_commands);
+                        proto_tree_add_item(c_tree, hf_zbee_gp_n_gpd_commands, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+                        while (n_commands)
+                        {
+                            proto_tree_add_item(c_tree, hf_zbee_gp_gpd_command, tvb, offset, 1, ENC_NA);
+                            offset += 1;
+                            n_commands--;
+                        }
+                    }
+                    if (appi & ZBEE_ZCL_GP_CMD_PC_APP_INFO_CLUSTER_LIST_PRESENT) {
+                        guint8 n = tvb_get_guint8(tvb, offset);
+                        guint8 n_srv_clusters = n & ZBEE_ZCL_GP_CLUSTER_LIST_LEN_SRV;
+                        guint8 n_cli_clusters = (n & ZBEE_ZCL_GP_CLUSTER_LIST_LEN_CLI) >> ZBEE_ZCL_GP_CLUSTER_LIST_LEN_CLI_SHIFT;
+                        proto_tree  *cl_tree  = proto_tree_add_subtree_format(tree, tvb, offset, n*2+1, ett_zbee_zcl_gp_clusters, NULL, "Cluster List #%d/%d", n_srv_clusters, n_cli_clusters);
+                        proto_tree_add_item(cl_tree, hf_zbee_gp_n_srv_clusters, tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item(cl_tree, hf_zbee_gp_n_cli_clusters, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+                        if (n_srv_clusters)
+                        {
+                            proto_tree  *s_tree  = proto_tree_add_subtree_format(cl_tree, tvb, offset, n_srv_clusters*2, ett_zbee_zcl_gp_srv_clusters, NULL, "Server clusters #%d", n_srv_clusters);
+                            while (n_srv_clusters)
+                            {
+                                proto_tree_add_item(s_tree, hf_zbee_gp_gpd_cluster_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                                offset += 2;
+                                n_srv_clusters--;
+                            }
+                        }
+                        if (n_cli_clusters)
+                        {
+                            proto_tree  *c_tree  = proto_tree_add_subtree_format(cl_tree, tvb, offset, n_cli_clusters*2, ett_zbee_zcl_gp_cli_clusters, NULL, "Client clusters #%d", n_cli_clusters);
+                            while (n_cli_clusters)
+                            {
+                                proto_tree_add_item(c_tree, hf_zbee_gp_gpd_cluster_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                                offset += 2;
+                                n_cli_clusters--;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+
             case ZBEE_CMD_ID_GP_SINK_COMMISSIONING_MODE:
             case ZBEE_CMD_ID_GP_TRANSLATION_TABLE_UPDATE_COMMAND:
             case ZBEE_CMD_ID_GP_TRANSLATION_TABLE_REQUEST:
-            case ZBEE_CMD_ID_GP_PAIRING_CONFIGURATION:
             case ZBEE_CMD_ID_GP_SINK_TABLE_REQUEST:
             case ZBEE_CMD_ID_GP_PROXY_TABLE_RESPONSE:
                 /* TODO: add commands parse */
@@ -13277,6 +13517,104 @@ proto_register_zbee_zcl_gp(void)
         { &hf_zbee_gp_tmp_master_short_addr,
           { "TempMaster short address", "zbee_zcl_general.gp.response.tmpmaster_addr", FT_UINT16, BASE_HEX,
             NULL, 0, NULL, HFILL }},
+
+        /* GP Pairing Configuration */
+        { &hf_zbee_gp_cmd_pc_actions_action,
+          { "Action", "zbee_zcl_general.gp.pc.action.action", FT_UINT8, BASE_HEX,
+            VALS(zbee_gp_pc_actions), ZBEE_ZCL_GP_CMD_PC_ACTIONS_ACTION, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_actions_send_gp_pairing,
+          { "Send GP Pairing", "zbee_zcl_general.gp.pc.action.send_gp_pairing", FT_BOOLEAN, 8,
+            NULL, ZBEE_ZCL_GP_CMD_PC_ACTIONS_SEND_GP_PAIRING, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_opt_app_id,
+          { "ApplicationID", "zbee_zcl_general.gp.pp.opt.app_id", FT_UINT16, BASE_HEX,
+            NULL, ZBEE_ZCL_GP_CMD_PC_OPT_APP_ID, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_opt_communication_mode,
+          { "Communication mode", "zbee_zcl_general.gp.pc.opt.comm_mode", FT_UINT16, BASE_HEX,
+            VALS(zbee_zcl_gp_communication_modes), ZBEE_ZCL_GP_CMD_PC_OPT_COMMUNICATION_MODE, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_opt_seq_number_cap,
+          { "Sequence number capabilities", "zbee_zcl_general.gp.pc.opt.seq_num_cap", FT_BOOLEAN, 16,
+            NULL, ZBEE_ZCL_GP_CMD_PC_OPT_SEQ_NUMBER_CAP, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_px_opt_rx_on_cap,
+          { "RxOnCapability", "zbee_zcl_general.gp.pc.opt.rx_on_cap", FT_BOOLEAN, 16,
+            NULL, ZBEE_ZCL_GP_CMD_PC_OPT_RX_ON_CAP, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_opt_fixed_location,
+          { "FixedLocation", "zbee_zcl_general.gp.pc.opt.fixed_loc", FT_BOOLEAN, 16,
+            NULL, ZBEE_ZCL_GP_CMD_PC_OPT_FIXED_LOCATION, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_opt_assigned_alias,
+          { "AssignedAlias", "zbee_zcl_general.gp.pc.opt.asn_alias", FT_BOOLEAN, 16,
+            NULL, ZBEE_ZCL_GP_CMD_PC_OPT_ASSIGNED_ALIAS, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_opt_security_use,
+          { "Security use", "zbee_zcl_general.gp.pc.opt.secur_use", FT_BOOLEAN, 16,
+            NULL, ZBEE_ZCL_GP_CMD_PC_OPT_SECURITY_USE, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_opt_app_info_present,
+          { "Application in-formation present", "zbee_zcl_general.gp.pc.opt.app_info_present", FT_BOOLEAN, 16,
+            NULL, ZBEE_ZCL_GP_CMD_PC_OPT_APP_INFO_PRESENT, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_secur_level,
+          { "SecurityLevel", "zbee_zcl_general.gp.pc.secur.secur_lev", FT_UINT8, BASE_HEX,
+            VALS(zbee_zcl_gp_secur_levels), ZBEE_ZCL_GP_CMD_PC_SECUR_LEVEL, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_secur_key_type,
+          { "SecurityKeyType", "zbee_zcl_general.gp.pc.secur.secur_key_type", FT_UINT8, BASE_HEX,
+            VALS(zbee_zcl_gp_secur_key_types), ZBEE_ZCL_GP_CMD_PC_SECUR_KEY_TYPE, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_app_info_manuf_id_present,
+          { "ManufacturerID present", "zbee_zcl_general.gp.pc.app.manuf_id_present", FT_BOOLEAN, 8,
+            NULL, ZBEE_ZCL_GP_CMD_PC_APP_INFO_MANUF_ID_PRESENT, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_app_info_model_id_present,
+          { "ModelID present", "zbee_zcl_general.gp.pc.app.model_id_present", FT_BOOLEAN, 8,
+            NULL, ZBEE_ZCL_GP_CMD_PC_APP_INFO_MODEL_ID_PRESENT, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_app_info_gpd_commands_present,
+          { "GPD commands present", "zbee_zcl_general.gp.pc.app.gpd_cmds_present", FT_BOOLEAN, 8,
+            NULL, ZBEE_ZCL_GP_CMD_PC_APP_INFO_GPD_COMMANDS_PRESENT, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_app_info_cluster_list_present,
+          { "Cluster list present", "zbee_zcl_general.gp.pc.app.cluster_list_present", FT_BOOLEAN, 8,
+            NULL, ZBEE_ZCL_GP_CMD_PC_APP_INFO_CLUSTER_LIST_PRESENT, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_actions,
+          { "Actions", "zbee_zcl_general.gp.pc.actions", FT_UINT8, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_options,
+          { "Options", "zbee_zcl_general.gp.pc.options", FT_UINT16, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+        { &hf_zbee_gp_group_list_len,
+          { "Group list length", "zbee_zcl_general.gp.pc.group_list.len", FT_UINT8, BASE_DEC,
+            NULL, 0, NULL, HFILL }},
+        { &hf_zbee_gp_group_list_group_id,
+          { "Group id", "zbee_zcl_general.gp.pc.group_list.group", FT_UINT16, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+        { &hf_zbee_gp_group_list_alias,
+          { "Alias", "zbee_zcl_general.gp.pc.group_list.alias", FT_UINT16, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_secur_options,
+          { "Security Options", "zbee_zcl_general.gp.pc.secur_options", FT_UINT8, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+        { &hf_zbee_gp_n_paired_endpoints,
+          { "Number of paired endpoints", "zbee_zcl_general.gp.pc.n_ep", FT_UINT8, BASE_DEC,
+            NULL, 0, NULL, HFILL }},
+        { &hf_zbee_gp_paired_endpoint,
+          { "Paired endpoint", "zbee_zcl_general.gp.pc.endpoint", FT_UINT8, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+        { &hf_zbee_gp_cmd_pc_app_info,
+          { "Application information", "zbee_zcl_general.gp.pc.app_info", FT_UINT8, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_manufacturer_id,
+          { "Manufacturer ID", "zbee_zcl_general.gp.pc.manufacturer_id", FT_UINT16, BASE_HEX,
+            VALS(zbee_mfr_code_names), 0x0, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_model_id,
+          { "Model ID", "zbee_zcl_general.gp.pc.model_id", FT_UINT16, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+        { &hf_zbee_gp_n_gpd_commands,
+          { "Number of GPD commands", "zbee_zcl_general.gp.pc.n_gpd_commands", FT_UINT8, BASE_DEC,
+            NULL, 0, NULL, HFILL }},
+        { &hf_zbee_gp_gpd_command,
+          { "ZGPD Command ID", "zbee_zcl_general.gp.pc.gpd_command", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+            &zbee_nwk_gp_cmd_names_ext, 0x0, NULL, HFILL }},
+        { &hf_zbee_gp_n_srv_clusters,
+          { "Number of Server clusters", "zbee_zcl_general.gp.pc.n_srv_clusters", FT_UINT8, BASE_DEC,
+            NULL, ZBEE_ZCL_GP_CLUSTER_LIST_LEN_SRV, NULL, HFILL }},
+        { &hf_zbee_gp_n_cli_clusters,
+          { "Number of Client clusters", "zbee_zcl_general.gp.pc.n_srv_clusters", FT_UINT8, BASE_DEC,
+            NULL, ZBEE_ZCL_GP_CLUSTER_LIST_LEN_CLI, NULL, HFILL }},
+        { &hf_zbee_gp_gpd_cluster_id,
+          { "Cluster ID", "zbee_zcl_general.gp.pc.cluster", FT_UINT8, BASE_HEX, VALS(zbee_aps_cid_names),
+            0x0, NULL, HFILL }},
     };
 
     /* ZCL Green Power subtrees */
@@ -13289,7 +13627,17 @@ proto_register_zbee_zcl_gp(void)
         &ett_zbee_gp_cmd_notification_options,
         &ett_zbee_gp_cmd_pairing_options,
         &ett_zbee_gp_cmd_response_options,
-        &ett_zbee_gp_cmd_response_tx_channel
+        &ett_zbee_gp_cmd_response_tx_channel,
+        &ett_zbee_gp_cmd_pc_actions,
+        &ett_zbee_gp_cmd_pc_options,
+        &ett_zbee_zcl_gp_group_list,
+        &ett_zbee_gp_cmd_pc_secur_options,
+        &ett_zbee_gp_cmd_pc_app_info,
+        &ett_zbee_zcl_gp_ep,
+        &ett_zbee_zcl_gp_cmds,
+        &ett_zbee_zcl_gp_clusters,
+        &ett_zbee_zcl_gp_srv_clusters,
+        &ett_zbee_zcl_gp_cli_clusters
     };
 
 
