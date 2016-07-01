@@ -26,6 +26,8 @@
 
 #include <epan/charsets.h>
 
+#include <wsutil/utf8_entities.h>
+
 #include "color_utils.h"
 #include "wireshark_application.h"
 #include "ui/recent.h"
@@ -74,7 +76,7 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
     if (recent.gui_bytes_view == BYTES_HEX) {
         action->setChecked(true);
     }
-    action = format_actions_->addAction(tr("Show bytes as bits"));
+    action = format_actions_->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as bits"));
     action->setData(qVariantFromValue(BYTES_BITS));
     action->setCheckable(true);
     if (recent.gui_bytes_view == BYTES_BITS) {
@@ -86,13 +88,13 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
 
     ctx_menu_.addSeparator();
 
-    action = encoding_actions_->addAction(tr("Show bytes as ASCII"));
+    action = encoding_actions_->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as ASCII"));
     action->setData(qVariantFromValue(PACKET_CHAR_ENC_CHAR_ASCII));
     action->setCheckable(true);
     if (encoding_ == PACKET_CHAR_ENC_CHAR_ASCII) {
         action->setChecked(true);
     }
-    action = encoding_actions_->addAction(tr("Show bytes as EBCDIC"));
+    action = encoding_actions_->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as EBCDIC"));
     action->setData(qVariantFromValue(PACKET_CHAR_ENC_CHAR_EBCDIC));
     action->setCheckable(true);
     if (encoding_ == PACKET_CHAR_ENC_CHAR_EBCDIC) {
