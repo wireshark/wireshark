@@ -143,6 +143,8 @@ static expert_field ei_sv_zero_pdu = EI_INIT;
 
 static gboolean sv_decode_data_as_phsmeas = FALSE;
 
+static dissector_handle_t sv_handle;
+
 static const value_string sv_q_validity_vals[] = {
 	{ 0, "good" },
 	{ 1, "invalid" },
@@ -436,7 +438,7 @@ dissect_sv_SampledValues(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 /*--- End of included file: packet-sv-fn.c ---*/
-#line 185 "./asn1/sv/packet-sv-template.c"
+#line 187 "./asn1/sv/packet-sv-template.c"
 
 /*
 * Dissect SV PDUs inside a PPDU.
@@ -605,7 +607,7 @@ void proto_register_sv(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-sv-hfarr.c ---*/
-#line 297 "./asn1/sv/packet-sv-template.c"
+#line 299 "./asn1/sv/packet-sv-template.c"
 	};
 
 	/* List of subtrees */
@@ -622,7 +624,7 @@ void proto_register_sv(void) {
     &ett_sv_ASDU,
 
 /*--- End of included file: packet-sv-ettarr.c ---*/
-#line 305 "./asn1/sv/packet-sv-template.c"
+#line 307 "./asn1/sv/packet-sv-template.c"
 	};
 
 	static ei_register_info ei[] = {
@@ -635,7 +637,7 @@ void proto_register_sv(void) {
 
 	/* Register protocol */
 	proto_sv = proto_register_protocol(PNAME, PSNAME, PFNAME);
-	register_dissector("sv", dissect_sv, proto_sv);
+	sv_handle = register_dissector("sv", dissect_sv, proto_sv);
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_sv, hf, array_length(hf));
@@ -653,9 +655,5 @@ void proto_register_sv(void) {
 
 /*--- proto_reg_handoff_sv --- */
 void proto_reg_handoff_sv(void) {
-
-	dissector_handle_t sv_handle;
-	sv_handle = find_dissector("sv");
-
 	dissector_add_uint("ethertype", ETHERTYPE_IEC61850_SV, sv_handle);
 }

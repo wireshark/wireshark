@@ -252,6 +252,8 @@ static expert_field ei_disp_unsupported_errcode = EI_INIT;
 static expert_field ei_disp_unsupported_pdu = EI_INIT;
 static expert_field ei_disp_zero_pdu = EI_INIT;
 
+static dissector_handle_t disp_handle = NULL;
+
 
 /*--- Included file: packet-disp-fn.c ---*/
 #line 1 "./asn1/disp/packet-disp-fn.c"
@@ -1482,7 +1484,7 @@ static int dissect_ShadowingAgreementInfo_PDU(tvbuff_t *tvb _U_, packet_info *pi
 
 
 /*--- End of included file: packet-disp-fn.c ---*/
-#line 77 "./asn1/disp/packet-disp-template.c"
+#line 79 "./asn1/disp/packet-disp-template.c"
 
 /*
 * Dissect DISP PDUs inside a ROS PDUs
@@ -2040,7 +2042,7 @@ void proto_register_disp(void) {
         "ShadowErrorData", HFILL }},
 
 /*--- End of included file: packet-disp-hfarr.c ---*/
-#line 202 "./asn1/disp/packet-disp-template.c"
+#line 204 "./asn1/disp/packet-disp-template.c"
   };
 
   /* List of subtrees */
@@ -2105,7 +2107,7 @@ void proto_register_disp(void) {
     &ett_disp_T_signedShadowError,
 
 /*--- End of included file: packet-disp-ettarr.c ---*/
-#line 208 "./asn1/disp/packet-disp-template.c"
+#line 210 "./asn1/disp/packet-disp-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -2120,7 +2122,7 @@ void proto_register_disp(void) {
 
   /* Register protocol */
   proto_disp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("disp", dissect_disp, proto_disp);
+  disp_handle = register_dissector("disp", dissect_disp, proto_disp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_disp, hf, array_length(hf));
@@ -2142,8 +2144,6 @@ void proto_register_disp(void) {
 
 /*--- proto_reg_handoff_disp --- */
 void proto_reg_handoff_disp(void) {
-  dissector_handle_t disp_handle;
-
 
 /*--- Included file: packet-disp-dis-tab.c ---*/
 #line 1 "./asn1/disp/packet-disp-dis-tab.c"
@@ -2165,9 +2165,6 @@ void proto_reg_handoff_disp(void) {
   oid_add_from_string("id-ac-reliable-shadow-supplier-initiated","2.5.3.7");
 
   /* ABSTRACT SYNTAXES */
-
-  disp_handle = find_dissector("disp");
-
   register_ros_oid_dissector_handle("2.5.9.3", disp_handle, 0, "id-as-directory-shadow", FALSE);
   register_rtse_oid_dissector_handle("2.5.9.5", disp_handle, 0, "id-as-directory-reliable-shadow", FALSE);
   register_rtse_oid_dissector_handle("2.5.9.6", disp_handle, 0, "id-as-directory-reliable-binding", FALSE);

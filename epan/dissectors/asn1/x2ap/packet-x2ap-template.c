@@ -84,6 +84,8 @@ static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 void proto_reg_handoff_x2ap(void);
 
+static dissector_handle_t x2ap_handle;
+
 #include "packet-x2ap-fn.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -161,7 +163,7 @@ void proto_register_x2ap(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  register_dissector("x2ap", dissect_x2ap, proto_x2ap);
+  x2ap_handle = register_dissector("x2ap", dissect_x2ap, proto_x2ap);
 
   /* Register dissector tables */
   x2ap_ies_dissector_table = register_dissector_table("x2ap.ies", "X2AP-PROTOCOL-IES", proto_x2ap, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
@@ -186,11 +188,9 @@ void proto_register_x2ap(void) {
 void
 proto_reg_handoff_x2ap(void)
 {
-	dissector_handle_t x2ap_handle;
 	static gboolean Initialized=FALSE;
 	static guint SctpPort;
 
-	x2ap_handle = find_dissector("x2ap");
 	if (!Initialized) {
 		dissector_add_for_decode_as("sctp.port", x2ap_handle);
 		dissector_add_uint("sctp.ppi", X2AP_PAYLOAD_PROTOCOL_ID, x2ap_handle);

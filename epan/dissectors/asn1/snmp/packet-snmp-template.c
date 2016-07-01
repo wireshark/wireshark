@@ -2524,7 +2524,7 @@ void proto_register_snmp(void) {
 
 	/* Register protocol */
 	proto_snmp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-	register_dissector("snmp", dissect_snmp, proto_snmp);
+	snmp_handle = register_dissector("snmp", dissect_snmp, proto_snmp);
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_snmp, hf, array_length(hf));
@@ -2582,8 +2582,6 @@ void proto_register_snmp(void) {
 /*--- proto_reg_handoff_snmp ---------------------------------------*/
 void proto_reg_handoff_snmp(void) {
 	dissector_handle_t snmp_tcp_handle;
-
-	snmp_handle = find_dissector("snmp");
 
 	dissector_add_uint("udp.port", UDP_PORT_SNMP, snmp_handle);
 	dissector_add_uint("udp.port", UDP_PORT_SNMP_TRAP, snmp_handle);

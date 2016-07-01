@@ -13575,7 +13575,6 @@ proto_reg_handoff_pcap(void)
     static range_t *ssn_range;
 
     if (! prefs_initialized) {
-        pcap_handle = find_dissector("pcap");
         sccp_ssn_table = find_dissector_table("sccp.ssn");
         prefs_initialized = TRUE;
 
@@ -13719,7 +13718,7 @@ proto_reg_handoff_pcap(void)
 
 
 /*--- End of included file: packet-pcap-dis-tab.c ---*/
-#line 156 "./asn1/pcap/packet-pcap-template.c"
+#line 155 "./asn1/pcap/packet-pcap-template.c"
     } else {
         dissector_delete_uint_range("sccp.ssn", ssn_range, pcap_handle);
         g_free(ssn_range);
@@ -18300,7 +18299,7 @@ void proto_register_pcap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pcap-hfarr.c ---*/
-#line 172 "./asn1/pcap/packet-pcap-template.c"
+#line 171 "./asn1/pcap/packet-pcap-template.c"
   };
 
   /* List of subtrees */
@@ -18704,7 +18703,7 @@ void proto_register_pcap(void) {
     &ett_pcap_Outcome,
 
 /*--- End of included file: packet-pcap-ettarr.c ---*/
-#line 178 "./asn1/pcap/packet-pcap-template.c"
+#line 177 "./asn1/pcap/packet-pcap-template.c"
   };
 
   module_t *pcap_module;
@@ -18718,7 +18717,7 @@ void proto_register_pcap(void) {
   pcap_module = prefs_register_protocol(proto_pcap, proto_reg_handoff_pcap);
 
   /* Register dissector */
-  register_dissector("pcap", dissect_pcap, proto_pcap);
+  pcap_handle = register_dissector("pcap", dissect_pcap, proto_pcap);
 
   /* Register dissector tables */
   pcap_ies_dissector_table = register_dissector_table("pcap.ies", "PCAP-PROTOCOL-IES", proto_pcap, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

@@ -265,6 +265,9 @@ static dissector_table_t sabp_proc_imsg_dissector_table;
 static dissector_table_t sabp_proc_sout_dissector_table;
 static dissector_table_t sabp_proc_uout_dissector_table;
 
+static dissector_handle_t sabp_handle;
+static dissector_handle_t sabp_tcp_handle;
+
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
@@ -1727,7 +1730,7 @@ static int dissect_SABP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-sabp-fn.c ---*/
-#line 94 "./asn1/sabp/packet-sabp-template.c"
+#line 97 "./asn1/sabp/packet-sabp-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -2201,7 +2204,7 @@ void proto_register_sabp(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sabp-hfarr.c ---*/
-#line 247 "./asn1/sabp/packet-sabp-template.c"
+#line 250 "./asn1/sabp/packet-sabp-template.c"
   };
 
   /* List of subtrees */
@@ -2258,7 +2261,7 @@ void proto_register_sabp(void) {
     &ett_sabp_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sabp-ettarr.c ---*/
-#line 260 "./asn1/sabp/packet-sabp-template.c"
+#line 263 "./asn1/sabp/packet-sabp-template.c"
   };
 
 
@@ -2269,8 +2272,8 @@ void proto_register_sabp(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  register_dissector("sabp", dissect_sabp, proto_sabp);
-  register_dissector("sabp.tcp", dissect_sabp_tcp, proto_sabp);
+  sabp_handle = register_dissector("sabp", dissect_sabp, proto_sabp);
+  sabp_tcp_handle = register_dissector("sabp.tcp", dissect_sabp_tcp, proto_sabp);
 
   /* Register dissector tables */
   sabp_ies_dissector_table = register_dissector_table("sabp.ies", "SABP-PROTOCOL-IES", proto_sabp, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
@@ -2285,11 +2288,6 @@ void proto_register_sabp(void) {
 void
 proto_reg_handoff_sabp(void)
 {
-  dissector_handle_t sabp_handle;
-  dissector_handle_t sabp_tcp_handle;
-
-  sabp_handle = find_dissector("sabp");
-  sabp_tcp_handle = find_dissector("sabp.tcp");
   dissector_add_uint("udp.port", 3452, sabp_handle);
   dissector_add_uint("tcp.port", 3452, sabp_tcp_handle);
   dissector_add_uint("sctp.ppi", SABP_PAYLOAD_PROTOCOL_ID, sabp_handle);
@@ -2340,7 +2338,7 @@ proto_reg_handoff_sabp(void)
 
 
 /*--- End of included file: packet-sabp-dis-tab.c ---*/
-#line 296 "./asn1/sabp/packet-sabp-template.c"
+#line 294 "./asn1/sabp/packet-sabp-template.c"
 }
 
 

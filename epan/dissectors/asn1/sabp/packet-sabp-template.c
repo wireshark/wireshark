@@ -83,6 +83,9 @@ static dissector_table_t sabp_proc_imsg_dissector_table;
 static dissector_table_t sabp_proc_sout_dissector_table;
 static dissector_table_t sabp_proc_uout_dissector_table;
 
+static dissector_handle_t sabp_handle;
+static dissector_handle_t sabp_tcp_handle;
+
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
@@ -267,8 +270,8 @@ void proto_register_sabp(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  register_dissector("sabp", dissect_sabp, proto_sabp);
-  register_dissector("sabp.tcp", dissect_sabp_tcp, proto_sabp);
+  sabp_handle = register_dissector("sabp", dissect_sabp, proto_sabp);
+  sabp_tcp_handle = register_dissector("sabp.tcp", dissect_sabp_tcp, proto_sabp);
 
   /* Register dissector tables */
   sabp_ies_dissector_table = register_dissector_table("sabp.ies", "SABP-PROTOCOL-IES", proto_sabp, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
@@ -283,11 +286,6 @@ void proto_register_sabp(void) {
 void
 proto_reg_handoff_sabp(void)
 {
-  dissector_handle_t sabp_handle;
-  dissector_handle_t sabp_tcp_handle;
-
-  sabp_handle = find_dissector("sabp");
-  sabp_tcp_handle = find_dissector("sabp.tcp");
   dissector_add_uint("udp.port", 3452, sabp_handle);
   dissector_add_uint("tcp.port", 3452, sabp_tcp_handle);
   dissector_add_uint("sctp.ppi", SABP_PAYLOAD_PROTOCOL_ID, sabp_handle);

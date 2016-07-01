@@ -236,6 +236,8 @@ static expert_field ei_acse_dissector_not_available = EI_INIT;
 static expert_field ei_acse_malformed = EI_INIT;
 static expert_field ei_acse_invalid_oid = EI_INIT;
 
+static dissector_handle_t acse_handle = NULL;
+
 /* indirect_reference, used to pick up the signalling so we know what
    kind of data is transferred in SES_DATA_TRANSFER_PDUs */
 static guint32 indir_ref=0;
@@ -1697,7 +1699,7 @@ dissect_acse_AE_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 /*--- End of included file: packet-acse-fn.c ---*/
-#line 150 "./asn1/acse/packet-acse-template.c"
+#line 152 "./asn1/acse/packet-acse-template.c"
 
 
 /*
@@ -2246,7 +2248,7 @@ void proto_register_acse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-acse-hfarr.c ---*/
-#line 266 "./asn1/acse/packet-acse-template.c"
+#line 268 "./asn1/acse/packet-acse-template.c"
   };
 
   /* List of subtrees */
@@ -2292,7 +2294,7 @@ void proto_register_acse(void) {
     &ett_acse_Authentication_value,
 
 /*--- End of included file: packet-acse-ettarr.c ---*/
-#line 272 "./asn1/acse/packet-acse-template.c"
+#line 274 "./asn1/acse/packet-acse-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -2305,7 +2307,7 @@ void proto_register_acse(void) {
 
   /* Register protocol */
   proto_acse = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("acse", dissect_acse, proto_acse);
+  acse_handle = register_dissector("acse", dissect_acse, proto_acse);
 
   /* Register connectionless protocol */
   proto_clacse = proto_register_protocol(CLPNAME, CLPSNAME, CLPFNAME);
@@ -2322,8 +2324,6 @@ void proto_register_acse(void) {
 /*--- proto_reg_handoff_acse -------------------------------------------*/
 void proto_reg_handoff_acse(void) {
 /*#include "packet-acse-dis-tab.c"*/
-	dissector_handle_t acse_handle = find_dissector("acse");
-
 	oid_add_from_string("id-aCSE","2.2.3.1.1");
 	register_ber_oid_dissector_handle(ACSE_APDU_OID, acse_handle, proto_acse, "id-as-acse");
 

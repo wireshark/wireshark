@@ -78,6 +78,7 @@ static int hf_mpeg_video_picture = -1;
 static int hf_mpeg_video_quantization_matrix = -1;
 static int hf_mpeg_video_data = -1;
 
+static dissector_handle_t mpeg_handle;
 enum { PES_PREFIX = 1 };
 
 enum {
@@ -654,7 +655,7 @@ proto_register_mpeg_pes(void)
 
 	proto_mpeg = proto_register_protocol(
 			"Moving Picture Experts Group", "MPEG", "mpeg");
-	register_dissector("mpeg", dissect_mpeg, proto_mpeg);
+	mpeg_handle = register_dissector("mpeg", dissect_mpeg, proto_mpeg);
 	heur_subdissector_list = register_heur_dissector_list("mpeg", proto_mpeg);
 
 	proto_mpeg_pes = proto_register_protocol(
@@ -667,8 +668,6 @@ proto_register_mpeg_pes(void)
 void
 proto_reg_handoff_mpeg_pes(void)
 {
-	dissector_handle_t mpeg_handle = find_dissector("mpeg");
-
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_MPEG, mpeg_handle);
 	heur_dissector_add("mpeg", dissect_mpeg_pes, "MPEG PES", "mpeg_pes", proto_mpeg_pes, HEURISTIC_ENABLE);
 }

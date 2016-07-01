@@ -222,6 +222,8 @@ static dissector_table_t rua_proc_imsg_dissector_table;
 static dissector_table_t rua_proc_sout_dissector_table;
 static dissector_table_t rua_proc_uout_dissector_table;
 
+static dissector_handle_t rua_handle;
+
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
@@ -1357,7 +1359,7 @@ static int dissect_RUA_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-rua-fn.c ---*/
-#line 84 "./asn1/rua/packet-rua-template.c"
+#line 86 "./asn1/rua/packet-rua-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1681,7 +1683,7 @@ module_t *rua_module;
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-rua-hfarr.c ---*/
-#line 135 "./asn1/rua/packet-rua-template.c"
+#line 137 "./asn1/rua/packet-rua-template.c"
   };
 
   /* List of subtrees */
@@ -1728,7 +1730,7 @@ module_t *rua_module;
     &ett_rua_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-rua-ettarr.c ---*/
-#line 141 "./asn1/rua/packet-rua-template.c"
+#line 143 "./asn1/rua/packet-rua-template.c"
   };
 
 
@@ -1739,7 +1741,7 @@ module_t *rua_module;
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  register_dissector("rua", dissect_rua, proto_rua);
+  rua_handle = register_dissector("rua", dissect_rua, proto_rua);
 
   /* Register dissector tables */
   rua_ies_dissector_table = register_dissector_table("rua.ies", "RUA-PROTOCOL-IES", proto_rua, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
@@ -1759,11 +1761,9 @@ void
 proto_reg_handoff_rua(void)
 {
         static gboolean initialized = FALSE;
-        static dissector_handle_t rua_handle;
         static guint sctp_port;
 
         if (!initialized) {
-                rua_handle = find_dissector("rua");
                 ranap_handle = find_dissector_add_dependency("ranap", proto_rua);
                 dissector_add_uint("sctp.ppi", RUA_PAYLOAD_PROTOCOL_ID, rua_handle);
                 initialized = TRUE;

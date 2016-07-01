@@ -5848,6 +5848,8 @@ static dissector_table_t rnsap_proc_imsg_dissector_table;
 static dissector_table_t rnsap_proc_sout_dissector_table;
 static dissector_table_t rnsap_proc_uout_dissector_table;
 
+static dissector_handle_t rnsap_handle;
+
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_PrivateIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
@@ -49022,7 +49024,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-rnsap-fn.c ---*/
-#line 88 "./asn1/rnsap/packet-rnsap-template.c"
+#line 90 "./asn1/rnsap/packet-rnsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -61500,7 +61502,7 @@ void proto_register_rnsap(void) {
         "Outcome_value", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 145 "./asn1/rnsap/packet-rnsap-template.c"
+#line 147 "./asn1/rnsap/packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -62938,7 +62940,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_Outcome,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 151 "./asn1/rnsap/packet-rnsap-template.c"
+#line 153 "./asn1/rnsap/packet-rnsap-template.c"
   };
 
 
@@ -62949,7 +62951,7 @@ void proto_register_rnsap(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  register_dissector("rnsap", dissect_rnsap, proto_rnsap);
+  rnsap_handle = register_dissector("rnsap", dissect_rnsap, proto_rnsap);
 
   /* Register dissector tables */
   rnsap_ies_dissector_table = register_dissector_table("rnsap.ies", "RNSAP-PROTOCOL-IES", proto_rnsap, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
@@ -62965,9 +62967,6 @@ void proto_register_rnsap(void) {
 void
 proto_reg_handoff_rnsap(void)
 {
-	dissector_handle_t rnsap_handle;
-
-	rnsap_handle = find_dissector("rnsap");
 	rrc_dl_dcch_handle = find_dissector_add_dependency("rrc.dl.dcch", proto_rnsap);
 
 	dissector_add_uint("sccp.ssn", SCCP_SSN_RNSAP, rnsap_handle);
@@ -63900,7 +63899,7 @@ proto_reg_handoff_rnsap(void)
 
 
 /*--- End of included file: packet-rnsap-dis-tab.c ---*/
-#line 187 "./asn1/rnsap/packet-rnsap-template.c"
+#line 186 "./asn1/rnsap/packet-rnsap-template.c"
 }
 
 

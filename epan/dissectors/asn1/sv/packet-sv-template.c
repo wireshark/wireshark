@@ -108,6 +108,8 @@ static expert_field ei_sv_zero_pdu = EI_INIT;
 
 static gboolean sv_decode_data_as_phsmeas = FALSE;
 
+static dissector_handle_t sv_handle;
+
 static const value_string sv_q_validity_vals[] = {
 	{ 0, "good" },
 	{ 1, "invalid" },
@@ -314,7 +316,7 @@ void proto_register_sv(void) {
 
 	/* Register protocol */
 	proto_sv = proto_register_protocol(PNAME, PSNAME, PFNAME);
-	register_dissector("sv", dissect_sv, proto_sv);
+	sv_handle = register_dissector("sv", dissect_sv, proto_sv);
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_sv, hf, array_length(hf));
@@ -332,9 +334,5 @@ void proto_register_sv(void) {
 
 /*--- proto_reg_handoff_sv --- */
 void proto_reg_handoff_sv(void) {
-
-	dissector_handle_t sv_handle;
-	sv_handle = find_dissector("sv");
-
 	dissector_add_uint("ethertype", ETHERTYPE_IEC61850_SV, sv_handle);
 }

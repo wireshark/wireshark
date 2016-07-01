@@ -479,6 +479,8 @@ static expert_field ei_wrong_spdu_type = EI_INIT;
 
 static guint32 opcode;
 
+static dissector_handle_t cmip_handle = NULL;
+
 /* Dissector table */
 static dissector_table_t attribute_id_dissector_table;
 
@@ -534,7 +536,7 @@ static const value_string cmip_error_code_vals[] = {
 
 
 /*--- End of included file: packet-cmip-table.c ---*/
-#line 71 "./asn1/cmip/packet-cmip-template.c"
+#line 73 "./asn1/cmip/packet-cmip-template.c"
 
 static int opcode_type;
 #define OPCODE_INVOKE        1
@@ -633,7 +635,7 @@ static const char *object_identifier_id;
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-cmip-val.h ---*/
-#line 81 "./asn1/cmip/packet-cmip-template.c"
+#line 83 "./asn1/cmip/packet-cmip-template.c"
 
 /*--- Included file: packet-cmip-fn.c ---*/
 #line 1 "./asn1/cmip/packet-cmip-fn.c"
@@ -4468,7 +4470,7 @@ static int dissect_WeekMask_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-cmip-fn.c ---*/
-#line 82 "./asn1/cmip/packet-cmip-template.c"
+#line 84 "./asn1/cmip/packet-cmip-template.c"
 
 
 
@@ -5665,7 +5667,7 @@ void proto_register_cmip(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmip-hfarr.c ---*/
-#line 174 "./asn1/cmip/packet-cmip-template.c"
+#line 176 "./asn1/cmip/packet-cmip-template.c"
   };
 
   /* List of subtrees */
@@ -5797,7 +5799,7 @@ void proto_register_cmip(void) {
     &ett_cmip_T_modificationList_item,
 
 /*--- End of included file: packet-cmip-ettarr.c ---*/
-#line 180 "./asn1/cmip/packet-cmip-template.c"
+#line 182 "./asn1/cmip/packet-cmip-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -5808,7 +5810,7 @@ void proto_register_cmip(void) {
 
   /* Register protocol */
   proto_cmip = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("cmip", dissect_cmip, proto_cmip);
+  cmip_handle = register_dissector("cmip", dissect_cmip, proto_cmip);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_cmip, hf, array_length(hf));
@@ -5892,7 +5894,7 @@ void proto_register_cmip(void) {
 
 
 /*--- End of included file: packet-cmip-dis-tab.c ---*/
-#line 199 "./asn1/cmip/packet-cmip-template.c"
+#line 201 "./asn1/cmip/packet-cmip-template.c"
     oid_add_from_string("discriminatorId(1)","2.9.3.2.7.1");
 
   attribute_id_dissector_table = register_dissector_table("cmip.attribute_id", "CMIP Attribute Id", proto_cmip, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
@@ -5902,8 +5904,6 @@ void proto_register_cmip(void) {
 
 /*--- proto_reg_handoff_cmip -------------------------------------------*/
 void proto_reg_handoff_cmip(void) {
-	dissector_handle_t cmip_handle = find_dissector("cmip");
-
 	register_ber_oid_dissector_handle("2.9.0.0.2", cmip_handle, proto_cmip, "cmip");
 	register_ber_oid_dissector_handle("2.9.1.1.4", cmip_handle, proto_cmip, "joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)");
 

@@ -48,6 +48,8 @@ static int ett_h283 = -1;
 static dissector_handle_t rdc_pdu_handle;
 static dissector_handle_t rdc_device_list_handle;
 static dissector_handle_t data_handle;
+static dissector_handle_t h283_udp_handle;
+
 
 static gboolean info_is_set;
 
@@ -90,16 +92,13 @@ void proto_register_h283(void) {
   proto_register_field_array(proto_h283, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector(PFNAME, dissect_h283_udp, proto_h283);
+  h283_udp_handle = register_dissector(PFNAME, dissect_h283_udp, proto_h283);
 
 }
 
 /*--- proto_reg_handoff_h283 -------------------------------------------*/
 void proto_reg_handoff_h283(void)
 {
-  dissector_handle_t h283_udp_handle;
-
-  h283_udp_handle = find_dissector(PFNAME);
   dissector_add_for_decode_as("udp.port", h283_udp_handle);
 
   rdc_pdu_handle = find_dissector_add_dependency("rdc", proto_h283);

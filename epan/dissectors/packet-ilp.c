@@ -52,6 +52,8 @@ void proto_register_ilp(void);
 
 static dissector_handle_t rrlp_handle;
 static dissector_handle_t lpp_handle;
+static dissector_handle_t ilp_handle;
+
 
 /* IANA Registered Ports
  * oma-ilp         7276/tcp    OMA Internal Location
@@ -452,7 +454,7 @@ static int hf_ilp_GANSSSignals_signal7 = -1;
 static int hf_ilp_GANSSSignals_signal8 = -1;
 
 /*--- End of included file: packet-ilp-hf.c ---*/
-#line 62 "./asn1/ilp/packet-ilp-template.c"
+#line 64 "./asn1/ilp/packet-ilp-template.c"
 static int hf_ilp_mobile_directory_number = -1;
 
 /* Initialize the subtree pointers */
@@ -598,7 +600,7 @@ static gint ett_ilp_T_lPPPayload = -1;
 static gint ett_ilp_T_tia801Payload = -1;
 
 /*--- End of included file: packet-ilp-ett.c ---*/
-#line 68 "./asn1/ilp/packet-ilp-template.c"
+#line 70 "./asn1/ilp/packet-ilp-template.c"
 
 /* Include constants */
 
@@ -615,7 +617,7 @@ static gint ett_ilp_T_tia801Payload = -1;
 #define maxPosSize                     1024
 
 /*--- End of included file: packet-ilp-val.h ---*/
-#line 71 "./asn1/ilp/packet-ilp-template.c"
+#line 73 "./asn1/ilp/packet-ilp-template.c"
 
 
 
@@ -4145,7 +4147,7 @@ static int dissect_ILP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-ilp-fn.c ---*/
-#line 74 "./asn1/ilp/packet-ilp-template.c"
+#line 76 "./asn1/ilp/packet-ilp-template.c"
 
 
 static guint
@@ -5696,7 +5698,7 @@ void proto_register_ilp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ilp-hfarr.c ---*/
-#line 100 "./asn1/ilp/packet-ilp-template.c"
+#line 102 "./asn1/ilp/packet-ilp-template.c"
     { &hf_ilp_mobile_directory_number,
       { "Mobile Directory Number", "ilp.mobile_directory_number",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -5847,7 +5849,7 @@ void proto_register_ilp(void) {
     &ett_ilp_T_tia801Payload,
 
 /*--- End of included file: packet-ilp-ettarr.c ---*/
-#line 111 "./asn1/ilp/packet-ilp-template.c"
+#line 113 "./asn1/ilp/packet-ilp-template.c"
   };
 
   module_t *ilp_module;
@@ -5855,7 +5857,7 @@ void proto_register_ilp(void) {
 
   /* Register protocol */
   proto_ilp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("ilp", dissect_ilp_tcp, proto_ilp);
+  ilp_handle = register_dissector("ilp", dissect_ilp_tcp, proto_ilp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_ilp, hf, array_length(hf));
@@ -5884,11 +5886,9 @@ void
 proto_reg_handoff_ilp(void)
 {
   static gboolean initialized = FALSE;
-  static dissector_handle_t ilp_handle;
   static guint local_ilp_port;
 
   if (!initialized) {
-    ilp_handle = find_dissector_add_dependency("ilp", proto_ilp);
     dissector_add_string("media_type","application/oma-supl-ilp", ilp_handle);
     rrlp_handle = find_dissector_add_dependency("rrlp", proto_ilp);
     lpp_handle = find_dissector_add_dependency("lpp", proto_ilp);

@@ -84,6 +84,8 @@ static dissector_table_t p1_extension_dissector_table;
 static dissector_table_t p1_extension_attribute_dissector_table;
 static dissector_table_t p1_tokendata_dissector_table;
 
+static dissector_handle_t p1_handle;
+
 #include "packet-p1-table.c"   /* operation and error codes */
 
 #define P1_ADDRESS_CTX "p1-address-ctx"
@@ -363,7 +365,7 @@ void proto_register_p1(void) {
 
   /* Register protocol */
   proto_p1 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("p1", dissect_p1, proto_p1);
+  p1_handle = register_dissector("p1", dissect_p1, proto_p1);
 
   proto_p3 = proto_register_protocol("X.411 Message Access Service", "P3", "p3");
 
@@ -393,8 +395,6 @@ void proto_register_p1(void) {
 
 /*--- proto_reg_handoff_p1 --- */
 void proto_reg_handoff_p1(void) {
-  dissector_handle_t p1_handle;
-
 #include "packet-p1-dis-tab.c"
 
   /* APPLICATION CONTEXT */
@@ -402,8 +402,6 @@ void proto_reg_handoff_p1(void) {
   oid_add_from_string("id-ac-mts-transfer","2.6.0.1.6");
 
   /* ABSTRACT SYNTAXES */
-
-  p1_handle = find_dissector("p1");
   register_rtse_oid_dissector_handle("2.6.0.2.12", p1_handle, 0, "id-as-mta-rtse", TRUE);
   register_rtse_oid_dissector_handle("2.6.0.2.7", p1_handle, 0, "id-as-mtse", FALSE);
 

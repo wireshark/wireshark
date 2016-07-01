@@ -297,6 +297,8 @@ static guint32 ProtocolExtensionID;
 static guint32 PayloadType = -1;
 static guint gbl_lcsapSctpPort=SCTP_PORT_LCSAP;
 
+static dissector_handle_t lcsap_handle;
+
 /* Dissector tables */
 static dissector_table_t lcsap_ies_dissector_table;
 
@@ -2229,7 +2231,7 @@ static int dissect_LCS_AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-lcsap-fn.c ---*/
-#line 190 "./asn1/lcsap/packet-lcsap-template.c"
+#line 192 "./asn1/lcsap/packet-lcsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -2280,11 +2282,9 @@ void
 proto_reg_handoff_lcsap(void)
 {
   static gboolean Initialized=FALSE;
-  static dissector_handle_t lcsap_handle;
   static guint SctpPort;
 
   if (!Initialized) {
-    lcsap_handle = find_dissector("lcsap");
     lpp_handle = find_dissector_add_dependency("lpp", proto_lcsap);
     lppa_handle = find_dissector_add_dependency("lppa", proto_lcsap);
     dissector_add_for_decode_as("sctp.port", lcsap_handle);   /* for "decode-as"  */
@@ -2880,7 +2880,7 @@ void proto_register_lcsap(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_lcsap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  register_dissector("lcsap", dissect_lcsap, proto_lcsap);
+  lcsap_handle = register_dissector("lcsap", dissect_lcsap, proto_lcsap);
 
   /* Register dissector tables */
   lcsap_ies_dissector_table = register_dissector_table("lcsap.ies", "LCS-AP-PROTOCOL-IES", proto_lcsap, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

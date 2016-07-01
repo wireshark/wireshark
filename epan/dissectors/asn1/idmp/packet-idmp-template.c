@@ -336,7 +336,7 @@ void proto_register_idmp(void)
     proto_register_field_array(proto_idmp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("idmp", dissect_idmp_tcp, proto_idmp);
+    idmp_handle = register_dissector("idmp", dissect_idmp_tcp, proto_idmp);
 
     register_init_routine (&idmp_reassemble_init);
     register_cleanup_routine (&idmp_reassemble_cleanup);
@@ -367,9 +367,6 @@ void proto_register_idmp(void)
 
 /*--- proto_reg_handoff_idm --- */
 void proto_reg_handoff_idm(void) {
-
-    /* remember the idm handler for change in preferences */
-    idmp_handle = find_dissector(PFNAME);
 
 }
 

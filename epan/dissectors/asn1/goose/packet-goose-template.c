@@ -57,6 +57,8 @@ static int ett_goose = -1;
 
 #include "packet-goose-fn.c"
 
+static dissector_handle_t goose_handle = NULL;
+
 /*
 * Dissect GOOSE PDUs inside a PPDU.
 */
@@ -141,7 +143,7 @@ void proto_register_goose(void) {
 
 	/* Register protocol */
 	proto_goose = proto_register_protocol(PNAME, PSNAME, PFNAME);
-	register_dissector("goose", dissect_goose, proto_goose);
+	goose_handle = register_dissector("goose", dissect_goose, proto_goose);
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_goose, hf, array_length(hf));
@@ -152,9 +154,6 @@ void proto_register_goose(void) {
 
 /*--- proto_reg_handoff_goose --- */
 void proto_reg_handoff_goose(void) {
-
-	dissector_handle_t goose_handle;
-	goose_handle = find_dissector("goose");
 
 	dissector_add_uint("ethertype", ETHERTYPE_IEC61850_GOOSE, goose_handle);
 }

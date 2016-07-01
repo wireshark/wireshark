@@ -95,6 +95,8 @@ static expert_field ei_nbap_hsdsch_entity_not_specified = EI_INIT;
 
 extern int proto_fp;
 
+static dissector_handle_t nbap_handle;
+
 /*
  * Structure to build information needed to dissect the FP flow beeing set up.
  */
@@ -527,7 +529,7 @@ void proto_register_nbap(void)
 	expert_register_field_array(expert_nbap, ei, array_length(ei));
 
 	/* Register dissector */
-	register_dissector("nbap", dissect_nbap, proto_nbap);
+	nbap_handle = register_dissector("nbap", dissect_nbap, proto_nbap);
 
 	nbap_module = prefs_register_protocol(proto_nbap, NULL);
 
@@ -554,9 +556,6 @@ void proto_register_nbap(void)
 void
 proto_reg_handoff_nbap(void)
 {
-	dissector_handle_t nbap_handle;
-
-	nbap_handle = find_dissector("nbap");
 	fp_handle = find_dissector("fp");
 	dissector_add_uint("sctp.ppi", NBAP_PAYLOAD_PROTOCOL_ID, nbap_handle);
 #ifdef EXTRA_PPI

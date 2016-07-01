@@ -16212,7 +16212,6 @@ proto_reg_handoff_ansi_map(void)
     if(!ansi_map_prefs_initialized)
     {
         ansi_map_prefs_initialized = TRUE;
-        ansi_map_handle = find_dissector("ansi_map");
     }
     else
     {
@@ -19235,7 +19234,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5397 "./asn1/ansi_map/packet-ansi_map-template.c"
+#line 5396 "./asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19496,7 +19495,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5430 "./asn1/ansi_map/packet-ansi_map-template.c"
+#line 5429 "./asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     static ei_register_info ei[] = {
@@ -19539,7 +19538,7 @@ void proto_register_ansi_map(void) {
     expert_ansi_map = expert_register_protocol(proto_ansi_map);
     expert_register_field_array(expert_ansi_map, ei, array_length(ei));
 
-    register_dissector("ansi_map", dissect_ansi_map, proto_ansi_map);
+    ansi_map_handle = register_dissector("ansi_map", dissect_ansi_map, proto_ansi_map);
 
     is637_tele_id_dissector_table =
         register_dissector_table("ansi_map.tele_id", "IS-637 Teleservice ID", proto_ansi_map,

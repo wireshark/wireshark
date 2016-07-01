@@ -75,6 +75,8 @@ static expert_field ei_acse_dissector_not_available = EI_INIT;
 static expert_field ei_acse_malformed = EI_INIT;
 static expert_field ei_acse_invalid_oid = EI_INIT;
 
+static dissector_handle_t acse_handle = NULL;
+
 /* indirect_reference, used to pick up the signalling so we know what
    kind of data is transferred in SES_DATA_TRANSFER_PDUs */
 static guint32 indir_ref=0;
@@ -281,7 +283,7 @@ void proto_register_acse(void) {
 
   /* Register protocol */
   proto_acse = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("acse", dissect_acse, proto_acse);
+  acse_handle = register_dissector("acse", dissect_acse, proto_acse);
 
   /* Register connectionless protocol */
   proto_clacse = proto_register_protocol(CLPNAME, CLPSNAME, CLPFNAME);
@@ -298,8 +300,6 @@ void proto_register_acse(void) {
 /*--- proto_reg_handoff_acse -------------------------------------------*/
 void proto_reg_handoff_acse(void) {
 /*#include "packet-acse-dis-tab.c"*/
-	dissector_handle_t acse_handle = find_dissector("acse");
-
 	oid_add_from_string("id-aCSE","2.2.3.1.1");
 	register_ber_oid_dissector_handle(ACSE_APDU_OID, acse_handle, proto_acse, "id-as-acse");
 

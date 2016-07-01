@@ -62,6 +62,7 @@ static dissector_table_t nsp_object_dissector_table;
 static dissector_table_t nsp_h221_dissector_table;
 static dissector_table_t gef_name_dissector_table;
 static dissector_table_t gef_content_dissector_table;
+static dissector_handle_t h245_handle;
 static dissector_handle_t nsp_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t MultimediaSystemControlMessage_handle;
@@ -538,8 +539,8 @@ void proto_register_h245(void) {
     "Show h245 info in reversed order",
     "Whether the dissector should print items of h245 Info column in reversed order",
     &info_col_fmt_prepend);
-  register_dissector("h245dg", dissect_h245_h245, proto_h245);
-  register_dissector("h245", dissect_h245, proto_h245);
+  MultimediaSystemControlMessage_handle = register_dissector("h245dg", dissect_h245_h245, proto_h245);
+  h245_handle = register_dissector("h245", dissect_h245, proto_h245);
 
   nsp_object_dissector_table = register_dissector_table("h245.nsp.object", "H.245 NonStandardParameter (object)", proto_h245, FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
   nsp_h221_dissector_table = register_dissector_table("h245.nsp.h221", "H.245 NonStandardParameter (h221)", proto_h245, FT_UINT32, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
@@ -603,17 +604,13 @@ void proto_register_h245(void) {
 
 /*--- proto_reg_handoff_h245 ---------------------------------------*/
 void proto_reg_handoff_h245(void) {
-	dissector_handle_t h245_handle;
-
 	rtcp_handle = find_dissector("rtcp");
 	data_handle = find_dissector("data");
 	h263_handle = find_dissector("h263data");
 	amr_handle = find_dissector("amr_if2_nb");
 
 
-	h245_handle = find_dissector("h245");
 	dissector_add_for_decode_as("tcp.port", h245_handle);
-	MultimediaSystemControlMessage_handle = find_dissector("h245dg");
 	dissector_add_for_decode_as("udp.port", MultimediaSystemControlMessage_handle);
 }
 

@@ -22975,7 +22975,6 @@ void proto_reg_handoff_gsm_map(void) {
     gsm_sms_handle = find_dissector_add_dependency("gsm_sms", proto_gsm_map);
     bssap_handle = find_dissector_add_dependency("gsm_a_bssmap", proto_gsm_map);
 
-    map_handle = find_dissector("gsm_map");
     oid_add_from_string("itu(0) administration(2) japan(440)","0.2.440" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.1.3", map_handle, proto_gsm_map,"networkLocUpContext-v3");
     register_ber_oid_dissector_handle("0.4.0.0.1.0.1.2", map_handle, proto_gsm_map,"networkLocUpContext-v2" );
@@ -30352,7 +30351,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 3055 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3054 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -31078,7 +31077,7 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AllowedServiceData,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 3089 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3088 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -31120,7 +31119,7 @@ void proto_register_gsm_map(void) {
   /* Register protocol */
   proto_gsm_map_ms = proto_gsm_map_dialogue = proto_gsm_map = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  register_dissector("gsm_map", dissect_gsm_map, proto_gsm_map);
+  map_handle = register_dissector("gsm_map", dissect_gsm_map, proto_gsm_map);
   register_dissector("gsm_map_sccp", dissect_gsm_map_sccp, proto_gsm_map);
 
   /* Register fields and subtrees */
@@ -31222,7 +31221,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 3149 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3148 "./asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

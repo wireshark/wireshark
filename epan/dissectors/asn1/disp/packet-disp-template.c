@@ -73,6 +73,8 @@ static expert_field ei_disp_unsupported_errcode = EI_INIT;
 static expert_field ei_disp_unsupported_pdu = EI_INIT;
 static expert_field ei_disp_zero_pdu = EI_INIT;
 
+static dissector_handle_t disp_handle = NULL;
+
 #include "packet-disp-fn.c"
 
 /*
@@ -219,7 +221,7 @@ void proto_register_disp(void) {
 
   /* Register protocol */
   proto_disp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("disp", dissect_disp, proto_disp);
+  disp_handle = register_dissector("disp", dissect_disp, proto_disp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_disp, hf, array_length(hf));
@@ -241,8 +243,6 @@ void proto_register_disp(void) {
 
 /*--- proto_reg_handoff_disp --- */
 void proto_reg_handoff_disp(void) {
-  dissector_handle_t disp_handle;
-
   #include "packet-disp-dis-tab.c"
 
   /* APPLICATION CONTEXT */
@@ -253,9 +253,6 @@ void proto_reg_handoff_disp(void) {
   oid_add_from_string("id-ac-reliable-shadow-supplier-initiated","2.5.3.7");
 
   /* ABSTRACT SYNTAXES */
-
-  disp_handle = find_dissector("disp");
-
   register_ros_oid_dissector_handle("2.5.9.3", disp_handle, 0, "id-as-directory-shadow", FALSE);
   register_rtse_oid_dissector_handle("2.5.9.5", disp_handle, 0, "id-as-directory-reliable-shadow", FALSE);
   register_rtse_oid_dissector_handle("2.5.9.6", disp_handle, 0, "id-as-directory-reliable-binding", FALSE);

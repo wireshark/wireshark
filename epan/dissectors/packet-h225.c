@@ -102,6 +102,8 @@ static h225ras_call_t * find_h225ras_call(h225ras_call_info_key *h225ras_call_ke
 static h225ras_call_t * new_h225ras_call(h225ras_call_info_key *h225ras_call_key, packet_info *pinfo, e_guid_t *guid, int category);
 static h225ras_call_t * append_h225ras_call(h225ras_call_t *prev_call, packet_info *pinfo, e_guid_t *guid, int category);
 
+
+static dissector_handle_t h225ras_handle;
 static dissector_handle_t data_handle;
 /* Subdissector tables */
 static dissector_table_t nsp_object_dissector_table;
@@ -908,7 +910,7 @@ static int hf_h225_stopped = -1;                  /* NULL */
 static int hf_h225_notAvailable = -1;             /* NULL */
 
 /*--- End of included file: packet-h225-hf.c ---*/
-#line 128 "./asn1/h225/packet-h225-template.c"
+#line 130 "./asn1/h225/packet-h225-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h225 = -1;
@@ -1156,7 +1158,7 @@ static gint ett_h225_ServiceControlResponse = -1;
 static gint ett_h225_T_result = -1;
 
 /*--- End of included file: packet-h225-ett.c ---*/
-#line 132 "./asn1/h225/packet-h225-template.c"
+#line 134 "./asn1/h225/packet-h225-template.c"
 
 /* Preferences */
 static guint h225_tls_port = TLS_PORT_CS;
@@ -7811,7 +7813,7 @@ static int dissect_RasMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-h225-fn.c ---*/
-#line 248 "./asn1/h225/packet-h225-template.c"
+#line 250 "./asn1/h225/packet-h225-template.c"
 
 /* Forward declaration we need below */
 void proto_reg_handoff_h225(void);
@@ -11493,7 +11495,7 @@ void proto_register_h225(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 841 "./asn1/h225/packet-h225-template.c"
+#line 843 "./asn1/h225/packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -11743,7 +11745,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 847 "./asn1/h225/packet-h225-template.c"
+#line 849 "./asn1/h225/packet-h225-template.c"
   };
 
   static tap_param h225_stat_params[] = {
@@ -11800,7 +11802,7 @@ void proto_register_h225(void) {
 
   register_dissector(PFNAME, dissect_h225_H323UserInformation, proto_h225);
   register_dissector("h323ui",dissect_h225_H323UserInformation, proto_h225);
-  register_dissector("h225.ras", dissect_h225_h225_RasMessage, proto_h225);
+  h225ras_handle = register_dissector("h225.ras", dissect_h225_h225_RasMessage, proto_h225);
 
   nsp_object_dissector_table = register_dissector_table("h225.nsp.object", "H.225 NonStandardParameter (object)", proto_h225, FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
   nsp_h221_dissector_table = register_dissector_table("h225.nsp.h221", "H.225 NonStandardParameter (h221)", proto_h225, FT_UINT32, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
@@ -11830,11 +11832,10 @@ void
 proto_reg_handoff_h225(void)
 {
   static gboolean h225_prefs_initialized = FALSE;
-  static dissector_handle_t h225ras_handle, q931_tpkt_handle;
+  static dissector_handle_t q931_tpkt_handle;
   static guint saved_h225_tls_port;
 
   if (!h225_prefs_initialized) {
-    h225ras_handle=find_dissector("h225.ras");
     dissector_add_uint("udp.port", UDP_PORT_RAS1, h225ras_handle);
     dissector_add_uint("udp.port", UDP_PORT_RAS2, h225ras_handle);
 

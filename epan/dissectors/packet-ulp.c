@@ -944,6 +944,8 @@ static gint ett_ulp_PolygonDescription = -1;
 /*--- End of included file: packet-ulp-ett.c ---*/
 #line 80 "./asn1/ulp/packet-ulp-template.c"
 
+static dissector_handle_t ulp_tcp_handle;
+
 static const value_string ulp_ganss_id_vals[] = {
   {  0, "Galileo"},
   {  1, "SBAS"},
@@ -1210,7 +1212,7 @@ ulp_Coordinate_longitude_fmt(gchar *s, guint32 v)
 #define maxWimaxBSMeas                 32
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 328 "./asn1/ulp/packet-ulp-template.c"
+#line 330 "./asn1/ulp/packet-ulp-template.c"
 
 typedef struct
 {
@@ -7789,7 +7791,7 @@ static int dissect_ULP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 344 "./asn1/ulp/packet-ulp-template.c"
+#line 346 "./asn1/ulp/packet-ulp-template.c"
 
 
 static guint
@@ -10360,7 +10362,7 @@ void proto_register_ulp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 370 "./asn1/ulp/packet-ulp-template.c"
+#line 372 "./asn1/ulp/packet-ulp-template.c"
     { &hf_ulp_mobile_directory_number,
       { "Mobile Directory Number", "ulp.mobile_directory_number",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -10614,7 +10616,7 @@ void proto_register_ulp(void) {
     &ett_ulp_PolygonDescription,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 407 "./asn1/ulp/packet-ulp-template.c"
+#line 409 "./asn1/ulp/packet-ulp-template.c"
   };
 
   module_t *ulp_module;
@@ -10622,7 +10624,7 @@ void proto_register_ulp(void) {
 
   /* Register protocol */
   proto_ulp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("ulp", dissect_ulp_tcp, proto_ulp);
+  ulp_tcp_handle = register_dissector("ulp", dissect_ulp_tcp, proto_ulp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_ulp, hf, array_length(hf));
@@ -10656,11 +10658,10 @@ void
 proto_reg_handoff_ulp(void)
 {
   static gboolean initialized = FALSE;
-  static dissector_handle_t ulp_tcp_handle, ulp_udp_handle;
+  static dissector_handle_t ulp_udp_handle;
   static guint local_ulp_tcp_port, local_ulp_udp_port;
 
   if (!initialized) {
-    ulp_tcp_handle = find_dissector("ulp");
     dissector_add_string("media_type","application/oma-supl-ulp", ulp_tcp_handle);
     dissector_add_string("media_type","application/vnd.omaloc-supl-init", ulp_tcp_handle);
     ulp_udp_handle = create_dissector_handle(dissect_ULP_PDU_PDU, proto_ulp);

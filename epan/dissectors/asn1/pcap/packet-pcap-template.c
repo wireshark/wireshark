@@ -149,7 +149,6 @@ proto_reg_handoff_pcap(void)
     static range_t *ssn_range;
 
     if (! prefs_initialized) {
-        pcap_handle = find_dissector("pcap");
         sccp_ssn_table = find_dissector_table("sccp.ssn");
         prefs_initialized = TRUE;
 #include "packet-pcap-dis-tab.c"
@@ -188,7 +187,7 @@ void proto_register_pcap(void) {
   pcap_module = prefs_register_protocol(proto_pcap, proto_reg_handoff_pcap);
 
   /* Register dissector */
-  register_dissector("pcap", dissect_pcap, proto_pcap);
+  pcap_handle = register_dissector("pcap", dissect_pcap, proto_pcap);
 
   /* Register dissector tables */
   pcap_ies_dissector_table = register_dissector_table("pcap.ies", "PCAP-PROTOCOL-IES", proto_pcap, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

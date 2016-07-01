@@ -1311,10 +1311,6 @@ void proto_reg_handoff_camel(void) {
   if (!camel_prefs_initialized) {
 
     camel_prefs_initialized = TRUE;
-    camel_handle = find_dissector("camel");
-    camel_v1_handle = find_dissector("camel-v1");
-    camel_v2_handle = find_dissector("camel-v2");
-
 
     register_ber_oid_dissector_handle("0.4.0.0.1.0.50.0",camel_v1_handle, proto_camel, "CAP-v1-gsmSSF-to-gsmSCF-AC" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.50.1",camel_v2_handle, proto_camel, "CAP-v2-gsmSSF-to-gsmSCF-AC" );
@@ -1551,9 +1547,9 @@ void proto_register_camel(void) {
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  register_dissector("camel", dissect_camel, proto_camel);
-  register_dissector("camel-v1", dissect_camel_v1, proto_camel);
-  register_dissector("camel-v2", dissect_camel_v2, proto_camel);
+  camel_handle = register_dissector("camel", dissect_camel, proto_camel);
+  camel_v1_handle = register_dissector("camel-v1", dissect_camel_v1, proto_camel);
+  camel_v2_handle = register_dissector("camel-v2", dissect_camel_v2, proto_camel);
 
   proto_register_field_array(proto_camel, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

@@ -843,6 +843,8 @@ static dissector_table_t p1_extension_dissector_table;
 static dissector_table_t p1_extension_attribute_dissector_table;
 static dissector_table_t p1_tokendata_dissector_table;
 
+static dissector_handle_t p1_handle;
+
 
 /*--- Included file: packet-p1-table.c ---*/
 #line 1 "./asn1/p1/packet-p1-table.c"
@@ -887,7 +889,7 @@ static const value_string p3_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-p1-table.c ---*/
-#line 88 "./asn1/p1/packet-p1-template.c"
+#line 90 "./asn1/p1/packet-p1-template.c"
 
 #define P1_ADDRESS_CTX "p1-address-ctx"
 typedef struct p1_address_ctx {
@@ -8386,7 +8388,7 @@ static int dissect_SecurityClassification_PDU(tvbuff_t *tvb _U_, packet_info *pi
 
 
 /*--- End of included file: packet-p1-fn.c ---*/
-#line 165 "./asn1/p1/packet-p1-template.c"
+#line 167 "./asn1/p1/packet-p1-template.c"
 
 
 /*--- Included file: packet-p1-table11.c ---*/
@@ -8418,7 +8420,7 @@ static const ros_opr_t p3_opr_tab[] = {
 
 
 /*--- End of included file: packet-p1-table11.c ---*/
-#line 167 "./asn1/p1/packet-p1-template.c"
+#line 169 "./asn1/p1/packet-p1-template.c"
 
 /*--- Included file: packet-p1-table21.c ---*/
 #line 1 "./asn1/p1/packet-p1-table21.c"
@@ -8463,7 +8465,7 @@ static const ros_err_t p3_err_tab[] = {
 
 
 /*--- End of included file: packet-p1-table21.c ---*/
-#line 168 "./asn1/p1/packet-p1-template.c"
+#line 170 "./asn1/p1/packet-p1-template.c"
 
 static const ros_info_t p3_ros_info = {
   "P3",
@@ -10881,7 +10883,7 @@ void proto_register_p1(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p1-hfarr.c ---*/
-#line 337 "./asn1/p1/packet-p1-template.c"
+#line 339 "./asn1/p1/packet-p1-template.c"
   };
 
   /* List of subtrees */
@@ -11078,7 +11080,7 @@ void proto_register_p1(void) {
     &ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields,
 
 /*--- End of included file: packet-p1-ettarr.c ---*/
-#line 350 "./asn1/p1/packet-p1-template.c"
+#line 352 "./asn1/p1/packet-p1-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -11095,7 +11097,7 @@ void proto_register_p1(void) {
 
   /* Register protocol */
   proto_p1 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("p1", dissect_p1, proto_p1);
+  p1_handle = register_dissector("p1", dissect_p1, proto_p1);
 
   proto_p3 = proto_register_protocol("X.411 Message Access Service", "P3", "p3");
 
@@ -11127,14 +11129,12 @@ void proto_register_p1(void) {
   register_ber_syntax_dissector("ORName", proto_p1, dissect_ORName_PDU);
 
 /*--- End of included file: packet-p1-syn-reg.c ---*/
-#line 391 "./asn1/p1/packet-p1-template.c"
+#line 393 "./asn1/p1/packet-p1-template.c"
 }
 
 
 /*--- proto_reg_handoff_p1 --- */
 void proto_reg_handoff_p1(void) {
-  dissector_handle_t p1_handle;
-
 
 /*--- Included file: packet-p1-dis-tab.c ---*/
 #line 1 "./asn1/p1/packet-p1-dis-tab.c"
@@ -11300,8 +11300,6 @@ void proto_reg_handoff_p1(void) {
   oid_add_from_string("id-ac-mts-transfer","2.6.0.1.6");
 
   /* ABSTRACT SYNTAXES */
-
-  p1_handle = find_dissector("p1");
   register_rtse_oid_dissector_handle("2.6.0.2.12", p1_handle, 0, "id-as-mta-rtse", TRUE);
   register_rtse_oid_dissector_handle("2.6.0.2.7", p1_handle, 0, "id-as-mtse", FALSE);
 

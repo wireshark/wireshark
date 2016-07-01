@@ -9414,7 +9414,6 @@ void proto_reg_handoff_inap(void) {
 
   if (!inap_prefs_initialized) {
     inap_prefs_initialized = TRUE;
-    inap_handle = find_dissector("inap");
     oid_add_from_string("Core-INAP-CS1-Codes","0.4.0.1.1.0.3.0");
     oid_add_from_string("iso(1) identified-organization(3) icd-ecma(12) member-company(2) 1107 oen(3) inap(3) extensions(2)","1.3.12.2.1107.3.3.2");
     oid_add_from_string("alcatel(1006)","1.3.12.2.1006.64");
@@ -11689,7 +11688,7 @@ void proto_register_inap(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-inap-hfarr.c ---*/
-#line 211 "./asn1/inap/packet-inap-template.c"
+#line 210 "./asn1/inap/packet-inap-template.c"
   };
 
 
@@ -11945,7 +11944,7 @@ void proto_register_inap(void) {
     &ett_inap_InvokeId,
 
 /*--- End of included file: packet-inap-ettarr.c ---*/
-#line 226 "./asn1/inap/packet-inap-template.c"
+#line 225 "./asn1/inap/packet-inap-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -11958,7 +11957,7 @@ void proto_register_inap(void) {
 
   /* Register protocol */
   proto_inap = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("inap", dissect_inap, proto_inap);
+  inap_handle = register_dissector("inap", dissect_inap, proto_inap);
   /* Register fields and subtrees */
   proto_register_field_array(proto_inap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

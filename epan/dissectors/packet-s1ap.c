@@ -1366,6 +1366,8 @@ static gboolean g_s1ap_dissect_container = TRUE;
 static const char *obj_id = NULL;
 
 static dissector_handle_t gcsna_handle = NULL;
+static dissector_handle_t s1ap_handle;
+
 
 /* Dissector tables */
 static dissector_table_t s1ap_ies_dissector_table;
@@ -11811,7 +11813,7 @@ int dissect_s1ap_SONtransferCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-s1ap-fn.c ---*/
-#line 136 "./asn1/s1ap/packet-s1ap-template.c"
+#line 138 "./asn1/s1ap/packet-s1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -11886,10 +11888,8 @@ void
 proto_reg_handoff_s1ap(void)
 {
 	static gboolean Initialized=FALSE;
-	static dissector_handle_t s1ap_handle;
 	static guint SctpPort;
 
-	s1ap_handle = find_dissector("s1ap");
     gcsna_handle = find_dissector_add_dependency("gcsna", proto_s1ap);
 
 	if (!Initialized) {
@@ -15025,7 +15025,7 @@ void proto_register_s1ap(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  register_dissector("s1ap", dissect_s1ap, proto_s1ap);
+  s1ap_handle = register_dissector("s1ap", dissect_s1ap, proto_s1ap);
 
   /* Register dissector tables */
   s1ap_ies_dissector_table = register_dissector_table("s1ap.ies", "S1AP-PROTOCOL-IES", proto_s1ap, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

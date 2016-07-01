@@ -69,6 +69,8 @@ static expert_field ei_dsp_zero_pdu = EI_INIT;
 
 #include "packet-dsp-fn.c"
 
+static dissector_handle_t dsp_handle;
+
 /*
 * Dissect X518 PDUs inside a ROS PDUs
 */
@@ -291,7 +293,7 @@ void proto_register_dsp(void) {
   /* Register protocol */
   proto_dsp = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  register_dissector("dsp", dissect_dsp, proto_dsp);
+  dsp_handle = register_dissector("dsp", dissect_dsp, proto_dsp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_dsp, hf, array_length(hf));
@@ -314,8 +316,6 @@ void proto_register_dsp(void) {
 
 /*--- proto_reg_handoff_dsp --- */
 void proto_reg_handoff_dsp(void) {
-  dissector_handle_t dsp_handle;
-
 #include "packet-dsp-dis-tab.c"
 
   /* APPLICATION CONTEXT */
@@ -328,7 +328,6 @@ void proto_reg_handoff_dsp(void) {
   tpkt_handle = find_dissector("tpkt");
 
   /* Register DSP with ROS (with no use of RTSE) */
-  dsp_handle = find_dissector("dsp");
   register_ros_oid_dissector_handle("2.5.9.2", dsp_handle, 0, "id-as-directory-system", FALSE);
 
 }

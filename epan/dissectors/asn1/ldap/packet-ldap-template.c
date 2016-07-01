@@ -2222,7 +2222,7 @@ void proto_register_ldap(void) {
   expert_ldap = expert_register_protocol(proto_ldap);
   expert_register_field_array(expert_ldap, ei, array_length(ei));
 
-  register_dissector("ldap", dissect_ldap_tcp, proto_ldap);
+  ldap_handle = register_dissector("ldap", dissect_ldap_tcp, proto_ldap);
 
   ldap_module = prefs_register_protocol(proto_ldap, prefs_register_ldap);
   prefs_register_bool_preference(ldap_module, "desegment_ldap_messages",
@@ -2280,7 +2280,6 @@ void
 proto_reg_handoff_ldap(void)
 {
   dissector_handle_t cldap_handle;
-  ldap_handle = find_dissector("ldap");
 
   dissector_add_uint("tcp.port", TCP_PORT_GLOBALCAT_LDAP, ldap_handle);
 

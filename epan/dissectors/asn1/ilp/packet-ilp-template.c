@@ -44,6 +44,8 @@ void proto_register_ilp(void);
 
 static dissector_handle_t rrlp_handle;
 static dissector_handle_t lpp_handle;
+static dissector_handle_t ilp_handle;
+
 
 /* IANA Registered Ports
  * oma-ilp         7276/tcp    OMA Internal Location
@@ -115,7 +117,7 @@ void proto_register_ilp(void) {
 
   /* Register protocol */
   proto_ilp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("ilp", dissect_ilp_tcp, proto_ilp);
+  ilp_handle = register_dissector("ilp", dissect_ilp_tcp, proto_ilp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_ilp, hf, array_length(hf));
@@ -144,11 +146,9 @@ void
 proto_reg_handoff_ilp(void)
 {
   static gboolean initialized = FALSE;
-  static dissector_handle_t ilp_handle;
   static guint local_ilp_port;
 
   if (!initialized) {
-    ilp_handle = find_dissector_add_dependency("ilp", proto_ilp);
     dissector_add_string("media_type","application/oma-supl-ilp", ilp_handle);
     rrlp_handle = find_dissector_add_dependency("rrlp", proto_ilp);
     lpp_handle = find_dissector_add_dependency("lpp", proto_ilp);

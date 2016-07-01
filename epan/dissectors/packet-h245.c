@@ -70,6 +70,7 @@ static dissector_table_t nsp_object_dissector_table;
 static dissector_table_t nsp_h221_dissector_table;
 static dissector_table_t gef_name_dissector_table;
 static dissector_table_t gef_content_dissector_table;
+static dissector_handle_t h245_handle;
 static dissector_handle_t nsp_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t MultimediaSystemControlMessage_handle;
@@ -213,7 +214,7 @@ typedef enum _IndicationMessage_enum {
 } IndicationMessage_enum;
 
 /*--- End of included file: packet-h245-val.h ---*/
-#line 86 "./asn1/h245/packet-h245-template.c"
+#line 87 "./asn1/h245/packet-h245-template.c"
 
 static const value_string h245_RequestMessage_short_vals[] = {
 	{ RequestMessage_nonStandard              ,	"NSM" },
@@ -1941,7 +1942,7 @@ static int hf_h245_encrypted = -1;                /* OCTET_STRING */
 static int hf_h245_encryptedAlphanumeric = -1;    /* EncryptedAlphanumeric */
 
 /*--- End of included file: packet-h245-hf.c ---*/
-#line 407 "./asn1/h245/packet-h245-template.c"
+#line 408 "./asn1/h245/packet-h245-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h245 = -1;
@@ -2442,7 +2443,7 @@ static gint ett_h245_FlowControlIndication = -1;
 static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 
 /*--- End of included file: packet-h245-ett.c ---*/
-#line 412 "./asn1/h245/packet-h245-template.c"
+#line 413 "./asn1/h245/packet-h245-template.c"
 
 /* Forward declarations */
 static int dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -14529,7 +14530,7 @@ static int dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-h245-fn.c ---*/
-#line 421 "./asn1/h245/packet-h245-template.c"
+#line 422 "./asn1/h245/packet-h245-template.c"
 
 static int
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
@@ -20228,7 +20229,7 @@ void proto_register_h245(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 507 "./asn1/h245/packet-h245-template.c"
+#line 508 "./asn1/h245/packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -20731,7 +20732,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 514 "./asn1/h245/packet-h245-template.c"
+#line 515 "./asn1/h245/packet-h245-template.c"
   };
   module_t *h245_module;
 
@@ -20759,8 +20760,8 @@ void proto_register_h245(void) {
     "Show h245 info in reversed order",
     "Whether the dissector should print items of h245 Info column in reversed order",
     &info_col_fmt_prepend);
-  register_dissector("h245dg", dissect_h245_h245, proto_h245);
-  register_dissector("h245", dissect_h245, proto_h245);
+  MultimediaSystemControlMessage_handle = register_dissector("h245dg", dissect_h245_h245, proto_h245);
+  h245_handle = register_dissector("h245", dissect_h245, proto_h245);
 
   nsp_object_dissector_table = register_dissector_table("h245.nsp.object", "H.245 NonStandardParameter (object)", proto_h245, FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
   nsp_h221_dissector_table = register_dissector_table("h245.nsp.h221", "H.245 NonStandardParameter (h221)", proto_h245, FT_UINT32, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
@@ -20824,17 +20825,13 @@ void proto_register_h245(void) {
 
 /*--- proto_reg_handoff_h245 ---------------------------------------*/
 void proto_reg_handoff_h245(void) {
-	dissector_handle_t h245_handle;
-
 	rtcp_handle = find_dissector("rtcp");
 	data_handle = find_dissector("data");
 	h263_handle = find_dissector("h263data");
 	amr_handle = find_dissector("amr_if2_nb");
 
 
-	h245_handle = find_dissector("h245");
 	dissector_add_for_decode_as("tcp.port", h245_handle);
-	MultimediaSystemControlMessage_handle = find_dissector("h245dg");
 	dissector_add_for_decode_as("udp.port", MultimediaSystemControlMessage_handle);
 }
 

@@ -94,6 +94,8 @@ static h225ras_call_t * find_h225ras_call(h225ras_call_info_key *h225ras_call_ke
 static h225ras_call_t * new_h225ras_call(h225ras_call_info_key *h225ras_call_key, packet_info *pinfo, e_guid_t *guid, int category);
 static h225ras_call_t * append_h225ras_call(h225ras_call_t *prev_call, packet_info *pinfo, e_guid_t *guid, int category);
 
+
+static dissector_handle_t h225ras_handle;
 static dissector_handle_t data_handle;
 /* Subdissector tables */
 static dissector_table_t nsp_object_dissector_table;
@@ -900,7 +902,7 @@ void proto_register_h225(void) {
 
   register_dissector(PFNAME, dissect_h225_H323UserInformation, proto_h225);
   register_dissector("h323ui",dissect_h225_H323UserInformation, proto_h225);
-  register_dissector("h225.ras", dissect_h225_h225_RasMessage, proto_h225);
+  h225ras_handle = register_dissector("h225.ras", dissect_h225_h225_RasMessage, proto_h225);
 
   nsp_object_dissector_table = register_dissector_table("h225.nsp.object", "H.225 NonStandardParameter (object)", proto_h225, FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
   nsp_h221_dissector_table = register_dissector_table("h225.nsp.h221", "H.225 NonStandardParameter (h221)", proto_h225, FT_UINT32, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
@@ -930,11 +932,10 @@ void
 proto_reg_handoff_h225(void)
 {
   static gboolean h225_prefs_initialized = FALSE;
-  static dissector_handle_t h225ras_handle, q931_tpkt_handle;
+  static dissector_handle_t q931_tpkt_handle;
   static guint saved_h225_tls_port;
 
   if (!h225_prefs_initialized) {
-    h225ras_handle=find_dissector("h225.ras");
     dissector_add_uint("udp.port", UDP_PORT_RAS1, h225ras_handle);
     dissector_add_uint("udp.port", UDP_PORT_RAS2, h225ras_handle);
 

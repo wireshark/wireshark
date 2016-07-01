@@ -1695,6 +1695,8 @@ static int dissect_DitBridgeKnowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 /*--- End of included file: packet-dsp-fn.c ---*/
 #line 71 "./asn1/dsp/packet-dsp-template.c"
 
+static dissector_handle_t dsp_handle;
+
 /*
 * Dissect X518 PDUs inside a ROS PDUs
 */
@@ -2449,7 +2451,7 @@ void proto_register_dsp(void) {
         "EXTERNAL", HFILL }},
 
 /*--- End of included file: packet-dsp-hfarr.c ---*/
-#line 274 "./asn1/dsp/packet-dsp-template.c"
+#line 276 "./asn1/dsp/packet-dsp-template.c"
   };
 
   /* List of subtrees */
@@ -2531,7 +2533,7 @@ void proto_register_dsp(void) {
     &ett_dsp_T_basicLevels,
 
 /*--- End of included file: packet-dsp-ettarr.c ---*/
-#line 280 "./asn1/dsp/packet-dsp-template.c"
+#line 282 "./asn1/dsp/packet-dsp-template.c"
   };
   static ei_register_info ei[] = {
     { &ei_dsp_unsupported_opcode, { "dsp.unsupported_opcode", PI_UNDECODED, PI_WARN, "Unsupported DSP opcode", EXPFILL }},
@@ -2546,7 +2548,7 @@ void proto_register_dsp(void) {
   /* Register protocol */
   proto_dsp = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  register_dissector("dsp", dissect_dsp, proto_dsp);
+  dsp_handle = register_dissector("dsp", dissect_dsp, proto_dsp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_dsp, hf, array_length(hf));
@@ -2569,8 +2571,6 @@ void proto_register_dsp(void) {
 
 /*--- proto_reg_handoff_dsp --- */
 void proto_reg_handoff_dsp(void) {
-  dissector_handle_t dsp_handle;
-
 
 /*--- Included file: packet-dsp-dis-tab.c ---*/
 #line 1 "./asn1/dsp/packet-dsp-dis-tab.c"
@@ -2594,7 +2594,6 @@ void proto_reg_handoff_dsp(void) {
   tpkt_handle = find_dissector("tpkt");
 
   /* Register DSP with ROS (with no use of RTSE) */
-  dsp_handle = find_dissector("dsp");
   register_ros_oid_dissector_handle("2.5.9.2", dsp_handle, 0, "id-as-directory-system", FALSE);
 
 }

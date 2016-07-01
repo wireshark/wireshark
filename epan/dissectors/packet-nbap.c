@@ -6488,6 +6488,8 @@ static expert_field ei_nbap_hsdsch_entity_not_specified = EI_INIT;
 
 extern int proto_fp;
 
+static dissector_handle_t nbap_handle;
+
 /*
  * Structure to build information needed to dissect the FP flow beeing set up.
  */
@@ -55187,7 +55189,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-nbap-fn.c ---*/
-#line 332 "./asn1/nbap/packet-nbap-template.c"
+#line 334 "./asn1/nbap/packet-nbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -68521,7 +68523,7 @@ void proto_register_nbap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 501 "./asn1/nbap/packet-nbap-template.c"
+#line 503 "./asn1/nbap/packet-nbap-template.c"
 	};
 
 	/* List of subtrees */
@@ -70161,7 +70163,7 @@ void proto_register_nbap(void)
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 510 "./asn1/nbap/packet-nbap-template.c"
+#line 512 "./asn1/nbap/packet-nbap-template.c"
 	};
 
 	static ei_register_info ei[] = {
@@ -70182,7 +70184,7 @@ void proto_register_nbap(void)
 	expert_register_field_array(expert_nbap, ei, array_length(ei));
 
 	/* Register dissector */
-	register_dissector("nbap", dissect_nbap, proto_nbap);
+	nbap_handle = register_dissector("nbap", dissect_nbap, proto_nbap);
 
 	nbap_module = prefs_register_protocol(proto_nbap, NULL);
 
@@ -70209,9 +70211,6 @@ void proto_register_nbap(void)
 void
 proto_reg_handoff_nbap(void)
 {
-	dissector_handle_t nbap_handle;
-
-	nbap_handle = find_dissector("nbap");
 	fp_handle = find_dissector("fp");
 	dissector_add_uint("sctp.ppi", NBAP_PAYLOAD_PROTOCOL_ID, nbap_handle);
 #ifdef EXTRA_PPI
@@ -71316,7 +71315,7 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 568 "./asn1/nbap/packet-nbap-template.c"
+#line 567 "./asn1/nbap/packet-nbap-template.c"
 }
 
 

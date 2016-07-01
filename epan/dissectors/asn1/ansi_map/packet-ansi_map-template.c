@@ -4563,7 +4563,6 @@ proto_reg_handoff_ansi_map(void)
     if(!ansi_map_prefs_initialized)
     {
         ansi_map_prefs_initialized = TRUE;
-        ansi_map_handle = find_dissector("ansi_map");
     }
     else
     {
@@ -5469,7 +5468,7 @@ void proto_register_ansi_map(void) {
     expert_ansi_map = expert_register_protocol(proto_ansi_map);
     expert_register_field_array(expert_ansi_map, ei, array_length(ei));
 
-    register_dissector("ansi_map", dissect_ansi_map, proto_ansi_map);
+    ansi_map_handle = register_dissector("ansi_map", dissect_ansi_map, proto_ansi_map);
 
     is637_tele_id_dissector_table =
         register_dissector_table("ansi_map.tele_id", "IS-637 Teleservice ID", proto_ansi_map,

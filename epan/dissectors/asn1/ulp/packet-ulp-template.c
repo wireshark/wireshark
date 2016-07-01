@@ -78,6 +78,8 @@ static gint ett_ulp_thirdPartyId = -1;
 static gint ett_ulp_ganssTimeModels = -1;
 #include "packet-ulp-ett.c"
 
+static dissector_handle_t ulp_tcp_handle;
+
 static const value_string ulp_ganss_id_vals[] = {
   {  0, "Galileo"},
   {  1, "SBAS"},
@@ -411,7 +413,7 @@ void proto_register_ulp(void) {
 
   /* Register protocol */
   proto_ulp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("ulp", dissect_ulp_tcp, proto_ulp);
+  ulp_tcp_handle = register_dissector("ulp", dissect_ulp_tcp, proto_ulp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_ulp, hf, array_length(hf));
@@ -445,11 +447,10 @@ void
 proto_reg_handoff_ulp(void)
 {
   static gboolean initialized = FALSE;
-  static dissector_handle_t ulp_tcp_handle, ulp_udp_handle;
+  static dissector_handle_t ulp_udp_handle;
   static guint local_ulp_tcp_port, local_ulp_udp_port;
 
   if (!initialized) {
-    ulp_tcp_handle = find_dissector("ulp");
     dissector_add_string("media_type","application/oma-supl-ulp", ulp_tcp_handle);
     dissector_add_string("media_type","application/vnd.omaloc-supl-init", ulp_tcp_handle);
     ulp_udp_handle = create_dissector_handle(dissect_ULP_PDU_PDU, proto_ulp);

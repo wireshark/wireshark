@@ -345,6 +345,8 @@ static dissector_table_t hnbap_proc_imsg_dissector_table;
 static dissector_table_t hnbap_proc_sout_dissector_table;
 static dissector_table_t hnbap_proc_uout_dissector_table;
 
+static dissector_handle_t hnbap_handle;
+
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
@@ -2588,7 +2590,7 @@ static int dissect_HNBAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-hnbap-fn.c ---*/
-#line 80 "./asn1/hnbap/packet-hnbap-template.c"
+#line 82 "./asn1/hnbap/packet-hnbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -3207,7 +3209,7 @@ module_t *hnbap_module;
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-hnbap-hfarr.c ---*/
-#line 150 "./asn1/hnbap/packet-hnbap-template.c"
+#line 152 "./asn1/hnbap/packet-hnbap-template.c"
   };
 
   /* List of subtrees */
@@ -3282,7 +3284,7 @@ module_t *hnbap_module;
     &ett_hnbap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-hnbap-ettarr.c ---*/
-#line 156 "./asn1/hnbap/packet-hnbap-template.c"
+#line 158 "./asn1/hnbap/packet-hnbap-template.c"
   };
 
 
@@ -3293,7 +3295,7 @@ module_t *hnbap_module;
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  register_dissector("hnbap", dissect_hnbap, proto_hnbap);
+  hnbap_handle = register_dissector("hnbap", dissect_hnbap, proto_hnbap);
 
   /* Register dissector tables */
   hnbap_ies_dissector_table = register_dissector_table("hnbap.ies", "HNBAP-PROTOCOL-IES", proto_hnbap, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
@@ -3312,11 +3314,9 @@ void
 proto_reg_handoff_hnbap(void)
 {
         static gboolean initialized = FALSE;
-        static dissector_handle_t hnbap_handle;
         static guint sctp_port;
 
         if (!initialized) {
-                hnbap_handle = find_dissector("hnbap");
                 dissector_add_uint("sctp.ppi", HNBAP_PAYLOAD_PROTOCOL_ID, hnbap_handle);
                 initialized = TRUE;
 

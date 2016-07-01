@@ -2636,7 +2636,6 @@ void proto_reg_handoff_gsm_map(void) {
     gsm_sms_handle = find_dissector_add_dependency("gsm_sms", proto_gsm_map);
     bssap_handle = find_dissector_add_dependency("gsm_a_bssmap", proto_gsm_map);
 
-    map_handle = find_dissector("gsm_map");
     oid_add_from_string("itu(0) administration(2) japan(440)","0.2.440" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.1.3", map_handle, proto_gsm_map,"networkLocUpContext-v3");
     register_ber_oid_dissector_handle("0.4.0.0.1.0.1.2", map_handle, proto_gsm_map,"networkLocUpContext-v2" );
@@ -3127,7 +3126,7 @@ void proto_register_gsm_map(void) {
   /* Register protocol */
   proto_gsm_map_ms = proto_gsm_map_dialogue = proto_gsm_map = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  register_dissector("gsm_map", dissect_gsm_map, proto_gsm_map);
+  map_handle = register_dissector("gsm_map", dissect_gsm_map, proto_gsm_map);
   register_dissector("gsm_map_sccp", dissect_gsm_map_sccp, proto_gsm_map);
 
   /* Register fields and subtrees */

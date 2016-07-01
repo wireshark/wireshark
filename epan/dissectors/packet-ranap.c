@@ -1490,6 +1490,9 @@ static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
 static gboolean glbl_dissect_container = FALSE;
+
+static dissector_handle_t ranap_handle;
+
 /* Some IE:s identities uses the same value for different IE:s
  * depending on PDU type:
  * InitiatingMessage
@@ -13091,7 +13094,7 @@ static int dissect_RANAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-ranap-fn.c ---*/
-#line 143 "./asn1/ranap/packet-ranap-template.c"
+#line 146 "./asn1/ranap/packet-ranap-template.c"
 
 static int
 dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -16145,7 +16148,7 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 328 "./asn1/ranap/packet-ranap-template.c"
+#line 331 "./asn1/ranap/packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -16482,7 +16485,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 336 "./asn1/ranap/packet-ranap-template.c"
+#line 339 "./asn1/ranap/packet-ranap-template.c"
   };
 
 
@@ -16493,7 +16496,7 @@ void proto_register_ranap(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  register_dissector("ranap", dissect_ranap, proto_ranap);
+  ranap_handle = register_dissector("ranap", dissect_ranap, proto_ranap);
 
   /* Register dissector tables */
   ranap_ies_dissector_table = register_dissector_table("ranap.ies", "RANAP-PROTOCOL-IES", proto_ranap, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
@@ -16523,11 +16526,9 @@ void
 proto_reg_handoff_ranap(void)
 {
 	static gboolean initialized = FALSE;
-	static dissector_handle_t ranap_handle;
 	static gint local_ranap_sccp_ssn;
 
 	if (!initialized) {
-		ranap_handle = find_dissector("ranap");
 		rrc_s_to_trnc_handle = find_dissector_add_dependency("rrc.s_to_trnc_cont", proto_ranap);
 		rrc_t_to_srnc_handle = find_dissector_add_dependency("rrc.t_to_srnc_cont", proto_ranap);
 		rrc_ho_to_utran_cmd = find_dissector("rrc.irat.ho_to_utran_cmd");
@@ -16865,7 +16866,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 386 "./asn1/ranap/packet-ranap-template.c"
+#line 387 "./asn1/ranap/packet-ranap-template.c"
 	} else {
 		dissector_delete_uint("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
 	}

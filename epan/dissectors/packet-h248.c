@@ -7695,8 +7695,8 @@ void proto_register_h248(void) {
 
     /* Register protocol */
     proto_h248 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-    register_dissector("h248", dissect_h248, proto_h248);
-    register_dissector("h248.tpkt", dissect_h248_tpkt, proto_h248);
+    h248_handle = register_dissector("h248", dissect_h248, proto_h248);
+    h248_tpkt_handle = register_dissector("h248.tpkt", dissect_h248_tpkt, proto_h248);
 
     /* Register fields and subtrees */
     proto_register_field_array(proto_h248, hf, array_length(hf));
@@ -7742,8 +7742,6 @@ void proto_reg_handoff_h248(void) {
     static guint32 tcp_port;
 
     if (!initialized) {
-        h248_handle = find_dissector("h248");
-        h248_tpkt_handle = find_dissector("h248.tpkt");
         dissector_add_uint("mtp3.service_indicator", MTP_SI_GCP, h248_handle);
         h248_term_handle = find_dissector_add_dependency("h248term", proto_h248);
         initialized = TRUE;

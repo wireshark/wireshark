@@ -706,6 +706,8 @@ dissect_goose_GOOSEpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 /*--- End of included file: packet-goose-fn.c ---*/
 #line 59 "./asn1/goose/packet-goose-template.c"
 
+static dissector_handle_t goose_handle = NULL;
+
 /*
 * Dissect GOOSE PDUs inside a PPDU.
 */
@@ -1013,7 +1015,7 @@ void proto_register_goose(void) {
         "UtcTime", HFILL }},
 
 /*--- End of included file: packet-goose-hfarr.c ---*/
-#line 127 "./asn1/goose/packet-goose-template.c"
+#line 129 "./asn1/goose/packet-goose-template.c"
   };
 
   /* List of subtrees */
@@ -1041,7 +1043,7 @@ void proto_register_goose(void) {
     &ett_goose_Data,
 
 /*--- End of included file: packet-goose-ettarr.c ---*/
-#line 133 "./asn1/goose/packet-goose-template.c"
+#line 135 "./asn1/goose/packet-goose-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -1053,7 +1055,7 @@ void proto_register_goose(void) {
 
 	/* Register protocol */
 	proto_goose = proto_register_protocol(PNAME, PSNAME, PFNAME);
-	register_dissector("goose", dissect_goose, proto_goose);
+	goose_handle = register_dissector("goose", dissect_goose, proto_goose);
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_goose, hf, array_length(hf));
@@ -1064,9 +1066,6 @@ void proto_register_goose(void) {
 
 /*--- proto_reg_handoff_goose --- */
 void proto_reg_handoff_goose(void) {
-
-	dissector_handle_t goose_handle;
-	goose_handle = find_dissector("goose");
 
 	dissector_add_uint("ethertype", ETHERTYPE_IEC61850_GOOSE, goose_handle);
 }

@@ -64,6 +64,8 @@ static expert_field ei_wrong_spdu_type = EI_INIT;
 
 static guint32 opcode;
 
+static dissector_handle_t cmip_handle = NULL;
+
 /* Dissector table */
 static dissector_table_t attribute_id_dissector_table;
 
@@ -187,7 +189,7 @@ void proto_register_cmip(void) {
 
   /* Register protocol */
   proto_cmip = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("cmip", dissect_cmip, proto_cmip);
+  cmip_handle = register_dissector("cmip", dissect_cmip, proto_cmip);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_cmip, hf, array_length(hf));
@@ -205,8 +207,6 @@ void proto_register_cmip(void) {
 
 /*--- proto_reg_handoff_cmip -------------------------------------------*/
 void proto_reg_handoff_cmip(void) {
-	dissector_handle_t cmip_handle = find_dissector("cmip");
-
 	register_ber_oid_dissector_handle("2.9.0.0.2", cmip_handle, proto_cmip, "cmip");
 	register_ber_oid_dissector_handle("2.9.1.1.4", cmip_handle, proto_cmip, "joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)");
 

@@ -72,6 +72,8 @@ static dissector_table_t rua_proc_imsg_dissector_table;
 static dissector_table_t rua_proc_sout_dissector_table;
 static dissector_table_t rua_proc_uout_dissector_table;
 
+static dissector_handle_t rua_handle;
+
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
@@ -148,7 +150,7 @@ module_t *rua_module;
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  register_dissector("rua", dissect_rua, proto_rua);
+  rua_handle = register_dissector("rua", dissect_rua, proto_rua);
 
   /* Register dissector tables */
   rua_ies_dissector_table = register_dissector_table("rua.ies", "RUA-PROTOCOL-IES", proto_rua, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
@@ -168,11 +170,9 @@ void
 proto_reg_handoff_rua(void)
 {
         static gboolean initialized = FALSE;
-        static dissector_handle_t rua_handle;
         static guint sctp_port;
 
         if (!initialized) {
-                rua_handle = find_dissector("rua");
                 ranap_handle = find_dissector_add_dependency("ranap", proto_rua);
                 dissector_add_uint("sctp.ppi", RUA_PAYLOAD_PROTOCOL_ID, rua_handle);
                 initialized = TRUE;

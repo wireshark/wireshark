@@ -1272,7 +1272,7 @@ void proto_register_ros(void) {
 
   /* Register protocol */
   proto_ros = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("ros", dissect_ros, proto_ros);
+  ros_handle = register_dissector("ros", dissect_ros, proto_ros);
   /* Register fields and subtrees */
   proto_register_field_array(proto_ros, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -1282,8 +1282,6 @@ void proto_register_ros(void) {
   ros_oid_dissector_table = register_dissector_table("ros.oid", "ROS OID Dissectors", proto_ros, FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
   oid_table=g_hash_table_new(g_str_hash, g_str_equal);
   protocol_table=g_hash_table_new(g_str_hash, g_str_equal);
-
-  ros_handle = find_dissector("ros");
 
   register_cleanup_routine(ros_cleanup);
 }
