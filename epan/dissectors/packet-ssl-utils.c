@@ -4832,19 +4832,22 @@ ssl_set_debug(const gchar* name)
     static gint debug_file_must_be_closed;
     gint        use_stderr;
 
-    debug_file_must_be_closed = 0;
     use_stderr                = name?(strcmp(name, SSL_DEBUG_USE_STDERR) == 0):0;
 
     if (debug_file_must_be_closed)
         fclose(ssl_debug_file);
+
     if (use_stderr)
         ssl_debug_file = stderr;
     else if (!name || (strcmp(name, "") ==0))
         ssl_debug_file = NULL;
     else
         ssl_debug_file = ws_fopen(name, "w");
+
     if (!use_stderr && ssl_debug_file)
         debug_file_must_be_closed = 1;
+    else
+        debug_file_must_be_closed = 0;
 
     ssl_debug_printf("Wireshark SSL debug log \n\n");
     ssl_debug_printf("Wireshark version: %s\n", get_ws_vcs_version_info());
