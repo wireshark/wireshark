@@ -350,6 +350,10 @@ static const value_string interface_role_str[] = {
 #define MPLS_STACK_ENTRY_C_TYPE                  1
 #define MPLS_EXTENDED_PAYLOAD_C_TYPE             1
 
+/* Return true if the address is in the 224.0.0.0/4 network block */
+#define is_a_multicast_addr(addr) \
+  ((g_ntohl(addr) & 0xf0000000) == 0xe0000000)
+
 static conversation_t *_find_or_create_conversation(packet_info * pinfo)
 {
 	conversation_t *conv = NULL;
@@ -977,7 +981,11 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 					   icmp_key);
 	}
 	if (icmp_trans == NULL) {
-		if (PINFO_FD_VISITED(pinfo)) {
+		if (pinfo->dst.len == 4 && is_a_multicast_addr(*(const guint32 *)(pinfo->dst.data))) {
+			/* XXX We should support multicast echo requests, but we don't currently */
+			/* Note the multicast destination and skip transaction tracking */
+			col_append_str(pinfo->cinfo, COL_INFO, " (multicast)");
+		} else if (PINFO_FD_VISITED(pinfo)) {
 			/* No response found - add field and expert info */
 			it = proto_tree_add_item(tree, hf_icmp_no_resp, NULL, 0, 0,
 						 ENC_NA);
