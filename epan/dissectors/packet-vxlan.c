@@ -3,6 +3,9 @@
  * Routines for Virtual eXtensible Local Area Network (VXLAN) packet dissection
  * RFC 7348 plus draft-smith-vxlan-group-policy-01
  *
+ * (c) Copyright 2016, Sumit Kumar Jha <sjha3@ncsu.edu>
+ * Support for VXLAN GPE (https://www.ietf.org/id/draft-ietf-nvo3-vxlan-gpe-02.txt)
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -28,6 +31,12 @@
 #include <epan/tfs.h>
 
 #define UDP_PORT_VXLAN  4789
+#define UDP_PORT_VXLAN_GPE  4790
+#define VXLAN_IPV4 1
+#define VXLAN_IPV6 2
+#define VXLAN_ETHERNET 3
+#define VXLAN_NSH 4
+#define VXLAN_MPLS 5
 
 void proto_register_vxlan(void);
 void proto_reg_handoff_vxlan(void);
@@ -35,18 +44,24 @@ void proto_reg_handoff_vxlan(void);
 static int proto_vxlan = -1;
 
 static int hf_vxlan_flags = -1;
+static int hf_vxlan_gpe_flags = -1;
 static int hf_vxlan_flags_reserved = -1;
+static int hf_vxlan_reserved_8 = -1;
 static int hf_vxlan_flag_a = -1;
 static int hf_vxlan_flag_d = -1;
 static int hf_vxlan_flag_i = -1;
 static int hf_vxlan_flag_g = -1;
 static int hf_vxlan_gbp = -1;
 static int hf_vxlan_vni = -1;
-static int hf_vxlan_reserved_8 = -1;
-
-
+static int hf_vxlan_gpe_flag_i = -1;
+static int hf_vxlan_gpe_flag_p = -1;
+static int hf_vxlan_gpe_flag_o = -1;
+static int hf_vxlan_gpe_flag_ver = -1;
+static int hf_vxlan_gpe_flag_reserved = -1;
+static int hf_vxlan_gpe_reserved_16 = -1;
+static int hf_vxlan_next_proto = -1;
 static int ett_vxlan = -1;
-static int ett_vxlan_flgs = -1;
+static int ett_vxlan_flags = -1;
 
 static const int *flags_fields[] = {
         &hf_vxlan_flag_g,
@@ -57,56 +72,123 @@ static const int *flags_fields[] = {
         NULL
     };
 
+static const int *gpe_flags_fields[] = {
+        &hf_vxlan_gpe_flag_ver,
+        &hf_vxlan_gpe_flag_i,
+        &hf_vxlan_gpe_flag_p,
+        &hf_vxlan_gpe_flag_o,
+        &hf_vxlan_gpe_flag_reserved,
+        NULL
+
+   };
+
+static const value_string vxlan_next_protocols[] = {
+        { VXLAN_IPV4, "IPv4" },
+        { VXLAN_IPV6, "IPv6" },
+        { VXLAN_ETHERNET, "Ethernet" },
+        { VXLAN_NSH, "Network Service Header" },
+        { VXLAN_MPLS, "MPLS"},
+        { 0, NULL }
+ };
+
 static dissector_handle_t eth_handle;
+static dissector_handle_t ip_handle;
+static dissector_handle_t ipv6_handle;
+static dissector_handle_t nsh_handle;
+static dissector_handle_t mpls_handle;
+static dissector_table_t vxlan_dissector_table;
 
 static int
-dissect_vxlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_vxlan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int is_gpe)
 {
     proto_tree *vxlan_tree;
     proto_item *ti;
     tvbuff_t *next_tvb;
     int offset = 0;
+    int vxlan_next_proto=-1;
 
-    /* Make entry in Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VxLAN");
-
     col_clear(pinfo->cinfo, COL_INFO);
 
-    ti = proto_tree_add_item(tree, proto_vxlan, tvb, offset, -1, ENC_NA);
+
+    ti = proto_tree_add_item(tree, proto_vxlan, tvb, offset, 8, ENC_NA);
     vxlan_tree = proto_item_add_subtree(ti, ett_vxlan);
 
-/*
-              0                   1                   2                   3
-            0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-        VXLAN Header:
-           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-           |G|R|R|R|I|R|R|R|R|D|R|R|A|R|R|R|        Group Policy ID        |
-           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-           |                VXLAN Network Identifier (VNI) |   Reserved    |
-           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-*/
-    /* Flags (16 bits) where the I flag MUST be set  to 1 for a valid
-     *    VXLAN Network ID (VNI).  The remaining 12 bits (designated "R") are
-     *    reserved fields and MUST be set to zero.
-     */
-    proto_tree_add_bitmask(vxlan_tree, tvb, offset, hf_vxlan_flags,
-        ett_vxlan_flgs, flags_fields, ENC_BIG_ENDIAN);
-    offset+=2;
+    if(is_gpe) {
+        proto_tree_add_bitmask(vxlan_tree, tvb, offset, hf_vxlan_gpe_flags, ett_vxlan_flags, gpe_flags_fields, ENC_BIG_ENDIAN);
+        offset += 1;
 
-    proto_tree_add_item(vxlan_tree, hf_vxlan_gbp, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset+=2;
+        proto_tree_add_item(vxlan_tree, hf_vxlan_gpe_reserved_16, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(vxlan_tree, hf_vxlan_next_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
+        vxlan_next_proto = tvb_get_guint8(tvb, offset);
+        offset += 1;
+    } else {
+        proto_tree_add_bitmask(vxlan_tree, tvb, offset, hf_vxlan_flags, ett_vxlan_flags, flags_fields, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(vxlan_tree, hf_vxlan_gbp, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
 
     proto_tree_add_item(vxlan_tree, hf_vxlan_vni, tvb, offset, 3, ENC_BIG_ENDIAN);
-    offset+=3;
+    offset += 3;
 
     proto_tree_add_item(vxlan_tree, hf_vxlan_reserved_8, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
+    offset += 1;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(eth_handle, next_tvb, pinfo, tree);
+
+    if(is_gpe){
+        switch(vxlan_next_proto){
+
+            case VXLAN_IPV4 :
+                call_dissector(ip_handle, next_tvb, pinfo, tree);
+                break;
+
+            case VXLAN_IPV6 :
+                 call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+                 break;
+
+            case VXLAN_ETHERNET :
+                 call_dissector(eth_handle, next_tvb, pinfo, tree);
+                 break;
+
+            case VXLAN_NSH :
+                 if(!dissector_try_uint(vxlan_dissector_table, VXLAN_NSH, next_tvb, pinfo, tree))
+                     call_data_dissector(next_tvb, pinfo, vxlan_tree);
+                 break;
+
+             case VXLAN_MPLS :
+                 call_dissector(mpls_handle, next_tvb, pinfo, tree);
+                 break;
+
+             default:
+                 call_data_dissector(next_tvb, pinfo, vxlan_tree);
+                 break;
+        }
+    } else {
+        call_dissector(eth_handle, next_tvb, pinfo, tree);
+    }
 
     return tvb_captured_length(tvb);
 }
+
+static int
+dissect_vxlan_gpe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    return dissect_vxlan_common(tvb, pinfo, tree, TRUE);
+}
+
+
+static int
+dissect_vxlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    return dissect_vxlan_common(tvb, pinfo, tree, FALSE);
+}
+
+
 
 
 /* Register VxLAN with Wireshark */
@@ -120,9 +202,21 @@ proto_register_vxlan(void)
             NULL, HFILL
           },
         },
+        { &hf_vxlan_gpe_flags,
+          { "Flags", "vxlan.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL
+          },
+        },
         { &hf_vxlan_flags_reserved,
           { "Reserved(R)", "vxlan.flags_reserved",
             FT_BOOLEAN, 16, NULL, 0x77b7,
+            NULL, HFILL,
+          },
+        },
+        { &hf_vxlan_gpe_flag_reserved,
+          { "Reserved(R)", "vxlan.flags_reserved",
+            FT_UINT8, BASE_DEC, NULL, 0xC2,
             NULL, HFILL,
           },
         },
@@ -150,6 +244,30 @@ proto_register_vxlan(void)
             NULL, HFILL,
           },
         },
+        { &hf_vxlan_gpe_flag_ver,
+          { "Version", "vxlan.ver",
+            FT_UINT8, BASE_DEC, NULL, 0x30,
+            NULL, HFILL,
+          },
+        },
+        { &hf_vxlan_gpe_flag_i,
+          { "Instance", "vxlan.i_bit",
+            FT_UINT8, BASE_DEC, NULL, 0x08,
+            NULL, HFILL,
+          },
+        },
+        { &hf_vxlan_gpe_flag_p,
+          { "Next Protocol Bit", "vxlan.p_bit",
+            FT_UINT8, BASE_DEC, NULL, 0x04,
+            NULL, HFILL,
+          },
+        },
+        { &hf_vxlan_gpe_flag_o,
+          { "OAM bit", "vxlan.o_bit",
+            FT_UINT8, BASE_DEC, NULL, 0x01,
+            NULL, HFILL,
+          },
+        },
         { &hf_vxlan_gbp,
           { "Group Policy ID", "vxlan.gbp",
             FT_UINT16, BASE_DEC, NULL, 0x00,
@@ -168,12 +286,24 @@ proto_register_vxlan(void)
             NULL, HFILL
           },
         },
+        { &hf_vxlan_gpe_reserved_16,
+          { "Reserved", "vxlan.reserved_16",
+            FT_UINT16, BASE_DEC, NULL, 0x0000,
+            NULL, HFILL
+          },
+        },
+        { &hf_vxlan_next_proto,
+          { "Next Protocol", "vxlan.next_proto",
+            FT_UINT8, BASE_DEC, VALS(vxlan_next_protocols), 0x00,
+            NULL, HFILL
+          },
+        },
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_vxlan,
-        &ett_vxlan_flgs,
+        &ett_vxlan_flags,
     };
 
     /* Register the protocol name and description */
@@ -183,6 +313,7 @@ proto_register_vxlan(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_vxlan, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    vxlan_dissector_table = register_dissector_table("vxlan.next_proto", "VXLAN Next Protocol", proto_vxlan, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
 
 }
@@ -191,6 +322,7 @@ void
 proto_reg_handoff_vxlan(void)
 {
     dissector_handle_t vxlan_handle;
+    dissector_handle_t vxlan_gpe_handle;
 
     /*
      * RFC 7348 Figures 1 and 2, in the Payload section, say
@@ -201,10 +333,18 @@ proto_reg_handoff_vxlan(void)
      * FCS.
      */
     eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_vxlan);
+    ip_handle = find_dissector_add_dependency("ip", proto_vxlan);
+    ipv6_handle = find_dissector_add_dependency("ipv6", proto_vxlan);
+    nsh_handle = find_dissector_add_dependency("nsh", proto_vxlan);
+    mpls_handle = find_dissector_add_dependency("mpls", proto_vxlan);
 
     vxlan_handle = create_dissector_handle(dissect_vxlan, proto_vxlan);
+    vxlan_gpe_handle = create_dissector_handle(dissect_vxlan_gpe, proto_vxlan);
     dissector_add_uint("udp.port", UDP_PORT_VXLAN, vxlan_handle);
+    dissector_add_uint("udp.port", UDP_PORT_VXLAN_GPE, vxlan_gpe_handle);
+
     dissector_add_for_decode_as("udp.port", vxlan_handle);
+    dissector_add_for_decode_as("udp.port", vxlan_gpe_handle);
 
 }
 
