@@ -964,11 +964,11 @@ filter_address_match(gchar *addr, gchar *filter, gint typ)
    Description : check the matching of a spi with a filter
    Return : Return TRUE if the filter matches the spi.
    Params:
-      - gchar *spi : the spi to check
+      - guint spi : the spi to check
       - gchar *filter : the filter
 */
 static gboolean
-filter_spi_match(gchar *spi, gchar *filter)
+filter_spi_match(guint spi, gchar *filter)
 {
   guint i;
   guint filter_len = (guint)strlen(filter);
@@ -976,22 +976,31 @@ filter_spi_match(gchar *spi, gchar *filter)
   /* "*" matches against anything */
   if((filter_len == 1) && (filter[0] == IPSEC_SA_WILDCARDS_ANY))
     return TRUE;
-  /* Otherwise lengths need to match exactly... */
-  else if(strlen(spi) != filter_len)
-    return FALSE;
 
-  /* ... which means '*' can only appear in the last position of the filter? */
-  /* Start at 2, don't compare "0x" each time */
-  for(i = 2; filter[i]; i++)
-    if((filter[i] != IPSEC_SA_WILDCARDS_ANY) && (filter[i] != spi[i]))
+  /* If the filter has a wildcard, treat SPI as a string */
+  if (strchr(filter, IPSEC_SA_WILDCARDS_ANY) != NULL) {
+    gchar spi_string[IPSEC_SPI_LEN_MAX];
+
+    g_snprintf(spi_string, IPSEC_SPI_LEN_MAX,"0x%08x", spi);
+
+    /* Lengths need to match exactly... */
+    if(strlen(spi_string) != filter_len)
       return FALSE;
 
+    /* ... which means '*' can only appear in the last position of the filter? */
+    /* Start at 2, don't compare "0x" each time */
+    for(i = 2; filter[i]; i++)
+      if((filter[i] != IPSEC_SA_WILDCARDS_ANY) && (filter[i] != spi_string[i]))
+        return FALSE;
+  } else if (strtoul(filter, NULL, 0) != spi) {
+    return FALSE;
+  }
   return TRUE;
 }
 
 
 /*
-   Name : static goolean get_esp_sa(g_esp_sa_database *sad, gint protocol_typ, gchar *src,  gchar *dst,  gint spi,
+   Name : static goolean get_esp_sa(g_esp_sa_database *sad, gint protocol_typ, gchar *src,  gchar *dst,  guint spi,
            gint *encryption_algo,
            gint *authentication_algo,
            gchar **encryption_key,
@@ -1022,7 +1031,7 @@ filter_spi_match(gchar *spi, gchar *filter)
 
 */
 static gboolean
-get_esp_sa(gint protocol_typ, gchar *src,  gchar *dst,  gint spi,
+get_esp_sa(gint protocol_typ, gchar *src,  gchar *dst,  guint spi,
            gint *encryption_algo,
            gint *authentication_algo,
            gchar **encryption_key,
@@ -1035,9 +1044,6 @@ get_esp_sa(gint protocol_typ, gchar *src,  gchar *dst,  gint spi,
 {
   gboolean found = FALSE;
   guint i, j;
-  gchar spi_string[IPSEC_SPI_LEN_MAX];
-
-  g_snprintf(spi_string, IPSEC_SPI_LEN_MAX,"0x%08x", spi);
 
   *cipher_hd = NULL;
   *cipher_hd_created = NULL;
@@ -1059,7 +1065,7 @@ get_esp_sa(gint protocol_typ, gchar *src,  gchar *dst,  gint spi,
     if((protocol_typ == record->protocol)
        && filter_address_match(src, record->srcIP, protocol_typ)
        && filter_address_match(dst, record->dstIP, protocol_typ)
-       && filter_spi_match(spi_string, record->spi))
+       && filter_spi_match(spi, record->spi))
     {
       found = TRUE;
 
