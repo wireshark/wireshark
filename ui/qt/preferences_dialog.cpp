@@ -426,7 +426,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     GeometryStateDialog(parent),
     pd_ui_(new Ui::PreferencesDialog),
     cur_line_edit_(NULL),
-    cur_combo_box_(NULL)
+    cur_combo_box_(NULL),
+    saved_combo_idx_(0)
 {
     QTreeWidgetItem tmp_item; // Adding pre-populated top-level items is much faster
     prefs_modules_foreach_submodules(NULL, fill_advanced_prefs, (gpointer) &tmp_item);
