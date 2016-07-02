@@ -282,12 +282,14 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, proto_tree *tree, guint offset,
       }
       else {
         int i;
-        guint8 c = indexEnd - indexStart + 1;
-        tlvValue_tree = proto_item_add_subtree(tlvValue_item, ett_packetbb_tlv_value);
+        guint c = indexEnd - indexStart + 1;
+        if (c > 0) {
+          tlvValue_tree = proto_item_add_subtree(tlvValue_item, ett_packetbb_tlv_value);
 
-        for (i=indexStart; i<=indexEnd; i++) {
-          proto_tree_add_item(tlvValue_tree, hf_packetbb_tlv_multivalue, tvb, offset, length/c, ENC_NA);
-          offset += (length/c);
+          for (i=indexStart; i<=indexEnd; i++) {
+            proto_tree_add_item(tlvValue_tree, hf_packetbb_tlv_multivalue, tvb, offset, length/c, ENC_NA);
+            offset += (length/c);
+          }
         }
       }
     }
