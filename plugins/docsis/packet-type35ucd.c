@@ -194,11 +194,11 @@ static const value_string burst_tlv_vals[] = {
   {type35ucd_MAX_BURST,                       "Maximum Burst Size"},
   {type35ucd_GUARD_TIME,                      "Guard Time Size"},
   {type35ucd_LAST_CW_LEN,                     "Last Codeword Length"},
-  {type35ucd_SCRAMBLER_ONOFF,                 "Scrambler on/off"},
+  {type35ucd_SCRAMBLER_ONOFF,                 "Scrambler On/Off"},
   {type35ucd_RS_INT_DEPTH,                    "R-S Interleaver Depth (Ir)"},
   {type35ucd_RS_INT_BLOCK,                    "R-S Interleaver Block Size (Br)"},
   {type35ucd_PREAMBLE_TYPE,                   "Preamble Type"},
-  {type35ucd_SCMDA_SCRAMBLER_ONOFF,           "S-CDMA Spreader on/off"},
+  {type35ucd_SCMDA_SCRAMBLER_ONOFF,           "S-CDMA Spreader On/Off"},
   {type35ucd_SCDMA_CODES_PER_SUBFRAME,        "S-CDMA Codes per Subframe"},
   {type35ucd_SCDMA_FRAMER_INT_STEP_SIZE,      "S-CDMA Framer Interleaving Step Size"},
   {type35ucd_TCM_ENABLED,                     "TCM Encoding"},
@@ -208,6 +208,12 @@ static const value_string burst_tlv_vals[] = {
 static const value_string on_off_vals[] = {
   {1, "On"},
   {2, "Off"},
+  {0, NULL}
+};
+
+static const value_string preamble_type[] = {
+  {1, "QPSK0"},
+  {2, "QPSK1"},
   {0, NULL}
 };
 
@@ -1107,45 +1113,45 @@ proto_register_docsis_type35ucd (void)
       "S-CDMA Maximum Scheduled Codes", HFILL}
     },
     {&hf_docsis_rs_int_depth,
-     {"Scrambler On/Off", "docsis_type35ucd.burst.rsintdepth",
+     {"R-S Interleaver Depth (Ir)", "docsis_type35ucd.burst.rsintdepth",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "R-S Interleaver Depth", HFILL}
+      NULL, HFILL}
     },
     {&hf_docsis_rs_int_block,
-     {"Scrambler On/Off", "docsis_type35ucd.burst.rsintblock",
+     {"R-S Interleaver Block Size (Br)", "docsis_type35ucd.burst.rsintblock",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "R-S Interleaver Block", HFILL}
+      NULL, HFILL}
     },
     {&hf_docsis_preamble_type,
-     {"Scrambler On/Off", "docsis_type35ucd.burst.preambletype",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Preamble Type", HFILL}
+     {"Preamble Type", "docsis_type35ucd.burst.preambletype",
+      FT_UINT8, BASE_DEC, VALS (preamble_type), 0x0,
+      NULL, HFILL}
     },
     {&hf_docsis_scdma_scrambler_onoff,
-     {"Scrambler On/Off", "docsis_type35ucd.burst.scdmascrambleronoff",
+     {"S-CDMA Spreader On/Off", "docsis_type35ucd.burst.scdmascrambleronoff",
       FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x0,
-      "SCDMA Scrambler On/Off", HFILL}
+      NULL, HFILL}
     },
     {&hf_docsis_scdma_codes_per_subframe,
-     {"Scrambler On/Off", "docsis_type35ucd.burst.scdmacodespersubframe",
+     {"S-CDMA Codes per Subframe", "docsis_type35ucd.burst.scdmacodespersubframe",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "SCDMA Codes per Subframe", HFILL}
+      NULL, HFILL}
     },
     {&hf_docsis_scdma_framer_int_step_size,
-     {"Scrambler On/Off", "docsis_type35ucd.burst.scdmaframerintstepsize",
+     {"S-CDMA Framer Interleaving Step Size", "docsis_type35ucd.burst.scdmaframerintstepsize",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "SCDMA Framer Interleaving Step Size", HFILL}
+      NULL, HFILL}
     },
     {&hf_docsis_tcm_enabled,
-     {"Scrambler On/Off", "docsis_type35ucd.burst.tcmenabled",
+     {"TCM Encoding", "docsis_type35ucd.burst.tcmenabled",
       FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x0,
-      "TCM Enabled", HFILL}
+      NULL, HFILL}
     },
   };
 
   static ei_register_info ei[] = {
-    {&ei_docsis_type35ucd_tlvlen_bad, {"docsis_type35ucd.tlvlenbad", PI_MALFORMED, PI_ERROR, "Bad TLV length", EXPFILL}},
-    {&ei_docsis_type35ucd_tlvtype_bad, {"docsis_type35ucd.tlvtypebad", PI_PROTOCOL, PI_WARN, "Bad TLV type", EXPFILL}},
+    {&ei_docsis_type35ucd_tlvlen_bad, { "docsis_type35ucd.tlvlenbad", PI_MALFORMED, PI_ERROR, "Bad TLV length", EXPFILL}},
+    {&ei_docsis_type35ucd_tlvtype_bad, { "docsis_type35ucd.tlvtypebad", PI_PROTOCOL, PI_WARN, "Bad TLV type", EXPFILL}},
   };
 
   static gint *ett[] = {
