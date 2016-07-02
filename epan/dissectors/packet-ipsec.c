@@ -94,6 +94,7 @@ void proto_reg_handoff_ipsec(void);
 static int proto_ah = -1;
 static int hf_ah_next_header = -1;
 static int hf_ah_length = -1;
+static int hf_ah_reserved = -1;
 static int hf_ah_spi = -1;
 static int hf_ah_iv = -1;
 static int hf_ah_sequence = -1;
@@ -188,31 +189,7 @@ static const value_string cpi2val[] = {
   { 0, NULL },
 };
 
-struct newah {
-  guint8        ah_nxt;         /* Next Header */
-  guint8        ah_len;         /* Length of data + 1, in 32bit */
-  guint16       ah_reserve;     /* Reserved for future use */
-  guint32       ah_spi;         /* Security parameter index */
-  guint32       ah_seq;         /* Sequence number field */
-  /* variable size, 32bit bound*/       /* Authentication data */
-};
-
-struct newesp {
-  guint32       esp_spi;        /* ESP */
-  guint32       esp_seq;        /* Sequence number */
-  /*variable size*/             /* (IV and) Payload data */
-  /*variable size*/             /* padding */
-  /*8bit*/                      /* pad size */
-  /*8bit*/                      /* next header */
-  /*8bit*/                      /* next header */
-  /*variable size, 32bit bound*/        /* Authentication data */
-};
-
-struct ipcomp {
-  guint8 comp_nxt;      /* Next Header */
-  guint8 comp_flags;    /* Must be zero */
-  guint16 comp_cpi;     /* Compression parameter index */
-};
+#define NEW_ESP_DATA_SIZE       8
 
 struct ah_header_data {
   proto_tree *next_tree;
@@ -269,14 +246,15 @@ static guint num_sa_uat = 0;
 static gint
 compute_ascii_key(gchar **ascii_key, const gchar *key)
 {
-  guint key_len = 0;
+  guint key_len = 0, raw_key_len;
   gint hex_digit;
   guchar key_byte;
   guint i, j;
 
   if(key != NULL)
   {
-    if((strlen(key) > 2) && (key[0] == '0') && ((key[1] == 'x') || (key[1] == 'X')))
+    raw_key_len = (guint)strlen(key);
+    if((raw_key_len > 2) && (key[0] == '0') && ((key[1] == 'x') || (key[1] == 'X')))
     {
       /*
        * Key begins with "0x" or "0X"; skip that and treat the rest
@@ -284,14 +262,14 @@ compute_ascii_key(gchar **ascii_key, const gchar *key)
        */
       i = 2;    /* first character after "0[Xx]" */
       j = 0;
-      if(strlen(key) %2  == 1)
+      if(raw_key_len %2  == 1)
       {
         /*
          * Key has an odd number of characters; we act as if the
          * first character had a 0 in front of it, making the
          * number of characters even.
          */
-        key_len = ((guint) strlen(key) - 2) / 2 + 1;
+        key_len = (raw_key_len - 2) / 2 + 1;
         *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
         hex_digit = g_ascii_xdigit_value(key[i]);
         i++;
@@ -310,11 +288,11 @@ compute_ascii_key(gchar **ascii_key, const gchar *key)
          * Key has an even number of characters, so we treat each
          * pair of hex digits as a single byte value.
          */
-        key_len = ((guint) strlen(key) - 2) / 2;
+        key_len = (raw_key_len - 2) / 2;
         *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
       }
 
-      while(i < (strlen(key) -1))
+      while(i < (raw_key_len -1))
       {
         hex_digit = g_ascii_xdigit_value(key[i]);
         i++;
@@ -340,13 +318,13 @@ compute_ascii_key(gchar **ascii_key, const gchar *key)
       (*ascii_key)[j] = '\0';
     }
 
-    else if((strlen(key) == 2) && (key[0] == '0') && ((key[1] == 'x') || (key[1] == 'X')))
+    else if((raw_key_len == 2) && (key[0] == '0') && ((key[1] == 'x') || (key[1] == 'X')))
     {
       return 0;
     }
     else
     {
-      key_len = (guint) strlen(key);
+      key_len = raw_key_len;
       *ascii_key = g_strdup(key);
     }
   }
@@ -495,20 +473,6 @@ typedef struct
 /* The sequence analysis SPI hash table.
    Maps SPI -> spi_status */
 static GHashTable *esp_sequence_analysis_hash = NULL;
-
-/* Equal keys */
-static gint word_equal(gconstpointer v, gconstpointer v2)
-{
-    /* Key fits in 4 bytes, so just compare pointers! */
-    return (v == v2);
-}
-
-/* Compute a hash value for a given key. */
-static guint word_hash_func(gconstpointer v)
-{
-    /* Just use pointer, as the fields are all in this value */
-    return GPOINTER_TO_UINT(v);
-}
 
 /* Results are stored here: framenum -> spi_status */
 /* N.B. only store entries for out-of-order frames, if there is no entry for
@@ -1124,59 +1088,46 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 {
   proto_tree *ah_tree;
   proto_item *ti;
-  struct newah ah;
-  int advance;
+  guint8      ah_nxt;         /* Next Header */
+  guint8      ah_len;         /* Length of data + 1, in 32bit */
+  guint32     ah_spi;         /* Security parameter index */
   struct ah_header_data* header_data;
+  int advance;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AH");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  tvb_memcpy(tvb, (guint8 *)&ah, 0, sizeof(ah));
-  advance = (int)sizeof(ah) + ((ah.ah_len - 1) << 2);
+  ti = proto_tree_add_item(tree, proto_ah, tvb, 0, -1, ENC_NA);
+  ah_tree = proto_item_add_subtree(ti, ett_ah);
 
-  col_add_fstr(pinfo->cinfo, COL_INFO, "AH (SPI=0x%08x)",
-               (guint32)g_ntohl(ah.ah_spi));
+  ah_nxt = tvb_get_guint8(tvb, 0);
+  ah_len = tvb_get_guint8(tvb, 1);
+  proto_tree_add_uint_format_value(ah_tree, hf_ah_next_header, tvb,
+                        0, 1, ah_nxt, "%s (0x%02x)", ipprotostr(ah_nxt), ah_nxt);
+  proto_tree_add_uint(ah_tree, hf_ah_length, tvb, 1, 1, (ah_len + 2) << 2);
+  proto_tree_add_item(ah_tree, hf_ah_reserved, tvb, 2, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(ah_tree, hf_ah_spi, tvb, 4, 4, ENC_BIG_ENDIAN, &ah_spi);
+
+  col_add_fstr(pinfo->cinfo, COL_INFO, "AH (SPI=0x%08x)", ah_spi);
+
+  proto_tree_add_item(ah_tree, hf_ah_sequence, tvb, 8, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(ah_tree, hf_ah_iv, tvb, 12, (ah_len) ? (ah_len - 1) << 2 : 0, ENC_NA);
 
   header_data = (struct ah_header_data*)p_get_proto_data(pinfo->pool, pinfo, proto_ah, 0 );
-
-  if (tree) {
-    /* !!! specify length */
-    ti = proto_tree_add_item(tree, proto_ah, tvb, 0, advance, ENC_NA);
-    ah_tree = proto_item_add_subtree(ti, ett_ah);
-
-    proto_tree_add_uint_format_value(ah_tree, hf_ah_next_header, tvb,
-                        offsetof(struct newah, ah_nxt), 1,
-                        ah.ah_nxt, "%s (0x%02x)",
-                        ipprotostr(ah.ah_nxt), ah.ah_nxt);
-    proto_tree_add_uint(ah_tree, hf_ah_length, tvb,
-                        offsetof(struct newah, ah_len), 1,
-                        (ah.ah_len + 2) << 2);
-    proto_tree_add_uint(ah_tree, hf_ah_spi, tvb,
-                        offsetof(struct newah, ah_spi), 4,
-                        (guint32)g_ntohl(ah.ah_spi));
-    proto_tree_add_uint(ah_tree, hf_ah_sequence, tvb,
-                        offsetof(struct newah, ah_seq), 4,
-                        (guint32)g_ntohl(ah.ah_seq));
-    proto_tree_add_item(ah_tree, hf_ah_iv, tvb,
-                        sizeof(ah), (ah.ah_len) ? (ah.ah_len - 1) << 2 : 0,
-                        ENC_NA);
-
-    if (header_data != NULL) {
-      /* Decide where to place next protocol decode */
-      if (g_ah_payload_in_subtree) {
-        header_data->next_tree = ah_tree;
-      }
-      else {
-        header_data->next_tree = tree;
-      }
+  if (header_data != NULL) {
+    /* Decide where to place next protocol decode */
+    if (g_ah_payload_in_subtree) {
+      header_data->next_tree = ah_tree;
     }
-  } else {
-    if (header_data != NULL)
-      header_data->next_tree = NULL;
+    else {
+      header_data->next_tree = tree;
+    }
+
+    header_data->nxt = ah_nxt;
   }
 
-  if (header_data != NULL)
-    header_data->nxt = ah.ah_nxt;
+  advance = 12 + ((ah_len - 1) << 2);
+  proto_item_set_len(ti, advance);
 
   /* start of the new header (could be a extension header) */
   return advance;
@@ -1265,8 +1216,6 @@ dissect_esp_authentication(proto_tree *tree, tvbuff_t *tvb, gint len, gint esp_a
       icv_tree = proto_tree_add_subtree_format(tree, tvb, len - esp_auth_len, esp_auth_len,
                                  ett_esp_icv, NULL, "Authentication Data [incorrect, should be 0x%s]", authenticator_data_computed);
       bad = TRUE;
-
-      g_free(authenticator_data_computed);
     }
 
     else
@@ -1296,8 +1245,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree *esp_tree = NULL;
   proto_item *ti;
-  struct newesp esp;
-
   gint len = 0;
 
 #ifdef HAVE_LIBGCRYPT
@@ -1372,31 +1319,21 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  tvb_memcpy(tvb, (guint8 *)&esp, 0, sizeof(esp));
-
-  col_add_fstr(pinfo->cinfo, COL_INFO, "ESP (SPI=0x%08x)",
-               (guint32)g_ntohl(esp.esp_spi));
-
-
   /*
    * populate a tree in the second pane with the status of the link layer
    * (ie none)
    */
-
-
-  spi = (guint32)g_ntohl(esp.esp_spi);
-  sequence_number = (guint32)g_ntohl(esp.esp_seq);
   len = 0, encapsulated_protocol = 0;
   decrypt_dissect_ok = FALSE;
 
   ti = proto_tree_add_item(tree, proto_esp, tvb, 0, -1, ENC_NA);
   esp_tree = proto_item_add_subtree(ti, ett_esp);
-  proto_tree_add_uint(esp_tree, hf_esp_spi, tvb,
-                      offsetof(struct newesp, esp_spi), 4,
-                      (guint32)g_ntohl(esp.esp_spi));
-  proto_tree_add_uint(esp_tree, hf_esp_sequence, tvb,
-                      offsetof(struct newesp, esp_seq), 4,
-                      sequence_number);
+  proto_tree_add_item_ret_uint(esp_tree, hf_esp_spi, tvb,
+                      0, 4, ENC_BIG_ENDIAN, &spi);
+  proto_tree_add_item_ret_uint(esp_tree, hf_esp_sequence, tvb,
+                      4, 4, ENC_BIG_ENDIAN, &sequence_number);
+
+  col_add_fstr(pinfo->cinfo, COL_INFO, "ESP (SPI=0x%08x)", spi);
 
   /* Sequence number analysis */
   if (g_esp_do_sequence_analysis) {
@@ -1406,8 +1343,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     show_esp_sequence_info(spi, sequence_number,
                            tvb, esp_tree, pinfo);
   }
-
-
 
 #ifdef HAVE_LIBGCRYPT
   /* The SAD is not activated */
@@ -1584,10 +1519,10 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
 
           /* Allocate Buffers for Authenticator Field  */
-          authenticator_data = (guint8 *) g_malloc0 (( esp_auth_len + 1) * sizeof(guint8));
+          authenticator_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), esp_auth_len + 1);
           tvb_memcpy(tvb, authenticator_data, len - esp_auth_len, esp_auth_len);
 
-          esp_data = (guint8 *) g_malloc0 (( len - esp_auth_len + 1) * sizeof(guint8));
+          esp_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), len - esp_auth_len + 1);
           tvb_memcpy(tvb, esp_data, 0, len - esp_auth_len);
 
           err = gcry_md_open (&md_hd, auth_algo_libgcrypt, GCRY_MD_FLAG_HMAC);
@@ -1596,8 +1531,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             fprintf (stderr, "<IPsec/ESP Dissector> Error in Algorithm %s, gcry_md_open failed: %s\n",
                      gcry_md_algo_name(auth_algo_libgcrypt), gpg_strerror (err));
             authentication_ok = FALSE;
-            g_free(authenticator_data);
-            g_free(esp_data);
           }
           else
           {
@@ -1625,8 +1558,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
               {
                 if(memcmp (authenticator_data_computed_md, authenticator_data, esp_auth_len))
                 {
+                  /* XXX - just use bytes_to_str() or is string too big? */
                   unsigned char authenticator_data_computed_car[3];
-                  authenticator_data_computed = (guint8 *) g_malloc (( esp_auth_len * 2 + 1) * sizeof(guint8));
+                  authenticator_data_computed = (guint8 *)wmem_alloc(wmem_packet_scope(), esp_auth_len * 2 + 1);
                   for (i = 0; i < esp_auth_len; i++)
                   {
                     g_snprintf((char *)authenticator_data_computed_car, 3,
@@ -1649,8 +1583,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             }
 
             gcry_md_close (md_hd);
-            g_free(authenticator_data);
-            g_free(esp_data);
           }
         }
       }
@@ -1960,8 +1892,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           else
           {
             /* Allocate Buffers for Encrypted and Decrypted data  */
-            decrypted_data = (guint8 *) g_malloc ((decrypted_len + 1)* sizeof(guint8));
-            tvb_memcpy(tvb, decrypted_data , sizeof(struct newesp), decrypted_len);
+            decrypted_data = (guint8 *)wmem_alloc(wmem_packet_scope(), decrypted_len + 1);
+            tvb_memcpy(tvb, decrypted_data, NEW_ESP_DATA_SIZE, decrypted_len);
 
             decrypt_ok = TRUE;
           }
@@ -1971,8 +1903,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (decrypt_using_libgcrypt)
         {
           /* Allocate Buffers for Encrypted and Decrypted data  */
-          decrypted_data = (guint8 *) g_malloc ((decrypted_len_alloc + esp_iv_len)* sizeof(guint8));
-          tvb_memcpy(tvb, decrypted_data, sizeof(struct newesp), decrypted_len);
+          decrypted_data = (guint8 *)wmem_alloc(wmem_packet_scope(), decrypted_len_alloc + esp_iv_len);
+          tvb_memcpy(tvb, decrypted_data, NEW_ESP_DATA_SIZE, decrypted_len);
 
           /* (Lazily) create the cipher_hd */
           if (!(*cipher_hd_created)) {
@@ -1981,7 +1913,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             {
               fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, grcy_open_cipher failed: %s\n",
                       gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gpg_strerror(err));
-              g_free(decrypted_data);
             }
             else
             {
@@ -2003,7 +1934,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                   fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, gcry_cipher_setkey(key_len=%u) failed: %s\n",
                           gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, esp_crypt_key_len, gpg_strerror (err));
                   gcry_cipher_close(*cipher_hd);
-                  g_free(decrypted_data);
                 }
               }
 
@@ -2039,7 +1969,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s, Mode %d, gcry_cipher_decrypt failed: %s\n",
                     gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gpg_strerror (err));
             gcry_cipher_close(*cipher_hd);
-            g_free(decrypted_data);
             decrypt_ok = FALSE;
           }
           else
@@ -2047,7 +1976,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             /* Copy back the Authentication which was not encrypted */
             if(decrypted_len >= esp_auth_len)
             {
-              tvb_memcpy(tvb, decrypted_data+decrypted_len-esp_auth_len, (gint)(sizeof(struct newesp)+decrypted_len-esp_auth_len), esp_auth_len);
+              tvb_memcpy(tvb, decrypted_data+decrypted_len-esp_auth_len, (gint)(NEW_ESP_DATA_SIZE+decrypted_len-esp_auth_len), esp_auth_len);
             }
 
             /* Decryption has finished */
@@ -2067,7 +1996,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       tvb_decrypted = tvb_new_child_real_data(tvb, (guint8 *)g_memdup(decrypted_data+sizeof(guint8)*esp_iv_len,
                                                                       decrypted_len - esp_iv_len),
                                               decrypted_len - esp_iv_len, decrypted_len - esp_iv_len);
-      g_free(decrypted_data);
 
       add_new_data_source(pinfo, tvb_decrypted, "Decrypted Data");
 
@@ -2145,8 +2073,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         export_ipsec_pdu(data_handle, pinfo, next_tvb);
         call_dissector(data_handle, next_tvb, pinfo, esp_tree);
 
-        if(esp_tree)
-          dissect_esp_authentication(esp_tree,
+        dissect_esp_authentication(esp_tree,
                                      tvb_decrypted,
                                      decrypted_len - esp_iv_len, esp_auth_len,
                                      authenticator_data_computed, authentication_ok,
@@ -2164,8 +2091,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     export_ipsec_pdu(data_handle, pinfo, next_tvb);
     call_dissector(data_handle, next_tvb, pinfo, esp_tree);
 
-    if(esp_tree)
-      dissect_esp_authentication(esp_tree, tvb, len ,
+    dissect_esp_authentication(esp_tree, tvb, len ,
                                  esp_auth_len, authenticator_data_computed,
                                  authentication_ok, authentication_checking_ok );
   }
@@ -2237,8 +2163,8 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissec
 {
   proto_tree *ipcomp_tree;
   proto_item *ti;
-  struct ipcomp ipcomp;
-  const char *p;
+  guint8 comp_nxt;      /* Next Header */
+  guint32 comp_cpi;     /* Compression parameter index */
   dissector_handle_t dissector_handle;
   guint32 saved_match_uint;
   tvbuff_t *data, *decomp;
@@ -2250,14 +2176,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissec
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPComp");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  tvb_memcpy(tvb, (guint8 *)&ipcomp, 0, sizeof(ipcomp));
-
-  p = try_val_to_str(g_ntohs(ipcomp.comp_cpi), cpi2val);
-  if (p == NULL) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "IPComp (CPI=0x%04x)", g_ntohs(ipcomp.comp_cpi));
-  } else {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "IPComp (CPI=%s)", p);
-  }
+  comp_nxt = tvb_get_guint8(tvb, 0);
 
   /*
    * populate a tree in the second pane with the status of the link layer
@@ -2267,17 +2186,13 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissec
     ipcomp_tree = proto_item_add_subtree(ti, ett_ipcomp);
 
     proto_tree_add_uint_format_value(ipcomp_tree, hf_ipcomp_next_header, tvb,
-                        offsetof(struct ipcomp, comp_nxt), 1,
-                        ipcomp.comp_nxt, "%s (0x%02x)",
-                        ipprotostr(ipcomp.comp_nxt), ipcomp.comp_nxt);
-    proto_tree_add_uint(ipcomp_tree, hf_ipcomp_flags, tvb,
-                        offsetof(struct ipcomp, comp_flags), 1,
-                        ipcomp.comp_flags);
-    proto_tree_add_uint(ipcomp_tree, hf_ipcomp_cpi, tvb,
-                        offsetof(struct ipcomp, comp_cpi), 2,
-                        g_ntohs(ipcomp.comp_cpi));
+                        0, 1, comp_nxt, "%s (0x%02x)", ipprotostr(comp_nxt), comp_nxt);
+    proto_tree_add_item(ipcomp_tree, hf_ipcomp_flags, tvb, 1, 1, ENC_NA);
+    proto_tree_add_item_ret_uint(ipcomp_tree, hf_ipcomp_cpi, tvb, 2, 2, ENC_BIG_ENDIAN, &comp_cpi);
 
-    data = tvb_new_subset_remaining(tvb, sizeof(struct ipcomp));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "IPComp (CPI=%s)", val_to_str(comp_cpi, cpi2val, "0x%04x"));
+
+    data = tvb_new_subset_remaining(tvb, 4);
     export_ipsec_pdu(data_handle, pinfo, data);
     call_dissector(data_handle, data, pinfo, ipcomp_tree);
 
@@ -2290,9 +2205,9 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissec
     if (decomp) {
         add_new_data_source(pinfo, decomp, "IPcomp inflated data");
         saved_match_uint  = pinfo->match_uint;
-        dissector_handle = dissector_get_uint_handle(ip_dissector_table, ipcomp.comp_nxt);
+        dissector_handle = dissector_get_uint_handle(ip_dissector_table, comp_nxt);
         if (dissector_handle) {
-          pinfo->match_uint = ipcomp.comp_nxt;
+          pinfo->match_uint = comp_nxt;
         } else {
           dissector_handle = data_handle;
         }
@@ -2306,8 +2221,8 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissec
 
 static void ipsec_init_protocol(void)
 {
-  esp_sequence_analysis_hash = g_hash_table_new(word_hash_func, word_equal);
-  esp_sequence_analysis_report_hash = g_hash_table_new(word_hash_func, word_equal);
+  esp_sequence_analysis_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+  esp_sequence_analysis_report_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
 }
 
 static void ipsec_cleanup_protocol(void)
@@ -2338,6 +2253,9 @@ proto_register_ipsec(void)
         NULL, HFILL }},
     { &hf_ah_length,
       { "Length", "ah.length", FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_ah_reserved,
+      { "Reserved", "ah.reserved", FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
     { &hf_ah_spi,
       { "AH SPI", "ah.spi", FT_UINT32, BASE_HEX, NULL, 0x0,
