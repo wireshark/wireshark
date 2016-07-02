@@ -11803,7 +11803,8 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             ; /* nothing */
             break;
         }
-        ptvcursor_free(ptvc);
+        if (ptvc != NULL)
+            ptvcursor_free(ptvc);
 
         /* Free the temporary proto_tree */
         CLEANUP_CALL_AND_POP;
