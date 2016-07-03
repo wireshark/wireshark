@@ -38,7 +38,9 @@ SCTPGraphArwndDialog::SCTPGraphArwndDialog(QWidget *parent, sctp_assoc_info_t *a
     ui(new Ui::SCTPGraphArwndDialog),
     selected_assoc(assoc),
     cap_file_(cf),
-    direction(dir)
+    frame_num(0),
+    direction(dir),
+    startArwnd(0)
 {
     ui->setupUi(this);
     if (!selected_assoc) {
