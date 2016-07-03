@@ -12923,7 +12923,7 @@ proto_register_pn_io (void)
         { &ei_pn_io_error_code2, { "pn_io.error_code2.expert", PI_UNDECODED, PI_WARN, "Unknown ErrorDecode", EXPFILL }},
         { &ei_pn_io_ar_info_not_found, { "pn_io.ar_info_not_found", PI_UNDECODED, PI_NOTE, "IODWriteReq: AR information not found!", EXPFILL }},
         { &ei_pn_io_block_length, { "pn_io.block_length.invalid", PI_UNDECODED, PI_WARN, "Block length invalid!", EXPFILL }},
-        { &ei_pn_io_unsupported, {"pn_io.profidrive.parameter.format.invalid", PI_UNDECODED, PI_WARN, "Unknown Fomatvalue", EXPFILL }},
+        { &ei_pn_io_unsupported, { "pn_io.profidrive.parameter.format.invalid", PI_UNDECODED, PI_WARN, "Unknown Fomatvalue", EXPFILL }},
         { &ei_pn_io_mrp_instances, { "pn_io.mrp_Number_MrpInstances.invalid", PI_UNDECODED, PI_WARN, "Number of MrpInstances invalid", EXPFILL }},
         { &ei_pn_io_frame_id, { "pn_io.frame_id.changed", PI_UNDECODED, PI_WARN, "FrameID changed", EXPFILL }},
         { &ei_pn_io_iocr_type, { "pn_io.iocr_type.unknown", PI_UNDECODED, PI_WARN, "IOCRType undecoded!", EXPFILL }},
