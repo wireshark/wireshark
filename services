@@ -7943,6 +7943,7 @@ nvm-express      4420/tcp # NVM Express over Fabrics storage access [NVM_Express
 nvm-express      4420/udp # NVM Express over Fabrics storage access [NVM_Express_Workgroup] [Amber_Huffman] 2016-03-31
 scaleft          4421/tcp # Multi-Platform Remote Management for Cloud Infrastructure [ScaleFT_Inc] [Paul_Querna] 2016-04-07
 tsepisp          4422/tcp # TSEP Installation Service Protocol [Technical_Software_Engineering_Plazotta] [Peter_Plazotta] 2016-06-22
+thingkit         4423/tcp # thingkit secure mesh [thingkit_inc.] [Chris_Bell] 2016-06-27
 netrockey6       4425/tcp # NetROCKEY6 SMART Plus Service [Feitian_Technologies] [Feitian_Technologies] 2010-09-15
 netrockey6       4425/udp # NetROCKEY6 SMART Plus Service [Feitian_Technologies] [Feitian_Technologies] 2010-09-15
 beacon-port-2    4426/tcp # SMARTS Beacon Port [Eyal_Yardeni] [Eyal_Yardeni] 2003-11
@@ -10202,10 +10203,10 @@ nod-provider     8980/udp # Network of Devices Provider [David_Muller] [David_Mu
 nod-client       8981/udp # Network of Devices Client [David_Muller] [David_Muller] 2015-02-22
 sunwebadmins     8989/tcp # Sun Web Server SSL Admin Service [Jyri_J_Virkki] [Jyri_J_Virkki] 2005-12
 sunwebadmins     8989/udp # Sun Web Server SSL Admin Service [Jyri_J_Virkki] [Jyri_J_Virkki] 2005-12
-http-wmap        8990/tcp # webmail HTTP service [Fred_Batty] [Fred_Batty] 2007-12-03
-http-wmap        8990/udp # webmail HTTP service [Fred_Batty] [Fred_Batty] 2007-12-03
-https-wmap       8991/tcp # webmail HTTPS service [Fred_Batty] [Fred_Batty] 2007-12-03
-https-wmap       8991/udp # webmail HTTPS service [Fred_Batty] [Fred_Batty] 2007-12-03
+http-wmap        8990/tcp # webmail HTTP service [Chris_Newman] [Chris_Newman] 2007-12-03
+http-wmap        8990/udp # webmail HTTP service [Chris_Newman] [Chris_Newman] 2007-12-03
+https-wmap       8991/tcp # webmail HTTPS service [Chris_Newman] [Chris_Newman] 2007-12-03
+https-wmap       8991/udp # webmail HTTPS service [Chris_Newman] [Chris_Newman] 2007-12-03
 oracle-ms-ens    8997/tcp # Oracle Messaging Server Event Notification Service [Oracle_6] [Hubert_Vijay_Arokiasamy] 2014-10-28
 canto-roboflow   8998/tcp # Canto RoboFlow Control [Canto] [Thomas_Schleu_2] 2014-02-26
 bctp             8999/tcp # Brodos Crypto Trade Protocol [Alexander_Sahler] [Alexander_Sahler] 2002-02
