@@ -3070,7 +3070,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
             /* Seq */
             proto_tree_add_item(flag_tree, hf_icmpv6_rpl_p2p_droack_flag_seq, tvb, rpl_offset, 2, ENC_BIG_ENDIAN);
             /* Reserved */
-            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_p2p_dro_flag_reserved, tvb, rpl_offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_p2p_droack_flag_reserved, tvb, rpl_offset, 2, ENC_BIG_ENDIAN);
             rpl_offset += 2;
 
             /* DODAGID */
