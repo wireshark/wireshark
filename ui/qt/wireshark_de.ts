@@ -8733,7 +8733,7 @@ text-decoration: underline;
         <translation>Änderungen müssen vor dem Zusammenführen gespeichert werden.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="223"/>
+        <location filename="main_window_slots.cpp" line="222"/>
         <source>Invalid Display Filter</source>
         <translation>Ungültiger Anzeigefilter</translation>
     </message>
@@ -8851,123 +8851,123 @@ text-decoration: underline;
         <translation>Aufzeichnen von %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="699"/>
+        <location filename="main_window_slots.cpp" line="704"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="789"/>
+        <location filename="main_window_slots.cpp" line="794"/>
         <source>Saving %1</source>
         <translation>Speichere %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="829"/>
+        <location filename="main_window_slots.cpp" line="834"/>
         <source>No interface selected</source>
         <translation>Keine Schnittstelle ausgewählt</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="839"/>
+        <location filename="main_window_slots.cpp" line="844"/>
         <source>Invalid capture filter</source>
         <translation>Ungültiger Mitschnittfilter</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1053"/>
+        <location filename="main_window_slots.cpp" line="1058"/>
         <source>Clear Menu</source>
         <translation>Menüeinträge löschen</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1472"/>
+        <location filename="main_window_slots.cpp" line="1477"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Bitte Warten während Wireshark initalisiert wird</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1629"/>
+        <location filename="main_window_slots.cpp" line="1634"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Ausgewählte Paketbytes exportieren</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1688"/>
+        <location filename="main_window_slots.cpp" line="1693"/>
         <source>No Keys</source>
         <translation>Keine Schlüssel</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1689"/>
+        <location filename="main_window_slots.cpp" line="1694"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Es sind keine SSL Sitzungsschlüssel zum speichern vorhanden.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1695"/>
+        <location filename="main_window_slots.cpp" line="1700"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>SSL Sitzungsschlüssel exportieren (%1 key%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1631"/>
+        <location filename="main_window_slots.cpp" line="1636"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Rohdaten (*.bin *.dat *.raw);; Alle Dateien (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1700"/>
+        <location filename="main_window_slots.cpp" line="1705"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSL Sitzungsschlüssel (*.keys *.txt);; Alle Dateien (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1838"/>
+        <location filename="main_window_slots.cpp" line="1843"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Text konnte nicht kopiert werden. Probieren sie einen anderen Eintrag.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2247"/>
-        <location filename="main_window_slots.cpp" line="3297"/>
+        <location filename="main_window_slots.cpp" line="2252"/>
+        <location filename="main_window_slots.cpp" line="3307"/>
         <source>Unable to build conversation filter.</source>
         <translation>Verbindungsfilter kann nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2400"/>
+        <location filename="main_window_slots.cpp" line="2410"/>
         <source>No filter available. Try another </source>
         <translation>Kein Filter verfügbar. Probieren Sie einen anderen.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3304"/>
+        <location filename="main_window_slots.cpp" line="3314"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Fehler beim Erstellen eines Filters für diese Verbindung.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3313"/>
+        <location filename="main_window_slots.cpp" line="3323"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Kein vorheriges/nächstes Paket in dieser Verbindung.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3390"/>
+        <location filename="main_window_slots.cpp" line="3400"/>
         <source>No Interface Selected</source>
         <translation>Keine Schnittstelle ausgewählt</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3397"/>
+        <location filename="main_window_slots.cpp" line="3407"/>
         <source> before starting a new capture</source>
         <translation>vor dem Starten einer neuen Aufzeichnung</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3603"/>
+        <location filename="main_window_slots.cpp" line="3613"/>
         <source>Wiki Page for %1</source>
         <translation>Wikiseite für %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3604"/>
+        <location filename="main_window_slots.cpp" line="3614"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Das Wireshark Wiki wird durch die Community gepflegt.&lt;/p&gt;&lt;p&gt;Die Seite, die aufgerufen werden soll, kann wundervoll, unvollständig, falsch oder gar nicht vorhanden sein.&lt;/p&gt;&lt;p&gt;Zum Wiki geheni?&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="252"/>
+        <location filename="main_window.h" line="253"/>
         <source>Loading</source>
         <translation>Laden</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="254"/>
+        <location filename="main_window.h" line="255"/>
         <source>Reloading</source>
         <translation>Reloading</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="255"/>
+        <location filename="main_window.h" line="256"/>
         <source>Rescanning</source>
         <translation>Rescanning</translation>
     </message>
@@ -10081,27 +10081,27 @@ text-decoration: underline;
         <translation>Statistiken der Protokollhierarchie</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.cpp" line="232"/>
+        <location filename="protocol_hierarchy_dialog.cpp" line="233"/>
         <source>Copy</source>
         <translation>Kopieren</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.cpp" line="236"/>
+        <location filename="protocol_hierarchy_dialog.cpp" line="237"/>
         <source>as CSV</source>
         <translation>als CSV</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.cpp" line="239"/>
+        <location filename="protocol_hierarchy_dialog.cpp" line="240"/>
         <source>as YAML</source>
         <translation>als YAML</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.cpp" line="301"/>
+        <location filename="protocol_hierarchy_dialog.cpp" line="302"/>
         <source>No display filter.</source>
         <translation>Kein Anzeigefilter.</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.cpp" line="303"/>
+        <location filename="protocol_hierarchy_dialog.cpp" line="304"/>
         <source>Display filter: %1</source>
         <translation>Anzeigefilter: %1</translation>
     </message>
@@ -10297,75 +10297,74 @@ text-decoration: underline;
         <translation>Endpunkt</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="67"/>
+        <location filename="filter_action.cpp" line="65"/>
         <source>Apply as Filter</source>
         <translation>Als Filter anwenden</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="70"/>
+        <location filename="filter_action.cpp" line="68"/>
         <source>Prepare a Filter</source>
         <translation>Als Filter vorbereiten</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="73"/>
+        <location filename="filter_action.cpp" line="71"/>
         <source>Find</source>
         <translation>Finden</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="76"/>
         <source>Conversation Filter</source>
-        <translation>Verbindungsfilter</translation>
+        <translation type="vanished">Verbindungsfilter</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="79"/>
+        <location filename="filter_action.cpp" line="74"/>
         <source>Colorize</source>
         <translation>Einfärben</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="82"/>
+        <location filename="filter_action.cpp" line="77"/>
         <source>Look Up</source>
         <translation>Nachschlagen</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="85"/>
+        <location filename="filter_action.cpp" line="80"/>
         <source>Copy</source>
         <translation>Kopieren</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="88"/>
-        <location filename="filter_action.cpp" line="140"/>
-        <location filename="filter_action.cpp" line="191"/>
+        <location filename="filter_action.cpp" line="83"/>
+        <location filename="filter_action.cpp" line="135"/>
+        <location filename="filter_action.cpp" line="186"/>
         <source>UNKNOWN</source>
         <translation>Unbekannt</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="122"/>
+        <location filename="filter_action.cpp" line="117"/>
         <source>Selected</source>
         <translation>Ausgewählt</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="125"/>
+        <location filename="filter_action.cpp" line="120"/>
         <source>Not Selected</source>
         <translation>nicht das Ausgewählte</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="164"/>
-        <location filename="filter_action.cpp" line="167"/>
-        <location filename="filter_action.cpp" line="173"/>
-        <location filename="filter_action.cpp" line="176"/>
+        <location filename="filter_action.cpp" line="159"/>
+        <location filename="filter_action.cpp" line="162"/>
+        <location filename="filter_action.cpp" line="168"/>
+        <location filename="filter_action.cpp" line="171"/>
         <source>A </source>
         <translation>A</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="170"/>
-        <location filename="filter_action.cpp" line="188"/>
+        <location filename="filter_action.cpp" line="165"/>
+        <location filename="filter_action.cpp" line="183"/>
         <source>B </source>
         <translation>B</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="179"/>
-        <location filename="filter_action.cpp" line="182"/>
-        <location filename="filter_action.cpp" line="185"/>
+        <location filename="filter_action.cpp" line="174"/>
+        <location filename="filter_action.cpp" line="177"/>
+        <location filename="filter_action.cpp" line="180"/>
         <source>Any </source>
         <translation>Alle</translation>
     </message>
@@ -13099,62 +13098,62 @@ text-decoration: underline;
         <translation>Abbrechen</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="273"/>
+        <location filename="search_frame.cpp" line="275"/>
         <source>No valid search type selected. Please report this to the development team.</source>
         <translation>Kein gültiger Suchtyp ausgewählt. Bitte melden Sie dies dem Entwickler-Team.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="227"/>
+        <location filename="search_frame.cpp" line="229"/>
         <source>Invalid filter.</source>
         <translation>Ungültiger Filter.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="233"/>
+        <location filename="search_frame.cpp" line="235"/>
         <source>That filter doesn&apos;t test anything.</source>
         <translation>Dieser Filter hat keine Auswirkung.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="241"/>
+        <location filename="search_frame.cpp" line="243"/>
         <source>That&apos;s not a valid hex string.</source>
         <translation>Keine gültige Hex-Zeichenkette.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="249"/>
+        <location filename="search_frame.cpp" line="251"/>
         <source>You didn&apos;t specify any text for which to search.</source>
         <translation>Es wurde kein Text zum suchen angegeben.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="266"/>
+        <location filename="search_frame.cpp" line="268"/>
         <source>No valid character set selected. Please report this to the development team.</source>
         <translation>Kein gültiger Zeichensatz ausgewählt. Bitte melden Sie dies dem Entwickler-Team.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="289"/>
+        <location filename="search_frame.cpp" line="291"/>
         <source>No valid search area selected. Please report this to the development team.</source>
         <translation>Keinen gültigen Suchbereich ausgewählt. Bitte melden Sie dies dem Entwickler-Team.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="303"/>
+        <location filename="search_frame.cpp" line="305"/>
         <source>No packet contained those bytes.</source>
         <translation>Keine Pakete mit dieser Bytefolge gefunden.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="313"/>
+        <location filename="search_frame.cpp" line="315"/>
         <source>No packet contained that string in its Info column.</source>
         <translation>Keine Pakete mit dieser Zeichenkette in der Infospalte gefunden.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="322"/>
+        <location filename="search_frame.cpp" line="324"/>
         <source>No packet contained that string in its dissected display.</source>
         <translation>Keine Pakete mit dieser Zeichenkette in der Beschreibung gefunden.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="331"/>
+        <location filename="search_frame.cpp" line="333"/>
         <source>No packet contained that string in its converted data.</source>
         <translation>Keine Pakete mit dieser Zeichenkette in den Rohdaten gefunden.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="341"/>
+        <location filename="search_frame.cpp" line="343"/>
         <source>No packet matched that filter.</source>
         <translation>Keine Pakete entsprechen dem Filter.</translation>
     </message>
@@ -14688,7 +14687,7 @@ text-decoration: underline;
 <context>
     <name>WiresharkDialog</name>
     <message>
-        <location filename="wireshark_dialog.cpp" line="120"/>
+        <location filename="wireshark_dialog.cpp" line="158"/>
         <source>Failed to attach to tap &quot;%1&quot;</source>
         <translation>Tap &quot;%1&quot; kann nicht angebunden werden</translation>
     </message>

@@ -8722,7 +8722,7 @@ text-decoration: underline;
         <translation>在文件合并之前，其更改必须先保存。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="223"/>
+        <location filename="main_window_slots.cpp" line="222"/>
         <source>Invalid Display Filter</source>
         <translation>无效显示过滤器</translation>
     </message>
@@ -8840,123 +8840,123 @@ text-decoration: underline;
         <translation>正在捕获 %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="699"/>
+        <location filename="main_window_slots.cpp" line="704"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="789"/>
+        <location filename="main_window_slots.cpp" line="794"/>
         <source>Saving %1</source>
         <translation>正在保存 %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="829"/>
+        <location filename="main_window_slots.cpp" line="834"/>
         <source>No interface selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="839"/>
+        <location filename="main_window_slots.cpp" line="844"/>
         <source>Invalid capture filter</source>
         <translation>无效捕获过滤器</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1053"/>
+        <location filename="main_window_slots.cpp" line="1058"/>
         <source>Clear Menu</source>
         <translation>清除菜单</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1472"/>
+        <location filename="main_window_slots.cpp" line="1477"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Wireshark 正在初始化，请稍候</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1629"/>
+        <location filename="main_window_slots.cpp" line="1634"/>
         <source>Export Selected Packet Bytes</source>
         <translation>导出选择分组字节流</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1688"/>
+        <location filename="main_window_slots.cpp" line="1693"/>
         <source>No Keys</source>
         <translation>无密钥</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1689"/>
+        <location filename="main_window_slots.cpp" line="1694"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>没有可以保存的 SSL 会话密钥。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1695"/>
+        <location filename="main_window_slots.cpp" line="1700"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>导出 SSL 会话密钥 (%1 密钥%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1631"/>
+        <location filename="main_window_slots.cpp" line="1636"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>原始数据 (*.bin *.dat *.raw);;所有文件 (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1700"/>
+        <location filename="main_window_slots.cpp" line="1705"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSL 会话密钥 (*.keys *.txt);;所有文件 (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1838"/>
+        <location filename="main_window_slots.cpp" line="1843"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>无法复制文本。请尝试其他对象。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2247"/>
-        <location filename="main_window_slots.cpp" line="3297"/>
+        <location filename="main_window_slots.cpp" line="2252"/>
+        <location filename="main_window_slots.cpp" line="3307"/>
         <source>Unable to build conversation filter.</source>
         <translation>无法建立对话过滤器。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2400"/>
+        <location filename="main_window_slots.cpp" line="2410"/>
         <source>No filter available. Try another </source>
         <translation>无过滤器可用。请尝试其他 </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3304"/>
+        <location filename="main_window_slots.cpp" line="3314"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>为此对话编译过滤器时出错。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3313"/>
+        <location filename="main_window_slots.cpp" line="3323"/>
         <source>No previous/next packet in conversation.</source>
         <translation>此对话中没有上一个/下一个分组。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3390"/>
+        <location filename="main_window_slots.cpp" line="3400"/>
         <source>No Interface Selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3397"/>
+        <location filename="main_window_slots.cpp" line="3407"/>
         <source> before starting a new capture</source>
         <translation>在开始新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3603"/>
+        <location filename="main_window_slots.cpp" line="3613"/>
         <source>Wiki Page for %1</source>
         <translation>%1 的 Wiki 页面</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3604"/>
+        <location filename="main_window_slots.cpp" line="3614"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Wireshark Wiki 由社区进行维护。&lt;/p&gt;&lt;p&gt;您即将加载的页面可能是良好的、不完整的、有错误的，甚至不存在的。&lt;/p&gt;&lt;p&gt;继续访问该 Wiki？&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="252"/>
+        <location filename="main_window.h" line="253"/>
         <source>Loading</source>
         <translation>正在载入</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="254"/>
+        <location filename="main_window.h" line="255"/>
         <source>Reloading</source>
         <translation>正在重新加载</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="255"/>
+        <location filename="main_window.h" line="256"/>
         <source>Rescanning</source>
         <translation>正在重新扫描</translation>
     </message>
@@ -10069,27 +10069,27 @@ text-decoration: underline;
         <translation>协议分级统计</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.cpp" line="232"/>
+        <location filename="protocol_hierarchy_dialog.cpp" line="233"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.cpp" line="236"/>
+        <location filename="protocol_hierarchy_dialog.cpp" line="237"/>
         <source>as CSV</source>
         <translation>作为 CSV</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.cpp" line="239"/>
+        <location filename="protocol_hierarchy_dialog.cpp" line="240"/>
         <source>as YAML</source>
         <translation>作为YAML</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.cpp" line="301"/>
+        <location filename="protocol_hierarchy_dialog.cpp" line="302"/>
         <source>No display filter.</source>
         <translation>无显示过滤器。</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.cpp" line="303"/>
+        <location filename="protocol_hierarchy_dialog.cpp" line="304"/>
         <source>Display filter: %1</source>
         <translation>显示过滤器: %1</translation>
     </message>
@@ -10285,75 +10285,74 @@ text-decoration: underline;
         <translation>端点</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="67"/>
+        <location filename="filter_action.cpp" line="65"/>
         <source>Apply as Filter</source>
         <translation>作为过滤器应用</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="70"/>
+        <location filename="filter_action.cpp" line="68"/>
         <source>Prepare a Filter</source>
         <translation>准备过滤器</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="73"/>
+        <location filename="filter_action.cpp" line="71"/>
         <source>Find</source>
         <translation>查找</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="76"/>
         <source>Conversation Filter</source>
-        <translation>对话过滤器</translation>
+        <translation type="vanished">对话过滤器</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="79"/>
+        <location filename="filter_action.cpp" line="74"/>
         <source>Colorize</source>
         <translation>着色</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="82"/>
+        <location filename="filter_action.cpp" line="77"/>
         <source>Look Up</source>
         <translation>查找</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="85"/>
+        <location filename="filter_action.cpp" line="80"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="88"/>
-        <location filename="filter_action.cpp" line="140"/>
-        <location filename="filter_action.cpp" line="191"/>
+        <location filename="filter_action.cpp" line="83"/>
+        <location filename="filter_action.cpp" line="135"/>
+        <location filename="filter_action.cpp" line="186"/>
         <source>UNKNOWN</source>
         <translation>未知</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="122"/>
+        <location filename="filter_action.cpp" line="117"/>
         <source>Selected</source>
         <translation>选中</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="125"/>
+        <location filename="filter_action.cpp" line="120"/>
         <source>Not Selected</source>
         <translation>非选中</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="164"/>
-        <location filename="filter_action.cpp" line="167"/>
-        <location filename="filter_action.cpp" line="173"/>
-        <location filename="filter_action.cpp" line="176"/>
+        <location filename="filter_action.cpp" line="159"/>
+        <location filename="filter_action.cpp" line="162"/>
+        <location filename="filter_action.cpp" line="168"/>
+        <location filename="filter_action.cpp" line="171"/>
         <source>A </source>
         <translation>A</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="170"/>
-        <location filename="filter_action.cpp" line="188"/>
+        <location filename="filter_action.cpp" line="165"/>
+        <location filename="filter_action.cpp" line="183"/>
         <source>B </source>
         <translation>B</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="179"/>
-        <location filename="filter_action.cpp" line="182"/>
-        <location filename="filter_action.cpp" line="185"/>
+        <location filename="filter_action.cpp" line="174"/>
+        <location filename="filter_action.cpp" line="177"/>
+        <location filename="filter_action.cpp" line="180"/>
         <source>Any </source>
         <translation>任何</translation>
     </message>
@@ -13087,62 +13086,62 @@ text-decoration: underline;
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="273"/>
+        <location filename="search_frame.cpp" line="275"/>
         <source>No valid search type selected. Please report this to the development team.</source>
         <translation>未选择有效的搜索类型。请将此问题报告给开发团队。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="227"/>
+        <location filename="search_frame.cpp" line="229"/>
         <source>Invalid filter.</source>
         <translation>无效过滤器。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="233"/>
+        <location filename="search_frame.cpp" line="235"/>
         <source>That filter doesn&apos;t test anything.</source>
         <translation>该过滤器未测试任何项目。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="241"/>
+        <location filename="search_frame.cpp" line="243"/>
         <source>That&apos;s not a valid hex string.</source>
         <translation>不是有效的十六进制字符串。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="249"/>
+        <location filename="search_frame.cpp" line="251"/>
         <source>You didn&apos;t specify any text for which to search.</source>
         <translation>您未指定任何要搜索的文本。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="266"/>
+        <location filename="search_frame.cpp" line="268"/>
         <source>No valid character set selected. Please report this to the development team.</source>
         <translation>未选择有效的字符集。请将此问题报告给开发团队。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="289"/>
+        <location filename="search_frame.cpp" line="291"/>
         <source>No valid search area selected. Please report this to the development team.</source>
         <translation>未选择有效的搜索范围。请将此问题报告给开发团队。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="303"/>
+        <location filename="search_frame.cpp" line="305"/>
         <source>No packet contained those bytes.</source>
         <translation>无分组包含这些字节流。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="313"/>
+        <location filename="search_frame.cpp" line="315"/>
         <source>No packet contained that string in its Info column.</source>
         <translation>无分组的“信息”列包含该字符串。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="322"/>
+        <location filename="search_frame.cpp" line="324"/>
         <source>No packet contained that string in its dissected display.</source>
         <translation>无分组的解析视图包含该字符串。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="331"/>
+        <location filename="search_frame.cpp" line="333"/>
         <source>No packet contained that string in its converted data.</source>
         <translation>无分组转换后的数据包含该字符串。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="341"/>
+        <location filename="search_frame.cpp" line="343"/>
         <source>No packet matched that filter.</source>
         <translation>无分组与该过滤器匹配。</translation>
     </message>
@@ -14670,7 +14669,7 @@ text-decoration: underline;
 <context>
     <name>WiresharkDialog</name>
     <message>
-        <location filename="wireshark_dialog.cpp" line="120"/>
+        <location filename="wireshark_dialog.cpp" line="158"/>
         <source>Failed to attach to tap &quot;%1&quot;</source>
         <translation>附加到 Tap “%1” 失败</translation>
     </message>

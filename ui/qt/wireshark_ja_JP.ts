@@ -8677,7 +8677,7 @@ a:hover {
         <translation>ファイルを結合する前に変更を保存する必要があります</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="223"/>
+        <location filename="main_window_slots.cpp" line="222"/>
         <source>Invalid Display Filter</source>
         <translation>無効な表示フィルタ</translation>
     </message>
@@ -8795,123 +8795,123 @@ a:hover {
         <translation>%1 からキャプチャ中</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="699"/>
+        <location filename="main_window_slots.cpp" line="704"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="789"/>
+        <location filename="main_window_slots.cpp" line="794"/>
         <source>Saving %1</source>
         <translation>保存中 %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="829"/>
+        <location filename="main_window_slots.cpp" line="834"/>
         <source>No interface selected</source>
         <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="839"/>
+        <location filename="main_window_slots.cpp" line="844"/>
         <source>Invalid capture filter</source>
         <translation>無効なキャプチャフィルタ</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1053"/>
+        <location filename="main_window_slots.cpp" line="1058"/>
         <source>Clear Menu</source>
         <translation>メニューをクリア</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1472"/>
+        <location filename="main_window_slots.cpp" line="1477"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Wiresharkが初期化している間お待ちください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1629"/>
+        <location filename="main_window_slots.cpp" line="1634"/>
         <source>Export Selected Packet Bytes</source>
         <translation>選択したパケットバイト列をエクスポート</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1688"/>
+        <location filename="main_window_slots.cpp" line="1693"/>
         <source>No Keys</source>
         <translation>キーはありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1689"/>
+        <location filename="main_window_slots.cpp" line="1694"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>保存するSSLセッション鍵はありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1695"/>
+        <location filename="main_window_slots.cpp" line="1700"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>SSLセッション鍵をエキスポート (%1 鍵%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1631"/>
+        <location filename="main_window_slots.cpp" line="1636"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Raw(無加工)データ形式 (*.bin *.dat *.raw);;すべてのファイル(</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1700"/>
+        <location filename="main_window_slots.cpp" line="1705"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSLセッション鍵 (*.keys *.txt);;すべてのファイル (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1838"/>
+        <location filename="main_window_slots.cpp" line="1843"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>テキストをコピーできません 別の項目を試してみてください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2247"/>
-        <location filename="main_window_slots.cpp" line="3297"/>
+        <location filename="main_window_slots.cpp" line="2252"/>
+        <location filename="main_window_slots.cpp" line="3307"/>
         <source>Unable to build conversation filter.</source>
         <translation>会話フィルタを作成できません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2400"/>
+        <location filename="main_window_slots.cpp" line="2410"/>
         <source>No filter available. Try another </source>
         <translation>フィルタが利用できません 別のものを試してください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3304"/>
+        <location filename="main_window_slots.cpp" line="3314"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>この対話の間のフィルタ翻訳エラー</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3313"/>
+        <location filename="main_window_slots.cpp" line="3323"/>
         <source>No previous/next packet in conversation.</source>
         <translation>対話の前/次のパケットがありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3390"/>
+        <location filename="main_window_slots.cpp" line="3400"/>
         <source>No Interface Selected</source>
         <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3397"/>
+        <location filename="main_window_slots.cpp" line="3407"/>
         <source> before starting a new capture</source>
         <translation>新規キャプチャを開始する前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3603"/>
+        <location filename="main_window_slots.cpp" line="3613"/>
         <source>Wiki Page for %1</source>
         <translation>%1 の Wikiページ</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3604"/>
+        <location filename="main_window_slots.cpp" line="3614"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;ワイヤーシャークWikiはコミュニティによって運営されています &lt;/p&gt;&lt;p&gt;いま見ているページはすばらしかったり、不完全だったり、間違っていたり、存在しないかもしれません。&lt;/p&gt;&lt;p&gt;Wikiに移動しますか？&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="252"/>
+        <location filename="main_window.h" line="253"/>
         <source>Loading</source>
         <translation>ロード中</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="254"/>
+        <location filename="main_window.h" line="255"/>
         <source>Reloading</source>
         <translation>再読み込み中</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="255"/>
+        <location filename="main_window.h" line="256"/>
         <source>Rescanning</source>
         <translation>再スキャニング中</translation>
     </message>
@@ -10025,27 +10025,27 @@ a:hover {
         <translation>プロトコル階層統計</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.cpp" line="232"/>
+        <location filename="protocol_hierarchy_dialog.cpp" line="233"/>
         <source>Copy</source>
         <translation>コピー</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.cpp" line="236"/>
+        <location filename="protocol_hierarchy_dialog.cpp" line="237"/>
         <source>as CSV</source>
         <translation>CSVとして</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.cpp" line="239"/>
+        <location filename="protocol_hierarchy_dialog.cpp" line="240"/>
         <source>as YAML</source>
         <translation>YAMLとして</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.cpp" line="301"/>
+        <location filename="protocol_hierarchy_dialog.cpp" line="302"/>
         <source>No display filter.</source>
         <translation>表示フィルタがありません</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.cpp" line="303"/>
+        <location filename="protocol_hierarchy_dialog.cpp" line="304"/>
         <source>Display filter: %1</source>
         <translation>表示フィルタ: %1</translation>
     </message>
@@ -10241,75 +10241,74 @@ a:hover {
         <translation>終端</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="67"/>
+        <location filename="filter_action.cpp" line="65"/>
         <source>Apply as Filter</source>
         <translation>フィルタとして適用</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="70"/>
+        <location filename="filter_action.cpp" line="68"/>
         <source>Prepare a Filter</source>
         <translation>フィルタを準備</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="73"/>
+        <location filename="filter_action.cpp" line="71"/>
         <source>Find</source>
         <translation>検索</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="76"/>
         <source>Conversation Filter</source>
-        <translation>対話フィルタ</translation>
+        <translation type="vanished">対話フィルタ</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="79"/>
+        <location filename="filter_action.cpp" line="74"/>
         <source>Colorize</source>
         <translation>色をつける</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="82"/>
+        <location filename="filter_action.cpp" line="77"/>
         <source>Look Up</source>
         <translation>探す</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="85"/>
+        <location filename="filter_action.cpp" line="80"/>
         <source>Copy</source>
         <translation>コピー</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="88"/>
-        <location filename="filter_action.cpp" line="140"/>
-        <location filename="filter_action.cpp" line="191"/>
+        <location filename="filter_action.cpp" line="83"/>
+        <location filename="filter_action.cpp" line="135"/>
+        <location filename="filter_action.cpp" line="186"/>
         <source>UNKNOWN</source>
         <translation>不明</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="122"/>
+        <location filename="filter_action.cpp" line="117"/>
         <source>Selected</source>
         <translation>選択済み</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="125"/>
+        <location filename="filter_action.cpp" line="120"/>
         <source>Not Selected</source>
         <translation>選択されていません</translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="164"/>
-        <location filename="filter_action.cpp" line="167"/>
-        <location filename="filter_action.cpp" line="173"/>
-        <location filename="filter_action.cpp" line="176"/>
+        <location filename="filter_action.cpp" line="159"/>
+        <location filename="filter_action.cpp" line="162"/>
+        <location filename="filter_action.cpp" line="168"/>
+        <location filename="filter_action.cpp" line="171"/>
         <source>A </source>
         <translation>A </translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="170"/>
-        <location filename="filter_action.cpp" line="188"/>
+        <location filename="filter_action.cpp" line="165"/>
+        <location filename="filter_action.cpp" line="183"/>
         <source>B </source>
         <translation>B </translation>
     </message>
     <message>
-        <location filename="filter_action.cpp" line="179"/>
-        <location filename="filter_action.cpp" line="182"/>
-        <location filename="filter_action.cpp" line="185"/>
+        <location filename="filter_action.cpp" line="174"/>
+        <location filename="filter_action.cpp" line="177"/>
+        <location filename="filter_action.cpp" line="180"/>
         <source>Any </source>
         <translation>すべて </translation>
     </message>
@@ -13043,62 +13042,62 @@ a:hover {
         <translation>キャンセル</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="273"/>
+        <location filename="search_frame.cpp" line="275"/>
         <source>No valid search type selected. Please report this to the development team.</source>
         <translation>有効な検索形式が選択されていません どうか開発チームにこれを報告してください</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="227"/>
+        <location filename="search_frame.cpp" line="229"/>
         <source>Invalid filter.</source>
         <translation>無効なフィルタです</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="233"/>
+        <location filename="search_frame.cpp" line="235"/>
         <source>That filter doesn&apos;t test anything.</source>
         <translation>そのフィルタは何も検査しません</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="241"/>
+        <location filename="search_frame.cpp" line="243"/>
         <source>That&apos;s not a valid hex string.</source>
         <translation>有効な16進数文字列ではありません</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="249"/>
+        <location filename="search_frame.cpp" line="251"/>
         <source>You didn&apos;t specify any text for which to search.</source>
         <translation>検索するためのテキストを指定しませんでした</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="266"/>
+        <location filename="search_frame.cpp" line="268"/>
         <source>No valid character set selected. Please report this to the development team.</source>
         <translation>有効な文字セットが選択されていません どうかこれを開発チームに報告してください</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="289"/>
+        <location filename="search_frame.cpp" line="291"/>
         <source>No valid search area selected. Please report this to the development team.</source>
         <translation>有効な検索範囲が選択されていません。どうかこれを開発チームに報告してください</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="303"/>
+        <location filename="search_frame.cpp" line="305"/>
         <source>No packet contained those bytes.</source>
         <translation>そのようなバイト列を含むパケットはありませんでした</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="313"/>
+        <location filename="search_frame.cpp" line="315"/>
         <source>No packet contained that string in its Info column.</source>
         <translation>情報列にその文字列を含むパケットはありませんでした</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="322"/>
+        <location filename="search_frame.cpp" line="324"/>
         <source>No packet contained that string in its dissected display.</source>
         <translation>解析された表示にその文字列を含むパケットはありませんでした</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="331"/>
+        <location filename="search_frame.cpp" line="333"/>
         <source>No packet contained that string in its converted data.</source>
         <translation>コンバートされたデータにその文字列を含むパケットはありませんでした</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="341"/>
+        <location filename="search_frame.cpp" line="343"/>
         <source>No packet matched that filter.</source>
         <translation>フィルタに一致するパケットはありませんでした</translation>
     </message>
@@ -14630,7 +14629,7 @@ a:hover {
 <context>
     <name>WiresharkDialog</name>
     <message>
-        <location filename="wireshark_dialog.cpp" line="120"/>
+        <location filename="wireshark_dialog.cpp" line="158"/>
         <source>Failed to attach to tap &quot;%1&quot;</source>
         <translation>タップ &quot;%1&quot; の紐づけに失敗しました</translation>
     </message>
