@@ -70,6 +70,8 @@ private slots:
     void on_leFind_returnPressed();
 
     void helpButton();
+    void backButton();
+    void close();
     void filterOut();
     void useRegexFind(bool use_regex);
     void findText(bool go_back = true);
@@ -108,6 +110,7 @@ private:
     QPushButton             *b_find_;
     QPushButton             *b_print_;
     QPushButton             *b_save_;
+    QPushButton             *b_back_;
 
     follow_type_t           follow_type_;
     follow_info_t           follow_info_;
@@ -116,7 +119,9 @@ private:
     QString                 data_out_filename_;
     static const int        max_document_length_;
     bool                    truncated_;
+    QString                 previous_filter_;
     QString                 filter_out_filter_;
+    QString                 output_filter_;
     int                     client_buffer_count_;
     int                     server_buffer_count_;
     int                     client_packet_count_;

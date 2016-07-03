@@ -135,6 +135,9 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     b_save_ = ui->buttonBox->addButton(tr("Save as" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ActionRole);
     connect(b_save_, SIGNAL(clicked()), this, SLOT(saveAs()));
 
+    b_back_ = ui->buttonBox->addButton(tr("Back"), QDialogButtonBox::ActionRole);
+    connect(b_back_, SIGNAL(clicked()), this, SLOT(backButton()));
+
     ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
 
     connect(ui->buttonBox, SIGNAL(helpRequested()), this, SLOT(helpButton()));
@@ -300,11 +303,29 @@ void FollowStreamDialog::helpButton()
     wsApp->helpTopicAction(HELP_FOLLOW_STREAM_DIALOG);
 }
 
-void FollowStreamDialog::filterOut()
+void FollowStreamDialog::backButton()
 {
-    emit updateFilter(filter_out_filter_, TRUE);
+    output_filter_ = previous_filter_;
 
     close();
+}
+
+void FollowStreamDialog::filterOut()
+{
+    output_filter_ = filter_out_filter_;
+
+    close();
+}
+
+void FollowStreamDialog::close()
+{
+    // Update filter - Use:
+    //     previous_filter if 'Close' (passed in follow() method)
+    //     filter_out_filter_ if 'Filter Out This Stream' (built by appending !current_stream to previous_filter)
+    //     leave filter alone if window closed. (current stream)
+    emit updateFilter(output_filter_, TRUE);
+
+    WiresharkDialog::close();
 }
 
 void FollowStreamDialog::on_cbDirections_currentIndexChanged(int idx)
@@ -349,7 +370,7 @@ void FollowStreamDialog::on_streamNumberSpinBox_valueChanged(int stream_num)
     if (file_closed_) return;
 
     if (stream_num >= 0) {
-        follow(QString(), true, stream_num);
+        follow(previous_filter_, true, stream_num);
     }
 }
 
@@ -843,9 +864,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         return false;
     }
 
-    if (follow_type_ == FOLLOW_SSL)
+    if (follow_type_ == FOLLOW_SSL || follow_type_ == FOLLOW_HTTP)
     {
-        /* we got ssl so we can follow */
+        /* we got ssl/http so we can follow */
         removeStreamControls();
     }
 
@@ -865,6 +886,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         return false;
     }
 
+    previous_filter_ = previous_filter;
     /* append the negation */
     if(!previous_filter.isEmpty()) {
         filter_out_filter_ = QString("%1 and !(%2)")
