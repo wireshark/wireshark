@@ -76,7 +76,9 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf) :
     cur_painter_(NULL),
     preview_(new QPrintPreviewWidget(&printer_)),
     print_bt_(new QPushButton(tr("&Print" UTF8_HORIZONTAL_ELLIPSIS))),
-    cap_file_(cf)
+    cap_file_(cf),
+    page_pos_(0),
+    in_preview_(FALSE)
 {
     if (!cf) done(QDialog::Rejected); // ...or assert?
 
