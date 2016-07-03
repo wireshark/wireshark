@@ -92,6 +92,7 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString 
     cap_file_(cf),
     display_filter_(display_filter),
 #if !defined(Q_OS_WIN)
+    display_filter_edit_(NULL),
     default_ft_(-1),
     save_bt_(NULL),
     help_topic_(TOPIC_ACTION_NONE)
