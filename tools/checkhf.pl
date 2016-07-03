@@ -135,8 +135,8 @@ while (my $filename = $ARGV[0]) {
 
     $unused_ei = diff_hash(\%ei_static_defs, \%ei_usage);
 
-    print_list("Unused href entry: $filename, ", $unused_href);
-    print_list("Unused ei entry: $filename, ", $unused_ei);
+    print_list("Unused href entry: $filename: ", $unused_href);
+    print_list("Unused ei entry: $filename: ", $unused_ei);
 
 # 2. Are all the hf_defs and ei_ entries (static and global) in [hf|ei]_array_entries ?
 #    (Note: if a static hf_def or ei is "unused", don't check for same in [hf|ei]_array_entries)
@@ -150,8 +150,8 @@ while (my $filename = $ARGV[0]) {
     $no_array_ei    = diff_hash(\%ei_static_defs, \%ei_array_entries);
     $no_array_ei    = diff_hash($no_array_ei, $unused_ei); # Remove "unused" ei_... from no_array list
 
-    print_list("ERROR: NO ARRAY: $filename, ", $no_array_href);
-    print_list("ERROR: NO ARRAY: $filename, ", $no_array_ei);
+    print_list("ERROR: NO ARRAY: $filename: ", $no_array_href);
+    print_list("ERROR: NO ARRAY: $filename: ", $no_array_ei);
 
     if ((keys %{$no_array_href}) != 0) {
         $error += 1;
