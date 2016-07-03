@@ -8126,7 +8126,6 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
 
     guint16  searchVendorID = 0;
     guint16  searchDeviceID = 0;
-    gint32   filePosRecord;
     gboolean vendorMatch;
     gboolean deviceMatch;
     conversation_t *conversation;
@@ -8383,20 +8382,24 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
 
                             while(fgets(temp, MAX_LINE_LENGTH, fp) != NULL) {
                                 if((strstr(temp, moduleNameInfo)) != NULL) {                    /* find the String "<Name" for the TextID */
+                                    long filePosRecord;
+
                                     sscanf(temp, "%*s TextId=\"%[^\"]", tmp_moduletext);        /* saves the correct TextId for the next searchloop */
 
-                                    filePosRecord = (gint32)ftell(fp);            /* save the current position of the filepointer (Offset) */
-
-                                    while (fgets(temp, MAX_LINE_LENGTH, fp) != NULL && io_data_object->amountInGSDML == 1) {
-                                        /* Find a String with the saved TextID and with a fitting value for it in the same line. This value is the name of the Module! */
-                                        if(((strstr(temp, tmp_moduletext)) != NULL) && ((strstr(temp, moduleValueInfo)) != NULL)) {
-                                            pch = strstr(temp, moduleValueInfo);
-                                            sscanf(pch, "Value=\"%[^\"]", io_data_object->moduleNameStr);
-                                            break;    /* Found the name of the module */
+                                    filePosRecord = ftell(fp);            /* save the current position of the filepointer (Offset) */
+                                    /* ftell() may return -1 for error, don't move fp in this case */
+                                    if (filePosRecord >= 0) {
+                                        while (fgets(temp, MAX_LINE_LENGTH, fp) != NULL && io_data_object->amountInGSDML == 1) {
+                                            /* Find a String with the saved TextID and with a fitting value for it in the same line. This value is the name of the Module! */
+                                            if(((strstr(temp, tmp_moduletext)) != NULL) && ((strstr(temp, moduleValueInfo)) != NULL)) {
+                                                pch = strstr(temp, moduleValueInfo);
+                                                sscanf(pch, "Value=\"%[^\"]", io_data_object->moduleNameStr);
+                                                break;    /* Found the name of the module */
+                                            }
                                         }
-                                    }
 
-                                    fseek(fp, filePosRecord, SEEK_SET);    /* set filepointer to the correct TextID */
+                                        fseek(fp, filePosRecord, SEEK_SET);    /* set filepointer to the correct TextID */
+                                    }
                                 }
 
                                 /* Search for Submoduleidentnumber in GSD-file */
