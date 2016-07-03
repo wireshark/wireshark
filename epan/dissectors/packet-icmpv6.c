@@ -45,6 +45,7 @@
 #include <epan/tap.h>
 #include <epan/capture_dissectors.h>
 #include <epan/proto_data.h>
+#include <epan/ipv6.h>
 
 #include "packet-ber.h"
 #include "packet-dns.h"
@@ -1258,7 +1259,12 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
     }
 
     if (icmpv6_trans == NULL) {
-        if (PINFO_FD_VISITED(pinfo)) {
+        if (pinfo->dst.type == AT_IPv6 &&
+                    in6_is_addr_multicast((const struct e_in6_addr *)pinfo->dst.data)) {
+                /* XXX We should support multicast echo requests, but we don't currently */
+                /* Note the multicast destination and skip transaction tracking */
+                col_append_str(pinfo->cinfo, COL_INFO, " (multicast)");
+        } else if (PINFO_FD_VISITED(pinfo)) {
                 /* No response found - add field and expert info */
                 it = proto_tree_add_item(tree, hf_icmpv6_no_resp, NULL, 0, 0,
                                          ENC_NA);
