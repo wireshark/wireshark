@@ -1755,6 +1755,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
         result = adb_send(sock, adb_transport);
         if (result) {
             errmsg_print("ERROR: Error while setting adb transport for <%s>", adb_transport);
+            closesocket(sock);
             return EXIT_CODE_GENERIC;
         }
     } else {
