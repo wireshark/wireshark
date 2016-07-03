@@ -988,9 +988,11 @@ ssh_set_mac_length(struct ssh_peer_data *peer_data)
     char *mac_name = peer_data->mac;
     char *strip;
 
-    if (!mac_name) return;
+    if (!mac_name)
+        return;
+
+    /* wmem_strdup() never returns NULL */
     mac_name = wmem_strdup(NULL, (const gchar *)mac_name);
-    if (!mac_name) return;
 
     /* strip trailing "-etm@openssh.com" or "@openssh.com" */
     strip = strstr(mac_name, "-etm@openssh.com");
