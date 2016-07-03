@@ -158,9 +158,6 @@ dissector_handle_t get_itu_tcap_subdissector(guint32 ssn) {
 /*
  * DEBUG functions
  */
-#undef MEM_TCAPSRT
-/* #define MEM_TCAPSRT */
-
 #undef DEBUG_TCAPSRT
 /* #define DEBUG_TCAPSRT */
 
@@ -340,11 +337,7 @@ append_tcaphash_begincall(struct tcaphash_begincall_t *prev_begincall,
   /* Append the transaction to the list, when the same key is found
      This should append when the tcap-transaction Id is reused  */
 
-#ifdef MEM_TCAPSRT
-  p_new_tcaphash_begincall = (struct tcaphash_begincall_t *)g_malloc0(sizeof(struct tcaphash_begincall_t));
-#else
   p_new_tcaphash_begincall = wmem_new0(wmem_file_scope(), struct tcaphash_begincall_t);
-#endif
   p_new_tcaphash_begincall->context=p_tcaphash_context;
   p_tcaphash_context->begincall=p_new_tcaphash_begincall;
   p_new_tcaphash_begincall->beginkey=prev_begincall->beginkey;
@@ -394,11 +387,7 @@ append_tcaphash_ansicall(struct tcaphash_ansicall_t *prev_ansicall,
   /* Append the transaction to the list, when the same key is found
      This should append when the tcap-transaction Id is reused  */
 
-#ifdef MEM_TCAPSRT
-  p_new_tcaphash_ansicall = (struct tcaphash_ansicall_t *)g_malloc0(sizeof(struct tcaphash_ansicall_t));
-#else
   p_new_tcaphash_ansicall = wmem_new0(wmem_file_scope(), struct tcaphash_ansicall_t);
-#endif
   p_new_tcaphash_ansicall->context=p_tcaphash_context;
   p_tcaphash_context->ansicall=p_new_tcaphash_ansicall;
   p_new_tcaphash_ansicall->ansikey=prev_ansicall->ansikey;
@@ -431,11 +420,7 @@ append_tcaphash_contcall(struct tcaphash_contcall_t *prev_contcall,
   /* Append the transaction to the list, when the same key is found
      This should append when the tcap-transaction Id is reused  */
 
-#ifdef MEM_TCAPSRT
-  p_new_tcaphash_contcall = (struct tcaphash_contcall_t *)g_malloc0(sizeof(struct tcaphash_contcall_t));
-#else
   p_new_tcaphash_contcall = wmem_new0(wmem_file_scope(), struct tcaphash_contcall_t);
-#endif
   p_new_tcaphash_contcall->context=p_tcaphash_context;
   p_tcaphash_context->contcall=p_new_tcaphash_contcall;
   p_new_tcaphash_contcall->contkey=prev_contcall->contkey;
@@ -461,11 +446,7 @@ append_tcaphash_endcall(struct tcaphash_endcall_t *prev_endcall,
   /* Append the transaction to the list, when the same key is found
      This should append when the tcap-transaction Id is reused  */
 
-#ifdef MEM_TCAPSRT
-  p_new_tcaphash_endcall = (struct tcaphas_endcall_t *)g_malloc0(sizeof(struct tcaphash_endcall_t));
-#else
   p_new_tcaphash_endcall = wmem_new0(wmem_file_scope(), struct tcaphash_endcall_t);
-#endif
   p_new_tcaphash_endcall->context=p_tcaphash_context;
   p_tcaphash_context->endcall=p_new_tcaphash_endcall;
   p_new_tcaphash_endcall->endkey=prev_endcall->endkey;
@@ -631,18 +612,10 @@ new_tcaphash_context(struct tcaphash_context_key_t *p_tcaphash_context_key,
      with the tcap transaction Id as Main Key
      Once created, this entry will be updated later */
 
-#ifdef MEM_TCAPSRT
-  p_new_tcaphash_context_key = (struct tcaphash_context_key_t *)g_malloc(sizeof(struct tcaphash_context_key_t));
-#else
   p_new_tcaphash_context_key = wmem_new(wmem_file_scope(), struct tcaphash_context_key_t);
-#endif
   p_new_tcaphash_context_key->session_id = p_tcaphash_context_key->session_id;
 
-#ifdef MEM_TCAPSRT
-  p_new_tcaphash_context = (struct tcaphash_context_t *)g_malloc0(sizeof(struct tcaphash_context_t));
-#else
   p_new_tcaphash_context = wmem_new0(wmem_file_scope(), struct tcaphash_context_t);
-#endif
   p_new_tcaphash_context->key = p_new_tcaphash_context_key;
   p_new_tcaphash_context->session_id = p_tcaphash_context_key->session_id;
   p_new_tcaphash_context->first_frame = pinfo->num;
@@ -668,20 +641,12 @@ new_tcaphash_begin(struct tcaphash_begin_info_key_t *p_tcaphash_begin_key,
      with the tcap transaction Id as Main Key
      Once created, this entry will be updated later */
 
-#ifdef MEM_TCAPSRT
-  p_new_tcaphash_begin_key = (struct tcaphash_begin_info_key_t *)g_malloc(sizeof(struct tcaphash_begin_info_key_t));
-#else
   p_new_tcaphash_begin_key = wmem_new(wmem_file_scope(), struct tcaphash_begin_info_key_t);
-#endif
   p_new_tcaphash_begin_key->hashKey = p_tcaphash_begin_key->hashKey;
   p_new_tcaphash_begin_key->tid = p_tcaphash_begin_key->tid;
   p_new_tcaphash_begin_key->pc_hash = p_tcaphash_begin_key->pc_hash;
 
-#ifdef MEM_TCAPSRT
-  p_new_tcaphash_begincall = (struct tcaphash_begincall_t *)g_malloc0(sizeof(struct tcaphash_begincall_t));
-#else
  p_new_tcaphash_begincall = wmem_new0(wmem_file_scope(), struct tcaphash_begincall_t);
-#endif
   p_new_tcaphash_begincall->beginkey=p_new_tcaphash_begin_key;
   p_new_tcaphash_begincall->context=p_tcaphash_context;
   p_tcaphash_context->begincall=p_new_tcaphash_begincall;
@@ -713,22 +678,14 @@ new_tcaphash_cont(struct tcaphash_cont_info_key_t *p_tcaphash_cont_key,
      with the tcap transaction Id as Main Key
      Once created, this entry will be updated later */
 
-#ifdef MEM_TCAPSRT
-  p_new_tcaphash_cont_key = (struct tcaphash_cont_info_key_t *)g_malloc(sizeof(struct tcaphash_cont_info_key_t));
-#else
   p_new_tcaphash_cont_key = wmem_new(wmem_file_scope(), struct tcaphash_cont_info_key_t);
-#endif
   p_new_tcaphash_cont_key->hashKey = p_tcaphash_cont_key->hashKey;
   p_new_tcaphash_cont_key->src_tid = p_tcaphash_cont_key->src_tid;
   p_new_tcaphash_cont_key->dst_tid = p_tcaphash_cont_key->dst_tid;
   p_new_tcaphash_cont_key->opc_hash = p_tcaphash_cont_key->opc_hash;
   p_new_tcaphash_cont_key->dpc_hash = p_tcaphash_cont_key->dpc_hash;
 
-#ifdef MEM_TCAPSRT
-  p_new_tcaphash_contcall = (struct tcaphash_contcall_t *)g_malloc0(sizeof(struct tcaphash_contcall_t));
-#else
   p_new_tcaphash_contcall = wmem_new0(wmem_file_scope(), struct tcaphash_contcall_t);
-#endif
   p_new_tcaphash_contcall->contkey=p_new_tcaphash_cont_key;
   p_new_tcaphash_contcall->context=p_tcaphash_context;
   p_tcaphash_context->contcall=p_new_tcaphash_contcall;
@@ -759,20 +716,12 @@ new_tcaphash_end(struct tcaphash_end_info_key_t *p_tcaphash_end_key,
      with the tcap transaction Id as Main Key
      Once created, this entry will be updated later */
 
-#ifdef MEM_TCAPSRT
-  p_new_tcaphash_end_key = (struct tcaphash_end_info_key_t *)g_malloc(sizeof(struct tcaphash_end_info_key_t));
-#else
   p_new_tcaphash_end_key = wmem_new(wmem_file_scope(), struct tcaphash_end_info_key_t);
-#endif
   p_new_tcaphash_end_key->hashKey = p_tcaphash_end_key->hashKey;
   p_new_tcaphash_end_key->tid = p_tcaphash_end_key->tid;
   p_new_tcaphash_end_key->pc_hash = p_tcaphash_end_key->pc_hash;
 
-#ifdef MEM_TCAPSRT
-  p_new_tcaphash_endcall = (struct tcaphash_endcall_t *)g_malloc0(sizeof(struct tcaphash_endcall_t));
-#else
   p_new_tcaphash_endcall = wmem_new0(wmem_file_scope(), struct tcaphash_endcall_t);
-#endif
   p_new_tcaphash_endcall->endkey=p_new_tcaphash_end_key;
   p_new_tcaphash_endcall->context=p_tcaphash_context;
   p_tcaphash_context->endcall=p_new_tcaphash_endcall;
@@ -801,21 +750,13 @@ new_tcaphash_ansi(struct tcaphash_ansi_info_key_t *p_tcaphash_ansi_key,
      with the tcap transaction Id as Main Key
      Once created, this entry will be updated later */
 
-#ifdef MEM_TCAPSRT
-  p_new_tcaphash_ansi_key = (struct tcaphash_ansi_info_key_t *)g_malloc(sizeof(struct tcaphash_ansi_info_key_t));
-#else
   p_new_tcaphash_ansi_key = wmem_new(wmem_file_scope(), struct tcaphash_ansi_info_key_t);
-#endif
   p_new_tcaphash_ansi_key->hashKey = p_tcaphash_ansi_key->hashKey;
   p_new_tcaphash_ansi_key->tid = p_tcaphash_ansi_key->tid;
   p_new_tcaphash_ansi_key->opc_hash = p_tcaphash_ansi_key->opc_hash;
   p_new_tcaphash_ansi_key->dpc_hash = p_tcaphash_ansi_key->dpc_hash;
 
-#ifdef MEM_TCAPSRT
-  p_new_tcaphash_ansicall = (struct tcaphash_ansicall_t *)g_malloc0(sizeof(struct tcaphash_ansicall_t));
-#else
   p_new_tcaphash_ansicall = wmem_new0(wmem_file_scope(), struct tcaphash_ansicall_t);
-#endif
   p_new_tcaphash_ansicall->ansikey=p_new_tcaphash_ansi_key;
   p_new_tcaphash_ansicall->context=p_tcaphash_context;
   p_tcaphash_context->ansicall=p_new_tcaphash_ansicall;
@@ -1815,9 +1756,6 @@ tcapsrt_close(struct tcaphash_context_t *p_tcaphash_context,
           p_tcaphash_context->endcall->next_endcall->previous_endcall
             = p_tcaphash_context->endcall->previous_endcall;
           g_hash_table_remove(tcaphash_end, p_tcaphash_context->endcall->endkey);
-#ifdef MEM_TCAPSRT
-          g_free(p_tcaphash_context->endcall);
-#endif
         } else {
           /* cannot remove the father */
 #ifdef DEBUG_TCAPSRT
@@ -1829,10 +1767,6 @@ tcapsrt_close(struct tcaphash_context_t *p_tcaphash_context,
         dbg(20,"remove Ehash ");
 #endif
         g_hash_table_remove(tcaphash_end, p_tcaphash_context->endcall->endkey);
-#ifdef MEM_TCAPSRT
-        g_free(p_tcaphash_context->endcall->endkey);
-        g_free(p_tcaphash_context->endcall);
-#endif
 
       } /* endcall without chained string */
     } /* no endcall */
@@ -1851,9 +1785,6 @@ tcapsrt_close(struct tcaphash_context_t *p_tcaphash_context,
           p_tcaphash_context->contcall->next_contcall->previous_contcall
             = p_tcaphash_context->contcall->previous_contcall;
           g_hash_table_remove(tcaphash_cont, p_tcaphash_context->contcall->contkey);
-#ifdef MEM_TCAPSRT
-          g_free(p_tcaphash_context->contcall);
-#endif
         } else {
           /* cannot remove the father */
 #ifdef DEBUG_TCAPSRT
@@ -1865,10 +1796,6 @@ tcapsrt_close(struct tcaphash_context_t *p_tcaphash_context,
         dbg(20,"remove Chash ");
 #endif
         g_hash_table_remove(tcaphash_cont, p_tcaphash_context->contcall->contkey);
-#ifdef MEM_TCAPSRT
-        g_free(p_tcaphash_context->contcall->contkey);
-        g_free(p_tcaphash_context->contcall);
-#endif
       } /* contcall without chained string */
     } /* no contcall */
 
@@ -1886,9 +1813,6 @@ tcapsrt_close(struct tcaphash_context_t *p_tcaphash_context,
           p_tcaphash_context->begincall->next_begincall->previous_begincall
             = p_tcaphash_context->begincall->previous_begincall;
           g_hash_table_remove(tcaphash_begin, p_tcaphash_context->begincall->beginkey);
-#ifdef MEM_TCAPSRT
-          g_free(p_tcaphash_context->begincall);
-#endif
         } else {
           /* cannot remove the father */
 #ifdef DEBUG_TCAPSRT
@@ -1900,10 +1824,6 @@ tcapsrt_close(struct tcaphash_context_t *p_tcaphash_context,
         dbg(20,"remove Bhash ");
 #endif
         g_hash_table_remove(tcaphash_begin, p_tcaphash_context->begincall->beginkey);
-#ifdef MEM_TCAPSRT
-        g_free(p_tcaphash_context->begincall->beginkey);
-        g_free(p_tcaphash_context->begincall);
-#endif
       } /* begincall without chained string */
     } /* no begincall */
 
@@ -1920,9 +1840,6 @@ tcapsrt_close(struct tcaphash_context_t *p_tcaphash_context,
           p_tcaphash_context->ansicall->next_ansicall->previous_ansicall
             = p_tcaphash_context->ansicall->previous_ansicall;
           g_hash_table_remove(tcaphash_ansi, p_tcaphash_context->ansicall->ansikey);
-#ifdef MEM_TCAPSRT
-          g_free(p_tcaphash_context->ansicall);
-#endif
         } else {
           /* cannot remove the father */
 #ifdef DEBUG_TCAPSRT
@@ -1934,10 +1851,6 @@ tcapsrt_close(struct tcaphash_context_t *p_tcaphash_context,
         dbg(20,"remove Ahash ");
 #endif
         g_hash_table_remove(tcaphash_ansi, p_tcaphash_context->ansicall->ansikey);
-#ifdef MEM_TCAPSRT
-        g_free(p_tcaphash_context->ansicall->ansikey);
-        g_free(p_tcaphash_context->ansicall);
-#endif
       } /* ansicall without chained string */
     } /* no ansicall */
 
@@ -1946,10 +1859,6 @@ tcapsrt_close(struct tcaphash_context_t *p_tcaphash_context,
       dbg(20,"remove context ");
 #endif
       g_hash_table_remove(tcaphash_context, p_tcaphash_context->key);
-#ifdef MEM_TCAPSRT
-      g_free(p_tcaphash_context->key);
-      g_free(p_tcaphash_context);
-#endif
     }
   } else { /* no context */
 #ifdef DEBUG_TCAPSRT
