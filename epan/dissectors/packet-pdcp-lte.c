@@ -1616,7 +1616,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
             {
                 guint8  *mac;
                 gint message_length = tvb_captured_length_remaining(tvb, offset) - 4;
-                guint8 *message_data = (guint8 *)g_malloc0(message_length+5);
+                guint8 *message_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), message_length+5);
                 message_data[0] = header;
                 tvb_memcpy(tvb, message_data+1, offset, message_length);
 
@@ -1629,7 +1629,6 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                                      (message_length+1)*8);
 
                 *calculated = TRUE;
-                g_free(message_data);
                 return ((mac[0] << 24) | (mac[1] << 16) | (mac[2] << 8) | mac[3]);
             }
 #endif
@@ -1659,7 +1658,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
 
                 /* Extract the encrypted data into a buffer */
                 message_length = tvb_captured_length_remaining(tvb, offset) - 4;
-                message_data = (guint8 *)g_malloc0(message_length+9);
+                message_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), message_length+9);
                 message_data[0] = (pdu_security_settings->count & 0xff000000) >> 24;
                 message_data[1] = (pdu_security_settings->count & 0x00ff0000) >> 16;
                 message_data[2] = (pdu_security_settings->count & 0x0000ff00) >> 8;
@@ -1673,7 +1672,6 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 gcrypt_err = gcry_mac_write(mac_hd, message_data, message_length+9);
                 if (gcrypt_err != 0) {
                     gcry_mac_close(mac_hd);
-                    g_free(message_data);
                     return 0;
                 }
 
@@ -1681,14 +1679,11 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 gcrypt_err = gcry_mac_read(mac_hd, mac, &read_digest_length);
                 if (gcrypt_err != 0) {
                     gcry_mac_close(mac_hd);
-                    g_free(message_data);
                     return 0;
                 }
 
                 /* Now close the mac handle */
                 gcry_mac_close(mac_hd);
-
-                g_free(message_data);
 
                 *calculated = TRUE;
                 return ((mac[0] << 24) | (mac[1] << 16) | (mac[2] << 8) | mac[3]);
