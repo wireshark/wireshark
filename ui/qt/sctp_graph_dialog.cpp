@@ -43,7 +43,10 @@ SCTPGraphDialog::SCTPGraphDialog(QWidget *parent, sctp_assoc_info_t *assoc, capt
     ui(new Ui::SCTPGraphDialog),
     selected_assoc(assoc),
     cap_file_(cf),
-    direction(dir)
+    frame_num(0),
+    direction(dir),
+    gIsSackChunkPresent(false),
+    gIsNRSackChunkPresent(false)
 {
     ui->setupUi(this);
     if (!selected_assoc) {
