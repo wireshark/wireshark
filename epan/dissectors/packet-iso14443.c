@@ -263,6 +263,7 @@ static int hf_iso14443_inf = -1;
 static int hf_iso14443_crc = -1;
 
 static expert_field ei_iso14443_unknown_cmd = EI_INIT;
+static expert_field ei_iso14443_wrong_crc = EI_INIT;
 
 
 /* dissect and verify the CRC
@@ -270,7 +271,7 @@ static expert_field ei_iso14443_unknown_cmd = EI_INIT;
    bytes 0 to crc_offset-1 contain the message, the CRC starts at
    crc_offset and is CRC_LEN bytes long */
 static int dissect_iso14443_crc(tvbuff_t *tvb, gint crc_offset,
-        proto_tree *tree, iso14443_type_t type)
+        packet_info *pinfo, proto_tree *tree, iso14443_type_t type)
 {
     proto_item *crc_pi;
     guint16 crc_recv, crc_calc;
@@ -285,9 +286,11 @@ static int dissect_iso14443_crc(tvbuff_t *tvb, gint crc_offset,
 
     crc_pi = proto_tree_add_item(tree, hf_iso14443_crc,
             tvb, crc_offset, CRC_LEN, ENC_LITTLE_ENDIAN);
-    /* XXX - expert info if the CRC is wrong */
     proto_item_append_text(crc_pi, crc_recv==crc_calc ?
             " (correct)" : " (wrong)");
+    /* add an expert info to allow filtering on packets with wrong crc */
+    if (crc_recv != crc_calc)
+        expert_add_info(pinfo, crc_pi,&ei_iso14443_wrong_crc);
 
     return CRC_LEN;
 }
@@ -455,7 +458,7 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
         offset++;
 
     if (!crc_dropped)
-        offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_B);
+        offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_B);
 
     return offset;
 }
@@ -494,7 +497,7 @@ dissect_iso14443_cmd_type_wupb(tvbuff_t *tvb, packet_info *pinfo,
         offset++;
 
         if (!crc_dropped)
-            offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_B);
+            offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_B);
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         offset = dissect_iso14443_atqb(tvb, offset, pinfo, tree, crc_dropped);
@@ -519,7 +522,7 @@ dissect_iso14443_cmd_type_hlta(tvbuff_t *tvb, packet_info *pinfo,
     offset += 2;
 
     if (!crc_dropped)
-        offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_A);
+        offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_A);
 
     return offset;
 }
@@ -570,7 +573,7 @@ dissect_iso14443_cmd_type_uid(tvbuff_t *tvb, packet_info *pinfo,
             proto_item_append_text(ti, ": Select");
             offset = dissect_iso14443_uid_part(tvb, offset, pinfo, tree);
             if (!crc_dropped)
-                offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_A);
+                offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_A);
         }
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV) {
@@ -583,7 +586,7 @@ dissect_iso14443_cmd_type_uid(tvbuff_t *tvb, packet_info *pinfo,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             if (!crc_dropped)
-                offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_A);
+                offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_A);
         }
         else if (tvb_reported_length_remaining(tvb, offset) == 5) {
             col_set_str(pinfo->cinfo, COL_INFO, "UID");
@@ -683,7 +686,7 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
         offset += hist_len;
     }
     if (!crc_dropped)
-        offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_A);
+        offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_A);
 
     return offset;
 }
@@ -719,7 +722,7 @@ dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
                 tvb, offset*8+4, 4, cid, "%d", cid);
         offset++;
         if (!crc_dropped)
-            offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_A);
+            offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_A);
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         offset = dissect_iso14443_ats(tvb, offset, pinfo, tree, crc_dropped);
@@ -795,7 +798,7 @@ static int dissect_iso14443_attrib(tvbuff_t *tvb, gint offset,
         offset += hl_inf_len;
     }
     if (!crc_dropped)
-        offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_B);
+        offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_B);
 
     return offset;
 }
@@ -840,7 +843,7 @@ dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
         }
 
         if (!crc_dropped)
-            offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_B);
+            offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_B);
     }
 
     return offset;
@@ -975,7 +978,7 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
         if (circuit) {
             t = (iso14443_type_t)GPOINTER_TO_UINT(
                     (gpointer)circuit_get_proto_data(circuit, proto_iso14443));
-            offset += dissect_iso14443_crc(tvb, offset, tree, t);
+            offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, t);
         }
     }
 
@@ -1586,6 +1589,9 @@ proto_register_iso14443(void)
         { &ei_iso14443_unknown_cmd,
             { "iso14443.cmd.unknown", PI_PROTOCOL, PI_WARN,
                 "Unknown ISO1443 command", EXPFILL }
+        },
+        { &ei_iso14443_wrong_crc,
+            { "iso14443.crc.wrong", PI_PROTOCOL, PI_WARN, "Wrong CRC", EXPFILL }
         }
     };
 
