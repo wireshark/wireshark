@@ -51,8 +51,10 @@ const int custom_occurrence_col_ = 4;
 ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::ColumnPreferencesFrame),
+    cur_column_(0),
     cur_line_edit_(NULL),
     cur_combo_box_(NULL),
+    saved_combo_idx_(0),
     saved_custom_combo_idx_(-1)
 {
     ui->setupUi(this);
