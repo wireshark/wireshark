@@ -38,6 +38,7 @@ SCTPGraphByteDialog::SCTPGraphByteDialog(QWidget *parent, sctp_assoc_info_t *ass
     ui(new Ui::SCTPGraphByteDialog),
     selected_assoc(assoc),
     cap_file_(cf),
+    frame_num(0),
     direction(dir)
 {
     ui->setupUi(this);
