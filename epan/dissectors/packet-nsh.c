@@ -3,8 +3,6 @@
  *Author: Chidambaram Arunachalam <carunach@cisco.com>
  *Copyright 2016, ciscoSystems Inc.
  *
- *(c) Copyright 2016, Sumit Kumar Jha <sjha3@ncsu.edu>
- * Support for VXLAN GPE encapsulation
  *
  *Wireshark - Network traffic analyzer
  *By Gerald Combs <gerald@wireshark.org>
@@ -34,7 +32,6 @@
 #include <epan/ipproto.h>
 #include <epan/decode_as.h>
 
-#define VXLAN_NSH 4
 #define MD_TYPE_1 1
 #define MD_TYPE_2 2
 
@@ -363,7 +360,6 @@ proto_reg_handoff_nsh(void)
 
 	nsh_handle = create_dissector_handle(dissect_nsh, proto_nsh);
 	dissector_add_uint("gre.proto", ETHERTYPE_NSH, nsh_handle);
-	dissector_add_uint("vxlan.next_proto", VXLAN_NSH, nsh_handle);
 
 	dissector_ip = find_dissector_add_dependency("ip", proto_nsh);
 	dissector_ipv6 = find_dissector_add_dependency("ipv6", proto_nsh);
