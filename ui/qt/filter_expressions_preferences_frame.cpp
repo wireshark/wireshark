@@ -46,6 +46,7 @@ static const int expression_col_ = 2;
 FilterExpressionsPreferencesFrame::FilterExpressionsPreferencesFrame(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::FilterExpressionsPreferencesFrame),
+    cur_column_(0),
     cur_line_edit_(NULL)
 {
     ui->setupUi(this);
