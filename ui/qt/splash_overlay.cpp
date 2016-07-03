@@ -48,6 +48,7 @@ void splash_update(register_action_e action, const char *message, void *) {
 SplashOverlay::SplashOverlay(QWidget *parent) :
     QWidget(parent),
     so_ui_(new Ui::SplashOverlay),
+    blurred_(false),
     last_action_(RA_NONE),
     register_cur_(0)
 {
