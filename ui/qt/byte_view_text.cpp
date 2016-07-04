@@ -66,7 +66,11 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
     show_offset_(true),
     show_hex_(true),
     show_ascii_(true),
-    row_width_(recent.gui_bytes_view == BYTES_HEX ? 16 : 8)
+    row_width_(recent.gui_bytes_view == BYTES_HEX ? 16 : 8),
+    one_em_(0),
+    font_width_(0),
+    line_spacing_(0),
+    margin_(0)
 {
     QAction *action;
 
