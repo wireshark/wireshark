@@ -4005,7 +4005,7 @@ static int dissect_DIS_FIELDS_CLOCK_TIME(tvbuff_t *tvb, proto_tree *tree, int of
     isAbsolute = uintVal & 1;
 
     /* convert TS to MS */
-    ms = (uintVal >> 1) * MSEC_PER_HOUR / FSV;
+    ms = (guint64)(uintVal >> 1) * MSEC_PER_HOUR / FSV;
 
     tv.secs = (time_t)ms/1000;
     tv.nsecs = (int)(ms%1000)*1000000;
