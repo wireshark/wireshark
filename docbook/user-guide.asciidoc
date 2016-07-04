@@ -22,6 +22,7 @@ include::wsug_src/WSUG_chapter_advanced.asciidoc[]
 include::wsug_src/WSUG_chapter_statistics.asciidoc[]
 include::wsug_src/WSUG_chapter_telephony.asciidoc[]
 include::wsug_src/WSUG_chapter_customize.asciidoc[]
+include::wsug_src/WSUG_chapter_mate.asciidoc[]
 // Needs to be reworked
 //include::wsug_src/WSUG_chapter_troubleshoot.asciidoc[]
 

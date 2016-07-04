@@ -132,6 +132,7 @@ set(WSUG_FILES
 	wsug_src/WSUG_chapter_customize.asciidoc
 	wsug_src/WSUG_chapter_introduction.asciidoc
 	wsug_src/WSUG_chapter_io.asciidoc
+	wsug_src/WSUG_chapter_mate.asciidoc
 	wsug_src/WSUG_chapter_statistics.asciidoc
 	wsug_src/WSUG_chapter_telephony.asciidoc
 	wsug_src/WSUG_chapter_troubleshoot.asciidoc
@@ -215,6 +216,16 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-logo.png
 	wsug_graphics/ws-main-toolbar.png
 	wsug_graphics/ws-main.png
+	wsug_graphics/ws-mate-analysis.png
+	wsug_graphics/ws-mate-dns_pane.png
+	wsug_graphics/ws-mate-dns_pdu.png
+	wsug_graphics/ws-mate-ftp_over_gre.png
+	wsug_graphics/ws-mate-gop_analysis.png
+	wsug_graphics/ws-mate-isup_over_mtp3_over_ip.png
+	wsug_graphics/ws-mate-mmse_over_http.png
+	wsug_graphics/ws-mate-pdu_analysis.png
+	wsug_graphics/ws-mate-tcp-output.png
+	wsug_graphics/ws-mate-transform.png
 	wsug_graphics/ws-menu.png
 	wsug_graphics/ws-merge-gtk24.png
 	wsug_graphics/ws-merge-win32.png
