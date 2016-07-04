@@ -788,7 +788,7 @@ void ManageInterfacesDialog::setRemoteSettings(interface_t *iface)
 #endif // HAVE_PCAP_REMOTE
 
 PathChooserDelegate::PathChooserDelegate(QObject *parent)
-    : QStyledItemDelegate(parent)
+    : QStyledItemDelegate(parent), tree_(NULL), path_item_(NULL), path_editor_(NULL), path_le_(NULL)
 {
 }
 
