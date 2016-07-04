@@ -756,21 +756,25 @@ dissect_dlm3_rcom_lock(tvbuff_t *tvb, proto_tree *tree,
                       namelen);
 
   offset += 2;
-  sub_item = proto_tree_add_item(tree,
-                                 hf_dlm3_rl_name, tvb, offset,
-                                 DLM3_RESNAME_MAXLEN, ENC_NA);
+  if (namelen <= DLM3_RESNAME_MAXLEN) {
+    sub_item = proto_tree_add_item(tree,
+                                   hf_dlm3_rl_name, tvb, offset,
+                                   DLM3_RESNAME_MAXLEN, ENC_NA);
 
-  sub_tree = proto_item_add_subtree(sub_item,
-                                    ett_dlm3_rl_name);
-  sub_offset = offset;
-  proto_tree_add_item(sub_tree,
-                      hf_dlm3_rl_name_contents, tvb, sub_offset,
-                      namelen, ENC_ASCII|ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item,
+                                      ett_dlm3_rl_name);
+    sub_offset = offset;
+    proto_tree_add_item(sub_tree,
+                        hf_dlm3_rl_name_contents, tvb, sub_offset,
+                        namelen, ENC_ASCII|ENC_NA);
 
-  sub_offset += namelen;
-  proto_tree_add_item(sub_tree,
-                      hf_dlm3_rl_name_padding, tvb, sub_offset,
-                      DLM3_RESNAME_MAXLEN - namelen, ENC_NA);
+    sub_offset += namelen;
+    proto_tree_add_item(sub_tree,
+                        hf_dlm3_rl_name_padding, tvb, sub_offset,
+                        DLM3_RESNAME_MAXLEN - namelen, ENC_NA);
+  } else {
+    /* XXX - report an error */
+  }
 
   offset += DLM3_RESNAME_MAXLEN;
   if (((length - offset) > 0) && (exflags & DLM3_LKF_VALBLK))
