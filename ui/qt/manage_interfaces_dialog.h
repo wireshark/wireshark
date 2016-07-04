@@ -77,7 +77,6 @@ public:
 private:
     Ui::ManageInterfacesDialog *ui;
     PathChooserDelegate new_pipe_item_delegate_;
-    QStandardItemModel *remoteModel;
 
     void showPipes();
     void showLocalInterfaces();
