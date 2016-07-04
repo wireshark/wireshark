@@ -2945,7 +2945,7 @@ de_esm_remote_ue_context_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
         curr_offset ++;
         proto_tree_add_item_ret_uint(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_nb_user_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &nb_user_id);
         curr_offset ++;
-        for (j = 0; i < nb_user_id; j++) {
+        for (j = 0; j < nb_user_id; j++) {
             proto_tree_add_item_ret_uint(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_user_id_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &user_id_len);
             curr_offset ++;
             proto_tree_add_item(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_odd_even_indic, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
