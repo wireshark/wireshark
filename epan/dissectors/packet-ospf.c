@@ -1489,7 +1489,7 @@ dissect_ospf_authentication_trailer(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     proto_tree *ospf_at_tree;
     proto_item *ti;
-    guint16 auth_data_len;
+    guint32 auth_data_len;
 
     ti = proto_tree_add_item(tree, hf_ospf_at, tvb, offset, -1, ENC_NA);
     ospf_at_tree = proto_item_add_subtree(ti, ett_ospf_at);
@@ -1497,10 +1497,14 @@ dissect_ospf_authentication_trailer(tvbuff_t *tvb, int offset, proto_tree *tree)
     proto_tree_add_item(ospf_at_tree, hf_ospf_at_auth_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(ospf_at_tree, hf_ospf_at_auth_data_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-    auth_data_len = tvb_get_ntohs(tvb, offset);
-    proto_item_set_len(ti, auth_data_len);
+    proto_tree_add_item_ret_uint(ospf_at_tree, hf_ospf_at_auth_data_len, tvb, offset, 2, ENC_BIG_ENDIAN, &auth_data_len);
     offset += 2;
+    if (auth_data_len < (2 + 2 + 2 + 8)) {
+        /* XXX - report an error here */
+        proto_item_set_len(ti, 4);
+        return offset;
+    }
+    proto_item_set_len(ti, auth_data_len);
 
     proto_tree_add_item(ospf_at_tree, hf_ospf_at_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
