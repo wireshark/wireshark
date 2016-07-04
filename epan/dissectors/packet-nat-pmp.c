@@ -1,17 +1,21 @@
 /* packet-nat-pmp.c
  * Routines for NAT Port Mapping Protocol packet disassembly.
- * draft-cheshire-nat-pmp-03
- * http://files.dns-sd.org/draft-cheshire-nat-pmp.txt
+ * RFC 6886
  *
  * Copyright 2009, Stig Bjorlykke <stig@bjorlykke.org>
  *
  * Routines for Port Control Protocol packet disassembly
  * (backwards compatible with NAT Port Mapping protocol)
- * http://tools.ietf.org/html/draft-ietf-pcp-base-24
  * RFC6887: Port Control Protocol (PCP) http://tools.ietf.org/html/rfc6887
  *
  * Copyright 2012, Michael Mann
  *
+ * Description Option for the Port Control Protocol
+ * RFC 7220
+ * Discovering NAT64 IPv6 Prefixes Using the Port Control Protocol (PCP)
+ * RFC 7225
+ *
+ * Alexis La Goutte
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -494,32 +498,62 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
         case OPT_PREFIX64:
           {
-            guint16 p64_length;
-            int poffset = offset;
-            proto_tree_add_item(option_sub_tree, hf_option_p64_length, tvb, poffset, 2, ENC_BIG_ENDIAN);
-            p64_length = tvb_get_ntohs(tvb, poffset);
-            poffset += 2;
-            /*TODO: Fix display of Prefix64 and Suffix*/
-            proto_tree_add_item(option_sub_tree, hf_option_p64_prefix64, tvb, poffset, p64_length, ENC_NA);
-            poffset += p64_length;
+            guint32 p64_length;
+            int optoffset = 0;
 
-            proto_tree_add_item(option_sub_tree, hf_option_p64_suffix, tvb, poffset, 12-p64_length, ENC_NA);
-            poffset += (12-p64_length);
-
-            if(poffset < (offset+option_length))
+            if(option_length-optoffset < 2)
             {
-              guint16 ipv4_prefix_count;
+              /*TODO: report an error here*/
+              break;
+            }
+            proto_tree_add_item_ret_uint(option_sub_tree, hf_option_p64_length, tvb, offset+optoffset, 2, ENC_BIG_ENDIAN, &p64_length);
+            optoffset += 2;
+            if(option_length-optoffset < 12)
+            {
+              /*TODO: report an error here*/
+              break;
+            }
+            if(p64_length <= 12)
+            {
+              /*TODO: Fix display of Prefix64 and Suffix*/
+              proto_tree_add_item(option_sub_tree, hf_option_p64_prefix64, tvb, offset+optoffset, p64_length, ENC_NA);
+              optoffset += p64_length;
 
-              proto_tree_add_item(option_sub_tree, hf_option_p64_ipv4_prefix_count, tvb, poffset, 2, ENC_BIG_ENDIAN);
-              ipv4_prefix_count = tvb_get_ntohs(tvb, poffset);
-              poffset += 2;
+              proto_tree_add_item(option_sub_tree, hf_option_p64_suffix, tvb, offset+optoffset, 12-p64_length, ENC_NA);
+              optoffset += (12-p64_length);
+            } else {
+              /*TODO: report an error here*/
+              optoffset += 12;
+            }
+
+            if(option_length-optoffset > 0)
+            {
+              guint32 ipv4_prefix_count;
+
+              if(option_length-optoffset < 2)
+              {
+                /*TODO: report an error here*/
+                break;
+              }
+              proto_tree_add_item_ret_uint(option_sub_tree, hf_option_p64_ipv4_prefix_count, tvb, offset+optoffset, 2, ENC_BIG_ENDIAN, &ipv4_prefix_count);
+              optoffset += 2;
 
               while(ipv4_prefix_count)
               {
-                proto_tree_add_item(option_sub_tree, hf_option_p64_ipv4_prefix_length, tvb, poffset, 2, ENC_BIG_ENDIAN);
-                poffset += 2;
-                proto_tree_add_item(option_sub_tree, hf_option_p64_ipv4_address, tvb, poffset, 4, ENC_BIG_ENDIAN);
-                poffset += 4;
+                if(option_length-optoffset < 2)
+                {
+                  /*TODO: report an error here*/
+                  break;
+                }
+                proto_tree_add_item(option_sub_tree, hf_option_p64_ipv4_prefix_length, tvb, offset+optoffset, 2, ENC_BIG_ENDIAN);
+                optoffset += 2;
+                if(option_length-optoffset < 4)
+                {
+                  /*TODO: report an error here*/
+                  break;
+                }
+                proto_tree_add_item(option_sub_tree, hf_option_p64_ipv4_address, tvb, offset+optoffset, 4, ENC_BIG_ENDIAN);
+                optoffset += 4;
                 ipv4_prefix_count--;
               }
             }
