@@ -1089,7 +1089,7 @@ bool InterfaceTreeWidgetItem::operator< (const QTreeWidgetItem &other) const {
 #include <QComboBox>
 
 InterfaceTreeDelegate::InterfaceTreeDelegate(QObject *parent)
-    : QStyledItemDelegate(parent)
+    : QStyledItemDelegate(parent), tree_(NULL)
 {
 }
 
