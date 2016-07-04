@@ -3282,14 +3282,18 @@ static int dissect_lbmr_tnwg_interest_rec(tvbuff_t * tvb, int offset, packet_inf
     };
 
     rec_len = tvb_get_ntohs(tvb, offset + O_LBMR_TNWG_INTEREST_REC_T_LEN);
-    string_len = rec_len - L_LBMR_TNWG_INTEREST_REC_T;
 
     rec_item = proto_tree_add_item(tree, hf_lbmr_tnwg_interest_rec, tvb, offset, rec_len, ENC_NA);
     rec_tree = proto_item_add_subtree(rec_item, ett_lbmr_tnwg_interest_rec);
     proto_tree_add_item(rec_tree, hf_lbmr_tnwg_interest_rec_len, tvb, offset + O_LBMR_TNWG_INTEREST_REC_T_LEN, L_LBMR_TNWG_INTEREST_REC_T_LEN, ENC_BIG_ENDIAN);
+    if (rec_len < L_LBMR_TNWG_INTEREST_REC_T) {
+        /* XXX - report an error */
+        return ((int)rec_len);
+    }	
     proto_tree_add_bitmask(rec_tree, tvb, offset + O_LBMR_TNWG_INTEREST_REC_T_FLAGS, hf_lbmr_tnwg_interest_rec_flags, ett_lbmr_tnwg_interest_rec_flags, flags, ENC_BIG_ENDIAN);
     proto_tree_add_item(rec_tree, hf_lbmr_tnwg_interest_rec_pattype, tvb, offset + O_LBMR_TNWG_INTEREST_REC_T_PATTYPE, L_LBMR_TNWG_INTEREST_REC_T_PATTYPE, ENC_BIG_ENDIAN);
     proto_tree_add_item(rec_tree, hf_lbmr_tnwg_interest_rec_domain_id, tvb, offset + O_LBMR_TNWG_INTEREST_REC_T_DOMAIN_ID, L_LBMR_TNWG_INTEREST_REC_T_DOMAIN_ID, ENC_BIG_ENDIAN);
+    string_len = rec_len - L_LBMR_TNWG_INTEREST_REC_T;
     proto_tree_add_item(rec_tree, hf_lbmr_tnwg_interest_rec_symbol, tvb, offset + L_LBMR_TNWG_INTEREST_REC_T, string_len, ENC_ASCII|ENC_NA);
     return ((int)rec_len);
 }
