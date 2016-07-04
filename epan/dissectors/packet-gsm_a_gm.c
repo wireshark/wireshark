@@ -547,6 +547,7 @@ static expert_field ei_gsm_a_gm_undecoded = EI_INIT;
 
 static dissector_handle_t rrc_irat_ho_info_handle;
 static dissector_handle_t lte_rrc_ue_eutra_cap_handle;
+static dissector_handle_t nbifom_handle;
 
 static dissector_table_t gprs_sm_pco_subdissector_table; /* GPRS SM PCO PPP Protocols */
 
@@ -4248,7 +4249,7 @@ static const value_string gsm_a_gm_sel_bearer_ctrl_mode_vals[] = {
 
 static const value_string gsm_a_gm_nbifom_mode_vals[] = {
 	{ 0, "UE-initiated" },
-	{ 1, "network-initiated" },
+	{ 1, "Network-initiated" },
 	{ 0, NULL }
 };
 
@@ -5834,7 +5835,13 @@ de_sm_wlan_offload_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 static guint16
 de_sm_nbifom_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	proto_tree_add_item(tree, hf_gsm_a_sm_nbifom_cont, tvb, offset, len, ENC_NA);
+	if (nbifom_handle) {
+		tvbuff_t *nbifom_tvb = tvb_new_subset_length(tvb, offset, len);
+
+		call_dissector(nbifom_handle, nbifom_tvb, pinfo, tree);
+	} else {
+		proto_tree_add_item(tree, hf_gsm_a_sm_nbifom_cont, tvb, offset, len, ENC_NA);
+	}
 
 	return len;
 }
@@ -7121,8 +7128,8 @@ dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	curr_len    = len;
 
 	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
-	/* Network or the MS */
-	pinfo->link_dir = LINK_DIR_UNKNOWN;
+	/* Network or the MS; do not reset link_dir in case it was set by lower layers */
+	/* pinfo->link_dir = LINK_DIR_UNKNOWN; */
 
 
 	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
@@ -8868,6 +8875,7 @@ proto_reg_handoff_gsm_a_gm(void)
 {
 	rrc_irat_ho_info_handle = find_dissector_add_dependency("rrc.irat.irat_ho_info", proto_a_gm);
 	lte_rrc_ue_eutra_cap_handle = find_dissector_add_dependency("lte-rrc.ue_eutra_cap", proto_a_gm);
+	nbifom_handle = find_dissector_add_dependency("nbifom", proto_a_gm);
 }
 
 /*

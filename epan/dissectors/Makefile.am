@@ -966,6 +966,7 @@ DISSECTOR_SRC = \
 	packet-nat-pmp.c	\
 	packet-nb_rtpmux.c	\
 	packet-nbd.c		\
+	packet-nbifom.c		\
 	packet-nbipx.c		\
 	packet-nbt.c		\
 	packet-ncp-nmas.c	\

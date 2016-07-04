@@ -105,6 +105,7 @@ Edge Control Protocol (ECP)
 Bachmann bluecom Protocol
 Apache Cassandra - CQL version 3.0
 Real Time Location System (RTLS)
+Network-Based IP Flow Mobility (NBIFOM)
 
 --sort-and-group--
 
