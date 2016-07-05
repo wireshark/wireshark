@@ -3502,8 +3502,9 @@ static int decode_bgp_link_nlri_prefix_descriptors(tvbuff_t *tvb,
             break;
 
             case BGP_NLRI_TLV_IP_REACHABILITY_INFORMATION:
-                decode_prefix4(tlv_sub_tree, pinfo, tlv_sub_item, hf_bgp_ls_nlri_ip_reachability_prefix_ip,
-                               tvb, offset + 4, 0, "Reachability");
+                if (decode_prefix4(tlv_sub_tree, pinfo, tlv_sub_item, hf_bgp_ls_nlri_ip_reachability_prefix_ip,
+                               tvb, offset + 4, 0, "Reachability") == -1)
+                    return diss_length;
             break;
         }
 
