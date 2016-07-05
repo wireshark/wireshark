@@ -116,7 +116,6 @@ signals:
 
 private:
     Ui::CaptureInterfacesDialog *ui;
-    Qt::CheckState m_pressedItemState;
 
     if_stat_cache_t *stat_cache_;
     QTimer *stat_timer_;
