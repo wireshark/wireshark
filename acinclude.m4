@@ -1879,3 +1879,16 @@ AC_DEFUN([AC_WIRESHARK_QT_TOOL_CHECK],
 		fi
 	fi
 ])
+
+AC_DEFUN([AC_WIRESHARK_QT_TOOL_CHECK_LRELEASE],
+[
+  AC_WIRESHARK_QT_TOOL_CHECK(LRELEASE, lrelease, $2)
+  AC_MSG_CHECKING(whether lrelease -version works)
+  lrelease_version=`$LRELEASE -version 2>&AS_MESSAGE_LOG_FD`
+  AS_IF([test $? -ne 0],
+    [
+      AC_MSG_RESULT(no)
+      AC_MSG_ERROR([$LRELEASE -version returned non-zero exit status])
+    ])
+  AC_MSG_RESULT([ok, $lrelease_version])
+])
