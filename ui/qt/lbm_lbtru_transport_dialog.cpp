@@ -178,7 +178,6 @@ class LBMLBTRUFrameEntry : public QTreeWidgetItem
         guint32 getFrame(void) { return (m_frame); }
 
     private:
-        LBMLBTRUFrameEntry(void) { }
         guint32 m_frame;
 };
 
@@ -534,7 +533,6 @@ class LBMLBTRUSourceTransportEntry : public QTreeWidgetItem
         QString m_transport;
 
     private:
-        LBMLBTRUSourceTransportEntry(void) { }
         void fillItem(void);
         guint64 m_data_frames;
         guint64 m_data_bytes;
@@ -812,7 +810,6 @@ class LBMLBTRUSourceEntry : public QTreeWidgetItem
         void processPacket(const packet_info * pinfo, const lbm_lbtru_tap_info_t * tap_info);
 
     private:
-        LBMLBTRUSourceEntry(void) { }
         void fillItem(void);
         QString m_address;
         QString m_transport;
@@ -1001,7 +998,6 @@ class LBMLBTRUReceiverTransportEntry : public QTreeWidgetItem
         void processPacket(const packet_info * pinfo, const lbm_lbtru_tap_info_t * tap_info);
 
     private:
-        LBMLBTRUReceiverTransportEntry(void) { }
         void fillItem(void);
         QString m_transport;
         guint64 m_nak_frames;
@@ -1207,7 +1203,6 @@ class LBMLBTRUReceiverEntry : public QTreeWidgetItem
         void processPacket(const packet_info * pinfo, const lbm_lbtru_tap_info_t * tap_info);
 
     private:
-        LBMLBTRUReceiverEntry(void) { }
         void fillItem(void);
         QString m_address;
         QString m_transport;
