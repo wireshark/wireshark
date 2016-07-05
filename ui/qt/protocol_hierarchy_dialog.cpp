@@ -61,18 +61,18 @@ Q_DECLARE_METATYPE(ph_stats_t*)
 class ProtocolHierarchyTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    ProtocolHierarchyTreeWidgetItem(QTreeWidgetItem *parent, ph_stats_node_t *ph_stats_node) :
+    ProtocolHierarchyTreeWidgetItem(QTreeWidgetItem *parent, ph_stats_node_t& ph_stats_node) :
         QTreeWidgetItem(parent),
+        total_packets_(ph_stats_node.num_pkts_total),
+        last_packets_(ph_stats_node.num_pkts_last),
+        total_bytes_(ph_stats_node.num_bytes_total),
+        last_bytes_(ph_stats_node.num_bytes_last),
+        percent_packets_(0),
+        percent_bytes_(0),
         bits_s_(0.0),
         end_bits_s_(0.0)
     {
-        if (!ph_stats_node) return;
-
-        filter_name_ = ph_stats_node->hfinfo->abbrev;
-        total_packets_ = ph_stats_node->num_pkts_total;
-        last_packets_ = ph_stats_node->num_pkts_last;
-        total_bytes_ = ph_stats_node->num_bytes_total;
-        last_bytes_ = ph_stats_node->num_bytes_last;
+        filter_name_ = ph_stats_node.hfinfo->abbrev;
 
         if (!parent) return;
         ph_stats_t *ph_stats = parent->treeWidget()->invisibleRootItem()->data(0, Qt::UserRole).value<ph_stats_t*>();
@@ -88,7 +88,7 @@ public:
             end_bits_s_ = last_bytes_ * 8.0 / seconds;
         }
 
-        setText(protocol_col_, ph_stats_node->hfinfo->name);
+        setText(protocol_col_, ph_stats_node.hfinfo->name);
         setData(pct_packets_col_, Qt::UserRole, percent_packets_);
         setText(packets_col_, QString::number(total_packets_));
         setData(pct_bytes_col_, Qt::UserRole, percent_bytes_);
@@ -287,7 +287,7 @@ void ProtocolHierarchyDialog::addTreeNode(GNode *node, gpointer data)
     QTreeWidgetItem *parent_ti = static_cast<QTreeWidgetItem *>(data);
     if (!parent_ti) return;
 
-    ProtocolHierarchyTreeWidgetItem *phti = new ProtocolHierarchyTreeWidgetItem(parent_ti, stats);
+    ProtocolHierarchyTreeWidgetItem *phti = new ProtocolHierarchyTreeWidgetItem(parent_ti, *stats);
 
     g_node_children_foreach(node, G_TRAVERSE_ALL, addTreeNode, phti);
 
