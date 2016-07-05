@@ -1813,6 +1813,21 @@ static const value_string DIS_PDU_PO_ObjectClass_Strings[] =
 
 static value_string_ext DIS_PDU_PO_ObjectClass_Strings_Ext = VALUE_STRING_EXT_INIT(DIS_PDU_PO_ObjectClass_Strings);
 
+typedef enum
+{
+    DIS_CollisionType_Inelastic = 0,
+    DIS_CollisionType_Elastic   = 1
+} DIS_PDU_CollisionType;
+
+static const value_string DIS_PDU_CollisionType_Strings[] =
+{
+    { DIS_CollisionType_Inelastic, "Inelastic" },
+    { DIS_CollisionType_Elastic,   "Elastic" },
+    { 0,                           NULL }
+};
+
+static value_string_ext DIS_PDU_CollisionType_Strings_Ext = VALUE_STRING_EXT_INIT(DIS_PDU_CollisionType_Strings);
+
 static const value_string DIS_PDU_EmitterName_Strings[] =
 {
     { 10, "1RL138" },
@@ -3696,6 +3711,13 @@ static int hf_dis_designator_spot_location_x = -1;
 static int hf_dis_designator_spot_location_y = -1;
 static int hf_dis_designator_spot_location_z = -1;
 
+/* Collision */
+static int hf_dis_collision_type = -1;
+static int hf_dis_collision_mass = -1;
+static int hf_dis_collision_location_x = -1;
+static int hf_dis_collision_location_y = -1;
+static int hf_dis_collision_location_z = -1;
+
 /* More DIS global */
 static int hf_dis_capabilities = -1;
 static int hf_dis_variable_parameter_type = -1;
@@ -5279,6 +5301,51 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
         offset = parseField_VariableParameter(tvb, sub_tree, offset, variableParameterType);
         proto_item_set_end(ti, tvb, offset);
     }
+
+    return offset;
+}
+
+/* DIS Collision PDUs
+ */
+static int dissect_DIS_PARSER_COLLISION_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    proto_tree *sub_tree;
+
+    offset = parseField_Entity(tvb, tree, offset, "Issuing Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Colliding Entity ID");
+    offset = dissect_DIS_FIELDS_EVENT_ID(tvb, tree, offset, "Event ID");
+
+    /* 8 Bit Collision Type */
+    proto_tree_add_item(tree, hf_dis_collision_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /* 8 Bit Padding */
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    /* Velocity */
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_linear_velocity, NULL, "Velocity");
+
+    proto_tree_add_item(sub_tree, hf_dis_linear_velocity_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_linear_velocity_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_linear_velocity_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    /* Mass */
+    proto_tree_add_item(tree, hf_dis_collision_mass, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    /* Location (with respect to entity) */
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_ua_location, NULL, "Location (with respect to entity)"); /* TODO: ett_ua_location ==> ett_location? */
+
+    proto_tree_add_item(sub_tree, hf_dis_collision_location_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_collision_location_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_collision_location_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
 
     return offset;
 }
@@ -7204,6 +7271,9 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         /* DIS Entity Information / Interaction PDUs */
         case DIS_PDUTYPE_ENTITY_STATE:
             pduFunc = &dissect_DIS_PARSER_ENTITY_STATE_PDU;
+            break;
+        case DIS_PDUTYPE_COLLISION:
+            pduFunc = &dissect_DIS_PARSER_COLLISION_PDU;
             break;
 
         /* DIS Distributed Emission Regeneration PDUs */
@@ -9476,6 +9546,31 @@ void proto_register_dis(void)
                 FT_INT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
+            { &hf_dis_collision_type,
+              { "Collision Type", "dis.collision.type",
+                FT_UINT8, BASE_DEC|BASE_EXT_STRING, &DIS_PDU_CollisionType_Strings_Ext, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_collision_mass,
+              { "Mass", "dis.collision.mass",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_collision_location_x,
+              {"X", "dis.collision.location.x",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_collision_location_y,
+              {"Y", "dis.collision.location.y",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_collision_location_z,
+              {"Z", "dis.collision.location.z",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            }
         };
 
     /* Setup protocol subtree array */
