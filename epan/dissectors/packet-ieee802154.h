@@ -245,7 +245,11 @@ typedef enum {
 #define IEEE802154_PAYLOAD_IE_GID_TERM       0xf
 
 /* Payload IE (Nested) Sub ID */
-/* 0x00 - 0x0f Reserved for Long Format */
+/* Payload IE (Nested) Sub ID - long format */
+/* 0x0 - 0x7 Reserved */
+/* 0x0 - 0x8 Vendor Specific */
+#define IEEE802154_MLME_SUBIE_CHANNEL_HOPPING            0x9
+/* 0xa - 0xf Reserved */
 /* 0x10 - 0x19 Short Format Reserved */
 #define IEEE802154_MLME_SUBIE_TSCH_SYNCH                 0x1A
 #define IEEE802154_MLME_SUBIE_TSCH_SLOTFR_LINK           0x1B
@@ -277,7 +281,6 @@ typedef enum {
 #define IEEE802154_MLME_SUBIE_RCC_PHY_OPER_MODE          0x36
 /* 0x37-0x7f Reserved */
 
-
 /* IEEE 802.15.4 cipher block size. */
 #define IEEE802154_CIPHER_SIZE                16
 
@@ -299,12 +302,9 @@ typedef struct {
     gboolean    pan_id_compression;
     gboolean    seqno_suppression;
     gboolean    ie_present;
-
     guint8      seqno;
-
     /* determined during processing of Header IE*/
     gboolean    payload_ie_present;
-
     /* Addressing Info. */
     guint16     dst_pan;
     guint16     src_pan;
