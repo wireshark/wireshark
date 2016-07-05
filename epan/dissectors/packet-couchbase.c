@@ -184,7 +184,7 @@
 #define PROTOCOL_BINARY_CMD_EXPAND_BUCKET           0x88
 #define PROTOCOL_BINARY_CMD_SELECT_BUCKET           0x89
 #define PROTOCOL_BINARY_CMD_START_REPLICATION       0x90
-#define PROTOCOL_BINARY_CMD_STOP_REPLICATION        0x91
+#define PROTOCOL_BINARY_CMD_OBSERVE_SEQNO           0x91
 #define PROTOCOL_BINARY_CMD_OBSERVE                 0x92
 #define PROTOCOL_BINARY_CMD_EVICT_KEY               0x93
 #define PROTOCOL_BINARY_CMD_GET_LOCKED              0x94
@@ -339,6 +339,12 @@ static int hf_observe_keylength = -1;
 static int hf_observe_key = -1;
 static int hf_observe_status = -1;
 static int hf_observe_cas = -1;
+static int hf_observe_vbucket_uuid = -1;
+static int hf_observe_failed_over = -1;
+static int hf_observe_last_persisted_seqno = -1;
+static int hf_observe_current_seqno = -1;
+static int hf_observe_old_vbucket_uuid = -1;
+static int hf_observe_last_received_seqno = -1;
 
 static int hf_failover_log = -1;
 static int hf_failover_log_size = -1;
@@ -526,7 +532,7 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_EXPAND_BUCKET,              "Expand Bucket"            },
   { PROTOCOL_BINARY_CMD_SELECT_BUCKET,              "Select Bucket"            },
   { PROTOCOL_BINARY_CMD_START_REPLICATION,          "Start Replication"        },
-  { PROTOCOL_BINARY_CMD_STOP_REPLICATION,           "Stop Replication"         },
+  { PROTOCOL_BINARY_CMD_OBSERVE_SEQNO,              "Observe Sequence Number"  },
   { PROTOCOL_BINARY_CMD_OBSERVE,                    "Observe"                  },
   { PROTOCOL_BINARY_CMD_EVICT_KEY,                  "Evict Key"                },
   { PROTOCOL_BINARY_CMD_GET_LOCKED,                 "Get Locked"               },
@@ -792,6 +798,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case PROTOCOL_BINARY_CMD_PREPENDQ:
   case PROTOCOL_BINARY_CMD_STAT:
   case PROTOCOL_BINARY_CMD_OBSERVE:
+  case PROTOCOL_BINARY_CMD_OBSERVE_SEQNO:
     /* Must not have extras */
     if (extlen) {
       illegal = TRUE;
@@ -1374,6 +1381,61 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           oo += 8;
         }
       }
+    } else if (opcode == PROTOCOL_BINARY_CMD_OBSERVE_SEQNO) {
+      if (request) {
+        ti = proto_tree_add_item(tree, hf_observe_vbucket_uuid, tvb, offset, 8, ENC_BIG_ENDIAN);
+        if (value_len != 8) {
+          expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be 8");
+        }
+      } else {
+        /*
+         * <format_type, vbucket id, vbucket uuid, last_persisted_seqno, current_seqno>
+         *
+         * - format_type is of type uint8_t and it describes whether
+         *   the vbucket has failed over or not. 1 indicates a hard
+         *   failover, 0 indicates otherwise.
+         * - vbucket id is of type uint16_t and it is the identifier for
+         *   the vbucket.
+         * - vbucket uuid is of type uint64_t and it represents a UUID for
+         *    the vbucket.
+         * - last_persisted_seqno is of type uint64_t and it is the
+         *   last sequence number that was persisted for this
+         *   vbucket.
+         * - current_seqno is of the type uint64_t and it is the
+         *   sequence number of the latest mutation in the vbucket.
+         *
+         * In the case of a hard failover, the tuple is of the form
+         * <format_type, vbucket id, vbucket uuid, last_persisted_seqno, current_seqno,
+         * old vbucket uuid, last_received_seqno>
+         *
+         * - old vbucket uuid is of type uint64_t and it is the
+         *   vbucket UUID of the vbucket prior to the hard failover.
+         *
+         * - last_received_seqno is of type uint64_t and it is the
+         *   last received sequence number in the old vbucket uuid.
+         *
+         * The other fields are the same as that mentioned in the normal case.
+         */
+        guint8 failed_over;
+
+        proto_tree_add_item(tree, hf_observe_failed_over, tvb, offset, 1, ENC_BIG_ENDIAN);
+        failed_over = tvb_get_guint8(tvb, offset);
+        offset++;
+        proto_tree_add_item(tree, hf_observe_vbucket, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(tree, hf_observe_vbucket_uuid, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        proto_tree_add_item(tree, hf_observe_last_persisted_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        proto_tree_add_item(tree, hf_observe_current_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        if (failed_over) {
+          proto_tree_add_item(tree, hf_observe_old_vbucket_uuid, tvb, offset, 8, ENC_BIG_ENDIAN);
+          offset += 8;
+          proto_tree_add_item(tree, hf_observe_last_received_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+          offset += 8;
+        }
+      }
     } else if (!request && opcode == PROTOCOL_BINARY_DCP_STREAM_REQUEST) {
       if (value_len % 16 != 0) {
         expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Response with bad failover log length");
@@ -1772,6 +1834,12 @@ proto_register_couchbase(void)
     { &hf_observe_vbucket, { "VBucket", "couchbase.observe.vbucket", FT_UINT16, BASE_HEX, NULL, 0x0, "VBucket of the observable key", HFILL } },
     { &hf_observe_status, { "Status", "couchbase.observe.status", FT_UINT8, BASE_HEX, NULL, 0x0, "Status of the observable key", HFILL } },
     { &hf_observe_cas, { "CAS", "couchbase.observe.cas", FT_UINT64, BASE_HEX, NULL, 0x0, "CAS value of the observable key", HFILL } },
+    { &hf_observe_vbucket_uuid, { "VBucket UUID", "couchbase.observe.vbucket_uuid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_observe_last_persisted_seqno, { "Last persisted sequence number", "couchbase.observe.last_persisted_seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_observe_current_seqno, { "Current sequence number", "couchbase.observe.current_seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_observe_old_vbucket_uuid, { "Old VBucket UUID", "couchbase.observe.old_vbucket_uuid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_observe_last_received_seqno, { "Last received sequence number", "couchbase.observe.last_received_seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_observe_failed_over, { "Failed over", "couchbase.observe.failed_over", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
     { &hf_multipath_opcode, { "Opcode", "couchbase.multipath.opcode", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &opcode_vals_ext, 0x0, "Command code", HFILL } },
     { &hf_multipath_index, { "Index", "couchbase.multipath.index", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
