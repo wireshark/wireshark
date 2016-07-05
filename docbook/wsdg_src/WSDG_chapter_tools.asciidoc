@@ -23,7 +23,6 @@ tools are available in different "flavours":
 * UNIX (or Windows Cygwin): the tools should be commonly available on the
   supported UNIX platforms, and for Windows platforms by using the Cygwin UNIX
   emulation
-
 * Windows native: some tools are available as native Windows tools, no special
   emulation is required.  Many of these tools can be installed (and updated)
   using http://chocolatey.org[Chocolatey], a Windows package manager similar
@@ -585,8 +584,35 @@ otherwise the debugger will simply fail or you will only see a lot of garbage.
 ===== Visual Studio integrated debugger
 
 You can use the integrated debugger of Visual Studio if your toolchain includes
-it.  Open the solution in your build directory and build and debug as normal with a
-Visual Studio solution.
+it.  Open the solution in your build directory and build and debug as normal
+with a Visual Studio solution.
+
+To set the correct paths for Visual Studio when running Wireshark under the
+debugger, add the build output directory to the path before opening Visual
+Studio from the same command prompt, e.g.
+
+----
+C:\Development\wsbuild32>set PATH="%PATH%;C:\Development\wsbuild32\run\RelwithDebInfo"
+C:\Development\wsbuild32>wireshark.sln
+----
+
+for PowerShell use
+
+----
+PS C:\Development\wsbuild32>$env:PATH += ";$(Convert-Path run\RelWithDebInfo)"
+PS C:\Development\wsbuild32>wireshark.sln
+----
+
+When Visual Studio has finished loading the solution, set the executable to
+be run in the debugger, e.g. Executables\Wireshark, by right clicking it in
+the Solution Explorer window and selecting "Set as StartUp Project".  Also
+set the Solution Configuration (usually RelWithDebInfo) from the droplist on
+the toolbar.
+
+NOTE: Currently Visual Studio regards a command line build as incomplete, so
+will report that some items need to be built when starting the debugger.  These
+can either be rebuilt or ignored as you wish.
+
 
 The normal build is an optimised release version so debugging can be a bit
 difficult as variables are optimised out into registers and the execution
@@ -621,7 +647,7 @@ press F5.
 
 If you require a non-optimised version, then build using a debug configuration, e.g.
 `msbuild /m /p:Configuration=Debug Wireshark.sln`.  The build products will be found
-in C:\Development\wsbuild32\run\RelWithDebInfo\.
+in C:\Development\wsbuild32\run\Debug\.
 
 [[ChToolsBash]]
 

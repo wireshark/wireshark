@@ -302,13 +302,9 @@ The Buildbot runs on a platform collection that represents the different
 
 * Windows 8.1 x86 (Win32, little endian, Visual Studio 2013)
 
-* Windows 7 x86-64 (Win64, little endian, Visual Studio 2013)
+* Windows Server 2012 R2 x86-64 (Win64, little endian, Visual Studio 2013)
 
 * Ubuntu x86-64 (Linux, little endian, gcc, Clang)
-
-* Solaris SPARC (Solaris, big endian, gcc)
-
-* OS X x86 (BSD, little endian, Clang)
 
 * OS X x86-64 (BSD, little endian, Clang)
 
