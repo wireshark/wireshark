@@ -34,7 +34,8 @@ typedef enum tcp_graph_type_ {
     GRAPH_TSEQ_TCPTRACE,
     GRAPH_THROUGHPUT,
     GRAPH_RTT,
-    GRAPH_WSCALE
+    GRAPH_WSCALE,
+    GRAPH_UNDEFINED
 } tcp_graph_type;
 
 struct segment {

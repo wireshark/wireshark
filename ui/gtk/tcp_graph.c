@@ -1553,6 +1553,8 @@ static GtkWidget *control_panel_create_graph_type_group(struct gtk_graph *g)
     case GRAPH_WSCALE:
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(graph_wscale), TRUE);
         break;
+    case GRAPH_UNDEFINED:
+        break;
     }
     graph_init = gtk_check_button_new_with_label("Init on change");
     graph_sep  = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);

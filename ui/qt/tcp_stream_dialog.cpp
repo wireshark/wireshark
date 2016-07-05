@@ -84,8 +84,18 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     QDialog(NULL, Qt::Window),
     ui(new Ui::TCPStreamDialog),
     cap_file_(cf),
+    ts_offset_(0),
     ts_origin_conn_(true),
+    seq_offset_(0),
     seq_origin_zero_(true),
+    title_(NULL),
+    base_graph_(NULL),
+    tput_graph_(NULL),
+    seg_graph_(NULL),
+    ack_graph_(NULL),
+    rwin_graph_(NULL),
+    tracer_(NULL),
+    packet_num_(0),
     mouse_drags_(true),
     rubber_band_(NULL),
     num_dsegs_(-1),
@@ -97,6 +107,14 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
 
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose, true);
+
+    graph_.type = GRAPH_UNDEFINED;
+    set_address(&graph_.src_address, AT_NONE, 0, NULL);
+    graph_.src_port = 0;
+    set_address(&graph_.dst_address, AT_NONE, 0, NULL);
+    graph_.dst_port = 0;
+    graph_.stream = 0;
+    graph_.segments = NULL;
 
     struct tcpheader *header = select_tcpip_session(cap_file_, &current);
     if (!header) {
