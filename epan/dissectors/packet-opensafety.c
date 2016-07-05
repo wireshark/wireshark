@@ -140,6 +140,7 @@ static int hf_oss_msg_sender = -1;
 static int hf_oss_msg_receiver = -1;
 static int hf_oss_length= -1;
 static int hf_oss_crc = -1;
+static int hf_oss_byte_offset = -1;
 
 static int hf_oss_crc_valid = -1;
 static int hf_oss_crc2_valid = -1;
@@ -1788,6 +1789,9 @@ dissect_opensafety_message(opensafety_packet_info *packet,
             val_to_str(packet->msg_id, opensafety_message_type_values, "Unknown Message (0x%02X) "));
     }
 
+    item = proto_tree_add_uint(opensafety_tree, hf_oss_byte_offset, packet->frame.frame_tvb, 0, 1, packet->frame.byte_offset);
+    PROTO_ITEM_SET_GENERATED(item);
+
     if ( packet->msg_type == OPENSAFETY_SNMT_MESSAGE_TYPE )
     {
         proto_item_append_text(opensafety_item, ", SNMT");
@@ -2181,6 +2185,7 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
             packet->msg_type = type;
 
             packet->frame.frame_tvb = next_tvb;
+            packet->frame.byte_offset = frameOffset + tvb_raw_offset(message_tvb);
             packet->frame.subframe1 = frameStart1;
             packet->frame.subframe2 = frameStart2;
             packet->frame.length = frameLength;
@@ -2420,6 +2425,9 @@ proto_register_opensafety(void)
           { "SCM UDID Valid",    "opensafety.scm_udid.valid",
             FT_BOOLEAN,   BASE_NONE, NULL,   0x0, NULL, HFILL } },
 
+        { &hf_oss_byte_offset,
+          { "Byte Offset",    "opensafety.msg.byte_offset",
+            FT_UINT16,  BASE_HEX, NULL,   0x0, NULL, HFILL } },
         { &hf_oss_msg,
           { "Message",    "opensafety.msg.id",
             FT_UINT8,   BASE_HEX, VALS(opensafety_message_type_values),   0x0, NULL, HFILL } },

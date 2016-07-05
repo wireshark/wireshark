@@ -449,6 +449,8 @@ typedef struct _opensafety_packet_frame
 
     guint length;
 
+    guint16 byte_offset;
+
     tvbuff_t *frame_tvb;
 
 } opensafety_packet_frame;
