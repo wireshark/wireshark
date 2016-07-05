@@ -4,7 +4,7 @@ A note about PIDL generated files
 Quick guide
 ===========
 
-Run 'make all' inside the pidl folder to generate all the dissectors and place
+Run 'make -f Makefile.pidl all' inside the pidl folder to generate all the dissectors and place
 them in the epan/dissectors folder.
 
 Complete infos
