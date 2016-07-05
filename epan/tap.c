@@ -634,8 +634,10 @@ tap_listeners_dfilter_recompile(void)
 		if(tl->fstring){
 			if(!dfilter_compile(tl->fstring, &code, &err_msg)){
 				g_free(err_msg);
+				err_msg = NULL;
 				/* Not valid, make a dfilter matching no packets */
-				dfilter_compile("frame.number == 0", &code, &err_msg);
+				if (!dfilter_compile("frame.number == 0", &code, &err_msg))
+					g_free(err_msg);
 			}
 		}
 		tl->code=code;
