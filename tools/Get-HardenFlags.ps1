@@ -116,8 +116,6 @@ $SoftBins = (
     "libxml2-2.dll",
 # The x64 ones that are different
     "comerr64.dll",
-    "gspawn-win64-helper-console.exe",
-    "gspawn-win64-helper.exe",
     "k5sprt64.dll",
     "krb5_64.dll",
     "libgcc_s_seh-1.dll",
