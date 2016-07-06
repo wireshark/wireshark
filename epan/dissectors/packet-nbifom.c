@@ -26,6 +26,8 @@
 
 #include <epan/packet.h>
 
+void proto_register_nbifom(void);
+
 static int proto_nbifom = -1;
 static int hf_nbifom_param_id_ul = -1;
 static int hf_nbifom_param_id_dl = -1;
