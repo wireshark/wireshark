@@ -1717,36 +1717,43 @@ proto_register_pw_atm_ata(void)
 					  ,NULL						,HFILL }}
 	};
 
-#define HF_INITIALIZER_NCELLS(hf_handle)				\
-	{ &hf_handle		,{"Number of good encapsulated cells","pw.atm.cells" \
-				,FT_INT32	,BASE_DEC	,NULL		,0 \
-				,NULL						,HFILL }}
-
-#define HF_INITIALIZER_PWTYPE(hf_handle,name)				\
-	{ &hf_handle		,{name				,name	\
-				,FT_BOOLEAN	,0		,NULL		,0x0 \
-				,"Identifies type of ATM PW. May be used for filtering.",HFILL}}
-
-
 	static hf_register_info hfa_n1_nocw[] = {
-		 HF_INITIALIZER_NCELLS(hf_n1_nocw_ncells)
-		,HF_INITIALIZER_PWTYPE(hf_pw_type_n1_nocw,"pw.type.atm.n1nocw")
+		{ &hf_n1_nocw_ncells,
+		  { "Number of good N:1 no CW encapsulated cells", "pw.atm.n1_nocw.cells", FT_INT32,
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_pw_type_n1_nocw,
+		  { "N:1 noCW", "pw.type.atm.n1nocw", FT_BOOLEAN, 0, NULL, 0x0,
+		    NULL, HFILL }}
 	};
 
 	static hf_register_info hfa_n1_cw[] = {
-		 HF_INITIALIZER_NCELLS(hf_n1_cw_ncells)
-		,HF_INITIALIZER_PWTYPE(hf_pw_type_n1_cw,"pw.type.atm.n1cw")
+		{ &hf_n1_cw_ncells,
+		  { "Number of good N:1 CW encapsulated cells", "pw.atm.n1_cw.cells", FT_INT32,
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_pw_type_n1_cw,
+		  { "N:1 CW", "pw.type.atm.n1cw", FT_BOOLEAN, 0, NULL, 0x0,
+		    NULL, HFILL }}
 	};
 
 	static hf_register_info hfa_11_aal5pdu[] = {
-		 HF_INITIALIZER_NCELLS(hf_11_ncells)
-		,HF_INITIALIZER_PWTYPE(hf_pw_type_11_vcc,"pw.type.atm.11vcc")
-		,HF_INITIALIZER_PWTYPE(hf_pw_type_11_vpc,"pw.type.atm.11vpc")
-		,HF_INITIALIZER_PWTYPE(hf_pw_type_aal5_pdu,"pw.type.atm.aal5pdu")
+		{ &hf_11_ncells,
+		  { "Number of good 1:1 encapsulated cells", "pw.atm.11.cells", FT_INT32,
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_pw_type_11_vcc,
+		  { "1:1 VCC", "pw.type.atm.11vcc", FT_BOOLEAN, 0, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_pw_type_11_vpc,
+		  { "1:1 VPC", "pw.type.atm.11vpc", FT_BOOLEAN, 0, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_pw_type_aal5_pdu,
+		  { "AAL5 PDU", "pw.type.atm.aal5pdu", FT_BOOLEAN, 0, NULL, 0x0,
+		    NULL, HFILL }}
 	};
 
 	static hf_register_info hfa_aal5_sdu[] = {
-		HF_INITIALIZER_PWTYPE(hf_pw_type_aal5_sdu,"pw.type.atm.aal5sdu")
+		{ &hf_pw_type_aal5_sdu,
+		  { "AAL5 SDU", "pw.type.atm.aal5sdu", FT_BOOLEAN, 0, NULL, 0x0,
+		    NULL, HFILL }}
 	};
 
 	static const value_string a5s_t_vals[] = {
