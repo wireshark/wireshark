@@ -696,7 +696,7 @@ dissect_lat_slots(tvbuff_t *tvb, int offset, guint nbr_slots, proto_tree *tree,
 			name_len = tvb_get_guint8(tvb, offset);
 			CHECK_SLOT_DATA_BOUNDS(1 + name_len);
 			proto_tree_add_item(tree, hf_lat_start_slot_obj_srvc,
-			    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			    tvb, offset, 1, ENC_ASCII|ENC_LITTLE_ENDIAN);
 			offset += 1 + name_len;
 			slot_byte_count -= 1 + name_len;
 
@@ -704,7 +704,7 @@ dissect_lat_slots(tvbuff_t *tvb, int offset, guint nbr_slots, proto_tree *tree,
 			name_len = tvb_get_guint8(tvb, offset);
 			CHECK_SLOT_DATA_BOUNDS(1 + name_len);
 			proto_tree_add_item(tree, hf_lat_start_slot_subj_dscr,
-			    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			    tvb, offset, 1, ENC_ASCII|ENC_LITTLE_ENDIAN);
 			offset += 1 + name_len;
 			slot_byte_count -= 1 + name_len;
 
@@ -913,7 +913,7 @@ dissect_lat_stop(tvbuff_t *tvb, int offset, proto_tree *tree)
 	    offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 	proto_tree_add_item(tree, hf_lat_reason_text, tvb, offset, 1,
-	    ENC_LITTLE_ENDIAN);
+	    ENC_ASCII|ENC_LITTLE_ENDIAN);
 }
 
 static const value_string node_status_vals[] = {
@@ -1221,7 +1221,7 @@ dissect_lat_status(tvbuff_t *tvb, int offset, proto_tree *tree,
 			goto end_entry;
 		}
 		proto_tree_add_item(tree, hf_lat_obj_srvc_name,
-		    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		    tvb, offset, 1, ENC_ASCII|ENC_LITTLE_ENDIAN);
 		offset += 1 + name_len;
 		entry_length -= 1 + name_len;
 
@@ -1236,7 +1236,7 @@ dissect_lat_status(tvbuff_t *tvb, int offset, proto_tree *tree,
 			goto end_entry;
 		}
 		proto_tree_add_item(tree, hf_lat_obj_port_name,
-		    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		    tvb, offset, 1, ENC_ASCII|ENC_LITTLE_ENDIAN);
 		offset += 1 + name_len;
 		entry_length -= 1 + name_len;
 
@@ -1251,7 +1251,7 @@ dissect_lat_status(tvbuff_t *tvb, int offset, proto_tree *tree,
 			goto end_entry;
 		}
 		proto_tree_add_item(tree, hf_lat_subj_description,
-		    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		    tvb, offset, 1, ENC_ASCII|ENC_LITTLE_ENDIAN);
 		offset += 1 + name_len;
 		entry_length -= 1 + name_len;
 
@@ -1371,7 +1371,7 @@ dissect_lat_response_information(tvbuff_t *tvb, int offset, proto_tree *tree,
 	    ENC_LITTLE_ENDIAN);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_lat_source_node_addr, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_lat_source_node_addr, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(tree, hf_lat_src_node_mc_timer, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1474,7 +1474,7 @@ dissect_lat_response_information(tvbuff_t *tvb, int offset, proto_tree *tree,
 			goto end_entry;
 		}
 		proto_tree_add_item(tree, hf_lat_srvc_name,
-		    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		    tvb, offset, 1, ENC_ASCII|ENC_LITTLE_ENDIAN);
 		offset += 1 + string_len;
 		srvc_entry_len -= 1 + string_len;
 
@@ -1489,7 +1489,7 @@ dissect_lat_response_information(tvbuff_t *tvb, int offset, proto_tree *tree,
 			goto end_entry;
 		}
 		proto_tree_add_item(tree, hf_lat_srvc_desc,
-		    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		    tvb, offset, 1, ENC_ASCII|ENC_LITTLE_ENDIAN);
 		offset += 1 + string_len;
 		srvc_entry_len -= 1 + string_len;
 
@@ -1518,7 +1518,7 @@ dissect_lat_string(tvbuff_t *tvb, int offset, int hf, proto_tree *tree)
 {
 	gint item_length;
 
-	proto_tree_add_item_ret_length(tree, hf, tvb, offset, 1, ENC_LITTLE_ENDIAN, &item_length);
+	proto_tree_add_item_ret_length(tree, hf, tvb, offset, 1, ENC_ASCII|ENC_LITTLE_ENDIAN, &item_length);
 	return offset + item_length;
 }
 
