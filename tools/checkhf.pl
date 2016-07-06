@@ -639,34 +639,32 @@ sub find_remove_ei_array_entries {
 
 #    ei[] entry regex (to extract an ei_index_name and associated field type)
     my $ei_array_entry_regex = qr /
-                                      [{]
+                                   {
                                       \s*
                                       & \s* ( [a-zA-Z0-9_]+ )   # &ei
                                       (?:
-                                          \s* [[] [^]]+ []]     # optional array ref
+                                          \s* [ [^]]+ ]         # optional array ref
                                       ) ?
                                       \s* , \s*
-                                      [{]
-                                      [^}]+
-                                      , \s*
-                                      (PI_[a-zA-Z0-9_]+)        # event group
-                                      \s* , \s*
-                                      (PI_[a-zA-Z0-9_]+)        # event severity
-                                      \s* ,
-                                      [^}]+
-                                      , \s*
-                                      (?:
+                                      {
+                                          # \s* "[^"]+"         # (filter string has been removed already)
+                                          \s* , \s*
+                                          PI_[A-Z0-9_]+         # event group
+                                          \s* , \s*
+                                          PI_[A-Z0-9_]+         # event severity
+                                          \s* ,
+                                          [^,]*                 # description string (already removed) or NULL
+                                          , \s*
                                           EXPFILL
-                                      )
-                                      [^}]*
+                                          \s*
+                                      }
+                                  \s*
                                   }
-                                  [\s,]*
-                                  [}]
-                                  /xmso;
+                                  /xs;
 
     # find all the ei[] entries (searching ${$code_ref}).
-    while (${$code_ref} =~ m{ $ei_array_entry_regex }xmsog) {
-        ($debug == 98) && print "+++ $1 $2\n";
+    while (${$code_ref} =~ m{ $ei_array_entry_regex }xsg) {
+        ($debug == 98) && print "+++ $1\n";
         $ei_array_entries_eiref->{$1} = undef;
     }
 
