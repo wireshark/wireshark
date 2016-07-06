@@ -1,5 +1,4 @@
 /* packet-aprs.c
- *
  * Routines for Amateur Packet Radio protocol dissection
  * Copyright 2007,2008,2009,2010,2012 R.W. Stearn <richard@rns-stearn.demon.co.uk>
  *
@@ -27,6 +26,7 @@
  *
  * Information was drawn from:
  *    http://www.aprs.org/
+ *    Specification: http://www.aprs.org/doc/APRS101.PDF
  *
  * Inspiration on how to build the dissector drawn from
  *   packet-sdlc.c
@@ -353,31 +353,6 @@ static const mic_e_items_s mic_e_items_gbl = {
 	&hf_aprs_sym_id,           /* FT_STRING */
 	&hf_aprs_mic_e_telemetry,  /* FT_BYTES  */
 	&hf_aprs_mic_e_status      /* FT_STRING */
-};
-
-typedef struct {
-	int	*hf_aprs_storm_dir;
-	int	*hf_aprs_storm_spd;
-	int	*hf_aprs_storm_type;
-	int	*hf_aprs_storm_sws;
-	int	*hf_aprs_storm_pwg;
-	int	*hf_aprs_storm_cp;
-	int	*hf_aprs_storm_rhw;
-	int	*hf_aprs_storm_rtsw;
-	int	*hf_aprs_storm_rwg;
-} storm_items_s;
-
-/*** XXX: hf[] entries for the following are missing ***/
-static const storm_items_s storm_items_gbl = {
-	&hf_aprs_storm_dir,
-	&hf_aprs_storm_spd,
-	&hf_aprs_storm_type,
-	&hf_aprs_storm_sws,
-	&hf_aprs_storm_pwg,
-	&hf_aprs_storm_cp,
-	&hf_aprs_storm_rhw,
-	&hf_aprs_storm_rtsw,
-	&hf_aprs_storm_rwg
 };
 
 /* MIC-E destination field code table */
@@ -839,8 +814,7 @@ dissect_aprs_storm(	tvbuff_t   *tvb,
 			int	    offset,
 			proto_tree *parent_tree,
 			int	    hf_aprs_storm_idx,
-			gint	    ett_aprs_storm_idx,
-			const storm_items_s *storm_items
+			gint	    ett_aprs_storm_idx
 			)
 {
 	proto_tree  *storm_tree;
@@ -849,24 +823,24 @@ dissect_aprs_storm(	tvbuff_t   *tvb,
 	tc = proto_tree_add_item( parent_tree, hf_aprs_storm_idx, tvb, offset, -1, ENC_ASCII|ENC_NA );
 	storm_tree = proto_item_add_subtree( tc, ett_aprs_storm_idx );
 
-	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_dir,  tvb, offset, 3, ENC_BIG_ENDIAN );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_dir,  tvb, offset, 3, ENC_ASCII|ENC_NA );
 	offset += 3;
 	offset += 1;
-	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_spd,  tvb, offset, 3, ENC_BIG_ENDIAN );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_spd,  tvb, offset, 3, ENC_ASCII|ENC_NA );
 	offset += 3;
-	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_type, tvb, offset, 3, ENC_BIG_ENDIAN );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_type, tvb, offset, 3, ENC_ASCII|ENC_NA );
 	offset += 3;
-	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_sws,  tvb, offset, 4, ENC_BIG_ENDIAN );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_sws,  tvb, offset, 4, ENC_ASCII|ENC_NA );
 	offset += 4;
-	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_pwg,  tvb, offset, 4, ENC_BIG_ENDIAN );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_pwg,  tvb, offset, 4, ENC_ASCII|ENC_NA );
 	offset += 4;
-	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_cp,   tvb, offset, 5, ENC_BIG_ENDIAN );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_cp,   tvb, offset, 5, ENC_ASCII|ENC_NA );
 	offset += 5;
-	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_rhw,  tvb, offset, 4, ENC_BIG_ENDIAN );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_rhw,  tvb, offset, 4, ENC_ASCII|ENC_NA );
 	offset += 4;
-	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_rtsw, tvb, offset, 4, ENC_BIG_ENDIAN );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_rtsw, tvb, offset, 4, ENC_ASCII|ENC_NA );
 	offset += 4;
-	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_rwg,  tvb, offset, 4, ENC_BIG_ENDIAN );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_rwg,  tvb, offset, 4, ENC_ASCII|ENC_NA );
 	offset += 4;
 
 	return offset;
@@ -1273,8 +1247,7 @@ aprs_position( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, gboolean with_m
 						offset,
 						aprs_tree,
 						hf_aprs_storm,
-						ett_aprs_storm,
-						&storm_items_gbl
+						ett_aprs_storm
 						);
 
 	return offset;
@@ -1941,6 +1914,51 @@ proto_register_aprs( void )
 			FT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
+		{ &hf_aprs_storm_dir,
+			{ "Direction",	"aprs.storm.direction",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_aprs_storm_spd,
+			{ "Speed (knots)",	"aprs.storm.speed",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_aprs_storm_type,
+			{ "Type",	"aprs.storm.type",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_aprs_storm_sws,
+			{ "Sustained wind speed (knots)",	"aprs.storm.sws",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_aprs_storm_pwg,
+			{ "Peak wind gusts (knots)",	"aprs.storm.pwg",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_aprs_storm_cp,
+			{ "Central pressure (millibars/hPascal)",	"aprs.storm.central_pressure",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_aprs_storm_rhw,
+			{ "Radius Hurricane Winds (nautical miles)",	"aprs.storm.radius_hurricane_winds",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_aprs_storm_rtsw,
+			{ "Radius Tropical Storm Winds (nautical miles)",	"aprs.storm.radius_tropical_storms_winds",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_aprs_storm_rwg,
+			{ "Radius Whole Gale (nautical miles)",	"aprs.storm.radius_whole_gale",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		}
 	};
 
 	/* Setup protocol subtree array */
