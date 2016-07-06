@@ -1447,63 +1447,79 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, packet->frame.subframe2 + 3, 2, taddr);
     }
 
-    if ( (OSS_FRAME_ID_T(message_tvb, packet->frame.subframe1) ^ OPENSAFETY_MSG_SNMT_SERVICE_RESPONSE) == 0 )
+    /* Handle Acknowledge and Fail specifically */
+    if ( ( ( db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_ACKNOWLEDGE) == 0 ) || ( db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_FAIL) == 0 )
     {
         byte = tvb_get_guint8(message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 1);
 
-        if ( ! ( (packet->payload.snmt->ext_msg_id ^ OPENSAFETY_MSG_SNMT_EXT_SN_FAIL) == 0 &&
-                byte == OPENSAFETY_ERROR_GROUP_ADD_PARAMETER ) )
+        /* Handle a normal SN Fail */
+        if ( byte != OPENSAFETY_ERROR_GROUP_ADD_PARAMETER )
         {
-            proto_tree_add_uint(snmt_tree, hf_oss_snmt_service_id, message_tvb,
-                    OSS_FRAME_POS_DATA + packet->frame.subframe1, 1, packet->payload.snmt->ext_msg_id);
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                    val_to_str_const(packet->payload.snmt->ext_msg_id, opensafety_message_service_type, "Unknown"));
+            if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_FAIL) == 0 )
+            {
+                proto_tree_add_uint(snmt_tree, hf_oss_snmt_service_id, message_tvb,
+                        OSS_FRAME_POS_DATA + packet->frame.subframe1, 1, packet->payload.snmt->ext_msg_id);
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+                        val_to_str_const(packet->payload.snmt->ext_msg_id, opensafety_message_service_type, "Unknown"));
+            }
+            else if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_ACKNOWLEDGE) == 0 )
+            {
+                proto_tree_add_uint(snmt_tree, hf_oss_snmt_service_id, message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1, 1, db0);
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(db0, opensafety_message_service_type, "Unknown"));
+            }
+
+            proto_tree_add_uint_format_value(snmt_tree, hf_oss_snmt_error_group, message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 1, 1,
+                    byte, "%s", ( byte == 0 ? "Device" : val_to_str(byte, opensafety_sn_fail_error_group, "Reserved [%d]" ) ) );
+
+            errcode = tvb_get_guint8(message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 2);
+            proto_tree_add_uint_format_value(snmt_tree, hf_oss_snmt_error_code, message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 2, 1,
+                    errcode, "%s [%d]", ( errcode == 0 ? "Default" : "Vendor Specific" ), errcode );
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - Group: %s; Code: %s",
+                ( byte == 0 ? "Device" : val_to_str(byte, opensafety_sn_fail_error_group, "Reserved [%d]" ) ),
+                ( errcode == 0 ? "Default" : "Vendor Specific" )
+            );
+
+            packet->payload.snmt->add_param.exists = FALSE;
+            packet->payload.snmt->error_code = errcode;
         }
         else
         {
-            proto_tree_add_uint_format_value(snmt_tree, hf_oss_snmt_service_id, message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1, 1,
-                    packet->payload.snmt->ext_msg_id, "%s [Request via SN Fail] (0x%02X)",
-                    val_to_str_const(byte, opensafety_sn_fail_error_group, "Unknown"), packet->payload.snmt->ext_msg_id);
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(byte, opensafety_sn_fail_error_group, "Unknown"));
-        }
-
-        if ( (packet->payload.snmt->ext_msg_id ^ OPENSAFETY_MSG_SNMT_EXT_SN_FAIL) == 0 )
-        {
-            /* Handle a normal SN Fail */
-            if ( byte != OPENSAFETY_ERROR_GROUP_ADD_PARAMETER )
+            if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_FAIL) == 0 )
             {
-                proto_tree_add_uint_format_value(snmt_tree, hf_oss_snmt_error_group, message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 1, 1,
-                        byte, "%s", ( byte == 0 ? "Device" : val_to_str(byte, opensafety_sn_fail_error_group, "Reserved [%d]" ) ) );
-
-                errcode = tvb_get_guint8(message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 2);
-                proto_tree_add_uint_format_value(snmt_tree, hf_oss_snmt_error_code, message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 2, 1,
-                        errcode, "%s [%d]", ( errcode == 0 ? "Default" : "Vendor Specific" ), errcode );
-
-                col_append_fstr(pinfo->cinfo, COL_INFO, " - Group: %s; Code: %s",
-                    ( byte == 0 ? "Device" : val_to_str(byte, opensafety_sn_fail_error_group, "Reserved [%d]" ) ),
-                    ( errcode == 0 ? "Default" : "Vendor Specific" )
-                );
-
-                packet->payload.snmt->add_param.exists = FALSE;
-                packet->payload.snmt->error_code = errcode;
-            }
-            else
+                proto_tree_add_uint_format_value(snmt_tree, hf_oss_snmt_service_id, message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1, 1,
+                        packet->payload.snmt->ext_msg_id, "%s [Request via SN Fail] (0x%02X)",
+                        val_to_str_const(byte, opensafety_sn_fail_error_group, "Unknown"), packet->payload.snmt->ext_msg_id);
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(byte, opensafety_sn_fail_error_group, "Unknown"));
+            } else if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_ACKNOWLEDGE) == 0 )
             {
-                errcode = tvb_get_guint8(message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 2);
-                packet->payload.snmt->add_param.exists = TRUE;
-                packet->payload.snmt->add_param.id = errcode;
-                packet->payload.snmt->add_param.set = ( errcode & 0x0F ) + 1;
-                packet->payload.snmt->add_param.full = ( ( errcode & 0xF0 ) == 0xF0 );
-
-                /* Handle an additional parameter request */
-                proto_tree_add_uint(snmt_tree, hf_oss_ssdo_extpar_parset, message_tvb,
-                        OSS_FRAME_POS_DATA + packet->frame.subframe1 + 2, 1, ( errcode & 0x0F ) + 1 );
-
-                proto_tree_add_boolean(snmt_tree, hf_oss_snmt_param_type, message_tvb,
-                        OSS_FRAME_POS_DATA + packet->frame.subframe1 + 2, 1, ( ( errcode & 0xF0 ) != 0xF0 ) );
+                proto_tree_add_uint_format_value(snmt_tree, hf_oss_snmt_service_id, message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1, 1,
+                        packet->payload.snmt->ext_msg_id, "Additional parameter missing [Response via SN Acknowledge] (0x%02X)", packet->payload.snmt->ext_msg_id);
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", Additional parameter missing");
             }
+
+            errcode = tvb_get_guint8(message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 2);
+            packet->payload.snmt->add_param.exists = TRUE;
+            packet->payload.snmt->add_param.id = errcode;
+            packet->payload.snmt->add_param.set = ( errcode & 0x0F ) + 1;
+            packet->payload.snmt->add_param.full = ( ( errcode & 0xF0 ) == 0xF0 );
+
+            /* Handle an additional parameter request */
+            proto_tree_add_uint(snmt_tree, hf_oss_ssdo_extpar_parset, message_tvb,
+                    OSS_FRAME_POS_DATA + packet->frame.subframe1 + 2, 1, ( errcode & 0x0F ) + 1 );
+
+            proto_tree_add_boolean(snmt_tree, hf_oss_snmt_param_type, message_tvb,
+                    OSS_FRAME_POS_DATA + packet->frame.subframe1 + 2, 1, ( ( errcode & 0xF0 ) != 0xF0 ) );
         }
-        else if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_ASSIGNED_UDID_SCM) == 0 )
+    }
+    else if ( (OSS_FRAME_ID_T(message_tvb, packet->frame.subframe1) ^ OPENSAFETY_MSG_SNMT_SERVICE_RESPONSE) == 0 )
+    {
+        proto_tree_add_uint(snmt_tree, hf_oss_snmt_service_id, message_tvb,
+                OSS_FRAME_POS_DATA + packet->frame.subframe1, 1, packet->payload.snmt->ext_msg_id);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+                val_to_str_const(packet->payload.snmt->ext_msg_id, opensafety_message_service_type, "Unknown"));
+
+        if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_ASSIGNED_UDID_SCM) == 0 )
         {
             opensafety_parse_scm_udid ( message_tvb, pinfo, snmt_tree, packet, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 1 );
         }
@@ -1533,8 +1549,6 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     {
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_service_id, message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1, 1, db0);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(db0, opensafety_message_service_type, "Unknown"));
-
-        packet->payload.snmt->ext_msg_id = db0;
 
         if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SCM_SET_TO_STOP) == 0 || (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SCM_SET_TO_OP) == 0 )
         {
