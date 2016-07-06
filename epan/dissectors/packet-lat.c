@@ -1747,6 +1747,10 @@ proto_register_lat(void)
 		{ "Slot data remaining", "lat.slot.slot_data_remaining", FT_BYTES,
 		  BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
+	    { &hf_lat_attention_slot_control_flags,
+	        { "Control flags", "lat.attention_slot.control_flags", FT_UINT8,
+	          BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
 	    { &hf_lat_attention_slot_control_flags_abort,
 	        { "Abort", "lat.attention_slot.control_flags.abort", FT_BOOLEAN,
 	          8, NULL, 0x20, NULL, HFILL }},
@@ -1878,6 +1882,14 @@ proto_register_lat(void)
 		{ "Subject group code mask", "lat.subj_group", FT_BYTES,
 		  BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
+	    { &hf_lat_subj_node_name,
+		{ "Subject node name", "lat.subj_node_name", FT_UINT_STRING,
+		  BASE_NONE, NULL, 0x0, NULL, HFILL}},
+
+	    { &hf_lat_subj_port_name,
+		{ "Subject port name", "lat.subj_port_name", FT_UINT_STRING,
+		  BASE_NONE, NULL, 0x0, NULL, HFILL}},
+
 	    { &hf_lat_status_retransmit_timer,
 		{ "Status retransmit timer", "lat.status_retransmit_timer", FT_UINT16,
 		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -1911,6 +1923,10 @@ proto_register_lat(void)
 		{ "Entry error", "lat.entry_error", FT_UINT8,
 		  BASE_DEC, VALS(entry_error_vals), 0x0,
 		  "Solicitation rejection reason", HFILL}},
+
+	    { &hf_lat_elapsed_queue_time,
+		{ "Elapsed queue time", "lat.elapsed_queue_time", FT_UINT16,
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_min_queue_position,
 		{ "Minimum queue position", "lat.min_queue_position", FT_UINT16,
