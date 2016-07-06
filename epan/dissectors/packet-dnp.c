@@ -406,15 +406,15 @@
 #define AL_OBJ_CTRC_16T    0x1606   /* 22 06 16-Bit Counter Change Event with Time */
 #define AL_OBJ_DCTRC_32T   0x1607   /* 22 07 32-Bit Delta Counter Change Event with Time */
 #define AL_OBJ_DCTRC_16T   0x1608   /* 22 08 16-Bit Delta Counter Change Event with Time */
-#define AL_OBJ_FCTRC_ALL   0x1700   /* 21 00 Frozen Binary Counter Change Event Default Variation */
-#define AL_OBJ_FCTRC_32    0x1701   /* 21 01 32-Bit Frozen Counter Change Event */
-#define AL_OBJ_FCTRC_16    0x1702   /* 21 02 16-Bit Frozen Counter Change Event */
-#define AL_OBJ_FDCTRC_32   0x1703   /* 21 03 32-Bit Frozen Delta Counter Change Event */
-#define AL_OBJ_FDCTRC_16   0x1704   /* 21 04 16-Bit Frozen Delta Counter Change Event */
-#define AL_OBJ_FCTRC_32T   0x1705   /* 21 05 32-Bit Frozen Counter Change Event w/ Time of Freeze */
-#define AL_OBJ_FCTRC_16T   0x1706   /* 21 06 16-Bit Frozen Counter Change Event w/ Time of Freeze */
-#define AL_OBJ_FDCTRC_32T  0x1707   /* 21 07 32-Bit Frozen Delta Counter Change Event w/ Time of Freeze */
-#define AL_OBJ_FDCTRC_16T  0x1708   /* 21 08 16-Bit Frozen Delta Counter Change Event w/ Time of Freeze */
+#define AL_OBJ_FCTRC_ALL   0x1700   /* 23 00 Frozen Binary Counter Change Event Default Variation */
+#define AL_OBJ_FCTRC_32    0x1701   /* 23 01 32-Bit Frozen Counter Change Event */
+#define AL_OBJ_FCTRC_16    0x1702   /* 23 02 16-Bit Frozen Counter Change Event */
+#define AL_OBJ_FDCTRC_32   0x1703   /* 23 03 32-Bit Frozen Delta Counter Change Event */
+#define AL_OBJ_FDCTRC_16   0x1704   /* 23 04 16-Bit Frozen Delta Counter Change Event */
+#define AL_OBJ_FCTRC_32T   0x1705   /* 23 05 32-Bit Frozen Counter Change Event w/ Time of Freeze */
+#define AL_OBJ_FCTRC_16T   0x1706   /* 23 06 16-Bit Frozen Counter Change Event w/ Time of Freeze */
+#define AL_OBJ_FDCTRC_32T  0x1707   /* 23 07 32-Bit Frozen Delta Counter Change Event w/ Time of Freeze */
+#define AL_OBJ_FDCTRC_16T  0x1708   /* 23 08 16-Bit Frozen Delta Counter Change Event w/ Time of Freeze */
 
 /* Counter Quality Flags */
 #define AL_OBJ_CTR_FLAG0   0x0001   /* Point Online (0=Offline; 1=Online) */
@@ -563,7 +563,7 @@
 /***************************************************************************/
 /* Octet String Objects */
 #define AL_OBJ_OCT         0x6E00   /* 110 xx Octet string */
-#define AL_OBJ_OCT_EVT     0x6F00   /* 110 xx Octet string event */
+#define AL_OBJ_OCT_EVT     0x6F00   /* 111 xx Octet string event */
 
 /***************************************************************************/
 /* Virtual Terminal Objects */
