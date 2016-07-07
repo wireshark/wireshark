@@ -73,6 +73,10 @@ if [ -x "extcap/sshdump" ]; then
 	extcap_binary_list="$extcap_binary_list extcap/sshdump"
 fi
 
+if [ -x "extcap/ciscodump" ]; then
+	extcap_binary_list="$extcap_binary_list extcap/ciscodump"
+fi
+
 cs_binary_list=
 
 # Location for libraries (macosx-setup.sh defaults to whatever the
