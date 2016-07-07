@@ -89,9 +89,9 @@ sub gorolla {
 
 # break up descriptions based on newlines and keywords
 # builds an array of paragraphs and returns the array ref
-# each entry in the array is a single line for XML, but not a
+# each entry in the array is a single line for doc source, but not a
 # whole paragraph - there are "<para>"/"</para>" entries in the
-# array to make them paragraphs - this way the XML itself is
+# array to make them paragraphs - this way the doc source itself is
 # also pretty, while the resulting output is of course valid
 # first arg is the array to build into; second arg is an array
 # of lines to parse - this way it can be called from multiple
@@ -280,7 +280,7 @@ sub parse_attrib_desc {
 	return parse_desc_common(\@r, \@lines);
 }
 
-# prints the parse_* arrays into the XML file with pretty indenting
+# prints the parse_* arrays into the doc source file with pretty indenting
 # first arg is the description array, second is indent level
 sub print_desc {
 	my $desc_ref = $_[0];
@@ -610,7 +610,7 @@ while ( $file ) {
 
 	$modules{$module{name}} = $docfile;
 
-	print "Generating source XML for: $module{name}\n";
+	print "Generating source AsciiDoc for: $module{name}\n";
 
 	printf D ${$template_ref}{module_header}, $module{name}, $module{name};
 
