@@ -597,6 +597,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  fragment_add_seq_check@Base 1.9.1
  fragment_add_seq_next@Base 1.9.1
  fragment_add_seq_offset@Base 1.9.1
+ fragment_add_seq_single@Base 2.3.0
+ fragment_add_seq_single_aging@Base 2.3.0
  fragment_delete@Base 1.9.1
  fragment_end_seq_next@Base 1.9.1
  fragment_get@Base 1.9.1

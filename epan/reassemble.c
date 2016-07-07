@@ -828,6 +828,44 @@ fragment_reassembled(reassembly_table *table, fragment_head *fd_head,
 	fd_head->reas_in_layer_num = pinfo->curr_layer_num;
 }
 
+/*
+ * This function is a variant of the above for the single sequence
+ * case, using id+offset (i.e., the original sequence number) for the id
+ * in the key.
+ */
+static void
+fragment_reassembled_single(reassembly_table *table, fragment_head *fd_head,
+			    const packet_info *pinfo, const guint32 id)
+{
+	reassembled_key *new_key;
+	fragment_item *fd;
+
+	if (fd_head->next == NULL) {
+		/*
+		 * This was not fragmented, so there's no fragment
+		 * table; just hash it using the current frame number.
+		 */
+		new_key = g_slice_new(reassembled_key);
+		new_key->frame = pinfo->num;
+		new_key->id = id;
+		g_hash_table_insert(table->reassembled_table, new_key, fd_head);
+	} else {
+		/*
+		 * Hash it with the frame numbers for all the frames.
+		 */
+		for (fd = fd_head->next; fd != NULL; fd = fd->next){
+			new_key = g_slice_new(reassembled_key);
+			new_key->frame = fd->frame;
+			new_key->id = id + fd->offset;
+			g_hash_table_insert(table->reassembled_table, new_key,
+				fd_head);
+		}
+	}
+	fd_head->flags |= FD_DEFRAGMENTED;
+	fd_head->reassembled_in = pinfo->num;
+	fd_head->reas_in_layer_num = pinfo->curr_layer_num;
+}
+
 static void
 LINK_FRAG(fragment_head *fd_head,fragment_item *fd)
 {
@@ -842,6 +880,22 @@ LINK_FRAG(fragment_head *fd_head,fragment_item *fd)
 	fd_i->next=fd;
 }
 
+static void
+MERGE_FRAG(fragment_head *fd_head, fragment_item *fd)
+{
+	fragment_item *fd_i, *tmp;
+
+	if (fd == NULL) return;
+
+	for(fd_i = fd_head; fd_i->next; fd_i=fd_i->next) {
+		if (fd->offset < fd_i->next->offset) {
+			tmp = fd_i->next;
+			fd_i->next = fd;
+			fd = tmp;
+		}
+	}
+	fd_i->next = fd;
+}
 /*
  * This function adds a new fragment to the fragment hash table.
  * If this is the first fragment seen for this datagram, a new entry
@@ -1627,6 +1681,11 @@ fragment_add_seq_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 	fd->tvb_data = NULL;
 	fd->error = NULL;
 
+	/* fd_head->frame is the maximum of the frame numbers of all the
+	 * fragments added to the reassembly. */
+	if (fd->frame > fd_head->frame)
+		fd_head->frame = fd->frame;
+
 	if (!more_frags) {
 		/*
 		 * This is the tail fragment in the sequence.
@@ -2041,6 +2100,308 @@ fragment_add_seq_next(reassembly_table *table, tvbuff_t *tvb, const int offset,
 	return fragment_add_seq_check_work(table, tvb, offset, pinfo, id, data,
 					   0, frag_data_len, more_frags,
 					   REASSEMBLE_FLAGS_NO_FRAG_NUMBER);
+}
+
+static void
+fragment_add_seq_single_move(reassembly_table *table, const packet_info *pinfo,
+		             const guint32 id, const void *data,
+			     const guint32 offset)
+{
+	fragment_head *fh, *new_fh;
+	fragment_item *fd, *prev_fd;
+	tvbuff_t *old_tvb_data;
+	if (offset == 0) {
+		return;
+	}
+	fh = lookup_fd_head(table, pinfo, id, data, NULL);
+	if (fh == NULL) {
+		/* Shouldn't be called this way.
+		 * Probably wouldn't hurt to just create fh in this case. */
+		g_assert_not_reached();
+		return;
+	}
+	if (fh->flags & FD_DATALEN_SET && fh->datalen <= offset) {
+		/* Don't take from past the end. <= because we don't
+		 * want to take a First fragment from the next one
+		 * either */
+		return;
+	}
+	new_fh = lookup_fd_head(table, pinfo, id+offset, data, NULL);
+	if (new_fh != NULL) {
+		/* Attach to the end of the sorted list. */
+		for(prev_fd = fh; prev_fd->next != NULL; prev_fd=prev_fd->next) {}
+		/* Don't take a reassembly starting with a First fragment. */
+		fd = new_fh->next;
+		if (fd && fd->offset != 0) {
+			prev_fd->next = fd;
+			for (; fd; fd=fd->next) {
+				fd->offset += offset;
+				if (fh->frame < fd->frame) {
+					fh->frame = fd->frame;
+				}
+			}
+			/* If previously found a Last fragment,
+			 * transfer that info to the new one. */
+			if (new_fh->flags & FD_DATALEN_SET) {
+				fh->flags |= FD_DATALEN_SET;
+				fh->datalen = new_fh->datalen + offset;
+			}
+			/* Now remove and delete */
+			new_fh->next = NULL;
+			old_tvb_data = fragment_delete(table, pinfo, id+offset, data);
+			if (old_tvb_data)
+				tvb_free(old_tvb_data);
+		}
+	}
+}
+
+static fragment_head *
+fragment_add_seq_single_work(reassembly_table *table, tvbuff_t *tvb,
+			     const int offset, const packet_info *pinfo,
+		             const guint32 id, const void* data,
+			     const guint32 frag_data_len,
+			     const gboolean first, const gboolean last,
+			     const guint32 max_frags, const guint32 max_age,
+			     const guint32 flags)
+{
+	reassembled_key reass_key;
+	tvbuff_t *old_tvb_data;
+	gpointer orig_key;
+	fragment_head *fh, *new_fh;
+	fragment_item *fd, *prev_fd;
+	guint32 frag_number, tmp_offset;
+	/* Have we already seen this frame?
+	 * If so, look for it in the table of reassembled packets.
+	 * Note here we store in the reassembly table by the single sequence
+	 * number rather than the sequence number of the First fragment. */
+	if (pinfo->fd->flags.visited) {
+		reass_key.frame = pinfo->num;
+		reass_key.id = id;
+		fh = (fragment_head *)g_hash_table_lookup(table->reassembled_table, &reass_key);
+		return fh;
+	}
+	/* First let's figure out where we want to add our new fragment */
+	fh = NULL;
+	if (first) {
+		frag_number = 0;
+		fh = lookup_fd_head(table, pinfo, id-frag_number, data, NULL);
+		if ((flags & REASSEMBLE_FLAGS_AGING) &&
+		    fh && ((fh->frame + max_age) < pinfo->num)) {
+			old_tvb_data = fragment_delete(table, pinfo, id-frag_number, data);
+			if (old_tvb_data)
+				tvb_free(old_tvb_data);
+			fh = NULL;
+		}
+		if (fh == NULL) {
+			/* Not found. Create list-head. */
+			fh = new_head(FD_BLOCKSEQUENCE);
+			insert_fd_head(table, fh, pinfo, id-frag_number, data);
+		}
+		/* As this is the first fragment, we might have added segments
+		 * for this reassembly to the previous one in-progress. */
+		fd = NULL;
+		for (frag_number=1; frag_number < max_frags; frag_number++) {
+			new_fh = lookup_fd_head(table, pinfo, id-frag_number, data, NULL);
+			if (new_fh != NULL) {
+				prev_fd = new_fh;
+				new_fh->frame = 0;
+				for (fd=new_fh->next; fd && fd->offset < frag_number; fd=fd->next) {
+					prev_fd = fd;
+					if (new_fh->frame < fd->frame) {
+						new_fh->frame = fd->frame;
+					}
+				}
+				prev_fd->next = NULL;
+				if (new_fh->next == NULL) {
+					old_tvb_data = fragment_delete(table, pinfo, id-frag_number, data);
+					if (old_tvb_data)
+						tvb_free(old_tvb_data);
+				}
+				break;
+			}
+		}
+		if (fd != NULL) {
+			tmp_offset = 0;
+			for (prev_fd = fd; prev_fd; prev_fd = prev_fd->next) {
+				prev_fd->offset -= frag_number;
+				tmp_offset = prev_fd->offset;
+				if (fh->frame < prev_fd->frame) {
+					fh->frame = prev_fd->frame;
+				}
+			}
+			MERGE_FRAG(fh, fd);
+			/* If we've moved a Last packet, change the datalen.
+			 * Second part of this test should be unnecessary. */
+			if (new_fh->flags & FD_DATALEN_SET &&
+			    new_fh->datalen >= frag_number) {
+				fh->flags |= FD_DATALEN_SET;
+				fh->datalen = new_fh->datalen - frag_number;
+				new_fh->flags &= ~FD_DATALEN_SET;
+				new_fh->datalen = 0;
+			} else {
+			/* Look forward and take off the next (this is
+			 * necessary in some edge cases where max_frags
+			 * prevented some fragments from going on the
+			 * previous First, but they can go on this one. */
+				fragment_add_seq_single_move(table, pinfo, id,
+							     data, tmp_offset);
+			}
+		}
+		frag_number = 0; /* For the rest of the function */
+	} else {
+		for (frag_number=1; frag_number < max_frags; frag_number++) {
+			fh = lookup_fd_head(table, pinfo, id-frag_number, data, NULL);
+			if ((flags & REASSEMBLE_FLAGS_AGING) &&
+			    fh && ((fh->frame + max_age) < pinfo->num)) {
+				old_tvb_data = fragment_delete(table, pinfo, id-frag_number, data);
+				if (old_tvb_data)
+					tvb_free(old_tvb_data);
+				fh = NULL;
+			}
+			if (fh != NULL) {
+				if (fh->flags & FD_DATALEN_SET &&
+				    fh->datalen < frag_number) {
+					/* This fragment is after the Last
+					 * fragment, so must go after here. */
+					fh = NULL;
+				}
+				break;
+			}
+		}
+		if (fh == NULL) { /* Didn't find location, use default */
+			frag_number = 1;
+			/* Already looked for frag_number 1, so just create */
+			fh = new_head(FD_BLOCKSEQUENCE);
+			insert_fd_head(table, fh, pinfo, id-frag_number, data);
+		}
+	}
+	if (last) {
+		/* Look for fragments past the end set by this Last fragment. */
+		prev_fd = fh;
+		for (fd=fh->next; fd && fd->offset <= frag_number; fd=fd->next) {
+			prev_fd = fd;
+		}
+		/* fd is now all fragments offset > frag_number (the Last).
+		 * It shouldn't have a fragment with offset frag_number+1,
+		 * as that would be a First fragment not marked as such.
+		 * However, this can happen if we had unreassembled fragments
+		 * (missing, or at the start of the capture) and we've also
+		 * looped around on the sequence numbers. It can also happen
+		 * if bit errors mess up Last or First. */
+		if (fd != NULL) {
+			prev_fd->next = NULL;
+			fh->frame = 0;
+			for (prev_fd=fh->next; prev_fd; prev_fd=prev_fd->next) {
+				if (fh->frame < prev_fd->frame) {
+					fh->frame = prev_fd->frame;
+				}
+			}
+			while (fd && fd->offset == frag_number+1) {
+				/* Definitely have bad data here. Best to
+				 * delete these and leave unreassembled. */
+				fragment_item *tmp_fd;
+				tmp_fd=fd->next;
+
+				if (fd->tvb_data && !(fd->flags & FD_SUBSET_TVB))
+					tvb_free(fd->tvb_data);
+				g_slice_free(fragment_item, fd);
+				fd=tmp_fd;
+			}
+		}
+		if (fd != NULL) {
+			/* Move these onto the next frame. */
+			new_fh = lookup_fd_head(table, pinfo, id+1, data, NULL);
+			if (new_fh==NULL) {
+				/* Not found. Create list-head. */
+				new_fh = new_head(FD_BLOCKSEQUENCE);
+				insert_fd_head(table, new_fh, pinfo, id+1, data);
+			}
+			tmp_offset = 0;
+			for (prev_fd = fd; prev_fd; prev_fd = prev_fd->next) {
+				prev_fd->offset -= (frag_number+1);
+				tmp_offset = prev_fd->offset;
+				if (new_fh->frame < fd->frame) {
+					new_fh->frame = fd->frame;
+				}
+			}
+			MERGE_FRAG(new_fh, fd);
+			/* If we previously found a different Last fragment,
+			 * transfer that information to the new reassembly. */
+			if (fh->flags & FD_DATALEN_SET &&
+			    fh->datalen > frag_number) {
+				new_fh->flags |= FD_DATALEN_SET;
+				new_fh->datalen = fh->datalen - (frag_number+1);
+				fh->flags &= ~FD_DATALEN_SET;
+				fh->datalen = 0;
+			} else {
+			/* Look forward and take off the next (this is
+			 * necessary in some edge cases where max_frags
+			 * prevented some fragments from going on the
+			 * previous First, but they can go on this one. */
+				fragment_add_seq_single_move(table, pinfo, id+1,
+							     data, tmp_offset);
+			}
+		}
+	} else {
+		fragment_add_seq_single_move(table, pinfo, id-frag_number, data,
+				             frag_number+1);
+	}
+	/* Having cleaned up everything, finally ready to add our new
+	 * fragment. Note that only this will ever complete a reassembly. */
+	fh = fragment_add_seq_common(table, tvb, offset, pinfo,
+					 id-frag_number, data,
+					 frag_number, frag_data_len,
+					 !last, 0, &orig_key);
+	if (fh) {
+		/*
+		 * Reassembly is complete.
+		 *
+		 * If this is in the table of in-progress reassemblies,
+		 * remove it from that table.  (It could be that this
+		 * was the first and last fragment, so that no
+		 * reassembly was done.)
+		 */
+		if (orig_key != NULL)
+			fragment_unhash(table, orig_key);
+
+		/*
+		 * Add this item to the table of reassembled packets.
+		 */
+		fragment_reassembled_single(table, fh, pinfo, id-frag_number);
+		return fh;
+	} else {
+		/*
+		 * Reassembly isn't complete.
+		 */
+		return NULL;
+	}
+}
+
+fragment_head *
+fragment_add_seq_single(reassembly_table *table, tvbuff_t *tvb,
+			     const int offset, const packet_info *pinfo,
+		             const guint32 id, const void* data,
+			     const guint32 frag_data_len,
+			     const gboolean first, const gboolean last,
+			     const guint32 max_frags)
+{
+	return fragment_add_seq_single_work(table, tvb, offset, pinfo,
+					    id, data, frag_data_len,
+					    first, last, max_frags, 0, 0);
+}
+
+fragment_head *
+fragment_add_seq_single_aging(reassembly_table *table, tvbuff_t *tvb,
+			     const int offset, const packet_info *pinfo,
+		             const guint32 id, const void* data,
+			     const guint32 frag_data_len,
+			     const gboolean first, const gboolean last,
+			     const guint32 max_frags, const guint32 max_age)
+{
+	return fragment_add_seq_single_work(table, tvb, offset, pinfo,
+					    id, data, frag_data_len,
+					    first, last, max_frags, max_age,
+					    REASSEMBLE_FLAGS_AGING);
 }
 
 void

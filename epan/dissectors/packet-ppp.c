@@ -44,6 +44,7 @@
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
 #include <epan/oui.h>
+#include <epan/reassemble.h>
 #include "packet-sll.h"
 #include "packet-juniper.h"
 #include "packet-sflow.h"
@@ -356,17 +357,57 @@ static gint ett_pppmux_subframe_hdr = -1;
 static gint ett_pppmux_subframe_flags = -1;
 static gint ett_pppmux_subframe_info = -1;
 
+static reassembly_table mp_reassembly_table;
+
 static int proto_mp = -1;
 static int hf_mp_frag = -1;
+static int hf_mp_frag_short = -1;
 static int hf_mp_frag_first = -1;
 static int hf_mp_frag_last = -1;
-static int hf_mp_short_sequence_num_reserved = -1;
 static int hf_mp_sequence_num = -1;
+static int hf_mp_sequence_num_cls = -1;
 static int hf_mp_sequence_num_reserved = -1;
 static int hf_mp_short_sequence_num = -1;
+static int hf_mp_short_sequence_num_cls = -1;
+static int hf_mp_payload = -1;
+static gint hf_mp_fragments = -1;
+static gint hf_mp_fragment = -1;
+static gint hf_mp_fragment_overlap = -1;
+static gint hf_mp_fragment_overlap_conflicts = -1;
+static gint hf_mp_fragment_multiple_tails = -1;
+static gint hf_mp_fragment_too_long_fragment = -1;
+static gint hf_mp_fragment_error = -1;
+static gint hf_mp_fragment_count = -1;
+static gint hf_mp_reassembled_in = -1;
+static gint hf_mp_reassembled_length = -1;
 
 static int ett_mp = -1;
 static int ett_mp_flags = -1;
+static gint ett_mp_fragment = -1;
+static gint ett_mp_fragments = -1;
+
+static const fragment_items mp_frag_items = {
+    /* Fragment subtrees */
+    &ett_mp_fragment,
+    &ett_mp_fragments,
+    /* Fragment fields */
+    &hf_mp_fragments,
+    &hf_mp_fragment,
+    &hf_mp_fragment_overlap,
+    &hf_mp_fragment_overlap_conflicts,
+    &hf_mp_fragment_multiple_tails,
+    &hf_mp_fragment_too_long_fragment,
+    &hf_mp_fragment_error,
+    &hf_mp_fragment_count,
+    /* Reassembled in field */
+    &hf_mp_reassembled_in,
+    /* Reassembled length field */
+    &hf_mp_reassembled_length,
+    /* Reassembled data field */
+    NULL,
+    /* Tag */
+    "Message fragments"
+};
 
 static int proto_mplscp = -1;
 static gint ett_mplscp = -1;
@@ -5201,67 +5242,113 @@ dissect_cdpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     return tvb_captured_length(tvb);
 }
 
+/* PPP Multilink Protcol (RFC 1990) and
+ * the Multiclass Extension to Multi-Link PPP (RFC 2686)
+ */
 static gboolean mp_short_seqno = FALSE; /* Default to long sequence numbers */
+static guint mp_max_fragments = 6;
+/* Maximum fragments to try to reassemble. This affects performance and
+ * memory use significantly. */
+static guint mp_fragment_aging = 4000; /* Short sequence numbers only 12 bit */
 
-#define MP_FRAG_MASK           0xC0
+#define MP_FRAG_MASK           0xFC
+#define MP_FRAG_MASK_SHORT     0xF0
 #define MP_FRAG_FIRST          0x80
 #define MP_FRAG_LAST           0x40
-#define MP_FRAG_RESERVED       0x3f
-#define MP_FRAG_RESERVED_SHORT 0x30
-
-static const value_string mp_frag_vals[] = {
-   { MP_FRAG_FIRST,              "First"       },
-   { MP_FRAG_LAST,               "Last"        },
-   { MP_FRAG_FIRST|MP_FRAG_LAST, "First, Last" },
-   { 0,                 NULL                 }
-};
+#define MP_FRAG_CLS            0x3C
+#define MP_FRAG_RESERVED       0x03
+#define MP_FRAG_CLS_SHORT      0x30
 
 /* According to RFC 1990, the length the MP header isn't indicated anywhere
    in the header itself.  It starts out at four bytes and can be
    negotiated down to two using LCP.  We currently have a preference
    to select short headers.  - gcc & gh
 */
+
 static int
 dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree  *mp_tree;
     proto_item  *ti;
+    gboolean save_fragmented;
+    guint8      flags;
+    guint32     cls; /* 32 bit since we shift it left and XOR with seqnum */
+    guint32     seqnum;
     gint        hdrlen;
+    fragment_head *frag_mp;
     tvbuff_t    *next_tvb;
     static const int * mp_flags[] = {
         &hf_mp_frag_first,
         &hf_mp_frag_last,
+        &hf_mp_sequence_num_cls,
         &hf_mp_sequence_num_reserved,
         NULL
     };
     static const int * mp_short_flags[] = {
         &hf_mp_frag_first,
         &hf_mp_frag_last,
-        &hf_mp_short_sequence_num_reserved,
+        &hf_mp_short_sequence_num_cls,
         NULL
     };
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP MP");
     col_set_str(pinfo->cinfo, COL_INFO, "PPP Multilink");
 
+    save_fragmented = pinfo->fragmented;
+    flags = tvb_get_guint8(tvb, 0);
+
     ti = proto_tree_add_item(tree, proto_mp, tvb, 0,
             mp_short_seqno ? 2 : 4, ENC_NA);
     mp_tree = proto_item_add_subtree(ti, ett_mp);
 
     if (mp_short_seqno) {
-        proto_tree_add_bitmask(mp_tree, tvb, 0, hf_mp_frag, ett_mp_flags, mp_short_flags, ENC_NA);
-        proto_tree_add_item(mp_tree, hf_mp_short_sequence_num, tvb,  0, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(mp_tree, tvb, 0, hf_mp_frag_short, ett_mp_flags, mp_short_flags, ENC_NA);
+        proto_tree_add_item_ret_uint(mp_tree, hf_mp_short_sequence_num, tvb,  0, 2, ENC_BIG_ENDIAN, &seqnum);
     } else {
         proto_tree_add_bitmask(mp_tree, tvb, 0, hf_mp_frag, ett_mp_flags, mp_flags, ENC_NA);
-        proto_tree_add_item(mp_tree, hf_mp_sequence_num, tvb,  1, 3,
-            ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(mp_tree, hf_mp_sequence_num, tvb,  1, 3, ENC_BIG_ENDIAN, &seqnum);
     }
 
     hdrlen = mp_short_seqno ? 2 : 4;
-    if (tvb_reported_length_remaining(tvb, hdrlen) > 0) {
-        next_tvb = tvb_new_subset_remaining(tvb, hdrlen);
-        dissect_ppp(next_tvb, pinfo, tree, NULL);
+    if (mp_short_seqno) {
+        cls = (flags & MP_FRAG_CLS_SHORT) >> 4;
+    } else {
+        cls = (flags & MP_FRAG_CLS) >> 2;
     }
+    if (tvb_reported_length_remaining(tvb, hdrlen) > 0) {
+        pinfo->fragmented = TRUE;
+        frag_mp = NULL;
+        if (!pinfo->fd->flags.visited) {
+            frag_mp = fragment_add_seq_single_aging(&mp_reassembly_table,
+                tvb, hdrlen, pinfo, seqnum ^ (cls << 24), NULL,
+                tvb_captured_length_remaining(tvb, hdrlen),
+                flags & MP_FRAG_FIRST, flags & MP_FRAG_LAST,
+                mp_max_fragments, mp_fragment_aging);
+        } else {
+            frag_mp = fragment_get_reassembled_id(&mp_reassembly_table, pinfo, seqnum ^ (cls << 24));
+        }
+        next_tvb = process_reassembled_data(tvb, hdrlen, pinfo,
+            "Reassembled PPP MP payload", frag_mp, &mp_frag_items,
+            NULL, mp_tree);
+
+        if (frag_mp) {
+            if (pinfo->num == frag_mp->reassembled_in) {
+                dissect_ppp(next_tvb, pinfo, tree, NULL);
+            } else {
+                col_append_fstr(pinfo->cinfo, COL_INFO,
+                    " (PPP MP reassembled in packet %u)",
+                    frag_mp->reassembled_in);
+                proto_tree_add_item(mp_tree, hf_mp_payload, tvb, hdrlen, -1, ENC_NA);
+            }
+        } else {
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                " (PPP MP Unreassembled fragment %u)",
+                seqnum);
+            proto_tree_add_item(mp_tree, hf_mp_payload, tvb, hdrlen, -1, ENC_NA);
+        }
+    }
+
+    pinfo->fragmented = save_fragmented;
     return tvb_captured_length(tvb);
 }
 
@@ -5974,13 +6061,29 @@ proto_reg_handoff_ppp(void)
     dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_PPP, ppp_hdlc_handle);
 }
 
+static void
+mp_reassemble_init(void)
+{
+    reassembly_table_init(&mp_reassembly_table,
+                          &addresses_reassembly_table_functions);
+}
+
+static void
+mp_reassemble_cleanup(void)
+{
+    reassembly_table_destroy(&mp_reassembly_table);
+}
+
 void
 proto_register_mp(void)
 {
     static hf_register_info hf[] = {
         { &hf_mp_frag,
             { "Fragment", "mp.frag", FT_UINT8, BASE_HEX,
-                VALS(mp_frag_vals), MP_FRAG_MASK, NULL, HFILL }},
+                NULL, MP_FRAG_MASK, NULL, HFILL }},
+        { &hf_mp_frag_short,
+            { "Fragment", "mp.frag", FT_UINT8, BASE_HEX,
+                NULL, MP_FRAG_MASK_SHORT, NULL, HFILL }},
         { &hf_mp_frag_first,
             { "First fragment", "mp.first", FT_BOOLEAN, 8,
                 TFS(&tfs_yes_no), MP_FRAG_FIRST, NULL, HFILL }},
@@ -5990,25 +6093,70 @@ proto_register_mp(void)
         { &hf_mp_sequence_num,
             { "Sequence number", "mp.seq", FT_UINT24, BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
+        { &hf_mp_sequence_num_cls,
+            { "Class", "mp.sequence_num_cls", FT_UINT8, BASE_DEC,
+                NULL, MP_FRAG_CLS, NULL, HFILL }},
         { &hf_mp_sequence_num_reserved,
             { "Reserved", "mp.sequence_num_reserved", FT_BOOLEAN, 8,
                 NULL, MP_FRAG_RESERVED, NULL, HFILL }},
         { &hf_mp_short_sequence_num,
             { "Short Sequence number", "mp.sseq", FT_UINT16, BASE_DEC,
                 NULL, 0x0FFF, NULL, HFILL }},
-        { &hf_mp_short_sequence_num_reserved,
-            { "Reserved", "mp.short_sequence_num_reserved", FT_BOOLEAN, 8,
-                NULL, MP_FRAG_RESERVED_SHORT, NULL, HFILL }},
+        { &hf_mp_short_sequence_num_cls,
+            { "Class", "mp.short_sequence_num_cls", FT_UINT8, BASE_DEC,
+                NULL, MP_FRAG_CLS_SHORT, NULL, HFILL }},
+        { &hf_mp_payload,
+            {"Payload", "mp.payload", FT_BYTES, BASE_NONE,
+                NULL, 0x00, NULL, HFILL }},
+        { &hf_mp_fragments,
+            {"Message fragments", "mp.fragments", FT_NONE, BASE_NONE,
+                NULL, 0x00, NULL, HFILL }},
+        { &hf_mp_fragment,
+          {"Message fragment", "mp.fragment", FT_FRAMENUM, BASE_NONE,
+                NULL, 0x00, NULL, HFILL }},
+        { &hf_mp_fragment_overlap,
+          {"Message fragment overlap", "mp.fragment.overlap",
+                FT_BOOLEAN, BASE_NONE,
+                NULL, 0x00, NULL, HFILL }},
+        { &hf_mp_fragment_overlap_conflicts,
+          {"Message fragment overlapping with conflicting data", "mp.fragment.overlap.conflicts",
+                FT_BOOLEAN, BASE_NONE,
+                NULL, 0x00, NULL, HFILL }},
+        { &hf_mp_fragment_multiple_tails,
+          {"Message has multiple tail fragments", "mp.fragment.multiple_tails",
+                FT_BOOLEAN, BASE_NONE,
+                NULL, 0x00, NULL, HFILL }},
+        { &hf_mp_fragment_too_long_fragment,
+          {"Message fragment too long", "mp.fragment.too_long_fragment",
+                FT_BOOLEAN, BASE_NONE,
+                NULL, 0x00, NULL, HFILL }},
+        { &hf_mp_fragment_error,
+          {"Message defragmentation error", "mp.fragment.error",
+                FT_FRAMENUM, BASE_NONE,
+                NULL, 0x00, NULL, HFILL }},
+        { &hf_mp_fragment_count,
+          {"Message fragment count", "mp.fragment.count", FT_UINT32, BASE_DEC,
+                NULL, 0x00, NULL, HFILL }},
+        { &hf_mp_reassembled_in,
+          {"Reassembled in", "mp.reassembled.in", FT_FRAMENUM, BASE_NONE,
+                NULL, 0x00, NULL, HFILL }},
+        { &hf_mp_reassembled_length,
+          {"Reassembled length", "mp.reassembled.length", FT_UINT32, BASE_DEC,
+                NULL, 0x00, NULL, HFILL }}
     };
     static gint *ett[] = {
         &ett_mp,
-        &ett_mp_flags
+        &ett_mp_flags,
+        &ett_mp_fragment,
+        &ett_mp_fragments
     };
 
     module_t *mp_module;
 
     proto_mp = proto_register_protocol("PPP Multilink Protocol", "PPP MP",
         "mp");
+    register_init_routine(&mp_reassemble_init);
+    register_cleanup_routine(&mp_reassemble_cleanup);
     proto_register_field_array(proto_mp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -6019,6 +6167,14 @@ proto_register_mp(void)
         "Short sequence numbers",
         "Whether PPP Multilink frames use 12-bit sequence numbers",
         &mp_short_seqno);
+    prefs_register_uint_preference(mp_module, "max_fragments",
+        "Maximum fragments",
+        "Maximum number of PPP Multilink fragments to try to reassemble into one frame",
+        10, &mp_max_fragments);
+    prefs_register_uint_preference(mp_module, "fragment_aging",
+        "Max unreassembled fragment age",
+        "Age off unreassmbled fragments after this many packets",
+        10, &mp_fragment_aging);
 }
 
 void

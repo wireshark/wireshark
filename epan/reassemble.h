@@ -111,6 +111,13 @@ typedef struct _fragment_item {
 #define REASSEMBLE_FLAGS_802_11_HACK		0x0002
 
 /*
+ * Flags for fragment_add_seq_single_*
+ */
+
+/* we want to age off old packets */
+#define REASSEMBLE_FLAGS_AGING  0x0001
+
+/*
  * Generates a fragment identifier based on the given parameters. "data" is an
  * opaque type whose interpretation is up to the caller of fragment_add*
  * functions and the fragment key function (possibly NULL if you do not care).
@@ -293,6 +300,35 @@ fragment_add_seq_next(reassembly_table *table, tvbuff_t *tvb, const int offset,
 		      const packet_info *pinfo, const guint32 id,
 		      const void *data, const guint32 frag_data_len,
 		      const gboolean more_frags);
+
+/*
+ * Like fragment_add_seq_check, but for protocols like PPP MP with a single
+ * sequence number that increments for each fragment, thus acting like the sum
+ * of the PDU sequence number and explicit fragment number in other protocols.
+ * See Appendix A of RFC 4623 (PWE3 Fragmentation and Reassembly) for a list
+ * of protocols that use this style, including PPP MP (RFC 1990), PWE3 MPLS
+ * (RFC 4385), L2TPv2 (RFC 2661), L2TPv3 (RFC 3931), ATM, and Frame Relay.
+ * It is guaranteed to reassemble a packet split up to "max_frags" in size,
+ * but may manage to reassemble more in certain cases.
+ */
+WS_DLL_PUBLIC fragment_head *
+fragment_add_seq_single(reassembly_table *table, tvbuff_t *tvb,
+            const int offset, const packet_info *pinfo, const guint32 id,
+            const void* data, const guint32 frag_data_len,
+            const gboolean first, const gboolean last,
+            const guint32 max_frags);
+
+/*
+ * A variation on the above that ages off fragments that have not been
+ * reassembled. Useful if the sequence number loops to deal with leftover
+ * fragments from the beginning of the capture or missing fragments.
+ */
+WS_DLL_PUBLIC fragment_head *
+fragment_add_seq_single_aging(reassembly_table *table, tvbuff_t *tvb,
+            const int offset, const packet_info *pinfo, const guint32 id,
+            const void* data, const guint32 frag_data_len,
+            const gboolean first, const gboolean last,
+            const guint32 max_frags, const guint32 max_age);
 
 /*
  * Start a reassembly, expecting "tot_len" as the number of given fragments (not
