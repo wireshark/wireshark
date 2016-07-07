@@ -55,8 +55,18 @@ public:
     MulticastStatTreeWidgetItem(QTreeWidget *parent) :
         QTreeWidgetItem (parent, mcast_table_type_)
     {
-        memset(&src_addr_, 0, sizeof(src_addr_));
-        memset(&dst_addr_, 0, sizeof(dst_addr_));
+        clear_address(&src_addr_);
+        clear_address(&dst_addr_);
+        src_port_ = 0;
+        dst_port_ = 0;
+        num_packets_ = 0;
+        avg_pps_ = 0;
+        avg_bw_ = 0;
+        max_bw_ = 0;
+        top_burst_size_ = 0;
+        num_bursts_ = 0;
+        top_buff_usage_ = 0;
+        num_buff_alarms_ = 0;
     }
 
     void updateStreamInfo(const mcast_stream_info_t *stream_info) {
