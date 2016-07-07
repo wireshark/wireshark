@@ -41,7 +41,7 @@ class ColoringRulesTreeDelegate : public QStyledItemDelegate
     Q_OBJECT
 
 public:
-    ColoringRulesTreeDelegate(QObject *parent = 0) : QStyledItemDelegate(parent) {}
+    ColoringRulesTreeDelegate(QObject *parent = 0) : QStyledItemDelegate(parent), tree_(NULL) {}
     ~ColoringRulesTreeDelegate() {}
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
