@@ -50,9 +50,6 @@ guint randpkt_example_count(void);
 /* Return the list of the active examples */
 void randpkt_example_list(char*** abbrev_list, char*** longname_list);
 
-/* Seed the random-number generator */
-void randpkt_seed(void);
-
 /* Parse command-line option "type" and return enum type */
 int randpkt_parse_type(char *string);
 

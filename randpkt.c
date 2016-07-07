@@ -189,8 +189,6 @@ main(int argc, char **argv)
 		usage(TRUE);
 	}
 
-	randpkt_seed();
-
 	if (!allrandom) {
 		produce_type = randpkt_parse_type(type);
 		g_free(type);

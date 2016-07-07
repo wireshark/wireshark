@@ -32,11 +32,9 @@
 #include "wsutil/file_util.h"
 #include <wiretap/wtap_opttypes.h>
 
-#ifdef _WIN32
-#include <wsutil/unicode-utils.h>
-#endif /* _WIN32 */
-
 #define array_length(x)	(sizeof x / sizeof x[0])
+
+GRand *pkt_rand = NULL;
 
 /* Types of produceable packets */
 enum {
@@ -572,7 +570,7 @@ void randpkt_loop(randpkt_example* example, guint64 produce_count)
 	/* Produce random packets */
 	for (i = 0; i < produce_count; i++) {
 		if (example->produce_max_bytes > 0) {
-			len_random = (rand() % example->produce_max_bytes + 1);
+			len_random = g_rand_int_range(pkt_rand, 0, example->produce_max_bytes + 1);
 		}
 		else {
 			len_random = 0;
@@ -585,16 +583,16 @@ void randpkt_loop(randpkt_example* example, guint64 produce_count)
 		pkthdr->ts.secs = i; /* just for variety */
 
 		for (j = example->pseudo_length; j < (int) sizeof(*ps_header); j++) {
-			((guint8*)ps_header)[j] = (rand() % 0x100);
+			((guint8*)ps_header)[j] = g_rand_int_range(pkt_rand, 0, 0x100);
 		}
 
 		for (j = example->sample_length; j < len_this_pkt; j++) {
 			/* Add format strings here and there */
-			if ((int) (100.0*rand()/(RAND_MAX+1.0)) < 3 && j < (len_random - 3)) {
+			if ((int) (100.0*g_rand_double(pkt_rand)) < 3 && j < (len_random - 3)) {
 				memcpy(&buffer[j], "%s", 3);
 				j += 2;
 			} else {
-				buffer[j] = (rand() % 0x100);
+				buffer[j] = g_rand_int_range(pkt_rand, 0, 0x100);
 			}
 		}
 
@@ -665,18 +663,29 @@ void randpkt_loop(randpkt_example* example, guint64 produce_count)
 gboolean randpkt_example_close(randpkt_example* example)
 {
 	int err;
+	gboolean ok = TRUE;
 
 	if (!wtap_dump_close(example->dump, &err)) {
 		fprintf(stderr, "Error writing to %s: %s\n",
 			example->filename, wtap_strerror(err));
-		return FALSE;
+		ok = FALSE;
 	}
-	return TRUE;
+
+	if (pkt_rand != NULL) {
+		g_rand_free(pkt_rand);
+		pkt_rand = NULL;
+	}
+
+	return ok;
 }
 
 void randpkt_example_init(randpkt_example* example, char* produce_filename, int produce_max_bytes)
 {
 	int err;
+
+	if (pkt_rand == NULL) {
+		pkt_rand = g_rand_new();
+	}
 
 	wtap_opttypes_initialize();
 
@@ -706,60 +715,6 @@ void randpkt_example_init(randpkt_example* example, char* produce_filename, int 
 	}
 }
 
-/* Seed the random-number generator */
-void
-randpkt_seed(void)
-{
-	unsigned int	randomness;
-	time_t		now;
-#ifndef _WIN32
-	int 		fd;
-	ssize_t		ret;
-
-#define RANDOM_DEV "/dev/urandom"
-
-	/*
-	 * Assume it's at least worth trying /dev/urandom on UN*X.
-	 * If it doesn't exist, fall back on time().
-	 *
-	 * XXX - Use CryptGenRandom on Windows?
-	 */
-	fd = ws_open(RANDOM_DEV, O_RDONLY);
-	if (fd == -1) {
-		if (errno != ENOENT) {
-			fprintf(stderr,
-				"randpkt: Could not open " RANDOM_DEV " for reading: %s\n",
-				g_strerror(errno));
-			exit(2);
-		}
-		goto fallback;
-	}
-
-	ret = ws_read(fd, &randomness, sizeof randomness);
-	if (ret == -1) {
-		fprintf(stderr,
-			"randpkt: Could not read from " RANDOM_DEV ": %s\n",
-			g_strerror(errno));
-		exit(2);
-	}
-	if ((size_t)ret != sizeof randomness) {
-		fprintf(stderr,
-			"randpkt: Tried to read %lu bytes from " RANDOM_DEV ", got %ld\n",
-			(unsigned long)sizeof randomness, (long)ret);
-		exit(2);
-	}
-	srand(randomness);
-	ws_close(fd);
-	return;
-
-fallback:
-#endif
-	now = time(NULL);
-	randomness = (unsigned int) now;
-
-	srand(randomness);
-}
-
 /* Parse command-line option "type" and return enum type */
 int randpkt_parse_type(char *string)
 {
@@ -768,7 +723,7 @@ int randpkt_parse_type(char *string)
 
 	/* Called with NULL, choose a random packet */
 	if (!string) {
-		return examples[rand() % num_entries].produceable_type;
+		return examples[g_rand_int_range(pkt_rand, 0, num_entries)].produceable_type;
 	}
 
 	for (i = 0; i < num_entries; i++) {
