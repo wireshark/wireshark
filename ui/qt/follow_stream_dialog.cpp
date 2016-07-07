@@ -71,12 +71,17 @@ static int info_update_freq_ = 100;
 FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_type_t type) :
     WiresharkDialog(parent, cf),
     ui(new Ui::FollowStreamDialog),
+    b_find_(NULL),
     follow_type_(type),
     follower_(NULL),
     show_type_(SHOW_ASCII),
     truncated_(false),
+    client_buffer_count_(0),
+    server_buffer_count_(0),
     client_packet_count_(0),
     server_packet_count_(0),
+    last_packet_(0),
+    last_from_server_(0),
     turns_(0),
     save_as_(false),
     use_regex_find_(false)
