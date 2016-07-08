@@ -105,6 +105,11 @@ typedef enum mac_lte_ce_mode {
     ce_mode_b = 2
 } mac_lte_ce_mode;
 
+typedef enum mac_lte_nb_mode {
+    no_nb_mode = 0,
+    nb_mode = 1
+} mac_lte_nb_mode;
+
 /* Context info attached to each LTE MAC frame */
 typedef struct mac_lte_info
 {
@@ -158,6 +163,9 @@ typedef struct mac_lte_info
 
     /* DL only. CE mode to be used for RAR decoding */
     mac_lte_ce_mode ceMode;
+
+    /* DL and UL. NB-IoT mode of the UE */
+    mac_lte_nb_mode nbMode;
 
     /* More Physical layer info (see direction above for which side of union to use) */
     union {
@@ -304,6 +312,9 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 
 #define MAC_LTE_CE_MODE             0x0E
 /* 1 byte containing mac_lte_ce_mode enum value */
+
+#define MAC_LTE_NB_MODE             0x0F
+/* 1 byte containing mac_lte_nb_mode enum value */
 
 /* MAC PDU. Following this tag comes the actual MAC PDU (there is no length, the PDU
    continues until the end of the frame) */

@@ -35,7 +35,7 @@ void proto_reg_handoff_mac_lte(void);
 
 /* Described in:
  * 3GPP TS 36.321 Evolved Universal Terrestrial Radio Access (E-UTRA)
- *                Medium Access Control (MAC) protocol specification v13.1.0
+ *                Medium Access Control (MAC) protocol specification v13.2.0
  */
 
 
@@ -166,6 +166,7 @@ static int hf_mac_lte_rar_header = -1;
 static int hf_mac_lte_rar_extension = -1;
 static int hf_mac_lte_rar_t = -1;
 static int hf_mac_lte_rar_bi = -1;
+static int hf_mac_lte_rar_bi_nb = -1;
 static int hf_mac_lte_rar_rapid = -1;
 static int hf_mac_lte_rar_no_of_rapids = -1;
 static int hf_mac_lte_rar_reserved = -1;
@@ -292,6 +293,10 @@ static int hf_mac_lte_control_sidelink_bsr_destination_idx_even = -1;
 static int hf_mac_lte_control_sidelink_bsr_lcg_id_even = -1;
 static int hf_mac_lte_control_sidelink_bsr_buffer_size_even = -1;
 static int hf_mac_lte_control_sidelink_reserved = -1;
+static int hf_mac_lte_control_data_vol_power_headroom = -1;
+static int hf_mac_lte_data_vol_power_headroom_reserved = -1;
+static int hf_mac_lte_data_vol_power_headroom_level = -1;
+static int hf_mac_lte_data_vol_power_headroom_data_vol = -1;
 
 static int hf_mac_lte_dl_harq_resend_original_frame = -1;
 static int hf_mac_lte_dl_harq_resend_time_since_previous_frame = -1;
@@ -363,6 +368,7 @@ static int ett_mac_lte_oob = -1;
 static int ett_mac_lte_drx_config = -1;
 static int ett_mac_lte_drx_state = -1;
 static int ett_mac_lte_sidelink_bsr = -1;
+static int ett_mac_lte_data_vol_power_headroom = -1;
 
 static expert_field ei_mac_lte_context_rnti_type = EI_INIT;
 static expert_field ei_mac_lte_lcid_unexpected = EI_INIT;
@@ -682,6 +688,25 @@ static const value_string rar_bi_vals[] =
     { 10,     "320"},
     { 11,     "480"},
     { 12,     "960"},
+    { 0, NULL }
+};
+
+
+static const value_string rar_bi_nb_vals[] =
+{
+    { 0,      "0"},
+    { 1,      "256"},
+    { 2,      "512"},
+    { 3,      "1024"},
+    { 4,      "2048"},
+    { 5,      "4096"},
+    { 6,      "8192"},
+    { 7,      "16384"},
+    { 8,      "32768"},
+    { 9,      "65536"},
+    { 10,     "131072"},
+    { 11,     "262144"},
+    { 12,     "524288"},
     { 0, NULL }
 };
 
@@ -1157,6 +1182,36 @@ static const value_string pcmaxc_vals[] =
     { 0, NULL }
 };
 static value_string_ext pcmaxc_vals_ext = VALUE_STRING_EXT_INIT(pcmaxc_vals);
+
+static const value_string data_vol_power_headroom_level_vals[] =
+{
+    { 0, "POWER_HEADROOM_0"},
+    { 1, "POWER_HEADROOM_1"},
+    { 2, "POWER_HEADROOM_2"},
+    { 3, "POWER_HEADROOM_3"},
+    { 0, NULL }
+};
+
+static const value_string data_vol_power_headroom_data_vol_vals[] =
+{
+    { 0,  "DV = 0"},
+    { 1,  "0 < DV <= 10"},
+    { 2,  "10 < DV <= 14"},
+    { 3,  "14 < DV <= 19"},
+    { 4,  "19 < DV <= 26"},
+    { 5,  "26 < DV <= 36"},
+    { 6,  "36 < DV <= 49"},
+    { 7,  "49 < DV <= 67"},
+    { 8,  "67 < DV <= 91"},
+    { 9,  "91 < DV <= 125"},
+    { 10, "125 < DV <= 171"},
+    { 11, "171 < DV <= 234"},
+    { 12, "234 < DV <= 321"},
+    { 13, "321 < DV <= 768"},
+    { 14, "768 < DV <= 1500"},
+    { 15, "DV > 1500"},
+    { 0, NULL }
+};
 
 static const value_string header_only_vals[] =
 {
@@ -2381,6 +2436,11 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
                     (mac_lte_ce_mode)tvb_get_guint8(tvb, offset);
                 offset++;
                 break;
+            case MAC_LTE_NB_MODE:
+                p_mac_lte_info->nbMode =
+                    (mac_lte_nb_mode)tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
 
             case MAC_LTE_PAYLOAD_TAG:
                 /* Have reached data, so set payload length and get out of loop */
@@ -2917,7 +2977,8 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
             /* Backoff Indicator */
             backoff_indicator = tvb_get_guint8(tvb, offset) & 0x0f;
-            bi_ti = proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_bi, tvb, offset, 1, ENC_BIG_ENDIAN);
+            bi_ti = proto_tree_add_item(rar_header_tree, (p_mac_lte_info->nbMode == no_nb_mode) ?
+                                        hf_mac_lte_rar_bi : hf_mac_lte_rar_bi_nb, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* As of March 2009 spec, it must be first, and may only appear once */
             if (backoff_indicator_seen) {
@@ -2927,7 +2988,8 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
             write_pdu_label_and_info(pdu_ti, rar_header_ti, pinfo,
                                      "(Backoff Indicator=%sms)",
-                                     val_to_str_const(backoff_indicator, rar_bi_vals, "Illegal-value "));
+                                     val_to_str_const(backoff_indicator, (p_mac_lte_info->nbMode == no_nb_mode) ?
+                                                      rar_bi_vals : rar_bi_nb_vals, "Illegal-value "));
 
             /* If present, it must be the first subheader */
             if (number_of_rars > 0) {
@@ -2965,7 +3027,8 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     PROTO_ITEM_SET_GENERATED(ti);
     if (backoff_indicator_seen) {
         proto_item_append_text(rar_headers_ti, ", BI=%sms)",
-                               val_to_str_const(backoff_indicator, rar_bi_vals, "Illegal-value "));
+                               val_to_str_const(backoff_indicator, (p_mac_lte_info->nbMode == no_nb_mode) ?
+                                                rar_bi_vals : rar_bi_nb_vals, "Illegal-value "));
     }
     else {
         proto_item_append_text(rar_headers_ti, ")");
@@ -4735,7 +4798,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                                 hf_mac_lte_control_dual_conn_power_headroom,
                                                                 tvb, curr_offset, pdu_lengths[n],
                                                                 "",
-                                                                "Dual Connectivity Power Headroom");
+                                                                "Dual Connectivity Power Headroom Report");
                         dcphr_tree = proto_item_add_subtree(dcphr_ti, ett_mac_lte_dual_conn_power_headroom);
 
                         /* TODO: add support for 4 bytes long SCell index */
@@ -4759,7 +4822,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                  tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                         if (scell_bitmap & 0x01) {
                             expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
-                                                   "Dual Connectivity Power Headroom Reserved bit not zero");
+                                                   "Dual Connectivity Power Headroom Report Reserved bit not zero");
                         }
                         curr_offset++;
 
@@ -4785,7 +4848,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                          tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                                 if (byte & 0xc0) {
                                     expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
-                                                           "Dual Connectivity Power Headroom Reserved bits not zero (found 0x%x)",
+                                                           "Dual Connectivity Power Headroom Report Reserved bits not zero (found 0x%x)",
                                                            (byte & 0xc0) >> 6);
                                 }
                                 proto_tree_add_item(dcphr_cell_tree, hf_mac_lte_control_dual_conn_power_headroom_pcmaxc,
@@ -4817,7 +4880,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                          tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                                 if (byte & 0xc0) {
                                     expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
-                                                           "Dual Connectivity Power Headroom Reserved bits not zero (found 0x%x)",
+                                                           "Dual Connectivity Power Headroom Report Reserved bits not zero (found 0x%x)",
                                                            (byte & 0xc0) >> 6);
                                 }
                                 proto_tree_add_item(dcphr_cell_tree, hf_mac_lte_control_dual_conn_power_headroom_pcmaxc,
@@ -4847,7 +4910,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                      tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                             if (byte & 0xc0) {
                                 expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
-                                                       "Dual Connectivity Power Headroom Reserved bits not zero (found 0x%x)",
+                                                       "Dual Connectivity Power Headroom Report Reserved bits not zero (found 0x%x)",
                                                        (byte & 0xc0) >> 6);
                             }
                             proto_tree_add_item(dcphr_cell_tree, hf_mac_lte_control_dual_conn_power_headroom_pcmaxc,
@@ -4878,7 +4941,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                              tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                                     if (byte & 0xc0) {
                                         expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
-                                                               "Dual Connectivity Power Headroom Reserved bits not zero (found 0x%x)",
+                                                               "Dual Connectivity Power Headroom Report Reserved bits not zero (found 0x%x)",
                                                                (byte & 0xc0) >> 6);
                                     }
                                     proto_tree_add_item(dcphr_cell_tree, hf_mac_lte_control_dual_conn_power_headroom_pcmaxc,
@@ -4924,7 +4987,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                                hf_mac_lte_control_ext_power_headroom,
                                                                tvb, curr_offset, pdu_lengths[n],
                                                                "",
-                                                               "Extended Power Headroom");
+                                                               "Extended Power Headroom Report");
                         ephr_tree = proto_item_add_subtree(ephr_ti, ett_mac_lte_extended_power_headroom);
 
                         /* TODO: add support for extendedPHR2 */
@@ -4948,7 +5011,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                  tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                         if (scell_bitmap & 0x01) {
                             expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
-                                                   "Extended Power Headroom Reserved bit not zero");
+                                                   "Extended Power Headroom Report Reserved bit not zero");
                         }
                         curr_offset++;
 
@@ -5002,7 +5065,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                          tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                                 if (byte & 0xc0) {
                                     expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
-                                                           "Extended Power Headroom Reserved bits not zero (found 0x%x)",
+                                                           "Extended Power Headroom Report Reserved bits not zero (found 0x%x)",
                                                            (byte & 0xc0) >> 6);
                                 }
                                 proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_pcmaxc,
@@ -5032,7 +5095,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                      tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                             if (byte & 0xc0) {
                                 expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
-                                                       "Extended Power Headroom Reserved bits not zero (found 0x%x)",
+                                                       "Extended Power Headroom Report Reserved bits not zero (found 0x%x)",
                                                        (byte & 0xc0) >> 6);
                             }
                             proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_pcmaxc,
@@ -5063,7 +5126,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                              tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                                     if (byte & 0xc0) {
                                         expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
-                                                               "Extended Power Headroom Reserved bits not zero (found 0x%x)",
+                                                               "Extended Power Headroom Report Reserved bits not zero (found 0x%x)",
                                                                (byte & 0xc0) >> 6);
                                     }
                                     proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_pcmaxc,
@@ -5090,7 +5153,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                               hf_mac_lte_control_power_headroom,
                                                               tvb, offset, 1,
                                                               "",
-                                                              "Power Headroom");
+                                                              "Power Headroom Report");
                         phr_tree = proto_item_add_subtree(phr_ti, ett_mac_lte_power_headroom);
 
                         /* Check 2 Reserved bits */
@@ -5099,7 +5162,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                  tvb, offset, 1, ENC_BIG_ENDIAN);
                         if (reserved != 0) {
                             expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
-                                                   "Power Headroom Reserved bits not zero (found 0x%x)", reserved);
+                                                   "Power Headroom Report Reserved bits not zero (found 0x%x)", reserved);
                         }
 
                         /* Level */
@@ -5374,6 +5437,34 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             tvb_reported_length_remaining(tvb, offset) :
                             pdu_lengths[n];
 
+        if ((lcids[n] == 0) && (p_mac_lte_info->direction == DIRECTION_UPLINK) &&
+            (p_mac_lte_info->nbMode == nb_mode) && (data_length > 0)) {
+            /* Dissect DPR MAC Control Element that is in front of CCCH SDU */
+            proto_item *dpr_ti;
+            proto_tree *dpr_tree;
+            guint32 reserved;
+
+            dpr_ti = proto_tree_add_string_format(tree,
+                                      hf_mac_lte_control_data_vol_power_headroom,
+                                      tvb, offset, 1,
+                                      "",
+                                      "Data Volume and Power Headroom Report");
+            dpr_tree = proto_item_add_subtree(dpr_ti, ett_mac_lte_data_vol_power_headroom);
+            dpr_ti = proto_tree_add_item_ret_uint(dpr_tree, hf_mac_lte_data_vol_power_headroom_reserved,
+                                                  tvb, offset, 1, ENC_BIG_ENDIAN, &reserved);
+            if (reserved & 0xc0) {
+                expert_add_info_format(pinfo, dpr_ti, &ei_mac_lte_reserved_not_zero,
+                                       "Data Volume and Power Headroom Report Reserved bits not zero");
+            }
+            proto_tree_add_item(dpr_tree, hf_mac_lte_data_vol_power_headroom_level, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(dpr_tree, hf_mac_lte_data_vol_power_headroom_data_vol, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            data_length--;
+            if (pdu_lengths[n] != -1) {
+                pdu_lengths[n]--;
+            }
+        }
+
         /* Dissect SDU as raw bytes */
         sdu_ti = proto_tree_add_bytes_format(tree, hf_mac_lte_sch_sdu, tvb, offset, pdu_lengths[n],
                                              NULL, "SDU (%s, length=%u bytes): ",
@@ -5386,7 +5477,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Look for Msg3 data so that it may be compared with later
            Contention Resolution body */
-        if ((lcids[n] == 0) && (p_mac_lte_info->direction == DIRECTION_UPLINK) && (data_length == 6)) {
+        /* Starting from R13, CCCH can be more than 48 bits but only the first 48 bits are used for contention resolution */
+        if ((lcids[n] == 0) && (p_mac_lte_info->direction == DIRECTION_UPLINK) && (data_length >= 6)) {
             if (!PINFO_FD_VISITED(pinfo)) {
                 guint key = p_mac_lte_info->rnti;
                 Msg3Data *data = (Msg3Data *)g_hash_table_lookup(mac_lte_msg3_hash, GUINT_TO_POINTER(key));
@@ -5400,7 +5492,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                 /* Fill in data details */
                 data->framenum = pinfo->num;
-                tvb_memcpy(tvb, data->data, offset, data_length);
+                tvb_memcpy(tvb, data->data, offset, 6);
                 data->msg3Time = pinfo->abs_ts;
             }
         }
@@ -6616,7 +6708,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             }
             break;
         case RA_RNTI:
-            if ((p_mac_lte_info->rnti < 0x0001) || (p_mac_lte_info->rnti > 0x003C)) {
+            if ((p_mac_lte_info->rnti < 0x0001) || (p_mac_lte_info->rnti > 0x0960)) {
                 expert_add_info_format(pinfo, ti, &ei_mac_lte_context_rnti_type,
                       "RA_RNTI indicated, but given value %u (0x%x) is out of range",
                       p_mac_lte_info->rnti, p_mac_lte_info->rnti);
@@ -7771,6 +7863,12 @@ void proto_register_mac_lte(void)
               "Backoff Indicator (ms)", HFILL
             }
         },
+        { &hf_mac_lte_rar_bi_nb,
+            { "BI",
+              "mac-lte.rar.bi", FT_UINT8, BASE_HEX, VALS(rar_bi_nb_vals), 0x0f,
+              "Backoff Indicator (ms)", HFILL
+            }
+        },
         { &hf_mac_lte_rar_rapid,
             { "RAPID",
               "mac-lte.rar.rapid", FT_UINT8, BASE_HEX_DEC, NULL, 0x3f,
@@ -8071,7 +8169,7 @@ void proto_register_mac_lte(void)
         },
 
         { &hf_mac_lte_control_power_headroom,
-            { "Power Headroom",
+            { "Power Headroom Report",
               "mac-lte.control.power-headroom", FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
@@ -8090,7 +8188,7 @@ void proto_register_mac_lte(void)
         },
 
         { &hf_mac_lte_control_dual_conn_power_headroom,
-            { "Dual Connectivity Power Headroom",
+            { "Dual Connectivity Power Headroom Report",
               "mac-lte.control.dual-conn-power-headroom", FT_STRING, BASE_NONE,
               NULL, 0x0, NULL, HFILL
             }
@@ -8175,7 +8273,7 @@ void proto_register_mac_lte(void)
         },
 
         { &hf_mac_lte_control_ext_power_headroom,
-            { "Extended Power Headroom",
+            { "Extended Power Headroom Report",
               "mac-lte.control.ext-power-headroom", FT_STRING, BASE_NONE,
               NULL, 0x0, NULL, HFILL
             }
@@ -8526,6 +8624,31 @@ void proto_register_mac_lte(void)
             }
         },
 
+        { &hf_mac_lte_control_data_vol_power_headroom,
+            { "Data Volume and Power Headroom Report",
+              "mac-lte.control.data-vol-power-headroom", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_data_vol_power_headroom_reserved,
+            { "Reserved",
+              "mac-lte.control.data-vol-power-headroom.reserved", FT_UINT8, BASE_DEC,
+              NULL, 0xc0, "Reserved bits, should be 0", HFILL
+            }
+        },
+        { &hf_mac_lte_data_vol_power_headroom_level,
+            { "Power Headroom Level",
+              "mac-lte.control.data-vol-power-headroom.level", FT_UINT8, BASE_DEC,
+              VALS(data_vol_power_headroom_level_vals), 0x30, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_data_vol_power_headroom_data_vol,
+            { "Data Volume",
+              "mac-lte.control.data-vol-power-headroom.data-vol", FT_UINT8, BASE_DEC,
+              VALS(data_vol_power_headroom_data_vol_vals), 0x0f, NULL, HFILL
+            }
+        },
+
         /* Generated fields */
         { &hf_mac_lte_dl_harq_resend_original_frame,
             { "Frame with previous tx",
@@ -8756,7 +8879,8 @@ void proto_register_mac_lte(void)
         &ett_mac_lte_oob,
         &ett_mac_lte_drx_config,
         &ett_mac_lte_drx_state,
-        &ett_mac_lte_sidelink_bsr
+        &ett_mac_lte_sidelink_bsr,
+        &ett_mac_lte_data_vol_power_headroom
     };
 
     static ei_register_info ei[] = {
