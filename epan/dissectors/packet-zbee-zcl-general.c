@@ -13148,7 +13148,7 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                 if ((options & ZBEE_ZCL_GP_PAIRING_OPTION_REMOVE_GPD) == 0 &&
                     (options & ZBEE_ZCL_GP_PAIRING_OPTION_COMMUNICATION_MODE) != ZBEE_ZCL_GP_PAIRING_OPTION_COMMUNICATION_MODE &&
                     (options & ZBEE_ZCL_GP_PAIRING_OPTION_COMMUNICATION_MODE) != 0) {
-                    proto_tree_add_item(tree, hf_zbee_gp_sink_group_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(tree, hf_zbee_gp_sink_group_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     offset += 2;
                 }
                 if (options & ZBEE_ZCL_GP_PAIRING_OPTION_ADD_SINK) {
