@@ -600,6 +600,7 @@ static int hf_p1_PhysicalDeliveryModes_counter_collection_with_telex_advice = -1
 static int hf_p1_PhysicalDeliveryModes_counter_collection_with_teletex_advice = -1;
 static int hf_p1_PhysicalDeliveryModes_bureau_fax_delivery = -1;
 static int hf_p1_BuiltInEncodedInformationTypes_unknown = -1;
+static int hf_p1_BuiltInEncodedInformationTypes_telex = -1;
 static int hf_p1_BuiltInEncodedInformationTypes_ia5_text = -1;
 static int hf_p1_BuiltInEncodedInformationTypes_g3_facsimile = -1;
 static int hf_p1_BuiltInEncodedInformationTypes_g4_class_1 = -1;
@@ -2336,6 +2337,7 @@ dissect_p1_MTAOriginatorName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static const asn_namedbit BuiltInEncodedInformationTypes_bits[] = {
   {  0, &hf_p1_BuiltInEncodedInformationTypes_unknown, -1, -1, "unknown", NULL },
+  {  1, &hf_p1_BuiltInEncodedInformationTypes_telex, -1, -1, "telex", NULL },
   {  2, &hf_p1_BuiltInEncodedInformationTypes_ia5_text, -1, -1, "ia5-text", NULL },
   {  3, &hf_p1_BuiltInEncodedInformationTypes_g3_facsimile, -1, -1, "g3-facsimile", NULL },
   {  4, &hf_p1_BuiltInEncodedInformationTypes_g4_class_1, -1, -1, "g4-class-1", NULL },
@@ -10752,6 +10754,10 @@ void proto_register_p1(void) {
     { &hf_p1_BuiltInEncodedInformationTypes_unknown,
       { "unknown", "p1.unknown",
         FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_p1_BuiltInEncodedInformationTypes_telex,
+      { "telex", "p1.telex",
+        FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_p1_BuiltInEncodedInformationTypes_ia5_text,
       { "ia5-text", "p1.ia5-text",

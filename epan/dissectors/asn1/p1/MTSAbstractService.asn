@@ -2304,7 +2304,7 @@ EncodedInformationTypes ::= [APPLICATION 5]  SET {
 
 --	Built-in Encoded Information Types
 BuiltInEncodedInformationTypes ::= BIT STRING {
-  unknown(0), ia5-text(2), g3-facsimile(3), g4-class-1(4), teletex(5),
+  unknown(0), telex(1), ia5-text(2), g3-facsimile(3), g4-class-1(4), teletex(5),
   videotex(6), voice(7), sfd(8), mixed-mode(9)
 }(SIZE (0..ub-built-in-encoded-information-types))
 
