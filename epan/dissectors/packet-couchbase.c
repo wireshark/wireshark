@@ -1433,7 +1433,6 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item(tree, hf_observe_old_vbucket_uuid, tvb, offset, 8, ENC_BIG_ENDIAN);
           offset += 8;
           proto_tree_add_item(tree, hf_observe_last_received_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
-          offset += 8;
         }
       }
     } else if (!request && opcode == PROTOCOL_BINARY_DCP_STREAM_REQUEST) {
