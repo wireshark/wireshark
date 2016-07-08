@@ -1493,9 +1493,9 @@ proto_register_aprs( void )
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_aprs_dti,
-			{ "DTI",		"aprs.dti",
+			{ "Data Type Indicator",		"aprs.dti",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Data type indicator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_sym_code,
 			{ "Symbol code",		"aprs.sym_code",
@@ -1636,24 +1636,24 @@ proto_register_aprs( void )
 
 /* Time stamp */
 		{ &hf_aprs_dhm,
-			{ "DHM",		"aprs.dhm",
+			{ "Day/Hour/Minute",		"aprs.dhm",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Day/Hour/Minute", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_hms,
-			{ "HMS",		"aprs.hms",
+			{ "Hour/Minute/Second",		"aprs.hms",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Hour/Minute/Second", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_mdhm,
-			{ "MDHM",		"aprs.mdhm",
+			{ "Month/Day/Hour/Minute",		"aprs.mdhm",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Month/Day/Hour/Minute", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_tz,
-			{ "TZ",		"aprs.tz",
+			{ "Time Zone",		"aprs.tz",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Time zone", HFILL }
+			NULL, HFILL }
 		},
 
 /* Compressed Msg */
@@ -1710,9 +1710,9 @@ proto_register_aprs( void )
 			NULL, HFILL }
 		},
 		{ &hf_aprs_msg_nrq,
-			{ "NRQ",			"aprs.msg.nrq",
+			{ "Number/Range/Quality",			"aprs.msg.nrq",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Number/Range/Quality", HFILL }
+			NULL, HFILL }
 		},
 
 /* Msg PHGD */
@@ -1773,9 +1773,9 @@ proto_register_aprs( void )
 
 /* Weather */
 		{ &hf_aprs_weather,
-			{ "Weather",			"aprs.weather",
+			{ "Weather report",			"aprs.weather",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Weather report", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_weather_dir,
 			{ "Wind direction",		"aprs.weather.dir",
@@ -1890,24 +1890,24 @@ proto_register_aprs( void )
 			NULL, HFILL }
 		},
 		{ &hf_aprs_mic_e_spd_sp,
-			{ "Speed (H & T)",		"aprs.mic_e.speed_sp",
+			{ "Speed (hundreds & tens)",		"aprs.mic_e.speed_sp",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"Speed (hundreds & tens)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_mic_e_spd_dc,
-			{ "Spd (U), Cse (H)",		"aprs.mic_e.speed_dc",
+			{ "Speed (tens), Course (hundreds)",		"aprs.mic_e.speed_dc",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"Speed (tens), Course (hundreds)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_mic_e_spd_se,
-			{ "Course (T & U)",	"aprs.mic_e.speed_se",
+			{ "Course (tens & units)",	"aprs.mic_e.speed_se",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"Course (tens & units)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_mic_e_telemetry,
-			{ "Telmetry",	"aprs.mic_e.telemetry",
+			{ "Telemetry",	"aprs.mic_e.telemetry",
 			FT_BYTES, BASE_NONE, NULL, 0x0,
-			"Telemetry", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_mic_e_status,
 			{ "Status",	"aprs.mic_e.status",
