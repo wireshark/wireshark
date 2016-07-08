@@ -49,7 +49,6 @@
 
 void proto_register_aprs(void);
 
-/* Initialize the protocol and registered fields */
 static int proto_aprs			= -1;
 
 /* aprs timestamp items */
@@ -166,10 +165,8 @@ static int hf_aprs_shelter_data		= -1;
 static int hf_aprs_space_weather	= -1;
 
 
-/* Global preferences */
 static gboolean gPREF_APRS_LAX = FALSE;
 
-/* Initialize the subtree pointers */
 static gint ett_aprs		= -1;
 static gint ett_aprs_msg	= -1;
 static gint ett_aprs_ct		= -1;
@@ -235,125 +232,6 @@ static const value_string aprs_description[] = {
 	{ 0,            NULL }
 };
 static value_string_ext aprs_description_ext = VALUE_STRING_EXT_INIT(aprs_description);
-
-/*
- * Structure containing pointers to hf_ values for various subfields of
- * the compression type field.
- */
-typedef struct {
-	int	*hf_ct_gps_fix;
-	int	*hf_ct_nmea_src;
-	int	*hf_ct_origin;
-} ct_items_s;
-
-static const ct_items_s ct_items_gbl = {
-	/* all items are FT_UINT8 */
-	&hf_aprs_ct_gps_fix,
-	&hf_aprs_ct_nmea_src,
-	&hf_aprs_ct_origin
-};
-
-typedef struct {
-	int	*hf_msg_phg_p;
-	int	*hf_msg_phg_h;
-	int	*hf_msg_phg_g;
-	int	*hf_msg_phg_d;
-	int	*hf_msg_rng;
-	int	*hf_msg_dfs_p;
-	int	*hf_msg_dfs_h;
-	int	*hf_msg_dfs_g;
-	int	*hf_msg_dfs_d;
-	int	*hf_msg_aod_t;
-	int	*hf_msg_aod_c;
-	int	*hf_msg_cse;
-	int	*hf_msg_spd;
-	int	*hf_msg_dir;
-	int	*hf_msg_brg;
-	int	*hf_msg_nrq;
-} msg_items_s;
-
-static const msg_items_s msg_items_gbl = {
-	/* (All items are FT_STRING */
-	&hf_aprs_msg_phg_p,
-	&hf_aprs_msg_phg_h,
-	&hf_aprs_msg_phg_g,
-	&hf_aprs_msg_phg_d,
-	&hf_aprs_msg_rng,
-	&hf_aprs_msg_dfs_s,
-	&hf_aprs_msg_dfs_h,
-	&hf_aprs_msg_dfs_g,
-	&hf_aprs_msg_dfs_d,
-	&hf_aprs_msg_aod_t,
-	&hf_aprs_msg_aod_c,
-	&hf_aprs_msg_cse,
-	&hf_aprs_msg_spd,
-	&hf_aprs_msg_dir,
-	&hf_aprs_msg_brg,
-	&hf_aprs_msg_nrq
-};
-
-typedef struct {
-	int	*hf_weather_dir;
-	int	*hf_weather_spd;
-	int	*hf_weather_peak;
-	int	*hf_weather_temp;
-	int	*hf_weather_rain_1;
-	int	*hf_weather_rain_24;
-	int	*hf_weather_rain;
-	int	*hf_weather_humidty;
-	int	*hf_weather_press;
-	int	*hf_weather_luminosity;
-	int	*hf_weather_snow;
-	int	*hf_weather_raw_rain;
-	int	*hf_weather_software;
-	int	*hf_weather_unit;
-} weather_items_s;
-
-static const weather_items_s weather_items_gbl = {
-	/* (All items are FT_STRING */
-	&hf_aprs_weather_dir,
-	&hf_aprs_weather_spd,
-	&hf_aprs_weather_peak,
-	&hf_aprs_weather_temp,
-	&hf_aprs_weather_rain_1,
-	&hf_aprs_weather_rain_24,
-	&hf_aprs_weather_rain,
-	&hf_aprs_weather_humidty,
-	&hf_aprs_weather_press,
-	&hf_aprs_weather_luminosity,
-	&hf_aprs_weather_snow,
-	&hf_aprs_weather_raw_rain,
-	&hf_aprs_weather_software,
-	&hf_aprs_weather_unit
-};
-
-typedef struct {
-	int	*hf_mic_e_dst;
-	int	*hf_mic_e_long_d;
-	int	*hf_mic_e_long_m;
-	int	*hf_mic_e_long_h;
-	int	*hf_mic_e_spd_sp;
-	int	*hf_mic_e_spd_dc;
-	int	*hf_mic_e_spd_se;
-	int	*hf_mic_e_sym_code;
-	int	*hf_mic_e_sym_id;
-	int	*hf_mic_e_telemetry;
-	int	*hf_mic_e_status;
-} mic_e_items_s;
-
-static const mic_e_items_s mic_e_items_gbl = {
-	&hf_aprs_mic_e_dst,        /* FT_STRING */
-	&hf_aprs_mic_e_long_d,     /* FT_GUINT8 */
-	&hf_aprs_mic_e_long_m,     /* FT_GUINT8 */
-	&hf_aprs_mic_e_long_h,     /* FT_GUINT8 */
-	&hf_aprs_mic_e_spd_sp,     /* FT_GUINT8 */
-	&hf_aprs_mic_e_spd_dc,     /* FT_GUINT8 */
-	&hf_aprs_mic_e_spd_se,     /* FT_GUINT8 */
-	&hf_aprs_sym_code,         /* FT_STRING */
-	&hf_aprs_sym_id,           /* FT_STRING */
-	&hf_aprs_mic_e_telemetry,  /* FT_BYTES  */
-	&hf_aprs_mic_e_status      /* FT_STRING */
-};
 
 /* MIC-E destination field code table */
 typedef struct
@@ -429,10 +307,7 @@ static const mic_e_msg_table_s mic_e_msg_table[] =
 static int
 dissect_aprs_compression_type(	tvbuff_t	 *tvb,
 				int		  offset,
-				proto_tree	 *parent_tree,
-				int		  hf_aprs_ctype,
-				gint		  ett_aprs_ctype,
-				const ct_items_s *ct_items
+				proto_tree	 *parent_tree
 				)
 {
 	proto_tree *tc;
@@ -449,13 +324,13 @@ dissect_aprs_compression_type(	tvbuff_t	 *tvb,
 		{
 		compression_type = tvb_get_guint8( tvb, offset ) - 33;
 
-		tc = proto_tree_add_uint( parent_tree, hf_aprs_ctype, tvb, offset, data_len,
+		tc = proto_tree_add_uint( parent_tree, hf_aprs_compression_type, tvb, offset, data_len,
 					  compression_type );
-		compression_tree = proto_item_add_subtree( tc, ett_aprs_ctype );
+		compression_tree = proto_item_add_subtree( tc, ett_aprs_ct );
 
-		proto_tree_add_item( compression_tree, *ct_items->hf_ct_gps_fix,  tvb, offset, data_len, ENC_BIG_ENDIAN );
-		proto_tree_add_item( compression_tree, *ct_items->hf_ct_nmea_src, tvb, offset, data_len, ENC_BIG_ENDIAN );
-		proto_tree_add_item( compression_tree, *ct_items->hf_ct_origin,   tvb, offset, data_len, ENC_BIG_ENDIAN );
+		proto_tree_add_item( compression_tree, hf_aprs_ct_gps_fix,  tvb, offset, data_len, ENC_BIG_ENDIAN );
+		proto_tree_add_item( compression_tree, hf_aprs_ct_nmea_src, tvb, offset, data_len, ENC_BIG_ENDIAN );
+		proto_tree_add_item( compression_tree, hf_aprs_ct_origin,   tvb, offset, data_len, ENC_BIG_ENDIAN );
 		}
 
 	return new_offset;
@@ -465,9 +340,6 @@ static int
 dissect_aprs_msg(	tvbuff_t	  *tvb,
 			int		   offset,
 			proto_tree	  *parent_tree,
-			int		   hf_aprs_msg_idx,
-			gint		   ett_aprs_msg_idx,
-			const msg_items_s *msg_items, /* Assumption: all referenced hf[] entries are FT_STRING */
 			int		   wind,
 			int 		   brg_nrq
 			)
@@ -479,8 +351,8 @@ dissect_aprs_msg(	tvbuff_t	  *tvb,
 	if ( parent_tree )
 		{
 		proto_tree *tc;
-		tc = proto_tree_add_item( parent_tree, hf_aprs_msg_idx, tvb, offset, 7, ENC_ASCII|ENC_NA );
-		msg_tree = proto_item_add_subtree( tc, ett_aprs_msg_idx );
+		tc = proto_tree_add_item( parent_tree, hf_aprs_msg, tvb, offset, 7, ENC_ASCII|ENC_NA );
+		msg_tree = proto_item_add_subtree( tc, ett_aprs_msg );
 		}
 
 	ch = tvb_get_guint8( tvb, offset );
@@ -488,13 +360,13 @@ dissect_aprs_msg(	tvbuff_t	  *tvb,
 	if ( g_ascii_isdigit( ch ) )
 		{
 		if ( wind )
-			proto_tree_add_item( msg_tree, *msg_items->hf_msg_dir, tvb, offset, 3, ENC_ASCII|ENC_NA );
+			proto_tree_add_item( msg_tree, hf_aprs_msg_dir, tvb, offset, 3, ENC_ASCII|ENC_NA );
 		else
-			proto_tree_add_item( msg_tree, *msg_items->hf_msg_cse, tvb, offset, 3, ENC_ASCII|ENC_NA );
+			proto_tree_add_item( msg_tree, hf_aprs_msg_cse, tvb, offset, 3, ENC_ASCII|ENC_NA );
 		offset += 3;
 		/* verify the separator */
 		offset += 1;
-		proto_tree_add_item( msg_tree, *msg_items->hf_msg_spd, tvb, offset, 3, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( msg_tree, hf_aprs_msg_spd, tvb, offset, 3, ENC_ASCII|ENC_NA );
 		offset += 3;
 		}
 	else
@@ -503,34 +375,34 @@ dissect_aprs_msg(	tvbuff_t	  *tvb,
 			{
 			case 'D' :	/* dfs */
 				offset += 3;
-				proto_tree_add_item( msg_tree, *msg_items->hf_msg_dfs_p, tvb, offset, 1, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_dfs_s, tvb, offset, 1, ENC_ASCII|ENC_NA );
 				offset += 1;
-				proto_tree_add_item( msg_tree, *msg_items->hf_msg_dfs_h, tvb, offset, 1, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_dfs_h, tvb, offset, 1, ENC_ASCII|ENC_NA );
 				offset += 1;
-				proto_tree_add_item( msg_tree, *msg_items->hf_msg_dfs_g, tvb, offset, 1, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_dfs_g, tvb, offset, 1, ENC_ASCII|ENC_NA );
 				offset += 1;
-				proto_tree_add_item( msg_tree, *msg_items->hf_msg_dfs_d, tvb, offset, 1, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_dfs_d, tvb, offset, 1, ENC_ASCII|ENC_NA );
 				break;
 			case 'P' :	/* phgd */
 				offset += 3;
-				proto_tree_add_item( msg_tree, *msg_items->hf_msg_phg_p, tvb, offset, 1, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_phg_p, tvb, offset, 1, ENC_ASCII|ENC_NA );
 				offset += 1;
-				proto_tree_add_item( msg_tree, *msg_items->hf_msg_phg_h, tvb, offset, 1, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_phg_h, tvb, offset, 1, ENC_ASCII|ENC_NA );
 				offset += 1;
-				proto_tree_add_item( msg_tree, *msg_items->hf_msg_phg_g, tvb, offset, 1, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_phg_g, tvb, offset, 1, ENC_ASCII|ENC_NA );
 				offset += 1;
-				proto_tree_add_item( msg_tree, *msg_items->hf_msg_phg_d, tvb, offset, 1, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_phg_d, tvb, offset, 1, ENC_ASCII|ENC_NA );
 				break;
 			case 'R' :	/* rng */
-				proto_tree_add_item( msg_tree, *msg_items->hf_msg_rng, tvb, offset, 7, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_rng, tvb, offset, 7, ENC_ASCII|ENC_NA );
 				break;
 			case 'T' :	/* aod */
 				offset += 1;
-				proto_tree_add_item( msg_tree, *msg_items->hf_msg_aod_t, tvb, offset, 2, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_aod_t, tvb, offset, 2, ENC_ASCII|ENC_NA );
 				offset += 2;
 				/* step over the /C */
 				offset += 2;
-				proto_tree_add_item( msg_tree, *msg_items->hf_msg_aod_c, tvb, offset, 2, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_aod_c, tvb, offset, 2, ENC_ASCII|ENC_NA );
 				break;
 			default  :	/* wtf */
 				break;
@@ -538,11 +410,11 @@ dissect_aprs_msg(	tvbuff_t	  *tvb,
 		}
 	if ( brg_nrq )
 		{
-		proto_tree_add_item( msg_tree, *msg_items->hf_msg_brg, tvb, offset, 3, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( msg_tree, hf_aprs_msg_brg, tvb, offset, 3, ENC_ASCII|ENC_NA );
 		offset += 3;
 		/* verify the separator */
 		offset += 1;
-		proto_tree_add_item( msg_tree, *msg_items->hf_msg_nrq, tvb, offset, 3, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( msg_tree, hf_aprs_msg_nrq, tvb, offset, 3, ENC_ASCII|ENC_NA );
 		offset += 3;
 		}
 
@@ -552,10 +424,7 @@ dissect_aprs_msg(	tvbuff_t	  *tvb,
 static int
 dissect_aprs_compressed_msg(	tvbuff_t *tvb,
 				int offset,
-				proto_tree *parent_tree,
-				int hf_msg_type_idx,
-				gint ett_aprs_msg_idx,
-				const msg_items_s *msg_items
+				proto_tree *parent_tree
 				)
 {
 	proto_tree *tc;
@@ -574,8 +443,8 @@ dissect_aprs_compressed_msg(	tvbuff_t *tvb,
 
 	if ( parent_tree )
 		{
-		tc = proto_tree_add_item( parent_tree, hf_msg_type_idx, tvb, offset, data_len, ENC_ASCII|ENC_NA );
-		msg_tree = proto_item_add_subtree( tc, ett_aprs_msg_idx );
+		tc = proto_tree_add_item( parent_tree, hf_aprs_msg, tvb, offset, data_len, ENC_ASCII|ENC_NA );
+		msg_tree = proto_item_add_subtree( tc, ett_aprs_msg );
 
 		ch = tvb_get_guint8( tvb, offset );
 		if ( ch != ' ' )
@@ -586,20 +455,20 @@ dissect_aprs_compressed_msg(	tvbuff_t *tvb,
 				ch = tvb_get_guint8( tvb, offset );
 				range = exp( log( 1.08 ) * (ch - 33) );
 				info_buffer = wmem_strdup_printf( wmem_packet_scope(), "%7.2f", range );
-				proto_tree_add_string( msg_tree, *msg_items->hf_msg_rng, tvb, offset, 1, info_buffer );
+				proto_tree_add_string( msg_tree, hf_aprs_msg_rng, tvb, offset, 1, info_buffer );
 				}
 			else
 				if ( ch >= '!' && ch <= 'z' )
 					{ /* Course/Speed */
 					course = (ch - 33) * 4;
 					info_buffer = wmem_strdup_printf( wmem_packet_scope(), "%d", course );
-					proto_tree_add_string( msg_tree, *msg_items->hf_msg_cse,
+					proto_tree_add_string( msg_tree, hf_aprs_msg_cse,
 							       tvb, offset, 1, info_buffer );
 					offset += 1;
 					ch = tvb_get_guint8( tvb, offset );
 					speed = exp( log( 1.08 ) * (ch - 33) );
 					info_buffer = wmem_strdup_printf( wmem_packet_scope(), "%7.2f", speed );
-					proto_tree_add_string( msg_tree, *msg_items->hf_msg_spd,
+					proto_tree_add_string( msg_tree, hf_aprs_msg_spd,
 							       tvb, offset, 1, info_buffer );
 					}
 
@@ -653,9 +522,7 @@ dissect_mic_e(	tvbuff_t    *tvb,
 		int	     offset,
 		packet_info *pinfo,
 		proto_tree  *parent_tree,
-		int	     hf_mic_e_idx,
-		gint	     ett_mic_e_idx,
-		const mic_e_items_s *mic_e_items
+		int	     hf_mic_e_idx
 		)
 {
 	proto_tree *tc;
@@ -753,7 +620,7 @@ dissect_mic_e(	tvbuff_t    *tvb,
 	if ( parent_tree )
 		{
 		tc = proto_tree_add_string( parent_tree, hf_mic_e_idx, tvb, offset, data_len, info_buffer );
-		mic_e_tree = proto_item_add_subtree( tc, ett_mic_e_idx );
+		mic_e_tree = proto_item_add_subtree( tc, ett_aprs_mic_e );
 
 		g_snprintf( info_buffer, STRLEN,
 				"Lat %7.7s, Msg A %d, Msg B %d, Msg C %d, N/S %c, Long off %3d, W/E %c, SSID %d",
@@ -767,40 +634,40 @@ dissect_mic_e(	tvbuff_t    *tvb,
 				ssid
 				);
 
-		proto_tree_add_string( mic_e_tree, *mic_e_items->hf_mic_e_dst,     tvb,      0, 0, info_buffer ); /* ?? */
+		proto_tree_add_string( mic_e_tree, hf_aprs_mic_e_dst,     tvb,      0, 0, info_buffer ); /* ?? */
 
-		proto_tree_add_item( mic_e_tree, *mic_e_items->hf_mic_e_long_d,    tvb, offset, 1, ENC_BIG_ENDIAN );
+		proto_tree_add_item( mic_e_tree, hf_aprs_mic_e_long_d,    tvb, offset, 1, ENC_BIG_ENDIAN );
 		offset += 1;
 
-		proto_tree_add_item( mic_e_tree, *mic_e_items->hf_mic_e_long_m,    tvb, offset, 1, ENC_BIG_ENDIAN );
+		proto_tree_add_item( mic_e_tree, hf_aprs_mic_e_long_m,    tvb, offset, 1, ENC_BIG_ENDIAN );
 		offset += 1;
 
-		proto_tree_add_item( mic_e_tree, *mic_e_items->hf_mic_e_long_h,    tvb, offset, 1, ENC_BIG_ENDIAN );
+		proto_tree_add_item( mic_e_tree, hf_aprs_mic_e_long_h,    tvb, offset, 1, ENC_BIG_ENDIAN );
 		offset += 1;
 
-		proto_tree_add_item( mic_e_tree, *mic_e_items->hf_mic_e_spd_sp,    tvb, offset, 1, ENC_BIG_ENDIAN );
+		proto_tree_add_item( mic_e_tree, hf_aprs_mic_e_spd_sp,    tvb, offset, 1, ENC_BIG_ENDIAN );
 		offset += 1;
 
-		proto_tree_add_item( mic_e_tree, *mic_e_items->hf_mic_e_spd_dc,    tvb, offset, 1, ENC_BIG_ENDIAN );
+		proto_tree_add_item( mic_e_tree, hf_aprs_mic_e_spd_dc,    tvb, offset, 1, ENC_BIG_ENDIAN );
 		offset += 1;
 
-		proto_tree_add_item( mic_e_tree, *mic_e_items->hf_mic_e_spd_se,    tvb, offset, 1, ENC_BIG_ENDIAN );
+		proto_tree_add_item( mic_e_tree, hf_aprs_mic_e_spd_se,    tvb, offset, 1, ENC_BIG_ENDIAN );
 		offset += 1;
 
-		proto_tree_add_item( mic_e_tree, *mic_e_items->hf_mic_e_sym_code,  tvb, offset, 1, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( mic_e_tree, hf_aprs_sym_code,  tvb, offset, 1, ENC_ASCII|ENC_NA );
 		offset += 1;
 
-		proto_tree_add_item( mic_e_tree, *mic_e_items->hf_mic_e_sym_id,    tvb, offset, 1, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( mic_e_tree, hf_aprs_sym_id,    tvb, offset, 1, ENC_ASCII|ENC_NA );
 		offset += 1;
 
 		if ( offset < new_offset )
 			{
 			guint8 c = tvb_get_guint8(tvb, offset);
 			if ( (c == ',') || (c == 0x1d) )
-				proto_tree_add_item( mic_e_tree, *mic_e_items->hf_mic_e_telemetry,
+				proto_tree_add_item( mic_e_tree, hf_aprs_mic_e_telemetry,
 						     tvb, offset, -1, ENC_NA );
 			else
-				proto_tree_add_item( mic_e_tree, *mic_e_items->hf_mic_e_status,
+				proto_tree_add_item( mic_e_tree, hf_aprs_mic_e_status,
 						     tvb, offset, -1, ENC_ASCII|ENC_NA );
 			}
 
@@ -812,16 +679,14 @@ dissect_mic_e(	tvbuff_t    *tvb,
 static int
 dissect_aprs_storm(	tvbuff_t   *tvb,
 			int	    offset,
-			proto_tree *parent_tree,
-			int	    hf_aprs_storm_idx,
-			gint	    ett_aprs_storm_idx
+			proto_tree *parent_tree
 			)
 {
 	proto_tree  *storm_tree;
 	proto_tree *tc;
 
-	tc = proto_tree_add_item( parent_tree, hf_aprs_storm_idx, tvb, offset, -1, ENC_ASCII|ENC_NA );
-	storm_tree = proto_item_add_subtree( tc, ett_aprs_storm_idx );
+	tc = proto_tree_add_item( parent_tree, hf_aprs_storm, tvb, offset, -1, ENC_ASCII|ENC_NA );
+	storm_tree = proto_item_add_subtree( tc, ett_aprs_storm );
 
 	proto_tree_add_item( storm_tree, hf_aprs_storm_dir,  tvb, offset, 3, ENC_ASCII|ENC_NA );
 	offset += 3;
@@ -849,10 +714,7 @@ dissect_aprs_storm(	tvbuff_t   *tvb,
 static int
 dissect_aprs_weather(	tvbuff_t   *tvb,
 			int	    offset,
-			proto_tree *parent_tree,
-			int	    hf_aprs_weather_idx,
-			gint	    ett_aprs_weather_idx,
-			const weather_items_s *weather_items
+			proto_tree *parent_tree
 			)
 {
 	proto_tree  *tc;
@@ -865,17 +727,17 @@ dissect_aprs_weather(	tvbuff_t   *tvb,
 	data_len    = tvb_reported_length_remaining( tvb, offset );
 	new_offset  = offset + data_len;
 
-	tc = proto_tree_add_item( parent_tree, hf_aprs_weather_idx, tvb, offset, data_len, ENC_ASCII|ENC_NA );
-	weather_tree = proto_item_add_subtree( tc, ett_aprs_weather_idx );
+	tc = proto_tree_add_item( parent_tree, hf_aprs_weather, tvb, offset, data_len, ENC_ASCII|ENC_NA );
+	weather_tree = proto_item_add_subtree( tc, ett_aprs_weather );
 
 	ch = tvb_get_guint8( tvb, offset );
 	if ( g_ascii_isdigit( ch ) )
 		{
-		proto_tree_add_item( weather_tree, *weather_items->hf_weather_dir, tvb, offset, 3, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( weather_tree, hf_aprs_weather_dir, tvb, offset, 3, ENC_ASCII|ENC_NA );
 		offset += 3;
 		/* verify the separator */
 		offset += 1;
-		proto_tree_add_item( weather_tree, *weather_items->hf_weather_spd, tvb, offset, 3, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( weather_tree, hf_aprs_weather_spd, tvb, offset, 3, ENC_ASCII|ENC_NA );
 		offset += 3;
 		}
 
@@ -887,63 +749,63 @@ dissect_aprs_weather(	tvbuff_t   *tvb,
 			switch ( ch )
 				{
 				case 'c' :
-					proto_tree_add_item( weather_tree, *weather_items->hf_weather_dir,
+					proto_tree_add_item( weather_tree, hf_aprs_weather_dir,
 						tvb, offset, 4, ENC_ASCII|ENC_NA );
 					offset += 4;
 					break;
 				case 's' :
-					proto_tree_add_item( weather_tree, *weather_items->hf_weather_spd,
+					proto_tree_add_item( weather_tree, hf_aprs_weather_spd,
 						tvb, offset, 4, ENC_ASCII|ENC_NA );
 					offset += 4;
 					break;
 				case 'g' :
-					proto_tree_add_item( weather_tree, *weather_items->hf_weather_peak,
+					proto_tree_add_item( weather_tree, hf_aprs_weather_peak,
 						tvb, offset, 4, ENC_ASCII|ENC_NA );
 					offset += 4;
 					break;
 				case 't' :
-					proto_tree_add_item( weather_tree, *weather_items->hf_weather_temp,
+					proto_tree_add_item( weather_tree, hf_aprs_weather_temp,
 						tvb, offset, 4, ENC_ASCII|ENC_NA );
 					offset += 4;
 					break;
 				case 'r' :
-					proto_tree_add_item( weather_tree, *weather_items->hf_weather_rain_1,
+					proto_tree_add_item( weather_tree, hf_aprs_weather_rain_1,
 						tvb, offset, 4, ENC_ASCII|ENC_NA );
 					offset += 4;
 					break;
 				case 'P' :
-					proto_tree_add_item( weather_tree, *weather_items->hf_weather_rain_24,
+					proto_tree_add_item( weather_tree, hf_aprs_weather_rain_24,
 						tvb, offset, 4, ENC_ASCII|ENC_NA );
 					offset += 4;
 					break;
 				case 'p' :
-					proto_tree_add_item( weather_tree, *weather_items->hf_weather_rain,
+					proto_tree_add_item( weather_tree, hf_aprs_weather_rain,
 						tvb, offset, 4, ENC_ASCII|ENC_NA );
 					offset += 4;
 					break;
 				case 'h' :
-					proto_tree_add_item( weather_tree, *weather_items->hf_weather_humidty,
+					proto_tree_add_item( weather_tree, hf_aprs_weather_humidty,
 						tvb, offset, 3, ENC_ASCII|ENC_NA );
 					offset += 3;
 					break;
 				case 'b' :
-					proto_tree_add_item( weather_tree, *weather_items->hf_weather_press,
+					proto_tree_add_item( weather_tree, hf_aprs_weather_press,
 						tvb, offset, 6, ENC_ASCII|ENC_NA );
 					offset += 6;
 					break;
 				case 'l' :
 				case 'L' :
-					proto_tree_add_item( weather_tree, *weather_items->hf_weather_luminosity,
+					proto_tree_add_item( weather_tree, hf_aprs_weather_luminosity,
 						tvb, offset, 4, ENC_ASCII|ENC_NA );
 					offset += 4;
 					break;
 				case 'S' :
-					proto_tree_add_item( weather_tree, *weather_items->hf_weather_snow,
+					proto_tree_add_item( weather_tree, hf_aprs_weather_snow,
 						tvb, offset, 4, ENC_ASCII|ENC_NA );
 					offset += 4;
 					break;
 				case '#' :
-					proto_tree_add_item( weather_tree, *weather_items->hf_weather_raw_rain,
+					proto_tree_add_item( weather_tree, hf_aprs_weather_raw_rain,
 						tvb, offset, 4, ENC_ASCII|ENC_NA );
 					offset += 4;
 					break;
@@ -963,10 +825,10 @@ dissect_aprs_weather(	tvbuff_t   *tvb,
 						break;  /* from switch */
 						}
 #endif
-					proto_tree_add_item( weather_tree, *weather_items->hf_weather_software,
+					proto_tree_add_item( weather_tree, hf_aprs_weather_software,
 						tvb, offset, 1, ENC_ASCII|ENC_NA );
 					offset += 1;
-					proto_tree_add_item( weather_tree, *weather_items->hf_weather_unit,
+					proto_tree_add_item( weather_tree, hf_aprs_weather_unit,
 						tvb, offset, lr-1, ENC_ASCII|ENC_NA );
 					offset = new_offset;
 					break;
@@ -1201,9 +1063,6 @@ aprs_position( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, gboolean with_m
 			offset = dissect_aprs_msg(	tvb,
 							offset,
 							aprs_tree,
-							hf_aprs_msg,
-							ett_aprs_msg,
-							&msg_items_gbl,
 							( symbol_code == '_' ),
 							( symbol_table_id == '/' && symbol_code == '\\' )
 							);
@@ -1218,17 +1077,11 @@ aprs_position( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, gboolean with_m
 		offset = aprs_default_string( aprs_tree, tvb, offset, 1, hf_aprs_sym_code );
 		offset = dissect_aprs_compressed_msg(	tvb,
 							offset,
-							aprs_tree,
-							hf_aprs_msg,
-							ett_aprs_msg,
-							&msg_items_gbl
+							aprs_tree
 							);
 		offset = dissect_aprs_compression_type(	tvb,
 							offset,
-							aprs_tree,
-							hf_aprs_compression_type,
-							ett_aprs_ct,
-							&ct_items_gbl
+							aprs_tree
 							);
 		if ( symbol_table_id == '/' && symbol_code == '\\' )
 			offset = aprs_default_string( aprs_tree, tvb, offset, 8, hf_aprs_msg_brg );
@@ -1237,17 +1090,12 @@ aprs_position( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, gboolean with_m
 	if ( symbol_code == '_' )
 		offset = dissect_aprs_weather(	tvb,
 						offset,
-						aprs_tree,
-						hf_aprs_weather,
-						ett_aprs_weather,
-						&weather_items_gbl
+						aprs_tree
 						);
 	if ( ( symbol_table_id == '/' && symbol_code == '@' ) || ( symbol_table_id == '\\' && symbol_code == '@' ) )
 		offset = dissect_aprs_storm(	tvb,
 						offset,
-						aprs_tree,
-						hf_aprs_storm,
-						ett_aprs_storm
+						aprs_tree
 						);
 
 	return offset;
@@ -1371,12 +1219,9 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 			break;
 		case '_'	: /* Weather Report (without position) */
 			offset = aprs_timestamp( aprs_tree, tvb, offset );
-			offset = dissect_aprs_weather(	tvb,
+			offset = dissect_aprs_weather( tvb,
 				offset,
-				aprs_tree,
-				hf_aprs_weather,
-				ett_aprs_weather,
-				&weather_items_gbl
+				aprs_tree
 				);
 			break;
 		case ','	: /* Invalid data or test data */
@@ -1396,9 +1241,7 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 						offset,
 						pinfo,
 						aprs_tree,
-						hf_aprs_mic_e_0_current,
-						ett_aprs_mic_e,
-						&mic_e_items_gbl
+						hf_aprs_mic_e_0_current
 						);
 			break;
 		case 0x1d	: /* Old Mic-E Data (Rev 0 beta) */
@@ -1406,9 +1249,7 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 						offset,
 						pinfo,
 						aprs_tree,
-						hf_aprs_mic_e_0_old,
-						ett_aprs_mic_e,
-						&mic_e_items_gbl
+						hf_aprs_mic_e_0_old
 						);
 			break;
 		case '\''	: /* Old Mic-E Data (but Current data for TM-D700) */
@@ -1416,9 +1257,7 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 						offset,
 						pinfo,
 						aprs_tree,
-						hf_aprs_mic_e_old,
-						ett_aprs_mic_e,
-						&mic_e_items_gbl
+						hf_aprs_mic_e_old
 						);
 			break;
 		case '`'	: /* Current Mic-E Data (not used in TM-D700) */
@@ -1426,9 +1265,7 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 						offset,
 						pinfo,
 						aprs_tree,
-						hf_aprs_mic_e_current,
-						ett_aprs_mic_e,
-						&mic_e_items_gbl
+						hf_aprs_mic_e_current
 						);
 			break;
 		case '#'	: /* Peet Bros U-II Weather Station */
@@ -1490,7 +1327,6 @@ proto_register_aprs( void )
 {
 	module_t *aprs_module;
 
-	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_aprs_dti,
 			{ "Data Type Indicator",		"aprs.dti",
@@ -1961,7 +1797,6 @@ proto_register_aprs( void )
 		}
 	};
 
-	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_aprs,
 		&ett_aprs_msg,
@@ -1971,20 +1806,15 @@ proto_register_aprs( void )
 		&ett_aprs_mic_e,
 	};
 
-	/* Register the protocol name and description */
 	proto_aprs = proto_register_protocol("Automatic Position Reporting System", "APRS", "aprs");
 
-	/* Register the dissector */
 	register_dissector( "aprs", dissect_aprs, proto_aprs);
 
-	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_aprs, hf, array_length(hf ) );
 	proto_register_subtree_array( ett, array_length( ett ) );
 
-	/* Register preferences module */
 	aprs_module = prefs_register_protocol( proto_aprs, NULL);
 
-	/* Register any preference */
 	prefs_register_bool_preference(aprs_module, "showaprslax",
 		"Allow APRS violations.",
 		"Attempt to display common APRS protocol violations correctly",
