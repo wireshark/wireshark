@@ -9250,7 +9250,16 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   return tvb_reported_length(tvb);
 }
 
+static int
+dissect_gsm_ec_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  RlcMacPrivateData_t rlc_mac;
 
+  rlc_mac.magic = GSM_RLC_MAC_MAGIC_NUMBER;
+  rlc_mac.block_format = RLCMAC_EC_CS1;
+  rlc_mac.flags = 0;
+  return dissect_gsm_rlcmac_downlink(tvb, pinfo, tree, &rlc_mac);
+}
 
 static int
 dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
@@ -9316,6 +9325,17 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   }
 
   return tvb_reported_length(tvb);
+}
+
+static int
+dissect_gsm_ec_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  RlcMacPrivateData_t rlc_mac;
+
+  rlc_mac.magic = GSM_RLC_MAC_MAGIC_NUMBER;
+  rlc_mac.block_format = RLCMAC_EC_CS1;
+  rlc_mac.flags = 0;
+  return dissect_gsm_rlcmac_uplink(tvb, pinfo, tree, &rlc_mac);
 }
 
 void
@@ -17688,6 +17708,8 @@ proto_register_gsm_rlcmac(void)
   expert_register_field_array(expert_gsm_rlcmac, ei, array_length(ei));
   register_dissector("gsm_rlcmac_ul", dissect_gsm_rlcmac_uplink, proto_gsm_rlcmac);
   register_dissector("gsm_rlcmac_dl", dissect_gsm_rlcmac_downlink, proto_gsm_rlcmac);
+  register_dissector("gsm_ec_rlcmac_ul", dissect_gsm_ec_rlcmac_uplink, proto_gsm_rlcmac);
+  register_dissector("gsm_ec_rlcmac_dl", dissect_gsm_ec_rlcmac_downlink, proto_gsm_rlcmac);
 }
 
 void proto_reg_handoff_gsm_rlcmac(void)
