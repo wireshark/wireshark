@@ -80,13 +80,13 @@ void proto_reg_handoff_juniper(void);
 
 /* VN related defines */
 #define VN_TLV_HDR_SIZE   2
-#define VN_FLAG_ALERT     0x00000001
-#define VN_FLAG_DROP      0x00000002
-#define VN_FLAG_DENY      0x00000004
-#define VN_FLAG_LOG       0x00000008
-#define VN_FLAG_PASS      0x00000010
-#define VN_FLAG_REJECT    0x00000020
-#define VN_FLAG_MIRROR    0x00000040
+#define VN_FLAG_ALERT     0x00000002
+#define VN_FLAG_DROP      0x00000004
+#define VN_FLAG_DENY      0x00000008
+#define VN_FLAG_LOG       0x00000010
+#define VN_FLAG_PASS      0x00000020
+#define VN_FLAG_REJECT    0x00000040
+#define VN_FLAG_MIRROR    0x00000080
 #define VN_FLAG_DIRECTION 0x40000000
 #define VN_FLAG_MASK      0xFFFFFFFF
 enum {
@@ -1253,7 +1253,7 @@ static int dissect_juniper_vn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
                       offset, 4, ENC_BIG_ENDIAN);
               break;
           case VN_TLV_FLAGS:
-              proto_tree_add_bitmask(tree, tvb, offset, hf_juniper_vn_flags, ett_juniper_vn_flags, vn_flags, ENC_BIG_ENDIAN);
+              proto_tree_add_bitmask(juniper_subtree, tvb, offset, hf_juniper_vn_flags, ett_juniper_vn_flags, vn_flags, ENC_BIG_ENDIAN);
               break;
           case VN_TLV_SRC_VN:
               proto_tree_add_item(juniper_subtree, hf_juniper_vn_src, tvb, offset, tlv_len, ENC_NA|ENC_ASCII);
