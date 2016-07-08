@@ -333,15 +333,23 @@ endl=true
 lib_dep_search_list="
 	$pkglib/*
 	$pkgbin/*-bin
+	$pkgbin/extcap/*
 	$pkgexec/Wireshark
 	"
 
 while $endl; do
 	echo -e "Looking for dependencies. Round" $a
+	#
+	# libssh, for some reason, has its "install name" set to
+	# just libssh.4.dylib, rather than /usr/local/lib/libssh.4.dylib,
+	# when built by macosx-setup.sh.  We have to fix that; that's
+	# what the sed command does.
+	#
 	libs="`\
 		otool -L $lib_dep_search_list 2>/dev/null \
 		| fgrep compatibility \
 		| cut -d\( -f1 \
+		| sed '1,$s;^	libssh;	/usr/local/lib/libssh;' \
 		| egrep -v "$exclude_prefixes" \
 		| sort \
 		| uniq \
