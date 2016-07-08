@@ -594,6 +594,7 @@ void ByteViewText::setHexDisplayFormat(QAction *action)
 
     recent.gui_bytes_view = action->data().value<bytes_view_type>();
     row_width_ = recent.gui_bytes_view == BYTES_HEX ? 16 : 8;
+    updateScrollbars();
     viewport()->update();
 }
 
