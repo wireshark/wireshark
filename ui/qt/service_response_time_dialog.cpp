@@ -320,9 +320,10 @@ const QString ServiceResponseTimeDialog::filterExpression()
         QTreeWidgetItem *ti = statsTreeWidget()->selectedItems()[0];
         if (ti->type() == srt_row_type_) {
             SrtTableTreeWidgetItem *srtt_ti = static_cast<SrtTableTreeWidgetItem *>(ti->parent());
+            g_assert(srtt_ti);
             QString field = srtt_ti->filterField();
             QString value = ti->text(SRT_COLUMN_INDEX);
-            if (srtt_ti && !field.isEmpty() && !value.isEmpty()) {
+            if (!field.isEmpty() && !value.isEmpty()) {
                 filter_expr = QString("%1==%2").arg(srtt_ti->filterField()).arg(value);
             }
         }
