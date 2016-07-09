@@ -205,15 +205,6 @@ struct option {
         guint16 value_length;
 };
 
-/* Block types */
-#define BLOCK_TYPE_IDB 0x00000001 /* Interface Description Block */
-#define BLOCK_TYPE_PB  0x00000002 /* Packet Block (obsolete) */
-#define BLOCK_TYPE_SPB 0x00000003 /* Simple Packet Block */
-#define BLOCK_TYPE_NRB 0x00000004 /* Name Resolution Block */
-#define BLOCK_TYPE_ISB 0x00000005 /* Interface Statistics Block */
-#define BLOCK_TYPE_EPB 0x00000006 /* Enhanced Packet Block */
-#define BLOCK_TYPE_SHB 0x0A0D0D0A /* Section Header Block */
-
 /* Options */
 #define OPT_EOFOPT        0
 #define OPT_COMMENT       1
