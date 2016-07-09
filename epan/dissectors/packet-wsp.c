@@ -1743,6 +1743,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
     guint8      hdr_id, val_id, codepage = 1;
     gint32      tvb_len                  = tvb_length(tvb);
     gint32      offset                   = 0;
+    gint32      save_offset;
     gint32      hdr_len, hdr_start;
     gint32      val_len, val_start;
     gchar      *hdr_str, *val_str;
@@ -1770,15 +1771,25 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
             if (codepage == 1) { /* Default header code page */
                 DebugLog(("add_headers(code page 0): %s\n",
                           val_to_str_ext_const (hdr_id & 0x7f, &vals_field_names_ext, "Undefined")));
+                save_offset = offset;
                 offset = WellKnownHeader[hdr_id & 0x7F](wsp_headers, tvb,
                                                         hdr_start, pinfo);
+                /* Make sure we're progressing forward */
+                if (save_offset <= offset) {
+                    break;
+                }
             } else { /* Openwave header code page */
                 /* Here I'm delibarately assuming that Openwave is the only
                  * company that defines a WSP header code page. */
                 DebugLog(("add_headers(code page 0x%02x - assumed to be x-up-1): %s\n",
                           codepage, val_to_str_ext_const (hdr_id & 0x7f, &vals_openwave_field_names_ext, "Undefined")));
+                save_offset = offset;
                 offset = WellKnownOpenwaveHeader[hdr_id & 0x7F](wsp_headers,
                                                                 tvb, hdr_start, pinfo);
+                /* Make sure we're progressing forward */
+                if (save_offset <= offset) {
+                    break;
+                }
             }
         } else if (hdr_id == 0x7F) { /* HCP shift sequence */
             codepage = tvb_get_guint8(tvb, offset+1);
