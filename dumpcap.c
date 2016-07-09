@@ -117,9 +117,11 @@
 
 /*
  * Get information about libpcap format from "wiretap/libpcap.h".
+ * Get information about pcapng format from "wiretap/pcapng_module.h".
  * XXX - can we just use pcap_open_offline() to read the pipe?
  */
 #include "wiretap/libpcap.h"
+#include "wiretap/pcapng_module.h"
 
 /**#define DEBUG_DUMPCAP**/
 /**#define DEBUG_CHILD_DUMPCAP**/
@@ -1503,7 +1505,7 @@ cap_pipe_open_live(char *pipename,
             else {
                 g_snprintf(errmsg, errmsgl,
                            "The capture session could not be initiated "
-                           "due to error getting information on pipe/socket: %s", g_strerror(errno));
+                           "due to error getting information on pipe/socket: %s.", g_strerror(errno));
                 pcap_opts->cap_pipe_err = PIPERR;
             }
             return;
@@ -1513,7 +1515,7 @@ cap_pipe_open_live(char *pipename,
             if (fd == -1) {
                 g_snprintf(errmsg, errmsgl,
                            "The capture session could not be initiated "
-                           "due to error on pipe open: %s", g_strerror(errno));
+                           "due to error on pipe open: %s.", g_strerror(errno));
                 pcap_opts->cap_pipe_err = PIPERR;
                 return;
             }
@@ -1522,7 +1524,7 @@ cap_pipe_open_live(char *pipename,
             if (fd == -1) {
                 g_snprintf(errmsg, errmsgl,
                            "The capture session could not be initiated "
-                           "due to error on socket create: %s", g_strerror(errno));
+                           "due to error on socket create: %s.", g_strerror(errno));
                 pcap_opts->cap_pipe_err = PIPERR;
                 return;
             }
@@ -1554,7 +1556,7 @@ cap_pipe_open_live(char *pipename,
                 /* Path name too long */
                 g_snprintf(errmsg, errmsgl,
                            "The capture session coud not be initiated "
-                           "due to error on socket connect: Path name too long");
+                           "due to error on socket connect: Path name too long.");
                 pcap_opts->cap_pipe_err = PIPERR;
                 ws_close(fd);
                 return;
@@ -1563,7 +1565,7 @@ cap_pipe_open_live(char *pipename,
             if (b == -1) {
                 g_snprintf(errmsg, errmsgl,
                            "The capture session coud not be initiated "
-                           "due to error on socket connect: %s", g_strerror(errno));
+                           "due to error on socket connect: %s.", g_strerror(errno));
                 pcap_opts->cap_pipe_err = PIPERR;
                 ws_close(fd);
                 return;
@@ -1578,7 +1580,7 @@ cap_pipe_open_live(char *pipename,
             } else {
                 g_snprintf(errmsg, errmsgl,
                            "The capture session could not be initiated because\n"
-                           "\"%s\" is neither an interface nor a socket nor a pipe", pipename);
+                           "\"%s\" is neither an interface nor a socket nor a pipe.", pipename);
                 pcap_opts->cap_pipe_err = PIPERR;
             }
             return;
@@ -1600,7 +1602,7 @@ cap_pipe_open_live(char *pipename,
         if (!pos) {
             g_snprintf(errmsg, errmsgl,
                        "The capture session could not be initiated because\n"
-                       "\"%s\" is neither an interface nor a pipe", pipename);
+                       "\"%s\" is neither an interface nor a pipe.", pipename);
             pcap_opts->cap_pipe_err = PIPNEXIST;
             return;
         }
@@ -1631,7 +1633,7 @@ cap_pipe_open_live(char *pipename,
                               NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
                 g_snprintf(errmsg, errmsgl,
                            "The capture session on \"%s\" could not be started "
-                           "due to error on pipe open: %s (error %d)",
+                           "due to error on pipe open: %s (error %d).",
                            pipename, utf_16to8(err_str), GetLastError());
                 LocalFree(err_str);
                 pcap_opts->cap_pipe_err = PIPERR;
@@ -1643,7 +1645,7 @@ cap_pipe_open_live(char *pipename,
                              NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
                 g_snprintf(errmsg, errmsgl,
                            "The capture session on \"%s\" timed out during "
-                           "pipe open: %s (error %d)",
+                           "pipe open: %s (error %d).",
                            pipename, utf_16to8(err_str), GetLastError());
                 LocalFree(err_str);
                 pcap_opts->cap_pipe_err = PIPERR;
@@ -1663,14 +1665,14 @@ cap_pipe_open_live(char *pipename,
         bytes_read = 0;
         while (bytes_read < sizeof magic) {
             if (fd == -1) {
-                g_snprintf(errmsg, errmsgl, "Invalid file descriptor");
+                g_snprintf(errmsg, errmsgl, "Invalid file descriptor.");
                 goto error;
             }
 
             sel_ret = cap_pipe_select(fd);
             if (sel_ret < 0) {
                 g_snprintf(errmsg, errmsgl,
-                           "Unexpected error from select: %s", g_strerror(errno));
+                           "Unexpected error from select: %s.", g_strerror(errno));
                 goto error;
             } else if (sel_ret > 0) {
                 b = cap_pipe_read(fd, ((char *)&magic)+bytes_read,
@@ -1678,9 +1680,9 @@ cap_pipe_open_live(char *pipename,
                                   pcap_opts->from_cap_socket);
                 if (b <= 0) {
                     if (b == 0)
-                        g_snprintf(errmsg, errmsgl, "End of file on pipe magic during open");
+                        g_snprintf(errmsg, errmsgl, "End of file on pipe magic during open.");
                     else
-                        g_snprintf(errmsg, errmsgl, "Error on pipe magic during open: %s",
+                        g_snprintf(errmsg, errmsgl, "Error on pipe magic during open: %s.",
                                    g_strerror(errno));
                     goto error;
                 }
@@ -1704,9 +1706,9 @@ cap_pipe_open_live(char *pipename,
         g_async_queue_pop(pcap_opts->cap_pipe_done_q);
         if (pcap_opts->cap_pipe_bytes_read <= 0) {
             if (pcap_opts->cap_pipe_bytes_read == 0)
-                g_snprintf(errmsg, errmsgl, "End of file on pipe magic during open");
+                g_snprintf(errmsg, errmsgl, "End of file on pipe magic during open.");
             else
-                g_snprintf(errmsg, errmsgl, "Error on pipe magic during open: %s",
+                g_snprintf(errmsg, errmsgl, "Error on pipe magic during open: %s.",
                            g_strerror(errno));
             goto error;
         }
@@ -1744,9 +1746,14 @@ cap_pipe_open_live(char *pipename,
         pcap_opts->cap_pipe_byte_swapped = TRUE;
         pcap_opts->cap_pipe_modified = TRUE;
         break;
+    case BLOCK_TYPE_SHB:
+        /* This isn't pcap, it's pcapng.  We don't yet support
+           reading it. */
+        g_snprintf(errmsg, errmsgl, "Capturing from a pipe doesn't support pcapng format.");
+        goto error;
     default:
-        /* Not a "libpcap" type we know about. */
-        g_snprintf(errmsg, errmsgl, "Unrecognized libpcap format");
+        /* Not a pcap type we know about, or not pcap at all. */
+        g_snprintf(errmsg, errmsgl, "Unrecognized libpcap format or not libpcap data.");
         goto error;
     }
 
@@ -1760,7 +1767,7 @@ cap_pipe_open_live(char *pipename,
             sel_ret = cap_pipe_select(fd);
             if (sel_ret < 0) {
                 g_snprintf(errmsg, errmsgl,
-                           "Unexpected error from select: %s", g_strerror(errno));
+                           "Unexpected error from select: %s.", g_strerror(errno));
                 goto error;
             } else if (sel_ret > 0) {
                 b = cap_pipe_read(fd, ((char *)hdr)+bytes_read,
@@ -1768,9 +1775,9 @@ cap_pipe_open_live(char *pipename,
                                   pcap_opts->from_cap_socket);
                 if (b <= 0) {
                     if (b == 0)
-                        g_snprintf(errmsg, errmsgl, "End of file on pipe header during open");
+                        g_snprintf(errmsg, errmsgl, "End of file on pipe header during open.");
                     else
-                        g_snprintf(errmsg, errmsgl, "Error on pipe header during open: %s",
+                        g_snprintf(errmsg, errmsgl, "Error on pipe header during open: %s.",
                                    g_strerror(errno));
                     goto error;
                 }
@@ -1787,9 +1794,9 @@ cap_pipe_open_live(char *pipename,
         g_async_queue_pop(pcap_opts->cap_pipe_done_q);
         if (pcap_opts->cap_pipe_bytes_read <= 0) {
             if (pcap_opts->cap_pipe_bytes_read == 0)
-                g_snprintf(errmsg, errmsgl, "End of file on pipe header during open");
+                g_snprintf(errmsg, errmsgl, "End of file on pipe header during open.");
             else
-                g_snprintf(errmsg, errmsgl, "Error on pipe header header during open: %s",
+                g_snprintf(errmsg, errmsgl, "Error on pipe header header during open: %s.",
                            g_strerror(errno));
             goto error;
         }
