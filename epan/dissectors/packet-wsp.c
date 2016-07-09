@@ -376,6 +376,7 @@ static expert_field ei_wsp_invalid_parameter_value = EI_INIT;
 static expert_field ei_wsp_undecoded_parameter = EI_INIT;
 static expert_field ei_hdr_x_wap_tod = EI_INIT;
 static expert_field ei_wsp_trailing_quote = EI_INIT;
+static expert_field ei_wsp_header_invalid = EI_INIT;
 
 
 /* Handle for WSP-over-UDP dissector */
@@ -4370,6 +4371,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
     guint8      hdr_id, val_id, codepage = 1;
     gint32      tvb_len                  = tvb_reported_length(tvb);
     gint32      offset                   = 0;
+    gint32      save_offset;
     gint32      hdr_len, hdr_start;
     gint32      val_len, val_start;
     gchar      *hdr_str, *val_str;
@@ -4393,13 +4395,25 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
             hdr_len = 1;
             /* Call header value dissector for given header */
             if (codepage == 1) { /* Default header code page */
+                save_offset = offset;
                 offset = WellKnownHeader[hdr_id & 0x7F](wsp_headers, tvb,
                                                         hdr_start, pinfo);
+                /* Make sure we're progressing forward */
+                if (save_offset <= offset) {
+                    expert_add_info(pinfo, ti, &ei_wsp_header_invalid);
+                    break;
+                }
             } else { /* Openwave header code page */
                 /* Here I'm delibarately assuming that Openwave is the only
                  * company that defines a WSP header code page. */
+                save_offset = offset;
                 offset = WellKnownOpenwaveHeader[hdr_id & 0x7F](wsp_headers,
                                                                 tvb, hdr_start, pinfo);
+                /* Make sure we're progressing forward */
+                if (save_offset <= offset) {
+                    expert_add_info(pinfo, ti, &ei_wsp_header_invalid);
+                    break;
+                }
             }
         } else if (hdr_id == 0x7F) { /* HCP shift sequence */
             codepage = tvb_get_guint8(tvb, offset+1);
@@ -7130,6 +7144,7 @@ proto_register_wsp(void)
       { &ei_hdr_x_wap_tod, { "wsp.header.x_wap_tod.not_text", PI_PROTOCOL, PI_WARN, "Should be encoded as a textual value", EXPFILL }},
       { &ei_wsp_undecoded_parameter, { "wsp.undecoded_parameter", PI_UNDECODED, PI_WARN, "Invalid parameter value", EXPFILL }},
       { &ei_wsp_trailing_quote, { "wsp.trailing_quote", PI_PROTOCOL, PI_WARN, "Quoted-string value has been encoded with a trailing quote", EXPFILL }},
+      { &ei_wsp_header_invalid, { "wsp.header_invalid", PI_MALFORMED, PI_ERROR, "Malformed header", EXPFILL }},
     };
 
     expert_module_t* expert_wsp;
