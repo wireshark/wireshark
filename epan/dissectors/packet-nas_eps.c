@@ -299,6 +299,7 @@ static expert_field ei_nas_eps_esm_tp_not_integ_prot = EI_INIT;
 
 /* Global variables */
 static gboolean g_nas_eps_dissect_plain = FALSE;
+static gboolean g_nas_eps_null_decipher = TRUE;
 
 guint8 eps_nas_gen_msg_cont_type = 0;
 
@@ -5708,8 +5709,10 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                 /* Read security_header_type / EPS bearer id AND pd */
                 pd = tvb_get_guint8(tvb,offset);
                 /* If pd is in plaintext this message probably isn't ciphered */
-                if ((pd != 7) && (pd != 15) &&
-                    (((pd&0x0f) != 2) || (((pd&0x0f) == 2) && ((pd&0xf0) > 0) && ((pd&0xf0) < 0x50)))) {
+                /* Use preferences settings to override this behavior */
+                if (!g_nas_eps_null_decipher ||
+                    ((pd != 7) && (pd != 15) &&
+                    (((pd&0x0f) != 2) || (((pd&0x0f) == 2) && ((pd&0xf0) > 0) && ((pd&0xf0) < 0x50))))) {
                     proto_tree_add_item(nas_eps_tree, hf_nas_eps_ciphered_msg, tvb, offset, len-6, ENC_NA);
                     return tvb_captured_length(tvb);
                 }
@@ -6945,6 +6948,12 @@ proto_register_nas_eps(void)
                                    "Force dissect as plain NAS EPS",
                                    "Always dissect NAS EPS messages as plain",
                                    &g_nas_eps_dissect_plain);
+
+    prefs_register_bool_preference(nas_eps_module,
+                                   "null_decipher",
+                                   "Try to detect and decode EEA0 ciphered messages",
+                                   "This should work when the NAS security algorithm is NULL (128-EEA0).",
+                                   &g_nas_eps_null_decipher);
 }
 
 void
