@@ -8930,6 +8930,7 @@ qmvideo          5689/tcp # QM video network management protocol [Jamie_Lokier] 
 qmvideo          5689/udp # QM video network management protocol [Jamie_Lokier] [Jamie_Lokier] 2006-05
 rbsystem         5693/tcp # Robert Bosch Data Transfer [Robert_Bosch_GmbH] [Klaus_Warth] 2011-08-01 2012-07-17
 kmip             5696/tcp # Key Management Interoperability Protocol [OASIS_KMIP_Technical_Committee] [Robin_Cover] 2011-07-25
+supportassist    5700/tcp # Dell SupportAssist data center management [Dell_Technologies] [Rohitdev_Kulshrestha] 2016-07-05
 proshareaudio    5713/tcp # proshare conf audio [gunner] [gunner]
 proshareaudio    5713/udp # proshare conf audio [gunner] [gunner]
 prosharevideo    5714/tcp # proshare conf video [gunner] [gunner]
