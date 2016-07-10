@@ -184,7 +184,7 @@ dissect_dpd_subcarrier_assignment_vector(tvbuff_t * tvb, proto_tree * tree, guin
   proto_item *it;
   proto_tree *subcarrier_assignment_vector_tree;
   guint8 subcarrier_assignment_vector_oddness;
-  gint32 index;
+  gint32 vector_index;
 
   it = proto_tree_add_protocol_format (tree, proto_docsis_dpd, tvb, start-3, len+3, ".6 Subcarrier Assignment Vector");
   subcarrier_assignment_vector_tree = proto_item_add_subtree (it, ett_docsis_dpd_tlv_subcarrier_assignment_vector);
@@ -196,12 +196,12 @@ dissect_dpd_subcarrier_assignment_vector(tvbuff_t * tvb, proto_tree * tree, guin
 
   subcarrier_assignment_vector_oddness = (tvb_get_guint8(tvb, start) >> 7);
 
-  for(index = 0; index < len; ++index)
+  for(vector_index = 0; vector_index < len; ++vector_index)
   {
-    proto_tree_add_item (subcarrier_assignment_vector_tree, hf_docsis_dpd_tlv_subc_assign_vector_modulation_odd, tvb, start + 2 + index, 1, ENC_BIG_ENDIAN);
-    if (!((index == len -1) && subcarrier_assignment_vector_oddness))
+    proto_tree_add_item (subcarrier_assignment_vector_tree, hf_docsis_dpd_tlv_subc_assign_vector_modulation_odd, tvb, start + 2 + vector_index, 1, ENC_BIG_ENDIAN);
+    if (!((vector_index == len -1) && subcarrier_assignment_vector_oddness))
     {
-      proto_tree_add_item (subcarrier_assignment_vector_tree, hf_docsis_dpd_tlv_subc_assign_vector_modulation_even, tvb, start + 2 + index, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item (subcarrier_assignment_vector_tree, hf_docsis_dpd_tlv_subc_assign_vector_modulation_even, tvb, start + 2 + vector_index, 1, ENC_BIG_ENDIAN);
     }
   }
 }
