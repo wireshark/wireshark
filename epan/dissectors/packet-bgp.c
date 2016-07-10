@@ -1153,8 +1153,8 @@ static const value_string capability_vals[] = {
     { BGP_CAPABILITY_LONG_LIVED_GRACEFUL_RESTART,   "Long-Lived Graceful Restart (LLGR) Capability" },
     { BGP_CAPABILITY_CP_ORF,                        "CP-ORF Capability" },
     { BGP_CAPABILITY_FQDN,                          "FQDN Capability" },
-    { BGP_CAPABILITY_ROUTE_REFRESH_CISCO,           "Route refresh capability" },
-    { BGP_CAPABILITY_ORF_CISCO,                     "Cooperative route filtering capability" },
+    { BGP_CAPABILITY_ROUTE_REFRESH_CISCO,           "Route refresh capability (Cisco)" },
+    { BGP_CAPABILITY_ORF_CISCO,                     "Cooperative route filtering capability (Cisco)" },
     { 0, NULL }
 };
 
