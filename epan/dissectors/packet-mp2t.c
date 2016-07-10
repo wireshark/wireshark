@@ -38,8 +38,6 @@
 #include <epan/proto_data.h>
 #include "packet-l2tp.h"
 
-#include <epan/tvbuff-int.h> /* XXX, for tvb_new_proxy() */
-
 void proto_register_mp2t(void);
 void proto_reg_handoff_mp2t(void);
 
@@ -481,7 +479,7 @@ mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
         len_tvb = tvb;
     } else {
         /* Create a composite tvb out of the two */
-        frag_tvb = tvb_new_proxy(frag->tvb_data);
+        frag_tvb = tvb_new_subset_remaining(frag->tvb_data, 0);
         len_tvb = tvb_new_composite();
         tvb_composite_append(len_tvb, frag_tvb);
 
