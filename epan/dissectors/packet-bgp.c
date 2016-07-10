@@ -158,6 +158,7 @@ static dissector_handle_t bgp_handle;
 #define BGP_CAPABILITY_FQDN                         73  /* draft-walton-bgp-hostname-capability */
 #define BGP_CAPABILITY_ROUTE_REFRESH_CISCO         128  /* Cisco */
 #define BGP_CAPABILITY_ORF_CISCO                   130  /* Cisco */
+#define BGP_CAPABILITY_MULTISESSION_CISCO          131  /* Cisco */
 
 #define BGP_ORF_PREFIX_CISCO    0x80 /* Cisco */
 #define BGP_ORF_COMM_CISCO      0x81 /* Cisco */
@@ -1155,6 +1156,7 @@ static const value_string capability_vals[] = {
     { BGP_CAPABILITY_FQDN,                          "FQDN Capability" },
     { BGP_CAPABILITY_ROUTE_REFRESH_CISCO,           "Route refresh capability (Cisco)" },
     { BGP_CAPABILITY_ORF_CISCO,                     "Cooperative route filtering capability (Cisco)" },
+    { BGP_CAPABILITY_MULTISESSION_CISCO,            "Multisession BGP Capability (Cisco)" },
     { 0, NULL }
 };
 
@@ -1359,6 +1361,7 @@ static int hf_bgp_cap_fqdn_hostname_len = -1;
 static int hf_bgp_cap_fqdn_hostname = -1;
 static int hf_bgp_cap_fqdn_domain_name_len = -1;
 static int hf_bgp_cap_fqdn_domain_name = -1;
+static int hf_bgp_cap_multisession_flags = -1;
 
 /* BGP update global header field */
 static int hf_bgp_update_withdrawn_routes_length = -1;
@@ -5457,6 +5460,18 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             }
 
             break;
+        case BGP_CAPABILITY_MULTISESSION_CISCO:
+            if (clen < 1) {
+                expert_add_info_format(pinfo, ti_len, &ei_bgp_cap_len_bad, "Capability length %u too short, must be greater than 1", clen);
+                proto_tree_add_item(cap_tree, hf_bgp_cap_unknown, tvb, offset, clen, ENC_NA);
+                offset += clen;
+            }
+            else {
+                proto_tree_add_item(cap_tree, hf_bgp_cap_multisession_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+            }
+
+            break;
             /* unknown capability */
         default:
             if (clen != 0) {
@@ -7614,6 +7629,9 @@ proto_register_bgp(void)
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_cap_fqdn_domain_name,
         { "Domain Name", "bgp.cap.orf.fqdn.domain_name", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_cap_multisession_flags,
+        { "Flag", "bgp.cap.multisession.flags", FT_UINT8, BASE_HEX,
           NULL, 0x0, NULL, HFILL }},
       /* BGP update */
 
