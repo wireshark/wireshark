@@ -264,6 +264,7 @@ static int hf_iso14443_crc = -1;
 
 static expert_field ei_iso14443_unknown_cmd = EI_INIT;
 static expert_field ei_iso14443_wrong_crc = EI_INIT;
+static expert_field ei_iso14443_uid_inval_size = EI_INIT;
 
 
 /* dissect and verify the CRC
@@ -290,7 +291,7 @@ static int dissect_iso14443_crc(tvbuff_t *tvb, gint crc_offset,
             " (correct)" : " (wrong)");
     /* add an expert info to allow filtering on packets with wrong crc */
     if (crc_recv != crc_calc)
-        expert_add_info(pinfo, crc_pi,&ei_iso14443_wrong_crc);
+        expert_add_info(pinfo, crc_pi, &ei_iso14443_wrong_crc);
 
     return CRC_LEN;
 }
@@ -318,6 +319,7 @@ dissect_iso14443_cmd_type_wupa(tvbuff_t *tvb, packet_info *pinfo,
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         guint16 atqa;
+        proto_item *pi_uid;
 
         atqa = tvb_get_letohs(tvb, offset);
         col_set_str(pinfo->cinfo, COL_INFO, "ATQA");
@@ -335,11 +337,16 @@ dissect_iso14443_cmd_type_wupa(tvbuff_t *tvb, packet_info *pinfo,
             uid_size = 7;
         else if (uid_bits == 0x02)
             uid_size = 10;
-        /* XXX- expert info for invalid uid size */
-        proto_tree_add_item(tree, hf_iso14443_uid_bits,
+
+        pi_uid = proto_tree_add_item(tree, hf_iso14443_uid_bits,
                 tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_uint(tree, hf_iso14443_uid_size,
-                tvb, offset+1, 1, uid_size);
+        if (uid_size != 0) {
+            proto_tree_add_uint(tree, hf_iso14443_uid_size,
+                    tvb, offset+1, 1, uid_size);
+        }
+        else {
+            expert_add_info(pinfo, pi_uid, &ei_iso14443_uid_inval_size);
+        }
 
         proto_tree_add_item(tree, hf_iso14443_atqa_rfu2,
                 tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1592,6 +1599,10 @@ proto_register_iso14443(void)
         },
         { &ei_iso14443_wrong_crc,
             { "iso14443.crc.wrong", PI_PROTOCOL, PI_WARN, "Wrong CRC", EXPFILL }
+        },
+        { &ei_iso14443_uid_inval_size,
+            { "iso14443.uid.invalid_size", PI_PROTOCOL, PI_WARN,
+                "Invalid UID size", EXPFILL }
         }
     };
 
