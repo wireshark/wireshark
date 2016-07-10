@@ -341,8 +341,10 @@ dissect_iso14443_cmd_type_wupa(tvbuff_t *tvb, packet_info *pinfo,
         pi_uid = proto_tree_add_item(tree, hf_iso14443_uid_bits,
                 tvb, offset, 2, ENC_LITTLE_ENDIAN);
         if (uid_size != 0) {
-            proto_tree_add_uint(tree, hf_iso14443_uid_size,
+            proto_item *pi_uid_size;
+            pi_uid_size = proto_tree_add_uint(tree, hf_iso14443_uid_size,
                     tvb, offset+1, 1, uid_size);
+            PROTO_ITEM_SET_GENERATED(pi_uid_size);
         }
         else {
             expert_add_info(pinfo, pi_uid, &ei_iso14443_uid_inval_size);
