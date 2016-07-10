@@ -723,7 +723,7 @@ int randpkt_parse_type(char *string)
 
 	/* Called with NULL, choose a random packet */
 	if (!string) {
-		return examples[g_rand_int_range(pkt_rand, 0, num_entries)].produceable_type;
+		return examples[g_random_int_range(0, num_entries)].produceable_type;
 	}
 
 	for (i = 0; i < num_entries; i++) {
