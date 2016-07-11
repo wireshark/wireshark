@@ -22,7 +22,16 @@
 
 #include "config.h"
 
+#include <glib.h>
+
 #include "time_util.h"
+
+#ifndef _WIN32
+#include <sys/time.h>
+#include <sys/resource.h>
+#else
+#include <windows.h>
+#endif
 
 /* converts a broken down date representation, relative to UTC,
  * to a timestamp; it uses timegm() if it's available.
@@ -60,6 +69,54 @@ mktime_utc(struct tm *tm)
 #else
 	return timegm(tm);
 #endif /* !HAVE_TIMEGM */
+}
+
+static double last_utime = 0.0;
+static double last_stime = 0.0;
+
+void log_resource_usage(gboolean reset_delta, const char *format, ...) {
+	va_list ap;
+	GString *log_str = g_string_new("");
+	double utime;
+	double stime;
+
+#ifndef _WIN32
+	struct rusage ru;
+
+	getrusage(RUSAGE_SELF, &ru);
+
+	utime = ru.ru_utime.tv_sec + (ru.ru_utime.tv_usec / 1000000.0);
+	stime = ru.ru_stime.tv_sec + (ru.ru_stime.tv_usec / 1000000.0);
+#else /* _WIN32 */
+	HANDLE h_proc = GetCurrentProcess();
+	FILETIME cft, eft, kft, uft;
+	ULARGE_INTEGER uli_time;
+
+	GetProcessTimes(h_proc, &cft, &eft, &kft, &uft);
+
+	uli_time.LowPart = uft.dwLowDateTime;
+	uli_time.HighPart = uft.dwHighDateTime;
+	utime = uli_time.QuadPart / 10000000.0;
+	uli_time.LowPart = kft.dwLowDateTime;
+	uli_time.HighPart = kft.dwHighDateTime;
+	stime = uli_time.QuadPart / 1000000000.0;
+#endif /* _WIN32 */
+
+	if (reset_delta || last_utime == 0.0) {
+		last_utime = utime;
+		last_stime = stime;
+	}
+
+	g_string_append_printf(log_str, "user %.3f +%.3f sys %.3f +%.3f ",
+		utime, utime - last_utime, stime, stime - last_stime);
+
+	va_start(ap, format);
+	g_string_append_vprintf(log_str, format, ap);
+	va_end(ap);
+
+	g_warning("%s", log_str->str);
+	g_string_free(log_str, TRUE);
+
 }
 
 /*

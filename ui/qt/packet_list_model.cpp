@@ -44,6 +44,13 @@
 #include <QModelIndex>
 #include <QElapsedTimer>
 
+// Print timing information
+//#define DEBUG_PACKET_LIST_MODEL 1
+
+#ifdef DEBUG_PACKET_LIST_MODEL
+#include <wsutil/time_util.h>
+#endif
+
 PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     QAbstractItemModel(parent),
     max_row_height_(0),
@@ -602,6 +609,12 @@ gint PacketListModel::appendPacket(frame_data *fdata)
 {
     PacketListRecord *record = new PacketListRecord(fdata);
     gint pos = -1;
+
+#ifdef DEBUG_PACKET_LIST_MODEL
+    if (fdata->num % 10000 == 1) {
+        log_resource_usage(fdata->num == 1, "%u packets", fdata->num);
+    }
+#endif
 
     physical_rows_ << record;
 
