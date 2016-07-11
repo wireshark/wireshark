@@ -64,18 +64,15 @@ binary_list="
 	text2pcap
 	tshark
 "
-extcap_binary_list="
-	extcap/androiddump
-	extcap/randpktdump
-"
 
-if [ -x "extcap/sshdump" ]; then
-	extcap_binary_list="$extcap_binary_list extcap/sshdump"
-fi
+extcap_binaries="androiddump randpktdump sshdump ciscodump"
 
-if [ -x "extcap/ciscodump" ]; then
-	extcap_binary_list="$extcap_binary_list extcap/ciscodump"
-fi
+for extcap_binary in $extcap_binaries
+do
+	if [ -x "extcap/$extcap_binary" ]; then
+		extcap_binary_list="$extcap_binary_list extcap/$extcap_binary"
+	fi
+done
 
 cs_binary_list=
 
