@@ -131,6 +131,10 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     ptvcursor_t *cursor;
 
     /* do the plausibility checks before setting up anything */
+
+    /* make sure that tvb_get_guint8() won't throw an exception */
+    if (tvb_captured_length(tvb) < 1)
+        return 0;
     msg_id = tvb_get_guint8(tvb, 0);
     if (msg_id > ID_MAX)
         return 0;
