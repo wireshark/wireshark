@@ -300,9 +300,13 @@ dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     guint8      tb, tc, td, k=0;
     gint        tck_len;
 
+    /* we need at least the initial char TS and the format char T0 */
+    if (tvb_captured_length(tvb) < 2)
+        return 0; /* no ATR sequence */
+
     init_char = tvb_get_guint8(tvb, offset);
     if (init_char!=0x3B && init_char!=0x3F)
-        return 0; /* no ATR sequence */
+        return 0;
 
     proto_it = proto_tree_add_protocol_format(tree, proto_iso7816_atr,
                 tvb, 0, -1, "ISO 7816 ATR");
