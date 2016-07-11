@@ -2416,9 +2416,9 @@ static int
 dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
-    proto_tree *eigrp_tree        = NULL, *tlv_tree;
+    proto_tree *eigrp_tree, *tlv_tree;
     guint       opcode, vrid;
-    guint16     tlv, checksum, cacl_checksum;
+    guint16     tlv;
     guint32     ack, size, offset = EIGRP_HEADER_LENGTH;
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -2463,18 +2463,7 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                         ENC_BIG_ENDIAN);
 
     size          = tvb_captured_length(tvb);
-    checksum      = tvb_get_ntohs(tvb, 2);
-    cacl_checksum = ip_checksum_tvb(tvb, 0, size);
-
-    if (cacl_checksum == checksum) {
-        proto_tree_add_uint_format_value(eigrp_tree, hf_eigrp_checksum, tvb, 2, 2,
-                            checksum, "0x%02x [incorrect]",
-                            checksum);
-        expert_add_info(pinfo, ti, &ei_eigrp_checksum_bad);
-    } else {
-        proto_tree_add_uint_format_value(eigrp_tree, hf_eigrp_checksum, tvb, 2, 2,
-                            checksum, "0x%02x [correct]", checksum);
-    }
+    proto_tree_add_checksum(eigrp_tree, tvb, 2, hf_eigrp_checksum, -1, &ei_eigrp_checksum_bad, pinfo, ip_checksum_tvb(tvb, 0, size), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
     /* Decode the EIGRP Flags Field */
     proto_tree_add_bitmask(eigrp_tree, tvb, 4, hf_eigrp_flags, ett_eigrp_flags,

@@ -96,11 +96,9 @@ static int hf_fcoib_sig         = -1;
 static int hf_fcoib_sof         = -1;
 static int hf_fcoib_eof         = -1;
 static int hf_fcoib_crc         = -1;
-static int hf_fcoib_crc_bad     = -1;
-static int hf_fcoib_crc_good    = -1;
+static int hf_fcoib_crc_status  = -1;
 
 static int ett_fcoib            = -1;
-static int ett_fcoib_crc        = -1;
 
 static expert_field ei_fcoib_crc = EI_INIT;
 
@@ -161,9 +159,7 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     const char *crc_msg;
     const char *len_msg;
     proto_item *ti;
-    proto_item *item;
     proto_tree *fcoib_tree;
-    proto_tree *crc_tree;
     tvbuff_t   *next_tvb;
     gboolean    crc_exists;
     guint32     crc_computed = 0;
@@ -268,34 +264,12 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
      * Create the CRC information.
      */
     if (crc_exists) {
-        if (crc == crc_computed) {
-            item = proto_tree_add_uint_format_value(fcoib_tree, hf_fcoib_crc, tvb,
-                                              crc_offset, 4, crc,
-                                              "%8.8x [valid]", crc);
-        } else {
-            item = proto_tree_add_uint_format_value(fcoib_tree, hf_fcoib_crc, tvb,
-                                              crc_offset, 4, crc,
-                                              "%8.8x [error: should be %8.8x]",
-                                              crc, crc_computed);
-            expert_add_info_format(pinfo, item, &ei_fcoib_crc,
-                                   "Bad FC CRC %8.8x %8.x",
-                                   crc, crc_computed);
-        }
+        proto_tree_add_checksum(fcoib_tree, tvb, crc_offset, hf_fcoib_crc, hf_fcoib_crc_status, &ei_fcoib_crc, pinfo, crc_computed, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
         proto_tree_set_appendix(fcoib_tree, tvb, crc_offset,
                                 tvb_captured_length_remaining (tvb, crc_offset));
     } else {
-        item = proto_tree_add_uint_format_value(fcoib_tree, hf_fcoib_crc, tvb, crc_offset, 0,
-                                   0, "CRC: [missing]");
+        proto_tree_add_checksum(fcoib_tree, tvb, crc_offset, hf_fcoib_crc, hf_fcoib_crc_status, &ei_fcoib_crc, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
     }
-    crc_tree = proto_item_add_subtree(item, ett_fcoib_crc);
-    ti = proto_tree_add_boolean(crc_tree, hf_fcoib_crc_bad, tvb,
-                                crc_offset, 4,
-                                crc_exists && crc != crc_computed);
-    PROTO_ITEM_SET_GENERATED(ti);
-    ti = proto_tree_add_boolean(crc_tree, hf_fcoib_crc_good, tvb,
-                                crc_offset, 4,
-                                crc_exists && crc == crc_computed);
-    PROTO_ITEM_SET_GENERATED(ti);
 
     /*
      * Interpret the EOF.
@@ -349,16 +323,12 @@ proto_register_fcoib(void)
           {"Version", "fcoib.ver", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL}},
         { &hf_fcoib_crc,
           {"CRC", "fcoib.crc", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}},
-        { &hf_fcoib_crc_good,
-          {"CRC good", "fcoib.crc_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-           "True: CRC matches packet content; False: doesn't match or not checked.", HFILL }},
-        { &hf_fcoib_crc_bad,
-          {"CRC bad", "fcoib.crc_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-           "True: CRC doesn't match packet content; False: matches or not checked.", HFILL }}
+        { &hf_fcoib_crc_status,
+          {"CRC Status", "fcoib.crc.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+           NULL, HFILL }},
     };
     static gint *ett[] = {
         &ett_fcoib,
-        &ett_fcoib_crc
     };
 
     static ei_register_info ei[] = {

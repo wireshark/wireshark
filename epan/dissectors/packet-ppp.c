@@ -1829,9 +1829,6 @@ decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
 {
     tvbuff_t *next_tvb;
     gint      len, reported_len;
-    int       rx_fcs_offset;
-    guint32   rx_fcs_exp;
-    guint32   rx_fcs_got;
 
     /*
      * Remove the FCS, if any, from the packet data.
@@ -1880,17 +1877,8 @@ decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
             /*
              * Compute the FCS and put it into the tree.
              */
-            rx_fcs_offset = proto_offset + len;
-            rx_fcs_exp = fcs16(tvb);
-            rx_fcs_got = tvb_get_letohs(tvb, rx_fcs_offset);
-            if (rx_fcs_got != rx_fcs_exp) {
-                proto_tree_add_uint_format_value(fh_tree, hf_ppp_fcs_16, tvb, rx_fcs_offset, 2,
-                    rx_fcs_got, "0x%04x [incorrect, should be 0x%04x]",
-                    rx_fcs_got, rx_fcs_exp);
-            } else {
-                proto_tree_add_uint_format_value(fh_tree, hf_ppp_fcs_16, tvb, rx_fcs_offset, 2,
-                    rx_fcs_got, "0x%04x [correct]", rx_fcs_got);
-            }
+            proto_tree_add_checksum(fh_tree, tvb, proto_offset + len, hf_ppp_fcs_16, -1, NULL, NULL, fcs16(tvb),
+                            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
         }
         break;
 
@@ -1931,17 +1919,8 @@ decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
             /*
              * Compute the FCS and put it into the tree.
              */
-            rx_fcs_offset = proto_offset + len;
-            rx_fcs_exp = fcs32(tvb);
-            rx_fcs_got = tvb_get_letohl(tvb, rx_fcs_offset);
-            if (rx_fcs_got != rx_fcs_exp) {
-                proto_tree_add_uint_format_value(fh_tree, hf_ppp_fcs_32, tvb, rx_fcs_offset, 4,
-                    rx_fcs_got, "0x%08x [incorrect, should be 0x%08x]",
-                    rx_fcs_got, rx_fcs_exp);
-            } else {
-                proto_tree_add_uint_format_value(fh_tree, hf_ppp_fcs_32, tvb, rx_fcs_offset, 4,
-                    rx_fcs_got, "0x%08x [correct]", rx_fcs_got);
-            }
+            proto_tree_add_checksum(fh_tree, tvb, proto_offset + len, hf_ppp_fcs_32, -1, NULL, NULL, fcs32(tvb),
+                            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
         }
         break;
 

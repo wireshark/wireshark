@@ -765,29 +765,18 @@ dissect_hello_checksum_clv(tvbuff_t *tvb, packet_info* pinfo,
         * which is offseted 17 bytes in IIHs (relative to the beginning of the IS-IS packet) */
     pdu_length = tvb_get_ntohs(tvb, 17);
 
-    /* unlike the LSP checksum verification which starts at an offset of 12 we start at offset 0*/
-    switch (check_and_get_checksum(tvb, 0, pdu_length, checksum, offset, &cacl_checksum))
-    {
-        case NO_CKSUM :
-            proto_tree_add_uint_format_value( tree, hf_isis_hello_checksum, tvb, offset, length, checksum,
-                                            "0x%04x [unused]", checksum);
-        break;
-        case DATA_MISSING :
+    if (checksum == 0) {
+        /* No checksum present */
+        proto_tree_add_checksum(tree, tvb, offset, hf_isis_hello_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
+    } else {
+        if (osi_check_and_get_checksum(tvb, 0, pdu_length, offset, &cacl_checksum)) {
+            /* Successfully processed checksum, verify it */
+            proto_tree_add_checksum(tree, tvb, offset, hf_isis_hello_checksum, -1, NULL, pinfo, cacl_checksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+        } else {
+            proto_tree_add_checksum(tree, tvb, offset, hf_isis_hello_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
             proto_tree_add_expert_format(tree, pinfo, &ei_isis_hello_long_packet, tvb, offset, -1,
                     "Packet length %d went beyond packet", tvb_captured_length(tvb) );
-        break;
-        case CKSUM_NOT_OK :
-            proto_tree_add_uint_format_value( tree, hf_isis_hello_checksum, tvb, offset, length, checksum,
-                                            "0x%04x [incorrect, should be 0x%04x]",
-                                            checksum,
-                                            cacl_checksum);
-        break;
-        case CKSUM_OK :
-            proto_tree_add_uint_format_value( tree, hf_isis_hello_checksum, tvb, offset, length, checksum,
-                                            "0x%04x [correct]", checksum);
-        break;
-        default :
-            g_message("'check_and_get_checksum' returned an invalid value");
+        }
     }
 }
 

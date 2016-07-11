@@ -97,7 +97,7 @@ static int proto_icmpv6 = -1;
 static int hf_icmpv6_type = -1;
 static int hf_icmpv6_code = -1;
 static int hf_icmpv6_checksum = -1;
-static int hf_icmpv6_checksum_bad = -1;
+static int hf_icmpv6_checksum_status = -1;
 static int hf_icmpv6_reserved = -1;
 static int hf_icmpv6_data = -1;
 static int hf_icmpv6_unknown_data = -1;
@@ -3470,12 +3470,12 @@ static int
 dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_tree         *icmp6_tree = NULL, *flag_tree = NULL;
-    proto_item         *ti         = NULL, *hidden_item, *checksum_item = NULL, *code_item = NULL, *ti_flag = NULL;
+    proto_item         *ti         = NULL, *checksum_item = NULL, *code_item = NULL, *ti_flag = NULL;
     const char         *code_name  = NULL;
     guint               length     = 0, reported_length;
     vec_t               cksum_vec[4];
     guint32             phdr[2];
-    guint16             cksum, computed_cksum;
+    guint16             cksum;
     int                 offset;
     tvbuff_t           *next_tvb;
     guint8              icmp6_type, icmp6_code;
@@ -3540,46 +3540,32 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         col_set_str(pinfo->cinfo, COL_INFO, "Direct IPv6 Connectivity Test");
     }
 
-    if (tree) {
-        if (code_name)
-            proto_item_append_text(code_item, " (%s)", code_name);
-        checksum_item = proto_tree_add_item(icmp6_tree, hf_icmpv6_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
-    }
+    if (code_name)
+        proto_item_append_text(code_item, " (%s)", code_name);
 
     cksum = tvb_get_ntohs(tvb, offset);
+    length = tvb_captured_length(tvb);
+    reported_length = tvb_reported_length(tvb);
+    if (!pinfo->fragmented && length >= reported_length && !pinfo->flags.in_error_pkt) {
+        /* The packet isn't part of a fragmented datagram, isn't truncated,
+            * and we aren't in an ICMP error packet, so we can checksum it.
+            */
 
-    if (1) { /* There's an expert info in here so always execute */
-        length = tvb_captured_length(tvb);
-        reported_length = tvb_reported_length(tvb);
-        if (!pinfo->fragmented && length >= reported_length && !pinfo->flags.in_error_pkt) {
-            /* The packet isn't part of a fragmented datagram, isn't truncated,
-             * and we aren't in an ICMP error packet, so we can checksum it.
-             */
+        /* Set up the fields of the pseudo-header. */
+        SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)pinfo->src.data, pinfo->src.len);
+        SET_CKSUM_VEC_PTR(cksum_vec[1], (const guint8 *)pinfo->dst.data, pinfo->dst.len);
+        phdr[0] = g_htonl(reported_length);
+        phdr[1] = g_htonl(IP_PROTO_ICMPV6);
+        SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 8);
+        SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, reported_length);
 
-            /* Set up the fields of the pseudo-header. */
-            SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)pinfo->src.data, pinfo->src.len);
-            SET_CKSUM_VEC_PTR(cksum_vec[1], (const guint8 *)pinfo->dst.data, pinfo->dst.len);
-            phdr[0] = g_htonl(reported_length);
-            phdr[1] = g_htonl(IP_PROTO_ICMPV6);
-            SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 8);
-            SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, reported_length);
-            computed_cksum = in_cksum(cksum_vec, 4);
-
-            if (computed_cksum == 0) {
-                hidden_item = proto_tree_add_boolean(icmp6_tree, hf_icmpv6_checksum_bad, tvb, offset, 2, FALSE);
-                PROTO_ITEM_SET_HIDDEN(hidden_item);
-                proto_item_append_text(checksum_item, " [correct]");
-            } else {
-                hidden_item = proto_tree_add_boolean(icmp6_tree, hf_icmpv6_checksum_bad, tvb, offset, 2, TRUE);
-                PROTO_ITEM_SET_HIDDEN(hidden_item);
-                proto_item_append_text(checksum_item, " [incorrect, should be 0x%04x]", in_cksum_shouldbe(cksum, computed_cksum));
-                expert_add_info_format(pinfo, checksum_item, &ei_icmpv6_checksum,
-                                       "ICMPv6 Checksum Incorrect, should be 0x%04x", in_cksum_shouldbe(cksum, computed_cksum));
-            }
-        } else {
-                proto_item_append_text(checksum_item, " [%s]",
-                    pinfo->flags.in_error_pkt ? "in ICMP error packet" : "fragmented datagram");
-        }
+        proto_tree_add_checksum(icmp6_tree, tvb, 2, hf_icmpv6_checksum, hf_icmpv6_checksum_status, &ei_icmpv6_checksum, pinfo, in_cksum(cksum_vec, 4),
+							ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+    } else {
+		checksum_item = proto_tree_add_checksum(icmp6_tree, tvb, 2, hf_icmpv6_checksum, hf_icmpv6_checksum_status, &ei_icmpv6_checksum, pinfo, 0,
+								ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+        proto_item_append_text(checksum_item, " [%s]",
+            pinfo->flags.in_error_pkt ? "in ICMP error packet" : "fragmented datagram");
     }
     offset += 2;
 
@@ -3612,8 +3598,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
              * Shouldn't the nonce be at least 8 then?  Why not just use (-1),
              * as it could really be any length, couldn't it?
              */
-            if (tree)
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_nonce, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_nonce, tvb, offset, 4, ENC_NA);
             offset += 4;
         } else {
             if (!pinfo->flags.in_error_pkt) {
@@ -4158,8 +4143,8 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_checksum,
           { "Checksum", "icmpv6.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
             "Used to detect data corruption in the ICMPv6 message and parts of the IPv6 header", HFILL }},
-        { &hf_icmpv6_checksum_bad,
-          { "Bad Checksum", "icmpv6.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        { &hf_icmpv6_checksum_status,
+          { "Checksum Status", "icmpv6.checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_reserved,
           { "Reserved", "icmpv6.reserved", FT_BYTES, BASE_NONE, NULL, 0x0,

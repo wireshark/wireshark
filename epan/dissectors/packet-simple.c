@@ -247,7 +247,7 @@ static gint hf_simple_status_link11_pu = -1;
 static gint hf_simple_status_link11_dts_host_status = -1;
 static gint hf_simple_status_spare_3 = -1;
 static gint hf_simple_checksum = -1;
-static gint hf_simple_checksum_bad = -1;
+static gint hf_simple_checksum_status = -1;
 
 static gint ett_simple = -1;
 static gint ett_packet = -1;
@@ -409,10 +409,6 @@ static void dissect_simple_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 static void dissect_checksum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-    gint checksum = tvb_get_letohs(tvb, offset);
-    proto_item *checksum_item = proto_tree_add_item(tree, hf_simple_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_item *hidden_item;
-
     const guint8 * v = tvb_get_ptr(tvb, 0, offset);
     guint16 expected_checksum = 0;
     gint i;
@@ -420,17 +416,8 @@ static void dissect_checksum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     for (i = 0; i < offset; i++)
         expected_checksum += v[i];
 
-    if (checksum == expected_checksum) {
-        hidden_item = proto_tree_add_boolean(tree, hf_simple_checksum_bad, tvb, offset, 2, FALSE);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        proto_item_append_text(checksum_item, " [correct]");
-    } else {
-        hidden_item = proto_tree_add_boolean(tree, hf_simple_checksum_bad, tvb, offset, 2, TRUE);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        proto_item_append_text(checksum_item, " [incorrect, should be 0x%04x]", expected_checksum);
-        expert_add_info_format(pinfo, checksum_item, &ei_simple_checksum_bad,
-                               "SIMPLE Checksum Incorrect, should be 0x%04x", expected_checksum);
-    }
+    proto_tree_add_checksum(tree, tvb, offset, hf_simple_checksum, hf_simple_checksum_status, &ei_simple_checksum_bad, pinfo, expected_checksum,
+                            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
 }
 
 static int dissect_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -669,8 +656,8 @@ void proto_register_simple(void)
         { &hf_simple_checksum,
           { "Checksum", "simple.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
-        { &hf_simple_checksum_bad,
-          { "Bad Checksum", "simple.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        { &hf_simple_checksum_status,
+          { "Checksum Status", "simple.checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
             NULL, HFILL }}
     };
     static gint *ett[] = {

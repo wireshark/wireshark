@@ -1186,16 +1186,8 @@ dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
                 digitech_helper ^= *data_ptr++;
             }
 
-            item = proto_tree_add_item(tree, hf_digitech_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
-            if (digitech_helper == 0)
-            {
-                proto_item_append_text(item, " (correct)");
-            }
-            else
-            {
-                proto_item_append_text(item, " (NOT correct)");
-                expert_add_info(pinfo, item, &ei_digitech_checksum_bad);
-            }
+            proto_tree_add_checksum(tree, tvb, offset, hf_digitech_checksum, -1, &ei_digitech_checksum_bad, pinfo, digitech_helper,
+                                    ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
             offset++;
             break;
         }

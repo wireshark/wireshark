@@ -1053,6 +1053,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_add_bytes_format_value@Base 1.9.1
  proto_tree_add_bytes_item@Base 1.12.0~rc1
  proto_tree_add_bytes_with_length@Base 1.99.3
+ proto_tree_add_checksum@Base 2.1.1
  proto_tree_add_debug_text@Base 1.9.1
  proto_tree_add_double@Base 1.9.1
  proto_tree_add_double_format@Base 1.9.1

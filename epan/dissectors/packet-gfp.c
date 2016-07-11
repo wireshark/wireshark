@@ -53,8 +53,7 @@ void proto_register_gfp(void);
 static int proto_gfp = -1;
 static int hf_gfp_pli = -1;
 static int hf_gfp_chec = -1;
-static int hf_gfp_chec_good = -1;
-static int hf_gfp_chec_bad = -1;
+static int hf_gfp_chec_status = -1;
 static int hf_gfp_type = -1;
 static int hf_gfp_pti = -1;
 static int hf_gfp_pfi = -1;
@@ -62,12 +61,10 @@ static int hf_gfp_exi = -1;
 static int hf_gfp_upi_data = -1;
 static int hf_gfp_upi_management = -1;
 static int hf_gfp_thec = -1;
-static int hf_gfp_thec_good = -1;
-static int hf_gfp_thec_bad = -1;
+static int hf_gfp_thec_status = -1;
 static int hf_gfp_cid = -1;
 static int hf_gfp_ehec = -1;
-static int hf_gfp_ehec_good = -1;
-static int hf_gfp_ehec_bad = -1;
+static int hf_gfp_ehec_status = -1;
 static int hf_gfp_fcs = -1;
 static int hf_gfp_fcs_good = -1;
 static int hf_gfp_fcs_bad = -1;
@@ -93,10 +90,7 @@ static expert_field ei_gfp_fcs_bad = EI_INIT;
 
 /* Initialize the subtree pointers */
 static gint ett_gfp = -1;
-static gint ett_gfp_chec = -1;
 static gint ett_gfp_type = -1;
-static gint ett_gfp_thec = -1;
-static gint ett_gfp_ehec = -1;
 static gint ett_gfp_fcs = -1;
 
 static dissector_table_t gfp_dissector_table;
@@ -205,34 +199,15 @@ static gpointer gfp_value(packet_info *pinfo)
 /* GFP has several identical 16 bit CRCs in its header (HECs). Note that
  * this function increases the offset. */
 static void
-gfp_add_hec_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, const guint len, const int field, const int field_good, const int field_bad, const gint ett, expert_field *ei_bad)
+gfp_add_hec_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, const guint len, const int field, const int field_status, expert_field *ei_bad)
 {
 
-    proto_item* ti = NULL;
-    proto_tree* hec_tree = NULL;
-    guint hec, hec_calc;
+    guint hec_calc;
 
     hec_calc = crc16_r3_ccitt_tvb(tvb, *offset, len);
     *offset += len;
-    hec = tvb_get_ntohs(tvb, *offset);
 
-    if ( hec == hec_calc )  {
-        ti = proto_tree_add_uint_format_value(tree, field, tvb, *offset, 2, hec, "0x%04x [correct]", hec);
-        hec_tree = proto_item_add_subtree(ti, ett);
-        ti = proto_tree_add_boolean(hec_tree, field_good, tvb, *offset, 2, TRUE);
-        PROTO_ITEM_SET_GENERATED(ti);
-        ti = proto_tree_add_boolean(hec_tree, field_bad, tvb, *offset, 2, FALSE);
-        PROTO_ITEM_SET_GENERATED(ti);
-    } else {
-        ti = proto_tree_add_uint_format_value(tree, field, tvb, *offset, 2, hec, "0x%04x [incorrect, should be 0x%04x]", hec, hec_calc);
-        hec_tree = proto_item_add_subtree(ti, ett);
-        ti = proto_tree_add_boolean(hec_tree, field_good, tvb, *offset, 2, FALSE);
-        PROTO_ITEM_SET_GENERATED(ti);
-        ti = proto_tree_add_boolean(hec_tree, field_bad, tvb, *offset, 2, TRUE);
-        PROTO_ITEM_SET_GENERATED(ti);
-        expert_add_info(pinfo, ti, ei_bad);
-    }
-
+    proto_tree_add_checksum(tree, tvb, *offset, field, field_status, ei_bad, pinfo, hec_calc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
     *offset += 2;
 }
 
@@ -283,7 +258,7 @@ dissect_gfp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
     }
 
     /* G.7041 6.1.2.1.2 Type HEC (tHEC) - mandatory 2 bytes */
-    gfp_add_hec_tree(tvb, pinfo, gfp_tree, offset, 2, hf_gfp_thec, hf_gfp_thec_good, hf_gfp_thec_bad, ett_gfp_thec, &ei_gfp_thec_bad);
+    gfp_add_hec_tree(tvb, pinfo, gfp_tree, offset, 2, hf_gfp_thec, hf_gfp_thec_status, &ei_gfp_thec_bad);
 
     switch (exi) {
         case GFP_EXT_NULL:
@@ -303,7 +278,7 @@ dissect_gfp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
             /* Next byte spare field, reserved */
 
             /* 6.1.2.1.4 Extension HEC field */
-            gfp_add_hec_tree(tvb, pinfo, gfp_tree, offset, 2, hf_gfp_ehec, hf_gfp_ehec_good, hf_gfp_ehec_bad, ett_gfp_ehec, &ei_gfp_ehec_bad);
+            gfp_add_hec_tree(tvb, pinfo, gfp_tree, offset, 2, hf_gfp_ehec, hf_gfp_ehec_status, &ei_gfp_ehec_bad);
             break;
         case GFP_EXT_RING:
             /* 6.1.2.1.3.3 Extension header for a ring frame */
@@ -429,7 +404,7 @@ dissect_gfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_set_str(pinfo->cinfo, COL_INFO, rval_to_str_const(pli, gfp_pli_rvals, "Unknown"));
 
     /* 6.1.1.2 Core HEC field */
-    gfp_add_hec_tree(tvb, pinfo, gfp_tree, &offset, len, hf_gfp_chec, hf_gfp_chec_good, hf_gfp_chec_bad, ett_gfp_chec, &ei_gfp_chec_bad);
+    gfp_add_hec_tree(tvb, pinfo, gfp_tree, &offset, len, hf_gfp_chec, hf_gfp_chec_status, &ei_gfp_chec_bad);
 
     if (pli == 0) { /* 6.2.1 GFP idle frames */
         if (tvb_reported_length_remaining(tvb, offset)) {
@@ -465,13 +440,9 @@ proto_register_gfp(void)
           { "Core HEC", "gfp.chec", FT_UINT16, BASE_HEX,
             NULL, 0x0, NULL, HFILL }
         },
-        { &hf_gfp_chec_good,
-          { "Good cHEC", "gfp.chec_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "True: cHEC matches core header; False: doesn't match", HFILL }
-        },
-        { &hf_gfp_chec_bad,
-          { "Bad cHEC", "gfp.chec_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "True: cHEC doesn't match core header; False: matches", HFILL }
+        { &hf_gfp_chec_status,
+          { "cHEC Status", "gfp.chec.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+            NULL, HFILL }
         },
         { &hf_gfp_type,
           { "Type Field", "gfp.type", FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -503,13 +474,9 @@ proto_register_gfp(void)
           { "Type HEC", "gfp.thec", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_gfp_thec_good,
-          { "Good tHEC", "gfp.thec_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "True: tHEC matches type header; False: doesn't match", HFILL }
-        },
-        { &hf_gfp_thec_bad,
-          { "Bad tHEC", "gfp.thec_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "True: tHEC doesn't match type header; False: matches", HFILL }
+        { &hf_gfp_thec_status,
+          { "tHEC Status", "gfp.thec.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+            NULL, HFILL }
         },
         { &hf_gfp_cid,
           { "Channel ID", "gfp.cid", FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -519,13 +486,9 @@ proto_register_gfp(void)
           { "Extension HEC", "gfp.ehec", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_gfp_ehec_good,
-          { "Good eHEC", "gfp.ehec_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "True: eHEC matches extension header; False: doesn't match", HFILL }
-        },
-        { &hf_gfp_ehec_bad,
-          { "Bad eHEC", "gfp.ehec_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "True: eHEC doesn't match extension header; False: matches", HFILL }
+        { &hf_gfp_ehec_status,
+          { "eHEC Status", "gfp.ehec.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+            NULL, HFILL }
         },
         { &hf_gfp_fcs,
           { "Payload FCS", "gfp.fcs", FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -544,10 +507,7 @@ proto_register_gfp(void)
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_gfp,
-        &ett_gfp_chec,
         &ett_gfp_type,
-        &ett_gfp_thec,
-        &ett_gfp_ehec,
         &ett_gfp_fcs
     };
 

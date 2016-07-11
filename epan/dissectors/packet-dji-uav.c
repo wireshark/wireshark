@@ -245,8 +245,7 @@ dissect_djiuav_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 			offset += pdu_length - 1 - offset;
 		}
 /* FIXME: calculate XOR and validate transmitted value */
-		proto_tree_add_item(djiuav_tree, hf_djiuav_checksum, tvb, offset, 1,
-			ENC_BIG_ENDIAN);
+		proto_tree_add_checksum(djiuav_tree, tvb, offset, hf_djiuav_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 		offset += 1;
 
 	}

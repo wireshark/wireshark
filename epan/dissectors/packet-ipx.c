@@ -345,7 +345,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_addr, tvb, 0, 0, str);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-	proto_tree_add_item(ipx_tree, hf_ipx_checksum, tvb, 0, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_checksum(ipx_tree, tvb, 0, hf_ipx_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 	proto_tree_add_uint_format_value(ipx_tree, hf_ipx_len, tvb, 2, 2, ipxh->ipx_length,
 		"%d bytes", ipxh->ipx_length);
 	ipx_hops = tvb_get_guint8(tvb, 4);

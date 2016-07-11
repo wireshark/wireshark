@@ -68,7 +68,8 @@ static int hf_cotp_eot_extended = -1;
 static int hf_cotp_parameter_code = -1;
 static int hf_cotp_parameter_length = -1;
 static int hf_cotp_parameter_value = -1;
-static int hf_cotp_atn_extended_checksum = -1;
+static int hf_cotp_atn_extended_checksum16 = -1;
+static int hf_cotp_atn_extended_checksum32 = -1;
 static int hf_cotp_ack_time = -1;
 static int hf_cotp_res_error_rate_target_value = -1;
 static int hf_cotp_res_error_rate_min_accept = -1;
@@ -440,10 +441,8 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
   gint32          i                       = 0;
   guint8          tmp_code                = 0;
   guint           tmp_len                 = 0;
-  cksum_status_t  cksum_status;
-  gboolean        checksum_ok             = FALSE;
   guint32         pref_max_tpdu_size;
-  proto_item     *ti, *hidden_item;
+  proto_item     *hidden_item;
 
   while (vp_length != 0) {
     code = tvb_get_guint8(tvb, offset);
@@ -462,6 +461,7 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
 
     case VP_ATN_EC_16 : /* ATN */
       if (cotp_decode_atn) {
+        guint16 sum;
         /* if an alternate OSI checksum is present in the currently unprocessed
          * VP section to the checksum algorithm has to know.
          * this may be the case for backward compatible CR TPDU */
@@ -477,12 +477,11 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
             i += tmp_len;
           }
         }
-        checksum_ok = check_atn_ec_16(tvb, tpdu_len , offset,
+        sum = check_atn_ec_16(tvb, tpdu_len , offset,
                                       offset_iso8073_checksum,
                                       pinfo->dst.len, (const guint8 *)pinfo->dst.data,
                                       pinfo->src.len, (const guint8 *)pinfo->src.data);
-        ti = proto_tree_add_item(tree, hf_cotp_atn_extended_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, checksum_ok ? " (correct)" : " (incorrect)");
+        proto_tree_add_checksum(tree, tvb, offset, hf_cotp_atn_extended_checksum16, -1, NULL, pinfo, sum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
       } else {
         proto_tree_add_bytes_format_value(tree, hf_cotp_parameter_value, tvb, offset, length, NULL, "<not shown>");
       }
@@ -492,6 +491,7 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
 
     case VP_ATN_EC_32 : /* ATN */
       if (cotp_decode_atn) {
+        guint32 sum;
         /* if an alternate OSI checksum is present in the currently unprocessed
          * VP section the checksum algorithm has to know.
          * this may be the case for backward compatible CR TPDU */
@@ -507,12 +507,11 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
             i += tmp_len;
           }
         }
-        checksum_ok = check_atn_ec_32(tvb, tpdu_len , offset,
+        sum = check_atn_ec_32(tvb, tpdu_len , offset,
                                       offset_iso8073_checksum,
                                       pinfo->dst.len, (const guint8 *)pinfo->dst.data,
                                       pinfo->src.len, (const guint8 *)pinfo->src.data);
-        ti = proto_tree_add_item(tree, hf_cotp_atn_extended_checksum, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, checksum_ok ? " (correct)" : " (incorrect)");
+        proto_tree_add_checksum(tree, tvb, offset, hf_cotp_atn_extended_checksum32, -1, NULL, pinfo, sum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
       } else {
         proto_tree_add_bytes_format_value(tree, hf_cotp_parameter_value, tvb, offset, length, NULL, "<not shown>");
       }
@@ -691,36 +690,21 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
 
     case VP_CHECKSUM:
       offset_iso8073_checksum = offset; /* save ISO 8073 checksum offset for ATN extended checksum calculation */
-      cksum_status = calc_checksum(tvb, 0, tpdu_len,
-                                   tvb_get_ntohs(tvb, offset));
-      switch (cksum_status) {
 
-      default:
-        /*
-         * No checksum present, or not enough of the packet present to
-         * checksum it.
-         */
-        proto_tree_add_item(tree, hf_cotp_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
-        break;
+      if (tvb_get_ntohs(tvb, offset) == 0) {
+        /* No checksum present */
+        proto_tree_add_checksum(tree, tvb, offset, hf_cotp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
+      } else {
+        guint32 calc_c0 = 0, calc_c1 = 0;
 
-      case CKSUM_OK:
-        /*
-         * Checksum is correct.
-         */
-        s = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_uint_format_value(tree, hf_cotp_checksum, tvb, offset, 2,
-                            s, "0x%04x (correct)", s);
-        break;
-
-      case CKSUM_NOT_OK:
-        /*
-         * Checksum is not correct.
-         */
-        s = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_uint_format_value(tree, hf_cotp_checksum, tvb, offset, 2,
-                            s, "0x%04x (incorrect)", s);
-        break;
+        if (osi_calc_checksum(tvb, 0, length, &calc_c0, &calc_c1)) {
+            /* Successfully processed checksum, verify it */
+            proto_tree_add_checksum(tree, tvb, offset, hf_cotp_checksum, -1, NULL, pinfo, calc_c0 | calc_c1, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
+        } else {
+            proto_tree_add_checksum(tree, tvb, offset, hf_cotp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+        }
       }
+
       offset += length;
       vp_length -= length;
       break;
@@ -2338,7 +2322,8 @@ void proto_register_cotp(void)
       { &hf_cotp_parameter_code, { "Parameter code", "cotp.parameter_code", FT_UINT8, BASE_HEX, VALS(tp_vpart_type_vals), 0x0, NULL, HFILL }},
       { &hf_cotp_parameter_length, { "Parameter length", "cotp.parameter_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cotp_parameter_value, { "Parameter value", "cotp.parameter_value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_cotp_atn_extended_checksum, { "ATN extended checksum", "cotp.atn_extended_checksum", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_cotp_atn_extended_checksum16, { "ATN extended checksum", "cotp.atn_extended_checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_cotp_atn_extended_checksum32, { "ATN extended checksum", "cotp.atn_extended_checksum", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_cotp_ack_time, { "Ack time (ms)", "cotp.ack_time", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cotp_res_error_rate_target_value, { "Residual error rate, target value", "cotp.res_error_rate.target_value", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cotp_res_error_rate_min_accept, { "Residual error rate, minimum acceptable", "cotp.res_error_rate.min_accept", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},

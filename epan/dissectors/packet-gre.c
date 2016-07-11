@@ -410,29 +410,21 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         if (flags_and_ver & GRE_CHECKSUM || flags_and_ver & GRE_ROUTING) {
             guint length, reported_length;
-            proto_item *it_checksum;
             vec_t cksum_vec[1];
-            guint16 cksum, computed_cksum;
 
-            it_checksum = proto_tree_add_item(gre_tree, hf_gre_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
             /* Checksum check !... */
-            cksum = tvb_get_ntohs(tvb, offset);
             length = tvb_captured_length(tvb);
             reported_length = tvb_reported_length(tvb);
             /* The Checksum Present bit is set, and the packet isn't part of a
                fragmented datagram and isn't truncated, so we can checksum it. */
             if ((flags_and_ver & GRE_CHECKSUM) && !pinfo->fragmented && length >= reported_length) {
                 SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, reported_length);
-                computed_cksum = in_cksum(cksum_vec, 1);
-                if (computed_cksum == 0) {
-                    proto_item_append_text(it_checksum," [correct]");
-                } else {
-                    proto_item_append_text(it_checksum," [incorrect, should be 0x%04x]",in_cksum_shouldbe(cksum, computed_cksum));
-                    expert_add_info(pinfo, it_checksum, &ei_gre_checksum_incorrect);
-                }
+                proto_tree_add_checksum(gre_tree, tvb, offset, hf_gre_checksum, -1, &ei_gre_checksum_incorrect, pinfo, in_cksum(cksum_vec, 1),
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+            } else {
+                proto_tree_add_checksum(gre_tree, tvb, offset, hf_gre_checksum, -1, &ei_gre_checksum_incorrect, pinfo, 0,
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
             }
-
-
             offset += 2;
 
             proto_tree_add_item(gre_tree, hf_gre_offset, tvb, offset, 2, ENC_BIG_ENDIAN);

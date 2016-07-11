@@ -95,7 +95,7 @@ static int hf_h223_al2_sequenced = -1;
 static int hf_h223_al2_unsequenced = -1;
 static int hf_h223_al2_seqno = -1;
 static int hf_h223_al2_crc = -1;
-static int hf_h223_al2_crc_bad = -1;
+static int hf_h223_al2_crc_status = -1;
 
 static int hf_h223_al_payload = -1;
 
@@ -697,15 +697,9 @@ dissect_mux_al_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *vc_tree,
             calc_checksum = h223_al2_crc8bit(tvb);
             real_checksum = tvb_get_guint8(tvb, len - 1);
 
-            if( calc_checksum == real_checksum ) {
-                proto_tree_add_uint_format_value(al_tree, hf_h223_al2_crc, tvb, len - 1, 1, real_checksum,
-                                           "0x%02x (correct)", real_checksum );
-            } else {
-                proto_tree_add_uint_format_value(al_tree, hf_h223_al2_crc, tvb, len - 1, 1, real_checksum,
-                                           "0x%02x (incorrect, should be 0x%02x)", real_checksum, calc_checksum );
-                tmp_item = proto_tree_add_boolean( al_tree, hf_h223_al2_crc_bad, tvb, len - 1, 1, TRUE );
-                PROTO_ITEM_SET_GENERATED(tmp_item);
+            proto_tree_add_checksum(al_tree, tvb, len - 1, hf_h223_al2_crc, hf_h223_al2_crc_status, NULL, pinfo, calc_checksum, ENC_NA, PROTO_CHECKSUM_VERIFY);
 
+            if( calc_checksum != real_checksum ) {
                 /* don't pass pdus which fail checksums on to the subdissector */
                 subdissector = data_handle;
             }
@@ -1610,8 +1604,8 @@ void proto_register_h223 (void)
           { "CRC", "h223.al2.crc", FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_h223_al2_crc_bad,
-          { "Bad CRC","h223.al2.crc_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        { &hf_h223_al2_crc_status,
+          { "CRC Status","h223.al2.crc.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_h223_al_payload,

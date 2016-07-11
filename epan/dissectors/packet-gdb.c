@@ -104,8 +104,7 @@ dissect_gdb_token(void *tvbparse_data, const void *wanted_data, tvbparse_elem_t 
         case GDB_TOK_CHKSUM:
             /* the spec is not really explicit but it seems that the
                checksum is big endian */
-            proto_tree_add_item(tree, hf_gdb_chksum,
-                    tok->tvb, tok->offset, tok->len, ENC_BIG_ENDIAN);
+            proto_tree_add_checksum(tree, tok->tvb, tok->offset, hf_gdb_chksum, -1, NULL, NULL, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
             break;
         default:
             break;

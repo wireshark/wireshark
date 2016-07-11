@@ -52,23 +52,18 @@ static dissector_handle_t osi_handle;
 static gboolean tpkt_desegment = FALSE;
 static guint global_tcp_port_osi_over_tpkt = 0;
 
-cksum_status_t
-calc_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum) {
-  const gchar  *buffer;
+gboolean
+osi_calc_checksum( tvbuff_t *tvb, int offset, guint len, guint32* c0, guint32* c1) {
   guint         available_len;
   const guint8 *p;
-  guint32       c0, c1;
   guint         seglen;
   guint         i;
 
-  if ( 0 == checksum )
-    return( NO_CKSUM );
-
   available_len = tvb_captured_length_remaining( tvb, offset );
   if ( available_len < len )
-    return( DATA_MISSING );
+    return FALSE;
 
-  buffer = tvb_get_ptr( tvb, offset, len );
+  p = tvb_get_ptr( tvb, offset, len );
 
   /*
    * The maximum values of c0 and c1 will occur if all bytes have the
@@ -81,33 +76,29 @@ calc_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum) {
    * we can solve this by taking c0 and c1 mod 255 every
    * 5803 bytes.
    */
-  p = buffer;
-  c0 = 0;
-  c1 = 0;
+  *c0 = 0;
+  *c1 = 0;
   while (len != 0) {
     seglen = len;
     if (seglen > 5803)
       seglen = 5803;
     for (i = 0; i < seglen; i++) {
-      c0 = c0 + *(p++);
-      c1 += c0;
+      (*c0) += *(p++);
+      (*c1) += (*c0);
     }
 
-    c0 = c0 % 255;
-    c1 = c1 % 255;
+    (*c0) = (*c0) % 255;
+    (*c1) = (*c1) % 255;
 
     len -= seglen;
   }
-  if (c0 != 0 || c1 != 0)
-    return( CKSUM_NOT_OK );  /* XXX - what should the checksum field be? */
-  else
-    return( CKSUM_OK );
+
+  return TRUE;
 }
 
 
-cksum_status_t
-check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum, int offset_check, guint16* result) {
-  const gchar  *buffer;
+gboolean
+osi_check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, int offset_check, guint16* result) {
   guint         available_len;
   const guint8 *p;
   guint8        discard         = 0;
@@ -116,15 +107,12 @@ check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum, in
   guint         i;
   int           block, x, y;
 
-  if ( 0 == checksum )
-    return( NO_CKSUM );
-
   available_len = tvb_captured_length_remaining( tvb, offset );
   offset_check -= offset;
   if ( ( available_len < len ) || ( offset_check < 0 ) || ( (guint)(offset_check+2) > len ) )
-    return( DATA_MISSING );
+    return FALSE;
 
-  buffer = tvb_get_ptr( tvb, offset, len );
+  p = tvb_get_ptr( tvb, offset, len );
   block  = offset_check / 5803;
 
   /*
@@ -138,7 +126,6 @@ check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum, in
    * we can solve this by taking c0 and c1 mod 255 every
    * 5803 bytes.
    */
-  p = buffer;
   c0 = 0;
   c1 = 0;
 
@@ -189,11 +176,7 @@ check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum, in
   if (y == 0) y = 0x01;
 
   *result = ( x << 8 ) | ( y & 0xFF );
-
-  if (*result != checksum)
-    return( CKSUM_NOT_OK );  /* XXX - what should the checksum field be? */
-  else
-    return( CKSUM_OK );
+  return TRUE;
 }
 
 /* 4 octet ATN extended checksum: ICAO doc 9705 Ed3 Volume V section 5.5.4.6.4 */
@@ -201,7 +184,7 @@ check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum, in
 /* of length SRC-NSAP, SRC-NSAP, length DST-NSAP, DST-NSAP and ATN extended checksum. */
 /* In case of a CR TPDU, the value of the ISO 8073 16-bit fletcher checksum parameter shall */
 /* be set to zero. */
-gboolean check_atn_ec_32(
+guint32 check_atn_ec_32(
   tvbuff_t *tvb, guint tpdu_len,
   guint offset_ec_32_val,   /* offset ATN extended checksum value, calculated at last as part of pseudo trailer */
   guint offset_iso8073_val, /* offset ISO 8073 fletcher checksum, CR only*/
@@ -314,12 +297,8 @@ gboolean check_atn_ec_32(
       c3 -= 0x000000FF;
   }
 
-  sum = (c3 << 24) + (c2 << 16 ) + (c1 << 8) + c0 ;
-
-  if(!sum)
-    return TRUE;
-  else
-    return FALSE;
+  sum = (c3 << 24) + (c2 << 16 ) + (c1 << 8) + c0;
+  return sum;
 }
 
 /* 2 octet ATN extended checksum: ICAO doc 9705 Ed3 Volume V section 5.5.4.6.4 */
@@ -328,7 +307,7 @@ gboolean check_atn_ec_32(
 /* In case of a CR TPDU, the value of the ISO 8073 16-bit fletcher checksum parameter shall */
 /* be set to zero. */
 /* this routine is currently *untested* because of the unavailability of samples.*/
-gboolean check_atn_ec_16(
+guint16 check_atn_ec_16(
   tvbuff_t *tvb,
   guint tpdu_len,
   guint offset_ec_16_val,   /* offset ATN extended checksum value, calculated at last as part of pseudo trailer */
@@ -341,7 +320,7 @@ gboolean check_atn_ec_16(
   guint i = 0;
   guint16 c0 = 0;
   guint16 c1 = 0;
-  guint16 sum = 0;
+  guint16 sum;
 
   /* sum across complete TPDU */
   for ( i =0; i< tpdu_len; i++){
@@ -405,11 +384,7 @@ gboolean check_atn_ec_16(
   }
 
   sum =  (c1 << 8) + c0 ;
-
-  if(!sum)
-    return TRUE;
-  else
-    return FALSE;
+  return sum;
 }
 
 

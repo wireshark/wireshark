@@ -90,7 +90,6 @@ dissect_carp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item *ti, *tv;
     proto_tree *carp_tree, *ver_type_tree;
     guint8 ver_type;
-    guint16 cksum, computed_cksum;
 
     /* Make sure it's a CARP packet */
     if (!test_carp_packet(tvb, pinfo, tree, data))
@@ -133,20 +132,15 @@ dissect_carp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree_add_item(carp_tree, hf_carp_advbase, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    cksum = tvb_get_ntohs(tvb, offset);
-    ti = proto_tree_add_item(carp_tree, hf_carp_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
     carp_len = tvb_reported_length(tvb);
     if (!pinfo->fragmented && tvb_captured_length(tvb) >= carp_len) {
         /* The packet isn't part of a fragmented datagram
            and isn't truncated, so we can checksum it. */
         SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, carp_len);
-        computed_cksum = in_cksum(&cksum_vec[0], 1);
-        if (computed_cksum == 0) {
-            proto_item_append_text(ti, " [correct]");
-        } else {
-            proto_item_append_text(ti, " [incorrect, should be 0x%04x]",
-                        in_cksum_shouldbe(cksum, computed_cksum));
-        }
+        proto_tree_add_checksum(carp_tree, tvb, offset, hf_carp_checksum, -1, NULL, pinfo, in_cksum(&cksum_vec[0], 1),
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+    } else {
+        proto_tree_add_checksum(carp_tree, tvb, offset, hf_carp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     }
 
     offset+=2;

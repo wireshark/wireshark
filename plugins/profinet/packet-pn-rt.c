@@ -58,8 +58,7 @@ static int hf_pn_rt_data_status_redundancy = -1;
 static int hf_pn_rt_data_status_primary = -1;
 
 static int hf_pn_rt_sf_crc16 = -1;
-static int hf_pn_rt_sf_crc16_ok = -1;
-static int hf_pn_rt_sf_crc16_null = -1;
+static int hf_pn_rt_sf_crc16_status = -1;
 static int hf_pn_rt_sf = -1;
 static int hf_pn_rt_sf_position = -1;
 /* static int hf_pn_rt_sf_position_control = -1; */
@@ -122,6 +121,16 @@ static const value_string pn_rt_frag_status_more_follows[] = {
     { 0x00, "Last fragment" },
     { 0x01, "More fragments follow" },
     { 0, NULL }
+};
+
+/* Copied and renamed from proto.c because global value_strings don't work for plugins */
+static const value_string plugin_proto_checksum_vals[] = {
+	{ PROTO_CHECKSUM_E_BAD,        "Bad"  },
+	{ PROTO_CHECKSUM_E_GOOD,       "Good" },
+	{ PROTO_CHECKSUM_E_UNVERIFIED, "Unverified" },
+	{ PROTO_CHECKSUM_E_NOT_PRESENT, "Not present" },
+
+	{ 0,        NULL }
 };
 
 static void
@@ -246,7 +255,6 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     guint32     u32SubStart;
     proto_item *sub_item;
     proto_tree *sub_tree;
-    proto_item *item;
     guint16     crc;
 
 
@@ -256,10 +264,16 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     if (IsDFP_Frame(tvb, pinfo, tree, u16FrameID)) {
         /* can't check this CRC, as the checked data bytes are not available */
         u16SFCRC16 = tvb_get_letohs(tvb, offset);
-        if (u16SFCRC16 != 0)
-            proto_tree_add_uint(tree, hf_pn_rt_sf_crc16_ok, tvb, offset, 2, u16SFCRC16);
-        else
-            proto_tree_add_uint(tree, hf_pn_rt_sf_crc16_null, tvb, offset, 2, u16SFCRC16);
+        if (u16SFCRC16 != 0) {
+            /* Checksum verify will always succeed */
+            /* XXX - should we combine the two calls to always show "unverified"? */
+            proto_tree_add_checksum(tree, tvb, offset, hf_pn_rt_sf_crc16, hf_pn_rt_sf_crc16_status, &ei_pn_rt_sf_crc16, pinfo, u16SFCRC16,
+                            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+        }
+        else {
+            proto_tree_add_checksum(tree, tvb, offset, hf_pn_rt_sf_crc16, hf_pn_rt_sf_crc16_status, &ei_pn_rt_sf_crc16, pinfo, 0,
+                            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+        }
         offset += 2;
 
         while (1) {
@@ -292,18 +306,14 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             offset = dissect_pn_user_data(tvb, offset, pinfo, sub_tree, u8SFDataLength, "DataItem");
 
             u16SFCRC16 = tvb_get_letohs(tvb, offset);
-            item = proto_tree_add_uint(sub_tree, hf_pn_rt_sf_crc16, tvb, offset, 2, u16SFCRC16);
 
             if (u16SFCRC16 != 0 /* "old check": u8SFPosition & 0x80 */) {
                 crc = crc16_plain_tvb_offset_seed(tvb, u32SubStart, offset-u32SubStart, 0);
-                if (crc != u16SFCRC16) {
-                    proto_item_append_text(item, " [Preliminary check: incorrect, should be: %u]", crc);
-                    expert_add_info(pinfo, item, &ei_pn_rt_sf_crc16);
-                } else {
-                    proto_item_append_text(item, " [Preliminary check: Correct]");
-                }
+                proto_tree_add_checksum(tree, tvb, offset, hf_pn_rt_sf_crc16, hf_pn_rt_sf_crc16_status, &ei_pn_rt_sf_crc16, pinfo, crc,
+                            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
             } else {
-                proto_item_append_text(item, " [No check, supplied CRC == zero]");
+                proto_tree_add_checksum(tree, tvb, offset, hf_pn_rt_sf_crc16, hf_pn_rt_sf_crc16_status, &ei_pn_rt_sf_crc16, pinfo, 0,
+                            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
             }
             offset += 2;
 
@@ -872,14 +882,9 @@ proto_register_pn_rt(void)
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_pn_rt_sf_crc16_ok,
-          { "SFCRC16 checked [ok]", "pn_rt.sf.crc16_ok",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_pn_rt_sf_crc16_null,
-          { "SFCRC16 not checked but ok", "pn_rt.sf.crc16_null",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+        { &hf_pn_rt_sf_crc16_status,
+          { "SFCRC16 status", "pn_rt.sf.crc16.status",
+            FT_UINT8, BASE_NONE, VALS(plugin_proto_checksum_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_pn_rt_sf_position,

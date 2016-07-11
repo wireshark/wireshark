@@ -61,8 +61,7 @@ static int hf_v5dl_ftype_s_u = -1;
 static int hf_v5dl_ftype_s_u_ext = -1;
 #if 0
 static int hf_v5dl_checksum = -1;
-static int hf_v5dl_checksum_good = -1;
-static int hf_v5dl_checksum_bad = -1;
+static int hf_v5dl_checksum_status = -1;
 #endif
 static gint ett_v5dl = -1;
 static gint ett_v5dl_address = -1;
@@ -241,28 +240,11 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		 * packet.
 		 */
 		checksum_offset = reported_length - 2;
-		checksum = tvb_get_ntohs(tvb, checksum_offset);
 		checksum_calculated = crc16_ccitt_tvb(tvb, checksum_offset);
 		checksum_calculated = g_htons(checksum_calculated);  /* Note: g_htons() macro may eval arg multiple times */
 
-		if (checksum == checksum_calculated) {
-			checksum_ti = proto_tree_add_uint_format_value(v5dl_tree, hf_v5dl_checksum, tvb, checksum_offset,
-								 2, 0,
-								 "0x%04x [correct]",
-								 checksum);
-			checksum_tree = proto_item_add_subtree(checksum_ti, ett_v5dl_checksum);
-			proto_tree_add_boolean(checksum_tree, hf_v5dl_checksum_good, tvb, checksum_offset, 2, TRUE);
-			proto_tree_add_boolean(checksum_tree, hf_v5dl_checksum_bad, tvb, checksum_offset, 2, FALSE);
-		} else {
-			checksum_ti = proto_tree_add_uint_format_value(v5dl_tree, hf_v5dl_checksum, tvb, checksum_offset,
-								 2, 0,
-								 "0x%04x [incorrect, should be 0x%04x]",
-								 checksum, checksum_calculated);
-			checksum_tree = proto_item_add_subtree(checksum_ti, ett_v5dl_checksum);
-			proto_tree_add_boolean(checksum_tree, hf_v5dl_checksum_good, tvb, checksum_offset, 2, FALSE);
-			proto_tree_add_boolean(checksum_tree, hf_v5dl_checksum_bad, tvb, checksum_offset, 2, TRUE);
-		}
-
+		proto_tree_add_checksum(v5dl_tree, tvb, checksum_offset, hf_v5dl_checksum, hf_v5dl_checksum_status, NULL, pinfo, checksum_calculated,
+							ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		/*
 		 * Remove the V5DL header *and* the checksum.
 		 */
@@ -406,13 +388,9 @@ proto_register_v5dl(void)
 	  { "Checksum", "v5dl.checksum", FT_UINT16, BASE_HEX,
 		NULL, 0x0, "Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
 
-	{ &hf_v5dl_checksum_good,
-	  { "Good Checksum", "v5dl.checksum_good", FT_BOOLEAN, BASE_NONE,
-		NULL, 0x0, "True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
-
-	{ &hf_v5dl_checksum_bad,
-	  { "Bad Checksum", "v5dl.checksum_bad", FT_BOOLEAN, BASE_NONE,
-		NULL, 0x0, "True: checksum doesn't match packet content; False: matches content or not checked", HFILL }}
+	{ &hf_v5dl_checksum_status,
+	  { "Checksum Status", "v5dl.checksum.status", FT_UINT8, BASE_NONE,
+		VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
 #endif
 	};
 

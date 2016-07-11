@@ -226,7 +226,7 @@ static int dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* Add the first few P3 fields */
 	proto_tree_add_item(aol_tree,hf_aol_start,tvb,offset,1,ENC_NA);         offset += 1;
-	proto_tree_add_item(aol_tree,hf_aol_crc,  tvb,offset,2,ENC_BIG_ENDIAN); offset += 2;
+	proto_tree_add_checksum(aol_tree, tvb, offset, hf_aol_crc, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS); offset += 2;
 	proto_tree_add_item(aol_tree,hf_aol_len,  tvb,offset,2,ENC_BIG_ENDIAN); offset += 2;
 
 	/* Add sequence fields */

@@ -46,7 +46,7 @@ void proto_reg_handoff_mrdisc(void);
 
 static int proto_mrdisc = -1;
 static int hf_checksum = -1;
-static int hf_checksum_bad = -1;
+static int hf_checksum_status = -1;
 static int hf_type = -1;
 static int hf_advint = -1;
 static int hf_numopts = -1;
@@ -91,7 +91,7 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
+	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
 	offset += 2;
 
 	/* skip unused bytes */
@@ -160,7 +160,7 @@ dissect_mrdisc_mrst(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
+	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
 	offset += 2;
 
 	return offset;
@@ -222,9 +222,9 @@ proto_register_mrdisc(void)
 			{ "Checksum", "mrdisc.checksum", FT_UINT16, BASE_HEX,
 			  NULL, 0, "MRDISC Checksum", HFILL }},
 
-		{ &hf_checksum_bad,
-			{ "Bad Checksum", "mrdisc.checksum_bad", FT_BOOLEAN, BASE_NONE,
-			  NULL, 0x0, "Bad MRDISC Checksum", HFILL }},
+		{ &hf_checksum_status,
+			{ "Checksum Status", "mrdisc.checksum.status", FT_UINT8, BASE_NONE,
+			  VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_advint,
 			{ "Advertising Interval", "mrdisc.adv_int", FT_UINT8, BASE_DEC,

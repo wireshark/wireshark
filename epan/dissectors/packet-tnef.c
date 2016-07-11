@@ -612,7 +612,7 @@ static int dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       offset += length;
     }
 
-    proto_tree_add_item(attr_tree, hf_tnef_attribute_checksum, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_checksum(attr_tree, tvb, offset, hf_tnef_attribute_checksum, -1, NULL, pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     offset += 2;
 
     proto_item_set_len(attr_item, offset - start_offset);

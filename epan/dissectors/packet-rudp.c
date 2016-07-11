@@ -116,7 +116,7 @@ dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* dat
 
 	/* If the header is more than 4 bytes the next 2 bytes are the checksum */
 	if (hlen > 4) {
-		proto_tree_add_item(rudp_tree, hf_rudp_cksum, tvb, 4, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_checksum(rudp_tree, tvb, 4, hf_rudp_cksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 	}
 
 	/* If we have even more bytes their meaning is unknown - we have seen this

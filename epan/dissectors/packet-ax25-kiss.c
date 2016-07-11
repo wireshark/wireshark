@@ -335,17 +335,17 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 			}
 
 		if ( gPREF_CKSUM_MODE )
-			{
+		{
 			kiss_cksum = 0;
-			kiss_tvb_length = tvb_captured_length_remaining( tvb, 0 ) - 1;
+			kiss_tvb_length = tvb_captured_length(tvb) - 1;
 			if ( kiss_tvb_length > 0 )
-				{
+			{
 				for ( kiss_cksum_index = 0; kiss_cksum_index < kiss_tvb_length; kiss_cksum_index++ )
 					kiss_cksum ^= (tvb_get_guint8( tvb, kiss_cksum_index ) & 0xff);
-				proto_tree_add_uint( kiss_tree, hf_ax25_kiss_cksum,
-					tvb, kiss_cksum_index, 1, kiss_cksum );
-				}
+
+				proto_tree_add_checksum(kiss_tree, tvb, 0, hf_ax25_kiss_cksum, -1, NULL, pinfo, kiss_cksum, ENC_NA, PROTO_CHECKSUM_GENERATED);
 			}
+		}
 	}
 
 	/* Call sub-dissectors here */

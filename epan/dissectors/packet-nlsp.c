@@ -945,9 +945,7 @@ nlsp_dissect_nlsp_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 4;
 
 	/* XXX -> we could validate the cksum here! */
-	proto_tree_add_item(tree, hf_nlsp_lsp_checksum, tvb,
-		offset, 2, ENC_BIG_ENDIAN );
-
+	proto_tree_add_checksum(tree, tvb, offset, hf_nlsp_lsp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 	offset += 2;
 
 	if (tree) {
@@ -1027,7 +1025,7 @@ dissect_csnp_lsp_entries(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, in
 		proto_tree_add_uint_format_value(subtree, hf_nlsp_csnp_remaining_lifetime, tvb, offset, 2,
 			tvb_get_ntohs(tvb, offset), "%us", tvb_get_ntohs(tvb, offset));
 
-		proto_tree_add_item(subtree, hf_nlsp_csnp_lsp_checksum, tvb, offset+14, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_checksum(subtree, tvb, offset+14, hf_nlsp_csnp_lsp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 
 		length -= 16;
 		offset += 16;
@@ -1063,7 +1061,7 @@ dissect_psnp_lsp_entries(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, in
 		proto_tree_add_uint_format_value(subtree, hf_nlsp_psnp_remaining_lifetime, tvb, offset, 2,
 			tvb_get_ntohs(tvb, offset), "%us", tvb_get_ntohs(tvb, offset));
 
-		proto_tree_add_item(subtree, hf_nlsp_psnp_lsp_checksum, tvb, offset+14, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_checksum(subtree, tvb, offset+14, hf_nlsp_psnp_lsp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 
 		length -= 16;
 		offset += 16;

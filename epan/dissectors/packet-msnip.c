@@ -44,7 +44,7 @@ void proto_reg_handoff_msnip(void);
 
 static int proto_msnip = -1;
 static int hf_checksum = -1;
-static int hf_checksum_bad = -1;
+static int hf_checksum_status = -1;
 static int hf_type = -1;
 static int hf_count = -1;
 static int hf_holdtime = -1;
@@ -89,7 +89,7 @@ dissect_msnip_rmr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
+	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
 	offset += 2;
 
 	while (count--) {
@@ -135,7 +135,7 @@ dissect_msnip_is(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
+	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
 	offset += 2;
 
 	/* 16 bit holdtime */
@@ -161,7 +161,7 @@ dissect_msnip_gm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
+	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
 	offset += 2;
 
 	/* holdtime */
@@ -264,9 +264,9 @@ proto_register_msnip(void)
 			{ "Checksum", "msnip.checksum", FT_UINT16, BASE_HEX,
 			  NULL, 0, "MSNIP Checksum", HFILL }},
 
-		{ &hf_checksum_bad,
-			{ "Bad Checksum", "msnip.checksum_bad", FT_BOOLEAN, BASE_NONE,
-			  NULL, 0x0, "Bad MSNIP Checksum", HFILL }},
+		{ &hf_checksum_status,
+			{ "Checksum Status", "msnip.checksum.status", FT_UINT8, BASE_NONE,
+			  VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_count,
 			{ "Count", "msnip.count", FT_UINT8, BASE_DEC,

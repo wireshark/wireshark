@@ -93,6 +93,7 @@ static int hf_sml_datatype = -1;
 static int hf_sml_abortOnError = -1;
 static int hf_sml_MessageBody = -1;
 static int hf_sml_crc16 = -1;
+static int hf_sml_crc16_status = -1;
 static int hf_sml_endOfSmlMsg = -1;
 static int hf_sml_end = -1;
 static int hf_sml_codepage = -1;
@@ -2391,31 +2392,22 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 			proto_tree_add_item (crc16_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 			*offset+=1;
 
-			crc16 = proto_tree_add_item (crc16_tree, hf_sml_crc16, tvb, *offset, data, ENC_BIG_ENDIAN);
-			*offset+=data;
-
 			if (sml_crc_enabled) {
-				crc_msg_len = (*offset - crc_msg_len - data - 1);
-				crc_check = crc16_ccitt_tvb_offset(tvb, (*offset - crc_msg_len - data - 1), crc_msg_len);
-				crc_ref = tvb_get_letohs(tvb, *offset-2);
+				crc_msg_len = (*offset - crc_msg_len - 1);
+				crc_check = crc16_ccitt_tvb_offset(tvb, (*offset - crc_msg_len - 1), crc_msg_len);
 
 				if (data == 1){
 					crc_ref = crc_ref & 0xFF00;
 				}
 
-				if (crc_check == crc_ref) {
-					proto_item_append_text(crc16, " [CRC Okay]");
-				}
-				else {
-					/*(little to big endian convert) to display in correct order*/
-					crc_check = ((crc_check >> 8) & 0xFF) + ((crc_check << 8 & 0xFF00));
-					proto_item_append_text(crc16, " [CRC Bad 0x%X]", crc_check);
-					expert_add_info(pinfo, crc16, &ei_sml_crc_error);
-				}
+				proto_tree_add_checksum(crc16_tree, tvb, *offset, hf_sml_crc16, hf_sml_crc16_status, &ei_sml_crc_error, pinfo, crc_check,
+									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 			}
 			else {
-				proto_item_append_text(crc16, " [CRC validation disabled]");
+				proto_tree_add_checksum(crc16_tree, tvb, *offset, hf_sml_crc16, hf_sml_crc16_status, &ei_sml_crc_error, pinfo, 0,
+									ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 			}
+			*offset+=data;
 
 			/*Message END*/
 			if (tvb_get_guint8 (tvb, *offset) == 0){
@@ -2477,27 +2469,19 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 		*offset+=1;
 		proto_tree_add_item (msgend_tree, hf_sml_padding, tvb, *offset, 1, ENC_NA);
 		*offset+=1;
-		crc16 = proto_tree_add_item (msgend_tree, hf_sml_crc16, tvb, *offset, 2, ENC_BIG_ENDIAN);
-		*offset+=2;
 
 		if (sml_crc_enabled && sml_reassemble){
-			crc_file_len = *offset - crc_file_len - 2;
-			crc_check = crc16_ccitt_tvb_offset(tvb,*offset-crc_file_len-2, crc_file_len);
-			crc_ref = tvb_get_letohs(tvb, *offset-2);
+			crc_file_len = *offset - crc_file_len;
+			crc_check = crc16_ccitt_tvb_offset(tvb,*offset-crc_file_len, crc_file_len);
 
-			if (crc_check == crc_ref){
-				proto_item_append_text(crc16, " [CRC Okay]");
-			}
-			else{
-				/*(little to big endian convert) to display in correct order*/
-				crc_check = ((crc_check >> 8) & 0xFF) + ((crc_check << 8) & 0xFF00);
-				proto_item_append_text(crc16, " [CRC Bad 0x%X]", crc_check);
-				expert_add_info_format(pinfo, msgend, &ei_sml_crc_error, "CRC error (messages not reassembled ?)");
-			}
+			proto_tree_add_checksum(msgend_tree, tvb, *offset, hf_sml_crc16, hf_sml_crc16_status, &ei_sml_crc_error, pinfo, crc_check,
+									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		}
 		else {
-			proto_item_append_text(crc16, " [CRC validation disabled]");
+			proto_tree_add_checksum(msgend_tree, tvb, *offset, hf_sml_crc16, hf_sml_crc16_status, &ei_sml_crc_error, pinfo, crc_check,
+									ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 		}
+		*offset+=2;
 
 		available = tvb_reported_length_remaining(tvb, *offset);
 		if (available <= 0){
@@ -2556,6 +2540,8 @@ void proto_register_sml (void) {
 			{ "SML Version", "sml.version", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_crc16,
 			{ "CRC16", "sml.crc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sml_crc16_status,
+			{ "CRC16 Status", "sml.crc.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
 		{ &hf_sml_endOfSmlMsg,
 			{ "End of SML Msg", "sml.end", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_transactionId,

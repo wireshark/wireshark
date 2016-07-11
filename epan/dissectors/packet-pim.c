@@ -327,12 +327,10 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     guint8 pim_type;
     guint8 pim_ver;
     guint length, pim_length;
-    guint16 pim_cksum, computed_cksum;
     vec_t cksum_vec[1];
     proto_tree *pim_tree = NULL;
     proto_item *ti;
     proto_tree *pimopt_tree = NULL;
-    proto_item *ticksum;
     int offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PIMv1");
@@ -353,10 +351,10 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     proto_tree_add_uint(pim_tree, hf_pim_code, tvb, offset, 1, pim_type);
     offset += 1;
 
-    pim_cksum = tvb_get_ntohs(tvb, offset);
-    ticksum = proto_tree_add_item(pim_tree, hf_pim_cksum, tvb, offset, 2, ENC_BIG_ENDIAN);
     pim_ver = PIM_VER(tvb_get_guint8(tvb, offset + 2));
     if (pim_ver != 1) {
+        proto_tree_add_checksum(pim_tree, tvb, offset, hf_pim_cksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+
         /*
          * Not PIMv1; should we bother dissecting the PIM drafts
          * with a version number of 2 and with PIM running atop
@@ -403,12 +401,10 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
          * truncated, so we can checksum it.
          */
         SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, pim_length);
-        computed_cksum = in_cksum(&cksum_vec[0], 1);
-        if (computed_cksum == 0) {
-             proto_item_append_text(ticksum, " [correct]");
-        } else {
-            proto_item_append_text(ticksum, " [incorrect, should be 0x%04x]", in_cksum_shouldbe(pim_cksum, computed_cksum));
-        }
+        proto_tree_add_checksum(pim_tree, tvb, offset, hf_pim_cksum, -1, NULL, pinfo, in_cksum(&cksum_vec[0], 1),
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+    } else {
+        proto_tree_add_checksum(pim_tree, tvb, offset, hf_pim_cksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     }
     offset += 2;
 
@@ -805,14 +801,13 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     guint8 pim_typever;
     guint8 pim_bidir_subtype = 0;
     guint length, pim_length;
-    guint16 pim_cksum, computed_cksum;
     vec_t cksum_vec[4];
     guint32 phdr[2];
     const char *typestr;
     proto_tree *pim_tree = NULL;
     proto_item *ti;
     proto_tree *pimopt_tree = NULL;
-    proto_item *tiopt, *ticksum;
+    proto_item *tiopt;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PIM");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -846,10 +841,9 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     else {
         proto_tree_add_item(pim_tree, hf_pim_res_bytes, tvb, offset + 1, 1, ENC_NA);
     }
-    pim_cksum = tvb_get_ntohs(tvb, offset + 2);
-    ticksum = proto_tree_add_item(pim_tree, hf_pim_cksum, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
     if (PIM_VER(pim_typever) != 2) {
+        proto_tree_add_checksum(pim_tree, tvb, offset+2, hf_pim_cksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
         /*
          * We don't know this version, so we don't know how much of the
          * packet the checksum covers.
@@ -891,7 +885,8 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         switch (pinfo->src.type) {
         case AT_IPv4:
             SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, pim_length);
-            computed_cksum = in_cksum(&cksum_vec[0], 1);
+            proto_tree_add_checksum(pim_tree, tvb, offset+2, hf_pim_cksum, -1, NULL, pinfo, in_cksum(&cksum_vec[0], 1),
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
             break;
         case AT_IPv6:
             /* Set up the fields of the pseudo-header. */
@@ -901,20 +896,16 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             phdr[1] = g_htonl(IP_PROTO_PIM);
             SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 8);
             SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, pim_length);
-            computed_cksum = in_cksum(&cksum_vec[0], 4);
+            proto_tree_add_checksum(pim_tree, tvb, offset+2, hf_pim_cksum, -1, NULL, pinfo, in_cksum(&cksum_vec[0], 4),
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
             break;
         default:
             /* PIM is available for IPv4 and IPv6 right now */
             DISSECTOR_ASSERT_NOT_REACHED();
             break;
         }
-
-        if (computed_cksum == 0) {
-            proto_item_append_text(ticksum, " [correct]");
-
-        } else {
-            proto_item_append_text(ticksum, " [incorrect, should be 0x%04x]", in_cksum_shouldbe(pim_cksum, computed_cksum));
-        }
+    } else {
+        proto_tree_add_checksum(pim_tree, tvb, offset+2, hf_pim_cksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     }
     offset += 4;
 

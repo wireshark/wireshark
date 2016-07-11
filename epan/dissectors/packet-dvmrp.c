@@ -63,7 +63,7 @@ static int hf_version = -1;
 static int hf_type = -1;
 static int hf_code_v1 = -1;
 static int hf_checksum = -1;
-static int hf_checksum_bad = -1;
+static int hf_checksum_status = -1;
 static int hf_reserved = -1;
 static int hf_commands = -1;
 static int hf_command = -1;
@@ -336,7 +336,7 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 				"Unknown Type:0x%02x"));
 
 	/* checksum */
-	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
+	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
 	offset += 2;
 
 	/* skip unused byte */
@@ -525,7 +525,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 				"Unknown Type:0x%02x"));
 
 	/* checksum */
-	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
+	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
 	offset += 2;
 
 	/* decode all the v1 commands */
@@ -720,9 +720,9 @@ proto_register_dvmrp(void)
 			{ "Checksum", "dvmrp.checksum", FT_UINT16, BASE_HEX,
 			  NULL, 0, "DVMRP Checksum", HFILL }},
 
-		{ &hf_checksum_bad,
-			{ "Bad Checksum", "dvmrp.checksum_bad", FT_BOOLEAN, BASE_NONE,
-			  NULL, 0x0, "Bad DVMRP Checksum", HFILL }},
+		{ &hf_checksum_status,
+			{ "Checksum Status", "dvmrp.checksum.status", FT_UINT8, BASE_NONE,
+			  VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_reserved,
 			{ "Reserved", "dvmrp.reserved", FT_UINT16, BASE_HEX,

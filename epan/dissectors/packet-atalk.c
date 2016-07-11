@@ -367,23 +367,6 @@ static dissector_table_t ddp_dissector_table;
 
 #define DDP_SHORT_HEADER_SIZE 5
 
-/*
- * P = Padding, H = Hops, L = Len
- *
- * PPHHHHLL LLLLLLLL
- *
- * Assumes the argument is in host byte order.
- */
-#define ddp_hops(x)     ( ( x >> 10) & 0x3C )
-#define ddp_len(x)      ( x & 0x03ff )
-typedef struct _e_ddp {
-  guint16       hops_len; /* combines pad, hops, and len */
-  guint16       sum,dnet,snet;
-  guint8        dnode,snode;
-  guint8        dport,sport;
-  guint8        type;
-} e_ddp;
-
 #define DDP_HEADER_SIZE 13
 
 
@@ -1484,76 +1467,55 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 static int
 dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  e_ddp                  ddp;
   proto_tree            *ddp_tree;
   proto_item            *ti, *hidden_item;
   struct atalk_ddp_addr *src = wmem_new0(pinfo->pool, struct atalk_ddp_addr),
                         *dst = wmem_new0(pinfo->pool, struct atalk_ddp_addr);
   tvbuff_t              *new_tvb;
+  guint                 type;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  tvb_memcpy(tvb, (guint8 *)&ddp, 0, sizeof(e_ddp));
-  ddp.dnet=g_ntohs(ddp.dnet);
-  ddp.snet=g_ntohs(ddp.snet);
-  ddp.sum=g_ntohs(ddp.sum);
-  ddp.hops_len=g_ntohs(ddp.hops_len);
+  pinfo->ptype = PT_DDP;
 
-  src->net = ddp.snet;
-  src->node = ddp.snode;
-  dst->net = ddp.dnet;
-  dst->node = ddp.dnode;
+  ti = proto_tree_add_item(tree, proto_ddp, tvb, 0, DDP_HEADER_SIZE, ENC_NA);
+  ddp_tree = proto_item_add_subtree(ti, ett_ddp);
+
+  hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
+                                        4, 3, address_to_str(wmem_packet_scope(), &pinfo->src));
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
+
+  hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_dst, tvb,
+                                        6, 3, address_to_str(wmem_packet_scope(), &pinfo->dst));
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
+
+  proto_tree_add_item(ddp_tree, hf_ddp_hopcount,   tvb, 0, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(ddp_tree, hf_ddp_len,        tvb, 0, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_checksum(ddp_tree, tvb, 0, hf_ddp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+  dst->net = tvb_get_ntohs(tvb, 4);
+  proto_tree_add_uint(ddp_tree, hf_ddp_dst_net,    tvb, 4, 2, dst->net);
+  src->net = tvb_get_ntohs(tvb, 6);
+  proto_tree_add_uint(ddp_tree, hf_ddp_src_net,    tvb, 6, 2, src->net);
+  dst->node = tvb_get_guint8(tvb, 8);
+  proto_tree_add_uint(ddp_tree, hf_ddp_dst_node,   tvb, 8,  1, dst->node);
+  src->node = tvb_get_guint8(tvb, 9);
+  proto_tree_add_uint(ddp_tree, hf_ddp_src_node,   tvb, 9,  1, src->node);
+  proto_tree_add_item_ret_uint(ddp_tree, hf_ddp_dst_socket, tvb, 10, 1, ENC_NA, &pinfo->destport);
+  proto_tree_add_item_ret_uint(ddp_tree, hf_ddp_src_socket, tvb, 11, 1, ENC_NA, &pinfo->srcport);
+  proto_tree_add_item_ret_uint(ddp_tree, hf_ddp_type, tvb, 12, 1, ENC_NA, &type);
+
+  col_add_str(pinfo->cinfo, COL_INFO,
+    val_to_str_ext(type, &op_vals_ext, "Unknown DDP protocol (%02x)"));
+
   set_address(&pinfo->net_src, atalk_address_type, sizeof(struct atalk_ddp_addr), src);
   copy_address_shallow(&pinfo->src, &pinfo->net_src);
   set_address(&pinfo->net_dst, atalk_address_type, sizeof(struct atalk_ddp_addr), dst);
   copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
-  pinfo->ptype = PT_DDP;
-  pinfo->destport = ddp.dport;
-  pinfo->srcport = ddp.sport;
-
-  col_add_str(pinfo->cinfo, COL_INFO,
-    val_to_str_ext(ddp.type, &op_vals_ext, "Unknown DDP protocol (%02x)"));
-
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_ddp, tvb, 0, DDP_HEADER_SIZE,
-                             ENC_NA);
-    ddp_tree = proto_item_add_subtree(ti, ett_ddp);
-
-    hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
-                                        4, 3, address_to_str(wmem_packet_scope(), &pinfo->src));
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-
-    hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_dst, tvb,
-                                        6, 3, address_to_str(wmem_packet_scope(), &pinfo->dst));
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-
-    proto_tree_add_uint(ddp_tree, hf_ddp_hopcount,   tvb, 0, 1,
-                        ddp_hops(ddp.hops_len));
-    proto_tree_add_uint(ddp_tree, hf_ddp_len,        tvb, 0, 2,
-                        ddp_len(ddp.hops_len));
-    proto_tree_add_uint(ddp_tree, hf_ddp_checksum,   tvb, 2,  2,
-                        ddp.sum);
-    proto_tree_add_uint(ddp_tree, hf_ddp_dst_net,    tvb, 4,  2,
-                        ddp.dnet);
-    proto_tree_add_uint(ddp_tree, hf_ddp_src_net,    tvb, 6,  2,
-                        ddp.snet);
-    proto_tree_add_uint(ddp_tree, hf_ddp_dst_node,   tvb, 8,  1,
-                        ddp.dnode);
-    proto_tree_add_uint(ddp_tree, hf_ddp_src_node,   tvb, 9,  1,
-                        ddp.snode);
-    proto_tree_add_uint(ddp_tree, hf_ddp_dst_socket, tvb, 10, 1,
-                        ddp.dport);
-    proto_tree_add_uint(ddp_tree, hf_ddp_src_socket, tvb, 11, 1,
-                        ddp.sport);
-    proto_tree_add_uint(ddp_tree, hf_ddp_type,       tvb, 12, 1,
-                        ddp.type);
-  }
-
   new_tvb = tvb_new_subset_remaining(tvb, DDP_HEADER_SIZE);
 
-  if (!dissector_try_uint(ddp_dissector_table, ddp.type, new_tvb, pinfo, tree))
+  if (!dissector_try_uint(ddp_dissector_table, type, new_tvb, pinfo, tree))
   {
     call_data_dissector(new_tvb, pinfo, tree);
   }
@@ -1666,11 +1628,11 @@ proto_register_atalk(void)
 
   static hf_register_info hf_ddp[] = {
     { &hf_ddp_hopcount,
-      { "Hop count",            "ddp.hopcount", FT_UINT8,  BASE_DEC, NULL, 0x0,
+      { "Hop count",            "ddp.hopcount", FT_UINT16,  BASE_DEC, NULL, 0x3C00,
         NULL, HFILL }},
 
     { &hf_ddp_len,
-      { "Datagram length",      "ddp.len",      FT_UINT16, BASE_DEC, NULL, 0x0,
+      { "Datagram length",      "ddp.len",      FT_UINT16, BASE_DEC, NULL, 0x0300,
         NULL, HFILL }},
 
     { &hf_ddp_checksum,

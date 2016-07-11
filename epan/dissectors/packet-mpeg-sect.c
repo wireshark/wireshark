@@ -37,6 +37,7 @@ static int hf_mpeg_sect_syntax_indicator = -1;
 static int hf_mpeg_sect_reserved = -1;
 static int hf_mpeg_sect_length = -1;
 static int hf_mpeg_sect_crc = -1;
+static int hf_mpeg_sect_crc_status = -1;
 
 static gint ett_mpeg_sect = -1;
 
@@ -247,30 +248,12 @@ guint
 packet_mpeg_sect_crc(tvbuff_t *tvb, packet_info *pinfo,
              proto_tree *tree, guint start, guint end)
 {
-    guint32     crc, calculated_crc;
-    const char *label;
-
-    crc = tvb_get_ntohl(tvb, end);
-
-    calculated_crc = crc;
-    label = "Unverified";
     if (mpeg_sect_check_crc) {
-        label = "Verified";
-        calculated_crc = crc32_mpeg2_tvb_offset(tvb, start, end);
-    }
-
-    if (calculated_crc == crc) {
-        proto_tree_add_uint_format( tree, hf_mpeg_sect_crc, tvb,
-            end, 4, crc, "CRC: 0x%08x [%s]", crc, label);
+        proto_tree_add_checksum(tree, tvb, end, hf_mpeg_sect_crc, hf_mpeg_sect_crc_status, &ei_mpeg_sect_crc, pinfo, crc32_mpeg2_tvb_offset(tvb, start, end),
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
     } else {
-        proto_item *msg_error;
-
-        msg_error = proto_tree_add_uint_format( tree, hf_mpeg_sect_crc, tvb,
-                            end, 4, crc,
-                            "CRC: 0x%08x [Failed Verification (Calculated: 0x%08x)]",
-                            crc, calculated_crc );
-        PROTO_ITEM_SET_GENERATED(msg_error);
-        expert_add_info( pinfo, msg_error, &ei_mpeg_sect_crc);
+        proto_tree_add_checksum(tree, tvb, end, hf_mpeg_sect_crc, hf_mpeg_sect_crc_status, &ei_mpeg_sect_crc, pinfo, crc32_mpeg2_tvb_offset(tvb, start, end),
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     }
 
     return 4;
@@ -348,7 +331,13 @@ proto_register_mpeg_sect(void)
         { &hf_mpeg_sect_crc, {
             "CRC 32", "mpeg_sect.crc",
             FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL
-        } }
+        } },
+
+        { &hf_mpeg_sect_crc_status, {
+            "CRC 32 Status", "mpeg_sect.crc.status",
+            FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0, NULL, HFILL
+        } },
+
     };
 
     static gint *ett[] = {

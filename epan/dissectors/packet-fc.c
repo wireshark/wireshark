@@ -1270,37 +1270,28 @@ dissect_fc_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 static int
 dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
 
-    proto_item *it = NULL;
-    proto_tree *fcsof_tree = NULL;
-    tvbuff_t *next_tvb, *checksum_tvb;
-    guint32 sof = 0;
-    guint32 crc = 0;
-    guint32 crc_computed = 0;
-    guint32 eof = 0;
-    gint crc_offset = 0;
-    gint eof_offset = 0;
-    gint sof_offset = 0;
+    proto_item *it;
+    proto_tree *fcsof_tree;
+    tvbuff_t *next_tvb;
+    guint32 sof;
+    guint32 crc_computed;
+    guint32 eof;
     const gint FCSOF_TRAILER_LEN = 8;
     const gint FCSOF_HEADER_LEN = 4;
-    gint frame_len_for_checksum = 0;
+    gint crc_offset = tvb_reported_length(tvb) - FCSOF_TRAILER_LEN;
+    gint eof_offset = crc_offset + 4;
+    gint sof_offset = 0;
+    gint frame_len_for_checksum;
     fc_data_t fc_data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC");
 
-    crc_offset = tvb_reported_length(tvb) - FCSOF_TRAILER_LEN;
-    eof_offset = crc_offset + 4;
-    sof_offset = 0;
-
     /* Get SOF */
     sof = tvb_get_ntohl(tvb, 0);
 
-    /* GET CRC */
-    crc = tvb_get_ntohl(tvb, crc_offset);
-
     /* GET Computed CRC */
     frame_len_for_checksum = crc_offset - FCSOF_HEADER_LEN;
-    checksum_tvb = tvb_new_subset_length(tvb, 4, frame_len_for_checksum);
-    crc_computed = crc32_802_tvb(checksum_tvb, frame_len_for_checksum);
+    crc_computed = crc32_802_tvb(tvb_new_subset_length(tvb, 4, frame_len_for_checksum), frame_len_for_checksum);
 
     /* Get EOF */
     eof = tvb_get_ntohl(tvb, eof_offset);
@@ -1314,20 +1305,7 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     proto_tree_add_uint(fcsof_tree, hf_fcsof, tvb, sof_offset, 4, sof);
 
-    if (crc == crc_computed) {
-        proto_tree_add_uint_format_value(fcsof_tree, hf_fccrc, tvb,
-                                       crc_offset, 4, crc,
-                                       "%8.8x [valid]", crc);
-    } else {
-        it = proto_tree_add_uint_format_value(fcsof_tree, hf_fccrc, tvb,
-                                       crc_offset, 4, crc,
-                                       "%8.8x [error: should be %8.8x]",
-                                       crc, crc_computed);
-
-        expert_add_info_format(pinfo, it, &ei_fccrc,
-                                   "Bad FC CRC %8.8x %8.x",
-                                   crc, crc_computed);
-    }
+    proto_tree_add_checksum(fcsof_tree, tvb, crc_offset, hf_fccrc, -1, &ei_fccrc, pinfo, crc_computed, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
     proto_tree_add_uint(fcsof_tree, hf_fceof, tvb, eof_offset, 4, eof);
 

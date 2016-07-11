@@ -52,7 +52,7 @@ static int proto_igap      = -1;
 static int hf_type         = -1;
 static int hf_max_resp     = -1;
 static int hf_checksum     = -1;
-static int hf_checksum_bad = -1;
+static int hf_checksum_status = -1;
 static int hf_maddr        = -1;
 static int hf_version      = -1;
 static int hf_subtype      = -1;
@@ -157,7 +157,7 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
         "%.1f sec (0x%02x)", tsecs * 0.1, tsecs);
     offset += 1;
 
-    igmp_checksum(tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
+    igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
     offset += 2;
 
     proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -256,9 +256,9 @@ proto_register_igap(void)
             FT_UINT16, BASE_HEX, NULL, 0,
             NULL, HFILL }
         },
-        { &hf_checksum_bad,
-          { "Bad Checksum", "igap.checksum_bad",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        { &hf_checksum_status,
+          { "Checksum Status", "igap.checksum.status",
+            FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_maddr,

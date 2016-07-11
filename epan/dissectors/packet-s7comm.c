@@ -4438,7 +4438,7 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                     offset += 1;
                     proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_res_unknown, tvb, offset, 1, ENC_NA);
                     offset += 1;
-                    proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_checksum(data_tree, tvb, offset, hf_s7comm_ud_blockinfo_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
                     offset += 2;
                     proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_reserved1, tvb, offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;

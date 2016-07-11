@@ -137,15 +137,13 @@ dissect_pn532_hci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         call_dissector_with_data(pn532_handle, next_tvb, pinfo, tree, usb_conv_info);
         offset += length;
 
-        proto_tree_add_item(main_tree, hf_data_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
         checksum = tvb_get_guint8(tvb, offset);
         while (length) {
             checksum += tvb_get_guint8(tvb, offset - length);
             length -= 1;
         }
-        if (checksum != 0) {
-            proto_tree_add_expert(main_tree, pinfo, &ei_invalid_data_checksum, tvb, offset, 1);
-        }
+        proto_tree_add_checksum(main_tree, tvb, offset, hf_data_checksum, -1, &ei_invalid_data_checksum, pinfo, 0,
+                            ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
         offset += 1;
     } else { /* Normal Information Frame */
         col_set_str(pinfo->cinfo, COL_INFO, "Normal Information Frame");

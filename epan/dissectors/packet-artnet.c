@@ -3141,8 +3141,7 @@ dissect_artnet_file_tn_master(tvbuff_t *tvb, guint offset, proto_tree *tree)
                       offset, 14, ENC_ASCII|ENC_NA);
   offset += 14;
 
-  proto_tree_add_item(tree, hf_artnet_file_tn_master_checksum, tvb,
-                      offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_checksum(tree, tvb, offset, hf_artnet_file_tn_master_checksum, -1, NULL, NULL, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
   offset += 2;
 
   proto_tree_add_item(tree, hf_artnet_file_tn_master_spare, tvb,

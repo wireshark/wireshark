@@ -4093,8 +4093,8 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_item(mip6_tree, hf_mip6_reserved, tvb,
             MIP6_RES_OFF, 1, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(mip6_tree, hf_mip6_csum, tvb,
-            MIP6_CSUM_OFF, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_checksum(mip6_tree, tvb, MIP6_CSUM_OFF, hf_mip6_csum,
+            -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 
     /* Process mobility header */
     type = tvb_get_guint8(tvb, MIP6_TYPE_OFF);

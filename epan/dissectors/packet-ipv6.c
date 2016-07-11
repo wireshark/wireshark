@@ -1426,8 +1426,8 @@ dissect_opt_calipso(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *
                         offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_checksum, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_checksum(opt_tree, tvb, offset, hf_ipv6_opt_calipso_checksum, -1,
+                                NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     offset += 2;
 
     proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_cmpt_bitmap, tvb,

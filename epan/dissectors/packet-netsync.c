@@ -535,8 +535,8 @@ dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
 		offset += size;
 
-		proto_tree_add_item(netsync_tree, hf_netsync_checksum, tvb,
-					offset, 4, ENC_BIG_ENDIAN );
+		proto_tree_add_checksum(netsync_tree, tvb, offset, hf_netsync_checksum,
+					-1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS );
 		offset += 4;
 
 

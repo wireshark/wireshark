@@ -788,7 +788,7 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, gint offset,
     length = 1;
   }
   if (length > 0) {
-    proto_tree_add_item(body_tree, hf_hartip_pt_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_checksum(body_tree, tvb, offset, hf_hartip_pt_checksum, -1, NULL, NULL, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
   }
 
   return bodylen;

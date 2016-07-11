@@ -123,6 +123,7 @@ static int hf_dec_rt_reserved = -1;
 static int hf_dec_rt_fcnval = -1;
 static int hf_dec_rt_test_data = -1;
 static int hf_dec_rt_segment = -1;
+static int hf_dec_rt_checksum = -1;
 static int hf_dec_rt_id = -1;
 static int hf_dec_rt_iinfo = -1;
 static int hf_dec_rt_iinfo_node_type = -1;
@@ -632,7 +633,6 @@ do_routing_msg(
 {
     guint   my_offset = offset;
     guint32 my_checksum = 1;
-    guint16 checksum;
     guint16 count, startid, rtginfo;
     guint   remainder_count;
 
@@ -667,18 +667,8 @@ do_routing_msg(
     /* fold 32 bit sum into 16 bits */
     while (my_checksum>>16)
         my_checksum = (my_checksum & 0xffff) + (my_checksum >> 16);
-    checksum = tvb_get_letohs(tvb, my_offset);
-    if (checksum != my_checksum) {
-        proto_tree_add_none_format(tree, hf_dec_rt_segment, tvb,
-            my_offset, 2,
-            "Checksum mismatch(computed 0x%x <> received 0x%x)",
-            my_checksum, checksum);
-    } else {
-        proto_tree_add_none_format(tree, hf_dec_rt_segment, tvb,
-            my_offset, 2,
-            "Checksum: match (computed 0x%x = received 0x%x)",
-            my_checksum, checksum);
-    }
+
+    proto_tree_add_checksum(tree, tvb, my_offset, hf_dec_rt_checksum, -1, NULL, pinfo, my_checksum, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
     my_offset += 2;
     return (my_offset);
 }
@@ -1343,6 +1333,10 @@ proto_register_dec_rt(void)
           { "Segment",                "dec_dna.ctl.segment",
             FT_NONE,    BASE_NONE,    NULL,    0x0,
             "Routing Segment", HFILL }},
+        { &hf_dec_rt_checksum,
+          { "Checksum",               "dec_dna.ctl.checksum",
+            FT_UINT16,    BASE_HEX,    NULL,    0x0,
+            NULL, HFILL }},
         { &hf_dec_rt_id,
           { "Transmitting system ID",            "dec_dna.ctl.id",
             FT_ETHER,    BASE_NONE,    NULL,    0x0,

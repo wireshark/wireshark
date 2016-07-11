@@ -172,16 +172,8 @@ dissect_epon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   sent_checksum = tvb_get_guint8(tvb, 5+offset);
   checksum = get_crc8_ieee8023_epon(tvb, 5, 0+offset);
 
-  if (sent_checksum == checksum) {
-    proto_tree_add_uint_format_value(epon_tree, hf_epon_checksum, tvb,
-                                     5+offset, 1, sent_checksum,
-                                     "0x%01x [correct]", sent_checksum);
-  } else {
-    item = proto_tree_add_uint_format_value(epon_tree, hf_epon_checksum, tvb,
-                                            5+offset, 1, sent_checksum,
-                                            "0x%01x [incorrect, should be 0x%01x]",
-                                            sent_checksum, checksum);
-    expert_add_info(pinfo, item, &ei_epon_checksum_bad);
+  proto_tree_add_checksum(epon_tree, tvb, 5+offset, hf_epon_checksum, -1, &ei_epon_checksum_bad, pinfo, checksum, ENC_NA, PROTO_CHECKSUM_VERIFY);
+  if (sent_checksum != checksum) {
     col_append_str(pinfo->cinfo, COL_INFO, " [EPON PREAMBLE CHECKSUM INCORRECT]");
   }
 

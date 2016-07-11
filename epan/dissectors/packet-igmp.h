@@ -55,7 +55,7 @@
 #define IGMP_RGMP_HELLO 0xFF
 
 void igmp_checksum(proto_tree *tree, tvbuff_t *tvb, int hf_index,
-    int hf_index_bad, packet_info *pinfo, guint len);
+    int hf_index_status, packet_info *pinfo, guint len);
 
 #endif
 

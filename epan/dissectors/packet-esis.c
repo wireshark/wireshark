@@ -250,7 +250,6 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_tree *esis_tree    = NULL;
   guint8      variable_len, type;
   guint16     holdtime, checksum;
-  const char *cksum_status;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESIS");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -285,31 +284,19 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                                holdtime, "%u seconds", holdtime);
 
     checksum = tvb_get_ntohs(tvb, 7);
-    switch (calc_checksum( tvb, 0, length, checksum)) {
+    if (checksum == 0) {
+        /* No checksum present */
+        proto_tree_add_checksum(esis_tree, tvb, 7, hf_esis_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
+    } else {
+        guint32 c0 = 0, c1 = 0;
 
-    case NO_CKSUM:
-      cksum_status = "Not Used";
-      break;
-
-    case DATA_MISSING:
-      cksum_status = "Not checkable - not all of packet was captured";
-      break;
-
-    case CKSUM_OK:
-      cksum_status = "Is good";
-      break;
-
-    case CKSUM_NOT_OK:
-      cksum_status = "Is wrong";
-      break;
-
-    default:
-      cksum_status = NULL;
-      DISSECTOR_ASSERT_NOT_REACHED();
+        if (osi_calc_checksum(tvb, 0, length, &c0, &c1)) {
+            /* Successfully processed checksum, verify it */
+            proto_tree_add_checksum(esis_tree, tvb, 7, hf_esis_checksum, -1, NULL, pinfo, c0 | c1, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
+        } else {
+            proto_tree_add_checksum(esis_tree, tvb, 7, hf_esis_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+        }
     }
-    proto_tree_add_uint_format_value( esis_tree, hf_esis_checksum, tvb, 7, 2,
-                                checksum, "0x%x ( %s )", checksum, cksum_status );
-
 
   /*
    * Let us make sure we use the same names for all our decodes

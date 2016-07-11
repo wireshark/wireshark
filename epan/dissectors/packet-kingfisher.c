@@ -294,7 +294,7 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     proto_tree_add_uint_format_value(kingfisher_tree, hf_kingfisher_message, tvb, 5, 1, kfp.message, "%u (0x%02X, %s)", message, kfp.message, ((kfp.message & 0xf0)?"Response":"Request"));
 
     /* message function code */
-    proto_tree_add_uint_format(kingfisher_tree, hf_kingfisher_function, tvb, 6, 1, kfp.function, "Message Function Code: %u (0x%02X, %s)", kfp.function, kfp.function, func_string);
+    proto_tree_add_uint_format_value(kingfisher_tree, hf_kingfisher_function, tvb, 6, 1, kfp.function, "%u (0x%02X, %s)", kfp.function, kfp.function, func_string);
 
     /* message data */
     if(kfp.length > ((kfp.version==3)?11:8)){
@@ -302,9 +302,7 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     }
 
     /* checksum */
-    proto_tree_add_uint_format_value(kingfisher_tree, hf_kingfisher_checksum, tvb, kfp.length-1, 2, kfp.checksum, "0x%04X [%s]", kfp.checksum, ((checksum != kfp.checksum)?"incorrect":"correct"));
-
-
+    proto_tree_add_checksum(kingfisher_tree, tvb, kfp.length-1, hf_kingfisher_checksum, -1, NULL, pinfo, checksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
     return TRUE;
 }
@@ -351,7 +349,7 @@ proto_register_kingfisher( void )
             { &hf_kingfisher_target,        { "Target RTU", "kingfisher.target", FT_UINT16, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
             { &hf_kingfisher_via,           { "Via RTU", "kingfisher.via", FT_UINT16, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
             { &hf_kingfisher_message,       { "Message Number", "kingfisher.message", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-            { &hf_kingfisher_function,      { "Function Code", "kingfisher.function", FT_UINT8, BASE_DEC, VALS( function_code_vals ), 0x0, NULL, HFILL } },
+            { &hf_kingfisher_function,      { "Message Function Code", "kingfisher.function", FT_UINT8, BASE_DEC, VALS( function_code_vals ), 0x0, NULL, HFILL } },
             { &hf_kingfisher_checksum,      { "Checksum", "kingfisher.checksum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_kingfisher_message_data,  { "Message Data", "kingfisher.message_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     };

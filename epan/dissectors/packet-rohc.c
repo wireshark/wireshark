@@ -1461,7 +1461,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         dynamic_udp_tree = proto_item_add_subtree(root_ti, ett_rohc_dynamic_udp);
         id = tvb_get_ntohs(tvb, offset);
         rohc_cid_context->udp_checksum_present = id ? TRUE : FALSE;
-        proto_tree_add_item(dynamic_udp_tree, hf_rohc_dynamic_udp_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_checksum(dynamic_udp_tree, tvb, offset, hf_rohc_dynamic_udp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
         offset +=2;
         proto_item_set_len(item, offset - start_offset);
     }
@@ -2334,7 +2334,7 @@ start_over:
 
     /* UDP Checksum */
     if (rohc_cid_context->udp_checksum_present) {
-        proto_tree_add_item(rohc_tree, hf_rohc_udp_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_checksum(rohc_tree, tvb, offset, hf_rohc_udp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
         offset += 2;
     }
 

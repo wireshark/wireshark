@@ -148,7 +148,7 @@ static int hf_pgm_main_opts_netsig = -1;
 static int hf_pgm_main_opts_varlen = -1;
 static int hf_pgm_main_opts_parity = -1;
 static int hf_pgm_main_cksum = -1;
-static int hf_pgm_main_cksum_bad = -1;
+static int hf_pgm_main_cksum_status = -1;
 static int hf_pgm_main_gsi = -1;
 static int hf_pgm_main_tsdulen = -1;
 static int hf_pgm_spm_sqn = -1;
@@ -910,30 +910,18 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		if ((pgmhdr_type != PGM_RDATA_PCKT) && (pgmhdr_type != PGM_ODATA_PCKT) &&
 		    (pgmhdr_cksum == 0))
 		{
-			proto_tree_add_uint_format_value(pgm_tree, hf_pgm_main_cksum, tvb,
-				ptvcursor_current_offset(cursor), 2, pgmhdr_cksum, "not available");
+			proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum, hf_pgm_main_cksum_status, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
 		} else {
 			reportedlen = tvb_reported_length(tvb);
 			pgmlen = tvb_captured_length(tvb);
 			if (pgm_check_checksum && pgmlen >= reportedlen) {
 				vec_t cksum_vec[1];
-				guint16 computed_cksum;
 
 				SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, pgmlen);
-				computed_cksum = in_cksum(&cksum_vec[0], 1);
-				if (computed_cksum == 0) {
-					proto_tree_add_uint_format_value(pgm_tree, hf_pgm_main_cksum, tvb,
-						ptvcursor_current_offset(cursor), 2, pgmhdr_cksum, "0x%04x [correct]", pgmhdr_cksum);
-				} else {
-					hidden_item = proto_tree_add_boolean(pgm_tree, hf_pgm_main_cksum_bad, tvb,
-					    ptvcursor_current_offset(cursor), 2, TRUE);
-					PROTO_ITEM_SET_HIDDEN(hidden_item);
-					proto_tree_add_uint_format_value(pgm_tree, hf_pgm_main_cksum, tvb,
-					    ptvcursor_current_offset(cursor), 2, pgmhdr_cksum, "0x%04x [incorrect, should be 0x%04x]",
-						pgmhdr_cksum, in_cksum_shouldbe(pgmhdr_cksum, computed_cksum));
-				}
+				proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum_status, -1, NULL, pinfo,
+										in_cksum(&cksum_vec[0], 1), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 			} else {
-				ptvcursor_add_no_advance(cursor, hf_pgm_main_cksum, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum, hf_pgm_main_cksum_status, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 			}
 		}
 		ptvcursor_advance(cursor, 2);
@@ -1120,9 +1108,9 @@ proto_register_pgm(void)
 		{ &hf_pgm_main_cksum,
 		  { "Checksum", "pgm.hdr.cksum", FT_UINT16, BASE_HEX,
 		    NULL, 0x0, NULL, HFILL }},
-		{ &hf_pgm_main_cksum_bad,
-		  { "Bad Checksum", "pgm.hdr.cksum_bad", FT_BOOLEAN, BASE_NONE,
-		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_main_cksum_status,
+		  { "Checksum Status", "pgm.hdr.cksum.status", FT_UINT8, BASE_NONE,
+		    VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
 		{ &hf_pgm_main_gsi,
 		  { "Global Source Identifier", "pgm.hdr.gsi", FT_BYTES, BASE_NONE,
 		    NULL, 0x0, NULL, HFILL }},

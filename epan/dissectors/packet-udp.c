@@ -93,13 +93,9 @@ static header_field_info hfi_udp_checksum_calculated UDP_HFI_INIT =
 { "Calculated Checksum", "udp.checksum_calculated", FT_UINT16, BASE_HEX, NULL, 0x0,
   "The expected UDP checksum field as calculated from the UDP packet", HFILL };
 
-static header_field_info hfi_udp_checksum_good UDP_HFI_INIT =
-{ "Good Checksum", "udp.checksum_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-  "True: checksum matches packet content; False: doesn't match content or not checked", HFILL };
-
-static header_field_info hfi_udp_checksum_bad UDP_HFI_INIT =
-{ "Bad Checksum", "udp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-  "True: checksum doesn't match packet content; False: matches content or not checked", HFILL };
+static header_field_info hfi_udp_checksum_status UDP_HFI_INIT =
+{ "Checksum Status", "udp.checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+  NULL, HFILL };
 
 static header_field_info hfi_udp_proc_src_uid UDP_HFI_INIT =
 { "Source process user ID", "udp.proc.srcuid", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -777,14 +773,13 @@ static void
 dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
 {
   proto_tree *udp_tree = NULL;
-  proto_item *ti, *item, *hidden_item;
+  proto_item *ti, *item, *hidden_item, *calc_item;
   proto_item *src_port_item, *dst_port_item, *len_cov_item;
   guint       len;
   guint       reported_len;
   vec_t       cksum_vec[4];
   guint32     phdr[2];
   guint16     computed_cksum;
-  guint16     expected_cksum;
   int         offset = 0;
   e_udphdr   *udph;
   proto_tree *checksum_tree;
@@ -890,28 +885,17 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   if (udph->uh_sum == 0) {
     /* No checksum supplied in the packet. */
     if (((ip_proto == IP_PROTO_UDP) && (pinfo->src.type == AT_IPv4)) || pinfo->flags.in_error_pkt) {
-      item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb, offset + 6, 2, 0,
-        "0x%04x (none)", 0);
-
-      checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
-      item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_good, tvb,
-                             offset + 6, 2, FALSE);
-      PROTO_ITEM_SET_GENERATED(item);
-      item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_bad, tvb,
-                             offset + 6, 2, FALSE);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_tree_add_checksum(udp_tree, tvb, offset + 6, hfi_udp_checksum.id, hfi_udp_checksum_status.id, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
     } else {
-      item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb, offset + 6, 2, 0,
-        "0x%04x (Illegal)", 0);
+      item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb, offset + 6, 2, 0, "0 (Illegal)");
+      checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
+
       expert_add_info(pinfo, item, &ei_udp_checksum_zero);
       col_append_str(pinfo->cinfo, COL_INFO, " [ILLEGAL CHECKSUM (0)]");
 
-      checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
-      item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_good, tvb,
-                             offset + 6, 2, FALSE);
-      PROTO_ITEM_SET_GENERATED(item);
-      item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_bad, tvb,
-                             offset + 6, 2, TRUE);
+      /* XXX - What should this special status be? */
+      item = proto_tree_add_uint(checksum_tree, &hfi_udp_checksum_status, tvb,
+                                        offset + 6, 0, 4);
       PROTO_ITEM_SET_GENERATED(item);
     }
   } else if (!pinfo->fragmented && (len >= reported_len) &&
@@ -953,63 +937,27 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       }
       SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, offset, udph->uh_sum_cov);
       computed_cksum = in_cksum(&cksum_vec[0], 4);
-      if (computed_cksum == 0) {
-        item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb,
-          offset + 6, 2, udph->uh_sum, "0x%04x [correct]", udph->uh_sum);
 
-        checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
-        item = proto_tree_add_uint(checksum_tree, &hfi_udp_checksum_calculated,
-                                   tvb, offset + 6, 2, udph->uh_sum);
-        PROTO_ITEM_SET_GENERATED(item);
-        item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_good, tvb,
-                                      offset + 6, 2, TRUE);
-        PROTO_ITEM_SET_GENERATED(item);
-        item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_bad, tvb,
-                                      offset + 6, 2, FALSE);
-        PROTO_ITEM_SET_GENERATED(item);
-      } else {
-        expected_cksum = in_cksum_shouldbe(udph->uh_sum, computed_cksum);
-        item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb,
-                                          offset + 6, 2, udph->uh_sum,
-          "0x%04x [incorrect, should be 0x%04x (maybe caused by \"UDP checksum offload\"?)]", udph->uh_sum,
-          expected_cksum);
-
-        checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
-        item = proto_tree_add_uint(checksum_tree, &hfi_udp_checksum_calculated,
-                                   tvb, offset + 6, 2, expected_cksum);
-        PROTO_ITEM_SET_GENERATED(item);
-        item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_good, tvb,
-                                      offset + 6, 2, FALSE);
-        PROTO_ITEM_SET_GENERATED(item);
-        item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_bad, tvb,
-                                      offset + 6, 2, TRUE);
-        PROTO_ITEM_SET_GENERATED(item);
-        expert_add_info(pinfo, item, &ei_udp_checksum_bad);
-
-        col_append_str(pinfo->cinfo, COL_INFO, " [UDP CHECKSUM INCORRECT]");
-      }
-    } else {
-      item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb,
-        offset + 6, 2, udph->uh_sum, "0x%04x [validation disabled]", udph->uh_sum);
+      item = proto_tree_add_checksum(udp_tree, tvb, offset+6, hfi_udp_checksum.id, hfi_udp_checksum_status.id, &ei_udp_checksum_bad, pinfo, computed_cksum,
+                                      ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
       checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
-      item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_good, tvb,
-                             offset + 6, 2, FALSE);
-      PROTO_ITEM_SET_GENERATED(item);
-      item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_bad, tvb,
-                             offset + 6, 2, FALSE);
-      PROTO_ITEM_SET_GENERATED(item);
+
+      if (computed_cksum != 0) {
+         proto_item_append_text(item, "(maybe caused by \"UDP checksum offload\"?)");
+         col_append_str(pinfo->cinfo, COL_INFO, " [UDP CHECKSUM INCORRECT]");
+         calc_item = proto_tree_add_uint(checksum_tree, &hfi_udp_checksum_calculated,
+                                   tvb, offset + 6, 2, in_cksum_shouldbe(udph->uh_sum, computed_cksum));
+      } else {
+         calc_item = proto_tree_add_uint(checksum_tree, &hfi_udp_checksum_calculated,
+                                   tvb, offset + 6, 2, udph->uh_sum);
+      }
+      PROTO_ITEM_SET_GENERATED(calc_item);
+
+    } else {
+      proto_tree_add_checksum(udp_tree, tvb, offset + 6, hfi_udp_checksum.id, hfi_udp_checksum_status.id, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     }
   } else {
-    item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb,
-      offset + 6, 2, udph->uh_sum, "0x%04x [unchecked, not all data available]", udph->uh_sum);
-
-    checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
-    item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_good, tvb,
-                             offset + 6, 2, FALSE);
-    PROTO_ITEM_SET_GENERATED(item);
-    item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_bad, tvb,
-                             offset + 6, 2, FALSE);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_tree_add_checksum(udp_tree, tvb, offset + 6, hfi_udp_checksum.id, hfi_udp_checksum_status.id, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
   }
 
   /* Skip over header */
@@ -1116,8 +1064,7 @@ proto_register_udp(void)
     &hfi_udp_length,
     &hfi_udp_checksum,
     &hfi_udp_checksum_calculated,
-    &hfi_udp_checksum_good,
-    &hfi_udp_checksum_bad,
+    &hfi_udp_checksum_status,
     &hfi_udp_proc_src_uid,
     &hfi_udp_proc_src_pid,
     &hfi_udp_proc_src_uname,

@@ -578,7 +578,7 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vines_ip, tvb, offset, vip_pktlen, ENC_NA);
 		vip_tree = proto_item_add_subtree(ti, ett_vines_ip);
-		proto_tree_add_item(vip_tree, hf_vines_ip_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_checksum(vip_tree, tvb, offset, hf_vines_ip_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 		offset += 2;
 
 		proto_tree_add_item(vip_tree, hf_vines_ip_length, tvb, offset, 2, ENC_BIG_ENDIAN);

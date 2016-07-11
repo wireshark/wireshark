@@ -78,14 +78,12 @@ static int hf_eth_ig = -1;
 static int hf_eth_padding = -1;
 static int hf_eth_trailer = -1;
 static int hf_eth_fcs = -1;
-static int hf_eth_fcs_good = -1;
-static int hf_eth_fcs_bad = -1;
+static int hf_eth_fcs_status = -1;
 
 static gint ett_ieee8023 = -1;
 static gint ett_ether2 = -1;
 static gint ett_ether = -1;
 static gint ett_addr = -1;
-static gint ett_eth_fcs = -1;
 
 static expert_field ei_eth_invalid_lentype = EI_INIT;
 static expert_field ei_eth_src_not_group = EI_INIT;
@@ -647,8 +645,6 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
      have had 64 or more bytes - i.e., it was at least an FCS worth of data
      longer than the minimum payload size - we could assume the last 4 bytes
      of the trailer are an FCS. */
-  proto_item *item;
-  proto_tree *checksum_tree;
   heur_dtbl_entry_t *hdtbl_entry;
 
   if (trailer_tvb) {
@@ -749,43 +745,13 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
       guint32 sent_fcs = tvb_get_ntohl(trailer_tvb, padding_length+trailer_length);
       if(eth_check_fcs){
         guint32 fcs = crc32_802_tvb(tvb, tvb_captured_length(tvb) - 4);
-        if (fcs == sent_fcs) {
-          item = proto_tree_add_uint_format_value(fh_tree, hf_eth_fcs, trailer_tvb,
-                                            padding_length+trailer_length, 4, sent_fcs,
-                                            "0x%08x [correct]", sent_fcs);
-          checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
-          item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, trailer_tvb,
-                                        padding_length+trailer_length, 4, TRUE);
-          PROTO_ITEM_SET_GENERATED(item);
-          item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_bad, trailer_tvb,
-                                        padding_length+trailer_length, 4, FALSE);
-          PROTO_ITEM_SET_GENERATED(item);
-        } else {
-          item = proto_tree_add_uint_format_value(fh_tree, hf_eth_fcs, trailer_tvb,
-                                            padding_length+trailer_length, 4, sent_fcs,
-                                            "0x%08x [incorrect, should be 0x%08x]",
-                                            sent_fcs, fcs);
-          checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
-          item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, trailer_tvb,
-                                        padding_length+trailer_length, 4, FALSE);
-          PROTO_ITEM_SET_GENERATED(item);
-          item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_bad, trailer_tvb,
-                                        padding_length+trailer_length, 4, TRUE);
-          PROTO_ITEM_SET_GENERATED(item);
-          expert_add_info(pinfo, item, &ei_eth_fcs_bad);
+        proto_tree_add_checksum(fh_tree, trailer_tvb, padding_length+trailer_length, hf_eth_fcs, hf_eth_fcs_status, &ei_eth_fcs_bad, pinfo, fcs, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+
+        if (fcs != sent_fcs) {
           col_append_str(pinfo->cinfo, COL_INFO, " [ETHERNET FRAME CHECK SEQUENCE INCORRECT]");
         }
       }else{
-        item = proto_tree_add_uint_format_value(fh_tree, hf_eth_fcs, trailer_tvb,
-                                          padding_length+trailer_length, 4, sent_fcs,
-                                          "0x%08x [validation disabled]", sent_fcs);
-        checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
-        item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, trailer_tvb,
-                                      padding_length+trailer_length, 4, FALSE);
-        PROTO_ITEM_SET_GENERATED(item);
-        item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_bad, trailer_tvb,
-                                      padding_length+trailer_length, 4, FALSE);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_tree_add_checksum(fh_tree, trailer_tvb, padding_length+trailer_length, hf_eth_fcs, hf_eth_fcs_status, &ei_eth_fcs_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
       }
       trailer_length += 4;
     }
@@ -919,13 +885,9 @@ proto_register_eth(void)
       { "Frame check sequence", "eth.fcs", FT_UINT32, BASE_HEX, NULL, 0x0,
         "Ethernet checksum", HFILL }},
 
-    { &hf_eth_fcs_good,
-      { "FCS Good", "eth.fcs_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-        "True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
-
-    { &hf_eth_fcs_bad,
-      { "FCS Bad", "eth.fcs_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-        "True: checksum doesn't match packet content; False: does match content or not checked", HFILL }},
+    { &hf_eth_fcs_status,
+      { "FCS Status", "eth.fcs.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+        NULL, HFILL }},
 
     { &hf_eth_lg,
       { "LG bit", "eth.lg", FT_BOOLEAN, 24,
@@ -942,13 +904,12 @@ proto_register_eth(void)
     &ett_ether2,
     &ett_ether,
     &ett_addr,
-    &ett_eth_fcs
   };
 
   static ei_register_info ei[] = {
     { &ei_eth_invalid_lentype, { "eth.invalid_lentype.expert", PI_PROTOCOL, PI_WARN, "Invalid length/type", EXPFILL }},
     { &ei_eth_src_not_group, { "eth.src_not_group", PI_PROTOCOL, PI_WARN, "Source MAC must not be a group address: IEEE 802.3-2002, Section 3.2.3(b)", EXPFILL }},
-    { &ei_eth_fcs_bad, { "eth.fcs_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+    { &ei_eth_fcs_bad, { "eth.fcs_bad", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
     { &ei_eth_len, { "eth.len.past_end", PI_MALFORMED, PI_ERROR, "Length field value goes past the end of the payload", EXPFILL }},
   };
 

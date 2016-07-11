@@ -282,14 +282,6 @@ typedef struct _e_nhrp {
     guint8  ar_sstl;
 } e_nhrp_hdr;
 
-static guint16 nhrp_checksum(tvbuff_t *tvb, int len)
-{
-    vec_t cksum_vec[1];
-
-    SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, len);
-    return in_cksum(&cksum_vec[0], 1);
-}
-
 static void dissect_nhrp_hdr(tvbuff_t     *tvb,
                       packet_info  *pinfo,
                       proto_tree   *tree,
@@ -302,7 +294,6 @@ static void dissect_nhrp_hdr(tvbuff_t     *tvb,
     gint         offset    = *pOffset;
     const gchar *pro_type_str;
     guint        total_len = tvb_reported_length(tvb);
-    guint16      ipcsum, rx_chksum;
 
     proto_tree *nhrp_tree;
     proto_item *shtl_tree_item;
@@ -379,20 +370,14 @@ static void dissect_nhrp_hdr(tvbuff_t     *tvb,
     proto_tree_add_item(nhrp_tree, hf_nhrp_hdr_pktsz, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    rx_chksum = tvb_get_ntohs(tvb, offset);
     if (tvb_bytes_exist(tvb, 0, total_len)) {
-        ipcsum = nhrp_checksum(tvb, total_len);
-        if (ipcsum == 0) {
-            proto_tree_add_uint_format_value(nhrp_tree, hf_nhrp_hdr_chksum, tvb, offset, 2, rx_chksum,
-                "0x%04x [correct]", rx_chksum);
-        } else {
-            proto_tree_add_uint_format_value(nhrp_tree, hf_nhrp_hdr_chksum, tvb, offset, 2, rx_chksum,
-                "0x%04x [incorrect, should be 0x%04x]", rx_chksum,
-                in_cksum_shouldbe(rx_chksum, ipcsum));
-        }
+        vec_t cksum_vec[1];
+        SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, total_len);
+
+        proto_tree_add_checksum(nhrp_tree, tvb, offset, hf_nhrp_hdr_chksum, -1, NULL, pinfo, in_cksum(&cksum_vec[0], 1),
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
     } else {
-        proto_tree_add_uint_format_value(nhrp_tree, hf_nhrp_hdr_chksum, tvb, offset, 2, rx_chksum,
-            "0x%04x [not all data available]", rx_chksum);
+        proto_tree_add_checksum(nhrp_tree, tvb, offset, hf_nhrp_hdr_chksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     }
     offset += 2;
 

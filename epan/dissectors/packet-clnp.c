@@ -221,7 +221,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     guint16         segment_offset = 0;
     guint16         total_length;
     guint16         cnf_cksum;
-    cksum_status_t  cksum_status;
+    gboolean        cksum_valid = TRUE;
     int             offset;
     guchar          src_len, dst_len, nsel, opt_len = 0;
     guint           next_length;
@@ -320,39 +320,19 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         return 7;
     }
     cnf_cksum = tvb_get_ntohs(tvb, P_CLNP_CKSUM);
-    cksum_status = calc_checksum(tvb, 0, cnf_hdr_len, cnf_cksum);
-    switch (cksum_status) {
-        default:
-            /*
-             * No checksum present, or not enough of the header present to
-             * checksum it.
-             */
-            proto_tree_add_uint(clnp_tree, hf_clnp_checksum, tvb,
-                    P_CLNP_CKSUM, 2,
-                    cnf_cksum);
-            break;
+    if (cnf_cksum == 0) {
+        /* No checksum present */
+        proto_tree_add_checksum(clnp_tree, tvb, P_CLNP_CKSUM, hf_clnp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
+    } else {
+        guint32 c0 = 0, c1 = 0;
 
-        case CKSUM_OK:
-            /*
-             * Checksum is correct.
-             */
-            proto_tree_add_uint_format_value(clnp_tree, hf_clnp_checksum, tvb,
-                    P_CLNP_CKSUM, 2,
-                    cnf_cksum,
-                    "0x%04x (correct)",
-                    cnf_cksum);
-            break;
-
-        case CKSUM_NOT_OK:
-            /*
-             * Checksum is not correct.
-             */
-            proto_tree_add_uint_format_value(clnp_tree, hf_clnp_checksum, tvb,
-                    P_CLNP_CKSUM, 2,
-                    cnf_cksum,
-                    "0x%04x (incorrect)",
-                    cnf_cksum);
-            break;
+        if (osi_calc_checksum(tvb, 0, cnf_hdr_len, &c0, &c1)) {
+            /* Successfully processed checksum, verify it */
+            proto_tree_add_checksum(clnp_tree, tvb, P_CLNP_CKSUM, hf_clnp_checksum, -1, NULL, pinfo, c0 | c1, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
+            cksum_valid = (c0 | c1) ? FALSE : TRUE;
+        } else {
+            proto_tree_add_checksum(clnp_tree, tvb, P_CLNP_CKSUM, hf_clnp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+        }
     }
 
     opt_len = cnf_hdr_len;
@@ -475,7 +455,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             ((cnf_type & CNF_MORE_SEGS) || segment_offset != 0) &&
             tvb_bytes_exist(tvb, offset, segment_length - cnf_hdr_len) &&
             segment_length > cnf_hdr_len &&
-            cksum_status != CKSUM_NOT_OK) {
+            cksum_valid != FALSE) {
         fd_head = fragment_add_check(&clnp_reassembly_table,
                 tvb, offset, pinfo, du_id, NULL,
                 segment_offset, segment_length - cnf_hdr_len,

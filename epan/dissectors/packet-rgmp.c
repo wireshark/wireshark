@@ -39,7 +39,7 @@ static int proto_rgmp      = -1;
 static int hf_type         = -1;
 static int hf_reserved     = -1;
 static int hf_checksum     = -1;
-static int hf_checksum_bad = -1;
+static int hf_checksum_status = -1;
 static int hf_maddr        = -1;
 
 static int ett_rgmp = -1;
@@ -86,7 +86,7 @@ dissect_rgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     proto_tree_add_item(tree, hf_reserved, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    igmp_checksum(tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
+    igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
     offset += 2;
 
     proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -115,9 +115,9 @@ proto_register_rgmp(void)
             NULL, 0, NULL, HFILL }
         },
 
-        { &hf_checksum_bad,
-          { "Bad Checksum", "rgmp.checksum_bad", FT_BOOLEAN, BASE_NONE,
-            NULL, 0x0, NULL, HFILL }
+        { &hf_checksum_status,
+          { "Checksum Status", "rgmp.checksum.status", FT_UINT8, BASE_NONE,
+            VALS(proto_checksum_vals), 0x0, NULL, HFILL }
         },
 
         { &hf_maddr,

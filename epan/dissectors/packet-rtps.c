@@ -5477,8 +5477,8 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
 
     case PID_TYPE_CHECKSUM:
       ENSURE_LENGTH(4);
-      proto_tree_add_item(rtps_parameter_tree, hf_rtps_type_checksum, tvb, offset, 4,
-                          little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+      proto_tree_add_checksum(rtps_parameter_tree, tvb, offset, hf_rtps_type_checksum, -1, NULL, pinfo, 0,
+                              little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
       break;
 
     case PID_EXPECTS_ACK:

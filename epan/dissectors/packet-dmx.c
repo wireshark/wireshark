@@ -92,8 +92,7 @@ static int hf_dmx_sip_fourth_dev_id = -1;
 static int hf_dmx_sip_fifth_dev_id = -1;
 static int hf_dmx_sip_reserved = -1;
 static int hf_dmx_sip_checksum = -1;
-static int hf_dmx_sip_checksum_good = -1;
-static int hf_dmx_sip_checksum_bad = -1;
+static int hf_dmx_sip_checksum_status = -1;
 static int hf_dmx_sip_trailer = -1;
 
 static int hf_dmx_test_data = -1;
@@ -201,9 +200,6 @@ dissect_dmx_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	if (tree != NULL) {
 		guint    offset = 0;
 		guint    byte_count;
-		guint    checksum, checksum_shouldbe;
-		proto_item *item;
-		proto_tree *checksum_tree;
 
 		proto_tree *ti = proto_tree_add_item(tree, proto_dmx_sip, tvb,
 							offset, -1, ENC_NA);
@@ -273,34 +269,7 @@ dissect_dmx_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			offset += (byte_count - offset);
 		}
 
-		dmx_sip_checksum(tvb, offset);
-
-		checksum_shouldbe = dmx_sip_checksum(tvb, offset);
-		checksum = tvb_get_guint8(tvb, offset);
-		item = proto_tree_add_item(dmx_sip_tree, hf_dmx_sip_checksum, tvb,
-				offset, 1, ENC_BIG_ENDIAN);
-		if (checksum == checksum_shouldbe) {
-			proto_item_append_text(item, " [correct]");
-
-			checksum_tree = proto_item_add_subtree(item, ett_dmx_sip);
-			item = proto_tree_add_boolean(checksum_tree, hf_dmx_sip_checksum_good, tvb,
-						offset, 1, TRUE);
-			PROTO_ITEM_SET_GENERATED(item);
-			item = proto_tree_add_boolean(checksum_tree, hf_dmx_sip_checksum_bad, tvb,
-						offset, 1, FALSE);
-			PROTO_ITEM_SET_GENERATED(item);
-		} else {
-			proto_item_append_text(item, " [incorrect, should be 0x%02x]", checksum_shouldbe);
-
-			checksum_tree = proto_item_add_subtree(item, ett_dmx_sip);
-			item = proto_tree_add_boolean(checksum_tree, hf_dmx_sip_checksum_good, tvb,
-						offset, 1, FALSE);
-			PROTO_ITEM_SET_GENERATED(item);
-			item = proto_tree_add_boolean(checksum_tree, hf_dmx_sip_checksum_bad, tvb,
-						offset, 1, TRUE);
-			PROTO_ITEM_SET_GENERATED(item);
-		}
-
+		proto_tree_add_checksum(dmx_sip_tree, tvb, offset, hf_dmx_sip_checksum, hf_dmx_sip_checksum_status, NULL, pinfo, dmx_sip_checksum(tvb, offset), ENC_NA, PROTO_CHECKSUM_VERIFY);
 		offset += 1;
 
 		if (offset < tvb_reported_length(tvb))
@@ -600,15 +569,10 @@ proto_register_dmx_sip(void)
 				FT_UINT8, BASE_HEX, NULL, 0x0,
 				NULL, HFILL }},
 
-		{ &hf_dmx_sip_checksum_good,
-			{ "Good Checksum", "dmx_sip.checksum_good",
-				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-				"True: checksum matches packet content; False: doesn't match content", HFILL }},
-
-		{ &hf_dmx_sip_checksum_bad,
-			{ "Bad Checksum", "dmx_sip.checksum_bad",
-				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-				"True: checksum doesn't match packet content; False: matches content", HFILL }},
+		{ &hf_dmx_sip_checksum_status,
+			{ "Checksum Status", "dmx_sip.checksum.status",
+				FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+				NULL, HFILL }},
 
 		{ &hf_dmx_sip_trailer,
 			{ "Trailer", "dmx_sip.trailer",

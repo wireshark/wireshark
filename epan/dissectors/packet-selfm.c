@@ -1103,10 +1103,9 @@ dissect_relaydef_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
         offset += 1;
     }
 
-    proto_tree_add_item(relaydef_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_checksum(relaydef_tree, tvb, offset, hf_selfm_checksum, -1, NULL, NULL, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 
     return tvb_reported_length(tvb);
-
 }
 
 /******************************************************************************************************/
@@ -1208,7 +1207,7 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
         offset += 1;
     }
 
-    proto_tree_add_item(fmconfig_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_checksum(fmconfig_tree, tvb, offset, hf_selfm_checksum, -1, NULL, NULL, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 
     return tvb_reported_length(tvb);
 
@@ -1424,7 +1423,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                     offset += 1;
                 }
 
-                proto_tree_add_item(fmdata_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_checksum(fmdata_tree, tvb, offset, hf_selfm_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 
             } /* matching config frame message was found */
 
@@ -1517,8 +1516,7 @@ dissect_foconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
         offset += 1;
     }
 
-    proto_tree_add_item(foconfig_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
-
+    proto_tree_add_checksum(foconfig_tree, tvb, offset, hf_selfm_checksum, -1, NULL, NULL, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 
     return tvb_reported_length(tvb);
 
@@ -1606,8 +1604,8 @@ dissect_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
     proto_tree_add_item(fastop_tree, hf_selfm_fastop_valid, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-   /* Add checksum */
-    proto_tree_add_item(fastop_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* Add checksum */
+    proto_tree_add_checksum(fastop_tree, tvb, offset, hf_selfm_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 
     return tvb_reported_length(tvb);
 

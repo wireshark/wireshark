@@ -179,12 +179,11 @@ static void
 display_xip_serval(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *xip_serval_tree;
-	proto_item *ti, *check_ti, *hl_ti;
+	proto_item *ti, *hl_ti;
 	tvbuff_t *next_tvb;
 
 	vec_t cksum_vec;
 	gint offset;
-	guint16 packet_checksum, actual_checksum;
 	guint8 xsh_len, protocol, bytes_remaining;
 
 	/* Get XIP Serval header length, stored as number of 32-bit words. */
@@ -216,27 +215,9 @@ display_xip_serval(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Compute checksum. */
 	SET_CKSUM_VEC_TVB(cksum_vec, tvb, 0, xsh_len);
-	actual_checksum = in_cksum(&cksum_vec, 1);
-	/* Get XIP Serval checksum. */
-	packet_checksum = tvb_get_ntohs(tvb, XSRVL_CHK);
 
-	if (actual_checksum == 0) {
-		/* Add XIP Serval checksum as correct. */
-		proto_tree_add_uint_format(xip_serval_tree,
-			hf_xip_serval_check, tvb, XSRVL_CHK, 2, packet_checksum,
-			"Header checksum: 0x%04x [correct]", packet_checksum);
-	} else {
-		/* Add XIP Serval checksum as incorrect. */
-		check_ti = proto_tree_add_uint_format(xip_serval_tree,
-			hf_xip_serval_check, tvb, XSRVL_CHK, 2, packet_checksum,
-			"Header checksum: 0x%04x [incorrect, should be 0x%04x]",
-			packet_checksum,
-			in_cksum_shouldbe(packet_checksum, actual_checksum));
-
-		expert_add_info_format(pinfo, check_ti,
-			&ei_xip_serval_bad_checksum, "Bad checksum");
-	}
-
+	proto_tree_add_checksum(xip_serval_tree, tvb, XSRVL_CHK, hf_xip_serval_check, -1, &ei_xip_serval_bad_checksum, pinfo, in_cksum(&cksum_vec, 1),
+							ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 	offset = XSRVL_EXT;
 
 	/* If there's still more room, check for extension headers. */

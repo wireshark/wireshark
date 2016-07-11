@@ -546,10 +546,10 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		/* check CRC, call appropriate subdissector for the rest of the frame if CRC is correct*/
 		sub_item  = proto_tree_add_item(synphasor_tree, hf_synphasor_data, tvb, offset, tvbsize - 16, ENC_NA);
 		crc_good = check_crc(tvb, &crc);
-		temp_item = proto_tree_add_uint(synphasor_tree, hf_synphasor_checksum, tvb, tvbsize - 2, 2, crc);
+		proto_tree_add_checksum(synphasor_tree, tvb, tvbsize - 2, hf_synphasor_checksum, -1, NULL, pinfo, crc16_x25_ccitt_tvb(tvb, tvb_get_ntohs(tvb, 2) - 2),
+							ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		if (!crc_good) {
 			proto_item_append_text(sub_item,  ", not dissected because of wrong checksum");
-			proto_item_append_text(temp_item, " [incorrect]");
 		}
 		else {
 			/* create a new tvb to pass to the subdissector

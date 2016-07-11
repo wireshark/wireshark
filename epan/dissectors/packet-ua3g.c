@@ -2796,7 +2796,7 @@ decode_ua_dwl_protocol(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_packet_download_end_ack_ok_status, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     case 0x06:  /* Downloading Iso Checksum (MESSAGE FROM THE SYSTEM) */
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_checksum, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_checksum(ua3g_body_tree, tvb, offset, hf_ua3g_ua_dwl_protocol_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
         break;
     case 0x07:  /* Downloading ISO Checksum Acknowledge (MESSAGE FROM THE TERMINAL) */
         proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_acknowledge, tvb, offset, 1, ENC_BIG_ENDIAN);

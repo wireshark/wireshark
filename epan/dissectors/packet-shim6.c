@@ -102,8 +102,7 @@ static int hf_shim6_ct             = -1;
 static int hf_shim6_type           = -1;
 static int hf_shim6_proto          = -1;
 static int hf_shim6_checksum       = -1;
-static int hf_shim6_checksum_bad   = -1;
-static int hf_shim6_checksum_good  = -1;
+static int hf_shim6_checksum_status= -1;
 static int hf_shim6_inonce         = -1; /* also for request nonce */
 static int hf_shim6_rnonce         = -1;
 static int hf_shim6_reserved       = -1;
@@ -563,26 +562,6 @@ static const value_string shimctrlvals[] = {
     { 0, NULL }
 };
 
-static void
-add_shim6_checksum_additional_info(tvbuff_t * tvb, packet_info * pinfo,
-                proto_item * it_cksum, int offset, gboolean is_cksum_correct)
-{
-    proto_tree *checksum_tree;
-    proto_item *item;
-
-    checksum_tree = proto_item_add_subtree(it_cksum, ett_shim6_cksum);
-    item = proto_tree_add_boolean(checksum_tree, hf_shim6_checksum_good, tvb,
-                                  offset, 2, is_cksum_correct);
-    PROTO_ITEM_SET_GENERATED(item);
-    item = proto_tree_add_boolean(checksum_tree, hf_shim6_checksum_bad, tvb,
-                                  offset, 2, !is_cksum_correct);
-    PROTO_ITEM_SET_GENERATED(item);
-    if (!is_cksum_correct) {
-        expert_add_info(pinfo, item, &ei_shim6_checksum_bad);
-        col_append_str(pinfo->cinfo, COL_INFO, " [Shim6 CHECKSUM INCORRECT]");
-    }
-}
-
 static int
 dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _U_)
 {
@@ -656,17 +635,10 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _
 
         /* Checksum */
         csum = shim6_checksum(tvb, offset, len);
-
-        if (csum == 0) {
-            ti = proto_tree_add_uint_format_value(shim_tree, hf_shim6_checksum, tvb, p, 2,
-                                                  tvb_get_ntohs(tvb, p), "0x%04x [correct]", tvb_get_ntohs(tvb, p));
-            add_shim6_checksum_additional_info(tvb, pinfo, ti, p, TRUE);
-        } else {
-            ti = proto_tree_add_uint_format_value(shim_tree, hf_shim6_checksum, tvb, p, 2,
-                                                  tvb_get_ntohs(tvb, p), "0x%04x [incorrect: should be 0x%04x]",
-                                                  tvb_get_ntohs(tvb, p), in_cksum_shouldbe(tvb_get_ntohs(tvb, p), csum));
-            add_shim6_checksum_additional_info(tvb, pinfo, ti, p, FALSE);
-        }
+        proto_tree_add_checksum(shim_tree, tvb, p, hf_shim6_checksum, hf_shim6_checksum_status, &ei_shim6_checksum_bad, pinfo, csum,
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+        if (csum != 0)
+            col_append_str(pinfo->cinfo, COL_INFO, " [Shim6 CHECKSUM INCORRECT]");
         p += 2;
 
         /* Type specific data */
@@ -726,14 +698,9 @@ proto_register_shim6(void)
                 FT_UINT16, BASE_HEX, NULL, 0x0,
                 "Shim6 Checksum", HFILL }
         },
-        { &hf_shim6_checksum_bad,
-            { "Bad Checksum", "shim6.checksum_bad",
-                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-                "Shim6 Bad Checksum", HFILL }
-        },
-        { &hf_shim6_checksum_good,
-            { "Good Checksum", "shim6.checksum_good",
-                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        { &hf_shim6_checksum_status,
+            { "Checksum Status", "shim6.checksum.status",
+                FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
                 NULL, HFILL }
         },
         { &hf_shim6_inonce,

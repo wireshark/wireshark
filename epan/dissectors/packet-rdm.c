@@ -540,8 +540,7 @@ static int hf_rdm_parameter_data = -1;
 static int hf_rdm_parameter_data_raw = -1;
 static int hf_rdm_intron = -1;
 static int hf_rdm_checksum = -1;
-static int hf_rdm_checksum_good = -1;
-static int hf_rdm_checksum_bad = -1;
+static int hf_rdm_checksum_status = -1;
 static int hf_rdm_trailer = -1;
 
 static int hf_rdm_pd_device_label = -1;
@@ -2051,9 +2050,7 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		gint	    padding_size;
 		guint16	    man_id;
 		guint32	    dev_id;
-		guint       message_length, checksum, checksum_shouldbe, offset = 0;
-		proto_item *item;
-		proto_tree *checksum_tree;
+		guint       message_length, offset = 0;
 
 		proto_tree *ti = proto_tree_add_item(tree, proto_rdm, tvb,
 				offset, -1, ENC_NA);
@@ -2096,32 +2093,8 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			offset += padding_size;
 		}
 
-		checksum_shouldbe = rdm_checksum(tvb, offset);
-		checksum = tvb_get_ntohs(tvb, offset);
-		item = proto_tree_add_item(rdm_tree, hf_rdm_checksum, tvb,
-				offset, 2, ENC_BIG_ENDIAN);
-		if (checksum == checksum_shouldbe) {
-			proto_item_append_text(item, " [correct]");
-
-			checksum_tree = proto_item_add_subtree(item, ett_rdm);
-			item = proto_tree_add_boolean(checksum_tree, hf_rdm_checksum_good, tvb,
-						offset, 2, TRUE);
-			PROTO_ITEM_SET_GENERATED(item);
-			item = proto_tree_add_boolean(checksum_tree, hf_rdm_checksum_bad, tvb,
-						offset, 2, FALSE);
-			PROTO_ITEM_SET_GENERATED(item);
-		} else {
-			proto_item_append_text(item, " [incorrect, should be 0x%04x]", checksum_shouldbe);
-
-			checksum_tree = proto_item_add_subtree(item, ett_rdm);
-			item = proto_tree_add_boolean(checksum_tree, hf_rdm_checksum_good, tvb,
-						offset, 2, FALSE);
-			PROTO_ITEM_SET_GENERATED(item);
-			item = proto_tree_add_boolean(checksum_tree, hf_rdm_checksum_bad, tvb,
-						offset, 2, TRUE);
-			PROTO_ITEM_SET_GENERATED(item);
-		}
-
+		proto_tree_add_checksum(rdm_tree, tvb, offset, hf_rdm_checksum, hf_rdm_checksum_status, NULL, pinfo, rdm_checksum(tvb, offset),
+							ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		offset += 2;
 
 		if (offset < tvb_reported_length(tvb))
@@ -2220,15 +2193,10 @@ proto_register_rdm(void)
 				FT_UINT16, BASE_HEX, NULL, 0x0,
 				NULL, HFILL }},
 
-		{ &hf_rdm_checksum_good,
-			{ "Good Checksum", "rdm.checksum_good",
-				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-				"True: checksum matches packet content; False: doesn't match content", HFILL }},
-
-		{ &hf_rdm_checksum_bad,
-			{ "Bad Checksum", "rdm.checksum_bad",
-				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-				"True: checksum doesn't match packet content; False: matches content", HFILL }},
+		{ &hf_rdm_checksum_status,
+			{ "Checksum Status", "rdm.checksum.status",
+				FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+				NULL, HFILL }},
 
 		{ &hf_rdm_trailer,
 			{ "Trailer", "rdm.trailer",

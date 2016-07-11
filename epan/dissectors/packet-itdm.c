@@ -225,7 +225,7 @@ dissect_itdm_125usec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree_add_item(itdm_tree, hf_itdm_last_pack, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(itdm_tree, hf_itdm_pktlen, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
-  proto_tree_add_item(itdm_tree, hf_itdm_chksum, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_checksum(itdm_tree, tvb, offset, hf_itdm_chksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
   offset += 2;
   proto_tree_add_item(itdm_tree, hf_itdm_uid, tvb, offset, 3, ENC_BIG_ENDIAN);
   offset += 3;
@@ -318,7 +318,7 @@ dissect_itdm_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree_add_item(itdm_ctl_tree, hf_itdm_last_pack, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(itdm_ctl_tree, hf_itdm_pktlen, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
-  proto_tree_add_item(itdm_ctl_tree, hf_itdm_chksum, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_checksum(itdm_ctl_tree, tvb, offset, hf_itdm_chksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
   offset += 2;
   proto_tree_add_item(itdm_ctl_tree, hf_itdm_uid, tvb, offset, 3, ENC_BIG_ENDIAN);
   offset += 3;

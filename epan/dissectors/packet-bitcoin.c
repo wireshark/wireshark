@@ -1554,7 +1554,7 @@ static int dissect_bitcoin_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
   proto_tree_add_item(tree, &hfi_bitcoin_magic,   tvb,  0,  4, ENC_BIG_ENDIAN);
   proto_tree_add_item_ret_string(tree, hfi_bitcoin_command.id, tvb,  4, 12, ENC_ASCII|ENC_NA, wmem_packet_scope(), &command);
   proto_tree_add_item(tree, &hfi_bitcoin_length,  tvb, 16,  4, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tree, &hfi_bitcoin_checksum, tvb, 20,  4, ENC_BIG_ENDIAN);
+  proto_tree_add_checksum(tree, tvb, 20, hfi_bitcoin_checksum.id, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 
   offset = 24;
 

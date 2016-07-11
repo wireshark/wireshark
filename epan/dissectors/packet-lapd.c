@@ -74,8 +74,7 @@ static int hf_lapd_ftype_i = -1;
 static int hf_lapd_ftype_s_u = -1;
 static int hf_lapd_ftype_s_u_ext = -1;
 static int hf_lapd_checksum = -1;
-static int hf_lapd_checksum_good = -1;
-static int hf_lapd_checksum_bad = -1;
+static int hf_lapd_checksum_status = -1;
 
 static gint ett_lapd = -1;
 static gint ett_lapd_address = -1;
@@ -417,10 +416,10 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 static void
 dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean has_crc)
 {
-	proto_tree	*lapd_tree, *addr_tree, *checksum_tree;
-	proto_item	*lapd_ti, *addr_ti, *checksum_ti;
+	proto_tree	*lapd_tree, *addr_tree;
+	proto_item	*lapd_ti, *addr_ti;
 	int		direction;
-	guint16		control, checksum, checksum_calculated;
+	guint16		control;
 	int		lapd_header_len, checksum_offset;
 	guint16		addr, cr, sapi, tei;
 	gboolean	is_response = 0;
@@ -543,25 +542,9 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean 
 
 		/* check checksum */
 		checksum_offset = tvb_reported_length(tvb) - 2;
-		checksum = tvb_get_guint8(tvb, checksum_offset); /* high byte */
-		checksum <<= 8;
-		checksum |= tvb_get_guint8(tvb, checksum_offset+1) & 0x00FF; /* low byte */
-		checksum_calculated = crc16_ccitt_tvb(tvb, tvb_reported_length(tvb) - 2);
-		checksum_calculated = g_htons(checksum_calculated);  /* Note: g_htons() macro may eval arg multiple times */
 
-		if (checksum == checksum_calculated) {
-			checksum_ti = proto_tree_add_uint_format_value(lapd_tree, hf_lapd_checksum, tvb, checksum_offset, 2, 0,"0x%04x [correct]", checksum);
-			checksum_tree = proto_item_add_subtree(checksum_ti, ett_lapd_checksum);
-			proto_tree_add_boolean(checksum_tree, hf_lapd_checksum_good, tvb, checksum_offset, 2, TRUE);
-			proto_tree_add_boolean(checksum_tree, hf_lapd_checksum_bad, tvb, checksum_offset, 2, FALSE);
-		} else {
-			proto_item *pi;
-			checksum_ti = proto_tree_add_uint_format_value(lapd_tree, hf_lapd_checksum, tvb, checksum_offset, 2, 0,"0x%04x [incorrect, should be 0x%04x]", checksum, checksum_calculated);
-			checksum_tree = proto_item_add_subtree(checksum_ti, ett_lapd_checksum);
-			proto_tree_add_boolean(checksum_tree, hf_lapd_checksum_good, tvb, checksum_offset, 2, FALSE);
-			pi = proto_tree_add_boolean(checksum_tree, hf_lapd_checksum_bad, tvb, checksum_offset, 2, TRUE);
-			expert_add_info(pinfo, pi, &ei_lapd_checksum_bad);
-		}
+		proto_tree_add_checksum(lapd_tree, tvb, checksum_offset, hf_lapd_checksum, hf_lapd_checksum_status, &ei_lapd_checksum_bad, pinfo,
+								crc16_ccitt_tvb(tvb, tvb_reported_length(tvb) - 2), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
 		next_tvb = tvb_new_subset_length(tvb, lapd_header_len, tvb_reported_length_remaining(tvb,lapd_header_len) - 2);
 
@@ -702,13 +685,9 @@ proto_register_lapd(void)
 		  { "Checksum", "lapd.checksum", FT_UINT16, BASE_HEX,
 		    NULL, 0x0, "Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
 
-		{ &hf_lapd_checksum_good,
-		  { "Good Checksum", "lapd.checksum_good", FT_BOOLEAN, BASE_NONE,
-		    NULL, 0x0, "True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
-
-		{ &hf_lapd_checksum_bad,
-		  { "Bad Checksum", "lapd.checksum_bad", FT_BOOLEAN, BASE_NONE,
-		    NULL, 0x0, "True: checksum doesn't match packet content; False: matches content or not checked", HFILL }},
+		{ &hf_lapd_checksum_status,
+		  { "Checksum Status", "lapd.checksum.status", FT_UINT8, BASE_NONE,
+		    VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_lapd,

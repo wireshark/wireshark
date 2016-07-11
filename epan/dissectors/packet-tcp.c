@@ -140,8 +140,7 @@ static int hf_tcp_window_size_value = -1;
 static int hf_tcp_window_size = -1;
 static int hf_tcp_window_size_scalefactor = -1;
 static int hf_tcp_checksum = -1;
-static int hf_tcp_checksum_bad = -1;
-static int hf_tcp_checksum_good = -1;
+static int hf_tcp_checksum_status = -1;
 static int hf_tcp_checksum_calculated = -1;
 static int hf_tcp_len = -1;
 static int hf_tcp_urgent_pointer = -1;
@@ -3872,8 +3871,7 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
                 if ((int)optlen >= offset-start_offset+4)
                 {
-                    proto_tree_add_item(mptcp_tree,
-                        hf_tcp_option_mptcp_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_checksum(mptcp_tree, tvb, offset, hf_tcp_option_mptcp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
                 }
             }
             break;
@@ -5286,7 +5284,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     vec_t      cksum_vec[4];
     guint32    phdr[2];
     guint16    computed_cksum;
-    guint16    expected_cksum;
     guint16    real_window;
     guint      captured_length_remaining;
     gboolean   desegment_ok;
@@ -5753,11 +5750,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 item = proto_tree_add_uint(checksum_tree, hf_tcp_checksum_calculated, tvb,
                                               offset + 16, 2, 0x0000);
                 PROTO_ITEM_SET_GENERATED(item);
-                item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_good, tvb,
-                                              offset + 16, 2, FALSE);
-                PROTO_ITEM_SET_GENERATED(item);
-                item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_bad, tvb,
-                                              offset + 16, 2, FALSE);
+                /* XXX - What should this special status be? */
+                item = proto_tree_add_uint(checksum_tree, hf_tcp_checksum_status, tvb,
+                                              offset + 16, 0, 4);
                 PROTO_ITEM_SET_GENERATED(item);
                 expert_add_info(pinfo, item, &ei_tcp_checksum_ffff);
 
@@ -5765,60 +5760,30 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
                 /* Checksum is treated as valid on most systems, so we're willing to desegment it. */
                 desegment_ok = TRUE;
-            } else if (computed_cksum == 0) {
-                item = proto_tree_add_uint_format_value(tcp_tree, hf_tcp_checksum, tvb,
-                                                  offset + 16, 2, th_sum, "0x%04x [correct]", th_sum);
+            } else {
+                proto_item* calc_item;
+                item = proto_tree_add_checksum(tcp_tree, tvb, offset+16, hf_tcp_checksum, hf_tcp_checksum_status, &ei_tcp_checksum_bad, pinfo, computed_cksum,
+                                               ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 
-                checksum_tree = proto_item_add_subtree(item, ett_tcp_checksum);
-                item = proto_tree_add_uint(checksum_tree, hf_tcp_checksum_calculated, tvb,
+                calc_item = proto_tree_add_uint(tcp_tree, hf_tcp_checksum_calculated, tvb,
                                               offset + 16, 2, th_sum);
-                PROTO_ITEM_SET_GENERATED(item);
-                item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_good, tvb,
-                                              offset + 16, 2, TRUE);
-                PROTO_ITEM_SET_GENERATED(item);
-                item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_bad, tvb,
-                                              offset + 16, 2, FALSE);
-                PROTO_ITEM_SET_GENERATED(item);
+                PROTO_ITEM_SET_GENERATED(calc_item);
 
                 /* Checksum is valid, so we're willing to desegment it. */
-                desegment_ok = TRUE;
-            } else {
-                expected_cksum = in_cksum_shouldbe(th_sum, computed_cksum);
+                if (computed_cksum == 0) {
+                    desegment_ok = TRUE;
+                } else {
+                    proto_item_append_text(item, "(maybe caused by \"TCP checksum offload\"?)");
 
-                item = proto_tree_add_uint_format_value(tcp_tree, hf_tcp_checksum, tvb,
-                                                  offset + 16, 2, th_sum,
-                                                  "0x%04x [incorrect, should be 0x%04x (maybe caused by \"TCP checksum offload\"?)]", th_sum,
-                                                  expected_cksum);
-
-                checksum_tree = proto_item_add_subtree(item, ett_tcp_checksum);
-                item = proto_tree_add_uint(checksum_tree, hf_tcp_checksum_calculated, tvb,
-                                              offset + 16, 2, expected_cksum);
-                PROTO_ITEM_SET_GENERATED(item);
-                item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_good, tvb,
-                                              offset + 16, 2, FALSE);
-                PROTO_ITEM_SET_GENERATED(item);
-                item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_bad, tvb,
-                                              offset + 16, 2, TRUE);
-                PROTO_ITEM_SET_GENERATED(item);
-                expert_add_info(pinfo, item, &ei_tcp_checksum_bad);
-
-                col_append_str(pinfo->cinfo, COL_INFO, " [TCP CHECKSUM INCORRECT]");
-
-                /* Checksum is invalid, so we're not willing to desegment it. */
-                desegment_ok = FALSE;
-                pinfo->noreassembly_reason = " [incorrect TCP checksum]";
+                    /* Checksum is invalid, so we're not willing to desegment it. */
+                    desegment_ok = FALSE;
+                    pinfo->noreassembly_reason = " [incorrect TCP checksum]";
+                    col_append_str(pinfo->cinfo, COL_INFO, " [TCP CHECKSUM INCORRECT]");
+                }
             }
         } else {
-            item = proto_tree_add_uint_format_value(tcp_tree, hf_tcp_checksum, tvb,
-                                              offset + 16, 2, th_sum, "0x%04x [validation disabled]", th_sum);
-
-            checksum_tree = proto_item_add_subtree(item, ett_tcp_checksum);
-            item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_good, tvb,
-                                          offset + 16, 2, FALSE);
-            PROTO_ITEM_SET_GENERATED(item);
-            item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_bad, tvb,
-                                          offset + 16, 2, FALSE);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_tree_add_checksum(tcp_tree, tvb, offset+16, hf_tcp_checksum, hf_tcp_checksum_status, &ei_tcp_checksum_bad, pinfo, 0,
+                                    ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 
             /* We didn't check the checksum, and don't care if it's valid,
                so we're willing to desegment it. */
@@ -5826,16 +5791,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
     } else {
         /* We don't have all the packet data, so we can't checksum it... */
-        item = proto_tree_add_uint_format_value(tcp_tree, hf_tcp_checksum, tvb,
-                                          offset + 16, 2, th_sum, "0x%04x [unchecked, not all data available]", th_sum);
-
-        checksum_tree = proto_item_add_subtree(item, ett_tcp_checksum);
-        item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_good, tvb,
-                                      offset + 16, 2, FALSE);
-        PROTO_ITEM_SET_GENERATED(item);
-        item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_bad, tvb,
-                                      offset + 16, 2, FALSE);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_tree_add_checksum(tcp_tree, tvb, offset+16, hf_tcp_checksum, hf_tcp_checksum_status, &ei_tcp_checksum_bad, pinfo, 0,
+                                    ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 
         /* ...and aren't willing to desegment it. */
         desegment_ok = FALSE;
@@ -6201,13 +6158,9 @@ proto_register_tcp(void)
         { "Checksum",           "tcp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
             "Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
 
-        { &hf_tcp_checksum_good,
-        { "Good Checksum",      "tcp.checksum_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
-
-        { &hf_tcp_checksum_bad,
-        { "Bad Checksum",       "tcp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "True: checksum doesn't match packet content; False: matches content or not checked", HFILL }},
+        { &hf_tcp_checksum_status,
+        { "Checksum Status",      "tcp.checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+            NULL, HFILL }},
 
         { &hf_tcp_checksum_calculated,
         { "Calculated Checksum", "tcp.checksum_calculated", FT_UINT16, BASE_HEX, NULL, 0x0,

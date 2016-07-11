@@ -3674,19 +3674,19 @@ proto_register_homeplug_av(void)
       },
       { &hf_homeplug_av_st_mac_req_img_load,
         { "Image Load Starting Address", "homeplug_av.st_mac_req.img_load",
-          FT_UINT32, BASE_HEX, NULL, 0x00, "Unknown", HFILL }
+          FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
       { &hf_homeplug_av_st_mac_req_img_len,
         { "Image Length", "homeplug_av.st_mac_req.img_len",
-          FT_UINT32, BASE_HEX, NULL, 0x00, "Unknown", HFILL }
+          FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
       { &hf_homeplug_av_st_mac_req_img_chksum,
         { "Image Checksum", "homeplug_av.st_mac_req.img_chksum",
-          FT_UINT32, BASE_HEX, NULL, 0x00, "Unknown", HFILL }
+          FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
       { &hf_homeplug_av_st_mac_req_img_start,
         { "Image Starting Address", "homeplug_av.st_mac_req.img_start",
-          FT_UINT32, BASE_HEX, NULL, 0x00, "Unknown", HFILL }
+          FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
       /* Start MAC Confirmation */
       { &hf_homeplug_av_st_mac_cnf,

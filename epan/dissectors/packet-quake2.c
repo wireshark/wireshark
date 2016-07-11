@@ -137,7 +137,6 @@ dissect_quake2_client_commands_move(tvbuff_t *tvb, packet_info *pinfo _U_,
 #define BUTTON_USE 2
 #define BUTTON_ANY 128
 
-    guint8  chksum;
     guint32 lastframe;
     int i, offset = 0;
     enum { Q_OFFSET, Q_VALUE, Q_SIZE };
@@ -151,7 +150,6 @@ dissect_quake2_client_commands_move(tvbuff_t *tvb, packet_info *pinfo _U_,
         guint8 impulse[Q_SIZE];
     } move[MOVES+1];
 
-    chksum = tvb_get_guint8(tvb, offset);
     offset++;
     lastframe = tvb_get_letohl(tvb, offset);
     offset += 4;
@@ -212,8 +210,7 @@ dissect_quake2_client_commands_move(tvbuff_t *tvb, packet_info *pinfo _U_,
     if (!tree)
         return offset;
 
-    proto_tree_add_uint(tree, hf_quake2_game_client_command_move_chksum, tvb,
-            0, 1, chksum);
+    proto_tree_add_checksum(tree, tvb, 0, hf_quake2_game_client_command_move_chksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     proto_tree_add_uint(tree, hf_quake2_game_client_command_move_lframe, tvb,
             1, 4, lastframe);
 

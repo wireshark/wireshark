@@ -2528,7 +2528,7 @@ static int hf_rtp_midi_controller_value				= -1;
 static int hf_rtp_midi_program					= -1;
 static int hf_rtp_midi_channel_pressure				= -1;
 static int hf_rtp_midi_pitch_bend				= -1;
-static int hf_rtp_midi_pitch_bend_truncated			= -1;
+/* static int hf_rtp_midi_pitch_bend_truncated			= -1; */
 
 static int hf_rtp_midi_manu_short				= -1;
 static int hf_rtp_midi_manu_long				= -1;
@@ -2733,7 +2733,7 @@ static int hf_rtp_midi_sj_chapter_x_invalid_data		= -1;
 
 static int hf_rtp_midi_quarter_frame_type			= -1;
 static int hf_rtp_midi_quarter_frame_value			= -1;
-static int hf_rtp_midi_spp_truncated				= -1;
+/* static int hf_rtp_midi_spp_truncated				= -1; */
 static int hf_rtp_midi_spp					= -1;
 static int hf_rtp_midi_song_select				= -1;
 static int hf_rtp_midi_manu_data				= -1;
@@ -3515,7 +3515,7 @@ decode_sysex_common_nrt_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 			offset	 += ( data_len - 1 );
 		}
 
-		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_fd_checksum, tvb, offset, 1, ENC_BIG_ENDIAN );
+		proto_tree_add_checksum(tree, tvb, offset, hf_rtp_midi_sysex_common_nrt_fd_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 		offset++;
 
 	} else if ( sub_id == RTP_MIDI_SYSEX_COMMON_NRT_FD_REQUEST ) {
@@ -3589,7 +3589,7 @@ decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		}
 
 		/* checksum */
-		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_tune_checksum, tvb, offset, 1, ENC_BIG_ENDIAN );
+		proto_tree_add_checksum(tree, tvb, offset, hf_rtp_midi_sysex_common_tune_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 		offset++;
 
 	} else if ( sub_id == RTP_MIDI_SYSEX_COMMON_TUNING_NOTE_CHANGE ) {
@@ -6599,6 +6599,7 @@ proto_register_rtp_midi( void )
 				NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_rtp_midi_pitch_bend_truncated,
 			{
@@ -6611,6 +6612,7 @@ proto_register_rtp_midi( void )
 				NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_rtp_midi_manu_short,
 			{
@@ -8939,6 +8941,7 @@ proto_register_rtp_midi( void )
 				NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_rtp_midi_spp_truncated,
 			{
@@ -8951,6 +8954,7 @@ proto_register_rtp_midi( void )
 				NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_rtp_midi_song_select,
 			{

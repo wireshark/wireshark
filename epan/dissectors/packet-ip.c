@@ -124,8 +124,7 @@ static int hf_ip_ttl = -1;
 static int hf_ip_proto = -1;
 static int hf_ip_checksum = -1;
 static int hf_ip_checksum_calculated = -1;
-static int hf_ip_checksum_good = -1;
-static int hf_ip_checksum_bad = -1;
+static int hf_ip_checksum_status = -1;
 
 /* IP option fields */
 static int hf_ip_opt_type = -1;
@@ -243,7 +242,6 @@ static gint ett_ip_option_qs = -1;
 static gint ett_ip_option_other = -1;
 static gint ett_ip_fragments = -1;
 static gint ett_ip_fragment  = -1;
-static gint ett_ip_checksum = -1;
 static gint ett_ip_opt_type = -1;
 static gint ett_ip_opt_sec_prot_auth_flags = -1;
 static gint ett_unknown_ip_tcp_opt = -1;
@@ -1999,7 +1997,6 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   guint      hlen, optlen;
   guint16    flags;
   guint16    ipsum;
-  guint16    expected_cksum;
   fragment_head *ipfd_head = NULL;
   tvbuff_t   *next_tvb;
   gboolean   update_col_info = TRUE;
@@ -2008,7 +2005,6 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   guint32    src32, dst32;
   proto_tree *tree;
   proto_item *item = NULL, *ttl_item;
-  proto_tree *checksum_tree;
   guint16 ttl;
   int bit_offset;
   tree = parent_tree;
@@ -2207,55 +2203,25 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
    */
   if (ip_check_checksum && tvb_bytes_exist(tvb, offset, hlen)&&(!pinfo->flags.in_error_pkt)) {
     ipsum = ip_checksum_tvb(tvb, offset, hlen);
-    if (tree) {
-      if (ipsum == 0) {
-        item = proto_tree_add_uint_format_value(ip_tree, hf_ip_checksum, tvb,
-                                          offset + 10, 2, iph->ip_sum,
-                                          "0x%04x [correct]",
-                                          iph->ip_sum);
-        checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
-        item = proto_tree_add_uint(checksum_tree, hf_ip_checksum_calculated, tvb,
-                                      offset + 10, 2, iph->ip_sum);
-        PROTO_ITEM_SET_GENERATED(item);
-        item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb,
-                                      offset + 10, 2, TRUE);
-        PROTO_ITEM_SET_GENERATED(item);
-        item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb,
-                                      offset + 10, 2, FALSE);
-        PROTO_ITEM_SET_GENERATED(item);
-      } else {
-        expected_cksum = in_cksum_shouldbe(iph->ip_sum, ipsum);
+    item = proto_tree_add_checksum(ip_tree, tvb, offset + 10, hf_ip_checksum, hf_ip_checksum_status, &ei_ip_checksum_bad, pinfo, ipsum,
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+    if (ipsum == 0) {
+      /* XXX - Keeping hf_ip_checksum_calculated field for now.  Doesn't fit into the
+        proto_tree_add_checksum design, but IP is a popular enough dissector that somebody
+        may have a legitimate reason for wanting it filtered */
+      item = proto_tree_add_uint(ip_tree, hf_ip_checksum_calculated, tvb,
+                                    offset + 10, 2, iph->ip_sum);
+      PROTO_ITEM_SET_GENERATED(item);
+    } else {
+      proto_item_append_text(item, "(may be caused by \"IP checksum offload\"?)");
 
-        item = proto_tree_add_uint_format_value(ip_tree, hf_ip_checksum, tvb,
-                                          offset + 10, 2, iph->ip_sum,
-                                          "0x%04x "
-                                          "[incorrect, should be 0x%04x "
-                                          "(may be caused by \"IP checksum "
-                                          "offload\"?)]", iph->ip_sum,
-                                          expected_cksum);
-        checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
-        item = proto_tree_add_uint(checksum_tree, hf_ip_checksum_calculated, tvb,
-                                      offset + 10, 2, expected_cksum);
-        PROTO_ITEM_SET_GENERATED(item);
-        item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb,
-                                      offset + 10, 2, FALSE);
-        PROTO_ITEM_SET_GENERATED(item);
-        item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb,
-                                      offset + 10, 2, TRUE);
-        PROTO_ITEM_SET_GENERATED(item);
-      }
-    }
-    if (ipsum != 0) {
-      /* Add expert item always (so tap gets called if present);
-         if (tree == NULL) then item will be NULL
-         else item should be from the
-         add_boolean(..., hf_ip_checksum_bad, ...) above */
-      expert_add_info(pinfo, item, &ei_ip_checksum_bad);
+      item = proto_tree_add_uint(ip_tree, hf_ip_checksum_calculated, tvb,
+                                      offset + 10, 2, in_cksum_shouldbe(iph->ip_sum, ipsum));
+      PROTO_ITEM_SET_GENERATED(item);
     }
   } else {
     ipsum = 0;
-    if (tree) {
-      item = proto_tree_add_uint_format_value(ip_tree, hf_ip_checksum, tvb,
+    proto_tree_add_uint_format_value(ip_tree, hf_ip_checksum, tvb,
                                         offset + 10, 2, iph->ip_sum,
                                         "0x%04x [%s]",
                                         iph->ip_sum,
@@ -2264,14 +2230,9 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
                                              "in ICMP error packet" :
                                              "not all data available") :
                                             "validation disabled");
-      checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
-      item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb,
-                                    offset + 10, 2, FALSE);
-      PROTO_ITEM_SET_GENERATED(item);
-      item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb,
-                                    offset + 10, 2, FALSE);
-      PROTO_ITEM_SET_GENERATED(item);
-    }
+    item = proto_tree_add_uint(ip_tree, hf_ip_checksum_status, tvb,
+                                    offset + 10, 0, PROTO_CHECKSUM_E_UNVERIFIED);
+    PROTO_ITEM_SET_GENERATED(item);
   }
   src32 = tvb_get_ntohl(tvb, offset + IPH_SRC);
   set_address_tvb(&pinfo->net_src, AT_IPv4, 4, tvb, offset + IPH_SRC);
@@ -2801,13 +2762,9 @@ proto_register_ip(void)
     { "Calculated Checksum", "ip.checksum_calculated", FT_UINT16, BASE_HEX, NULL, 0x0,
         "The expected IP checksum field as calculated from the IP datagram", HFILL }},
 
-    { &hf_ip_checksum_good,
-      { "Good", "ip.checksum_good", FT_BOOLEAN, BASE_NONE,  NULL, 0x0,
-        "True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
-
-    { &hf_ip_checksum_bad,
-      { "Bad", "ip.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-        "True: checksum doesn't match packet content; False: matches content or not checked", HFILL }},
+    { &hf_ip_checksum_status,
+      { "Header checksum status", "ip.checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+        NULL, HFILL }},
 
     /* IP options related fields */
     { &hf_ip_opt_type,
@@ -3080,7 +3037,6 @@ proto_register_ip(void)
     &ett_ip_option_other,
     &ett_ip_fragments,
     &ett_ip_fragment,
-    &ett_ip_checksum,
     &ett_ip_opt_type,
     &ett_ip_opt_sec_prot_auth_flags,
     &ett_unknown_ip_tcp_opt,

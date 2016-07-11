@@ -123,6 +123,7 @@ static int hf_c1222_write_size = -1;
 static int hf_c1222_write_data = -1;
 static int hf_c1222_procedure_num = -1;
 static int hf_c1222_write_chksum = -1;
+static int hf_c1222_write_chksum_status = -1;
 static int hf_c1222_wait_secs = -1;
 static int hf_c1222_neg_pkt_size = -1;
 static int hf_c1222_neg_nbr_pkts = -1;
@@ -380,7 +381,6 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
   gchar *auth_req = NULL;
   guint16 table = 0;
   guint16 tblsize = 0;
-  guint8 chksum = 0;
   guint16 calcsum = 0;
   guint8 wait_seconds = 0;
   int numrates = 0;
@@ -392,7 +392,6 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
   guint8 inter_char;
   guint8 resp_to;
   guint8 nbr_retries;
-  proto_item *item = NULL;
 
   /* special case to simplify handling of Negotiate service */
   if ((cmd & 0xF0) == C1222_CMD_NEGOTIATE) {
@@ -509,16 +508,14 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
           proto_tree_add_item(tree, hf_c1222_write_data, tvb, *offset, tblsize, ENC_NA);
           *offset += tblsize;
           *length -= tblsize;
-          chksum = tvb_get_guint8(tvb, *offset);
-          item = proto_tree_add_uint(tree, hf_c1222_write_chksum, tvb, *offset, 1, chksum);
           if (table == 7) {/* is it a procedure call? */
             calcsum = c1222_cksum(tvb, (*offset)-tblsize-2, tblsize+2);
           } else {
             calcsum = c1222_cksum(tvb, (*offset)-tblsize, tblsize);
           }
-          if (chksum != calcsum) {
-            expert_add_info_format(pinfo, item, &ei_c1222_bad_checksum, "Bad checksum [should be 0x%02x]", calcsum);
-          }
+          proto_tree_add_checksum(tree, tvb, *offset, hf_c1222_write_chksum, hf_c1222_write_chksum_status,
+                                  &ei_c1222_bad_checksum, pinfo, calcsum, ENC_NA, PROTO_CHECKSUM_VERIFY);
+
           if (table == 7) {/* is it a procedure call? */
             proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d, %s-%d)",
                     val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
@@ -555,12 +552,9 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
           proto_tree_add_item(tree, hf_c1222_write_data, tvb, *offset, tblsize, ENC_NA);
           *offset += tblsize;
           *length -= tblsize;
-          chksum = tvb_get_guint8(tvb, *offset);
-          item = proto_tree_add_uint(tree, hf_c1222_write_chksum, tvb, *offset, 1, chksum);
           calcsum = c1222_cksum(tvb, (*offset)-tblsize, tblsize);
-          if (chksum != calcsum) {
-            expert_add_info_format(pinfo, item, &ei_c1222_bad_checksum, "Bad checksum [should be 0x%02x]", calcsum);
-          }
+          proto_tree_add_checksum(tree, tvb, *offset, hf_c1222_write_chksum, hf_c1222_write_chksum_status,
+                                  &ei_c1222_bad_checksum, pinfo, calcsum, ENC_NA, PROTO_CHECKSUM_VERIFY);
           proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
                   val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
                   val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF);
@@ -1257,6 +1251,12 @@ void proto_register_c1222(void) {
     { "C12.22 Table Data Checksum", "c1222.write.chksum",
     FT_UINT8, BASE_HEX,
     NULL, 0x0,
+    NULL, HFILL }
+   },
+   { &hf_c1222_write_chksum_status,
+    { "C12.22 Table Data Checksum Status", "c1222.write.chksum.status",
+    FT_UINT8, BASE_NONE,
+    VALS(proto_checksum_vals), 0x0,
     NULL, HFILL }
    },
    { &hf_c1222_procedure_num,

@@ -1996,8 +1996,7 @@ presented as a subtree, where the result is enclosed in square brackets
 indicating a generated field.
 
   Header checksum: 0x3d42 [correct]
-    [Good: True]
-    [Bad: False]
+  [Checksum Status: Good (1)]
 
 PROTO_ITEM_SET_HIDDEN()
 -----------------------

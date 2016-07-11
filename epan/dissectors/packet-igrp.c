@@ -147,7 +147,7 @@ static int dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       offset+=IGRP_ENTRY_LENGTH;
     }
 
-    proto_tree_add_item(igrp_tree, hf_igrp_checksum, tvb, 10, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_checksum(igrp_tree, tvb, 10, hf_igrp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
   }
   return tvb_captured_length(tvb);
 }

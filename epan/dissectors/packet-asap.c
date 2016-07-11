@@ -567,13 +567,12 @@ dissect_pe_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
   proto_item_append_text(parameter_item, " (0x%x)", tvb_get_ntohl(parameter_tvb, PE_IDENTIFIER_OFFSET));
 }
 
-#define PE_CHECKSUM_LENGTH 2
 #define PE_CHECKSUM_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
 dissect_pe_checksum_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_pe_checksum, parameter_tvb, PE_CHECKSUM_OFFSET, PE_CHECKSUM_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_checksum(parameter_tree, parameter_tvb, PE_CHECKSUM_OFFSET, hf_pe_checksum, -1, NULL, NULL, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
   proto_item_append_text(parameter_item, " (0x%x)", tvb_get_ntohs(parameter_tvb, PE_CHECKSUM_OFFSET));
 }
 
@@ -893,7 +892,7 @@ proto_register_asap(void)
     { &hf_reg_life,               { "Registration Life",           "asap.pool_element_registration_life",           FT_INT32,   BASE_DEC,  NULL,                             0x0,                       NULL, HFILL } },
     { &hf_cookie,                 { "Cookie",                      "asap.cookie",                                   FT_BYTES,   BASE_NONE,  NULL,                             0x0,                       NULL, HFILL } },
     { &hf_pe_identifier,          { "PE Identifier",               "asap.pe_identifier",                            FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       NULL, HFILL } },
-    { &hf_pe_checksum,            { "PE Checksum",                 "asap.pe_checksum",                              FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       NULL, HFILL } },
+    { &hf_pe_checksum,            { "PE Checksum",                 "asap.pe_checksum",                              FT_UINT16,  BASE_HEX,  NULL,                             0x0,                       NULL, HFILL } },
     { &hf_hropt_items,            { "Items",                       "asap.hropt_items",                              FT_UINT32,  BASE_DEC,  NULL,                             0x0,                       NULL, HFILL } },
     { &hf_server_identifier,      { "Server Identifier",           "asap.server_identifier",                        FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       NULL, HFILL } },
     { &hf_home_enrp_server_bit,   { "H Bit",                       "asap.h_bit",                                    FT_BOOLEAN, 8,         TFS(&home_enrp_server_bit_value), HOME_ENRP_SERVER_BIT_MASK, NULL, HFILL } },

@@ -80,7 +80,7 @@ int proto_icmp = -1;
 static int hf_icmp_type = -1;
 static int hf_icmp_code = -1;
 static int hf_icmp_checksum = -1;
-static int hf_icmp_checksum_bad = -1;
+static int hf_icmp_checksum_status = -1;
 static int hf_icmp_unused = -1;
 static int hf_icmp_reserved = -1;
 static int hf_icmp_ident = -1;
@@ -129,7 +129,7 @@ static int hf_icmp_ext = -1;
 static int hf_icmp_ext_version = -1;
 static int hf_icmp_ext_reserved = -1;
 static int hf_icmp_ext_checksum = -1;
-static int hf_icmp_ext_checksum_bad = -1;
+static int hf_icmp_ext_checksum_status = -1;
 static int hf_icmp_ext_length = -1;
 static int hf_icmp_ext_class = -1;
 static int hf_icmp_ext_c_type = -1;
@@ -760,9 +760,8 @@ dissect_extensions(tvbuff_t * tvb, gint offset, proto_tree * tree)
 	guint8 version;
 	guint8 class_num;
 	guint8 c_type;
-	guint16 cksum, computed_cksum;
 	guint16 obj_length, obj_trunc_length;
-	proto_item *ti, *tf_object, *hidden_item;
+	proto_item *ti, *tf_object;
 	proto_tree *ext_tree, *ext_object_tree;
 	gint obj_end_offset;
 	guint reported_length;
@@ -798,31 +797,8 @@ dissect_extensions(tvbuff_t * tvb, gint offset, proto_tree * tree)
 				   tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	/* Checksum */
-	cksum = tvb_get_ntohs(tvb, offset + 2);
-
-	computed_cksum = ip_checksum_tvb(tvb, offset, reported_length);
-
-	if (computed_cksum == 0) {
-		proto_tree_add_uint_format_value(ext_tree, hf_icmp_ext_checksum,
-					   tvb, offset + 2, 2, cksum,
-					   "0x%04x [correct]",
-					   cksum);
-		hidden_item =
-		    proto_tree_add_boolean(ext_tree,
-					   hf_icmp_ext_checksum_bad, tvb,
-					   offset + 2, 2, FALSE);
-	} else {
-		proto_tree_add_uint_format_value(ext_tree, hf_icmp_ext_checksum,
-					   tvb, offset + 2, 2, cksum,
-					   "0x%04x [incorrect, should be 0x%04x]",
-					   cksum, in_cksum_shouldbe(cksum,
-								    computed_cksum));
-		hidden_item =
-		    proto_tree_add_boolean(ext_tree,
-					   hf_icmp_ext_checksum_bad, tvb,
-					   offset + 2, 2, TRUE);
-	}
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+	proto_tree_add_checksum(ext_tree, tvb, offset + 2, hf_icmp_ext_checksum, hf_icmp_ext_checksum_status, NULL, NULL, ip_checksum_tvb(tvb, 0, reported_length),
+								ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 
 	if (version != 1 && version != 2) {
 		/* Unsupported version */
@@ -1194,14 +1170,12 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 	guint8 icmp_code;
 	guint8 icmp_original_dgram_length;
 	guint captured_length, reported_length;
-	guint16 cksum, computed_cksum;
 	const gchar *type_str, *code_str;
 	guint32 num_addrs = 0;
 	guint32 addr_entry_size = 0;
 	guint32 i;
 	gboolean save_in_error_pkt;
 	tvbuff_t *next_tvb;
-	proto_item *item;
 	guint32 conv_key[2];
 	icmp_transaction_t *trans = NULL;
 	nstime_t ts, time_relative;
@@ -1213,7 +1187,6 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 	/* To do: check for runts, errs, etc. */
 	icmp_type = tvb_get_guint8(tvb, 0);
 	icmp_code = tvb_get_guint8(tvb, 1);
-	cksum = tvb_get_ntohs(tvb, 2);
 	/*length of original datagram carried in the ICMP payload. In terms of 32 bit
 	 * words.*/
 	icmp_original_dgram_length = tvb_get_guint8(tvb, 5);
@@ -1291,27 +1264,16 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		proto_item_append_text(ti, " (%s)", code_str);
 	}
 
-	checksum_item = proto_tree_add_item(icmp_tree, hf_icmp_checksum, tvb, 2, 2, ENC_BIG_ENDIAN);
-
 	if (!pinfo->fragmented && captured_length >= reported_length
 	    && !pinfo->flags.in_error_pkt) {
 		/* The packet isn't part of a fragmented datagram, isn't
 		   truncated, and isn't the payload of an error packet, so we can checksum
 		   it. */
-
-		computed_cksum = ip_checksum_tvb(tvb, 0, reported_length);
-		if (computed_cksum == 0) {
-			item = proto_tree_add_boolean(icmp_tree, hf_icmp_checksum_bad, tvb, 2, 2, FALSE);
-			PROTO_ITEM_SET_HIDDEN(item);
-			proto_item_append_text(checksum_item, " [correct]");
-		} else {
-			item = proto_tree_add_boolean(icmp_tree, hf_icmp_checksum_bad, tvb, 2, 2, TRUE);
-			PROTO_ITEM_SET_HIDDEN(item);
-			proto_item_append_text(checksum_item, " [incorrect, should be 0x%04x]", in_cksum_shouldbe(cksum, computed_cksum));
-			expert_add_info_format(pinfo, checksum_item, &ei_icmp_checksum,
-						"ICMPv4 Checksum Incorrect, should be 0x%04x", in_cksum_shouldbe(cksum, computed_cksum));
-		}
+		proto_tree_add_checksum(icmp_tree, tvb, 2, hf_icmp_checksum, hf_icmp_checksum_status, &ei_icmp_checksum, pinfo, ip_checksum_tvb(tvb, 0, reported_length),
+								ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 	} else {
+		checksum_item = proto_tree_add_checksum(icmp_tree, tvb, 2, hf_icmp_checksum, hf_icmp_checksum_status, &ei_icmp_checksum, pinfo, 0,
+								ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 		proto_item_append_text(checksum_item, " [%s]",
 					pinfo->flags.in_error_pkt ? "in ICMP error packet" : "fragmented datagram");
 	}
@@ -1631,9 +1593,9 @@ void proto_register_icmp(void)
 		  0x0,
 		  NULL, HFILL}},
 
-		{&hf_icmp_checksum_bad,
-		 {"Bad Checksum", "icmp.checksum_bad", FT_BOOLEAN,
-		  BASE_NONE, NULL, 0x0,
+		{&hf_icmp_checksum_status,
+		 {"Checksum Status", "icmp.checksum.status", FT_UINT8, BASE_NONE,
+		  VALS(proto_checksum_vals), 0x0,
 		  NULL, HFILL}},
 
 		{&hf_icmp_unused,
@@ -1844,9 +1806,9 @@ void proto_register_icmp(void)
 		  NULL, 0x0,
 		  NULL, HFILL}},
 
-		{&hf_icmp_ext_checksum_bad,
-		 {"Bad Checksum", "icmp.ext.checksum_bad", FT_BOOLEAN,
-		  BASE_NONE, NULL,
+		{&hf_icmp_ext_checksum_status,
+		 {"Checksum Status", "icmp.ext.checksum.status", FT_UINT8, BASE_NONE,
+		  VALS(proto_checksum_vals),
 		  0x0,
 		  NULL, HFILL}},
 

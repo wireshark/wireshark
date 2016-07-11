@@ -1015,7 +1015,7 @@ dissect_swils_fspf_lsrechdr(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(tree, hf_swils_lsrh_lsid, tvb, offset+11, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_swils_lsrh_adv_domid, tvb, offset+15, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_swils_lsrh_ls_incid, tvb, offset+16, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_swils_lsrh_checksum, tvb, offset+20, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_checksum(tree, tvb, offset+20, hf_swils_lsrh_checksum, -1, NULL, NULL, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     proto_tree_add_item(tree, hf_swils_lsrh_lsr_length, tvb, offset+22, 2, ENC_BIG_ENDIAN);
 }
 

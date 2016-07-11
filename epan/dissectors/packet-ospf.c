@@ -1470,7 +1470,7 @@ dissect_ospf_lls_data_block(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
     ospf_lls_data_block_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_ospf_lls_data_block, NULL, "OSPF LLS Data Block");
 
     /* TODO: verify checksum */
-    proto_tree_add_item(ospf_lls_data_block_tree, hf_ospf_lls_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_checksum(ospf_lls_data_block_tree, tvb, offset, hf_ospf_lls_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     proto_tree_add_uint_format_value(ospf_lls_data_block_tree, hf_ospf_lls_data_length, tvb, offset + 2, 2,
                         ospf_lls_len, "%d bytes", ospf_lls_len);
 

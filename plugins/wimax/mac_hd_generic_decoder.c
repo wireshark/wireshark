@@ -1218,16 +1218,12 @@ check_crc:
 		proto_item_append_text(parent_item, ", CRC");
 		/* check the length */
 		if (MIN(tvb_len, tvb_reported_length(tvb)) >= mac_len)
-		{	/* get the CRC */
-			mac_crc = tvb_get_ntohl(tvb, mac_len - (int)sizeof(mac_crc));
-			/* calculate the CRC */
+		{
+            /* calculate the CRC */
 			calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, mac_len - (int)sizeof(mac_crc)), mac_len - (int)sizeof(mac_crc));
 			/* display the CRC */
-			generic_item = proto_tree_add_item(tree, hf_mac_header_generic_crc, tvb, mac_len - (int)sizeof(mac_crc), (int)sizeof(mac_crc), ENC_BIG_ENDIAN);
-			if (mac_crc != calculated_crc)
-			{
-				proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
-			}
+			proto_tree_add_checksum(tree, tvb, mac_len - (int)sizeof(mac_crc), hf_mac_header_generic_crc, -1, NULL, pinfo, calculated_crc,
+									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		}
 		else
 		{	/* display error message */

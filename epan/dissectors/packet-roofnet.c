@@ -116,7 +116,9 @@ static void dissect_roofnet_header(proto_tree *tree, tvbuff_t *tvb, guint *offse
   ptvcursor_add(cursor, hf_roofnet_nlinks, 1, ENC_BIG_ENDIAN);
   ptvcursor_add(cursor, hf_roofnet_next, 1, ENC_BIG_ENDIAN);
   ptvcursor_add(cursor, hf_roofnet_ttl, 2, ENC_BIG_ENDIAN);
-  ptvcursor_add(cursor, hf_roofnet_cksum, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_checksum(ptvcursor_tree(cursor), ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor),
+                          hf_roofnet_cksum, -1, NULL, NULL, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+  ptvcursor_advance(cursor, 2);
   ptvcursor_add(cursor, hf_roofnet_flags, 2, ENC_BIG_ENDIAN);
   ptvcursor_add(cursor, hf_roofnet_data_length, 2, ENC_BIG_ENDIAN);
   ptvcursor_add(cursor, hf_roofnet_query_dst, 4, ENC_BIG_ENDIAN);

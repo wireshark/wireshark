@@ -57,19 +57,12 @@
  * published API functions
  */
 
-typedef enum {
-	NO_CKSUM,	/* checksum field is 0 */
-	DATA_MISSING,	/* not all the data covered by the checksum was captured */
-	CKSUM_OK,	/* checksum is OK */
-	CKSUM_NOT_OK	/* checksum is not OK */
-} cksum_status_t;
-
 /* Exposed to be used by packet-osi-options.c */
 extern int  proto_osi;
 
-extern cksum_status_t calc_checksum(tvbuff_t *, int, guint, guint);
-extern cksum_status_t check_and_get_checksum(tvbuff_t *, int, guint, guint, int, guint16*);
-extern gboolean check_atn_ec_32(tvbuff_t *tvb, guint tpdu_len, guint offset_ec_32_val, guint offset_iso8073_val, guint clnp_dst_len, const guint8 *clnp_dst, guint clnp_src_len, const guint8 *clnp_src);
-extern gboolean check_atn_ec_16(tvbuff_t *tvb, guint tpdu_len, guint offset_ec_16_val, guint offset_iso8073_val, guint clnp_dst_len, const guint8 *clnp_dst, guint clnp_src_len, const guint8 *clnp_src);
+extern gboolean osi_calc_checksum( tvbuff_t *tvb, int offset, guint len, guint32* c0, guint32* c1);
+extern gboolean osi_check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, int offset_check, guint16* result);
+extern guint32  check_atn_ec_32(tvbuff_t *tvb, guint tpdu_len, guint offset_ec_32_val, guint offset_iso8073_val, guint clnp_dst_len, const guint8 *clnp_dst, guint clnp_src_len, const guint8 *clnp_src);
+extern guint16  check_atn_ec_16(tvbuff_t *tvb, guint tpdu_len, guint offset_ec_16_val, guint offset_iso8073_val, guint clnp_dst_len, const guint8 *clnp_dst, guint clnp_src_len, const guint8 *clnp_src);
 
 #endif /* _PACKET_OSI_H */

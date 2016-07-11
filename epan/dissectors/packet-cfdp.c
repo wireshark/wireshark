@@ -927,7 +927,7 @@ static guint32 dissect_cfdp_eof_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "EOF (%s)",  val_to_str_const((aux_byte & 0xF0) >> 4, cfdp_condition_codes, "Reserved Code"));
 
-    proto_tree_add_item(tree, hf_cfdp_file_checksum, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_checksum(tree, tvb, offset, hf_cfdp_file_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     offset += 4;
 
     proto_tree_add_item(tree, hf_cfdp_file_size, tvb, offset, 4, ENC_BIG_ENDIAN);

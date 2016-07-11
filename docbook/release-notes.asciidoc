@@ -41,6 +41,13 @@ since version 2.1.0:
 * The RTP player now allows up to 30 minutes of silence frames.
 * Packet bytes can now be displayed as EBCDIC.
 * The Qt UI loads captures faster on Windows.
+* proto_tree_add_checksum was added as an API.  This attempts to
+  standardize how checksums are reported and filtered for within
+  *Shark.  There are no more individual "good" and "bad" filter
+  fields, protocols now have a "checksum.status" field that records
+  "Good", "Bad" and "Unverified" (neither good or bad). Color filters
+  provided with Wireshark have been adjusted to the new display filter
+  names, but custom ones may need to be updated.
 
 The following features are new (or have been significantly updated)
 since version 2.0.0:

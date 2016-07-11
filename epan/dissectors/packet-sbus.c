@@ -240,7 +240,7 @@ static int hf_sbus_week_day = -1;
 static int hf_sbus_date = -1;
 static int hf_sbus_time = -1;
 static int hf_sbus_crc = -1;
-static int hf_sbus_crc_bad = -1;
+static int hf_sbus_crc_status = -1;
 static int hf_sbus_flags_accu = -1;
 static int hf_sbus_flags_error = -1;
 static int hf_sbus_flags_negative = -1;
@@ -650,7 +650,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
-       proto_item *ti, *hi, *cs;
+       proto_item *ti, *hi;
        proto_tree *sbus_tree, *ethsbus_tree, *sbusdata_tree;
 
        gint i;        /*for CRC calculation*/
@@ -1855,22 +1855,9 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
               sbus_crc_calc = 0;
               for (i = 0; i < sbus_eth_len - 2; i++)
                      sbus_crc_calc = crc_calc (sbus_crc_calc, tvb_get_guint8(tvb, i));
-              /*Show CRC and add hidden item for wrong CRC*/
-              sbus_helper = tvb_get_ntohs(tvb, offset);
-              if (sbus_helper == sbus_crc_calc) {
-                     proto_tree_add_uint_format_value(sbus_tree,
-                                                hf_sbus_crc, tvb, offset, 2, sbus_helper,
-                                                "0x%04x (correct)", sbus_helper);
-              } else {
-                     cs = proto_tree_add_uint_format_value(sbus_tree,
-                                                     hf_sbus_crc, tvb, offset, 2, sbus_helper,
-                                                     "0x%04x (NOT correct)", sbus_helper);
-                     expert_add_info(pinfo, cs, &ei_sbus_crc_bad);
-                     hi = proto_tree_add_boolean(sbus_tree,
-                                                 hf_sbus_crc_bad, tvb, offset, 2, TRUE);
-                     PROTO_ITEM_SET_HIDDEN(hi);
-                     PROTO_ITEM_SET_GENERATED(hi);
-              }
+
+              proto_tree_add_checksum(sbus_tree, tvb, offset, hf_sbus_crc, hf_sbus_crc_status, &ei_sbus_crc_bad, pinfo, sbus_crc_calc,
+                            ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
               offset += 2; /*now at the end of the telegram*/
        }
        return offset;
@@ -2231,10 +2218,10 @@ proto_register_sbus(void)
                      "CRC 16", HFILL }
               },
 
-              { &hf_sbus_crc_bad,
-                     { "Bad Checksum",      "sbus.crc_bad",
-                     FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-                     "A bad checksum in the telegram", HFILL }},
+              { &hf_sbus_crc_status,
+                     { "Checksum Status",      "sbus.crc.status",
+                     FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+                     NULL, HFILL }},
 
               { &hf_sbus_flags_accu,
                      { "ACCU", "sbus.flags.accu",

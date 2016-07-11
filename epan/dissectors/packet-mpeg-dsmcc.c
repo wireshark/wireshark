@@ -800,8 +800,8 @@ dissect_dsmcc_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_in, void *d
         }
     } else {
         /* TODO: actually check the checksum */
-        proto_tree_add_item(tree, hf_dsmcc_checksum, tvb,
-            crc_len, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_checksum(tree, tvb, crc_len, hf_dsmcc_checksum,
+            -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     }
 
     return tvb_reported_length(tvb);

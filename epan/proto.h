@@ -45,6 +45,8 @@
 #include "wsutil/nstime.h"
 #include "time_fmt.h"
 #include "tvbuff.h"
+#include "value_string.h"
+#include "packet_info.h"
 #include "ftypes/ftypes.h"
 #include "register.h"
 #include "ws_symbol_export.h"
@@ -2846,6 +2848,47 @@ proto_tree_add_ts_23_038_7bits_item(proto_tree *tree, const int hfindex, tvbuff_
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ascii_7bits_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 	const guint bit_offset, const gint no_of_chars);
+
+/** Add a checksum filed to a proto_tree.
+ This standardizes the display of a checksum field as well as any
+ status and expert info supporting it.
+ @param tree the tree to append this item to
+ @param tvb the tv buffer of the current data
+ @param offset start of data in tvb
+ @param hf_checksum checksum field index
+ @param hf_checksum_status optional checksum status field index.  If none
+ exists, just pass -1
+ @param bad_checksum_expert optional expert info for a bad checksum.  If
+ none exists, just pass NULL
+ @pinfo Packet info used for optional expert info.  If unused, NULL can
+ be passed
+ @param computed_checksum Checksum to verify against
+ @param encoding data encoding of checksum from tvb
+ @param flags bitmask field of PROTO_CHECKSUM_ options
+ @return the newly created item */
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
+		const int hf_checksum, const int hf_checksum_status, struct expert_field* bad_checksum_expert,
+		packet_info *pinfo, guint32 computed_checksum, const guint encoding, const guint flags);
+
+typedef enum
+{
+	PROTO_CHECKSUM_E_BAD = 0,
+	PROTO_CHECKSUM_E_GOOD,
+	PROTO_CHECKSUM_E_UNVERIFIED,
+	PROTO_CHECKSUM_E_NOT_PRESENT
+
+} proto_checksum_enum_e;
+
+#define PROTO_CHECKSUM_NO_FLAGS		0x00	/**< Don't use any flags */
+#define PROTO_CHECKSUM_VERIFY		0x01	/**< Compare against computed checksum */
+#define PROTO_CHECKSUM_GENERATED	0x02	/**< Checksum is generated only */
+#define PROTO_CHECKSUM_IN_CKSUM		0x04	/**< Internet checksum routine used for computation */
+#define PROTO_CHECKSUM_ZERO			0x08	/**< Computed checksum must be zero (but correct checksum can't be calculated) */
+#define PROTO_CHECKSUM_NOT_PRESENT	0x10	/**< Checksum field is not present (Just populates status field) */
+
+WS_DLL_PUBLIC const value_string proto_checksum_vals[];
+
 
 /** Check if given string is a valid field name
  @param field_name the field name to check

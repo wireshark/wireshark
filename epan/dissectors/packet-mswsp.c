@@ -6324,8 +6324,7 @@ dissect_mswsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean in, 
 										  "(Unknown: 0x%x)"));
 	}
 
-	proto_tree_add_item(hdr_tree, hf_mswsp_hdr_checksum, tvb,
-						8, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_checksum(hdr_tree, tvb, 8, hf_mswsp_hdr_checksum, -1, NULL, pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 	/* todo: validate checksum */
 
 	proto_tree_add_item(hdr_tree, hf_mswsp_hdr_reserved, tvb,

@@ -53,8 +53,7 @@ void proto_reg_handoff_cdp(void);
 static int proto_cdp = -1;
 static int hf_cdp_version = -1;
 static int hf_cdp_checksum = -1;
-static int hf_cdp_checksum_good = -1;
-static int hf_cdp_checksum_bad = -1;
+static int hf_cdp_checksum_status = -1;
 static int hf_cdp_ttl = -1;
 static int hf_cdp_tlvtype = -1;
 static int hf_cdp_tlvlength = -1;
@@ -271,12 +270,11 @@ static const value_string type_nrgyz_vals[] = {
 static int
 dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_item *ti, *checksum_item;
-    proto_tree *cdp_tree = NULL, *checksum_tree;
+    proto_item *ti;
+    proto_tree *cdp_tree;
     int         offset   = 0;
     guint16     type;
-    guint16     length, packet_checksum, computed_checksum, data_length;
-    gboolean    checksum_good, checksum_bad;
+    guint16     length, data_length;
     proto_item *tlvi     = NULL;
     proto_tree *tlv_tree = NULL;
     int         real_length;
@@ -289,25 +287,20 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CDP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_cdp, tvb, offset, -1, ENC_NA);
-        cdp_tree = proto_item_add_subtree(ti, ett_cdp);
+    ti = proto_tree_add_item(tree, proto_cdp, tvb, offset, -1, ENC_NA);
+    cdp_tree = proto_item_add_subtree(ti, ett_cdp);
 
-        /* CDP header */
-        proto_tree_add_item(cdp_tree, hf_cdp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
+    /* CDP header */
+    proto_tree_add_item(cdp_tree, hf_cdp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
-        proto_tree_add_uint_format_value(cdp_tree, hf_cdp_ttl, tvb, offset, 1,
-                                         tvb_get_guint8(tvb, offset),
-                                         "%u seconds",
-                                         tvb_get_guint8(tvb, offset));
-        offset += 1;
-    } else {
-        offset += 2; /* The version/ttl fields from above */
-    }
+    proto_tree_add_uint_format_value(cdp_tree, hf_cdp_ttl, tvb, offset, 1,
+                                        tvb_get_guint8(tvb, offset),
+                                        "%u seconds",
+                                        tvb_get_guint8(tvb, offset));
+    offset += 1;
 
     /* Checksum display & verification code */
-    packet_checksum = tvb_get_ntohs(tvb, offset);
 
     data_length = tvb_reported_length(tvb);
 
@@ -343,29 +336,8 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, data_length);
     }
 
-    computed_checksum = in_cksum(cksum_vec, 1);
-    checksum_good = (computed_checksum == 0);
-    checksum_bad = !checksum_good;
-    if (checksum_good) {
-        checksum_item = proto_tree_add_uint_format_value(cdp_tree,
-                                                   hf_cdp_checksum, tvb, offset, 2, packet_checksum,
-                                                   "0x%04x [correct]", packet_checksum);
-    } else {
-        checksum_item = proto_tree_add_uint_format_value(cdp_tree,
-                                                   hf_cdp_checksum, tvb, offset, 2, packet_checksum,
-                                                   "0x%04x [incorrect, should be 0x%04x]",
-                                                   packet_checksum,
-                                                   in_cksum_shouldbe(packet_checksum, computed_checksum));
-    }
-
-    checksum_tree = proto_item_add_subtree(checksum_item, ett_cdp_checksum);
-    checksum_item = proto_tree_add_boolean(checksum_tree, hf_cdp_checksum_good,
-                                           tvb, offset, 2, checksum_good);
-    PROTO_ITEM_SET_GENERATED(checksum_item);
-    checksum_item = proto_tree_add_boolean(checksum_tree, hf_cdp_checksum_bad,
-                                           tvb, offset, 2, checksum_bad);
-    PROTO_ITEM_SET_GENERATED(checksum_item);
-
+    proto_tree_add_checksum(cdp_tree, tvb, offset, hf_cdp_checksum, hf_cdp_checksum_status, NULL, pinfo, in_cksum(cksum_vec, 1),
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
     offset += 2;
 
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
@@ -1290,13 +1262,9 @@ proto_register_cdp(void)
         { "Checksum",           "cdp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
           NULL, HFILL }},
 
-        { &hf_cdp_checksum_good,
-          { "Good",       "cdp.checksum_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
-
-        { &hf_cdp_checksum_bad,
-          { "Bad",       "cdp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "True: checksum doesn't match packet content; False: matches content or not checked", HFILL }},
+        { &hf_cdp_checksum_status,
+          { "Checksum Status",       "cdp.checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+            NULL, HFILL }},
 
         { &hf_cdp_tlvtype,
         { "Type",               "cdp.tlv.type", FT_UINT16, BASE_HEX, VALS(type_vals), 0x0,

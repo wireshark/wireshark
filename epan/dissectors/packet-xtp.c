@@ -887,7 +887,6 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	guint          i, bpos;
 	guint          cmd_options;
 	vec_t          cksum_vec[1];
-	guint16        computed_cksum;
 	gboolean       have_btag;
 	static const int * cmd_options_flags[] = {
 		&hf_xtp_cmd_options_nocheck,
@@ -1018,20 +1017,12 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			if (!(xtph->cmd_options & XTP_CMD_OPTIONS_NOCHECK))
 				check_len += xtph->dlen;
 			SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, check_len);
-			computed_cksum = in_cksum(cksum_vec, 1);
-			if (computed_cksum == 0) {
-				proto_tree_add_uint_format_value(xtp_tree, hf_xtp_checksum, tvb, offset, 2,
-					xtph->check, "0x%04x [correct]", xtph->check);
-			} else {
-				proto_tree_add_uint_format_value(xtp_tree, hf_xtp_checksum, tvb, offset, 2,
-					xtph->check, "0x%04x [incorrect, should be 0x%04x]",
-					xtph->check,
-					in_cksum_shouldbe(xtph->check, computed_cksum));
-			}
+			proto_tree_add_checksum(xtp_tree, tvb, offset, hf_xtp_checksum, -1, NULL, pinfo, in_cksum(cksum_vec, 1),
+									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 		}
 		else {
-			proto_tree_add_uint_format_value(xtp_tree, hf_xtp_checksum, tvb, offset, 2,
-					xtph->check, "0x%04x", xtph->check);
+			proto_tree_add_checksum(xtp_tree, tvb, offset, hf_xtp_checksum, -1, NULL, pinfo, 0,
+									ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 		}
 		offset += 2;
 		/* sort(2) */

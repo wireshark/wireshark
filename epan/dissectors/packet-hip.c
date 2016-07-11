@@ -421,7 +421,7 @@ dissect_hip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     proto_tree *hip_tree, *hip_tlv_tree=NULL;
     proto_item *ti, *ti_tlv;
     int length, offset = 0, newoffset = 0;
-    guint16 control_h, checksum_h, computed_checksum;
+    guint16 control_h, checksum_h;
     guint16 tlv_type_h, tlv_length_h; /* For storing in host order */
     guint len;
     guint reported_len;
@@ -510,32 +510,16 @@ dissect_hip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
             }
             /* pointer to the HIP header (packet data) */
             SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, reported_len);
-            computed_checksum = in_cksum(cksum_vec, 4);
-            if (computed_checksum == 0) {
-                    proto_tree_add_uint_format_value(hip_tree, hf_hip_checksum, tvb,
-                                                offset+4, 2, checksum_h,
-                                                "0x%04x (correct)",
-                                                checksum_h);
+            if (checksum_h == 0 && udp) {
+                    proto_tree_add_checksum(hip_tree, tvb, offset+4, hf_hip_checksum, -1, NULL, pinfo, 0,
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
             } else {
-                    if (checksum_h == 0 && udp) {
-                            proto_tree_add_uint_format_value(hip_tree, hf_hip_checksum, tvb,
-                                                        offset+4, 2, checksum_h,
-                                                        "0x%04x (correct)",
-                                                        checksum_h);
-                    } else {
-                            proto_tree_add_uint_format_value(hip_tree, hf_hip_checksum, tvb,
-                                                        offset+4, 2, checksum_h,
-                                                        "0x%04x (incorrect, should be 0x%04x)",
-                                                        checksum_h,
-                                                        in_cksum_shouldbe(checksum_h,
-                                                        computed_checksum));
-                    }
+                    proto_tree_add_checksum(hip_tree, tvb, offset+4, hf_hip_checksum, -1, NULL, pinfo, in_cksum(cksum_vec, 4),
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
             }
     } else {
-            proto_tree_add_uint_format_value(hip_tree, hf_hip_checksum, tvb,
-                                        offset+4, 2, checksum_h,
-                                        "0x%04x (unverified)",
-                                        checksum_h);
+            proto_tree_add_checksum(hip_tree, tvb, offset+4, hf_hip_checksum, -1, NULL, pinfo, 0,
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     }
 
     ti = proto_tree_add_item(hip_tree, hf_hip_controls, tvb, offset+6, 2, ENC_BIG_ENDIAN);

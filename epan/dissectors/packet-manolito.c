@@ -90,8 +90,8 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 	manolito_tree = proto_item_add_subtree(ti, ett_manolito);
 
 	/* MANOLITO packet header (network byte order) */
-	proto_tree_add_item(manolito_tree,
-	    hf_manolito_checksum, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_checksum(manolito_tree, tvb, offset, hf_manolito_checksum,
+	    -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 	offset += 4;
 	proto_tree_add_item(manolito_tree,
 	    hf_manolito_seqno, tvb, offset, 4, ENC_BIG_ENDIAN);

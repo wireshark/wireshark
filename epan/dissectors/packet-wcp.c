@@ -383,8 +383,7 @@ static int dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	}
 
 	    /* add the check byte */
-	proto_tree_add_item(wcp_tree, hf_wcp_chksum, tvb,
-			tvb_reported_length( tvb)-1, 1, ENC_NA);
+    proto_tree_add_checksum(wcp_tree, tvb, tvb_reported_length( tvb)-1, hf_wcp_chksum, -1, NULL, pinfo, 0, ENC_NA, PROTO_CHECKSUM_NO_FLAGS);
 
 	call_dissector(fr_uncompressed_handle, next_tvb, pinfo, tree);
 

@@ -113,8 +113,7 @@ static int hf_zrtp_msg_ping_ssrc = -1;
   Checksum Data
 */
 static int hf_zrtp_checksum = -1;
-static int hf_zrtp_checksum_good = -1;
-static int hf_zrtp_checksum_bad = -1;
+static int hf_zrtp_checksum_status = -1;
 
 /*
   Sub-Tree
@@ -318,14 +317,13 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_tree    *zrtp_tree;
   proto_tree    *zrtp_msg_tree;
   proto_tree    *zrtp_msg_data_tree;
-  proto_tree    *checksum_tree;
   proto_item    *ti;
   int            linelen;
   int            checksum_offset;
   unsigned char  message_type[9];
   unsigned int   prime_offset = 0;
   unsigned int   msg_offset   = 12;
-  guint32        sent_crc, calc_crc;
+  guint32        calc_crc;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZRTP");
 
@@ -416,27 +414,10 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     dissect_PingACK(tvb, pinfo, zrtp_msg_data_tree);
   }
 
-  sent_crc = tvb_get_ntohl(tvb, msg_offset+checksum_offset);
   calc_crc = ~crc32c_tvb_offset_calculate(tvb, 0, msg_offset+checksum_offset, CRC32C_PRELOAD);
 
-  if (sent_crc == calc_crc) {
-    ti = proto_tree_add_uint_format_value(zrtp_tree, hf_zrtp_checksum, tvb, msg_offset+checksum_offset, 4, sent_crc,
-                                          "0x%04x [correct]", sent_crc);
-    checksum_tree = proto_item_add_subtree(ti, ett_zrtp_checksum);
-    ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_good,  tvb, msg_offset+checksum_offset, 4, TRUE);
-    PROTO_ITEM_SET_GENERATED(ti);
-    ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_bad,   tvb, msg_offset+checksum_offset, 4, FALSE);
-    PROTO_ITEM_SET_GENERATED(ti);
-  } else {
-    ti = proto_tree_add_uint_format_value(zrtp_tree, hf_zrtp_checksum, tvb, msg_offset+checksum_offset, 4, sent_crc,
-                                          "0x%04x [incorrect, should be 0x%04x]", sent_crc, calc_crc);
-    checksum_tree = proto_item_add_subtree(ti, ett_zrtp_checksum);
-    ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_good,  tvb, msg_offset+checksum_offset, 4, FALSE);
-    PROTO_ITEM_SET_GENERATED(ti);
-    ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_bad,   tvb, msg_offset+checksum_offset, 4, TRUE);
-    PROTO_ITEM_SET_GENERATED(ti);
-  }
-
+  proto_tree_add_checksum(zrtp_tree, tvb, msg_offset+checksum_offset, hf_zrtp_checksum, hf_zrtp_checksum_status, NULL, pinfo, calc_crc,
+                            ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
   return tvb_captured_length(tvb);
 }
 
@@ -1098,21 +1079,12 @@ proto_register_zrtp(void)
      }
     },
 
-    {&hf_zrtp_checksum_good,
+    {&hf_zrtp_checksum_status,
      {
-       "Good", "zrtp.checksum_good",
-       FT_BOOLEAN, BASE_NONE,
-       NULL, 0x0,
-       "True: checksum matches packet content; False: doesn't match content", HFILL
-     }
-    },
-
-    {&hf_zrtp_checksum_bad,
-     {
-       "Bad", "zrtp.checksum_bad",
-       FT_BOOLEAN, BASE_NONE,
-       NULL, 0x0,
-       "True: checksum doesn't match packet content; False: matches content", HFILL
+       "Checksum Status", "zrtp.checksum.status",
+       FT_UINT8, BASE_NONE,
+       VALS(proto_checksum_vals), 0x0,
+       NULL, HFILL
      }
     },
 

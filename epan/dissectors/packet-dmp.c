@@ -358,8 +358,7 @@ static int hf_ack_diagnostic = -1;
 static int hf_ack_recips = -1;
 
 static int hf_checksum = -1;
-static int hf_checksum_good = -1;
-static int hf_checksum_bad = -1;
+static int hf_checksum_status = -1;
 
 static int hf_analysis_ack_time = -1;
 static int hf_analysis_total_time = -1;
@@ -371,10 +370,10 @@ static int hf_analysis_retrans_no = -1;
 static int hf_analysis_ack_num = -1;
 static int hf_analysis_ack_missing = -1;
 static int hf_analysis_ack_dup_no = -1;
-static int hf_analysis_rep_num = -1;
+/* static int hf_analysis_rep_num = -1; */
 static int hf_analysis_acks_rep_num = -1;
 static int hf_analysis_rep_time = -1;
-static int hf_analysis_not_num = -1;
+/* static int hf_analysis_not_num = -1; */
 static int hf_analysis_acks_not_num = -1;
 static int hf_analysis_not_time = -1;
 static int hf_analysis_msg_resend_from = -1;
@@ -474,8 +473,6 @@ static gint ett_notif_acp127recip = -1;
 
 static gint ett_ack = -1;
 static gint ett_ack_recips = -1;
-
-static gint ett_checksum = -1;
 
 static gint ett_analysis = -1;
 
@@ -3968,8 +3965,8 @@ static gint dissect_dmp_extensions (tvbuff_t *tvb, packet_info *pinfo _U_,
 static int dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
                          proto_tree *tree, void *data _U_)
 {
-  proto_tree *dmp_tree = NULL, *checksum_tree = NULL;
-  proto_item *ti = NULL, *en = NULL;
+  proto_tree *dmp_tree;
+  proto_item *ti;
   guint16     checksum1 = 0, checksum2 = 1;
   gint        length, offset = 0;
   gboolean    retrans_or_dup_ack = FALSE;
@@ -4006,29 +4003,8 @@ static int dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
   if (dmp.checksum) {
     length = tvb_captured_length (tvb);
     checksum1 = crc16_x25_ccitt_tvb (tvb, length - 2);
-    checksum2 = tvb_get_ntohs (tvb, offset);
 
-    en = proto_tree_add_item (dmp_tree, hf_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
-    checksum_tree = proto_item_add_subtree (en, ett_checksum);
-    if (checksum1 == checksum2) {
-      proto_item_append_text (en, " (correct)");
-      en = proto_tree_add_boolean (checksum_tree, hf_checksum_good, tvb,
-                                   offset, 2, TRUE);
-      PROTO_ITEM_SET_GENERATED (en);
-      en = proto_tree_add_boolean (checksum_tree, hf_checksum_bad, tvb,
-                                   offset, 2, FALSE);
-      PROTO_ITEM_SET_GENERATED (en);
-    } else {
-      proto_item_append_text (en, " (incorrect, should be 0x%04x)",
-                              checksum1);
-      expert_add_info(pinfo, en, &ei_checksum_bad);
-      en = proto_tree_add_boolean (checksum_tree, hf_checksum_good, tvb,
-                                   offset, 2, FALSE);
-      PROTO_ITEM_SET_GENERATED (en);
-      en = proto_tree_add_boolean (checksum_tree, hf_checksum_bad, tvb,
-                                   offset, 2, TRUE);
-      PROTO_ITEM_SET_GENERATED (en);
-    }
+    proto_tree_add_checksum(dmp_tree, tvb, offset, hf_checksum, hf_checksum_status, &ei_checksum_bad, pinfo, checksum1, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
     offset += 2;
   }
 
@@ -4773,12 +4749,9 @@ void proto_register_dmp (void)
     { &hf_checksum,
       { "Checksum", "dmp.checksum", FT_UINT16, BASE_HEX,
         NULL, 0x0, NULL, HFILL } },
-    { &hf_checksum_good,
-      { "Good", "dmp.checksum_good", FT_BOOLEAN, BASE_NONE,
-        NULL, 0x0, "True: checksum matches packet content; False: doesn't match content or not checked", HFILL } },
-    { &hf_checksum_bad,
-      { "Bad", "dmp.checksum_bad", FT_BOOLEAN, BASE_NONE,
-        NULL, 0x0, "True: checksum doesn't match packet content; False: matches content or not checked", HFILL } },
+    { &hf_checksum_status,
+      { "Checksum Status", "dmp.checksum.status", FT_UINT8, BASE_NONE,
+        VALS(proto_checksum_vals), 0x0, NULL, HFILL } },
 
     /*
     ** Ack matching / Resend
@@ -4810,15 +4783,17 @@ void proto_register_dmp (void)
     { &hf_analysis_ack_num,
       { "Acknowledgement in", "dmp.analysis.ack_in", FT_FRAMENUM, BASE_NONE,
         NULL, 0x0, "This packet has an Acknowledgement in this frame", HFILL } },
-    { &hf_analysis_rep_num,
-      { "Report in", "dmp.analysis.report_in", FT_FRAMENUM, BASE_NONE,
-        NULL, 0x0, "This packet has a Report in this frame", HFILL } },
     { &hf_analysis_acks_rep_num,
       { "This is an Ack to the Report in", "dmp.analysis.acks_report_in", FT_FRAMENUM, BASE_NONE,
         FRAMENUM_TYPE(FT_FRAMENUM_ACK), 0x0, "This packet ACKs a Report in this frame", HFILL } },
+#if 0
+    { &hf_analysis_rep_num,
+      { "Report in", "dmp.analysis.report_in", FT_FRAMENUM, BASE_NONE,
+        NULL, 0x0, "This packet has a Report in this frame", HFILL } },
     { &hf_analysis_not_num,
       { "Notification in", "dmp.analysis.notif_in", FT_FRAMENUM, BASE_NONE,
         NULL, 0x0, "This packet has a Notification in this frame", HFILL } },
+#endif
     { &hf_analysis_acks_not_num,
       { "This is an Ack to the Notification in", "dmp.analysis.acks_notif_in", FT_FRAMENUM, BASE_NONE,
         FRAMENUM_TYPE(FT_FRAMENUM_ACK), 0x0, "This packet ACKs a Notification in this frame", HFILL } },
@@ -4962,7 +4937,6 @@ void proto_register_dmp (void)
     &ett_notif_acp127recip,
     &ett_ack,
     &ett_ack_recips,
-    &ett_checksum,
     &ett_analysis
   };
 

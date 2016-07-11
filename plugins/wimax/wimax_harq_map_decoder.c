@@ -71,7 +71,6 @@ static int dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 	proto_tree *harq_map_tree = NULL;
 	guint nibble_offset;
 	proto_item *parent_item = NULL;
-	proto_item *it = NULL;
 	guint ulmap_appended;
 	guint32 harq_map_msg_crc, calculated_crc;
 	guint32 first_24bits;
@@ -150,17 +149,10 @@ static int dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 		}
 		/* add the CRC info */
 		proto_item_append_text(parent_item, ",CRC");
-		/* get the CRC */
-		harq_map_msg_crc = tvb_get_ntohl(tvb, length - (int)sizeof(harq_map_msg_crc));
 		/* calculate the HARQ MAM Message CRC */
 		calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, length - (int)sizeof(harq_map_msg_crc)), length - (int)sizeof(harq_map_msg_crc));
-		/* display the CRC */
-		it = proto_tree_add_item(harq_map_tree, hf_harq_map_msg_crc, tvb, length - (int)sizeof(harq_map_msg_crc), (int)sizeof(harq_map_msg_crc), ENC_BIG_ENDIAN);
-		/* verify the CRC */
-		if (harq_map_msg_crc != calculated_crc)
-		{
-			proto_item_append_text(it, " - incorrect! (should be: 0x%x)", calculated_crc);
-		}
+		proto_tree_add_checksum(tree, tvb, length - (int)sizeof(harq_map_msg_crc), hf_harq_map_msg_crc, -1, NULL, pinfo, calculated_crc,
+									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 	}
 	return tvb_captured_length(tvb);
 }

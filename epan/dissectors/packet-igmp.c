@@ -127,7 +127,7 @@ static int hf_group_type = -1;
 static int hf_reply_code = -1;
 static int hf_reply_pending = -1;
 static int hf_checksum = -1;
-static int hf_checksum_bad = -1;
+static int hf_checksum_status = -1;
 static int hf_identifier = -1;
 static int hf_access_key = -1;
 static int hf_max_resp = -1;
@@ -282,11 +282,9 @@ static const value_string mtrace_fwd_code_vals[] = {
 };
 
 void igmp_checksum(proto_tree *tree, tvbuff_t *tvb, int hf_index,
-	int hf_index_bad, packet_info *pinfo, guint len)
+	int hf_index_status, packet_info *pinfo, guint len)
 {
-	guint16 cksum, hdrcksum;
 	vec_t cksum_vec[1];
-	proto_item *hidden_item;
 
 	if (len == 0) {
 		/*
@@ -295,29 +293,16 @@ void igmp_checksum(proto_tree *tree, tvbuff_t *tvb, int hf_index,
 		len = tvb_reported_length(tvb);
 	}
 
-	hdrcksum = tvb_get_ntohs(tvb, 2);
 	if (!pinfo->fragmented && tvb_captured_length(tvb) >= len) {
 		/*
 		 * The packet isn't part of a fragmented datagram and isn't
 		 * truncated, so we can checksum it.
 		 */
 		SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, len);
-
-		cksum = in_cksum(&cksum_vec[0],1);
-
-		if (cksum == 0) {
-			proto_tree_add_uint_format(tree, hf_index, tvb, 2, 2, hdrcksum,
-				"Header checksum: 0x%04x [correct]", hdrcksum);
-		} else {
-			hidden_item = proto_tree_add_boolean(tree, hf_index_bad,
-				tvb, 2, 2, TRUE);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
-			proto_tree_add_uint_format(tree, hf_index, tvb, 2, 2, hdrcksum,
-				"Header checksum: 0x%04x [incorrect, should be 0x%04x]",
-				hdrcksum, in_cksum_shouldbe(hdrcksum,cksum));
-		}
+		proto_tree_add_checksum(tree, tvb, 2, hf_index, hf_index_status, NULL, pinfo, in_cksum(&cksum_vec[0], 1),
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 	} else
-		proto_tree_add_uint(tree, hf_index, tvb, 2, 2, hdrcksum);
+		proto_tree_add_checksum(tree, tvb, 2, hf_index, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 
 	return;
 }
@@ -563,7 +548,7 @@ dissect_igmp_v3_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
+	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
 	offset += 2;
 
         proto_tree_add_item(tree, hf_reserved, tvb, offset, 2, ENC_NA);
@@ -598,7 +583,7 @@ dissect_igmp_v3_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
 	offset = dissect_v3_max_resp(tvb, tree, offset);
 
 	/* checksum */
-	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
+	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
 	offset += 2;
 
 	/* group address */
@@ -653,7 +638,7 @@ dissect_igmp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 8);
+	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, pinfo, 8);
 	offset += 2;
 
 	/* group address */
@@ -695,7 +680,7 @@ dissect_igmp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 8);
+	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, pinfo, 8);
 	offset += 2;
 
 	/* group address */
@@ -730,7 +715,7 @@ dissect_igmp_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 20);
+	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, pinfo, 20);
 	offset += 2;
 
 	/* identifier */
@@ -813,7 +798,7 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
+	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
 	offset += 2;
 
 	/* group address to be traced */
@@ -952,9 +937,9 @@ proto_register_igmp(void)
 			{ "Checksum", "igmp.checksum", FT_UINT16, BASE_HEX,
 			  NULL, 0, "IGMP Checksum", HFILL }},
 
-		{ &hf_checksum_bad,
-			{ "Bad Checksum", "igmp.checksum_bad", FT_BOOLEAN, BASE_NONE,
-			  NULL, 0x0, "Bad IGMP Checksum", HFILL }},
+		{ &hf_checksum_status,
+			{ "Checksum Status", "igmp.checksum.status", FT_UINT8, BASE_NONE,
+			  VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_identifier,
 			{ "Identifier", "igmp.identifier", FT_UINT32, BASE_DEC,

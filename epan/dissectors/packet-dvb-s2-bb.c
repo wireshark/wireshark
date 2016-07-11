@@ -784,13 +784,9 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
 
     input8 = tvb_get_guint8(tvb, cur_off + DVB_S2_BB_OFFS_CRC);
     new_off += 1;
-    if (check_crc8(tvb, DVB_S2_BB_HEADER_LEN - 1, cur_off, input8)) {
-        proto_tree_add_uint_format(dvb_s2_bb_tree, hf_dvb_s2_bb_crc, tvb,
-                                   cur_off + DVB_S2_BB_OFFS_CRC, 1, 1, "Checksum: correct (0x%2.2x)", input8);
-    } else {
-        proto_tree_add_uint_format(dvb_s2_bb_tree, hf_dvb_s2_bb_crc, tvb,
-                                   cur_off + DVB_S2_BB_OFFS_CRC, 1, -1, "Checksum: incorrect! (0x%2.2x)", input8);
-    }
+
+    proto_tree_add_checksum(dvb_s2_bb_tree, tvb, cur_off + DVB_S2_BB_OFFS_CRC, hf_dvb_s2_bb_crc, -1, NULL, pinfo,
+        check_crc8(tvb, DVB_S2_BB_HEADER_LEN - 1, cur_off, input8), ENC_NA, PROTO_CHECKSUM_VERIFY);
 
     while (bb_data_len) {
         /* start DVB-GSE dissector */
@@ -987,7 +983,7 @@ void proto_register_dvb_s2_modeadapt(void)
                 "Distance to first user packet", HFILL}
         },
         {&hf_dvb_s2_bb_crc, {
-                "CRC", "dvb-s2_bb.crc",
+                "Checksum", "dvb-s2_bb.crc",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 "CRC-8", HFILL}
         }

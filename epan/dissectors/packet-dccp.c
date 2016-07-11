@@ -175,7 +175,7 @@ static int hf_dccp_data_offset = -1;
 static int hf_dccp_ccval = -1;
 static int hf_dccp_cscov = -1;
 static int hf_dccp_checksum = -1;
-static int hf_dccp_checksum_bad = -1;
+static int hf_dccp_checksum_status = -1;
 static int hf_dccp_res1 = -1;
 static int hf_dccp_type = -1;
 static int hf_dccp_x = -1;
@@ -600,7 +600,6 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_item *hidden_item, *offset_item;
     vec_t      cksum_vec[4];
     guint32    phdr[2];
-    guint16    computed_cksum;
     guint      offset                     = 0;
     guint      len                        = 0;
     guint      reported_len               = 0;
@@ -695,30 +694,11 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             break;
         }
         SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, csum_coverage_len);
-        computed_cksum = in_cksum(&cksum_vec[0], 4);
-        if (computed_cksum == 0) {
-            proto_tree_add_uint_format_value(dccp_tree,
-                                             hf_dccp_checksum, tvb,
-                                             offset, 2,
-                                             dccph->checksum,
-                                             "0x%04x [correct]",
-                                             dccph->checksum);
-        } else {
-            hidden_item =
-                proto_tree_add_boolean(dccp_tree, hf_dccp_checksum_bad,
-                                       tvb, offset, 2, TRUE);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
-            proto_tree_add_uint_format_value(
-                dccp_tree, hf_dccp_checksum, tvb, offset, 2,
-                dccph->checksum,
-                "0x%04x [incorrect, should be 0x%04x]",
-                dccph->checksum,
-                in_cksum_shouldbe(dccph->checksum, computed_cksum));
-        }
+        proto_tree_add_checksum(dccp_tree, tvb, offset, hf_dccp_checksum, hf_dccp_checksum_status, NULL, pinfo, in_cksum(&cksum_vec[0], 4),
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
     } else {
-        proto_tree_add_uint_format_value(dccp_tree, hf_dccp_checksum, tvb,
-                                         offset, 2, dccph->checksum,
-                                         "0x%04x", dccph->checksum);
+        proto_tree_add_checksum(dccp_tree, tvb, offset, hf_dccp_checksum, hf_dccp_checksum_status, NULL, pinfo, 0,
+                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     }
     offset += 2;
 
@@ -1078,10 +1058,10 @@ proto_register_dccp(void)
             }
         },
         {
-            &hf_dccp_checksum_bad,
+            &hf_dccp_checksum_status,
             {
-                "Bad Checksum", "dccp.checksum_bad",
-                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Checksum Status", "dccp.checksum.status",
+                FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
                 NULL, HFILL
             }
         },

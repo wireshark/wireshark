@@ -8960,7 +8960,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
                 break;
             case 0x03: /* Calculate Checksum */
-                proto_tree_add_item(tree, hf_btatt_ots_checksum, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_checksum(tree, tvb, offset, hf_btatt_ots_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
                 offset += 4;
 
                 break;

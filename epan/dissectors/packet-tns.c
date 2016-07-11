@@ -816,11 +816,7 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	}
 	offset += 2;
 
-	if ( tree )
-	{
-		proto_tree_add_item(tns_tree, hf_tns_packet_checksum, tvb,
-			offset, 2, ENC_BIG_ENDIAN);
-	}
+	proto_tree_add_checksum(tns_tree, tvb, offset, hf_tns_packet_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 	offset += 2;
 
 	type = tvb_get_guint8(tvb, offset);
@@ -841,11 +837,7 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	}
 	offset += 1;
 
-	if ( tree )
-	{
-		proto_tree_add_item(tns_tree, hf_tns_header_checksum, tvb,
-			offset, 2, ENC_BIG_ENDIAN);
-	}
+	proto_tree_add_checksum(tns_tree, tvb, offset, hf_tns_header_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 	offset += 2;
 
 	switch (type)

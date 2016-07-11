@@ -159,8 +159,7 @@ static int hf_edp_version = -1;
 static int hf_edp_reserved = -1;
 static int hf_edp_length = -1;
 static int hf_edp_checksum = -1;
-static int hf_edp_checksum_good = -1;
-static int hf_edp_checksum_bad = -1;
+static int hf_edp_checksum_status = -1;
 
 static int hf_edp_seqno = -1;
 static int hf_edp_midtype = -1;
@@ -255,7 +254,6 @@ static int hf_edp_null = -1;
 static expert_field ei_edp_short_tlv = EI_INIT;
 
 static gint ett_edp = -1;
-static gint ett_edp_checksum = -1;
 static gint ett_edp_tlv_header = -1;
 static gint ett_edp_display = -1;
 static gint ett_edp_info = -1;
@@ -950,11 +948,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
 	proto_tree *edp_tree;
-	proto_item *checksum_item;
-	proto_tree *checksum_tree;
 	guint32 offset = 0;
-	guint16 packet_checksum, computed_checksum;
-	gboolean checksum_good, checksum_bad;
 	gboolean last = FALSE;
 	guint8 tlv_type;
 	guint16 tlv_length;
@@ -982,40 +976,18 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			    data_length);
 	offset += 2;
 
-	packet_checksum = tvb_get_ntohs(tvb, offset);
 	/*
 	 * If we have the entire ESP packet available, check the checksum.
 	 */
 	if (tvb_captured_length(tvb) >= data_length) {
 		/* Checksum from version to null tlv */
 		SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, data_length);
-		computed_checksum = in_cksum(&cksum_vec[0], 1);
-		checksum_good = (computed_checksum == 0);
-		checksum_bad = !checksum_good;
-		if (checksum_good) {
-			checksum_item = proto_tree_add_uint_format(edp_tree,
-								   hf_edp_checksum, tvb, offset, 2, packet_checksum,
-								   "Checksum: 0x%04x [correct]",
-								   packet_checksum);
-		} else {
-			checksum_item = proto_tree_add_uint_format(edp_tree,
-								   hf_edp_checksum, tvb, offset, 2, packet_checksum,
-								   "Checksum: 0x%04x [incorrect, should be 0x%04x]",
-								   packet_checksum,
-								   in_cksum_shouldbe(packet_checksum, computed_checksum));
-		}
+
+		proto_tree_add_checksum(edp_tree, tvb, offset, hf_edp_checksum, hf_edp_checksum_status, NULL, pinfo, in_cksum(&cksum_vec[0], 1),
+								ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 	} else {
-		checksum_good = checksum_bad = FALSE;
-		checksum_item = proto_tree_add_uint(edp_tree, hf_edp_checksum,
-						    tvb, offset, 2, packet_checksum);
+		proto_tree_add_checksum(edp_tree, tvb, offset, hf_edp_checksum, hf_edp_checksum_status, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 	}
-	checksum_tree = proto_item_add_subtree(checksum_item, ett_edp_checksum);
-	checksum_item = proto_tree_add_boolean(checksum_tree, hf_edp_checksum_good,
-					       tvb, offset, 2, checksum_good);
-	PROTO_ITEM_SET_GENERATED(checksum_item);
-	checksum_item = proto_tree_add_boolean(checksum_tree, hf_edp_checksum_bad,
-					       tvb, offset, 2, checksum_bad);
-	PROTO_ITEM_SET_GENERATED(checksum_item);
 	offset += 2;
 
 	seqno = tvb_get_ntohs(tvb, offset);
@@ -1114,13 +1086,9 @@ proto_register_edp(void)
 		{ "EDP checksum",	"edp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
 
-		{ &hf_edp_checksum_good,
-		{ "Good",	"edp.checksum_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
-
-		{ &hf_edp_checksum_bad,
-		{ "Bad",	"edp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"True: checksum doesn't match packet content; False: matches content or not checked", HFILL }},
+		{ &hf_edp_checksum_status,
+		{ "EDP checksum status",	"edp.checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+			NULL, HFILL }},
 
 		{ &hf_edp_seqno,
 		{ "Sequence number",	"edp.seqno", FT_UINT16, BASE_DEC, NULL,
@@ -1455,7 +1423,6 @@ proto_register_edp(void)
 
 	static gint *ett[] = {
 		&ett_edp,
-		&ett_edp_checksum,
 		&ett_edp_tlv_header,
 		&ett_edp_vlan_flags,
 		&ett_edp_display,

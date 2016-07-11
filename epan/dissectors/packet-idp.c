@@ -88,7 +88,7 @@ dissect_idp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	ti = proto_tree_add_item(tree, proto_idp, tvb, 0, IDP_HEADER_LEN, ENC_NA);
 	idp_tree = proto_item_add_subtree(ti, ett_idp);
 
-	proto_tree_add_item(idp_tree, hf_idp_checksum, tvb, 0, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_checksum(idp_tree, tvb, 0, hf_idp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 	length = tvb_get_ntohs(tvb, 2);
 	proto_tree_add_uint_format_value(idp_tree, hf_idp_len, tvb, 2, 2, length,
 		"%u bytes", length);

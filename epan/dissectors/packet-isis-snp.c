@@ -134,7 +134,6 @@ dissect_snp_checksum_clv(tvbuff_t *tvb, packet_info* pinfo,
             return;
     }
 
-    ti = proto_tree_add_item( tree, hf_isis_csnp_checksum, tvb, offset, length, ENC_BIG_ENDIAN);
 
     checksum = tvb_get_ntohs(tvb, offset);
 
@@ -145,22 +144,18 @@ dissect_snp_checksum_clv(tvbuff_t *tvb, packet_info* pinfo,
 
     pdu_length = tvb_get_ntohs(tvb, 8);
 
-    /* unlike the LSP checksum verification which starts at an offset of 12 we start at offset 0*/
-    switch (check_and_get_checksum(tvb, 0, pdu_length, checksum, offset, &cacl_checksum))
-    {
-        case NO_CKSUM :
-             proto_item_append_text(ti, " [unused]");
-           break;
-        case DATA_MISSING :
-             expert_add_info_format(pinfo, ti, &ei_isis_csnp_long_packet,
+    if (checksum == 0) {
+        /* No checksum present */
+        proto_tree_add_checksum(tree, tvb, offset, hf_isis_csnp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
+    } else {
+        if (osi_check_and_get_checksum(tvb, 0, pdu_length, offset, &cacl_checksum)) {
+            /* Successfully processed checksum, verify it */
+            proto_tree_add_checksum(tree, tvb, offset, hf_isis_csnp_checksum, -1, NULL, pinfo, cacl_checksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+        } else {
+            ti = proto_tree_add_checksum(tree, tvb, offset, hf_isis_csnp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+            expert_add_info_format(pinfo, ti, &ei_isis_csnp_long_packet,
                                         "Packet length %d went beyond packet", tvb_captured_length(tvb));
-        break;
-        case CKSUM_NOT_OK :
-             proto_item_append_text(ti, " [incorrect, should be 0x%04x]", cacl_checksum);
-        break;
-        case CKSUM_OK :
-             proto_item_append_text(ti, " [correct]");
-        break;
+        }
     }
 }
 

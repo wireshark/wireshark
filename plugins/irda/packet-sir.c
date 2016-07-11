@@ -56,9 +56,19 @@ static int hf_sir_bof = -1;
 /* static int hf_sir_ce = -1; */
 static int hf_sir_eof = -1;
 static int hf_sir_fcs = -1;
-static int hf_sir_fcs_bad = -1;
+static int hf_sir_fcs_status = -1;
 static int hf_sir_length = -1;
 static int hf_sir_preamble = -1;
+
+/* Copied and renamed from proto.c because global value_strings don't work for plugins */
+static const value_string plugin_proto_checksum_vals[] = {
+	{ PROTO_CHECKSUM_E_BAD,        "Bad"  },
+	{ PROTO_CHECKSUM_E_GOOD,       "Good" },
+	{ PROTO_CHECKSUM_E_UNVERIFIED, "Unverified" },
+	{ PROTO_CHECKSUM_E_NOT_PRESENT, "Not present" },
+
+	{ 0,        NULL }
+};
 
 
 /** Unescapes the data. */
@@ -94,29 +104,13 @@ unescape_data(tvbuff_t *tvb, packet_info *pinfo)
 static tvbuff_t *
 checksum_data(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_item *hidden_item;
 	int len = tvb_reported_length(tvb) - 2;
 	if (len < 0)
 		return tvb;
-	if (tree) {
-		guint16 actual_fcs = tvb_get_letohs(tvb, len);
-		guint16 calculated_fcs = crc16_ccitt_tvb(tvb, len);
-		if (calculated_fcs == actual_fcs) {
-			proto_tree_add_uint_format(tree, hf_sir_fcs,
-					tvb, len, 2, actual_fcs,
-					"Frame check sequence: 0x%04x (correct)",
-					actual_fcs);
-		} else {
-			hidden_item = proto_tree_add_boolean(tree,
-					hf_sir_fcs_bad, tvb, len, 2, TRUE);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
-			proto_tree_add_uint_format(tree, hf_sir_fcs,
-					tvb, len, 2, actual_fcs,
-					"Frame check sequence: 0x%04x "
-					"(incorrect, should be 0x%04x)",
-					actual_fcs, calculated_fcs);
-		}
-	}
+
+	proto_tree_add_checksum(tree, tvb, len, hf_sir_fcs, hf_sir_fcs_status, NULL, NULL, crc16_ccitt_tvb(tvb, len),
+								ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+
 	return tvb_new_subset_length(tvb, 0, len);
 }
 
@@ -209,9 +203,9 @@ proto_register_irsir(void)
 			{ "Frame check sequence", "sir.fcs",
 				FT_UINT16, BASE_HEX, NULL, 0,
 				NULL, HFILL }},
-		{ &hf_sir_fcs_bad,
-			{ "Bad frame check sequence", "sir.fcs_bad",
-				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		{ &hf_sir_fcs_status,
+			{ "Frame check sequence Status", "sir.fcs.status",
+				FT_UINT8, BASE_NONE, VALS(plugin_proto_checksum_vals), 0x0,
 				NULL, HFILL }},
 		{ &hf_sir_length,
 			{ "Length", "sir.length",

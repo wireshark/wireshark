@@ -707,7 +707,6 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_item *hidden_item, *msg_item;
 
     guint8 message_type;
-    guint16 cksum, computed_cksum;
     vec_t cksum_vec[1];
     int j, k, l, len;
     int msg_length;
@@ -759,24 +758,16 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     }
 
     if (lmp_checksum_config) {
-        cksum = tvb_get_ntohs(tvb, offset+6);
-        ti = proto_tree_add_item(lmp_header_tree, hf_lmp_filter[LMPF_CHECKSUM], tvb,
-                                 offset+6, 2, ENC_BIG_ENDIAN);
         if (!pinfo->fragmented && (int) tvb_captured_length(tvb) >= msg_length) {
             /* The packet isn't part of a fragmented datagram and isn't truncated, so we can checksum it. */
             SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, msg_length);
-            computed_cksum = in_cksum(cksum_vec, 1);
-
-            if (computed_cksum == 0) {
-                proto_item_append_text( ti, " [correct]");
-            }
-            else {
-                expert_add_info_format(pinfo, ti, &ei_lmp_checksum_incorrect, "[incorrect, should be 0x%04x]",
-                                       in_cksum_shouldbe(cksum, computed_cksum));
-            }
+            proto_tree_add_checksum(lmp_header_tree, tvb, offset+6, hf_lmp_filter[LMPF_CHECKSUM], -1, &ei_lmp_checksum_incorrect, pinfo,
+                                    in_cksum(cksum_vec, 1), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+        } else {
+            proto_tree_add_checksum(lmp_header_tree, tvb, offset+6, hf_lmp_filter[LMPF_CHECKSUM], -1, &ei_lmp_checksum_incorrect, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
         }
     } else {
-        proto_tree_add_uint_format_value(lmp_header_tree, hf_lmp_filter[LMPF_CHECKSUM], tvb, offset+6, 2, 0, "[None]");
+        proto_tree_add_checksum(lmp_header_tree, tvb, offset+6, hf_lmp_filter[LMPF_CHECKSUM], -1, &ei_lmp_checksum_incorrect, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
     }
 
     offset += 8;

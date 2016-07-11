@@ -148,11 +148,7 @@ mtp2_decode_crc16(tvbuff_t *tvb, proto_tree *fh_tree, packet_info *pinfo)
 {
   tvbuff_t   *next_tvb;
   gint       len, reported_len;
-  int        rx_fcs_offset;
-  guint32    rx_fcs_exp;
-  guint32    rx_fcs_got;
   int proto_offset=0;
-  proto_item *cause;
 
   /*
    * Do we have the entire packet, and does it include a 2-byte FCS?
@@ -191,16 +187,8 @@ mtp2_decode_crc16(tvbuff_t *tvb, proto_tree *fh_tree, packet_info *pinfo)
     /*
      * Compute the FCS and put it into the tree.
      */
-    rx_fcs_offset = proto_offset + len;
-    rx_fcs_exp = mtp2_fcs16(tvb);
-    rx_fcs_got = tvb_get_letohs(tvb, rx_fcs_offset);
-    cause=proto_tree_add_item(fh_tree, hf_mtp2_fcs_16, tvb, rx_fcs_offset, 2, ENC_LITTLE_ENDIAN);
-    if (rx_fcs_got != rx_fcs_exp) {
-      proto_item_append_text(cause, " [incorrect, should be 0x%04x]", rx_fcs_exp);
-      expert_add_info(pinfo, cause, &ei_mtp2_checksum_error);
-    } else {
-      proto_item_append_text(cause, " [correct]");
-    }
+    proto_tree_add_checksum(fh_tree, tvb, proto_offset + len, hf_mtp2_fcs_16, -1, &ei_mtp2_checksum_error, pinfo, mtp2_fcs16(tvb),
+                            ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
   }
   return next_tvb;
 }

@@ -304,7 +304,7 @@ typedef struct
 static reassembly_table msg_reassembly_table;
 
 /* forward reference */
-static gboolean ts2_add_checked_crc32(proto_tree *tree, int hf_item, tvbuff_t *tvb, guint16 offset, guint32 icrc32);
+static void ts2_add_checked_crc32(proto_tree *tree, int hf_item, tvbuff_t *tvb, guint16 offset);
 static void ts2_parse_playerlist(tvbuff_t *tvb, proto_tree *ts2_tree);
 static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree);
 static void ts2_parse_newplayerjoined(tvbuff_t *tvb, proto_tree *ts2_tree);
@@ -421,7 +421,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     proto_tree_add_item(ts2_tree, hf_ts2_resend_count, tvb, 16, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(ts2_tree, hf_ts2_fragmentnumber, tvb, 18, 2, ENC_LITTLE_ENDIAN);
-    ts2_add_checked_crc32(ts2_tree, hf_ts2_crc32, tvb, 20, tvb_get_letohl(tvb, 20));
+    ts2_add_checked_crc32(ts2_tree, hf_ts2_crc32, tvb, 20);
 
     /* Reassemble the packet if it's fragmented */
     new_tvb = NULL;
@@ -764,7 +764,7 @@ static int dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         {
             case TS2C_CONNECTION:
                 proto_tree_add_item(ts2_tree, hf_ts2_seqnum, tvb, 12, 4, ENC_LITTLE_ENDIAN);
-                ts2_add_checked_crc32(ts2_tree, hf_ts2_crc32, tvb, 16, tvb_get_letohl(tvb, 16));
+                ts2_add_checked_crc32(ts2_tree, hf_ts2_crc32, tvb, 16);
 
                 switch(type)
                 {
@@ -816,29 +816,20 @@ static int dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 /* Calculates a CRC32 checksum from the tvb zeroing out four bytes at the offset and checks it with the given crc32 and adds the result to the tree
  * Returns true if the calculated CRC32 matches the passed CRC32.
  * */
-static gboolean ts2_add_checked_crc32(proto_tree *tree, int hf_item, tvbuff_t *tvb, guint16 offset, guint32 icrc32 )
+static void ts2_add_checked_crc32(proto_tree *tree, int hf_item, tvbuff_t *tvb, guint16 offset)
 {
-    guint8  *zero;
-    gint     len;
+    guint32  zero = 0;
+    gint     len = tvb_reported_length_remaining(tvb, offset+4);
     guint32  ocrc32;
 
-    zero = (guint8 *)wmem_alloc0(wmem_packet_scope(), 4);
-    ocrc32 = crc32_ccitt_tvb(tvb, offset);
-    ocrc32 = crc32_ccitt_seed(zero, 4, 0xffffffff-ocrc32);
-    len = tvb_reported_length_remaining(tvb, offset+4);
     if (len<0)
-        return FALSE;
+        return;
+
+    ocrc32 = crc32_ccitt_tvb(tvb, offset);
+    ocrc32 = crc32_ccitt_seed((guint8*)&zero, 4, 0xffffffff-ocrc32);
     ocrc32 = crc32_ccitt_tvb_offset_seed(tvb, offset+4, (guint)len, 0xffffffff-ocrc32);
-    if(icrc32==ocrc32)
-    {
-        proto_tree_add_uint_format(tree, hf_item, tvb, offset, 4, tvb_get_letohl(tvb, 16), "crc32: 0x%04x [correct]", tvb_get_letohl(tvb, offset));
-        return TRUE;
-    }
-    else
-    {
-        proto_tree_add_uint_format(tree, hf_item, tvb, offset, 4, tvb_get_letohl(tvb,16), "crc32: 0x%04x [incorrect, should be 0x%04x]", tvb_get_letohl(tvb, offset),ocrc32);
-        return FALSE;
-    }
+
+    proto_tree_add_checksum(tree, tvb, offset, hf_item, -1, NULL, NULL, ocrc32, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
 }
 
 static void ts2_init(void)
