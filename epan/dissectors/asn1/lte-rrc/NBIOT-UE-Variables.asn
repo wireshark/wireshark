@@ -1,0 +1,19 @@
+-- 3GPP TS 36.331 V13.2.0 (2016-06)
+--
+NBIOT-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+	VarShortMAC-Input,
+	VarShortResumeMAC-Input-r13
+
+FROM EUTRA-UE-Variables;
+
+VarShortMAC-Input-NB-r13		::= 	VarShortMAC-Input
+
+VarShortResumeMAC-Input-NB-r13	::= 	VarShortResumeMAC-Input-r13
+
+
+
+END

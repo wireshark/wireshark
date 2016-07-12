@@ -29,7 +29,10 @@ ASN_FILE_LIST = \
 	EUTRA-RRC-Definitions.asn \
 	EUTRA-Sidelink-Preconf.asn \
 	EUTRA-UE-Variables.asn \
-	PC5-RRC-Definitions.asn
+	PC5-RRC-Definitions.asn \
+	NBIOT-InterNodeDefinitions.asn \
+	NBIOT-RRC-Definitions.asn \
+	NBIOT-UE-Variables.asn
 
 EXTRA_DIST = \
 	$(EXTRA_DIST_COMMON) \

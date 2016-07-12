@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V13.1.0 (2016-03)
+-- 3GPP TS 36.331 V13.2.0 (2016-06)
 --
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -180,6 +180,14 @@ VarShortMAC-Input ::=					SEQUENCE {
 	c-RNTI									C-RNTI
 }
 
+VarShortResumeMAC-Input-r13 ::=		SEQUENCE {
+	cellIdentity-r13						CellIdentity,
+	physCellId-r13							PhysCellId,
+	c-RNTI-r13								C-RNTI,
+	resumeDiscriminator-r13					BIT STRING(SIZE(1))
+}
+
+
 VarWLAN-MobilityConfig ::=					SEQUENCE {
 	wlan-MobilitySet-r13					WLAN-Id-List-r13			OPTIONAL,
 	successReportRequested					ENUMERATED {true}			OPTIONAL
@@ -187,8 +195,7 @@ VarWLAN-MobilityConfig ::=					SEQUENCE {
 
 
 VarWLAN-Status-r13 ::=				SEQUENCE {
-	status-r13								WLAN-Status-r13,
-	wlan-IdentifiersAssociated-r13			WLAN-Identifiers-r12		OPTIONAL
+	status-r13								WLAN-Status-r13
 }
 
 

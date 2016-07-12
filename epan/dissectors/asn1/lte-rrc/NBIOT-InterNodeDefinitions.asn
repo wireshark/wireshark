@@ -1,0 +1,133 @@
+-- 3GPP TS 36.331 V13.2.0 (2016-06)
+--
+NBIOT-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+	C-RNTI,
+	PhysCellId,
+	SecurityAlgorithmConfig,
+	ShortMAC-I
+FROM EUTRA-RRC-Definitions
+
+	AdditionalReestabInfoList
+FROM EUTRA-InterNodeDefinitions
+
+	CarrierFreq-NB-r13,
+	RadioResourceConfigDedicated-NB-r13,
+	UE-Capability-NB-r13,
+	UE-RadioPagingInfo-NB-r13
+FROM NBIOT-RRC-Definitions;
+
+
+HandoverPreparationInformation-NB ::=	SEQUENCE {
+	criticalExtensions						CHOICE {
+		c1										CHOICE{
+			handoverPreparationInformation-r13		HandoverPreparationInformation-NB-IEs,
+			spare3 NULL, spare2 NULL, spare1 NULL
+		},
+		criticalExtensionsFuture			SEQUENCE {}
+	}
+}
+
+HandoverPreparationInformation-NB-IEs ::= SEQUENCE {
+	ue-RadioAccessCapabilityInfo-r13		UE-Capability-NB-r13,
+	as-Config-r13							AS-Config-NB,
+	rrm-Config-r13							RRM-Config-NB					OPTIONAL,
+	as-Context-r13							AS-Context-NB					OPTIONAL,
+	nonCriticalExtension					SEQUENCE {}						OPTIONAL
+}
+
+
+UEPagingCoverageInformation-NB ::= SEQUENCE {
+	criticalExtensions					CHOICE {
+		c1									CHOICE{
+			uePagingCoverageInformation-r13			UEPagingCoverageInformation-NB-IEs,
+			spare3 NULL, spare2 NULL, spare1 NULL
+		},
+		criticalExtensionsFuture			SEQUENCE {}
+	}
+}
+
+UEPagingCoverageInformation-NB-IEs ::= SEQUENCE {
+--	the possible value(s) can differ from those sent on Uu
+	npdcch-NumRepetitionPaging-r13			INTEGER (1..2048)	OPTIONAL,
+	nonCriticalExtension					SEQUENCE {} 		OPTIONAL
+}
+
+
+UERadioAccessCapabilityInformation-NB ::= SEQUENCE {
+	criticalExtensions						CHOICE {
+		c1										CHOICE{
+			ueRadioAccessCapabilityInformation-r13
+													UERadioAccessCapabilityInformation-NB-IEs,
+			spare3 NULL, spare2 NULL, spare1 NULL
+		},
+		criticalExtensionsFuture				SEQUENCE {}
+	}
+}
+
+UERadioAccessCapabilityInformation-NB-IEs ::= SEQUENCE {
+	ue-RadioAccessCapabilityInfo-r13			OCTET STRING (CONTAINING UE-Capability-NB-r13),
+	nonCriticalExtension						SEQUENCE {}								OPTIONAL
+}
+
+
+UERadioPagingInformation-NB ::= SEQUENCE {
+	criticalExtensions					CHOICE {
+		c1									CHOICE{
+			ueRadioPagingInformation-r13			UERadioPagingInformation-NB-IEs,
+			spare3 NULL, spare2 NULL, spare1 NULL
+		},
+		criticalExtensionsFuture			SEQUENCE {}
+	}
+}
+
+UERadioPagingInformation-NB-IEs ::= SEQUENCE {
+	ue-RadioPagingInfo-r13				OCTET STRING (CONTAINING UE-RadioPagingInfo-NB-r13),
+	nonCriticalExtension				SEQUENCE {}									OPTIONAL
+}
+
+
+AS-Config-NB ::=					SEQUENCE {
+	sourceRadioResourceConfig-r13			RadioResourceConfigDedicated-NB-r13,
+	sourceSecurityAlgorithmConfig-r13		SecurityAlgorithmConfig,
+	sourceUE-Identity-r13					C-RNTI,
+	sourceDl-CarrierFreq-r13				CarrierFreq-NB-r13,
+	...
+}
+
+
+AS-Context-NB ::=						SEQUENCE {
+	reestablishmentInfo-r13					ReestablishmentInfo-NB			OPTIONAL,
+	...
+}
+
+
+ReestablishmentInfo-NB ::=			SEQUENCE {
+	sourcePhysCellId-r13					PhysCellId,
+	targetCellShortMAC-I-r13				ShortMAC-I,
+	additionalReestabInfoList-r13			AdditionalReestabInfoList				OPTIONAL,
+	...
+}
+
+
+
+
+RRM-Config-NB ::=				SEQUENCE {
+	ue-InactiveTime				ENUMERATED {
+									s1, s2, s3, s5, s7, s10, s15, s20,
+									s25, s30, s40, s50, min1, min1s20, min1s40,
+									min2, min2s30, min3, min3s30, min4, min5, min6,
+									min7, min8, min9, min10, min12, min14, min17, min20,
+									min24, min28, min33, min38, min44, min50, hr1,
+									hr1min30, hr2, hr2min30, hr3, hr3min30, hr4, hr5, hr6,
+									hr8, hr10, hr13, hr16, hr20, day1, day1hr12, day2,
+									day2hr12, day3, day4, day5, day7, day10, day14, day19,
+									day24, day30, dayMoreThan30}		OPTIONAL,
+	...
+}
+
+
+END

@@ -1,0 +1,1184 @@
+-- 3GPP TS 36.331 V13.2.0 (2016-06)
+--
+NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+	RRCConnectionReestablishmentReject,
+	SecurityModeCommand,
+	SecurityModeComplete,
+	SecurityModeFailure,
+	AdditionalSpectrumEmission,
+	ARFCN-ValueEUTRA-r9,
+	CellIdentity,
+	DedicatedInfoNAS,
+	DRB-Identity,
+	InitialUE-Identity,
+	IntraFreqBlackCellList,
+	IntraFreqNeighCellList,
+	maxBands,
+	maxCellBlack,
+	maxCellInter,
+	maxFBI2,
+	maxFreq,
+	maxMultiBands,
+	maxPageRec,
+	maxPLMN-r11,
+	maxSIB,
+	maxSIB-1,
+	NextHopChainingCount,
+	PagingUE-Identity,
+	PLMN-Identity,
+	P-Max,
+	PowerRampingParameters,
+	PreambleTransMax,
+	PhysCellId,
+	Q-OffsetRange,
+	Q-QualMin-r9,
+	Q-RxLevMin,
+	ReestabUE-Identity,
+	RegisteredMME,
+	ReselectionThreshold,
+	ResumeIdentity-r13,
+	RRC-TransactionIdentifier,
+	RSRP-Range,
+	ShortMAC-I,
+	S-TMSI,
+	SystemInformationBlockType16-r11,
+    SystemInfoValueTagSI-r13,
+	TimeAlignmentTimer,
+	TrackingAreaCode
+FROM EUTRA-RRC-Definitions;
+
+
+BCCH-BCH-Message-NB ::= SEQUENCE {
+	message					BCCH-BCH-MessageType-NB
+}
+
+
+BCCH-BCH-MessageType-NB::=	MasterInformationBlock-NB
+
+
+
+BCCH-DL-SCH-Message-NB ::= SEQUENCE {
+	message					BCCH-DL-SCH-MessageType-NB
+}
+
+BCCH-DL-SCH-MessageType-NB ::= CHOICE {
+	c1						CHOICE {
+		systemInformation-r13				SystemInformation-NB,
+		systemInformationBlockType1-r13		SystemInformationBlockType1-NB
+	},
+	messageClassExtension	SEQUENCE {}
+}
+
+
+PCCH-Message-NB ::= SEQUENCE {
+	message					PCCH-MessageType-NB
+}
+
+PCCH-MessageType-NB ::= CHOICE {
+	c1						CHOICE {
+		paging-r13 							Paging-NB
+	},
+	messageClassExtension	SEQUENCE {}
+}
+
+
+DL-CCCH-Message-NB ::= SEQUENCE {
+	message					DL-CCCH-MessageType-NB
+}
+
+DL-CCCH-MessageType-NB ::= CHOICE {
+	c1						CHOICE {
+		rrcConnectionReestablishment-r13		RRCConnectionReestablishment-NB,
+		rrcConnectionReestablishmentReject-r13	RRCConnectionReestablishmentReject,
+		rrcConnectionReject-r13					RRCConnectionReject-NB,
+		rrcConnectionSetup-r13					RRCConnectionSetup-NB,
+		spare4 NULL, spare3 NULL, spare2 NULL, spare1 NULL
+	},
+	messageClassExtension	SEQUENCE {}
+}
+
+
+DL-DCCH-Message-NB ::= SEQUENCE {
+	message					DL-DCCH-MessageType-NB
+}
+
+DL-DCCH-MessageType-NB ::= CHOICE {
+	c1						CHOICE {
+		dlInformationTransfer-r13				DLInformationTransfer-NB,
+		rrcConnectionReconfiguration-r13		RRCConnectionReconfiguration-NB,
+		rrcConnectionRelease-r13				RRCConnectionRelease-NB,
+		securityModeCommand-r13					SecurityModeCommand,
+		ueCapabilityEnquiry-r13					UECapabilityEnquiry-NB,
+		rrcConnectionResume-r13					RRCConnectionResume-NB,
+		spare2 NULL, spare1 NULL
+	},
+	messageClassExtension	SEQUENCE {}
+}
+
+
+
+UL-CCCH-Message-NB ::= SEQUENCE {
+	message					UL-CCCH-MessageType-NB
+}
+
+UL-CCCH-MessageType-NB ::= CHOICE {
+	c1						CHOICE {
+		rrcConnectionReestablishmentRequest-r13	RRCConnectionReestablishmentRequest-NB,
+		rrcConnectionRequest-r13				RRCConnectionRequest-NB,
+		rrcConnectionResumeRequest-r13			RRCConnectionResumeRequest-NB,
+		spare1 NULL
+	},
+	messageClassExtension	SEQUENCE {}
+}
+
+
+UL-DCCH-Message-NB ::= SEQUENCE {
+	message					UL-DCCH-MessageType-NB
+}
+
+UL-DCCH-MessageType-NB ::= CHOICE {
+	c1						CHOICE {
+		rrcConnectionReconfigurationComplete-r13	RRCConnectionReconfigurationComplete-NB,
+		rrcConnectionReestablishmentComplete-r13	RRCConnectionReestablishmentComplete-NB,
+		rrcConnectionSetupComplete-r13				RRCConnectionSetupComplete-NB,
+		securityModeComplete-r13					SecurityModeComplete,
+		securityModeFailure-r13						SecurityModeFailure,
+		ueCapabilityInformation-r13					UECapabilityInformation-NB,
+		ulInformationTransfer-r13					ULInformationTransfer-NB,
+		rrcConnectionResumeComplete-r13				RRCConnectionResumeComplete-NB,
+		spare8 NULL, spare7 NULL,
+		spare6 NULL, spare5 NULL, spare4 NULL,
+		spare3 NULL, spare2 NULL, spare1 NULL
+	},
+	messageClassExtension	SEQUENCE {}
+}
+
+
+DLInformationTransfer-NB ::=	SEQUENCE {
+	rrc-TransactionIdentifier			RRC-TransactionIdentifier,
+	criticalExtensions					CHOICE {
+		c1									CHOICE {
+			dlInformationTransfer-r13		DLInformationTransfer-NB-r13-IEs,
+			spare1 NULL
+		},
+		criticalExtensionsFuture			SEQUENCE {}
+	}
+}
+
+DLInformationTransfer-NB-r13-IEs ::=	SEQUENCE {
+	dedicatedInfoNAS-r13					DedicatedInfoNAS,
+	lateNonCriticalExtension				OCTET STRING					OPTIONAL,
+	nonCriticalExtension					SEQUENCE {}						OPTIONAL
+}
+
+
+MasterInformationBlock-NB ::=	SEQUENCE {
+	systemFrameNumber-MSB-r13		BIT STRING (SIZE (4)),
+	hyperSFN-LSB-r13				BIT STRING (SIZE (2)),
+	schedulingInfoSIB1-r13			INTEGER (0..15),
+	systemInfoValueTag-r13			INTEGER (0..31),
+	ab-Enabled-r13					BOOLEAN,
+	operationModeInfo-r13			CHOICE {
+		inband-SamePCI-r13				Inband-SamePCI-NB-r13,
+		inband-DifferentPCI-r13			Inband-DifferentPCI-NB-r13,
+		guardband-r13					Guardband-NB-r13,
+		standalone-r13					Standalone-NB-r13
+	},
+	spare							BIT STRING (SIZE (11))
+}
+
+ChannelRasterOffset-NB-r13 ::= ENUMERATED {khz-7dot5, khz-2dot5, khz2dot5, khz7dot5}
+
+Guardband-NB-r13 ::=			SEQUENCE {
+	rasterOffset-r13				ChannelRasterOffset-NB-r13,
+	spare							 BIT STRING (SIZE (3))
+}
+
+Inband-SamePCI-NB-r13 ::=		SEQUENCE {
+	eutra-CRS-SequenceInfo-r13		INTEGER (0..31)
+}
+
+Inband-DifferentPCI-NB-r13 ::=	SEQUENCE {
+	eutra-NumCRS-Ports-r13			ENUMERATED {same, four},
+	rasterOffset-r13				ChannelRasterOffset-NB-r13,
+	spare							BIT STRING (SIZE (2))
+}
+
+Standalone-NB-r13 ::=			SEQUENCE {
+	spare							BIT STRING (SIZE (5))
+}
+
+
+Paging-NB ::=						SEQUENCE {
+	pagingRecordList-r13				PagingRecordList-NB-r13 		OPTIONAL,	-- Need ON
+	systemInfoModification-r13			ENUMERATED {true}				OPTIONAL,	-- Need ON
+	systemInfoModification-eDRX-r13		ENUMERATED {true}				OPTIONAL,	-- Need ON
+	nonCriticalExtension				SEQUENCE {}						OPTIONAL
+}
+
+PagingRecordList-NB-r13 ::=			SEQUENCE (SIZE (1..maxPageRec)) OF PagingRecord-NB-r13
+
+PagingRecord-NB-r13 ::=				SEQUENCE {
+	ue-Identity-r13						PagingUE-Identity,
+	...
+}
+
+
+RRCConnectionReconfiguration-NB ::=	SEQUENCE {
+	rrc-TransactionIdentifier				RRC-TransactionIdentifier,
+	criticalExtensions						CHOICE {
+		c1										CHOICE{
+			rrcConnectionReconfiguration-r13		RRCConnectionReconfiguration-NB-r13-IEs,
+			spare1 NULL
+		},
+		criticalExtensionsFuture			SEQUENCE {}
+	}
+}
+
+RRCConnectionReconfiguration-NB-r13-IEs ::= SEQUENCE {
+	dedicatedInfoNASList-r13			SEQUENCE (SIZE(1..maxDRB-NB-r13)) OF
+													DedicatedInfoNAS		OPTIONAL,	-- Need ON
+	radioResourceConfigDedicated-r13	RadioResourceConfigDedicated-NB-r13	OPTIONAL,	-- Need ON
+	fullConfig-r13						ENUMERATED {true}					OPTIONAL,	-- Cond Reestab
+	lateNonCriticalExtension			OCTET STRING						OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}	OPTIONAL
+}
+
+
+RRCConnectionReconfigurationComplete-NB ::= SEQUENCE {
+	rrc-TransactionIdentifier			RRC-TransactionIdentifier,
+	criticalExtensions						CHOICE {
+		rrcConnectionReconfigurationComplete-r13	RRCConnectionReconfigurationComplete-NB-r13-IEs,
+		criticalExtensionsFuture					SEQUENCE {}
+	}
+}
+
+RRCConnectionReconfigurationComplete-NB-r13-IEs ::= SEQUENCE {
+	lateNonCriticalExtension			OCTET STRING					OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}						OPTIONAL
+}
+
+
+
+RRCConnectionReestablishment-NB ::=	SEQUENCE {
+	rrc-TransactionIdentifier			RRC-TransactionIdentifier,
+	criticalExtensions					CHOICE {
+		c1									CHOICE{
+			rrcConnectionReestablishment-r13	RRCConnectionReestablishment-NB-r13-IEs,
+			spare1 	NULL
+		},
+		criticalExtensionsFuture			SEQUENCE {}
+	}
+}
+
+RRCConnectionReestablishment-NB-r13-IEs ::= SEQUENCE {
+	radioResourceConfigDedicated-r13			RadioResourceConfigDedicated-NB-r13,
+	nextHopChainingCount-r13					NextHopChainingCount,
+	lateNonCriticalExtension					OCTET STRING						OPTIONAL,
+	nonCriticalExtension						SEQUENCE {}							OPTIONAL
+}
+
+
+RRCConnectionReestablishmentComplete-NB ::= SEQUENCE {
+	rrc-TransactionIdentifier			RRC-TransactionIdentifier,
+	criticalExtensions						CHOICE {
+		rrcConnectionReestablishmentComplete-r13	RRCConnectionReestablishmentComplete-NB-r13-IEs,
+		criticalExtensionsFuture					SEQUENCE {}
+	}
+}
+
+RRCConnectionReestablishmentComplete-NB-r13-IEs ::= SEQUENCE {
+	lateNonCriticalExtension			OCTET STRING					OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}						OPTIONAL
+}
+
+
+RRCConnectionReestablishmentRequest-NB ::= SEQUENCE {
+	criticalExtensions					CHOICE {
+		rrcConnectionReestablishmentRequest-r13
+											RRCConnectionReestablishmentRequest-NB-r13-IEs,
+		criticalExtensionsFuture			SEQUENCE {}
+	}
+}
+
+RRCConnectionReestablishmentRequest-NB-r13-IEs ::= SEQUENCE {
+	ue-Identity-r13						ReestabUE-Identity,
+	reestablishmentCause-r13			ReestablishmentCause-NB-r13,
+	spare								BIT STRING (SIZE (25))
+}
+
+
+ReestablishmentCause-NB-r13 ::=			ENUMERATED {
+											reconfigurationFailure, otherFailure,
+											spare2, spare1}
+
+
+RRCConnectionReject-NB ::=				SEQUENCE {
+	criticalExtensions					CHOICE {
+		c1									CHOICE {
+			rrcConnectionReject-r13				RRCConnectionReject-NB-r13-IEs,
+			spare1 NULL
+		},
+		criticalExtensionsFuture			SEQUENCE {}
+	}
+}
+
+RRCConnectionReject-NB-r13-IEs ::=		SEQUENCE {
+	extendedWaitTime-r13					INTEGER (1..1800),
+	rrc-SuspendIndication-r13				ENUMERATED {true}			OPTIONAL, 	-- Need ON
+	lateNonCriticalExtension				OCTET STRING				OPTIONAL,
+	nonCriticalExtension					SEQUENCE {}					OPTIONAL
+}
+
+
+RRCConnectionRelease-NB ::=		SEQUENCE {
+	rrc-TransactionIdentifier			RRC-TransactionIdentifier,
+	criticalExtensions					CHOICE {
+		c1									CHOICE {
+			rrcConnectionRelease-r13			RRCConnectionRelease-NB-r13-IEs,
+			spare1 NULL
+		},
+		criticalExtensionsFuture			SEQUENCE {}
+	}
+}
+
+RRCConnectionRelease-NB-r13-IEs ::=	SEQUENCE {
+	releaseCause-r13					ReleaseCause-NB-r13,
+	resumeIdentity-r13					ResumeIdentity-r13				OPTIONAL,	-- Need OR
+	extendedWaitTime-r13 				INTEGER (1..1800)				OPTIONAL,	-- Need ON
+	redirectedCarrierInfo-r13			RedirectedCarrierInfo-NB-r13	OPTIONAL,	-- Need ON
+	lateNonCriticalExtension			OCTET STRING					OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}						OPTIONAL
+}
+
+
+ReleaseCause-NB-r13 ::=					ENUMERATED {loadBalancingTAUrequired, other,
+													rrc-Suspend, spare1}
+
+RedirectedCarrierInfo-NB-r13::=			CarrierFreq-NB-r13
+
+RRCConnectionRequest-NB ::=		SEQUENCE {
+	criticalExtensions					CHOICE {
+		rrcConnectionRequest-r13			RRCConnectionRequest-NB-r13-IEs,
+		criticalExtensionsFuture			SEQUENCE {}
+	}
+}
+
+RRCConnectionRequest-NB-r13-IEs ::=		SEQUENCE {
+	ue-Identity-r13							InitialUE-Identity,
+	establishmentCause-r13					EstablishmentCause-NB-r13,
+	multiToneSupport-r13					ENUMERATED {true}				OPTIONAL,
+	multiCarrierSupport-r13					ENUMERATED {true}				OPTIONAL,
+	spare									BIT STRING (SIZE (22))
+}
+
+
+RRCConnectionResume-NB ::=		SEQUENCE {
+	rrc-TransactionIdentifier			RRC-TransactionIdentifier,
+	criticalExtensions					CHOICE {
+		c1									CHOICE {
+			rrcConnectionResume-r13				RRCConnectionResume-NB-r13-IEs,
+			spare1 								NULL
+		},
+		criticalExtensionsFuture			SEQUENCE {}
+	}
+}
+
+RRCConnectionResume-NB-r13-IEs ::=		SEQUENCE {
+	radioResourceConfigDedicated-r13		RadioResourceConfigDedicated-NB-r13	OPTIONAL, 		-- Need ON
+	nextHopChainingCount-r13				NextHopChainingCount,
+	drb-ContinueROHC-r13					ENUMERATED {true}				OPTIONAL, 	-- Need OP
+	lateNonCriticalExtension				OCTET STRING					OPTIONAL,
+	nonCriticalExtension					SEQUENCE {}						OPTIONAL
+}
+
+
+RRCConnectionResumeComplete-NB ::= SEQUENCE {
+	rrc-TransactionIdentifier				RRC-TransactionIdentifier,
+	criticalExtensions							CHOICE {
+		rrcConnectionResumeComplete-r13				RRCConnectionResumeComplete-NB-r13-IEs,
+		criticalExtensionsFuture					SEQUENCE {}
+	}
+}
+
+RRCConnectionResumeComplete-NB-r13-IEs ::= SEQUENCE {
+	selectedPLMN-Identity-r13					INTEGER (1..maxPLMN-r11) OPTIONAL,
+	dedicatedInfoNAS-r13						DedicatedInfoNAS   OPTIONAL,
+	lateNonCriticalExtension					OCTET STRING					OPTIONAL,
+	nonCriticalExtension						SEQUENCE {}						OPTIONAL
+}
+
+
+RRCConnectionResumeRequest-NB ::=	SEQUENCE {
+	criticalExtensions						CHOICE {
+		rrcConnectionResumeRequest-r13			RRCConnectionResumeRequest-NB-r13-IEs,
+		criticalExtensionsFuture				SEQUENCE {}
+	}
+}
+
+RRCConnectionResumeRequest-NB-r13-IEs ::=	SEQUENCE {
+	resumeID-r13								ResumeIdentity-r13,
+	shortResumeMAC-I-r13							ShortMAC-I,
+	resumeCause-r13								EstablishmentCause-NB-r13,
+	spare										BIT STRING (SIZE (9))
+}
+
+
+RRCConnectionSetup-NB ::=		SEQUENCE {
+	rrc-TransactionIdentifier			RRC-TransactionIdentifier,
+	criticalExtensions					CHOICE {
+		c1									CHOICE {
+			rrcConnectionSetup-r13				RRCConnectionSetup-NB-r13-IEs,
+			spare1 NULL
+		},
+		criticalExtensionsFuture			SEQUENCE {}
+	}
+}
+
+RRCConnectionSetup-NB-r13-IEs ::=		SEQUENCE {
+	radioResourceConfigDedicated-r13		RadioResourceConfigDedicated-NB-r13,
+	lateNonCriticalExtension				OCTET STRING						OPTIONAL,
+	nonCriticalExtension					SEQUENCE {}							OPTIONAL
+}
+
+
+RRCConnectionSetupComplete-NB ::=	SEQUENCE {
+	rrc-TransactionIdentifier				RRC-TransactionIdentifier,
+	criticalExtensions						CHOICE{
+			rrcConnectionSetupComplete-r13		RRCConnectionSetupComplete-NB-r13-IEs,
+			criticalExtensionsFuture			SEQUENCE {}
+	}
+}
+
+RRCConnectionSetupComplete-NB-r13-IEs ::= SEQUENCE {
+	selectedPLMN-Identity-r13				INTEGER (1..maxPLMN-r11),
+	s-TMSI-r13								S-TMSI							OPTIONAL,
+	registeredMME-r13						RegisteredMME					OPTIONAL,
+	dedicatedInfoNAS-r13					DedicatedInfoNAS,
+	attachWithoutPDN-Connectivity-r13		ENUMERATED {true}				OPTIONAL,
+	up-CIoT-EPS-Optimisation-r13			ENUMERATED {true} 				OPTIONAL,
+	lateNonCriticalExtension				OCTET STRING					OPTIONAL,
+	nonCriticalExtension					SEQUENCE {}						OPTIONAL
+}
+
+
+SystemInformation-NB ::=		SEQUENCE {
+	criticalExtensions					CHOICE {
+		systemInformation-r13				SystemInformation-NB-r13-IEs,
+		criticalExtensionsFuture			SEQUENCE {}
+	}
+}
+SystemInformation-NB-r13-IEs ::=	SEQUENCE {
+	sib-TypeAndInfo-r13					SEQUENCE (SIZE (1..maxSIB)) OF CHOICE {
+		sib2-r13							SystemInformationBlockType2-NB-r13,
+		sib3-r13							SystemInformationBlockType3-NB-r13,
+		sib4-r13							SystemInformationBlockType4-NB-r13,
+		sib5-r13							SystemInformationBlockType5-NB-r13,
+		sib14-r13							SystemInformationBlockType14-NB-r13,
+		sib16-r13							SystemInformationBlockType16-NB-r13,
+		...
+	},
+	lateNonCriticalExtension			OCTET STRING						OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}							OPTIONAL
+}
+
+
+SystemInformationBlockType1-NB ::=	SEQUENCE {
+	hyperSFN-MSB-r13					BIT STRING (SIZE (8)),
+	cellAccessRelatedInfo-r13			SEQUENCE {
+		plmn-IdentityList-r13				PLMN-IdentityList-NB-r13,
+		trackingAreaCode-r13				TrackingAreaCode,
+		cellIdentity-r13					CellIdentity,
+		cellBarred-r13						ENUMERATED {barred, notBarred},
+		intraFreqReselection-r13			ENUMERATED {allowed, notAllowed}
+	},
+	cellSelectionInfo-r13				SEQUENCE {
+		q-RxLevMin-r13						Q-RxLevMin,
+		q-QualMin-r13						Q-QualMin-r9
+	},
+	p-Max-r13							P-Max					OPTIONAL,	-- Need OP
+	freqBandIndicator-r13				FreqBandIndicator-NB-r13,
+	freqBandInfo-r13					NS-PmaxList-NB-r13				OPTIONAL,	-- Need OR
+	multiBandInfoList-r13				MultiBandInfoList-NB-r13		OPTIONAL,	-- Need OR
+	downlinkBitmap-r13					DL-Bitmap-NB-r13 				OPTIONAL,	-- Need OP,
+	eutraControlRegionSize-r13			ENUMERATED {n1, n2, n3}			OPTIONAL,	-- Cond inband
+	nrs-CRS-PowerOffset-r13				ENUMERATED {dB-6,      dB-4dot77, dB-3,
+													dB-1dot77, dB0,       dB1,
+													dB1dot23,  dB2,       dB3,
+													dB4,       dB4dot23,  dB5,
+													dB6,       dB7,       dB8,
+													dB9}		OPTIONAL,	-- Cond inband-SamePCI
+	schedulingInfoList-r13				SchedulingInfoList-NB-r13,
+	si-WindowLength-r13					ENUMERATED {ms160,  ms320,  ms480,	ms640,
+													ms960,	ms1280, ms1600, spare1},
+	si-RadioFrameOffset-r13				INTEGER (1..15)		OPTIONAL,	-- Need OP
+	systemInfoValueTagList-r13			SystemInfoValueTagList-NB-r13	OPTIONAL,	-- Need OR
+	lateNonCriticalExtension			OCTET STRING					OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}						OPTIONAL
+}
+
+PLMN-IdentityList-NB-r13 ::=		SEQUENCE (SIZE (1..maxPLMN-r11)) OF PLMN-IdentityInfo-NB-r13
+
+PLMN-IdentityInfo-NB-r13 ::=		SEQUENCE {
+	plmn-Identity-r13						PLMN-Identity,
+	cellReservedForOperatorUse-r13			ENUMERATED {reserved, notReserved},
+	attachWithoutPDN-Connectivity-r13		ENUMERATED {true}	OPTIONAL	-- Need OP
+}
+
+SchedulingInfoList-NB-r13 ::= SEQUENCE (SIZE (1..maxSI-Message-NB-r13)) OF SchedulingInfo-NB-r13
+
+SchedulingInfo-NB-r13::=		SEQUENCE {
+	si-Periodicity-r13				ENUMERATED {rf64, rf128, rf256, rf512,
+												rf1024, rf2048, rf4096, spare},
+	si-RepetitionPattern-r13			ENUMERATED {every2ndRF, every4thRF,
+													every8thRF,  every16thRF},
+	sib-MappingInfo-r13				SIB-MappingInfo-NB-r13,
+	si-TB-r13			ENUMERATED {b56, b120, b208, b256, b328, b440, b552, b680}
+}
+
+SystemInfoValueTagList-NB-r13 ::= 	SEQUENCE (SIZE (1.. maxSI-Message-NB-r13)) OF
+										SystemInfoValueTagSI-r13
+
+SIB-MappingInfo-NB-r13 ::= 			SEQUENCE (SIZE (0..maxSIB-1)) OF SIB-Type-NB-r13
+
+SIB-Type-NB-r13 ::=					ENUMERATED {
+										sibType3-NB-r13, sibType4-NB-r13, sibType5-NB-r13,
+										sibType14-NB-r13, sibType16-NB-r13, spare3, spare2, spare1}
+
+
+
+UECapabilityEnquiry-NB ::=	SEQUENCE {
+	rrc-TransactionIdentifier			RRC-TransactionIdentifier,
+	criticalExtensions					CHOICE {
+		c1									CHOICE {
+			ueCapabilityEnquiry-r13				UECapabilityEnquiry-NB-r13-IEs,
+			spare1 								NULL
+		},
+		criticalExtensionsFuture			SEQUENCE {}
+	}
+}
+
+UECapabilityEnquiry-NB-r13-IEs ::=	SEQUENCE {
+	lateNonCriticalExtension			OCTET STRING						OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}							OPTIONAL
+}
+
+
+UECapabilityInformation-NB ::=	SEQUENCE {
+	rrc-TransactionIdentifier			RRC-TransactionIdentifier,
+	criticalExtensions					CHOICE{
+			ueCapabilityInformation-r13		UECapabilityInformation-NB-r13-IEs,
+			criticalExtensionsFuture		SEQUENCE {}
+	}
+}
+
+UECapabilityInformation-NB-r13-IEs ::=	SEQUENCE {
+	ue-Capability-Container-r13				UE-Capability-NB-r13,
+	ue-RadioPagingInfo-r13					UE-RadioPagingInfo-NB-r13,
+	lateNonCriticalExtension				OCTET STRING						OPTIONAL,
+	nonCriticalExtension					SEQUENCE {}							OPTIONAL
+}
+
+
+ULInformationTransfer-NB ::=	SEQUENCE {
+	criticalExtensions					CHOICE {
+			ulInformationTransfer-r13		ULInformationTransfer-NB-r13-IEs,
+			criticalExtensionsFuture		SEQUENCE {}
+	}
+}
+
+ULInformationTransfer-NB-r13-IEs ::=	SEQUENCE {
+	dedicatedInfoNAS-r13					DedicatedInfoNAS,
+	lateNonCriticalExtension				OCTET STRING					OPTIONAL,
+	nonCriticalExtension					SEQUENCE {}						OPTIONAL
+}
+
+
+SystemInformationBlockType2-NB-r13 ::=	SEQUENCE {
+	radioResourceConfigCommon-r13			RadioResourceConfigCommonSIB-NB-r13,
+	ue-TimersAndConstants-r13				UE-TimersAndConstants-NB-r13,
+	freqInfo-r13							SEQUENCE {
+		ul-CarrierFreq-r13						CarrierFreq-NB-r13				OPTIONAL,-- Need OP
+		additionalSpectrumEmission-r13			AdditionalSpectrumEmission
+	},
+	timeAlignmentTimerCommon-r13			TimeAlignmentTimer,
+	multiBandInfoList-r13	SEQUENCE (SIZE (1..maxMultiBands)) OF AdditionalSpectrumEmission		OPTIONAL,-- Need OR
+	lateNonCriticalExtension					OCTET STRING					OPTIONAL,
+	...
+}
+
+
+SystemInformationBlockType3-NB-r13 ::=	SEQUENCE {
+	cellReselectionInfoCommon-r13			SEQUENCE {
+		q-Hyst-r13								ENUMERATED {
+													dB0, dB1, dB2, dB3, dB4, dB5, dB6, dB8, dB10,
+													dB12, dB14, dB16, dB18, dB20, dB22, dB24
+													}
+	},
+	cellReselectionServingFreqInfo-r13		SEQUENCE {
+		s-NonIntraSearch-r13					ReselectionThreshold
+	},
+	intraFreqCellReselectionInfo-r13		SEQUENCE {
+		q-RxLevMin-r13							Q-RxLevMin,
+		q-QualMin-r13							Q-QualMin-r9			OPTIONAL,	-- Need OP
+		p-Max-r13								P-Max					OPTIONAL,	-- Need OP
+		s-IntraSearchP-r13						ReselectionThreshold,
+		t-Reselection-r13						T-Reselection-NB-r13
+	},
+	freqBandInfo-r13						NS-PmaxList-NB-r13				OPTIONAL,	-- Need OR
+	multiBandInfoList-r13					SEQUENCE (SIZE (1..maxMultiBands)) OF
+												NS-PmaxList-NB-r13			OPTIONAL,	-- Need OR
+	lateNonCriticalExtension					OCTET STRING				OPTIONAL,
+	...
+}
+
+
+SystemInformationBlockType4-NB-r13 ::=		SEQUENCE {
+	intraFreqNeighCellList-r13			IntraFreqNeighCellList	OPTIONAL,	-- Need OR
+	intraFreqBlackCellList-r13			IntraFreqBlackCellList	OPTIONAL,	-- Need OR
+	lateNonCriticalExtension			OCTET STRING			OPTIONAL,
+	...
+}
+
+
+
+SystemInformationBlockType5-NB-r13 ::=	SEQUENCE {
+	interFreqCarrierFreqList-r13			InterFreqCarrierFreqList-NB-r13,
+	t-Reselection-r13						T-Reselection-NB-r13,
+	lateNonCriticalExtension				OCTET STRING					OPTIONAL,
+	...
+}
+
+
+InterFreqCarrierFreqList-NB-r13 ::=		SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo-NB-r13
+
+
+InterFreqCarrierFreqInfo-NB-r13 ::=	SEQUENCE {
+	dl-CarrierFreq-r13					CarrierFreq-NB-r13,
+	q-RxLevMin-r13						Q-RxLevMin,
+	q-QualMin-r13						Q-QualMin-r9					OPTIONAL,		-- Need OP
+	p-Max-r13							P-Max							OPTIONAL,		-- Need OP
+	q-OffsetFreq-r13					Q-OffsetRange					DEFAULT dB0,
+	interFreqNeighCellList-r13			InterFreqNeighCellList-NB-r13	OPTIONAL, 		-- Need OR
+	interFreqBlackCellList-r13			InterFreqBlackCellList-NB-r13	OPTIONAL, 		-- Need OR
+	multiBandInfoList-r13				MultiBandInfoList-NB-r13		OPTIONAL,		-- Need OR
+	...
+}
+
+InterFreqNeighCellList-NB-r13 ::=		SEQUENCE (SIZE (1..maxCellInter)) OF PhysCellId
+
+
+InterFreqBlackCellList-NB-r13 ::=		SEQUENCE (SIZE (1..maxCellBlack)) OF PhysCellId
+
+
+
+SystemInformationBlockType14-NB-r13 ::=	SEQUENCE {
+	ab-Param-r13					CHOICE {
+		ab-Common-r13					AB-Config-NB-r13,
+		ab-PerPLMN-List-r13				SEQUENCE (SIZE (1..maxPLMN-r11)) OF AB-ConfigPLMN-NB-r13
+	}															OPTIONAL, -- Need OR
+	lateNonCriticalExtension		OCTET STRING				OPTIONAL,
+	...
+}
+
+AB-ConfigPLMN-NB-r13 ::=	SEQUENCE {
+	ab-Config-r13					AB-Config-NB-r13			OPTIONAL -- Need OR
+}
+
+AB-Config-NB-r13 ::=		SEQUENCE {
+	ab-Category-r13					ENUMERATED {a, b, c},
+	ab-BarringBitmap-r13			BIT STRING (SIZE(10)),
+	ab-BarringExceptionData-r13		ENUMERATED {true}			OPTIONAL,	-- Need OP
+	ab-BarringForSpecialAC-r13		BIT STRING (SIZE(5))
+}
+
+
+SystemInformationBlockType16-NB-r13 ::= SystemInformationBlockType16-r11
+
+
+CarrierConfigDedicated-NB-r13 ::=		SEQUENCE {
+	dl-CarrierConfig-r13		DL-CarrierConfigDedicated-NB-r13,
+	ul-CarrierConfig-r13		UL-CarrierConfigDedicated-NB-r13
+}
+
+DL-CarrierConfigDedicated-NB-r13 ::=	SEQUENCE {
+	dl-CarrierFreq-r13						CarrierFreq-NB-r13,
+	downlinkBitmapNonAnchor-r13				CHOICE {
+		useNoBitmap-r13							NULL,
+		useAnchorBitmap-r13						NULL,
+		explicitBitmapConfiguration-r13			DL-Bitmap-NB-r13,
+		spare									NULL
+	}		OPTIONAL,	 -- Need ON
+	dl-GapNonAnchor-r13						CHOICE {
+		useNoGap-r13							NULL,
+		useAnchorGapConfig-r13					NULL,
+		explicitGapConfiguration-r13			DL-GapConfig-NB-r13,
+		spare									NULL
+	}		OPTIONAL,	 -- Need ON
+	inbandCarrierInfo-r13			SEQUENCE {
+		samePCI-Indicator-r13			CHOICE	{
+			samePCI-r13						SEQUENCE {
+				indexToMidPRB-r13				INTEGER (-55..54)
+			},
+			differentPCI-r13				SEQUENCE {
+				eutra-NumCRS-Ports-r13			ENUMERATED {same, four}
+			}
+		} 							OPTIONAL,		-- Cond anchor-guardband
+		eutraControlRegionSize-r13			ENUMERATED {n1, n2, n3}
+	}								OPTIONAL,		-- Cond non-anchor-inband
+	...
+}
+
+UL-CarrierConfigDedicated-NB-r13 ::=	SEQUENCE {
+	ul-CarrierFreq-r13			CarrierFreq-NB-r13		OPTIONAL,	-- Need OP
+	...
+}
+
+
+CarrierFreq-NB-r13 ::=		SEQUENCE {
+	carrierFreq-r13				ARFCN-ValueEUTRA-r9,
+	carrierFreqOffset-r13		ENUMERATED {
+									v-10, v-9, v-8, v-7, v-6, v-5, v-4, v-3, v-2, v-1, v-0dot5,
+									v0, v1, v2, v3, v4, v5, v6, v7, v8, v9
+									}	OPTIONAL	-- Need ON
+}
+
+
+DL-Bitmap-NB-r13 ::= 			CHOICE {
+	subframePattern10-r13			BIT STRING (SIZE (10)),
+	subframePattern40-r13  			BIT STRING (SIZE (40))
+}
+
+
+
+DL-GapConfig-NB-r13	::=		SEQUENCE {
+	dl-GapThreshold-r13			ENUMERATED {n32, n64, n128, n256},
+	dl-GapPeriodicity-r13		ENUMERATED {sf64, sf128, sf256, sf512},
+	dl-GapDurationCoeff-r13		ENUMERATED {oneEighth, oneFourth, threeEighth, oneHalf}
+}
+
+
+LogicalChannelConfig-NB-r13 ::=		SEQUENCE {
+	priority-r13						INTEGER (1..16)			OPTIONAL,		-- Cond UL
+	logicalChannelSR-Prohibit-r13		BOOLEAN					OPTIONAL,		-- Need ON
+	...
+}
+
+
+MAC-MainConfig-NB-r13 ::=		SEQUENCE {
+	ul-SCH-Config-r13				SEQUENCE {
+		periodicBSR-Timer-r13			PeriodicBSR-Timer-NB-r13		OPTIONAL,	-- Need ON
+		retxBSR-Timer-r13				RetxBSR-Timer-NB-r13
+	}																	OPTIONAL,	-- Need ON
+	drx-Config-r13						DRX-Config-NB-r13				OPTIONAL,	-- Need ON
+	timeAlignmentTimerDedicated-r13		TimeAlignmentTimer,
+	logicalChannelSR-Config-r13			CHOICE {
+		release								NULL,
+		setup								SEQUENCE {
+			logicalChannelSR-ProhibitTimer-r13	ENUMERATED {
+													pp2, pp8, pp32, pp128, pp512,
+													pp1024, pp2048, spare}
+		}
+	}																	OPTIONAL,	-- Need ON
+	...
+}
+
+PeriodicBSR-Timer-NB-r13 ::=		ENUMERATED {
+										pp2, pp4, pp8, pp16, pp64, pp128, infinity, spare}
+
+RetxBSR-Timer-NB-r13 ::=			ENUMERATED {
+										pp4, pp16, pp64, pp128, pp256, pp512, infinity, spare}
+
+DRX-Config-NB-r13 ::=				CHOICE {
+	release								NULL,
+	setup								SEQUENCE {
+		onDurationTimer-r13					ENUMERATED {
+												pp1, pp2, pp3, pp4, pp8, pp16, pp32, spare},
+		drx-InactivityTimer-r13				ENUMERATED {
+												pp0, pp1, pp2, pp3, pp4, pp8, pp16, pp32},
+		drx-RetransmissionTimer-r13			ENUMERATED {
+												pp0, pp1, pp2, pp4, pp6, pp8, pp16, pp24,
+												pp33, spare7, spare6, spare5,
+												spare4, spare3, spare2, spare1},
+		drx-Cycle-r13						ENUMERATED {
+												sf256, sf512, sf1024, sf1536, sf2048, sf3072,
+												sf4096, sf4608, sf6144, sf7680, sf8192, sf9216,
+												spare4, spare3, spare2, spare1},
+		drx-StartOffset-r13					INTEGER (0..255),
+		drx-ULRetransmissionTimer-r13		ENUMERATED {
+												pp0, pp1, pp2, pp4, pp6, pp8, pp16, pp24,
+												pp33, pp40, pp64, pp80, pp96,
+												pp112, pp128, pp160, pp320}
+	}
+}
+
+
+
+NPDCCH-ConfigDedicated-NB-r13 ::=	SEQUENCE {
+	npdcch-NumRepetitions-r13			ENUMERATED {r1, r2, r4, r8, r16, r32, r64, r128,
+													r256, r512, r1024, r2048,
+													spare4, spare3, spare2, spare1},
+	npdcch-StartSF-USS-r13				ENUMERATED {v1dot5, v2, v4, v8, v16, v32, v48, v64},
+	npdcch-Offset-USS-r13				ENUMERATED {zero, oneEighth, oneFourth, threeEighth}
+}
+
+
+
+NPDSCH-ConfigCommon-NB-r13 ::=	SEQUENCE {
+	nrs-Power-r13					INTEGER (-60..50)
+}
+
+
+NPRACH-ConfigSIB-NB-r13 ::=			SEQUENCE {
+	nprach-CP-Length-r13				ENUMERATED {us66dot7, us266dot7},
+	rsrp-ThresholdsPrachInfoList-r13	RSRP-ThresholdsNPRACH-InfoList-NB-r13 	OPTIONAL,	-- need OR
+	nprach-ParametersList-r13   		NPRACH-ParametersList-NB-r13
+}
+
+NPRACH-ParametersList-NB-r13 ::=	SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)) OF NPRACH-Parameters-NB-r13
+
+NPRACH-Parameters-NB-r13::=  		SEQUENCE {
+	nprach-Periodicity-r13 					ENUMERATED {ms40, ms80, ms160, ms240,
+														ms320, ms640, ms1280, ms2560},
+	nprach-StartTime-r13					ENUMERATED {ms8, ms16, ms32, ms64,
+														ms128, ms256, ms512, ms1024},
+	nprach-SubcarrierOffset-r13				ENUMERATED {n0, n12, n24, n36, n2, n18, n34, spare1},
+	nprach-NumSubcarriers-r13				ENUMERATED {n12, n24, n36, n48},
+	nprach-SubcarrierMSG3-RangeStart-r13	ENUMERATED {zero, oneThird, twoThird, one},
+	maxNumPreambleAttemptCE-r13				ENUMERATED {n3, n4, n5, n6, n7, n8, n10, spare1},
+	numRepetitionsPerPreambleAttempt-r13	ENUMERATED {n1, n2, n4, n8, n16, n32, n64, n128},
+	npdcch-NumRepetitions-RA-r13			ENUMERATED {r1, r2, r4, r8, r16, r32, r64, r128,
+														r256, r512, r1024, r2048,
+														spare4, spare3, spare2, spare1},
+	npdcch-StartSF-CSS-RA-r13				ENUMERATED {v1dot5, v2, v4, v8, v16, v32, v48, v64},
+	npdcch-Offset-RA-r13					ENUMERATED {zero, oneEighth, oneFourth, threeEighth}
+}
+
+RSRP-ThresholdsNPRACH-InfoList-NB-r13 ::= SEQUENCE (SIZE(1..2)) OF RSRP-Range
+
+
+NPUSCH-ConfigCommon-NB-r13 ::=		SEQUENCE {
+	ack-NACK-NumRepetitions-Msg4-r13	SEQUENCE (SIZE(1.. maxNPRACH-Resources-NB-r13)) OF
+														ACK-NACK-NumRepetitions-NB-r13,
+	srs-SubframeConfig-r13				ENUMERATED {
+											sc0, sc1, sc2, sc3, sc4, sc5, sc6, sc7,
+											sc8, sc9, sc10, sc11, sc12, sc13, sc14, sc15
+											}							OPTIONAL,	-- Need OR
+	dmrs-Config-r13						SEQUENCE {
+		threeTone-BaseSequence-r13			INTEGER (0..12) 			OPTIONAL, 	-- Need OP
+		threeTone-CyclicShift-r13			INTEGER (0..2),
+		sixTone-BaseSequence-r13			INTEGER (0..14) 			OPTIONAL, 	-- Need OP
+		sixTone-CyclicShift-r13				INTEGER (0..3),
+		twelveTone-BaseSequence-r13			INTEGER (0..30) 			OPTIONAL 	-- Need OP
+	}		OPTIONAL, 	-- Need OR
+	ul-ReferenceSignalsNPUSCH-r13		UL-ReferenceSignalsNPUSCH-NB-r13
+}
+
+UL-ReferenceSignalsNPUSCH-NB-r13 ::=	 SEQUENCE {
+	groupHoppingEnabled-r13					BOOLEAN,
+	groupAssignmentNPUSCH-r13				INTEGER (0..29)
+}
+
+NPUSCH-ConfigDedicated-NB-r13 ::=	SEQUENCE {
+	ack-NACK-NumRepetitions-r13			ACK-NACK-NumRepetitions-NB-r13	OPTIONAL,	-- Need ON
+	npusch-AllSymbols-r13				BOOLEAN							OPTIONAL,	-- Cond SRS
+	groupHoppingDisabled-r13			ENUMERATED {true}				OPTIONAL    -- Need OR
+}
+
+ACK-NACK-NumRepetitions-NB-r13	::=	ENUMERATED {r1, r2, r4, r8, r16, r32, r64, r128}
+
+
+
+PDCP-Config-NB-r13 ::=		SEQUENCE {
+	discardTimer-r13			ENUMERATED {
+									ms5120, ms10240, ms20480, ms40960,
+									ms81920, infinity, spare2, spare1
+									}	OPTIONAL,			-- Cond Setup
+	headerCompression-r13		CHOICE {
+		notUsed						NULL,
+		rohc						SEQUENCE {
+			maxCID-r13					INTEGER (1..16383)				DEFAULT 15,
+			profiles-r13				SEQUENCE {
+				profile0x0002				BOOLEAN,
+				profile0x0003				BOOLEAN,
+				profile0x0004				BOOLEAN,
+				profile0x0006				BOOLEAN,
+				profile0x0102				BOOLEAN,
+				profile0x0103				BOOLEAN,
+				profile0x0104				BOOLEAN
+			},
+			...
+		}
+	},
+	...
+}
+
+
+PhysicalConfigDedicated-NB-r13 ::=	SEQUENCE {
+	carrierConfigDedicated-r13			CarrierConfigDedicated-NB-r13		OPTIONAL,	-- Need ON
+	npdcch-ConfigDedicated-r13			NPDCCH-ConfigDedicated-NB-r13		OPTIONAL,	-- Need ON
+	npusch-ConfigDedicated-r13			NPUSCH-ConfigDedicated-NB-r13		OPTIONAL,	-- Need ON
+	uplinkPowerControlDedicated-r13		UplinkPowerControlDedicated-NB-r13 	OPTIONAL,	-- Need ON
+	...
+}
+
+
+
+RACH-ConfigCommon-NB-r13 ::=		SEQUENCE {
+	preambleTransMax-CE-r13				PreambleTransMax,
+	powerRampingParameters-r13			PowerRampingParameters,
+	rach-InfoList-r13					RACH-InfoList-NB-r13,
+	connEstFailOffset-r13				INTEGER (0..15)					OPTIONAL,	-- Need OP
+	...
+}
+
+RACH-InfoList-NB-r13 ::=	SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)) OF RACH-Info-NB-r13
+
+RACH-Info-NB-r13	::=		SEQUENCE {
+	ra-ResponseWindowSize-r13			ENUMERATED {
+											pp2, pp3, pp4, pp5, pp6, pp7, pp8, pp10},
+	mac-ContentionResolutionTimer-r13	ENUMERATED {
+											pp1, pp2, pp3, pp4, pp8, pp16, pp32, pp64}
+}
+
+
+RadioResourceConfigCommonSIB-NB-r13 ::=	SEQUENCE {
+	rach-ConfigCommon-r13 					RACH-ConfigCommon-NB-r13,
+	bcch-Config-r13 						BCCH-Config-NB-r13,
+	pcch-Config-r13 						PCCH-Config-NB-r13,
+	nprach-Config-r13						NPRACH-ConfigSIB-NB-r13,
+	npdsch-ConfigCommon-r13					NPDSCH-ConfigCommon-NB-r13,
+	npusch-ConfigCommon-r13					NPUSCH-ConfigCommon-NB-r13,
+	dl-Gap-r13								DL-GapConfig-NB-r13			OPTIONAL,		-- Need OP
+	uplinkPowerControlCommon-r13			UplinkPowerControlCommon-NB-r13,
+	...
+}
+
+BCCH-Config-NB-r13 ::=					SEQUENCE {
+	modificationPeriodCoeff-r13				ENUMERATED {n16, n32, n64, n128}
+}
+
+
+PCCH-Config-NB-r13 ::=					SEQUENCE {
+	defaultPagingCycle-r13					ENUMERATED {rf128, rf256, rf512, rf1024},
+	nB-r13									ENUMERATED {
+												fourT, twoT, oneT, halfT, quarterT, one8thT,
+												one16thT, one32ndT, one64thT,
+												one128thT, one256thT, one512thT, one1024thT,
+												spare3, spare2, spare1},
+	npdcch-NumRepetitionPaging-r13			ENUMERATED {
+												r1, r2, r4, r8, r16, r32, r64, r128,
+												r256, r512, r1024, r2048,
+												spare4, spare3, spare2, spare1}
+}
+
+
+RadioResourceConfigDedicated-NB-r13 ::=	SEQUENCE {
+	srb-ToAddModList-r13					SRB-ToAddModList-NB-r13			OPTIONAL, 	-- Need ON
+	drb-ToAddModList-r13					DRB-ToAddModList-NB-r13			OPTIONAL, 	-- Need ON
+	drb-ToReleaseList-r13					DRB-ToReleaseList-NB-r13		OPTIONAL, 	-- Need ON
+	mac-MainConfig-r13						CHOICE {
+		explicitValue-r13						MAC-MainConfig-NB-r13,
+		defaultValue-r13						NULL
+	}																		OPTIONAL, 	-- Need ON
+	physicalConfigDedicated-r13				PhysicalConfigDedicated-NB-r13	OPTIONAL,	-- Need ON
+	rlf-TimersAndConstants-r13				RLF-TimersAndConstants-NB-r13	OPTIONAL,	-- Need ON
+	...
+}
+
+SRB-ToAddModList-NB-r13 ::=			SEQUENCE (SIZE (1)) OF SRB-ToAddMod-NB-r13
+
+SRB-ToAddMod-NB-r13 ::=				SEQUENCE {
+	rlc-Config-r13						CHOICE {
+		explicitValue						RLC-Config-NB-r13,
+		defaultValue						NULL
+	}		OPTIONAL,															-- Cond Setup
+	logicalChannelConfig-r13			CHOICE {
+		explicitValue						LogicalChannelConfig-NB-r13,
+		defaultValue						NULL
+	}		OPTIONAL,															-- Cond Setup
+	...
+}
+
+DRB-ToAddModList-NB-r13 ::=			SEQUENCE (SIZE (1..maxDRB-NB-r13)) OF DRB-ToAddMod-NB-r13
+
+DRB-ToAddMod-NB-r13 ::=				SEQUENCE {
+	eps-BearerIdentity-r13				INTEGER (0..15)				OPTIONAL,	-- Cond DRB-Setup
+	drb-Identity-r13					DRB-Identity,
+	pdcp-Config-r13						PDCP-Config-NB-r13			OPTIONAL,	-- Cond Setup
+	rlc-Config-r13						RLC-Config-NB-r13			OPTIONAL,	-- Cond Setup
+	logicalChannelIdentity-r13			INTEGER (3..10)				OPTIONAL,	-- Cond DRB-Setup
+	logicalChannelConfig-r13			LogicalChannelConfig-NB-r13	OPTIONAL,	-- Cond Setup
+	...
+}
+
+DRB-ToReleaseList-NB-r13 ::=		SEQUENCE (SIZE (1..maxDRB-NB-r13)) OF DRB-Identity
+
+
+RLC-Config-NB-r13 ::=	CHOICE	{
+	am						SEQUENCE {
+		ul-AM-RLC-r13				UL-AM-RLC-NB-r13,
+		dl-AM-RLC-r13				DL-AM-RLC-NB-r13
+	},
+	...
+}
+
+
+UL-AM-RLC-NB-r13 ::=		SEQUENCE {
+	t-PollRetransmit-r13		T-PollRetransmit-NB-r13,
+	maxRetxThreshold-r13		ENUMERATED {t1, t2, t3, t4, t6, t8, t16, t32}
+}
+
+DL-AM-RLC-NB-r13 ::=		SEQUENCE {
+	enableStatusReportSN-Gap-r13	ENUMERATED {true}	OPTIONAL
+}
+
+T-PollRetransmit-NB-r13 ::=	ENUMERATED {
+									ms250, 	ms500,	ms1000,	ms2000,	ms3000,	ms4000,
+									ms6000, ms10000, ms15000, ms25000, ms40000, ms60000,
+									ms90000, ms120000, ms180000, spare1}
+
+
+
+
+RLF-TimersAndConstants-NB-r13 ::=	CHOICE {
+	release								NULL,
+	setup								SEQUENCE {
+		t301-r13							ENUMERATED {
+												ms2500, ms4000, ms6000, ms10000,
+												ms15000, ms25000, ms40000, ms60000},
+		t310-r13							ENUMERATED {
+												ms0, ms200, ms500, ms1000, ms2000, ms4000, ms8000},
+		n310-r13							ENUMERATED {
+												n1, n2, n3, n4, n6, n8, n10, n20},
+		t311-r13							ENUMERATED {
+												ms1000, ms3000, ms5000, ms10000, ms15000,
+												ms20000, ms30000},
+		n311-r13							ENUMERATED {
+												n1, n2, n3, n4, n5, n6, n8, n10},
+		...
+	}
+}
+
+
+
+UplinkPowerControlCommon-NB-r13 ::=	SEQUENCE {
+	p0-NominalNPUSCH-r13				INTEGER (-126..24),
+	alpha-r13							ENUMERATED {al0, al04, al05, al06, al07, al08, al09, al1},
+	deltaPreambleMsg3-r13				INTEGER (-1..6)
+}
+
+UplinkPowerControlDedicated-NB-r13 ::=	SEQUENCE {
+	p0-UE-NPUSCH-r13						INTEGER (-8..7)
+}
+
+
+FreqBandIndicator-NB-r13 ::=			INTEGER (1.. maxFBI2)
+
+
+MultiBandInfoList-NB-r13 ::=	SEQUENCE (SIZE (1..maxMultiBands)) OF MultiBandInfo-NB-r13
+
+MultiBandInfo-NB-r13 ::=		SEQUENCE {
+	freqBandIndicator-r13			FreqBandIndicator-NB-r13		OPTIONAL,	 -- Need OR
+	freqBandInfo-r13				NS-PmaxList-NB-r13				OPTIONAL	 -- Need OR
+}
+
+
+NS-PmaxList-NB-r13 ::=			SEQUENCE (SIZE (1..maxNS-Pmax-NB-r13)) OF NS-PmaxValue-NB-r13
+
+NS-PmaxValue-NB-r13 ::=			SEQUENCE {
+	additionalPmax-r13				P-Max						OPTIONAL,	-- Need OR
+	additionalSpectrumEmission-r13	AdditionalSpectrumEmission
+}
+
+
+T-Reselection-NB-r13 ::=		ENUMERATED {s0, s3, s6, s9, s12, s15, s18, s21}
+
+
+EstablishmentCause-NB-r13 ::=			ENUMERATED {
+											mt-Access, mo-Signalling, mo-Data, mo-ExceptionData,
+											spare4, spare3, spare2, spare1}
+
+
+UE-Capability-NB-r13 ::=		SEQUENCE {
+	accessStratumRelease-r13		AccessStratumRelease-NB-r13,
+	ue-Category-NB-r13				ENUMERATED {nb1}					OPTIONAL,
+	multipleDRB-r13					ENUMERATED {supported}				OPTIONAL,
+	pdcp-Parameters-r13				PDCP-Parameters-NB-r13				OPTIONAL,
+	phyLayerParameters-r13			PhyLayerParameters-NB-r13,
+	rf-Parameters-r13				RF-Parameters-NB-r13,
+	nonCriticalExtension			SEQUENCE {}							OPTIONAL
+}
+
+AccessStratumRelease-NB-r13 ::=		ENUMERATED {rel13, spare7, spare6, spare5, spare4, spare3, spare2, spare1, ...}
+
+PDCP-Parameters-NB-r13		::= SEQUENCE {
+	supportedROHC-Profiles-r13			SEQUENCE {
+		profile0x0002						BOOLEAN,
+		profile0x0003						BOOLEAN,
+		profile0x0004						BOOLEAN,
+		profile0x0006						BOOLEAN,
+		profile0x0102						BOOLEAN,
+		profile0x0103						BOOLEAN,
+		profile0x0104						BOOLEAN
+	},
+	maxNumberROHC-ContextSessions-r13	ENUMERATED {cs2, cs4, cs8, cs12}	DEFAULT cs2,
+	...
+}
+
+PhyLayerParameters-NB-r13	::=		SEQUENCE {
+	multiTone-r13						ENUMERATED {supported}			OPTIONAL,
+	multiCarrier-r13						ENUMERATED {supported}			OPTIONAL
+	}
+
+RF-Parameters-NB-r13 	::=			SEQUENCE {
+	supportedBandList-r13				SupportedBandList-NB-r13,
+	multiNS-Pmax-r13					ENUMERATED {supported}		OPTIONAL
+}
+
+SupportedBandList-NB-r13 ::=		SEQUENCE (SIZE (1..maxBands)) OF SupportedBand-NB-r13
+
+SupportedBand-NB-r13	::=			SEQUENCE {
+	band-r13							FreqBandIndicator-NB-r13,
+	powerClassNB-20dBm-r13				ENUMERATED {supported}		OPTIONAL
+}
+
+
+
+UE-RadioPagingInfo-NB-r13 ::=		SEQUENCE {
+	ue-Category-NB-r13				ENUMERATED {nb1}			OPTIONAL,
+	...
+}
+
+
+UE-TimersAndConstants-NB-r13 ::=	SEQUENCE {
+	t300-r13							ENUMERATED {
+											ms2500, ms4000, ms6000, ms10000,
+											ms15000, ms25000, ms40000, ms60000},
+	t301-r13							ENUMERATED {
+											ms2500, ms4000, ms6000, ms10000,
+											ms15000, ms25000, ms40000, ms60000},
+	t310-r13							ENUMERATED {
+											ms0, ms200, ms500, ms1000, ms2000, ms4000, ms8000},
+	n310-r13							ENUMERATED {
+											n1, n2, n3, n4, n6, n8, n10, n20},
+	t311-r13							ENUMERATED {
+											ms1000, ms3000, ms5000, ms10000, ms15000,
+											ms20000, ms30000},
+	n311-r13							ENUMERATED {
+											n1, n2, n3, n4, n5, n6, n8, n10},
+	...
+}
+
+
+maxNPRACH-Resources-NB-r13	INTEGER ::=	3	-- Maximum number of NPRACH resources for NB-IoT
+maxDRB-NB-r13				INTEGER ::= 2	-- Maximum number of Data Radio Bearers for NB-IoT
+maxNS-Pmax-NB-r13 			INTEGER ::= 4	-- Maximum number of NS and P-Max values per band
+maxSI-Message-NB-r13		INTEGER ::= 8	-- Maximum number of SI messages for NB-IoT
+
+
+END

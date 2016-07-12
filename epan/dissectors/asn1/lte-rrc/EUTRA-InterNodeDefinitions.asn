@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V13.1.0 (2016-03)
+-- 3GPP TS 36.331 V13.2.0 (2016-06)
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -36,6 +36,7 @@ IMPORTS
 	SL-CommConfig-r12,
 	SL-DiscConfig-r12,
 	RadioResourceConfigDedicated,
+	RCLWI-Configuration-r13,
 	RSRP-Range,
 	RSRQ-Range,
 	RSRQ-Range-v1250,
@@ -59,6 +60,7 @@ IMPORTS
 	UECapabilityInformation,
 	UE-CapabilityRAT-ContainerList,
 	UE-RadioPagingInfo-r12,
+	WLANConnectionStatusReport-r13,
 	WLAN-OffloadConfig-r12
 FROM EUTRA-RRC-Definitions;
 
@@ -140,6 +142,12 @@ HandoverPreparationInformation-v1130-IEs	::= SEQUENCE {
 HandoverPreparationInformation-v1250-IEs ::= SEQUENCE {
 	ue-SupportedEARFCN-r12 				ARFCN-ValueEUTRA-r9				OPTIONAL,	-- Cond HO3
 	as-Config-v1250					AS-Config-v1250				OPTIONAL, 	-- Cond HO2
+	nonCriticalExtension				HandoverPreparationInformation-v1320-IEs						OPTIONAL
+}
+
+HandoverPreparationInformation-v1320-IEs ::= SEQUENCE {
+	as-Config-v1320						AS-Config-v1320					OPTIONAL, 	-- Cond HO2
+	as-Context-v1320					AS-Context-v1320				OPTIONAL, 	-- Cond HO2
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
@@ -356,6 +364,11 @@ AS-Config-v1250 ::=				SEQUENCE {
 	sourceSL-DiscConfig-r12				SL-DiscConfig-r12					OPTIONAL
 }
 
+AS-Config-v1320 ::=				SEQUENCE {
+	sourceSCellConfigList-r13			SCellToAddModListExt-r13			OPTIONAL,
+	sourceRCLWI-Configuration-r13		RCLWI-Configuration-r13				OPTIONAL
+}
+
 
 AS-Context ::=							SEQUENCE {
 	reestablishmentInfo						ReestablishmentInfo			OPTIONAL	-- Cond HO
@@ -372,6 +385,11 @@ AS-Context-v1130 ::=					SEQUENCE {
 	[[	sidelinkUEInformation-r12				OCTET STRING (CONTAINING
 												SidelinkUEInformation-r12)	OPTIONAL	-- Cond HO2
 	]]
+}
+
+AS-Context-v1320 ::=					SEQUENCE {
+	wlanConnectionStatusReport-r13			OCTET STRING (CONTAINING
+											WLANConnectionStatusReport-r13)	OPTIONAL	-- Cond HO2
 }
 
 

@@ -26,8 +26,12 @@ HandoverCommand
 HandoverCommand_PDU
 HandoverPreparationInformation
 HandoverPreparationInformation_PDU
+HandoverPreparationInformation-NB
+HandoverPreparationInformation-NB_PDU
 UERadioAccessCapabilityInformation
 UERadioAccessCapabilityInformation_PDU
+UERadioAccessCapabilityInformation-NB
+UERadioAccessCapabilityInformation-NB_PDU
 UE-EUTRA-Capability
 UE-EUTRA-Capability_PDU
 #.END
@@ -35,7 +39,9 @@ UE-EUTRA-Capability_PDU
 #.PDU
 HandoverCommand
 HandoverPreparationInformation
+HandoverPreparationInformation-NB
 UERadioAccessCapabilityInformation
+UERadioAccessCapabilityInformation-NB
 BCCH-BCH-Message             @bcch.bch
 BCCH-DL-SCH-Message          @bcch.dl.sch
 BCCH-DL-SCH-Message-BR       @bcch.dl.sch.br
@@ -49,6 +55,13 @@ SC-MCCH-Message-r13          @sc.mcch
 UECapabilityInformation      @ue_cap_info
 UE-EUTRA-Capability          @ue_eutra_cap
 SBCCH-SL-BCH-Message         @sbcch.sl.bch
+BCCH-BCH-Message-NB          @bcch.bch.nb
+BCCH-DL-SCH-Message-NB       @bcch.dl.sch.nb
+PCCH-Message-NB              @pcch.nb
+DL-CCCH-Message-NB           @dl.ccch.nb
+DL-DCCH-Message-NB           @dl.dcch.nb
+UL-CCCH-Message-NB           @ul.ccch.nb
+UL-DCCH-Message-NB           @ul.dcch.nb
 #.END
 
 #.OMIT_ASSIGNMENT
@@ -58,7 +71,6 @@ CellsTriggeredList
 CSI-RS-TriggeredList-r12
 DRB-InfoListSCG-r12
 DRB-InfoSCG-r12
-LAA-parameters-r13
 LogMeasInfoList2-r10
 MeasResultServCellListSCG-r12
 MeasResultServCellListSCG-Ext-r13
@@ -83,8 +95,12 @@ SL-PreconfigSync-r12
 SL-Preconfiguration-r12
 SL-TxPoolIdentity-r13
 UEPagingCoverageInformation
+UEPagingCoverageInformation-NB
+UEPagingCoverageInformation-NB-IEs
 UEPagingCoverageInformation-r13-IEs
 UERadioPagingInformation
+UERadioPagingInformation-NB
+UERadioPagingInformation-NB-IEs
 UERadioPagingInformation-r12-IEs
 UERadioPagingInformation-v1310-IEs
 VarConnEstFailReport-r11
@@ -101,16 +117,24 @@ VarMobilityHistoryReport-r12
 VarRLF-Report-r10
 VarRLF-Report-r11
 VarShortMAC-Input
+VarShortMAC-Input-NB-r13
+VarShortResumeMAC-Input-NB-r13
+VarShortResumeMAC-Input-r13
 VarWLAN-MobilityConfig
 VarWLAN-Status-r13
 
 #.NO_EMIT ONLY_VALS
 EAB-Config-r11/eab-Category-r11
+AB-Config-NB-r13/ab-Category-r13
 
 #.MAKE_ENUM
 RAT-Type TYPE_PREFIX
 Handover/targetRAT-Type TYPE_PREFIX
 SI-OrPSI-GERAN TYPE_PREFIX
+
+#
+# EUTRA-RRC-Definitions.asn
+#
 
 #.FN_HDR UL-DCCH-Message
   actx->pinfo->link_dir = P2P_DIR_UL;
@@ -348,6 +372,9 @@ if(ue_cap_tvb){
     proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_30, modifiedMPR_Behavior_r10_tvb, 30, 1, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_31, modifiedMPR_Behavior_r10_tvb, 31, 1, ENC_BIG_ENDIAN);
   }
+
+  #.TYPE_RENAME
+IRAT-ParametersWLAN-r13/supportedBandListWLAN-r13 supportedBandListWLAN_r13
 
 #.TYPE_ATTR
 MasterInformationBlock/schedulingInfoSIB1-BR-r13 TYPE=FT_UINT32 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_schedulingInfoSIB1_BR_r13_vals_ext
@@ -1470,6 +1497,10 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RNReconfiguration-r10");
 
+#.FN_HDR RRCConnectionResume-r13
+
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionResume-r13");
+
 #.FN_HDR RRCConnectionReestablishmentRequest
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentRequest");
@@ -1576,13 +1607,13 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "WLANConnectionStatusReport-r13");
 
+#.FN_HDR RRCConnectionResumeComplete-r13
+
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionResumeComplete-r13");
+
 #.FN_HDR SCPTMConfiguration-r13
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SCPTMConfiguration-r13");
-
-#.FN_HDR MasterInformationBlock-SL
-
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MasterInformationBlock-SL");
 
 #.FN_BODY Paging/systemInfoModification
 %(DEFAULT_BODY)s
@@ -1667,7 +1698,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     set_mac_lte_channel_mapping(drb_mapping);
   }
 
-  /* Also tell RLC how many PDCP sequence number bits and wether it should use extended LI */
+  /* Also tell RLC how many PDCP sequence number bits and whether it should use extended LI */
   p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rlc_lte, 0);
   if (p_rlc_lte_info) {
     if (drb_mapping->pdcp_sn_size_present) {
@@ -1821,6 +1852,9 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     /* Tell MAC to use simultaneous PUCCH/PUSCH configuration */
     set_mac_lte_simult_pucch_pusch(p_mac_lte_info->ueid, private_data_get_simult_pucch_pusch_cell_type(actx), TRUE, actx->pinfo);
   }
+
+#.TYPE_RENAME
+PUCCH-ConfigDedicated-r13/pucch-Format-r13/channelSelection-r13/n1PUCCH-AN-CS-r13/setup/n1PUCCH-AN-CS-List-r13 n1PUCCH_AN_CS_List_r13
 
 #.FN_BODY RACH-ConfigCommon/preambleInfo
 %(DEFAULT_BODY)s
@@ -2205,3 +2239,202 @@ SL-DiscSysInfoReport-r13/cellSelectionInfo-r13/q-RxLevMinOffset-r13 STRINGS=VALS
 #.FN_BODY P0-SL-r12
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "dBm");
+
+#
+# PC5-RRC-Definitions
+#
+
+#.FN_HDR MasterInformationBlock-SL
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "MasterInformationBlock-SL");
+
+#
+# NBIOT-RRC-Definitions
+#
+
+#.FN_HDR UL-DCCH-Message-NB
+  actx->pinfo->link_dir = P2P_DIR_UL;
+
+#.FN_HDR DL-DCCH-Message-NB
+  actx->pinfo->link_dir = P2P_DIR_DL;
+
+#.FN_HDR MasterInformationBlock-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "MasterInformationBlock-NB");
+
+#.FN_HDR SystemInformation-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation-NB [ ");
+
+#.FN_BODY SystemInformation-NB
+%(DEFAULT_BODY)s
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "]");
+
+#.FN_HDR SystemInformationBlockType1-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformationBlockType1-NB");
+
+#.FN_HDR SystemInformationBlockType2-NB-r13
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB2 ");
+
+#.FN_HDR SystemInformationBlockType3-NB-r13
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB3 ");
+
+#.FN_HDR SystemInformationBlockType4-NB-r13
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB4 ");
+
+#.FN_HDR SystemInformationBlockType5-NB-r13
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB5 ");
+
+#.FN_HDR SystemInformationBlockType14-NB-r13
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB14 ");
+
+#.FN_HDR Paging-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "Paging-NB");
+
+#.FN_HDR RRCConnectionReestablishment-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishment-NB");
+
+#.FN_HDR RRCConnectionReestablishmentReject
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentReject");
+
+#.FN_HDR RRCConnectionReject-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReject-NB");
+
+#.FN_HDR RRCConnectionSetup-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup-NB");
+
+#.FN_HDR DLInformationTransfer-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "DLInformationTransfer-NB");
+
+#.FN_HDR RRCConnectionReconfiguration-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReconfiguration-NB");
+
+#.FN_HDR RRCConnectionRelease-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRelease-NB");
+
+#.FN_HDR UECapabilityEnquiry-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "UECapabilityEnquiry-NB");
+
+#.FN_HDR RRCConnectionResume-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionResume-NB");
+
+#.FN_HDR RRCConnectionReestablishmentRequest-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentRequest-NB");
+
+#.FN_HDR RRCConnectionRequest-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRequest-NB");
+
+#.FN_HDR RRCConnectionResumeRequest-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionResumeRequest-NB");
+
+#.FN_HDR RRCConnectionReconfigurationComplete-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReconfigurationComplete-NB");
+
+#.FN_HDR RRCConnectionReestablishmentComplete-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentComplete-NB");
+
+#.FN_HDR RRCConnectionSetupComplete-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetupComplete-NB");
+
+#.FN_HDR UECapabilityInformation-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "UECapabilityInformation-NB");
+
+#.FN_HDR ULInformationTransfer-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "ULInformationTransfer-NB");
+
+#.FN_HDR RRCConnectionResumeComplete-NB
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionResumeComplete-NB");
+
+#.FN_BODY RRCConnectionReject-NB-r13-IEs/extendedWaitTime-r13
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "s");
+
+#.FN_BODY RRCConnectionRelease-NB-r13-IEs/extendedWaitTime-r13
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "s");
+
+#.TYPE_RENAME
+SystemInformationBlockType2-NB-r13/multiBandInfoList-r13 AdditionalSpectrumEmission_r13
+
+#.TYPE_ATTR
+AB-Config-NB-r13/ab-Category-r13 STRINGS=VALS(lte_rrc_eab_category_vals)
+
+#.FN_BODY NPDSCH-ConfigCommon-NB-r13/nrs-Power-r13
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
+
+#.FN_BODY RACH-ConfigCommon-NB-r13/connEstFailOffset-r13
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
+
+#.FN_BODY DRB-ToAddMod-NB-r13
+  struct mac_lte_info *p_mac_lte_info;
+  struct rlc_lte_info *p_rlc_lte_info;
+  /* Get the struct and clear it out */
+  drb_mapping_t *drb_mapping = private_data_get_drb_mapping(actx);
+  memset(drb_mapping, 0, sizeof(*drb_mapping));
+%(DEFAULT_BODY)s
+  /* Need UE identifier */
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
+  if (p_mac_lte_info) {
+    drb_mapping->ueid = p_mac_lte_info->ueid;
+    /* Tell MAC about this mapping */
+    set_mac_lte_channel_mapping(drb_mapping);
+  }
+
+  /* Also tell RLC how many PDCP sequence number bits and whether it should use extended LI */
+  p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rlc_lte, 0);
+  if (p_rlc_lte_info) {
+    if (drb_mapping->pdcp_sn_size_present) {
+      set_rlc_lte_drb_pdcp_seqnum_length(actx->pinfo,
+                                         p_rlc_lte_info->ueid,
+                                         drb_mapping->drbid,
+                                         drb_mapping->pdcp_sn_size);
+    }
+    if (drb_mapping->rlcMode_present) {
+      set_rlc_lte_drb_li_field(actx->pinfo,
+                               p_rlc_lte_info->ueid,
+                               drb_mapping->drbid,
+                               drb_mapping->rlc_ul_ext_li_field,
+                               drb_mapping->rlc_dl_ext_li_field);
+    }
+  }
+
+  /* Clear out the struct again */
+  memset(&drb_mapping, 0, sizeof(drb_mapping));
+
+#.FN_BODY RLC-Config-NB-r13
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
+%(DEFAULT_BODY)s
+  if (mapping != NULL) {
+    mapping->rlcMode = RLC_AM_MODE;
+    mapping->rlcMode_present = TRUE;
+    mapping->pdcp_sn_size = 7;
+    mapping->pdcp_sn_size_present = TRUE;
+  }
+
+#.FN_BODY DRB-ToAddMod-NB-r13/logicalChannelIdentity-r13 VAL_PTR=&value
+  guint32 value;
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
+%(DEFAULT_BODY)s
+  if (mapping != NULL) {
+    mapping->lcid = (guint8)value;
+    mapping->lcid_present = TRUE;
+  }
+
+#.FN_BODY LogicalChannelConfig-NB-r13/priority-r13 VAL_PTR=&value
+  guint32 value;
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
+%(DEFAULT_BODY)s
+  if (mapping != NULL) {
+    mapping->ul_priority = value;
+    mapping->ul_priority_present = TRUE;
+  }
+
+#.FN_BODY UplinkPowerControlCommon-NB-r13/p0-NominalNPUSCH-r13
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
+
+#.TYPE_ATTR
+UplinkPowerControlCommon-NB-r13/deltaPreambleMsg3-r13 STRINGS=VALS(lte_rrc_deltaPreambleMsg3_vals)
+
+#.FN_BODY UplinkPowerControlDedicated-NB-r13/p0-UE-NPUSCH-r13
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
