@@ -746,7 +746,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s Channel=%u ",
                     val_to_str_const(frame_type, vs_frame_type_short, "Unknown"), dlci >> 1);
-    if (dlci && (frame_type == FRAME_TYPE_SABM)) {
+    if (dlci && (frame_type == FRAME_TYPE_SABM) && service_info) {
         if (service_info->uuid.size==16)
             col_append_fstr(pinfo->cinfo, COL_INFO, "(UUID128: %s) ", print_uuid(&service_info->uuid));
         else
