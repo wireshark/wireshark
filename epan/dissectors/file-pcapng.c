@@ -1027,11 +1027,11 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         offset += captured_length;
 
         if (captured_length % 4) {
-            proto_tree_add_item(block_data_tree, hf_pcapng_packet_padding, tvb, offset, captured_length % 4?(4 - captured_length % 4):0, ENC_NA);
-            offset += captured_length % 4?(4 - captured_length % 4):0;
+            proto_tree_add_item(block_data_tree, hf_pcapng_packet_padding, tvb, offset, ((captured_length % 4) ? (4 - (captured_length % 4)) : 0), ENC_NA);
+            offset += ((captured_length % 4) ?(4 - (captured_length % 4)):0);
         }
 
-        next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 2 - 2 - 8 - 4 - 4 - captured_length - (captured_length % 4?(4 - captured_length % 4):0));
+        next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 2 - 2 - 8 - 4 - 4 - captured_length - ((captured_length % 4)?(4 - (captured_length % 4)):0));
         offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, encoding, NULL);
 
         break;
@@ -1065,8 +1065,8 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         offset += captured_length;
 
         if (captured_length % 4) {
-            proto_tree_add_item(block_data_tree, hf_pcapng_packet_padding, tvb, offset, captured_length % 4?(4 - captured_length % 4):0, ENC_NA);
-            offset += captured_length % 4?(4 - captured_length % 4):0;
+            proto_tree_add_item(block_data_tree, hf_pcapng_packet_padding, tvb, offset, ((captured_length % 4)?(4 - (captured_length % 4)):0), ENC_NA);
+            offset += ((captured_length % 4) ? (4 - (captured_length % 4)):0);
         }
 
         break;
@@ -1228,11 +1228,11 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         offset += captured_length;
 
         if (captured_length % 4) {
-            proto_tree_add_item(block_data_tree, hf_pcapng_packet_padding, tvb, offset, captured_length % 4?(4 - captured_length % 4):0, ENC_NA);
-            offset += captured_length % 4?(4 - captured_length % 4):0;
+            proto_tree_add_item(block_data_tree, hf_pcapng_packet_padding, tvb, offset, ((captured_length % 4)? (4 - (captured_length % 4)):0), ENC_NA);
+            offset += ((captured_length % 4) ?(4 - (captured_length % 4)):0);
         }
 
-        next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 4 - 8 - 4 - 4 - captured_length - (captured_length % 4?(4 - captured_length % 4):0));
+        next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 4 - 8 - 4 - 4 - captured_length - ((captured_length % 4)?(4 - (captured_length % 4)):0));
         offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, encoding, NULL);
 
         break;
