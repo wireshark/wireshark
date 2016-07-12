@@ -788,7 +788,7 @@ dissect_cql_v3_tcp_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 						} else {
 
 							for (j = 0; j < result_rows_columns_count; ++j) {
-								if (!result_rows_flags & CQL_V3_RESULT_ROWS_FLAG_GLOBAL_TABLES_SPEC) {
+								if (!(result_rows_flags & CQL_V3_RESULT_ROWS_FLAG_GLOBAL_TABLES_SPEC)) {
 									/* ksname and tablename */
 									proto_tree_add_item_ret_uint(metadata_subtree, hf_cql_v3_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
 									offset += 2;
