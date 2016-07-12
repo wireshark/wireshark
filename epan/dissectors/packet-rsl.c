@@ -37,6 +37,7 @@
 #include "lapd_sapi.h"
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/conversation.h>
 
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
@@ -3031,13 +3032,22 @@ dissect_rsl_ie_tfo_transp_cont(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     return ie_offset + length;
 }
 
+struct dyn_pl_info_t {
+    guint8 rtp_codec;
+    guint8 rtp_pt;
+};
+
 static int
 dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     guint8  msg_type;
     guint32 local_addr = 0;
     guint16 local_port = 0;
+    guint32 rtp_codec = 255, rtp_pt = 0;
     address src_addr;
+    rtp_dyn_payload_t *dyn_pl = NULL;
+    struct dyn_pl_info_t *dyn_pl_info;
+    conversation_t *conv;
 
     msg_type = tvb_get_guint8(tvb, offset) & 0x7f;
     offset++;
@@ -3113,15 +3123,34 @@ dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             local_port = tvb_get_ntohs(tvb, offset);
             break;
         case RSL_IE_IPAC_SPEECH_MODE:
-            proto_tree_add_item(ie_tree, hf_rsl_speech_mode_s, tvb,
-                                offset, len, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(ie_tree, hf_rsl_speech_mode_s, tvb,
+                                offset, len, ENC_BIG_ENDIAN, &rtp_codec);
+            rtp_codec &= 0x0f;
+            conv = find_or_create_conversation(pinfo);
+            dyn_pl_info = (struct dyn_pl_info_t *)conversation_get_proto_data(conv, proto_rsl);
+            if (!dyn_pl_info) {
+                dyn_pl_info = (struct dyn_pl_info_t *)wmem_alloc0(wmem_file_scope(), sizeof(*dyn_pl_info));
+                conversation_add_proto_data(conv, proto_rsl, (void *)dyn_pl_info);
+            }
+            dyn_pl_info->rtp_codec = rtp_codec;
+
             proto_tree_add_item(ie_tree, hf_rsl_speech_mode_m, tvb,
                                 offset, len, ENC_BIG_ENDIAN);
             break;
         case RSL_IE_IPAC_RTP_PAYLOAD:
         case RSL_IE_IPAC_RTP_PAYLOAD2:
-            proto_tree_add_item(ie_tree, hf_rsl_rtp_payload, tvb,
-                                offset, len, ENC_BIG_ENDIAN);
+            /* Need to set pl here */
+            proto_tree_add_item_ret_uint(ie_tree, hf_rsl_rtp_payload, tvb,
+                                offset, len, ENC_BIG_ENDIAN, &rtp_pt);
+            conv = find_or_create_conversation(pinfo);
+            dyn_pl_info = (struct dyn_pl_info_t *)conversation_get_proto_data(conv, proto_rsl);
+            if (!dyn_pl_info) {
+                dyn_pl_info = (struct dyn_pl_info_t *)wmem_alloc0(wmem_file_scope(), sizeof(*dyn_pl_info));
+                conversation_add_proto_data(conv, proto_rsl, (void *)dyn_pl_info);
+                dyn_pl_info->rtp_codec = rtp_codec;
+            }
+            dyn_pl_info->rtp_pt = rtp_pt;
+
             break;
         case RSL_IE_IPAC_RTP_CSD_FMT:
             proto_tree_add_item(ie_tree, hf_rsl_rtp_csd_fmt_d, tvb,
@@ -3159,8 +3188,17 @@ dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
         src_addr.type = AT_IPv4;
         src_addr.len = 4;
         src_addr.data = (guint8 *)&local_addr;
+
+        conv = find_or_create_conversation(pinfo);
+        dyn_pl_info = (struct dyn_pl_info_t *)conversation_get_proto_data(conv, proto_rsl);
+        if (dyn_pl_info && (dyn_pl_info->rtp_codec == 2 || dyn_pl_info->rtp_codec == 5)) {
+            dyn_pl = rtp_dyn_payload_new();
+            rtp_dyn_payload_insert(dyn_pl, dyn_pl_info->rtp_pt, "AMR", 8000);
+        }
+        conversation_delete_proto_data(conv, proto_rsl);
+        wmem_free(wmem_file_scope(), dyn_pl_info);
         rtp_add_address(pinfo, &src_addr, local_port, 0,
-                        "GSM A-bis/IP", pinfo->num, 0, NULL);
+                        "GSM A-bis/IP", pinfo->num, 0, dyn_pl);
         rtcp_add_address(pinfo, &src_addr, local_port+1, 0,
                          "GSM A-bis/IP", pinfo->num);
         break;
