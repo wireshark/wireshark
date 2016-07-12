@@ -80,6 +80,16 @@ static int hf_ccid_bPINSupport_modify = -1;
 static int hf_ccid_bPINSupport_vrfy = -1;
 static int hf_ccid_bMaxCCIDBusySlots = -1;
 static int hf_ccid_Reserved = -1;
+static int hf_ccid_bmSlotICCState = -1;
+static int hf_ccid_bmSlotICCState_slot0Current = -1;
+static int hf_ccid_bmSlotICCState_slot0Changed = -1;
+static int hf_ccid_bmSlotICCState_slot1Current = -1;
+static int hf_ccid_bmSlotICCState_slot1Changed = -1;
+static int hf_ccid_bmSlotICCState_slot2Current = -1;
+static int hf_ccid_bmSlotICCState_slot2Changed = -1;
+static int hf_ccid_bmSlotICCState_slot3Current = -1;
+static int hf_ccid_bmSlotICCState_slot3Changed = -1;
+static int hf_ccid_bHardwareErrorCode = -1;
 
 static dissector_handle_t usb_ccid_handle;
 
@@ -111,6 +121,18 @@ static const int *bPINSupport_fields[] = {
     NULL
 };
 
+static const int *bmSlotICCState_fields[] = {
+    &hf_ccid_bmSlotICCState_slot0Current,
+    &hf_ccid_bmSlotICCState_slot0Changed,
+    &hf_ccid_bmSlotICCState_slot1Current,
+    &hf_ccid_bmSlotICCState_slot1Changed,
+    &hf_ccid_bmSlotICCState_slot2Current,
+    &hf_ccid_bmSlotICCState_slot2Changed,
+    &hf_ccid_bmSlotICCState_slot3Current,
+    &hf_ccid_bmSlotICCState_slot3Changed,
+    NULL
+};
+
 
 /* smart card descriptor, as defined in section 5.1
    of the USB CCID specification */
@@ -138,6 +160,10 @@ static const int *bPINSupport_fields[] = {
 #define RDR_PC_PARAMS          0x82
 #define RDR_PC_ESCAPE          0x83
 #define RDR_PC_DATA_CLOCK      0x84
+
+/* Standardised Interupt IN message types */
+#define RDR_PC_NOTIF_SLOT_CHNG 0x50
+#define RDR_PC_HWERROR         0x51
 
 void proto_register_ccid(void);
 void proto_reg_handoff_ccid(void);
@@ -173,6 +199,10 @@ static const value_string ccid_opcode_vals[] = {
     {RDR_PC_ESCAPE          , "RDR_to_PC_Escape"},
     {RDR_PC_DATA_CLOCK      , "RDR_to_PC_DataRateAndClockFrequency"},
 
+    /* Standardised Interupt IN message types */
+    {RDR_PC_NOTIF_SLOT_CHNG , "RDR_to_PC_NotifySlotChange"},
+    {RDR_PC_HWERROR         , "RDR_to_PC_HardwareError"},
+
     /* End of message types */
     {0x00, NULL}
 };
@@ -200,6 +230,10 @@ static const value_string ccid_messagetypes_vals[] = {
     {RDR_PC_PARAMS          , "Reader to PC: Parameters"},
     {RDR_PC_ESCAPE          , "Reader to PC: Escape"},
     {RDR_PC_DATA_CLOCK      , "Reader to PC: Data Rate and Clock Frequency"},
+
+    /* Standardised Interupt IN message types */
+    {RDR_PC_NOTIF_SLOT_CHNG , "Reader to PC: Notify Slot Change"},
+    {RDR_PC_HWERROR         , "Reader to PC: Hardware Error"},
 
     /* End of message types */
     {0x00, NULL}
@@ -249,6 +283,7 @@ static gint ett_ccid_protocols = -1;
 static gint ett_ccid_features = -1;
 static gint ett_ccid_lcd_layout = -1;
 static gint ett_ccid_pin_support = -1;
+static gint ett_ccid_slot_change = -1;
 
 /* Table of payload types - adapted from the I2C dissector */
 enum {
@@ -551,6 +586,31 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(ccid_tree, hf_ccid_bError, tvb, 8, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bClockStatus, tvb, 9, 1, ENC_LITTLE_ENDIAN);
         break;
+
+    case RDR_PC_PARAMS:
+        proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(ccid_tree, hf_ccid_bStatus, tvb, 7, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(ccid_tree, hf_ccid_bError, tvb, 8, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(ccid_tree, hf_ccid_bProtocolNum, tvb, 8, 1, ENC_LITTLE_ENDIAN);
+        break;
+
+    /*Interupt IN*/
+    case RDR_PC_NOTIF_SLOT_CHNG:
+        proto_tree_add_bitmask(ccid_tree, tvb, 1,
+            hf_ccid_bmSlotICCState, ett_ccid_slot_change, bmSlotICCState_fields,
+            ENC_LITTLE_ENDIAN);
+        break;
+
+    case RDR_PC_HWERROR:
+        proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 2, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(ccid_tree, hf_ccid_bHardwareErrorCode, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+        break;
+
+
+
     }
 
     /* TODO: Try use "offset" instead of hardcoded constants */
@@ -706,7 +766,37 @@ proto_register_ccid(void)
              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_Reserved,
          { "Reserved for Future Use", "usbccid.hf_ccid_Reserved",
-             FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }}
+             FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_ccid_bmSlotICCState,
+         { "Slot ICC State", "usbccid.hf_ccid_bmSlotICCState",
+             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_ccid_bmSlotICCState_slot0Current,
+         { "Slot 0 Current Status", "usbccid.hf_ccid_bmSlotICCState.slot0Current",
+             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01, NULL, HFILL } },
+        { &hf_ccid_bmSlotICCState_slot0Changed,
+         { "Slot 0 Status changed", "usbccid.hf_ccid_bmSlotICCState.slot0Changed",
+             FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02, NULL, HFILL } },
+        { &hf_ccid_bmSlotICCState_slot1Current,
+         { "Slot 1 Current Status", "usbccid.hf_ccid_bmSlotICCState.slot1Current",
+             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04, NULL, HFILL } },
+        { &hf_ccid_bmSlotICCState_slot1Changed,
+         { "Slot 1 Status changed", "usbccid.hf_ccid_bmSlotICCState.slot1Changed",
+             FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08, NULL, HFILL } },
+        { &hf_ccid_bmSlotICCState_slot2Current,
+         { "Slot 2 Current Status", "usbccid.hf_ccid_bmSlotICCState.slot2Current",
+             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10, NULL, HFILL } },
+        { &hf_ccid_bmSlotICCState_slot2Changed,
+         { "Slot 2 Status changed", "usbccid.hf_ccid_bmSlotICCState.slot2Changed",
+             FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20, NULL, HFILL } },
+        { &hf_ccid_bmSlotICCState_slot3Current,
+         { "Slot 3 Current Status", "usbccid.hf_ccid_bmSlotICCState.slot3Current",
+             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40, NULL, HFILL } },
+        { &hf_ccid_bmSlotICCState_slot3Changed,
+         { "Slot 3 Status changed", "usbccid.hf_ccid_bmSlotICCState.slot3Changed",
+             FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80, NULL, HFILL } },
+        { &hf_ccid_bHardwareErrorCode,
+         { "Hardware Error Code", "usbccid.hf_ccid_bHardwareErrorCode",
+             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     };
 
     static gint *ett[] = {
@@ -716,7 +806,8 @@ proto_register_ccid(void)
         &ett_ccid_protocols,
         &ett_ccid_features,
         &ett_ccid_lcd_layout,
-        &ett_ccid_pin_support
+        &ett_ccid_pin_support,
+        &ett_ccid_slot_change
     };
 
     static const enum_val_t sub_enum_vals[] = {
