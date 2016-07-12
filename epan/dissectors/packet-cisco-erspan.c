@@ -73,9 +73,10 @@ static gint ett_erspan = -1;
 static int hf_erspan_version = -1;
 static int hf_erspan_vlan = -1;
 static int hf_erspan_priority = -1;
-static int hf_erspan_direction = -1;
+static int hf_erspan_encap = -1;
 static int hf_erspan_truncated = -1;
 static int hf_erspan_spanid = -1;
+static int hf_erspan_index = -1;
 static int hf_erspan_timestamp = -1;
 static int hf_erspan_direction2 = -1;
 
@@ -102,6 +103,18 @@ static const value_string erspan_direction_vals[] = {
 	{ERSPAN_DIRECTION_INCOMING, "Incoming"},
 	{ERSPAN_DIRECTION_OUTGOING, "Outgoing"},
 	{0, NULL},
+};
+
+#define ERSPAN_ENCAP_00 0
+#define ERSPAN_ENCAP_01 1
+#define ERSPAN_ENCAP_10 2
+#define ERSPAN_ENCAP_11 3
+static const value_string erspan_encap_vals[] = {
+	{ERSPAN_ENCAP_00, "Originally without VLAN tag"},
+	{ERSPAN_ENCAP_01, "Originally ISL encapsulated"},
+	{ERSPAN_ENCAP_10, "Originally 802.1Q encapsulated"},
+	{ERSPAN_ENCAP_11, "VLAN tag preserved in frame"},
+	{0, NULL}
 };
 
 static const value_string erspan_truncated_vals[] = {
@@ -170,12 +183,11 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 			ENC_BIG_ENDIAN);
 
 		if (version == 1)
-			proto_tree_add_item(erspan_tree, hf_erspan_direction, tvb,
+			proto_tree_add_item(erspan_tree, hf_erspan_encap, tvb,
 				offset, 2, ENC_BIG_ENDIAN);
-
-
-		proto_tree_add_item(erspan_tree, hf_erspan_bso, tvb, offset, 2,
-			ENC_BIG_ENDIAN);
+		else
+			proto_tree_add_item(erspan_tree, hf_erspan_bso, tvb, offset, 2,
+				ENC_BIG_ENDIAN);
 
 
 		proto_tree_add_item(erspan_tree, hf_erspan_truncated, tvb, offset, 2,
@@ -183,6 +195,12 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		proto_tree_add_item(erspan_tree, hf_erspan_spanid, tvb, offset, 2,
 			ENC_BIG_ENDIAN);
 		offset += 2;
+
+		if (version == 1) {
+			proto_tree_add_item(erspan_tree, hf_erspan_index, tvb,
+				offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+		}
 
 		if (version == 2) {
 			proto_tree_add_item(erspan_tree, hf_erspan_timestamp, tvb,
@@ -249,9 +267,9 @@ proto_register_erspan(void)
 		{ "Priority",	"erspan.priority", FT_UINT16, BASE_DEC, NULL,
 			0xe000, NULL, HFILL }},
 
-		{ &hf_erspan_direction,
-		{ "Direction",	"erspan.direction", FT_UINT16, BASE_DEC, VALS(erspan_direction_vals),
-			0x0800, NULL, HFILL }},
+		{ &hf_erspan_encap,
+		{ "Encap",	"erspan.encap", FT_UINT16, BASE_DEC, VALS(erspan_encap_vals),
+			0x1800, NULL, HFILL }},
 
 		{ &hf_erspan_bso,
 		{ "Bad/Short/Oversized",	"erspan.bso", FT_UINT16, BASE_DEC, VALS(erspan_truncated_vals),
@@ -265,6 +283,10 @@ proto_register_erspan(void)
 		{ &hf_erspan_spanid,
 		{ "SpanID",	"erspan.spanid", FT_UINT16, BASE_DEC, NULL,
 			0x03ff, NULL, HFILL }},
+
+		{ &hf_erspan_index,
+		{ "Index",	"erspan.index", FT_UINT32, BASE_DEC, NULL,
+			0xfffff, NULL, HFILL }},
 
 		{ &hf_erspan_timestamp,
 		{ "Timestamp",	"erspan.timestamp", FT_UINT32, BASE_DEC, NULL,
