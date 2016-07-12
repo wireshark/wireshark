@@ -29,6 +29,7 @@
 #include "config.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
@@ -382,25 +383,14 @@ dissect_beep_int(tvbuff_t *tvb, int offset,
 {
   proto_item  *hidden_item;
   int ival, ind = 0;
-  unsigned int i = num_len(tvb, offset);
-  guint8 int_buff[100];
+  unsigned int len = num_len(tvb, offset);
 
-  memset(int_buff, '\0', sizeof(int_buff));
-
-  tvb_memcpy(tvb, int_buff, offset, MIN(sizeof(int_buff) - 1, i));
-
-  /* XXX - is this still "Dangerous" now that we don't copy to the
-     last byte of "int_buff[]"? */
-  if (sscanf((gchar*)int_buff, "%d", &ival) != 1)
-    ival = 0; /* Should we signal an error? */
-
-  if (tree) {
-    proto_tree_add_uint(tree, hf, tvb, offset, i, ival);
-  }
+  ival = strtol(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII), NULL, 10);
+  proto_tree_add_uint(tree, hf, tvb, offset, len, ival);
 
   while (hfa[ind]) {
 
-    hidden_item = proto_tree_add_uint(tree, *hfa[ind], tvb, offset, i, ival);
+    hidden_item = proto_tree_add_uint(tree, *hfa[ind], tvb, offset, len, ival);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
     ind++;
 
@@ -408,7 +398,7 @@ dissect_beep_int(tvbuff_t *tvb, int offset,
 
   *val = ival;  /* Return the value */
 
-  return i;
+  return len;
 
 }
 
