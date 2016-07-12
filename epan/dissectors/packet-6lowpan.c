@@ -1888,7 +1888,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
      *=====================================================
      */
     if (tvb_get_bits8(tvb, offset<<3, LOWPAN_NHC_PATTERN_EXT_BITS) == LOWPAN_NHC_PATTERN_EXT) {
-        struct ip6_ext  ipv6_ext;
+        struct ip6_ext  ipv6_ext = {0, 0};
         guint8          ext_flags;
         guint8          ext_hlen;
         guint8          ext_len;
