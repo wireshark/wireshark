@@ -2,6 +2,8 @@
  * Routines for T.30 packet dissection
  * 2006  Alejandro Vaquero, add T30 reassemble and dissection
  *
+ * http://www.itu.int/rec/T-REC-T.30-200509-I/en
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -971,11 +973,10 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                         val_to_str_ext_const(octet & 0x7F, &t30_facsimile_control_field_vals_short_ext, "<unknown>"),
                         val_to_str_ext_const(octet & 0x7F, &t30_facsimile_control_field_vals_ext, "<unknown>") );
     /*
-        TODO: VS Code Analysis makes a good point - several of these commands can't get detected while
-        the m.s.b. is masked off! (e.g. T30_FC_DTC is 0x81).  I couldn't readily work out from the T.30
-        spec why this masking is being done...
+        The T.30 spec shows some bits of the control being hardcoded to 1, but there is no reason to have a
+        bitmask here.
     */
-    switch (octet & 0x7F) {
+    switch (octet) {
     case T30_FC_DIS:
     case T30_FC_DTC:
         dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, TRUE, t38);
