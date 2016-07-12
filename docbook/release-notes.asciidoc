@@ -54,6 +54,7 @@ M2 Application Protocol
 CAN FD
 Bluetooth HCI Vendor Intel
 High-speed SECS message service (HSMS)
+GSM Osmux
 --sort-and-group--
 
 === Updated Protocol Support

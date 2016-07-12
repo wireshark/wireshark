@@ -655,6 +655,7 @@ set(DISSECTOR_SRC
 	packet-gsm_bssmap_le.c
 	packet-gsm_cbch.c
 	packet-gsm_ipa.c
+	packet-gsm_osmux.c
 	packet-gsm_rlcmac.c
 	packet-gsm_sim.c
 	packet-gsm_sms.c

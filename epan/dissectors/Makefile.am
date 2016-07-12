@@ -675,6 +675,7 @@ DISSECTOR_SRC = \
 	packet-gsm_bssmap_le.c	\
 	packet-gsm_cbch.c	\
 	packet-gsm_ipa.c	\
+	packet-gsm_osmux.c		\
 	packet-gsm_rlcmac.c	\
 	packet-gsm_sim.c	\
 	packet-gsm_sms.c	\
@@ -1563,6 +1564,7 @@ DISSECTOR_INCLUDES = \
 	packet-gsm_a_common.h	\
 	packet-gsm_a_rr.h	\
 	packet-gsm_map.h	\
+	packet-gsm_osmux.c	\
 	packet-gsm_rlcmac.h	\
 	packet-gsm_sms.h	\
 	packet-gssapi.h		\
