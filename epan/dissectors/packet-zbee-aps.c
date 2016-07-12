@@ -893,6 +893,8 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 break;
             case ZBEE_PROFILE_T2:
                 proto_tree_add_item(aps_tree, hf_zbee_aps_t2_cluster, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                col_set_str(pinfo->cinfo, COL_INFO,
+                            val_to_str_const(nwk->cluster_id, zbee_aps_t2_cid_names, "Unknown T2 cluster"));
                 break;
             default:
                 proto_tree_add_item(aps_tree, hf_zbee_aps_cluster, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1059,9 +1061,16 @@ dissect_zbee_aps_no_endpt:
                 profile_handle = zbee_apf_handle;
             }
             else if (profile_handle == NULL) {
-                /* Could not locate a profile dissector, but there may
-                   be profile-wide commands so try to dissect them */
-                zcl_handle = find_dissector(ZBEE_PROTOABBREV_ZCL);
+                if (payload_tvb && (packet.profile == ZBEE_PROFILE_T2)) {
+                    /* Move T2 dissect here: don't want to show T2 contents as
+                     * ZCL mess, broken packets etc */
+                    payload_tvb = tvb_new_subset_remaining(payload_tvb, dissect_zbee_t2(payload_tvb, aps_tree, nwk->cluster_id));
+                }
+                else {
+                    /* Could not locate a profile dissector, but there may
+                       be profile-wide commands so try to dissect them */
+                    zcl_handle = find_dissector(ZBEE_PROTOABBREV_ZCL);
+                }
                 if (zcl_handle) {
                     call_dissector_with_data(zcl_handle, payload_tvb, pinfo, tree, nwk);
                 }
@@ -1091,10 +1100,6 @@ dissect_zbee_aps_no_endpt:
      * If we get this far, then no subdissectors have been called, use the data
      * dissector to display the leftover bytes, if any.
      */
-
-    if (payload_tvb && (packet.profile == ZBEE_PROFILE_T2)) {
-        payload_tvb = tvb_new_subset_remaining(payload_tvb, dissect_zbee_t2(payload_tvb, aps_tree, nwk->cluster_id));
-    }
 
     if (payload_tvb) {
         call_data_dissector(payload_tvb, pinfo, tree);
