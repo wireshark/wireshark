@@ -85,6 +85,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_HOMEPLUG_AV,          "Homeplug AV" },
 	{ ETHERTYPE_IEEE_802_1AD,         "802.1ad Provider Bridge (Q-in-Q)" },
 	{ ETHERTYPE_IEEE_802_1AH,         "802.1ah Provider Backbone Bridge (mac-in-mac)" },
+	{ ETHERTYPE_IEEE_802_1BR,         "802.1br Bridge Port Extension E-Tag" },
 	{ ETHERTYPE_EAPOL,                "802.1X Authentication" },
 	{ ETHERTYPE_RSN_PREAUTH,          "802.11i Pre-Authentication" },
 	{ ETHERTYPE_MPLS,                 "MPLS label switched packet" },

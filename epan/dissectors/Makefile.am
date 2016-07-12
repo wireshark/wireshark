@@ -580,6 +580,7 @@ DISSECTOR_SRC = \
 	packet-erldp.c		\
 	packet-esio.c		\
 	packet-esis.c		\
+	packet-etag.c		\
 	packet-etch.c		\
 	packet-eth.c		\
 	packet-etherip.c	\

@@ -3679,6 +3679,10 @@ Sumit Kumar Jha		<sjha3[AT]ncsu.edu> {
 	Generic Protocol Extension Support for VXLAN
 }
 
+Kim Kempf		<kim.kempf[AT]apcon.com> {
+	802.1BR E-Tag dissector
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>
@@ -3930,7 +3934,6 @@ James Lynch		<lynch007[AT]gmail.com>
 Chidambaram Arunachalam	<carunach[AT]cisco.com>
 João Valverde		<joao.valverde[AT]tecnico.ulisboa.pt>
 Benoît Canet		<benoit[AT]scylladb.com>
-
 
 Acknowledgements
 ------------
