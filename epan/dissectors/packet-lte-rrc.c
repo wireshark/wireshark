@@ -9009,6 +9009,23 @@ lte_rrc_thresholdWLAN_RSSI_fmt(gchar *s, guint32 v)
   g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", -128+v, v);
 }
 
+static const value_string lte_rrc_schedulingInfoSIB1_NB_r13_vals[] = {
+  {  0, "4 NPDSCH repetitions - TBS 208 bits"},
+  {  1, "8 NPDSCH repetitions - TBS 208 bits"},
+  {  2, "16 NPDSCH repetitions - TBS 208 bits"},
+  {  3, "4 NPDSCH repetitions - TBS 328 bits"},
+  {  4, "8 NPDSCH repetitions - TBS 328 bits"},
+  {  5, "16 NPDSCH repetitions - TBS 328 bits"},
+  {  6, "4 NPDSCH repetitions - TBS 440 bits"},
+  {  7, "8 NPDSCH repetitions - TBS 440 bits"},
+  {  8, "16 NPDSCH repetitions - TBS 440 bits"},
+  {  9, "4 NPDSCH repetitions - TBS 680 bits"},
+  { 10, "8 NPDSCH repetitions - TBS 680 bits"},
+  { 11, "16 NPDSCH repetitions - TBS 680 bits"},
+  {  0, NULL}
+};
+static value_string_ext lte_rrc_schedulingInfoSIB1_NB_r13_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_schedulingInfoSIB1_NB_r13_vals);
+
 static void
 lte_rrc_call_dissector(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -68411,7 +68428,7 @@ static int dissect_UE_Capability_NB_r13_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2875 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2892 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -84892,7 +84909,7 @@ void proto_register_lte_rrc(void) {
         "BIT_STRING_SIZE_2", HFILL }},
     { &hf_lte_rrc_schedulingInfoSIB1_r13,
       { "schedulingInfoSIB1-r13", "lte-rrc.schedulingInfoSIB1_r13",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_schedulingInfoSIB1_NB_r13_vals_ext, 0,
         "INTEGER_0_15", HFILL }},
     { &hf_lte_rrc_systemInfoValueTag_r13,
       { "systemInfoValueTag-r13", "lte-rrc.systemInfoValueTag_r13",
@@ -86308,7 +86325,7 @@ void proto_register_lte_rrc(void) {
         "T_n311_r13_01", HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 3195 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3212 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -89140,7 +89157,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_UE_TimersAndConstants_NB_r13,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 3922 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3939 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -89240,7 +89257,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 3996 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 4013 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
   register_cleanup_routine(&lte_rrc_cleanup_protocol);

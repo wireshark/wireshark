@@ -2341,6 +2341,23 @@ lte_rrc_thresholdWLAN_RSSI_fmt(gchar *s, guint32 v)
   g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", -128+v, v);
 }
 
+static const value_string lte_rrc_schedulingInfoSIB1_NB_r13_vals[] = {
+  {  0, "4 NPDSCH repetitions - TBS 208 bits"},
+  {  1, "8 NPDSCH repetitions - TBS 208 bits"},
+  {  2, "16 NPDSCH repetitions - TBS 208 bits"},
+  {  3, "4 NPDSCH repetitions - TBS 328 bits"},
+  {  4, "8 NPDSCH repetitions - TBS 328 bits"},
+  {  5, "16 NPDSCH repetitions - TBS 328 bits"},
+  {  6, "4 NPDSCH repetitions - TBS 440 bits"},
+  {  7, "8 NPDSCH repetitions - TBS 440 bits"},
+  {  8, "16 NPDSCH repetitions - TBS 440 bits"},
+  {  9, "4 NPDSCH repetitions - TBS 680 bits"},
+  { 10, "8 NPDSCH repetitions - TBS 680 bits"},
+  { 11, "16 NPDSCH repetitions - TBS 680 bits"},
+  {  0, NULL}
+};
+static value_string_ext lte_rrc_schedulingInfoSIB1_NB_r13_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_schedulingInfoSIB1_NB_r13_vals);
+
 static void
 lte_rrc_call_dissector(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {

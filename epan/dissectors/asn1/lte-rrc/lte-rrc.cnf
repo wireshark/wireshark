@@ -2342,6 +2342,9 @@ SL-DiscSysInfoReport-r13/cellSelectionInfo-r13/q-RxLevMinOffset-r13 STRINGS=VALS
 #.FN_HDR RRCConnectionResumeComplete-NB
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionResumeComplete-NB");
 
+#.TYPE_ATTR
+MasterInformationBlock-NB/schedulingInfoSIB1-r13 TYPE=FT_UINT32 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_schedulingInfoSIB1_NB_r13_vals_ext
+
 #.FN_BODY RRCConnectionReject-NB-r13-IEs/extendedWaitTime-r13
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "s");
