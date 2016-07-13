@@ -2179,7 +2179,11 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *p
     /* XXX Use Gxxx_FROM_LE macros instead? */
     if (pn->byte_swapped) {
         wblock->packet_header->pseudo_header.sysdig_event.byte_order =
-                G_BYTE_ORDER == G_LITTLE_ENDIAN ? G_BIG_ENDIAN : G_LITTLE_ENDIAN;
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+            G_BIG_ENDIAN;
+#else
+            G_LITTLE_ENDIAN;
+#endif
         wblock->packet_header->pseudo_header.sysdig_event.cpu_id = GUINT16_SWAP_LE_BE(cpu_id);
         ts = GUINT64_SWAP_LE_BE(wire_ts);
         wblock->packet_header->pseudo_header.sysdig_event.thread_id = GUINT64_SWAP_LE_BE(thread_id);
