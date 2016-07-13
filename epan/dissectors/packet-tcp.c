@@ -1674,8 +1674,8 @@ finished_checking_retransmission_type:
     nextseq = seq+seglen;
     if ((seglen || flags&(TH_SYN|TH_FIN)) && tcpd->fwd->tcp_analyze_seq_info->segment_count < TCP_MAX_UNACKED_SEGMENTS) {
         /* Add this new sequence number to the fwd list.  But only if there
-	 * aren't "too many" unacked segments (e.g., we're not seeing the ACKs).
-	 */
+         * aren't "too many" unacked segments (e.g., we're not seeing the ACKs).
+         */
         ual = wmem_new(wmem_file_scope(), tcp_unacked_t);
         ual->next=tcpd->fwd->tcp_analyze_seq_info->segments;
         tcpd->fwd->tcp_analyze_seq_info->segments=ual;
@@ -7060,7 +7060,7 @@ proto_register_tcp(void)
         "TCP port", proto_tcp, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
     heur_subdissector_list = register_heur_dissector_list("tcp", proto_tcp);
 
-	register_capture_dissector_table("tcp.port", "TCP");
+    register_capture_dissector_table("tcp.port", "TCP");
 
     /* Register configuration preferences */
     tcp_module = prefs_register_protocol(proto_tcp, NULL);
