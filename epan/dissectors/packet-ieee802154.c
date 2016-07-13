@@ -720,10 +720,19 @@ static int
 dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     tvbuff_t *new_tvb = dissect_zboss_specific(tvb, pinfo, tree);
+    guint options = 0;
 
+    if (ieee802154_cc24xx)
+    {
+      options = DISSECT_IEEE802154_OPTION_CC24xx;
+    }
+    if (new_tvb != tvb)
+    {
+      /* ZBOSS traffic dump: always TI FCS, always ZigBee */
+      options = (DISSECT_IEEE802154_OPTION_CC24xx | DISSECT_IEEE802154_OPTION_ZBOSS);
+    }
     /* Call the common dissector. */
-    dissect_ieee802154_common(new_tvb, pinfo, tree,
-                              ((ieee802154_cc24xx || new_tvb != tvb) ? (DISSECT_IEEE802154_OPTION_CC24xx | DISSECT_IEEE802154_OPTION_ZBOSS) : 0));
+    dissect_ieee802154_common(new_tvb, pinfo, tree, options);
     return tvb_captured_length(tvb);
 } /* dissect_ieee802154 */
 
@@ -1484,7 +1493,12 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         }
     }
 
-    if (tvb_captured_length_remaining(tvb, offset) > IEEE802154_FCS_LEN) {
+    /* If it is ok to dissect bad FCS, FCS might be absent, so still dissect
+     * commands like Association request. */
+    if ((!ieee802154_fcs_ok
+         /* If either ZBOSS traffic dump or TI CC2{45}xx, FCS must be present. */
+         && !(options & (DISSECT_IEEE802154_OPTION_ZBOSS | DISSECT_IEEE802154_OPTION_CC24xx)))
+        || tvb_captured_length_remaining(tvb, offset) > IEEE802154_FCS_LEN) {
         /*
          * Wrap the sub-dissection in a try/catch block in case the payload is
          * broken. First we store the current protocol so we can fix it if an
