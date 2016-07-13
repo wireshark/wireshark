@@ -45,7 +45,7 @@
 #define CHANNEL_TYPE_MCCH 7
 #define CHANNEL_TYPE_MTCH 8
 
-/* UMSequenceNumberLength */
+/* sequenceNumberLength */
 #define UM_SN_LENGTH_5_BITS 5
 #define UM_SN_LENGTH_10_BITS 10
 #define AM_SN_LENGTH_10_BITS 10
