@@ -978,7 +978,11 @@ void MainWindow::pipeActivated(int source) {
 #endif // _WIN32
 }
 
-void MainWindow::pipeNotifierDestroyed() {
+void MainWindow::pipeNotifierDestroyed()
+{
+    /* Pop the "<live capture in progress>" message off the status bar. */
+    main_ui_->statusBar->setFileName(capture_file_);
+
 #ifdef _WIN32
     pipe_timer_ = NULL;
 #else
@@ -996,8 +1000,6 @@ void MainWindow::stopCapture() {
     capture_stop(&cap_session_);
 #endif // HAVE_LIBPCAP
 
-    /* Pop the "<live capture in progress>" message off the status bar. */
-    main_ui_->statusBar->setFileName(capture_file_);
 }
 
 // Keep focus rects from showing through the welcome screen. Primarily for
