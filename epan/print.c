@@ -2051,6 +2051,7 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
     g_assert(fh);
 
     data.fields = fields;
+    data.edt = edt;
 
     if (NULL == fields->field_indicies) {
         /* Prepare a lookup table from string abbreviation for field to its index. */
