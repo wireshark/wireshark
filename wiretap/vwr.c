@@ -737,7 +737,7 @@ static gboolean vwr_read_rec_header(FILE_T fh, int *rec_size, int *IS_TX, int *e
 
 static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
 {
-    guint8   rec[B_SIZE];         /* local buffer (holds input record) */
+    guint8  *rec;         /* local buffer (holds input record) */
     guint8   header[VW_RECORD_HEADER_LENGTH];
     int      rec_size     = 0;
     guint8   i;
@@ -758,6 +758,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     }
 
     fpga_version = 1000;
+    rec = (guint8*)g_malloc(B_SIZE);
     /* Got a frame record; see if it is vwr  */
     /* If we don't get it all, then declare an error, we can't process the frame.          */
     /* Read out the file data in 16-byte messages, stopping either after we find a frame,  */
@@ -772,13 +773,16 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
         /* If the variable length message is not a frame, simply skip over it.       */
         if ((f_len = decode_msg(header, &v_type, NULL)) != 0) {
             if (f_len > B_SIZE) {
+                g_free(rec);
                 /* Treat this here as an indication that the file probably */
                 /*  isn't a vwr file. */
                 return UNKNOWN_FPGA;
             }
             else if (v_type != VT_FRAME) {
-                if (file_seek(wth->fh, f_len, SEEK_CUR, err) < 0)
+                if (file_seek(wth->fh, f_len, SEEK_CUR, err) < 0) {
+                    g_free(rec);
                     return -1;
+                }
                 else if (v_type == VT_CPMSG)
                     valid_but_empty_file = 1;
             }
@@ -787,6 +791,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                 /* Got a frame record; read over entire record (frame + trailer) into a local buffer */
                 /* If we don't get it all, assume this isn't a vwr file */
                 if (!wtap_read_bytes(wth->fh, rec, rec_size, err, err_info)) {
+                    g_free(rec);
                     if (*err == WTAP_ERR_SHORT_READ)
                         return UNKNOWN_FPGA; /* short read - not a vwr file */
                     return -1;
@@ -865,8 +870,11 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                 {
                     /* reset the file position offset */
                     if (file_seek (wth->fh, filePos, SEEK_SET, err) == -1) {
+                        g_free(rec);
                         return (-1);
                     }
+
+                    g_free(rec);
                     /* We found an FPGA that works */
                     return fpga_version;
                 }
@@ -875,11 +883,17 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     }
 
     /* Is this a valid but empty file?  If so, claim it's the S3_W_FPGA FPGA. */
-    if (valid_but_empty_file > 0)
+    if (valid_but_empty_file > 0) {
+        g_free(rec);
         return(S3_W_FPGA);
+    }
 
-    if (*err == WTAP_ERR_SHORT_READ)
+    if (*err == WTAP_ERR_SHORT_READ) {
+        g_free(rec);
         return UNKNOWN_FPGA; /* short read - not a vwr file */
+    }
+
+    g_free(rec);
     return -1;
 }
 
@@ -2341,31 +2355,41 @@ vwr_process_rec_data(FILE_T fh, int rec_size,
                      struct wtap_pkthdr *phdr, Buffer *buf, vwr_t *vwr,
                      int IS_TX, int *err, gchar **err_info)
 {
-    guint8   rec[B_SIZE];       /* local buffer (holds input record) */
+    guint8*   rec;       /* local buffer (holds input record) */
+    gboolean  ret = FALSE;
+
+    rec = (guint8*)g_malloc(B_SIZE);
 
     /* Read over the entire record (frame + trailer) into a local buffer.         */
     /* If we don't get it all, then declare an error, we can't process the frame. */
     if (!wtap_read_bytes(fh, rec, rec_size, err, err_info))
+    {
+        g_free(rec);
         return FALSE;
+    }
 
     /* now format up the frame data */
     switch (vwr->FPGA_VERSION)
     {
         case S1_W_FPGA:
-            return vwr_read_s1_W_rec(vwr, phdr, buf, rec, rec_size, err, err_info);
+            ret = vwr_read_s1_W_rec(vwr, phdr, buf, rec, rec_size, err, err_info);
             break;
         case S2_W_FPGA:
         case S3_W_FPGA:
-            return vwr_read_s2_s3_W_rec(vwr, phdr, buf, rec, rec_size, IS_TX, err, err_info);
+            ret = vwr_read_s2_s3_W_rec(vwr, phdr, buf, rec, rec_size, IS_TX, err, err_info);
             break;
         case vVW510012_E_FPGA:
         case vVW510024_E_FPGA:
-            return vwr_read_rec_data_ethernet(vwr, phdr, buf, rec, rec_size, IS_TX, err, err_info);
+            ret = vwr_read_rec_data_ethernet(vwr, phdr, buf, rec, rec_size, IS_TX, err, err_info);
             break;
         default:
+            g_free(rec);
             g_assert_not_reached();
-            return FALSE;
+            return ret;
     }
+
+    g_free(rec);
+    return ret;
 }
 
 /*
