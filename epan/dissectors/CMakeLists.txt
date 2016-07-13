@@ -1167,6 +1167,7 @@ set(DISSECTOR_SRC
 	packet-ses.c
 	packet-sflow.c
 	packet-sgsap.c
+	packet-shim6.c
 	packet-sigcomp.c
 	packet-simple.c
 	packet-simulcrypt.c

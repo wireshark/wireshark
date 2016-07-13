@@ -102,14 +102,6 @@ struct ip6_frag {
     guint32 ip6f_ident;     /* identification */
 };
 
-/* SHIM6 header */
-struct ip6_shim {
-    guint8  ip6s_nxt; /* next header */
-    guint8  ip6s_len; /* header extension length */
-    guint8  ip6s_p;   /* P field and first 7 bits of remainder */
-    /* followed by shim6 specific data*/
-};
-
 #define IP6F_OFF_MASK           0xfff8 /* mask out offset from _offlg */
 #define IP6F_RESERVED_MASK      0x0006 /* reserved bits in ip6f_offlg */
 #define IP6F_MORE_FRAG          0x0001 /* more-fragments flag */
