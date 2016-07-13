@@ -893,8 +893,11 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 break;
             case ZBEE_PROFILE_T2:
                 proto_tree_add_item(aps_tree, hf_zbee_aps_t2_cluster, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                col_set_str(pinfo->cinfo, COL_INFO,
-                            val_to_str_const(nwk->cluster_id, zbee_aps_t2_cid_names, "Unknown T2 cluster"));
+                if (packet.type == ZBEE_APS_FCF_DATA)
+                {
+                    col_set_str(pinfo->cinfo, COL_INFO,
+                                val_to_str_const(nwk->cluster_id, zbee_aps_t2_cid_names, "Unknown T2 cluster"));
+                }
                 break;
             default:
                 proto_tree_add_item(aps_tree, hf_zbee_aps_cluster, tvb, offset, 2, ENC_LITTLE_ENDIAN);
