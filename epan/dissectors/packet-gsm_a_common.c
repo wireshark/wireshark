@@ -808,6 +808,8 @@ static const value_string dir_of_alt_vals[] = {
     { 0,  NULL }
 };
 
+typedef guint16 (**elem_func_hander)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+
 void
 dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
 
@@ -1256,7 +1258,7 @@ guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei
     value_string_ext    elem_names_ext;
     gint               *elem_ett;
     const gchar        *elem_name;
-    guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+    elem_func_hander    elem_funcs;
 
     curr_offset = offset;
     consumed = 0;
@@ -1339,7 +1341,7 @@ guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 ie
     value_string_ext    elem_names_ext;
     gint               *elem_ett;
     const gchar        *elem_name;
-    guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+    elem_func_hander    elem_funcs;
 
     curr_offset = offset;
     consumed = 0;
@@ -1428,7 +1430,7 @@ guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 i
     value_string_ext    elem_names_ext;
     gint               *elem_ett;
     const gchar        *elem_name;
-    guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+    elem_func_hander    elem_funcs;
 
     curr_offset = offset;
     consumed = 0;
@@ -1507,7 +1509,7 @@ guint16 elem_tv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei,
     value_string_ext    elem_names_ext;
     gint               *elem_ett;
     const gchar        *elem_name;
-    guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+    elem_func_hander    elem_funcs;
 
     curr_offset = offset;
     consumed = 0;
@@ -1581,7 +1583,7 @@ guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     value_string_ext    elem_names_ext;
     gint               *elem_ett;
     const gchar        *elem_name;
-    guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+    elem_func_hander    elem_funcs;
 
     curr_offset = offset;
     consumed = 0;
@@ -1645,7 +1647,7 @@ guint16 elem_t(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint8 i
     guint16             consumed;
     value_string_ext    elem_names_ext;
     gint               *elem_ett;
-    guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+    elem_func_hander    elem_funcs;
 
     curr_offset = offset;
     consumed = 0;
@@ -1686,7 +1688,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int 
     value_string_ext    elem_names_ext;
     gint               *elem_ett;
     const gchar        *elem_name;
-    guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+    elem_func_hander    elem_funcs;
 
     curr_offset = offset;
     consumed = 0;
@@ -1752,7 +1754,7 @@ guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_
     value_string_ext    elem_names_ext;
     gint               *elem_ett;
     const gchar        *elem_name;
-    guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+    elem_func_hander    elem_funcs;
 
     curr_offset = offset;
     consumed = 0;
@@ -1819,7 +1821,7 @@ guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_typ
     value_string_ext    elem_names_ext;
     gint               *elem_ett;
     const gchar        *elem_name;
-    guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+    elem_func_hander    elem_funcs;
 
     curr_offset = offset;
     consumed = 0;
