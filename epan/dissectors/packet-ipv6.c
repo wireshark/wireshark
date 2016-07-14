@@ -156,7 +156,6 @@ void proto_reg_handoff_ipv6(void);
 
 /* Metadata collected on IPv6 header and extensions */
 typedef struct {
-    gint exthdr_count;
     gboolean jumbogram;
     guint32 jumbo_length;
     guint32 payload_length;
@@ -535,6 +534,20 @@ ipv6_build_filter(packet_info *pinfo)
     return g_strdup_printf("ipv6.addr eq %s and ipv6.addr eq %s",
                 address_to_str(pinfo->pool, &pinfo->net_src),
                 address_to_str(pinfo->pool, &pinfo->net_dst));
+}
+
+static gint
+ipv6_previous_layer_id(packet_info *pinfo)
+{
+    wmem_list_frame_t *layer;
+
+    layer = wmem_list_tail(pinfo->layers);
+    DISSECTOR_ASSERT(layer);
+    layer = wmem_list_frame_prev(layer);
+    if (layer != NULL) {
+        return GPOINTER_TO_INT(wmem_list_frame_data(layer));
+    }
+    return -1;
 }
 
 static const fragment_items ipv6_frag_items = {
@@ -1122,9 +1135,6 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_item        *pi, *ti;
     struct rthdr_proto_item rthdr_ti;
     int                offset = 0;
-    ipv6_meta_t       *ipv6_info;
-
-    ipv6_info = (ipv6_meta_t *)p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_META);
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, " , ", "IPv6 routing");
 
@@ -1173,7 +1183,6 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         break;
     }
 
-    ipv6_info->exthdr_count++;
     return len;
 }
 
@@ -1223,7 +1232,6 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
         /*offset += 4;*/
     }
 
-    ipv6_info->exthdr_count++;
     return 8;
 }
 
@@ -1664,11 +1672,9 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, co
     proto_item     *pi, *ti, *ti_len;
     int             hf_exthdr_item_nxt, hf_exthdr_item_len, hf_exthdr_item_len_oct;
     guint8          opt_type, opt_len;
-    ipv6_meta_t    *ipv6_info;
     gboolean        hopopts;
     struct opt_proto_item opt_ti;
 
-    ipv6_info = (ipv6_meta_t *)p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_META);
     hopopts = (exthdr_proto == proto_ipv6_hopopts);
 
     len = (tvb_get_guint8(tvb, offset + 1) + 1) << 3;
@@ -1677,7 +1683,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, co
     /* !!! specify length */
     ti = proto_tree_add_item(tree, exthdr_proto, tvb, offset, len, ENC_NA);
 
-    if (hopopts && ipv6_info->exthdr_count > 0) {
+    if (hopopts && ipv6_previous_layer_id(pinfo) != proto_ipv6) {
         /* IPv6 Hop-by-Hop must appear immediately after IPv6 header (RFC 2460) */
         expert_add_info(pinfo, ti, &ei_ipv6_hopopts_not_first);
     }
@@ -1798,7 +1804,6 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, co
         offset += 2 + opt_len;
     }
 
-    ipv6_info->exthdr_count++;
     return len;
 }
 
@@ -2261,9 +2266,6 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _
     proto_tree      *shim_tree;
     proto_item      *ti, *ti_len;
     guint8           tmp[5];
-    ipv6_meta_t     *ipv6_info;
-
-    ipv6_info = (ipv6_meta_t *)p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_META);
 
     tvb_memcpy(tvb, (guint8 *)&shim, offset, sizeof(shim));
     len = (shim.ip6s_len + 1) << 3;
@@ -2353,7 +2355,6 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _
         }
     }
 
-    ipv6_info->exthdr_count++;
     return len;
 }
 
@@ -2672,7 +2673,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     if (nxt == IP_PROTO_HOPOPTS) {
         options_tvb = tvb_new_subset_remaining(tvb, offset);
-        advance = dissect_hopopts(options_tvb, pinfo, ipv6_exthdr_tree, &iph);
+        nxt_handle = dissector_get_uint_handle(ipv6_next_header_dissector_table, IP_PROTO_HOPOPTS);
+        advance = call_dissector_with_data(nxt_handle, options_tvb, pinfo, ipv6_exthdr_tree, &iph);
         if (advance > 0) {
             nxt = tvb_get_guint8(tvb, offset);
             offset += advance;
@@ -2779,7 +2781,6 @@ again:
                 nxt = tvb_get_guint8(tvb, offset);
                 offset += advance;
                 plen -= advance;
-                ipv6_info->exthdr_count++;
                 goto again;
             }
         }
