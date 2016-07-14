@@ -287,18 +287,21 @@ static int hf_geoip_dst_lat             = -1;
 static int hf_geoip_dst_lon             = -1;
 #endif /* HAVE_GEOIP_V6 */
 
-static gint ett_ipv6                    = -1;
+static gint ett_ipv6_proto              = -1;
+static gint ett_ipv6_traffic_class      = -1;
 static gint ett_ipv6_opt                = -1;
 static gint ett_ipv6_opt_rpl            = -1;
 static gint ett_ipv6_opt_mpl            = -1;
 static gint ett_ipv6_opt_dff_flags      = -1;
-static gint ett_ipv6_fraghdr            = -1;
-static gint ett_ipv6_routing            = -1;
+static gint ett_ipv6_hopopts_proto      = -1;
+static gint ett_ipv6_fraghdr_proto      = -1;
+static gint ett_ipv6_routing_proto      = -1;
 static gint ett_ipv6_routing_srh_flags  = -1;
 static gint ett_ipv6_routing_srh_vect   = -1;
 static gint ett_ipv6_fragments          = -1;
 static gint ett_ipv6_fragment           = -1;
-static gint ett_ipv6_traffic_class      = -1;
+static gint ett_ipv6_dstopts_proto      = -1;
+static gint ett_ipv6_unknown_exthdr     = -1;
 
 #ifdef HAVE_GEOIP_V6
 static gint ett_geoip_info              = -1;
@@ -1047,7 +1050,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     pi = proto_tree_add_item(tree, proto_ipv6_routing, tvb, offset, len, ENC_NA);
     proto_item_append_text(pi, " (%s)", val_to_str(rt.ip6r_type, routing_header_type, "Unknown type %u"));
 
-    rthdr_tree = proto_item_add_subtree(pi, ett_ipv6_routing);
+    rthdr_tree = proto_item_add_subtree(pi, ett_ipv6_routing_proto);
 
     proto_tree_add_item(rthdr_tree, hf_ipv6_routing_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -1113,7 +1116,7 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
         expert_add_info(pinfo, pi, &ei_ipv6_opt_jumbo_fragment);
     }
 
-    frag_tree = proto_item_add_subtree(pi, ett_ipv6_fraghdr);
+    frag_tree = proto_item_add_subtree(pi, ett_ipv6_fraghdr_proto);
 
     if (frag_tree) {
         proto_tree_add_item(frag_tree, hf_ipv6_fraghdr_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1157,7 +1160,7 @@ dissect_unknown_exthdr(tvbuff_t *tvb, int offset, proto_tree *tree)
         /* !!! specify length */
         ti = proto_tree_add_item(tree, hf_ipv6_unknown_hdr, tvb, offset, len, ENC_NA);
 
-        unkhdr_tree = proto_item_add_subtree(ti, ett_ipv6);
+        unkhdr_tree = proto_item_add_subtree(ti, ett_ipv6_unknown_exthdr);
 
         proto_tree_add_item(unkhdr_tree, hf_ipv6_unknown_hdr_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -1573,6 +1576,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, co
     proto_tree     *exthdr_tree, *opt_tree;
     proto_item     *pi, *ti, *ti_len;
     int             hf_exthdr_item_nxt, hf_exthdr_item_len, hf_exthdr_item_len_oct;
+    int             ett_exthdr_proto;
     guint8          opt_type, opt_len;
     gboolean        hopopts;
     struct opt_proto_item opt_ti;
@@ -1590,19 +1594,21 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, co
         expert_add_info(pinfo, ti, &ei_ipv6_hopopts_not_first);
     }
 
-    exthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
-
     if (exthdr_proto == proto_ipv6_hopopts) {
         hf_exthdr_item_nxt = hf_ipv6_hopopts_nxt;
         hf_exthdr_item_len = hf_ipv6_hopopts_len;
         hf_exthdr_item_len_oct = hf_ipv6_hopopts_len_oct;
+        ett_exthdr_proto = ett_ipv6_hopopts_proto;
     } else if (exthdr_proto == proto_ipv6_dstopts) {
         hf_exthdr_item_nxt = hf_ipv6_dstopts_nxt;
         hf_exthdr_item_len = hf_ipv6_dstopts_len;
         hf_exthdr_item_len_oct = hf_ipv6_dstopts_len_oct;
+        ett_exthdr_proto = ett_ipv6_dstopts_proto;
     } else {
         DISSECTOR_ASSERT_NOT_REACHED();
     }
+
+    exthdr_tree = proto_item_add_subtree(ti, ett_exthdr_proto);
 
     proto_tree_add_item(exthdr_tree, hf_exthdr_item_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -1771,7 +1777,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         return tvb_captured_length(tvb);
     }
 
-    ipv6_tree = proto_item_add_subtree(ipv6_item, ett_ipv6);
+    ipv6_tree = proto_item_add_subtree(ipv6_item, ett_ipv6_proto);
 
     memset(&iph, 0, sizeof(iph));
     ipv6 = (struct ip6_hdr*)tvb_memdup(wmem_packet_scope(), tvb, offset, sizeof(struct ip6_hdr));
@@ -2996,25 +3002,94 @@ proto_register_ipv6(void)
         }
     };
 
-    static gint *ett[] = {
-        &ett_ipv6,
+    static gint *ett_ipv6[] = {
+        &ett_ipv6_proto,
+        &ett_ipv6_traffic_class,
+#ifdef HAVE_GEOIP_V6
+        &ett_geoip_info,
+#endif /* HAVE_GEOIP_V6 */
         &ett_ipv6_opt,
         &ett_ipv6_opt_rpl,
         &ett_ipv6_opt_mpl,
         &ett_ipv6_opt_dff_flags,
-        &ett_ipv6_fraghdr,
-        &ett_ipv6_routing,
-        &ett_ipv6_routing_srh_flags,
-        &ett_ipv6_routing_srh_vect,
         &ett_ipv6_fragment,
         &ett_ipv6_fragments,
-        &ett_ipv6_traffic_class,
-#ifdef HAVE_GEOIP_V6
-        &ett_geoip_info
-#endif /* HAVE_GEOIP_V6 */
+        &ett_ipv6_unknown_exthdr
     };
 
-    static ei_register_info ei[] = {
+    static gint *ett_ipv6_hopopts[] = {
+        &ett_ipv6_hopopts_proto
+    };
+
+    static gint *ett_ipv6_routing[] = {
+        &ett_ipv6_routing_proto,
+        &ett_ipv6_routing_srh_flags,
+        &ett_ipv6_routing_srh_vect
+    };
+
+    static gint *ett_ipv6_fraghdr[] = {
+        &ett_ipv6_fraghdr_proto
+    };
+
+    static gint *ett_ipv6_dstopts[] = {
+        &ett_ipv6_dstopts_proto
+    };
+
+    static ei_register_info ei_ipv6[] = {
+        { &ei_ipv6_opt_jumbo_missing,
+            { "ipv6.opt.jumbo.missing", PI_PROTOCOL, PI_ERROR,
+                "IPv6 payload length equals 0 and Hop-By-Hop present and Jumbo Payload option missing", EXPFILL }
+        },
+        { &ei_ipv6_opt_jumbo_prohibited,
+            { "ipv6.opt.jumbo.prohibited", PI_PROTOCOL, PI_ERROR,
+                "When IPv6 payload length does not equal 0 a Jumbo Payload option must not be present", EXPFILL }
+        },
+        { &ei_ipv6_opt_jumbo_truncated,
+            { "ipv6.opt.jumbo.truncated", PI_PROTOCOL, PI_ERROR,
+                "Jumbo Payload option present and jumbo length < 65536", EXPFILL }
+        },
+        { &ei_ipv6_opt_jumbo_fragment,
+            { "ipv6.opt.jumbo.fragment", PI_PROTOCOL, PI_ERROR,
+                "Jumbo Payload option cannot be used with a fragment header", EXPFILL }
+        },
+        { &ei_ipv6_opt_jumbo_not_hopbyhop,
+            { "ipv6.opt.jumbo.not_hopbyhop", PI_PROTOCOL, PI_ERROR,
+                "Jumbo Payload option must be a hop-by-hop option", EXPFILL }
+        },
+        { &ei_ipv6_opt_invalid_len,
+            { "ipv6.opt.invalid_len", PI_MALFORMED, PI_ERROR,
+                "Invalid IPv6 option length", EXPFILL }
+        },
+        { &ei_ipv6_opt_unknown_data,
+            { "ipv6.opt.unknown_data.expert", PI_UNDECODED, PI_NOTE,
+                "Unknown Data (not interpreted)", EXPFILL }
+        },
+        { &ei_ipv6_bogus_ipv6_length,
+            { "ipv6.bogus_ipv6_length", PI_PROTOCOL, PI_ERROR,
+                "Bogus IPv6 length", EXPFILL }
+        },
+        { &ei_ipv6_bogus_payload_length,
+            { "ipv6.bogus_payload_length", PI_PROTOCOL, PI_WARN,
+                "IPv6 payload length does not match expected framing length", EXPFILL }
+        },
+        { &ei_ipv6_bogus_ipv6_version,
+            { "ipv6.bogus_ipv6_version", PI_PROTOCOL, PI_ERROR,
+                "Bogus IP version", EXPFILL }
+            },
+        { &ei_ipv6_invalid_header,
+            { "ipv6.invalid_header", PI_MALFORMED, PI_ERROR,
+                "IPv6 header must be exactly 40 bytes", EXPFILL }
+        }
+    };
+
+    static ei_register_info ei_ipv6_hopopts[] = {
+        { &ei_ipv6_hopopts_not_first,
+            { "ipv6.hopopts.not_first", PI_PROTOCOL, PI_ERROR,
+                "IPv6 Hop-by-Hop extension header must appear immediately after IPv6 header", EXPFILL }
+        }
+    };
+
+    static ei_register_info ei_ipv6_routing[] = {
         { &ei_ipv6_dst_addr_not_multicast,
             { "ipv6.dst_addr.not_multicast", PI_PROTOCOL, PI_WARN,
                 "Destination address must not be a multicast address", EXPFILL }
@@ -3047,54 +3122,6 @@ proto_register_ipv6(void)
             { "ipv6.routing.rpl.reserved_not0", PI_PROTOCOL, PI_WARN,
                 "Reserved field must equal 0 but instead was X", EXPFILL }
         },
-        { &ei_ipv6_opt_jumbo_missing,
-            { "ipv6.opt.jumbo.missing", PI_PROTOCOL, PI_ERROR,
-                "IPv6 payload length equals 0 and Hop-By-Hop present and Jumbo Payload option missing", EXPFILL }
-        },
-        { &ei_ipv6_opt_jumbo_prohibited,
-            { "ipv6.opt.jumbo.prohibited", PI_PROTOCOL, PI_ERROR,
-                "When IPv6 payload length does not equal 0 a Jumbo Payload option must not be present", EXPFILL }
-        },
-        { &ei_ipv6_opt_jumbo_truncated,
-            { "ipv6.opt.jumbo.truncated", PI_PROTOCOL, PI_ERROR,
-                "Jumbo Payload option present and jumbo length < 65536", EXPFILL }
-        },
-        { &ei_ipv6_opt_jumbo_fragment,
-            { "ipv6.opt.jumbo.fragment", PI_PROTOCOL, PI_ERROR,
-                "Jumbo Payload option cannot be used with a fragment header", EXPFILL }
-        },
-        { &ei_ipv6_opt_jumbo_not_hopbyhop,
-            { "ipv6.opt.jumbo.not_hopbyhop", PI_PROTOCOL, PI_ERROR,
-                "Jumbo Payload option must be a hop-by-hop option", EXPFILL }
-        },
-        { &ei_ipv6_opt_invalid_len,
-            { "ipv6.opt.invalid_len", PI_MALFORMED, PI_ERROR,
-                "Invalid IPv6 option length", EXPFILL }
-        },
-        { &ei_ipv6_opt_unknown_data,
-            { "ipv6.opt.unknown_data.expert", PI_UNDECODED, PI_NOTE,
-                "Unknown Data (not interpreted)", EXPFILL }
-        },
-        { &ei_ipv6_hopopts_not_first,
-            { "ipv6.hopopts.not_first", PI_PROTOCOL, PI_ERROR,
-                "IPv6 Hop-by-Hop extension header must appear immediately after IPv6 header", EXPFILL }
-        },
-        { &ei_ipv6_bogus_ipv6_length,
-            { "ipv6.bogus_ipv6_length", PI_PROTOCOL, PI_ERROR,
-                "Bogus IPv6 length", EXPFILL }
-        },
-        { &ei_ipv6_bogus_payload_length,
-            { "ipv6.bogus_payload_length", PI_PROTOCOL, PI_WARN,
-                "IPv6 payload length does not match expected framing length", EXPFILL }
-        },
-        { &ei_ipv6_bogus_ipv6_version,
-            { "ipv6.bogus_ipv6_version", PI_PROTOCOL, PI_ERROR,
-                "Bogus IP version", EXPFILL }
-            },
-        { &ei_ipv6_invalid_header,
-            { "ipv6.invalid_header", PI_MALFORMED, PI_ERROR,
-                "IPv6 header must be exactly 40 bytes", EXPFILL }
-        },
         { &ei_ipv6_routing_invalid_length,
             { "ipv6.routing.invalid_length", PI_MALFORMED, PI_ERROR,
                 "Invalid IPv6 Routing header length", EXPFILL }
@@ -3122,22 +3149,34 @@ proto_register_ipv6(void)
 
     module_t *ipv6_module;
     expert_module_t* expert_ipv6;
+    expert_module_t* expert_ipv6_hopopts;
+    expert_module_t* expert_ipv6_routing;
 
     proto_ipv6 = proto_register_protocol("Internet Protocol Version 6", "IPv6", "ipv6");
     proto_register_field_array(proto_ipv6, hf_ipv6, array_length(hf_ipv6));
-    proto_register_subtree_array(ett, array_length(ett));
+    proto_register_subtree_array(ett_ipv6, array_length(ett_ipv6));
     expert_ipv6 = expert_register_protocol(proto_ipv6);
-    expert_register_field_array(expert_ipv6, ei, array_length(ei));
+    expert_register_field_array(expert_ipv6, ei_ipv6, array_length(ei_ipv6));
 
     proto_ipv6_hopopts = proto_register_protocol("IPv6 Hop-by-Hop Option", "IPv6 Hop-by-Hop", "ipv6.hopopts");
-    proto_ipv6_routing = proto_register_protocol("Routing Header for IPv6", "IPv6 Routing", "ipv6.routing");
-    proto_ipv6_fraghdr = proto_register_protocol("Fragment Header for IPv6", "IPv6 Fragment", "ipv6.fraghdr");
-    proto_ipv6_dstopts = proto_register_protocol("Destination Options for IPv6", "IPv6 Destination", "ipv6.dstopts");
-
     proto_register_field_array(proto_ipv6_hopopts, hf_ipv6_hopopts, array_length(hf_ipv6_hopopts));
+    proto_register_subtree_array(ett_ipv6_hopopts, array_length(ett_ipv6_hopopts));
+    expert_ipv6_hopopts = expert_register_protocol(proto_ipv6_hopopts);
+    expert_register_field_array(expert_ipv6_hopopts, ei_ipv6_hopopts, array_length(ei_ipv6_hopopts));
+
+    proto_ipv6_routing = proto_register_protocol("Routing Header for IPv6", "IPv6 Routing", "ipv6.routing");
     proto_register_field_array(proto_ipv6_routing, hf_ipv6_routing, array_length(hf_ipv6_routing));
+    proto_register_subtree_array(ett_ipv6_routing, array_length(ett_ipv6_routing));
+    expert_ipv6_routing = expert_register_protocol(proto_ipv6_routing);
+    expert_register_field_array(expert_ipv6_routing, ei_ipv6_routing, array_length(ei_ipv6_routing));
+
+    proto_ipv6_fraghdr = proto_register_protocol("Fragment Header for IPv6", "IPv6 Fragment", "ipv6.fraghdr");
     proto_register_field_array(proto_ipv6_fraghdr, hf_ipv6_fraghdr, array_length(hf_ipv6_fraghdr));
+    proto_register_subtree_array(ett_ipv6_fraghdr, array_length(ett_ipv6_fraghdr));
+
+    proto_ipv6_dstopts = proto_register_protocol("Destination Options for IPv6", "IPv6 Destination", "ipv6.dstopts");
     proto_register_field_array(proto_ipv6_dstopts, hf_ipv6_dstopts, array_length(hf_ipv6_dstopts));
+    proto_register_subtree_array(ett_ipv6_dstopts, array_length(ett_ipv6_dstopts));
 
     ipv6_next_header_dissector_table = register_dissector_table("ipv6.nxt", "IPv6 Next Header", proto_ipv6, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
     register_capture_dissector_table("ipv6.nxt", "IPv6 Next Header");
