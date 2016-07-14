@@ -1294,7 +1294,7 @@ dissect_opt_jumbo(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *op
     }
     ti = proto_tree_add_item(opt_tree, hf_ipv6_opt_jumbo, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
 
-    if (hopopts) {
+    if (!hopopts) {
         expert_add_info(pinfo, pi, &ei_ipv6_opt_jumbo_not_hopbyhop);
         return;
     }
