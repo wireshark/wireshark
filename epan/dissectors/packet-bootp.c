@@ -526,6 +526,8 @@ static int hf_bootp_option_subnet_selection_option = -1;		/* 118 */
 static int hf_bootp_option_lost_server_domain_name = -1;		/* 137 */
 static int hf_bootp_option_capwap_access_controller = -1;		/* 138 */
 static int hf_bootp_option_tftp_server_address = -1;			/* 150 */
+static int hf_bootp_option_pxe_config_file = -1;			/* 209 */
+static int hf_bootp_option_pxe_path_prefix = -1;			/* 210 */
 static int hf_bootp_option_6RD_ipv4_mask_len = -1;			/* 212 */
 static int hf_bootp_option_6RD_prefix_len = -1;				/* 212 */
 static int hf_bootp_option_6RD_prefix = -1;				/* 212 */
@@ -1416,8 +1418,8 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 206 */ { "Unassigned",				opaque, NULL },
 /* 207 */ { "Unassigned",				opaque, NULL },
 /* 208 */ { "PXELINUX Magic",				opaque, NULL },
-/* 209 */ { "Configuration file",			opaque, NULL },
-/* 210 */ { "Authentication",				special, NULL}, /* Path Prefix rfc5071 */
+/* 209 */ { "PXE Configuration file",			string, &hf_bootp_option_pxe_config_file },
+/* 210 */ { "PXE Path Prefix",				string, &hf_bootp_option_pxe_path_prefix },
 /* 211 */ { "Reboot Time",				opaque, NULL },
 /* 212 */ { "6RD",					opaque, NULL },
 /* 213 */ { "V4 Access Domain",				opaque, NULL },
@@ -2403,7 +2405,6 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 	}
 
 	case 90:	/* DHCP Authentication */
-	case 210:	/* Was this used for authentication at one time? */
 		if (optlen < 11) {
 			expert_add_info_format(pinfo, vti, &ei_bootp_bad_length, "length isn't >= 11");
 			break;
@@ -8281,6 +8282,16 @@ proto_register_bootp(void)
 		  { "TFTP Server Address", "bootp.option.tftp_server_address",
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
 		    "Option 150: TFTP Server Address", HFILL }},
+
+		{ &hf_bootp_option_pxe_config_file,
+		  { "PXELINUX configuration file", "bootp.option.pxe_config_file",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Option 209: PXE Configuration File", HFILL }},
+
+		{ &hf_bootp_option_pxe_path_prefix,
+		  { "PXELINUX path prefix", "bootp.option.pxe_path_prefix",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Option 210: PXE Path Prefix", HFILL }},
 
 		{ &hf_bootp_option_6RD_ipv4_mask_len,
 		  { "6RD IPv4 Mask Length", "bootp.option.6RD.ipv4_mask_len",
