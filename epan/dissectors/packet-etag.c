@@ -144,8 +144,8 @@ dissect_etag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
         proto_item *ti = proto_tree_add_item(tree, proto_etag, tvb, 0, IEEE8021BR_LEN - 2, ENC_NA);
 
-        e_cid =     (((tci >> 16) & 0xFFF) |  (tci << 12))            & 0xFFFFF;    /* E-CID_base | E-CID_ext */
-        ing_e_cid = (((tci >> 32) & 0xFFF) | ((tci <<  4) & 0xFF000)) & 0xFFFFF;    /* Ingress_E-CID_base | Ingress_E-CID ext */
+        e_cid =     (guint32)((((tci >> 16) & 0xFFF) |  (tci << 12))            & 0xFFFFF);    /* E-CID_base | E-CID_ext */
+        ing_e_cid = (guint32)((((tci >> 32) & 0xFFF) | ((tci <<  4) & 0xFF000)) & 0xFFFFF);    /* Ingress_E-CID_base | Ingress_E-CID ext */
 
         if (etag_summary_in_tree) {
             proto_item_append_text(ti, ", TCI: 0x%" G_GINT64_MODIFIER "x Ingress_E-CID: %u E-CID: %u", tci, ing_e_cid, e_cid);
