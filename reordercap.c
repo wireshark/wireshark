@@ -308,8 +308,8 @@ main(int argc, char *argv[])
     if (pdh == NULL) {
         fprintf(stderr, "reordercap: Failed to open output file: (%s) - error %s\n",
                 outfile, wtap_strerror(err));
-        wtap_optionblock_array_free(shb_hdrs);
-        wtap_optionblock_array_free(nrb_hdrs);
+        wtap_block_array_free(shb_hdrs);
+        wtap_block_array_free(nrb_hdrs);
         exit(1);
     }
 
@@ -382,12 +382,12 @@ main(int argc, char *argv[])
     if (!wtap_dump_close(pdh, &err)) {
         fprintf(stderr, "reordercap: Error closing %s: %s\n", outfile,
                 wtap_strerror(err));
-        wtap_optionblock_array_free(shb_hdrs);
-        wtap_optionblock_array_free(nrb_hdrs);
+        wtap_block_array_free(shb_hdrs);
+        wtap_block_array_free(nrb_hdrs);
         exit(1);
     }
-    wtap_optionblock_array_free(shb_hdrs);
-    wtap_optionblock_array_free(nrb_hdrs);
+    wtap_block_array_free(shb_hdrs);
+    wtap_block_array_free(nrb_hdrs);
 
     /* Finally, close infile */
     wtap_fdclose(wth);

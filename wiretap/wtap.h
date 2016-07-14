@@ -1268,7 +1268,7 @@ typedef struct wtapng_section_mandatory_s {
 } wtapng_mandatory_section_t;
 
 /** struct holding the information to build IDB:s
- *  the interface_data array holds an array of wtap_optionblock_t
+ *  the interface_data array holds an array of wtap_block_t
  *  represending IDB of one per interface.
  */
 typedef struct wtapng_iface_descriptions_s {
@@ -1592,13 +1592,15 @@ int wtap_file_tsprec(wtap *wth);
  *
  * @param wth The wiretap session.
  * @return The existing section header, which must NOT be g_free'd.
+ *
+ * XXX - need to be updated to handle multiple SHBs.
  */
 WS_DLL_PUBLIC
-wtap_optionblock_t wtap_file_get_shb(wtap *wth);
+wtap_block_t wtap_file_get_shb(wtap *wth);
 
 /**
  * @brief Gets new section header block for new file, based on existing info.
- * @details Creates a new wtap_optionblock_t section header block and only
+ * @details Creates a new wtap_block_t section header block and only
  *          copies appropriate members of the SHB for a new file. In
  *          particular, the comment string is copied, and any custom options
  *          which should be copied are copied. The os, hardware, and
@@ -1611,16 +1613,6 @@ wtap_optionblock_t wtap_file_get_shb(wtap *wth);
  */
 WS_DLL_PUBLIC
 GArray* wtap_file_get_shb_for_new_file(wtap *wth);
-
-/**
- * @brief Gets the section header comment string.
- * @details This gets the pointer, without duplicating the string.
- *
- * @param wth The wtap session.
- * @return The comment string.
- */
-WS_DLL_PUBLIC
-const gchar* wtap_file_get_shb_comment(wtap *wth);
 
 /**
  * @brief Sets or replaces the section header comment.
@@ -1675,13 +1667,28 @@ void wtap_free_idb_info(wtapng_iface_descriptions_t *idb_info);
  * @return A newly allocated gcahr array string, which must be g_free'd.
  */
 WS_DLL_PUBLIC
-gchar *wtap_get_debug_if_descr(const wtap_optionblock_t if_descr,
+gchar *wtap_get_debug_if_descr(const wtap_block_t if_descr,
                                const int indent,
                                const char* line_end);
 
 /**
+ * @brief Gets existing name resolution block, not for new file.
+ * @details Returns the pointer to the existing NRB, without creating a
+ *          new one. This should only be used for accessing info, not
+ *          for creating a new file based on existing NRB info. Use
+ *          wtap_file_get_nrb_for_new_file() for that.
+ *
+ * @param wth The wiretap session.
+ * @return The existing section header, which must NOT be g_free'd.
+ *
+ * XXX - need to be updated to handle multiple NRBs.
+ */
+WS_DLL_PUBLIC
+wtap_block_t wtap_file_get_nrb(wtap *wth);
+
+/**
  * @brief Gets new name resolution info for new file, based on existing info.
- * @details Creates a new wtap_optionblock_t of name resolution info and only
+ * @details Creates a new wtap_block_t of name resolution info and only
  *          copies appropriate members for a new file.
  *
  * @note Use wtap_free_nrb() to free the returned pointer.
@@ -1691,30 +1698,6 @@ gchar *wtap_get_debug_if_descr(const wtap_optionblock_t if_descr,
  */
 WS_DLL_PUBLIC
 GArray* wtap_file_get_nrb_for_new_file(wtap *wth);
-
-/**
- * @brief Gets the name resolution comment, if any.
- * @details This retrieves the name resolution comment string pointer,
- *          possibly NULL.
- *
- * @param wth The wiretap session.
- * @return The comment string.
- */
-WS_DLL_PUBLIC
-const gchar* wtap_get_nrb_comment(wtap *wth);
-
-/**
- * @brief Sets or replaces the name resolution comment.
- * @details The passed-in comment string is set to be the comment
- *          for the name resolution block. The passed-in string's
- *          ownership will be owned by the block, so it should be
- *          duplicated before passing into this function.
- *
- * @param wth The wiretap session.
- * @param comment The comment string.
- */
-WS_DLL_PUBLIC
-void wtap_write_nrb_comment(wtap *wth, gchar *comment);
 
 /*** close the file descriptors for the current file ***/
 WS_DLL_PUBLIC

@@ -188,9 +188,8 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   unsigned int  elapsed_time;
   iface_options iface;
-  wtap_optionblock_t shb_inf;
+  wtap_block_t  shb_inf;
   unsigned int  i;
-  GArray       *opts;
 
   if (summary_dlg != NULL) {
     /* There's already a Summary dialog box; reactivate it. */
@@ -293,14 +292,13 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (comment_view));
     gtk_text_buffer_set_text (buffer, "", -1);
     if (shb_inf != NULL) {
-      wtap_optionblock_get_string_options(shb_inf, OPT_COMMENT, &opts);
-      for (i = 0; i < opts->len; i++) {
-        /* XXX - this only shows the last comment */
-        char *opt_comment = g_array_index(opts, char *, i);
+      char *opt_comment;
+
+      /* XXX - this only shows the last comment */
+      for (i = 0; wtap_block_get_nth_string_option_value(shb_inf, OPT_COMMENT, i, &opt_comment) == WTAP_OPTTYPE_SUCCESS; i++) {
         if (opt_comment != NULL && opt_comment[0] != '\0')
           gtk_text_buffer_set_text (buffer, opt_comment, -1);
       }
-      g_array_free(opts, TRUE);
     }
     gtk_box_pack_start(GTK_BOX(comment_vbox), comment_view, TRUE, TRUE, 0);
     gtk_widget_show (comment_view);
@@ -350,21 +348,21 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   if (shb_inf != NULL) {
     char *str;
 
-    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_HARDWARE, &str);
-    if (str != NULL && str[0] != '\0') {
+    if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS &&
+        str != NULL && str[0] != '\0') {
       g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s", str);
       add_string_to_grid(grid, &row, "Capture HW:",string_buff);
     }
 
-    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_OS, &str);
-    if (str != NULL && str[0] != '\0') {
+    if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS &&
+        str != NULL && str[0] != '\0') {
       /* truncate the strings to a reasonable length */
       g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s", str);
       add_string_to_grid(grid, &row, "OS:", string_buff);
     }
 
-    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_USERAPPL, &str);
-    if (str != NULL && str[0] != '\0') {
+    if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS &&
+        str != NULL && str[0] != '\0') {
       /* truncate the strings to a reasonable length */
       g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s", str);
       add_string_to_grid(grid, &row, "Capture application:", string_buff);
@@ -664,8 +662,7 @@ summary_to_texbuff(GtkTextBuffer *buffer)
   summary_tally summary;
   gchar         string_buff[SUM_STR_MAX];
   gchar         tmp_buff[SUM_STR_MAX];
-  wtap_optionblock_t shb_inf;
-  GArray       *opts;
+  wtap_block_t shb_inf;
   unsigned int  i;
   unsigned int  elapsed_time;
   iface_options iface;
@@ -768,20 +765,20 @@ summary_to_texbuff(GtkTextBuffer *buffer)
   if (shb_inf != NULL) {
     char *str;
 
-    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_HARDWARE, &str);
-    if (str != NULL && str[0] != '\0') {
+    if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS &&
+        str != NULL && str[0] != '\0') {
       /* truncate the string to a reasonable length */
       g_snprintf(string_buff, SUM_STR_MAX, INDENT "Capture HW: %s\n", str);
       gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
     }
-    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_OS, &str);
-    if (str != NULL && str[0] != '\0') {
+    if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS &&
+        str != NULL && str[0] != '\0') {
       /* truncate the strings to a reasonable length */
       g_snprintf(string_buff, SUM_STR_MAX, INDENT "OS: %s\n", str);
       gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
     }
-    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_USERAPPL, &str);
-    if (str != NULL && str[0] != '\0') {
+    if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS &&
+        str != NULL && str[0] != '\0') {
       /* truncate the string to a reasonable length */
       g_snprintf(string_buff, SUM_STR_MAX, INDENT "Capture application: %s\n", str);
       gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
@@ -901,10 +898,10 @@ summary_to_texbuff(GtkTextBuffer *buffer)
   /* Trace file comments from SHB */
   shb_inf = wtap_file_get_shb(cfile.wth);
   if (shb_inf != NULL) {
-    wtap_optionblock_get_string_options(shb_inf, OPT_COMMENT, &opts);
-    for (i = 0; i < opts->len; i++) {
+    char *opt_comment;
+
+    for (i = 0; wtap_block_get_nth_string_option_value(shb_inf, OPT_COMMENT, i, &opt_comment) == WTAP_OPTTYPE_SUCCESS; i++) {
       /* XXX - separator between comments? */
-      char *opt_comment = g_array_index(opts, char *, i);
       if (opt_comment != NULL && opt_comment[0] != '\0')
         gtk_text_buffer_insert_at_cursor(buffer, opt_comment, -1);
     }

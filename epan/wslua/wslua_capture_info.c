@@ -119,8 +119,8 @@ WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,snapshot_length,wth->snapshot_le
 
 /* WSLUA_ATTRIBUTE CaptureInfo_comment RW A string comment for the whole capture file,
     or nil if there is no `comment`. */
-WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfo,comment,wth->shb_hdrs,OPT_COMMENT);
-WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_SETTER(CaptureInfo,comment,wth->shb_hdrs,OPT_COMMENT);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_NTH_STRING_GETTER(CaptureInfo,comment,wth->shb_hdrs,OPT_COMMENT);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_NTH_STRING_SETTER(CaptureInfo,comment,wth->shb_hdrs,OPT_COMMENT);
 
 /* WSLUA_ATTRIBUTE CaptureInfo_hardware RW A string containing the description of
     the hardware used to create the capture, or nil if there is no `hardware` string. */

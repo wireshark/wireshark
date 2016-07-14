@@ -242,14 +242,15 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     out << section_tmpl_.arg(tr("Capture"));
     out << table_begin;
 
-    wtap_optionblock_t shb_inf = wtap_file_get_shb(cap_file_.capFile()->wth);
+    wtap_block_t shb_inf = wtap_file_get_shb(cap_file_.capFile()->wth);
     char *str;
 
     if (shb_inf != NULL) {
       QString capture_hardware(unknown);
-      wtap_optionblock_get_option_string(shb_inf, OPT_SHB_HARDWARE, &str);
-      if (str != NULL && str[0] != '\0') {
-          capture_hardware = str;
+      if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS) {
+          if (str != NULL && str[0] != '\0') {
+              capture_hardware = str;
+          }
       }
       // capture HW
       out << table_row_begin
@@ -258,9 +259,10 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
           << table_row_end;
 
       QString capture_os(unknown);
-      wtap_optionblock_get_option_string(shb_inf, OPT_SHB_OS, &str);
-      if (str != NULL && str[0] != '\0') {
-          capture_os = str;
+      if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS) {
+          if (str != NULL && str[0] != '\0') {
+              capture_os = str;
+          }
       }
       out << table_row_begin
           << table_vheader_tmpl.arg(tr("OS"))
@@ -268,9 +270,10 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
           << table_row_end;
 
       QString capture_app(unknown);
-      wtap_optionblock_get_option_string(shb_inf, OPT_SHB_USERAPPL, &str);
-      if (str != NULL && str[0] != '\0') {
-          capture_app = str;
+      if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS) {
+          if (str != NULL && str[0] != '\0') {
+              capture_app = str;
+          }
       }
       out << table_row_begin
           << table_vheader_tmpl.arg(tr("Application"))

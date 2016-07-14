@@ -3839,28 +3839,47 @@ cf_unignore_frame(capture_file *cf, frame_data *frame)
 const gchar *
 cf_read_shb_comment(capture_file *cf)
 {
-  /* Get info from SHB */
-  return wtap_file_get_shb_comment(cf->wth);
+  wtap_block_t shb_inf;
+  char *shb_comment;
+
+  /* Get the SHB. */
+  /* XXX - support multiple SHBs */
+  shb_inf = wtap_file_get_shb(cf->wth);
+
+  /* Get the first comment from the SHB. */
+  /* XXX - support multiple comments */
+  if (wtap_block_get_nth_string_option_value(shb_inf, OPT_COMMENT, 0, &shb_comment) != WTAP_OPTTYPE_SUCCESS)
+    return NULL;
+  return shb_comment;
 }
 
 void
 cf_update_capture_comment(capture_file *cf, gchar *comment)
 {
-  const gchar *shb_comment;
+  wtap_block_t shb_inf;
+  gchar *shb_comment;
 
-  /* Get info from SHB */
-  shb_comment = wtap_file_get_shb_comment(cf->wth);
+  /* Get the SHB. */
+  /* XXX - support multiple SHBs */
+  shb_inf = wtap_file_get_shb(cf->wth);
 
-  /* See if the comment has changed or not */
-  if (shb_comment) {
-    if (strcmp(shb_comment, comment) == 0) {
-      g_free(comment);
-      return;
+  /* Get the first comment from the SHB. */
+  /* XXX - support multiple comments */
+  if (wtap_block_get_nth_string_option_value(shb_inf, OPT_COMMENT, 0, &shb_comment) != WTAP_OPTTYPE_SUCCESS) {
+    /* There's no comment - add one. */
+    wtap_block_add_string_option(shb_inf, OPT_COMMENT, comment, strlen(comment));
+  } else {
+    /* See if the comment has changed or not */
+    if (shb_comment) {
+      if (strcmp(shb_comment, comment) == 0) {
+        g_free(comment);
+        return;
+      }
     }
-  }
 
-  /* The comment has changed, let's update it */
-  wtap_write_shb_comment(cf->wth, comment);
+    /* The comment has changed, let's update it */
+    wtap_block_set_nth_string_option_value(shb_inf, OPT_COMMENT, 0, comment, strlen(comment));
+  }
   /* Mark the file as having unsaved changes */
   cf->unsaved_changes = TRUE;
 }

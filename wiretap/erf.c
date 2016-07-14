@@ -946,7 +946,7 @@ int erf_dump_open(wtap_dumper *wdh, int *err)
  */
 int erf_populate_interfaces(wtap *wth)
 {
-  wtap_optionblock_t int_data;
+  wtap_block_t int_data;
   wtapng_if_descr_mandatory_t* int_data_mand;
   int i;
 
@@ -956,8 +956,8 @@ int erf_populate_interfaces(wtap *wth)
   /* Preemptively create interface entries for 4 interfaces, since this is the max number in ERF */
   for (i=0; i<4; i++) {
 
-    int_data = wtap_optionblock_create(WTAP_OPTION_BLOCK_IF_DESCR);
-    int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(int_data);
+    int_data = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+    int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
 
     int_data_mand->wtap_encap = WTAP_ENCAP_ERF;
     /* int_data.time_units_per_second = (1LL<<32);  ERF format resolution is 2^-32, capture resolution is unknown */
@@ -969,9 +969,9 @@ int erf_populate_interfaces(wtap *wth)
     /* XXX: if_IPv6addr opt 5  Interface network address and prefix length (stored in the last byte).*/
     /* XXX: if_MACaddr  opt 6  Interface Hardware MAC address (48 bits).*/
     /* XXX: if_EUIaddr  opt 7  Interface Hardware EUI address (64 bits)*/
-    wtap_optionblock_set_option_uint64(int_data, OPT_IDB_SPEED, 0); /* Unknown  - XXX should be left at default? */
+    /* XXX: if_speed    opt 8  Interface speed (in bits per second)*/
     /* int_data.if_tsresol = 0xa0;  ERF format resolution is 2^-32 = 0xa0, capture resolution is unknown */
-    wtap_optionblock_set_option_uint8(int_data, OPT_IDB_TSRESOL, 0x09); /* XXX Since Wireshark only supports down to nanosecond resolution we have to dilute to this */
+    wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 0x09); /* XXX Since Wireshark only supports down to nanosecond resolution we have to dilute to this */
 
     /* XXX: if_tzone      10  Time zone for GMT support (TODO: specify better). */
 
@@ -980,8 +980,8 @@ int erf_populate_interfaces(wtap *wth)
     int_data_mand->num_stat_entries = 0;
     int_data_mand->interface_statistics = NULL;
 
-    wtap_optionblock_set_option_string_format(int_data, OPT_IDB_NAME, "Port %c", 'A'+i);
-    wtap_optionblock_set_option_string_format(int_data, OPT_IDB_DESCR, "ERF Interface Id %d (Port %c)", i, 'A'+i);
+    wtap_block_add_string_option_format(int_data, OPT_IDB_NAME, "Port %c", 'A'+i);
+    wtap_block_add_string_option_format(int_data, OPT_IDB_DESCR, "ERF Interface Id %d (Port %c)", i, 'A'+i);
 
     g_array_append_val(wth->interface_data, int_data);
   }
@@ -1065,7 +1065,7 @@ static struct erf_if_mapping* erf_find_interface_mapping(erf_t *erf_priv, guint6
   return (struct erf_if_mapping*) g_hash_table_lookup(erf_priv->if_map, &if_map_lookup);
 }
 
-static void erf_set_interface_descr(wtap_optionblock_t block, guint option_id, guint64 host_id, guint8 source_id, guint8 if_num, const gchar *descr)
+static void erf_set_interface_descr(wtap_block_t block, guint option_id, guint64 host_id, guint8 source_id, guint8 if_num, const gchar *descr)
 {
   /* Source XXX,*/
   char sourceid_buf[16];
@@ -1084,9 +1084,9 @@ static void erf_set_interface_descr(wtap_optionblock_t block, guint option_id, g
   }
 
   if (descr) {
-    wtap_optionblock_set_option_string_format(block, option_id, "%s (ERF%s%s Interface %d)", descr, hostid_buf, sourceid_buf, if_num);
+    wtap_block_set_string_option_value_format(block, option_id, "%s (ERF%s%s Interface %d)", descr, hostid_buf, sourceid_buf, if_num);
   } else {
-    wtap_optionblock_set_option_string_format(block, option_id, "Port %c (ERF%s%s Interface %d)", 'A'+if_num, hostid_buf, sourceid_buf, if_num);
+    wtap_block_set_string_option_value_format(block, option_id, "Port %c (ERF%s%s Interface %d)", 'A'+if_num, hostid_buf, sourceid_buf, if_num);
   }
 }
 
@@ -1096,7 +1096,7 @@ static int erf_update_implicit_host_id(erf_t *erf_priv, wtap *wth, guint64 impli
   gpointer iter_value;
   GList* implicit_list = NULL;
   GList* item = NULL;
-  wtap_optionblock_t int_data;
+  wtap_block_t int_data;
   struct erf_if_mapping* if_map = NULL;
   int i;
 
@@ -1128,7 +1128,7 @@ static int erf_update_implicit_host_id(erf_t *erf_priv, wtap *wth, guint64 impli
       for (i = 0; i < 4; i++) {
         if (if_map->interfaces[i].if_index >= 0) {
           /* XXX: this is a pointer! */
-          int_data = g_array_index(wth->interface_data, wtap_optionblock_t, if_map->interfaces[i].if_index);
+          int_data = g_array_index(wth->interface_data, wtap_block_t, if_map->interfaces[i].if_index);
           erf_set_interface_descr(int_data, OPT_IDB_NAME, implicit_host_id, if_map->source_id, (guint8) i, if_map->interfaces[i].name);
           erf_set_interface_descr(int_data, OPT_IDB_DESCR, implicit_host_id, if_map->source_id, (guint8) i, if_map->interfaces[i].descr);
         }
@@ -1147,7 +1147,7 @@ static int erf_update_implicit_host_id(erf_t *erf_priv, wtap *wth, guint64 impli
 
 int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, guint64 host_id, guint8 source_id, guint8 if_num)
 {
-  wtap_optionblock_t int_data;
+  wtap_block_t int_data;
   wtapng_if_descr_mandatory_t* int_data_mand;
   struct erf_if_mapping* if_map = NULL;
 
@@ -1184,8 +1184,8 @@ int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header 
     return if_map->interfaces[if_num].if_index;
   }
 
-  int_data = wtap_optionblock_create(WTAP_OPTION_BLOCK_IF_DESCR);
-  int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(int_data);
+  int_data = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+  int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
 
   int_data_mand->wtap_encap = WTAP_ENCAP_ERF;
   /* int_data.time_units_per_second = (1LL<<32);  ERF format resolution is 2^-32, capture resolution is unknown */
@@ -1197,9 +1197,9 @@ int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header 
   /* XXX: if_IPv6addr opt 5  Interface network address and prefix length (stored in the last byte).*/
   /* XXX: if_MACaddr  opt 6  Interface Hardware MAC address (48 bits).*/
   /* XXX: if_EUIaddr  opt 7  Interface Hardware EUI address (64 bits)*/
-  wtap_optionblock_set_option_uint64(int_data, OPT_IDB_SPEED, 0); /* Unknown  - XXX should be left at default? */
+  /* XXX: if_speed    opt 8  Interface speed (in bits per second)*/
   /* int_data.if_tsresol = 0xa0;  ERF format resolution is 2^-32 = 0xa0, capture resolution is unknown */
-  wtap_optionblock_set_option_uint8(int_data, OPT_IDB_TSRESOL, 0x09); /* XXX Since Wireshark only supports down to nanosecond resolution we have to dilute to this */
+  wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 0x09); /* XXX Since Wireshark only supports down to nanosecond resolution we have to dilute to this */
   /* XXX: if_tzone      10  Time zone for GMT support (TODO: specify better). */
   /* XXX if_tsoffset; opt 14  A 64 bits integer value that specifies an offset (in seconds)...*/
   /* Interface statistics */
@@ -1247,7 +1247,7 @@ static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pse
 {
   struct erf_meta_tag tag = {0, 0, NULL};
 
-  wtap_optionblock_t shb_hdr;
+  wtap_block_t shb_hdr;
   char* tmp;
   gchar* app_name    = NULL;
   gchar* app_version = NULL;
@@ -1262,7 +1262,7 @@ static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pse
 
   /* XXX: wth->shb_hdr is already created by different layer, using directly for now. */
   /* XXX: Only one section header is supported at this time */
-  shb_hdr = g_array_index(wth->shb_hdrs, wtap_optionblock_t, 0);
+  shb_hdr = g_array_index(wth->shb_hdrs, wtap_block_t, 0);
 
   while ((tagtotallength = erf_meta_read_tag(&tag, state->tag_ptr, state->remaining_len)) && !ERF_META_IS_SECTION(tag.type)) {
     switch (state->sectiontype) {
@@ -1274,7 +1274,7 @@ static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pse
 
         switch (tag.type) {
           case ERF_META_TAG_comment:
-            wtap_optionblock_set_option_string(shb_hdr, OPT_COMMENT, tag.value, tag.length);
+            wtap_block_add_string_option(shb_hdr, OPT_COMMENT, tag.value, tag.length);
             break;
         }
         /* Fall through */
@@ -1299,7 +1299,7 @@ static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pse
             descr = g_strndup((gchar*) tag.value, tag.length);
             break;
           case ERF_META_TAG_os:
-            wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_OS, tag.value, tag.length);
+            wtap_block_set_string_option_value(shb_hdr, OPT_SHB_OS, tag.value, tag.length);
             break;
           case ERF_META_TAG_app_name:
             g_free(app_name);
@@ -1328,7 +1328,7 @@ static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pse
     /* If no app_version will just use app_name */
 
     tmp = g_strjoin(" ", app_name, app_version, NULL);
-    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_USERAPPL, tmp, strlen(tmp));
+    wtap_block_set_string_option_value(shb_hdr, OPT_SHB_USERAPPL, tmp, strlen(tmp));
     g_free(tmp);
 
     g_free(app_name);
@@ -1357,13 +1357,13 @@ static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pse
   /* Combine into "Description (Model; CPU)" */
   if (state->sectiontype == ERF_META_SECTION_HOST && descr) {
     if (modelcpu) {
-      wtap_optionblock_set_option_string_format(shb_hdr, OPT_SHB_HARDWARE, "%s (%s)", descr, modelcpu);
+      wtap_block_set_string_option_value_format(shb_hdr, OPT_SHB_HARDWARE, "%s (%s)", descr, modelcpu);
     } else {
-      wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_HARDWARE, descr, strlen(descr));
+      wtap_block_set_string_option_value(shb_hdr, OPT_SHB_HARDWARE, descr, strlen(descr));
       /*descr = NULL;*/
     }
   } else if (modelcpu) {
-    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_HARDWARE, modelcpu, strlen(modelcpu));
+    wtap_block_set_string_option_value(shb_hdr, OPT_SHB_HARDWARE, modelcpu, strlen(modelcpu));
     /*modelcpu = NULL;*/
   }
 
@@ -1428,7 +1428,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
   struct erf_meta_tag tag = {0, 0, NULL};
   guint32 tagtotallength;
   int interface_index = -1;
-  wtap_optionblock_t int_data = NULL;
+  wtap_block_t int_data = NULL;
   wtapng_if_descr_mandatory_t* int_data_mand = NULL;
   wtapng_if_descr_filter_t if_filter;
   guint32 if_num = 0;
@@ -1487,8 +1487,8 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
 
     /* Get the wiretap interface metadata */
     if (interface_index >= 0) {
-      int_data = g_array_index(wth->interface_data, wtap_optionblock_t, interface_index);
-      int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(int_data);
+      int_data = g_array_index(wth->interface_data, wtap_block_t, interface_index);
+      int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
     } else if (interface_index == -2) {
       /* timing/unknown port */
       return 0;
@@ -1532,7 +1532,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
         break;
       case ERF_META_TAG_if_speed:
         if (tag.length >= 8)
-          wtap_optionblock_set_option_uint64(int_data, OPT_IDB_SPEED, pntoh64(tag.value));
+          wtap_block_add_uint64_option(int_data, OPT_IDB_SPEED, pntoh64(tag.value));
         break;
       case ERF_META_TAG_if_num:
         /*
@@ -1544,7 +1544,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
         break;
       case ERF_META_TAG_fcs_len:
         if (tag.length >= 4) {
-          wtap_optionblock_set_option_uint8(int_data, OPT_IDB_FCSLEN, (guint8) pntoh32(tag.value));
+          wtap_block_add_uint8_option(int_data, OPT_IDB_FCSLEN, (guint8) pntoh32(tag.value));
           if_info->set_flags.fcs_len = 1;
         }
         break;
@@ -1556,11 +1556,11 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
         }
         break;
       case ERF_META_TAG_comment:
-        wtap_optionblock_set_option_string(int_data, OPT_COMMENT, tag.value, tag.length);
+        wtap_block_add_string_option(int_data, OPT_COMMENT, tag.value, tag.length);
         break;
       case ERF_META_TAG_filter:
         if_filter.if_filter_str = g_strndup((gchar*) tag.value, tag.length);
-        wtap_optionblock_set_option_custom(int_data, OPT_IDB_FILTER, &if_filter);
+	wtap_block_add_custom_option(int_data, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
         if_info->set_flags.filter = 1;
         break;
       default:
@@ -1584,7 +1584,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
   if (state->if_map->module_filter_str && !if_info->set_flags.filter) {
     /* Duplicate because might use with multiple interfaces */
     if_filter.if_filter_str = g_strdup(state->if_map->module_filter_str);
-    wtap_optionblock_set_option_custom(int_data, OPT_IDB_FILTER, &if_filter);
+    wtap_block_add_custom_option(int_data, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
     /*
      * Don't set flag because stream is more specific than module. Interface
      * metadata bit is set so we don't look at the filter again regardless.
@@ -1592,7 +1592,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
   }
 
   if (state->if_map->module_fcs_len != -1 && !if_info->set_flags.fcs_len) {
-    wtap_optionblock_set_option_uint8(int_data, OPT_IDB_FCSLEN, (guint8) state->if_map->module_fcs_len);
+    wtap_block_add_uint8_option(int_data, OPT_IDB_FCSLEN, (guint8) state->if_map->module_fcs_len);
     if_info->set_flags.fcs_len = 1;
   }
 
@@ -1611,7 +1611,7 @@ static int populate_stream_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
   struct erf_meta_tag tag = {0, 0, NULL};
   guint32 tagtotallength;
   int interface_index = -1;
-  wtap_optionblock_t int_data = NULL;
+  wtap_block_t int_data = NULL;
   wtapng_if_descr_mandatory_t* int_data_mand = NULL;
   wtapng_if_descr_filter_t if_filter;
   guint32 if_num = 0;
@@ -1673,8 +1673,8 @@ static int populate_stream_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
     interface_index = if_info->if_index;
     /* Get the wiretap interface metadata */
     if (interface_index >= 0) {
-        int_data = g_array_index(wth->interface_data, wtap_optionblock_t, interface_index);
-        int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(int_data);
+        int_data = g_array_index(wth->interface_data, wtap_block_t, interface_index);
+        int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
     }
 
     if (!int_data) {
@@ -1689,10 +1689,25 @@ static int populate_stream_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
             gint8 fcs_len = (gint8) pntoh32(tag.value);
             guint8 old_fcs_len = 0;
 
-            wtap_optionblock_get_option_uint8(int_data, OPT_IDB_FCSLEN, &old_fcs_len);
-            if (fcs_len > old_fcs_len || !if_info->set_flags.fcs_len) {
-              wtap_optionblock_set_option_uint8(int_data, OPT_IDB_FCSLEN, (guint8) pntoh32(tag.value));
-              if_info->set_flags.fcs_len = 1;
+            switch (wtap_block_get_uint8_option_value(int_data, OPT_IDB_FCSLEN, &old_fcs_len)) {
+
+              case WTAP_OPTTYPE_SUCCESS:
+                /* We already have an FCS length option; update it. */
+                if (fcs_len > old_fcs_len || !if_info->set_flags.fcs_len) {
+                  wtap_block_set_uint8_option_value(int_data, OPT_IDB_FCSLEN, (guint8) pntoh32(tag.value));
+                  if_info->set_flags.fcs_len = 1;
+                }
+                break;
+
+              case WTAP_OPTTYPE_NOT_FOUND:
+                /* We don't have an FCS length option; add it. */
+                wtap_block_add_uint8_option(int_data, OPT_IDB_FCSLEN, (guint8) pntoh32(tag.value));
+                if_info->set_flags.fcs_len = 1;
+                break;
+
+              default:
+                /* "shouldn't happen" */
+                break;
             }
           }
           break;
@@ -1711,7 +1726,7 @@ static int populate_stream_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
           /* Override only if not set */
           if (!if_info->set_flags.filter) {
             if_filter.if_filter_str = g_strndup((gchar*) tag.value, tag.length);
-            wtap_optionblock_set_option_custom(int_data, OPT_IDB_FILTER, &if_filter);
+            wtap_block_add_custom_option(int_data, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
             if_info->set_flags.filter = 1;
           }
           break;

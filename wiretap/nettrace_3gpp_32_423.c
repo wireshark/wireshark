@@ -709,10 +709,10 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	wtap_open_return_val result = WTAP_OPEN_MINE;
 
 	/* pcapng defs */
-	GArray                      *shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
-	wtap_optionblock_t           shb_hdr;
+	GArray                      *shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+	wtap_block_t                 shb_hdr;
 	wtapng_iface_descriptions_t *idb_inf = NULL;
-	wtap_optionblock_t           int_data;
+	wtap_block_t                 int_data;
 	wtapng_if_descr_mandatory_t *int_data_mand;
 	GString                     *os_info_str;
 	gint64 file_size;
@@ -753,22 +753,22 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	os_info_str = g_string_new("");
 	get_os_version_info(os_info_str);
 
-	shb_hdr = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_SECTION);
+	shb_hdr = wtap_block_create(WTAP_BLOCK_NG_SECTION);
 	/* options */
-	wtap_optionblock_set_option_string(shb_hdr, OPT_COMMENT, "File converted to Exported PDU format during opening",
+	wtap_block_add_string_option(shb_hdr, OPT_COMMENT, "File converted to Exported PDU format during opening",
 															strlen("File converted to Exported PDU format during opening"));
 	/*
 	* UTF-8 string containing the name of the operating system used to create
 	* this section.
 	*/
 	opt_len = os_info_str->len;
-	wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_OS, g_string_free(os_info_str, TRUE), opt_len);
+	wtap_block_add_string_option(shb_hdr, OPT_SHB_OS, g_string_free(os_info_str, TRUE), opt_len);
 
 	/*
 	* UTF-8 string containing the name of the application used to create
 	* this section.
 	*/
-	wtap_optionblock_set_option_string_format(shb_hdr, OPT_SHB_USERAPPL, "Wireshark %s", get_ws_vcs_version_info());
+	wtap_block_add_string_option_format(shb_hdr, OPT_SHB_USERAPPL, "Wireshark %s", get_ws_vcs_version_info());
 
 	/* Add header to the array */
 	g_array_append_val(shb_hdrs, shb_hdr);
@@ -776,16 +776,16 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 
 	/* Create fake IDB info */
 	idb_inf = g_new(wtapng_iface_descriptions_t, 1);
-	idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
+	idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 
 	/* create the fake interface data */
-	int_data = wtap_optionblock_create(WTAP_OPTION_BLOCK_IF_DESCR);
-	int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(int_data);
+	int_data = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+	int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
 	int_data_mand->wtap_encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
 	int_data_mand->time_units_per_second = 1000000; /* default microsecond resolution */
 	int_data_mand->link_type = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU);
 	int_data_mand->snap_len = WTAP_MAX_PACKET_SIZE;
-	wtap_optionblock_set_option_string(int_data, OPT_IDB_NAME, "Fake IF", strlen("Fake IF"));
+	wtap_block_add_string_option(int_data, OPT_IDB_NAME, "Fake IF", strlen("Fake IF"));
 	int_data_mand->num_stat_entries = 0;          /* Number of ISB:s */
 	int_data_mand->interface_statistics = NULL;
 
@@ -1071,7 +1071,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 end:
 	g_free(wrt_err_info);
 	g_free(packet_buf);
-	wtap_optionblock_array_free(shb_hdrs);
+	wtap_block_array_free(shb_hdrs);
 	wtap_free_idb_info(idb_inf);
 
 	return result;
@@ -1130,7 +1130,7 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err, gchar **err_info)
 		return WTAP_OPEN_ERROR;
 
 	/* Copy data from the temp file wth */
-	wtap_optionblock_copy_options(g_array_index(wth->shb_hdrs, wtap_optionblock_t, 0), g_array_index(file_info->wth_tmp_file->shb_hdrs, wtap_optionblock_t, 0));
+	wtap_block_copy(g_array_index(wth->shb_hdrs, wtap_block_t, 0), g_array_index(file_info->wth_tmp_file->shb_hdrs, wtap_block_t, 0));
 
 	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_NETTRACE_3GPP_32_423;
 	wth->file_encap = file_info->wth_tmp_file->file_encap;

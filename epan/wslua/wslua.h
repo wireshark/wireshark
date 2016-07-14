@@ -557,8 +557,23 @@ extern int wslua_set__index(lua_State *L);
     WSLUA_ATTRIBUTE_GET(C,name, { \
         char* str;  \
         if ((obj->member) && (obj->member->len > 0)) { \
-            wtap_optionblock_get_option_string(g_array_index(obj->member, wtap_optionblock_t, 0), option, &str); \
-            lua_pushstring(L,str); /* this pushes nil if obj->member is null */ \
+            if (wtap_block_get_string_option_value(g_array_index(obj->member, wtap_block_t, 0), option, &str) == WTAP_OPTTYPE_SUCCESS) { \
+                lua_pushstring(L,str); /* this pushes nil if obj->member is null */ \
+            } \
+        } \
+    })
+
+/*
+ * XXX - we need to support Lua programs getting instances of a "multiple
+ * allowed" option other than the first option.
+ */
+#define WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_NTH_STRING_GETTER(C,name,member,option) \
+    WSLUA_ATTRIBUTE_GET(C,name, { \
+        char* str;  \
+        if ((obj->member) && (obj->member->len > 0)) { \
+            if (wtap_block_get_nth_string_option_value(g_array_index(obj->member, wtap_block_t, 0), option, 0, &str) == WTAP_OPTTYPE_SUCCESS) { \
+                lua_pushstring(L,str); /* this pushes nil if obj->member is null */ \
+            } \
         } \
     })
 
@@ -620,7 +635,25 @@ extern int wslua_set__index(lua_State *L);
             return luaL_error(L, "%s's attribute `%s' must be a string or nil", #C , #field ); \
         } \
         if ((obj->member) && (obj->member->len > 0)) { \
-            wtap_optionblock_set_option_string(g_array_index(obj->member, wtap_optionblock_t, 0), option, s, strlen(s)); \
+            wtap_block_set_string_option_value(g_array_index(obj->member, wtap_block_t, 0), option, s, strlen(s)); \
+        } \
+        g_free(s); \
+        return 0; \
+    } \
+    /* silly little trick so we can add a semicolon after this macro */ \
+    typedef void __dummy##C##_set_##field
+
+#define WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_NTH_STRING_SETTER(C,field,member,option) \
+    static int C##_set_##field (lua_State* L) { \
+        C obj = check##C (L,1); \
+        gchar* s = NULL; \
+        if (lua_isstring(L,-1) || lua_isnil(L,-1)) { \
+            s = g_strdup(lua_tostring(L,-1)); \
+        } else { \
+            return luaL_error(L, "%s's attribute `%s' must be a string or nil", #C , #field ); \
+        } \
+        if ((obj->member) && (obj->member->len > 0)) { \
+            wtap_block_set_nth_string_option_value(g_array_index(obj->member, wtap_block_t, 0), option, 0, s, strlen(s)); \
         } \
         g_free(s); \
         return 0; \

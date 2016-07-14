@@ -1378,9 +1378,9 @@ main(int argc, char *argv[])
                 g_assert(filename);
 
                 /* If we don't have an application name add Editcap */
-                wtap_optionblock_get_option_string(g_array_index(shb_hdrs, wtap_optionblock_t, 0), OPT_SHB_USERAPPL, &shb_user_appl);
-                if (shb_user_appl == NULL) {
-                    wtap_optionblock_set_option_string_format(g_array_index(shb_hdrs, wtap_optionblock_t, 0), OPT_SHB_USERAPPL, "Editcap " VERSION);
+                if (wtap_block_get_string_option_value(g_array_index(shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS ||
+                    shb_user_appl == NULL) {
+                    wtap_block_add_string_option_format(g_array_index(shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "Editcap " VERSION);
                 }
 
                 pdh = editcap_dump_open(filename,
@@ -1842,9 +1842,9 @@ main(int argc, char *argv[])
                     wtap_strerror(write_err));
             goto error_on_exit;
         }
-        wtap_optionblock_array_free(shb_hdrs);
+        wtap_block_array_free(shb_hdrs);
         shb_hdrs = NULL;
-        wtap_optionblock_array_free(nrb_hdrs);
+        wtap_block_array_free(nrb_hdrs);
         nrb_hdrs = NULL;
         g_free(filename);
 
@@ -1868,8 +1868,8 @@ main(int argc, char *argv[])
     return 0;
 
 error_on_exit:
-    wtap_optionblock_array_free(shb_hdrs);
-    wtap_optionblock_array_free(nrb_hdrs);
+    wtap_block_array_free(shb_hdrs);
+    wtap_block_array_free(nrb_hdrs);
     g_free(idb_inf);
     exit(2);
 }

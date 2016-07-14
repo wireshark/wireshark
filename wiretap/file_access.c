@@ -714,7 +714,7 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 	unsigned int	i;
 	gboolean use_stdin = FALSE;
 	gchar *extension;
-	wtap_optionblock_t shb;
+	wtap_block_t shb;
 
 	*err = 0;
 	*err_info = NULL;
@@ -834,15 +834,15 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 	wth->priv = NULL;
 	wth->wslua_data = NULL;
-	wth->shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
-	shb = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_SECTION);
+	wth->shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+	shb = wtap_block_create(WTAP_BLOCK_NG_SECTION);
 	if (shb)
 		g_array_append_val(wth->shb_hdrs, shb);
 
 	/* Initialize the array containing a list of interfaces. pcapng_open and
 	 * erf_open needs this (and libpcap_open for ERF encapsulation types).
 	 * Always initing it here saves checking for a NULL ptr later. */
-	wth->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
+	wth->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 
 	if (wth->random_fh) {
 		wth->fast_seek = g_ptr_array_new();
@@ -1103,17 +1103,17 @@ success:
 	if ((wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP) ||
 		(wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC)) {
 
-		wtap_optionblock_t descr = wtap_optionblock_create(WTAP_OPTION_BLOCK_IF_DESCR);
-		wtapng_if_descr_mandatory_t* descr_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(descr);
+		wtap_block_t descr = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+		wtapng_if_descr_mandatory_t* descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
 
 		descr_mand->wtap_encap = wth->file_encap;
 		if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC) {
 			descr_mand->time_units_per_second = 1000000000; /* nanosecond resolution */
-			wtap_optionblock_set_option_uint8(descr, OPT_IDB_TSRESOL, 9);
+			wtap_block_add_uint8_option(descr, OPT_IDB_TSRESOL, 9);
 			descr_mand->tsprecision = WTAP_TSPREC_NSEC;
 		} else {
 			descr_mand->time_units_per_second = 1000000; /* default microsecond resolution */
-			wtap_optionblock_set_option_uint8(descr, OPT_IDB_TSRESOL, 6);
+			/* No need to add an option, this is the default */
 			descr_mand->tsprecision = WTAP_TSPREC_USEC;
 		}
 		descr_mand->link_type = wtap_wtap_encap_to_pcap_encap(wth->file_encap);
@@ -2166,7 +2166,7 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
                       GArray* nrb_hdrs, int *err)
 {
 	wtap_dumper *wdh;
-	wtap_optionblock_t descr, file_int_data;
+	wtap_block_t descr, file_int_data;
 	wtapng_if_descr_mandatory_t *descr_mand, *file_int_data_mand;
 
 	/* Check whether we can open a capture file with that file type
@@ -2188,32 +2188,29 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 		guint itf_count;
 
 		/* XXX: what free's this stuff? */
-		wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
+		wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 		for (itf_count = 0; itf_count < idb_inf->interface_data->len; itf_count++) {
-			file_int_data = g_array_index(idb_inf->interface_data, wtap_optionblock_t, itf_count);
-			file_int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(file_int_data);
-			descr = wtap_optionblock_create(WTAP_OPTION_BLOCK_IF_DESCR);
-			wtap_optionblock_copy_options(descr, file_int_data);
+			file_int_data = g_array_index(idb_inf->interface_data, wtap_block_t, itf_count);
+			file_int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(file_int_data);
+			descr = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+			wtap_block_copy(descr, file_int_data);
 			if ((encap != WTAP_ENCAP_PER_PACKET) && (encap != file_int_data_mand->wtap_encap)) {
-				descr_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(descr);
+				descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
 				descr_mand->wtap_encap = encap;
 				descr_mand->link_type = wtap_wtap_encap_to_pcap_encap(encap);
 			}
 			g_array_append_val(wdh->interface_data, descr);
 		}
 	} else {
-		descr = wtap_optionblock_create(WTAP_OPTION_BLOCK_IF_DESCR);
-		descr_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(descr);
+		descr = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+		descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
 		descr_mand->wtap_encap = encap;
 		descr_mand->time_units_per_second = 1000000; /* default microsecond resolution */
 		descr_mand->link_type = wtap_wtap_encap_to_pcap_encap(encap);
 		descr_mand->snap_len = snaplen;
-		wtap_optionblock_set_option_string(descr, OPT_IDB_NAME, "Unknown/not available in original file format(libpcap)",
-														strlen("Unknown/not available in original file format(libpcap)"));
-
 		descr_mand->num_stat_entries = 0;          /* Number of ISB:s */
 		descr_mand->interface_statistics = NULL;
-		wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
+		wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 		g_array_append_val(wdh->interface_data, descr);
 	}
 	return wdh;

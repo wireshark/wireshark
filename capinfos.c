@@ -194,7 +194,7 @@ typedef struct _capture_info {
   int            file_encap;
   int            file_tsprec;
   gint64         filesize;
-  wtap_optionblock_t shb;
+  wtap_block_t   shb;
   guint64        packet_bytes;
   gboolean       times_known;
   nstime_t       start_time;
@@ -712,24 +712,22 @@ print_stats(const gchar *filename, capture_info *cf_info)
 
   if (cf_info->shb != NULL) {
     if (cap_comment) {
-      GArray *opts;
       unsigned int i;
+      char *str;
 
-      wtap_optionblock_get_string_options(cf_info->shb, OPT_COMMENT, &opts);
-      for (i = 0; i < opts->len; i++) {
-        show_option_string("Capture comment:     ", g_array_index(opts, char *, i));
+      for (i = 0; wtap_block_get_nth_string_option_value(cf_info->shb, OPT_COMMENT, i, &str) == WTAP_OPTTYPE_SUCCESS; i++) {
+        show_option_string("Capture comment:     ", str);
       }
-      g_array_free(opts, TRUE);
     }
     if (cap_file_more_info) {
       char *str;
 
-      wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_HARDWARE, &str);
-      show_option_string("Capture hardware:    ", str);
-      wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_OS, &str);
-      show_option_string("Capture oper-sys:    ", str);
-      wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_USERAPPL, &str);
-      show_option_string("Capture application: ", str);
+      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS)
+        show_option_string("Capture hardware:    ", str);
+      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS)
+        show_option_string("Capture oper-sys:    ", str);
+      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS)
+        show_option_string("Capture application: ", str);
     }
 
     if (cap_file_idb && cf_info->num_interfaces != 0) {
@@ -991,13 +989,10 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
      * of options
      */
     if (cap_comment) {
-      GArray *opts;
       unsigned int i;
+      char *opt_comment;
 
-      wtap_optionblock_get_string_options(cf_info->shb, OPT_COMMENT, &opts);
-      for (i = 0; i < opts->len; i++) {
-        const char *opt_comment = g_array_index(opts, char *, i);
-
+      for (i = 0; wtap_block_get_nth_string_option_value(cf_info->shb, OPT_COMMENT, i, &opt_comment) == WTAP_OPTTYPE_SUCCESS; i++) {
         if (opt_comment != NULL) {
           putsep();
           putquote();
@@ -1005,28 +1000,27 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
           putquote();
         }
       }
-      g_array_free(opts, TRUE);
     }
 
     if (cap_file_more_info) {
       char *str;
 
-      wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_HARDWARE, &str);
-      if (str != NULL) {
+      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS &&
+          str != NULL) {
         putsep();
         putquote();
         printf("%s", str);
         putquote();
       }
-      wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_OS, &str);
-      if (str != NULL) {
+      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS &&
+          str != NULL) {
         putsep();
         putquote();
         printf("%s", str);
         putquote();
       }
-      wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_USERAPPL, &str);
-      if (str != NULL) {
+      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS &&
+          str != NULL) {
         putsep();
         putquote();
         printf("%s", str);
@@ -1213,7 +1207,7 @@ process_cap_file(wtap *wth, const char *filename)
   cf_info.idb_info_strings = g_array_sized_new(FALSE, FALSE, sizeof(gchar*), cf_info.num_interfaces);
   cf_info.num_interfaces = idb_info->interface_data->len;
   for (i = 0; i < cf_info.num_interfaces; i++) {
-    const wtap_optionblock_t if_descr = g_array_index(idb_info->interface_data, wtap_optionblock_t, i);
+    const wtap_block_t if_descr = g_array_index(idb_info->interface_data, wtap_block_t, i);
     gchar *s = wtap_get_debug_if_descr(if_descr, 21, "\n");
     g_array_append_val(cf_info.idb_info_strings, s);
   }

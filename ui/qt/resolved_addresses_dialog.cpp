@@ -197,7 +197,22 @@ ResolvedAddressesDialog::ResolvedAddressesDialog(QWidget *parent, CaptureFile *c
         wtap* wth = capture_file->capFile()->wth;
         if (wth) {
             // might return null
-            comment_ = wtap_get_nrb_comment(wth);
+            wtap_block_t nrb_hdr;
+
+            /*
+             * XXX - support multiple NRBs.
+             */
+            nrb_hdr = wtap_file_get_nrb(wth);
+            if (nrb_hdr != NULL) {
+                char *str;
+
+                /*
+                 * XXX - support multiple comments.
+                 */
+                if (wtap_block_get_nth_string_option_value(nrb_hdr, OPT_COMMENT, 0, &str) == WTAP_OPTTYPE_SUCCESS) {
+                    comment_ = str;
+                }
+            }
         }
     }
 

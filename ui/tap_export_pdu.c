@@ -102,10 +102,10 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, char *comment)
     int   err;
 
     /* pcapng defs */
-    wtap_optionblock_t           shb_hdr;
-    GArray                      *shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
+    wtap_block_t                 shb_hdr;
+    GArray                      *shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
     wtapng_iface_descriptions_t *idb_inf;
-    wtap_optionblock_t           int_data;
+    wtap_block_t                 int_data;
     wtapng_if_descr_mandatory_t *int_data_mand;
     GString                     *os_info_str;
     gsize                        opt_len;
@@ -114,10 +114,10 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, char *comment)
     os_info_str = g_string_new("");
     get_os_version_info(os_info_str);
 
-    shb_hdr = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_SECTION);
+    shb_hdr = wtap_block_create(WTAP_BLOCK_NG_SECTION);
 
     /* options */
-    wtap_optionblock_set_option_string(shb_hdr, OPT_COMMENT, comment, strlen(comment));
+    wtap_block_add_string_option(shb_hdr, OPT_COMMENT, comment, strlen(comment));
     g_free(comment);
 
     /*
@@ -125,27 +125,27 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, char *comment)
      * this section.
      */
     opt_len = os_info_str->len;
-    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_OS, g_string_free(os_info_str, TRUE), opt_len);
+    wtap_block_add_string_option(shb_hdr, OPT_SHB_OS, g_string_free(os_info_str, TRUE), opt_len);
     /*
      * UTF-8 string containing the name of the application used to create
      * this section.
      */
-    wtap_optionblock_set_option_string_format(shb_hdr, OPT_SHB_USERAPPL, "Wireshark %s", get_ws_vcs_version_info());
+    wtap_block_add_string_option_format(shb_hdr, OPT_SHB_USERAPPL, "Wireshark %s", get_ws_vcs_version_info());
 
     /* Create fake IDB info */
     idb_inf = g_new(wtapng_iface_descriptions_t,1);
-    idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
+    idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 
     /* create the fake interface data */
-    int_data = wtap_optionblock_create(WTAP_OPTION_BLOCK_IF_DESCR);
-    int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(int_data);
+    int_data = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+    int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
     int_data_mand->wtap_encap      = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
     int_data_mand->time_units_per_second = 1000000000; /* default nanosecond resolution */
     int_data_mand->link_type       = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU);
     int_data_mand->snap_len        = WTAP_MAX_PACKET_SIZE;
 
-    wtap_optionblock_set_option_string(int_data, OPT_IDB_NAME, "Fake IF, PDU->Export", strlen("Fake IF, PDU->Export"));
-    wtap_optionblock_set_option_uint8(int_data, OPT_IDB_TSRESOL, 9);
+    wtap_block_add_string_option(int_data, OPT_IDB_NAME, "Fake IF, PDU->Export", strlen("Fake IF, PDU->Export"));
+    wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 9);
 
     g_array_append_val(idb_inf->interface_data, int_data);
 
