@@ -112,6 +112,9 @@ typedef struct {
     guint32 jumbo_length;
     guint32 payload_length;
     gint hop_limit;
+    guint16 frag_off;
+    gboolean frag_flg;
+    guint32 frag_ident;
 } ipv6_meta_t;
 
 static int ipv6_tap = -1;
@@ -708,6 +711,43 @@ ipv6_reassemble_init(void)
                           &addresses_reassembly_table_functions);
 }
 
+/* Returns 'show_data' */
+static gboolean
+ipv6_reassemble_do(tvbuff_t **tvb_ptr, gint *offset_ptr, packet_info *pinfo, proto_tree *ipv6_tree, guint32 plen)
+{
+    ipv6_meta_t     *ipv6_info = get_ipv6_meta_data(pinfo);
+    fragment_head   *ipfd_head;
+    tvbuff_t        *next_tvb;
+    gboolean         update_col_info = TRUE;
+
+    pinfo->fragmented = TRUE;
+    if (!ipv6_reassemble) {
+        /* not reassembling */
+        if (ipv6_info->frag_off != 0) {
+             /* not in the first fragment */
+            return TRUE;
+        }
+        return FALSE;
+    }
+
+    /* reassembling */
+    if (tvb_bytes_exist(*tvb_ptr, *offset_ptr, plen)) {
+        ipfd_head = fragment_add_check(&ipv6_reassembly_table,
+                                       *tvb_ptr, *offset_ptr, pinfo, ipv6_info->frag_ident, NULL,
+                                       ipv6_info->frag_off, plen, ipv6_info->frag_flg);
+        next_tvb = process_reassembled_data(*tvb_ptr, *offset_ptr, pinfo, "Reassembled IPv6",
+                                            ipfd_head, &ipv6_frag_items, &update_col_info, ipv6_tree);
+        if (next_tvb) {
+            /* Process post-fragment headers after reassembly */
+            *offset_ptr = 0;
+            *tvb_ptr = next_tvb;
+            pinfo->fragmented = FALSE;
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
 static void
 ipv6_reassemble_cleanup(void)
 {
@@ -1092,23 +1132,23 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 }
 
 static int
-dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
-                guint16 *frag_off, gboolean *frag_flg, guint32 *frag_ident) {
+dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     proto_item      *pi, *ti;
     proto_tree      *frag_tree;
     guint8           nxt;
     guint16          offlg;
+    gint             offset = 0;
     ipv6_meta_t     *ipv6_info;
 
     ipv6_info = get_ipv6_meta_data(pinfo);
 
     nxt = tvb_get_guint8(tvb, offset);
     offlg = tvb_get_ntohs(tvb, offset + 2);
-    *frag_off = offlg & IP6F_OFF_MASK; /* offset in bytes */
-    *frag_flg = offlg & IP6F_MORE_FRAG;
-    *frag_ident = tvb_get_ntohl(tvb, offset + 4);
+    ipv6_info->frag_off = offlg & IP6F_OFF_MASK; /* offset in bytes */
+    ipv6_info->frag_flg = offlg & IP6F_MORE_FRAG;
+    ipv6_info->frag_ident = tvb_get_ntohl(tvb, offset + 4);
     col_add_fstr(pinfo->cinfo, COL_INFO, "IPv6 fragment (off=%u more=%s ident=0x%08x nxt=%u)",
-                        *frag_off, *frag_flg ? "y" : "n", *frag_ident, nxt);
+                        ipv6_info->frag_off, ipv6_info->frag_flg ? "y" : "n", ipv6_info->frag_ident, nxt);
 
     /* IPv6 Fragmentation Header has fixed length of 8 bytes */
     pi = proto_tree_add_item(tree, proto_ipv6_fraghdr, tvb, offset, 8, ENC_NA);
@@ -1126,7 +1166,7 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
         offset += 1;
 
         ti = proto_tree_add_item(frag_tree, hf_ipv6_fraghdr_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, " (%d bytes)", *frag_off);
+        proto_item_append_text(ti, " (%d bytes)", ipv6_info->frag_off);
 
         proto_tree_add_item(frag_tree, hf_ipv6_fraghdr_reserved_bits, tvb, offset, 2, ENC_BIG_ENDIAN);
 
@@ -1738,17 +1778,13 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_item    *ipv6_item, *ti, *pi;
     proto_item    *ti_ipv6_plen = NULL, *ti_ipv6_version;
     guint8         nxt, tfc;
+    guint8         nxt_saved;
     int            advance;
     guint32        plen;
-    guint16        frag_off;
-    gboolean       frag_flg;
-    guint32        frag_ident;
     int            offset;
-    fragment_head *ipfd_head;
     tvbuff_t      *next_tvb, *options_tvb;
-    gboolean       update_col_info = TRUE;
     gboolean       save_fragmented;
-    gboolean       show_data = FALSE;
+    gboolean       show_data = FALSE, loop = TRUE;
     guint8        *mac_addr;
     const char    *name;
     dissector_handle_t nxt_handle;
@@ -2093,67 +2129,33 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     plen -= advance;
     save_fragmented = pinfo->fragmented;
 
-again:
+    while (loop && !show_data) {
+        /* Get a tvbuff for the options. */
+        options_tvb = tvb_new_subset_remaining(tvb, offset);
+        nxt_handle = dissector_get_uint_handle(ipv6_next_header_dissector_table, nxt);
 
-    /* Get a tvbuff for the options. */
-    options_tvb = tvb_new_subset_remaining(tvb, offset);
-    nxt_handle = dissector_get_uint_handle(ipv6_next_header_dissector_table, nxt);
-
-    if ((nxt_handle) &&
-        ((advance = call_dissector_with_data(nxt_handle, options_tvb, pinfo, ipv6_exthdr_tree, &iph)) > 0)) {
-        nxt = tvb_get_guint8(tvb, offset);
-        offset += advance;
-        plen -= advance;
-        goto again;
-    } else {
-        switch (nxt) {
-        case IP_PROTO_FRAGMENT:
-            advance = dissect_frag6(tvb, offset, pinfo, ipv6_exthdr_tree,
-                                    &frag_off, &frag_flg, &frag_ident);
+        if ((nxt_handle) &&
+            ((advance = call_dissector_with_data(nxt_handle, options_tvb, pinfo, ipv6_exthdr_tree, &iph)) > 0)) {
+            nxt_saved = nxt;
             nxt = tvb_get_guint8(tvb, offset);
             offset += advance;
             plen -= advance;
-            if ((frag_off == 0) && !frag_flg) {
-                goto again;
-            }
-            pinfo->fragmented = TRUE;
-            if (ipv6_reassemble) {
-                /* reassembling */
-                if (tvb_bytes_exist(tvb, offset, plen)) {
-                    ipfd_head = fragment_add_check(&ipv6_reassembly_table,
-                                                   tvb, offset, pinfo, frag_ident, NULL,
-                                                   frag_off, plen, frag_flg);
-                    next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled IPv6",
-                                                        ipfd_head, &ipv6_frag_items, &update_col_info, ipv6_tree);
-                    if (next_tvb) {  /* Process post-fragment headers after reassembly... */
-                        offset = 0;
-                        tvb = next_tvb;
-                        pinfo->fragmented = FALSE;
-                        goto again;
-                    }
+            if (nxt_saved == IP_PROTO_FRAGMENT) {
+                if ((ipv6_info->frag_off != 0) || ipv6_info->frag_flg) {
+                    show_data = ipv6_reassemble_do(&tvb, &offset, pinfo, ipv6_tree, plen);
                 }
             }
-            else {
-                /* not reassembling */
-                if (frag_off == 0) /* ... or in the first fragment */
-                    goto again;
-            }
-            show_data = TRUE;
-            break;
-        case IP_PROTO_NONE:
+        } else if (nxt == IP_PROTO_NONE) {
             col_set_str(pinfo->cinfo, COL_INFO, "IPv6 no next header");
             show_data = TRUE;
-            break;
-
-        default:
-            if ((ipv6extprotostr(nxt) != NULL) &&
+        } else if ((ipv6extprotostr(nxt) != NULL) &&
                         !dissector_get_uint_handle(ip_dissector_table, nxt)) {
-                advance = dissect_unknown_exthdr(tvb, offset, ipv6_exthdr_tree);
-                nxt = tvb_get_guint8(tvb, offset);
-                offset += advance;
-                plen -= advance;
-                goto again;
-            }
+            advance = dissect_unknown_exthdr(tvb, offset, ipv6_exthdr_tree);
+            nxt = tvb_get_guint8(tvb, offset);
+            offset += advance;
+            plen -= advance;
+        } else {
+            loop = FALSE;
         }
     }
 
@@ -3237,6 +3239,7 @@ proto_reg_handoff_ipv6(void)
     dissector_handle_t ipv6_handle;
     dissector_handle_t ipv6_hopopts_handle;
     dissector_handle_t ipv6_routing_handle;
+    dissector_handle_t ipv6_fraghdr_handle;
     dissector_handle_t ipv6_dstopts_handle;
 
     ipv6_handle = find_dissector("ipv6");
@@ -3263,11 +3266,16 @@ proto_reg_handoff_ipv6(void)
 
     dissector_add_for_decode_as("udp.port", ipv6_handle);
 
-    ipv6_hopopts_handle = create_dissector_handle(dissect_hopopts, proto_ipv6_hopopts );
+    ipv6_hopopts_handle = create_dissector_handle(dissect_hopopts, proto_ipv6_hopopts);
     dissector_add_uint("ipv6.nxt", IP_PROTO_HOPOPTS, ipv6_hopopts_handle);
-    ipv6_routing_handle = create_dissector_handle(dissect_routing6, proto_ipv6_routing );
+
+    ipv6_routing_handle = create_dissector_handle(dissect_routing6, proto_ipv6_routing);
     dissector_add_uint("ipv6.nxt", IP_PROTO_ROUTING, ipv6_routing_handle);
-    ipv6_dstopts_handle = create_dissector_handle(dissect_dstopts, proto_ipv6_dstopts );
+
+    ipv6_fraghdr_handle = create_dissector_handle(dissect_fraghdr, proto_ipv6_fraghdr);
+    dissector_add_uint("ipv6.nxt", IP_PROTO_FRAGMENT, ipv6_fraghdr_handle);
+
+    ipv6_dstopts_handle = create_dissector_handle(dissect_dstopts, proto_ipv6_dstopts);
     dissector_add_uint("ipv6.nxt", IP_PROTO_DSTOPTS, ipv6_dstopts_handle);
 
     ip_dissector_table = find_dissector_table("ip.proto");
