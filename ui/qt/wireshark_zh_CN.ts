@@ -275,13 +275,13 @@
     <message>
         <location filename="bluetooth_device_dialog.ui" line="193"/>
         <source>Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>个更改</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="206"/>
         <location filename="bluetooth_device_dialog.cpp" line="586"/>
         <source>%1 changes</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 个更改</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="223"/>
@@ -2507,7 +2507,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="expert_info_dialog.cpp" line="624"/>
         <source>Packet</source>
-        <translation type="unfinished">分组</translation>
+        <translation>分组</translation>
     </message>
 </context>
 <context>
@@ -2678,7 +2678,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="field_filter_edit.cpp" line="91"/>
         <source>Enter a field %1</source>
-        <translation type="unfinished"></translation>
+        <translation>请输入一个字段 %1</translation>
     </message>
     <message>
         <location filename="field_filter_edit.cpp" line="154"/>
@@ -3181,7 +3181,7 @@ for filter files: %2.</source>
         <location filename="follow_stream_dialog.ui" line="68"/>
         <source>Show and save data as</source>
         <oldsource>Show data as</oldsource>
-        <translation type="unfinished">显示数据为</translation>
+        <translation>显示和保存数据为</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.ui" line="95"/>
@@ -4440,12 +4440,12 @@ for filter files: %2.</source>
     <message>
         <location filename="import_text_dialog.ui" line="136"/>
         <source>The text file has no offset</source>
-        <translation type="unfinished"></translation>
+        <translation>该文本文件没有偏移量</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="139"/>
         <source>None</source>
-        <translation type="unfinished">无</translation>
+        <translation>无</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="252"/>
@@ -10061,12 +10061,12 @@ text-decoration: underline;
 <context>
     <name>PacketListModel</name>
     <message>
-        <location filename="packet_list_model.cpp" line="296"/>
+        <location filename="packet_list_model.cpp" line="303"/>
         <source>Dissecting</source>
         <translation>剖析</translation>
     </message>
     <message>
-        <location filename="packet_list_model.cpp" line="318"/>
+        <location filename="packet_list_model.cpp" line="325"/>
         <source>Sorting &quot;%1&quot;</source>
         <translation>正在排序“%1”</translation>
     </message>
@@ -15257,22 +15257,22 @@ text-decoration: underline;
     <message>
         <location filename="voip_calls_dialog.ui" line="109"/>
         <source>Copy as CSV</source>
-        <translation type="unfinished">复制为 CSV</translation>
+        <translation>复制为 CSV</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="112"/>
         <source>Copy stream list as CSV.</source>
-        <translation type="unfinished">复制流列表为 CSV。</translation>
+        <translation>复制流列表为 CSV。</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="117"/>
         <source>Copy as YAML</source>
-        <translation type="unfinished">复制为YAML</translation>
+        <translation>复制为 YAML</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="120"/>
         <source>Copy stream list as YAML.</source>
-        <translation type="unfinished">复制流列表为YAML。</translation>
+        <translation>复制流列表为 YAML。</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="215"/>
@@ -15298,17 +15298,17 @@ text-decoration: underline;
     <message>
         <location filename="voip_calls_dialog.cpp" line="226"/>
         <source>Copy</source>
-        <translation type="unfinished">复制</translation>
+        <translation>复制</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="229"/>
         <source>as CSV</source>
-        <translation type="unfinished">作为 CSV</translation>
+        <translation>作为 CSV</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="232"/>
         <source>as YAML</source>
-        <translation type="unfinished">作为YAML</translation>
+        <translation>作为YAML</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="392"/>

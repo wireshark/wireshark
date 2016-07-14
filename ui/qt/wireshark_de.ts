@@ -102,7 +102,7 @@
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="64"/>
         <source>UUID Name</source>
-        <translation>UUID Name</translation>
+        <translation>UUID-Name</translation>
     </message>
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="96"/>
@@ -147,7 +147,7 @@
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.cpp" line="315"/>
         <source>PNG Image (*.png)</source>
-        <translation>PNG Bild (*.png)</translation>
+        <translation>PNG-Bild (*.png)</translation>
     </message>
 </context>
 <context>
@@ -180,12 +180,12 @@
     <message>
         <location filename="bluetooth_device_dialog.ui" line="98"/>
         <source>LMP Version</source>
-        <translation>LMP Version</translation>
+        <translation>LMP-Version</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="103"/>
         <source>LMP Subverion</source>
-        <translation>LMP Subversion</translation>
+        <translation>LMP-Subversion</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="108"/>
@@ -195,12 +195,12 @@
     <message>
         <location filename="bluetooth_device_dialog.ui" line="113"/>
         <source>HCI Version</source>
-        <translation>HCI Version</translation>
+        <translation>HCI-Version</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="118"/>
         <source>HCI Revision</source>
-        <translation>HCI Revision</translation>
+        <translation>HCI-Revision</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="123"/>
@@ -225,7 +225,7 @@
     <message>
         <location filename="bluetooth_device_dialog.ui" line="143"/>
         <source>ACL Total Packets</source>
-        <translation>ACL Pakete gesamt</translation>
+        <translation>ACL-Pakete gesamt</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="148"/>
@@ -235,7 +235,7 @@
     <message>
         <location filename="bluetooth_device_dialog.ui" line="153"/>
         <source>SCO Total Packets</source>
-        <translation>SCO Pakete gesamt</translation>
+        <translation>SCO-Pakete gesamt</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="158"/>
@@ -255,7 +255,7 @@
     <message>
         <location filename="bluetooth_device_dialog.ui" line="173"/>
         <source>Page Timeout</source>
-        <translation>Page Timeout</translation>
+        <translation>Seitenzeitüberschreitung</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="178"/>
@@ -311,7 +311,7 @@
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="189"/>
         <source>Bluetooth Device - %1%2</source>
-        <translation>Bluetooth Geräte - %1%2</translation>
+        <translation>Bluetooth-Gerät - %1%2</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="521"/>
@@ -336,7 +336,7 @@
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="623"/>
         <source>PNG Image (*.png)</source>
-        <translation>PNG Bild (*.png)</translation>
+        <translation>PNG-Bild (*.png)</translation>
     </message>
 </context>
 <context>
@@ -344,7 +344,7 @@
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="20"/>
         <source>Bluetooth Devices</source>
-        <translation>Bluetooth Geräte</translation>
+        <translation>Bluetooth-Geräte</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="54"/>
@@ -364,12 +364,12 @@
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="69"/>
         <source>LMP Version</source>
-        <translation>LMP Version</translation>
+        <translation>LMP-Version</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="74"/>
         <source>LMP Subversion</source>
-        <translation>LMP Subversion</translation>
+        <translation>LMP-Subversion</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="79"/>
@@ -379,17 +379,17 @@
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="84"/>
         <source>HCI Version</source>
-        <translation>HCI Version</translation>
+        <translation>HCI-Version</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="89"/>
         <source>HCI Revision</source>
-        <translation>HCI Revision</translation>
+        <translation>HCI-Revision</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="94"/>
         <source>Is Local Adapter</source>
-        <translation>Lokaler Adapter</translation>
+        <translation>Ist lokaler Adapter</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="126"/>
@@ -410,17 +410,17 @@
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="163"/>
         <source>Copy Cell</source>
-        <translation>Kopiere Zelle</translation>
+        <translation>Zelle kopieren</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="168"/>
         <source>Copy Rows</source>
-        <translation>Kopiere Zeile</translation>
+        <translation>Zeilen kopieren</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="173"/>
         <source>Copy All</source>
-        <translation>Kopiere Alles</translation>
+        <translation>Alles kopieren</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="178"/>
@@ -441,7 +441,7 @@
     <message>
         <location filename="bluetooth_devices_dialog.cpp" line="400"/>
         <source>PNG Image (*.png)</source>
-        <translation>PNG Bild (*.png)</translation>
+        <translation>PNG-Bild (*.png)</translation>
     </message>
 </context>
 <context>
@@ -491,7 +491,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="122"/>
         <source>Hardware Error</source>
-        <translation>Hardware Fehler</translation>
+        <translation>Hardwarefehler</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="127"/>
@@ -539,7 +539,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="190"/>
         <source>Controller &amp; Baseband Commands</source>
-        <translation>Controller &amp; Baseband Kommandos</translation>
+        <translation>Controller- &amp; Baseband-Befehle</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="193"/>
@@ -559,7 +559,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="248"/>
         <source>Status Parameters</source>
-        <translation>Status Parameter</translation>
+        <translation>Statusparameter</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="251"/>
@@ -599,7 +599,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="364"/>
         <source>Vendor-Specific Commands</source>
-        <translation>Herstellerspezifische Kommandos</translation>
+        <translation>Herstellerspezifische Befehle</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="367"/>
@@ -619,7 +619,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="509"/>
         <source>Hardware Errors</source>
-        <translation>Hardware Fehler</translation>
+        <translation>Hardwarefehler</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="565"/>
@@ -634,12 +634,12 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="607"/>
         <source>Copy Cell</source>
-        <translation>Kopiere Zelle</translation>
+        <translation>Zelle kopieren</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="612"/>
         <source>Copy Rows</source>
-        <translation>Kopiere Zeilen</translation>
+        <translation>Zeilen kopieren</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="617"/>
@@ -684,7 +684,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.cpp" line="719"/>
         <source>PNG Image (*.png)</source>
-        <translation>PNG Bild (*.png)</translation>
+        <translation>PNG-Bild (*.png)</translation>
     </message>
 </context>
 <context>
@@ -692,7 +692,7 @@
     <message>
         <location filename="byte_view_tab.cpp" line="38"/>
         <source>Packet bytes</source>
-        <translation>Paket Bytes</translation>
+        <translation>Paketbytes</translation>
     </message>
 </context>
 <context>
@@ -836,17 +836,17 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="529"/>
         <source>&amp;MAC name resolution</source>
-        <translation>&amp;MAC Namensauflösung</translation>
+        <translation>&amp;MAC-Namensauflösung</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="533"/>
         <source>&amp;Transport name resolution</source>
-        <translation>&amp;Transportschicht Namensauflösung</translation>
+        <translation>&amp;Transportschicht-Namensauflösung</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="537"/>
         <source>&amp;Network name resolution</source>
-        <translation>&amp;Netzwerk Namensauflösung</translation>
+        <translation>&amp;Netzwerk-Namensauflösung</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="541"/>
@@ -862,7 +862,7 @@
         <location filename="capture_file_dialog.cpp" line="578"/>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
-        <translation>Öffne Mitschnittdatei</translation>
+        <translation>Mitschnittdatei öffnen</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="614"/>
@@ -919,7 +919,7 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="811"/>
         <source>%1 bytes</source>
-        <translation>%1 Bytes</translation>
+        <translation>%1 Byte</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="840"/>
@@ -929,7 +929,7 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="846"/>
         <source>more than %1 (preview timeout)</source>
-        <translation>mehr als %1 (Vorschau Timeout)</translation>
+        <translation>mehr als %1 (Vorschauzeitüberschreitung)</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="865"/>
@@ -952,7 +952,7 @@
     <message>
         <location filename="capture_file_properties_dialog.ui" line="40"/>
         <source>Capture file comments</source>
-        <translation>Kommentar</translation>
+        <translation>Mitschnittdateikommentare</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="54"/>
@@ -967,7 +967,7 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="64"/>
         <source>Save Comments</source>
-        <translation>Kommentar sichern</translation>
+        <translation>Kommentar speichern</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="67"/>
@@ -997,7 +997,7 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="168"/>
         <source> (gzip compressed)</source>
-        <translation> (gzip komprimiert)</translation>
+        <translation> (gzip-komprimiert)</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="171"/>
@@ -1012,7 +1012,7 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="191"/>
         <source>Snapshot length</source>
-        <translation>Snapshot Länge</translation>
+        <translation>Schnappschusslänge</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="202"/>
@@ -1047,7 +1047,7 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="266"/>
         <source>OS</source>
-        <translation>Betriebssystem</translation>
+        <translation>BS</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="276"/>
@@ -1092,7 +1092,7 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="326"/>
         <source>%1 bytes</source>
-        <translation>%1 Bytes</translation>
+        <translation>%1 Byte</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="342"/>
@@ -1122,7 +1122,7 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="353"/>
         <source>N/A</source>
-        <translation>-</translation>
+        <translation>N/V</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="370"/>
@@ -1147,17 +1147,17 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="443"/>
         <source>Bytes</source>
-        <translation>Bytes</translation>
+        <translation>Byte</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="464"/>
         <source>Average bytes/s</source>
-        <translation>Durschnittliche Bytes/s</translation>
+        <translation>Durschnittliche Byte/s</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="485"/>
         <source>Average bits/s</source>
-        <translation>Durschnittliche Bits/s</translation>
+        <translation>Durschnittliche Bit/s</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="517"/>
@@ -1179,7 +1179,7 @@
         <source>Created by Wireshark %1
 
 </source>
-        <translation>Erstellt durch Wireshark %1
+        <translation>Erstellt von Wireshark %1
 
 </translation>
     </message>
@@ -1189,7 +1189,7 @@
     <message>
         <location filename="capture_filter_combo.cpp" line="47"/>
         <source>Capture filter selector</source>
-        <translation>Auswahl Mitschnittfilter</translation>
+        <translation>Mitschnittfilterauswahl</translation>
     </message>
 </context>
 <context>
@@ -1197,7 +1197,7 @@
     <message>
         <location filename="capture_filter_edit.cpp" line="123"/>
         <source>Capture filter entry</source>
-        <translation>Mitschnittfilter Eintrag</translation>
+        <translation>Mitschnittfiltereintrag</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="303"/>
@@ -1322,14 +1322,14 @@
         <location filename="capture_interfaces_dialog.ui" line="693"/>
         <source>megabytes</source>
         <oldsource>Megabytes</oldsource>
-        <translation>Megabytes</translation>
+        <translation>Megabyte</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="295"/>
         <location filename="capture_interfaces_dialog.ui" line="688"/>
         <source>kilobytes</source>
         <oldsource>Kilobytes</oldsource>
-        <translation>Kilobytes</translation>
+        <translation>Kilobyte</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="318"/>
@@ -1379,7 +1379,7 @@
     <message>
         <location filename="capture_interfaces_dialog.ui" line="58"/>
         <source>Promiscuous</source>
-        <translation>Promiscuous</translation>
+        <translation>Promiskuitiv</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="63"/>
@@ -1394,7 +1394,7 @@
     <message>
         <location filename="capture_interfaces_dialog.ui" line="73"/>
         <source>Monitor Mode</source>
-        <translation>Monitor Modus</translation>
+        <translation>Überwachungsmodus</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="91"/>
@@ -1458,7 +1458,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <location filename="capture_interfaces_dialog.ui" line="698"/>
         <source>gigabytes</source>
         <oldsource>Gigabytes</oldsource>
-        <translation>Gigabytes</translation>
+        <translation>Gigabyte</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="391"/>
@@ -1468,7 +1468,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="394"/>
         <source>Use a ring buffer with </source>
-        <translation>Verwende einen Ringpuffer mit </translation>
+        <translation>Einen Ringpuffer verwenden mit </translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="417"/>
@@ -1484,7 +1484,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="463"/>
         <source>Display Options</source>
-        <translation>Anzeige Optionen</translation>
+        <translation>Anzeigeoptionen</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="472"/>
@@ -1529,7 +1529,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="530"/>
         <source>Resolve MAC Addresses</source>
-        <translation>MAC Adressen auflösen</translation>
+        <translation>MAC-Adressen auflösen</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="537"/>
@@ -1549,7 +1549,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="550"/>
         <source>Resolve transport names</source>
-        <translation>Transport Namensauflösung</translation>
+        <translation>Transportschichtnamen auflösen</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="578"/>
@@ -1664,7 +1664,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="capture_preferences_frame.ui" line="66"/>
         <source>Capture packets in promiscuous mode</source>
-        <translation>Pakete im promiscous Modus mitschneiden</translation>
+        <translation>Pakete im promiskuitiven Modus mitschneiden</translation>
     </message>
     <message>
         <location filename="capture_preferences_frame.ui" line="73"/>
@@ -2508,7 +2508,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="expert_info_dialog.cpp" line="624"/>
         <source>Packet</source>
-        <translation type="unfinished">Paket</translation>
+        <translation>Paket</translation>
     </message>
 </context>
 <context>
@@ -3191,7 +3191,7 @@ für die Filterdateien kann nicht erstellt werden:
         <location filename="follow_stream_dialog.ui" line="68"/>
         <source>Show and save data as</source>
         <oldsource>Show data as</oldsource>
-        <translation type="unfinished">Daten anzeigen als</translation>
+        <translation>Daten anzeigen und speichern als</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.ui" line="95"/>
@@ -4450,12 +4450,12 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="import_text_dialog.ui" line="136"/>
         <source>The text file has no offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Textdatei hat keinen Versatz</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="139"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="252"/>
@@ -7125,7 +7125,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="807"/>
         <source>Stop capturing packets</source>
-        <translation>Aufzeichnen beenden</translation>
+        <translation>Aufzeichnen von Paketen beenden</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="815"/>
@@ -9116,7 +9116,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.cpp" line="818"/>
         <source> before quitting</source>
-        <translation>vor dem Schließen</translation>
+        <translation> vor dem Schließen</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1003"/>
@@ -9157,7 +9157,7 @@ text-decoration: underline;
         <location filename="main_window.cpp" line="1140"/>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
-        <translation>vor dem Importieren einer Aufzeichnung</translation>
+        <translation> vor dem Importieren einer Aufzeichnung</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1414"/>
@@ -9261,7 +9261,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_slots.cpp" line="200"/>
         <source> before opening another file</source>
-        <translation>vor dem Öffnen einer anderen Datei</translation>
+        <translation> vor dem Öffnen einer anderen Datei</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="704"/>
@@ -9296,7 +9296,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_slots.cpp" line="1664"/>
         <source> before closing the file</source>
-        <translation>vor dem Schließen der Datei</translation>
+        <translation> vor dem Schließen der Datei</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="1752"/>
@@ -9347,7 +9347,7 @@ text-decoration: underline;
         <location filename="main_window_slots.cpp" line="2527"/>
         <location filename="main_window_slots.cpp" line="2540"/>
         <source> before reloading the file</source>
-        <translation>vor dem Neuladen der Datei</translation>
+        <translation> vor dem Neuladen der Datei</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="2574"/>
@@ -9372,12 +9372,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window_slots.cpp" line="3579"/>
         <source> before starting a new capture</source>
-        <translation>vor dem Starten einer neuen Aufzeichnung</translation>
+        <translation> vor dem Starten einer neuen Aufzeichnung</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="3597"/>
         <source> before restarting the capture</source>
-        <translation>vor dem Neustart der Aufzeichnung</translation>
+        <translation> vor dem Neustart der Aufzeichnung</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="3800"/>
@@ -9517,7 +9517,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_preferences_frame.cpp" line="186"/>
         <source>Open Files In</source>
-        <translation>Öffne Datei in</translation>
+        <translation>Dateien öffnen in</translation>
     </message>
 </context>
 <context>
@@ -9541,7 +9541,7 @@ text-decoration: underline;
         <location filename="manage_interfaces_dialog.ui" line="55"/>
         <location filename="manage_interfaces_dialog.ui" line="180"/>
         <source>Show</source>
-        <translation>Zeige</translation>
+        <translation>Anzeigen</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="60"/>
@@ -9644,7 +9644,7 @@ text-decoration: underline;
     <message>
         <location filename="module_preferences_scroll_area.ui" line="14"/>
         <source>ScrollArea</source>
-        <translation>Scrollbereich</translation>
+        <translation>Bildlaufbereich</translation>
     </message>
 </context>
 <context>
@@ -9657,7 +9657,7 @@ text-decoration: underline;
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="69"/>
         <source>MTP3 Summary</source>
-        <translation>MTP3 Zusammenfassung</translation>
+        <translation>MTP3-Zusammenfassung</translation>
     </message>
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="112"/>
@@ -9677,7 +9677,7 @@ text-decoration: underline;
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="127"/>
         <source> (gzip compressed)</source>
-        <translation> (gzip komprimiert)</translation>
+        <translation> (gzip-komprimiert)</translation>
     </message>
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="130"/>
@@ -9687,7 +9687,7 @@ text-decoration: underline;
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="136"/>
         <source>Snapshot length</source>
-        <translation>Snapshot Länge</translation>
+        <translation>Schnappschusslänge</translation>
     </message>
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="144"/>
@@ -9743,17 +9743,17 @@ text-decoration: underline;
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="206"/>
         <source>Bytes</source>
-        <translation>Bytes</translation>
+        <translation>Byte</translation>
     </message>
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="207"/>
         <source>Bytes/MSU</source>
-        <translation>Bytes/MSU</translation>
+        <translation>Byte/MSU</translation>
     </message>
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="208"/>
         <source>Bytes/s</source>
-        <translation>Bytes/s</translation>
+        <translation>Byte/s</translation>
     </message>
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="260"/>
@@ -9768,17 +9768,17 @@ text-decoration: underline;
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="274"/>
         <source>Total Bytes</source>
-        <translation>Bytes insgesamt</translation>
+        <translation>Byte insgesamt</translation>
     </message>
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="279"/>
         <source>Average Bytes/MSU</source>
-        <translation>Durchschnittliche Bytes/MSU</translation>
+        <translation>Durchschnittliche Byte/MSU</translation>
     </message>
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="284"/>
         <source>Average Bytes/s</source>
-        <translation>Durchschnittliche Bytes/s</translation>
+        <translation>Durchschnittliche Byte/s</translation>
     </message>
 </context>
 <context>
@@ -9846,7 +9846,7 @@ text-decoration: underline;
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="195"/>
         <source>Buffer Alarms</source>
-        <translation>Puffer Alarme</translation>
+        <translation>Pufferalarme</translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="221"/>
@@ -9977,7 +9977,7 @@ text-decoration: underline;
     <message>
         <location filename="packet_format_group_box.ui" line="58"/>
         <source>All co&amp;llapsed</source>
-        <translation>Alle einklappen</translation>
+        <translation>Alle eingek&amp;lappt</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="71"/>
@@ -9997,17 +9997,17 @@ text-decoration: underline;
     <message>
         <location filename="packet_format_group_box.ui" line="93"/>
         <source>All e&amp;xpanded</source>
-        <translation>Alles aufklappen</translation>
+        <translation>Alle auf&amp;geklappt</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="100"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a hexdump of the packet data similar to the packet bytes view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Paketdaten als Hexdump exportieren (ähnlich der Paketbytes Ansicht)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Paketdaten als Hexdump exportieren (ähnlich der Paketbyte-Ansicht)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="103"/>
         <source>Bytes</source>
-        <translation>Bytes</translation>
+        <translation>Byte</translation>
     </message>
 </context>
 <context>
@@ -10075,14 +10075,14 @@ text-decoration: underline;
 <context>
     <name>PacketListModel</name>
     <message>
-        <location filename="packet_list_model.cpp" line="296"/>
+        <location filename="packet_list_model.cpp" line="303"/>
         <source>Dissecting</source>
         <translation>Analysiere</translation>
     </message>
     <message>
-        <location filename="packet_list_model.cpp" line="318"/>
+        <location filename="packet_list_model.cpp" line="325"/>
         <source>Sorting &quot;%1&quot;</source>
-        <translation>Sortiere &quot;%1&quot;</translation>
+        <translation>&quot;%1&quot; wird sortiert</translation>
     </message>
 </context>
 <context>
@@ -13506,12 +13506,12 @@ text-decoration: underline;
     <message>
         <location filename="search_frame.ui" line="84"/>
         <source>Narrow &amp; Wide</source>
-        <translation>Schmale und weite Zeichen</translation>
+        <translation>Schmal &amp; breit</translation>
     </message>
     <message>
         <location filename="search_frame.ui" line="89"/>
         <source>Narrow (UTF-8 / ASCII)</source>
-        <translation>Schmale Zeichen (UTF-8 / ASCII)</translation>
+        <translation>Schmal (UTF-8 / ASCII)</translation>
     </message>
     <message>
         <location filename="search_frame.ui" line="94"/>
@@ -15302,22 +15302,22 @@ text-decoration: underline;
     <message>
         <location filename="voip_calls_dialog.ui" line="109"/>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Als CSV kopieren</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="112"/>
         <source>Copy stream list as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Liste der Streams als CSV kopieren.</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="117"/>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Als YAML kopieren</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="120"/>
         <source>Copy stream list as YAML.</source>
-        <translation type="unfinished"></translation>
+        <translation>Liste der Streams als YAML kopieren.</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="215"/>
@@ -15343,17 +15343,17 @@ text-decoration: underline;
     <message>
         <location filename="voip_calls_dialog.cpp" line="226"/>
         <source>Copy</source>
-        <translation type="unfinished">Kopieren</translation>
+        <translation>Kopieren</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="229"/>
         <source>as CSV</source>
-        <translation type="unfinished">als CSV</translation>
+        <translation>als CSV</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="232"/>
         <source>as YAML</source>
-        <translation type="unfinished">als YAML</translation>
+        <translation>als YAML</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="392"/>
@@ -15426,17 +15426,17 @@ text-decoration: underline;
     <message>
         <location filename="wireless_frame.ui" line="200"/>
         <source>802.11 Preferences</source>
-        <translation>802.11 Einstellungen</translation>
+        <translation>802.11-Einstellungen</translation>
     </message>
     <message>
         <location filename="wireless_frame.cpp" line="69"/>
         <source>AirPcap Control Panel</source>
-        <translation>WLAN Statistiken</translation>
+        <translation>AirPcap-Kontrollfeld</translation>
     </message>
     <message>
         <location filename="wireless_frame.cpp" line="70"/>
         <source>Open the AirPcap Control Panel</source>
-        <translation>Öffne AirPcap Control Panel</translation>
+        <translation>AirPcap-Kontrollfeld öffnen</translation>
     </message>
     <message>
         <location filename="wireless_frame.cpp" line="298"/>
@@ -15463,7 +15463,7 @@ text-decoration: underline;
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="469"/>
         <source>Wireless LAN Statistics</source>
-        <translation>WLAN Statistiken</translation>
+        <translation>WLAN-Statistiken</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="473"/>

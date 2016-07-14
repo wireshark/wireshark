@@ -1,4 +1,4 @@
-                         Wireshark 2.1.0 Release Notes
+                         Wireshark 2.1.1 Release Notes
 
    This is a semi-experimental release intended to test new features for
    Wireshark 2.2.
@@ -15,7 +15,24 @@ What's New
   New and Updated Features
 
    The following features are new (or have been significantly updated)
+   since version 2.1.0:
+     * Added -d option for Decode As support in Wireshark (mimics TShark
+       functionality)
+     * The Qt UI, GTK+ UI, and TShark can now export packets as JSON.
+       TShark can additionally export packets as Elasticsearch-compatible
+       JSON.
+     * The Qt UI now supports the -j, -J, and -l flags. The -m flag is now
+       deprecated.
+     * The Conversations and Endpoints dialogs are more responsive when
+       viewing large numbers of items.
+     * The RTP player now allows up to 30 minutes of silence frames.
+     * Packet bytes can now be displayed as EBCDIC.
+     * The Qt UI loads captures faster on Windows.
+
+   The following features are new (or have been significantly updated)
    since version 2.0.0:
+     * The intelligent scroll bar now sits to the left of a normal scroll
+       bar and provides a clickable map of nearby packets.
      * You can now switch between between Capture and File Format
        dissection of the current capture file via the View menu in the Qt
        GUI.
@@ -39,6 +56,8 @@ What's New
      * The Follow Stream dialog now supports UTF-16.
      * The Firewall ACL Rules dialog has returned.
      * The Flow (Sequence) Analysis dialog has been improved.
+     * We no longer provide packages for 32-bit versions of OS X.
+     * The Bluetooth Device details dialog has been added.
 
   New File Format Decoding Support
 
@@ -56,14 +75,16 @@ What's New
    Bluetooth Pseudoheader for BR/EDR, CISCO ERSPAN3 Marker, Edge Control
    Protocol (ECP), Ericsson IPOS Kernel Packet Header Dissector Added
    (IPOS), Extensible Control & Management Protocol (eCMP), FLEXRAY
-   Protocol dissector added (automotive bus), ISO 8583-1, ISO14443, ITU-T
-   G.7041/Y.1303 Generic Framing Procedure (GFP), LAT protocol (DECNET),
-   Metamako trailers, Nokia Intelligent Service Interface (ISI), Open
+   Protocol dissector added (automotive bus), IEEE 802.1BR E-Tag, ISO
+   8583-1, ISO14443, ITU-T G.7041/Y.1303 Generic Framing Procedure (GFP),
+   LAT protocol (DECNET), Metamako trailers, Network-Based IP Flow
+   Mobility (NBIFOM), Nokia Intelligent Service Interface (ISI), Open
    Mobile Alliance Lightweight Machine to Machine TLV payload Added (LwM2M
-   TLV), RTI TCP Transport Layer (RTITCP), STANAG 5602 SIMPLE, USB3 Vision
-   Protocol (USB machine vision cameras), USBIP Protocol, UserLog
-   Protocol, and Zigbee Protocol Clusters Dissectors Added (Closures
-   Lighting General Measurement & Sensing HVAC Security & Safety)
+   TLV), Real Time Location System (RTLS), RTI TCP Transport Layer
+   (RTITCP), STANAG 5602 SIMPLE, USB3 Vision Protocol (USB machine vision
+   cameras), USBIP Protocol, UserLog Protocol, and Zigbee Protocol
+   Clusters Dissectors Added (Closures Lighting General Measurement &
+   Sensing HVAC Security & Safety)
 
   Updated Protocol Support
 
@@ -155,7 +176,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [15]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2016-06-08 17:56:17 UTC
+   Last updated 2016-07-14 18:05:31 UTC
 
 References
 

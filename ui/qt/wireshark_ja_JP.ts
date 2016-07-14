@@ -3174,7 +3174,7 @@ for filter files: %2.</source>
         <location filename="follow_stream_dialog.ui" line="68"/>
         <source>Show and save data as</source>
         <oldsource>Show data as</oldsource>
-        <translation type="unfinished">としてデータを表示</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.ui" line="95"/>
@@ -10029,12 +10029,12 @@ a:hover {
 <context>
     <name>PacketListModel</name>
     <message>
-        <location filename="packet_list_model.cpp" line="296"/>
+        <location filename="packet_list_model.cpp" line="303"/>
         <source>Dissecting</source>
         <translation>解析中</translation>
     </message>
     <message>
-        <location filename="packet_list_model.cpp" line="318"/>
+        <location filename="packet_list_model.cpp" line="325"/>
         <source>Sorting &quot;%1&quot;</source>
         <translation>ソート中 &quot;%1&quot;</translation>
     </message>

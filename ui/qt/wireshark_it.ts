@@ -2508,7 +2508,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <location filename="expert_info_dialog.cpp" line="624"/>
         <source>Packet</source>
-        <translation type="unfinished">Pacchetto</translation>
+        <translation>Pacchetto</translation>
     </message>
 </context>
 <context>
@@ -3189,7 +3189,7 @@ per i file di filtro: %2.</translation>
         <location filename="follow_stream_dialog.ui" line="68"/>
         <source>Show and save data as</source>
         <oldsource>Show data as</oldsource>
-        <translation type="unfinished">Mostra dati come</translation>
+        <translation>Mostra e salva i dati come</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.ui" line="95"/>
@@ -4448,12 +4448,12 @@ per i file di filtro: %2.</translation>
     <message>
         <location filename="import_text_dialog.ui" line="136"/>
         <source>The text file has no offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Il file di testo non ha offset</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="139"/>
         <source>None</source>
-        <translation type="unfinished">Nessuno</translation>
+        <translation>Nessuno</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="252"/>
@@ -10073,12 +10073,12 @@ a:hover {
 <context>
     <name>PacketListModel</name>
     <message>
-        <location filename="packet_list_model.cpp" line="296"/>
+        <location filename="packet_list_model.cpp" line="303"/>
         <source>Dissecting</source>
         <translation>Decodifica</translation>
     </message>
     <message>
-        <location filename="packet_list_model.cpp" line="318"/>
+        <location filename="packet_list_model.cpp" line="325"/>
         <source>Sorting &quot;%1&quot;</source>
         <translation>Ordinamento di &quot;%1&quot;</translation>
     </message>
@@ -15295,22 +15295,22 @@ a:hover {
     <message>
         <location filename="voip_calls_dialog.ui" line="109"/>
         <source>Copy as CSV</source>
-        <translation type="unfinished">Copia come CSV</translation>
+        <translation>Copia come CSV</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="112"/>
         <source>Copy stream list as CSV.</source>
-        <translation type="unfinished">Copia l&apos;elenco dei flussi come CSV.</translation>
+        <translation>Copia l&apos;elenco dei flussi come CSV.</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="117"/>
         <source>Copy as YAML</source>
-        <translation type="unfinished">Copia come YAML</translation>
+        <translation>Copia come YAML</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="120"/>
         <source>Copy stream list as YAML.</source>
-        <translation type="unfinished">Copia l&apos;elenco dei flussi come YAML.</translation>
+        <translation>Copia l&apos;elenco dei flussi come YAML.</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="215"/>
@@ -15336,17 +15336,17 @@ a:hover {
     <message>
         <location filename="voip_calls_dialog.cpp" line="226"/>
         <source>Copy</source>
-        <translation type="unfinished">Copia</translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="229"/>
         <source>as CSV</source>
-        <translation type="unfinished">come CSV</translation>
+        <translation>come CSV</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="232"/>
         <source>as YAML</source>
-        <translation type="unfinished">come YAML</translation>
+        <translation>come YAML</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="392"/>

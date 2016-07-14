@@ -37,6 +37,7 @@ since version 2.1.0:
   viewing large numbers of items.
 * The RTP player now allows up to 30 minutes of silence frames.
 * Packet bytes can now be displayed as EBCDIC.
+* The Qt UI loads captures faster on Windows.
 
 The following features are new (or have been significantly updated)
 since version 2.0.0:
