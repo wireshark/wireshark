@@ -1307,7 +1307,7 @@ dissect_opt_jumbo(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *op
         proto_item_append_text(ti, " [Ignored]");
         return;
     }
-    plen_jumbo = tvb_get_ntohl(tvb, offset);
+    plen_jumbo = tvb_get_ntohl(tvb, offset + 2);
     if (plen_jumbo < 65536) {
         expert_add_info(pinfo, ti, &ei_ipv6_opt_jumbo_truncated);
         return;
