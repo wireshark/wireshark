@@ -615,6 +615,52 @@ static int hf_mbim_ciq_set_mode = -1;
 static int hf_mbim_ciq_set_debug_info_size = -1;
 static int hf_mbim_ciq_set_debug_info = -1;
 static int hf_mbim_ciq_info_mode = -1;
+static int hf_mbim_atds_signal_info_rssi = -1;
+static int hf_mbim_atds_signal_info_ber = -1;
+static int hf_mbim_atds_signal_info_rscp = -1;
+static int hf_mbim_atds_signal_info_ecno = -1;
+static int hf_mbim_atds_signal_info_rsrq = -1;
+static int hf_mbim_atds_signal_info_rsrp = -1;
+static int hf_mbim_atds_signal_info_rssnr = -1;
+static int hf_mbim_atds_location_info_lac = -1;
+static int hf_mbim_atds_location_info_tac = -1;
+static int hf_mbim_atds_location_info_cellid = -1;
+static int hf_mbim_atds_operator_provider_id_offset = -1;
+static int hf_mbim_atds_operator_provider_id_size = -1;
+static int hf_mbim_atds_operator_provider_state = -1;
+static int hf_mbim_atds_operator_provider_name_offset = -1;
+static int hf_mbim_atds_operator_provider_name_size = -1;
+static int hf_mbim_atds_operator_plmn_mode = -1;
+static int hf_mbim_atds_operator_rssi = -1;
+static int hf_mbim_atds_operator_error_rate = -1;
+static int hf_mbim_atds_operator_provider_id = -1;
+static int hf_mbim_atds_operator_provider_name = -1;
+static int hf_mbim_atds_operators_elem_count = -1;
+static int hf_mbim_atds_operators_operator_offset = -1;
+static int hf_mbim_atds_operators_operator_size = -1;
+static int hf_mbim_atds_rat_info_mode = -1;
+static int hf_mbim_atds_projection_table_type = -1;
+static int hf_mbim_atds_projection_table_bar5min = -1;
+static int hf_mbim_atds_projection_table_a5 = -1;
+static int hf_mbim_atds_projection_table_b5 = -1;
+static int hf_mbim_atds_projection_table_bar4min = -1;
+static int hf_mbim_atds_projection_table_a4 = -1;
+static int hf_mbim_atds_projection_table_b4 = -1;
+static int hf_mbim_atds_projection_table_bar3min = -1;
+static int hf_mbim_atds_projection_table_a3 = -1;
+static int hf_mbim_atds_projection_table_b3 = -1;
+static int hf_mbim_atds_projection_table_bar2min = -1;
+static int hf_mbim_atds_projection_table_a2 = -1;
+static int hf_mbim_atds_projection_table_b2 = -1;
+static int hf_mbim_atds_projection_table_bar1min = -1;
+static int hf_mbim_atds_projection_table_a1 = -1;
+static int hf_mbim_atds_projection_table_b1 = -1;
+static int hf_mbim_atds_projection_table_bar0min = -1;
+static int hf_mbim_atds_projection_table_a0 = -1;
+static int hf_mbim_atds_projection_table_b0 = -1;
+static int hf_mbim_atds_projection_tables_elem_count = -1;
+static int hf_mbim_atds_projection_tables_projection_table_offset = -1;
+static int hf_mbim_atds_projection_tables_projection_table_size = -1;
 static int hf_mbim_fragmented_payload = -1;
 static int hf_mbim_request_in = -1;
 static int hf_mbim_response_in = -1;
@@ -1126,12 +1172,12 @@ static const value_string mbim_uuid_intel_ciq_cid_vals[] = {
     { 0, NULL}
 };
 
-#define MBIM_CID_ATDS_SIGNAL         1
-#define MBIM_CID_ATDS_LOCATION       2
-#define MBIM_CID_ATDS_OPERATORS      3
-#define MBIM_CID_ATDS_RAT            4
-#define MBIM_CID_ATDS_REGISTER_STATE 9
-#define MBIM_CID_ATDS_RAT_DISPLAY    11
+#define MBIM_CID_ATDS_SIGNAL                1
+#define MBIM_CID_ATDS_LOCATION              2
+#define MBIM_CID_ATDS_OPERATORS             3
+#define MBIM_CID_ATDS_RAT                   4
+#define MBIM_CID_ATDS_REGISTER_STATE        9
+#define MBIM_CID_ATDS_SET_PROJECTION_TABLES 10
 
 static const value_string mbim_uuid_atds_cid_vals[] = {
     { MBIM_CID_ATDS_SIGNAL, "ATDS_SIGNAL"},
@@ -1139,7 +1185,7 @@ static const value_string mbim_uuid_atds_cid_vals[] = {
     { MBIM_CID_ATDS_OPERATORS, "ATDS_OPERATORS"},
     { MBIM_CID_ATDS_RAT, "ATDS_RAT"},
     { MBIM_CID_ATDS_REGISTER_STATE, "ATDS_REGISTER_STATE"},
-    { MBIM_CID_ATDS_RAT_DISPLAY, "ATDS_RAT_DISPLAY"},
+    { MBIM_CID_ATDS_SET_PROJECTION_TABLES, "ATDS_SET_PROJECTION_TABLES"},
     { 0, NULL}
 };
 
@@ -1984,6 +2030,131 @@ static const value_string mbim_trace_config_vals[] = {
     { 1, "Default configuration for tracing"},
     { 0, NULL}
 };
+
+static const value_string mbim_ber_vals[] = {
+    { 0, "BER < 0,2%"},
+    { 1, "0,2% < BER < 0,4%"},
+    { 2, "0,4% < BER < 0,8%"},
+    { 3, "0,8% < BER < 1,6%"},
+    { 4, "1,6% < BER < 3,2%"},
+    { 5, "3,2% < BER < 6,4%"},
+    { 6, "6,4% < BER < 12,8%"},
+    { 7, "12,8% < BER"},
+    { 99, "Unknown or undetectable"},
+    { 0, NULL}
+};
+
+static void
+mbim_rscp_fmt(gchar *s, guint32 val)
+{
+    if (val == 0) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "-120 or less dBm (0)");
+    } else if (val < 96) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%d dBm (%u)", -120 + val, val);
+    } else if (val == 96) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "-24 or greater dBm (96)");
+    } else if (val == 255) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Unknown or undetectable (255)");
+    } else {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value (%u)", val);
+    }
+}
+
+static void
+mbim_ecno_fmt(gchar *s, guint32 val)
+{
+    if (val == 0) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "-24 or less dBm (0)");
+    } else if (val < 49) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f dBm (%u)", -24 + ((float)val/2), val);
+    } else if (val == 49) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "0.5 or greater dBm (49)");
+    } else if (val == 255) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Unknown or undetectable (255)");
+    } else {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value (%u)", val);
+    }
+}
+
+static void
+mbim_rsrq_fmt(gchar *s, guint32 val)
+{
+    if (val == 0) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "-19.5 or less dBm (0)");
+    } else if (val < 34) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f dBm (%u)", -19.5 + ((float)val/2), val);
+    } else if (val == 34) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "-2.5 or greater dBm (34)");
+    } else if (val == 255) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Unknown or undetectable (255)");
+    } else {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value (%u)", val);
+    }
+}
+
+static void
+mbim_rsrp_fmt(gchar *s, guint32 val)
+{
+    if (val == 0) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "-140 or less dBm (0)");
+    } else if (val < 97) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%d dBm (%u)", -140 + val, val);
+    } else if (val == 97) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "-43 or greater dBm (97)");
+    } else if (val == 255) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Unknown or undetectable (255)");
+    } else {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value (%u)", val);
+    }
+}
+
+static void
+mbim_rssnr_fmt(gchar *s, guint32 val)
+{
+    if (val == 0) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "-5 or less dB (0)");
+    } else if (val < 35) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%d dB (%u)", -5 + val, val);
+    } else if (val == 35) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "30 or greater dB (35)");
+    } else if (val == 255) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Unknown or undetectable (255)");
+    } else {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value (%u)", val);
+    }
+}
+
+static const value_string mbim_atds_operator_plmn_mode_vals[] = {
+    { 0, "GSM"},
+    { 6, "UTRAN"},
+    { 7, "LTE"},
+    { 0, NULL}
+};
+
+static const value_string mbim_adts_rat_info_mode_vals[]= {
+    { 0, "Automatic"},
+    { 1, "2G only"},
+    { 2, "3G only"},
+    { 3, "4G only"},
+    { 0, NULL}
+};
+
+static const value_string mbim_adts_projection_table_type_vals[]= {
+    { 0, "RSSI"},
+    { 1, "RSCP"},
+    { 2, "Ec/No"},
+    { 3, "RSRP"},
+    { 7, "RS SNR"},
+    { 0, NULL}
+};
+
+static void
+mbim_projection_table_coeff_fmt(gchar *s, guint32 val)
+{
+    gint32 coeff = (gint32)val;
+
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.3f (%d)", ((float)coeff)/1000, coeff);
+}
 
 static guint8
 mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint hf,
@@ -4050,6 +4221,182 @@ mbim_dissect_nrtcws_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_tree_add_item(tree, hf_mbim_nrtcws_info_lte_sps_initial_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 }
 
+static void
+mbim_dissect_atds_signal_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+    proto_tree_add_item(tree, hf_mbim_atds_signal_info_rssi, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_signal_info_ber, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_signal_info_rscp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_signal_info_ecno, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_signal_info_rsrq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_signal_info_rsrp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_signal_info_rssnr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+}
+
+static void
+mbim_dissect_atds_operator(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+    gint base_offset;
+    guint32 provider_id_offset, provider_id_size, provider_name_offset, provider_name_size;
+    proto_item *it;
+
+    base_offset = offset;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_atds_operator_provider_id_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &provider_id_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_atds_operator_provider_id_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &provider_id_size);
+    offset += 4;
+    proto_tree_add_bitmask(tree, tvb, offset, hf_mbim_atds_operator_provider_state, ett_mbim_bitmap,
+                           mbim_provider_state_fields, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_atds_operator_provider_name_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &provider_name_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_atds_operator_provider_name_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &provider_name_size);
+    offset += 4;
+    proto_tree_add_item (tree, hf_mbim_atds_operator_plmn_mode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item (tree, hf_mbim_atds_operator_rssi, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item (tree, hf_mbim_atds_operator_error_rate, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    if (provider_id_offset && provider_id_size) {
+        it = proto_tree_add_item(tree, hf_mbim_atds_operator_provider_id, tvb, base_offset + provider_id_offset,
+                                 provider_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (provider_id_size > 12) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
+    }
+    if (provider_name_offset && provider_name_size) {
+        it = proto_tree_add_item(tree, hf_mbim_atds_operator_provider_name, tvb, base_offset + provider_name_offset,
+                                 provider_name_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (provider_name_size > 40) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
+    }
+}
+
+static void
+mbim_dissect_atds_operators(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+    proto_tree *subtree;
+    gint base_offset;
+    guint32 i, elem_count;
+    wmem_array_t *pair_list;
+    struct mbim_pair_list pair_list_item, *p_pair_list_item;
+
+    base_offset = offset;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_atds_operators_elem_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
+    offset += 4;
+    if (elem_count) {
+        pair_list = wmem_array_sized_new(wmem_packet_scope(), sizeof(struct mbim_pair_list), elem_count);
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 8*elem_count, ett_mbim_pair_list, NULL, "Operators List");
+        for (i = 0; i < elem_count; i++) {
+            proto_tree_add_item_ret_uint(subtree, hf_mbim_atds_operators_operator_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.offset);
+            offset += 4;
+            proto_tree_add_item_ret_uint(subtree, hf_mbim_atds_operators_operator_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.size);
+            offset += 4;
+            wmem_array_append_one(pair_list, pair_list_item);
+        }
+        for (i = 0; i < elem_count; i++) {
+            p_pair_list_item = (struct mbim_pair_list*)wmem_array_index(pair_list, i);
+            if (p_pair_list_item->offset && p_pair_list_item->size) {
+                subtree = proto_tree_add_subtree_format(tree, tvb, base_offset + p_pair_list_item->offset, p_pair_list_item->size,
+                            ett_mbim_pair_list, NULL, "Operator #%u", i+1);
+                mbim_dissect_atds_operator(tvb, pinfo, subtree, base_offset + p_pair_list_item->offset);
+            }
+        }
+    }
+}
+
+static void
+mbim_dissect_atds_projection_table(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+    proto_item *pi;
+
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    pi = proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar5min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(pi, " dBm");
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_a5, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_b5, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    pi = proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar4min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(pi, " dBm");
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_a4, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_b4, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    pi = proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar3min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(pi, " dBm");
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_a3, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_b3, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    pi = proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar2min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(pi, " dBm");
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_a2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_b2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    pi = proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar1min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(pi, " dBm");
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_a1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_b1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    pi = proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar0min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(pi, " dBm");
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_a0, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_b0, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+}
+
+static void
+mbim_dissect_atds_projection_tables(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+    proto_tree *subtree;
+    gint base_offset;
+    guint32 i, elem_count;
+    wmem_array_t *pair_list;
+    struct mbim_pair_list pair_list_item, *p_pair_list_item;
+
+    base_offset = offset;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_atds_projection_tables_elem_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
+    offset += 4;
+    if (elem_count) {
+        pair_list = wmem_array_sized_new(wmem_packet_scope(), sizeof(struct mbim_pair_list), elem_count);
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 8*elem_count, ett_mbim_pair_list, NULL, "Projection Tables List");
+        for (i = 0; i < elem_count; i++) {
+            proto_tree_add_item_ret_uint(subtree, hf_mbim_atds_projection_tables_projection_table_offset,
+                                         tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.offset);
+            offset += 4;
+            proto_tree_add_item_ret_uint(subtree, hf_mbim_atds_projection_tables_projection_table_size,
+                                         tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.size);
+            offset += 4;
+            wmem_array_append_one(pair_list, pair_list_item);
+        }
+        for (i = 0; i < elem_count; i++) {
+            p_pair_list_item = (struct mbim_pair_list*)wmem_array_index(pair_list, i);
+            if (p_pair_list_item->offset && p_pair_list_item->size) {
+                subtree = proto_tree_add_subtree_format(tree, tvb, base_offset + p_pair_list_item->offset, p_pair_list_item->size,
+                            ett_mbim_pair_list, NULL, "Projection Table #%u", i+1);
+                mbim_dissect_atds_projection_table(tvb, pinfo, subtree, base_offset + p_pair_list_item->offset);
+            }
+        }
+    }
+}
+
 static int
 dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -4749,13 +5096,45 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     case UUID_ATDS:
                         switch (cid) {
                             case MBIM_CID_ATDS_SIGNAL:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                }
+                                break;
                             case MBIM_CID_ATDS_LOCATION:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                }
+                                break;
                             case MBIM_CID_ATDS_OPERATORS:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    mbim_dissect_atds_operators(frag_tvb, pinfo, subtree, offset);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                }
+                                break;
                             case MBIM_CID_ATDS_RAT:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_item(subtree, hf_mbim_atds_rat_info_mode, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                }
+                                break;
                             case MBIM_CID_ATDS_REGISTER_STATE:
-                            case MBIM_CID_ATDS_RAT_DISPLAY:
-                                if (info_buff_len) {
-                                    proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                }
+                                break;
+                            case MBIM_CID_ATDS_SET_PROJECTION_TABLES:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    mbim_dissect_atds_projection_tables(frag_tvb, pinfo, subtree, offset);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
                                 }
                                 break;
                             default:
@@ -5400,13 +5779,73 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     case UUID_ATDS:
                         switch (cid) {
                             case MBIM_CID_ATDS_SIGNAL:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    if (mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_SET)) {
+                                        proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                    } else {
+                                        mbim_dissect_atds_signal_info(frag_tvb, pinfo, subtree, offset);
+                                    }
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                break;
                             case MBIM_CID_ATDS_LOCATION:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    if (mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_SET)) {
+                                        proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                    } else {
+                                        proto_tree_add_item(subtree, hf_mbim_atds_location_info_lac, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                                        offset += 4;
+                                        proto_tree_add_item(subtree, hf_mbim_atds_location_info_tac, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                                        offset += 4;
+                                        proto_tree_add_item(subtree, hf_mbim_atds_location_info_cellid, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                                    }
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                break;
                             case MBIM_CID_ATDS_OPERATORS:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    if (mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_SET) && info_buff_len) {
+                                        proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                    } else if ((mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_QUERY)) || info_buff_len) {
+                                        mbim_dissect_atds_operators(frag_tvb, pinfo, subtree, offset);
+                                    }
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                break;
                             case MBIM_CID_ATDS_RAT:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    if (mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_SET) && info_buff_len) {
+                                        proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                    } else if ((mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_QUERY)) || info_buff_len) {
+                                        proto_tree_add_item(subtree, hf_mbim_atds_rat_info_mode, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                                    }
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                break;
                             case MBIM_CID_ATDS_REGISTER_STATE:
-                            case MBIM_CID_ATDS_RAT_DISPLAY:
-                                if (info_buff_len) {
-                                    proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    if (mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_SET)) {
+                                        proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                    } else {
+                                        mbim_dissect_registration_state_info(frag_tvb, pinfo, subtree, offset);
+                                    }
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                break;
+                            case MBIM_CID_ATDS_SET_PROJECTION_TABLES:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    if (mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_SET) && info_buff_len) {
+                                        proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                    } else if ((mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_QUERY)) || info_buff_len) {
+                                        mbim_dissect_atds_projection_tables(frag_tvb, pinfo, subtree, offset);
+                                    }
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
                                 }
                                 break;
                             default:
@@ -8618,6 +9057,236 @@ proto_register_mbim(void)
         },
         { &hf_mbim_ciq_info_mode,
             { "Mode", "mbim.control.ciq_info.mode",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_signal_info_rssi,
+            { "RSSI", "mbim.control.atds_signal_info.rssi",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_rssi_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_signal_info_ber,
+            { "BER", "mbim.control.atds_signal_info.ber",
+               FT_UINT32, BASE_DEC, VALS(mbim_ber_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_signal_info_rscp,
+            { "RSCP", "mbim.control.atds_signal_info.rscp",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_rscp_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_signal_info_ecno,
+            { "Ec/No", "mbim.control.atds_signal_info.ecno",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_ecno_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_signal_info_rsrq,
+            { "RSRQ", "mbim.control.atds_signal_info.rsrq",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_rsrq_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_signal_info_rsrp,
+            { "RSRP", "mbim.control.atds_signal_info.rsrp",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_rsrp_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_signal_info_rssnr,
+            { "RS SNR", "mbim.control.atds_signal_info.rssnr",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_rssnr_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_location_info_lac,
+            { "Location Area Code", "mbim.control.atds_location_info.lac",
+               FT_UINT32, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_location_info_tac,
+            { "Tracking Area Code", "mbim.control.atds_location_info.tac",
+               FT_UINT32, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_location_info_cellid,
+            { "Cell Identity", "mbim.control.atds_location_info.cellid",
+               FT_UINT32, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_operator_provider_id_offset,
+            { "Provider Id Offset", "mbim.control.atds_operator.provider_id_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_operator_provider_id_size,
+            { "Provider Id Size", "mbim.control.atds_operator.provider_id_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_operator_provider_state,
+            { "Provider State", "mbim.control.atds_operator.provider_state",
+               FT_UINT32, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_operator_provider_name_offset,
+            { "Provider Name Offset", "mbim.control.atds_operator.provider_name_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_operator_provider_name_size,
+            { "Provider Name Size", "mbim.control.atds_operator.provider_name_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_operator_plmn_mode,
+            { "PLMN Mode", "mbim.control.atds_operator.plmn_mode",
+               FT_UINT32, BASE_DEC, VALS(mbim_atds_operator_plmn_mode_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_operator_rssi,
+            { "RSSI", "mbim.control.atds_operator.rssi",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_rssi_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_operator_error_rate,
+            { "Error Rate", "mbim.control.atds_operator.error_rate",
+               FT_UINT32, BASE_DEC, VALS(mbim_error_rate_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_operator_provider_id,
+            { "Provider Id", "mbim.control.atds_operator.provider_id",
+               FT_STRING, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_operator_provider_name,
+            { "Provider Name", "mbim.control.atds_operator.provider_name",
+               FT_STRING, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_operators_elem_count,
+            { "Element Count", "mbim.control.atds_operators.elem_count",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_operators_operator_offset,
+            { "Provider Offset", "mbim.control.atds_operators.provider_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_operators_operator_size,
+            { "Provider Size", "mbim.control.atds_operators.provider_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_rat_info_mode,
+            { "Mode", "mbim.control.atds_rat_info.mode",
+               FT_UINT32, BASE_DEC, VALS(mbim_adts_rat_info_mode_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_type,
+            { "Type", "mbim.control.atds_projection_table.type",
+               FT_UINT32, BASE_DEC, VALS(mbim_adts_projection_table_type_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_bar5min,
+            { "Bar5 Min", "mbim.control.atds_projection_table.bar5min",
+               FT_INT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_a5,
+            { "A5", "mbim.control.atds_projection_table.a5",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_projection_table_coeff_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_b5,
+            { "B5", "mbim.control.atds_projection_table.b5",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_projection_table_coeff_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_bar4min,
+            { "Bar4 Min", "mbim.control.atds_projection_table.bar4min",
+               FT_INT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_a4,
+            { "A4", "mbim.control.atds_projection_table.a4",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_projection_table_coeff_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_b4,
+            { "B4", "mbim.control.atds_projection_table.b4",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_projection_table_coeff_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_bar3min,
+            { "Bar3 Min", "mbim.control.atds_projection_table.bar3min",
+               FT_INT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_a3,
+            { "A3", "mbim.control.atds_projection_table.a3",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_projection_table_coeff_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_b3,
+            { "B3", "mbim.control.atds_projection_table.b3",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_projection_table_coeff_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_bar2min,
+            { "Bar2 Min", "mbim.control.atds_projection_table.bar2min",
+               FT_INT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_a2,
+            { "A2", "mbim.control.atds_projection_table.a2",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_projection_table_coeff_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_b2,
+            { "B2", "mbim.control.atds_projection_table.b2",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_projection_table_coeff_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_bar1min,
+            { "Bar1 Min", "mbim.control.atds_projection_table.bar1min",
+               FT_INT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_a1,
+            { "A1", "mbim.control.atds_projection_table.a1",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_projection_table_coeff_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_b1,
+            { "B1", "mbim.control.atds_projection_table.b1",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_projection_table_coeff_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_bar0min,
+            { "Bar0 Min", "mbim.control.atds_projection_table.bar0min",
+               FT_INT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_a0,
+            { "A0", "mbim.control.atds_projection_table.a0",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_projection_table_coeff_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_table_b0,
+            { "B0", "mbim.control.atds_projection_table.b0",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_projection_table_coeff_fmt), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_tables_elem_count,
+            { "Element Count", "mbim.control.atds_projection_tables.elem_count",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_tables_projection_table_offset,
+            { "Projection Table Offset", "mbim.control.atds_projection_tables.projection_table_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_atds_projection_tables_projection_table_size,
+            { "Projection Table Size", "mbim.control.atds_projection_tables.projection_table_size",
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
