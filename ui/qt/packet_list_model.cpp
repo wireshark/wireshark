@@ -53,6 +53,7 @@
 
 PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     QAbstractItemModel(parent),
+    number_to_row_(QVector<int>(0, -1)),
     max_row_height_(0),
     max_line_count_(1),
     idle_dissection_row_(0)
@@ -104,7 +105,7 @@ guint PacketListModel::recreateVisibleRows()
 
     beginResetModel();
     visible_rows_.clear();
-    number_to_row_.clear();
+    number_to_row_.fill(-1);
     endResetModel();
 
     beginInsertRows(QModelIndex(), pos, pos);
@@ -331,7 +332,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
 
     beginResetModel();
     visible_rows_.clear();
-    number_to_row_.clear();
+    number_to_row_.fill(-1);
     foreach (PacketListRecord *record, physical_rows_) {
         if (record->frameData()->flags.passed_dfilter || record->frameData()->flags.ref_time) {
             visible_rows_ << record;
@@ -563,6 +564,9 @@ void PacketListModel::flushVisibleRows()
     gint pos = visible_rows_.count();
 
     if (new_visible_rows_.count() > 0) {
+        if (number_to_row_.size() <= (int) cap_file_->count) {
+            number_to_row_.resize(cap_file_->count + 10000); // Arbitrary padding
+        }
         beginInsertRows(QModelIndex(), pos, pos + new_visible_rows_.count());
         foreach (PacketListRecord *record, new_visible_rows_) {
             frame_data *fdata = record->frameData();

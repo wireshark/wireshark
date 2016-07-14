@@ -98,7 +98,7 @@ private:
     QVector<PacketListRecord *> physical_rows_;
     QVector<PacketListRecord *> visible_rows_;
     QVector<PacketListRecord *> new_visible_rows_;
-    QMap<int, int> number_to_row_;
+    QVector<int> number_to_row_;
 
     int max_row_height_; // px
     int max_line_count_;
