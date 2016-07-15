@@ -81,6 +81,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  bluetooth_uuid_vals_ext@Base 1.99.2
  bluetooth_uuids@Base 2.1.0
  bssgp_cause_vals_ext@Base 1.9.1
+ bthci_cmd_authentication_enable_values@Base 2.1.2
+ bthci_cmd_encrypt_mode_vals@Base 2.1.2
+ bthci_cmd_inq_modes@Base 2.1.2
+ bthci_cmd_scan_enable_values@Base 2.1.2
  bthci_evt_hci_version@Base 1.99.6
  bthci_evt_lmp_version@Base 1.99.6
  build_column_format_array@Base 1.9.1
@@ -519,6 +523,12 @@ libwireshark.so.0 libwireshark0 #MINVER#
  except_throwd@Base 1.9.1
  except_throwf@Base 1.9.1
  except_unhandled_catcher@Base 1.9.1
+ exp_pdu_data_dst_ip@Base 2.1.2
+ exp_pdu_data_dst_port@Base 2.1.2
+ exp_pdu_data_orig_frame_num@Base 2.1.2
+ exp_pdu_data_port_type@Base 2.1.2
+ exp_pdu_data_src_ip@Base 2.1.2
+ exp_pdu_data_src_port@Base 2.1.2
  expert_add_info@Base 1.12.0~rc1
  expert_add_info_format@Base 1.9.1
  expert_checksum_vals@Base 1.12.0~rc1
@@ -958,6 +968,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_check_field_name@Base 1.9.1
  proto_construct_match_selected_string@Base 1.9.1
  proto_deregister_field@Base 1.99.9
+ proto_disable_by_default@Base 2.1.2
  proto_disable_proto_by_name@Base 1.99.8
  proto_enable_all@Base 1.9.1
  proto_enable_heuristic_by_name@Base 1.99.8
@@ -1700,9 +1711,13 @@ libwireshark.so.0 libwireshark0 #MINVER#
  write_carrays_hex_data@Base 1.99.1
  write_csv_column_titles@Base 1.99.1
  write_csv_columns@Base 1.99.1
+ write_ek_proto_tree@Base 2.1.2
  write_fields_finale@Base 1.12.0~rc1
  write_fields_preamble@Base 1.12.0~rc1
  write_fields_proto_tree@Base 1.99.1
+ write_json_finale@Base 2.1.2
+ write_json_preamble@Base 2.1.2
+ write_json_proto_tree@Base 2.1.2
  write_pdml_finale@Base 1.12.0~rc1
  write_pdml_preamble@Base 1.12.0~rc1
  write_pdml_proto_tree@Base 1.99.1

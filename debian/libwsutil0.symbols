@@ -89,6 +89,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  jsmn_is_json@Base 1.99.4
  linear2alaw@Base 1.12.0~rc1
  linear2ulaw@Base 1.12.0~rc1
+ local_interfaces_to_list@Base 2.1.2
+ log_resource_usage@Base 2.1.2
  md5_append@Base 1.12.0~rc1
  md5_finish@Base 1.12.0~rc1
  md5_hmac@Base 1.12.0~rc1
@@ -170,6 +172,10 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_buffer_free@Base 1.99.0
  ws_buffer_init@Base 1.99.0
  ws_buffer_remove_start@Base 1.99.0
+ ws_inet_ntop4@Base 2.1.2
+ ws_inet_ntop6@Base 2.1.2
+ ws_inet_pton4@Base 2.1.2
+ ws_inet_pton6@Base 2.1.2
  ws_mempbrk_compile@Base 1.99.4
  ws_mempbrk_exec@Base 1.99.4
  ws_utf8_char_len@Base 1.12.0~rc1
