@@ -25,10 +25,6 @@
 #include <string.h>
 #include <time.h>
 
-#ifdef _WIN32
-#include <strsafe.h>
-#endif
-
 #include "column-utils.h"
 #include "timestamp.h"
 #include "to_str.h"
@@ -45,7 +41,9 @@
 #include <epan/strutil.h>
 #include <epan/epan.h>
 #include <epan/dfilter/dfilter.h>
+
 #include <wsutil/utf8_entities.h>
+#include <wsutil/ws_printf.h>
 
 #ifdef HAVE_LUA
 #include <epan/wslua/wslua.h>
@@ -445,21 +443,9 @@ col_snprint_port(gchar *buf, gulong buf_siz, port_type typ, guint16 val)
 
   if (gbl_resolv_flags.transport_name &&
         (str = try_serv_name_lookup(typ, val)) != NULL) {
-/*
- * I'm not sure what GLib is doing on Windows, but according to the VS 2013
- * profiler StringCchPrintf does it in 100x fewer samples.
- */
-#ifdef _WIN32
-    StringCchPrintfA(buf, buf_siz, "%s(%hu)", str, val);
-#else
-    g_snprintf(buf, buf_siz, "%s(%"G_GUINT16_FORMAT")", str, val);
-#endif
+    ws_snprintf(buf, buf_siz, "%s(%"G_GUINT16_FORMAT")", str, val);
   } else {
-#ifdef _WIN32
-    StringCchPrintfA(buf, buf_siz, "%hu", val);
-#else
-    g_snprintf(buf, buf_siz, "%"G_GUINT16_FORMAT, val);
-#endif
+    ws_snprintf(buf, buf_siz, "%"G_GUINT16_FORMAT, val);
   }
 }
 

@@ -89,7 +89,8 @@ libwsutil_nonrepl_INCLUDES = \
 	utf8_entities.h		\
 	ws_cpuid.h		\
 	ws_mempbrk.h		\
-	ws_mempbrk_int.h
+	ws_mempbrk_int.h	\
+	ws_printf.h
 
 # Header files for functions in libwsutil's ABI on this platform.
 libwsutil_abi_INCLUDES = \

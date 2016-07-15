@@ -27,6 +27,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <wsutil/ws_printf.h>
+
 #include "packet.h"
 #include "expert.h"
 #include "uat.h"
@@ -539,7 +541,7 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 	}
 
 	if (use_vaformat) {
-		g_vsnprintf(formatted, ITEM_LABEL_LENGTH, format, ap);
+		ws_vsnprintf(formatted, ITEM_LABEL_LENGTH, format, ap);
 	} else {
 		g_strlcpy(formatted, format, ITEM_LABEL_LENGTH);
 	}
