@@ -440,24 +440,34 @@ is_duplicate_idb(const wtap_block_t idb1, const wtap_block_t idb2)
     merge_debug("merge::is_duplicate_idb() called");
     merge_debug("idb1_mand->wtap_encap == idb2_mand->wtap_encap: %s",
                  (idb1_mand->wtap_encap == idb2_mand->wtap_encap) ? "TRUE":"FALSE");
-    merge_debug("idb1_mand->time_units_per_second == idb2_mand->time_units_per_second: %s",
-                 (idb1_mand->time_units_per_second == idb2_mand->time_units_per_second) ? "TRUE":"FALSE");
-    merge_debug("idb1_mand->tsprecision == idb2_mand->tsprecision: %s",
-                 (idb1_mand->tsprecision == idb2_mand->tsprecision) ? "TRUE":"FALSE");
-    merge_debug("idb1_mand->link_type == idb2_mand->link_type: %s",
-                 (idb1_mand->link_type == idb2_mand->link_type) ? "TRUE":"FALSE");
-    merge_debug("idb1_mand->snap_len == idb2_mand->snap_len: %s",
-                 (idb1_mand->snap_len == idb2_mand->snap_len) ? "TRUE":"FALSE");
-
-    if (idb1_mand->wtap_encap != idb2_mand->wtap_encap ||
-        idb1_mand->link_type != idb2_mand->link_type) {
+    if (idb1_mand->wtap_encap != idb2_mand->wtap_encap) {
         /* Clearly not the same interface. */
         merge_debug("merge::is_duplicate_idb() returning FALSE");
         return FALSE;
     }
 
-    if (idb1_mand->time_units_per_second != idb2_mand->time_units_per_second ||
-        idb1_mand->tsprecision != idb2_mand->tsprecision) {
+    merge_debug("idb1_mand->link_type == idb2_mand->link_type: %s",
+                 (idb1_mand->link_type == idb2_mand->link_type) ? "TRUE":"FALSE");
+    if (idb1_mand->link_type != idb2_mand->link_type) {
+        /* Clearly not the same interface. */
+        merge_debug("merge::is_duplicate_idb() returning FALSE");
+        return FALSE;
+    }
+
+    merge_debug("idb1_mand->time_units_per_second == idb2_mand->time_units_per_second: %s",
+                 (idb1_mand->time_units_per_second == idb2_mand->time_units_per_second) ? "TRUE":"FALSE");
+    if (idb1_mand->time_units_per_second != idb2_mand->time_units_per_second) {
+        /*
+         * Probably not the same interface, and we can't combine them
+         * in any case.
+         */
+        merge_debug("merge::is_duplicate_idb() returning FALSE");
+        return FALSE;
+    }
+
+    merge_debug("idb1_mand->tsprecision == idb2_mand->tsprecision: %s",
+                 (idb1_mand->tsprecision == idb2_mand->tsprecision) ? "TRUE":"FALSE");
+    if (idb1_mand->tsprecision != idb2_mand->tsprecision) {
         /*
          * Probably not the same interface, and we can't combine them
          * in any case.
@@ -467,7 +477,9 @@ is_duplicate_idb(const wtap_block_t idb1, const wtap_block_t idb2)
     }
 
     /* XXX: should snaplen not be compared? */
-    if (idb1_mand->snap_len == idb2_mand->snap_len) {
+    merge_debug("idb1_mand->snap_len == idb2_mand->snap_len: %s",
+                 (idb1_mand->snap_len == idb2_mand->snap_len) ? "TRUE":"FALSE");
+    if (idb1_mand->snap_len != idb2_mand->snap_len) {
         merge_debug("merge::is_duplicate_idb() returning FALSE");
         return FALSE;
     }
