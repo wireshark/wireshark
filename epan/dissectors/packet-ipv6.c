@@ -2130,12 +2130,14 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     save_fragmented = pinfo->fragmented;
 
     while (loop && !show_data) {
-        /* Get a tvbuff for the options. */
+        advance = 0;
         options_tvb = tvb_new_subset_remaining(tvb, offset);
         nxt_handle = dissector_get_uint_handle(ipv6_next_header_dissector_table, nxt);
+        if (nxt_handle != NULL) {
+            advance = call_dissector_with_data(nxt_handle, options_tvb, pinfo, ipv6_exthdr_tree, &iph);
+        }
 
-        if ((nxt_handle) &&
-            ((advance = call_dissector_with_data(nxt_handle, options_tvb, pinfo, ipv6_exthdr_tree, &iph)) > 0)) {
+        if (advance > 0) {
             nxt_saved = nxt;
             nxt = tvb_get_guint8(tvb, offset);
             offset += advance;
