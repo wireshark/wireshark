@@ -1,4 +1,5 @@
-/* Standalone program to test functionality of tvbuffs.
+/* tvbtest.c
+ * Standalone program to test functionality of tvbuffs.
  *
  * tvbtest : tvbtest.o tvbuff.o except.o
  *
@@ -256,7 +257,7 @@ test(tvbuff_t *tvb, const gchar* name,
 		for (i = 0; i < length - incr; i += incr) {
 			ptr = (guint8*)tvb_memdup(NULL, tvb, i, incr);
 			if (memcmp(ptr, &expected_data[i], incr) != 0) {
-				printf("11: Failed TVB=%s Offset=%d Length=%d "
+				printf("11: Failed TVB=%s Offset=%u Length=%u "
 						"Bad memdup\n",
 						name, i, incr);
 				failed = TRUE;
