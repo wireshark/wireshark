@@ -2640,7 +2640,7 @@ will not be consulted for capture filter name resolution.
 
 =item Name Resolution (subnets)
 
-If the an IPv4 address cannot be translated via name resolution (no exact
+If an IPv4 address cannot be translated via name resolution (no exact
 match is found) then a partial match is attempted via the F<subnets> file.
 
 Each line of this file consists of an IPv4 address, a subnet mask length
