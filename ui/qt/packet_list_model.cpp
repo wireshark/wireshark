@@ -51,6 +51,8 @@
 #include <wsutil/time_util.h>
 #endif
 
+static const int reserved_packets_ = 100000;
+
 PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     QAbstractItemModel(parent),
     number_to_row_(QVector<int>(0, -1)),
@@ -60,6 +62,12 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
 {
     setCaptureFile(cf);
     PacketListRecord::clearStringPool();
+
+    physical_rows_.reserve(reserved_packets_);
+    visible_rows_.reserve(reserved_packets_);
+    new_visible_rows_.reserve(1000);
+    number_to_row_.reserve(reserved_packets_);
+
     connect(this, SIGNAL(maxLineCountChanged(QModelIndex)),
             this, SLOT(emitItemHeightChanged(QModelIndex)),
             Qt::QueuedConnection);
@@ -104,7 +112,7 @@ guint PacketListModel::recreateVisibleRows()
     int pos = visible_rows_.count();
 
     beginResetModel();
-    visible_rows_.clear();
+    visible_rows_.resize(0);
     number_to_row_.fill(-1);
     endResetModel();
 
@@ -123,10 +131,10 @@ guint PacketListModel::recreateVisibleRows()
 void PacketListModel::clear() {
     beginResetModel();
     qDeleteAll(physical_rows_);
-    physical_rows_.clear();
-    visible_rows_.clear();
-    new_visible_rows_.clear();
-    number_to_row_.clear();
+    physical_rows_.resize(0);
+    visible_rows_.resize(0);
+    new_visible_rows_.resize(0);
+    number_to_row_.resize(0);
     PacketListRecord::clearStringPool();
     endResetModel();
     max_row_height_ = 0;
@@ -331,7 +339,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     std::sort(physical_rows_.begin(), physical_rows_.end(), recordLessThan);
 
     beginResetModel();
-    visible_rows_.clear();
+    visible_rows_.resize(0);
     number_to_row_.fill(-1);
     foreach (PacketListRecord *record, physical_rows_) {
         if (record->frameData()->flags.passed_dfilter || record->frameData()->flags.ref_time) {
@@ -575,7 +583,7 @@ void PacketListModel::flushVisibleRows()
             number_to_row_[fdata->num] = visible_rows_.count() - 1;
         }
         endInsertRows();
-        new_visible_rows_.clear();
+        new_visible_rows_.resize(0);
     }
 }
 
