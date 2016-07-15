@@ -143,7 +143,7 @@ static const value_string docsis_dpd_tlv_subc_assign_vector_modulation_str[] = {
 
 /* Dissection */
 static void
-dissect_dpd_subcarrier_assignment_range_list(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint16 start, guint16 len)
+dissect_dpd_subcarrier_assignment_range_list(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint start, guint len)
 {
   proto_item *it;
   proto_tree *subcarrier_assignment_tree;
@@ -179,12 +179,12 @@ dissect_dpd_subcarrier_assignment_range_list(tvbuff_t * tvb, packet_info * pinfo
 }
 
 static void
-dissect_dpd_subcarrier_assignment_vector(tvbuff_t * tvb, proto_tree * tree, guint16 start, guint16 len)
+dissect_dpd_subcarrier_assignment_vector(tvbuff_t * tvb, proto_tree * tree, guint start, guint len)
 {
   proto_item *it;
   proto_tree *subcarrier_assignment_vector_tree;
   guint8 subcarrier_assignment_vector_oddness;
-  gint32 vector_index;
+  guint vector_index;
 
   it = proto_tree_add_protocol_format (tree, proto_docsis_dpd, tvb, start-3, len+3, ".6 Subcarrier Assignment Vector");
   subcarrier_assignment_vector_tree = proto_item_add_subtree (it, ett_docsis_dpd_tlv_subcarrier_assignment_vector);
@@ -208,12 +208,12 @@ dissect_dpd_subcarrier_assignment_vector(tvbuff_t * tvb, proto_tree * tree, guin
 
 
 static void
-dissect_dpd_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint16 start, guint16 len)
+dissect_dpd_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint start, guint len)
 {
   proto_item *it;
   proto_tree *tlv_tree;
-  guint16 pos = start;
-  guint16 length;
+  guint pos = start;
+  guint length;
   guint8 type;
 
   it = proto_tree_add_protocol_format (tree, proto_docsis_dpd, tvb, 0, len, "TLV Data");
@@ -270,7 +270,7 @@ dissect_dpd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
   guint8 downstream_channel_id;
   guint8 profile_identifier;
   guint8 configuration_change_count;
-  guint16 len;
+  guint len;
   downstream_channel_id = tvb_get_guint8 (tvb, 0);
   profile_identifier = tvb_get_guint8 (tvb, 1);
   configuration_change_count = tvb_get_guint8 (tvb, 2);
