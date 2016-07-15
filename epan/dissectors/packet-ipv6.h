@@ -101,6 +101,17 @@ struct ip6_frag {
 extern "C" {
 #endif /* __cplusplus */
 
+/* Packet info for IPv6 header and extensions */
+typedef struct {
+    guint32     jumbo_plen;
+    guint16     ip6_plen;
+    guint16     frag_off;
+    gboolean    frag_flg;
+    guint32     frag_ident;
+} ipv6_pinfo_t;
+
+ipv6_pinfo_t *p_get_ipv6_pinfo(packet_info *pinfo);
+
 gboolean capture_ipv6(const guchar *, int, int, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
 
 #ifdef __cplusplus
