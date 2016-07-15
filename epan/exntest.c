@@ -26,7 +26,55 @@
 
 gboolean failed = FALSE;
 
-DIAG_OFF(shadow)
+static void
+finally_called_uncaught_exception(volatile unsigned int* called)
+{
+    TRY {
+        THROW(BoundsError);
+    }
+    FINALLY {
+        (*called)++;
+    }
+    ENDTRY;
+}
+
+static void
+finally_called_rethrown_exception(volatile unsigned int* thrown, volatile unsigned int* called)
+{
+    TRY {
+        THROW(BoundsError);
+    }
+    CATCH_ALL {
+        (*thrown) += 10;
+        RETHROW;
+    }
+    FINALLY {
+        (*called) += 10;
+    }
+    ENDTRY;
+}
+
+static void
+finally_called_exception_from_catch(volatile unsigned int* thrown, volatile unsigned int* called)
+{
+    TRY {
+        THROW(BoundsError);
+    }
+    CATCH_ALL {
+        if((*thrown) > 0) {
+            printf("05: Looping exception\n");
+            failed = TRUE;
+        } else {
+            (*thrown) += 10;
+            THROW(BoundsError);
+        }
+    }
+    FINALLY {
+        (*called) += 10;
+    }
+    ENDTRY;
+}
+
 void
 run_tests(void)
 {
@@ -101,13 +149,7 @@ run_tests(void)
     /* check that finally is called on an uncaught exception */
     ex_thrown = finally_called = 0;
     TRY {
-        TRY {
-            THROW(BoundsError);
-        }
-        FINALLY {
-            finally_called ++;
-        }
-        ENDTRY;
+        finally_called_uncaught_exception(&finally_called);
     }
     CATCH(BoundsError) {
         ex_thrown++;
@@ -128,17 +170,7 @@ run_tests(void)
     /* check that finally is called on an rethrown exception */
     ex_thrown = finally_called = 0;
     TRY {
-        TRY {
-            THROW(BoundsError);
-        }
-        CATCH_ALL {
-            ex_thrown += 10;
-            RETHROW;
-        }
-        FINALLY {
-            finally_called += 10;
-        }
-        ENDTRY;
+        finally_called_rethrown_exception(&ex_thrown, &finally_called);
     }
     CATCH(BoundsError) {
         ex_thrown ++;
@@ -162,22 +194,7 @@ run_tests(void)
     /* check that finally is called on an exception thrown from a CATCH block */
     ex_thrown = finally_called = 0;
     TRY {
-        TRY {
-            THROW(BoundsError);
-        }
-        CATCH_ALL {
-            if(ex_thrown > 0) {
-                printf("05: Looping exception\n");
-                failed = TRUE;
-            } else {
-                ex_thrown += 10;
-                THROW(BoundsError);
-            }
-        }
-        FINALLY {
-            finally_called += 10;
-        }
-        ENDTRY;
+        finally_called_exception_from_catch(&ex_thrown, &finally_called);
     }
     CATCH(BoundsError) {
         ex_thrown ++;
@@ -200,7 +217,6 @@ run_tests(void)
     if(failed == FALSE )
         printf("success\n");
 }
-DIAG_ON(shadow)
 
 int main(void)
 {
