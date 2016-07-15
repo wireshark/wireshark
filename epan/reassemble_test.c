@@ -1,4 +1,5 @@
-/* Standalone program to test functionality of reassemble.h API
+/* reassemble_test.c
+ * Standalone program to test functionality of reassemble.h API
  *
  * These aren't particularly complete - they just test a few corners of
  * functionality which I was interested in. In particular, they only test the
@@ -59,31 +60,29 @@
 #include <epan/tvbuff.h>
 #include <epan/reassemble.h>
 
-#define ASSERT(b) do_test((b),"Assertion failed at line %i: %s\n", __LINE__, #b)
-#define ASSERT_EQ(exp,act) do_test((exp)==(act),"Assertion failed at line %i: %s==%s (%i==%i)\n", __LINE__, #exp, #act, exp, act)
-#define ASSERT_NE(exp,act) do_test((exp)!=(act),"Assertion failed at line %i: %s!=%s (%i!=%i)\n", __LINE__, #exp, #act, exp, act)
-
 static int failure = 0;
 
-static void
-do_test(gboolean condition, const char *format, ...)
-{
-    va_list ap;
+#define ASSERT(b)           \
+    if (!(b)) {             \
+        failure = 1;        \
+        printf("Assertion failed at line %i: %s\n", __LINE__, #b);  \
+        exit(1);            \
+    }
 
-    if (condition)
-        return;
+#define ASSERT_EQ(exp,act)  \
+    if ((exp)!=(act)) {     \
+        failure = 1;        \
+        printf("Assertion failed at line %i: %s==%s (%i==%i)\n", __LINE__, #exp, #act, exp, act);  \
+        exit(1);            \
+    }
 
-    va_start(ap, format);
-    vfprintf(stderr, format, ap);
-    va_end(ap);
-    failure = 1;
+#define ASSERT_NE(exp,act)  \
+    if ((exp)==(act)) {     \
+        failure = 1;        \
+        printf("Assertion failed at line %i: %s!=%s (%i!=%i)\n", __LINE__, #exp, #act, exp, act);  \
+        exit(1);            \
+    }
 
-    /* many of the tests assume this routine doesn't return on failure; if we
-     * do, it may provide more information, but may cause a segfault. Uncomment
-     * this line if you wish.
-     */
-    exit(1);
-}
 
 #define DATA_LEN 256
 
