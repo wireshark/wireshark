@@ -127,7 +127,7 @@ int wtap_opttype_register_custom_block_type(const char* name, const char* descri
     /* This shouldn't happen, so flag it for fixing */
     g_assert(num_custom_blocks < MAX_WTAP_BLOCK_CUSTOM);
 
-    block_type = WTAP_BLOCK_END_OF_LIST+num_custom_blocks;
+    block_type = (wtap_block_type_t)(WTAP_BLOCK_END_OF_LIST+num_custom_blocks);
 
     custom_blocktype_list[num_custom_blocks].name = name;
     custom_blocktype_list[num_custom_blocks].description = description;
@@ -191,7 +191,7 @@ wtap_block_t wtap_block_create(wtap_block_type_t block_type)
 {
     wtap_block_t block;
 
-    if (block_type >= (WTAP_BLOCK_END_OF_LIST+num_custom_blocks))
+    if (block_type >= (wtap_block_type_t)(WTAP_BLOCK_END_OF_LIST+num_custom_blocks))
         return NULL;
 
     block = g_new(struct wtap_block, 1);
