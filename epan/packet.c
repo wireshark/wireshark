@@ -354,9 +354,9 @@ add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name)
 {
 	struct data_source *src;
 
-	src = g_slice_new(struct data_source);
+	src = wmem_new(pinfo->pool, struct data_source);
 	src->tvb = tvb;
-	src->name = g_strdup(name);
+	src->name = wmem_strdup(pinfo->pool, name);
 	/* This could end up slow, but we should never have that many data
 	 * sources so it probably doesn't matter */
 	pinfo->data_src = g_slist_append(pinfo->data_src, src);
@@ -365,14 +365,10 @@ add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name)
 void
 remove_last_data_source(packet_info *pinfo)
 {
-	struct data_source *src;
 	GSList *last;
 
 	last = g_slist_last(pinfo->data_src);
-	src = (struct data_source *)last->data;
 	pinfo->data_src = g_slist_delete_link(pinfo->data_src, last);
-	g_free(src->name);
-	g_slice_free(struct data_source, src);
 }
 
 char*
@@ -397,14 +393,6 @@ void
 free_data_sources(packet_info *pinfo)
 {
 	if (pinfo->data_src) {
-		GSList *l;
-
-		for (l = pinfo->data_src; l; l = l->next) {
-			struct data_source *src = (struct data_source *)l->data;
-
-			g_free(src->name);
-			g_slice_free(struct data_source, src);
-		}
 		g_slist_free(pinfo->data_src);
 		pinfo->data_src = NULL;
 	}
