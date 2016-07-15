@@ -1231,7 +1231,7 @@ struct opt_proto_item {
    |                     Jumbo Payload Length                      |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
-static void
+static gint
 dissect_opt_jumbo(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
                     struct opt_proto_item *opt_ti, guint8 opt_len, gboolean hopopts)
 {
@@ -1243,30 +1243,31 @@ dissect_opt_jumbo(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *op
     if (opt_len != 4) {
         expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
                 "Jumbo Payload: Invalid length (%u bytes)", opt_len);
-        return;
     }
-    ti = proto_tree_add_item(opt_tree, hf_ipv6_opt_jumbo, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(opt_tree, hf_ipv6_opt_jumbo, tvb, offset, 4, ENC_BIG_ENDIAN);
+    plen_jumbo = tvb_get_ntohl(tvb, offset);
+    offset += 4;
 
     if (!hopopts) {
         expert_add_info(pinfo, pi, &ei_ipv6_opt_jumbo_not_hopbyhop);
-        return;
+        return offset;
     }
     if (ipv6_info->jumbogram) {
         /* XXX - Repeated jumbo TLV */
-        return;
+        return offset;
     }
     if (ipv6_info->payload_length) {
         expert_add_info(pinfo, pi, &ei_ipv6_opt_jumbo_prohibited);
         proto_item_append_text(ti, " [Ignored]");
-        return;
+        return offset;
     }
-    plen_jumbo = tvb_get_ntohl(tvb, offset + 2);
     if (plen_jumbo < 65536) {
         expert_add_info(pinfo, ti, &ei_ipv6_opt_jumbo_truncated);
-        return;
+        return offset;
     }
     ipv6_info->jumbogram = TRUE;
     ipv6_info->jumbo_length = plen_jumbo;
+    return offset;
 }
 
 /*
@@ -1282,7 +1283,7 @@ dissect_opt_jumbo(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *op
      |                         (sub-TLVs)                            |
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
-static void
+static gint
 dissect_opt_rpl(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
                     struct opt_proto_item *opt_ti, guint8 opt_len)
 {
@@ -1293,23 +1294,21 @@ dissect_opt_rpl(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_
         &hf_ipv6_opt_rpl_flag_rsv,
         NULL
     };
-    proto_item *ti;
 
     if (opt_len < 4) {
         expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
-           "RPL Option: Invalid length (%u bytes)", opt_len);
-        return;
+                "RPL Option: Invalid length (%u bytes)", opt_len);
     }
-    proto_tree_add_bitmask(opt_tree, tvb, offset + 2, hf_ipv6_opt_rpl_flag, ett_ipv6_opt_rpl, rpl_flags, ENC_NA);
-    proto_tree_add_item(opt_tree, hf_ipv6_opt_rpl_instance_id, tvb, offset + 3, 1, ENC_NA);
-    proto_tree_add_item(opt_tree, hf_ipv6_opt_rpl_senderrank, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(opt_tree, tvb, offset, hf_ipv6_opt_rpl_flag, ett_ipv6_opt_rpl, rpl_flags, ENC_NA);
+    offset += 1;
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_rpl_instance_id, tvb, offset, 1, ENC_NA);
+    offset += 1;
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_rpl_senderrank, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
     /* TODO: Add dissection of sub-TLVs */
 
-    if (opt_len > 4) {
-        ti = proto_tree_add_item(opt_tree, hf_ipv6_opt_unknown_data, tvb, offset + 6, opt_len - 4, ENC_NA);
-        expert_add_info(pinfo, ti, &ei_ipv6_opt_unknown_data);
-    }
+    return offset;
 }
 
 /*
@@ -1321,16 +1320,18 @@ dissect_opt_rpl(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_
    |0 0 0 0 0 1 0 0|       1       | Tun Encap Lim |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
-static void
+static gint
 dissect_opt_tel(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
                     struct opt_proto_item *opt_ti, guint8 opt_len)
 {
     if (opt_len != 1) {
         expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
-           "Tunnel Encapsulation Limit: Invalid length (%u bytes)", opt_len);
-        return;
+                "Tunnel Encapsulation Limit: Invalid length (%u bytes)", opt_len);
     }
-    proto_tree_add_item(opt_tree, hf_ipv6_opt_tel, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_tel, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    return offset;
 }
 
 /*
@@ -1341,19 +1342,33 @@ dissect_opt_tel(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
                       length = 2
 */
-static void
+static gint
 dissect_opt_rtalert(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
                         struct opt_proto_item *opt_ti, guint8 opt_len)
 {
     if (opt_len != 2) {
         expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
-                               "Router alert: Invalid Length (%u bytes)", opt_len);
-        return;
+                "Router alert: Invalid Length (%u bytes)", opt_len);
     }
-    proto_tree_add_item(opt_tree, hf_ipv6_opt_rtalert, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_rtalert, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
 }
 
-static void
+/*
+ * Quick-Start Option for IPv6
+ *
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |   Option      |  Length=6     | Func. | Rate  |   Not Used    |
+   |               |               | 1000  | Report|               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                        QS Nonce                           | R |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*/
+static gint
 dissect_opt_quickstart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
                         struct opt_proto_item *opt_ti, guint8 opt_len)
 {
@@ -1366,15 +1381,13 @@ dissect_opt_quickstart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tre
 
     if (opt_len != 6) {
         expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
-                               "Quick-Start: Invalid Length (%u bytes)", opt_len);
-        return;
+                "Quick-Start: Invalid Length (%u bytes)", opt_len);
     }
 
-    command = tvb_get_guint8(tvb, offset + 2);
+    command = tvb_get_guint8(tvb, offset);
     function = command >> 4;
     rate = command & QS_RATE_MASK;
 
-    offset += 2;
     proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_func, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     switch (function) {
@@ -1391,7 +1404,7 @@ dissect_opt_quickstart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tre
         offset += 1;
         proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_nonce, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
-        /* offset += 4; */
+        offset += 4;
         break;
     case QS_RATE_REPORT:
         proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1401,11 +1414,13 @@ dissect_opt_quickstart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tre
         offset += 1;
         proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_nonce, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
-        /* offset += 4; */
+        offset += 4;
         break;
     default:
         break;
     }
+
+    return offset;
 }
 
 /*
@@ -1419,7 +1434,7 @@ dissect_opt_quickstart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tre
    |      Compartment Bitmap (Optional; variable length)      |
    +-------------+---------------+-------------+--------------+
 */
-static void
+static gint
 dissect_opt_calipso(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
                     struct opt_proto_item *opt_ti, guint8 opt_len)
 {
@@ -1427,24 +1442,30 @@ dissect_opt_calipso(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *
 
     if (opt_len < 8) {
         expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
-                               "CALIPSO: Invalid Length (%u bytes)", opt_len);
-        return;
+                "CALIPSO: Invalid Length (%u bytes)", opt_len);
     }
 
     proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_doi, tvb,
-                        offset + 2, 4, ENC_BIG_ENDIAN);
+                        offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
 
     proto_tree_add_item_ret_uint(opt_tree, hf_ipv6_opt_calipso_cmpt_length, tvb,
-                        offset + 6, 1, ENC_BIG_ENDIAN, &cmpt_length);
+                        offset, 1, ENC_BIG_ENDIAN, &cmpt_length);
+    offset += 1;
 
     proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_sens_level, tvb,
-                        offset + 7, 1, ENC_BIG_ENDIAN);
+                        offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
     proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_checksum, tvb,
-                        offset + 8, 2, ENC_BIG_ENDIAN);
+                        offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
     proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_cmpt_bitmap, tvb,
-                        offset + 10, cmpt_length*4, ENC_NA);
+                        offset, cmpt_length*4, ENC_NA);
+    offset += cmpt_length*4;
+
+    return offset;
 }
 
 /*
@@ -1464,16 +1485,19 @@ dissect_opt_calipso(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *
       |                                                               |
       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
-static void
+static gint
 dissect_opt_home_address(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
                             struct opt_proto_item *opt_ti, guint8 opt_len)
 {
     if (opt_len != 16) {
         expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
-                               "Home Address: Invalid length (%u bytes)", opt_len);
+                "Home Address: Invalid length (%u bytes)", opt_len);
     }
-    proto_tree_add_item(opt_tree, hf_ipv6_opt_mipv6_home_address, tvb, offset + 2, 16, ENC_NA);
-    alloc_address_tvb(pinfo->pool, &pinfo->src, AT_IPv6, 16, tvb, offset + 2);
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_mipv6_home_address, tvb, offset, 16, ENC_NA);
+    alloc_address_tvb(pinfo->pool, &pinfo->src, AT_IPv6, 16, tvb, offset);
+    offset += 16;
+
+    return offset;
 }
 
 /*
@@ -1488,11 +1512,14 @@ dissect_opt_home_address(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_t
     /                         Nonce Value                           /
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
-static void
+static gint
 dissect_opt_ilnp_nonce(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *opt_tree,
                             struct opt_proto_item *opt_ti _U_, guint8 opt_len)
 {
-    proto_tree_add_item(opt_tree, hf_ipv6_opt_ilnp_nonce, tvb, offset + 2, opt_len, ENC_NA);
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_ilnp_nonce, tvb, offset, opt_len, ENC_NA);
+    offset += opt_len;
+
+    return offset;
 }
 
 /*
@@ -1506,25 +1533,25 @@ dissect_opt_ilnp_nonce(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto
    | LineIDLen     |     Line ID...
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
-static void
-dissect_opt_lio(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
+static gint
+dissect_opt_lio(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *opt_tree,
                             struct opt_proto_item *opt_ti _U_, guint8 opt_len)
 {
-    proto_item *ti;
-    guint8 line_id_len;
+    guint8 line_id_len, len;
 
-    proto_tree_add_item(opt_tree, hf_ipv6_opt_lio_len, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
-    line_id_len = tvb_get_guint8(tvb, offset + 2);
-    if (line_id_len == 0) {
-        return;
-    }
-    proto_tree_add_item(opt_tree, hf_ipv6_opt_lio_id, tvb, offset + 2, 1, ENC_BIG_ENDIAN|ENC_ASCII);
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_lio_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    line_id_len = tvb_get_guint8(tvb, offset);
+    offset += 1;
 
-    if (line_id_len > 1 && opt_len > line_id_len - 1) {
-        ti = proto_tree_add_item(opt_tree, hf_ipv6_opt_unknown_data,
-                tvb, offset + 3 + line_id_len, opt_len - line_id_len - 1, ENC_NA);
-        expert_add_info(pinfo, ti, &ei_ipv6_opt_unknown_data);
-    }
+    if (line_id_len <= opt_len - 1)
+        len = line_id_len;
+    else
+        len = opt_len - 1;
+
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_lio_id, tvb, offset, len, ENC_BIG_ENDIAN|ENC_ASCII);
+    offset += len;
+
+    return offset;
 }
 
 /*
@@ -1538,7 +1565,7 @@ dissect_opt_lio(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_
      | S |M|V|  rsv  |   sequence    |      seed-id (optional)       |
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
-static void
+static gint
 dissect_opt_mpl(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *opt_tree,
                     struct opt_proto_item *opt_ti _U_, guint8 opt_len _U_)
 {
@@ -1552,7 +1579,6 @@ dissect_opt_mpl(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *
     static const guint8 seed_id_len_arr[4] = {0, 2, 8, 16};
     guint8 seed_id_len;
 
-    offset += 2;
     proto_tree_add_bitmask(opt_tree, tvb, offset, hf_ipv6_opt_mpl_flag, ett_ipv6_opt_mpl, mpl_flags, ENC_NA);
     seed_id_len = seed_id_len_arr[tvb_get_guint8(tvb, offset) >> 6];
     offset +=1;
@@ -1561,7 +1587,10 @@ dissect_opt_mpl(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *
     offset +=1;
     if (seed_id_len > 0) {
         proto_tree_add_item(opt_tree, hf_ipv6_opt_mpl_seed_id, tvb, offset, seed_id_len, ENC_NA);
+        offset += seed_id_len;
     }
+
+    return offset;
 }
 
 /*
@@ -1575,7 +1604,7 @@ dissect_opt_mpl(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *
      |VER|D|R|0|0|0|0|        Sequence Number        |      Pad1     |
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
-static void
+static gint
 dissect_opt_dff(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
                             struct opt_proto_item *opt_ti, guint8 opt_len)
 {
@@ -1591,22 +1620,28 @@ dissect_opt_dff(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_
     /* http://www.rfc-editor.org/errata_search.php?eid=3937 */
     if (opt_len != 3) {
         expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
-                               "IPv6 DFF: Invalid length (%u bytes)", opt_len);
+                "IPv6 DFF: Invalid length (%u bytes)", opt_len);
     }
-    proto_tree_add_bitmask(opt_tree, tvb, offset + 2, hf_ipv6_opt_dff_flags,
+    proto_tree_add_bitmask(opt_tree, tvb, offset, hf_ipv6_opt_dff_flags,
                             ett_ipv6_opt_dff_flags, dff_flags, ENC_NA);
-    proto_tree_add_item(opt_tree, hf_ipv6_opt_dff_seqnum, tvb, offset + 3, 2, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_dff_seqnum, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
 }
 
-static void
+static gint
 dissect_opt_unknown(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
                             struct opt_proto_item *opt_ti _U_, guint8 opt_len)
 {
     proto_item *ti;
 
     ti = proto_tree_add_item(opt_tree, hf_ipv6_opt_unknown, tvb,
-                        offset + 2, opt_len, ENC_NA);
+                        offset, opt_len, ENC_NA);
     expert_add_info(pinfo, ti, &ei_ipv6_opt_unknown_data);
+
+    return offset + opt_len;
 }
 
 static int
@@ -1617,7 +1652,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, co
     proto_item     *pi, *ti, *ti_len;
     int             hf_exthdr_item_nxt, hf_exthdr_item_len, hf_exthdr_item_len_oct;
     int             ett_exthdr_proto;
-    guint8          opt_type, opt_len;
+    guint8          opt_type, opt_len, opt_start;
     gboolean        hopopts;
     struct opt_proto_item opt_ti;
 
@@ -1681,8 +1716,10 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, co
             offset += 1;
             continue;
         }
+        offset += 1;
 
-        opt_ti.len = proto_tree_add_item(opt_tree, hf_ipv6_opt_length, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+        opt_ti.len = proto_tree_add_item(opt_tree, hf_ipv6_opt_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
 
         if (opt_type == IP6OPT_PADN) {
             /* RFC 2460 states :
@@ -1691,48 +1728,49 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, co
              * padding, the Opt Data Len field contains the value N-2, and
              * the Option Data consists of N-2 zero-valued octets."
              */
-            proto_tree_add_item(opt_tree, hf_ipv6_opt_padn, tvb, offset + 2, opt_len, ENC_NA);
-            offset += 2 + opt_len;
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_padn, tvb, offset, opt_len, ENC_NA);
+            offset += opt_len;
             continue;
         }
 
+        opt_start = offset;
         switch (opt_type) {
         case IP6OPT_JUMBO:
-            dissect_opt_jumbo(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len, hopopts);
+            offset = dissect_opt_jumbo(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len, hopopts);
             break;
         case IP6OPT_RPL:
-            dissect_opt_rpl(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            offset = dissect_opt_rpl(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_TEL:
-            dissect_opt_tel(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            offset = dissect_opt_tel(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_RTALERT:
-            dissect_opt_rtalert(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            offset = dissect_opt_rtalert(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_QUICKSTART:
-            dissect_opt_quickstart(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            offset = dissect_opt_quickstart(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_CALIPSO:
-            dissect_opt_calipso(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            offset = dissect_opt_calipso(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_SMF_DPD:
             /* TODO: Dissect SMF_DPD */
-            dissect_opt_unknown(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            offset = dissect_opt_unknown(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_HOME_ADDRESS:
-            dissect_opt_home_address(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            offset = dissect_opt_home_address(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_ILNP_NONCE:
-            dissect_opt_ilnp_nonce(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            offset = dissect_opt_ilnp_nonce(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_LIO:
-            dissect_opt_lio(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            offset = dissect_opt_lio(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_MPL:
-            dissect_opt_mpl(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            offset = dissect_opt_mpl(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_IP_DFF:
-            dissect_opt_dff(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            offset = dissect_opt_dff(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_EXP_1E:
         case IP6OPT_EXP_3E:
@@ -1743,13 +1781,19 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, co
         case IP6OPT_EXP_DE:
         case IP6OPT_EXP_FE:
             proto_tree_add_item(opt_tree, hf_ipv6_opt_experimental, tvb,
-                                offset + 2, opt_len, ENC_NA);
+                                offset, opt_len, ENC_NA);
+            offset += opt_len;
             break;
         default:
-            dissect_opt_unknown(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            offset = dissect_opt_unknown(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         }
-        offset += 2 + opt_len;
+        if (offset < opt_start + opt_len) {
+            ti = proto_tree_add_item(opt_tree, hf_ipv6_opt_unknown_data, tvb,
+                                offset, opt_start + opt_len - offset, ENC_NA);
+            expert_add_info(pinfo, ti, &ei_ipv6_opt_unknown_data);
+            offset = opt_start + opt_len;
+        }
     }
 
     return len;
