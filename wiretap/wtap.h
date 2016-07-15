@@ -1297,7 +1297,7 @@ typedef struct wtapng_if_descr_filter_s {
                                                    *  libpcap string.
                                                    */
     guint16                bpf_filter_len;        /** variant II BPF filter len 0 if not used*/
-    gchar                 *if_filter_bpf_bytes;   /** BPF filter or NULL */
+    guint8                *if_filter_bpf_bytes;   /** BPF filter or NULL */
 } wtapng_if_descr_filter_t;
 
 /**

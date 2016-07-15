@@ -885,11 +885,11 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                         pcapng_debug("pcapng_read_if_descr_block: if_filter_str %s oh.option_length %u", if_filter.if_filter_str, oh.option_length);
                     } else if (option_content[0] == 1) {
                         if_filter.bpf_filter_len = oh.option_length-1;
-                        if_filter.if_filter_bpf_bytes = (gchar *)g_malloc(oh.option_length-1);
-                        memcpy(if_filter.if_filter_bpf_bytes, (char *)option_content+1, oh.option_length-1);
+                        if_filter.if_filter_bpf_bytes = (guint8 *)option_content+1;
                     }
                     /* Fails with multiple options; we silently ignore the failure */
                     wtap_block_add_custom_option(wblock->block, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
+                    g_free(if_filter.if_filter_str);
                 } else {
                     pcapng_debug("pcapng_read_if_descr_block: if_filter length %u seems strange", oh.option_length);
                 }

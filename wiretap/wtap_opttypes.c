@@ -48,6 +48,7 @@ typedef struct {
     GArray *options;                 /**< array of known options */
 } wtap_blocktype_t;
 
+typedef void *(*wtap_opttype_dup_custom_func)(void* src);
 typedef void (*wtap_opttype_free_custom_func)(void* data);
 
 /*
@@ -58,6 +59,7 @@ typedef struct {
     const char *description;                 /**< human-readable description of option */
     wtap_opttype_e data_type;                /**< data type of that option */
     guint flags;                             /**< flags for the option */
+    wtap_opttype_dup_custom_func dup_func;   /**< function to duplicate custom option data */
     wtap_opttype_free_custom_func free_func; /**< function to free custom option data */
 } wtap_opttype_t;
 
@@ -86,6 +88,7 @@ static void wtap_opttype_block_register(wtap_block_type_t block_type, wtap_block
         "Comment",
         WTAP_OPTTYPE_STRING, 
         WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED,
+        NULL,
         NULL
     };
 
@@ -788,12 +791,14 @@ wtap_block_add_custom_option(wtap_block_t block, guint option_id, void *value, s
 {
     wtap_opttype_return_val ret;
     wtap_option_t *opt;
+    wtap_opttype_t *opttype;
 
     ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_CUSTOM, &opt);
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
+    opttype = &g_array_index(block->info->options, wtap_opttype_t, opt->option_id);
     opt->value.customval.size = (guint)value_size;
-    opt->value.customval.data = g_memdup(value, (guint)value_size);
+    opt->value.customval.data = opttype->dup_func(value);
     return WTAP_OPTTYPE_SUCCESS;
 }
 
@@ -859,6 +864,19 @@ static void isb_create(wtap_block_t block)
 static void isb_copy_mand(wtap_block_t dest_block, wtap_block_t src_block)
 {
     memcpy(dest_block->mandatory_data, src_block->mandatory_data, sizeof(wtapng_if_stats_mandatory_t));
+}
+
+static void *idb_filter_dup(void* src)
+{
+    wtapng_if_descr_filter_t* filter_src = (wtapng_if_descr_filter_t*)src;
+    wtapng_if_descr_filter_t* filter_dest;
+
+    /* Deep copy. */
+    filter_dest = g_malloc(sizeof (wtapng_if_descr_filter_t));
+    filter_dest->if_filter_str = g_strdup(filter_src->if_filter_str);
+    filter_dest->bpf_filter_len = filter_src->bpf_filter_len;
+    filter_dest->if_filter_bpf_bytes = g_memdup(filter_src->if_filter_bpf_bytes, filter_src->bpf_filter_len);
+    return (void *)filter_dest;
 }
 
 static void idb_filter_free(void* data)
@@ -929,6 +947,7 @@ void wtap_opttypes_initialize(void)
         "SHB Hardware",
         WTAP_OPTTYPE_STRING,
         0,
+        NULL,
         NULL
     };
     static wtap_opttype_t shb_os = {
@@ -936,6 +955,7 @@ void wtap_opttypes_initialize(void)
         "SHB Operating System",
         WTAP_OPTTYPE_STRING,
         0,
+        NULL,
         NULL
     };
     static wtap_opttype_t shb_userappl = {
@@ -943,6 +963,7 @@ void wtap_opttypes_initialize(void)
         "SHB User Application",
         WTAP_OPTTYPE_STRING,
         0,
+        NULL,
         NULL
     };
 
@@ -960,6 +981,7 @@ void wtap_opttypes_initialize(void)
         "IDB Name",
         WTAP_OPTTYPE_STRING,
         0,
+        NULL,
         NULL
     };
     static wtap_opttype_t if_description = {
@@ -967,6 +989,7 @@ void wtap_opttypes_initialize(void)
         "IDB Description",
         WTAP_OPTTYPE_STRING,
         0,
+        NULL,
         NULL
     };
     static wtap_opttype_t if_speed = {
@@ -974,6 +997,7 @@ void wtap_opttypes_initialize(void)
         "IDB Speed",
         WTAP_OPTTYPE_UINT64,
         0,
+        NULL,
         NULL
     };
     static wtap_opttype_t if_tsresol = {
@@ -981,6 +1005,7 @@ void wtap_opttypes_initialize(void)
         "IDB Time Stamp Resolution",
         WTAP_OPTTYPE_UINT8, /* XXX - signed? */
         0,
+        NULL,
         NULL
     };
     static wtap_opttype_t if_filter = {
@@ -988,6 +1013,7 @@ void wtap_opttypes_initialize(void)
         "IDB Filter",
         WTAP_OPTTYPE_CUSTOM,
         0,
+        idb_filter_dup,
         idb_filter_free
     };
     static wtap_opttype_t if_os = {
@@ -995,6 +1021,7 @@ void wtap_opttypes_initialize(void)
         "IDB Operating System",
         WTAP_OPTTYPE_STRING,
         0,
+        NULL,
         NULL
     };
     static wtap_opttype_t if_fcslen = {
@@ -1002,6 +1029,7 @@ void wtap_opttypes_initialize(void)
         "IDB FCS Length",
         WTAP_OPTTYPE_UINT8,
         0,
+        NULL,
         NULL
     };
 
@@ -1019,6 +1047,7 @@ void wtap_opttypes_initialize(void)
         "NRB DNS server name",
         WTAP_OPTTYPE_STRING,
         0,
+        NULL,
         NULL
     };
     static wtap_opttype_t ns_dnsIP4addr = {
@@ -1026,6 +1055,7 @@ void wtap_opttypes_initialize(void)
         "NRB DNS server IPv4 address",
         WTAP_OPTTYPE_IPv4,
         0,
+        NULL,
         NULL
     };
     static wtap_opttype_t ns_dnsIP6addr = {
@@ -1033,6 +1063,7 @@ void wtap_opttypes_initialize(void)
         "NRB DNS server IPv6 address",
         WTAP_OPTTYPE_IPv6,
         0,
+        NULL,
         NULL
     };
 
@@ -1050,6 +1081,7 @@ void wtap_opttypes_initialize(void)
         "ISB Start Time",
         WTAP_OPTTYPE_UINT64,
         0,
+        NULL,
         NULL
     };
     static wtap_opttype_t isb_endtime = {
@@ -1057,6 +1089,7 @@ void wtap_opttypes_initialize(void)
         "ISB End Time",
         WTAP_OPTTYPE_UINT64,
         0,
+        NULL,
         NULL
     };
     static wtap_opttype_t isb_ifrecv = {
@@ -1064,6 +1097,7 @@ void wtap_opttypes_initialize(void)
         "ISB Received Packets",
         WTAP_OPTTYPE_UINT64,
         0,
+        NULL,
         NULL
     };
     static wtap_opttype_t isb_ifdrop = {
@@ -1071,6 +1105,7 @@ void wtap_opttypes_initialize(void)
         "ISB Dropped Packets",
         WTAP_OPTTYPE_UINT64,
         0,
+        NULL,
         NULL
     };
     static wtap_opttype_t isb_filteraccept = {
@@ -1078,6 +1113,7 @@ void wtap_opttypes_initialize(void)
         "ISB Packets Accepted By Filter",
         WTAP_OPTTYPE_UINT64,
         0,
+        NULL,
         NULL
     };
     static wtap_opttype_t isb_osdrop = {
@@ -1085,6 +1121,7 @@ void wtap_opttypes_initialize(void)
         "ISB Packets Dropped By The OS",
         WTAP_OPTTYPE_UINT64,
         0,
+        NULL,
         NULL
     };
     static wtap_opttype_t isb_usrdeliv = {
@@ -1092,6 +1129,7 @@ void wtap_opttypes_initialize(void)
         "ISB Packets Delivered To The User",
         WTAP_OPTTYPE_UINT64,
         0,
+        NULL,
         NULL
     };
 
