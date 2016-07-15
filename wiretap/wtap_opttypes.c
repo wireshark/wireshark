@@ -875,7 +875,7 @@ static void *idb_filter_dup(void* src)
     filter_dest = g_new(wtapng_if_descr_filter_t, 1);
     filter_dest->if_filter_str = g_strdup(filter_src->if_filter_str);
     filter_dest->bpf_filter_len = filter_src->bpf_filter_len;
-    filter_dest->if_filter_bpf_bytes = g_memdup(filter_src->if_filter_bpf_bytes, filter_src->bpf_filter_len);
+    filter_dest->if_filter_bpf_bytes = (guint8 *)g_memdup(filter_src->if_filter_bpf_bytes, filter_src->bpf_filter_len);
     return (void *)filter_dest;
 }
 
