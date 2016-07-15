@@ -1560,8 +1560,8 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
         break;
       case ERF_META_TAG_filter:
         if_filter.if_filter_str = g_strndup((gchar*) tag.value, tag.length);
-	wtap_block_add_custom_option(int_data, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
-	g_free(if_filter.if_filter_str);
+        wtap_block_add_custom_option(int_data, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
+        g_free(if_filter.if_filter_str);
         if_info->set_flags.filter = 1;
         break;
       default:
