@@ -898,7 +898,7 @@ dissect_routing6_mipv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
         expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
     }
 
-    if (addr != NULL && rt.ip6r_segleft > 0) {
+    if (rt.ip6r_segleft > 0) {
         alloc_address_wmem(pinfo->pool, &pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, addr);
     }
 }
