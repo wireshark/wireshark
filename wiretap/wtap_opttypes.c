@@ -79,7 +79,7 @@ static wtap_blocktype_t* blocktype_list[MAX_WTAP_BLOCK_TYPE_VALUE];
 static guint num_custom_blocks;
 static wtap_blocktype_t custom_blocktype_list[MAX_WTAP_BLOCK_CUSTOM];
 
-static void wtap_opttype_block_register(int block_type, wtap_blocktype_t *blocktype)
+static void wtap_opttype_block_register(wtap_block_type_t block_type, wtap_blocktype_t *blocktype)
 {
     static const wtap_opttype_t opt_comment = {
         "opt_comment",
