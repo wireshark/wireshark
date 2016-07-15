@@ -138,11 +138,12 @@ static void cf_open_failure_alert_box(const char *filename, int err,
 static void cf_rename_failure_alert_box(const char *filename, int err);
 static void cf_close_failure_alert_box(const char *filename, int err);
 static void ref_time_packets(capture_file *cf);
-/* Update the progress bar this many times when reading a file. */
-#define N_PROGBAR_UPDATES   100
-/* We read around 200k/100ms don't update the progress bar more often than that */
-#define MIN_QUANTUM         200000
-#define MIN_NUMBER_OF_PACKET 1500
+
+/* Seconds spent processing packets between pushing UI updates. */
+#define PROGBAR_UPDATE_INTERVAL 0.150
+
+/* Show the progress bar after this many seconds. */
+#define PROGBAR_SHOW_DELAY 0.5
 
 /*
  * We could probably use g_signal_...() instead of the callbacks below but that
@@ -485,6 +486,24 @@ cf_close(capture_file *cf)
   cf_callback_invoke(cf_cb_file_closed, cf);
 }
 
+/*
+ * TRUE if the progress dialog doesn't exist and it looks like we'll
+ * take > 2s to load, FALSE otherwise.
+ */
+static inline gboolean
+progress_is_slow(progdlg_t *progdlg, GTimer *prog_timer, gint64 size, gint64 pos)
+{
+  double elapsed;
+
+  if (progdlg) return FALSE;
+  elapsed = g_timer_elapsed(prog_timer, NULL);
+  if ((elapsed / 2 > PROGBAR_SHOW_DELAY && (size / pos) > 2) /* It looks like we're going to be slow. */
+      || elapsed > PROGBAR_SHOW_DELAY) { /* We are indeed slow. */
+    return TRUE;
+  }
+  return FALSE;
+}
+
 static float
 calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos, gchar *status_str, gulong status_size)
 {
@@ -524,6 +543,7 @@ cf_read(capture_file *cf, gboolean reloading)
   gchar               *err_info = NULL;
   gchar               *name_ptr;
   progdlg_t           *volatile progbar = NULL;
+  GTimer              *prog_timer = g_timer_new();
   GTimeVal             start_time;
   epan_dissect_t       edt;
   dfilter_t           *dfcode;
@@ -571,8 +591,6 @@ cf_read(capture_file *cf, gboolean reloading)
     gint64  file_pos;
     gint64  data_offset;
 
-    gint64  progbar_quantum;
-    gint64  progbar_nextstep;
     float   progbar_val;
     gchar   status_str[100];
 
@@ -583,26 +601,15 @@ cf_read(capture_file *cf, gboolean reloading)
     /* Find the size of the file. */
     size = wtap_file_size(cf->wth, NULL);
 
-    /* Update the progress bar when it gets to this value. */
-    progbar_nextstep = 0;
-    /* When we reach the value that triggers a progress bar update,
-       bump that value by this amount. */
-    if (size >= 0) {
-      progbar_quantum = size/N_PROGBAR_UPDATES;
-      if (progbar_quantum < MIN_QUANTUM)
-        progbar_quantum = MIN_QUANTUM;
-    }else
-      progbar_quantum = 0;
+    g_timer_start(prog_timer);
 
     while ((wtap_read(cf->wth, &err, &err_info, &data_offset))) {
       if (size >= 0) {
         count++;
         file_pos = wtap_read_so_far(cf->wth);
 
-        /* Create the progress bar if necessary.
-         * Check whether it should be created or not every MIN_NUMBER_OF_PACKET
-         */
-        if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)) {
+        /* Create the progress bar if necessary. */
+        if (progress_is_slow(progbar, prog_timer, size, file_pos)) {
           progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
           if (reloading)
             progbar = delayed_create_progress_dlg(cf->window, "Reloading", name_ptr,
@@ -612,19 +619,19 @@ cf_read(capture_file *cf, gboolean reloading)
                 TRUE, &cf->stop_flag, &start_time, progbar_val);
         }
 
-        /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
-           when we update it, we have to run the GTK+ main loop to get it
-           to repaint what's pending, and doing so may involve an "ioctl()"
-           to see if there's any pending input from an X server, and doing
-           that for every packet can be costly, especially on a big file. */
-        if (file_pos >= progbar_nextstep) {
-          if (progbar != NULL) {
-            progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
-            /* update the packet bar content on the first run or frequently on very large files */
-            update_progress_dlg(progbar, progbar_val, status_str);
-            packets_bar_update();
-          }
-          progbar_nextstep += progbar_quantum;
+        /*
+         * Update the progress bar, but do it only after
+         * PROGBAR_UPDATE_INTERVAL has elapsed. Calling update_progress_dlg
+         * and packets_bar_update will likely trigger UI paint events, which
+         * might take a while depending on the platform and display. Reset
+         * our timer *after* painting.
+         */
+        if (progbar && g_timer_elapsed(prog_timer, NULL) > PROGBAR_UPDATE_INTERVAL) {
+          progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
+          /* update the packet bar content on the first run or frequently on very large files */
+          update_progress_dlg(progbar, progbar_val, status_str);
+          packets_bar_update();
+          g_timer_start(prog_timer);
         }
       }
 
@@ -667,6 +674,7 @@ cf_read(capture_file *cf, gboolean reloading)
   /* We're done reading the file; destroy the progress bar if it was created. */
   if (progbar != NULL)
     destroy_progress_dlg(progbar);
+  g_timer_destroy(prog_timer);
 
   /* We're done reading sequentially through the file. */
   cf->state = FILE_READ_DONE;
@@ -1222,10 +1230,9 @@ read_packet(capture_file *cf, dfilter_t *dfcode, epan_dissect_t *edt,
 
 typedef struct _callback_data_t {
   gint64           f_len;
-  gint64           progbar_nextstep;
-  gint64           progbar_quantum;
   GTimeVal         start_time;
   progdlg_t       *progbar;
+  GTimer          *prog_timer;
   gboolean         stop_flag;
 } callback_data_t;
 
@@ -1255,9 +1262,8 @@ merge_callback(merge_event event, int num _U_,
       for (i = 0; i < in_file_count; i++)
         cb_data->f_len += in_files[i].size;
 
-      /* When we reach the value that triggers a progress bar update,
-         bump that value by this amount. */
-      cb_data->progbar_quantum = cb_data->f_len / N_PROGBAR_UPDATES;
+      cb_data->prog_timer = g_timer_new();
+      g_timer_start(cb_data->prog_timer);
 
       g_get_current_time(&cb_data->start_time);
       break;
@@ -1281,12 +1287,14 @@ merge_callback(merge_event event, int num _U_,
             FALSE, &cb_data->stop_flag, &cb_data->start_time, 0.0f);
         }
 
-        /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
-           when we update it, we have to run the GTK+ main loop to get it
-           to repaint what's pending, and doing so may involve an "ioctl()"
-           to see if there's any pending input from an X server, and doing
-           that for every packet can be costly, especially on a big file. */
-        if (data_offset >= cb_data->progbar_nextstep) {
+        /*
+         * Update the progress bar, but do it only after
+         * PROGBAR_UPDATE_INTERVAL has elapsed. Calling update_progress_dlg
+         * and packets_bar_update will likely trigger UI paint events, which
+         * might take a while depending on the platform and display. Reset
+         * our timer *after* painting.
+         */
+        if (g_timer_elapsed(cb_data->prog_timer, NULL) > PROGBAR_UPDATE_INTERVAL) {
             float  progbar_val;
             gint64 file_pos = 0;
             /* Get the sum of the seek positions in all of the files. */
@@ -1308,7 +1316,7 @@ merge_callback(merge_event event, int num _U_,
                          file_pos / 1024, cb_data->f_len / 1024);
               update_progress_dlg(cb_data->progbar, progbar_val, status_str);
             }
-            cb_data->progbar_nextstep += cb_data->progbar_quantum;
+            g_timer_start(cb_data->prog_timer);
         }
       }
       break;
@@ -1317,6 +1325,7 @@ merge_callback(merge_event event, int num _U_,
       /* We're done merging the files; destroy the progress bar if it was created. */
       if (cb_data->progbar != NULL)
         destroy_progress_dlg(cb_data->progbar);
+      g_timer_destroy(cb_data->prog_timer);
       break;
   }
 
@@ -1564,6 +1573,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   guint32     framenum;
   frame_data *fdata;
   progdlg_t  *progbar = NULL;
+  GTimer     *prog_timer = g_timer_new();
   int         count;
   frame_data *selected_frame, *preceding_frame, *following_frame, *prev_frame;
   int         selected_frame_num, preceding_frame_num, following_frame_num, prev_frame_num;
@@ -1571,8 +1581,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   float       progbar_val;
   GTimeVal    start_time;
   gchar       status_str[100];
-  int         progbar_nextstep;
-  int         progbar_quantum;
   epan_dissect_t  edt;
   dfilter_t  *dfcode;
   column_info *cinfo;
@@ -1659,11 +1667,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
 
   cf_callback_invoke(cf_cb_file_rescan_started, cf);
 
-  /* Update the progress bar when it gets to this value. */
-  progbar_nextstep = 0;
-  /* When we reach the value that triggers a progress bar update,
-     bump that value by this amount. */
-  progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+  g_timer_start(prog_timer);
   /* Count of packets at which we've looked. */
   count = 0;
   /* Progress so far. */
@@ -1701,12 +1705,13 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
                                             &start_time,
                                             progbar_val);
 
-    /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
-       when we update it, we have to run the GTK+ main loop to get it
-       to repaint what's pending, and doing so may involve an "ioctl()"
-       to see if there's any pending input from an X server, and doing
-       that for every packet can be costly, especially on a big file. */
-    if (count >= progbar_nextstep) {
+    /*
+     * Update the progress bar, but do it only after PROGBAR_UPDATE_INTERVAL
+     * has elapsed. Calling update_progress_dlg and packets_bar_update will
+     * likely trigger UI paint events, which might take a while depending on
+     * the platform and display. Reset our timer *after* painting.
+     */
+    if (g_timer_elapsed(prog_timer, NULL) > PROGBAR_UPDATE_INTERVAL) {
       /* let's not divide by zero. I should never be started
        * with count == 0, so let's assert that
        */
@@ -1719,7 +1724,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
         update_progress_dlg(progbar, progbar_val, status_str);
       }
 
-      progbar_nextstep += progbar_quantum;
+      g_timer_start(prog_timer);
     }
 
     if (cf->stop_flag) {
@@ -1814,6 +1819,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
      was created. */
   if (progbar != NULL)
     destroy_progress_dlg(progbar);
+  g_timer_destroy(prog_timer);
 
   /* Unfreeze the packet list. */
   if (!add_to_packet_list)
@@ -1992,23 +1998,18 @@ process_specified_records(capture_file *cf, packet_range_t *range,
   psp_return_t     ret     = PSP_FINISHED;
 
   progdlg_t       *progbar = NULL;
+  GTimer          *prog_timer = g_timer_new();
   int              progbar_count;
   float            progbar_val;
   GTimeVal         progbar_start_time;
   gchar            progbar_status_str[100];
-  int              progbar_nextstep;
-  int              progbar_quantum;
   range_process_e  process_this;
   struct wtap_pkthdr phdr;
 
   wtap_phdr_init(&phdr);
   ws_buffer_init(&buf, 1500);
 
-  /* Update the progress bar when it gets to this value. */
-  progbar_nextstep = 0;
-  /* When we reach the value that triggers a progress bar update,
-     bump that value by this amount. */
-  progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+  g_timer_start(prog_timer);
   /* Count of packets at which we've looked. */
   progbar_count = 0;
   /* Progress so far. */
@@ -2037,25 +2038,24 @@ process_specified_records(capture_file *cf, packet_range_t *range,
                                             &progbar_start_time,
                                             progbar_val);
 
-    /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
-       when we update it, we have to run the GTK+ main loop to get it
-       to repaint what's pending, and doing so may involve an "ioctl()"
-       to see if there's any pending input from an X server, and doing
-       that for every packet can be costly, especially on a big file. */
-    if (progbar_count >= progbar_nextstep) {
+    /*
+     * Update the progress bar, but do it only after PROGBAR_UPDATE_INTERVAL
+     * has elapsed. Calling update_progress_dlg and packets_bar_update will
+     * likely trigger UI paint events, which might take a while depending on
+     * the platform and display. Reset our timer *after* painting.
+     */
+    if (progbar && g_timer_elapsed(prog_timer, NULL) > PROGBAR_UPDATE_INTERVAL) {
       /* let's not divide by zero. I should never be started
        * with count == 0, so let's assert that
        */
       g_assert(cf->count > 0);
       progbar_val = (gfloat) progbar_count / cf->count;
 
-      if (progbar != NULL) {
-        g_snprintf(progbar_status_str, sizeof(progbar_status_str),
-                   "%4u of %u packets", progbar_count, cf->count);
-        update_progress_dlg(progbar, progbar_val, progbar_status_str);
-      }
+      g_snprintf(progbar_status_str, sizeof(progbar_status_str),
+                  "%4u of %u packets", progbar_count, cf->count);
+      update_progress_dlg(progbar, progbar_val, progbar_status_str);
 
-      progbar_nextstep += progbar_quantum;
+      g_timer_start(prog_timer);
     }
 
     if (cf->stop_flag) {
@@ -2098,6 +2098,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
      it was created. */
   if (progbar != NULL)
     destroy_progress_dlg(progbar);
+  g_timer_destroy(prog_timer);
 
   wtap_phdr_cleanup(&phdr);
   ws_buffer_free(&buf);
@@ -3438,13 +3439,12 @@ find_packet(capture_file *cf,
   frame_data  *fdata;
   frame_data  *new_fd = NULL;
   progdlg_t   *progbar = NULL;
+  GTimer      *prog_timer = g_timer_new();
   int          count;
   gboolean     found;
   float        progbar_val;
   GTimeVal     start_time;
   gchar        status_str[100];
-  int          progbar_nextstep;
-  int          progbar_quantum;
   const char  *title;
   match_result result;
 
@@ -3456,11 +3456,7 @@ find_packet(capture_file *cf,
     count = 0;
     framenum = start_fd->num;
 
-    /* Update the progress bar when it gets to this value. */
-    progbar_nextstep = 0;
-    /* When we reach the value that triggers a progress bar update,
-       bump that value by this amount. */
-    progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+    g_timer_start(prog_timer);
     /* Progress so far. */
     progbar_val = 0.0f;
 
@@ -3478,12 +3474,13 @@ find_packet(capture_file *cf,
          progbar = delayed_create_progress_dlg(cf->window, "Searching", title,
            FALSE, &cf->stop_flag, &start_time, progbar_val);
 
-      /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
-         when we update it, we have to run the GTK+ main loop to get it
-         to repaint what's pending, and doing so may involve an "ioctl()"
-         to see if there's any pending input from an X server, and doing
-         that for every packet can be costly, especially on a big file. */
-      if (count >= progbar_nextstep) {
+      /*
+       * Update the progress bar, but do it only after PROGBAR_UPDATE_INTERVAL
+       * has elapsed. Calling update_progress_dlg and packets_bar_update will
+       * likely trigger UI paint events, which might take a while depending on
+       * the platform and display. Reset our timer *after* painting.
+       */
+      if (g_timer_elapsed(prog_timer, NULL) > PROGBAR_UPDATE_INTERVAL) {
         /* let's not divide by zero. I should never be started
          * with count == 0, so let's assert that
          */
@@ -3491,13 +3488,11 @@ find_packet(capture_file *cf,
 
         progbar_val = (gfloat) count / cf->count;
 
-        if (progbar != NULL) {
-          g_snprintf(status_str, sizeof(status_str),
-                     "%4u of %u packets", count, cf->count);
-          update_progress_dlg(progbar, progbar_val, status_str);
-        }
+        g_snprintf(status_str, sizeof(status_str),
+                    "%4u of %u packets", count, cf->count);
+        update_progress_dlg(progbar, progbar_val, status_str);
 
-        progbar_nextstep += progbar_quantum;
+        g_timer_start(prog_timer);
       }
 
       if (cf->stop_flag) {
@@ -3578,6 +3573,7 @@ find_packet(capture_file *cf,
        was created. */
     if (progbar != NULL)
       destroy_progress_dlg(progbar);
+    g_timer_destroy(prog_timer);
   }
 
   if (new_fd != NULL) {
@@ -4279,12 +4275,11 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   gchar               *name_ptr;
   gint64               data_offset;
   progdlg_t           *progbar        = NULL;
+  GTimer              *prog_timer = g_timer_new();
   gint64               size;
   float                progbar_val;
   GTimeVal             start_time;
   gchar                status_str[100];
-  gint64               progbar_nextstep;
-  gint64               progbar_quantum;
   guint32              framenum;
   frame_data          *fdata;
   int                  count          = 0;
@@ -4341,16 +4336,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   /* Find the size of the file. */
   size = wtap_file_size(cf->wth, NULL);
 
-  /* Update the progress bar when it gets to this value. */
-  progbar_nextstep = 0;
-  /* When we reach the value that triggers a progress bar update,
-     bump that value by this amount. */
-  if (size >= 0) {
-    progbar_quantum = size/N_PROGBAR_UPDATES;
-    if (progbar_quantum < MIN_QUANTUM)
-      progbar_quantum = MIN_QUANTUM;
-  }else
-    progbar_quantum = 0;
+  g_timer_start(prog_timer);
 
   cf->stop_flag = FALSE;
   g_get_current_time(&start_time);
@@ -4365,28 +4351,25 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
       count++;
       cf->f_datalen = wtap_read_so_far(cf->wth);
 
-      /* Create the progress bar if necessary.
-       * Check whether it should be created or not every MIN_NUMBER_OF_PACKET
-       */
-      if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)) {
+      /* Create the progress bar if necessary. */
+      if (progress_is_slow(progbar, prog_timer, size, cf->f_datalen)) {
         progbar_val = calc_progbar_val(cf, size, cf->f_datalen, status_str, sizeof(status_str));
         progbar = delayed_create_progress_dlg(cf->window, "Rescanning", name_ptr,
                                               TRUE, &cf->stop_flag, &start_time, progbar_val);
       }
 
-      /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
-         when we update it, we have to run the GTK+ main loop to get it
-         to repaint what's pending, and doing so may involve an "ioctl()"
-         to see if there's any pending input from an X server, and doing
-         that for every packet can be costly, especially on a big file. */
-      if (cf->f_datalen >= progbar_nextstep) {
-        if (progbar != NULL) {
-          progbar_val = calc_progbar_val(cf, size, cf->f_datalen, status_str, sizeof(status_str));
-          /* update the packet bar content on the first run or frequently on very large files */
-          update_progress_dlg(progbar, progbar_val, status_str);
-          packets_bar_update();
-        }
-        progbar_nextstep += progbar_quantum;
+      /*
+       * Update the progress bar, but do it only after PROGBAR_UPDATE_INTERVAL
+       * has elapsed. Calling update_progress_dlg and packets_bar_update will
+       * likely trigger UI paint events, which might take a while depending on
+       * the platform and display. Reset our timer *after* painting.
+       */
+      if (progbar && g_timer_elapsed(prog_timer, NULL) > PROGBAR_UPDATE_INTERVAL) {
+        progbar_val = calc_progbar_val(cf, size, cf->f_datalen, status_str, sizeof(status_str));
+        /* update the packet bar content on the first run or frequently on very large files */
+        update_progress_dlg(progbar, progbar_val, status_str);
+        packets_bar_update();
+        g_timer_start(prog_timer);
       }
     }
 
@@ -4412,6 +4395,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   /* We're done reading the file; destroy the progress bar if it was created. */
   if (progbar != NULL)
     destroy_progress_dlg(progbar);
+  g_timer_destroy(prog_timer);
 
   /* We're done reading sequentially through the file. */
   cf->state = FILE_READ_DONE;

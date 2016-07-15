@@ -44,7 +44,6 @@ class QPropertyAnimation;
 // Define the structure describing a progress dialog.
 struct progdlg {
     ProgressFrame *progress_frame;  // This progress frame
-    QElapsedTimer *elapsed_timer; // Application event processing
     QWidget *top_level_window;  // Progress frame's main window
 };
 
