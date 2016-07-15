@@ -1547,7 +1547,7 @@ dissect_opt_dff(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_
         NULL
     };
 
-    /* Header length is 3 octets */
+    /* Option length is 3 octets */
     /* http://www.rfc-editor.org/errata_search.php?eid=3937 */
     if (opt_len != 3) {
         expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
