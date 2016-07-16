@@ -8215,11 +8215,12 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                             if((strstr(puffer, vendorIdStr)) != NULL) {
                                 memset (convertStr, 0, sizeof(*convertStr));
                                 pch = strstr(puffer, vendorIdStr);
-                                sscanf(pch, "VendorID=\"%[^\"]", convertStr);
-                                read_vendor_id = (guint32) strtoul (convertStr, NULL, 0);
+                                if (sscanf(pch, "VendorID=\"%[^\"]", convertStr) == 1) {
+                                    read_vendor_id = (guint32) strtoul (convertStr, NULL, 0);
 
-                                if(read_vendor_id == searchVendorID) {
-                                    vendorMatch = TRUE;        /* found correct VendorID */
+                                    if(read_vendor_id == searchVendorID) {
+                                        vendorMatch = TRUE;        /* found correct VendorID */
+                                    }
                                 }
                             }
 
@@ -8227,11 +8228,12 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                             if((strstr(puffer, deviceIdStr)) != NULL) {
                                 memset(convertStr, 0, sizeof(*convertStr));
                                 pch = strstr(puffer, deviceIdStr);
-                                sscanf(pch, "DeviceID=\"%[^\"]", convertStr);
-                                read_device_id = (guint32)strtoul(convertStr, NULL, 0);
+                                if (sscanf(pch, "DeviceID=\"%[^\"]", convertStr) == 1) {
+                                    read_device_id = (guint32)strtoul(convertStr, NULL, 0);
 
-                                if(read_device_id == searchDeviceID) {
-                                    deviceMatch = TRUE;        /* found correct DeviceID */
+                                    if(read_device_id == searchDeviceID) {
+                                        deviceMatch = TRUE;        /* found correct DeviceID */
+                                    }
                                 }
                             }
                         }
@@ -8359,9 +8361,9 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                         memset (convertStr, 0, sizeof(*convertStr));
 
                         pch = strstr(temp, fParameterIndexStr);
-                        sscanf(pch, "Index=\"%[^\"]", convertStr);
-                        io_data_object->fParameterIndexNr = (guint32)strtoul(convertStr, NULL, 0);
-
+                        if (sscanf(pch, "Index=\"%[^\"]", convertStr) == 1) {
+                            io_data_object->fParameterIndexNr = (guint32)strtoul(convertStr, NULL, 0);
+                        }
                         break;    /* found Indexnumber -> break search loop */
                     }
                 }
@@ -8373,62 +8375,65 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                     if((strstr(temp, moduleStr)) != NULL) {                         /* find the String "ModuleIdentNumber=" */
                         memset (convertStr, 0, sizeof(*convertStr));
                         pch = strstr(temp, moduleStr);                              /* search for "ModuleIdentNumber=\"" within GSD-file */
-                        sscanf(pch, "ModuleIdentNumber=\"%[^\"]", convertStr);      /* Change format of Value string-->numeric string */
-                        read_module_id = (guint32)strtoul(convertStr, NULL, 0);     /* Change numeric string --> unsigned long; read_module_id contains the Value of the ModuleIdentNumber */
+                        if (sscanf(pch, "ModuleIdentNumber=\"%[^\"]", convertStr) == 1) {  /* Change format of Value string-->numeric string */
+                            read_module_id = (guint32)strtoul(convertStr, NULL, 0);     /* Change numeric string --> unsigned long; read_module_id contains the Value of the ModuleIdentNumber */
 
-                        /* If the found ModuleID matches with the wanted ModuleID, search for the Submodule and break */
-                        if (read_module_id == io_data_object->moduleIdentNr) {
-                            ++io_data_object->amountInGSDML;    /* Save the amount of same (!) Module- & SubmoduleIdentNr in one GSD-file */
+                            /* If the found ModuleID matches with the wanted ModuleID, search for the Submodule and break */
+                            if (read_module_id == io_data_object->moduleIdentNr) {
+                                ++io_data_object->amountInGSDML;    /* Save the amount of same (!) Module- & SubmoduleIdentNr in one GSD-file */
 
-                            while(fgets(temp, MAX_LINE_LENGTH, fp) != NULL) {
-                                if((strstr(temp, moduleNameInfo)) != NULL) {                    /* find the String "<Name" for the TextID */
-                                    long filePosRecord;
+                                while(fgets(temp, MAX_LINE_LENGTH, fp) != NULL) {
+                                    if((strstr(temp, moduleNameInfo)) != NULL) {                    /* find the String "<Name" for the TextID */
+                                        long filePosRecord;
 
-                                    sscanf(temp, "%*s TextId=\"%[^\"]", tmp_moduletext);        /* saves the correct TextId for the next searchloop */
-
-                                    filePosRecord = ftell(fp);            /* save the current position of the filepointer (Offset) */
-                                    /* ftell() may return -1 for error, don't move fp in this case */
-                                    if (filePosRecord >= 0) {
-                                        while (fgets(temp, MAX_LINE_LENGTH, fp) != NULL && io_data_object->amountInGSDML == 1) {
-                                            /* Find a String with the saved TextID and with a fitting value for it in the same line. This value is the name of the Module! */
-                                            if(((strstr(temp, tmp_moduletext)) != NULL) && ((strstr(temp, moduleValueInfo)) != NULL)) {
-                                                pch = strstr(temp, moduleValueInfo);
-                                                sscanf(pch, "Value=\"%[^\"]", io_data_object->moduleNameStr);
-                                                break;    /* Found the name of the module */
-                                            }
-                                        }
-
-                                        fseek(fp, filePosRecord, SEEK_SET);    /* set filepointer to the correct TextID */
-                                    }
-                                }
-
-                                /* Search for Submoduleidentnumber in GSD-file */
-                                if((strstr(temp, subModuleStr)) != NULL) {
-                                    memset (convertStr, 0, sizeof(*convertStr));
-                                    pch = strstr(temp, subModuleStr);
-                                    sscanf(pch, "SubmoduleIdentNumber=\"%[^\"]", convertStr);
-                                    read_submodule_id = (guint32) strtoul (convertStr, NULL, 0);    /* read_submodule_id contains the Value of the SubModuleIdentNumber */
-
-                                    /* Find "PROFIsafeSupported" flag of the module in GSD-file */
-                                    if(read_submodule_id == io_data_object->subModuleIdentNr) {
-                                        if((strstr(temp, profisafeStr)) != NULL) {
-                                            io_data_object->profisafeSupported = TRUE;   /* flag is in the same line as SubmoduleIdentNr */
+                                        if (sscanf(temp, "%*s TextId=\"%[^\"]", tmp_moduletext) != 1)        /* saves the correct TextId for the next searchloop */
                                             break;
-                                        }
-                                        else {    /* flag is not in the same line as Submoduleidentnumber -> search for it */
-                                            while(fgets(temp, MAX_LINE_LENGTH, fp) != NULL) {
-                                                if((strstr(temp, profisafeStr)) != NULL) {
-                                                    io_data_object->profisafeSupported = TRUE;
-                                                    break;    /* Found the PROFIsafeSupported flag of the module */
-                                                }
 
-                                                else if((strstr(temp, ">")) != NULL) {
+                                        filePosRecord = ftell(fp);            /* save the current position of the filepointer (Offset) */
+                                        /* ftell() may return -1 for error, don't move fp in this case */
+                                        if (filePosRecord >= 0) {
+                                            while (fgets(temp, MAX_LINE_LENGTH, fp) != NULL && io_data_object->amountInGSDML == 1) {
+                                                /* Find a String with the saved TextID and with a fitting value for it in the same line. This value is the name of the Module! */
+                                                if(((strstr(temp, tmp_moduletext)) != NULL) && ((strstr(temp, moduleValueInfo)) != NULL)) {
+                                                    pch = strstr(temp, moduleValueInfo);
+                                                    if (sscanf(pch, "Value=\"%[^\"]", io_data_object->moduleNameStr) == 1)
+                                                        break;    /* Found the name of the module */
+                                                }
+                                            }
+
+                                            fseek(fp, filePosRecord, SEEK_SET);    /* set filepointer to the correct TextID */
+                                        }
+                                    }
+
+                                    /* Search for Submoduleidentnumber in GSD-file */
+                                    if((strstr(temp, subModuleStr)) != NULL) {
+                                        memset (convertStr, 0, sizeof(*convertStr));
+                                        pch = strstr(temp, subModuleStr);
+                                        if (sscanf(pch, "SubmoduleIdentNumber=\"%[^\"]", convertStr) == 1) {
+                                            read_submodule_id = (guint32) strtoul (convertStr, NULL, 0);    /* read_submodule_id contains the Value of the SubModuleIdentNumber */
+
+                                            /* Find "PROFIsafeSupported" flag of the module in GSD-file */
+                                            if(read_submodule_id == io_data_object->subModuleIdentNr) {
+                                                if((strstr(temp, profisafeStr)) != NULL) {
+                                                    io_data_object->profisafeSupported = TRUE;   /* flag is in the same line as SubmoduleIdentNr */
                                                     break;
                                                 }
+                                                else {    /* flag is not in the same line as Submoduleidentnumber -> search for it */
+                                                    while(fgets(temp, MAX_LINE_LENGTH, fp) != NULL) {
+                                                        if((strstr(temp, profisafeStr)) != NULL) {
+                                                            io_data_object->profisafeSupported = TRUE;
+                                                            break;    /* Found the PROFIsafeSupported flag of the module */
+                                                        }
+
+                                                        else if((strstr(temp, ">")) != NULL) {
+                                                            break;
+                                                        }
+                                                    }
+                                                }
                                             }
+                                            break;    /* Found the PROFIsafe Module */
                                         }
                                     }
-                                    break;    /* Found the PROFIsafe Module */
                                 }
                             }
                         }

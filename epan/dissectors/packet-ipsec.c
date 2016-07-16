@@ -788,9 +788,13 @@ get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
         }
         else
         {
-          sscanf(addr_byte_string_tmp,"%u",&addr_byte);
-          if(addr_byte < 16) g_snprintf(addr_byte_string,4,"0%X",addr_byte);
-          else g_snprintf(addr_byte_string,4,"%X",addr_byte);
+          if (sscanf(addr_byte_string_tmp,"%u",&addr_byte) != 1)
+            return FALSE;
+
+          if(addr_byte < 16)
+            g_snprintf(addr_byte_string,4,"0%X",addr_byte);
+          else
+            g_snprintf(addr_byte_string,4,"%X",addr_byte);
           for(i = 0; i < strlen(addr_byte_string); i++)
           {
             ipv4_address_expanded[cpt] = addr_byte_string[i];
@@ -813,9 +817,13 @@ get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
         }
         else
         {
-          sscanf(addr_byte_string_tmp,"%u",&addr_byte);
-          if(addr_byte < 16) g_snprintf(addr_byte_string,4,"0%X",addr_byte);
-          else g_snprintf(addr_byte_string,4,"%X",addr_byte);
+          if (sscanf(addr_byte_string_tmp,"%u",&addr_byte) != 1)
+            return FALSE;
+
+          if(addr_byte < 16)
+            g_snprintf(addr_byte_string,4,"0%X",addr_byte);
+          else
+            g_snprintf(addr_byte_string,4,"%X",addr_byte);
           for(i = 0; i < strlen(addr_byte_string); i++)
           {
             ipv4_address_expanded[cpt] = addr_byte_string[i];
@@ -908,8 +916,10 @@ filter_address_match(gchar *addr, gchar *filter, gint typ)
          addr_string_tmp[0] = addr[i];
          addr_string_tmp[1] = '\0';
 
-         sscanf(filter_string_tmp,"%x",&filter_tmp);
-         sscanf(addr_string_tmp,"%x",&addr_tmp);
+         if (sscanf(filter_string_tmp,"%x",&filter_tmp) != 1)
+             return FALSE;
+         if (sscanf(addr_string_tmp,"%x",&addr_tmp) != 1)
+             return FALSE;
          for(i = 0; i < (filter_len % 4); i++)
          {
             if(((filter_tmp >> (4 -i -1)) & 1) != ((addr_tmp >> (4 -i -1)) & 1))

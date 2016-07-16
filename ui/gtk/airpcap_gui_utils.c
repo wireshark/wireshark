@@ -1846,9 +1846,10 @@ airpcap_get_selected_channel_offset(GtkWidget *channel_offset_cb) {
     {
         if (airpcap_if_selected != NULL)
         {
-            sscanf(off_str, "%d", &offset);
-            if (offset >= -1 && offset <= 1) {
-                retval = offset;
+            if (sscanf(off_str, "%d", &offset) == 1) {
+                if (offset >= -1 && offset <= 1) {
+                    retval = offset;
+                }
             }
         }
     }

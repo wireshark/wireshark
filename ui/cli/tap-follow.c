@@ -345,7 +345,7 @@ follow_arg_filter(const char **opt_argp, follow_info_t *follow_info)
   cli_follow_info_t* cli_follow_info = (cli_follow_info_t*)follow_info->gui_data;
   gboolean is_ipv6;
 
-  if (sscanf(*opt_argp, ",%u%n", &cli_follow_info->stream_index, &len) == 1 &&
+  if (sscanf(*opt_argp, ",%d%n", &cli_follow_info->stream_index, &len) == 1 &&
       ((*opt_argp)[len] == 0 || (*opt_argp)[len] == ','))
   {
     *opt_argp += len;
