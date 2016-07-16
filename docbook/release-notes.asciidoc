@@ -1,4 +1,4 @@
-﻿= Wireshark {wireshark-version} Release Notes
+= Wireshark {wireshark-version} Release Notes
 // AsciiDoc quick reference: http://powerman.name/doc/asciidoc
 
 This is a semi-experimental release intended to test new features for
@@ -125,7 +125,7 @@ Nordic BLE Sniffer
 Ericsson A-bis TFP (Traffic Forwarding Protocol)
 Ericsson A-bis P-GSL
 vSocket
-
+ISO 15765
 --sort-and-group--
 
 === Updated Protocol Support

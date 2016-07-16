@@ -808,6 +808,7 @@ DISSECTOR_SRC = \
 	packet-ismp.c		\
 	packet-isns.c		\
 	packet-iso14443.c	\
+	packet-iso15765.c	\
 	packet-iso7816.c	\
 	packet-iso8583.c	\
 	packet-isup.c		\
