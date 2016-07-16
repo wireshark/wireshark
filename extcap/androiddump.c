@@ -1477,7 +1477,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
         unsigned short *bt_server_tcp_port, unsigned int bt_forward_socket, const char *bt_local_ip,
         unsigned short *bt_local_tcp_port) {
     struct extcap_dumper           extcap_dumper;
-    char                           buffer[PACKET_LENGTH];
+    static char                    buffer[PACKET_LENGTH];
     uint64_t                      *timestamp;
     char                          *packet = buffer + BLUEDROID_TIMESTAMP_SIZE - sizeof(own_pcap_bluetooth_h4_header); /* skip timestamp (8 bytes) and reuse its space for header */
     own_pcap_bluetooth_h4_header  *h4_header;
@@ -1674,7 +1674,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
 
                 captured_length = (unsigned int)sizeof(own_pcap_bluetooth_h4_header) + payload[3] + (payload[3 + 1] << 8) + 5;
 
-                length = sizeof(own_pcap_bluetooth_h4_header) + BLUEDROID_H4_SIZE + 2 + 2 + payload[3] + (payload[3 + 1] << 8);
+                length = sizeof(own_pcap_bluetooth_h4_header) + BLUEDROID_H4_SIZE + 2 + 2 + payload[3] + (gssize)(payload[3 + 1] << 8);
 
                 break;
             case BLUEDROID_H4_PACKET_TYPE_SCO:
@@ -2320,7 +2320,7 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
     const char                               *adb_shell_tcpdump = "001D" "shell:tcpdump -n -s 0 -u -w -";
     gint                                     result;
     char                                     *serial_number = NULL;
-    char                                     filter_buffer[PACKET_LENGTH];
+    static char                              filter_buffer[PACKET_LENGTH];
     gint                                     device_endiness = G_LITTLE_ENDIAN;
     gboolean                                 global_header_skipped=FALSE;
     pcaprec_hdr_t                            p_header;
