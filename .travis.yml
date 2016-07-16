@@ -1,19 +1,35 @@
 language: cpp
 sudo: required
 dist: trusty
+os:
+  - linux
+  - osx
 compiler:
   - clang
   - gcc
 env:
  - BUILD_CMAKE=no
  - BUILD_CMAKE=yes
+
+matrix:
+  exclude:
+  #Exclude gcc build (Need some work) with osx
+  - os: osx
+    compiler: gcc
+  #Exclude autotools build (missing libtool...) with osx
+  - os: osx
+    env: BUILD_CMAKE=no
 before_install:
+  - echo $TRAVIS_OS_NAME
   - $CC --version
-  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
-  - sudo apt-get update -qq
+#macos
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then ./tools/macos-setup-brew.sh; fi
+#linux
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update -qq; fi
     #libstdc++-4.8 is needed by Clang to build
-  - sudo apt-get -qq install libstdc++-4.8-dev
-  - sudo ./tools/debian-setup.sh --install-optional -qq
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get -qq install libstdc++-4.8-dev; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ./tools/debian-setup.sh --install-optional -qq; fi
 #  - sudo apt-get -qq build-dep wireshark
 #  - sudo apt-get -qq install cmake libgtk-3-0 libglib2.0-0 libgdk-pixbuf2.0-0 libcairo2
 #  - sudo apt-get -qq install qt5-default qttools5-dev qttools5-dev-tools
