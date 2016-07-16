@@ -481,6 +481,28 @@ wtap_block_set_custom_option_value(wtap_block_t block, guint option_id, void* va
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_get_custom_option_value(wtap_block_t block, guint option_id, void** value) G_GNUC_WARN_UNUSED_RESULT;
 
+/** Remove an option from a block
+ *
+ * @param[in] block Block from which to remove the option
+ * @param[in] option_id Identifier value for option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_remove_option(wtap_block_t block, guint option_id);
+
+/** Remove the nth instance of an option from a block
+ *
+ * @param[in] block Block from which to remove the option instance
+ * @param[in] option_id Identifier value for option
+ * @param[in] idx Instance number of option with that ID
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_remove_nth_option_instance(wtap_block_t block, guint option_id,
+                                      guint idx);
+
 /** Copy a block to another.
  *
  * Any options that are in the destination but not the source are not removed.

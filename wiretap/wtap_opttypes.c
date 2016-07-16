@@ -205,29 +205,35 @@ wtap_block_t wtap_block_create(wtap_block_type_t block_type)
     return block;
 }
 
+static void wtap_block_free_option(wtap_block_t block, wtap_option_t *opt)
+{
+    wtap_opttype_t *opttype;
+
+    opttype = &g_array_index(block->info->options, wtap_opttype_t, opt->option_id);
+    switch (opttype->data_type) {
+
+    case WTAP_OPTTYPE_STRING:
+        g_free(opt->value.stringval);
+        break;
+
+    case WTAP_OPTTYPE_CUSTOM:
+        opttype->free_func(opt->value.customval.data);
+        g_free(opt->value.customval.data);
+        break;
+
+    default:
+        break;
+    }
+}
+
 static void wtap_block_free_options(wtap_block_t block)
 {
     guint i;
     wtap_option_t *opt;
-    wtap_opttype_t *opttype;
 
     for (i = 0; i < block->options->len; i++) {
         opt = &g_array_index(block->options, wtap_option_t, i);
-        opttype = &g_array_index(block->info->options, wtap_opttype_t, opt->option_id);
-        switch (opttype->data_type) {
-
-        case WTAP_OPTTYPE_STRING:
-            g_free(opt->value.stringval);
-            break;
-
-        case WTAP_OPTTYPE_CUSTOM:
-            opttype->free_func(opt->value.customval.data);
-            g_free(opt->value.customval.data);
-            break;
-
-        default:
-            break;
-        }
+        wtap_block_free_option(block, opt);
     }
 }
 
@@ -835,6 +841,90 @@ wtap_block_set_custom_option_value(wtap_block_t block, guint option_id, void *va
     g_free(prev_value);
 
     return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_remove_option(wtap_block_t block, guint option_id)
+{
+    wtap_opttype_t *opttype;
+    guint i;
+    wtap_option_t *opt;
+
+    if (option_id >= block->info->options->len) {
+        /* There's no option for this block with that option ID */
+        return WTAP_OPTTYPE_NO_SUCH_OPTION;
+    }
+
+    opttype = &g_array_index(block->info->options, wtap_opttype_t, option_id);
+
+    /*
+     * Can there be more than one instance of this option?
+     */
+    if (opttype->flags & WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED) {
+        /*
+         * Yes.  You can't remove "the" value.
+         */
+        return WTAP_OPTTYPE_NUMBER_MISMATCH;
+    }
+
+    for (i = 0; i < block->options->len; i++) {
+        opt = &g_array_index(block->options, wtap_option_t, i);
+        if (opt->option_id == option_id) {
+            /* Found it - free up the value */
+            wtap_block_free_option(block, opt);
+            /* Remove the option from the array of options */
+            g_array_remove_index(block->options, i);
+            return WTAP_OPTTYPE_SUCCESS;
+        }
+    }
+
+    /* Didn't find the option */
+    return WTAP_OPTTYPE_NOT_FOUND;
+}
+
+wtap_opttype_return_val
+wtap_block_remove_nth_option_instance(wtap_block_t block, guint option_id,
+                                      guint idx)
+{
+    wtap_opttype_t *opttype;
+    guint i;
+    wtap_option_t *opt;
+    guint opt_idx;
+
+    if (option_id >= block->info->options->len) {
+        /* There's no option for this block with that option ID */
+        return WTAP_OPTTYPE_NO_SUCH_OPTION;
+    }
+
+    opttype = &g_array_index(block->info->options, wtap_opttype_t, option_id);
+
+    /*
+     * Can there be more than one instance of this option?
+     */
+    if (!(opttype->flags & WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED)) {
+        /*
+         * No.
+         */
+        return WTAP_OPTTYPE_NUMBER_MISMATCH;
+    }
+
+    opt_idx = 0;
+    for (i = 0; i < block->options->len; i++) {
+        opt = &g_array_index(block->options, wtap_option_t, i);
+        if (opt->option_id == option_id) {
+            if (opt_idx == idx) {
+                /* Found it - free up the value */
+                wtap_block_free_option(block, opt);
+                /* Remove the option from the array of options */
+                g_array_remove_index(block->options, i);
+                return WTAP_OPTTYPE_SUCCESS;
+            }
+            opt_idx++;
+        }
+    }
+
+    /* Didn't find the option */
+    return WTAP_OPTTYPE_NOT_FOUND;
 }
 
 static void shb_create(wtap_block_t block)
