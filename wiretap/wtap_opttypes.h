@@ -35,8 +35,8 @@ extern "C" {
  */
 
 /* Options for all blocks */
-#define OPT_EOFOPT           0      /**< Appears in pcapng files, but not in blocks. */
-#define OPT_COMMENT          1      /**< As the name says */
+#define OPT_EOFOPT           0     /**< Appears in pcapng files, but not in blocks. */
+#define OPT_COMMENT          1     /**< A UTF-8 string containing a human-readable comment. */
 
 /* Section Header block (SHB) */
 #define OPT_SHB_HARDWARE     2     /**< A UTF-8 string containing the description of the
@@ -89,7 +89,7 @@ extern "C" {
                                      *     (TODO: better use different options for different fields?
                                      *     e.g. if_filter_pcap, if_filter_bpf, ...) 00 "tcp port 23 and host 10.0.0.5"
                                      */
-#define OPT_IDB_OS           12    /**< UTF-8 string containing the name of the operating system of the
+#define OPT_IDB_OS           12    /**< A UTF-8 string containing the name of the operating system of the
                                      *     machine in which this interface is installed.
                                      *     This can be different from the same information that can be
                                      *     contained by the Section Header Block
@@ -103,12 +103,12 @@ extern "C" {
                                      *     the Packet Block Flags Word can be used (see Appendix A (Packet Block Flags Word))
                                      */
 #define OPT_IDB_TSOFFSET     14    /**< XXX: A 64 bits integer value that specifies an offset (in seconds)
-                                     *                     that must be added to the timestamp of each packet to obtain
-                                     *                     the absolute timestamp of a packet. If the option is missing,
-                                     *                     the timestamps stored in the packet must be considered absolute
-                                     *                     timestamps. The time zone of the offset can be specified with the
-                                     *                     option if_tzone. TODO: won't a if_tsoffset_low for fractional
-                                     *                     second offsets be useful for highly syncronized capture systems?
+                                     *     that must be added to the timestamp of each packet to obtain
+                                     *     the absolute timestamp of a packet. If the option is missing,
+                                     *     the timestamps stored in the packet must be considered absolute
+                                     *     timestamps. The time zone of the offset can be specified with the
+                                     *     option if_tzone. TODO: won't a if_tsoffset_low for fractional
+                                     *     second offsets be useful for highly syncronized capture systems?
                                      */
 
 #define OPT_NS_DNSNAME       2
