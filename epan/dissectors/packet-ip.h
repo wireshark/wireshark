@@ -32,7 +32,7 @@ typedef struct _ws_ip
 {
     guint8  ip_v_hl; /* combines ip_v and ip_hl */
     guint8  ip_tos;
-    guint16 ip_len;
+    guint32 ip_len;
     guint16 ip_id;
     guint16 ip_off;
     guint8  ip_ttl;
