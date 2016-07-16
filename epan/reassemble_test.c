@@ -72,7 +72,7 @@ static int failure = 0;
 #define ASSERT_EQ(exp,act)  \
     if ((exp)!=(act)) {     \
         failure = 1;        \
-        printf("Assertion failed at line %i: %s==%s (%u==%u)\n", __LINE__, #exp, #act, exp, act);  \
+        printf("Assertion failed at line %i: %s==%s (%u==%u)\n", __LINE__, #exp, #act, (guint)exp, (guint)act);  \
         exit(1);            \
     }
 
