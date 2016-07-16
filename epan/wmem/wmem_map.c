@@ -57,7 +57,7 @@ struct _wmem_map_t {
      * value for efficiency in hashing, since finding the actual capacity
      * becomes just a left-shift (see the CAPACITY macro) whereas taking
      * logarithms is expensive. */
-    guint capacity;
+    size_t capacity;
 
     wmem_map_item_t **table;
 
@@ -73,7 +73,7 @@ struct _wmem_map_t {
 
 /* Macro for calculating the real capacity of the map by using a left-shift to
  * do the 2^x operation. */
-#define CAPACITY(MAP) ((guint)(1 << (MAP)->capacity))
+#define CAPACITY(MAP) ((size_t)(1 << (MAP)->capacity))
 
 /* Efficient universal integer hashing:
  * https://en.wikipedia.org/wiki/Universal_hashing#Avoiding_modular_arithmetic
@@ -103,7 +103,8 @@ static inline void
 wmem_map_grow(wmem_map_t *map)
 {
     wmem_map_item_t **old_table, *cur, *nxt;
-    guint             old_cap, i, slot;
+    size_t            old_cap, i;
+    guint             slot;
 
     /* store the old table and capacity */
     old_table = map->table;
