@@ -242,6 +242,9 @@ static int hf_mmse_prev_sent_by_address	= -1;
 static int hf_mmse_prev_sent_date	= -1;
 static int hf_mmse_prev_sent_date_fwd_count	= -1;
 static int hf_mmse_prev_sent_date_date	= -1;
+static int hf_mmse_header_uint = -1;
+static int hf_mmse_header_string = -1;
+static int hf_mmse_header_bytes = -1;
 
 /*
  * Initialize the subtree pointers
@@ -1228,14 +1231,15 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			guint8 peek = tvb_get_guint8(tvb, offset);
 			const char *hdr_name = val_to_str(field, vals_mm_header_names,
 				"Unknown field (0x%02x)");
+			const char *str;
 			DebugLog(("\t\tUndecoded well-known header: %s\n",
 				    hdr_name));
 
 			if (peek & 0x80) { /* Well-known value */
 			    length = 1;
 			    if (tree) {
-				proto_tree_add_text(mmse_tree, tvb, offset - 1,
-					length + 1,
+				proto_tree_add_uint_format(mmse_tree, hf_mmse_header_uint, tvb, offset - 1,
+					length + 1, peek,
 					"%s: <Well-known value 0x%02x>"
 					" (not decoded)",
 					hdr_name, peek);
@@ -1243,10 +1247,9 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			} else if ((peek == 0) || (peek >= 0x20)) { /* Text */
 			    length = get_text_string(tvb, offset, &strval);
 			    if (tree) {
-				proto_tree_add_text(mmse_tree, tvb, offset - 1,
-					length + 1, "%s: %s (Not decoded)",
-					hdr_name,
-					format_text(strval, strlen(strval)));
+				str = format_text(strval, strlen(strval));
+				proto_tree_add_string_format(mmse_tree, hf_mmse_header_string, tvb, offset - 1,
+					length + 1, str, "%s: %s (Not decoded)", hdr_name, str);
 			    }
 			} else { /* General form with length */
 			    if (peek == 0x1F) { /* Value length in guintvar */
@@ -1258,8 +1261,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				length = 1 + tvb_get_guint8(tvb, offset);
 			    }
 			    if (tree) {
-				proto_tree_add_text(mmse_tree, tvb, offset - 1,
-					length + 1, "%s: "
+				proto_tree_add_bytes_format(mmse_tree, hf_mmse_header_bytes, tvb, offset - 1,
+					length + 1, NULL, "%s: "
 					"<Value in general form> (not decoded)",
 					hdr_name);
 			    }
@@ -1633,7 +1636,21 @@ proto_register_mmse(void)
     		HFILL
 	    }
 	},
-
+	{   &hf_mmse_header_uint,
+	    {   "Header Uint Value", "mmse.header.uint",
+		FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
+	    }
+	},
+	{   &hf_mmse_header_string,
+	    {   "Header String Value", "mmse.header.string",
+		FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL
+	    }
+	},
+	{   &hf_mmse_header_bytes,
+	    {   "Header Byte array", "mmse.header.bytes",
+		FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
+	    }
+	}
 
 
     };
