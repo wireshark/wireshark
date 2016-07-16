@@ -1,6 +1,6 @@
 /* packet-ehdlc.c
  * Routines for packet dissection of Ericsson HDLC as used in A-bis over IP
- * Copyright 2010-2012 by Harald Welte <laforge@gnumonks.org>
+ * Copyright 2010-2012, 2016 by Harald Welte <laforge@gnumonks.org>
  *
  * This code is based on pure educational guesses while looking at protocol
  * traces, as there is no publicly available protocol description by Ericsson.
@@ -39,9 +39,12 @@ void proto_reg_handoff_ehdlc(void);
 static int proto_ehdlc = -1;
 
 static int hf_ehdlc_data_len = -1;
-static int hf_ehdlc_protocol = -1;
-/* static int hf_ehdlc_sapi = -1; */
-/* static int hf_ehdlc_c_r = -1; */
+static int hf_ehdlc_csapi = -1;
+static int hf_ehdlc_ctei = -1;
+
+static int hf_ehdlc_sapi = -1;
+static int hf_ehdlc_tei = -1;
+static int hf_ehdlc_c_r = -1;
 
 static int hf_ehdlc_xid_payload = -1;
 static int hf_ehdlc_control = -1;
@@ -92,13 +95,6 @@ static const xdlc_cf_items ehdlc_cf_items_ext = {
 static gint ett_ehdlc = -1;
 static gint ett_ehdlc_control = -1;
 
-static const value_string ehdlc_protocol_vals[] = {
-	{ 0x20,		"RSL" },
-	{ 0xa0,		"ACK" },
-	{ 0xc0,		"OML" },
-	{ 0, 		NULL }
-};
-
 enum {
 	SUB_RSL,
 	SUB_OML,
@@ -106,6 +102,48 @@ enum {
 
 	SUB_MAX
 };
+
+/* Determine TEI from Compressed TEI */
+static guint8 tei_from_ctei(guint8 ctei)
+{
+	if (ctei < 12)
+		return ctei;
+	else
+		return 60 + (ctei - 12);
+}
+
+static guint8 c_r_from_csapi(guint8 csapi)
+{
+	switch (csapi) {
+	case 1:
+	case 6:
+		return 1;
+	default:
+		return 0;
+	}
+}
+
+static guint8 sapi_from_csapi(guint8 csapi)
+{
+	switch (csapi) {
+	case 0:
+	case 1: /* RSL */
+		return 0;
+	case 2: /* TFP */
+		return 10;
+	case 3: /* TFP */
+		return 11;
+	case 4: /* P-GSL */
+		return 12;
+	case 5:
+	case 6: /* OML */
+		return 62;
+	case 7:
+	default:
+		/* error! */
+		return 0;
+	}
+}
 
 static dissector_handle_t sub_handles[SUB_MAX];
 
@@ -121,38 +159,55 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		proto_item *ti            = NULL;
 		proto_tree *ehdlc_tree    = NULL;
-		guint16     len, msg_type;
+		guint16     len, hdr2;
+		guint8      csapi, ctei, sapi, tei, c_r;
 		tvbuff_t   *next_tvb;
 		guint16     control;
 		gboolean    is_response   = FALSE, is_extended = TRUE;
 		gint        header_length = 2; /* Address + Length field */
 
-		msg_type      = tvb_get_guint8(tvb, offset);
-		len           = tvb_get_guint8(tvb, offset+1);
-#if 0
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-		                val_to_str(msg_type, ehdlc_protocol_vals,
-		                           "unknown 0x%02x"));
-#endif
+		hdr2 = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+		len = hdr2 & 0x1FF;
+		csapi = hdr2 >> 13;
+		sapi = sapi_from_csapi(csapi);
+		c_r = c_r_from_csapi(csapi);
+		ctei = (hdr2 >> 9) & 0xF;
+		tei = tei_from_ctei(ctei);
+
 		if (tree) {
 			/* Use MIN(...,...) in the following to prevent a premature */
 			/* exception before we try to dissect whatever is available. */
 			ti = proto_tree_add_protocol_format(tree, proto_ehdlc,
 					tvb, offset, MIN(len, tvb_captured_length_remaining(tvb,offset)),
-					"Ericsson HDLC protocol, type: %s",
-					val_to_str(msg_type, ehdlc_protocol_vals,
-						   "unknown 0x%02x"));
+					"Ericsson HDLC protocol");
 			ehdlc_tree = proto_item_add_subtree(ti, ett_ehdlc);
-			proto_tree_add_item(ehdlc_tree, hf_ehdlc_protocol,
+
+			proto_tree_add_item(ehdlc_tree, hf_ehdlc_csapi,
 					    tvb, offset, 1, ENC_BIG_ENDIAN);
-#if 0
-			proto_tree_add_item(ehdlc_tree, hf_ehdlc_sapi,
+			proto_tree_add_item(ehdlc_tree, hf_ehdlc_ctei,
 					    tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ehdlc_tree, hf_ehdlc_c_r,
-					    tvb, offset, 1, ENC_BIG_ENDIAN);
-#endif
+			proto_tree_add_uint_format_value(ehdlc_tree, hf_ehdlc_c_r,
+							 tvb, offset, 1, c_r, "%d", c_r);
+			proto_tree_add_uint_format_value(ehdlc_tree, hf_ehdlc_sapi,
+							 tvb, offset, 1, sapi, "%d", sapi);
+			proto_tree_add_uint_format_value(ehdlc_tree, hf_ehdlc_tei,
+							 tvb, offset, 1, tei, "%d", tei);
 			proto_tree_add_item(ehdlc_tree, hf_ehdlc_data_len,
-					    tvb, offset+1, 1, ENC_BIG_ENDIAN);
+					    tvb, offset, 2, ENC_BIG_ENDIAN);
+		}
+
+		if (sapi == 10 || sapi == 11) {
+			/* Voice TRAU */
+			next_tvb = tvb_new_subset_length(tvb, offset+2, len-2);
+			call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
+			offset += len;
+			continue;
+		} else if (sapi == 12) {
+			/* GPRS TRAU */
+			next_tvb = tvb_new_subset_length(tvb, offset+2, len-2);
+			call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
+			offset += len;
+			continue;
 		}
 
 		control = dissect_xdlc_control(tvb, offset+2, pinfo, ehdlc_tree, hf_ehdlc_control,
@@ -164,17 +219,14 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 			next_tvb = tvb_new_subset_length(tvb, offset+header_length,
 						  len-header_length);
 
-			switch (msg_type) {
-			case 0x20:
+			switch (sapi) {
+			case 0:
 				/* len == 4 seems to be some kind of ACK */
 				if (len <= 4)
 					break;
 				call_dissector(sub_handles[SUB_RSL], next_tvb, pinfo, tree);
 				break;
-			case 0xbc:
-			case 0xdc:
-			case 0xa0:
-			case 0xc0:
+			case 62:
 				/* len == 4 seems to be some kind of ACK */
 				if (len <= 4)
 					break;
@@ -211,26 +263,35 @@ proto_register_ehdlc(void)
 	static hf_register_info hf[] = {
 		{ &hf_ehdlc_data_len,
 		  { "DataLen", "ehdlc.data_len",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    FT_UINT16, BASE_DEC, NULL, 0x1FF,
 		    "The length of the data (in bytes)", HFILL }
 		},
-		{ &hf_ehdlc_protocol,
-		  { "Protocol", "ehdlc.protocol",
-		    FT_UINT8, BASE_HEX, VALS(ehdlc_protocol_vals), 0x0,
-		    "The HDLC Sub-Protocol", HFILL }
+		{ &hf_ehdlc_csapi,
+		  { "Compressed SAPI", "ehdlc.csapi",
+		    FT_UINT8, BASE_DEC, NULL, 0xE0,
+		    NULL, HFILL}
 		},
-#if 0
+		{ &hf_ehdlc_ctei,
+		  { "Compressed TEI", "ehdlc.ctei",
+		    FT_UINT8, BASE_DEC, NULL, 0x1E,
+		    NULL, HFILL}
+		},
 		{ &hf_ehdlc_sapi,
 		  { "SAPI", "ehdlc.sapi",
-		    FT_UINT8, BASE_DEC, NULL, 0x1f,
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_ehdlc_tei,
+		  { "TEI", "ehdlc.tei",
+		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_ehdlc_c_r,
 		  { "C/R", "ehdlc.c_r",
-		    FT_UINT8, BASE_HEX, NULL, 0x20,
+		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
-#endif
+
 		{ &hf_ehdlc_xid_payload,
 		  { "XID Payload", "ehdlc.xid_payload",
 		    FT_BYTES, BASE_NONE, NULL, 0,
