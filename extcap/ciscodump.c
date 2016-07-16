@@ -729,8 +729,12 @@ end:
 }
 
 #ifdef _WIN32
-int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-		LPSTR lpCmdLine, int nCmdShow) {
+int _stdcall
+WinMain (struct HINSTANCE__ *hInstance,
+        struct HINSTANCE__ *hPrevInstance,
+        char               *lpszCmdLine,
+        int                 nCmdShow)
+{
 	return main(__argc, __argv);
 }
 #endif
