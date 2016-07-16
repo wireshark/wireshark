@@ -120,6 +120,7 @@ Real Time Location System (RTLS)
 Network-Based IP Flow Mobility (NBIFOM)
 IEEE 802.1BR E-Tag
 Nordic BLE Sniffer
+Ericsson A-bis TFP (Traffic Forwarding Protocol)
 --sort-and-group--
 
 === Updated Protocol Support
