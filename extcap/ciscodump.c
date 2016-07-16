@@ -187,7 +187,8 @@ static int wait_until_data(ssh_channel channel, const long unsigned count)
 			errmsg_print("Error in sscanf()");
 			return EXIT_FAILURE;
 		} else {
-			sscanf(output_ptr, "Packets : %lu", &got);
+			if (sscanf(output_ptr, "Packets : %lu", &got) != 1)
+				return EXIT_FAILURE;
 		}
 	}
 	verbose_print("All packets got: dumping\n");
@@ -244,16 +245,20 @@ static void ssh_loop_read(ssh_channel channel, FILE* fp, const long unsigned cou
 	char chr;
 	unsigned offset = 0;
 	unsigned packet_size = 0;
-	char packet[PACKET_MAX_SIZE];
+	char* packet;
 	time_t curtime = time(NULL);
 	int err;
 	guint64 bytes_written;
 	long unsigned packets = 0;
 	int status = CISCODUMP_PARSER_STARTING;
 
+	/* This is big enough to put on the heap */
+	packet = (char*)g_malloc(PACKET_MAX_SIZE);
+
 	do {
 		if (ssh_channel_read_timeout(channel, &chr, 1, FALSE, SSH_READ_TIMEOUT) == SSH_ERROR) {
 			errmsg_print("Error reading from channel");
+			g_free(packet);
 			return;
 		}
 
@@ -277,6 +282,8 @@ static void ssh_loop_read(ssh_channel channel, FILE* fp, const long unsigned cou
 		}
 
 	} while(packets < count);
+
+	g_free(packet);
 }
 
 static int check_ios_version(ssh_channel channel)
@@ -299,7 +306,9 @@ static int check_ios_version(ssh_channel channel)
 	cur = g_strstr_len(version, strlen(version), "Version");
 	if (cur) {
 		cur += strlen("Version ");
-		sscanf(cur, "%u.%u", &major, &minor);
+		if (sscanf(cur, "%u.%u", &major, &minor) != 2)
+			return FALSE;
+
 		if ((major > MINIMUM_IOS_MAJOR) || (major == MINIMUM_IOS_MAJOR && minor >= MINIMUM_IOS_MINOR)) {
 			verbose_print("Current IOS Version: %u.%u\n", major, minor);
 			if (read_output_bytes(channel, -1, NULL) == EXIT_FAILURE)
