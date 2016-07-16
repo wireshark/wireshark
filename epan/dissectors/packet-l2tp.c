@@ -8,6 +8,8 @@
  *
  * Added RFC 5515 by Uli Heilmeier <uh@heilmeier.eu>, 2016-02-29
  *
+ * Ericsson L2TP by Harald Welte <laforge@gnumonks.org>, 2016-07-16
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -109,6 +111,7 @@ static int hf_l2tp_l2_spec_g = -1;
 static int hf_l2tp_l2_spec_c = -1;
 static int hf_l2tp_l2_spec_u = -1;
 static int hf_l2tp_cisco_avp_type = -1;
+static int hf_l2tp_ericsson_avp_type = -1;
 static int hf_l2tp_broadband_avp_type = -1;
 static int hf_l2tp_cablelabs_avp_type = -1;
 static int hf_l2tp_avp_message_type = -1;
@@ -156,6 +159,27 @@ static int hf_l2tp_avp_csu_current_rx_speed_v2 = -1;
 static int hf_l2tp_avp_csu_remote_session_id_v3 = -1;
 static int hf_l2tp_avp_csu_current_tx_speed_v3 = -1;
 static int hf_l2tp_avp_csu_current_rx_speed_v3 = -1;
+
+static int hf_l2tp_ericsson_msg_type = -1;
+static int hf_l2tp_ericsson_conn_type = -1;
+static int hf_l2tp_ericsson_stn_name = -1;
+static int hf_l2tp_ericsson_crc32_enable = -1;
+static int hf_l2tp_ericsson_abis_lower_mode = -1;
+static int hf_l2tp_ericsson_tc_overl_thresh = -1;
+static int hf_l2tp_ericsson_tc_num_groups = -1;
+static int hf_l2tp_ericsson_tcg_group_id = -1;
+static int hf_l2tp_ericsson_tcg_num_sapis = -1;
+static int hf_l2tp_ericsson_tcg_sapi = -1;
+static int hf_l2tp_ericsson_tcg_ip = -1;
+static int hf_l2tp_ericsson_tcg_dscp = -1;
+static int hf_l2tp_ericsson_tcg_crc32_enable = -1;
+static int hf_l2tp_ericsson_tc_num_maps = -1;
+static int hf_l2tp_ericsson_map_tei_low = -1;
+static int hf_l2tp_ericsson_map_tei_high = -1;
+static int hf_l2tp_ericsson_map_sc = -1;
+static int hf_l2tp_ericsson_ver_pref = -1;
+static int hf_l2tp_ericsson_ver_2 = -1;
+static int hf_l2tp_ericsson_ver_3 = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_l2tp_cisco_pw_type = -1;
@@ -275,6 +299,8 @@ static gint ett_l2tp_ale_sub = -1;
 static gint ett_l2tp_lcp = -1;
 static gint ett_l2tp_l2_spec = -1;
 static gint ett_l2tp_csu = -1;
+static gint ett_l2tp_ericsson_tcg = -1;
+static gint ett_l2tp_ericsson_map = -1;
 
 static expert_field ei_l2tp_incorrect_digest = EI_INIT;
 /* Generated from convert_proto_tree_add_text.pl */
@@ -723,6 +749,61 @@ static const value_string cisco_avp_type_vals[] = {
     { CISCO_AUTH_NONCE,               "Control Message Authentication Nonce" },
     { CISCO_INTERFACE_MTU,            "Interface MTU" },
     { 0,                              NULL }
+};
+
+#define ERICSSON_MSG_TYPE               0
+#define ERICSSON_TRANSPORT_CONFIG       1
+#define ERICSSON_PROTO_VERSION          3
+#define ERICSSON_CONN_TYPE              4
+#define ERICSSON_CRC_ENABLED            5
+#define ERICSSON_STN_NAME               6
+#define ERICSSON_ABIS_LOWER_MODE        7
+#define ERICSSNN_TEI_TO_SC_MAP          8
+
+static const value_string ericsson_avp_type_vals[] = {
+    { ERICSSON_MSG_TYPE,              "Message Type" },
+    { ERICSSON_TRANSPORT_CONFIG,      "Transport Configuration" },
+    { ERICSSON_PROTO_VERSION,         "Protocol Version" },
+    { ERICSSON_CONN_TYPE,             "Connection Type" },
+    { ERICSSON_STN_NAME,              "STN Name" },
+    { ERICSSON_CRC_ENABLED,           "CRC32 Enabled" },
+    { ERICSSON_ABIS_LOWER_MODE,       "Abis Lower Mode" },
+    { ERICSSNN_TEI_TO_SC_MAP,         "TEI to SC Map" },
+    { 0,                              NULL }
+};
+
+static const value_string ericsson_msg_type_vals[] = {
+    { 0,   "Transport Configuration Notification" },
+    { 1,   "Performance Notification" },
+    { 2,   "Transport Configuration Request" },
+    { 3,   "Transport Configuration Response" },
+    { 4,   "Abis Lower Transport Config Request" },
+    { 5,   "Abis Lower Transport Config Response" },
+    { 6,   "Local Connect Channel Status Notification" },
+    { 0,   NULL }
+};
+
+static const value_string ericsson_short_msg_type_vals[] = {
+    { 0,   "TCN" },
+    { 1,   "PN" },
+    { 2,   "TCRQ" },
+    { 3,   "TCRP" },
+    { 4,   "ALTCRQ" },
+    { 5,   "ALTCRP" },
+    { 6,   "LCCSN" },
+    { 0,   NULL }
+};
+
+static const value_string ericsson_conn_type_vals[] = {
+    { 0,   "Primary" },
+    { 1,   "Secondary" },
+    { 0,   NULL }
+};
+
+static const value_string ericsson_abis_lower_mode_vals[] = {
+    { 0,   "Single Timeslot" },
+    { 1,   "Super Channel" },
+    { 0,   NULL }
 };
 
 #define BROADBAND_AGENT_CIRCUIT_ID                    1
@@ -1643,6 +1724,133 @@ static int dissect_l2tp_broadband_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 }
 
 /*
+ * Dissect Ericsson AVP:s
+ */
+
+/* Dissect a single variable-length Ericsson Transport Configuration Group */
+static int dissect_l2tp_ericsson_transp_cfg(tvbuff_t *tvb, proto_tree *tree)
+{
+    int offset = 0;
+    guint32 num_sapis, i;
+
+    proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_group_id, tvb, offset++, 1, ENC_NA);
+    proto_tree_add_item_ret_uint(tree, hf_l2tp_ericsson_tcg_num_sapis, tvb, offset++, 1, ENC_NA, &num_sapis);
+    for (i = 0; i < num_sapis; i++) {
+        proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_sapi, tvb, offset++, 1, ENC_NA);
+    }
+    proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_ip, tvb, offset, 4, ENC_NA);
+    offset += 4;
+    proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_dscp, tvb, offset++, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_crc32_enable, tvb, offset++, 1, ENC_NA);
+
+    return offset;
+}
+
+/* Dissect a single 3-byte Ericsson TEI-to-SC Map */
+static int dissect_l2tp_ericsson_tei_sc_map(tvbuff_t *tvb, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_l2tp_ericsson_map_tei_low, tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_l2tp_ericsson_map_tei_high, tvb, 1, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_l2tp_ericsson_map_sc, tvb, 2, 1, ENC_NA);
+    return 3;
+}
+
+static int dissect_l2tp_ericsson_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 ccid)
+{
+    int offset = 0;
+    int         avp_type;
+    guint32     avp_vendor_id;
+    guint16     avp_len;
+    guint16     ver_len_hidden;
+    guint32     msg_type;
+    guint32     num_maps, i;
+    proto_tree *l2tp_avp_tree, *l2tp_avp_tree_sub;
+    tvbuff_t   *tcg_tvb;
+
+    ver_len_hidden  = tvb_get_ntohs(tvb, offset);
+    avp_len         = AVP_LENGTH(ver_len_hidden);
+    avp_vendor_id   = tvb_get_ntohs(tvb, offset + 2);
+    avp_type        = tvb_get_ntohs(tvb, offset + 4);
+
+    l2tp_avp_tree =  proto_tree_add_subtree_format(tree, tvb, offset,
+                              avp_len, ett_l2tp_avp, NULL, "Vendor %s: %s AVP",
+                              val_to_str_ext(avp_vendor_id, &sminmpec_values_ext, "Unknown (%u)"),
+                              val_to_str(avp_type, ericsson_avp_type_vals, "Unknown (%u)"));
+
+    proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hidden, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+    if (HIDDEN_BIT(ver_len_hidden)) { /* don't try do display hidden */
+        offset += avp_len;
+        return offset;
+    }
+
+    offset += 2;
+    avp_len -= 2;
+
+    proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_vendor_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    avp_len -= 2;
+
+    proto_tree_add_uint(l2tp_avp_tree, hf_l2tp_ericsson_avp_type, tvb, offset, 2, avp_type);
+    offset += 2;
+    avp_len -= 2;
+
+    ccid++;
+
+    switch (avp_type) {
+    case ERICSSON_MSG_TYPE:
+        proto_tree_add_item_ret_uint(l2tp_avp_tree, hf_l2tp_ericsson_msg_type, tvb, offset, 2, ENC_BIG_ENDIAN, &msg_type);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s - %s", control_msg, val_to_str(msg_type, ericsson_short_msg_type_vals, "Unknown (0x%x)"));
+        break;
+    case ERICSSON_PROTO_VERSION:
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_ver_pref, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_ver_2, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_ver_3, tvb, offset+8, 4, ENC_BIG_ENDIAN);
+        break;
+    case ERICSSON_CONN_TYPE:
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_conn_type, tvb, offset, 1, ENC_NA);
+        break;
+    case ERICSSON_STN_NAME:
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_stn_name, tvb, offset, avp_len, ENC_ASCII|ENC_NA);
+        break;
+    case ERICSSON_CRC_ENABLED:
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_crc32_enable, tvb, offset, avp_len, ENC_NA);
+        break;
+    case ERICSSON_ABIS_LOWER_MODE:
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_abis_lower_mode, tvb, offset, 1, ENC_NA);
+        break;
+    case ERICSSON_TRANSPORT_CONFIG:
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_tc_overl_thresh, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_tc_num_groups, tvb, offset+2, 1, ENC_NA);
+        /* FIXME: iterate over multiple groups */
+        tcg_tvb = tvb_new_subset_length(tvb, offset+3, avp_len-3);
+        l2tp_avp_tree_sub = proto_tree_add_subtree_format(l2tp_avp_tree, tvb, 0, -1, ett_l2tp_ericsson_tcg,
+                                                          NULL, "Transport Config Bundling Group");
+        dissect_l2tp_ericsson_transp_cfg(tcg_tvb, l2tp_avp_tree_sub);
+        break;
+    case ERICSSNN_TEI_TO_SC_MAP:
+        proto_tree_add_item_ret_uint(l2tp_avp_tree, hf_l2tp_ericsson_tc_num_maps, tvb, offset++, 1, ENC_NA, &num_maps);
+        /* iterate over multiple groups */
+        for (i = 0; i < num_maps; i++) {
+                tcg_tvb = tvb_new_subset_length(tvb, offset, 3);
+                l2tp_avp_tree_sub = proto_tree_add_subtree_format(l2tp_avp_tree, tvb, 0, -1, ett_l2tp_ericsson_map,
+                                                          NULL, "Transport Config Bundling Group %u", i);
+                offset += dissect_l2tp_ericsson_tei_sc_map(tcg_tvb, l2tp_avp_tree_sub);
+        }
+        break;
+
+    default:
+        proto_tree_add_expert(l2tp_avp_tree, pinfo, &ei_l2tp_vendor_specific_avp_data, tvb, offset, avp_len-6);
+        break;
+    }
+    offset += avp_len;
+
+    return offset;
+}
+
+/*
  * Ref: http://www.cablelabs.com/specifications/CM-SP-DEPI-I08-100611.pdf
  */
 static int
@@ -1780,6 +1988,12 @@ static void process_control_avps(tvbuff_t *tvb,
             } else if (avp_vendor_id == VENDOR_BROADBAND_FORUM) {      /* Vendor-Specific AVP */
 
                 dissect_l2tp_broadband_avps(avp_tvb, pinfo, l2tp_tree);
+                idx += avp_len;
+                continue;
+
+            } else if (avp_vendor_id == VENDOR_ERICSSON) {      /* Vendor-Specific AVP */
+
+                dissect_l2tp_ericsson_avps(avp_tvb, pinfo, l2tp_tree, ccid);
                 idx += avp_len;
                 continue;
 
@@ -3118,6 +3332,10 @@ proto_register_l2tp(void)
           { "Type", "l2tp.avp.ciscotype", FT_UINT16, BASE_DEC, VALS(cisco_avp_type_vals), 0,
             "AVP Type", HFILL }},
 
+        { &hf_l2tp_ericsson_avp_type,
+          { "Type", "l2tp.avp.ericssontype", FT_UINT16, BASE_DEC, VALS(ericsson_avp_type_vals), 0,
+            "AVP Type", HFILL }},
+
         { &hf_l2tp_broadband_avp_type,
           { "Type", "l2tp.avp.broadbandtype", FT_UINT16, BASE_DEC, VALS(broadband_avp_type_vals), 0,
             "AVP Type", HFILL }},
@@ -3306,6 +3524,86 @@ proto_register_l2tp(void)
           { "Current RX Connect Speed", "l2tp.avp.csu.current_rx_speed64", FT_UINT64, BASE_DEC, NULL, 0x0,
             "Current RX Connect Speed in bps", HFILL }},
 
+        { &hf_l2tp_ericsson_msg_type,
+          { "Ericsson Message Type", "l2tp.ericsson.msg_type", FT_UINT16, BASE_DEC, VALS(ericsson_msg_type_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_conn_type,
+          { "Connection Type", "l2tp.ericsson.conn_type", FT_UINT8, BASE_DEC, VALS(ericsson_conn_type_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_stn_name,
+          { "STN Name", "l2tp.ericsson.stn_name", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_crc32_enable,
+          { "CRC32 Enabled", "l2tp.ericsson.crc32_enable", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_abis_lower_mode,
+          { "Abis Lower Type", "l2tp.ericsson.abis_lower_mode", FT_UINT8, BASE_DEC, VALS(ericsson_abis_lower_mode_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_tc_overl_thresh,
+          { "Overload Threshold in 0.1%", "l2tp.ericsson.overload_thresh", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_tc_num_groups,
+          { "Number of Transport Config Groups", "l2tp.ericsson.tc_num_groups", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_tcg_group_id,
+          { "Transport Config Group ID", "l2tp.ericsson.tc_group_id", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_tcg_num_sapis,
+          { "Number of SAPIs in Transport Group", "l2tp.ericsson.tc_num_sapi", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_tcg_sapi,
+          { "TCG SAPI", "l2tp.ericsson.tcg_sapi", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_tcg_ip,
+          { "TCG IP Address", "l2tp.ericsson.tcg_ip", FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_tcg_dscp,
+          { "TCG DSCP", "l2tp.ericsson.tcg_dscp", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_tcg_crc32_enable,
+          { "CRC32 Enabled", "l2tp.ericsson.crc32_en", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_tc_num_maps,
+          { "Number of TEI-SC Maps", "l2tp.ericsson.num_maps", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_map_tei_low,
+          { "TEI Range Lowest Value", "l2tp.ericsson.map_tei_low", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_map_tei_high,
+          { "TEI Range Highest Value", "l2tp.ericsson.map_tei_high", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_map_sc,
+          { "Super Channel", "l2tp.ericsson.map_ssc", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_ver_pref,
+          { "Preferred/Chosen Version", "l2tp.ericsson.ver_pref", FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_ver_2,
+          { "Version (2)", "l2tp.ericsson.ver_2", FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_ver_3,
+          { "Version (3)", "l2tp.ericsson.ver_3", FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_l2tp_cisco_assigned_control_connection_id, { "Assigned Control Connection ID", "l2tp.cisco.assigned_control_connection_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_l2tp_cisco_pw_type, { "PW Type", "l2tp.cisco.pw_type", FT_UINT16, BASE_DEC, VALS(pw_types_vals), 0x0, NULL, HFILL }},
@@ -3401,6 +3699,8 @@ proto_register_l2tp(void)
         &ett_l2tp_l2_spec,
         &ett_l2tp_lcp,
         &ett_l2tp_csu,
+        &ett_l2tp_ericsson_tcg,
+        &ett_l2tp_ericsson_map,
     };
 
     static ei_register_info ei[] = {
