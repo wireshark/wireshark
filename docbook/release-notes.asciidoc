@@ -126,6 +126,8 @@ Ericsson A-bis TFP (Traffic Forwarding Protocol)
 Ericsson A-bis P-GSL
 vSocket
 ISO 15765
+Unified Diagnostic Services (UDS)
+
 --sort-and-group--
 
 === Updated Protocol Support
