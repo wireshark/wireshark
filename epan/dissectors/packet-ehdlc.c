@@ -99,6 +99,7 @@ enum {
 	SUB_RSL,
 	SUB_OML,
 	SUB_TFP,
+	SUB_PGSL,
 	SUB_DATA,
 
 	SUB_MAX
@@ -206,7 +207,7 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		} else if (sapi == 12) {
 			/* GPRS TRAU */
 			next_tvb = tvb_new_subset_length(tvb, offset+2, len-2);
-			call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
+			call_dissector(sub_handles[SUB_PGSL], next_tvb, pinfo, tree);
 			offset += len;
 			continue;
 		}
@@ -386,6 +387,7 @@ proto_reg_handoff_ehdlc(void)
 	sub_handles[SUB_RSL]  = find_dissector_add_dependency("gsm_abis_rsl", proto_ehdlc);
 	sub_handles[SUB_OML]  = find_dissector_add_dependency("gsm_abis_oml", proto_ehdlc);
 	sub_handles[SUB_TFP]  = find_dissector_add_dependency("gsm_abis_tfp", proto_ehdlc);
+	sub_handles[SUB_PGSL]  = find_dissector_add_dependency("gsm_abis_pgsl", proto_ehdlc);
 	sub_handles[SUB_DATA] = find_dissector("data");
 
 	dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_ERICSSON, ehdlc_handle);

@@ -637,6 +637,7 @@ set(DISSECTOR_SRC
 	packet-gsm_abis_om2000.c
 	packet-gsm_abis_oml.c
 	packet-gsm_abis_tfp.c
+	packet-gsm_abis_pgsl.c
 	packet-gsm_bsslap.c
 	packet-gsm_bssmap_le.c
 	packet-gsm_cbch.c

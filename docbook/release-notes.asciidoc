@@ -121,6 +121,7 @@ Network-Based IP Flow Mobility (NBIFOM)
 IEEE 802.1BR E-Tag
 Nordic BLE Sniffer
 Ericsson A-bis TFP (Traffic Forwarding Protocol)
+Ericsson A-bis P-GSL
 --sort-and-group--
 
 === Updated Protocol Support
