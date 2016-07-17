@@ -36,7 +36,7 @@ typedef struct _ws_ip
     guint16 ip_id;
     guint16 ip_off;
     guint8  ip_ttl;
-    guint8  ip_p;
+    guint8  ip_nxt;  /* IPv4: protocol; IPv6: next header */
     guint16 ip_sum;
     address ip_src;
     address ip_dst;

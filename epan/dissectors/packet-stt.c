@@ -585,7 +585,7 @@ dissect_stt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ws_ip *iph = (ws_ip*)data;
 
     /* Make sure we at least have a TCP header */
-    if (iph->ip_p != IP_PROTO_TCP ||
+    if (iph->ip_nxt != IP_PROTO_TCP ||
         tvb_captured_length(tvb) < STT_TCP_HDR_LEN) {
         return FALSE;
     }

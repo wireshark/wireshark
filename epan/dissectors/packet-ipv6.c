@@ -2214,7 +2214,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     if (!ipv6_exthdr_under_root) {
         proto_item_set_len (ipv6_item, offset);
     }
-    iph.ip_p = nxt;
+    iph.ip_nxt = nxt;
 
     /* collect packet info */
     p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_VALUE, GUINT_TO_POINTER((guint)nxt));

@@ -188,7 +188,7 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	cksum_vec[0].ptr=&ci->ip_v_hl;
 	cksum_vec[0].len=BYTES;
 	/* skip TTL */
-	cksum_vec[1].ptr=&ci->ip_p;
+	cksum_vec[1].ptr=&ci->ip_nxt;
 	cksum_vec[1].len=1;
 	/* skip header checksum and ip's (because of NAT)*/
 	cksum_vec[2].ptr=(const guint8 *)ci->ip_dst.data;

@@ -1974,7 +1974,7 @@ ip_try_dissect(gboolean heur_first, tvbuff_t *tvb, packet_info *pinfo,
     return TRUE;
   }
 
-  if (dissector_try_uint_new(ip_dissector_table, iph->ip_p, tvb, pinfo,
+  if (dissector_try_uint_new(ip_dissector_table, iph->ip_nxt, tvb, pinfo,
                              tree, TRUE, iph)) {
     return TRUE;
   }
@@ -2192,7 +2192,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     ttl_item = NULL;
   }
 
-  iph->ip_p = tvb_get_guint8(tvb, offset + 9);
+  iph->ip_nxt = tvb_get_guint8(tvb, offset + 9);
   if (tree) {
     proto_tree_add_item(ip_tree, hf_ip_proto, tvb, offset + 9, 1, ENC_BIG_ENDIAN);
   }
@@ -2337,8 +2337,8 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   } else if (!is_a_multicast_addr(dst32) &&
 	/* At least BGP should appear here as well */
 	iph->ip_ttl < 5 &&
-        iph->ip_p != IP_PROTO_PIM &&
-        iph->ip_p != IP_PROTO_OSPF) {
+        iph->ip_nxt != IP_PROTO_PIM &&
+        iph->ip_nxt != IP_PROTO_OSPF) {
     expert_add_info_format(pinfo, ttl_item, &ei_ip_ttl_too_small, "\"Time To Live\" only %u", iph->ip_ttl);
   }
 
@@ -2397,7 +2397,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
                            IPOPT_EOOL, &IP_OPT_TYPES, &ei_ip_opt_len_invalid, pinfo, field_tree, tf, iph);
   }
 
-  p_add_proto_data(pinfo->pool, pinfo, proto_ip, pinfo->curr_layer_num, GUINT_TO_POINTER((guint)iph->ip_p));
+  p_add_proto_data(pinfo->pool, pinfo, proto_ip, pinfo->curr_layer_num, GUINT_TO_POINTER((guint)iph->ip_nxt));
   tap_queue_packet(ip_tap, pinfo, iph);
 
   /* Skip over header + options */
@@ -2413,7 +2413,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
       ipsum == 0) {
     ipfd_head = fragment_add_check(&ip_reassembly_table, tvb, offset,
                                    pinfo,
-                                   iph->ip_p ^ iph->ip_id ^ src32 ^ dst32 ^ pinfo->vlan_id,
+                                   iph->ip_nxt ^ iph->ip_id ^ src32 ^ dst32 ^ pinfo->vlan_id,
                                    NULL,
                                    (iph->ip_off & IP_OFFSET) * 8,
                                    iph->ip_len - hlen,
@@ -2452,7 +2452,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     /* Just show this as a fragment. */
     col_add_fstr(pinfo->cinfo, COL_INFO,
                  "Fragmented IP protocol (proto=%s %u, off=%u, ID=%04x)",
-                 ipprotostr(iph->ip_p), iph->ip_p,
+                 ipprotostr(iph->ip_nxt), iph->ip_nxt,
                  (iph->ip_off & IP_OFFSET) * 8, iph->ip_id);
     if ( ipfd_head && ipfd_head->reassembled_in != pinfo->num ) {
       col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]",
@@ -2477,7 +2477,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
       /* Unknown protocol */
       if (update_col_info) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)",
-                   ipprotostr(iph->ip_p), iph->ip_p);
+                   ipprotostr(iph->ip_nxt), iph->ip_nxt);
       }
       call_data_dissector(next_tvb, pinfo, parent_tree);
     }
