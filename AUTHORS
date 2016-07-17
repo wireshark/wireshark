@@ -3675,6 +3675,13 @@ Martin Kacer	<kacer.martin[AT]gmail.com> {
 	JSON and Elasticsearch tshark output
 }
 
+Sumit Kumar Jha		<sjha3[AT]ncsu.edu> {
+	Generic Protocol Extension Support for VXLAN
+}
+
+Kim Kempf		<kim.kempf[AT]apcon.com> {
+	802.1BR E-Tag dissector
+}
 
 and by:
 
@@ -3929,7 +3936,6 @@ João Valverde		<joao.valverde[AT]tecnico.ulisboa.pt>
 Benoît Canet		<benoit[AT]scylladb.com>
 
 
-
 From git log
 ---------------
 Adam Goldman		<adam.goldman[AT]intel.com>
@@ -4006,6 +4012,7 @@ Cédric Delmas		<cedricde[AT]outlook.fr>
 D. Ulis			<daulis0[AT]gmail.com>
 Daniel Mack		<daniel[AT]zonque.org>
 Daniel Stenberg		<daniel[AT]haxx.se>
+Daniele Lacamera	<daniele.lacamera[AT]technicolor.com>
 Daniël van Eeden	<wireshark[AT]myname.nl>
 Darshan Nevgi		<darshan.sn[AT]samsung.com>
 Dave Rigby		<daver[AT]couchbase.com>
@@ -4073,6 +4080,7 @@ Jeffrey Smith		<whydoubt[AT]gmail.com>
 Jens Kilian		<jens.kilian[AT]advantest.com>
 Jeroen Roovers		<jer[AT]gentoo.org>
 Jeroen Sack		<jeroen[AT]jeroensack.nl>
+Jesse Gross		<jesse[AT]kernel.org>
 Jim Young		<jyoung[AT]gsu.edu>
 Jo Rueschel		<wireshark[AT]rueschel.de>
 Johan Wahl		<johan.wahl[AT]ericsson.com>
@@ -4216,7 +4224,6 @@ Stefan Völkel		<sv[AT]its-v.de>
 Stephan Kappertz	<octopus.sk[AT]googlemail.com>
 Stephane Bryant		<stephane.ml.bryant[AT]gmail.com>
 Stephen Donnelly	<stephen.donnelly[AT]emulex.com>
-Sumit Kumar Jha		<sjha3[AT]ncsu.edu>
 Sunil Mushran		<sunil.mushran[AT]oracle.com>
 Sven Eckelmann		<sven[AT]open-mesh.com>
 Sven Schnelle		<svens[AT]stackframe.org>
@@ -4225,6 +4232,7 @@ T. Scholz		<scholzt234[AT]googlemail.com>
 Tatsuhiro Tsujikawa	<tatsuhiro.t[AT]gmail.com>
 Thibault Gerondal	<github[AT]tycale.be>
 Thies Moeller		<thies.moeller[AT]baslerweb.com>
+Thomas PORTASSAU	<thomas.portassau[AT]hotmail.fr>
 Thomas Shen		<thomashen[AT]gmail.com>
 Tigran Mkrtchyan	<tigran.mkrtchyan[AT]desy.de>
 Tim (Thanh) Nguyen	<tnnguyen[AT]broadcom.com>
@@ -4252,6 +4260,7 @@ Warren Moxam		<warrenmptgrey[AT]gmail.com>
 Wasim Abu Moch		<wasim[AT]mellanox.com>
 Weston Andros Adamson	<dros[AT]primarydata.com>
 Weston Schmidt		<weston_schmidt[AT]alumni.purdue.edu>
+William Tu		<u9012063[AT]gmail.com>
 Xavier Brouckaert	<xabrouck[AT]cisco.com>
 YFdyh000		<yfdyh000[AT]gmail.com>
 Yan Burman		<yanb[AT]mellanox.com>

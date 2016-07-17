@@ -1040,142 +1040,142 @@
         <translation>Przechwytuj</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="256"/>
+        <location filename="capture_file_properties_dialog.cpp" line="257"/>
         <source>Hardware</source>
         <translation>Sprzęt</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="266"/>
+        <location filename="capture_file_properties_dialog.cpp" line="268"/>
         <source>OS</source>
         <translation>OS</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="276"/>
+        <location filename="capture_file_properties_dialog.cpp" line="279"/>
         <source>Application</source>
         <translation>Aplikacja</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="285"/>
+        <location filename="capture_file_properties_dialog.cpp" line="288"/>
         <source>Interfaces</source>
         <translation>Interfejsy</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="289"/>
+        <location filename="capture_file_properties_dialog.cpp" line="292"/>
         <source>Interface</source>
         <translation>Interfejs</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="290"/>
+        <location filename="capture_file_properties_dialog.cpp" line="293"/>
         <source>Dropped packets</source>
         <translation>Porzucone pakiety</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="291"/>
+        <location filename="capture_file_properties_dialog.cpp" line="294"/>
         <source>Capture filter</source>
         <translation>Filtr przechwytywania</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="292"/>
+        <location filename="capture_file_properties_dialog.cpp" line="295"/>
         <source>Link type</source>
         <translation>Typ łącza</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="293"/>
+        <location filename="capture_file_properties_dialog.cpp" line="296"/>
         <source>Packet size limit</source>
         <translation>Limit rozmiaru pakietu</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="323"/>
+        <location filename="capture_file_properties_dialog.cpp" line="326"/>
         <source>none</source>
         <translation>brak</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="326"/>
+        <location filename="capture_file_properties_dialog.cpp" line="329"/>
         <source>%1 bytes</source>
         <translation>%1 bajtów</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="342"/>
+        <location filename="capture_file_properties_dialog.cpp" line="345"/>
         <source>Statistics</source>
         <translation>Statystyki</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="346"/>
+        <location filename="capture_file_properties_dialog.cpp" line="349"/>
         <source>Measurement</source>
         <translation>Pomiary</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="347"/>
+        <location filename="capture_file_properties_dialog.cpp" line="350"/>
         <source>Captured</source>
         <translation>Przechwycone</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="348"/>
+        <location filename="capture_file_properties_dialog.cpp" line="351"/>
         <source>Displayed</source>
         <translation>Wyświetlane</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="349"/>
+        <location filename="capture_file_properties_dialog.cpp" line="352"/>
         <source>Marked</source>
         <translation>Zaznaczone</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="353"/>
+        <location filename="capture_file_properties_dialog.cpp" line="356"/>
         <source>N/A</source>
         <translation>N/A</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="370"/>
+        <location filename="capture_file_properties_dialog.cpp" line="373"/>
         <source>Packets</source>
         <translation>Pakiety</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="388"/>
+        <location filename="capture_file_properties_dialog.cpp" line="391"/>
         <source>Time span, s</source>
         <translation>Okres czasu, s</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="406"/>
+        <location filename="capture_file_properties_dialog.cpp" line="409"/>
         <source>Average pps</source>
         <translation>Średni pps</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="424"/>
+        <location filename="capture_file_properties_dialog.cpp" line="427"/>
         <source>Average packet size, B</source>
         <translation>Średni rozmiar pakietu, B</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="443"/>
+        <location filename="capture_file_properties_dialog.cpp" line="446"/>
         <source>Bytes</source>
         <translation>Bajty</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="464"/>
+        <location filename="capture_file_properties_dialog.cpp" line="467"/>
         <source>Average bytes/s</source>
         <translation>Średnio bajtów/s</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="485"/>
+        <location filename="capture_file_properties_dialog.cpp" line="488"/>
         <source>Average bits/s</source>
         <translation>Średnio bitów/s</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="517"/>
+        <location filename="capture_file_properties_dialog.cpp" line="520"/>
         <source>File Comment</source>
         <translation>Komentarz pliku</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="526"/>
+        <location filename="capture_file_properties_dialog.cpp" line="529"/>
         <source>Packet Comments</source>
         <translation>Komentarze pakietu</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="533"/>
+        <location filename="capture_file_properties_dialog.cpp" line="536"/>
         <source>&lt;p&gt;Frame %1: </source>
         <translation>&lt;p&gt;Ramka %1: </translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="591"/>
+        <location filename="capture_file_properties_dialog.cpp" line="594"/>
         <source>Created by Wireshark %1
 
 </source>
@@ -9283,37 +9283,37 @@ text-decoration: underline;
         <translation>Niepoprawny filtr przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1094"/>
+        <location filename="main_window_slots.cpp" line="1096"/>
         <source>Clear Menu</source>
         <translation>Wyczyść Menu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1574"/>
+        <location filename="main_window_slots.cpp" line="1576"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Proszę czekać, trwa uruchamianie Wiresharka</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1664"/>
+        <location filename="main_window_slots.cpp" line="1666"/>
         <source> before closing the file</source>
         <translation>przed zapisaniem pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1752"/>
+        <location filename="main_window_slots.cpp" line="1754"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Eksportuj zaznaczony bajty pakietu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1818"/>
+        <location filename="main_window_slots.cpp" line="1820"/>
         <source>No Keys</source>
         <translation>Brak kluczy</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1819"/>
+        <location filename="main_window_slots.cpp" line="1821"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Nie ma żadnych kluczy sesji SSL do zapisu.</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1825"/>
+        <location filename="main_window_slots.cpp" line="1827"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation>
@@ -9323,69 +9323,69 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1754"/>
+        <location filename="main_window_slots.cpp" line="1756"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Surowe dane (*.bin *.dat *.raw);;Dowolny plik (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1829"/>
+        <location filename="main_window_slots.cpp" line="1831"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Klucze sesji SSL (*.keys *.txt);; Dowolny plik (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1967"/>
+        <location filename="main_window_slots.cpp" line="1969"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Nie można skopiować tekstu. Spróbuj inną pozycję.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2377"/>
-        <location filename="main_window_slots.cpp" line="3479"/>
+        <location filename="main_window_slots.cpp" line="2379"/>
+        <location filename="main_window_slots.cpp" line="3481"/>
         <source>Unable to build conversation filter.</source>
         <translation>Nie można stworzyć filtru konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2527"/>
-        <location filename="main_window_slots.cpp" line="2540"/>
+        <location filename="main_window_slots.cpp" line="2529"/>
+        <location filename="main_window_slots.cpp" line="2542"/>
         <source> before reloading the file</source>
         <translation>przed przeładowaniem pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2574"/>
+        <location filename="main_window_slots.cpp" line="2576"/>
         <source>No filter available. Try another </source>
         <translation>Brak dostępnych filtrów. Spróbuj ponownie</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3486"/>
+        <location filename="main_window_slots.cpp" line="3488"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Błąd kompilacji filtru dla tej konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3495"/>
+        <location filename="main_window_slots.cpp" line="3497"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Brak poprzedniego i następnego pakietu w konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3572"/>
+        <location filename="main_window_slots.cpp" line="3574"/>
         <source>No Interface Selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3579"/>
+        <location filename="main_window_slots.cpp" line="3581"/>
         <source> before starting a new capture</source>
         <translation>przed wystartowaniem nowego przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3597"/>
+        <location filename="main_window_slots.cpp" line="3599"/>
         <source> before restarting the capture</source>
         <translation>przed restartem przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3800"/>
+        <location filename="main_window_slots.cpp" line="3802"/>
         <source>Wiki Page for %1</source>
         <translation>Strona Wiki dla %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3801"/>
+        <location filename="main_window_slots.cpp" line="3803"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Strona Wiki Wiresharka jest zarządzania przez społeczność.&lt;/p&gt;&lt;p&gt;Strona którą chcesz wczytać może być wspaniała, niekompletna, błędna lub nie istnieć.&lt;/p&gt;&lt;p&gt;Kontynuować wczytywanie strony Wiki?&lt;/p&gt;</translation>
     </message>
@@ -10074,12 +10074,12 @@ text-decoration: underline;
 <context>
     <name>PacketListModel</name>
     <message>
-        <location filename="packet_list_model.cpp" line="303"/>
+        <location filename="packet_list_model.cpp" line="312"/>
         <source>Dissecting</source>
         <translation>Analizowanie</translation>
     </message>
     <message>
-        <location filename="packet_list_model.cpp" line="325"/>
+        <location filename="packet_list_model.cpp" line="334"/>
         <source>Sorting &quot;%1&quot;</source>
         <translation>Sortowanie &quot;%1&quot;</translation>
     </message>
@@ -11414,17 +11414,17 @@ text-decoration: underline;
         <translation>Rozwiązane Adresy</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="266"/>
+        <location filename="resolved_addresses_dialog.cpp" line="281"/>
         <source>Show</source>
         <translation>Pokaż</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="295"/>
+        <location filename="resolved_addresses_dialog.cpp" line="310"/>
         <source># Resolved addresses found in %1</source>
         <translation># Rozwiązane adresy znalezione w %1</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="299"/>
+        <location filename="resolved_addresses_dialog.cpp" line="314"/>
         <source># Comments
 #
 # </source>
@@ -11433,7 +11433,7 @@ text-decoration: underline;
 #</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="312"/>
+        <location filename="resolved_addresses_dialog.cpp" line="327"/>
         <source># Hosts
 #
 # </source>
@@ -11442,7 +11442,7 @@ text-decoration: underline;
 #</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="325"/>
+        <location filename="resolved_addresses_dialog.cpp" line="340"/>
         <source># IPv4 Hash Table
 #
 # </source>
@@ -11451,12 +11451,12 @@ text-decoration: underline;
 #</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="328"/>
-        <location filename="resolved_addresses_dialog.cpp" line="341"/>
-        <location filename="resolved_addresses_dialog.cpp" line="354"/>
-        <location filename="resolved_addresses_dialog.cpp" line="367"/>
-        <location filename="resolved_addresses_dialog.cpp" line="380"/>
-        <location filename="resolved_addresses_dialog.cpp" line="393"/>
+        <location filename="resolved_addresses_dialog.cpp" line="343"/>
+        <location filename="resolved_addresses_dialog.cpp" line="356"/>
+        <location filename="resolved_addresses_dialog.cpp" line="369"/>
+        <location filename="resolved_addresses_dialog.cpp" line="382"/>
+        <location filename="resolved_addresses_dialog.cpp" line="395"/>
+        <location filename="resolved_addresses_dialog.cpp" line="408"/>
         <source>
 
 </source>
@@ -11465,7 +11465,7 @@ text-decoration: underline;
 </translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="338"/>
+        <location filename="resolved_addresses_dialog.cpp" line="353"/>
         <source># IPv6 Hash Table
 #
 # </source>
@@ -11474,7 +11474,7 @@ text-decoration: underline;
 #</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="351"/>
+        <location filename="resolved_addresses_dialog.cpp" line="366"/>
         <source># Services
 #
 # </source>
@@ -11483,7 +11483,7 @@ text-decoration: underline;
 # </translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="364"/>
+        <location filename="resolved_addresses_dialog.cpp" line="379"/>
         <source># Ethernet addresses
 #
 # </source>
@@ -11492,7 +11492,7 @@ text-decoration: underline;
 # </translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="377"/>
+        <location filename="resolved_addresses_dialog.cpp" line="392"/>
         <source># Ethernet manufacturers
 #
 # </source>
@@ -11501,7 +11501,7 @@ text-decoration: underline;
 #</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="390"/>
+        <location filename="resolved_addresses_dialog.cpp" line="405"/>
         <source># Well known Ethernet addresses
 #
 # </source>
