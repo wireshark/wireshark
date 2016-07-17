@@ -8,6 +8,9 @@
  *By Gerald Combs <gerald@wireshark.org>
  *Copyright 1998 Gerald Combs
  *
+ *(c) Copyright 2016, Sumit Kumar Jha <sjha3@ncsu.edu>
+ *Support for VXLAN GPE encapsulation
+ *
  *This program is free software; you can redistribute it and/or
  *modify it under the terms of the GNU General Public License
  *as published by the Free Software Foundation; either version 2
@@ -34,6 +37,7 @@
 
 #define MD_TYPE_1 1
 #define MD_TYPE_2 2
+#define VXLAN_NSH 4
 
 /* Prototypes */
 void proto_reg_handoff_nsh(void);
@@ -360,6 +364,7 @@ proto_reg_handoff_nsh(void)
 
 	nsh_handle = create_dissector_handle(dissect_nsh, proto_nsh);
 	dissector_add_uint("gre.proto", ETHERTYPE_NSH, nsh_handle);
+	dissector_add_uint("vxlan.next_proto", VXLAN_NSH, nsh_handle);
 
 	dissector_ip = find_dissector_add_dependency("ip", proto_nsh);
 	dissector_ipv6 = find_dissector_add_dependency("ipv6", proto_nsh);
