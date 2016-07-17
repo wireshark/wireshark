@@ -207,10 +207,6 @@ static int hf_ipv6_dstopts_len_oct              = -1;
 static int hf_ipv6_hopopts_nxt                  = -1;
 static int hf_ipv6_hopopts_len                  = -1;
 static int hf_ipv6_hopopts_len_oct              = -1;
-static int hf_ipv6_unknown_hdr                  = -1;
-static int hf_ipv6_unknown_hdr_nxt              = -1;
-static int hf_ipv6_unknown_hdr_len              = -1;
-static int hf_ipv6_unknown_hdr_len_oct          = -1;
 static int hf_ipv6_routing_nxt                  = -1;
 static int hf_ipv6_routing_len                  = -1;
 static int hf_ipv6_routing_len_oct              = -1;
@@ -297,7 +293,6 @@ static gint ett_ipv6_routing_srh_vect   = -1;
 static gint ett_ipv6_fragments          = -1;
 static gint ett_ipv6_fragment           = -1;
 static gint ett_ipv6_dstopts_proto      = -1;
-static gint ett_ipv6_unknown_exthdr     = -1;
 
 #ifdef HAVE_GEOIP_V6
 static gint ett_geoip_info              = -1;
@@ -1192,37 +1187,6 @@ static const value_string rtalertvals[] = {
     { IP6OPT_RTALERT_ACTNET, "Active Network" },
     { 0, NULL }
 };
-
-static int
-dissect_unknown_exthdr(tvbuff_t *tvb, int offset, proto_tree *tree)
-{
-    int         len;
-    proto_tree *unkhdr_tree;
-    proto_item *ti, *ti_len;
-
-    len = (tvb_get_guint8(tvb, offset + 1) + 1) << 3;
-
-    if (tree) {
-        /* !!! specify length */
-        ti = proto_tree_add_item(tree, hf_ipv6_unknown_hdr, tvb, offset, len, ENC_NA);
-
-        unkhdr_tree = proto_item_add_subtree(ti, ett_ipv6_unknown_exthdr);
-
-        proto_tree_add_item(unkhdr_tree, hf_ipv6_unknown_hdr_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-
-        ti_len = proto_tree_add_item(unkhdr_tree, hf_ipv6_unknown_hdr_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-        ti = proto_tree_add_uint(unkhdr_tree, hf_ipv6_unknown_hdr_len_oct, tvb, offset, 1, len);
-        proto_item_append_text(ti, " bytes");
-        PROTO_ITEM_SET_GENERATED(ti);
-        if (ipv6_exthdr_hide_len_oct_field) {
-            PROTO_ITEM_SET_HIDDEN(ti);
-            proto_item_append_text(ti_len, " (%d bytes)", len);
-        }
-        /* offset += 1; */
-    }
-    return len;
-}
 
 struct opt_proto_item {
     proto_item *type, *len;
@@ -2194,12 +2158,6 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         } else if (iph.ip_nxt == IP_PROTO_NONE) {
             col_set_str(pinfo->cinfo, COL_INFO, "IPv6 no next header");
             show_data = TRUE;
-        } else if ((ipv6extprotostr(iph.ip_nxt) != NULL) &&
-                        !dissector_get_uint_handle(ip_dissector_table, iph.ip_nxt)) {
-            advance = dissect_unknown_exthdr(tvb, offset, ipv6_exthdr_tree);
-            iph.ip_nxt = tvb_get_guint8(tvb, offset);
-            offset += advance;
-            iph.ip_len -= advance;
         } else {
             loop = FALSE;
         }
@@ -2526,26 +2484,6 @@ proto_register_ipv6(void)
         },
 #endif /* HAVE_GEOIP_V6 */
 
-        { &hf_ipv6_unknown_hdr,
-            { "Unknown Extension Header", "ipv6.unknown_hdr",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                NULL, HFILL }
-        },
-        { &hf_ipv6_unknown_hdr_nxt,
-            { "Next Header", "ipv6.unknown_hdr.nxt",
-                FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
-                NULL, HFILL }
-        },
-        { &hf_ipv6_unknown_hdr_len,
-            { "Length", "ipv6.unknown_hdr.len",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Extension header length in 8-octet words (minus 1)", HFILL }
-        },
-        { &hf_ipv6_unknown_hdr_len_oct,
-            { "Length", "ipv6.unknown_hdr.len_oct",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Extension header length in octets", HFILL }
-        },
         { &hf_ipv6_opt,
             { "IPv6 Option", "ipv6.opt",
                 FT_NONE, BASE_NONE, NULL, 0x0,
@@ -3060,8 +2998,7 @@ proto_register_ipv6(void)
         &ett_ipv6_opt_mpl,
         &ett_ipv6_opt_dff_flags,
         &ett_ipv6_fragment,
-        &ett_ipv6_fragments,
-        &ett_ipv6_unknown_exthdr
+        &ett_ipv6_fragments
     };
 
     static gint *ett_ipv6_hopopts[] = {
