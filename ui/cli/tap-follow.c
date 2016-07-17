@@ -185,15 +185,15 @@ static void follow_draw(void *contextp)
 
   address_to_str_buf(&follow_info->client_ip, buf, sizeof buf);
   if (follow_info->client_ip.type == AT_IPv6)
-    printf("Node 0: [%s]:%d\n", buf, follow_info->client_port);
+    printf("Node 0: [%s]:%u\n", buf, follow_info->client_port);
   else
-    printf("Node 0: %s:%d\n", buf, follow_info->client_port);
+    printf("Node 0: %s:%u\n", buf, follow_info->client_port);
 
   address_to_str_buf(&follow_info->server_ip, buf, sizeof buf);
   if (follow_info->client_ip.type == AT_IPv6)
-    printf("Node 1: [%s]:%d\n", buf, follow_info->server_port);
+    printf("Node 1: [%s]:%u\n", buf, follow_info->server_port);
   else
-    printf("Node 1: %s:%d\n", buf, follow_info->server_port);
+    printf("Node 1: %s:%u\n", buf, follow_info->server_port);
 
   for (cur = follow_info->payload, chunk = 0;
        cur != NULL;

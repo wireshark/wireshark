@@ -1,4 +1,4 @@
-/* extcap_base.c
+/* extcap-base.c
  * Base function for extcaps
  *
  * Copyright 2015, Dario Lombardo
@@ -211,7 +211,7 @@ static gint extcap_iface_listall(extcap_parameters * extcap, uint8_t list_ifs)
 		return 0;
 
 	    iface = (extcap_interface *) element->data;
-	    printf("dlt {number=%d}{name=%s}", iface->dlt, iface->dltname != NULL ? iface->dltname : iface->interface);
+	    printf("dlt {number=%u}{name=%s}", iface->dlt, iface->dltname != NULL ? iface->dltname : iface->interface);
 	    if (iface->description != NULL)
 		printf ("{display=%s}\n", iface->dltdescription);
 	    else

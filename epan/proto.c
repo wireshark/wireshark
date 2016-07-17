@@ -8416,15 +8416,15 @@ proto_registrar_dump_fieldcount(void)
 		gpa_hfinfo.len, deregistered_count, protocol_count,
 		same_name_count);
 
-	printf ("%u fields were pre-allocated.\n%s", PROTO_PRE_ALLOC_HF_FIELDS_MEM,
+	printf ("%d fields were pre-allocated.\n%s", PROTO_PRE_ALLOC_HF_FIELDS_MEM,
 		(gpa_hfinfo.allocated_len > PROTO_PRE_ALLOC_HF_FIELDS_MEM) ?
 		    "* * Please increase PROTO_PRE_ALLOC_HF_FIELDS_MEM (in epan/proto.c)! * *\n\n" :
 		    "\n");
 
 	printf ("The header field table consumes %u KiB of memory.\n",
-		(int)(gpa_hfinfo.allocated_len * sizeof(header_field_info *) / 1024));
+		(unsigned int)(gpa_hfinfo.allocated_len * sizeof(header_field_info *) / 1024));
 	printf ("The fields themselves consume %u KiB of memory.\n",
-		(int)(gpa_hfinfo.len * sizeof(header_field_info) / 1024));
+		(unsigned int)(gpa_hfinfo.len * sizeof(header_field_info) / 1024));
 
 	return (gpa_hfinfo.allocated_len > PROTO_PRE_ALLOC_HF_FIELDS_MEM);
 }

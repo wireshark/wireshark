@@ -1,4 +1,4 @@
-/* win32-file-dlg.c
+/* file_dlg_win32.c
  * Native Windows file dialog routines
  *
  * Wireshark - Network traffic analyzer

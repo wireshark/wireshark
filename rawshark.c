@@ -1078,7 +1078,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
             passed = TRUE;
 
         /* Print a one-line summary */
-        printf(" %u", passed ? 1 : 0);
+        printf(" %d", passed ? 1 : 0);
     }
 
     printf(" -\n");

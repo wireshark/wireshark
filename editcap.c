@@ -1,4 +1,5 @@
-/* Edit capture files.  We can delete packets, adjust timestamps, or
+/* editcap.c
+ * Edit capture files.  We can delete packets, adjust timestamps, or
  * simply convert from one format to another format.
  *
  * Originally written by Richard Sharpe.
@@ -287,7 +288,7 @@ add_selection(char *sel, guint* max_selection)
             *max_selection = selectfrm[max_selected].first;
 
         if (verbose)
-            fprintf(stderr, " %i\n", selectfrm[max_selected].first);
+            fprintf(stderr, " %u\n", selectfrm[max_selected].first);
     } else {
         if (verbose)
             fprintf(stderr, "Inclusive ...");
@@ -306,7 +307,7 @@ add_selection(char *sel, guint* max_selection)
             *max_selection = selectfrm[max_selected].second;
 
         if (verbose)
-            fprintf(stderr, " %i, %i\n", selectfrm[max_selected].first,
+            fprintf(stderr, " %u, %u\n", selectfrm[max_selected].first,
                    selectfrm[max_selected].second);
     }
 

@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
 		case OPT_MAXBYTES:
 			maxbytes = atoi(optarg);
 			if (maxbytes > MAXBYTES_LIMIT) {
-				errmsg_print("randpktdump: Max bytes is %u", MAXBYTES_LIMIT);
+				errmsg_print("randpktdump: Max bytes is %d", MAXBYTES_LIMIT);
 				goto end;
 			}
 			break;
