@@ -112,11 +112,18 @@ FIELDTYPE       FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
                 FT_IPv6, FT_IPXNET, FT_FRAMENUM, FT_PROTOCOL, FT_GUID, FT_OID,
                 FT_REL_OID, FT_AX25, FT_VINES, FT_SYSTEM_ID, FT_FC, FT_FCWWN
 FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
-                      FT_INT{8,16,24,32,40,48,56,64):
+                       FT_INT{8,16,24,32,40,48,56,64):
 
                   BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX, BASE_HEX_DEC,
-                  or BASE_CUSTOM, possibly ORed with BASE_RANGE_STRING,
-                  BASE_EXT_STRING or BASE_VAL64_STRING
+                  BASE_CUSTOM, or BASE_NONE, possibly ORed with
+                  BASE_RANGE_STRING, BASE_EXT_STRING or BASE_VAL64_STRING.
+
+                  BASE_NONE may be used with a non-NULL FIELDCONVERT when the
+                  numeric value of the field itself is not of significance to
+                  the user (for example, the number is a generated field).
+                  When this is the case the numeric value is not shown to the
+                  user in the protocol decode nor is it used when preparing
+                  filters for the field in question.
 
                 --For FT_UINT16:
 

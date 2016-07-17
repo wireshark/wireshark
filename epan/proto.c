@@ -6526,12 +6526,16 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				wmem_free(NULL, tmp_str);
 				break;
 			}
+
 			/*  Require integral types (other than frame number,
 			 *  which is always displayed in decimal) to have a
 			 *  number base.
-			 *  If there is a strings value then this base is not
-			 *  normally used except when constructing a display
-			 *  filter for a value not found in the strings lookup.
+			 *
+			 *  If the display value is BASE_NONE and there is a
+			 *  strings conversion then the dissector writer is
+			 *  telling us that the field's numerical value is
+			 *  meaningless; we'll avoid showing the value to the
+			 *  user.
 			 */
 			switch (hfinfo->display & FIELD_DISPLAY_E_MASK) {
 				case BASE_DEC:
@@ -6540,6 +6544,14 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				case BASE_DEC_HEX:
 				case BASE_HEX_DEC:
 				case BASE_CUSTOM: /* hfinfo_numeric_value_format() treats this as decimal */
+					break;
+				case BASE_NONE:
+					if (hfinfo->strings == NULL)
+						g_error("Field '%s' (%s) is an integral value (%s)"
+							" but is being displayed as BASE_NONE but"
+							" without a strings conversion",
+							hfinfo->name, hfinfo->abbrev,
+							ftype_name(hfinfo->type));
 					break;
 				default:
 					tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");

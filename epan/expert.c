@@ -205,10 +205,10 @@ expert_packet_init(void)
 			{ "Message", "_ws.expert.message", FT_STRING, BASE_NONE, NULL, 0, "Wireshark expert information", HFILL }
 		},
 		{ &hf_expert_group,
-			{ "Group", "_ws.expert.group", FT_UINT32, BASE_HEX, VALS(expert_group_vals), 0, "Wireshark expert group", HFILL }
+			{ "Group", "_ws.expert.group", FT_UINT32, BASE_NONE, VALS(expert_group_vals), 0, "Wireshark expert group", HFILL }
 		},
 		{ &hf_expert_severity,
-			{ "Severity level", "_ws.expert.severity", FT_UINT32, BASE_HEX, VALS(expert_severity_vals), 0, "Wireshark expert severity level", HFILL }
+			{ "Severity level", "_ws.expert.severity", FT_UINT32, BASE_NONE, VALS(expert_severity_vals), 0, "Wireshark expert severity level", HFILL }
 		}
 	};
 	static gint *ett[] = {
