@@ -65,6 +65,7 @@
 #include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-gsm_a_common.h"
+#include "packet-ipv6.h"
 
 void proto_register_mip6(void);
 void proto_reg_handoff_mip6(void);
@@ -4059,12 +4060,14 @@ dissect_mip6_options(tvbuff_t *tvb, proto_tree *mip6_tree, int offset, int len,
 
 /* Function that dissects the whole MIPv6 packet */
 static int
-dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    proto_tree *mip6_tree   = NULL;
+    proto_tree *mip6_tree, *root_tree;
     guint8      type, pproto;
     guint       len, offset = 0, start_offset = offset;
     proto_item *ti, *header_item;
+    tvbuff_t   *next_tvb;
+    ws_ip      *iph = (ws_ip *)data;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MIPv6");
@@ -4073,7 +4076,17 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     len = (tvb_get_guint8(tvb, MIP6_HLEN_OFF) + 1) * 8;
     pproto = tvb_get_guint8(tvb, MIP6_PROTO_OFF);
 
-    ti = proto_tree_add_item(tree, proto_mip6, tvb, 0, len, ENC_NA);
+    root_tree = tree;
+    if (pinfo->dst.type == AT_IPv6) {
+        ipv6_pinfo_t *ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
+
+        if (ipv6_pinfo->ipv6_tree != NULL) {
+            root_tree = ipv6_pinfo->ipv6_tree;
+            ipv6_pinfo->ipv6_item_len += len;
+        }
+    }
+
+    ti = proto_tree_add_item(root_tree, proto_mip6, tvb, 0, len, ENC_NA);
     mip6_tree = proto_item_add_subtree(ti, ett_mip6);
 
     /* Process header fields */
@@ -4202,27 +4215,22 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         dissect_mip6_options(tvb, mip6_tree, offset, len, pinfo);
     }
 
+    iph->ip_nxt = pproto;
+
     if ((type == MIP6_FNA) && (pproto == IP_PROTO_IPV6)) {
-        tvbuff_t *ipv6_tvb;
-
-        ipv6_tvb = tvb_new_subset_remaining(tvb, len + 8);
-
-        /* Call the IPv6 dissector */
-        dissector_try_uint(ip_dissector_table, pproto, ipv6_tvb, pinfo, tree);
-
         col_set_str(pinfo->cinfo, COL_INFO, "Fast Neighbor Advertisement[Fast Binding Update]");
+        next_tvb = tvb_new_subset_remaining(tvb, len + 8);
+        iph->ip_len -= len + 8;
+        ipv6_dissect_next(next_tvb, pinfo, tree, iph);
     }
 
     if ((type == MIP6_FBACK) && (pproto == IP_PROTO_AH)) {
-        tvbuff_t *ipv6_tvb;
-
-        ipv6_tvb = tvb_new_subset_remaining(tvb, len + offset);
-
-        /* Call the IPv6 dissector */
-        dissector_try_uint(ip_dissector_table, pproto, ipv6_tvb, pinfo, tree);
-
         col_set_str(pinfo->cinfo, COL_INFO, "Fast Binding Acknowledgment");
+        next_tvb = tvb_new_subset_remaining(tvb, len + offset);
+        iph->ip_len -= len + offset;
+        ipv6_dissect_next(next_tvb, pinfo, tree, iph);
     }
+
     return tvb_captured_length(tvb);
 }
 
@@ -5430,6 +5438,8 @@ proto_reg_handoff_mip6(void)
 {
     dissector_add_uint("ip.proto", IP_PROTO_MIPV6_OLD, mip6_handle);
     dissector_add_uint("ip.proto", IP_PROTO_MIPV6, mip6_handle);
+    dissector_add_uint("ipv6.nxt", IP_PROTO_MIPV6, mip6_handle);
+
     /* Add support for PMIPv6 control messages over IPV4 */
     dissector_add_uint("udp.port", UDP_PORT_PMIP6_CNTL, mip6_handle);
     ip_dissector_table = find_dissector_table("ip.proto");

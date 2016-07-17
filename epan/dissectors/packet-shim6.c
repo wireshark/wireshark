@@ -563,14 +563,16 @@ static const value_string shimctrlvals[] = {
 };
 
 static int
-dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _U_)
+dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data)
 {
     struct ip6_shim  shim;
     int              offset = 0, len;
     gint             p;
-    proto_tree      *shim_tree;
+    proto_tree      *shim_tree, *root_tree;
     proto_item      *ti, *ti_len;
     guint8           tmp[5];
+    tvbuff_t        *next_tvb;
+    ws_ip           *iph = (ws_ip *)data;
 
     tvb_memcpy(tvb, (guint8 *)&shim, offset, sizeof(shim));
     len = (shim.ip6s_len + 1) << 3;
@@ -583,7 +585,17 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _
                         val_to_str_const(shim.ip6s_p & SHIM6_BITMASK_TYPE, shimctrlvals, "Unknown"));
     }
 
-    ti = proto_tree_add_item(tree, proto_shim6, tvb, offset, len, ENC_NA);
+    root_tree = tree;
+    if (pinfo->dst.type == AT_IPv6) {
+        ipv6_pinfo_t *ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
+
+        if (ipv6_pinfo->ipv6_tree != NULL) {
+            root_tree = ipv6_pinfo->ipv6_tree;
+            ipv6_pinfo->ipv6_item_len += len;
+        }
+    }
+
+    ti = proto_tree_add_item(root_tree, proto_shim6, tvb, offset, len, ENC_NA);
     shim_tree = proto_item_add_subtree(ti, ett_shim6_proto);
 
     /* Next Header */
@@ -651,7 +663,11 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _
         }
     }
 
-    return len;
+    iph->ip_nxt = shim.ip6s_nxt;
+    iph->ip_len -= len;
+    next_tvb = tvb_new_subset_remaining(tvb, len);
+    ipv6_dissect_next(next_tvb, pinfo, tree, iph);
+    return tvb_captured_length(tvb);
 }
 
 void

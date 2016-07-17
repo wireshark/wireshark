@@ -25,6 +25,7 @@
 #define __PACKET_IPV6_H_DEFINED__
 
 #include <epan/ipv6.h>
+#include "packet-ip.h"
 
 #define IPv6_HDR_SIZE   40
 #define IPv6_ADDR_SIZE  16
@@ -105,14 +106,15 @@ extern "C" {
 typedef struct {
     guint32     jumbo_plen;
     guint16     ip6_plen;
-    guint16     frag_off;
-    gboolean    frag_flg;
-    guint32     frag_ident;
+    proto_tree *ipv6_tree;
+    gint        ipv6_item_len;
 } ipv6_pinfo_t;
 
 ipv6_pinfo_t *p_get_ipv6_pinfo(packet_info *pinfo);
 
 gboolean capture_ipv6(const guchar *, int, int, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
+
+void ipv6_dissect_next(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ws_ip *iph);
 
 #ifdef __cplusplus
 }

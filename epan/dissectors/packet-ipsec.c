@@ -87,6 +87,7 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 #endif /* HAVE_LIBGCRYPT */
 
 #include "packet-ipsec.h"
+#include "packet-ipv6.h"
 
 void proto_register_ipsec(void);
 void proto_reg_handoff_ipsec(void);
@@ -1086,24 +1087,40 @@ export_ipsec_pdu(dissector_handle_t dissector_handle, packet_info *pinfo, tvbuff
 }
 
 static int
-dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  proto_tree *ah_tree;
+  proto_tree *ah_tree, *root_tree;
   proto_item *pi, *ti;
+  guint8      ah_nxt;         /* Next header */
   guint8      ah_len;         /* Length of header in 32bit words minus 2 */
   guint       ah_hdr_len;     /* Length of header in octets */
   guint       ah_icv_len;     /* Length of ICV header field in octets */
   guint32     ah_spi;         /* Security parameter index */
+  tvbuff_t   *next_tvb;
+  dissector_handle_t dissector_handle;
+  guint32 saved_match_uint;
+  ws_ip *iph = (ws_ip *)data;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AH");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  pi = proto_tree_add_item(tree, proto_ah, tvb, 0, -1, ENC_NA);
-  ah_tree = proto_item_add_subtree(pi, ett_ah);
-
+  ah_nxt = tvb_get_guint8(tvb, 0);
   ah_len = tvb_get_guint8(tvb, 1);
   ah_hdr_len = (ah_len + 2) * 4;
   ah_icv_len = ah_len ? (ah_len - 1) * 4 : 0;
+
+  root_tree = tree;
+  if (pinfo->dst.type == AT_IPv6) {
+    ipv6_pinfo_t *ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
+
+    if (ipv6_pinfo->ipv6_tree != NULL) {
+      root_tree = ipv6_pinfo->ipv6_tree;
+      ipv6_pinfo->ipv6_item_len += ah_hdr_len;
+    }
+  }
+
+  pi = proto_tree_add_item(root_tree, proto_ah, tvb, 0, -1, ENC_NA);
+  ah_tree = proto_item_add_subtree(pi, ett_ah);
 
   proto_tree_add_item(ah_tree, hf_ah_next_header, tvb, 0, 1, ENC_BIG_ENDIAN);
   ti = proto_tree_add_item(ah_tree, hf_ah_length, tvb, 1, 1, ENC_BIG_ENDIAN);
@@ -1118,35 +1135,26 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
   proto_item_set_len(pi, ah_hdr_len);
 
-  /* start of the new header (could be a extension header) */
-  return ah_hdr_len;
-}
+  next_tvb = tvb_new_subset_remaining(tvb, ah_hdr_len);
 
-static int
-dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
-{
-  guint8      ah_nxt;
-  tvbuff_t *next_tvb;
-  int advance;
-  dissector_handle_t dissector_handle;
-  guint32 saved_match_uint;
+  iph->ip_nxt = ah_nxt;
+  iph->ip_len -= ah_hdr_len;
 
-  advance = dissect_ah_header(tvb, pinfo, tree, NULL);
-
-  ah_nxt = tvb_get_guint8(tvb, 0);
-  next_tvb = tvb_new_subset_remaining(tvb, advance);
-
-  /* do lookup with the subdissector table */
-  saved_match_uint  = pinfo->match_uint;
-  dissector_handle = dissector_get_uint_handle(ip_dissector_table, ah_nxt);
-  if (dissector_handle) {
-    pinfo->match_uint = ah_nxt;
+  if (pinfo->dst.type == AT_IPv6) {
+    ipv6_dissect_next(next_tvb, pinfo, tree, iph);
   } else {
-    dissector_handle = data_handle;
+    /* do lookup with the subdissector table */
+    saved_match_uint  = pinfo->match_uint;
+    dissector_handle = dissector_get_uint_handle(ip_dissector_table, ah_nxt);
+    if (dissector_handle) {
+      pinfo->match_uint = ah_nxt;
+    } else {
+      dissector_handle = data_handle;
+    }
+    export_ipsec_pdu(dissector_handle, pinfo, next_tvb);
+    call_dissector(dissector_handle, next_tvb, pinfo, tree);
+    pinfo->match_uint = saved_match_uint;
   }
-  export_ipsec_pdu(dissector_handle, pinfo, next_tvb);
-  call_dissector(dissector_handle, next_tvb, pinfo, tree);
-  pinfo->match_uint = saved_match_uint;
   return tvb_captured_length(tvb);
 }
 
@@ -2438,17 +2446,16 @@ proto_register_ipsec(void)
 void
 proto_reg_handoff_ipsec(void)
 {
-  dissector_handle_t esp_handle, ah_handle, ipv6_ah_handle, ipcomp_handle;
+  dissector_handle_t esp_handle, ah_handle, ipcomp_handle;
 
   data_handle = find_dissector("data");
   ah_handle = find_dissector("ah");
   dissector_add_uint("ip.proto", IP_PROTO_AH, ah_handle);
+  dissector_add_uint("ipv6.nxt", IP_PROTO_AH, ah_handle);
   esp_handle = find_dissector("esp");
   dissector_add_uint("ip.proto", IP_PROTO_ESP, esp_handle);
   ipcomp_handle = create_dissector_handle(dissect_ipcomp, proto_ipcomp);
   dissector_add_uint("ip.proto", IP_PROTO_IPCOMP, ipcomp_handle);
-  ipv6_ah_handle = create_dissector_handle(dissect_ah_header, proto_ah );
-  dissector_add_uint("ipv6.nxt", IP_PROTO_AH, ipv6_ah_handle);
 
   ip_dissector_table = find_dissector_table("ip.proto");
 
