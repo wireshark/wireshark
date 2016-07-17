@@ -431,6 +431,12 @@ static int hf_smb2_cchunk_xfer_len = -1;
 static int hf_smb2_cchunk_chunks_written = -1;
 static int hf_smb2_cchunk_bytes_written = -1;
 static int hf_smb2_cchunk_total_written = -1;
+static int hf_smb2_SYMBOLIC_LINK_REPARSE_DATA_BUFFER = -1;
+static int hf_smb2_reparse_tag = -1;
+static int hf_smb2_reparse_data_length = -1;
+static int hf_smb2_symlink_substitute_name = -1;
+static int hf_smb2_symlink_print_name = -1;
+static int hf_smb2_symlink_flags = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -525,6 +531,7 @@ static gint ett_smb2_pipe_fragment = -1;
 static gint ett_smb2_pipe_fragments = -1;
 static gint ett_smb2_cchunk_entry = -1;
 static gint ett_smb2_fsctl_odx_token = -1;
+static gint ett_smb2_SYMBOLIC_LINK_REPARSE_DATA_BUFFER = -1;
 
 static expert_field ei_smb2_invalid_length = EI_INIT;
 static expert_field ei_smb2_bad_response = EI_INIT;
@@ -1164,7 +1171,7 @@ dissect_smb2_olb_length_offset(tvbuff_t *tvb, int offset, offset_length_buffer_t
 #define OLB_TYPE_UNICODE_STRING		0x01
 #define OLB_TYPE_ASCII_STRING		0x02
 static const char *
-dissect_smb2_olb_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, offset_length_buffer_t *olb, int type)
+dissect_smb2_olb_off_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, offset_length_buffer_t *olb, int base, int type)
 {
 	int         len, off;
 	proto_item *item = NULL;
@@ -1172,6 +1179,8 @@ dissect_smb2_olb_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 	const char *name = NULL;
 	guint16     bc;
 	int         offset;
+
+	olb->off += base;
 
 	offset = olb->off;
 	len = olb->len;
@@ -1237,6 +1246,12 @@ dissect_smb2_olb_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 	}
 
 	return name;
+}
+
+static const char *
+dissect_smb2_olb_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, offset_length_buffer_t *olb, int type)
+{
+	return dissect_smb2_olb_off_string(pinfo, parent_tree, tvb, olb, 0, type);
 }
 
 static void
@@ -1511,8 +1526,8 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x0009008F, "FSCTL_FIND_FILES_BY_SID"},
 	{0x00090097, "FSCTL_DUMP_PROPERTY_DATA"},
 	{0x0009009C, "FSCTL_GET_OBJECT_ID"},			      /* dissector implemented */
-	{0x000900A4, "FSCTL_SET_REPARSE_POINT"},
-	{0x000900A8, "FSCTL_GET_REPARSE_POINT"},
+	{0x000900A4, "FSCTL_SET_REPARSE_POINT"}, 		      /* dissector implemented */
+	{0x000900A8, "FSCTL_GET_REPARSE_POINT"}, 		      /* dissector implemented */
 	{0x000900C0, "FSCTL_CREATE_OR_GET_OBJECT_ID"},		      /* dissector implemented */
 	{0x000900C4, "FSCTL_SET_SPARSE"},			      /* dissector implemented */
 	{0x000900D4, "FSCTL_SET_ENCRYPTION"},
@@ -5861,6 +5876,67 @@ dissect_smb2_FSCTL_SRV_COPYCHUNK(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	}
 }
 
+static void
+dissect_smb2_FSCTL_REPARSE_POINT(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	offset_length_buffer_t  s_olb, p_olb;
+
+	/* SYMBOLIC_LINK_REPARSE_DATA_BUFFER */
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_smb2_SYMBOLIC_LINK_REPARSE_DATA_BUFFER, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_smb2_SYMBOLIC_LINK_REPARSE_DATA_BUFFER);
+	}
+
+	/* reparse tag */
+	proto_tree_add_item(tree, hf_smb2_reparse_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_smb2_reparse_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	/* reserved */
+	offset += 2;
+
+	/* substitute name  offset/length */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &s_olb, OLB_O_UINT16_S_UINT16, hf_smb2_symlink_substitute_name);
+
+	/* print name offset/length */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &p_olb, OLB_O_UINT16_S_UINT16, hf_smb2_symlink_print_name);
+
+	/* flags */
+	proto_tree_add_item(tree, hf_smb2_symlink_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* substitute name string */
+	dissect_smb2_olb_off_string(pinfo, tree, tvb, &s_olb, offset, OLB_TYPE_UNICODE_STRING);
+
+	/* print name string */
+	dissect_smb2_olb_off_string(pinfo, tree, tvb, &p_olb, offset, OLB_TYPE_UNICODE_STRING);
+}
+
+static void
+dissect_smb2_FSCTL_SET_REPARSE_POINT(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, gboolean data_in)
+{
+	if (!data_in) {
+		return;
+	}
+
+	dissect_smb2_FSCTL_REPARSE_POINT(tvb, pinfo, parent_tree, offset);
+}
+
+static void
+dissect_smb2_FSCTL_GET_REPARSE_POINT(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, gboolean data_in)
+{
+	if (data_in) {
+		return;
+	}
+
+	dissect_smb2_FSCTL_REPARSE_POINT(tvb, pinfo, parent_tree, offset);
+}
+
 void
 dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *top_tree, guint32 ioctl_function, gboolean data_in, void *private_data _U_)
 {
@@ -5912,6 +5988,12 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 	case 0x001440F2: /* FSCTL_SRV_COPYCHUNK */
 	case 0x001480F2: /* FSCTL_SRV_COPYCHUNK_WRITE */
 		dissect_smb2_FSCTL_SRV_COPYCHUNK(tvb, pinfo, tree, 0, data_in);
+		break;
+	case 0x000900A4: /* FSCTL_SET_REPARSE_POINT */
+		dissect_smb2_FSCTL_SET_REPARSE_POINT(tvb, pinfo, tree, 0, data_in);
+		break;
+	case 0x000900A8: /* FSCTL_GET_REPARSE_POINT */
+		dissect_smb2_FSCTL_GET_REPARSE_POINT(tvb, pinfo, tree, 0, data_in);
 		break;
 	case 0x0009009C: /* FSCTL_GET_OBJECT_ID */
 	case 0x000900c0: /* FSCTL_CREATE_OR_GET_OBJECT_ID */
@@ -10107,6 +10189,24 @@ proto_register_smb2(void)
 		{ &hf_smb2_cchunk_total_written,
 			{ "Total Bytes Written", "smb2.fsctl.cchunk.total_written", FT_UINT32,
 			BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_smb2_SYMBOLIC_LINK_REPARSE_DATA_BUFFER,
+		  { "SYMBOLIC_LINK_REPARSE_DATA_BUFFER", "smb2.SYMBOLIC_LINK_REPARSE_DATA_BUFFER", FT_NONE, BASE_NONE,
+		    NULL, 0, "A SYMBOLIC_LINK_REPARSE_DATA_BUFFER structure", HFILL }},
+		{ &hf_smb2_reparse_tag,
+			{ "Reparse Tag", "smb2.SYMBOLIC_LINK_REPARSE_DATA_BUFFER.reparse_tag", FT_UINT32,
+			BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_smb2_reparse_data_length,
+			{ "Reparse Data Length", "smb2.SYMBOLIC_LINK_REPARSE_DATA_BUFFER.reparse_data_length", FT_UINT16,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_smb2_symlink_substitute_name,
+			{ "Substitute Name", "smb2.SYMBOLIC_LINK_REPARSE_DATA_BUFFER.substitute_name", FT_STRING,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_smb2_symlink_print_name,
+			{ "Print Name", "smb2.SYMBOLIC_LINK_REPARSE_DATA_BUFFER.print_name", FT_STRING,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_smb2_symlink_flags,
+			{ "Flags", "smb2.SYMBOLIC_LINK_REPARSE_DATA_BUFFER.flags", FT_UINT32,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -10203,6 +10303,7 @@ proto_register_smb2(void)
 		&ett_smb2_pipe_fragments,
 		&ett_smb2_cchunk_entry,
 		&ett_smb2_fsctl_odx_token,
+		&ett_smb2_SYMBOLIC_LINK_REPARSE_DATA_BUFFER,
 	};
 
 	static ei_register_info ei[] = {
