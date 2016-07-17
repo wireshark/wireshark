@@ -460,7 +460,7 @@ static gboolean
 ssl_follow_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ssl)
 {
     follow_info_t *      follow_info = (follow_info_t*) tapdata;
-    SslDecryptedRecord * rec = NULL;
+    follow_record_t * follow_record = NULL;
     const SslDataInfo *        appl_data = NULL;
     const SslPacketInfo *      pi = (const SslPacketInfo*)ssl;
     show_stream_t        from = FROM_CLIENT;
@@ -491,23 +491,27 @@ ssl_follow_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _
            already been processed and must be skipped. */
         if (appl_data->seq < follow_info->bytes_written[from]) continue;
 
-        /* Allocate a SslDecryptedRecord to hold the current appl_data
+        /* Allocate a follow_record_t to hold the current appl_data
            instance's decrypted data. Even though it would be possible to
-           consolidate multiple appl_data instances into a single rec, it is
+           consolidate multiple appl_data instances into a single record, it is
            beneficial to use a one-to-one mapping. This affords the Follow
            Stream dialog view modes (ASCII, EBCDIC, Hex Dump, C Arrays, Raw)
            the opportunity to accurately reflect SSL PDU boundaries. Currently
            the Hex Dump view does by starting a new line, and the C Arrays
            view does by starting a new array declaration. */
-        rec = (SslDecryptedRecord*) g_malloc(sizeof(SslDecryptedRecord) + appl_data->plain_data.data_len);
-        rec->is_from_server = from == FROM_SERVER;
-        rec->data.data = (guchar*) (rec + 1);
-        rec->data.data_len = appl_data->plain_data.data_len;
-        memcpy(rec->data.data, appl_data->plain_data.data, appl_data->plain_data.data_len);
+        follow_record = g_new(follow_record_t,1);
+
+        follow_record->is_server = (from == FROM_SERVER);
+        follow_record->packet_num = pinfo->num;
+
+        follow_record->data = g_byte_array_sized_new(appl_data->plain_data.data_len);
+        follow_record->data = g_byte_array_append(follow_record->data,
+                                              appl_data->plain_data.data,
+                                              appl_data->plain_data.data_len);
 
         /* Append the record to the follow_info structure. */
-        follow_info->payload = g_list_append(follow_info->payload, rec);
-        follow_info->bytes_written[from] += rec->data.data_len;
+        follow_info->payload = g_list_append(follow_info->payload, follow_record);
+        follow_info->bytes_written[from] += appl_data->plain_data.data_len;
     }
 
     return FALSE;

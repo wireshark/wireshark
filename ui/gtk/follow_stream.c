@@ -36,7 +36,6 @@
 #include <epan/tap.h>
 
 #include <epan/print.h>
-#include <epan/dissectors/packet-ssl-utils.h>
 
 #include <ui/alert_box.h>
 #include <ui/last_open_dir.h>
@@ -1235,66 +1234,6 @@ follow_http_stream_cb(GtkWidget * w _U_, gpointer data _U_)
     follow_stream_cb(follower, follow_common_read_stream, w, data);
 }
 
-/*
- * XXX - the routine pointed to by "print_line_fcn_p" doesn't get handed lines,
- * it gets handed bufferfuls.  That's fine for "follow_write_raw()"
- * and "follow_add_to_gtk_text()", but, as "follow_print_text()" calls
- * the "print_line()" routine from "print.c", and as that routine might
- * genuinely expect to be handed a line (if, for example, it's using
- * some OS or desktop environment's printing API, and that API expects
- * to be handed lines), "follow_print_text()" should probably accumulate
- * lines in a buffer and hand them "print_line()".  (If there's a
- * complete line in a buffer - i.e., there's nothing of the line in
- * the previous buffer or the next buffer - it can just hand that to
- * "print_line()" after filtering out non-printables, as an
- * optimization.)
- *
- * This might or might not be the reason why C arrays display
- * correctly but get extra blank lines very other line when printed.
- */
-static frs_return_t
-follow_read_ssl_stream(follow_info_t *follow_info,
-               follow_print_line_func follow_print,
-               void *arg)
-{
-    guint32      global_client_pos = 0, global_server_pos = 0;
-    guint32      server_packet_count = 0;
-    guint32      client_packet_count = 0;
-    guint32 *    global_pos;
-    GList *      cur;
-    frs_return_t frs_return;
-
-    for (cur = follow_info->payload; cur; cur = g_list_next(cur)) {
-        SslDecryptedRecord * rec = (SslDecryptedRecord*) cur->data;
-        gboolean             include_rec = FALSE;
-
-        if (rec->is_from_server) {
-            global_pos = &global_server_pos;
-            include_rec = (follow_info->show_stream == BOTH_HOSTS) ||
-                (follow_info->show_stream == FROM_SERVER);
-        } else {
-            global_pos = &global_client_pos;
-            include_rec = (follow_info->show_stream == BOTH_HOSTS) ||
-                (follow_info->show_stream == FROM_CLIENT);
-        }
-
-        if (include_rec) {
-            size_t nchars = rec->data.data_len;
-            gchar *buffer = (gchar *)g_memdup(rec->data.data, (guint) nchars);
-
-            frs_return = follow_show(follow_info, follow_print, buffer, nchars,
-                rec->is_from_server, arg, global_pos,
-                &server_packet_count, &client_packet_count);
-            g_free(buffer);
-            if (frs_return == FRS_PRINT_ERROR)
-                return frs_return;
-        }
-    }
-
-    return FRS_OK;
-}
-
-
 /* Follow the SSL stream, if any, to which the last packet that we called
    a dissection routine on belongs (this might be the most recently
    selected packet, or it might be the last packet in the file). */
@@ -1303,7 +1242,7 @@ follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 {
     register_follow_t* follower = get_follow_by_name("SSL");
 
-    follow_stream_cb(follower, follow_read_ssl_stream, w, data);
+    follow_stream_cb(follower, follow_common_read_stream, w, data);
 }
 
 static void

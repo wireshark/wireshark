@@ -28,7 +28,6 @@
 #include "epan/follow.h"
 #include "epan/dissectors/packet-tcp.h"
 #include "epan/dissectors/packet-udp.h"
-#include "epan/dissectors/packet-ssl-utils.h"
 #include "epan/prefs.h"
 #include "epan/addr_resolv.h"
 #include "epan/charsets.h"
@@ -427,11 +426,8 @@ FollowStreamDialog::readStream()
     case FOLLOW_TCP :
     case FOLLOW_UDP :
     case FOLLOW_HTTP :
-        ret = readFollowStream();
-        break;
-
     case FOLLOW_SSL :
-        ret = readSslStream();
+        ret = readFollowStream();
         break;
 
     default :
@@ -441,72 +437,6 @@ FollowStreamDialog::readStream()
     }
     ui->teStreamContent->moveCursor(QTextCursor::Start);
     return ret;
-}
-
-/*
- * XXX - the routine pointed to by "print_line_fcn_p" doesn't get handed lines,
- * it gets handed bufferfuls.  That's fine for "follow_write_raw()"
- * and "follow_add_to_gtk_text()", but, as "follow_print_text()" calls
- * the "print_line()" routine from "print.c", and as that routine might
- * genuinely expect to be handed a line (if, for example, it's using
- * some OS or desktop environment's printing API, and that API expects
- * to be handed lines), "follow_print_text()" should probably accumulate
- * lines in a buffer and hand them "print_line()".  (If there's a
- * complete line in a buffer - i.e., there's nothing of the line in
- * the previous buffer or the next buffer - it can just hand that to
- * "print_line()" after filtering out non-printables, as an
- * optimization.)
- *
- * This might or might not be the reason why C arrays display
- * correctly but get extra blank lines very other line when printed.
- */
-frs_return_t
-FollowStreamDialog::readSslStream()
-{
-    guint32      global_client_pos = 0, global_server_pos = 0;
-    guint32 *    global_pos;
-    GList *      cur;
-    frs_return_t frs_return;
-    QElapsedTimer elapsed_timer;
-
-    elapsed_timer.start();
-
-    for (cur = follow_info_.payload; cur; cur = g_list_next(cur)) {
-        if (dialogClosed()) break;
-
-        SslDecryptedRecord * rec = (SslDecryptedRecord*) cur->data;
-        gboolean             include_rec = FALSE;
-
-        if (rec->is_from_server) {
-            global_pos = &global_server_pos;
-            include_rec = (follow_info_.show_stream == BOTH_HOSTS) ||
-                    (follow_info_.show_stream == FROM_SERVER);
-        } else {
-            global_pos = &global_client_pos;
-            include_rec = (follow_info_.show_stream == BOTH_HOSTS) ||
-                    (follow_info_.show_stream == FROM_CLIENT);
-        }
-
-        QByteArray buffer;
-        if (include_rec) {
-            size_t nchars = rec->data.data_len;
-            // We want a deep copy.
-            buffer.clear();
-            buffer.append((const char *) rec->data.data, (int)nchars);
-
-            frs_return = showBuffer(buffer.data(), nchars,
-                                     rec->is_from_server, rec->packet_num, global_pos);
-            if (frs_return == FRS_PRINT_ERROR)
-                return frs_return;
-            if (elapsed_timer.elapsed() > info_update_freq_) {
-                fillHintLabel(ui->teStreamContent->textCursor().position());
-                wsApp->processEvents();
-                elapsed_timer.start();
-            }
-        }
-    }
-
-    return FRS_OK;
 }
 
 void

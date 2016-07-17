@@ -403,12 +403,6 @@ typedef struct _SslDecryptSession {
 
 } SslDecryptSession;
 
-typedef struct {
-    gboolean   is_from_server;
-    guint32 packet_num;
-    StringInfo data;
-} SslDecryptedRecord;
-
 /* User Access Table */
 typedef struct _ssldecrypt_assoc_t {
     char* ipaddr;
