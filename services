@@ -9817,7 +9817,7 @@ vstat            7779/tcp # VSTAT [Vinh_Nguyn] [Vinh_Nguyn]
 vstat            7779/udp # VSTAT [Vinh_Nguyn] [Vinh_Nguyn]
 accu-lmgr        7781/tcp # accu-lmgr [Moises_E_Hernandez] [Moises_E_Hernandez]
 accu-lmgr        7781/udp # accu-lmgr [Moises_E_Hernandez] [Moises_E_Hernandez]
-s-bfd            7784/udp # Seamless Bidirectional Forwarding Detection (S-BFD) [IESG] [IETF_Chair] 2014-12-24 2016-05-13 [RFC-ietf-bfd-seamless-ip-06]
+s-bfd            7784/udp # Seamless Bidirectional Forwarding Detection (S-BFD) [IESG] [IETF_Chair] 2014-12-24 2016-07-14 [RFC7881]
 minivend         7786/tcp # MINIVEND [Mike_Heins] [Mike_Heins] Known Unauthorized Use on port 7786
 minivend         7786/udp # MINIVEND [Mike_Heins] [Mike_Heins] Known Unauthorized Use on port 7786
 popup-reminders  7787/tcp # Popup Reminders Receive [Robert_Harvey] [Robert_Harvey] 2006-01 Known Unauthorized Use on port 7787
