@@ -61,10 +61,7 @@
 void proto_register_ipv6(void);
 void proto_reg_handoff_ipv6(void);
 
-#define IPv6_HDR_SIZE   40
-#define IPv6_ADDR_SIZE  16
-
-#define IPv6_HDR_TCLS(ipv6)     ((guint8)(g_ntohl((ipv6)->ip6_flow) >> 20))
+#define IPv6_HDR_TCLS(ipv6)     _ipv6_hdr_tcls(ipv6)
 
 /* Option types and related macros */
 #define IP6OPT_PAD1                     0x00    /* 00 0 00000 =   0 */
@@ -339,6 +336,15 @@ extern const struct e_in6_addr *tvb_get_ptr_ipv6(tvbuff_t tvb, int offset);
 #define tvb_get_ptr_ipv6(tvb, offset) \
     ((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, IPv6_ADDR_SIZE))
 
+static inline guint8 _ipv6_hdr_tcls(const struct ws_ip6_hdr *hdr)
+{
+    guint8 hi, low;
+    const guint8 *p = (const guint8 *)hdr;
+
+    hi = p[0] << 4;
+    low = p[1] >> 4;
+    return (hi & 0xf0) | (low & 0x0f);
+}
 
 static ipv6_meta_t *get_ipv6_meta_data(packet_info *pinfo)
 {
@@ -387,11 +393,11 @@ static int
 ipv6_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
-    const struct ip6_hdr *ip6h = (const struct ip6_hdr *)vip;
+    const struct ws_ip6_hdr *ip6h = (const struct ws_ip6_hdr *)vip;
     address src;
     address dst;
 
-    /* Addresses aren't implemented as 'address' type in struct ip6_hdr */
+    /* Addresses aren't implemented as 'address' type in struct ws_ip6_hdr */
     src.type = dst.type = AT_IPv6;
     src.len  = dst.len = sizeof(struct e_in6_addr);
     src.data = &ip6h->ip6_src;
@@ -416,11 +422,11 @@ static int
 ipv6_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
-    const struct ip6_hdr *ip6h = (const struct ip6_hdr *)vip;
+    const struct ws_ip6_hdr *ip6h = (const struct ws_ip6_hdr *)vip;
     address src;
     address dst;
 
-    /* Addresses aren't implemented as 'address' type in struct ip6_hdr */
+    /* Addresses aren't implemented as 'address' type in struct ws_ip6_hdr */
     set_address(&src, AT_IPv6, sizeof(struct e_in6_addr), &ip6h->ip6_src);
     set_address(&dst, AT_IPv6, sizeof(struct e_in6_addr), &ip6h->ip6_dst);
 
@@ -1840,7 +1846,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
        in the ip.proto dissector table may need it */
     ws_ip iph;
 
-    struct ip6_hdr *ipv6;
+    struct ws_ip6_hdr *ipv6;
 
     offset = 0;
 
@@ -1860,9 +1866,9 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     ipv6_tree = proto_item_add_subtree(ipv6_item, ett_ipv6_proto);
 
     memset(&iph, 0, sizeof(iph));
-    ipv6 = (struct ip6_hdr*)tvb_memdup(wmem_packet_scope(), tvb, offset, sizeof(struct ip6_hdr));
+    ipv6 = (struct ws_ip6_hdr*)tvb_memdup(wmem_packet_scope(), tvb, offset, IPv6_HDR_SIZE);
 
-    version = hi_nibble(ipv6->ip6_vfc);
+    version = hi_nibble(*(guint8 *)ipv6);
     ti_ipv6_version = proto_tree_add_item(ipv6_tree, hf_ipv6_version, tvb,
                                  offset + IP6H_CTL_VFC, 1, ENC_BIG_ENDIAN);
     pi = proto_tree_add_item(ipv6_tree, hf_ip_version, tvb,
@@ -2119,7 +2125,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     nxt = tvb_get_guint8(tvb, offset + 6);
     /* Save next header value for Decode As dialog */
     p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_NXT_HDR, GUINT_TO_POINTER((guint)nxt));
-    offset += (int)sizeof(struct ip6_hdr);
+    offset += IPv6_HDR_SIZE;
     advance = 0;
 
     if (nxt == IP_PROTO_HOPOPTS) {
@@ -2169,7 +2175,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     tvb_reported_length(tvb) - 40);
     }
     /* Adjust the length of this tvbuff to include only the IPv6 datagram. */
-    set_actual_length(tvb, plen + (guint)sizeof (struct ip6_hdr));
+    set_actual_length(tvb, plen + IPv6_HDR_SIZE);
     plen -= advance;
     save_fragmented = pinfo->fragmented;
 

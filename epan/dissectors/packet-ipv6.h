@@ -26,30 +26,21 @@
 
 #include <epan/ipv6.h>
 
+#define IPv6_HDR_SIZE   40
+#define IPv6_ADDR_SIZE  16
+
 /*
  * Definition for internet protocol version 6.
  * RFC 2460
  */
-struct ip6_hdr {
-    union {
-        struct ip6_hdrctl {
-            guint32 ip6_un1_flow;    /* version, class, flow */
-            guint16 ip6_un1_plen;    /* payload length */
-            guint8  ip6_un1_nxt;     /* next header */
-            guint8  ip6_un1_hlim;    /* hop limit */
-        } ip6_un1;
-        guint8 ip6_un2_vfc;          /* 4 bits version, 4 bits class */
-    } ip6_ctlun;
+struct ws_ip6_hdr {
+    guint32 ip6_ctl_flow;            /* version, class, flow */
+    guint16 ip6_plen;                /* payload length */
+    guint8  ip6_nxt;                 /* next header */
+    guint8  ip6_hlim;                /* hop limit */
     struct e_in6_addr ip6_src;       /* source address */
     struct e_in6_addr ip6_dst;       /* destination address */
 };
-
-#define ip6_vfc     ip6_ctlun.ip6_un2_vfc
-#define ip6_flow    ip6_ctlun.ip6_un1.ip6_un1_flow
-#define ip6_plen    ip6_ctlun.ip6_un1.ip6_un1_plen
-#define ip6_nxt     ip6_ctlun.ip6_un1.ip6_un1_nxt
-#define ip6_hlim    ip6_ctlun.ip6_un1.ip6_un1_hlim
-#define ip6_hops    ip6_ctlun.ip6_un1.ip6_un1_hlim
 
 /* Offsets of fields within an IPv6 header. */
 #define IP6H_CTL        0
