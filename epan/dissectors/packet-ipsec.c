@@ -1089,36 +1089,37 @@ static int
 dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree *ah_tree;
-  proto_item *ti;
-  guint8      ah_nxt;         /* Next Header */
-  guint8      ah_len;         /* Length of data + 1, in 32bit */
+  proto_item *pi, *ti;
+  guint8      ah_len;         /* Length of header in 32bit words minus 2 */
+  guint       ah_hdr_len;     /* Length of header in octets */
+  guint       ah_icv_len;     /* Length of ICV header field in octets */
   guint32     ah_spi;         /* Security parameter index */
-  int advance;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AH");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  ti = proto_tree_add_item(tree, proto_ah, tvb, 0, -1, ENC_NA);
-  ah_tree = proto_item_add_subtree(ti, ett_ah);
+  pi = proto_tree_add_item(tree, proto_ah, tvb, 0, -1, ENC_NA);
+  ah_tree = proto_item_add_subtree(pi, ett_ah);
 
-  ah_nxt = tvb_get_guint8(tvb, 0);
   ah_len = tvb_get_guint8(tvb, 1);
-  proto_tree_add_uint_format_value(ah_tree, hf_ah_next_header, tvb,
-                        0, 1, ah_nxt, "%s (0x%02x)", ipprotostr(ah_nxt), ah_nxt);
-  proto_tree_add_uint(ah_tree, hf_ah_length, tvb, 1, 1, (ah_len + 2) << 2);
-  proto_tree_add_item(ah_tree, hf_ah_reserved, tvb, 2, 2, ENC_BIG_ENDIAN);
+  ah_hdr_len = (ah_len + 2) * 4;
+  ah_icv_len = ah_len ? (ah_len - 1) * 4 : 0;
+
+  proto_tree_add_item(ah_tree, hf_ah_next_header, tvb, 0, 1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item(ah_tree, hf_ah_length, tvb, 1, 1, ENC_BIG_ENDIAN);
+  proto_item_append_text(ti, " (%u bytes)", ah_hdr_len);
+  proto_tree_add_item(ah_tree, hf_ah_reserved, tvb, 2, 2, ENC_NA);
   proto_tree_add_item_ret_uint(ah_tree, hf_ah_spi, tvb, 4, 4, ENC_BIG_ENDIAN, &ah_spi);
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "AH (SPI=0x%08x)", ah_spi);
 
   proto_tree_add_item(ah_tree, hf_ah_sequence, tvb, 8, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(ah_tree, hf_ah_iv, tvb, 12, (ah_len) ? (ah_len - 1) << 2 : 0, ENC_NA);
+  proto_tree_add_item(ah_tree, hf_ah_iv, tvb, 12, ah_icv_len, ENC_NA);
 
-  advance = 12 + ((ah_len - 1) << 2);
-  proto_item_set_len(ti, advance);
+  proto_item_set_len(pi, ah_hdr_len);
 
   /* start of the new header (could be a extension header) */
-  return advance;
+  return ah_hdr_len;
 }
 
 static int
@@ -2228,13 +2229,13 @@ proto_register_ipsec(void)
 {
   static hf_register_info hf_ah[] = {
     { &hf_ah_next_header,
-      { "Next header", "ah.next_header", FT_UINT8, BASE_HEX, NULL, 0x0,
+      { "Next header", "ah.next_header", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
         NULL, HFILL }},
     { &hf_ah_length,
-      { "Length", "ah.length", FT_UINT8, BASE_HEX, NULL, 0x0,
+      { "Length", "ah.length", FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
     { &hf_ah_reserved,
-      { "Reserved", "ah.reserved", FT_UINT16, BASE_HEX, NULL, 0x0,
+      { "Reserved", "ah.reserved", FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     { &hf_ah_spi,
       { "AH SPI", "ah.spi", FT_UINT32, BASE_HEX, NULL, 0x0,
