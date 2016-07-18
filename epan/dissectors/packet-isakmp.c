@@ -58,6 +58,7 @@
 
 #ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
+#include <epan/proto_data.h>
 #include <epan/strutil.h>
 #include <epan/uat.h>
 #endif
@@ -1568,6 +1569,12 @@ static const value_string rohc_attr_type[] = {
 #define MAX_DIGEST_SIZE     64
 #define MAX_OAKLEY_KEY_LEN  32
 
+#define PINFO_CBC_IV 1
+
+#define DECR_PARAMS_INIT    0
+#define DECR_PARAMS_READY   1
+#define DECR_PARAMS_FAIL    2
+
 typedef struct _ikev1_uat_data_key {
   guchar *icookie;
   guint icookie_len;
@@ -1575,17 +1582,17 @@ typedef struct _ikev1_uat_data_key {
   guint key_len;
 } ikev1_uat_data_key_t;
 
-typedef struct iv_data {
-  guchar  iv[MAX_DIGEST_SIZE];
-  guint   iv_len;
-  guint32 frame_num;
-} iv_data_t;
-
 typedef struct decrypt_data {
   gboolean       is_psk;
   address        initiator;
-  guint          encr_alg;
-  guint          hash_alg;
+  guint          ike_encr_alg;
+  guint          ike_encr_keylen;
+  guint          ike_hash_alg;
+  gint           cipher_algo;
+  gsize          cipher_keylen;
+  gsize          cipher_blklen;
+  gint           digest_algo;
+  guint          digest_len;
   guint          group;
   gchar         *gi;
   guint          gi_len;
@@ -1593,12 +1600,8 @@ typedef struct decrypt_data {
   guint          gr_len;
   guchar         secret[MAX_KEY_SIZE];
   guint          secret_len;
-  GList         *iv_list;
-  gchar          last_cbc[MAX_DIGEST_SIZE];
-  guint          last_cbc_len;
-  gchar          last_p1_cbc[MAX_DIGEST_SIZE];
-  guint          last_p1_cbc_len;
-  guint32        last_message_id;
+  GHashTable    *iv_hash;
+  guint          state;
 } decrypt_data_t;
 
 /* IKEv1: Lookup from  Initiator-SPI -> decrypt_data_t* */
@@ -1772,167 +1775,235 @@ static ikev2_auth_alg_spec_t* ikev2_decrypt_find_auth_spec(guint num) {
   return NULL;
 }
 
-static tvbuff_t *
-decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_len, isakmp_hdr_t *hdr, decrypt_data_t *decr) {
-  guint8 *decrypted_data;
-  gint gcry_md_algo, gcry_cipher_algo;
+static gint ikev1_find_gcry_cipher_algo(guint ike_cipher, guint ike_keylen) {
+  switch(ike_cipher) {
+    case ENC_3DES_CBC:
+      return GCRY_CIPHER_3DES;
+
+    case ENC_DES_CBC:
+      return GCRY_CIPHER_DES;
+
+    case ENC_AES_CBC:
+      switch (ike_keylen) {
+        case 128:
+          return GCRY_CIPHER_AES128;
+        case 192:
+          return GCRY_CIPHER_AES192;
+        case 256:
+          return GCRY_CIPHER_AES256;
+      }
+      return GCRY_CIPHER_NONE;
+  }
+  return GCRY_CIPHER_NONE;
+}
+
+static gint ikev1_find_gcry_md_algo(guint ike_hash) {
+  switch(ike_hash) {
+    case HMAC_MD5:
+      return GCRY_MD_MD5;
+    case HMAC_SHA:
+      return GCRY_MD_SHA1;
+    case HMAC_SHA2_256:
+      return GCRY_MD_SHA256;
+    case HMAC_SHA2_384:
+      return GCRY_MD_SHA384;
+    case HMAC_SHA2_512:
+      return GCRY_MD_SHA512;
+  }
+  return GCRY_MD_NONE;
+}
+
+static gpointer
+generate_iv(const gpointer b1, gsize b1_len,
+            const gpointer b2, gsize b2_len,
+            gint md_algo, gsize iv_len) {
+
   gcry_md_hd_t md_ctx;
+  gpointer iv;
+
+  if (gcry_md_open(&md_ctx, md_algo, 0) != GPG_ERR_NO_ERROR)
+    return NULL;
+
+  gcry_md_write(md_ctx, b1, b1_len);
+  gcry_md_write(md_ctx, b2, b2_len);
+
+  iv = wmem_alloc(wmem_file_scope(), iv_len);
+  memcpy(iv, gcry_md_read(md_ctx, md_algo), iv_len);
+  gcry_md_close(md_ctx);
+
+  return iv;
+}
+
+/* Get the IV previously stored for the current message ID,
+ * or create a new IV if the message ID was not seen before.
+ * The caller owns the result and does not need to copy it.
+ * This function may return NULL.
+ */
+static gpointer
+get_iv(guint32 message_id, decrypt_data_t *decr) {
+  gpointer iv, iv1;
+  gsize cipher_blklen;
+  gpointer msgid_key;
+  guint32 msgid_net;
+  gboolean found;
+
+  cipher_blklen = decr->cipher_blklen;
+
+  /* Get the current IV for the given message ID,
+   * and remove it from the hash table without destroying it. */
+  msgid_key = GINT_TO_POINTER(message_id);
+  found = g_hash_table_lookup_extended(decr->iv_hash, msgid_key, NULL, &iv);
+  if (found) {
+    g_hash_table_steal(decr->iv_hash, msgid_key);
+    return iv;
+  }
+
+  /* No IV for this message ID was found; a new phase has started.
+   * Generate the first IV for it from its message ID and the current
+   * phase 1 IV. The phase 1 IV always exists in the hash table
+   * and is not NULL.
+   */
+  iv1 = g_hash_table_lookup(decr->iv_hash, GINT_TO_POINTER(0));
+  msgid_net = g_htonl(message_id);
+  iv = generate_iv(iv1, cipher_blklen,
+                   &msgid_net, sizeof(msgid_net),
+                   decr->digest_algo, cipher_blklen);
+  return iv;
+}
+
+/* Fill in the next IV from the final ciphertext block. */
+static void
+set_next_iv(const guint8 *buf, guint buf_len, guint32 message_id, decrypt_data_t *decr) {
+  gpointer iv;
+  gsize cipher_blklen;
+  gpointer msgid_key;
+
+  cipher_blklen = decr->cipher_blklen;
+
+  if (buf_len < cipher_blklen) {
+    iv = NULL;
+  } else {
+    iv = wmem_alloc(wmem_file_scope(), cipher_blklen);
+    memcpy(iv, buf + buf_len - cipher_blklen, cipher_blklen);
+  }
+
+  msgid_key = GINT_TO_POINTER(message_id);
+  g_hash_table_insert(decr->iv_hash, msgid_key, iv);
+}
+
+static void
+update_ivs(packet_info *pinfo, const guint8 *buf, guint buf_len, guint32 message_id, decrypt_data_t *decr) {
+  gpointer iv;
+
+  /* Get the current IV and store it as per-packet data. */
+  iv = get_iv(message_id, decr);
+  p_add_proto_data(wmem_file_scope(), pinfo, proto_isakmp, PINFO_CBC_IV, iv);
+
+  set_next_iv(buf, buf_len, message_id, decr);
+}
+
+static gboolean
+prepare_decrypt_params(decrypt_data_t *decr) {
+  decr->cipher_algo = ikev1_find_gcry_cipher_algo(decr->ike_encr_alg,
+                                                  decr->ike_encr_keylen);
+  decr->digest_algo = ikev1_find_gcry_md_algo(decr->ike_hash_alg);
+
+  if (decr->cipher_algo == GCRY_CIPHER_NONE ||
+      decr->digest_algo == GCRY_MD_NONE)
+    return FALSE;
+
+  decr->cipher_keylen = gcry_cipher_get_algo_keylen(decr->cipher_algo);
+  decr->cipher_blklen = gcry_cipher_get_algo_blklen(decr->cipher_algo);
+  decr->digest_len = gcry_md_get_algo_dlen(decr->digest_algo);
+
+  if (decr->secret_len < decr->cipher_keylen ||
+      decr->digest_len < decr->cipher_blklen)
+    return FALSE;
+
+  if (decr->gi_len == 0 || decr->gr_len == 0)
+    return FALSE;
+
+  return TRUE;
+}
+
+/* Generate phase 1 IV from DH values
+ * and store it into the IV hash table. */
+static gboolean
+prepare_phase1_iv(decrypt_data_t *decr) {
+  gpointer iv;
+
+  iv = generate_iv(decr->gi, decr->gi_len,
+                   decr->gr, decr->gr_len,
+                   decr->digest_algo, decr->cipher_blklen);
+  if (!iv)
+    return FALSE;
+
+  g_hash_table_insert(decr->iv_hash, GINT_TO_POINTER(0), iv);
+  return TRUE;
+}
+
+static gboolean
+prepare_decrypt(decrypt_data_t *decr) {
+  gboolean result;
+
+  if (!decr)
+    return FALSE;
+
+  if (decr->state == DECR_PARAMS_INIT) {
+    /* Short-circuit evaluation is intended. */
+    result = prepare_decrypt_params(decr) &&
+             prepare_phase1_iv(decr);
+    decr->state = result ? DECR_PARAMS_READY : DECR_PARAMS_FAIL;
+  }
+
+  return (decr->state == DECR_PARAMS_READY);
+}
+
+static decrypt_data_t *
+create_decrypt_data(void) {
+  decrypt_data_t *decr;
+
+  decr = (decrypt_data_t *)g_slice_alloc(sizeof(decrypt_data_t));
+  memset(decr, 0, sizeof(decrypt_data_t));
+  decr->iv_hash = g_hash_table_new(NULL, NULL);
+  clear_address(&decr->initiator);
+
+  return decr;
+}
+
+static tvbuff_t *
+decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_len, decrypt_data_t *decr) {
+  guint8 *decrypted_data;
   gcry_cipher_hd_t decr_ctx;
   tvbuff_t *encr_tvb;
-  iv_data_t *ivd = NULL;
-  GList *ivl;
-  guchar iv[MAX_DIGEST_SIZE];
-  guint iv_len = 0;
-  guint32 message_id, cbc_block_size, digest_size;
+  gpointer iv;
+  gboolean error;
 
-  if (!decr ||
-      decr->gi_len == 0 ||
-      decr->gr_len == 0)
+  if (buf_len < decr->cipher_blklen)
     return NULL;
 
-  switch(decr->encr_alg) {
-    case ENC_3DES_CBC:
-      gcry_cipher_algo = GCRY_CIPHER_3DES;
-      break;
-    case ENC_DES_CBC:
-      gcry_cipher_algo = GCRY_CIPHER_DES;
-      break;
-    case ENC_AES_CBC:
-      switch (decr->secret_len) {
-      case 16:
-        gcry_cipher_algo = GCRY_CIPHER_AES128;
-        break;
-      case 24:
-        gcry_cipher_algo = GCRY_CIPHER_AES192;
-        break;
-      case 32:
-        gcry_cipher_algo = GCRY_CIPHER_AES256;
-        break;
-      default:
-        return NULL;
-      }
-      break;
-    default:
-      return NULL;
-  }
-  if (decr->secret_len < gcry_cipher_get_algo_keylen(gcry_cipher_algo))
+  iv = p_get_proto_data(wmem_file_scope(), pinfo, proto_isakmp, PINFO_CBC_IV);
+  if (!iv)
     return NULL;
-  cbc_block_size = (guint32) gcry_cipher_get_algo_blklen(gcry_cipher_algo);
-  if (cbc_block_size > MAX_DIGEST_SIZE) {
-    /* This shouldn't happen but we pass cbc_block_size to memcpy size below. */
-    return NULL;
-  }
 
-  switch(decr->hash_alg) {
-    case HMAC_MD5:
-      gcry_md_algo = GCRY_MD_MD5;
-      break;
-    case HMAC_SHA:
-      gcry_md_algo = GCRY_MD_SHA1;
-      break;
-    case HMAC_SHA2_256:
-      gcry_md_algo = GCRY_MD_SHA256;
-      break;
-    case HMAC_SHA2_384:
-      gcry_md_algo = GCRY_MD_SHA384;
-      break;
-    case HMAC_SHA2_512:
-      gcry_md_algo = GCRY_MD_SHA512;
-      break;
-    default:
-      return NULL;
-  }
-  digest_size = gcry_md_get_algo_dlen(gcry_md_algo);
-
-  for (ivl = g_list_first(decr->iv_list); ivl != NULL; ivl = g_list_next(ivl)) {
-    ivd = (iv_data_t *) ivl->data;
-    if (ivd->frame_num == pinfo->num) {
-      iv_len = ivd->iv_len;
-      memcpy(iv, ivd->iv, iv_len);
-    }
-  }
-
-  /*
-   * Set our initialization vector as follows:
-   * - If the IV list is empty, assume we have the first packet in a phase 1
-   *   exchange.  The IV is built from DH values.
-   * - If our message ID changes, assume we're entering a new mode.  The IV
-   *   is built from the message ID and the last phase 1 CBC.
-   * - Otherwise, use the last CBC.
-   */
-  if (iv_len == 0) {
-    if (gcry_md_open(&md_ctx, gcry_md_algo, 0) != GPG_ERR_NO_ERROR)
-      return NULL;
-    if (decr->iv_list == NULL) {
-      /* First packet */
-      ivd = (iv_data_t *)g_malloc(sizeof(iv_data_t));
-      ivd->frame_num = pinfo->num;
-      ivd->iv_len = digest_size;
-      decr->last_message_id = hdr->message_id;
-      gcry_md_reset(md_ctx);
-      gcry_md_write(md_ctx, decr->gi, decr->gi_len);
-      gcry_md_write(md_ctx, decr->gr, decr->gr_len);
-      gcry_md_final(md_ctx);
-      memcpy(ivd->iv, gcry_md_read(md_ctx, gcry_md_algo), digest_size);
-      decr->iv_list = g_list_append(decr->iv_list, ivd);
-      iv_len = ivd->iv_len;
-      memcpy(iv, ivd->iv, iv_len);
-    } else if (decr->last_cbc_len >= cbc_block_size) {
-      ivd = (iv_data_t *)g_malloc(sizeof(iv_data_t));
-      ivd->frame_num = pinfo->num;
-      if (hdr->message_id != decr->last_message_id) {
-        if (decr->last_p1_cbc_len == 0) {
-          memcpy(decr->last_p1_cbc, decr->last_cbc, cbc_block_size);
-          decr->last_p1_cbc_len = cbc_block_size;
-        }
-        ivd->iv_len = digest_size;
-        decr->last_message_id = hdr->message_id;
-        message_id = g_htonl(decr->last_message_id);
-        gcry_md_reset(md_ctx);
-        gcry_md_write(md_ctx, decr->last_p1_cbc, cbc_block_size);
-        gcry_md_write(md_ctx, &message_id, sizeof(message_id));
-        memcpy(ivd->iv, gcry_md_read(md_ctx, gcry_md_algo), digest_size);
-      } else {
-        ivd->iv_len = cbc_block_size;
-        memcpy(ivd->iv, decr->last_cbc, ivd->iv_len);
-      }
-      decr->iv_list = g_list_append(decr->iv_list, ivd);
-      iv_len = ivd->iv_len;
-      memcpy(iv, ivd->iv, iv_len);
-    }
-    gcry_md_close(md_ctx);
-  }
-
-  if (ivd == NULL) return NULL;
-
-  if (gcry_cipher_open(&decr_ctx, gcry_cipher_algo, GCRY_CIPHER_MODE_CBC, 0) != GPG_ERR_NO_ERROR)
-    return NULL;
-  if (iv_len > cbc_block_size)
-      iv_len = cbc_block_size; /* gcry warns otherwise */
-  if (gcry_cipher_setiv(decr_ctx, iv, iv_len))
-    return NULL;
-  if (gcry_cipher_setkey(decr_ctx, decr->secret, decr->secret_len))
+  if (gcry_cipher_open(&decr_ctx, decr->cipher_algo, GCRY_CIPHER_MODE_CBC, 0) != GPG_ERR_NO_ERROR)
     return NULL;
 
   decrypted_data = (guint8 *)wmem_alloc(pinfo->pool, buf_len);
 
-  if (gcry_cipher_decrypt(decr_ctx, decrypted_data, buf_len, buf, buf_len) != GPG_ERR_NO_ERROR) {
-    return NULL;
-  }
+  /* Short-circuit evaluation is intended. */
+  error = gcry_cipher_setiv(decr_ctx, iv, decr->cipher_blklen) ||
+          gcry_cipher_setkey(decr_ctx, decr->secret, decr->secret_len) ||
+          gcry_cipher_decrypt(decr_ctx, decrypted_data, buf_len, buf, buf_len);
+
   gcry_cipher_close(decr_ctx);
+  if (error)
+    return NULL;
 
   encr_tvb = tvb_new_child_real_data(tvb, decrypted_data, buf_len, buf_len);
 
   /* Add the decrypted data to the data source list. */
   add_new_data_source(pinfo, encr_tvb, "Decrypted IKE");
-
-  /* Fill in the next IV */
-  if (tvb_reported_length(tvb) > cbc_block_size) {
-    decr->last_cbc_len = cbc_block_size;
-    memcpy(decr->last_cbc, buf + buf_len - cbc_block_size, cbc_block_size);
-  } else {
-    decr->last_cbc_len = 0;
-  }
 
   return encr_tvb;
 }
@@ -2883,11 +2954,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     if (! decr) {
       ic_key = (guint8 *)g_slice_alloc(COOKIE_SIZE);
-      decr   = (decrypt_data_t *)g_slice_alloc(sizeof(decrypt_data_t));
       memcpy(ic_key, i_cookie, COOKIE_SIZE);
-      memset(decr, 0, sizeof(decrypt_data_t));
-      clear_address(&decr->initiator);
-
+      decr = create_decrypt_data();
       g_hash_table_insert(isakmp_hash, ic_key, decr);
     }
 
@@ -3014,21 +3082,22 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_tree_add_item(isakmp_tree, hf_isakmp_length, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    if (hdr.flags & E_FLAG) {
+    if (isakmp_version == 1 && (hdr.flags & E_FLAG)) {
       /* Encrypted flag set (v1 only), so decrypt before dissecting payloads */
       if (len) {
         ti = proto_tree_add_item(isakmp_tree, hf_isakmp_enc_data, tvb, offset, len, ENC_NA);
         proto_item_append_text(ti, " (%d byte%s)", len, plurality(len, "", "s"));
 
 #ifdef HAVE_LIBGCRYPT
-
-        if (decr) {
-          decr_tvb = decrypt_payload(tvb, pinfo, tvb_get_ptr(tvb, offset, len), len, &hdr, decr);
-          if (decr_tvb) {
-            decr_tree = proto_item_add_subtree(ti, ett_isakmp);
-            dissect_payloads(decr_tvb, decr_tree, isakmp_version,
-                             hdr.next_payload, 0, tvb_reported_length(decr_tvb), pinfo, hdr.message_id, !(flags & R_FLAG), decr_data);
-          }
+        /* Collect initialization vectors during first pass. */
+        if (!PINFO_FD_VISITED(pinfo))
+          if (prepare_decrypt(decr))
+            update_ivs(pinfo, tvb_get_ptr(tvb, offset, len), len, hdr.message_id, decr);
+        decr_tvb = decrypt_payload(tvb, pinfo, tvb_get_ptr(tvb, offset, len), len, decr);
+        if (decr_tvb) {
+          decr_tree = proto_item_add_subtree(ti, ett_isakmp);
+          dissect_payloads(decr_tvb, decr_tree, isakmp_version,
+                           hdr.next_payload, 0, tvb_reported_length(decr_tvb), pinfo, hdr.message_id, !(flags & R_FLAG), decr_data);
         }
 #endif /* HAVE_LIBGCRYPT */
       }
@@ -3173,8 +3242,6 @@ dissect_proposal(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
   while (num_transforms > 0) {
     ntree = dissect_payload_header(tvb, pinfo, offset, length, isakmp_version,
                                    PLOAD_IKE_T, &next_payload, &payload_length, tree);
-    if (ntree == NULL)
-      break;
     if (length < payload_length) {
       proto_tree_add_expert_format(tree, pinfo, &ei_isakmp_payload_bad_length, tvb, offset + 4, length,
                           "Not enough room in payload for all transforms");
@@ -3488,14 +3555,14 @@ dissect_transform_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_encryption_algorithm, tvb, offset, optlen, ENC_BIG_ENDIAN);
       proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_enc_type, "Unknown %d"));
 #ifdef HAVE_LIBGCRYPT
-      decr->encr_alg = tvb_get_ntohs(tvb, offset);
+      decr->ike_encr_alg = tvb_get_ntohs(tvb, offset);
 #endif
       break;
     case IKE_ATTR_HASH_ALGORITHM:
       proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_hash_algorithm, tvb, offset, optlen, ENC_BIG_ENDIAN);
       proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_hash_type, "Unknown %d"));
 #ifdef HAVE_LIBGCRYPT
-      decr->hash_alg = tvb_get_ntohs(tvb, offset);
+      decr->ike_hash_alg = tvb_get_ntohs(tvb, offset);
 #endif
       break;
     case IKE_ATTR_AUTHENTICATION_METHOD:
@@ -3544,6 +3611,9 @@ dissect_transform_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     case IKE_ATTR_KEY_LENGTH:
       proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_key_length, tvb, offset, optlen, ENC_BIG_ENDIAN);
       proto_item_append_text(transform_attr_type_item," : %d", tvb_get_ntohs(tvb, offset));
+#ifdef HAVE_LIBGCRYPT
+      decr->ike_encr_keylen = tvb_get_ntohs(tvb, offset);
+#endif
       break;
     case IKE_ATTR_FIELD_SIZE:
       proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_field_size, tvb, offset, optlen, ENC_NA);
@@ -3659,6 +3729,14 @@ dissect_transform(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, pro
     offset += 3;
 
     if (protocol_id == 1 && transform_id == 1) {
+#ifdef HAVE_LIBGCRYPT
+      /* Allow detection of missing IKE transform attributes:
+       * Make sure their values are not carried over from another transform
+       * dissected previously. */
+      decr->ike_encr_alg = 0;
+      decr->ike_encr_keylen = 0;
+      decr->ike_hash_alg = 0;
+#endif
        while (offset < offset_end) {
          offset += dissect_transform_ike_attribute(tvb, pinfo, tree, offset
 #ifdef HAVE_LIBGCRYPT
@@ -5233,6 +5311,7 @@ free_cookie_value(gpointer value)
 {
   decrypt_data_t *decr = (decrypt_data_t *)value;
 
+  g_hash_table_destroy(decr->iv_hash);
   g_slice_free1(sizeof(decrypt_data_t), decr);
 }
 #endif
@@ -5255,10 +5334,9 @@ isakmp_init_protocol(void) {
 
   for (i = 0; i < num_ikev1_uat_data; i++) {
     ic_key = (guint8 *)g_slice_alloc(COOKIE_SIZE);
-    decr   = (decrypt_data_t *)g_slice_alloc(sizeof(decrypt_data_t));
     memcpy(ic_key, ikev1_uat_data[i].icookie, COOKIE_SIZE);
-    memset(decr, 0, sizeof(decrypt_data_t));
 
+    decr = create_decrypt_data();
     memcpy(decr->secret, ikev1_uat_data[i].key, ikev1_uat_data[i].key_len);
     decr->secret_len = ikev1_uat_data[i].key_len;
 
