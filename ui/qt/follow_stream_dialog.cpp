@@ -410,7 +410,11 @@ void FollowStreamDialog::resetStream()
 frs_return_t
 FollowStreamDialog::readStream()
 {
-    ui->teStreamContent->clear();
+
+    // Only clear the display if we're going to refill it
+    if (save_as_ == false)
+        ui->teStreamContent->clear();
+
     truncated_ = false;
     frs_return_t ret;
 
@@ -435,7 +439,10 @@ FollowStreamDialog::readStream()
         ret = (frs_return_t)0;
         break;
     }
-    ui->teStreamContent->moveCursor(QTextCursor::Start);
+
+    if (save_as_ == false)
+        ui->teStreamContent->moveCursor(QTextCursor::Start);
+
     return ret;
 }
 
