@@ -6275,6 +6275,71 @@
 		<avp name="Monitoring-Flags" code="2828" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
 		</avp>
+		<avp name="Default-Access" code="2829" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="3GPP-GPRS" 		code="0"/>
+			<enum name="DOCSIS" 		code="1"/>
+			<enum name="xDSL" 		code="2"/>
+			<enum name="WiMAX" 		code="3"/>
+			<enum name="3GPP2" 		code="4"/>
+			<enum name="3GPP-EPS" 		code="5"/>
+			<enum name="Non-3GPP-EPS" 	code="6"/>
+		</avp>
+		<avp name="NBIFOM-Mode" code="2830" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="UE_INITIATED" 		code="0"/>
+			<enum name="NETWORK_INITIATED" 		code="1"/>
+		</avp>
+		<avp name="NBIFOM-Support" code="2831" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="NBIFOM_NOT_SUPPORTED" 		code="0"/>
+			<enum name="NBIFOM_SUPPORTED" 		code="1"/>
+		</avp>
+		<avp name="RAN-Rule-Support" code="2832" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Access-Availability-Change-Reason" code="2833" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Routing-Rule-Failure-Code" code="2834" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Routing-Rule-Report" code="2835" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<grouped>
+				<gavp name="Routing-Rule-Identifier"/>
+				<gavp name="PCC-Rule-Status"/>
+				<gavp name="Routing-Rule-Failure-Code"/>
+			</grouped>
+		</avp>
+		<avp name="Traffic-Steering-Policy-Identifier-DL" code="2836" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Traffic-Steering-Policy-Identifier-UL" code="2837" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Request-Type" code="2838" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Execution-Time" code="2839" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="Conditional-Policy-Information" code="2840" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<grouped>
+				<gavp name="Execution-Time"/>
+				<gavp name="APN-Aggregate-Max-Bitrate-UL"/>
+				<gavp name="APN-Aggregate-Max-Bitrate-DL"/>
+				<gavp name="Conditional-APN-Aggregate-Max-Bitrate"/>
+			</grouped>
+		</avp>
+		<avp name="Resource-Release-Notification" code="2841" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="ENABLE_NOTIFICATION" 		code="0"/>
+		</avp>
+		<avp name="Removal-Of-Access" code="2842" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="REMOVAL_OF_ACCESS" 		code="0"/>
+		</avp>
+
 		<!--
 		Note: The AVP codes from 2829 to 2899 are reserved for TS 29.212
 		-->
