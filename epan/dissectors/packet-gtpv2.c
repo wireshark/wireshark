@@ -341,9 +341,15 @@ static int hf_gtpv2_mm_context_ue_net_cap_len = -1;
 static int hf_gtpv2_mm_context_ms_net_cap_len = -1;
 static int hf_gtpv2_mm_context_mei_len = -1;
 static int hf_gtpv2_mm_context_vdp_len = -1;
+static int hf_gtpv2_mm_contex_nhi_old = -1;
+static int hf_gtpv2_mm_context_old_ksiasme = -1;
+static int hf_gtpv2_mm_context_old_ncc = -1;
+static int hf_gtpv2_mm_context_old_kasme = -1;
+static int hf_gtpv2_mm_context_old_nh = -1;
 static int hf_gtpv2_mm_context_higher_br_16mb_flg_len = -1;
 static int hf_gtpv2_mm_context_higher_br_16mb_flg = -1;
 static int hf_gtpv2_vdp_length = -1;
+static int hf_gtpv2_mm_context_paging_len = -1;
 static int hf_gtpv2_uci_csg_id = -1;
 static int hf_gtpv2_uci_csg_id_spare = -1;
 static int hf_gtpv2_uci_access_mode = -1;
@@ -356,6 +362,7 @@ static int hf_gtpv2_gana = -1;
 static int hf_gtpv2_ina = -1;
 static int hf_gtpv2_ena = -1;
 static int hf_gtpv2_hnna = -1;
+static int hf_gtpv2_hbna = -1;
 static int hf_gtpv2_mm_context_ksi_a= -1;
 static int hf_gtpv2_mm_context_ksi = -1;
 static int hf_gtpv2_mm_context_nr_tri = -1;
@@ -462,6 +469,7 @@ static int hf_gtpv2_mm_context_sres = -1;
 static int hf_gtpv2_iksrvcc = -1;
 static int hf_gtpv2_nsapi08 = -1;
 static int hf_gtpv2_voice_domain_and_ue_usage_setting = -1;
+static int hf_gtpv2_ue_radio_capability_for_paging_information = -1;
 static int hf_gtpv2_upd_source_port_number = -1;
 static int hf_gtpv2_uplink_used_ue_ambr = -1;
 static int hf_gtpv2_tmsi_bytes = -1;
@@ -3393,7 +3401,8 @@ dissect_gtpv2_access_restriction_data(tvbuff_t *tvb, proto_tree *tree, int offse
 
     accrstdata_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_gtpv2_access_rest_data, NULL, "Access restriction data");
     /* Spare HNNA ENA INA GANA GENA UNA */
-    proto_tree_add_bits_item(accrstdata_tree, hf_gtpv2_spare_bits, tvb, (offset << 3), 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(accrstdata_tree, hf_gtpv2_spare_bits, tvb, (offset << 3), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(accrstdata_tree, hf_gtpv2_hbna, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(accrstdata_tree, hf_gtpv2_hnna, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(accrstdata_tree, hf_gtpv2_ena,  tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(accrstdata_tree, hf_gtpv2_ina,  tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3784,7 +3793,8 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_item *qua_item, *qui_item;
     proto_tree *flag_tree, *qua_tree, *qui_tree;
     gint        offset;
-    guint8      tmp, nhi, drxi, nr_qua, nr_qui, uamb_ri, samb_ri, vdp_len;
+    guint8      tmp, nhi, drxi, nr_qua, nr_qui, uamb_ri, osci, samb_ri, vdp_len;
+    guint32     dword, paging_len;
 
     offset = 0;
 
@@ -3802,6 +3812,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
      * Hop Chaining Count) are both present, otherwise their octets are not present.
      */
     tmp = tvb_get_guint8(tvb, offset);
+    osci = tmp & 1;
     nhi = (tmp & 0x10) >> 4;
     drxi = (tmp & 0x08) >> 3;
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_drxi, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3886,7 +3897,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Dissect octet j to r */
     offset = dissect_gtpv2_mm_context_common_data(tvb, pinfo, tree, offset, samb_ri, uamb_ri);
 
-    /* r+1 Spare HNNA ENA INA GANA GENA UNA */
+    /* r+1 Spare HBNA HNNA ENA INA GANA GENA UNA */
     if (offset < (gint)length) {
         offset = dissect_gtpv2_access_restriction_data(tvb, tree, offset);
     } else {
@@ -3897,16 +3908,64 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         return;
     }
 
-    /* r+2 Length of Voice Domain Preference and UE's Usage Setting */
+    /* the fields for the Old EPS Security Context (i.e. octets from s to s+64)
+     * may be present only in S10 Forward Relocation Request message according to
+     * the Rules on Concurrent Running of Security Procedures, which are specified in 3GPP TS 33.401 [12].
+     * The octets for Old EPS Security Context shall be present if the OSCI (Old Security Context Indicator),
+     * bit 1 of octet 6) is set to "1"; otherwise they shall not be present.
+     */
+    if (osci == 1) {
+        /* s */
+        /* If NHI_old (Next Hop Indicator for old EPS Security Context), bit 1 of octet s, is set to "1",
+         * then the parameters old NH (Next Hop) and old NCC (Next Hop Chaining Count) shall be present;
+         * otherwise the octets for old NH parameter shall not be present and the value of old NCC parameter
+         * shall be ignored by the receiver
+         */
+        /* NHI_old Spare old KSIASME old NCC*/
+        proto_tree_add_item_ret_uint(tree, hf_gtpv2_mm_contex_nhi_old, tvb, offset, 1, ENC_BIG_ENDIAN, &dword);
+        proto_tree_add_item(tree, hf_gtpv2_mm_context_old_ksiasme, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gtpv2_mm_context_old_ncc, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        /* (s+1) to (s+32) old KASME */
+        proto_tree_add_item(tree, hf_gtpv2_mm_context_old_kasme, tvb, offset, 32, ENC_NA);
+        offset += 32;
+        /* (s+33) to (s+64) old NH */
+        if ((dword & 1) == 1) {
+            proto_tree_add_item(tree, hf_gtpv2_mm_context_old_nh, tvb, offset, 32, ENC_NA);
+            offset += 32;
+        }
+    }
+
+    if (offset == (gint)length) {
+        return;
+    }
+
+    /* w Length of Voice Domain Preference and UE's Usage Setting */
     vdp_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_mm_context_vdp_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* (r+3) to s Voice Domain Preference and UE's Usage Setting */
     if (vdp_len) {
         proto_tree_add_item(tree, hf_gtpv2_voice_domain_and_ue_usage_setting, tvb, offset, vdp_len, ENC_NA);
-        /*offset += vdp_len;*/
+        offset += vdp_len;
     }
 
+    if (offset == (gint)length) {
+        return;
+    }
+
+    /* (t+1) to (t+2) Length of UE Radio Capability for Paging information*/
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_mm_context_paging_len, tvb, offset, 2, ENC_BIG_ENDIAN, &paging_len);
+    offset += 2;
+
+    if (paging_len) {
+        proto_tree_add_item(tree, hf_gtpv2_ue_radio_capability_for_paging_information, tvb, offset, paging_len, ENC_NA);
+        offset = +paging_len;
+    }
+
+    if (offset < (gint)length){
+        proto_tree_add_expert_format(flag_tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, -1, "The rest of the IE not dissected yet");
+    }
 }
 
 /*
@@ -3981,7 +4040,7 @@ dissect_gtpv2_mm_context_utms_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     if (offset >= (guint32)length) {
         return;
     }
-    /* r+1 Spare HNNA ENA INA GANA GENA UNA */
+    /* r+1 Spare HBNA HNNA ENA INA GANA GENA UNA */
     offset = dissect_gtpv2_access_restriction_data(tvb, tree, offset);
 
     if (offset >= (guint32)length) {
@@ -3992,6 +4051,7 @@ dissect_gtpv2_mm_context_utms_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
      * Length of Voice Domain Preference and UE's Usage Setting is zero, then the Voice Domain Preference and UE's Usage
      * Setting parameter shall not be present.
      */
+    /* r+2 */
     vdp_length = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_vdp_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -7878,10 +7938,36 @@ void proto_register_gtpv2(void)
            FT_UINT8, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
         },
+        { &hf_gtpv2_mm_contex_nhi_old,
+        { "Next Hop Indicator for old EPS Security Context", "gtpv2.mm_context_nhi_old",
+            FT_UINT8, BASE_DEC, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_mm_context_old_ksiasme,
+        { "old KSIASME", "gtpv2.old_ksiasme",
+            FT_UINT8, BASE_DEC, NULL, 0x38,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_mm_context_old_ncc,
+        { "old NCC", "gtpv2.old_ncc",
+            FT_UINT8, BASE_DEC, NULL, 0x07,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_mm_context_old_kasme,
+        { "Old Kasme", "gtpv2.mm_context_old_kasme",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_mm_context_old_nh,{ "Old NH (Old Next Hop)", "gtpv2.mm_context_old_nh", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_gtpv2_mm_context_vdp_len,
-          {"Length of Voice Domain Preference and UE's Usage Setting", "gtpv2.mm_context_vdp_len",
-           FT_UINT8, BASE_DEC, NULL, 0x0,
-           NULL, HFILL}
+        { "Length of Voice Domain Preference and UE's Usage Setting", "gtpv2.mm_context_vdp_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_mm_context_paging_len,
+        { "Length of UE Radio Capability for Paging information", "gtpv2.mm_context_paging_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
         },
         { &hf_gtpv2_una,
           { "UTRAN", "gtpv2.mm_context.una",
@@ -7911,6 +7997,11 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_hnna,
           { "HO-toNone3GPP-Access", "gtpv2.mm_context.hnna",
             FT_BOOLEAN, 8, TFS(&tfs_not_allowed_allowed), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_hbna,
+        { "NB-IoT Not Allowed", "gtpv2.mm_context.hbna",
+            FT_BOOLEAN, 8, TFS(&tfs_not_allowed_allowed), 0x40,
             NULL, HFILL }
         },
         { &hf_gtpv2_mm_context_ksi,
@@ -8496,6 +8587,7 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_uplink_used_ue_ambr, { "Uplink Used UE AMBR", "gtpv2.uplink_used_ue_ambr", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtpv2_downlink_used_ue_ambr, { "Downlink Used UE AMBR", "gtpv2.downlink_used_ue_ambr", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtpv2_voice_domain_and_ue_usage_setting, { "Voice Domain Preference and UE's Usage Setting", "gtpv2.voice_domain_and_ue_usage_setting", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtpv2_ue_radio_capability_for_paging_information,{ "UE Radio Capability for Paging information", "gtpv2.UE_Radio_Capability_for_Paging_information", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
       { &hf_gtpv2_authentication_quadruplets, { "Authentication Quadruplets", "gtpv2.authentication_quadruplets", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtpv2_authentication_quintuplets, { "Authentication Quintuplets", "gtpv2.authentication_quintuplets", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtpv2_mm_context_nh, { "NH (Next Hop)", "gtpv2.mm_context_nh", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
