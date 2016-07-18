@@ -331,42 +331,6 @@ void wtap_block_foreach_option(wtap_block_t block, wtap_block_foreach_func func,
     }
 }
 
-wtap_opttype_return_val
-wtap_block_num_options_of_type(wtap_block_t block, guint option_id, guint *countp)
-{
-    guint n_options;
-    guint i;
-    wtap_option_t *opt;
-    wtap_opttype_t *opttype;
-
-    if (option_id >= block->info->options->len) {
-        /* There's no option for this block with that option ID */
-        return WTAP_OPTTYPE_NO_SUCH_OPTION;
-    }
-
-    opttype = &g_array_index(block->info->options, wtap_opttype_t, option_id);
-
-    /*
-     * Can there be more than one instance of this option?
-     */
-    if (!(opttype->flags & WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED)) {
-        /*
-         * No; this is only for use with options with multiple
-         * instances.
-         */
-        return WTAP_OPTTYPE_NUMBER_MISMATCH;
-    }
-
-    n_options = 0;
-    for (i = 0; i < block->options->len; i++) {
-        opt = g_array_index(block->options, wtap_option_t*, i);
-        if (opt->option_id == option_id)
-            n_options++;
-    }
-    *countp = n_options;
-    return WTAP_OPTTYPE_SUCCESS;
-}
-
 static wtap_opttype_return_val
 wtap_block_add_option_common(wtap_block_t block, guint option_id, wtap_opttype_e type, wtap_option_t **optp)
 {
