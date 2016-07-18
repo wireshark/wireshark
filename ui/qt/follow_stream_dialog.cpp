@@ -332,7 +332,7 @@ void FollowStreamDialog::resetStream()
     }
     for (cur = follow_info_.payload; cur; cur = g_list_next(cur)) {
         follow_record_t *follow_record = (follow_record_t *)cur->data;
-        if(follow_record->data) {
+        if(follow_record->data && follow_type_ != FOLLOW_SSL) {
             g_byte_array_free(follow_record->data, TRUE);
         }
         g_free(follow_record);
