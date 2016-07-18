@@ -753,22 +753,30 @@ static const value_string cisco_avp_type_vals[] = {
 
 #define ERICSSON_MSG_TYPE               0
 #define ERICSSON_TRANSPORT_CONFIG       1
+#define ERICSSON_PACKET_LOSS            2
 #define ERICSSON_PROTO_VERSION          3
 #define ERICSSON_CONN_TYPE              4
 #define ERICSSON_CRC_ENABLED            5
 #define ERICSSON_STN_NAME               6
 #define ERICSSON_ABIS_LOWER_MODE        7
 #define ERICSSNN_TEI_TO_SC_MAP          8
+#define ERICSSON_CHAN_STATUS_LIST       9
+#define ERICSSON_EXT_PROTO_VERSION      10
+#define ERICSSON_CHAN_STATUS_LIST2      11
 
 static const value_string ericsson_avp_type_vals[] = {
     { ERICSSON_MSG_TYPE,              "Message Type" },
     { ERICSSON_TRANSPORT_CONFIG,      "Transport Configuration" },
+    { ERICSSON_PACKET_LOSS,           "Packet Loss" },
     { ERICSSON_PROTO_VERSION,         "Protocol Version" },
     { ERICSSON_CONN_TYPE,             "Connection Type" },
     { ERICSSON_STN_NAME,              "STN Name" },
     { ERICSSON_CRC_ENABLED,           "CRC32 Enabled" },
     { ERICSSON_ABIS_LOWER_MODE,       "Abis Lower Mode" },
     { ERICSSNN_TEI_TO_SC_MAP,         "TEI to SC Map" },
+    { ERICSSON_CHAN_STATUS_LIST,      "Channel Status List" },
+    { ERICSSON_EXT_PROTO_VERSION,     "Extended Protoocl Version" },
+    { ERICSSON_CHAN_STATUS_LIST2,     "Channel Status List 2" },
     { 0,                              NULL }
 };
 
