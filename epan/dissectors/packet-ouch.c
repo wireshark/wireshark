@@ -352,13 +352,13 @@ ouch_tree_add_timestamp(
 
 static void
 packet_type_format(
-	gchar *buf,
-	guint32 value)
+    gchar *buf,
+    guint32 value)
 {
     g_snprintf(buf, ITEM_LABEL_LENGTH,
                "%s (%c)",
-			   val_to_str_const(value, pkt_type_val, "Unknown"),
-			   value);
+               val_to_str_const(value, pkt_type_val, "Unknown"),
+               value);
 }
 
 /** BASE_CUSTOM formatter for BBO weight indicator code
@@ -728,7 +728,7 @@ dissect_ouch(
         proto_item_append_text(ti, ", %s", pkt_name);
 
         /* Packet type (using the cooked value). */
-		proto_tree_add_item(ouch_tree, hf_ouch_packet_type,
+        proto_tree_add_item(ouch_tree, hf_ouch_packet_type,
                                   tvb, offset, 1, ENC_NA);
         offset += 1;
 
