@@ -191,11 +191,6 @@ static const value_string cpi2val[] = {
 
 #define NEW_ESP_DATA_SIZE       8
 
-struct ah_header_data {
-  proto_tree *next_tree;
-  guint8 nxt;               /* Next Header */
-};
-
 #ifdef HAVE_LIBGCRYPT
 /*-------------------------------------
  * UAT for ESP
@@ -568,9 +563,6 @@ static gboolean g_esp_enable_null_encryption_decode_heuristic = FALSE;
 
 /* Default to doing ESP sequence analysis */
 static gboolean g_esp_do_sequence_analysis = TRUE;
-
-/* Place AH payload in sub tree */
-static gboolean g_ah_payload_in_subtree = FALSE;
 
 
 
@@ -1101,7 +1093,6 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   guint8      ah_nxt;         /* Next Header */
   guint8      ah_len;         /* Length of data + 1, in 32bit */
   guint32     ah_spi;         /* Security parameter index */
-  struct ah_header_data* header_data;
   int advance;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AH");
@@ -1123,19 +1114,6 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   proto_tree_add_item(ah_tree, hf_ah_sequence, tvb, 8, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(ah_tree, hf_ah_iv, tvb, 12, (ah_len) ? (ah_len - 1) << 2 : 0, ENC_NA);
 
-  header_data = (struct ah_header_data*)p_get_proto_data(pinfo->pool, pinfo, proto_ah, 0 );
-  if (header_data != NULL) {
-    /* Decide where to place next protocol decode */
-    if (g_ah_payload_in_subtree) {
-      header_data->next_tree = ah_tree;
-    }
-    else {
-      header_data->next_tree = tree;
-    }
-
-    header_data->nxt = ah_nxt;
-  }
-
   advance = 12 + ((ah_len - 1) << 2);
   proto_item_set_len(ti, advance);
 
@@ -1146,36 +1124,27 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 static int
 dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  struct ah_header_data header_data = {NULL, 0};
+  guint8      ah_nxt;
   tvbuff_t *next_tvb;
   int advance;
   dissector_handle_t dissector_handle;
   guint32 saved_match_uint;
 
-  /* "pass" ah_header_data to header dissector.  This is done
-     indirectly to prevent conflicts with IPv6 dissector */
-  p_add_proto_data(pinfo->pool, pinfo, proto_ah, 0, &header_data);
-
   advance = dissect_ah_header(tvb, pinfo, tree, NULL);
 
-  p_remove_proto_data(pinfo->pool, pinfo, proto_ah, 0);
-
+  ah_nxt = tvb_get_guint8(tvb, 0);
   next_tvb = tvb_new_subset_remaining(tvb, advance);
-
-  if (g_ah_payload_in_subtree) {
-    col_set_writable(pinfo->cinfo, -1, FALSE);
-  }
 
   /* do lookup with the subdissector table */
   saved_match_uint  = pinfo->match_uint;
-  dissector_handle = dissector_get_uint_handle(ip_dissector_table, header_data.nxt);
+  dissector_handle = dissector_get_uint_handle(ip_dissector_table, ah_nxt);
   if (dissector_handle) {
-    pinfo->match_uint = header_data.nxt;
+    pinfo->match_uint = ah_nxt;
   } else {
     dissector_handle = data_handle;
   }
   export_ipsec_pdu(dissector_handle, pinfo, next_tvb);
-  call_dissector(dissector_handle, next_tvb, pinfo, header_data.next_tree);
+  call_dissector(dissector_handle, next_tvb, pinfo, tree);
   pinfo->match_uint = saved_match_uint;
   return tvb_captured_length(tvb);
 }
@@ -2411,12 +2380,10 @@ proto_register_ipsec(void)
   expert_esp = expert_register_protocol(proto_esp);
   expert_register_field_array(expert_esp, ei, array_length(ei));
 
-  /* Register a configuration option for placement of AH payload dissection */
   ah_module = prefs_register_protocol(proto_ah, NULL);
-  prefs_register_bool_preference(ah_module, "place_ah_payload_in_subtree",
-                                 "Place AH payload in subtree",
-                                 "Whether the AH payload decode should be placed in a subtree",
-                                 &g_ah_payload_in_subtree);
+
+  prefs_register_obsolete_preference(ah_module, "place_ah_payload_in_subtree");
+
   esp_module = prefs_register_protocol(proto_esp, NULL);
 
   prefs_register_bool_preference(esp_module, "enable_null_encryption_decode_heuristic",
