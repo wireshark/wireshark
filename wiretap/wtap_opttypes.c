@@ -246,8 +246,7 @@ void wtap_block_free(wtap_block_t block)
 
         g_free(block->mandatory_data);
         wtap_block_free_options(block);
-        if (block->options != NULL)
-            g_array_free(block->options, TRUE);
+        g_array_free(block->options, TRUE);
         g_free(block);
     }
 }
