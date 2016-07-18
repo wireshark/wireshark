@@ -397,9 +397,10 @@ static int hf_smb2_aapl_server_query_volume_caps_case_sensitive = -1;
 static int hf_smb2_aapl_server_query_volume_caps_supports_full_sync = -1;
 static int hf_smb2_aapl_server_query_model_string = -1;
 static int hf_smb2_aapl_server_query_server_path = -1;
+static int hf_smb2_error_context_count = -1;
+static int hf_smb2_error_reserved = -1;
 static int hf_smb2_error_byte_count = -1;
 static int hf_smb2_error_data = -1;
-static int hf_smb2_error_reserved = -1;
 static int hf_smb2_reserved = -1;
 static int hf_smb2_reserved_random = -1;
 static int hf_smb2_transform_signature = -1;
@@ -431,9 +432,13 @@ static int hf_smb2_cchunk_xfer_len = -1;
 static int hf_smb2_cchunk_chunks_written = -1;
 static int hf_smb2_cchunk_bytes_written = -1;
 static int hf_smb2_cchunk_total_written = -1;
+static int hf_smb2_symlink_error_response = -1;
+static int hf_smb2_symlink_length = -1;
+static int hf_smb2_symlink_error_tag = -1;
 static int hf_smb2_SYMBOLIC_LINK_REPARSE_DATA_BUFFER = -1;
 static int hf_smb2_reparse_tag = -1;
 static int hf_smb2_reparse_data_length = -1;
+static int hf_smb2_unparsed_path_length = -1;
 static int hf_smb2_symlink_substitute_name = -1;
 static int hf_smb2_symlink_print_name = -1;
 static int hf_smb2_symlink_flags = -1;
@@ -531,7 +536,9 @@ static gint ett_smb2_pipe_fragment = -1;
 static gint ett_smb2_pipe_fragments = -1;
 static gint ett_smb2_cchunk_entry = -1;
 static gint ett_smb2_fsctl_odx_token = -1;
+static gint ett_smb2_symlink_error_response = -1;
 static gint ett_smb2_SYMBOLIC_LINK_REPARSE_DATA_BUFFER = -1;
+static gint ett_smb2_error_data = -1;
 
 static expert_field ei_smb2_invalid_length = EI_INIT;
 static expert_field ei_smb2_bad_response = EI_INIT;
@@ -2872,15 +2879,88 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	return offset;
 }
 
+static void
+dissect_smb2_STATUS_STOPPED_ON_SYMLINK(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+{
+	proto_tree *tree;
+	proto_item *item;
+
+	offset_length_buffer_t  s_olb, p_olb;
+
+	item = proto_tree_add_item(parent_tree, hf_smb2_symlink_error_response, tvb, offset, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_smb2_symlink_error_response);
+
+	/* symlink length */
+	proto_tree_add_item(tree, hf_smb2_symlink_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* symlink error tag */
+	proto_tree_add_item(tree, hf_smb2_symlink_error_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* reparse tag */
+	proto_tree_add_item(tree, hf_smb2_reparse_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_smb2_reparse_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_smb2_unparsed_path_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	/* substitute name  offset/length */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &s_olb, OLB_O_UINT16_S_UINT16, hf_smb2_symlink_substitute_name);
+
+	/* print name offset/length */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &p_olb, OLB_O_UINT16_S_UINT16, hf_smb2_symlink_print_name);
+
+	/* flags */
+	proto_tree_add_item(tree, hf_smb2_symlink_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* substitute name string */
+	dissect_smb2_olb_off_string(pinfo, tree, tvb, &s_olb, offset, OLB_TYPE_UNICODE_STRING);
+
+	/* print name string */
+	dissect_smb2_olb_off_string(pinfo, tree, tvb, &p_olb, offset, OLB_TYPE_UNICODE_STRING);
+}
+
+static void
+dissect_smb2_error_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int error_context_count, smb2_info_t *si _U_)
+{
+	proto_tree *tree;
+	proto_item *item;
+
+	int offset = 0;
+
+	item = proto_tree_add_item(parent_tree, hf_smb2_error_data, tvb, offset, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_smb2_error_data);
+
+	if (error_context_count == 0) {
+		switch (si->status) {
+		case 0x8000002D: /* STATUS_STOPPED_ON_SYMLINK */
+			dissect_smb2_STATUS_STOPPED_ON_SYMLINK(tvb, pinfo, tree, offset, si);
+
+			break;
+		default:
+			break;
+		}
+	} else {
+		/* TODO SMB311 supports multiple error contexts */
+	}
+}
+
 /* This needs more fixes for cases when the original header had also the constant value of 9.
    This should be fixed on caller side where it decides if it has to call this or not.
 */
 static int
-dissect_smb2_error_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_,
+dissect_smb2_error_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si,
 							gboolean* continue_dissection)
 {
 	gint byte_count;
+	guint8 error_context_count;
 	guint16 length;
+	tvbuff_t *sub_tvb;
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, &length);
@@ -2894,12 +2974,17 @@ dissect_smb2_error_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		if(continue_dissection)
 			*continue_dissection = FALSE;
 
-		/* Reserved (2 bytes) */
-		proto_tree_add_item(tree, hf_smb2_error_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += 2;
+		/* ErrorContextCount (1 bytes) */
+		error_context_count = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(tree, hf_smb2_error_context_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		offset += 1;
+
+		/* Reserved (1 bytes) */
+		proto_tree_add_item(tree, hf_smb2_error_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		offset += 1;
 
 		/* ByteCount (4 bytes): The number of bytes of data contained in ErrorData[]. */
-		byte_count = tvb_get_ntohl(tvb, offset);
+		byte_count = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(tree, hf_smb2_error_byte_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
@@ -2909,8 +2994,10 @@ dissect_smb2_error_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 		/* ErrorData (variable): A variable-length data field that contains extended
 		   error information.*/
-		proto_tree_add_item(tree, hf_smb2_error_data, tvb, offset, byte_count, ENC_NA);
+		sub_tvb = tvb_new_subset_length(tvb, offset, byte_count);
 		offset += byte_count;
+
+		dissect_smb2_error_data(sub_tvb, pinfo, tree, error_context_count, si);
 	}
 
 	return offset;
@@ -10213,8 +10300,13 @@ proto_register_smb2(void)
 			NULL, 0x00000010, NULL, HFILL }
 		},
 
+		{ &hf_smb2_error_context_count,
+			{ "Error Context Count", "smb2.error.context_count", FT_UINT8, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
 		{ &hf_smb2_error_reserved,
-			{ "Reserved", "smb2.error.reserved", FT_UINT16, BASE_HEX,
+			{ "Reserved", "smb2.error.reserved", FT_UINT8, BASE_HEX,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -10618,28 +10710,47 @@ proto_register_smb2(void)
 			NULL, 0x0, NULL, HFILL }
 		},
 
+		{ &hf_smb2_symlink_error_response,
+			{ "Symbolic Link Error Response", "smb2.symlink_error_response", FT_NONE, BASE_NONE,
+			NULL, 0, "A Symbolic Link Error Response structure", HFILL }
+		},
+
+		{ &hf_smb2_symlink_length,
+			{ "SymLink Length", "smb2.symlink.length", FT_UINT32,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_symlink_error_tag,
+			{ "SymLink Error Tag", "smb2.symlink.error_tag", FT_UINT32,
+			BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+
 		{ &hf_smb2_SYMBOLIC_LINK_REPARSE_DATA_BUFFER,
 			{ "SYMBOLIC_LINK_REPARSE_DATA_BUFFER", "smb2.SYMBOLIC_LINK_REPARSE_DATA_BUFFER", FT_NONE, BASE_NONE,
 			NULL, 0, "A SYMBOLIC_LINK_REPARSE_DATA_BUFFER structure", HFILL }
 		},
 		{ &hf_smb2_reparse_tag,
-			{ "Reparse Tag", "smb2.SYMBOLIC_LINK_REPARSE_DATA_BUFFER.reparse_tag", FT_UINT32, BASE_HEX,
+			{ "Reparse Tag", "smb2.symlink.reparse_tag", FT_UINT32, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_smb2_reparse_data_length,
-			{ "Reparse Data Length", "smb2.SYMBOLIC_LINK_REPARSE_DATA_BUFFER.reparse_data_length", FT_UINT16, BASE_DEC,
+			{ "Reparse Data Length", "smb2.symlink.reparse_data_length", FT_UINT16, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_smb2_unparsed_path_length,
+			{ "Unparsed Path Length", "smb2.symlink.unparsed_path_length", FT_UINT16, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_smb2_symlink_substitute_name,
-			{ "Substitute Name", "smb2.SYMBOLIC_LINK_REPARSE_DATA_BUFFER.substitute_name", FT_STRING, BASE_NONE,
+			{ "Substitute Name", "smb2.symlink.substitute_name", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_smb2_symlink_print_name,
-			{ "Print Name", "smb2.SYMBOLIC_LINK_REPARSE_DATA_BUFFER.print_name", FT_STRING, BASE_NONE,
+			{ "Print Name", "smb2.symlink.print_name", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_smb2_symlink_flags,
-			{ "Flags", "smb2.SYMBOLIC_LINK_REPARSE_DATA_BUFFER.flags", FT_UINT32, BASE_DEC,
+			{ "Flags", "smb2.symlink.flags", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
 		},
 	};
@@ -10738,7 +10849,9 @@ proto_register_smb2(void)
 		&ett_smb2_pipe_fragments,
 		&ett_smb2_cchunk_entry,
 		&ett_smb2_fsctl_odx_token,
+		&ett_smb2_symlink_error_response,
 		&ett_smb2_SYMBOLIC_LINK_REPARSE_DATA_BUFFER,
+		&ett_smb2_error_data,
 	};
 
 	static ei_register_info ei[] = {
