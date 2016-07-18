@@ -33,6 +33,9 @@
 
 #include "packet-ipv6.h"
 
+void proto_register_shim6(void);
+void proto_reg_handoff_shim6(void);
+
 /* SHIM6 header */
 struct ip6_shim {
     guint8  ip6s_nxt; /* next header */
