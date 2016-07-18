@@ -3977,6 +3977,24 @@ cf_comment_types(capture_file *cf)
   return comment_types;
 }
 
+/*
+ * Add a resolved address to this file's list of resolved addresses.
+ */
+gboolean
+cf_add_ip_name_from_string(capture_file *cf, const char *addr, const char *name)
+{
+  /*
+   * XXX - support multiple resolved address lists, and add to the one
+   * attached to this file?
+   */
+  if (!add_ip_name_from_string(addr, name))
+    return FALSE;
+
+  /* OK, we have unsaved changes. */
+  cf->unsaved_changes = TRUE;
+  return TRUE;
+}
+
 #ifdef WANT_PACKET_EDITOR
 static gint
 g_direct_compare_func(gconstpointer a, gconstpointer b, gpointer user_data _U_)
