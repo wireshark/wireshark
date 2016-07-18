@@ -224,7 +224,9 @@ static int hf_forward_tsn_chunk_ssn = -1;
 
 static int hf_i_forward_tsn_chunk_tsn = -1;
 static int hf_i_forward_tsn_chunk_sid = -1;
+static int hf_i_forward_tsn_chunk_flags = -1;
 static int hf_i_forward_tsn_chunk_res = -1;
+static int hf_i_forward_tsn_chunk_u_bit = -1;
 static int hf_i_forward_tsn_chunk_mid = -1;
 
 static int hf_asconf_ack_seq_nr = -1;
@@ -292,6 +294,7 @@ static gint ett_sctp_nr_sack_chunk_nr_gap_block = -1;
 static gint ett_sctp_nr_sack_chunk_nr_gap_block_start = -1;
 static gint ett_sctp_nr_sack_chunk_nr_gap_block_end = -1;
 static gint ett_sctp_unrecognized_parameter_parameter = -1;
+static gint ett_sctp_i_forward_tsn_chunk_flags = -1;
 
 static gint ett_sctp_fragments = -1;
 static gint ett_sctp_fragment  = -1;
@@ -4068,20 +4071,30 @@ dissect_forward_tsn_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tree 
   }
 }
 
-#define I_FORWARD_TSN_CHUNK_TSN_LENGTH 4
-#define I_FORWARD_TSN_CHUNK_SID_LENGTH 2
-#define I_FORWARD_TSN_CHUNK_RES_LENGTH 2
-#define I_FORWARD_TSN_CHUNK_MID_LENGTH 4
-#define I_FORWARD_TSN_CHUNK_TSN_OFFSET CHUNK_VALUE_OFFSET
-#define I_FORWARD_TSN_CHUNK_SID_OFFSET 0
-#define I_FORWARD_TSN_CHUNK_RES_OFFSET (I_FORWARD_TSN_CHUNK_SID_OFFSET + I_FORWARD_TSN_CHUNK_SID_LENGTH)
-#define I_FORWARD_TSN_CHUNK_MID_OFFSET (I_FORWARD_TSN_CHUNK_RES_OFFSET + I_FORWARD_TSN_CHUNK_RES_LENGTH)
+#define I_FORWARD_TSN_CHUNK_TSN_LENGTH   4
+#define I_FORWARD_TSN_CHUNK_SID_LENGTH   2
+#define I_FORWARD_TSN_CHUNK_FLAGS_LENGTH 2
+#define I_FORWARD_TSN_CHUNK_MID_LENGTH   4
+#define I_FORWARD_TSN_CHUNK_TSN_OFFSET   CHUNK_VALUE_OFFSET
+#define I_FORWARD_TSN_CHUNK_SID_OFFSET   0
+#define I_FORWARD_TSN_CHUNK_FLAGS_OFFSET (I_FORWARD_TSN_CHUNK_SID_OFFSET + I_FORWARD_TSN_CHUNK_SID_LENGTH)
+#define I_FORWARD_TSN_CHUNK_MID_OFFSET   (I_FORWARD_TSN_CHUNK_FLAGS_OFFSET + I_FORWARD_TSN_CHUNK_FLAGS_LENGTH)
+
+#define SCTP_I_FORWARD_TSN_CHUNK_U_BIT    0x0001
+#define SCTP_I_FORWARD_TSN_CHUNK_RES_MASK 0xfffe
+
+static const true_false_string sctp_i_forward_tsn_chunk_u_bit_value = {
+  "Unordered messages",
+  "Ordered messages"
+};
 
 static void
 dissect_i_forward_tsn_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tree *chunk_tree, proto_item *chunk_item)
 {
   guint   offset;
   guint16 number_of_affected_streams, affected_stream;
+  proto_tree *flags_tree;
+  proto_item *flags_item = NULL;
 
   /* FIXME */
   if (chunk_length < CHUNK_HEADER_LENGTH + I_FORWARD_TSN_CHUNK_TSN_LENGTH) {
@@ -4093,14 +4106,17 @@ dissect_i_forward_tsn_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tre
   if (chunk_tree) {
     proto_tree_add_item(chunk_tree, hf_i_forward_tsn_chunk_tsn, chunk_tvb, I_FORWARD_TSN_CHUNK_TSN_OFFSET, I_FORWARD_TSN_CHUNK_TSN_LENGTH, ENC_BIG_ENDIAN);
     number_of_affected_streams = (chunk_length - CHUNK_HEADER_LENGTH - I_FORWARD_TSN_CHUNK_TSN_LENGTH) /
-                                 (I_FORWARD_TSN_CHUNK_SID_LENGTH + I_FORWARD_TSN_CHUNK_RES_LENGTH + I_FORWARD_TSN_CHUNK_MID_LENGTH);
+                                 (I_FORWARD_TSN_CHUNK_SID_LENGTH + I_FORWARD_TSN_CHUNK_FLAGS_LENGTH + I_FORWARD_TSN_CHUNK_MID_LENGTH);
     offset = CHUNK_VALUE_OFFSET + I_FORWARD_TSN_CHUNK_TSN_LENGTH;
 
     for(affected_stream = 0;  affected_stream < number_of_affected_streams; affected_stream++) {
         proto_tree_add_item(chunk_tree, hf_i_forward_tsn_chunk_sid, chunk_tvb, offset + I_FORWARD_TSN_CHUNK_SID_OFFSET, I_FORWARD_TSN_CHUNK_SID_LENGTH, ENC_BIG_ENDIAN);
-        proto_tree_add_item(chunk_tree, hf_i_forward_tsn_chunk_res, chunk_tvb, offset + I_FORWARD_TSN_CHUNK_RES_OFFSET, I_FORWARD_TSN_CHUNK_RES_LENGTH, ENC_BIG_ENDIAN);
+        flags_item = proto_tree_add_item(chunk_tree, hf_i_forward_tsn_chunk_flags, chunk_tvb, offset + I_FORWARD_TSN_CHUNK_FLAGS_OFFSET, I_FORWARD_TSN_CHUNK_FLAGS_LENGTH, ENC_BIG_ENDIAN);
+        flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_i_forward_tsn_chunk_flags);
+        proto_tree_add_item(flags_tree, hf_i_forward_tsn_chunk_res, chunk_tvb, offset + I_FORWARD_TSN_CHUNK_FLAGS_OFFSET, I_FORWARD_TSN_CHUNK_FLAGS_LENGTH, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_i_forward_tsn_chunk_u_bit, chunk_tvb, offset + I_FORWARD_TSN_CHUNK_FLAGS_OFFSET, I_FORWARD_TSN_CHUNK_FLAGS_LENGTH, ENC_BIG_ENDIAN);
         proto_tree_add_item(chunk_tree, hf_i_forward_tsn_chunk_mid, chunk_tvb, offset + I_FORWARD_TSN_CHUNK_MID_OFFSET, I_FORWARD_TSN_CHUNK_MID_LENGTH, ENC_BIG_ENDIAN);
-        offset += (I_FORWARD_TSN_CHUNK_SID_LENGTH + I_FORWARD_TSN_CHUNK_RES_LENGTH + I_FORWARD_TSN_CHUNK_MID_LENGTH);
+        offset += (I_FORWARD_TSN_CHUNK_SID_LENGTH + I_FORWARD_TSN_CHUNK_FLAGS_LENGTH + I_FORWARD_TSN_CHUNK_MID_LENGTH);
     }
     proto_item_append_text(chunk_item, "(Cumulative TSN: %u)", tvb_get_ntohl(chunk_tvb, I_FORWARD_TSN_CHUNK_TSN_OFFSET));
   }
@@ -4846,10 +4862,12 @@ proto_register_sctp(void)
     { &hf_forward_tsn_chunk_tsn,                    { "New cumulative TSN",                             "sctp.forward_tsn_tsn",                                 FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_forward_tsn_chunk_sid,                    { "Stream identifier",                              "sctp.forward_tsn_sid",                                 FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_forward_tsn_chunk_ssn,                    { "Stream sequence number",                         "sctp.forward_tsn_ssn",                                 FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
-    { &hf_i_forward_tsn_chunk_tsn,                  { "New cumulative TSN",                             "sctp.forward_tsn_tsn",                               FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
-    { &hf_i_forward_tsn_chunk_sid,                  { "Stream identifier",                              "sctp.forward_tsn_sid",                               FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
-    { &hf_i_forward_tsn_chunk_res,                  { "Reserved",                                       "sctp.forward_tsn_res",                               FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
-    { &hf_i_forward_tsn_chunk_mid,                  { "Message identifier",                             "sctp.forward_tsn_mid",                               FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_i_forward_tsn_chunk_tsn,                  { "New cumulative TSN",                             "sctp.i_forward_tsn_tsn",                               FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_i_forward_tsn_chunk_sid,                  { "Stream identifier",                              "sctp.i_forward_tsn_sid",                               FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_i_forward_tsn_chunk_flags,                { "Flags",                                          "sctp.i_forward_tsn_flags",                             FT_UINT16,  BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_i_forward_tsn_chunk_res,                  { "Reserved",                                       "sctp.i_forward_tsn_res",                               FT_UINT16,  BASE_DEC,  NULL,                                           SCTP_I_FORWARD_TSN_CHUNK_RES_MASK,  NULL, HFILL } },
+    { &hf_i_forward_tsn_chunk_u_bit,                { "U-Bit",                                          "sctp.i_forward_tsn_u_bit",                             FT_BOOLEAN, 16,        TFS(&sctp_i_forward_tsn_chunk_u_bit_value),     SCTP_I_FORWARD_TSN_CHUNK_U_BIT,     NULL, HFILL } },
+    { &hf_i_forward_tsn_chunk_mid,                  { "Message identifier",                             "sctp.forward_tsn_mid",                                 FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_parameter_type,                           { "Parameter type",                                 "sctp.parameter_type",                                  FT_UINT16,  BASE_HEX,  VALS(parameter_identifier_values),              0x0,                                NULL, HFILL } },
     { &hf_parameter_length,                         { "Parameter length",                               "sctp.parameter_length",                                FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_parameter_value,                          { "Parameter value",                                "sctp.parameter_value",                                 FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                NULL, HFILL } },
@@ -4948,6 +4966,7 @@ proto_register_sctp(void)
     &ett_sctp_nr_sack_chunk_nr_gap_block_start,
     &ett_sctp_nr_sack_chunk_nr_gap_block_end,
     &ett_sctp_unrecognized_parameter_parameter,
+    &ett_sctp_i_forward_tsn_chunk_flags,
     &ett_sctp_fragments,
     &ett_sctp_fragment,
     &ett_sctp_ack,
