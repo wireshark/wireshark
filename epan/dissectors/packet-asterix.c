@@ -520,7 +520,6 @@ static gint hf_021_271_B2low = -1;
 static gint hf_021_271_RAS = -1;
 static gint hf_021_271_IDENT = -1;
 static gint hf_021_271_LW = -1;
-static gint hf_021_271_LW_v2_1 = -1;
 static gint hf_021_295 = -1;
 static gint hf_021_295_01 = -1;
 static gint hf_021_295_01_AOS = -1;
@@ -9206,7 +9205,6 @@ void proto_register_asterix (void)
         { &hf_021_271_RAS, { "RAS", "asterix.021_271_RAS", FT_UINT8, BASE_DEC, VALS (valstr_021_271_RAS), 0x04, NULL, HFILL } },
         { &hf_021_271_IDENT, { "IDENT", "asterix.021_271_IDENT", FT_UINT8, BASE_DEC, VALS (valstr_021_271_IDENT), 0x02, NULL, HFILL } },
         { &hf_021_271_LW, { "L+W", "asterix.021_271_LW", FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL } },
-        { &hf_021_271_LW_v2_1, { "L+W", "asterix.021_271_LW", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL } },
         { &hf_021_295, { "295, Data Ages", "asterix.021_295", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_021_295_01, { "#01: Aircraft Operational Status age", "asterix.021_295_01", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_021_295_01_AOS, { "AOS [s]", "asterix.021_295_01_AOS", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
