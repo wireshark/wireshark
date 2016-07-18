@@ -42,7 +42,8 @@
 
 AddressEditorFrame::AddressEditorFrame(QWidget *parent) :
     AccordionFrame(parent),
-    ui(new Ui::AddressEditorFrame)
+    ui(new Ui::AddressEditorFrame),
+    cap_file_(NULL)
 {
     ui->setupUi(this);
 
@@ -60,12 +61,14 @@ AddressEditorFrame::~AddressEditorFrame()
 
 void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
 {
-    if (!cf.capFile()->current_frame) {
+    cap_file_ = cf.capFile();
+
+    if (!cap_file_->current_frame) {
         on_buttonBox_rejected();
         return;
     }
 
-    if (!cf_read_record(cf.capFile(), cf.capFile()->current_frame)) {
+    if (!cf_read_record(cap_file_, cap_file_->current_frame)) {
         on_buttonBox_rejected();
         return; // error reading the frame
     }
@@ -75,22 +78,22 @@ void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
 
     ui->addressComboBox->clear();
 
-    epan_dissect_init(&edt, cf.capFile()->epan, FALSE, FALSE);
-    col_custom_prime_edt(&edt, &cf.capFile()->cinfo);
+    epan_dissect_init(&edt, cap_file_->epan, FALSE, FALSE);
+    col_custom_prime_edt(&edt, &cap_file_->cinfo);
 
-    epan_dissect_run(&edt, cf.capFile()->cd_t, &cf.capFile()->phdr,
-        frame_tvbuff_new_buffer(cf.capFile()->current_frame, &cf.capFile()->buf), cf.capFile()->current_frame, &cf.capFile()->cinfo);
+    epan_dissect_run(&edt, cap_file_->cd_t, &cap_file_->phdr,
+        frame_tvbuff_new_buffer(cap_file_->current_frame, &cap_file_->buf), cap_file_->current_frame, &cap_file_->cinfo);
     epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
 
     /* First check selected column */
-    if (isAddressColumn(&cf.capFile()->cinfo, column)) {
-        addresses << cf.capFile()->cinfo.col_expr.col_expr_val[column];
+    if (isAddressColumn(&cap_file_->cinfo, column)) {
+        addresses << cap_file_->cinfo.col_expr.col_expr_val[column];
     }
 
-    for (int col = 0; col < cf.capFile()->cinfo.num_cols; col++) {
+    for (int col = 0; col < cap_file_->cinfo.num_cols; col++) {
         /* Then check all columns except the selected */
-        if ((col != column) && (isAddressColumn(&cf.capFile()->cinfo, col))) {
-            addresses << cf.capFile()->cinfo.col_expr.col_expr_val[col];
+        if ((col != column) && (isAddressColumn(&cap_file_->cinfo, col))) {
+            addresses << cap_file_->cinfo.col_expr.col_expr_val[col];
         }
     }
 
@@ -142,7 +145,7 @@ void AddressEditorFrame::on_buttonBox_accepted()
     }
     QString addr = ui->addressComboBox->currentText();
     QString name = ui->nameLineEdit->text();
-    if (!add_ip_name_from_string(addr.toUtf8().constData(), name.toUtf8().constData())) {
+    if (!cf_add_ip_name_from_string(cap_file_, addr.toUtf8().constData(), name.toUtf8().constData())) {
         QString error_msg = tr("Can't assign %1 to %2").arg(name).arg(addr);
         emit editAddressStatus(error_msg);
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);

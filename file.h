@@ -687,6 +687,16 @@ gboolean cf_set_user_packet_comment(capture_file *cf, frame_data *fd, const gcha
  */
 guint32 cf_comment_types(capture_file *cf);
 
+/**
+ * Add a resolved address to this file's list of resolved addresses.
+ *
+ * @param cf the capture file
+ * @param addr a string representing an IPv4 or IPv6 address
+ * @param name a string containing a name corresponding to that address
+ * @return TRUE if it succeeds, FALSE if not
+ */
+gboolean cf_add_ip_name_from_string(capture_file *cf, const char *addr, const char *name);
+
 #ifdef WANT_PACKET_EDITOR
 /**
  * Give a frame new, edited data.

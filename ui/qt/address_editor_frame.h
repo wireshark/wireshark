@@ -59,6 +59,7 @@ private slots:
 
 private:
     Ui::AddressEditorFrame *ui;
+    capture_file *cap_file_;
 
     bool isAddressColumn(struct epan_column_info *cinfo, int column);
 };

@@ -62,7 +62,7 @@ man_addr_resolv_ok(GtkWidget *w _U_, gpointer data _U_)
   name = gtk_entry_get_text(GTK_ENTRY(name_te));
 
   if (strlen(addr) && strlen(name)) {
-    if (!add_ip_name_from_string(addr, name)) {
+    if (!cf_add_ip_name_from_string(&cfile, addr, name)) {
       GtkWidget *dialog = (GtkWidget *)simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                                         "Illegal IP address: \"%s\".", addr);
       simple_dialog_set_cb(dialog, man_addr_ill_addr_cb, NULL);
@@ -70,6 +70,7 @@ man_addr_resolv_ok(GtkWidget *w _U_, gpointer data _U_)
       return;
     } else {
       redissect = TRUE;
+      main_update_for_unsaved_changes(&cfile);
     }
   }
   g_free(addr);
