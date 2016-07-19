@@ -2014,20 +2014,20 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPv4");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  iph->ip_v_hl = tvb_get_guint8(tvb, offset);
+  iph->ip_ver = tvb_get_bits8(tvb, 0, 4);
 
-  hlen = lo_nibble(iph->ip_v_hl) * 4;   /* IP header length, in bytes */
+  hlen = tvb_get_bits8(tvb, 4, 4) * 4;  /* IP header length, in bytes */
 
   ti = proto_tree_add_item(tree, proto_ip, tvb, offset, hlen, ENC_NA);
   ip_tree = proto_item_add_subtree(ti, ett_ip);
 
   tf = proto_tree_add_item(ip_tree, hf_ip_version, tvb, offset, 1, ENC_NA);
-  if (hi_nibble(iph->ip_v_hl) != 4) {
+  if (iph->ip_ver != 4) {
     col_add_fstr(pinfo->cinfo, COL_INFO,
-                 "Bogus IPv4 version (%u, must be 4)", hi_nibble(iph->ip_v_hl));
+                 "Bogus IPv4 version (%u, must be 4)", iph->ip_ver);
     expert_add_info_format(pinfo, tf, &ei_ip_bogus_ip_version, "Bogus IPv4 version");
     /* I have a Linux cooked capture with ethertype IPv4 containing an IPv6 packet, continnue dissection in that case*/
-    if (hi_nibble(iph->ip_v_hl) == 6) {
+    if (iph->ip_ver == 6) {
         call_dissector(ipv6_handle, tvb, pinfo, tree);
     }
 

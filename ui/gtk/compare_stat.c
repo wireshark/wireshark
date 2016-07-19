@@ -74,7 +74,7 @@ void register_tap_listener_gtkcomparestat(void);
 #define COLOR_N	1
 
 /* For checksum */
-#define BYTES 8
+#define BYTES 12
 #define WRONG_CHKSUM 0
 
 #define MERGED_FILES 2
@@ -185,7 +185,7 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	}
 
 	/* Set up the fields of the pseudo-header and create checksum */
-	cksum_vec[0].ptr=&ci->ip_v_hl;
+	cksum_vec[0].ptr=(const guint8 *)&ci;
 	cksum_vec[0].len=BYTES;
 	/* skip TTL */
 	cksum_vec[1].ptr=&ci->ip_nxt;

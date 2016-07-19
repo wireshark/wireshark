@@ -318,6 +318,7 @@ static expert_field ei_ipv6_invalid_header = EI_INIT;
 
 #define IPv6_HDR_VERS(ipv6)     (((*(guint8 *)(ipv6)) >> 4) & 0x0f)
 #define IPv6_HDR_TCLS(ipv6)     _ipv6_hdr_tcls(ipv6)
+#define IPv6_HDR_FLOW(ipv6)     (g_ntohl((ipv6)->ip6_ctl_flow) & 0x000fffff)
 
 #define TVB_IPv6_HDR_VERS(tvb, offset)  tvb_get_bits8(tvb, (offset) * 8, 4)
 #define TVB_IPv6_HDR_TCLS(tvb, offset)  tvb_get_bits8(tvb, (offset) * 8 + 4, 8)
@@ -2162,8 +2163,9 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     /* Fill in IP header fields for subdissectors */
     iph = wmem_new0(wmem_packet_scope(), ws_ip);
-    iph->ip_v_hl = IPv6_HDR_VERS(ipv6);
+    iph->ip_ver = 6;
     iph->ip_tos = IPv6_HDR_TCLS(ipv6);
+    iph->ip_flw = IPv6_HDR_FLOW(ipv6);
     iph->ip_len = g_ntohs(ipv6->ip6_plen);
     iph->ip_nxt = ipv6->ip6_nxt;
     iph->ip_ttl = ipv6->ip6_hlim;
