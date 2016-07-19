@@ -183,7 +183,7 @@ gint hrnti;
 
 guint node_b_com_context_id;
 
-static GTree * edch_flow_port_map = NULL;
+static wmem_tree_t* edch_flow_port_map = NULL;
 
 /*Stuff for mapping NodeB-Comuncation Context ID to CRNC Communication Context ID*/
 typedef struct com_ctxt_{
@@ -193,7 +193,7 @@ typedef struct com_ctxt_{
 }nbap_com_context_id_t;
 
 gboolean crcn_context_present = FALSE;
-static GTree * com_context_map;
+static wmem_tree_t* com_context_map;
 
 struct _nbap_msg_info_for_fp g_nbap_msg_info_for_fp;
 
@@ -421,41 +421,18 @@ static void add_hsdsch_bind(packet_info *pinfo){
 	}
 
 }
-static gint nbap_key_cmp(gconstpointer a_ptr, gconstpointer b_ptr, gpointer ignore _U_){
-	if( GPOINTER_TO_INT(a_ptr) > GPOINTER_TO_INT(b_ptr) ){
-		return  -1;
-	}
-	return GPOINTER_TO_INT(a_ptr) < GPOINTER_TO_INT(b_ptr);
-}
-/*static void nbap_free_key(gpointer key ){
-			g_free(key);
-
-	}*/
 
 static void nbap_init(void){
     guint8 i;
     /*Initialize*/
-    com_context_map = g_tree_new_full(nbap_key_cmp,
-                       NULL,      /* data pointer, optional */
-                       NULL,      /* function to free the memory allocated for the key used when removing the entry */
-                       g_free);
+    com_context_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-
-                           /*Initialize structure for muxed flow indication*/
-    edch_flow_port_map = g_tree_new_full(nbap_key_cmp,
-                       NULL,      /* data pointer, optional */
-                       NULL,      /* function to free the memory allocated for the key used when removing the entry */
-                       g_free);
+    /*Initialize structure for muxed flow indication*/
+    edch_flow_port_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     for (i = 0; i < 15; i++) {
         lchId_type_table[i+1] = lch_contents[i];
     }
-}
-
-static void nbap_cleanup(void){
-    /*Cleanup*/
-    g_tree_destroy(com_context_map);
-    g_tree_destroy(edch_flow_port_map);
 }
 
 static int
@@ -546,7 +523,6 @@ void proto_register_nbap(void)
 	nbap_proc_uout_dissector_table = register_dissector_table("nbap.proc.uout", "NBAP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_nbap, FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
 	register_init_routine(nbap_init);
-	register_cleanup_routine(nbap_cleanup);
 }
 
 /*
