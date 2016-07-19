@@ -1752,6 +1752,7 @@ DISSECTOR_INCLUDES = \
 	packet-usb.h		\
 	packet-usb-hid.h	\
 	packet-usbip.h		\
+	packet-vxlan.h		\
 	packet-wap.h		\
 	packet-wccp.h		\
 	packet-windows-common.h	\

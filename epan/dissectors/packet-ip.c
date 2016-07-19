@@ -56,6 +56,7 @@
 #include "packet-sflow.h"
 #include "packet-gre.h"
 #include "packet-l2tp.h"
+#include "packet-vxlan.h"
 
 #ifdef HAVE_GEOIP
 #include <GeoIP.h>
@@ -3205,6 +3206,7 @@ proto_reg_handoff_ip(void)
   dissector_add_for_decode_as("pcli.payload", ip_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP4, ip_handle);
   dissector_add_uint("enc", BSD_AF_INET, ip_handle);
+  dissector_add_uint("vxlan.next_proto", VXLAN_IPV4, ip_handle);
 
   heur_dissector_add("tipc", dissect_ip_heur, "IP over TIPC", "ip_tipc", proto_ip, HEURISTIC_ENABLE);
   register_capture_dissector("ethertype", ETHERTYPE_IP, capture_ip, proto_ip);

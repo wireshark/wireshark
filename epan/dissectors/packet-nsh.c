@@ -34,10 +34,10 @@
 #include <epan/prefs.h>
 #include <epan/ipproto.h>
 #include <epan/decode_as.h>
+#include "packet-vxlan.h"
 
 #define MD_TYPE_1 1
 #define MD_TYPE_2 2
-#define VXLAN_NSH 4
 
 /* Prototypes */
 void proto_reg_handoff_nsh(void);

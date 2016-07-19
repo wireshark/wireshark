@@ -42,6 +42,7 @@
 #include "packet-juniper.h"
 #include "packet-sflow.h"
 #include "packet-l2tp.h"
+#include "packet-vxlan.h"
 #include <epan/crc32-tvb.h>
 #include <wiretap/erf.h>
 
@@ -1064,7 +1065,7 @@ proto_reg_handoff_eth(void)
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_ETHER, eth_withoutfcs_handle);
   dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_ETHERNET, eth_withoutfcs_handle);
   dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_ETH, eth_withoutfcs_handle);
-
+  dissector_add_uint("vxlan.next_proto", VXLAN_ETHERNET, eth_withoutfcs_handle);
   dissector_add_uint("sll.ltype", LINUX_SLL_P_ETHERNET, eth_withoutfcs_handle);
 
   /*

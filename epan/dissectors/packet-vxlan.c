@@ -29,14 +29,10 @@
 
 #include <epan/packet.h>
 #include <epan/tfs.h>
+#include "packet-vxlan.h"
 
 #define UDP_PORT_VXLAN  4789
 #define UDP_PORT_VXLAN_GPE  4790
-#define VXLAN_IPV4 1
-#define VXLAN_IPV6 2
-#define VXLAN_ETHERNET 3
-#define VXLAN_NSH 4
-#define VXLAN_MPLS 5
 
 void proto_register_vxlan(void);
 void proto_reg_handoff_vxlan(void);
@@ -93,10 +89,6 @@ static const value_string vxlan_next_protocols[] = {
  };
 
 static dissector_handle_t eth_handle;
-static dissector_handle_t ip_handle;
-static dissector_handle_t ipv6_handle;
-static dissector_handle_t nsh_handle;
-static dissector_handle_t mpls_handle;
 static dissector_table_t vxlan_dissector_table;
 
 static int
@@ -106,7 +98,7 @@ dissect_vxlan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int is
     proto_item *ti;
     tvbuff_t *next_tvb;
     int offset = 0;
-    int vxlan_next_proto=-1;
+    guint32 vxlan_next_proto;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VxLAN");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -122,8 +114,7 @@ dissect_vxlan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int is
         proto_tree_add_item(vxlan_tree, hf_vxlan_gpe_reserved_16, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        proto_tree_add_item(vxlan_tree, hf_vxlan_next_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
-        vxlan_next_proto = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item_ret_uint(vxlan_tree, hf_vxlan_next_proto, tvb, offset, 1, ENC_BIG_ENDIAN, &vxlan_next_proto);
         offset += 1;
     } else {
         proto_tree_add_bitmask(vxlan_tree, tvb, offset, hf_vxlan_flags, ett_vxlan_flags, flags_fields, ENC_BIG_ENDIAN);
@@ -142,32 +133,8 @@ dissect_vxlan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int is
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
     if(is_gpe){
-        switch(vxlan_next_proto){
-
-            case VXLAN_IPV4 :
-                call_dissector(ip_handle, next_tvb, pinfo, tree);
-                break;
-
-            case VXLAN_IPV6 :
-                 call_dissector(ipv6_handle, next_tvb, pinfo, tree);
-                 break;
-
-            case VXLAN_ETHERNET :
-                 call_dissector(eth_handle, next_tvb, pinfo, tree);
-                 break;
-
-            case VXLAN_NSH :
-                 if(!dissector_try_uint(vxlan_dissector_table, VXLAN_NSH, next_tvb, pinfo, tree))
-                     call_data_dissector(next_tvb, pinfo, vxlan_tree);
-                 break;
-
-             case VXLAN_MPLS :
-                 call_dissector(mpls_handle, next_tvb, pinfo, tree);
-                 break;
-
-             default:
-                 call_data_dissector(next_tvb, pinfo, vxlan_tree);
-                 break;
+        if(!dissector_try_uint(vxlan_dissector_table, vxlan_next_proto, next_tvb, pinfo, tree)) {
+            call_data_dissector(next_tvb, pinfo, vxlan_tree);
         }
     } else {
         call_dissector(eth_handle, next_tvb, pinfo, tree);
@@ -336,10 +303,6 @@ proto_reg_handoff_vxlan(void)
      * FCS.
      */
     eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_vxlan);
-    ip_handle = find_dissector_add_dependency("ip", proto_vxlan);
-    ipv6_handle = find_dissector_add_dependency("ipv6", proto_vxlan);
-    nsh_handle = find_dissector_add_dependency("nsh", proto_vxlan);
-    mpls_handle = find_dissector_add_dependency("mpls", proto_vxlan);
 
     vxlan_handle = create_dissector_handle(dissect_vxlan, proto_vxlan);
     vxlan_gpe_handle = create_dissector_handle(dissect_vxlan_gpe, proto_vxlan_gpe);
