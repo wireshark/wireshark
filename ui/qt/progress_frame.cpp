@@ -265,6 +265,7 @@ void ProgressFrame::hide()
     QFrame::hide();
 #ifdef QWINTASKBARPROGRESS_H
     if (taskbar_progress_) {
+        disconnect(this, SIGNAL(valueChanged(int)), taskbar_progress_, SLOT(setValue(int)));
         taskbar_progress_->reset();
         taskbar_progress_->hide();
     }
@@ -310,12 +311,12 @@ void ProgressFrame::show(bool animate, bool terminate_is_stop, gboolean *stop_fl
         if (taskbar_button) {
             taskbar_button->setWindow(window()->windowHandle());
             taskbar_progress_ = taskbar_button->progress();
-            connect(this, SIGNAL(valueChanged(int)), taskbar_progress_, SLOT(setValue(int)));
         }
     }
     if (taskbar_progress_) {
         taskbar_progress_->show();
-        taskbar_progress_->resume();
+        taskbar_progress_->reset();
+        connect(this, SIGNAL(valueChanged(int)), taskbar_progress_, SLOT(setValue(int)));
     }
 #endif
 }
