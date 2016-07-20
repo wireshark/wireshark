@@ -76,7 +76,7 @@ void proto_reg_handoff_ipv6(void);
 #define IP6OPT_RPL                      0x63    /* 01 1 00011 =  99 */
 #define IP6OPT_MPL                      0x6D    /* 01 1 01101 = 109 */
 #define IP6OPT_EXP_7E                   0x7E    /* 01 1 11110 = 126 */
-#define IP6OPT_ENDI                     0x8A    /* 10 0 01010 = 138 */
+#define IP6OPT_ENDI                     0x8A    /* 10 0 01010 = 138 */ /* DEPRECATED */
 #define IP6OPT_ILNP_NONCE               0x8B    /* 10 0 01011 = 139 */
 #define IP6OPT_LIO                      0x8C    /* 10 0 01100 = 140 */
 #define IP6OPT_EXP_9E                   0x9E    /* 10 0 11110 = 158 */
@@ -514,7 +514,7 @@ static const value_string ipv6_opt_vals[] = {
     { IP6OPT_RPL,           "RPL Option"                    },
     { IP6OPT_MPL,           "MPL Option"                    },
     { IP6OPT_EXP_7E,        "Experimental (0x7E)"           },
-    { IP6OPT_ENDI,          "Endpoint Identification"       },
+/*    { IP6OPT_ENDI,          "Endpoint Identification"       }, */ /* (DEPRECATED) */
     { IP6OPT_ILNP_NONCE,    "ILNP Nonce"                    },
     { IP6OPT_LIO,           "Line-Identification Option"    },
     { IP6OPT_EXP_9E,        "Experimental (0x9E)"           },
