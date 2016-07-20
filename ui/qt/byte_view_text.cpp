@@ -60,6 +60,7 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
     encoding_actions_(new QActionGroup(this)),
     encoding_(encoding),
     hovered_byte_offset(-1),
+    hovered_byte_lock(false),
     p_bound_(0, 0),
     f_bound_(0, 0),
     fa_bound_(0, 0),
@@ -249,6 +250,7 @@ void ByteViewText::mousePressEvent (QMouseEvent *event) {
         return;
     }
 
+    hovered_byte_lock = !hovered_byte_lock;
     QPoint pos = event->pos();
     field_info *fi = fieldAtPixel(pos);
 
@@ -268,6 +270,10 @@ void ByteViewText::mousePressEvent (QMouseEvent *event) {
 
 void ByteViewText::mouseMoveEvent(QMouseEvent *event)
 {
+    if (hovered_byte_lock) {
+        return;
+    }
+
     QString field_str;
     // XXX can the event really be NULL?
     if (!event) {
@@ -309,7 +315,9 @@ void ByteViewText::leaveEvent(QEvent *event)
 {
     QString empty;
     emit byteFieldHovered(empty);
-    hovered_byte_offset = -1;
+    if (!hovered_byte_lock) {
+        hovered_byte_offset = -1;
+    }
     p_bound_ = p_bound_save_;
     f_bound_ = f_bound_save_;
     fa_bound_ = fa_bound_save_;

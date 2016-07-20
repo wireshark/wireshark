@@ -110,6 +110,7 @@ private:
 
     // Data highlight
     guint hovered_byte_offset;
+    bool hovered_byte_lock;
     QPair<guint,guint> p_bound_;
     QPair<guint,guint> f_bound_;
     QPair<guint,guint> fa_bound_;
