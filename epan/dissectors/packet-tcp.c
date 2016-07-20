@@ -5980,7 +5980,7 @@ proto_register_tcp(void)
 
         { &hf_tcp_option_mptcp_backup_flag,
           { "Backup flag", "tcp.options.mptcp.backup.flag", FT_UINT8,
-            BASE_DEC, NULL, 0x10, NULL, HFILL}},
+            BASE_DEC, NULL, 0x01, NULL, HFILL}},
 
         { &hf_tcp_option_mptcp_checksum_flag,
           { "Checksum required", "tcp.options.mptcp.checksumreq.flags", FT_UINT8,
