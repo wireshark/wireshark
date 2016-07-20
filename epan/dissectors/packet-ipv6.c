@@ -1487,19 +1487,17 @@ static gint
 dissect_opt_lio(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *opt_tree,
                             struct opt_proto_item *opt_ti _U_, guint8 opt_len)
 {
-    guint8 line_id_len, len;
+    guint32 lid_len = 0;
 
-    proto_tree_add_item(opt_tree, hf_ipv6_opt_lio_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-    line_id_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item_ret_uint(opt_tree, hf_ipv6_opt_lio_len, tvb, offset, 1, ENC_BIG_ENDIAN, &lid_len);
     offset += 1;
 
-    if (line_id_len <= opt_len - 1)
-        len = line_id_len;
-    else
-        len = opt_len - 1;
-
-    proto_tree_add_item(opt_tree, hf_ipv6_opt_lio_id, tvb, offset, len, ENC_BIG_ENDIAN|ENC_ASCII);
-    offset += len;
+    if (lid_len + 1 > opt_len) {
+        /* XXX Add expert info */
+        lid_len = opt_len - 1;
+    }
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_lio_id, tvb, offset, lid_len, ENC_BIG_ENDIAN|ENC_ASCII);
+    offset += lid_len;
 
     return offset;
 }
@@ -2628,7 +2626,7 @@ proto_register_ipv6(void)
         },
         { &hf_ipv6_opt_lio_id,
             { "Line ID", "ipv6.opt.lio.line_id",
-                FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_ipv6_opt_mpl_flag,
