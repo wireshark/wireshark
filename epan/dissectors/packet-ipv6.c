@@ -514,7 +514,7 @@ static const value_string ipv6_opt_vals[] = {
     { IP6OPT_RPL,           "RPL Option"                    },
     { IP6OPT_MPL,           "MPL Option"                    },
     { IP6OPT_EXP_7E,        "Experimental (0x7E)"           },
-/*    { IP6OPT_ENDI,          "Endpoint Identification"       }, */ /* (DEPRECATED) */
+    { IP6OPT_ENDI,          "Endpoint Identification (DEPRECATED)" },
     { IP6OPT_ILNP_NONCE,    "ILNP Nonce"                    },
     { IP6OPT_LIO,           "Line-Identification Option"    },
     { IP6OPT_EXP_9E,        "Experimental (0x9E)"           },
