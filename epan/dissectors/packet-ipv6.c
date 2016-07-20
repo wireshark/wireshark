@@ -148,6 +148,9 @@ static int hf_ipv6_teredo_port                  = -1;
 static int hf_ipv6_teredo_client_ipv4           = -1;
 static int hf_ipv6_opt                          = -1;
 static int hf_ipv6_opt_type                     = -1;
+static int hf_ipv6_opt_type_action              = -1;
+static int hf_ipv6_opt_type_change              = -1;
+static int hf_ipv6_opt_type_rest                = -1;
 static int hf_ipv6_opt_length                   = -1;
 static int hf_ipv6_opt_pad1                     = -1;
 static int hf_ipv6_opt_padn                     = -1;
@@ -274,6 +277,7 @@ static int hf_geoip_dst_lon             = -1;
 static gint ett_ipv6_proto              = -1;
 static gint ett_ipv6_traffic_class      = -1;
 static gint ett_ipv6_opt                = -1;
+static gint ett_ipv6_opt_type           = -1;
 static gint ett_ipv6_opt_rpl            = -1;
 static gint ett_ipv6_opt_mpl            = -1;
 static gint ett_ipv6_opt_dff_flags      = -1;
@@ -500,7 +504,7 @@ static gboolean ipv6_exthdr_hide_len_oct_field = FALSE;
 static reassembly_table ipv6_reassembly_table;
 
 /* http://www.iana.org/assignments/ipv6-parameters (last updated 2015-07-07) */
-static const value_string ipv6_opt_vals[] = {
+static const value_string ipv6_opt_type_vals[] = {
     { IP6OPT_PAD1,          "Pad1"                          },
     { IP6OPT_PADN,          "PadN"                          },
     { IP6OPT_TEL,           "Tunnel Encapsulation Limit"    },
@@ -526,7 +530,22 @@ static const value_string ipv6_opt_vals[] = {
     { IP6OPT_EXP_FE,        "Experimental (0xFE)"           },
     { 0, NULL }
 };
-value_string_ext ipv6_opt_vals_ext = VALUE_STRING_EXT_INIT(ipv6_opt_vals);
+value_string_ext ipv6_opt_type_vals_ext = VALUE_STRING_EXT_INIT(ipv6_opt_type_vals);
+
+enum {
+    IPv6_OPT_ACTION_SKIP = 0,
+    IPv6_OPT_ACTION_DISC,
+    IPv6_OPT_ACTION_ICMP,
+    IPv6_OPT_ACTION_MCST,
+};
+
+static const value_string ipv6_opt_type_action_vals[] = {
+    { IPv6_OPT_ACTION_SKIP, "Skip and continue" },
+    { IPv6_OPT_ACTION_DISC, "Discard" },
+    { IPv6_OPT_ACTION_ICMP, "Discard and send ICMP Parameter Problem" },
+    { IPv6_OPT_ACTION_MCST, "Discard and send ICMP if not multicast" },
+    { 0, NULL }
+};
 
 gboolean
 capture_ipv6(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
@@ -1596,7 +1615,7 @@ static int
 dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws_ip *iph, const int exthdr_proto)
 {
     gint            len, offset_end;
-    proto_tree     *exthdr_tree, *opt_tree;
+    proto_tree     *exthdr_tree, *opt_tree, *opt_type_tree;
     proto_item     *pi, *ti, *ti_len;
     int             hf_exthdr_item_nxt, hf_exthdr_item_len, hf_exthdr_item_len_oct;
     int             ett_exthdr_proto;
@@ -1652,12 +1671,12 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
 
         opt_type = tvb_get_guint8(tvb, offset);
         opt_len = tvb_get_guint8(tvb, offset + 1);
+
         pi = proto_tree_add_none_format(exthdr_tree, hf_ipv6_opt, tvb, offset, 2 + opt_len,
-                    "%s", val_to_str_ext(opt_type, &ipv6_opt_vals_ext, "Unknown IPv6 Option (%u)"));
+                    "%s", val_to_str_ext(opt_type, &ipv6_opt_type_vals_ext, "Unknown IPv6 Option (%u)"));
         opt_tree = proto_item_add_subtree(pi, ett_ipv6_opt);
+
         opt_ti.type = proto_tree_add_item(opt_tree, hf_ipv6_opt_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(opt_ti.type,
-                    " (%s)", val_to_str_ext_const(opt_type, &ipv6_opt_vals_ext, "Unknown"));
 
         if (opt_type == IP6OPT_PAD1) {
             /* The Pad1 option is a special case, and contains no data. */
@@ -1665,6 +1684,11 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
             offset += 1;
             continue;
         }
+
+        opt_type_tree = proto_item_add_subtree(opt_ti.type, ett_ipv6_opt_type);
+        proto_tree_add_item(opt_type_tree, hf_ipv6_opt_type_action, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(opt_type_tree, hf_ipv6_opt_type_change, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(opt_type_tree, hf_ipv6_opt_type_rest,   tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         opt_ti.len = proto_tree_add_item(opt_tree, hf_ipv6_opt_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2481,8 +2505,23 @@ proto_register_ipv6(void)
         },
         { &hf_ipv6_opt_type,
             { "Type", "ipv6.opt.type",
-                FT_UINT8, BASE_HEX, NULL, 0x0,
+                FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ipv6_opt_type_vals_ext, 0x0,
                 "Option type", HFILL }
+        },
+        { &hf_ipv6_opt_type_action,
+            { "Action", "ipv6.opt.type.action",
+                FT_UINT8, BASE_DEC, VALS(ipv6_opt_type_action_vals), 0xC0,
+                "Action for unrecognized option type", HFILL }
+        },
+        { &hf_ipv6_opt_type_change,
+            { "May change", "ipv6.opt.type.change",
+                FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+                "Whether the option data may change en-route", HFILL }
+        },
+        { &hf_ipv6_opt_type_rest,
+            { "Low-order bits", "ipv6.opt.type.rest",
+                FT_UINT8, BASE_HEX, NULL, 0x1F,
+                "Remaining low-order bits", HFILL }
         },
         { &hf_ipv6_opt_length,
             { "Length", "ipv6.opt.length",
@@ -2984,6 +3023,7 @@ proto_register_ipv6(void)
         &ett_geoip_info,
 #endif /* HAVE_GEOIP_V6 */
         &ett_ipv6_opt,
+        &ett_ipv6_opt_type,
         &ett_ipv6_opt_rpl,
         &ett_ipv6_opt_mpl,
         &ett_ipv6_opt_dff_flags,
