@@ -572,22 +572,18 @@ ldapstat_packet(void *pldap, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 /*
  * Data structure attached to a conversation, giving authentication
  * information from a bind request.
- * We keep a linked list of them, so that we can free up all the
- * authentication mechanism strings.
  */
 typedef struct ldap_conv_info_t {
-  struct ldap_conv_info_t *next;
   guint auth_type;    /* authentication type */
   char *auth_mech;    /* authentication mechanism */
   guint32 first_auth_frame;  /* first frame that would use a security layer */
-  GHashTable *unmatched;
-  GHashTable *matched;
+  wmem_map_t *unmatched;
+  wmem_map_t *matched;
   gboolean is_mscldap;
   guint32  num_results;
   gboolean start_tls_pending;
   guint32  start_tls_frame;
 } ldap_conv_info_t;
-static ldap_conv_info_t *ldap_info_items;
 
 static guint
 ldap_info_hash_matched(gconstpointer k)
@@ -1035,7 +1031,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         default:
           return NULL;
       }
-      lcrp=(ldap_call_response_t *)g_hash_table_lookup(ldap_info->matched, &lcr);
+      lcrp=(ldap_call_response_t *)wmem_map_lookup(ldap_info->matched, &lcr);
 
       if(lcrp){
 
@@ -1061,9 +1057,9 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
            unmatched list and if so remove it */
 
         lcr.messageId=messageId;
-        lcrp=(ldap_call_response_t *)g_hash_table_lookup(ldap_info->unmatched, &lcr);
+        lcrp=(ldap_call_response_t *)wmem_map_lookup(ldap_info->unmatched, &lcr);
         if(lcrp){
-          g_hash_table_remove(ldap_info->unmatched, lcrp);
+          wmem_map_remove(ldap_info->unmatched, lcrp);
         }
         /* if we can't reuse the old one, grab a new chunk */
         if(!lcrp){
@@ -1075,7 +1071,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         lcrp->rep_frame=0;
         lcrp->protocolOpTag=protocolOpTag;
         lcrp->is_request=TRUE;
-        g_hash_table_insert(ldap_info->unmatched, lcrp, lcrp);
+        wmem_map_insert(ldap_info->unmatched, lcrp, lcrp);
         return NULL;
         break;
       case LDAP_RES_BIND:
@@ -1093,15 +1089,15 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
       /* this is a result - it should be in our unmatched list */
 
         lcr.messageId=messageId;
-        lcrp=(ldap_call_response_t *)g_hash_table_lookup(ldap_info->unmatched, &lcr);
+        lcrp=(ldap_call_response_t *)wmem_map_lookup(ldap_info->unmatched, &lcr);
 
         if(lcrp){
 
           if(!lcrp->rep_frame){
-            g_hash_table_remove(ldap_info->unmatched, lcrp);
+            wmem_map_remove(ldap_info->unmatched, lcrp);
             lcrp->rep_frame=pinfo->num;
             lcrp->is_request=FALSE;
-            g_hash_table_insert(ldap_info->matched, lcrp, lcrp);
+            wmem_map_insert(ldap_info->matched, lcrp, lcrp);
           }
         }
 
@@ -3836,7 +3832,7 @@ static int dissect_PasswordPolicyResponseValue_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 920 "./asn1/ldap/packet-ldap-template.c"
+#line 916 "./asn1/ldap/packet-ldap-template.c"
 static int dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ldap_conv_info_t *ldap_info) {
 
   int offset = 0;
@@ -4000,15 +3996,11 @@ static void
     /* No.  Attach that information to the conversation, and add
     * it to the list of information structures.
     */
-    ldap_info = g_new0(ldap_conv_info_t,1);
-    ldap_info->matched=g_hash_table_new(ldap_info_hash_matched, ldap_info_equal_matched);
-    ldap_info->unmatched=g_hash_table_new(ldap_info_hash_unmatched, ldap_info_equal_unmatched);
+    ldap_info = wmem_new0(wmem_file_scope(), ldap_conv_info_t);
+    ldap_info->matched=wmem_map_new(wmem_file_scope(), ldap_info_hash_matched, ldap_info_equal_matched);
+    ldap_info->unmatched=wmem_map_new(wmem_file_scope(), ldap_info_hash_unmatched, ldap_info_equal_unmatched);
 
     conversation_add_proto_data(conversation, proto_ldap, ldap_info);
-
-    ldap_info->next = ldap_info_items;
-    ldap_info_items = ldap_info;
-
   }
 
   switch (ldap_info->auth_type) {
@@ -4807,26 +4799,6 @@ dissect_mscldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   return tvb_captured_length(tvb);
 }
 
-
-static void
-ldap_cleanup(void)
-{
-  ldap_conv_info_t *ldap_info;
-
-  /* Free up state attached to the ldap_info structures */
-  for (ldap_info = ldap_info_items; ldap_info != NULL; ) {
-    ldap_conv_info_t *next;
-
-    g_hash_table_destroy(ldap_info->matched);
-    g_hash_table_destroy(ldap_info->unmatched);
-
-    next = ldap_info->next;
-    g_free(ldap_info);
-    ldap_info = next;
-  }
-
-  ldap_info_items = NULL;
-}
 
 /*--- proto_register_ldap -------------------------------------------*/
 void proto_register_ldap(void) {
@@ -5671,7 +5643,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2186 "./asn1/ldap/packet-ldap-template.c"
+#line 2158 "./asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5745,7 +5717,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2200 "./asn1/ldap/packet-ldap-template.c"
+#line 2172 "./asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5815,7 +5787,6 @@ void proto_register_ldap(void) {
           "Connectionless Lightweight Directory Access Protocol",
           "CLDAP", "cldap");
 
-  register_cleanup_routine(ldap_cleanup);
   ldap_tap=register_tap("ldap");
 
   ldap_name_dissector_table = register_dissector_table("ldap.name", "LDAP Attribute Type Dissectors", proto_cldap, FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
@@ -5914,7 +5885,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2352 "./asn1/ldap/packet-ldap-template.c"
+#line 2323 "./asn1/ldap/packet-ldap-template.c"
 
 
 }
