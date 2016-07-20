@@ -1914,16 +1914,14 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
   if (gcry_cipher_setkey(decr_ctx, decr->secret, decr->secret_len))
     return NULL;
 
-  decrypted_data = (guint8 *)g_malloc(buf_len);
+  decrypted_data = (guint8 *)wmem_alloc(pinfo->pool, buf_len);
 
   if (gcry_cipher_decrypt(decr_ctx, decrypted_data, buf_len, buf, buf_len) != GPG_ERR_NO_ERROR) {
-    g_free(decrypted_data);
     return NULL;
   }
   gcry_cipher_close(decr_ctx);
 
   encr_tvb = tvb_new_child_real_data(tvb, decrypted_data, buf_len, buf_len);
-  tvb_set_free_cb(encr_tvb, g_free);
 
   /* Add the decrypted data to the data source list. */
   add_new_data_source(pinfo, encr_tvb, "Decrypted IKE");
@@ -5044,7 +5042,7 @@ dissect_enc(tvbuff_t *tvb,
     /*
      * Allocate buffer for decrypted data.
      */
-    decr_data = (guchar*)g_malloc(encr_data_len);
+    decr_data = (guchar*)wmem_alloc(pinfo->pool, encr_data_len);
     decr_data_len = encr_data_len;
 
     /*
@@ -5056,28 +5054,24 @@ dissect_enc(tvbuff_t *tvb,
     } else {
       err = gcry_cipher_open(&cipher_hd, key_info->encr_spec->gcry_alg, key_info->encr_spec->gcry_mode, 0);
       if (err) {
-        g_free(decr_data);
         REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
           "IKEv2 decryption error: algorithm %d, mode %d: gcry_cipher_open failed: %s",
           key_info->encr_spec->gcry_alg, key_info->encr_spec->gcry_mode, gcry_strerror(err)));
       }
       err = gcry_cipher_setkey(cipher_hd, key_info->encr_key, key_info->encr_spec->key_len);
       if (err) {
-        g_free(decr_data);
         REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
           "IKEv2 decryption error: algorithm %d, key length %d:  gcry_cipher_setkey failed: %s",
           key_info->encr_spec->gcry_alg, key_info->encr_spec->key_len, gcry_strerror(err)));
       }
       err = gcry_cipher_setiv(cipher_hd, iv, iv_len);
       if (err) {
-        g_free(decr_data);
         REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
           "IKEv2 decryption error: algorithm %d, iv length %d:  gcry_cipher_setiv failed: %s",
           key_info->encr_spec->gcry_alg, iv_len, gcry_strerror(err)));
       }
       err = gcry_cipher_decrypt(cipher_hd, decr_data, decr_data_len, encr_data, encr_data_len);
       if (err) {
-        g_free(decr_data);
         REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
           "IKEv2 decryption error: algorithm %d:  gcry_cipher_decrypt failed: %s",
           key_info->encr_spec->gcry_alg, gcry_strerror(err)));
@@ -5086,7 +5080,6 @@ dissect_enc(tvbuff_t *tvb,
     }
 
     decr_tvb = tvb_new_child_real_data(tvb, decr_data, decr_data_len, decr_data_len);
-    tvb_set_free_cb(decr_tvb, g_free);
     add_new_data_source(pinfo, decr_tvb, "Decrypted Data");
     item = proto_tree_add_item(tree, hf_isakmp_enc_decrypted_data, decr_tvb, 0, decr_data_len, ENC_NA);
     proto_item_append_text(item, " (%d byte%s)", decr_data_len, plurality(decr_data_len, "", "s"));

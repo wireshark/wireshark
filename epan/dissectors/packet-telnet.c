@@ -1050,7 +1050,7 @@ unescape_and_tvbuffify_telnet_option(packet_info *pinfo, tvbuff_t *tvb, int offs
     return NULL;
 
   spos=tvb_get_ptr(tvb, offset, len);
-  buf=(guint8 *)g_malloc(len);
+  buf=(guint8 *)wmem_alloc(pinfo->pool, len);
   dpos=buf;
   skip=0;
   l=len;
@@ -1066,7 +1066,6 @@ unescape_and_tvbuffify_telnet_option(packet_info *pinfo, tvbuff_t *tvb, int offs
     l--;
   }
   krb5_tvb = tvb_new_child_real_data(tvb, buf, len-skip, len-skip);
-  tvb_set_free_cb(krb5_tvb, g_free);
   add_new_data_source(pinfo, krb5_tvb, "Unpacked Telnet Option");
 
   return krb5_tvb;

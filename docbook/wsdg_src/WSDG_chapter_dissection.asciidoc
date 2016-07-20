@@ -577,14 +577,13 @@ effect.
     offset ++;
     if (flags & FLAG_COMPRESSED) { /* the remainder of the packet is compressed */
         guint16 orig_size = tvb_get_ntohs(tvb, offset);
-        guchar *decompressed_buffer = (guchar*)g_malloc(orig_size);
+        guchar *decompressed_buffer = (guchar*)wmem_alloc(pinfo->pool, orig_size);
         offset += 2;
         decompress_packet(tvb_get_ptr(tvb, offset, -1),
                 tvb_captured_length_remaining(tvb, offset),
                 decompressed_buffer, orig_size);
         /* Now re-setup the tvb buffer to have the new data */
         next_tvb = tvb_new_child_real_data(tvb, decompressed_buffer, orig_size, orig_size);
-        tvb_set_free_cb(next_tvb, g_free);
         add_new_data_source(pinfo, next_tvb, "Decompressed Data");
     } else {
         next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -601,19 +600,19 @@ within the protocol. If it's not, it may be part of the compression routine to
 work it out for you, in which case the logic would be different.
 
 So armed with the size, a buffer is allocated to receive the uncompressed data
-using +g_malloc()+, and the packet is decompressed into it. The +tvb_get_ptr()+
-function is useful to get a pointer to the raw data of the packet from the
-offset onwards. In this case the decompression routine also needs to know the
-length, which is given by the +tvb_captured_length_remaining()+ function.
+using +wmem_alloc()+ in pinfo->pool memory, and the packet is decompressed into
+it. The +tvb_get_ptr()+ function is useful to get a pointer to the raw data of
+the packet from the offset onwards. In this case the decompression routine also
+needs to know the length, which is given by the
++tvb_captured_length_remaining()+ function.
 
 Next we build a new tvb buffer from this data, using the
 +tvb_new_child_real_data()+ call. This data is a child of our original data, so
-calling this function also acknowledges that. One procedural step is to add a
-callback handler to free the data when it's no longer needed via a call to
-+tvb_set_free_cb()+. In this case +g_malloc()+ was used to allocate the memory,
-so +g_free()+ is the appropriate callback function. Finally we add this tvb as a
-new data source, so that the detailed display can show the decompressed bytes as
-well as the original.
+calling this function also acknowledges that. No need to call
++tvb_set_free_cb()+ as the pinfo->pool was used (the memory block will be
+automatically freed when the pinfo pool lifetime expires). Finally we add this
+tvb as a new data source, so that the detailed display can show the
+decompressed bytes as well as the original.
 
 After this has been set up the remainder of the dissector can dissect the buffer
 next_tvb, as it's a new buffer the offset needs to be 0 as we start again from

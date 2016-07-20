@@ -2391,7 +2391,7 @@ pref_key_string_to_bin(const gchar *key_string, unsigned char **key_bin)
 
 
 static tvbuff_t *
-decrypt_sac_msg_body(
+decrypt_sac_msg_body(packet_info *pinfo,
         guint8 enc_cip, tvbuff_t *encrypted_tvb, gint offset, gint len)
 {
     gboolean         opened = FALSE;
@@ -2421,7 +2421,7 @@ decrypt_sac_msg_body(
         goto end;
 
     clear_len = len;
-    clear_data = (unsigned char *)g_malloc(clear_len);
+    clear_data = (unsigned char *)wmem_alloc(pinfo->pool, clear_len);
 
     err = gcry_cipher_decrypt (cipher, clear_data, clear_len,
             tvb_memdup(wmem_packet_scope(), encrypted_tvb, offset, len), len);
@@ -2430,13 +2430,10 @@ decrypt_sac_msg_body(
 
     clear_tvb = tvb_new_child_real_data(encrypted_tvb,
                         (const guint8 *)clear_data, clear_len, clear_len);
-    tvb_set_free_cb(clear_tvb, g_free);
 
 end:
     if (opened)
         gcry_cipher_close (cipher);
-    if (!clear_tvb && clear_data)
-       g_free(clear_data);
     return clear_tvb;
 }
 
@@ -2449,7 +2446,7 @@ pref_key_string_to_bin(const gchar *key_string _U_, unsigned char **key_bin _U_)
 }
 
 static tvbuff_t *
-decrypt_sac_msg_body(guint8 enc_cip _U_,
+decrypt_sac_msg_body(packet_info *pinfo _U_, guint8 enc_cip _U_,
         tvbuff_t *encrypted_tvb _U_, gint offset _U_, gint len _U_)
 {
     return NULL;
@@ -3408,7 +3405,7 @@ dissect_sac_msg(guint32 tag, tvbuff_t *tvb, gint offset,
     if (tvb_reported_length_remaining(tvb, offset) < 0)
         return;
     if (enc_flag) {
-        clear_sac_body_tvb = decrypt_sac_msg_body(enc_cip,
+        clear_sac_body_tvb = decrypt_sac_msg_body(pinfo, enc_cip,
                 tvb, offset, tvb_reported_length_remaining(tvb, offset));
     }
     else {

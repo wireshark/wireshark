@@ -1087,16 +1087,12 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     rounded_size = ((((capturedsize - ICQ5_CL_SESSIONID) + 3)/4)*4) + ICQ5_CL_SESSIONID;
     /* rounded_size might exceed the tvb bounds so we can't just use tvb_memdup here. */
-    decr_pd = (guint8 *)g_malloc(rounded_size);
+    decr_pd = (guint8 *)wmem_alloc(pinfo->pool, rounded_size);
     tvb_memcpy(tvb, decr_pd, 0, capturedsize);
     decrypt_v5(decr_pd, rounded_size, key);
 
     /* Allocate a new tvbuff, referring to the decrypted data. */
     decr_tvb = tvb_new_child_real_data(tvb, decr_pd, capturedsize, pktsize);
-
-    /* Arrange that the allocated packet data copy be freed when the
-       tvbuff is freed. */
-    tvb_set_free_cb(decr_tvb, g_free);
 
     /* Add the decrypted data to the data source list. */
     add_new_data_source(pinfo, decr_tvb, "Decrypted");

@@ -1540,8 +1540,7 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
 
         /* Extract the encrypted data into a buffer */
         payload_length = tvb_captured_length_remaining(tvb, *offset);
-        decrypted_data = (guint8 *)g_malloc0(payload_length);
-        tvb_memcpy(tvb, decrypted_data, *offset, payload_length);
+        decrypted_data = (guint8 *)tvb_memdup(pinfo->pool, tvb, *offset, payload_length);
 
         /* Decrypt the actual data */
         gcrypt_err = gcry_cipher_decrypt(cypher_hd,
@@ -1549,7 +1548,6 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
                                          NULL, 0);
         if (gcrypt_err != 0) {
             gcry_cipher_close(cypher_hd);
-            g_free(decrypted_data);
             return tvb;
         }
 
@@ -1563,8 +1561,7 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
     if (pdu_security_settings->ciphering == eea1) {
         /* Extract the encrypted data into a buffer */
         payload_length = tvb_captured_length_remaining(tvb, *offset);
-        decrypted_data = (guint8 *)g_malloc0(payload_length+4);
-        tvb_memcpy(tvb, decrypted_data, *offset, payload_length);
+        decrypted_data = (guint8 *)tvb_memdup(pinfo->pool, tvb, *offset, payload_length);
 
         /* Do the algorithm */
         snow3g_f8(pdu_security_settings->cipherKey,
@@ -1577,7 +1574,6 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
 
     /* Create tvb for resulting deciphered sdu */
     decrypted_tvb = tvb_new_child_real_data(tvb, decrypted_data, payload_length, payload_length);
-    tvb_set_free_cb(decrypted_tvb, g_free);
     add_new_data_source(pinfo, decrypted_tvb, "Deciphered Payload");
 
     /* Return deciphered data, i.e. beginning of new tvb */

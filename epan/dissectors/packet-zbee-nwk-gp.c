@@ -1287,26 +1287,22 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         THROW(BoundsError);
     }
     if (packet.security_level == ZBEE_NWK_GP_SECURITY_LEVEL_FULLENCR) {
-        dec_buffer = (guint8 *)g_malloc(packet.payload_len);
+        dec_buffer = (guint8 *)wmem_alloc(pinfo->pool, packet.payload_len);
         gp_decrypted = FALSE;
-        if (packet.security_level == ZBEE_NWK_GP_SECURITY_LEVEL_FULLENCR) {
-            GSList_i = zbee_gp_keyring;
-            while (GSList_i && !gp_decrypted) {
-                gp_decrypted = zbee_gp_decrypt_payload(&packet, enc_buffer, offset - packet.payload_len -
-                    packet.mic_size, dec_buffer, packet.payload_len, packet.mic_size,
-                    ((key_record_t *)(GSList_i->data))->key);
-                if (!gp_decrypted) {
-                    GSList_i = g_slist_next(GSList_i);
-                }
+        GSList_i = zbee_gp_keyring;
+        while (GSList_i && !gp_decrypted) {
+            gp_decrypted = zbee_gp_decrypt_payload(&packet, enc_buffer, offset - packet.payload_len -
+                packet.mic_size, dec_buffer, packet.payload_len, packet.mic_size,
+                ((key_record_t *)(GSList_i->data))->key);
+            if (!gp_decrypted) {
+                GSList_i = g_slist_next(GSList_i);
             }
         }
         if (gp_decrypted) {
             payload_tvb = tvb_new_child_real_data(tvb, dec_buffer, packet.payload_len, packet.payload_len);
             add_new_data_source(pinfo, payload_tvb, "Decrypted GP Payload");
             dissect_zbee_nwk_gp_cmd(payload_tvb, pinfo, nwk_tree, data);
-            g_free(dec_buffer);
         } else {
-            g_free(dec_buffer);
             payload_tvb = tvb_new_subset(tvb, offset - packet.payload_len - packet.mic_size, packet.payload_len, -1);
             call_data_dissector(payload_tvb, pinfo, tree);
         }

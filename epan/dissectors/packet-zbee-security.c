@@ -648,7 +648,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     }
 
     /* Allocate memory to decrypt the payload into. */
-    dec_buffer = (guint8 *)g_malloc(payload_len);
+    dec_buffer = (guint8 *)wmem_alloc(pinfo->pool, payload_len);
 
     decrypted = FALSE;
     if ( packet.src64 ) {
@@ -748,14 +748,11 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
 
         /* Found a key that worked, setup the new tvbuff_t and return */
         payload_tvb = tvb_new_child_real_data(tvb, dec_buffer, payload_len, payload_len);
-        tvb_set_free_cb(payload_tvb, g_free); /* set up callback to free dec_buffer */
         add_new_data_source(pinfo, payload_tvb, "Decrypted ZigBee Payload");
 
         /* Done! */
         return payload_tvb;
     }
-
-    g_free(dec_buffer);
 #endif /* HAVE_LIBGCRYPT */
 
     /* Add expert info. */

@@ -343,13 +343,12 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     tvbuff_t *dtvb = NULL;
     const guint8 *input = tvb_get_ptr(new_tvb, 0, -1);
     guint32 reassembled_size = tvb_captured_length(new_tvb);
-    guint8 *deinterleaved = (guint8*) g_malloc (reassembled_size);
-    guint8 *output = (guint8*) g_malloc (decoded_size);
+    guint8 *deinterleaved = (guint8*) wmem_alloc(pinfo->pool, reassembled_size);
+    guint8 *output = (guint8*) wmem_alloc(pinfo->pool, decoded_size);
     rs_deinterleave(input, deinterleaved, plen, fcount);
 
     dtvb = tvb_new_child_real_data(tvb, deinterleaved, reassembled_size, reassembled_size);
     add_new_data_source(pinfo, dtvb, "Deinterleaved");
-    tvb_set_free_cb(dtvb, g_free);
 
     decoded = rs_correct_data(deinterleaved, output, c_max, rsk, rsz);
     if(tree)
@@ -357,7 +356,6 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
     new_tvb = tvb_new_child_real_data(dtvb, output, decoded_size, decoded_size);
     add_new_data_source(pinfo, new_tvb, "RS Error Corrected Data");
-    tvb_set_free_cb(new_tvb, g_free);
   }
   return new_tvb;
 }

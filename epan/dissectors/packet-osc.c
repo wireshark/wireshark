@@ -979,21 +979,14 @@ dissect_osc_tcp_1_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             decoded_len = slip_decoded_len(encoded_buf, encoded_len);
             if(decoded_len != -1) /* is a valid SLIP'd stream */
             {
-                decoded_buf = (guint8 *)g_malloc(decoded_len);
-                if(decoded_buf)
-                {
-                    slip_decode(decoded_buf, encoded_buf, encoded_len);
+                decoded_buf = (guint8 *)wmem_alloc(pinfo->pool, decoded_len);
 
-                    next_tvb = tvb_new_child_real_data(tvb, decoded_buf, decoded_len, decoded_len);
-                    tvb_set_free_cb(next_tvb, g_free);
+                slip_decode(decoded_buf, encoded_buf, encoded_len);
 
-                    add_new_data_source(pinfo, next_tvb, "SLIP-decoded Data");
-                    dissect_osc_pdu_common(next_tvb, pinfo, tree, data, 0, decoded_len);
-                }
-                else
-                {
-                    return 0; /* failed to allocate new buffer */
-                }
+                next_tvb = tvb_new_child_real_data(tvb, decoded_buf, decoded_len, decoded_len);
+
+                add_new_data_source(pinfo, next_tvb, "SLIP-decoded Data");
+                dissect_osc_pdu_common(next_tvb, pinfo, tree, data, 0, decoded_len);
             }
             else
             {

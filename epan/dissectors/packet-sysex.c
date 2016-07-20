@@ -734,7 +734,7 @@ static value_string_ext digitech_parameter_positions_ext =
     VALUE_STRING_EXT_INIT(digitech_parameter_positions);
 
 static tvbuff_t *
-unpack_digitech_message(tvbuff_t *tvb, gint offset)
+unpack_digitech_message(packet_info *pinfo, tvbuff_t *tvb, gint offset)
 {
     tvbuff_t *next_tvb;
     gint length = tvb_reported_length(tvb);
@@ -754,7 +754,7 @@ unpack_digitech_message(tvbuff_t *tvb, gint offset)
     }
 
     data_ptr = tvb_get_ptr(tvb, offset, data_len);
-    unpacked = (guchar*)g_malloc(unpacked_size);
+    unpacked = (guchar*)wmem_alloc(pinfo->pool, unpacked_size);
     unpacked_ptr = unpacked;
 
     while (remaining > 0)
@@ -772,7 +772,6 @@ unpack_digitech_message(tvbuff_t *tvb, gint offset)
 
     /* Create new tvb with unpacked data */
     next_tvb = tvb_new_child_real_data(tvb, unpacked, unpacked_size, unpacked_size);
-    tvb_set_free_cb(next_tvb, g_free);
 
     return next_tvb;
 }
@@ -979,7 +978,7 @@ dissect_digitech_procedure(guint8 procedure, const gint offset,
         return;
     }
 
-    data_tvb = unpack_digitech_message(tvb, offset);
+    data_tvb = unpack_digitech_message(pinfo, tvb, offset);
     add_new_data_source(pinfo, data_tvb, "Unpacked Procedure Data");
 
     data_offset = 0;
