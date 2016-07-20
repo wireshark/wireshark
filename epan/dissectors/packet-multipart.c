@@ -444,12 +444,12 @@ get_multipart_info(packet_info *pinfo, const char *str)
     /*
      * There is a value for the boundary string
      */
-    m_info = (multipart_info_t *)g_malloc(sizeof(multipart_info_t));
+    m_info = wmem_new(wmem_packet_scope(), multipart_info_t);
     m_info->type = type;
-    m_info->boundary = g_strndup(start_boundary, len_boundary);
+    m_info->boundary = wmem_strndup(wmem_packet_scope(), start_boundary, len_boundary);
     m_info->boundary_length = len_boundary;
     if(start_protocol) {
-        m_info->protocol = g_strndup(start_protocol, len_protocol);
+        m_info->protocol = wmem_strndup(wmem_packet_scope(), start_protocol, len_protocol);
         m_info->protocol_length = len_protocol;
     } else {
         m_info->protocol = NULL;
@@ -459,19 +459,6 @@ get_multipart_info(packet_info *pinfo, const char *str)
     m_info->orig_parameters = NULL;
 
     return m_info;
-}
-
-static void
-cleanup_multipart_info(void *data)
-{
-    multipart_info_t *m_info = (multipart_info_t *)data;
-    if (m_info) {
-        if (m_info->protocol) {
-            g_free(m_info->protocol);
-        }
-        g_free(m_info->boundary);
-        g_free(m_info);
-    }
 }
 
 /*
@@ -622,10 +609,8 @@ dissect_kerberos_encrypted_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     DISSECTOR_ASSERT(tvb_bytes_exist(tvb, offset, len));
 
-    data = (guint8 *) g_malloc(len);
-    tvb_memcpy(tvb, data, offset, len);
+    data = (guint8 *)tvb_memdup(pinfo->pool, tvb, offset, len);
     kerberos_tvb = tvb_new_child_real_data(tvb, data, len, len);
-    tvb_set_free_cb(kerberos_tvb, g_free);
 
     add_new_data_source(pinfo, kerberos_tvb, "Kerberos Data");
     call_dissector_with_data(gssapi_handle, kerberos_tvb, pinfo, tree, encrypt);
@@ -936,8 +921,6 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         call_data_dissector(tvb, pinfo, tree);
         return tvb_reported_length(tvb);
     }
-    /* Clean up the memory if an exception is thrown */
-    /* CLEANUP_PUSH(cleanup_multipart_info, m_info); */
 
     /* Add stuff to the protocol tree */
     ti = proto_tree_add_item(tree, proto_multipart,
@@ -963,8 +946,6 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     header_start = process_preamble(subtree, tvb, m_info, &last_boundary);
     if (header_start == -1) {
         call_data_dissector(tvb, pinfo, subtree);
-        /* Clean up the dynamically allocated memory */
-        cleanup_multipart_info(m_info);
         return tvb_reported_length(tvb);
     }
     /*
@@ -974,8 +955,6 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         header_start = process_body_part(subtree, tvb, m_info,
                 pinfo, header_start, body_index++, &last_boundary);
         if (header_start == -1) {
-            /* Clean up the dynamically allocated memory */
-            cleanup_multipart_info(m_info);
             return tvb_reported_length(tvb);
         }
     }
@@ -985,8 +964,7 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if (tvb_reported_length_remaining(tvb, header_start) > 0) {
        proto_tree_add_item(subtree, hf_multipart_trailer, tvb, header_start, -1, ENC_NA);
     }
-    /* Clean up the dynamically allocated memory */
-    cleanup_multipart_info(m_info);
+
     return tvb_reported_length(tvb);
 }
 

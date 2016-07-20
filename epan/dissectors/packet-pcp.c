@@ -450,23 +450,18 @@ static const value_string packettypenames_creds[]= {
 };
 
 typedef struct pcp_conv_info_t {
-    struct pcp_conv_info_t *next;
-    GArray *pmid_name_candidates;
-    GHashTable *pmid_to_name;
+    wmem_array_t *pmid_name_candidates;
+    wmem_map_t *pmid_to_name;
     guint32 last_pmns_names_frame;
     guint32 last_processed_pmns_names_frame;
 } pcp_conv_info_t;
 
-static pcp_conv_info_t *pcp_conv_info_items = NULL;
-
 /* function prototypes */
-static void pcp_cleanup(void);
 static pcp_conv_info_t* get_pcp_conversation_info(packet_info *pinfo);
 static int is_unvisited_pmns_names_frame(packet_info *pinfo);
 static void add_candidate_name_for_pmid_resolution(packet_info *pinfo, tvbuff_t *tvb, int offset, int name_len);
 static void mark_this_frame_as_last_pmns_names_frame(packet_info *pinfo);
 static inline int has_unprocessed_pmns_names_frame(pcp_conv_info_t *pcp_conv_info);
-static void clear_name_candidates(GArray *pmid_name_candidates);
 static void create_pmid_to_name_map_from_candidates(pcp_conv_info_t *pcp_conv_info, tvbuff_t *tvb, int offset, guint32 num_ids);
 static void populate_pmids_to_names(packet_info *pinfo, tvbuff_t *tvb, int offset, guint32 num_ids);
 static inline int client_to_server(packet_info *pinfo);
@@ -519,19 +514,13 @@ static inline int client_to_server(packet_info *pinfo) {
     return pinfo->destport == PCP_PORT || pinfo->destport == PMPROXY_PORT;
 }
 
-static void clear_name_candidates(GArray *pmid_name_candidates) {
-    if(pmid_name_candidates->len > 0) {
-        g_array_remove_range(pmid_name_candidates, 0, pmid_name_candidates->len);
-    }
-}
-
 static guint8* get_name_from_pmid(guint32 pmid, packet_info *pinfo) {
     guint8 *name;
-    GHashTable *pmid_to_name;
+    wmem_map_t *pmid_to_name;
 
     pmid_to_name = get_pcp_conversation_info(pinfo)->pmid_to_name;
 
-    name = (guint8*)g_hash_table_lookup(pmid_to_name, GINT_TO_POINTER(pmid));
+    name = (guint8*)wmem_map_lookup(pmid_to_name, GINT_TO_POINTER(pmid));
     if(!name) {
         name = (guint8*)wmem_strdup(wmem_packet_scope(), "Metric name unknown");
     }
@@ -592,7 +581,7 @@ static void add_candidate_name_for_pmid_resolution(packet_info *pinfo, tvbuff_t 
 
     if(is_unvisited_pmns_names_frame(pinfo)) {
         name = tvb_get_string_enc(wmem_file_scope(), tvb, offset, name_len, ENC_ASCII);
-        g_array_append_val(pcp_conv_info->pmid_name_candidates, name);
+        wmem_array_append_one(pcp_conv_info->pmid_name_candidates, name);
     }
 }
 
@@ -609,14 +598,15 @@ static void populate_pmids_to_names(packet_info *pinfo, tvbuff_t *tvb, int offse
     guint number_of_name_candidates;
 
     pcp_conv_info = get_pcp_conversation_info(pinfo);
-    number_of_name_candidates = pcp_conv_info->pmid_name_candidates->len;
+    number_of_name_candidates = wmem_array_get_count(pcp_conv_info->pmid_name_candidates);
 
     if(number_of_name_candidates == num_ids && has_unprocessed_pmns_names_frame(pcp_conv_info)) {
         create_pmid_to_name_map_from_candidates(pcp_conv_info, tvb, offset, num_ids);
         /* Set this frame to the one that we processed */
         pcp_conv_info->last_processed_pmns_names_frame = pcp_conv_info->last_pmns_names_frame;
     }
-    clear_name_candidates(pcp_conv_info->pmid_name_candidates);
+
+    pcp_conv_info->pmid_name_candidates = wmem_array_new(wmem_file_scope(), sizeof(guint8 *));
 }
 
 static void create_pmid_to_name_map_from_candidates(pcp_conv_info_t *pcp_conv_info, tvbuff_t *tvb, int offset, guint32 num_ids) {
@@ -627,10 +617,10 @@ static void create_pmid_to_name_map_from_candidates(pcp_conv_info_t *pcp_conv_in
         guint8 *pmid_name;
 
         pmid = tvb_get_ntohl(tvb, offset);
-        pmid_name = g_array_index(pcp_conv_info->pmid_name_candidates, guint8*, i);
+        pmid_name = wmem_array_index(pcp_conv_info->pmid_name_candidates, i);
 
-        if(g_hash_table_lookup(pcp_conv_info->pmid_to_name, GINT_TO_POINTER(pmid)) == NULL) {
-            g_hash_table_insert(pcp_conv_info->pmid_to_name, GINT_TO_POINTER(pmid), pmid_name);
+        if(wmem_map_lookup(pcp_conv_info->pmid_to_name, GINT_TO_POINTER(pmid)) == NULL) {
+            wmem_map_insert(pcp_conv_info->pmid_to_name, GINT_TO_POINTER(pmid), pmid_name);
         }
         offset += 4;
     }
@@ -687,7 +677,7 @@ static int dissect_pcp_message_error(tvbuff_t *tvb, packet_info *pinfo, proto_tr
      */
     if(error_num == PM_ERR_NAME) {
         pcp_conv_info = get_pcp_conversation_info(pinfo);
-        clear_name_candidates(pcp_conv_info->pmid_name_candidates);
+        pcp_conv_info->pmid_name_candidates = wmem_array_new(wmem_file_scope(), sizeof(guint8 *));
     }
 
     return offset;
@@ -1641,13 +1631,10 @@ static int dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         pcp_conv_info = (pcp_conv_info_t*)g_malloc(sizeof(pcp_conv_info_t));
         conversation_add_proto_data(conversation, proto_pcp, pcp_conv_info);
 
-        pcp_conv_info->pmid_name_candidates = g_array_new(TRUE, TRUE, sizeof(guint8 *));
-        pcp_conv_info->pmid_to_name = g_hash_table_new(g_direct_hash, g_direct_equal);
+        pcp_conv_info->pmid_name_candidates = wmem_array_new(wmem_file_scope(), sizeof(guint8 *));
+        pcp_conv_info->pmid_to_name = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
         pcp_conv_info->last_pmns_names_frame = 0;
         pcp_conv_info->last_processed_pmns_names_frame = 0;
-
-        pcp_conv_info->next = pcp_conv_info_items;
-        pcp_conv_info_items = pcp_conv_info;
     }
 
     root_pcp_item = proto_tree_add_item(tree, proto_pcp, tvb, 0, -1, ENC_NA);
@@ -1760,23 +1747,6 @@ static int dissect_pcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     /* pass all packets through TCP-reassembly */
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, PCP_HEADER_LEN, get_pcp_message_len, dissect_pcp_message, data);
     return tvb_captured_length(tvb);
-}
-
-static void pcp_cleanup(void) {
-    pcp_conv_info_t *pcp_conv_info;
-
-    for(pcp_conv_info = pcp_conv_info_items; pcp_conv_info != NULL; ) {
-        pcp_conv_info_t *last;
-
-        g_hash_table_destroy(pcp_conv_info->pmid_to_name);
-        /* Don't free array elements (FALSE arg) as their memory is controlled via wmem */
-        g_array_free(pcp_conv_info->pmid_name_candidates, FALSE);
-
-        last = pcp_conv_info;
-        pcp_conv_info = pcp_conv_info->next;
-
-        g_free(last);
-    }
 }
 
 /* setup the dissecting */
@@ -2587,8 +2557,6 @@ void proto_register_pcp(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     pcp_handle = register_dissector("pcp", dissect_pcp, proto_pcp);
-
-    register_cleanup_routine(pcp_cleanup);
 }
 
 void proto_reg_handoff_pcp(void)

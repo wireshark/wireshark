@@ -717,25 +717,6 @@ static gboolean get_fid_and_frame(packet_info *pinfo, guint32 *fid, guint *frame
 	return result;
 }
 
-static GSList *conv_tables = NULL;
-
-static void
-mswsp_init_protocol(void)
-{
-	GSList *table_iter;
-	if (conv_tables) {
-		for(table_iter = conv_tables; table_iter;
-			table_iter = table_iter->next) {
-			struct mswsp_ct  *ct = (struct mswsp_ct *)table_iter->data;
-			/* should we free the elements the GSL_message_data */
-			g_slist_free(ct->GSL_message_data);
-			g_free(ct);
-		}
-		g_slist_free(conv_tables);
-		conv_tables = NULL;
-	}
-}
-
 static struct message_data *find_or_create_message_data(struct mswsp_ct *conv_data, packet_info *pinfo, guint16 msg_id, gboolean is_request, void *data)
 {
 	struct message_data to_find;
@@ -765,20 +746,17 @@ static struct mswsp_ct *get_create_converstation_data(packet_info *pinfo)
 	struct mswsp_ct *ct = NULL;
 	conversation_t *conversation;
 
-
 	conversation = find_or_create_conversation(pinfo);
 	if (!conversation) {
-		goto out;
+		return NULL;
 	}
 	ct = (struct mswsp_ct*)conversation_get_proto_data(conversation, proto_mswsp);
 	if (!ct) {
-		ct = (struct mswsp_ct *)g_malloc(sizeof(struct mswsp_ct));
+		ct = wmem_new(wmem_file_scope(), struct mswsp_ct);
 		ct->GSL_message_data = NULL;
-		/* store ct so it can be deallocated later */
-		conv_tables = g_slist_prepend(conv_tables, ct);
 		conversation_add_proto_data(conversation, proto_mswsp, ct);
 	}
-out:
+
 	return ct;
 }
 
@@ -8065,9 +8043,6 @@ proto_register_mswsp(void)
 	for (i=0; i<(int)array_length(GuidPropertySet); i++) {
 		guids_add_guid(&GuidPropertySet[i].guid, GuidPropertySet[i].def);
 	}
-
-	register_init_routine(&mswsp_init_protocol);
-
 }
 
 static int dissect_mswsp_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
