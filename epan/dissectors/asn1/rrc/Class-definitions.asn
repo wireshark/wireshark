@@ -1,4 +1,4 @@
--- 3GPP TS 25.331 V13.2.0 (2016-03)
+-- 3GPP TS 25.331 V13.3.0 (2016-07)
 --
 -- 11.1	General message structure
 --
@@ -10,7 +10,7 @@ IMPORTS
 
 	ActiveSetUpdate,
 	ActiveSetUpdateComplete,
-	ActiveSetUpdateFailure,
+	ActiveSetUpdateFailure,	
 	AssistanceDataDelivery,
 	CellChangeOrderFromUTRAN,
 	CellChangeOrderFromUTRANFailure,
@@ -233,7 +233,7 @@ DL-CCCH-MessageType ::= CHOICE {
 	rrcConnectionRelease				RRCConnectionRelease-CCCH,
 	rrcConnectionSetup					RRCConnectionSetup,
 	uraUpdateConfirm					URAUpdateConfirm-CCCH,
-	-- dummy is not used in the specification. If received it is ignored by the UE.
+	-- dummy is not used in the specification. If received it is ignored by the UE. 
 	-- See TS 23.041 for handling of warning security information by Cell Broadcast Center.
 	dummy							ETWSPrimaryNotificationWithSecurity,
 	spare2								NULL,
