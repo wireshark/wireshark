@@ -1973,14 +1973,11 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     if(decrypt_ok && (decrypted_len > esp_iv_len))
     {
-      tvb_decrypted = tvb_new_child_real_data(tvb, (guint8 *)g_memdup(decrypted_data+sizeof(guint8)*esp_iv_len,
+      tvb_decrypted = tvb_new_child_real_data(tvb, (guint8 *)wmem_memdup(pinfo->pool, decrypted_data+sizeof(guint8)*esp_iv_len,
                                                                       decrypted_len - esp_iv_len),
                                               decrypted_len - esp_iv_len, decrypted_len - esp_iv_len);
 
       add_new_data_source(pinfo, tvb_decrypted, "Decrypted Data");
-
-      /* Handler to free the Decrypted Data Buffer. */
-      tvb_set_free_cb(tvb_decrypted,g_free);
 
       if(tvb_bytes_exist(tvb, 8, esp_iv_len))
       {

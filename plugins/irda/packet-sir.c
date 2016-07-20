@@ -80,7 +80,7 @@ unescape_data(tvbuff_t *tvb, packet_info *pinfo)
 	} else {
 		guint length = tvb_captured_length(tvb);
 		guint offset;
-		guint8 *data = (guint8 *)g_malloc(length);
+		guint8 *data = (guint8 *)wmem_alloc(pinfo->pool, length);
 		guint8 *dst = data;
 		tvbuff_t *next_tvb;
 
@@ -93,7 +93,6 @@ unescape_data(tvbuff_t *tvb, packet_info *pinfo)
 		}
 
 		next_tvb = tvb_new_child_real_data(tvb, data, (guint) (dst-data), (guint) (dst-data));
-		tvb_set_free_cb(next_tvb, g_free);
 		add_new_data_source(pinfo, next_tvb, "Unescaped SIR");
 		return next_tvb;
 	}

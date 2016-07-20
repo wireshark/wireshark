@@ -129,7 +129,7 @@ gint pdu_type=-1;
 
 		const gchar* error = NULL;
 		proto_tree* encryptedpdu_tree = proto_item_add_subtree(%(ACTX)s->created_item,ett_encryptedPDU);
-		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p, crypt_tvb, &error );
+		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p, crypt_tvb, actx->pinfo, &error );
 
 		if (! cleartext_tvb) {
 			proto_tree_add_expert_format(encryptedpdu_tree, actx->pinfo, &ei_snmp_failed_decrypted_data_pdu,

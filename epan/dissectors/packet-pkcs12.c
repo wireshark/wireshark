@@ -308,7 +308,7 @@ void PBE_reset_parameters(void)
 	salt = NULL;
 }
 
-int PBE_decrypt_data(const char *object_identifier_id_param _U_, tvbuff_t *encrypted_tvb _U_, asn1_ctx_t *actx _U_, proto_item *item _U_)
+int PBE_decrypt_data(const char *object_identifier_id_param _U_, tvbuff_t *encrypted_tvb _U_, packet_info *pinfo _U_, asn1_ctx_t *actx _U_, proto_item *item _U_)
 {
 #ifdef HAVE_LIBGCRYPT
 	const char	*encryption_algorithm;
@@ -398,7 +398,7 @@ int PBE_decrypt_data(const char *object_identifier_id_param _U_, tvbuff_t *encry
 	}
 
 	datalen = tvb_captured_length(encrypted_tvb);
-	clear_data = (char *)g_malloc(datalen);
+	clear_data = (char *)wmem_alloc(pinfo->pool, datalen);
 
 	err = gcry_cipher_decrypt (cipher, clear_data, datalen, (char *)tvb_memdup(wmem_packet_scope(), encrypted_tvb, 0, datalen), datalen);
 	if (gcry_err_code (err)) {
@@ -406,7 +406,6 @@ int PBE_decrypt_data(const char *object_identifier_id_param _U_, tvbuff_t *encry
 		proto_item_append_text(item, " [Failed to decrypt with password preference]");
 
 		gcry_cipher_close (cipher);
-		g_free(clear_data);
 		return FALSE;
 	}
 
@@ -439,7 +438,6 @@ int PBE_decrypt_data(const char *object_identifier_id_param _U_, tvbuff_t *encry
 	}
 
 	if(!decrypt_ok) {
-		g_free(clear_data);
 		proto_item_append_text(item, " [Failed to decrypt with supplied password]");
 
 		return FALSE;
@@ -452,7 +450,6 @@ int PBE_decrypt_data(const char *object_identifier_id_param _U_, tvbuff_t *encry
 	/* OK - so now clear_data contains the decrypted data */
 
 	clear_tvb = tvb_new_child_real_data(encrypted_tvb,(const guint8 *)clear_data, datalen, datalen);
-	tvb_set_free_cb(clear_tvb, g_free);
 
 	name = g_string_new("");
 	oidname = oid_resolved_from_string(wmem_packet_scope(), object_identifier_id_param);
@@ -802,7 +799,7 @@ dissect_pkcs12_EncryptedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 	dissector_handle=create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_pkcs12);
 	dissector_change_string("ber.oid", object_identifier_id, dissector_handle);
 
-	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx, actx->created_item);
+	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx->pinfo, actx, actx->created_item);
 
 	/* restore the original dissector */
 	dissector_reset_string("ber.oid", object_identifier_id);
@@ -1150,7 +1147,7 @@ static int dissect_PBMAC1Params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-pkcs12-fn.c ---*/
-#line 387 "./asn1/pkcs12/packet-pkcs12-template.c"
+#line 384 "./asn1/pkcs12/packet-pkcs12-template.c"
 
 static int strip_octet_string(tvbuff_t *tvb)
 {
@@ -1443,7 +1440,7 @@ void proto_register_pkcs12(void) {
         "AlgorithmIdentifier", HFILL }},
 
 /*--- End of included file: packet-pkcs12-hfarr.c ---*/
-#line 463 "./asn1/pkcs12/packet-pkcs12-template.c"
+#line 460 "./asn1/pkcs12/packet-pkcs12-template.c"
   };
 
   /* List of subtrees */
@@ -1474,7 +1471,7 @@ void proto_register_pkcs12(void) {
     &ett_pkcs12_PBMAC1Params,
 
 /*--- End of included file: packet-pkcs12-ettarr.c ---*/
-#line 469 "./asn1/pkcs12/packet-pkcs12-template.c"
+#line 466 "./asn1/pkcs12/packet-pkcs12-template.c"
   };
   static ei_register_info ei[] = {
       { &ei_pkcs12_octet_string_expected, { "pkcs12.octet_string_expected", PI_PROTOCOL, PI_WARN, "BER Error: OCTET STRING expected", EXPFILL }},
@@ -1542,7 +1539,7 @@ void proto_reg_handoff_pkcs12(void) {
 
 
 /*--- End of included file: packet-pkcs12-dis-tab.c ---*/
-#line 508 "./asn1/pkcs12/packet-pkcs12-template.c"
+#line 505 "./asn1/pkcs12/packet-pkcs12-template.c"
 
 	register_ber_oid_dissector("1.2.840.113549.1.9.22.1", dissect_X509Certificate_OCTETSTRING_PDU, proto_pkcs12, "x509Certificate");
 

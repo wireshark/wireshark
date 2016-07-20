@@ -1839,7 +1839,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 		chunked_data_size += chunk_size;
 
-		raw_data = g_malloc(chunked_data_size);
+		raw_data = wmem_alloc(pinfo->pool, chunked_data_size);
 		raw_len = 0;
 
 		if (new_tvb != NULL) {
@@ -1857,7 +1857,6 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		if(chunked_data_size > 0) {
 			new_tvb = tvb_new_real_data(raw_data,
 			      chunked_data_size, chunked_data_size);
-			tvb_set_free_cb(new_tvb, g_free);
 		}
 
 

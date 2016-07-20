@@ -388,7 +388,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 	}
 
 	read_keytab_file_from_preferences();
-	data.data = (char *)g_malloc(length);
+	data.data = (char *)wmem_alloc(pinfo->pool, length);
 	data.length = length;
 
 	for(ek=enc_key_list;ek;ek=ek->next){
@@ -414,7 +414,6 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 								   "Decrypted keytype %d in frame %u using %s",
 								   ek->keytype, pinfo->num, ek->key_origin);
 
-			/* return a private g_malloced blob to the caller */
 			user_data=data.data;
 			if (datalen) {
 				*datalen = data.length;
@@ -422,7 +421,6 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 			return user_data;
 		}
 	}
-	g_free(data.data);
 
 	return NULL;
 }
@@ -553,12 +551,11 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 		   keys. So just give it a copy of the crypto data instead.
 		   This has been seen for RC4-HMAC blobs.
 		*/
-		cryptocopy = (guint8 *)g_memdup(cryptotext, length);
+		cryptocopy = (guint8 *)wmem_memdup(wmem_packet_scope(), cryptotext, length);
 		ret = krb5_decrypt_ivec(krb5_ctx, crypto, usage,
 								cryptocopy, length,
 								&data,
 								NULL);
-		g_free(cryptocopy);
 		if((ret == 0) && (length>0)){
 			char *user_data;
 
@@ -567,8 +564,8 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 								   ek->keytype, pinfo->num, ek->key_origin);
 
 			krb5_crypto_destroy(krb5_ctx, crypto);
-			/* return a private g_malloced blob to the caller */
-			user_data = (char *)g_memdup(data.data, (guint)data.length);
+			/* return a private wmem_alloced blob to the caller */
+			user_data = (char *)wmem_memdup(pinfo->pool, data.data, (guint)data.length);
 			if (datalen) {
 				*datalen = (int)data.length;
 			}
@@ -719,7 +716,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		return NULL;
 	}
 
-	decrypted_data = g_malloc(length);
+	decrypted_data = wmem_alloc(wmem_packet_scope(), length);
 	for(ske = service_key_list; ske != NULL; ske = g_slist_next(ske)){
 		gboolean do_continue = FALSE;
 		sk = (service_key_t *) ske->data;
@@ -764,20 +761,17 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		md5_finish(&md5s, digest);
 
 		if (tvb_memeql (encr_tvb, 8, digest, 16) == 0) {
-			plaintext = g_malloc(data_len);
-			tvb_memcpy(encr_tvb, plaintext, CONFOUNDER_PLUS_CHECKSUM, data_len);
+			plaintext = (guint8* )tvb_memdup(pinfo->pool, encr_tvb, CONFOUNDER_PLUS_CHECKSUM, data_len);
 			tvb_free(encr_tvb);
 
 			if (datalen) {
 				*datalen = data_len;
 			}
-			g_free(decrypted_data);
 			return(plaintext);
 		}
 		tvb_free(encr_tvb);
 	}
 
-	g_free(decrypted_data);
 	return NULL;
 }
 
@@ -1348,7 +1342,6 @@ dissect_krb5_decrypt_ticket_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offse
 	if(plaintext){
 		tvbuff_t *child_tvb;
 		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
-		tvb_set_free_cb(child_tvb, g_free);
 
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
@@ -1385,7 +1378,6 @@ dissect_krb5_decrypt_authenticator_data (gboolean imp_tag _U_, tvbuff_t *tvb, in
 	if(plaintext){
 		tvbuff_t *child_tvb;
 		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
-		tvb_set_free_cb(child_tvb, g_free);
 
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
@@ -1427,7 +1419,6 @@ dissect_krb5_decrypt_KDC_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offs
 	if(plaintext){
 		tvbuff_t *child_tvb;
 		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
-		tvb_set_free_cb(child_tvb, g_free);
 
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
@@ -1459,7 +1450,6 @@ dissect_krb5_decrypt_PA_ENC_TIMESTAMP (gboolean imp_tag _U_, tvbuff_t *tvb, int 
 	if(plaintext){
 		tvbuff_t *child_tvb;
 		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
-		tvb_set_free_cb(child_tvb, g_free);
 
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
@@ -1490,7 +1480,6 @@ dissect_krb5_decrypt_AP_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offse
 	if(plaintext){
 		tvbuff_t *child_tvb;
 		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
-		tvb_set_free_cb(child_tvb, g_free);
 
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
@@ -1521,7 +1510,6 @@ dissect_krb5_decrypt_PRIV_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset,
 	if(plaintext){
 		tvbuff_t *child_tvb;
 		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
-		tvb_set_free_cb(child_tvb, g_free);
 
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
@@ -1552,7 +1540,6 @@ dissect_krb5_decrypt_CRED_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset,
 	if(plaintext){
 		tvbuff_t *child_tvb;
 		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
-		tvb_set_free_cb(child_tvb, g_free);
 
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");

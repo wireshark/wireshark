@@ -109,10 +109,10 @@ void proto_reg_handoff_smux(void);
 static gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
 static gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
 
-static tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t*, tvbuff_t*, gchar const**);
-static tvbuff_t* snmp_usm_priv_aes128(snmp_usm_params_t*, tvbuff_t*, gchar const**);
-static tvbuff_t* snmp_usm_priv_aes192(snmp_usm_params_t*, tvbuff_t*, gchar const**);
-static tvbuff_t* snmp_usm_priv_aes256(snmp_usm_params_t*, tvbuff_t*, gchar const**);
+static tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t*, tvbuff_t*, packet_info *pinfo, gchar const**);
+static tvbuff_t* snmp_usm_priv_aes128(snmp_usm_params_t*, tvbuff_t*, packet_info *pinfo, gchar const**);
+static tvbuff_t* snmp_usm_priv_aes192(snmp_usm_params_t*, tvbuff_t*, packet_info *pinfo, gchar const**);
+static tvbuff_t* snmp_usm_priv_aes256(snmp_usm_params_t*, tvbuff_t*, packet_info *pinfo, gchar const**);
 
 
 static void snmp_usm_password_to_key_md5(const guint8 *password, guint passwordlen, const guint8 *engineID, guint engineLength, guint8 *key);
@@ -1757,7 +1757,7 @@ snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_p, guint* calc_a
 }
 
 static tvbuff_t*
-snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar const** error _U_)
+snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, packet_info *pinfo _U_, gchar const** error _U_)
 {
 #ifdef HAVE_LIBGCRYPT
 	gcry_error_t err;
@@ -1800,7 +1800,7 @@ snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 
 	cryptgrm = (guint8*)tvb_memdup(wmem_packet_scope(),encryptedData,0,-1);
 
-	cleartext = (guint8*)g_malloc(cryptgrm_len);
+	cleartext = (guint8*)wmem_alloc(pinfo->pool, cryptgrm_len);
 
 	err = gcry_cipher_open(&hd, GCRY_CIPHER_DES, GCRY_CIPHER_MODE_CBC, 0);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
@@ -1817,12 +1817,10 @@ snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 	gcry_cipher_close(hd);
 
 	clear_tvb = tvb_new_child_real_data(encryptedData, cleartext, cryptgrm_len, cryptgrm_len);
-	tvb_set_free_cb(clear_tvb, g_free);
 
 	return clear_tvb;
 
 on_gcry_error:
-	g_free(cleartext);
 	*error = (const gchar *)gpg_strerror(err);
 	if (hd) gcry_cipher_close(hd);
 	return NULL;
@@ -1834,7 +1832,7 @@ on_gcry_error:
 
 #ifdef HAVE_LIBGCRYPT
 static tvbuff_t*
-snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, gchar const** error, int algo)
+snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, packet_info *pinfo, gchar const** error, int algo)
 {
 	gcry_error_t err;
 	gcry_cipher_hd_t hd = NULL;
@@ -1872,7 +1870,7 @@ snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, gchar co
 	}
 	cryptgrm = (guint8*)tvb_memdup(wmem_packet_scope(),encryptedData,0,-1);
 
-	cleartext = (guint8*)g_malloc(cryptgrm_len);
+	cleartext = (guint8*)wmem_alloc(pinfo->pool, cryptgrm_len);
 
 	err = gcry_cipher_open(&hd, algo, GCRY_CIPHER_MODE_CFB, 0);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
@@ -1889,12 +1887,10 @@ snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, gchar co
 	gcry_cipher_close(hd);
 
 	clear_tvb = tvb_new_child_real_data(encryptedData, cleartext, cryptgrm_len, cryptgrm_len);
-	tvb_set_free_cb(clear_tvb, g_free);
 
 	return clear_tvb;
 
 on_gcry_error:
-	g_free(cleartext);
 	*error = (const gchar *)gpg_strerror(err);
 	if (hd) gcry_cipher_close(hd);
 	return NULL;
@@ -1902,10 +1898,10 @@ on_gcry_error:
 #endif
 
 static tvbuff_t*
-snmp_usm_priv_aes128(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar const** error)
+snmp_usm_priv_aes128(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, packet_info *pinfo _U_, gchar const** error)
 {
 #ifdef HAVE_LIBGCRYPT
-	return snmp_usm_priv_aes_common(p, encryptedData, error, GCRY_CIPHER_AES);
+	return snmp_usm_priv_aes_common(p, encryptedData, pinfo, error, GCRY_CIPHER_AES);
 #else
 	*error = "libgcrypt not present, cannot decrypt";
 	return NULL;
@@ -1913,10 +1909,10 @@ snmp_usm_priv_aes128(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gcha
 }
 
 static tvbuff_t*
-snmp_usm_priv_aes192(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar const** error)
+snmp_usm_priv_aes192(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, packet_info *pinfo _U_, gchar const** error)
 {
 #ifdef HAVE_LIBGCRYPT
-	return snmp_usm_priv_aes_common(p, encryptedData, error, GCRY_CIPHER_AES192);
+	return snmp_usm_priv_aes_common(p, encryptedData, pinfo, error, GCRY_CIPHER_AES192);
 #else
 	*error = "libgcrypt not present, cannot decrypt";
 	return NULL;
@@ -1924,10 +1920,10 @@ snmp_usm_priv_aes192(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gcha
 }
 
 static tvbuff_t*
-snmp_usm_priv_aes256(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar const** error)
+snmp_usm_priv_aes256(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, packet_info *pinfo _U_, gchar const** error)
 {
 #ifdef HAVE_LIBGCRYPT
-	return snmp_usm_priv_aes_common(p, encryptedData, error, GCRY_CIPHER_AES256);
+	return snmp_usm_priv_aes_common(p, encryptedData, pinfo, error, GCRY_CIPHER_AES256);
 #else
 	*error = "libgcrypt not present, cannot decrypt";
 	return NULL;
@@ -2691,7 +2687,7 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 		const gchar* error = NULL;
 		proto_tree* encryptedpdu_tree = proto_item_add_subtree(actx->created_item,ett_encryptedPDU);
-		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p, crypt_tvb, &error );
+		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p, crypt_tvb, actx->pinfo, &error );
 
 		if (! cleartext_tvb) {
 			proto_tree_add_expert_format(encryptedpdu_tree, actx->pinfo, &ei_snmp_failed_decrypted_data_pdu,
@@ -3078,7 +3074,7 @@ static int dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1873 "./asn1/snmp/packet-snmp-template.c"
+#line 1869 "./asn1/snmp/packet-snmp-template.c"
 
 
 guint
@@ -3895,7 +3891,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2425 "./asn1/snmp/packet-snmp-template.c"
+#line 2421 "./asn1/snmp/packet-snmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -3935,7 +3931,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2441 "./asn1/snmp/packet-snmp-template.c"
+#line 2437 "./asn1/snmp/packet-snmp-template.c"
 	};
 	static ei_register_info ei[] = {
 		{ &ei_snmp_failed_decrypted_data_pdu, { "snmp.failed_decrypted_data_pdu", PI_MALFORMED, PI_WARN, "Failed to decrypt encryptedPDU", EXPFILL }},

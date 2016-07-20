@@ -1353,7 +1353,7 @@ dissect_cms_EncryptedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 	item = actx->created_item;
 
-	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx, item);
+	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx->pinfo, actx, item);
 
 
   return offset;

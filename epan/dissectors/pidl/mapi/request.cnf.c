@@ -111,7 +111,7 @@ mapi_dissect_element_EcDoRpc_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 
 static int
-mapi_dissect_element_EcDoRpc_request_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mapi_dissect_element_EcDoRpc_request_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	guint32		size;
 	int		start_offset = offset;
@@ -137,13 +137,12 @@ mapi_dissect_element_EcDoRpc_request_(tvbuff_t *tvb _U_, int offset _U_, packet_
 
 	ptr = tvb_get_ptr(tvb, offset, size);
 
-	decrypted_data = (guint8 *)g_malloc(size);
+	decrypted_data = (guint8 *)wmem_alloc(pinfo->pool, size);
 	for (i = 0; i < size; i++) {
 		decrypted_data[i] = ptr[i] ^ 0xA5;
 	}
 
 	decrypted_tvb = tvb_new_child_real_data(tvb, decrypted_data, size, reported_len);
-	tvb_set_free_cb(decrypted_tvb, g_free);
 
 	add_new_data_source(pinfo, decrypted_tvb, "Decrypted MAPI");
 

@@ -224,7 +224,7 @@ static void
 ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                   proto_tree *tree, int tagged_parameters_len, int ftype);
 
-static tvbuff_t *try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer, PAIRPDCAP_KEY_ITEM used_key);
+static tvbuff_t *try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer, PAIRPDCAP_KEY_ITEM used_key);
 
 static int weak_iv(guchar *iv);
 
@@ -17785,7 +17785,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
     guint32 sec_header=0;
     guint32 sec_trailer=0;
 
-    next_tvb = try_decrypt(tvb, hdr_len, reported_len, &algorithm, &sec_header, &sec_trailer, &used_key);
+    next_tvb = try_decrypt(tvb, pinfo, hdr_len, reported_len, &algorithm, &sec_header, &sec_trailer, &used_key);
 
     keybyte = tvb_get_guint8(tvb, hdr_len + 3);
     key = KEY_OCTET_WEP_KEY(keybyte);
@@ -18624,7 +18624,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
 
 /* It returns the algorithm used for decryption and the header and trailer lengths. */
 static tvbuff_t *
-try_decrypt(tvbuff_t *tvb, guint offset, guint len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer, PAIRPDCAP_KEY_ITEM used_key)
+try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer, PAIRPDCAP_KEY_ITEM used_key)
 {
   const guint8      *enc_data;
   tvbuff_t          *decr_tvb = NULL;
@@ -18661,13 +18661,12 @@ try_decrypt(tvbuff_t *tvb, guint offset, guint len, guint8 *algorithm, guint32 *
     }
 
     /* allocate buffer for decrypted payload                      */
-    tmp = (guint8 *)g_memdup(dec_data+offset, dec_caplen-offset);
+    tmp = (guint8 *)wmem_memdup(pinfo->pool, dec_data+offset, dec_caplen-offset);
 
     len = dec_caplen-offset;
 
     /* decrypt successful, let's set up a new data tvb.              */
     decr_tvb = tvb_new_child_real_data(tvb, tmp, len, len);
-    tvb_set_free_cb(decr_tvb, g_free);
   }
 
   return decr_tvb;

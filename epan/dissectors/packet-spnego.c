@@ -1168,15 +1168,13 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree,
 	if (output) {
 		guint8 *outdata;
 
-		outdata = (guint8 *)g_memdup(output, tvb_captured_length(gssapi_encrypt->gssapi_encrypted_tvb));
-		g_free(output);
+		outdata = (guint8 *)wmem_memdup(pinfo->pool, output, tvb_captured_length(gssapi_encrypt->gssapi_encrypted_tvb));
 
 		gssapi_encrypt->gssapi_decrypted_tvb=tvb_new_child_real_data(gssapi_encrypt->gssapi_encrypted_tvb,
 			outdata,
 			tvb_captured_length(gssapi_encrypt->gssapi_encrypted_tvb),
 			tvb_captured_length(gssapi_encrypt->gssapi_encrypted_tvb));
 		add_new_data_source(pinfo, gssapi_encrypt->gssapi_decrypted_tvb, "Decrypted GSS-Krb5");
-		tvb_set_free_cb(gssapi_encrypt->gssapi_decrypted_tvb, g_free);
 	}
 }
 
@@ -1966,7 +1964,7 @@ void proto_register_spnego(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1421 "./asn1/spnego/packet-spnego-template.c"
+#line 1419 "./asn1/spnego/packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1989,7 +1987,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1431 "./asn1/spnego/packet-spnego-template.c"
+#line 1429 "./asn1/spnego/packet-spnego-template.c"
 	};
 
 	static ei_register_info ei[] = {

@@ -1931,7 +1931,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
                         "UDVM EXECUTION STARTED at Address: %u Message size %u", current_address, msg_end);
 
     /* Largest allowed size for a message is UDVM_MEMORY_SIZE = 65536  */
-    out_buff = (guint8 *)g_malloc(UDVM_MEMORY_SIZE);
+    out_buff = (guint8 *)wmem_alloc(pinfo->pool, UDVM_MEMORY_SIZE);
 
     /* Reset offset so proto_tree_add_xxx items below accurately reflect the bytes they represent */
     offset = 0;
@@ -1964,10 +1964,6 @@ execute_next_instruction:
         if ( output_address > 0 ) {
             /* At least something got decompressed, show it */
             decomp_tvb = tvb_new_child_real_data(message_tvb, out_buff,output_address,output_address);
-            /* Arrange that the allocated packet data copy be freed when the
-             * tvbuff is freed.
-             */
-            tvb_set_free_cb( decomp_tvb, g_free );
             /* Add the tvbuff to the list of tvbuffs to which the tvbuff we
              * were handed refers, so it'll get cleaned up when that tvbuff
              * is cleaned up.
@@ -1976,7 +1972,6 @@ execute_next_instruction:
             proto_tree_add_expert(udvm_tree, pinfo, &ei_sigcomp_sigcomp_message_decompression_failure, decomp_tvb, 0, -1);
             return decomp_tvb;
         }
-        g_free(out_buff);
         return NULL;
         break;
 
@@ -4401,10 +4396,6 @@ execute_next_instruction:
 
         /* At least something got decompressed, show it */
         decomp_tvb = tvb_new_child_real_data(message_tvb, out_buff,output_address,output_address);
-        /* Arrange that the allocated packet data copy be freed when the
-         * tvbuff is freed.
-         */
-        tvb_set_free_cb( decomp_tvb, g_free );
 
         add_new_data_source(pinfo, decomp_tvb, "Decompressed SigComp message");
         proto_tree_add_item(udvm_tree, hf_sigcomp_sigcomp_message_decompressed, decomp_tvb, 0, -1, ENC_NA);
@@ -4420,13 +4411,11 @@ execute_next_instruction:
                             "Addr %u Invalid instruction: %u (0x%x)", current_address,current_instruction,current_instruction);
         break;
     }
-    g_free(out_buff);
     return NULL;
 decompression_failure:
 
     proto_tree_add_expert_format(udvm_tree, pinfo, &ei_sigcomp_decompression_failure, bytecode_tvb, 0, -1,
                         "DECOMPRESSION FAILURE: %s", val_to_str(result_code, result_code_vals,"Unknown (%u)"));
-    g_free(out_buff);
     return NULL;
 
 }

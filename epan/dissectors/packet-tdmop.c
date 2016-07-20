@@ -191,10 +191,9 @@ static int dissect_tdmop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         }
         if (dchannel_len>0)
         {
-            guint8 *buff = (guint8 *)g_memdup(dchannel_data, dchannel_len);
+            guint8 *buff = (guint8 *)wmem_memdup(pinfo->pool, dchannel_data, dchannel_len);
             tvbuff_t *new_tvb;
             new_tvb = tvb_new_child_real_data(tvb, buff, dchannel_len, dchannel_len);
-            tvb_set_free_cb(new_tvb, g_free);
             call_dissector(lapd_handle, new_tvb, pinfo, tree);
         }
     }

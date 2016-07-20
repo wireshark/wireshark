@@ -298,10 +298,9 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				if (ones == 5 && state == DATA) {
 					/* we don't increase bit_offset, it is an inserted zero */
 				} else if (ones == 6 && state == DATA) { /* probably starting flag sequence */
-					buff = (guint8 *)g_memdup(data, data_len);
+					buff = (guint8 *)wmem_memdup(pinfo->pool, data, data_len);
 					/* Allocate new tvb for the LAPD frame */
 					new_tvb = tvb_new_child_real_data(tvb, buff, data_len, data_len);
-					tvb_set_free_cb(new_tvb, g_free);
 					add_new_data_source(pinfo, new_tvb, "Decoded LAPD bitstream");
 					data_len = 0;
 					state = FLAGS;

@@ -194,7 +194,7 @@ RevocationInfoChoice/other		otherRIC
 
 	item = actx->created_item;
 
-	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx, item);
+	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx->pinfo, actx, item);
 
 #.END
 
