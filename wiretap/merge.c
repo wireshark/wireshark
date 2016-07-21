@@ -410,11 +410,9 @@ create_shb_header(const merge_in_file_t *in_files, const guint in_file_count,
      * XXX - and how do we preserve all the OPT_SHB_HARDWARE, OPT_SHB_OS,
      * and OPT_SHB_USERAPPL values from all the previous files?
      */
-    wtap_block_set_string_option_value(shb_hdr, OPT_SHB_HARDWARE, NULL, 0 ); /* NULL if not available, UTF-8 string containing the        */
-                                                                                      /*  description of the hardware used to create this section. */
-
+    wtap_block_remove_option(shb_hdr, OPT_SHB_HARDWARE);
     opt_len = os_info_str->len;
-    wtap_block_set_string_option_value(shb_hdr, OPT_SHB_OS, g_string_free(os_info_str, TRUE), opt_len); /* UTF-8 string containing the name   */
+    wtap_block_set_string_option_value(shb_hdr, OPT_SHB_OS, g_string_free(os_info_str, FALSE), opt_len); /* UTF-8 string containing the name   */
                                                                                                             /*  of the operating system used to create this section.     */
     wtap_block_set_string_option_value(shb_hdr, OPT_SHB_USERAPPL, (char*)app_name, app_name ? strlen(app_name): 0 ); /* NULL if not available, UTF-8 string containing the name */
                                                                                       /*  of the application used to create this section.          */
