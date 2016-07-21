@@ -6,10 +6,10 @@
 # Define variables for the components of the Wireshark version number.
 #
 m4_define([version_major], [2])
-m4_define([version_minor], [1])
-m4_define([version_micro], [2])
+m4_define([version_minor], [2])
+m4_define([version_micro], [0])
 dnl Updated by make-version.pl
-m4_define([version_extra], [-git])
+m4_define([version_extra], [])
 m4_define([version_micro_extra], m4_join([], version_micro, version_extra))
 
 AC_INIT(Wireshark, [version_major.version_minor.version_micro_extra], http://bugs.wireshark.org/, , http://www.wireshark.org/)
@@ -57,8 +57,8 @@ AC_DEFINE(VERSION_MAJOR, version_major, [Wireshark's major version])
 AC_DEFINE(VERSION_MINOR, version_minor, [Wireshark's minor version])
 AC_DEFINE(VERSION_MICRO, version_micro, [Wireshark's micro version])
 
-AC_DEFINE_UNQUOTED(VERSION_FLAVOR,
-	["${WIRESHARK_VERSION_FLAVOR:-"Development Build"}"], [Wireshark's package flavor])
+dnl AC_DEFINE_UNQUOTED(VERSION_FLAVOR,
+dnl	["${WIRESHARK_VERSION_FLAVOR:-"Development Build"}"], [Wireshark's package flavor])
 
 LT_PREREQ([2.2.2])
 LT_INIT([disable-static dlopen])
@@ -955,7 +955,7 @@ warnings_as_errors_default="yes"
 AC_MSG_CHECKING(whether we should treat compiler warnings as errors)
 AC_ARG_ENABLE(warnings-as-errors,
   AC_HELP_STRING( [--enable-warnings-as-errors],
-		  [treat warnings as errors (only for GCC or clang) @<:@default=yes, unless extra compiler warnings are enabled@:>@]),
+		  [treat warnings as errors (only for GCC or clang) @<:@default=no, unless extra compiler warnings are enabled@:>@]),
 [
   if test "x$ac_supports_gcc_flags" = "xyes" -a "x$enableval" = "xyes"; then
     with_warnings_as_errors="yes"

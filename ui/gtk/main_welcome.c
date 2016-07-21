@@ -373,7 +373,7 @@ welcome_header_new(void)
     gtk_box_pack_start(GTK_BOX(item_vb), item_hb, FALSE, FALSE, 10);
 
 #ifdef HAVE_GDK_GRESOURCE
-    icon = pixbuf_to_widget("/org/wireshark/image/wssplash_dev.png");
+    icon = pixbuf_to_widget("/org/wireshark/image/wssplash.png");
 #else
     icon = pixbuf_to_widget(wssplash_pb_data);
 #endif

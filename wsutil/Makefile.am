@@ -167,7 +167,7 @@ libwsutil_sse42_la_SOURCES = \
 libwsutil_sse42_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_SSE42)
 
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-libwsutil_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
+libwsutil_la_LDFLAGS = -version-info 7:0:0 @LDFLAGS_SHAREDLIB@
 
 libwsutil_la_LIBADD = \
 	$(LTLIBOBJS)			\
