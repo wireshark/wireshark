@@ -2877,8 +2877,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     nrb_hdrs = wtap_file_get_nrb_for_new_file(cf->wth);
 
     /* If we don't have an application name add Tshark */
-    if (wtap_block_get_string_option_value(g_array_index(shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS ||
-        shb_user_appl == NULL) {
+    if (wtap_block_get_string_option_value(g_array_index(shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS) {
         /* this is free'd by wtap_block_free() later */
         wtap_block_add_string_option_format(g_array_index(shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "TShark (Wireshark) %s", get_ws_vcs_version_info());
     }

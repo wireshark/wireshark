@@ -387,7 +387,7 @@ create_shb_header(const merge_in_file_t *in_files, const guint in_file_count,
      * XXX - fix this to handle multiple comments from a single file.
      */
     if (wtap_block_get_nth_string_option_value(shb_hdr, OPT_COMMENT, 0, &shb_comment) == WTAP_OPTTYPE_SUCCESS &&
-        shb_comment && strlen(shb_comment) > 0) {
+        strlen(shb_comment) > 0) {
         /* very lame way to save comments - does not save them from the other files */
         g_string_append_printf(comment_gstr, "%s \n",shb_comment);
     }

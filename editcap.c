@@ -1379,8 +1379,7 @@ main(int argc, char *argv[])
                 g_assert(filename);
 
                 /* If we don't have an application name add Editcap */
-                if (wtap_block_get_string_option_value(g_array_index(shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS ||
-                    shb_user_appl == NULL) {
+                if (wtap_block_get_string_option_value(g_array_index(shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS) {
                     wtap_block_add_string_option_format(g_array_index(shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "Editcap " VERSION);
                 }
 

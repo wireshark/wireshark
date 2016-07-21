@@ -296,7 +296,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
       /* XXX - this only shows the last comment */
       for (i = 0; wtap_block_get_nth_string_option_value(shb_inf, OPT_COMMENT, i, &opt_comment) == WTAP_OPTTYPE_SUCCESS; i++) {
-        if (opt_comment != NULL && opt_comment[0] != '\0')
+        if (opt_comment[0] != '\0')
           gtk_text_buffer_set_text (buffer, opt_comment, -1);
       }
     }
@@ -349,20 +349,20 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     char *str;
 
     if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS &&
-        str != NULL && str[0] != '\0') {
+        str[0] != '\0') {
       g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s", str);
       add_string_to_grid(grid, &row, "Capture HW:",string_buff);
     }
 
     if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS &&
-        str != NULL && str[0] != '\0') {
+        str[0] != '\0') {
       /* truncate the strings to a reasonable length */
       g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s", str);
       add_string_to_grid(grid, &row, "OS:", string_buff);
     }
 
     if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS &&
-        str != NULL && str[0] != '\0') {
+        str[0] != '\0') {
       /* truncate the strings to a reasonable length */
       g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s", str);
       add_string_to_grid(grid, &row, "Capture application:", string_buff);
@@ -766,19 +766,19 @@ summary_to_texbuff(GtkTextBuffer *buffer)
     char *str;
 
     if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS &&
-        str != NULL && str[0] != '\0') {
+        str[0] != '\0') {
       /* truncate the string to a reasonable length */
       g_snprintf(string_buff, SUM_STR_MAX, INDENT "Capture HW: %s\n", str);
       gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
     }
     if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS &&
-        str != NULL && str[0] != '\0') {
+        str[0] != '\0') {
       /* truncate the strings to a reasonable length */
       g_snprintf(string_buff, SUM_STR_MAX, INDENT "OS: %s\n", str);
       gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
     }
     if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS &&
-        str != NULL && str[0] != '\0') {
+        str[0] != '\0') {
       /* truncate the string to a reasonable length */
       g_snprintf(string_buff, SUM_STR_MAX, INDENT "Capture application: %s\n", str);
       gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
@@ -902,7 +902,7 @@ summary_to_texbuff(GtkTextBuffer *buffer)
 
     for (i = 0; wtap_block_get_nth_string_option_value(shb_inf, OPT_COMMENT, i, &opt_comment) == WTAP_OPTTYPE_SUCCESS; i++) {
       /* XXX - separator between comments? */
-      if (opt_comment != NULL && opt_comment[0] != '\0')
+      if (opt_comment[0] != '\0')
         gtk_text_buffer_insert_at_cursor(buffer, opt_comment, -1);
     }
   }

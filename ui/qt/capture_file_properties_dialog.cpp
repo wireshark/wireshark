@@ -248,7 +248,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     if (shb_inf != NULL) {
       QString capture_hardware(unknown);
       if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS) {
-          if (str != NULL && str[0] != '\0') {
+          if (str[0] != '\0') {
               capture_hardware = str;
           }
       }
@@ -260,7 +260,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
 
       QString capture_os(unknown);
       if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS) {
-          if (str != NULL && str[0] != '\0') {
+          if (str[0] != '\0') {
               capture_os = str;
           }
       }
@@ -271,7 +271,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
 
       QString capture_app(unknown);
       if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS) {
-          if (str != NULL && str[0] != '\0') {
+          if (str[0] != '\0') {
               capture_app = str;
           }
       }

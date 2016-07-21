@@ -3866,11 +3866,9 @@ cf_update_capture_comment(capture_file *cf, gchar *comment)
     wtap_block_add_string_option(shb_inf, OPT_COMMENT, comment, strlen(comment));
   } else {
     /* See if the comment has changed or not */
-    if (shb_comment) {
-      if (strcmp(shb_comment, comment) == 0) {
-        g_free(comment);
-        return;
-      }
+    if (strcmp(shb_comment, comment) == 0) {
+      g_free(comment);
+      return;
     }
 
     /* The comment has changed, let's update it */

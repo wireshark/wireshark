@@ -993,34 +993,29 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
       char *opt_comment;
 
       for (i = 0; wtap_block_get_nth_string_option_value(cf_info->shb, OPT_COMMENT, i, &opt_comment) == WTAP_OPTTYPE_SUCCESS; i++) {
-        if (opt_comment != NULL) {
-          putsep();
-          putquote();
-          printf("%s", opt_comment);
-          putquote();
-        }
+        putsep();
+        putquote();
+        printf("%s", opt_comment);
+        putquote();
       }
     }
 
     if (cap_file_more_info) {
       char *str;
 
-      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS &&
-          str != NULL) {
+      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS) {
         putsep();
         putquote();
         printf("%s", str);
         putquote();
       }
-      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS &&
-          str != NULL) {
+      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS) {
         putsep();
         putquote();
         printf("%s", str);
         putquote();
       }
-      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS &&
-          str != NULL) {
+      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS) {
         putsep();
         putquote();
         printf("%s", str);

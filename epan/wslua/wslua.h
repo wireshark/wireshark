@@ -558,7 +558,7 @@ extern int wslua_set__index(lua_State *L);
         char* str;  \
         if ((obj->member) && (obj->member->len > 0)) { \
             if (wtap_block_get_string_option_value(g_array_index(obj->member, wtap_block_t, 0), option, &str) == WTAP_OPTTYPE_SUCCESS) { \
-                lua_pushstring(L,str); /* this pushes nil if obj->member is null */ \
+                lua_pushstring(L,str); \
             } \
         } \
     })
@@ -572,7 +572,7 @@ extern int wslua_set__index(lua_State *L);
         char* str;  \
         if ((obj->member) && (obj->member->len > 0)) { \
             if (wtap_block_get_nth_string_option_value(g_array_index(obj->member, wtap_block_t, 0), option, 0, &str) == WTAP_OPTTYPE_SUCCESS) { \
-                lua_pushstring(L,str); /* this pushes nil if obj->member is null */ \
+                lua_pushstring(L,str); \
             } \
         } \
     })
