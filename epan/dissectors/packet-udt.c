@@ -45,8 +45,8 @@
 #define UDT_PACKET_TYPE_SHUTDOWN	0x0005
 #define UDT_PACKET_TYPE_ACK2		0x0006
 
-#define UDT_HANDSHAKE_TYPE_STREAM	0
-#define UDT_HANDSHAKE_TYPE_DGRAM	1
+#define UDT_HANDSHAKE_TYPE_STREAM	1
+#define UDT_HANDSHAKE_TYPE_DGRAM	2
 
 void proto_register_udt(void);
 void proto_reg_handoff_udt(void);
@@ -122,17 +122,62 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 	is_control = tvb_get_ntohl(tvb, 0) & 0x80000000;
 	type = (tvb_get_ntohl(tvb, 0) >> 16) & 0x7fff;
 
-	if (is_control)
-		col_add_fstr(pinfo->cinfo, COL_INFO, "UDT type: %s  id: %x",
-			     val_to_str(type, udt_packet_types,
-					"Unknown Control Type (%x)"),
-			     tvb_get_ntohl(tvb, 12));
-	else
+	if (is_control) {
+		const char *typestr = val_to_str(type, udt_packet_types,
+					   "Unknown Control Type (%x)");
+		switch (type) {
+		case UDT_PACKET_TYPE_ACK:
+			col_add_fstr(pinfo->cinfo, COL_INFO, "UDT type: %s seqno: %u ackno: %u id: %x",
+				     typestr,
+				     tvb_get_ntohl(tvb, 16),
+				     tvb_get_ntohl(tvb, 4) & 0x7fffffff,
+				     tvb_get_ntohl(tvb, 12));
+			break;
+		case UDT_PACKET_TYPE_ACK2:
+			col_add_fstr(pinfo->cinfo, COL_INFO, "UDT type: %s ackno: %u id: %x",
+				     typestr,
+				     tvb_get_ntohl(tvb, 4) & 0x7fffffff,
+				     tvb_get_ntohl(tvb, 12));
+			break;
+		case UDT_PACKET_TYPE_NAK: {
+			gchar ranges[1024];
+			gchar *p = ranges;
+			for (i = 16; i < tvb_reported_length(tvb); i = i + 4) {
+				guint32 start, finish;
+				int     is_range;
+
+				is_range = tvb_get_ntohl(tvb, i) & 0x80000000;
+				start = tvb_get_ntohl(tvb, i) & 0x7fffffff;
+
+				if (is_range) {
+					finish = tvb_get_ntohl(tvb, i + 4) & 0x7fffffff;
+					p += g_snprintf(p, (gulong)(sizeof(ranges)-(p-ranges)), "%u-%u,", start, finish);
+					i = i + 4;
+				} else {
+					p += g_snprintf(p, (gulong)(sizeof(ranges) - (p-ranges)), "%u,", start);
+				}
+			}
+			if (p > ranges) {
+				p -= 1;
+				*p = '\0';
+			}
+			col_add_fstr(pinfo->cinfo, COL_INFO, "UDT type: %s missing:%s id: %x",
+				     typestr, ranges, tvb_get_ntohl(tvb, 12));
+			break;
+		}
+		default:
+			col_add_fstr(pinfo->cinfo, COL_INFO, "UDT type: %s id: %x",
+				     typestr,
+				     tvb_get_ntohl(tvb, 12));
+			break;
+		}
+	} else {
 		col_add_fstr(pinfo->cinfo, COL_INFO,
-			     "UDT type: data  seqno: %u  msgno: %u  id: %x",
+			     "UDT type: data seqno: %u msgno: %u id: %x",
 			     tvb_get_ntohl(tvb, 0) & 0x7fffffff,
 			     tvb_get_ntohl(tvb, 4) & 0x1fffffff,
 			     tvb_get_ntohl(tvb, 12));
+	}
 
 	udt_item = proto_tree_add_item(parent_tree, proto_udt, tvb,
 					      0, -1, ENC_NA);
@@ -141,7 +186,7 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 	proto_tree_add_item(tree, hf_udt_iscontrol, tvb, 0, 4, ENC_BIG_ENDIAN);
 	if (is_control) {
 		if (tree) {
-			proto_tree_add_item(tree, hf_udt_type, tvb, 0, 2,
+			proto_tree_add_item(tree, hf_udt_type, tvb, 0, 4,
 					    ENC_BIG_ENDIAN);
 			switch (type) {
 			case UDT_PACKET_TYPE_ACK:
@@ -188,25 +233,28 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 			break;
 		case UDT_PACKET_TYPE_ACK:
 			if (tree) {
+				int len = tvb_reported_length(tvb);
 				proto_tree_add_item(tree, hf_udt_ack_seqno, tvb, 16, 4,
 						    ENC_BIG_ENDIAN);
-				proto_tree_add_item(tree, hf_udt_rtt,      tvb, 20, 4,
-						    ENC_BIG_ENDIAN);
-				proto_tree_add_item(tree, hf_udt_rttvar,   tvb, 24, 4,
-						    ENC_BIG_ENDIAN);
-				proto_tree_add_item(tree, hf_udt_bufavail, tvb, 28, 4,
-						    ENC_BIG_ENDIAN);
-				/* if not a light ack, decode the rate and link capacity */
-				if (tvb_reported_length(tvb) == 40) {
-					proto_tree_add_item(tree, hf_udt_rate, tvb,
-							    32, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(tree, hf_udt_linkcap, tvb,
-							    36, 4, ENC_BIG_ENDIAN);
-					proto_item_set_len(udt_item, 40);
-				}
-				else
-				{
-					proto_item_set_len(udt_item, 32);
+				/* if not a light ack, decode the extended fields */
+				if (len < 32) {
+					proto_item_set_len(udt_item, 20);
+				} else {
+					proto_tree_add_item(tree, hf_udt_rtt,      tvb, 20, 4,
+							    ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_udt_rttvar,   tvb, 24, 4,
+							    ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_udt_bufavail, tvb, 28, 4,
+							    ENC_BIG_ENDIAN);
+					if (len >= 40) {
+						proto_tree_add_item(tree, hf_udt_rate, tvb,
+								    32, 4, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tree, hf_udt_linkcap, tvb,
+								    36, 4, ENC_BIG_ENDIAN);
+						proto_item_set_len(udt_item, 40);
+					} else {
+						proto_item_set_len(udt_item, 32);
+					}
 				}
 			}
 			break;
@@ -304,8 +352,8 @@ void proto_register_udt(void)
 
 		{&hf_udt_type, {
 				"Type", "udt.type",
-				FT_UINT16, BASE_HEX,
-				VALS(udt_packet_types), 0x7fff, NULL, HFILL}},
+				FT_UINT32, BASE_HEX,
+				VALS(udt_packet_types), 0x7fff0000, NULL, HFILL}},
 
 		{&hf_udt_seqno, {
 				"Sequence Number", "udt.seqno",
@@ -368,7 +416,7 @@ void proto_register_udt(void)
 				NULL, 0, NULL, HFILL}},
 
 		{&hf_udt_bufavail, {
-				"Buffer Available (packets)", "udt.rttvar",
+				"Buffer Available (packets)", "udt.buf",
 				FT_UINT32, BASE_DEC,
 				NULL, 0, NULL, HFILL}},
 
