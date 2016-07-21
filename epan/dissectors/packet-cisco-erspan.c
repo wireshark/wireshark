@@ -201,8 +201,7 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 				offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 		}
-
-		if (version == 2) {
+		else {
 			proto_tree_add_item(erspan_tree, hf_erspan_timestamp, tvb,
 				offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
@@ -228,13 +227,9 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
 			proto_tree_add_item(erspan_tree, hf_erspan_o, tvb,
 				offset, 2, ENC_BIG_ENDIAN);
-
-
-
-
+			offset += 2;
 		}
 
-		offset += 2;
 	}
 	else {
 		offset += 8;
