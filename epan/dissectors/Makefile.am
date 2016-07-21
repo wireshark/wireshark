@@ -1002,6 +1002,7 @@ DISSECTOR_SRC = \
 	packet-nlsp.c		\
 	packet-nntp.c		\
 	packet-noe.c		\
+	packet-nordic_ble.c	\
 	packet-nsip.c		\
 	packet-nsh.c		\
 	packet-nsrp.c		\
