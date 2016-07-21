@@ -1,7 +1,8 @@
 = Wireshark {wireshark-version} Release Notes
 // AsciiDoc quick reference: http://powerman.name/doc/asciidoc
 
-This is a semi-experimental release intended to test new features for Wireshark 2.2.
+This is a semi-experimental release intended to test new features for
+Wireshark 2.4.
 
 == What is Wireshark?
 
@@ -17,7 +18,7 @@ used for troubleshooting, analysis, development and education.
 //* ws-buglink:5000[]
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2014-2486[]
-//* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
+//* Wireshark keeps leaving voicemails advertising timeshare condominiums in Fresno. (ws-buglink:0000[])
 
 //_Non-empty section placeholder._
 

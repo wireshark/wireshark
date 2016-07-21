@@ -6,10 +6,10 @@
 # Define variables for the components of the Wireshark version number.
 #
 m4_define([version_major], [2])
-m4_define([version_minor], [1])
-m4_define([version_micro], [2])
+m4_define([version_minor], [3])
+m4_define([version_micro], [0])
 dnl Updated by make-version.pl
-m4_define([version_extra], [-git])
+m4_define([version_extra], [])
 m4_define([version_micro_extra], m4_join([], version_micro, version_extra))
 
 AC_INIT(Wireshark, [version_major.version_minor.version_micro_extra], http://bugs.wireshark.org/, , http://www.wireshark.org/)
