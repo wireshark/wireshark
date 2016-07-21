@@ -77,7 +77,10 @@ void LabelStack::fillLabel() {
     }
 
     style_sheet += "}";
-    setStyleSheet(style_sheet);
+    if (styleSheet().size() != style_sheet.size()) {
+        // Can be computationally expensive.
+        setStyleSheet(style_sheet);
+    }
     setText(si.text);
 }
 
