@@ -194,6 +194,7 @@ static int hf_zbee_zdp_scan_channel = -1;
        int hf_zbee_zdp_ieee_join_list_start = -1;
        int hf_zbee_zdp_ieee_join_list_count = -1;
        int hf_zbee_zdp_ieee_join_list_ieee = -1;
+       int hf_zbee_zdp_number_of_children = -1;
 
 /* Routing Table */
        int hf_zbee_zdp_rtg = -1;
@@ -201,6 +202,7 @@ static int hf_zbee_zdp_scan_channel = -1;
        int hf_zbee_zdp_rtg_destination = -1;
        int hf_zbee_zdp_rtg_next_hop = -1;
        int hf_zbee_zdp_rtg_status = -1;
+
 
 /* Subtree indicies. */
 static gint ett_zbee_zdp = -1;
@@ -295,7 +297,7 @@ const value_string zbee_zdp_cluster_names[] = {
     { ZBEE_ZDP_RSP_ACTIVE_EP,                     "Active Endpoint Response" },
     { ZBEE_ZDP_RSP_MATCH_DESC,                    "Match Descriptor Response" },
     { ZBEE_ZDP_RSP_COMPLEX_DESC,                  "Complex Descriptor Response" },
-    { ZBEE_ZDP_RSP_USER_DESC,                     "User Descriptor Request" },
+    { ZBEE_ZDP_RSP_USER_DESC,                     "User Descriptor Response" },
     { ZBEE_ZDP_RSP_DISCOVERY_CACHE,               "Discovery Cache Response" },
     { ZBEE_ZDP_RSP_CONF_USER_DESC,                "Set User Descriptor Confirm" },
     { ZBEE_ZDP_RSP_SYSTEM_SERVER_DISC,            "Server Discovery Response" },
@@ -308,6 +310,7 @@ const value_string zbee_zdp_cluster_names[] = {
     { ZBEE_ZDP_RSP_FIND_NODE_CACHE,               "Find Node Cache Response" },
     { ZBEE_ZDP_RSP_EXT_SIMPLE_DESC,               "Extended Simple Descriptor Response" },
     { ZBEE_ZDP_RSP_EXT_ACTIVE_EP,                 "Extended Active Endpoint Response" },
+    { ZBEE_ZDP_RSP_PARENT_ANNCE,                  "Parent Announce Response" },
     { ZBEE_ZDP_RSP_END_DEVICE_BIND,               "End Device Bind Response" },
     { ZBEE_ZDP_RSP_BIND,                          "Bind Response" },
     { ZBEE_ZDP_RSP_UNBIND,                        "Unbind Response" },
@@ -1228,6 +1231,9 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         case ZBEE_ZDP_RSP_EXT_ACTIVE_EP:
             dissect_zbee_zdp_rsp_ext_active_ep(zdp_tvb, pinfo, zdp_tree);
             break;
+        case ZBEE_ZDP_RSP_PARENT_ANNCE:
+            dissect_zbee_zdp_rsp_parent_annce(zdp_tvb, pinfo, zdp_tree);
+            break;
         case ZBEE_ZDP_RSP_END_DEVICE_BIND:
             dissect_zbee_zdp_rsp_end_device_bind(zdp_tvb, pinfo, zdp_tree);
             break;
@@ -1821,6 +1827,9 @@ void proto_register_zbee_zdp(void)
         { "IEEE",                "zbee_zdp.ieee_joining_list.ieee", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_zbee_zdp_number_of_children,
+          { "NumberOfChildren",    "zbee_zdp.n_children", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
     };
 
     /*  APS subtrees */

@@ -96,6 +96,7 @@
 #define ZBEE_ZDP_RSP_FIND_NODE_CACHE              0x801c  /* ZigBee 2006 & later. */
 #define ZBEE_ZDP_RSP_EXT_SIMPLE_DESC              0x801d  /* ZigBee 2007 & later. */
 #define ZBEE_ZDP_RSP_EXT_ACTIVE_EP                0x801e  /* ZigBee 2007 & later. */
+#define ZBEE_ZDP_RSP_PARENT_ANNCE                 0x801f  /* r21 */
 #define ZBEE_ZDP_RSP_END_DEVICE_BIND              0x8020
 #define ZBEE_ZDP_RSP_BIND                         0x8021
 #define ZBEE_ZDP_RSP_UNBIND                       0x8022
@@ -292,6 +293,7 @@ extern int hf_zbee_zdp_ieee_join_list_total;
 extern int hf_zbee_zdp_ieee_join_list_start;
 extern int hf_zbee_zdp_ieee_join_list_count;
 extern int hf_zbee_zdp_ieee_join_list_ieee;
+extern int hf_zbee_zdp_number_of_children;
 
 /* Routing Table */
 extern int hf_zbee_zdp_rtg;
@@ -358,6 +360,7 @@ extern void dissect_zbee_zdp_req_user_desc              (tvbuff_t *tvb, packet_i
 extern void dissect_zbee_zdp_req_discovery_cache        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_device_annce               (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_parent_annce               (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+extern void dissect_zbee_zdp_rsp_parent_annce           (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_req_set_user_desc          (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version);
 extern void dissect_zbee_zdp_req_system_server_disc     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_req_store_discovery        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
