@@ -47,6 +47,7 @@ static int hf_epon_dpoe_keyid = -1;
 static int hf_epon_mode = -1;
 static int hf_epon_llid = -1;
 static int hf_epon_checksum = -1;
+static int hf_epon_checksum_status = -1;
 
 static expert_field ei_epon_sld_bad = EI_INIT;
 static expert_field ei_epon_dpoe_reserved_bad = EI_INIT;
@@ -172,7 +173,7 @@ dissect_epon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   sent_checksum = tvb_get_guint8(tvb, 5+offset);
   checksum = get_crc8_ieee8023_epon(tvb, 5, 0+offset);
 
-  proto_tree_add_checksum(epon_tree, tvb, 5+offset, hf_epon_checksum, -1, &ei_epon_checksum_bad, pinfo, checksum, ENC_NA, PROTO_CHECKSUM_VERIFY);
+  proto_tree_add_checksum(epon_tree, tvb, 5+offset, hf_epon_checksum, hf_epon_checksum_status, &ei_epon_checksum_bad, pinfo, checksum, ENC_NA, PROTO_CHECKSUM_VERIFY);
   if (sent_checksum != checksum) {
     col_append_str(pinfo->cinfo, COL_INFO, " [EPON PREAMBLE CHECKSUM INCORRECT]");
   }
@@ -235,6 +236,10 @@ proto_register_epon(void)
     { &hf_epon_checksum,
       { "Frame check sequence", "epon.checksum", FT_UINT8, BASE_HEX, NULL,
         0x0, "EPON preamble checksum", HFILL }
+    },
+    { &hf_epon_checksum_status,
+      { "Frame check sequence Status", "epon.checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals),
+        0x0, NULL, HFILL }
     },
   };
 

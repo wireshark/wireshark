@@ -172,6 +172,7 @@ static gint ett_icmp_mpls_stack_object = -1;
 
 static expert_field ei_icmp_resp_not_found = EI_INIT;
 static expert_field ei_icmp_checksum = EI_INIT;
+static expert_field ei_icmp_ext_checksum = EI_INIT;
 
 
 /* ICMP definitions */
@@ -755,7 +756,7 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 }				/*end dissect_interface_information_object */
 
 static void
-dissect_extensions(tvbuff_t * tvb, gint offset, proto_tree * tree)
+dissect_extensions(tvbuff_t * tvb, packet_info *pinfo, gint offset, proto_tree * tree)
 {
 	guint8 version;
 	guint8 class_num;
@@ -797,8 +798,8 @@ dissect_extensions(tvbuff_t * tvb, gint offset, proto_tree * tree)
 				   tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	/* Checksum */
-	proto_tree_add_checksum(ext_tree, tvb, offset + 2, hf_icmp_ext_checksum, hf_icmp_ext_checksum_status, NULL, NULL, ip_checksum_tvb(tvb, 0, reported_length),
-								ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+	proto_tree_add_checksum(ext_tree, tvb, offset + 2, hf_icmp_ext_checksum, hf_icmp_ext_checksum_status, &ei_icmp_ext_checksum,
+							pinfo, ip_checksum_tvb(tvb, 0, reported_length), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 
 	if (version != 1 && version != 2) {
 		/* Unsupported version */
@@ -1435,7 +1436,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		if ((tvb_reported_length(tvb) > 8 + 128)
 		    && (tvb_get_ntohs(tvb, 8 + 2) <= 128
 			|| favor_icmp_mpls_ext)) {
-			dissect_extensions(tvb, 8 + 128, icmp_tree);
+			dissect_extensions(tvb, pinfo, 8 + 128, icmp_tree);
 		}
 		break;
 	case ICMP_ECHOREPLY:
@@ -1984,7 +1985,8 @@ void proto_register_icmp(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_icmp_resp_not_found, { "icmp.resp_not_found", PI_SEQUENCE, PI_WARN, "Response not found", EXPFILL }},
-		{ &ei_icmp_checksum, { "icmp.checksum_bad.expert", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
+		{ &ei_icmp_checksum, { "icmp.checksum_bad", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
+		{ &ei_icmp_ext_checksum, { "icmp.ext.checksum_bad", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
 	};
 
 	module_t *icmp_module;

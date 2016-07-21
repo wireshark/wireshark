@@ -89,6 +89,7 @@ static int hf_digitech_ack_request_proc_id = -1;
 static int hf_digitech_nack_request_proc_id = -1;
 
 static int hf_digitech_checksum = -1;
+static int hf_digitech_checksum_status = -1;
 
 static gint ett_sysex = -1;
 
@@ -1186,7 +1187,7 @@ dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
                 digitech_helper ^= *data_ptr++;
             }
 
-            proto_tree_add_checksum(tree, tvb, offset, hf_digitech_checksum, -1, &ei_digitech_checksum_bad, pinfo, digitech_helper,
+            proto_tree_add_checksum(tree, tvb, offset, hf_digitech_checksum, hf_digitech_checksum_status, &ei_digitech_checksum_bad, pinfo, digitech_helper,
                                     ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
             offset++;
             break;
@@ -1382,6 +1383,9 @@ proto_register_sysex(void)
         { &hf_digitech_checksum,
             { "Checksum", "sysex.digitech.checksum", FT_UINT8, BASE_HEX,
               NULL, 0, NULL, HFILL }},
+        { &hf_digitech_checksum_status,
+            { "Checksum Status", "sysex.digitech.checksum.status", FT_UINT8, BASE_NONE,
+              VALS(proto_checksum_vals), 0, NULL, HFILL }},
     };
 
     static gint *sysex_subtrees[] = {

@@ -106,6 +106,7 @@ static int hf_isis_hello_mcid = -1;
 static int hf_isis_hello_is_neighbor = -1;
 static int hf_isis_hello_mtid = -1;
 static int hf_isis_hello_checksum = -1;
+static int hf_isis_hello_checksum_status = -1;
 static int hf_isis_hello_trill_neighbor_sf = -1;
 static int hf_isis_hello_trill_neighbor_lf = -1;
 static int hf_isis_hello_trill_neighbor_ff = -1;
@@ -169,6 +170,7 @@ static expert_field ei_isis_hello_authentication = EI_INIT;
 static expert_field ei_isis_hello_subtlv = EI_INIT;
 static expert_field ei_isis_hello_clv_mt = EI_INIT;
 static expert_field ei_isis_hello_clv_unknown = EI_INIT;
+static expert_field ei_isis_hello_checksum = EI_INIT;
 
 static const value_string isis_hello_circuit_type_vals[] = {
     { ISIS_HELLO_TYPE_RESERVED,    "Reserved 0 (discard PDU)"},
@@ -767,13 +769,13 @@ dissect_hello_checksum_clv(tvbuff_t *tvb, packet_info* pinfo,
 
     if (checksum == 0) {
         /* No checksum present */
-        proto_tree_add_checksum(tree, tvb, offset, hf_isis_hello_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
+        proto_tree_add_checksum(tree, tvb, offset, hf_isis_hello_checksum, hf_isis_hello_checksum_status, &ei_isis_hello_checksum, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
     } else {
         if (osi_check_and_get_checksum(tvb, 0, pdu_length, offset, &cacl_checksum)) {
             /* Successfully processed checksum, verify it */
-            proto_tree_add_checksum(tree, tvb, offset, hf_isis_hello_checksum, -1, NULL, pinfo, cacl_checksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+            proto_tree_add_checksum(tree, tvb, offset, hf_isis_hello_checksum, hf_isis_hello_checksum_status, &ei_isis_hello_checksum, pinfo, cacl_checksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
         } else {
-            proto_tree_add_checksum(tree, tvb, offset, hf_isis_hello_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+            proto_tree_add_checksum(tree, tvb, offset, hf_isis_hello_checksum, hf_isis_hello_checksum_status, &ei_isis_hello_checksum, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
             proto_tree_add_expert_format(tree, pinfo, &ei_isis_hello_long_packet, tvb, offset, -1,
                     "Packet length %d went beyond packet", tvb_captured_length(tvb) );
         }
@@ -1418,6 +1420,7 @@ proto_register_isis_hello(void)
       { &hf_isis_hello_trill_neighbor_mtu, { "Tested MTU", "isis.hello.trill_neighbor.mtu", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_trill_neighbor_snpa, { "SNPA", "isis.hello.trill_neighbor.snpa", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_checksum, { "Checksum", "isis.hello.checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_checksum_status, { "Checksum Status", "isis.hello.checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
       { &hf_isis_hello_adjacency_state, { "Adjacency State", "isis.hello.adjacency_state", FT_UINT8, BASE_DEC, VALS(adj_state_vals), 0x0, NULL, HFILL }},
       { &hf_isis_hello_extended_local_circuit_id, { "Extended Local circuit ID", "isis.hello.extended_local_circuit_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_neighbor_systemid, { "Neighbor SystemID", "isis.hello.neighbor_systemid", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -1481,6 +1484,7 @@ proto_register_isis_hello(void)
         { &ei_isis_hello_authentication, { "isis.hello.authentication.unknown", PI_PROTOCOL, PI_WARN, "Unknown authentication type", EXPFILL }},
         { &ei_isis_hello_clv_mt, { "isis.hello.clv_mt.malformed", PI_MALFORMED, PI_ERROR, "malformed MT-ID", EXPFILL }},
         { &ei_isis_hello_clv_unknown, { "isis.hello.clv.unknown", PI_UNDECODED, PI_NOTE, "Unknown option", EXPFILL }},
+        { &ei_isis_hello_checksum, { "isis.hello.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
     };
 
     expert_module_t* expert_isis_hello;

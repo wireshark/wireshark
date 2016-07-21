@@ -43,6 +43,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-rdm.h"
 
 void proto_register_rdm(void);
@@ -662,6 +663,8 @@ static int hf_rdm_pd_slot_value = -1;
 static int hf_rdm_pd_rec_value_support = -1;
 
 static int ett_rdm = -1;
+
+static expert_field ei_rdm_checksum = EI_INIT;
 
 static guint16
 rdm_checksum(tvbuff_t *tvb, guint length)
@@ -2093,7 +2096,7 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			offset += padding_size;
 		}
 
-		proto_tree_add_checksum(rdm_tree, tvb, offset, hf_rdm_checksum, hf_rdm_checksum_status, NULL, pinfo, rdm_checksum(tvb, offset),
+		proto_tree_add_checksum(rdm_tree, tvb, offset, hf_rdm_checksum, hf_rdm_checksum_status, &ei_rdm_checksum, pinfo, rdm_checksum(tvb, offset),
 							ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		offset += 2;
 
@@ -2744,11 +2747,18 @@ proto_register_rdm(void)
 		&ett_rdm
 	};
 
-	proto_rdm = proto_register_protocol("Remote Device Management",
-			"RDM", "rdm");
+	static ei_register_info ei[] = {
+		{ &ei_rdm_checksum, { "rdm.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+	};
+
+	expert_module_t* expert_rdm;
+
+	proto_rdm = proto_register_protocol("Remote Device Management", "RDM", "rdm");
 	proto_register_field_array(proto_rdm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("rdm", dissect_rdm, proto_rdm);
+	expert_rdm = expert_register_protocol(proto_rdm);
+	expert_register_field_array(expert_rdm, ei, array_length(ei));
 }
 
 void

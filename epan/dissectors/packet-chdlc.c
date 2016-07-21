@@ -194,7 +194,7 @@ dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     proto_tree_add_item(fh_tree, hf_chdlc_control, tvb, 1, 1, ENC_NA);
   }
 
-  decode_fcs(tvb, fh_tree, chdlc_fcs_decode, 2);
+  decode_fcs(tvb, pinfo, fh_tree, chdlc_fcs_decode, 2);
 
   chdlctype(proto, tvb, 4, pinfo, tree, fh_tree, hf_chdlc_proto);
   return tvb_captured_length(tvb);

@@ -493,6 +493,7 @@ enum hf_lmp_filter_keys {
   LMPF_VAL_LAD_INFO_SUBOBJ_LSP_ENCODING,
 
   LMPF_CHECKSUM,
+  LMPF_CHECKSUM_STATUS,
 
   LMPF_MAX
 };
@@ -761,13 +762,13 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         if (!pinfo->fragmented && (int) tvb_captured_length(tvb) >= msg_length) {
             /* The packet isn't part of a fragmented datagram and isn't truncated, so we can checksum it. */
             SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, msg_length);
-            proto_tree_add_checksum(lmp_header_tree, tvb, offset+6, hf_lmp_filter[LMPF_CHECKSUM], -1, &ei_lmp_checksum_incorrect, pinfo,
+            proto_tree_add_checksum(lmp_header_tree, tvb, offset+6, hf_lmp_filter[LMPF_CHECKSUM], hf_lmp_filter[LMPF_CHECKSUM_STATUS], &ei_lmp_checksum_incorrect, pinfo,
                                     in_cksum(cksum_vec, 1), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
         } else {
-            proto_tree_add_checksum(lmp_header_tree, tvb, offset+6, hf_lmp_filter[LMPF_CHECKSUM], -1, &ei_lmp_checksum_incorrect, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+            proto_tree_add_checksum(lmp_header_tree, tvb, offset+6, hf_lmp_filter[LMPF_CHECKSUM], hf_lmp_filter[LMPF_CHECKSUM_STATUS], &ei_lmp_checksum_incorrect, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
         }
     } else {
-        proto_tree_add_checksum(lmp_header_tree, tvb, offset+6, hf_lmp_filter[LMPF_CHECKSUM], -1, &ei_lmp_checksum_incorrect, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
+        proto_tree_add_checksum(lmp_header_tree, tvb, offset+6, hf_lmp_filter[LMPF_CHECKSUM], hf_lmp_filter[LMPF_CHECKSUM_STATUS], &ei_lmp_checksum_incorrect, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
     }
 
     offset += 8;
@@ -2578,6 +2579,9 @@ proto_register_lmp(void)
            RVALS(gmpls_lsp_enc_rvals), 0x0, NULL, HFILL }},
         {&hf_lmp_filter[LMPF_CHECKSUM],
          { "Message Checksum", "lmp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_lmp_filter[LMPF_CHECKSUM_STATUS],
+         { "Checksum Status", "lmp.checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
            NULL, HFILL }},
         {&hf_lmp_data,
          { "Data", "lmp.data", FT_BYTES, BASE_NONE, NULL, 0x0,

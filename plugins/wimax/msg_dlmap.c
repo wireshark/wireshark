@@ -314,7 +314,9 @@ static gint hf_308a_type = -1;
 static gint hf_308a_mult = -1;
 static gint hf_308a_rsv = -1;
 static gint hf_mac_header_compress_dlmap_crc = -1;
+static gint hf_mac_header_compress_dlmap_crc_status = -1;
 static gint hf_crc16 = -1;
+static gint hf_crc16_status = -1;
 static gint hf_padding = -1;
 static gint hf_cid_mask = -1;
 static gint hf_reserved = -1;
@@ -601,6 +603,18 @@ static int hf_dlmap_reduced_aas_spid = -1;
 
 
 static expert_field ei_dlmap_not_implemented = EI_INIT;
+static expert_field ei_crc16 = EI_INIT;
+static expert_field ei_mac_header_compress_dlmap_crc = EI_INIT;
+
+/* Copied and renamed from proto.c because global value_strings don't work for plugins */
+static const value_string plugin_proto_checksum_vals[] = {
+	{ PROTO_CHECKSUM_E_BAD,        "Bad"  },
+	{ PROTO_CHECKSUM_E_GOOD,       "Good" },
+	{ PROTO_CHECKSUM_E_UNVERIFIED, "Unverified" },
+	{ PROTO_CHECKSUM_E_NOT_PRESENT, "Not present" },
+
+	{ 0,        NULL }
+};
 
 /********************************************************************
  * DL-MAP Miscellaneous IEs and TLVs
@@ -818,7 +832,7 @@ static gint DL_HARQ_Chase_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint 
 	return (BIT_TO_NIB(bit) - offset);
 }
 
-static gint DL_HARQ_IR_CTC_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb)
+static gint DL_HARQ_IR_CTC_sub_burst_IE(proto_tree *diuc_tree, packet_info *pinfo, gint offset, gint length, tvbuff_t *tvb)
 {
 	/* offset of IE in nibbles, length is variable */
 	gint bit;
@@ -866,7 +880,7 @@ static gint DL_HARQ_IR_CTC_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint
 	{
 		/* CRC-16 is always appended */
 		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-		proto_tree_add_checksum(tree, tvb, BIT_ADDR(bit), hf_crc16, -1, NULL, NULL, calculated_crc,
+		proto_tree_add_checksum(tree, tvb, BIT_ADDR(bit), hf_crc16, hf_crc16_status, &ei_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		bit += 16;
 	}
@@ -874,7 +888,7 @@ static gint DL_HARQ_IR_CTC_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint
 	return (BIT_TO_NIB(bit) - offset);
 }
 
-static gint DL_HARQ_IR_CC_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb)
+static gint DL_HARQ_IR_CC_sub_burst_IE(proto_tree *diuc_tree, packet_info *pinfo, gint offset, gint length, tvbuff_t *tvb)
 {
 	/* offset of IE in nibbles, length is variable */
 	gint bit;
@@ -930,7 +944,7 @@ static gint DL_HARQ_IR_CC_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint 
 	{
 		/* CRC-16 is always appended */
 		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-		proto_tree_add_checksum(tree, tvb, BIT_ADDR(bit), hf_crc16, -1, NULL, NULL, calculated_crc,
+		proto_tree_add_checksum(tree, tvb, BIT_ADDR(bit), hf_crc16, hf_crc16_status, &ei_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		bit += 16;
 	}
@@ -938,7 +952,7 @@ static gint DL_HARQ_IR_CC_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint 
 	return (BIT_TO_NIB(bit) - offset);
 }
 
-static gint MIMO_DL_Chase_HARQ_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb)
+static gint MIMO_DL_Chase_HARQ_sub_burst_IE(proto_tree *diuc_tree, packet_info *pinfo, gint offset, gint length, tvbuff_t *tvb)
 {
 	/* offset of IE in nibbles, length is variable */
 	gint bit;
@@ -991,7 +1005,7 @@ static gint MIMO_DL_Chase_HARQ_sub_burst_IE(proto_tree *diuc_tree, gint offset, 
 	{
 		/* CRC-16 is always appended */
 		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-		proto_tree_add_checksum(tree, tvb, BIT_ADDR(bit), hf_crc16, -1, NULL, NULL, calculated_crc,
+		proto_tree_add_checksum(tree, tvb, BIT_ADDR(bit), hf_crc16, hf_crc16_status, &ei_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		bit += 16;
 	}
@@ -999,7 +1013,7 @@ static gint MIMO_DL_Chase_HARQ_sub_burst_IE(proto_tree *diuc_tree, gint offset, 
 	return (BIT_TO_NIB(bit) - offset);
 }
 
-static gint MIMO_DL_IR_HARQ_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb)
+static gint MIMO_DL_IR_HARQ_sub_burst_IE(proto_tree *diuc_tree, packet_info *pinfo, gint offset, gint length, tvbuff_t *tvb)
 {
 	/* offset of IE in nibbles, length is variable */
 	gint bit;
@@ -1045,7 +1059,7 @@ static gint MIMO_DL_IR_HARQ_sub_burst_IE(proto_tree *diuc_tree, gint offset, gin
 	{
 		/* CRC-16 is always appended */
 		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-		proto_tree_add_checksum(tree, tvb, BIT_ADDR(bit), hf_crc16, -1, NULL, NULL, calculated_crc,
+		proto_tree_add_checksum(tree, tvb, BIT_ADDR(bit), hf_crc16, hf_crc16_status, &ei_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		bit += 16;
 	}
@@ -1053,7 +1067,7 @@ static gint MIMO_DL_IR_HARQ_sub_burst_IE(proto_tree *diuc_tree, gint offset, gin
 	return (BIT_TO_NIB(bit) - offset);
 }
 
-static gint MIMO_DL_IR_HARQ_for_CC_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb)
+static gint MIMO_DL_IR_HARQ_for_CC_sub_burst_IE(proto_tree *diuc_tree, packet_info *pinfo, gint offset, gint length, tvbuff_t *tvb)
 {
 	/* offset of IE in nibbles, length is variable */
 	gint bit;
@@ -1100,7 +1114,7 @@ static gint MIMO_DL_IR_HARQ_for_CC_sub_burst_IE(proto_tree *diuc_tree, gint offs
 	{
 		/* CRC-16 is always appended */
 		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-		proto_tree_add_checksum(tree, tvb, BIT_ADDR(bit), hf_crc16, -1, NULL, NULL, calculated_crc,
+		proto_tree_add_checksum(tree, tvb, BIT_ADDR(bit), hf_crc16, hf_crc16_status, &ei_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		bit += 16;
 	}
@@ -1108,7 +1122,7 @@ static gint MIMO_DL_IR_HARQ_for_CC_sub_burst_IE(proto_tree *diuc_tree, gint offs
 	return (BIT_TO_NIB(bit) - offset);
 }
 
-static gint MIMO_DL_STC_HARQ_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb)
+static gint MIMO_DL_STC_HARQ_sub_burst_IE(proto_tree *diuc_tree, packet_info *pinfo, gint offset, gint length, tvbuff_t *tvb)
 {
 	/* offset of IE in nibbles, length is variable */
 	gint bit;
@@ -1153,7 +1167,7 @@ static gint MIMO_DL_STC_HARQ_sub_burst_IE(proto_tree *diuc_tree, gint offset, gi
 	{
 		/* CRC-16 is always appended */
 		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-		proto_tree_add_checksum(tree, tvb, BIT_ADDR(bit), hf_crc16, -1, NULL, NULL, calculated_crc,
+		proto_tree_add_checksum(tree, tvb, BIT_ADDR(bit), hf_crc16, hf_crc16_status, &ei_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		bit += 16;
 	}
@@ -1339,7 +1353,7 @@ static gint Skip_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *t
 	return BIT_TO_NIB(bit);
 }
 
-static gint HARQ_DL_MAP_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb)
+static gint HARQ_DL_MAP_IE(proto_tree *diuc_tree, packet_info *pinfo, gint offset, gint length, tvbuff_t *tvb)
 {
 	/* DL-MAP Extended-2 IE = 7 */
 	/* 8.4.5.3.21 [2] HARQ_DL_MAP_IE */
@@ -1391,17 +1405,17 @@ static gint HARQ_DL_MAP_IE(proto_tree *diuc_tree, gint offset, gint length, tvbu
 		if (mode == 0) {
 			DL_HARQ_Chase_sub_burst_IE(tree, BIT_TO_NIB(bit), length, tvb);
 		} else if (mode == 1) {
-			DL_HARQ_IR_CTC_sub_burst_IE(tree, BIT_TO_NIB(bit), length, tvb);
+			DL_HARQ_IR_CTC_sub_burst_IE(tree, pinfo, BIT_TO_NIB(bit), length, tvb);
 		} else if (mode == 2) {
-			DL_HARQ_IR_CC_sub_burst_IE(tree, BIT_TO_NIB(bit), length, tvb);
+			DL_HARQ_IR_CC_sub_burst_IE(tree, pinfo, BIT_TO_NIB(bit), length, tvb);
 		} else if (mode == 3) {
-			MIMO_DL_Chase_HARQ_sub_burst_IE(tree, BIT_TO_NIB(bit), length, tvb);
+			MIMO_DL_Chase_HARQ_sub_burst_IE(tree, pinfo, BIT_TO_NIB(bit), length, tvb);
 		} else if (mode == 4) {
-			MIMO_DL_IR_HARQ_sub_burst_IE(tree, BIT_TO_NIB(bit), length, tvb);
+			MIMO_DL_IR_HARQ_sub_burst_IE(tree, pinfo, BIT_TO_NIB(bit), length, tvb);
 		} else if (mode == 5) {
-			MIMO_DL_IR_HARQ_for_CC_sub_burst_IE(tree, BIT_TO_NIB(bit), length, tvb);
+			MIMO_DL_IR_HARQ_for_CC_sub_burst_IE(tree, pinfo, BIT_TO_NIB(bit), length, tvb);
 		} else if (mode == 6) {
-			MIMO_DL_STC_HARQ_sub_burst_IE(tree, BIT_TO_NIB(bit), length, tvb);
+			MIMO_DL_STC_HARQ_sub_burst_IE(tree, pinfo, BIT_TO_NIB(bit), length, tvb);
 		} else {
 			proto_tree_add_bits_item(tree, hf_dlmap_harq_dl_map_reserved_mode, tvb, bit, 1, ENC_BIG_ENDIAN);
 			break; /* cannot continue */
@@ -2068,7 +2082,7 @@ static gint dissect_dlmap_ie(proto_tree *ie_tree, packet_info *pinfo, gint offse
 				break;
 			case 0x07:
 				/* 8.4.5.3.21 HARQ_DL_MAP_IE */
-				nibble = HARQ_DL_MAP_IE(tree, nibble, len, tvb);
+				nibble = HARQ_DL_MAP_IE(tree, pinfo, nibble, len, tvb);
 				break;
 			case 0x08:
 				/* 8.4.5.3.22 HARQ_ACK IE */
@@ -2385,8 +2399,8 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
 	{
 		/* calculate the CRC */
 		calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, mac_len - (int)sizeof(mac_crc)), mac_len - (int)sizeof(mac_crc));
-		proto_tree_add_checksum(base_tree, tvb, mac_len - (int)sizeof(mac_crc), hf_mac_header_compress_dlmap_crc, -1, NULL, pinfo, calculated_crc,
-								ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+		proto_tree_add_checksum(base_tree, tvb, mac_len - (int)sizeof(mac_crc), hf_mac_header_compress_dlmap_crc, hf_mac_header_compress_dlmap_crc_status, &ei_mac_header_compress_dlmap_crc,
+								pinfo, calculated_crc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 	}
 	else
 	{   /* display error message */
@@ -2464,7 +2478,7 @@ static gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo, proto_
 
 	/* CRC-16 is always appended */
 	calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, NIB_TO_BYTE(nib)), NIB_TO_BYTE(nib));
-	proto_tree_add_checksum(tree, tvb, NIBHI(nib,4), hf_crc16, -1, NULL, pinfo, calculated_crc,
+	proto_tree_add_checksum(tree, tvb, NIBHI(nib,4), hf_crc16, hf_crc16_status, &ei_crc16, pinfo, calculated_crc,
 								ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 	/* nib += 4; */
 
@@ -2584,7 +2598,7 @@ gint wimax_decode_dlmap_reduced_aas(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 
 	/* CRC-16 is always appended */
 	calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-	proto_tree_add_checksum(tree, tvb, BIT_ADDR(bit), hf_crc16, -1, NULL, pinfo, calculated_crc,
+	proto_tree_add_checksum(tree, tvb, BIT_ADDR(bit), hf_crc16, hf_crc16_status, &ei_crc16, pinfo, calculated_crc,
 								ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 	bit += 16;
 
@@ -3056,10 +3070,24 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 			}
 		},
 		{
+			&hf_mac_header_compress_dlmap_crc_status,
+			{
+				"CRC Status", "wmx.compress_dlmap_crc.status",
+				FT_UINT8, BASE_NONE, VALS(plugin_proto_checksum_vals), 0x0, NULL, HFILL
+			}
+		},
+		{
 			&hf_crc16,
 			{
 				"CRC-16", "wmx.dlmap.crc16",
 				FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_crc16_status,
+			{
+				"CRC-16 Status", "wmx.dlmap.crc16.status",
+				FT_UINT8, BASE_NONE, VALS(plugin_proto_checksum_vals), 0x0, NULL, HFILL
 			}
 		},
 		{
@@ -3418,6 +3446,8 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_dlmap_not_implemented, { "wmx.dlmap.not_implemented", PI_UNDECODED, PI_WARN, "Not implemented", EXPFILL }},
+		{ &ei_crc16, { "wmx.dlmap.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+		{ &ei_mac_header_compress_dlmap_crc, { "wmx.compress_dlmap.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
 	};
 
 	expert_module_t* expert_mac_mgmt_msg_dlmap;

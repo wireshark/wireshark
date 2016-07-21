@@ -252,6 +252,7 @@ static int hf_edp_unknown_data = -1;
 static int hf_edp_null = -1;
 
 static expert_field ei_edp_short_tlv = EI_INIT;
+static expert_field ei_edp_checksum = EI_INIT;
 
 static gint ett_edp = -1;
 static gint ett_edp_tlv_header = -1;
@@ -983,10 +984,10 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		/* Checksum from version to null tlv */
 		SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, data_length);
 
-		proto_tree_add_checksum(edp_tree, tvb, offset, hf_edp_checksum, hf_edp_checksum_status, NULL, pinfo, in_cksum(&cksum_vec[0], 1),
+		proto_tree_add_checksum(edp_tree, tvb, offset, hf_edp_checksum, hf_edp_checksum_status, &ei_edp_checksum, pinfo, in_cksum(&cksum_vec[0], 1),
 								ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 	} else {
-		proto_tree_add_checksum(edp_tree, tvb, offset, hf_edp_checksum, hf_edp_checksum_status, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+		proto_tree_add_checksum(edp_tree, tvb, offset, hf_edp_checksum, hf_edp_checksum_status, &ei_edp_checksum, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 	}
 	offset += 2;
 
@@ -1440,6 +1441,7 @@ proto_register_edp(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_edp_short_tlv, { "edp.short_tlv", PI_MALFORMED, PI_ERROR, "TLV is too short", EXPFILL }},
+		{ &ei_edp_checksum, { "edp.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
 	};
 
 	expert_module_t* expert_edp;

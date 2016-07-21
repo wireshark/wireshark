@@ -145,6 +145,7 @@ static gint ett_cdp_checksum = -1;
 
 static expert_field ei_cdp_invalid_data = EI_INIT;
 static expert_field ei_cdp_nrgyz_tlvlength = EI_INIT;
+static expert_field ei_cdp_checksum = EI_INIT;
 
 static int
 dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
@@ -336,7 +337,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, data_length);
     }
 
-    proto_tree_add_checksum(cdp_tree, tvb, offset, hf_cdp_checksum, hf_cdp_checksum_status, NULL, pinfo, in_cksum(cksum_vec, 1),
+    proto_tree_add_checksum(cdp_tree, tvb, offset, hf_cdp_checksum, hf_cdp_checksum_status, &ei_cdp_checksum, pinfo, in_cksum(cksum_vec, 1),
                                 ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
     offset += 2;
 
@@ -1424,7 +1425,9 @@ proto_register_cdp(void)
     static ei_register_info ei[] = {
         { &ei_cdp_invalid_data, { "cdp.invalid_data", PI_MALFORMED, PI_ERROR, "Invalid bytes at end", EXPFILL }},
         { &ei_cdp_nrgyz_tlvlength, { "cdp.nrgyz_tlv.length.invalid", PI_MALFORMED, PI_ERROR, "TLV with invalid length", EXPFILL }},
+        { &ei_cdp_checksum, { "cdp.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
     };
+
     expert_module_t* expert_cdp;
 
     proto_cdp = proto_register_protocol("Cisco Discovery Protocol", "CDP", "cdp");

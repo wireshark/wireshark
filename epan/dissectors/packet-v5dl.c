@@ -33,6 +33,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/xdlc.h>
 
 void proto_register_v5dl(void);
@@ -67,6 +68,8 @@ static gint ett_v5dl = -1;
 static gint ett_v5dl_address = -1;
 static gint ett_v5dl_control = -1;
 /* static gint ett_v5dl_checksum = -1; */
+
+static expert_field ei_v5dl_checksum = EI_INIT;
 
 static dissector_handle_t v52_handle;
 
@@ -243,8 +246,8 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		checksum_calculated = crc16_ccitt_tvb(tvb, checksum_offset);
 		checksum_calculated = g_htons(checksum_calculated);  /* Note: g_htons() macro may eval arg multiple times */
 
-		proto_tree_add_checksum(v5dl_tree, tvb, checksum_offset, hf_v5dl_checksum, hf_v5dl_checksum_status, NULL, pinfo, checksum_calculated,
-							ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+		proto_tree_add_checksum(v5dl_tree, tvb, checksum_offset, hf_v5dl_checksum, hf_v5dl_checksum_status, &ei_v5dl_checksum,
+								pinfo, checksum_calculated, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		/*
 		 * Remove the V5DL header *and* the checksum.
 		 */
@@ -401,10 +404,17 @@ proto_register_v5dl(void)
 		/* &ett_v5dl_checksum */
 	};
 
-	proto_v5dl = proto_register_protocol("V5 Data Link Layer",
-					     "V5DL", "v5dl");
+	static ei_register_info ei[] = {
+		{ &ei_v5dl_checksum, { "v5dl.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+	};
+
+	expert_module_t* expert_v5dl;
+
+	proto_v5dl = proto_register_protocol("V5 Data Link Layer", "V5DL", "v5dl");
 	proto_register_field_array (proto_v5dl, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_v5dl = expert_register_protocol(proto_v5dl);
+	expert_register_field_array(expert_v5dl, ei, array_length(ei));
 
 	register_dissector("v5dl", dissect_v5dl, proto_v5dl);
 }

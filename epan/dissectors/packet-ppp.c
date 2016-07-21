@@ -114,14 +114,15 @@ static int hf_ppp_opt_type = -1;
 static int hf_ppp_opt_type_copy = -1;
 static int hf_ppp_opt_type_class = -1;
 static int hf_ppp_opt_type_number = -1;
-/* Generated from convert_proto_tree_add_text.pl */
 static int hf_ppp_fcs_16 = -1;
 static int hf_ppp_fcs_32 = -1;
+static int hf_ppp_fcs_status = -1;
 
 static gint ett_ppp = -1;
 static gint ett_ppp_opt_type = -1;
 
 static expert_field ei_ppp_opt_len_invalid = EI_INIT;
+static expert_field ei_ppp_fcs = EI_INIT;
 
 static int proto_ppp_hdlc = -1;
 
@@ -1825,7 +1826,7 @@ fcs32(tvbuff_t *tvbuff)
 }
 
 tvbuff_t *
-decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
+decode_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fh_tree, int fcs_decode, int proto_offset)
 {
     tvbuff_t *next_tvb;
     gint      len, reported_len;
@@ -1877,7 +1878,7 @@ decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
             /*
              * Compute the FCS and put it into the tree.
              */
-            proto_tree_add_checksum(fh_tree, tvb, proto_offset + len, hf_ppp_fcs_16, -1, NULL, NULL, fcs16(tvb),
+            proto_tree_add_checksum(fh_tree, tvb, proto_offset + len, hf_ppp_fcs_16, hf_ppp_fcs_status, &ei_ppp_fcs, pinfo, fcs16(tvb),
                             ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
         }
         break;
@@ -1919,7 +1920,7 @@ decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
             /*
              * Compute the FCS and put it into the tree.
              */
-            proto_tree_add_checksum(fh_tree, tvb, proto_offset + len, hf_ppp_fcs_32, -1, NULL, NULL, fcs32(tvb),
+            proto_tree_add_checksum(fh_tree, tvb, proto_offset + len, hf_ppp_fcs_32, hf_ppp_fcs_status, &ei_ppp_fcs, pinfo, fcs32(tvb),
                             ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
         }
         break;
@@ -5310,7 +5311,7 @@ dissect_ppp_hdlc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    next_tvb = decode_fcs(tvb, fh_tree, ppp_fcs_decode, proto_offset);
+    next_tvb = decode_fcs(tvb, pinfo, fh_tree, ppp_fcs_decode, proto_offset);
     dissect_ppp_common(next_tvb, pinfo, tree, fh_tree, ti, proto_offset);
 }
 
@@ -5889,9 +5890,15 @@ proto_register_ppp(void)
         { &hf_ppp_opt_type_number,
             { "Number", "ppp.opt.type.number", FT_UINT8, BASE_DEC,
                 VALS(ipopt_type_number_vals), IPOPT_NUMBER_MASK, NULL, HFILL}},
-      /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_ppp_fcs_16, { "FCS 16", "ppp.fcs_16", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_ppp_fcs_32, { "FCS 32", "ppp.fcs_32", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_ppp_fcs_16,
+            { "FCS 16", "ppp.fcs_16", FT_UINT16, BASE_HEX,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_ppp_fcs_32,
+            { "FCS 32", "ppp.fcs_32", FT_UINT32, BASE_HEX,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_ppp_fcs_status,
+            { "FCS Status", "ppp.fcs.status", FT_UINT8, BASE_NONE,
+                VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
     };
     static gint *ett[] = {
         &ett_ppp,
@@ -5899,13 +5906,13 @@ proto_register_ppp(void)
     };
     static ei_register_info ei[] = {
         { &ei_ppp_opt_len_invalid, { "ppp.opt.len.invalid", PI_PROTOCOL, PI_WARN, "Invalid length for option", EXPFILL }},
+        { &ei_ppp_fcs, { "ppp.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
     };
 
     module_t *ppp_module;
     expert_module_t* expert_ppp;
 
-    proto_ppp = proto_register_protocol("Point-to-Point Protocol", "PPP",
-        "ppp");
+    proto_ppp = proto_register_protocol("Point-to-Point Protocol", "PPP", "ppp");
     proto_register_field_array(proto_ppp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_ppp = expert_register_protocol(proto_ppp);

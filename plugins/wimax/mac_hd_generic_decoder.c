@@ -170,6 +170,7 @@ static int hf_mac_header_generic_len = -1;
 static int hf_mac_header_generic_cid = -1;
 static int hf_mac_header_generic_hcs = -1;
 static int hf_mac_header_generic_crc = -1;
+static int hf_mac_header_generic_crc_status = -1;
 
 /* MAC Header types */
 static const value_string ht_msgs[] =
@@ -586,6 +587,7 @@ static gint hf_mac_header_payload_fragment = -1;
 
 static expert_field ei_mac_crc_malformed = EI_INIT;
 static expert_field ei_mac_crc_missing = EI_INIT;
+static expert_field ei_mac_header_generic_crc = EI_INIT;
 
 /* Last IE Indicators */
 static const value_string last_ie_msgs[] =
@@ -593,6 +595,16 @@ static const value_string last_ie_msgs[] =
 	{ 0, "No" },
 	{ 1, "Yes" },
 	{ 0,  NULL}
+};
+
+/* Copied and renamed from proto.c because global value_strings don't work for plugins */
+static const value_string plugin_proto_checksum_vals[] = {
+	{ PROTO_CHECKSUM_E_BAD,        "Bad"  },
+	{ PROTO_CHECKSUM_E_GOOD,       "Good" },
+	{ PROTO_CHECKSUM_E_UNVERIFIED, "Unverified" },
+	{ PROTO_CHECKSUM_E_NOT_PRESENT, "Not present" },
+
+	{ 0,        NULL }
 };
 
 /* Register Wimax defrag table init routine. */
@@ -1222,8 +1234,8 @@ check_crc:
             /* calculate the CRC */
 			calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, mac_len - (int)sizeof(mac_crc)), mac_len - (int)sizeof(mac_crc));
 			/* display the CRC */
-			proto_tree_add_checksum(tree, tvb, mac_len - (int)sizeof(mac_crc), hf_mac_header_generic_crc, -1, NULL, pinfo, calculated_crc,
-									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+			proto_tree_add_checksum(tree, tvb, mac_len - (int)sizeof(mac_crc), hf_mac_header_generic_crc, hf_mac_header_generic_crc_status, &ei_mac_header_generic_crc,
+									pinfo, calculated_crc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		}
 		else
 		{	/* display error message */
@@ -1612,7 +1624,17 @@ void proto_register_mac_header_generic(void)
 				FT_UINT32, BASE_HEX, NULL, 0x0,
 				NULL, HFILL
 			}
-		}
+		},
+		{
+			&hf_mac_header_generic_crc_status,
+			{
+				"CRC Status", "wmx.genericCrc.status",
+				FT_UINT8, BASE_NONE, VALS(plugin_proto_checksum_vals), 0x0,
+				NULL, HFILL
+			}
+		},
+
+
 	};
 
 	/* Extended Subheader display */
@@ -2238,6 +2260,7 @@ void proto_register_mac_header_generic(void)
 	static ei_register_info ei[] = {
 		{ &ei_mac_crc_malformed, { "wmx.genericCrc.missing", PI_MALFORMED, PI_ERROR, "CRC missing - the frame is too short", EXPFILL }},
 		{ &ei_mac_crc_missing, { "wmx.genericCrc.missing", PI_PROTOCOL, PI_NOTE, "CRC is not included in this frame!", EXPFILL }},
+		{ &ei_mac_header_generic_crc, { "wmx.genericCrc.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
 	};
 
 	expert_module_t* expert_mac_header_generic;

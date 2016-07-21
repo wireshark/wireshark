@@ -29,6 +29,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "crc.h"
 #include "wimax_compact_dlmap_ie_decoder.h"
 #include "wimax_compact_ulmap_ie_decoder.h"
@@ -59,7 +60,20 @@ static gint hf_harq_map_reserved = -1;
 static gint hf_harq_map_msg_length = -1;
 static gint hf_harq_dl_ie_count = -1;
 static gint hf_harq_map_msg_crc = -1;
+static gint hf_harq_map_msg_crc_status = -1;
 
+static expert_field ei_harq_map_msg_crc = EI_INIT;
+
+
+/* Copied and renamed from proto.c because global value_strings don't work for plugins */
+static const value_string plugin_proto_checksum_vals[] = {
+	{ PROTO_CHECKSUM_E_BAD,        "Bad"  },
+	{ PROTO_CHECKSUM_E_GOOD,       "Good" },
+	{ PROTO_CHECKSUM_E_UNVERIFIED, "Unverified" },
+	{ PROTO_CHECKSUM_E_NOT_PRESENT, "Not present" },
+
+	{ 0,        NULL }
+};
 
 /* HARQ MAP message decoder */
 static int dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -151,8 +165,8 @@ static int dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 		proto_item_append_text(parent_item, ",CRC");
 		/* calculate the HARQ MAM Message CRC */
 		calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, length - (int)sizeof(harq_map_msg_crc)), length - (int)sizeof(harq_map_msg_crc));
-		proto_tree_add_checksum(tree, tvb, length - (int)sizeof(harq_map_msg_crc), hf_harq_map_msg_crc, -1, NULL, pinfo, calculated_crc,
-									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+		proto_tree_add_checksum(tree, tvb, length - (int)sizeof(harq_map_msg_crc), hf_harq_map_msg_crc, hf_harq_map_msg_crc_status, &ei_harq_map_msg_crc,
+								pinfo, calculated_crc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 	}
 	return tvb_captured_length(tvb);
 }
@@ -186,19 +200,31 @@ void proto_register_wimax_harq_map(void)
 		{
 			&hf_harq_map_msg_crc,
 			{"HARQ MAP Message CRC", "wmx.harq_map.msg_crc", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
-		}
+		},
+		{
+			&hf_harq_map_msg_crc_status,
+			{"HARQ MAP Message CRC Status", "wmx.harq_map.msg_crc.status", FT_UINT8, BASE_NONE, VALS(plugin_proto_checksum_vals), 0x0, NULL, HFILL}
+		},
 	};
 
 	/* Setup protocol subtree array */
 	static gint *ett[] =
-		{
-			&ett_wimax_harq_map_decoder,
-		};
+	{
+		&ett_wimax_harq_map_decoder,
+	};
+
+	static ei_register_info ei[] = {
+		{ &ei_harq_map_msg_crc, { "wmx.harq_map.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+	};
+
+	expert_module_t* expert_harq_map;
 
 	proto_wimax_harq_map_decoder = proto_wimax;
 
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_wimax_harq_map_decoder, hf_harq_map, array_length(hf_harq_map));
+	expert_harq_map = expert_register_protocol(proto_wimax_harq_map_decoder);
+	expert_register_field_array(expert_harq_map, ei, array_length(ei));
 
 	register_dissector("wimax_harq_map_handler", dissector_wimax_harq_map_decoder, proto_wimax_harq_map_decoder);
 }

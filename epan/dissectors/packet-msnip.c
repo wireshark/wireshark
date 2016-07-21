@@ -36,6 +36,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/to_str.h>
 #include "packet-igmp.h"
 
@@ -57,6 +58,8 @@ static int hf_rec_type = -1;
 
 static int ett_msnip = -1;
 static int ett_groups = -1;
+
+static expert_field ei_checksum = EI_INIT;
 
 #define MC_ALL_IGMPV3_ROUTERS	0xe0000016
 
@@ -89,7 +92,7 @@ dissect_msnip_rmr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
+	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_status, &ei_checksum, pinfo, 0);
 	offset += 2;
 
 	while (count--) {
@@ -135,7 +138,7 @@ dissect_msnip_is(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
+	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_status, &ei_checksum, pinfo, 0);
 	offset += 2;
 
 	/* 16 bit holdtime */
@@ -161,7 +164,7 @@ dissect_msnip_gm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
+	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_status, &ei_checksum, pinfo, 0);
 	offset += 2;
 
 	/* holdtime */
@@ -306,10 +309,17 @@ proto_register_msnip(void)
 		&ett_groups,
 	};
 
-	proto_msnip = proto_register_protocol("MSNIP: Multicast Source Notification of Interest Protocol",
-	    "MSNIP", "msnip");
+	static ei_register_info ei[] = {
+		{ &ei_checksum, { "msnip.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+	};
+
+	expert_module_t* expert_msnip;
+
+	proto_msnip = proto_register_protocol("MSNIP: Multicast Source Notification of Interest Protocol", "MSNIP", "msnip");
 	proto_register_field_array(proto_msnip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_msnip = expert_register_protocol(proto_msnip);
+	expert_register_field_array(expert_msnip, ei, array_length(ei));
 }
 
 void

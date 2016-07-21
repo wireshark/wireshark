@@ -58,6 +58,7 @@ static int hf_nhrp_hdr_pro_snap_pid = -1;
 static int hf_nhrp_hdr_hopcnt = -1;
 static int hf_nhrp_hdr_pktsz = -1;
 static int hf_nhrp_hdr_chksum = -1;
+static int hf_nhrp_hdr_chksum_status = -1;
 static int hf_nhrp_hdr_extoff = -1;
 static int hf_nhrp_hdr_version = -1;
 static int hf_nhrp_hdr_op_type = -1;
@@ -149,6 +150,7 @@ static gint ett_nhrp_devcap_ext_dstcap = -1;
 
 static expert_field ei_nhrp_ext_not_allowed = EI_INIT;
 static expert_field ei_nhrp_hdr_extoff = EI_INIT;
+static expert_field ei_nhrp_hdr_chksum = EI_INIT;
 static expert_field ei_nhrp_ext_malformed = EI_INIT;
 static expert_field ei_nhrp_ext_extra = EI_INIT;
 
@@ -374,10 +376,11 @@ static void dissect_nhrp_hdr(tvbuff_t     *tvb,
         vec_t cksum_vec[1];
         SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, total_len);
 
-        proto_tree_add_checksum(nhrp_tree, tvb, offset, hf_nhrp_hdr_chksum, -1, NULL, pinfo, in_cksum(&cksum_vec[0], 1),
-                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+        proto_tree_add_checksum(nhrp_tree, tvb, offset, hf_nhrp_hdr_chksum, hf_nhrp_hdr_chksum_status, &ei_nhrp_hdr_chksum,
+                                pinfo, in_cksum(&cksum_vec[0], 1), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
     } else {
-        proto_tree_add_checksum(nhrp_tree, tvb, offset, hf_nhrp_hdr_chksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+        proto_tree_add_checksum(nhrp_tree, tvb, offset, hf_nhrp_hdr_chksum, hf_nhrp_hdr_chksum_status, &ei_nhrp_hdr_chksum,
+                                pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     }
     offset += 2;
 
@@ -1031,6 +1034,11 @@ proto_register_nhrp(void)
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_nhrp_hdr_chksum_status,
+          { "NHRP Packet Checksum Status", "nhrp.hdr.chksum.status",
+            FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+            NULL, HFILL }
+        },
         { &hf_nhrp_hdr_extoff,
           { "Extension Offset", "nhrp.hdr.extoff",
             FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -1358,6 +1366,7 @@ proto_register_nhrp(void)
 
     static ei_register_info ei[] = {
         { &ei_nhrp_hdr_extoff, { "nhrp.hdr.extoff.invalid", PI_MALFORMED, PI_ERROR, "Extension offset is less than the fixed header length", EXPFILL }},
+        { &ei_nhrp_hdr_chksum, { "nhrp.hdr.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
         { &ei_nhrp_ext_not_allowed, { "nhrp.ext.not_allowed", PI_MALFORMED, PI_ERROR, "Extensions not allowed per RFC2332 section 5.2.7", EXPFILL }},
         { &ei_nhrp_ext_malformed, { "nhrp.ext.malformed", PI_MALFORMED, PI_ERROR, "Incomplete Authentication Extension", EXPFILL }},
         { &ei_nhrp_ext_extra, { "nhrp.ext.extra", PI_MALFORMED, PI_ERROR, "Superfluous data follows End Extension", EXPFILL }},

@@ -28,6 +28,7 @@
 #include <epan/circuit.h>
 #include <epan/conversation.h>
 #include <epan/exceptions.h>
+#include <epan/expert.h>
 #include <epan/stream.h>
 #include <epan/golay.h>
 #include <epan/iax2_codec_type.h>
@@ -115,6 +116,8 @@ static gint ett_h223_al_fragment  = -1;
 static gint ett_h223_al1 = -1;
 static gint ett_h223_al2 = -1;
 static gint ett_h223_al_payload = -1;
+
+static expert_field ei_h223_al2_crc = EI_INIT;
 
 /* These are the handles of our subdissectors */
 static dissector_handle_t data_handle;
@@ -697,7 +700,7 @@ dissect_mux_al_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *vc_tree,
             calc_checksum = h223_al2_crc8bit(tvb);
             real_checksum = tvb_get_guint8(tvb, len - 1);
 
-            proto_tree_add_checksum(al_tree, tvb, len - 1, hf_h223_al2_crc, hf_h223_al2_crc_status, NULL, pinfo, calc_checksum, ENC_NA, PROTO_CHECKSUM_VERIFY);
+            proto_tree_add_checksum(al_tree, tvb, len - 1, hf_h223_al2_crc, hf_h223_al2_crc_status, &ei_h223_al2_crc, pinfo, calc_checksum, ENC_NA, PROTO_CHECKSUM_VERIFY);
 
             if( calc_checksum != real_checksum ) {
                 /* don't pass pdus which fail checksums on to the subdissector */
@@ -1632,6 +1635,12 @@ void proto_register_h223 (void)
         &ett_h223_al_payload
     };
 
+    static ei_register_info ei[] = {
+        { &ei_h223_al2_crc, { "h223.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+    };
+
+    expert_module_t* expert_h223;
+
     proto_h223 =
         proto_register_protocol ("ITU-T Recommendation H.223", "H.223", "h223");
     /* Create a H.223 "placeholder" to remove confusion with Decode As" */
@@ -1640,6 +1649,9 @@ void proto_register_h223 (void)
 
     proto_register_field_array (proto_h223, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
+    expert_h223 = expert_register_protocol(proto_h223);
+    expert_register_field_array(expert_h223, ei, array_length(ei));
+
     register_dissector("h223", dissect_h223_circuit_data, proto_h223);
     register_dissector("h223_bitswapped", dissect_h223_bitswapped, proto_h223_bitswapped);
 

@@ -1407,6 +1407,11 @@ protocol or field labels to the proto_tree:
         value, format, ...);
 
     proto_item *
+    proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
+        const int hf_checksum, const int hf_checksum_status, struct expert_field* bad_checksum_expert,
+        packet_info *pinfo, guint32 computed_checksum, const guint encoding, const guint flags);
+
+    proto_item *
     proto_tree_add_bitmask(tree, tvb, start, header, ett, fields,
         encoding);
 
@@ -1804,6 +1809,15 @@ arguments are a "printf"-style format and any arguments for that format.
 With these routines, unlike the proto_tree_add_XXX_format() routines,
 the name of the field is added automatically as in the
 proto_tree_add_XXX() functions; only the value is added with the format.
+
+proto_tree_add_checksum()
+----------------------------
+proto_tree_add_checksum is used to add a checksum field. The hf field
+provided must be the correct size of the checksum (FT_UINT, FT_UINT16,
+FT_UINT32, etc).  Additional parameters are there to provide "status"
+and expert info depending on whether the checksum matches the provided
+value.  The "status" and expert info can be used in cases except
+where PROTO_CHECKSUM_NO_FLAGS is used.
 
 proto_tree_add_subtree()
 ---------------------

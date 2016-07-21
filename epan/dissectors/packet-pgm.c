@@ -243,6 +243,7 @@ static expert_field ei_pgm_genopt_len = EI_INIT;
 static expert_field ei_pgm_opt_tlen = EI_INIT;
 static expert_field ei_pgm_opt_type = EI_INIT;
 static expert_field ei_address_format_invalid = EI_INIT;
+static expert_field ei_pgm_main_cksum = EI_INIT;
 
 static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
@@ -910,7 +911,8 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		if ((pgmhdr_type != PGM_RDATA_PCKT) && (pgmhdr_type != PGM_ODATA_PCKT) &&
 		    (pgmhdr_cksum == 0))
 		{
-			proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum, hf_pgm_main_cksum_status, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
+			proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum, hf_pgm_main_cksum_status, &ei_pgm_main_cksum,
+									pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
 		} else {
 			reportedlen = tvb_reported_length(tvb);
 			pgmlen = tvb_captured_length(tvb);
@@ -918,10 +920,11 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 				vec_t cksum_vec[1];
 
 				SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, pgmlen);
-				proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum_status, -1, NULL, pinfo,
-										in_cksum(&cksum_vec[0], 1), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+				proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum_status, hf_pgm_main_cksum_status, &ei_pgm_main_cksum,
+										pinfo, in_cksum(&cksum_vec[0], 1), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 			} else {
-				proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum, hf_pgm_main_cksum_status, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+				proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum, hf_pgm_main_cksum_status, &ei_pgm_main_cksum,
+										pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 			}
 		}
 		ptvcursor_advance(cursor, 2);
@@ -1374,6 +1377,7 @@ proto_register_pgm(void)
 		{ &ei_pgm_opt_tlen, { "pgm.opts.tlen.invalid", PI_PROTOCOL, PI_WARN, "Total Length invalid", EXPFILL }},
 		{ &ei_pgm_genopt_len, { "pgm.genopts.len.invalid", PI_PROTOCOL, PI_WARN, "Option length invalid", EXPFILL }},
 		{ &ei_address_format_invalid, { "pgm.address_format_invalid", PI_PROTOCOL, PI_WARN, "Can't handle this address format", EXPFILL }},
+		{ &ei_pgm_main_cksum, { "pgm.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
 	};
 
 	module_t *pgm_module;

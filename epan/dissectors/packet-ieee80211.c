@@ -4992,6 +4992,7 @@ static expert_field ei_ieee80211_tag_wnm_sleep_mode_no_key_data = EI_INIT;
 static expert_field ei_ieee80211_dmg_subtype = EI_INIT;
 static expert_field ei_ieee80211_vht_action = EI_INIT;
 static expert_field ei_ieee80211_mesh_peering_unexpected = EI_INIT;
+static expert_field ei_ieee80211_fcs = EI_INIT;
 
 /* 802.11ad trees */
 static gint ett_dynamic_alloc_tree = -1;
@@ -17537,9 +17538,9 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
             flag_str[8] = '.';
           }
 
-          proto_tree_add_checksum(hdr_tree, tvb, hdr_len + len, hf_ieee80211_fcs, hf_ieee80211_fcs_status, NULL, pinfo, fcs, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+          proto_tree_add_checksum(hdr_tree, tvb, hdr_len + len, hf_ieee80211_fcs, hf_ieee80211_fcs_status, &ei_ieee80211_fcs, pinfo, fcs, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
         } else {
-          proto_tree_add_checksum(hdr_tree, tvb, hdr_len + len, hf_ieee80211_fcs, hf_ieee80211_fcs_status, NULL, pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+          proto_tree_add_checksum(hdr_tree, tvb, hdr_len + len, hf_ieee80211_fcs, hf_ieee80211_fcs_status, &ei_ieee80211_fcs, pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
         }
       }
     }
@@ -27126,6 +27127,10 @@ proto_register_ieee80211(void)
     { &ei_ieee80211_mesh_peering_unexpected,
       { "wlan.peering.unexpected", PI_MALFORMED, PI_ERROR,
         "Unexpected Self-protected action", EXPFILL }},
+
+    { &ei_ieee80211_fcs,
+      { "wlan.fcs.bad_checksum", PI_MALFORMED, PI_ERROR,
+        NULL, EXPFILL }},
   };
 
   expert_module_t *expert_ieee80211;

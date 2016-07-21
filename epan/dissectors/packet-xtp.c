@@ -301,6 +301,7 @@ static int hf_xtp_diag_code = -1;
 static int hf_xtp_diag_val = -1;
 static int hf_xtp_diag_msg = -1;
 static int hf_xtp_checksum = -1;
+static int hf_xtp_checksum_status = -1;
 static int hf_xtp_data = -1;
 
 /* Initialize the subtree pointers */
@@ -319,6 +320,7 @@ static gint ett_xtp_data = -1;
 static gint ett_xtp_diag = -1;
 
 static expert_field ei_xtp_spans_bad = EI_INIT;
+static expert_field ei_xtp_checksum = EI_INIT;
 
 /* dissector of each payload */
 static int
@@ -1017,12 +1019,12 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			if (!(xtph->cmd_options & XTP_CMD_OPTIONS_NOCHECK))
 				check_len += xtph->dlen;
 			SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, check_len);
-			proto_tree_add_checksum(xtp_tree, tvb, offset, hf_xtp_checksum, -1, NULL, pinfo, in_cksum(cksum_vec, 1),
-									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+			proto_tree_add_checksum(xtp_tree, tvb, offset, hf_xtp_checksum, hf_xtp_checksum_status, &ei_xtp_checksum,
+									pinfo, in_cksum(cksum_vec, 1), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 		}
 		else {
-			proto_tree_add_checksum(xtp_tree, tvb, offset, hf_xtp_checksum, -1, NULL, pinfo, 0,
-									ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+			proto_tree_add_checksum(xtp_tree, tvb, offset, hf_xtp_checksum, hf_xtp_checksum_status, &ei_xtp_checksum,
+									pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 		}
 		offset += 2;
 		/* sort(2) */
@@ -1341,6 +1343,10 @@ proto_register_xtp(void)
 		  { "Checksum", "xtp.checksum",
 		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
+		{ &hf_xtp_checksum_status,
+		  { "Checksum Status", "xtp.checksum.status",
+		    FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0, NULL, HFILL }
+		},
 		{ &hf_xtp_data,
 		  { "Data", "xtp.data",
 		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
@@ -1366,6 +1372,8 @@ proto_register_xtp(void)
 	static ei_register_info ei[] = {
 		{ &ei_xtp_spans_bad,
 		  { "xtp.spans_bad", PI_MALFORMED, PI_ERROR, "Number of spans incorrect", EXPFILL }},
+		{ &ei_xtp_checksum,
+		  { "xtp.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
 	};
 
 	expert_module_t* expert_xtp;
@@ -1373,8 +1381,7 @@ proto_register_xtp(void)
 	expert_xtp = expert_register_protocol(proto_xtp);
 	expert_register_field_array(expert_xtp, ei, array_length(ei));
 
-	proto_xtp = proto_register_protocol("Xpress Transport Protocol",
-	    "XTP", "xtp");
+	proto_xtp = proto_register_protocol("Xpress Transport Protocol", "XTP", "xtp");
 	proto_register_field_array(proto_xtp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

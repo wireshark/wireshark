@@ -126,6 +126,7 @@ static int proto_fcsof = -1;
 static int hf_fcsof = -1;
 static int hf_fceof = -1;
 static int hf_fccrc = -1;
+static int hf_fccrc_status = -1;
 
 static int ett_fcsof = -1;
 static int ett_fceof = -1;
@@ -1305,7 +1306,7 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     proto_tree_add_uint(fcsof_tree, hf_fcsof, tvb, sof_offset, 4, sof);
 
-    proto_tree_add_checksum(fcsof_tree, tvb, crc_offset, hf_fccrc, -1, &ei_fccrc, pinfo, crc_computed, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    proto_tree_add_checksum(fcsof_tree, tvb, crc_offset, hf_fccrc, hf_fccrc_status, &ei_fccrc, pinfo, crc_computed, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
     proto_tree_add_uint(fcsof_tree, hf_fceof, tvb, eof_offset, 4, eof);
 
@@ -1530,6 +1531,8 @@ proto_register_fc(void)
             NULL, HFILL }},
         { &hf_fccrc,
           { "CRC", "fc.crc", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+        { &hf_fccrc_status,
+          { "CRC Status", "fc.crc.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0, NULL, HFILL }},
     };
 
     static gint *sof_ett[] = {

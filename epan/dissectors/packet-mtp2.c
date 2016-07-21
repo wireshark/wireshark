@@ -57,6 +57,7 @@ static int hf_mtp2_ext_spare = -1;
 static int hf_mtp2_sf        = -1;
 static int hf_mtp2_sf_extra  = -1;
 static int hf_mtp2_fcs_16    = -1;
+static int hf_mtp2_fcs_16_status = -1;
 
 static expert_field ei_mtp2_checksum_error = EI_INIT;
 
@@ -187,7 +188,7 @@ mtp2_decode_crc16(tvbuff_t *tvb, proto_tree *fh_tree, packet_info *pinfo)
     /*
      * Compute the FCS and put it into the tree.
      */
-    proto_tree_add_checksum(fh_tree, tvb, proto_offset + len, hf_mtp2_fcs_16, -1, &ei_mtp2_checksum_error, pinfo, mtp2_fcs16(tvb),
+    proto_tree_add_checksum(fh_tree, tvb, proto_offset + len, hf_mtp2_fcs_16, hf_mtp2_fcs_16_status, &ei_mtp2_checksum_error, pinfo, mtp2_fcs16(tvb),
                             ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
   }
   return next_tvb;
@@ -387,6 +388,7 @@ proto_register_mtp2(void)
     { &hf_mtp2_sf,        { "Status field",             "mtp2.sf",       FT_UINT8,  BASE_DEC, VALS(status_field_vals), 0x0,                 NULL, HFILL } },
     { &hf_mtp2_sf_extra,  { "Status field extra octet", "mtp2.sf_extra", FT_UINT8,  BASE_HEX, NULL,                    0x0,                 NULL, HFILL } },
     { &hf_mtp2_fcs_16,    { "FCS 16",                   "mtp2.fcs_16",   FT_UINT16, BASE_HEX, NULL,                    0x0,                 NULL, HFILL } },
+    { &hf_mtp2_fcs_16_status, { "FCS 16",               "mtp2.fcs_16.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,          NULL, HFILL } },
   };
 
   static gint *ett[] = {

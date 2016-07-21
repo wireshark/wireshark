@@ -59,6 +59,7 @@ static int hf_gre_flags_reserved_ppp = -1;
 static int hf_gre_flags_reserved = -1;
 static int hf_gre_flags_version = -1;
 static int hf_gre_checksum = -1;
+static int hf_gre_checksum_status = -1;
 static int hf_gre_offset = -1;
 static int hf_gre_key = -1;
 static int hf_gre_key_payload_length = -1;
@@ -419,10 +420,10 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                fragmented datagram and isn't truncated, so we can checksum it. */
             if ((flags_and_ver & GRE_CHECKSUM) && !pinfo->fragmented && length >= reported_length) {
                 SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, reported_length);
-                proto_tree_add_checksum(gre_tree, tvb, offset, hf_gre_checksum, -1, &ei_gre_checksum_incorrect, pinfo, in_cksum(cksum_vec, 1),
+                proto_tree_add_checksum(gre_tree, tvb, offset, hf_gre_checksum, hf_gre_checksum_status, &ei_gre_checksum_incorrect, pinfo, in_cksum(cksum_vec, 1),
                                 ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
             } else {
-                proto_tree_add_checksum(gre_tree, tvb, offset, hf_gre_checksum, -1, &ei_gre_checksum_incorrect, pinfo, 0,
+                proto_tree_add_checksum(gre_tree, tvb, offset, hf_gre_checksum, hf_gre_checksum_status, &ei_gre_checksum_incorrect, pinfo, 0,
                                 ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
             }
             offset += 2;
@@ -582,6 +583,11 @@ proto_register_gre(void)
           { "Checksum", "gre.checksum",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             "The Checksum field contains the IP (one's complement) checksum of the GRE header and the payload packet", HFILL }
+        },
+        { &hf_gre_checksum_status,
+          { "Checksum Status", "gre.checksum.status",
+            FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+            NULL, HFILL }
         },
         { &hf_gre_offset,
           { "Offset", "gre.offset",

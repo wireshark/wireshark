@@ -41,6 +41,7 @@ static gint proto_xip_serval		= -1;
 static gint hf_xip_serval_hl		= -1;
 static gint hf_xip_serval_proto		= -1;
 static gint hf_xip_serval_check		= -1;
+static gint hf_xip_serval_check_status = -1;
 
 /* XIP Serval general extension header. */
 static gint hf_xip_serval_ext_type	= -1;
@@ -216,7 +217,7 @@ display_xip_serval(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Compute checksum. */
 	SET_CKSUM_VEC_TVB(cksum_vec, tvb, 0, xsh_len);
 
-	proto_tree_add_checksum(xip_serval_tree, tvb, XSRVL_CHK, hf_xip_serval_check, -1, &ei_xip_serval_bad_checksum, pinfo, in_cksum(&cksum_vec, 1),
+	proto_tree_add_checksum(xip_serval_tree, tvb, XSRVL_CHK, hf_xip_serval_check, hf_xip_serval_check_status, &ei_xip_serval_bad_checksum, pinfo, in_cksum(&cksum_vec, 1),
 							ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 	offset = XSRVL_EXT;
 
@@ -292,6 +293,10 @@ proto_register_xip_serval(void)
 		{ &hf_xip_serval_check,
 		{ "Checksum", "xip_serval.check", FT_UINT16,
 		   BASE_HEX, NULL, 0x0,	NULL, HFILL }},
+
+		{ &hf_xip_serval_check_status,
+		{ "Checksum Status", "xip_serval.check.status", FT_UINT8,
+		   BASE_NONE, VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
 
 		/* Serval Extension Header. */
 

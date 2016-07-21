@@ -30,6 +30,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-igmp.h"
 
 void proto_register_rgmp(void);
@@ -43,6 +44,8 @@ static int hf_checksum_status = -1;
 static int hf_maddr        = -1;
 
 static int ett_rgmp = -1;
+
+static expert_field ei_checksum = EI_INIT;
 
 static dissector_handle_t rgmp_handle;
 
@@ -86,7 +89,7 @@ dissect_rgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     proto_tree_add_item(tree, hf_reserved, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
+    igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, &ei_checksum, pinfo, 0);
     offset += 2;
 
     proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -130,9 +133,17 @@ proto_register_rgmp(void)
         &ett_rgmp
     };
 
+    static ei_register_info ei[] = {
+        { &ei_checksum, { "rgmp.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+    };
+
+    expert_module_t* expert_rgmp;
+
     proto_rgmp = proto_register_protocol("Router-port Group Management Protocol", "RGMP", "rgmp");
     proto_register_field_array(proto_rgmp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_rgmp = expert_register_protocol(proto_rgmp);
+    expert_register_field_array(expert_rgmp, ei, array_length(ei));
 
     rgmp_handle = register_dissector("rgmp", dissect_rgmp, proto_rgmp);
 }

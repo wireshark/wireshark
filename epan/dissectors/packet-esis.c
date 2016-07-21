@@ -55,6 +55,7 @@ static int  hf_esis_reserved  = -1;
 static int  hf_esis_type      = -1;
 static int  hf_esis_holdtime  = -1;
 static int  hf_esis_checksum  = -1;
+static int  hf_esis_checksum_status  = -1;
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_esis_dal = -1;
 static int hf_esis_number_of_source_addresses = -1;
@@ -76,6 +77,7 @@ static gint ett_esis_subnetwork   = -1;
 static expert_field ei_esis_version = EI_INIT;
 static expert_field ei_esis_length = EI_INIT;
 static expert_field ei_esis_type = EI_INIT;
+static expert_field ei_esis_checksum = EI_INIT;
 
 static const value_string esis_vals[] = {
   { ESIS_ESH_PDU, "ES HELLO"},
@@ -292,9 +294,9 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
         if (osi_calc_checksum(tvb, 0, length, &c0, &c1)) {
             /* Successfully processed checksum, verify it */
-            proto_tree_add_checksum(esis_tree, tvb, 7, hf_esis_checksum, -1, NULL, pinfo, c0 | c1, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
+            proto_tree_add_checksum(esis_tree, tvb, 7, hf_esis_checksum, hf_esis_checksum_status, &ei_esis_checksum, pinfo, c0 | c1, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
         } else {
-            proto_tree_add_checksum(esis_tree, tvb, 7, hf_esis_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+            proto_tree_add_checksum(esis_tree, tvb, 7, hf_esis_checksum, hf_esis_checksum_status, &ei_esis_checksum, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
         }
     }
 
@@ -367,6 +369,9 @@ proto_register_esis(void) {
     { &hf_esis_checksum,
       { "Checksum", "esis.chksum",    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
+    { &hf_esis_checksum_status,
+      { "Checksum Status", "esis.chksum.status",    FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
+
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_esis_number_of_source_addresses, { "Number of Source Addresses (SA, Format: NSAP)", "esis.number_of_source_addresses", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_esis_sal, { "SAL", "esis.sal", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -391,6 +396,7 @@ proto_register_esis(void) {
     { &ei_esis_version, { "esis.ver.unknown", PI_PROTOCOL, PI_WARN, "Unknown ESIS version", EXPFILL }},
     { &ei_esis_length, { "esis.length.invalid", PI_MALFORMED, PI_ERROR, "Bogus ESIS length", EXPFILL }},
     { &ei_esis_type, { "esis.type.unknown", PI_PROTOCOL, PI_WARN, "Unknown ESIS packet type", EXPFILL }},
+    { &ei_esis_checksum, { "esis.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
   };
 
   expert_module_t* expert_esis;

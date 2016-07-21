@@ -39,6 +39,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 #define DMX_SC_DMX	0x00
 #define DMX_SC_TEXT	0x17
@@ -107,6 +108,8 @@ static int ett_dmx_chan = -1;
 static int ett_dmx_sip = -1;
 static int ett_dmx_test = -1;
 static int ett_dmx_text = -1;
+
+static expert_field ei_dmx_sip_checksum = EI_INIT;
 
 static dissector_table_t dmx_dissector_table;
 
@@ -269,7 +272,7 @@ dissect_dmx_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			offset += (byte_count - offset);
 		}
 
-		proto_tree_add_checksum(dmx_sip_tree, tvb, offset, hf_dmx_sip_checksum, hf_dmx_sip_checksum_status, NULL, pinfo, dmx_sip_checksum(tvb, offset), ENC_NA, PROTO_CHECKSUM_VERIFY);
+		proto_tree_add_checksum(dmx_sip_tree, tvb, offset, hf_dmx_sip_checksum, hf_dmx_sip_checksum_status, &ei_dmx_sip_checksum, pinfo, dmx_sip_checksum(tvb, offset), ENC_NA, PROTO_CHECKSUM_VERIFY);
 		offset += 1;
 
 		if (offset < tvb_reported_length(tvb))
@@ -584,9 +587,17 @@ proto_register_dmx_sip(void)
 		&ett_dmx_sip
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_dmx_sip_checksum, { "dmx_sip.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+	};
+
+	expert_module_t* expert_dmx_sip;
+
 	proto_dmx_sip = proto_register_protocol("DMX SIP", "DMX SIP", "dmx_sip");
 	proto_register_field_array(proto_dmx_sip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_dmx_sip = expert_register_protocol(proto_dmx_sip);
+	expert_register_field_array(expert_dmx_sip, ei, array_length(ei));
 }
 
 void

@@ -308,6 +308,7 @@ static int hf_hip_shim6_fixed_bit_s = -1;
 static int hf_hip_controls = -1;
 static int hf_hip_controls_anon = -1;
 static int hf_hip_checksum = -1;
+static int hf_hip_checksum_status = -1;
 static int hf_hip_hit_sndr = -1;
 static int hf_hip_hit_rcvr = -1;
 
@@ -413,6 +414,7 @@ static gint ett_hip_locator_data = -1;
 static expert_field ei_hip_tlv_host_id_len = EI_INIT;
 /* static expert_field ei_hip_tlv_host_id_e_len = EI_INIT; */
 static expert_field ei_hip_tlv_host_id_hdr_alg = EI_INIT;
+static expert_field ei_hip_checksum = EI_INIT;
 
 /* Dissect the HIP packet */
 static void
@@ -511,14 +513,14 @@ dissect_hip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
             /* pointer to the HIP header (packet data) */
             SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, reported_len);
             if (checksum_h == 0 && udp) {
-                    proto_tree_add_checksum(hip_tree, tvb, offset+4, hf_hip_checksum, -1, NULL, pinfo, 0,
+                    proto_tree_add_checksum(hip_tree, tvb, offset+4, hf_hip_checksum, hf_hip_checksum_status, &ei_hip_checksum, pinfo, 0,
                                 ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
             } else {
-                    proto_tree_add_checksum(hip_tree, tvb, offset+4, hf_hip_checksum, -1, NULL, pinfo, in_cksum(cksum_vec, 4),
+                    proto_tree_add_checksum(hip_tree, tvb, offset+4, hf_hip_checksum, hf_hip_checksum_status, &ei_hip_checksum, pinfo, in_cksum(cksum_vec, 4),
                                 ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
             }
     } else {
-            proto_tree_add_checksum(hip_tree, tvb, offset+4, hf_hip_checksum, -1, NULL, pinfo, 0,
+            proto_tree_add_checksum(hip_tree, tvb, offset+4, hf_hip_checksum, hf_hip_checksum_status, &ei_hip_checksum, pinfo, 0,
                                 ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     }
 
@@ -1198,6 +1200,10 @@ proto_register_hip(void)
                   { "Checksum", "hip.checksum",
                     FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
+                { &hf_hip_checksum_status,
+                  { "Checksum Status", "hip.checksum.status",
+                    FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
+
                 { &hf_hip_hit_sndr,
                   { "Sender's HIT", "hip.hit_sndr",
                     FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -1578,6 +1584,7 @@ proto_register_hip(void)
             { &ei_hip_tlv_host_id_e_len, { "hip.tlv.host_id_e_length.invalid", PI_PROTOCOL, PI_WARN, "e_len too large", EXPFILL }},
 #endif
             { &ei_hip_tlv_host_id_hdr_alg, { "hip.tlv.host_id_header_algo.invalid", PI_PROTOCOL, PI_WARN, "Unknown algorithm type", EXPFILL }},
+            { &ei_hip_checksum, { "hip.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
         };
 
         expert_module_t* expert_hip;

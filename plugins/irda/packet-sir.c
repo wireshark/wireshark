@@ -25,6 +25,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/crc16-tvb.h>
 
 /** Serial infrared port. */
@@ -59,6 +60,8 @@ static int hf_sir_fcs = -1;
 static int hf_sir_fcs_status = -1;
 static int hf_sir_length = -1;
 static int hf_sir_preamble = -1;
+
+static expert_field ei_sir_fcs = EI_INIT;
 
 /* Copied and renamed from proto.c because global value_strings don't work for plugins */
 static const value_string plugin_proto_checksum_vals[] = {
@@ -101,13 +104,13 @@ unescape_data(tvbuff_t *tvb, packet_info *pinfo)
 
 /** Checksums the data. */
 static tvbuff_t *
-checksum_data(tvbuff_t *tvb, proto_tree *tree)
+checksum_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int len = tvb_reported_length(tvb) - 2;
 	if (len < 0)
 		return tvb;
 
-	proto_tree_add_checksum(tree, tvb, len, hf_sir_fcs, hf_sir_fcs_status, NULL, NULL, crc16_ccitt_tvb(tvb, len),
+	proto_tree_add_checksum(tree, tvb, len, hf_sir_fcs, hf_sir_fcs_status, &ei_sir_fcs, pinfo, crc16_ccitt_tvb(tvb, len),
 								ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
 	return tvb_new_subset_length(tvb, 0, len);
@@ -153,11 +156,11 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root, void* data _U_)
 						bof_offset, 1, ENC_BIG_ENDIAN);
 				proto_tree_add_uint(tree, hf_sir_length,
 						next_tvb, 0, data_len, data_len);
-				next_tvb = checksum_data(next_tvb, tree);
+				next_tvb = checksum_data(next_tvb, pinfo, tree);
 				proto_tree_add_item(tree, hf_sir_eof, tvb,
 						eof_offset, 1, ENC_BIG_ENDIAN);
 			} else {
-				next_tvb = checksum_data(next_tvb, NULL);
+				next_tvb = checksum_data(next_tvb, pinfo, NULL);
 			}
 			call_dissector(irda_handle, next_tvb, pinfo, root);
 		}
@@ -216,12 +219,18 @@ proto_register_irsir(void)
 				NULL, HFILL }}
 	};
 
-	proto_sir = proto_register_protocol(
-			"Serial Infrared", "SIR", "sir");
+	static ei_register_info ei[] = {
+		{ &ei_sir_fcs, { "sir.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+	};
+
+	expert_module_t* expert_sir;
+
+	proto_sir = proto_register_protocol("Serial Infrared", "SIR", "sir");
 	register_dissector("sir", dissect_sir, proto_sir);
 	proto_register_subtree_array(ett, array_length(ett));
-	proto_register_field_array(
-			proto_sir, hf_sir, array_length(hf_sir));
+	proto_register_field_array( proto_sir, hf_sir, array_length(hf_sir));
+	expert_sir = expert_register_protocol(proto_sir);
+	expert_register_field_array(expert_sir, ei, array_length(ei));
 }
 
 /*

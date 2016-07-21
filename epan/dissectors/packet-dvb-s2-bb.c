@@ -33,6 +33,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
+#include <epan/expert.h>
 
 #define BIT_IS_SET(var, bit) ((var) & (1 << (bit)))
 #define BIT_IS_CLEAR(var, bit) !BIT_IS_SET(var, bit)
@@ -95,6 +96,7 @@ static int hf_dvb_s2_bb_dfl = -1;
 static int hf_dvb_s2_bb_sync = -1;
 static int hf_dvb_s2_bb_syncd = -1;
 static int hf_dvb_s2_bb_crc = -1;
+static int hf_dvb_s2_bb_crc_status = -1;
 
 static int proto_dvb_s2_gse = -1;
 static int hf_dvb_s2_gse_hdr = -1;
@@ -120,6 +122,9 @@ static gint ett_dvb_s2_bb_matype1 = -1;
 
 static gint ett_dvb_s2_gse = -1;
 static gint ett_dvb_s2_gse_hdr = -1;
+
+static expert_field ei_dvb_s2_bb_crc = EI_INIT;
+
 
 /* *** DVB-S2 Modeadaption Header *** */
 
@@ -785,7 +790,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
     input8 = tvb_get_guint8(tvb, cur_off + DVB_S2_BB_OFFS_CRC);
     new_off += 1;
 
-    proto_tree_add_checksum(dvb_s2_bb_tree, tvb, cur_off + DVB_S2_BB_OFFS_CRC, hf_dvb_s2_bb_crc, -1, NULL, pinfo,
+    proto_tree_add_checksum(dvb_s2_bb_tree, tvb, cur_off + DVB_S2_BB_OFFS_CRC, hf_dvb_s2_bb_crc, hf_dvb_s2_bb_crc_status, &ei_dvb_s2_bb_crc, pinfo,
         check_crc8(tvb, DVB_S2_BB_HEADER_LEN - 1, cur_off, input8), ENC_NA, PROTO_CHECKSUM_VERIFY);
 
     while (bb_data_len) {
@@ -986,7 +991,12 @@ void proto_register_dvb_s2_modeadapt(void)
                 "Checksum", "dvb-s2_bb.crc",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 "CRC-8", HFILL}
-        }
+        },
+        {&hf_dvb_s2_bb_crc_status, {
+                "Checksum Status", "dvb-s2_bb.crc.status",
+                FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+                NULL, HFILL}
+        },
     };
 
     static gint *ett_bb[] = {
@@ -1068,6 +1078,12 @@ void proto_register_dvb_s2_modeadapt(void)
         &ett_dvb_s2_gse_hdr
     };
 
+    static ei_register_info ei[] = {
+        { &ei_dvb_s2_bb_crc, { "dvb-s2_bb.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+    };
+
+    expert_module_t* expert_dvb_s2_bb;
+
     proto_dvb_s2_modeadapt = proto_register_protocol("DVB-S2 Modeadaption Header", "DVB-S2", "dvb-s2_modeadapt");
 
     proto_dvb_s2_bb = proto_register_protocol("DVB-S2 Baseband Frame", "DVB-S2-BB", "dvb-s2_bb");
@@ -1079,6 +1095,8 @@ void proto_register_dvb_s2_modeadapt(void)
 
     proto_register_field_array(proto_dvb_s2_bb, hf_bb, array_length(hf_bb));
     proto_register_subtree_array(ett_bb, array_length(ett_bb));
+    expert_dvb_s2_bb = expert_register_protocol(proto_dvb_s2_bb);
+    expert_register_field_array(expert_dvb_s2_bb, ei, array_length(ei));
 
     proto_register_field_array(proto_dvb_s2_gse, hf_gse, array_length(hf_gse));
     proto_register_subtree_array(ett_gse, array_length(ett_gse));

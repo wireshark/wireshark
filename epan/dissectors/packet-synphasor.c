@@ -110,6 +110,7 @@ static int hf_command		    = -1;
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_synphasor_data = -1;
 static int hf_synphasor_checksum = -1;
+static int hf_synphasor_checksum_status = -1;
 static int hf_synphasor_num_phasors = -1;
 static int hf_synphasor_num_analog_values = -1;
 static int hf_synphasor_num_digital_status_words = -1;
@@ -129,6 +130,7 @@ static int hf_synphasor_status_word_mask_normal_state = -1;
 static int hf_synphasor_status_word_mask_valid_bits = -1;
 
 static expert_field ei_synphasor_extended_frame_data = EI_INIT;
+static expert_field ei_synphasor_checksum = EI_INIT;
 
 static dissector_handle_t synphasor_udp_handle;
 
@@ -546,8 +548,8 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		/* check CRC, call appropriate subdissector for the rest of the frame if CRC is correct*/
 		sub_item  = proto_tree_add_item(synphasor_tree, hf_synphasor_data, tvb, offset, tvbsize - 16, ENC_NA);
 		crc_good = check_crc(tvb, &crc);
-		proto_tree_add_checksum(synphasor_tree, tvb, tvbsize - 2, hf_synphasor_checksum, -1, NULL, pinfo, crc16_x25_ccitt_tvb(tvb, tvb_get_ntohs(tvb, 2) - 2),
-							ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+		proto_tree_add_checksum(synphasor_tree, tvb, tvbsize - 2, hf_synphasor_checksum, hf_synphasor_checksum_status, &ei_synphasor_checksum,
+								pinfo, crc16_x25_ccitt_tvb(tvb, tvb_get_ntohs(tvb, 2) - 2), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		if (!crc_good) {
 			proto_item_append_text(sub_item,  ", not dissected because of wrong checksum");
 		}
@@ -1297,6 +1299,7 @@ void proto_register_synphasor(void)
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_synphasor_data, { "Data", "synphasor.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_synphasor_checksum, { "Checksum", "synphasor.checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_checksum_status, { "Checksum Status", "synphasor.checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
       { &hf_synphasor_num_phasors, { "Number of phasors", "synphasor.num_phasors", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_synphasor_num_analog_values, { "Number of analog values", "synphasor.num_analog_values", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_synphasor_num_digital_status_words, { "Number of digital status words", "synphasor.num_digital_status_words", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -1342,6 +1345,7 @@ void proto_register_synphasor(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_synphasor_extended_frame_data, { "synphasor.extended_frame_data.unaligned", PI_PROTOCOL, PI_WARN, "Size not multiple of 16-bit word", EXPFILL }},
+		{ &ei_synphasor_checksum, { "synphasor.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
 	};
 
 	module_t *synphasor_module;

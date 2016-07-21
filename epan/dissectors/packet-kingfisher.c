@@ -27,6 +27,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/expert.h>
 
 void proto_register_kingfisher(void);
 void proto_reg_handoff_kingfisher(void);
@@ -50,7 +51,10 @@ static int hf_kingfisher_via = -1;
 static int hf_kingfisher_message = -1;
 static int hf_kingfisher_function = -1;
 static int hf_kingfisher_checksum = -1;
+static int hf_kingfisher_checksum_status = -1;
 static int hf_kingfisher_message_data = -1;
+
+static expert_field ei_kingfisher_checksum = EI_INIT;
 
 static dissector_handle_t kingfisher_conv_handle;
 
@@ -302,7 +306,8 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     }
 
     /* checksum */
-    proto_tree_add_checksum(kingfisher_tree, tvb, kfp.length-1, hf_kingfisher_checksum, -1, NULL, pinfo, checksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    proto_tree_add_checksum(kingfisher_tree, tvb, kfp.length-1, hf_kingfisher_checksum, hf_kingfisher_checksum_status, &ei_kingfisher_checksum,
+                            pinfo, checksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
     return TRUE;
 }
@@ -351,6 +356,7 @@ proto_register_kingfisher( void )
             { &hf_kingfisher_message,       { "Message Number", "kingfisher.message", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_kingfisher_function,      { "Message Function Code", "kingfisher.function", FT_UINT8, BASE_DEC, VALS( function_code_vals ), 0x0, NULL, HFILL } },
             { &hf_kingfisher_checksum,      { "Checksum", "kingfisher.checksum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+            { &hf_kingfisher_checksum_status, { "Checksum Status", "kingfisher.checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0, NULL, HFILL } },
             { &hf_kingfisher_message_data,  { "Message Data", "kingfisher.message_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     };
 
@@ -358,9 +364,17 @@ proto_register_kingfisher( void )
         &ett_kingfisher
     };
 
+    static ei_register_info ei[] = {
+        { &ei_kingfisher_checksum, { "kingfisher.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+    };
+
+    expert_module_t* expert_kingfisher;
+
     proto_kingfisher = proto_register_protocol( "Kingfisher", "Kingfisher", "kf" );
     proto_register_field_array( proto_kingfisher, hf, array_length( hf ) );
     proto_register_subtree_array( ett, array_length( ett ) );
+    expert_kingfisher = expert_register_protocol(proto_kingfisher);
+    expert_register_field_array(expert_kingfisher, ei, array_length(ei));
 }
 
 

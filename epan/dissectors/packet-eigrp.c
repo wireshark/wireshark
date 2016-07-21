@@ -516,6 +516,7 @@ static int hf_eigrp_cable_range = -1;
 static int hf_eigrp_metric_delay = -1;
 static int hf_eigrp_metric_bandwidth = -1;
 static int hf_eigrp_checksum = -1;
+static int hf_eigrp_checksum_status = -1;
 static int hf_eigrp_metric_comm_type = -1;
 static int ett_metric_comm_type = -1;
 static int hf_eigrp_extcomm_eigrp_flag = -1;
@@ -2463,7 +2464,8 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                         ENC_BIG_ENDIAN);
 
     size          = tvb_captured_length(tvb);
-    proto_tree_add_checksum(eigrp_tree, tvb, 2, hf_eigrp_checksum, -1, &ei_eigrp_checksum_bad, pinfo, ip_checksum_tvb(tvb, 0, size), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    proto_tree_add_checksum(eigrp_tree, tvb, 2, hf_eigrp_checksum, hf_eigrp_checksum_status, &ei_eigrp_checksum_bad,
+                            pinfo, ip_checksum_tvb(tvb, 0, size), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
     /* Decode the EIGRP Flags Field */
     proto_tree_add_bitmask(eigrp_tree, tvb, 4, hf_eigrp_flags, ett_eigrp_flags,
@@ -3302,6 +3304,7 @@ proto_register_eigrp(void)
       { &hf_eigrp_metric_delay, { "Delay", "eigrp.metric.delay", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_eigrp_metric_bandwidth, { "Bandwidth", "eigrp.metric.bandwidth", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_eigrp_checksum, { "Checksum", "eigrp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_checksum_status, { "Checksum Status", "eigrp.checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
       { &hf_eigrp_metric_comm_type, { "Type", "eigrp.metric.comm_type", FT_UINT16, BASE_DEC, VALS(eigrp_metric_comm_type_vals), 0x0, NULL, HFILL }},
       { &hf_eigrp_extcomm_eigrp_flag, { "FLAG", "eigrp.extcomm.flag", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_eigrp_extcomm_eigrp_tag, { "TAG", "eigrp.extcomm.tag", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},

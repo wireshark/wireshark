@@ -37,7 +37,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
+#include <epan/expert.h>
 
 #include "packet-igmp.h"
 
@@ -59,6 +59,8 @@ static int hf_option_bytes = -1;
 
 static int ett_mrdisc = -1;
 static int ett_options = -1;
+
+static expert_field ei_checksum = EI_INIT;
 
 #define MC_ALL_ROUTERS		0xe0000002
 
@@ -91,7 +93,7 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
+	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_status, &ei_checksum, pinfo, 0);
 	offset += 2;
 
 	/* skip unused bytes */
@@ -160,7 +162,7 @@ dissect_mrdisc_mrst(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
+	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_status, &ei_checksum, pinfo, 0);
 	offset += 2;
 
 	return offset;
@@ -179,7 +181,7 @@ dissect_mrdisc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
 
 	/* Shouldn't be destined for us */
 	if (memcmp(pinfo->dst.data, &dst, 4))
-	return 0;
+		return 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MRDISC");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -264,9 +266,17 @@ proto_register_mrdisc(void)
 		&ett_options,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_checksum, { "mrdisc.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+	};
+
+	expert_module_t* expert_mrdisc;
+
 	proto_mrdisc = proto_register_protocol("Multicast Router DISCovery protocol", "MRDISC", "mrdisc");
 	proto_register_field_array(proto_mrdisc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_mrdisc = expert_register_protocol(proto_mrdisc);
+	expert_register_field_array(expert_mrdisc, ei, array_length(ei));
 }
 
 void

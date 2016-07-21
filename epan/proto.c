@@ -10118,31 +10118,9 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 					if (bad_checksum_expert != NULL)
 						expert_add_info_format(pinfo, ti, bad_checksum_expert, "Bad checksum");
 				} else {
-					switch(hfinfo->type)
-					{
-					case FT_UINT8:
-						proto_item_append_text(ti, " [incorrect, should be 0x%02x]", computed_checksum);
-						if (bad_checksum_expert != NULL)
-							expert_add_info_format(pinfo, ti, bad_checksum_expert, "Bad checksum [should be 0x%02x]", computed_checksum);
-						break;
-					case FT_UINT16:
-						proto_item_append_text(ti, " [incorrect, should be 0x%04x]", computed_checksum);
-						if (bad_checksum_expert != NULL)
-							expert_add_info_format(pinfo, ti, bad_checksum_expert, "Bad checksum [should be 0x%04x]", computed_checksum);
-						break;
-					case FT_UINT24:
-						proto_item_append_text(ti, " [incorrect, should be 0x%06x]", computed_checksum);
-						if (bad_checksum_expert != NULL)
-							expert_add_info_format(pinfo, ti, bad_checksum_expert, "Bad checksum [should be 0x%06x]", computed_checksum);
-						break;
-					case FT_UINT32:
-						proto_item_append_text(ti, " [incorrect, should be 0x%08x]", computed_checksum);
-						if (bad_checksum_expert != NULL)
-							expert_add_info_format(pinfo, ti, bad_checksum_expert, "Bad checksum [should be 0x%08x]", computed_checksum);
-						break;
-					default:
-						DISSECTOR_ASSERT_NOT_REACHED();
-					}
+					proto_item_append_text(ti, " incorrect, should be 0x%0*x", len*2, computed_checksum);
+					if (bad_checksum_expert != NULL)
+						expert_add_info_format(pinfo, ti, bad_checksum_expert, "Bad checksum [should be 0x%0*x]", len*2, computed_checksum);
 				}
 			}
 		} else {

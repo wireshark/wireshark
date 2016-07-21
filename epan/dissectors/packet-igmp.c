@@ -109,6 +109,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/range.h>
 #include <epan/to_str.h>
 #include <epan/ipproto.h>
@@ -168,6 +169,8 @@ static int ett_igmp = -1;
 static int ett_group_record = -1;
 static int ett_max_resp = -1;
 static int ett_mtrace_block = -1;
+
+static expert_field ei_checksum = EI_INIT;
 
 static dissector_table_t   subdissector_table;
 
@@ -282,7 +285,7 @@ static const value_string mtrace_fwd_code_vals[] = {
 };
 
 void igmp_checksum(proto_tree *tree, tvbuff_t *tvb, int hf_index,
-	int hf_index_status, packet_info *pinfo, guint len)
+	int hf_index_status, expert_field* ei_index, packet_info *pinfo, guint len)
 {
 	vec_t cksum_vec[1];
 
@@ -299,10 +302,10 @@ void igmp_checksum(proto_tree *tree, tvbuff_t *tvb, int hf_index,
 		 * truncated, so we can checksum it.
 		 */
 		SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, len);
-		proto_tree_add_checksum(tree, tvb, 2, hf_index, hf_index_status, NULL, pinfo, in_cksum(&cksum_vec[0], 1),
+		proto_tree_add_checksum(tree, tvb, 2, hf_index, hf_index_status, ei_index, pinfo, in_cksum(&cksum_vec[0], 1),
                                 ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 	} else
-		proto_tree_add_checksum(tree, tvb, 2, hf_index, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+		proto_tree_add_checksum(tree, tvb, 2, hf_index, hf_index_status, ei_index, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 
 	return;
 }
@@ -548,7 +551,7 @@ dissect_igmp_v3_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
+	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, &ei_checksum, pinfo, 0);
 	offset += 2;
 
         proto_tree_add_item(tree, hf_reserved, tvb, offset, 2, ENC_NA);
@@ -583,7 +586,7 @@ dissect_igmp_v3_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
 	offset = dissect_v3_max_resp(tvb, tree, offset);
 
 	/* checksum */
-	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
+	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, &ei_checksum, pinfo, 0);
 	offset += 2;
 
 	/* group address */
@@ -638,7 +641,7 @@ dissect_igmp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, pinfo, 8);
+	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, &ei_checksum, pinfo, 8);
 	offset += 2;
 
 	/* group address */
@@ -680,7 +683,7 @@ dissect_igmp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, pinfo, 8);
+	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, &ei_checksum, pinfo, 8);
 	offset += 2;
 
 	/* group address */
@@ -715,7 +718,7 @@ dissect_igmp_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, pinfo, 20);
+	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, &ei_checksum, pinfo, 20);
 	offset += 2;
 
 	/* identifier */
@@ -798,7 +801,7 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
+	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, &ei_checksum, pinfo, 0);
 	offset += 2;
 
 	/* group address to be traced */
@@ -1089,10 +1092,17 @@ proto_register_igmp(void)
 		&ett_mtrace_block,
 	};
 
-	proto_igmp = proto_register_protocol("Internet Group Management Protocol",
-		"IGMP", "igmp");
+	static ei_register_info ei[] = {
+		{ &ei_checksum, { "igmp.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+	};
+
+	expert_module_t* expert_igmp;
+
+	proto_igmp = proto_register_protocol("Internet Group Management Protocol", "IGMP", "igmp");
 	proto_register_field_array(proto_igmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_igmp = expert_register_protocol(proto_igmp);
+	expert_register_field_array(expert_igmp, ei, array_length(ei));
 
 	subdissector_table = register_dissector_table("igmp.type", "IGMP commands", proto_igmp, FT_UINT32, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 

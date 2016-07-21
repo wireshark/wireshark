@@ -43,6 +43,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-igmp.h"
 
 void proto_register_igap(void);
@@ -71,6 +72,7 @@ static int hf_igap_unknown_message = -1;
 
 static int ett_igap = -1;
 
+static expert_field ei_checksum = EI_INIT;
 
 static const value_string igap_types[] = {
     {IGMP_IGAP_JOIN,  "Membership Report (Join)"},
@@ -157,7 +159,7 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
         "%.1f sec (0x%02x)", tsecs * 0.1, tsecs);
     offset += 1;
 
-    igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, pinfo, 0);
+    igmp_checksum(tree, tvb, hf_checksum, hf_checksum_status, &ei_checksum, pinfo, 0);
     offset += 2;
 
     proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -330,6 +332,12 @@ proto_register_igap(void)
         },
     };
 
+    static ei_register_info ei[] = {
+        { &ei_checksum, { "igap.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+    };
+
+    expert_module_t* expert_igap;
+
     static gint *ett[] = {
         &ett_igap
     };
@@ -337,6 +345,8 @@ proto_register_igap(void)
     proto_igap = proto_register_protocol("Internet Group membership Authentication Protocol", "IGAP", "igap");
     proto_register_field_array(proto_igap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+	expert_igap = expert_register_protocol(proto_igap);
+	expert_register_field_array(expert_igap, ei, array_length(ei));
 }
 
 void

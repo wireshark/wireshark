@@ -52,6 +52,7 @@ static int hf_isis_csnp_lsp_seq_num = -1;
 static int hf_isis_csnp_lsp_remain_life = -1;
 static int hf_isis_csnp_lsp_checksum = -1;
 static int hf_isis_csnp_checksum = -1;
+static int hf_isis_csnp_checksum_status = -1;
 static int hf_isis_csnp_clv_type = -1;
 static int hf_isis_csnp_clv_length = -1;
 static int hf_isis_csnp_ip_authentication = -1;
@@ -71,6 +72,7 @@ static expert_field ei_isis_csnp_short_packet = EI_INIT;
 static expert_field ei_isis_csnp_long_packet = EI_INIT;
 static expert_field ei_isis_csnp_authentication = EI_INIT;
 static expert_field ei_isis_csnp_clv_unknown = EI_INIT;
+static expert_field ei_isis_csnp_checksum = EI_INIT;
 
 /* psnp packets */
 static int hf_isis_psnp_pdu_length = -1;
@@ -146,13 +148,13 @@ dissect_snp_checksum_clv(tvbuff_t *tvb, packet_info* pinfo,
 
     if (checksum == 0) {
         /* No checksum present */
-        proto_tree_add_checksum(tree, tvb, offset, hf_isis_csnp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
+        proto_tree_add_checksum(tree, tvb, offset, hf_isis_csnp_checksum, hf_isis_csnp_checksum_status, &ei_isis_csnp_checksum, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
     } else {
         if (osi_check_and_get_checksum(tvb, 0, pdu_length, offset, &cacl_checksum)) {
             /* Successfully processed checksum, verify it */
-            proto_tree_add_checksum(tree, tvb, offset, hf_isis_csnp_checksum, -1, NULL, pinfo, cacl_checksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+            proto_tree_add_checksum(tree, tvb, offset, hf_isis_csnp_checksum, hf_isis_csnp_checksum_status, &ei_isis_csnp_checksum, pinfo, cacl_checksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
         } else {
-            ti = proto_tree_add_checksum(tree, tvb, offset, hf_isis_csnp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+            ti = proto_tree_add_checksum(tree, tvb, offset, hf_isis_csnp_checksum, hf_isis_csnp_checksum_status, &ei_isis_csnp_checksum, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
             expert_add_info_format(pinfo, ti, &ei_isis_csnp_long_packet,
                                         "Packet length %d went beyond packet", tvb_captured_length(tvb));
         }
@@ -513,6 +515,9 @@ proto_register_isis_csnp(void)
         { &hf_isis_csnp_checksum,
         { "Checksum",        "isis.csnp.checksum", FT_UINT16,
           BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_isis_csnp_checksum_status,
+        { "Checksum Status",        "isis.csnp.checksum.status", FT_UINT8,
+          BASE_NONE, VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
         { &hf_isis_csnp_clv_type,
         { "Type",        "isis.csnp.clv.type", FT_UINT8,
           BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -549,6 +554,7 @@ proto_register_isis_csnp(void)
         { &ei_isis_csnp_long_packet, { "isis.csnp.long_packet", PI_MALFORMED, PI_ERROR, "Long packet", EXPFILL }},
         { &ei_isis_csnp_authentication, { "isis.csnp.authentication.unknown", PI_PROTOCOL, PI_WARN, "Unknown authentication type", EXPFILL }},
         { &ei_isis_csnp_clv_unknown, { "isis.csnp.clv.unknown", PI_UNDECODED, PI_NOTE, "Unknown option", EXPFILL }},
+        { &ei_isis_csnp_checksum, { "isis.csnp.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
     };
     expert_module_t* expert_isis_csnp;
 

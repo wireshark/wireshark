@@ -60,6 +60,7 @@ static int hf_clnp_data_unit_identifier     = -1;
 static int hf_clnp_segment_offset           = -1;
 static int hf_clnp_total_length             = -1;
 static int hf_clnp_checksum    = -1;
+static int hf_clnp_checksum_status          = -1;
 static int hf_clnp_dest_length = -1;
 static int hf_clnp_dest        = -1;
 static int hf_clnp_src_length  = -1;
@@ -96,6 +97,7 @@ static const fragment_items clnp_frag_items = {
 };
 
 static expert_field ei_clnp_length = EI_INIT;
+static expert_field ei_clnp_checksum = EI_INIT;
 
 static dissector_handle_t clnp_handle;
 static dissector_handle_t ositp_handle;
@@ -322,16 +324,16 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     cnf_cksum = tvb_get_ntohs(tvb, P_CLNP_CKSUM);
     if (cnf_cksum == 0) {
         /* No checksum present */
-        proto_tree_add_checksum(clnp_tree, tvb, P_CLNP_CKSUM, hf_clnp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
+        proto_tree_add_checksum(clnp_tree, tvb, P_CLNP_CKSUM, hf_clnp_checksum, hf_clnp_checksum_status, &ei_clnp_checksum, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
     } else {
         guint32 c0 = 0, c1 = 0;
 
         if (osi_calc_checksum(tvb, 0, cnf_hdr_len, &c0, &c1)) {
             /* Successfully processed checksum, verify it */
-            proto_tree_add_checksum(clnp_tree, tvb, P_CLNP_CKSUM, hf_clnp_checksum, -1, NULL, pinfo, c0 | c1, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
+            proto_tree_add_checksum(clnp_tree, tvb, P_CLNP_CKSUM, hf_clnp_checksum, hf_clnp_checksum_status, &ei_clnp_checksum, pinfo, c0 | c1, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
             cksum_valid = (c0 | c1) ? FALSE : TRUE;
         } else {
-            proto_tree_add_checksum(clnp_tree, tvb, P_CLNP_CKSUM, hf_clnp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+            proto_tree_add_checksum(clnp_tree, tvb, P_CLNP_CKSUM, hf_clnp_checksum, hf_clnp_checksum_status, &ei_clnp_checksum, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
         }
     }
 
@@ -635,6 +637,9 @@ proto_register_clnp(void)
         { &hf_clnp_checksum,
             { "Checksum", "clnp.checksum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
+        { &hf_clnp_checksum_status,
+            { "Checksum Status", "clnp.checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
+
         { &hf_clnp_dest_length,
             { "DAL", "clnp.dsap.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
@@ -703,6 +708,7 @@ proto_register_clnp(void)
 
     static ei_register_info ei[] = {
         { &ei_clnp_length, { "clnp.len.bad", PI_MALFORMED, PI_ERROR, "Header length value bad", EXPFILL }},
+        { &ei_clnp_checksum, { "clnp.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
     };
 
     module_t *clnp_module;

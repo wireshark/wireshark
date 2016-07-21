@@ -25,6 +25,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <wsutil/crc32.h>
 #include <epan/crc32-tvb.h>
 #include <epan/reassemble.h>
@@ -118,6 +119,8 @@ static int hf_msg_reassembled_length = -1;
 
 static gint ett_msg_fragment = -1;
 static gint ett_msg_fragments = -1;
+
+static expert_field ei_ts2_crc32 = EI_INIT;
 
 static const fragment_items msg_frag_items = {
     /* Fragment subtrees */
@@ -230,6 +233,7 @@ static int hf_ts2_class = -1;
 static int hf_ts2_clientid = -1;
 static int hf_ts2_sessionkey = -1;
 static int hf_ts2_crc32 = -1;
+static int hf_ts2_crc32_status = -1;
 static int hf_ts2_ackto = -1;
 static int hf_ts2_seqnum = -1;
 static int hf_ts2_protocol_string = -1;
@@ -304,7 +308,7 @@ typedef struct
 static reassembly_table msg_reassembly_table;
 
 /* forward reference */
-static void ts2_add_checked_crc32(proto_tree *tree, int hf_item, tvbuff_t *tvb, guint16 offset);
+static void ts2_add_checked_crc32(proto_tree *tree, int hf_item, int hf_item_status, expert_field* ei_item, tvbuff_t *tvb, packet_info *pinfo, guint16 offset);
 static void ts2_parse_playerlist(tvbuff_t *tvb, proto_tree *ts2_tree);
 static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree);
 static void ts2_parse_newplayerjoined(tvbuff_t *tvb, proto_tree *ts2_tree);
@@ -421,7 +425,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     proto_tree_add_item(ts2_tree, hf_ts2_resend_count, tvb, 16, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(ts2_tree, hf_ts2_fragmentnumber, tvb, 18, 2, ENC_LITTLE_ENDIAN);
-    ts2_add_checked_crc32(ts2_tree, hf_ts2_crc32, tvb, 20);
+    ts2_add_checked_crc32(ts2_tree, hf_ts2_crc32, hf_ts2_crc32_status, &ei_ts2_crc32, tvb, pinfo, 20);
 
     /* Reassemble the packet if it's fragmented */
     new_tvb = NULL;
@@ -764,7 +768,7 @@ static int dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         {
             case TS2C_CONNECTION:
                 proto_tree_add_item(ts2_tree, hf_ts2_seqnum, tvb, 12, 4, ENC_LITTLE_ENDIAN);
-                ts2_add_checked_crc32(ts2_tree, hf_ts2_crc32, tvb, 16);
+                ts2_add_checked_crc32(ts2_tree, hf_ts2_crc32, hf_ts2_crc32_status, &ei_ts2_crc32, tvb, pinfo, 16);
 
                 switch(type)
                 {
@@ -816,7 +820,7 @@ static int dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 /* Calculates a CRC32 checksum from the tvb zeroing out four bytes at the offset and checks it with the given crc32 and adds the result to the tree
  * Returns true if the calculated CRC32 matches the passed CRC32.
  * */
-static void ts2_add_checked_crc32(proto_tree *tree, int hf_item, tvbuff_t *tvb, guint16 offset)
+static void ts2_add_checked_crc32(proto_tree *tree, int hf_item, int hf_item_status, expert_field* ei_item, tvbuff_t *tvb, packet_info *pinfo, guint16 offset)
 {
     guint32  zero = 0;
     gint     len = tvb_reported_length_remaining(tvb, offset+4);
@@ -829,7 +833,7 @@ static void ts2_add_checked_crc32(proto_tree *tree, int hf_item, tvbuff_t *tvb, 
     ocrc32 = crc32_ccitt_seed((guint8*)&zero, 4, 0xffffffff-ocrc32);
     ocrc32 = crc32_ccitt_tvb_offset_seed(tvb, offset+4, (guint)len, 0xffffffff-ocrc32);
 
-    proto_tree_add_checksum(tree, tvb, offset, hf_item, -1, NULL, NULL, ocrc32, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    proto_tree_add_checksum(tree, tvb, offset, hf_item, hf_item_status, ei_item, pinfo, ocrc32, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
 }
 
 static void ts2_init(void)
@@ -883,6 +887,12 @@ void proto_register_ts2(void)
             { "CRC32 Checksum", "ts2.crc32",
                 FT_UINT32, BASE_HEX,
                 NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ts2_crc32_status,
+            { "CRC32 Checksum Status", "ts2.crc32.status",
+                FT_UINT8, BASE_NONE,
+                VALS(proto_checksum_vals), 0x0,
                 NULL, HFILL }
         },
         { &hf_ts2_seqnum,
@@ -1204,14 +1214,18 @@ void proto_register_ts2(void)
         &ett_ts2_channel_flags
     };
 
+	static ei_register_info ei[] = {
+		{ &ei_ts2_crc32, { "ts2.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+	};
+
+	expert_module_t* expert_ts2;
+
     /* Setup protocol subtree array */
-    proto_ts2 = proto_register_protocol (
-            "Teamspeak2 Protocol",    /* name */
-            "TeamSpeak2",        /* short name */
-            "ts2"            /* abbrev */
-            );
+    proto_ts2 = proto_register_protocol ("Teamspeak2 Protocol", "TeamSpeak2", "ts2");
     proto_register_field_array(proto_ts2, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_ts2 = expert_register_protocol(proto_ts2);
+    expert_register_field_array(expert_ts2, ei, array_length(ei));
 
     register_init_routine(ts2_init);
     register_cleanup_routine(ts2_cleanup);

@@ -144,6 +144,7 @@ static int hf_modbus_reg16 = -1;
 static int hf_modbus_reg32 = -1;
 static int hf_mbrtu_unitid = -1;
 static int hf_mbrtu_crc16 = -1;
+static int hf_mbrtu_crc16_status = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mbtcp = -1;
@@ -622,11 +623,11 @@ dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     if (mbrtu_crc)
     {
         calc_crc16 = crc16_plain_tvb_offset_seed(tvb, offset, len-2, 0xFFFF);
-        proto_tree_add_checksum(mbrtu_tree, tvb, len-2, hf_mbrtu_crc16, -1, &ei_mbrtu_crc16_incorrect, pinfo, g_htons(calc_crc16), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+        proto_tree_add_checksum(mbrtu_tree, tvb, len-2, hf_mbrtu_crc16, hf_mbrtu_crc16_status, &ei_mbrtu_crc16_incorrect, pinfo, g_htons(calc_crc16), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
     }
     else
     {
-        proto_tree_add_checksum(mbrtu_tree, tvb, len-2, hf_mbrtu_crc16, -1, &ei_mbrtu_crc16_incorrect, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+        proto_tree_add_checksum(mbrtu_tree, tvb, len-2, hf_mbrtu_crc16, hf_mbrtu_crc16_status, &ei_mbrtu_crc16_incorrect, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     }
 
     /* when determining payload length, make sure to ignore the unit ID header & CRC-16 footer bytes */
@@ -1585,6 +1586,11 @@ proto_register_modbus(void)
         { &hf_mbrtu_crc16,
             { "CRC-16", "mbrtu.crc16",
             FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_mbrtu_crc16_status,
+            { "CRC-16 Status", "mbrtu.crc16.status",
+            FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
             NULL, HFILL }
         },
     };

@@ -261,6 +261,7 @@ static gint hf_ulmap_uiuc13_papr   = -1;
 static gint hf_ulmap_uiuc13_zone   = -1;
 static gint hf_ulmap_uiuc13_rsv    = -1;
 /* static gint hf_ulmap_crc16         = -1; */
+/* static gint hf_ulmap_crc16_status = -1; */
 static gint hf_ulmap_padding       = -1;
 
 /* Generated via "one time" script to help create filterable fields */
@@ -635,7 +636,7 @@ static gint UL_HARQ_Chase_Sub_Burst_IE(proto_tree *uiuc_tree, gint offset, gint 
     if (include_cor2_changes)
     {
 		calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, -1, NULL, pinfo, calculated_crc,
+		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, hf_ulmap_crc16_status, &ei_ulmap_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		bit += 16;
     }
@@ -676,7 +677,7 @@ static gint UL_HARQ_IR_CTC_Sub_Burst_IE(proto_tree *uiuc_tree, gint offset, gint
     {
 		/* CRC-16 is always appended */
 		calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, -1, NULL, pinfo, calculated_crc,
+		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, hf_ulmap_crc16_status, &ei_ulmap_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		bit += 16;
     }
@@ -718,7 +719,7 @@ static gint UL_HARQ_IR_CC_Sub_Burst_IE(proto_tree *uiuc_tree, gint offset, gint 
     {
 		/* CRC-16 is always appended */
 		calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, -1, NULL, pinfo, calculated_crc,
+		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, hf_ulmap_crc16_status, &ei_ulmap_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
 		bit += 16;
@@ -771,7 +772,7 @@ static gint MIMO_UL_Chase_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, gint offset, 
     {
 		/* CRC-16 is always appended */
 		calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, -1, NULL, pinfo, calculated_crc,
+		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, hf_ulmap_crc16_status, &ei_ulmap_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
 		bit += 16;
@@ -824,7 +825,7 @@ static gint MIMO_UL_IR_HARQ__Sub_Burst_IE(proto_tree *uiuc_tree, gint offset, gi
     {
 		/* CRC-16 is always appended */
 		calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, -1, NULL, pinfo, calculated_crc,
+		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, hf_ulmap_crc16_status, &ei_ulmap_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
 		bit += 16;
@@ -878,7 +879,7 @@ static gint MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE(proto_tree *uiuc_tree, gint off
     {
 		/* CRC-16 is always appended */
 		calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, -1, NULL, pinfo, calculated_crc,
+		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, hf_ulmap_crc16_status, &ei_ulmap_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
 		bit += 16;
@@ -924,7 +925,7 @@ static gint MIMO_UL_STC_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, gint offset, gi
     {
 		/* CRC-16 is always appended */
 		calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, -1, NULL, pinfo, calculated_crc,
+		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, hf_ulmap_crc16_status, &ei_ulmap_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
 		bit += 16;
@@ -2461,6 +2462,13 @@ void proto_register_mac_mgmt_msg_ulmap(void)
 			{
 				"CRC-16", "wmx.ulmap.crc16",
 				FT_UINT32,	BASE_HEX, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_crc16_status,
+			{
+				"CRC-16 Status", "wmx.ulmap.crc16.status",
+				FT_UINT8, BASE_NONE, VALS(plugin_proto_checksum_vals), 0x0, NULL, HFILL
 			}
 		},
 #endif

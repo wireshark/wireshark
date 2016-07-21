@@ -70,6 +70,7 @@ static int hf_cotp_parameter_length = -1;
 static int hf_cotp_parameter_value = -1;
 static int hf_cotp_atn_extended_checksum16 = -1;
 static int hf_cotp_atn_extended_checksum32 = -1;
+static int hf_cotp_atn_extended_checksum_status = -1;
 static int hf_cotp_ack_time = -1;
 static int hf_cotp_res_error_rate_target_value = -1;
 static int hf_cotp_res_error_rate_min_accept = -1;
@@ -93,6 +94,7 @@ static int hf_cotp_lower_window_edge = -1;
 static int hf_cotp_credit = -1;
 static int hf_cotp_tpdu_size = -1;
 static int hf_cotp_checksum = -1;
+static int hf_cotp_checksum_status = -1;
 static int hf_cotp_vp_version_nr = -1;
 static int hf_cotp_network_expedited_data = -1;
 static int hf_cotp_vp_opt_sel_class1_use = -1;
@@ -122,6 +124,9 @@ static expert_field ei_cotp_reject = EI_INIT;
 static expert_field ei_cotp_connection = EI_INIT;
 static expert_field ei_cotp_disconnect_request = EI_INIT;
 static expert_field ei_cotp_preferred_maximum_tpdu_size = EI_INIT;
+static expert_field ei_cotp_atn_extended_checksum = EI_INIT;
+static expert_field ei_cotp_checksum = EI_INIT;
+
 
 static int  proto_cltp         = -1;
 static gint ett_cltp           = -1;
@@ -481,7 +486,8 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
                                       offset_iso8073_checksum,
                                       pinfo->dst.len, (const guint8 *)pinfo->dst.data,
                                       pinfo->src.len, (const guint8 *)pinfo->src.data);
-        proto_tree_add_checksum(tree, tvb, offset, hf_cotp_atn_extended_checksum16, -1, NULL, pinfo, sum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
+        proto_tree_add_checksum(tree, tvb, offset, hf_cotp_atn_extended_checksum16, hf_cotp_atn_extended_checksum_status, &ei_cotp_atn_extended_checksum,
+                                pinfo, sum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
       } else {
         proto_tree_add_bytes_format_value(tree, hf_cotp_parameter_value, tvb, offset, length, NULL, "<not shown>");
       }
@@ -511,7 +517,8 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
                                       offset_iso8073_checksum,
                                       pinfo->dst.len, (const guint8 *)pinfo->dst.data,
                                       pinfo->src.len, (const guint8 *)pinfo->src.data);
-        proto_tree_add_checksum(tree, tvb, offset, hf_cotp_atn_extended_checksum32, -1, NULL, pinfo, sum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
+        proto_tree_add_checksum(tree, tvb, offset, hf_cotp_atn_extended_checksum32, hf_cotp_atn_extended_checksum_status, &ei_cotp_atn_extended_checksum,
+                                pinfo, sum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
       } else {
         proto_tree_add_bytes_format_value(tree, hf_cotp_parameter_value, tvb, offset, length, NULL, "<not shown>");
       }
@@ -693,15 +700,15 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
 
       if (tvb_get_ntohs(tvb, offset) == 0) {
         /* No checksum present */
-        proto_tree_add_checksum(tree, tvb, offset, hf_cotp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
+        proto_tree_add_checksum(tree, tvb, offset, hf_cotp_checksum, hf_cotp_checksum_status, &ei_cotp_checksum, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
       } else {
         guint32 calc_c0 = 0, calc_c1 = 0;
 
         if (osi_calc_checksum(tvb, 0, length, &calc_c0, &calc_c1)) {
             /* Successfully processed checksum, verify it */
-            proto_tree_add_checksum(tree, tvb, offset, hf_cotp_checksum, -1, NULL, pinfo, calc_c0 | calc_c1, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
+            proto_tree_add_checksum(tree, tvb, offset, hf_cotp_checksum, hf_cotp_checksum_status, &ei_cotp_checksum, pinfo, calc_c0 | calc_c1, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
         } else {
-            proto_tree_add_checksum(tree, tvb, offset, hf_cotp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+            proto_tree_add_checksum(tree, tvb, offset, hf_cotp_checksum, hf_cotp_checksum_status, &ei_cotp_checksum, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
         }
       }
 
@@ -2324,6 +2331,7 @@ void proto_register_cotp(void)
       { &hf_cotp_parameter_value, { "Parameter value", "cotp.parameter_value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_cotp_atn_extended_checksum16, { "ATN extended checksum", "cotp.atn_extended_checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_cotp_atn_extended_checksum32, { "ATN extended checksum", "cotp.atn_extended_checksum", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_cotp_atn_extended_checksum_status, { "ATN extended checksum Status", "cotp.atn_extended_checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
       { &hf_cotp_ack_time, { "Ack time (ms)", "cotp.ack_time", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cotp_res_error_rate_target_value, { "Residual error rate, target value", "cotp.res_error_rate.target_value", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cotp_res_error_rate_min_accept, { "Residual error rate, minimum acceptable", "cotp.res_error_rate.min_accept", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -2347,6 +2355,7 @@ void proto_register_cotp(void)
       { &hf_cotp_credit, { "Credit", "cotp.credit", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_cotp_tpdu_size, { "TPDU size", "cotp.tpdu_size", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cotp_checksum, { "Checksum", "cotp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_cotp_checksum_status, { "Checksum Status", "cotp.checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
       { &hf_cotp_vp_version_nr, { "Version", "cotp.vp_version_nr", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cotp_network_expedited_data, { "Use of network expedited data", "cotp.network_expedited_data", FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x08, NULL, HFILL }},
       { &hf_cotp_vp_opt_sel_class1_use, { "Use", "cotp.vp_opt_sel_class1_use", FT_BOOLEAN, 8, TFS(&tfs_vp_opt_sel_class1_use), 0x04, NULL, HFILL }},
@@ -2371,6 +2380,8 @@ void proto_register_cotp(void)
       { &ei_cotp_disconnect_confirm, { "cotp.disconnect_confirm", PI_SEQUENCE, PI_CHAT, "Disconnect Confirm(DC): 0x%x -> 0x%x", EXPFILL }},
       { &ei_cotp_multiple_tpdus, { "cotp.multiple_tpdus", PI_SEQUENCE, PI_NOTE, "Multiple TPDUs in one packet", EXPFILL }},
       { &ei_cotp_preferred_maximum_tpdu_size, { "cotp.preferred_maximum_tpdu_size.invalid", PI_PROTOCOL, PI_WARN, "Preferred maximum TPDU size: bogus length", EXPFILL }},
+      { &ei_cotp_atn_extended_checksum, { "cotp.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+      { &ei_cotp_checksum, { "cotp.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
   };
 
   module_t *cotp_module;

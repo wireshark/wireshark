@@ -49,6 +49,7 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include <epan/expert.h>
 #include <epan/ppptypes.h>
 
 typedef enum {
@@ -124,6 +125,7 @@ static int hf_dec_rt_fcnval = -1;
 static int hf_dec_rt_test_data = -1;
 static int hf_dec_rt_segment = -1;
 static int hf_dec_rt_checksum = -1;
+static int hf_dec_rt_checksum_status = -1;
 static int hf_dec_rt_id = -1;
 static int hf_dec_rt_iinfo = -1;
 static int hf_dec_rt_iinfo_node_type = -1;
@@ -169,6 +171,8 @@ static gint ett_dec_rt_rlist = -1;
 static gint ett_dec_rt_state = -1;
 static gint ett_dec_flow_control = -1;
 static gint ett_dec_sess_contents = -1;
+
+static expert_field ei_dec_rt_checksum = EI_INIT;
 
 static gint dec_dna_total_bytes_this_segment = 0;
 static gint dec_dna_previous_total = 0;
@@ -668,7 +672,7 @@ do_routing_msg(
     while (my_checksum>>16)
         my_checksum = (my_checksum & 0xffff) + (my_checksum >> 16);
 
-    proto_tree_add_checksum(tree, tvb, my_offset, hf_dec_rt_checksum, -1, NULL, pinfo, my_checksum, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    proto_tree_add_checksum(tree, tvb, my_offset, hf_dec_rt_checksum, hf_dec_rt_checksum_status, &ei_dec_rt_checksum, pinfo, my_checksum, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
     my_offset += 2;
     return (my_offset);
 }
@@ -1337,6 +1341,10 @@ proto_register_dec_rt(void)
           { "Checksum",               "dec_dna.ctl.checksum",
             FT_UINT16,    BASE_HEX,    NULL,    0x0,
             NULL, HFILL }},
+        { &hf_dec_rt_checksum_status,
+          { "Checksum Status",        "dec_dna.ctl.checksum.status",
+            FT_UINT8,     BASE_NONE,   VALS(proto_checksum_vals),    0x0,
+            NULL, HFILL }},
         { &hf_dec_rt_id,
           { "Transmitting system ID",            "dec_dna.ctl.id",
             FT_ETHER,    BASE_NONE,    NULL,    0x0,
@@ -1450,10 +1458,17 @@ proto_register_dec_rt(void)
         &ett_dec_sess_contents,
     };
 
-    proto_dec_rt = proto_register_protocol("DEC DNA Routing Protocol",
-                                           "DEC_DNA", "dec_dna");
+    static ei_register_info ei[] = {
+        { &ei_dec_rt_checksum, { "dec_dna.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+    };
+
+    expert_module_t* expert_dec_rt;
+
+    proto_dec_rt = proto_register_protocol("DEC DNA Routing Protocol", "DEC_DNA", "dec_dna");
     proto_register_field_array(proto_dec_rt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_dec_rt = expert_register_protocol(proto_dec_rt);
+    expert_register_field_array(expert_dec_rt, ei, array_length(ei));
 }
 
 void

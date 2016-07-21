@@ -223,6 +223,7 @@ static gint ett_dccp_feature = -1;
 static expert_field ei_dccp_option_len_bad = EI_INIT;
 static expert_field ei_dccp_advertised_header_length_bad = EI_INIT;
 static expert_field ei_dccp_packet_type_reserved = EI_INIT;
+static expert_field ei_dccp_checksum = EI_INIT;
 
 static dissector_table_t dccp_subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
@@ -694,10 +695,10 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             break;
         }
         SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, csum_coverage_len);
-        proto_tree_add_checksum(dccp_tree, tvb, offset, hf_dccp_checksum, hf_dccp_checksum_status, NULL, pinfo, in_cksum(&cksum_vec[0], 4),
+        proto_tree_add_checksum(dccp_tree, tvb, offset, hf_dccp_checksum, hf_dccp_checksum_status, &ei_dccp_checksum, pinfo, in_cksum(&cksum_vec[0], 4),
                                 ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
     } else {
-        proto_tree_add_checksum(dccp_tree, tvb, offset, hf_dccp_checksum, hf_dccp_checksum_status, NULL, pinfo, 0,
+        proto_tree_add_checksum(dccp_tree, tvb, offset, hf_dccp_checksum, hf_dccp_checksum_status, &ei_dccp_checksum, pinfo, 0,
                                 ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     }
     offset += 2;
@@ -1261,6 +1262,7 @@ proto_register_dccp(void)
         { &ei_dccp_option_len_bad, { "dccp.option.len.bad", PI_PROTOCOL, PI_WARN, "Bad option length", EXPFILL }},
         { &ei_dccp_advertised_header_length_bad, { "dccp.advertised_header_length.bad", PI_MALFORMED, PI_ERROR, "Advertised header length bad", EXPFILL }},
         { &ei_dccp_packet_type_reserved, { "dccp.packet_type.reserved", PI_PROTOCOL, PI_WARN, "Reserved packet type: unable to dissect further", EXPFILL }},
+        { &ei_dccp_checksum, { "dccp.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
     };
 
     expert_module_t* expert_dccp;
