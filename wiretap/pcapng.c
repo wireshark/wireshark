@@ -2730,9 +2730,6 @@ static guint32 pcapng_compute_option_string_size(char *str)
 {
     guint32 size = 0, pad;
 
-    if (str == NULL)
-        return 0;
-
     size = (guint32)strlen(str) & 0xffff;
     if ((size % 4)) {
         pad = 4 - (size % 4);
@@ -2821,7 +2818,7 @@ static gboolean pcapng_write_option_string(wtap_dumper *wdh, guint option_id, ch
     return TRUE;
 }
 
-static void write_wtap_shb_block(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
+static void write_wtap_shb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
 {
     pcapng_write_block_t* write_block = (pcapng_write_block_t*)user_data;
 
@@ -2835,11 +2832,9 @@ static void write_wtap_shb_block(wtap_block_t block _U_, guint option_id, wtap_o
     case OPT_SHB_HARDWARE:
     case OPT_SHB_OS:
     case OPT_SHB_USERAPPL:
-        if (optval->stringval != NULL) {
-            if (!pcapng_write_option_string(write_block->wdh, option_id, optval->stringval, write_block->err)) {
-                write_block->success = FALSE;
-                return;
-            }
+        if (!pcapng_write_option_string(write_block->wdh, option_id, optval->stringval, write_block->err)) {
+            write_block->success = FALSE;
+            return;
         }
         break;
     default:
@@ -2913,7 +2908,7 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
             block_data.wdh = wdh;
             block_data.err = err;
             block_data.success = TRUE;
-            wtap_block_foreach_option(wdh_shb, write_wtap_shb_block, &block_data);
+            wtap_block_foreach_option(wdh_shb, write_wtap_shb_option, &block_data);
 
             if (!block_data.success)
                 return FALSE;
@@ -3299,28 +3294,26 @@ put_nrb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_ty
     {
     case OPT_COMMENT:
     case OPT_NS_DNSNAME:
-        if (optval->stringval != NULL) {
-            /* String options don't consider pad bytes part of the length */
-            size = (guint32)strlen(optval->stringval) & 0xffff;
-            option_hdr.type         = (guint16)option_id;
-            option_hdr.value_length = (guint16)size;
-            memcpy(*opt_ptrp, &option_hdr, 4);
-            *opt_ptrp += 4;
+        /* String options don't consider pad bytes part of the length */
+        size = (guint32)strlen(optval->stringval) & 0xffff;
+        option_hdr.type         = (guint16)option_id;
+        option_hdr.value_length = (guint16)size;
+        memcpy(*opt_ptrp, &option_hdr, 4);
+        *opt_ptrp += 4;
 
-            memcpy(*opt_ptrp, optval->stringval, size);
-            *opt_ptrp += size;
+        memcpy(*opt_ptrp, optval->stringval, size);
+        *opt_ptrp += size;
 
-            if ((size % 4)) {
-                pad = 4 - (size % 4);
-            } else {
-                pad = 0;
-            }
+        if ((size % 4)) {
+            pad = 4 - (size % 4);
+        } else {
+            pad = 0;
+        }
 
-            /* put padding (if any) */
-            if (pad != 0) {
-                memset(*opt_ptrp, 0, pad);
-                *opt_ptrp += pad;
-            }
+        /* put padding (if any) */
+        if (pad != 0) {
+            memset(*opt_ptrp, 0, pad);
+            *opt_ptrp += pad;
         }
         break;
     case OPT_NS_DNSIP4ADDR:
@@ -3639,9 +3632,7 @@ static void compute_isb_option_size(wtap_block_t block _U_, guint option_id, wta
     switch(option_id)
     {
     case OPT_COMMENT:
-        if (optval->stringval != NULL) {
-            size = pcapng_compute_option_string_size(optval->stringval);
-        }
+        size = pcapng_compute_option_string_size(optval->stringval);
         break;
     case OPT_ISB_STARTTIME:
     case OPT_ISB_ENDTIME:
@@ -3671,7 +3662,7 @@ static void compute_isb_option_size(wtap_block_t block _U_, guint option_id, wta
     }
 }
 
-static void write_wtap_isb_block(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
+static void write_wtap_isb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
 {
     pcapng_write_block_t* write_block = (pcapng_write_block_t*)user_data;
     struct pcapng_option_header option_hdr;
@@ -3683,11 +3674,9 @@ static void write_wtap_isb_block(wtap_block_t block _U_, guint option_id, wtap_o
     switch(option_id)
     {
     case OPT_COMMENT:
-        if (optval->stringval != NULL) {
-            if (!pcapng_write_option_string(write_block->wdh, option_id, optval->stringval, write_block->err)) {
-                write_block->success = FALSE;
-                return;
-            }
+        if (!pcapng_write_option_string(write_block->wdh, option_id, optval->stringval, write_block->err)) {
+            write_block->success = FALSE;
+            return;
         }
         break;
     case OPT_ISB_STARTTIME:
@@ -3788,7 +3777,7 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtap_block_t if_stats,
         block_data.wdh = wdh;
         block_data.err = err;
         block_data.success = TRUE;
-        wtap_block_foreach_option(if_stats, write_wtap_isb_block, &block_data);
+        wtap_block_foreach_option(if_stats, write_wtap_isb_option, &block_data);
 
         if (!block_data.success)
             return FALSE;
@@ -3820,9 +3809,7 @@ static void compute_idb_option_size(wtap_block_t block _U_, guint option_id, wta
     case OPT_IDB_NAME:
     case OPT_IDB_DESCR:
     case OPT_IDB_OS:
-        if (optval != NULL) {
-            size = pcapng_compute_option_string_size(optval->stringval);
-        }
+        size = pcapng_compute_option_string_size(optval->stringval);
         break;
     case OPT_IDB_SPEED:
         size = 8;
@@ -3834,7 +3821,7 @@ static void compute_idb_option_size(wtap_block_t block _U_, guint option_id, wta
         {
             wtapng_if_descr_filter_t* filter = (wtapng_if_descr_filter_t*)optval->customval.data;
             guint32 pad;
-            if ((filter != NULL) && (filter->if_filter_str != NULL)) {
+            if (filter->if_filter_str != NULL) {
                 size = (guint32)(strlen(filter->if_filter_str) + 1) & 0xffff;
                 if ((size % 4)) {
                     pad = 4 - (size % 4);
@@ -3866,7 +3853,7 @@ static void compute_idb_option_size(wtap_block_t block _U_, guint option_id, wta
     }
 }
 
-static void write_wtap_idb_block(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
+static void write_wtap_idb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
 {
     pcapng_write_block_t* write_block = (pcapng_write_block_t*)user_data;
     struct pcapng_option_header option_hdr;
@@ -3878,11 +3865,9 @@ static void write_wtap_idb_block(wtap_block_t block _U_, guint option_id, wtap_o
     case OPT_IDB_NAME:
     case OPT_IDB_DESCR:
     case OPT_IDB_OS:
-        if (optval->stringval != NULL) {
-            if (!pcapng_write_option_string(write_block->wdh, option_id, optval->stringval, write_block->err)) {
-                write_block->success = FALSE;
-                return;
-            }
+        if (!pcapng_write_option_string(write_block->wdh, option_id, optval->stringval, write_block->err)) {
+            write_block->success = FALSE;
+            return;
         }
         break;
     case OPT_IDB_SPEED:
@@ -3925,7 +3910,7 @@ static void write_wtap_idb_block(wtap_block_t block _U_, guint option_id, wtap_o
         {
             wtapng_if_descr_filter_t* filter = (wtapng_if_descr_filter_t*)optval->customval.data;
             guint32 size, pad;
-            if ((filter != NULL) && (filter->if_filter_str != NULL)) {
+            if (filter->if_filter_str != NULL) {
                 size = (guint32)(strlen(filter->if_filter_str) + 1) & 0xffff;
                 if ((size % 4)) {
                     pad = 4 - (size % 4);
@@ -4028,7 +4013,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtap_block_t int_data, int *err)
         block_data.wdh = wdh;
         block_data.err = err;
         block_data.success = TRUE;
-        wtap_block_foreach_option(int_data, write_wtap_idb_block, &block_data);
+        wtap_block_foreach_option(int_data, write_wtap_idb_option, &block_data);
 
         if (!block_data.success)
             return FALSE;
