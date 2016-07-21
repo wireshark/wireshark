@@ -1404,6 +1404,16 @@ static gboolean dissect_gvsp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         /* Check for valid format types */
         if (format >= 1 && format <= 6)
         {
+            if(format == GVSP_PACKET_LEADER && tvb_captured_length_remaining(tvb, 8) >= 2)
+            {
+                guint32 payloadtype;
+                payloadtype = tvb_get_ntohs(tvb, 8);
+                payloadtype &= 0x3FFF;
+                if (try_val_to_str_ext(payloadtype, &payloadtypenames_ext) == NULL ){
+                    return FALSE;
+                }
+            }
+
             conversation = find_or_create_conversation(pinfo);
             conversation_set_dissector(conversation, gvsp_handle);
             dissect_gvsp(tvb, pinfo, tree, data);
