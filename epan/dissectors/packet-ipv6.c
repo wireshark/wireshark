@@ -1846,14 +1846,20 @@ dissect_dstopts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     return dissect_opts(tvb, 0, tree, pinfo, (ws_ip *)data, proto_ipv6_dstopts);
 }
 
-static gboolean
-ipv6_check_jumbo_plen(tvbuff_t *tvb, gint offset, packet_info *pinfo)
+/* return value is > G_MAXUINT16, else zero */
+/* tvb + offset contains the Hbh header */
+static guint32
+ipv6_get_jumbo_plen(tvbuff_t *tvb, gint offset)
 {
-    gint         offset_end, opt_type, opt_len;
+    gint         offset_end, hdr_len;
+    gint         opt_type, opt_len;
     guint32      jumbo_plen;
-    ipv6_pinfo_t *ipv6_pinfo;
 
-    offset_end = offset + ((tvb_get_guint8(tvb, offset + 1) +1) * 8);
+    if (!tvb_bytes_exist(tvb, offset, 2)) {
+        return 0;
+    }
+    hdr_len = (tvb_get_guint8(tvb, offset + 1) + 1) * 8;
+    offset_end = offset + hdr_len;
     offset +=2;
 
     while (offset < offset_end && tvb_bytes_exist(tvb, offset, 6)) {
@@ -1867,15 +1873,13 @@ ipv6_check_jumbo_plen(tvbuff_t *tvb, gint offset, packet_info *pinfo)
         if (opt_type == IP6OPT_JUMBO && opt_len == 4) {
             jumbo_plen = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
             if (jumbo_plen > G_MAXUINT16) {
-                ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
-                ipv6_pinfo->jumbo_plen = jumbo_plen;
-                return TRUE;
+                return jumbo_plen;
             }
-            return FALSE;
+            return 0;
         }
         offset += opt_len;
     }
-    return FALSE;
+    return 0;
 }
 
 static int
@@ -2184,7 +2188,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     /* Check for Jumbo option */
     if (iph.ip_len == 0 && iph.ip_nxt == IP_PROTO_HOPOPTS) {
-        if (ipv6_check_jumbo_plen(tvb, offset, pinfo)) {
+        ipv6_pinfo->jumbo_plen = ipv6_get_jumbo_plen(tvb, offset);
+        if (ipv6_pinfo->jumbo_plen != 0) {
             proto_item_append_text(ti_ipv6_plen, " (Jumbogram)");
             iph.ip_len = ipv6_pinfo->jumbo_plen;
         } else {
