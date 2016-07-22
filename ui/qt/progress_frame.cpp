@@ -87,9 +87,6 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *)
      * Flush out the update and process any input events.
      */
     WiresharkApplication::processEvents();
-
-    /* Redraw so the progress bar shows the update */
-    dlg->progress_frame->update();
 }
 
 /*
