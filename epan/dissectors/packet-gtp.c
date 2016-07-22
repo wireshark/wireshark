@@ -255,6 +255,7 @@ static int hf_gtp_bssgp_cause = -1;
 static int hf_gtp_bssgp_ra_discriminator = -1;
 static int hf_gtp_sapi = -1;
 static int hf_gtp_xid_par_len = -1;
+static int hf_gtp_rep_act_type = -1;
 static int hf_gtp_earp_pvi = -1;
 static int hf_gtp_earp_pl = -1;
 static int hf_gtp_earp_pci = -1;
@@ -1745,6 +1746,12 @@ static const value_string gtp_ext_rat_type_vals[] = {
     {3, "WLAN"},
     {4, "GAN"},
     {5, "HSPA Evolution"},
+    {0, NULL}
+};
+static const value_string chg_rep_act_type_vals[] = {
+    {0, "Stop Reporting"},
+    {1, "Start Reporting CGI/SAI"},
+    {2, "Start Reporting RAI"},
     {0, NULL}
 };
 
@@ -6880,8 +6887,8 @@ decode_gtp_ps_ho_req_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+
+    proto_tree_add_item(ext_tree, hf_gtp_rep_act_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return 3 + length;
 
@@ -9736,6 +9743,11 @@ proto_register_gtp(void)
          { "PS Handover XID parameter length", "gtp.ps_handover_xid_par_len",
            FT_UINT8, BASE_DEC, NULL, 0xFF,
            "XID parameter length", HFILL}
+        },
+        {&hf_gtp_rep_act_type,
+         { "Action", "gtp.ms_inf_chg_rep_act",
+           FT_UINT8, BASE_DEC, VALS(chg_rep_act_type_vals), 0xFF,
+           NULL, HFILL}
         },
         {&hf_gtp_earp_pvi,
          { "PVI Pre-emption Vulnerability", "gtp.EARP_pre_emption_par_vulnerability",
