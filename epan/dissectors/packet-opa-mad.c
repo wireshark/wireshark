@@ -15,6 +15,7 @@
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
+#include <epan/reassemble.h>
 
 void proto_reg_handoff_opa_mad(void);
 void proto_register_opa_mad(void);
@@ -811,6 +812,9 @@ static gint ett_mad = -1;
 static gint ett_mad_status = -1;
 static gint ett_mad_attributemod = -1;
 static gint ett_rmpp = -1;
+static gint ett_rmpp_fragment = -1;
+static gint ett_rmpp_fragments = -1;
+static gint ett_rmpp_sa_record = -1;
 /* Common */
 static gint ett_noticestraps = -1;
 static gint ett_datadetails = -1;
@@ -2483,6 +2487,35 @@ static expert_field ei_opa_mad_attribute_modifier_error_nonzero = EI_INIT;
 static expert_field ei_opa_rmpp_undecoded = EI_INIT;
 static expert_field ei_opa_aggregate_error = EI_INIT;
 
+/* Fragments */
+static gint hf_opa_rmpp_fragments = -1;
+static gint hf_opa_rmpp_fragment = -1;
+static gint hf_opa_rmpp_fragment_overlap = -1;
+static gint hf_opa_rmpp_fragment_overlap_conflicts = -1;
+static gint hf_opa_rmpp_fragment_multiple_tails = -1;
+static gint hf_opa_rmpp_fragment_too_long_fragment = -1;
+static gint hf_opa_rmpp_fragment_error = -1;
+static gint hf_opa_rmpp_fragment_count = -1;
+static gint hf_opa_rmpp_reassembled_in = -1;
+static gint hf_opa_rmpp_reassembled_length = -1;
+
+static const fragment_items opa_rmpp_frag_items = {
+    &ett_rmpp_fragment,
+    &ett_rmpp_fragments,
+    &hf_opa_rmpp_fragments,
+    &hf_opa_rmpp_fragment,
+    &hf_opa_rmpp_fragment_overlap,
+    &hf_opa_rmpp_fragment_overlap_conflicts,
+    &hf_opa_rmpp_fragment_multiple_tails,
+    &hf_opa_rmpp_fragment_too_long_fragment,
+    &hf_opa_rmpp_fragment_error,
+    &hf_opa_rmpp_fragment_count,
+    &hf_opa_rmpp_reassembled_in,
+    &hf_opa_rmpp_reassembled_length,
+    NULL,
+    "RMPP Fragments"
+};
+
 /* Custom Functions */
 static void cf_opa_mad_swinfo_ar_frequency(gchar *buf, guint16 value)
 {
@@ -2597,7 +2630,10 @@ static dissector_handle_t opa_mad_handle;
 static dissector_handle_t eth_handle;
 static dissector_table_t ethertype_dissector_table;
 
+static reassembly_table opa_mad_rmpp_reassembly_table;
+
 gboolean pref_parse_on_mad_status_error = FALSE;
+gboolean pref_attempt_rmpp_defragment = TRUE;
 
 static range_t *global_mad_vendor_class = NULL;
 static range_t *global_mad_vendor_rmpp_class = NULL;
@@ -2838,7 +2874,7 @@ static gboolean parse_RMPP(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     case RMPP_DATA:
         RMPP_segment_number_item = proto_tree_add_item(RMPP_header_tree, hf_opa_rmpp_segment_number, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         RMPP->SegmentNumber = tvb_get_ntohl(tvb, local_offset);
-        if (RMPP->SegmentNumber > 1) {
+        if (!pref_attempt_rmpp_defragment && RMPP->SegmentNumber > 1) {
             expert_add_info_format(pinfo, RMPP_segment_number_item, &ei_opa_rmpp_undecoded,
                 "Parsing Disabled for RMPP Data Segments greater than 1 (%u)", RMPP->SegmentNumber);
         }
@@ -5680,8 +5716,8 @@ static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
     proto_tree *SUBA_Attribute_header_tree = parentTree;
     guint local_offset = *offset;
 
-    if (RMPP->Type == RMPP_ACK || SA_HEADER->AttributeOffset == 0 ||
-        (RMPP->PayloadLength <= 20 && RMPP->Type == RMPP_DATA))
+    if (RMPP->Type == RMPP_ACK || SA_HEADER->AttributeOffset == 0 || (RMPP->PayloadLength <= 20 && RMPP->Type == RMPP_DATA) ||
+        (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
         return TRUE;
 
     /* Skim off the RID fields should they be present */
@@ -5898,6 +5934,12 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     MAD_t       MAD;
     RMPP_t      RMPP;
     SA_HEADER_t SA_HEADER;
+    fragment_head *frag_head = NULL;
+    tvbuff_t *old_tvb = NULL;
+    gint old_offset;
+    guint r, records, length;
+    proto_tree *SA_record_tree;
+    const guchar *label;
 
     if (!parse_MAD_Common(parentTree, pinfo, tvb, offset, &MAD)) {
         return;
@@ -5909,17 +5951,51 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
         return;
     }
     if ((!pref_parse_on_mad_status_error && MAD.Status) ||
-        RMPP.Type == RMPP_ACK || SA_HEADER.AttributeOffset == 0 ||
-        (RMPP.Type == RMPP_DATA && RMPP.SegmentNumber != 1)) {
+        RMPP.Type == RMPP_ACK) {
         *offset += tvb_captured_length_remaining(tvb, *offset);
         return;
     }
-    if (!parse_SUBA_Attribute(parentTree, tvb, offset, &MAD, &RMPP, &SA_HEADER)) {
-        expert_add_info_format(pinfo, NULL, &ei_opa_mad_no_attribute_dissector,
-            "Attribute Dissector Not Implemented (0x%x)", MAD.AttributeID);
-        *offset += tvb_captured_length_remaining(tvb, *offset);
-        return;
+
+    if (pref_attempt_rmpp_defragment
+        && (RMPP.resptime_flags & RMPP_FLAG_ACTIVE_MASK) && (RMPP.Type == RMPP_DATA)
+        && !((RMPP.resptime_flags & RMPP_FLAG_FIRST_MASK)
+            && (RMPP.resptime_flags & RMPP_FLAG_LAST_MASK))) {
+
+        frag_head = fragment_add_seq_check(&opa_mad_rmpp_reassembly_table,
+            tvb, *offset, pinfo, (guint32)MAD.TransactionID, NULL, RMPP.SegmentNumber - 1,
+            ((RMPP.resptime_flags & RMPP_FLAG_LAST_MASK) ?
+                RMPP.PayloadLength - 20 : (guint32)tvb_captured_length_remaining(tvb, *offset)),
+            (gboolean)!(RMPP.resptime_flags & RMPP_FLAG_LAST_MASK));
+        /* Back up tvb & offset */
+        old_tvb = tvb;
+        old_offset = *offset;
+        /* Create new tvb from reassembled data */
+        tvb = process_reassembled_data(old_tvb, old_offset, pinfo, "Reassembled RMPP Packet",
+            frag_head, &opa_rmpp_frag_items, NULL, parentTree);
+        if (tvb == NULL) {
+            return;
+        }
+        *offset = 0;
     }
+
+    length = tvb_captured_length_remaining(tvb, *offset);
+    records = (SA_HEADER.AttributeOffset ? length / (SA_HEADER.AttributeOffset * 8) : 0);
+    for (r = 0; r < records; r++) {
+        old_offset = *offset;
+        label = val_to_str_const(MAD.AttributeID, SUBA_Attributes, "Attribute (Unknown SA Attribute!)");
+        SA_record_tree = proto_tree_add_subtree_format(parentTree, tvb, old_offset,
+            (SA_HEADER.AttributeOffset * 8), ett_rmpp_sa_record, NULL, "%.*s Record %u: ",
+            (gint)strlen(&label[11]) - 1, &label[11], r);
+
+        if (!parse_SUBA_Attribute(SA_record_tree, tvb, offset, &MAD, &RMPP, &SA_HEADER)) {
+            expert_add_info_format(pinfo, NULL, &ei_opa_mad_no_attribute_dissector,
+                "Attribute Dissector Not Implemented (0x%x)", MAD.AttributeID);
+            *offset += tvb_captured_length_remaining(tvb, *offset);
+            return;
+        }
+        *offset = old_offset + (SA_HEADER.AttributeOffset * 8);
+    }
+    return;
 }
 
 /* Parse PortStatus MAD from the Performance management class. */
@@ -6720,13 +6796,14 @@ static gint parse_GetGroupList(proto_tree *parentTree, tvbuff_t *tvb, gint *offs
     gint local_offset = *offset;
     guint i;
 
-    guint length = ((RMPP->resptime_flags & RMPP_FLAG_LAST_MASK) ? (RMPP->PayloadLength - 20) % STL_MAX_SA_PA_PAYLOAD : STL_MAX_SA_PA_PAYLOAD);
+    guint length = tvb_captured_length_remaining(tvb, local_offset);
     guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
     if (!parentTree || RMPP->Type != RMPP_DATA ||
         (MAD->Method != METHOD_GET_RESP && MAD->Method != METHOD_GETTABLE_RESP)) {
         return *offset;
     }
+
     GetGroupList_header_item = proto_tree_add_item(parentTree, hf_opa_GetGroupList, tvb, local_offset, length, ENC_NA);
     GetGroupList_header_tree = proto_item_add_subtree(GetGroupList_header_item, ett_getgrouplist);
     proto_tree_add_none_format(GetGroupList_header_tree, hf_opa_GetGroupList, tvb, local_offset, length, "Number of Groups: %u", records);
@@ -6768,13 +6845,13 @@ static gint parse_GetGroupInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offs
     gint local_offset = *offset;
     guint i, r;
 
-    guint length = ((RMPP->resptime_flags & RMPP_FLAG_LAST_MASK) ? (RMPP->PayloadLength - 20) % STL_MAX_SA_PA_PAYLOAD : STL_MAX_SA_PA_PAYLOAD);
+    guint length = tvb_captured_length_remaining(tvb, local_offset);
     guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
     guint util = 100 / PM_UTIL_BUCKETS;     /* 0%+ 10%+ 20%+ ... 80%+ 90%+ */
     guint err = 100 / (PM_ERR_BUCKETS - 1); /* 0%+ 25%+ 50%+ 75%+ 100%+ */
 
-    if (!parentTree)
+    if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
         return *offset;
 
     if (MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE) {
@@ -7038,10 +7115,10 @@ static gint parse_GetGroupConfig(proto_tree *parentTree, tvbuff_t *tvb, gint *of
     gint local_offset = *offset;
     guint i;
 
-    guint length = ((RMPP->resptime_flags & RMPP_FLAG_LAST_MASK) ? (RMPP->PayloadLength - 20) % STL_MAX_SA_PA_PAYLOAD : STL_MAX_SA_PA_PAYLOAD);
+    guint length = tvb_captured_length_remaining(tvb, local_offset);
     guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
-    if (!parentTree)
+    if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
         return *offset;
 
     if (MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE) {
@@ -7370,10 +7447,10 @@ static gint parse_GetFocusPorts(proto_tree *parentTree, tvbuff_t *tvb, gint *off
     gint local_offset = *offset;
     guint i = 0;
 
-    guint length = ((RMPP->resptime_flags & RMPP_FLAG_LAST_MASK) ? (RMPP->PayloadLength - 20) % STL_MAX_SA_PA_PAYLOAD : STL_MAX_SA_PA_PAYLOAD);
+    guint length = tvb_captured_length_remaining(tvb, local_offset);
     guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
-    if (!parentTree)
+    if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
         return *offset;
 
     if (MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE) {
@@ -7537,7 +7614,7 @@ static gint parse_GetVFList(proto_tree *parentTree, tvbuff_t *tvb, gint *offset,
     gint local_offset = *offset;
     guint i;
 
-    guint length = ((RMPP->resptime_flags & RMPP_FLAG_LAST_MASK) ? (RMPP->PayloadLength - 20) % STL_MAX_SA_PA_PAYLOAD : STL_MAX_SA_PA_PAYLOAD);
+    guint length = tvb_captured_length_remaining(tvb, local_offset);
     guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
     if (!parentTree || RMPP->Type != RMPP_DATA ||
@@ -7587,13 +7664,13 @@ static gint parse_GetVFInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset,
     gint local_offset = *offset;
     guint i;
 
-    guint length = ((RMPP->resptime_flags & RMPP_FLAG_LAST_MASK) ? (RMPP->PayloadLength - 20) % STL_MAX_SA_PA_PAYLOAD : STL_MAX_SA_PA_PAYLOAD);
+    guint length = tvb_captured_length_remaining(tvb, local_offset);
     guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
     guint util = 100 / PM_UTIL_BUCKETS;     /* 0%+ 10%+ 20%+ ... 80%+ 90%+ */
     guint err = 100 / (PM_ERR_BUCKETS - 1); /* 0%+ 25%+ 50%+ 75%+ 100%+ */
 
-    if (!parentTree) {
+    if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1)) {
         return *offset;
     }
 
@@ -7736,10 +7813,10 @@ static gint parse_GetVFConfig(proto_tree *parentTree, tvbuff_t *tvb, gint *offse
     gint local_offset = *offset;
     guint i;
 
-    guint length = ((RMPP->resptime_flags & RMPP_FLAG_LAST_MASK) ? (RMPP->PayloadLength - 20) % STL_MAX_SA_PA_PAYLOAD : STL_MAX_SA_PA_PAYLOAD);
+    guint length = tvb_captured_length_remaining(tvb, local_offset);
     guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
-    if (!parentTree)
+    if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
         return *offset;
 
     if (MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE) {
@@ -7894,10 +7971,10 @@ static gint parse_GetVFFocusPorts(proto_tree *parentTree, tvbuff_t *tvb, gint *o
     gint local_offset = *offset;
     guint i;
 
-    guint length = ((RMPP->resptime_flags & RMPP_FLAG_LAST_MASK) ? (RMPP->PayloadLength - 20) % STL_MAX_SA_PA_PAYLOAD : STL_MAX_SA_PA_PAYLOAD);
+    guint length = tvb_captured_length_remaining(tvb, local_offset);
     guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
-    if (!parentTree)
+    if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
         return *offset;
 
     if (MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE) {
@@ -8083,6 +8160,9 @@ static void parse_PERFADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     MAD_t       MAD;
     RMPP_t      RMPP;
     PA_HEADER_t PA_HEADER;
+    fragment_head *frag_head = NULL;
+    tvbuff_t *old_tvb = NULL;
+    gint old_offset;
 
     if (!parse_MAD_Common(parentTree, pinfo, tvb, offset, &MAD)) {
         return;
@@ -8094,12 +8174,32 @@ static void parse_PERFADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
         return;
     }
     if ((!pref_parse_on_mad_status_error && MAD.Status) ||
-        RMPP.Type == RMPP_ACK ||
-        (RMPP.Type == RMPP_DATA && RMPP.SegmentNumber != 1)) {
+        RMPP.Type == RMPP_ACK) {
         *offset += tvb_captured_length_remaining(tvb, *offset);
         return;
     }
 
+    if (pref_attempt_rmpp_defragment
+        && (RMPP.resptime_flags & RMPP_FLAG_ACTIVE_MASK) && (RMPP.Type == RMPP_DATA)
+        && !((RMPP.resptime_flags & RMPP_FLAG_FIRST_MASK)
+            && (RMPP.resptime_flags & RMPP_FLAG_LAST_MASK))) {
+
+        frag_head = fragment_add_seq_check(&opa_mad_rmpp_reassembly_table,
+            tvb, *offset, pinfo, (guint32)MAD.TransactionID, NULL, RMPP.SegmentNumber - 1,
+            ((RMPP.resptime_flags & RMPP_FLAG_LAST_MASK) ?
+                RMPP.PayloadLength - 20 : (guint32)tvb_captured_length_remaining(tvb, *offset)),
+            (gboolean)!(RMPP.resptime_flags & RMPP_FLAG_LAST_MASK));
+        /* Back up tvb & offset */
+        old_tvb = tvb;
+        old_offset = *offset;
+        /* Create new tvb from reassembled data */
+        tvb = process_reassembled_data(old_tvb, old_offset, pinfo, "Reassembled RMPP Packet",
+            frag_head, &opa_rmpp_frag_items, NULL, parentTree);
+        if (tvb == NULL) {
+            return;
+        }
+        *offset = 0;
+    }
     if (!parse_PA_Attribute(parentTree, tvb, offset, &MAD, &RMPP, &PA_HEADER)) {
         expert_add_info_format(pinfo, NULL, &ei_opa_mad_no_attribute_dissector,
             "Attribute Dissector Not Implemented (0x%x)", MAD.AttributeID);
@@ -8279,6 +8379,15 @@ static int dissect_opa_mad(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     return tvb_captured_length(tvb);
 }
 
+static void opa_mad_init(void)
+{
+    reassembly_table_init(&opa_mad_rmpp_reassembly_table,
+        &addresses_ports_reassembly_table_functions);
+}
+static void opa_mad_cleanup(void)
+{
+    reassembly_table_destroy(&opa_mad_rmpp_reassembly_table);
+}
 void proto_register_opa_mad(void)
 {
     module_t *opa_mad_module;
@@ -8632,6 +8741,47 @@ void proto_register_opa_mad(void)
         { &hf_opa_rmpp_new_window_last, {
                 "New Window Last", "opa.rmpp.newwindowlast",
                 FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
+        },
+        /* Fragments */
+        { &hf_opa_rmpp_fragments, {
+                "Message fragments", "opa.fragments",
+                FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_fragment, {
+                "Message fragment", "opa.fragment",
+                FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_fragment_overlap, {
+                "Message fragment overlap", "opa.fragment.overlap",
+                FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_fragment_overlap_conflicts, {
+                "Message fragment overlapping with conflicting data", "opa.fragment.overlap.conflicts",
+                FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_fragment_multiple_tails, {
+                "Message has multiple tail fragments", "opa.fragment.multiple_tails",
+                FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_fragment_too_long_fragment, {
+                "Message fragment too long", "opa.fragment.too_long_fragment",
+                FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_fragment_error, {
+                "Message defragmentation error", "opa.fragment.error",
+                FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_fragment_count, {
+                "Message fragment count", "opa.fragment.count",
+                FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_reassembled_in, {
+                "Reassembled in", "opa.reassembled.in",
+                FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_reassembled_length, {
+                "Reassembled length", "opa.reassembled.length",
+                FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
         },
 
         /* SA Packet */
@@ -13301,6 +13451,9 @@ void proto_register_opa_mad(void)
         &ett_mad_status,
         &ett_mad_attributemod,
         &ett_rmpp,
+        &ett_rmpp_fragment,
+        &ett_rmpp_fragments,
+        &ett_rmpp_sa_record,
         /* Common */
         &ett_noticestraps,
         &ett_datadetails,
@@ -13492,6 +13645,13 @@ void proto_register_opa_mad(void)
         "Enable Parsing of Mad Payload on Mad Status Error",
         "Attempt to parse mad payload even when MAD.Status is non-zero",
         &pref_parse_on_mad_status_error);
+    prefs_register_bool_preference(opa_mad_module, "reassemble_rmpp",
+        "Enable Reassembly of RMPP packets",
+        "Attempt to reassemble the mad payload of RMPP segments",
+        &pref_attempt_rmpp_defragment);
+
+    register_init_routine(opa_mad_init);
+    register_cleanup_routine(opa_mad_cleanup);
 }
 
 void proto_reg_handoff_opa_mad(void)
