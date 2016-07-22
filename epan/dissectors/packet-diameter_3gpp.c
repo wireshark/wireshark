@@ -247,6 +247,22 @@ static int hf_diameter_3gpp_idr_flags_bit5 = -1;
 static int hf_diameter_3gpp_idr_flags_bit6 = -1;
 static int hf_diameter_3gpp_idr_flags_bit7 = -1;
 static int hf_diameter_3gpp_idr_flags_bit8 = -1;
+static int hf_diameter_3gpp_ppr_flags = -1;
+static int hf_diameter_3gpp_ppr_flags_bit0 = -1;
+static int hf_diameter_3gpp_ppr_flags_bit1 = -1;
+static int hf_diameter_3gpp_ppr_flags_bit2 = -1;
+static int hf_diameter_3gpp_ppr_flags_bit3 = -1;
+static int hf_diameter_3gpp_der_flags = -1;
+static int hf_diameter_3gpp_der_flags_bit0 = -1;
+static int hf_diameter_3gpp_der_flags_bit1 = -1;
+static int hf_diameter_3gpp_dea_flags = -1;
+static int hf_diameter_3gpp_dea_flags_bit0 = -1;
+static int hf_diameter_3gpp_dea_flags_bit1 = -1;
+static int hf_diameter_3gpp_rar_flags = -1;
+static int hf_diameter_3gpp_rar_flags_bit0 = -1;
+static int hf_diameter_3gpp_rar_flags_bit1 = -1;
+static int hf_diameter_3gpp_der_s6b_flags = -1;
+static int hf_diameter_3gpp_der_s6b_flags_bit0 = -1;
 static int hf_diameter_3gpp_ipv6addr = -1;
 static int hf_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer = -1;
 static int hf_diameter_3gpp_udp_port = -1;
@@ -296,6 +312,11 @@ static gint diameter_3gpp_ida_flags_ett = -1;
 static gint diameter_3gpp_pua_flags_ett = -1;
 static gint diameter_3gpp_nor_flags_ett = -1;
 static gint diameter_3gpp_idr_flags_ett = -1;
+static gint diameter_3gpp_ppr_flags_ett = -1;
+static gint diameter_3gpp_der_flags_ett = -1;
+static gint diameter_3gpp_dea_flags_ett = -1;
+static gint diameter_3gpp_rar_flags_ett = -1;
+static gint diameter_3gpp_der_s6b_flags_ett = -1;
 static gint diameter_3gpp_mbms_bearer_event_ett = -1;
 static gint diameter_3gpp_mbms_bearer_result_ett = -1;
 static gint diameter_3gpp_tmgi_allocation_result_ett = -1;
@@ -1688,6 +1709,128 @@ dissect_diameter_3gpp_idr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 }
 
+/* AVP Code: 1508 PPR-Flags */
+static int
+dissect_diameter_3gpp_ppr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
+    proto_tree *sub_tree;
+    int offset = 0;
+    guint32 bit_offset;
+
+    item = proto_tree_add_item(tree, hf_diameter_3gpp_ppr_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+    sub_tree = proto_item_add_subtree(item, diameter_3gpp_ppr_flags_ett);
+    bit_offset = 0;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 28, ENC_BIG_ENDIAN);
+    bit_offset+=28;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_ppr_flags_bit3, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_ppr_flags_bit2, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_ppr_flags_bit1, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_ppr_flags_bit0, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+
+    offset = bit_offset>>3;
+    return offset;
+
+}
+
+/* AVP Code: 1520 DER-Flags */
+static int
+dissect_diameter_3gpp_der_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
+    proto_tree *sub_tree;
+    int offset = 0;
+    guint32 bit_offset;
+
+    item = proto_tree_add_item(tree, hf_diameter_3gpp_der_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+    sub_tree = proto_item_add_subtree(item, diameter_3gpp_der_flags_ett);
+    bit_offset = 0;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 30, ENC_BIG_ENDIAN);
+    bit_offset+=30;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_der_flags_bit1, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_der_flags_bit0, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+
+    offset = bit_offset>>3;
+    return offset;
+
+}
+
+/* AVP Code: 1521 DEA-Flags */
+static int
+dissect_diameter_3gpp_dea_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
+    proto_tree *sub_tree;
+    int offset = 0;
+    guint32 bit_offset;
+
+    item = proto_tree_add_item(tree, hf_diameter_3gpp_dea_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+    sub_tree = proto_item_add_subtree(item, diameter_3gpp_dea_flags_ett);
+    bit_offset = 0;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 30, ENC_BIG_ENDIAN);
+    bit_offset+=30;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_dea_flags_bit1, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_dea_flags_bit0, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+
+    offset = bit_offset>>3;
+    return offset;
+
+}
+
+/* AVP Code: 1522 RAR-Flags */
+static int
+dissect_diameter_3gpp_rar_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
+    proto_tree *sub_tree;
+    int offset = 0;
+    guint32 bit_offset;
+
+    item = proto_tree_add_item(tree, hf_diameter_3gpp_rar_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+    sub_tree = proto_item_add_subtree(item, diameter_3gpp_rar_flags_ett);
+    bit_offset = 0;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 30, ENC_BIG_ENDIAN);
+    bit_offset+=30;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_rar_flags_bit1, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_rar_flags_bit0, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+
+    offset = bit_offset>>3;
+    return offset;
+
+}
+
+/* AVP Code: 1523 DER-S6b-Flags */
+static int
+dissect_diameter_3gpp_der_s6b_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
+    proto_tree *sub_tree;
+    int offset = 0;
+    guint32 bit_offset;
+
+    item = proto_tree_add_item(tree, hf_diameter_3gpp_der_s6b_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+    sub_tree = proto_item_add_subtree(item, diameter_3gpp_der_s6b_flags_ett);
+    bit_offset = 0;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 31, ENC_BIG_ENDIAN);
+    bit_offset+=31;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_der_s6b_flags_bit0, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+
+    offset = bit_offset>>3;
+    return offset;
+
+}
+
 /* AVP Code: 3502 MBMS-Bearer-Event */
 static int
 dissect_diameter_3gpp_mbms_bearer_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -1940,6 +2083,21 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 1490 IDR-Flags */
     dissector_add_uint("diameter.3gpp", 1490, create_dissector_handle(dissect_diameter_3gpp_idr_flags, proto_diameter_3gpp));
+
+    /* AVP Code: 1508 PPR-Flags */
+    dissector_add_uint("diameter.3gpp", 1508, new_create_dissector_handle(dissect_diameter_3gpp_ppr_flags, proto_diameter_3gpp));
+
+    /* AVP Code: 1520 DER-Flags */
+    dissector_add_uint("diameter.3gpp", 1520, new_create_dissector_handle(dissect_diameter_3gpp_der_flags, proto_diameter_3gpp));
+
+    /* AVP Code: 1521 DEA-Flags */
+    dissector_add_uint("diameter.3gpp", 1521, new_create_dissector_handle(dissect_diameter_3gpp_dea_flags, proto_diameter_3gpp));
+
+    /* AVP Code: 1522 RAR-Flags */
+    dissector_add_uint("diameter.3gpp", 1522, new_create_dissector_handle(dissect_diameter_3gpp_rar_flags, proto_diameter_3gpp));
+
+    /* AVP Code: 1523 DER-S6b-Flags */
+    dissector_add_uint("diameter.3gpp", 1523, new_create_dissector_handle(dissect_diameter_3gpp_der_s6b_flags, proto_diameter_3gpp));
 
     /* AVP Code: 3502 MBMS-Bearer-Event */
     dissector_add_uint("diameter.3gpp", 3502, create_dissector_handle(dissect_diameter_3gpp_mbms_bearer_event, proto_diameter_3gpp));
@@ -3121,6 +3279,86 @@ proto_register_diameter_3gpp(void)
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
             NULL, HFILL }
         },
+        { &hf_diameter_3gpp_ppr_flags,
+            { "PPR Flags", "diameter.3gpp.ppr_flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_ppr_flags_bit0,
+            { "Reset-Indication", "diameter.3gpp.ppr_flags_bit0",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_ppr_flags_bit1,
+            { "Access-Network-Info-Request", "diameter.3gpp.ppr_flags_bit1",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_ppr_flags_bit2,
+            { "UE-Local-Time-Zone-Request", "diameter.3gpp.ppr_flags_bit2",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_ppr_flags_bit3,
+            { "P-CSCF Restoration Request", "diameter.3gpp.ppr_flags_bit3",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_der_flags,
+            { "DER Flags", "diameter.3gpp.der_flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_der_flags_bit0,
+            { "NSWO-Capability-Indication", "diameter.3gpp.der_flags_bit0",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_der_flags_bit1,
+            { "TWAN-S2a-Connectivity-Indicator", "diameter.3gpp.der_flags_bit1",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_dea_flags,
+            { "DEA Flags", "diameter.3gpp.dea_flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_dea_flags_bit0,
+            { "NSWO-Authorization", "diameter.3gpp.dea_flags_bit0",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_dea_flags_bit1,
+            { "TWAN-S2a-Connectivity-Indicator", "diameter.3gpp.dea_flags_bit1",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_rar_flags,
+            { "RAR Flags", "diameter.3gpp.rar_flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_rar_flags_bit0,
+            { "Trust-Relationship-Update-indication", "diameter.3gpp.rar_flags_bit0",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_rar_flags_bit1,
+            { "P-CSCF Restoration Request", "diameter.3gpp.rar_flags_bit1",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_der_s6b_flags,
+            { "RAR Flags", "diameter.3gpp.rar_flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_der_s6b_flags_bit0,
+            { "Initial-Attach-Indicator", "diameter.3gpp.rar_flags_bit0",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
         { &hf_diameter_3gpp_ipv6addr,
             { "IPv6 Address", "diameter.3gpp.ipv6addr",
             FT_IPv6, BASE_NONE, NULL, 0x0,
@@ -3311,6 +3549,11 @@ proto_register_diameter_3gpp(void)
         &diameter_3gpp_pua_flags_ett,
         &diameter_3gpp_nor_flags_ett,
         &diameter_3gpp_idr_flags_ett,
+        &diameter_3gpp_ppr_flags_ett,
+        &diameter_3gpp_der_flags_ett,
+        &diameter_3gpp_dea_flags_ett,
+        &diameter_3gpp_rar_flags_ett,
+        &diameter_3gpp_der_s6b_flags_ett,
         &diameter_3gpp_mbms_bearer_event_ett,
         &diameter_3gpp_mbms_bearer_result_ett,
         &diameter_3gpp_tmgi_allocation_result_ett,

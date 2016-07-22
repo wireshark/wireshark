@@ -4979,24 +4979,57 @@
 		<avp name="MIP-FA-RK-SPI" code="1507" may-encrypt="yes" vendor-id="TGPP" vendor-bit="must" mandatory="must">
 			<type type-name="Unsigned32"/>
 		</avp>
+		<avp name="PPR-Flags" code="1508" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="WLAN-Identifier" code="1509" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="SSID"/>
+				<gavp name="HESSID"/>
+			</grouped>
+		</avp>
+		<avp name="TWAN-Access-Info" code="1510" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Access-Authorization-Flags"/>
+				<gavp name="WLAN-Identifier"/>
+			</grouped>
+		</avp>
+		<avp name="Access-Authorization-Flags" code="1511" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="TWAN-Default-APN-Context-Id" code="1512" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
 		<!--
-		1508 PPR-Flags Unsigned32
-		1509 WLAN-Identifier Grouped
-		1510 TWAN-Access-Info Grouped
-		1511 Access-Authorization-Flags Unsigned32
-		1512 TWAN-Default-APN-Context-Id Unsigned32
 		1513 Reserved -
 		1514 Reserved -
 		1515 Reserved -
-		1516 Full-Network-Name OctetString
-		1517 Short-Network-Name OctetString
-		1518 AAA-Failure-Indication Unsigned32
-		1519 Transport-Access-Type Enumerated
-		1520 DER-Flags Unsigned32
-		1521 DEA-Flags Unsigned32
-		1522 RAR-Flags Unsigned32
-		1523 DER-S6b-Flags Unsigned32
 		-->
+		<avp name="Full-Network-Name" code="1516" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Short-Network-Name" code="1517" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="AAA-Failure-Indication" code="1518" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Transport-Access-Type" code="1519" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="BBF" code="0"/>
+		</avp>
+		<avp name="DER-Flags" code="1520" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="DEA-Flags" code="1521" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="RAR-Flags" code="1522" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="DER-S6b-Flags" code="1523" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
 		<avp name="SSID" code="1524" may-encrypt="yes" vendor-id="TGPP" vendor-bit="must" mandatory="must">
 			<type type-name="UTF8String"/>
 		</avp>
