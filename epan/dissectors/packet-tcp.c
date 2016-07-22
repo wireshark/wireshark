@@ -3347,10 +3347,11 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                     proto_tree_add_bitmask(mptcp_tree, tvb, offset, hf_tcp_option_mptcp_flags,
                          ett_tcp_option_mptcp, tcp_option_mptcp_join_flags,
                          ENC_BIG_ENDIAN);
+                    offset += 1;
 
                     proto_tree_add_item(mptcp_tree, hf_tcp_option_mptcp_address_id, tvb, offset,
-                            2, ENC_BIG_ENDIAN);
-                    offset += 2;
+                            1, ENC_BIG_ENDIAN);
+                    offset += 1;
 
                     proto_tree_add_item(mptcp_tree, hf_tcp_option_mptcp_sender_trunc_hmac, tvb, offset,
                             8, ENC_BIG_ENDIAN);
@@ -3515,6 +3516,7 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
             proto_tree_add_bitmask(mptcp_tree, tvb, offset, hf_tcp_option_mptcp_flags,
                          ett_tcp_option_mptcp, tcp_option_mptcp_join_flags,
                          ENC_BIG_ENDIAN);
+            offset += 1;
 
             if (optlen == 4) {
                 proto_tree_add_item(mptcp_tree,
