@@ -517,6 +517,28 @@ static int hf_gtpv2_fq_csid_mcc_mnc = -1;
 static int hf_gtpv2_ppi_value = -1;
 static int hf_gtpv2_ppi_flag = -1;
 static int hf_gtpv2_session = -1;
+static int hf_gtpv2_twan_id_ts = -1;
+static int hf_gtpv2_twan_flags = -1;
+static int hf_gtpv2_twan_bssidi = -1;
+static int hf_gtpv2_twan_civai = -1;
+static int hf_gtpv2_twan_plmni = -1;
+static int hf_gtpv2_twan_opnai = -1;
+static int hf_gtpv2_twan_laii = -1;
+static int hf_gtpv2_twan_ssid_len = -1;
+static int hf_gtpv2_twan_ssid = -1;
+static int hf_gtpv2_twan_bssid = -1;
+static int hf_gtpv2_twan_civa_len = -1;
+static int hf_gtpv2_twan_civa = -1;
+static int hf_gtpv2_twan_plmnid = -1;
+static int hf_gtpv2_twan_op_name_len = -1;
+static int hf_gtpv2_twan_op_name = -1;
+static int hf_gtpv2_twan_relay_id_type = -1;
+static int hf_gtpv2_twan_relay_id_len = -1;
+static int hf_gtpv2_twan_relay_id = -1;
+static int hf_gtpv2_twan_relay_id_ipv4 = -1;
+static int hf_gtpv2_twan_relay_id_ipv6 = -1;
+static int hf_gtpv2_twan_circuit_id_len = -1;
+static int hf_gtpv2_twan_circuit_id = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -574,6 +596,7 @@ static gint ett_gtpv2_preaa_sais = -1;
 static gint ett_gtpv2_preaa_cgis = -1;
 static gint ett_gtpv2_load_control_inf = -1;
 static gint ett_gtpv2_eci = -1;
+static gint ett_gtpv2_twan_flags = -1;
 
 static expert_field ei_gtpv2_ie_data_not_dissected = EI_INIT;
 static expert_field ei_gtpv2_ie_len_invalid = EI_INIT;
@@ -1039,8 +1062,19 @@ static const value_string gtpv2_element_type_vals[] = {
     {184, "APN and Relative Capacity"},                                         /* Extendable / 8.115 */
     {185, "WLAN Offloadability Indication"},                                    /* Extendable / 8.116 */
     {186, "Paging and Service Information"},                                    /* Extendable / 8.117 */
-
-    /* 187 to 254    Spare. For future use.    */
+    {187, "Integer Number" },                                                   /* Variable / 8.118 */
+    {188, "Millisecond Time Stamp" },                                           /* Extendable / 8.119 */
+    {189, "Monitoring Event Information"},                                      /* Extendable / 8.120 */
+    {190, "ECGI List"},                                                         /* Extendable / 8.121 */
+    {191, "Remote UE Context"},                                                 /* Extendable / 8.122 */
+    {192, "Remote User ID"},                                                    /* Extendable / 8.123 */
+    {193, "Remote UE IP information"},                                          /* Variable Length / 8.124 */
+    {194, "CIoT Optimizations Support Indication"},                             /* Extendable / 8.125 */
+    {195, "SCEF PDN Connection"},                                               /* Extendable / 8.126 */
+    {196, "Header Compression Configuration"},                                  /* Extendable / 8.127 */
+    {197, "Extended Protocol Configuration Options(ePCO)"},                     /* Variable Length / 8.128 */
+    {198, "Serving PLMN Rate Control"},                                         /* Extendable / 8.129 */
+        /* 199 to 254    Spare. For future use.    */
 
     {255, "Private Extension"},                                                 /* Variable Length / 8.67 */
     {0, NULL}
@@ -5664,10 +5698,123 @@ dissect_gtpv2_action_indication(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 /*
  * 8.100        TWAN Identifier
  */
+static const value_string gtpv2_twan_relay_id_type_vals[] = {
+    { 0, "IPv4 or IPv6 Address" },
+    { 1, "FQDN" },
+    { 0, NULL }
+};
 static void
-dissect_gtpv2_twan_Identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+dissect_gtpv2_twan_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    int offset = 0;
+    guint8 flags=0;
+    guint32 ssid_len, civa_len, op_name_len, relay_id_type, relay_id_len, circuit_id_id_len;
+    const int* twan_id_flags[] = {
+        &hf_gtpv2_twan_laii,
+        &hf_gtpv2_twan_opnai,
+        &hf_gtpv2_twan_plmni,
+        &hf_gtpv2_twan_civai,
+        &hf_gtpv2_twan_bssidi,
+        NULL
+    };
+
+    /* Octet 5 Spare    LAII OPNAI PLMNI CIVAI BSSIDI */
+    flags = tvb_get_guint8(tvb, offset);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_gtpv2_twan_flags, ett_gtpv2_twan_flags, twan_id_flags, ENC_BIG_ENDIAN);
+    offset++;
+    /* Octet 6 SSID Length */
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_twan_ssid_len, tvb, offset, 1, ENC_BIG_ENDIAN, &ssid_len);
+    offset += 1;
+    /* 7 to k SSID */
+    proto_tree_add_item(tree, hf_gtpv2_twan_ssid, tvb, offset, ssid_len, ENC_NA);
+    offset += ssid_len;
+    /* (k+1) to (k+6) BSSID The BSSIDI flag in octet 5 indicates whether the BSSID in octets 'k+1' to 'k+6' shall be present.*/
+    if ((flags & 1) == 1) {
+        proto_tree_add_item(tree, hf_gtpv2_twan_bssid, tvb, offset, 6, ENC_NA);
+        offset += 6;
+    }
+    /* q Civic Address Length The CIVAI flag in octet 5 indicates whether the Civic Address Length
+     * and Civic Address Information in octets 'q' and 'q+1' to 'q+r' shall be present.
+     */
+    if ((flags & 2) == 1) {
+        proto_tree_add_item_ret_uint(tree, hf_gtpv2_twan_civa_len, tvb, offset, 1, ENC_BIG_ENDIAN, &civa_len);
+        offset += 1;
+        /* (q+1) to (q+r) Civic Address Information
+         * ...it shall be encoded as defined in subclause 3.1 of IETF RFC 4776 [59] excluding the first 3 octets.
+         * RFC 4776:
+         * 3.1.  Overall Format for DHCPv4
+
+         * 0                   1                   2                   3
+         * 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+         * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         * | GEOCONF_CIVIC |       N       |      what     |    country    |
+         * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         * |    code       |        civic address elements                ...
+         * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         */
+        proto_tree_add_item(tree, hf_gtpv2_twan_civa, tvb, offset, civa_len, ENC_NA);
+        offset += civa_len;
+    }
+    /* s to (s+3) TWAN PLMN-ID The PLMNI flag in octet 5 indicates whether the TWAN PLMN-ID
+     * in octets 's' to 's+3' shall be present
+     */
+    if ((flags & 4) == 1) {
+        proto_tree_add_item_ret_uint(tree, hf_gtpv2_twan_plmnid, tvb, offset, 3, ENC_BIG_ENDIAN, &civa_len);
+        offset += 3;
+        /* (q+1) to (q+r) Civic Address Information
+        * ...it shall be encoded as defined in subclause 3.1 of IETF RFC 4776 [59] excluding the first 3 octets.
+        */
+    }
+    /* t TWAN Operator Name Length, The OPNAI flag in octet 5 indicates whether the TWAN Operator Name Length and
+     * TWAN Operator Name in octets 't' and 't+1' to 't+u' shall be present.
+     */
+    if ((flags & 8) == 1) {
+        proto_tree_add_item_ret_uint(tree, hf_gtpv2_twan_op_name_len, tvb, offset, 1, ENC_BIG_ENDIAN, &op_name_len);
+        offset += 1;
+        /* (t+1) to (t+u) TWAN Operator Name. The TWAN Operator Name shall be encoded as specified in subclause 19. 8 of 3GPP TS 23.003  */
+        proto_tree_add_item(tree, hf_gtpv2_twan_op_name, tvb, offset, op_name_len, ENC_NA);
+        offset += op_name_len;
+    }
+    /* The LAII flag in octet 5 indicates whether the Logical Access ID information is present in the TWAN Identifier  */
+    if ((flags & 8) == 1) {
+        /* v Relay Identity Type */
+        proto_tree_add_item_ret_uint(tree, hf_gtpv2_twan_relay_id_type, tvb, offset, 1, ENC_BIG_ENDIAN, &relay_id_type);
+        offset += 1;
+        /* (v+1) Relay Identity Length*/
+        proto_tree_add_item_ret_uint(tree, hf_gtpv2_twan_relay_id_len, tvb, offset, 1, ENC_BIG_ENDIAN, &relay_id_len);
+        offset += 1;
+        /* (v+2) to (v+w) Relay Identity */
+        switch (relay_id_type) {
+        case 0:
+            /* IPv4 or IPv6 Address */
+            if (relay_id_len == 4) {
+                /* IPv4 */
+                proto_tree_add_item(tree, hf_gtpv2_twan_relay_id_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            } else {
+                proto_tree_add_item(tree, hf_gtpv2_twan_relay_id_ipv6, tvb, offset, 16, ENC_NA);
+                offset += 16;
+            }
+            break;
+        case 1:
+            /* fall trough */
+            proto_tree_add_item(tree, hf_gtpv2_twan_relay_id, tvb, offset, relay_id_len, ENC_NA);
+            offset += relay_id_len;
+        default:
+            break;
+        }
+        /* X Circuit-ID Length */
+        proto_tree_add_item_ret_uint(tree, hf_gtpv2_twan_circuit_id_len, tvb, offset, 1, ENC_BIG_ENDIAN, &circuit_id_id_len);
+        offset += 1;
+        /* (x+1) to (x+y) Circuit-ID */
+        proto_tree_add_item(tree, hf_gtpv2_twan_circuit_id, tvb, offset, circuit_id_id_len, ENC_NA);
+        offset += circuit_id_id_len;
+    }
+
+    if (offset < (gint)length) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, -1, "The rest of the IE not dissected yet");
+    }
+
 }
 /*
  * 8.101        ULI Timestamp
@@ -5682,7 +5829,7 @@ dissect_gtpv2_uli_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
      */
 
     time_str = tvb_ntp_fmt_ts_sec(tvb, 0);
-    proto_tree_add_string(tree, hf_gtpv2_uli_timestamp, tvb, 0, 8, time_str);
+    proto_tree_add_string(tree, hf_gtpv2_uli_timestamp, tvb, 0, 4, time_str);
     proto_item_append_text(item, "%s", time_str);
 
 }
@@ -5933,7 +6080,17 @@ dissect_gtpv2_pres_rep_area_information(tvbuff_t *tvb, packet_info *pinfo _U_, p
 static void
 dissect_gtpv2_twan_identifier_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    const gchar *time_str;
+
+    /* TWAN Identifier Timestamp value */
+    /* Octets 5 to 8 are encoded in the same format as the first four octets of the 64-bit timestamp
+    * format as defined in section 6 of IETF RFC 5905
+    */
+
+    time_str = tvb_ntp_fmt_ts_sec(tvb, 0);
+    proto_tree_add_string(tree, hf_gtpv2_twan_id_ts, tvb, 0, 4, time_str);
+    proto_item_append_text(item, "%s", time_str);
+
 }
 /*
  * 8.111        Overload Control Information
@@ -6192,7 +6349,7 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_IP4CP, dissect_gtpv2_ip4cp},                                 /* 166, 8.97 IPv4 Configuration Parameters (IPv4CP) */
     {GTPV2_IE_CHANGE_TO_REPORT_FLAGS, dissect_gtpv2_change_report_flags},  /* 167, 8.98 Change to Report Flags */
     {GTPV2_IE_ACTION_INDICATION, dissect_gtpv2_action_indication},         /* 168, 8.99 Action Indication */
-    {GTPV2_IE_TWAN_IDENTIFIER, dissect_gtpv2_twan_Identifier},             /* 169, 8.100 TWAN Identifier */
+    {GTPV2_IE_TWAN_IDENTIFIER, dissect_gtpv2_twan_identifier},             /* 169, 8.100 TWAN Identifier */
     {GTPV2_IE_ULI_TIMESTAMP, dissect_gtpv2_uli_timestamp},                 /* 170, 8.101 ULI Timestamp */
     {GTPV2_IE_MBMS_FLAGS, dissect_gtpv2_mbms_flags},                       /* 171, 8.102 MBMS Flags */
     {GTPV2_IE_RAN_NAS_CAUSE, dissect_gtpv2_ran_nas_cause},                 /* 172, 8.103 RAN/NAS Cause */
@@ -6208,8 +6365,21 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_METRIC, dissect_gtpv2_metric},                               /* 182, 8.113 Metric */
     {GTPV2_IE_SEQ_NO, dissect_gtpv2_seq_no},                               /* 183, 8.114 Sequence Number */
     {GTPV2_IE_APN_AND_REL_CAP, dissect_gtpv2_apn_and_relative_capacity},   /* 184, 8.115 APN and Relative Capacity */
-    /* 185, 8.116 WLAN Offloadability Indication */
+                                                                           /* 185, 8.116 WLAN Offloadability Indication */
+
     {GTPV2_IE_PAGING_AND_SERVICE_INF, dissect_gtpv2_paging_and_service_inf}, /* 186, 8.117 Paging and Service Information */
+                                                                             /* 187, 8.118 Integer Number */
+                                                                             /* 188, 8.119 Millisecond Time Stamp */
+                                                                             /* 189, 8.120 Monitoring Event Information */
+                                                                             /* 190, 8.121 ECGI List */
+                                                                             /* 191, 8.122 Remote UE Context */
+                                                                             /* 192, 8.123 Remote User ID */
+                                                                             /* 193, 8.124 Remote UE IP Information */
+                                                                             /* 194, 8.125 CIoT Optimizations Support Indication */
+                                                                             /* 195, 8.126 SCEF PDN Connection */
+                                                                             /* 196, 8.127 Header Compression Configuration */
+                                                                             /* 197, 8.128 Extended Protocol Configuration Options (ePCO) */
+                                                                             /* 198, 8.129 Serving PLMN Rate Control */
 
     {GTPV2_IE_PRIVATE_EXT, dissect_gtpv2_private_ext},
 
@@ -8607,6 +8777,29 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_ul_pdcp_sequence_number, { "UL PDCP Sequence Number", "gtpv2.ul_pdcp_sequence_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtpv2_fq_csid_node_id, { "Node-ID", "gtpv2.fq_csid_node_id", FT_UINT32, BASE_DEC, NULL, 0x00000FFF, NULL, HFILL }},
       { &hf_gtpv2_fq_csid_mcc_mnc, { "MCC+MNC", "gtpv2.fq_csid_mcc_mnc", FT_UINT32, BASE_DEC, NULL, 0xFFFFF000, NULL, HFILL }},
+
+      { &hf_gtpv2_twan_id_ts, { "TWAN Identifier Timestamp", "gtpv2.twan.id_ts", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_gtpv2_twan_flags,{ "Flags", "gtpv2.twan_id.flags", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_twan_bssidi,{ "BSSIDI", "gtpv2.twan_id.bssidi", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01, NULL, HFILL } },
+      { &hf_gtpv2_twan_civai,{ "CIVAI", "gtpv2.twan_id.civai", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02, NULL, HFILL } },
+      { &hf_gtpv2_twan_plmni,{ "PLMNI", "gtpv2.twan_id.plmni", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04, NULL, HFILL } },
+      { &hf_gtpv2_twan_opnai,{ "OPNAI", "gtpv2.twan_id.opnai", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08, NULL, HFILL } },
+      { &hf_gtpv2_twan_laii,{ "LAII", "gtpv2.twan_id.laii", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10, NULL, HFILL } },
+      { &hf_gtpv2_twan_ssid_len,{ "SSID Length", "gtpv2.twan_id.ssid_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_twan_ssid,{ "SSID", "gtpv2.twan_id.ssid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_twan_bssid,{ "BSSID", "gtpv2.twan_id.bssid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_twan_civa_len,{ "Civic Address Length", "gtpv2.twan_id.civa_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_twan_civa,{ "Civic Address Information", "gtpv2.twan_id.civa", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_twan_plmnid,{ "TWAN PLMN-ID", "gtpv2.twan_id.plmnid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_twan_op_name_len,{ "TWAN Operator Name Length", "gtpv2.twan_id.op_name_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_twan_op_name,{ "TWAN Operator Name", "gtpv2.twan_id.op_name", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_twan_relay_id_type,{ "Relay Identity Type", "gtpv2.twan_id.relay_id_type", FT_UINT8, BASE_DEC, VALS(gtpv2_twan_relay_id_type_vals), 0x0, NULL, HFILL } },
+      { &hf_gtpv2_twan_relay_id_len,{ "Relay Identity Type Length", "gtpv2.twan_id.relay_id_type_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_twan_relay_id,{ "Relay Identity", "gtpv2.twan_id.relay_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_twan_relay_id_ipv4,{ "Relay Identity", "gtpv2.twan_id.relay_id_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_twan_relay_id_ipv6,{ "Relay Identity", "gtpv2.twan_id.relay_id_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_twan_circuit_id_len,{ "Relay Identity Type Length", "gtpv2.twan_id.relay_id_type_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_twan_circuit_id,{ "Circuit-ID", "gtpv2.twan_id.circuit_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     };
 
     static gint *ett_gtpv2_array[] = {
@@ -8666,6 +8859,7 @@ void proto_register_gtpv2(void)
         &ett_gtpv2_preaa_cgis,
         &ett_gtpv2_load_control_inf,
         &ett_gtpv2_eci,
+        &ett_gtpv2_twan_flags,
     };
 
     static ei_register_info ei[] = {
