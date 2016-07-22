@@ -223,7 +223,7 @@ cleanup:
 	ssh_cleanup(&sshs, &channel);
 
 	if (g_strcmp0(fifo, "-"))
-		ws_close(fd);
+		closesocket(fd);
 	return ret;
 }
 
