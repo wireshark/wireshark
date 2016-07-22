@@ -707,10 +707,6 @@ proto_reg_handoff_nordic_ble(void)
     /*static int currentPort;*/
 
     if (!initialized) {
-        /* Use new_create_dissector_handle() to indicate that
-         * dissect_nordic_ble() returns the number of bytes it dissected (or 0
-         * if it thinks the packet does not belong to nordic ble sniffer).
-         */
         nordic_ble_handle = create_dissector_handle(dissect_nordic_ble, proto_nordic_ble);
 
         btle_dissector_handle = find_dissector("btle");
