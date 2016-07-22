@@ -87,7 +87,7 @@ How to do an out of tree build using Visual C++ 2013:
    Steps 1-9
 1a) Set the library search path.
     If you set WIRESHARK_BASE_DIR,
-    %WIRESHARK_BASE_DIR%\wireshark-%WIRESHARK_TARGET_PLATFORM%-libs will
+    %WIRESHARK_BASE_DIR%\wireshark-%WIRESHARK_TARGET_PLATFORM%-libs-2.2 will
     be used as the top-level library directory.
     If you set WIRESHARK_LIB_DIR, it will be used as the top-level library
     directory.  This definition will require changing for different builds (x86 & x64).
