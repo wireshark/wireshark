@@ -25,12 +25,27 @@
 
 #include "buffer.h"
 
+#define SMALL_BUFFER_SIZE (2 * 1024) /* Everyone still uses 1500 byte frames, right? */
+static GPtrArray *small_buffers = NULL; /* Guaranteed to be at least SMALL_BUFFER_SIZE */
+/* XXX - Add medium and large buffers? */
+
 /* Initializes a buffer with a certain amount of allocated space */
 void
 ws_buffer_init(Buffer* buffer, gsize space)
 {
-	buffer->data = (guint8*)g_malloc(space);
-	buffer->allocated = space;
+	if G_UNLIKELY(!small_buffers) small_buffers = g_ptr_array_sized_new(1024);
+
+	if (space <= SMALL_BUFFER_SIZE) {
+		if (small_buffers->len > 0) {
+			buffer->data = (guint8*) g_ptr_array_remove_index(small_buffers, small_buffers->len - 1);
+		} else {
+			buffer->data = (guint8*)g_malloc(SMALL_BUFFER_SIZE);
+		}
+		buffer->allocated = SMALL_BUFFER_SIZE;
+	} else {
+		buffer->data = (guint8*)g_malloc(space);
+		buffer->allocated = space;
+	}
 	buffer->start = 0;
 	buffer->first_free = 0;
 }
@@ -39,7 +54,11 @@ ws_buffer_init(Buffer* buffer, gsize space)
 void
 ws_buffer_free(Buffer* buffer)
 {
-	g_free(buffer->data);
+	if (buffer->allocated == SMALL_BUFFER_SIZE) {
+		g_ptr_array_add(small_buffers, buffer->data);
+	} else {
+		g_free(buffer->data);
+	}
 	buffer->data = NULL;
 }
 

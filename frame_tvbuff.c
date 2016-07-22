@@ -69,6 +69,8 @@ frame_read(struct tvb_frame *frame_tvb, struct wtap_pkthdr *phdr, Buffer *buf)
 	return TRUE;
 }
 
+static GPtrArray *buffer_cache = NULL;
+
 static void
 frame_cache(struct tvb_frame *frame_tvb)
 {
@@ -77,9 +79,14 @@ frame_cache(struct tvb_frame *frame_tvb)
 	wtap_phdr_init(&phdr);
 
 	if (frame_tvb->buf == NULL) {
-		frame_tvb->buf = (struct Buffer *) g_malloc(sizeof(struct Buffer));
+		if G_UNLIKELY(!buffer_cache) buffer_cache = g_ptr_array_sized_new(1024);
 
-		/* XXX, register frame_tvb to some list which frees from time to time not used buffers :] */
+		if (buffer_cache->len > 0) {
+			frame_tvb->buf = (struct Buffer *) g_ptr_array_remove_index(buffer_cache, buffer_cache->len - 1);
+		} else {
+			frame_tvb->buf = (struct Buffer *) g_malloc(sizeof(struct Buffer));
+		}
+
 		ws_buffer_init(frame_tvb->buf, frame_tvb->tvb.length + frame_tvb->offset);
 
 		if (!frame_read(frame_tvb, &phdr, frame_tvb->buf))
@@ -98,8 +105,7 @@ frame_free(tvbuff_t *tvb)
 
 	if (frame_tvb->buf) {
 		ws_buffer_free(frame_tvb->buf);
-
-		g_free(frame_tvb->buf);
+		g_ptr_array_add(buffer_cache, frame_tvb->buf);
 	}
 }
 
