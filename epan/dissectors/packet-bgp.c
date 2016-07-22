@@ -1430,7 +1430,8 @@ static int hf_bgp_evpn_nlri_esi_asn = -1;
 static int hf_bgp_evpn_nlri_esi_asn_discr = -1;
 static int hf_bgp_evpn_nlri_esi_reserved = -1;
 static int hf_bgp_evpn_nlri_etag = -1;
-static int hf_bgp_evpn_nlri_mpls_ls = -1;
+static int hf_bgp_evpn_nlri_mpls_ls1 = -1;
+static int hf_bgp_evpn_nlri_mpls_ls2 = -1;
 static int hf_bgp_evpn_nlri_maclen = -1;
 static int hf_bgp_evpn_nlri_mac_addr = -1;
 static int hf_bgp_evpn_nlri_iplen = -1;
@@ -4259,7 +4260,8 @@ static int decode_evpn_nlri_esi(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
  *  * Decode EVPN NLRI, http://tools.ietf.org/html/draft-ietf-l2vpn-evpn-05#section-7.1
  *   */
 static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_info *pinfo) {
-    int start_offset = offset;
+    int reader_offset = offset;
+    int start_offset = offset+2;
     proto_tree *prefix_tree;
     proto_item *ti;
     guint8 route_type;
@@ -4280,16 +4282,17 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
 
     nlri_len = tvb_get_guint8(tvb, offset + 1);
 
-    ti = proto_tree_add_item(tree, hf_bgp_evpn_nlri, tvb, start_offset,
+    ti = proto_tree_add_item(tree, hf_bgp_evpn_nlri, tvb, reader_offset,
                                nlri_len+2, ENC_NA);
 
     prefix_tree = proto_item_add_subtree(ti, ett_bgp_evpn_nlri);
 
-    proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rt, tvb, start_offset,
+    proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rt, tvb, reader_offset,
                         1, ENC_BIG_ENDIAN);
     proto_item_append_text(ti, ": %s", val_to_str(tvb_get_guint8(tvb, offset), evpnrtypevals, "Unknown capability %d"));
-
-    proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_len, tvb, start_offset+1,
+    /* moving to next field */
+    reader_offset++;
+    proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_len, tvb, reader_offset,
                         1, ENC_BIG_ENDIAN);
 
     if (route_type == EVPN_ETH_SEGMENT_ROUTE && nlri_len < 21) {
@@ -4297,11 +4300,11 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
                                "Invalid length (%u) of EVPN NLRI Route Type 4 (Ethernet Segment Route)!", nlri_len);
         return -1;
     }
-
-    item = proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rd, tvb, start_offset+2,
+    reader_offset++;
+    item = proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rd, tvb, reader_offset,
                                8, ENC_NA);
-    proto_item_append_text(item, " (%s)", decode_bgp_rd(tvb, offset + 2));
-
+    proto_item_append_text(item, " (%s)", decode_bgp_rd(tvb, reader_offset));
+    reader_offset += 8;
     switch (route_type) {
     case EVPN_AD_ROUTE:
     /*
@@ -4316,19 +4319,18 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
                 +---------------------------------------+
    */
 
-        decode_evpn_nlri_esi(prefix_tree, tvb, start_offset+10, pinfo);
-
-        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, start_offset+20,
+        decode_evpn_nlri_esi(prefix_tree, tvb, reader_offset, pinfo);
+        reader_offset += 10;
+        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, reader_offset,
                                    4, ENC_BIG_ENDIAN);
-
+        reader_offset += 4;
         stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
-        labnum = decode_MPLS_stack(tvb, offset + 24,
+        labnum = decode_MPLS_stack(tvb, reader_offset,
                 stack_strbuf);
-        proto_tree_add_string(prefix_tree, hf_bgp_evpn_nlri_mpls_ls, tvb, start_offset+24,
+        proto_tree_add_string(prefix_tree, hf_bgp_evpn_nlri_mpls_ls1, tvb, reader_offset,
                                    labnum*3, wmem_strbuf_get_str(stack_strbuf));
-
-        /*Add 2 for Route Type and Length fields*/
-        total_length = 25 + 2;
+        reader_offset += 3;
+        total_length = reader_offset - offset;
         break;
 
     case EVPN_MAC_ROUTE:
@@ -4355,47 +4357,58 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
 
 */
 
-        decode_evpn_nlri_esi(prefix_tree, tvb, start_offset+10, pinfo);
+        decode_evpn_nlri_esi(prefix_tree, tvb, reader_offset, pinfo);
+        reader_offset += 10;
 
-        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, start_offset+20,
+        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, reader_offset,
                             4, ENC_BIG_ENDIAN);
+        reader_offset += 4;
 
-        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_maclen, tvb, start_offset+24,
+        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_maclen, tvb, reader_offset,
                             1, ENC_BIG_ENDIAN);
+        reader_offset += 1;
 
-        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_mac_addr, tvb, start_offset+25,
+        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_mac_addr, tvb, reader_offset,
                             6, ENC_NA);
+        reader_offset += 6;
 
-        ip_len = tvb_get_guint8(tvb, offset + 31) / 8;
-        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_iplen, tvb, start_offset+31,
+        ip_len = tvb_get_guint8(tvb, reader_offset) / 8;
+        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_iplen, tvb, reader_offset,
                             1, ENC_BIG_ENDIAN);
-
-        total_length = 31;
+        reader_offset++;
+        total_length = reader_offset;
 
         if (ip_len == 4) {
             /*IPv4 address*/
-            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ip_addr, tvb, start_offset+32,
+            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ip_addr, tvb, reader_offset,
                                 4, ENC_NA);
-            total_length += 4;
+            reader_offset += 4;
         } else if (ip_len == 16) {
             /*IPv6 address*/
-            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv6_addr, tvb, start_offset+32,
+            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv6_addr, tvb, reader_offset,
                                 16, ENC_NA);
-            total_length += 16;
+            reader_offset += 16;
         } else if (ip_len == 0) {
             /*IP not included*/
-            proto_tree_add_expert(prefix_tree, pinfo, &ei_bgp_evpn_nlri_rt4_no_ip, tvb, start_offset+32, 1);
+            proto_tree_add_expert(prefix_tree, pinfo, &ei_bgp_evpn_nlri_rt4_no_ip, tvb, reader_offset-1, 1);
         } else {
             return -1;
         }
-
         stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
-        labnum = decode_MPLS_stack(tvb, offset + total_length + 1,
-                stack_strbuf);
-        proto_tree_add_string(prefix_tree, hf_bgp_evpn_nlri_mpls_ls, tvb, start_offset+total_length+1,
+        labnum = decode_MPLS_stack(tvb, reader_offset, stack_strbuf);
+        proto_tree_add_string(prefix_tree, hf_bgp_evpn_nlri_mpls_ls1, tvb, reader_offset,
                                    labnum*3, wmem_strbuf_get_str(stack_strbuf));
-
-        total_length = total_length + 4;
+        reader_offset += 3;
+        /* we check if we reached the end of the nlri reading fields one by one */
+        /* if not, the second optional label is in the payload */
+        if (reader_offset - start_offset < nlri_len) {
+            stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+            labnum = decode_MPLS_stack(tvb, reader_offset, stack_strbuf);
+            proto_tree_add_string(prefix_tree, hf_bgp_evpn_nlri_mpls_ls2, tvb, reader_offset,
+                                   labnum*3, wmem_strbuf_get_str(stack_strbuf));
+            reader_offset += 3;
+        }
+        total_length = reader_offset - offset;
         break;
 
     case EVPN_INC_MCAST_TREE:
@@ -4412,33 +4425,35 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         +---------------------------------------+
 */
 
-        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, start_offset+10,
+        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, reader_offset,
                             4, ENC_BIG_ENDIAN);
-
-        ip_len = tvb_get_guint8(tvb, offset + 14) / 8;
-        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_iplen, tvb, start_offset+14,
+        /* move to next field */
+        reader_offset += 4;
+        ip_len = tvb_get_guint8(tvb, reader_offset) / 8;
+        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_iplen, tvb, reader_offset,
                             1, ENC_BIG_ENDIAN);
-
-        total_length = 15;
+        reader_offset += 1;
+        total_length = reader_offset;
 
         if (ip_len == 4) {
             /*IPv4 address*/
-            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ip_addr, tvb, start_offset+15,
+            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ip_addr, tvb, reader_offset,
                                 4, ENC_NA);
-            total_length += 4;
+            reader_offset += 4;
         } else if (ip_len == 16) {
             /*IPv6 address*/
-            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv6_addr, tvb, start_offset+15,
+            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv6_addr, tvb, reader_offset,
                                 16, ENC_NA);
-            total_length += 16;
+            reader_offset += 16;
         } else if (ip_len == 0) {
             /*IP not included*/
-            proto_tree_add_expert(prefix_tree, pinfo, &ei_bgp_evpn_nlri_rt4_no_ip, tvb, start_offset, 1);
+            proto_tree_add_expert(prefix_tree, pinfo, &ei_bgp_evpn_nlri_rt4_no_ip, tvb, reader_offset, 1);
         } else {
             expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt4_len_err,
                                    "Invalid length of IP Address (%u) in EVPN NLRI Route Type 3 (Iclusive Multicast Tree Route)!", ip_len);
             return -1;
         }
+        total_length = reader_offset - offset;
         break;
 
     case EVPN_ETH_SEGMENT_ROUTE:
@@ -4455,33 +4470,35 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         +---------------------------------------+
 */
 
-        decode_evpn_nlri_esi(prefix_tree, tvb, start_offset+10, pinfo);
+        decode_evpn_nlri_esi(prefix_tree, tvb, reader_offset, pinfo);
+        /* move to next field */
+        reader_offset += 10,
 
-        ip_len = tvb_get_guint8(tvb, offset + 20) / 8;
-        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_iplen, tvb, start_offset+20,
+        ip_len = tvb_get_guint8(tvb, reader_offset) / 8;
+        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_iplen, tvb, reader_offset,
                             1, ENC_BIG_ENDIAN);
-
-        total_length = 21;
+        reader_offset++;
+        total_length = reader_offset;
 
         if (ip_len == 4) {
             /*IPv4 address*/
-            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ip_addr, tvb, start_offset+21,
+            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ip_addr, tvb, reader_offset,
                                 4, ENC_NA);
-            total_length += 4;
+            reader_offset += 4;
         } else if (ip_len == 16) {
             /*IPv6 address*/
-            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv6_addr, tvb, start_offset+21,
+            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv6_addr, tvb, reader_offset,
                                 16, ENC_NA);
-            total_length += 16;
+            reader_offset += 16;
         } else if (ip_len == 0) {
             /*IP not included*/
-            proto_tree_add_expert(prefix_tree, pinfo, &ei_bgp_evpn_nlri_rt4_no_ip, tvb, start_offset, 1);
+            proto_tree_add_expert(prefix_tree, pinfo, &ei_bgp_evpn_nlri_rt4_no_ip, tvb, reader_offset, 1);
         } else {
             expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt4_len_err,
                                    "Invalid length of IP Address (%u) in EVPN NLRI Route Type 4 (Ethernet Segment Route)!", ip_len);
             return -1;
         }
-
+        total_length = reader_offset - offset;
         break;
     case EVPN_IP_PREFIX_ROUTE:
 
@@ -4503,29 +4520,42 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
     +---------------------------------------+
 */
 
-        decode_evpn_nlri_esi(prefix_tree, tvb, start_offset+10, pinfo);
+        decode_evpn_nlri_esi(prefix_tree, tvb, reader_offset, pinfo);
+        reader_offset += 10;
 
-        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, start_offset+20,
+        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, reader_offset,
                             4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_prefix_len, tvb, start_offset+24,
+        reader_offset += 4;
+
+        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_prefix_len, tvb, reader_offset,
                             1, ENC_BIG_ENDIAN);
+        reader_offset++;
+
         switch (nlri_len) {
             case 34 :
                 /* IPv4 address */
-                proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ip_addr, tvb, start_offset+25,
+                proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ip_addr, tvb, reader_offset,
                                     4, ENC_NA);
-                proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv4_gtw, tvb, start_offset+29,
+                reader_offset += 4;
+
+                proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv4_gtw, tvb, reader_offset,
                                     4, ENC_NA);
-                decode_MPLS_stack_tree(tvb, start_offset+33, prefix_tree);
+                reader_offset += 4;
+
+                decode_MPLS_stack_tree(tvb, reader_offset, prefix_tree);
                 total_length = 36;
                 break;
             case 58 :
                 /* IPv6 address */
-                proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv6_addr, tvb, start_offset+25,
+                proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv6_addr, tvb, reader_offset,
                                     16, ENC_NA);
-                proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv6_gtw, tvb, start_offset+41,
+                reader_offset += 16;
+
+                proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv6_gtw, tvb, reader_offset,
                                     16, ENC_NA);
-                decode_MPLS_stack_tree(tvb, start_offset+57, prefix_tree);
+                reader_offset += 16;
+
+                decode_MPLS_stack_tree(tvb, reader_offset, prefix_tree);
                 total_length = 60;
                 break;
             default :
@@ -8699,8 +8729,11 @@ proto_register_bgp(void)
      { &hf_bgp_evpn_nlri_etag,
        { "Ethernet Tag ID", "bgp.evpn.nlri.etag", FT_UINT32,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
-     { &hf_bgp_evpn_nlri_mpls_ls,
-        { "MPLS Label Stack", "bgp.evpn.nlri.mpls_ls", FT_STRING,
+     { &hf_bgp_evpn_nlri_mpls_ls1,
+        { "MPLS Label Stack 1", "bgp.evpn.nlri.mpls_ls1", FT_STRING,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+     { &hf_bgp_evpn_nlri_mpls_ls2,
+        { "MPLS Label Stack 2", "bgp.evpn.nlri.mpls_ls2", FT_STRING,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
      { &hf_bgp_evpn_nlri_maclen,
        { "MAC Address Length", "bgp.evpn.nlri.maclen", FT_UINT8,
