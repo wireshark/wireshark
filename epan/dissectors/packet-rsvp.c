@@ -172,6 +172,7 @@ static int hf_rsvp_rro_flags_node_address = -1;
 static int hf_rsvp_rro_flags_backup_tunnel_bandwidth = -1;
 static int hf_rsvp_rro_flags_backup_tunnel_hop = -1;
 static int hf_rsvp_rro_flags_global_label = -1;
+static int hf_rsvp_lsp_attr = -1;
 static int hf_rsvp_lsp_attr_e2e = -1;
 static int hf_rsvp_lsp_attr_boundary = -1;
 static int hf_rsvp_lsp_attr_segment = -1;
@@ -752,6 +753,7 @@ enum {
     TT_WAVELENGTH,
     TT_SONET_SDH,
     TT_G709,
+    TT_RSVP_LSP_ATTR,
 
     TT_MAX
 };
@@ -5341,6 +5343,23 @@ dissect_rsvp_lsp_attributes(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp
     guint32     attributes;
     guint16     tlv_type, tlv_len;
     proto_tree *ti2, *rsvp_lsp_attr_subtree;
+    static const int * rsvp_lsp_attr_flags[] = {
+        &hf_rsvp_lsp_attr_e2e,
+        &hf_rsvp_lsp_attr_boundary,
+        &hf_rsvp_lsp_attr_segment,
+        &hf_rsvp_lsp_attr_integrity,
+        &hf_rsvp_lsp_attr_contiguous,
+        &hf_rsvp_lsp_attr_stitching,
+        &hf_rsvp_lsp_attr_preplanned,
+        &hf_rsvp_lsp_attr_nophp,
+        &hf_rsvp_lsp_attr_oobmap,
+        &hf_rsvp_lsp_attr_entropy,
+        &hf_rsvp_lsp_attr_srlgcollect,
+        &hf_rsvp_lsp_attr_costcollect,
+        &hf_rsvp_lsp_attr_latcollect,
+        &hf_rsvp_lsp_attr_latvarcollect,
+        NULL
+    };
 
     if (rsvp_class == RSVP_CLASS_LSP_REQUIRED_ATTRIBUTES)
         proto_item_set_text(ti, "LSP REQUIRED ATTRIBUTES: ");
@@ -5363,50 +5382,22 @@ dissect_rsvp_lsp_attributes(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp
                 attributes = tvb_get_ntohl(tvb, offset+tlv_off+4);
                 ti2 = proto_tree_add_item(rsvp_object_tree, hf_rsvp_lsp_attributes_tlv, tvb, offset+tlv_off, 4, ENC_BIG_ENDIAN);
                 rsvp_lsp_attr_subtree = proto_item_add_subtree(ti2, TREE(TT_LSP_ATTRIBUTES_FLAGS));
-                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_e2e,
-                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_boundary,
-                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_segment,
-                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_integrity,
-                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_contiguous,
-                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_stitching,
-                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_preplanned,
-                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_nophp,
-                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_oobmap,
-                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_entropy,
-                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_srlgcollect,
-                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_costcollect,
-                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_latcollect,
-                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_latvarcollect,
-                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
-
+                proto_tree_add_bitmask(rsvp_lsp_attr_subtree, tvb, offset+tlv_off+4, hf_rsvp_lsp_attr, ett_treelist[TT_RSVP_LSP_ATTR], rsvp_lsp_attr_flags, ENC_NA);
                 proto_item_append_text(ti, "LSP Attribute:%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
-                                       (attributes & 0x00000001) ? " End-to-end re-routing" : "",
-                                       (attributes & 0x00000002) ? " Boundary re-routing" : "",
-                                       (attributes & 0x00000004) ? " Segment-based re-routing" : "",
-                                       (attributes & 0x00000008) ? " LSP Integrity Required" : "",
-                                       (attributes & 0x00000010) ? " Contiguous LSP" : "",
-                                       (attributes & 0x00000020) ? " LSP stitching desired" : "",
-                                       (attributes & 0x00000040) ? " Pre-Planned LSP Flag" : "",
-                                       (attributes & 0x00000080) ? " Non-PHP behavior flag" : "",
-                                       (attributes & 0x00000100) ? " OOB mapping flag" : "",
-                                       (attributes & 0x00000200) ? " Entropy Label Capability" : "",
-                                       (attributes & 0x00000400) ? " SRLG Collection Flag" : "",
-                                       (attributes & 0x00000800) ? " Cost Collection Flag" : "",
-                                       (attributes & 0x00001000) ? " Latency Collection Flag" : "",
-                                       (attributes & 0x00002000) ? " Latency Variation Flag" : "");
+                                       (attributes & 0x80000000) ? " End-to-end re-routing" : "",
+                                       (attributes & 0x40000000) ? " Boundary re-routing" : "",
+                                       (attributes & 0x20000000) ? " Segment-based re-routing" : "",
+                                       (attributes & 0x10000000) ? " LSP Integrity Required" : "",
+                                       (attributes & 0x08000000) ? " Contiguous LSP" : "",
+                                       (attributes & 0x04000000) ? " LSP stitching desired" : "",
+                                       (attributes & 0x02000000) ? " Pre-Planned LSP Flag" : "",
+                                       (attributes & 0x01000000) ? " Non-PHP behavior flag" : "",
+                                       (attributes & 0x00800000) ? " OOB mapping flag" : "",
+                                       (attributes & 0x00400000) ? " Entropy Label Capability" : "",
+                                       (attributes & 0x00200000) ? " SRLG Collection Flag" : "",
+                                       (attributes & 0x00100000) ? " Cost Collection Flag" : "",
+                                       (attributes & 0x00080000) ? " Latency Collection Flag" : "",
+                                       (attributes & 0x00040000) ? " Latency Variation Flag" : "");
                 break;
 
             default:
@@ -8575,86 +8566,92 @@ proto_register_rsvp(void)
            NULL, HFILL }
         },
 
+        {&hf_rsvp_lsp_attr,
+         { "LSP Attributes Flags", "rsvp.lsp_attr",
+           FT_UINT32, BASE_HEX, NULL, 0x0,
+           NULL, HFILL}
+        },
+
         {&hf_rsvp_lsp_attr_e2e,
          { "End-to-end re-routing", "rsvp.lsp_attr.e2e",
-           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000001, /* 0 */
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x80000000, /* 0 */
            NULL, HFILL }
         },
 
         {&hf_rsvp_lsp_attr_boundary,
          { "Boundary re-routing", "rsvp.lsp_attr.boundary",
-           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000002, /* 1 */
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x40000000, /* 1 */
            NULL, HFILL }
         },
 
         {&hf_rsvp_lsp_attr_segment,
          { "Segment-based re-routing", "rsvp.lsp_attr.segment",
-           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000004, /* 2 */
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x20000000, /* 2 */
            NULL, HFILL }
         },
 
         {&hf_rsvp_lsp_attr_integrity,
          { "LSP Integrity Required", "rsvp.lsp_attr.integrity",
-           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000008, /* 3 */
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x10000000, /* 3 */
            NULL, HFILL }
         },
 
         {&hf_rsvp_lsp_attr_contiguous,
          { "Contiguous LSP", "rsvp.lsp_attr.contiguous",
-           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000010, /* 4 */
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x08000000, /* 4 */
            NULL, HFILL }
         },
 
         {&hf_rsvp_lsp_attr_stitching,
          { "LSP stitching desired", "rsvp.lsp_attr.stitching",
-           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000020, /* 5 */
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x04000000, /* 5 */
            NULL, HFILL }
         },
 
         {&hf_rsvp_lsp_attr_preplanned,
          { "Pre-Planned LSP Flag", "rsvp.lsp_attr.preplanned",
-           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000040, /* 6 */
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x02000000, /* 6 */
            NULL, HFILL }
         },
 
         {&hf_rsvp_lsp_attr_nophp,
          { "Non-PHP behavior flag", "rsvp.lsp_attr.nophp",
-           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000080, /* 7 */
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x01000000, /* 7 */
            NULL, HFILL }
         },
 
         {&hf_rsvp_lsp_attr_oobmap,
          { "OOB mapping flag", "rsvp.lsp_attr.oobmap",
-           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000100, /* 8 */
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00800000, /* 8 */
            NULL, HFILL }
         },
         {&hf_rsvp_lsp_attr_entropy,
          { "Entropy Label Capability", "rsvp.lsp_attr.entropy",
-           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000200, /* 9 */
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00400000, /* 9 */
            NULL, HFILL }
         },
 
         {&hf_rsvp_lsp_attr_srlgcollect,
          { "SRLG Collection Flag", "rsvp.lsp_attr.srlgcollect",
-           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000400, /* 10 */
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00200000, /* 10 */
            NULL, HFILL }
         },
 
         {&hf_rsvp_lsp_attr_costcollect,
          { "Cost Collection Flag", "rsvp.lsp_attr.costcollect",
-           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000800, /* 11 */
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00100000, /* 11 */
            NULL, HFILL }
         },
 
         {&hf_rsvp_lsp_attr_latcollect,
          { "Latency Collection Flag", "rsvp.lsp_attr.latcollect",
-           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00001000, /* 12 */
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00080000, /* 12 */
            NULL, HFILL }
         },
 
         {&hf_rsvp_lsp_attr_latvarcollect,
          { "Latency Variation Flag", "rsvp.lsp_attr.latvarcollect",
-           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00002000, /* 13 */
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00040000, /* 13 */
            NULL, HFILL }
         },
 
