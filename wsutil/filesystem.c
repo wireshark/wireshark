@@ -940,7 +940,7 @@ get_datafile_dir(void)
  * of the plugin directory, so it can just fetch the plugins built
  * as part of the build process.
  */
-static const char *plugin_dir = NULL;
+static char *plugin_dir = NULL;
 
 static void
 init_plugin_dir(void)
@@ -954,8 +954,7 @@ init_plugin_dir(void)
      * on Windows, the data file directory is the directory
      * in which the Wireshark binary resides.
      */
-    plugin_dir = g_strdup_printf("%s\\plugins\\%s", get_datafile_dir(),
-                     VERSION);
+    plugin_dir = g_build_filename(get_datafile_dir(), "plugins", VERSION, (gchar *)NULL);
 
     /*
      * Make sure that pathname refers to a directory.
@@ -974,8 +973,8 @@ init_plugin_dir(void)
          * scanner will check all subdirectories of that
          * directory for plugins.
          */
-        g_free( (gpointer) plugin_dir);
-        plugin_dir = g_strdup_printf("%s\\plugins", get_datafile_dir());
+        g_free(plugin_dir);
+        plugin_dir = g_build_filename(get_datafile_dir(), "plugins", (gchar *)NULL);
         running_in_build_directory_flag = TRUE;
     }
 #else
@@ -986,7 +985,7 @@ init_plugin_dir(void)
          * the "plugins" subdirectory of the directory where the program
          * we're running is (that's the build directory).
          */
-        plugin_dir = g_strdup_printf("%s/plugins", get_progfile_dir());
+        plugin_dir = g_build_filename(get_progfile_dir(), "plugins", (gchar *)NULL);
     } else {
         if (g_getenv("WIRESHARK_PLUGIN_DIR") && !started_with_special_privs()) {
             /*
@@ -1006,12 +1005,11 @@ init_plugin_dir(void)
          * it; we don't need to call started_with_special_privs().)
          */
         else if (appbundle_dir != NULL) {
-            plugin_dir = g_strdup_printf("%s/Contents/PlugIns/wireshark",
-                                         appbundle_dir);
+            plugin_dir = g_build_filename(appbundle_dir, "Contents/PlugIns/wireshark", (gchar *)NULL);
         }
 #endif
         else {
-            plugin_dir = PLUGIN_INSTALL_DIR;
+            plugin_dir = g_strdup(PLUGIN_INSTALL_DIR);
         }
     }
 #endif
@@ -1051,7 +1049,7 @@ get_plugin_dir(void)
  * of the extcap directory, so it can just fetch the extcap hooks built
  * as part of the build process.
  */
-static const char *extcap_dir = NULL;
+static char *extcap_dir = NULL;
 
 static void init_extcap_dir(void) {
 #ifdef _WIN32
@@ -1072,7 +1070,7 @@ static void init_extcap_dir(void) {
          */
         extcap_dir = g_strdup(alt_extcap_path);
     } else {
-        extcap_dir = g_strdup_printf("%s\\extcap", get_datafile_dir());
+        extcap_dir = g_build_filename(get_datafile_dir(), "extcap", (gchar *)NULL);
     }
 #else
     if (running_in_build_directory_flag) {
@@ -1082,7 +1080,7 @@ static void init_extcap_dir(void) {
          * the "extcap hooks" subdirectory of the directory where the program
          * we're running is (that's the build directory).
          */
-        extcap_dir = g_strdup_printf("%s/extcap", get_progfile_dir());
+        extcap_dir = g_build_filename(get_progfile_dir(), "extcap", (gchar *)NULL);
     } else {
         if (g_getenv("WIRESHARK_EXTCAP_DIR") && !started_with_special_privs()) {
             /*
@@ -1102,12 +1100,11 @@ static void init_extcap_dir(void) {
          * it; we don't need to call started_with_special_privs().)
          */
         else if (appbundle_dir != NULL) {
-            extcap_dir = g_strdup_printf("%s/Contents/MacOS/extcap",
-                                         appbundle_dir);
+            extcap_dir = g_build_filename(appbundle_dir, "Contents/MacOS/extcap", (gchar *)NULL);
         }
 #endif
         else {
-            extcap_dir = EXTCAP_DIR;
+            extcap_dir = g_strdup(EXTCAP_DIR);
         }
     }
 #endif
