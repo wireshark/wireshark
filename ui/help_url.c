@@ -47,13 +47,8 @@ data_file_url(const gchar *filename)
     gchar *uri;
 
     /* Absolute path? */
-#ifdef G_OS_WIN32
-    if((strlen(filename) > 2) && (filename[1] == ':')) {
-      file_path = g_strdup(filename);
-#else
-    if((strlen(filename) > 1) && (filename[0] == '/')) {
-      file_path = g_strdup(filename);
-#endif
+    if(g_path_is_absolute(filename)) {
+        file_path = g_strdup(filename);
     } else if(running_in_build_directory()) {
         file_path = g_strdup_printf("%s/doc/%s", get_datafile_dir(), filename);
     } else {
