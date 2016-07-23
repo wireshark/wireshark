@@ -2007,8 +2007,9 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   proto_item *item = NULL, *ttl_item;
   guint16 ttl;
   int bit_offset;
+
   tree = parent_tree;
-  iph = (ws_ip *)wmem_alloc(wmem_packet_scope(), sizeof(ws_ip));
+  iph = wmem_new0(wmem_packet_scope(), ws_ip);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPv4");
   col_clear(pinfo->cinfo, COL_INFO);

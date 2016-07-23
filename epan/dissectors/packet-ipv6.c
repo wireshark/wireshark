@@ -1897,12 +1897,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     const char    *name;
     address        addr;
     ipv6_pinfo_t  *ipv6_pinfo;
-    int version;
-
-    /* Provide as much IP header information as possible as some dissectors
-       in the ip.proto dissector table may need it */
-    ws_ip iph;
-
+    int            version;
+    ws_ip         *iph;
     struct ws_ip6_hdr *ipv6;
 
     offset = 0;
@@ -2164,15 +2160,15 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     tap_queue_packet(ipv6_tap, pinfo, ipv6);
 
-    /* Fill in IP fields for potential subdissectors */
-    memset(&iph, 0, sizeof(iph));
-    iph.ip_v_hl = IPv6_HDR_VERS(ipv6);
-    iph.ip_tos  = IPv6_HDR_TCLS(ipv6);
-    iph.ip_len  = g_ntohs(ipv6->ip6_plen);
-    iph.ip_nxt  = ipv6->ip6_nxt;
-    iph.ip_ttl  = ipv6->ip6_hlim;
-    copy_address_shallow(&iph.ip_src, &pinfo->src);
-    copy_address_shallow(&iph.ip_dst, &pinfo->dst);
+    /* Fill in IP header fields for subdissectors */
+    iph = wmem_new0(wmem_packet_scope(), ws_ip);
+    iph->ip_v_hl = IPv6_HDR_VERS(ipv6);
+    iph->ip_tos = IPv6_HDR_TCLS(ipv6);
+    iph->ip_len = g_ntohs(ipv6->ip6_plen);
+    iph->ip_nxt = ipv6->ip6_nxt;
+    iph->ip_ttl = ipv6->ip6_hlim;
+    copy_address_shallow(&iph->ip_src, &pinfo->src);
+    copy_address_shallow(&iph->ip_dst, &pinfo->dst);
 
     ipv6_pinfo->jumbo_plen = 0;
     ipv6_pinfo->ip6_plen = g_ntohs(ipv6->ip6_plen);
@@ -2183,15 +2179,15 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     /* Save next header value for Decode As dialog */
     p_add_proto_data(pinfo->pool, pinfo, proto_ipv6,
-            (pinfo->curr_layer_num<<8) | IPV6_PROTO_NXT_HDR, GUINT_TO_POINTER(iph.ip_nxt));
+            (pinfo->curr_layer_num<<8) | IPV6_PROTO_NXT_HDR, GUINT_TO_POINTER(iph->ip_nxt));
     offset += IPv6_HDR_SIZE;
 
     /* Check for Jumbo option */
-    if (iph.ip_len == 0 && iph.ip_nxt == IP_PROTO_HOPOPTS) {
+    if (iph->ip_len == 0 && iph->ip_nxt == IP_PROTO_HOPOPTS) {
         ipv6_pinfo->jumbo_plen = ipv6_get_jumbo_plen(tvb, offset);
         if (ipv6_pinfo->jumbo_plen != 0) {
             proto_item_append_text(ti_ipv6_plen, " (Jumbogram)");
-            iph.ip_len = ipv6_pinfo->jumbo_plen;
+            iph->ip_len = ipv6_pinfo->jumbo_plen;
         } else {
             /* IPv6 length zero is invalid if there is a hop-by-hop header without jumbo option */
             col_add_fstr(pinfo->cinfo, COL_INFO, "Invalid IPv6 payload length");
@@ -2200,17 +2196,17 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
 
     reported_plen = tvb_reported_length(tvb) - IPv6_HDR_SIZE;
-    if (!pinfo->flags.in_error_pkt && iph.ip_len > reported_plen) {
+    if (!pinfo->flags.in_error_pkt && iph->ip_len > reported_plen) {
         expert_add_info_format(pinfo, ti_ipv6_plen, &ei_ipv6_plen_exceeds_framing,
                     "IPv6 payload length exceeds framing length (%d bytes)", reported_plen);
     }
 
     /* Adjust the length of this tvbuff to include only the IPv6 datagram. */
-    set_actual_length(tvb, iph.ip_len + IPv6_HDR_SIZE);
+    set_actual_length(tvb, iph->ip_len + IPv6_HDR_SIZE);
     save_fragmented = pinfo->fragmented;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    ipv6_dissect_next(next_tvb, pinfo, tree, &iph);
+    ipv6_dissect_next(next_tvb, pinfo, tree, iph);
 
     pinfo->fragmented = save_fragmented;
     return tvb_captured_length(tvb);
