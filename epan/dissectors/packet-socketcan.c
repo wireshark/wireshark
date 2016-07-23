@@ -150,7 +150,7 @@ dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
 	/* Functionality for choosing subdissector is controlled through Decode As as CAN doesn't
 	   have a unique identifier to determine subdissector */
-	if (!dissector_try_uint_new(subdissector_table, 0, next_tvb, pinfo, tree, FALSE, &can_id))
+	if (!dissector_try_uint_new(subdissector_table, 0, next_tvb, pinfo, tree, TRUE, &can_id))
 	{
 		call_data_dissector(next_tvb, pinfo, tree);
 	}
