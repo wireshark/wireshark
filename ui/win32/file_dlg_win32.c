@@ -272,24 +272,22 @@ win32_check_save_as_with_comments(HWND parent, capture_file *cf, int file_type)
            format you selected", or "Cancel", meaning "don't bother
            saving the file at all".
 
-           XXX - sadly, customizing buttons in a MessageBox() is
-           Really Painful; there are tricks out there to do it
-           with a "computer-based training" hook that gets called
-           before the window is activated and sets the text of the
-           buttons, but if you change the text of the buttons you
-           also have to make the buttons bigger.  There *has* to
-           be a better way of doing that, given that Microsoft's
-           own UI guidelines have examples of dialog boxes with
-           action buttons that have custom labels, but maybe we'd
-           have to go with Windows Forms or XAML or whatever the
-           heck the technology of the week is.
+           XXX - given that we no longer support releases prior to
+           Windows Vista, we should use a task dialog:
 
-           Therefore, we ask a yes-or-no question - "do you want
-           to discard the comments and save in the format you
-           chose?" - and have "no" mean "I want to save the
-           file but I don't want to discard the comments, meaning
-           we should reopen the dialog and not offer the user any
-           choices that would involve discarding the comments. */
+               https://msdn.microsoft.com/en-us/library/windows/desktop/ff486057(v=vs.85).aspx
+
+           created with TaskDialogIndirect():
+
+               https://msdn.microsoft.com/en-us/library/windows/desktop/bb760544(v=vs.85).aspx
+
+           because the TASKDIALOGCONFIG structure
+
+               https://msdn.microsoft.com/en-us/library/windows/desktop/bb787473(v=vs.85).aspx
+
+           supports adding custom buttons, with custom labels, unlike
+           a MessageBox(), which doesn't appear to offer a clean way to
+           do that. */
         response = MessageBox(parent,
   _T("The capture has comments, but the file format you chose ")
   _T("doesn't support comments.  Do you want to discard the comments ")
