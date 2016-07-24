@@ -339,6 +339,7 @@ void sha1_hmac( const guint8 *key, guint32 keylen, const guint8 *buf, guint32 bu
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include <wsutil/ws_printf.h> /* ws_debug_printf */
 
 /*
  * those are the standard FIPS-180-1 test vectors
@@ -369,11 +370,11 @@ int main( int argc, char *argv[] )
 
     if( argc < 2 )
     {
-        printf( "\n SHA-1 Validation Tests:\n\n" );
+        ws_debug_printf( "\n SHA-1 Validation Tests:\n\n" );
 
         for( i = 0; i < 3; i++ )
         {
-            printf( " Test %d ", i + 1 );
+            ws_debug_printf( " Test %d ", i + 1 );
 
             sha1_starts( &ctx );
 
@@ -401,20 +402,20 @@ int main( int argc, char *argv[] )
 
             if( memcmp( output, val[i], 40 ) )
             {
-                printf( "failed!\n" );
+                ws_debug_printf( "failed!\n" );
                 return( 1 );
             }
 
-            printf( "passed.\n" );
+            ws_debug_printf( "passed.\n" );
         }
 
-        printf( "\n" );
+        ws_debug_printf( "\n" );
     }
     else
     {
         if( ! ( f = ws_fopen( argv[1], "rb" ) ) )
         {
-            printf("fopen: %s", g_strerror(errno));
+            ws_debug_printf("fopen: %s", g_strerror(errno));
             return( 1 );
         }
 
@@ -429,10 +430,10 @@ int main( int argc, char *argv[] )
 
         for( j = 0; j < SHA1_DIGEST_LEN; j++ )
         {
-            printf( "%02x", sha1sum[j] );
+            ws_debug_printf( "%02x", sha1sum[j] );
         }
 
-        printf( "  %s\n", argv[1] );
+        ws_debug_printf( "  %s\n", argv[1] );
     }
 
     return( 0 );

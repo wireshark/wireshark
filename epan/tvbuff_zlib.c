@@ -33,6 +33,9 @@
 #endif
 
 #include "tvbuff.h"
+#ifdef TVB_Z_DEBUG
+#include <wsutil/ws_printf.h> /* ws_debug_printf */
+#endif
 
 #ifdef HAVE_ZLIB
 /*
@@ -82,7 +85,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 	bufsiz = CLAMP(bufsiz, TVB_Z_MIN_BUFSIZ, TVB_Z_MAX_BUFSIZ);
 
 #ifdef TVB_Z_DEBUG
-	printf("bufsiz: %u bytes\n", bufsiz);
+	ws_debug_printf("bufsiz: %u bytes\n", bufsiz);
 #endif
 
 	next = compr;
@@ -315,8 +318,8 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 	}
 
 #ifdef TVB_Z_DEBUG
-	printf("inflate() total passes: %u\n", inflate_passes);
-	printf("bytes  in: %u\nbytes out: %u\n\n", bytes_in, bytes_out);
+	ws_debug_printf("inflate() total passes: %u\n", inflate_passes);
+	ws_debug_printf("bytes  in: %u\nbytes out: %u\n\n", bytes_in, bytes_out);
 #endif
 
 	if (uncompr != NULL) {

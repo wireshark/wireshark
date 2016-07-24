@@ -385,7 +385,7 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp)
 		reg = dfw_append_function(dfw, st_arg, p_jmp);
 	}
 	else {
-		printf("sttype_id is %u\n", (unsigned)e_type);
+		/* printf("sttype_id is %u\n", (unsigned)e_type); */
 		g_assert_not_reached();
 	}
 	return reg;

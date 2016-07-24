@@ -39,6 +39,7 @@
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <wsutil/md5.h>
+#include <wsutil/ws_printf.h> /* ws_debug_printf */
 
 #include "packet-tacacs.h"
 
@@ -749,9 +750,9 @@ tacplus_print_key_entry( gpointer data, gpointer user_data )
 	s_str = address_to_str( NULL, tacplus_data->s );
 	c_str = address_to_str( NULL, tacplus_data->c );
 	if( user_data ) {
-		printf("%s:%s=%s\n", s_str, c_str, tacplus_data->k );
+		ws_debug_printf("%s:%s=%s\n", s_str, c_str, tacplus_data->k );
 	} else {
-		printf("%s:%s\n", s_str, c_str );
+		ws_debug_printf("%s:%s\n", s_str, c_str );
 	}
 	wmem_free(NULL, s_str);
 	wmem_free(NULL, c_str);
@@ -764,9 +765,9 @@ cmp_conv_address( gconstpointer p1, gconstpointer p2 )
 	const tacplus_key_entry *a2=(const tacplus_key_entry *)p2;
 	gint32	ret;
 	/*
-	printf("p1=>");
+	ws_debug_printf("p1=>");
 	tacplus_print_key_entry( p1, NULL );
-	printf("p2=>");
+	ws_debug_printf("p2=>");
 	tacplus_print_key_entry( p2, NULL );
 	*/
 	ret=cmp_address( a1->s, a2->s );
@@ -774,9 +775,9 @@ cmp_conv_address( gconstpointer p1, gconstpointer p2 )
 		ret=cmp_address( a1->c, a2->c );
 		/*
 		if(ret)
-			printf("No Client found!"); */
+			ws_debug_printf("No Client found!"); */
 	} else {
-		/* printf("No Server found!"); */
+		/* ws_debug_printf("No Server found!"); */
 	}
 	return ret;
 }
@@ -789,10 +790,10 @@ find_key( address *srv, address *cln )
 
 	data.s=srv;
 	data.c=cln;
-/*	printf("Looking for: ");
+/*	ws_debug_printf("Looking for: ");
 	tacplus_print_key_entry( (gconstpointer)&data, NULL ); */
 	match=g_slist_find_custom( tacplus_keys, (gpointer)&data, cmp_conv_address );
-/*	printf("Finished (%p)\n", match);  */
+/*	ws_debug_printf("Finished (%p)\n", match);  */
 	if( match )
 		return ((tacplus_key_entry*)match->data)->k;
 
@@ -819,7 +820,7 @@ parse_tuple( char *key_from_option )
 	char *client,*key;
 	tacplus_key_entry *tacplus_data=(tacplus_key_entry *)g_malloc( sizeof(tacplus_key_entry) );
 	/*
-	printf("keys: %s\n", key_from_option );
+	ws_debug_printf("keys: %s\n", key_from_option );
 	*/
 	client=strchr(key_from_option,'/');
 	if(!client) {
@@ -834,7 +835,7 @@ parse_tuple( char *key_from_option )
 	}
 	*key++='\0';
 	/*
-	printf("%s %s => %s\n", key_from_option, client, key );
+	ws_debug_printf("%s %s => %s\n", key_from_option, client, key );
 	*/
 	mkipv4_address( &tacplus_data->s, key_from_option );
 	mkipv4_address( &tacplus_data->c, client );

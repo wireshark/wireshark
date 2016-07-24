@@ -40,6 +40,7 @@
 #include <epan/eap.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/report_err.h>
+#include <wsutil/ws_printf.h> /* ws_debug_printf */
 
 #include "wimaxasncp_dict.h"
 
@@ -3320,7 +3321,7 @@ register_wimaxasncp_fields(const char* unused _U_)
 
             for (tlv = wimaxasncp_dict->tlvs; tlv; tlv = tlv->next)
             {
-                printf(
+                ws_debug_printf(
                     "%s\n"
                     "  type                   = %u\n"
                     "  description            = %s\n"

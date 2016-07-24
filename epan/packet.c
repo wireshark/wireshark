@@ -51,6 +51,7 @@
 #include <epan/asm_utils.h>
 
 #include <wsutil/str_util.h>
+#include <wsutil/ws_printf.h> /* ws_debug_printf */
 
 static gint proto_malformed = -1;
 static dissector_handle_t frame_handle = NULL;
@@ -2534,7 +2535,7 @@ display_heur_dissector_table_entries(const char *table_name,
     heur_dtbl_entry_t *hdtbl_entry, gpointer user_data _U_)
 {
 	if (hdtbl_entry->protocol != NULL) {
-		printf("%s\t%s\t%c\n",
+		ws_debug_printf("%s\t%s\t%c\n",
 		       table_name,
 		       proto_get_protocol_filter_name(proto_get_id(hdtbl_entry->protocol)),
 		       (proto_is_protocol_enabled(hdtbl_entry->protocol) && hdtbl_entry->enabled) ? 'T' : 'F');
@@ -2962,7 +2963,7 @@ dissector_dump_decodes_display(const gchar *table_name,
 			if (proto_id != -1) {
 				decode_as = proto_get_protocol_filter_name(proto_id);
 				g_assert(decode_as != NULL);
-				printf("%s\t%u\t%s\n", table_name, selector, decode_as);
+				ws_debug_printf("%s\t%u\t%s\n", table_name, selector, decode_as);
 			}
 			break;
 
@@ -2996,7 +2997,7 @@ dissector_dump_dissector_tables_display (gpointer key, gpointer user_data _U_)
 	dissector_table_t	table;
 
 	table = (dissector_table_t)g_hash_table_lookup(dissector_tables, key);
-	printf("%s\t%s\t%s", table_name, table->ui_name, ftype_name(table->type));
+	ws_debug_printf("%s\t%s\t%s", table_name, table->ui_name, ftype_name(table->type));
 	switch (table->type) {
 
 	case FT_UINT8:
@@ -3006,27 +3007,27 @@ dissector_dump_dissector_tables_display (gpointer key, gpointer user_data _U_)
 		switch(table->param) {
 
 		case BASE_NONE:
-			printf("\tBASE_NONE");
+			ws_debug_printf("\tBASE_NONE");
 			break;
 
 		case BASE_DEC:
-			printf("\tBASE_DEC");
+			ws_debug_printf("\tBASE_DEC");
 			break;
 
 		case BASE_HEX:
-			printf("\tBASE_HEX");
+			ws_debug_printf("\tBASE_HEX");
 			break;
 
 		case BASE_DEC_HEX:
-			printf("\tBASE_DEC_HEX");
+			ws_debug_printf("\tBASE_DEC_HEX");
 			break;
 
 		case BASE_HEX_DEC:
-			printf("\tBASE_HEX_DEC");
+			ws_debug_printf("\tBASE_HEX_DEC");
 			break;
 
 		default:
-			printf("\t%d", table->param);
+			ws_debug_printf("\t%d", table->param);
 			break;
 		}
 		break;
@@ -3034,7 +3035,7 @@ dissector_dump_dissector_tables_display (gpointer key, gpointer user_data _U_)
 	default:
 		break;
 	}
-	printf("\n");
+	ws_debug_printf("\n");
 }
 
 static gint

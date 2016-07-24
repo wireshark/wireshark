@@ -35,6 +35,9 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#if defined(DEBUG_BEEP_HASH)
+#include <wsutil/ws_printf.h> /* ws_debug_printf */
+#endif
 
 #define TCP_PORT_BEEP 10288
 
@@ -165,7 +168,7 @@ beep_equal(gconstpointer v, gconstpointer w)
   const struct beep_request_key *v2 = (const struct beep_request_key *)w;
 
 #if defined(DEBUG_BEEP_HASH)
-  printf("Comparing %08X\n      and %08X\n",
+  ws_debug_printf("Comparing %08X\n      and %08X\n",
          v1->conversation, v2->conversation);
 #endif
 
@@ -185,7 +188,7 @@ beep_hash(gconstpointer v)
   val = key->conversation;
 
 #if defined(DEBUG_BEEP_HASH)
-  printf("BEEP Hash calculated as %u\n", val);
+  ws_debug_printf("BEEP Hash calculated as %u\n", val);
 #endif
 
   return val;

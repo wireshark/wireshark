@@ -56,6 +56,7 @@
 #include "in_cksum.h"
 
 #include <wsutil/plugins.h>
+#include <wsutil/ws_printf.h> /* ws_debug_printf */
 
 /* Ptvcursor limits */
 #define SUBTREE_ONCE_ALLOCATION_NUMBER 8
@@ -1267,7 +1268,7 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 	va_start(ap, format);
 	vprintf(format, ap);
 	va_end(ap);
-	printf("\n");
+	ws_debug_printf("\n");
 
 	return pi;
 }
@@ -8188,7 +8189,7 @@ proto_registrar_dump_protocols(void)
 	i = proto_get_first_protocol(&cookie);
 	while (i != -1) {
 		protocol = find_protocol_by_id(i);
-		printf("%s\t%s\t%s\n", protocol->name, protocol->short_name,
+		ws_debug_printf("%s\t%s\t%s\n", protocol->name, protocol->short_name,
 			protocol->filter_name);
 		i = proto_get_next_protocol(&cookie);
 	}
@@ -8325,7 +8326,7 @@ proto_registrar_dump_values(void)
 					continue;
 				}
 				try_val_to_str_ext(0, vse_p); /* "prime" the extended value_string */
-				printf("E\t%s\t%u\t%s\t%s\n",
+				ws_debug_printf("E\t%s\t%u\t%s\t%s\n",
 				       hfinfo->abbrev,
 				       VALUE_STRING_EXT_VS_NUM_ENTRIES(vse_p),
 				       VALUE_STRING_EXT_VS_NAME(vse_p),
@@ -8335,13 +8336,13 @@ proto_registrar_dump_values(void)
 			while (vals[vi].strptr) {
 				/* Print in the proper base */
 				if (hfinfo->display == BASE_HEX) {
-					printf("V\t%s\t0x%x\t%s\n",
+					ws_debug_printf("V\t%s\t0x%x\t%s\n",
 					       hfinfo->abbrev,
 					       vals[vi].value,
 					       vals[vi].strptr);
 				}
 				else {
-					printf("V\t%s\t%u\t%s\n",
+					ws_debug_printf("V\t%s\t%u\t%s\n",
 					       hfinfo->abbrev,
 					       vals[vi].value,
 					       vals[vi].strptr);
@@ -8352,7 +8353,7 @@ proto_registrar_dump_values(void)
 		else if (vals64) {
 			vi = 0;
 			while (vals64[vi].strptr) {
-				printf("V64\t%s\t%" G_GINT64_MODIFIER "u\t%s\n",
+				ws_debug_printf("V64\t%s\t%" G_GINT64_MODIFIER "u\t%s\n",
 				       hfinfo->abbrev,
 				       vals64[vi].value,
 				       vals64[vi].strptr);
@@ -8366,14 +8367,14 @@ proto_registrar_dump_values(void)
 			while (range[vi].strptr) {
 				/* Print in the proper base */
 				if ((hfinfo->display & FIELD_DISPLAY_E_MASK) == BASE_HEX) {
-					printf("R\t%s\t0x%x\t0x%x\t%s\n",
+					ws_debug_printf("R\t%s\t0x%x\t0x%x\t%s\n",
 					       hfinfo->abbrev,
 					       range[vi].value_min,
 					       range[vi].value_max,
 					       range[vi].strptr);
 				}
 				else {
-					printf("R\t%s\t%u\t%u\t%s\n",
+					ws_debug_printf("R\t%s\t%u\t%u\t%s\n",
 					       hfinfo->abbrev,
 					       range[vi].value_min,
 					       range[vi].value_max,
@@ -8385,7 +8386,7 @@ proto_registrar_dump_values(void)
 
 		/* Print true/false strings? */
 		else if (tfs) {
-			printf("T\t%s\t%s\t%s\n", hfinfo->abbrev,
+			ws_debug_printf("T\t%s\t%s\t%s\n", hfinfo->abbrev,
 			       tfs->true_string, tfs->false_string);
 		}
 	}
@@ -8422,21 +8423,21 @@ proto_registrar_dump_fieldcount(void)
 			same_name_count++;
 	}
 
-	printf ("There are %u header fields registered, of which:\n"
+	ws_debug_printf("There are %u header fields registered, of which:\n"
 		"\t%u are deregistered\n"
 		"\t%u are protocols\n"
 		"\t%u have the same name as another field\n\n",
 		gpa_hfinfo.len, deregistered_count, protocol_count,
 		same_name_count);
 
-	printf ("%d fields were pre-allocated.\n%s", PROTO_PRE_ALLOC_HF_FIELDS_MEM,
+	ws_debug_printf("%d fields were pre-allocated.\n%s", PROTO_PRE_ALLOC_HF_FIELDS_MEM,
 		(gpa_hfinfo.allocated_len > PROTO_PRE_ALLOC_HF_FIELDS_MEM) ?
 		    "* * Please increase PROTO_PRE_ALLOC_HF_FIELDS_MEM (in epan/proto.c)! * *\n\n" :
 		    "\n");
 
-	printf ("The header field table consumes %u KiB of memory.\n",
+	ws_debug_printf("The header field table consumes %u KiB of memory.\n",
 		(unsigned int)(gpa_hfinfo.allocated_len * sizeof(header_field_info *) / 1024));
-	printf ("The fields themselves consume %u KiB of memory.\n",
+	ws_debug_printf("The fields themselves consume %u KiB of memory.\n",
 		(unsigned int)(gpa_hfinfo.len * sizeof(header_field_info) / 1024));
 
 	return (gpa_hfinfo.allocated_len > PROTO_PRE_ALLOC_HF_FIELDS_MEM);
@@ -8493,7 +8494,7 @@ proto_registrar_dump_fields(void)
 
 		/* format for protocols */
 		if (proto_registrar_is_protocol(i)) {
-			printf("P\t%s\t%s\n", hfinfo->name, hfinfo->abbrev);
+			ws_debug_printf("P\t%s\t%s\n", hfinfo->name, hfinfo->abbrev);
 		}
 		/* format for header fields */
 		else {
@@ -8564,7 +8565,7 @@ proto_registrar_dump_fields(void)
 			else if (strlen(blurb) == 0)
 				blurb = "\"\"";
 
-			printf("F\t%s\t%s\t%s\t%s\t%s\t0x%" G_GINT64_MODIFIER "x\t%s\n",
+			ws_debug_printf("F\t%s\t%s\t%s\t%s\t%s\t0x%" G_GINT64_MODIFIER "x\t%s\n",
 				hfinfo->name, hfinfo->abbrev, enum_name,
 				parent_hfinfo->abbrev, base_name,
 				hfinfo->bitmask, blurb);
@@ -8587,7 +8588,7 @@ proto_registrar_dump_ftypes(void)
 	int fte;
 
 	for (fte = 0; fte < FT_NUM_TYPES; fte++) {
-		printf("%s\t%s\n", ftype_name((ftenum_t)fte), ftype_pretty_name((ftenum_t)fte));
+		ws_debug_printf("%s\t%s\n", ftype_name((ftenum_t)fte), ftype_pretty_name((ftenum_t)fte));
 	}
 }
 

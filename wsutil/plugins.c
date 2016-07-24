@@ -40,6 +40,7 @@
 #include <wsutil/report_err.h>
 
 #include <wsutil/plugins.h>
+#include <wsutil/ws_printf.h> /* ws_debug_printf */
 
 /* linked list of all plugins */
 typedef struct _plugin {
@@ -372,7 +373,7 @@ print_plugin_description(const char *name, const char *version,
                          const char *description, const char *filename,
                          void *user_data _U_)
 {
-    printf("%s\t%s\t%s\t%s\n", name, version, description, filename);
+    ws_debug_printf("%s\t%s\t%s\t%s\n", name, version, description, filename);
 }
 
 void

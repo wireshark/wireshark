@@ -93,6 +93,14 @@ ws_snprintf(char *buffer, size_t size_of_buffer, const char * format, ...) {
     va_end(argptr);
 }
 
+/* This is intended to fool checkAPIs.pl for places that have "debugging"
+(using printf) usually wrapped in an #ifdef, but checkAPIs.pl isn't smart
+enough to figure that out.
+Dissectors should still try to use proto_tree_add_debug_text when the
+debugging context has a protocol tree.
+*/
+#define ws_debug_printf     printf
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

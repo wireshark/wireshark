@@ -294,6 +294,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/pint.h>
 #include <wsutil/report_err.h>
+#include <wsutil/ws_printf.h> /* ws_debug_printf */
 
 #include "packet-giop.h"
 #include "packet-ziop.h"
@@ -1344,8 +1345,8 @@ void register_giop_user_module(giop_sub_dissector_t *sub, const gchar *name, con
   /* So, passed module name should NOT exist in hash at this point.*/
 
 #if DEBUG
-  printf("giop:register_module: Adding Module %s to module hash \n", module);
-  printf("giop:register_module: Module sub dissector name is %s \n", name);
+  ws_debug_printf("giop:register_module: Adding Module %s to module hash \n", module);
+  ws_debug_printf("giop:register_module: Module sub dissector name is %s \n", name);
 #endif
 
   new_module_key = (struct giop_module_key *)wmem_alloc(wmem_epan_scope(), sizeof(struct giop_module_key));
@@ -1382,7 +1383,7 @@ static gint giop_hash_objkey_equal(gconstpointer v, gconstpointer w) {
   }
 
 #if DEBUG
-  printf("giop:giop_hash_objkey_equal: Objkey's DO NOT match");
+  ws_debug_printf("giop:giop_hash_objkey_equal: Objkey's DO NOT match");
 #endif
 
   return 0;                     /* found  differences */
@@ -1405,7 +1406,7 @@ static guint32 giop_hash_objkey_hash(gconstpointer v) {
    */
 
 #if DEBUG
-  printf("giop:hash_objkey: Key length = %u \n", key->objkey_len );
+  ws_debug_printf("giop:hash_objkey: Key length = %u \n", key->objkey_len );
 #endif
 
   for (i=0; i< key->objkey_len; i++) {
@@ -1453,7 +1454,7 @@ static void insert_in_objkey_hash(GHashTable *hash, const gchar *obj, guint32 le
 
 
 #if DEBUG
-  printf("giop: ******* Inserting Objkey with RepoID = %s and key length = %u into hash  \n",
+  ws_debug_printf("giop: ******* Inserting Objkey with RepoID = %s and key length = %u into hash  \n",
          objkey_val->repo_id, new_objkey_key->objkey_len);
 #endif
 
@@ -1656,13 +1657,13 @@ static gchar * get_repoid_from_objkey(GHashTable *hash, const guint8 *obj, guint
 
   if (objkey_val) {
 #if DEBUG
-    printf("Lookup of object key returns  RepoId = %s \n", objkey_val->repo_id );
+    ws_debug_printf("Lookup of object key returns  RepoId = %s \n", objkey_val->repo_id );
 #endif
     return objkey_val->repo_id; /* found  */
   }
 
 #if DEBUG
-  printf("FAILED Lookup of object key \n" );
+  ws_debug_printf("FAILED Lookup of object key \n" );
 #endif
 
   return NULL;                  /* not  found */
@@ -1734,7 +1735,7 @@ static void display_module_hash(gpointer key, gpointer val, gpointer user_data) 
   struct giop_module_val *mv = (struct giop_module_val *) val;
   struct giop_module_key *mk = (struct giop_module_key *) key;
 
-  printf("giop:module: Key = (%s) , Val = (%s) \n", mk->module, mv->subh->sub_name);
+  ws_debug_printf("giop:module: Key = (%s) , Val = (%s) \n", mk->module, mv->subh->sub_name);
 
   return;
 
@@ -1749,7 +1750,7 @@ static void display_complete_reply_hash(gpointer key, gpointer val, gpointer use
   struct complete_reply_hash_val *mv = (struct complete_reply_hash_val *) val;
   struct complete_reply_hash_key *mk = (struct complete_reply_hash_key *) key;
 
-  printf("giop:complete_reply: FN (key) = %8u , MFN (val) = %8u \n", mk->fn, mv->mfn);
+  ws_debug_printf("giop:complete_reply: FN (key) = %8u , MFN (val) = %8u \n", mk->fn, mv->mfn);
 
   return;
 
@@ -1766,10 +1767,10 @@ static void display_objkey_hash(gpointer key, gpointer val, gpointer user_data) 
   struct giop_object_key *mk = (struct giop_object_key *) key;
 
 
-  printf("giop:objkey: Key->objkey_len = %u,  Key->objkey ",  mk->objkey_len);
+  ws_debug_printf("giop:objkey: Key->objkey_len = %u,  Key->objkey ",  mk->objkey_len);
 
   for (i=0; i<mk->objkey_len; i++) {
-    printf("%.2x ", mk->objkey[i]);
+    ws_debug_printf("%.2x ", mk->objkey[i]);
   }
 
   /*
@@ -1777,10 +1778,10 @@ static void display_objkey_hash(gpointer key, gpointer val, gpointer user_data) 
    */
 
   if (mv->src == 0) {
-    printf(", Repo ID = %s \n", mv->repo_id);
+    ws_debug_printf(", Repo ID = %s \n", mv->repo_id);
   }
   else {
-    printf(", Repo ID = %s , (file) \n", mv->repo_id);
+    ws_debug_printf(", Repo ID = %s , (file) \n", mv->repo_id);
   }
 
   return;
@@ -1804,7 +1805,7 @@ static void display_heuristic_user_list() {
 
   for (i=0; i<len; i++) {
     subh = ( giop_sub_handle_t *) g_slist_nth_data(giop_sub_list, i); /* grab entry */
-    printf("giop:heuristic_user: Element = %i, Val (user) = %s \n", i, subh->sub_name);
+    ws_debug_printf("giop:heuristic_user: Element = %i, Val (user) = %s \n", i, subh->sub_name);
   }
 
 }
@@ -1826,7 +1827,7 @@ static void display_complete_request_list() {
 
   for (i=0; i<len; i++) {
     entry = (comp_req_list_entry_t *) g_list_nth_data(giop_complete_request_list, i); /* grab entry */
-    printf("giop:Index = %8i , FN = %8i, reqid = %8u , operation = %20s , repoid = %30s \n", i, entry->fn,
+    ws_debug_printf("giop:Index = %8i , FN = %8i, reqid = %8u , operation = %20s , repoid = %30s \n", i, entry->fn,
            entry->reqid, entry->operation, entry->repoid);
   }
 
@@ -1845,73 +1846,73 @@ static void giop_dump_collection(collection_data_t collection_type) {
 
   switch (collection_type) {
   case cd_heuristic_users:
-    printf("+----------------------------------------------+ \n");
-    printf("+-------------- Heuristic User (Begin) --------+ \n");
-    printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+-------------- Heuristic User (Begin) --------+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n");
 
     display_heuristic_user_list();
 
-    printf("+----------------------------------------------+ \n");
-    printf("+-------------- Heuristic User (End) ----------+ \n");
-    printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+-------------- Heuristic User (End) ----------+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n");
 
     break;
 
   case cd_complete_request_list:
-    printf("+----------------------------------------------+ \n");
-    printf("+------------- Complete Request List (Begin) --+ \n");
-    printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+------------- Complete Request List (Begin) --+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n");
 
     display_complete_request_list();
 
-    printf("+----------------------------------------------+ \n");
-    printf("+------------ Complete Request List (End) -----+ \n");
-    printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+------------ Complete Request List (End) -----+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n");
 
     break;
 
   case cd_module_hash:
-    printf("+----------------------------------------------+ \n");
-    printf("+-------------- Module (Begin) ----------------+ \n");
-    printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+-------------- Module (Begin) ----------------+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n");
 
     g_hash_table_foreach(giop_module_hash, display_module_hash, NULL);
 
-    printf("+----------------------------------------------+ \n");
-    printf("+-------------- Module ( End) -----------------+ \n");
-    printf("+----------------------------------------------+ \n\n");
+    ws_debug_printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+-------------- Module ( End) -----------------+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n\n");
 
     break;
 
   case cd_objkey_hash:
-    printf("+----------------------------------------------+ \n");
-    printf("+-------------- Objkey (Begin) ----------------+ \n");
-    printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+-------------- Objkey (Begin) ----------------+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n");
 
     g_hash_table_foreach(giop_objkey_hash, display_objkey_hash, NULL);
 
-    printf("+----------------------------------------------+ \n");
-    printf("+-------------- Objkey (End) ------------------+ \n");
-    printf("+----------------------------------------------+ \n\n");
+    ws_debug_printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+-------------- Objkey (End) ------------------+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n\n");
 
     break;
 
   case cd_complete_reply_hash:
-    printf("+----------------------------------------------+ \n");
-    printf("+-------------- Complete_Reply_Hash (Begin) ---+ \n");
-    printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+-------------- Complete_Reply_Hash (Begin) ---+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n");
 
     g_hash_table_foreach(giop_complete_reply_hash, display_complete_reply_hash, NULL);
 
-    printf("+----------------------------------------------+ \n");
-    printf("+------------- Complete_Reply_Hash (End) ------+ \n");
-    printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n");
+    ws_debug_printf("+------------- Complete_Reply_Hash (End) ------+ \n");
+    ws_debug_printf("+----------------------------------------------+ \n");
 
     break;
 
   default:
 
-    printf("giop: giop_dump_collection: Unknown type   \n");
+    ws_debug_printf("giop: giop_dump_collection: Unknown type   \n");
 
   }
 
@@ -2035,7 +2036,7 @@ static gboolean try_explicit_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, p
 
     if (tvb_offset_exists(tvb, *offset)) {
 #if DEBUG
-      printf("giop:try_explicit_dissector calling sub = %s with module = (%s) \n", subdiss->sub_name  , modname);
+      ws_debug_printf("giop:try_explicit_dissector calling sub = %s with module = (%s) \n", subdiss->sub_name  , modname);
 #endif
 
       if (proto_is_protocol_enabled(subdiss->sub_proto)) {
@@ -2948,7 +2949,7 @@ void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, gchar **
    */
 
 #if DEBUG
-    printf("giop:get_CDR_fixed() called , digits = %u, scale = %u \n", digits, scale);
+    ws_debug_printf("giop:get_CDR_fixed() called , digits = %u, scale = %u \n", digits, scale);
 #endif
 
   if (scale <0) {
@@ -2958,7 +2959,7 @@ void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, gchar **
   }
 
 #if DEBUG
-    printf("giop:get_CDR_fixed(): slen =  %.2x \n", slen);
+    ws_debug_printf("giop:get_CDR_fixed(): slen =  %.2x \n", slen);
 #endif
 
   tmpbuf = (gchar *)wmem_alloc0(wmem_packet_scope(), slen);     /* allocate temp buffer */
@@ -2968,7 +2969,7 @@ void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, gchar **
   if (!(digits & 0x01)) {
     tval = get_CDR_octet(tvb, offset);
 #if DEBUG
-    printf("giop:get_CDR_fixed():even: octet = %.2x \n", tval);
+    ws_debug_printf("giop:get_CDR_fixed():even: octet = %.2x \n", tval);
 #endif
     tmpbuf[sindex] = (tval & 0x0f) + 0x30; /* convert top nibble to ascii */
     sindex++;
@@ -2983,7 +2984,7 @@ void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, gchar **
     for (i=0; i< ((digits-1)/2 ); i++) {
       tval = get_CDR_octet(tvb, offset);
 #if DEBUG
-      printf("giop:get_CDR_fixed():odd: octet = %.2x \n", tval);
+      v("giop:get_CDR_fixed():odd: octet = %.2x \n", tval);
 #endif
 
       tmpbuf[sindex] = ((tval & 0xf0) >> 4) + 0x30; /* convert top nibble to ascii */
@@ -2995,7 +2996,7 @@ void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, gchar **
   } /* digits > 3 */
 
 #if DEBUG
-    printf("giop:get_CDR_fixed(): before last digit \n");
+    ws_debug_printf("giop:get_CDR_fixed(): before last digit \n");
 #endif
 
 
@@ -3003,7 +3004,7 @@ void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, gchar **
 
     tval = get_CDR_octet(tvb, offset);
 #if DEBUG
-    printf("giop:get_CDR_fixed(): octet = %.2x \n", tval);
+    ws_debug_printf("giop:get_CDR_fixed(): octet = %.2x \n", tval);
 #endif
     tmpbuf[sindex] = (( tval & 0xf0)>> 4) + 0x30; /* convert top nibble to ascii */
     sindex++;
@@ -3019,7 +3020,7 @@ void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, gchar **
     *seq = wmem_alloc0_array(wmem_packet_scope(), gchar, slen + 3); /* allocate temp buffer , including space for sign, decimal point and
                                                                      * \0 -- TODO check slen is reasonable first */
 #if DEBUG
-    printf("giop:get_CDR_fixed(): sign =  %.2x \n", sign);
+    ws_debug_printf("giop:get_CDR_fixed(): sign =  %.2x \n", sign);
 #endif
 
     switch (sign) {
@@ -3076,7 +3077,7 @@ void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, gchar **
     }
 
 #if DEBUG
-    printf("giop:get_CDR_fixed(): value = %s \n", *seq);
+    ws_debug_printf("giop:get_CDR_fixed(): value = %s \n", *seq);
 #endif
 
     return;

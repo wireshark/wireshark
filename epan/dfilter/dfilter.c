@@ -32,6 +32,8 @@
 #include "dfilter.h"
 #include "dfilter-macro.h"
 #include "scanner_lex.h"
+#include <wsutil/ws_printf.h> /* ws_debug_printf */
+
 
 #define DFILTER_TOKEN_ID_OFFSET	1
 
@@ -447,12 +449,12 @@ dfilter_dump(dfilter_t *df)
 	dfvm_dump(stdout, df);
 
 	if (df->deprecated && df->deprecated->len) {
-		printf("\nDeprecated tokens: ");
+		ws_debug_printf("\nDeprecated tokens: ");
 		for (i = 0; i < df->deprecated->len; i++) {
-			printf("%s\"%s\"", sep, (char *) g_ptr_array_index(df->deprecated, i));
+			ws_debug_printf("%s\"%s\"", sep, (char *) g_ptr_array_index(df->deprecated, i));
 			sep = ", ";
 		}
-		printf("\n");
+		ws_debug_printf("\n");
 	}
 }
 
