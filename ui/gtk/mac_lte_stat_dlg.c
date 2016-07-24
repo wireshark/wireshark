@@ -228,7 +228,7 @@ static void mac_lte_stat_reset(void *phs)
         display_name = cf_get_display_name(&cfile);
         g_snprintf(title, sizeof(title), "Wireshark: LTE MAC Traffic Statistics: %s (filter=\"%s\")",
                    display_name,
-                   strlen(mac_lte_stat->filter) ? mac_lte_stat->filter : "none");
+                   ((mac_lte_stat->filter != NULL) && (mac_lte_stat->filter[0] != 0)) ? mac_lte_stat->filter : "none");
         g_free(display_name);
         gtk_window_set_title(GTK_WINDOW(mac_lte_stat->mac_lte_stat_dlg_w), title);
     }
@@ -706,7 +706,7 @@ static void mac_lte_stat_draw(void *phs)
                display_name,
                number_of_ues,
                hs->common_stats.all_frames,
-               strlen(hs->filter) ? hs->filter : "none");
+               ((hs->filter != NULL) && (hs->filter[0] != 0)) ? hs->filter : "none");
     g_free(display_name);
     gtk_window_set_title(GTK_WINDOW(hs->mac_lte_stat_dlg_w), title);
 
