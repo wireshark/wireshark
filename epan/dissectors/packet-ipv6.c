@@ -2240,7 +2240,7 @@ ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         ipv6_pinfo->ipv6_tree = NULL;
     }
 
-    if (ip_try_dissect(try_heuristic_first, tvb, pinfo, tree, iph)) {
+    if (ip_try_dissect(try_heuristic_first, nxt, tvb, pinfo, tree, iph)) {
         return;
     }
 

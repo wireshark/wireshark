@@ -1963,7 +1963,7 @@ static const true_false_string flags_sf_set_evil = {
 };
 
 gboolean
-ip_try_dissect(gboolean heur_first, tvbuff_t *tvb, packet_info *pinfo,
+ip_try_dissect(gboolean heur_first, guint nxt, tvbuff_t *tvb, packet_info *pinfo,
                proto_tree *tree, ws_ip *iph)
 {
   heur_dtbl_entry_t *hdtbl_entry;
@@ -1973,7 +1973,7 @@ ip_try_dissect(gboolean heur_first, tvbuff_t *tvb, packet_info *pinfo,
     return TRUE;
   }
 
-  if (dissector_try_uint_new(ip_dissector_table, iph->ip_nxt, tvb, pinfo,
+  if (dissector_try_uint_new(ip_dissector_table, nxt, tvb, pinfo,
                              tree, TRUE, iph)) {
     return TRUE;
   }
@@ -2436,7 +2436,8 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
      even be labeled as an IP frame; ideally, if a frame being dissected
      throws an exception, it'll be labeled as a mangled frame of the
      type in question. */
-    if (!ip_try_dissect(try_heuristic_first, next_tvb, pinfo, parent_tree, iph)) {
+    if (!ip_try_dissect(try_heuristic_first, iph->ip_nxt, next_tvb, pinfo,
+                        parent_tree, iph)) {
       /* Unknown protocol */
       if (update_col_info) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)",
