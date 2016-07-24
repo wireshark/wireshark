@@ -1216,25 +1216,27 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree_add_item(frag_tree, hf_ipv6_fraghdr_ident, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    if ((frag_off != 0) || frag_flg) {
-        reassembled = ipv6_reassemble_do(&tvb, &offset, pinfo, frag_tree, iph->ip_len - 8,
-                                            frag_off, frag_flg, frag_ident, &show_data);
-        if (show_data) {
-            next_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_data_dissector(next_tvb, pinfo, tree);
-            return tvb_captured_length(tvb);
+    if (iph != NULL) {
+    	if ((frag_off != 0) || frag_flg) {
+            reassembled = ipv6_reassemble_do(&tvb, &offset, pinfo, frag_tree, iph->ip_len - 8,
+                                             frag_off, frag_flg, frag_ident, &show_data);
+            if (show_data) {
+                next_tvb = tvb_new_subset_remaining(tvb, offset);
+                call_data_dissector(next_tvb, pinfo, tree);
+                return tvb_captured_length(tvb);
+            }
+            if (reassembled) {
+                iph->ip_nxt = nxt;
+                next_tvb = tvb_new_subset_remaining(tvb, offset);
+                iph->ip_len = tvb_reported_length_remaining(next_tvb, 0);
+                ipv6_dissect_next(nxt, next_tvb, pinfo, tree, iph);
+                return tvb_captured_length(tvb);
+            }
         }
-        if (reassembled) {
-            iph->ip_nxt = nxt;
-            next_tvb = tvb_new_subset_remaining(tvb, offset);
-            iph->ip_len = tvb_reported_length_remaining(next_tvb, 0);
-            ipv6_dissect_next(nxt, next_tvb, pinfo, tree, iph);
-            return tvb_captured_length(tvb);
-        }
-    }
 
-    iph->ip_nxt = nxt;
-    iph->ip_len -= 8;
+        iph->ip_nxt = nxt;
+        iph->ip_len -= 8;
+    }
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     ipv6_dissect_next(nxt, next_tvb, pinfo, tree, iph);
     return tvb_captured_length(tvb);
@@ -1388,12 +1390,11 @@ dissect_opt_rtalert(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *
 */
 static gint
 dissect_opt_quickstart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
-                        struct opt_proto_item *opt_ti, guint8 opt_len, guint8 hlim)
+                        struct opt_proto_item *opt_ti, guint8 opt_len, ws_ip *iph)
 {
     proto_item *pi = proto_tree_get_parent(opt_tree);
     proto_item *ti;
     guint8 command, function, rate;
-    guint8 ttl_diff = 0;
     guint32 qs_ttl = 0;
 
     if (opt_len != 6) {
@@ -1412,12 +1413,17 @@ dissect_opt_quickstart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tre
         proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         proto_tree_add_item_ret_uint(opt_tree, hf_ipv6_opt_qs_ttl, tvb, offset, 1, ENC_BIG_ENDIAN, &qs_ttl);
-        ttl_diff = (hlim - qs_ttl) % 256;
-        ti = proto_tree_add_uint(opt_tree, hf_ipv6_opt_qs_ttl_diff, tvb, offset, 1, ttl_diff);
-        PROTO_ITEM_SET_GENERATED(ti);
-        proto_item_append_text(pi, ", %s, QS TTL %u, QS TTL diff %u",
+        proto_item_append_text(pi, ", %s, QS TTL %u",
                                val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"),
-                               qs_ttl, ttl_diff);
+                               qs_ttl);
+        if (iph != NULL) {
+            guint8 ttl_diff;
+
+            ttl_diff = (iph->ip_ttl - qs_ttl) % 256;
+            ti = proto_tree_add_uint(opt_tree, hf_ipv6_opt_qs_ttl_diff, tvb, offset, 1, ttl_diff);
+            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_append_text(pi, ", QS TTL diff %u", ttl_diff);
+        }
         offset += 1;
         proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_nonce, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1778,7 +1784,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
             offset = dissect_opt_rtalert(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_QUICKSTART:
-            offset = dissect_opt_quickstart(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len, iph->ip_ttl);
+            offset = dissect_opt_quickstart(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len, iph);
             break;
         case IP6OPT_CALIPSO:
             offset = dissect_opt_calipso(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
@@ -1826,8 +1832,10 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
         }
     }
 
-    iph->ip_nxt = nxt;
-    iph->ip_len -= len;
+    if (iph != NULL) {
+        iph->ip_nxt = nxt;
+        iph->ip_len -= len;
+    }
     next_tvb = tvb_new_subset_remaining(tvb, len);
     ipv6_dissect_next(nxt, next_tvb, pinfo, tree, iph);
     return tvb_captured_length(tvb);
