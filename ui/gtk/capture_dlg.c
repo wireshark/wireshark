@@ -2533,7 +2533,7 @@ static GtkWidget *build_extcap_options(const gchar *name, GHashTable *hash) {
 #if GTK_CHECK_VERSION(3, 0, 0)
       ret_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 3);
 #else
-      ret_box = gtk_vbox_new(FALSE, 3);
+      ret_box = ws_gtk_vbox_new(FALSE, 3);
 #endif
       widget_list = extcap_populate_gtk_vbox((GList *) elem->data, ret_box, hash);
       g_object_set_data(G_OBJECT(ret_box), EXTCAP_GTK_DATA_KEY_WIDGETLIST, widget_list);

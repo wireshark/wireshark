@@ -29,6 +29,7 @@
 #include <wsutil/filesystem.h>
 
 #include "extcap_gtk.h"
+#include "ui/gtk/old-gtk-compat.h"
 
 #include "log.h"
 

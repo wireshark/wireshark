@@ -68,6 +68,10 @@
 #endif
 
 #if !GTK_CHECK_VERSION (2, 22, 0)
+/* Make checkAPIs.pl happy by providing "Wireshark" macros for
+ * GTK APIs that have been deprecated
+ */
+#define ws_gdk_cairo_set_source_pixmap gdk_cairo_set_source_pixmap
 #endif
 
 #if !GTK_CHECK_VERSION (2, 24, 0)
@@ -79,6 +83,10 @@
 #	define gtk_combo_box_text_remove(x,y) gtk_combo_box_remove_text(x,y)
 #	define gtk_combo_box_text_new_with_entry() gtk_combo_box_entry_new_text()
 #	define gtk_combo_box_text_prepend_text(x,y) gtk_combo_box_prepend_text(x,y)
+/* Make checkAPIs.pl happy by providing "Wireshark" macros for
+ * GTK APIs that have been deprecated
+ */
+#define ws_gdk_drawable_get_size gdk_drawable_get_size
 #endif
 
 #if !GTK_CHECK_VERSION (3, 0, 0)
@@ -100,6 +108,13 @@
 #	else
 #		define gtk_tree_view_column_get_button(x) x->button
 #	endif
+
+/* Make checkAPIs.pl happy by providing "Wireshark" macros for
+ * GTK APIs that have been deprecated
+ */
+#define ws_gtk_hbox_new gtk_hbox_new
+#define ws_gtk_vbox_new gtk_vbox_new
+#define ws_gtk_hbutton_box_new gtk_hbutton_box_new
 #endif
 
 #endif

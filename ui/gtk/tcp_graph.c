@@ -1862,7 +1862,7 @@ static void graph_title_pixmap_display(struct gtk_graph *g)
 #if GTK_CHECK_VERSION(2,22,0)
     cairo_set_source_surface(cr, g->title_surface, g->wp.x, 0);
 #else
-    gdk_cairo_set_source_pixmap(cr, g->title_pixmap, g->wp.x, 0);
+    ws_gdk_cairo_set_source_pixmap(cr, g->title_pixmap, g->wp.x, 0);
 #endif
     cairo_rectangle(cr, g->wp.x, 0, g->x_axis->p.width, g->wp.y);
     cairo_fill(cr);
@@ -1926,7 +1926,7 @@ static void graph_pixmap_display(struct gtk_graph *g)
 #if GTK_CHECK_VERSION(2,22,0)
     cairo_set_source_surface(cr, g->surface[g->displayed], g->wp.x, g->wp.y);
 #else
-    gdk_cairo_set_source_pixmap(cr, g->pixmap[g->displayed], g->wp.x, g->wp.y);
+    ws_gdk_cairo_set_source_pixmap(cr, g->pixmap[g->displayed], g->wp.x, g->wp.y);
 #endif /* GTK_CHECK_VERSION(2,22,0) */
     cairo_rectangle(cr, g->wp.x, g->wp.y, g->wp.width, g->wp.height);
     cairo_fill(cr);
@@ -2344,7 +2344,7 @@ static void axis_pixmap_display(struct axis *axis)
 #if GTK_CHECK_VERSION(2,22,0)
     cairo_set_source_surface(cr, axis->surface[axis->displayed], axis->p.x, axis->p.y);
 #else
-    gdk_cairo_set_source_pixmap(cr, axis->pixmap[axis->displayed], axis->p.x, axis->p.y);
+    ws_gdk_cairo_set_source_pixmap(cr, axis->pixmap[axis->displayed], axis->p.x, axis->p.y);
 #endif
     cairo_rectangle(cr, axis->p.x, axis->p.y, axis->p.width, axis->p.height);
     cairo_fill(cr);
