@@ -572,7 +572,6 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data)
     proto_item      *ti, *ti_len;
     guint8           tmp[5];
     tvbuff_t        *next_tvb;
-    ws_ip           *iph = (ws_ip *)data;
 
     tvb_memcpy(tvb, (guint8 *)&shim, offset, sizeof(shim));
     len = (shim.ip6s_len + 1) << 3;
@@ -589,6 +588,7 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data)
     if (pinfo->dst.type == AT_IPv6) {
         ipv6_pinfo_t *ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
 
+        ipv6_pinfo->frag_plen -= len;
         if (ipv6_pinfo->ipv6_tree != NULL) {
             root_tree = ipv6_pinfo->ipv6_tree;
             ipv6_pinfo->ipv6_item_len += len;
@@ -663,12 +663,8 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data)
         }
     }
 
-    if (iph != NULL) {
-        iph->ip_nxt = shim.ip6s_nxt;
-        iph->ip_len -= len;
-    }
     next_tvb = tvb_new_subset_remaining(tvb, len);
-    ipv6_dissect_next(shim.ip6s_nxt, next_tvb, pinfo, tree, iph);
+    ipv6_dissect_next(shim.ip6s_nxt, next_tvb, pinfo, tree, (ws_ip *)data);
     return tvb_captured_length(tvb);
 }
 

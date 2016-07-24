@@ -1099,7 +1099,6 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   tvbuff_t   *next_tvb;
   dissector_handle_t dissector_handle;
   guint32 saved_match_uint;
-  ws_ip *iph = (ws_ip *)data;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AH");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1113,6 +1112,7 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   if (pinfo->dst.type == AT_IPv6) {
     ipv6_pinfo_t *ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
 
+    ipv6_pinfo->frag_plen -= ah_hdr_len;
     if (ipv6_pinfo->ipv6_tree != NULL) {
       root_tree = ipv6_pinfo->ipv6_tree;
       ipv6_pinfo->ipv6_item_len += ah_hdr_len;
@@ -1137,13 +1137,8 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
   next_tvb = tvb_new_subset_remaining(tvb, ah_hdr_len);
 
-  if (iph != NULL) {
-      iph->ip_nxt = ah_nxt;
-      iph->ip_len -= ah_hdr_len;
-  }
-
   if (pinfo->dst.type == AT_IPv6) {
-    ipv6_dissect_next(ah_nxt, next_tvb, pinfo, tree, iph);
+    ipv6_dissect_next(ah_nxt, next_tvb, pinfo, tree, (ws_ip *)data);
   } else {
     /* do lookup with the subdissector table */
     saved_match_uint  = pinfo->match_uint;

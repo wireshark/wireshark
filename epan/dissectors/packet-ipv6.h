@@ -106,6 +106,7 @@ extern "C" {
 typedef struct {
     guint32     jumbo_plen;
     guint16     ip6_plen;
+    gint        frag_plen;
     proto_tree *ipv6_tree;
     gint        ipv6_item_len;
 } ipv6_pinfo_t;

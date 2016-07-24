@@ -1097,7 +1097,6 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     int                offset = 0;
     tvbuff_t          *next_tvb;
     ipv6_pinfo_t      *ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
-    ws_ip             *iph = (ws_ip *)data;
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, " , ", "IPv6 routing");
 
@@ -1105,6 +1104,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     len = (rt.ip6r_len + 1) << 3;
 
     root_tree = tree;
+    ipv6_pinfo->frag_plen -= len;
     if (ipv6_pinfo->ipv6_tree != NULL) {
         root_tree = ipv6_pinfo->ipv6_tree;
         ipv6_pinfo->ipv6_item_len += len;
@@ -1152,12 +1152,8 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         break;
     }
 
-    if (iph != NULL) {
-        iph->ip_nxt = rt.ip6r_nxt;
-        iph->ip_len -= len;
-    }
     next_tvb = tvb_new_subset_remaining(tvb, len);
-    ipv6_dissect_next(rt.ip6r_nxt, next_tvb, pinfo, tree, iph);
+    ipv6_dissect_next(rt.ip6r_nxt, next_tvb, pinfo, tree, (ws_ip *)data);
     return tvb_captured_length(tvb);
 }
 
@@ -1175,7 +1171,6 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     gboolean         show_data = FALSE;
     gboolean         reassembled;
     tvbuff_t        *next_tvb;
-    ws_ip           *iph = (ws_ip *)data;
 
     nxt = tvb_get_guint8(tvb, offset);
     offlg = tvb_get_ntohs(tvb, offset + 2);
@@ -1186,6 +1181,7 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         frag_off, frag_flg ? "y" : "n", frag_ident, nxt);
 
     root_tree = tree;
+    ipv6_pinfo->frag_plen -= 8;
     if (ipv6_pinfo->ipv6_tree != NULL) {
         root_tree = ipv6_pinfo->ipv6_tree;
         ipv6_pinfo->ipv6_item_len += 8;
@@ -1216,9 +1212,9 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree_add_item(frag_tree, hf_ipv6_fraghdr_ident, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    if (iph != NULL) {
+    if (ipv6_pinfo->frag_plen > 0) {
         if ((frag_off != 0) || frag_flg) {
-            reassembled = ipv6_reassemble_do(&tvb, &offset, pinfo, frag_tree, iph->ip_len - 8,
+            reassembled = ipv6_reassemble_do(&tvb, &offset, pinfo, frag_tree, ipv6_pinfo->frag_plen,
                                              frag_off, frag_flg, frag_ident, &show_data);
             if (show_data) {
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -1226,19 +1222,16 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 return tvb_captured_length(tvb);
             }
             if (reassembled) {
-                iph->ip_nxt = nxt;
+                ipv6_pinfo->frag_plen = 0;
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
-                iph->ip_len = tvb_reported_length_remaining(next_tvb, 0);
-                ipv6_dissect_next(nxt, next_tvb, pinfo, tree, iph);
+                ipv6_dissect_next(nxt, next_tvb, pinfo, tree, (ws_ip *)data);
                 return tvb_captured_length(tvb);
             }
         }
-
-        iph->ip_nxt = nxt;
-        iph->ip_len -= 8;
     }
+
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    ipv6_dissect_next(nxt, next_tvb, pinfo, tree, iph);
+    ipv6_dissect_next(nxt, next_tvb, pinfo, tree, (ws_ip *)data);
     return tvb_captured_length(tvb);
 }
 
@@ -1687,6 +1680,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
     offset_end = offset + len;
 
     root_tree = tree;
+    ipv6_pinfo->frag_plen -= len;
     if (ipv6_pinfo->ipv6_tree != NULL) {
         root_tree = ipv6_pinfo->ipv6_tree;
         ipv6_pinfo->ipv6_item_len += len;
@@ -1832,10 +1826,6 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
         }
     }
 
-    if (iph != NULL) {
-        iph->ip_nxt = nxt;
-        iph->ip_len -= len;
-    }
     next_tvb = tvb_new_subset_remaining(tvb, len);
     ipv6_dissect_next(nxt, next_tvb, pinfo, tree, iph);
     return tvb_captured_length(tvb);
@@ -2184,6 +2174,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     ipv6_pinfo->jumbo_plen = 0;
     ipv6_pinfo->ip6_plen = g_ntohs(ipv6->ip6_plen);
+    ipv6_pinfo->frag_plen = ipv6_pinfo->ip6_plen;
     if (!ipv6_exthdr_under_root) {
         ipv6_pinfo->ipv6_tree = ipv6_tree;
         ipv6_pinfo->ipv6_item_len = IPv6_HDR_SIZE;

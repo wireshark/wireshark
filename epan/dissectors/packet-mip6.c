@@ -4067,7 +4067,6 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint       len, offset = 0, start_offset = offset;
     proto_item *ti, *header_item;
     tvbuff_t   *next_tvb;
-    ws_ip      *iph = (ws_ip *)data;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MIPv6");
@@ -4080,6 +4079,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (pinfo->dst.type == AT_IPv6) {
         ipv6_pinfo_t *ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
 
+        ipv6_pinfo->frag_plen -= len;
         if (ipv6_pinfo->ipv6_tree != NULL) {
             root_tree = ipv6_pinfo->ipv6_tree;
             ipv6_pinfo->ipv6_item_len += len;
@@ -4215,31 +4215,16 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         dissect_mip6_options(tvb, mip6_tree, offset, len, pinfo);
     }
 
-    /*
-     * XXX - why are we doing this?  We're not guaranteed that there's
-     * a ws_ip structure to modify here, as we can be called not only
-     * from the IPv4 or IPv6 dissectors, but also from, for example,
-     * the AH and ESP dissectors.
-     *
-     * This needs to be rethought.
-     */
-    if (iph != NULL)
-        iph->ip_nxt = pproto;
-
     if ((type == MIP6_FNA) && (pproto == IP_PROTO_IPV6)) {
         col_set_str(pinfo->cinfo, COL_INFO, "Fast Neighbor Advertisement[Fast Binding Update]");
         next_tvb = tvb_new_subset_remaining(tvb, len + 8);
-        if (iph != NULL)
-            iph->ip_len -= len + 8;
-        ipv6_dissect_next(pproto, next_tvb, pinfo, tree, iph);
+        ipv6_dissect_next(pproto, next_tvb, pinfo, tree, (ws_ip *)data);
     }
 
     if ((type == MIP6_FBACK) && (pproto == IP_PROTO_AH)) {
         col_set_str(pinfo->cinfo, COL_INFO, "Fast Binding Acknowledgment");
         next_tvb = tvb_new_subset_remaining(tvb, len + offset);
-        if (iph != NULL)
-            iph->ip_len -= len + offset;
-        ipv6_dissect_next(pproto, next_tvb, pinfo, tree, iph);
+        ipv6_dissect_next(pproto, next_tvb, pinfo, tree, (ws_ip *)data);
     }
 
     return tvb_captured_length(tvb);
