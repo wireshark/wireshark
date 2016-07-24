@@ -59,7 +59,7 @@
 #define ZVT_APDU_MIN_LEN 3
 
 
-static GHashTable *apdu_table = NULL;
+static GHashTable *apdu_table = NULL, *bitmap_table = NULL;
 
 static wmem_tree_t *transactions = NULL;
 
@@ -126,6 +126,51 @@ static const apdu_info_t apdu_info[] = {
     { CTRL_PRINT_LINE,    0, DIRECTION_PT_TO_ECR, NULL }
 };
 
+
+typedef struct _bitmap_info_t {
+    guint8   bmp;
+    guint16  payload_len;
+    gint (*dissect_payload)(tvbuff_t *, gint, packet_info *, proto_tree *);
+} bitmap_info_t;
+
+#define BMP_TIMEOUT       0x01
+#define BMP_MAX_STAT_INFO 0x02
+#define BMP_AMOUNT        0x04
+#define BMP_PUMP_NR       0x05
+#define BMP_TLV_CONTAINER 0x06
+#define BMP_EXP_DATE      0x0E
+#define BMP_PAYMENT_TYPE  0x19
+#define BMP_CARD_NUM      0x22
+#define BMP_T2_DAT        0x23
+#define BMP_T3_DAT        0x24
+#define BMP_T1_DAT        0x2D
+#define BMP_CVV_CVC       0x3A
+#define BMP_ADD_DATA      0x3C
+#define BMP_CC            0x49
+
+#define BMP_PLD_LEN_UNKNOWN 0  /* unknown/variable bitmap payload len */
+
+static gint dissect_zvt_tlv_container(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
+
+static const bitmap_info_t bitmap_info[] = {
+    { BMP_TIMEOUT,                         1, NULL },
+    { BMP_MAX_STAT_INFO,                   1, NULL },
+    { BMP_AMOUNT,                          6, NULL },
+    { BMP_PUMP_NR,                         1, NULL },
+    { BMP_TLV_CONTAINER, BMP_PLD_LEN_UNKNOWN, dissect_zvt_tlv_container },
+    { BMP_EXP_DATE,                        2, NULL },
+    { BMP_PAYMENT_TYPE,                    1, NULL },
+    { BMP_CARD_NUM,      BMP_PLD_LEN_UNKNOWN, NULL },
+    { BMP_T2_DAT,        BMP_PLD_LEN_UNKNOWN, NULL },
+    { BMP_T3_DAT,        BMP_PLD_LEN_UNKNOWN, NULL },
+    { BMP_T1_DAT,        BMP_PLD_LEN_UNKNOWN, NULL },
+    { BMP_CVV_CVC,                         2, NULL },
+    { BMP_ADD_DATA,      BMP_PLD_LEN_UNKNOWN, NULL },
+    { BMP_CC,                              2, NULL }
+};
+
+
 void proto_register_zvt(void);
 void proto_reg_handoff_zvt(void);
 
@@ -137,6 +182,7 @@ static int proto_zvt = -1;
 
 static int ett_zvt = -1;
 static int ett_zvt_apdu = -1;
+static int ett_zvt_bitmap = -1;
 static int ett_zvt_tlv_dat_obj = -1;
 static int ett_zvt_tlv_tag = -1;
 
@@ -188,21 +234,6 @@ static const value_string ctrl_field[] = {
     { 0, NULL }
 };
 static value_string_ext ctrl_field_ext = VALUE_STRING_EXT_INIT(ctrl_field);
-
-#define BMP_TIMEOUT       0x01
-#define BMP_MAX_STAT_INFO 0x02
-#define BMP_AMOUNT        0x04
-#define BMP_PUMP_NR       0x05
-#define BMP_TLV_CONTAINER 0x06
-#define BMP_EXP_DATE      0x0E
-#define BMP_PAYMENT_TYPE  0x19
-#define BMP_CARD_NUM      0x22
-#define BMP_T2_DAT        0x23
-#define BMP_T3_DAT        0x24
-#define BMP_T1_DAT        0x2D
-#define BMP_CVV_CVC       0x3A
-#define BMP_ADD_DATA      0x3C
-#define BMP_CC            0x49
 
 static const value_string bitmap[] = {
     { BMP_TIMEOUT,       "Timeout" },
@@ -363,9 +394,12 @@ static gint
 dissect_zvt_bitmap(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree)
 {
-    gint    offset_start;
-    guint8  bmp;
-    gint    ret;
+    gint           offset_start;
+    guint8         bmp;
+    proto_item    *bitmap_it;
+    proto_tree    *bitmap_tree;
+    bitmap_info_t *bi;
+    gint           ret;
 
     offset_start = offset;
 
@@ -373,60 +407,31 @@ dissect_zvt_bitmap(tvbuff_t *tvb, gint offset,
     if (try_val_to_str(bmp, bitmap) == NULL)
         return -1;
 
-    proto_tree_add_item(tree, hf_zvt_bmp, tvb, offset, 1, ENC_BIG_ENDIAN);
+    bitmap_tree = proto_tree_add_subtree(tree,
+            tvb, offset, -1, ett_zvt_bitmap, &bitmap_it, "Bitmap");
+
+    proto_tree_add_item(bitmap_tree, hf_zvt_bmp,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_item_append_text(bitmap_it, ": %s",
+            val_to_str(bmp, bitmap, "unknown"));
     offset++;
 
-    switch (bmp) {
-        case BMP_TIMEOUT:
-            offset++;
-            break;
-        case BMP_MAX_STAT_INFO:
-            offset++;
-            break;
-        case BMP_AMOUNT:
-            offset += 6;
-            break;
-        case BMP_PUMP_NR:
-            offset++;
-            break;
-        case BMP_EXP_DATE:
-            offset += 2;
-            break;
-        case BMP_PAYMENT_TYPE:
-            offset++;
-            break;
-        case BMP_CVV_CVC:
-            offset += 2;
-            break;
-        case BMP_CC:
-            offset += 2;
-            break;
-        case BMP_TLV_CONTAINER:
-            ret = dissect_zvt_tlv_container(tvb, offset, pinfo, tree);
-            if (ret<0)
-                return -1;
+    bi = (bitmap_info_t *)g_hash_table_lookup(
+            bitmap_table, GUINT_TO_POINTER((guint)bmp));
+    if (bi) {
+        if (bi->dissect_payload) {
+            ret = bi->dissect_payload(tvb, offset, pinfo, bitmap_tree);
+            if (ret >= 0)
+                offset += ret;
+        }
+        else if (bi->payload_len != BMP_PLD_LEN_UNKNOWN)
+            offset += bi->payload_len;
+    }
 
-            offset += ret;
-            break;
-
-        case BMP_CARD_NUM:
-        case BMP_T2_DAT:
-        case BMP_T3_DAT:
-        case BMP_T1_DAT:
-        case BMP_ADD_DATA:
-            /* the bitmaps are not TLV but only TV, there's no length field
-               the tags listed above have variable length
-               -> if we see one of those tags, we have to stop the
-               dissection and report an error to the caller */
-            return -1;
-
-        default:
-            g_assert_not_reached();
-            break;
-    };
-
+    proto_item_set_len(bitmap_it, offset - offset_start);
     return offset - offset_start;
 }
+
 
 static void
 dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len _U_,
@@ -802,6 +807,7 @@ proto_register_zvt(void)
     static gint *ett[] = {
         &ett_zvt,
         &ett_zvt_apdu,
+        &ett_zvt_bitmap,
         &ett_zvt_tlv_dat_obj,
         &ett_zvt_tlv_tag
     };
@@ -880,6 +886,13 @@ proto_register_zvt(void)
         g_hash_table_insert(apdu_table,
                             GUINT_TO_POINTER((guint)apdu_info[i].ctrl),
                             (gpointer)(&apdu_info[i]));
+    }
+
+    bitmap_table = g_hash_table_new(g_direct_hash, g_direct_equal);
+    for(i=0; i<array_length(bitmap_info); i++) {
+        g_hash_table_insert(bitmap_table,
+                            GUINT_TO_POINTER((guint)bitmap_info[i].bmp),
+                            (gpointer)(&bitmap_info[i]));
     }
 
     proto_zvt = proto_register_protocol(
