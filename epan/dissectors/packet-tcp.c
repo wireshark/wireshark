@@ -37,6 +37,7 @@
 #include <epan/dissector_filters.h>
 #include <epan/reassemble.h>
 #include <epan/decode_as.h>
+#include <epan/exported_pdu.h>
 #include <epan/in_cksum.h>
 #include <epan/proto_data.h>
 
@@ -55,6 +56,7 @@ void proto_reg_handoff_tcp(void);
 static int tcp_tap = -1;
 static int tcp_follow_tap = -1;
 static int mptcp_tap = -1;
+static int exported_pdu_tap = -1;
 
 /* Place TCP summary in proto tree */
 static gboolean tcp_summary_in_tree = TRUE;
@@ -808,6 +810,151 @@ gchar* tcp_follow_address_filter(address* src_addr, address* dst_addr, int src_p
                      ip_version, dst_addr_str, dst_port,
                      ip_version, src_addr_str, src_port);
 
+}
+
+#define EXP_PDU_TCP_INFO_DATA_LEN   19
+#define EXP_PDU_TCP_INFO_VERSION    1
+
+int exp_pdu_tcp_dissector_data_size(packet_info *pinfo _U_, void* data _U_)
+{
+    return EXP_PDU_TCP_INFO_DATA_LEN+4;
+}
+
+int exp_pdu_tcp_dissector_data_populate_data(packet_info *pinfo _U_, void* data, guint8 *tlv_buffer, guint32 buffer_size _U_)
+{
+    struct tcpinfo* dissector_data = (struct tcpinfo*)data;
+
+    tlv_buffer[0] = 0;
+    tlv_buffer[1] = EXP_PDU_TAG_TCP_INFO_DATA;
+    tlv_buffer[2] = 0;
+    tlv_buffer[3] = EXP_PDU_TCP_INFO_DATA_LEN; /* tag length */
+    tlv_buffer[4] = 0;
+    tlv_buffer[5] = EXP_PDU_TCP_INFO_VERSION;
+    tlv_buffer[6] = (dissector_data->seq & 0xff000000) >> 24;
+    tlv_buffer[7] = (dissector_data->seq & 0x00ff0000) >> 16;
+    tlv_buffer[8] = (dissector_data->seq & 0x0000ff00) >> 8;
+    tlv_buffer[9] = (dissector_data->seq & 0x000000ff);
+    tlv_buffer[10] = (dissector_data->nxtseq & 0xff000000) >> 24;
+    tlv_buffer[11] = (dissector_data->nxtseq & 0x00ff0000) >> 16;
+    tlv_buffer[12] = (dissector_data->nxtseq & 0x0000ff00) >> 8;
+    tlv_buffer[13] = (dissector_data->nxtseq & 0x000000ff);
+    tlv_buffer[14] = (dissector_data->lastackseq & 0xff000000) >> 24;
+    tlv_buffer[15] = (dissector_data->lastackseq & 0x00ff0000) >> 16;
+    tlv_buffer[16] = (dissector_data->lastackseq & 0x0000ff00) >> 8;
+    tlv_buffer[17] = (dissector_data->lastackseq & 0x000000ff);
+    tlv_buffer[18] = dissector_data->is_reassembled;
+    tlv_buffer[19] = (dissector_data->flags & 0xff00) >> 8;
+    tlv_buffer[20] = (dissector_data->flags & 0x00ff);
+    tlv_buffer[21] = (dissector_data->urgent_pointer & 0xff00) >> 8;
+    tlv_buffer[22] = (dissector_data->urgent_pointer & 0x00ff);
+
+    return exp_pdu_tcp_dissector_data_size(pinfo, data);
+}
+
+static void
+handle_export_pdu_dissection_table(packet_info *pinfo, tvbuff_t *tvb, guint32 port, struct tcpinfo *tcpinfo)
+{
+    if (have_tap_listener(exported_pdu_tap)) {
+        exp_pdu_data_item_t exp_pdu_data_table_value = {exp_pdu_data_dissector_table_num_value_size, exp_pdu_data_dissector_table_num_value_populate_data, NULL};
+        exp_pdu_data_item_t exp_pdu_data_dissector_data = {exp_pdu_tcp_dissector_data_size, exp_pdu_tcp_dissector_data_populate_data, NULL};
+        const exp_pdu_data_item_t *tcp_exp_pdu_items[] = {
+            &exp_pdu_data_src_ip,
+            &exp_pdu_data_dst_ip,
+            &exp_pdu_data_port_type,
+            &exp_pdu_data_src_port,
+            &exp_pdu_data_dst_port,
+            &exp_pdu_data_orig_frame_num,
+            &exp_pdu_data_table_value,
+            &exp_pdu_data_dissector_data,
+            NULL
+        };
+
+        exp_pdu_data_t *exp_pdu_data;
+
+        exp_pdu_data_table_value.data = GUINT_TO_POINTER(port);
+        exp_pdu_data_dissector_data.data = tcpinfo;
+
+        exp_pdu_data = export_pdu_create_tags(pinfo, "tcp.port", EXP_PDU_TAG_DISSECTOR_TABLE_NAME, tcp_exp_pdu_items);
+        exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+        exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
+        exp_pdu_data->pdu_tvb = tvb;
+
+        tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+    }
+}
+
+static void
+handle_export_pdu_heuristic(packet_info *pinfo, tvbuff_t *tvb, heur_dtbl_entry_t *hdtbl_entry, struct tcpinfo *tcpinfo)
+{
+    exp_pdu_data_t *exp_pdu_data = NULL;
+
+    if (have_tap_listener(exported_pdu_tap)) {
+        if ((!hdtbl_entry->enabled) ||
+            (hdtbl_entry->protocol != NULL && !proto_is_protocol_enabled(hdtbl_entry->protocol))) {
+            exp_pdu_data = export_pdu_create_common_tags(pinfo, "data", EXP_PDU_TAG_PROTO_NAME);
+        } else if (hdtbl_entry->protocol != NULL) {
+            exp_pdu_data_item_t exp_pdu_data_dissector_data = {exp_pdu_tcp_dissector_data_size, exp_pdu_tcp_dissector_data_populate_data, NULL};
+            const exp_pdu_data_item_t *tcp_exp_pdu_items[] = {
+                &exp_pdu_data_src_ip,
+                &exp_pdu_data_dst_ip,
+                &exp_pdu_data_port_type,
+                &exp_pdu_data_src_port,
+                &exp_pdu_data_dst_port,
+                &exp_pdu_data_orig_frame_num,
+                &exp_pdu_data_dissector_data,
+                NULL
+            };
+
+            exp_pdu_data_dissector_data.data = tcpinfo;
+
+            exp_pdu_data = export_pdu_create_tags(pinfo, hdtbl_entry->short_name, EXP_PDU_TAG_HEUR_PROTO_NAME, tcp_exp_pdu_items);
+        }
+
+        if (exp_pdu_data != NULL) {
+            exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+            exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
+            exp_pdu_data->pdu_tvb = tvb;
+
+            tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+        }
+    }
+}
+
+static void
+handle_export_pdu_conversation(packet_info *pinfo, tvbuff_t *tvb, int src_port, int dst_port, struct tcpinfo *tcpinfo)
+{
+    if (have_tap_listener(exported_pdu_tap)) {
+        conversation_t *conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, PT_TCP, src_port, dst_port, 0);
+        if (conversation != NULL)
+        {
+            dissector_handle_t handle = (dissector_handle_t)wmem_tree_lookup32_le(conversation->dissector_tree, pinfo->num);
+            if (handle != NULL)
+            {
+                exp_pdu_data_item_t exp_pdu_data_dissector_data = {exp_pdu_tcp_dissector_data_size, exp_pdu_tcp_dissector_data_populate_data, NULL};
+                const exp_pdu_data_item_t *tcp_exp_pdu_items[] = {
+                    &exp_pdu_data_src_ip,
+                    &exp_pdu_data_dst_ip,
+                    &exp_pdu_data_port_type,
+                    &exp_pdu_data_src_port,
+                    &exp_pdu_data_dst_port,
+                    &exp_pdu_data_orig_frame_num,
+                    &exp_pdu_data_dissector_data,
+                    NULL
+                };
+
+                exp_pdu_data_t *exp_pdu_data;
+
+                exp_pdu_data_dissector_data.data = tcpinfo;
+
+                exp_pdu_data = export_pdu_create_tags(pinfo, dissector_handle_get_dissector_name(handle), EXP_PDU_TAG_PROTO_NAME, tcp_exp_pdu_items);
+                exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+                exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
+                exp_pdu_data->pdu_tvb = tvb;
+
+                tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+            }
+        }
+    }
 }
 
 /* TCP structs and definitions */
@@ -4963,6 +5110,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     int save_desegment_offset;
     guint32 save_desegment_len;
     heur_dtbl_entry_t *hdtbl_entry;
+    exp_pdu_data_t *exp_pdu_data;
 
     /* Don't call subdissectors for keepalives.  Even though they do contain
      * payload "data", it's just garbage.  Display any data the keepalive
@@ -4994,6 +5142,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (try_conversation_dissector(&pinfo->src, &pinfo->dst, PT_TCP,
                                    src_port, dst_port, next_tvb, pinfo, tree, tcpinfo)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
+        handle_export_pdu_conversation(pinfo, next_tvb, src_port, dst_port, tcpinfo);
         return TRUE;
     }
 
@@ -5001,6 +5150,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         /* do lookup with the heuristic subdissector table */
         if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, tcpinfo)) {
             pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
+            handle_export_pdu_heuristic(pinfo, next_tvb, hdtbl_entry, tcpinfo);
             return TRUE;
         }
     }
@@ -5025,6 +5175,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (tcpd && tcpd->server_port != 0 &&
         dissector_try_uint_new(subdissector_table, tcpd->server_port, next_tvb, pinfo, tree, TRUE, tcpinfo)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
+        handle_export_pdu_dissection_table(pinfo, next_tvb, tcpd->server_port, tcpinfo);
         return TRUE;
     }
 
@@ -5039,11 +5190,13 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (low_port != 0 &&
         dissector_try_uint_new(subdissector_table, low_port, next_tvb, pinfo, tree, TRUE, tcpinfo)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
+        handle_export_pdu_dissection_table(pinfo, next_tvb, low_port, tcpinfo);
         return TRUE;
     }
     if (high_port != 0 &&
         dissector_try_uint_new(subdissector_table, high_port, next_tvb, pinfo, tree, TRUE, tcpinfo)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
+        handle_export_pdu_dissection_table(pinfo, next_tvb, high_port, tcpinfo);
         return TRUE;
     }
 
@@ -5051,6 +5204,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         /* do lookup with the heuristic subdissector table */
         if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, tcpinfo)) {
             pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
+            handle_export_pdu_heuristic(pinfo, next_tvb, hdtbl_entry, tcpinfo);
             return TRUE;
         }
     }
@@ -5069,6 +5223,14 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     call_dissector(data_handle,next_tvb, pinfo, tree);
 
     pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
+    if (have_tap_listener(exported_pdu_tap)) {
+        exp_pdu_data = export_pdu_create_common_tags(pinfo, "data", EXP_PDU_TAG_PROTO_NAME);
+        exp_pdu_data->tvb_captured_length = tvb_captured_length(next_tvb);
+        exp_pdu_data->tvb_reported_length = tvb_reported_length(next_tvb);
+        exp_pdu_data->pdu_tvb = next_tvb;
+
+        tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+    }
     return FALSE;
 }
 
@@ -7145,6 +7307,7 @@ proto_reg_handoff_tcp(void)
     register_capture_dissector("ip.proto", IP_PROTO_TCP, capture_tcp, proto_tcp);
 
     mptcp_tap = register_tap("mptcp");
+    exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_4);
 }
 
 /*

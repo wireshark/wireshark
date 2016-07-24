@@ -41,6 +41,7 @@ extern "C" {
  * if all taps are run.
  */
 #define EXPORT_PDU_TAP_NAME_LAYER_3 "OSI layer 3"
+#define EXPORT_PDU_TAP_NAME_LAYER_4 "OSI layer 4"
 #define EXPORT_PDU_TAP_NAME_LAYER_7 "OSI layer 7"
 
 /* To add dynamically an export name, call the following function
@@ -127,6 +128,17 @@ WS_DLL_PUBLIC GSList *get_export_pdu_tap_list(void);
                                         *   COL_PROTOCOL might not be filled in.
                                         */
 
+/**< value part is structure passed into TCP subdissectors.  Format is:
+    guint16 version          Export PDU version of structure (for backwards/forwards compatibility)
+    guint32 seq              Sequence number of first byte in the data
+    guint32 nxtseq           Sequence number of first byte after data
+    guint32 lastackseq       Sequence number of last ack
+    guint8 is_reassembled    This is reassembled data.
+    guint16 flags            TCP flags
+    guint16 urgent_pointer   Urgent pointer value for the current packet.
+*/
+#define EXP_PDU_TAG_TCP_INFO_DATA  34
+
 typedef struct _exp_pdu_data_t {
     guint        tlv_buffer_len;
     guint8      *tlv_buffer;
@@ -147,6 +159,8 @@ typedef struct _exp_pdu_data_t {
 #define EXP_PDU_TAG_ORIG_FNO_LEN        4
 
 #define EXP_PDU_TAG_DVBCI_EVT_LEN       1
+
+#define EXP_PDU_TAG_DISSECTOR_TABLE_NUM_VAL_LEN     4
 
 /** Compute the size (in bytes) of a pdu item
 *
@@ -197,11 +211,14 @@ WS_DLL_PUBLIC exp_pdu_data_t *export_pdu_create_tags(packet_info *pinfo, const c
  6. Original frame number
 
  @param pinfo Packet info that may contain data for the PDU items
- @param tag_type Tag type for protocol's PDU. Must be EXP_PDU_TAG_PROTO_NAME or EXP_PDU_TAG_HEUR_PROTO_NAME.
+ @param tag_type Tag type for protocol's PDU. Must be EXP_PDU_TAG_PROTO_NAME, EXP_PDU_TAG_HEUR_PROTO_NAME or EXP_PDU_TAG_DISSECTOR_TABLE_NAME
  @param proto_name Name of protocol that is exporting PDU
  @return filled exp_pdu_data_t struct
 */
 WS_DLL_PUBLIC exp_pdu_data_t *export_pdu_create_common_tags(packet_info *pinfo, const char *proto_name, guint16 tag_type);
+
+WS_DLL_PUBLIC int exp_pdu_data_dissector_table_num_value_size(packet_info *pinfo, void* data);
+WS_DLL_PUBLIC int exp_pdu_data_dissector_table_num_value_populate_data(packet_info *pinfo, void* data, guint8 *tlv_buffer, guint32 buffer_size);
 
 WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_src_ip;
 WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_dst_ip;

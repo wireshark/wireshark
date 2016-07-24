@@ -30,6 +30,7 @@
 #include <epan/exported_pdu.h>
 #include "packet-mtp3.h"
 #include "packet-dvbci.h"
+#include "packet-tcp.h"
 
 void proto_register_exported_pdu(void);
 void proto_reg_handoff_exported_pdu(void);
@@ -48,6 +49,7 @@ static int hf_exported_pdu_unknown_tag_val = -1;
 static int hf_exported_pdu_prot_name = -1;
 static int hf_exported_pdu_heur_prot_name = -1;
 static int hf_exported_pdu_dis_table_name = -1;
+static int hf_exported_pdu_dissector_data = -1;
 static int hf_exported_pdu_ipv4_src = -1;
 static int hf_exported_pdu_ipv4_dst = -1;
 static int hf_exported_pdu_ipv6_src = -1;
@@ -101,6 +103,7 @@ static const value_string exported_pdu_tag_vals[] = {
    { EXP_PDU_TAG_DVBCI_EVT,             "DVB-CI event" },
    { EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL,  "Dissector table value" },
    { EXP_PDU_TAG_COL_PROT_TEXT,         "Column Protocol String" },
+   { EXP_PDU_TAG_TCP_INFO_DATA,         "TCP Dissector Data" },
 
    { 0,        NULL   }
 };
@@ -124,6 +127,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     guint8 dvb_ci_dir;
     guint32 dissector_table_val=0;
     dissector_table_t dis_tbl;
+    void* dissector_data = NULL;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Exported PDU");
 
@@ -239,6 +243,25 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             case EXP_PDU_TAG_COL_PROT_TEXT:
                 proto_tree_add_item_ret_string(tag_tree, hf_exported_pdu_col_proto_str, tvb, offset, tag_len, ENC_UTF_8 | ENC_NA, wmem_packet_scope(), &col_proto_str);
                 break;
+            case EXP_PDU_TAG_TCP_INFO_DATA:
+                {
+                struct tcpinfo* tcpdata = wmem_new0(wmem_packet_scope(), struct tcpinfo);
+                guint16 version;
+                proto_tree_add_item(tag_tree, hf_exported_pdu_dissector_data, tvb, offset, tag_len, ENC_NA);
+
+                version = tvb_get_ntohs(tvb, offset);
+                DISSECTOR_ASSERT(version == 1); /* Only version 1 is currently supported */
+
+                tcpdata->seq = tvb_get_ntohl(tvb, offset+2);
+                tcpdata->nxtseq = tvb_get_ntohl(tvb, offset+6);
+                tcpdata->lastackseq = tvb_get_ntohl(tvb, offset+10);
+                tcpdata->is_reassembled = tvb_get_guint8(tvb, offset+14);
+                tcpdata->flags = tvb_get_ntohs(tvb, offset+15);
+                tcpdata->urgent_pointer = tvb_get_ntohs(tvb, offset+17);
+
+                dissector_data = tcpdata;
+                }
+                break;
             case EXP_PDU_TAG_END_OF_OPT:
                 break;
             default:
@@ -258,7 +281,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             proto_handle = find_dissector(proto_name);
             if (proto_handle) {
                 col_clear(pinfo->cinfo, COL_PROTOCOL);
-                call_dissector(proto_handle, payload_tvb, pinfo, tree);
+                call_dissector_with_data(proto_handle, payload_tvb, pinfo, tree, dissector_data);
             }
             break;
         case EXPORTED_PDU_NEXT_HEUR_PROTO_STR:
@@ -266,7 +289,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             heur_dtbl_entry_t *heur_diss = find_heur_dissector_by_unique_short_name(proto_name);
             if (heur_diss) {
                 col_clear(pinfo->cinfo, COL_PROTOCOL);
-                call_heur_dissector_direct(heur_diss, payload_tvb, pinfo, tree, NULL);
+                call_heur_dissector_direct(heur_diss, payload_tvb, pinfo, tree, dissector_data);
             }
             break;
         }
@@ -278,7 +301,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 if (col_proto_str) {
                     col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "%s",col_proto_str);
                 }
-                dissector_try_uint_new(dis_tbl, dissector_table_val, payload_tvb, pinfo, tree, FALSE, NULL);
+                dissector_try_uint_new(dis_tbl, dissector_table_val, payload_tvb, pinfo, tree, FALSE, dissector_data);
             }
         }
         default:
@@ -326,6 +349,11 @@ proto_register_exported_pdu(void)
         { &hf_exported_pdu_dis_table_name,
             { "Dissector Table Name", "exported_pdu.dis_table_name",
                FT_STRING, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_dissector_data,
+            { "Dissector Data", "exported_pdu.dissector_data",
+               FT_BYTES, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
         { &hf_exported_pdu_ipv4_src,
@@ -442,6 +470,7 @@ proto_register_exported_pdu(void)
      * want to export their PDUs, see packet-sip.c
      */
     register_export_pdu_tap(EXPORT_PDU_TAP_NAME_LAYER_3);
+    register_export_pdu_tap(EXPORT_PDU_TAP_NAME_LAYER_4);
     register_export_pdu_tap(EXPORT_PDU_TAP_NAME_LAYER_7);
 }
 

@@ -162,6 +162,28 @@ static int exp_pdu_data_orig_frame_num_populate_data(packet_info *pinfo, void* d
 	return exp_pdu_data_orig_frame_num_size(pinfo, data);
 }
 
+WS_DLL_PUBLIC int exp_pdu_data_dissector_table_num_value_size(packet_info *pinfo _U_, void* data _U_)
+{
+	return EXP_PDU_TAG_DISSECTOR_TABLE_NUM_VAL_LEN + 4;
+}
+
+WS_DLL_PUBLIC int exp_pdu_data_dissector_table_num_value_populate_data(packet_info *pinfo _U_, void* data, guint8 *tlv_buffer, guint32 buffer_size _U_)
+{
+	guint32 value = GPOINTER_TO_UINT(data);
+
+	tlv_buffer[0] = 0;
+	tlv_buffer[1] = EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL;
+	tlv_buffer[2] = 0;
+	tlv_buffer[3] = EXP_PDU_TAG_DISSECTOR_TABLE_NUM_VAL_LEN; /* tag length */
+	tlv_buffer[4] = (value & 0xff000000) >> 24;
+	tlv_buffer[5] = (value & 0x00ff0000) >> 16;
+	tlv_buffer[6] = (value & 0x0000ff00) >> 8;
+	tlv_buffer[7] = (value & 0x000000ff);
+
+	return exp_pdu_data_dissector_table_num_value_size(pinfo, data);
+}
+
+
 exp_pdu_data_item_t exp_pdu_data_src_ip = {exp_pdu_data_src_ip_size, exp_pdu_data_src_ip_populate_data, NULL};
 exp_pdu_data_item_t exp_pdu_data_dst_ip = {exp_pdu_data_dst_ip_size, exp_pdu_data_dst_ip_populate_data, NULL};
 exp_pdu_data_item_t exp_pdu_data_port_type = {exp_pdu_data_port_type_size, exp_pdu_data_port_type_populate_data, NULL};
@@ -199,7 +221,7 @@ export_pdu_create_tags(packet_info *pinfo, const char* proto_name, guint16 tag_t
 	guint8* buffer_data;
 
 	DISSECTOR_ASSERT(proto_name != NULL);
-	DISSECTOR_ASSERT((tag_type == EXP_PDU_TAG_PROTO_NAME) || (tag_type == EXP_PDU_TAG_HEUR_PROTO_NAME));
+	DISSECTOR_ASSERT((tag_type == EXP_PDU_TAG_PROTO_NAME) || (tag_type == EXP_PDU_TAG_HEUR_PROTO_NAME) || (tag_type == EXP_PDU_TAG_DISSECTOR_TABLE_NAME));
 
 	exp_pdu_data = (exp_pdu_data_t *)g_malloc(sizeof(exp_pdu_data_t));
 

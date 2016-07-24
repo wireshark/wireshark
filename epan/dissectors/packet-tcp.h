@@ -113,14 +113,17 @@ typedef struct tcpheader {
 
 /*
  * Private data passed from the TCP dissector to subdissectors.
+ * NOTE: This structure is used by Export PDU functionality so
+ * make sure that handling is also updated if this structure
+ * changes!
  */
 struct tcpinfo {
 	guint32 seq;             /* Sequence number of first byte in the data */
 	guint32 nxtseq;          /* Sequence number of first byte after data */
 	guint32 lastackseq;      /* Sequence number of last ack */
 	gboolean is_reassembled; /* This is reassembled data. */
-	guint16	flags;           /* TCP flags */
-	guint16	urgent_pointer;  /* Urgent pointer value for the current packet. */
+	guint16 flags;           /* TCP flags */
+	guint16 urgent_pointer;  /* Urgent pointer value for the current packet. */
 };
 
 /*
