@@ -55,13 +55,13 @@ extern guint16 crc16_table[256];
 */
 void wimax_mac_gen_crc32_table(void)
 {
-  guint32 index, bit;
+  guint32 i, bit;
   guint32 crc;
 
   /* little-endian (reflected) algorithm */
-  for ( index = 0;  index < G_N_ELEMENTS(crc32_table);  index++ )
+  for ( i = 0;  i < G_N_ELEMENTS(crc32_table);  i++ )
   {
-    crc = ( index << 24 );
+    crc = ( i << 24 );
     for ( bit = 0;  bit < 8;  bit++ )
     {
       if ( crc & 0x80000000U )
@@ -69,7 +69,7 @@ void wimax_mac_gen_crc32_table(void)
       else
         crc = ( crc << 1 );
     }
-    crc32_table[index] = crc;
+    crc32_table[i] = crc;
   }
 }
 
@@ -90,12 +90,12 @@ void wimax_mac_gen_crc32_table(void)
 */
 void wimax_mac_gen_crc8_table(void)
 {
-  guint  index, bit;
+  guint  i, bit;
   guint8 crc;
 
-  for ( index = 0;  index < G_N_ELEMENTS(crc8_table);  index++ )
+  for ( i = 0;  i < G_N_ELEMENTS(crc8_table);  i++ )
   {
-    crc = index;
+    crc = i;
     for ( bit = 0;  bit < 8;  bit++ )
     {
       if ( crc & 0x80 )
@@ -103,7 +103,7 @@ void wimax_mac_gen_crc8_table(void)
       else
         crc = ( crc << 1 );
     }
-    crc8_table[index] = crc;
+    crc8_table[i] = crc;
   }
 }
 #endif

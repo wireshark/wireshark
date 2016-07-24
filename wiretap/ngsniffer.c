@@ -107,7 +107,7 @@ static const char ngsniffer_magic[] = {
 struct vers_rec {
 	gint16	maj_vers;	/* major version number */
 	gint16	min_vers;	/* minor version number */
-	gint16	time;		/* DOS-format time */
+	gint16	time_dos;	/* DOS-format time */
 	gint16	date;		/* DOS-format date */
 	gint8	type;		/* what type of records follow */
 	guint8	network;	/* network type */
@@ -746,7 +746,7 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	 * version-dependent?
 	 */
 #if 0
-	start_time = pletoh16(&version.time);
+	start_time = pletoh16(&version.time_dos);
 	tm.tm_hour = (start_time&0xf800)>>11;
 	tm.tm_min = (start_time&0x7e0)>>5;
 	tm.tm_sec = (start_time&0x1f)<<1;
@@ -2071,7 +2071,7 @@ ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		min_vers = 0;
 		version.maj_vers = GUINT16_TO_LE(maj_vers);
 		version.min_vers = GUINT16_TO_LE(min_vers);
-		version.time = 0;
+		version.time_dos = 0;
 		version.date = GUINT16_TO_LE(start_date);
 		version.type = 4;
 		version.network = wtap_encap[wdh->encap];
