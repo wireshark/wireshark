@@ -2013,6 +2013,7 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
     bool enable = true;
     bool can_write = false;
     bool can_save = false;
+    bool can_save_as = false;
 
     if (force_disable || capture_file_.capFile() == NULL || capture_file_.capFile()->state == FILE_READ_IN_PROGRESS) {
         /* We have no capture file or we're currently reading a file */
@@ -2021,13 +2022,14 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
         /* We have a capture file. Can we write or save? */
         can_write = cf_can_write_with_wiretap(capture_file_.capFile());
         can_save = cf_can_save(capture_file_.capFile());
+        can_save_as = cf_can_save_as(capture_file_.capFile());
     }
 
     main_ui_->actionViewReload_as_File_Format_or_Capture->setEnabled(enable);
     main_ui_->actionFileMerge->setEnabled(can_write);
     main_ui_->actionFileClose->setEnabled(enable);
     main_ui_->actionFileSave->setEnabled(can_save);
-    main_ui_->actionFileSaveAs->setEnabled(can_save);
+    main_ui_->actionFileSaveAs->setEnabled(can_save_as);
     main_ui_->actionStatisticsCaptureFileProperties->setEnabled(enable);
     /*
      * "Export Specified Packets..." should be available only if
