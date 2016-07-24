@@ -109,7 +109,7 @@ typedef struct _apdu_info_t {
 
 static void dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len,
         packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans);
-static void dissect_zvt_bitmap_apdu(tvbuff_t *tvb, gint offset, guint16 len,
+static void dissect_zvt_bitmap_seq(tvbuff_t *tvb, gint offset, guint16 len,
         packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans);
 
 static const apdu_info_t apdu_info[] = {
@@ -117,8 +117,8 @@ static const apdu_info_t apdu_info[] = {
     { CTRL_INT_STATUS,    0, DIRECTION_PT_TO_ECR, NULL },
     { CTRL_REGISTRATION,  4, DIRECTION_ECR_TO_PT, dissect_zvt_reg },
     /* authorisation has at least a 0x04 tag and 6 bytes for the amount */
-    { CTRL_AUTHORISATION, 7, DIRECTION_ECR_TO_PT, dissect_zvt_bitmap_apdu },
-    { CTRL_COMPLETION,    0, DIRECTION_PT_TO_ECR, dissect_zvt_bitmap_apdu },
+    { CTRL_AUTHORISATION, 7, DIRECTION_ECR_TO_PT, dissect_zvt_bitmap_seq },
+    { CTRL_COMPLETION,    0, DIRECTION_PT_TO_ECR, dissect_zvt_bitmap_seq },
     { CTRL_ABORT,         0, DIRECTION_PT_TO_ECR, NULL },
     { CTRL_END_OF_DAY,    0, DIRECTION_ECR_TO_PT, NULL },
     { CTRL_DIAG,          0,  DIRECTION_ECR_TO_PT, NULL },
@@ -455,15 +455,16 @@ dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len _U_,
     }
 
     /* it's ok if the remaining len is 0 */
-    dissect_zvt_bitmap_apdu(tvb, offset,
+    dissect_zvt_bitmap_seq(tvb, offset,
             tvb_captured_length_remaining(tvb, offset),
             pinfo, tree, zvt_trans);
 }
 
 
-/* dissect an APDU that contains a sequence of bitmaps */
+/* dissect a sequence of bitmaps
+   (which may be the complete APDU payload or a part of it) */
 static void
-dissect_zvt_bitmap_apdu(tvbuff_t *tvb, gint offset, guint16 len,
+dissect_zvt_bitmap_seq(tvbuff_t *tvb, gint offset, guint16 len,
         packet_info *pinfo _U_, proto_tree *tree, zvt_transaction_t *zvt_trans _U_)
 {
     gint offset_start, ret;
