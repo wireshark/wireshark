@@ -77,7 +77,7 @@
         <translation>Nom :</translation>
     </message>
     <message>
-        <location filename="address_editor_frame.cpp" line="146"/>
+        <location filename="address_editor_frame.cpp" line="149"/>
         <source>Can&apos;t assign %1 to %2</source>
         <translation>Impossible d&apos;affecter %1 à %2</translation>
     </message>
