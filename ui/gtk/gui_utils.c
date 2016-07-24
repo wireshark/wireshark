@@ -376,7 +376,7 @@ window_get_geometry(GtkWidget         *widget,
     geom->width = gdk_window_get_width(widget_window);
     geom->height = gdk_window_get_height(widget_window);
 #else
-    gdk_drawable_get_size(widget_window,
+    ws_gdk_drawable_get_size(widget_window,
                           &geom->width,
                           &geom->height);
 #endif
@@ -1890,9 +1890,9 @@ ws_gtk_box_new(GtkOrientation orientation,
 {
 #if !GTK_CHECK_VERSION(3,0,0)
     if (orientation == GTK_ORIENTATION_HORIZONTAL)
-        return gtk_hbox_new(homogeneous, spacing);
+        return ws_gtk_hbox_new(homogeneous, spacing);
     else
-        return gtk_vbox_new(homogeneous, spacing);
+        return ws_gtk_vbox_new(homogeneous, spacing);
 #else
     GtkWidget *widget;
 
@@ -1908,7 +1908,7 @@ GtkWidget *
 gtk_button_box_new(GtkOrientation orientation)
 {
     if (orientation == GTK_ORIENTATION_HORIZONTAL) {
-        return gtk_hbutton_box_new();
+        return ws_gtk_hbutton_box_new();
     } else {
         return gtk_vbutton_box_new();
     }

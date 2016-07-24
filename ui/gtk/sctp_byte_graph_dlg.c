@@ -37,6 +37,7 @@
 #include "ui/gtk/sctp_stat_gtk.h"
 
 #include "ui/gtk/stock_icons.h"
+#include "ui/gtk/old-gtk-compat.h"
 
 #define DEFAULT_PIXELS_PER_TICK 2
 #define MAX_PIXELS_PER_TICK     4
@@ -700,7 +701,7 @@ static void sctp_graph_redraw(struct sctp_udata *u_data)
 #if GTK_CHECK_VERSION(2,22,0)
 	cairo_set_source_surface (cr, ios->surface, 0, 0);
 #else
-	gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
+	ws_gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
 #endif
 	gtk_widget_get_allocation(u_data->io->draw_area, &widget_alloc);
 	cairo_rectangle (cr, 0, 0, widget_alloc.width, widget_alloc.height);
@@ -816,7 +817,7 @@ on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 #if GTK_CHECK_VERSION(2,22,0)
 	cairo_set_source_surface (cr, ios->surface, 0, 0);
 #else
-	gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
+	ws_gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
 #endif
 	cairo_rectangle (cr, event->area.x, event->area.y, event->area.width, event->area.height);
 	cairo_fill (cr);
@@ -980,7 +981,7 @@ on_button_press_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer us
 #if GTK_CHECK_VERSION(2,22,0)
 		cairo_set_source_surface (cr, ios->surface, 0, 0);
 #else
-		gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
+		ws_gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
 #endif
 		cairo_rectangle (cr, 0, 0, abs((int)(u_data->io->x_new-u_data->io->x_old)), abs((int)(u_data->io->y_new-u_data->io->y_old)));
 		cairo_fill (cr);
@@ -1057,7 +1058,7 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 #if GTK_CHECK_VERSION(2,22,0)
 		cairo_set_source_surface (cr, ios->surface, 0, 0);
 #else
-		gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
+		ws_gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
 #endif
 		gtk_widget_get_allocation(u_data->io->draw_area, &widget_alloc);
 		cairo_rectangle (cr, 0, 0, widget_alloc.width, widget_alloc.height);
@@ -1222,7 +1223,7 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 #if GTK_CHECK_VERSION(2,22,0)
 			cairo_set_source_surface (cr, ios->surface, 0, 0);
 #else
-			gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
+			ws_gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
 #endif
 			gtk_widget_get_allocation(u_data->io->draw_area, &widget_alloc);
 			cairo_rectangle (cr, 0, 0, widget_alloc.width, widget_alloc.height);

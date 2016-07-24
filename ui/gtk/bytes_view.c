@@ -822,7 +822,7 @@ bytes_view_render(BytesView *bv, cairo_t *cr, GdkRectangle *area)
 	width = gdk_window_get_width(gtk_widget_get_window(GTK_WIDGET(bv)));
 	height = gdk_window_get_height(gtk_widget_get_window(GTK_WIDGET(bv)));
 #else
-	gdk_drawable_get_size(gtk_widget_get_window(GTK_WIDGET(bv)), &width, &height);
+	ws_gdk_drawable_get_size(gtk_widget_get_window(GTK_WIDGET(bv)), &width, &height);
 #endif
 
 	if (width < 32 + MARGIN || height < bv->fontsize)
