@@ -1297,10 +1297,15 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		proto_tree_add_item(icmp_tree, hf_icmp_seq_num_le, tvb, 6,
 				    2, ENC_LITTLE_ENDIAN);
 		col_append_fstr(pinfo->cinfo, COL_INFO,
-				" id=0x%04x, seq=%u/%u, ttl=%u",
+				" id=0x%04x, seq=%u/%u",
 				tvb_get_ntohs(tvb, 4), tvb_get_ntohs(tvb,
 								     6),
-				tvb_get_letohs(tvb, 6), (iph != NULL) ? iph->ip_ttl : 0);
+				tvb_get_letohs(tvb, 6));
+                if (iph != NULL) {
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+					", ttl=%u",
+					iph->ip_ttl);
+		}
 		break;
 
 	case ICMP_UNREACH:
