@@ -153,7 +153,7 @@ static int hf_zvt_reg_pwd = -1;
 static int hf_zvt_reg_cfg = -1;
 static int hf_zvt_cc = -1;
 static int hf_zvt_reg_svc_byte = -1;
-static int hf_zvt_bitmap = -1;
+static int hf_zvt_bmp = -1;
 static int hf_zvt_tlv_total_len = -1;
 static int hf_zvt_tlv_tag = -1;
 static int hf_zvt_tlv_tag_class = -1;
@@ -373,7 +373,7 @@ dissect_zvt_bitmap(tvbuff_t *tvb, gint offset,
     if (try_val_to_str(bmp, bitmap) == NULL)
         return -1;
 
-    proto_tree_add_item(tree, hf_zvt_bitmap, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_zvt_bmp, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     switch (bmp) {
@@ -846,8 +846,8 @@ proto_register_zvt(void)
         { &hf_zvt_reg_svc_byte,
             { "Service byte", "zvt.reg.service_byte",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
-        { &hf_zvt_bitmap,
-            { "Bitmap", "zvt.bitmap", FT_UINT8,
+        { &hf_zvt_bmp,
+            { "BMP", "zvt.bmp", FT_UINT8,
                 BASE_HEX|BASE_EXT_STRING, &bitmap_ext, 0, NULL, HFILL } },
         { &hf_zvt_tlv_total_len,
             { "Total length", "zvt.tlv.total_len",
