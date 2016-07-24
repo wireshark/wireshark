@@ -663,8 +663,10 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data)
         }
     }
 
-    iph->ip_nxt = shim.ip6s_nxt;
-    iph->ip_len -= len;
+    if (iph != NULL) {
+        iph->ip_nxt = shim.ip6s_nxt;
+        iph->ip_len -= len;
+    }
     next_tvb = tvb_new_subset_remaining(tvb, len);
     ipv6_dissect_next(shim.ip6s_nxt, next_tvb, pinfo, tree, iph);
     return tvb_captured_length(tvb);

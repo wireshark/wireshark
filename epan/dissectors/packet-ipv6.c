@@ -1152,8 +1152,10 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         break;
     }
 
-    iph->ip_nxt = rt.ip6r_nxt;
-    iph->ip_len -= len;
+    if (iph != NULL) {
+        iph->ip_nxt = rt.ip6r_nxt;
+        iph->ip_len -= len;
+    }
     next_tvb = tvb_new_subset_remaining(tvb, len);
     ipv6_dissect_next(rt.ip6r_nxt, next_tvb, pinfo, tree, iph);
     return tvb_captured_length(tvb);

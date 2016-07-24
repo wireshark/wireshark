@@ -1137,8 +1137,10 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
   next_tvb = tvb_new_subset_remaining(tvb, ah_hdr_len);
 
-  iph->ip_nxt = ah_nxt;
-  iph->ip_len -= ah_hdr_len;
+  if (iph != NULL) {
+      iph->ip_nxt = ah_nxt;
+      iph->ip_len -= ah_hdr_len;
+  }
 
   if (pinfo->dst.type == AT_IPv6) {
     ipv6_dissect_next(ah_nxt, next_tvb, pinfo, tree, iph);
