@@ -4215,7 +4215,16 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         dissect_mip6_options(tvb, mip6_tree, offset, len, pinfo);
     }
 
-    iph->ip_nxt = pproto;
+    /*
+     * XXX - why are we doing this?  We're not guaranteed that there's
+     * a ws_ip structure to modify here, as we can be called not only
+     * from the IPv4 or IPv6 dissectors, but also from, for example,
+     * the AH and ESP dissectors.
+     *
+     * This needs to be rethought.
+     */
+    if (iph != NULL)
+        iph->ip_nxt = pproto;
 
     if ((type == MIP6_FNA) && (pproto == IP_PROTO_IPV6)) {
         col_set_str(pinfo->cinfo, COL_INFO, "Fast Neighbor Advertisement[Fast Binding Update]");
