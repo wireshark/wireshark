@@ -1022,7 +1022,7 @@ io_stat_draw(io_stat_t *io)
 #if GTK_CHECK_VERSION(2,22,0)
     cairo_set_source_surface (cr, io->surface, 0, 0);
 #else
-    gdk_cairo_set_source_pixmap (cr, io->pixmap, 0, 0);
+    ws_gdk_cairo_set_source_pixmap (cr, io->pixmap, 0, 0);
 #endif
     cairo_rectangle (cr, 0, 0, io->surface_width, io->surface_height);
     cairo_fill (cr);
@@ -1453,7 +1453,7 @@ draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_d
 #if GTK_CHECK_VERSION(2,22,0)
     cairo_set_source_surface (cr, io->surface, 0, 0);
 #else
-    gdk_cairo_set_source_pixmap (cr, io->pixmap, 0, 0);
+    ws_gdk_cairo_set_source_pixmap (cr, io->pixmap, 0, 0);
 #endif
     cairo_rectangle (cr, event->area.x, event->area.y, event->area.width, event->area.height);
     cairo_fill (cr);

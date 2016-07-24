@@ -1316,7 +1316,7 @@ dialog_graph_draw(user_data_t* user_data)
 #if GTK_CHECK_VERSION(2,22,0)
 	cairo_set_source_surface (cr, user_data->dlg.dialog_graph.surface, 0, 0);
 #else
-	gdk_cairo_set_source_pixmap (cr, user_data->dlg.dialog_graph.pixmap, 0, 0);
+	ws_gdk_cairo_set_source_pixmap (cr, user_data->dlg.dialog_graph.pixmap, 0, 0);
 #endif
 	cairo_rectangle (cr, 0, 0, user_data->dlg.dialog_graph.surface_width, user_data->dlg.dialog_graph.surface_height);
 	cairo_fill (cr);
@@ -1390,7 +1390,7 @@ draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 #if GTK_CHECK_VERSION(2,22,0)
 	cairo_set_source_surface (cr, user_data->dlg.dialog_graph.surface, 0, 0);
 #else
-	gdk_cairo_set_source_pixmap (cr, user_data->dlg.dialog_graph.pixmap, 0, 0);
+	ws_gdk_cairo_set_source_pixmap (cr, user_data->dlg.dialog_graph.pixmap, 0, 0);
 #endif
 	cairo_rectangle (cr, event->area.x, event->area.y, event->area.width, event->area.height);
 	cairo_fill (cr);
