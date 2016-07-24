@@ -1141,7 +1141,7 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   iph->ip_len -= ah_hdr_len;
 
   if (pinfo->dst.type == AT_IPv6) {
-    ipv6_dissect_next(next_tvb, pinfo, tree, iph);
+    ipv6_dissect_next(ah_nxt, next_tvb, pinfo, tree, iph);
   } else {
     /* do lookup with the subdissector table */
     saved_match_uint  = pinfo->match_uint;

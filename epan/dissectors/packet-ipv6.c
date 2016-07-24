@@ -1155,7 +1155,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     iph->ip_nxt = rt.ip6r_nxt;
     iph->ip_len -= len;
     next_tvb = tvb_new_subset_remaining(tvb, len);
-    ipv6_dissect_next(next_tvb, pinfo, tree, iph);
+    ipv6_dissect_next(rt.ip6r_nxt, next_tvb, pinfo, tree, iph);
     return tvb_captured_length(tvb);
 }
 
@@ -1226,7 +1226,7 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             iph->ip_nxt = nxt;
             next_tvb = tvb_new_subset_remaining(tvb, offset);
             iph->ip_len = tvb_reported_length_remaining(next_tvb, 0);
-            ipv6_dissect_next(next_tvb, pinfo, tree, iph);
+            ipv6_dissect_next(nxt, next_tvb, pinfo, tree, iph);
             return tvb_captured_length(tvb);
         }
     }
@@ -1234,7 +1234,7 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     iph->ip_nxt = nxt;
     iph->ip_len -= 8;
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    ipv6_dissect_next(next_tvb, pinfo, tree, iph);
+    ipv6_dissect_next(nxt, next_tvb, pinfo, tree, iph);
     return tvb_captured_length(tvb);
 }
 
@@ -1827,7 +1827,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
     iph->ip_nxt = nxt;
     iph->ip_len -= len;
     next_tvb = tvb_new_subset_remaining(tvb, len);
-    ipv6_dissect_next(next_tvb, pinfo, tree, iph);
+    ipv6_dissect_next(nxt, next_tvb, pinfo, tree, iph);
     return tvb_captured_length(tvb);
 }
 
@@ -2208,32 +2208,32 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     save_fragmented = pinfo->fragmented;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    ipv6_dissect_next(next_tvb, pinfo, tree, iph);
+    ipv6_dissect_next(ipv6->ip6_nxt, next_tvb, pinfo, tree, iph);
 
     pinfo->fragmented = save_fragmented;
     return tvb_captured_length(tvb);
 }
 
 void
-ipv6_dissect_next(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ws_ip *iph)
+ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ws_ip *iph)
 {
     dissector_handle_t nxt_handle;
     ipv6_pinfo_t *ipv6_pinfo;
 
-    if (iph->ip_nxt == IP_PROTO_NONE) {
+    if (nxt == IP_PROTO_NONE) {
         col_set_str(pinfo->cinfo, COL_INFO, "IPv6 no next header");
         call_data_dissector(tvb, pinfo, tree);
         return;
     }
 
-    nxt_handle = dissector_get_uint_handle(ipv6_next_header_dissector_table, iph->ip_nxt);
+    nxt_handle = dissector_get_uint_handle(ipv6_next_header_dissector_table, nxt);
     if (nxt_handle != NULL) {
         call_dissector_with_data(nxt_handle, tvb, pinfo, tree, iph);
         return;
     }
 
     /* Done with extension header chain */
-    p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_VALUE, GUINT_TO_POINTER(iph->ip_nxt));
+    p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_VALUE, GUINT_TO_POINTER(nxt));
     ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
     if (ipv6_pinfo->ipv6_tree != NULL) {
         proto_item_set_len(proto_tree_get_parent(ipv6_pinfo->ipv6_tree), ipv6_pinfo->ipv6_item_len);
