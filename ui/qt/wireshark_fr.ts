@@ -77,7 +77,7 @@
         <translation>Nom :</translation>
     </message>
     <message>
-        <location filename="address_editor_frame.cpp" line="146"/>
+        <location filename="address_editor_frame.cpp" line="149"/>
         <source>Can&apos;t assign %1 to %2</source>
         <translation>Impossible d&apos;affecter %1 à %2</translation>
     </message>
@@ -698,7 +698,7 @@
 <context>
     <name>ByteViewText</name>
     <message>
-        <location filename="byte_view_text.cpp" line="77"/>
+        <location filename="byte_view_text.cpp" line="78"/>
         <source>Show bytes as hexadecimal</source>
         <translation>Afficher les octets en hexadécimal</translation>
     </message>
@@ -707,12 +707,12 @@
         <translation type="vanished">Afficher les octets en bits</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="286"/>
+        <location filename="byte_view_text.cpp" line="292"/>
         <source>Byte %1</source>
         <translation>Octets %1</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="289"/>
+        <location filename="byte_view_text.cpp" line="295"/>
         <source>Bytes %1-%2</source>
         <translation>Octets %1-%2</translation>
     </message>
@@ -3002,18 +3002,18 @@ pour fichiers de filtre : %2.</translation>
 <context>
     <name>FollowStreamDialog</name>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="129"/>
+        <location filename="follow_stream_dialog.cpp" line="128"/>
         <source>Filter Out This Stream</source>
         <oldsource>Hide this stream</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="132"/>
+        <location filename="follow_stream_dialog.cpp" line="131"/>
         <source>Print</source>
         <translation>Imprimer</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="135"/>
+        <location filename="follow_stream_dialog.cpp" line="134"/>
         <source>Save as</source>
         <oldsource>Save as...</oldsource>
         <translation>Enregistrer sous</translation>
@@ -3033,57 +3033,57 @@ pour fichiers de filtre : %2.</translation>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="119"/>
+        <location filename="follow_stream_dialog.cpp" line="118"/>
         <source>ASCII</source>
         <translation>ASCII</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="120"/>
+        <location filename="follow_stream_dialog.cpp" line="119"/>
         <source>C Arrays</source>
         <translation>Tableaux C</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="121"/>
+        <location filename="follow_stream_dialog.cpp" line="120"/>
         <source>EBCDIC</source>
         <translation>EBCDIC</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="122"/>
+        <location filename="follow_stream_dialog.cpp" line="121"/>
         <source>Hex Dump</source>
         <translation>Hexdump</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="123"/>
+        <location filename="follow_stream_dialog.cpp" line="122"/>
         <source>UTF-8</source>
         <translation>UTF-8</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="124"/>
+        <location filename="follow_stream_dialog.cpp" line="123"/>
         <source>UTF-16</source>
         <translation type="unfinished">UTF-16</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="125"/>
+        <location filename="follow_stream_dialog.cpp" line="124"/>
         <source>YAML</source>
         <translation>YAML</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="126"/>
+        <location filename="follow_stream_dialog.cpp" line="125"/>
         <source>Raw</source>
         <translation>Brut</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="138"/>
+        <location filename="follow_stream_dialog.cpp" line="137"/>
         <source>Back</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="182"/>
+        <location filename="follow_stream_dialog.cpp" line="181"/>
         <source>Packet %1. </source>
         <translation>Paquet %1.</translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="185"/>
+        <location filename="follow_stream_dialog.cpp" line="184"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -3091,7 +3091,7 @@ pour fichiers de filtre : %2.</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="188"/>
+        <location filename="follow_stream_dialog.cpp" line="187"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -3099,7 +3099,7 @@ pour fichiers de filtre : %2.</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="191"/>
+        <location filename="follow_stream_dialog.cpp" line="190"/>
         <source>%Ln turn(s).</source>
         <translation>
             <numerusform>%n tour.</numerusform>
@@ -3107,66 +3107,66 @@ pour fichiers de filtre : %2.</translation>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="194"/>
+        <location filename="follow_stream_dialog.cpp" line="193"/>
         <source> Click to select.</source>
         <translation>Cliquez pour sélectionner</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="276"/>
+        <location filename="follow_stream_dialog.cpp" line="275"/>
         <source>Save Stream Content As</source>
         <translation>Enregistrer Contenu du Flux Comme</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="574"/>
+        <location filename="follow_stream_dialog.cpp" line="511"/>
         <source>
 [Stream output truncated]</source>
         <translation>
 [Sortie flux tronquée]</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="850"/>
+        <location filename="follow_stream_dialog.cpp" line="787"/>
         <source>No capture file.</source>
         <translation>Pas de fichier de capture.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="850"/>
+        <location filename="follow_stream_dialog.cpp" line="787"/>
         <source>Please make sure you have a capture file opened.</source>
         <translation>S&apos;il vous plaît assurez-vous que vous avez un fichier de capture ouvert.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="856"/>
-        <location filename="follow_stream_dialog.cpp" line="862"/>
+        <location filename="follow_stream_dialog.cpp" line="793"/>
+        <location filename="follow_stream_dialog.cpp" line="799"/>
         <source>Error following stream.</source>
         <translation>Erreur pour suivre le flux.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="856"/>
+        <location filename="follow_stream_dialog.cpp" line="793"/>
         <source>Capture file invalid.</source>
         <translation>Fichier de capture invalide.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="862"/>
+        <location filename="follow_stream_dialog.cpp" line="799"/>
         <source>Please make sure you have a %1 packet selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="979"/>
+        <location filename="follow_stream_dialog.cpp" line="916"/>
         <source>Follow %1 Stream (%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="884"/>
+        <location filename="follow_stream_dialog.cpp" line="821"/>
         <source>Error creating filter for this stream.</source>
         <translation>Erreur pour la création du filtre pour ce flux.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="885"/>
+        <location filename="follow_stream_dialog.cpp" line="822"/>
         <source>A transport or network layer header is needed.</source>
         <translation>Une en-tête de transport ou de la couche de réseau est nécessaire.</translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="916"/>
-        <location filename="follow_stream_dialog.cpp" line="928"/>
+        <location filename="follow_stream_dialog.cpp" line="853"/>
+        <location filename="follow_stream_dialog.cpp" line="865"/>
         <source>%Ln total stream(s).</source>
         <translation>
             <numerusform>%Ln total flux.</numerusform>
@@ -3174,7 +3174,7 @@ pour fichiers de filtre : %2.</translation>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="999"/>
+        <location filename="follow_stream_dialog.cpp" line="936"/>
         <source>File closed.</source>
         <translation>Fichier fermé.</translation>
     </message>
