@@ -627,8 +627,8 @@ read_filters_file(FILE *f, gpointer user_data, color_filter_add_cb_func add_cb)
                 g_free(local_err_msg);
                 prefs.unknown_colorfilters = TRUE;
 
-                skip_end_of_line = TRUE;
-                continue;
+                /* skip_end_of_line = TRUE; */
+                disabled = TRUE;
             }
 
             fg_color.red = fg_r;
