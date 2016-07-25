@@ -324,7 +324,7 @@ const QString ServiceResponseTimeDialog::filterExpression()
             QString field = srtt_ti->filterField();
             QString value = ti->text(SRT_COLUMN_INDEX);
             if (!field.isEmpty() && !value.isEmpty()) {
-                filter_expr = QString("%1==%2").arg(srtt_ti->filterField()).arg(value);
+                filter_expr = QString("%1==%2").arg(field).arg(value);
             }
         }
     }
