@@ -2023,7 +2023,6 @@ void proto_reg_handoff_icmp(void)
 
 	dissector_add_uint("ip.proto", IP_PROTO_ICMP, icmp_handle);
 	register_capture_dissector("ip.proto", IP_PROTO_ICMP, capture_icmp, proto_icmp);
-	register_capture_dissector("ipv6.nxt", IP_PROTO_ICMP, capture_icmp, proto_icmp);
 }
 
 /*

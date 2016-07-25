@@ -757,7 +757,6 @@ proto_reg_handoff_gre(void)
     gre_handle = create_dissector_handle(dissect_gre, proto_gre);
     dissector_add_uint("ip.proto", IP_PROTO_GRE, gre_handle);
     register_capture_dissector("ip.proto", IP_PROTO_GRE, capture_gre, proto_gre);
-    register_capture_dissector("ipv6.nxt", IP_PROTO_GRE, capture_gre, proto_gre);
 }
 
 /*

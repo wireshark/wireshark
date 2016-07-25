@@ -1177,8 +1177,6 @@ proto_reg_handoff_udp(void)
 
   register_capture_dissector("ip.proto", IP_PROTO_UDP, capture_udp, hfi_udp->id);
   register_capture_dissector("ip.proto", IP_PROTO_UDPLITE, capture_udp, hfi_udplite->id);
-  register_capture_dissector("ipv6.nxt", IP_PROTO_UDP, capture_udp, hfi_udp->id);
-  register_capture_dissector("ipv6.nxt", IP_PROTO_UDPLITE, capture_udp, hfi_udplite->id);
 
   udp_tap = register_tap("udp");
   udp_follow_tap = register_tap("udp_follow");

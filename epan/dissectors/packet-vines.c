@@ -2050,7 +2050,6 @@ proto_reg_handoff_vines_icp(void)
 	register_capture_dissector("ethertype", ETHERTYPE_VINES_ECHO, capture_vines, proto_vines_echo);
 	register_capture_dissector("ppp_hdlc", PPP_VINES, capture_vines, proto_vines_echo);
 	register_capture_dissector("ip.proto", PPP_VINES, capture_vines, proto_vines_echo);
-	register_capture_dissector("ipv6.nxt", PPP_VINES, capture_vines, proto_vines_echo);
 	register_capture_dissector("llc.dsap", SAP_VINES1, capture_vines, proto_vines_echo);
 	register_capture_dissector("llc.dsap", SAP_VINES2, capture_vines, proto_vines_echo);
 }

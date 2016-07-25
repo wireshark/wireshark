@@ -5434,7 +5434,6 @@ proto_reg_handoff_mip6(void)
 {
     dissector_add_uint("ip.proto", IP_PROTO_MIPV6_OLD, mip6_handle);
     dissector_add_uint("ip.proto", IP_PROTO_MIPV6, mip6_handle);
-    dissector_add_uint("ipv6.nxt", IP_PROTO_MIPV6, mip6_handle);
 
     /* Add support for PMIPv6 control messages over IPV4 */
     dissector_add_uint("udp.port", UDP_PORT_PMIP6_CNTL, mip6_handle);

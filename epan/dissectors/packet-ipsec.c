@@ -78,6 +78,7 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>
 #include <epan/proto_data.h>
+#include <epan/decode_as.h>
 
 /* If you want to be able to decrypt or Check Authentication of ESP packets you MUST define this : */
 #ifdef HAVE_LIBGCRYPT
@@ -1072,6 +1073,17 @@ get_esp_sa(gint protocol_typ, gchar *src,  gchar *dst,  guint spi,
 }
 #endif
 
+static void ah_prompt(packet_info *pinfo, gchar *result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as",
+        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ah, pinfo->curr_layer_num)));
+}
+
+static gpointer ah_value(packet_info *pinfo)
+{
+    return p_get_proto_data(pinfo->pool, pinfo, proto_ah, pinfo->curr_layer_num);
+}
+
 static void
 export_ipsec_pdu(dissector_handle_t dissector_handle, packet_info *pinfo, tvbuff_t *tvb)
 {
@@ -1084,6 +1096,23 @@ export_ipsec_pdu(dissector_handle_t dissector_handle, packet_info *pinfo, tvbuff
 
     tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
   }
+}
+
+static gboolean
+capture_ah(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
+{
+  guint8 nxt;
+  int    advance;
+
+  if (!BYTES_ARE_IN_FRAME(offset, len, 2))
+    return FALSE;
+  nxt = pd[offset];
+  advance = 8 + ((pd[offset+1] - 1) << 2);
+  if (!BYTES_ARE_IN_FRAME(offset, len, advance))
+    return FALSE;
+  offset += advance;
+
+  return try_capture_dissector("ip.proto", nxt, pd, offset, len, cpinfo, pseudo_header);
 }
 
 static int
@@ -1134,6 +1163,10 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   proto_tree_add_item(ah_tree, hf_ah_iv, tvb, 12, ah_icv_len, ENC_NA);
 
   proto_item_set_len(pi, ah_hdr_len);
+
+  /* Save next header value for Decode As dialog */
+  p_add_proto_data(pinfo->pool, pinfo, proto_ah,
+                    pinfo->curr_layer_num, GUINT_TO_POINTER(ah_nxt));
 
   next_tvb = tvb_new_subset_remaining(tvb, ah_hdr_len);
 
@@ -2362,6 +2395,11 @@ proto_register_ipsec(void)
     };
 #endif
 
+  static build_valid_func ah_da_build_value[1] = {ah_value};
+  static decode_as_value_t ah_da_values = {ah_prompt, 1, ah_da_build_value};
+  static decode_as_t ah_da = {"ah", "Network", "ip.proto", 1, 0, &ah_da_values, NULL, NULL,
+                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
   module_t *ah_module;
   module_t *esp_module;
 
@@ -2438,6 +2476,8 @@ proto_register_ipsec(void)
 
   register_dissector("esp", dissect_esp, proto_esp);
   register_dissector("ah", dissect_ah, proto_ah);
+
+  register_decode_as(&ah_da);
 }
 
 void
@@ -2448,13 +2488,13 @@ proto_reg_handoff_ipsec(void)
   data_handle = find_dissector("data");
   ah_handle = find_dissector("ah");
   dissector_add_uint("ip.proto", IP_PROTO_AH, ah_handle);
-  dissector_add_uint("ipv6.nxt", IP_PROTO_AH, ah_handle);
   esp_handle = find_dissector("esp");
   dissector_add_uint("ip.proto", IP_PROTO_ESP, esp_handle);
   ipcomp_handle = create_dissector_handle(dissect_ipcomp, proto_ipcomp);
   dissector_add_uint("ip.proto", IP_PROTO_IPCOMP, ipcomp_handle);
 
   ip_dissector_table = find_dissector_table("ip.proto");
+  register_capture_dissector("ip.proto", IP_PROTO_AH, capture_ah, proto_ah);
 
   exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_3);
 }

@@ -5100,7 +5100,6 @@ proto_reg_handoff_sctp(void)
   dissector_add_uint("ip.proto", IP_PROTO_SCTP, sctp_handle);
   dissector_add_uint("udp.port", UDP_TUNNELING_PORT, sctp_handle);
   register_capture_dissector("ip.proto", IP_PROTO_SCTP, capture_sctp, proto_sctp);
-  register_capture_dissector("ipv6.nxt", IP_PROTO_SCTP, capture_sctp, proto_sctp);
 }
 
 /*

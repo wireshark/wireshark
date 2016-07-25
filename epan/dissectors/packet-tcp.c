@@ -7143,7 +7143,6 @@ proto_reg_handoff_tcp(void)
     tcp_follow_tap = register_tap("tcp_follow");
 
     register_capture_dissector("ip.proto", IP_PROTO_TCP, capture_tcp, proto_tcp);
-    register_capture_dissector("ipv6.nxt", IP_PROTO_TCP, capture_tcp, proto_tcp);
 
     mptcp_tap = register_tap("mptcp");
 }

@@ -3826,7 +3826,6 @@ proto_reg_handoff_ospf(void)
     ospf_handle = create_dissector_handle(dissect_ospf, proto_ospf);
     dissector_add_uint("ip.proto", IP_PROTO_OSPF, ospf_handle);
     register_capture_dissector("ip.proto", IP_PROTO_OSPF, capture_ospf, proto_ospf);
-    register_capture_dissector("ipv6.nxt", IP_PROTO_OSPF, capture_ospf, proto_ospf);
 }
 
 /*

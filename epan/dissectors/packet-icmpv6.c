@@ -5364,7 +5364,6 @@ proto_reg_handoff_icmpv6(void)
 {
     dissector_add_uint("ip.proto", IP_PROTO_ICMPV6, icmpv6_handle);
     register_capture_dissector("ip.proto", IP_PROTO_ICMPV6, capture_icmpv6, proto_icmpv6);
-    register_capture_dissector("ipv6.nxt", IP_PROTO_ICMPV6, capture_icmpv6, proto_icmpv6);
 
     /*
      * Get a handle for the IPv6 dissector.
