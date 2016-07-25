@@ -360,7 +360,7 @@ void ColoringRulesDialog::on_buttonBox_accepted()
         QMessageBox mb;
         mb.setText(tr("Your coloring rules file contains unknown rules"));
         mb.setInformativeText(tr("Wireshark doesn't recognize one or more of your coloring rules. "
-                                 "Saving will discard them."));
+                                 "Saving will disable them."));
         mb.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
         mb.setDefaultButton(QMessageBox::Save);
 
