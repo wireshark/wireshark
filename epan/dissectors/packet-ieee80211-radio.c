@@ -27,6 +27,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <wiretap/wtap.h>
+#include <epan/prefs.h>
 
 #include "packet-ieee80211.h"
 #include "math.h"
@@ -93,6 +94,9 @@ static expert_field ei_wlan_radio_assumed_non_greenfield = EI_INIT;
 static expert_field ei_wlan_radio_assumed_no_stbc = EI_INIT;
 static expert_field ei_wlan_radio_assumed_no_extension_streams = EI_INIT;
 static expert_field ei_wlan_radio_assumed_bcc_fec = EI_INIT;
+
+/* Settings */
+static gboolean wlan_radio_always_short_preamble = FALSE;
 
 static const value_string phy_vals[] = {
     { PHDR_802_11_PHY_11_FHSS,       "802.11 FHSS" },
@@ -751,8 +755,9 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
           break;
 
         case PHDR_802_11_PHY_11B:
-          if (!has_short_preamble) {
+          if (!has_short_preamble || wlan_radio_always_short_preamble) {
               assumed_short_preamble = TRUE;
+              short_preamble = TRUE;
           }
           preamble = short_preamble ? 72 + 24 : 144 + 48;
 
@@ -1168,6 +1173,7 @@ static ei_register_info ei[] = {
         "No fec type information was available, assuming bcc fec.", EXPFILL }},
 };
 
+module_t *wlan_radio_module;
 expert_module_t* expert_wlan_radio;
 
 static gint *tree_array[] = {
@@ -1188,6 +1194,14 @@ void proto_register_ieee80211_radio(void)
 
   wlan_radio_handle = register_dissector("wlan_radio", dissect_wlan_radio, proto_wlan_radio);
   wlan_noqos_radio_handle = register_dissector("wlan_noqos_radio", dissect_wlan_noqos_radio, proto_wlan_radio);
+
+  wlan_radio_module = prefs_register_protocol(proto_wlan_radio, NULL);
+  prefs_register_bool_preference(wlan_radio_module, "always_short_preamble",
+    "802.11/11b preamble length is always short",
+    "Some generators incorrectly indicate long preamble when the preamble was actually"
+    "short. Always assume short preamble when calculating duration.",
+    &wlan_radio_always_short_preamble);
+
 }
 
 void proto_reg_handoff_ieee80211_radio(void)
