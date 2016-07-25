@@ -176,6 +176,7 @@ static expert_field ei_wbxml_data_not_shown = EI_INIT;
 static expert_field ei_wbxml_content_type_not_supported = EI_INIT;
 static expert_field ei_wbxml_content_type_disabled = EI_INIT;
 static expert_field ei_wbxml_oversized_uintvar = EI_INIT;
+static expert_field ei_wbxml_too_much_recursion = EI_INIT;
 
 /* WBXML Preferences */
 static gboolean skip_wbxml_token_mapping = FALSE;
@@ -7306,6 +7307,10 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 					            The initial state is FALSE.
 					            This state will trigger recursion. */
 
+	if (*level == 255) {
+		proto_tree_add_expert(tree, pinfo, &ei_wbxml_too_much_recursion, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+		return tvb_len;
+	}
 	DebugLog(("parse_wbxml_tag_defined (level = %u, offset = %u)\n", *level, offset));
 	while (off < tvb_len) {
 		peek = tvb_get_guint8 (tvb, off);
@@ -8100,7 +8105,8 @@ proto_register_wbxml(void)
 		{ &ei_wbxml_data_not_shown, { "wbxml.data_not_shown", PI_PROTOCOL, PI_NOTE, "Data representation not shown (edit WBXML preferences to show)", EXPFILL }},
 		{ &ei_wbxml_content_type_not_supported, { "wbxml.content_type.not_supported", PI_UNDECODED, PI_WARN, "Rendering of this content type not (yet) supported", EXPFILL }},
 		{ &ei_wbxml_content_type_disabled, { "wbxml.content_type.disabled", PI_PROTOCOL, PI_NOTE, "Rendering of this content type has been disabled (edit WBXML preferences to enable)", EXPFILL }},
-		{ &ei_wbxml_oversized_uintvar, { "wbxml.oversized_uintvar", PI_MALFORMED, PI_ERROR, "Uintvar is oversized", EXPFILL }}
+		{ &ei_wbxml_oversized_uintvar, { "wbxml.oversized_uintvar", PI_MALFORMED, PI_ERROR, "Uintvar is oversized", EXPFILL }},
+		{ &ei_wbxml_too_much_recursion, { "wbxml.too_much_recursion", PI_UNDECODED, PI_WARN, "Too much recursion", EXPFILL }}
 	};
 
 	expert_module_t* expert_wbxml;
