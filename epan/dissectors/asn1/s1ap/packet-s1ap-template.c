@@ -82,6 +82,7 @@ static int ett_s1ap_UERadioCapability = -1;
 static int ett_s1ap_RIMInformation = -1;
 static int ett_s1ap_Cdma2000PDU = -1;
 static int ett_s1ap_Cdma2000SectorID = -1;
+static int ett_s1ap_UERadioPagingInformation = -1;
 
 #include "packet-s1ap-ett.c"
 
@@ -262,6 +263,7 @@ void proto_register_s1ap(void) {
 		  &ett_s1ap_RIMInformation,
           &ett_s1ap_Cdma2000PDU,
           &ett_s1ap_Cdma2000SectorID,
+          &ett_s1ap_UERadioPagingInformation,
 #include "packet-s1ap-ettarr.c"
   };
 

@@ -564,6 +564,20 @@ if (gcsna_handle) {
   subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_Cdma2000SectorID);
   dissect_a21_ie_common(parameter_tvb, %(ACTX)s->pinfo, NULL/* Top tree not needed */, subtree, 0,  0 /* message_type not needed */);
 
+#.FN_BODY UERadioCapabilityForPaging VAL_PTR = &parameter_tvb
+# 9.2.1.98 UE Radio Capability for Paging
+# Includes the UERadioPagingInformation message as defined in 10.2.2 of TS 36.331 [16].
+
+ tvbuff_t *parameter_tvb;
+ proto_tree *subtree = NULL;
+
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UERadioPagingInformation);
+  dissect_lte_rrc_UERadioPagingInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+
 
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &s1ap_ProtocolIE_ID_vals_ext

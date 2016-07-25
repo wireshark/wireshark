@@ -34,6 +34,8 @@ UERadioAccessCapabilityInformation-NB
 UERadioAccessCapabilityInformation-NB_PDU
 UE-EUTRA-Capability
 UE-EUTRA-Capability_PDU
+UERadioPagingInformation
+UERadioPagingInformation_PDU
 #.END
 
 #.PDU
@@ -42,6 +44,7 @@ HandoverPreparationInformation
 HandoverPreparationInformation-NB
 UERadioAccessCapabilityInformation
 UERadioAccessCapabilityInformation-NB
+UERadioPagingInformation
 BCCH-BCH-Message             @bcch.bch
 BCCH-DL-SCH-Message          @bcch.dl.sch
 BCCH-DL-SCH-Message-BR       @bcch.dl.sch.br
@@ -98,11 +101,8 @@ UEPagingCoverageInformation
 UEPagingCoverageInformation-NB
 UEPagingCoverageInformation-NB-IEs
 UEPagingCoverageInformation-r13-IEs
-UERadioPagingInformation
 UERadioPagingInformation-NB
 UERadioPagingInformation-NB-IEs
-UERadioPagingInformation-r12-IEs
-UERadioPagingInformation-v1310-IEs
 VarConnEstFailReport-r11
 VarLogMeasConfig-r10
 VarLogMeasConfig-r11
