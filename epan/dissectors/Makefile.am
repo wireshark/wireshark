@@ -1343,6 +1343,7 @@ DISSECTOR_SRC = \
 	packet-vrrp.c		\
 	packet-vrt.c		\
 	packet-vsip.c		\
+	packet-vsock.c		\
 	packet-vssmonitoring.c	\
 	packet-vtp.c		\
 	packet-vuze-dht.c	\
