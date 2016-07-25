@@ -216,17 +216,20 @@ static unsigned int highest_num_seen = 0;
 static void
 prepare_ldss_transfer_conv(ldss_broadcast_t *broadcast)
 {
-	conversation_t *transfer_conv;
-	ldss_transfer_info_t *transfer_info;
+	if (!find_conversation(broadcast->num, &broadcast->broadcaster->addr, &broadcast->broadcaster->addr,
+	                       PT_TCP, broadcast->broadcaster->port, broadcast->broadcaster->port, NO_ADDR2|NO_PORT2)) {
+		conversation_t *transfer_conv;
+		ldss_transfer_info_t *transfer_info;
 
-	transfer_info = wmem_new0(wmem_file_scope(), ldss_transfer_info_t);
-	transfer_info->broadcast = broadcast;
+		transfer_info = wmem_new0(wmem_file_scope(), ldss_transfer_info_t);
+		transfer_info->broadcast = broadcast;
 
-	/* Preparation for later push/pull dissection */
-	transfer_conv = conversation_new (broadcast->num, &broadcast->broadcaster->addr, &broadcast->broadcaster->addr,
-					  PT_TCP, broadcast->broadcaster->port, broadcast->broadcaster->port, NO_ADDR2|NO_PORT2);
-	conversation_add_proto_data(transfer_conv, proto_ldss, transfer_info);
-	conversation_set_dissector(transfer_conv, ldss_tcp_handle);
+		/* Preparation for later push/pull dissection */
+		transfer_conv = conversation_new (broadcast->num, &broadcast->broadcaster->addr, &broadcast->broadcaster->addr,
+						PT_TCP, broadcast->broadcaster->port, broadcast->broadcaster->port, NO_ADDR2|NO_PORT2);
+		conversation_add_proto_data(transfer_conv, proto_ldss, transfer_info);
+		conversation_set_dissector(transfer_conv, ldss_tcp_handle);
+	}
 }
 
 /* Broadcasts are searches, offers or promises.
