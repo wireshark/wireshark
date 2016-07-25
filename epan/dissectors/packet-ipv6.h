@@ -104,6 +104,8 @@ struct ip6_frag {
 extern "C" {
 #endif /* __cplusplus */
 
+typedef ws_ip ipv6_ws_tap_info_t;
+
 /* Packet info for IPv6 header and extensions */
 typedef struct {
     guint32     jumbo_plen;
