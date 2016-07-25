@@ -30,6 +30,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 /* Port Numbers as per IANA */
 /* < URL:http://www.iana.org/assignments/port-numbers/ > */
@@ -69,7 +70,7 @@
  */
 
 /* Utility function for reading Uintvar encoded values */
-guint tvb_get_guintvar (tvbuff_t *, guint , guint *);
+guint tvb_get_guintvar (tvbuff_t *, guint , guint *, packet_info *, expert_field *);
 
 /* Character set encoding */
 extern value_string_ext wap_mib_enum_vals_character_sets_ext;

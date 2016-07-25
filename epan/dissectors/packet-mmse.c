@@ -35,6 +35,7 @@
 
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/strutil.h>
 #include "packet-wap.h"
@@ -247,6 +248,8 @@ static int hf_mmse_header_bytes = -1;
  */
 static gint ett_mmse                    = -1;
 static gint ett_mmse_hdr_details        = -1;
+
+static expert_field ei_mmse_oversized_uintvar = EI_INIT;
 
 /*
  * Valuestrings for PDU types
@@ -480,11 +483,12 @@ get_text_string(tvbuff_t *tvb, guint offset, const char **strval)
  * \param       offset          Offset within that buffer
  * \param       byte_count      Returns the length in bytes of
  *                              the "Value-length" field.
+ * \param       pinfo           packet_info structure
  *
  * \return                      The actual value of "Value-length"
  */
 static guint
-get_value_length(tvbuff_t *tvb, guint offset, guint *byte_count)
+get_value_length(tvbuff_t *tvb, guint offset, guint *byte_count, packet_info *pinfo)
 {
     guint        field;
 
@@ -492,7 +496,7 @@ get_value_length(tvbuff_t *tvb, guint offset, guint *byte_count)
     if (field < 31)
         *byte_count = 1;
     else {                      /* Must be 31 so, Uintvar follows       */
-        field = tvb_get_guintvar(tvb, offset, byte_count);
+        field = tvb_get_guintvar(tvb, offset, byte_count, pinfo, &ei_mmse_oversized_uintvar);
         (*byte_count)++;
     }
     return field;
@@ -511,7 +515,7 @@ get_value_length(tvbuff_t *tvb, guint offset, guint *byte_count)
  * \return              The length in bytes of the entire field
  */
 static guint
-get_encoded_strval(tvbuff_t *tvb, guint offset, const char **strval)
+get_encoded_strval(tvbuff_t *tvb, guint offset, const char **strval, packet_info *pinfo)
 {
     guint        field;
     guint        length;
@@ -520,7 +524,7 @@ get_encoded_strval(tvbuff_t *tvb, guint offset, const char **strval)
     field = tvb_get_guint8(tvb, offset);
 
     if (field < 32) {
-        length = get_value_length(tvb, offset, &count);
+        length = get_value_length(tvb, offset, &count, pinfo);
         if (length < 2) {
             *strval = "";
         } else {
@@ -772,7 +776,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                     }
                     break;
                 case MM_BCC_HDR:                /* Encoded-string-value */
-                    length = get_encoded_strval(tvb, offset, &strval);
+                    length = get_encoded_strval(tvb, offset, &strval, pinfo);
                     if (tree) {
                         proto_tree_add_string(mmse_tree, hf_mmse_bcc, tvb,
                                 offset - 1, length + 1, strval);
@@ -780,7 +784,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                     offset += length;
                     break;
                 case MM_CC_HDR:                 /* Encoded-string-value */
-                    length = get_encoded_strval(tvb, offset, &strval);
+                    length = get_encoded_strval(tvb, offset, &strval, pinfo);
                     if (tree) {
                         proto_tree_add_string(mmse_tree, hf_mmse_cc, tvb,
                                 offset - 1, length + 1, strval);
@@ -794,7 +798,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                         if (length == 0x1F) {
                             guint length_len = 0;
                             length = tvb_get_guintvar(tvb, offset + 1,
-                                    &length_len);
+                                    &length_len, pinfo, &ei_mmse_oversized_uintvar);
                             length += 1 + length_len;
                         } else {
                             length += 1;
@@ -839,7 +843,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                      * Value-length(Absolute-token Date-value|
                      *              Relative-token Delta-seconds-value)
                      */
-                    length = get_value_length(tvb, offset, &count);
+                    length = get_value_length(tvb, offset, &count, pinfo);
                     field = tvb_get_guint8(tvb, offset + count);
                     if (tree) {
                         guint            tval;
@@ -868,7 +872,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                      * Value-length(Absolute-token Date-value|
                      *              Relative-token Delta-seconds-value)
                      */
-                    length = get_value_length(tvb, offset, &count);
+                    length = get_value_length(tvb, offset, &count, pinfo);
                     field = tvb_get_guint8(tvb, offset + count);
                     if (tree) {
                         guint            tval;
@@ -895,7 +899,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                      * Value-length(Address-present-token Encoded-string-value
                      *              |Insert-address-token)
                      */
-                    length = get_value_length(tvb, offset, &count);
+                    length = get_value_length(tvb, offset, &count, pinfo);
                     if (tree) {
                         field = tvb_get_guint8(tvb, offset + count);
                         if (field == 0x81) {
@@ -904,7 +908,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                                     "<insert address>");
                         } else {
                             (void) get_encoded_strval(tvb, offset + count + 1,
-                                                      &strval);
+                                                      &strval, pinfo);
                             proto_tree_add_string(mmse_tree, hf_mmse_from, tvb,
                                     offset-1, length + count + 1, strval);
                         }
@@ -990,7 +994,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                         if (length == 0x1F) {
                             guint length_len = 0;
                             length = tvb_get_guintvar(tvb, offset + 1,
-                                    &length_len);
+                                    &length_len, pinfo, &ei_mmse_oversized_uintvar);
                             length += 1 + length_len;
                         } else {
                             length += 1;
@@ -1002,7 +1006,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                                     "<Undecoded value for m-mbox-delete-conf>");
                         }
                     } else {
-                        length = get_encoded_strval(tvb, offset, &strval);
+                        length = get_encoded_strval(tvb, offset, &strval, pinfo);
                         if (tree) {
                             proto_tree_add_string(mmse_tree,
                                     hf_mmse_response_text, tvb, offset - 1,
@@ -1026,7 +1030,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                     }
                     break;
                 case MM_SUBJECT_HDR:            /* Encoded-string-value */
-                    length = get_encoded_strval(tvb, offset, &strval);
+                    length = get_encoded_strval(tvb, offset, &strval, pinfo);
                     if (tree) {
                         proto_tree_add_string(mmse_tree, hf_mmse_subject, tvb,
                                 offset - 1, length + 1, strval);
@@ -1034,7 +1038,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                     offset += length;
                     break;
                 case MM_TO_HDR:                 /* Encoded-string-value */
-                    length = get_encoded_strval(tvb, offset, &strval);
+                    length = get_encoded_strval(tvb, offset, &strval, pinfo);
                     if (tree) {
                         proto_tree_add_string(mmse_tree, hf_mmse_to, tvb,
                                 offset - 1, length + 1, strval);
@@ -1059,7 +1063,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                         if (length == 0x1F) {
                             guint length_len = 0;
                             length = tvb_get_guintvar(tvb, offset + 1,
-                                    &length_len);
+                                    &length_len, pinfo, &ei_mmse_oversized_uintvar);
                             length += 1 + length_len;
                         } else {
                             length += 1;
@@ -1072,7 +1076,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                         }
                     } else {
                         /* Encoded-string-value */
-                        length = get_encoded_strval(tvb, offset, &strval);
+                        length = get_encoded_strval(tvb, offset, &strval, pinfo);
                         if (tree) {
                             proto_tree_add_string(mmse_tree,
                                     hf_mmse_retrieve_text, tvb, offset - 1,
@@ -1100,7 +1104,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                      * Value-length(Absolute-token Date-value|
                      *              Relative-token Delta-seconds-value)
                      */
-                    length = get_value_length(tvb, offset, &count);
+                    length = get_value_length(tvb, offset, &count, pinfo);
                     field = tvb_get_guint8(tvb, offset + count);
                     if (tree) {
                         guint            tval;
@@ -1142,7 +1146,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                     break;
                 case MM_PREV_SENT_BY_HDR:
                     /* Value-length Integer-value Encoded-string-value */
-                    length = get_value_length(tvb, offset, &count);
+                    length = get_value_length(tvb, offset, &count, pinfo);
                     if (tree) {
                         guint32 fwd_count, count1, count2;
                         proto_tree *subtree = NULL;
@@ -1152,7 +1156,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                             &count1);
                         /* 2. Encoded-string-value */
                         count2 = get_encoded_strval(tvb,
-                                offset + count + count1, &strval);
+                                offset + count + count1, &strval, pinfo);
                         /* Now render the fields */
                         tii = proto_tree_add_string_format(mmse_tree,
                                 hf_mmse_prev_sent_by,
@@ -1173,7 +1177,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                     break;
                 case MM_PREV_SENT_DATE_HDR:
                     /* Value-Length Forwarded-count-value Date-value */
-                    length = get_value_length(tvb, offset, &count);
+                    length = get_value_length(tvb, offset, &count, pinfo);
                     if (tree) {
                         guint32 fwd_count, count1, count2;
                         guint            tval;
@@ -1240,7 +1244,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                             if (peek == 0x1F) { /* Value length in guintvar */
                                 guint length_len = 0;
                                 length = 1 + tvb_get_guintvar(tvb, offset + 1,
-                                        &length_len);
+                                        &length_len, pinfo, &ei_mmse_oversized_uintvar);
                                 length += length_len;
                             } else { /* Value length in octet */
                                 length = 1 + tvb_get_guint8(tvb, offset);
@@ -1645,13 +1649,22 @@ proto_register_mmse(void)
         &ett_mmse_hdr_details,
     };
 
-    /* Register the protocol name and description */
+    static ei_register_info ei[] = {
+        { &ei_mmse_oversized_uintvar, { "mmse.oversized_uintvar", PI_MALFORMED, PI_ERROR, "Uintvar is oversized", EXPFILL }}
+    };
+
+    expert_module_t* expert_mmse;
+
+        /* Register the protocol name and description */
     proto_mmse = proto_register_protocol("MMS Message Encapsulation",
                                          "MMSE", "mmse");
 
     /* Required function calls to register header fields and subtrees used */
     proto_register_field_array(proto_mmse, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_mmse = expert_register_protocol(proto_mmse);
+    expert_register_field_array(expert_mmse, ei, array_length(ei));
 }
 
 /* If this dissector uses sub-dissector registration add registration routine.

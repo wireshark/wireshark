@@ -38,7 +38,7 @@
  * the final value. Can be pre-initialised to start at offset+count.
 */
 guint
-tvb_get_guintvar (tvbuff_t *tvb, guint offset, guint *octetCount)
+tvb_get_guintvar (tvbuff_t *tvb, guint offset, guint *octetCount, packet_info *pinfo, expert_field *ei)
 {
     guint value   = 0;
     guint octet;
@@ -70,6 +70,10 @@ tvb_get_guintvar (tvbuff_t *tvb, guint offset, guint *octetCount)
 #endif
     }
 
+    if (counter > 5) {
+        proto_tree_add_expert(NULL, pinfo, ei, tvb, offset, counter);
+        value = 0;
+    }
     if (octetCount != NULL)
     {
         *octetCount = counter;
