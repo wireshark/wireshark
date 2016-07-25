@@ -2993,6 +2993,7 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	/* tree  offset/length */
@@ -3032,8 +3033,11 @@ dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	/* share type */
 	share_type = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_smb2_share_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	/* Next byte is reserved  and must be set to zero */
-	offset += 2;
+	offset += 1;
+
+	/* byte is reserved and must be set to zero */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 1, ENC_NA);
+	offset += 1;
 
 	if (!pinfo->fd->flags.visited && si->saved && si->saved->extra_info_type == SMB2_EI_TREENAME && si->session) {
 		smb2_tid_info_t *tid, tid_key;
@@ -3074,6 +3078,7 @@ dissect_smb2_tree_disconnect_request(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	return offset;
@@ -3092,6 +3097,7 @@ dissect_smb2_tree_disconnect_response(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 	}
 
 	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	return offset;
@@ -3122,6 +3128,7 @@ dissect_smb2_sessionlogoff_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 	}
 
 	/* reserved bytes */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	return offset;
@@ -3187,6 +3194,7 @@ dissect_smb2_notify_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset = dissect_nt_notify_completion_filter(tvb, tree, offset);
 
 	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
 	offset += 4;
 
 	return offset;
@@ -3586,6 +3594,7 @@ static void dissect_smb2_both_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 		offset += 1;
 
 		/* reserved */
+		proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
 		/* short name */
@@ -3754,6 +3763,7 @@ static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinf
 		offset += 1;
 
 		/* reserved */
+		proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
 		/* short name */
@@ -3769,6 +3779,7 @@ static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinf
 		offset += 24;
 
 		/* reserved */
+		proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
 		offset += 2;
 
 		/* file id */
@@ -4463,6 +4474,7 @@ dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	offset += 2;
 
 	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
 	offset += 4;
 
 	/* create time */
@@ -4541,6 +4553,7 @@ dissect_smb2_lock_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset += 2;
 
 	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
 	offset += 4;
 
 	/* fid */
@@ -4575,6 +4588,7 @@ dissect_smb2_lock_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 		offset += 4;
 
 		/* reserved */
+		proto_tree_add_item(lock_tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
 		offset += 4;
 	}
 
@@ -5898,6 +5912,7 @@ dissect_smb2_FSCTL_REPARSE_POINT(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	offset += 2;
 
 	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	/* substitute name  offset/length */
@@ -6061,6 +6076,7 @@ dissect_smb2_ioctl_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	/* ioctl function */
@@ -6092,6 +6108,7 @@ dissect_smb2_ioctl_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 4;
 
 	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
 	offset += 4;
 
 	/* try to decode these blobs in the order they were encoded
@@ -6149,9 +6166,11 @@ dissect_smb2_ioctl_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 	/* flags: reserved: must be zero */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
 	offset += 4;
 
 	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
 	offset += 4;
 
 	/* try to decode these blobs in the order they were encoded
@@ -6189,6 +6208,7 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* padding and reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	/* length */
@@ -6275,6 +6295,7 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 4;
 
 	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
 	offset += 4;
 
 	/* data or namedpipe ?*/
@@ -7192,6 +7213,7 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 8;
 
 	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 8, ENC_NA);
 	offset += 8;
 
 	/* access mask */
@@ -7307,6 +7329,7 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset = dissect_file_ext_attr(tvb, tree, offset);
 
 	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
 	offset += 4;
 
 	/* fid */
@@ -7412,9 +7435,11 @@ dissect_smb2_break_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		offset = dissect_smb2_oplock(tree, tvb, offset);
 
 		/* reserved */
+		proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
 		/* reserved */
+		proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
 		offset += 4;
 
 		/* fid */
@@ -7474,9 +7499,11 @@ dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset = dissect_smb2_oplock(tree, tvb, offset);
 
 		/* reserved */
+		proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
 		/* reserved */
+		proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
 		offset += 4;
 
 		/* fid */
