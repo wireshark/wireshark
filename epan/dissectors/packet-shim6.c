@@ -202,38 +202,36 @@ dissect_shim6_opt_loclist(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset)
     proto_tree *subtree;
     guint       count;
     guint       optlen;
-    int         p = *offset;
 
-    proto_tree_add_item(opt_tree, hf_shim6_opt_loclist, tvb, p, 4, ENC_BIG_ENDIAN);
-    p += 4;
+    proto_tree_add_item(opt_tree, hf_shim6_opt_loclist, tvb, *offset, 4, ENC_BIG_ENDIAN);
+    *offset += 4;
 
-    optlen = tvb_get_guint8(tvb, p);
-    proto_tree_add_item(opt_tree, hf_shim6_opt_locnum, tvb, p, 1, ENC_BIG_ENDIAN);
-    p++;
+    optlen = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_item(opt_tree, hf_shim6_opt_locnum, tvb, *offset, 1, ENC_BIG_ENDIAN);
+    *offset += 1;
 
     /* Verification Methods */
-    subtree = proto_tree_add_subtree(opt_tree, tvb, p, optlen,
+    subtree = proto_tree_add_subtree(opt_tree, tvb, *offset, optlen,
                              ett_shim6_verif_methods, NULL, "Locator Verification Methods");
 
     for (count=0; count < optlen; count++)
         proto_tree_add_item(subtree, hf_shim6_opt_loc_verif_methods, tvb,
-                            p+count, 1, ENC_BIG_ENDIAN);
-    p += optlen;
+                            *offset+count, 1, ENC_BIG_ENDIAN);
+    *offset += optlen;
 
     /* Padding, included in length field */
     if ((7 - optlen % 8) > 0) {
-        proto_tree_add_item(opt_tree, hf_shim6_padding, tvb, p, (7 - optlen % 8), ENC_NA);
-        p += (7 - optlen % 8);
+        proto_tree_add_item(opt_tree, hf_shim6_padding, tvb, *offset, (7 - optlen % 8), ENC_NA);
+        *offset += (7 - optlen % 8);
     }
 
     /* Locators */
-    subtree = proto_tree_add_subtree(opt_tree, tvb, p, 16 * optlen, ett_shim6_locators, NULL, "Locators");
+    subtree = proto_tree_add_subtree(opt_tree, tvb, *offset, 16 * optlen, ett_shim6_locators, NULL, "Locators");
 
     for (count=0; count < optlen; count++) {
-        proto_tree_add_item(subtree, hf_shim6_locator, tvb, p, 16, ENC_NA);
-        p += 16;
+        proto_tree_add_item(subtree, hf_shim6_locator, tvb, *offset, 16, ENC_NA);
+        *offset += 16;
     }
-    *offset = p;
 }
 
 static void
@@ -241,41 +239,39 @@ dissect_shim6_opt_loc_pref(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset, 
 {
     proto_tree *subtree;
 
-    gint        p;
     gint        optlen;
     gint        count;
 
-    p = *offset;
 
-    proto_tree_add_item(opt_tree, hf_shim6_opt_loclist, tvb, p, 4, ENC_BIG_ENDIAN);
-    p += 4;
+    proto_tree_add_item(opt_tree, hf_shim6_opt_loclist, tvb, *offset, 4, ENC_BIG_ENDIAN);
+    *offset += 4;
 
-    optlen = tvb_get_guint8(tvb, p);
-    proto_tree_add_item(opt_tree, hf_shim6_opt_elemlen, tvb, p, 1, ENC_BIG_ENDIAN);
+    optlen = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_item(opt_tree, hf_shim6_opt_elemlen, tvb, *offset, 1, ENC_BIG_ENDIAN);
 
     if (optlen < 1 || optlen > 3) {
-        proto_tree_add_expert_format(opt_tree, pinfo, &ei_shim6_opt_elemlen_invalid, tvb, p, 1,
+        proto_tree_add_expert_format(opt_tree, pinfo, &ei_shim6_opt_elemlen_invalid, tvb, *offset, 1,
                                      "Invalid element length: %u", optlen);
         return;
     }
 
-    p++;
+    *offset += 1;
 
     /* Locator Preferences */
     count = 1;
-    while (p < len) {
-        subtree = proto_tree_add_subtree_format(opt_tree, tvb, p, optlen, ett_shim6_loc_pref, NULL,
+    while (*offset < len) {
+        subtree = proto_tree_add_subtree_format(opt_tree, tvb, *offset, optlen, ett_shim6_loc_pref, NULL,
                                                 "Locator Preferences %u", count);
 
         /* Flags */
         if (optlen >= 1)
-            proto_tree_add_item(subtree, hf_shim6_loc_flag, tvb, p, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, hf_shim6_loc_flag, tvb, *offset, 1, ENC_BIG_ENDIAN);
         /* Priority */
         if (optlen >= 2)
-            proto_tree_add_item(subtree, hf_shim6_loc_prio, tvb, p+1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, hf_shim6_loc_prio, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
         /* Weight */
         if (optlen >= 3)
-            proto_tree_add_item(subtree, hf_shim6_loc_weight, tvb, p+2, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, hf_shim6_loc_weight, tvb, *offset+2, 1, ENC_BIG_ENDIAN);
         /*
          * Shim6 Draft 08 doesn't specify the format when the Element length is
          * more than three, except that any such formats MUST be defined so that
@@ -283,10 +279,9 @@ dissect_shim6_opt_loc_pref(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset, 
          * of a 1 octet flags field followed by a 1 octet priority field, and a
          * 1 octet weight field.
          */
-        p += optlen;
+        *offset += optlen;
         count++;
     }
-    *offset = p;
 }
 
 
@@ -294,15 +289,11 @@ static int
 dissect_shimopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo)
 {
     int          len, total_len;
-    gint         p;
     gint         padding;
     proto_tree  *opt_tree;
     proto_item  *ti;
 
-
-    p = offset;
-
-    p += 4;
+    offset += 4;
 
     len = tvb_get_ntohs(tvb, offset+2);
     padding = 7 - ((len + 3) % 8);
@@ -328,42 +319,42 @@ dissect_shimopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
         switch (tvb_get_ntohs(tvb, offset) >> 1)
         {
         case SHIM6_OPT_RESPVAL:
-            proto_tree_add_item(opt_tree, hf_shim6_validator, tvb, p, len, ENC_NA);
-            p += len;
+            proto_tree_add_item(opt_tree, hf_shim6_validator, tvb, offset, len, ENC_NA);
+            offset += len;
             if (total_len-(len+4) > 0)
-                proto_tree_add_item(opt_tree, hf_shim6_padding, tvb, p, total_len-(len+4), ENC_NA);
+                proto_tree_add_item(opt_tree, hf_shim6_padding, tvb, offset, total_len-(len+4), ENC_NA);
             break;
         case SHIM6_OPT_LOCLIST:
-            dissect_shim6_opt_loclist(opt_tree, tvb, &p);
+            dissect_shim6_opt_loclist(opt_tree, tvb, &offset);
             break;
         case SHIM6_OPT_LOCPREF:
-            dissect_shim6_opt_loc_pref(opt_tree, tvb, &p, offset+len+4, pinfo);
+            dissect_shim6_opt_loc_pref(opt_tree, tvb, &offset, offset+len+4, pinfo);
             if (total_len-(len+4) > 0)
-                proto_tree_add_item(opt_tree, hf_shim6_padding, tvb, p, total_len-(len+4), ENC_NA);
+                proto_tree_add_item(opt_tree, hf_shim6_padding, tvb, offset, total_len-(len+4), ENC_NA);
             break;
         case SHIM6_OPT_CGAPDM:
-            proto_tree_add_item(opt_tree, hf_shim6_cga_parameter_data_structure, tvb, p, len, ENC_NA);
-            p += len;
+            proto_tree_add_item(opt_tree, hf_shim6_cga_parameter_data_structure, tvb, offset, len, ENC_NA);
+            offset += len;
             if (total_len-(len+4) > 0)
-                proto_tree_add_item(opt_tree, hf_shim6_padding, tvb, p, total_len-(len+4), ENC_NA);
+                proto_tree_add_item(opt_tree, hf_shim6_padding, tvb, offset, total_len-(len+4), ENC_NA);
             break;
         case SHIM6_OPT_CGASIG:
-            proto_tree_add_item(opt_tree, hf_shim6_cga_signature, tvb, p, len, ENC_NA);
-            p += len;
+            proto_tree_add_item(opt_tree, hf_shim6_cga_signature, tvb, offset, len, ENC_NA);
+            offset += len;
             if (total_len-(len+4) > 0)
-                proto_tree_add_item(opt_tree, hf_shim6_padding, tvb, p, total_len-(len+4), ENC_NA);
+                proto_tree_add_item(opt_tree, hf_shim6_padding, tvb, offset, total_len-(len+4), ENC_NA);
             break;
         case SHIM6_OPT_ULIDPAIR:
-            proto_tree_add_item(opt_tree, hf_shim6_reserved, tvb, p, 4, ENC_NA);
-            p += 4;
-            proto_tree_add_item(opt_tree, hf_shim6_sulid, tvb, p, 16, ENC_NA);
-            p += 16;
-            proto_tree_add_item(opt_tree, hf_shim6_rulid, tvb, p, 16, ENC_NA);
-            p += 16;
+            proto_tree_add_item(opt_tree, hf_shim6_reserved, tvb, offset, 4, ENC_NA);
+            offset += 4;
+            proto_tree_add_item(opt_tree, hf_shim6_sulid, tvb, offset, 16, ENC_NA);
+            offset += 16;
+            proto_tree_add_item(opt_tree, hf_shim6_rulid, tvb, offset, 16, ENC_NA);
+            offset += 16;
             break;
         case SHIM6_OPT_FII:
-            proto_tree_add_item(opt_tree, hf_shim6_opt_fii, tvb, p, 4, ENC_BIG_ENDIAN);
-            p += 4;
+            proto_tree_add_item(opt_tree, hf_shim6_opt_fii, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
             break;
         default:
             break;
@@ -434,117 +425,114 @@ dissect_shim6_probes(proto_tree * shim_tree, tvbuff_t * tvb, gint offset,
 static int
 dissect_shimctrl(tvbuff_t *tvb, gint offset, guint type, proto_tree *shim_tree)
 {
-    gint         p;
     guint8       tmp;
     const gchar *sta;
     guint        probes_sent;
     guint        probes_rcvd;
 
-    p = offset;
-
     switch (type)
     {
     case SHIM6_TYPE_I1:
-        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, p, "Initiator Context Tag");
-        p += 6;
-        proto_tree_add_item(shim_tree, hf_shim6_inonce, tvb, p, 4, ENC_BIG_ENDIAN);
-        p += 4;
+        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, offset, "Initiator Context Tag");
+        offset += 6;
+        proto_tree_add_item(shim_tree, hf_shim6_inonce, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
         break;
     case SHIM6_TYPE_R1:
-        proto_tree_add_item(shim_tree, hf_shim6_reserved2, tvb, p, 2, ENC_NA);
-        p += 2;
-        proto_tree_add_item(shim_tree, hf_shim6_inonce, tvb, p, 4, ENC_BIG_ENDIAN);
-        p += 4;
-        proto_tree_add_item(shim_tree, hf_shim6_rnonce, tvb, p, 4, ENC_BIG_ENDIAN);
-        p += 4;
+        proto_tree_add_item(shim_tree, hf_shim6_reserved2, tvb, offset, 2, ENC_NA);
+        offset += 2;
+        proto_tree_add_item(shim_tree, hf_shim6_inonce, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(shim_tree, hf_shim6_rnonce, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
         break;
     case SHIM6_TYPE_I2:
-        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, p, "Initiator Context Tag");
-        p += 6;
-        proto_tree_add_item(shim_tree, hf_shim6_inonce, tvb, p, 4, ENC_BIG_ENDIAN);
-        p += 4;
-        proto_tree_add_item(shim_tree, hf_shim6_rnonce, tvb, p, 4, ENC_BIG_ENDIAN);
-        p += 4;
-        proto_tree_add_item(shim_tree, hf_shim6_reserved2, tvb, p, 4, ENC_NA);
-        p += 4;
+        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, offset, "Initiator Context Tag");
+        offset += 6;
+        proto_tree_add_item(shim_tree, hf_shim6_inonce, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(shim_tree, hf_shim6_rnonce, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(shim_tree, hf_shim6_reserved2, tvb, offset, 4, ENC_NA);
+        offset += 4;
         break;
     case SHIM6_TYPE_R2:
-        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, p, "Responder Context Tag");
-        p += 6;
-        proto_tree_add_item(shim_tree, hf_shim6_inonce, tvb, p, 4, ENC_BIG_ENDIAN);
-        p += 4;
+        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, offset, "Responder Context Tag");
+        offset += 6;
+        proto_tree_add_item(shim_tree, hf_shim6_inonce, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
         break;
     case SHIM6_TYPE_R1BIS:
-        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, p, "Packet Context Tag");
-        p += 6;
-        proto_tree_add_item(shim_tree, hf_shim6_rnonce, tvb, p, 4, ENC_BIG_ENDIAN);
-        p += 4;
+        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, offset, "Packet Context Tag");
+        offset += 6;
+        proto_tree_add_item(shim_tree, hf_shim6_rnonce, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
         break;
     case SHIM6_TYPE_I2BIS:
-        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, p, "Initiator Context Tag");
-        p += 6;
-        proto_tree_add_item(shim_tree, hf_shim6_inonce, tvb, p, 4, ENC_BIG_ENDIAN);
-        p += 4;
-        proto_tree_add_item(shim_tree, hf_shim6_rnonce, tvb, p, 4, ENC_BIG_ENDIAN);
-        p += 4;
-        proto_tree_add_item(shim_tree, hf_shim6_reserved2, tvb, p, 6, ENC_NA);
-        p += 6;
-        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, p, "Initiator Context Tag");
-        p += 6;
+        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, offset, "Initiator Context Tag");
+        offset += 6;
+        proto_tree_add_item(shim_tree, hf_shim6_inonce, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(shim_tree, hf_shim6_rnonce, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(shim_tree, hf_shim6_reserved2, tvb, offset, 6, ENC_NA);
+        offset += 6;
+        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, offset, "Initiator Context Tag");
+        offset += 6;
         break;
     case SHIM6_TYPE_UPD_REQ:
     case SHIM6_TYPE_UPD_ACK:
-        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, p, "Receiver Context Tag");
-        p += 6;
-        proto_tree_add_item(shim_tree, hf_shim6_rnonce, tvb, p, 4, ENC_BIG_ENDIAN);
-        p += 4;
+        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, offset, "Receiver Context Tag");
+        offset += 6;
+        proto_tree_add_item(shim_tree, hf_shim6_rnonce, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
         break;
     case SHIM6_TYPE_KEEPALIVE:
-        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, p, "Receiver Context Tag");
-        p += 6;
-        proto_tree_add_item(shim_tree, hf_shim6_reserved2, tvb, p, 4, ENC_NA);
-        p += 4;
+        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, offset, "Receiver Context Tag");
+        offset += 6;
+        proto_tree_add_item(shim_tree, hf_shim6_reserved2, tvb, offset, 4, ENC_NA);
+        offset += 4;
         break;
     case SHIM6_TYPE_PROBE:
-        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, p, "Receiver Context Tag");
-        p += 6;
+        dissect_shim6_ct(shim_tree, hf_shim6_ct, tvb, offset, "Receiver Context Tag");
+        offset += 6;
 
-        tmp = tvb_get_guint8(tvb, p);
+        tmp = tvb_get_guint8(tvb, offset);
         probes_sent = tmp & SHIM6_BITMASK_PSENT;
         probes_rcvd = (tmp & SHIM6_BITMASK_PRECVD) >> 4;
         proto_tree_add_item(shim_tree, hf_shim6_psent, tvb,
-                            p, 1, ENC_BIG_ENDIAN);
+                            offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(shim_tree, hf_shim6_precvd, tvb,
-                            p, 1, ENC_BIG_ENDIAN);
-        p++;
+                            offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
 
-        sta = val_to_str_const((tvb_get_guint8(tvb, p) & SHIM6_BITMASK_STA) >> 6,
+        sta = val_to_str_const((tvb_get_guint8(tvb, offset) & SHIM6_BITMASK_STA) >> 6,
                                shimreapstates, "Unknown REAP State");
         proto_tree_add_uint_format_value(shim_tree, hf_shim6_reap, tvb,
-                                         p, 1, (tvb_get_guint8(tvb, p) & SHIM6_BITMASK_STA) >> 6,
+                                         offset, 1, (tvb_get_guint8(tvb, offset) & SHIM6_BITMASK_STA) >> 6,
                                          "%s", sta);
 
-        proto_tree_add_item(shim_tree, hf_shim6_reserved2, tvb, p, 3, ENC_NA);
-        p += 3;
+        proto_tree_add_item(shim_tree, hf_shim6_reserved2, tvb, offset, 3, ENC_NA);
+        offset += 3;
 
         /* Probes Sent */
         if (probes_sent) {
-            dissect_shim6_probes(shim_tree, tvb, p, "Probes Sent",
+            dissect_shim6_probes(shim_tree, tvb, offset, "Probes Sent",
                                  probes_sent, FALSE);
-            p += 40 * probes_sent;
+            offset += 40 * probes_sent;
         }
 
         /* Probes Received */
         if (probes_rcvd) {
-            dissect_shim6_probes(shim_tree, tvb, p, "Probes Received",
+            dissect_shim6_probes(shim_tree, tvb, offset, "Probes Received",
                                  probes_rcvd, TRUE);
-            p += 40 * probes_rcvd;
+            offset += 40 * probes_rcvd;
         }
         break;
     default:
         break;
     }
-    return p-offset;
+    return offset;
 }
 
 /* Dissect SHIM6 data: payload, common part, options */
@@ -567,7 +555,6 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data)
 {
     struct ip6_shim  shim;
     int              offset = 0, len;
-    gint             p;
     proto_tree      *shim_tree, *root_tree;
     proto_item      *ti, *ti_len;
     guint8           tmp[5];
@@ -575,6 +562,7 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data)
 
     tvb_memcpy(tvb, (guint8 *)&shim, offset, sizeof(shim));
     len = (shim.ip6s_len + 1) << 3;
+
 
     if (shim.ip6s_p & SHIM6_BITMASK_P) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, " , ", "Shim6 (Payload)");
@@ -600,8 +588,9 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data)
 
     /* Next Header */
     proto_tree_add_uint_format_value(shim_tree, hf_shim6_nxt, tvb,
-                                     offset + (int)offsetof(struct ip6_shim, ip6s_nxt), 1, shim.ip6s_nxt,
+                                     offset, 1, shim.ip6s_nxt,
                                      "%s (%u)", ipprotostr(shim.ip6s_nxt), shim.ip6s_nxt);
+    offset += 1;
 
     /* Header Extension Length */
     ti_len = proto_tree_add_item(shim_tree, hf_shim6_len, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -610,24 +599,21 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data)
     PROTO_ITEM_SET_GENERATED(ti);
     PROTO_ITEM_SET_HIDDEN(ti);
     proto_item_append_text(ti_len, " (%d bytes)", len);
+    offset += 1;
 
     /* P Field */
-    proto_tree_add_item(shim_tree, hf_shim6_p, tvb,
-                        offset + (int)offsetof(struct ip6_shim, ip6s_p), 1, ENC_BIG_ENDIAN);
-
-    /* skip the first 2 bytes (nxt hdr, hdr ext len, p+7bits) */
-    p = offset + 3;
+    proto_tree_add_item(shim_tree, hf_shim6_p, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     if (shim.ip6s_p & SHIM6_BITMASK_P) {
-        tmp[0] = tvb_get_guint8(tvb, p++);
-        tmp[1] = tvb_get_guint8(tvb, p++);
-        tmp[2] = tvb_get_guint8(tvb, p++);
-        tmp[3] = tvb_get_guint8(tvb, p++);
-        tmp[4] = tvb_get_guint8(tvb, p++);
+        tmp[0] = tvb_get_guint8(tvb, offset+1);
+        tmp[1] = tvb_get_guint8(tvb, offset+2);
+        tmp[2] = tvb_get_guint8(tvb, offset+3);
+        tmp[3] = tvb_get_guint8(tvb, offset+4);
+        tmp[4] = tvb_get_guint8(tvb, offset+5);
 
         /* Payload Extension Header */
         proto_tree_add_none_format(shim_tree, hf_shim6_ct, tvb,
-                                   offset + (int)offsetof(struct ip6_shim, ip6s_p), 6,
+                                   offset, 6,
                                    "Receiver Context Tag: %02x %02x %02x %02x %02x %02x",
                                    shim.ip6s_p & SHIM6_BITMASK_CT, tmp[0], tmp[1], tmp[2], tmp[3], tmp[4]);
     } else {
@@ -636,30 +622,27 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data)
         int advance;
 
         /* Message Type */
-        proto_tree_add_item(shim_tree, hf_shim6_type, tvb,
-                            offset + (int)offsetof(struct ip6_shim, ip6s_p), 1,
-                            ENC_BIG_ENDIAN
-            );
+        proto_tree_add_item(shim_tree, hf_shim6_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Protocol bit (Must be zero for SHIM6) */
-        proto_tree_add_item(shim_tree, hf_shim6_proto, tvb, p, 1, ENC_BIG_ENDIAN);
-        p++;
+        proto_tree_add_item(shim_tree, hf_shim6_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
 
         /* Checksum */
-        csum = shim6_checksum(tvb, offset, len);
-        proto_tree_add_checksum(shim_tree, tvb, p, hf_shim6_checksum, hf_shim6_checksum_status, &ei_shim6_checksum_bad, pinfo, csum,
+        csum = shim6_checksum(tvb, 0, len);
+        proto_tree_add_checksum(shim_tree, tvb, offset, hf_shim6_checksum, hf_shim6_checksum_status, &ei_shim6_checksum_bad, pinfo, csum,
                                 ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
         if (csum != 0)
             col_append_str(pinfo->cinfo, COL_INFO, " [Shim6 CHECKSUM INCORRECT]");
-        p += 2;
+        offset += 2;
 
         /* Type specific data */
-        advance = dissect_shimctrl(tvb, p, shim.ip6s_p & SHIM6_BITMASK_TYPE, shim_tree);
-        p += advance;
+        advance = dissect_shimctrl(tvb, offset, shim.ip6s_p & SHIM6_BITMASK_TYPE, shim_tree);
+        offset += advance;
 
         /* Options */
-        while (p < offset+len) {
-            p += dissect_shimopts(tvb, p, shim_tree, pinfo);
+        while (offset < len) {
+            offset += dissect_shimopts(tvb, offset, shim_tree, pinfo);
         }
     }
 
