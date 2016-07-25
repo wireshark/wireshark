@@ -270,7 +270,7 @@ typedef struct _SslFlow {
 typedef struct _SslDecompress SslDecompress;
 
 typedef struct _SslDecoder {
-    SslCipherSuite* cipher_suite;
+    const SslCipherSuite *cipher_suite;
     gint compression;
     guchar _mac_key_or_write_iv[48];
     StringInfo mac_key; /* for block and stream ciphers */
@@ -389,7 +389,7 @@ typedef struct _SslDecryptSession {
     StringInfo client_data_for_iv;
 
     gint state;
-    SslCipherSuite cipher_suite;
+    const SslCipherSuite *cipher_suite;
     SslDecoder *server;
     SslDecoder *client;
     SslDecoder *server_new;
@@ -484,10 +484,9 @@ ssl_cipher_setiv(SSL_CIPHER_CTX *cipher, guchar* iv, gint iv_len);
 
 /** Search for the specified cipher suite id
  @param num the id of the cipher suite to be searched
- @param cs pointer to the cipher suite struct to be filled
- @return 0 if the cipher suite is found, -1 elsewhere */
-extern gint
-ssl_find_cipher(int num,SslCipherSuite* cs);
+ @return pointer to the cipher suite struct (or NULL if not found). */
+extern const SslCipherSuite *
+ssl_find_cipher(int num);
 
 gboolean
 ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,

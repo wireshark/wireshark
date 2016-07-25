@@ -3302,7 +3302,8 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
     /* cipher */
     if (cipher > 0) {
         ssl->session.cipher = cipher;
-        if (ssl_find_cipher(ssl->session.cipher,&ssl->cipher_suite) < 0) {
+        if (!(ssl->cipher_suite = ssl_find_cipher(ssl->session.cipher))) {
+            ssl->state &= ~SSL_CIPHER;
             ssl_debug_printf("ssl_set_master_secret can't find cipher suite 0x%X\n", ssl->session.cipher);
         } else {
             ssl->state |= SSL_CIPHER;
@@ -3352,7 +3353,7 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
     }
 
     /* update IV from last data */
-    iv_len = (ssl->cipher_suite.block>1) ? ssl->cipher_suite.block : 8;
+    iv_len = (ssl->cipher_suite->block>1) ? ssl->cipher_suite->block : 8;
     if (ssl->client && ((ssl->client->seq > 0) || (ssl->client_data_for_iv.data_len > iv_len))) {
         ssl_cipher_setiv(&ssl->client->evp, ssl->client_data_for_iv.data + ssl->client_data_for_iv.data_len - iv_len, iv_len);
         ssl_print_data("ssl_set_master_secret client IV updated",ssl->client_data_for_iv.data + ssl->client_data_for_iv.data_len - iv_len, iv_len);
