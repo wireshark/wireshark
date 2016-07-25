@@ -2246,7 +2246,7 @@ ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     /* Unknown protocol. */
-    col_add_fstr(pinfo->cinfo, COL_INFO, "IP Protocol: %s (%u)", ipprotostr(nxt), nxt);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown IP Protocol: %s (%u)", ipprotostr(nxt), nxt);
     call_data_dissector(tvb, pinfo, tree);
 }
 
