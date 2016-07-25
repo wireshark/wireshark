@@ -1982,7 +1982,7 @@ static const SslDigestAlgo digests[]={
 
 /* get index digest index */
 static const SslDigestAlgo *
-ssl_cipher_suite_dig(SslCipherSuite *cs) {
+ssl_cipher_suite_dig(const SslCipherSuite *cs) {
     return &digests[cs->dig - DIG_MD5];
 }
 
@@ -2000,7 +2000,7 @@ static const gchar *ciphers[]={
     "*UNKNOWN*"
 };
 
-static SslCipherSuite cipher_suites[]={
+static const SslCipherSuite cipher_suites[]={
     {0x0001,KEX_RSA,         ENC_NULL,        1,  0,  0,DIG_MD5,    MODE_STREAM},   /* TLS_RSA_WITH_NULL_MD5 */
     {0x0002,KEX_RSA,         ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_RSA_WITH_NULL_SHA */
     {0x0003,KEX_RSA,         ENC_RC4,         1,128, 40,DIG_MD5,    MODE_STREAM},   /* TLS_RSA_EXPORT_WITH_RC4_40_MD5 */
@@ -2253,27 +2253,25 @@ static SslCipherSuite cipher_suites[]={
 #define MAX_BLOCK_SIZE 16
 #define MAX_KEY_SIZE 32
 
-int
-ssl_find_cipher(int num,SslCipherSuite* cs)
+const SslCipherSuite *
+ssl_find_cipher(int num)
 {
-    SslCipherSuite *c;
-
+    const SslCipherSuite *c;
     for(c=cipher_suites;c->number!=-1;c++){
         if(c->number==num){
-            *cs=*c;
-            return 0;
+            return c;
         }
     }
 
-    return -1;
+    return NULL;
 }
 #else /* ! HAVE_LIBGCRYPT */
-int
-ssl_find_cipher(int num,SslCipherSuite* cs)
+const SslCipherSuite *
+ssl_find_cipher(int num)
 {
     ssl_debug_printf("ssl_find_cipher: dummy without gnutls. num %d cs %p\n",
         num,cs);
-    return 0;
+    return NULL;
 }
 #endif /* ! HAVE_LIBGCRYPT */
 
@@ -2510,7 +2508,8 @@ ssl3_prf(StringInfo* secret, const gchar* usage,
     return TRUE;
 }
 
-/* out_len is the wanted output length for the pseudorandom function */
+/* out_len is the wanted output length for the pseudorandom function.
+ * Ensure that ssl->cipher_suite is set. */
 static gboolean
 prf(SslDecryptSession *ssl, StringInfo *secret, const gchar *usage,
     StringInfo *rnd1, StringInfo *rnd2, StringInfo *out, guint out_len)
@@ -2526,7 +2525,7 @@ prf(SslDecryptSession *ssl, StringInfo *secret, const gchar *usage,
         return tls_prf(secret, usage, rnd1, rnd2, out, out_len);
 
     default: /* TLSv1.2 */
-        switch (ssl->cipher_suite.dig) {
+        switch (ssl->cipher_suite->dig) {
         case DIG_SHA384:
             return tls12_prf(GCRY_MD_SHA384, secret, usage, rnd1, rnd2,
                              out, out_len);
@@ -2590,7 +2589,9 @@ ssl_generate_keyring_material(SslDecryptSession*ssl)
 {
     ssl_debug_printf("ssl_generate_keyring_material: impossible without gnutls. ssl %p\n",
         ssl);
-    return 0;
+    /* We cannot determine whether the cipher suite is valid. Fail such that
+     * ssl_set_master_secret bails out. */
+    return -1;
 }
 void
 ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server)
@@ -2740,7 +2741,7 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server)
 
 /* Init cipher state given some security parameters. {{{ */
 static SslDecoder*
-ssl_create_decoder(SslCipherSuite *cipher_suite, gint compression,
+ssl_create_decoder(const SslCipherSuite *cipher_suite, gint compression,
         guint8 *mk, guint8 *sk, guint8 *iv)
 {
     SslDecoder *dec;
@@ -2781,6 +2782,7 @@ ssl_create_decoder(SslCipherSuite *cipher_suite, gint compression,
     dec->decomp = ssl_create_decompressor(compression);
     dec->flow = ssl_create_flow();
 
+    /* TODO this does nothing as dec->evp is always NULL. */
     if (dec->evp)
         ssl_cipher_cleanup(&dec->evp);
 
@@ -2829,7 +2831,7 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
         return TRUE;
     }
 
-    if (ssl_session->cipher_suite.kex == KEX_PSK)
+    if (ssl_session->cipher_suite->kex == KEX_PSK)
     {
         /* calculate pre master secret*/
         StringInfo pre_master_secret;
@@ -2892,7 +2894,7 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
          * (it's the encrypted len and should be equal to record len - 2)
          * in case of rsa1024 that would be 128 + 2 = 130; for psk not necessary
          */
-        if (ssl_session->cipher_suite.kex == KEX_RSA &&
+        if (ssl_session->cipher_suite->kex == KEX_RSA &&
            (ssl_session->session.version == TLSV1_VERSION ||
             ssl_session->session.version == TLSV1DOT1_VERSION ||
             ssl_session->session.version == TLSV1DOT2_VERSION ||
@@ -2951,6 +2953,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
     gint        needed;
     guint8     *ptr, *c_iv = _iv_c,*s_iv = _iv_s;
     guint8     *c_wk = NULL, *s_wk = NULL, *c_mk = NULL, *s_mk = NULL;
+    const SslCipherSuite *cipher_suite = ssl_session->cipher_suite;
 
     /* check for enough info to proced */
     guint need_all = SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION;
@@ -2963,7 +2966,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
          * the Client Hello is missing (MAC keys are now skipped though). */
         need_all = SSL_CIPHER|SSL_VERSION;
         if ((ssl_session->state & need_all) == need_all &&
-                ssl_session->cipher_suite.enc == ENC_NULL) {
+                cipher_suite->enc == ENC_NULL) {
             ssl_debug_printf("%s NULL cipher found, will create a decoder but "
                     "skip MAC validation as keys are missing.\n", G_STRFUNC);
             goto create_decoders;
@@ -2993,7 +2996,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
                 ret = tls_handshake_hash(ssl_session, &handshake_hashed_data);
                 break;
             default:
-                switch (ssl_session->cipher_suite.dig) {
+                switch (cipher_suite->dig) {
                 case DIG_SHA384:
                     ret = tls12_handshake_hash(ssl_session, GCRY_MD_SHA384, &handshake_hashed_data);
                     break;
@@ -3042,10 +3045,10 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
     }
 
     /* Compute the key block. First figure out how much data we need*/
-    needed=ssl_cipher_suite_dig(&ssl_session->cipher_suite)->len*2;
-    needed+=ssl_session->cipher_suite.bits / 4;
-    if(ssl_session->cipher_suite.block>1)
-        needed+=ssl_session->cipher_suite.block*2;
+    needed=ssl_cipher_suite_dig(cipher_suite)->len*2;
+    needed+=cipher_suite->bits / 4;
+    if(cipher_suite->block>1)
+        needed+=cipher_suite->block*2;
 
     key_block.data = (guchar *)g_malloc(needed);
     ssl_debug_printf("%s sess key generation\n", G_STRFUNC);
@@ -3059,32 +3062,32 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 
     ptr=key_block.data;
     /* AEAD ciphers do not have a separate MAC */
-    if (ssl_session->cipher_suite.mode == MODE_GCM ||
-        ssl_session->cipher_suite.mode == MODE_CCM ||
-        ssl_session->cipher_suite.mode == MODE_CCM_8) {
+    if (cipher_suite->mode == MODE_GCM ||
+        cipher_suite->mode == MODE_CCM ||
+        cipher_suite->mode == MODE_CCM_8) {
         c_mk = s_mk = NULL;
     } else {
-        c_mk=ptr; ptr+=ssl_cipher_suite_dig(&ssl_session->cipher_suite)->len;
-        s_mk=ptr; ptr+=ssl_cipher_suite_dig(&ssl_session->cipher_suite)->len;
+        c_mk=ptr; ptr+=ssl_cipher_suite_dig(cipher_suite)->len;
+        s_mk=ptr; ptr+=ssl_cipher_suite_dig(cipher_suite)->len;
     }
 
-    c_wk=ptr; ptr+=ssl_session->cipher_suite.eff_bits/8;
-    s_wk=ptr; ptr+=ssl_session->cipher_suite.eff_bits/8;
+    c_wk=ptr; ptr+=cipher_suite->eff_bits/8;
+    s_wk=ptr; ptr+=cipher_suite->eff_bits/8;
 
-    if(ssl_session->cipher_suite.block>1){
-        c_iv=ptr; ptr+=ssl_session->cipher_suite.block;
-        s_iv=ptr; /*ptr+=ssl_session->cipher_suite.block;*/
+    if(cipher_suite->block>1){
+        c_iv=ptr; ptr+=cipher_suite->block;
+        s_iv=ptr; /*ptr+=cipher_suite->block;*/
     }
 
     /* export ciphers work with a smaller key length */
-    if (ssl_session->cipher_suite.eff_bits < ssl_session->cipher_suite.bits) {
-        if(ssl_session->cipher_suite.block>1){
+    if (cipher_suite->eff_bits < cipher_suite->bits) {
+        if(cipher_suite->block>1){
 
             /* We only have room for MAX_BLOCK_SIZE bytes IVs, but that's
              all we should need. This is a sanity check */
-            if(ssl_session->cipher_suite.block>MAX_BLOCK_SIZE) {
+            if(cipher_suite->block>MAX_BLOCK_SIZE) {
                 ssl_debug_printf("%s cipher suite block must be at most %d nut is %d\n",
-                G_STRFUNC, MAX_BLOCK_SIZE, ssl_session->cipher_suite.block);
+                G_STRFUNC, MAX_BLOCK_SIZE, cipher_suite->block);
                 goto fail;
             }
 
@@ -3097,11 +3100,11 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
                 ssl_debug_printf("%s ssl3_generate_export_iv\n", G_STRFUNC);
                 ssl3_generate_export_iv(&ssl_session->client_random,
                         &ssl_session->server_random, &iv_c,
-                        ssl_session->cipher_suite.block);
+                        cipher_suite->block);
                 ssl_debug_printf("%s ssl3_generate_export_iv(2)\n", G_STRFUNC);
                 ssl3_generate_export_iv(&ssl_session->server_random,
                         &ssl_session->client_random, &iv_s,
-                        ssl_session->cipher_suite.block);
+                        cipher_suite->block);
             }
             else{
                 guint8 _iv_block[MAX_BLOCK_SIZE * 2];
@@ -3118,14 +3121,14 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
                 if (!prf(ssl_session, &key_null, "IV block",
                         &ssl_session->client_random,
                         &ssl_session->server_random, &iv_block,
-                        ssl_session->cipher_suite.block * 2)) {
+                        cipher_suite->block * 2)) {
                     ssl_debug_printf("%s can't generate tls31 iv block\n", G_STRFUNC);
                     goto fail;
                 }
 
-                memcpy(_iv_c,iv_block.data,ssl_session->cipher_suite.block);
-                memcpy(_iv_s,iv_block.data+ssl_session->cipher_suite.block,
-                    ssl_session->cipher_suite.block);
+                memcpy(_iv_c,iv_block.data,cipher_suite->block);
+                memcpy(_iv_s,iv_block.data+cipher_suite->block,
+                    cipher_suite->block);
             }
 
             c_iv=_iv_c;
@@ -3138,7 +3141,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
             ssl_debug_printf("%s MD5(client_random)\n", G_STRFUNC);
 
             ssl_md5_init(&md5);
-            ssl_md5_update(&md5,c_wk,ssl_session->cipher_suite.eff_bits/8);
+            ssl_md5_update(&md5,c_wk,cipher_suite->eff_bits/8);
             ssl_md5_update(&md5,ssl_session->client_random.data,
                 ssl_session->client_random.data_len);
             ssl_md5_update(&md5,ssl_session->server_random.data,
@@ -3149,7 +3152,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 
             ssl_md5_init(&md5);
             ssl_debug_printf("%s MD5(server_random)\n", G_STRFUNC);
-            ssl_md5_update(&md5,s_wk,ssl_session->cipher_suite.eff_bits/8);
+            ssl_md5_update(&md5,s_wk,cipher_suite->eff_bits/8);
             ssl_md5_update(&md5,ssl_session->server_random.data,
                 ssl_session->server_random.data_len);
             ssl_md5_update(&md5,ssl_session->client_random.data,
@@ -3164,7 +3167,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
             key_s.data = _key_s;
 
             k.data = c_wk;
-            k.data_len = ssl_session->cipher_suite.eff_bits/8;
+            k.data_len = cipher_suite->eff_bits/8;
             ssl_debug_printf("%s PRF(key_c)\n", G_STRFUNC);
             if (!prf(ssl_session, &k, "client write key",
                     &ssl_session->client_random,
@@ -3175,7 +3178,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
             c_wk=_key_c;
 
             k.data = s_wk;
-            k.data_len = ssl_session->cipher_suite.eff_bits/8;
+            k.data_len = cipher_suite->eff_bits/8;
             ssl_debug_printf("%s PRF(key_s)\n", G_STRFUNC);
             if (!prf(ssl_session, &k, "server write key",
                     &ssl_session->client_random,
@@ -3189,15 +3192,15 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 
     /* show key material info */
     if (c_mk != NULL) {
-        ssl_print_data("Client MAC key",c_mk,ssl_cipher_suite_dig(&ssl_session->cipher_suite)->len);
-        ssl_print_data("Server MAC key",s_mk,ssl_cipher_suite_dig(&ssl_session->cipher_suite)->len);
+        ssl_print_data("Client MAC key",c_mk,ssl_cipher_suite_dig(cipher_suite)->len);
+        ssl_print_data("Server MAC key",s_mk,ssl_cipher_suite_dig(cipher_suite)->len);
     }
-    ssl_print_data("Client Write key",c_wk,ssl_session->cipher_suite.bits/8);
-    ssl_print_data("Server Write key",s_wk,ssl_session->cipher_suite.bits/8);
+    ssl_print_data("Client Write key",c_wk,cipher_suite->bits/8);
+    ssl_print_data("Server Write key",s_wk,cipher_suite->bits/8);
 
-    if(ssl_session->cipher_suite.block>1) {
-        ssl_print_data("Client Write IV",c_iv,ssl_session->cipher_suite.block);
-        ssl_print_data("Server Write IV",s_iv,ssl_session->cipher_suite.block);
+    if(cipher_suite->block>1) {
+        ssl_print_data("Client Write IV",c_iv,cipher_suite->block);
+        ssl_print_data("Server Write IV",s_iv,cipher_suite->block);
     }
     else {
         ssl_print_data("Client Write IV",c_iv,8);
@@ -3207,13 +3210,13 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 create_decoders:
     /* create both client and server ciphers*/
     ssl_debug_printf("%s ssl_create_decoder(client)\n", G_STRFUNC);
-    ssl_session->client_new = ssl_create_decoder(&ssl_session->cipher_suite, ssl_session->session.compression, c_mk, c_wk, c_iv);
+    ssl_session->client_new = ssl_create_decoder(cipher_suite, ssl_session->session.compression, c_mk, c_wk, c_iv);
     if (!ssl_session->client_new) {
         ssl_debug_printf("%s can't init client decoder\n", G_STRFUNC);
         goto fail;
     }
     ssl_debug_printf("%s ssl_create_decoder(server)\n", G_STRFUNC);
-    ssl_session->server_new = ssl_create_decoder(&ssl_session->cipher_suite, ssl_session->session.compression, s_mk, s_wk, s_iv);
+    ssl_session->server_new = ssl_create_decoder(cipher_suite, ssl_session->session.compression, s_mk, s_wk, s_iv);
     if (!ssl_session->server_new) {
         ssl_debug_printf("%s can't init client decoder\n", G_STRFUNC);
         goto fail;
@@ -3242,7 +3245,7 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
     if (!encrypted_pre_master)
         return FALSE;
 
-    if (KEX_IS_DH(ssl_session->cipher_suite.kex)) {
+    if (KEX_IS_DH(ssl_session->cipher_suite->kex)) {
         ssl_debug_printf("%s: session uses Diffie-Hellman key exchange "
                          "(cipher suite 0x%04X %s) and cannot be decrypted "
                          "using a RSA private key file.\n",
@@ -3250,9 +3253,9 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
                          val_to_str_ext_const(ssl_session->session.cipher,
                              &ssl_31_ciphersuite_ext, "unknown"));
         return FALSE;
-    } else if(ssl_session->cipher_suite.kex != KEX_RSA) {
+    } else if(ssl_session->cipher_suite->kex != KEX_RSA) {
          ssl_debug_printf("%s key exchange %d different from KEX_RSA (%d)\n",
-                          G_STRFUNC, ssl_session->cipher_suite.kex, KEX_RSA);
+                          G_STRFUNC, ssl_session->cipher_suite->kex, KEX_RSA);
         return FALSE;
     }
 
@@ -3461,6 +3464,8 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
 /* Decryption integrity check }}} */
 
 /* Record decryption glue based on security parameters {{{ */
+/* Assume that we are called only for a non-NULL decoder which also means that
+ * we have a non-NULL decoder->cipher_suite. */
 int
 ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
         const guchar* in, guint inl, StringInfo* comp_str, StringInfo* out_str, guint* outl)
@@ -4581,6 +4586,10 @@ ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map)
         ssl_debug_printf("  session key already available, nothing to do.\n");
         return;
     }
+    if (!(ssl->state & SSL_CIPHER)) {
+        ssl_debug_printf("  Cipher suite (Server Hello) is missing!\n");
+        return;
+    }
 
     /* for decryption, there needs to be a master secret (which can be derived
      * from pre-master secret). If missing, try to pick a master key from cache
@@ -4593,7 +4602,7 @@ ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map)
                                  mk_map->tickets, &ssl->session_ticket)) &&
         !ssl_restore_master_key(ssl, "Client Random", FALSE,
                                 mk_map->crandom, &ssl->client_random)) {
-        if (ssl->cipher_suite.enc != ENC_NULL) {
+        if (ssl->cipher_suite->enc != ENC_NULL) {
             /* how unfortunate, the master secret could not be found */
             ssl_debug_printf("  Cannot find master secret\n");
             return;
@@ -5878,7 +5887,8 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         /* store selected cipher suite for decryption */
         ssl->session.cipher = tvb_get_ntohs(tvb, offset);
 
-        if (ssl_find_cipher(ssl->session.cipher, &ssl->cipher_suite) < 0) {
+        if (!(ssl->cipher_suite = ssl_find_cipher(ssl->session.cipher))) {
+            ssl->state &= ~SSL_CIPHER;
             ssl_debug_printf("%s can't find cipher suite 0x%04X\n",
                              G_STRFUNC, ssl->session.cipher);
         } else {
