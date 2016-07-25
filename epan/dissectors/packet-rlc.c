@@ -1828,7 +1828,7 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         li[num_li].tree = tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
         num_li++;
 
-        if (num_li > max_li) {
+        if (num_li >= max_li) {
             /* OK, so this is not really a malformed packet, but for now,
             * we will treat it as such, so that it is marked in some way */
             expert_add_info(pinfo, li[num_li-1].tree, &ei_rlc_li_too_many);
