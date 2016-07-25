@@ -752,8 +752,8 @@ print_usage(FILE *output)
     fprintf(output, "  -I <bytes to ignore>   ignore the specified bytes at the beginning of\n");
     fprintf(output, "                         the frame during MD5 hash calculation\n");
     fprintf(output, "                         Useful to remove duplicated packets taken on\n");
-    fprintf(output, "                         several routers(differents mac addresses for \n");
-    fprintf(output, "                         example)\n");
+    fprintf(output, "                         several routers (different mac addresses for \n");
+    fprintf(output, "                         example).\n");
     fprintf(output, "                         e.g. -I 26 in case of Ether/IP/ will ignore \n");
     fprintf(output, "                         ether(14) and IP header(20 - 4(src ip) - 4(dst ip)).\n");
     fprintf(output, "\n");
