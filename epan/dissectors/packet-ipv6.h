@@ -27,8 +27,10 @@
 #include <epan/ipv6.h>
 #include "packet-ip.h"
 
-#define IPv6_HDR_SIZE   40
 #define IPv6_ADDR_SIZE  16
+
+#define IPv6_HDR_SIZE           40
+#define IPv6_FRAGMENT_HDR_SIZE  8
 
 /*
  * Definition for internet protocol version 6.

@@ -1181,14 +1181,14 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         frag_off, frag_flg ? "y" : "n", frag_ident, nxt);
 
     root_tree = tree;
-    ipv6_pinfo->frag_plen -= 8;
+    ipv6_pinfo->frag_plen -= IPv6_FRAGMENT_HDR_SIZE;
     if (ipv6_pinfo->ipv6_tree != NULL) {
         root_tree = ipv6_pinfo->ipv6_tree;
-        ipv6_pinfo->ipv6_item_len += 8;
+        ipv6_pinfo->ipv6_item_len += IPv6_FRAGMENT_HDR_SIZE;
     }
 
     /* IPv6 Fragmentation Header has fixed length of 8 bytes */
-    pi = proto_tree_add_item(root_tree, proto_ipv6_fraghdr, tvb, offset, 8, ENC_NA);
+    pi = proto_tree_add_item(root_tree, proto_ipv6_fraghdr, tvb, offset, IPv6_FRAGMENT_HDR_SIZE, ENC_NA);
     if (ipv6_pinfo->jumbo_plen != 0) {
         expert_add_info(pinfo, pi, &ei_ipv6_opt_jumbo_fragment);
     }
