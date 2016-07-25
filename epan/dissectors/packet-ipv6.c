@@ -1904,7 +1904,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     offset = 0;
 
-    ipv6_pinfo = wmem_new0(wmem_packet_scope(), ipv6_pinfo_t);
+    ipv6_pinfo = wmem_new0(pinfo->pool, ipv6_pinfo_t);
     p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_PINFO, ipv6_pinfo);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPv6");
