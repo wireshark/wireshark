@@ -674,12 +674,12 @@ add_description(proto_item *li_ti, proto_item *length_ti,
 
 /* add information for an LI to 'tree' */
 static proto_tree *
-tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_idx, guint8 hdr_offs,
+tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_idx, guint32 hdr_offs,
         gboolean li_is_on_2_bytes, tvbuff_t *tvb, proto_tree *tree)
 {
     proto_item *root_ti, *ti;
     proto_tree *li_tree;
-    guint8      li_offs;
+    guint32     li_offs;
     guint64     length;
 
     if (!tree) return NULL;
@@ -1712,7 +1712,8 @@ static gint16
 rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           struct rlc_li *li, guint8 max_li, gboolean li_on_2_bytes)
 {
-    guint8      ext, hdr_len, offs  = 0, num_li = 0, li_offs;
+    guint32     hdr_len, offs = 0, li_offs;
+    guint8      ext, num_li = 0;
     guint16     next_bytes, prev_li = 0;
     proto_item *malformed;
     guint16     total_len;
