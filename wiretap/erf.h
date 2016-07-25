@@ -199,6 +199,7 @@
 #define ERF_META_TAG_if_link_status    81
 #define ERF_META_TAG_if_phy_mode       82
 #define ERF_META_TAG_if_port_type      83
+#define ERF_META_TAG_if_rx_latency     84
 
 #define ERF_META_TAG_src_ipv4          128
 #define ERF_META_TAG_dest_ipv4         129
@@ -265,6 +266,37 @@
 #define ERF_META_TAG_pcap_ng_block     322
 #define ERF_META_TAG_asn1              323
 
+#define ERF_META_TAG_clk_source             384
+#define ERF_META_TAG_clk_state              385
+#define ERF_META_TAG_clk_threshold          386
+#define ERF_META_TAG_clk_correction         387
+#define ERF_META_TAG_clk_failures           388
+#define ERF_META_TAG_clk_resyncs            389
+#define ERF_META_TAG_clk_phase_error        390
+#define ERF_META_TAG_clk_input_pulses       391
+#define ERF_META_TAG_clk_rejected_pulses    392
+#define ERF_META_TAG_clk_phc_index          393
+#define ERF_META_TAG_clk_phc_offset         394
+#define ERF_META_TAG_clk_timebase           395
+#define ERF_META_TAG_clk_descr              396
+#define ERF_META_TAG_clk_out_source         397
+#define ERF_META_TAG_clk_link_mode          398
+#define ERF_META_TAG_ptp_domain_num         399
+#define ERF_META_TAG_ptp_steps_removed      400
+#define ERF_META_TAG_ptp_offset_from_master 401
+#define ERF_META_TAG_ptp_mean_path_delay    402
+#define ERF_META_TAG_ptp_parent_identity    403
+#define ERF_META_TAG_ptp_parent_port_num    404
+#define ERF_META_TAG_ptp_gm_identity        405
+#define ERF_META_TAG_ptp_gm_clock_quality   406
+#define ERF_META_TAG_ptp_current_utc_offset 407
+#define ERF_META_TAG_ptp_time_properties    408
+#define ERF_META_TAG_ptp_time_source        409
+#define ERF_META_TAG_ptp_clock_identity     410
+#define ERF_META_TAG_ptp_port_num           411
+#define ERF_META_TAG_ptp_port_state         412
+#define ERF_META_TAG_ptp_delay_mechanism    413
+#define ERF_META_TAG_clk_port_proto         414
 
  /*
   * The timestamp is 64bit unsigned fixed point little-endian value with

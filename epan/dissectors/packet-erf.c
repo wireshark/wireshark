@@ -29,6 +29,7 @@
 #include <epan/to_str.h>
 #include <wsutil/str_util.h>
 #include "packet-erf.h"
+#include "packet-ptp.h"
 
 /*
 */
@@ -385,6 +386,8 @@ static dissector_handle_t sdh_handle;
 #define ERF_META_SECTION_NONE 0
 #define ERF_META_SECTION_UNKNOWN 1
 
+#define NS_PER_S 1000000000
+
 /* Record type defines */
 static const value_string erf_type_vals[] = {
   { ERF_TYPE_LEGACY             ,"LEGACY"},
@@ -492,11 +495,26 @@ static const value_string channelised_type[] = {
 static const value_string erf_hash_type[] = {
   { 0x00, "Not set"},
   { 0x01, "Non-IP (Src/Dst MACs, EtherType)"},
-  { 0x02, "2-tuple (Src/Dst IP Addresses)"},
-  { 0x03, "3-tuple (Src/Dst IP Addresses, IP Protocol)"},
-  { 0x04, "4-tuple (Src/Dst IP Addresses, IP Protocol, Interface ID)"},
-  { 0x05, "5-tuple (Src/Dst IP Addresses, IP Protocol, Src/Dst L4 Ports)"},
-  { 0x06, "6-tuple (Src/Dst IP Addresses, IP Protocol, Src/Dst L4 Ports, Interface ID)"},
+  { 0x02, "2-tuple (Src/Dst IPs)"},
+  { 0x03, "3-tuple (Src/Dst IPs, IP Protocol)"},
+  { 0x04, "4-tuple (Src/Dst IPs, IP Protocol, Interface ID)"},
+  { 0x05, "5-tuple (Src/Dst IPs, IP Protocol, Src/Dst L4 Ports)"},
+  { 0x06, "6-tuple (Src/Dst IPs, IP Protocol, Src/Dst L4 Ports, Interface ID)"},
+  { 0, NULL}
+};
+
+static const value_string erf_hash_mode[] = {
+  { 0x00, "Reserved"},
+  { 0x01, "Reserved"},
+  { 0x02, "2-tuple (Src/Dst IPs)"},
+  { 0x03, "3-tuple (Src/Dst IPs, IP Protocol)"},
+  { 0x04, "4-tuple (Src/Dst IPs, IP Protocol, Interface ID)"},
+  { 0x05, "5-tuple (Src/Dst IPs, IP Protocol, Src/Dst L4 Ports)"},
+  { 0x06, "6-tuple (Src/Dst IPs, IP Protocol, Src/Dst L4 Ports, Interface ID)"},
+  { 0x07, "2-tuple (Inner Src/Dst IPs)"},
+  { 0x08, "4-tuple (Inner Src/Dst IPs, Outer Src/Dst IPs)"},
+  { 0x09, "4-tuple (Inner Src/Dst IPs, Inner Src/Dst L4 Ports)"},
+  { 0x10, "6-tuple (Inner Src/Dst IPs, Outer Src/Dst IPs, Inner Src/Dst L4 Ports)"},
   { 0, NULL}
 };
 
@@ -518,15 +536,85 @@ static const value_string erf_port_type[] = {
   { 0, NULL}
 };
 
+static const value_string erf_clk_source[] = {
+  { 0x00, "Invalid"},
+  { 0x01, "None" },
+  { 0x02, "External"},
+  { 0x03, "Host"},
+  { 0x04, "Link Cable"},
+  { 0x05, "PTP"},
+  { 0x06, "Internal"},
+  { 0, NULL}
+};
+
+static const value_string erf_clk_state[] = {
+  { 0x00, "Invalid" },
+  { 0x01, "Unsynchronized"},
+  { 0x02, "Synchronized"},
+  { 0, NULL}
+};
+
+static const value_string erf_clk_link_mode[] = {
+  { 0x00, "Inavild"},
+  { 0x01, "Not Connected"},
+  { 0x02, "Master"},
+  { 0x03, "Disabled Master"},
+  { 0x04, "Slave"},
+  { 0, NULL}
+};
+
+static const value_string erf_clk_port_proto[] = {
+  { 0x00, "Invalid" },
+  { 0x01, "None" },
+  { 0x02, "1PPS" },
+  { 0x03, "IRIG-B" },
+  { 0x04, "Ethernet" },
+  { 0, NULL }
+};
+
 /* Used as templates for ERF_META_TAG_tunneling_mode */
 static const header_field_info erf_tunneling_modes[] = {
-  { "IP-in-IP", "ip_in_ip", FT_UINT32, BASE_DEC, NULL, 0x1, NULL, HFILL },
+  { "IP-in-IP", "ip_in_ip", FT_BOOLEAN, 32, NULL, 0x1, NULL, HFILL },
   /* 0x02 is currently unused and reserved */
-  { "VXLAN", "vxlan", FT_UINT32, BASE_DEC, NULL, 0x4, NULL, HFILL },
-  { "GRE", "gre", FT_UINT32, BASE_DEC, NULL, 0x8, NULL, HFILL },
-  { "GTP", "gtp", FT_UINT32, BASE_DEC, NULL, 0x10, NULL, HFILL },
-  { "MPLS over VLAN", "mpls_vlan", FT_UINT32, BASE_DEC, NULL, 0x20, NULL, HFILL }
+  { "VXLAN", "vxlan", FT_BOOLEAN, 32, NULL, 0x4, NULL, HFILL },
+  { "GRE", "gre", FT_BOOLEAN, 32, NULL, 0x8, NULL, HFILL },
+  { "GTP", "gtp", FT_BOOLEAN, 32, NULL, 0x10, NULL, HFILL },
+  { "MPLS over VLAN", "mpls_vlan", FT_BOOLEAN, 32, NULL, 0x20, NULL, HFILL }
 };
+
+static const true_false_string erf_link_status_tfs = {
+  "Up",
+  "Down"
+};
+
+/* Used as templates for ERF_META_TAG_if_link_status */
+static const header_field_info erf_link_status[] = {
+  { "Link", "link", FT_BOOLEAN, 32, TFS(&erf_link_status_tfs), 0x1, NULL, HFILL }
+};
+
+/* Used as templates for ERF_META_TAG_ptp_time_properties */
+static const header_field_info erf_ptp_time_properties_flags[] = {
+  { "Leap61", "leap61", FT_BOOLEAN, 32, NULL, 0x1, NULL, HFILL },
+  { "Leap59", "leap59", FT_BOOLEAN, 32, NULL, 0x2, NULL, HFILL },
+  { "Current UTC Offset Valid", "currentUtcOffsetValid", FT_BOOLEAN, 32, NULL, 0x4, NULL, HFILL },
+  { "PTP Timescale", "ptpTimescale", FT_BOOLEAN, 32, NULL, 0x8, NULL, HFILL },
+  { "Time Traceable", "timeTraceable", FT_BOOLEAN, 32, NULL, 0x10, NULL, HFILL },
+  { "Frequency Traceable", "frequencyTraceable", FT_BOOLEAN, 32, NULL, 0x20, NULL, HFILL }
+};
+
+/* Used as templates for ERF_META_TAG_ptp_gm_clock_quality */
+static const header_field_info erf_ptp_clock_quality[] = {
+  { "Clock Class", "clockClass", FT_UINT32, BASE_DEC, NULL, 0xFF000000, NULL, HFILL },
+  { "Clock Accuracy", "clockAccuracy", FT_UINT32, BASE_DEC | BASE_EXT_STRING, &ptp_v2_clockAccuracy_vals_ext, 0x00FF0000, NULL, HFILL },
+  { "Offset Scaled Log Variance","offsetScaledLogVariance", FT_UINT32, BASE_DEC, NULL, 0x0000FFFF, NULL, HFILL },
+};
+
+/* Used as templates for ERF_META_TAG_parent_section */
+static const header_field_info erf_parent_section[] = {
+  { "Section Type", "section_type", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL },
+  { "Section ID", "section_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+};
+
 /* XXX: Must be at least array_length(erf_tunneling_modes). */
 #define ERF_HF_VALUES_PER_TAG 8
 
@@ -549,6 +637,7 @@ typedef struct {
   guint16 code;
   guint16 section;
   const erf_meta_hf_template_t* tag_template;
+  const erf_meta_hf_template_t* section_template;
 
   gint ett;
   int hf_value;
@@ -624,8 +713,8 @@ static const erf_meta_hf_template_t erf_meta_tags[] = {
   { ERF_META_TAG_loc_name,          { "Location Name",                      "loc_name",          FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_parent_file,       { "Parent Filename",                    "parent_file",       FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_filter,            { "Filter",                             "filter",            FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
-  { ERF_META_TAG_flow_hash_mode,    { "Flow Hash Mode",                     "flow_hash_mode",    FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
-  { ERF_META_TAG_tunneling_mode,    { "Tunneling Mode",                     "tunneling_mode",    FT_UINT32,        BASE_HEX,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_flow_hash_mode,    { "Flow Hash Mode",                     "flow_hash_mode",    FT_UINT32,        BASE_DEC,          VALS(erf_hash_mode), 0x0, NULL, HFILL } },
+  { ERF_META_TAG_tunneling_mode,    { "Tunneling Mode",                     "tunneling_mode",    FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_npb_format,        { "NPB Format",                         "npb_format",        FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_mem,               { "Memory",                             "mem",               FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_datamine_id,       { "Datamine ID",                        "datamine_id",       FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
@@ -662,6 +751,7 @@ static const erf_meta_hf_template_t erf_meta_tags[] = {
   { ERF_META_TAG_if_link_status,    { "Interface Link Status",              "if_link_status",    FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_if_phy_mode,       { "Interface Endace PHY Mode",          "if_phy_mode",       FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_if_port_type,      { "Interface Port Type",                "if_port_type",      FT_UINT32,        BASE_DEC,          VALS(erf_port_type), 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_rx_latency,     { "Interface Uncorrected RX Latency",   "if_rx_latency",     FT_RELATIVE_TIME, BASE_NONE,         NULL, 0x0, NULL, HFILL } },
 
   { ERF_META_TAG_src_ipv4,          { "Source IPv4 address",                "src_ipv4",          FT_IPv4,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_dest_ipv4,         { "Destination IPv4 address",           "dest_ipv4",         FT_IPv4,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
@@ -726,7 +816,49 @@ static const erf_meta_hf_template_t erf_meta_tags[] = {
 
   { ERF_META_TAG_exthdr,            { "ERF Extension Header",               "exthdr",            FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_pcap_ng_block,     { "PCAP-NG Block",                      "pcap_ng_block",     FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
-  { ERF_META_TAG_asn1,              { "ASN.1",                              "asn1",              FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } }
+  { ERF_META_TAG_asn1,              { "ASN.1",                              "asn1",              FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+
+  { ERF_META_TAG_clk_source,             { "Clock Source",                  "clk_source",             FT_UINT32,   BASE_DEC,          VALS(erf_clk_source), 0x0, NULL, HFILL } },
+  { ERF_META_TAG_clk_state,              { "Clock State",                   "clk_state",              FT_UINT32,   BASE_DEC,          VALS(erf_clk_state), 0x0, NULL, HFILL } },
+  { ERF_META_TAG_clk_threshold,          { "Clock Threshold",               "clk_threshold",          FT_RELATIVE_TIME, BASE_NONE,    NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_clk_correction,         { "Clock Correction",              "clk_correction",         FT_RELATIVE_TIME, BASE_NONE,    NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_clk_failures,           { "Clock Failures",                "clk_failures",           FT_UINT32,   BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_clk_resyncs,            { "Clock Resyncs",                 "clk_resyncs",            FT_UINT32,   BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_clk_phase_error,        { "Clock Phase Error",             "clk_phase_error",        FT_RELATIVE_TIME, BASE_NONE,    NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_clk_input_pulses,       { "Clock Input Pulses",            "clk_input_pulses",       FT_UINT32,   BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_clk_rejected_pulses,    { "Clock Rejected Pulses",         "clk_rejected_pulses",    FT_UINT32,   BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_clk_phc_index,          { "Clock PHC Index",               "clk_phc_index",          FT_UINT32,   BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_clk_phc_offset,         { "Clock PHC Offset",              "clk_phc_offset",         FT_RELATIVE_TIME, BASE_NONE,    NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_clk_timebase,           { "Clock Timebase",                "clk_timebase",           FT_STRING,   BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_clk_descr,              { "Clock Description",             "clk_descr",              FT_STRING,   BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_clk_out_source,         { "Clock Output Source",           "clk_out_source",         FT_UINT32,   BASE_DEC,          VALS(erf_clk_source), 0x0, NULL, HFILL } },
+  { ERF_META_TAG_clk_link_mode,          { "Clock Link Cable Mode",         "clk_link_mode",          FT_UINT32,   BASE_DEC,          VALS(erf_clk_link_mode), 0x0, NULL, HFILL } },
+
+  /*
+   * PTP tags use the native PTPv2 format to preserve precision
+   * (except expanding integers to 32-bit).
+   */
+  { ERF_META_TAG_ptp_domain_num,         { "PTP Domain Number",             "ptp_domain_num",         FT_UINT32,   BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ptp_steps_removed,      { "PTP Steps Removed",             "ptp_steps_removed",      FT_UINT32,   BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  /* PTP TimeInterval scaled nanoseconds, using FT_RELATIVE_TIME so can compare with clk_threshold */
+  { ERF_META_TAG_ptp_offset_from_master, { "PTP Offset From Master",        "ptp_offset_from_master", FT_RELATIVE_TIME, BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ptp_mean_path_delay,    { "PTP Mean Path Delay",           "ptp_mean_path_delay",    FT_RELATIVE_TIME, BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ptp_parent_identity,    { "PTP Parent Clock Identity",     "ptp_parent_identity",    FT_EUI64,    BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ptp_parent_port_num,    { "PTP Parent Port Number",        "ptp_parent_port_num",    FT_UINT32,   BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ptp_gm_identity,        { "PTP Grandmaster Identity",      "ptp_gm_identity",        FT_EUI64,    BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  /* PTP ClockQuality combined field, see erf_ptp_clock_quality */
+  { ERF_META_TAG_ptp_gm_clock_quality,   { "PTP Grandmaster Clock Quality", "ptp_gm_clock_quality",   FT_UINT32,   BASE_HEX,          NULL, 0x0, NULL, HFILL } },
+  /* Integer seconds, using FT_RELATIVE_TIME so can compare with clk_phc_offset */
+  { ERF_META_TAG_ptp_current_utc_offset, { "PTP Current UTC Offset",        "ptp_current_utc_offset", FT_RELATIVE_TIME, BASE_NONE,          NULL, 0x0, NULL, HFILL } },
+  /* PTP TIME_PROPERTIES_DATA_SET flags, see erf_ptp_time_properties_flags */
+  { ERF_META_TAG_ptp_time_properties,    { "PTP Time Properties",           "ptp_time_properties",    FT_UINT32,   BASE_HEX,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ptp_time_source,        { "PTP Time Source",               "ptp_time_source",        FT_UINT32,   BASE_DEC | BASE_EXT_STRING, &ptp_v2_timeSource_vals_ext, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ptp_clock_identity,     { "PTP Clock Identity",            "ptp_clock_identity",     FT_EUI64,    BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ptp_port_num,           { "PTP Port Number",               "ptp_port_num",           FT_UINT32,   BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ptp_port_state,         { "PTP Port State",                "ptp_port_state",         FT_UINT32,   BASE_DEC | BASE_EXT_STRING, &ptp_v2_portState_vals_ext, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ptp_delay_mechanism,    { "PTP Delay Mechanism",           "ptp_delay_mechanism",    FT_UINT32,   BASE_DEC, VALS(ptp_v2_delayMechanism_vals), 0x0, NULL, HFILL } },
+
+  { ERF_META_TAG_clk_port_proto,         { "Clock Input Port Protocol",     "clk_port_proto",         FT_UINT32,   BASE_DEC, VALS(erf_clk_port_proto), 0x0, NULL, HFILL } }
 };
 
 /* Sections are also tags, but enumerate them seperately to make logic simpler */
@@ -764,6 +896,20 @@ static erf_meta_tag_info_ex_t* erf_meta_tag_info_ex_new(wmem_allocator_t *alloca
   return extra;
 }
 
+static erf_meta_tag_info_t* erf_meta_tag_info_new(wmem_allocator_t *allocator, const erf_meta_hf_template_t *section, const erf_meta_hf_template_t *tag) {
+  erf_meta_tag_info_t *tag_info = wmem_new0(allocator, erf_meta_tag_info_t);
+
+  tag_info->code = tag->code;
+  tag_info->section = section->code;
+  tag_info->ett = -1;
+  tag_info->hf_value = -1;
+  tag_info->tag_template = tag;
+  tag_info->section_template = section;
+  tag_info->extra = NULL;
+
+  return tag_info;
+}
+
 static erf_meta_tag_info_t*
 init_section_fields(wmem_array_t *hfri_table, wmem_array_t *ett_table, const erf_meta_hf_template_t *section)
 {
@@ -775,14 +921,10 @@ init_section_fields(wmem_array_t *hfri_table, wmem_array_t *ett_table, const erf
     { NULL, { "Reserved", NULL, FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }} /* Reserved extra bytes */
   };
 
-  section_info = wmem_new0(wmem_epan_scope(), erf_meta_tag_info_t);
-  section_info->code = section->code;
-  section_info->section = section->code; /* Needed for lookup commonality */
-  section_info->ett = -1;
-  section_info->hf_value = -1;
-  section_info->tag_template = section;
+  section_info = erf_meta_tag_info_new(wmem_epan_scope(), section, section /*Needed for lookup commonality*/);
   section_info->extra = erf_meta_tag_info_ex_new(wmem_epan_scope());
 
+  /*Can't use the generic functions here because directly at section level*/
   hfri_tmp[0].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".section_id", NULL);
   hfri_tmp[0].p_id = &section_info->hf_value;
   hfri_tmp[1].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".section_len", NULL);
@@ -801,80 +943,78 @@ init_section_fields(wmem_array_t *hfri_table, wmem_array_t *ett_table, const erf
 }
 
 static erf_meta_tag_info_t*
+init_tag_value_field(wmem_array_t *hfri_table, erf_meta_tag_info_t *tag_info)
+{
+  hf_register_info     hfri_tmp = { NULL, { NULL, NULL, FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }}; /* Value, will be filled from template */
+
+  /* Add value field */
+  hfri_tmp.p_id = &tag_info->hf_value;
+  hfri_tmp.hfinfo = tag_info->tag_template->hfinfo;
+  hfri_tmp.hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", tag_info->section_template->hfinfo.abbrev, ".", tag_info->tag_template->hfinfo.abbrev, NULL);
+  wmem_array_append_one(hfri_table, hfri_tmp);
+
+  return tag_info;
+}
+
+static erf_meta_tag_info_t*
+init_tag_value_subfields(wmem_array_t *hfri_table, erf_meta_tag_info_t *tag_info, const header_field_info *extra_fields, int extra_fields_len)
+{
+  int                  i = 0;
+  hf_register_info     hfri_tmp = { NULL, { NULL, NULL, FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }}; /* Value, will be filled from template */
+
+  if (extra_fields) {
+    tag_info->extra = erf_meta_tag_info_ex_new(wmem_epan_scope());
+    for (i = 0; i < extra_fields_len; i++) {
+      /* Add value subfield */
+      hfri_tmp.p_id = &tag_info->extra->hf_values[i];
+      hfri_tmp.hfinfo = extra_fields[i];
+      hfri_tmp.hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", tag_info->section_template->hfinfo.abbrev, ".", tag_info->tag_template->hfinfo.abbrev, ".", extra_fields[i].abbrev, NULL);
+      wmem_array_append_one(hfri_table, hfri_tmp);
+    }
+  }
+
+  return tag_info;
+}
+
+static erf_meta_tag_info_t*
+init_ns_addr_tag_value_fields(wmem_array_t *hfri_table, erf_meta_tag_info_t *tag_info)
+{
+  header_field_info ns_addr_extra_fields[] = {
+    { NULL, NULL, FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }, /* Address value, will be filled from template */
+    { "Name", "name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }  /* Name value */
+  };
+
+  tag_info->extra = erf_meta_tag_info_ex_new(wmem_epan_scope());
+
+  /* Set address subfield type, etc. from template based on address type */
+  ns_addr_extra_fields[0] = tag_info->tag_template->hfinfo;
+  ns_addr_extra_fields[0].name = "Address";
+  ns_addr_extra_fields[0].abbrev = "addr";
+  /* Don't need a main value as we just use a text subtree */
+  /* Init subfields */
+  init_tag_value_subfields(hfri_table, tag_info, ns_addr_extra_fields, array_length(ns_addr_extra_fields));
+
+  return tag_info;
+}
+
+static erf_meta_tag_info_t*
 init_tag_fields(wmem_array_t *hfri_table, wmem_array_t *ett_table, const erf_meta_hf_template_t *section, const erf_meta_hf_template_t *tag)
 {
   erf_meta_tag_info_t *tag_info;
-  unsigned int         i = 0;
   gint                *ett_tmp; /* wmem_array_append needs actual memory to copy from */
-  hf_register_info     hfri_tmp[] = {
-    { NULL, { NULL, NULL, FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }}, /* Value, will be filled from template */
-    { NULL, { NULL, NULL, FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }}  /* Second value, if any */
-  };
-  guint                hfri_len = 0;
 
-  tag_info = wmem_new0(wmem_epan_scope(), erf_meta_tag_info_t);
-  tag_info->code = tag->code;
-  tag_info->section = section->code;
-  tag_info->ett = -1;
-  tag_info->hf_value = -1;
-  tag_info->tag_template = tag;
-  tag_info->extra = NULL;
+  tag_info = erf_meta_tag_info_new(wmem_epan_scope(), section, tag);
 
-  switch (tag_info->code) {
-  /* Special case: parent section */
+  /*Tags with subfields (only)*/
+  /*XXX: Can't currently easily be described in the template because
+   * there is curently no dissect bitfield equivalent that supports arbitrary
+   * types/offsets*/
+  switch (tag->code) {
+  /*Special case: parent_section*/
   case ERF_META_TAG_parent_section:
-    tag_info->extra = erf_meta_tag_info_ex_new(wmem_epan_scope());
-
-    hfri_tmp[0].p_id = &tag_info->hf_value;
-    hfri_tmp[0].hfinfo.name = "Section Type";
-    hfri_tmp[0].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, ".section_type", NULL);
-    hfri_tmp[0].hfinfo.type = FT_UINT16;
-    hfri_tmp[0].hfinfo.display = BASE_DEC;
-    /* XXX: Cannot set strings here as array may be realloced as more added! */
-    hfri_len++;
-
-    hfri_tmp[1].p_id = &tag_info->extra->hf_values[0];
-    hfri_tmp[1].hfinfo.name = "Section ID";
-    hfri_tmp[1].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, ".section_id", NULL);
-    hfri_tmp[1].hfinfo.type = FT_UINT16;
-    hfri_tmp[1].hfinfo.display = BASE_DEC;
-    hfri_len++;
-    break;
-
-  /* Special case: Link Status bits */
-  case ERF_META_TAG_if_link_status:
-    tag_info->extra = erf_meta_tag_info_ex_new(wmem_epan_scope());
-
-    hfri_tmp[0].p_id = &tag_info->hf_value;
-    hfri_tmp[0].hfinfo = tag->hfinfo;
-    hfri_tmp[0].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, NULL);
-    hfri_len++;
-
-    hfri_tmp[1].p_id = &tag_info->extra->hf_values[0];
-    hfri_tmp[1].hfinfo.name = "Link";
-    hfri_tmp[1].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, ".link", NULL);
-    hfri_tmp[1].hfinfo.type = FT_UINT32;
-    hfri_tmp[1].hfinfo.display = BASE_DEC;
-    hfri_tmp[1].hfinfo.bitmask = 0x00000001;
-    hfri_len++;
-    break;
-
-  /* Special case: Tunneling mode bits */
-  case ERF_META_TAG_tunneling_mode:
-    tag_info->extra = erf_meta_tag_info_ex_new(wmem_epan_scope());
-
-    hfri_tmp[0].p_id = &tag_info->hf_value;
-    hfri_tmp[0].hfinfo = tag->hfinfo;
-    hfri_tmp[0].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, NULL);
-    hfri_len++;
-
-    /* Borrow hfri_tmp[1], inserting each bitfield value */
-    for (i = 0; i < array_length(erf_tunneling_modes); i++) {
-      hfri_tmp[1].p_id = &tag_info->extra->hf_values[i];
-      hfri_tmp[1].hfinfo = erf_tunneling_modes[i];
-      hfri_tmp[1].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, ".", erf_tunneling_modes[i].abbrev, NULL);
-      wmem_array_append(hfri_table, &hfri_tmp[1], 1);
-    }
+    /*Don't need a main value*/
+    /*Init subfields*/
+    init_tag_value_subfields(hfri_table, tag_info, erf_parent_section, array_length(erf_parent_section));
     break;
 
   /* Special case: name entry */
@@ -888,36 +1028,35 @@ init_tag_fields(wmem_array_t *hfri_table, wmem_array_t *ett_table, const erf_met
   case ERF_META_TAG_ns_host_ib_gid:
   case ERF_META_TAG_ns_host_ib_lid:
   case ERF_META_TAG_ns_host_fc_id:
-    tag_info->extra = erf_meta_tag_info_ex_new(wmem_epan_scope());
-
-    hfri_tmp[0].p_id = &tag_info->hf_value;
-    /* Set type, etc. from template based on address type */
-    hfri_tmp[0].hfinfo = tag->hfinfo;
-    hfri_tmp[0].hfinfo.name = "Address";
-    hfri_tmp[0].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, ".addr", NULL);
-    hfri_len++;
-
-    hfri_tmp[1].p_id = &tag_info->extra->hf_values[0];
-    hfri_tmp[1].hfinfo.name = "Name";
-    hfri_tmp[1].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, ".name", NULL);
-    hfri_tmp[1].hfinfo.type = FT_STRING;
-    hfri_tmp[1].hfinfo.display = BASE_NONE;
-    hfri_len++;
+    init_ns_addr_tag_value_fields(hfri_table, tag_info);
     break;
 
-  /* Usual case: just use template */
+  /* Usual case: init single field template */
   default:
-    hfri_tmp[0].p_id = &tag_info->hf_value;
-    hfri_tmp[0].hfinfo = tag->hfinfo;
-    hfri_tmp[0].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, NULL);
-    hfri_len++;
+    init_tag_value_field(hfri_table, tag_info);
     break;
   }
 
-  /* Add hf_register_info, ett entries */
-  wmem_array_append(hfri_table, hfri_tmp, hfri_len);
+  /*Tags that need additional subfields*/
+  switch (tag->code) {
+  /*Special case: bitfields*/
+  /*TODO: Maybe put extra_fields in template with dissect callback?*/
+  case ERF_META_TAG_tunneling_mode:
+    init_tag_value_subfields(hfri_table, tag_info, erf_tunneling_modes, array_length(erf_tunneling_modes));
+    break;
+  case ERF_META_TAG_if_link_status:
+    init_tag_value_subfields(hfri_table, tag_info, erf_link_status, array_length(erf_link_status));
+    break;
+  case ERF_META_TAG_ptp_time_properties:
+    init_tag_value_subfields(hfri_table, tag_info, erf_ptp_time_properties_flags, array_length(erf_ptp_time_properties_flags));
+    break;
+  case ERF_META_TAG_ptp_gm_clock_quality:
+    init_tag_value_subfields(hfri_table, tag_info, erf_ptp_clock_quality, array_length(erf_ptp_clock_quality));
+  }
+
+  /* Add ett entries */
   ett_tmp = &tag_info->ett;
-  wmem_array_append(ett_table, &ett_tmp, 1);
+  wmem_array_append_one(ett_table, ett_tmp);
 
   return tag_info;
 }
@@ -1879,6 +2018,101 @@ check_section_length(packet_info *pinfo, proto_item *sectionlen_pi, int offset, 
   }
 }
 
+static proto_item*
+dissect_meta_tag_bitfield(proto_item *section_tree, tvbuff_t *tvb, int offset, erf_meta_tag_info_t *tag_info, proto_item **out_tag_tree)
+{
+  proto_item *tag_pi        = NULL;
+  const int* hf_flags[ERF_HF_VALUES_PER_TAG];
+  int i;
+
+  DISSECTOR_ASSERT(tag_info->extra);
+
+  /* This is allowed as the array itself is not constant (not const int* const) */
+  for (i = 0; tag_info->extra->hf_values[i] != -1; i++) {
+    hf_flags[i] = &tag_info->extra->hf_values[i];
+  }
+  hf_flags[i] = NULL;
+
+  /* use flags variant so we print integers without value_strings */
+  tag_pi = proto_tree_add_bitmask_with_flags(section_tree, tvb, offset + 4, tag_info->hf_value, tag_info->ett, hf_flags, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
+  if (out_tag_tree) {
+    *out_tag_tree = proto_item_get_subtree(tag_pi);
+  }
+
+  return tag_pi;
+}
+
+void erf_ts_to_nstime(guint64 timestamp, nstime_t* t, gboolean is_relative) {
+  guint64 ts = timestamp;
+
+  /* relative ERF timestamps are signed, convert as if unsigned then flip back */
+  if (is_relative) {
+    ts = (guint64) ABS((gint64)timestamp);
+  }
+
+
+  t->secs = (long) (ts >> 32);
+  ts  = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
+  ts += (ts & 0x80000000) << 1; /* rounding */
+  t->nsecs = ((int) (ts >> 32));
+  if (t->nsecs >= NS_PER_S) {
+    t->nsecs -= NS_PER_S;
+    t->secs += 1;
+  }
+
+  if (is_relative && (gint64)timestamp < 0) {
+    /*
+     * Set both signs to negative for consistency with other nstime code
+     * and so -0.123 works.
+     */
+    t->secs = -(t->secs);
+    t->nsecs = -(t->nsecs);
+  }
+}
+
+/* TODO: Would be nice if default FT_RELATIVE_TIME formatter was prettier */
+proto_item *dissect_relative_time(proto_tree *tree, const int hfindex, tvbuff_t *tvb, gint offset, gint length, nstime_t* t) {
+  proto_item *pi = NULL;
+
+  DISSECTOR_ASSERT(t);
+
+  /*Print in nanoseconds if <1ms for small values*/
+  if (t->secs == 0 && t->nsecs < 1000000 && t->nsecs > -1000000) {
+    pi = proto_tree_add_time_format_value(tree, hfindex, tvb, offset, length, t, "%d nanoseconds", t->nsecs);
+  } else {
+    pi = proto_tree_add_time(tree, hfindex, tvb, offset, length, t);
+  }
+
+  return pi;
+}
+
+proto_item *dissect_ptp_timeinterval(proto_tree *tree, const int hfindex, tvbuff_t *tvb, gint offset, gint length, gint64 timeinterval) {
+  nstime_t t;
+  guint64 ti, ti_ns;
+
+  ti = (guint64) ABS(timeinterval);
+
+  ti += (ti & 0x8000) << 1; /* rounding */
+  ti_ns = ti >> 16;
+  t.secs = ti_ns / NS_PER_S;
+  t.nsecs = ti_ns % NS_PER_S;
+  if (t.nsecs >= NS_PER_S) {
+    t.nsecs -= NS_PER_S;
+    t.secs += 1;
+  }
+
+  if (timeinterval < 0) {
+    /*
+     * Set both signs to negative for consistency with other nstime code
+     * and so -0.123 works.
+     */
+    t.secs = -(t.secs);
+    t.nsecs = -(t.nsecs);
+  }
+
+  return dissect_relative_time(tree, hfindex, tvb, offset, length, &t);
+}
+
 static void
 dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_item *pi            = NULL;
@@ -1897,7 +2131,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   /* Used for search entry and unknown tags */
   erf_meta_hf_template_t tag_template_unknown = { 0, { "Unknown", "unknown",
     FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } };
-  erf_meta_tag_info_t    tag_info_local       = { 0, 0, &tag_template_unknown,
+  erf_meta_tag_info_t    tag_info_local       = { 0, 0, &tag_template_unknown, &tag_template_unknown,
     ett_erf_meta_tag, hf_erf_meta_tag_unknown, NULL };
 
   int     offset        = 0;
@@ -1922,6 +2156,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     tagtype = tvb_get_ntohs(tvb, offset);
     taglength = tvb_get_ntohs(tvb, offset + 2);
     tag_tree = NULL;
+    tag_pi = NULL;
 
     if (ERF_META_IS_SECTION(tagtype))
       sectiontype = tagtype;
@@ -2057,9 +2292,9 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         tag_tree = proto_tree_add_subtree_format(section_tree, tvb, offset + 4, taglength, tag_info->ett, &tag_pi, "%s: %s %u", tag_info->tag_template->hfinfo.name,
             val_to_str(value32, VALS(wmem_array_get_raw(erf_meta_index.vs_list)), "Unknown Section (%u)"), tvb_get_ntohs(tvb, offset + 4 + 2));
 
-        proto_tree_add_uint_format_value(tag_tree, tag_info->hf_value, tvb, offset + 4, MIN(2, taglength), value32, "%s (%u)",
+        proto_tree_add_uint_format_value(tag_tree, tag_info->extra->hf_values[0], tvb, offset + 4, MIN(2, taglength), value32, "%s (%u)",
             val_to_str(value32, VALS(wmem_array_get_raw(erf_meta_index.vs_abbrev_list)), "Unknown"), value32);
-        proto_tree_add_item(tag_tree, tag_info->extra->hf_values[0], tvb, offset + 6, MIN(2, taglength - 2), ENC_BIG_ENDIAN);
+        proto_tree_add_item(tag_tree, tag_info->extra->hf_values[1], tvb, offset + 6, MIN(2, taglength - 2), ENC_BIG_ENDIAN);
         break;
 
       case ERF_META_TAG_reset:
@@ -2068,34 +2303,12 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         break;
 
       case ERF_META_TAG_if_link_status:
-        DISSECTOR_ASSERT(tag_info->extra);
-        {
-          const int *link_status_flags[] = {
-            &tag_info->extra->hf_values[0],
-            NULL
-          };
-
-          tag_pi = proto_tree_add_bitmask(section_tree, tvb, offset + 4, tag_info->hf_value, tag_info->ett, link_status_flags, ENC_BIG_ENDIAN);
-          tag_tree = proto_item_get_subtree(tag_pi);
-        }
-        break;
-
       case ERF_META_TAG_tunneling_mode:
-        DISSECTOR_ASSERT(tag_info->extra);
-        {
-          const int* tunneling_mode_flags[array_length(erf_tunneling_modes)+1];
-          int i;
-
-          /* XXX: This is allowed as the array itself is not constant (not const int* const) */
-          for (i = 0; i < (int) array_length(erf_tunneling_modes); i++) {
-            tunneling_mode_flags[i] = &tag_info->extra->hf_values[i];
-          }
-          tunneling_mode_flags[array_length(erf_tunneling_modes)] = NULL;
-
-          tag_pi = proto_tree_add_bitmask(section_tree, tvb, offset + 4, tag_info->hf_value, tag_info->ett, tunneling_mode_flags, ENC_BIG_ENDIAN);
-          tag_tree = proto_item_get_subtree(tag_pi);
-        }
+      case ERF_META_TAG_ptp_time_properties:
+      case ERF_META_TAG_ptp_gm_clock_quality:
+        tag_pi = dissect_meta_tag_bitfield(section_tree, tvb, offset, tag_info, &tag_tree);
         break;
+
 
       case ERF_META_TAG_ns_dns_ipv4:
       case ERF_META_TAG_ns_dns_ipv6:
@@ -2114,16 +2327,36 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
         tag_tree = proto_tree_add_subtree(section_tree, tvb, offset + 4, taglength, tag_info->ett, &tag_pi, tag_info->tag_template->hfinfo.name);
         /* Address */
-        pi = proto_tree_add_item(tag_tree, tag_info->hf_value, tvb, offset + 4, MIN(addr_len, taglength), IS_FT_INT(tag_ft) || IS_FT_UINT(tag_ft) ? ENC_BIG_ENDIAN : ENC_NA);
+        pi = proto_tree_add_item(tag_tree, tag_info->extra->hf_values[0], tvb, offset + 4, MIN(addr_len, taglength), IS_FT_INT(tag_ft) || IS_FT_UINT(tag_ft) ? ENC_BIG_ENDIAN : ENC_NA);
         /* Name */
-        proto_tree_add_item(tag_tree, tag_info->extra->hf_values[0], tvb, offset + 4 + addr_len, taglength - addr_len, ENC_UTF_8);
+        proto_tree_add_item(tag_tree, tag_info->extra->hf_values[1], tvb, offset + 4 + addr_len, taglength - addr_len, ENC_UTF_8);
         if (pi) {
           proto_item_fill_label(PITEM_FINFO(pi), pi_label);
-          /* Set top level label TagName: Address Hostname */
-          proto_item_append_text(tag_pi, "%s %s", pi_label /* Includes ": " */,
-              tvb_get_stringzpad(wmem_packet_scope(), tvb, offset + 4 + addr_len, taglength - addr_len, ENC_UTF_8));
+          /* Set top level label e.g IPv4 Name: hostname Address: 1.2.3.4 */
+          /* TODO: Name is unescaped here but escaped in actual field */
+          proto_item_append_text(tag_pi, ": %s, %s",
+              tvb_get_stringzpad(wmem_packet_scope(), tvb, offset + 4 + addr_len, taglength - addr_len, ENC_UTF_8), pi_label /* Includes ": " */);
         }
 
+        break;
+      }
+
+      case ERF_META_TAG_ptp_offset_from_master:
+      case ERF_META_TAG_ptp_mean_path_delay:
+        value64 = tvb_get_ntoh64(tvb, offset + 4);
+        tag_pi = dissect_ptp_timeinterval(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, (gint64) value64);
+        break;
+
+      case ERF_META_TAG_ptp_current_utc_offset:
+      {
+        nstime_t t;
+
+        value32 = tvb_get_ntohl(tvb, offset + 4);
+        /* PTP value is signed */
+        t.secs = (gint32) value32;
+        t.nsecs = 0;
+
+        tag_pi = dissect_relative_time(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, &t);
         break;
       }
 
@@ -2153,17 +2386,9 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
           guint64 ts;
 
           ts = tvb_get_letoh64(tvb, offset + 4);
+          erf_ts_to_nstime(ts, &t, tag_ft == FT_RELATIVE_TIME);
 
-          t.secs = (long) (ts >> 32);
-          ts  = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
-          ts += (ts & 0x80000000) << 1; /* rounding */
-          t.nsecs = ((int) (ts >> 32));
-          if (t.nsecs >= 1000000000) {
-            t.nsecs -= 1000000000;
-            t.secs += 1;
-          }
-
-          tag_pi = proto_tree_add_time(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, &t);
+          tag_pi = dissect_relative_time(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, &t);
         } else {
           tag_pi = proto_tree_add_item(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, ENC_NA);
         }
@@ -2171,8 +2396,11 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     }
 
     /* Create subtree for tag if we haven't already */
-    if (!tag_tree)
+    if (!tag_tree) {
+      /* Make sure we actually put the subtree in the right place */
+      DISSECTOR_ASSERT(tag_pi || !tree);
       tag_tree = proto_item_add_subtree(tag_pi, tag_info->ett);
+    }
 
     /* Add tag type field to subtree */
     /*
