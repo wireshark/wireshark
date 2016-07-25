@@ -2169,8 +2169,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     iph->ip_len = g_ntohs(ipv6->ip6_plen);
     iph->ip_nxt = ipv6->ip6_nxt;
     iph->ip_ttl = ipv6->ip6_hlim;
-    copy_address_shallow(&iph->ip_src, &pinfo->src);
-    copy_address_shallow(&iph->ip_dst, &pinfo->dst);
+    copy_address_wmem(wmem_packet_scope(), &iph->ip_src, &pinfo->src);
+    copy_address_wmem(wmem_packet_scope(), &iph->ip_dst, &pinfo->dst);
 
     ipv6_pinfo->jumbo_plen = 0;
     ipv6_pinfo->ip6_plen = g_ntohs(ipv6->ip6_plen);
