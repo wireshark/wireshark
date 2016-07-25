@@ -214,7 +214,7 @@ dissect_vsock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 4;
 
             proto_tree_add_item_ret_uint(virtio_tree, hf_virtio_fwd_cnt, tvb, offset, 4, ENC_LITTLE_ENDIAN, &virtio_fwd_cnt);
-            offset += 4;
+            /*offset += 4;*/
 
             /* Append virtio information */
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s, Op: %s, Buf alloc: %u, Fwd cnt: %u",
