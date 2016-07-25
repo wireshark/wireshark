@@ -8,6 +8,9 @@ used for troubleshooting, analysis, development and education.
 
 == What's New
 
+* Invalid coloring rules are now disabled instead of discarded. This will
+  provide forward compatibility with a coloring rule change in Wireshark 2.2.
+
 === Bug Fixes
 
 The following vulnerabilities have been fixed:

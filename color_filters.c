@@ -592,8 +592,8 @@ read_filters_file(FILE *f, gpointer user_data)
                 g_free(err_msg);
                 prefs.unknown_colorfilters = TRUE;
 
-                skip_end_of_line = TRUE;
-                continue;
+                /* skip_end_of_line = TRUE; */
+                disabled = TRUE;
             }
 
             if (!initialize_color(&fg_color, fg_r, fg_g, fg_b)) {
