@@ -468,11 +468,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
 
             if (tvb_reported_length_remaining(tvb, offset) > 3) {
-                bluetooth_data_t *bt_data = wmem_new0(wmem_packet_scope(), bluetooth_data_t);
-                bt_data->interface_id = interface_id;
-                bt_data->adapter_id = adapter_id;
+                bluetooth_eir_ad_data_t *ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
+                ad_data->interface_id = interface_id;
+                ad_data->adapter_id = adapter_id;
                 next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
-                call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, btle_tree, bt_data);
+                call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, btle_tree, ad_data);
             }
 
             offset += tvb_reported_length_remaining(tvb, offset) - 3;
@@ -555,11 +555,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             sub_tree = proto_item_add_subtree(sub_item, ett_scan_response_data);
 
             if (tvb_reported_length_remaining(tvb, offset) > 3) {
-                bluetooth_data_t *bt_data = wmem_new0(wmem_packet_scope(), bluetooth_data_t);
-                bt_data->interface_id = interface_id;
-                bt_data->adapter_id = adapter_id;
+                bluetooth_eir_ad_data_t *ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
+                ad_data->interface_id = interface_id;
+                ad_data->adapter_id = adapter_id;
                 next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
-                call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, sub_tree, bt_data);
+                call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, sub_tree, ad_data);
             }
 
             offset += tvb_reported_length_remaining(tvb, offset) - 3;
