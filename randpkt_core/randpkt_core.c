@@ -47,6 +47,7 @@ enum {
 	PKT_GIOP,
 	PKT_ICMP,
 	PKT_IP,
+	PKT_IPv6,
 	PKT_LLC,
 	PKT_M2M,
 	PKT_MEGACO,
@@ -108,6 +109,14 @@ guint8 pkt_ip[] = {
 	0xff, 0xff, 0x01, 0x01,
 	0x01, 0x01, 0x01, 0x01,
 	0x08, 0x00
+};
+
+/* Ethernet, indicating IPv6 */
+guint8 pkt_ipv6[] = {
+	0xff, 0xff, 0xff, 0xff,
+	0xff, 0xff, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01,
+	0x86, 0xdd
 };
 
 /* TR, indicating LLC */
@@ -411,6 +420,14 @@ static randpkt_example examples[] = {
 	{ "ip", "Internet Protocol",
 		PKT_IP,		WTAP_ENCAP_ETHERNET,
 		pkt_ip,		array_length(pkt_ip),
+		NULL,		0,
+		NULL,		NULL,
+		1000,
+	},
+
+	{ "ipv6", "Internet Protocol Version 6",
+		PKT_IPv6,	WTAP_ENCAP_ETHERNET,
+		pkt_ipv6,	array_length(pkt_ipv6),
 		NULL,		0,
 		NULL,		NULL,
 		1000,
