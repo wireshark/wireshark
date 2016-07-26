@@ -81,7 +81,7 @@ typedef struct _smb2_saved_info_t {
 typedef struct _smb2_tid_info_t {
 	guint32 tid;
 	guint32 connect_frame;
-	guint16 share_type;
+	guint8 share_type;
 	char *name;
 } smb2_tid_info_t;
 

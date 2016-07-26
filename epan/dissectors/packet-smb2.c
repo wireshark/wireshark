@@ -3107,7 +3107,7 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static int
 dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
-	guint16 share_type;
+	guint8 share_type;
 	gboolean continue_dissection;
 
 	switch (si->status) {
@@ -3118,7 +3118,7 @@ dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	}
 
 	/* share type */
-	share_type = tvb_get_letohs(tvb, offset);
+	share_type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_smb2_share_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
