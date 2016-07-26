@@ -37,8 +37,6 @@
 
 #include "airpdcap_interop.h"
 
-void print_debug_line(const CHAR *function, const CHAR *msg, const INT level);
-
 #ifdef	_DEBUG
 #ifdef	__FUNCTION__
 #define	AIRPDCAP_DEBUG_PRINT_LINE(notdefined, msg, level) print_debug_line(__FUNCTION__, msg, level);
@@ -70,6 +68,12 @@ void print_debug_line(const CHAR *function, const CHAR *msg, const INT level);
 #define	AIRPDCAP_DEBUG_LEVEL_5	5
 
 #define	AIRPDCAP_DEBUG_USED_LEVEL	AIRPDCAP_DEBUG_LEVEL_3
+
+static inline void print_debug_line(const CHAR *function, const CHAR *msg, const INT level)
+{
+    if (level<=AIRPDCAP_DEBUG_USED_LEVEL)
+        g_warning("dbg(%d)|(%s) %s", level, function, msg);
+}
 
 #ifdef	_TRACE
 #ifdef	__FUNCTION__
