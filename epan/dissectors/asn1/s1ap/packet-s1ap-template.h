@@ -24,13 +24,26 @@
 #define PACKET_S1AP_H
 
 typedef struct _s1ap_ctx_t {
-    guint32 message_type;
-    guint32 ProcedureCode;
-    guint32 ProtocolIE_ID;
-    guint32 ProtocolExtensionID;
+  guint32 message_type;
+  guint32 ProcedureCode;
+  guint32 ProtocolIE_ID;
+  guint32 ProtocolExtensionID;
 } s1ap_ctx_t;
 
 
 #include "packet-s1ap-exp.h"
 
 #endif  /* PACKET_S1AP_H */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

@@ -54,7 +54,7 @@
 #define PFNAME "s1ap"
 
 /* Dissector will use SCTP PPID 18 or SCTP port. IANA assigned port = 36412 */
-#define SCTP_PORT_S1AP	36412
+#define SCTP_PORT_S1AP 36412
 
 void proto_register_s1ap(void);
 void proto_reg_handoff_s1ap(void);
@@ -87,9 +87,9 @@ static int ett_s1ap_UERadioPagingInformation = -1;
 #include "packet-s1ap-ett.c"
 
 enum{
-	INITIATING_MESSAGE,
-	SUCCESSFUL_OUTCOME,
-	UNSUCCESSFUL_OUTCOME
+  INITIATING_MESSAGE,
+  SUCCESSFUL_OUTCOME,
+  UNSUCCESSFUL_OUTCOME
 };
 
 
@@ -191,47 +191,47 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 static int
 dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	proto_item	*s1ap_item = NULL;
-	proto_tree	*s1ap_tree = NULL;
+  proto_item *s1ap_item = NULL;
+  proto_tree *s1ap_tree = NULL;
 
-	/* make entry in the Protocol column on summary display */
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "S1AP");
+  /* make entry in the Protocol column on summary display */
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "S1AP");
 
-	/* create the s1ap protocol tree */
-	s1ap_item = proto_tree_add_item(tree, proto_s1ap, tvb, 0, -1, ENC_NA);
-	s1ap_tree = proto_item_add_subtree(s1ap_item, ett_s1ap);
+  /* create the s1ap protocol tree */
+  s1ap_item = proto_tree_add_item(tree, proto_s1ap, tvb, 0, -1, ENC_NA);
+  s1ap_tree = proto_item_add_subtree(s1ap_item, ett_s1ap);
 
-	dissect_S1AP_PDU_PDU(tvb, pinfo, s1ap_tree, NULL);
-	return tvb_captured_length(tvb);
+  dissect_S1AP_PDU_PDU(tvb, pinfo, s1ap_tree, NULL);
+  return tvb_captured_length(tvb);
 }
 
 /*--- proto_reg_handoff_s1ap ---------------------------------------*/
 void
 proto_reg_handoff_s1ap(void)
 {
-	static gboolean Initialized=FALSE;
-	static guint SctpPort;
+  static gboolean Initialized=FALSE;
+  static guint SctpPort;
 
-    gcsna_handle = find_dissector_add_dependency("gcsna", proto_s1ap);
+  gcsna_handle = find_dissector_add_dependency("gcsna", proto_s1ap);
 
-	if (!Initialized) {
-		nas_eps_handle = find_dissector_add_dependency("nas-eps", proto_s1ap);
-		lppa_handle = find_dissector_add_dependency("lppa", proto_s1ap);
-		bssgp_handle = find_dissector_add_dependency("bssgp", proto_s1ap);
-		dissector_add_for_decode_as("sctp.port", s1ap_handle);
-		dissector_add_uint("sctp.ppi", S1AP_PAYLOAD_PROTOCOL_ID,   s1ap_handle);
-		Initialized=TRUE;
+  if (!Initialized) {
+    nas_eps_handle = find_dissector_add_dependency("nas-eps", proto_s1ap);
+    lppa_handle = find_dissector_add_dependency("lppa", proto_s1ap);
+    bssgp_handle = find_dissector_add_dependency("bssgp", proto_s1ap);
+    dissector_add_for_decode_as("sctp.port", s1ap_handle);
+    dissector_add_uint("sctp.ppi", S1AP_PAYLOAD_PROTOCOL_ID,   s1ap_handle);
+    Initialized=TRUE;
 #include "packet-s1ap-dis-tab.c"
-	} else {
-		if (SctpPort != 0) {
-			dissector_delete_uint("sctp.port", SctpPort, s1ap_handle);
-		}
-	}
+  } else {
+    if (SctpPort != 0) {
+      dissector_delete_uint("sctp.port", SctpPort, s1ap_handle);
+    }
+  }
 
-	SctpPort=gbl_s1apSctpPort;
-	if (SctpPort != 0) {
-		dissector_add_uint("sctp.port", SctpPort, s1ap_handle);
-	}
+  SctpPort=gbl_s1apSctpPort;
+  if (SctpPort != 0) {
+    dissector_add_uint("sctp.port", SctpPort, s1ap_handle);
+  }
 }
 
 /*--- proto_register_s1ap -------------------------------------------*/
@@ -254,16 +254,16 @@ void proto_register_s1ap(void) {
 
   /* List of subtrees */
   static gint *ett[] = {
-		  &ett_s1ap,
-		  &ett_s1ap_TransportLayerAddress,
-		  &ett_s1ap_ToTargetTransparentContainer,
-		  &ett_s1ap_ToSourceTransparentContainer,
-		  &ett_s1ap_RRCContainer,
-		  &ett_s1ap_UERadioCapability,
-		  &ett_s1ap_RIMInformation,
-          &ett_s1ap_Cdma2000PDU,
-          &ett_s1ap_Cdma2000SectorID,
-          &ett_s1ap_UERadioPagingInformation,
+    &ett_s1ap,
+    &ett_s1ap_TransportLayerAddress,
+    &ett_s1ap_ToTargetTransparentContainer,
+    &ett_s1ap_ToSourceTransparentContainer,
+    &ett_s1ap_RRCContainer,
+    &ett_s1ap_UERadioCapability,
+    &ett_s1ap_RIMInformation,
+    &ett_s1ap_Cdma2000PDU,
+    &ett_s1ap_Cdma2000SectorID,
+    &ett_s1ap_UERadioPagingInformation,
 #include "packet-s1ap-ettarr.c"
   };
 
@@ -299,7 +299,15 @@ void proto_register_s1ap(void) {
 
 }
 
-
-
-
-
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
