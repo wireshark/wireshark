@@ -150,6 +150,9 @@ static const value_string mpeg_descriptor_tag_vals[] = {
     { 0x7E, "FTA Content Management Descriptor" },
     { 0x7F, "Extension Descriptor" },
 
+    /* From ATSC A/52 */
+    { 0x81, "ATSC A/52 AC-3 Audio Descriptor" },
+
     /* From ETSI EN 301 790 */
     { 0xA0, "Network Layer Info Descriptor" },
     { 0xA1, "Correction Message Descriptor" },
@@ -2402,6 +2405,193 @@ proto_mpeg_descriptor_dissect_extension(tvbuff_t *tvb, guint offset, guint len, 
 
 }
 
+#define MPEG_DESCR_AC3_SYSA_SRATE_MASK 0xe0
+#define MPEG_DESCR_AC3_SYSA_BSID_MASK 0x1f
+#define MPEG_DESCR_AC3_SYSA_BITRATE_CODE_LIMIT_MASK 0x80
+#define MPEG_DESCR_AC3_SYSA_BITRATE_CODE_MASK 0x7c
+#define MPEG_DESCR_AC3_SYSA_SURROUND_MODE_MASK 0x03
+#define MPEG_DESCR_AC3_SYSA_BSMOD_MASK 0xe0
+#define MPEG_DESCR_AC3_SYSA_NUM_CHANNELS_MASK 0x1e
+#define MPEG_DESCR_AC3_SYSA_FULL_SVC_MASK 0x01
+#define MPEG_DESCR_AC3_SYSA_MAINID_MASK 0xe0
+#define MPEG_DESCR_AC3_SYSA_PRIORITY_MASK 0x18
+#define MPEG_DESCR_AC3_SYSA_RESERVED_MASK 0x07
+#define MPEG_DESCR_AC3_SYSA_TEXTLEN_MASK 0xfe
+#define MPEG_DESCR_AC3_SYSA_TEXTCODE_MASK 0x01
+#define MPEG_DESCR_AC3_SYSA_LANG1_MASK 0x80
+#define MPEG_DESCR_AC3_SYSA_LANG2_MASK 0x40
+
+static int hf_mpeg_descr_ac3_sysa_srate = -1;
+static int hf_mpeg_descr_ac3_sysa_bsid = -1;
+static int hf_mpeg_descr_ac3_sysa_bitrate = -1;
+static int hf_mpeg_descr_ac3_sysa_bitrate_limit = -1;
+static int hf_mpeg_descr_ac3_sysa_surround = -1;
+static int hf_mpeg_descr_ac3_sysa_bsmod = -1;
+static int hf_mpeg_descr_ac3_sysa_num_channels = -1;
+static int hf_mpeg_descr_ac3_sysa_full_svc = -1;
+static int hf_mpeg_descr_ac3_sysa_langcode = -1;
+static int hf_mpeg_descr_ac3_sysa_langcode2 = -1;
+static int hf_mpeg_descr_ac3_sysa_mainid = -1;
+static int hf_mpeg_descr_ac3_sysa_priority = -1;
+static int hf_mpeg_descr_ac3_sysa_reserved = -1;
+static int hf_mpeg_descr_ac3_sysa_asvcflags = -1;
+static int hf_mpeg_descr_ac3_sysa_textlen = -1;
+static int hf_mpeg_descr_ac3_sysa_textcode = -1;
+static int hf_mpeg_descr_ac3_sysa_lang1 = -1;
+static int hf_mpeg_descr_ac3_sysa_lang2 = -1;
+static int hf_mpeg_descr_ac3_sysa_lang1_bytes = -1;
+static int hf_mpeg_descr_ac3_sysa_lang2_bytes = -1;
+
+/* ATSC A/52 Annex A Table A4.2*/
+static const value_string mpeg_descr_ac3_sysa_srate_flag_vals[] = {
+    { 0x0, "48 KHz" },
+    { 0x1, "44.1 KHz" },
+    { 0x2, "32 KHz" },
+    { 0x3, "Reserved" },
+    { 0x4, "48 or 44.1 KHz" },
+    { 0x5, "48 or 32 KHz" },
+    { 0x6, "44.1 or 32 KHz" },
+    { 0x7, "48, 44.1 or 32 KHz" },
+    { 0x0, NULL }
+};
+
+/* ATSC A/52 Annex A Table A4.3 */
+static const value_string mpeg_descr_ac3_sysa_bitrate_code_limit_vals[] = {
+    { 0, "Exact bitrate" },
+    { 1, "Upper limit bitrate" },
+    { 0x0, NULL }
+};
+
+static const value_string mpeg_descr_ac3_sysa_bitrate_code_vals[] = {
+    { 0, "32 KHz" },
+    { 1, "40 KHz" },
+    { 2, "48 KHz" },
+    { 3, "56 KHz" },
+    { 4, "64 KHz" },
+    { 5, "80 KHz" },
+    { 6, "96 KHz" },
+    { 7, "112 KHz" },
+    { 8, "128 KHz" },
+    { 9, "160 KHz" },
+    { 10, "192 KHz" },
+    { 11, "224 KHz" },
+    { 12, "256 KHz" },
+    { 13, "320 KHz" },
+    { 14, "384 KHz" },
+    { 15, "448 KHz" },
+    { 16, "512 KHz" },
+    { 17, "576 KHz" },
+    { 18, "640 KHz" },
+    { 0x0, NULL }
+};
+
+/* ATSC A/52 Annex A Table A4.4 */
+static const value_string mpeg_descr_ac3_sysa_surround_mode_vals[] = {
+    { 0x0, "Not indicated" },
+    { 0x1, "NOT Dolby Surround Sound" },
+    { 0x2, "Dolby Surround Sound" },
+    { 0x3, "Reserved" },
+    { 0x0, NULL }
+};
+
+/* ATSC A/52 Annex A Table A4.5*/
+static const value_string mpeg_descr_ac3_sysa_num_channels_vals[] = {
+    { 0x0, "1 + 1 channels" },
+    { 0x1, "1/0 channels" },
+    { 0x2, "2/0 channels" },
+    { 0x3, "3/0 channels" },
+    { 0x4, "2/1 channels" },
+    { 0x5, "3/1 channels" },
+    { 0x6, "2/2 channels" },
+    { 0x7, "3/2 channels" },
+    { 0x8, "1 channel" },
+    { 0x9, "<= 2 channels" },
+    { 0xa, "<= 3 channels" },
+    { 0xb, "<= 4 channels" },
+    { 0xc, "<= 5 channels" },
+    { 0xd, "<= 6 channels" },
+    { 0xe, "Reserved" },
+    { 0xf, "Reserved" },
+    { 0x0, NULL }
+};
+
+/* ATSC A/52 Annex A Table A4.6 */
+static const value_string mpeg_descr_ac3_sysa_priority_vals[] = {
+    { 0x0, "Reserved" },
+    { 0x1, "Primary Audio" },
+    { 0x2, "Other Audio" },
+    { 0x3, "Not specified" },
+    { 0x0, NULL }
+};
+
+/* According to ATSC A/52, Annex A, there are two separate ATSC descriptors.  "System A" is used
+   by ATSC, and "System B" is used by DVB.  See A/52 Sec A.4.1 for the System A definition */
+static void
+proto_mpeg_descriptor_dissect_ac3_system_a(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+{
+    guint  end = offset + len;
+    guint8 bsmod_chans_fullsvc, bsmod, num_channels, textlen, lang;
+
+    proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_srate, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_bsid, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_bitrate_limit, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_bitrate, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_surround, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    bsmod_chans_fullsvc = tvb_get_guint8(tvb, offset);
+    bsmod = (bsmod_chans_fullsvc & 0xe0) >> 5;
+    num_channels = (bsmod_chans_fullsvc & 0x1e) >> 1;
+    proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_bsmod, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_num_channels, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_full_svc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_langcode, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (num_channels == 0) {
+        /* 1+1 mode, so there is the possibility the second mono is in a different language */
+        proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_langcode2, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+
+    if (bsmod < 2) {
+        proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_mainid, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    } else {
+        proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_asvcflags, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    offset += 1;
+
+    textlen = tvb_get_guint8(tvb, offset) >> 1;
+    proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_textlen, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_textcode, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    offset += textlen;
+
+    lang = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_lang1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_lang2, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (lang & 0x80) {
+        proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_lang1_bytes, tvb, offset, 3, ENC_ASCII|ENC_NA);
+        offset += 3;
+    }
+
+    if (lang & 0x40) {
+        proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_lang2_bytes, tvb, offset, 3, ENC_ASCII|ENC_NA);
+        offset += 3;
+    }
+
+    if (offset < end)
+        proto_tree_add_item(tree, hf_mpeg_descr_ac3_additional_info, tvb, offset, end - offset, ENC_NA);
+}
+
 /* 0xA2 Logon Initialize Descriptor */
 static int hf_mpeg_descr_logon_initialize_group_id = -1;
 static int hf_mpeg_descr_logon_initialize_logon_id = -1;
@@ -2840,6 +3030,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
             break;
         case 0x7F: /* Extension Descriptor */
             proto_mpeg_descriptor_dissect_extension(tvb, offset, len, descriptor_tree);
+            break;
+        case 0x81: /* ATSC A/52 AC-3 Audio Descriptor */
+            proto_mpeg_descriptor_dissect_ac3_system_a(tvb, offset, len, descriptor_tree);
             break;
         case 0xA2: /* Logon Initialize Descriptor */
             proto_mpeg_descriptor_dissect_logon_initialize(tvb, offset, len, descriptor_tree);
@@ -4091,6 +4284,113 @@ proto_register_mpeg_descriptor(void)
         { &hf_mpeg_descr_private_data, {
             "Private data", "mpeg_descr.private_data",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        /* 0x81 ATSC A/52 AC-3 Descriptor */
+        { &hf_mpeg_descr_ac3_sysa_srate, {
+            "Sample Rate", "mpeg_descr.ac3.sysa_sample_rate",
+            FT_UINT8, BASE_HEX, VALS(mpeg_descr_ac3_sysa_srate_flag_vals),
+            MPEG_DESCR_AC3_SYSA_SRATE_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_bsid, {
+            "bsid", "mpeg_descr.ac3.sysa_bsid",
+            FT_UINT8, BASE_HEX, NULL,  MPEG_DESCR_AC3_SYSA_BSID_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_bitrate_limit, {
+            "Bitrate Code limit type", "mpeg_descr.ac3.sysa_bitrate_code_limit",
+            FT_UINT8, BASE_HEX, VALS(mpeg_descr_ac3_sysa_bitrate_code_limit_vals),
+            MPEG_DESCR_AC3_SYSA_BITRATE_CODE_LIMIT_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_bitrate, {
+            "Bitrate Code", "mpeg_descr.ac3.sysa_bitrate_code",
+            FT_UINT8, BASE_HEX, VALS(mpeg_descr_ac3_sysa_bitrate_code_vals),
+            MPEG_DESCR_AC3_SYSA_BITRATE_CODE_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_surround, {
+            "Surround Mode", "mpeg_descr.ac3.sysa_surround_mode",
+            FT_UINT8, BASE_HEX, VALS(mpeg_descr_ac3_sysa_surround_mode_vals),
+            MPEG_DESCR_AC3_SYSA_SURROUND_MODE_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_bsmod, {
+            "Bsmod", "mpeg_descr.ac3.sysa_bsmod",
+            FT_UINT8, BASE_HEX, NULL,  MPEG_DESCR_AC3_SYSA_BSMOD_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_num_channels, {
+            "Number of Channels", "mpeg_descr.ac3.sysa_num_channels",
+            FT_UINT8, BASE_HEX, VALS(mpeg_descr_ac3_sysa_num_channels_vals),
+            MPEG_DESCR_AC3_SYSA_NUM_CHANNELS_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_full_svc, {
+            "Full Service", "mpeg_descr.ac3.sysa_full_svc",
+            FT_UINT8, BASE_HEX, NULL,  MPEG_DESCR_AC3_SYSA_FULL_SVC_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_langcode, {
+            "Language Code (Deprecated)", "mpeg_descr.ac3.sysa_langcode",
+            FT_UINT8, BASE_HEX, NULL,  0xff, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_langcode2, {
+            "Language Code 2 (Deprecated)", "mpeg_descr.ac3.sysa_langcode2",
+            FT_UINT8, BASE_HEX, NULL,  0xff, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_mainid, {
+            "Main ID", "mpeg_descr.ac3.sysa_mainid",
+            FT_UINT8, BASE_HEX, NULL,  MPEG_DESCR_AC3_SYSA_MAINID_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_priority, {
+            "Priority", "mpeg_descr.ac3.sysa_priority",
+            FT_UINT8, BASE_HEX, VALS(mpeg_descr_ac3_sysa_priority_vals),
+            MPEG_DESCR_AC3_SYSA_PRIORITY_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_reserved, {
+            "Reserved", "mpeg_descr.ac3.sysa_reserved",
+            FT_UINT8, BASE_HEX, NULL,  MPEG_DESCR_AC3_SYSA_RESERVED_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_asvcflags, {
+            "Associated Service Flags", "mpeg_descr.ac3.sysa_asvcflags",
+            FT_UINT8, BASE_HEX, NULL,  0xff, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_textlen, {
+            "Text length", "mpeg_descr.ac3.sysa_textlen",
+            FT_UINT8, BASE_HEX, NULL,  MPEG_DESCR_AC3_SYSA_TEXTLEN_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_textcode, {
+            "Text Code", "mpeg_descr.ac3.sysa_textcode",
+            FT_UINT8, BASE_HEX, NULL,  MPEG_DESCR_AC3_SYSA_TEXTCODE_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_lang1, {
+            "Language 1 Present", "mpeg_descr.ac3.sysa_lang1",
+            FT_UINT8, BASE_HEX, NULL,  MPEG_DESCR_AC3_SYSA_LANG1_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_lang2, {
+            "Language 2 Present", "mpeg_descr.ac3.sysa_lang2",
+            FT_UINT8, BASE_HEX, NULL,  MPEG_DESCR_AC3_SYSA_LANG2_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_lang1_bytes, {
+            "Language 1 ISO 639 language code", "mpeg_descr.ac3.sysa_lang1_bytes",
+            FT_STRING, BASE_NONE, NULL,  0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ac3_sysa_lang2_bytes, {
+            "Language 2 ISO 639 language code", "mpeg_descr.ac3.sysa_lang2_bytes",
+            FT_STRING, BASE_NONE, NULL,  0, NULL, HFILL
         } },
 
         /* 0xA2 Logon Initialize Descriptor */
