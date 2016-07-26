@@ -315,13 +315,13 @@ static expert_field ei_ipv6_opt_jumbo_missing = EI_INIT;
 static expert_field ei_ipv6_opt_jumbo_prohibited = EI_INIT;
 static expert_field ei_ipv6_opt_jumbo_truncated = EI_INIT;
 static expert_field ei_ipv6_opt_jumbo_fragment = EI_INIT;
-static expert_field ei_ipv6_opt_jumbo_not_hopbyhop = EI_INIT;
 static expert_field ei_ipv6_opt_invalid_len = EI_INIT;
 static expert_field ei_ipv6_opt_unknown_data = EI_INIT;
 static expert_field ei_ipv6_hopopts_not_first = EI_INIT;
 static expert_field ei_ipv6_plen_exceeds_framing = EI_INIT;
 static expert_field ei_ipv6_bogus_ipv6_version = EI_INIT;
 static expert_field ei_ipv6_invalid_header = EI_INIT;
+static expert_field ei_ipv6_opt_header_mismatch = EI_INIT;
 
 #define TVB_IPv6_HDR_VERS(tvb, offset)  tvb_get_bits8(tvb, (offset) * 8, 4)
 #define TVB_IPv6_HDR_TCLS(tvb, offset)  tvb_get_bits8(tvb, (offset) * 8 + 4, 8)
@@ -554,6 +554,41 @@ static const value_string ipv6_opt_type_action_vals[] = {
     { IPv6_OPT_ACTION_MCST, "Discard and send ICMP if not multicast" },
     { 0, NULL }
 };
+
+enum {
+    IPv6_OPT_HDR_HBH = 0,
+    IPv6_OPT_HDR_DST,
+    IPv6_OPT_HDR_ANY
+};
+
+static const gint _ipv6_opt_type_hdr[][2] = {
+    { IP6OPT_TEL,           IPv6_OPT_HDR_DST },
+    { IP6OPT_RTALERT,       IPv6_OPT_HDR_HBH },
+    { IP6OPT_CALIPSO,       IPv6_OPT_HDR_HBH },
+    { IP6OPT_SMF_DPD,       IPv6_OPT_HDR_HBH },
+    { IP6OPT_QUICKSTART,    IPv6_OPT_HDR_HBH },
+    { IP6OPT_RPL,           IPv6_OPT_HDR_HBH },
+    { IP6OPT_MPL,           IPv6_OPT_HDR_HBH },
+    { IP6OPT_ILNP_NONCE,    IPv6_OPT_HDR_DST },
+    { IP6OPT_LIO,           IPv6_OPT_HDR_DST },
+    { IP6OPT_JUMBO,         IPv6_OPT_HDR_HBH },
+    { IP6OPT_HOME_ADDRESS,  IPv6_OPT_HDR_DST },
+    { IP6OPT_IP_DFF,        IPv6_OPT_HDR_HBH },
+    { 0, IPv6_OPT_HDR_ANY }
+};
+
+static inline gint
+ipv6_opt_type_hdr(gint type)
+{
+    const gint (*p)[2] = _ipv6_opt_type_hdr;
+
+    for (; (*p)[1] != IPv6_OPT_HDR_ANY; p++) {
+        if ((*p)[0] == type) {
+            return (*p)[1];
+        }
+    }
+    return IPv6_OPT_HDR_ANY;
+}
 
 gboolean
 capture_ipv6(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
@@ -1265,7 +1300,7 @@ struct opt_proto_item {
 */
 static gint
 dissect_opt_jumbo(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
-                    struct opt_proto_item *opt_ti, guint8 opt_len, gboolean hopopts, guint16 ip6_plen)
+                    struct opt_proto_item *opt_ti, guint8 opt_len, guint16 ip6_plen)
 {
     proto_item *pi = proto_tree_get_parent(opt_tree);
     proto_item *ti;
@@ -1278,9 +1313,6 @@ dissect_opt_jumbo(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *op
     ti = proto_tree_add_item_ret_uint(opt_tree, hf_ipv6_opt_jumbo, tvb, offset, 4, ENC_BIG_ENDIAN, &jumbo_plen);
     offset += 4;
 
-    if (!hopopts) {
-        expert_add_info(pinfo, pi, &ei_ipv6_opt_jumbo_not_hopbyhop);
-    }
     if (ip6_plen != 0) {
         expert_add_info(pinfo, pi, &ei_ipv6_opt_jumbo_prohibited);
     }
@@ -1737,6 +1769,8 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
     int             hf_exthdr_item_nxt, hf_exthdr_item_len, hf_exthdr_item_len_oct;
     int             ett_exthdr_proto;
     guint8          opt_type, opt_len, opt_start;
+    gint            opt_hdr_type;
+    const gchar    *opt_name;
     gboolean        hopopts;
     struct opt_proto_item opt_ti;
     ipv6_pinfo_t   *ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
@@ -1797,9 +1831,10 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
 
         opt_type = tvb_get_guint8(tvb, offset);
         opt_len = tvb_get_guint8(tvb, offset + 1);
+        opt_name = val_to_str_ext(opt_type, &ipv6_opt_type_vals_ext, "Unknown IPv6 Option (%u)");
 
         pi = proto_tree_add_none_format(exthdr_tree, hf_ipv6_opt, tvb, offset, 2 + opt_len,
-                    "%s", val_to_str_ext(opt_type, &ipv6_opt_type_vals_ext, "Unknown IPv6 Option (%u)"));
+                    "%s", opt_name);
         opt_tree = proto_item_add_subtree(pi, ett_ipv6_opt);
 
         opt_ti.type = proto_tree_add_item(opt_tree, hf_ipv6_opt_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1809,6 +1844,17 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
             proto_tree_add_item(opt_tree, hf_ipv6_opt_pad1, tvb, offset, 1, ENC_NA);
             offset += 1;
             continue;
+        }
+
+        if ((opt_hdr_type = ipv6_opt_type_hdr(opt_type)) != IPv6_OPT_HDR_ANY) {
+            if (hopopts && (opt_hdr_type == IPv6_OPT_HDR_DST)) {
+                expert_add_info_format(pinfo, opt_ti.type, &ei_ipv6_opt_header_mismatch,
+                        "%s must use a destination options header", opt_name);
+            }
+            else if (!hopopts && (opt_hdr_type == IPv6_OPT_HDR_HBH)) {
+                expert_add_info_format(pinfo, opt_ti.type, &ei_ipv6_opt_header_mismatch,
+                        "%s must use a hop-by-hop options header", opt_name);
+            }
         }
 
         opt_type_tree = proto_item_add_subtree(opt_ti.type, ett_ipv6_opt_type);
@@ -1835,7 +1881,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
         opt_start = offset;
         switch (opt_type) {
         case IP6OPT_JUMBO:
-            offset = dissect_opt_jumbo(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len, hopopts, ipv6_pinfo->ip6_plen);
+            offset = dissect_opt_jumbo(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len, ipv6_pinfo->ip6_plen);
             break;
         case IP6OPT_RPL:
             offset = dissect_opt_rpl(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
@@ -3217,10 +3263,6 @@ proto_register_ipv6(void)
             { "ipv6.opt.jumbo.fragment", PI_PROTOCOL, PI_ERROR,
                 "Jumbo Payload option cannot be used with a fragment header", EXPFILL }
         },
-        { &ei_ipv6_opt_jumbo_not_hopbyhop,
-            { "ipv6.opt.jumbo.not_hopbyhop", PI_PROTOCOL, PI_ERROR,
-                "Jumbo Payload option must be a hop-by-hop option", EXPFILL }
-        },
         { &ei_ipv6_opt_invalid_len,
             { "ipv6.opt.invalid_len", PI_MALFORMED, PI_ERROR,
                 "Invalid IPv6 option length", EXPFILL }
@@ -3240,6 +3282,10 @@ proto_register_ipv6(void)
         { &ei_ipv6_invalid_header,
             { "ipv6.invalid_header", PI_MALFORMED, PI_ERROR,
                 "Invalid IPv6 header", EXPFILL }
+        },
+        { &ei_ipv6_opt_header_mismatch,
+            { "ipv6.opt.header_mismatch", PI_PROTOCOL, PI_WARN,
+                "Wrong options extension header for type", EXPFILL }
         }
     };
 
