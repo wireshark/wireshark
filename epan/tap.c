@@ -39,6 +39,7 @@
 #include <epan/packet_info.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/tap.h>
+#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 static gboolean tapping_is_active=FALSE;
 
@@ -271,7 +272,7 @@ tap_queue_packet(int tap_id, packet_info *pinfo, const void *tap_specific_data)
 	 * rather than having a fixed maximum number of entries?
 	 */
 	if(tap_packet_index >= TAP_PACKET_QUEUE_LEN){
-		g_warning("Too many taps queued");
+		ws_g_warning("Too many taps queued");
 		return;
 	}
 

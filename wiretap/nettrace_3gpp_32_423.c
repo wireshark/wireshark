@@ -269,7 +269,7 @@ nettrace_parse_begin_time(guint8 *curr_pos, struct wtap_pkthdr *phdr)
 			phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
 			phdr->ts.secs = 0;
 			phdr->ts.nsecs = 0;
-			g_warning("Failed to parse second time format, scan_found %u", scan_found);
+			/* g_warning("Failed to parse second time format, scan_found %u", scan_found); */
 			return curr_pos;
 		}
 	}
@@ -282,7 +282,7 @@ nettrace_parse_begin_time(guint8 *curr_pos, struct wtap_pkthdr *phdr)
 			phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
 			phdr->ts.secs = 0;
 			phdr->ts.nsecs = 0;
-			g_warning("Failed to parse time, month is %u", month);
+			/* g_warning("Failed to parse time, month is %u", month); */
 			return curr_pos;
 		}
 		tm.tm_mon = month - 1; /* Zero count*/
@@ -290,8 +290,8 @@ nettrace_parse_begin_time(guint8 *curr_pos, struct wtap_pkthdr *phdr)
 			phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
 			phdr->ts.secs = 0;
 			phdr->ts.nsecs = 0;
-			g_warning("Failed to parse time, %u-%02u-%2u is not a valid day",
-			    year, month, day);
+			/* g_warning("Failed to parse time, %u-%02u-%2u is not a valid day",
+			    year, month, day); */
 			return curr_pos;
 		}
 		tm.tm_mday = day;
@@ -299,7 +299,7 @@ nettrace_parse_begin_time(guint8 *curr_pos, struct wtap_pkthdr *phdr)
 			phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
 			phdr->ts.secs = 0;
 			phdr->ts.nsecs = 0;
-			g_warning("Failed to parse time, hour is %u", hour);
+			/* g_warning("Failed to parse time, hour is %u", hour); */
 			return curr_pos;
 		}
 		tm.tm_hour = hour;
@@ -307,7 +307,7 @@ nettrace_parse_begin_time(guint8 *curr_pos, struct wtap_pkthdr *phdr)
 			phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
 			phdr->ts.secs = 0;
 			phdr->ts.nsecs = 0;
-			g_warning("Failed to parse time, minute is %u", minute);
+			/* g_warning("Failed to parse time, minute is %u", minute); */
 			return curr_pos;
 		}
 		tm.tm_min = minute;
@@ -319,7 +319,7 @@ nettrace_parse_begin_time(guint8 *curr_pos, struct wtap_pkthdr *phdr)
 			phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
 			phdr->ts.secs = 0;
 			phdr->ts.nsecs = 0;
-			g_warning("Failed to parse time, second is %u", second);
+			/* g_warning("Failed to parse time, second is %u", second); */
 			return curr_pos;
 		}
 		tm.tm_sec = second;
@@ -337,7 +337,7 @@ nettrace_parse_begin_time(guint8 *curr_pos, struct wtap_pkthdr *phdr)
 			phdr->ts.secs = phdr->ts.secs + UTCdiffsec;
 		}
 	} else {
-		g_warning("Failed to parse time, only %u fields", scan_found);
+		/* g_warning("Failed to parse time, only %u fields", scan_found); */
 		phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
 		phdr->ts.secs = 0;
 		phdr->ts.nsecs = 0;
@@ -973,7 +973,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 					}
 					exported_pdu_info.src_port = port;
 				} else {
-					g_warning("scan_found:%u, %u.%u.%u.%u Port %u transport %s", scan_found, d1, d2, d3, d4, port, transp_str);
+					/* g_warning("scan_found:%u, %u.%u.%u.%u Port %u transport %s", scan_found, d1, d2, d3, d4, port, transp_str); */
 				}
 			} else {
 				/* address not found*/
@@ -1019,7 +1019,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 					}
 					exported_pdu_info.dst_port = port;
 				} else {
-					g_warning("scan_found:%u, %u.%u.%u.%u Port %u transport %s", scan_found, d1, d2, d3, d4, port, transp_str);
+					/* g_warning("scan_found:%u, %u.%u.%u.%u Port %u transport %s", scan_found, d1, d2, d3, d4, port, transp_str); */
 				}
 			}
 			else {

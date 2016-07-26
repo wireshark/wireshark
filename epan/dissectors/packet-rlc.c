@@ -1120,7 +1120,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
         gint16 end = GPOINTER_TO_INT(endlist->list->next->data);
         if (frags[end] == NULL) {
 #if RLC_ADD_FRAGMENT_FAIL_PRINT
-            g_warning("frag[end] is null, this is probably because end was a startpoint but because of some error ended up being treated as an endpoint, setting fail flag, start %d, end %d, packet %u\n", start, end, pinfo->num);
+            proto_tree_add_debug_text(tree, "frag[end] is null, this is probably because end was a startpoint but because of some error ended up being treated as an endpoint, setting fail flag, start %d, end %d, packet %u\n", start, end, pinfo->num);
 #endif
             endlist->fail_packet = pinfo->num;
             return NULL;
@@ -1154,7 +1154,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
             if (frags[start] == NULL) {
                 if (MIN((start-seq+snmod)%snmod, (seq-start+snmod)%snmod) >= snmod/4) {
 #if RLC_ADD_FRAGMENT_FAIL_PRINT
-                    g_warning(
+                    proto_tree_add_debug_text(tree,
 "Packet %u. Setting fail flag because RLC fragment with sequence number %u was \
 too far away from an unfinished sequence (%u->%u). The missing sequence number \
 is %u. The most recently complete sequence ended in packet %u.", pinfo->num, seq, 0, end, start, 0);
@@ -1173,7 +1173,7 @@ is %u. The most recently complete sequence ended in packet %u.", pinfo->num, seq
          * this endpoint is too large, set fail flag. */
         if (MIN((first-seq+snmod)%snmod, (seq-first+snmod)%snmod) >= snmod/4) {
 #if RLC_ADD_FRAGMENT_FAIL_PRINT
-            g_warning(
+            proto_tree_add_debug_text(tree,
 "Packet %u. Setting fail flag because RLC fragment with sequence number %u was \
 too far away from an unfinished sequence with start %u and without end.", pinfo->num, seq, first);
 #endif

@@ -33,6 +33,7 @@
 
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
+#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 #include <epan/packet.h>
 #include "color_filters.h"
@@ -621,7 +622,7 @@ read_filters_file(FILE *f, gpointer user_data, color_filter_add_cb_func add_cb)
             gchar *local_err_msg = NULL;
 
             if (!dfilter_compile(filter_exp, &temp_dfilter, &local_err_msg)) {
-                g_warning("Could not compile \"%s\" in colorfilters file.\n%s",
+                ws_g_warning("Could not compile \"%s\" in colorfilters file.\n%s",
                           name, local_err_msg);
                 g_free(local_err_msg);
                 prefs.unknown_colorfilters = TRUE;

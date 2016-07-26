@@ -30,6 +30,7 @@
 
 #include "mate.h"
 #include <epan/expert.h>
+#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 void proto_register_mate(void);
 void proto_reg_handoff_mate(void);
@@ -354,7 +355,7 @@ proto_reg_handoff_mate(void)
 				    (tap_draw_cb) NULL);
 
 				if ( tap_error ) {
-					g_warning("mate: couldn't (re)register tap: %s",tap_error->str);
+					ws_g_warning("mate: couldn't (re)register tap: %s",tap_error->str);
 					g_string_free(tap_error, TRUE);
 					mate_tap_data = 0;
 					return;

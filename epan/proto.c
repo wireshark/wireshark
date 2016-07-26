@@ -56,7 +56,7 @@
 #include "in_cksum.h"
 
 #include <wsutil/plugins.h>
-#include <wsutil/ws_printf.h> /* ws_debug_printf */
+#include <wsutil/ws_printf.h> /* ws_debug_printf/ws_g_warning */
 
 /* Ptvcursor limits */
 #define SUBTREE_ONCE_ALLOCATION_NUMBER 8
@@ -6478,7 +6478,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				   so only report if different... */
 				if ((start_values[m].value == current->value) &&
 				    (strcmp(start_values[m].strptr, current->strptr) != 0)) {
-					g_warning("Field '%s' (%s) has a conflicting entry in its"
+					ws_g_warning("Field '%s' (%s) has a conflicting entry in its"
 						  " value_string: %u is at indices %u (%s) and %u (%s))\n",
 						  hfinfo->name, hfinfo->abbrev,
 						  current->value, m, start_values[m].strptr, n, current->strptr);
@@ -8338,7 +8338,7 @@ proto_registrar_dump_values(void)
 			if (hfinfo->display & BASE_EXT_STRING) {
 				value_string_ext *vse_p = (value_string_ext *)hfinfo->strings;
 				if (!value_string_ext_validate(vse_p)) {
-					g_warning("Invalid value_string_ext ptr for: %s", hfinfo->abbrev);
+					ws_g_warning("Invalid value_string_ext ptr for: %s", hfinfo->abbrev);
 					continue;
 				}
 				try_val_to_str_ext(0, vse_p); /* "prime" the extended value_string */
