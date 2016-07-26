@@ -372,6 +372,7 @@ create_shb_header(const merge_in_file_t *in_files, const guint in_file_count,
     char* shb_comment = NULL;
     wtapng_mandatory_section_t* shb_data;
     gsize opt_len;
+    gchar *opt_str;
 
     shb_hdrs = wtap_file_get_shb_for_new_file(in_files[0].wth);
     shb_hdr = g_array_index(shb_hdrs, wtap_block_t, 0);
@@ -412,8 +413,12 @@ create_shb_header(const merge_in_file_t *in_files, const guint in_file_count,
      */
     wtap_block_remove_option(shb_hdr, OPT_SHB_HARDWARE);
     opt_len = os_info_str->len;
-    wtap_block_set_string_option_value(shb_hdr, OPT_SHB_OS, g_string_free(os_info_str, FALSE), opt_len); /* UTF-8 string containing the name   */
-                                                                                                            /*  of the operating system used to create this section.     */
+    opt_str = g_string_free(os_info_str, FALSE);
+    if (opt_str) {
+        wtap_block_set_string_option_value(shb_hdr, OPT_SHB_OS, opt_str, opt_len); /* UTF-8 string containing the name   */
+                                                                                   /*  of the operating system used to create this section.     */
+        g_free(opt_str);
+    }
     wtap_block_set_string_option_value(shb_hdr, OPT_SHB_USERAPPL, (char*)app_name, app_name ? strlen(app_name): 0 ); /* NULL if not available, UTF-8 string containing the name */
                                                                                       /*  of the application used to create this section.          */
 
