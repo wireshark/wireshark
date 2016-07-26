@@ -5940,6 +5940,7 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     guint r, records, length;
     proto_tree *SA_record_tree;
     const guchar *label;
+    gboolean parent_was_opa_fe = proto_is_frame_protocol(pinfo->layers, "opa.fe");
 
     if (!parse_MAD_Common(parentTree, pinfo, tvb, offset, &MAD)) {
         return;
@@ -5956,7 +5957,7 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
         return;
     }
 
-    if (pref_attempt_rmpp_defragment
+    if (!parent_was_opa_fe && pref_attempt_rmpp_defragment
         && (RMPP.resptime_flags & RMPP_FLAG_ACTIVE_MASK) && (RMPP.Type == RMPP_DATA)
         && !((RMPP.resptime_flags & RMPP_FLAG_FIRST_MASK)
             && (RMPP.resptime_flags & RMPP_FLAG_LAST_MASK))) {
@@ -8163,6 +8164,7 @@ static void parse_PERFADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     fragment_head *frag_head = NULL;
     tvbuff_t *old_tvb = NULL;
     gint old_offset;
+    gboolean parent_was_opa_fe = proto_is_frame_protocol(pinfo->layers, "opa.fe");
 
     if (!parse_MAD_Common(parentTree, pinfo, tvb, offset, &MAD)) {
         return;
@@ -8179,7 +8181,7 @@ static void parse_PERFADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
         return;
     }
 
-    if (pref_attempt_rmpp_defragment
+    if (!parent_was_opa_fe && pref_attempt_rmpp_defragment
         && (RMPP.resptime_flags & RMPP_FLAG_ACTIVE_MASK) && (RMPP.Type == RMPP_DATA)
         && !((RMPP.resptime_flags & RMPP_FLAG_FIRST_MASK)
             && (RMPP.resptime_flags & RMPP_FLAG_LAST_MASK))) {

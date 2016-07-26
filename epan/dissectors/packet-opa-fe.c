@@ -15,12 +15,15 @@
 #include <epan/prefs.h>
 
 #include "packet-ssl.h"
+#include "packet-tcp.h"
 
 void proto_reg_handoff_opa_fe(void);
 void proto_register_opa_fe(void);
 
 #define OPA_FE_TCP_RANGE "3245-3248" /* Not IANA registered */
 #define OPA_FE_SSL_RANGE "3249-3252"
+
+#define OPA_FE_HEADER_LEN 24
 
 /* Wireshark ID */
 static gint proto_opa_fe = -1;
@@ -43,7 +46,11 @@ static range_t *global_fe_ssl_range = NULL;
 
 static range_t *fe_ssl_range = NULL;
 
-static int dissect_opa_fe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static guint get_opa_fe_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+    return tvb_get_ntohl(tvb, offset + 4);
+}
+static int dissect_opa_fe_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     gint offset = 0;    /* Current Offset */
     proto_item *FE_item;
@@ -54,7 +61,7 @@ static int dissect_opa_fe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     tree = proto_tree_get_root(tree);
 
-    FE_item = proto_tree_add_item(tree, proto_opa_fe, tvb, offset, 24, ENC_NA);
+    FE_item = proto_tree_add_item(tree, proto_opa_fe, tvb, offset, OPA_FE_HEADER_LEN, ENC_NA);
     FE_tree = proto_item_add_subtree(FE_item, ett_fe);
 
     proto_tree_add_item(FE_tree, hf_opa_fe_magicnumber, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -71,6 +78,14 @@ static int dissect_opa_fe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     /* Pass to OPA MAD dissector */
     call_dissector(opa_mad_handle, tvb_new_subset_remaining(tvb, offset), pinfo, FE_tree);
     return tvb_captured_length(tvb);
+}
+
+static int dissect_opa_fe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, OPA_FE_HEADER_LEN,
+        get_opa_fe_message_len, dissect_opa_fe_message, data);
+
+    return tvb_reported_length(tvb);
 }
 
 static void range_delete_fe_ssl_callback(guint32 port, gpointer ptr _U_)
