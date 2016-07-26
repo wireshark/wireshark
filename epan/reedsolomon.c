@@ -463,7 +463,7 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
   syn_error = 0;
   for(i=1;i<=NN-KK;i++){
     syn_error |= s[i];
-        /*printf("syndrome %d = %x\n",i,s[i]);*/
+        /*ws_debug_printf("syndrome %d = %x\n",i,s[i]);*/
     s[i] = Index_of[s[i]];
   }
 
@@ -649,7 +649,7 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
     }
     if (den == 0) {
 #if DEBUG >= 1
-      printf("\n ERROR: denominator = 0\n");
+      ws_debug_printf("\n ERROR: denominator = 0\n");
 #endif
       /* Convert to dual- basis */
       count = -1;

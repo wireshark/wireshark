@@ -609,7 +609,7 @@ static GtkWidget *extcap_create_gtk_fileselect(extcap_arg *argument,
 #if GTK_CHECK_VERSION(3, 0, 0)
     ret_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3);
 #else
-    ret_box = gtk_hbox_new(FALSE, 3);
+    ret_box = ws_gtk_hbox_new(FALSE, 3);
 #endif
 
     gtk_box_pack_start ( GTK_BOX(ret_box), entry, TRUE, TRUE, 5 );
