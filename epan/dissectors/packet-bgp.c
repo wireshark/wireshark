@@ -4376,7 +4376,6 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_iplen, tvb, reader_offset,
                             1, ENC_BIG_ENDIAN);
         reader_offset++;
-        total_length = reader_offset;
 
         if (ip_len == 4) {
             /*IPv4 address*/
@@ -4433,7 +4432,6 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_iplen, tvb, reader_offset,
                             1, ENC_BIG_ENDIAN);
         reader_offset += 1;
-        total_length = reader_offset;
 
         if (ip_len == 4) {
             /*IPv4 address*/
@@ -4478,7 +4476,6 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_iplen, tvb, reader_offset,
                             1, ENC_BIG_ENDIAN);
         reader_offset++;
-        total_length = reader_offset;
 
         if (ip_len == 4) {
             /*IPv4 address*/
