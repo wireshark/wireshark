@@ -109,6 +109,7 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, char *comment)
     wtapng_if_descr_mandatory_t *int_data_mand;
     GString                     *os_info_str;
     gsize                        opt_len;
+    gchar                       *opt_str;
 
     /* Create data for SHB  */
     os_info_str = g_string_new("");
@@ -125,7 +126,11 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, char *comment)
      * this section.
      */
     opt_len = os_info_str->len;
-    wtap_block_add_string_option(shb_hdr, OPT_SHB_OS, g_string_free(os_info_str, TRUE), opt_len);
+    opt_str = g_string_free(os_info_str, FALSE);
+    if (opt_str) {
+        wtap_block_add_string_option(shb_hdr, OPT_SHB_OS, opt_str, opt_len);
+        g_free(opt_str);
+    }
     /*
      * UTF-8 string containing the name of the application used to create
      * this section.

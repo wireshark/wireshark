@@ -729,6 +729,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	int name_str_len;
 	char name_str[64];
 	gsize opt_len;
+	gchar *opt_str;
 	/* Info to build exported_pdu tags*/
 	exported_pdu_info_t  exported_pdu_info;
 
@@ -762,7 +763,11 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	* this section.
 	*/
 	opt_len = os_info_str->len;
-	wtap_block_add_string_option(shb_hdr, OPT_SHB_OS, g_string_free(os_info_str, TRUE), opt_len);
+	opt_str = g_string_free(os_info_str, FALSE);
+	if (opt_str) {
+		wtap_block_add_string_option(shb_hdr, OPT_SHB_OS, opt_str, opt_len);
+		g_free(opt_str);
+	}
 
 	/*
 	* UTF-8 string containing the name of the application used to create
