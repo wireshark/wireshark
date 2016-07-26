@@ -74,7 +74,7 @@ void register_tap_listener_gtkcomparestat(void);
 #define COLOR_N	1
 
 /* For checksum */
-#define BYTES 12
+#define BYTES 14
 #define WRONG_CHKSUM 0
 
 #define MERGED_FILES 2
