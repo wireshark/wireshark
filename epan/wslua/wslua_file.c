@@ -29,6 +29,7 @@
 
 #include <errno.h>
 #include <wiretap/file_wrappers.h>
+#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 #define MAX_LINE_LENGTH            65536
 
@@ -277,12 +278,12 @@ WSLUA_METHOD File_read(lua_State* L) {
 
     /* shiftFile() doesn't verify things like expired */
     if (f->expired) {
-        g_warning("Error in File read: Lua File has expired");
+        ws_g_warning("Error in File read: Lua File has expired");
         return 0;
     }
 
     if (!file_is_reader(f)) {
-        g_warning("Error in File read: this File object instance is for writing only");
+        ws_g_warning("Error in File read: this File object instance is for writing only");
         return 0;
     }
 
@@ -399,7 +400,7 @@ WSLUA_METHOD File_lines(lua_State* L) {
         return luaL_error(L, "Error getting File handle for lines");
 
     if (!file_is_reader(f)) {
-        g_warning("Error in File read: this File object instance is for writing only");
+        ws_g_warning("Error in File read: this File object instance is for writing only");
         return 0;
     }
 
@@ -421,7 +422,7 @@ WSLUA_METHOD File_write(lua_State* L) {
     int err = 0;
 
     if (!f->wdh) {
-        g_warning("Error in File read: this File object instance is for reading only");
+        ws_g_warning("Error in File read: this File object instance is for reading only");
         return 0;
     }
 

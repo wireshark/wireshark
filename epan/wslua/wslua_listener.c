@@ -31,6 +31,7 @@
 /* WSLUA_MODULE Listener Post-dissection packet analysis */
 
 #include "wslua.h"
+#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 WSLUA_CLASS_DEFINE(Listener,FAIL_ON_NULL("Listener"));
 /*
@@ -111,7 +112,7 @@ static gboolean lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t
         case LUA_ERRRUN:
             break;
         case LUA_ERRMEM:
-            g_warning("Memory alloc error while calling listener tap callback packet");
+            ws_g_warning("Memory alloc error while calling listener tap callback packet");
             break;
         default:
             g_assert_not_reached();
@@ -146,10 +147,10 @@ static void lua_tap_reset(void *tapdata) {
         case 0:
             break;
         case LUA_ERRRUN:
-            g_warning("Runtime error while calling a listener's init()");
+            ws_g_warning("Runtime error while calling a listener's init()");
             break;
         case LUA_ERRMEM:
-            g_warning("Memory alloc error while calling a listener's init()");
+            ws_g_warning("Memory alloc error while calling a listener's init()");
             break;
         default:
             g_assert_not_reached();
@@ -171,10 +172,10 @@ static void lua_tap_draw(void *tapdata) {
             break;
         case LUA_ERRRUN:
             error = lua_tostring(tap->L,-1);
-            g_warning("Runtime error while calling a listener's draw(): %s",error);
+            ws_g_warning("Runtime error while calling a listener's draw(): %s",error);
             break;
         case LUA_ERRMEM:
-            g_warning("Memory alloc error while calling a listener's draw()");
+            ws_g_warning("Memory alloc error while calling a listener's draw()");
             break;
         default:
             g_assert_not_reached();
