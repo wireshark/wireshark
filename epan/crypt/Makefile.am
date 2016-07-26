@@ -30,7 +30,6 @@ include Custom.common
 libairpdcap_la_SOURCES =	\
 	airpdcap.c		\
 	airpdcap_ccmp.c		\
-	airpdcap_debug.c	\
 	airpdcap_rijndael.c	\
 	airpdcap_tkip.c		\
 	airpdcap_debug.h	\

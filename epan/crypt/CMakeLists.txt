@@ -29,7 +29,6 @@ include_directories(
 set(CRYPT_FILES
 	airpdcap.c
 	airpdcap_ccmp.c
-	airpdcap_debug.c
 	airpdcap_rijndael.c
 	airpdcap_tkip.c
 	${CUSTOM_CRYPT_SRC}
