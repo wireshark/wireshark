@@ -317,26 +317,12 @@ static expert_field ei_ipv6_plen_exceeds_framing = EI_INIT;
 static expert_field ei_ipv6_bogus_ipv6_version = EI_INIT;
 static expert_field ei_ipv6_invalid_header = EI_INIT;
 
-#define IPv6_HDR_VERS(ipv6)     (((*(guint8 *)(ipv6)) >> 4) & 0x0f)
-#define IPv6_HDR_TCLS(ipv6)     _ipv6_hdr_tcls(ipv6)
-#define IPv6_HDR_FLOW(ipv6)     (g_ntohl((ipv6)->ip6_ctl_flow) & 0x000fffff)
-
 #define TVB_IPv6_HDR_VERS(tvb, offset)  tvb_get_bits8(tvb, (offset) * 8, 4)
 #define TVB_IPv6_HDR_TCLS(tvb, offset)  tvb_get_bits8(tvb, (offset) * 8 + 4, 8)
 
 extern const struct e_in6_addr *tvb_get_ptr_ipv6(tvbuff_t tvb, int offset);
 #define tvb_get_ptr_ipv6(tvb, offset) \
     ((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, IPv6_ADDR_SIZE))
-
-static inline guint8 _ipv6_hdr_tcls(const struct ws_ip6_hdr *hdr)
-{
-    guint8 hi, low;
-    const guint8 *p = (const guint8 *)hdr;
-
-    hi = p[0] << 4;
-    low = p[1] >> 4;
-    return (hi & 0xf0) | (low & 0x0f);
-}
 
 ipv6_pinfo_t *p_get_ipv6_pinfo(packet_info *pinfo)
 {
