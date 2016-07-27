@@ -89,7 +89,9 @@ static int hf_control_feature_set_connection_parameters_request_procedure = -1;
 static int hf_control_feature_set_extended_reject_indication = -1;
 static int hf_control_feature_set_slave_initiated_features_exchange = -1;
 static int hf_control_feature_set_le_ping = -1;
-static int hf_control_feature_set_reserved_5_7 = -1;
+static int hf_control_feature_set_le_pkt_len_ext = -1;
+static int hf_control_feature_set_ll_privacy = -1;
+static int hf_control_feature_set_ext_scan_flt_pol = -1;
 static int hf_control_feature_set_reserved = -1;
 static int hf_control_window_size = -1;
 static int hf_control_window_offset = -1;
@@ -863,7 +865,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(sub_tree, hf_control_feature_set_extended_reject_indication, tvb, offset, 1, ENC_NA);
                 proto_tree_add_item(sub_tree, hf_control_feature_set_slave_initiated_features_exchange, tvb, offset, 1, ENC_NA);
                 proto_tree_add_item(sub_tree, hf_control_feature_set_le_ping, tvb, offset, 1, ENC_NA);
-                proto_tree_add_item(sub_tree, hf_control_feature_set_reserved_5_7, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sub_tree, hf_control_feature_set_le_pkt_len_ext, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sub_tree, hf_control_feature_set_ll_privacy, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sub_tree, hf_control_feature_set_ext_scan_flt_pol, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
                 proto_tree_add_item(sub_tree, hf_control_feature_set_reserved, tvb, offset, 7, ENC_NA);
@@ -1213,9 +1217,19 @@ proto_register_btle(void)
             FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
-        { &hf_control_feature_set_reserved_5_7,
-            { "Reseved",                         "btle.control.feature_set.reserved_5_7",
-            FT_BOOLEAN, 8, NULL, 0x07,
+        { &hf_control_feature_set_le_pkt_len_ext,
+        { "LE Data Packet Length Extension",          "btle.control.feature_set.le_pkt_len_ext",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_ll_privacy,
+        { "LL Privacy",          "btle.control.feature_set.le_privacy",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_ext_scan_flt_pol,
+        { "Extended Scanner Filter Policies",          "btle.control.feature_set.ext_scan_flt_pol",
+            FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
         { &hf_control_feature_set_reserved,
