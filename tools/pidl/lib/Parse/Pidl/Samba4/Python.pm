@@ -376,15 +376,16 @@ sub PythonStruct($$$$$$)
 	}
 	$self->pidl(".tp_methods = $py_methods,");
 	$self->pidl(".tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,");
-	$self->pidl(".tp_basicsize = sizeof(pytalloc_Object),");
 	$self->pidl(".tp_new = py_$name\_new,");
 	$self->deindent;
 	$self->pidl("};");
 
 	$self->pidl("");
 
-	my $talloc_typename = $self->import_type_variable("talloc", "Object");
-	$self->register_module_prereadycode(["$name\_Type.tp_base = $talloc_typename;", ""]);
+	my $talloc_typename = $self->import_type_variable("talloc", "BaseObject");
+	$self->register_module_prereadycode(["$name\_Type.tp_base = $talloc_typename;",
+					     "$name\_Type.tp_basicsize = pytalloc_BaseObject_size();",
+					     ""]);
 
 	return "&$typeobject";
 }
@@ -810,7 +811,6 @@ sub Interface($$$)
 		$self->indent;
 		$self->pidl("PyObject_HEAD_INIT(NULL) 0,");
 		$self->pidl(".tp_name = \"$basename.$interface->{NAME}\",");
-		$self->pidl(".tp_basicsize = sizeof(pytalloc_Object),");
 		$self->pidl(".tp_doc = $docstring,");
 		$self->pidl(".tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,");
 		$self->pidl(".tp_new = syntax_$interface->{NAME}_new,");
@@ -821,7 +821,9 @@ sub Interface($$$)
 
 		$self->register_module_typeobject("abstract_syntax", "&$syntax_typename");
 		my $ndr_typename = $self->import_type_variable("samba.dcerpc.misc", "ndr_syntax_id");
-		$self->register_module_prereadycode(["$syntax_typename.tp_base = $ndr_typename;", ""]);
+		$self->register_module_prereadycode(["$syntax_typename.tp_base = $ndr_typename;",
+						     "$syntax_typename.tp_basicsize = pytalloc_BaseObject_size();",
+						     ""]);
 	}
 
 	$self->pidl_hdr("\n");
