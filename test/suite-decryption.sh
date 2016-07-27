@@ -23,7 +23,6 @@
 
 # To do:
 #   IEEE 802.15.4
-#   IPsec / ESP
 #   ISAKMP / IKEv2
 #   PKCS#12
 #   SNMP
@@ -42,6 +41,7 @@ EXIT_ERROR=2
 UAT_FILES="
 	80211_keys
 	dtlsdecrypttablefile
+	esp_sa
 	ssl_keys
 	c1222_decryption_table
 	ikev1_decryption_table
@@ -154,6 +154,22 @@ decryption_step_dtls() {
 		-Tfields -e data.data \
 		-r "$CAPTURE_DIR/snakeoil-dtls.pcap" -Y data \
 		| grep "69:74:20:77:6f:72:6b:20:21:0a" > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt DTLS"
+		return
+	fi
+	test_step_ok
+}
+
+# IPsec ESP
+# https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12671
+decryption_step_ipsec_esp() {
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-o "esp.enable_encryption_decode: TRUE" \
+		-Tfields -e data.data \
+		-r "$CAPTURE_DIR/esp-bug-12671.pcapng.gz" -Y data \
+		| grep "08:09:0a:0b:0c:0d:0e:0f:10:11:12:13:14:15:16:17" > /dev/null 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "Failed to decrypt DTLS"
@@ -328,6 +344,7 @@ tshark_decryption_suite() {
 	test_step_add "IEEE 802.11 WPA EAP Decryption" decryption_step_80211_wpa_eap
 	test_step_add "IEEE 802.11 WPA TDLS Decryption" decryption_step_80211_wpa_tdls
 	test_step_add "DTLS Decryption" decryption_step_dtls
+	test_step_add "IPsec ESP Decryption" decryption_step_ipsec_esp
 	test_step_add "SSL Decryption (private key)" decryption_step_ssl
 	test_step_add "SSL Decryption (RSA private key with p smaller than q)" decryption_step_ssl_rsa_pq
 	test_step_add "SSL Decryption (private key with password)" decryption_step_ssl_with_password
