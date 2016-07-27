@@ -780,7 +780,7 @@ get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
         }
         else
         {
-          if (sscanf(addr_byte_string_tmp,"%u",&addr_byte) != 1)
+          if (sscanf(addr_byte_string_tmp,"%u",&addr_byte) == EOF)
             return FALSE;
 
           if(addr_byte < 16)
@@ -809,7 +809,7 @@ get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
         }
         else
         {
-          if (sscanf(addr_byte_string_tmp,"%u",&addr_byte) != 1)
+          if (sscanf(addr_byte_string_tmp,"%u",&addr_byte) == EOF)
             return FALSE;
 
           if(addr_byte < 16)
@@ -908,9 +908,9 @@ filter_address_match(gchar *addr, gchar *filter, gint typ)
          addr_string_tmp[0] = addr[i];
          addr_string_tmp[1] = '\0';
 
-         if (sscanf(filter_string_tmp,"%x",&filter_tmp) != 1)
+         if (sscanf(filter_string_tmp,"%x",&filter_tmp) == EOF)
              return FALSE;
-         if (sscanf(addr_string_tmp,"%x",&addr_tmp) != 1)
+         if (sscanf(addr_string_tmp,"%x",&addr_tmp) == EOF)
              return FALSE;
          for(i = 0; i < (filter_len % 4); i++)
          {
