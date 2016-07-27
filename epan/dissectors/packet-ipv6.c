@@ -162,6 +162,12 @@ static int hf_ipv6_opt_calipso_cmpt_length      = -1;
 static int hf_ipv6_opt_calipso_sens_level       = -1;
 static int hf_ipv6_opt_calipso_checksum         = -1;
 static int hf_ipv6_opt_calipso_cmpt_bitmap      = -1;
+static int hf_ipv6_opt_smf_dpd_hash_bit         = -1;
+static int hf_ipv6_opt_smf_dpd_tid_type         = -1;
+static int hf_ipv6_opt_smf_dpd_tid_len          = -1;
+static int hf_ipv6_opt_smf_dpd_tagger_id        = -1;
+static int hf_ipv6_opt_smf_dpd_ident            = -1;
+static int hf_ipv6_opt_smf_dpd_hav              = -1;
 static int hf_ipv6_opt_qs_func                  = -1;
 static int hf_ipv6_opt_qs_rate                  = -1;
 static int hf_ipv6_opt_qs_ttl                   = -1;
@@ -518,6 +524,21 @@ static const value_string ipv6_opt_type_vals[] = {
     { 0, NULL }
 };
 value_string_ext ipv6_opt_type_vals_ext = VALUE_STRING_EXT_INIT(ipv6_opt_type_vals);
+
+enum {
+    IP6OPT_SMF_DPD_NULL = 0,
+    IP6OPT_SMF_DPD_DFLT,
+    IP6OPT_SMF_DPD_IPv4,
+    IP6OPT_SMF_DPD_IPv6
+};
+
+static const value_string ipv6_opt_smf_dpd_tidty_vals[] = {
+    { IP6OPT_SMF_DPD_NULL, "NULL"       },
+    { IP6OPT_SMF_DPD_DFLT, "DEFAULT"    },
+    { IP6OPT_SMF_DPD_IPv4, "IPv4"       },
+    { IP6OPT_SMF_DPD_IPv6, "IPv6"       },
+    { 0, NULL }
+};
 
 enum {
     IPv6_OPT_ACTION_SKIP = 0,
@@ -1472,6 +1493,67 @@ dissect_opt_calipso(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *
 }
 
 /*
+ * IPv6 SMF_DPD Option Header
+ *
+       0                   1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                     ...              |0|0|0|  01000  | Opt. Data Len |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |0|TidTy| TidLen|             TaggerId (optional) ...           |
+      +-+-+-+-+-+-+-+-+               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                               |            Identifier  ...
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+           Figure 3: IPv6 SMF_DPD Option Header in I-DPD mode
+
+       0                   1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                     ...              |0|0|0| OptType | Opt. Data Len |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |1|    Hash Assist Value (HAV) ...
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+           Figure 4: IPv6 SMF_DPD Option Header in H-DPD Mode
+*/
+static gint
+dissect_opt_smf_dpd(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *opt_tree,
+                    struct opt_proto_item *opt_ti _U_, guint8 opt_len)
+{
+    guint8 hash_tid;
+    guint8 tid_len;
+    gint ident_len;
+
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_smf_dpd_hash_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+    hash_tid = tvb_get_guint8(tvb, offset);
+
+    if (hash_tid & 0x80) {
+        /* H-DPD Mode */
+        proto_tree_add_item(opt_tree, hf_ipv6_opt_smf_dpd_hav, tvb, offset, opt_len, ENC_NA);
+        return offset + opt_len;
+    }
+
+    /* I-DPD Mode */
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_smf_dpd_tid_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_smf_dpd_tid_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    ident_len = opt_len - 1;
+    if (hash_tid & 0x70) {
+        tid_len = (hash_tid & 0x0ffff) + 1;
+        proto_tree_add_item(opt_tree, hf_ipv6_opt_smf_dpd_tagger_id, tvb, offset, tid_len, ENC_NA);
+        offset += tid_len;
+        ident_len -= tid_len;
+    }
+    if (ident_len > 0) {
+        proto_tree_add_item(opt_tree, hf_ipv6_opt_smf_dpd_ident, tvb, offset, ident_len, ENC_NA);
+        offset += ident_len;
+    }
+
+    return offset;
+}
+
+/*
  * Home Address Option
  *
        0                   1                   2                   3
@@ -1771,8 +1853,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
             offset = dissect_opt_calipso(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_SMF_DPD:
-            /* TODO: Dissect SMF_DPD */
-            offset = dissect_opt_unknown(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            offset = dissect_opt_smf_dpd(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_HOME_ADDRESS:
             offset = dissect_opt_home_address(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
@@ -2615,6 +2696,36 @@ proto_register_ipv6(void)
         },
         { &hf_ipv6_opt_calipso_cmpt_bitmap,
             { "Compartment Bitmap", "ipv6.opt.calipso.cmpt_bitmap",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_smf_dpd_hash_bit,
+            { "H-bit", "ipv6.opt.smf_dpd.hash_bit",
+                FT_BOOLEAN, 8, NULL, 0x80,
+                "Hash indicator", HFILL }
+        },
+        { &hf_ipv6_opt_smf_dpd_tid_type,
+            { "TaggerID Type", "ipv6.opt.smf_dpd.tid_type",
+                FT_UINT8, BASE_DEC, VALS(ipv6_opt_smf_dpd_tidty_vals), 0x70,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_smf_dpd_tid_len,
+            { "TaggerID Length", "ipv6.opt.smf_dpd.tid_len",
+                FT_UINT8, BASE_DEC, NULL, 0x0F,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_smf_dpd_tagger_id,
+            { "TaggerID", "ipv6.opt.smf_dpd.tagger_id",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_smf_dpd_ident,
+            { "Identifier", "ipv6.opt.smf_dpd.ident",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_smf_dpd_hav,
+            { "Hash Assist Value", "ipv6.opt.smf_dpd.hav",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
