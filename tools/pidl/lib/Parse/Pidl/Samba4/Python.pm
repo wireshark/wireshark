@@ -224,7 +224,7 @@ sub PythonStruct($$$$$$)
 			if ($l->{TYPE} eq "POINTER" and
 				not ($nl->{TYPE} eq "ARRAY" and ($nl->{IS_FIXED} or is_charset_array($e, $nl))) and
 				not ($nl->{TYPE} eq "DATA" and Parse::Pidl::Typelist::scalar_is_reference($nl->{DATA_TYPE}))) {
-				$self->pidl("talloc_unlink(pytalloc_get_mem_ctx(py_obj), discard_const($varname));");
+				$self->pidl("talloc_unlink($mem_ctx, discard_const($varname));");
 			}
 			$self->ConvertObjectFromPython($env, $mem_ctx, $e, "value", $varname, "return -1;");
 			$self->pidl("return 0;");
