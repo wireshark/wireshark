@@ -54,7 +54,7 @@ ACLOCAL_AMFLAGS = `../aclocal-flags`
 noinst_LTLIBRARIES = libwireshark_generated.la libwireshark_asmopt.la
 lib_LTLIBRARIES = libwireshark.la
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-libwireshark_la_LDFLAGS = -version-info 5:13:0 @LDFLAGS_SHAREDLIB@
+libwireshark_la_LDFLAGS = -version-info 5:14:0 @LDFLAGS_SHAREDLIB@
 
 include Makefile.common
 

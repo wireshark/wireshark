@@ -27,7 +27,7 @@ include Makefile.common
 
 lib_LTLIBRARIES = libfiletap.la
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-libfiletap_la_LDFLAGS = -version-info 0:13:0 @LDFLAGS_SHAREDLIB@
+libfiletap_la_LDFLAGS = -version-info 0:14:0 @LDFLAGS_SHAREDLIB@
 
 AM_NON_GENERATED_CFLAGS =-DWS_BUILD_DLL
 
