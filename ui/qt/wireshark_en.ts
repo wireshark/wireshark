@@ -2805,62 +2805,62 @@ for filter files: %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="609"/>
+        <location filename="follow_stream_dialog.cpp" line="616"/>
         <source>
 [Stream output truncated]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="880"/>
+        <location filename="follow_stream_dialog.cpp" line="887"/>
         <source>No capture file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="880"/>
+        <location filename="follow_stream_dialog.cpp" line="887"/>
         <source>Please make sure you have a capture file opened.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="886"/>
-        <location filename="follow_stream_dialog.cpp" line="896"/>
-        <location filename="follow_stream_dialog.cpp" line="902"/>
-        <location filename="follow_stream_dialog.cpp" line="910"/>
+        <location filename="follow_stream_dialog.cpp" line="893"/>
+        <location filename="follow_stream_dialog.cpp" line="903"/>
+        <location filename="follow_stream_dialog.cpp" line="909"/>
+        <location filename="follow_stream_dialog.cpp" line="917"/>
         <source>Error following stream.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="886"/>
+        <location filename="follow_stream_dialog.cpp" line="893"/>
         <source>Capture file invalid.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="896"/>
+        <location filename="follow_stream_dialog.cpp" line="903"/>
         <source>Please make sure you have a TCP packet selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="902"/>
+        <location filename="follow_stream_dialog.cpp" line="909"/>
         <source>Please make sure you have a UDP packet selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="911"/>
+        <location filename="follow_stream_dialog.cpp" line="918"/>
         <source>Please make sure you have an SSL packet selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="934"/>
+        <location filename="follow_stream_dialog.cpp" line="941"/>
         <source>Error creating filter for this stream.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="935"/>
+        <location filename="follow_stream_dialog.cpp" line="942"/>
         <source>A transport or network layer header is needed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="992"/>
-        <location filename="follow_stream_dialog.cpp" line="1011"/>
+        <location filename="follow_stream_dialog.cpp" line="999"/>
+        <location filename="follow_stream_dialog.cpp" line="1018"/>
         <source>%Ln total stream(s).</source>
         <translation type="unfinished">
             <numerusform>%Ln stream.</numerusform>
@@ -2868,38 +2868,38 @@ for filter files: %2.</source>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1073"/>
+        <location filename="follow_stream_dialog.cpp" line="1080"/>
         <source>Could not read from temporary file %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1078"/>
-        <location filename="follow_stream_dialog.cpp" line="1332"/>
+        <location filename="follow_stream_dialog.cpp" line="1085"/>
+        <location filename="follow_stream_dialog.cpp" line="1339"/>
         <source>Short read from temporary file %1: expected %2, got %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1233"/>
+        <location filename="follow_stream_dialog.cpp" line="1240"/>
         <source>Follow TCP Stream (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1240"/>
+        <location filename="follow_stream_dialog.cpp" line="1247"/>
         <source>Follow UDP Stream (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1247"/>
+        <location filename="follow_stream_dialog.cpp" line="1254"/>
         <source>Follow SSL Stream (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1273"/>
+        <location filename="follow_stream_dialog.cpp" line="1280"/>
         <source>File closed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1388"/>
+        <location filename="follow_stream_dialog.cpp" line="1395"/>
         <source>Error reading temporary file</source>
         <translation type="unfinished"></translation>
     </message>
