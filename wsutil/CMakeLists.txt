@@ -101,7 +101,7 @@ add_library(wsutil ${LINK_MODE_LIB}
   ${WSUTIL_FILES}
 )
 
-set(FULL_SO_VERSION "4.1.0")
+set(FULL_SO_VERSION "5.1.0")
 
 set_target_properties(wsutil PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")
 set_target_properties(wsutil PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")

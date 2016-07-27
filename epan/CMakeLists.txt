@@ -1680,7 +1680,7 @@ add_library(epan ${LINK_MODE_LIB}
 
 add_dependencies(epan gitversion)
 
-set(FULL_SO_VERSION "5.0.10")
+set(FULL_SO_VERSION "5.0.13")
 
 set_target_properties(epan PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")
 set_target_properties(epan PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
