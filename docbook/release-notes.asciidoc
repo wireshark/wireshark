@@ -12,86 +12,14 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* ws-salink:2016-39[]
+* ws-salink:2016-50[]
 +
-CORBA IDL dissector crash on 64-bit Windows.
-(ws-buglink:12495[])
+A dissector went awry.
+(ws-buglink:XXXX[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: 581a17a
-// Fixed in master-2.0: 9412cc1
-// Fixed in master-1.12: N/A
-
-* ws-salink:2016-41[]
-+
-PacketBB crash.
-(ws-buglink:12577[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: 94e97e4
-// Fixed in master-2.0: 0469e81
-// Fixed in master-1.12: 3ce7de0
-
-* ws-salink:2016-42[]
-+
-WSP infinite loop.
-(ws-buglink:12594[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: a9d5256
-// Fixed in master-2.0: eca19ca
-// Fixed in master-1.12: ee37b7d
-
-* ws-salink:2016-44[]
-+
-RLC long loop.
-(ws-buglink:12660[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: 6cf9616
-// Fixed in master-2.0: 6394b23
-// Fixed in master-1.12: 8f16007
-
-* ws-salink:2016-45[]
-+
-LDSS dissector crash.
-(ws-buglink:12662[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: 5a469dd
-// Fixed in master-2.0: 107f6b7
-// Fixed in master-1.12: e347b39
-
-* ws-salink:2016-46[]
-+
-RLC dissector crash.
-(ws-buglink:12664[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: 47a5fa8
-// Fixed in master-2.0: 8492c31
-// Fixed in master-1.12: 604b892
-
-* ws-salink:2016-47[]
-+
-OpenFlow long loop.
-(ws-buglink:12659[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: 5670642
-// Fixed in master-2.0: eec4fd4
-// Fixed in master-1.12: 32abb63
-
-* ws-salink:2016-48[]
-+
-MMSE, WAP, WBXML, and WSP infinite loop.
-(ws-buglink:12661[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: 2193bea
-// Fixed in master-2.0: f1f9dc6
-// Fixed in master-1.12: N/A
-
-* ws-salink:2016-49[]
-+
-WBXML crash.
-(ws-buglink:12663[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: 347f071
-// Fixed in master-2.0: b116035
-// Fixed in master-1.12: N/A
+// Fixed in master: XXXX
+// Fixed in master-2.0: XXXX
+// Fixed in master-1.12: XXXX
 
 The following bugs have been fixed:
 
@@ -99,51 +27,7 @@ The following bugs have been fixed:
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2016-7000[]
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.5rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* T30 FCF byte decoding masks DTC, CIG and NCS. (ws-buglink:1918[])
-
-* TShark crashes with option "-z io,stat,..." in the presence of negative relative packet timestamps. (ws-buglink:9014[])
-
-* 'Packet size limited during capture' msg is repeated in the Info column. (ws-buglink:9826[])
-
-* Wireshark loses windows decorations on second screen when restarting maximized using GNOME. (ws-buglink:11303[])
-
-* Cannot launch GTK+ version of wireshark as a normal user. (ws-buglink:11400[])
-
-* Restart current capture fails with "no interface selected" error when capturing in promiscuous mode. (ws-buglink:11834[])
-
-* Add field completion suggestions when adding a Display filter or Y Field to the IO Graph. (ws-buglink:11899[])
-
-* Wireshark Qt always indicates locale as "C". (ws-buglink:11960[])
-
-* Wireshark crashes every time open Statistics -> Conversations | Endpoints. (ws-buglink:12288[])
-
-* Find function within the conversations window does not work. (ws-buglink:12363[])
-
-* Invalid values for USB SET_REQUEST packets. (ws-buglink:12511[])
-
-* Display filter dropdown hides cursor. (ws-buglink:12520[])
-
-* Filter for field name tcp.options.wscale.multiplier cannot exceed 255. (ws-buglink:12525[])
-
-* Ctrl+ shortcuts that are not text-related do not work when focus is on display filter field. (ws-buglink:12533[])
-
-* Closing Statistics window results in black screen. (ws-buglink:12544[])
-
-* OSPF: Incorrect description of N/P-bit in NSSA LSA. (ws-buglink:12555[])
-
-* Inconsistent VHT data rate. (ws-buglink:12558[])
-
-* DCE/RPC malformed error when stub-data is missing but a sub-dissector has been registered. (ws-buglink:12561[])
-
-* Wireshark is marking BGP FlowSpec NLRI as malformed if NLRI length is larger than 239 bytes. (ws-buglink:12568[])
-
-* "Edit Resolved Name" is not saved in current pcapng file. (ws-buglink:12629[])
-
-* MPTCP: MP_JOIN 'B' bit not decoded correctly. (ws-buglink:12635[])
-
-* MPTCP MP_PRIO header with AddrID: incorrect AddrID. (ws-buglink:12641[])
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.6rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 === New and Updated Features
 
@@ -159,41 +43,15 @@ There are no new file formats in this release.
 
 There are no new protocols in this release.
 
-
 === Updated Protocol Support
 
 --sort-and-group--
-802.11 Radiotap
-BGP
-CAN
-CANopen
-H.248 Q.1950
-IPv4
-IPv6
-LANforge
-LDSS
-MPTCP
-OSPF
-PacketBB
-PRP
-RLC
-RMT-FEC
-RSVP
-RTP MIDI
-T.30
-TDS
-USB
-WAP
-WBXML
-WiMax RNG-RSP
-WSP
 --sort-and-group--
 
 === New and Updated Capture File Support
 
 //There is no new or updated capture file support in this release.
 --sort-and-group--
-pcapng
 --sort-and-group--
 
 === New and Updated Capture Interfaces support
