@@ -2207,12 +2207,6 @@ ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     dissector_handle_t nxt_handle;
     ipv6_pinfo_t *ipv6_pinfo;
 
-    if (nxt == IP_PROTO_NONE) {
-        col_set_str(pinfo->cinfo, COL_INFO, "IPv6 no next header");
-        call_data_dissector(tvb, pinfo, tree);
-        return;
-    }
-
     nxt_handle = dissector_get_uint_handle(ipv6_next_header_dissector_table, nxt);
     if (nxt_handle != NULL) {
         call_dissector_with_data(nxt_handle, tvb, pinfo, tree, iph);
@@ -2220,15 +2214,26 @@ ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     /* Done with extension header chain */
+    ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
+    if (ipv6_pinfo->ipv6_tree != NULL) {
+        /* Set IPv6 Header length */
+        proto_item_set_len(proto_tree_get_parent(ipv6_pinfo->ipv6_tree), ipv6_pinfo->ipv6_item_len);
+        ipv6_pinfo->ipv6_tree = NULL;
+    }
+
+
     if (iph != NULL) {
         iph->ip_nxt = nxt; /* upper-layer protocol more useful */
         tap_queue_packet(ipv6_ws_tap, pinfo, iph);
     }
+
+    /* Save next header value for Decode As dialog */
     p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_VALUE, GUINT_TO_POINTER(nxt));
-    ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
-    if (ipv6_pinfo->ipv6_tree != NULL) {
-        proto_item_set_len(proto_tree_get_parent(ipv6_pinfo->ipv6_tree), ipv6_pinfo->ipv6_item_len);
-        ipv6_pinfo->ipv6_tree = NULL;
+
+    if (nxt == IP_PROTO_NONE) {
+        col_set_str(pinfo->cinfo, COL_INFO, "IPv6 no next header");
+        call_data_dissector(tvb, pinfo, tree);
+        return;
     }
 
     if (ip_try_dissect(try_heuristic_first, nxt, tvb, pinfo, tree, iph)) {
