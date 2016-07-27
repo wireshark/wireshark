@@ -13,7 +13,7 @@ The canonical location for every Wireshark source release is
 
     https://www.wireshark.org/download/src/all-versions/, e.g.
 
-    https://www.wireshark.org/download/src/all-versions/wireshark-0.99.55.tar.bz2
+    https://www.wireshark.org/download/src/all-versions/wireshark-2.4.5.tar.xz
 
 If your packaging system downloads a copy of the Wireshark sources, use
 this location. Don't use https://www.wireshark.org/download/src.
@@ -45,7 +45,7 @@ Warnings are displayed when Wireshark and TShark are run as root.
 There are several configure-time options on non-Windows systems that
 affect the privileges a normal user needs to capture traffic and list
 interfaces:
-  
+
     --enable-setcap-install   Install dumpcap with cap_net_admin and
                               cap_net_raw capabilities. Linux only.
 

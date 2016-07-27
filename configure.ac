@@ -46,7 +46,7 @@ dnl AC_CANONICAL_BUILD
 dnl AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE([1.11 tar-ustar dist-bzip2 no-dist-gzip subdir-objects])
+AM_INIT_AUTOMAKE([1.11 tar-ustar dist-xz no-dist-gzip subdir-objects])
 
 # Enable silent builds by default. Verbose builds can be enabled with "./configure
 # --enable-silent-rules ..." or "make V=1 ..."

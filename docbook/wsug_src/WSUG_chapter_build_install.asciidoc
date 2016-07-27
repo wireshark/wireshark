@@ -268,19 +268,19 @@ Use the following general steps to build Wireshark from source under UNIX or Lin
 +
 --
 ----
-$ tar xaf wireshark-2.0.5.tar.bz2
+$ tar xaf wireshark-2.4.5.tar.xz
 ----
 In other cases you will have to use the following commands:
 ----
-$ bzip2 -d wireshark-2.0.5.tar.bz2
-$ tar xf wireshark-2.0.5.tar
+$ xz -d wireshark-2.4.5.tar.xz
+$ tar xf wireshark-2.4.5.tar
 ----
 --
 
 . Change directory to the Wireshark source directory.
 +
 ----
-$ cd wireshark-2.0.5
+$ cd wireshark-2.4.5
 ----
 
 . Configure your source so it will build correctly for your version of UNIX. You

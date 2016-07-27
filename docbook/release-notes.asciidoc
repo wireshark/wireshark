@@ -27,6 +27,8 @@ used for troubleshooting, analysis, development and education.
 The following features are new (or have been significantly updated)
 since version 2.1.1:
 
+* Source code releases are now compressed using xz.
+
 The following features are new (or have been significantly updated)
 since version 2.1.0:
 

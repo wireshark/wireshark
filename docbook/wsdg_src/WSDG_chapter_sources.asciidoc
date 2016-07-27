@@ -338,7 +338,7 @@ There are several ways to download the Wireshark source code (as
 described in <<ChSrcObtain>>), but bringing the changes from the
 official sources into your personal source tree is identical.
 
-First of all, you will download the new `.tar.bz2` file of the official
+First of all, you will download the new `.tar.xz` file of the official
 sources the way you did it the first time.
 
 If you haven't changed anything in the sources, you could simply throw
@@ -349,7 +349,7 @@ remember later that you really did change something before.
 
 If you have changed your source tree, you have to merge the official
 changes since the last update into your source tree. You will install
-the content of the `.tar.bz2` file into a new directory and use a good
+the content of the `.tar.xz` file into a new directory and use a good
 merge tool (e.g. http://winmerge.sourceforge.net/[]for Win32) to bring
 your personal source tree in sync with the official sources again.
 
