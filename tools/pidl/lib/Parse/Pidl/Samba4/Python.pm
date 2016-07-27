@@ -1218,6 +1218,14 @@ sub ConvertObjectFromPythonLevel($$$$$$$$)
 		$pl = GetPrevLevel($e, $pl);
 	}
 
+        $self->pidl("if ($py_var == NULL) {");
+        $self->indent;
+        $self->pidl("PyErr_Format(PyExc_AttributeError, \"Cannot delete NDR object: " .
+                    mapTypeName($var_name) . "\");");
+        $self->pidl($fail);
+        $self->deindent;
+        $self->pidl("}");
+
 	if ($l->{TYPE} eq "POINTER") {
 		if ($l->{POINTER_TYPE} ne "ref") {
 			$self->pidl("if ($py_var == Py_None) {");
