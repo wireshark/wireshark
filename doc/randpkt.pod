@@ -66,6 +66,7 @@ Defines the type of packet to generate:
         giop            General Inter-ORB Protocol
         icmp            Internet Control Message Protocol
         ip              Internet Protocol
+        ipv6            Internet Protocol Version 6
         llc             Logical Link Control
         m2m             WiMAX M2M Encapsulation Protocol
         megaco          MEGACO
