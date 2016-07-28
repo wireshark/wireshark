@@ -3248,19 +3248,19 @@ proto_register_ipv6(void)
 
     static ei_register_info ei_ipv6[] = {
         { &ei_ipv6_opt_jumbo_missing,
-            { "ipv6.opt.jumbo.missing", PI_PROTOCOL, PI_ERROR,
+            { "ipv6.opt.jumbo.missing", PI_MALFORMED, PI_ERROR,
                 "IPv6 payload length equals 0 and Hop-By-Hop present and Jumbo Payload option missing", EXPFILL }
         },
         { &ei_ipv6_opt_jumbo_prohibited,
-            { "ipv6.opt.jumbo.prohibited", PI_PROTOCOL, PI_ERROR,
+            { "ipv6.opt.jumbo.prohibited", PI_PROTOCOL, PI_WARN,
                 "When IPv6 payload length does not equal 0 a Jumbo Payload option must not be present", EXPFILL }
         },
         { &ei_ipv6_opt_jumbo_truncated,
-            { "ipv6.opt.jumbo.truncated", PI_PROTOCOL, PI_ERROR,
+            { "ipv6.opt.jumbo.truncated", PI_PROTOCOL, PI_WARN,
                 "Jumbo Payload option present and jumbo length < 65536", EXPFILL }
         },
         { &ei_ipv6_opt_jumbo_fragment,
-            { "ipv6.opt.jumbo.fragment", PI_PROTOCOL, PI_ERROR,
+            { "ipv6.opt.jumbo.fragment", PI_PROTOCOL, PI_WARN,
                 "Jumbo Payload option cannot be used with a fragment header", EXPFILL }
         },
         { &ei_ipv6_opt_invalid_len,
@@ -3276,7 +3276,7 @@ proto_register_ipv6(void)
                 "IPv6 payload length does not match expected framing length", EXPFILL }
         },
         { &ei_ipv6_bogus_ipv6_version,
-            { "ipv6.bogus_ipv6_version", PI_PROTOCOL, PI_ERROR,
+            { "ipv6.bogus_ipv6_version", PI_MALFORMED, PI_ERROR,
                 "Bogus IP version", EXPFILL }
             },
         { &ei_ipv6_invalid_header,
@@ -3302,19 +3302,19 @@ proto_register_ipv6(void)
                 "Destination address must not be a multicast address", EXPFILL }
         },
         { &ei_ipv6_src_route_list_mult_inst_same_addr,
-            { "ipv6.src_route_list.mult_inst_same_addr", PI_PROTOCOL, PI_ERROR,
+            { "ipv6.src_route_list.mult_inst_same_addr", PI_PROTOCOL, PI_WARN,
                 "Multiple instances of the same address must not appear in the source route list", EXPFILL }
         },
         { &ei_ipv6_src_route_list_src_addr,
-            { "ipv6.src_route_list.src_addr", PI_PROTOCOL, PI_ERROR,
+            { "ipv6.src_route_list.src_addr", PI_PROTOCOL, PI_WARN,
                 "Source address must not appear in the source route list", EXPFILL }
         },
         { &ei_ipv6_src_route_list_dst_addr,
-            { "ipv6.src_route_list.dst_addr", PI_PROTOCOL, PI_ERROR,
+            { "ipv6.src_route_list.dst_addr", PI_PROTOCOL, PI_WARN,
                 "Destination address must not appear in the source route list", EXPFILL }
         },
         { &ei_ipv6_src_route_list_multicast_addr,
-            { "ipv6.src_route_list.multicast_addr", PI_PROTOCOL, PI_ERROR,
+            { "ipv6.src_route_list.multicast_addr", PI_PROTOCOL, PI_WARN,
                 "Multicast addresses must not appear in the source route list", EXPFILL }
         },
         { &ei_ipv6_routing_rpl_cmpri_cmpre_pad,
@@ -3326,7 +3326,7 @@ proto_register_ipv6(void)
                 "Calculated total address count must be greater than or equal to 0, instead was X", EXPFILL }
         },
         { &ei_ipv6_routing_rpl_reserved,
-            { "ipv6.routing.rpl.reserved_not0", PI_PROTOCOL, PI_WARN,
+            { "ipv6.routing.rpl.reserved_not0", PI_PROTOCOL, PI_NOTE,
                 "Reserved field must equal 0 but instead was X", EXPFILL }
         },
         { &ei_ipv6_routing_invalid_length,
@@ -3334,7 +3334,7 @@ proto_register_ipv6(void)
                 "Invalid IPv6 Routing header length", EXPFILL }
             },
         { &ei_ipv6_routing_invalid_segleft,
-            { "ipv6.routing.invalid_segleft", PI_PROTOCOL, PI_ERROR,
+            { "ipv6.routing.invalid_segleft", PI_PROTOCOL, PI_WARN,
                 "IPv6 Routing Header segments left field must not exceed address count", EXPFILL }
         },
         { &ei_ipv6_routing_not_implemented,
