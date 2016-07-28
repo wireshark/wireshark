@@ -1572,7 +1572,7 @@ dissect_opt_smf_dpd(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tr
     offset += 1;
     ident_len = opt_len - 1;
     if (hash_tid & 0x70) {
-        tid_len = (hash_tid & 0x0ffff) + 1;
+        tid_len = (hash_tid & 0x0f) + 1;
         proto_tree_add_item(opt_tree, hf_ipv6_opt_smf_dpd_tagger_id, tvb, offset, tid_len, ENC_NA);
         offset += tid_len;
         ident_len -= tid_len;
