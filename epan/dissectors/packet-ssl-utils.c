@@ -2269,8 +2269,8 @@ ssl_find_cipher(int num)
 const SslCipherSuite *
 ssl_find_cipher(int num)
 {
-    ssl_debug_printf("ssl_find_cipher: dummy without gnutls. num %d cs %p\n",
-        num,cs);
+    ssl_debug_printf("ssl_find_cipher: dummy without gnutls. num %d\n",
+        num);
     return NULL;
 }
 #endif /* ! HAVE_LIBGCRYPT */
