@@ -1150,13 +1150,15 @@ proto_tree_add_text_internal(proto_tree *tree, tvbuff_t *tvb, gint start, gint l
 	va_list		   ap;
 	header_field_info *hfinfo;
 
-	if (length == -1) {
-		/* If we're fetching until the end of the TVB, only validate
-		 * that the offset is within range.
-		 */
-		length = 0;
+	if (tvb) {
+		if (length == -1) {
+			/* If we're fetching until the end of the TVB, only validate
+			 * that the offset is within range.
+			 */
+			length = 0;
+		}
+		tvb_ensure_bytes_exist(tvb, start, length);
 	}
-	tvb_ensure_bytes_exist(tvb, start, length);
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only, hfinfo);
 
@@ -1179,13 +1181,15 @@ proto_tree_add_text_valist_internal(proto_tree *tree, tvbuff_t *tvb, gint start,
 	proto_item        *pi;
 	header_field_info *hfinfo;
 
-	if (length == -1) {
-		/* If we're fetching until the end of the TVB, only validate
-		 * that the offset is within range.
-		 */
-		length = 0;
+	if (tvb) {
+		if (length == -1) {
+			/* If we're fetching until the end of the TVB, only validate
+			 * that the offset is within range.
+			 */
+			length = 0;
+		}
+		tvb_ensure_bytes_exist(tvb, start, length);
 	}
-	tvb_ensure_bytes_exist(tvb, start, length);
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only, hfinfo);
 
