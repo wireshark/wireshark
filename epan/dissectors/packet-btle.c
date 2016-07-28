@@ -209,8 +209,9 @@ static value_string_ext control_opcode_vals_ext = VALUE_STRING_EXT_INIT(control_
 
 /* Taken from https://www.bluetooth.org/en-us/specification/assigned-numbers/link-layer */
 static const value_string ll_version_number_vals[] = {
-    {0x06, "4.0"},
-    {0x07, "4.1"},
+    { 0x06, "4.0"},
+    { 0x07, "4.1" },
+    { 0x08, "4.2" },
     {0, NULL }
 };
 static value_string_ext ll_version_number_vals_ext = VALUE_STRING_EXT_INIT(ll_version_number_vals);
