@@ -546,7 +546,7 @@ static INT AirPDcapScanForKeys(
     };
 
     const EAPOL_RSN_KEY *pEAPKey;
-#ifdef _DEBUG
+#ifdef AIRPDCAP_DEBUG
 #define MSGBUF_LEN 255
     CHAR msgbuf[MSGBUF_LEN];
 #endif
@@ -633,7 +633,7 @@ static INT AirPDcapScanForKeys(
         /* get STA address */
         if ( (addr=AirPDcapGetStaAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
             memcpy(id.sta, addr, AIRPDCAP_MAC_LEN);
-#ifdef _DEBUG
+#ifdef AIRPDCAP_DEBUG
             g_snprintf(msgbuf, MSGBUF_LEN, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
 #endif
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForKeys", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
@@ -763,7 +763,7 @@ INT AirPDcapPacketProcess(
     UCHAR tmp_data[AIRPDCAP_MAX_CAPLEN];
     guint tmp_len;
 
-#ifdef _DEBUG
+#ifdef AIRPDCAP_DEBUG
 #define MSGBUF_LEN 255
     CHAR msgbuf[MSGBUF_LEN];
 #endif
@@ -864,7 +864,7 @@ INT AirPDcapPacketProcess(
                 /* force STA address to broadcast MAC so we load the SA for the groupkey */
                 memcpy(id.sta, broadcast_mac, AIRPDCAP_MAC_LEN);
 
-#ifdef _DEBUG
+#ifdef AIRPDCAP_DEBUG
                 g_snprintf(msgbuf, MSGBUF_LEN, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
 #endif
@@ -922,7 +922,7 @@ INT AirPDcapSetKeys(
                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapSetKeys", "Set a WPA-PWD key", AIRPDCAP_DEBUG_LEVEL_4);
                 AirPDcapRsnaPwd2Psk(keys[i].UserPwd.Passphrase, keys[i].UserPwd.Ssid, keys[i].UserPwd.SsidLen, keys[i].KeyData.Wpa.Psk);
             }
-#ifdef _DEBUG
+#ifdef AIRPDCAP_DEBUG
             else if (keys[i].KeyType==AIRPDCAP_KEY_TYPE_WPA_PMK) {
                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapSetKeys", "Set a WPA-PMK key", AIRPDCAP_DEBUG_LEVEL_4);
             } else if (keys[i].KeyType==AIRPDCAP_KEY_TYPE_WEP) {
@@ -1700,7 +1700,7 @@ AirPDcapGetSaAddress(
     const AIRPDCAP_MAC_FRAME_ADDR4 *frame,
     AIRPDCAP_SEC_ASSOCIATION_ID *id)
 {
-#ifdef _DEBUG
+#ifdef AIRPDCAP_DEBUG
 #define MSGBUF_LEN 255
     CHAR msgbuf[MSGBUF_LEN];
 #endif
@@ -1735,7 +1735,7 @@ AirPDcapGetSaAddress(
         }
     }
 
-#ifdef _DEBUG
+#ifdef AIRPDCAP_DEBUG
     g_snprintf(msgbuf, MSGBUF_LEN, "BSSID_MAC: %02X.%02X.%02X.%02X.%02X.%02X\t",
                id->bssid[0],id->bssid[1],id->bssid[2],id->bssid[3],id->bssid[4],id->bssid[5]);
     AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapGetSaAddress", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);

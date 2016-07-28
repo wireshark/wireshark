@@ -37,7 +37,9 @@
 
 #include "airpdcap_interop.h"
 
-#ifdef	_DEBUG
+/* #define AIRPDCAP_DEBUG 1 */
+
+#ifdef AIRPDCAP_DEBUG
 #ifdef	__FUNCTION__
 #define	AIRPDCAP_DEBUG_PRINT_LINE(notdefined, msg, level) print_debug_line(__FUNCTION__, msg, level);
 #else
@@ -54,7 +56,7 @@
 /******************************************************************************/
 /* Debug section: internal function to print debug information						*/
 /*																										*/
-#ifdef	_DEBUG
+#ifdef AIRPDCAP_DEBUG
 #include <stdio.h>
 #include <time.h>
 
@@ -100,7 +102,7 @@ static inline void DEBUG_DUMP(const char* x, const guint8* y, int z)
     wmem_free(NULL, tmp_str);
 }
 
-#else	/* !defined _DEBUG	*/
+#else	/* !defined AIRPDCAP_DEBUG	*/
 
 #define	AIRPDCAP_DEBUG_LEVEL_1
 #define	AIRPDCAP_DEBUG_LEVEL_2
@@ -113,7 +115,7 @@ static inline void DEBUG_DUMP(const char* x, const guint8* y, int z)
 
 #define DEBUG_DUMP(x,y,z)
 
-#endif	/* ?defined _DEBUG	*/
+#endif	/* ?defined AIRPDCAP_DEBUG	*/
 
 
 #endif	/* ?defined _AIRPDCAP_DEBUG_H	*/
