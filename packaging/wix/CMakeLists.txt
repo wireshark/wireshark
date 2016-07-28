@@ -308,8 +308,9 @@ set(WIX_CANDLE_DEFINES
 	PARENT_SCOPE
 )
 
+# The NSIS CMakeFile sets the program name + version slightly differently.
 set(WIX_LIGHT_DEFINES
-	-out ${CMAKE_CURRENT_BINARY_DIR}/Wireshark.msi
+	-out ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${WIRESHARK_TARGET_PLATFORM}-${PROJECT_VERSION}.msi
 	-sw1076
 	-ext WixUIExtension
 	PARENT_SCOPE
