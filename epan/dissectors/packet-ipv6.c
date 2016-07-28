@@ -335,26 +335,54 @@ ipv6_pinfo_t *p_get_ipv6_pinfo(packet_info *pinfo)
     return (ipv6_pinfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_PINFO);
 }
 
-static void ipv6_prompt(packet_info *pinfo, gchar* result)
+static void p_add_ipv6_nxt(packet_info *pinfo, guint32 key, guint8 nxt)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as",
-        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_VALUE)));
+    guint8 *ptr;
+
+    ptr = (guint8 *)wmem_memdup(pinfo->pool, &nxt, sizeof(guint8));
+    p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | key, ptr);
+}
+
+static guint8 *p_get_ipv6_nxt(packet_info *pinfo, guint32 key)
+{
+    return (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | key);
+}
+
+static gpointer _da_ipv6_value(packet_info *pinfo, guint32 key)
+{
+    guint8 *nxt = p_get_ipv6_nxt(pinfo, key);
+
+    if (nxt == NULL) {
+        return GUINT_TO_POINTER(255); /* Reserved IP Protocol */
+    }
+    return GUINT_TO_POINTER(*nxt);
 }
 
 static gpointer ipv6_value(packet_info *pinfo)
 {
-    return p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_VALUE);
-}
-
-static void ipv6_next_header_prompt(packet_info *pinfo, gchar* result)
-{
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP Next Header %u as",
-        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_NXT_HDR)));
+    return _da_ipv6_value(pinfo, IPV6_PROTO_VALUE);
 }
 
 static gpointer ipv6_next_header_value(packet_info *pinfo)
 {
-    return p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_NXT_HDR);
+    return _da_ipv6_value(pinfo, IPV6_PROTO_NXT_HDR);
+}
+
+static void _da_ipv6_prompt(packet_info *pinfo, gchar *result, guint32 key)
+{
+    gpointer value = _da_ipv6_value(pinfo, key);
+
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as", GPOINTER_TO_UINT(value));
+}
+
+static void ipv6_prompt(packet_info *pinfo, gchar *result)
+{
+    _da_ipv6_prompt(pinfo, result, IPV6_PROTO_VALUE);
+}
+
+static void ipv6_next_header_prompt(packet_info *pinfo, gchar *result)
+{
+    _da_ipv6_prompt(pinfo, result, IPV6_PROTO_NXT_HDR);
 }
 
 static const char* ipv6_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
@@ -2314,8 +2342,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     alloc_address_wmem(wmem_packet_scope(), &iph->ip_dst, AT_IPv6, IPv6_ADDR_SIZE, ip6_dst);
 
     /* Save next header value for Decode As dialog */
-    p_add_proto_data(pinfo->pool, pinfo, proto_ipv6,
-            (pinfo->curr_layer_num<<8) | IPV6_PROTO_NXT_HDR, GUINT_TO_POINTER(ip6_nxt));
+    p_add_ipv6_nxt(pinfo, IPV6_PROTO_NXT_HDR, ip6_nxt);
 
     /* Adjust the length of this tvbuff to include only the IPv6 datagram. */
     set_actual_length(tvb, IPv6_HDR_SIZE + plen);
@@ -2355,7 +2382,7 @@ ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     /* Save next header value for Decode As dialog */
-    p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_VALUE, GUINT_TO_POINTER(nxt));
+    p_add_ipv6_nxt(pinfo, IPV6_PROTO_VALUE, nxt);
 
     if (nxt == IP_PROTO_NONE) {
         col_set_str(pinfo->cinfo, COL_INFO, "IPv6 no next header");
