@@ -326,6 +326,15 @@ static expert_field ei_ipv6_opt_header_mismatch = EI_INIT;
 #define TVB_IPv6_HDR_VERS(tvb, offset)  tvb_get_bits8(tvb, (offset) * 8, 4)
 #define TVB_IPv6_HDR_TCLS(tvb, offset)  tvb_get_bits8(tvb, (offset) * 8 + 4, 8)
 
+#define set_address_ipv6(dst, src_ip6) \
+    set_address((dst), AT_IPv6, IPv6_ADDR_SIZE, (src_ip6))
+
+#define alloc_address_wmem_ipv6(scope, dst, src_ip6) \
+    alloc_address_wmem((scope), (dst), AT_IPv6, IPv6_ADDR_SIZE, (src_ip6))
+
+#define alloc_address_tvb_ipv6(scope, dst, tvb, offset) \
+    alloc_address_tvb((scope), (dst), AT_IPv6, IPv6_ADDR_SIZE, (tvb), (offset))
+
 extern const struct e_in6_addr *tvb_get_ptr_ipv6(tvbuff_t tvb, int offset);
 #define tvb_get_ptr_ipv6(tvb, offset) \
     ((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, IPv6_ADDR_SIZE))
@@ -391,13 +400,12 @@ ipv6_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
     address src;
     address dst;
 
-    /* Addresses aren't implemented as 'address' type in struct ws_ip6_hdr */
-    src.type = dst.type = AT_IPv6;
-    src.len  = dst.len = sizeof(struct e_in6_addr);
-    src.data = &ip6h->ip6_src;
-    dst.data = &ip6h->ip6_dst;
+    set_address_ipv6(&src, &ip6h->ip6_src);
+    set_address_ipv6(&dst, &ip6h->ip6_dst);
 
-    add_conversation_table_data(hash, &src, &dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &ipv6_ct_dissector_info, PT_NONE);
+    add_conversation_table_data(hash, &src, &dst, 0, 0, 1,
+            pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
+            &ipv6_ct_dissector_info, PT_NONE);
 
     return 1;
 }
@@ -421,11 +429,13 @@ ipv6_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
     address dst;
 
     /* Addresses aren't implemented as 'address' type in struct ws_ip6_hdr */
-    set_address(&src, AT_IPv6, sizeof(struct e_in6_addr), &ip6h->ip6_src);
-    set_address(&dst, AT_IPv6, sizeof(struct e_in6_addr), &ip6h->ip6_dst);
+    set_address_ipv6(&src, &ip6h->ip6_src);
+    set_address_ipv6(&dst, &ip6h->ip6_dst);
 
-    add_hostlist_table_data(hash, &src, 0, TRUE, 1, pinfo->fd->pkt_len, &ipv6_host_dissector_info, PT_NONE);
-    add_hostlist_table_data(hash, &dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ipv6_host_dissector_info, PT_NONE);
+    add_hostlist_table_data(hash, &src, 0, TRUE, 1,
+                pinfo->fd->pkt_len, &ipv6_host_dissector_info, PT_NONE);
+    add_hostlist_table_data(hash, &dst, 0, FALSE, 1,
+                pinfo->fd->pkt_len, &ipv6_host_dissector_info, PT_NONE);
 
     return 1;
 }
@@ -825,7 +835,7 @@ _proto_tree_add_ipv6_vector_address(proto_tree *tree, int hfindex, tvbuff_t *tvb
     address addr;
     gchar *str;
 
-    set_address(&addr, AT_IPv6, IPv6_ADDR_SIZE, value_ptr);
+    set_address_ipv6(&addr, value_ptr);
     str = address_with_resolution_to_str(wmem_packet_scope(), &addr);
     return proto_tree_add_ipv6_format(tree, hfindex, tvb, start, length,
                         value_ptr, "Address[%d]: %s", idx, str);
@@ -865,7 +875,7 @@ dissect_routing6_rt0(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
     }
 
     if (addr != NULL && pinfo->dst.type == AT_IPv6 && rt.ip6r_segleft > 0) {
-        alloc_address_wmem(pinfo->pool, &pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, addr);
+        alloc_address_wmem_ipv6(pinfo->pool, &pinfo->dst, addr);
     }
 }
 
@@ -897,7 +907,7 @@ dissect_routing6_mipv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
     }
 
     if (pinfo->dst.type == AT_IPv6 && rt.ip6r_segleft > 0) {
-        alloc_address_wmem(pinfo->pool, &pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, addr);
+        alloc_address_wmem_ipv6(pinfo->pool, &pinfo->dst, addr);
     }
 }
 
@@ -1019,7 +1029,7 @@ dissect_routing6_rpl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
             }
 
             if (pinfo->dst.type == AT_IPv6 && rt.ip6r_segleft > 0) {
-                alloc_address_wmem(pinfo->pool, &pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, &rpl_fulladdr);
+                alloc_address_wmem_ipv6(pinfo->pool, &pinfo->dst, &rpl_fulladdr);
             }
         }
     }
@@ -1082,7 +1092,7 @@ dissect_routing6_srh(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
     }
 
     if (pinfo->dst.type == AT_IPv6 && rt.ip6r_segleft > 0) {
-        alloc_address_wmem(pinfo->pool, &pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, addr);
+        alloc_address_wmem_ipv6(pinfo->pool, &pinfo->dst, addr);
     }
 
     offset += IPv6_ADDR_SIZE;
@@ -1619,9 +1629,9 @@ dissect_opt_home_address(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_t
         expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
                 "Home Address: Invalid length (%u bytes)", opt_len);
     }
-    proto_tree_add_item(opt_tree, hf_ipv6_opt_mipv6_home_address, tvb, offset, 16, ENC_NA);
-    alloc_address_tvb(pinfo->pool, &pinfo->src, AT_IPv6, 16, tvb, offset);
-    offset += 16;
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_mipv6_home_address, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
+    alloc_address_tvb_ipv6(pinfo->pool, &pinfo->src, tvb, offset);
+    offset += IPv6_ADDR_SIZE;
 
     return offset;
 }
@@ -2112,9 +2122,9 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                         offset + IP6H_DST, IPv6_ADDR_SIZE, ENC_NA);
     ip6_dst = tvb_get_ptr_ipv6(tvb, offset + IP6H_DST);
 
-    alloc_address_wmem(pinfo->pool, &pinfo->net_src, AT_IPv6, IPv6_ADDR_SIZE, ip6_src);
+    alloc_address_wmem_ipv6(pinfo->pool, &pinfo->net_src, ip6_src);
     copy_address_shallow(&pinfo->src, &pinfo->net_src);
-    alloc_address_wmem(pinfo->pool, &pinfo->net_dst, AT_IPv6, IPv6_ADDR_SIZE, ip6_dst);
+    alloc_address_wmem_ipv6(pinfo->pool, &pinfo->net_dst, ip6_dst);
     copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
     if (tree) {
@@ -2323,8 +2333,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     iph->ip_len = plen;
     iph->ip_nxt = ip6_nxt;
     iph->ip_ttl = ip6_hlim;
-    alloc_address_wmem(wmem_packet_scope(), &iph->ip_src, AT_IPv6, IPv6_ADDR_SIZE, ip6_src);
-    alloc_address_wmem(wmem_packet_scope(), &iph->ip_dst, AT_IPv6, IPv6_ADDR_SIZE, ip6_dst);
+    alloc_address_wmem_ipv6(wmem_packet_scope(), &iph->ip_src, ip6_src);
+    alloc_address_wmem_ipv6(wmem_packet_scope(), &iph->ip_dst, ip6_dst);
 
     /* Adjust the length of this tvbuff to include only the IPv6 datagram. */
     set_actual_length(tvb, IPv6_HDR_SIZE + plen);
