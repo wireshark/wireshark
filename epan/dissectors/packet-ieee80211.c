@@ -10025,6 +10025,7 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb, int 
     {
       /* IEEE 802.11i / Key Data Encapsulation / Data Type=4 - PMKID.
        * This is only used within EAPOL-Key frame Key Data. */
+      offset += 1;
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_pmkid, tvb, offset, 16, ENC_NA);
     }
     break;
