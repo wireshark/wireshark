@@ -3949,7 +3949,7 @@ decode_gtp_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree
     proto_tree *ext_tree;
     proto_item *te;
 
-    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 10, ett_gtp_ies[GTP_EXT_NSAPI], &te,
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_gtp_ies[GTP_EXT_NSAPI], &te,
                             val_to_str_ext_const(GTP_EXT_NSAPI, &gtp_val_ext, "Unknown message"));
 
     nsapi = tvb_get_guint8(tvb, offset + 1) & 0x0F;
