@@ -212,6 +212,7 @@ static int hf_ipv6_routing_len                  = -1;
 static int hf_ipv6_routing_len_oct              = -1;
 static int hf_ipv6_routing_type                 = -1;
 static int hf_ipv6_routing_segleft              = -1;
+static int hf_ipv6_routing_unknown_data         = -1;
 static int hf_ipv6_fraghdr_nxt                  = -1;
 static int hf_ipv6_fraghdr_reserved_octet       = -1;
 static int hf_ipv6_fraghdr_offset               = -1;
@@ -301,7 +302,7 @@ static gint ett_geoip_info              = -1;
 
 static expert_field ei_ipv6_routing_invalid_length = EI_INIT;
 static expert_field ei_ipv6_routing_invalid_segleft = EI_INIT;
-static expert_field ei_ipv6_routing_not_implemented = EI_INIT;
+static expert_field ei_ipv6_routing_undecoded = EI_INIT;
 static expert_field ei_ipv6_dst_addr_not_multicast = EI_INIT;
 static expert_field ei_ipv6_src_route_list_mult_inst_same_addr = EI_INIT;
 static expert_field ei_ipv6_src_route_list_src_addr = EI_INIT;
@@ -1054,7 +1055,7 @@ dissect_routing6_srh(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
     /* TODO: dissect TLVs */
     ti = proto_tree_add_bitmask(rthdr_tree, tvb, offset, hf_ipv6_routing_srh_flags,
                             ett_ipv6_routing_srh_flags, srh_flags, ENC_BIG_ENDIAN);
-    expert_add_info_format(pinfo, ti, &ei_ipv6_routing_not_implemented,
+    expert_add_info_format(pinfo, ti, &ei_ipv6_routing_undecoded,
                 "Dissection for SRH TLVs not yet implemented");
     offset += 2;
 
@@ -1111,6 +1112,20 @@ dissect_routing6_srh(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
     }
 }
 
+/* Unknown Routing Header Type */
+/* RFC 2460 */
+static void
+dissect_routing6_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *rthdr_tree,
+                        struct rthdr_proto_item *rthdr_ti _U_, struct ip6_rthdr rt)
+{
+    gint len;
+    proto_item *ti;
+
+    len = ((rt.ip6r_len + 1) << 3) - 4;
+    ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_unknown_data, tvb, offset, len, ENC_NA);
+    expert_add_info(pinfo, ti, &ei_ipv6_routing_undecoded);
+}
+
 static int
 dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
     struct ip6_rthdr   rt;
@@ -1165,6 +1180,9 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     case IPv6_RT_HEADER_SOURCE_ROUTING:
         dissect_routing6_rt0(tvb, offset, pinfo, rthdr_tree, &rthdr_ti, rt);
         break;
+    case IPv6_RT_HEADER_NIMROD:
+        dissect_routing6_unknown(tvb, offset, pinfo, rthdr_tree, &rthdr_ti, rt);
+        break;
     case IPv6_RT_HEADER_MobileIP:
         dissect_routing6_mipv6(tvb, offset, pinfo, rthdr_tree, &rthdr_ti, rt);
         break;
@@ -1175,6 +1193,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         dissect_routing6_srh(tvb, offset, pinfo, rthdr_tree, &rthdr_ti, rt);
         break;
     default:
+        dissect_routing6_unknown(tvb, offset, pinfo, rthdr_tree, &rthdr_ti, rt);
         break;
     }
 
@@ -3069,6 +3088,11 @@ proto_register_ipv6(void)
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Routing Header Segments Left", HFILL }
         },
+        { &hf_ipv6_routing_unknown_data,
+            { "Type-Specific Data", "ipv6.routing.unknown_data",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "Unknown routing header type-specific data", HFILL }
+        },
 
         /* Source Routing Header */
         { &hf_ipv6_routing_src_reserved,
@@ -3340,8 +3364,8 @@ proto_register_ipv6(void)
             { "ipv6.routing.invalid_segleft", PI_PROTOCOL, PI_WARN,
                 "IPv6 Routing Header segments left field must not exceed address count", EXPFILL }
         },
-        { &ei_ipv6_routing_not_implemented,
-            { "ipv6.routing.not_implemented", PI_UNDECODED, PI_NOTE,
+        { &ei_ipv6_routing_undecoded,
+            { "ipv6.routing.undecoded", PI_UNDECODED, PI_NOTE,
                 "Undecoded IPv6 routing header field", EXPFILL }
         }
     };
