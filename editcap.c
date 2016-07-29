@@ -754,7 +754,7 @@ print_usage(FILE *output)
     fprintf(output, "                         Useful to remove duplicated packets taken on\n");
     fprintf(output, "                         several routers (different mac addresses for\n");
     fprintf(output, "                         example).\n");
-    fprintf(output, "                         e.g. -I 26 in case of Ether/IP/ will ignore\n");
+    fprintf(output, "                         e.g. -I 26 in case of Ether/IP will ignore\n");
     fprintf(output, "                         ether(14) and IP header(20 - 4(src ip) - 4(dst ip)).\n");
     fprintf(output, "\n");
     fprintf(output, "           NOTE: The use of the 'Duplicate packet removal' options with\n");
@@ -777,7 +777,7 @@ print_usage(FILE *output)
     fprintf(output, "                         and/or snapping.\n");
     fprintf(output, "  -t <time adjustment>   adjust the timestamp of each packet.\n");
     fprintf(output, "                         <time adjustment> is in relative seconds (e.g. -0.5).\n");
-    fprintf(output, "  -S <strict adjustment> adjust timestamp of packets if necessary to insure\n");
+    fprintf(output, "  -S <strict adjustment> adjust timestamp of packets if necessary to ensure\n");
     fprintf(output, "                         strict chronological increasing order. The <strict\n");
     fprintf(output, "                         adjustment> is specified in relative seconds with\n");
     fprintf(output, "                         values of 0 or 0.000001 being the most reasonable.\n");
