@@ -90,6 +90,12 @@ typedef struct _geoip_db_path_t {
 
 static geoip_db_path_t *geoip_db_paths = NULL;
 static guint num_geoip_db_paths = 0;
+static const geoip_db_path_t geoip_db_system_paths[] = {
+#ifdef G_OS_UNIX
+    { "/usr/share/GeoIP" },
+#endif
+    { NULL }
+};
 static uat_t *geoip_db_paths_uat = NULL;
 UAT_DIRECTORYNAME_CB_DEF(geoip_mod, path, geoip_db_path_t)
 
@@ -170,6 +176,11 @@ static void geoip_db_post_update_cb(void) {
 
     /* allocate the array */
     geoip_dat_arr = g_array_new(FALSE, FALSE, sizeof(GeoIP *));
+
+    /* First try the system paths */
+    for (i = 0; geoip_db_system_paths[i].path != NULL; i++) {
+        geoip_dat_scan_dir(geoip_db_system_paths[i].path);
+    }
 
     /* Walk all the directories */
     for (i = 0; i < num_geoip_db_paths; i++) {
@@ -540,19 +551,19 @@ geoip_db_lookup_ipv6(guint dbnum _U_, struct e_in6_addr addr _U_, const char *no
 gchar *
 geoip_db_get_paths(void) {
     GString* path_str = NULL;
-    char path_separator;
     guint i;
 
     path_str = g_string_new("");
-#ifdef _WIN32
-    path_separator = ';';
-#else
-    path_separator = ':';
-#endif
+
+    for (i = 0; geoip_db_system_paths[i].path != NULL; i++) {
+        g_string_append_printf(path_str,
+                "%s" G_SEARCHPATH_SEPARATOR_S, geoip_db_system_paths[i].path);
+    }
 
     for (i = 0; i < num_geoip_db_paths; i++) {
         if (geoip_db_paths[i].path) {
-            g_string_append_printf(path_str, "%s%c", geoip_db_paths[i].path, path_separator);
+            g_string_append_printf(path_str,
+                    "%s" G_SEARCHPATH_SEPARATOR_S, geoip_db_paths[i].path);
         }
     }
 
