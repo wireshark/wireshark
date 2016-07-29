@@ -150,7 +150,7 @@ DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 #
 AUTOCONF_VERSION=2.69
 AUTOMAKE_VERSION=1.13.3
-LIBTOOL_VERSION=2.4.2
+LIBTOOL_VERSION=2.4.6
 
 install_xz() {
     if [ "$XZ_VERSION" -a ! -f xz-$XZ_VERSION-done ] ; then
