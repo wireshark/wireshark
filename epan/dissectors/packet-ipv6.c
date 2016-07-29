@@ -311,12 +311,14 @@ static expert_field ei_ipv6_src_route_list_multicast_addr = EI_INIT;
 static expert_field ei_ipv6_routing_rpl_cmpri_cmpre_pad = EI_INIT;
 static expert_field ei_ipv6_routing_rpl_addr_count_ge0 = EI_INIT;
 static expert_field ei_ipv6_routing_rpl_reserved = EI_INIT;
+static expert_field ei_ipv6_routing_deprecated = EI_INIT;
 static expert_field ei_ipv6_opt_jumbo_missing = EI_INIT;
 static expert_field ei_ipv6_opt_jumbo_prohibited = EI_INIT;
 static expert_field ei_ipv6_opt_jumbo_truncated = EI_INIT;
 static expert_field ei_ipv6_opt_jumbo_fragment = EI_INIT;
 static expert_field ei_ipv6_opt_invalid_len = EI_INIT;
 static expert_field ei_ipv6_opt_unknown_data = EI_INIT;
+static expert_field ei_ipv6_opt_deprecated = EI_INIT;
 static expert_field ei_ipv6_hopopts_not_first = EI_INIT;
 static expert_field ei_ipv6_plen_exceeds_framing = EI_INIT;
 static expert_field ei_ipv6_bogus_ipv6_version = EI_INIT;
@@ -530,7 +532,7 @@ static const value_string ipv6_opt_type_vals[] = {
     { IP6OPT_RPL,           "RPL Option"                    },
     { IP6OPT_MPL,           "MPL Option"                    },
     { IP6OPT_EXP_7E,        "Experimental (0x7E)"           },
-    { IP6OPT_ENDI,          "Endpoint Identification (DEPRECATED)" },
+    { IP6OPT_ENDI,          "Endpoint Identification"       },
     { IP6OPT_ILNP_NONCE,    "ILNP Nonce"                    },
     { IP6OPT_LIO,           "Line-Identification Option"    },
     { IP6OPT_EXP_9E,        "Experimental (0x9E)"           },
@@ -610,8 +612,8 @@ ipv6_opt_type_hdr(gint type)
 }
 
 enum {
-    IPv6_RT_HEADER_SOURCE_ROUTING  = 0,
-    IPv6_RT_HEADER_NIMROD          = 1,
+    IPv6_RT_HEADER_SOURCE_ROUTING  = 0,     /* DEPRECATED */
+    IPv6_RT_HEADER_NIMROD          = 1,     /* DEPRECATED */
     IPv6_RT_HEADER_MobileIP        = 2,
     IPv6_RT_HEADER_RPL             = 3,
     IPv6_RT_HEADER_SEGMENT_ROUTING = 4,
@@ -1193,9 +1195,11 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     switch (rt.ip6r_type) {
     case IPv6_RT_HEADER_SOURCE_ROUTING:
         dissect_routing6_rt0(tvb, offset, pinfo, rthdr_tree, &rthdr_ti, rt);
+        expert_add_info(pinfo, rthdr_ti.type, &ei_ipv6_routing_deprecated);
         break;
     case IPv6_RT_HEADER_NIMROD:
         dissect_routing6_unknown(tvb, offset, pinfo, rthdr_tree, &rthdr_ti, rt);
+        expert_add_info(pinfo, rthdr_ti.type, &ei_ipv6_routing_deprecated);
         break;
     case IPv6_RT_HEADER_MobileIP:
         dissect_routing6_mipv6(tvb, offset, pinfo, rthdr_tree, &rthdr_ti, rt);
@@ -1940,6 +1944,10 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
             break;
         case IP6OPT_IP_DFF:
             offset = dissect_opt_dff(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            break;
+        case IP6OPT_ENDI:
+            offset = dissect_opt_unknown(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            expert_add_info(pinfo, opt_ti.type, &ei_ipv6_opt_deprecated);
             break;
         case IP6OPT_EXP_1E:
         case IP6OPT_EXP_3E:
@@ -3327,6 +3335,10 @@ proto_register_ipv6(void)
         { &ei_ipv6_opt_header_mismatch,
             { "ipv6.opt.header_mismatch", PI_PROTOCOL, PI_WARN,
                 "Wrong options extension header for type", EXPFILL }
+        },
+        { &ei_ipv6_opt_deprecated,
+            { "ipv6.opt.deprecated", PI_PROTOCOL, PI_NOTE,
+                "Option type is deprecated", EXPFILL }
         }
     };
 
@@ -3381,6 +3393,10 @@ proto_register_ipv6(void)
         { &ei_ipv6_routing_undecoded,
             { "ipv6.routing.undecoded", PI_UNDECODED, PI_NOTE,
                 "Undecoded IPv6 routing header field", EXPFILL }
+        },
+        { &ei_ipv6_routing_deprecated,
+            { "ipv6.routing.deprecated", PI_PROTOCOL, PI_NOTE,
+                "Routing header type is deprecated", EXPFILL }
         }
     };
 
