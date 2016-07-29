@@ -848,7 +848,7 @@ lowpan_reassemble_ipv6(tvbuff_t *tvb, packet_info *pinfo, struct ws_ip6_hdr *ipv
         length += nhdr->length;
         reported += nhdr->reported;
     }
-    ipv6->ip6_plen = g_ntohs(reported);
+    ipv6->ip6h_plen = g_ntohs(reported);
 
     /* Allocate a buffer for the packet and copy in the IPv6 header. */
     buffer = (guint8 *)wmem_alloc(pinfo->pool, length + IPv6_HDR_SIZE);
@@ -1177,9 +1177,9 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
     bit_offset = offset << 3;
 
     /* Parse hop limit */
-    ipv6.ip6_hlim = tvb_get_bits8(tvb, bit_offset, LOWPAN_IPV6_HOP_LIMIT_BITS);
+    ipv6.ip6h_hlim = tvb_get_bits8(tvb, bit_offset, LOWPAN_IPV6_HOP_LIMIT_BITS);
     proto_tree_add_uint(tree, hf_6lowpan_hop_limit, tvb, bit_offset>>3,
-            BITS_TO_BYTE_LEN(bit_offset, LOWPAN_IPV6_HOP_LIMIT_BITS), ipv6.ip6_hlim);
+            BITS_TO_BYTE_LEN(bit_offset, LOWPAN_IPV6_HOP_LIMIT_BITS), ipv6.ip6h_hlim);
     bit_offset += LOWPAN_IPV6_HOP_LIMIT_BITS;
 
     /*=====================================================
@@ -1189,23 +1189,23 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
     offset = bit_offset;
     if (!(hc1_encoding & LOWPAN_HC1_SOURCE_PREFIX)) {
         for (i=0; i<8; i++, bit_offset += 8) {
-            ipv6.ip6_src.bytes[i] = tvb_get_bits8(tvb, bit_offset, 8);
+            ipv6.ip6h_src.bytes[i] = tvb_get_bits8(tvb, bit_offset, 8);
         }
     }
     else {
-        memcpy(ipv6.ip6_src.bytes, lowpan_llprefix, sizeof(lowpan_llprefix));
+        memcpy(ipv6.ip6h_src.bytes, lowpan_llprefix, sizeof(lowpan_llprefix));
     }
     if (!(hc1_encoding & LOWPAN_HC1_SOURCE_IFC)) {
         for (i=8; i<16; i++, bit_offset += 8) {
-            ipv6.ip6_src.bytes[i] = tvb_get_bits8(tvb, bit_offset, 8);
+            ipv6.ip6h_src.bytes[i] = tvb_get_bits8(tvb, bit_offset, 8);
         }
     }
     else {
-        memcpy(&ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - LOWPAN_IFC_ID_LEN], siid, LOWPAN_IFC_ID_LEN);
+        memcpy(&ipv6.ip6h_src.bytes[sizeof(ipv6.ip6h_src) - LOWPAN_IFC_ID_LEN], siid, LOWPAN_IFC_ID_LEN);
     }
     /* Display the source address. */
     proto_tree_add_ipv6(tree, hf_6lowpan_source, tvb, offset>>3,
-            BITS_TO_BYTE_LEN(offset, (bit_offset-offset)), &ipv6.ip6_src);
+            BITS_TO_BYTE_LEN(offset, (bit_offset-offset)), &ipv6.ip6h_src);
 
     /*
      * Do not set the address columns until after defragmentation, since we have
@@ -1220,23 +1220,23 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
     offset = bit_offset;
     if (!(hc1_encoding & LOWPAN_HC1_DEST_PREFIX)) {
         for (i=0; i<8; i++, bit_offset += 8) {
-            ipv6.ip6_dst.bytes[i] = tvb_get_bits8(tvb, bit_offset, 8);
+            ipv6.ip6h_dst.bytes[i] = tvb_get_bits8(tvb, bit_offset, 8);
         }
     }
     else {
-        memcpy(ipv6.ip6_dst.bytes, lowpan_llprefix, sizeof(lowpan_llprefix));
+        memcpy(ipv6.ip6h_dst.bytes, lowpan_llprefix, sizeof(lowpan_llprefix));
     }
     if (!(hc1_encoding & LOWPAN_HC1_DEST_IFC)) {
         for (i=8; i<16; i++, bit_offset += 8) {
-            ipv6.ip6_dst.bytes[i] = tvb_get_bits8(tvb, bit_offset, 8);
+            ipv6.ip6h_dst.bytes[i] = tvb_get_bits8(tvb, bit_offset, 8);
         }
     }
     else {
-        memcpy(&ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - LOWPAN_IFC_ID_LEN], diid, LOWPAN_IFC_ID_LEN);
+        memcpy(&ipv6.ip6h_dst.bytes[sizeof(ipv6.ip6h_dst) - LOWPAN_IFC_ID_LEN], diid, LOWPAN_IFC_ID_LEN);
     }
     /* Display the destination address. */
     proto_tree_add_ipv6(tree, hf_6lowpan_dest, tvb, offset>>3,
-            BITS_TO_BYTE_LEN(offset, (bit_offset-offset)), &ipv6.ip6_dst);
+            BITS_TO_BYTE_LEN(offset, (bit_offset-offset)), &ipv6.ip6h_dst);
 
     /*
      * Do not set the address columns until after defragmentation, since we have
@@ -1262,27 +1262,27 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
     }
 
     /* Rebuild the IPv6 flow label, traffic class and version fields. */
-    ipv6.ip6_ctl_flow = ipv6_flow;
-    ipv6.ip6_ctl_flow |= ((guint32)ipv6_class << LOWPAN_IPV6_FLOW_LABEL_BITS);
-    ipv6.ip6_ctl_flow |= ((guint32)0x6 << (LOWPAN_IPV6_TRAFFIC_CLASS_BITS + LOWPAN_IPV6_FLOW_LABEL_BITS));
-    ipv6.ip6_ctl_flow = g_ntohl(ipv6.ip6_ctl_flow);
+    ipv6.ip6h_vc_flow = ipv6_flow;
+    ipv6.ip6h_vc_flow |= ((guint32)ipv6_class << LOWPAN_IPV6_FLOW_LABEL_BITS);
+    ipv6.ip6h_vc_flow |= ((guint32)0x6 << (LOWPAN_IPV6_TRAFFIC_CLASS_BITS + LOWPAN_IPV6_FLOW_LABEL_BITS));
+    ipv6.ip6h_vc_flow = g_ntohl(ipv6.ip6h_vc_flow);
 
     /* Parse the IPv6 next header field. */
     if (next_header == LOWPAN_HC1_NEXT_UDP) {
-        ipv6.ip6_nxt = IP_PROTO_UDP;
+        ipv6.ip6h_nxt = IP_PROTO_UDP;
     }
     else if (next_header == LOWPAN_HC1_NEXT_ICMP) {
-        ipv6.ip6_nxt = IP_PROTO_ICMPV6;
+        ipv6.ip6h_nxt = IP_PROTO_ICMPV6;
     }
     else if (next_header == LOWPAN_HC1_NEXT_TCP) {
-        ipv6.ip6_nxt = IP_PROTO_TCP;
+        ipv6.ip6h_nxt = IP_PROTO_TCP;
     }
     else {
         /* Parse the next header field. */
-        ipv6.ip6_nxt = tvb_get_bits8(tvb, bit_offset, LOWPAN_IPV6_NEXT_HEADER_BITS);
+        ipv6.ip6h_nxt = tvb_get_bits8(tvb, bit_offset, LOWPAN_IPV6_NEXT_HEADER_BITS);
         proto_tree_add_uint_format_value(tree, hf_6lowpan_next_header, tvb, bit_offset>>3,
-                BITS_TO_BYTE_LEN(bit_offset, LOWPAN_IPV6_NEXT_HEADER_BITS), ipv6.ip6_nxt,
-                "%s (0x%02x)", ipprotostr(ipv6.ip6_nxt), ipv6.ip6_nxt);
+                BITS_TO_BYTE_LEN(bit_offset, LOWPAN_IPV6_NEXT_HEADER_BITS), ipv6.ip6h_nxt,
+                "%s (0x%02x)", ipprotostr(ipv6.ip6h_nxt), ipv6.ip6h_nxt);
         bit_offset += LOWPAN_IPV6_NEXT_HEADER_BITS;
     }
 
@@ -1376,7 +1376,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
         length = (gint)tvb_ensure_captured_length_remaining(tvb, offset);
         nhdr_list = (struct lowpan_nhdr *)wmem_alloc(wmem_packet_scope(), sizeof(struct lowpan_nhdr) + length);
         nhdr_list->next = NULL;
-        nhdr_list->proto = ipv6.ip6_nxt;
+        nhdr_list->proto = ipv6.ip6h_nxt;
         nhdr_list->length = length;
         if (dgram_size < 0) {
             nhdr_list->reported = tvb_reported_length_remaining(tvb, offset);
@@ -1561,11 +1561,11 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     }
 
     /* Rebuild the IPv6 flow label, traffic class and version fields. */
-    ipv6.ip6_ctl_flow = ipv6_flowlabel;
-    ipv6.ip6_ctl_flow |= ((guint32)ipv6_ecn << LOWPAN_IPV6_FLOW_LABEL_BITS);
-    ipv6.ip6_ctl_flow |= ((guint32)ipv6_dscp << (LOWPAN_IPHC_ECN_BITS + LOWPAN_IPV6_FLOW_LABEL_BITS));
-    ipv6.ip6_ctl_flow |= ((guint32)0x6 << (LOWPAN_IPV6_TRAFFIC_CLASS_BITS + LOWPAN_IPV6_FLOW_LABEL_BITS));
-    ipv6.ip6_ctl_flow = g_ntohl(ipv6.ip6_ctl_flow);
+    ipv6.ip6h_vc_flow = ipv6_flowlabel;
+    ipv6.ip6h_vc_flow |= ((guint32)ipv6_ecn << LOWPAN_IPV6_FLOW_LABEL_BITS);
+    ipv6.ip6h_vc_flow |= ((guint32)ipv6_dscp << (LOWPAN_IPHC_ECN_BITS + LOWPAN_IPV6_FLOW_LABEL_BITS));
+    ipv6.ip6h_vc_flow |= ((guint32)0x6 << (LOWPAN_IPV6_TRAFFIC_CLASS_BITS + LOWPAN_IPV6_FLOW_LABEL_BITS));
+    ipv6.ip6h_vc_flow = g_ntohl(ipv6.ip6h_vc_flow);
 
     /* Convert back to byte offsets. */
     offset >>= 3;
@@ -1576,25 +1576,25 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
      */
     /* Get the next header field, if present. */
     if (!(iphc_flags & LOWPAN_IPHC_FLAG_NHDR)) {
-        ipv6.ip6_nxt = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint_format_value(tree, hf_6lowpan_next_header, tvb, offset, 1, ipv6.ip6_nxt,
-                "%s (0x%02x)", ipprotostr(ipv6.ip6_nxt), ipv6.ip6_nxt);
+        ipv6.ip6h_nxt = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint_format_value(tree, hf_6lowpan_next_header, tvb, offset, 1, ipv6.ip6h_nxt,
+                "%s (0x%02x)", ipprotostr(ipv6.ip6h_nxt), ipv6.ip6h_nxt);
         offset += 1;
     }
 
     /* Get the hop limit field, if present. */
     if (iphc_hop_limit == LOWPAN_IPHC_HLIM_1) {
-        ipv6.ip6_hlim = 1;
+        ipv6.ip6h_hlim = 1;
     }
     else if (iphc_hop_limit == LOWPAN_IPHC_HLIM_64) {
-        ipv6.ip6_hlim = 64;
+        ipv6.ip6h_hlim = 64;
     }
     else if (iphc_hop_limit == LOWPAN_IPHC_HLIM_255) {
-        ipv6.ip6_hlim = 255;
+        ipv6.ip6h_hlim = 255;
     }
     else {
-        ipv6.ip6_hlim = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint(tree, hf_6lowpan_hop_limit, tvb, offset, 1, ipv6.ip6_hlim);
+        ipv6.ip6h_hlim = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint(tree, hf_6lowpan_hop_limit, tvb, offset, 1, ipv6.ip6h_hlim);
         offset += 1;
     }
 
@@ -1603,42 +1603,42 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
      *=====================================================
      */
     length = 0;
-    memset(&ipv6.ip6_src, 0, sizeof(ipv6.ip6_src));
+    memset(&ipv6.ip6h_src, 0, sizeof(ipv6.ip6h_src));
     /* (SAC=1 && SAM=00) -> the unspecified address (::). */
     if ((iphc_flags & LOWPAN_IPHC_FLAG_SRC_COMP) && (iphc_src_mode == LOWPAN_IPHC_ADDR_SRC_UNSPEC)) {
         sctx = &lowpan_context_default;
     }
     /* The IID is derived from the encapsulating layer. */
     else if (iphc_src_mode == LOWPAN_IPHC_ADDR_COMPRESSED) {
-        memcpy(&ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - LOWPAN_IFC_ID_LEN], siid, LOWPAN_IFC_ID_LEN);
+        memcpy(&ipv6.ip6h_src.bytes[sizeof(ipv6.ip6h_src) - LOWPAN_IFC_ID_LEN], siid, LOWPAN_IFC_ID_LEN);
     }
     /* Full Address inline. */
     else if (iphc_src_mode == LOWPAN_IPHC_ADDR_FULL_INLINE) {
         if (!(iphc_flags & LOWPAN_IPHC_FLAG_SRC_COMP)) sctx = &lowpan_context_default;
-        length = (int)sizeof(ipv6.ip6_src);
-        tvb_memcpy(tvb, &ipv6.ip6_src, offset, length);
+        length = (int)sizeof(ipv6.ip6h_src);
+        tvb_memcpy(tvb, &ipv6.ip6h_src, offset, length);
     }
     /* 64-bits inline. */
     else if (iphc_src_mode == LOWPAN_IPHC_ADDR_64BIT_INLINE) {
         length = 8;
-        tvb_memcpy(tvb, &ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - length], offset, length);
+        tvb_memcpy(tvb, &ipv6.ip6h_src.bytes[sizeof(ipv6.ip6h_src) - length], offset, length);
     }
     /* 16-bits inline. */
     else if (iphc_src_mode == LOWPAN_IPHC_ADDR_16BIT_INLINE) {
         length = 2;
         /* Format becomes ff:fe00:xxxx */
-        ipv6.ip6_src.bytes[11] = 0xff;
-        ipv6.ip6_src.bytes[12] = 0xfe;
-        tvb_memcpy(tvb, &ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - length], offset, length);
+        ipv6.ip6h_src.bytes[11] = 0xff;
+        ipv6.ip6h_src.bytes[12] = 0xfe;
+        tvb_memcpy(tvb, &ipv6.ip6h_src.bytes[sizeof(ipv6.ip6h_src) - length], offset, length);
 
     }
     /* Copy the context bits. */
-    lowpan_pfxcpy(&ipv6.ip6_src, &sctx->prefix, sctx->plen);
+    lowpan_pfxcpy(&ipv6.ip6h_src, &sctx->prefix, sctx->plen);
     /* Update the IID of the encapsulating layer. */
-    siid = &ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - LOWPAN_IFC_ID_LEN];
+    siid = &ipv6.ip6h_src.bytes[sizeof(ipv6.ip6h_src) - LOWPAN_IFC_ID_LEN];
 
     /* Display the source IPv6 address. */
-    proto_tree_add_ipv6(tree, hf_6lowpan_source, tvb, offset, length, &ipv6.ip6_src);
+    proto_tree_add_ipv6(tree, hf_6lowpan_source, tvb, offset, length, &ipv6.ip6h_src);
 
     /* Add information about where the context came from. */
     /* TODO: We should display the prefix length too. */
@@ -1663,33 +1663,33 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
      *=====================================================
      */
     length = 0;
-    memset(&ipv6.ip6_dst, 0, sizeof(ipv6.ip6_dst));
+    memset(&ipv6.ip6h_dst, 0, sizeof(ipv6.ip6h_dst));
     /* Stateless multicast compression. */
     if ((iphc_flags & LOWPAN_IPHC_FLAG_MCAST_COMP) && !(iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP)) {
         if (iphc_dst_mode == LOWPAN_IPHC_ADDR_FULL_INLINE) {
-            length = (int)sizeof(ipv6.ip6_dst);
-            tvb_memcpy(tvb, &ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - length], offset, length);
+            length = (int)sizeof(ipv6.ip6h_dst);
+            tvb_memcpy(tvb, &ipv6.ip6h_dst.bytes[sizeof(ipv6.ip6h_dst) - length], offset, length);
         }
         else if (iphc_dst_mode == LOWPAN_IPHC_MCAST_48BIT) {
-            ipv6.ip6_dst.bytes[0] = 0xff;
-            ipv6.ip6_dst.bytes[1] = tvb_get_guint8(tvb, offset + (length++));
-            ipv6.ip6_dst.bytes[11] = tvb_get_guint8(tvb, offset + (length++));
-            ipv6.ip6_dst.bytes[12] = tvb_get_guint8(tvb, offset + (length++));
-            ipv6.ip6_dst.bytes[13] = tvb_get_guint8(tvb, offset + (length++));
-            ipv6.ip6_dst.bytes[14] = tvb_get_guint8(tvb, offset + (length++));
-            ipv6.ip6_dst.bytes[15] = tvb_get_guint8(tvb, offset + (length++));
+            ipv6.ip6h_dst.bytes[0] = 0xff;
+            ipv6.ip6h_dst.bytes[1] = tvb_get_guint8(tvb, offset + (length++));
+            ipv6.ip6h_dst.bytes[11] = tvb_get_guint8(tvb, offset + (length++));
+            ipv6.ip6h_dst.bytes[12] = tvb_get_guint8(tvb, offset + (length++));
+            ipv6.ip6h_dst.bytes[13] = tvb_get_guint8(tvb, offset + (length++));
+            ipv6.ip6h_dst.bytes[14] = tvb_get_guint8(tvb, offset + (length++));
+            ipv6.ip6h_dst.bytes[15] = tvb_get_guint8(tvb, offset + (length++));
         }
         else if (iphc_dst_mode == LOWPAN_IPHC_MCAST_32BIT) {
-            ipv6.ip6_dst.bytes[0] = 0xff;
-            ipv6.ip6_dst.bytes[1] = tvb_get_guint8(tvb, offset + (length++));
-            ipv6.ip6_dst.bytes[13] = tvb_get_guint8(tvb, offset + (length++));
-            ipv6.ip6_dst.bytes[14] = tvb_get_guint8(tvb, offset + (length++));
-            ipv6.ip6_dst.bytes[15] = tvb_get_guint8(tvb, offset + (length++));
+            ipv6.ip6h_dst.bytes[0] = 0xff;
+            ipv6.ip6h_dst.bytes[1] = tvb_get_guint8(tvb, offset + (length++));
+            ipv6.ip6h_dst.bytes[13] = tvb_get_guint8(tvb, offset + (length++));
+            ipv6.ip6h_dst.bytes[14] = tvb_get_guint8(tvb, offset + (length++));
+            ipv6.ip6h_dst.bytes[15] = tvb_get_guint8(tvb, offset + (length++));
         }
         else if (iphc_dst_mode == LOWPAN_IPHC_MCAST_8BIT) {
-            ipv6.ip6_dst.bytes[0] = 0xff;
-            ipv6.ip6_dst.bytes[1] = 0x02;
-            ipv6.ip6_dst.bytes[15] = tvb_get_guint8(tvb, offset + (length++));
+            ipv6.ip6h_dst.bytes[0] = 0xff;
+            ipv6.ip6h_dst.bytes[1] = 0x02;
+            ipv6.ip6h_dst.bytes[15] = tvb_get_guint8(tvb, offset + (length++));
         }
         else {
             /* Illegal destination address compression mode. */
@@ -1706,15 +1706,15 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
              * LL = prefix/context length (up to 64-bits).
              * PP = prefix/context byte.
              */
-            ipv6.ip6_dst.bytes[0] = 0xff;
-            ipv6.ip6_dst.bytes[1] = tvb_get_guint8(tvb, offset + (length++));
-            ipv6.ip6_dst.bytes[2] = tvb_get_guint8(tvb, offset + (length++));
-            ipv6.ip6_dst.bytes[3] = (dctx->plen > 64) ? (64) : (dctx->plen);
-            memcpy(&ipv6.ip6_dst.bytes[4], &dctx->prefix, 8);
-            ipv6.ip6_dst.bytes[12] = tvb_get_guint8(tvb, offset + (length++));
-            ipv6.ip6_dst.bytes[13] = tvb_get_guint8(tvb, offset + (length++));
-            ipv6.ip6_dst.bytes[14] = tvb_get_guint8(tvb, offset + (length++));
-            ipv6.ip6_dst.bytes[15] = tvb_get_guint8(tvb, offset + (length++));
+            ipv6.ip6h_dst.bytes[0] = 0xff;
+            ipv6.ip6h_dst.bytes[1] = tvb_get_guint8(tvb, offset + (length++));
+            ipv6.ip6h_dst.bytes[2] = tvb_get_guint8(tvb, offset + (length++));
+            ipv6.ip6h_dst.bytes[3] = (dctx->plen > 64) ? (64) : (dctx->plen);
+            memcpy(&ipv6.ip6h_dst.bytes[4], &dctx->prefix, 8);
+            ipv6.ip6h_dst.bytes[12] = tvb_get_guint8(tvb, offset + (length++));
+            ipv6.ip6h_dst.bytes[13] = tvb_get_guint8(tvb, offset + (length++));
+            ipv6.ip6h_dst.bytes[14] = tvb_get_guint8(tvb, offset + (length++));
+            ipv6.ip6h_dst.bytes[15] = tvb_get_guint8(tvb, offset + (length++));
         }
         else {
             /* Illegal destination address compression mode. */
@@ -1736,35 +1736,35 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
         }
         /* The IID is derived from the link-layer source. */
         else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_COMPRESSED) {
-            memcpy(&ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - LOWPAN_IFC_ID_LEN], diid, LOWPAN_IFC_ID_LEN);
+            memcpy(&ipv6.ip6h_dst.bytes[sizeof(ipv6.ip6h_dst) - LOWPAN_IFC_ID_LEN], diid, LOWPAN_IFC_ID_LEN);
         }
         /* Full Address inline. */
         else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_FULL_INLINE) {
             dctx = &lowpan_context_default;
-            length = (int)sizeof(ipv6.ip6_dst);
-            tvb_memcpy(tvb, &ipv6.ip6_dst, offset, length);
+            length = (int)sizeof(ipv6.ip6h_dst);
+            tvb_memcpy(tvb, &ipv6.ip6h_dst, offset, length);
         }
         /* 64-bits inline. */
         else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_64BIT_INLINE) {
             length = 8;
-            tvb_memcpy(tvb, &ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - length], offset, length);
+            tvb_memcpy(tvb, &ipv6.ip6h_dst.bytes[sizeof(ipv6.ip6h_dst) - length], offset, length);
         }
         /* 16-bits inline. */
         else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_16BIT_INLINE) {
             length = 2;
             /* Format becomes ff:fe00:xxxx */
-            ipv6.ip6_dst.bytes[11] = 0xff;
-            ipv6.ip6_dst.bytes[12] = 0xfe;
-            tvb_memcpy(tvb, &ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - length], offset, length);
+            ipv6.ip6h_dst.bytes[11] = 0xff;
+            ipv6.ip6h_dst.bytes[12] = 0xfe;
+            tvb_memcpy(tvb, &ipv6.ip6h_dst.bytes[sizeof(ipv6.ip6h_dst) - length], offset, length);
         }
         /* Copy the context bits. */
-        lowpan_pfxcpy(&ipv6.ip6_dst, &dctx->prefix, dctx->plen);
+        lowpan_pfxcpy(&ipv6.ip6h_dst, &dctx->prefix, dctx->plen);
         /* Update the interface id of the encapsulating layer. */
-        diid = &ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - LOWPAN_IFC_ID_LEN];
+        diid = &ipv6.ip6h_dst.bytes[sizeof(ipv6.ip6h_dst) - LOWPAN_IFC_ID_LEN];
     }
 
     /* Display the destination IPv6 address. */
-    proto_tree_add_ipv6(tree, hf_6lowpan_dest, tvb, offset, length, &ipv6.ip6_dst);
+    proto_tree_add_ipv6(tree, hf_6lowpan_dest, tvb, offset, length, &ipv6.ip6h_dst);
 
     /* Add information about where the context came from. */
     /* TODO: We should display the prefix length too. */
@@ -1791,7 +1791,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     /* Parse the list of extension headers. */
     if (iphc_flags & LOWPAN_IPHC_FLAG_NHDR) {
         /* Parse the next header protocol identifier. */
-        ipv6.ip6_nxt = lowpan_parse_nhc_proto(tvb, offset);
+        ipv6.ip6h_nxt = lowpan_parse_nhc_proto(tvb, offset);
 
         /* Parse the 6LoWPAN NHC fields. */
         nhdr_list = dissect_6lowpan_iphc_nhc(tvb, pinfo, tree, offset, dgram_size - IPv6_HDR_SIZE, siid, diid);
@@ -1801,7 +1801,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
         length = (gint)tvb_ensure_captured_length_remaining(tvb, offset);
         nhdr_list = (struct lowpan_nhdr *)wmem_alloc(wmem_packet_scope(), sizeof(struct lowpan_nhdr) + length);
         nhdr_list->next = NULL;
-        nhdr_list->proto = ipv6.ip6_nxt;
+        nhdr_list->proto = ipv6.ip6h_nxt;
         nhdr_list->length = length;
         if (dgram_size < 0) {
             nhdr_list->reported = tvb_reported_length_remaining(tvb, offset);

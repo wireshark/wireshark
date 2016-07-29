@@ -61,6 +61,16 @@
 void proto_register_ipv6(void);
 void proto_reg_handoff_ipv6(void);
 
+/* Offsets of fields within an IPv6 header. */
+#define IP6H_CTL        0
+#define IP6H_CTL_FLOW   0
+#define IP6H_CTL_PLEN   4
+#define IP6H_CTL_NXT    6
+#define IP6H_CTL_HLIM   7
+#define IP6H_CTL_VFC    0
+#define IP6H_SRC        8
+#define IP6H_DST        24
+
 /* Option types and related macros */
 #define IP6OPT_PAD1                     0x00    /* 00 0 00000 =   0 */
 #define IP6OPT_PADN                     0x01    /* 00 0 00001 =   1 */
@@ -402,8 +412,8 @@ ipv6_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
     address src;
     address dst;
 
-    set_address_ipv6(&src, &ip6h->ip6_src);
-    set_address_ipv6(&dst, &ip6h->ip6_dst);
+    set_address_ipv6(&src, &ip6h->ip6h_src);
+    set_address_ipv6(&dst, &ip6h->ip6h_dst);
 
     add_conversation_table_data(hash, &src, &dst, 0, 0, 1,
             pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
@@ -431,8 +441,8 @@ ipv6_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
     address dst;
 
     /* Addresses aren't implemented as 'address' type in struct ws_ip6_hdr */
-    set_address_ipv6(&src, &ip6h->ip6_src);
-    set_address_ipv6(&dst, &ip6h->ip6_dst);
+    set_address_ipv6(&src, &ip6h->ip6h_src);
+    set_address_ipv6(&dst, &ip6h->ip6h_dst);
 
     add_hostlist_table_data(hash, &src, 0, TRUE, 1,
                 pinfo->fd->pkt_len, &ipv6_host_dissector_info, PT_NONE);
