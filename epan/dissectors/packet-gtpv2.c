@@ -5729,14 +5729,14 @@ dissect_gtpv2_twan_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     proto_tree_add_item(tree, hf_gtpv2_twan_ssid, tvb, offset, ssid_len, ENC_NA);
     offset += ssid_len;
     /* (k+1) to (k+6) BSSID The BSSIDI flag in octet 5 indicates whether the BSSID in octets 'k+1' to 'k+6' shall be present.*/
-    if ((flags & 1) == 1) {
+    if (flags & 0x01) {
         proto_tree_add_item(tree, hf_gtpv2_twan_bssid, tvb, offset, 6, ENC_NA);
         offset += 6;
     }
     /* q Civic Address Length The CIVAI flag in octet 5 indicates whether the Civic Address Length
      * and Civic Address Information in octets 'q' and 'q+1' to 'q+r' shall be present.
      */
-    if ((flags & 2) == 1) {
+    if (flags & 0x02) {
         proto_tree_add_item_ret_uint(tree, hf_gtpv2_twan_civa_len, tvb, offset, 1, ENC_BIG_ENDIAN, &civa_len);
         offset += 1;
         /* (q+1) to (q+r) Civic Address Information
@@ -5758,7 +5758,7 @@ dissect_gtpv2_twan_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     /* s to (s+3) TWAN PLMN-ID The PLMNI flag in octet 5 indicates whether the TWAN PLMN-ID
      * in octets 's' to 's+3' shall be present
      */
-    if ((flags & 4) == 1) {
+    if (flags & 0x04) {
         proto_tree_add_item_ret_uint(tree, hf_gtpv2_twan_plmnid, tvb, offset, 3, ENC_BIG_ENDIAN, &civa_len);
         offset += 3;
         /* (q+1) to (q+r) Civic Address Information
@@ -5768,7 +5768,7 @@ dissect_gtpv2_twan_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     /* t TWAN Operator Name Length, The OPNAI flag in octet 5 indicates whether the TWAN Operator Name Length and
      * TWAN Operator Name in octets 't' and 't+1' to 't+u' shall be present.
      */
-    if ((flags & 8) == 1) {
+    if (flags & 0x08) {
         proto_tree_add_item_ret_uint(tree, hf_gtpv2_twan_op_name_len, tvb, offset, 1, ENC_BIG_ENDIAN, &op_name_len);
         offset += 1;
         /* (t+1) to (t+u) TWAN Operator Name. The TWAN Operator Name shall be encoded as specified in subclause 19. 8 of 3GPP TS 23.003  */
@@ -5776,7 +5776,7 @@ dissect_gtpv2_twan_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         offset += op_name_len;
     }
     /* The LAII flag in octet 5 indicates whether the Logical Access ID information is present in the TWAN Identifier  */
-    if ((flags & 8) == 1) {
+    if (flags & 0x10) {
         /* v Relay Identity Type */
         proto_tree_add_item_ret_uint(tree, hf_gtpv2_twan_relay_id_type, tvb, offset, 1, ENC_BIG_ENDIAN, &relay_id_type);
         offset += 1;
