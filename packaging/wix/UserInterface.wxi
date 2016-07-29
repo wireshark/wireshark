@@ -5,7 +5,8 @@
     <WixVariable Id="WixUILicenseRtf" Value="$(var.EulaPath)" />
     <WixVariable Id="WixUIBannerBmp" Value="$(var.BannerImagePath)" />
     <WixVariable Id="WixUIDialogBmp" Value="$(var.DialogImagePath)" />
-    <Property Id="ARPPRODUCTICON" Value="ProductIcon" />
+    <Icon Id="ProgramsFeaturesIcon" SourceFile="$(var.ProgramsFeaturesIconPath)"/>
+    <Property Id="ARPPRODUCTICON" Value="ProgramsFeaturesIcon" />
 
     <!-- This UI identifier will be used in the product definition-->
     <UI Id="UI.Wireshark">
