@@ -3387,7 +3387,7 @@ proto_register_ipv6(void)
                 "Wrong options extension header for type", EXPFILL }
         },
         { &ei_ipv6_opt_deprecated,
-            { "ipv6.opt.deprecated", PI_PROTOCOL, PI_NOTE,
+            { "ipv6.opt.deprecated", PI_DEPRECATED, PI_NOTE,
                 "Option type is deprecated", EXPFILL }
         }
     };
@@ -3445,7 +3445,7 @@ proto_register_ipv6(void)
                 "Undecoded IPv6 routing header field", EXPFILL }
         },
         { &ei_ipv6_routing_deprecated,
-            { "ipv6.routing.deprecated", PI_PROTOCOL, PI_NOTE,
+            { "ipv6.routing.deprecated", PI_DEPRECATED, PI_NOTE,
                 "Routing header type is deprecated", EXPFILL }
         }
     };

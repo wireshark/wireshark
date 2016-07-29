@@ -763,6 +763,8 @@ typedef proto_node proto_item;
 #define PI_DECRYPTION           0x0c000000
 /** The protocol field has incomplete data, decode based on assumed value */
 #define PI_ASSUMPTION           0x0d000000
+/** The protocol field has been deprecated, usually PI_NOTE severity */
+#define PI_DEPRECATED           0x0e000000
 
 /* add more, see https://wiki.wireshark.org/Development/ExpertInfo */
 

@@ -129,6 +129,12 @@ static expert_field ei_lua_proto_comments_note    = EI_INIT;
 static expert_field ei_lua_proto_comments_warn    = EI_INIT;
 static expert_field ei_lua_proto_comments_error   = EI_INIT;
 
+static expert_field ei_lua_proto_deprecated_comment = EI_INIT;
+static expert_field ei_lua_proto_deprecated_chat    = EI_INIT;
+static expert_field ei_lua_proto_deprecated_note    = EI_INIT;
+static expert_field ei_lua_proto_deprecated_warn    = EI_INIT;
+static expert_field ei_lua_proto_deprecated_error   = EI_INIT;
+
 dissector_handle_t lua_data_handle;
 
 static gboolean
@@ -820,6 +826,12 @@ void wslua_init(register_cb cb, gpointer client_data) {
         { &ei_lua_proto_comments_note,      { "_ws.lua.proto.note",    PI_COMMENTS_GROUP, PI_NOTE    ,"Protocol Note",    EXPFILL }},
         { &ei_lua_proto_comments_warn,      { "_ws.lua.proto.warning", PI_COMMENTS_GROUP, PI_WARN    ,"Protocol Warning", EXPFILL }},
         { &ei_lua_proto_comments_error,     { "_ws.lua.proto.error",   PI_COMMENTS_GROUP, PI_ERROR   ,"Protocol Error",   EXPFILL }},
+
+        { &ei_lua_proto_deprecated_comment, { "_ws.lua.proto.comment", PI_DEPRECATED, PI_COMMENT ,"Protocol Comment", EXPFILL }},
+        { &ei_lua_proto_deprecated_chat,    { "_ws.lua.proto.chat",    PI_DEPRECATED, PI_CHAT    ,"Protocol Chat",    EXPFILL }},
+        { &ei_lua_proto_deprecated_note,    { "_ws.lua.proto.note",    PI_DEPRECATED, PI_NOTE    ,"Protocol Note",    EXPFILL }},
+        { &ei_lua_proto_deprecated_warn,    { "_ws.lua.proto.warning", PI_DEPRECATED, PI_WARN    ,"Protocol Warning", EXPFILL }},
+        { &ei_lua_proto_deprecated_error,   { "_ws.lua.proto.error",   PI_DEPRECATED, PI_ERROR   ,"Protocol Error",   EXPFILL }},
 
         /* this one is for reporting errors executing Lua code */
         { &ei_lua_error, { "_ws.lua.error", PI_UNDECODED, PI_ERROR ,"Lua Error", EXPFILL }},

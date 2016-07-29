@@ -87,6 +87,7 @@ const value_string expert_group_vals[] = {
 	{ PI_COMMENTS_GROUP,    "Comment" },
 	{ PI_DECRYPTION,        "Decryption" },
 	{ PI_ASSUMPTION,        "Assumption" },
+	{ PI_DEPRECATED,        "Deprecated" },
 	{ 0, NULL }
 };
 

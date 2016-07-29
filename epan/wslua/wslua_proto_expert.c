@@ -95,6 +95,7 @@ WSLUA_CONSTRUCTOR ProtoExpert_new(lua_State* L) {
     case PI_SECURITY:
     case PI_COMMENTS_GROUP:
     case PI_DECRYPTION:
+    case PI_DEPRECATED:
         break;
     default:
         luaL_argerror(L, WSLUA_ARG_ProtoExpert_new_GROUP, "Group must be one of expert.group.*");
