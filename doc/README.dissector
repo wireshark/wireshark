@@ -1423,6 +1423,10 @@ protocol or field labels to the proto_tree:
     proto_tree_add_bitmask_text(tree, tvb, offset, len, name, fallback,
         ett, fields, encoding, flags);
 
+    proto_item *
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_hdr, ett,
+        fields, encoding, flags);
+
     proto_item*
     proto_tree_add_bits_item(tree, id, tvb, bit_offset, no_of_bits,
         encoding);
@@ -1970,6 +1974,11 @@ There are the following flags defined:
   BMT_NO_INT - only boolean flags are added to the title.
   BMT_NO_FALSE - boolean flags are only added to the title if they are set.
   BMT_NO_TFS - only add flag name to the title, do not use true_false_string
+
+The proto_tree_add_bitmask_with_flags() function is an extended version
+of the proto_tree_add_bitmask() function. It allows using flags to specify
+which fields will affect the top-level title. The flags are the
+same BMT_NO_* flags as used in the proto_tree_add_bitmask_text() function.
 
 The proto_tree_add_bitmask() behavior can be obtained by providing
 both 'name' and 'fallback' arguments as NULL, and a flags of
