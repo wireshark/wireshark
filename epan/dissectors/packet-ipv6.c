@@ -137,6 +137,7 @@ static int hf_ipv6_src_6to4_sla_id              = -1;
 static int hf_ipv6_src_teredo_server_ipv4       = -1;
 static int hf_ipv6_src_teredo_port              = -1;
 static int hf_ipv6_src_teredo_client_ipv4       = -1;
+static int hf_ipv6_src_embed_ipv4               = -1;
 static int hf_ipv6_dst                          = -1;
 static int hf_ipv6_dst_host                     = -1;
 static int hf_ipv6_dst_sa_mac                   = -1;
@@ -146,6 +147,7 @@ static int hf_ipv6_dst_6to4_sla_id              = -1;
 static int hf_ipv6_dst_teredo_server_ipv4       = -1;
 static int hf_ipv6_dst_teredo_port              = -1;
 static int hf_ipv6_dst_teredo_client_ipv4       = -1;
+static int hf_ipv6_dst_embed_ipv4               = -1;
 static int hf_ipv6_addr                         = -1;
 static int hf_ipv6_host                         = -1;
 static int hf_ipv6_sa_mac                       = -1;
@@ -155,6 +157,7 @@ static int hf_ipv6_6to4_sla_id                  = -1;
 static int hf_ipv6_teredo_server_ipv4           = -1;
 static int hf_ipv6_teredo_port                  = -1;
 static int hf_ipv6_teredo_client_ipv4           = -1;
+static int hf_ipv6_embed_ipv4                   = -1;
 static int hf_ipv6_opt                          = -1;
 static int hf_ipv6_opt_type                     = -1;
 static int hf_ipv6_opt_type_action              = -1;
@@ -495,6 +498,13 @@ static const fragment_items ipv6_frag_items = {
     &hf_ipv6_reassembled_length,
     &hf_ipv6_reassembled_data,
     "IPv6 fragments"
+};
+
+/* Well-Known Prefix for IPv4-Embedded IPv6 Address: 64::FF9B::/96 */
+static const guint8 ipv6_embedded_ipv4_well_known_prefix[] = {
+    0x00, 0x64, 0xFF, 0x9B,
+    0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00
 };
 
 static dissector_table_t ip_dissector_table;
@@ -2235,6 +2245,15 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             PROTO_ITEM_SET_HIDDEN(ti);
         }
 
+        /* Check for well-known prefix  64:ff9b::/96, rfc6052 */
+        if (memcmp(ip6_src->bytes, ipv6_embedded_ipv4_well_known_prefix, 12) == 0) {
+            ti = proto_tree_add_item(ipv6_tree, hf_ipv6_src_embed_ipv4, tvb, offset + IP6H_SRC + 12, 4, ENC_NA);
+            PROTO_ITEM_SET_GENERATED(ti);
+            ti = proto_tree_add_item(ipv6_tree, hf_ipv6_embed_ipv4, tvb, offset + IP6H_SRC + 12, 4, ENC_NA);
+            PROTO_ITEM_SET_GENERATED(ti);
+            PROTO_ITEM_SET_HIDDEN(ti);
+        }
+
         /* Add different items for the destination address */
         ti = proto_tree_add_item(ipv6_tree, hf_ipv6_addr, tvb,
                                  offset + IP6H_DST, IPv6_ADDR_SIZE, ENC_NA);
@@ -2310,6 +2329,15 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             PROTO_ITEM_SET_GENERATED(ti);
             ti = proto_tree_add_item(ipv6_tree, hf_ipv6_isatap_ipv4, tvb,
                                      offset + IP6H_DST + 12, 4, ENC_BIG_ENDIAN);
+            PROTO_ITEM_SET_GENERATED(ti);
+            PROTO_ITEM_SET_HIDDEN(ti);
+        }
+
+        /* Check for well-known prefix  64:ff9b::/96, rfc6052 */
+        if (memcmp(ip6_dst->bytes, ipv6_embedded_ipv4_well_known_prefix, 12) == 0) {
+            ti = proto_tree_add_item(ipv6_tree, hf_ipv6_dst_embed_ipv4, tvb, offset + IP6H_DST + 12, 4, ENC_NA);
+            PROTO_ITEM_SET_GENERATED(ti);
+            ti = proto_tree_add_item(ipv6_tree, hf_ipv6_embed_ipv4, tvb, offset + IP6H_DST + 12, 4, ENC_NA);
             PROTO_ITEM_SET_GENERATED(ti);
             PROTO_ITEM_SET_HIDDEN(ti);
         }
@@ -2520,6 +2548,11 @@ proto_register_ipv6(void)
                 FT_IPv4, BASE_NONE, NULL, 0x0,
                 "Source IPv6 Teredo Client Encapsulated IPv4 Address", HFILL }
         },
+        { &hf_ipv6_src_embed_ipv4,
+            { "Source Embedded IPv4", "ipv6.src_embed_ipv4",
+                FT_IPv4, BASE_NONE, NULL, 0x0,
+                "Source Embedded IPv4 Address", HFILL }
+        },
         { &hf_ipv6_dst,
             { "Destination", "ipv6.dst",
                 FT_IPv6, BASE_NONE, NULL, 0x0,
@@ -2565,6 +2598,11 @@ proto_register_ipv6(void)
                 FT_IPv4, BASE_NONE, NULL, 0x0,
                 "Destination IPv6 Teredo Client Encapsulated IPv4 Address", HFILL }
         },
+        { &hf_ipv6_dst_embed_ipv4,
+            { "Destination Embedded IPv4", "ipv6.dst_embed_ipv4",
+                FT_IPv4, BASE_NONE, NULL, 0x0,
+                "Destination Embedded IPv4 Address", HFILL }
+        },
         { &hf_ipv6_addr,
             { "Source or Destination Address", "ipv6.addr",
                 FT_IPv6, BASE_NONE, NULL, 0x0,
@@ -2609,6 +2647,11 @@ proto_register_ipv6(void)
             { "Teredo Client IPv4", "ipv6.tc_ipv4",
                 FT_IPv4, BASE_NONE, NULL, 0x0,
                 "IPv6 Teredo Client Encapsulated IPv4 Address", HFILL }
+        },
+        { &hf_ipv6_embed_ipv4,
+            { "Embedded IPv4", "ipv6.embed_ipv4",
+                FT_IPv4, BASE_NONE, NULL, 0x0,
+                "Embedded IPv4 Address", HFILL }
         },
 
 #ifdef HAVE_GEOIP_V6
