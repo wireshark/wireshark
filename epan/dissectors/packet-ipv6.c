@@ -2441,7 +2441,7 @@ proto_register_ipv6(void)
                 NULL, HFILL }
         },
         { &hf_ipv6_tclass,
-            { "Traffic class", "ipv6.tclass",
+            { "Traffic Class", "ipv6.tclass",
                 FT_UINT32, BASE_HEX, NULL, 0x0FF00000,
                 NULL, HFILL }
         },
@@ -2456,22 +2456,22 @@ proto_register_ipv6(void)
                 NULL, HFILL }
         },
         { &hf_ipv6_flow,
-            { "Flow label", "ipv6.flow",
+            { "Flow Label", "ipv6.flow",
                 FT_UINT32, BASE_HEX, NULL, 0x000FFFFF,
                 NULL, HFILL }
         },
         { &hf_ipv6_plen,
-            { "Payload length", "ipv6.plen",
+            { "Payload Length", "ipv6.plen",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_ipv6_nxt,
-            { "Next header", "ipv6.nxt",
+            { "Next Header", "ipv6.nxt",
                 FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
                 NULL, HFILL }
         },
         { &hf_ipv6_hlim,
-            { "Hop limit", "ipv6.hlim",
+            { "Hop Limit", "ipv6.hlim",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
@@ -2735,12 +2735,12 @@ proto_register_ipv6(void)
                 "Action for unrecognized option type", HFILL }
         },
         { &hf_ipv6_opt_type_change,
-            { "May change", "ipv6.opt.type.change",
+            { "May Change", "ipv6.opt.type.change",
                 FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
                 "Whether the option data may change en-route", HFILL }
         },
         { &hf_ipv6_opt_type_rest,
-            { "Low-order bits", "ipv6.opt.type.rest",
+            { "Low-Order Bits", "ipv6.opt.type.rest",
                 FT_UINT8, BASE_HEX, NULL, 0x1F,
                 "Remaining low-order bits", HFILL }
         },
