@@ -51,6 +51,7 @@ SCTE-35 Digital Program Insertion Messages
 Windows Cluster Management API (clusapi)
 RFTap Protocol
 M2 Application Protocol
+CAN FD
 --sort-and-group--
 
 === Updated Protocol Support
