@@ -556,6 +556,13 @@ static const value_string ipv6_opt_type_vals[] = {
 };
 value_string_ext ipv6_opt_type_vals_ext = VALUE_STRING_EXT_INIT(ipv6_opt_type_vals);
 
+static const value_string ipv6_opt_rtalert_vals[] = {
+    { IP6OPT_RTALERT_MLD,       "MLD"            },
+    { IP6OPT_RTALERT_RSVP,      "RSVP"           },
+    { IP6OPT_RTALERT_ACTNET,    "Active Network" },
+    { 0, NULL }
+};
+
 enum {
     IP6OPT_SMF_DPD_NULL = 0,
     IP6OPT_SMF_DPD_DFLT,
@@ -1313,13 +1320,6 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     ipv6_dissect_next(nxt, next_tvb, pinfo, tree, (ws_ip *)data);
     return tvb_captured_length(tvb);
 }
-
-static const value_string rtalertvals[] = {
-    { IP6OPT_RTALERT_MLD, "MLD" },
-    { IP6OPT_RTALERT_RSVP, "RSVP" },
-    { IP6OPT_RTALERT_ACTNET, "Active Network" },
-    { 0, NULL }
-};
 
 struct opt_proto_item {
     proto_item *type, *len;
@@ -2761,7 +2761,7 @@ proto_register_ipv6(void)
         },
         { &hf_ipv6_opt_rtalert,
             { "Router Alert", "ipv6.opt.router_alert",
-                FT_UINT16, BASE_DEC, VALS(rtalertvals), 0x0,
+                FT_UINT16, BASE_DEC, VALS(ipv6_opt_rtalert_vals), 0x0,
                 "Router Alert Option", HFILL }
         },
         { &hf_ipv6_opt_tel,
