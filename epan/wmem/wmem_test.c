@@ -480,7 +480,9 @@ wmem_test_stringperf(void)
 {
 #define LOOP_COUNT (1 * 1000 * 1000)
     wmem_allocator_t   *allocator;
-	char                buffer[1];
+#ifdef _WIN32
+    char                buffer[1];
+#endif
     char               **str_ptr = g_new(char *, LOOP_COUNT);
     char               *s_val = "test string";
     double              d_val = 1000.2;
