@@ -609,6 +609,28 @@ ipv6_opt_type_hdr(gint type)
     return IPv6_OPT_HDR_ANY;
 }
 
+enum {
+    IPv6_RT_HEADER_SOURCE_ROUTING  = 0,
+    IPv6_RT_HEADER_NIMROD          = 1,
+    IPv6_RT_HEADER_MobileIP        = 2,
+    IPv6_RT_HEADER_RPL             = 3,
+    IPv6_RT_HEADER_SEGMENT_ROUTING = 4,
+    IPv6_RT_HEADER_EXP1            = 253,
+    IPv6_RT_HEADER_EXP2            = 254
+};
+
+/* Routing Header Types */
+static const value_string routing_header_type[] = {
+    { IPv6_RT_HEADER_SOURCE_ROUTING,    "Source Route"     },
+    { IPv6_RT_HEADER_NIMROD,            "Nimrod"           },
+    { IPv6_RT_HEADER_MobileIP,          "Type 2 Routing"   },
+    { IPv6_RT_HEADER_RPL,               "RPL Source Route" },
+    { IPv6_RT_HEADER_SEGMENT_ROUTING,   "Segment Routing"  },
+    { IPv6_RT_HEADER_EXP1,              "Experiment 1"     },
+    { IPv6_RT_HEADER_EXP2,              "Experiment 2"     },
+    { 0, NULL }
+};
+
 gboolean
 capture_ipv6(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
@@ -803,24 +825,6 @@ ipv6_reassemble_cleanup(void)
 {
     reassembly_table_destroy(&ipv6_reassembly_table);
 }
-
-enum {
-    IPv6_RT_HEADER_SOURCE_ROUTING=0,
-    IPv6_RT_HEADER_NIMROD,
-    IPv6_RT_HEADER_MobileIP,
-    IPv6_RT_HEADER_RPL,
-    IPv6_RT_HEADER_SEGMENT_ROUTING
-};
-
-/* Routing Header Types */
-static const value_string routing_header_type[] = {
-    { IPv6_RT_HEADER_SOURCE_ROUTING, "IPv6 Source Routing" },
-    { IPv6_RT_HEADER_NIMROD, "Nimrod" },
-    { IPv6_RT_HEADER_MobileIP, "Mobile IP" },
-    { IPv6_RT_HEADER_RPL, "RPL" },
-    { IPv6_RT_HEADER_SEGMENT_ROUTING, "Segment Routing"},
-    { 0, NULL }
-};
 
 struct rthdr_proto_item {
     proto_item *len;
