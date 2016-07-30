@@ -121,7 +121,7 @@ cmp_compare(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	int pos = 0;
 
 	prefix = MIN(a->prefix, b->prefix);	/* MIN() like IPv4 */
-	prefix = MIN(prefix, 128);			/* sanitize, max prefix is 128 */
+	prefix = MIN(prefix, 128);		/* sanitize, max prefix is 128 */
 
 	while (prefix >= 8) {
 		gint byte_a = (gint) (a->addr.bytes[pos]);
@@ -228,8 +228,8 @@ ftype_register_ipv6(void)
 		"FT_IPv6",			/* name */
 		"IPv6 address",			/* pretty_name */
 		FT_IPv6_LEN,			/* wire_size */
-		NULL,		/* new_value */
-		NULL,		/* free_value */
+		NULL,				/* new_value */
+		NULL,				/* free_value */
 		ipv6_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		ipv6_to_repr,			/* val_to_string_repr */

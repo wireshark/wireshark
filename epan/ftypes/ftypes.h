@@ -221,7 +221,7 @@ typedef struct _fvalue_t {
 		ipv6_addr_and_prefix	ipv6;
 		e_guid_t		guid;
 		nstime_t		time;
-        protocol_value_t protocol;
+		protocol_value_t 	protocol;
 		GRegex			*re;
 		guint16			sfloat_ieee_11073;
 		guint32			float_ieee_11073;
