@@ -425,6 +425,7 @@ const int capture_item_    = 1;
 PreferencesDialog::PreferencesDialog(QWidget *parent) :
     GeometryStateDialog(parent),
     pd_ui_(new Ui::PreferencesDialog),
+    cur_pref_type_(0),
     cur_line_edit_(NULL),
     cur_combo_box_(NULL),
     saved_combo_idx_(0)
