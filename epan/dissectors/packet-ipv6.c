@@ -500,7 +500,7 @@ static const fragment_items ipv6_frag_items = {
     "IPv6 fragments"
 };
 
-/* Well-Known Prefix for IPv4-Embedded IPv6 Address: 64::FF9B::/96 */
+/* Well-Known Prefix for IPv4-Embedded IPv6 Address: 64:FF9B::/96 */
 static const guint8 ipv6_embedded_ipv4_well_known_prefix[] = {
     0x00, 0x64, 0xFF, 0x9B,
     0x00, 0x00, 0x00, 0x00,
