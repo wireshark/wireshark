@@ -485,6 +485,11 @@ gboolean uat_fld_chk_oid(void* u1 _U_, const char* strptr, guint len, const void
       return FALSE;
     }
 
+    if (len == 0) {
+      *err = g_strdup("Empty OID");
+      return FALSE;
+    }
+
     for(i = 0; i < len; i++)
       if(!(g_ascii_isdigit(strptr[i]) || strptr[i] == '.')) {
         *err = g_strdup("Only digits [0-9] and \".\" allowed in an OID");
