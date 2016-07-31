@@ -1803,8 +1803,9 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="362"/>
-        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</source>
-        <translation>Wiresharkはひとつかそれ以上の色付けルールを認識できません。保存は破棄されます。</translation>
+        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
+        <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
+        <translation type="unfinished">Wiresharkはひとつかそれ以上の色付けルールを認識できません。保存は破棄されます。</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="375"/>

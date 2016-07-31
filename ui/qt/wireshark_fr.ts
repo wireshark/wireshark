@@ -1807,8 +1807,9 @@ si vous voulez utiliser des fichiers multiples.</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="362"/>
-        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</source>
-        <translation>Wireshark ne reconnaît pas une ou plusieurs de vos règles de coloriage. Sauvegarder les supprimera.</translation>
+        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
+        <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
+        <translation type="unfinished">Wireshark ne reconnaît pas une ou plusieurs de vos règles de coloriage. Sauvegarder les supprimera.</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="375"/>
