@@ -154,6 +154,8 @@ static expert_field ei_cba_acco_no_request_info = EI_INIT;
 static expert_field ei_cba_acco_ipid_unknown = EI_INIT;
 static expert_field ei_cba_acco_qc = EI_INIT;
 static expert_field ei_cba_acco_pdev_find_unknown_interface = EI_INIT;
+static expert_field ei_cba_acco_disconnect = EI_INIT;
+static expert_field ei_cba_acco_connect = EI_INIT;
 
 static int proto_ICBAAccoMgt = -1;
 static gint ett_ICBAAccoMgt = -1;
@@ -660,7 +662,7 @@ cba_packet_in_range(packet_info *pinfo, guint packet_connect, guint packet_disco
 {
 
     if (packet_connect == 0) {
-        g_warning("cba_packet_in_range#%u: packet_connect not set?", pinfo->num);
+        expert_add_info_format(pinfo, NULL, &ei_cba_acco_connect, "cba_packet_in_range#%u: packet_connect not set?", pinfo->num);
     }
 
     if (packet_connect == 0 || pinfo->num < packet_connect) {
@@ -788,7 +790,7 @@ cba_frame_disconnect(packet_info *pinfo, cba_frame_t *frame)
     }
 
     if (frame->packet_disconnect != pinfo->num) {
-        g_warning("cba_frame_disconnect#%u: frame already disconnected in #%u",
+        expert_add_info_format(pinfo, NULL, &ei_cba_acco_disconnect, "cba_frame_disconnect#%u: frame already disconnected in #%u",
             pinfo->num, frame->packet_disconnect);
     }
 }
@@ -814,7 +816,7 @@ cba_frame_disconnectme(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, cba_
             }
 
             if (frame->packet_disconnectme != pinfo->num) {
-                g_warning("cba_frame_disconnectme#%u: frame already disconnectme'd in #%u",
+                expert_add_info_format(pinfo, tree, &ei_cba_acco_disconnect, "cba_frame_disconnectme#%u: frame already disconnectme'd in #%u",
                     pinfo->num, frame->packet_disconnectme);
             }
         }
@@ -1030,7 +1032,7 @@ cba_connection_disconnect(packet_info *pinfo, cba_connection_t *conn)
     }
 
     if (conn->packet_disconnect != pinfo->num) {
-        g_warning("connection_disconnect#%u: already disconnected",
+        expert_add_info_format(pinfo, NULL, &ei_cba_acco_disconnect, "connection_disconnect#%u: already disconnected",
                   conn->packet_disconnect);
     }
 }
@@ -1056,7 +1058,7 @@ cba_connection_disconnectme(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
 
             if (conn->packet_disconnectme != pinfo->num) {
-                g_warning("connection_disconnectme#%u: already disconnectme'd",
+                expert_add_info_format(pinfo, tree, &ei_cba_acco_disconnect, "connection_disconnectme#%u: already disconnectme'd",
                           conn->packet_disconnectme);
             }
         }
@@ -5059,6 +5061,8 @@ proto_register_dcom_cba_acco (void)
         { &ei_cba_acco_conn_consumer, { "cba.acco.conn_consumer.invalid", PI_UNDECODED, PI_NOTE, "Consumer interface invalid", EXPFILL }},
         { &ei_cba_acco_no_request_info, { "cba.acco.no_request_info", PI_UNDECODED, PI_NOTE, "No request info, response data ignored", EXPFILL }},
         { &ei_cba_acco_qc, { "cba.acco.qc.expert", PI_RESPONSE_CODE, PI_CHAT, "expert QC", EXPFILL }},
+        { &ei_cba_acco_disconnect, { "cba.acco.disconnect", PI_SEQUENCE, PI_NOTE, "Disconnection sequence issue", EXPFILL }},
+        { &ei_cba_acco_connect, { "cba.acco.connect_not_set", PI_SEQUENCE, PI_NOTE, "packet_connect not set", EXPFILL }},
     };
 
     expert_module_t* expert_cba_acco;
