@@ -57,10 +57,10 @@ BOOLEAN IsHandleRedirected(DWORD handle)
 {
     HANDLE h = GetStdHandle(handle);
     if (h) {
-	BY_HANDLE_FILE_INFORMATION fi;
-	if (GetFileInformationByHandle(h, &fi)) {
-	    return TRUE;
-	}
+        BY_HANDLE_FILE_INFORMATION fi;
+        if (GetFileInformationByHandle(h, &fi)) {
+            return TRUE;
+        }
     }
     return FALSE;
 }
@@ -73,28 +73,28 @@ void attach_parent_console()
     errRedirected = IsHandleRedirected(STD_ERROR_HANDLE);
 
     if (outRedirected && errRedirected) {
-	/* Both standard output and error handles are redirected.
-	 * There is no point in attaching to parent process console.
-	 */
-	return;
+        /* Both standard output and error handles are redirected.
+         * There is no point in attaching to parent process console.
+         */
+        return;
     }
 
     if (AttachConsole(ATTACH_PARENT_PROCESS) == 0) {
-	/* Console attach failed. */
-	return;
+        /* Console attach failed. */
+        return;
     }
 
     /* Console attach succeeded */
     if (outRedirected == FALSE) {
-	if (!freopen("CONOUT$", "w", stdout)) {
-	    errmsg_print("WARNING: Cannot redirect to stdout.");
-	}
+        if (!freopen("CONOUT$", "w", stdout)) {
+            errmsg_print("WARNING: Cannot redirect to stdout.");
+        }
     }
 
     if (errRedirected == FALSE) {
-	if (!freopen("CONOUT$", "w", stderr)) {
-	    errmsg_print("WARNING: Cannot redirect to strerr.");
-	}
+        if (!freopen("CONOUT$", "w", stderr)) {
+            errmsg_print("WARNING: Cannot redirect to strerr.");
+        }
     }
 }
 #endif
@@ -105,13 +105,13 @@ void extcap_base_register_interface(extcap_parameters * extcap, const char * int
 }
 
 void extcap_base_register_interface_ext(extcap_parameters * extcap,
-		const char * interface, const char * ifdescription,
-		uint16_t dlt, const char * dltname, const char * dltdescription )
+        const char * interface, const char * ifdescription,
+        uint16_t dlt, const char * dltname, const char * dltdescription )
 {
     extcap_interface * iface;
 
     if (interface == NULL)
-	return;
+    return;
 
     iface = g_new0(extcap_interface, 1);
 
@@ -128,41 +128,41 @@ void extcap_base_set_util_info(extcap_parameters * extcap, const char * major, c
 {
     g_assert(major);
     extcap->version = g_strdup_printf("%s%s%s%s%s",
-		    major,
-		    minor ? "." : "",
-		    minor ? minor : "",
-		    release ? "." : "",
-		    release ? release : "");
+        major,
+        minor ? "." : "",
+        minor ? minor : "",
+        release ? "." : "",
+        release ? release : "");
     extcap->helppage = g_strdup(helppage);
 }
 
 uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char * optargument )
 {
     switch (result) {
-    case EXTCAP_OPT_LIST_INTERFACES:
-	extcap->do_list_interfaces = 1;
-	break;
-    case EXTCAP_OPT_VERSION:
-	extcap->do_version = 1;
-	break;
-    case EXTCAP_OPT_LIST_DLTS:
-	extcap->do_list_dlts = 1;
-	break;
-    case EXTCAP_OPT_INTERFACE:
-	extcap->interface = g_strdup(optargument);
-	break;
-    case EXTCAP_OPT_CONFIG:
-	extcap->show_config = 1;
-	break;
-    case EXTCAP_OPT_CAPTURE:
-	extcap->capture = 1;
-	break;
-    case EXTCAP_OPT_CAPTURE_FILTER:
-	extcap->capture_filter = g_strdup(optargument);
-	break;
-    case EXTCAP_OPT_FIFO:
-	extcap->fifo = g_strdup(optargument);
-	break;
+        case EXTCAP_OPT_LIST_INTERFACES:
+            extcap->do_list_interfaces = 1;
+            break;
+        case EXTCAP_OPT_VERSION:
+            extcap->do_version = 1;
+            break;
+        case EXTCAP_OPT_LIST_DLTS:
+            extcap->do_list_dlts = 1;
+            break;
+        case EXTCAP_OPT_INTERFACE:
+            extcap->interface = g_strdup(optargument);
+            break;
+        case EXTCAP_OPT_CONFIG:
+            extcap->show_config = 1;
+            break;
+        case EXTCAP_OPT_CAPTURE:
+            extcap->capture = 1;
+            break;
+        case EXTCAP_OPT_CAPTURE_FILTER:
+            extcap->capture_filter = g_strdup(optargument);
+            break;
+        case EXTCAP_OPT_FIFO:
+            extcap->fifo = g_strdup(optargument);
+            break;
     }
 
     return 1;
@@ -174,9 +174,9 @@ static void extcap_iface_print(gpointer data, gpointer userdata _U_)
 
     printf("interface {value=%s}", iface->interface);
     if (iface->description != NULL)
-	printf ("{display=%s}\n", iface->description);
+        printf ("{display=%s}\n", iface->description);
     else
-	printf ("\n");
+        printf ("\n");
 }
 
 static gint extcap_iface_compare(gconstpointer  a, gconstpointer  b)
@@ -190,7 +190,7 @@ static void extcap_print_version(extcap_parameters * extcap)
 {
     printf("extcap {version=%s}", extcap->version != NULL ? extcap->version : "unknown");
     if (extcap->helppage != NULL)
-	    printf("{help=%s}", extcap->helppage);
+        printf("{help=%s}", extcap->helppage);
     printf("\n");
 }
 
@@ -204,19 +204,19 @@ static gint extcap_iface_listall(extcap_parameters * extcap, uint8_t list_ifs)
     } else {
         if (extcap->do_version) {
             extcap_print_version(extcap);
-	} else {
-	    GList * element = NULL;
-	    extcap_interface * iface = NULL;
-	    if ((element = g_list_find_custom(extcap->interfaces, extcap->interface, extcap_iface_compare)) == NULL)
-		return 0;
+    } else {
+        GList * element = NULL;
+        extcap_interface * iface = NULL;
+        if ((element = g_list_find_custom(extcap->interfaces, extcap->interface, extcap_iface_compare)) == NULL)
+            return 0;
 
-	    iface = (extcap_interface *) element->data;
-	    printf("dlt {number=%u}{name=%s}", iface->dlt, iface->dltname != NULL ? iface->dltname : iface->interface);
-	    if (iface->description != NULL)
-		printf ("{display=%s}\n", iface->dltdescription);
-	    else
-		printf ("\n");
-	}
+        iface = (extcap_interface *) element->data;
+        printf("dlt {number=%u}{name=%s}", iface->dlt, iface->dltname != NULL ? iface->dltname : iface->interface);
+        if (iface->description != NULL)
+            printf ("{display=%s}\n", iface->dltdescription);
+        else
+            printf ("\n");
+        }
     }
 
     return 1;
@@ -226,15 +226,15 @@ uint8_t extcap_base_handle_interface(extcap_parameters * extcap)
 {
     /* A fifo must be provided for capture */
     if (extcap->capture && (extcap->fifo == NULL || strlen(extcap->fifo) <= 0)) {
-	extcap->capture = 0;
-	errmsg_print("Extcap Error: No FIFO pipe provided");
-	return 0;
+        extcap->capture = 0;
+        errmsg_print("Extcap Error: No FIFO pipe provided");
+        return 0;
     }
 
     if (extcap->do_list_interfaces) {
-	return extcap_iface_listall(extcap, 1);
+        return extcap_iface_listall(extcap, 1);
     } else if (extcap->do_version || extcap->do_list_dlts) {
-	return extcap_iface_listall(extcap, 0);
+        return extcap_iface_listall(extcap, 0);
     }
 
     return 0;
