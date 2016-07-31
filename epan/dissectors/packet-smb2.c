@@ -9560,7 +9560,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_ea_data_len,
-			{ "EA Data Length", "smb2.ea.data_len", FT_UINT8, BASE_DEC,
+			{ "EA Data Length", "smb2.ea.data_len", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }
 		},
 
