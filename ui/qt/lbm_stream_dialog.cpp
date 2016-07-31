@@ -66,7 +66,6 @@ class LBMSubstreamEntry
         }
 
     private:
-        LBMSubstreamEntry(void) { }
         void fillItem(gboolean update_only = TRUE);
         guint64 m_channel;
         guint32 m_substream_id;
@@ -151,7 +150,6 @@ class LBMStreamEntry
         }
 
     private:
-        LBMStreamEntry(void) { }
         void fillItem(gboolean update_only = TRUE);
         QString formatEndpoint(const packet_info * pinfo, const lbm_uim_stream_endpoint_t * endpoint);
         guint64 m_channel;
