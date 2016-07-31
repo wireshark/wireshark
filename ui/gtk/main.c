@@ -176,7 +176,6 @@
 #include "ui/gtk/tap_param_dlg.h"
 #include "ui/gtk/prefs_column.h"
 #include "ui/gtk/prefs_dlg.h"
-#include "ui/gtk/proto_help.h"
 #include "ui/gtk/packet_list.h"
 #include "ui/gtk/filter_expression_save_dlg.h"
 #include "ui/gtk/conversations_table.h"
@@ -800,7 +799,6 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
         cf_unselect_field(&cfile);
         packet_hex_print(byte_view, byte_data,
                          cfile.current_frame, NULL, byte_len);
-        proto_help_menu_modify(sel, &cfile);
         return;
     }
     gtk_tree_model_get(model, &iter, 1, &finfo, -1);
@@ -861,7 +859,6 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
     }
     packet_hex_print(byte_view, byte_data, cfile.current_frame, finfo,
                      byte_len);
-    proto_help_menu_modify(sel, &cfile);
 }
 
 void collapse_all_cb(GtkWidget *widget _U_, gpointer data _U_)
@@ -2346,7 +2343,6 @@ main(int argc, char *argv[])
      */
 
     splash_update(RA_CONFIGURATION, NULL, (gpointer)splash_win);
-    proto_help_init();
     cap_file_init(&cfile);
 
     /* Fill in capture options with values from the preferences */

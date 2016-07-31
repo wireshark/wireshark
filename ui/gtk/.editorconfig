@@ -130,10 +130,6 @@ indent_size = 2
 [proto_dlg.[ch]]
 indent_size = 2
 
-[proto_help.[ch]]
-indent_style = tab
-indent_size = tab
-
 [proto_hier_tree_model.[ch]]
 indent_style = tab
 indent_size = tab

@@ -23,7 +23,6 @@ Except in one place we are building on GTK2 using the compat flags
 Summary: The only known files that cause some sort of problems (or lost
          functionality) are:
   - gtkvumeter.c (removed, only used for wlan on windows)
-  - proto_help.c (not ported to UI-MANAGER)
   - tcp-graph: the crosshairs are not right
   - audiograph doesn't work
 

@@ -101,7 +101,6 @@ WIRESHARK_COMMON_GTK_SRC = \
 	profile_dlg.c		\
 	progress_dlg.c		\
 	proto_dlg.c		\
-	proto_help.c		\
 	proto_hier_stats_dlg.c	\
 	proto_hier_tree_model.c	\
 	proto_tree_model.c	\
@@ -232,7 +231,6 @@ WIRESHARK_COMMON_GTK_HDRS = \
 	prefs_font_color.h	\
 	profile_dlg.h		\
 	proto_dlg.h		\
-	proto_help.h		\
 	proto_hier_stats_dlg.h	\
 	proto_hier_tree_model.h	\
 	proto_tree_model.h	\

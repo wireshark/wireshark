@@ -90,7 +90,6 @@ set(WIRESHARK_GTK_SRC
 	profile_dlg.c
 	progress_dlg.c
 	proto_dlg.c
-	proto_help.c
 	proto_hier_stats_dlg.c
 	proto_hier_tree_model.c
 	proto_tree_model.c
