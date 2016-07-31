@@ -373,7 +373,7 @@ static void lbmc_uim_flow_graph_dlg_create(void)
 #if GTK_CHECK_VERSION(2,18,0)
     gtk_widget_set_can_default(bt_cancel, TRUE);
 #else
-    GTK_WIDGET_SET_FLAGS(bt_cancel, GTK_CAN_DEFAULT);
+    WS_GTK_WIDGET_SET_FLAGS(bt_cancel, GTK_CAN_DEFAULT);
 #endif
     gtk_widget_set_tooltip_text(bt_cancel, "Cancel this dialog");
     window_set_cancel_button(flow_graph_dlg_w, bt_cancel, window_cancel_button_cb);

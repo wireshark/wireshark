@@ -58,6 +58,7 @@
 #	define gtk_widget_set_window(x, y) (x)->window = (y)
 #	define gtk_widget_set_can_default(w,y) if(y==TRUE){GTK_WIDGET_SET_FLAGS (w, GTK_CAN_DEFAULT);}else{GTK_WIDGET_UNSET_FLAGS (w, GTK_CAN_DEFAULT);}
 #	define gtk_widget_set_can_focus(w,y) if(y==TRUE){GTK_WIDGET_SET_FLAGS (w, GTK_CAN_FOCUS);}else{GTK_WIDGET_UNSET_FLAGS (w, GTK_CAN_FOCUS);}
+#	define WS_GTK_WIDGET_SET_FLAGS GTK_WIDGET_SET_FLAGS
 #endif
 
 #if !GTK_CHECK_VERSION (2, 20, 0)
