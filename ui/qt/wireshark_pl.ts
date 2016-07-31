@@ -1647,8 +1647,9 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="361"/>
-        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</source>
-        <translation>Wireshark nie rozpoznał jednej lub wększej ilości twoich reguł kolorowania.Zapis spowoduje usunięcie ich.</translation>
+        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
+        <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
+        <translation type="unfinished">Wireshark nie rozpoznał jednej lub wększej ilości twoich reguł kolorowania.Zapis spowoduje usunięcie ich.</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="371"/>
