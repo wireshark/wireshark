@@ -1806,8 +1806,9 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="362"/>
-        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</source>
-        <translation>Wireshark non riconosce una o più delle tue regole di colorazione. Il salvataggio le rimuoverà.</translation>
+        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
+        <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
+        <translation type="unfinished">Wireshark non riconosce una o più delle tue regole di colorazione. Il salvataggio le rimuoverà.</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="375"/>
@@ -2640,12 +2641,12 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
 <context>
     <name>ExtcapArgumentFileSelection</name>
     <message>
-        <location filename="extcap_argument_file.cpp" line="112"/>
+        <location filename="extcap_argument_file.cpp" line="113"/>
         <source>All Files (</source>
         <translation>Tutti i file (</translation>
     </message>
     <message>
-        <location filename="extcap_argument_file.cpp" line="121"/>
+        <location filename="extcap_argument_file.cpp" line="122"/>
         <source>Open File</source>
         <translation>Apri file</translation>
     </message>
