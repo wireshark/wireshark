@@ -2548,7 +2548,7 @@ proto_register_ipv6(void)
         { &hf_ipv6_src_embed_ipv4,
             { "Source Embedded IPv4", "ipv6.src_embed_ipv4",
                 FT_IPv4, BASE_NONE, NULL, 0x0,
-                "Source Embedded IPv4 Address", HFILL }
+                "Source IPv4-Embedded IPv6 Address with Well-Known Prefix", HFILL }
         },
         { &hf_ipv6_dst,
             { "Destination", "ipv6.dst",
@@ -2598,7 +2598,7 @@ proto_register_ipv6(void)
         { &hf_ipv6_dst_embed_ipv4,
             { "Destination Embedded IPv4", "ipv6.dst_embed_ipv4",
                 FT_IPv4, BASE_NONE, NULL, 0x0,
-                "Destination Embedded IPv4 Address", HFILL }
+                "Destination IPv4-Embedded IPv6 Address with Well-Known Prefix", HFILL }
         },
         { &hf_ipv6_addr,
             { "Source or Destination Address", "ipv6.addr",
@@ -2648,7 +2648,7 @@ proto_register_ipv6(void)
         { &hf_ipv6_embed_ipv4,
             { "Embedded IPv4", "ipv6.embed_ipv4",
                 FT_IPv4, BASE_NONE, NULL, 0x0,
-                "Embedded IPv4 Address", HFILL }
+                "IPv4-Embedded IPv6 Address with Well-Known Prefix", HFILL }
         },
 
 #ifdef HAVE_GEOIP_V6
