@@ -131,6 +131,7 @@ private Q_SLOTS:
 };
 
 Q_DECLARE_METATYPE(ExtcapArgument)
+Q_DECLARE_METATYPE(ExtcapArgument *)
 
 class ExtArgText : public ExtcapArgument
 {
