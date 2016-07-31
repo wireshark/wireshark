@@ -108,6 +108,8 @@ static int hf_om2k_conl_tag = -1;
 static int hf_om2k_conl_tei = -1;
 static int hf_om2k_tf_mode = -1;
 static int hf_om2k_tf_fs_offset = -1;
+static int hf_om2k_attr_id = -1;
+static int hf_om2k_attr_index = -1;
 
 /* initialize the subtree pointers */
 static int ett_om2000 = -1;
@@ -529,6 +531,53 @@ static const value_string om2k_tf_mode_vals[] = {
 	{ 0, NULL }
 };
 
+static const value_string om2k_attr_id_vals[] = {
+	{ 0x0005, "Alarm Status Type" },
+	{ 0x0007, "Input BS_AG_BLKS_RES" },
+	{ 0x001d, "Input FN Offset" },
+	{ 0x002f, "Power GMSK" },
+	{ 0x0033, "Reciever Diversity" },
+	{ 0x0037, "Power 8-PSK" },
+	{ 0x003a, "TF Mode" },
+	{ 0x0043, "File Supported Functions OML I" },
+	{ 0x0044, "File Supported Functions OML II" },
+	{ 0x0045, "File Supported Functions RSL I" },
+	{ 0x0046, "File Supported Functions RSL II" },
+	{ 0x0047, "Input Extended Range" },
+	{ 0x0086, "TF Synchronization Source" },
+	{ 0x0101, "Alarm Information" },
+	{ 0x0127, "ICPs Signaling" },
+	{ 0x0143, "TG Supported Functions OML I" },
+	{ 0x0144, "TG Supported Functions OML II" },
+	{ 0x0145, "TG Supported Functions RSL I" },
+	{ 0x0146, "TG Supported Functions RSL II" },
+	{ 0x01ff, "ICPs IS" },
+	{ 0x0227, "ICPs Traffic" },
+	{ 0x0243, "TRXC Supported Functions OML I" },
+	{ 0x0244, "TRXC Supported Functions OML II" },
+	{ 0x0245, "TRXC Supported Functions RSL I" },
+	{ 0x0246, "TRXC Supported Functions RSL II" },
+	{ 0x02ff, "Cascadable" },
+	{ 0x0327, "ICPs PCM" },
+	{ 0x03ff, "TEI" },
+	{ 0x041f, "ARFCN AB RX" },
+	{ 0x0420, "ARFCN TX" },
+	{ 0x0427, "ICPs CON" },
+	{ 0x04ff, "TCH Capabilities" },
+	{ 0x0527, "ICP Group" },
+	{ 0x05ff, "Cascade downlink" },
+	{ 0x0627, "ICP Group Capacity" },
+	{ 0x07ff, "CRC-4 Option" },
+	{ 0x0bff, "Hopping Type" },
+	{ 0x0cff, "TRXC Domain" },
+	{ 0x19ff, "Band AB RX" },
+	{ 0x1aff, "Band TX" },
+	{ 0x1bff, "TX Chain Delay" },
+	{ 0, NULL }
+};
+
+static value_string_ext om2k_attr_id_vals_ext = VALUE_STRING_EXT_INIT(om2k_attr_id_vals);
+
 static gint
 dissect_tss_mo_state(tvbuff_t *tvb, gint offset, proto_tree *tree)
 {
@@ -877,6 +926,13 @@ dissect_om2k_attrs(tvbuff_t *tvb, gint offset, proto_tree *tree)
 		case 0x7e: /* ICM Channel Rate */
 			proto_tree_add_item(tree, hf_om2k_icm_cr, tvb,
 					    offset++, 1, ENC_BIG_ENDIAN);
+			break;
+		case 0x7f: /* Attribute ID */
+			proto_tree_add_item(tree, hf_om2k_attr_id, tvb,
+					    offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_om2k_attr_index, tvb,
+					    offset+2, 1, ENC_BIG_ENDIAN);
+			offset += 3;
 			break;
 		case 0x84: /* HW Info Signature */
 			proto_tree_add_item(tree, hf_om2k_hwinfo_sig, tvb,
@@ -1398,6 +1454,16 @@ proto_register_abis_om2000(void)
 		{ &hf_om2k_tf_fs_offset,
 		  { "TF FS Offset", "gsm_abis_om2000.tf_fs_offset",
 		    FT_UINT64, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_attr_id,
+		  { "Attribute Identifier", "gsm_abis_om2000.attr_id",
+		    FT_UINT16, BASE_HEX|BASE_EXT_STRING, &om2k_attr_id_vals_ext, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_attr_index,
+		  { "Attribute Index", "gsm_abis_om2000.attr_index",
+		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 	};
