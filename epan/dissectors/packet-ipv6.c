@@ -62,12 +62,11 @@ void proto_register_ipv6(void);
 void proto_reg_handoff_ipv6(void);
 
 /* Offsets of fields within an IPv6 header. */
-#define IP6H_CTL        0
+#define IP6H_CTL_VFC    0
 #define IP6H_CTL_FLOW   0
 #define IP6H_CTL_PLEN   4
 #define IP6H_CTL_NXT    6
 #define IP6H_CTL_HLIM   7
-#define IP6H_CTL_VFC    0
 #define IP6H_SRC        8
 #define IP6H_DST        24
 
@@ -338,8 +337,6 @@ static expert_field ei_ipv6_bogus_ipv6_version = EI_INIT;
 static expert_field ei_ipv6_invalid_header = EI_INIT;
 static expert_field ei_ipv6_opt_header_mismatch = EI_INIT;
 
-#define TVB_IPv6_HDR_VERS(tvb, offset)  tvb_get_bits8(tvb, (offset) * 8, 4)
-#define TVB_IPv6_HDR_TCLS(tvb, offset)  tvb_get_bits8(tvb, (offset) * 8 + 4, 8)
 
 #define set_address_ipv6(dst, src_ip6) \
     set_address((dst), AT_IPv6, IPv6_ADDR_SIZE, (src_ip6))
@@ -2090,7 +2087,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
 
     /* Validate IP version (6) */
-    version = TVB_IPv6_HDR_VERS(tvb, offset + IP6H_CTL_VFC);
+    version = tvb_get_bits8(tvb, (offset + IP6H_CTL_VFC) * 8, 4);
     ti_ipv6_version = proto_tree_add_item(ipv6_tree, hf_ipv6_version, tvb,
                                  offset + IP6H_CTL_VFC, 1, ENC_BIG_ENDIAN);
     pi = proto_tree_add_item(ipv6_tree, hf_ip_version, tvb,
@@ -2116,7 +2113,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     /* !!! warning: (4-bit) version, (6-bit) DSCP, (2-bit) ECN and (20-bit) Flow */
     ti = proto_tree_add_item(ipv6_tree, hf_ipv6_tclass, tvb,
                         offset + IP6H_CTL_VFC, 4, ENC_BIG_ENDIAN);
-    ip6_tcls = TVB_IPv6_HDR_TCLS(tvb, offset + IP6H_CTL_VFC);
+    ip6_tcls = tvb_get_bits8(tvb, (offset + IP6H_CTL_VFC) * 8 + 4, 8);
     proto_item_append_text(ti, " (DSCP: %s, ECN: %s)",
                         val_to_str_ext_const(IPDSFIELD_DSCP(ip6_tcls), &dscp_short_vals_ext, "Unknown"),
                         val_to_str_ext_const(IPDSFIELD_ECN(ip6_tcls), &ecn_short_vals_ext, "Unknown"));
