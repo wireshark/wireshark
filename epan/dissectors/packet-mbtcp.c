@@ -1586,7 +1586,7 @@ proto_register_modbus(void)
         },
         { &hf_modbus_functioncode,
             { "Function Code", "modbus.func_code",
-            FT_UINT8, BASE_DEC, VALS(function_code_vals), 0x0,
+            FT_UINT8, BASE_DEC, VALS(function_code_vals), 0x7F,
             NULL, HFILL }
         },
         { &hf_modbus_reference,
