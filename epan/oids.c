@@ -860,33 +860,22 @@ char* oid_subid2string(wmem_allocator_t *scope, guint32* subids, guint len) {
 	return rel_oid_subid2string(scope, subids, len, TRUE);
 }
 char* rel_oid_subid2string(wmem_allocator_t *scope, guint32* subids, guint len, gboolean is_absolute) {
-	char *s, *w;
+
+	wmem_strbuf_t *oid_str;
 
 	if(!subids || len == 0)
 		return wmem_strdup(scope, "*** Empty OID ***");
 
-	s = (char *)wmem_alloc0(scope, ((len)*11)+2);
-	w = s;
+	oid_str = wmem_strbuf_new(scope, "");
 
 	if (!is_absolute)
-		*w++ = '.';
+		wmem_strbuf_append_c(oid_str, '.');
 
 	do {
-#ifdef _WIN32
-		/*
-		 * GLib appears to use gnulib's snprintf on Windows, which is
-		 * slow. MSDN says that _snprintf can return -1, but that
-		 * shouldn't be possible here.
-		 */
-		w += _snprintf(w,12,"%u.",*subids++);
-#else
-		w += g_snprintf(w,12,"%u.",*subids++);
-#endif
+		wmem_strbuf_append_printf(oid_str, "%u.",*subids++);
 	} while(--len);
 
-	if (w!=s) *(w-1) = '\0'; else *(s) = '\0';
-
-	return s;
+	return wmem_strbuf_finalize(oid_str);
 }
 
 static guint check_num_oid(const char* str) {
