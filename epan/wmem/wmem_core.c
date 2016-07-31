@@ -35,6 +35,8 @@
 #include "wmem_allocator_block_fast.h"
 #include "wmem_allocator_strict.h"
 
+#include <wsutil/ws_printf.h> /* ws_g_warning */
+
 /* Set according to the WIRESHARK_DEBUG_WMEM_OVERRIDE environment variable in
  * wmem_init. Should not be set again. */
 static gboolean do_override = FALSE;
@@ -208,7 +210,7 @@ wmem_init(void)
             override_type = WMEM_ALLOCATOR_BLOCK_FAST;
         }
         else {
-            g_warning("Unrecognized wmem override");
+            ws_g_warning("Unrecognized wmem override");
             do_override = FALSE;
         }
     }
