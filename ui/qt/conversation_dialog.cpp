@@ -335,7 +335,6 @@ public:
         if (role == Qt::DisplayRole) {
             // Column text cooked representation.
             conv_item_t *conv_item = &g_array_index(conv_array_, conv_item_t, conv_idx_);
-            if (!conv_item) return QVariant();
 
             bool resolve_names = false;
             if (resolve_names_ptr_ && *resolve_names_ptr_) resolve_names = true;
@@ -380,10 +379,6 @@ public:
     // Return a QString, qulonglong, double, or invalid QVariant representing the raw column data.
     QVariant colData(int col, bool resolve_names) const {
         conv_item_t *conv_item = &g_array_index(conv_array_, conv_item_t, conv_idx_);
-
-        if (!conv_item) {
-            return QVariant();
-        }
 
         double duration = nstime_to_sec(&conv_item->stop_time) - nstime_to_sec(&conv_item->start_time);
         double bps_ab = 0, bps_ba = 0;
@@ -455,10 +450,6 @@ public:
         const ConversationTreeWidgetItem *other_row = static_cast<const ConversationTreeWidgetItem *>(&other);
         conv_item_t *conv_item = &g_array_index(conv_array_, conv_item_t, conv_idx_);
         conv_item_t *other_item = &g_array_index(other_row->conv_array_, conv_item_t, other_row->conv_idx_);
-
-        if (!conv_item || !other_item) {
-            return false;
-        }
 
         int sort_col = treeWidget()->sortColumn();
         double conv_duration = nstime_to_sec(&conv_item->stop_time) - nstime_to_sec(&conv_item->start_time);
