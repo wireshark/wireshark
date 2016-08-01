@@ -197,7 +197,7 @@ WS_DLL_PUBLIC exp_pdu_data_t *export_pdu_create_tags(packet_info *pinfo, const c
  6. Original frame number
 
  @param pinfo Packet info that may contain data for the PDU items
- @param tag_type Tag type for protocol's PDU. Must be EXP_PDU_TAG_PROTO_NAME or EXP_PDU_TAG_HEUR_PROTO_NAME.
+ @param tag_type Tag type for protocol's PDU. Must be EXP_PDU_TAG_PROTO_NAME, EXP_PDU_TAG_HEUR_PROTO_NAME or EXP_PDU_TAG_DISSECTOR_TABLE_NAME
  @param proto_name Name of protocol that is exporting PDU
  @return filled exp_pdu_data_t struct
 */
