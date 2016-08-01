@@ -724,7 +724,7 @@ void extcap_if_cleanup(capture_options * capture_opts, gchar ** errormsg) {
         {
             if (userdata->extcap_stderr_rd > 0 && pipe_data_available(userdata->extcap_stderr_rd) )
             {
-                buffer = (gchar * )g_malloc0(sizeof(gchar) * STDERR_BUFFER_SIZE);
+                buffer = (gchar * )g_malloc0(sizeof(gchar) * STDERR_BUFFER_SIZE + 1);
 #ifdef _WIN32
                 win32_readfrompipe((HANDLE)_get_osfhandle(userdata->extcap_stderr_rd), STDERR_BUFFER_SIZE, buffer);
 #else
