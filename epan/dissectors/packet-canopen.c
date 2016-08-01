@@ -51,6 +51,14 @@ static int hf_canopen_sdo_abort_code = -1;
 static int hf_canopen_reserved = -1;
 static int hf_canopen_em_err_code = -1;
 static int hf_canopen_em_err_reg = -1;
+static int hf_canopen_em_err_reg_ge = -1;
+static int hf_canopen_em_err_reg_cu = -1;
+static int hf_canopen_em_err_reg_vo = -1;
+static int hf_canopen_em_err_reg_te = -1;
+static int hf_canopen_em_err_reg_co = -1;
+static int hf_canopen_em_err_reg_de = -1;
+static int hf_canopen_em_err_reg_re = -1;
+static int hf_canopen_em_err_reg_ma = -1;
 static int hf_canopen_em_err_field = -1;
 static int hf_canopen_nmt_ctrl_cs = -1;
 static int hf_canopen_nmt_ctrl_node_id = -1;
@@ -161,6 +169,18 @@ sdo_cmd_fields_ccs(guint cs)
     return NULL;
 }
 
+/* Emergency error register decode mask */
+static const int *em_err_reg_fields[] = {
+  &hf_canopen_em_err_reg_ge,
+  &hf_canopen_em_err_reg_cu,
+  &hf_canopen_em_err_reg_vo,
+  &hf_canopen_em_err_reg_te,
+  &hf_canopen_em_err_reg_co,
+  &hf_canopen_em_err_reg_de,
+  &hf_canopen_em_err_reg_re,
+  &hf_canopen_em_err_reg_ma,
+  NULL
+};
 
 /* (scs=0) decode mask */
 static const int *sdo_cmd_fields_scs0[] = {
@@ -231,6 +251,7 @@ static gint ett_canopen = -1;
 static gint ett_canopen_cob = -1;
 static gint ett_canopen_type = -1;
 static gint ett_canopen_sdo_cmd = -1;
+static gint ett_canopen_em_er = -1;
 
 /* broadcast messages */
 #define FC_NMT                  0x0
@@ -316,7 +337,53 @@ static const range_string obj_dict[] = {
     { 0x0060, 0x025F, "Device profile specific data types"},
     { 0x0260, 0x03FF, "reserved"},
     { 0x0400, 0x0FFF, "reserved"},
-    { 0x1000, 0x1FFF, "Communication profile area"},
+    { 0x1000, 0x1000, "Device type"},
+    { 0x1001, 0x1001, "Error register"},
+    { 0x1002, 0x1002, "Manufacturer status register"},
+    { 0x1003, 0x1003, "Pre-defined error field"},
+    { 0x1004, 0x1004, "Communication profile area"},
+    { 0x1005, 0x1005, "COB-ID SYNC message"},
+    { 0x1006, 0x1006, "Communication cycle period"},
+    { 0x1007, 0x1007, "Synchronous window length"},
+    { 0x1008, 0x1008, "Manufacturer device name"},
+    { 0x1009, 0x1009, "Manufacturer hardware version"},
+    { 0x100A, 0x100A, "Manufacturer software version"},
+    { 0x100B, 0x100B, "Communication profile area"},
+    { 0x100C, 0x100C, "Guard time"},
+    { 0x100D, 0x100D, "Life time factor"},
+    { 0x100E, 0x100F, "Communication profile area"},
+    { 0x1010, 0x1010, "Store parameters"},
+    { 0x1011, 0x1011, "Restore default parameters"},
+    { 0x1012, 0x1012, "COB-ID time stamp object"},
+    { 0x1013, 0x1013, "High resolution time stamp"},
+    { 0x1014, 0x1014, "COB-ID EMCY"},
+    { 0x1015, 0x1015, "Inhibit time EMCY"},
+    { 0x1016, 0x1016, "Consumer heartbeat time"},
+    { 0x1017, 0x1017, "Producer heartbeat time"},
+    { 0x1018, 0x1018, "Identity object"},
+    { 0x1019, 0x1019, "Synchronous counter overflow value"},
+    { 0x101A, 0x101F, "Communication profile area"},
+    { 0x1020, 0x1020, "Verify configuration"},
+    { 0x1021, 0x1021, "Store EDS"},
+    { 0x1022, 0x1022, "Store format"},
+    { 0x1023, 0x1023, "OS command"},
+    { 0x1024, 0x1024, "OS command mode"},
+    { 0x1025, 0x1025, "OS debugger interface"},
+    { 0x1026, 0x1026, "OS prompt"},
+    { 0x1027, 0x1027, "Module list"},
+    { 0x1028, 0x1028, "Emergency consumer object"},
+    { 0x1029, 0x1029, "Error behavior object"},
+    { 0x102A, 0x11FF, "Communication profile area"},
+    { 0x1200, 0x127F, "SDO server parameter"},
+    { 0x1280, 0x12FF, "SDO client parameter"},
+    { 0x1300, 0x13FF, "Communication profile area"},
+    { 0x1400, 0x15FF, "RPDO communication parameter"},
+    { 0x1600, 0x17FF, "RPDO mapping parameter"},
+    { 0x1800, 0x19FF, "TPDO communication parameter"},
+    { 0x1A00, 0x1BFF, "TPDO mapping parameter"},
+    { 0x1C00, 0x1FBF, "Communication profile area"},
+    { 0x1FA0, 0x1FCF, "Object scanner list"},
+    { 0x1FD0, 0x1FFF, "Object dispatching list"},
     { 0x2000, 0x5FFF, "Manufacturer-specific profile area"},
     { 0x6000, 0x67FF, "Standardized profile area 1st logical device"},
     { 0x6800, 0x6FFF, "Standardized profile area 2nd logical device"},
@@ -329,6 +396,56 @@ static const range_string obj_dict[] = {
     { 0xA000, 0xAFFF, "Standardized network variable area"},
     { 0xB000, 0xBFFF, "Standardized system variable area"},
     { 0xC000, 0xFFFF, "reserved"},
+    { 0,      0,      NULL}
+};
+
+/* EMCY error codes */
+static const range_string em_err_code[] = {
+    { 0x0000, 0x00FF, "Error reset or no error"},
+    { 0x1000, 0x10FF, "Generic error"},
+    { 0x2000, 0x20FF, "Current"},
+    { 0x2100, 0x21FF, "Current, CANopen device input side"},
+    { 0x2200, 0x22FF, "Current inside the CANopen device"},
+    { 0x2300, 0x23FF, "Current, CANopen device output side"},
+    { 0x3000, 0x30FF, "Voltage"},
+    { 0x3100, 0x31FF, "Mains voltage"},
+    { 0x3200, 0x32FF, "Voltage inside the CANopen device"},
+    { 0x3300, 0x33FF, "Output voltage"},
+    { 0x4000, 0x40FF, "Temperature"},
+    { 0x4100, 0x41FF, "Ambient temperature"},
+    { 0x4200, 0x42FF, "CANopen device temperature"},
+    { 0x5000, 0x50FF, "CANopen device hardware"},
+    { 0x6000, 0x60FF, "CANopen device software"},
+    { 0x6100, 0x61FF, "Internal software"},
+    { 0x6200, 0x62FF, "User software"},
+    { 0x6300, 0x63FF, "Data set"},
+    { 0x7000, 0x70FF, "Additional modules"},
+    { 0x8000, 0x80FF, "Monitoring"},
+    { 0x8100, 0x810F, "Communication"},
+    { 0x8110, 0x8110, "Communication - CAN overrun (objects lost)"},
+    { 0x8111, 0x811F, "Communication"},
+    { 0x8120, 0x8120, "Communication - CAN in error passive mode"},
+    { 0x8121, 0x812F, "Communication"},
+    { 0x8130, 0x8130, "Communication - Life guard error or heartbeat error"},
+    { 0x8131, 0x813F, "Communication"},
+    { 0x8140, 0x8140, "Communication - recovered from bus off"},
+    { 0x8141, 0x814F, "Communication"},
+    { 0x8150, 0x8150, "Communication - CAN-ID collision"},
+    { 0x8151, 0x81FF, "Communication"},
+    { 0x8200, 0x820F, "Protocol error"},
+    { 0x8210, 0x8210, "Protocol error - PDO not processed due to length error"},
+    { 0x8211, 0x821F, "Protocol error"},
+    { 0x8220, 0x8220, "Protocol error - PDO length exceeded"},
+    { 0x8221, 0x822F, "Protocol error"},
+    { 0x8230, 0x8230, "Protocol error - DAM MPDO not processed, destination object not available"},
+    { 0x8231, 0x823F, "Protocol error"},
+    { 0x8240, 0x8240, "Protocol error - Unexpected SYNC data length"},
+    { 0x8241, 0x824F, "Protocol error"},
+    { 0x8250, 0x8250, "Protocol error - RPDO timeout"},
+    { 0x8251, 0x82FF, "Protocol error"},
+    { 0x9000, 0x90FF, "External error"},
+    { 0xF000, 0xF0FF, "Additional functions"},
+    { 0xFF00, 0xFFFF, "CANopen device specific"},
     { 0,      0,      NULL}
 };
 
@@ -1093,8 +1210,8 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             hf_canopen_em_err_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
 
-        proto_tree_add_item(canopen_type_tree,
-            hf_canopen_em_err_reg, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_bitmask(canopen_type_tree, tvb, offset,
+                hf_canopen_em_err_reg, ett_canopen_em_er, em_err_reg_fields, ENC_LITTLE_ENDIAN);
         offset++;
 
         proto_tree_add_item(canopen_type_tree,
@@ -1225,12 +1342,52 @@ proto_register_canopen(void)
         },
         { &hf_canopen_em_err_code,
           { "Error code", "canopen.em.err_code",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_HEX|BASE_RANGE_STRING, RVALS(em_err_code), 0x0,
             NULL, HFILL }
         },
         { &hf_canopen_em_err_reg,
           { "Error register", "canopen.em.err_reg",
             FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_em_err_reg_ge,
+          { "Generic error", "canopen.em.err_reg_ge",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_canopen_em_err_reg_cu,
+          { "Current", "canopen.em.err_reg_cu",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_canopen_em_err_reg_vo,
+          { "Voltage", "canopen.em.err_reg_vo",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_canopen_em_err_reg_te,
+          { "Temperature", "canopen.em.err_reg_te",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_canopen_em_err_reg_co,
+          { "Communication error (overrun, error state)", "canopen.em.err_reg_co",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_canopen_em_err_reg_de,
+          { "Device profile specific", "canopen.em.err_reg_de",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_canopen_em_err_reg_re,
+          { "Reserved (must be false)", "canopen.em.err_reg_re",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_canopen_em_err_reg_ma,
+          { "Manufacturer specfic", "canopen.em.err_reg_ma",
+            FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
         { &hf_canopen_em_err_field,
@@ -1398,7 +1555,8 @@ proto_register_canopen(void)
         &ett_canopen,
         &ett_canopen_cob,
         &ett_canopen_type,
-        &ett_canopen_sdo_cmd
+        &ett_canopen_sdo_cmd,
+        &ett_canopen_em_er
     };
 
     proto_canopen = proto_register_protocol("CANopen",
