@@ -821,7 +821,6 @@ void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
 {
     guint i;
     interface_options interface_opts;
-    GError * error = 0;
     extcap_userdata * userdata = NULL;
     capture_options * capture_opts = (capture_options *)(user_data);
 
@@ -842,8 +841,18 @@ void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
             {
                 interface_opts.extcap_pid = INVALID_EXTCAP_PID;
                 userdata->exitcode = 0;
-                if ( ! g_spawn_check_exit_status(status, &error) )
-                    userdata->exitcode = error->code;
+#ifndef _WIN32
+                if ( WIFEXITED(status) )
+                {
+                    if ( WEXITSTATUS(status) != 0 )
+                        userdata->exitcode = WEXITSTATUS(status);
+                }
+                else
+                    userdata->exitcode = G_SPAWN_ERROR_FAILED;
+#else
+                if (status != 0)
+                    userdata->exitcode = status;
+#endif
                 if ( status == 0 && userdata->extcap_stderr != NULL )
                     userdata->exitcode = 1;
             }
