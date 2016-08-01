@@ -1687,10 +1687,11 @@ cap_pipe_open_live(char *pipename,
                 b = cap_pipe_read(fd, ((char *)&magic)+bytes_read,
                                   sizeof magic-bytes_read,
                                   pcap_opts->from_cap_socket);
+#ifdef HAVE_EXTCAP
                 /* jump messaging, if extcap had an error, stderr will provide the correct message */
                 if (extcap_pipe && b <= 0)
                     goto error;
-
+#endif
                 if (b <= 0) {
                     if (b == 0)
                         g_snprintf(errmsg, errmsgl, "End of file on pipe magic during open.");
