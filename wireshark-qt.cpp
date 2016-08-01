@@ -88,6 +88,7 @@
 #include "ui/simple_dialog.h"
 #include "ui/util.h"
 #include "ui/commandline.h"
+#include "ui/capture_ui_utils.h"
 
 #include "ui/qt/conversation_dialog.h"
 #include "ui/qt/color_utils.h"

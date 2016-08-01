@@ -1472,8 +1472,8 @@ cap_pipe_open_live(char *pipename,
 #endif
 #ifdef HAVE_EXTCAP
     gboolean extcap_pipe = FALSE;
-#endif
     interface_options interface_opts;
+#endif
     ssize_t  b;
     int      fd = -1, sel_ret;
     size_t   bytes_read;
@@ -1501,7 +1501,9 @@ cap_pipe_open_live(char *pipename,
        }
     } else {
 
+#ifdef HAVE_EXTCAP
         interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
+#endif
 
 #ifndef _WIN32
 #ifdef HAVE_EXTCAP
