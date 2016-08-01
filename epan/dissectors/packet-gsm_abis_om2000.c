@@ -110,6 +110,8 @@ static int hf_om2k_tf_mode = -1;
 static int hf_om2k_tf_fs_offset = -1;
 static int hf_om2k_attr_id = -1;
 static int hf_om2k_attr_index = -1;
+static int hf_om2k_result_code = -1;
+static int hf_om2k_reason_code = -1;
 
 /* initialize the subtree pointers */
 static int ett_om2000 = -1;
@@ -578,6 +580,19 @@ static const value_string om2k_attr_id_vals[] = {
 
 static value_string_ext om2k_attr_id_vals_ext = VALUE_STRING_EXT_INIT(om2k_attr_id_vals);
 
+static const value_string om2k_res_code_vals[] = {
+	{ 0x02, "Wrong state or out of sequence" },
+	{ 0x03, "File error" },
+	{ 0x04, "Fault, unspecified" },
+	{ 0x05, "Tuning fault" },
+	{ 0x06, "Protocol error" },
+	{ 0x07, "MO not connected" },
+	{ 0x08, "Parameter error" },
+	{ 0x09, "Operational functio not supported" },
+	{ 0x0a, "Local Access state LOCALLY DISCONNECTED" },
+	{ 0, NULL }
+};
+
 static gint
 dissect_tss_mo_state(tvbuff_t *tvb, gint offset, proto_tree *tree)
 {
@@ -841,6 +856,10 @@ dissect_om2k_attrs(tvbuff_t *tvb, gint offset, proto_tree *tree)
 			proto_tree_add_item(tree, hf_om2k_nom_pwr, tvb,
 					    offset++, 1, ENC_BIG_ENDIAN);
 			break;
+		case 0x32: /* Reason Code */
+			proto_tree_add_item(tree, hf_om2k_reason_code, tvb,
+					    offset++, 1, ENC_BIG_ENDIAN);
+			break;
 		case 0x33: /* Receiver Diversity */
 			proto_tree_add_item(tree, hf_om2k_diversity, tvb,
 					    offset++, 1, ENC_BIG_ENDIAN);
@@ -848,6 +867,10 @@ dissect_om2k_attrs(tvbuff_t *tvb, gint offset, proto_tree *tree)
 		case 0x34: /* Replacement Unit Map */
 			/* FIXME */
 			offset += dissect_om2k_attr_unkn(tvb, offset, 6, iei, tree);
+			break;
+		case 0x35: /* Result Code */
+			proto_tree_add_item(tree, hf_om2k_result_code, tvb,
+					    offset++, 1, ENC_BIG_ENDIAN);
 			break;
 		case 0x38: /* T3105 */
 			proto_tree_add_item(tree, hf_om2k_t3105, tvb,
@@ -1464,6 +1487,16 @@ proto_register_abis_om2000(void)
 		{ &hf_om2k_attr_index,
 		  { "Attribute Index", "gsm_abis_om2000.attr_index",
 		    FT_UINT8, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_reason_code,
+		  { "Reason Code", "gsm_abis_om2000.reason_code",
+		    FT_UINT8, BASE_HEX, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_result_code,
+		  { "Result Code", "gsm_abis_om2000.res_code",
+		    FT_UINT8, BASE_HEX, VALS(om2k_res_code_vals), 0,
 		    NULL, HFILL }
 		},
 	};
