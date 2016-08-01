@@ -388,8 +388,7 @@ QRC_FILES = \
 	../../image/languages/languages.qrc	\
 	../../image/layout.qrc			\
 	../../image/toolbar.qrc			\
-	../../image/wsicon.qrc			\
-	i18n.qrc
+	../../image/wsicon.qrc
 
 #
 # The .cpp files generated from them.
