@@ -1305,7 +1305,7 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (ipv6_pinfo != NULL && ipv6_pinfo->frag_plen > 0) {
         if ((frag_off != 0) || frag_flg) {
-            reassembled = ipv6_reassemble_do(&tvb, &offset, pinfo, frag_tree, ipv6_pinfo->frag_plen,
+            reassembled = ipv6_reassemble_do(&tvb, &offset, pinfo, root_tree, ipv6_pinfo->frag_plen,
                                              frag_off, frag_flg, frag_ident, &show_data);
             if (show_data) {
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
