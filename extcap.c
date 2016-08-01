@@ -751,26 +751,29 @@ void extcap_if_cleanup(capture_options * capture_opts, gchar ** errormsg) {
         }
 #endif
 
-        if ( userdata->extcap_stderr != NULL )
-            overwrite_exitcode = TRUE;
-
-        if ( overwrite_exitcode || userdata->exitcode != 0 )
+        if ( userdata )
         {
-            if ( userdata->extcap_stderr != 0 )
-            {
-                if ( *errormsg == NULL )
-                    *errormsg = g_strdup_printf("Error by extcap pipe: %s", userdata->extcap_stderr);
-                else
-                {
-                    gchar * temp = g_strconcat ( *errormsg, "\nError by extcap pipe: " ,userdata->extcap_stderr, NULL );
-                    g_free(*errormsg);
-                    *errormsg = temp;
-                }
-                g_free (userdata->extcap_stderr );
-            }
+            if ( userdata->extcap_stderr != NULL )
+                overwrite_exitcode = TRUE;
 
-            userdata->extcap_stderr = NULL;
-            userdata->exitcode = 0;
+            if ( overwrite_exitcode || userdata->exitcode != 0 )
+            {
+                if ( userdata->extcap_stderr != 0 )
+                {
+                    if ( *errormsg == NULL )
+                        *errormsg = g_strdup_printf("Error by extcap pipe: %s", userdata->extcap_stderr);
+                    else
+                    {
+                        gchar * temp = g_strconcat ( *errormsg, "\nError by extcap pipe: " ,userdata->extcap_stderr, NULL );
+                        g_free(*errormsg);
+                        *errormsg = temp;
+                    }
+                    g_free (userdata->extcap_stderr );
+                }
+
+                userdata->extcap_stderr = NULL;
+                userdata->exitcode = 0;
+            }
         }
 
         if (interface_opts.extcap_child_watch > 0)
