@@ -862,6 +862,7 @@ char* oid_subid2string(wmem_allocator_t *scope, guint32* subids, guint len) {
 char* rel_oid_subid2string(wmem_allocator_t *scope, guint32* subids, guint len, gboolean is_absolute) {
 
 	wmem_strbuf_t *oid_str;
+	gsize oid_str_len;
 
 	if(!subids || len == 0)
 		return wmem_strdup(scope, "*** Empty OID ***");
@@ -874,6 +875,10 @@ char* rel_oid_subid2string(wmem_allocator_t *scope, guint32* subids, guint len, 
 	do {
 		wmem_strbuf_append_printf(oid_str, "%u.",*subids++);
 	} while(--len);
+
+	/* Remove trailing "." (which is guaranteed to be there) */
+	oid_str_len = wmem_strbuf_get_len(oid_str);
+	wmem_strbuf_truncate(oid_str, oid_str_len - 1);
 
 	return wmem_strbuf_finalize(oid_str);
 }
