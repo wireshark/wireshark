@@ -52,6 +52,11 @@ typedef struct _extcap_interface
     char * dltdescription;
 } extcap_interface;
 
+typedef struct _extcap_option {
+    char * optname;
+    char * optdesc;
+} extcap_option_t;
+
 #ifdef _WIN32
 BOOLEAN IsHandleRedirected(DWORD handle)
 {
@@ -260,6 +265,13 @@ static void extcap_iface_free(gpointer data)
     g_free(iface);
 }
 
+static void extcap_help_option_free(gpointer option)
+{
+    extcap_option_t* o = (extcap_option_t*)option;
+    g_free(o->optname);
+    g_free(o->optdesc);
+}
+
 void extcap_base_cleanup(extcap_parameters ** extcap)
 {
     /* g_list_free_full() only exists since 2.28. g_list_free_full((*extcap)->interfaces, extcap_iface_free);*/
@@ -269,8 +281,49 @@ void extcap_base_cleanup(extcap_parameters ** extcap)
     g_free((*extcap)->interface);
     g_free((*extcap)->version);
     g_free((*extcap)->helppage);
+    g_free((*extcap)->help_header);
+    g_list_foreach((*extcap)->help_options, (GFunc)extcap_help_option_free, NULL);
+    g_list_free((*extcap)->help_options);
     g_free(*extcap);
     *extcap = NULL;
+}
+
+static void extcap_print_option(gpointer option)
+{
+    extcap_option_t* o = (extcap_option_t*)option;
+    printf("\t%s: %s\n", o->optname, o->optdesc);
+}
+
+void extcap_help_print(extcap_parameters * extcap)
+{
+    printf("\nHelp\n\nUsage:\n");
+    printf("%s", extcap->help_header);
+    printf("\n");
+    printf("Options:\n");
+    g_list_foreach(extcap->help_options, (GFunc)extcap_print_option, NULL);
+    printf("\n");
+}
+
+void extcap_help_add_option(extcap_parameters * extcap, const char * help_option_name, const char * help_option_desc)
+{
+    extcap_option_t* o = g_new0(extcap_option_t, 1);
+    o->optname = g_strdup(help_option_name);
+    o->optdesc = g_strdup(help_option_desc);
+
+    extcap->help_options = g_list_append(extcap->help_options, o);
+}
+
+
+void extcap_help_add_header(extcap_parameters * extcap, char * help_header)
+{
+    extcap->help_header = g_strdup(help_header);
+    extcap_help_add_option(extcap, "--extcap-interfaces", "list the extcap Interfaces");
+    extcap_help_add_option(extcap, "--extcap-dlts", "list the DLTs");
+    extcap_help_add_option(extcap, "--extcap-interface <iface>", "specify the extcap interface");
+    extcap_help_add_option(extcap, "--extcap-config", "list the additional configuration for an interface");
+    extcap_help_add_option(extcap, "--capture", "run the capture");
+    extcap_help_add_option(extcap, "--extcap-capture-filter <filter>", "the capture filter");
+    extcap_help_add_option(extcap, "--fifo <file>", "dump data to file or fifo");
 }
 
 /*

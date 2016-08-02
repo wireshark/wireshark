@@ -1048,27 +1048,6 @@ static int list_config(char *interface) {
     return EXIT_CODE_INVALID_INTERFACE;
 }
 
-
-static void help(void) {
-    unsigned int  i_opt;
-
-    printf("Help\n");
-    printf(" Usage:\n"
-        " androiddump --extcap-interfaces [--adb-server-ip=<arg>] [--adb-server-tcp-port=<arg>]\n"
-        " androiddump --extcap-interface=INTERFACE --extcap-dlts\n"
-        " androiddump --extcap-interface=INTERFACE --extcap-config\n"
-        " androiddump --extcap-interface=INTERFACE --fifo=PATH_FILENAME --capture \n");
-
-    printf("\n Parameters:\n");
-    for (i_opt = 0; i_opt < (sizeof(longopts) / sizeof(longopts[0])) - 1; i_opt += 1) {
-        printf("  --%s%s\n", longopts[i_opt].name,
-            (longopts[i_opt].has_arg == required_argument) ? "=<arg>" :
-            ((longopts[i_opt].has_arg == optional_argument) ? "[=arg]" : ""));
-    }
-
-}
-
-
 /*----------------------------------------------------------------------------*/
 /* Android Bluetooth Hcidump */
 /*----------------------------------------------------------------------------*/
@@ -2530,6 +2509,7 @@ int main(int argc, char **argv) {
     const char      *default_bt_local_ip = "127.0.0.1";
     unsigned short   default_bt_local_tcp_port  = 4330;
     extcap_parameters * extcap_conf = NULL;
+    char            *help_header = NULL;
 
 #ifdef _WIN32
     WSADATA          wsaData;
@@ -2537,16 +2517,37 @@ int main(int argc, char **argv) {
     attach_parent_console();
 #endif  /* _WIN32 */
 
+    extcap_conf = g_new0(extcap_parameters, 1);
+
+    extcap_base_set_util_info(extcap_conf, ANDROIDDUMP_VERSION_MAJOR, ANDROIDDUMP_VERSION_MINOR, ANDROIDDUMP_VERSION_RELEASE, NULL);
+
+    help_header = g_strdup_printf(
+        " %s --extcap-interfaces [--adb-server-ip=<arg>] [--adb-server-tcp-port=<arg>]\n"
+        " %s --extcap-interface=INTERFACE --extcap-dlts\n"
+        " %s --extcap-interface=INTERFACE --extcap-config\n"
+        " %s --extcap-interface=INTERFACE --fifo=PATH_FILENAME --capture \n",
+        argv[0], argv[0], argv[0], argv[0]);
+    extcap_help_add_header(extcap_conf, help_header);
+    g_free(help_header);
+
+    extcap_help_add_option(extcap_conf, "--help", "print this help");
+    extcap_help_add_option(extcap_conf, "--version", "print the version");
+    extcap_help_add_option(extcap_conf, "--verbose", "verbose mode");
+    extcap_help_add_option(extcap_conf, "--adb-server-ip <IP>", "the IP address of the ADB server");
+    extcap_help_add_option(extcap_conf, "--adb-server-tcp-port <port>", "the TCP port of the ADB server");
+    extcap_help_add_option(extcap_conf, "--logcat-text <text>", "logcat text");
+    extcap_help_add_option(extcap_conf, "--bt-server-tcp-port <port>", "bluetooth server TCP port");
+    extcap_help_add_option(extcap_conf, "--bt-forward-socket <path>", "bluetooth forward socket");
+    extcap_help_add_option(extcap_conf, "--bt-local-ip <IP>", "the bluetooth local IP");
+    extcap_help_add_option(extcap_conf, "--bt-local-tcp-port <port>", "the bluetooth local TCP port");
+
     opterr = 0;
     optind = 0;
 
     if (argc == 1) {
-        help();
+        extcap_help_print(extcap_conf);
         return EXIT_CODE_SUCCESS;
     }
-    extcap_conf = g_new0(extcap_parameters, 1);
-
-    extcap_base_set_util_info(extcap_conf, ANDROIDDUMP_VERSION_MAJOR, ANDROIDDUMP_VERSION_MINOR, ANDROIDDUMP_VERSION_RELEASE, NULL);
 
     while ((result = getopt_long(argc, argv, "", longopts, &option_idx)) != -1) {
         switch (result) {
@@ -2555,7 +2556,7 @@ int main(int argc, char **argv) {
             printf("%s.%s.%s\n", ANDROIDDUMP_VERSION_MAJOR, ANDROIDDUMP_VERSION_MINOR, ANDROIDDUMP_VERSION_RELEASE);
             return EXIT_CODE_SUCCESS;
         case OPT_HELP:
-            help();
+            extcap_help_print(extcap_conf);
             return EXIT_CODE_SUCCESS;
         case OPT_CONFIG_ADB_SERVER_IP:
             adb_server_ip = optarg;

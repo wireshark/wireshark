@@ -57,36 +57,15 @@ static struct option longopts[] = {
 };
 
 
-static void help(const char* binname)
+static void help(extcap_parameters* extcap_conf)
 {
 	unsigned i = 0;
 	char** abbrev_list;
 	char** longname_list;
 
-	printf("Help\n");
-	printf(" Usage:\n");
-	printf(" %s --extcap-interfaces\n", binname);
-	printf(" %s --extcap-interface=INTERFACE --extcap-dlts\n", binname);
-	printf(" %s --extcap-interface=INTERFACE --extcap-config\n", binname);
-	printf(" %s --extcap-interface=INTERFACE --type dns --count 10"
-			"--fifo=FILENAME --capture\n", binname);
-	printf("\n\n");
-	printf("  --help: print this help\n");
-	printf("  --version: print the version\n");
-	printf("  --verbose: verbose mode\n");
-	printf("  --extcap-interfaces: list the extcap Interfaces\n");
-	printf("  --extcap-dlts: list the DLTs\n");
-	printf("  --extcap-interface <iface>: specify the extcap interface\n");
-	printf("  --extcap-config: list the additional configuration for an interface\n");
-	printf("  --capture: run the capture\n");
-	printf("  --extcap-capture-filter <filter>: the capture filter\n");
-	printf("  --fifo <file>: dump data to file or fifo\n");
-	printf("  --maxbytes <bytes>: max bytes per packet");
-	printf("  --count <num>: number of packets to generate\n");
-	printf("  --random-type: one random type is chosen for all packets\n");
-	printf("  --all-random: a random type is chosen for each packet\n");
-	printf("  --type <type>: the packet type\n");
-	printf("\n\nPacket types:\n");
+	extcap_help_print(extcap_conf);
+
+	printf("\nPacket types:\n");
 	randpkt_example_list(&abbrev_list, &longname_list);
 	while (abbrev_list[i] && longname_list[i]) {
 		printf("\t%-16s%s\n", abbrev_list[i], longname_list[i]);
@@ -95,7 +74,6 @@ static void help(const char* binname)
 	printf("\n");
 	g_strfreev(abbrev_list);
 	g_strfreev(longname_list);
-
 }
 
 static int list_config(char *interface)
@@ -164,12 +142,31 @@ int main(int argc, char *argv[])
 #endif  /* _WIN32 */
 
 	extcap_parameters * extcap_conf = g_new0(extcap_parameters, 1);
+	char* help_header = NULL;
 
 	extcap_base_set_util_info(extcap_conf, RANDPKTDUMP_VERSION_MAJOR, RANDPKTDUMP_VERSION_MINOR, RANDPKTDUMP_VERSION_RELEASE, NULL);
 	extcap_base_register_interface(extcap_conf, RANDPKT_EXTCAP_INTERFACE, "Random packet generator", 147, "Generator dependent DLT");
 
+	help_header = g_strdup_printf(
+		" %s --extcap-interfaces\n"
+		" %s --extcap-interface=INTERFACE --extcap-dlts\n"
+		" %s --extcap-interface=INTERFACE --extcap-config\n"
+		" %s --extcap-interface=INTERFACE --type dns --count 10 "
+		"--fifo=FILENAME --capture\n", argv[0], argv[0], argv[0], argv[0]);
+	extcap_help_add_header(extcap_conf, help_header);
+	g_free(help_header);
+
+	extcap_help_add_option(extcap_conf, "--help", "print this help");
+	extcap_help_add_option(extcap_conf, "--version", "print the version");
+	extcap_help_add_option(extcap_conf, "--verbose", "verbose mode");
+	extcap_help_add_option(extcap_conf, "--maxbytes <bytes>", "max bytes per pack");
+	extcap_help_add_option(extcap_conf, "--count <num>", "number of packets to generate");
+	extcap_help_add_option(extcap_conf, "--random-type", "one random type is chosen for all packets");
+	extcap_help_add_option(extcap_conf, "--all-random", "a random type is chosen for each packet");
+	extcap_help_add_option(extcap_conf, "--type <type>", "the packet type");
+
 	if (argc == 1) {
-		help(argv[0]);
+		help(extcap_conf);
 		goto end;
 	}
 
@@ -188,7 +185,7 @@ int main(int argc, char *argv[])
 			goto end;
 
 		case OPT_HELP:
-			help(argv[0]);
+			help(extcap_conf);
 			ret = EXIT_SUCCESS;
 			goto end;
 

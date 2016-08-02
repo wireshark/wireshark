@@ -221,38 +221,6 @@ cleanup:
 	return ret;
 }
 
-static void help(const char* binname)
-{
-	printf("Help\n");
-	printf(" Usage:\n");
-	printf(" %s --extcap-interfaces\n", binname);
-	printf(" %s --extcap-interface=INTERFACE --extcap-dlts\n", binname);
-	printf(" %s --extcap-interface=INTERFACE --extcap-config\n", binname);
-	printf(" %s --extcap-interface=INTERFACE --remote-host myhost --remote-port 22222 "
-		"--remote-username myuser --remote-interface eth2 --remote-capture-bin /bin/dumpcap "
-		"--fifo=FILENAME --capture\n", binname);
-	printf("\n\n");
-	printf("  --help: print this help\n");
-	printf("  --version: print the version\n");
-	printf("  --verbose: print more messages\n");
-	printf("  --extcap-interfaces: list the interfaces\n");
-	printf("  --extcap-interface <iface>: specify the interface\n");
-	printf("  --extcap-dlts: list the DTLs for an interface\n");
-	printf("  --extcap-config: list the additional configuration for an interface\n");
-	printf("  --extcap-capture-filter <filter>: the capture filter\n");
-	printf("  --capture: run the capture\n");
-	printf("  --fifo <file>: dump data to file or fifo\n");
-	printf("  --remote-host <host>: the remote SSH host\n");
-	printf("  --remote-port <port>: the remote SSH port (default: 22)\n");
-	printf("  --remote-username <username>: the remote SSH username (default: the current user)\n");
-	printf("  --remote-password <password>: the remote SSH password. If not specified, ssh-agent and ssh-key are used\n");
-	printf("  --sshkey <public key path>: the path of the ssh key\n");
-	printf("  --sshkey-passphrase <public key passphrase>: the passphrase to unlock public ssh\n");
-	printf("  --remote-interface <iface>: the remote capture interface (default: eth0)\n");
-	printf("  --remote-capture-bin <capture bin>: the remote dumcap binary (default: %s)\n", DEFAULT_CAPTURE_BIN);
-	printf("  --remote-filter <filter>: a filter for remote capture (default: don't listen on local local interfaces IPs)\n");
-}
-
 static char* interfaces_list_to_filter(GSList* interfaces, const unsigned int remote_port)
 {
 	GString* filter = g_string_new(NULL);
@@ -358,6 +326,7 @@ int main(int argc, char **argv)
 	unsigned long int count = 0;
 	int ret = EXIT_FAILURE;
 	extcap_parameters * extcap_conf = g_new0(extcap_parameters, 1);
+	char* help_header = NULL;
 
 #ifdef _WIN32
 	WSADATA wsaData;
@@ -368,11 +337,33 @@ int main(int argc, char **argv)
 	extcap_base_set_util_info(extcap_conf, SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR, SSHDUMP_VERSION_RELEASE, NULL);
 	extcap_base_register_interface(extcap_conf, SSH_EXTCAP_INTERFACE, "SSH remote capture", 147, "Remote capture dependent DLT");
 
+	help_header = g_strdup_printf(
+		" %s --extcap-interfaces\n"
+		" %s --extcap-interface=INTERFACE --extcap-dlts\n"
+		" %s --extcap-interface=INTERFACE --extcap-config\n"
+		" %s --extcap-interface=INTERFACE --remote-host myhost --remote-port 22222 "
+		"--remote-username myuser --remote-interface eth2 --remote-capture-bin /bin/dumpcap "
+		"--fifo=FILENAME --capture\n", argv[0], argv[0], argv[0], argv[0]);
+	extcap_help_add_header(extcap_conf, help_header);
+	g_free(help_header);
+	extcap_help_add_option(extcap_conf, "--help", "print this help");
+	extcap_help_add_option(extcap_conf, "--version", "print the version");
+	extcap_help_add_option(extcap_conf, "--verbose", "print more messages");
+	extcap_help_add_option(extcap_conf, "--remote-host <host>", "the remote SSH host");
+	extcap_help_add_option(extcap_conf, "--remote-port <port>", "the remote SSH port (default: 22)");
+	extcap_help_add_option(extcap_conf, "--remote-username <username>", "the remote SSH username (default: the current user)");
+	extcap_help_add_option(extcap_conf, "--remote-password <password>", "the remote SSH password. If not specified, ssh-agent and ssh-key are used");
+	extcap_help_add_option(extcap_conf, "--sshkey <public key path>", "the path of the ssh key");
+	extcap_help_add_option(extcap_conf, "--sshkey-passphrase <public key passphrase>", "the passphrase to unlock public ssh");
+	extcap_help_add_option(extcap_conf, "--remote-interface <iface>", "the remote capture interface (default: eth0)");
+	extcap_help_add_option(extcap_conf, "--remote-capture-bin <capture bin>", "the remote dumcap binary (default: " DEFAULT_CAPTURE_BIN ")");
+	extcap_help_add_option(extcap_conf, "--remote-filter <filter>", "a filter for remote capture (default: don't listen on local local interfaces IPs)\n");
+
 	opterr = 0;
 	optind = 0;
 
 	if (argc == 1) {
-		help(argv[0]);
+		extcap_help_print(extcap_conf);
 		goto end;
 	}
 
@@ -381,7 +372,7 @@ int main(int argc, char **argv)
 		switch (result) {
 
 		case OPT_HELP:
-			help(argv[0]);
+			extcap_help_print(extcap_conf);
 			ret = EXIT_SUCCESS;
 			goto end;
 

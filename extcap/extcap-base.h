@@ -116,6 +116,9 @@ typedef struct _extcap_parameters
 	uint8_t do_list_dlts;
 	uint8_t do_list_interfaces;
 
+	char * help_header;
+	GList * help_options;
+
 } extcap_parameters;
 
 void extcap_base_register_interface(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltdescription );
@@ -124,6 +127,11 @@ void extcap_base_set_util_info(extcap_parameters * extcap, const char * major, c
 uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char * optargument);
 uint8_t extcap_base_handle_interface(extcap_parameters * extcap);
 void extcap_base_cleanup(extcap_parameters ** extcap);
+void extcap_help_add_header(extcap_parameters * extcap, char * help_header);
+void extcap_help_add_option(extcap_parameters * extcap, const char * help_option_name, const char * help_optionn_desc);
+void extcap_help_print(extcap_parameters * extcap);
+
+void extcap_base_help(void);
 
 #endif
 
