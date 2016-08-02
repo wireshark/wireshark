@@ -1775,14 +1775,53 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
             ( ( isSNMT || packet->scm_udid_valid ) == TRUE ? (frame2_crc == calc2_crc) : TRUE);
 }
 
+static gint
+check_scmudid_validity(opensafety_packet_info *packet, tvbuff_t *message_tvb)
+{
+    guint8      b_ID, spdoFlags, udidLen;
+    GByteArray *scmUDID = NULL;
+
+    packet->scm_udid_valid = FALSE;
+    scmUDID = g_byte_array_new();
+
+    if ( hex_str_to_bytes((local_scm_udid != NULL ? local_scm_udid : global_scm_udid), scmUDID, TRUE) && scmUDID->len == 6 )
+    {
+        packet->scm_udid_valid = TRUE;
+
+        /* Now confirm, that the xor operation was successful. The ID fields of both frames have to be the same */
+        b_ID = tvb_get_guint8(message_tvb, packet->frame.subframe2 + 1) ^ (guint8)(scmUDID->data[OSS_FRAME_POS_ID]);;
+        if ( ( OSS_FRAME_ID_T(message_tvb, packet->frame.subframe1) ^ b_ID ) != 0 )
+            packet->scm_udid_valid = FALSE;
+
+        /* The IDs do not match, but the SCM UDID could still be ok. This happens, if this packet
+         * utilizes the 40 bit counter. Therefore we reduce the check here only to the feature
+         * flags, but only if the package is a SPDO Data Only (because everything else uses 16 bit. */
+        if ( packet->msg_id == OPENSAFETY_MSG_SPDO_DATA_ONLY )
+        {
+            spdoFlags = ( tvb_get_guint8(message_tvb, packet->frame.subframe2 + 4 ) ^ scmUDID->data[4] ) ;
+            spdoFlags = ( spdoFlags >> 2 ) & OPENSAFETY_SPDO_FEATURE_FLAGS;
+            if ( ( spdoFlags & OPENSAFETY_SPDO_FEAT_40BIT_USED ) == OPENSAFETY_SPDO_FEAT_40BIT_USED )
+                packet->scm_udid_valid = TRUE;
+        }
+
+        if ( packet->scm_udid_valid == TRUE )
+            memcpy(packet->scm_udid, scmUDID->data, 6);
+    }
+
+    udidLen = scmUDID->len;
+
+    g_byte_array_free( scmUDID, TRUE);
+
+    return udidLen;
+}
+
 static gboolean
 dissect_opensafety_message(opensafety_packet_info *packet,
                            tvbuff_t *message_tvb, packet_info *pinfo,
                            proto_item *opensafety_item, proto_tree *opensafety_tree,
                            guint8 u_nrInPackage, guint8 previous_msg_id)
 {
-    guint8      b_ID, ctr, spdoFlags;
-    GByteArray *scmUDID = NULL;
+    guint8      ctr, udidLen;
     proto_item *item;
     gboolean    messageTypeUnknown, crcValid;
 
@@ -1813,35 +1852,9 @@ dissect_opensafety_message(opensafety_packet_info *packet,
     }
     else
     {
-        packet->scm_udid_valid = FALSE;
-        scmUDID = g_byte_array_new();
+        udidLen = check_scmudid_validity(packet, message_tvb);
 
-        if ( hex_str_to_bytes((local_scm_udid != NULL ? local_scm_udid : global_scm_udid), scmUDID, TRUE) && scmUDID->len == 6 )
-        {
-            packet->scm_udid_valid = TRUE;
-
-            /* Now confirm, that the xor operation was successful. The ID fields of both frames have to be the same */
-            b_ID = tvb_get_guint8(message_tvb, packet->frame.subframe2 + 1) ^ (guint8)(scmUDID->data[OSS_FRAME_POS_ID]);;
-            if ( ( OSS_FRAME_ID_T(message_tvb, packet->frame.subframe1) ^ b_ID ) != 0 )
-                packet->scm_udid_valid = FALSE;
-
-            /* The IDs do not match, but the SCM UDID could still be ok. This happens, if this packet
-             * utilizes the 40 bit counter. Therefore we reduce the check here only to the feature
-             * flags, but only if the package is a SPDO Data Only (because everything else uses 16 bit. */
-            if ( packet->msg_id == OPENSAFETY_MSG_SPDO_DATA_ONLY )
-            {
-                spdoFlags = ( tvb_get_guint8(message_tvb, packet->frame.subframe2 + 4 ) ^ scmUDID->data[4] ) ;
-                spdoFlags = ( spdoFlags >> 2 ) & OPENSAFETY_SPDO_FEATURE_FLAGS;
-                if ( ( spdoFlags & OPENSAFETY_SPDO_FEAT_40BIT_USED ) == OPENSAFETY_SPDO_FEAT_40BIT_USED )
-                    packet->scm_udid_valid = TRUE;
-            }
-
-            if ( packet->scm_udid_valid == TRUE )
-                memcpy(packet->scm_udid, scmUDID->data, 6);
-
-        }
-
-        if ( strlen( (local_scm_udid != NULL ? local_scm_udid : global_scm_udid) ) > 0  && scmUDID->len == 6 )
+        if ( strlen( (local_scm_udid != NULL ? local_scm_udid : global_scm_udid) ) > 0  && udidLen == 6 )
         {
             if ( local_scm_udid != NULL )
             {
@@ -1855,11 +1868,9 @@ dissect_opensafety_message(opensafety_packet_info *packet,
         }
 
         item = proto_tree_add_boolean(opensafety_tree, hf_oss_scm_udid_valid, message_tvb, 0, 0, packet->scm_udid_valid);
-        if ( scmUDID->len != 6 )
+        if ( udidLen != 6 )
             expert_add_info(pinfo, item, &ei_scmudid_invalid_preference );
         PROTO_ITEM_SET_GENERATED(item);
-
-        g_byte_array_free( scmUDID, TRUE);
 
         if ( packet->msg_type == OPENSAFETY_SSDO_MESSAGE_TYPE || packet->msg_type == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE )
         {
@@ -2146,6 +2157,14 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
                 if ( nodeAddress == 0 || nodeAddress > 1024 ) {
                     markAsMalformed = TRUE;
                 }
+
+                /* SPDO Reserved is invalid, therefore all packages using this ID can be discarded */
+                if ( OSS_FRAME_ID_T(message_tvb, byte_offset + frameStart1) == OPENSAFETY_MSG_SPDO_RESERVED )
+                {
+                    frameOffset += 2;
+                    found--;
+                    continue;
+                }
             }
 
             /* From here on, the package should be correct. Even if it is not correct, it will be dissected
@@ -2162,6 +2181,27 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
 
             /* Adding second data source */
             next_tvb = tvb_new_subset ( message_tvb, frameOffset, frameLength, reported_len );
+
+            if ( type == OPENSAFETY_SPDO_MESSAGE_TYPE )
+            {
+                /* For 16-bit counter frames, this is a check, which will prevent false-positives, where
+                 * only the first frame matches, but the second one does not survive a scm udid sanity check */
+                if ( OSS_FRAME_ID_T(message_tvb, byte_offset + frameStart1) != OPENSAFETY_MSG_SPDO_DATA_ONLY )
+                {
+                    if ( check_scmudid_validity(packet, next_tvb) == 6 )
+                    {
+                        /* If the second ID is zero, this actually could be the case, but only, if id is sdn. Even
+                         * if no SCM UDID is known, this will only work with scm_udid_valid = true */
+                        if ( ! packet->scm_udid_valid )
+                        {
+                            frameOffset += 2;
+                            found--;
+                            continue;
+                        }
+                    }
+                }
+            }
+
             /* Adding a visual aid to the dissector tree */
             add_new_data_source(pinfo, next_tvb, "openSAFETY Frame");
 
