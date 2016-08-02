@@ -29,6 +29,8 @@
 #include <epan/expert.h>
 #include <wiretap/pcap-encap.h>
 
+#include "packet-btle.h"
+
 /* Size of various UART Packet header fields */
 #define BEEF_LENGTH_BYTES                   (2)
 #define HEADER_LEN_LENGTH_BYTES             (1)
@@ -126,7 +128,7 @@ static gint ett_nordic_ble = -1;
 static gint ett_flags = -1;
 
 /* Declared static as they need to be transferred between mode handlers and main dissector */
-static gboolean g_bad_length, g_bad_mic;
+static gboolean g_bad_length;
 
 static int hf_nordic_ble_board_id = -1;
 static int hf_nordic_ble_header_length = -1;
@@ -347,20 +349,20 @@ dissect_id(tvbuff_t *tvb, proto_tree *tree)
 }
 #endif
 
-static gboolean
-dissect_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, btle_context_t *context)
 {
     guint8 flags;
-    gboolean crcok, dir, encrypted, micok;
+    gboolean dir, encrypted;
     /*gboolean bad_length = FALSE;*/
-    gboolean bad_mic = FALSE;
     proto_item /**flags_item,*/ *item;
 
+    context->crc_checked_at_capture = 1;
     flags = tvb_get_guint8(tvb, get_flags_index());
-    crcok = !!(flags & 1);
+    context->crc_valid_at_capture = !!(flags & 1);
     dir = !!(flags & 2);
     encrypted = !!(flags & 4);
-    micok = !!(flags & 8);
+    context->mic_valid_at_capture = !!(flags & 8);
 
     if (dir) {
         set_address(&pinfo->src, AT_STRINGZ, 7, "Master");
@@ -376,21 +378,20 @@ dissect_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*flags_tree = proto_item_add_subtree(flags_item, ett_flags); */
     if (encrypted) /* if encrypted, add MIC status */
     {
+        context->mic_checked_at_capture = 1;
         item = proto_tree_add_bits_item(tree, hf_nordic_ble_micok, tvb, get_flags_index() * 8 + 4, 1, ENC_LITTLE_ENDIAN);
-        if (!micok) {
+        if (!context->mic_valid_at_capture) {
             /* MIC is bad */
             expert_add_info(pinfo, item, &ei_nordic_ble_bad_mic);
-            bad_mic = TRUE;
         }
     }
     proto_tree_add_bits_item(tree, hf_nordic_ble_encrypted, tvb, get_flags_index() * 8 + 5, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_bits_item(tree, hf_nordic_ble_direction, tvb, get_flags_index() * 8 + 6, 1, ENC_LITTLE_ENDIAN);
     item = proto_tree_add_bits_item(tree, hf_nordic_ble_crcok, tvb, get_flags_index() * 8 + 7, 1, ENC_LITTLE_ENDIAN);
-    if (!crcok) {
+    if (!context->crc_valid_at_capture) {
         /* CRC is bad */
         expert_add_info(pinfo, item, &ei_nordic_ble_bad_crc);
     }
-    return bad_mic;
 }
 
 static void
@@ -474,7 +475,7 @@ is_0_9_7_packet(tvbuff_t *tvb)
 
 
 static void
-dissect_header_0_9_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_header_0_9_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, btle_context_t *context)
 {
     proto_item *ti;
     proto_tree *nordic_ble_tree;/*, *flags_tree;*/
@@ -490,7 +491,7 @@ dissect_header_0_9_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     /*** PROTOCOL TREE ***/
 
     dissect_packet_counter(tvb, nordic_ble_tree);
-    g_bad_mic = dissect_flags(tvb, pinfo, nordic_ble_tree);
+    dissect_flags(tvb, pinfo, nordic_ble_tree, context);
     dissect_channel(tvb, nordic_ble_tree);
     dissect_rssi(tvb, nordic_ble_tree);
     dissect_event_counter(tvb, nordic_ble_tree);
@@ -500,7 +501,7 @@ dissect_header_0_9_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 }
 
 static void
-dissect_header_1_0_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_header_1_0_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, btle_context_t *context)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
@@ -520,7 +521,7 @@ dissect_header_1_0_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     /*dissect_id(tvb, nordic_ble_tree); This does not do anything ???*/
     /*dissect_ble_hlen(tvb, nordic_ble_tree); This does not do anything ???*/
 
-    g_bad_mic = dissect_flags(tvb, pinfo, nordic_ble_tree);
+    dissect_flags(tvb, pinfo, nordic_ble_tree, context);
 
     dissect_channel(tvb, nordic_ble_tree);
     dissect_rssi(tvb, nordic_ble_tree);
@@ -537,32 +538,34 @@ dissect_header_1_0_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 /* Main entry point for sniffer, any version */
 static int
-dissect_nordic_ble(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_nordic_ble(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    tvbuff_t *payload_tvb;
+    tvbuff_t          *payload_tvb;
+    btle_context_t    *context;
 
+
+    context = wmem_new0(wmem_packet_scope(), btle_context_t);
     g_bad_length = FALSE;
-    g_bad_mic = FALSE;
 
 
     legacy_mode = is_0_9_7_packet(tvb);
 
     if (legacy_mode) {
-        dissect_header_0_9_7(tvb, pinfo, tree, data);
+        dissect_header_0_9_7(tvb, pinfo, tree, context);
         payload_tvb = tvb_new_subset(tvb, _0_9_7_UART_HEADER_LENGTH, -1, tvb_captured_length(tvb) - _0_9_7_UART_HEADER_LENGTH);
     }
     else {
-        dissect_header_1_0_0(tvb, pinfo, tree, data);
+        dissect_header_1_0_0(tvb, pinfo, tree, context);
         /* have to take BOARD_ID into account, as the stripped version is local to dissect_1_0_0 */
         payload_tvb = tvb_new_subset(tvb, UART_HEADER_LENGTH + BOARD_ID_LENGTH, -1,
             tvb_captured_length(tvb) - UART_HEADER_LENGTH - BOARD_ID_LENGTH);
     }
 
     if (!g_bad_length) {
-        call_dissector(btle_dissector_handle, payload_tvb, pinfo, tree);
+        call_dissector_with_data(btle_dissector_handle, payload_tvb, pinfo, tree, context);
     }
 
-    if (g_bad_mic) {
+    if ((context->mic_checked_at_capture) && (!context->mic_valid_at_capture)) {
         col_add_str(pinfo->cinfo, COL_INFO, "Encrypted packet decrypted incorrectly (bad MIC)");
     }
 

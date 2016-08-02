@@ -40,6 +40,7 @@
 
 static int proto_btle = -1;
 static int proto_btle_rf = -1;
+static int proto_nordic_ble = -1;
 
 static int hf_access_address = -1;
 static int hf_crc = -1;
@@ -343,7 +344,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (list_data) {
         previous_proto = GPOINTER_TO_INT(wmem_list_frame_data(list_data));
 
-        if (previous_proto == proto_btle_rf) {
+        if ((previous_proto == proto_btle_rf)||(previous_proto == proto_nordic_ble)) {
             btle_context = (const btle_context_t *) data;
             bluetooth_data = btle_context->previous_protocol_data.bluetooth_data;
         } else if (previous_proto == proto_bluetooth) {
@@ -1418,6 +1419,7 @@ proto_reg_handoff_btle(void)
     btl2cap_handle = find_dissector_add_dependency("btl2cap", proto_btle);
 
     proto_btle_rf = proto_get_id_by_filter_name("btle_rf");
+    proto_nordic_ble = proto_get_id_by_filter_name("nordic_ble");
 
     dissector_add_uint("bluetooth.encap", WTAP_ENCAP_BLUETOOTH_LE_LL, btle_handle);
 }
