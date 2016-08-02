@@ -52,14 +52,19 @@ typedef enum {
     E_AA_ILLEGAL
 } btle_AA_category_t;
 
+#define BTLE_DIR_UNKNOWN 0
+#define BTLE_DIR_MASTER_SLAVE 1
+#define BTLE_DIR_SLAVE_MASTER 2
+
 typedef struct {
     btle_AA_category_t aa_category;
     btle_CONNECT_REQ_t connection_info;
-    gint connection_info_valid: 1;
-    gint crc_checked_at_capture: 1;
-    gint crc_valid_at_capture: 1;
-    gint mic_checked_at_capture: 1;
-    gint mic_valid_at_capture: 1;
+    guint connection_info_valid: 1;
+    guint crc_checked_at_capture: 1;
+    guint crc_valid_at_capture: 1;
+    guint mic_checked_at_capture: 1;
+    guint mic_valid_at_capture: 1;
+    guint direction: 2; /* 0 Unknown, 1 Master -> Slave, 2 Slave -> Master */
 
     union {
         void              *data;

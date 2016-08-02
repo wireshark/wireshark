@@ -677,10 +677,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (wmem_tree) {
             connection_address = (connection_address_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
             if (connection_address) {
-                gchar  *str_addr;
+                gchar  *str_addr_src, *str_addr_dst;
+                gint tmp_dir = 0;
+                /* Holds "unknown" + access_address + NULL, which is the longest string*/
                 int     str_addr_len = 18 + 1;
 
-                str_addr = (gchar *) wmem_alloc(pinfo->pool, str_addr_len);
+                str_addr_src = (gchar *) wmem_alloc(pinfo->pool, str_addr_len);
+                str_addr_dst = (gchar *) wmem_alloc(pinfo->pool, str_addr_len);
 
                 sub_item = proto_tree_add_ether(btle_tree, hf_master_bd_addr, tvb, 0, 0, connection_address->master_bd_addr);
                 PROTO_ITEM_SET_GENERATED(sub_item);
@@ -688,13 +691,31 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 sub_item = proto_tree_add_ether(btle_tree, hf_slave_bd_addr, tvb, 0, 0, connection_address->slave_bd_addr);
                 PROTO_ITEM_SET_GENERATED(sub_item);
 
-                g_snprintf(str_addr, str_addr_len, "unknown_0x%08x", connection_address->access_address);
+                if (btle_context) {
+                    tmp_dir = btle_context->direction;
+                }
 
-                set_address(&pinfo->net_src, AT_STRINGZ, str_addr_len, str_addr);
+                switch (tmp_dir) {
+                case BTLE_DIR_MASTER_SLAVE:
+                    g_snprintf(str_addr_src, str_addr_len, "Master_0x%08x", connection_address->access_address);
+                    g_snprintf(str_addr_dst, str_addr_len, "Slave_0x%08x", connection_address->access_address);
+                    break;
+                case BTLE_DIR_SLAVE_MASTER:
+                    g_snprintf(str_addr_src, str_addr_len, "Slave_0x%08x", connection_address->access_address);
+                    g_snprintf(str_addr_dst, str_addr_len, "Master_0x%08x", connection_address->access_address);
+                    break;
+                default:
+                    /* BTLE_DIR_UNKNOWN */
+                    g_snprintf(str_addr_src, str_addr_len, "Unknown_0x%08x", connection_address->access_address);
+                    g_snprintf(str_addr_dst, str_addr_len, "Unknown_0x%08x", connection_address->access_address);
+                    break;
+                }
+
+                set_address(&pinfo->net_src, AT_STRINGZ, str_addr_len, str_addr_src);
                 copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
                 copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
-                set_address(&pinfo->net_dst, AT_STRINGZ, str_addr_len, str_addr);
+                set_address(&pinfo->net_dst, AT_STRINGZ, str_addr_len, str_addr_dst);
                 copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
                 copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 

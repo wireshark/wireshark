@@ -367,10 +367,12 @@ dissect_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, btle_context_
     if (dir) {
         set_address(&pinfo->src, AT_STRINGZ, 7, "Master");
         set_address(&pinfo->dst, AT_STRINGZ, 6, "Slave");
+        context->direction = BTLE_DIR_MASTER_SLAVE;
     }
     else {
         set_address(&pinfo->src, AT_STRINGZ, 6, "Slave");
         set_address(&pinfo->dst, AT_STRINGZ, 7, "Master");
+        context->direction = BTLE_DIR_SLAVE_MASTER;
     }
 
 
