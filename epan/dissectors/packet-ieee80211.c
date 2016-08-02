@@ -16393,12 +16393,6 @@ crc32_802_tvb_padded(tvbuff_t *tvb, guint hdr_len, guint hdr_size, guint len)
   c_crc = crc32_ccitt_tvb(tvb, hdr_len);
   c_crc = crc32_ccitt_tvb_offset_seed(tvb, hdr_size, len, ~c_crc);
 
-  /* Byte reverse. */
-  c_crc = ((unsigned char)(c_crc>>0)<<24) |
-    ((unsigned char)(c_crc>>8)<<16) |
-    ((unsigned char)(c_crc>>16)<<8) |
-    ((unsigned char)(c_crc>>24)<<0);
-
   return (c_crc);
 }
 
@@ -17527,13 +17521,13 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         reported_len -= 4;
         if (wlan_check_checksum)
         {
-          guint32 sent_fcs = tvb_get_ntohl(tvb, hdr_len + len);
+          guint32 sent_fcs = tvb_get_letohl(tvb, hdr_len + len);
           guint32 fcs;
 
           if (phdr->datapad)
             fcs = crc32_802_tvb_padded(tvb, ohdr_len, hdr_len, len);
           else
-            fcs = crc32_802_tvb(tvb, hdr_len + len);
+            fcs = crc32_ccitt_tvb(tvb, hdr_len + len);
           if (fcs != sent_fcs) {
             flag_str[8] = '.';
           }
