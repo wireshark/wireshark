@@ -72,15 +72,10 @@ enum {
 	CISCODUMP_PARSER_ERROR
 };
 
-#define verbose_print(...) { if (verbose) printf(__VA_ARGS__); }
-
-static gboolean verbose = TRUE;
-
 enum {
 	EXTCAP_BASE_OPTIONS_ENUM,
 	OPT_HELP,
 	OPT_VERSION,
-	OPT_VERBOSE,
 	OPT_REMOTE_HOST,
 	OPT_REMOTE_PORT,
 	OPT_REMOTE_USERNAME,
@@ -96,7 +91,6 @@ static struct option longopts[] = {
 	EXTCAP_BASE_OPTIONS,
 	{ "help", no_argument, NULL, OPT_HELP},
 	{ "version", no_argument, NULL, OPT_VERSION},
-	{ "verbose", optional_argument, NULL, OPT_VERBOSE},
 	SSH_BASE_OPTIONS,
 	{ 0, 0, 0, 0}
 };
@@ -140,7 +134,7 @@ static int read_output_bytes(ssh_channel channel, int bytes, char* outbuf)
 	bytes_read = 0;
 
 	while(ssh_channel_read_timeout(channel, &chr, 1, 0, 2000) > 0 && bytes_read < total) {
-		verbose_print("%c", chr);
+		g_debug("%c", chr);
 		if (chr == '^')
 			return EXIT_FAILURE;
 		if (outbuf)
@@ -176,7 +170,7 @@ static int wait_until_data(ssh_channel channel, const long unsigned count)
 
 	while (got < count && rounds--) {
 		if (ssh_channel_printf(channel, "show monitor capture buffer %s parameters\n", WIRESHARK_CAPTURE_BUFFER) == EXIT_FAILURE) {
-			errmsg_print("Can't write to channel");
+			g_warning("Can't write to channel");
 			return EXIT_FAILURE;
 		}
 		if (read_output_bytes(channel, SSH_READ_BLOCK_SIZE, output) == EXIT_FAILURE)
@@ -184,14 +178,14 @@ static int wait_until_data(ssh_channel channel, const long unsigned count)
 
 		output_ptr = g_strstr_len(output, strlen(output), "Packets");
 		if (!output_ptr) {
-			errmsg_print("Error in sscanf()");
+			g_warning("Error in sscanf()");
 			return EXIT_FAILURE;
 		} else {
 			if (sscanf(output_ptr, "Packets : %lu", &got) != 1)
 				return EXIT_FAILURE;
 		}
 	}
-	verbose_print("All packets got: dumping\n");
+	g_debug("All packets got: dumping");
 	return EXIT_SUCCESS;
 }
 
@@ -257,7 +251,7 @@ static void ssh_loop_read(ssh_channel channel, FILE* fp, const long unsigned cou
 
 	do {
 		if (ssh_channel_read_timeout(channel, &chr, 1, FALSE, SSH_READ_TIMEOUT) == SSH_ERROR) {
-			errmsg_print("Error reading from channel");
+			g_warning("Error reading from channel");
 			g_free(packet);
 			return;
 		}
@@ -273,7 +267,7 @@ static void ssh_loop_read(ssh_channel channel, FILE* fp, const long unsigned cou
 			if (status == CISCODUMP_PARSER_END_PACKET) {
 				/* dump the packet to the pcap file */
 				libpcap_write_packet(fp, curtime, (guint32)(curtime / 1000), packet_size, packet_size, packet, &bytes_written, &err);
-				verbose_print("Dumped packet %lu size: %u\n", packets, packet_size);
+				g_debug("Dumped packet %lu size: %u", packets, packet_size);
 				packet_size = 0;
 				status = CISCODUMP_PARSER_STARTING;
 				packets++;
@@ -310,14 +304,14 @@ static int check_ios_version(ssh_channel channel)
 			return FALSE;
 
 		if ((major > MINIMUM_IOS_MAJOR) || (major == MINIMUM_IOS_MAJOR && minor >= MINIMUM_IOS_MINOR)) {
-			verbose_print("Current IOS Version: %u.%u\n", major, minor);
+			g_debug("Current IOS Version: %u.%u", major, minor);
 			if (read_output_bytes(channel, -1, NULL) == EXIT_FAILURE)
 				return FALSE;
 			return TRUE;
 		}
 	}
 
-	errmsg_print("Invalid IOS version. Minimum version: 12.4, current: %u.%u", major, minor);
+	g_warning("Invalid IOS version. Minimum version: 12.4, current: %u.%u", major, minor);
 	return FALSE;
 }
 
@@ -369,7 +363,7 @@ static ssh_channel run_capture(ssh_session sshs, const char* iface, const char* 
 		chr = multiline_filter;
 		while((chr = g_strstr_len(chr, strlen(chr), ",")) != NULL) {
 			chr[0] = '\n';
-			verbose_print("Splitting filter into multiline\n");
+			g_debug("Splitting filter into multiline");
 		}
 		ret = ssh_channel_write(channel, multiline_filter, (uint32_t)strlen(multiline_filter));
 		g_free(multiline_filter);
@@ -415,7 +409,7 @@ static ssh_channel run_capture(ssh_session sshs, const char* iface, const char* 
 	return channel;
 error:
 	g_free(cmdline);
-	errmsg_print("Error running ssh remote command");
+	g_warning("Error running ssh remote command");
 	read_output_bytes(channel, -1, NULL);
 
 	ssh_channel_close(channel);
@@ -439,19 +433,19 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 		/* Open or create the output file */
 		fp = fopen(fifo, "w");
 		if (!fp) {
-			errmsg_print("Error creating output file: %s\n", g_strerror(errno));
+			g_warning("Error creating output file: %s", g_strerror(errno));
 			return EXIT_FAILURE;
 		}
 	}
 
 	sshs = create_ssh_connection(hostname, port, username, password, sshkey, sshkey_passphrase, &err_info);
 	if (!sshs) {
-		errmsg_print("Error creating connection: %s", err_info);
+		g_warning("Error creating connection: %s", err_info);
 		goto cleanup;
 	}
 
 	if (!libpcap_write_file_header(fp, 1, PCAP_SNAPLEN, FALSE, &bytes_written, &err)) {
-		errmsg_print("Can't write pcap file header");
+		g_warning("Can't write pcap file header");
 		goto cleanup;
 	}
 
@@ -460,8 +454,6 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 		ret = EXIT_FAILURE;
 		goto cleanup;
 	}
-
-	verbose_print("\n");
 
 	/* read from channel and write into fp */
 	ssh_loop_read(channel, fp, count);
@@ -473,7 +465,7 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 cleanup:
 	if (fp != stdout)
 		fclose(fp);
-	verbose_print("\n\n");
+
 	return ret;
 }
 
@@ -514,12 +506,12 @@ static int list_config(char *interface, unsigned int remote_port)
 	char* ipfilter;
 
 	if (!interface) {
-		g_fprintf(stderr, "ERROR: No interface specified.\n");
+		g_warning("No interface specified.");
 		return EXIT_FAILURE;
 	}
 
 	if (g_strcmp0(interface, CISCODUMP_EXTCAP_INTERFACE)) {
-		errmsg_print("ERROR: interface must be %s\n", CISCODUMP_EXTCAP_INTERFACE);
+		g_warning("interface must be %s", CISCODUMP_EXTCAP_INTERFACE);
 		return EXIT_FAILURE;
 	}
 
@@ -594,10 +586,8 @@ int main(int argc, char **argv)
 		goto end;
 	}
 
-	for (i = 0; i < argc; i++) {
-		verbose_print("%s ", argv[i]);
-	}
-	verbose_print("\n");
+	for (i = 0; i < argc; i++)
+		g_debug("%s ", argv[i]);
 
 	while ((result = getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
 
@@ -607,10 +597,6 @@ int main(int argc, char **argv)
 			help(argv[0]);
 			ret = EXIT_SUCCESS;
 			goto end;
-
-		case OPT_VERBOSE:
-			verbose = TRUE;
-			break;
 
 		case OPT_VERSION:
 			printf("%s.%s.%s\n", CISCODUMP_VERSION_MAJOR, CISCODUMP_VERSION_MINOR, CISCODUMP_VERSION_RELEASE);
@@ -624,7 +610,7 @@ int main(int argc, char **argv)
 		case OPT_REMOTE_PORT:
 			remote_port = (unsigned int)strtoul(optarg, NULL, 10);
 			if (remote_port > 65535 || remote_port == 0) {
-				printf("Invalid port: %s\n", optarg);
+				g_warning("Invalid port: %s", optarg);
 				goto end;
 			}
 			break;
@@ -667,19 +653,19 @@ int main(int argc, char **argv)
 
 		case ':':
 			/* missing option argument */
-			errmsg_print("Option '%s' requires an argument", argv[optind - 1]);
+			g_warning("Option '%s' requires an argument", argv[optind - 1]);
 			break;
 
 		default:
 			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg)) {
-				errmsg_print("Invalid option: %s", argv[optind - 1]);
+				g_warning("Invalid option: %s", argv[optind - 1]);
 				goto end;
 			}
 		}
 	}
 
 	if (optind != argc) {
-		errmsg_print("Unexpected extra option: %s", argv[optind]);
+		g_warning("Unexpected extra option: %s", argv[optind]);
 		goto end;
 	}
 
@@ -696,24 +682,23 @@ int main(int argc, char **argv)
 #ifdef _WIN32
 	result = WSAStartup(MAKEWORD(1,1), &wsaData);
 	if (result != 0) {
-		if (verbose)
-			errmsg_print("ERROR: WSAStartup failed with error: %d", result);
+		g_warning("ERROR: WSAStartup failed with error: %d", result);
 		goto end;
 	}
 #endif  /* _WIN32 */
 
 	if (extcap_conf->capture) {
 		if (!remote_host) {
-			errmsg_print("Missing parameter: --remote-host");
+			g_warning("Missing parameter: --remote-host");
 			goto end;
 		}
 
 		if (!remote_interface) {
-			errmsg_print("ERROR: No interface specified (--remote-interface)");
+			g_warning("ERROR: No interface specified (--remote-interface)");
 			goto end;
 		}
 		if (count == 0) {
-			errmsg_print("ERROR: count of packets must be specified (--remote-count)");
+			g_warning("ERROR: count of packets must be specified (--remote-count)");
 			goto end;
 		}
 
@@ -721,7 +706,7 @@ int main(int argc, char **argv)
 			remote_password, sshkey, sshkey_passphrase, remote_interface,
 			remote_filter, count, extcap_conf->fifo);
 	} else {
-		verbose_print("You should not come here... maybe some parameter missing?\n");
+		g_debug("You should not come here... maybe some parameter missing?");
 		ret = EXIT_FAILURE;
 	}
 

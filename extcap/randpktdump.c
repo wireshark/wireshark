@@ -33,15 +33,10 @@
 #define RANDPKTDUMP_VERSION_MINOR "1"
 #define RANDPKTDUMP_VERSION_RELEASE "0"
 
-#define verbose_print(...) { if (verbose) printf(__VA_ARGS__); }
-
-static gboolean verbose = TRUE;
-
 enum {
 	EXTCAP_BASE_OPTIONS_ENUM,
 	OPT_HELP,
 	OPT_VERSION,
-	OPT_VERBOSE,
 	OPT_MAXBYTES,
 	OPT_COUNT,
 	OPT_RANDOM_TYPE,
@@ -53,7 +48,6 @@ static struct option longopts[] = {
 	EXTCAP_BASE_OPTIONS,
 	{ "help",					no_argument,		NULL, OPT_HELP},
 	{ "version",				no_argument,		NULL, OPT_VERSION},
-	{ "verbose",				optional_argument,	NULL, OPT_VERBOSE},
 	{ "maxbytes",				required_argument,	NULL, OPT_MAXBYTES},
 	{ "count",					required_argument,	NULL, OPT_COUNT},
 	{ "random-type",			required_argument, 	NULL, OPT_RANDOM_TYPE},
@@ -112,12 +106,12 @@ static int list_config(char *interface)
 	char** longname_list;
 
 	if (!interface) {
-		errmsg_print("ERROR: No interface specified.");
+		g_warning("No interface specified.");
 		return EXIT_FAILURE;
 	}
 
 	if (g_strcmp0(interface, RANDPKT_EXTCAP_INTERFACE)) {
-		errmsg_print("ERROR: interface must be %s", RANDPKT_EXTCAP_INTERFACE);
+		g_warning("Interface must be %s", RANDPKT_EXTCAP_INTERFACE);
 		return EXIT_FAILURE;
 	}
 
@@ -183,10 +177,8 @@ int main(int argc, char *argv[])
 	attach_parent_console();
 #endif  /* _WIN32 */
 
-	for (i = 0; i < argc; i++) {
-		verbose_print("%s ", argv[i]);
-	}
-	verbose_print("\n");
+	for (i = 0; i < argc; i++)
+		g_debug("%s ", argv[i]);
 
 	while ((result = getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
 		switch (result) {
@@ -194,10 +186,6 @@ int main(int argc, char *argv[])
 			printf("%s.%s.%s\n", RANDPKTDUMP_VERSION_MAJOR, RANDPKTDUMP_VERSION_MINOR, RANDPKTDUMP_VERSION_RELEASE);
 			ret = EXIT_SUCCESS;
 			goto end;
-
-		case OPT_VERBOSE:
-			verbose = TRUE;
-			break;
 
 		case OPT_HELP:
 			help(argv[0]);
@@ -207,7 +195,7 @@ int main(int argc, char *argv[])
 		case OPT_MAXBYTES:
 			maxbytes = atoi(optarg);
 			if (maxbytes > MAXBYTES_LIMIT) {
-				errmsg_print("randpktdump: Max bytes is %d", MAXBYTES_LIMIT);
+				g_warning("randpktdump: Max bytes is %d", MAXBYTES_LIMIT);
 				goto end;
 			}
 			break;
@@ -235,21 +223,21 @@ int main(int argc, char *argv[])
 
 		case ':':
 			/* missing option argument */
-			errmsg_print("Option '%s' requires an argument", argv[optind - 1]);
+			g_warning("Option '%s' requires an argument", argv[optind - 1]);
 			break;
 
 		default:
 			/* Handle extcap specific options */
 			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg))
 			{
-				errmsg_print("Invalid option: %s", argv[optind - 1]);
+				g_warning("Invalid option: %s", argv[optind - 1]);
 				goto end;
 			}
 		}
 	}
 
 	if (optind != argc) {
-		errmsg_print("Invalid option: %s", argv[optind]);
+		g_warning("Invalid option: %s", argv[optind]);
 		goto end;
 	}
 
@@ -265,7 +253,7 @@ int main(int argc, char *argv[])
 
 	/* Some sanity checks */
 	if ((random_type) && (all_random)) {
-		errmsg_print("You can specify only one between: --random-type, --all-random");
+		g_warning("You can specify only one between: --random-type, --all-random");
 		goto end;
 	}
 
@@ -278,8 +266,7 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
 	result = WSAStartup(MAKEWORD(1,1), &wsaData);
 	if (result != 0) {
-		if (verbose)
-			errmsg_print("ERROR: WSAStartup failed with error: %d", result);
+		g_warning("ERROR: WSAStartup failed with error: %d", result);
 		goto end;
 	}
 #endif  /* _WIN32 */
@@ -287,7 +274,7 @@ int main(int argc, char *argv[])
 	if (extcap_conf->capture) {
 
 		if (g_strcmp0(extcap_conf->interface, RANDPKT_EXTCAP_INTERFACE)) {
-			errmsg_print("ERROR: invalid interface");
+			g_warning("ERROR: invalid interface");
 			goto end;
 		}
 
@@ -298,7 +285,7 @@ int main(int argc, char *argv[])
 			if (!example)
 				goto end;
 
-			verbose_print("Generating packets: %s\n", example->abbrev);
+			g_debug("Generating packets: %s", example->abbrev);
 
 			randpkt_example_init(example, extcap_conf->fifo, maxbytes);
 			randpkt_loop(example, count);

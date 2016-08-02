@@ -87,13 +87,13 @@ void attach_parent_console()
     /* Console attach succeeded */
     if (outRedirected == FALSE) {
         if (!freopen("CONOUT$", "w", stdout)) {
-            errmsg_print("WARNING: Cannot redirect to stdout.");
+            g_warning("Cannot redirect to stdout.");
         }
     }
 
     if (errRedirected == FALSE) {
         if (!freopen("CONOUT$", "w", stderr)) {
-            errmsg_print("WARNING: Cannot redirect to strerr.");
+            g_warning("Cannot redirect to strerr.");
         }
     }
 }
@@ -139,6 +139,13 @@ void extcap_base_set_util_info(extcap_parameters * extcap, const char * major, c
 uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char * optargument )
 {
     switch (result) {
+        case EXTCAP_OPT_DEBUG:
+#ifdef _WIN32
+            _putenv_s("G_MESSAGES_DEBUG", "all");
+#else
+            setenv("G_MESSAGES_DEBUG", "all", 1);
+#endif
+            break;
         case EXTCAP_OPT_LIST_INTERFACES:
             extcap->do_list_interfaces = 1;
             break;
@@ -227,7 +234,7 @@ uint8_t extcap_base_handle_interface(extcap_parameters * extcap)
     /* A fifo must be provided for capture */
     if (extcap->capture && (extcap->fifo == NULL || strlen(extcap->fifo) <= 0)) {
         extcap->capture = 0;
-        errmsg_print("Extcap Error: No FIFO pipe provided");
+        g_error("Extcap Error: No FIFO pipe provided");
         return 0;
     }
 

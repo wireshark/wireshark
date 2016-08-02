@@ -79,25 +79,25 @@
 	EXTCAP_OPT_CONFIG, \
 	EXTCAP_OPT_CAPTURE, \
 	EXTCAP_OPT_CAPTURE_FILTER, \
-	EXTCAP_OPT_FIFO \
+	EXTCAP_OPT_FIFO, \
+	EXTCAP_OPT_DEBUG
 
 
 #define EXTCAP_BASE_OPTIONS \
-	{ "extcap-interfaces",		no_argument,		NULL, EXTCAP_OPT_LIST_INTERFACES}, \
-	{ "extcap-version", 		optional_argument,	NULL, EXTCAP_OPT_VERSION}, \
-	{ "extcap-dlts",		no_argument,		NULL, EXTCAP_OPT_LIST_DLTS}, \
-	{ "extcap-interface",		required_argument,	NULL, EXTCAP_OPT_INTERFACE}, \
-	{ "extcap-config",		no_argument,		NULL, EXTCAP_OPT_CONFIG}, \
-	{ "capture",			no_argument,		NULL, EXTCAP_OPT_CAPTURE}, \
-	{ "extcap-capture-filter",	required_argument,	NULL, EXTCAP_OPT_CAPTURE_FILTER}, \
-	{ "fifo",			required_argument,	NULL, EXTCAP_OPT_FIFO} \
+	{ "debug", optional_argument, NULL, EXTCAP_OPT_DEBUG}, \
+	{ "extcap-interfaces", no_argument, NULL, EXTCAP_OPT_LIST_INTERFACES}, \
+	{ "extcap-version", optional_argument, NULL, EXTCAP_OPT_VERSION}, \
+	{ "extcap-dlts", no_argument, NULL, EXTCAP_OPT_LIST_DLTS}, \
+	{ "extcap-interface", required_argument, NULL, EXTCAP_OPT_INTERFACE}, \
+	{ "extcap-config", no_argument, NULL, EXTCAP_OPT_CONFIG}, \
+	{ "capture", no_argument, NULL, EXTCAP_OPT_CAPTURE}, \
+	{ "extcap-capture-filter", required_argument,	NULL, EXTCAP_OPT_CAPTURE_FILTER}, \
+	{ "fifo", required_argument, NULL, EXTCAP_OPT_FIFO} \
 
 #if defined(_WIN32)
 	BOOLEAN IsHandleRedirected(DWORD handle);
 	void attach_parent_console();
 #endif
-
-#define errmsg_print(...) { fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); }
 
 typedef struct _extcap_parameters
 {

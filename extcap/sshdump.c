@@ -50,15 +50,10 @@
 
 #define DEFAULT_CAPTURE_BIN "dumpcap"
 
-#define verbose_print(...) { if (verbose) printf(__VA_ARGS__); }
-
-static gboolean verbose = FALSE;
-
 enum {
 	EXTCAP_BASE_OPTIONS_ENUM,
 	OPT_HELP,
 	OPT_VERSION,
-	OPT_VERBOSE,
 	OPT_REMOTE_HOST,
 	OPT_REMOTE_PORT,
 	OPT_REMOTE_USERNAME,
@@ -75,7 +70,6 @@ static struct option longopts[] = {
 	EXTCAP_BASE_OPTIONS,
 	{ "help", no_argument, NULL, OPT_HELP},
 	{ "version", no_argument, NULL, OPT_VERSION},
-	{ "verbose", optional_argument, NULL, OPT_VERBOSE},
 	SSH_BASE_OPTIONS,
 	{ "remote-capture-bin", required_argument, NULL, OPT_REMOTE_CAPTURE_BIN},
 	{ 0, 0, 0, 0}
@@ -92,7 +86,7 @@ static void ssh_loop_read(ssh_channel channel, int fd)
 	do {
 		nbytes = ssh_channel_read(channel, buffer, SSH_READ_BLOCK_SIZE, 0);
 		if (ws_write(fd, buffer, nbytes) != nbytes) {
-			errmsg_print("ERROR reading: %s", g_strerror(errno));
+			g_warning("ERROR reading: %s", g_strerror(errno));
 			return;
 		}
 	} while(nbytes > 0);
@@ -159,7 +153,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, co
 	cmdline = g_strdup_printf("%s -i %s -P -w - -f %s %s", quoted_bin, quoted_iface, quoted_filter,
 		count_str ? count_str : "");
 
-	verbose_print("Running: %s\n", cmdline);
+	g_debug("Running: %s", cmdline);
 	if (ssh_channel_request_exec(channel, cmdline) != SSH_OK) {
 		ssh_channel_close(channel);
 		ssh_channel_free(channel);
@@ -193,7 +187,7 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 		if (fd == -1) {
 			fd = ws_open(fifo, O_WRONLY | O_CREAT, 0640);
 			if (fd == -1) {
-				errmsg_print("Error creating output file: %s", g_strerror(errno));
+				g_warning("Error creating output file: %s", g_strerror(errno));
 				return EXIT_FAILURE;
 			}
 		}
@@ -202,7 +196,7 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 	sshs = create_ssh_connection(hostname, port, username, password, sshkey, sshkey_passphrase, &err_info);
 
 	if (!sshs) {
-		errmsg_print("Error creating connection: %s", err_info);
+		g_warning("Error creating connection: %s", err_info);
 		goto cleanup;
 	}
 
@@ -216,7 +210,7 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 	ret = EXIT_SUCCESS;
 cleanup:
 	if (err_info)
-		errmsg_print("%s", err_info);
+		g_warning("%s", err_info);
 	g_free(err_info);
 
 	/* clean up and exit */
@@ -284,12 +278,12 @@ static int list_config(char *interface, unsigned int remote_port)
 	char* ipfilter;
 
 	if (!interface) {
-		errmsg_print("ERROR: No interface specified.");
+		g_warning("ERROR: No interface specified.");
 		return EXIT_FAILURE;
 	}
 
 	if (g_strcmp0(interface, SSH_EXTCAP_INTERFACE)) {
-		errmsg_print("ERROR: interface must be %s", SSH_EXTCAP_INTERFACE);
+		g_warning("ERROR: interface must be %s", SSH_EXTCAP_INTERFACE);
 		return EXIT_FAILURE;
 	}
 
@@ -382,11 +376,6 @@ int main(int argc, char **argv)
 		goto end;
 	}
 
-	for (i = 0; i < argc; i++) {
-		verbose_print("%s ", argv[i]);
-	}
-	verbose_print("\n");
-
 	while ((result = getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
 
 		switch (result) {
@@ -395,10 +384,6 @@ int main(int argc, char **argv)
 			help(argv[0]);
 			ret = EXIT_SUCCESS;
 			goto end;
-
-		case OPT_VERBOSE:
-			verbose = TRUE;
-			break;
 
 		case OPT_VERSION:
 			printf("%s.%s.%s\n", SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR, SSHDUMP_VERSION_RELEASE);
@@ -413,7 +398,7 @@ int main(int argc, char **argv)
 		case OPT_REMOTE_PORT:
 			remote_port = (unsigned int)strtoul(optarg, NULL, 10);
 			if (remote_port > 65535 || remote_port == 0) {
-				errmsg_print("Invalid port: %s", optarg);
+				g_warning("Invalid port: %s", optarg);
 				goto end;
 			}
 			break;
@@ -461,19 +446,22 @@ int main(int argc, char **argv)
 
 		case ':':
 			/* missing option argument */
-			errmsg_print("Option '%s' requires an argument", argv[optind - 1]);
+			g_warning("Option '%s' requires an argument", argv[optind - 1]);
 			break;
 
 		default:
 			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg)) {
-				errmsg_print("Invalid option: %s", argv[optind - 1]);
+				g_warning("Invalid option: %s", argv[optind - 1]);
 				goto end;
 			}
 		}
 	}
 
+	for (i = 0; i < argc; i++)
+		g_debug("%s", argv[i]);
+
 	if (optind != argc) {
-		errmsg_print("Unexpected extra option: %s", argv[optind]);
+		g_warning("Unexpected extra option: %s", argv[optind]);
 		goto end;
 	}
 
@@ -490,8 +478,7 @@ int main(int argc, char **argv)
 #ifdef _WIN32
 	result = WSAStartup(MAKEWORD(1,1), &wsaData);
 	if (result != 0) {
-		if (verbose)
-			errmsg_print("ERROR: WSAStartup failed with error: %d", result);
+		g_warning("ERROR: WSAStartup failed with error: %d", result);
 		goto end;
 	}
 #endif  /* _WIN32 */
@@ -500,7 +487,7 @@ int main(int argc, char **argv)
 		char* filter;
 
 		if (!remote_host) {
-			errmsg_print("Missing parameter: --remote-host");
+			g_warning("Missing parameter: --remote-host");
 			goto end;
 		}
 		filter = concat_filters(extcap_conf->capture_filter, remote_filter);
@@ -509,7 +496,7 @@ int main(int argc, char **argv)
 			filter, remote_capture_bin, count, extcap_conf->fifo);
 		g_free(filter);
 	} else {
-		verbose_print("You should not come here... maybe some parameter missing?\n");
+		g_debug("You should not come here... maybe some parameter missing?");
 		ret = EXIT_FAILURE;
 	}
 
