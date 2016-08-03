@@ -127,6 +127,9 @@ void extcap_base_register_interface_ext(extcap_parameters * extcap,
 void extcap_base_set_util_info(extcap_parameters * extcap, const char * major, const char * minor, const char * release, const char * helppage)
 {
     g_assert(major);
+    if (!minor)
+        g_assert(!release);
+
     extcap->version = g_strdup_printf("%s%s%s%s%s",
         major,
         minor ? "." : "",
