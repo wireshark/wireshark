@@ -121,7 +121,7 @@ Apache Cassandra - CQL version 3.0
 Real Time Location System (RTLS)
 Network-Based IP Flow Mobility (NBIFOM)
 IEEE 802.1BR E-Tag
-
+Encrypted UDP based FTP with multicast
 --sort-and-group--
 
 === Updated Protocol Support
