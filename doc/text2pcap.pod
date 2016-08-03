@@ -51,6 +51,9 @@ Here is a sample dump that B<text2pcap> can recognize:
     000030 57 6f 72 6c 64 21
     000036
 
+Note the last byte must either be followed by the expected next offset value
+as in the example above or a space or a line-end character(s).
+
 There is no limit on the width or number of bytes per line. Also the
 text dump at the end of the line is ignored. Bytes/hex numbers can be
 uppercase or lowercase. Any text before the offset is ignored,
