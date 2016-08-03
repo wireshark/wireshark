@@ -156,6 +156,10 @@ private:
 #endif
 
     void storeCustomColorsInRecent();
+#ifdef _WIN32
+    unsigned int fileVersion(QString file_path);
+    void checkForDbar();
+#endif
 
 protected:
     bool event(QEvent *event);
