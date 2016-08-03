@@ -3866,13 +3866,17 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, char** err) {
 
         for (j=0; j<gnutls_pkcs12_bag_get_count(bag); j++) {
 
-            bag_type = gnutls_pkcs12_bag_get_type(bag, j);
+            ret = gnutls_pkcs12_bag_get_type(bag, j);
+            if (ret < 0) goto done;
+            bag_type = (gnutls_pkcs12_bag_type_t)ret;
             if (bag_type >= GNUTLS_BAG_UNKNOWN) goto done;
             ssl_debug_printf( "Bag %d/%d: %s\n", i, j, BAGTYPE(bag_type));
             if (bag_type == GNUTLS_BAG_ENCRYPTED) {
                 ret = gnutls_pkcs12_bag_decrypt(bag, cert_passwd);
                 if (ret == 0) {
-                    bag_type = gnutls_pkcs12_bag_get_type(bag, j);
+                    ret = gnutls_pkcs12_bag_get_type(bag, j);
+                    if (ret < 0) goto done;
+                    bag_type = (gnutls_pkcs12_bag_type_t)ret;
                     if (bag_type >= GNUTLS_BAG_UNKNOWN) goto done;
                     ssl_debug_printf( "Bag %d/%d decrypted: %s\n", i, j, BAGTYPE(bag_type));
                 }
