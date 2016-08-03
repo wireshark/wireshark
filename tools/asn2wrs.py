@@ -7964,7 +7964,8 @@ def eth_main():
     if ectx.dbg('y'): yd = 1
     if ectx.dbg('p'): pd = 2
     lexer = lex.lex(debug=ld)
-    yacc.yacc(method='LALR', debug=yd)
+    parser = yacc.yacc(method='LALR', debug=yd)
+    parser.defaulted_states = {}
     g_conform = ectx.conform
     ast = []
     for fn in args:
