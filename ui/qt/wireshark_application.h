@@ -136,6 +136,10 @@ private:
     QList<AppSignal> app_signals_;
     int active_captures_;
     void storeCustomColorsInRecent();
+#ifdef _WIN32
+    unsigned int fileVersion(QString file_path);
+    void checkForDbar();
+#endif
 
 protected:
     bool event(QEvent *event);

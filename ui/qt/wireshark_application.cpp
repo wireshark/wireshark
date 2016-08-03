@@ -72,6 +72,8 @@
 #ifdef _WIN32
 #  include "ui/win32/console_win32.h"
 #  include "wsutil/file_util.h"
+#  include <QMessageBox>
+#  include <QSettings>
 #endif /* _WIN32 */
 
 #include <QAction>
@@ -447,6 +449,124 @@ void WiresharkApplication::storeCustomColorsInRecent()
     }
 }
 
+#ifdef _WIN32
+// Dell Backup and Recovery is awful and terrible.
+// https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036
+// https://bugreports.qt.io/browse/QTBUG-41416
+// http://en.community.dell.com/support-forums/software-os/f/3526/t/19634253
+// http://stackoverflow.com/a/33697140/82195
+//
+// According to https://www.portraitprofessional.com/support/?qid=79 , which
+// points to http://cloudfront.portraitprofessional.com/Tools/unregister_dell_backup.cmd
+// DBAR's shell extension DLLs are named DBROverlayIconBackuped.dll,
+// DBROverlayIconNotBackuped.dll, and DBRShellExtension.dll.
+//
+// Look for them in the registry and show a warning if we find any of them.
+//
+// This is obnoxious, but so is crashing. Hopefully we can remove it at some
+// point.
+
+// Returns only the most significant (major + minor) 32 bits of the version number.
+unsigned int WiresharkApplication::fileVersion(QString file_path) {
+    unsigned int version = 0;
+    DWORD gfvi_size = GetFileVersionInfoSize((LPCWSTR) file_path.utf16(), NULL);
+
+    if (gfvi_size == 0) {
+        return 0;
+    }
+
+    LPSTR version_info = new char[gfvi_size];
+    if (GetFileVersionInfo((LPCWSTR) file_path.utf16(), 0, gfvi_size, version_info)) {
+        void *vqv_buffer = NULL;
+        UINT vqv_size = 0;
+        if (VerQueryValue(version_info, TEXT("\\"), &vqv_buffer, &vqv_size)) {
+            VS_FIXEDFILEINFO *vqv_fileinfo = (VS_FIXEDFILEINFO *)vqv_buffer;
+            if (vqv_size && vqv_buffer && vqv_fileinfo->dwSignature == 0xfeef04bd) {
+                version = vqv_fileinfo->dwFileVersionMS;
+            }
+        }
+    }
+
+    delete[] version_info;
+    return version;
+}
+
+void WiresharkApplication::checkForDbar()
+{
+    QStringList dbar_dlls = QStringList()
+        // << "7-Zip.dll" // For testing. I don't have DBAR.
+        // << "shell32.dll"
+        << "DBROverlayIconBackuped.dll"
+        << "DBROverlayIconNotBackuped.dll"
+        << "DBRShellExtension.dll";
+    // List of HKCR subkeys in which to look for "shellex\ContextMenuHandlers".
+    // This may be incomplete.
+    // https://msdn.microsoft.com/en-us/library/windows/desktop/cc144110
+    QStringList hkcr_subkeys = QStringList()
+        << "*"
+        << "AllFileSystemObjects"
+        << "Folder"
+        << "Directory"
+        << "Drive";
+    QRegExp uuid_re("^\\{.+\\}");
+    QSet<QString> clsids;
+
+    // Look for context menu handler CLSIDs. We might want to skip this and
+    // just iterate through all of the CLSID subkeys below.
+    foreach (QString subkey, hkcr_subkeys) {
+        QString cmh_path = QString("HKEY_CLASSES_ROOT\\%1\\shellex\\ContextMenuHandlers").arg(subkey);
+        QSettings cmh_reg(cmh_path, QSettings::NativeFormat);
+        foreach (QString cmh_key, cmh_reg.allKeys()) {
+            // Add anything that looks like a UUID.
+            if (!cmh_key.endsWith("/.")) continue; // No default key?
+
+            // "Registering Shell Extension Handlers" says the subkey name
+            // should be the class ID...
+            if (cmh_key.contains(uuid_re)) {
+                cmh_key.chop(2);
+                clsids += cmh_key;
+                continue;
+            }
+
+            // ...it then gives an example with the subkey named after the
+            // application, with the default key containing the class ID.
+            QString cmh_default = cmh_reg.value(cmh_key).toString();
+            if (cmh_default.contains(uuid_re)) clsids += cmh_default;
+
+        }
+    }
+
+    // We have a list of context menu handler CLSIDs. Now look for
+    // offending DLLs.
+    foreach (QString clsid, clsids.toList()) {
+        QString inproc_path = QString("HKEY_CLASSES_ROOT\\CLSID\\%1\\InprocServer32").arg(clsid);
+        QSettings inproc_reg(inproc_path, QSettings::NativeFormat);
+        QString inproc_default = inproc_reg.value(".").toString();
+        if (inproc_default.isEmpty()) continue;
+
+        foreach (QString dbar_dll, dbar_dlls) {
+            // XXX We don't expand environment variables in the path.
+            unsigned int dll_version = fileVersion(inproc_default);
+            unsigned int bad_version = 1 << 16 | 8; // Offending DBAR version is 1.8.
+            if (inproc_default.contains(dbar_dll, Qt::CaseInsensitive) && dll_version == bad_version) {
+                QMessageBox dbar_msgbox;
+                dbar_msgbox.setIcon(QMessageBox::Warning);
+                dbar_msgbox.setStandardButtons(QMessageBox::Ok);
+                dbar_msgbox.setWindowTitle(tr("Dell Backup and Recovery Found"));
+                dbar_msgbox.setText(tr("You appear to be running Dell Backup and Recovery 1.8."));
+                dbar_msgbox.setInformativeText(tr(
+                    "DBAR can make many applications crash"
+                    " <a href=\"https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036\">including Wireshark</a>."
+                ));
+                dbar_msgbox.setDetailedText(tr("Offending DLL: %1").arg(inproc_default));
+                dbar_msgbox.exec();
+                return;
+            }
+        }
+    }
+}
+#endif
+
 void WiresharkApplication::setLastOpenDir(const char *dir_name)
 {
     qint64 len;
@@ -671,6 +791,14 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
             "QSplitter::handle:horizontal { width: 0px; }\n";
 #endif
     qApp->setStyleSheet(app_style_sheet);
+
+#ifdef HAVE_SOFTWARE_UPDATE
+    connect(this, SIGNAL(softwareUpdateQuit()), this, SLOT(quit()), Qt::QueuedConnection);
+#endif
+
+#ifdef _WIN32
+    checkForDbar();
+#endif
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
 }
