@@ -1314,6 +1314,8 @@ DISSECTOR_SRC = \
 	packet-udp.c		\
 	packet-uds.c		\
 	packet-udt.c		\
+	packet-uftp.c		\
+	packet-uftp4.c		\
 	packet-uhd.c		\
 	packet-uma.c		\
 	packet-umts_fp.c	\
