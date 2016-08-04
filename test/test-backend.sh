@@ -302,8 +302,6 @@ test_step_failed() {
 
 	$color_reset
 
-	exit 1
-
 	# XXX - add a mechanism to optionally stop here
 }
 
