@@ -2182,26 +2182,6 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
             /* Adding second data source */
             next_tvb = tvb_new_subset ( message_tvb, frameOffset, frameLength, reported_len );
 
-            if ( type == OPENSAFETY_SPDO_MESSAGE_TYPE )
-            {
-                /* For 16-bit counter frames, this is a check, which will prevent false-positives, where
-                 * only the first frame matches, but the second one does not survive a scm udid sanity check */
-                if ( OSS_FRAME_ID_T(message_tvb, byte_offset + frameStart1) != OPENSAFETY_MSG_SPDO_DATA_ONLY )
-                {
-                    if ( check_scmudid_validity(packet, next_tvb) == 6 )
-                    {
-                        /* If the second ID is zero, this actually could be the case, but only, if id is sdn. Even
-                         * if no SCM UDID is known, this will only work with scm_udid_valid = true */
-                        if ( ! packet->scm_udid_valid )
-                        {
-                            frameOffset += 2;
-                            found--;
-                            continue;
-                        }
-                    }
-                }
-            }
-
             /* Adding a visual aid to the dissector tree */
             add_new_data_source(pinfo, next_tvb, "openSAFETY Frame");
 
