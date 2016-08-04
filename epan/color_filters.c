@@ -512,7 +512,7 @@ color_filters_colorize_packet(epan_dissect_t *edt)
 /* XXX - Would it make more sense to use GStrings here instead of reallocing
    our buffers? */
 static int
-read_filters_file(FILE *f, gpointer user_data, color_filter_add_cb_func add_cb)
+read_filters_file(const gchar *path, FILE *f, gpointer user_data, color_filter_add_cb_func add_cb)
 {
 #define INIT_BUF_SIZE 128
     gchar    *name             = NULL;
@@ -622,8 +622,8 @@ read_filters_file(FILE *f, gpointer user_data, color_filter_add_cb_func add_cb)
             gchar *local_err_msg = NULL;
 
             if (!dfilter_compile(filter_exp, &temp_dfilter, &local_err_msg)) {
-                ws_g_warning("Could not compile \"%s\" in colorfilters file.\n%s",
-                          name, local_err_msg);
+                ws_g_warning("Could not compile \"%s\" in colorfilters file \"%s\".\n%s",
+                          name, path, local_err_msg);
                 g_free(local_err_msg);
                 prefs.unknown_colorfilters = TRUE;
 
@@ -684,18 +684,18 @@ read_users_filters(GSList **cfl, gchar** err_msg, color_filter_add_cb_func add_c
         g_free(path);
         return FALSE;
     }
-    g_free(path);
-    path = NULL;
 
-    ret = read_filters_file(f, cfl, add_cb);
+    ret = read_filters_file(path, f, cfl, add_cb);
     if (ret != 0) {
         *err_msg = g_strdup_printf("Error reading filter file\n\"%s\": %s.",
                                    path, g_strerror(errno));
         fclose(f);
+        g_free(path);
         return FALSE;
     }
 
     fclose(f);
+    g_free(path);
     return TRUE;
 }
 
@@ -717,18 +717,18 @@ color_filters_read_globals(gpointer user_data, gchar** err_msg, color_filter_add
         g_free(path);
         return FALSE;
     }
-    g_free(path);
-    path = NULL;
 
-    ret = read_filters_file(f, user_data, add_cb);
+    ret = read_filters_file(path, f, user_data, add_cb);
     if (ret != 0) {
         *err_msg = g_strdup_printf("Error reading global filter file\n\"%s\": %s.",
                                    path, g_strerror(errno));
         fclose(f);
+        g_free(path);
         return FALSE;
     }
 
     fclose(f);
+    g_free(path);
     return TRUE;
 }
 
@@ -745,7 +745,7 @@ color_filters_import(const gchar *path, gpointer user_data, gchar **err_msg, col
         return FALSE;
     }
 
-    ret = read_filters_file(f, user_data, add_cb);
+    ret = read_filters_file(path, f, user_data, add_cb);
     if (ret != 0) {
         *err_msg = g_strdup_printf("Error reading filter file\n\"%s\": %s.",
                                    path, g_strerror(errno));
