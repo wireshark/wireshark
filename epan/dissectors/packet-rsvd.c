@@ -30,7 +30,6 @@
 
 #include <epan/conversation.h>
 #include <epan/packet.h>
-#include <epan/g_int64_hash_routines.h>
 #include "packet-scsi.h"
 
 void proto_reg_handoff_rsvd(void);

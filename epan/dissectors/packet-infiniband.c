@@ -31,7 +31,6 @@
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <epan/show_exception.h>
-#include <epan/g_int64_hash_routines.h>
 #include <wiretap/erf.h>
 
 #include "packet-infiniband.h"

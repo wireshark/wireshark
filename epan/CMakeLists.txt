@@ -120,7 +120,6 @@ set(LIBWIRESHARK_FILES
 	frame_data.c
 	frame_data_sequence.c
 	funnel.c
-	g_int64_hash_routines.c
 	geoip_db.c
 	golay.c
 	guid-utils.c

@@ -35,7 +35,6 @@
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
 #include <epan/strutil.h>
-#include <epan/g_int64_hash_routines.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"

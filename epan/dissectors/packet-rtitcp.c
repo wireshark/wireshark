@@ -37,7 +37,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
-#include <epan/g_int64_hash_routines.h>
 #include <epan/dissectors/packet-tcp.h>
 
 #define RTITCP_MAGIC_NUMBER             0xdd54dd55

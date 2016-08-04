@@ -1176,7 +1176,7 @@ else
 	AC_MSG_RESULT(no)
 fi
 
-GLIB_MIN_VERSION=2.16.0
+GLIB_MIN_VERSION=2.22.0
 AC_SUBST(GLIB_MIN_VERSION)
 # GLib checks; we require GLib $GLIB_MIN_VERSION or later, and require gmodule
 # support, as we need that for dynamically loading plugins.
