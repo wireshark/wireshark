@@ -302,6 +302,30 @@ static int dissect_logcat_text_long(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return dissect_logcat_text(tvb, tree, pinfo, &dinfo);
 }
 
+void logcat_text_init(void)
+{
+    special_regex =    g_regex_new(SPECIAL_STRING,    G_REGEX_ANCHORED,  G_REGEX_MATCH_NOTEMPTY, NULL);
+    brief_regex =      g_regex_new(BRIEF_STRING,      G_REGEX_ANCHORED,  G_REGEX_MATCH_NOTEMPTY, NULL);
+    tag_regex =        g_regex_new(TAG_STRING,        G_REGEX_ANCHORED,  G_REGEX_MATCH_NOTEMPTY, NULL);
+    time_regex =       g_regex_new(TIME_STRING,       G_REGEX_ANCHORED,  G_REGEX_MATCH_NOTEMPTY, NULL);
+    thread_regex =     g_regex_new(THREAD_STRING,     G_REGEX_ANCHORED,  G_REGEX_MATCH_NOTEMPTY, NULL);
+    threadtime_regex = g_regex_new(THREADTIME_STRING, G_REGEX_ANCHORED,  G_REGEX_MATCH_NOTEMPTY, NULL);
+    process_regex =    g_regex_new(PROCESS_STRING,    G_REGEX_ANCHORED,  G_REGEX_MATCH_NOTEMPTY, NULL);
+    long_regex =       g_regex_new(LONG_STRING,       G_REGEX_MULTILINE, G_REGEX_MATCH_NOTEMPTY, NULL);
+}
+
+void logcat_text_cleanup(void)
+{
+    g_regex_unref(special_regex);
+    g_regex_unref(brief_regex);
+    g_regex_unref(tag_regex);
+    g_regex_unref(time_regex);
+    g_regex_unref(thread_regex);
+    g_regex_unref(threadtime_regex);
+    g_regex_unref(process_regex);
+    g_regex_unref(long_regex);
+}
+
 void proto_register_logcat_text(void) {
     expert_module_t  *expert_module;
     static hf_register_info hf[] = {
@@ -364,14 +388,8 @@ void proto_register_logcat_text(void) {
     logcat_text_long_handle =       register_dissector("logcat_text_long",
             dissect_logcat_text_long, proto_logcat_text);
 
-    special_regex =    g_regex_new(SPECIAL_STRING,    G_REGEX_ANCHORED,  G_REGEX_MATCH_NOTEMPTY, NULL);
-    brief_regex =      g_regex_new(BRIEF_STRING,      G_REGEX_ANCHORED,  G_REGEX_MATCH_NOTEMPTY, NULL);
-    tag_regex =        g_regex_new(TAG_STRING,        G_REGEX_ANCHORED,  G_REGEX_MATCH_NOTEMPTY, NULL);
-    time_regex =       g_regex_new(TIME_STRING,       G_REGEX_ANCHORED,  G_REGEX_MATCH_NOTEMPTY, NULL);
-    thread_regex =     g_regex_new(THREAD_STRING,     G_REGEX_ANCHORED,  G_REGEX_MATCH_NOTEMPTY, NULL);
-    threadtime_regex = g_regex_new(THREADTIME_STRING, G_REGEX_ANCHORED,  G_REGEX_MATCH_NOTEMPTY, NULL);
-    process_regex =    g_regex_new(PROCESS_STRING,    G_REGEX_ANCHORED,  G_REGEX_MATCH_NOTEMPTY, NULL);
-    long_regex =       g_regex_new(LONG_STRING,       G_REGEX_MULTILINE, G_REGEX_MATCH_NOTEMPTY, NULL);
+    register_init_routine(logcat_text_init);
+    register_cleanup_routine(logcat_text_cleanup);
 
     expert_module = expert_register_protocol(proto_logcat_text);
     expert_register_field_array(expert_module, ei, array_length(ei));
