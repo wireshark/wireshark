@@ -34,7 +34,6 @@ public:
     explicit FieldFilterEdit(QWidget *parent = 0);
 
 protected:
-    void paintEvent(QPaintEvent *evt);
     void keyPressEvent(QKeyEvent *event) { completionKeyPressEvent(event); }
     void focusInEvent(QFocusEvent *event) { completionFocusInEvent(event); }
     void focusOutEvent(QFocusEvent *event);

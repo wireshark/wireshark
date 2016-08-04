@@ -213,9 +213,7 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
 
     interface_item_delegate_.setTree(ui->interfaceTree);
 
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
     ui->filenameLineEdit->setPlaceholderText(tr("Leave blank to use a temporary file"));
-#endif
 
     // Changes in interface selections or capture filters should be propagated
     // to the main welcome screen where they will be applied to the global

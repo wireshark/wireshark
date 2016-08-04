@@ -239,30 +239,6 @@ void CaptureFilterEdit::paintEvent(QPaintEvent *evt) {
         QSize bksz = bookmark_button_->size();
         painter.drawLine(bksz.width(), cr.top(), bksz.width(), cr.bottom());
     }
-
-#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
-    // http://wiki.forum.nokia.com/index.php/Custom_QLineEdit
-    if (text().isEmpty() && ! this->hasFocus()) {
-        QPainter p(this);
-        QFont f = font();
-        f.setItalic(true);
-        p.setFont(f);
-
-        QColor color(palette().color(foregroundRole()));
-        color.setAlphaF(0.5);
-        p.setPen(color);
-
-        QStyleOptionFrame opt;
-        initStyleOption(&opt);
-        QRect cr = style()->subElementRect(QStyle::SE_LineEditContents, &opt, this);
-        cr.setLeft(cr.left() + 2);
-        cr.setRight(cr.right() - 2);
-
-        p.drawText(cr, Qt::AlignLeft|Qt::AlignVCenter, placeholder_text_);
-    }
-    // else check filter syntax and set the background accordingly
-    // XXX - Should we add little warning/error icons as well?
-#endif // QT < 4.7
 }
 
 void CaptureFilterEdit::resizeEvent(QResizeEvent *)
@@ -303,9 +279,7 @@ void CaptureFilterEdit::setConflict(bool conflict)
         placeholder_text_ = QString(tr("Enter a capture filter %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
         setToolTip(QString());
     }
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
     setPlaceholderText(placeholder_text_);
-#endif
 }
 
 // XXX Make this private along with setConflict.
