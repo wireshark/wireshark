@@ -224,7 +224,6 @@ LIBWIRESHARK_INCLUDES = \
 	frame_data.h		\
 	frame_data_sequence.h	\
 	funnel.h		\
-	g_int64_hash_routines.h	\
 	garrayfix.h		\
 	geoip_db.h		\
 	golay.h			\
