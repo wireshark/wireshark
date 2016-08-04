@@ -368,11 +368,13 @@ dissect_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, btle_context_
         set_address(&pinfo->src, AT_STRINGZ, 7, "Master");
         set_address(&pinfo->dst, AT_STRINGZ, 6, "Slave");
         context->direction = BTLE_DIR_MASTER_SLAVE;
+        pinfo->p2p_dir = P2P_DIR_SENT;
     }
     else {
         set_address(&pinfo->src, AT_STRINGZ, 6, "Slave");
         set_address(&pinfo->dst, AT_STRINGZ, 7, "Master");
         context->direction = BTLE_DIR_SLAVE_MASTER;
+        pinfo->p2p_dir = P2P_DIR_RECV;
     }
 
 
@@ -488,8 +490,6 @@ dissect_header_0_9_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, btle_c
     ti = proto_tree_add_item(tree, proto_nordic_ble, tvb, 0, -1, ENC_NA);
     nordic_ble_tree = proto_item_add_subtree(ti, ett_nordic_ble);
 
-    pinfo->p2p_dir = P2P_DIR_RECV;
-
     /*** PROTOCOL TREE ***/
 
     dissect_packet_counter(tvb, nordic_ble_tree);
@@ -509,7 +509,6 @@ dissect_header_1_0_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, btle_c
     proto_item *ti;
     proto_tree *nordic_ble_tree;
 
-    pinfo->p2p_dir = P2P_DIR_RECV;
 
     /*** PROTOCOL TREE ***/
 
