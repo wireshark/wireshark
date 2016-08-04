@@ -58,6 +58,7 @@ static HANDLE pipe_h = NULL;
 #endif
 
 #define EXTCAP_PREF_SIZE 256
+static void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data);
 
 /* internal container, for all the extcap interfaces that have been found.
  * will be resetted by every call to extcap_interface_list() and is being
@@ -643,9 +644,44 @@ extcap_has_configuration(const char * ifname, gboolean is_required) {
     return found;
 }
 
-void extcap_if_cleanup(capture_options * capture_opts) {
+/* taken from capchild/capture_sync.c */
+static gboolean pipe_data_available(int pipe_fd) {
+#ifdef _WIN32 /* PeekNamedPipe */
+    HANDLE hPipe = (HANDLE) _get_osfhandle(pipe_fd);
+    DWORD bytes_avail;
+
+    if (hPipe == INVALID_HANDLE_VALUE)
+        return FALSE;
+
+    if (! PeekNamedPipe(hPipe, NULL, 0, NULL, &bytes_avail, NULL))
+        return FALSE;
+
+    if (bytes_avail > 0)
+        return TRUE;
+    return FALSE;
+#else /* select */
+    fd_set rfds;
+    struct timeval timeout;
+
+    FD_ZERO(&rfds);
+    FD_SET(pipe_fd, &rfds);
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 0;
+
+    if (select(pipe_fd+1, &rfds, NULL, NULL, &timeout) > 0)
+        return TRUE;
+
+    return FALSE;
+#endif
+}
+
+void extcap_if_cleanup(capture_options * capture_opts, gchar ** errormsg) {
     interface_options interface_opts;
+    extcap_userdata * userdata;
     guint icnt = 0;
+    gboolean overwrite_exitcode;
+    gchar * buffer;
+#define STDERR_BUFFER_SIZE 1024
 
     for (icnt = 0; icnt < capture_opts->ifaces->len; icnt++) {
         interface_opts = g_array_index(capture_opts->ifaces, interface_options,
@@ -654,6 +690,8 @@ void extcap_if_cleanup(capture_options * capture_opts) {
         /* skip native interfaces */
         if (interface_opts.if_type != IF_EXTCAP)
             continue;
+
+        overwrite_exitcode = FALSE;
 
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
                 "Extcap [%s] - Cleaning up fifo: %s; PID: %d", interface_opts.name,
@@ -681,6 +719,69 @@ void extcap_if_cleanup(capture_options * capture_opts) {
                 "Extcap [%s] - Closing spawned PID: %d", interface_opts.name,
                 interface_opts.extcap_pid);
 
+        userdata = (extcap_userdata *) interface_opts.extcap_userdata;
+        if ( userdata )
+        {
+            if (userdata->extcap_stderr_rd > 0 && pipe_data_available(userdata->extcap_stderr_rd) )
+            {
+                buffer = (gchar * )g_malloc0(sizeof(gchar) * STDERR_BUFFER_SIZE + 1);
+#ifdef _WIN32
+                win32_readfrompipe((HANDLE)_get_osfhandle(userdata->extcap_stderr_rd), STDERR_BUFFER_SIZE, buffer);
+#else
+                if (read(userdata->extcap_stderr_rd, buffer, sizeof(gchar) * STDERR_BUFFER_SIZE) <= 0 )
+                    buffer[0] = '\0';
+#endif
+                if ( strlen ( buffer) > 0 )
+                {
+                    userdata->extcap_stderr = g_strdup_printf("%s", buffer);
+                    userdata->exitcode = 1;
+                }
+                g_free(buffer);
+            }
+        }
+
+#ifndef _WIN32
+        /* Final child watch may not have been called */
+        if ( interface_opts.extcap_child_watch != 0 )
+        {
+            extcap_child_watch_cb(userdata->pid, 0, capture_opts);
+            /* it will have changed in extcap_child_watch_cb */
+            interface_opts = g_array_index(capture_opts->ifaces, interface_options,
+                            icnt);
+        }
+#endif
+
+        if ( userdata )
+        {
+            if ( userdata->extcap_stderr != NULL )
+                overwrite_exitcode = TRUE;
+
+            if ( overwrite_exitcode || userdata->exitcode != 0 )
+            {
+                if ( userdata->extcap_stderr != 0 )
+                {
+                    if ( *errormsg == NULL )
+                        *errormsg = g_strdup_printf("Error by extcap pipe: %s", userdata->extcap_stderr);
+                    else
+                    {
+                        gchar * temp = g_strconcat ( *errormsg, "\nError by extcap pipe: " ,userdata->extcap_stderr, NULL );
+                        g_free(*errormsg);
+                        *errormsg = temp;
+                    }
+                    g_free (userdata->extcap_stderr );
+                }
+
+                userdata->extcap_stderr = NULL;
+                userdata->exitcode = 0;
+            }
+        }
+
+        if (interface_opts.extcap_child_watch > 0)
+        {
+            g_source_remove(interface_opts.extcap_child_watch);
+            interface_opts.extcap_child_watch = 0;
+        }
+
         if (interface_opts.extcap_pid != INVALID_EXTCAP_PID)
         {
 #ifdef _WIN32
@@ -688,6 +789,9 @@ void extcap_if_cleanup(capture_options * capture_opts) {
 #endif
             g_spawn_close_pid(interface_opts.extcap_pid);
             interface_opts.extcap_pid = INVALID_EXTCAP_PID;
+
+            g_free(interface_opts.extcap_userdata);
+            interface_opts.extcap_userdata = NULL;
         }
 
         /* Make sure modified interface_opts is saved in capture_opts. */
@@ -713,11 +817,16 @@ extcap_add_arg_and_remove_cb(gpointer key, gpointer value, gpointer data) {
     return FALSE;
 }
 
-static void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
+void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
 {
     guint i;
     interface_options interface_opts;
-    capture_options *capture_opts = (capture_options *)user_data;
+    GError * error = 0;
+    extcap_userdata * userdata = NULL;
+    capture_options * capture_opts = (capture_options *)(user_data);
+
+    if ( capture_opts == NULL || capture_opts->ifaces == NULL || capture_opts->ifaces->len == 0 )
+        return;
 
     /* Close handle to child process. */
     g_spawn_close_pid(pid);
@@ -728,7 +837,16 @@ static void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
         interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
         if (interface_opts.extcap_pid == pid)
         {
-            interface_opts.extcap_pid = INVALID_EXTCAP_PID;
+            userdata = (extcap_userdata *)interface_opts.extcap_userdata;
+            if ( userdata != NULL )
+            {
+                interface_opts.extcap_pid = INVALID_EXTCAP_PID;
+                userdata->exitcode = 0;
+                if ( ! g_spawn_check_exit_status(status, &error) )
+                    userdata->exitcode = error->code;
+                if ( status == 0 && userdata->extcap_stderr != NULL )
+                    userdata->exitcode = 1;
+            }
             g_source_remove(interface_opts.extcap_child_watch);
             interface_opts.extcap_child_watch = 0;
 
@@ -844,6 +962,7 @@ extcap_init_interfaces(capture_options *capture_opts)
 {
     guint i;
     interface_options interface_opts;
+    extcap_userdata * userdata;
 
     for (i = 0; i < capture_opts->ifaces->len; i++)
     {
@@ -863,22 +982,23 @@ extcap_init_interfaces(capture_options *capture_opts)
         /* Create extcap call */
         args = extcap_prepare_arguments(interface_opts);
 
-        interface_opts.extcap_userdata = NULL;
+        userdata = g_new0(extcap_userdata, 1);
 
-        pid = extcap_spawn_async(&interface_opts, args );
+        pid = extcap_spawn_async(userdata, args );
 
         g_ptr_array_foreach(args, (GFunc)g_free, NULL);
         g_ptr_array_free(args, TRUE);
 
         if ( pid == INVALID_EXTCAP_PID )
+        {
+            g_free(userdata);
             continue;
+        }
 
         interface_opts.extcap_pid = pid;
 
         interface_opts.extcap_child_watch =
             g_child_watch_add(pid, extcap_child_watch_cb, (gpointer)capture_opts);
-        capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, i);
-        g_array_insert_val(capture_opts->ifaces, i, interface_opts);
 
 #ifdef _WIN32
         /* On Windows, wait for extcap to connect to named pipe.
@@ -894,7 +1014,13 @@ extcap_init_interfaces(capture_options *capture_opts)
         {
             extcap_wait_for_pipe(pipe_h, pid);
         }
+
 #endif
+
+        interface_opts.extcap_userdata = (gpointer) userdata;
+
+        capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, i);
+        g_array_insert_val(capture_opts->ifaces, i, interface_opts);
     }
 
     return TRUE;

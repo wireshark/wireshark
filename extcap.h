@@ -28,8 +28,6 @@
 
 #include <glib.h>
 
-#include "ws_symbol_export.h"
-
 #ifdef _WIN32
 #include <windows.h>
 #include <wsutil/unicode-utils.h>
@@ -102,7 +100,7 @@ extcap_create_pipe(char ** fifo);
 
 /* Clean up all if related stuff */
 void
-extcap_if_cleanup(capture_options * capture_opts _U_);
+extcap_if_cleanup(capture_options * capture_opts _U_, gchar ** errormsg);
 
 struct preference *
 extcap_pref_for_argument(const gchar *ifname, struct _extcap_arg * arg);

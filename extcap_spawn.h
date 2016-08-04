@@ -44,7 +44,7 @@ typedef struct _extcap_userdata {
 
 gboolean extcap_spawn_sync ( gchar * dirname, gchar * command, gint argc, gchar ** argv, gchar ** command_output );
 
-GPid extcap_spawn_async ( interface_options * interface, GPtrArray * args );
+GPid extcap_spawn_async ( extcap_userdata * userdata, GPtrArray * args );
 
 #ifdef _WIN32
 gboolean extcap_wait_for_pipe(HANDLE pipe_h, HANDLE pid);

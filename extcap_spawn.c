@@ -197,7 +197,7 @@ gboolean extcap_spawn_sync ( gchar * dirname, gchar * command, gint argc, gchar 
     return result;
 }
 
-GPid extcap_spawn_async(interface_options * interface, GPtrArray * args)
+GPid extcap_spawn_async(extcap_userdata * userdata, GPtrArray * args)
 {
     GPid pid = INVALID_EXTCAP_PID;
 
@@ -221,12 +221,6 @@ GPid extcap_spawn_async(interface_options * interface, GPtrArray * args)
     const gchar * oldpath = g_getenv("PATH");
     gchar * newpath = NULL;
 
-#endif
-
-    extcap_userdata * userdata = NULL;
-    userdata = (extcap_userdata *) g_malloc0(sizeof(extcap_userdata));
-
-#ifdef _WIN32
     newpath = g_strdup_printf("%s;%s", g_strescape(get_progfile_dir(), NULL), oldpath);
     g_setenv("PATH", newpath, TRUE);
 
@@ -279,12 +273,12 @@ GPid extcap_spawn_async(interface_options * interface, GPtrArray * args)
 
     g_setenv("PATH", oldpath, TRUE);
 #else
-    g_spawn_async(NULL, (gchar **)args->pdata, NULL, (GSpawnFlags) G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL,
-            &pid, NULL);
+    g_spawn_async_with_pipes(NULL, (gchar **)args->pdata, NULL,
+            (GSpawnFlags) G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL,
+            &pid, NULL, &userdata->extcap_stdout_rd, &userdata->extcap_stderr_rd, NULL);
 #endif
 
     userdata->pid = pid;
-    interface->extcap_userdata = userdata;
 
     return pid;
 }

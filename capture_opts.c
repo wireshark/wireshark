@@ -66,6 +66,7 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->default_options.extcap          = NULL;
     capture_opts->default_options.extcap_fifo     = NULL;
     capture_opts->default_options.extcap_args     = NULL;
+    capture_opts->default_options.extcap_userdata = NULL;
     capture_opts->default_options.extcap_pid      = INVALID_EXTCAP_PID;
 #endif
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
@@ -1158,6 +1159,7 @@ collect_ifaces(capture_options *capture_opts)
 #ifdef HAVE_EXTCAP
             interface_opts.extcap = g_strdup(device.if_info.extcap);
             interface_opts.extcap_fifo = NULL;
+            interface_opts.extcap_userdata = NULL;
             interface_opts.extcap_args = device.external_cap_args_settings;
             interface_opts.extcap_pid = INVALID_EXTCAP_PID;
             if (interface_opts.extcap_args)
