@@ -186,11 +186,6 @@ static const value_string kafka_codecs[] = {
 static range_t *new_kafka_tcp_range = NULL;
 static range_t *current_kafka_tcp_range = NULL;
 
-/* Defaulting to empty list of ports */
-#define TCP_DEFAULT_RANGE ""
-
-
-
 typedef struct _kafka_query_response_t {
     gint16   api_key;
     guint16  api_version;
@@ -1456,7 +1451,6 @@ proto_register_kafka(void)
             proto_reg_handoff_kafka);
 
     /* Preference for list/range of TCP server ports */
-    range_convert_str(&new_kafka_tcp_range, TCP_DEFAULT_RANGE, 65535);
     new_kafka_tcp_range = range_empty();
     prefs_register_range_preference(kafka_module, "tcp.ports", "Broker TCP Ports",
                                     "TCP Ports range",
