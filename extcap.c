@@ -488,18 +488,28 @@ struct preference *
 extcap_pref_for_argument(const gchar *ifname, struct _extcap_arg * arg) {
     struct preference * pref = NULL;
 
-    GRegex * regex = g_regex_new ("[-]+", (GRegexCompileFlags) 0, (GRegexMatchFlags) 0, NULL );
-    if (regex) {
+    GRegex * regex_name = g_regex_new ("[-]+", (GRegexCompileFlags) 0, (GRegexMatchFlags) 0, NULL );
+    GRegex * regex_ifname = g_regex_new ("(?![a-zA-Z1-9_]).", (GRegexCompileFlags) 0, (GRegexMatchFlags) 0, NULL );
+    if (regex_name && regex_ifname) {
         if ( prefs_find_module("extcap") ) {
-            gchar * pref_name = g_regex_replace(regex, arg->call, strlen(arg->call), 0, "", (GRegexMatchFlags) 0, NULL );
-            gchar * pref_ifname = g_strdup(g_strconcat(ifname, ".", pref_name, NULL));
+            gchar * pref_name = g_regex_replace(regex_name, arg->call, strlen(arg->call), 0, "", (GRegexMatchFlags) 0, NULL );
+            gchar * ifname_underscore = g_regex_replace(regex_ifname, ifname, strlen(ifname), 0, "_", (GRegexMatchFlags) 0, NULL );
+            gchar * ifname_lowercase = g_ascii_strdown(ifname_underscore, -1);
+            gchar * pref_ifname = g_strconcat(ifname_lowercase, ".", pref_name, NULL);
 
             pref = prefs_find_preference(prefs_find_module("extcap"), pref_ifname);
 
             g_free(pref_name);
+            g_free(ifname_underscore);
+            g_free(ifname_lowercase);
             g_free(pref_ifname);
         }
-        g_regex_unref(regex);
+    }
+    if (regex_name) {
+        g_regex_unref(regex_name);
+    }
+    if (regex_ifname) {
+        g_regex_unref(regex_ifname);
     }
 
     return pref;
@@ -526,8 +536,9 @@ static gboolean search_cb(const gchar *extcap _U_, const gchar *ifname _U_, gcha
     if ( dev_module ) {
         GList * walker = arguments;
 
-        GRegex * regex = g_regex_new ("[-]+", (GRegexCompileFlags) 0, (GRegexMatchFlags) 0, NULL );
-        if (regex) {
+        GRegex * regex_name = g_regex_new ("[-]+", (GRegexCompileFlags) 0, (GRegexMatchFlags) 0, NULL );
+        GRegex * regex_ifname = g_regex_new ("(?![a-zA-Z1-9_]).", (GRegexCompileFlags) 0, (GRegexMatchFlags) 0, NULL );
+        if (regex_name && regex_ifname) {
             while ( walker != NULL ) {
                 extcap_arg * arg = (extcap_arg *)walker->data;
                 arg->device_name = g_strdup(ifname);
@@ -535,8 +546,10 @@ static gboolean search_cb(const gchar *extcap _U_, const gchar *ifname _U_, gcha
                 if ( arg->save ) {
                     struct preference * pref = NULL;
 
-                    gchar * pref_name = g_regex_replace(regex, arg->call, strlen(arg->call), 0, "", (GRegexMatchFlags) 0, NULL );
-                    gchar * pref_ifname = g_strdup(g_strconcat(ifname, ".", pref_name, NULL));
+                    gchar * pref_name = g_regex_replace(regex_name, arg->call, strlen(arg->call), 0, "", (GRegexMatchFlags) 0, NULL );
+                    gchar * ifname_underscore = g_regex_replace(regex_ifname, ifname, strlen(ifname), 0, "_", (GRegexMatchFlags) 0, NULL );
+                    gchar * ifname_lowercase = g_ascii_strdown(ifname_underscore, -1);
+                    gchar * pref_ifname = g_strconcat(ifname_lowercase, ".", pref_name, NULL);
 
                     if ( ( pref = prefs_find_preference(dev_module, pref_ifname) ) == NULL ) {
                         /* Set an initial value */
@@ -558,12 +571,19 @@ static gboolean search_cb(const gchar *extcap _U_, const gchar *ifname _U_, gcha
                     }
 
                     g_free(pref_name);
+                    g_free(ifname_underscore);
+                    g_free(ifname_lowercase);
                     g_free(pref_ifname);
                 }
 
                 walker = g_list_next(walker);
             }
-            g_regex_unref(regex);
+        }
+        if (regex_name) {
+            g_regex_unref(regex_name);
+        }
+        if (regex_ifname) {
+            g_regex_unref(regex_ifname);
         }
     }
 
