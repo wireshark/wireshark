@@ -478,7 +478,7 @@ color_filters_colorize_packet(epan_dissect_t *edt)
 /* XXX - Would it make more sense to use GStrings here instead of reallocing
    our buffers? */
 static gboolean
-read_filters_file(FILE *f, gpointer user_data)
+read_filters_file(const char *path, FILE *f, gpointer user_data)
 {
 #define INIT_BUF_SIZE 128
     gchar    *name             = NULL;
@@ -587,8 +587,8 @@ read_filters_file(FILE *f, gpointer user_data)
             gchar *err_msg;
 
             if (!dfilter_compile(filter_exp, &temp_dfilter, &err_msg)) {
-                g_warning("Could not compile \"%s\" in colorfilters file.\n%s",
-                          name, err_msg);
+                g_warning("Could not compile \"%s\" in colorfilters file \"%s\".\n%s",
+                          name, path, err_msg);
                 g_free(err_msg);
                 prefs.unknown_colorfilters = TRUE;
 
@@ -658,11 +658,10 @@ read_users_filters(GSList **cfl)
         g_free(path);
         return FALSE;
     }
-    g_free(path);
-    path = NULL;
 
-    ret = read_filters_file(f, cfl);
+    ret = read_filters_file(path, f, cfl);
     fclose(f);
+    g_free(path);
     return ret;
 }
 
@@ -685,11 +684,10 @@ color_filters_read_globals(gpointer user_data)
         g_free(path);
         return FALSE;
     }
-    g_free(path);
-    path = NULL;
 
-    ret = read_filters_file(f, user_data);
+    ret = read_filters_file(path, f, user_data);
     fclose(f);
+    g_free(path);
     return ret;
 }
 
@@ -707,7 +705,7 @@ color_filters_import(const gchar *path, const gpointer user_data)
         return FALSE;
     }
 
-    ret = read_filters_file(f, user_data);
+    ret = read_filters_file(path, f, user_data);
     fclose(f);
     return ret;
 }
