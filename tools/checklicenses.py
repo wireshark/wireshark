@@ -218,6 +218,15 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     ],
 }
 
+WHITELISTED_UNKNOWN_FILES_BY_NAME = [
+    'AUTHORS',
+    'COPYING',
+    'ChangeLog',
+    'NEWS',
+    'README',
+    'TODO'
+]
+
 
 def check_licenses(options, args):
   # Figure out which directory we have to check.
@@ -292,6 +301,12 @@ def check_licenses(options, args):
           break
       if found_path_specific:
         continue
+
+    if not options.ignore_suppressions:
+        if license == 'UNKNOWN':
+            fbase = os.path.basename(filename)
+            if fbase in WHITELISTED_UNKNOWN_FILES_BY_NAME:
+                continue
 
     print("'%s' has non-whitelisted license '%s'" % (filename, license))
     success = False
