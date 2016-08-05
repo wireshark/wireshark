@@ -39,7 +39,7 @@ memory in that pool is unconditionally freed. When you choose to allocate memory
 in a pool, you *must* be aware of its lifetime: if the lifetime is shorter than
 you need, your code will contain use-after-free bugs; if the lifetime is longer
 than you need, your code may contain undetectable memory leaks. In either case,
-the risks outweight the benefits.
+the risks outweigh the benefits.
 
 If no pool exists whose lifetime matches the lifetime of your memory, you have
 two options: create a new pool (see section 3 of this document) or use the NULL
@@ -264,7 +264,7 @@ similar to their standard-library namesakes. Each one takes an extra parameter
 that is a copy of the allocator's private_data pointer.
 
 Note that wrealloc() and wfree() are not expected to be called directly by user
-code in most cases - they are primarily optimisations for use by data
+code in most cases - they are primarily optimizations for use by data
 structures that wmem might want to implement (it's inefficient, for example, to
 implement a dynamically sized array without some form of realloc).
 
@@ -354,7 +354,7 @@ intimately familiar with Glib's testing framework, but it does the job.
 
 5. A Note on Performance
 
-Because of my own bad judgement, there is the persistent idea floating around
+Because of my own bad judgment, there is the persistent idea floating around
 that wmem is somehow magically faster than other allocators in the general case.
 This is false.
 
