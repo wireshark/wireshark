@@ -1135,7 +1135,7 @@ Note that the formats used must all belong to the same group as defined below:
 - FT_OID, FT_REL_OID and FT_SYSTEM_ID
 
 Any field not in a grouping above should *NOT* be used in duplicate field
-abbrevations. The current code does not prevent it, but someday in the future
+abbreviations. The current code does not prevent it, but someday in the future
 it might.
 
 The HFILL macro at the end of the struct will set reasonable default values

@@ -148,7 +148,7 @@ plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
 
 3.2.3  Changes to the top level configure.ac
 
-You need to add your plugins Makefile (in alphbetical order) to the
+You need to add your plugins Makefile (in alphabetical order) to the
 AC_OUTPUT rule in the configure.ac
 
 AC_OUTPUT(
@@ -328,14 +328,14 @@ The menu entries themselves are generated with the following code structure:
             NULL, menu_cb, <user_data>);
 
 This will not work with the GTK version on OS X; the GTK interface is
-currently not supported on this plattform.  The Qt interface on OS X
+currently not supported on this platform.  The Qt interface on OS X
 provides the menu.
 
 For a more detailed information, please refer to plugin_if.h
 
 6.2 Implement interactions with the main interface
 
-Due to memory constraints on most plattforms, plugin functionality cannot be
+Due to memory constraints on most platforms, plugin functionality cannot be
 called directly from a DLL context. Instead special functions will be used, which
 will implement certain options for plugins to utilize.
 

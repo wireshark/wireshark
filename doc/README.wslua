@@ -227,7 +227,7 @@ for each event type, instead of a single register() with the event as an
 argument.  For example there's a register_postdissector() function.  In some
 cases the Lua functions are invoked based on a pre-defined function-name model
 instead of explicit register_foo(), whereby a C-object looks for a defined
-member variable in the Registry that repesents a Lua function created by the
+member variable in the Registry that represents a Lua function created by the
 plugin.  This would be the case if the Lua plugin had defined a pre-defined
 member key of its object's table in Lua, for that purpose.  For example if the
 Lua plugin sets the 'reset' member of the Listener object table to a function,
@@ -456,7 +456,7 @@ Example:
 
 WSLUA_MOREARGS - a documentation-only macro used to document that more
 arguments are expected/supported.  This is useful when the number of
-argumeents is not fixed, i.e., a vararg model.  The macro is followed by the
+arguments is not fixed, i.e., a vararg model.  The macro is followed by the
 name of the function it's an argument for (without the 'wslua_' prefix if the
 function is a WSLUA_FUNCTION type), and then followed by descriptive text.
 
@@ -470,7 +470,7 @@ Example:
 
 
 WSLUA_RETURN - a macro with parentheses containing the number of return
-values, meaning the number of items pushed back to Lua.  Lua supports mutliple
+values, meaning the number of items pushed back to Lua.  Lua supports multiple
 return values, although Wireshark usually just returns 0 or 1 value.  The
 argument can be an integer or a variable of the integer, and is not actually
 documented.  The API documentation will use the comments after this macro for
