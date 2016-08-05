@@ -10,7 +10,10 @@ used for troubleshooting, analysis, development and education.
 
 == What's New
 
-//=== Bug Fixes
+* Invalid coloring rules are now disabled instead of discarded. This will
+  provide backward compatibility with a coloring rule change in Wireshark 2.2.
+
+=== Bug Fixes
 
 //The following bugs have been fixed:
 
@@ -19,7 +22,7 @@ used for troubleshooting, analysis, development and education.
 //* cve-idlink:2014-2486[]
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
 
-//_Non-empty section placeholder._
+* Upgrading to latest version uninstalls Microsoft Visual C++ redistributable. (ws-buglink:12712[])
 
 === New and Updated Features
 
