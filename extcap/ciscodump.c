@@ -33,14 +33,6 @@
 #include <string.h>
 #include <fcntl.h>
 
-#ifndef STDERR_FILENO
-#define STDERR_FILENO 2
-#endif
-
-#ifndef STDOUT_FILENO
-#define STDOUT_FILENO 1
-#endif
-
 #define CISCODUMP_VERSION_MAJOR "1"
 #define CISCODUMP_VERSION_MINOR "0"
 #define CISCODUMP_VERSION_RELEASE "0"

@@ -27,6 +27,14 @@
 
 #include <libssh/libssh.h>
 
+#ifndef STDERR_FILENO
+#define STDERR_FILENO 2
+#endif
+
+#ifndef STDOUT_FILENO
+#define STDOUT_FILENO 1
+#endif
+
 #define SSH_BASE_OPTIONS \
 	{ "remote-host", required_argument, NULL, OPT_REMOTE_HOST}, \
 	{ "remote-port", required_argument, NULL, OPT_REMOTE_PORT}, \
