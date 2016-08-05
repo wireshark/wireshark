@@ -140,6 +140,9 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'docbook/custom_layer_chm.xsl': [
         'UNKNOWN',
     ],
+    'docbook/ws.css' : [
+        'UNKNOWN'
+    ],
     'fix': [
         'UNKNOWN',
     ],
@@ -180,6 +183,9 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'epan/dfilter/grammar.c': [
         'UNKNOWN',
     ],
+    'epan/dissectors/packet-dtn.c': [
+        'GPL (v2 or later) GPL (v2 or later)' # TODO: make licensecheck handle this better
+    ],
     'plugins/mate/mate_grammar.h': [
         'UNKNOWN',
     ],
@@ -209,6 +215,9 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'tools/lemon': [
         'UNKNOWN',
     ],
+    'tools/licensecheck.pl': [
+        'GPL (v2)'
+    ],
     # Generated files for GTK pixbuf binary bundling
     'ui/gtk/wireshark-gresources.h': [
         'UNKNOWN',
@@ -218,13 +227,39 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     ],
 }
 
-WHITELISTED_UNKNOWN_FILES_BY_NAME = [
-    'AUTHORS',
-    'COPYING',
-    'ChangeLog',
-    'NEWS',
-    'README',
-    'TODO'
+# Files pre-existing prior to licensecheck upgrade to v2.16.2.
+# Other new files being added to the source tree that fail checklicenses.py
+# must *not* be added to FIXME_FILES.
+FIXME_FILES = [
+    'doc/captype.pod', # Should it have a license?
+    'doc/dftest.pod',
+    'doc/idl2deb.pod',
+    'doc/mergecap.pod',
+    'doc/reordercap.pod',
+    'doc/wireshark-filter.pod',
+    'doc/androiddump.pod',
+    'doc/ciscodump.pod',
+    'doc/dumpcap.pod',
+    'doc/editcap.pod',
+    'doc/extcap.pod',
+    'doc/randpkt.pod',
+    'doc/randpktdump.pod',
+    'doc/rawshark.pod',
+    'doc/sshdump.pod',
+    'doc/tshark.pod',
+    'doc/wireshark.pod', # wireshark.pod.template
+    'epan/crypt/airpdcap_interop.h', # Whitelist 'BSD (3 clause) GPL (v2)'?
+    'epan/crypt/airpdcap_tkip.c',
+    'epan/crypt/airpdcap_ws.h',
+    'epan/crypt/wep-wpadefs.h',
+    'epan/crypt/airpdcap_system.h',
+    'epan/crypt/airpdcap_user.h',
+    'epan/crypt/airpdcap_ccmp.c',
+    'epan/crypt/airpdcap_int.h',
+    'epan/crypt/airpdcap.c',
+    'epan/crypt/airpdcap_debug.h',
+    'epan/dissectors/packet-ppi.c',
+    'wsutil/airpdcap_wep.c',
 ]
 
 
@@ -246,11 +281,9 @@ def check_licenses(options, args):
   print("Checking: %s" % start_dir)
   print("")
 
-  #licensecheck_path = os.path.abspath(os.path.join(options.base_directory,
-  #                                                 'third_party',
-  #                                                 'devscripts',
-  #                                                 'licensecheck.pl'))
-  licensecheck_path = 'licensecheck'
+  licensecheck_path = os.path.abspath(os.path.join(options.base_directory,
+                                                    'tools',
+                                                    'licensecheck.pl'))
 
   licensecheck = subprocess.Popen([licensecheck_path,
                                    '-l', '150',
@@ -273,6 +306,8 @@ def check_licenses(options, args):
     return 1
 
   success = True
+  exit_status = 0
+  fixme = []
   for line in stdout.splitlines():
     filename, license = line.split(':', 1)
     filename = os.path.relpath(filename.strip(), options.base_directory)
@@ -302,14 +337,18 @@ def check_licenses(options, args):
       if found_path_specific:
         continue
 
-    if not options.ignore_suppressions:
-        if license == 'UNKNOWN':
-            fbase = os.path.basename(filename)
-            if fbase in WHITELISTED_UNKNOWN_FILES_BY_NAME:
-                continue
-
-    print("'%s' has non-whitelisted license '%s'" % (filename, license))
+    reason = "'%s' has non-whitelisted license '%s'" % (filename, license)
     success = False
+    if filename not in FIXME_FILES:
+      print(reason)
+      exit_status = 1
+    else:
+      fixme.append(reason)
+
+  if fixme:
+    print("")
+    for line in fixme:
+        print(line)
 
   if success:
     print("\nSUCCESS\n")
@@ -322,7 +361,7 @@ def check_licenses(options, args):
     print("")
     print("Please respect OWNERS of checklicenses.py. Changes violating")
     print("this requirement may be reverted.")
-    return 1
+    return exit_status
 
 
 def main():
