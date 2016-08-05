@@ -65,7 +65,7 @@ AsciiDoc
 Text documentation format and conversion suite: http://asciidoc.org/. AsciiDoc
 can use either w3m (default) or Lynx for plain text output. We use AsciiDoc for
 the Developer's Guide, User's Guide, and for the release notes. Lynx is used to
-render the official plaintext release announcments.
+render the official plaintext release announcements.
 
 The AsciiDoc files have been converted from DocBook. In a lot of cases the
 markup is wrong, inconsistent, or both. Use the following markup conventions
@@ -79,7 +79,7 @@ for any new or revised text:
   Press kbd:[Shift+Ctrl+P] to open the preferences dialog.
   Select menu:File[Open] from the main menu.
 
-  This ensures that UI elemnents are shown consistently and lets us apply styles
+  This ensures that UI elements are shown consistently and lets us apply styles
   to each type of element.
 
 - Command line examples should reflect the OS:
@@ -99,7 +99,7 @@ many (especially in a row) are distracting and annoying.
 
 Lynx
 ----
-Text based web browser which can to convert HTML to plain text.
+Text based web browser which can convert HTML to plain text.
 (Alternative [*nix]: elinks)
 
 dblatex
@@ -200,7 +200,7 @@ description of the way the makefile targets are doing things and which output
 files required for a release in that format.
 
 all
-Will generate both guide's in all available output formats (see below).
+Will generate both guides in all available output formats (see below).
 
 make wsug
 Will generate Wireshark User's Guide in all available output formats.
