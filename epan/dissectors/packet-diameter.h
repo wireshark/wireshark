@@ -47,6 +47,7 @@ typedef struct _diam_sub_dis_t {
 
 #define DIAM_APPID_3GPP_CX      16777216
 #define DIAM_APPID_3GPP_SH      16777217
+#define DIAM_APPID_3GPP_RX      16777236
 #define DIAM_APPID_3GPP_GX      16777238
 #define DIAM_APPID_3GPP_S6A_S6D 16777251
 #define DIAM_APPID_3GPP_S13	16777252
