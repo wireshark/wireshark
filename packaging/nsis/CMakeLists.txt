@@ -90,11 +90,21 @@ if(BUILD_wireshark_gtk AND GTK_FOUND)
 	set (GTK_DIR "\${STAGING_DIR}")
 endif()
 
-# Use the vcredist that comes with Visual Studio (From MSVC 2013?)
+# Look for the Visual C++ Redistributable packages in the following locations:
+# - _PROJECT_LIB_DIR
+# - _PROJECT_LIB_DIR/vcredist_MSVCxx
+# - %VCINSTALLDIR%
+# - %VCINSTALLDIR%/redist/1033
 set(_vcredist_name "vcredist_${TARGET_MACHINE}.exe")
+if(MSVC14)
+	set(_vcredist_subdir "vcredist_MSVC2015")
+elseif(MSVC12)
+	set(_vcredist_subdir "vcredist_MSVC2013")
+endif()
+
 find_program(VCREDIST_EXE "${_vcredist_name}"
-	PATHS ENV "VCINSTALLDIR"
-	PATH_SUFFIXES "redist/1033"
+	PATHS "${_PROJECT_LIB_DIR}" ENV "VCINSTALLDIR"
+	PATH_SUFFIXES ${_vcredist_subdir} "redist/1033"
 )
 if(VCREDIST_EXE)
 	file(TO_NATIVE_PATH "${VCREDIST_EXE}" VCREDIST_EXE)
