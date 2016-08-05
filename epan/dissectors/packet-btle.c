@@ -31,6 +31,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/reassemble.h>
 
 #include <wiretap/wtap.h>
 
@@ -117,6 +118,17 @@ static int hf_control_master_session_key_diversifier = -1;
 static int hf_control_master_session_initialization_vector = -1;
 static int hf_control_slave_session_key_diversifier = -1;
 static int hf_control_slave_session_initialization_vector = -1;
+static int hf_btle_l2cap_msg_fragments = -1;
+static int hf_btle_l2cap_msg_fragment = -1;
+static int hf_btle_l2cap_msg_fragment_overlap = -1;
+static int hf_btle_l2cap_msg_fragment_overlap_conflicts = -1;
+static int hf_btle_l2cap_msg_fragment_multiple_tails = -1;
+static int hf_btle_l2cap_msg_fragment_too_long_fragment = -1;
+static int hf_btle_l2cap_msg_fragment_error = -1;
+static int hf_btle_l2cap_msg_fragment_count = -1;
+static int hf_btle_l2cap_msg_reassembled_in = -1;
+static int hf_btle_l2cap_msg_reassembled_length = -1;
+
 
 static gint ett_btle = -1;
 static gint ett_advertising_header = -1;
@@ -125,6 +137,9 @@ static gint ett_data_header = -1;
 static gint ett_features = -1;
 static gint ett_channel_map = -1;
 static gint ett_scan_response_data = -1;
+static gint ett_btle_l2cap_msg_fragment = -1;
+static gint ett_btle_l2cap_msg_fragments = -1;
+
 
 static expert_field ei_unknown_data = EI_INIT;
 static expert_field ei_access_address_matched = EI_INIT;
@@ -139,16 +154,56 @@ static dissector_handle_t btcommon_ad_handle;
 static dissector_handle_t btcommon_le_channel_map_handle;
 static dissector_handle_t btl2cap_handle;
 
-static wmem_tree_t *connection_addresses = NULL;
+static wmem_tree_t *connection_info_tree = NULL;
 
-typedef struct _connection_address_t {
+/* Reassembly */
+static reassembly_table btle_l2cap_msg_reassembly_table;
+
+static const fragment_items btle_l2cap_msg_frag_items = {
+    /* Fragment subtrees */
+    &ett_btle_l2cap_msg_fragment,
+    &ett_btle_l2cap_msg_fragments,
+    /* Fragment fields */
+    &hf_btle_l2cap_msg_fragments,
+    &hf_btle_l2cap_msg_fragment,
+    &hf_btle_l2cap_msg_fragment_overlap,
+    &hf_btle_l2cap_msg_fragment_overlap_conflicts,
+    &hf_btle_l2cap_msg_fragment_multiple_tails,
+    &hf_btle_l2cap_msg_fragment_too_long_fragment,
+    &hf_btle_l2cap_msg_fragment_error,
+    &hf_btle_l2cap_msg_fragment_count,
+    /* Reassembled in field */
+    &hf_btle_l2cap_msg_reassembled_in,
+    /* Reassembled length field */
+    &hf_btle_l2cap_msg_reassembled_length,
+    /* Reassembled data field */
+    NULL,
+    /* Tag */
+    "BTLE L2CAP Message fragments"
+};
+
+/* Store information about a connection*/
+typedef struct _connection_info_t {
+    /*Address information*/
     guint32  interface_id;
     guint32  adapter_id;
     guint32  access_address;
 
     guint8   master_bd_addr[6];
     guint8   slave_bd_addr[6];
-} connection_address_t;
+    /* Connection information */
+    /* Data used on the first pass to get info from previos frame, result will be in per_packet_data */
+    guint    first_data_frame_seen : 1;
+    guint    nextexpectedseqnum : 1;
+    guint    segmentation_started : 1;  /* 0 = No, 1 = Yes */
+    guint    segment_len_rem;          /* The remaining segment length, used to find last segment */
+} connection_info_t;
+
+/* */
+typedef struct _btle_frame_info_t {
+    guint retransmit : 1; /* 0 = No, 1 Retransmitted frame */
+    guint more_fragments : 1; /* 0 = Last fragment, 1 = more fragments*/
+} btle_frame_info_t;
 
 static const value_string pdu_type_vals[] = {
     { 0x00, "ADV_IND" },
@@ -321,7 +376,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint8                *dst_bd_addr;
     guint8                *src_bd_addr;
     const guint8           broadcast_addr[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-    connection_address_t  *connection_address = NULL;
+    connection_info_t     *connection_info = NULL;
     wmem_tree_t           *wmem_tree;
     wmem_tree_key_t        key[5];
     guint32                interface_id;
@@ -640,15 +695,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 key[4].length = 0;
                 key[4].key = NULL;
 
-                connection_address = wmem_new(wmem_file_scope(), connection_address_t);
-                connection_address->interface_id   = interface_id;
-                connection_address->adapter_id     = adapter_id;
-                connection_address->access_address = connection_access_address;
+                connection_info = wmem_new0(wmem_file_scope(), connection_info_t);
+                connection_info->interface_id   = interface_id;
+                connection_info->adapter_id     = adapter_id;
+                connection_info->access_address = connection_access_address;
 
-                memcpy(connection_address->master_bd_addr, src_bd_addr, 6);
-                memcpy(connection_address->slave_bd_addr,  dst_bd_addr, 6);
+                memcpy(connection_info->master_bd_addr, src_bd_addr, 6);
+                memcpy(connection_info->slave_bd_addr,  dst_bd_addr, 6);
 
-                wmem_tree_insert32_array(connection_addresses, key, connection_address);
+                wmem_tree_insert32_array(connection_info_tree, key, connection_info);
             }
 
             break;
@@ -659,10 +714,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
         }
     } else { /* data PDU */
-        proto_item  *data_header_item;
+        proto_item  *data_header_item, *seq_item;
         proto_tree  *data_header_tree;
+        guint8       oct;
         guint8       llid;
         guint8       control_opcode;
+
+        btle_frame_info_t *btle_frame_info = NULL;
+        fragment_head *frag_btl2cap_msg = NULL;
 
         key[0].length = 1;
         key[0].key = &interface_id;
@@ -673,10 +732,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         key[3].length = 0;
         key[3].key = NULL;
 
-        wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connection_addresses, key);
+        oct = tvb_get_guint8(tvb, offset);
+        wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connection_info_tree, key);
         if (wmem_tree) {
-            connection_address = (connection_address_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
-            if (connection_address) {
+            connection_info = (connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
+            if (connection_info) {
                 gchar  *str_addr_src, *str_addr_dst;
                 gint tmp_dir = 0;
                 /* Holds "unknown" + access_address + NULL, which is the longest string*/
@@ -685,10 +745,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 str_addr_src = (gchar *) wmem_alloc(pinfo->pool, str_addr_len);
                 str_addr_dst = (gchar *) wmem_alloc(pinfo->pool, str_addr_len);
 
-                sub_item = proto_tree_add_ether(btle_tree, hf_master_bd_addr, tvb, 0, 0, connection_address->master_bd_addr);
+                sub_item = proto_tree_add_ether(btle_tree, hf_master_bd_addr, tvb, 0, 0, connection_info->master_bd_addr);
                 PROTO_ITEM_SET_GENERATED(sub_item);
 
-                sub_item = proto_tree_add_ether(btle_tree, hf_slave_bd_addr, tvb, 0, 0, connection_address->slave_bd_addr);
+                sub_item = proto_tree_add_ether(btle_tree, hf_slave_bd_addr, tvb, 0, 0, connection_info->slave_bd_addr);
                 PROTO_ITEM_SET_GENERATED(sub_item);
 
                 if (btle_context) {
@@ -697,17 +757,17 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 switch (tmp_dir) {
                 case BTLE_DIR_MASTER_SLAVE:
-                    g_snprintf(str_addr_src, str_addr_len, "Master_0x%08x", connection_address->access_address);
-                    g_snprintf(str_addr_dst, str_addr_len, "Slave_0x%08x", connection_address->access_address);
+                    g_snprintf(str_addr_src, str_addr_len, "Master_0x%08x", connection_info->access_address);
+                    g_snprintf(str_addr_dst, str_addr_len, "Slave_0x%08x", connection_info->access_address);
                     break;
                 case BTLE_DIR_SLAVE_MASTER:
-                    g_snprintf(str_addr_src, str_addr_len, "Slave_0x%08x", connection_address->access_address);
-                    g_snprintf(str_addr_dst, str_addr_len, "Master_0x%08x", connection_address->access_address);
+                    g_snprintf(str_addr_src, str_addr_len, "Slave_0x%08x", connection_info->access_address);
+                    g_snprintf(str_addr_dst, str_addr_len, "Master_0x%08x", connection_info->access_address);
                     break;
                 default:
                     /* BTLE_DIR_UNKNOWN */
-                    g_snprintf(str_addr_src, str_addr_len, "Unknown_0x%08x", connection_address->access_address);
-                    g_snprintf(str_addr_dst, str_addr_len, "Unknown_0x%08x", connection_address->access_address);
+                    g_snprintf(str_addr_src, str_addr_len, "Unknown_0x%08x", connection_info->access_address);
+                    g_snprintf(str_addr_dst, str_addr_len, "Unknown_0x%08x", connection_info->access_address);
                     break;
                 }
 
@@ -722,6 +782,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (!pinfo->fd->flags.visited) {
                     address *addr;
 
+                    btle_frame_info = wmem_new0(wmem_file_scope(), btle_frame_info_t);
+
                     addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
                     addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
                     p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
@@ -729,16 +791,44 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
                     addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
                     p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
+
+                    if (!connection_info->first_data_frame_seen) {
+                        connection_info->first_data_frame_seen = 1;
+                        btle_frame_info->retransmit = 0;
+                        connection_info->nextexpectedseqnum = 0;
+                    }
+                    else {
+                        if (connection_info->nextexpectedseqnum == !!(oct & 0x8)) {
+                            /* Seq = nextexpectedseqnum */
+                            btle_frame_info->retransmit = 0;
+                            connection_info->nextexpectedseqnum = !!(oct & 0x4);
+                        }
+                        else {
+                            btle_frame_info->retransmit = 1;
+                        }
+                    }
+                    p_add_proto_data(wmem_file_scope(), pinfo, proto_btle, pinfo->curr_layer_num, btle_frame_info);
+                }
+                else {
+                    /* Not the first pass */
+                    btle_frame_info = (btle_frame_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_btle, pinfo->curr_layer_num);
                 }
             }
         }
 
+        DISSECTOR_ASSERT(btle_frame_info != NULL);
         data_header_item = proto_tree_add_item(btle_tree, hf_data_header, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         data_header_tree = proto_item_add_subtree(data_header_item, ett_data_header);
 
         proto_tree_add_item(data_header_tree, hf_data_header_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(data_header_tree, hf_data_header_more_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(data_header_tree, hf_data_header_sequence_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        seq_item = proto_tree_add_item(data_header_tree, hf_data_header_sequence_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        if (btle_frame_info->retransmit == 0) {
+            proto_item_append_text(seq_item, " [OK]");
+        }
+        else {
+            proto_item_append_text(seq_item, " [Wrong SEQ (Retransmitt?)]");
+        }
         proto_tree_add_item(data_header_tree, hf_data_header_next_expected_sequence_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(data_header_tree, hf_data_header_llid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         llid = tvb_get_guint8(tvb, offset) & 0x03;
@@ -753,9 +843,70 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case 0x01: /* Continuation fragment of an L2CAP message, or an Empty PDU */
 /* TODO: Try reassemble cases 0x01 and 0x02 */
             if (length > 0) {
-                col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Fragment");
-                proto_tree_add_item(btle_tree, hf_l2cap_fragment, tvb, offset, length, ENC_NA);
-                offset += length;
+                tvbuff_t *new_tvb;
+
+                if ((!pinfo->fd->flags.visited) && (connection_info)) {
+                    if (connection_info->segmentation_started == 1) {
+                        connection_info->segment_len_rem = connection_info->segment_len_rem - length;
+                        if(connection_info->segment_len_rem > 0){
+                            btle_frame_info->more_fragments = 1;
+                        }
+                        else {
+                            btle_frame_info->more_fragments = 0;
+                            connection_info->segmentation_started = 0;
+                            connection_info->segment_len_rem = 0;
+                        }
+                    }
+                }
+                pinfo->fragmented = TRUE;
+                frag_btl2cap_msg = fragment_add_seq_next(&btle_l2cap_msg_reassembly_table,
+                    tvb, offset,
+                    pinfo,
+                    connection_info->access_address,   /* guint32 ID for fragments belonging together */
+                    NULL,                              /* data* */
+                    length,                            /* Fragment length */
+                    btle_frame_info->more_fragments);  /* More fragments */
+
+                new_tvb = process_reassembled_data(tvb, offset, pinfo,
+                    "Reassembled Message",
+                    frag_btl2cap_msg,
+                    &btle_l2cap_msg_frag_items,
+                    NULL,
+                    btle_tree);
+
+                if (new_tvb) {
+                    bthci_acl_data_t  *acl_data;
+                    gint               saved_p2p_dir;
+
+                    col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Data");
+
+                    acl_data = wmem_new(wmem_packet_scope(), bthci_acl_data_t);
+                    acl_data->interface_id = interface_id;
+                    acl_data->adapter_id = adapter_id;
+                    acl_data->chandle = 0; /* No connection handle at this layer */
+                    acl_data->remote_bd_addr_oui = 0;
+                    acl_data->remote_bd_addr_id = 0;
+
+                    saved_p2p_dir = pinfo->p2p_dir;
+                    pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+                    next_tvb = tvb_new_subset_length(tvb, offset, length);
+                    if(next_tvb){
+                        call_dissector_with_data(btl2cap_handle, new_tvb, pinfo, tree, acl_data);
+                    }
+                    offset += length;
+
+                    pinfo->p2p_dir = saved_p2p_dir;
+
+
+                }
+                else {
+                    col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Fragment");
+                    proto_tree_add_item(btle_tree, hf_l2cap_fragment, tvb, offset, length, ENC_NA);
+                    offset += length;
+                }
+
+
             } else {
                 col_set_str(pinfo->cinfo, COL_INFO, "Empty PDU");
             }
@@ -763,9 +914,35 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case 0x02: /* Start of an L2CAP message or a complete L2CAP message with no fragmentation */
             if (length > 0) {
-                if (tvb_get_letohs(tvb, offset) > length) {
+                gint le_frame_len = tvb_get_letohs(tvb, offset);
+                if (le_frame_len > length) {
 /* TODO: Try reassemble cases 0x01 and 0x02 */
-                    col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Fragment");
+                    if ((!pinfo->fd->flags.visited) && (connection_info )){
+                        connection_info->segmentation_started = 1;
+                        /* The first two octets in the L2CAP PDU contain the length of the entire
+                         * L2CAP PDU in octets, excluding the Length and CID fields(4 octets).
+                         */
+                        connection_info->segment_len_rem = le_frame_len + 4 - length;
+                        btle_frame_info->more_fragments = 1;
+                    }
+                    pinfo->fragmented = TRUE;
+
+                    frag_btl2cap_msg = fragment_add_seq_next(&btle_l2cap_msg_reassembly_table,
+                        tvb, offset,
+                        pinfo,
+                        connection_info->access_address, /* guint32 ID for fragments belonging together */
+                        NULL,
+                        length, /* Fragment length */
+                        TRUE);  /* More fragments */
+
+                    process_reassembled_data(tvb, offset, pinfo,
+                        "Reassembled Message",
+                        frag_btl2cap_msg,
+                        &btle_l2cap_msg_frag_items,
+                        NULL,
+                        btle_tree);
+
+                    col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Fragment Start");
                     proto_tree_add_item(btle_tree, hf_l2cap_fragment, tvb, offset, length, ENC_NA);
                     offset += length;
                 } else {
@@ -1001,6 +1178,19 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     return offset;
+}
+
+static void
+init_btle(void)
+{
+    reassembly_table_init(&btle_l2cap_msg_reassembly_table,
+        &addresses_reassembly_table_functions);
+}
+
+static void
+cleanup_btle(void)
+{
+    reassembly_table_destroy(&btle_l2cap_msg_reassembly_table);
 }
 
 void
@@ -1385,6 +1575,57 @@ proto_register_btle(void)
             FT_UINT24, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_btle_l2cap_msg_fragments,
+        { "Message fragments", "btle.msg.fragments",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btle_l2cap_msg_fragment,
+        { "Message fragment", "btle.msg.fragment",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btle_l2cap_msg_fragment_overlap,
+        { "Message fragment overlap", "btle.msg.fragment.overlap",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btle_l2cap_msg_fragment_overlap_conflicts,
+        { "Message fragment overlapping with conflicting data", "btle.msg.fragment.overlap.conflicts",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btle_l2cap_msg_fragment_multiple_tails,
+        { "Message has multiple tail fragments", "btle.msg.fragment.multiple_tails",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btle_l2cap_msg_fragment_too_long_fragment,
+        { "Message fragment too long", "btle.msg.fragment.too_long_fragment",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btle_l2cap_msg_fragment_error,
+        { "Message defragmentation error", "btle.msg.fragment.error",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btle_l2cap_msg_fragment_count,
+        { "Message fragment count", "btle.msg.fragment.count",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btle_l2cap_msg_reassembled_in,
+        { "Reassembled in", "btle.msg.reassembled.in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btle_l2cap_msg_reassembled_length,
+        { "Reassembled btle length", "btle.msg.reassembled.length",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+
     };
 
     static ei_register_info ei[] = {
@@ -1411,10 +1652,12 @@ proto_register_btle(void)
         &ett_data_header,
         &ett_features,
         &ett_channel_map,
-        &ett_scan_response_data
+        &ett_scan_response_data,
+        &ett_btle_l2cap_msg_fragment,
+        &ett_btle_l2cap_msg_fragments
     };
 
-    connection_addresses = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    connection_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_btle = proto_register_protocol("Bluetooth Low Energy Link Layer",
             "BT LE LL", "btle");
@@ -1430,6 +1673,9 @@ proto_register_btle(void)
     prefs_register_static_text_preference(module, "version",
             "Bluetooth LE LL version: 4.1 (Core)",
             "Version of protocol supported by this dissector.");
+
+    register_init_routine(&init_btle);
+    register_cleanup_routine(&cleanup_btle);
 }
 
 void
