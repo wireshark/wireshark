@@ -1,0 +1,2601 @@
+import "winreg.idl", "misc.idl";
+
+#include "idl_types.h"
+
+[
+	uuid("b97db8b2-4c63-11cf-bff6-08002be23f2f"),
+	version(3.0),
+	pointer_default(unique),
+	endpoint("ncacn_ip_tcp:"),
+	authservice("MSServerClusterMgmtAPI"),
+	helpstring("Failover Cluster Management API (clusapi)")
+]
+	interface clusapi
+{
+#if 0
+	/*
+	 * pidl does not yet have a real [context_handle] implementation, so we
+	 * just use some defines here.
+	 */
+
+	typedef [context_handle] void *HCLUSTER_RPC;
+	typedef [context_handle] void *HNODE_RPC;
+	typedef [context_handle] void *HGROUP_RPC;
+	typedef [context_handle] void *HRES_RPC;
+	typedef [context_handle] void *HKEY_RPC;
+	typedef [context_handle] void *HNOTIFY_RPC;
+	typedef [context_handle] void *HNETWORK_RPC;
+	typedef [context_handle] void *HNETINTERFACE_RPC;
+	typedef [context_handle] void *HBATCH_PORT_RPC;
+#else
+#define HCLUSTER_RPC policy_handle
+#define HNODE_RPC policy_handle
+#define HGROUP_RPC policy_handle
+#define HRES_RPC policy_handle
+#define HKEY_RPC policy_handle
+#define HNOTIFY_RPC policy_handle
+#define HNETWORK_RPC policy_handle
+#define HNETINTERFACE_RPC policy_handle
+#define HBATCH_PORT_RPC policy_handle
+#endif
+
+	typedef struct {
+		[ size_is( cbInSecurityDescriptor ), length_is( cbOutSecurityDescriptor ) ] uint8 *lpSecurityDescriptor;
+		uint32 cbInSecurityDescriptor;
+		uint32 cbOutSecurityDescriptor;
+	} RPC_SECURITY_DESCRIPTOR;
+
+	typedef struct {
+		uint32 nLength;
+		RPC_SECURITY_DESCRIPTOR RpcSecurityDescriptor;
+		long bInheritHandle;
+	} RPC_SECURITY_ATTRIBUTES;
+
+	typedef struct {
+		[value(20)] uint32 dwSize;
+		uint32 dwClusterHighestVersion;
+		uint32 dwClusterLowestVersion;
+		uint32 dwFlags;
+		uint32 dwReserved;
+	} CLUSTER_OPERATIONAL_VERSION_INFO;
+
+	typedef struct {
+		uint32	 NodeId;
+		boolean8  SetAttempted;
+		uint32	 ReturnStatus;
+	} IDL_CLUSTER_SET_PASSWORD_STATUS;
+
+	typedef enum {
+		IDL_CLUSTER_SET_PASSWORD_IGNORE_DOWN_NODES = 1
+	} IDL_CLUSTER_SET_PASSWORD_FLAGS;
+
+	typedef struct {
+		uint32	dwVersion;
+		uint32	dwGroupType;
+	} CLUSTER_CREATE_GROUP_INFO_RPC;
+
+	/*****************/
+	/* Function 0x00 */
+
+#if 0
+	/*
+	 * pidl cannot generate code for functions that return structures in
+	 * IDL, therefore pretend the function is void and add the returned
+	 * structure as an out parameter. This is what we do with pretty much
+	 * all the Open calls right now in this interface - gd
+	 */
+
+	HCLUSTER_RPC
+	clusapi_OpenCluster(
+		[ out ] WERROR *Status
+	);
+#else
+	void
+	clusapi_OpenCluster(
+		[ out ] WERROR *Status,
+		[ out ] HCLUSTER_RPC *Cluster
+	);
+#endif
+
+	/*****************/
+	/* Function 0x01 */
+
+	WERROR
+	clusapi_CloseCluster(
+		[ in, out ] HCLUSTER_RPC *Cluster
+	);
+
+	/*****************/
+	/* Function 0x02 */
+
+	WERROR
+	clusapi_SetClusterName(
+		[ in, string ] [charset(UTF16)] uint16 *NewClusterName,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x03 */
+
+	WERROR
+	clusapi_GetClusterName(
+		[ out, string ] [charset(UTF16)] uint16 **ClusterName,
+		[ out, string ] [charset(UTF16)] uint16 **NodeName
+	);
+
+	/*****************/
+	/* Function 0x04 */
+
+	WERROR
+	clusapi_GetClusterVersion(
+		[ out ] uint16 *lpwMajorVersion,
+		[ out ] uint16 *lpwMinorVersion,
+		[ out ] uint16 *lpwBuildNumber,
+		[ out, string ] [charset(UTF16)] uint16 **lpszVendorId,
+		[ out, string ] [charset(UTF16)] uint16 **lpszCSDVersion
+	);
+
+	/*****************/
+	/* Function 0x05 */
+
+	WERROR
+	clusapi_GetQuorumResource(
+		[ out, string ] [charset(UTF16)] uint16 **lpszResourceName,
+		[ out, string ] [charset(UTF16)] uint16 **lpszDeviceName,
+		[ out ] uint32 *pdwMaxQuorumLogSize,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x06 */
+
+	WERROR
+	clusapi_SetQuorumResource(
+		[ in ] HRES_RPC hResource,
+		[ in, string ] [charset(UTF16)] uint16 *lpszDeviceName,
+		[ in ] uint32	 dwMaxQuorumLogSize,
+		[ out ] WERROR *rpc_status
+	);
+
+	typedef [bitmap32bit] bitmap {
+		CLUSTER_ENUM_NODE			= 0x00000001,
+		CLUSTER_ENUM_RESTYPE			= 0x00000002,
+		CLUSTER_ENUM_RESOURCE			= 0x00000004,
+		CLUSTER_ENUM_GROUP			= 0x00000008,
+		CLUSTER_ENUM_NETWORK			= 0x00000010,
+		CLUSTER_ENUM_NETINTERFACE		= 0x00000020,
+		CLUSTER_ENUM_INTERNAL_NETWORK		= 0x80000000,
+		CLUSTER_ENUM_SHARED_VOLUME_RESOURCE	= 0x40000000
+	} ClusterEnumType;
+
+	typedef struct {
+		ClusterEnumType Type;
+		[string] [charset(UTF16)] uint16 *Name;
+	} ENUM_ENTRY;
+
+	typedef struct {
+		uint32 EntryCount;
+		[size_is(EntryCount)] ENUM_ENTRY Entry[*];
+	} ENUM_LIST;
+
+	typedef struct {
+		[string] [charset(UTF16)] uint16 *Name;
+		[string] [charset(UTF16)] uint16 *Id;
+		uint32 dwState;
+		[string] [charset(UTF16)] uint16 *Owner;
+		uint32 dwFlags;
+		uint32 cbProperties;
+		[size_is(cbProperties)] uint8* Properties;
+		uint32 cbRoProperties;
+		[size_is(cbRoProperties)] uint8* RoProperties;
+	} GROUP_ENUM_ENTRY;
+
+	typedef struct {
+		[string] [charset(UTF16)] uint16 *Name;
+		[string] [charset(UTF16)] uint16 *Id;
+		[string] [charset(UTF16)] uint16 *OwnerName;
+		[string] [charset(UTF16)] uint16 *OwnerId;
+		uint32 cbProperties;
+		[size_is(cbProperties)] uint8* Properties;
+		uint32 cbRoProperties;
+		[size_is(cbRoProperties)] uint8* RoProperties;
+	} RESOURCE_ENUM_ENTRY;
+
+	typedef struct {
+		uint32 EntryCount;
+		[size_is(EntryCount)] GROUP_ENUM_ENTRY Entry[*];
+	} GROUP_ENUM_LIST;
+
+	typedef struct {
+		uint32 EntryCount;
+		[size_is(EntryCount)] RESOURCE_ENUM_ENTRY Entry[*];
+	} RESOURCE_ENUM_LIST;
+
+	/*****************/
+	/* Function 0x07 */
+
+	WERROR
+	clusapi_CreateEnum(
+		[ in ] ClusterEnumType dwType,
+		[ out ] ENUM_LIST **ReturnEnum,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x08 */
+
+#if 0
+	HRES_RPC
+	clusapi_OpenResource(
+		[ in, string ] [charset(UTF16)] uint16 *lpszResourceName,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_OpenResource(
+		[ in, string ] [charset(UTF16)] uint16 *lpszResourceName,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HRES_RPC *hResource
+	);
+#endif
+	/*****************/
+	/* Function 0x09 */
+
+	typedef [v1_enum] enum {
+		CLUSTER_RESOURCE_DEFAULT_MONITOR	= 0x00000000,
+		CLUSTER_RESOURCE_SEPARATE_MONITOR	= 0x00000001
+	} clusapi_CreateResourceFlags;
+
+#if 0
+	HRES_RPC
+	clusapi_CreateResource(
+		[ in ] HGROUP_RPC hGroup,
+		[ in, string ] [charset(UTF16)] uint16 *lpszResourceName,
+		[ in, string ] [charset(UTF16)] uint16 *lpszResourceType,
+		[ in ] clusapi_CreateResourceFlags dwFlags,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_CreateResource(
+		[ in ] HGROUP_RPC hGroup,
+		[ in, string ] [charset(UTF16)] uint16 *lpszResourceName,
+		[ in, string ] [charset(UTF16)] uint16 *lpszResourceType,
+		[ in ] clusapi_CreateResourceFlags dwFlags,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HRES_RPC *hResource
+	);
+#endif
+	/*****************/
+	/* Function 0x0A */
+
+	WERROR
+	clusapi_DeleteResource(
+		[ in ] HRES_RPC hResource,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x0B */
+
+	WERROR
+	clusapi_CloseResource(
+		[ in, out ] HRES_RPC *Resource
+	);
+
+	/*****************/
+	/* Function 0x0C */
+
+	typedef [v1_enum] enum {
+		ClusterResourceInitializing	= 0x00000001,
+		ClusterResourceOnline		= 0x00000002,
+		ClusterResourceOffline		= 0x00000003,
+		ClusterResourceFailed		= 0x00000004,
+		ClusterResourceOnlinePending	= 0x00000081,
+		ClusterResourceOfflinePending	= 0x00000082,
+		ClusterResourceStateUnknown	= 0xFFFFFFFF
+	} clusapi_ClusterResourceState;
+
+	WERROR
+	clusapi_GetResourceState(
+		[ in ] HRES_RPC hResource,
+		[ out ] clusapi_ClusterResourceState *State,
+		[ out, string ] [charset(UTF16)] uint16 **NodeName,
+		[ out, string ] [charset(UTF16)] uint16 **GroupName,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x0D */
+
+	WERROR
+	clusapi_SetResourceName(
+		[ in ] HRES_RPC hResource,
+		[ in, string ] [charset(UTF16)] uint16 *lpszResourceName,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x0E */
+
+	WERROR
+	clusapi_GetResourceId(
+		[ in ] HRES_RPC hResource,
+		[ out, string ] [charset(UTF16)] uint16 **pGuid,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x0F */
+
+	WERROR
+	clusapi_GetResourceType(
+		[ in ] HRES_RPC hResource,
+		[ out, string ] [charset(UTF16)] uint16 **lpszResourceType,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x10 */
+
+	WERROR
+	clusapi_FailResource(
+		[ in ] HRES_RPC hResource,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x11 */
+
+	WERROR
+	clusapi_OnlineResource(
+		[ in ] HRES_RPC hResource,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x12 */
+
+	WERROR
+	clusapi_OfflineResource(
+		[ in ] HRES_RPC hResource,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x13 */
+
+	WERROR
+	clusapi_AddResourceDependency(
+		[ in ] HRES_RPC hResource,
+		[ in ] HRES_RPC hDependsOn,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x14 */
+
+	WERROR
+	clusapi_RemoveResourceDependency(
+		[ in ] HRES_RPC hResource,
+		[ in ] HRES_RPC hDependsOn,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x15 */
+
+	WERROR
+	clusapi_CanResourceBeDependent(
+		[ in ] HRES_RPC hResource,
+		[ in ] HRES_RPC hResourceDependent,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x16 */
+
+	WERROR
+	clusapi_CreateResEnum(
+		[ in ] HRES_RPC hResource,
+		[ in ] uint32 dwType,
+		[ out ] ENUM_LIST **ReturnEnum,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x17 */
+
+	WERROR
+	clusapi_AddResourceNode(
+		[ in ] HRES_RPC hResource,
+		[ in ] HNODE_RPC hNode,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x18 */
+
+	WERROR
+	clusapi_RemoveResourceNode(
+		[ in ] HRES_RPC hResource,
+		[ in ] HNODE_RPC hNode,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x19 */
+
+	WERROR
+	clusapi_ChangeResourceGroup(
+		[ in ] HRES_RPC hResource,
+		[ in ] HGROUP_RPC hGroup,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x1A */
+
+	WERROR
+	clusapi_CreateResourceType(
+		[ in, string ] [charset(UTF16)] uint16 *lpszTypeName,
+		[ in, string ] [charset(UTF16)] uint16 *lpszDisplayName,
+		[ in, string ] [charset(UTF16)] uint16 *lpszDllName,
+		[ in ] uint32 dwLooksAlive,
+		[ in ] uint32 dwIsAlive,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x1B */
+
+	WERROR
+	clusapi_DeleteResourceType(
+		[ in, string ] [charset(UTF16)] uint16 *lpszTypeName,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x1C */
+#if 0
+	HKEY_RPC
+	clusapi_GetRootKey(
+		[ in ] winreg_AccessMask samDesired,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_GetRootKey(
+		[ in ] winreg_AccessMask samDesired,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HKEY_RPC *phKey
+	);
+#endif
+	/*****************/
+	/* Function 0x1D */
+#if 0
+	HKEY_RPC
+	clusapi_CreateKey(
+		[ in ] HKEY_RPC hKey,
+		[ in, string ] [charset(UTF16)] uint16 *lpSubKey,
+		[ in ] uint32 dwOptions,
+		[ in ] winreg_AccessMask samDesired,
+		[ in, unique ] RPC_SECURITY_ATTRIBUTES *lpSecurityAttributes,
+		[ out ] uint32 *lpdwDisposition,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_CreateKey(
+		[ in ] HKEY_RPC hKey,
+		[ in, string ] [charset(UTF16)] uint16 *lpSubKey,
+		[ in ] uint32 dwOptions,
+		[ in ] winreg_AccessMask samDesired,
+		[ in, unique ] RPC_SECURITY_ATTRIBUTES *lpSecurityAttributes,
+		[ out ] uint32 *lpdwDisposition,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HKEY_RPC *phKey
+	);
+#endif
+	/*****************/
+	/* Function 0x1E */
+#if 0
+	HKEY_RPC
+	clusapi_OpenKey(
+		[ in ] HKEY_RPC hKey,
+		[ in, string ] [charset(UTF16)] uint16 *lpSubKey,
+		[ in ] winreg_AccessMask samDesired,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_OpenKey(
+		[ in ] HKEY_RPC hKey,
+		[ in, string ] [charset(UTF16)] uint16 *lpSubKey,
+		[ in ] winreg_AccessMask samDesired,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HKEY_RPC *phKey
+	);
+#endif
+	/*****************/
+	/* Function 0x1F */
+
+	WERROR
+	clusapi_EnumKey(
+		[ in ] HKEY_RPC hKey,
+		[ in ] uint32 dwIndex,
+		[ out, string ] [charset(UTF16)] uint16 **KeyName,
+		[ out ] NTTIME *lpftLastWriteTime,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x20 */
+
+	WERROR
+	clusapi_SetValue(
+		[ in ] HKEY_RPC hKey,
+		[ in, string ] [charset(UTF16)] uint16 *lpValueName,
+		[ in ] winreg_Type dwType,
+		[ in, size_is(cbData) ] uint8 *lpData,
+		[ in ] uint32 cbData,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x21 */
+
+	WERROR
+	clusapi_DeleteValue(
+		[ in ] HKEY_RPC hKey,
+		[ in, string ] [charset(UTF16)] uint16 *lpValueName,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x22 */
+
+	WERROR
+	clusapi_QueryValue(
+		[ in ] HKEY_RPC hKey,
+		[ in, string ] [charset(UTF16)] uint16 *lpValueName,
+		[ out ] winreg_Type *lpValueType,
+		[ out, size_is(cbData) ] uint8 *lpData,
+		[ in ] uint32 cbData,
+		[ out ] uint32 *lpcbRequired,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x23 */
+
+	WERROR
+	clusapi_DeleteKey(
+		[ in ] HKEY_RPC hKey,
+		[ in, string ] [charset(UTF16)] uint16 *lpSubKey,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x24 */
+
+	WERROR
+	clusapi_EnumValue(
+		[ in ] HKEY_RPC hKey,
+		[ in ] uint32 dwIndex,
+		[ out, string ] [charset(UTF16)] uint16 **lpValueName,
+		[ out ] winreg_Type *lpType,
+		[ out, size_is(*lpcbData) ] uint8 *lpData,
+		[ in, out ] uint32 *lpcbData,
+		[ out ] uint32 *TotalSize,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x25 */
+
+	WERROR
+	clusapi_CloseKey(
+		[ in, out ] HKEY_RPC *pKey
+	);
+
+	/*****************/
+	/* Function 0x26 */
+
+	WERROR
+	clusapi_QueryInfoKey(
+		[ in ] HKEY_RPC hKey,
+		[ out ] uint32 *lpcSubKeys,
+		[ out ] uint32 *lpcbMaxSubKeyLen,
+		[ out ] uint32 *lpcValues,
+		[ out ] uint32 *lpcbMaxValueNameLen,
+		[ out ] uint32 *lpcbMaxValueLen,
+		[ out ] uint32 *lpcbSecurityDescriptor,
+		[ out ] NTTIME *lpftLastWriteTime,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x27 */
+
+	WERROR
+	clusapi_SetKeySecurity(
+		[ in ] HKEY_RPC hKey,
+		[ in ] uint32 SecurityInformation,
+		[ in ] RPC_SECURITY_DESCRIPTOR *pRpcSecurityDescriptor,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x28 */
+
+	WERROR
+	clusapi_GetKeySecurity(
+		[ in ] HKEY_RPC hKey,
+		[ in ] uint32 SecurityInformation,
+		[ in, out ] RPC_SECURITY_DESCRIPTOR *pRpcSecurityDescriptor,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x29 */
+#if 0
+	HGROUP_RPC
+	clusapi_OpenGroup(
+		[ in, string ] [charset(UTF16)] uint16 *lpszGroupName,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_OpenGroup(
+		[ in, string ] [charset(UTF16)] uint16 *lpszGroupName,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HGROUP_RPC *hGroup
+	);
+#endif
+	/*****************/
+	/* Function 0x2A */
+#if 0
+	HGROUP_RPC
+	clusapi_CreateGroup(
+		[ in, string ] [charset(UTF16)] uint16 *lpszGroupName,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_CreateGroup(
+		[ in, string ] [charset(UTF16)] uint16 *lpszGroupName,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HGROUP_RPC *hGroup
+	);
+#endif
+	/*****************/
+	/* Function 0x2B */
+
+	WERROR
+	clusapi_DeleteGroup(
+		[ in ] HGROUP_RPC Group,
+		[ in ] boolean8 force,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x2C */
+
+	WERROR
+	clusapi_CloseGroup(
+		[ in, out ] HGROUP_RPC *Group
+	);
+
+	/*****************/
+	/* Function 0x2D */
+
+	typedef [v1_enum] enum {
+		ClusterGroupOnline		= 0x00000000,
+		ClusterGroupOffline		= 0x00000001,
+		ClusterGroupFailed		= 0x00000002,
+		ClusterGroupPartialOnline	= 0x00000003,
+		ClusterGroupPending		= 0x00000004,
+		ClusterGroupStateUnknown	= 0xFFFFFFFF
+	} clusapi_ClusterGroupState;
+
+	WERROR
+	clusapi_GetGroupState(
+		[ in ] HGROUP_RPC hGroup,
+		[ out ] clusapi_ClusterGroupState *State,
+		[ out, string ] [charset(UTF16)] uint16 **NodeName,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x2E */
+
+	WERROR
+	clusapi_SetGroupName(
+		[ in ] HGROUP_RPC hGroup,
+		[ in, string ] [charset(UTF16)] uint16 *lpszGroupName,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x2F */
+
+	WERROR
+	clusapi_GetGroupId(
+		[ in ] HGROUP_RPC hGroup,
+		[ out, string ] [charset(UTF16)] uint16 **pGuid,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x30 */
+
+	WERROR
+	clusapi_GetNodeId(
+		[ in ] HNODE_RPC hNode,
+		[ out, string ] [charset(UTF16)] uint16 **pGuid,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x31 */
+
+	WERROR
+	clusapi_OnlineGroup(
+		[ in ] HGROUP_RPC hGroup,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x32 */
+
+	WERROR
+	clusapi_OfflineGroup(
+		[ in ] HGROUP_RPC hGroup,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x33 */
+
+	WERROR
+	clusapi_MoveGroup(
+		[ in ] HGROUP_RPC hGroup,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x34 */
+
+	WERROR
+	clusapi_MoveGroupToNode(
+		[ in ] HGROUP_RPC hGroup,
+		[ in ] HNODE_RPC hNode,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x35 */
+
+	typedef [bitmap32bit] bitmap {
+		CLUSTER_GROUP_ENUM_CONTAINS		= 0x00000001,
+		CLUSTER_GROUP_ENUM_NODES		= 0x00000002
+	} ClusterGroupEnumType;
+
+	WERROR
+	clusapi_CreateGroupResourceEnum(
+		[ in ] HGROUP_RPC hGroup,
+		[ in ] ClusterGroupEnumType dwType,
+		[ out ] ENUM_LIST **ReturnEnum,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x36 */
+
+	WERROR
+	clusapi_SetGroupNodeList(
+		[ in ] HGROUP_RPC hGroup,
+		[ in, unique, size_is(cchListSize) ] uint16 *multiSzNodeList,
+		[ in ] uint32 cchListSize,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x37 */
+#if 0
+	HNOTIFY_RPC
+	clusapi_CreateNotify(
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_CreateNotify(
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HNOTIFY_RPC *hNotify
+	);
+#endif
+	/*****************/
+	/* Function 0x38 */
+
+	WERROR
+	clusapi_CloseNotify(
+		[ in, out ] HNOTIFY_RPC *Notify
+	);
+
+	/*****************/
+	/* Function 0x39 */
+
+	WERROR
+	clusapi_AddNotifyCluster(
+		[ in ] HNOTIFY_RPC hNotify,
+		[ in ] HCLUSTER_RPC hCluster,
+		[ in ] uint32 dwFilter,
+		[ in ] uint32 dwNotifyKey,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x3A */
+
+	WERROR
+	clusapi_AddNotifyNode(
+		[ in ] HNOTIFY_RPC hNotify,
+		[ in ] HNODE_RPC hNode,
+		[ in ] uint32 dwFilter,
+		[ in ] uint32 dwNotifyKey,
+		[ out ] uint32 *dwStateSequence,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x3B */
+
+	WERROR
+	clusapi_AddNotifyGroup(
+		[ in ] HNOTIFY_RPC hNotify,
+		[ in ] HGROUP_RPC hGroup,
+		[ in ] uint32 dwFilter,
+		[ in ] uint32 dwNotifyKey,
+		[ out ] uint32 *dwStateSequence,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x3C */
+
+	WERROR
+	clusapi_AddNotifyResource(
+		[ in ] HNOTIFY_RPC hNotify,
+		[ in ] HRES_RPC hResource,
+		[ in ] uint32 dwFilter,
+		[ in ] uint32 dwNotifyKey,
+		[ out ] uint32 *dwStateSequence,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x3D */
+
+	WERROR
+	clusapi_AddNotifyKey(
+		[ in ] HNOTIFY_RPC hNotify,
+		[ in ] HKEY_RPC hKey,
+		[ in ] uint32 dwNotifyKey,
+		[ in ] uint32 Filter,
+		[ in ] boolean8 WatchSubTree,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x3E */
+
+	WERROR
+	clusapi_ReAddNotifyNode(
+		[ in ] HNOTIFY_RPC hNotify,
+		[ in ] HNODE_RPC hNode,
+		[ in ] uint32 dwFilter,
+		[ in ] uint32 dwNotifyKey,
+		[ in ] uint32 StateSequence,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x3F */
+
+	WERROR
+	clusapi_ReAddNotifyGroup(
+		[ in ] HNOTIFY_RPC hNotify,
+		[ in ] HGROUP_RPC hGroup,
+		[ in ] uint32 dwFilter,
+		[ in ] uint32 dwNotifyKey,
+		[ in ] uint32 StateSequence,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x40 */
+
+	WERROR
+	clusapi_ReAddNotifyResource(
+		[ in ] HNOTIFY_RPC hNotify,
+		[ in ] HRES_RPC hResource,
+		[ in ] uint32 dwFilter,
+		[ in ] uint32 dwNotifyKey,
+		[ in ] uint32 StateSequence,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x41 */
+
+	WERROR
+	clusapi_GetNotify(
+		[ in ] HNOTIFY_RPC hNotify,
+		[ out ] uint32 *dwNotifyKey,
+		[ out ] uint32 *dwFilter,
+		[ out ] uint32 *dwStateSequence,
+		[ out, string ] [charset(UTF16)] uint16 **Name,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x42 */
+#if 0
+	HNODE_RPC
+	clusapi_OpenNode(
+		[ in, string ] [charset(UTF16)] uint16 *lpszNodeName,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_OpenNode(
+		[ in, string ] [charset(UTF16)] uint16 *lpszNodeName,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HNODE_RPC *hNode
+	);
+#endif
+	/*****************/
+	/* Function 0x43 */
+
+	WERROR
+	clusapi_CloseNode(
+		[ in, out ] HNODE_RPC *Node
+	);
+
+	/*****************/
+	/* Function 0x44 */
+
+	typedef [v1_enum] enum {
+		ClusterNodeUp		= 0x00000000,
+		ClusterNodeDown		= 0x00000001,
+		ClusterNodePaused	= 0x00000002,
+		ClusterNodeJoining	= 0x00000003,
+		ClusterNodeStateUnknown	= 0xFFFFFFFF
+	} clusapi_ClusterNodeState;
+
+	WERROR
+	clusapi_GetNodeState(
+		[ in ] HNODE_RPC hNode,
+		[ out ] clusapi_ClusterNodeState *State,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x45 */
+
+	WERROR
+	clusapi_PauseNode(
+		[ in ] HNODE_RPC hNode,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x46 */
+
+	WERROR
+	clusapi_ResumeNode(
+		[ in ] HNODE_RPC hNode,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x47 */
+
+	WERROR
+	clusapi_EvictNode(
+		[ in ] HNODE_RPC hNode,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x48 */
+
+	WERROR
+	clusapi_NodeResourceControl(
+		[ in ] HRES_RPC hResource,
+		[ in ] HNODE_RPC hNode,
+		[ in ] uint32 dwControlCode,
+		[ in, unique, size_is(nInBufferSize) ] uint8 *lpInBuffer,
+		[ in ] uint32 nInBufferSize,
+		[ out, size_is(nOutBufferSize),
+			 length_is (*lpBytesReturned)] uint8 *lpOutBuffer,
+		[ in ] uint32 nOutBufferSize,
+		[ out ] uint32 *lpBytesReturned,
+		[ out ] uint32 *lpcbRequired,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x49 */
+
+	typedef [v1_enum] enum {
+		CLUS_RESCLASS_UNKNOWN	= 0x00000000,
+		CLUS_RESCLASS_STORAGE	= 0x00000001,
+		CLUS_RESCLASS_NETWORK	= 0x00000002
+	} clusapi_ResourceClass;
+
+	typedef [public] struct {
+		clusapi_ResourceClass Class;
+		uint32 SubClass;
+	} CLUS_RESOURCE_CLASS_INFO;
+
+	typedef [v1_enum] enum {
+		CLUSCTL_RESOURCE_UNKNOWN			= 0x1000000,
+		CLUSCTL_RESOURCE_GET_CHARACTERISTICS		= 0x1000005,
+		CLUSCTL_RESOURCE_GET_FLAGS			= 0x1000009,
+		CLUSCTL_RESOURCE_GET_CLASS_INFO			= 0x100000D,
+		CLUSCTL_RESOURCE_GET_REQUIRED_DEPENDENCIES	= 0x1000011,
+		CLUSCTL_RESOURCE_GET_NAME			= 0x1000029,
+		CLUSCTL_RESOURCE_GET_RESOURCE_TYPE		= 0x100002D,
+		CLUSCTL_RESOURCE_GET_ID				= 0x1000039,
+		CLUSCTL_RESOURCE_ENUM_COMMON_PROPERTIES		= 0x1000051,
+		CLUSCTL_RESOURCE_GET_RO_COMMON_PROPERTIES	= 0x1000055,
+		CLUSCTL_RESOURCE_GET_COMMON_PROPERTIES		= 0x1000059,
+		CLUSCTL_RESOURCE_SET_COMMON_PROPERTIES		= 0x140005E,
+		CLUSCTL_RESOURCE_VALIDATE_COMMON_PROPERTIES	= 0x1000061,
+		CLUSCTL_RESOURCE_GET_COMMON_PROPERTY_FMTS	= 0x1000065,
+		CLUSCTL_RESOURCE_ENUM_PRIVATE_PROPERTIES	= 0x1000079,
+		CLUSCTL_RESOURCE_GET_RO_PRIVATE_PROPERTIES	= 0x100007D,
+		CLUSCTL_RESOURCE_GET_PRIVATE_PROPERTIES		= 0x1000081,
+		CLUSCTL_RESOURCE_SET_PRIVATE_PROPERTIES		= 0x1400086,
+		CLUSCTL_RESOURCE_VALIDATE_PRIVATE_PROPERTIES	= 0x1000089,
+		CLUSCTL_RESOURCE_GET_PRIVATE_PROPERTY_FMTS	= 0x100008D,
+		CLUSCTL_RESOURCE_ADD_REGISTRY_CHECKPOINT	= 0x14000A2,
+		CLUSCTL_RESOURCE_DELETE_REGISTRY_CHECKPOINT	= 0x14000A6,
+		CLUSCTL_RESOURCE_GET_REGISTRY_CHECKPOINTS	= 0x10000A9,
+		CLUSCTL_RESOURCE_ADD_CRYPTO_CHECKPOINT		= 0x14000AE,
+		CLUSCTL_RESOURCE_DELETE_CRYPTO_CHECKPOINT	= 0x14000B2,
+		CLUSCTL_RESOURCE_GET_CRYPTO_CHECKPOINTS		= 0x010000B5,
+		CLUSCTL_RESOURCE_UPGRADE_DLL			= 0x14000BA,
+		CLUSCTL_RESOURCE_ADD_REGISTRY_CHECKPOINT_64BIT	= 0x14000BE,
+		CLUSCTL_RESOURCE_ADD_REGISTRY_CHECKPOINT_32BIT	= 0x14000C2,
+		CLUSCTL_RESOURCE_GET_NETWORK_NAME		= 0x1000169,
+		CLUSCTL_RESOURCE_NETNAME_REGISTER_DNS_RECORDS	= 0x1000172,
+		CLUSCTL_RESOURCE_GET_DNS_NAME			= 0x1000175,
+		CLUSCTL_RESOURCE_NETNAME_SET_PWD_INFO		= 0x100017A,
+		CLUSCTL_RESOURCE_NETNAME_DELETE_CO		= 0x100017E,
+		CLUSCTL_RESOURCE_NETNAME_VALIDATE_VCO		= 0x1000181,
+		CLUSCTL_RESOURCE_NETNAME_RESET_VCO		= 0x1000185,
+		CLUSCTL_RESOURCE_NETNAME_CREDS_UPDATED		= 0x1c0018a,
+		CLUSCTL_RESOURCE_STORAGE_GET_DISK_INFO		= 0x1000191,
+		CLUSCTL_RESOURCE_STORAGE_IS_PATH_VALID		= 0x1000199,
+		CLUSCTL_RESOURCE_IPADDRESS_RENEW_LEASE		= 0x14001BE,
+		CLUSCTL_RESOURCE_IPADDRESS_RELEASE_LEASE	= 0x14001C2,
+		CLUSCTL_RESOURCE_QUERY_MAINTENANCE_MODE		= 0x10001E1,
+		CLUSCTL_RESOURCE_SET_MAINTENANCE_MODE		= 0x14001E6,
+		CLUSCTL_RESOURCE_STORAGE_SET_DRIVELETTER	= 0x14001EA,
+		CLUSCTL_RESOURCE_STORAGE_GET_DISK_INFO_EX	= 0x10001F1,
+		CLUSCTL_RESOURCE_STORAGE_GET_DIRTY		= 0x1000219,
+		CLUSCTL_RESOURCE_STORAGE_GET_MOUNTPOINTS	= 0x1000211,
+		CLUSCTL_RESOURCE_STORAGE_GET_SHARED_VOLUME_INFO = 0x1000225,
+		CLUSCTL_RESOURCE_VM_START_MIGRATION		= 0x1600004,
+		CLUSCTL_RESOURCE_VM_CANCEL_MIGRATION		= 0x1600008,
+		CLUSCTL_RESOURCE_SET_CSV_MAINTENANCE_MODE	= 0x1400296,
+		CLUSCTL_RESOURCE_ENABLE_SHARED_VOLUME_DIRECTIO	= 0x140028a,
+		CLUSCTL_RESOURCE_DISABLE_SHARED_VOLUME_DIRECTIO	= 0x140028e,
+		CLUSCTL_RESOURCE_SET_SHARED_VOLUME_BACKUP_MODE	= 0x140029a,
+		CLUSCTL_RESOURCE_GET_RELATED_RESOURCE_NAMES	= 0x1001fad,
+		CLUSCTL_RESOURCE_POOL_GET_DRIVE_INFO		= 0x10002b5,
+		CLUSCTL_RESOURCE_CLOUD_WITNESS_UPDATE_TOKEN	= 0x014020e6,
+		CLUSCTL_RESOURCE_NETNAME_CHECK_OU_PERMISSIONS	= 0x07002121,
+		CLUSCTL_RESOURCE_NETNAME_CHECK_AD_STATE		= 0x07002125
+	} clusapi_ResourceControlCode;
+
+	WERROR
+	clusapi_ResourceControl(
+		[ in ] HRES_RPC hResource,
+		[ in ] clusapi_ResourceControlCode dwControlCode,
+		[ in, unique, size_is(nInBufferSize) ] uint8 *lpInBuffer,
+		[ in ] uint32 nInBufferSize,
+		[ out, size_is(nOutBufferSize),
+			 length_is (*lpBytesReturned)] uint8 *lpOutBuffer,
+		[ in ] uint32 nOutBufferSize,
+		[ out ] uint32 *lpBytesReturned,
+		[ out ] uint32 *lpcbRequired,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x4A */
+
+	WERROR
+	clusapi_NodeResourceTypeControl(
+		[ in ] HCLUSTER_RPC hCluster,
+		[ in, string ] [charset(UTF16)] uint16 *lpszResourceTypeName,
+		[ in ] HNODE_RPC hNode,
+		[ in ] uint32 dwControlCode,
+		[ in, unique, size_is(nInBufferSize) ] uint8 *lpInBuffer,
+		[ in ] uint32 nInBufferSize,
+		[ out, size_is(nOutBufferSize),
+			 length_is (*lpBytesReturned)] uint8 *lpOutBuffer,
+		[ in ] uint32 nOutBufferSize,
+		[ out ] uint32 *lpBytesReturned,
+		[ out ] uint32 *lpcbRequired,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x4B */
+
+	typedef [v1_enum] enum {
+		CLUSCTL_RESOURCE_TYPE_UNKNOWN				= 0x02000000,
+		CLUSCTL_RESOURCE_TYPE_GET_CHARACTERISTICS		= 0x02000005,
+		CLUSCTL_RESOURCE_TYPE_GET_FLAGS				= 0x02000009,
+		CLUSCTL_RESOURCE_TYPE_GET_CLASS_INFO			= 0x0200000D,
+		CLUSCTL_RESOURCE_TYPE_GET_REQUIRED_DEPENDENCIES		= 0x02000011,
+		CLUSCTL_RESOURCE_TYPE_GET_ARB_TIMEOUT			= 0x02000015,
+		CLUSCTL_RESOURCE_TYPE_ENUM_COMMON_PROPERTIES		= 0x02000051,
+		CLUSCTL_RESOURCE_TYPE_GET_RO_COMMON_PROPERTIES		= 0x02000055,
+		CLUSCTL_RESOURCE_TYPE_GET_COMMON_PROPERTIES		= 0x02000059,
+		CLUSCTL_RESOURCE_TYPE_SET_COMMON_PROPERTIES		= 0x0240005E,
+		CLUSCTL_RESOURCE_TYPE_VALIDATE_COMMON_PROPERTIES	= 0x02000061,
+		CLUSCTL_RESOURCE_TYPE_GET_COMMON_PROPERTY_FMTS		= 0x02000065,
+		CLUSCTL_RESOURCE_TYPE_GET_COMMON_RESOURCE_PROPERTY_FMTS = 0x02000069,
+		CLUSCTL_RESOURCE_TYPE_ENUM_PRIVATE_PROPERTIES		= 0x02000079,
+		CLUSCTL_RESOURCE_TYPE_GET_RO_PRIVATE_PROPERTIES		= 0x0200007D,
+		CLUSCTL_RESOURCE_TYPE_GET_PRIVATE_PROPERTIES		= 0x02000081,
+		CLUSCTL_RESOURCE_TYPE_SET_PRIVATE_PROPERTIES		= 0x02400086,
+		CLUSCTL_RESOURCE_TYPE_VALIDATE_PRIVATE_PROPERTIES	= 0x02000089,
+		CLUSCTL_RESOURCE_TYPE_GET_PRIVATE_PROPERTY_FMTS		= 0x0200008D,
+		CLUSCTL_RESOURCE_TYPE_GET_PRIVATE_RESOURCE_PROPERTY_FMTS= 0x02000091,
+		CLUSCTL_RESOURCE_TYPE_STORAGE_GET_AVAILABLE_DISKS	= 0x02000195,
+		CLUSCTL_RESOURCE_TYPE_NETNAME_VALIDATE_NETNAME		= 0x02000235,
+		CLUSCTL_RESOURCE_TYPE_VALIDATE_PATH			= 0x02000231,
+		CLUSCTL_RESOURCE_TYPE_GEN_APP_VALIDATE_DIRECTORY	= 0x02000239,
+		CLUSCTL_RESOURCE_TYPE_STORAGE_GET_DRIVELETTERS		= 0x020001ED,
+		CLUSCTL_RESOURCE_TYPE_STORAGE_GET_AVAILABLE_DISKS_EX	= 0x020001F5,
+		CLUSCTL_RESOURCE_TYPE_STORAGE_REMAP_DRIVELETTER		= 0x02000201,
+		CLUSCTL_RESOURCE_TYPE_STORAGE_GET_DISKID		= 0x02000205,
+		CLUSCTL_RESOURCE_TYPE_STORAGE_IS_CLUSTERABLE		= 0x02000209,
+		CLUSCTL_RESOURCE_TYPE_STORAGE_RELEASE_OWNERSHIP		= 0x0240020E,
+		CLUSCTL_RESOURCE_TYPE_STORAGE_IS_CSV_FILE		= 0x1000229,
+		CLUSCTL_RESOURCE_TYPE_CLOUD_WITNESS_VALIDATE_CREDENTIALS= 0x020020e1,
+		CLUSCTL_RESOURCE_TYPE_REPLICATION_GET_ELIGIBLE_LOGDISKS = 0x02002149,
+		CLUSCTL_RESOURCE_TYPE_REPLICATION_GET_ELIGIBLE_TARGET_DATADISKS = 0x0200214D,
+		CLUSCTL_RESOURCE_TYPE_REPLICATION_GET_ELIGIBLE_SOURCE_DATADISKS = 0x02002151,
+		CLUSCTL_RESOURCE_TYPE_REPLICATION_GET_REPLICA_VOLUMES	= 0x02002159,
+		CLUSCTL_RESOURCE_TYPE_REPLICATION_GET_LOG_VOLUME	= 0x0200215D,
+		CLUSCTL_RESOURCE_TYPE_REPLICATION_GET_REPLICATED_DISKS	= 0x02002155,
+		CLUSCTL_RESOURCE_TYPE_REPLICATION_GET_RESOURCE_GROUP	= 0x02002161
+	} clusapi_ResourceTypeControlCode;
+
+	WERROR
+	clusapi_ResourceTypeControl(
+		[ in ] HCLUSTER_RPC hCluster,
+		[ in, string ] [charset(UTF16)] uint16 *lpszResourceTypeName,
+		[ in ] clusapi_ResourceTypeControlCode dwControlCode,
+		[ in, unique, size_is(nInBufferSize) ] uint8 *lpInBuffer,
+		[ in ] uint32 nInBufferSize,
+		[ out, size_is(nOutBufferSize),
+			 length_is (*lpBytesReturned)] uint8 *lpOutBuffer,
+		[ in ] uint32 nOutBufferSize,
+		[ out ] uint32 *lpBytesReturned,
+		[ out ] uint32 *lpcbRequired,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x4C */
+
+	WERROR
+	clusapi_NodeGroupControl(
+		[ in ] HGROUP_RPC hGroup,
+		[ in ] HNODE_RPC hNode,
+		[ in ] uint32 dwControlCode,
+		[ in, unique, size_is(nInBufferSize) ] uint8 *lpInBuffer,
+		[ in ] uint32 nInBufferSize,
+		[ out, size_is(nOutBufferSize),
+			 length_is (*lpBytesReturned)] uint8 *lpOutBuffer,
+		[ in ] uint32 nOutBufferSize,
+		[ out ] uint32 *lpBytesReturned,
+		[ out ] uint32 *lpcbRequired,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x4D */
+
+	typedef [v1_enum] enum {
+		CLUSCTL_GROUP_UNKNOWN				= 0x03000000,
+		CLUSCTL_GROUP_GET_CHARACTERISTICS		= 0x03000005,
+		CLUSCTL_GROUP_GET_FLAGS				= 0x03000009,
+		CLUSCTL_GROUP_GET_NAME				= 0x03000029,
+		CLUSCTL_GROUP_GET_ID				= 0x03000039,
+		CLUSCTL_GROUP_ENUM_COMMON_PROPERTIES		= 0x03000051,
+		CLUSCTL_GROUP_GET_RO_COMMON_PROPERTIES		= 0x03000055,
+		CLUSCTL_GROUP_GET_COMMON_PROPERTIES		= 0x03000059,
+		CLUSCTL_GROUP_SET_COMMON_PROPERTIES		= 0x0340005E,
+		CLUSCTL_GROUP_VALIDATE_COMMON_PROPERTIES	= 0x03000061,
+		CLUSCTL_GROUP_GET_COMMON_PROPERTY_FMTS		= 0x03000065,
+		CLUSCTL_GROUP_ENUM_PRIVATE_PROPERTIES		= 0x03000079,
+		CLUSCTL_GROUP_GET_RO_PRIVATE_PROPERTIES		= 0x0300007D,
+		CLUSCTL_GROUP_GET_PRIVATE_PROPERTIES		= 0x03000081,
+		CLUSCTL_GROUP_SET_PRIVATE_PROPERTIES		= 0x03400086,
+		CLUSCTL_GROUP_VALIDATE_PRIVATE_PROPERTIES	= 0x03000089
+	} clusapi_GroupControlCode;
+
+	WERROR
+	clusapi_GroupControl(
+		[ in ] HGROUP_RPC hGroup,
+		[ in ] clusapi_GroupControlCode dwControlCode,
+		[ in, unique, size_is(nInBufferSize) ] uint8 *lpInBuffer,
+		[ in ] uint32 nInBufferSize,
+		[ out, size_is(nOutBufferSize),
+			 length_is (*lpBytesReturned)] uint8 *lpOutBuffer,
+		[ in ] uint32 nOutBufferSize,
+		[ out ] uint32 *lpBytesReturned,
+		[ out ] uint32 *lpcbRequired,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x4E */
+
+	WERROR
+	clusapi_NodeNodeControl(
+		[ in ] HNODE_RPC hNode,
+		[ in ] HNODE_RPC hHostNode,
+		[ in ] uint32 dwControlCode,
+		[ in, unique, size_is(nInBufferSize) ] uint8 *lpInBuffer,
+		[ in ] uint32 nInBufferSize,
+		[ out, size_is(nOutBufferSize),
+			 length_is (*lpBytesReturned)] uint8 *lpOutBuffer,
+		[ in ] uint32 nOutBufferSize,
+		[ out ] uint32 *lpBytesReturned,
+		[ out ] uint32 *lpcbRequired,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x4F */
+
+	typedef [v1_enum] enum {
+		CLUSCTL_NODE_UNKNOWN				= 0x04000000,
+		CLUSCTL_NODE_GET_CHARACTERISTICS		= 0x04000005,
+		CLUSCTL_NODE_GET_FLAGS				= 0x04000009,
+		CLUSCTL_NODE_GET_NAME				= 0x04000029,
+		CLUSCTL_NODE_GET_ID				= 0x04000039,
+		CLUSCTL_NODE_GET_CLUSTER_SERVICE_ACCOUNT_NAME	= 0x04000041,
+		CLUSCTL_NODE_ENUM_COMMON_PROPERTIES		= 0x04000051,
+		CLUSCTL_NODE_GET_RO_COMMON_PROPERTIES		= 0x04000055,
+		CLUSCTL_NODE_GET_COMMON_PROPERTIES		= 0x04000059,
+		CLUSCTL_NODE_SET_COMMON_PROPERTIES		= 0x0440005E,
+		CLUSCTL_NODE_VALIDATE_COMMON_PROPERTIES		= 0x04000061,
+		CLUSCTL_NODE_ENUM_PRIVATE_PROPERTIES		= 0x04000079,
+		CLUSCTL_NODE_GET_RO_PRIVATE_PROPERTIES		= 0x0400007D,
+		CLUSCTL_NODE_GET_PRIVATE_PROPERTIES		= 0x04000081,
+		CLUSCTL_NODE_SET_PRIVATE_PROPERTIES		= 0x04400086,
+		CLUSCTL_NODE_VALIDATE_PRIVATE_PROPERTIES	= 0x04000089
+	} clusapi_NodeControlCode;
+
+	WERROR
+	clusapi_NodeControl(
+		[ in ] HNODE_RPC hNode,
+		[ in ] clusapi_NodeControlCode dwControlCode,
+		[ in, unique, size_is(nInBufferSize) ] uint8 *lpInBuffer,
+		[ in ] uint32 nInBufferSize,
+		[ out, size_is(nOutBufferSize),
+			 length_is (*lpBytesReturned)] uint8 *lpOutBuffer,
+		[ in ] uint32 nOutBufferSize,
+		[ out ] uint32 *lpBytesReturned,
+		[ out ] uint32 *lpcbRequired,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x50 */
+
+	WERROR
+	Opnum80NotUsedOnWire(void);
+
+	/*****************/
+	/* Function 0x51 */
+#if 0
+	HNETWORK_RPC
+	clusapi_OpenNetwork(
+		[ in, string ] [charset(UTF16)] uint16 *lpszNetworkName,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_OpenNetwork(
+		[ in, string ] [charset(UTF16)] uint16 *lpszNetworkName,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HNETWORK_RPC *hNetwork
+	);
+#endif
+	/*****************/
+	/* Function 0x52 */
+
+	WERROR
+	clusapi_CloseNetwork(
+		[ in, out ] HNETWORK_RPC *Network
+	);
+
+	/*****************/
+	/* Function 0x53 */
+
+	typedef [v1_enum] enum {
+		ClusterNetworkUnavailable	= 0x00000000,
+		ClusterNetworkDown		= 0x00000001,
+		ClusterNetworkPartitioned	= 0x00000002,
+		ClusterNetworkUp		= 0x00000003,
+		ClusterNetworkStateUnknown	= 0xFFFFFFFF
+	} clusapi_ClusterNetworkState;
+
+	WERROR
+	clusapi_GetNetworkState(
+		[ in ] HNETWORK_RPC hNetwork,
+		[ out ] clusapi_ClusterNetworkState *State,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x54 */
+
+	WERROR
+	clusapi_SetNetworkName(
+		[ in ] HNETWORK_RPC hNetwork,
+		[ in, string ] [charset(UTF16)] uint16 *lpszNetworkName,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x55 */
+
+	WERROR
+	clusapi_CreateNetworkEnum(
+		[ in ] HNETWORK_RPC hNetwork,
+		[ in ] uint32 dwType,
+		[ out ] ENUM_LIST **ReturnEnum,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x56 */
+
+	WERROR
+	clusapi_GetNetworkId(
+		[ in ] HNETWORK_RPC hNetwork,
+		[ out, string ] [charset(UTF16)] uint16 **pGuid,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x57 */
+
+	WERROR
+	clusapi_SetNetworkPriorityOrder(
+		[ in, range(0, 1000)] uint32 NetworkCount,
+		[ in, string, size_is(NetworkCount) ] [charset(UTF16)] uint16 NetworkIdList[*],
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x58 */
+
+	WERROR
+	clusapi_NodeNetworkControl(
+		[ in ] HNETWORK_RPC hNetwork,
+		[ in ] HNODE_RPC hNode,
+		[ in ] uint32 dwControlCode,
+		[ in, unique, size_is(nInBufferSize) ] uint8 *lpInBuffer,
+		[ in ] uint32 nInBufferSize,
+		[ out, size_is(nOutBufferSize),
+			 length_is (*lpBytesReturned)] uint8 *lpOutBuffer,
+		[ in ] uint32 nOutBufferSize,
+		[ out ] uint32 *lpBytesReturned,
+		[ out ] uint32 *lpcbRequired,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x59 */
+
+	WERROR
+	clusapi_NetworkControl(
+		[ in ] HNETWORK_RPC hNetwork,
+		[ in ] uint32 dwControlCode,
+		[ in, unique, size_is(nInBufferSize) ] uint8 *lpInBuffer,
+		[ in ] uint32 nInBufferSize,
+		[ out, size_is(nOutBufferSize),
+			 length_is (*lpBytesReturned)] uint8 *lpOutBuffer,
+		[ in ] uint32 nOutBufferSize,
+		[ out ] uint32 *lpBytesReturned,
+		[ out ] uint32 *lpcbRequired,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x5A */
+
+	WERROR
+	clusapi_AddNotifyNetwork(
+		[ in ] HNOTIFY_RPC hNotify,
+		[ in ] HNETWORK_RPC hNetwork,
+		[ in ] uint32 dwFilter,
+		[ in ] uint32 dwNotifyKey,
+		[ out ] uint32 *dwStateSequence,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x5B */
+
+	WERROR
+	clusapi_ReAddNotifyNetwork(
+		[ in ] HNOTIFY_RPC hNotify,
+		[ in ] HNETWORK_RPC hNetwork,
+		[ in ] uint32 dwFilter,
+		[ in ] uint32 dwNotifyKey,
+		[ in ] uint32 StateSequence,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x5C */
+#if 0
+	HNETINTERFACE_RPC
+	clusapi_OpenNetInterface(
+		[ in, string ] [charset(UTF16)] uint16 *lpszNetInterfaceName,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_OpenNetInterface(
+		[ in, string ] [charset(UTF16)] uint16 *lpszNetInterfaceName,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HNETINTERFACE_RPC *hNetInterface
+	);
+#endif
+	/*****************/
+	/* Function 0x5D */
+
+	WERROR
+	clusapi_CloseNetInterface(
+		[ in, out ] HNETINTERFACE_RPC *NetInterface
+	);
+
+	/*****************/
+	/* Function 0x5E */
+
+	typedef [v1_enum] enum {
+		ClusterNetInterfaceFailed	= 0x00000000,
+		ClusterNetInterfaceUnreachable	= 0x00000001,
+		ClusterNetInterfaceUnavailable	= 0x00000002,
+		ClusterNetInterfaceUp		= 0x00000003,
+		ClusterNetInterfaceStateUnknown	= 0xFFFFFFFF
+	} clusapi_ClusterNetInterfaceState;
+
+	WERROR
+	clusapi_GetNetInterfaceState(
+		[ in ] HNETINTERFACE_RPC hNetInterface,
+		[ out ] clusapi_ClusterNetInterfaceState *State,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x5F */
+
+	WERROR
+	clusapi_GetNetInterface(
+		[ in, string ] [charset(UTF16)] uint16 *lpszNodeName,
+		[ in, string ] [charset(UTF16)] uint16 *lpszNetworkName,
+		[ out, string ] [charset(UTF16)] uint16 **lppszInterfaceName,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x60 */
+
+	WERROR
+	clusapi_GetNetInterfaceId(
+		[ in ] HNETINTERFACE_RPC hNetInterface,
+		[ out, string ] [charset(UTF16)] uint16 **pGuid,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x61 */
+
+	WERROR
+	clusapi_NodeNetInterfaceControl(
+		[ in ] HNETINTERFACE_RPC hNetInterface,
+		[ in ] HNODE_RPC hNode,
+		[ in ] uint32 dwControlCode,
+		[ in, unique, size_is(nInBufferSize) ] uint8 *lpInBuffer,
+		[ in ] uint32 nInBufferSize,
+		[ out, size_is(nOutBufferSize),
+			 length_is (*lpBytesReturned)] uint8 *lpOutBuffer,
+		[ in ] uint32 nOutBufferSize,
+		[ out ] uint32 *lpBytesReturned,
+		[ out ] uint32 *lpcbRequired,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x62 */
+
+	WERROR
+	clusapi_NetInterfaceControl(
+		[ in ] HNETINTERFACE_RPC hNetInterface,
+		[ in ] uint32 dwControlCode,
+		[ in, unique, size_is(nInBufferSize) ] uint8 *lpInBuffer,
+		[ in ] uint32 nInBufferSize,
+		[ out, size_is(nOutBufferSize),
+			 length_is (*lpBytesReturned)] uint8 *lpOutBuffer,
+		[ in ] uint32 nOutBufferSize,
+		[ out ] uint32 *lpBytesReturned,
+		[ out ] uint32 *lpcbRequired,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x63 */
+
+	WERROR
+	clusapi_AddNotifyNetInterface(
+		[ in ] HNOTIFY_RPC hNotify,
+		[ in ] HNETINTERFACE_RPC hNetInterface,
+		[ in ] uint32 dwFilter,
+		[ in ] uint32 dwNotifyKey,
+		[ out ] uint32 *dwStateSequence,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x64 */
+
+	WERROR
+	clusapi_ReAddNotifyNetInterface(
+		[ in ] HNOTIFY_RPC hNotify,
+		[ in ] HNETINTERFACE_RPC hNetInterface,
+		[ in ] uint32 dwFilter,
+		[ in ] uint32 dwNotifyKey,
+		[ in ] uint32 StateSequence,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x65 */
+
+	WERROR
+	clusapi_CreateNodeEnum(
+		[ in ] HNODE_RPC hNode,
+		[ in ] uint32 dwType,
+		[ out ] ENUM_LIST **ReturnEnum,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x66 */
+
+	WERROR
+	clusapi_GetClusterVersion2(
+		[ out ] uint16 *lpwMajorVersion,
+		[ out ] uint16 *lpwMinorVersion,
+		[ out ] uint16 *lpwBuildNumber,
+		[ out, string ] [charset(UTF16)] uint16 **lpszVendorId,
+		[ out, string ] [charset(UTF16)] uint16 **lpszCSDVersion,
+		[ out ] CLUSTER_OPERATIONAL_VERSION_INFO **ppClusterOpVerInfo,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x67 */
+
+	typedef [bitmap32bit] bitmap {
+		CLUSTER_RESOURCE_TYPE_ENUM_NODES	= 0x00000001,
+		CLUSTER_RESOURCE_TYPE_ENUM_RESOURCES	= 0x00000002
+	} ClusterResTypeEnumType;
+
+	WERROR
+	clusapi_CreateResTypeEnum(
+		[ in, string ] [charset(UTF16)] uint16 *lpszTypeName,
+		[ in ] ClusterResTypeEnumType dwType,
+		[ out ] ENUM_LIST **ReturnEnum,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x68 */
+
+	WERROR
+	clusapi_BackupClusterDatabase(
+		[ in, string ] [charset(UTF16)] uint16 *lpszPathName,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x69 */
+
+	WERROR
+	clusapi_NodeClusterControl(
+		[ in ] HCLUSTER_RPC hCluster,
+		[ in ] HNODE_RPC hHostNode,
+		[ in ] uint32 dwControlCode,
+		[ in, unique, size_is(nInBufferSize) ] uint8 *lpInBuffer,
+		[ in ] uint32 nInBufferSize,
+		[ out, size_is(nOutBufferSize),
+			 length_is (*lpBytesReturned)] uint8 *lpOutBuffer,
+		[ in ] uint32 nOutBufferSize,
+		[ out ] uint32 *lpBytesReturned,
+		[ out ] uint32 *lpcbRequired,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x6A */
+
+	typedef [v1_enum] enum {
+		CLUSCTL_CLUSTER_UNKNOWN				= 0x07000000,
+		CLUSCTL_CLUSTER_GET_FQDN			= 0x0700003D,
+		CLUSCTL_CLUSTER_CHECK_VOTER_EVICT		= 0x07000045,
+		CLUSCTL_CLUSTER_CHECK_VOTER_DOWN		= 0x07000049,
+		CLUSCTL_CLUSTER_SHUTDOWN			= 0x0700004D,
+		CLUSCTL_CLUSTER_ENUM_COMMON_PROPERTIES		= 0x07000051,
+		CLUSCTL_CLUSTER_GET_RO_COMMON_PROPERTIES	= 0x07000055,
+		CLUSCTL_CLUSTER_GET_COMMON_PROPERTIES		= 0x07000059,
+		CLUSCTL_CLUSTER_SET_COMMON_PROPERTIES		= 0x0740005E,
+		CLUSCTL_CLUSTER_VALIDATE_COMMON_PROPERTIES	= 0x07000061,
+		CLUSCTL_CLUSTER_GET_COMMON_PROPERTY_FMTS	= 0x07000065,
+		CLUSCTL_CLUSTER_ENUM_PRIVATE_PROPERTIES		= 0x07000079,
+		CLUSCTL_CLUSTER_GET_RO_PRIVATE_PROPERTIES	= 0x0700007D,
+		CLUSCTL_CLUSTER_GET_PRIVATE_PROPERTIES		= 0x07000081,
+		CLUSCTL_CLUSTER_SET_PRIVATE_PROPERTIES		= 0x07400086,
+		CLUSCTL_CLUSTER_VALIDATE_PRIVATE_PROPERTIES	= 0x07000089,
+		CLUSCTL_CLUSTER_GET_SHARED_VOLUME_ID		= 0x07000291,
+		CLUSCTL_CLUSTER_UPGRADE_CLUSTER_VERSION		= 0x074000ce,
+		CLUSCTL_CLUSTER_CLEAR_UPGRADE_IN_PROGRESS	= 0x074000d2,
+		CLUSCTL_CLUSTER_IS_READY_FOR_UPGRADE		= 0x070000d5
+	} clusapi_ClusterControlCode;
+
+	typedef [v1_enum] enum {
+		CLUSPROP_SYNTAX_ENDMARK = 0x00000000,
+		CLUSPROP_SYNTAX_NAME = 0x00040003,
+		CLUSPROP_SYNTAX_RESCLASS = 0x00020002,
+		CLUSPROP_SYNTAX_LIST_VALUE_SZ = 0x00010003,
+		CLUSPROP_SYNTAX_LIST_VALUE_EXPAND_SZ = 0x00010004,
+		CLUSPROP_SYNTAX_LIST_VALUE_DWORD = 0x00010002,
+		CLUSPROP_SYNTAX_LIST_VALUE_BINARY = 0x00010001,
+		CLUSPROP_SYNTAX_LIST_VALUE_MULTI_SZ = 0x00010005,
+		CLUSPROP_SYNTAX_LIST_VALUE_LONG = 0x00010007,
+		CLUSPROP_SYNTAX_LIST_VALUE_EXPANDED_SZ = 0x00010008,
+		CLUSPROP_SYNTAX_LIST_VALUE_SECURITY_DESCRIPTOR = 0x00010009,
+		CLUSPROP_SYNTAX_LIST_VALUE_LARGE_INTEGER = 0x0001000a,
+		CLUSPROP_SYNTAX_LIST_VALUE_ULARGE_INTEGER = 0x00010006,
+		CLUSPROP_SYNTAX_LIST_VALUE_WORD = 0x0001000b,
+		CLUSPROP_SYNTAX_LIST_VALUE_FILETIME = 0x0001000c,
+		CLUSPROP_SYNTAX_DISK_SIGNATURE = 0x00050002,
+		CLUSPROP_SYNTAX_SCSI_ADDRESS = 0x00060002,
+		CLUSPROP_SYNTAX_DISK_NUMBER = 0x00070002,
+		CLUSPROP_SYNTAX_PARTITION_INFO = 0x00080001,
+		CLUSPROP_SYNTAX_DISK_SERIALNUMBER = 0x000a0003,
+		CLUSPROP_SYNTAX_DISK_GUID = 0x000b0003,
+		CLUSPROP_SYNTAX_DISK_SIZE = 0x000c0006,
+		CLUSPROP_SYNTAX_PARTITION_INFO_EX = 0x000d0001
+	} CLUSTER_PROPERTY_SYNTAX;
+#if 0
+	typedef struct {
+		CLUSTER_PROPERTY_SYNTAX Syntax;
+		uint32 Size;
+		[subcontext(0),subcontext_size(Size)] [flag(NDR_REMAINING)] DATA_BLOB Buffer;
+		[flag(NDR_ALIGN4)] DATA_BLOB Padding;
+	} clusapi_propertyValues;
+
+	typedef struct {
+		[value(CLUSPROP_SYNTAX_NAME)] CLUSTER_PROPERTY_SYNTAX syntax_name;
+		[value(strlen_m_term(buffer)*2)] uint32 size;
+		nstring buffer;
+		[flag(NDR_ALIGN2)] DATA_BLOB padding;
+		clusapi_propertyValues PropertyValues;
+		[value(CLUSPROP_SYNTAX_ENDMARK)] CLUSTER_PROPERTY_SYNTAX end_mark;
+	} clusapi_propertyValue;
+
+	typedef [public] struct {
+		uint32 propertyCount;
+		clusapi_propertyValue propertyValues[propertyCount];
+		[value(CLUSPROP_SYNTAX_ENDMARK)] CLUSTER_PROPERTY_SYNTAX end_mark;
+	} clusapi_PROPERTY_LIST;
+#endif
+	WERROR
+	clusapi_ClusterControl(
+		[ in ] HCLUSTER_RPC hCluster,
+		[ in ] clusapi_ClusterControlCode dwControlCode,
+		[ in, unique, size_is(nInBufferSize) ] uint8 *lpInBuffer,
+		[ in ] uint32 nInBufferSize,
+		[ out, size_is(nOutBufferSize),
+			 length_is (*lpBytesReturned)] uint8 *lpOutBuffer,
+		[ in ] uint32 nOutBufferSize,
+		[ out ] uint32 *lpBytesReturned,
+		[ out ] uint32 *lpcbRequired,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x6B */
+
+	WERROR
+	clusapi_UnblockGetNotifyCall(
+		[ in ] HNOTIFY_RPC hNotify
+	);
+
+	/*****************/
+	/* Function 0x6C */
+
+	WERROR
+	clusapi_SetServiceAccountPassword(
+		[ in, string ] [charset(UTF16)] uint16 *lpszNewPassword,
+		[ in ]  IDL_CLUSTER_SET_PASSWORD_FLAGS dwFlags,
+		[ out, size_is(ReturnStatusBufferSize), length_is(*SizeReturned) ]
+			 IDL_CLUSTER_SET_PASSWORD_STATUS ReturnStatusBufferPtr[*],
+		[ in, range(0, (64 * 1024)) ] uint32 ReturnStatusBufferSize,
+		[ out ] uint32 *SizeReturned,
+		[ out ] uint32 *ExpectedBufferSize
+	);
+
+	/*****************/
+	/* Function 0x6D */
+
+	WERROR
+	clusapi_SetResourceDependencyExpression(
+		[ in ] HRES_RPC hResource,
+		[ in, string, unique ] [charset(UTF16)] uint16 *lpszDependencyExpression,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x6E */
+
+	WERROR
+	clusapi_GetResourceDependencyExpression(
+		[ in ] HRES_RPC hResource,
+		[ out, string ] [charset(UTF16)] uint16 **lpszDependencyExpression,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x6F */
+
+	WERROR
+	Opnum111NotUsedOnWire(void);
+
+	/*****************/
+	/* Function 0x70 */
+
+	WERROR
+	clusapi_GetResourceNetworkName(
+		[ in ] HRES_RPC hResource,
+		[ out, string ] [charset(UTF16)] uint16 **lpszName,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x71 */
+
+	WERROR
+	clusapi_ExecuteBatch(
+		[ in ] HKEY_RPC hKey,
+		[ in ] uint32 cbData,
+		[ in, size_is(cbData)] uint8 *lpData,
+		[ out ] int *pdwFailedCommand,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x72 */
+
+	WERROR
+	clusapi_CreateBatchPort(
+		[ in ] HKEY_RPC hKey,
+		[ out ] HBATCH_PORT_RPC *phBatchPort,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x73 */
+
+	WERROR
+	clusapi_GetBatchNotification(
+		 [ in ] HBATCH_PORT_RPC hBatchNotify,
+		 [ out ] uint32 *cbData,
+		 [ out, size_is(,*cbData) ] uint8 ** lpData
+	);
+
+	/*****************/
+	/* Function 0x74 */
+
+	WERROR
+	clusapi_CloseBatchPort(
+		 [ in, out ] HBATCH_PORT_RPC *phBatchPort
+	);
+
+	/*****************/
+	/* Function 0x75 */
+
+	typedef [bitmap32bit] bitmap {
+		CLUSAPI_READ_ACCESS		= 0x00000001,
+		CLUSAPI_CHANGE_ACCESS		= 0x00000002,
+		CLUSAPI_GENERIC_READ		= 0x80000000,
+		CLUSAPI_GENERIC_WRITE		= 0x40000000,
+		CLUSAPI_GENERIC_EXECUTE		= 0x20000000,
+		CLUSAPI_GENERIC_ALL		= 0x10000000,
+		CLUSAPI_MAXIMUM_ALLOWED		= 0x02000000
+	} clusapi_DesiredAccessMask;
+
+#if 0
+	HCLUSTER_RPC
+	clusapi_OpenClusterEx(
+		[ in ] clusapi_DesiredAccessMask dwDesiredAccess,
+		[ out ] uint32 *lpdwGrantedAccess,
+		[ out ] WERROR *Status
+	);
+#else
+	void
+	clusapi_OpenClusterEx(
+		[ in ] clusapi_DesiredAccessMask dwDesiredAccess,
+		[ out ] uint32 *lpdwGrantedAccess,
+		[ out ] WERROR *Status,
+		[ out ] HCLUSTER_RPC *hCluster
+	);
+#endif
+
+	/*****************/
+	/* Function 0x76 */
+#if 0
+	HNODE_RPC
+	clusapi_OpenNodeEx(
+		[ in, string ] [charset(UTF16)] uint16 *lpszNodeName,
+		[ in ] clusapi_DesiredAccessMask dwDesiredAccess,
+		[ out ] uint32 *lpdwGrantedAccess,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_OpenNodeEx(
+		[ in, string ] [charset(UTF16)] uint16 *lpszNodeName,
+		[ in ] clusapi_DesiredAccessMask dwDesiredAccess,
+		[ out ] uint32 *lpdwGrantedAccess,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HNODE_RPC *hNode
+	);
+#endif
+	/*****************/
+	/* Function 0x77 */
+#if 0
+	HGROUP_RPC
+	clusapi_OpenGroupEx(
+		[ in, string ] [charset(UTF16)] uint16 *lpszGroupName,
+		[ in ] clusapi_DesiredAccessMask dwDesiredAccess,
+		[ out ] uint32 *lpdwGrantedAccess,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_OpenGroupEx(
+		[ in, string ] [charset(UTF16)] uint16 *lpszGroupName,
+		[ in ] clusapi_DesiredAccessMask dwDesiredAccess,
+		[ out ] uint32 *lpdwGrantedAccess,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HGROUP_RPC *hGroup
+	);
+#endif
+	/*****************/
+	/* Function 0x78 */
+#if 0
+	HRES_RPC
+	clusapi_OpenResourceEx(
+		[ in, string ] [charset(UTF16)] uint16 *lpszResourceName,
+		[ in ] clusapi_DesiredAccessMask dwDesiredAccess,
+		[ out ] uint32 *lpdwGrantedAccess,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_OpenResourceEx(
+		[ in, string ] [charset(UTF16)] uint16 *lpszResourceName,
+		[ in ] clusapi_DesiredAccessMask dwDesiredAccess,
+		[ out ] uint32 *lpdwGrantedAccess,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HRES_RPC *hResource
+	);
+#endif
+	/*****************/
+	/* Function 0x79 */
+#if 0
+	HNETWORK_RPC
+	clusapi_OpenNetworkEx(
+		[ in, string ] [charset(UTF16)] uint16 *lpszNetworkName,
+		[ in ] clusapi_DesiredAccessMask dwDesiredAccess,
+		[ out ] uint32 *lpdwGrantedAccess,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_OpenNetworkEx(
+		[ in, string ] [charset(UTF16)] uint16 *lpszNetworkName,
+		[ in ] clusapi_DesiredAccessMask dwDesiredAccess,
+		[ out ] uint32 *lpdwGrantedAccess,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HNETWORK_RPC *hNetwork
+	);
+#endif
+	/*****************/
+	/* Function 0x7A */
+#if 0
+	HNETINTERFACE_RPC
+	clusapi_OpenNetInterfaceEx(
+		[ in, string ] [charset(UTF16)] uint16 *lpszNetInterfaceName,
+		[ in ] clusapi_DesiredAccessMask dwDesiredAccess,
+		[ out ] uint32 *lpdwGrantedAccess,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_OpenNetInterfaceEx(
+		[ in, string ] [charset(UTF16)] uint16 *lpszNetInterfaceName,
+		[ in ] clusapi_DesiredAccessMask dwDesiredAccess,
+		[ out ] uint32 *lpdwGrantedAccess,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HNETINTERFACE_RPC *hNetInterface
+	);
+#endif
+	/*****************/
+	/* Function 0x7B */
+
+	WERROR
+	clusapi_ChangeCsvState(
+		[ in ] HRES_RPC hResource,
+		[ in ] uint32 dwState,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x7C */
+
+	WERROR
+	clusapi_CreateNodeEnumEx(
+		[in] HNODE_RPC hNode,
+		[in] uint32 dwType,
+		[in] uint32 dwOptions,
+		[out] ENUM_LIST **ReturnIdEnum,
+		[out] ENUM_LIST **ReturnNameEnum,
+		[out] WERROR* rpc_status
+	);
+
+	/*****************/
+	/* Function 0x7D */
+
+	WERROR
+	clusapi_CreateEnumEx(
+		[in] HCLUSTER_RPC hCluster,
+		[in] ClusterEnumType dwType,
+		[in] uint32 dwOptions,
+		[out] ENUM_LIST **ReturnIdEnum,
+		[out] ENUM_LIST **ReturnNameEnum,
+		[out] WERROR* rpc_status
+	);
+
+	/*****************/
+	/* Function 0x7E */
+
+	WERROR
+	clusapi_PauseNodeEx(
+		[ in ] HNODE_RPC hNode,
+		[ in ] boolean8 bDrainNode,
+		[ in ] uint32 dwPauseFlags,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x7F */
+
+	WERROR
+	clusapi_PauseNodeWithDrainTarget(
+		[ in ] HNODE_RPC hNode,
+		[ in ] uint32 dwPauseFlags,
+		[ in ] HNODE_RPC hNodeDrainTarget,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x80 */
+
+	WERROR
+	clusapi_ResumeNodeEx(
+		[ in ] HNODE_RPC hNode,
+		[ in ] uint32 dwResumeFailbackType,
+		[ in ] uint32 dwResumeFlagsReserved,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x81 */
+#if 0
+	HGROUP_RPC
+	clusapi_CreateGroupEx(
+		[ in, string ] [charset(UTF16)] uint16 *lpszGroupName,
+		[ in, unique ] CLUSTER_CREATE_GROUP_INFO_RPC *pGroupInfo,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_CreateGroupEx(
+		[ in, string ] [charset(UTF16)] uint16 *lpszGroupName,
+		[ in, unique ] CLUSTER_CREATE_GROUP_INFO_RPC *pGroupInfo,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HGROUP_RPC *hGroup
+	);
+#endif
+	/*****************/
+	/* Function 0x82 */
+
+	WERROR
+	clusapi_OnlineGroupEx(
+		[ in ] HGROUP_RPC hGroup,
+		[ in ] uint32	  dwOnlineFlags,
+		[ in, size_is(cbInBufferSize) ] uint8* lpInBuffer,
+		[ in ] uint32	  cbInBufferSize,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x83 */
+
+	WERROR
+	clusapi_OfflineGroupEx(
+		[ in ] HGROUP_RPC hGroup,
+		[ in ] uint32	  dwOfflineFlags,
+		[ in, size_is(cbInBufferSize) ] uint8* lpInBuffer,
+		[ in ] uint32	  cbInBufferSize,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x84 */
+
+	WERROR
+	clusapi_MoveGroupEx(
+		[ in ] HGROUP_RPC hGroup,
+		[ in ] uint32		dwMoveFlags,
+		[ in, size_is(cbInBufferSize) ] uint8* lpInBuffer,
+		[ in ] uint32		cbInBufferSize,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x85 */
+
+	WERROR
+	clusapi_MoveGroupToNodeEx(
+		[ in ] HGROUP_RPC hGroup,
+		[ in ] HNODE_RPC  hNode,
+		[ in ] uint32		dwMoveFlags,
+		[ in, size_is(cbInBufferSize) ] uint8* lpInBuffer,
+		[ in ] uint32		cbInBufferSize,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x86 */
+
+	WERROR
+	clusapi_CancelClusterGroupOperation(
+		[ in ] HGROUP_RPC	hGroup,
+		[ in ] uint32		 dwCancelFlags,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x87 */
+
+	WERROR
+	clusapi_OnlineResourceEx(
+		[ in ] HRES_RPC hResource,
+		[ in ] uint32	  dwOnlineFlags,
+		[ in, size_is(cbInBufferSize) ] uint8* lpInBuffer,
+		[ in ] uint32	  cbInBufferSize,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x88 */
+
+	WERROR
+	clusapi_OfflineResourceEx(
+		[ in ] HRES_RPC hResource,
+		[ in ] uint32	  dwOfflineFlags,
+		[ in, size_is(cbInBufferSize) ] uint8* lpInBuffer,
+		[ in ] uint32	  cbInBufferSize,
+		[ out ] WERROR *rpc_status
+	);
+
+#define HGENERIC_RPC policy_handle
+#if 0
+	typedef [context_handle] void *HGENERIC_RPC;
+#endif
+
+	typedef struct {
+		uint32 dwObjectType;	  /* really of type CLUSTER_OBJECT_TYPE_RPC */
+		hyper FilterFlags;
+	} NOTIFY_FILTER_AND_TYPE_RPC;
+
+	typedef struct {
+		NOTIFY_FILTER_AND_TYPE_RPC FilterAndType;
+		[ size_is(dwBufferSize ) ] uint8* buffer;
+		uint32 dwBufferSize;
+		[string] [charset(UTF16)] uint16 *ObjectId;
+		[string] [charset(UTF16)] uint16 *ParentId;
+		[string] [charset(UTF16)] uint16 *Name;
+		[string] [charset(UTF16)] uint16 *Type;
+	} NOTIFICATION_DATA_RPC;
+
+	typedef struct {
+		uint32 *dwNotifyKey;
+		NOTIFICATION_DATA_RPC NotificationData;
+	} NOTIFICATION_RPC;
+
+	/*****************/
+	/* Function 0x89 */
+
+	/*
+	 * Notify interface V2 functions
+	 */
+#if 0
+	HNOTIFY_RPC
+	clusapi_CreateNotifyV2(
+		[ out ] WERROR *rpc_error,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_CreateNotifyV2(
+		[ out ] WERROR *rpc_error,
+		[ out ] WERROR *rpc_status,
+		[ out ] HNOTIFY_RPC *hNotify
+	);
+
+#endif
+	/*****************/
+	/* Function 0x8A */
+
+	WERROR
+	clusapi_AddNotifyV2(
+		[ in ] HNOTIFY_RPC hNotify,
+		[ in ] HGENERIC_RPC hObject,
+		[ in ] NOTIFY_FILTER_AND_TYPE_RPC filter,
+		[ in ] uint32 dwNotifyKey,
+		[ in ] uint32 dwVersion,
+		[ in ] boolean8 isTargetedAtObject,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x8B */
+
+	WERROR
+	clusapi_GetNotifyV2(
+		[ in ] HNOTIFY_RPC hNotify,
+		[ out, size_is(,*dwNumNotifications) ] NOTIFICATION_RPC **Notifications,
+		[ out ] uint32 *dwNumNotifications
+	);
+
+	/*****************/
+	/* Function 0x8C */
+
+	WERROR
+	clusapi_QueryAllValues(
+		[ in ] HKEY_RPC hKey,
+		[ out ] uint32 *pcbData,
+		[ out, size_is(1, *pcbData) ] uint8 ** ppData,
+		[ out ] WERROR *rpc_status
+	);
+
+	typedef struct {
+		uint32 DiskIdType;
+		uint8  DiskIdBlob[16];
+	} CLUSTER_DISKID;
+
+	/*****************/
+	/* Function 0x8D */
+
+	WERROR
+	clusapi_StmFindDisk(
+		[ in ] HCLUSTER_RPC hCluster,
+		[ in ] uint32 dwFlags,
+		[ in, out, unique ] CLUSTER_DISKID *pDiskId,
+		[ in, size_is(uniqueIdSize), unique ] uint8 *pUniqueId,
+		[ in ] uint32 uniqueIdSize,
+		[ out, ref, string ] [charset(UTF16)] uint16 **ppszDeviceName,
+		[ out ] WERROR *rpc_status
+	);
+
+	typedef struct{
+		[string] [charset(UTF16)] uint16 *pszNodeName;
+		HRESULT ResultCode;
+		uint32	ResultSize;
+		[unique, size_is(ResultSize)]	uint8	 *pResultData;
+	} CLUSTER_MRR_NODE_RESPONSE;
+
+	typedef struct {
+		uint32 NodeCount;
+		[size_is(NodeCount)] CLUSTER_MRR_NODE_RESPONSE *pNodes;
+	} CLUSTER_MRR_RESPONSE;
+
+	/*****************/
+	/* Function 0x8E */
+
+	WERROR
+	clusapi_ClusterMrr(
+		[ in ] HCLUSTER_RPC hCluster,
+		[ in ] boolean8 fExcludeSelf,
+		[ in ] hyper nodeSet,
+		[ in ] uint32 dwTimeout,
+		[ in ] uint32 dwComponent,
+		[ in ] uint32 dwControlCode,
+		[ in ] uint32 inSize,
+		[ in, unique, size_is(inSize) ] uint8 *pInData,
+		[ out, ref, size_is(1, 1) ] CLUSTER_MRR_RESPONSE **ppInfo,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x8F */
+
+	WERROR
+	clusapi_CreateGroupEnum(
+		[ in ] HCLUSTER_RPC hCluster,
+		[ in, unique, size_is(cbProperties)] uint8* pProperties,
+		[ in ] uint32 cbProperties,
+		[ in, unique, size_is(cbRoProperties)] uint8* pRoProperties,
+		[ in ] uint32 cbRoProperties,
+		[ out ] GROUP_ENUM_LIST **ppResultList,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x90 */
+
+	WERROR
+	clusapi_CreateResourceEnum(
+		[ in ] HCLUSTER_RPC hCluster,
+		[ in, unique, size_is(cbProperties)] uint8* pProperties,
+		[ in ] uint32 cbProperties,
+		[ in, unique, size_is(cbRoProperties)] uint8* pRoProperties,
+		[ in ] uint32 cbRoProperties,
+		[ out ] RESOURCE_ENUM_LIST **ppResultList,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x91 */
+
+	WERROR
+	clusapi_ExecuteReadBatch(
+		[ in ] HKEY_RPC hKey,
+		[ in ] uint32 cbInData,
+		[ in, size_is(cbInData)] uint8 *lpInData,
+		[ out ] uint32 *cbOutData,
+		[ out, size_is(,*cbOutData) ] uint8 ** lpOutData,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x92 */
+
+	WERROR
+	clusapi_RestartResource(
+		[ in ] HRES_RPC hResource,
+		[ in ] uint32 dwFlags,
+		[ out ] WERROR *rpc_status
+	);
+
+	typedef struct {
+		uint32 dwNotifyKey;
+		uint32 dwFilter;
+		[string] [charset(UTF16)] uint16 *Name;
+	} NOTIFICATION_DATA_ASYNC_RPC;
+
+	/*****************/
+	/* Function 0x93 */
+
+	WERROR
+	clusapi_GetNotifyAsync(
+		[ in ] HNOTIFY_RPC hNotify,
+		[ out, size_is(,*dwNumNotifications) ] NOTIFICATION_DATA_ASYNC_RPC **Notifications,
+		[ out ] uint32 *dwNumNotifications
+	);
+
+	typedef enum {
+		DiskIdSignature = 0x00000001,
+		DiskIdGuid = 0x00000002,
+		DiskIdUnKnown = 0x00001388
+	} CLUSDSK_DISKID_ENUM;
+
+#if 0
+	typedef struct {
+		CLUSDSK_DISKID_ENUM DiskIdType;
+		[switch_is(DiskIdType)] union {
+			[case(DiskIdSignature)] uint32 DiskSignature;
+			[case(DiskIdGuid)] GUID DiskGuid;
+		};
+	} CLUSDSK_DISKID;
+#endif
+	typedef enum {
+		CLUSPROP_TYPE_ENDMARK = 0x0000,
+		CLUSPROP_TYPE_LIST_VALUE = 0x0001,
+		CLUSPROP_TYPE_RESCLASS = 0x0002,
+		CLUSPROP_TYPE_NAME = 0x0004,
+		CLUSPROP_TYPE_SIGNATURE = 0x0005,
+		CLUSPROP_TYPE_SCSIADDRESS = 0x0006,
+		CLUSPROP_TYPE_DISK_NUMBER = 0x0007,
+		CLUSPROP_TYPE_PARTITION_INFO = 0x0008,
+		CLUSPROP_TYPE_DISK_SERIALNUMBER = 0x000a,
+		CLUSPROP_TYPE_DISK_GUID = 0x000b,
+		CLUSPROP_TYPE_DISK_SIZE = 0x000c,
+		CLUSPROP_TYPE_PARTITION_INFO_EX = 0x000d
+	} CLUSTER_PROPERTY_TYPE;
+
+	typedef enum {
+		CLUSPROP_FORMAT_UNKNOWN = 0x0000,
+		CLUSPROP_FORMAT_BINARY = 0x0001,
+		CLUSPROP_FORMAT_DWORD = 0x0002,
+		CLUSPROP_FORMAT_SZ = 0x0003,
+		CLUSPROP_FORMAT_EXPAND_SZ = 0x0004,
+		CLUSPROP_FORMAT_MULTI_SZ = 0x0005,
+		CLUSPROP_FORMAT_ULARGE_INTEGER = 0x0006,
+		CLUSPROP_FORMAT_LONG = 0x0007,
+		CLUSPROP_FORMAT_EXPANDED_SZ = 0x0008,
+		CLUSPROP_FORMAT_SECURITY_DESCRIPTOR = 0x0009,
+		CLUSPROP_FORMAT_LARGE_INTEGER = 0x000a,
+		CLUSPROP_FORMAT_WORD = 0x000b,
+		CLUSPROP_FORMAT_FILETIME = 0x000c
+	} CLUSTER_PROPERTY_FORMAT;
+
+	typedef enum {
+		CLUS_CHAR_UNKNOWN = 0x00000000,
+		CLUS_CHAR_QUORUM = 0x00000001,
+		CLUS_CHAR_DELETE_REQUIRES_ALL_NODES = 0x00000002,
+		CLUS_CHAR_LOCAL_QUORUM = 0x00000004,
+		CLUS_CHAR_BROADCAST_DELETE = 0x00000020,
+		CLUS_CHAR_SINGLE_CLUSTER_INSTANCE = 0x00000040,
+		CLUS_CHAR_SINGLE_GROUP_INSTANCE = 0x00000080,
+		CLUS_CHAR_COEXIST_IN_SHARED_VOLUME_GROUP = 0x00000100,
+		CLUS_CHAR_RESERVED1 = 0x00000200,
+		CLUS_CHAR_MONITOR_DETACH = 0x00000400,
+		CLUS_CHAR_RESERVED2 = 0x00000800,
+		CLUS_CHAR_RESERVED3 = 0x00001000,
+		CLUS_CHAR_RESERVED4 = 0x00002000
+	} CLUS_CHARACTERISTICS;
+
+	typedef enum {
+		CLUS_FLAG_CORE = 0x00000001
+	} CLUS_FLAGS;
+
+	typedef enum {
+		MaintenanceModeTypeDisableIsAliveCheck = 1,
+		MaintenanceModeTypeOfflineResource = 2,
+		MaintenanceModeTypeUnclusterResource = 3
+	} MAINTENANCE_MODE_TYPE;
+
+	typedef enum {
+		CLUSTER_CHANGE_NODE_STATE = 0x00000001,
+		CLUSTER_CHANGE_NODE_DELETED = 0x00000002,
+		CLUSTER_CHANGE_NODE_ADDED = 0x00000004,
+		CLUSTER_CHANGE_NODE_PROPERTY = 0x00000008,
+		CLUSTER_CHANGE_REGISTRY_NAME = 0x00000010,
+		CLUSTER_CHANGE_REGISTRY_ATTRIBUTES = 0x00000020,
+		CLUSTER_CHANGE_REGISTRY_VALUE = 0x00000040,
+		CLUSTER_CHANGE_REGISTRY_SUBTREE = 0x00000080,
+		CLUSTER_CHANGE_RESOURCE_STATE = 0x00000100,
+		CLUSTER_CHANGE_RESOURCE_DELETED = 0x00000200,
+		CLUSTER_CHANGE_RESOURCE_ADDED = 0x00000400,
+		CLUSTER_CHANGE_RESOURCE_PROPERTY = 0x00000800,
+		CLUSTER_CHANGE_GROUP_STATE = 0x00001000,
+		CLUSTER_CHANGE_GROUP_DELETED = 0x00002000,
+		CLUSTER_CHANGE_GROUP_ADDED = 0x00004000,
+		CLUSTER_CHANGE_GROUP_PROPERTY = 0x00008000,
+		CLUSTER_CHANGE_RESOURCE_TYPE_DELETED = 0x00010000,
+		CLUSTER_CHANGE_RESOURCE_TYPE_ADDED = 0x00020000,
+		CLUSTER_CHANGE_RESOURCE_TYPE_PROPERTY = 0x00040000,
+		CLUSTER_CHANGE_CLUSTER_RECONNECT = 0x00080000,
+		CLUSTER_CHANGE_NETWORK_STATE = 0x00100000,
+		CLUSTER_CHANGE_NETWORK_DELETED = 0x00200000,
+		CLUSTER_CHANGE_NETWORK_ADDED = 0x00400000,
+		CLUSTER_CHANGE_NETWORK_PROPERTY = 0x00800000,
+		CLUSTER_CHANGE_NETINTERFACE_STATE = 0x01000000,
+		CLUSTER_CHANGE_NETINTERFACE_DELETED = 0x02000000,
+		CLUSTER_CHANGE_NETINTERFACE_ADDED = 0x04000000,
+		CLUSTER_CHANGE_NETINTERFACE_PROPERTY = 0x08000000,
+		CLUSTER_CHANGE_QUORUM_STATE = 0x10000000,
+		CLUSTER_CHANGE_CLUSTER_STATE = 0x20000000,
+		CLUSTER_CHANGE_CLUSTER_PROPERTY = 0x40000000,
+		CLUSTER_CHANGE_HANDLE_CLOSE = 0x80000000
+	} CLUSTER_CHANGE;
+
+	typedef enum {
+		CLUSREG_SET_VALUE = 1,
+		CLUSREG_CREATE_KEY = 2,
+		CLUSREG_DELETE_KEY = 3,
+		CLUSREG_DELETE_VALUE = 4,
+		CLUSREG_VALUE_DELETED = 6,
+		CLUSREG_READ_KEY = 7,
+		CLUSREG_READ_VALUE = 8,
+		CLUSREG_READ_ERROR = 9
+	} CLUSTER_REG_BATCH_COMMAND;
+#if 0
+	typedef enum {
+		IDL_CLUSTER_SET_PASSWORD_IGNORE_DOWN_NODES = 1
+	} IDL_CLUSTER_SET_PASSWORD_FLAGS;
+#endif
+	typedef enum {
+		CLUSTER_QUORUM_MAINTAINED = 0,
+		CLUSTER_QUORUM_LOST = 1
+	} CLUSTER_QUORUM_VALUE;
+
+	typedef enum {
+		CLUSTER_OBJECT_TYPE_CLUSTER = 0x00000001,
+		CLUSTER_OBJECT_TYPE_GROUP = 0x00000002,
+		CLUSTER_OBJECT_TYPE_RESOURCE = 0x00000003,
+		CLUSTER_OBJECT_TYPE_RESOURCE_TYPE = 0x00000004,
+		CLUSTER_OBJECT_TYPE_NETWORK_INTERFACE = 0x00000005,
+		CLUSTER_OBJECT_TYPE_NETWORK = 0x00000006,
+		CLUSTER_OBJECT_TYPE_NODE = 0x00000007,
+		CLUSTER_OBJECT_TYPE_REGISTRY = 0x00000008,
+		CLUSTER_OBJECT_TYPE_QUORUM = 0x00000009,
+		CLUSTER_OBJECT_TYPE_SHARED_VOLUME = 0x0000000a
+	} CLUSTER_OBJECT_TYPE;
+
+	typedef enum {
+		CLUSTER_CHANGE_CLUSTER_RECONNECT_V2 = 0x00000001,
+		CLUSTER_CHANGE_CLUSTER_STATE_V2 = 0x00000002,
+		CLUSTER_CHANGE_CLUSTER_GROUP_ADDED_V2 = 0x00000004,
+		CLUSTER_CHANGE_CLUSTER_HANDLE_CLOSE_V2 = 0x00000008,
+		CLUSTER_CHANGE_CLUSTER_NETWORK_ADDED_V2 = 0x00000010,
+		CLUSTER_CHANGE_CLUSTER_NODE_ADDED_V2 = 0x00000020,
+		CLUSTER_CHANGE_CLUSTER_RESOURCE_TYPE_ADDED_V2 = 0x00000040,
+		CLUSTER_CHANGE_CLUSTER_COMMON_PROPERTY_V2 = 0x00000080,
+		CLUSTER_CHANGE_CLUSTER_PRIVATE_PROPERTY_V2 = 0x00000100,
+		CLUSTER_CHANGE_CLUSTER_LOST_NOTIFICATIONS_V2 = 0x00000200,
+		CLUSTER_CHANGE_CLUSTER_RENAME_V2 = 0x00000400
+	} CLUSTER_CHANGE_CLUSTER_V2;
+
+	typedef enum {
+		CLUSTER_CHANGE_GROUP_DELETED_V2 = 0x00000001,
+		CLUSTER_CHANGE_GROUP_COMMON_PROPERTY_V2 = 0x00000002,
+		CLUSTER_CHANGE_GROUP_PRIVATE_PROPERTY_V2 = 0x00000004,
+		CLUSTER_CHANGE_GROUP_STATE_V2 = 0x00000008,
+		CLUSTER_CHANGE_GROUP_OWNER_NODE_V2 = 0x00000010,
+		CLUSTER_CHANGE_GROUP_PREFERRED_OWNERS_V2 = 0x00000020,
+		CLUSTER_CHANGE_GROUP_RESOURCE_ADDED_V2 = 0x00000040,
+		CLUSTER_CHANGE_GROUP_RESOURCE_GAINED_V2 = 0x00000080,
+		CLUSTER_CHANGE_GROUP_RESOURCE_LOST_V2 = 0x00000100,
+		CLUSTER_CHANGE_GROUP_HANDLE_CLOSE_V2 = 0x00000200
+	} CLUSTER_CHANGE_GROUP_V2;
+
+	typedef enum {
+		CLUSTER_CHANGE_RESOURCE_COMMON_PROPERTY_V2 = 0x00000001,
+		CLUSTER_CHANGE_RESOURCE_PRIVATE_PROPERTY_V2 = 0x00000002,
+		CLUSTER_CHANGE_RESOURCE_STATE_V2 = 0x00000004,
+		CLUSTER_CHANGE_RESOURCE_OWNER_GROUP_V2 = 0x00000008,
+		CLUSTER_CHANGE_RESOURCE_DEPENDENCIES_V2 = 0x00000010,
+		CLUSTER_CHANGE_RESOURCE_DEPENDENTS_V2 = 0x00000020,
+		CLUSTER_CHANGE_RESOURCE_POSSIBLE_OWNERS_V2 = 0x00000040,
+		CLUSTER_CHANGE_RESOURCE_DELETED_V2 = 0x00000080,
+		CLUSTER_CHANGE_RESOURCE_DLL_UPGRADED_V2 = 0x00000100,
+		CLUSTER_CHANGE_RESOURCE_HANDLE_CLOSE_V2 = 0x00000200
+	} CLUSTER_CHANGE_RESOURCE_V2;
+
+	typedef enum {
+		CLUSTER_CHANGE_RESOURCE_TYPE_DELETED_V2 = 0x00000001,
+		CLUSTER_CHANGE_RESOURCE_TYPE_COMMON_PROPERTY_V2 = 0x00000002,
+		CLUSTER_CHANGE_RESOURCE_TYPE_PRIVATE_PROPERTY_V2 = 0x00000004,
+		CLUSTER_CHANGE_RESOURCE_TYPE_POSSIBLE_OWNERS_V2 = 0x00000008,
+		CLUSTER_CHANGE_RESOURCE_TYPE_DLL_UPGRADED_V2 = 0x00000010
+	} CHANGE_RESOURCE_TYPE_V2;
+
+	typedef enum {
+		CLUSTER_CHANGE_NETINTERFACE_DELETED_V2 = 0x00000001,
+		CLUSTER_CHANGE_NETINTERFACE_COMMON_PROPERTY_V2 = 0x00000002,
+		CLUSTER_CHANGE_NETINTERFACE_PRIVATE_PROPERTY_V2 = 0x00000004,
+		CLUSTER_CHANGE_NETINTERFACE_STATE_V2 = 0x00000008,
+		CLUSTER_CHANGE_NETINTERFACE_HANDLE_CLOSE_V2 = 0x00000010
+	} CLUSTER_CHANGE_NETINTERFACE_V2;
+
+	typedef enum {
+		CLUSTER_CHANGE_NETWORK_DELETED_V2 = 0x00000001,
+		CLUSTER_CHANGE_NETWORK_COMMON_PROPERTY_V2 = 0x00000002,
+		CLUSTER_CHANGE_NETWORK_PRIVATE_PROPERTY_V2 = 0x00000004,
+		CLUSTER_CHANGE_NETWORK_STATE_V2 = 0x00000008,
+		CLUSTER_CHANGE_NETWORK_HANDLE_CLOSE_V2 = 0x00000010
+	} CLUSTER_CHANGE_NETWORK_V2;
+
+	typedef enum {
+		CLUSTER_CHANGE_NODE_NETINTERFACE_ADDED_V2 = 0x00000001,
+		CLUSTER_CHANGE_NODE_DELETED_V2 = 0x00000002,
+		CLUSTER_CHANGE_NODE_COMMON_PROPERTY_V2 = 0x00000004,
+		CLUSTER_CHANGE_NODE_PRIVATE_PROPERTY_V2 = 0x00000008,
+		CLUSTER_CHANGE_NODE_STATE_V2 = 0x00000010,
+		CLUSTER_CHANGE_NODE_GROUP_GAINED_V2 = 0x00000020,
+		CLUSTER_CHANGE_NODE_GROUP_LOST_V2 = 0x00000040,
+		CLUSTER_CHANGE_NODE_HANDLE_CLOSE_V2 = 0x00000080
+	} CLUSTER_CHANGE_NODE_V2;
+
+	typedef enum {
+		CLUSTER_CHANGE_REGISTRY_ATTRIBUTES_V2 = 0x00000001,
+		CLUSTER_CHANGE_REGISTRY_NAME_V2 = 0x00000002,
+		CLUSTER_CHANGE_REGISTRY_SUBTREE_V2 = 0x00000004,
+		CLUSTER_CHANGE_REGISTRY_VALUE_V2 = 0x00000008,
+		CLUSTER_CHANGE_REGISTRY_HANDLE_CLOSE_V2 = 0x00000010
+	} CLUSTER_CHANGE_REGISTRY_V2;
+
+	typedef enum {
+		CLUSTER_CHANGE_QUORUM_STATE_V2 = 0x00000001
+	} CLUSTER_CHANGE_QUORUM_V2;
+
+	typedef enum {
+		CLUSTER_CHANGE_SHARED_VOLUME_STATE_V2 = 0x00000001
+	} CLUSTER_CHANGE_SHARED_VOLUME_V2;
+#if 0
+	typedef enum {
+		DiskIdSignature = 0x00000001,
+		DiskIdGuid = 0x00000002,
+		DiskIdUnKnown = 0x00001388
+	} CLUSDSK_DISKID_ENUM;
+#endif
+}

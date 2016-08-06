@@ -21,6 +21,7 @@
 
 set(PIDL_DISSECTOR_NAMES
 	atsvc
+	clusapi
 	dfs
 	dnsserver
 	dssetup
@@ -41,6 +42,10 @@ set(PIDL_DISSECTOR_NAMES
 	witness
 	#wkssvc
 	wzcsvc
+)
+
+set(PIDL_DISSECTOR_clusapi_EXTRA_DEPS
+	clusapi/clusapi.idl
 )
 
 set(PIDL_DISSECTOR_dssetup_EXTRA_DEPS

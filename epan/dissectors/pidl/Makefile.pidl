@@ -25,6 +25,7 @@ pidl_inc = --includedir ..
 
 SUBDIRS = \
 	atsvc		\
+	clusapi		\
 	dfs		\
 	dnsserver	\
 	dssetup		\
@@ -56,6 +57,11 @@ $(SUBDIRS) $(DONT_BUILD_SUBDIRS): %: ../packet-dcerpc-%.c ../packet-dcerpc-%.h
 
 ../packet-dcerpc-atsvc.c \
 ../packet-dcerpc-atsvc.h: atsvc/atsvc.idl atsvc/atsvc.cnf
+	cd $(<D) && $(PIDL) $(pidl_out) $(pidl_inc) -- $(<F)
+
+../packet-dcerpc-clusapi.c \
+../packet-dcerpc-clusapi.h: clusapi/clusapi.idl clusapi/clusapi.cnf \
+				clusapi/clusapi.idl
 	cd $(<D) && $(PIDL) $(pidl_out) $(pidl_inc) -- $(<F)
 
 ../packet-dcerpc-dfs.c \

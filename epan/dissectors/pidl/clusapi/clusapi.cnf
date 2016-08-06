@@ -1,0 +1,49 @@
+TYPE winreg_Type "offset = misc_dissect_enum_winreg_Type(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE winreg_AccessMask "offset = winreg_dissect_bitmap_AccessMask(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_NONE BASE_NONE 0 NULL NULL
+
+#MANUAL clusapi_dissect_struct_PROPERTY_LIST
+#NOEMIT clusapi_dissect_element_PROPERTY_LIST_propertyValues_
+#
+#CODE START
+#
+#int
+#clusapi_dissect_struct_PROPERTY_LIST(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+#{
+#      proto_item *item = NULL;
+#      proto_tree *tree = NULL;
+#      int old_offset;
+#      guint32 i, count;
+#
+#      ALIGN_TO_4_BYTES;
+#
+#      ALIGN_TO_4_BYTES;
+#
+#      old_offset = offset;
+#
+#      if (parent_tree) {
+#              item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+#              tree = proto_item_add_subtree(item, ett_clusapi_clusapi_PROPERTY_LIST);
+#      }
+#
+#      count = tvb_get_letohl(tvb, offset);
+#
+#      offset = clusapi_dissect_element_PROPERTY_LIST_propertyCount(tvb, offset, pinfo, tree, di, drep);
+#
+#      for (i=0; i < count; i++) {
+#              offset = clusapi_dissect_element_PROPERTY_LIST_propertyValues(tvb, offset, pinfo, tree, di, drep);
+#      }
+#
+#      offset = clusapi_dissect_element_PROPERTY_LIST_end_mark(tvb, offset, pinfo, tree, di, drep);
+#
+#
+#      proto_item_set_len(item, offset-old_offset);
+#
+#
+#      if (di->call_data->flags & DCERPC_IS_NDR64) {
+#              ALIGN_TO_4_BYTES;
+#      }
+#
+#      return offset;
+#}
+#
+#CODE END
