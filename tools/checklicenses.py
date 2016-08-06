@@ -345,12 +345,6 @@ def check_licenses(options, args):
     return 0
   else:
     print("\nFAILED\n")
-    print("Please read")
-    print("http://www.chromium.org/developers/adding-3rd-party-libraries")
-    print("for more info how to handle the failure.")
-    print("")
-    print("Please respect OWNERS of checklicenses.py. Changes violating")
-    print("this requirement may be reverted.")
     return exit_status
 
 
