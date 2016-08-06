@@ -233,6 +233,8 @@ dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, 
 		}
 
 		end_offset = (offset + rta_len + 3) & ~3;
+		/* Padding could be missing from the last attribute. */
+		end_offset = MIN(end_offset, (int)tvb_captured_length(tvb));
 
 		attr_tree = proto_tree_add_subtree(tree, tvb, offset, end_offset - offset, ett, &ti, "Attribute");
 
