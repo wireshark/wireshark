@@ -29,6 +29,7 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include "packet-zbee.h"
@@ -286,6 +287,9 @@ static int hf_zbee_nwk_gp_cmd_step_color_transition_time = -1;
 /* Step Up/Down command. */
 static int hf_zbee_nwk_gp_cmd_step_up_down_step_size = -1;
 static int hf_zbee_nwk_gp_cmd_step_up_down_transition_time = -1;
+
+static expert_field ei_zbee_nwk_gp_no_payload = EI_INIT;
+static expert_field ei_zbee_nwk_gp_inval_residual_data = EI_INIT;
 
 /* Proto tree elements. */
 static gint ett_zbee_nwk = -1;
@@ -1262,7 +1266,8 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     packet.payload_len = tvb_reported_length(tvb) - offset - packet.mic_size;
     /* Ensure that the payload exists. */
     if (packet.payload_len <= 0) {
-        THROW(BoundsError);
+        proto_tree_add_expert(nwk_tree, pinfo, &ei_zbee_nwk_gp_no_payload, tvb, 0, -1);
+        return offset;
     }
     /* OK, payload exists. Parse MIC field if needed. */
     if (packet.mic_size == 2) {
@@ -1284,7 +1289,8 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     /* Save packet private data. */
     data = (void *)&packet;
     if ((offset < tvb_captured_length(tvb)) && (packet.security_level != ZBEE_NWK_GP_SECURITY_LEVEL_FULLENCR)) {
-        THROW(BoundsError);
+        proto_tree_add_expert(nwk_tree, pinfo, &ei_zbee_nwk_gp_inval_residual_data, tvb, offset, -1);
+        return offset;
     }
     if (packet.security_level == ZBEE_NWK_GP_SECURITY_LEVEL_FULLENCR) {
         dec_buffer = (guint8 *)wmem_alloc(pinfo->pool, packet.payload_len);
@@ -1399,6 +1405,7 @@ void
 proto_register_zbee_nwk_gp(void)
 {
     module_t *gp_zbee_prefs;
+    expert_module_t* expert_zbee_nwk_gp;
 
     static hf_register_info hf[] = {
         { &hf_zbee_nwk_gp_auto_commissioning,
@@ -1644,6 +1651,15 @@ proto_register_zbee_nwk_gp(void)
                 HFILL }}
     };
 
+    static ei_register_info ei[] = {
+        { &ei_zbee_nwk_gp_no_payload,
+            { "zbee_nwk_gp.no_payload", PI_MALFORMED, PI_ERROR,
+                "Payload is missing", EXPFILL }},
+        { &ei_zbee_nwk_gp_inval_residual_data,
+            { "zbee_nwk_gp.inval_residual_data", PI_MALFORMED, PI_ERROR,
+                "Invalid residual data", EXPFILL }}
+    };
+
     static gint *ett[] = {
         &ett_zbee_nwk,
         &ett_zbee_nwk_cmd,
@@ -1679,6 +1695,9 @@ proto_register_zbee_nwk_gp(void)
     /* Register the Wireshark protocol. */
     proto_register_field_array(proto_zbee_nwk_gp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_zbee_nwk_gp = expert_register_protocol(proto_zbee_nwk_gp);
+    expert_register_field_array(expert_zbee_nwk_gp, ei, array_length(ei));
 
     /* Register the dissectors. */
     register_dissector(ZBEE_PROTOABBREV_NWK_GP, dissect_zbee_nwk_gp, proto_zbee_nwk_gp);
