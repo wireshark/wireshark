@@ -43,25 +43,25 @@ struct netlink_route_info {
 
 enum {
 /* rtnetlink values for nlmsghdr.nlmsg_type from <linux/rtnetlink.h> */
-	WS_RTM_NEWLINK	    = 16,
-	WS_RTM_DELLINK	    = 17,
-	WS_RTM_GETLINK	    = 18,
-	WS_RTM_SETLINK	    = 19,
-	WS_RTM_NEWADDR	    = 20,
-	WS_RTM_DELADDR	    = 21,
-	WS_RTM_GETADDR	    = 22,
-	WS_RTM_NEWROUTE	    = 24,
-	WS_RTM_DELROUTE	    = 25,
-	WS_RTM_GETROUTE	    = 26,
-	WS_RTM_NEWNEIGH	    = 28,
-	WS_RTM_DELNEIGH	    = 29,
-	WS_RTM_GETNEIGH	    = 30,
-	WS_RTM_NEWRULE	    = 32,
-	WS_RTM_DELRULE	    = 33,
-	WS_RTM_GETRULE	    = 34,
-	WS_RTM_NEWQDISC	    = 36,
-	WS_RTM_DELQDISC	    = 37,
-	WS_RTM_GETQDISC	    = 38,
+	WS_RTM_NEWLINK      = 16,
+	WS_RTM_DELLINK      = 17,
+	WS_RTM_GETLINK      = 18,
+	WS_RTM_SETLINK      = 19,
+	WS_RTM_NEWADDR      = 20,
+	WS_RTM_DELADDR      = 21,
+	WS_RTM_GETADDR      = 22,
+	WS_RTM_NEWROUTE     = 24,
+	WS_RTM_DELROUTE     = 25,
+	WS_RTM_GETROUTE     = 26,
+	WS_RTM_NEWNEIGH     = 28,
+	WS_RTM_DELNEIGH     = 29,
+	WS_RTM_GETNEIGH     = 30,
+	WS_RTM_NEWRULE      = 32,
+	WS_RTM_DELRULE      = 33,
+	WS_RTM_GETRULE      = 34,
+	WS_RTM_NEWQDISC     = 36,
+	WS_RTM_DELQDISC     = 37,
+	WS_RTM_GETQDISC     = 38,
 	WS_RTM_NEWTCLASS    = 40,
 	WS_RTM_DELTCLASS    = 41,
 	WS_RTM_GETTCLASS    = 42,
@@ -81,51 +81,66 @@ enum {
 	WS_RTM_NEWADDRLABEL = 72,
 	WS_RTM_DELADDRLABEL = 73,
 	WS_RTM_GETADDRLABEL = 74,
-	WS_RTM_GETDCB	    = 78,
-	WS_RTM_SETDCB	    = 79,
+	WS_RTM_GETDCB       = 78,
+	WS_RTM_SETDCB       = 79,
 	WS_RTM_NEWNETCONF   = 80,
 	WS_RTM_GETNETCONF   = 82,
-	WS_RTM_NEWMDB	    = 84,
-	WS_RTM_DELMDB	    = 85,
-	WS_RTM_GETMDB	    = 86
+	WS_RTM_NEWMDB       = 84,
+	WS_RTM_DELMDB       = 85,
+	WS_RTM_GETMDB       = 86,
+	WS_RTM_NEWNSID      = 88,
+	WS_RTM_DELNSID      = 89,
+	WS_RTM_GETNSID      = 90,
+	WS_RTM_NEWSTATS     = 92,
+	WS_RTM_GETSTATS     = 94,
 };
 
 /* values for rta_type (network interface) from <linux/if_link.h> */
 enum ws_ifla_attr_type {
-	WS_IFLA_UNSPEC	      =  0,
-	WS_IFLA_ADDRESS	      =  1,
-	WS_IFLA_BROADCAST     =  2,
-	WS_IFLA_IFNAME	      =  3,
-	WS_IFLA_MTU	      =  4,
-	WS_IFLA_LINK	      =  5,
-	WS_IFLA_QDISC	      =  6,
-	WS_IFLA_STATS	      =  7,
-	WS_IFLA_COST	      =  8,
-	WS_IFLA_PRIORITY      =  9,
-	WS_IFLA_MASTER	      = 10,
-	WS_IFLA_WIRELESS      = 11,
-	WS_IFLA_PROTINFO      = 12,
-	WS_IFLA_TXQLEN	      = 13,
-	WS_IFLA_MAP	      = 14,
-	WS_IFLA_WEIGHT	      = 15,
-	WS_IFLA_OPERSTATE     = 16,
-	WS_IFLA_LINKMODE      = 17,
-	WS_IFLA_LINKINFO      = 18,
-	WS_IFLA_NET_NS_PID    = 19,
-	WS_IFLA_IFALIAS	      = 20,
-	WS_IFLA_NUM_VF	      = 21,
-	WS_IFLA_VFINFO_LIST   = 22,
-	WS_IFLA_STATS64	      = 23,
-	WS_IFLA_VF_PORTS      = 24,
-	WS_IFLA_PORT_SELF     = 25,
-	WS_IFLA_AF_SPEC	      = 26,
-	WS_IFLA_GROUP	      = 27,
-	WS_IFLA_NET_NS_FD     = 28,
-	WS_IFLA_EXT_MASK      = 29,
-	WS_IFLA_PROMISCUITY   = 30,
-	WS_IFLA_NUM_TX_QUEUES = 31,
-	WS_IFLA_NUM_RX_QUEUES = 32,
-	WS_IFLA_CARRIER	      = 33
+	WS_IFLA_UNSPEC          =  0,
+	WS_IFLA_ADDRESS         =  1,
+	WS_IFLA_BROADCAST       =  2,
+	WS_IFLA_IFNAME          =  3,
+	WS_IFLA_MTU             =  4,
+	WS_IFLA_LINK            =  5,
+	WS_IFLA_QDISC           =  6,
+	WS_IFLA_STATS           =  7,
+	WS_IFLA_COST            =  8,
+	WS_IFLA_PRIORITY        =  9,
+	WS_IFLA_MASTER          = 10,
+	WS_IFLA_WIRELESS        = 11,
+	WS_IFLA_PROTINFO        = 12,
+	WS_IFLA_TXQLEN          = 13,
+	WS_IFLA_MAP             = 14,
+	WS_IFLA_WEIGHT          = 15,
+	WS_IFLA_OPERSTATE       = 16,
+	WS_IFLA_LINKMODE        = 17,
+	WS_IFLA_LINKINFO        = 18,
+	WS_IFLA_NET_NS_PID      = 19,
+	WS_IFLA_IFALIAS         = 20,
+	WS_IFLA_NUM_VF          = 21,
+	WS_IFLA_VFINFO_LIST     = 22,
+	WS_IFLA_STATS64         = 23,
+	WS_IFLA_VF_PORTS        = 24,
+	WS_IFLA_PORT_SELF       = 25,
+	WS_IFLA_AF_SPEC         = 26,
+	WS_IFLA_GROUP           = 27,
+	WS_IFLA_NET_NS_FD       = 28,
+	WS_IFLA_EXT_MASK        = 29,
+	WS_IFLA_PROMISCUITY     = 30,
+	WS_IFLA_NUM_TX_QUEUES   = 31,
+	WS_IFLA_NUM_RX_QUEUES   = 32,
+	WS_IFLA_CARRIER         = 33,
+	WS_IFLA_PHYS_PORT_ID    = 34,
+	WS_IFLA_CARRIER_CHANGES = 35,
+	WS_IFLA_PHYS_SWITCH_ID  = 36,
+	WS_IFLA_LINK_NETNSID    = 37,
+	WS_IFLA_PHYS_PORT_NAME  = 38,
+	WS_IFLA_PROTO_DOWN      = 39,
+	WS_IFLA_GSO_MAX_SEGS    = 40,
+	WS_IFLA_GSO_MAX_SIZE    = 41,
+	WS_IFLA_PAD             = 42,
+	WS_IFLA_XDP             = 43,
 };
 
 /* values for rta_type (ip address) from <linux/if_addr.h> */
@@ -137,7 +152,8 @@ enum ws_ifa_attr_type {
 	WS_IFA_BROADCAST   = 4,
 	WS_IFA_ANYCAST     = 5,
 	WS_IFA_CACHEINFO   = 6,
-	WS_IFA_MULTICAST   = 7
+	WS_IFA_MULTICAST   = 7,
+	WS_IFA_FLAGS       = 8,
 };
 
 /* values for rta_type (route) from <linux/rtnetlink.h> */
@@ -159,7 +175,14 @@ enum ws_rta_attr_type {
 	WS_RTA_MP_ALGO   = 14,
 	WS_RTA_TABLE     = 15,
 	WS_RTA_MARK      = 16,
-	WS_RTA_MFC_STATS = 17
+	WS_RTA_MFC_STATS = 17,
+	WS_RTA_VIA       = 18,
+	WS_RTA_NEWDST    = 19,
+	WS_RTA_PREF      = 20,
+	WS_RTA_ENCAP_TYPE= 21,
+	WS_RTA_ENCAP     = 22,
+	WS_RTA_EXPIRES   = 23,
+	WS_RTA_PAD       = 24,
 };
 
 
@@ -181,7 +204,8 @@ enum {
 	WS_RTPROT_XORP     = 14,
 	WS_RTPROT_NTK      = 15,
 	WS_RTPROT_DHCP     = 16,
-	WS_RTPROT_MROUTED  = 17
+	WS_RTPROT_MROUTED  = 17,
+	WS_RTPROT_BABEL    = 42,
 };
 
 /* values for rtmsg.rtm_scope from <linux/rtnetlink.h> */
@@ -242,20 +266,24 @@ enum {
 	WS_IFA_F_HOMEADDRESS  = 0x10,
 	WS_IFA_F_DEPRECATED   = 0x20,
 	WS_IFA_F_TENTATIVE    = 0x40,
-	WS_IFA_F_PERMANENT    = 0x80
+	WS_IFA_F_PERMANENT    = 0x80,
+	WS_IFA_F_MANAGETEMPADDR = 0x100,
+	WS_IFA_F_NOPREFIXROUTE  = 0x200,
+	WS_IFA_F_MCAUTOJOIN     = 0x400,
+	WS_IFA_F_STABLE_PRIVACY = 0x800,
 };
 
 /* values for ndmsg.ndm_state <linux/neighbour.h> */
 enum {
-	WS_NUD_INCOMPLETE	= 0x01,
-	WS_NUD_REACHABLE	= 0x02,
-	WS_NUD_STALE		= 0x04,
-	WS_NUD_DELAY		= 0x08,
-	WS_NUD_PROBE		= 0x10,
-	WS_NUD_FAILED		= 0x20,
+	WS_NUD_INCOMPLETE       = 0x01,
+	WS_NUD_REACHABLE        = 0x02,
+	WS_NUD_STALE            = 0x04,
+	WS_NUD_DELAY            = 0x08,
+	WS_NUD_PROBE            = 0x10,
+	WS_NUD_FAILED           = 0x20,
 /* Dummy states */
-	WS_NUD_NOARP		= 0x40,
-	WS_NUD_PERMANENT	= 0x80
+	WS_NUD_NOARP            = 0x40,
+	WS_NUD_PERMANENT        = 0x80
 };
 
 static dissector_handle_t netlink_route_handle;
@@ -326,25 +354,25 @@ static void
 hfi_netlink_route_ifi_flags_label(char *label, guint32 value)
 {
 	static const value_string iff_vals[] = {
-		{ WS_IFF_UP,	      "UP" },
+		{ WS_IFF_UP,          "UP" },
 		{ WS_IFF_BROADCAST,   "BROADCAST" },
-		{ WS_IFF_DEBUG,	      "DEBUG" },
+		{ WS_IFF_DEBUG,       "DEBUG" },
 		{ WS_IFF_LOOPBACK,    "LOOPBACK" },
 		{ WS_IFF_POINTOPOINT, "POINTOPOINT" },
 		{ WS_IFF_NOTRAILERS,  "NOTRAILERS" },
 		{ WS_IFF_RUNNING,     "RUNNING" },
-		{ WS_IFF_NOARP,	      "NOARP" },
+		{ WS_IFF_NOARP,       "NOARP" },
 		{ WS_IFF_PROMISC,     "PROMISC" },
 		{ WS_IFF_ALLMULTI,    "ALLMULTI" },
 		{ WS_IFF_MASTER,      "MASTER" },
-		{ WS_IFF_SLAVE,	      "SLAVE" },
+		{ WS_IFF_SLAVE,       "SLAVE" },
 		{ WS_IFF_MULTICAST,   "MULTICAST" },
 		{ WS_IFF_PORTSEL,     "PORTSEL" },
 		{ WS_IFF_AUTOMEDIA,   "AUTOMEDIA" },
 		{ WS_IFF_DYNAMIC,     "DYNAMIC" },
 		{ WS_IFF_LOWER_UP,    "LOWER_UP" },
 		{ WS_IFF_DORMANT,     "DORMANT" },
-		{ WS_IFF_ECHO,	      "ECHO" },
+		{ WS_IFF_ECHO,        "ECHO" },
 		{ 0x00, NULL }
 	};
 
@@ -445,6 +473,16 @@ static const value_string netlink_route_ifla_attr_vals[] = {
 	{ WS_IFLA_NUM_TX_QUEUES,  "Number of Tx queues" },
 	{ WS_IFLA_NUM_RX_QUEUES,  "Number of Rx queues" },
 	{ WS_IFLA_CARRIER,        "Carrier" },
+	{ WS_IFLA_PHYS_PORT_ID,   "Physical port ID" },
+	{ WS_IFLA_CARRIER_CHANGES,"Carrier changes" },
+	{ WS_IFLA_PHYS_SWITCH_ID, "Physical switch ID" },
+	{ WS_IFLA_LINK_NETNSID,   "Link network namespace ID" },
+	{ WS_IFLA_PHYS_PORT_NAME, "Physical port name" },
+	{ WS_IFLA_PROTO_DOWN,     "IFLA_PROTO_DOWN" },
+	{ WS_IFLA_GSO_MAX_SEGS,   "IFLA_GSO_MAX_SEGS" },
+	{ WS_IFLA_GSO_MAX_SIZE,   "IFLA_GSO_MAX_SIZE" },
+	{ WS_IFLA_PAD,            "IFLA_PAD" },
+	{ WS_IFLA_XDP,            "IFLA_XDP" },
 	{ 0, NULL }
 };
 
@@ -498,14 +536,19 @@ static void
 hfi_netlink_route_ifa_flags_label(char *label, guint32 value)
 {
 	static const value_string iff_vals[] = {
-		{ WS_IFA_F_SECONDARY,	"secondary/temporary" },
-		{ WS_IFA_F_NODAD,	"nodad" },
-		{ WS_IFA_F_OPTIMISTIC,	"optimistic" },
-		{ WS_IFA_F_DADFAILED,	"dadfailed" },
-		{ WS_IFA_F_HOMEADDRESS,	"homeaddress" },
-		{ WS_IFA_F_DEPRECATED,	"deprecated" },
-		{ WS_IFA_F_TENTATIVE,	"tentative" },
-		{ WS_IFA_F_PERMANENT,	"permanent" },
+		{ WS_IFA_F_SECONDARY,       "secondary/temporary" },
+		{ WS_IFA_F_NODAD,           "nodad" },
+		{ WS_IFA_F_OPTIMISTIC,      "optimistic" },
+		{ WS_IFA_F_DADFAILED,       "dadfailed" },
+		{ WS_IFA_F_HOMEADDRESS,     "homeaddress" },
+		{ WS_IFA_F_DEPRECATED,      "deprecated" },
+		{ WS_IFA_F_TENTATIVE,       "tentative" },
+		{ WS_IFA_F_PERMANENT,       "permanent" },
+		/* 32-bit IFA_FLAGS (in attribute) */
+		{ WS_IFA_F_MANAGETEMPADDR,  "mngtmpaddr" },
+		{ WS_IFA_F_NOPREFIXROUTE,   "noprefixroute" },
+		{ WS_IFA_F_MCAUTOJOIN,      "autojoin" },
+		{ WS_IFA_F_STABLE_PRIVACY,  "stable_privacy" },
 		{ 0x00, NULL }
 	};
 
@@ -555,12 +598,13 @@ dissect_netlink_route_ifaddrmsg(tvbuff_t *tvb, struct netlink_route_info *info, 
 static const value_string netlink_route_ifa_attr_vals[] = {
 	{ WS_IFA_UNSPEC,    "Unspecified" },
 	{ WS_IFA_ADDRESS,   "Interface address" },
-	{ WS_IFA_LOCAL,	    "Local address" },
-	{ WS_IFA_LABEL,	    "Name of interface" },
+	{ WS_IFA_LOCAL,     "Local address" },
+	{ WS_IFA_LABEL,     "Name of interface" },
 	{ WS_IFA_BROADCAST, "Broadcast address" },
 	{ WS_IFA_ANYCAST,   "Anycast address" },
 	{ WS_IFA_CACHEINFO, "Address information" },
 	{ WS_IFA_MULTICAST, "Multicast address" },
+	{ WS_IFA_FLAGS,     "Address flags" },
 	{ 0, NULL }
 };
 
@@ -572,6 +616,10 @@ static header_field_info hfi_netlink_route_ifa_label NETLINK_ROUTE_HFI_INIT =
 	{ "Interface name", "netlink-route.ifa_label", FT_STRINGZ, STR_ASCII,
 	  NULL, 0x00, NULL, HFILL };
 
+static header_field_info hfi_netlink_route_ifa_flags32 NETLINK_ROUTE_HFI_INIT =
+	{ "Address flags", "netlink-route.ifa_flags32", FT_UINT32, BASE_CUSTOM,
+	  CF_FUNC(hfi_netlink_route_ifa_flags_label), 0x00, NULL, HFILL };
+
 static int
 dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, struct netlink_route_info *info _U_, proto_tree *tree, int rta_type, int offset, int len)
 {
@@ -582,6 +630,10 @@ dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, struct netlink_route_info *info _
 		case WS_IFA_LABEL:
 			proto_tree_add_item_ret_string(tree, hfi_netlink_route_ifa_label.id, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
 			proto_item_append_text(tree, ": %s", str);
+			return 1;
+
+		case WS_IFA_FLAGS:
+			proto_tree_add_item(tree, &hfi_netlink_route_ifa_flags32, tvb, offset, 4, info->encoding);
 			return 1;
 
 		default:
@@ -617,7 +669,7 @@ static const value_string hfi_netlink_route_rt_protocol_vals[] = {
 	{ WS_RTPROT_BOOT,     "boot" },
 	{ WS_RTPROT_STATIC,   "static" },
 	{ WS_RTPROT_GATED,    "GateD" },
-	{ WS_RTPROT_RA,	      "RDISC/ND router advertisements" },
+	{ WS_RTPROT_RA,       "RDISC/ND router advertisements" },
 	{ WS_RTPROT_MRT,      "Merit MRT" },
 	{ WS_RTPROT_ZEBRA,    "Zebra" },
 	{ WS_RTPROT_BIRD,     "BIRD" },
@@ -626,6 +678,7 @@ static const value_string hfi_netlink_route_rt_protocol_vals[] = {
 	{ WS_RTPROT_NTK,      "Netsukuku" },
 	{ WS_RTPROT_DHCP,     "DHCP client" },
 	{ WS_RTPROT_MROUTED,  "Multicast daemon" },
+	{ WS_RTPROT_BABEL,    "Babel daemon" },
 	{ 0x00, NULL }
 };
 static value_string_ext hfi_netlink_route_rt_protocol_vals_ext =
@@ -708,13 +761,31 @@ dissect_netlink_route_rtmsg(tvbuff_t *tvb, struct netlink_route_info *info, prot
 /* Route Attributes */
 
 static const value_string netlink_route_rta_attr_vals[] = {
-	{ WS_RTA_UNSPEC,  "Unspecified" },
-	{ WS_RTA_DST,	  "Route destination address" },
-	{ WS_RTA_SRC,	  "Route source address" },
-	{ WS_RTA_IIF,	  "Input interface index" },
-	{ WS_RTA_OIF,	  "Output interface index" },
-	{ WS_RTA_GATEWAY, "Gateway of the route" },
-/* XXX, from WS_RTA_PRIORITY */
+	{ WS_RTA_UNSPEC,    "Unspecified" },
+	{ WS_RTA_DST,       "Route destination address" },
+	{ WS_RTA_SRC,       "Route source address" },
+	{ WS_RTA_IIF,       "Input interface index" },
+	{ WS_RTA_OIF,       "Output interface index" },
+	{ WS_RTA_GATEWAY,   "Gateway of the route" },
+	{ WS_RTA_PRIORITY,  "RTA_PRIORITY" },
+	{ WS_RTA_PREFSRC,   "RTA_PREFSRC" },
+	{ WS_RTA_METRICS,   "RTA_METRICS" },
+	{ WS_RTA_MULTIPATH, "RTA_MULTIPATH" },
+	{ WS_RTA_PROTOINFO, "RTA_PROTOINFO" },
+	{ WS_RTA_FLOW,      "RTA_FLOW" },
+	{ WS_RTA_CACHEINFO, "RTA_CACHEINFO" },
+	{ WS_RTA_SESSION,   "RTA_SESSION" },
+	{ WS_RTA_MP_ALGO,   "RTA_MP_ALGO" },
+	{ WS_RTA_TABLE,     "RTA_TABLE" },
+	{ WS_RTA_MARK,      "RTA_MARK" },
+	{ WS_RTA_MFC_STATS, "RTA_MFC_STATS" },
+	{ WS_RTA_VIA,       "RTA_VIA" },
+	{ WS_RTA_NEWDST,    "RTA_NEWDST" },
+	{ WS_RTA_PREF,      "RTA_PREF" },
+	{ WS_RTA_ENCAP_TYPE,"RTA_ENCAP_TYPE" },
+	{ WS_RTA_ENCAP,     "RTA_ENCAP" },
+	{ WS_RTA_EXPIRES,   "RTA_EXPIRES" },
+	{ WS_RTA_PAD,       "RTA_PAD" },
 	{ 0, NULL }
 };
 
@@ -771,11 +842,11 @@ hfi_netlink_route_nd_states_label(char *label, guint32 value)
 	static const value_string flags_vals[] = {
 		{ WS_NUD_INCOMPLETE, "INCOMPLETE" },
 		{ WS_NUD_REACHABLE,  "REACHABLE" },
-		{ WS_NUD_STALE,	     "STALE" },
-		{ WS_NUD_DELAY,	     "DELAY" },
-		{ WS_NUD_PROBE,	     "PROBE" },
+		{ WS_NUD_STALE,      "STALE" },
+		{ WS_NUD_DELAY,      "DELAY" },
+		{ WS_NUD_PROBE,      "PROBE" },
 		{ WS_NUD_FAILED,     "FAILED" },
-		{ WS_NUD_NOARP,	     "NOARP" },
+		{ WS_NUD_NOARP,      "NOARP" },
 		{ WS_NUD_PERMANENT,  "PERMAMENT" },
 		{ 0x00, NULL }
 	};
@@ -825,39 +896,56 @@ dissect_netlink_route_ndmsg(tvbuff_t *tvb, struct netlink_route_info *info, prot
 }
 
 static const value_string netlink_route_type_vals[] = {
-	{ WS_RTM_NEWLINK,    "Create network interface" },
-	{ WS_RTM_DELLINK,    "Remove network interface" },
-	{ WS_RTM_GETLINK,    "Get network interface" },
-	/* WS_RTM_SETLINK */
-
-	{ WS_RTM_NEWADDR,    "Add IP address" },
-	{ WS_RTM_DELADDR,    "Delete IP address" },
-	{ WS_RTM_GETADDR,    "Get IP address" },
-
-	{ WS_RTM_NEWROUTE,   "Add network route" },
-	{ WS_RTM_DELROUTE,   "Delete network route" },
-	{ WS_RTM_GETROUTE,   "Get network route" },
-
-	{ WS_RTM_NEWNEIGH,   "Add neighbor table entry" },
-	{ WS_RTM_DELNEIGH,   "Delete neighbor table entry" },
-	{ WS_RTM_GETNEIGH,   "Get neighbor table entry" },
-
-	{ WS_RTM_NEWRULE,    "Add routing rule" },
-	{ WS_RTM_DELRULE,    "Delete routing rule" },
-	{ WS_RTM_GETRULE,    "Get routing rule" },
-
-	{ WS_RTM_NEWQDISC,   "Add queueing discipline" },
-	{ WS_RTM_DELQDISC,   "Delete queueing discipline" },
-	{ WS_RTM_GETQDISC,   "Get queueing discipline" },
-
-	{ WS_RTM_NEWTCLASS,  "Add traffic class" },
-	{ WS_RTM_DELTCLASS,  "Delete traffic class" },
-	{ WS_RTM_GETTCLASS,  "Get traffic class" },
-
-	{ WS_RTM_NEWTFILTER, "Add traffic class" },
-	{ WS_RTM_DELTFILTER, "Delete traffic class" },
-	{ WS_RTM_GETTFILTER, "Get traffic class" },
-/* XXX from WS_RTM_NEWACTION */
+	{ WS_RTM_NEWLINK,       "Create network interface" },
+	{ WS_RTM_DELLINK,       "Remove network interface" },
+	{ WS_RTM_GETLINK,       "Get network interface info" },
+	{ WS_RTM_SETLINK,       "Set network interface info" },
+	{ WS_RTM_NEWADDR,       "Add IP address" },
+	{ WS_RTM_DELADDR,       "Delete IP address" },
+	{ WS_RTM_GETADDR,       "Get IP address" },
+	{ WS_RTM_NEWROUTE,      "Add network route" },
+	{ WS_RTM_DELROUTE,      "Delete network route" },
+	{ WS_RTM_GETROUTE,      "Get network route" },
+	{ WS_RTM_NEWNEIGH,      "Add neighbor table entry" },
+	{ WS_RTM_DELNEIGH,      "Delete neighbor table entry" },
+	{ WS_RTM_GETNEIGH,      "Get neighbor table entry" },
+	{ WS_RTM_NEWRULE,       "Add routing rule" },
+	{ WS_RTM_DELRULE,       "Delete routing rule" },
+	{ WS_RTM_GETRULE,       "Get routing rule" },
+	{ WS_RTM_NEWQDISC,      "Add queueing discipline" },
+	{ WS_RTM_DELQDISC,      "Delete queueing discipline" },
+	{ WS_RTM_GETQDISC,      "Get queueing discipline" },
+	{ WS_RTM_NEWTCLASS,     "Add traffic class" },
+	{ WS_RTM_DELTCLASS,     "Delete traffic class" },
+	{ WS_RTM_GETTCLASS,     "Get traffic class" },
+	{ WS_RTM_NEWTFILTER,    "Add traffic class" },
+	{ WS_RTM_DELTFILTER,    "Delete traffic class" },
+	{ WS_RTM_GETTFILTER,    "Get traffic class" },
+	{ WS_RTM_NEWACTION,     "New Action" },
+	{ WS_RTM_DELACTION,     "Delete Action" },
+	{ WS_RTM_GETACTION,     "Get Action" },
+	{ WS_RTM_NEWPREFIX,     "New IPv6 prefix" },
+	{ WS_RTM_GETMULTICAST,  "Get multicast address" },
+	{ WS_RTM_GETANYCAST,    "Get anycast address" },
+	{ WS_RTM_NEWNEIGHTBL,   "New Neighbour tables" },
+	{ WS_RTM_GETNEIGHTBL,   "Get Neighbour tables" },
+	{ WS_RTM_SETNEIGHTBL,   "Set Neighbour tables" },
+	{ WS_RTM_NEWNDUSEROPT,  "New ND Userland options" },
+	{ WS_RTM_NEWADDRLABEL,  "New IPv6 Address Label" },
+	{ WS_RTM_DELADDRLABEL,  "Delete IPv6 Address Label" },
+	{ WS_RTM_GETADDRLABEL,  "Get IPv6 Address Label" },
+	{ WS_RTM_GETDCB,        "Get Data Center Bridging" },
+	{ WS_RTM_SETDCB,        "Set Data Center Bridging" },
+	{ WS_RTM_NEWNETCONF,    "RTM_NEWNETCONF" },
+	{ WS_RTM_GETNETCONF,    "RTM_GETNETCONF" },
+	{ WS_RTM_NEWMDB,        "Add multicast database entry" },
+	{ WS_RTM_DELMDB,        "Delete multicast database entry" },
+	{ WS_RTM_GETMDB,        "Get multicast database" },
+	{ WS_RTM_NEWNSID,       "New network namespace ID" },
+	{ WS_RTM_DELNSID,       "Delete network namespace ID" },
+	{ WS_RTM_GETNSID,       "Get network namespace ID" },
+	{ WS_RTM_NEWSTATS,      "New link statistics" },
+	{ WS_RTM_GETSTATS,      "Get link statistics" },
 	{ 0, NULL }
 };
 static value_string_ext netlink_route_type_vals_ext = VALUE_STRING_EXT_INIT(netlink_route_type_vals);
@@ -962,6 +1050,7 @@ proto_register_netlink_route(void)
 	/* IP address Attributes */
 		&hfi_netlink_route_ifa_attr_type,
 		&hfi_netlink_route_ifa_label,
+		&hfi_netlink_route_ifa_flags32,
 
 	/* Network Route */
 		&hfi_netlink_route_rt_family,
