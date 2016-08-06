@@ -56,6 +56,8 @@ enum {
 	WS_NLM_F_MULTI = 2,      /* Multipart message, terminated by NETLINK_MSG_DONE */
 	WS_NLM_F_ACK = 4,        /* Reply with ack, with zero or error code */
 	WS_NLM_F_ECHO = 8,       /* Echo this request */
+	WS_NLM_F_DUMP_INTR = 16, /* Dump was inconsistent due to sequence change */
+	WS_NLM_F_DUMP_FILTERED = 32, /* Dump was filtered as requested */
 
 	/* Modifiers to Get request */
 	WS_NLM_F_ROOT = 0x100,   /* specify tree root */

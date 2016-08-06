@@ -40,37 +40,37 @@ void proto_reg_handoff_netlink(void);
 #define SLL_HEADER_SIZE	16		/* total header length */
 
 static const value_string netlink_family_vals[] = {
-	{ WS_NETLINK_ROUTE,	     "Route" },
-	{ WS_NETLINK_UNUSED,	     "Unused" },
-	{ WS_NETLINK_USERSOCK,	     "user-mode" },
-	{ WS_NETLINK_FIREWALL,	     "Unused (formerly: ip_queue)" },
-	{ WS_NETLINK_SOCK_DIAG,	     "socket monitoring" },
-	{ WS_NETLINK_NFLOG,	     "Netfilter ULOG" },
-	{ WS_NETLINK_XFRM,	     "IPsec" },
-	{ WS_NETLINK_SELINUX,	     "SELinux events" },
-	{ WS_NETLINK_ISCSI,	     "Open-iSCSI" },
-	{ WS_NETLINK_AUDIT,	     "Auditing" },
+	{ WS_NETLINK_ROUTE,          "Route" },
+	{ WS_NETLINK_UNUSED,         "Unused" },
+	{ WS_NETLINK_USERSOCK,       "User-mode socket protocols" },
+	{ WS_NETLINK_FIREWALL,       "Unused (formerly: ip_queue)" },
+	{ WS_NETLINK_SOCK_DIAG,      "Socket monitoring" },
+	{ WS_NETLINK_NFLOG,          "Netfilter ULOG" },
+	{ WS_NETLINK_XFRM,           "IPsec" },
+	{ WS_NETLINK_SELINUX,        "SELinux events" },
+	{ WS_NETLINK_ISCSI,          "Open-iSCSI" },
+	{ WS_NETLINK_AUDIT,          "Auditing" },
 	{ WS_NETLINK_FIB_LOOKUP,     "FIB lookup" },
-	{ WS_NETLINK_CONNECTOR,	     "Kernel connector" },
-	{ WS_NETLINK_NETFILTER,	     "Netfilter" },
-	{ WS_NETLINK_IP6_FW,	     "Unused (formerly: ip6_queue)" },
-	{ WS_NETLINK_DNRTMSG,	     "DECnet routing messages" },
-	{ WS_NETLINK_KOBJECT_UEVENT, "Kernel messages" },
-	{ WS_NETLINK_GENERIC,	     "Generic" },
+	{ WS_NETLINK_CONNECTOR,      "Kernel connector" },
+	{ WS_NETLINK_NETFILTER,      "Netfilter" },
+	{ WS_NETLINK_IP6_FW,         "Unused (formerly: ip6_queue)" },
+	{ WS_NETLINK_DNRTMSG,        "DECnet routing messages" },
+	{ WS_NETLINK_KOBJECT_UEVENT, "Kernel messages to userspace" },
+	{ WS_NETLINK_GENERIC,        "Generic" },
 	{ WS_NETLINK_SCSITRANSPORT,  "SCSI Transports" },
-	{ WS_NETLINK_ECRYPTFS,	     "ecryptfs" },
-	{ WS_NETLINK_RDMA,	     "RDMA" },
-	{ WS_NETLINK_CRYPTO,	     "Crypto layer" },
+	{ WS_NETLINK_ECRYPTFS,       "ecryptfs" },
+	{ WS_NETLINK_RDMA,           "RDMA" },
+	{ WS_NETLINK_CRYPTO,         "Crypto layer" },
 	{ 0, NULL }
 };
 
 value_string_ext netlink_family_vals_ext = VALUE_STRING_EXT_INIT(netlink_family_vals);
 
 static const value_string type_vals[] = {
-	{ WS_NLMSG_NOOP,    "nothing" },
-	{ WS_NLMSG_ERROR,   "error" },
-	{ WS_NLMSG_DONE,    "end of a dump" },
-	{ WS_NLMSG_OVERRUN, "data lost" },
+	{ WS_NLMSG_NOOP,    "Nothing" },
+	{ WS_NLMSG_ERROR,   "Error" },
+	{ WS_NLMSG_DONE,    "End of a dump" },
+	{ WS_NLMSG_OVERRUN, "Data lost" },
 	{ 0, NULL }
 };
 
@@ -86,29 +86,37 @@ static header_field_info *hfi_netlink = NULL;
 #define NETLINK_HFI_INIT HFI_INIT(proto_netlink)
 
 static header_field_info hfi_netlink_hatype NETLINK_HFI_INIT =
-	{ "Link-layer address type",	"netlink.hatype", FT_UINT16, BASE_DEC,
+	{ "Link-layer address type", "netlink.hatype", FT_UINT16, BASE_DEC,
 		VALS(ha_types), 0x0, NULL, HFILL };
 
 /* Linux netlink protocol type */
 static header_field_info hfi_netlink_family NETLINK_HFI_INIT =
-	{ "Family",	"netlink.family", FT_UINT16, BASE_HEX | BASE_EXT_STRING,
+	{ "Family", "netlink.family", FT_UINT16, BASE_HEX | BASE_EXT_STRING,
 		&netlink_family_vals_ext, 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_hdr_len NETLINK_HFI_INIT =
 	{ "Length", "netlink.hdr_len", FT_UINT32, BASE_DEC,
-		NULL, 0x00, NULL, HFILL };
+		NULL, 0x00, "Length of message including header", HFILL };
 
 static header_field_info hfi_netlink_hdr_type NETLINK_HFI_INIT =
-	{ "Type", "netlink.hdr_type", FT_UINT16, BASE_HEX,
-		VALS(type_vals), 0x00, NULL, HFILL };
+	{ "Message type", "netlink.hdr_type", FT_UINT16, BASE_HEX,
+		VALS(type_vals), 0x00, "Type of message content", HFILL };
 
 static header_field_info hfi_netlink_hdr_flags NETLINK_HFI_INIT =
-	{ "Flags", "netlink.hdr_flags", FT_UINT16, BASE_DEC,
-		NULL, 0x00, "Header flags", HFILL };
+	{ "Flags", "netlink.hdr_flags", FT_UINT16, BASE_HEX,
+		NULL, 0x00, "Additional flags", HFILL };
+
+static header_field_info hfi_netlink_hdr_flag_dumpfiltered NETLINK_HFI_INIT =
+	{ "Dump filtered", "netlink.hdr_flags.dump_filtered", FT_UINT16, BASE_DEC,
+		NULL, WS_NLM_F_DUMP_FILTERED, "Dump was filtered as requested", HFILL };
+
+static header_field_info hfi_netlink_hdr_flag_dumpintr NETLINK_HFI_INIT =
+	{ "Dump inconsistent", "netlink.hdr_flags.dump_intr", FT_UINT16, BASE_DEC,
+		NULL, WS_NLM_F_DUMP_INTR, "Dump was inconsistent due to sequence change", HFILL };
 
 static header_field_info hfi_netlink_hdr_flag_echo NETLINK_HFI_INIT =
 	{ "Echo", "netlink.hdr_flags.echo", FT_UINT16, BASE_DEC,
-		NULL, WS_NLM_F_ECHO, NULL, HFILL };
+		NULL, WS_NLM_F_ECHO, "Echo this request", HFILL };
 
 static header_field_info hfi_netlink_hdr_flag_ack NETLINK_HFI_INIT =
 	{ "Ack", "netlink.hdr_flags.ack", FT_UINT16, BASE_DEC,
@@ -116,51 +124,56 @@ static header_field_info hfi_netlink_hdr_flag_ack NETLINK_HFI_INIT =
 
 static header_field_info hfi_netlink_hdr_flag_multi NETLINK_HFI_INIT =
 	{ "Multipart message", "netlink.hdr_flags.multi", FT_UINT16, BASE_DEC,
-		NULL, WS_NLM_F_MULTI, NULL, HFILL };
+		NULL, WS_NLM_F_MULTI, "Part of multi-part message terminated by NLMSG_DONE", HFILL };
 
 static header_field_info hfi_netlink_hdr_flag_request NETLINK_HFI_INIT =
 	{ "Request", "netlink.hdr_flags.request", FT_UINT16, BASE_DEC,
-		NULL, WS_NLM_F_REQUEST, NULL, HFILL };
+		NULL, WS_NLM_F_REQUEST, "It is a request message", HFILL };
 
 static header_field_info hfi_netlink_hdr_flag_root NETLINK_HFI_INIT =
 	{ "Specify tree root", "netlink.hdr_flags.root", FT_UINT16, BASE_DEC,
-		NULL, WS_NLM_F_ROOT, NULL, HFILL };
+		NULL, WS_NLM_F_ROOT, "Return the complete table instead of a single entry", HFILL };
 
 static header_field_info hfi_netlink_hdr_flag_match NETLINK_HFI_INIT =
-	{ "Return all matching", "netlink.hdr_flags.match_all", FT_UINT16, BASE_DEC,
-		NULL, WS_NLM_F_MATCH, NULL, HFILL };
+	{ "Return all matching", "netlink.hdr_flags.match", FT_UINT16, BASE_DEC,
+		NULL, WS_NLM_F_MATCH, "Return all entries matching criteria in request", HFILL };
 
 static header_field_info hfi_netlink_hdr_flag_atomic NETLINK_HFI_INIT =
 	{ "Atomic", "netlink.hdr_flags.atomic", FT_UINT16, BASE_DEC,
-		NULL, WS_NLM_F_ATOMIC, NULL, HFILL };
+		NULL, WS_NLM_F_ATOMIC, "Return an atomic snapshot of the table", HFILL };
 
 static header_field_info hfi_netlink_hdr_flag_replace NETLINK_HFI_INIT =
 	{ "Replace", "netlink.hdr_flags.replace", FT_UINT16, BASE_DEC,
-		NULL, WS_NLM_F_REPLACE, NULL, HFILL };
+		NULL, WS_NLM_F_REPLACE, "Replace existing objects", HFILL };
 
 static header_field_info hfi_netlink_hdr_flag_excl NETLINK_HFI_INIT =
 	{ "Excl", "netlink.hdr_flags.excl", FT_UINT16, BASE_DEC,
-		NULL, WS_NLM_F_EXCL, NULL, HFILL };
+		NULL, WS_NLM_F_EXCL, "Do not replace existing objects", HFILL };
 
 static header_field_info hfi_netlink_hdr_flag_create NETLINK_HFI_INIT =
 	{ "Create", "netlink.hdr_flags.create", FT_UINT16, BASE_DEC,
-		NULL, WS_NLM_F_CREATE, NULL, HFILL };
+		NULL, WS_NLM_F_CREATE, "Create objects if it does not already exist", HFILL };
 
 static header_field_info hfi_netlink_hdr_flag_append NETLINK_HFI_INIT =
 	{ "Append", "netlink.hdr_flags.append", FT_UINT16, BASE_DEC,
-		NULL, WS_NLM_F_APPEND, NULL, HFILL };
+		NULL, WS_NLM_F_APPEND, "Add to end of object list", HFILL };
 
 static header_field_info hfi_netlink_hdr_seq NETLINK_HFI_INIT =
 	{ "Sequence", "netlink.hdr_seq", FT_UINT32, BASE_DEC,
-		NULL, 0x00, NULL, HFILL };
+		NULL, 0x00, "Sequence number", HFILL };
 
 static header_field_info hfi_netlink_hdr_pid NETLINK_HFI_INIT =
 	{ "Port ID", "netlink.hdr_pid", FT_UINT32, BASE_DEC,
-		NULL, 0x00, NULL, HFILL };
+		NULL, 0x00, "Sender port ID", HFILL };
 
 static header_field_info hfi_netlink_attr_len NETLINK_HFI_INIT =
 	{ "Len", "netlink.attr_len", FT_UINT16, BASE_DEC,
 		NULL, 0x00, NULL, HFILL };
+
+/* TODO add a value_string for errno. */
+static header_field_info hfi_netlink_error NETLINK_HFI_INIT =
+	{ "Error code", "netlink.error", FT_INT32, BASE_DEC,
+		NULL, 0x00, "Negative errno or 0 for acknowledgements", HFILL };
 
 static gint ett_netlink_cooked = -1;
 static gint ett_netlink_msghdr = -1;
@@ -175,6 +188,8 @@ static const int *netlink_header_get_flags[] = {
 	&hfi_netlink_hdr_flag_multi.id,
 	&hfi_netlink_hdr_flag_ack.id,
 	&hfi_netlink_hdr_flag_echo.id,
+	&hfi_netlink_hdr_flag_dumpintr.id,
+	&hfi_netlink_hdr_flag_dumpfiltered.id,
 
 	&hfi_netlink_hdr_flag_root.id,
 	&hfi_netlink_hdr_flag_match.id,
@@ -187,6 +202,8 @@ static const int *netlink_header_new_flags[] = {
 	&hfi_netlink_hdr_flag_multi.id,
 	&hfi_netlink_hdr_flag_ack.id,
 	&hfi_netlink_hdr_flag_echo.id,
+	&hfi_netlink_hdr_flag_dumpintr.id,
+	&hfi_netlink_hdr_flag_dumpfiltered.id,
 
 	&hfi_netlink_hdr_flag_replace.id,
 	&hfi_netlink_hdr_flag_excl.id,
@@ -248,6 +265,61 @@ dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, 
 }
 
 static int
+dissect_netlink_hdr(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding, guint16 *type, guint32 *port_id)
+{
+	guint16 hdr_flags;
+	guint16 hdr_type;
+
+	proto_tree *fh_hdr;
+	proto_item *pi_type;
+
+	fh_hdr = proto_tree_add_subtree(tree, tvb, offset, 16, ett_netlink_msghdr, NULL, "Header");
+
+	proto_tree_add_item(fh_hdr, &hfi_netlink_hdr_len, tvb, offset, 4, encoding);
+	offset += 4;
+
+	pi_type = proto_tree_add_item(fh_hdr, &hfi_netlink_hdr_type, tvb, offset, 2, encoding);
+	hdr_type = tvb_get_letohs(tvb, offset);
+	if (hdr_type >= WS_NLMSG_MIN_TYPE) {
+		proto_item_set_text(pi_type, "Message type: Protocol-specific (0x%04x)", hdr_type);
+	}
+	if (type) {
+		*type = hdr_type;
+	}
+	offset += 2;
+
+	hdr_flags = tvb_get_letohs(tvb, offset);
+	if(hdr_flags & WS_NLM_F_REQUEST) {
+		proto_tree_add_bitmask(fh_hdr, tvb, offset, hfi_netlink_hdr_flags.id,
+			ett_netlink_hdr_flags, netlink_header_get_flags, ENC_BIG_ENDIAN);
+	}
+	else {
+		proto_tree_add_bitmask(fh_hdr, tvb, offset, hfi_netlink_hdr_flags.id,
+			ett_netlink_hdr_flags, netlink_header_new_flags, ENC_BIG_ENDIAN);
+	}
+
+	offset += 2;
+
+	proto_tree_add_item(fh_hdr, &hfi_netlink_hdr_seq, tvb, offset, 4, encoding);
+	offset += 4;
+
+	proto_tree_add_item_ret_uint(fh_hdr, hfi_netlink_hdr_pid.id, tvb, offset, 4, encoding, port_id);
+	offset += 4;
+
+	return offset;
+}
+
+static void
+dissect_netlink_error(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding)
+{
+	/* Assume sizeof(int) == 4. */
+	proto_tree_add_item(tree, &hfi_netlink_error, tvb, offset, 4, encoding);
+	offset += 4;
+
+	dissect_netlink_hdr(tvb, tree, offset, encoding, NULL, NULL);
+}
+
+static int
 dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data _U_)
 {
 	guint16     protocol, hatype;
@@ -289,10 +361,8 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 		int pkt_end_offset;
 		guint32 pkt_len;
 		guint32 port_id;
-		guint16 hdr_flags;
 
 		proto_tree *fh_msg;
-		proto_tree *fh_hdr;
 
 
 		int encoding = ENC_LITTLE_ENDIAN; /* XXX */
@@ -303,33 +373,7 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 
 		fh_msg = proto_tree_add_subtree(tree, tvb, offset, pkt_len, ett_netlink_msg, NULL, "Netlink message");
 
-		fh_hdr = proto_tree_add_subtree(fh_msg, tvb, offset, 16, ett_netlink_msghdr, NULL, "Header");
-
-		proto_tree_add_item(fh_hdr, &hfi_netlink_hdr_len, tvb, offset, 4, encoding);
-		offset += 4;
-
-		proto_tree_add_item(fh_hdr, &hfi_netlink_hdr_type, tvb, offset, 2, encoding);
-		data.type = tvb_get_letohs(tvb, offset);
-		offset += 2;
-
-		hdr_flags = tvb_get_letohs(tvb, offset);
-		if(hdr_flags & WS_NLM_F_REQUEST) {
-			proto_tree_add_bitmask(fh_hdr, tvb, offset, hfi_netlink_hdr_flags.id,
-				ett_netlink_hdr_flags, netlink_header_get_flags, ENC_BIG_ENDIAN);
-		}
-		else {
-			proto_tree_add_bitmask(fh_hdr, tvb, offset, hfi_netlink_hdr_flags.id,
-				ett_netlink_hdr_flags, netlink_header_new_flags, ENC_BIG_ENDIAN);
-		}
-
-		offset += 2;
-
-		proto_tree_add_item(fh_hdr, &hfi_netlink_hdr_seq, tvb, offset, 4, encoding);
-		offset += 4;
-
-		proto_tree_add_item(fh_hdr, &hfi_netlink_hdr_pid, tvb, offset, 4, encoding);
-		port_id = tvb_get_letohl(tvb, offset);
-		offset += 4;
+		offset = dissect_netlink_hdr(tvb, fh_msg, offset, encoding, &data.type, &port_id);
 
 		/* XXX */
 		if (port_id == 0x00)
@@ -337,7 +381,9 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 		else
 			pinfo->p2p_dir = P2P_DIR_RECV; /* userspace or kernel -> userspace */
 
-		if (pkt_len > 16) {
+		if (data.type == WS_NLMSG_ERROR) {
+			dissect_netlink_error(tvb, fh_msg, offset, encoding);
+		} else if (pkt_len > 16) {
 			data.magic = PACKET_NETLINK_MAGIC;
 			data.encoding = encoding;
 
@@ -371,9 +417,11 @@ proto_register_netlink(void)
 		&hfi_netlink_hdr_type,
 		&hfi_netlink_hdr_flags,
 		&hfi_netlink_hdr_flag_request,
-		&hfi_netlink_hdr_flag_echo,
-		&hfi_netlink_hdr_flag_ack,
 		&hfi_netlink_hdr_flag_multi,
+		&hfi_netlink_hdr_flag_ack,
+		&hfi_netlink_hdr_flag_echo,
+		&hfi_netlink_hdr_flag_dumpintr,
+		&hfi_netlink_hdr_flag_dumpfiltered,
 
 		&hfi_netlink_hdr_flag_root,
 		&hfi_netlink_hdr_flag_match,
@@ -389,6 +437,9 @@ proto_register_netlink(void)
 
 	/* Netlink message attribute */
 		&hfi_netlink_attr_len,
+
+	/* Netlink message payloads */
+		&hfi_netlink_error,
 	};
 #endif
 
