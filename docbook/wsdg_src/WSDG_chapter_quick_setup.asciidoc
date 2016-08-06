@@ -401,6 +401,12 @@ e.g. for VS2010 set the following:
 ----
 Setting these variables could be added to a batch file to be run after you open
 the Visual Studio Tools Command Prompt.
+
+[TIP]
+====
+The recommended Qt version to compile Wireshark on Windows is 5.6.1.
+====
+
 --
 
 . Create and change to the correct build directory.  CMake is best used in an out-of-tree build configuration
