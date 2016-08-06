@@ -178,7 +178,7 @@ masked_guint8_value(const guint8 value, const guint8 mask)
 }
 
 static int
-dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data)
+dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     static guint32 msg_seqid = 0;
 
