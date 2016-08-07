@@ -1060,7 +1060,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
     static char                    helpful_packet[PACKET_LENGTH];
     gssize                         length;
     gssize                         used_buffer_length = 0;
-    socket_handle_t                sock;
+    socket_handle_t                sock = INVALID_SOCKET;
     const char                    *adb_transport  = "0012""host:transport-any";
     const char                    *adb_transport_serial_templace = "%04x""host:transport:%s";
     const char                    *adb_shell_hcidump = "0013""shell:hcidump -R -t";
@@ -1079,7 +1079,6 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
     int                            ms = 0;
     struct tm                      date;
     char                           direction_character;
-    int                            try_next = 0;
 
     SET_DATA(h4_header, value_own_pcap_bluetooth_h4_header, packet);
 
@@ -1166,7 +1165,8 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                 if (!strncmp(state_line_position, "Can't access device: Permission denied", 38)) {
                     g_warning("No permission for command <%s>", adb_shell_hcidump);
                     used_buffer_length = 0;
-                    try_next += 1;
+                    closesocket(sock);
+                    sock = INVALID_SOCKET;
                     break;
                 }
                 memmove(data, i_position, used_buffer_length - (i_position - data));
@@ -1176,7 +1176,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
         }
     }
 
-    if (try_next == 1) {
+    if (sock == INVALID_SOCKET) {
         sock = adb_connect(adb_server_ip, adb_server_tcp_port);
         if (sock == INVALID_SOCKET)
             return EXIT_CODE_INVALID_SOCKET_4;
