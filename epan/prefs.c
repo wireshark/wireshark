@@ -4171,10 +4171,10 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             /* "gui" prefix was added to column preferences for better organization
              * within the preferences file
              */
-            if ((strcmp(pref_name, PRS_COL_HIDDEN) == 0) ||
-                (strcmp(pref_name, PRS_COL_FMT) == 0)) {
+            if (module == gui_column_module) {
                 /* While this has a subtree, there is no apply callback, so no
-                 * need to use prefs_find_preference_with_submodule. */
+                 * need to use prefs_find_preference_with_submodule to update
+                 * containing_module. It would not be useful. */
                 pref = prefs_find_preference(module, pref_name);
             }
             else if (strcmp(module->name, "mgcp") == 0) {
