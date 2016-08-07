@@ -293,8 +293,6 @@ dissect_corosynec_totemnet_with_decryption(tvbuff_t *tvb,
   memset(private_key, 0, sizeof(private_key));
 
   private_key_len = (strlen(key_for_trial)+4) & 0xFC;
-  if (private_key_len > PRIVATE_KEY_LEN_MAX)
-    private_key_len = PRIVATE_KEY_LEN_MAX;
   g_strlcpy(private_key, key_for_trial, private_key_len);
 
   /*
