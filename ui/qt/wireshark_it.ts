@@ -2641,12 +2641,12 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
 <context>
     <name>ExtcapArgumentFileSelection</name>
     <message>
-        <location filename="extcap_argument_file.cpp" line="112"/>
+        <location filename="extcap_argument_file.cpp" line="113"/>
         <source>All Files (</source>
         <translation>Tutti i file (</translation>
     </message>
     <message>
-        <location filename="extcap_argument_file.cpp" line="121"/>
+        <location filename="extcap_argument_file.cpp" line="122"/>
         <source>Open File</source>
         <translation>Apri file</translation>
     </message>

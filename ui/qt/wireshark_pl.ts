@@ -2640,12 +2640,12 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
 <context>
     <name>ExtcapArgumentFileSelection</name>
     <message>
-        <location filename="extcap_argument_file.cpp" line="112"/>
+        <location filename="extcap_argument_file.cpp" line="113"/>
         <source>All Files (</source>
         <translation>Wszystkie pliki (</translation>
     </message>
     <message>
-        <location filename="extcap_argument_file.cpp" line="121"/>
+        <location filename="extcap_argument_file.cpp" line="122"/>
         <source>Open File</source>
         <translation>Otwórz plik</translation>
     </message>
