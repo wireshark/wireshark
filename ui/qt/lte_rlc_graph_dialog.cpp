@@ -61,6 +61,10 @@ LteRlcGraphDialog::LteRlcGraphDialog(QWidget &parent, CaptureFile &cf, bool chan
     ui(new Ui::LteRlcGraphDialog),
     mouse_drags_(true),
     rubber_band_(NULL),
+    base_graph_(NULL),
+    reseg_graph_(NULL),
+    acks_graph_(NULL),
+    nacks_graph_(NULL),
     packet_num_(0)
 {
     ui->setupUi(this);
