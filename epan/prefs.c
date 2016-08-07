@@ -4100,8 +4100,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             /* "gui" prefix was added to column preferences for better organization
              * within the preferences file
              */
-            if ((strcmp(pref_name, PRS_COL_HIDDEN) == 0) ||
-                (strcmp(pref_name, PRS_COL_FMT) == 0)) {
+            if (module == gui_column_module) {
                 pref = prefs_find_preference(module, pref_name);
             }
             else if (strcmp(module->name, "mgcp") == 0) {
