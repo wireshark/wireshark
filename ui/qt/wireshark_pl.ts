@@ -1198,7 +1198,7 @@
         <translation>Wpis filtru przechwytywania</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="303"/>
+        <location filename="capture_filter_edit.cpp" line="279"/>
         <source>Enter a capture filter %1</source>
         <translation>Wpisz filtr przechwytywania %1</translation>
     </message>
@@ -1213,38 +1213,38 @@
         <translation>Zastosuj ten filtr.</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="298"/>
+        <location filename="capture_filter_edit.cpp" line="274"/>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
         <translation>Wybrano wiele filtrów. Nadpisz je lub pozostaw puste by ich nie zmieniać.</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="299"/>
+        <location filename="capture_filter_edit.cpp" line="275"/>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Wybrano interfejsy, które wymagają różnich filtrów przechwytywania. Wpisanie tutaj filtru spowoduje zastąpienie ich. W przeciwnym przypadku zostaną użyte.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="403"/>
+        <location filename="capture_filter_edit.cpp" line="377"/>
         <source>Save this filter</source>
         <translation>Zapisz filtr</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="405"/>
+        <location filename="capture_filter_edit.cpp" line="379"/>
         <source>Remove this filter</source>
         <translation>Usuń filtr</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="407"/>
+        <location filename="capture_filter_edit.cpp" line="381"/>
         <source>Manage Capture Filters</source>
         <translation>Zarządzaj filtrami przechwytywania</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="540"/>
+        <location filename="capture_filter_edit.cpp" line="514"/>
         <source>Unable to save capture filter settings.</source>
         <translation>Nie można zapisać ustawień filtru przechwytywania.</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="541"/>
+        <location filename="capture_filter_edit.cpp" line="515"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
         <translation>Nie można zapisać do pliku filtrów przechwytywania
@@ -1583,60 +1583,60 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Start</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="217"/>
+        <location filename="capture_interfaces_dialog.cpp" line="216"/>
         <source>Leave blank to use a temporary file</source>
         <translation>Pozostaw puste by użyć pliku tymczasowego.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="323"/>
+        <location filename="capture_interfaces_dialog.cpp" line="321"/>
         <source>Specify a Capture File</source>
         <translation>Wybierz plik przechwytywania</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="621"/>
+        <location filename="capture_interfaces_dialog.cpp" line="619"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="621"/>
+        <location filename="capture_interfaces_dialog.cpp" line="619"/>
         <source>Addresses</source>
         <translation>Adresy</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="621"/>
+        <location filename="capture_interfaces_dialog.cpp" line="619"/>
         <source>Address</source>
         <translation>Adres</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="631"/>
+        <location filename="capture_interfaces_dialog.cpp" line="629"/>
         <source>no addresses</source>
         <translation>brak adresu</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="809"/>
-        <location filename="capture_interfaces_dialog.cpp" line="817"/>
-        <location filename="capture_interfaces_dialog.cpp" line="828"/>
-        <location filename="capture_interfaces_dialog.cpp" line="832"/>
-        <location filename="capture_interfaces_dialog.cpp" line="845"/>
-        <location filename="capture_interfaces_dialog.cpp" line="853"/>
+        <location filename="capture_interfaces_dialog.cpp" line="807"/>
+        <location filename="capture_interfaces_dialog.cpp" line="815"/>
+        <location filename="capture_interfaces_dialog.cpp" line="826"/>
+        <location filename="capture_interfaces_dialog.cpp" line="830"/>
+        <location filename="capture_interfaces_dialog.cpp" line="843"/>
+        <location filename="capture_interfaces_dialog.cpp" line="851"/>
         <source>Error</source>
         <translation>Błąd</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="810"/>
-        <location filename="capture_interfaces_dialog.cpp" line="818"/>
-        <location filename="capture_interfaces_dialog.cpp" line="846"/>
-        <location filename="capture_interfaces_dialog.cpp" line="854"/>
+        <location filename="capture_interfaces_dialog.cpp" line="808"/>
+        <location filename="capture_interfaces_dialog.cpp" line="816"/>
+        <location filename="capture_interfaces_dialog.cpp" line="844"/>
+        <location filename="capture_interfaces_dialog.cpp" line="852"/>
         <source>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</source>
         <translation>Wiele plików: Żądane wielkość pliku jest zbyt duża! Wielkość pliku nie może być większa niż 2 GiB.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="829"/>
+        <location filename="capture_interfaces_dialog.cpp" line="827"/>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
         <translation>Wiele plików: Nie wprowadzono nazwy pliku! Musisz wprowadzić nazwę pliku jeśli zamierzasz używać wielu plików.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="833"/>
+        <location filename="capture_interfaces_dialog.cpp" line="831"/>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <translation>Wiele plików: Nie ustalono limitu! Musisz ustalić limit wielkości pliku lub czas przechwytywania 
@@ -2067,39 +2067,39 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <translation>Zastosuj filtr.</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="387"/>
+        <location filename="display_filter_edit.cpp" line="361"/>
         <source>Save this filter</source>
         <translation>Zapisz filtr</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="391"/>
+        <location filename="display_filter_edit.cpp" line="365"/>
         <source>Manage Display Filters</source>
         <translation>Zarządzaj filtrami wyświetlania</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="393"/>
+        <location filename="display_filter_edit.cpp" line="367"/>
         <source>Manage Filter Expressions</source>
         <translation>Zarządzaj wyrażeniami filtrów</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="572"/>
+        <location filename="display_filter_edit.cpp" line="546"/>
         <source>Unable to save display filter settings.</source>
         <translation>Nie można zapisać ustawień filtru wyświetlania.</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="573"/>
+        <location filename="display_filter_edit.cpp" line="547"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
         <translation>Nie można zapisać do pliku filtrów wyświetlania
 &quot;%1&quot;:%2.</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="389"/>
+        <location filename="display_filter_edit.cpp" line="363"/>
         <source>Remove this filter</source>
         <translation>Usuń filtr</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="331"/>
+        <location filename="display_filter_edit.cpp" line="305"/>
         <source>Invalid filter: </source>
         <oldsource>Invalid filter</oldsource>
         <translation>Błędny filtr: </translation>
@@ -2682,7 +2682,7 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <translation>Wpisz pole %1</translation>
     </message>
     <message>
-        <location filename="field_filter_edit.cpp" line="154"/>
+        <location filename="field_filter_edit.cpp" line="123"/>
         <source>Invalid filter: </source>
         <translation>Błędny filtr: </translation>
     </message>
@@ -5740,7 +5740,7 @@ dla plików filtrów: %2.</translation>
         <translation>Kopiuj drzewo jako YAML</translation>
     </message>
     <message>
-        <location filename="lbm_stream_dialog.cpp" line="392"/>
+        <location filename="lbm_stream_dialog.cpp" line="390"/>
         <source>LBM Stream failed to attach to tap</source>
         <translation>Strumień LBM nie może się podłączyć do kanału komunikacyjnego</translation>
     </message>
@@ -10254,7 +10254,7 @@ text-decoration: underline;
         <translation>Wartość</translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="440"/>
+        <location filename="preferences_dialog.cpp" line="441"/>
         <source>Preferences</source>
         <translation>Preferencje</translation>
     </message>
@@ -11160,12 +11160,12 @@ text-decoration: underline;
         <translation>DLT %1</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="800"/>
+        <location filename="../../wireshark-qt.cpp" line="801"/>
         <source>Invalid Display Filter</source>
         <translation type="unfinished">Niepoprawny filtr</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="801"/>
+        <location filename="../../wireshark-qt.cpp" line="802"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>
