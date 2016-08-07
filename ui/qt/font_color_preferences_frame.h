@@ -54,11 +54,8 @@ private:
     pref_t *pref_client_bg_;
     pref_t *pref_server_fg_;
     pref_t *pref_server_bg_;
-    pref_t *pref_valid_fg_;
     pref_t *pref_valid_bg_;
-    pref_t *pref_invalid_fg_;
     pref_t *pref_invalid_bg_;
-    pref_t *pref_deprecated_fg_;
     pref_t *pref_deprecated_bg_;
     QFont cur_font_;
 
