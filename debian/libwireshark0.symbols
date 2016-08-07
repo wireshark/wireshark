@@ -1438,6 +1438,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  try_capture_dissector@Base 2.1.0
  try_rval_to_str@Base 1.9.1
  try_rval_to_str_idx@Base 1.9.1
+ try_rval64_to_str@Base 2.3.0
+ try_rval64_to_str_idx@Base 2.3.0
  try_serv_name_lookup@Base 2.1.0
  try_str_to_str@Base 1.9.1
  try_str_to_str_idx@Base 1.9.1

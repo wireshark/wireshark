@@ -266,6 +266,14 @@ WS_DLL_PUBLIC
 const gchar *
 try_rval_to_str_idx(const guint32 val, const range_string *rs, gint *idx);
 
+WS_DLL_PUBLIC
+const gchar *
+try_rval64_to_str(const guint64 val, const range_string *rs);
+
+WS_DLL_PUBLIC
+const gchar *
+try_rval64_to_str_idx(const guint64 val, const range_string *rs, gint *idx);
+
 /* MISC (generally do not use) */
 
 WS_DLL_LOCAL

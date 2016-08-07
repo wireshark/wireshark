@@ -613,6 +613,34 @@ try_rval_to_str(const guint32 val, const range_string *rs)
     return try_rval_to_str_idx(val, rs, &ignore_me);
 }
 
+/* Like try_val_to_str_idx except for range_string */
+const gchar *
+try_rval64_to_str_idx(const guint64 val, const range_string *rs, gint *idx)
+{
+    gint i = 0;
+
+    if(rs) {
+        while(rs[i].strptr) {
+            if( (val >= rs[i].value_min) && (val <= rs[i].value_max) ) {
+                *idx = i;
+                return (rs[i].strptr);
+            }
+            i++;
+        }
+    }
+
+    *idx = -1;
+    return NULL;
+}
+
+/* Like try_val64_to_str except for range_string */
+const gchar *
+try_rval64_to_str(const guint64 val, const range_string *rs)
+{
+    gint ignore_me = 0;
+    return try_rval64_to_str_idx(val, rs, &ignore_me);
+}
+
 /* MISC */
 
 /* Functions for use by proto_registrar_dump_values(), see proto.c */
