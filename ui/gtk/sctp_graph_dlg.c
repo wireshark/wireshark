@@ -948,6 +948,7 @@ sctp_graph_draw(struct sctp_udata *u_data)
 	cairo_stroke(cr);
 	cairo_destroy(cr);
 
+	g_assert(u_data->io->max_y > u_data->io->min_y);
 	u_data->io->y_interval = (float)(((u_data->io->surface_height-TOP_BORDER-BOTTOM_BORDER)*1.0)/(u_data->io->max_y-u_data->io->min_y));
 
 	e=0;
