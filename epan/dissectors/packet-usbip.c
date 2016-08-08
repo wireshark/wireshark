@@ -164,6 +164,7 @@ static value_string_ext usbip_urb_vals_ext = VALUE_STRING_EXT_INIT(usbip_urb_val
 
 extern value_string_ext ext_usb_vendors_vals;
 extern value_string_ext ext_usb_products_vals;
+extern value_string_ext linux_negative_errno_vals_ext;
 
 static const value_string usb_endpoint_direction_vals[] = {
     {USBIP_DIR_OUT, "OUT"                        },
@@ -853,7 +854,7 @@ proto_register_usbip(void)
 
         {&hf_usbip_status,
          {"Status",                        "usbip.status",
-            FT_INT32, BASE_DEC | BASE_EXT_STRING, &usb_urb_status_vals_ext, 0,
+            FT_INT32, BASE_DEC | BASE_EXT_STRING, &linux_negative_errno_vals_ext, 0,
             "USBIP Status", HFILL}},
 
         {&hf_usbip_number_devices,

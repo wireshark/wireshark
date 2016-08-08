@@ -1427,6 +1427,7 @@ set(DISSECTOR_SRC
 )
 
 set(DISSECTOR_SUPPORT_SRC
+	errno.c
 	packet-dcerpc-nt.c
 	usb.c
 	snort-config.c

@@ -79,6 +79,8 @@ static const value_string ha_types[] = {
 	{ 0, NULL }
 };
 
+extern value_string_ext linux_negative_errno_vals_ext;
+
 static dissector_handle_t netlink_handle;
 
 static header_field_info *hfi_netlink = NULL;
@@ -192,8 +194,8 @@ static header_field_info hfi_netlink_attr_data NETLINK_HFI_INIT =
 
 /* TODO add a value_string for errno. */
 static header_field_info hfi_netlink_error NETLINK_HFI_INIT =
-	{ "Error code", "netlink.error", FT_INT32, BASE_DEC,
-		NULL, 0x00, "Negative errno or 0 for acknowledgements", HFILL };
+	{ "Error code", "netlink.error", FT_INT32, BASE_DEC | BASE_EXT_STRING,
+		&linux_negative_errno_vals_ext, 0x00, "Negative errno or 0 for acknowledgements", HFILL };
 
 static gint ett_netlink_cooked = -1;
 static gint ett_netlink_msghdr = -1;

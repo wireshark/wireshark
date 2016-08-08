@@ -1842,6 +1842,7 @@ DISSECTOR_INCLUDES = \
 # directory, but they're not dissectors themselves, i.e. they're not
 # used to generate "register.c").
 DISSECTOR_SUPPORT_SRC =	\
+	errno.c			\
 	packet-dcerpc-nt.c	\
 	snort-config.c		\
 	usb.c			\

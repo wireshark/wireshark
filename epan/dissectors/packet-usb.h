@@ -235,8 +235,6 @@ extern const true_false_string tfs_endpoint_direction;
 
 extern value_string_ext usb_class_vals_ext;
 
-extern value_string_ext usb_urb_status_vals_ext;
-
 usb_conv_info_t *get_usb_iface_conv_info(packet_info *pinfo, guint8 interface_num);
 
 proto_item * dissect_usb_descriptor_header(proto_tree *tree,
