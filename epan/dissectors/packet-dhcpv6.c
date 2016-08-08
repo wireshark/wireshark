@@ -481,6 +481,10 @@ static const value_string statuscode_vals[] =
     { 9, "NotConfigured" },
     {10, "NotAllowed" },
     {11, "QueryTerminated" },
+    {12, "DataMissing" },           /* RFC 7653 */
+    {13, "CatchUpComplete" },       /* RFC 7653 */
+    {14, "NotSupported" },          /* RFC 7653 */
+    {15, "TLSConnectionRefused" },  /* RFC 7653 */
     {0, NULL }
 };
 static value_string_ext statuscode_vals_ext = VALUE_STRING_EXT_INIT(statuscode_vals);
