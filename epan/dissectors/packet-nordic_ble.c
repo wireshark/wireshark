@@ -1,5 +1,5 @@
 /* packet-nordic_ble.c
- * Routines for nordic ble sniffer dissection
+ * Routines for Nordic BLE sniffer dissection
  * Copyright 2016, Nordic Semiconductor
  *
  *
@@ -598,27 +598,27 @@ proto_register_nordic_ble(void)
 
     static hf_register_info hf[] = {
     { &hf_nordic_ble_board_id,
-        { "board", "nordic_ble.board_id",
+        { "Board", "nordic_ble.board_id",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nordic_ble_header_length,
-        { "length of header", "nordic_ble.hlen",
+        { "Length of header", "nordic_ble.hlen",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nordic_ble_payload_length,
-        { "length of payload", "nordic_ble.plen",
+        { "Length of payload", "nordic_ble.plen",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "Payload length", HFILL }
     },
     { &hf_nordic_ble_packet_counter,
-        { "uart packet counter", "nordic_ble.packet_counter",
+        { "UART packet counter", "nordic_ble.packet_counter",
         FT_UINT16, BASE_DEC, NULL, 0x0,
-        "Global packet counter for packets sent on UART.", HFILL }
+        "Global packet counter for packets sent on UART", HFILL }
     },
     { &hf_nordic_ble_flags,
-        { "flags", "nordic_ble.flags",
+        { "Flags", "nordic_ble.flags",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
@@ -628,12 +628,12 @@ proto_register_nordic_ble(void)
         "Cyclic Redundancy Check state", HFILL }
     },
     { &hf_nordic_ble_direction,
-        { "direction", "nordic_ble.direction",
+        { "Direction", "nordic_ble.direction",
         FT_BOOLEAN, BASE_NONE, TFS(&direction_tfs), 0x0,
         NULL, HFILL }
     },
     { &hf_nordic_ble_encrypted,
-        { "encrypted", "nordic_ble.encrypted",
+        { "Encrypted", "nordic_ble.encrypted",
         FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
         "Was the packet encrypted", HFILL }
     },
@@ -643,7 +643,7 @@ proto_register_nordic_ble(void)
         "Message Integrity Check state", HFILL }
     },
     { &hf_nordic_ble_channel,
-        { "channel", "nordic_ble.channel",
+        { "Channel", "nordic_ble.channel",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
@@ -653,19 +653,19 @@ proto_register_nordic_ble(void)
         "Received Signal Strength Indicator", HFILL }
     },
     { &hf_nordic_ble_event_counter,
-        { "event counter", "nordic_ble.event_counter",
+        { "Event counter", "nordic_ble.event_counter",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nordic_ble_delta_time,
-        { "delta time (us end to start)", "nordic_ble.delta_time",
+        { "Delta time (us end to start)", "nordic_ble.delta_time",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Delta time: us since last reported packet.", HFILL }
+        "Delta time: us since last reported packet", HFILL }
     },
     { &hf_nordic_ble_delta_time_ss,
-        { "delta time (us start to start)", "nordic_ble.delta_time_ss",
+        { "Delta time (us start to start)", "nordic_ble.delta_time_ss",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Delta time: us since start of last reported packet.", HFILL }
+        "Delta time: us since start of last reported packet", HFILL }
     }
     };
 
