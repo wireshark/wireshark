@@ -788,7 +788,7 @@ EXPORT SpeexResamplerState *speex_resampler_init_frac(spx_uint32_t nb_channels, 
    SpeexResamplerState *st;
    int filter_err;
 
-   if (quality > 10 || quality < 0)
+   if (nb_channels == 0 || ratio_num == 0 || ratio_den == 0 || quality > 10 || quality < 0)
    {
       if (err)
          *err = RESAMPLER_ERR_INVALID_ARG;
@@ -1076,6 +1076,10 @@ EXPORT int speex_resampler_set_rate_frac(SpeexResamplerState *st, spx_uint32_t r
    spx_uint32_t fact;
    spx_uint32_t old_den;
    spx_uint32_t i;
+
+   if (ratio_num == 0 || ratio_den == 0)
+      return RESAMPLER_ERR_INVALID_ARG;
+
    if (st->in_rate == in_rate && st->out_rate == out_rate && st->num_rate == ratio_num && st->den_rate == ratio_den)
       return RESAMPLER_ERR_SUCCESS;
 
