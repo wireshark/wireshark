@@ -274,72 +274,89 @@ static dissector_handle_t dhcpv6_handle;
 #define OPTION_INTERFACE_ID           18
 #define OPTION_RECONF_MSG             19
 #define OPTION_RECONF_ACCEPT          20
-#define OPTION_SIP_SERVER_D           21
-#define OPTION_SIP_SERVER_A           22
-#define OPTION_DNS_SERVERS            23
+#define OPTION_SIP_SERVER_D           21 /* RFC 3319 */
+#define OPTION_SIP_SERVER_A           22 /* RFC 3319 */
+#define OPTION_DNS_SERVERS            23 /* RFC 3646 */
 #define OPTION_DOMAIN_LIST            24 /* RFC 3646 */
 #define OPTION_IA_PD                  25 /* RFC 3633 */
 #define OPTION_IAPREFIX               26 /* RFC 3633 */
-#define OPTION_NIS_SERVERS            27
-#define OPTION_NISP_SERVERS           28
-#define OPTION_NIS_DOMAIN_NAME        29
-#define OPTION_NISP_DOMAIN_NAME       30
-#define OPTION_SNTP_SERVERS           31
-#define OPTION_LIFETIME               32
-#define OPTION_BCMCS_SERVER_D         33
-#define OPTION_BCMCS_SERVER_A         34
+#define OPTION_NIS_SERVERS            27 /* RFC 3898 */
+#define OPTION_NISP_SERVERS           28 /* RFC 3898 */
+#define OPTION_NIS_DOMAIN_NAME        29 /* RFC 3898 */
+#define OPTION_NISP_DOMAIN_NAME       30 /* RFC 3898 */
+#define OPTION_SNTP_SERVERS           31 /* RFC 4075 */
+#define OPTION_LIFETIME               32 /* RFC 4242: OPTION_INFORMATION_REFRESH_TIME */
+#define OPTION_BCMCS_SERVER_D         33 /* RFC 4280 */
+#define OPTION_BCMCS_SERVER_A         34 /* RFC 4280 */
 /* 35 - Unassigned */
-#define OPTION_GEOCONF_CIVIC          36
-#define OPTION_REMOTE_ID              37
-#define OPTION_SUBSCRIBER_ID          38
-#define OPTION_CLIENT_FQDN            39
-#define OPTION_PANA_AGENT             40
-#define OPTION_TIME_ZONE              41
-#define OPTION_TZDB                   42
-#define OPTION_ERO                    43
-#define OPTION_LQ_QUERY               44
-#define OPTION_CLIENT_DATA            45
-#define OPTION_CLT_TIME               46
-#define OPTION_LQ_RELAY_DATA          47
-#define OPTION_LQ_CLIENT_LINK         48
-#define OPTION_MIP6_HNIDF             49
-#define OPTION_MIP6_VDINF             50
-#define OPTION_V6_LOST                51
-#define OPTION_CAPWAP_AC_V6           52
-#define OPTION_RELAYID                53
-#define OPTION_IPV6_ADDRESS_MOS       54 /* OPTION-IPv6_Address-MoS */
-#define OPTION_IPV6_FQDN_MOS          55 /* OPTION-IPv6_FQDN-MoS */
-#define OPTION_NTP_SERVER             56
-#define OPTION_V6_ACCESS_DOMAIN       57
-#define OPTION_SIP_UA_CS_LIST         58
-#define OPTION_BOOTFILE_URL           59 /* OPT_BOOTFILE_URL */
-#define OPTION_BOOTFILE_PARAM         60 /* OPT_BOOTFILE_PARAM */
-#define OPTION_CLIENT_ARCH_TYPE       61
-#define OPTION_NII                    62
-#define OPTION_GEOLOCATION            63
+#define OPTION_GEOCONF_CIVIC          36 /* RFC 4776 */
+#define OPTION_REMOTE_ID              37 /* RFC 4649 */
+#define OPTION_SUBSCRIBER_ID          38 /* RFC 4580 */
+#define OPTION_CLIENT_FQDN            39 /* RFC 4704 */
+#define OPTION_PANA_AGENT             40 /* RFC 5192 */
+#define OPTION_TIME_ZONE              41 /* RFC 4833: OPTION_NEW_POSIX_TIMEZONE */
+#define OPTION_TZDB                   42 /* RFC 4833: OPTION_NEW_TZDB_TIMEZONE */
+#define OPTION_ERO                    43 /* RFC 4994 */
+#define OPTION_LQ_QUERY               44 /* RFC 5007 */
+#define OPTION_CLIENT_DATA            45 /* RFC 5007 */
+#define OPTION_CLT_TIME               46 /* RFC 5007 */
+#define OPTION_LQ_RELAY_DATA          47 /* RFC 5007 */
+#define OPTION_LQ_CLIENT_LINK         48 /* RFC 5007 */
+#define OPTION_MIP6_HNIDF             49 /* RFC 6610 */
+#define OPTION_MIP6_VDINF             50 /* RFC 6610 */
+#define OPTION_V6_LOST                51 /* RFC 5223 */
+#define OPTION_CAPWAP_AC_V6           52 /* RFC 5417 */
+#define OPTION_RELAYID                53 /* RFC 5460 */
+#define OPTION_IPV6_ADDRESS_MOS       54 /* RFC 5678: OPTION-IPv6_Address-MoS */
+#define OPTION_IPV6_FQDN_MOS          55 /* RFC 5678: OPTION-IPv6_FQDN-MoS */
+#define OPTION_NTP_SERVER             56 /* RFC 5908 */
+#define OPTION_V6_ACCESS_DOMAIN       57 /* RFC 5986 */
+#define OPTION_SIP_UA_CS_LIST         58 /* RFC 6011 */
+#define OPTION_BOOTFILE_URL           59 /* RFC 5970: OPT_BOOTFILE_URL */
+#define OPTION_BOOTFILE_PARAM         60 /* RFC 5970: OPT_BOOTFILE_PARAM */
+#define OPTION_CLIENT_ARCH_TYPE       61 /* RFC 5970 */
+#define OPTION_NII                    62 /* RFC 5970 */
+#define OPTION_GEOLOCATION            63 /* RFC 6225 */
 #define OPTION_AFTR_NAME              64 /* RFC 6334 */
-#define OPTION_ERP_LOCAL_DOMAIN_NAME  65
-#define OPTION_RSOO                   66
-#define OPTION_PD_EXCLUDE             67
-#define OPTION_VSS                    68
-#define OPTION_MIP6_IDINF             69
-#define OPTION_MIP6_UDINF             70
-#define OPTION_MIP6_HNP               71
-#define OPTION_MIP6_HAA               72
-#define OPTION_MIP6_HAF               73
-#define OPTION_RDNSS_SELECTION        74
-#define OPTION_KRB_PRINCIPAL_NAME     75
-#define OPTION_KRB_REALM_NAME         76
-#define OPTION_KRB_DEFAULT_REALM_NAME 77
-#define OPTION_KRB_KDC                78
-#define OPTION_CLIENT_LINKLAYER_ADDR  79
-#define OPTION_LINK_ADDRESS           80
-#define OPTION_RADIUS                 81
-#define OPTION_SOL_MAX_RT             82
-#define OPTION_INF_MAX_RT             83
-/* drafts */
-#define OPTION_ADDRSEL                84
-#define OPTION_ADDRSEL_TABLE          85
+#define OPTION_ERP_LOCAL_DOMAIN_NAME  65 /* RFC 6440 */
+#define OPTION_RSOO                   66 /* RFC 6422 */
+#define OPTION_PD_EXCLUDE             67 /* RFC 6603 */
+#define OPTION_VSS                    68 /* RFC 6607 */
+#define OPTION_MIP6_IDINF             69 /* RFC 6610 */
+#define OPTION_MIP6_UDINF             70 /* RFC 6610 */
+#define OPTION_MIP6_HNP               71 /* RFC 6610 */
+#define OPTION_MIP6_HAA               72 /* RFC 6610 */
+#define OPTION_MIP6_HAF               73 /* RFC 6610 */
+#define OPTION_RDNSS_SELECTION        74 /* RFC 6731 */
+#define OPTION_KRB_PRINCIPAL_NAME     75 /* RFC 6784 */
+#define OPTION_KRB_REALM_NAME         76 /* RFC 6784 */
+#define OPTION_KRB_DEFAULT_REALM_NAME 77 /* RFC 6784 */
+#define OPTION_KRB_KDC                78 /* RFC 6784 */
+#define OPTION_CLIENT_LINKLAYER_ADDR  79 /* RFC 6939 */
+#define OPTION_LINK_ADDRESS           80 /* RFC 6977 */
+#define OPTION_RADIUS                 81 /* RFC 7037 */
+#define OPTION_SOL_MAX_RT             82 /* RFC 7083 */
+#define OPTION_INF_MAX_RT             83 /* RFC 7083 */
+#define OPTION_ADDRSEL                84 /* RFC 7078 */
+#define OPTION_ADDRSEL_TABLE          85 /* RFC 7078 */
+#define OPTION_V6_PCP_SERVER          86 /* RFC 7291 */
+#define OPTION_DHCPV4_MSG             87 /* RFC 7341 */
+#define OPTION_DHCP4_O_DHCP6_SERVER   88 /* RFC 7341 */
+#define OPTION_4RD                    97 /* RFC 7600 */
+#define OPTION_4RD_MAP_RULE           98 /* RFC 7600 */
+#define OPTION_4RD_NON_MAP_RULE       99 /* RFC 7600 */
+#define OPTION_LQ_BASE_TIME          100 /* RFC 7653 */
+#define OPTION_LQ_START_TIME         101 /* RFC 7653 */
+#define OPTION_LQ_END_TIME           102 /* RFC 7653 */
+#define OPTION_CAPTIVE_PORTAL        103 /* RFC 7710: DHCP Captive-Portal */
+#define OPTION_MPL_PARAMETERS        104 /* RFC 7774 */
+#define OPTION_ANI_ATT               105 /* RFC 7839 */
+#define OPTION_ANI_NETWORK_NAME      106 /* RFC 7839 */
+#define OPTION_ANI_AP_NAME           107 /* RFC 7839 */
+#define OPTION_ANI_AP_BSSID          108 /* RFC 7839 */
+#define OPTION_ANI_OPERATOR_ID       109 /* RFC 7839 */
+#define OPTION_ANI_OPERATOR_REALM    110 /* RFC 7839 */
+#define OPTION_IPv6_ADDRESS_ANDSF    143 /* RFC 6153 */
 
 /* temporary value until defined by IETF */
 #define OPTION_MIP6_HA               165
@@ -460,6 +477,24 @@ static const value_string opttype_vals[] = {
     { OPTION_INF_MAX_RT,             "INF_MAX_RT" },
     { OPTION_ADDRSEL,                "Address Selection" },
     { OPTION_ADDRSEL_TABLE,          "Address Selection table" },
+    { OPTION_V6_PCP_SERVER,          "PCP Server" },
+    { OPTION_DHCPV4_MSG,             "DHCPv4 Message" },
+    { OPTION_DHCP4_O_DHCP6_SERVER,   "DHCP 4o6 Servers Address" },
+    { OPTION_4RD,                    "4rd Options" },
+    { OPTION_4RD_MAP_RULE,           "4rd Mapping Rule" },
+    { OPTION_4RD_NON_MAP_RULE,       "4rd Non-Mapping Rule" },
+    { OPTION_LQ_BASE_TIME,           "LQ Server Base Time" },
+    { OPTION_LQ_START_TIME,          "LQ Server Query Start Time" },
+    { OPTION_LQ_END_TIME,            "LQ Server Query End Time" },
+    { OPTION_CAPTIVE_PORTAL,         "Captive Portal" },
+    { OPTION_MPL_PARAMETERS,         "MPL Parameter Configuration" },
+    { OPTION_ANI_ATT,                "Access Technology Type" },
+    { OPTION_ANI_NETWORK_NAME,       "Access Network Name" },
+    { OPTION_ANI_AP_NAME,            "Access Point Name" },
+    { OPTION_ANI_AP_BSSID,           "Access Point BSSID" },
+    { OPTION_ANI_OPERATOR_ID,        "Access Network Operator ID" },
+    { OPTION_ANI_OPERATOR_REALM,     "Access Network Operator Realm" },
+    { OPTION_IPv6_ADDRESS_ANDSF,     "ANDSF IPv6 Address" },
     { OPTION_MIP6_HA,                "Mobile IPv6 Home Agent" },
     { OPTION_MIP6_HOA,               "Mobile IPv6 Home Address" },
     { OPTION_NAI,                    "Network Access Identifier" },
