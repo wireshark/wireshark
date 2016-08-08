@@ -84,11 +84,14 @@ static int hf_quic_frame_type_stream_f = -1;
 static int hf_quic_frame_type_stream_d = -1;
 static int hf_quic_frame_type_stream_ooo = -1;
 static int hf_quic_frame_type_stream_ss = -1;
+/* ACK */
 static int hf_quic_frame_type_ack = -1;
 static int hf_quic_frame_type_ack_n = -1;
+static int hf_quic_frame_type_ack_u = -1;
 static int hf_quic_frame_type_ack_t = -1;
 static int hf_quic_frame_type_ack_ll = -1;
 static int hf_quic_frame_type_ack_mm = -1;
+/* ACK Before Q034 */
 static int hf_quic_frame_type_ack_received_entropy = -1;
 static int hf_quic_frame_type_ack_largest_observed = -1;
 static int hf_quic_frame_type_ack_ack_delay_time = -1;
@@ -101,6 +104,15 @@ static int hf_quic_frame_type_ack_missing_packet = -1;
 static int hf_quic_frame_type_ack_range_length = -1;
 static int hf_quic_frame_type_ack_num_revived = -1;
 static int hf_quic_frame_type_ack_revived_packet = -1;
+/* ACK After Q034 */
+static int hf_quic_frame_type_ack_largest_acked = -1;
+static int hf_quic_frame_type_ack_largest_acked_delta_time = -1;
+static int hf_quic_frame_type_ack_num_blocks = -1;
+static int hf_quic_frame_type_ack_first_ack_block_length = -1;
+static int hf_quic_frame_type_ack_gap_to_next_block = -1;
+static int hf_quic_frame_type_ack_ack_block_length = -1;
+static int hf_quic_frame_type_ack_delta_largest_acked = -1;
+static int hf_quic_frame_type_ack_time_since_largest_acked = -1;
 static int hf_quic_stream_id = -1;
 static int hf_quic_offset_len = -1;
 static int hf_quic_data_len = -1;
@@ -248,6 +260,7 @@ static const value_string puflags_pkn_vals[] = {
 
 #define FTFLAGS_ACK         0x40
 #define FTFLAGS_ACK_N       0x20
+#define FTFLAGS_ACK_U       0x10
 #define FTFLAGS_ACK_T       0x10
 #define FTFLAGS_ACK_LL      0x0C
 #define FTFLAGS_ACK_MM      0x03
@@ -950,7 +963,7 @@ static guint32 get_len_missing_packet(guint8 frame_type){
 
 static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_pkn, quic_info_data_t *quic_info){
     guint8 frame_type;
-    guint8 num_ranges, num_revived, num_timestamp;
+    guint8 num_ranges, num_revived, num_blocks, num_timestamp;
     guint32 len_stream = 0, len_offset = 0, len_data = 0, len_largest_observed = 1, len_missing_packet = 1;
     guint32 message_tag;
 
@@ -1090,55 +1103,102 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_pkn, 
                 if(quic_info->version < 34){ /* No longer Entropy after Q034 */
                     /* Received Entropy */
                     offset += 1;
-                }
 
-                /* Largest Observed */
-                offset += len_largest_observed;
+                    /* Largest Observed */
+                    offset += len_largest_observed;
 
-                /* Ack Delay Time */
-                offset += 2;
+                    /* Ack Delay Time */
+                    offset += 2;
 
-                /* Num Timestamp */
-                if (tvb_captured_length_remaining(tvb, offset) <= 1){
-                    return FALSE;
-                }
-                num_timestamp = tvb_get_guint8(tvb, offset);
-                offset += 1;
-
-                if(num_timestamp > 0){
-                    /* Delta Largest Observed */
-                    offset += 1;
-
-                    /* First Timestamp */
-                    offset += 4;
-
-                    /* Num Timestamp (-1)x (Delta Largest Observed + Time Since Largest Observed) */
-                    offset += (num_timestamp - 1)*(1+2);
-                }
-
-                if(frame_type & FTFLAGS_ACK_N){
-                    /* Num Ranges */
+                    /* Num Timestamp */
                     if (tvb_captured_length_remaining(tvb, offset) <= 1){
                         return FALSE;
                     }
-                    num_ranges = tvb_get_guint8(tvb, offset);
+                    num_timestamp = tvb_get_guint8(tvb, offset);
                     offset += 1;
 
-                    /* Num Range x (Missing Packet + Range Length) */
-                    offset += num_ranges*(len_missing_packet+1);
+                    if(num_timestamp > 0){
+                        /* Delta Largest Observed */
+                        offset += 1;
 
-                    /* Num Revived */
+                        /* First Timestamp */
+                        offset += 4;
+
+                        /* Num Timestamp (-1)x (Delta Largest Observed + Time Since Previous Timestamp) */
+                        offset += (num_timestamp - 1)*(1+2);
+                    }
+
+                    if(frame_type & FTFLAGS_ACK_N){
+                        /* Num Ranges */
+                        if (tvb_captured_length_remaining(tvb, offset) <= 1){
+                            return FALSE;
+                        }
+                        num_ranges = tvb_get_guint8(tvb, offset);
+                        offset += 1;
+
+                        /* Num Range x (Missing Packet + Range Length) */
+                        offset += num_ranges*(len_missing_packet+1);
+
+                        /* Num Revived */
+                        if (tvb_captured_length_remaining(tvb, offset) <= 1){
+                            return FALSE;
+                        }
+                        num_revived = tvb_get_guint8(tvb, offset);
+                        offset += 1;
+
+                        /* Num Revived x Length Largest Observed */
+                        offset += num_revived*len_largest_observed;
+
+                    }
+                } else {
+
+                    /* Largest Acked */
+                    offset += len_largest_observed;
+
+                    /* Largest Acked Delta Time*/
+                    offset += 2;
+
+                    /* Ack Block */
+                    if(frame_type & FTFLAGS_ACK_N){
+                        if (tvb_captured_length_remaining(tvb, offset) <= 1){
+                            return FALSE;
+                        }
+                        num_blocks = tvb_get_guint8(tvb, offset);
+                        offset += 1;
+
+                        if(num_blocks){
+                            /* First Ack Block Length */
+                            offset += len_missing_packet;
+
+                            /* Gap to next block */
+                            offset += 1;
+
+                            num_blocks -= 1;
+                            offset += (num_blocks - 1)*len_missing_packet;
+                        }
+
+                    }
+
+                    /* Timestamp */
                     if (tvb_captured_length_remaining(tvb, offset) <= 1){
                         return FALSE;
                     }
-                    num_revived = tvb_get_guint8(tvb, offset);
+                    num_timestamp = tvb_get_guint8(tvb, offset);
                     offset += 1;
 
-                    /* Num Revived x Length Largest Observed */
-                    offset += num_revived*len_largest_observed;
+                    if(num_timestamp){
+
+                        /* Delta Largest Acked */
+                        offset += 1;
+
+                        /* Time Since Largest Acked */
+                        offset += 4;
+
+                        /* Num Timestamp x (Delta Largest Acked + Time Since Previous Timestamp) */
+                        offset += num_timestamp*(1+2);
+                    }
 
                 }
-
             } else { /* Other Special Frame type */
                 offset += 1;
             }
@@ -1466,7 +1526,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
     proto_item *ti, *ti_ft, *ti_ftflags /*, *expert_ti*/;
     proto_tree *ft_tree, *ftflags_tree;
     guint8 frame_type;
-    guint8 num_ranges, num_revived, num_timestamp;
+    guint8 num_ranges, num_revived, num_blocks, num_timestamp;
     guint32 tag_number;
     guint32 len_stream = 0, len_offset = 0, len_data = 0, len_largest_observed = 1, len_missing_packet = 1;
 
@@ -1624,8 +1684,14 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         } else if (frame_type & FTFLAGS_ACK) {     /* ACK Flags */
 
             proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
             proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack_n, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack_t, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+            if(quic_info->version < 34){ /* No longer NACK after Q034 */
+                proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack_t, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            } else {
+                proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack_u, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            }
             proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack_ll, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
             len_largest_observed = get_len_largest_observed(frame_type);
@@ -1634,70 +1700,136 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             len_missing_packet = get_len_missing_packet(frame_type);
             offset += 1;
 
-            if(quic_info->version < 34){ /* No longer Entropy after Q034 */
+            if(quic_info->version < 34){ /* Big change after Q034 */
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_received_entropy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
-            }
 
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_largest_observed, tvb, offset, len_largest_observed, ENC_LITTLE_ENDIAN);
-            offset += len_largest_observed;
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_largest_observed, tvb, offset, len_largest_observed, ENC_LITTLE_ENDIAN);
+                offset += len_largest_observed;
 
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_ack_delay_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_ack_delay_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
 
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_num_timestamp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            num_timestamp = tvb_get_guint8(tvb, offset);
-            offset += 1;
-
-            if(num_timestamp){
-
-                /* Delta Largest Observed */
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_delta_largest_observed, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_num_timestamp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                num_timestamp = tvb_get_guint8(tvb, offset);
                 offset += 1;
 
-                /* First Timestamp */
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_first_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                offset += 4;
+                if(num_timestamp){
 
-                num_timestamp -= 1;
-                /* Num Timestamp (-1) x (Delta Largest Observed + Time Since Largest Observed) */
-                while(num_timestamp){
+                    /* Delta Largest Observed */
                     proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_delta_largest_observed, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset += 1;
 
-                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_time_since_previous_timestamp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                    offset += 2;
+                    /* First Timestamp */
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_first_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                    offset += 4;
 
-                    num_timestamp--;
+                    num_timestamp -= 1;
+                    /* Num Timestamp (-1) x (Delta Largest Observed + Time Since Previous Timestamp) */
+                    while(num_timestamp){
+                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_delta_largest_observed, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                        offset += 1;
+
+                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_time_since_previous_timestamp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        offset += 2;
+
+                        num_timestamp--;
+                    }
                 }
-            }
 
-            if(frame_type & FTFLAGS_ACK_N){
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_num_ranges, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                num_ranges = tvb_get_guint8(tvb, offset);
-                offset += 1;
-                while(num_ranges){
-
-                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_missing_packet, tvb, offset, len_missing_packet, ENC_LITTLE_ENDIAN);
-                    offset += len_missing_packet;
-
-                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_range_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                if(frame_type & FTFLAGS_ACK_N){
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_num_ranges, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    num_ranges = tvb_get_guint8(tvb, offset);
                     offset += 1;
-                    num_ranges--;
+                    while(num_ranges){
+
+                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_missing_packet, tvb, offset, len_missing_packet, ENC_LITTLE_ENDIAN);
+                        offset += len_missing_packet;
+
+                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_range_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                        offset += 1;
+                        num_ranges--;
+                    }
+
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_num_revived, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    num_revived = tvb_get_guint8(tvb, offset);
+                    offset += 1;
+                    while(num_revived){
+
+                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_revived_packet, tvb, offset, len_largest_observed, ENC_LITTLE_ENDIAN);
+                        offset += len_largest_observed;
+                        num_revived--;
+
+                    }
+
                 }
 
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_num_revived, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                num_revived = tvb_get_guint8(tvb, offset);
+            } else {
+
+                /* Largest Acked */
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_largest_acked, tvb, offset, len_largest_observed, ENC_LITTLE_ENDIAN);
+                offset += len_largest_observed;
+
+                /* Largest Acked Delta Time*/
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_largest_acked_delta_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                /* Ack Block */
+                if(frame_type & FTFLAGS_ACK_N){
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_num_blocks, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    num_blocks = tvb_get_guint8(tvb, offset);
+                    offset += 1;
+
+                    if(num_blocks){
+                        /* First Ack Block Length */
+                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_first_ack_block_length, tvb, offset, len_missing_packet, ENC_LITTLE_ENDIAN);
+                        offset += len_missing_packet;
+
+                        /* Gap to next block */
+                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_gap_to_next_block, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                        offset += 1;
+
+                        num_blocks -= 1;
+                        while(num_blocks){
+                            /* Ack Block Length */
+                            proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_ack_block_length, tvb, offset, len_missing_packet, ENC_LITTLE_ENDIAN);
+                            offset += len_missing_packet;
+
+                            num_blocks--;
+                        }
+                    }
+
+                }
+
+                /* Timestamp */
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_num_timestamp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                num_timestamp = tvb_get_guint8(tvb, offset);
                 offset += 1;
-                while(num_revived){
 
-                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_revived_packet, tvb, offset, len_largest_observed, ENC_LITTLE_ENDIAN);
-                    offset += len_largest_observed;
-                    num_revived--;
+                if(num_timestamp){
 
+                    /* Delta Largest Acked */
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_delta_largest_acked, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    offset += 1;
+
+                    /* Time Since Largest Acked */
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_time_since_largest_acked, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                    offset += 4;
+
+                    /* Num Timestamp x (Delta Largest Acked + Time Since Previous Timestamp) */
+                    while(num_timestamp){
+                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_delta_largest_acked, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                        offset += 1;
+
+                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_time_since_previous_timestamp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        offset += 2;
+
+                        num_timestamp--;
+                    }
                 }
 
             }
+
         } else { /* Other ...*/
             offset += 1;
         }
@@ -2137,6 +2269,11 @@ proto_register_quic(void)
                FT_BOOLEAN, 8, NULL, FTFLAGS_ACK_N,
               NULL, HFILL }
         },
+        { &hf_quic_frame_type_ack_u,
+            { "Unused", "quic.frame_type.ack.u",
+               FT_BOOLEAN, 8, NULL, FTFLAGS_ACK_U,
+              NULL, HFILL }
+        },
         { &hf_quic_frame_type_ack_t,
             { "Truncated", "quic.frame_type.ack.t",
                FT_BOOLEAN, 8, NULL, FTFLAGS_ACK_T,
@@ -2152,6 +2289,7 @@ proto_register_quic(void)
                FT_UINT8, BASE_DEC, VALS(len_missing_packet_vals), FTFLAGS_ACK_MM,
               "Length of the Missing Packet Number Delta field as 1, 2, 4, or 6 bytes long", HFILL }
         },
+        /* ACK before Q034 */
         { &hf_quic_frame_type_ack_received_entropy,
             { "Received Entropy", "quic.frame_type.ack.received_entropy",
                FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -2174,7 +2312,7 @@ proto_register_quic(void)
         },
         { &hf_quic_frame_type_ack_delta_largest_observed,
             { "Delta Largest Observed", "quic.frame_type.ack.delta_largest_observed",
-               FT_UINT16, BASE_DEC, NULL, 0x0,
+               FT_UINT8, BASE_DEC, NULL, 0x0,
               "Specifying the packet number delta from the first timestamp to the largest observed", HFILL }
         },
         { &hf_quic_frame_type_ack_first_timestamp,
@@ -2212,6 +2350,50 @@ proto_register_quic(void)
                FT_UINT64, BASE_DEC, NULL, 0x0,
               "Representing a packet the peer has revived via FEC", HFILL }
         },
+        /* ACK after Q034 */
+        { &hf_quic_frame_type_ack_largest_acked,
+            { "Largest Acked", "quic.frame_type.ack.largest_acked",
+               FT_UINT64, BASE_DEC, NULL, 0x0,
+              "Representing the largest packet number the peer has observed", HFILL }
+        },
+        { &hf_quic_frame_type_ack_largest_acked_delta_time,
+            { "Largest Acked Delta Time", "quic.frame_type.ack.largest_acked_delta_time",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+              "Specifying the time elapsed in microseconds from when largest acked was received until this Ack frame was sent", HFILL }
+        },
+        { &hf_quic_frame_type_ack_num_blocks,
+            { "Num blocks", "quic.frame_type.ack.num_blocks",
+               FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Specifying one less than the number of ack blocks", HFILL }
+        },
+        { &hf_quic_frame_type_ack_first_ack_block_length,
+            { "First Ack block length", "quic.frame_type.ack.first_ack_block_length",
+               FT_UINT64, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_quic_frame_type_ack_gap_to_next_block,
+            { "Gap to next block", "quic.frame_type.ack.gap_to_next_block",
+               FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Specifying the number of packets between ack blocks", HFILL }
+        },
+        { &hf_quic_frame_type_ack_ack_block_length,
+            { "Ack block length", "quic.frame_type.ack.ack_block_length",
+               FT_UINT64, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_quic_frame_type_ack_delta_largest_acked,
+            { "Delta Largest Observed", "quic.frame_type.ack.delta_largest_acked",
+               FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Specifying the packet number delta from the first timestamp to the largest observed", HFILL }
+        },
+        { &hf_quic_frame_type_ack_time_since_largest_acked,
+            { "Time Since Largest Acked", "quic.frame_type.ack.time_since_largest_acked",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+              "Specifying the time delta in microseconds, from the beginning of the connection of the arrival of the packet specified by Largest Observed minus Delta Largest Observed", HFILL }
+        },
+
+
+
         { &hf_quic_stream_id,
             { "Stream ID", "quic.stream_id",
                FT_UINT32, BASE_DEC, NULL, 0x0,
