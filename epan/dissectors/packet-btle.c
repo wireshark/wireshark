@@ -876,7 +876,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 if (new_tvb) {
                     bthci_acl_data_t  *acl_data;
-                    gint               saved_p2p_dir;
 
                     col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Data");
 
@@ -886,19 +885,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     acl_data->chandle = 0; /* No connection handle at this layer */
                     acl_data->remote_bd_addr_oui = 0;
                     acl_data->remote_bd_addr_id = 0;
-
-                    saved_p2p_dir = pinfo->p2p_dir;
-                    pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+                    acl_data->is_btle = TRUE;
 
                     next_tvb = tvb_new_subset_length(tvb, offset, length);
                     if(next_tvb){
                         call_dissector_with_data(btl2cap_handle, new_tvb, pinfo, tree, acl_data);
                     }
                     offset += length;
-
-                    pinfo->p2p_dir = saved_p2p_dir;
-
-
                 }
                 else {
                     col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Fragment");
@@ -947,7 +940,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     offset += length;
                 } else {
                     bthci_acl_data_t  *acl_data;
-                    gint               saved_p2p_dir;
 
                     col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Data");
 
@@ -957,15 +949,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     acl_data->chandle      = 0; /* No connection handle at this layer */
                     acl_data->remote_bd_addr_oui = 0;
                     acl_data->remote_bd_addr_id  = 0;
-
-                    saved_p2p_dir = pinfo->p2p_dir;
-                    pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+                    acl_data->is_btle = TRUE;
 
                     next_tvb = tvb_new_subset_length(tvb, offset, length);
                     call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
                     offset += length;
-
-                    pinfo->p2p_dir = saved_p2p_dir;
                 }
             }
             break;

@@ -31,6 +31,7 @@ typedef struct _bthci_acl_data_t {
 
     guint32 remote_bd_addr_oui;
     guint32 remote_bd_addr_id;
+    gboolean is_btle;
 } bthci_acl_data_t;
 
 #endif

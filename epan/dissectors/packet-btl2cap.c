@@ -161,6 +161,23 @@ static dissector_table_t l2cap_cid_dissector_table;
  */
 static wmem_tree_t *cid_to_psm_table  = NULL;
 
+/* 5.4 RETRANSMISSION AND FLOW CONTROL OPTION
+ * Table 5.2
+ * Mode
+ * 0x00 L2CAP Basic Mode
+ * 0x01 Retransmission mode
+ * 0x02 Flow control mode
+ * 0x03 Enhanced Retransmission mode
+ * 0x04 Streaming mode
+ * Other values Reserved for future use
+ */
+
+#define L2CAP_BASIC_MODE 0
+/* XXX Cheat and define a vaue for
+ * Connection-Oriented Channels in LE Credit Based Flow Control Mode
+ */
+#define L2CAP_LE_CREDIT_BASED_FLOW_CONTROL_MODE 0xff
+
 typedef struct _config_data_t {
     guint8      mode;
     guint8      txwindow;
@@ -743,6 +760,261 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     return offset;
 }
+static int
+dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, proto_tree *command_tree, gboolean is_ch_request _U_,
+    bthci_acl_data_t *acl_data, btl2cap_data_t *l2cap_data)
+{
+
+    proto_item  *psm_item;
+    guint32      psm;
+    guint32      scid;
+
+
+    proto_tree_add_item_ret_uint(command_tree, hf_btl2cap_le_psm, tvb, offset, 2, ENC_LITTLE_ENDIAN, &psm);
+    if (psm < 0x80) {
+        psm_item = proto_tree_add_item(command_tree, hf_btl2cap_psm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        PROTO_ITEM_SET_GENERATED(psm_item);
+    }
+    offset += 2;
+
+    proto_tree_add_item_ret_uint(command_tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &scid);
+    offset += 2;
+
+    proto_tree_add_item(command_tree, hf_btl2cap_option_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(command_tree, hf_btl2cap_option_mps, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(command_tree, hf_btl2cap_initial_credits, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    if (!pinfo->fd->flags.visited) {
+        wmem_tree_key_t    key[6];
+        guint32            k_interface_id;
+        guint32            k_adapter_id;
+        guint32            k_chandle;
+        guint32            k_cid;
+        guint32            k_frame_number;
+        guint32            interface_id;
+        guint32            adapter_id;
+        guint32            chandle;
+        psm_data_t        *psm_data;
+
+        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->phdr->interface_id;
+        else
+            interface_id = HCI_INTERFACE_DEFAULT;
+        adapter_id = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
+        chandle = (acl_data) ? acl_data->chandle : 0;
+
+        k_interface_id = interface_id;
+        k_adapter_id = adapter_id;
+        k_chandle = chandle;
+        k_cid = scid;
+        k_frame_number = pinfo->num;
+
+        psm_data = wmem_new(wmem_file_scope(), psm_data_t);
+
+        psm_data->local_cid = scid;
+        psm_data->remote_cid = BTL2CAP_UNKNOWN_CID;
+
+        psm_data->psm = psm;
+        psm_data->local_service = (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE;
+        psm_data->in.mode = L2CAP_LE_CREDIT_BASED_FLOW_CONTROL_MODE;
+        psm_data->in.txwindow = 0;
+        psm_data->in.start_fragments = wmem_tree_new(wmem_file_scope());
+        psm_data->out.mode = L2CAP_LE_CREDIT_BASED_FLOW_CONTROL_MODE;
+        psm_data->out.txwindow = 0;
+        psm_data->out.start_fragments = wmem_tree_new(wmem_file_scope());
+        psm_data->interface_id = k_interface_id;
+        psm_data->adapter_id = k_adapter_id;
+        psm_data->chandle = k_chandle;
+        psm_data->connect_in_frame = pinfo->num;
+        psm_data->disconnect_in_frame = max_disconnect_in_frame;
+
+        key[0].length = 1;
+        key[0].key = &k_interface_id;
+        key[1].length = 1;
+        key[1].key = &k_adapter_id;
+        key[2].length = 1;
+        key[2].key = &k_chandle;
+        key[3].length = 1;
+        key[3].key = &k_cid;
+        key[4].length = 1;
+        key[4].key = &k_frame_number;
+        key[5].length = 0;
+        key[5].key = NULL;
+
+        wmem_tree_insert32_array(cid_to_psm_table, key, psm_data);
+    }
+
+    if (l2cap_data) {
+        proto_item        *sub_item;
+        guint32            bt_uuid = 0;
+        guint32            disconnect_in_frame = 0;
+        psm_data_t        *psm_data;
+        wmem_tree_key_t    key[6];
+        guint32            k_interface_id;
+        guint32            k_adapter_id;
+        guint32            k_chandle;
+        guint32            k_cid;
+        guint32            k_frame_number;
+        guint32            interface_id;
+        guint32            adapter_id;
+        guint32            chandle;
+
+        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->phdr->interface_id;
+        else
+            interface_id = HCI_INTERFACE_DEFAULT;
+        adapter_id = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
+        chandle = (acl_data) ? acl_data->chandle : 0;
+
+        k_interface_id = interface_id;
+        k_adapter_id = adapter_id;
+        k_chandle = chandle;
+        k_cid = scid;
+        k_frame_number = pinfo->num;
+
+        key[0].length = 1;
+        key[0].key = &k_interface_id;
+        key[1].length = 1;
+        key[1].key = &k_adapter_id;
+        key[2].length = 1;
+        key[2].key = &k_chandle;
+        key[3].length = 1;
+        key[3].key = &k_cid;
+        key[4].length = 1;
+        key[4].key = &k_frame_number;
+        key[5].length = 0;
+        key[5].key = NULL;
+
+        psm_data = (psm_data_t *)wmem_tree_lookup32_array_le(cid_to_psm_table, key);
+        if (psm_data && psm_data->interface_id == interface_id &&
+            psm_data->adapter_id == adapter_id &&
+            psm_data->chandle == chandle &&
+            psm_data->local_cid == k_cid) {
+            bt_uuid = get_service_uuid(pinfo, l2cap_data, psm_data->psm, psm_data->local_service);
+            disconnect_in_frame = psm_data->disconnect_in_frame;
+        }
+
+        if (bt_uuid) {
+            sub_item = proto_tree_add_uint(tree, hf_btl2cap_service, tvb, 0, 0, bt_uuid);
+            PROTO_ITEM_SET_GENERATED(sub_item);
+        }
+
+        if (disconnect_in_frame < max_disconnect_in_frame) {
+            sub_item = proto_tree_add_uint(tree, hf_btl2cap_disconnect_in_frame, tvb, 0, 0, disconnect_in_frame);
+            PROTO_ITEM_SET_GENERATED(sub_item);
+        }
+    }
+
+    return offset;
+}
+
+static int
+dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, bthci_acl_data_t *acl_data)
+{
+    guint32            dcid;
+
+    proto_tree_add_item_ret_uint(tree, hf_btl2cap_dcid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &dcid);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_btl2cap_option_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_btl2cap_option_mps, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_btl2cap_initial_credits, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_btl2cap_le_result, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+
+    if (pinfo->fd->flags.visited == 0) {
+        psm_data_t        *psm_data;
+        wmem_tree_key_t    key[6];
+        guint32            k_interface_id;
+        guint32            k_adapter_id;
+        guint32            k_chandle;
+        guint32            k_cid;
+        guint32            k_frame_number;
+        guint32            interface_id;
+        guint32            adapter_id;
+        guint32            chandle;
+        guint32            cid;
+
+        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->phdr->interface_id;
+        else
+            interface_id = HCI_INTERFACE_DEFAULT;
+        adapter_id = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
+        chandle = (acl_data) ? acl_data->chandle : 0;
+        cid = dcid;
+
+        k_interface_id = interface_id;
+        k_adapter_id = adapter_id;
+        k_chandle = chandle;
+        k_cid = cid;
+        k_frame_number = pinfo->num;
+
+        key[0].length = 1;
+        key[0].key = &k_interface_id;
+        key[1].length = 1;
+        key[1].key = &k_adapter_id;
+        key[2].length = 1;
+        key[2].key = &k_chandle;
+        key[3].length = 1;
+        key[3].key = &k_cid;
+        key[4].length = 1;
+        key[4].key = &k_frame_number;
+        key[5].length = 0;
+        key[5].key = NULL;
+
+        psm_data = (psm_data_t *)wmem_tree_lookup32_array_le(cid_to_psm_table, key);
+        if (psm_data && psm_data->interface_id == interface_id &&
+            psm_data->adapter_id == adapter_id &&
+            psm_data->chandle == chandle &&
+            ((pinfo->p2p_dir == P2P_DIR_SENT && psm_data->remote_cid == cid) ||
+            (pinfo->p2p_dir == P2P_DIR_RECV && psm_data->local_cid == cid)) &&
+            psm_data->disconnect_in_frame > pinfo->num) {
+            cid = dcid | 0x80000000;
+
+            k_interface_id = interface_id;
+            k_adapter_id = adapter_id;
+            k_chandle = chandle;
+            k_cid = cid;
+            k_frame_number = pinfo->num;
+
+            key[0].length = 1;
+            key[0].key = &k_interface_id;
+            key[1].length = 1;
+            key[1].key = &k_adapter_id;
+            key[2].length = 1;
+            key[2].key = &k_chandle;
+            key[3].length = 1;
+            key[3].key = &k_cid;
+            key[4].length = 1;
+            key[4].key = &k_frame_number;
+            key[5].length = 0;
+            key[5].key = NULL;
+
+            if (pinfo->p2p_dir == P2P_DIR_RECV)
+                psm_data->remote_cid = cid;
+            else
+                psm_data->local_cid = cid;
+
+            wmem_tree_insert32_array(cid_to_psm_table, key, psm_data);
+        }
+    }
+
+    return offset;
+}
 
 static int
 dissect_movechanrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -772,7 +1044,7 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
     guint8      option_type, option_length;
 
     if (config_data) {
-        config_data->mode     = 0;
+        config_data->mode     = L2CAP_BASIC_MODE;
         config_data->txwindow = 0;
     }
 
@@ -1660,6 +1932,74 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
+/* FIX ME, Basicly a copy of the code above, needs to be fixed.*/
+static int
+dissect_le_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    proto_tree *btl2cap_tree, guint16 cid, guint16 psm,
+    gboolean is_local_psm, guint16 length, int offset, btl2cap_data_t *l2cap_data)
+{
+
+    tvbuff_t *next_tvb;
+    /* FIX ME reassembly needed*/
+    next_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset), length);
+
+    col_append_str(pinfo->cinfo, COL_INFO, "Connection oriented channel, LE Information frame");
+
+    if (psm) {
+        proto_item        *psm_item;
+        guint16            bt_uuid;
+        bluetooth_uuid_t   uuid;
+
+        if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM) == NULL) {
+            guint16 *value_data;
+
+            value_data = wmem_new(wmem_file_scope(), guint16);
+            *value_data = psm;
+
+            p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM, value_data);
+        }
+
+        bt_uuid = get_service_uuid(pinfo, l2cap_data, psm, is_local_psm);
+
+        uuid.size = 2;
+        uuid.bt_uuid = bt_uuid;
+        uuid.data[0] = bt_uuid >> 8;
+        uuid.data[1] = bt_uuid & 0xFF;
+
+        if (bt_uuid && p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID) == NULL) {
+            guint8 *value_data;
+
+            value_data = wmem_strdup(wmem_file_scope(), print_numeric_uuid(&uuid));
+
+            p_add_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID, value_data);
+        }
+
+        if (psm < BTL2CAP_DYNAMIC_PSM_START) {
+            psm_item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_psm, tvb, offset, 0, psm);
+        }
+        else {
+            psm_item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_psm_dynamic, tvb, offset, 0, psm);
+            if (uuid.bt_uuid)
+                proto_item_append_text(psm_item, ": %s",
+                    val_to_str_ext_const(uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown service"));
+        }
+        PROTO_ITEM_SET_GENERATED(psm_item);
+
+        /* call next dissector */
+        proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
+
+        /* Fix reassembly and stuff */
+        offset = tvb_captured_length(tvb);
+    }
+    else {
+        if (!dissector_try_uint_new(l2cap_cid_dissector_table, (guint32)cid, next_tvb, pinfo, tree, TRUE, l2cap_data))
+            proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
+        offset = tvb_captured_length(tvb);
+    }
+
+    return offset;
+}
+
 static int
 dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree *btl2cap_tree, psm_data_t *psm_data, guint16 length,
@@ -1895,15 +2235,20 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     psm_data_t       *psm_data;
     bthci_acl_data_t *acl_data;
     btl2cap_data_t   *l2cap_data;
+    gboolean          dir_in_col = TRUE;
 
     acl_data = (bthci_acl_data_t *) data;
 
+    if ((acl_data) && (acl_data->is_btle)) {
+        dir_in_col = FALSE;
+    }
     ti = proto_tree_add_item(tree, proto_btl2cap, tvb, offset, -1, ENC_NA);
     btl2cap_tree = proto_item_add_subtree(ti, ett_btl2cap);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2CAP");
 
-    switch (pinfo->p2p_dir) {
+    if (dir_in_col) {
+        switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
             col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
             break;
@@ -1913,6 +2258,9 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         default:
             col_set_str(pinfo->cinfo, COL_INFO, "UnknownDirection ");
             break;
+        }
+    } else {
+        col_clear(pinfo->cinfo, COL_INFO);
     }
 
     length  = tvb_get_letohs(tvb, offset);
@@ -2079,37 +2427,11 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
 
             case 0x14: /* LE Credit Based Connection Request */
-                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_le_psm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
-
-                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
-
-                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_option_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
-
-                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_option_mps, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
-
-                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_initial_credits, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
+                offset = dissect_le_credit_based_connrequest(tvb, offset, pinfo, btl2cap_tree, btl2cap_cmd_tree, TRUE, acl_data, l2cap_data);
                 break;
 
             case 0x15: /* LE Credit Based Connection Response */
-                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_dcid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
-
-                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_option_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
-
-                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_option_mps, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
-
-                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_initial_credits, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
-
-                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_le_result, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
+                offset = dissect_le_credit_based_connresponse(tvb, offset, pinfo, btl2cap_cmd_tree, acl_data);
                 break;
 
             case 0x16: /* LE Flow Control Credit */
@@ -2302,8 +2624,10 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 PROTO_ITEM_SET_GENERATED(sub_item);
             }
 
-            if (config_data->mode == 0) {
+            if (config_data->mode == L2CAP_BASIC_MODE) {
                 offset = dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, cid, psm, psm_data->local_service, length, offset, l2cap_data);
+            }else if (config_data->mode == L2CAP_LE_CREDIT_BASED_FLOW_CONTROL_MODE){
+                offset = dissect_le_frame(tvb, pinfo, tree, btl2cap_tree, cid, psm, psm_data->local_service, length, offset, l2cap_data);
             } else {
                 control = tvb_get_letohs(tvb, offset);
                 if (control & 0x1) {
