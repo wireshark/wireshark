@@ -54,73 +54,22 @@ Examples:
 
 
 WHITELISTED_LICENSES = [
-    'Apache (v2.0)',
-    'Apache (v2.0) BSD (2 clause)',
-    'Apache (v2.0) GPL (v2)',
-    'Apple MIT',  # https://fedoraproject.org/wiki/Licensing/Apple_MIT_License
-    'APSL (v2)',
-    'APSL (v2) BSD (4 clause)',
     'BSD',
     'BSD (2 clause)',
     'BSD (2 clause) GPL (v2 or later)',
-    'BSD (2 clause) MIT/X11 (BSD like)',
     'BSD (3 clause)',
-    'BSD (3 clause) ISC',
-    'BSD (3 clause) LGPL (v2 or later)',
-    'BSD (3 clause) LGPL (v2.1 or later)',
-    'BSD (3 clause) MIT/X11 (BSD like)',
-    'BSD (4 clause)',
-    'BSD-like',
-
-    # TODO(phajdan.jr): Make licensecheck not print BSD-like twice.
-    'BSD-like MIT/X11 (BSD like)',
-
-    'BSL (v1.0)',
     'GPL (v2 or later)',
-    'GPL (v2 or later) with Bison parser exception',
-    'GPL (v2 or later) with libtool exception',
-    'GPL (v3 or later) with Bison parser exception',
-    'GPL with Bison parser exception',
+    'GPL (v3 or later) (with Bison parser exception)',
     'ISC',
-    'ISC GPL (v2)',
     'ISC GPL (v2 or later)',
-    'LGPL',
-    'LGPL (v2)',
     'LGPL (v2 or later)',
-    'LGPL (v2.1)',
-    'LGPL (v3 or later)',
-
-    # TODO(phajdan.jr): Make licensecheck convert that comma to a dot.
-    'LGPL (v2,1 or later)',
-
     'LGPL (v2.1 or later)',
-    'MPL (v1.0) LGPL (v2 or later)',
-    'MPL (v1.1)',
-    'MPL (v1.1) BSD-like',
-    'MPL (v1.1) BSD-like GPL (unversioned/unknown version)',
-    'MPL (v1.1,) BSD (3 clause) GPL (unversioned/unknown version) '
-        'LGPL (v2.1 or later)',
-    'MPL (v1.1) GPL (unversioned/unknown version)',
-    'MPL (v2.0)',
-
-    # TODO(phajdan.jr): Make licensecheck not print the comma after 1.1.
-    'MPL (v1.1,) GPL (unversioned/unknown version) LGPL (v2 or later)',
-    'MPL (v1.1,) GPL (unversioned/unknown version) LGPL (v2.1 or later)',
-
     'MIT/X11 (BSD like)',
-    'Ms-PL',
     'Public domain',
-    'Public domain BSD',
-    'Public domain BSD (3 clause)',
-    'Public domain BSD-like',
     'Public domain GPL (v2 or later)',
-    'Public domain LGPL (v2.1 or later)',
     'Public domain MIT/X11 (BSD like)',
-    'libpng',
     'zlib/libpng',
     'zlib/libpng GPL (v2 or later)',
-    'SGI Free Software License B',
-    'University of Illinois/NCSA Open Source License (BSD like)',
 ]
 
 
@@ -149,12 +98,6 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'wsutil/g711.c': [
         'UNKNOWN',
     ],
-    'wiretap/ascend.c': [
-        'GPL (v3 or later)',
-    ],
-    'wiretap/ascend.h': [
-        'GPL (v3 or later)',
-    ],
     'packaging/macosx': [
         'UNKNOWN',
     ],
@@ -170,9 +113,6 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'cmake/TestWindowsFSeek.c': [
         'UNKNOWN',
     ],
-    'plugins/mate/mate_grammar.c': [
-        'GPL (v2 or later) LGPL (v2 or later)', # licensecheck bug?
-    ],
     # Generated header files by lex/yacc/whatever
     'epan/dtd_grammar.h': [
         'UNKNOWN',
@@ -185,6 +125,9 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     ],
     'epan/dissectors/packet-dtn.c': [
         'GPL (v2 or later) GPL (v2 or later)' # TODO: make licensecheck handle this better
+    ],
+    'epan/dissectors/packet-ieee80211-radiotap-iter.': [ # Using ISC license only
+         'ISC GPL (v2)'
     ],
     'plugins/mate/mate_grammar.h': [
         'UNKNOWN',
