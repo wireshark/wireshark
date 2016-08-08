@@ -24,6 +24,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 
 #include <epan/etypes.h>
 #include <epan/crc32-tvb.h>
@@ -1563,7 +1564,7 @@ dissect_qnet6_lr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint * 
           sstree = proto_tree_add_subtree(stree, tvb, *poffset, 4 * 2,
               ett_qnet6_lr_src_name_subtree, NULL, "domain");
           break;
-        case QNET6_LR_PAIRS - 1:
+        case 5:
           hf_index_off = hf_qnet6_lr_dst_addr_off;
           hf_index_len = hf_qnet6_lr_dst_addr_len;
           hf_index = hf_qnet6_lr_dst_addr_generated;
@@ -1581,27 +1582,35 @@ dissect_qnet6_lr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint * 
       *poffset += 4;
 
       if ((off <= rlen) && (len <= rlen))
-        { /* bad value of source * name */
-          name[i] = tvb_get_string_enc(wmem_packet_scope(),
-                                       tvb,
-                                       lr_start + off + QNX_QNET6_LR_PKT_SIZE /* sizeof(struct qnet6_lr_pkt) */,
-                                       len,
-                                       ENC_ASCII|ENC_NA);
+        {
+          guint addr_data_offset = lr_start + off + QNX_QNET6_LR_PKT_SIZE /* sizeof(struct qnet6_lr_pkt) */;
           /*
            * struct qnet6_lr_pkt is 64 bit aligned
            */
-          if (i != 2 && i != QNET6_LR_PAIRS - 1)
+          if (i != 2 && i != 5)
             {
-              ti = proto_tree_add_string(sstree, hf_index, tvb, lr_start + off + QNX_QNET6_LR_PKT_SIZE, len, name[i]);
-              PROTO_ITEM_SET_GENERATED(ti);
+            name[i] = tvb_get_string_enc(wmem_packet_scope(),
+                                         tvb,
+                                         addr_data_offset,
+                                         len,
+                                         ENC_ASCII|ENC_NA);
+                ti = proto_tree_add_string(sstree, hf_index, tvb, addr_data_offset, len, name[i]);
+                PROTO_ITEM_SET_GENERATED(ti);
             }
           else
             {
-              p = name[i];
-              if (strlen(p) && (*(p + 1) == QNET_LR_SA_FAMILY_MAC))
+              if (tvb_get_guint8(tvb, addr_data_offset + 1) == QNET_LR_SA_FAMILY_MAC && len >= 2 + 6)
                 {
-                  ti = proto_tree_add_string(sstree, hf_index, tvb, lr_start + off + QNX_QNET6_LR_PKT_SIZE, len, p+2);
+                  name[i] = tvb_ether_to_str(tvb, addr_data_offset + 2);
+                  ti = proto_tree_add_item(sstree, hf_index, tvb, addr_data_offset + 2, 6, ENC_NA);
                   PROTO_ITEM_SET_GENERATED(ti);
+                }
+              else
+                {
+                  /* The comment above suggests that value '2' means interface
+                   * name, but this was not observed in the provided pcap, so
+                   * let's ignore that possibility for now. */
+                  name[i] = NULL;
                 }
             }
         }
@@ -1615,26 +1624,24 @@ dissect_qnet6_lr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint * 
     {
     case QNET_LR_TYPE_REQUEST:
       p = name[2];
-      if (p && strlen(p) && (*(p + 1) == QNET_LR_SA_FAMILY_MAC))
+      if (p)
         {
           col_add_fstr(pinfo->cinfo, COL_INFO,
-                        "Who is \"%s.%s\"? Tell \"%s.%s\"@%02x:%02x:%02x:%02x:%02x:%02x",
+                        "Who is \"%s.%s\"? Tell \"%s.%s\"@%s",
                         name[3] ? (char*)name[3] : "?", name[4] ? (char*)name[4] : "?",
                         name[0] ? (char*)name[0] : "?", name[1] ? (char*)name[1] : "?",
-                        *(p + 2), *(p + 3), *(p + 4),
-                        *(p + 5), *(p + 6), *(p + 7));
+                        p);
         }
       break;
     case QNET_LR_TYPE_REPLY:
       p = name[2];
-      if (p && strlen(p) && (*(p + 1) == QNET_LR_SA_FAMILY_MAC))
+      if (p)
         {
           col_add_fstr(pinfo->cinfo, COL_INFO,
-                        "To \"%s.%s\", \"%s.%s\" is at %02x:%02x:%02x:%02x:%02x:%02x",
+                        "To \"%s.%s\", \"%s.%s\" is at %s",
                         name[3] ? (char*)name[3] : "?", name[4] ? (char*)name[4] : "?",
                         name[0] ? (char*)name[0] : "?", name[1] ? (char*)name[1] : "?",
-                        *(p + 2), *(p + 3), *(p + 4),
-                        *(p + 5), *(p + 6), *(p + 7));
+                        p);
         }
       break;
     default:
@@ -4543,7 +4550,7 @@ proto_register_qnet6(void)
     },
     {&hf_qnet6_lr_src_addr_generated,
      {"Address", "qnet6.lr.src.addr",
-      FT_STRING, BASE_NONE, NULL, 0,
+      FT_ETHER, BASE_NONE, NULL, 0,
       "LR Message source address", HFILL}
     },
     {&hf_qnet6_lr_dst,
@@ -4593,7 +4600,7 @@ proto_register_qnet6(void)
     },
     {&hf_qnet6_lr_dst_addr_generated,
      {"Address", "qnet6.lr.dst.addr",
-      FT_STRING, BASE_NONE, NULL, 0,
+      FT_ETHER, BASE_NONE, NULL, 0,
       "LR Message destination address", HFILL}
     }
 
