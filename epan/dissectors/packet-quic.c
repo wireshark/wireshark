@@ -1925,7 +1925,7 @@ proto_register_quic(void)
               "Signifies that this packet is a public reset packet", HFILL }
         },
         { &hf_quic_puflags_dnonce,
-            { "Diversification nonce", "quic.puflags.cid",
+            { "Diversification nonce", "quic.puflags.nonce",
                FT_BOOLEAN, 8, TFS(&tfs_yes_no), PUFLAGS_DNONCE,
               "Indicates the presence of a 32 byte diversification nonce", HFILL }
         },
