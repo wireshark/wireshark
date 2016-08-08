@@ -126,6 +126,9 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'epan/dissectors/packet-ieee80211-radiotap-iter.': [ # Using ISC license only
          'ISC GPL (v2)'
     ],
+    'epan/dissectors/packet-ppi.c': [ # Using BSD (3 clause) license
+        'BSD (3 clause) GPL (v2)'
+    ],
     'plugins/mate/mate_grammar.h': [
         'UNKNOWN',
     ],
@@ -158,6 +161,40 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'tools/licensecheck.pl': [
         'GPL (v2)'
     ],
+    # The airpcap code is using BSD (3 clause)
+    'epan/crypt/airpdcap_interop.h': [
+        'BSD (3 clause) GPL (v2)'
+    ],
+    'epan/crypt/airpdcap_tkip.c': [
+        'BSD (3 clause) GPL (v2)'
+    ],
+    'epan/crypt/airpdcap_ws.h': [
+        'BSD (3 clause) GPL (v2)'
+    ],
+    'epan/crypt/wep-wpadefs.h': [
+        'BSD (3 clause) GPL (v2)'
+    ],
+    'epan/crypt/airpdcap_system.h': [
+        'BSD (3 clause) GPL (v2)'
+    ],
+    'epan/crypt/airpdcap_user.h': [
+        'BSD (3 clause) GPL (v2)'
+    ],
+    'epan/crypt/airpdcap_ccmp.c': [
+        'BSD (3 clause) GPL (v2)'
+    ],
+    'epan/crypt/airpdcap_int.h': [
+        'BSD (3 clause) GPL (v2)'
+    ],
+    'epan/crypt/airpdcap.c': [
+        'BSD (3 clause) GPL (v2)'
+    ],
+    'epan/crypt/airpdcap_debug.h': [
+        'BSD (3 clause) GPL (v2)'
+    ],
+    'wsutil/airpdcap_wep.c': [
+        'BSD (3 clause) GPL (v2)'
+    ],
 }
 
 # Files pre-existing prior to licensecheck upgrade to v2.16.2.
@@ -181,18 +218,6 @@ FIXME_FILES = [
     'doc/sshdump.pod',
     'doc/tshark.pod',
     'doc/wireshark.pod', # wireshark.pod.template
-    'epan/crypt/airpdcap_interop.h', # Whitelist 'BSD (3 clause) GPL (v2)'?
-    'epan/crypt/airpdcap_tkip.c',
-    'epan/crypt/airpdcap_ws.h',
-    'epan/crypt/wep-wpadefs.h',
-    'epan/crypt/airpdcap_system.h',
-    'epan/crypt/airpdcap_user.h',
-    'epan/crypt/airpdcap_ccmp.c',
-    'epan/crypt/airpdcap_int.h',
-    'epan/crypt/airpdcap.c',
-    'epan/crypt/airpdcap_debug.h',
-    'epan/dissectors/packet-ppi.c',
-    'wsutil/airpdcap_wep.c',
 ]
 
 
