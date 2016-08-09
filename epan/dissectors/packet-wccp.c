@@ -564,8 +564,8 @@ static void wccp_fmt_ipaddress(gchar *buffer, guint32 host_addr, wccp_address_ta
   else
     {
       /* we need to decode the encoded address: */
-      guint16 reserv = (host_addr & 0xFF00) >> 16;
-      guint16 addr_index  = (host_addr & 0x00FF);
+      guint16 reserv = (host_addr & 0xFFFF0000) >> 16;
+      guint16 addr_index  = (host_addr & 0x0000FFFF);
 
       if (reserv != 0) {
         g_snprintf(buffer, ITEM_LABEL_LENGTH, "INVALID: reserved part non zero");
@@ -645,8 +645,8 @@ static proto_item* wccp_add_ipaddress_item(proto_tree* tree, int hf_index, int h
     host_addr = tvb_get_ntohl(tvb, offset);
 
     /* we need to decode the encoded address: */
-    reserv = (host_addr & 0xFF00) >> 16;
-    addr_index  = (host_addr & 0x00FF);
+    reserv = (host_addr & 0xFFFF0000) >> 16;
+    addr_index  = (host_addr & 0x0000FFFF);
 
     memset(&ipv6_zero, 0, sizeof(ipv6_zero));
 
