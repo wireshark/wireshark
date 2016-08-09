@@ -6739,8 +6739,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
          * sampling rates are based on the specific vocoder RFCs
          * (example subset RFC4788, RFC5188, RFC6884)
          */
-        if (((oct & 0x0f) >= 10) &&
-            ((oct & 0x0f) <= 15))
+        if (((oct & 0x0f) >= 10))
         {
             sample_rate = 16000;
         }
