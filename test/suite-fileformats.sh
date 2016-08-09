@@ -34,7 +34,7 @@ DIFF_OUT=./diff-output.txt
 
 # Microsecond pcap / stdin
 ff_step_usec_pcap_stdin() {
-	$TSHARK $TS_FF_ARGS -i - < "${CAPTURE_DIR}dhcp.pcap" > ./ff-ts-usec-pcap-stdin.txt 2> /dev/null
+	$TSHARK $TS_FF_ARGS -r - < "${CAPTURE_DIR}dhcp.pcap" > ./ff-ts-usec-pcap-stdin.txt 2> /dev/null
 	diff -u $FF_BASELINE ./ff-ts-usec-pcap-stdin.txt > $DIFF_OUT 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
@@ -47,7 +47,7 @@ ff_step_usec_pcap_stdin() {
 
 # Nanosecond pcap / stdin
 ff_step_nsec_pcap_stdin() {
-	$TSHARK $TS_FF_ARGS -i - < "${CAPTURE_DIR}dhcp-nanosecond.pcap" > ./ff-ts-nsec-pcap-stdin.txt 2> /dev/null
+	$TSHARK $TS_FF_ARGS -r - < "${CAPTURE_DIR}dhcp-nanosecond.pcap" > ./ff-ts-nsec-pcap-stdin.txt 2> /dev/null
 	diff -u $FF_BASELINE ./ff-ts-nsec-pcap-stdin.txt > $DIFF_OUT 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
@@ -73,7 +73,7 @@ ff_step_nsec_pcap_direct() {
 
 # Microsecond pcap-ng / stdin
 ff_step_usec_pcapng_stdin() {
-	$TSHARK $TS_FF_ARGS -i - < "${CAPTURE_DIR}dhcp.pcapng" > ./ff-ts-usec-pcapng-stdin.txt 2> /dev/null
+	$TSHARK $TS_FF_ARGS -r - < "${CAPTURE_DIR}dhcp.pcapng" > ./ff-ts-usec-pcapng-stdin.txt 2> /dev/null
 	diff -u $FF_BASELINE ./ff-ts-usec-pcapng-stdin.txt > $DIFF_OUT 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
@@ -99,7 +99,7 @@ ff_step_usec_pcapng_direct() {
 
 # Nanosecond pcap-ng / stdin
 ff_step_nsec_pcapng_stdin() {
-	$TSHARK $TS_FF_ARGS -i - < "${CAPTURE_DIR}dhcp-nanosecond.pcapng" > ./ff-ts-nsec-pcapng-stdin.txt 2> /dev/null
+	$TSHARK $TS_FF_ARGS -r - < "${CAPTURE_DIR}dhcp-nanosecond.pcapng" > ./ff-ts-nsec-pcapng-stdin.txt 2> /dev/null
 	diff -u $FF_BASELINE ./ff-ts-nsec-pcapng-stdin.txt > $DIFF_OUT 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
