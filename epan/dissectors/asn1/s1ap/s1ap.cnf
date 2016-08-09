@@ -639,6 +639,9 @@ id-E-RABModificationIndication          ProcedureCode
 id-PWSFailureIndication                 ProcedureCode
 id-RerouteNASRequest                    ProcedureCode
 id-UEContextModificationIndication      ProcedureCode
+id-ConnectionEstablishmentIndication    ProcedureCode
+id-UEContextSuspend                     ProcedureCode
+id-UEContextResume                      ProcedureCode
 
 # ProtocolIE-ID
 id-MME-UE-S1AP-ID                                   ProtocolIE-ID
@@ -835,6 +838,11 @@ id-Muting-Availability-Indication                   ProtocolIE-ID
 id-Muting-Pattern-Information                       ProtocolIE-ID
 id-Synchronisation-Information                      ProtocolIE-ID
 id-E-RABToBeReleasedListBearerModConf               ProtocolIE-ID
+id-AssistanceDataForPaging                          ProtocolIE-ID
+id-CellIdentifierAndCELevelForCECapableUEs          ProtocolIE-ID
+id-InformationOnRecommendedCellsAndENBsForPaging    ProtocolIE-ID
+id-RecommendedCellItem                              ProtocolIE-ID
+id-RecommendedENBItem                               ProtocolIE-ID
 id-ProSeUEtoNetworkRelaying                         ProtocolIE-ID
 id-ULCOUNTValuePDCP-SNlength18                      ProtocolIE-ID
 id-DLCOUNTValuePDCP-SNlength18                      ProtocolIE-ID
@@ -846,6 +854,19 @@ id-MME-Group-ID                                     ProtocolIE-ID
 id-Additional-GUTI                                  ProtocolIE-ID
 id-S1-Message                                       ProtocolIE-ID
 id-CSGMembershipInfo                                ProtocolIE-ID
+id-Paging-eDRXInformation                           ProtocolIE-ID
+id-UE-RetentionInformation                          ProtocolIE-ID
+id-UE-Usage-Type                                    ProtocolIE-ID
+id-extended-UEIdentityIndexValue                    ProtocolIE-ID
+id-RAT-Type                                         ProtocolIE-ID
+id-BearerType                                       ProtocolIE-ID
+id-NB-IoT-DefaultPagingDRX                          ProtocolIE-ID
+id-E-RABFailedToResumeListResumeReq                 ProtocolIE-ID
+id-E-RABFailedToResumeItemResumeReq                 ProtocolIE-ID
+id-E-RABFailedToResumeListResumeRes                 ProtocolIE-ID
+id-E-RABFailedToResumeItemResumeRes                 ProtocolIE-ID
+id-NB-IoT-Paging-eDRXInformation                    ProtocolIE-ID
+id-UEUserPlaneCIoTSupportIndicator                  ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -1016,11 +1037,30 @@ E-RABModifyItemBearerModConf            N s1ap.ies id-E-RABModifyItemBearerModCo
 E-RABList                               N s1ap.ies id-E-RABFailedToModifyListBearerModConf
 SONInformationReport                    N s1ap.ies id-SON-Information-Report
 E-RABList                               N s1ap.ies id-E-RABToBeReleasedListBearerModConf
-PWSfailedECGIList                       N s1ap.ies id-PWSfailedECGIList
-MME-Group-ID                            N s1ap.ies id-MME-Group-ID
-Additional-GUTI                         N s1ap.ies id-Additional-GUTI
-#OCTET STRING                           N s1ap.ies id-S1-Message
-CSGMembershipInfo                       N s1ap.ies id-CSGMembershipInfo
+AssistanceDataForPaging                         N s1ap.ies id-AssistanceDataForPaging
+CellIdentifierAndCELevelForCECapableUEs         N s1ap.ies id-CellIdentifierAndCELevelForCECapableUEs
+InformationOnRecommendedCellsAndENBsForPaging   N s1ap.ies id-InformationOnRecommendedCellsAndENBsForPaging
+RecommendedCellItem                             N s1ap.ies id-RecommendedCellItem
+RecommendedENBItem                              N s1ap.ies id-RecommendedENBItem
+PWSfailedECGIList                               N s1ap.ies id-PWSfailedECGIList
+MME-Group-ID                                    N s1ap.ies id-MME-Group-ID
+Additional-GUTI                                 N s1ap.ies id-Additional-GUTI
+#OCTET STRING                                   N s1ap.ies id-S1-Message
+CSGMembershipInfo                               N s1ap.ies id-CSGMembershipInfo
+Paging-eDRXInformation                          N s1ap.ies id-Paging-eDRXInformation
+UE-RetentionInformation                         N s1ap.ies id-UE-RetentionInformation
+UE-Usage-Type                                   N s1ap.ies id-UE-Usage-Type
+Extended-UEIdentityIndexValue                   N s1ap.ies id-extended-UEIdentityIndexValue
+RAT-Type                                        N s1ap.extension id-RAT-Type
+BearerType                                      N s1ap.extension id-BearerType
+NB-IoT-DefaultPagingDRX                         N s1ap.ies id-NB-IoT-DefaultPagingDRX
+E-RABFailedToResumeListResumeReq                N s1ap.ies id-E-RABFailedToResumeListResumeReq
+E-RABFailedToResumeItemResumeReq                N s1ap.ies id-E-RABFailedToResumeItemResumeReq
+E-RABFailedToResumeListResumeRes                N s1ap.ies id-E-RABFailedToResumeListResumeRes
+E-RABFailedToResumeItemResumeRes                N s1ap.ies id-E-RABFailedToResumeItemResumeRes
+NB-IoT-Paging-eDRXInformation                   N s1ap.ies id-NB-IoT-Paging-eDRXInformation
+UEUserPlaneCIoTSupportIndicator                 N s1ap.ies id-UEUserPlaneCIoTSupportIndicator
+
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst             N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -1197,6 +1237,16 @@ UEContextModificationConfirm            N s1ap.proc.sout id-UEContextModificatio
 RerouteNASRequest                       N s1ap.proc.imsg id-RerouteNASRequest
 
 PWSFailureIndication                    N s1ap.proc.imsg id-PWSFailureIndication
+
+ConnectionEstablishmentIndication       N s1ap.proc.imsg id-ConnectionEstablishmentIndication
+
+UEContextResumeRequest                  N s1ap.proc.imsg id-UEContextSuspend
+UEContextResumeResponse                 N s1ap.proc.sout id-UEContextSuspend
+UEContextResumeFailure                  N s1ap.proc.uout id-UEContextSuspend
+
+UEContextResumeRequest                  N s1ap.proc.imsg id-UEContextResume
+UEContextResumeResponse                 N s1ap.proc.sout id-UEContextResume
+UEContextResumeFailure                  N s1ap.proc.uout id-UEContextResume
 
 #.FN_HDR E-RABSetupRequest
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABSetupRequest ");

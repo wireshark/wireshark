@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V13.1.0 (2015-12)
+-- 3GPP TS 36.413 V13.3.0 (2016-07-01)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -105,9 +105,13 @@ FROM S1AP-CommonDataTypes
 	UEContextModificationIndication,
 	UEContextModificationConfirm,
 	RerouteNASRequest,
--- WS modification: avoid duplicate imports as asn2wrs.py builds a single list
---	PWSfailedECGIList,
-	PWSFailureIndication
+	PWSFailureIndication,
+	UEContextSuspendRequest,
+	UEContextSuspendResponse,
+	UEContextResumeRequest,
+	UEContextResumeResponse,
+	UEContextResumeFailure,
+	ConnectionEstablishmentIndication
 
 
 FROM S1AP-PDU-Contents
@@ -165,8 +169,10 @@ FROM S1AP-PDU-Contents
 	id-PWSRestartIndication,
 	id-UEContextModificationIndication,
 	id-RerouteNASRequest,
-	id-PWSfailedECGIList,
-	id-PWSFailureIndication
+	id-PWSFailureIndication,
+	id-UEContextSuspend,
+	id-UEContextResume,
+	id-ConnectionEstablishmentIndication
 FROM S1AP-Constants;
 
 
@@ -255,7 +261,9 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-1 S1AP-ELEMENTARY-PROCEDURE ::= {
 	...,
 	uERadioCapabilityMatch						|
 	e-RABModificationIndication					|
-	uEContextModificationIndication
+	uEContextModificationIndication				|
+	uEContextSuspend							|
+	uEContextResume
 }
 
 S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {	
@@ -268,7 +276,7 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 	errorIndication					|
 	nASNonDeliveryIndication		|
 	uEContextReleaseRequest			|
-	downlinkS1cdma2000tunnelling		|
+	downlinkS1cdma2000tunnelling	|
 	uplinkS1cdma2000tunnelling		|
 	uECapabilityInfoIndication		|
 	eNBStatusTransfer				|
@@ -294,7 +302,8 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 	uplinkNonUEAssociatedLPPaTransport	|
 	pWSRestartIndication			|
 	rerouteNASRequest				|
-	pWSFailureIndication
+	pWSFailureIndication						|
+	connectionEstablishmentIndication
 }
 
 -- **************************************************************
@@ -652,4 +661,26 @@ pWSFailureIndication S1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
+uEContextSuspend S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEContextSuspendRequest
+	SUCCESSFUL OUTCOME		UEContextSuspendResponse
+	PROCEDURE CODE			id-UEContextSuspend
+	CRITICALITY				reject
+}
+
+uEContextResume S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEContextResumeRequest
+	SUCCESSFUL OUTCOME		UEContextResumeResponse
+	UNSUCCESSFUL OUTCOME 	UEContextResumeFailure
+	PROCEDURE CODE			id-UEContextResume
+	CRITICALITY				reject
+}
+
+connectionEstablishmentIndication S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ConnectionEstablishmentIndication
+	PROCEDURE CODE			id-ConnectionEstablishmentIndication
+	CRITICALITY				reject
+}
+
 END
+

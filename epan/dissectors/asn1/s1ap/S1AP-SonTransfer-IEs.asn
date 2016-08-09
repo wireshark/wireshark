@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V13.1.0 (2015-12)
+-- 3GPP TS 36.413 V13.3.0 (2016-07-01)
 -- B.2	ASN.1 definition
 -- **************************************************************
 --
@@ -7,6 +7,7 @@
 -- using the same rules as applicable for the S1AP-IEs module.
 -- 
 -- **************************************************************
+
 
 
 SonTransfer-IEs
@@ -293,6 +294,7 @@ TooEarlyInterRATHOReportReportFromEUTRAN ::= SEQUENCE {
 	...
 }
 
+-- Ws modification, allready defined in S1AP-IEs.asn
 --MobilityInformation ::= BIT STRING (SIZE(32))
 
 
@@ -334,6 +336,3 @@ maxnoofcandidateCells						INTEGER ::= 16
 maxnoofCellineNB							INTEGER ::= 256
 
 END
-
-
-
