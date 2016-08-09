@@ -141,16 +141,16 @@ static int hf_btl2cap_service = -1;
 static int hf_btl2cap_connect_in_frame = -1;
 static int hf_btl2cap_disconnect_in_frame = -1;
 
-static int hf_btl2cap_le_msg_fragments = -1;
-static int hf_btl2cap_le_msg_fragment = -1;
-static int hf_btl2cap_le_msg_fragment_overlap = -1;
-static int hf_btl2cap_le_msg_fragment_overlap_conflicts = -1;
-static int hf_btl2cap_le_msg_fragment_multiple_tails = -1;
-static int hf_btl2cap_le_msg_fragment_too_long_fragment = -1;
-static int hf_btl2cap_le_msg_fragment_error = -1;
-static int hf_btl2cap_le_msg_fragment_count = -1;
-static int hf_btl2cap_le_msg_reassembled_in = -1;
-static int hf_btl2cap_le_msg_reassembled_length = -1;
+static int hf_btl2cap_le_sdu_fragments = -1;
+static int hf_btl2cap_le_sdu_fragment = -1;
+static int hf_btl2cap_le_sdu_fragment_overlap = -1;
+static int hf_btl2cap_le_sdu_fragment_overlap_conflicts = -1;
+static int hf_btl2cap_le_sdu_fragment_multiple_tails = -1;
+static int hf_btl2cap_le_sdu_fragment_too_long_fragment = -1;
+static int hf_btl2cap_le_sdu_fragment_error = -1;
+static int hf_btl2cap_le_sdu_fragment_count = -1;
+static int hf_btl2cap_le_sdu_reassembled_in = -1;
+static int hf_btl2cap_le_sdu_reassembled_length = -1;
 
 static int hf_btl2cap_le_sdu_length = -1;
 
@@ -161,8 +161,8 @@ static gint ett_btl2cap_option = -1;
 static gint ett_btl2cap_extfeatures = -1;
 static gint ett_btl2cap_fixedchans = -1;
 static gint ett_btl2cap_control = -1;
-static gint ett_btl2cap_le_msg_fragment = -1;
-static gint ett_btl2cap_le_msg_fragments = -1;
+static gint ett_btl2cap_le_sdu_fragment = -1;
+static gint ett_btl2cap_le_sdu_fragments = -1;
 
 static expert_field ei_btl2cap_parameter_mismatch = EI_INIT;
 static expert_field ei_btl2cap_sdulength_bad = EI_INIT;
@@ -455,29 +455,29 @@ void proto_register_btl2cap(void);
 void proto_reg_handoff_btl2cap(void);
 
 /* Reassembly */
-static reassembly_table btl2cap_le_msg_reassembly_table;
+static reassembly_table btl2cap_le_sdu_reassembly_table;
 
-static const fragment_items btl2cap_le_msg_frag_items = {
+static const fragment_items btl2cap_le_sdu_frag_items = {
     /* Fragment subtrees */
-    &ett_btl2cap_le_msg_fragment,
-    &ett_btl2cap_le_msg_fragments,
+    &ett_btl2cap_le_sdu_fragment,
+    &ett_btl2cap_le_sdu_fragments,
     /* Fragment fields */
-    &hf_btl2cap_le_msg_fragments,
-    &hf_btl2cap_le_msg_fragment,
-    &hf_btl2cap_le_msg_fragment_overlap,
-    &hf_btl2cap_le_msg_fragment_overlap_conflicts,
-    &hf_btl2cap_le_msg_fragment_multiple_tails,
-    &hf_btl2cap_le_msg_fragment_too_long_fragment,
-    &hf_btl2cap_le_msg_fragment_error,
-    &hf_btl2cap_le_msg_fragment_count,
+    &hf_btl2cap_le_sdu_fragments,
+    &hf_btl2cap_le_sdu_fragment,
+    &hf_btl2cap_le_sdu_fragment_overlap,
+    &hf_btl2cap_le_sdu_fragment_overlap_conflicts,
+    &hf_btl2cap_le_sdu_fragment_multiple_tails,
+    &hf_btl2cap_le_sdu_fragment_too_long_fragment,
+    &hf_btl2cap_le_sdu_fragment_error,
+    &hf_btl2cap_le_sdu_fragment_count,
     /* Reassembled in field */
-    &hf_btl2cap_le_msg_reassembled_in,
+    &hf_btl2cap_le_sdu_reassembled_in,
     /* Reassembled length field */
-    &hf_btl2cap_le_msg_reassembled_length,
+    &hf_btl2cap_le_sdu_reassembled_length,
     /* Reassembled data field */
     NULL,
     /* Tag */
-    "BTL2CAP LE Message fragments"
+    "BTL2CAP LE SDU fragments"
 };
 
 
@@ -2001,7 +2001,7 @@ dissect_le_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t *new_tvb = NULL;
     bluetooth_uuid_t   uuid;
     btl2cap_frame_data_t *btl2cap_frame_data = NULL;
-    fragment_head *frag_btl2cap_le_msg = NULL;
+    fragment_head *frag_btl2cap_le_sdu = NULL;
 
     if ((!pinfo->fd->flags.visited)&&(config_data)){
         btl2cap_frame_data = wmem_new0(wmem_file_scope(), btl2cap_frame_data_t);
@@ -2094,7 +2094,7 @@ dissect_le_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         length = length - 2;
     }
     pinfo->fragmented = TRUE;
-    frag_btl2cap_le_msg = fragment_add_seq_next(&btl2cap_le_msg_reassembly_table,
+    frag_btl2cap_le_sdu = fragment_add_seq_next(&btl2cap_le_sdu_reassembly_table,
         tvb, offset,
         pinfo,
         cid,                                  /* guint32 ID for fragments belonging together */
@@ -2103,9 +2103,9 @@ dissect_le_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         btl2cap_frame_data->more_fragments);  /* More fragments */
 
     new_tvb = process_reassembled_data(tvb, offset, pinfo,
-        "Reassembled Message",
-        frag_btl2cap_le_msg,
-        &btl2cap_le_msg_frag_items,
+        "Reassembled SDU",
+        frag_btl2cap_le_sdu,
+        &btl2cap_le_sdu_frag_items,
         NULL,
         btl2cap_tree);
 
@@ -2784,14 +2784,14 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 static void
 init_btl2cap(void)
 {
-    reassembly_table_init(&btl2cap_le_msg_reassembly_table,
+    reassembly_table_init(&btl2cap_le_sdu_reassembly_table,
         &addresses_reassembly_table_functions);
 }
 
 static void
 cleanup_btl2cap(void)
 {
-    reassembly_table_destroy(&btl2cap_le_msg_reassembly_table);
+    reassembly_table_destroy(&btl2cap_le_sdu_reassembly_table);
 }
 
 /* Register the protocol with Wireshark */
@@ -3266,53 +3266,53 @@ proto_register_btl2cap(void)
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_btl2cap_le_msg_fragments,
-        { "Message fragments", "btl2cap.le_msg.fragments",
+        { &hf_btl2cap_le_sdu_fragments,
+        { "SDU fragments", "btl2cap.le_sdu.fragments",
             FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &hf_btl2cap_le_msg_fragment,
-        { "Message fragment", "btl2cap.le_msg.fragment",
+        { &hf_btl2cap_le_sdu_fragment,
+        { "SDU fragment", "btl2cap.le_sdu.fragment",
             FT_FRAMENUM, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &hf_btl2cap_le_msg_fragment_overlap,
-        { "Message fragment overlap", "btl2cap.le_msg.fragment.overlap",
+        { &hf_btl2cap_le_sdu_fragment_overlap,
+        { "SDU fragment overlap", "btl2cap.le_sdu.fragment.overlap",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_btl2cap_le_msg_fragment_overlap_conflicts,
-        { "Message fragment overlapping with conflicting data", "btl2cap.le_msg.fragment.overlap.conflicts",
+        { &hf_btl2cap_le_sdu_fragment_overlap_conflicts,
+        { "SDU fragment overlapping with conflicting data", "btl2cap.le_sdu.fragment.overlap.conflicts",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_btl2cap_le_msg_fragment_multiple_tails,
-        { "Message has multiple tail fragments", "btl2cap.le_msg.fragment.multiple_tails",
+        { &hf_btl2cap_le_sdu_fragment_multiple_tails,
+        { "SDU has multiple tail fragments", "btl2cap.le_sdu.fragment.multiple_tails",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_btl2cap_le_msg_fragment_too_long_fragment,
-        { "Message fragment too long", "btl2cap.le_msg.fragment.too_long_fragment",
+        { &hf_btl2cap_le_sdu_fragment_too_long_fragment,
+        { "SDU fragment too long", "btl2cap.le_sdu.fragment.too_long_fragment",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_btl2cap_le_msg_fragment_error,
-        { "Message defragmentation error", "btl2cap.le_msg.fragment.error",
+        { &hf_btl2cap_le_sdu_fragment_error,
+        { "SDU defragmentation error", "btl2cap.le_sdu.fragment.error",
             FT_FRAMENUM, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &hf_btl2cap_le_msg_fragment_count,
-        { "Message fragment count", "btl2cap.le_msg.fragment.count",
+        { &hf_btl2cap_le_sdu_fragment_count,
+        { "SDU fragment count", "btl2cap.le_sdu.fragment.count",
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
-        { &hf_btl2cap_le_msg_reassembled_in,
-        { "Reassembled in", "btl2cap.le_msg.reassembled.in",
+        { &hf_btl2cap_le_sdu_reassembled_in,
+        { "Reassembled in", "btl2cap.le_sdu.reassembled.in",
             FT_FRAMENUM, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &hf_btl2cap_le_msg_reassembled_length,
-        { "Reassembled btle length", "btl2cap.le_msg.reassembled.length",
+        { &hf_btl2cap_le_sdu_reassembled_length,
+        { "Reassembled SDU length", "btl2cap.le_sdu.reassembled.length",
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
@@ -3332,8 +3332,8 @@ proto_register_btl2cap(void)
         &ett_btl2cap_extfeatures,
         &ett_btl2cap_fixedchans,
         &ett_btl2cap_control,
-        &ett_btl2cap_le_msg_fragment,
-        &ett_btl2cap_le_msg_fragments
+        &ett_btl2cap_le_sdu_fragment,
+        &ett_btl2cap_le_sdu_fragments
     };
 
     static ei_register_info ei[] = {
