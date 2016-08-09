@@ -520,7 +520,7 @@ epan_get_compiled_version_info(GString *str)
 	g_string_append(str, ", ");
 #ifdef HAVE_LUA
 	g_string_append(str, "with ");
-	g_string_append(str, LUA_VERSION);
+	g_string_append(str, LUA_RELEASE);
 #else
 	g_string_append(str, "without Lua");
 #endif /* HAVE_LUA */
