@@ -1456,6 +1456,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
     const char                    *adb_transport  = "0012""host:transport-any";
     const char                    *adb_transport_serial_templace              = "%04x""host:transport:%s";
     const char                    *adb_tcp_bluedroid_external_parser_template = "%04x""tcp:%05u";
+    socklen_t                      slen;
     gssize                         length;
     gssize                         used_buffer_length = 0;
     uint64_t                       ts;
@@ -1506,14 +1507,14 @@ static int capture_android_bluetooth_external_parser(char *interface,
             return EXIT_CODE_GENERIC;
         }
 
-        length = sizeof(client);
-        if (getsockname(sock, (struct sockaddr *) &client, (socklen_t *) &length)) {
+        slen = (socklen_t)sizeof(client);
+        if (getsockname(sock, (struct sockaddr *) &client, &slen)) {
             g_warning("getsockname: %s", strerror(errno));
             closesocket(sock);
             return EXIT_CODE_GENERIC;
         }
 
-        if (length != sizeof(client)) {
+        if (slen != sizeof(client)) {
             g_warning("incorrect length");
             closesocket(sock);
             return EXIT_CODE_GENERIC;
