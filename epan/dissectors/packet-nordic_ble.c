@@ -355,7 +355,8 @@ dissect_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, btle_context_
     guint8 flags;
     gboolean dir, encrypted;
     /*gboolean bad_length = FALSE;*/
-    proto_item /**flags_item,*/ *item;
+    proto_item *flags_item, *item;
+    proto_tree *flags_tree;
 
     context->crc_checked_at_capture = 1;
     flags = tvb_get_guint8(tvb, get_flags_index());
@@ -378,20 +379,20 @@ dissect_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, btle_context_
     }
 
 
-    proto_tree_add_item(tree, hf_nordic_ble_flags, tvb, get_flags_index(), 1, ENC_BIG_ENDIAN);
-    /*flags_tree = proto_item_add_subtree(flags_item, ett_flags); */
+    flags_item = proto_tree_add_item(tree, hf_nordic_ble_flags, tvb, get_flags_index(), 1, ENC_BIG_ENDIAN);
+    flags_tree = proto_item_add_subtree(flags_item, ett_flags);
     if (encrypted) /* if encrypted, add MIC status */
     {
         context->mic_checked_at_capture = 1;
-        item = proto_tree_add_bits_item(tree, hf_nordic_ble_micok, tvb, get_flags_index() * 8 + 4, 1, ENC_LITTLE_ENDIAN);
+        item = proto_tree_add_bits_item(flags_tree, hf_nordic_ble_micok, tvb, get_flags_index() * 8 + 4, 1, ENC_LITTLE_ENDIAN);
         if (!context->mic_valid_at_capture) {
             /* MIC is bad */
             expert_add_info(pinfo, item, &ei_nordic_ble_bad_mic);
         }
     }
-    proto_tree_add_bits_item(tree, hf_nordic_ble_encrypted, tvb, get_flags_index() * 8 + 5, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_bits_item(tree, hf_nordic_ble_direction, tvb, get_flags_index() * 8 + 6, 1, ENC_LITTLE_ENDIAN);
-    item = proto_tree_add_bits_item(tree, hf_nordic_ble_crcok, tvb, get_flags_index() * 8 + 7, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bits_item(flags_tree, hf_nordic_ble_encrypted, tvb, get_flags_index() * 8 + 5, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bits_item(flags_tree, hf_nordic_ble_direction, tvb, get_flags_index() * 8 + 6, 1, ENC_LITTLE_ENDIAN);
+    item = proto_tree_add_bits_item(flags_tree, hf_nordic_ble_crcok, tvb, get_flags_index() * 8 + 7, 1, ENC_LITTLE_ENDIAN);
     if (!context->crc_valid_at_capture) {
         /* CRC is bad */
         expert_add_info(pinfo, item, &ei_nordic_ble_bad_crc);
