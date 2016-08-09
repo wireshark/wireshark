@@ -126,11 +126,11 @@ LIBGPG_ERROR_VERSION=1.10
 #
 LIBGCRYPT_VERSION=1.5.0
 GNUTLS_VERSION=2.12.19
-# Use 5.2.3, not 5.3, for now; lua_bitop.c hasn't been ported to 5.3
+# Use 5.2.4, not 5.3, for now; lua_bitop.c hasn't been ported to 5.3
 # yet, and we need to check for compatibility issues (we'd want Lua
 # scripts to work with 5.1, 5.2, and 5.3, as long as they only use Lua
 # features present in all three versions)
-LUA_VERSION=5.2.3
+LUA_VERSION=5.2.4
 PORTAUDIO_VERSION=pa_stable_v19_20111121
 #
 # XXX - they appear to have an unversioned gzipped tarball for the
