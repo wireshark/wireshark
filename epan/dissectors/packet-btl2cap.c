@@ -6,6 +6,9 @@
  * Refactored for wireshark checkin
  *   Ronnie Sahlberg 2006
  *
+ * Added handling and reassembly of LE-Frames
+ *   Anders Broman at ericsson dot com 2016
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -32,6 +35,7 @@
 #include <epan/expert.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
+#include <epan/reassemble.h>
 
 #include <wiretap/wtap.h>
 
@@ -137,6 +141,19 @@ static int hf_btl2cap_service = -1;
 static int hf_btl2cap_connect_in_frame = -1;
 static int hf_btl2cap_disconnect_in_frame = -1;
 
+static int hf_btl2cap_le_msg_fragments = -1;
+static int hf_btl2cap_le_msg_fragment = -1;
+static int hf_btl2cap_le_msg_fragment_overlap = -1;
+static int hf_btl2cap_le_msg_fragment_overlap_conflicts = -1;
+static int hf_btl2cap_le_msg_fragment_multiple_tails = -1;
+static int hf_btl2cap_le_msg_fragment_too_long_fragment = -1;
+static int hf_btl2cap_le_msg_fragment_error = -1;
+static int hf_btl2cap_le_msg_fragment_count = -1;
+static int hf_btl2cap_le_msg_reassembled_in = -1;
+static int hf_btl2cap_le_msg_reassembled_length = -1;
+
+static int hf_btl2cap_le_sdu_length = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_btl2cap = -1;
 static gint ett_btl2cap_cmd = -1;
@@ -144,6 +161,8 @@ static gint ett_btl2cap_option = -1;
 static gint ett_btl2cap_extfeatures = -1;
 static gint ett_btl2cap_fixedchans = -1;
 static gint ett_btl2cap_control = -1;
+static gint ett_btl2cap_le_msg_fragment = -1;
+static gint ett_btl2cap_le_msg_fragments = -1;
 
 static expert_field ei_btl2cap_parameter_mismatch = EI_INIT;
 static expert_field ei_btl2cap_sdulength_bad = EI_INIT;
@@ -182,6 +201,9 @@ typedef struct _config_data_t {
     guint8      mode;
     guint8      txwindow;
     wmem_tree_t *start_fragments;  /* indexed by pinfo->num */
+    /* Used for LE frame reassembly */
+    guint    segmentation_started : 1;  /* 0 = No, 1 = Yes */
+    guint    segment_len_rem;          /* The remaining segment length, used to find last segment */
 } config_data_t;
 
 typedef struct _sdu_reassembly_t
@@ -207,6 +229,13 @@ typedef struct _psm_data_t {
     config_data_t in;
     config_data_t out;
 } psm_data_t;
+
+typedef struct _btl2cap_frame_data_t
+{
+    /* LE frames info */
+    guint first_fragment : 1; /* 0 = No, 1 = First or only fragment*/
+    guint more_fragments : 1; /* 0 = Last fragment, 1 = more fragments*/
+} btl2cap_frame_data_t;
 
 static const value_string command_code_vals[] = {
     { 0x01,   "Command Reject" },
@@ -424,6 +453,33 @@ static const range_string le_psm_rvals[] = {
 
 void proto_register_btl2cap(void);
 void proto_reg_handoff_btl2cap(void);
+
+/* Reassembly */
+static reassembly_table btl2cap_le_msg_reassembly_table;
+
+static const fragment_items btl2cap_le_msg_frag_items = {
+    /* Fragment subtrees */
+    &ett_btl2cap_le_msg_fragment,
+    &ett_btl2cap_le_msg_fragments,
+    /* Fragment fields */
+    &hf_btl2cap_le_msg_fragments,
+    &hf_btl2cap_le_msg_fragment,
+    &hf_btl2cap_le_msg_fragment_overlap,
+    &hf_btl2cap_le_msg_fragment_overlap_conflicts,
+    &hf_btl2cap_le_msg_fragment_multiple_tails,
+    &hf_btl2cap_le_msg_fragment_too_long_fragment,
+    &hf_btl2cap_le_msg_fragment_error,
+    &hf_btl2cap_le_msg_fragment_count,
+    /* Reassembled in field */
+    &hf_btl2cap_le_msg_reassembled_in,
+    /* Reassembled length field */
+    &hf_btl2cap_le_msg_reassembled_length,
+    /* Reassembled data field */
+    NULL,
+    /* Tag */
+    "BTL2CAP LE Message fragments"
+};
+
 
 static void btl2cap_cid_prompt(packet_info *pinfo, gchar* result)
 {
@@ -1932,23 +1988,69 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-/* FIX ME, Basicly a copy of the code above, needs to be fixed.*/
+/* An LE-frame is a PDU used in LE Credit Based Flow Control Mode. It
+ * contains an SDU segment and additional protocol information, encapsulated
+ * by a Basic L2CAP header.
+ */
 static int
 dissect_le_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    proto_tree *btl2cap_tree, guint16 cid, guint16 psm,
-    gboolean is_local_psm, guint16 length, int offset, btl2cap_data_t *l2cap_data)
+    proto_tree *btl2cap_tree, guint16 cid, guint16 psm, gboolean is_local_psm,
+    guint16 length, int offset, config_data_t *config_data, btl2cap_data_t *l2cap_data)
 {
 
-    tvbuff_t *next_tvb;
-    /* FIX ME reassembly needed*/
-    next_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset), length);
+    tvbuff_t *new_tvb = NULL;
+    bluetooth_uuid_t   uuid;
+    btl2cap_frame_data_t *btl2cap_frame_data = NULL;
+    fragment_head *frag_btl2cap_le_msg = NULL;
+
+    if ((!pinfo->fd->flags.visited)&&(config_data)){
+        btl2cap_frame_data = wmem_new0(wmem_file_scope(), btl2cap_frame_data_t);
+        if (config_data->segmentation_started == 1) {
+            config_data->segment_len_rem = config_data->segment_len_rem - length;
+            if (config_data->segment_len_rem > 0) {
+                btl2cap_frame_data->more_fragments = 1;
+            } else {
+                btl2cap_frame_data->more_fragments = 0;
+                config_data->segmentation_started = 0;
+                config_data->segment_len_rem = 0;
+            }
+        } else {
+            /* First Frame in this SDU, SDU length is present*/
+            guint16 sdu_length;
+
+            sdu_length = tvb_get_letohs(tvb, offset);
+            btl2cap_frame_data->first_fragment = 1;
+            if (sdu_length == length - 2) {
+                /* Complete SDU no segmentation*/
+                btl2cap_frame_data->more_fragments = 0;
+                config_data->segmentation_started = 0;
+                config_data->segment_len_rem = 0;
+            }
+            else {
+                btl2cap_frame_data->more_fragments = 1;
+                config_data->segmentation_started = 1;
+                config_data->segment_len_rem = sdu_length - (length - 2);
+            }
+
+        }
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_btl2cap, pinfo->curr_layer_num, btl2cap_frame_data);
+    } else {
+        /* Not the first pass */
+        btl2cap_frame_data = (btl2cap_frame_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_btl2cap, pinfo->curr_layer_num);
+    }
 
     col_append_str(pinfo->cinfo, COL_INFO, "Connection oriented channel, LE Information frame");
+
+    if (!btl2cap_frame_data) {
+        /* Without frame data we do not have enough information to dissect the packet*/
+        proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
+        return tvb_captured_length(tvb);
+    }
+
 
     if (psm) {
         proto_item        *psm_item;
         guint16            bt_uuid;
-        bluetooth_uuid_t   uuid;
 
         if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM) == NULL) {
             guint16 *value_data;
@@ -1984,20 +2086,54 @@ dissect_le_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     val_to_str_ext_const(uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown service"));
         }
         PROTO_ITEM_SET_GENERATED(psm_item);
+    }/*psm*/
 
-        /* call next dissector */
-        proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
-
-        /* Fix reassembly and stuff */
-        offset = tvb_captured_length(tvb);
+    if (btl2cap_frame_data->first_fragment) {
+        proto_tree_add_item(btl2cap_tree, hf_btl2cap_le_sdu_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+        length = length - 2;
     }
-    else {
-        if (!dissector_try_uint_new(l2cap_cid_dissector_table, (guint32)cid, next_tvb, pinfo, tree, TRUE, l2cap_data))
-            proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
-        offset = tvb_captured_length(tvb);
+    pinfo->fragmented = TRUE;
+    frag_btl2cap_le_msg = fragment_add_seq_next(&btl2cap_le_msg_reassembly_table,
+        tvb, offset,
+        pinfo,
+        cid,                                  /* guint32 ID for fragments belonging together */
+        NULL,                                 /* data* */
+        length,                               /* Fragment length */
+        btl2cap_frame_data->more_fragments);  /* More fragments */
+
+    new_tvb = process_reassembled_data(tvb, offset, pinfo,
+        "Reassembled Message",
+        frag_btl2cap_le_msg,
+        &btl2cap_le_msg_frag_items,
+        NULL,
+        btl2cap_tree);
+
+    if (new_tvb) {
+        if (psm) {
+            if (!dissector_try_uint_new(l2cap_cid_dissector_table, (guint32)cid, new_tvb, pinfo, tree, TRUE, l2cap_data)) {
+                if (!dissector_try_uint_new(l2cap_psm_dissector_table, (guint32)psm, new_tvb, pinfo, tree, TRUE, l2cap_data)) {
+                    /* not a known fixed PSM, try to find a registered service to a dynamic PSM */
+                    if (!dissector_try_string(bluetooth_uuid_table, print_numeric_uuid(&uuid), new_tvb, pinfo, tree, l2cap_data)) {
+                        /* unknown protocol. declare as data */
+                        proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
+                    }
+                }
+            }
+        }
+        else {
+            /* call next dissector */
+            if (!dissector_try_uint_new(l2cap_cid_dissector_table, (guint32)cid, new_tvb, pinfo, tree, TRUE, l2cap_data)) {
+                proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
+            }
+        }
+        return tvb_captured_length(tvb);
     }
 
-    return offset;
+    col_set_str(pinfo->cinfo, COL_INFO, "L2CAP LE Fragment");
+    proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
+
+    return tvb_captured_length(tvb);;
 }
 
 static int
@@ -2627,7 +2763,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (config_data->mode == L2CAP_BASIC_MODE) {
                 offset = dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, cid, psm, psm_data->local_service, length, offset, l2cap_data);
             }else if (config_data->mode == L2CAP_LE_CREDIT_BASED_FLOW_CONTROL_MODE){
-                offset = dissect_le_frame(tvb, pinfo, tree, btl2cap_tree, cid, psm, psm_data->local_service, length, offset, l2cap_data);
+                offset = dissect_le_frame(tvb, pinfo, tree, btl2cap_tree, cid, psm, psm_data->local_service, length, offset, config_data, l2cap_data);
             } else {
                 control = tvb_get_letohs(tvb, offset);
                 if (control & 0x1) {
@@ -2645,6 +2781,18 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     return offset;
 }
 
+static void
+init_btl2cap(void)
+{
+    reassembly_table_init(&btl2cap_le_msg_reassembly_table,
+        &addresses_reassembly_table_functions);
+}
+
+static void
+cleanup_btl2cap(void)
+{
+    reassembly_table_destroy(&btl2cap_le_msg_reassembly_table);
+}
 
 /* Register the protocol with Wireshark */
 void
@@ -3118,6 +3266,62 @@ proto_register_btl2cap(void)
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_btl2cap_le_msg_fragments,
+        { "Message fragments", "btl2cap.le_msg.fragments",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_le_msg_fragment,
+        { "Message fragment", "btl2cap.le_msg.fragment",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_le_msg_fragment_overlap,
+        { "Message fragment overlap", "btl2cap.le_msg.fragment.overlap",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_le_msg_fragment_overlap_conflicts,
+        { "Message fragment overlapping with conflicting data", "btl2cap.le_msg.fragment.overlap.conflicts",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_le_msg_fragment_multiple_tails,
+        { "Message has multiple tail fragments", "btl2cap.le_msg.fragment.multiple_tails",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_le_msg_fragment_too_long_fragment,
+        { "Message fragment too long", "btl2cap.le_msg.fragment.too_long_fragment",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_le_msg_fragment_error,
+        { "Message defragmentation error", "btl2cap.le_msg.fragment.error",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_le_msg_fragment_count,
+        { "Message fragment count", "btl2cap.le_msg.fragment.count",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_le_msg_reassembled_in,
+        { "Reassembled in", "btl2cap.le_msg.reassembled.in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_le_msg_reassembled_length,
+        { "Reassembled btle length", "btl2cap.le_msg.reassembled.length",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_le_sdu_length,
+        { "SDU Length", "btl2cap.le_sdu_length",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+
     };
 
     /* Setup protocol subtree array */
@@ -3127,7 +3331,9 @@ proto_register_btl2cap(void)
         &ett_btl2cap_option,
         &ett_btl2cap_extfeatures,
         &ett_btl2cap_fixedchans,
-        &ett_btl2cap_control
+        &ett_btl2cap_control,
+        &ett_btl2cap_le_msg_fragment,
+        &ett_btl2cap_le_msg_fragments
     };
 
     static ei_register_info ei[] = {
@@ -3167,6 +3373,10 @@ proto_register_btl2cap(void)
 
     register_decode_as(&btl2cap_cid_da);
     register_decode_as(&btl2cap_psm_da);
+
+    register_init_routine(&init_btl2cap);
+    register_cleanup_routine(&cleanup_btl2cap);
+
 }
 
 
