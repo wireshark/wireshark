@@ -179,7 +179,7 @@ static const fragment_items btle_l2cap_msg_frag_items = {
     /* Reassembled data field */
     NULL,
     /* Tag */
-    "BTLE L2CAP Message fragments"
+    "BTLE L2CAP fragments"
 };
 
 /* Store information about a connection*/
@@ -868,7 +868,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     btle_frame_info->more_fragments);  /* More fragments */
 
                 new_tvb = process_reassembled_data(tvb, offset, pinfo,
-                    "Reassembled Message",
+                    "Reassembled L2CAP",
                     frag_btl2cap_msg,
                     &btle_l2cap_msg_frag_items,
                     NULL,
@@ -929,7 +929,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         TRUE);  /* More fragments */
 
                     process_reassembled_data(tvb, offset, pinfo,
-                        "Reassembled Message",
+                        "Reassembled L2CAP",
                         frag_btl2cap_msg,
                         &btle_l2cap_msg_frag_items,
                         NULL,
@@ -1564,52 +1564,52 @@ proto_register_btle(void)
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_fragments,
-        { "Message fragments", "btle.msg.fragments",
+        { "L2CAP fragments", "btle.l2cap.fragments",
             FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_fragment,
-        { "Message fragment", "btle.msg.fragment",
+        { "L2CAP fragment", "btle.l2cap.fragment",
             FT_FRAMENUM, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_fragment_overlap,
-        { "Message fragment overlap", "btle.msg.fragment.overlap",
+        { "L2CAP fragment overlap", "btle.l2cap.fragment.overlap",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_fragment_overlap_conflicts,
-        { "Message fragment overlapping with conflicting data", "btle.msg.fragment.overlap.conflicts",
+        { "L2CAP fragment overlapping with conflicting data", "btle.l2cap.fragment.overlap.conflicts",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_fragment_multiple_tails,
-        { "Message has multiple tail fragments", "btle.msg.fragment.multiple_tails",
+        { "L2CAP has multiple tail fragments", "btle.l2cap.fragment.multiple_tails",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_fragment_too_long_fragment,
-        { "Message fragment too long", "btle.msg.fragment.too_long_fragment",
+        { "L2CAP fragment too long", "btle.l2cap.fragment.too_long_fragment",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_fragment_error,
-        { "Message defragmentation error", "btle.msg.fragment.error",
+        { "L2CAP defragmentation error", "btle.l2cap.fragment.error",
             FT_FRAMENUM, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_fragment_count,
-        { "Message fragment count", "btle.msg.fragment.count",
+        { "L2CAP fragment count", "btle.l2cap.fragment.count",
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_reassembled_in,
-        { "Reassembled in", "btle.msg.reassembled.in",
+        { "Reassembled in", "btle.l2cap.reassembled.in",
             FT_FRAMENUM, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_reassembled_length,
-        { "Reassembled btle length", "btle.msg.reassembled.length",
+        { "Reassembled L2CAP length", "btle.l2cap.reassembled.length",
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
