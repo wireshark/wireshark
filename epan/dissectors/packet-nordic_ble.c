@@ -27,7 +27,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <wiretap/pcap-encap.h>
 
 #include "packet-btle.h"
 
