@@ -58,7 +58,6 @@
 #include <wsutil/report_err.h>
 
 #include <wiretap/merge.h>
-#include <wiretap/pcap-encap.h>
 
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
