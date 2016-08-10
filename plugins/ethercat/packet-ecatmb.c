@@ -700,7 +700,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
             init_sdo_info_header(&info, tvb, offset);
 
             col_append_str(pinfo->cinfo, COL_INFO, val_to_str(info.anSdoControlUnion.v.OpCode & 0x7F, CANopenSdoInfo, "%d (Unknown)"));
-            if ( (info.anSdoControlUnion.v.OpCode & 0x80) != 0 )
+            if ( info.anSdoControlUnion.v.InComplete )
                 col_append_str(pinfo->cinfo, COL_INFO, " - More Follows");
 
             if( tree )
