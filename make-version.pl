@@ -137,7 +137,7 @@ sub read_repo_info {
 		$package_format = $version_pref{"pkg_format"};
 	}
 
-	if (-d "$srcdir/.git" && ! -d "$srcdir/.git/svn") {
+	if (-e "$srcdir/.git" && ! -d "$srcdir/.git/svn") {
 		$info_source = "Command line (git)";
 		$version_pref{"git_client"} = 1;
 	} elsif (-d "$srcdir/.svn" or -d "$srcdir/../.svn") {
@@ -255,7 +255,7 @@ sub read_repo_info {
 		unlink($tortoise_file);
 	}
 
-	if ($num_commits == 0 and -d "$srcdir/.git") {
+	if ($num_commits == 0 and -e "$srcdir/.git") {
 
 		# Try git...
 		eval {
