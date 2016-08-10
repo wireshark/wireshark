@@ -342,6 +342,16 @@ static int hf_response_in_frame = -1;
 static int hf_command_response_time_delta = -1;
 static int hf_pending_in_frame = -1;
 static int hf_command_pending_time_delta = -1;
+static int hf_bthci_cmd_le_tx_octets = -1;
+static int hf_bthci_cmd_le_tx_time = -1;
+static int hf_bthci_cmd_le_suggested_max_tx_octets = -1;
+static int hf_bthci_cmd_le_suggested_max_tx_time = -1;
+static int hf_bthci_cmd_le_remote_p_256_public_key = -1;
+static int hf_bthci_cmd_le_peer_irk = -1;
+static int hf_bthci_cmd_le_local_irk = -1;
+static int hf_bthci_cmd_le_address_resolution_enable = -1;
+static int hf_bthci_cmd_le_rpa_timeout = -1;
+
 
 static const int *hfx_bthci_cmd_le_event_mask[] = {
     &hf_bthci_cmd_le_event_mask_le_reserved,
@@ -1265,12 +1275,18 @@ const value_string bthci_cmd_oob_data_present_vals[] = {
 };
 
 static const value_string bthci_cmd_auth_req_vals[] = {
-    {0x00, "MITM Protection Not Required - No Bonding. Numeric Comparison, Automatic Accept Allowed" },
-    {0x01, "MITM Protection Required - No Bonding. Use IO Capabilty To Determine Procedure" },
-    {0x02, "MITM Protection Not Required - Dedicated Bonding. Numeric Comparison, Automatic Accept Allowed" },
-    {0x03, "MITM Protection Required - Dedicated Bonding. Use IO Capabilty To Determine Procedure" },
-    {0x04, "MITM Protection Not Required - General Bonding. Numeric Comparison, Automatic Accept Allowed" },
-    {0x05, "MITM Protection Required - General Bonding. Use IO Capabilty To Determine Procedure" },
+    {0x00, "MITM Protection Not Required - No Bonding. Numeric Comparison, Automatic Accept Allowed, No Secure Connection" },
+    {0x01, "MITM Protection Required - No Bonding. Use IO Capabilty To Determine Procedure, No Secure Connection" },
+    {0x02, "MITM Protection Not Required - Dedicated Bonding. Numeric Comparison, Automatic Accept Allowed, No Secure Connection" },
+    {0x03, "MITM Protection Required - Dedicated Bonding. Use IO Capabilty To Determine Procedure, No Secure Connection" },
+    {0x04, "MITM Protection Not Required - General Bonding. Numeric Comparison, Automatic Accept Allowed, No Secure Connection" },
+    {0x05, "MITM Protection Required - General Bonding. Use IO Capabilty To Determine Procedure, No Secure Connection" },
+    {0x08, "MITM Protection Not Required - No Bonding. Numeric Comparison, Automatic Accept Allowed, Secure Connection" },
+    {0x09, "MITM Protection Required - No Bonding. Use IO Capabilty To Determine Procedure, Secure Connection" },
+    {0x0A, "MITM Protection Not Required - Dedicated Bonding. Numeric Comparison, Automatic Accept Allowed,  Secure Connection" },
+    {0x0B, "MITM Protection Required - Dedicated Bonding. Use IO Capabilty To Determine Procedure, Secure Connection " },
+    {0x0C, "MITM Protection Not Required - General Bonding. Numeric Comparison, Automatic Accept Allowed, Secure Connection" },
+    {0x0D, "MITM Protection Required - General Bonding. Use IO Capabilty To Determine Procedure, Secure Connection" },
     {   0, NULL }
 };
 value_string_ext bthci_cmd_auth_req_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_auth_req_vals);
@@ -1571,6 +1587,12 @@ static const value_string cmd_le_test_pkt_payload[] = {
     { 0x05, "Pattern Of All '0' bits" },
     { 0x06, "Pattern Of Alternating Bits '00001111'" },
     { 0x07, "Pattern Of Alternating Bits '0101'" },
+    { 0, NULL }
+};
+
+static const value_string cmd_le_address_resolution_enable[] = {
+    { 0x00, "Address Resolution in controller disabled (default)" },
+    { 0x01, "Address Resolution in controller enabled" },
     { 0, NULL }
 };
 
@@ -3216,6 +3238,98 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             proto_tree_add_item(tree, hf_bthci_cmd_test_packet_payload, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             break;
+
+        case 0x0020: /*LE Remote Connection Parameter Request Reply */
+            proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_le_con_interval_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset)*1.25);
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_le_con_interval_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset)*1.25);
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_le_con_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (number events)");
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g sec)",  tvb_get_letohs(tvb, offset)*0.01);
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_le_min_ce_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_le_max_ce_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
+            offset+=2;
+            break;
+
+        case 0x0021: /*  LE Remote Connection Parameter Request Negative Reply */
+            proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_cmd_reason, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            break;
+
+        case 0x0022: /* LE Set Data Length */
+            proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_cmd_le_tx_octets, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            sub_item = proto_tree_add_item(tree, hf_bthci_cmd_le_tx_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(sub_item, " (%d usec)",  tvb_get_letohs(tvb, offset));
+            offset+=2;
+            break;
+
+        case 0x0024: /* LE Write Suggested Default Data Length */
+            proto_tree_add_item(tree, hf_bthci_cmd_le_suggested_max_tx_octets, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_cmd_le_suggested_max_tx_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            break;
+
+        case 0x0026: /* LE Generate DHKey */
+            proto_tree_add_item(tree, hf_bthci_cmd_le_remote_p_256_public_key, tvb, offset, 64, ENC_NA);
+            offset+=64;
+            break;
+
+        case 0x0027:  /* LE Add Device to Resolving List */
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_irk, tvb, offset, 16, ENC_NA);
+            offset+=16;
+            proto_tree_add_item(tree, hf_bthci_cmd_le_local_irk, tvb, offset, 16, ENC_NA);
+            offset+=16;
+            break;
+
+        case 0x0028: /*  LE Remove Device From Resolving List */
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+            break;
+
+        case 0x002B: /*   LE Read Peer Resolvable Address */
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+            break;
+
+        case 0x002C: /*      LE Read Local Resolvable Address" */
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+            break;
+
+        case 0x002D: /* Set Address Resolution Enable */
+            proto_tree_add_item(tree, hf_bthci_cmd_le_address_resolution_enable, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            break;
+
+        case 0x002E: /* LE Set Resolvable Private Address Timeout */
+            item = proto_tree_add_item(tree, hf_bthci_cmd_le_rpa_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%d sec)",  tvb_get_letohs(tvb, offset));
+            offset+=2;
+            break;
+
         case 0x002: /* LE Read Buffer Size */
         case 0x003: /* LE Read Local Supported Features */
         case 0x007: /* LE Read Advertising Channel Tx Power */
@@ -3225,6 +3339,12 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
         case 0x018: /* LE Rand */
         case 0x01C: /* LE Read Supported States */
         case 0x01F: /* LE Test End */
+        case 0x023: /* LE Read Suggested Default Data Length */
+        case 0x025: /* LE Read Local P-256 Public Key */
+        case 0x029: /* LE Clear Resolving List */
+        case 0x02A: /* LE Read Resolving List Size */
+        case 0x02F: /* LE Read Maximum Data Length */
+
             /* NOTE: No parameters */
             break;
 
@@ -4974,6 +5094,51 @@ proto_register_bthci_cmd(void)
         { &hf_command_pending_time_delta,
             { "Command-Pending Delta",          "bthci_cmd.command_pending_delta",
             FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_tx_octets,
+          { "TxOctets", "bthci_cmd.le_tx_octets",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_tx_time,
+          { "TxTime", "bthci_cmd.le_tx_time",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_suggested_max_tx_octets,
+          { "SuggestedMaxTxOctets", "bthci_cmd.le_suggested_max_tx_octets",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_suggested_max_tx_time,
+          { "SuggestedMaxTxTime", "bthci_cmd.le_suggested_max_tx_time",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_remote_p_256_public_key,
+          { "Remote_P-256_Public_Key", "bthci_cmd.le_remote_p_256_public_key",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_peer_irk,
+          { "Peer IRK", "bthci_cmd.le_peer_irk",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_local_irk,
+          { "Local IRK", "bthci_cmd.le_local_irk",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_address_resolution_enable,
+          { "Address Resolution Enable", "bthci_cmd.le_address_resolution_enable",
+            FT_UINT8, BASE_HEX, VALS(cmd_le_address_resolution_enable), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_rpa_timeout,
+          { "RPA Timeout", "bthci_cmd.le_rpa_timeout",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
     };
