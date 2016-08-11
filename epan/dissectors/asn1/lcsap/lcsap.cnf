@@ -26,7 +26,7 @@ Presence
 TriggeringMessage
 ProtocolIE-ContainerList
 Message-Identifier
-
+Bearing
 #.END
 
 
@@ -268,7 +268,10 @@ id-Location-Estimate                ProtocolIE-ID
 id-Source-Identity                  ProtocolIE-ID
 id-Destination-ID                   ProtocolIE-ID
 id-LCS-Service-Type-ID              ProtocolIE-ID
-
+id-Additional-PositioningDataSet    ProtocolIE-ID
+id-Barometric-Pressure              ProtocolIE-ID
+id-Cell-Portion-ID                  ProtocolIE-ID
+id-Civic-Address                    ProtocolIE-ID
 
 #.REGISTER
 
@@ -298,24 +301,24 @@ Velocity-Estimate                       N lcsap.ies id-Velocity-Estimate
 
 #LCS-AP-PROTOCOL-EXTENSION
 LCS-Service-Type-ID                     N lcsap.extension id-LCS-Service-Type-ID
+Additional-PositioningDataSet           N lcsap.extension id-Additional-PositioningDataSet
+Barometric-Pressure                     N lcsap.extension id-Barometric-Pressure
+Cell-Portion-ID                         N lcsap.extension id-Cell-Portion-ID
+Civic-Address                           N lcsap.extension id-Civic-Address
+Location-Request                        N lcsap.proc.imsg id-Location-Service-Request
+Location-Response                       N lcsap.proc.sout id-Location-Service-Request
+Location-Response                       N lcsap.proc.uout id-Location-Service-Request
 
+Connection-Oriented-Information         N lcsap.proc.imsg id-Connection-Oriented-Information-Transfer
 
+Connectionless-Information              N lcsap.proc.imsg id-Connectionless-Information-Transfer
+Connectionless-Information              N lcsap.proc.uout id-Connectionless-Information-Transfer
 
+Location-Abort-Request                  N lcsap.proc.imsg id-Location-Abort
+Location-Response                       N lcsap.proc.sout id-Location-Abort
 
-Location-Request                       N lcsap.proc.imsg id-Location-Service-Request
-Location-Response                      N lcsap.proc.sout id-Location-Service-Request
-Location-Response                      N lcsap.proc.uout id-Location-Service-Request
-
-Connection-Oriented-Information        N lcsap.proc.imsg id-Connection-Oriented-Information-Transfer
-
-Connectionless-Information             N lcsap.proc.imsg id-Connectionless-Information-Transfer
-Connectionless-Information             N lcsap.proc.uout id-Connectionless-Information-Transfer
-
-Location-Abort-Request                 N lcsap.proc.imsg id-Location-Abort
-Location-Response                      N lcsap.proc.sout id-Location-Abort
-
-Reset-Request                          N lcsap.proc.imsg id-Reset
-Reset-Acknowledge                      N lcsap.proc.sout id-Reset
+Reset-Request                           N lcsap.proc.imsg id-Reset
+Reset-Acknowledge                       N lcsap.proc.sout id-Reset
 
 
 

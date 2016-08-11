@@ -1,4 +1,4 @@
--- ETSI TS 129 171 V11.1.0 (2012-03)
+-- ETSI TS 129 171 V13.2.0 (2016-03)
 --
 -- 7.5.4	PDU definitions
 -- ************************************************************** 
@@ -24,7 +24,10 @@ BEGIN
 IMPORTS
 	
 	APDU,
-	Accuracy-Fulfillment-Indicator,
+	Accuracy-Fulfillment-Indicator, 
+	Barometric-Pressure,
+	Cell-Portion-ID,
+	Civic-Address,
 	Correlation-ID,
 	E-CGI,
 	Geographical-Area,
@@ -54,7 +57,10 @@ FROM LCS-AP-IEs
 FROM LCS-AP-Containers
 
 	id-Accuracy-Fulfillment-Indicator,
-	id-APDU,
+	id-APDU, 
+	id-Barometric-Pressure,
+	id-Cell-Portion-ID,
+	id-Civic-Address,
 	id-Correlation-ID,
 	id-Destination-ID,
 	id-E-UTRAN-Cell-Identifier,
@@ -136,6 +142,10 @@ Location-Response-IEs LCS-AP-PROTOCOL-IES ::= {
 
 
 Location-Response-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
+{ ID id-E-UTRAN-Cell-Identifier				CRITICALITY ignore 	EXTENSION E-CGI		PRESENCE optional  },
+{ ID id-Cell-Portion-ID						CRITICALITY ignore 	EXTENSION Cell-Portion-ID			PRESENCE optional  } |
+{ ID id-Civic-Address						CRITICALITY ignore 	EXTENSION Civic-Address			PRESENCE optional  } |
+{ ID id-Barometric-Pressure					CRITICALITY ignore 	EXTENSION Barometric-Pressure	PRESENCE optional  },
 	...
 }
 

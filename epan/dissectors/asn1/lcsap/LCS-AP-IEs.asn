@@ -1,4 +1,4 @@
--- ETSI TS 129 171 V11.1.0 (2012-03)
+-- ETSI TS 129 171 V13.2.0 (2016-03)
 --
 -- 7.5.5	Information element definitions
 -- ************************************************************** 
@@ -20,7 +20,8 @@ IMPORTS
 
 	max-No-Of-Points,
 	max-Set,
-	max-GNSS-Set
+	max-GNSS-Set,
+	max-Add-Pos-Set
 FROM LCS-AP-Constants
 
 	Criticality,
@@ -45,6 +46,10 @@ Accuracy-Fulfillment-Indicator ::= ENUMERATED {
 	...
 }
 
+Additional-PositioningDataSet ::= SEQUENCE(SIZE(1..max-Add-Pos-Set)) OF Additional-PositioningMethodAndUsage
+
+Additional-PositioningMethodAndUsage ::= OCTET STRING (SIZE(1))
+
 Altitude ::= INTEGER (0..65535)
 -- The valid value for this IE is 0 to 32767.
 -- Reception of value greater than 32767 shall be mapped to the value 32767.
@@ -59,14 +64,20 @@ Altitude-And-Direction ::= SEQUENCE {
 Angle ::= INTEGER (0..179)
 
 -- B
--- WS mod
--- Bearing ::= INTEGER (0..359)
+
+Barometric-Pressure ::= INTEGER (30000..115000)
+
+Bearing ::= INTEGER (0..359)
 
 
 -- C
 
 
 CellIdentity		::= BIT STRING (SIZE (28))
+
+Cell-Portion-ID 	::= INTEGER (0..255,...)
+
+Civic-Address		::=	OCTET STRING
 
 Confidence			::= INTEGER (0..100)
 
@@ -408,6 +419,7 @@ Positioning-Data 				::= SEQUENCE {
 	}
 
 Positioning-Data-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-Additional-PositioningDataSet			CRITICALITY ignore	EXTENSION Additional-PositioningDataSet				PRESENCE optional },
 	...
 }
 

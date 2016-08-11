@@ -70,6 +70,7 @@ static dissector_handle_t lppa_handle;
 #define max_No_Of_Points               15
 #define max_Set                        9
 #define max_GNSS_Set                   9
+#define max_Add_Pos_Set                8
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
 
@@ -104,7 +105,11 @@ typedef enum _ProtocolIE_ID_enum {
   id_Source_Identity =  19,
   id_UE_Positioning_Capability =  20,
   id_Velocity_Estimate =  21,
-  id_LCS_Service_Type_ID =  22
+  id_LCS_Service_Type_ID =  22,
+  id_Cell_Portion_ID =  23,
+  id_Civic_Address =  24,
+  id_Barometric_Pressure =  25,
+  id_Additional_PositioningDataSet =  26
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-lcsap-val.h ---*/
@@ -123,6 +128,10 @@ static int hf_lcsap_gnss_pos_usage = -1;
 #line 1 "./asn1/lcsap/packet-lcsap-hf.c"
 static int hf_lcsap_APDU_PDU = -1;                /* APDU */
 static int hf_lcsap_Accuracy_Fulfillment_Indicator_PDU = -1;  /* Accuracy_Fulfillment_Indicator */
+static int hf_lcsap_Additional_PositioningDataSet_PDU = -1;  /* Additional_PositioningDataSet */
+static int hf_lcsap_Barometric_Pressure_PDU = -1;  /* Barometric_Pressure */
+static int hf_lcsap_Cell_Portion_ID_PDU = -1;     /* Cell_Portion_ID */
+static int hf_lcsap_Civic_Address_PDU = -1;       /* Civic_Address */
 static int hf_lcsap_lcsap_Correlation_ID_PDU = -1;  /* Correlation_ID */
 static int hf_lcsap_E_CGI_PDU = -1;               /* E_CGI */
 static int hf_lcsap_Geographical_Area_PDU = -1;   /* Geographical_Area */
@@ -158,6 +167,7 @@ static int hf_lcsap_ie_field_value = -1;          /* T_ie_field_value */
 static int hf_lcsap_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
 static int hf_lcsap_ext_id = -1;                  /* ProtocolExtensionID */
 static int hf_lcsap_extensionValue = -1;          /* T_extensionValue */
+static int hf_lcsap_Additional_PositioningDataSet_item = -1;  /* Additional_PositioningMethodAndUsage */
 static int hf_lcsap_direction_Of_Altitude = -1;   /* Direction_Of_Altitude */
 static int hf_lcsap_altitude = -1;                /* Altitude */
 static int hf_lcsap_pLMNidentity = -1;            /* PLMN_ID */
@@ -245,6 +255,7 @@ static gint ett_lcsap_ProtocolIE_Container = -1;
 static gint ett_lcsap_ProtocolIE_Field = -1;
 static gint ett_lcsap_ProtocolExtensionContainer = -1;
 static gint ett_lcsap_ProtocolExtensionField = -1;
+static gint ett_lcsap_Additional_PositioningDataSet = -1;
 static gint ett_lcsap_Altitude_And_Direction = -1;
 static gint ett_lcsap_E_CGI = -1;
 static gint ett_lcsap_Ellipsoid_Point_With_Uncertainty_Ellipse = -1;
@@ -494,6 +505,10 @@ static const value_string lcsap_ProtocolIE_ID_vals[] = {
   { id_UE_Positioning_Capability, "id-UE-Positioning-Capability" },
   { id_Velocity_Estimate, "id-Velocity-Estimate" },
   { id_LCS_Service_Type_ID, "id-LCS-Service-Type-ID" },
+  { id_Cell_Portion_ID, "id-Cell-Portion-ID" },
+  { id_Civic_Address, "id-Civic-Address" },
+  { id_Barometric_Pressure, "id-Barometric-Pressure" },
+  { id_Additional_PositioningDataSet, "id-Additional-PositioningDataSet" },
   { 0, NULL }
 };
 
@@ -645,6 +660,30 @@ dissect_lcsap_Accuracy_Fulfillment_Indicator(tvbuff_t *tvb _U_, int offset _U_, 
 
 
 static int
+dissect_lcsap_Additional_PositioningMethodAndUsage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, 1, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t Additional_PositioningDataSet_sequence_of[1] = {
+  { &hf_lcsap_Additional_PositioningDataSet_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_Additional_PositioningMethodAndUsage },
+};
+
+static int
+dissect_lcsap_Additional_PositioningDataSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lcsap_Additional_PositioningDataSet, Additional_PositioningDataSet_sequence_of,
+                                                  1, max_Add_Pos_Set, FALSE);
+
+  return offset;
+}
+
+
+
+static int
 dissect_lcsap_Altitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, NULL, FALSE);
@@ -696,9 +735,39 @@ dissect_lcsap_Angle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 
 static int
+dissect_lcsap_Barometric_Pressure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            30000U, 115000U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
 dissect_lcsap_CellIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      28, 28, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lcsap_Cell_Portion_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, TRUE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lcsap_Civic_Address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, NULL);
 
   return offset;
 }
@@ -2004,6 +2073,38 @@ static int dissect_Accuracy_Fulfillment_Indicator_PDU(tvbuff_t *tvb _U_, packet_
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Additional_PositioningDataSet_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lcsap_Additional_PositioningDataSet(tvb, offset, &asn1_ctx, tree, hf_lcsap_Additional_PositioningDataSet_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Barometric_Pressure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lcsap_Barometric_Pressure(tvb, offset, &asn1_ctx, tree, hf_lcsap_Barometric_Pressure_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Cell_Portion_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lcsap_Cell_Portion_ID(tvb, offset, &asn1_ctx, tree, hf_lcsap_Cell_Portion_ID_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Civic_Address_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lcsap_Civic_Address(tvb, offset, &asn1_ctx, tree, hf_lcsap_Civic_Address_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 int dissect_lcsap_Correlation_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -2316,6 +2417,10 @@ proto_reg_handoff_lcsap(void)
   dissector_add_uint("lcsap.ies", id_UE_Positioning_Capability, create_dissector_handle(dissect_UE_Positioning_Capability_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_Velocity_Estimate, create_dissector_handle(dissect_Velocity_Estimate_PDU, proto_lcsap));
   dissector_add_uint("lcsap.extension", id_LCS_Service_Type_ID, create_dissector_handle(dissect_LCS_Service_Type_ID_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.extension", id_Additional_PositioningDataSet, create_dissector_handle(dissect_Additional_PositioningDataSet_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.extension", id_Barometric_Pressure, create_dissector_handle(dissect_Barometric_Pressure_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.extension", id_Cell_Portion_ID, create_dissector_handle(dissect_Cell_Portion_ID_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.extension", id_Civic_Address, create_dissector_handle(dissect_Civic_Address_PDU, proto_lcsap));
   dissector_add_uint("lcsap.proc.imsg", id_Location_Service_Request, create_dissector_handle(dissect_Location_Request_PDU, proto_lcsap));
   dissector_add_uint("lcsap.proc.sout", id_Location_Service_Request, create_dissector_handle(dissect_Location_Response_PDU, proto_lcsap));
   dissector_add_uint("lcsap.proc.uout", id_Location_Service_Request, create_dissector_handle(dissect_Location_Response_PDU, proto_lcsap));
@@ -2384,6 +2489,22 @@ void proto_register_lcsap(void) {
     { &hf_lcsap_Accuracy_Fulfillment_Indicator_PDU,
       { "Accuracy-Fulfillment-Indicator", "lcsap.Accuracy_Fulfillment_Indicator",
         FT_UINT32, BASE_DEC, VALS(lcsap_Accuracy_Fulfillment_Indicator_vals), 0,
+        NULL, HFILL }},
+    { &hf_lcsap_Additional_PositioningDataSet_PDU,
+      { "Additional-PositioningDataSet", "lcsap.Additional_PositioningDataSet",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_Barometric_Pressure_PDU,
+      { "Barometric-Pressure", "lcsap.Barometric_Pressure",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_Cell_Portion_ID_PDU,
+      { "Cell-Portion-ID", "lcsap.Cell_Portion_ID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_Civic_Address_PDU,
+      { "Civic-Address", "lcsap.Civic_Address",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lcsap_lcsap_Correlation_ID_PDU,
       { "Correlation-ID", "lcsap.Correlation_ID",
@@ -2524,6 +2645,10 @@ void proto_register_lcsap(void) {
     { &hf_lcsap_extensionValue,
       { "extensionValue", "lcsap.extensionValue_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_Additional_PositioningDataSet_item,
+      { "Additional-PositioningMethodAndUsage", "lcsap.Additional_PositioningMethodAndUsage",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lcsap_direction_Of_Altitude,
       { "direction-Of-Altitude", "lcsap.direction_Of_Altitude",
@@ -2826,6 +2951,7 @@ void proto_register_lcsap(void) {
     &ett_lcsap_ProtocolIE_Field,
     &ett_lcsap_ProtocolExtensionContainer,
     &ett_lcsap_ProtocolExtensionField,
+    &ett_lcsap_Additional_PositioningDataSet,
     &ett_lcsap_Altitude_And_Direction,
     &ett_lcsap_E_CGI,
     &ett_lcsap_Ellipsoid_Point_With_Uncertainty_Ellipse,

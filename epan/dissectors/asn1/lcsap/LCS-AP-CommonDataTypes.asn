@@ -1,4 +1,4 @@
--- ETSI TS 129 171 V11.1.0 (2012-03)
+-- ETSI TS 129 171 V13.2.0 (2016-03)
 -- 7.5.6	Common Definitions
 
 -- ************************************************************** 
@@ -28,3 +28,4 @@ ProtocolIE-ID		::= INTEGER (0..65535)
 TriggeringMessage	::= ENUMERATED {initiating-message, successful-outcome, unsuccessful-outcome, outcome}
 
 END
+
