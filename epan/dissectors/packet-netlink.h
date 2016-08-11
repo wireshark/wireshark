@@ -93,6 +93,10 @@ struct packet_netlink_data {
 
 typedef int netlink_attributes_cb_t(tvbuff_t *, void *data, proto_tree *, int nla_type, int offset, int len);
 
-int dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, proto_tree *tree, int offset, netlink_attributes_cb_t cb);
+int dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb);
+
+#define NLA_F_NESTED            0x8000
+#define NLA_F_NET_BYTEORDER     0x4000
+#define NLA_TYPE_MASK           0x3fff
 
 #endif /* __PACKET_NETLINK_H__ */

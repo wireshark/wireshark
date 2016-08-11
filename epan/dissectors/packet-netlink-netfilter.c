@@ -310,7 +310,7 @@ dissect_nfq_config_attrs(tvbuff_t *tvb, void *data _U_, proto_tree *tree, int nl
 
 static header_field_info hfi_nfq_config_attr NETLINK_NETFILTER_HFI_INIT =
 	{ "Type", "netlink-netfilter.queue.config_attr", FT_UINT16, BASE_DEC,
-	  VALS(nfq_config_attr_vals), 0x00, NULL, HFILL };
+	  VALS(nfq_config_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
 /* QUEUE - Packet and verdict */
 
@@ -592,7 +592,7 @@ dissect_nfq_attrs(tvbuff_t *tvb, void *data _U_, proto_tree *tree, int nla_type,
 
 static header_field_info hfi_nfq_attr NETLINK_NETFILTER_HFI_INIT =
 	{ "Type", "netlink-netfilter.queue.attr", FT_UINT16, BASE_DEC,
-	  VALS(nfq_attr_vals), 0x00, NULL, HFILL };
+	  VALS(nfq_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
 /* QUEUE - main */
 
@@ -605,11 +605,11 @@ dissect_netfilter_queue(tvbuff_t *tvb, netlink_netfilter_info_t *info, proto_tre
 
 	switch (type) {
 		case WS_NFQNL_MSG_CONFIG:
-			return dissect_netlink_attributes(tvb, &hfi_nfq_config_attr, ett_nfq_config_attr, info, tree, offset, dissect_nfq_config_attrs);
+			return dissect_netlink_attributes(tvb, &hfi_nfq_config_attr, ett_nfq_config_attr, info, tree, offset, -1, dissect_nfq_config_attrs);
 
 		case WS_NFQNL_MSG_PACKET:
 		case WS_NFQNL_MSG_VERDICT:
-			return dissect_netlink_attributes(tvb, &hfi_nfq_attr, ett_nfq_attr, info, tree, offset, dissect_nfq_attrs);
+			return dissect_netlink_attributes(tvb, &hfi_nfq_attr, ett_nfq_attr, info, tree, offset, -1, dissect_nfq_attrs);
 
 		case WS_NFQNL_MSG_VERDICT_BATCH:
 			/* TODO */

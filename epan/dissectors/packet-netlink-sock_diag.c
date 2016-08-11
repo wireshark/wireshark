@@ -350,7 +350,7 @@ static const value_string netlink_sock_diag_unix_attr_vals[] = {
 
 static header_field_info hfi_netlink_sock_diag_unix_attr NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Type", "netlink-sock_diag.unix_attr", FT_UINT16, BASE_DEC,
-	  VALS(netlink_sock_diag_unix_attr_vals), 0x00, NULL, HFILL };
+	  VALS(netlink_sock_diag_unix_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
 static header_field_info hfi_netlink_sock_diag_unix_name NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Name", "netlink-sock_diag.unix_name", FT_STRINGZ, STR_ASCII,
@@ -442,7 +442,7 @@ dissect_sock_diag_unix_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, prot
 	sock_diag_proto_tree_add_cookie(tree, info, tvb, offset);
 	offset += 8;
 
-	return dissect_netlink_attributes(tvb, &hfi_netlink_sock_diag_unix_attr, ett_netlink_sock_diag_attr, info, tree, offset, dissect_netlink_unix_sock_diag_reply_attrs);
+	return dissect_netlink_attributes(tvb, &hfi_netlink_sock_diag_unix_attr, ett_netlink_sock_diag_attr, info, tree, offset, -1, dissect_netlink_unix_sock_diag_reply_attrs);
 }
 
 /* AF_UNIX request */
@@ -539,7 +539,7 @@ static const value_string netlink_sock_diag_inet_attr_vals[] = {
 
 static header_field_info hfi_netlink_sock_diag_inet_attr NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Type", "netlink-sock_diag.inet_attr", FT_UINT16, BASE_DEC,
-	  VALS(netlink_sock_diag_inet_attr_vals), 0x00, NULL, HFILL };
+	  VALS(netlink_sock_diag_inet_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
 static int
 dissect_sock_diag_inet_attributes(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
@@ -699,7 +699,7 @@ dissect_sock_diag_inet_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, prot
 	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inode, tvb, offset, 4, info->encoding);
 	offset += 4;
 
-	return dissect_netlink_attributes(tvb, &hfi_netlink_sock_diag_inet_attr, ett_netlink_sock_diag_attr, info, tree, offset, dissect_sock_diag_inet_attributes);
+	return dissect_netlink_attributes(tvb, &hfi_netlink_sock_diag_inet_attr, ett_netlink_sock_diag_attr, info, tree, offset, -1, dissect_sock_diag_inet_attributes);
 }
 
 /* AF_INET request */
@@ -742,7 +742,7 @@ static const value_string netlink_sock_diag_netlink_vals[] = {
 
 static header_field_info hfi_netlink_sock_diag_netlink_attr NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Type", "netlink-sock_diag.netlink_attr", FT_UINT16, BASE_DEC,
-	  VALS(netlink_sock_diag_netlink_vals), 0x00, NULL, HFILL };
+	  VALS(netlink_sock_diag_netlink_vals), NLA_TYPE_MASK, NULL, HFILL };
 
 static int
 dissect_sock_diag_netlink_attributes(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
@@ -815,7 +815,7 @@ dissect_sock_diag_netlink_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, p
 	sock_diag_proto_tree_add_cookie(tree, info, tvb, offset);
 	offset += 8;
 
-	return dissect_netlink_attributes(tvb, &hfi_netlink_sock_diag_netlink_attr, ett_netlink_sock_diag_attr, info, tree, offset, dissect_sock_diag_netlink_attributes);
+	return dissect_netlink_attributes(tvb, &hfi_netlink_sock_diag_netlink_attr, ett_netlink_sock_diag_attr, info, tree, offset, -1, dissect_sock_diag_netlink_attributes);
 }
 
 /* AF_NETLINK request */
@@ -917,7 +917,7 @@ static const value_string netlink_sock_diag_packet_vals[] = {
 
 static header_field_info hfi_netlink_sock_diag_packet_attr NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Type", "netlink-sock_diag.netlink_attr", FT_UINT16, BASE_DEC,
-	  VALS(netlink_sock_diag_packet_vals), 0x00, NULL, HFILL };
+	  VALS(netlink_sock_diag_packet_vals), NLA_TYPE_MASK, NULL, HFILL };
 
 /* AF_PACKET */
 
@@ -943,7 +943,7 @@ dissect_sock_diag_packet_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, pr
 	sock_diag_proto_tree_add_cookie(tree, info, tvb, offset);
 	offset += 8;
 
-	return dissect_netlink_attributes(tvb, &hfi_netlink_sock_diag_packet_attr, ett_netlink_sock_diag_attr, info, tree, offset, dissect_netlink_packet_sock_diag_reply_attrs);
+	return dissect_netlink_attributes(tvb, &hfi_netlink_sock_diag_packet_attr, ett_netlink_sock_diag_attr, info, tree, offset, -1, dissect_netlink_packet_sock_diag_reply_attrs);
 }
 
 /* AF_PACKET request */

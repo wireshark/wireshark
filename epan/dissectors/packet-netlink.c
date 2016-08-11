@@ -166,6 +166,18 @@ static header_field_info hfi_netlink_hdr_pid NETLINK_HFI_INIT =
 	{ "Port ID", "netlink.hdr_pid", FT_UINT32, BASE_DEC,
 		NULL, 0x00, "Sender port ID", HFILL };
 
+static header_field_info hfi_netlink_attr_type NETLINK_HFI_INIT =
+	{ "Type", "netlink.attr_type", FT_UINT16, BASE_HEX,
+		NULL, 0x0000, "Netlink Attribute type", HFILL };
+
+static header_field_info hfi_netlink_attr_type_nested NETLINK_HFI_INIT =
+	{ "Nested", "netlink.attr_type.nested", FT_UINT16, BASE_DEC,
+		NULL, NLA_F_NESTED, "Carries nested attributes", HFILL };
+
+static header_field_info hfi_netlink_attr_type_net_byteorder NETLINK_HFI_INIT =
+	{ "Network byte order", "netlink.attr_type.net_byteorder", FT_UINT16, BASE_DEC,
+		NULL, NLA_F_NET_BYTEORDER, "Payload stored in network byte order", HFILL };
+
 static header_field_info hfi_netlink_attr_len NETLINK_HFI_INIT =
 	{ "Len", "netlink.attr_len", FT_UINT16, BASE_DEC,
 		NULL, 0x00, NULL, HFILL };
@@ -179,6 +191,7 @@ static gint ett_netlink_cooked = -1;
 static gint ett_netlink_msghdr = -1;
 static gint ett_netlink_msg = -1;
 static gint ett_netlink_hdr_flags = -1;
+static gint ett_netlink_attr_type = -1;
 
 static dissector_table_t netlink_dissector_table;
 
@@ -214,17 +227,23 @@ static const int *netlink_header_new_flags[] = {
 
 
 int
-dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, proto_tree *tree, int offset, netlink_attributes_cb_t cb)
+dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb)
 {
+	int padding = (4 - offset) & 3;
+
 	/* align to 4 */
-	offset = (offset + 3) & ~3;
+	offset += padding;
+	if (length == -1) {
+		length = tvb_captured_length_remaining(tvb, offset);
+	} else {
+		length -= padding;
+	}
 
-	while (tvb_captured_length_remaining(tvb, offset) >= 4) {
-		guint16 rta_len, rta_type;
-		int end_offset;
+	while (length >= 4) {
+		guint16 rta_len, rta_type, type;
 
-		proto_item *ti;
-		proto_tree *attr_tree;
+		proto_item *ti, *type_item;
+		proto_tree *attr_tree, *type_tree;
 
 		rta_len = tvb_get_letohs(tvb, offset);
 		if (rta_len < 4) {
@@ -232,35 +251,44 @@ dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, 
 			break;
 		}
 
-		end_offset = (offset + rta_len + 3) & ~3;
-		/* Padding could be missing from the last attribute. */
-		end_offset = MIN(end_offset, (int)tvb_captured_length(tvb));
+		/* XXX expert info when rta_len < length? */
+		rta_len = MIN(rta_len, length);
 
-		attr_tree = proto_tree_add_subtree(tree, tvb, offset, end_offset - offset, ett, &ti, "Attribute");
+		attr_tree = proto_tree_add_subtree(tree, tvb, offset, rta_len, ett, &ti, "Attribute");
 
 		proto_tree_add_item(attr_tree, &hfi_netlink_attr_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		rta_type = tvb_get_letohs(tvb, offset);
-		proto_tree_add_item(attr_tree, hfi_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		type = rta_type & NLA_TYPE_MASK;
+		type_item = proto_tree_add_item(attr_tree, &hfi_netlink_attr_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		type_tree = proto_item_add_subtree(type_item, ett_netlink_attr_type);
+		proto_tree_add_item(type_tree, &hfi_netlink_attr_type_nested, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(type_tree, &hfi_netlink_attr_type_net_byteorder, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(type_tree, hfi_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
+
+		if (rta_type & NLA_F_NESTED)
+			proto_item_append_text(type_item, ", Nested");
 
 		if (hfi_type->strings) {
 			/* XXX, export hf_try_val_to_str */
-			const char *rta_str = try_val_to_str(rta_type, (const value_string *) hfi_type->strings);
+			const char *rta_str = try_val_to_str(type, (const value_string *) hfi_type->strings);
 
-			if (rta_str)
+			if (rta_str) {
+				proto_item_append_text(type_item, ", %s (%d)", rta_str, type);
 				proto_item_append_text(ti, ": %s", rta_str);
+			}
 		}
 
 		if (!cb(tvb, data, attr_tree, rta_type, offset, rta_len - 4)) {
 			/* not handled */
 		}
 
-		if (end_offset <= offset)
-			break;
-
-		offset = end_offset;
+		/* Assume offset already aligned, next offset is rta_len plus alignment. */
+		rta_len = MIN((rta_len + 3) & ~3, length);
+		offset += rta_len - 4;  /* Header was already skipped */
+		length -= rta_len;
 	}
 
 	return offset;
@@ -439,6 +467,9 @@ proto_register_netlink(void)
 
 	/* Netlink message attribute */
 		&hfi_netlink_attr_len,
+		&hfi_netlink_attr_type,
+		&hfi_netlink_attr_type_nested,
+		&hfi_netlink_attr_type_net_byteorder,
 
 	/* Netlink message payloads */
 		&hfi_netlink_error,
@@ -449,7 +480,8 @@ proto_register_netlink(void)
 		&ett_netlink_cooked,
 		&ett_netlink_msghdr,
 		&ett_netlink_msg,
-		&ett_netlink_hdr_flags
+		&ett_netlink_hdr_flags,
+		&ett_netlink_attr_type,
 	};
 
 	int proto_netlink;
