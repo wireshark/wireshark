@@ -146,7 +146,6 @@ static expert_field ei_access_address_matched = EI_INIT;
 static expert_field ei_access_address_bit_errors = EI_INIT;
 static expert_field ei_access_address_illegal = EI_INIT;
 static expert_field ei_crc_cannot_be_determined = EI_INIT;
-static expert_field ei_crc_correct = EI_INIT;
 static expert_field ei_crc_incorrect = EI_INIT;
 
 static dissector_handle_t btle_handle;
@@ -1159,8 +1158,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         expert_add_info(pinfo, sub_item, &ei_crc_incorrect);
         break;
     case CRC_CORRECT:
-        expert_add_info(pinfo, sub_item, &ei_crc_correct);
-        break;
     default:
         break;
     }
@@ -1627,8 +1624,6 @@ proto_register_btle(void)
             { "btle.access_address.illegal",    PI_PROTOCOL, PI_ERROR, "AccessAddress has illegal value", EXPFILL }},
         { &ei_crc_cannot_be_determined,
             { "btle.crc.indeterminate",         PI_CHECKSUM, PI_NOTE,  "CRC unchecked, not all data available", EXPFILL }},
-        { &ei_crc_correct,
-            { "btle.crc.correct",               PI_CHECKSUM, PI_CHAT,  "Correct CRC", EXPFILL }},
         { &ei_crc_incorrect,
             { "btle.crc.incorrect",             PI_CHECKSUM, PI_WARN,  "Incorrect CRC", EXPFILL }},
     };
