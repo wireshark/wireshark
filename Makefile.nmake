@@ -1059,7 +1059,7 @@ process_libs:
 !ENDIF
 !IFDEF LUA_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		lua5.2.3 \
+		lua5.2.4 \
 		lua$(LUA_DIST)_lib.zip \
 		"$(DOWNLOAD_TAG)" "$(WIRESHARK_TARGET_PLATFORM)"
 !ENDIF
@@ -1114,7 +1114,7 @@ process_libs:
 !ENDIF
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. \
-		USBPcapSetup-1.1.0.0-g794bf26-3.exe \
+		USBPcapSetup-1.1.0.0-g794bf26-5.exe \
 		"$(DOWNLOAD_TAG)" "$(WIRESHARK_TARGET_PLATFORM)"
 !IF "$(WIN_SETUP_OPT)" == "--download"
 	@$(SH) $(WIN_SETUP) --settag "$(WIRESHARK_LIB_DIR)" "$(DOWNLOAD_TAG)" "$(WIRESHARK_TARGET_PLATFORM)"

@@ -101,8 +101,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2016-06-03"
-$Win32CurrentTag = "2016-05-10"
+$Win64CurrentTag = "2016-08-09"
+$Win32CurrentTag = "2016-08-09"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -110,7 +110,7 @@ $Win64Archives = @{
     "c-ares-1.11.0-win64ws.zip" = "";
     "GeoIP-1.6.6-win64ws.zip" = "GeoIP-1.6.6-win64ws";
     "gnutls-3.2.15-2.9-win64ws.zip" = "";
-    "gtk+-bundle_2.24.23-3.39-1_win64ws.zip" = "gtk2";
+    "gtk+-bundle_2.24.23-3.39-2_win64ws.zip" = "gtk2";
     "kfw-3-2-2-x64-ws.zip" = "";
     "libsmi-svn-40773-win64ws.zip" = "";
     "nasm-2.09.08-win32.zip" = "";
@@ -127,7 +127,7 @@ $Win32Archives = @{
     "c-ares-1.11.0-win32ws.zip" = "";
     "GeoIP-1.6.6-win32ws.zip" = "GeoIP-1.6.6-win32ws";
     "gnutls-3.2.15-2.7-win32ws.zip" = "";
-    "gtk+-bundle_2.24.23-1.1_win32ws.zip" = "gtk2";
+    "gtk+-bundle_2.24.23-1.1-1_win32ws.zip" = "gtk2";
     "kfw-3-2-2-i386-ws-vc6.zip" = "";
     "libsmi-svn-40773-win32ws.zip" = "";
     "nasm-2.09.08-win32.zip" = "";
@@ -142,8 +142,8 @@ $Win32Archives = @{
 # Lua
 
 if ( @("14", "12", "11", "10") -contains $VSVersion ) {
-    $Win64Archives["lua-5.2.3_Win64_dll$($VSVersion)_lib.zip"] = "lua5.2.3"
-    $Win32Archives["lua-5.2.3_Win32_dll$($VSVersion)_lib.zip"] = "lua5.2.3"
+    $Win64Archives["lua-5.2.4_Win64_dll$($VSVersion)_lib.zip"] = "lua5.2.4"
+    $Win32Archives["lua-5.2.4_Win32_dll$($VSVersion)_lib.zip"] = "lua5.2.4"
 }
 
 
@@ -151,12 +151,12 @@ if ( @("14", "12", "11", "10") -contains $VSVersion ) {
 
 $Win32Files = @(
     "WinPcap_4_1_3.exe";
-    "USBPcapSetup-1.1.0.0-g794bf26-3.exe";
+    "USBPcapSetup-1.1.0.0-g794bf26-5.exe";
 )
 
 $Win64Files = @(
     "WinPcap_4_1_3.exe";
-    "USBPcapSetup-1.1.0.0-g794bf26-3.exe";
+    "USBPcapSetup-1.1.0.0-g794bf26-5.exe";
 )
 
 $Archives = $Win64Archives;

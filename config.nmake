@@ -253,7 +253,7 @@ PCAP_NG_DEFAULT=^#define PCAP_NG_DEFAULT 1
 WANT_PACKET_EDITOR=^#define WANT_PACKET_EDITOR 1
 
 !if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
-DOWNLOAD_TAG=2016-05-10
+DOWNLOAD_TAG=2016-08-09
 ##### Win32 Libraries #####
 #
 # Mandatory: GLib settings
@@ -296,7 +296,7 @@ XML_DLL=libxml2-2.dll
 GDK_DLL=libgdk-win32-2.0-0.dll
 GTK_DLL=libgtk-win32-2.0-0.dll
 #GTK_PKG=2.24.10-2.7
-GTK_PKG=2.24.23-1.1
+GTK_PKG=2.24.23-1.1-1
 PKG_SUFIX=ws
 !ELSE
 GDK_DLL=libgdk-3-0.dll
@@ -454,15 +454,15 @@ K5SPRT_DLL=k5sprt32.dll
 # isn't defined.
 #
 !IF "$(MSVC_VARIANT)" == "MSVC2015" ||  "$(MSVC_VARIANT)" == "MSVC2015CE"
-LUA_DIST=-5.2.3_Win32_dll14
+LUA_DIST=-5.2.4_Win32_dll14
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2013" ||  "$(MSVC_VARIANT)" == "MSVC2013EE"
-LUA_DIST=-5.2.3_Win32_dll12
+LUA_DIST=-5.2.4_Win32_dll12
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2012" ||  "$(MSVC_VARIANT)" == "MSVC2012EE"
-LUA_DIST=-5.2.3_Win32_dll11
+LUA_DIST=-5.2.4_Win32_dll11
 !ELSE
-LUA_DIST=-5.2.3_Win32_dll10
+LUA_DIST=-5.2.4_Win32_dll10
 !ENDIF
-LUA_DIR=$(WIRESHARK_LIB_DIR)\lua5.2.3
+LUA_DIR=$(WIRESHARK_LIB_DIR)\lua5.2.4
 
 #
 # Optional: the PORTAUDIO library enables audio output for RTP streams.
@@ -515,7 +515,7 @@ GEOIP_PKG=1.6.6
 WINSPARKLE_PKG=0.3-44-g2c8d9d3-win32ws
 
 !else
-DOWNLOAD_TAG=2016-06-03
+DOWNLOAD_TAG=2016-08-09
 ##### Win64 Libraries #####
 #
 # Mandatory: GLib settings
@@ -557,7 +557,7 @@ XML_DLL=libxml2-2.dll
 !IF "$(GTK_NAME)" == "gtk2"
 GDK_DLL=libgdk-win32-2.0-0.dll
 GTK_DLL=libgtk-win32-2.0-0.dll
-GTK_PKG=2.24.23-3.39-1
+GTK_PKG=2.24.23-3.39-2
 #GTK_PKG=2.24.23-1.1
 PKG_SUFIX=ws
 !ELSE
@@ -708,15 +708,15 @@ K5SPRT_DLL=k5sprt64.dll
 # isn't defined.
 #
 !IF "$(MSVC_VARIANT)" == "MSVC2015" ||  "$(MSVC_VARIANT)" == "MSVC2015CE"
-LUA_DIST=-5.2.3_Win64_dll14
+LUA_DIST=-5.2.4_Win64_dll14
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2013" ||  "$(MSVC_VARIANT)" == "MSVC2013EE"
-LUA_DIST=-5.2.3_Win64_dll12
+LUA_DIST=-5.2.4_Win64_dll12
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2012" ||  "$(MSVC_VARIANT)" == "MSVC2012EE"
-LUA_DIST=-5.2.3_Win64_dll11
+LUA_DIST=-5.2.4_Win64_dll11
 !ELSE
-LUA_DIST=-5.2.3_Win64_dll10
+LUA_DIST=-5.2.4_Win64_dll10
 !ENDIF
-LUA_DIR=$(WIRESHARK_LIB_DIR)\lua5.2.3
+LUA_DIR=$(WIRESHARK_LIB_DIR)\lua5.2.4
 
 #
 # Optional: the PORTAUDIO library enables audio output for RTP streams.
