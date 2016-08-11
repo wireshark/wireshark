@@ -1240,9 +1240,8 @@ PWSFailureIndication                    N s1ap.proc.imsg id-PWSFailureIndication
 
 ConnectionEstablishmentIndication       N s1ap.proc.imsg id-ConnectionEstablishmentIndication
 
-UEContextResumeRequest                  N s1ap.proc.imsg id-UEContextSuspend
-UEContextResumeResponse                 N s1ap.proc.sout id-UEContextSuspend
-UEContextResumeFailure                  N s1ap.proc.uout id-UEContextSuspend
+UEContextSuspendRequest                 N s1ap.proc.imsg id-UEContextSuspend
+UEContextSuspendResponse                N s1ap.proc.sout id-UEContextSuspend
 
 UEContextResumeRequest                  N s1ap.proc.imsg id-UEContextResume
 UEContextResumeResponse                 N s1ap.proc.sout id-UEContextResume
