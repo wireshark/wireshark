@@ -2331,7 +2331,13 @@ AC_CHECK_MEMBERS([struct stat.st_flags])
 # We need to know whether "struct sockaddr" has an "sa_len" member
 # for get_interface_list().
 
-AC_CHECK_MEMBERS([struct sockaddr.sa_len])
+AC_CHECK_MEMBERS([struct sockaddr.sa_len],,,
+                 [#ifdef HAVE_SYS_TYPES_H
+                  #include <sys/types.h>
+                  #endif
+                  #ifdef HAVE_SYS_SOCKET_H
+                  #include <sys/socket.h>
+                  #endif])
 
 # We must know our byte order
 AC_C_BIGENDIAN
