@@ -271,6 +271,11 @@ static const value_string ll_version_number_vals[] = {
 };
 static value_string_ext ll_version_number_vals_ext = VALUE_STRING_EXT_INIT(ll_version_number_vals);
 
+static const true_false_string tfs_random_public = {
+    "Random",
+    "Public"
+};
+
 void proto_register_btle(void);
 void proto_reg_handoff_btle(void);
 
@@ -473,8 +478,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         advertising_header_tree = proto_item_add_subtree(advertising_header_item, ett_advertising_header);
 
         pdu_type = tvb_get_guint8(tvb, offset) & 0x0F;
-        proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_tx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_item_append_text(advertising_header_item, " (PDU Type: %s, TxAdd: %s",
+                               val_to_str_ext_const(pdu_type, &pdu_type_vals_ext, "Unknown"),
+                               (tvb_get_guint8(tvb, offset) & 0x40) ? tfs_random_public.true_string : tfs_random_public.false_string);
         switch (pdu_type) {
         case 0x00: /* ADV_IND */
         case 0x02: /* ADV_NONCONN_IND */
@@ -484,12 +490,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         default:
             proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_rx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(advertising_header_item, ", RxAdd: %s",
+                                   (tvb_get_guint8(tvb, offset) & 0x80) ? tfs_random_public.true_string : tfs_random_public.false_string);
         }
+        proto_item_append_text(advertising_header_item, ")");
+        proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_tx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_pdu_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_item_append_text(advertising_header_item, " (PDU Type: %s, RandomRxBdAddr=%s, RandomTxBdAddr=%s)",
-                val_to_str_ext_const(pdu_type, &pdu_type_vals_ext, "Unknown"),
-                (tvb_get_guint8(tvb, offset) & 0x80) ? "true" : "false",
-                (tvb_get_guint8(tvb, offset) & 0x40) ? "true" : "false");
         offset += 1;
 
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(pdu_type, &pdu_type_vals_ext, "Unknown"));
@@ -1216,13 +1223,13 @@ proto_register_btle(void)
             NULL, HFILL }
         },
         { &hf_advertising_header_randomized_tx,
-            { "Randomized Tx Address",           "btle.advertising_header.randomized_tx",
-            FT_BOOLEAN, 8, NULL, 0x40,
+            { "Tx Address",                      "btle.advertising_header.randomized_tx",
+            FT_BOOLEAN, 8, TFS(&tfs_random_public), 0x40,
             NULL, HFILL }
         },
         { &hf_advertising_header_randomized_rx,
-            { "Randomized Rx Address",           "btle.advertising_header.randomized_rx",
-            FT_BOOLEAN, 8, NULL, 0x80,
+            { "Rx Address",                      "btle.advertising_header.randomized_rx",
+            FT_BOOLEAN, 8, TFS(&tfs_random_public), 0x80,
             NULL, HFILL }
         },
         { &hf_advertising_header_reserved,
