@@ -2612,10 +2612,9 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
             if (afi == AFNUM_INET)
                 filter_len = decode_prefix4(filter_tree, pinfo, filter_item, hf_bgp_flowspec_nlri_dst_pref_ipv4,
                                             tvb, offset+cursor_fspec, 0, "Destination IP filter");
-            else if (afi == AFNUM_INET6)
+            else /* AFNUM_INET6 */
                 filter_len = decode_fspec_match_prefix6(filter_tree, filter_item, hf_bgp_flowspec_nlri_dst_ipv6_pref,
                                                         tvb, offset+cursor_fspec, 0, pinfo);
-            else cursor_fspec = tot_flow_len;
             if (filter_len == -1)
                 cursor_fspec= tot_flow_len;
             break;
@@ -2624,10 +2623,9 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
             if (afi == AFNUM_INET)
                 filter_len = decode_prefix4(filter_tree, pinfo, filter_item, hf_bgp_flowspec_nlri_src_pref_ipv4,
                                             tvb, offset+cursor_fspec, 0, "Source IP filter");
-            else if (afi == AFNUM_INET6)
+            else /* AFNUM_INET6 */
                 filter_len = decode_fspec_match_prefix6(filter_tree, filter_item, hf_bgp_flowspec_nlri_src_ipv6_pref,
                                                         tvb, offset+cursor_fspec, 0, pinfo);
-            else cursor_fspec = tot_flow_len;
             if (filter_len == -1)
               cursor_fspec= tot_flow_len;
             break;
