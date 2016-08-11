@@ -33,6 +33,16 @@
 
 #define MAX_UNKNOWNREC_LOOP 5
 
+#define NS_TCPCC_DEFAULT  0x00
+#define NS_TCPCC_WESTWOOD 0x01
+#define NS_TCPCC_BIC    0x02
+#define NS_TCPCC_CUBIC  0x03
+#define NS_TCPCC_NILE   0x04
+#define NS_TCPCC_CUBIC_HYSTART 0x05
+#define NS_TCPCC_INVALID  0x06
+#define NS_TCPCC_LAST 0x07
+
+
 /* Netscaler Record types */
 #define NSREC_NULL     0x00
 
@@ -52,6 +62,10 @@
 #define NSREC_APPFW     0x88
 #define NSREC_POL       0x89
 #define NSREC_MPTCP     0x8A
+#define NSREC_TCPDEBUG2 0x8B
+#define NSREC_HTTPINFO  0x8D
+#define NSREC_TCPCC     0x8C
+#define NSREC_TRCDBG    0x8E
 #define UNKNOWN_LAST    0xFF
 
 /* Packet error codes */
@@ -143,23 +157,71 @@ static int hf_ns_tcpdbg_rtrtt    = -1;
 static int hf_ns_tcpdbg_tsrecent = -1;
 static int hf_ns_tcpdbg_httpabort = -1;
 
-static int hf_ns_unknownrec      = -1;
-static int hf_ns_unknowndata     = -1;
+static int hf_ns_tcpdbg2             = -1;
+static int hf_ns_tcpdbg2_sndCwnd     = -1;
+static int hf_ns_tcpdbg2_ssthresh    = -1;
+static int hf_ns_tcpdbg2_sndbuf      = -1;
+static int hf_ns_tcpdbg2_max_rcvbuf  = -1;
+static int hf_ns_tcpdbg2_bw_estimate = -1;
+static int hf_ns_tcpdbg2_rtt         = -1;
+static int hf_ns_tcpdbg2_tcpos_pktcnt = -1;
+static int hf_ns_tcpdbg2_ts_recent = -1;
+static int hf_ns_tcpdbg2_tcp_cfgsndbuf = -1;
+static int hf_ns_tcpdbg2_tcp_flvr    = -1;
+static int hf_ns_trcdbg = -1;
+static int hf_ns_trcdbg_val1 = -1;
+static int hf_ns_trcdbg_val2 = -1;
+static int hf_ns_trcdbg_val3 = -1;
+static int hf_ns_trcdbg_val4 = -1;
+static int hf_ns_trcdbg_val5 = -1;
+static int hf_ns_trcdbg_val6 = -1;
+static int hf_ns_trcdbg_val7 = -1;
+static int hf_ns_trcdbg_val8 = -1;
+static int hf_ns_trcdbg_val9 = -1;
+static int hf_ns_trcdbg_val10 = -1;
+static int hf_ns_trcdbg_val11 = -1;
+static int hf_ns_trcdbg_val12 = -1;
+static int hf_ns_trcdbg_val13 = -1;
+static int hf_ns_trcdbg_val14 = -1;
+static int hf_ns_trcdbg_val15 = -1;
+static int hf_ns_httpInfo = -1;
+static int hf_ns_httpInfo_httpabort = -1;
 
-static int hf_ns_inforec         = -1;
-static int hf_ns_inforec_info    = -1;
+static int hf_ns_tcpcc = -1;
+static int hf_ns_tcpcc_last_max_cwnd = -1;
+static int hf_ns_tcpcc_loss_cwnd = -1;
+static int hf_ns_tcpcc_last_time = -1;
+static int hf_ns_tcpcc_last_cwnd = -1;
+static int hf_ns_tcpcc_delay_min = -1;
+static int hf_ns_tcpcc_ack_cnt = -1;
+static int hf_ns_tcpcc_last_ack = -1;
+static int hf_ns_tcpcc_round_start = -1;
+static int hf_ns_tcpcc_end_seq = -1;
+static int hf_ns_tcpcc_curr_rtt = -1;
+static int hf_ns_tcpcc_rtt_min = -1;
+static int hf_ns_tcpcc_alpha = -1;
+static int hf_ns_tcpcc_beta_val = -1;
+static int hf_ns_tcpcc_rtt_low = -1;
+static int hf_ns_tcpcc_rtt_above = -1;
+static int hf_ns_tcpcc_max_rtt = -1;
+static int hf_ns_tcpcc_base_rtt = -1;
+static int hf_ns_unknownrec = -1;
+static int hf_ns_unknowndata = -1;
 
-static int hf_ns_sslrec         = -1;
-static int hf_ns_sslrec_seq     = -1;
+static int hf_ns_inforec = -1;
+static int hf_ns_inforec_info = -1;
 
-static int hf_ns_mptcprec         = -1;
+static int hf_ns_sslrec = -1;
+static int hf_ns_sslrec_seq = -1;
+
+static int hf_ns_mptcprec = -1;
 static int hf_ns_mptcprec_subflowid  = -1;
 
 static int hf_ns_vmnamerec           = -1;
 static int hf_ns_vmnamerec_srcvmname = -1;
 static int hf_ns_vmnamerec_dstvmname = -1;
 
-static int hf_ns_clusterrec    = -1;
+static int hf_ns_clusterrec = -1;
 static int hf_ns_clu_snode = -1;
 static int hf_ns_clu_dnode = -1;
 static int hf_ns_clu_clflags = -1;
@@ -174,6 +236,10 @@ static gint ett_ns = -1;
 static gint ett_ns_flags = -1;
 static gint ett_ns_activity_flags = -1;
 static gint ett_ns_tcpdebug = -1;
+static gint ett_ns_tcpdebug2 = -1;
+static gint ett_ns_trcdbg = -1;
+static gint ett_ns_httpInfo = -1;
+static gint ett_ns_tcpcc = -1;
 static gint ett_ns_inforec  = -1;
 static gint ett_ns_sslrec  = -1;
 static gint ett_ns_mptcprec  = -1;
@@ -198,6 +264,17 @@ static const value_string ns_errorcode_vals[] = {
   { ERR_LAST,               NULL },
 };
 
+static const value_string tcp_dbg2_flavour[] = {
+
+	{ NS_TCPCC_DEFAULT,  "DEFAULT"},
+	{ NS_TCPCC_WESTWOOD, "WESTWOOD" },
+	{ NS_TCPCC_BIC,"BIC"},
+	{ NS_TCPCC_CUBIC,"CUBIC"},
+	{ NS_TCPCC_NILE,"NILE"},
+	{ NS_TCPCC_CUBIC_HYSTART, "HYSTART"},
+	{ NS_TCPCC_INVALID ,"INVALID"},
+	{ NS_TCPCC_LAST, NULL },
+};
 static const value_string ns_app_vals[] = {
   { APP_NULL,  "NULL"   },
   { APP_IP,    "IP"     },
@@ -510,6 +587,7 @@ void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tre
 	guint     nsheaderlen=0;
 	guint8    ssl_internal=0;
 	guint		offset;
+	int flavour_value = 0;
 	int morerecs=1;
 	int loopcount=0;
 	int reclen = 0, nextrec = 0;
@@ -538,40 +616,136 @@ void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tre
 			nextrec = tvb_get_guint8(tvb,offset+2);
 		}
 
-		switch(cur_record){
+		switch (cur_record){
 			/* Add a case statement here for each record */
-			case NSREC_ETHERNET:
-				/* Call Ethernet dissector */
-				next_tvb = tvb_new_subset_remaining(tvb, offset);
-				call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
-				if(ssl_internal){
-					col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[NS_INTERNAL_SSL]");
-				}
-				morerecs=0;
-				break;
-			case NSREC_HTTP:
-				/* Call HTTP dissector */
-				morerecs=0;
-				next_tvb = tvb_new_subset_remaining(tvb, offset);
-				call_dissector(http_handle, next_tvb, pinfo, tree);
-				break;
+		case NSREC_ETHERNET:
+			/* Call Ethernet dissector */
+			next_tvb = tvb_new_subset_remaining(tvb, offset);
+			call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
+			if (ssl_internal){
+				col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[NS_INTERNAL_SSL]");
+			}
+			morerecs = 0;
+			break;
+		case NSREC_HTTP:
+			/* Call HTTP dissector */
+			morerecs = 0;
+			next_tvb = tvb_new_subset_remaining(tvb, offset);
+			call_dissector(http_handle, next_tvb, pinfo, tree);
+			break;
+		case NSREC_NULL:
+			morerecs = 0;
+			break;
+		case NSREC_TCPDEBUG:
+			/* Add tcpdebug subtree */
+			subitem = proto_tree_add_item(ns_tree, hf_ns_tcpdbg, tvb, offset, reclen, ENC_NA);
+			subtree = proto_item_add_subtree(subitem, ett_ns_tcpdebug);
+			proto_tree_add_item(subtree, hf_ns_tcpdbg_cwnd, tvb, offset + 3, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_tcpdbg_rtrtt, tvb, offset + 7, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_tcpdbg_tsrecent, tvb, offset + 11, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_tcpdbg_httpabort, tvb, offset + 15, 1, ENC_LITTLE_ENDIAN);
 
-			case NSREC_NULL:
-				morerecs = 0;
-				break;
+			offset += reclen;
+			cur_record = nextrec;
+			break;
+		case NSREC_TCPDEBUG2:
+			/* Add tcpdebug2 subtree */
+			subitem = proto_tree_add_item(ns_tree, hf_ns_tcpdbg2, tvb, offset, reclen, ENC_NA);
+			subtree = proto_item_add_subtree(subitem, ett_ns_tcpdebug2);
+			proto_tree_add_item(subtree, hf_ns_tcpdbg2_sndCwnd, tvb, offset + 3, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_tcpdbg2_ssthresh, tvb, offset + 7, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_tcpdbg2_sndbuf, tvb, offset + 11, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_tcpdbg2_max_rcvbuf, tvb, offset + 15, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_tcpdbg2_bw_estimate, tvb, offset + 19, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_tcpdbg2_rtt, tvb, offset + 23, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_tcpdbg2_tcpos_pktcnt, tvb, offset + 27, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_tcpdbg2_ts_recent, tvb, offset + 31, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_tcpdbg2_tcp_cfgsndbuf, tvb, offset + 35, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_tcpdbg2_tcp_flvr, tvb, offset + 39, 1, ENC_LITTLE_ENDIAN);
+			flavour_value = tvb_get_guint8(tvb, offset + 39);
 
-			case NSREC_TCPDEBUG:
-				/* Add tcpdebug subtree */
-				subitem = proto_tree_add_item(ns_tree, hf_ns_tcpdbg, tvb, offset, reclen, ENC_NA);
-				subtree = proto_item_add_subtree(subitem, ett_ns_tcpdebug);
-				proto_tree_add_item(subtree, hf_ns_tcpdbg_cwnd, tvb, offset+3, 4, ENC_LITTLE_ENDIAN);
-				proto_tree_add_item(subtree, hf_ns_tcpdbg_rtrtt, tvb, offset+7, 4, ENC_LITTLE_ENDIAN);
-				proto_tree_add_item(subtree, hf_ns_tcpdbg_tsrecent, tvb, offset+11, 4, ENC_LITTLE_ENDIAN);
-				proto_tree_add_item(subtree, hf_ns_tcpdbg_httpabort, tvb, offset+15, 1, ENC_LITTLE_ENDIAN);
+			offset += reclen;
+			cur_record = nextrec;
+			break;
+		case NSREC_TRCDBG:
+			/* Add tcpdebug2 subtree */
+			subitem = proto_tree_add_item(ns_tree, hf_ns_trcdbg, tvb, offset, reclen, ENC_NA);
+			subtree = proto_item_add_subtree(subitem, ett_ns_trcdbg);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val1, tvb, offset + 3, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val2, tvb, offset + 7, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val3, tvb, offset + 11, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val4, tvb, offset + 15, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val5, tvb, offset + 19, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val6, tvb, offset + 23, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val7, tvb, offset + 27, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val8, tvb, offset + 31, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val9, tvb, offset + 35, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val10, tvb, offset + 39, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val11, tvb, offset + 43, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val12, tvb, offset + 47, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val13, tvb, offset + 51, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val14, tvb, offset + 55, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val15, tvb, offset + 59, 4, ENC_LITTLE_ENDIAN);
+
+			offset += reclen;
+			cur_record = nextrec;
+			break;
+		case NSREC_HTTPINFO:
+			/* Add httpinfo subtree */
+			subitem = proto_tree_add_item(ns_tree, hf_ns_httpInfo, tvb, offset, reclen, ENC_NA);
+			subtree = proto_item_add_subtree(subitem, ett_ns_httpInfo);
+			proto_tree_add_item(subtree, hf_ns_httpInfo_httpabort, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
+
+			offset += reclen;
+			cur_record = nextrec;
+			break;
+		case NSREC_TCPCC:
+			/* Add tcpcc subtree */
+			subitem = proto_tree_add_item(ns_tree, hf_ns_tcpcc, tvb, offset, reclen, ENC_NA);
+			subtree = proto_item_add_subtree(subitem, ett_ns_tcpcc);
+			switch (flavour_value)
+			{
+				case NS_TCPCC_BIC:
+					proto_tree_add_item(subtree, hf_ns_tcpcc_last_max_cwnd, tvb, offset + 3, 4, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(subtree, hf_ns_tcpcc_loss_cwnd, tvb, offset + 7, 4, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(subtree, hf_ns_tcpcc_last_time, tvb, offset + 11, 4, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(subtree, hf_ns_tcpcc_last_cwnd, tvb, offset + 15, 4, ENC_LITTLE_ENDIAN);
+					break;
+				case NS_TCPCC_CUBIC:
+					proto_tree_add_item(subtree, hf_ns_tcpcc_last_cwnd, tvb, offset + 3, 4, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(subtree, hf_ns_tcpcc_last_time, tvb, offset + 7, 4, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(subtree, hf_ns_tcpcc_last_max_cwnd, tvb, offset + 11, 4, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(subtree, hf_ns_tcpcc_delay_min, tvb, offset + 15, 4, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(subtree, hf_ns_tcpcc_ack_cnt, tvb, offset + 19, 4, ENC_LITTLE_ENDIAN);
+					break;
+				case NS_TCPCC_NILE:
+					proto_tree_add_item(subtree, hf_ns_tcpcc_alpha, tvb, offset + 3, 4, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(subtree, hf_ns_tcpcc_beta_val, tvb, offset + 7, 4, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(subtree, hf_ns_tcpcc_rtt_low, tvb, offset + 11, 4, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(subtree, hf_ns_tcpcc_rtt_above, tvb, offset + 15, 4, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(subtree, hf_ns_tcpcc_max_rtt, tvb, offset + 19, 4, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(subtree, hf_ns_tcpcc_base_rtt, tvb, offset + 23, 4, ENC_LITTLE_ENDIAN);
+					break;
+				case NS_TCPCC_WESTWOOD:
+					proto_tree_add_item(subtree, hf_ns_tcpcc_rtt_min, tvb, offset + 3, 4, ENC_LITTLE_ENDIAN);
+					break;
+				case NS_TCPCC_CUBIC_HYSTART:
+					proto_tree_add_item(subtree, hf_ns_tcpcc_last_ack, tvb, offset + 3, 4, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(subtree, hf_ns_tcpcc_delay_min, tvb, offset + 7, 4, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(subtree, hf_ns_tcpcc_round_start, tvb, offset + 11, 4, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(subtree, hf_ns_tcpcc_end_seq, tvb, offset + 15, 4, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(subtree, hf_ns_tcpcc_curr_rtt, tvb, offset + 19, 4, ENC_LITTLE_ENDIAN);
+					break;
+				case NS_TCPCC_INVALID:
+					break;
+				case NS_TCPCC_DEFAULT:
+					break;
 
 				offset += reclen;
 				cur_record = nextrec;
-				break;
+		}
+			break;
+
 			case NSREC_INFO:
 				subitem = proto_tree_add_item(ns_tree, hf_ns_inforec, tvb, offset, reclen, ENC_NA);
 				subtree = proto_item_add_subtree(subitem, ett_ns_inforec);
@@ -874,6 +1048,291 @@ proto_register_ns(void)
 		    NULL, HFILL }
 		},
 
+				/** Fields of Tcp Debug 2 records**/
+		{ &hf_ns_tcpdbg2,
+		{ "TCP Debug Info", "nstrace.tcpdbg2",
+		FT_NONE, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpdbg2_sndCwnd,
+		{ "SndCwnd", "nstrace.tcpdbg2.sndCwnd",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpdbg2_ssthresh,
+		{ "Ssthresh", "nstrace.tcpdbg2.ssthresh",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpdbg2_sndbuf,
+		{ "MaxSndBuf", "nstrace.tcpdbg2.maxsndbuf",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpdbg2_max_rcvbuf,
+		{ "MaxRcvbuff", "nstrace.tcpdbg2.maxrcvbuff",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpdbg2_bw_estimate,
+		{ "BwEstimate", "nstrace.tcpdbg2.bwEstimate",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpdbg2_rtt,
+		{ "Rtt", "nstrace.tcpdbg2.rtt",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpdbg2_tcpos_pktcnt,
+		{ "Ospckcnt", "nstrace.tcpdbg2.Ospckcnt",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpdbg2_ts_recent,
+		{ "tsRecent", "nstrace.tcpdbg2.tsRecent",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpdbg2_tcp_cfgsndbuf,
+		{ "cfgSndBuf", "nstrace.tcpdbg2.cfgSndBuf",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpdbg2_tcp_flvr,
+		{ "Flavour", "nstrace.tcpdbg2.flavour",
+		FT_UINT8, BASE_DEC, VALS(tcp_dbg2_flavour), 0x0,
+		NULL, HFILL }
+		},
+
+		/**  Fields for generic trace debug record **/
+		{ &hf_ns_trcdbg,
+		{ "Additional debug", "nstrace.trcdbg",
+		FT_NONE, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val1,
+		{ "val1", "nstrace.trcdbg.val1",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val2,
+		{ "val2", "nstrace.trcdbg.val2",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val3,
+		{ "val3", "nstrace.trcdbg.val3",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val4,
+		{ "val4", "nstrace.trcdbg.val4",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val5,
+		{ "val5", "nstrace.trcdbg.val5",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val6,
+		{ "val6", "nstrace.trcdbg.val6",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val7,
+		{ "val7", "nstrace.trcdbg.val7",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val8,
+		{ "val8", "nstrace.trcdbg.val8",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val9,
+		{ "val9", "nstrace.trcdbg.val9",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val10,
+		{ "val10", "nstrace.trcdbg.val10",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val11,
+		{ "val11", "nstrace.trcdbg.val11",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val12,
+		{ "val12", "nstrace.trcdbg.val12",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val13,
+		{ "val13", "nstrace.trcdbg.val13",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val14,
+		{ "val14", "nstrace.trcdbg.val14",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val15,
+		{ "val15", "nstrace.trcdbg.val15",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		/** Fields of httpInfo	**/
+		{ &hf_ns_httpInfo,
+		{ "HTTPInfo", "nstrace.httpInfo",
+		FT_NONE, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_httpInfo_httpabort,
+		{ "HTTPabortReason", "nstrace.httpInfo.httpabort",
+		FT_UINT8, BASE_DEC, VALS(ns_httpabortcode_vals), 0x0,
+		NULL, HFILL }
+		},
+
+		/** Fields of Tcp CC Records  **/
+		{ &hf_ns_tcpcc,
+		{ "TcpCC", "nstrace.tcpcc",
+		FT_NONE, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpcc_last_max_cwnd,
+		{ "Last_max_cwnd", "nstrace.tcpcc.lastmaxcwnd",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+		{ &hf_ns_tcpcc_loss_cwnd,
+		{ "Loss_cwnd", "nstrace.tcpcc.losscwnd",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpcc_last_time,
+		{ "Last_time", "nstrace.tcpcc.lasttime",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpcc_last_cwnd,
+		{ "Last_cwnd", "nstrace.tcpcc.lastcwnd",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpcc_delay_min,
+		{ "Delay_min", "nstrace.tcpcc.delaymin",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpcc_ack_cnt,
+		{ "Ack_cnt", "nstrace.tcpcc.ackcnt",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpcc_last_ack,
+		{ "Last_ack", "nstrace.tcpcc.lastack",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpcc_round_start,
+		{ "Round_start", "nstrace.tcpcc.roundstart",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpcc_end_seq,
+		{ "End_seq", "nstrace.tcpcc.endseq",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpcc_curr_rtt,
+		{ "Curr_rtt", "nstrace.tcpcc.currrtt",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpcc_rtt_min,
+		{ "Rtt_min", "nstrace.tcpcc.rttmin",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpcc_alpha,
+		{ "Alpha", "nstrace.tcpcc.alpha",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpcc_beta_val,
+		{ "Beta_val", "nstrace.tcpcc.betaval",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpcc_rtt_low,
+		{ "Rtt_low", "nstrace.tcpcc.rttlow",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpcc_rtt_above,
+		{ "Rtt_above", "nstrace.tcpcc.rttabove",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpcc_max_rtt,
+		{ "Max_rtt", "nstrace.tcpcc.maxrtt",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpcc_base_rtt,
+		{ "Base_rtt", "nstrace.tcpcc.basertt",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
 		{ &hf_ns_unknownrec,
 		  { "unknown ns record", "nstrace.unknown",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
@@ -1018,6 +1477,10 @@ proto_register_ns(void)
 		&ett_ns_flags,
 		&ett_ns_activity_flags,
 		&ett_ns_tcpdebug,
+		&ett_ns_tcpdebug2,
+		&ett_ns_trcdbg,
+		&ett_ns_httpInfo,
+		&ett_ns_tcpcc,
 		&ett_ns_unknownrec,
 		&ett_ns_inforec,
 		&ett_ns_vmnamerec,
