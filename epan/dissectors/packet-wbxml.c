@@ -7244,6 +7244,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 						     s);
 				off++;
 			} else { /* attrStart */
+				attr_save_known = peek & 0x7f;
 				if (map != NULL) {
 					s = map_token (map->attrStart, *codepage_attr, peek);
 				} else {
@@ -7251,7 +7252,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 				}
 				proto_tree_add_string_format(tree, hf_wbxml_known_attrstart, tvb, off, 1, s,
 						     "  %3d |  Attr | A %3d    |   Known attrStart 0x%02X          |   %s%s",
-						     level, *codepage_attr, peek & 0x7f, Indent (level),
+						     level, *codepage_attr, attr_save_known, Indent (level),
 						     s);
 				off++;
 			}
