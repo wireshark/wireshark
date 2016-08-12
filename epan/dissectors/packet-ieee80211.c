@@ -6246,7 +6246,7 @@ dissect_3gpp_cellular_network_info(proto_tree *tree, tvbuff_t *tvb, packet_info 
   while (num > 0) {
     if (tvb_reported_length_remaining(tvb, offset) < 3)
       break;
-    dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_NONE, FALSE);
+    dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_NONE, TRUE);
     num--;
     offset += 3;
   }
