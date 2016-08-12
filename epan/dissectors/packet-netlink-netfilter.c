@@ -155,9 +155,97 @@ enum ws_nfqnl_attr_config {
 	WS_NFQA_CFG_FLAGS           = 5,
 };
 
+/* from <linux/netfilter/ipset/ip_set.h> */
+enum ws_ipset_cmd {
+	WS_IPSET_CMD_NONE           = 0,
+	WS_IPSET_CMD_PROTOCOL       = 1,
+	WS_IPSET_CMD_CREATE         = 2,
+	WS_IPSET_CMD_DESTROY        = 3,
+	WS_IPSET_CMD_FLUSH          = 4,
+	WS_IPSET_CMD_RENAME         = 5,
+	WS_IPSET_CMD_SWAP           = 6,
+	WS_IPSET_CMD_LIST           = 7,
+	WS_IPSET_CMD_SAVE           = 8,
+	WS_IPSET_CMD_ADD            = 9,
+	WS_IPSET_CMD_DEL            = 10,
+	WS_IPSET_CMD_TEST           = 11,
+	WS_IPSET_CMD_HEADER         = 12,
+	WS_IPSET_CMD_TYPE           = 13,
+};
+
+/* Attributes at command level */
+enum ws_ipset_attr {
+	WS_IPSET_ATTR_PROTOCOL      = 1,
+	WS_IPSET_ATTR_SETNAME       = 2,
+	WS_IPSET_ATTR_TYPENAME      = 3,
+	WS_IPSET_ATTR_REVISION      = 4,
+	WS_IPSET_ATTR_FAMILY        = 5,
+	WS_IPSET_ATTR_FLAGS         = 6,
+	WS_IPSET_ATTR_DATA          = 7,
+	WS_IPSET_ATTR_ADT           = 8,
+	WS_IPSET_ATTR_LINENO        = 9,
+	WS_IPSET_ATTR_PROTOCOL_MIN  = 10,
+};
+
+/* CADT-specific attributes (Create/Abstract Data Type) */
+enum ws_ipset_cadt_attr {
+	WS_IPSET_ATTR_IP_FROM           = 1,
+	WS_IPSET_ATTR_IP_TO             = 2,
+	WS_IPSET_ATTR_CIDR              = 3,
+	WS_IPSET_ATTR_PORT_FROM         = 4,
+	WS_IPSET_ATTR_PORT_TO           = 5,
+	WS_IPSET_ATTR_TIMEOUT           = 6,
+	WS_IPSET_ATTR_PROTO             = 7,
+	WS_IPSET_ATTR_CADT_FLAGS        = 8,
+	WS_IPSET_ATTR_CADT_LINENO       = 9,
+	WS_IPSET_ATTR_MARK              = 10,
+	WS_IPSET_ATTR_MARKMASK          = 11,
+	/* (reserved up to 16) */
+#define WS_IPSET_ATTR_CADT_MAX            16
+	WS_IPSET_ATTR_GC                = 17,
+	WS_IPSET_ATTR_HASHSIZE          = 18,
+	WS_IPSET_ATTR_MAXELEM           = 19,
+	WS_IPSET_ATTR_NETMASK           = 20,
+	WS_IPSET_ATTR_PROBES            = 21,
+	WS_IPSET_ATTR_RESIZE            = 22,
+	WS_IPSET_ATTR_SIZE              = 23,
+	WS_IPSET_ATTR_ELEMENTS          = 24,
+	WS_IPSET_ATTR_REFERENCES        = 25,
+	WS_IPSET_ATTR_MEMSIZE           = 26,
+};
+
+/* ADT-specific attrivutes */
+enum ws_ipset_adt_attr {
+	WS_IPSET_ATTR_ETHER             = 17,
+	WS_IPSET_ATTR_NAME              = 18,
+	WS_IPSET_ATTR_NAMEREF           = 19,
+	WS_IPSET_ATTR_IP2               = 20,
+	WS_IPSET_ATTR_CIDR2             = 21,
+	WS_IPSET_ATTR_IP2_TO            = 22,
+	WS_IPSET_ATTR_IFACE             = 23,
+	WS_IPSET_ATTR_BYTES             = 24,
+	WS_IPSET_ATTR_PACKETS           = 25,
+	WS_IPSET_ATTR_COMMENT           = 26,
+	WS_IPSET_ATTR_SKBMARK           = 27,
+	WS_IPSET_ATTR_SKBPRIO           = 28,
+	WS_IPSET_ATTR_SKBQUEUE          = 29,
+	WS_IPSET_ATTR_PAD               = 30,
+};
+
+/* IP specific attributes */
+enum ws_ipset_ip_attr {
+	WS_IPSET_ATTR_IPADDR_IPV4       = 1,
+	WS_IPSET_ATTR_IPADDR_IPV6       = 2,
+};
+
+
 static int ett_netlink_netfilter = -1;
 static int ett_nfq_config_attr = -1;
 static int ett_nfq_attr = -1;
+static int ett_ipset_attr = -1;
+static int ett_ipset_cadt_attr = -1;
+static int ett_ipset_adt_attr = -1;
+static int ett_ipset_ip_attr = -1;
 
 /* nfgenmsg header, common to all Netfilter over Netlink packets. */
 
@@ -254,7 +342,7 @@ static header_field_info hfi_nfq_config_flags NETLINK_NETFILTER_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_nfq_config_attrs(tvbuff_t *tvb, void *data _U_, proto_tree *tree, int nla_type, int offset, int len)
+dissect_nfq_config_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
 {
 	enum ws_nfqnl_attr_config type = (enum ws_nfqnl_attr_config) nla_type;
 	netlink_netfilter_info_t *info = (netlink_netfilter_info_t *) data;
@@ -438,7 +526,7 @@ static header_field_info hfi_nfq_gid NETLINK_NETFILTER_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_nfq_attrs(tvbuff_t *tvb, void *data _U_, proto_tree *tree, int nla_type, int offset, int len _U_)
+dissect_nfq_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
 {
 	enum ws_nfqnl_attr_type type = (enum ws_nfqnl_attr_type) nla_type;
 	netlink_netfilter_info_t *info = (netlink_netfilter_info_t *) data;
@@ -649,6 +737,343 @@ dissect_netfilter_ulog(tvbuff_t *tvb, netlink_netfilter_info_t *info, proto_tree
 	return offset;
 }
 
+/* IPSET */
+
+static const value_string ipset_command_vals[] = {
+	{ WS_IPSET_CMD_NONE,        "None" },
+	{ WS_IPSET_CMD_PROTOCOL,    "Return protocol version" },
+	{ WS_IPSET_CMD_CREATE,      "Create a new (empty) set" },
+	{ WS_IPSET_CMD_DESTROY,     "Destroy a (empty) set" },
+	{ WS_IPSET_CMD_FLUSH,       "Remove all elements from a set" },
+	{ WS_IPSET_CMD_RENAME,      "Rename a set" },
+	{ WS_IPSET_CMD_SWAP,        "Swap two sets" },
+	{ WS_IPSET_CMD_LIST,        "List sets" },
+	{ WS_IPSET_CMD_SAVE,        "Save sets" },
+	{ WS_IPSET_CMD_ADD,         "Add an element to a set" },
+	{ WS_IPSET_CMD_DEL,         "Delete an element from a set" },
+	{ WS_IPSET_CMD_TEST,        "Test an element in a set" },
+	{ WS_IPSET_CMD_HEADER,      "Get set header data only" },
+	{ WS_IPSET_CMD_TYPE,        "Get set type" },
+	{ 0, NULL }
+};
+
+static const value_string ipset_attr_vals[] = {
+	{ WS_IPSET_ATTR_PROTOCOL,       "Protocol version" },
+	{ WS_IPSET_ATTR_SETNAME,        "Name of the set" },
+	{ WS_IPSET_ATTR_TYPENAME,       "Typename" },
+	{ WS_IPSET_ATTR_REVISION,       "Settype revision" },
+	{ WS_IPSET_ATTR_FAMILY,         "Settype family" },
+	{ WS_IPSET_ATTR_FLAGS,          "Flags at command level" },
+	{ WS_IPSET_ATTR_DATA,           "Nested attributes" },
+	{ WS_IPSET_ATTR_ADT,            "Multiple data containers" },
+	{ WS_IPSET_ATTR_LINENO,         "Restore lineno" },
+	{ WS_IPSET_ATTR_PROTOCOL_MIN,   "Minimal supported version number" },
+	{ 0, NULL }
+};
+
+static const value_string ipset_cadt_attr_vals[] = {
+	{ WS_IPSET_ATTR_IP_FROM,        "IP_FROM" },
+	{ WS_IPSET_ATTR_IP_TO,          "IP_TO" },
+	{ WS_IPSET_ATTR_CIDR,           "CIDR" },
+	{ WS_IPSET_ATTR_PORT_FROM,      "PORT_FROM" },
+	{ WS_IPSET_ATTR_PORT_TO,        "PORT_TO" },
+	{ WS_IPSET_ATTR_TIMEOUT,        "TIMEOUT" },
+	{ WS_IPSET_ATTR_PROTO,          "PROTO" },
+	{ WS_IPSET_ATTR_CADT_FLAGS,     "CADT_FLAGS" },
+	{ WS_IPSET_ATTR_CADT_LINENO,    "CADT_LINENO" },
+	{ WS_IPSET_ATTR_MARK,           "MARK" },
+	{ WS_IPSET_ATTR_MARKMASK,       "MARKMASK" },
+	/* up to 16 is reserved. */
+	{ WS_IPSET_ATTR_GC,             "GC" },
+	{ WS_IPSET_ATTR_HASHSIZE,       "HASHSIZE" },
+	{ WS_IPSET_ATTR_MAXELEM,        "MAXELEM" },
+	{ WS_IPSET_ATTR_NETMASK,        "NETMASK" },
+	{ WS_IPSET_ATTR_PROBES,         "PROBES" },
+	{ WS_IPSET_ATTR_RESIZE,         "RESIZE" },
+	{ WS_IPSET_ATTR_SIZE,           "SIZE" },
+	{ WS_IPSET_ATTR_ELEMENTS,       "ELEMENTS" },
+	{ WS_IPSET_ATTR_REFERENCES,     "REFERENCES" },
+	{ WS_IPSET_ATTR_MEMSIZE,        "MEMSIZE" },
+	{ 0, NULL }
+};
+
+static const value_string ipset_adt_attr_vals[] = {
+	/* Nasty! Duplication from CADT above... */
+	{ WS_IPSET_ATTR_IP_FROM,        "IP_FROM" },
+	{ WS_IPSET_ATTR_IP_TO,          "IP_TO" },
+	{ WS_IPSET_ATTR_CIDR,           "CIDR" },
+	{ WS_IPSET_ATTR_PORT_FROM,      "PORT_FROM" },
+	{ WS_IPSET_ATTR_PORT_TO,        "PORT_TO" },
+	{ WS_IPSET_ATTR_TIMEOUT,        "TIMEOUT" },
+	{ WS_IPSET_ATTR_PROTO,          "PROTO" },
+	{ WS_IPSET_ATTR_CADT_FLAGS,     "CADT_FLAGS" },
+	{ WS_IPSET_ATTR_CADT_LINENO,    "CADT_LINENO" },
+	{ WS_IPSET_ATTR_MARK,           "MARK" },
+	{ WS_IPSET_ATTR_MARKMASK,       "MARKMASK" },
+	/* End of duplication, other attributes follow. */
+	{ WS_IPSET_ATTR_ETHER,          "ETHER" },
+	{ WS_IPSET_ATTR_NAME,           "NAME" },
+	{ WS_IPSET_ATTR_NAMEREF,        "NAMEREF" },
+	{ WS_IPSET_ATTR_IP2,            "IP2" },
+	{ WS_IPSET_ATTR_CIDR2,          "CIDR2" },
+	{ WS_IPSET_ATTR_IP2_TO,         "IP2_TO" },
+	{ WS_IPSET_ATTR_IFACE,          "IFACE" },
+	{ WS_IPSET_ATTR_BYTES,          "BYTES" },
+	{ WS_IPSET_ATTR_PACKETS,        "PACKETS" },
+	{ WS_IPSET_ATTR_COMMENT,        "COMMENT" },
+	{ WS_IPSET_ATTR_SKBMARK,        "SKBMARK" },
+	{ WS_IPSET_ATTR_SKBPRIO,        "SKBPRIO" },
+	{ WS_IPSET_ATTR_SKBQUEUE,       "SKBQUEUE" },
+	{ WS_IPSET_ATTR_PAD,            "PAD" },
+	{ 0, NULL }
+};
+
+static const value_string ipset_ip_attr_vals[] = {
+	{ WS_IPSET_ATTR_IPADDR_IPV4,    "IPv4 address" },
+	{ WS_IPSET_ATTR_IPADDR_IPV6,    "IPv6 address" },
+	{ 0, NULL }
+};
+
+static header_field_info hfi_ipset_attr NETLINK_NETFILTER_HFI_INIT =
+	{ "Type", "netlink-netfilter.ipset_attr", FT_UINT16, BASE_DEC,
+	  VALS(ipset_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
+
+static header_field_info hfi_ipset_cadt_attr NETLINK_NETFILTER_HFI_INIT =
+	{ "Type", "netlink-netfilter.ipset_cadt_attr", FT_UINT16, BASE_DEC,
+	  VALS(ipset_cadt_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
+
+static header_field_info hfi_ipset_cadt_attr_cidr NETLINK_NETFILTER_HFI_INIT =
+	{ "CIDR", "netlink-netfilter.ipset.cidr", FT_UINT8, BASE_DEC,
+	  NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_ipset_cadt_attr_timeout NETLINK_NETFILTER_HFI_INIT =
+	{ "Timeout", "netlink-netfilter.ipset.timeout", FT_UINT32, BASE_DEC,
+	  NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_ipset_cadt_attr_cadt_flags NETLINK_NETFILTER_HFI_INIT =
+	{ "Flags", "netlink-netfilter.ipset.cadt_flags", FT_UINT32, BASE_HEX,
+	  NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_ipset_attr_setname NETLINK_NETFILTER_HFI_INIT =
+	{ "Setname", "netlink-netfilter.ipset.setname", FT_STRINGZ, STR_UNICODE,
+	  NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_ipset_attr_typename NETLINK_NETFILTER_HFI_INIT =
+	{ "Typename", "netlink-netfilter.ipset.typename", FT_STRINGZ, STR_UNICODE,
+	  NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_ipset_attr_family NETLINK_NETFILTER_HFI_INIT =
+	{ "Address family", "netlink-netfilter.ipset.family", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
+	  &linux_af_vals_ext, 0x00, NULL, HFILL };
+
+static header_field_info hfi_ipset_attr_flags NETLINK_NETFILTER_HFI_INIT =
+	{ "Flags", "netlink-netfilter.ipset.flags", FT_UINT32, BASE_HEX,
+	  NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_ipset_adt_attr NETLINK_NETFILTER_HFI_INIT =
+	{ "Type", "netlink-netfilter.ipset_adt_attr", FT_UINT16, BASE_DEC,
+	  VALS(ipset_adt_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
+
+static header_field_info hfi_ipset_adt_attr_comment NETLINK_NETFILTER_HFI_INIT =
+	{ "Comment", "netlink-netfilter.ipset.comment", FT_STRINGZ, STR_UNICODE,
+	  NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_ipset_ip_attr NETLINK_NETFILTER_HFI_INIT =
+	{ "Type", "netlink-netfilter.ipset_ip_attr", FT_UINT16, BASE_DEC,
+	  VALS(ipset_ip_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
+
+static header_field_info hfi_ipset_ip_attr_ipv4 NETLINK_NETFILTER_HFI_INIT =
+	{ "IPv4 address", "netlink-netfilter.ipset.ip_addr", FT_IPv4, BASE_NONE,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_ipset_ip_attr_ipv6 NETLINK_NETFILTER_HFI_INIT =
+	{ "IPv6 address", "netlink-netfilter.ipset.ip6_addr", FT_IPv6, BASE_NONE,
+	  NULL, 0x00, NULL, HFILL };
+
+static int
+dissect_ipset_ip_attrs(tvbuff_t *tvb, void *data _U_, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_ipset_ip_attr type = (enum ws_ipset_ip_attr) nla_type & NLA_TYPE_MASK;
+
+	switch (type) {
+		case WS_IPSET_ATTR_IPADDR_IPV4:
+			proto_tree_add_item(tree, &hfi_ipset_ip_attr_ipv4, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_IPSET_ATTR_IPADDR_IPV6:
+			proto_tree_add_item(tree, &hfi_ipset_ip_attr_ipv6, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+	}
+
+	return 0;
+}
+
+static int
+dissect_ipset_cadt_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_ipset_cadt_attr type = (enum ws_ipset_cadt_attr) nla_type & NLA_TYPE_MASK;
+	netlink_netfilter_info_t *info = (netlink_netfilter_info_t *) data;
+
+	switch (type) {
+		case WS_IPSET_ATTR_IP_FROM:
+		case WS_IPSET_ATTR_IP_TO:
+			if (nla_type & NLA_F_NESTED)
+				return dissect_netlink_attributes(tvb, &hfi_ipset_ip_attr, ett_ipset_ip_attr, info, tree, offset, len, dissect_ipset_ip_attrs);
+			return 0;
+
+		case WS_IPSET_ATTR_CIDR:
+			if (len == 1) {
+				proto_tree_add_item(tree, &hfi_ipset_cadt_attr_cidr, tvb, offset, len, ENC_NA);
+				return 1;
+			}
+			return 0;
+
+		case WS_IPSET_ATTR_PORT_FROM:
+		case WS_IPSET_ATTR_PORT_TO:
+			/* TODO */
+			return 0;
+
+		case WS_IPSET_ATTR_TIMEOUT:
+			if (len == 4) {
+				proto_tree_add_item(tree, &hfi_ipset_cadt_attr_timeout, tvb, offset, len, ENC_BIG_ENDIAN);
+				return 1;
+			}
+			return 0;
+
+		case WS_IPSET_ATTR_PROTO:
+			/* TODO */
+			return 0;
+
+		case WS_IPSET_ATTR_CADT_FLAGS:
+			if (len == 4) {
+				proto_tree_add_item(tree, &hfi_ipset_cadt_attr_cadt_flags, tvb, offset, len, ENC_BIG_ENDIAN);
+				/* TODO show bits from enum ipset_cadt_flags */
+				return 1;
+			}
+			return 0;
+
+		case WS_IPSET_ATTR_CADT_LINENO:
+		case WS_IPSET_ATTR_MARK:
+		case WS_IPSET_ATTR_MARKMASK:
+		case WS_IPSET_ATTR_GC:
+		case WS_IPSET_ATTR_HASHSIZE:
+		case WS_IPSET_ATTR_MAXELEM:
+		case WS_IPSET_ATTR_NETMASK:
+		case WS_IPSET_ATTR_PROBES:
+		case WS_IPSET_ATTR_RESIZE:
+		case WS_IPSET_ATTR_SIZE:
+		case WS_IPSET_ATTR_ELEMENTS:
+		case WS_IPSET_ATTR_REFERENCES:
+		case WS_IPSET_ATTR_MEMSIZE:
+			/* TODO */
+			return 0;
+	}
+
+	return 0;
+}
+
+static int
+dissect_ipset_adt_data_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_ipset_adt_attr type = (enum ws_ipset_adt_attr) nla_type & NLA_TYPE_MASK;
+
+	if ((nla_type & NLA_TYPE_MASK) <= WS_IPSET_ATTR_CADT_MAX)
+		return dissect_ipset_cadt_attrs(tvb, data, tree, nla_type, offset, len);
+
+	switch (type) {
+		case WS_IPSET_ATTR_COMMENT:
+			proto_tree_add_item(tree, &hfi_ipset_adt_attr_comment, tvb, offset, len, ENC_UTF_8);
+			return 1;
+
+		default:
+			return 0;
+	}
+
+	return 0;
+}
+
+static int
+dissect_ipset_adt_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+{
+	netlink_netfilter_info_t *info = (netlink_netfilter_info_t *) data;
+
+	if (nla_type & NLA_F_NESTED)
+		return dissect_netlink_attributes(tvb, &hfi_ipset_adt_attr, ett_ipset_adt_attr, info, tree, offset, len, dissect_ipset_adt_data_attrs);
+	return 0;
+}
+
+static int
+dissect_ipset_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_ipset_attr type = (enum ws_ipset_attr) nla_type & NLA_TYPE_MASK;
+	netlink_netfilter_info_t *info = (netlink_netfilter_info_t *) data;
+
+	switch (type) {
+		case WS_IPSET_ATTR_PROTOCOL:
+			/* TODO */
+			return 0;
+
+		case WS_IPSET_ATTR_SETNAME:
+			proto_tree_add_item(tree, &hfi_ipset_attr_setname, tvb, offset, len, ENC_UTF_8);
+			return 1;
+
+		case WS_IPSET_ATTR_TYPENAME:
+			proto_tree_add_item(tree, &hfi_ipset_attr_typename, tvb, offset, len, ENC_UTF_8);
+			return 1;
+
+		case WS_IPSET_ATTR_REVISION:
+			/* TODO */
+			return 0;
+
+		case WS_IPSET_ATTR_FAMILY:
+			proto_tree_add_item(tree, &hfi_ipset_attr_family, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_IPSET_ATTR_FLAGS:
+			if (len == 4) {
+				proto_tree_add_item(tree, &hfi_ipset_attr_flags, tvb, offset, len, ENC_BIG_ENDIAN);
+				/* TODO show bits from enum ipset_cmd_flags */
+				return 1;
+			}
+			return 0;
+
+		case WS_IPSET_ATTR_DATA:
+			/* See ipset lib/PROTOCOL, CADT attributes only follow for some commands */
+			if (nla_type & NLA_F_NESTED) {
+				guint16 command = info->data->type & 0xffff;
+
+				if (command == WS_IPSET_CMD_CREATE ||
+				    command == WS_IPSET_CMD_LIST ||
+				    command == WS_IPSET_CMD_SAVE)
+					return dissect_netlink_attributes(tvb, &hfi_ipset_cadt_attr, ett_ipset_cadt_attr, info, tree, offset, len, dissect_ipset_cadt_attrs);
+				else
+					return dissect_netlink_attributes(tvb, &hfi_ipset_adt_attr, ett_ipset_adt_attr, info, tree, offset, len, dissect_ipset_adt_data_attrs);
+			}
+			return 0;
+
+		case WS_IPSET_ATTR_ADT:
+			/* Following this, there will be an IPSET_ATTR_DATA with regular ADT attributes, not CADT */
+			if (nla_type & NLA_F_NESTED)
+				return dissect_netlink_attributes(tvb, &hfi_ipset_attr, ett_ipset_attr, info, tree, offset, len, dissect_ipset_adt_attrs);
+			return 0;
+
+		case WS_IPSET_ATTR_LINENO:
+		case WS_IPSET_ATTR_PROTOCOL_MIN:
+			/* TODO */
+			return 0;
+	}
+
+	return 0;
+}
+
+static int
+dissect_netfilter_ipset(tvbuff_t *tvb, netlink_netfilter_info_t *info, proto_tree *tree, int offset)
+{
+	offset = dissect_netlink_netfilter_header(tvb, tree, offset);
+	return dissect_netlink_attributes(tvb, &hfi_ipset_attr, ett_ipset_attr, info, tree, offset, -1, dissect_ipset_attrs);
+}
+
+
 static const value_string netlink_netfilter_subsystem_vals[] = {
 	{ WS_NFNL_SUBSYS_NONE,              "None" },
 	{ WS_NFNL_SUBSYS_CTNETLINK,         "Conntrack" },
@@ -668,6 +1093,10 @@ static const value_string netlink_netfilter_subsystem_vals[] = {
 static header_field_info hfi_nfq_type NETLINK_NETFILTER_HFI_INIT =
 	{ "Type", "netlink-netfilter.queue_type", FT_UINT16, BASE_DEC,
 	  VALS(nfq_type_vals), 0x00FF, NULL, HFILL };
+
+static header_field_info hfi_ipset_command NETLINK_NETFILTER_HFI_INIT =
+	{ "Command", "netlink-netfilter.ipset_command", FT_UINT16, BASE_DEC,
+	  VALS(ipset_command_vals), 0x00FF, NULL, HFILL };
 
 static header_field_info hfi_netlink_netfilter_subsys NETLINK_NETFILTER_HFI_INIT =
 	{ "Subsystem", "netlink-netfilter.subsys", FT_UINT16, BASE_DEC,
@@ -702,6 +1131,10 @@ dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		case WS_NFNL_SUBSYS_ULOG:
 			proto_tree_add_uint(tree, &hfi_netlink_netfilter_ulog_type, NULL, 0, 0, data->type);
 			break;
+
+		case WS_NFNL_SUBSYS_IPSET:
+			proto_tree_add_uint(tree, &hfi_ipset_command, NULL, 0, 0, data->type);
+			break;
 	}
 
 	info.encoding = data->encoding;
@@ -718,6 +1151,10 @@ dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
 		case WS_NFNL_SUBSYS_ULOG:
 			offset = dissect_netfilter_ulog(tvb, &info, tree, offset);
+			break;
+
+		case WS_NFNL_SUBSYS_IPSET:
+			offset = dissect_netfilter_ipset(tvb, &info, tree, offset);
 			break;
 	}
 
@@ -764,6 +1201,22 @@ proto_register_netlink_netfilter(void)
 		&hfi_nfq_gid,
 	/* ULOG */
 		&hfi_netlink_netfilter_ulog_type,
+	/* IPSET */
+		&hfi_ipset_command,
+		&hfi_ipset_attr,
+		&hfi_ipset_cadt_attr,
+		&hfi_ipset_cadt_attr_cidr,
+		&hfi_ipset_cadt_attr_timeout,
+		&hfi_ipset_cadt_attr_cadt_flags,
+		&hfi_ipset_attr_setname,
+		&hfi_ipset_attr_typename,
+		&hfi_ipset_attr_family,
+		&hfi_ipset_attr_flags,
+		&hfi_ipset_adt_attr,
+		&hfi_ipset_adt_attr_comment,
+		&hfi_ipset_ip_attr,
+		&hfi_ipset_ip_attr_ipv4,
+		&hfi_ipset_ip_attr_ipv6,
 	};
 #endif
 
@@ -771,6 +1224,10 @@ proto_register_netlink_netfilter(void)
 		&ett_netlink_netfilter,
 		&ett_nfq_config_attr,
 		&ett_nfq_attr,
+		&ett_ipset_attr,
+		&ett_ipset_cadt_attr,
+		&ett_ipset_adt_attr,
+		&ett_ipset_ip_attr,
 	};
 
 	int proto_netlink_netfilter;
