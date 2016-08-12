@@ -1288,13 +1288,10 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
                 tvbuff_t *jxta_message_element_tvb = tvb_new_subset_remaining(tvb, offset);
                 int processed;
 
-                if(JXTA_MSG_VERSION_1 == message_version) {
+                if (JXTA_MSG_VERSION_1 == message_version) {
                     processed = dissect_jxta_message_element_1(jxta_message_element_tvb, pinfo, NULL, 0, NULL);
-                } else if(JXTA_MSG_VERSION_2 == message_version) {
+                } else { /* JXTA_MSG_VERSION_2 */
                     processed = dissect_jxta_message_element_2(jxta_message_element_tvb, pinfo, NULL, 0, NULL);
-                } else {
-                    /* Sort of a lie, we say that we don't recognize it at all. */
-                    return 0;
                 }
 
                 if (processed < 0) {
