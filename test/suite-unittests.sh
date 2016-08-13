@@ -34,8 +34,11 @@ unittests_step_test() {
 
 TOOL_SEARCH_PATHS="
 	$WS_BIN_PATH
+	$WS_BIN_PATH/epan
 	$SOURCE_DIR/epan
+	$WS_BIN_PATH/epan/wmem
 	$SOURCE_DIR/epan/wmem
+	$WS_BIN_PATH/tools
 	$SOURCE_DIR/tools
 "
 
