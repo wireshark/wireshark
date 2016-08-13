@@ -85,6 +85,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
     { OUI_3GPP2,            "3GPP2 Vendor specific packet ID" },
     { OUI_ERICSSON_2,       "Ericsson Group" },
     { OUI_DCBX,             "Data Center Bridging Capabilities Exchange" },
+    { OUI_AVAYA,            "Avaya" },
     { 0,                    NULL }
 };
 

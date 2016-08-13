@@ -12,6 +12,9 @@
  * Gregor Miernik <gregor.miernik@hytec.de>
  * Expansion of dissector for Hytec-OUI
  *
+ * August 2016
+ * Added Avaya IP Phone OUI, Uli Heilmeier <uh@heilmeier.eu>
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -355,6 +358,16 @@ static int hf_hytec_incoming_port_name = -1;
 static int hf_hytec_trace_identifier = -1;
 static int hf_hytec_invalid_object_data = -1;
 static int hf_hytec_unknown_identifier_content = -1;
+static int hf_avaya_subtype = -1;
+static int hf_avaya_poe = -1;
+static int hf_avaya_call_server = -1;
+static int hf_avaya_cna_server = -1;
+static int hf_avaya_file_server = -1;
+static int hf_avaya_dot1q = -1;
+static int hf_avaya_ipphone = -1;
+static int hf_avaya_ipphone_ip = -1;
+static int hf_avaya_ipphone_mask = -1;
+static int hf_avaya_ipphone_gateway = -1;
 static int hf_unknown_subtype = -1;
 static int hf_unknown_subtype_content = -1;
 
@@ -426,6 +439,7 @@ static gint ett_802_1qbg_capabilities_flags = -1;
 static gint ett_media_capabilities = -1;
 static gint ett_profinet_period = -1;
 static gint ett_cisco_fourwire_tlv = -1;
+static gint ett_avaya_ipphone_tlv = -1;
 static gint ett_org_spc_hytec_subtype_transceiver = -1;
 static gint ett_org_spc_hytec_subtype_trace = -1;
 static gint ett_org_spc_hytec_trace_request = -1;
@@ -631,6 +645,24 @@ static const value_string profinet_subtypes[] = {
 /* Cisco Subtypes */
 static const value_string cisco_subtypes[] = {
 	{ 1, "Four-wire Power-via-MDI" },
+	{ 0, NULL }
+};
+
+/* Avaya Subtypes */
+static const value_string avaya_subtypes[] = {
+	{ 1, "PoE Conservation Level Support" },
+	{ 3, "Call Server IP Address" },
+	{ 4, "IP Phone Addresses" },
+	{ 5, "CNA Server IP Address" },
+	{ 6, "File Server" },
+	{ 7, "802.1Q Framing" },
+	{ 0, NULL }
+};
+
+/* Avaya 802.1Q Framing Subtypes */
+static const value_string avaya_dot1q_subtypes[] = {
+	{ 1, "Tagging" },
+	{ 2, "No Tagging" },
 	{ 0, NULL }
 };
 
@@ -3410,6 +3442,69 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 	proto_item_append_text(identifier_proto_item, ")");
 }
 
+/* Dissect Avaya OUI TLVs */
+static void
+dissect_avaya_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+{
+	guint8 subType;
+
+	proto_tree *avaya_data = NULL;
+	proto_item *tf = NULL;
+
+	/* Get subtype */
+	subType = tvb_get_guint8(tvb, offset);
+
+	proto_tree_add_item(tree, hf_avaya_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+	offset++;
+
+	switch (subType)
+	{
+	case 0x01:	/* PoE Conservation Level Support */
+	{
+		proto_tree_add_item(tree, hf_avaya_poe, tvb, offset, 7, ENC_NA);
+		offset+=7;
+		break;
+	}
+	case 0x03:	/* Call Server IP Address */
+	{
+		proto_tree_add_item(tree, hf_avaya_call_server, tvb, offset, 4, ENC_NA);
+		offset+=4;
+		break;
+	}
+	case 0x04:	/* IP Phone Addresses */
+	{
+		tf = proto_tree_add_item(tree, hf_avaya_ipphone, tvb, offset, 12, ENC_NA);
+		avaya_data = proto_item_add_subtree(tf, ett_avaya_ipphone_tlv);
+		proto_tree_add_item(avaya_data, hf_avaya_ipphone_ip, tvb, offset, 4, ENC_NA);
+		proto_tree_add_item(avaya_data, hf_avaya_ipphone_mask, tvb, offset+4, 4, ENC_NA);
+		proto_tree_add_item(avaya_data, hf_avaya_ipphone_gateway, tvb, offset+8, 4, ENC_NA);
+		break;
+	}
+	case 0x05:	/* CNA Server IP Address */
+	{
+		proto_tree_add_item(tree, hf_avaya_cna_server, tvb, offset, 4, ENC_NA);
+		offset+=4;
+		break;
+	}
+	case 0x06:	/* File Server */
+	{
+		proto_tree_add_item(tree, hf_avaya_file_server, tvb, offset, 4, ENC_NA);
+		offset+=4;
+		break;
+	}
+	case 0x07:	/* 802.1Q Framing */
+	{
+		proto_tree_add_item(tree, hf_avaya_dot1q, tvb, offset, 1, ENC_NA);
+		offset+=1;
+		break;
+	}
+	default:
+		proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, offset, -1, ENC_NA);
+		break;
+	}
+}
+
 /* Dissect Organizational Specific TLV */
 static gint32
 dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
@@ -3560,6 +3655,9 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			break;
 		}
 		break;
+	case OUI_AVAYA:
+		subTypeStr = val_to_str(subType, avaya_subtypes, "Unknown subtype (0x%x)");
+		break;
 	default:
 		subTypeStr = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",subType);
 		break;
@@ -3604,6 +3702,9 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		break;
 	case OUI_HYTEC_GER:
 		dissect_hytec_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
+		break;
+	case OUI_AVAYA:
+		dissect_avaya_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
 		break;
 	default:
 		dissect_oui_default_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
@@ -4995,6 +5096,46 @@ proto_register_lldp(void)
 			{ "Unknown Identifier Content","lldp.hytec.unknown_identifier_content", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
+		{ &hf_avaya_subtype,
+			{ "Avaya Subtype", "lldp.avaya.subtype", FT_UINT8, BASE_HEX,
+			VALS(avaya_subtypes), 0x0, NULL, HFILL }
+		},
+		{ &hf_avaya_poe,
+			{ "PoE Conservation Level Support", "lldp.avaya.poe", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_avaya_call_server,
+			{ "Call Server IP Address", "lldp.avaya.callserver", FT_IPv4, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_avaya_cna_server,
+			{ "CNA Server IP Address", "lldp.avaya.cnaserver", FT_IPv4, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_avaya_file_server,
+			{ "File Server", "lldp.avaya.fileserver", FT_IPv4, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_avaya_dot1q,
+			{ "802.1Q Framing", "lldp.avaya.dot1q", FT_UINT8, BASE_HEX,
+			VALS(avaya_dot1q_subtypes), 0x0, NULL, HFILL }
+		},
+		{ &hf_avaya_ipphone,
+			{ "IP Phone Addresses", "lldp.avaya.ipphone", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_avaya_ipphone_ip,
+			{ "IP Address", "lldp.avaya.ipphone.ip", FT_IPv4, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_avaya_ipphone_mask,
+			{ "Subnet Mask", "lldp.avaya.ipphone.mask", FT_IPv4, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_avaya_ipphone_gateway,
+			{ "Gateway IP", "lldp.avaya.ipphone.gateway", FT_IPv4, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
 		{ &hf_unknown_subtype,
 			{ "Unknown Subtype","lldp.unknown_subtype", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
@@ -5071,6 +5212,7 @@ proto_register_lldp(void)
 		&ett_media_capabilities,
 		&ett_profinet_period,
 		&ett_cisco_fourwire_tlv,
+		&ett_avaya_ipphone_tlv,
 		&ett_org_spc_hytec_subtype_transceiver,
 		&ett_org_spc_hytec_subtype_trace,
 		&ett_org_spc_hytec_trace_request,

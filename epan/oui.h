@@ -69,6 +69,7 @@
 #define OUI_IEEE_802_1QBG   0x001B3F    /* IEEE 802.1 Qbg */
 #define OUI_NINTENDO        0x001F32
 #define OUI_TURBOCELL       0x0020F6    /* KarlNet, who brought you Turbocell */
+#define OUI_AVAYA           0x00400D    /* Avaya */
 #define OUI_CISCOWL         0x004096    /* Cisco Wireless (Aironet) */
 #define OUI_MARVELL         0x005043    /* Marvell Semiconductor */
 #define OUI_WPAWME          0x0050F2    /* Wi-Fi : WPA / WME */
