@@ -1286,9 +1286,9 @@ initialize_ethers(void)
     guint    mask = 0;
 
     /* hash table initialization */
-    wka_hashtable   = wmem_map_new(NULL, eth_addr_hash, eth_addr_cmp);
-    manuf_hashtable = wmem_map_new(NULL, g_int_hash, g_int_equal);
-    eth_hashtable   = wmem_map_new(NULL, eth_addr_hash, eth_addr_cmp);
+    wka_hashtable   = wmem_map_new(wmem_epan_scope(), eth_addr_hash, eth_addr_cmp);
+    manuf_hashtable = wmem_map_new(wmem_epan_scope(), g_int_hash, g_int_equal);
+    eth_hashtable   = wmem_map_new(wmem_epan_scope(), eth_addr_hash, eth_addr_cmp);
 
     /* Compute the pathname of the ethers file. */
     if (g_ethers_path == NULL) {
@@ -1317,18 +1317,6 @@ initialize_ethers(void)
     g_free(manuf_path);
 
 } /* initialize_ethers */
-
-/* this is only needed when shuting down application (if at all) */
-static void
-eth_name_lookup_cleanup(void)
-{
-    wmem_free(NULL, manuf_hashtable);
-    manuf_hashtable = NULL;
-    wmem_free(NULL, wka_hashtable);
-    wka_hashtable = NULL;
-    wmem_free(NULL, eth_hashtable);
-    eth_hashtable = NULL;
-}
 
 /* Resolve ethernet address */
 static hashether_t *
@@ -3229,7 +3217,6 @@ addr_resolv_init(void)
 void
 addr_resolv_cleanup(void)
 {
-    eth_name_lookup_cleanup();
     vlan_name_lookup_cleanup();
     service_name_lookup_cleanup();
     ipx_name_lookup_cleanup();
