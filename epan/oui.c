@@ -41,6 +41,7 @@ const value_string oui_vals[] = {
 http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r/brprt1/brsrb.htm
 */
     { OUI_CISCO,            "Cisco" },
+    { OUI_CISCO_2,          "Cisco" },
     { OUI_NORTEL,           "Nortel Discovery Protocol" },
     { OUI_CISCO_90,         "Cisco IOS 9.0 Compatible" },
     { OUI_FORCE10,          "Force10 Networks" },
