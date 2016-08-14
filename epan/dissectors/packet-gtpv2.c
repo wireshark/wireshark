@@ -618,6 +618,7 @@ static expert_field ei_gtpv2_ie = EI_INIT;
 #define GTPV2_PPI_VAL_MASK          0x3F
 
 #define GTPV2_SRVCC_PS_TO_CS_REQUEST     25
+#define GTPV2_SRVCC_PS_TO_CS_RESPONSE    26
 #define GTPV2_CREATE_SESSION_REQUEST     32
 #define GTPV2_CREATE_SESSION_RESPONSE    33
 #define GTPV2_MODIFY_BEARER_REQUEST      34
@@ -1430,25 +1431,32 @@ dissect_gtpv2_src_tgt_trans_con(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     * dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU
     */
     if (message_type == GTPV2_SRVCC_PS_TO_CS_REQUEST) {
-        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_gtpv2_utran_con, NULL, "Source RNC to Target RNC Transparent Container");
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length-1, ett_gtpv2_utran_con, NULL, "Source RNC to Target RNC Transparent Container");
         new_tvb = tvb_new_subset_remaining(tvb, offset);
         dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(new_tvb, pinfo, sub_tree, NULL);
-
     }
 
 }
 
 /* 6.4 Target to Source Transparent Container */
 static void
-dissect_gtpv2_tgt_src_trans_con(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+dissect_gtpv2_tgt_src_trans_con(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type, guint8 instance _U_, session_args_t * args _U_)
 {
+    tvbuff_t   *new_tvb;
+    proto_tree *sub_tree;
     int offset = 0;
+
     proto_tree_add_item(tree, hf_gtpv2_len_trans_con, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* Transparent Container */
     proto_tree_add_item(tree, hf_gtpv2_transparent_container, tvb, offset, length-1, ENC_NA);
 
+    if (message_type == GTPV2_SRVCC_PS_TO_CS_RESPONSE) {
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length-1, ett_gtpv2_utran_con, NULL, "Target RNC to Source RNC Transparent Container");
+        new_tvb = tvb_new_subset_remaining(tvb, offset);
+        dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU(new_tvb, pinfo, sub_tree, NULL);
+    }
 
 }
 
