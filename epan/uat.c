@@ -44,6 +44,11 @@
 
 #include "uat-int.h"
 
+/*
+ * XXX Files are encoded as ASCII. We might want to encode them as UTF8
+ * instead.
+ */
+
 static GPtrArray* all_uats = NULL;
 
 void uat_init(void) {
@@ -268,7 +273,7 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
                 char c = fld_ptr[i];
 
                 if (c == '"' || c == '\\' || ! g_ascii_isprint((guchar)c) ) {
-                    fprintf(fp,"\\x%.2x",c);
+                    fprintf(fp,"\\x%02x", (guchar) c);
                 } else {
                     putc(c,fp);
                 }
@@ -281,7 +286,7 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
             guint i;
 
             for(i=0;i<fld_len;i++) {
-                fprintf(fp,"%.2x",((const guint8*)fld_ptr)[i]);
+                fprintf(fp,"%02x", (guchar)fld_ptr[i]);
             }
 
             break;
@@ -741,7 +746,7 @@ char* uat_esc(const char* buf, guint len) {
 
     for (b = (const guint8 *)buf; b < end; b++) {
         if (*b == '"' || *b == '\\' || ! g_ascii_isprint(*b) ) {
-            g_snprintf(s,5,"\\x%.2x",((guint)*b));
+            g_snprintf(s,5,"\\x%02x",((guint)*b));
             s+=4;
         } else {
             *(s++) = (*b);
@@ -756,9 +761,9 @@ gboolean uat_fld_chk_str_isprint(void* u1 _U_, const char* strptr, guint len, co
     guint i;
 
     for (i = 0; i < len; i++) {
-	char c = strptr[i];
-	if (! g_ascii_isprint(c)) {
-	    *err = g_strdup_printf("invalid char pos=%d value=%.2x",i,c);
+        char c = strptr[i];
+        if (! g_ascii_isprint(c)) {
+            *err = g_strdup_printf("invalid char pos=%d value=%02x", i, (guchar) c);
             return FALSE;
         }
     }
@@ -770,9 +775,9 @@ gboolean uat_fld_chk_str_isalpha(void* u1 _U_, const char* strptr, guint len, co
     guint i;
 
     for (i = 0; i < len; i++) {
-	char c = strptr[i];
-	if (! g_ascii_isalpha(c)) {
-	    *err = g_strdup_printf("invalid char pos=%d value=%.2x",i,c);
+        char c = strptr[i];
+        if (! g_ascii_isalpha(c)) {
+            *err = g_strdup_printf("invalid char pos=%d value=%02x", i, (guchar) c);
             return FALSE;
         }
     }
@@ -784,9 +789,9 @@ gboolean uat_fld_chk_str_isalnum(void* u1 _U_, const char* strptr, guint len, co
     guint i;
 
     for (i = 0; i < len; i++) {
-	char c = strptr[i];
-	if (! g_ascii_isalnum(c)) {
-	    *err = g_strdup_printf("invalid char pos=%d value=%.2x",i,c);
+        char c = strptr[i];
+        if (! g_ascii_isalnum(c)) {
+            *err = g_strdup_printf("invalid char pos=%d value=%02x", i, (guchar) c);
             return FALSE;
         }
     }
@@ -798,9 +803,9 @@ gboolean uat_fld_chk_str_isdigit(void* u1 _U_, const char* strptr, guint len, co
     guint i;
 
     for (i = 0; i < len; i++) {
-	char c = strptr[i];
-	if (! g_ascii_isdigit(c)) {
-	    *err = g_strdup_printf("invalid char pos=%d value=%.2x",i,c);
+        char c = strptr[i];
+        if (! g_ascii_isdigit(c)) {
+            *err = g_strdup_printf("invalid char pos=%d value=%02x", i, (guchar) c);
             return FALSE;
         }
     }
@@ -812,9 +817,9 @@ gboolean uat_fld_chk_str_isxdigit(void* u1 _U_, const char* strptr, guint len, c
     guint i;
 
     for (i = 0; i < len; i++) {
-	char c = strptr[i];
-	if (! g_ascii_isxdigit(c)) {
-	    *err = g_strdup_printf("invalid char pos=%d value=%.2x",i,c);
+        char c = strptr[i];
+        if (! g_ascii_isxdigit(c)) {
+            *err = g_strdup_printf("invalid char pos=%d value=%02x", i, (guchar) c);
             return FALSE;
         }
     }
