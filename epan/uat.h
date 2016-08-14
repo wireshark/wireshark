@@ -361,7 +361,7 @@ gboolean uat_fld_chk_str_ ## what (void* UNUSED_PARAMETER(u1), const char* strpt
 	guint i; for (i=0;i<len;i++) { \
 		char c = strptr[i]; \
 			if (! g_ascii_ ## what(c)) { \
-				*err = g_strdup_printf("invalid char pos=%d value=%.2x",i,c); return FALSE;  } } \
+				*err = g_strdup_printf("invalid char pos=%d value=%02x",i,(guchar)c); return FALSE;  } } \
 		*err = NULL; return TRUE; }
 
 
