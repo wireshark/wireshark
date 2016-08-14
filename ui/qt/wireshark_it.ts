@@ -6458,52 +6458,52 @@ per i file di filtro: %2.</translation>
         <translation>Maiusc+X</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="70"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="74"/>
         <source>Time</source>
         <translation>Tempo</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="71"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="75"/>
         <source>Sequence Number</source>
         <translation>Numero di sequenza</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="143"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="147"/>
         <source>LTE RLC Graph (UE=%1 chan=%2%3 %4 - %5)</source>
         <translation>Grafico RLC LTE (UE=%1 can=%2%3 %4 - %5)</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="152"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="156"/>
         <source>LTE RLC Graph - no channel selected</source>
         <translation>Grafico RLC LTE - nessun canale selezionato</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="595"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="599"/>
         <source>%1 %2 (%3s seq %4 len %5)</source>
         <translation>%1 %2 (%3s seq %4 lun %5)</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="596"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="600"/>
         <source>Click to select packet</source>
         <translation>Fai clic per selezionare il pacchetto</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="596"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="600"/>
         <source>Packet</source>
         <translation>Pacchetto</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="612"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="616"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation>Rilascia per lo zoom, x = %1 a %2, y = %3 a %4</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="618"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="622"/>
         <source>Unable to select range.</source>
         <translation>Impossibile selezionare l&apos;intervallo.</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="621"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="625"/>
         <source>Click to select a portion of the graph.</source>
         <translation>Fai clic per selezionare una porzione del grafico.</translation>
     </message>

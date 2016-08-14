@@ -6448,52 +6448,52 @@ for filter files: %2.</source>
         <translation>Shift+X</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="70"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="74"/>
         <source>Time</source>
         <translation>时间</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="71"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="75"/>
         <source>Sequence Number</source>
         <translation>序列号</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="143"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="147"/>
         <source>LTE RLC Graph (UE=%1 chan=%2%3 %4 - %5)</source>
         <translation>LTE RLC 图表 (UE=%1 chan=%2%3 %4 - %5)</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="152"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="156"/>
         <source>LTE RLC Graph - no channel selected</source>
         <translation>LTE RLC 图表 - 没有选择信道</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="595"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="599"/>
         <source>%1 %2 (%3s seq %4 len %5)</source>
         <translation>%1 %2 (%3s seq %4 len %5)</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="596"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="600"/>
         <source>Click to select packet</source>
         <translation>点击选取分组</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="596"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="600"/>
         <source>Packet</source>
         <translation>分组</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="612"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="616"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation>释放缩放, x = % 到 %2, y = %3 到 %4</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="618"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="622"/>
         <source>Unable to select range.</source>
         <translation>无法选择范围。</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="621"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="625"/>
         <source>Click to select a portion of the graph.</source>
         <translation>点击选择图形的一部分。</translation>
     </message>
