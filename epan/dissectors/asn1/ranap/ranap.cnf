@@ -351,6 +351,15 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
    ProtocolIE_ID = id_Source_ToTarget_TransparentContainer;
 
+#.FN_HDR TargetRNC-ToSourceRNC-TransparentContainer
+/* If TargetRNC-ToSourceRNC-TransparentContainer is called through
+   dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU
+   ProtocolIE_ID may be unset
+   */
+
+
+   ProtocolIE_ID = id_Target_ToSource_TransparentContainer;
+
 #.FN_BODY Source-ToTarget-TransparentContainer VAL_PTR = &parameter_tvb
 # -- Note: In the current version of this specification, this IE may either carry the Source RNC to
 #-- Target RNC Transparent Container or the Source eNB to Target eNB Transparent Container IE as
