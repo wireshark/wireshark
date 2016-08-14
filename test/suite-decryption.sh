@@ -310,6 +310,36 @@ decryption_step_ikev1_certs() {
 	test_step_ok
 }
 
+# IKEv1 (ISAKMP) simultaneous exchanges
+# https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12610
+decryption_step_ikev1_simultaneous() {
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-Tfields -e isakmp.hash \
+		-r "$CAPTURE_DIR/ikev1-bug-12610.pcapng.gz" \
+		| grep "b5:25:21:f7:74:96:74:02:c9:f6:ce:e9:5f:d1:7e:5b" > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt simultaneous IKEv1 exchanges"
+		return
+	fi
+	test_step_ok
+}
+
+# IKEv1 (ISAKMP) unencrypted phase 1
+# https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12620
+decryption_step_ikev1_unencrypted() {
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-Tfields -e isakmp.hash \
+		-r "$CAPTURE_DIR/ikev1-bug-12620.pcapng.gz" \
+		| grep "40:04:3b:64:0f:43:73:25:0d:5a:c3:a1:fb:63:15:3c" > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt the first packet of a post-phase1 IKEv1 exchange"
+		return
+	fi
+	test_step_ok
+}
+
 # HTTP2 (HPACK)
 decryption_step_http2() {
 	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
@@ -353,6 +383,8 @@ tshark_decryption_suite() {
 	test_step_add "ANSI C12.22 Decryption" decryption_step_c1222
 	test_step_add "DVB-CI Decryption" decryption_step_dvb_ci
 	test_step_add "IKEv1 Decryption (certificates)" decryption_step_ikev1_certs
+	test_step_add "IKEv1 Decryption (simultaneous exchanges)" decryption_step_ikev1_simultaneous
+	test_step_add "IKEv1 Decryption (unencrypted phase 1)" decryption_step_ikev1_unencrypted
 	test_step_add "HTTP2 (HPACK)" decryption_step_http2
 }
 
