@@ -158,6 +158,7 @@ static int hf_quic_tag_xlct = -1;
 static int hf_quic_tag_nonp = -1;
 static int hf_quic_tag_csct = -1;
 static int hf_quic_tag_ctim = -1;
+static int hf_quic_tag_mids = -1;
 
 /* Public Reset Tags */
 static int hf_quic_tag_rnon = -1;
@@ -343,7 +344,7 @@ static const value_string message_tag_vals[] = {
 /**************************************************************************/
 /*                      Tag                                               */
 /**************************************************************************/
-/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/quic/crypto/crypto_protocol.h */
+/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/quic/core/crypto/crypto_protocol.h */
 
 #define TAG_PAD  0x50414400
 #define TAG_SNI  0x534E4900
@@ -379,6 +380,7 @@ static const value_string message_tag_vals[] = {
 #define TAG_NONP 0x4E4F4E50
 #define TAG_CSCT 0x43534354
 #define TAG_CTIM 0x4354494D
+#define TAG_MIDS 0x4D494453
 
 /* Public Reset Tag */
 #define TAG_RNON 0x524E4F4E
@@ -420,6 +422,8 @@ static const value_string tag_vals[] = {
     { TAG_NONP, "Client Proof Nonce" },
     { TAG_CSCT, "Signed cert timestamp (RFC6962) of leaf cert" },
     { TAG_CTIM, "Client Timestamp" },
+    { TAG_MIDS, "Max incoming dynamic streams" },
+
     { TAG_RNON, "Public Reset Nonce Proof" },
     { TAG_RSEQ, "Rejected Packet Number" },
     { TAG_CADR, "Client Address" },
@@ -1496,6 +1500,12 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
                 tag_offset += 2;
                 tag_len -= 2;
             }
+            break;
+            case TAG_MIDS:
+                proto_tree_add_item(tag_tree, hf_quic_tag_mids, tvb, tag_offset_start + tag_offset, 4, ENC_TIME_TIMESPEC);
+                proto_item_append_text(ti_tag, ": %u", tvb_get_letohl(tvb, tag_offset_start + tag_offset));
+                tag_offset += 4;
+                tag_len -= 4;
             break;
 
             default:
@@ -2652,6 +2662,11 @@ proto_register_quic(void)
         { &hf_quic_tag_cadr_port,
             { "Client Port (Source)", "quic.tag.caddr.port",
                FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_quic_tag_mids,
+            { "Max incoming dynamic streams", "quic.tag.mids",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
 
