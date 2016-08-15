@@ -220,6 +220,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
 #.FN_BODY RRC-Container VAL_PTR = &rrc_message_tvb
   tvbuff_t *rrc_message_tvb=NULL;
+  guint8 container_choice=0;
 
 %(DEFAULT_BODY)s
 
@@ -239,13 +240,21 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
          * either carry the Target RNC to Source RNC Transparent Container
          * or the Target eNB to Source eNB Transparent Container IE as defined in [49]...
          */
-        call_dissector(rrc_t_to_srnc_handle,rrc_message_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
+
+        /* Assume a TargetRNC-ToSourceRNC-Container.  Peek the RRC octetstream to guess the choice*/
+        container_choice = tvb_get_guint8(rrc_message_tvb, 0) >> 5;
+        if (container_choice < 7) {
+          /* Normal case (0-6): dissect as TargetRNC-ToSourceRNC-Container */
+          call_dissector(rrc_t_to_srnc_handle,rrc_message_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
+        } else {
+          /* Special case (7 extension): it would have been decoded as NULL.  Attempt as HandoverToUTRANCommand instead*/
+          call_dissector(rrc_ho_to_utran_cmd,rrc_message_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
+        }
       break;
       default:
       break;
     }
   }
-
 #.END
 
 #.FN_BODY OldBSS-ToNewBSS-Information  VAL_PTR = &bss_info_tvb

@@ -381,7 +381,7 @@ proto_reg_handoff_ranap(void)
   if (!initialized) {
     rrc_s_to_trnc_handle = find_dissector_add_dependency("rrc.s_to_trnc_cont", proto_ranap);
     rrc_t_to_srnc_handle = find_dissector_add_dependency("rrc.t_to_srnc_cont", proto_ranap);
-    rrc_ho_to_utran_cmd = find_dissector("rrc.irat.ho_to_utran_cmd");
+    rrc_ho_to_utran_cmd = find_dissector_add_dependency("rrc.irat.ho_to_utran_cmd", proto_ranap);
     initialized = TRUE;
 #include "packet-ranap-dis-tab.c"
   } else {
