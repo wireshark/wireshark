@@ -3463,13 +3463,11 @@ dissect_avaya_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 	case 0x01:	/* PoE Conservation Level Support */
 	{
 		proto_tree_add_item(tree, hf_avaya_poe, tvb, offset, 7, ENC_NA);
-		offset+=7;
 		break;
 	}
 	case 0x03:	/* Call Server IP Address */
 	{
 		proto_tree_add_item(tree, hf_avaya_call_server, tvb, offset, 4, ENC_NA);
-		offset+=4;
 		break;
 	}
 	case 0x04:	/* IP Phone Addresses */
@@ -3484,19 +3482,16 @@ dissect_avaya_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 	case 0x05:	/* CNA Server IP Address */
 	{
 		proto_tree_add_item(tree, hf_avaya_cna_server, tvb, offset, 4, ENC_NA);
-		offset+=4;
 		break;
 	}
 	case 0x06:	/* File Server */
 	{
 		proto_tree_add_item(tree, hf_avaya_file_server, tvb, offset, 4, ENC_NA);
-		offset+=4;
 		break;
 	}
 	case 0x07:	/* 802.1Q Framing */
 	{
 		proto_tree_add_item(tree, hf_avaya_dot1q, tvb, offset, 1, ENC_NA);
-		offset+=1;
 		break;
 	}
 	default:
