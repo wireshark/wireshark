@@ -200,6 +200,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } while(tag != 0);
 
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
+    proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_exported_pdu, payload_tvb, 0, -1, ENC_NA);
 
     switch(next_proto_type) {
         case EXPORTED_PDU_NEXT_PROTO_STR:
@@ -221,8 +222,6 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         default:
             break;
     }
-
-    proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_exported_pdu, payload_tvb, 0, -1, ENC_NA);
 }
 
 /* Register the protocol with Wireshark.
