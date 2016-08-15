@@ -2762,8 +2762,8 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
                 int isakmp_version, guint8 initial_payload, int offset, int length,
                 packet_info *pinfo, guint32 message_id, gboolean is_request, void* decr_data)
 {
-  guint8         payload, next_payload = 0;
-  guint16        payload_length = 0;
+  guint8         payload, next_payload;
+  guint16        payload_length;
   proto_tree *   ntree;
 
   for (payload = initial_payload; length > 0; payload = next_payload) {
@@ -3124,6 +3124,8 @@ dissect_payload_header(tvbuff_t *tvb, packet_info *pinfo, int offset, int length
   if (length < 4) {
     proto_tree_add_expert_format(tree, pinfo, &ei_isakmp_payload_bad_length, tvb, offset, length,
                         "Not enough room in payload for all transforms");
+    *next_payload_p = 0;
+    *payload_length_p = 0;
     return NULL;
   }
   next_payload = tvb_get_guint8(tvb, offset);
@@ -3244,7 +3246,11 @@ dissect_proposal(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
                                    PLOAD_IKE_T, &next_payload, &payload_length, tree);
     if (length < payload_length) {
       proto_tree_add_expert_format(tree, pinfo, &ei_isakmp_payload_bad_length, tvb, offset + 4, length,
-                          "Not enough room in payload for all transforms");
+                           "Payload (bogus, length is %u, greater than remaining length %d", payload_length, length);
+      break;
+    } else if (payload_length < 4) {
+      proto_tree_add_expert_format(tree, pinfo, &ei_isakmp_payload_bad_length, tvb, offset + 4, length,
+                           "Payload (bogus, length is %u, must be at least 4)", payload_length);
       break;
     }
     dissect_transform(tvb, pinfo, offset + 4, payload_length - 4, ntree, isakmp_version, protocol_id, decr_data);
