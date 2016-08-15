@@ -391,13 +391,6 @@ proto_register_exported_pdu(void)
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
-#if 0
-        { &hf_exported_pdu_sctp_ppid,
-            { "SCTP PPID", "exported_pdu.sctp_ppid",
-               FT_UINT32, BASE_DEC, NULL, 0,
-              NULL, HFILL }
-        },
-#endif
         { &hf_exported_pdu_ss7_opc,
             { "SS7 OPC", "exported_pdu.ss7_opc",
                FT_UINT32, BASE_DEC, NULL, 0,
@@ -424,7 +417,7 @@ proto_register_exported_pdu(void)
               NULL, HFILL }
         },
         { &hf_exported_pdu_dis_table_val,
-            { "Value to use when calling disector table", "exported_pdu.dis_table_val",
+            { "Value to use when calling dissector table", "exported_pdu.dis_table_val",
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
@@ -451,20 +444,6 @@ proto_register_exported_pdu(void)
     proto_register_field_array(proto_exported_pdu, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-#if 0
-    exported_pdu_module = prefs_register_protocol(exported_pdu,
-            proto_reg_handoff_exported_pdu);
-
-    prefs_register_bool_preference(exported_pdu_module, "show_hex",
-            "Display numbers in Hex",
-            "Enable to display numerical values in hexadecimal.",
-            &gPREF_HEX);
-
-    * Register an example port preference */
-    prefs_register_uint_preference(exported_pdu_module, "tcp.port", "exported_pdu TCP Port",
-            " exported_pdu TCP port if other than the default",
-            10, &gPORT_PREF);
-#endif
     /* Register for tapping
      * The tap is registered here but it is to be used by dissectors that
      * want to export their PDUs, see packet-sip.c
