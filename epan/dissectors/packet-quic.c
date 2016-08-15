@@ -190,6 +190,7 @@ static expert_field ei_quic_tag_unknown = EI_INIT;
 
 typedef struct quic_info_data {
     guint8 version;
+    guint16 server_port;
 } quic_info_data_t;
 
 #define QUIC_MIN_LENGTH 3
@@ -980,7 +981,7 @@ static guint32 get_len_missing_packet(guint8 frame_type){
     return len;
 }
 
-static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_pkn, quic_info_data_t *quic_info){
+static gboolean is_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint16 len_pkn, quic_info_data_t *quic_info){
     guint8 frame_type;
     guint8 num_ranges, num_revived, num_blocks, num_timestamp;
     guint32 len_stream = 0, len_offset = 0, len_data = 0, len_largest_observed = 1, len_missing_packet = 1;
@@ -1106,6 +1107,9 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_pkn, 
                 /* Check if the Message Tag is CHLO (Client Hello) or SHLO (Server Hello) or REJ (Rejection) */
                 message_tag = tvb_get_ntohl(tvb, offset);
                 if (message_tag == MTAG_CHLO|| message_tag == MTAG_SHLO || message_tag == MTAG_REJ) {
+                    if(message_tag == MTAG_CHLO && pinfo->srcport != 443) { /* Found */
+                        quic_info->server_port = pinfo->destport;
+                    }
                     return TRUE;
                 }
 
@@ -1917,6 +1921,7 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!quic_info) {
         quic_info = wmem_new(wmem_file_scope(), quic_info_data_t);
         quic_info->version = 0;
+        quic_info->server_port = 443;
         conversation_add_proto_data(conv, proto_quic, quic_info);
     }
 
@@ -1961,7 +1966,7 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Version */
     if(puflags & PUFLAGS_VRSN){
-        if(pinfo->srcport == 443){ /* Version Negotiation Packet */
+        if(pinfo->srcport == quic_info->server_port){ /* Version Negotiation Packet */
             while(tvb_reported_length_remaining(tvb, offset) > 0){
                 proto_tree_add_item(quic_tree, hf_quic_version, tvb, offset, 4, ENC_ASCII|ENC_NA);
                 offset += 4;
@@ -2000,7 +2005,7 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Diversification Nonce */
     if(puflags & PUFLAGS_DNONCE && quic_info->version >= 33){
-        if(pinfo->srcport == 443){ /* Diversification nonce is only present from server to client */
+        if(pinfo->srcport == quic_info->server_port){ /* Diversification nonce is only present from server to client */
             proto_tree_add_item(quic_tree, hf_quic_diversification_nonce, tvb, offset, 32, ENC_NA);
             offset += 32;
         }
@@ -2035,7 +2040,7 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += len_pkn;
 
     /* Unencrypt Message (Handshake or Connection Close...) */
-    if (is_quic_unencrypt(tvb, offset, len_pkn, quic_info)){
+    if (is_quic_unencrypt(tvb, pinfo, offset, len_pkn, quic_info)){
         offset = dissect_quic_unencrypt(tvb, pinfo, quic_tree, offset, len_pkn, quic_info);
     }else {     /* Payload... (encrypted... TODO FIX !) */
         col_add_str(pinfo->cinfo, COL_INFO, "Payload (Encrypted)");
