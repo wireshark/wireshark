@@ -3492,17 +3492,17 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     checksum = lifetime ? tvb_get_ntohs(tvb, offset) : 0;
     if (checksum == 0) {
         /* No checksum present */
-        proto_tree_add_checksum(lsp_tree, tvb, offset_checksum, hf_isis_lsp_checksum, hf_isis_lsp_checksum_status, &ie_isis_lsp_checksum_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
+        proto_tree_add_checksum(lsp_tree, tvb, offset, hf_isis_lsp_checksum, hf_isis_lsp_checksum_status, &ie_isis_lsp_checksum_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
     } else {
         if (osi_check_and_get_checksum(tvb, offset_checksum, pdu_length-12, offset, &cacl_checksum)) {
             /* Successfully processed checksum, verify it */
-            proto_tree_add_checksum(lsp_tree, tvb, offset_checksum, hf_isis_lsp_checksum, hf_isis_lsp_checksum_status, &ie_isis_lsp_checksum_bad, pinfo, cacl_checksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+            proto_tree_add_checksum(lsp_tree, tvb, offset, hf_isis_lsp_checksum, hf_isis_lsp_checksum_status, &ie_isis_lsp_checksum_bad, pinfo, cacl_checksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
             if (cacl_checksum != checksum) {
                 col_append_str(pinfo->cinfo, COL_INFO, " [ISIS CHECKSUM INCORRECT]");
             }
 
         } else {
-            proto_tree_add_checksum(lsp_tree, tvb, offset_checksum, hf_isis_lsp_checksum, hf_isis_lsp_checksum_status, &ie_isis_lsp_checksum_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+            proto_tree_add_checksum(lsp_tree, tvb, offset, hf_isis_lsp_checksum, hf_isis_lsp_checksum_status, &ie_isis_lsp_checksum_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
             proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_long_packet, tvb, offset, -1,
                     "Packet length %d went beyond packet",
                      tvb_reported_length_remaining(tvb, offset_checksum));
