@@ -758,21 +758,18 @@ void extcap_if_cleanup(capture_options * capture_opts, gchar ** errormsg) {
                 }
                 g_free(buffer);
             }
-        }
 
 #ifndef _WIN32
-        /* Final child watch may not have been called */
-        if ( interface_opts.extcap_child_watch != 0 )
-        {
-            extcap_child_watch_cb(userdata->pid, 0, capture_opts);
-            /* it will have changed in extcap_child_watch_cb */
-            interface_opts = g_array_index(capture_opts->ifaces, interface_options,
-                            icnt);
-        }
+            /* Final child watch may not have been called */
+            if ( interface_opts.extcap_child_watch != 0 )
+            {
+                extcap_child_watch_cb(userdata->pid, 0, capture_opts);
+                /* it will have changed in extcap_child_watch_cb */
+                interface_opts = g_array_index(capture_opts->ifaces, interface_options,
+                                icnt);
+            }
 #endif
 
-        if ( userdata )
-        {
             if ( userdata->extcap_stderr != NULL )
                 overwrite_exitcode = TRUE;
 
