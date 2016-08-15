@@ -1,7 +1,7 @@
 /* packet-lg8979.c
  * Routines for Landis & Gyr (Telegyr) 8979 Protocol (lg8979) Dissection
  * By Chris Bontje (cbontje[AT]gmail.com
- * Copyright 2013-2014
+ * Copyright 2013-2016
  *
  ************************************************************************************************
  * Wireshark - Network traffic analyzer
@@ -125,6 +125,8 @@ static int hf_lg8979_pul_output_base       = -1;
 static int hf_lg8979_pul_output_dur        = -1;
 static int hf_lg8979_pul_output_rl         = -1;
 static int hf_lg8979_ang_deadband          = -1;
+static int hf_lg8979_ang_group             = -1;
+static int hf_lg8979_ang_group_pts         = -1;
 static int hf_lg8979_acc_preset            = -1;
 static int hf_lg8979_rtucfg_num_chassis    = -1;
 static int hf_lg8979_rtucfg_chassis_num    = -1;
@@ -470,6 +472,7 @@ classify_lg8979_packet(tvbuff_t *tvb)
             case LG8979_FC_SBO_IMEXECUTE:
             case LG8979_FC_TIME_SYNC:
             case LG8979_FC_ANG_DEADBAND:
+            case LG8979_FC_ANGGRP_DEFINE:
             case LG8979_FC_ACC_PRESET:
             case LG8979_FC_CONT_REQUEST:
 
@@ -498,15 +501,15 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 {
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item    *lg8979_item, *lg8979_flags_item = NULL, *lg8979_point_item = NULL;
-    proto_item    *lg8979_slot_item = NULL;
+    proto_item    *lg8979_slot_item = NULL, *lg8979_ang_group_pts_item = NULL;
     proto_tree    *lg8979_tree, *lg8979_flags_tree = NULL, *lg8979_fc_tree = NULL;
     proto_tree    *lg8979_point_tree = NULL, *lg8979_ts_tree = NULL;
     int           offset = 0;
-    guint8        rtu_addr, func, packet_type, data_len, ptnum8, tripclose, rl, exp_code;
+    guint8        rtu_addr, func, packet_type, data_len, ptnum8, tripclose, rl, exp_code, num_chassis;
     guint8        ts_mon, ts_day, ts_hr, ts_min, ts_sec;
     guint16       ptnum, ptval, ana12_val;
     guint16       ts_ms;
-    gint          num_points = 0, cnt = 0;
+    gint          num_points = 0, cnt = 0, cnt1 = 0;
     gboolean      shr, con, frz, ind, sch, slg, ack, comma_needed = FALSE, new_status, change;
 
     /* Make entries in Protocol column on summary display */
@@ -583,6 +586,12 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                     proto_tree_add_item(lg8979_tree, hf_lg8979_start_ptnum16, tvb, offset,   2, ENC_LITTLE_ENDIAN);
                     proto_tree_add_item(lg8979_tree, hf_lg8979_stop_ptnum16,  tvb, offset+2, 2, ENC_LITTLE_ENDIAN);
                     offset += 4;
+                    break;
+
+                /* Function Code 2 Analog Group Change Report */
+                case LG8979_FC_ANGGRP_CHGRPT:
+                    proto_tree_add_item(lg8979_tree, hf_lg8979_ang_group, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    offset += 1;
                     break;
 
                 /* Function Code 11 Digital Input Force Report */
@@ -713,6 +722,23 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         proto_tree_add_uint_format(lg8979_tree, hf_lg8979_ang_deadband, tvb, offset, 1,
                                                    ptnum, "Point Number %u: New Deadband: %u", ptnum, ptval);
                         ptnum  += 1;
+                        offset += 1;
+                    }
+
+                    break;
+
+                /* Function Code 35 Analog Group Define */
+                case LG8979_FC_ANGGRP_DEFINE:
+
+                    proto_tree_add_item(lg8979_tree, hf_lg8979_ang_group, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_tree, hf_lg8979_start_ptnum16, tvb, offset+1, 2, ENC_LITTLE_ENDIAN);
+                    offset += 3;
+
+                    num_points = (data_len-3);
+
+                    for (cnt=0; cnt<num_points; cnt++) {
+                        lg8979_ang_group_pts_item = proto_tree_add_item(lg8979_tree, hf_lg8979_ang_group_pts, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                        proto_item_append_text(lg8979_ang_group_pts_item, " (%d - %d), ", (cnt*8), ((cnt*8)+7));
                         offset += 1;
                     }
 
@@ -1132,18 +1158,21 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 case LG8979_FC_RTU_CONFIG:
 
                     /* Number of IO Chassis */
+                    num_chassis = tvb_get_guint8(tvb, offset);
                     proto_tree_add_item(lg8979_tree, hf_lg8979_rtucfg_num_chassis, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset += 1;
 
-                    /* Chassis Number */
-                    proto_tree_add_item(lg8979_tree, hf_lg8979_rtucfg_chassis_num, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                    offset += 1;
-
-                    /* Card Codes For Each Slot (0-15) */
-                    for (cnt=0; cnt<16; cnt++) {
-                        lg8979_slot_item = proto_tree_add_item(lg8979_tree, hf_lg8979_rtucfg_card_slot, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                        proto_item_prepend_text(lg8979_slot_item, "Slot %d, ", cnt);
+                    for (cnt=0; cnt<num_chassis; cnt++) {
+                        /* Chassis Number */
+                        proto_tree_add_item(lg8979_tree, hf_lg8979_rtucfg_chassis_num, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                         offset += 1;
+
+                        /* Card Codes For Each Slot (0-15) */
+                        for (cnt1=0; cnt1<16; cnt1++) {
+                            lg8979_slot_item = proto_tree_add_item(lg8979_tree, hf_lg8979_rtucfg_card_slot, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                            proto_item_prepend_text(lg8979_slot_item, "Slot %d, ", cnt1);
+                            offset += 1;
+                        }
                     }
 
                     break;
@@ -1448,6 +1477,10 @@ proto_register_lg8979(void)
         { "Raise/Lower", "lg8979.pul_output_rl", FT_UINT8, BASE_HEX, VALS(lg8979_pul_output_rl_vals), 0x80, NULL, HFILL }},
         { &hf_lg8979_ang_deadband,
         { "Deadband", "lg8979.ang_deadband", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_lg8979_ang_group,
+        { "Analog Group", "lg8979.ang_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_lg8979_ang_group_pts,
+        { "Analog Group Points Mask", "lg8979.ang_group_pts", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_lg8979_acc_preset,
         { "Preset Value", "lg8979.acc_preset", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_lg8979_rtucfg_num_chassis,
