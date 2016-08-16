@@ -747,6 +747,7 @@ static const value_string bgpnotify_minor_open_msg[] = {
     { 5, "Authentication Failure [Deprecated]" },
     { 6, "Unacceptable Hold Time" },
     { 7, "Unsupported Capability" },
+    { 8, "No supported AFI/SAFI (Cisco)" },
     { 0, NULL }
 };
 
