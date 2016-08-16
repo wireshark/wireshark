@@ -2671,9 +2671,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 ddi_ti = proto_tree_add_bits_ret_val(subframe_header_tree, hf_fp_edch_ddi, tvb,
                                                      offset*8 + bit_offset, 6, &ddi, ENC_BIG_ENDIAN);
 
-                if (rlcinf) {
-                    rlcinf->rbid[i] = (guint8)ddi;
-                }
+                rlcinf->rbid[i] = (guint8)ddi;
                 /********************************/
                 /* Look up data in higher layers*/
                 /* Look up the size from this DDI value */
@@ -2722,6 +2720,9 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             bit_offset = 0;
 
             macinf = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0);
+            if (!macinf) {
+                macinf = wmem_new0(wmem_packet_scope(), umts_mac_info);
+            }
             /* Add subframe subtree */
             subframe_ti = proto_tree_add_string_format(tree, hf_fp_edch_subframe, tvb, offset, 0,
                                                        "", "Subframe %u data", subframes[n].subframe_number);
@@ -3113,7 +3114,13 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         rlc_info *rlcinf;
 
         rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+        if (!rlcinf) {
+            rlcinf = wmem_new0(wmem_packet_scope(), rlc_info);
+        }
         macinf = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0);
+        if (!macinf) {
+            macinf = wmem_new0(wmem_packet_scope(), umts_mac_info);
+        }
 
         /**************************************/
         /* HS-DCH data here (type 1 in R7)    */
@@ -3315,7 +3322,14 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         rlc_info *rlcinf;
 
         rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+        if (!rlcinf) {
+            rlcinf = wmem_new0(wmem_packet_scope(), rlc_info);
+        }
         macinf = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0);
+        if (!macinf) {
+            macinf = wmem_new0(wmem_packet_scope(), umts_mac_info);
+        }
+
         /********************************/
         /* HS-DCH type 2 data here      */
 
@@ -3555,7 +3569,13 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         rlc_info *rlcinf;
 
         rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+        if (!rlcinf) {
+            rlcinf = wmem_new0(wmem_packet_scope(), rlc_info);
+        }
         macinf = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0);
+        if (!macinf) {
+            macinf = wmem_new0(wmem_packet_scope(), umts_mac_info);
+        }
         /********************************/
         /* HS-DCH type 2 data here      */
 
@@ -4264,6 +4284,9 @@ dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+    if (!rlcinf) {
+        rlcinf = wmem_new0(wmem_packet_scope(), rlc_info);
+    }
 
     /* Show release information */
     if (preferences_show_release_info) {
