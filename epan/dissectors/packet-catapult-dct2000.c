@@ -1582,6 +1582,9 @@ static void attach_fp_info(packet_info *pinfo, gboolean received, const char *pr
 
     /* Number of channels (for coordinated channels) */
     p_fp_info->num_chans = outhdr_values[i++];
+    if (p_fp_info->num_chans > MAX_FP_CHANS) {
+        p_fp_info->num_chans = MAX_FP_CHANS;
+    }
 
     /* EDCH-Common is always T2 */
     if (p_fp_info->channel == CHANNEL_EDCH_COMMON) {
