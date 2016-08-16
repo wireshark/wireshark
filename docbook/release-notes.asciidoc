@@ -25,109 +25,24 @@ used for troubleshooting, analysis, development and education.
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
-since version 2.1.1:
+since version 2.2.0:
 
-* Source code releases are now compressed using xz.
-
-The following features are new (or have been significantly updated)
-since version 2.1.0:
-
-* Added -d option for Decode As support in Wireshark (mimics TShark
-  functionality)
-* The Qt UI, GTK+ UI, and TShark can now export packets as JSON.
-  TShark can additionally export packets as Elasticsearch-compatible
-  JSON.
-* The Qt UI now supports the -j, -J, and -l flags. The -m flag is now
-  deprecated.
-* The Conversations and Endpoints dialogs are more responsive when
-  viewing large numbers of items.
-* The RTP player now allows up to 30 minutes of silence frames.
-* Packet bytes can now be displayed as EBCDIC.
-* The Qt UI loads captures faster on Windows.
-* proto_tree_add_checksum was added as an API.  This attempts to
-  standardize how checksums are reported and filtered for within
-  *Shark.  There are no more individual "good" and "bad" filter
-  fields, protocols now have a "checksum.status" field that records
-  "Good", "Bad" and "Unverified" (neither good or bad). Color filters
-  provided with Wireshark have been adjusted to the new display filter
-  names, but custom ones may need to be updated.
-
-The following features are new (or have been significantly updated)
-since version 2.0.0:
-
-* The intelligent scroll bar now sits to the left of a normal scroll bar and
-  provides a clickable map of nearby packets.
-* You can now switch between between Capture and File Format dissection of
-the current capture file via the View menu in the Qt GUI.
-* You can now show selected packet bytes as ASCII, HTML, Image, ISO 8859-1, Raw, UTF-8,
-a C array, or YAML.
-* You can now use regular expressions in Find Packet and in the advanced preferences.
-* Name resolution for packet capture now supports asynchronous DNS lookups only. Therefore the
-"concurrent DNS resolution" preference has been deprecated and is a no-op. To enable DNS name
-resolution some build dependencies must be present (currently c-ares). If that is not the case DNS
-name resolution will be disabled (but other name resolution mechanisms, such as host files,
-are still available).
-* The byte under the mouse in the Packet Bytes pane is now highlighted.
-* TShark supports exporting PDUs via the `-U` flag.
-* The Windows and OS X installers now come with the "sshdump" and "ciscodump" extcap interfaces.
-* Most dialogs in the Qt UI now save their size and positions.
-* The Follow Stream dialog now supports UTF-16.
-* The Firewall ACL Rules dialog has returned.
-* The Flow (Sequence) Analysis dialog has been improved.
-* We no longer provide packages for 32-bit versions of OS X.
-* The Bluetooth Device details dialog has been added.
+* ...
 
 //=== Removed Dissectors
 
-=== New File Format Decoding Support
-
-Wireshark is able to display the format of some types of files (rather than
-displaying the contents of those files). This is useful when you're curious
-about, or debugging, a file and its format.  To open a capture file (such as
-PCAP) in this mode specify "MIME Files Format" as the file's format in the
-Open File dialog.
-
-New files that Wireshark can open in this mode include:
-
-//_Non-empty section placeholder._
---sort-and-group--
---sort-and-group--
+//=== New File Format Decoding Support
 
 === New Protocol Support
 
 // Add one protocol per line between the --sort-and-group-- delimiters.
 --sort-and-group--
-CISCO ERSPAN3 Marker
-Nokia Intelligent Service Interface (ISI)
-ISO14443
-Extensible Control & Management Protocol (eCMP)
-RTI TCP Transport Layer (RTITCP)
-ITU-T G.7041/Y.1303 Generic Framing Procedure (GFP)
-Zigbee Protocol Clusters Dissectors Added (Closures, Lighting, General, Measurement & Sensing, HVAC, Security & Safety)
-LAT protocol (DECNET)
-Ericsson IPOS Kernel Packet Header Dissector Added (IPOS)
-STANAG 5602 SIMPLE
-UserLog Protocol
-FLEXRAY Protocol dissector added (automotive bus)
-USB3 Vision Protocol (USB machine vision cameras)
-USBIP Protocol
-Open Mobile Alliance Lightweight Machine to Machine TLV payload Added (LwM2M TLV)
-Metamako trailers
-ISO 8583-1
-Bluetooth Pseudoheader for BR/EDR
-Edge Control Protocol (ECP)
-Bachmann bluecom Protocol
-Apache Cassandra - CQL version 3.0
-Real Time Location System (RTLS)
-Network-Based IP Flow Mobility (NBIFOM)
-IEEE 802.1BR E-Tag
 Nordic BLE Sniffer
 Ericsson A-bis TFP (Traffic Forwarding Protocol)
 Ericsson A-bis P-GSL
 vSocket
 ISO 15765
 Unified Diagnostic Services (UDS)
-Encrypted UDP based FTP with multicast
 SCTE-35 Digital Program Insertion Messages
 Windows Cluster Management API (clusapi)
 
@@ -135,20 +50,13 @@ Windows Cluster Management API (clusapi)
 
 === Updated Protocol Support
 
-Bluetooth OBEX dissector (btobex) was renamed to Obex Dissector (obex), allow to
-DecodeAs it over USB, TCP and UDP.
-
-A preference was added to TCP dissector for handling IPFIX process
-information.  It has been disabled by default.
-
-//Too many protocols have been updated to list here.
+Too many protocols have been updated to list here.
 
 === New and Updated Capture File Support
 
-//_Non-empty section placeholder._
+_Non-empty section placeholder._
 // Add one file type per line between the --sort-and-group-- delimiters.
 --sort-and-group--
-Micropross mplog
 --sort-and-group--
 
 === New and Updated Capture Interfaces support
@@ -157,20 +65,7 @@ _Non-empty section placeholder._
 --sort-and-group--
 --sort-and-group--
 
-=== Major API Changes
-
-The libwireshark API has undergone some major changes:
-
-* The address macros (e.g., SET_ADDRESS) have been removed.  Use the
-(lower case) functions of the same names instead.
-
-* "old style" dissector functions (that don't return number of bytes
-used) have been replaced in name with the "new style" dissector
-functions.
-
-* tvb_get_string and tvb_get_stringz have been replaced with
-tvb_get_string_enc and tvb_get_stringz_enc respectively.
-
+//=== Major API Changes
 
 == Getting Wireshark
 
