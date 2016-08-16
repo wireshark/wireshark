@@ -1502,7 +1502,7 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
             }
             break;
             case TAG_MIDS:
-                proto_tree_add_item(tag_tree, hf_quic_tag_mids, tvb, tag_offset_start + tag_offset, 4, ENC_TIME_TIMESPEC);
+                proto_tree_add_item(tag_tree, hf_quic_tag_mids, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 proto_item_append_text(ti_tag, ": %u", tvb_get_letohl(tvb, tag_offset_start + tag_offset));
                 tag_offset += 4;
                 tag_len -= 4;
