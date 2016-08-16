@@ -471,8 +471,8 @@ static const value_string cadr_type_vals[] = {
 
 /**************************************************************************/
 /*                      Error Code                                        */
-/* See src/net/quic/quic_protocol.h from Chromium Source                  */
 /**************************************************************************/
+/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/quic/core/quic_protocol.h */
 
 enum QuicErrorCode {
     QUIC_NO_ERROR = 0,
@@ -496,6 +496,8 @@ enum QuicErrorCode {
     QUIC_UNENCRYPTED_STREAM_DATA = 61,
     /* Attempt to send unencrypted STREAM frame. */
     QUIC_ATTEMPT_TO_SEND_UNENCRYPTED_STREAM_DATA = 88,
+    /* Received a frame which is likely the result of memory corruption. */
+    QUIC_MAYBE_CORRUPTED_MEMORY = 89,
     /* FEC frame data is not encrypted. */
     QUIC_UNENCRYPTED_FEC_DATA = 77,
     /* RST_STREAM frame data is malformed. */
@@ -645,12 +647,18 @@ enum QuicErrorCode {
     QUIC_CRYPTO_MESSAGE_WHILE_VALIDATING_CLIENT_HELLO = 54,
     /* A server config update arrived before the handshake is complete. */
     QUIC_CRYPTO_UPDATE_BEFORE_HANDSHAKE_COMPLETE = 65,
+    /* CHLO cannot fit in one packet. */
+    QUIC_CRYPTO_CHLO_TOO_LARGE = 90,
     /* This connection involved a version negotiation which appears to have been
        tampered with. */
     QUIC_VERSION_NEGOTIATION_MISMATCH = 55,
 
     /* Multipath is not enabled, but a packet with multipath flag on is received. */
     QUIC_BAD_MULTIPATH_FLAG = 79,
+    /* A path is supposed to exist but does not. */
+    QUIC_MULTIPATH_PATH_DOES_NOT_EXIST = 91,
+    /* A path is supposed to be active but is not. */
+    QUIC_MULTIPATH_PATH_NOT_ACTIVE = 92,
 
     /* IP address changed causing connection close. */
     QUIC_IP_ADDRESS_CHANGED = 80,
@@ -665,8 +673,11 @@ enum QuicErrorCode {
     /* Network changed, but connection had one or more non-migratable streams. */
     QUIC_CONNECTION_MIGRATION_NON_MIGRATABLE_STREAM = 84,
 
+    /* Stream frames arrived too discontiguously so that stream sequencer buffer maintains too many gaps. */
+    QUIC_TOO_MANY_FRAME_GAPS = 93,
+
     /* No error. Used as bound while iterating. */
-    QUIC_LAST_ERROR = 89
+    QUIC_LAST_ERROR = 94
 };
 
 
@@ -762,6 +773,11 @@ static const value_string error_code_vals[] = {
     { QUIC_ERROR_MIGRATING_PORT, "There was an error encountered migrating port only" },
     { QUIC_OVERLAPPING_STREAM_DATA, "STREAM frame data overlaps with buffered data" },
     { QUIC_ATTEMPT_TO_SEND_UNENCRYPTED_STREAM_DATA, "Attempt to send unencrypted STREAM frame" },
+    { QUIC_MAYBE_CORRUPTED_MEMORY, "Received a frame which is likely the result of memory corruption" },
+    { QUIC_CRYPTO_CHLO_TOO_LARGE, "CHLO cannot fit in one packet" },
+    { QUIC_MULTIPATH_PATH_DOES_NOT_EXIST, "A path is supposed to exist but does not" },
+    { QUIC_MULTIPATH_PATH_NOT_ACTIVE, "A path is supposed to be active but is not" },
+    { QUIC_TOO_MANY_FRAME_GAPS, "Stream frames arrived too discontiguously so that stream sequencer buffer maintains too many gaps" },
     { QUIC_LAST_ERROR, "No error. Used as bound while iterating" },
     { 0, NULL }
 };
