@@ -340,7 +340,7 @@ static const value_string zbee_nwk_end_device_timeout_resp_status[] = {
 
 /* Names of IEEE 802.15.4 IEs (Information Elements) for ZigBee */
 static const value_string ieee802154_zigbee_ie_names[] = {
-    { ZBEE_ZIGBEE_IE_REJOIN,                    "ReJoin"   },
+    { ZBEE_ZIGBEE_IE_REJOIN,                    "Rejoin"   },
     { ZBEE_ZIGBEE_IE_TX_POWER,                  "Tx Power" },
     { ZBEE_ZIGBEE_IE_BEACON_PAYLOAD,            "Extended Beacon Payload" },
     { 0, NULL }
