@@ -1406,8 +1406,8 @@ static void parse_outhdr_string(const guchar *outhdr_string, gint outhdr_string_
         guint   d;
 
         /* Find digits */
-        for ( ; n < outhdr_string_len; n++) {
-            if (!isdigit(outhdr_string[n])) {
+        for ( ; (n < outhdr_string_len) && (number_digits < MAX_OUTHDR_VALUES); n++) {
+            if (!g_ascii_isdigit(outhdr_string[n])) {
                 break;
             }
             else {
