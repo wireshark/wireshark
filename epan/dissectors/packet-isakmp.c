@@ -14,6 +14,10 @@
  * 04/2009 Added routines for decryption of IKEv2 Encrypted Payload
  *   Naoyoshi Ueda <piyomaru3141@gmail.com>
  *
+ * 08/2016 Added decryption using AES-GCM, AES-CCM and AES-CTR
+ *         and verification using AES-GCM, AES-CCM
+ *   Michal Skalski <mskalski13@gmail.com>
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -61,6 +65,9 @@
 #include <epan/proto_data.h>
 #include <epan/strutil.h>
 #include <epan/uat.h>
+#if GCRYPT_VERSION_NUMBER >= 0x010600
+#define HAVE_LIBGCRYPT_AEAD 1
+#endif
 #endif
 
 void proto_register_isakmp(void);
@@ -1624,6 +1631,15 @@ typedef struct _ikev2_encr_alg_spec {
   gint gcry_alg;
   /* Cipher mode to be passed to gcry_cipher_open() */
   gint gcry_mode;
+
+  /* Salt length used in AEAD (GCM/CCM) mode. Salt value is last salt_len bytes of encr_key.
+   * IV for decryption is the result of concatenating salt value and iv_len bytes of iv.
+   * For non-AED ciphers salt_len 0 */
+  guint salt_len;
+  /* Authenticated Encryption TAG length (ICV) - length of data taken from end of encrypted output
+   * used for integrity checksum, computed during decryption (for AEAD ciphers)*/
+  guint icv_len;
+
 } ikev2_encr_alg_spec_t;
 
 #define IKEV2_ENCR_NULL        1
@@ -1632,13 +1648,105 @@ typedef struct _ikev2_encr_alg_spec {
 #define IKEV2_ENCR_AES_CBC_192 4
 #define IKEV2_ENCR_AES_CBC_256 5
 
+#define IKEV2_ENCR_AES_CTR_128 6
+#define IKEV2_ENCR_AES_CTR_192 7
+#define IKEV2_ENCR_AES_CTR_256 8
+
+/* AEAD algorithms. Require gcrypt_version >= 1.6.0 if integrity verification shall be performed */
+#define IKEV2_ENCR_AES_GCM_128_16  101
+#define IKEV2_ENCR_AES_GCM_192_16  102
+#define IKEV2_ENCR_AES_GCM_256_16  103
+
+#define IKEV2_ENCR_AES_GCM_128_8   104
+#define IKEV2_ENCR_AES_GCM_192_8   105
+#define IKEV2_ENCR_AES_GCM_256_8   106
+
+#define IKEV2_ENCR_AES_GCM_128_12  107
+#define IKEV2_ENCR_AES_GCM_192_12  108
+#define IKEV2_ENCR_AES_GCM_256_12  109
+
+#define IKEV2_ENCR_AES_CCM_128_16  111
+#define IKEV2_ENCR_AES_CCM_192_16  112
+#define IKEV2_ENCR_AES_CCM_256_16  113
+
+#define IKEV2_ENCR_AES_CCM_128_8   114
+#define IKEV2_ENCR_AES_CCM_192_8   115
+#define IKEV2_ENCR_AES_CCM_256_8   116
+
+#define IKEV2_ENCR_AES_CCM_128_12  117
+#define IKEV2_ENCR_AES_CCM_192_12  118
+#define IKEV2_ENCR_AES_CCM_256_12  119
+
+
 static ikev2_encr_alg_spec_t ikev2_encr_algs[] = {
-  {IKEV2_ENCR_NULL, 0, 1, 0, GCRY_CIPHER_NONE, GCRY_CIPHER_MODE_NONE},
-  {IKEV2_ENCR_3DES, 24, 8, 8, GCRY_CIPHER_3DES, GCRY_CIPHER_MODE_CBC},
-  {IKEV2_ENCR_AES_CBC_128, 16, 16, 16, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC},
-  {IKEV2_ENCR_AES_CBC_192, 24, 16, 16, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CBC},
-  {IKEV2_ENCR_AES_CBC_256, 32, 16, 16, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CBC},
-  {0, 0, 0, 0, 0, 0}
+  {IKEV2_ENCR_NULL, 0, 1, 0, GCRY_CIPHER_NONE, GCRY_CIPHER_MODE_NONE, 0, 0},
+  {IKEV2_ENCR_3DES, 24, 8, 8, GCRY_CIPHER_3DES, GCRY_CIPHER_MODE_CBC, 0, 0},
+  {IKEV2_ENCR_AES_CBC_128, 16, 16, 16, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC, 0, 0},
+  {IKEV2_ENCR_AES_CBC_192, 24, 16, 16, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CBC, 0, 0},
+  {IKEV2_ENCR_AES_CBC_256, 32, 16, 16, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CBC, 0, 0},
+
+  {IKEV2_ENCR_AES_CTR_128, 20, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 4, 0},
+  {IKEV2_ENCR_AES_CTR_192, 28, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR, 4, 0},
+  {IKEV2_ENCR_AES_CTR_256, 36, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 4, 0},
+
+#ifdef HAVE_LIBGCRYPT_AEAD
+  /* GCM algorithms: key length: aes-length + 4 bytes of IV (salt), iv - 8 bytes */
+  {IKEV2_ENCR_AES_GCM_128_16, 20, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, 4, 16},
+  {IKEV2_ENCR_AES_GCM_192_16, 28, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_GCM, 4, 16},
+  {IKEV2_ENCR_AES_GCM_256_16, 36, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_GCM, 4, 16},
+
+  {IKEV2_ENCR_AES_GCM_128_8, 20, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, 4, 8},
+  {IKEV2_ENCR_AES_GCM_192_8, 28, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_GCM, 4, 8},
+  {IKEV2_ENCR_AES_GCM_256_8, 36, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_GCM, 4, 8},
+
+  {IKEV2_ENCR_AES_GCM_128_12, 20, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, 4, 12},
+  {IKEV2_ENCR_AES_GCM_192_12, 28, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_GCM, 4, 12},
+  {IKEV2_ENCR_AES_GCM_256_12, 36, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_GCM, 4, 12},
+
+  /* CCM algorithms: key length: aes-length + 3 bytes of salt, iv - 8 bytes */
+  {IKEV2_ENCR_AES_CCM_128_16, 19, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CCM, 3, 16},
+  {IKEV2_ENCR_AES_CCM_192_16, 27, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CCM, 3, 16},
+  {IKEV2_ENCR_AES_CCM_256_16, 35, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CCM, 3, 16},
+
+  {IKEV2_ENCR_AES_CCM_128_8, 19, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CCM, 3, 8},
+  {IKEV2_ENCR_AES_CCM_192_8, 27, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CCM, 3, 8},
+  {IKEV2_ENCR_AES_CCM_256_8, 35, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CCM, 3, 8},
+
+  {IKEV2_ENCR_AES_CCM_128_12, 19, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CCM, 3, 12},
+  {IKEV2_ENCR_AES_CCM_192_12, 27, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CCM, 3, 12},
+  {IKEV2_ENCR_AES_CCM_256_12, 35, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CCM, 3, 12},
+#else
+  /* decrypt using plain ctr mode - special handling for GCM mode of counter initial value 2 inside dis_enc()*/
+  /* GCM algorithms: key length: aes-length + 4 bytes of IV (salt), iv - 8 bytes */
+  {IKEV2_ENCR_AES_GCM_128_16, 20, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 4, 16},
+  {IKEV2_ENCR_AES_GCM_192_16, 28, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR, 4, 16},
+  {IKEV2_ENCR_AES_GCM_256_16, 36, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 4, 16},
+
+  {IKEV2_ENCR_AES_GCM_128_8, 20, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 4, 8},
+  {IKEV2_ENCR_AES_GCM_192_8, 28, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR, 4, 8},
+  {IKEV2_ENCR_AES_GCM_256_8, 36, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 4, 8},
+
+  {IKEV2_ENCR_AES_GCM_128_12, 20, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 4, 12},
+  {IKEV2_ENCR_AES_GCM_192_12, 28, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR, 4, 12},
+  {IKEV2_ENCR_AES_GCM_256_12, 36, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 4, 12},
+
+  /* CCM algorithms: key length: aes-length + 3 bytes of salt, iv - 8 bytes.
+   * Special handling of setting first byte of iv to length of 14 - noncelen inside dis_enc() */
+  {IKEV2_ENCR_AES_CCM_128_16, 19, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 3, 16},
+  {IKEV2_ENCR_AES_CCM_192_16, 27, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR, 3, 16},
+  {IKEV2_ENCR_AES_CCM_256_16, 35, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 3, 16},
+
+  {IKEV2_ENCR_AES_CCM_128_8, 19, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 3, 8},
+  {IKEV2_ENCR_AES_CCM_192_8, 27, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR, 3, 8},
+  {IKEV2_ENCR_AES_CCM_256_8, 35, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 3, 8},
+
+  {IKEV2_ENCR_AES_CCM_128_12, 19, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 3, 12},
+  {IKEV2_ENCR_AES_CCM_192_12, 27, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR, 3, 12},
+  {IKEV2_ENCR_AES_CCM_256_12, 35, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 3, 12},
+
+#endif
+
+  {0, 0, 0, 0, 0, 0, 0, 0}
 };
 
 /*
@@ -1671,6 +1779,7 @@ typedef struct _ikev2_auth_alg_spec {
 #define IKEV2_AUTH_ANY_160BITS  10
 #define IKEV2_AUTH_ANY_192BITS  11
 #define IKEV2_AUTH_ANY_256BITS  12
+#define IKEV2_AUTH_ANY_64BITS   13
 
 static ikev2_auth_alg_spec_t ikev2_auth_algs[] = {
 /*{number, output_len, key_len, trunc_len, gcry_alg, gcry_flag}*/
@@ -1686,6 +1795,8 @@ static ikev2_auth_alg_spec_t ikev2_auth_algs[] = {
   {IKEV2_AUTH_ANY_160BITS, 0, 0, 20, 0, 0},
   {IKEV2_AUTH_ANY_192BITS, 0, 0, 24, 0, 0},
   {IKEV2_AUTH_ANY_256BITS, 0, 0, 32, 0, 0},
+  {IKEV2_AUTH_ANY_64BITS, 0, 0, 8, 0, 0},
+
   {0, 0, 0, 0, 0, 0}
 };
 
@@ -1733,6 +1844,35 @@ static const value_string vs_ikev2_encr_algs[] = {
   {IKEV2_ENCR_AES_CBC_192, "AES-CBC-192 [RFC3602]"},
   {IKEV2_ENCR_AES_CBC_256, "AES-CBC-256 [RFC3602]"},
   {IKEV2_ENCR_NULL,        "NULL [RFC2410]"},
+
+  {IKEV2_ENCR_AES_CTR_128, "AES-CTR-128 [RFC5930]"},
+  {IKEV2_ENCR_AES_CTR_192, "AES-CTR-192 [RFC5930]"},
+  {IKEV2_ENCR_AES_CTR_256, "AES-CTR-256 [RFC5930]"},
+
+  {IKEV2_ENCR_AES_GCM_128_16, "AES-GCM-128 with 16 octet ICV [RFC5282]"},
+  {IKEV2_ENCR_AES_GCM_192_16, "AES-GCM-192 with 16 octet ICV [RFC5282]"},
+  {IKEV2_ENCR_AES_GCM_256_16, "AES-GCM-256 with 16 octet ICV [RFC5282]"},
+
+  {IKEV2_ENCR_AES_GCM_128_8, "AES-GCM-128 with 8 octet ICV [RFC5282]"},
+  {IKEV2_ENCR_AES_GCM_192_8, "AES-GCM-192 with 8 octet ICV [RFC5282]"},
+  {IKEV2_ENCR_AES_GCM_256_8, "AES-GCM-256 with 8 octet ICV [RFC5282]"},
+
+  {IKEV2_ENCR_AES_GCM_128_12, "AES-GCM-128 with 12 octet ICV [RFC5282]"},
+  {IKEV2_ENCR_AES_GCM_192_12, "AES-GCM-192 with 12 octet ICV [RFC5282]"},
+  {IKEV2_ENCR_AES_GCM_256_12, "AES-GCM-256 with 12 octet ICV [RFC5282]"},
+
+  {IKEV2_ENCR_AES_CCM_128_16, "AES-CCM-128 with 16 octet ICV [RFC5282]"},
+  {IKEV2_ENCR_AES_CCM_192_16, "AES-CCM-192 with 16 octet ICV [RFC5282]"},
+  {IKEV2_ENCR_AES_CCM_256_16, "AES-CCM-256 with 16 octet ICV [RFC5282]"},
+
+  {IKEV2_ENCR_AES_CCM_128_8, "AES-CCM-128 with 8 octet ICV [RFC5282]"},
+  {IKEV2_ENCR_AES_CCM_192_8, "AES-CCM-192 with 8 octet ICV [RFC5282]"},
+  {IKEV2_ENCR_AES_CCM_256_8, "AES-CCM-256 with 8 octet ICV [RFC5282]"},
+
+  {IKEV2_ENCR_AES_CCM_128_12, "AES-CCM-128 with 12 octet ICV [RFC5282]"},
+  {IKEV2_ENCR_AES_CCM_192_12, "AES-CCM-192 with 12 octet ICV [RFC5282]"},
+  {IKEV2_ENCR_AES_CCM_256_12, "AES-CCM-256 with 12 octet ICV [RFC5282]"},
+
   {0, NULL}
 };
 
@@ -1745,6 +1885,7 @@ static const value_string vs_ikev2_auth_algs[] = {
   {IKEV2_AUTH_HMAC_SHA2_384_192, "HMAC_SHA2_384_192 [RFC4868]"},
   {IKEV2_AUTH_HMAC_SHA2_512_256, "HMAC_SHA2_512_256 [RFC4868]"},
   {IKEV2_AUTH_NONE,         "NONE [RFC4306]"},
+  {IKEV2_AUTH_ANY_64BITS,   "ANY 64-bits of Authentication [No Checking]"},
   {IKEV2_AUTH_ANY_96BITS,   "ANY 96-bits of Authentication [No Checking]"},
   {IKEV2_AUTH_ANY_128BITS,  "ANY 128-bits of Authentication [No Checking]"},
   {IKEV2_AUTH_ANY_160BITS,  "ANY 160-bits of Authentication [No Checking]"},
@@ -5014,9 +5155,9 @@ dissect_enc(tvbuff_t *tvb,
 {
 #ifdef HAVE_LIBGCRYPT
   ikev2_decrypt_data_t *key_info = NULL;
-  gint iv_len, encr_data_len, icd_len, decr_data_len, md_len;
+  gint iv_len, encr_data_len, icd_len, decr_data_len, md_len, icv_len, encr_key_len, encr_iv_len;
   guint8 pad_len;
-  guchar *iv = NULL, *encr_data = NULL, *decr_data = NULL, *entire_message = NULL, *md = NULL;
+  guchar *iv = NULL, *encr_data = NULL, *decr_data = NULL, *entire_message = NULL, *md = NULL, *encr_iv = NULL;
   gcry_cipher_hd_t cipher_hd;
   gcry_md_hd_t md_hd;
   gcry_error_t err = 0;
@@ -5024,13 +5165,29 @@ dissect_enc(tvbuff_t *tvb,
   tvbuff_t *decr_tvb = NULL;
   gint payloads_len;
   proto_tree *decr_tree = NULL, *decr_payloads_tree = NULL;
+#ifdef HAVE_LIBGCRYPT_AEAD
+  guchar *aa_data = NULL, *icv_data = NULL;
+  gint aad_len = 0;
+#endif
 
   if (decr_info) {
     /* Need decryption details to know field lengths. */
     key_info = (ikev2_decrypt_data_t*)(decr_info);
+
+    /* BUG: encr/auth specs are not set properly after editing IKEv2 UAT (adding / removing rows).
+     * Key value in key_info->encr_key is set properly */
+    if (!key_info->encr_spec || !key_info->auth_spec) {
+      REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+        "IKEv2: decryption/integrity specs not set-up properly: encr_spec: %p, auth_spec: %p",
+        (void *)key_info->auth_spec, (void*)key_info->auth_spec));
+    }
+
     iv_len = key_info->encr_spec->iv_len;
-    icd_len = key_info->auth_spec->trunc_len;
+    icv_len = key_info->encr_spec->icv_len;
+    icd_len = icv_len ? icv_len : (gint)key_info->auth_spec->trunc_len;
     encr_data_len = length - iv_len - icd_len;
+    encr_key_len = key_info->encr_spec->key_len;
+    encr_iv_len = iv_len;
 
     /*
      * Zero or negative length of encrypted data shows that the user specified
@@ -5051,6 +5208,7 @@ dissect_enc(tvbuff_t *tvb,
         proto_item_append_text(iv_item, " (%d bytes)", iv_len);
       }
       iv = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, iv_len);
+      encr_iv = iv;
 
       offset += iv_len;
     }
@@ -5061,6 +5219,7 @@ dissect_enc(tvbuff_t *tvb,
     if (dissect_payload_now) {
       encr_data_item = proto_tree_add_item(tree, hf_isakmp_enc_data, tvb, offset, encr_data_len, ENC_NA);
       proto_item_append_text(encr_data_item, " (%d bytes)",encr_data_len);
+      proto_item_append_text(encr_data_item, " <%s>", val_to_str(key_info->encr_spec->number, vs_ikev2_encr_algs, "Unknown cipher: %d"));
     }
     encr_data = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, encr_data_len);
     offset += encr_data_len;
@@ -5076,7 +5235,18 @@ dissect_enc(tvbuff_t *tvb,
       /*
        * Recalculate ICD value if the specified authentication algorithm allows it.
        */
+#ifdef HAVE_LIBGCRYPT_AEAD
+      if (icv_len) {
+        /* For GCM/CCM algorithms ICD is computed during decryption.
+          Must save offset and length of authenticated additional data (whole ISAKMP header
+          without iv and encrypted data) and ICV for later verification */
+        aad_len = offset - iv_len - encr_data_len;
+        aa_data = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, 0, aad_len);
+        icv_data = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, icv_len);
+      } else
+#endif
       if (key_info->auth_spec->gcry_alg) {
+        proto_item_append_text(icd_item, " <%s>", val_to_str(key_info->auth_spec->number, vs_ikev2_auth_algs, "Unknown mac algo: %d"));
         err = gcry_md_open(&md_hd, key_info->auth_spec->gcry_alg, key_info->auth_spec->gcry_flag);
         if (err) {
           REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
@@ -5085,6 +5255,7 @@ dissect_enc(tvbuff_t *tvb,
         }
         err = gcry_md_setkey(md_hd, key_info->auth_key, key_info->auth_spec->key_len);
         if (err) {
+          gcry_md_close(md_hd);
           REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
             "IKEv2 hashing error: algorithm %s, key length %u: gcry_md_setkey failed: %s",
             gcry_md_algo_name(key_info->auth_spec->gcry_alg), key_info->auth_spec->key_len, gcry_strerror(err)));
@@ -5142,24 +5313,108 @@ dissect_enc(tvbuff_t *tvb,
           "IKEv2 decryption error: algorithm %d, mode %d: gcry_cipher_open failed: %s",
           key_info->encr_spec->gcry_alg, key_info->encr_spec->gcry_mode, gcry_strerror(err)));
       }
-      err = gcry_cipher_setkey(cipher_hd, key_info->encr_key, key_info->encr_spec->key_len);
+
+      /* Handling CTR mode and AEAD ciphers */
+      if( key_info->encr_spec->salt_len ) {
+        int encr_iv_offset  = 0;
+        encr_key_len = key_info->encr_spec->key_len - key_info->encr_spec->salt_len;
+        encr_iv_len = key_info->encr_spec->salt_len + iv_len;
+        if (key_info->encr_spec->gcry_mode == GCRY_CIPHER_MODE_CTR) {
+          encr_iv_len = (int)gcry_cipher_get_algo_blklen(key_info->encr_spec->gcry_alg);
+          if ((key_info->encr_spec->number >= IKEV2_ENCR_AES_CCM_128_16 && key_info->encr_spec->number <= IKEV2_ENCR_AES_CCM_256_12))
+            encr_iv_offset = 1;
+        }
+
+        if (encr_key_len < 0 || encr_iv_len < encr_iv_offset + (int)key_info->encr_spec->salt_len + iv_len) {
+          gcry_cipher_close(cipher_hd);
+          REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+            "IKEv2 decryption error: algorithm %d, key length %d, salt length %d, input iv length %d, cipher iv length: %d: invalid length(s) of cipher parameters",
+            key_info->encr_spec->gcry_alg, encr_key_len, key_info->encr_spec->salt_len, iv_len, encr_iv_len));
+        }
+
+        encr_iv = (guchar *)wmem_alloc(pinfo->pool, encr_iv_len );
+        memset( encr_iv, 0, encr_iv_len );
+        memcpy( encr_iv + encr_iv_offset, key_info->encr_key + encr_key_len, key_info->encr_spec->salt_len );
+        memcpy( encr_iv + encr_iv_offset + key_info->encr_spec->salt_len, iv, iv_len );
+        if (key_info->encr_spec->gcry_mode == GCRY_CIPHER_MODE_CTR) {
+          encr_iv[encr_iv_len-1] = 1;
+          /* fallback for gcrypt not having AEAD ciphers */
+          if ((key_info->encr_spec->number >= IKEV2_ENCR_AES_GCM_128_16 && key_info->encr_spec->number <= IKEV2_ENCR_AES_GCM_256_12))
+            encr_iv[encr_iv_len-1]++;
+          if ((key_info->encr_spec->number >= IKEV2_ENCR_AES_CCM_128_16 && key_info->encr_spec->number <= IKEV2_ENCR_AES_CCM_256_12))
+            encr_iv[0] = (guchar)(encr_iv_len - 2 - key_info->encr_spec->salt_len - iv_len);
+        }
+      }
+
+      err = gcry_cipher_setkey(cipher_hd, key_info->encr_key, encr_key_len);
       if (err) {
         REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
           "IKEv2 decryption error: algorithm %d, key length %d:  gcry_cipher_setkey failed: %s",
-          key_info->encr_spec->gcry_alg, key_info->encr_spec->key_len, gcry_strerror(err)));
+          key_info->encr_spec->gcry_alg, encr_key_len, gcry_strerror(err)));
       }
-      err = gcry_cipher_setiv(cipher_hd, iv, iv_len);
+      if (key_info->encr_spec->gcry_mode == GCRY_CIPHER_MODE_CTR)
+        err = gcry_cipher_setctr(cipher_hd, encr_iv, encr_iv_len);
+      else
+        err = gcry_cipher_setiv(cipher_hd, encr_iv, encr_iv_len);
       if (err) {
         REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-          "IKEv2 decryption error: algorithm %d, iv length %d:  gcry_cipher_setiv failed: %s",
-          key_info->encr_spec->gcry_alg, iv_len, gcry_strerror(err)));
+          "IKEv2 decryption error: algorithm %d, iv length %d:  gcry_cipher_setiv/gcry_cipher_setctr failed: %s",
+          key_info->encr_spec->gcry_alg, encr_iv_len, gcry_strerror(err)));
       }
+
+#ifdef HAVE_LIBGCRYPT_AEAD
+      if (key_info->encr_spec->gcry_mode == GCRY_CIPHER_MODE_CCM) {
+        guint64 ccm_lengths[3];
+        ccm_lengths[0] = encr_data_len;
+        ccm_lengths[1] = aad_len;
+        ccm_lengths[2] = icv_len;
+
+        err = gcry_cipher_ctl(cipher_hd, GCRYCTL_SET_CCM_LENGTHS, ccm_lengths, sizeof(ccm_lengths));
+        if (err) {
+          gcry_cipher_close(cipher_hd);
+          REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+            "IKEv2 decryption error: algorithm %d:  gcry_cipher_ctl(GCRYCTL_SET_CCM_LENGTHS) failed: %s",
+            key_info->encr_spec->gcry_alg, gcry_strerror(err)));
+        }
+      }
+
+      if (aad_len) {
+        err = gcry_cipher_authenticate(cipher_hd, aa_data, aad_len);
+        if (err) {
+          gcry_cipher_close(cipher_hd);
+          REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+            "IKEv2 decryption error: algorithm %d:  gcry_cipher_authenticate failed: %s",
+            key_info->encr_spec->gcry_alg, gcry_strerror(err)));
+        }
+      }
+#endif
+
       err = gcry_cipher_decrypt(cipher_hd, decr_data, decr_data_len, encr_data, encr_data_len);
       if (err) {
+        gcry_cipher_close(cipher_hd);
         REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
           "IKEv2 decryption error: algorithm %d:  gcry_cipher_decrypt failed: %s",
           key_info->encr_spec->gcry_alg, gcry_strerror(err)));
       }
+
+#ifdef HAVE_LIBGCRYPT_AEAD
+      if (icv_len) {
+       err = gcry_cipher_checktag(cipher_hd, icv_data, icv_len );
+        if (gcry_err_code(err) == GPG_ERR_CHECKSUM) {
+          proto_item_append_text(icd_item, "[incorrect]");
+          expert_add_info(pinfo, icd_item, &ei_isakmp_ikev2_integrity_checksum);
+        }
+        else if (err) {
+          gcry_cipher_close(cipher_hd);
+          REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+            "IKEv2 decryption error: algorithm %d:  gcry_cipher_checktag failed: %s",
+            key_info->encr_spec->gcry_alg, gcry_strerror(err)));
+        }
+        else
+          proto_item_append_text(icd_item, "[correct]");
+      }
+#endif
+
       gcry_cipher_close(cipher_hd);
     }
 
@@ -5428,6 +5683,12 @@ static gboolean ikev2_uat_data_update_cb(void* p, char** err) {
 
   if ((ud->auth_spec = ikev2_decrypt_find_auth_spec(ud->auth_alg)) == NULL) {
     REPORT_DISSECTOR_BUG("Couldn't get IKEv2 authentication algorithm spec.");
+  }
+
+  if (ud->encr_spec->icv_len && ud->auth_spec->number != IKEV2_AUTH_NONE) {
+    *err = g_strdup_printf("Selected encryption_algorithm %s requires selecting NONE integrity algorithm.",
+             val_to_str(ud->encr_spec->number, vs_ikev2_encr_algs, "other-%d"));
+    return FALSE;
   }
 
   if (ud->sk_ei_len != ud->encr_spec->key_len) {
