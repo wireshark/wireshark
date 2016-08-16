@@ -697,8 +697,8 @@ This section not yet written
 
 Python is an interpreted programming language. The homepage of the Python
 project is http://python.org/[]. It is used to generate some source files.
-Python 2.5 or later (including Python 3) should work fine but Python 2.7 is
-recommended.
+Python 2.5 or later (including Python 3) should work fine and Python 3.5 and
+2.7 are recommended.
 
 Python is either included or available as a package on most UNIX-like platforms.
 Windows packages and source are available at http://python.org/download/[].
@@ -708,11 +708,17 @@ a symbolic link, which causes confusion outside Cygwin.
 You can also use Chocolatey to install Python:
 
 ----
+PS:\> choco install Python3
+----
+
+or
+
+----
 PS:\> choco install Python2
 ----
 
-Chocolatey installs Python 2 into 'C:\tools\python2' by default. You can
-verify your Python version by running
+Chocolatey installs Python into 'C:\tools\python3' or 'C:\tools\python2' by
+default. You can verify your Python version by running
 
 ----
 $ python --version
@@ -722,18 +728,18 @@ on UNIX and Linux and
 
 ----
 rem Official package
-C:> cd python27
-C:Python27> python --version
+C:> cd python35
+C:Python35> python --version
 
 rem Chocolatey
-C:> cd \tools\python2
-C:\tools\python2> python --version
+C:> cd \tools\python3
+C:\tools\python3> python --version
 ----
 
 on Windows. You should see something like
 
 ----
-Python 2.7.9
+Python 3.5.1
 ----
 
 Your version string may vary of course.

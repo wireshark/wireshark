@@ -242,19 +242,26 @@ PS$>choco install winflexbison
 
 ==== Install Python
 
-Get the Python 2.7 installer from http://python.org/download/[] and install
-Python into the default location ('C:\Python27').
+Get the Python 3.5 or 2.7 installer from http://python.org/download/[] and
+install Python into the default location ('C:\Python35' or 'C:\Python27').
 
-Why is this recommended? Cygwin's Python package doesn't work on some machines,
-so the Win32 native package is recommended (and it's faster).  Note that Python 3.x isn't currently supported.
+Why is this recommended? Cygwin's `/usr/bin/python` is a Cygwin-specific
+symbolic link which cannot be run from Windows. The native package is faster
+as well.
 
 Alternatively you can install Python using Chocolatey:
+
+----
+PS$>choco install python3
+----
+
+or
 
 ----
 PS$>choco install python2
 ----
 
-Chocolatey installs Python 2 in 'C:\tools\python2' by default.
+Chocolatey installs Python in 'C:\tools\python3' and 'C:\tools\python2' by default.
 
 [[ChSetupGit]]
 
