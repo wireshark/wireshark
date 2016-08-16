@@ -58,6 +58,7 @@ EXTRA_DIST = \
 	indexcap.py					\
 	install_rpms_for_devel.sh			\
 	lex.py						\
+	licensecheck.pl					\
 	list_protos_in_cap.sh				\
 	make-dissector-reg.py				\
 	make-manuf					\
