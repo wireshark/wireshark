@@ -843,7 +843,6 @@ static gboolean h248_desegment = TRUE;
 
 
 static proto_tree *h248_tree;
-static tvbuff_t* h248_tvb;
 
 static dissector_handle_t h248_handle;
 static dissector_handle_t h248_term_handle;
@@ -2175,7 +2174,6 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_item *h248_item;
     asn1_ctx_t asn1_ctx;
     h248_tree = NULL;
-    h248_tvb = NULL;
 
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
