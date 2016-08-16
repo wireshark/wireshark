@@ -41,7 +41,25 @@
 #include <epan/afn.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 #include "oui.h"
+
+
+#define DEFAULT_COLUMN_INFO            1
+#define PROFINET_SPECIAL_COLUMN_INFO   2
+
+/* Structure for general station information */
+typedef struct _profinet_lldp_column_info {
+    /* general information */
+    gchar    *chassis_id_mac;
+    gchar    *chassis_id_locally_assigned;
+    gchar    *port_id_locally_assigned;
+    gboolean is_nos_assigned;
+    gboolean is_port_id_assigned;
+}profinet_lldp_column_info;
+
+static gint column_info_selection = DEFAULT_COLUMN_INFO;
 
 void proto_register_lldp(void);
 void proto_reg_handoff_lldp(void);
@@ -1147,7 +1165,8 @@ longitude_base(gchar *buf, guint64 value) {
 
 /* Dissect Chassis Id TLV (Mandatory) */
 static gint32
-dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset,
+	profinet_lldp_column_info *pn_lldp_column_info)
 {
 	guint8 tlvsubType;
 	guint16 tempShort;
@@ -1209,7 +1228,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
 		strPtr = tvb_ether_to_str(tvb, offset);
 		proto_tree_add_item(chassis_tree, hf_chassis_id_mac, tvb, offset, 6, ENC_NA);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "NoS = %s ", strPtr);
+		pn_lldp_column_info->chassis_id_mac = wmem_strdup(wmem_packet_scope(), strPtr);
 		offset += (dataLen - 1);
 		break;
 	}
@@ -1281,7 +1300,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			break;
 		case 7: /* Locally assigned */
 			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen-1));
-			col_append_fstr(pinfo->cinfo, COL_INFO, "NoS = %s ", strPtr);
+			pn_lldp_column_info->chassis_id_locally_assigned = wmem_strdup(wmem_packet_scope(), strPtr);
 			break;
 		case 1: /* Chassis component */
 			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
@@ -1310,7 +1329,8 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
 /* Dissect Port Id TLV (Mandatory) */
 static gint32
-dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset,
+	profinet_lldp_column_info *pn_lldp_column_info)
 {
 	guint8 tlvsubType;
 	guint16 tempShort;
@@ -1443,10 +1463,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 			break;
 		case 7: /* Locally assigned */
 			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen-1));
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Port Id = %s " ,strPtr);
-			/* Create fence in the column that prevents subsequent 'col_...'
-			calls from clearing the data currently in that column */
-			col_set_fence(pinfo->cinfo, COL_INFO);
+			pn_lldp_column_info->port_id_locally_assigned = wmem_strdup(wmem_packet_scope(), strPtr);
 			break;
 		default:
 			strPtr = "Reserved";
@@ -1483,8 +1500,10 @@ dissect_lldp_time_to_live(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	/* Get tlv length and seconds field */
 	dataLen = TLV_INFO_LEN(tempShort);
 	tempShort = tvb_get_ntohs(tvb, (offset+2));
-
-	col_append_fstr(pinfo->cinfo, COL_INFO, "TTL = %u ", tempShort);
+	if (column_info_selection == DEFAULT_COLUMN_INFO)
+	{
+		col_append_fstr(pinfo->cinfo, COL_INFO, "TTL = %u ", tempShort);
+	}
 
 	/* Set port tree */
 	time_to_live_tree = proto_tree_add_subtree_format(tree, tvb, offset, (dataLen + 2),
@@ -1585,11 +1604,17 @@ dissect_lldp_system_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	if (tlvsubType == SYSTEM_NAME_TLV_TYPE) {
 		system_subtree = proto_tree_add_subtree_format(tree, tvb, offset, (dataLen + 2),
 										ett_system_name, NULL, "System Name = %s", strPtr);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "System Name = %s ", strPtr);
+		if (column_info_selection == DEFAULT_COLUMN_INFO)
+		{
+			col_append_fstr(pinfo->cinfo, COL_INFO, "System Name = %s ", strPtr);
+		}
 	} else {
 		system_subtree = proto_tree_add_subtree_format(tree, tvb, offset, (dataLen + 2),
 										ett_system_desc, NULL, "System Description = %s", strPtr);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "System Description = %s ", strPtr);
+		if (column_info_selection == DEFAULT_COLUMN_INFO)
+		{
+			col_append_fstr(pinfo->cinfo, COL_INFO, "System Description = %s ", strPtr);
+		}
 	}
 
 	proto_tree_add_item(system_subtree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2974,10 +2999,79 @@ dissect_profinet_period(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const g
 	return offset;
 }
 
+static void
+select_source_of_name_of_station
+(packet_info *pinfo _U_, profinet_lldp_column_info *pn_lldp_column_info)
+{
+	if (pn_lldp_column_info->chassis_id_locally_assigned != NULL)
+	{
+		pn_lldp_column_info->is_nos_assigned = TRUE;
+		col_append_fstr(pinfo->cinfo, COL_INFO, "NoS = %s ", pn_lldp_column_info->chassis_id_locally_assigned);
+	}
+	else
+	{
+		if (pn_lldp_column_info->chassis_id_mac != NULL)
+		{
+			pn_lldp_column_info->is_nos_assigned = TRUE;
+			col_append_fstr(pinfo->cinfo, COL_INFO, "NoS = %s ", pn_lldp_column_info->chassis_id_mac);
+		}
+	}
+}
+
+static void
+set_name_of_station_for_profinet_specialized_column_info
+(packet_info *pinfo _U_, profinet_lldp_column_info *pn_lldp_column_info)
+{
+	const char *delimForProfinetv23 = ".";
+	char* foundDot = NULL;
+	gchar* tokenPortId = NULL;
+	gchar* tokenNameOfStation = NULL;
+	gchar* lldpPortIdCombinedWithNameOfStation = NULL;
+
+	if (pn_lldp_column_info->is_nos_assigned != TRUE)
+	{
+		if (pn_lldp_column_info->port_id_locally_assigned != NULL)
+		{
+			foundDot = strstr(pn_lldp_column_info->port_id_locally_assigned, delimForProfinetv23);
+			if (foundDot != NULL)
+			{
+				pn_lldp_column_info->is_nos_assigned = TRUE;
+				pn_lldp_column_info->is_port_id_assigned = TRUE;
+				lldpPortIdCombinedWithNameOfStation = wmem_strdup(wmem_packet_scope(), pn_lldp_column_info->port_id_locally_assigned);
+				tokenPortId = strtok(lldpPortIdCombinedWithNameOfStation, delimForProfinetv23);
+				tokenNameOfStation = strtok(NULL, delimForProfinetv23);
+				col_append_fstr(pinfo->cinfo, COL_INFO, "NoS = %s ", tokenNameOfStation);
+				col_append_fstr(pinfo->cinfo, COL_INFO, "Port Id = %s ", tokenPortId);
+			}
+			else
+			{
+				select_source_of_name_of_station(pinfo, pn_lldp_column_info);
+			}
+		}
+		else
+		{
+			select_source_of_name_of_station(pinfo, pn_lldp_column_info);
+		}
+	}
+}
+
+static void
+set_port_id_for_profinet_specialized_column_info
+(packet_info *pinfo _U_, profinet_lldp_column_info *pn_lldp_column_info)
+{
+	if (pn_lldp_column_info->is_port_id_assigned != TRUE)
+	{
+        if (pn_lldp_column_info->port_id_locally_assigned != NULL)
+		{
+			pn_lldp_column_info->is_port_id_assigned = TRUE;
+			col_append_fstr(pinfo->cinfo, COL_INFO, "Port Id = %s ", pn_lldp_column_info->port_id_locally_assigned);
+		}
+	}
+}
 
 /* Dissect PROFINET TLVs */
 static void
-dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, profinet_lldp_column_info *pn_lldp_column_info)
 {
 	guint8 subType;
 	proto_item	*tf = NULL;
@@ -2994,6 +3088,12 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 	subType = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_profinet_tlv_subtype, tvb, offset, 1, subType);
 	offset++;
+
+	if (column_info_selection == PROFINET_SPECIAL_COLUMN_INFO)
+	{
+		set_name_of_station_for_profinet_specialized_column_info(pinfo, pn_lldp_column_info);
+		set_port_id_for_profinet_specialized_column_info(pinfo, pn_lldp_column_info);
+	}
 
 	switch (subType)
 	{
@@ -3053,8 +3153,6 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 		proto_tree_add_uint(tree, hf_profinet_class3_port_status_PreambleLength, tvb, offset, 2, class3_PortStatus);
 
 		class3_PortStatus = class3_PortStatus & 0x7;
-		/* When Profinet tlv is used, delete previous column info which is consist of "ttl and system description" */
-		col_clear(pinfo->cinfo, COL_INFO);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "RTClass3 Port Status = %s", val_to_str(class3_PortStatus, profinet_port3_status_vals, "Unknown %d"));
 		/*offset+=2;*/
 		break;
@@ -3502,7 +3600,7 @@ dissect_avaya_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 
 /* Dissect Organizational Specific TLV */
 static gint32
-dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, profinet_lldp_column_info *pn_lldp_column_info)
 {
 	guint16 dataLen;
 	guint16 tempShort;
@@ -3687,7 +3785,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		dissect_media_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
 		break;
 	case OUI_PROFINET:
-		dissect_profinet_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
+		dissect_profinet_tlv(tvb, pinfo, org_tlv_tree, (offset + 5), pn_lldp_column_info);
 		break;
 	case OUI_CISCO_2:
 		dissect_cisco_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
@@ -3748,7 +3846,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	guint16 tempShort;
 	guint8 tlvType;
 	gboolean reachedEnd = FALSE;
-
+	profinet_lldp_column_info *pn_lldp_column_info = NULL;
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLDP");
 
 	/* Clear the information column on summary display */
@@ -3761,7 +3859,10 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	tempShort = tvb_get_ntohs(tvb, offset);
 	new_tvb = tvb_new_subset_length(tvb, offset, TLV_INFO_LEN(tempShort)+2);
 
-	rtnValue = dissect_lldp_chassis_id(new_tvb, pinfo, lldp_tree, 0);
+	/* allocation */
+	pn_lldp_column_info = wmem_new0(wmem_packet_scope(), profinet_lldp_column_info);
+
+	rtnValue = dissect_lldp_chassis_id(new_tvb, pinfo, lldp_tree, 0, pn_lldp_column_info);
 	if (rtnValue < 0)
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, "Invalid Chassis ID TLV");
@@ -3774,7 +3875,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	tempShort = tvb_get_ntohs(tvb, offset);
 	new_tvb = tvb_new_subset_length(tvb, offset, TLV_INFO_LEN(tempShort)+2);
 
-	rtnValue = dissect_lldp_port_id(new_tvb, pinfo, lldp_tree, 0);
+	rtnValue = dissect_lldp_port_id(new_tvb, pinfo, lldp_tree, 0, pn_lldp_column_info);
 	if (rtnValue < 0)
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, "Invalid Port ID TLV");
@@ -3807,19 +3908,28 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		switch (tlvType)
 		{
 		case CHASSIS_ID_TLV_TYPE:
-			dissect_lldp_chassis_id(new_tvb, pinfo, lldp_tree, 0);
+			dissect_lldp_chassis_id(new_tvb, pinfo, lldp_tree, 0, pn_lldp_column_info);
 			rtnValue = -1;	/* Duplicate chassis id tlv */
-			col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Chassis ID TLV");
+			if (column_info_selection == DEFAULT_COLUMN_INFO)
+			{
+				col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Chassis ID TLV");
+			}
 			break;
 		case PORT_ID_TLV_TYPE:
-			dissect_lldp_port_id(new_tvb, pinfo, lldp_tree, 0);
+			dissect_lldp_port_id(new_tvb, pinfo, lldp_tree, 0, pn_lldp_column_info);
 			rtnValue = -1;	/* Duplicate port id tlv */
-			col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Port ID TLV");
+			if (column_info_selection == DEFAULT_COLUMN_INFO)
+			{
+				col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Port ID TLV");
+			}
 			break;
 		case TIME_TO_LIVE_TLV_TYPE:
 			dissect_lldp_time_to_live(new_tvb, pinfo, lldp_tree, 0);
 			rtnValue = -1;	/* Duplicate time-to-live tlv */
-			col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Time-To-Live TLV");
+			if (column_info_selection == DEFAULT_COLUMN_INFO)
+			{
+				col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Time-To-Live TLV");
+			}
 			break;
 		case END_OF_LLDPDU_TLV_TYPE:
 			rtnValue = dissect_lldp_end_of_lldpdu(new_tvb, pinfo, lldp_tree, 0);
@@ -3838,7 +3948,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			rtnValue = dissect_lldp_management_address(new_tvb, pinfo, lldp_tree, 0);
 			break;
 		case ORGANIZATION_SPECIFIC_TLV_TYPE:
-			rtnValue = dissect_organizational_specific_tlv(new_tvb, pinfo, lldp_tree, 0);
+			rtnValue = dissect_organizational_specific_tlv(new_tvb, pinfo, lldp_tree, 0, pn_lldp_column_info);
 			break;
 		default:
 			rtnValue = dissect_lldp_unknown_tlv(new_tvb, pinfo, lldp_tree, 0);
@@ -3858,6 +3968,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 void
 proto_register_lldp(void)
 {
+	module_t *lldp_module;
 	expert_module_t *expert_lldp;
 
 	/* Setup list of header fields */
@@ -5220,8 +5331,25 @@ proto_register_lldp(void)
 		{ &ei_lldp_bad_type, { "lldp.bad_type", PI_MALFORMED, PI_WARN, "Incorrect type", EXPFILL }},
 	};
 
+	static const enum_val_t column_info_options[] = {
+		{ "default_column_info", "Default Column Info", DEFAULT_COLUMN_INFO },
+		{ "profinet_special_column_info", "PROFINET Special Column Info", PROFINET_SPECIAL_COLUMN_INFO },
+		{ NULL, NULL, 0 }
+	};
+
 	/* Register the protocol name and description */
 	proto_lldp = proto_register_protocol("Link Layer Discovery Protocol", "LLDP", "lldp");
+
+	/* Register preferences */
+	lldp_module = prefs_register_protocol(proto_lldp, NULL);
+
+	prefs_register_enum_preference(lldp_module,
+		"column_info_selection",
+		"Select Column Info Display Style",
+		"Which Information will be showed at Column Information is decided by the selection",
+		&column_info_selection,
+		column_info_options,
+		FALSE);
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_lldp, hf, array_length(hf));
