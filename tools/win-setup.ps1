@@ -287,7 +287,7 @@ function DownloadArchive($fileName, $subDir) {
         Set-Variable -Name SevenZOut
     $bbStatus = $LASTEXITCODE
     Write-Progress -Activity "$activity" -Status "Done" -Completed
-    if ($bbStatus > 0) {
+    if ($bbStatus -gt 0) {
         Write-Output $SevenZOut
         exit 1
     }
