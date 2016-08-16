@@ -787,7 +787,7 @@ static value_string_ext error_code_vals_ext = VALUE_STRING_EXT_INIT(error_code_v
 /**************************************************************************/
 /*                      Handshake Failure Reason                          */
 /**************************************************************************/
-/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/quic/crypto/crypto_handshake.h */
+/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/quic/core/crypto/crypto_handshake.h */
 
 enum HandshakeFailureReason {
     HANDSHAKE_OK = 0,
@@ -979,7 +979,6 @@ static guint32 get_len_missing_packet(guint8 frame_type){
     }
     return len;
 }
-
 
 static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_pkn, quic_info_data_t *quic_info){
     guint8 frame_type;
@@ -1280,7 +1279,7 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
             break;
             case TAG_VER:
                 proto_tree_add_item_ret_string(tag_tree, hf_quic_tag_ver, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
-                proto_item_append_text(ti_tag, " %s", tag_str);
+                proto_item_append_text(ti_tag, ": %s", tag_str);
                 tag_offset += 4;
                 tag_len -= 4;
             break;
@@ -1365,7 +1364,7 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
             case TAG_PUBS:
                     /*TODO FIX: 24 Length + Pubs key?.. ! */
                     proto_tree_add_item(tag_tree, hf_quic_tag_pubs, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN);
-                    tag_offset +=2;
+                    tag_offset += 2;
                     tag_len -= 2;
                 while(tag_len > 0){
                     proto_tree_add_item(tag_tree, hf_quic_tag_pubs, tvb, tag_offset_start + tag_offset, 3, ENC_LITTLE_ENDIAN);
@@ -1694,7 +1693,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             ti = proto_tree_add_item_ret_string(ft_tree, hf_quic_tag, tvb, offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &message_tag_str);
             message_tag = tvb_get_ntohl(tvb, offset);
             proto_item_append_text(ti, " (%s)", val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
-            proto_item_append_text(ti_ft, " Stream ID:%u, Type: %s (%s)", stream_id, message_tag_str, val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
+            proto_item_append_text(ti_ft, " Stream ID: %u, Type: %s (%s)", stream_id, message_tag_str, val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
             col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(message_tag, message_tag_vals, "Unknown"));
             offset += 4;
 
@@ -1882,7 +1881,7 @@ dissect_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
         proto_tree_add_item(prflags_tree, hf_quic_prflags_fecg, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(prflags_tree, hf_quic_prflags_fec, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(prflags_tree, hf_quic_prflags_rsv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        offset +=1;
+        offset += 1;
     }
 
     while(tvb_reported_length_remaining(tvb, offset) > 0){
