@@ -1318,7 +1318,6 @@ static gboolean h248_desegment = TRUE;
 
 
 static proto_tree *h248_tree;
-static tvbuff_t* h248_tvb;
 
 static dissector_handle_t h248_handle;
 static dissector_handle_t h248_term_handle;
@@ -5983,7 +5982,7 @@ dissect_h248_Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
     col_add_str(actx->pinfo->cinfo, COL_INFO, gcp_msg_to_str(curr_info.msg,keep_persistent_data));
 
     if (keep_persistent_data)
-        gcp_analyze_msg(h248_tree, actx->pinfo, h248_tvb, curr_info.msg, &h248_arrel, &ei_h248_errored_command);
+        gcp_analyze_msg(h248_tree, actx->pinfo, tvb, curr_info.msg, &h248_arrel, &ei_h248_errored_command);
 
   return offset;
 }
@@ -6088,7 +6087,7 @@ dissect_h248_SigParameterV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 2166 "./asn1/h248/packet-h248-template.c"
+#line 2165 "./asn1/h248/packet-h248-template.c"
 
 static int dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -6101,7 +6100,6 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_item *h248_item;
     asn1_ctx_t asn1_ctx;
     h248_tree = NULL;
-    h248_tvb = NULL;
 
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -7514,7 +7512,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 2335 "./asn1/h248/packet-h248-template.c"
+#line 2333 "./asn1/h248/packet-h248-template.c"
 
         GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -7680,7 +7678,7 @@ void proto_register_h248(void) {
     &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 2353 "./asn1/h248/packet-h248-template.c"
+#line 2351 "./asn1/h248/packet-h248-template.c"
     };
 
     static ei_register_info ei[] = {

@@ -99,7 +99,7 @@ AuditReplyV1/auditResult	audit_result
     col_add_str(actx->pinfo->cinfo, COL_INFO, gcp_msg_to_str(curr_info.msg,keep_persistent_data));
 
     if (keep_persistent_data)
-        gcp_analyze_msg(h248_tree, actx->pinfo, h248_tvb, curr_info.msg, &h248_arrel, &ei_h248_errored_command);
+        gcp_analyze_msg(h248_tree, actx->pinfo, tvb, curr_info.msg, &h248_arrel, &ei_h248_errored_command);
 #.END
 
 #.FN_BODY Message/version VAL_PTR = &h248_version
