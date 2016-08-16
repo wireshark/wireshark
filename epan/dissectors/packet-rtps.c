@@ -1681,6 +1681,7 @@ void rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
     case LOCATOR_KIND_SHMEM: {
       ti = proto_tree_add_int(locator_tree, hf_rtps_locator_port, tvb, offset+4,
               4, port);
+      proto_tree_add_item(locator_tree, hf_rtps_param_host_id, tvb, offset+10, 4, ENC_BIG_ENDIAN);
       if (port == 0)
         expert_add_info(pinfo, ti, &ei_rtps_locator_port);
       break;
