@@ -129,6 +129,7 @@ ISO 15765
 Unified Diagnostic Services (UDS)
 Encrypted UDP based FTP with multicast
 SCTE-35 Digital Program Insertion Messages
+Windows Cluster Management API (clusapi)
 
 --sort-and-group--
 
