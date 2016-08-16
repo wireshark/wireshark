@@ -50,6 +50,7 @@ add_library(nghttp2 OBJECT
 set_target_properties(nghttp2 PROPERTIES
 	FOLDER "Libs/epan/nghttp2"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+	COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 )
 
 #

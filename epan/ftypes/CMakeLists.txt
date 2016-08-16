@@ -56,6 +56,7 @@ add_library(ftypes OBJECT
 set_target_properties(ftypes PROPERTIES
 	FOLDER "Libs/epan/ftypes"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+	COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 )
 
 CHECKAPI(

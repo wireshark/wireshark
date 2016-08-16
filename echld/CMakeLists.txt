@@ -55,6 +55,7 @@ add_library(echld ${LINK_MODE_LIB}
 set(FULL_SO_VERSION "0.0.0")
 
 set_target_properties(echld PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")
+set_target_properties(echld PROPERTIES COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}")
 set_target_properties(echld PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 set_target_properties(echld PROPERTIES VERSION ${FULL_SO_VERSION} SOVERSION 0)
 

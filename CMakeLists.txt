@@ -343,7 +343,20 @@ else()
 		endif()
 	endif()
 
-	set(WIRESHARK_COMMON_FLAGS
+	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
+			# avoid "argument unused during compilation" warnings
+			# (for example, when getting the -gsplit-dwarf option or
+			# when combining -fwrapv with -fno-strict-overflow)
+			-Qunused-arguments
+		)
+	else()
+		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
+			-fexcess-precision=fast
+		)
+	endif()
+
+	set(COMMON_WARN_FLAGS
 		# The following are for C and C++
 		# -O<X> and -g get set by the CMAKE_BUILD_TYPE
 		-Wall
@@ -364,7 +377,7 @@ else()
 		-Wheader-guard
 	)
 
-	set(WIRESHARK_C_ONLY_FLAGS
+	set(C_WARN_FLAGS
 		# The following are C only, not C++
 		-Wc++-compat
 		-Wdeclaration-after-statement
@@ -382,10 +395,10 @@ else()
 		-Wc99-extensions
 	)
 
-	set(WIRESHARK_CXX_ONLY_FLAGS
+	set(CXX_WARN_FLAGS
 	)
 
-	set(WIRESHARK_EXTRA_COMPILER_COMMON_FLAGS
+	set(COMMON_EXTRA_WARN_FLAGS
 		# The following are for C and C++
 		-Wpedantic
 		#
@@ -440,7 +453,7 @@ else()
 		-fno-delete-null-pointer-checks
 	)
 
-	set(WIRESHARK_EXTRA_COMPILER_C_ONLY_FLAGS
+	set(C_EXTRA_WARN_FLAGS
 		# The following are C only, not C++
 		#
 		# Due to various places where APIs we don't control
@@ -450,32 +463,13 @@ else()
 		-Wbad-function-cast
 	)
 
-	set(WIRESHARK_EXTRA_COMPILER_CXX_ONLY_FLAGS
+	set(CXX_EXTRA_WARN_FLAGS
 	)
 
-	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
-			# avoid "argument unused during compilation" warnings
-			# (for example, when getting the -gsplit-dwarf option or
-			# when combining -fwrapv with -fno-strict-overflow)
-			-Qunused-arguments
-		)
-
-		set(WIRESHARK_CXX_ONLY_FLAGS ${WIRESHARK_CXX_ONLY_FLAGS}
-		)
-	else()
-		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
-			-fexcess-precision=fast
-		)
-
-		set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS}
-		)
-	endif()
-
 	if(ENABLE_EXTRA_COMPILER_WARNINGS)   # This overrides -Werror
-		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_EXTRA_COMPILER_COMMON_FLAGS})
-		set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS} ${WIRESHARK_EXTRA_COMPILER_C_ONLY_FLAGS})
-		set(WIRESHARK_CXX_ONLY_FLAGS ${WIRESHARK_CXX_ONLY_FLAGS} ${WIRESHARK_EXTRA_COMPILER_CXX_ONLY_FLAGS})
+		set(COMMON_WARN_FLAGS ${COMMON_WARN_FLAGS} ${COMMON_EXTRA_WARN_FLAGS})
+		set(C_WARN_FLAGS ${C_WARN_FLAGS} ${C_EXTRA_WARN_FLAGS})
+		set(CXX_WARN_FLAGS ${CXX_WARN_FLAGS} ${CXX_EXTRA_WARN_FLAGS})
 	endif()
 
 	add_definitions(
@@ -486,6 +480,9 @@ endif()
 
 set( C_FLAG_TESTS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_C_ONLY_FLAGS} )
 set( CXX_FLAG_TESTS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_CXX_ONLY_FLAGS} )
+
+set( C_WARN_TESTS ${COMMON_WARN_FLAGS} ${C_WARN_FLAGS} )
+set( CXX_WARN_TESTS ${COMMON_WARN_FLAGS} ${CXX_WARN_FLAGS} )
 
 # Counterhack to work around some cache magic in CHECK_C_SOURCE_COMPILES
 include(CheckCCompilerFlag)
@@ -525,6 +522,30 @@ foreach(THIS_FLAG ${CXX_FLAG_TESTS})
 	endif()
 endforeach()
 set(CMAKE_CXX_FLAGS "${ADDED_CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
+
+foreach(THIS_FLAG ${C_WARN_TESTS})
+	string( REGEX REPLACE "[^a-zA-Z0-9_]+" "_" F ${THIS_FLAG} )
+	set(${F} ${THIS_FLAG})
+	set(V C_${F}_VALID)
+	message(STATUS "Checking for c-compiler flag: ${THIS_FLAG}")
+	check_c_compiler_flag("${C_FLAG_TESTS} ${${F}}" ${V})
+	if (${${V}})
+		set(ADDED_WARN_C_FLAGS ${ADDED_WARN_C_FLAGS} ${${F}})
+	endif()
+endforeach()
+set(WS_WARNINGS_C_FLAGS ${ADDED_WARN_C_FLAGS})
+
+foreach(THIS_FLAG ${CXX_WARN_TESTS})
+	string( REGEX REPLACE "[^a-zA-Z0-9_]+" "_" F ${THIS_FLAG} )
+	set(${F} ${THIS_FLAG})
+	set(V CXX_${F}_VALID)
+	message(STATUS "Checking for c++-compiler flag: ${THIS_FLAG}")
+	check_cxx_compiler_flag("${CXX_FLAG_TESTS} ${${F}}" ${V})
+	if (${${V}})
+		set(ADDED_WARN_CXX_FLAGS ${ADDED_WARN_CXX_FLAGS} ${${F}})
+	endif()
+endforeach()
+set(WS_WARNINGS_CXX_FLAGS ${ADDED_WARN_CXX_FLAGS})
 
 if(ENABLE_ASAN)
 	set(CMAKE_REQUIRED_LIBRARIES "-fsanitize=address")
@@ -1000,8 +1021,10 @@ if(ENABLE_CHECKHF_CONFLICT)
 	set(ENABLE_CHECK_FILTER 1)
 endif()
 
-message(STATUS "C-Flags: ${CMAKE_C_FLAGS}")
-message(STATUS "CXX-Flags: ${CMAKE_CXX_FLAGS}")
+string(REPLACE ";" " " _warnings_c_flags "${WS_WARNINGS_C_FLAGS}")
+message(STATUS "C-Flags: ${CMAKE_C_FLAGS} ${_warnings_c_flags}")
+string(REPLACE ";" " " _warnings_cxx_flags "${WS_WARNINGS_CXX_FLAGS}")
+message(STATUS "CXX-Flags: ${CMAKE_CXX_FLAGS} ${_warnings_cxx_flags}")
 message(STATUS "Warnings as errors: ${WERROR_COMMON_FLAGS}")
 
 if(APPLE)
@@ -1816,6 +1839,7 @@ if(BUILD_wireshark AND QT_FOUND)
 	add_executable(wireshark WIN32 MACOSX_BUNDLE wireshark-qt.cpp ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
 	add_dependencies(wireshark version)
 	set(PROGLIST ${PROGLIST} wireshark)
+	set_target_properties(wireshark PROPERTIES COMPILE_OPTIONS "${WS_WARNINGS_CXX_FLAGS}")
 	set_target_properties(wireshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	set_target_properties(wireshark PROPERTIES FOLDER "Executables")
 	if(ENABLE_APPLICATION_BUNDLE OR WIN32)
@@ -1894,6 +1918,7 @@ endif()
 # Common properties for CLI executables
 macro(set_extra_executable_properties _executable _folder)
 	set_target_properties(${_executable} PROPERTIES
+		COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 		LINK_FLAGS "${WS_LINK_FLAGS}"
 		FOLDER ${_folder}
 	)
@@ -1921,6 +1946,7 @@ macro(set_extcap_executable_properties _executable)
 
 	if(WIN32)
 		set_target_properties(${_executable} PROPERTIES
+			COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 			LINK_FLAGS "${WS_LINK_FLAGS}"
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
 			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/run/Debug/extcap
@@ -1930,6 +1956,7 @@ macro(set_extcap_executable_properties _executable)
 		)
 	else()
 		set_target_properties(${_executable} PROPERTIES
+			COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 			LINK_FLAGS "${WS_LINK_FLAGS}"
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
 		)
@@ -1971,6 +1998,7 @@ if(BUILD_wireshark_gtk AND GTK_FOUND)
 	add_executable(wireshark-gtk WIN32 ${wireshark_FILES})
 	add_dependencies(wireshark-gtk version)
 	set(PROGLIST ${PROGLIST} wireshark-gtk)
+	set_target_properties(wireshark-gtk PROPERTIES COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}")
 	set_target_properties(wireshark-gtk PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	set_target_properties(wireshark-gtk PROPERTIES FOLDER "Executables")
 	target_link_libraries(wireshark-gtk ${wireshark_gtk_LIBS})

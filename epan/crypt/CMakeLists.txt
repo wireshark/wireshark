@@ -50,6 +50,7 @@ add_library(crypt OBJECT
 set_target_properties(crypt PROPERTIES
 	FOLDER "Libs/epan/crypt"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+	COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 )
 
 CHECKAPI(

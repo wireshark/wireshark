@@ -3339,7 +3339,7 @@ match_regex(capture_file *cf, frame_data *fdata, void *criterion _U_)
         return MR_ERROR;
     }
 
-    if (g_regex_match_full(cf->regex, ws_buffer_start_ptr(&cf->buf), fdata->cap_len,
+    if (g_regex_match_full(cf->regex, (const gchar *)ws_buffer_start_ptr(&cf->buf), fdata->cap_len,
                            0, (GRegexMatchFlags) 0, &match_info, NULL))
     {
         gint start_pos = 0, end_pos = 0;
@@ -4024,7 +4024,7 @@ cf_set_frame_edited(capture_file *cf, frame_data *fd,
   modified_frame_data *mfd = (modified_frame_data *)g_malloc(sizeof(modified_frame_data));
 
   mfd->phdr = *phdr;
-  mfd->pd = pd;
+  mfd->pd = (char *)pd;
 
   if (cf->edited_frames == NULL)
     cf->edited_frames = g_tree_new_full(g_direct_compare_func, NULL, NULL,

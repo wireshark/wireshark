@@ -41,5 +41,6 @@ set(lemon_LIBS
 
 add_executable(lemon ${lemon_FILES})
 set_target_properties(lemon PROPERTIES FOLDER "tools")
+set_target_properties(lemon PROPERTIES COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}")
 
 target_link_libraries(lemon ${lemon_LIBS})

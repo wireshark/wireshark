@@ -94,6 +94,7 @@ add_library(ui STATIC
 	${GENERATED_FILES}
 )
 
+set_target_properties(ui PROPERTIES COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}")
 set_target_properties(ui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 set_target_properties(ui PROPERTIES FOLDER "UI")
 

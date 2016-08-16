@@ -530,6 +530,7 @@ add_library(qtui STATIC
 	wireshark-tap-register.c
 )
 add_dependencies(qtui translations)
+set_target_properties(qtui PROPERTIES COMPILE_OPTIONS "${WS_WARNINGS_CXX_FLAGS}")
 set_target_properties(qtui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 set_target_properties(qtui PROPERTIES FOLDER "UI")
 
