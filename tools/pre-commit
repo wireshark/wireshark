@@ -33,7 +33,7 @@ esac
 PYBIN=${WS_GITHOOK_PYTHON:-$pyvar}
 
 # Path to hook script in the .git directory
-hook_script="$(git rev-parse --git-path hooks/pre-commit)"
+hook_script=${GIT_DIR:-.git}/hooks/pre-commit
 
 # Always start in the root directory of the source tree, this allows for
 # invocations via relative paths (such as ../tools/pre-commit):
@@ -41,8 +41,10 @@ cd "$(git rev-parse --show-toplevel)"
 
 # Check for newer (actually, different) versions of the pre-commit script
 # (but only if invoked as hook, i.e. the commit ID is not given as argument).
-if [ -z "$1" ] && ! cmp -s "$hook_script" tools/pre-commit; then
-    echo "Pre-commit hook script is outdated, please update!"
+if [ -z "$1" ] && [ -f "$hook_script" ]; then
+    if ! cmp -s "$hook_script" tools/pre-commit; then
+        echo "Pre-commit hook script is outdated, please update!"
+    fi
 fi
 
 exit_status=0
