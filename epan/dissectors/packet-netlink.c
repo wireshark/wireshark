@@ -225,6 +225,16 @@ static const int *netlink_header_new_flags[] = {
 	NULL
 };
 
+static const int *netlink_header_standard_flags[] = {
+	&hfi_netlink_hdr_flag_request.id,
+	&hfi_netlink_hdr_flag_multi.id,
+	&hfi_netlink_hdr_flag_ack.id,
+	&hfi_netlink_hdr_flag_echo.id,
+	&hfi_netlink_hdr_flag_dumpintr.id,
+	&hfi_netlink_hdr_flag_dumpfiltered.id,
+	NULL
+};
+
 
 int
 dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb)
@@ -318,14 +328,17 @@ dissect_netlink_hdr(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding, g
 	}
 	offset += 2;
 
-	hdr_flags = tvb_get_letohs(tvb, offset);
-	if(hdr_flags & WS_NLM_F_REQUEST) {
+	hdr_flags = tvb_get_guint16(tvb, offset, encoding);
+	if ((hdr_flags & WS_NLM_F_REQUEST) && (hdr_flags & 0x0f00)) {
+		/* XXX detect based on the protocol family and message type
+		 * whether this is a GET, NEW or regular request. */
 		proto_tree_add_bitmask(fh_hdr, tvb, offset, hfi_netlink_hdr_flags.id,
-			ett_netlink_hdr_flags, netlink_header_get_flags, ENC_BIG_ENDIAN);
-	}
-	else {
+			ett_netlink_hdr_flags, netlink_header_get_flags, encoding);
 		proto_tree_add_bitmask(fh_hdr, tvb, offset, hfi_netlink_hdr_flags.id,
-			ett_netlink_hdr_flags, netlink_header_new_flags, ENC_BIG_ENDIAN);
+			ett_netlink_hdr_flags, netlink_header_new_flags, encoding);
+	} else {
+		proto_tree_add_bitmask(fh_hdr, tvb, offset, hfi_netlink_hdr_flags.id,
+			ett_netlink_hdr_flags, netlink_header_standard_flags, encoding);
 	}
 
 	offset += 2;
