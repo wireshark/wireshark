@@ -44,7 +44,6 @@ typedef struct {
 	gboolean saw_timestamp;
 	guint32 timestamp;
 
-	unsigned int bcur;
 	gint64 first_hexbyte;
 	guint32 wirelen;
 	guint32 caplen;

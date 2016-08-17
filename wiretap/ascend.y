@@ -225,7 +225,6 @@ PRI-XMIT-0/2 (task "l1Task" at 0x80152b20, time: 283529.65) 10 octets @
 */
 deferred_isdn_hdr: isdn_prefix decnum SLASH_SUFFIX KEYWORD string KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
   parser_state->wirelen += $11;
-  parser_state->caplen += $11;
   parser_state->secs = $9;
   parser_state->usecs = $10;
   if (parser_state->pseudo_header != NULL) {
@@ -247,7 +246,6 @@ PRI-RCV-27:  (task "idle task" at 0x10123570, time: 560194.01) 4 octets @ 0x1027
 */
 isdn_hdr: isdn_prefix decnum KEYWORD string KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
   parser_state->wirelen = $10;
-  parser_state->caplen = $10;
   parser_state->secs = $8;
   parser_state->usecs = $9;
   if (parser_state->pseudo_header != NULL) {
@@ -268,7 +266,6 @@ ETHER3ND XMIT: (task "_sarTask" at 0x802c6eb0, time: 259848.11) 414 octets @ 0xa
 ether_hdr: ether_prefix string KEYWORD string KEYWORD hexnum KEYWORD decnum decnum
  decnum KEYWORD HEXNUM {
   parser_state->wirelen = $10;
-  parser_state->caplen = $10;
   parser_state->secs = $8;
   parser_state->usecs = $9;
   if (parser_state->pseudo_header != NULL) {
@@ -284,7 +281,6 @@ ether_hdr: ether_prefix string KEYWORD string KEYWORD hexnum KEYWORD decnum decn
 /*            1        2      3      4       5      6       7      8      9      10     11 */
 wds_hdr: wds_prefix string decnum KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
   parser_state->wirelen = $9;
-  parser_state->caplen = $9;
   parser_state->secs = $7;
   parser_state->usecs = $8;
   if (parser_state->pseudo_header != NULL) {
@@ -302,7 +298,6 @@ wds_hdr: wds_prefix string decnum KEYWORD hexnum KEYWORD decnum decnum decnum KE
 /*                1       2       3     4       5       6      7       8      9      10     11     12      13 */
 wds8_hdr: wds_prefix string decnum KEYWORD string KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
   parser_state->wirelen = $11;
-  parser_state->caplen = $11;
   parser_state->secs = $9;
   parser_state->usecs = $10;
   if (parser_state->pseudo_header != NULL) {
@@ -320,7 +315,6 @@ wds8_hdr: wds_prefix string decnum KEYWORD string KEYWORD hexnum KEYWORD decnum 
 /*            1        2       3      4       5       6      7      8      9      10    */
 wdp7_hdr: wds_prefix decnum KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
   parser_state->wirelen = $8;
-  parser_state->caplen = $8;
   parser_state->secs = $6;
   parser_state->usecs = $7;
   if (parser_state->pseudo_header != NULL) {
@@ -338,7 +332,6 @@ wdp7_hdr: wds_prefix decnum KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD 
 /*              1        2       3      4       5      6      7       8      9      10     11      12 */
 wdp8_hdr: wds_prefix decnum KEYWORD string KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
   parser_state->wirelen = $10;
-  parser_state->caplen = $10;
   parser_state->secs = $8;
   parser_state->usecs = $9;
   if (parser_state->pseudo_header != NULL) {
@@ -384,7 +377,6 @@ WD_DIALOUT_DISP: chunk 2515EE type IP.
 /*           1        2      3       4       5      6       7      8      9      10     11*/
 wdd_hdr: WDD_CHUNK hexnum KEYWORD KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
   parser_state->wirelen = $9;
-  parser_state->caplen = $9;
   parser_state->secs = $7;
   parser_state->usecs = $8;
   if (parser_state->pseudo_header != NULL) {
@@ -404,13 +396,15 @@ byte: HEXBYTE {
   if (parser_state->first_hexbyte == 0)
     parser_state->first_hexbyte = file_tell(fh);
 
-  if (parser_state->bcur < parser_state->caplen) {
-    parser_state->pkt_data[parser_state->bcur] = $1;
-    parser_state->bcur++;
+  /* XXX - if this test fails, it means that we parsed more bytes than
+     the header claimed there were. */
+  if (parser_state->caplen < parser_state->wirelen) {
+    parser_state->pkt_data[parser_state->caplen] = $1;
+    parser_state->caplen++;
   }
 
   /* arbitrary safety maximum... */
-  if (parser_state->bcur >= ASCEND_MAX_PKT_LEN)
+  if (parser_state->caplen >= ASCEND_MAX_PKT_LEN)
     YYACCEPT;
 }
 ;
@@ -477,10 +471,9 @@ run_ascend_parser(FILE_T fh, struct wtap_pkthdr *phdr, guint8 *pd,
   parser_state->saw_timestamp = FALSE;
   parser_state->timestamp = 0;
 
-  parser_state->bcur = 0;
   parser_state->first_hexbyte = 0;
-  parser_state->wirelen = 0;
   parser_state->caplen = 0;
+  parser_state->wirelen = 0;
 
   parser_state->secs = 0;
   parser_state->usecs = 0;
@@ -499,8 +492,6 @@ run_ascend_parser(FILE_T fh, struct wtap_pkthdr *phdr, guint8 *pd,
   parser_state->pseudo_header->call_num[0] = '\0';
 
   retval = yyparse(scanner, parser_state, fh);
-  if (retval == 0)
-    parser_state->caplen = parser_state->bcur;
   return retval;
 }
 
