@@ -1,7 +1,7 @@
 /* packet-selfm.c
  * Routines for Schweitzer Engineering Laboratories (SEL) Protocols Dissection
  * By Chris Bontje (cbontje[AT]gmail.com
- * Copyright 2012-2015,
+ * Copyright 2012-2016,
  *
  ************************************************************************************************
  * Wireshark - Network traffic analyzer
@@ -205,7 +205,7 @@ static int hf_selfm_fastmsg_soe_resp_pad           = -1;
 static int hf_selfm_fastmsg_soe_resp_doy           = -1;
 static int hf_selfm_fastmsg_soe_resp_year          = -1;
 static int hf_selfm_fastmsg_soe_resp_tod           = -1;
-/* static int hf_selfm_fastmsg_soe_resp_data          = -1; */
+static int hf_selfm_fastmsg_soe_resp_data          = -1;
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_selfm_fmconfig_ai_channel = -1;
 static int hf_selfm_fmdata_ai_value16 = -1;
@@ -245,6 +245,7 @@ static gint ett_selfm_fastmsg               = -1;
 static gint ett_selfm_fastmsg_seq           = -1;
 static gint ett_selfm_fastmsg_def_fc        = -1;
 static gint ett_selfm_fastmsg_datareg       = -1;
+static gint ett_selfm_fastmsg_soeblk        = -1;
 static gint ett_selfm_fastmsg_tag           = -1;
 static gint ett_selfm_fastmsg_element_list  = -1;
 static gint ett_selfm_fastmsg_element       = -1;
@@ -1899,12 +1900,12 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
     proto_item    *fastmsg_def_fc_item, *fastmsg_elementlist_item;
     proto_item    *pi_baseaddr, *fastmsg_crc16_item;
     proto_tree    *fastmsg_tree, *fastmsg_def_fc_tree=NULL, *fastmsg_elementlist_tree=NULL;
-    proto_tree    *fastmsg_element_tree=NULL, *fastmsg_datareg_tree=NULL, *fastmsg_tag_tree=NULL;
-    gint          cnt, num_elements, elmt_status32_ofs=0, elmt_status, null_offset;
+    proto_tree    *fastmsg_element_tree=NULL, *fastmsg_datareg_tree=NULL, *fastmsg_tag_tree=NULL, *fastmsg_soeblk_tree=NULL;
+    gint          cnt, cnt1, num_elements, elmt_status32_ofs=0, elmt_status, null_offset;
     guint8        len, funccode, seq, rx_num_fc, tx_num_fc;
-    guint8        seq_cnt, elmt_idx, fc_enable;
+    guint8        seq_cnt, elmt_idx, fc_enable, soe_num_reg;
     guint8        *tag_name_ptr;
-    guint16       base_addr, num_addr, num_reg, addr1, addr2, crc16, crc16_calc;
+    guint16       base_addr, num_addr, num_reg, addr1, addr2, crc16, crc16_calc, soe_num_blks;
     guint32       tod_ms, elmt_status32, elmt_ts_offset;
     static const int * seq_fields[] = {
         &hf_selfm_fastmsg_seq_fir,
@@ -2198,18 +2199,36 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
             /* 16-bit field with number of blocks of present state data */
             proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_resp_numblks, tvb, offset, 2, ENC_BIG_ENDIAN);
+            soe_num_blks = tvb_get_ntohs(tvb, offset);
             offset += 2;
 
-            /* XXX - With examples, need to loop through each one of these items based on the num_blocks */
-            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_resp_orig, tvb, offset, 4, ENC_NA);
-            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_resp_numbits, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_resp_pad, tvb, offset+5, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_resp_doy, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_resp_year, tvb, offset+8, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_resp_tod, tvb, offset+10, 4, ENC_BIG_ENDIAN);
-            /* proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_resp_data, tvb, offset+14, 2, ENC_BIG_ENDIAN); */
+            /* Loop through each one of these block based on the num_blocks */
+            for (cnt=0; cnt<soe_num_blks; cnt++) {
 
-            offset += 14;
+                /* Blocks of 16 bits are packed into 16-bit registers, with any remainder into a final 16-bit register */
+                if ((tvb_get_guint8(tvb, offset+4) % 16) == 0) {
+                    soe_num_reg = (tvb_get_guint8(tvb, offset+4) / 16);
+                }
+                else {
+                    soe_num_reg = (tvb_get_guint8(tvb, offset+4) / 16) + 1;
+                }
+
+                fastmsg_soeblk_tree = proto_tree_add_subtree_format(fastmsg_tree, tvb, offset, 14 + soe_num_reg*2,
+                                ett_selfm_fastmsg_soeblk, NULL, "Data Block #%d", cnt+1);
+
+                proto_tree_add_item(fastmsg_soeblk_tree, hf_selfm_fastmsg_soe_resp_orig, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(fastmsg_soeblk_tree, hf_selfm_fastmsg_soe_resp_numbits, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(fastmsg_soeblk_tree, hf_selfm_fastmsg_soe_resp_pad, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(fastmsg_soeblk_tree, hf_selfm_fastmsg_soe_resp_doy, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(fastmsg_soeblk_tree, hf_selfm_fastmsg_soe_resp_year, tvb, offset+8, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(fastmsg_soeblk_tree, hf_selfm_fastmsg_soe_resp_tod, tvb, offset+10, 4, ENC_BIG_ENDIAN);
+                offset += 14;
+
+                for (cnt1=0; cnt1<soe_num_reg; cnt1++) {
+                    proto_tree_add_item(fastmsg_soeblk_tree, hf_selfm_fastmsg_soe_resp_data, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                }
+            }
 
             break;
 
@@ -2909,8 +2928,8 @@ proto_register_selfm(void)
         { "Year", "selfm.fastmsg.soe_resp_year", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fastmsg_soe_resp_tod,
         { "Time of Day (ms)", "selfm.fastmsg.soe_resp_tod", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        /* { &hf_selfm_fastmsg_soe_resp_data,
-        { "Packed Binary State Data", "selfm.fastmsg.soe_resp_data", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }}, */
+        { &hf_selfm_fastmsg_soe_resp_data,
+        { "Packed Binary State Data", "selfm.fastmsg.soe_resp_data", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         /* "Fast Message" Re-assembly header fields */
         { &hf_selfm_fragment,
@@ -2982,6 +3001,7 @@ proto_register_selfm(void)
         &ett_selfm_fastmsg_element_list,
         &ett_selfm_fastmsg_element,
         &ett_selfm_fastmsg_datareg,
+        &ett_selfm_fastmsg_soeblk,
         &ett_selfm_fragment,
         &ett_selfm_fragments
 
