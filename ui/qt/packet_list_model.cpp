@@ -55,7 +55,7 @@ static const int reserved_packets_ = 100000;
 
 PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     QAbstractItemModel(parent),
-    number_to_row_(QVector<int>(0, -1)),
+    number_to_row_(QVector<int>()),
     max_row_height_(0),
     max_line_count_(1),
     idle_dissection_row_(0)
@@ -104,7 +104,9 @@ QModelIndex PacketListModel::parent(const QModelIndex &) const
 
 int PacketListModel::packetNumberToRow(int packet_num) const
 {
-    return number_to_row_.value(packet_num, -1);
+    // map 1-based values to 0-based row numbers. Invisible rows are stored as
+    // the default value (0) and should map to -1.
+    return number_to_row_.value(packet_num) - 1;
 }
 
 guint PacketListModel::recreateVisibleRows()
@@ -113,14 +115,19 @@ guint PacketListModel::recreateVisibleRows()
 
     beginResetModel();
     visible_rows_.resize(0);
-    number_to_row_.fill(-1);
+    number_to_row_.fill(0);
     endResetModel();
 
     beginInsertRows(QModelIndex(), pos, pos);
     foreach (PacketListRecord *record, physical_rows_) {
-        if (record->frameData()->flags.passed_dfilter || record->frameData()->flags.ref_time) {
+        frame_data *fdata = record->frameData();
+
+        if (fdata->flags.passed_dfilter || fdata->flags.ref_time) {
             visible_rows_ << record;
-            number_to_row_[record->frameData()->num] = visible_rows_.count() - 1;
+            if (number_to_row_.size() <= (int)fdata->num) {
+                number_to_row_.resize(fdata->num + 10000);
+            }
+            number_to_row_[fdata->num] = visible_rows_.count();
         }
     }
     endInsertRows();
@@ -340,11 +347,16 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
 
     beginResetModel();
     visible_rows_.resize(0);
-    number_to_row_.fill(-1);
+    number_to_row_.fill(0);
     foreach (PacketListRecord *record, physical_rows_) {
-        if (record->frameData()->flags.passed_dfilter || record->frameData()->flags.ref_time) {
+        frame_data *fdata = record->frameData();
+
+        if (fdata->flags.passed_dfilter || fdata->flags.ref_time) {
             visible_rows_ << record;
-            number_to_row_[record->frameData()->num] = visible_rows_.count() - 1;
+            if (number_to_row_.size() <= (int)fdata->num) {
+                number_to_row_.resize(fdata->num + 10000);
+            }
+            number_to_row_[fdata->num] = visible_rows_.count();
         }
     }
     endResetModel();
@@ -572,15 +584,15 @@ void PacketListModel::flushVisibleRows()
     gint pos = visible_rows_.count();
 
     if (new_visible_rows_.count() > 0) {
-        if (number_to_row_.size() <= (int) cap_file_->count) {
-            number_to_row_.resize(cap_file_->count + 10000); // Arbitrary padding
-        }
         beginInsertRows(QModelIndex(), pos, pos + new_visible_rows_.count());
         foreach (PacketListRecord *record, new_visible_rows_) {
             frame_data *fdata = record->frameData();
 
             visible_rows_ << record;
-            number_to_row_[fdata->num] = visible_rows_.count() - 1;
+            if (number_to_row_.size() <= (int)fdata->num) {
+                number_to_row_.resize(fdata->num + 10000);
+            }
+            number_to_row_[fdata->num] = visible_rows_.count();
         }
         endInsertRows();
         new_visible_rows_.resize(0);
