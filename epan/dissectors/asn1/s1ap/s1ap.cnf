@@ -317,6 +317,8 @@ tvbuff_t *parameter_tvb=NULL;
   handover_type_value = 0;
 #.FN_HDR HandoverRequest
   handover_type_value = 0;
+#.FN_HDR HandoverRequestAcknowledge
+  handover_type_value = 0;
 
 #.FN_BODY Source-ToTarget-TransparentContainer VAL_PTR = &parameter_tvb
 # I think the message is "directly encoded" into the octet string(no "double encoding")
