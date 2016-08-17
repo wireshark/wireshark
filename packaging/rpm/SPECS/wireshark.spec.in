@@ -399,6 +399,7 @@ fi
 %exclude %{_libdir}/%{name}/plugins/%{package_version}/*.la
 %exclude %{_libdir}/*.la
 %{_libdir}/wireshark
+%{_libdir}/pkgconfig/wireshark.pc
 # Don't pick up the wireshark (GUI) man page
 %exclude %{_mandir}/man1/wireshark.*
 # Our RPMs use 'alternatives' to choose the Wireshark so it doesn't make sense
@@ -439,6 +440,9 @@ fi
 %endif
 
 %changelog
+* Wed Aug 17 2016 Jeff Morriss
+- wireshark.pc is now installed with Wireshark, include it in the RPM.
+
 * Mon May  9 2016 Jeff Morriss
 - Make autoconf, automake, flex, and bison optional: most users (who aren't
   patching Wireshark) don't need them to build an RPM.
