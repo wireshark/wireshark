@@ -868,6 +868,18 @@
   <avp name="SAR-Flags" code="655" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
     <type type-name="Unsigned32"/>
   </avp>
+  <avp name="Allowed-WAF-WWSF-Identities" code="656" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <grouped>
+      <gavp name="WebRTC-Authentication-Function-Name"/>
+      <gavp name="WebRTC-Web-Server-Function-Name"/>
+    </grouped>
+  </avp>
+  <avp name="WebRTC-Authentication-Function-Name" code="657" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="UTF8String"/>
+  </avp>
+  <avp name="WebRTC-Web-Server-Function-Name" code="658" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="UTF8String"/>
+  </avp>
 </application>
 
 
