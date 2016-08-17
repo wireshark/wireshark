@@ -90,7 +90,8 @@ void proto_reg_handoff_icmpv6(void);
  * RFC 6997: Reactive Discovery of Point-to-Point Routes in Low-Power and Lossy Networks
  * RFC 7112: Implications of Oversized IPv6 Header Chains
  * RFC 7400: 6LoWPAN-GHC: Generic Header Compression for IPv6 over Low-Power Wireless Personal Area Networks (6LoWPANs)
- * http://www.iana.org/assignments/icmpv6-parameters (last updated 2015-01-22)
+ * RFC 7731: MPL Control Message
+ * http://www.iana.org/assignments/icmpv6-parameters (last updated 2016-02-24)
  */
 
 static int proto_icmpv6 = -1;
@@ -492,6 +493,13 @@ static int hf_icmpv6_da_raddr = -1;
 
 static int icmpv6_tap = -1;
 
+/* RFC 7731 MPL (159) */
+static int hf_icmpv6_mpl_seed_info_min_sequence = -1;
+static int hf_icmpv6_mpl_seed_info_bm_len = -1;
+static int hf_icmpv6_mpl_seed_info_s = -1;
+static int hf_icmpv6_mpl_seed_info_seed_id = -1;
+static int hf_icmpv6_mpl_seed_info_sequence = -1;
+
 /* Conversation related data */
 static int hf_icmpv6_resp_in = -1;
 static int hf_icmpv6_resp_to = -1;
@@ -545,6 +553,8 @@ static gint ett_icmpv6_flag_rpl_daoack = -1;
 static gint ett_icmpv6_flag_rpl_cc = -1;
 static gint ett_icmpv6_opt_name = -1;
 static gint ett_icmpv6_cga_param_name = -1;
+static gint ett_icmpv6_mpl_seed_info = -1;
+static gint ett_icmpv6_mpl_seed_info_bm = -1;
 
 static expert_field ei_icmpv6_invalid_option_length = EI_INIT;
 static expert_field ei_icmpv6_undecoded_option = EI_INIT;
@@ -599,6 +609,7 @@ static dissector_handle_t ipv6_handle;
 #define ICMP6_ILNPV6                    156
 #define ICMP6_6LOWPANND_DAR             157
 #define ICMP6_6LOWPANND_DAC             158
+#define ICMP6_MPL_CONTROL               159
 
 
 static const value_string icmpv6_type_val[] = {
@@ -640,6 +651,7 @@ static const value_string icmpv6_type_val[] = {
     { ICMP6_ILNPV6,                "Locator Update"},                                   /* [RFC6743] */
     { ICMP6_6LOWPANND_DAR,         "Duplicate Address Request"},                        /* [RFC6775] */
     { ICMP6_6LOWPANND_DAC,         "Duplicate Address Confirmation"},                   /* [RFC6775] */
+    { ICMP6_MPL_CONTROL,           "MPL Control Message"},                              /* [RFC7731] */
     { 200,                         "Private experimentation" },                         /* [RFC4443] */
     { 201,                         "Private experimentation" },                         /* [RFC4443] */
     { 255,                         "Reserved for expansion of ICMPv6 informational messages" }, /* [RFC4443] */
@@ -1164,6 +1176,18 @@ static const value_string rpl_option_vals[] = {
 /* RFC 7400 */
 #define ND_OPT_6CIO_FLAG_G          0x0001
 #define ND_OPT_6CIO_FLAG_UNASSIGNED 0xFFFE
+
+/* RFC 7731 */
+#define MPL_SEED_INFO_BM_LEN        0xFC
+#define MPL_SEED_INFO_S             0x03
+static const value_string mpl_seed_id_lengths[] = {
+    { 0, "0 bit, not included in MPL Seed Info" },
+    { 1, "16 bits" },
+    { 2, "64 bits" },
+    { 3, "128 bits" },
+    { 4, NULL}
+};
+static const guint8 mpl_seed_id_code_to_length[] = { 0, 2, 8, 16 }; /* bytes */
 
 static int
 dissect_contained_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -3459,6 +3483,112 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
     return mldr_offset;
 }
 
+static int
+dissect_mpl_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 type _U_, guint8 code)
+{
+    proto_tree *seed_info_tree, *bm_tree;
+    proto_item *ti;
+    const gint length_of_fixed_part = 2;
+    int body_offset = offset;
+    guint8 min_seqno, bm_len, s;
+    gint remaining, id_len = 0;
+    guint16 seed_info_index = 0;
+    gchar *seed_id = NULL;
+    int i, j;
+    guint8 b;
+
+    if (code != 0) {
+        /* code must be 0 */
+        ti = proto_tree_add_item(tree, hf_icmpv6_unknown_data, tvb, body_offset, 1, ENC_NA);
+        expert_add_info_format(pinfo, ti, &ei_icmpv6_unknown_data, "Code must be 0");
+        return body_offset;
+    }
+
+    remaining = tvb_captured_length_remaining(tvb, body_offset);
+    while (remaining > length_of_fixed_part) {
+        seed_info_index++;
+
+        seed_info_tree = proto_tree_add_subtree_format(tree, tvb, body_offset, length_of_fixed_part, ett_icmpv6_mpl_seed_info, NULL,
+                                                       "MPL Seed Info: [%u]", seed_info_index);
+
+        min_seqno = tvb_get_guint8(tvb, body_offset);
+        proto_tree_add_item(seed_info_tree, hf_icmpv6_mpl_seed_info_min_sequence, tvb, body_offset, 1, ENC_BIG_ENDIAN);
+        body_offset++;
+
+        bm_len = tvb_get_guint8(tvb, body_offset) >> 2;
+        s = tvb_get_guint8(tvb, body_offset) & 0x03;
+        proto_tree_add_item(seed_info_tree, hf_icmpv6_mpl_seed_info_bm_len, tvb, body_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(seed_info_tree, hf_icmpv6_mpl_seed_info_s, tvb, body_offset, 1, ENC_BIG_ENDIAN);
+        body_offset++;
+
+        id_len = mpl_seed_id_code_to_length[s];
+        if ((remaining - length_of_fixed_part) < id_len) {
+            /* Invalid length; remaining data is too short for Seed ID */
+            ti = proto_tree_add_item(seed_info_tree, hf_icmpv6_unknown_data, tvb, body_offset,
+                                     remaining - length_of_fixed_part, ENC_NA);
+            expert_add_info_format(pinfo, ti, &ei_icmpv6_unknown_data,
+                                   "Remaining data, %u bytes, is too short for Seed ID of %u bytes",
+                                   remaining - length_of_fixed_part, id_len);
+            return remaining - length_of_fixed_part;
+        }
+        switch (s) {
+            case 0:
+                seed_id = address_to_str(wmem_packet_scope(), &pinfo->src);
+                break;
+            case 1:
+                seed_id = wmem_strdup_printf(wmem_packet_scope(), "%04x", tvb_get_ntohs(tvb, body_offset));
+                break;
+            case 2:
+                seed_id = tvb_eui64_to_str(tvb, body_offset);
+                break;
+            case 3:
+                seed_id = tvb_ip6_to_str(tvb, body_offset);
+                break;
+            default:
+                /* not reached */
+                break;
+        }
+        proto_tree_add_string(seed_info_tree, hf_icmpv6_mpl_seed_info_seed_id, tvb, body_offset, id_len, seed_id);
+        body_offset += id_len;
+
+        if((remaining - length_of_fixed_part - id_len) < bm_len) {
+            /* Invalid length; remaining data is too short for Buffered Messages */
+            ti = proto_tree_add_item(seed_info_tree, hf_icmpv6_unknown_data, tvb, body_offset,
+                                     remaining - length_of_fixed_part - id_len, ENC_NA);
+            expert_add_info_format(pinfo, ti, &ei_icmpv6_unknown_data,
+                                   "Remaining data, %u bytes, is too short for Buffered Messages of %u bytes",
+                                   remaining - length_of_fixed_part - id_len, bm_len);
+            return body_offset - length_of_fixed_part - id_len;
+        }
+
+        if (bm_len > 0) {
+            bm_tree = proto_tree_add_subtree_format(seed_info_tree, tvb, body_offset, bm_len, ett_icmpv6_mpl_seed_info_bm, NULL,
+                                                    "Buffered Messages");
+            for (i = 0; i < bm_len; i++) {
+                b = tvb_get_guint8(tvb, body_offset + i);
+                for (j = 0; j < 8; j++) {
+                    if (b & (0x80 >> j)) {
+                        /* From RFC 1982: s' = (s + n) modulo (2 ^ SERIAL_BITS), where SERIAL_BITS is 8 */
+                        proto_tree_add_uint(bm_tree, hf_icmpv6_mpl_seed_info_sequence, tvb, body_offset + i, 1, (min_seqno + 8 * i + j) % 0x100);
+                    }
+                }
+            }
+        }
+        body_offset += bm_len;
+
+        remaining = tvb_captured_length_remaining(tvb, body_offset);
+    }
+
+    if (remaining != 0) {
+        /* Invalid length; there is remaining data after dissectin MPL Control Message */
+        ti = proto_tree_add_item(tree, hf_icmpv6_unknown_data, tvb, body_offset, body_offset - offset, ENC_NA);
+        expert_add_info_format(pinfo, ti, &ei_icmpv6_unknown_data,
+                               "%u bytes data is left after dissecting MPL Control Message", remaining);
+    }
+
+    return body_offset;
+}
+
 static gboolean
 capture_icmpv6(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
@@ -4109,6 +4239,12 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 /* Address */
                 proto_tree_add_item(icmp6_tree, hf_icmpv6_da_raddr, tvb, offset, 16, ENC_NA);
                 offset += 16;
+                break;
+            }
+            case ICMP6_MPL_CONTROL: /* MPL Control (159) */
+            {
+                /* RFC 7731: Multicast Protocol for Low-Power and Lossy Networks (MPL) */
+                offset = dissect_mpl_control(tvb, offset, pinfo, icmp6_tree, icmp6_type, icmp6_code);
                 break;
             }
             default:
@@ -5284,7 +5420,25 @@ proto_register_icmpv6(void)
               "This is the response to the request in this frame", HFILL }},
         { &hf_icmpv6_resptime,
             { "Response Time", "icmpv6.resptime", FT_DOUBLE, BASE_NONE, NULL, 0x0,
-              "The time between the request and the response, in ms.", HFILL }}
+              "The time between the request and the response, in ms.", HFILL }},
+
+        /* RFC 7731: Multicast Protocol for Low-Power and Lossy Networks (MPL) */
+        { &hf_icmpv6_mpl_seed_info_min_sequence,
+            { "MinSequence", "icmpv6.mpl.seed_info.min_sequence", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "The lower-bound sequence number for the MPL Seed.", HFILL }},
+        { &hf_icmpv6_mpl_seed_info_bm_len,
+            { "Buffered Messages Length", "icmpv6.mpl.seed_info.bm_len", FT_UINT8, BASE_DEC, NULL, MPL_SEED_INFO_BM_LEN,
+              "The The size of buffered-mpl-messages in octets.", HFILL }},
+        { &hf_icmpv6_mpl_seed_info_s,
+            { "Seed ID Length", "icmpv6.mpl.seed_info.s", FT_UINT8, BASE_DEC, VALS(mpl_seed_id_lengths), MPL_SEED_INFO_S,
+              "The length of the seed-id.", HFILL }},
+        { &hf_icmpv6_mpl_seed_info_seed_id,
+            { "Seed ID", "icmpv6.mpl.seed_info.seed_id", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }},
+        { &hf_icmpv6_mpl_seed_info_sequence,
+            { "Sequence", "icmpv6.mpl.seed_info.sequence", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }}
+
     };
 
     static gint *ett[] = {
@@ -5326,7 +5480,9 @@ proto_register_icmpv6(void)
         &ett_icmpv6_flag_rpl_daoack,
         &ett_icmpv6_flag_rpl_cc,
         &ett_icmpv6_opt_name,
-        &ett_icmpv6_cga_param_name
+        &ett_icmpv6_cga_param_name,
+        &ett_icmpv6_mpl_seed_info,
+        &ett_icmpv6_mpl_seed_info_bm
     };
 
     static ei_register_info ei[] = {
