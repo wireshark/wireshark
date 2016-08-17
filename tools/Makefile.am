@@ -92,6 +92,7 @@ EXTRA_DIST = \
 	usb-ptp-extract-models.pl			\
 	usb-ptp-extract-models.txt			\
 	valgrind-wireshark.sh				\
+	validate-diameter-xml.sh			\
 	vg-suppressions					\
 	win-setup.ps1					\
 	wireshark_be.py					\
