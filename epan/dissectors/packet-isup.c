@@ -2740,6 +2740,7 @@ static int isup_tap = -1;
 
 static int hf_isup_message_type = -1;
 static int hf_isup_parameter_type = -1;
+static int hf_isup_parameter_value = -1;
 static int hf_isup_mand_parameter_type = -1;
 static int hf_isup_opt_parameter_type = -1;
 static int hf_isup_parameter_length = -1;
@@ -6695,9 +6696,10 @@ dissect_isup_charge_number_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo
 
 /* ------------------------------------------------------------------ */
 static void
-dissect_isup_unknown_parameter(tvbuff_t *parameter_tvb, proto_item *parameter_item)
-{ guint length = tvb_reported_length(parameter_tvb);
-  proto_item_set_text(parameter_item, "Parameter Type unknown/reserved (%u Byte%s)", length , plurality(length, "", "s"));
+dissect_isup_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item _U_)
+{
+  guint length = tvb_reported_length(parameter_tvb);
+  proto_tree_add_item(parameter_tree, hf_isup_parameter_value, parameter_tvb, 0, length, ENC_NA);
 }
 /* ------------------------------------------------------------------ */
 
@@ -7947,8 +7949,9 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
                                            offset,
                                            parameter_length  + PARAMETER_TYPE_LENGTH + PARAMETER_LENGTH_IND_LENGTH,
                                            ett_isup_parameter, &parameter_item,
-                                           "Parameter: type %u",
-                                           parameter_type);
+                                           "Parameter: (t=%u, l=%u)",
+                                           parameter_type, parameter_length);
+      proto_item_append_text(parameter_tree, " %s", val_to_str_ext(parameter_type, &ansi_isup_parameter_type_value_ext, "Unknown"));
       /* Handle national extensions here */
       switch (itu_isup_variant) {
         case ISUP_JAPAN_VARIANT:
@@ -7959,9 +7962,11 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
                                      "%u (%s)",
                                      parameter_type,
                                      val_to_str_ext_const(parameter_type, &japan_isup_parameter_type_value_ext, "unknown"));
+          proto_item_append_text(parameter_tree, ": %s", val_to_str_ext(parameter_type, &japan_isup_parameter_type_value_ext, "Unknown"));
           break;
         default:
           proto_tree_add_uint(parameter_tree, hf_isup_opt_parameter_type, optional_parameters_tvb, offset, PARAMETER_TYPE_LENGTH, parameter_type);
+          proto_item_append_text(parameter_tree, ": %s", val_to_str_ext(parameter_type, &ansi_isup_parameter_type_value_ext, "Unknown"));
           break;
 
       }
@@ -8272,12 +8277,12 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
                     dissect_japan_isup_charge_area_info(parameter_tvb, pinfo, parameter_tree, parameter_item);
                     break;
                   default:
-                    dissect_isup_unknown_parameter(parameter_tvb, parameter_item);
+                    dissect_isup_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
                     break;
                 }
                 break;
               default:
-                dissect_isup_unknown_parameter(parameter_tvb, parameter_item);
+                dissect_isup_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
                 break;
             }
             break;
@@ -8319,8 +8324,7 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_i
 
       parameter_tree = proto_tree_add_subtree_format(isup_tree, optional_parameters_tvb,
                                            offset, parameter_length  + PARAMETER_TYPE_LENGTH + PARAMETER_LENGTH_IND_LENGTH,
-                                           ett_isup_parameter, &parameter_item, "Parameter: type %u",
-                                           parameter_type);
+                                           ett_isup_parameter, &parameter_item, "Parameter: (t=%u, l=%u): %s", parameter_type, parameter_length, val_to_str_ext(parameter_type, &ansi_isup_parameter_type_value_ext, "Unknown"));
       proto_tree_add_uint(parameter_tree, hf_isup_opt_parameter_type, optional_parameters_tvb, offset,
                                  PARAMETER_TYPE_LENGTH, parameter_type);
       offset += PARAMETER_TYPE_LENGTH;
@@ -8597,7 +8601,7 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_i
             break;
 
           default:
-            dissect_isup_unknown_parameter(parameter_tvb, parameter_item);
+            dissect_isup_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
             break;
         }
 
@@ -10556,6 +10560,11 @@ proto_register_isup(void)
     { &hf_isup_parameter_type,
       { "Parameter Type",  "isup.parameter_type",
         FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_isup_parameter_value,
+      { "Parameter Value",  "isup.parameter_value",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_isup_mand_parameter_type,
