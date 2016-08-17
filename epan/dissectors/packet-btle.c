@@ -398,6 +398,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     ubertooth_data_t      *ubertooth_data = NULL;
     gint                   previous_proto;
     wmem_list_frame_t     *list_data;
+    proto_item            *item;
+    guint                  window_size;
+    guint                  window_offset;
+    guint                  data_interval;
+    guint                  data_timeout;
 
     list_data = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
     if (list_data) {
@@ -664,19 +669,23 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_crc_init, tvb, offset, 3, ENC_LITTLE_ENDIAN);
             offset += 3;
 
-            proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_window_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_window_size, tvb, offset, 1, ENC_LITTLE_ENDIAN, &window_size);
+            proto_item_append_text(item, " (%g msec)", window_size*1.25);
             offset += 1;
 
-            proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_window_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_window_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &window_offset);
+            proto_item_append_text(item, " (%g msec)", window_offset*1.25);
             offset += 2;
 
-            proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN, &data_interval);
+            proto_item_append_text(item, " (%g msec)", data_interval*1.25);
             offset += 2;
 
             proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
-            proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN, &data_timeout);
+            proto_item_append_text(item, " (%g msec)", data_timeout*1.25);
             offset += 2;
 
             sub_item = proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_channel_map, tvb, offset, 5, ENC_NA);
