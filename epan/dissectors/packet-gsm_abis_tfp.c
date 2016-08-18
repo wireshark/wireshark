@@ -32,6 +32,9 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+void proto_register_abis_tfp(void);
+void proto_reg_handoff_abis_tfp(void);
+
 enum {
 	SUB_DATA,
 
