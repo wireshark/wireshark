@@ -114,7 +114,7 @@ static int hf_quic_frame_type_ack_ack_block_length = -1;
 static int hf_quic_frame_type_ack_delta_largest_acked = -1;
 static int hf_quic_frame_type_ack_time_since_largest_acked = -1;
 static int hf_quic_stream_id = -1;
-static int hf_quic_offset_len = -1;
+static int hf_quic_offset = -1;
 static int hf_quic_data_len = -1;
 static int hf_quic_tag = -1;
 static int hf_quic_tags = -1;
@@ -1681,7 +1681,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             }
 
             if(len_offset) {
-                proto_tree_add_item(ft_tree, hf_quic_offset_len, tvb, offset, len_offset, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(ft_tree, hf_quic_offset, tvb, offset, len_offset, ENC_LITTLE_ENDIAN);
                 offset += len_offset;
             }
 
@@ -2424,8 +2424,8 @@ proto_register_quic(void)
                FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_offset_len,
-            { "Offset Length", "quic.offset_len",
+        { &hf_quic_offset,
+            { "Offset", "quic.offset",
                FT_UINT64, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
