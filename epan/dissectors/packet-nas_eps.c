@@ -1605,78 +1605,79 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
     curr_offset = offset;
 
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 1, ENC_BIG_ENDIAN);
-    /* Type of list (octet 1) Bits 7 6 */
-    proto_tree_add_item(tree, hf_nas_eps_emm_tai_tol, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* Number of elements (octet 1) Bits 5 4 3 2 1 */
-    octet = tvb_get_guint8(tvb,curr_offset)& 0x7f;
-    tol = octet >> 5;
-    n_elem = (octet & 0x1f)+1;
-    item = proto_tree_add_item(tree, hf_nas_eps_emm_tai_n_elem, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    if (n_elem<16)
-        proto_item_append_text(item, " [+1 = %u element(s)]", n_elem);
+    while ((curr_offset - offset) < len) {
+        proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 1, ENC_BIG_ENDIAN);
+        /* Type of list (octet 1) Bits 7 6 */
+        proto_tree_add_item(tree, hf_nas_eps_emm_tai_tol, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        /* Number of elements (octet 1) Bits 5 4 3 2 1 */
+        octet = tvb_get_guint8(tvb,curr_offset)& 0x7f;
+        tol = octet >> 5;
+        n_elem = (octet & 0x1f)+1;
+        item = proto_tree_add_item(tree, hf_nas_eps_emm_tai_n_elem, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        if (n_elem<16)
+            proto_item_append_text(item, " [+1 = %u element(s)]", n_elem);
 
-    curr_offset++;
-    if (tol>2) {
-        proto_tree_add_expert(tree, pinfo, &ei_nas_eps_unknown_type_of_list, tvb, curr_offset, len-(curr_offset-offset));
-        return len;
-    }
+        curr_offset++;
+        if (tol>2) {
+            proto_tree_add_expert(tree, pinfo, &ei_nas_eps_unknown_type_of_list, tvb, curr_offset, len-(curr_offset-offset));
+            return len;
+        }
 
-    switch (tol) {
-        case 0:
-            /* MCC digit 2 MCC digit 1 octet 2
-             * MNC digit 3 MCC digit 3 octet 3
-             * MNC digit 2 MNC digit 1 octet 4
-             */
-            curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_NONE, TRUE);
-            /* type of list = "000" */
-            /* TAC 1             octet 5
-             * TAC 1 (continued) octet 6
-             * ...
-             * ...
-             * TAC k             octet 2k+3*
-             * TAC k (continued) octet 2k+4*
-             */
-            if (len < (guint)(4+(n_elem*2))) {
-                proto_tree_add_expert(tree, pinfo, &ei_nas_eps_wrong_nb_of_elems, tvb, curr_offset, len-(curr_offset-offset));
-                return len;
-            }
-            for (i=0; i < n_elem; i++, curr_offset+=2)
-                proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-            break;
-        case 1:
-
-            /* type of list = "010" */
-            /* MCC digit 2 MCC digit 1 octet 2
-             * MNC digit 3 MCC digit 3 octet 3
-             * MNC digit 2 MNC digit 1 octet 4
-             */
-            curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_NONE, TRUE);
-            proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-            curr_offset+=2;
-            break;
-        case 2:
-            if (len< (guint)(1+(n_elem*5))) {
-                proto_tree_add_expert(tree, pinfo, &ei_nas_eps_wrong_nb_of_elems, tvb, curr_offset, len-(curr_offset-offset));
-                return len;
-            }
-
-            for (i=0; i < n_elem; i++) {
+        switch (tol) {
+            case 0:
+                /* MCC digit 2 MCC digit 1 octet 2
+                * MNC digit 3 MCC digit 3 octet 3
+                * MNC digit 2 MNC digit 1 octet 4
+                */
+                curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_NONE, TRUE);
+                /* type of list = "000" */
+                /* TAC 1             octet 5
+                * TAC 1 (continued) octet 6
+                * ...
+                * ...
+                * TAC k             octet 2k+3*
+                * TAC k (continued) octet 2k+4*
+                */
+                if (len < (guint)(4+(n_elem*2))) {
+                    proto_tree_add_expert(tree, pinfo, &ei_nas_eps_wrong_nb_of_elems, tvb, curr_offset, len-(curr_offset-offset));
+                    return len;
+                }
+                for (i=0; i < n_elem; i++, curr_offset+=2)
+                    proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                break;
+            case 1:
                 /* type of list = "001" */
                 /* MCC digit 2 MCC digit 1 octet 2
-                 * MNC digit 3 MCC digit 3 octet 3
-                 * MNC digit 2 MNC digit 1 octet 4
-                 */
+                * MNC digit 3 MCC digit 3 octet 3
+                * MNC digit 2 MNC digit 1 octet 4
+                */
                 curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_NONE, TRUE);
                 proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
                 curr_offset+=2;
-            }
-            break;
-        default:
-            /* Unknown ( Not in 3GPP TS 24.301 version 8.1.0 Release 8 ) */
-            break;
+                break;
+            case 2:
+                if (len< (guint)(1+(n_elem*5))) {
+                    proto_tree_add_expert(tree, pinfo, &ei_nas_eps_wrong_nb_of_elems, tvb, curr_offset, len-(curr_offset-offset));
+                    return len;
+                }
+                for (i=0; i < n_elem; i++) {
+                    /* type of list = "010" */
+                    /* MCC digit 2 MCC digit 1 octet 2
+                    * MNC digit 3 MCC digit 3 octet 3
+                    * MNC digit 2 MNC digit 1 octet 4
+                    */
+                    curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_NONE, TRUE);
+                    proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                    curr_offset+=2;
+                }
+                break;
+            default:
+                /* Unknown ( Not in 3GPP TS 24.301 version 8.1.0 Release 8 ) */
+                EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_eps_extraneous_data);
+                curr_offset = offset + len;
+                break;
+        }
     }
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_eps_extraneous_data);
 
     return(curr_offset-offset);
 }
