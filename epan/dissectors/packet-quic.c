@@ -36,6 +36,7 @@ QUIC source code in Chromium : https://code.google.com/p/chromium/codesearch#chr
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <stdlib.h> /* for atoi() */
+#include <epan/dissectors/packet-http2.h>
 
 void proto_register_quic(void);
 void proto_reg_handoff_quic(void);
@@ -172,6 +173,7 @@ static int hf_quic_tag_cadr_port = -1;
 static int hf_quic_tag_unknown = -1;
 
 static int hf_quic_padding = -1;
+static int hf_quic_stream_data = -1;
 static int hf_quic_payload = -1;
 
 static guint g_quic_port = 80;
@@ -1660,8 +1662,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
     }
     else { /* Special Frame Types */
-        guint32 stream_id = 0, message_tag;
+        guint32 stream_id, message_tag;
         const guint8* message_tag_str;
+        proto_item *ti_stream;
+
         ftflags_tree = proto_item_add_subtree(ti_ftflags, ett_quic_ftflags);
         proto_tree_add_item(ftflags_tree, hf_quic_frame_type_stream , tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
@@ -1679,10 +1683,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             len_stream = get_len_stream(frame_type);
             offset += 1;
 
-            if(len_stream) {
-                proto_tree_add_item_ret_uint(ft_tree, hf_quic_stream_id, tvb, offset, len_stream, ENC_LITTLE_ENDIAN, &stream_id);
-                offset += len_stream;
-            }
+            ti_stream = proto_tree_add_item_ret_uint(ft_tree, hf_quic_stream_id, tvb, offset, len_stream, ENC_LITTLE_ENDIAN, &stream_id);
+            offset += len_stream;
+
+            proto_item_append_text(ti_ft, " Stream ID: %u", stream_id);
 
             if(len_offset) {
                 proto_tree_add_item(ft_tree, hf_quic_offset, tvb, offset, len_offset, ENC_LITTLE_ENDIAN);
@@ -1694,22 +1698,51 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 offset += len_data;
             }
 
-            ti = proto_tree_add_item_ret_string(ft_tree, hf_quic_tag, tvb, offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &message_tag_str);
-            message_tag = tvb_get_ntohl(tvb, offset);
-            proto_item_append_text(ti, " (%s)", val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
-            proto_item_append_text(ti_ft, " Stream ID: %u, Type: %s (%s)", stream_id, message_tag_str, val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(message_tag, message_tag_vals, "Unknown"));
-            offset += 4;
+            /* Check if there is some reserved streams (Chapiter 6.1 of draft-shade-quic-http2-mapping-00) */
 
-            proto_tree_add_item(ft_tree, hf_quic_tag_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            tag_number = tvb_get_letohs(tvb, offset);
-            offset += 2;
+            switch(stream_id) {
+                case 1: { /* Reserved QUIC (handshake, crypto, config updates...) */
+                    message_tag = tvb_get_ntohl(tvb, offset);
+                    ti = proto_tree_add_item_ret_string(ft_tree, hf_quic_tag, tvb, offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &message_tag_str);
 
-            proto_tree_add_item(ft_tree, hf_quic_padding, tvb, offset, 2, ENC_NA);
-            offset += 2;
+                    proto_item_append_text(ti_stream, " (Reserved for QUIC handshake, crypto, config updates...)");
+                    proto_item_append_text(ti, " (%s)", val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
+                    proto_item_append_text(ti_ft, ", Type: %s (%s)", message_tag_str, val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
+                    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(message_tag, message_tag_vals, "Unknown"));
+                    offset += 4;
 
-            offset = dissect_quic_tag(tvb, pinfo, ft_tree, offset, tag_number, quic_info);
+                    proto_tree_add_item(ft_tree, hf_quic_tag_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    tag_number = tvb_get_letohs(tvb, offset);
+                    offset += 2;
 
+                    proto_tree_add_item(ft_tree, hf_quic_padding, tvb, offset, 2, ENC_NA);
+                    offset += 2;
+
+                    offset = dissect_quic_tag(tvb, pinfo, ft_tree, offset, tag_number, quic_info);
+                break;
+                }
+                case 3: { /* Reserved H2 HEADERS (or PUSH_PROMISE..) */
+                    tvbuff_t* tvb_h2;
+
+                    proto_item_append_text(ti_stream, " (Reserved for H2 HEADERS)");
+
+                    col_add_str(pinfo->cinfo, COL_INFO, "H2");
+
+                    tvb_h2 = tvb_new_subset_remaining(tvb, offset);
+
+                    offset += dissect_http2_pdu(tvb_h2, pinfo, ft_tree, NULL);
+                }
+                break;
+                default: { /* Data... */
+                    int data_len = tvb_reported_length_remaining(tvb, offset);
+
+                    col_add_str(pinfo->cinfo, COL_INFO, "DATA");
+
+                    proto_tree_add_item(ft_tree, hf_quic_stream_data, tvb, offset, data_len, ENC_NA);
+                    offset += data_len;
+                }
+                break;
+            }
         } else if (frame_type & FTFLAGS_ACK) {     /* ACK Flags */
 
             proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2697,6 +2730,11 @@ proto_register_quic(void)
         },
         { &hf_quic_padding,
             { "Padding", "quic.padding",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_quic_stream_data,
+            { "Stream Data", "quic.stream_data",
                FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
