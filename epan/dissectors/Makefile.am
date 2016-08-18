@@ -1575,6 +1575,7 @@ DISSECTOR_INCLUDES = \
 	packet-h450-ros.h	\
 	packet-hpext.h		\
 	packet-http.h		\
+	packet-http2.h		\
 	packet-iana-oui.h	\
 	packet-iax2.h		\
 	packet-icmp.h		\

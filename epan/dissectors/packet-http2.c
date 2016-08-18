@@ -42,6 +42,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
+#include <epan/dissectors/packet-http2.h>
 
 #include <epan/nghttp2/nghttp2.h>
 
@@ -1312,7 +1313,7 @@ dissect_http2_altsvc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tr
 }
 
 
-static int
+int
 dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
 {
     proto_item *ti;
