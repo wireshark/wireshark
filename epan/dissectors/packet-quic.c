@@ -178,6 +178,7 @@ static int hf_quic_payload = -1;
 
 static guint g_quic_port = 80;
 static guint g_quics_port = 443;
+static gboolean g_quic_debug = FALSE;
 
 static gint ett_quic = -1;
 static gint ett_quic_puflags = -1;
@@ -2134,7 +2135,7 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += len_pkn;
 
     /* Unencrypt Message (Handshake or Connection Close...) */
-    if (is_quic_unencrypt(tvb, pinfo, offset, len_pkn, quic_info)){
+    if (is_quic_unencrypt(tvb, pinfo, offset, len_pkn, quic_info) || g_quic_debug){
         offset = dissect_quic_unencrypt(tvb, pinfo, quic_tree, offset, len_pkn, quic_info);
     }else {     /* Payload... (encrypted... TODO FIX !) */
         col_add_str(pinfo->cinfo, COL_INFO, "Payload (Encrypted)");
@@ -2841,6 +2842,11 @@ proto_register_quic(void)
     prefs_register_uint_preference(quic_module, "udp.quics.port", "QUICS UDP Port",
             "QUICS (Secure) UDP port if other than the default",
             10, &g_quics_port);
+
+    prefs_register_bool_preference(quic_module, "debug.quic",
+                       "Force decode of all QUIC Payload",
+                       "Help for debug...",
+                       &g_quic_debug);
 
     expert_quic = expert_register_protocol(proto_quic);
     expert_register_field_array(expert_quic, ei, array_length(ei));
