@@ -25,6 +25,9 @@
 #include <epan/packet.h>
 #include <wsutil/bits_ctz.h>
 
+void proto_register_uds(void);
+void proto_reg_handoff_uds(void);
+
 #define UDS_SERVICES_DSC     0x10
 #define UDS_SERVICES_ER      0x11
 #define UDS_SERVICES_CDTCI   0x14
