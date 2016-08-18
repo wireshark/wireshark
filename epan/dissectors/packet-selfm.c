@@ -1128,7 +1128,7 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
     /* skip num_dig,   position offset+6 */
     num_calc = tvb_get_guint8(tvb, offset+7);
 
-    fmconfig_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_selfm_fmconfig, NULL, "Fast Meter Configuration Details");
+    fmconfig_tree = proto_tree_add_subtree(tree, tvb, offset, len-2, ett_selfm_fmconfig, NULL, "Fast Meter Configuration Details");
 
     /* Add items to protocol tree specific to Fast Meter Configuration Block */
 
@@ -2499,10 +2499,9 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
                 offset += 18;
             }
         }
+    } /* if (!visited) */
 
-     } /* if (!visited) */
-
-    if (tree) {
+    {
 
         selfm_item = proto_tree_add_protocol_format(tree, proto_selfm, selfm_tvb, 0, len, "SEL Protocol");
         selfm_tree = proto_item_add_subtree(selfm_item, ett_selfm);
@@ -2558,7 +2557,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
                         break;
                 } /* msg_type */
         } /* remaining length > 0 */
-    } /* tree */
+    }
 
     return tvb_reported_length(selfm_tvb);
 }
