@@ -30,6 +30,9 @@
 #include <epan/proto_data.h>
 #include <wsutil/bits_ctz.h>
 
+void proto_register_iso15765(void);
+void proto_reg_handoff_iso15765(void);
+
 #define ISO15765_PCI_OFFSET 0
 #define ISO15765_PCI_LEN 1
 
