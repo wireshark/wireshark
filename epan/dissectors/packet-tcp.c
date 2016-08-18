@@ -815,12 +815,12 @@ gchar* tcp_follow_address_filter(address* src_addr, address* dst_addr, int src_p
 #define EXP_PDU_TCP_INFO_DATA_LEN   19
 #define EXP_PDU_TCP_INFO_VERSION    1
 
-int exp_pdu_tcp_dissector_data_size(packet_info *pinfo _U_, void* data _U_)
+static int exp_pdu_tcp_dissector_data_size(packet_info *pinfo _U_, void* data _U_)
 {
     return EXP_PDU_TCP_INFO_DATA_LEN+4;
 }
 
-int exp_pdu_tcp_dissector_data_populate_data(packet_info *pinfo _U_, void* data, guint8 *tlv_buffer, guint32 buffer_size _U_)
+static int exp_pdu_tcp_dissector_data_populate_data(packet_info *pinfo _U_, void* data, guint8 *tlv_buffer, guint32 buffer_size _U_)
 {
     struct tcpinfo* dissector_data = (struct tcpinfo*)data;
 
