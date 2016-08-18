@@ -2042,7 +2042,7 @@ dissect_meta_tag_bitfield(proto_item *section_tree, tvbuff_t *tvb, int offset, e
   return tag_pi;
 }
 
-void erf_ts_to_nstime(guint64 timestamp, nstime_t* t, gboolean is_relative) {
+static void erf_ts_to_nstime(guint64 timestamp, nstime_t* t, gboolean is_relative) {
   guint64 ts = timestamp;
 
   /* relative ERF timestamps are signed, convert as if unsigned then flip back */
@@ -2071,7 +2071,7 @@ void erf_ts_to_nstime(guint64 timestamp, nstime_t* t, gboolean is_relative) {
 }
 
 /* TODO: Would be nice if default FT_RELATIVE_TIME formatter was prettier */
-proto_item *dissect_relative_time(proto_tree *tree, const int hfindex, tvbuff_t *tvb, gint offset, gint length, nstime_t* t) {
+static proto_item *dissect_relative_time(proto_tree *tree, const int hfindex, tvbuff_t *tvb, gint offset, gint length, nstime_t* t) {
   proto_item *pi = NULL;
 
   DISSECTOR_ASSERT(t);
@@ -2086,7 +2086,7 @@ proto_item *dissect_relative_time(proto_tree *tree, const int hfindex, tvbuff_t 
   return pi;
 }
 
-proto_item *dissect_ptp_timeinterval(proto_tree *tree, const int hfindex, tvbuff_t *tvb, gint offset, gint length, gint64 timeinterval) {
+static proto_item *dissect_ptp_timeinterval(proto_tree *tree, const int hfindex, tvbuff_t *tvb, gint offset, gint length, gint64 timeinterval) {
   nstime_t t;
   guint64 ti, ti_ns;
 
