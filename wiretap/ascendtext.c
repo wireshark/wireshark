@@ -301,18 +301,9 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
   return WTAP_OPEN_MINE;
 }
 
-typedef enum {
-    PARSED_RECORD,
-    PARSED_NONRECORD,
-    PARSE_FAILED
-} parse_t;
-
 /* Parse the capture file.
-   Returns:
-     PARSED_RECORD if we got a packet
-     PARSED_NONRECORD if the parser succeeded but didn't see a packet
-     PARSE_FAILED if the parser failed. */
-static parse_t
+   Returns TRUE if we got a packet, FALSE otherwise. */
+static gboolean
 parse_ascend(ascend_t *ascend, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
              guint length, int *err, gchar **err_info)
 {
@@ -389,20 +380,26 @@ parse_ascend(ascend_t *ascend, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
         phdr->pseudo_header.eth.fcs_len = 0;
         break;
     }
-    return PARSED_RECORD;
+    return TRUE;
   }
 
   /* Didn't see any data. Still, perhaps the parser was happy.  */
   if (retval) {
     if (*err == 0) {
-      /* Not a bad record, so a parse error.  Return WTAP_ERR_BAD_FILE,
-         with the parse error as the error string. */
+      /* Parser failed, but didn't report an I/O error, so a parse error.
+         Return WTAP_ERR_BAD_FILE, with the parse error as the error string. */
       *err = WTAP_ERR_BAD_FILE;
       *err_info = g_strdup((parser_state.ascend_parse_error != NULL) ? parser_state.ascend_parse_error : "parse error");
     }
-    return PARSE_FAILED;
-  } else
-    return PARSED_NONRECORD;
+  } else {
+    if (*err == 0) {
+      /* Parser succeeded, but got no data, and didn't report an I/O error.
+         Return WTAP_ERR_BAD_FILE, with a "got no data" error string. */
+      *err = WTAP_ERR_BAD_FILE;
+      *err_info = g_strdup("no data returned by parse");
+    }
+  }
+  return FALSE;
 }
 
 /* Read the next packet; called from wtap_read(). */
@@ -423,8 +420,8 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
   offset = ascend_seek(wth, err, err_info);
   if (offset == -1)
     return FALSE;
-  if (parse_ascend(ascend, wth->fh, &wth->phdr, wth->frame_buffer,
-                   wth->snapshot_length, err, err_info) != PARSED_RECORD)
+  if (!parse_ascend(ascend, wth->fh, &wth->phdr, wth->frame_buffer,
+                   wth->snapshot_length, err, err_info))
     return FALSE;
 
   *data_offset = offset;
@@ -439,8 +436,8 @@ static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
 
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
-  if (parse_ascend(ascend, wth->random_fh, phdr, buf,
-                   wth->snapshot_length, err, err_info) != PARSED_RECORD)
+  if (!parse_ascend(ascend, wth->random_fh, phdr, buf,
+                   wth->snapshot_length, err, err_info))
     return FALSE;
 
   return TRUE;
