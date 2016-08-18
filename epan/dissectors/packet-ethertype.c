@@ -78,6 +78,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_QNX_QNET6,            "QNX 6 QNET protocol" },
 	{ ETHERTYPE_PPPOED,               "PPPoE Discovery" },
 	{ ETHERTYPE_PPPOES,               "PPPoE Session" },
+	{ ETHERTYPE_LINK_CTL,             "HomePNA, wlan link local tunnel" },
 	{ ETHERTYPE_INTEL_ANS,            "Intel ANS probe" },
 	{ ETHERTYPE_MS_NLB_HEARTBEAT,     "MS NLB heartbeat" },
 	{ ETHERTYPE_JUMBO_LLC,            "Jumbo LLC" },

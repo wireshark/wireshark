@@ -308,6 +308,10 @@ extern "C" {
 #define ETHERTYPE_PPPOES		0x8864	/* PPPoE Session Protocol */
 #endif
 
+#ifndef ETHERTYPE_LINK_CTL
+#define ETHERTYPE_LINK_CTL              0x886C  /* HPNA, wlan link local tunnel */
+#endif
+
 #ifndef ETHERTYPE_INTEL_ANS
 #define ETHERTYPE_INTEL_ANS		0x886D	/* Intel ANS (NIC teaming) http://www.intel.com/support/network/adapter/ans/probes.htm */
 #endif
