@@ -302,7 +302,7 @@ static int dissect_logcat_text_long(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return dissect_logcat_text(tvb, tree, pinfo, &dinfo);
 }
 
-void logcat_text_init(void)
+static void logcat_text_init(void)
 {
     special_regex =    g_regex_new(SPECIAL_STRING,    G_REGEX_ANCHORED,  G_REGEX_MATCH_NOTEMPTY, NULL);
     brief_regex =      g_regex_new(BRIEF_STRING,      G_REGEX_ANCHORED,  G_REGEX_MATCH_NOTEMPTY, NULL);
@@ -314,7 +314,7 @@ void logcat_text_init(void)
     long_regex =       g_regex_new(LONG_STRING,       G_REGEX_MULTILINE, G_REGEX_MATCH_NOTEMPTY, NULL);
 }
 
-void logcat_text_cleanup(void)
+static void logcat_text_cleanup(void)
 {
     g_regex_unref(special_regex);
     g_regex_unref(brief_regex);
