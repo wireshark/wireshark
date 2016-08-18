@@ -237,20 +237,25 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
     return WTAP_OPEN_NOT_MINE;
   }
 
-  /* Do a trial parse of the first packet just found to see if we might really have an Ascend file */
-  if (run_ascend_parser(wth->fh, &wth->phdr, buf, &parser_state, err, err_info) != 0) {
-    if (*err != 0) {
-        /* An I/O error. */
-        return WTAP_OPEN_ERROR;
-    }
+  /* Do a trial parse of the first packet just found to see if we might
+     really have an Ascend file.  If it fails with an actual error,
+     fail; those will be I/O errors. */
+  if (run_ascend_parser(wth->fh, &wth->phdr, buf, &parser_state, err,
+                        err_info) != 0 && *err != 0) {
+      /* An I/O error. */
+      return WTAP_OPEN_ERROR;
   }
 
-  /* if we got at least some data, and didn't get an I/O error, return
-     success even if the parser reported an error. This is because the
-     debug header gives the number of bytes on the wire, not actually
-     how many bytes are in the trace.  We won't know where the data ends
-     until we run into the next packet. */
+  /* Either the parse succeeded, or it failed but didn't get an I/O
+     error.
+
+     If we got at least some data, return success even if the parser
+     reported an error. This is because the debug header gives the
+     number of bytes on the wire, not actually how many bytes are in
+     the trace.  We won't know where the data ends until we run into
+     the next packet. */
   if (parser_state.caplen == 0) {
+    /* We read no data, so this presumably isn't an Ascend file. */
     return WTAP_OPEN_NOT_MINE;
   }
 
