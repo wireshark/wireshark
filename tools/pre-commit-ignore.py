@@ -40,8 +40,7 @@ def load_checkignore(path):
         with open(path) as f:
             patterns = f.read()
     except OSError as err:
-        print(str(err))
-        return []
+        sys.exit(str(err))
     ign = [l.strip() for l in patterns.splitlines()]
     ign = [l for l in ign if l and not l.startswith("#")]
     return ign

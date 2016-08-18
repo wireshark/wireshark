@@ -55,14 +55,10 @@ COMMIT_FILES=`git diff-index --cached --name-status ${COMMIT_ID} | grep -v "^D" 
 filter_script=${PWD}/tools/pre-commit-ignore.py
 filter_conf=${PWD}/tools/pre-commit-ignore.conf
 
-if [ ! -e "$filter_script" ]; then
-    echo "File '$filter_script' does not exist. Aborting."
-    exit 1
-fi
-
-CHECK_FILES=`echo "$COMMIT_FILES" | "$PYBIN" "$filter_script" "$filter_conf"`
-if [ $? -ne 0 ]; then
-    exit 1
+if [ -f "$filter_script" ] && [ -f "$filter_conf" ]; then
+    CHECK_FILES=`echo "$COMMIT_FILES" | "$PYBIN" "$filter_script" "$filter_conf"` || exit
+else
+    CHECK_FILES="$COMMIT_FILES"
 fi
 
 # On windows python will output \r\n line endings - we don't want that.
