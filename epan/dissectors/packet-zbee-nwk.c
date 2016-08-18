@@ -1732,7 +1732,7 @@ dissect_ieee802154_zigbee_rejoin(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
             tvb_get_guint64(tvb, *offset, ENC_LITTLE_ENDIAN)));
     *offset += 8;
 
-    proto_tree_add_item(subtree, hf_ieee802154_zigbee_rejoin_source_addr, tvb, *offset, 2, ENC_NA);
+    proto_tree_add_item(subtree, hf_ieee802154_zigbee_rejoin_source_addr, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     proto_item_append_text(tree, ", Src: 0x%04x",
             tvb_get_guint16(tvb, *offset, ENC_LITTLE_ENDIAN));
     *offset += 2;
