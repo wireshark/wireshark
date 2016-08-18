@@ -58,6 +58,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include "packet-rtps.h"
+#include <epan/addr_resolv.h>
 
 void proto_register_rtps(void);
 void proto_reg_handoff_rtps(void);
@@ -753,7 +754,7 @@ static const value_string parameter_id_vals[] = {
   { PID_UNICAST_LOCATOR,                "PID_UNICAST_LOCATOR" },
   { PID_MULTICAST_LOCATOR,              "PID_MULTICAST_LOCATOR" },
   { PID_DEFAULT_UNICAST_LOCATOR,        "PID_DEFAULT_UNICAST_LOCATOR" },
-  { PID_METATRAFFIC_UNICAST_LOCATOR,    "PID_METATRAFFIC_UNICAST_LOCATOR " },
+  { PID_METATRAFFIC_UNICAST_LOCATOR,    "PID_METATRAFFIC_UNICAST_LOCATOR" },
   { PID_METATRAFFIC_MULTICAST_LOCATOR,  "PID_METATRAFFIC_MULTICAST_LOCATOR" },
   { PID_PARTICIPANT_MANUAL_LIVELINESS_COUNT, "PID_PARTICIPANT_MANUAL_LIVELINESS_COUNT" },
   { PID_HISTORY,                        "PID_HISTORY" },
@@ -813,7 +814,7 @@ static const value_string parameter_id_v2_vals[] = {
   { PID_UNICAST_LOCATOR,                "PID_UNICAST_LOCATOR" },
   { PID_MULTICAST_LOCATOR,              "PID_MULTICAST_LOCATOR" },
   { PID_DEFAULT_UNICAST_LOCATOR,        "PID_DEFAULT_UNICAST_LOCATOR" },
-  { PID_METATRAFFIC_UNICAST_LOCATOR,    "PID_METATRAFFIC_UNICAST_LOCATOR " },
+  { PID_METATRAFFIC_UNICAST_LOCATOR,    "PID_METATRAFFIC_UNICAST_LOCATOR" },
   { PID_METATRAFFIC_MULTICAST_LOCATOR,  "PID_METATRAFFIC_MULTICAST_LOCATOR" },
   { PID_PARTICIPANT_MANUAL_LIVELINESS_COUNT, "PID_PARTICIPANT_MANUAL_LIVELINESS_COUNT" },
   { PID_CONTENT_FILTER_PROPERTY,        "PID_CONTENT_FILTER_PROPERTY" },
@@ -1657,43 +1658,63 @@ void rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
               ENC_BIG_ENDIAN);
       if (port == 0)
         expert_add_info(pinfo, ti, &ei_rtps_locator_port);
+      proto_item_append_text(tree, " (%s, %s:%d)",
+                 val_to_str(kind, rtps_locator_kind_vals, "%02x"),
+                 tvb_ip_to_str(tvb, offset + 20), port);
       break;
     }
     case LOCATOR_KIND_TCPV4_LAN:
     case LOCATOR_KIND_TCPV4_WAN:
     case LOCATOR_KIND_TLSV4_LAN:
     case LOCATOR_KIND_TLSV4_WAN: {
+      guint16 ip_kind;
       ti = proto_tree_add_int(locator_tree, hf_rtps_logical_port, tvb, offset+4, 4, port);
       if (port == 0)
         expert_add_info(pinfo, ti, &ei_rtps_locator_port);
-      kind = NEXT_guint16(tvb, offset+16, little_endian);
-      if (kind == 0xFFFF) { /* IPv4 format */
+      ip_kind = NEXT_guint16(tvb, offset+16, little_endian);
+      if (ip_kind == 0xFFFF) { /* IPv4 format */
+        guint16 public_address_port = NEXT_guint16(tvb, offset + 18, FALSE);
         proto_tree_add_item(locator_tree, hf_rtps_locator_public_address_port,
                 tvb, offset+18, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(locator_tree, hf_rtps_locator_ipv4, tvb, offset+20,
                 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(tree, " (%s, %s:%d, Logical Port = %d)",
+                   val_to_str(kind, rtps_locator_kind_vals, "%02x"),
+                   tvb_ip_to_str(tvb, offset + 20), public_address_port, port);
         } else { /* IPv6 format */
           proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset+8,
                   16, ENC_NA);
+          proto_item_append_text(tree, " (%s, %s, Logical Port = %d)",
+                  val_to_str(kind, rtps_locator_kind_vals, "%02x"),
+                  tvb_ip6_to_str(tvb, offset + 8), port);
         }
       break;
     }
     case LOCATOR_KIND_SHMEM: {
+      guint32 hostId;
       ti = proto_tree_add_int(locator_tree, hf_rtps_locator_port, tvb, offset+4,
               4, port);
+      hostId = NEXT_guint32(tvb, offset + 10, FALSE);
       proto_tree_add_item(locator_tree, hf_rtps_param_host_id, tvb, offset+10, 4, ENC_BIG_ENDIAN);
       if (port == 0)
         expert_add_info(pinfo, ti, &ei_rtps_locator_port);
+      proto_item_append_text(tree, " (%s, HostId = 0x%08x, Port = %d)",
+              val_to_str(kind, rtps_locator_kind_vals, "%02x"),
+              hostId, port);
       break;
     }
     case LOCATOR_KIND_UDPV6: {
       proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset+8, 16, ENC_NA);
+      proto_item_append_text(tree, " (%s, %s)",
+              val_to_str(kind, rtps_locator_kind_vals, "%02x"),
+              tvb_ip6_to_str(tvb, offset + 8));
       break;
     }
     /* Default case, we already have the locator kind so don't do anything */
     default:
       break;
   }
+
 }
 
 /* ------------------------------------------------------------------------- */
