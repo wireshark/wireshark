@@ -5360,7 +5360,6 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 2;
 
         proto_tree_add_item(tree, hf_btatt_regulatory_certification_data_list_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        length = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset += 2;
 
         while (count--) {
