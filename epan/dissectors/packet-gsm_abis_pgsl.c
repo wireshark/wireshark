@@ -30,6 +30,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_abis_pgsl(void);
+void proto_reg_handoff_abis_pgsl(void);
+
 enum {
 	SUB_DATA,
 
