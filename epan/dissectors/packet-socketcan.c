@@ -58,6 +58,8 @@ static gint ett_can = -1;
 
 static int proto_can = -1;
 
+static gboolean byte_swap = FALSE;
+
 #define LINUX_CAN_STD   0
 #define LINUX_CAN_EXT   1
 #define LINUX_CAN_RTR   2
@@ -96,14 +98,9 @@ static gpointer can_value(packet_info *pinfo _U_)
 	return 0;
 }
 
-typedef enum {
-	SOCKETCAN_BIG_ENDIAN,
-	SOCKETCAN_HOST_ENDIAN
-} socketcan_endianness;
-
 static int
 dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    socketcan_endianness endianness)
+    guint encoding)
 {
 	proto_tree *can_tree;
 	proto_item *ti;
@@ -111,18 +108,14 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gint        frame_len;
 	struct can_identifier can_id;
 	tvbuff_t*   next_tvb;
-	guint       encoding;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAN");
 	col_clear(pinfo->cinfo,COL_INFO);
 
-	if (endianness == SOCKETCAN_BIG_ENDIAN) {
+	if (encoding == ENC_BIG_ENDIAN)
 		can_id.id = tvb_get_ntohl(tvb, 0);
-		encoding = ENC_BIG_ENDIAN;
-	} else {
-		can_id.id = tvb_get_h_guint32(tvb, 0);
-		encoding = ENC_HOST_ENDIAN;
-	}
+	else
+		can_id.id = tvb_get_letohl(tvb, 0);
 	frame_len  = tvb_get_guint8( tvb, CAN_LEN_OFFSET);
 
 	if (can_id.id & CAN_RTR_FLAG)
@@ -174,14 +167,22 @@ static int
 dissect_socketcan_bigendian(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void* data _U_)
 {
-	return dissect_socketcan_common(tvb, pinfo, tree, SOCKETCAN_BIG_ENDIAN);
+	return dissect_socketcan_common(tvb, pinfo, tree,
+	    byte_swap ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 }
+
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+    #define ENC_ANTI_HOST_ENDIAN ENC_BIG_ENDIAN
+#else
+    #define ENC_ANTI_HOST_ENDIAN ENC_LITTLE_ENDIAN
+#endif
 
 static int
 dissect_socketcan_hostendian(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void* data _U_)
 {
-	return dissect_socketcan_common(tvb, pinfo, tree, SOCKETCAN_HOST_ENDIAN);
+	return dissect_socketcan_common(tvb, pinfo, tree,
+	    byte_swap ? ENC_ANTI_HOST_ENDIAN : ENC_HOST_ENDIAN);
 }
 
 void
@@ -268,6 +269,10 @@ proto_register_socketcan(void)
 	can_module = prefs_register_protocol(proto_can, NULL);
 
 	prefs_register_obsolete_preference(can_module, "protocol");
+	prefs_register_bool_preference(can_module, "byte_swap",
+	    "Byte-swap the CAN ID/flags field",
+	    "Whether the CAN ID/flags field should be byte-swapped",
+	    &byte_swap);
 
 	register_decode_as(&can_da);
 }
