@@ -6129,9 +6129,11 @@
 			<enum name="MO_LR" code="2"/>
 			<enum name="EMERGENCY_CALL_HANDOVER" code="3"/>
 		</avp>
-
-		<!-- 2519	Pseudonym-Indicator	Enumerated -->
-
+		<avp name="Pseudonym-Indicator" code="2519" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="PSEUDONYM_NOT_REQUESTED" code="0"/>
+			<enum name="PSEUDONYM_REQUESTED" code="1"/>
+		</avp>
 		<avp name="LCS-Service-Type-ID" code="2520" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
