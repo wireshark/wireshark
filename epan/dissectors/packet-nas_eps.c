@@ -1718,9 +1718,10 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                         gchar *add_string _U_, int string_len _U_)
 {
     proto_item *item;
-    guint32 curr_offset;
+    guint32 curr_offset, tac;
     guint8 octet, tol, n_elem;
     int i;
+    proto_item *it;
 
     curr_offset = offset;
 
@@ -1733,8 +1734,11 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         tol = octet >> 5;
         n_elem = (octet & 0x1f)+1;
         item = proto_tree_add_item(tree, hf_nas_eps_emm_tai_n_elem, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        if (n_elem<16)
+        if (n_elem<16) {
             proto_item_append_text(item, " [+1 = %u element(s)]", n_elem);
+        } else {
+            n_elem = 16;
+        }
 
         curr_offset++;
         if (tol>2) {
@@ -1771,8 +1775,12 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 * MNC digit 2 MNC digit 1 octet 4
                 */
                 curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_NONE, TRUE);
-                proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &tac);
                 curr_offset+=2;
+                for (i = 1; i < n_elem; i++) {
+                    it = proto_tree_add_uint(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 0, tac+i);
+                    PROTO_ITEM_SET_GENERATED(it);
+                }
                 break;
             case 2:
                 if (len< (guint)(1+(n_elem*5))) {
