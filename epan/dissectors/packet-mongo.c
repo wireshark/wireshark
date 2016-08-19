@@ -54,6 +54,8 @@ static dissector_handle_t mongo_handle;
 #define OP_GET_MORE     2005
 #define OP_DELETE       2006
 #define OP_KILL_CURSORS 2007
+#define OP_COMMAND      2010
+#define OP_COMMANDREPLY 2011
 
 /**************************************************************************/
 /*                      OpCode                                            */
@@ -68,6 +70,8 @@ static const value_string opcode_vals[] = {
   { OP_GET_MORE,  "Get More" },
   { OP_DELETE,  "Delete document" },
   { OP_KILL_CURSORS,  "Kill Cursors" },
+  { OP_COMMAND,  "Command Request (Cluster internal)" },
+  { OP_COMMANDREPLY,  "Command Reply (Cluster internal)" },
   { 0,  NULL }
 };
 
@@ -203,6 +207,12 @@ static int hf_mongo_element_value_objectid_inc = -1;
 static int hf_mongo_element_value_db_ptr = -1;
 static int hf_mongo_element_value_js_code = -1;
 static int hf_mongo_element_value_js_scope = -1;
+static int hf_mongo_database = -1;
+static int hf_mongo_commandname = -1;
+static int hf_mongo_metadata = -1;
+static int hf_mongo_commandargs = -1;
+static int hf_mongo_commandreply = -1;
+static int hf_mongo_outputdocs = -1;
 static int hf_mongo_unknown = -1;
 
 static guint global_mongo_tcp_port = TCP_PORT_MONGO;
@@ -579,6 +589,41 @@ dissect_mongo_kill_cursors(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static int
+dissect_mongo_op_command(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
+{
+  gint32 db_length, cmd_length;
+
+  db_length = tvb_strsize(tvb, offset);
+  proto_tree_add_item(tree, hf_mongo_database, tvb, offset, db_length, ENC_ASCII|ENC_NA);
+  offset += db_length;
+
+  cmd_length = tvb_strsize(tvb, offset);
+  proto_tree_add_item(tree, hf_mongo_commandname, tvb, offset, cmd_length, ENC_ASCII|ENC_NA);
+  offset += cmd_length;
+
+  offset += dissect_bson_document(tvb, pinfo, offset, tree, hf_mongo_metadata, 1);
+
+  offset += dissect_bson_document(tvb, pinfo, offset, tree, hf_mongo_commandargs, 1);
+
+  return offset;
+}
+
+static int
+dissect_mongo_op_commandreply(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
+{
+
+  offset += dissect_bson_document(tvb, pinfo, offset, tree, hf_mongo_metadata, 1);
+
+  offset += dissect_bson_document(tvb, pinfo, offset, tree, hf_mongo_commandreply, 1);
+
+  if (tvb_reported_length_remaining(tvb, offset) > 0){
+    offset += dissect_bson_document(tvb, pinfo, offset, tree, hf_mongo_outputdocs, 1);
+  }
+
+  return offset;
+}
+
+static int
 dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
@@ -639,6 +684,12 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
       break;
     case OP_KILL_CURSORS:
       offset = dissect_mongo_kill_cursors(tvb, offset, mongo_tree);
+      break;
+    case OP_COMMAND:
+      offset = dissect_mongo_op_command(tvb, pinfo, offset, mongo_tree);
+      break;
+    case OP_COMMANDREPLY:
+      offset = dissect_mongo_op_commandreply(tvb, pinfo, offset, mongo_tree);
       break;
     default:
       /* No default Action */
@@ -1007,6 +1058,36 @@ proto_register_mongo(void)
       { "JavaScript scope", "mongo.element.value.js_scope",
       FT_NONE, BASE_NONE, NULL, 0x0,
       "Scope document for JavaScript evaluation", HFILL }
+    },
+    { &hf_mongo_database,
+      { "database", "mongo.database",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      "the name of the database to run the command on", HFILL }
+    },
+    { &hf_mongo_commandname,
+      { "commandName", "mongo.commandname",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      "the name of the command", HFILL }
+    },
+    { &hf_mongo_metadata,
+      { "metadata", "mongo.metadata",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_mongo_commandargs,
+      { "CommandArgs", "mongo.commandargs",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_mongo_commandreply,
+      { "CommandReply", "mongo.commandreply",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_mongo_outputdocs,
+      { "OutputDocs", "mongo.outputdocs",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
     },
     { &hf_mongo_unknown,
       { "Unknown", "mongo.unknown",
