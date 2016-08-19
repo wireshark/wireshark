@@ -157,7 +157,7 @@ ProtocolIE-Field/value ie_field_value
 
   if (!parameter_tvb)
     return offset;
-   subtree = proto_item_add_subtree(actx->created_item, ett_lcsap_plmnd_id);
+  subtree = proto_item_add_subtree(actx->created_item, ett_lcsap_plmnd_id);
   dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, TRUE);
 #.END
 
@@ -244,9 +244,9 @@ ProtocolIE-Field/value ie_field_value
 
     subtree = proto_item_add_subtree(actx->created_item, ett_lcsap_civic_address);
     if (tvb_strncaseeql(parameter_tvb, 0, "<?xml", 5) == 0) {
-        call_dissector(xml_handle, parameter_tvb, actx->pinfo, subtree);
+      call_dissector(xml_handle, parameter_tvb, actx->pinfo, subtree);
     }else{
-        proto_tree_add_expert(tree, actx->pinfo, &ei_lcsap_civic_data_not_xml, parameter_tvb, 0, -1);
+      proto_tree_add_expert(tree, actx->pinfo, &ei_lcsap_civic_data_not_xml, parameter_tvb, 0, -1);
     }
   }
 
@@ -347,3 +347,17 @@ Reset-Acknowledge                       N lcsap.proc.sout id-Reset
 #.TYPE_ATTR
 BitRate TYPE = FT_UINT64 DISPLAY = BASE_DEC STRINGS = NULL
 #.END
+
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 2
+# tab-width: 8
+# indent-tabs-mode: nil
+# End:
+#
+# vi: set shiftwidth=2 tabstop=8 expandtab:
+# :indentSize=2:tabSize=8:noTabs=true:
+#

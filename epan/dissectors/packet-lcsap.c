@@ -783,9 +783,9 @@ dissect_lcsap_Civic_Address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_lcsap_civic_address);
     if (tvb_strncaseeql(parameter_tvb, 0, "<?xml", 5) == 0) {
-        call_dissector(xml_handle, parameter_tvb, actx->pinfo, subtree);
+      call_dissector(xml_handle, parameter_tvb, actx->pinfo, subtree);
     }else{
-        proto_tree_add_expert(tree, actx->pinfo, &ei_lcsap_civic_data_not_xml, parameter_tvb, 0, -1);
+      proto_tree_add_expert(tree, actx->pinfo, &ei_lcsap_civic_data_not_xml, parameter_tvb, 0, -1);
     }
   }
 
@@ -866,7 +866,7 @@ dissect_lcsap_PLMN_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
   if (!parameter_tvb)
     return offset;
-   subtree = proto_item_add_subtree(actx->created_item, ett_lcsap_plmnd_id);
+  subtree = proto_item_add_subtree(actx->created_item, ett_lcsap_plmnd_id);
   dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, TRUE);
 
 
