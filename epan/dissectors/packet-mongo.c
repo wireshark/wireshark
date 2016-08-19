@@ -280,7 +280,7 @@ dissect_bson_document(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
   if (document_length == 5) {
     /* document with length 5 is an empty document */
     /* don't display the element subtree */
-    proto_tree_add_item(tree, hf_mongo_document_empty, tvb, offset, document_length, ENC_NA);
+    proto_tree_add_item(doc_tree, hf_mongo_document_empty, tvb, offset, document_length, ENC_NA);
     return document_length;
   }
 
