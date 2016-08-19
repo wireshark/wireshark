@@ -96,8 +96,14 @@ static gpointer can_value(packet_info *pinfo _U_)
 	return 0;
 }
 
+typedef enum {
+	SOCKETCAN_BIG_ENDIAN,
+	SOCKETCAN_HOST_ENDIAN
+} socketcan_endianness;
+
 static int
-dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    socketcan_endianness endianness)
 {
 	proto_tree *can_tree;
 	proto_item *ti;
@@ -110,7 +116,9 @@ dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	col_clear(pinfo->cinfo,COL_INFO);
 
 	frame_len  = tvb_get_guint8( tvb, CAN_LEN_OFFSET);
-	can_id.id  = tvb_get_ntohl(tvb, 0);
+	can_id.id  = (endianness == SOCKETCAN_BIG_ENDIAN) ?
+	    tvb_get_ntohl(tvb, 0) :
+	    tvb_get_h_guint32(tvb, 0);
 
 	if (can_id.id & CAN_RTR_FLAG)
 	{
@@ -155,6 +163,20 @@ dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		call_data_dissector(next_tvb, pinfo, tree);
 	}
 	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_socketcan_bigendian(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    void* data _U_)
+{
+	return dissect_socketcan_common(tvb, pinfo, tree, SOCKETCAN_BIG_ENDIAN);
+}
+
+static int
+dissect_socketcan_hostendian(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    void* data _U_)
+{
+	return dissect_socketcan_common(tvb, pinfo, tree, SOCKETCAN_HOST_ENDIAN);
 }
 
 void
@@ -227,7 +249,10 @@ proto_register_socketcan(void)
 		"CAN",				/* short name */
 		"can"				/* abbrev     */
 		);
-	register_dissector("can", dissect_socketcan, proto_can);
+	register_dissector("can-bigendian", dissect_socketcan_bigendian,
+	    proto_can);
+	register_dissector("can-hostendian", dissect_socketcan_hostendian,
+	    proto_can);
 
 	proto_register_field_array(proto_can, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -245,11 +270,19 @@ proto_register_socketcan(void)
 void
 proto_reg_handoff_socketcan(void)
 {
-	dissector_handle_t can_handle;
+	dissector_handle_t socketcan_bigendian_handle;
+	dissector_handle_t socketcan_hostendian_handle;
 
-	can_handle = create_dissector_handle(dissect_socketcan, proto_can);
-	dissector_add_uint("wtap_encap", WTAP_ENCAP_SOCKETCAN, can_handle);
-	dissector_add_uint("sll.ltype", LINUX_SLL_P_CAN, can_handle);
+	socketcan_bigendian_handle = create_dissector_handle(dissect_socketcan_bigendian,
+	    proto_can);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_SOCKETCAN_BIGENDIAN,
+	    socketcan_bigendian_handle);
+	socketcan_hostendian_handle = create_dissector_handle(dissect_socketcan_hostendian,
+	    proto_can);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_SOCKETCAN_HOSTENDIAN,
+	    socketcan_hostendian_handle);
+	dissector_add_uint("sll.ltype", LINUX_SLL_P_CAN,
+	    socketcan_hostendian_handle);
 }
 
 /*
