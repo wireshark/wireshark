@@ -377,8 +377,8 @@ static const struct {
 	{ 225,		WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS },
 	/* Solaris IPNET */
 	{ 226,		WTAP_ENCAP_IPNET },
-	/* SocketCAN frame */
-	{ 227,		WTAP_ENCAP_SOCKETCAN },
+	/* SocketCAN frame, with CAN ID in big-endian byte order */
+	{ 227,		WTAP_ENCAP_SOCKETCAN_BIGENDIAN },
 	/* Raw IPv4 */
 	{ 228,		WTAP_ENCAP_RAW_IP4 },
 	/* Raw IPv6 */
@@ -432,6 +432,9 @@ static const struct {
 
 	/* IPMI Trace Data Collection */
 	{ 260,		WTAP_ENCAP_IPMI_TRACE },
+
+	/* SocketCAN frame, with CAN ID in host-endian byte order */
+	{ 265,		WTAP_ENCAP_SOCKETCAN_HOSTENDIAN },
 
 	/*
 	 * To repeat:
@@ -737,6 +740,12 @@ wtap_encap_requires_phdr(int encap) {
  * The link-layer header on Nokia IPSO packets.
  */
 #define NOKIA_LEN	4	/* length of the header */
+
+/*
+ * The fake link-layer header of Linux cooked packets.
+ */
+#define LINUX_SLL_PROTOCOL_OFFSET	14	/* protocol */
+#define LINUX_SLL_LEN			16	/* length of the header */
 
 /*
  * The fake link-layer header of IrDA packets as introduced by Jean Tourrilhes
@@ -1130,7 +1139,6 @@ struct usb_device_setup_hdr {
 	guint16 wLength;
 };
 
-
 /*
  * Offset of the *end* of a field within a particular structure.
  */
@@ -1164,6 +1172,57 @@ struct usb_device_setup_hdr {
 			return; \
 		PBSWAP64((guint8 *)fieldp); \
 	}
+
+struct can_socketcan_hdr {
+	guint32 can_id;			/* CAN ID and flags */
+	guint8 payload_length;		/* Frame payload length */
+	guint8 padding;
+	guint8 reserved1;
+	guint8 reserved2;
+};
+
+static void
+pcap_byteswap_linux_sll_pseudoheader(struct wtap_pkthdr *phdr, guint8 *pd)
+{
+	guint packet_size;
+	guint16 protocol;
+	struct can_socketcan_hdr *can_socketcan_phdr;
+
+	/*
+	 * Minimum of captured and actual length (just in case the
+	 * actual length < the captured length, which Should Never
+	 * Happen).
+	 */
+	packet_size = phdr->caplen;
+	if (packet_size > phdr->len)
+		packet_size = phdr->len;
+
+	if (packet_size < LINUX_SLL_LEN) {
+		/* Not enough data to have the protocol */
+		return;
+	}
+
+	protocol = pntoh16(&pd[LINUX_SLL_PROTOCOL_OFFSET]);
+	if (protocol != 0x000C) {
+		/* Not a CAN packet; nothing to fix */
+		return;
+	}
+
+	/*
+	 * Greasy hack, but we never directly dereference any of
+	 * the fields in *can_socketcan_phdr, we just get offsets
+	 * of and addresses of its members and byte-swap it with a
+	 * byte-at-a-time macro, so it's alignment-safe.
+	 */
+	can_socketcan_phdr = (struct can_socketcan_hdr *)(void *)(pd + LINUX_SLL_LEN);
+
+	if (packet_size < LINUX_SLL_LEN + sizeof(can_socketcan_phdr->can_id)) {
+		/* Not enough data to have the full CAN ID */
+		return;
+	}
+
+	PBSWAP32((guint8 *)&can_socketcan_phdr->can_id);
+}
 
 static void
 pcap_byteswap_linux_usb_pseudoheader(struct wtap_pkthdr *phdr, guint8 *pd,
@@ -1320,6 +1379,37 @@ pcap_byteswap_nflog_pseudoheader(struct wtap_pkthdr *phdr, guint8 *pd)
 		packet_size -= size;
 		p += size;
 	}
+}
+
+static void
+pcap_byteswap_can_socketcan_pseudoheader(struct wtap_pkthdr *phdr, guint8 *pd)
+{
+	guint packet_size;
+	struct can_socketcan_hdr *can_socketcan_phdr;
+
+	/*
+	 * Minimum of captured and actual length (just in case the
+	 * actual length < the captured length, which Should Never
+	 * Happen).
+	 */
+	packet_size = phdr->caplen;
+	if (packet_size > phdr->len)
+		packet_size = phdr->len;
+
+	/*
+	 * Greasy hack, but we never directly dereference any of
+	 * the fields in *can_socketcan_phdr, we just get offsets
+	 * of and addresses of its members and byte-swap it with a
+	 * byte-at-a-time macro, so it's alignment-safe.
+	 */
+	can_socketcan_phdr = (struct can_socketcan_hdr *)(void *)pd;
+
+	if (packet_size < sizeof(can_socketcan_phdr->can_id)) {
+		/* Not enough data to have the full CAN ID */
+		return;
+	}
+
+	PBSWAP32((guint8 *)&can_socketcan_phdr->can_id);
 }
 
 /*
@@ -1860,6 +1950,11 @@ pcap_read_post_process(int file_type, int wtap_encap,
 		phdr->pseudo_header.eth.fcs_len = fcs_len;
 		break;
 
+	case WTAP_ENCAP_SLL:
+		if (bytes_swapped)
+			pcap_byteswap_linux_sll_pseudoheader(phdr, pd);
+		break;
+
 	case WTAP_ENCAP_USB_LINUX:
 		if (bytes_swapped)
 			pcap_byteswap_linux_usb_pseudoheader(phdr, pd, FALSE);
@@ -1883,6 +1978,7 @@ pcap_read_post_process(int file_type, int wtap_encap,
 		if (bytes_swapped)
 			pcap_byteswap_nflog_pseudoheader(phdr, pd);
 		break;
+
 	case WTAP_ENCAP_ERF:
 		/*
 		 * Update packet size to account for ERF padding and snapping.
@@ -1891,6 +1987,11 @@ pcap_read_post_process(int file_type, int wtap_encap,
 		 */
 		phdr->len = phdr->pseudo_header.erf.phdr.wlen;
 		phdr->caplen = MIN(phdr->len, phdr->caplen);
+		break;
+
+	case WTAP_ENCAP_SOCKETCAN_HOSTENDIAN:
+		if (bytes_swapped)
+			pcap_byteswap_can_socketcan_pseudoheader(phdr, pd);
 		break;
 
 	default:

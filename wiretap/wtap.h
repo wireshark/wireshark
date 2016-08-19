@@ -211,7 +211,7 @@ extern "C" {
 #define WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS 122
 #define WTAP_ENCAP_JPEG_JFIF                    123 /* obsoleted by WTAP_ENCAP_MIME*/
 #define WTAP_ENCAP_IPNET                        124
-#define WTAP_ENCAP_SOCKETCAN                    125
+#define WTAP_ENCAP_SOCKETCAN_BIGENDIAN          125
 #define WTAP_ENCAP_IEEE_802_11_NETMON           126
 #define WTAP_ENCAP_IEEE802_15_4_NOFCS           127
 #define WTAP_ENCAP_RAW_IPFIX                    128
@@ -264,6 +264,7 @@ extern "C" {
 #define WTAP_ENCAP_LOOP                         175
 #define WTAP_ENCAP_JSON                         176
 #define WTAP_ENCAP_NSTRACE_3_5                  177
+#define WTAP_ENCAP_SOCKETCAN_HOSTENDIAN         178
 /* After adding new item here, please also add new item to encap_table_base array */
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
