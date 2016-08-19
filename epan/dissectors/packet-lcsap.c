@@ -41,6 +41,7 @@
 #include <epan/asn1.h>
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
+#include <epan/expert.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -113,7 +114,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-lcsap-val.h ---*/
-#line 60 "./asn1/lcsap/packet-lcsap-template.c"
+#line 61 "./asn1/lcsap/packet-lcsap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lcsap  =   -1;
@@ -241,12 +242,13 @@ static int hf_lcsap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_lcsap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-lcsap-hf.c ---*/
-#line 70 "./asn1/lcsap/packet-lcsap-template.c"
+#line 71 "./asn1/lcsap/packet-lcsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_lcsap = -1;
 static int ett_lcsap_plmnd_id = -1;
 static int ett_lcsap_imsi = -1;
+static int ett_lcsap_civic_address = -1;
 
 
 /*--- Included file: packet-lcsap-ett.c ---*/
@@ -299,7 +301,9 @@ static gint ett_lcsap_SuccessfulOutcome = -1;
 static gint ett_lcsap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-lcsap-ett.c ---*/
-#line 77 "./asn1/lcsap/packet-lcsap-template.c"
+#line 79 "./asn1/lcsap/packet-lcsap-template.c"
+
+static expert_field ei_lcsap_civic_data_not_xml = EI_INIT;
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -308,7 +312,9 @@ static guint32 ProtocolExtensionID;
 static guint32 PayloadType = -1;
 static guint gbl_lcsapSctpPort=SCTP_PORT_LCSAP;
 
+/* Dissector handles */
 static dissector_handle_t lcsap_handle;
+static dissector_handle_t xml_handle;
 
 /* Dissector tables */
 static dissector_table_t lcsap_ies_dissector_table;
@@ -766,8 +772,27 @@ dissect_lcsap_Cell_Portion_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_lcsap_Civic_Address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+#line 238 "./asn1/lcsap/lcsap.cnf"
+  tvbuff_t *parameter_tvb=NULL;
+
+    offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+
+  if (parameter_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_lcsap_civic_address);
+    if (tvb_strncaseeql(parameter_tvb, 0, "<?xml", 5) == 0) {
+        call_dissector(xml_handle, parameter_tvb, actx->pinfo, subtree);
+    }else{
+        proto_tree_add_expert(tree, actx->pinfo, &ei_lcsap_civic_data_not_xml, parameter_tvb, 0, -1);
+    }
+  }
+
+
+
+
+
 
   return offset;
 }
@@ -2332,7 +2357,7 @@ static int dissect_LCS_AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-lcsap-fn.c ---*/
-#line 192 "./asn1/lcsap/packet-lcsap-template.c"
+#line 198 "./asn1/lcsap/packet-lcsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -2435,7 +2460,7 @@ proto_reg_handoff_lcsap(void)
 
 
 /*--- End of included file: packet-lcsap-dis-tab.c ---*/
-#line 251 "./asn1/lcsap/packet-lcsap-template.c"
+#line 257 "./asn1/lcsap/packet-lcsap-template.c"
   } else {
     if (SctpPort != 0) {
       dissector_delete_uint("sctp.port", SctpPort, lcsap_handle);
@@ -2937,7 +2962,7 @@ void proto_register_lcsap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-lcsap-hfarr.c ---*/
-#line 296 "./asn1/lcsap/packet-lcsap-template.c"
+#line 302 "./asn1/lcsap/packet-lcsap-template.c"
   };
 
   /* List of subtrees */
@@ -2945,6 +2970,7 @@ void proto_register_lcsap(void) {
     &ett_lcsap,
     &ett_lcsap_plmnd_id,
     &ett_lcsap_imsi,
+    &ett_lcsap_civic_address,
 
 /*--- Included file: packet-lcsap-ettarr.c ---*/
 #line 1 "./asn1/lcsap/packet-lcsap-ettarr.c"
@@ -2996,10 +3022,17 @@ void proto_register_lcsap(void) {
     &ett_lcsap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-lcsap-ettarr.c ---*/
-#line 304 "./asn1/lcsap/packet-lcsap-template.c"
+#line 311 "./asn1/lcsap/packet-lcsap-template.c"
  };
 
   module_t *lcsap_module;
+  expert_module_t *expert_lcsap;
+
+  static ei_register_info ei[] = {
+      { &ei_lcsap_civic_data_not_xml,
+      { "lcsap.civic_data_not_xml", PI_PROTOCOL, PI_ERROR, "Shold contain a UTF-8 encoded PIDF - LO XML document as defined in IETF RFC 4119", EXPFILL } },
+  };
+
 
   /* Register protocol */
   proto_lcsap = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -3012,6 +3045,8 @@ void proto_register_lcsap(void) {
   /* Register dissector tables */
   lcsap_ies_dissector_table = register_dissector_table("lcsap.ies", "LCS-AP-PROTOCOL-IES", proto_lcsap, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
+  expert_lcsap = expert_register_protocol(proto_lcsap);
+  expert_register_field_array(expert_lcsap, ei, array_length(ei));
 
   lcsap_extension_dissector_table = register_dissector_table("lcsap.extension", "LCS-AP-PROTOCOL-EXTENSION", proto_lcsap, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
   lcsap_proc_imsg_dissector_table = register_dissector_table("lcsap.proc.imsg", "LCS-AP-ELEMENTARY-PROCEDURE InitiatingMessage", proto_lcsap, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
@@ -3026,6 +3061,8 @@ void proto_register_lcsap(void) {
                                  "Set the SCTP port for LCSAP messages",
                                  10,
                                  &gbl_lcsapSctpPort);
+
+  xml_handle = find_dissector_add_dependency("xml", proto_lcsap);
 
 }
 

@@ -234,6 +234,24 @@ ProtocolIE-Field/value ie_field_value
 #.FN_FTR Vertical-Accuracy
   proto_item_append_text(actx->created_item, " (%.1f m)", 45 * (pow(1.025, (double)vertical_uncertainty) - 1));
 
+  #.FN_BODY Civic-Address VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+
+  %(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_lcsap_civic_address);
+    if (tvb_strncaseeql(parameter_tvb, 0, "<?xml", 5) == 0) {
+        call_dissector(xml_handle, parameter_tvb, actx->pinfo, subtree);
+    }else{
+        proto_tree_add_expert(tree, actx->pinfo, &ei_lcsap_civic_data_not_xml, parameter_tvb, 0, -1);
+    }
+  }
+
+
+
+
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(lcsap_ProtocolIE_ID_vals)
 #.ASSIGN_VALUE_TO_TYPE  # LCSAP does not have constants assigned to types, they are pure INTEGER
