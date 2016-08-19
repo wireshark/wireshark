@@ -113,14 +113,19 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gint        frame_len;
 	struct can_identifier can_id;
 	tvbuff_t*   next_tvb;
+	guint       encoding;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAN");
 	col_clear(pinfo->cinfo,COL_INFO);
 
+	if (endianness == SOCKETCAN_BIG_ENDIAN) {
+		can_id.id = tvb_get_ntohl(tvb, 0);
+		encoding = ENC_BIG_ENDIAN;
+	} else {
+		can_id.id = tvb_get_h_guint32(tvb, 0);
+		encoding = ENC_HOST_ENDIAN;
+	}
 	frame_len  = tvb_get_guint8( tvb, CAN_LEN_OFFSET);
-	can_id.id  = (endianness == SOCKETCAN_BIG_ENDIAN) ?
-	    tvb_get_ntohl(tvb, 0) :
-	    tvb_get_h_guint32(tvb, 0);
 
 	if (can_id.id & CAN_RTR_FLAG)
 	{
@@ -149,12 +154,12 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	ti       = proto_tree_add_item(tree, proto_can, tvb, 0, -1, ENC_NA);
 	can_tree = proto_item_add_subtree(ti, ett_can);
 
-	proto_tree_add_item(can_tree, hf_can_ident,   tvb, 0, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(can_tree, hf_can_extflag, tvb, 0, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(can_tree, hf_can_rtrflag, tvb, 0, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(can_tree, hf_can_errflag, tvb, 0, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(can_tree, hf_can_ident,   tvb, 0, 4, encoding);
+	proto_tree_add_item(can_tree, hf_can_extflag, tvb, 0, 4, encoding);
+	proto_tree_add_item(can_tree, hf_can_rtrflag, tvb, 0, 4, encoding);
+	proto_tree_add_item(can_tree, hf_can_errflag, tvb, 0, 4, encoding);
 
-	proto_tree_add_item(can_tree, hf_can_len,     tvb, CAN_LEN_OFFSET, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(can_tree, hf_can_len,     tvb, CAN_LEN_OFFSET, 1, encoding);
 
 	next_tvb = tvb_new_subset_length(tvb, CAN_DATA_OFFSET, frame_len);
 
