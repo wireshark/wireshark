@@ -175,6 +175,8 @@ static int hf_bootp_client_identifier_time = -1;
 static int hf_bootp_client_identifier_link_layer_address = -1;
 static int hf_bootp_client_identifier_enterprise_num = -1;
 static int hf_bootp_client_identifier = -1;
+static int hf_bootp_client_identifier_type = -1;
+static int hf_bootp_client_identifier_undef = -1;
 static int hf_bootp_option_type = -1;
 static int hf_bootp_option_length = -1;
 static int hf_bootp_option_value = -1;
@@ -2205,6 +2207,10 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 				}
 				break;
 			}
+		} else if (byte == 0 && optlen > 1) {
+			/* identifier other than a hardware address (e.g. a fully qualified domain name) */
+			proto_tree_add_item(v_tree, hf_bootp_client_identifier_type, tvb, optoff, 1, ENC_NA);
+			proto_tree_add_item(v_tree, hf_bootp_client_identifier_undef, tvb, optoff+1, optlen-1, ENC_ASCII|ENC_NA);
 		} else {
 			/* otherwise, it's opaque data */
 		}
@@ -6636,6 +6642,16 @@ proto_register_bootp(void)
 		{ &hf_bootp_client_identifier,
 		  { "Identifier", "bootp.client_id",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_client_identifier_type,
+		  { "Type", "bootp.client_id.type",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_client_identifier_undef,
+		  { "Client Identifier", "bootp.client_id.undef",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_bootp_option_type,
