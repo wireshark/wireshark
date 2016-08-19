@@ -37,6 +37,7 @@
 #include "packet-e212.h"
 #include "packet-ntp.h"
 #include "packet-sip.h"
+#include "packet-lcsap.h"
 
 void proto_register_diameter_3gpp(void);
 void proto_reg_handoff_diameter_3gpp(void);
@@ -1160,6 +1161,14 @@ dissect_diameter_3gpp_credit_management_status(tvbuff_t *tvb, packet_info *pinfo
     return 4;
 }
 
+/* AVP Code: 1242 location estimate */
+static int
+dissect_diameter_3gpp_location_estimate(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    dissect_geographical_description(tvb, pinfo, tree);
+
+    return tvb_reported_length(tvb);
+}
 
 /* Helper function returning the main bitrates in kbps */
 static guint32
@@ -1740,6 +1749,13 @@ dissect_diameter_3gpp_der_s6b_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     return 4;
 }
 
+/* AVP Code: 2516 EUTRAN-Positioning-Data */
+static int
+dissect_diameter_3gpp_eutran_positioning_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    return dissect_lcsap_Positioning_Data_PDU(tvb, pinfo, tree, NULL);
+}
+
 /* AVP Code: 3502 MBMS-Bearer-Event */
 static int
 dissect_diameter_3gpp_mbms_bearer_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -1918,6 +1934,9 @@ proto_reg_handoff_diameter_3gpp(void)
     /* AVP Code: 1005 Credit-Management-Status */
     dissector_add_uint("diameter.3gpp", 1082, create_dissector_handle(dissect_diameter_3gpp_credit_management_status, proto_diameter_3gpp));
 
+    /* AVP Code: 1242 location estimate */
+    dissector_add_uint("diameter.3gpp", 1242, create_dissector_handle(dissect_diameter_3gpp_location_estimate, proto_diameter_3gpp));
+
     /* AVP Code: 1404 QoS-Subscribed */
     dissector_add_uint("diameter.3gpp", 1404, create_dissector_handle(dissect_diameter_3ggp_qos_susbscribed, proto_diameter_3gpp));
 
@@ -1965,6 +1984,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 1523 DER-S6b-Flags */
     dissector_add_uint("diameter.3gpp", 1523, create_dissector_handle(dissect_diameter_3gpp_der_s6b_flags, proto_diameter_3gpp));
+
+    /* AVP Code: 2516 EUTRAN-Positioning-Data */
+    dissector_add_uint("diameter.3gpp", 2516, create_dissector_handle(dissect_diameter_3gpp_eutran_positioning_data, proto_diameter_3gpp));
 
     /* AVP Code: 3502 MBMS-Bearer-Event */
     dissector_add_uint("diameter.3gpp", 3502, create_dissector_handle(dissect_diameter_3gpp_mbms_bearer_event, proto_diameter_3gpp));
