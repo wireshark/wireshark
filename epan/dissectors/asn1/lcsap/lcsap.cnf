@@ -305,6 +305,9 @@ Additional-PositioningDataSet           N lcsap.extension id-Additional-Position
 Barometric-Pressure                     N lcsap.extension id-Barometric-Pressure
 Cell-Portion-ID                         N lcsap.extension id-Cell-Portion-ID
 Civic-Address                           N lcsap.extension id-Civic-Address
+E-CGI                                   N lcsap.extension id-E-UTRAN-Cell-Identifier
+
+
 Location-Request                        N lcsap.proc.imsg id-Location-Service-Request
 Location-Response                       N lcsap.proc.sout id-Location-Service-Request
 Location-Response                       N lcsap.proc.uout id-Location-Service-Request

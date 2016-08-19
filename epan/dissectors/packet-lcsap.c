@@ -2421,6 +2421,7 @@ proto_reg_handoff_lcsap(void)
   dissector_add_uint("lcsap.extension", id_Barometric_Pressure, create_dissector_handle(dissect_Barometric_Pressure_PDU, proto_lcsap));
   dissector_add_uint("lcsap.extension", id_Cell_Portion_ID, create_dissector_handle(dissect_Cell_Portion_ID_PDU, proto_lcsap));
   dissector_add_uint("lcsap.extension", id_Civic_Address, create_dissector_handle(dissect_Civic_Address_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.extension", id_E_UTRAN_Cell_Identifier, create_dissector_handle(dissect_E_CGI_PDU, proto_lcsap));
   dissector_add_uint("lcsap.proc.imsg", id_Location_Service_Request, create_dissector_handle(dissect_Location_Request_PDU, proto_lcsap));
   dissector_add_uint("lcsap.proc.sout", id_Location_Service_Request, create_dissector_handle(dissect_Location_Response_PDU, proto_lcsap));
   dissector_add_uint("lcsap.proc.uout", id_Location_Service_Request, create_dissector_handle(dissect_Location_Response_PDU, proto_lcsap));
