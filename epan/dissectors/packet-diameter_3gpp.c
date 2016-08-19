@@ -306,6 +306,15 @@ static int hf_diameter_3gpp_ulr_flags_spare_bits = -1;
 static int hf_diameter_3gpp_ula_flags_spare_bits = -1;
 static int hf_diameter_3gpp_dsr_flags_spare_bits = -1;
 static int hf_diameter_3gpp_dsa_flags_spare_bits = -1;
+static int hf_diameter_3gpp_acc_res_dat_flags = -1;
+static int hf_diameter_3gpp_acc_res_dat_flags_bit0 = -1;
+static int hf_diameter_3gpp_acc_res_dat_flags_bit1 = -1;
+static int hf_diameter_3gpp_acc_res_dat_flags_bit2 = -1;
+static int hf_diameter_3gpp_acc_res_dat_flags_bit3 = -1;
+static int hf_diameter_3gpp_acc_res_dat_flags_bit4 = -1;
+static int hf_diameter_3gpp_acc_res_dat_flags_bit5 = -1;
+static int hf_diameter_3gpp_acc_res_dat_flags_bit6 = -1;
+static int hf_diameter_3gpp_acc_res_dat_flags_spare_bits = -1;
 static int hf_diameter_3gpp_ida_flags_spare_bits = -1;
 static int hf_diameter_3gpp_pua_flags_spare_bits = -1;
 static int hf_diameter_3gpp_nor_flags_spare_bits = -1;
@@ -1560,6 +1569,27 @@ dissect_diameter_3gpp_dsa_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     return 4;
 }
 
+/* AVP Code: 1426 Access-Restriction-Data */
+static int
+dissect_diameter_3gpp_acc_res_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    static const int *flags[] = {
+        &hf_diameter_3gpp_acc_res_dat_flags_spare_bits,
+        &hf_diameter_3gpp_acc_res_dat_flags_bit6,
+        &hf_diameter_3gpp_acc_res_dat_flags_bit5,
+        &hf_diameter_3gpp_acc_res_dat_flags_bit4,
+        &hf_diameter_3gpp_acc_res_dat_flags_bit3,
+        &hf_diameter_3gpp_acc_res_dat_flags_bit2,
+        &hf_diameter_3gpp_acc_res_dat_flags_bit1,
+        &hf_diameter_3gpp_acc_res_dat_flags_bit0,
+        NULL
+    };
+
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_acc_res_dat_flags, diameter_3gpp_dsa_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    return 4;
+}
+
+
 /* AVP Code: 1441 IDA-Flags */
 static int
 dissect_diameter_3gpp_ida_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -1905,6 +1935,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 1422 DSA-Flags */
     dissector_add_uint("diameter.3gpp", 1422, create_dissector_handle(dissect_diameter_3gpp_dsa_flags, proto_diameter_3gpp));
+
+    /* AVP Code: 1426 Access-Restriction-Data */
+    dissector_add_uint("diameter.3gpp", 1426, create_dissector_handle(dissect_diameter_3gpp_acc_res_data, proto_diameter_3gpp));
 
     /* AVP Code: 1441 IDA-Flags */
     dissector_add_uint("diameter.3gpp", 1441, create_dissector_handle(dissect_diameter_3gpp_ida_flags, proto_diameter_3gpp));
@@ -3023,6 +3056,52 @@ proto_register_diameter_3gpp(void)
             FT_UINT32, BASE_HEX, NULL, 0xFFFFFFFE,
             NULL, HFILL }
         },
+        { &hf_diameter_3gpp_acc_res_dat_flags,
+        { "Access-Restriction-Data Flags", "diameter.3gpp.acc_res_dat_flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_acc_res_dat_flags_bit0,
+        { "UTRAN Not Allowed", "diameter.3gpp.acc_res_dat_flags_bit0",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_acc_res_dat_flags_bit1,
+        { "GERAN Not Allowed", "diameter.3gpp.acc_res_dat_flags_bit1",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000002,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_acc_res_dat_flags_bit2,
+        { "GAN Not Allowed", "diameter.3gpp.acc_res_dat_flags_bit2",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_acc_res_dat_flags_bit3,
+        { "I-HSPA-Evolution Not Allowed", "diameter.3gpp.acc_res_dat_flags_bit3",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_acc_res_dat_flags_bit4,
+        { "WB-E-UTRAN Not Allowed", "diameter.3gpp.acc_res_dat_flags_bit4",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000010,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_acc_res_dat_flags_bit5,
+        { "HO-To-Non-3GPP-Access Not Allowed", "diameter.3gpp.acc_res_dat_flags_bit5",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000020,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_acc_res_dat_flags_bit6,
+        { "NB-IoT Not Allowed", "diameter.3gpp.acc_res_dat_flags_bit6",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000040,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_acc_res_dat_flags_spare_bits,
+        { "Spare", "diameter.3gpp.acc_res_dat_flags_spare",
+            FT_UINT32, BASE_HEX, NULL, 0xFFFFFF80,
+            NULL, HFILL }
+        },
+
         { &hf_diameter_3gpp_ida_flags,
             { "IDA Flags", "diameter.3gpp.ida_flags",
             FT_UINT32, BASE_HEX, NULL, 0x0,
