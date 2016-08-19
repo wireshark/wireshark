@@ -187,12 +187,12 @@ static gint hf_section_interface_no = -1;
  */
 
 /*
- * Control packet version 1, draft-ietf-bfd-base-04.txt
+ * Control packet version 1, RFC 5880
  *
  *     0                   1                   2                   3
  *     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
  *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *    |Vers |  Diag   |Sta|P|F|C|A|D|R|  Detect Mult  |    Length     |
+ *    |Vers |  Diag   |Sta|P|F|C|A|D|M|  Detect Mult  |    Length     |
  *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *    |                       My Discriminator                        |
  *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
