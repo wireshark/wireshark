@@ -334,13 +334,9 @@ get_runtime_version_info(void (*additional_info)(GString *))
 	 * it doesn't happen to match the settings of any of the
 	 * locale environment variables.
 	 *
-	 * XXX - what happens on Windows?  If nobody's explicitly
-	 * overridden any of the environment variables, does this
-	 * reflect the locale settings in the OS?  If so, does
-	 * that include the code page?  (We're not using UTF-16
-	 * for output to files or the console; using code page
-	 * 65001, i.e. UTF-8, as your system code page probably
-	 * works best with Wireshark.)
+	 * On Windows get_locale returns the full language, country
+	 * name, and code page, e.g. "English_United States.1252":
+	 * https://msdn.microsoft.com/en-us/library/x99tb11d.aspx
 	 */
 	if ((lang = get_locale()) != NULL) {
 		g_string_append_printf(str, ", with locale %s", lang);
