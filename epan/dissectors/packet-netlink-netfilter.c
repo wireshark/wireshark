@@ -437,7 +437,7 @@ static const value_string nfq_verdict_vals[] = {
 	{ 0, NULL }
 };
 
-static const value_string nfq_hooks_vals[] = {
+const value_string netfilter_hooks_vals[] = {
 	{ WS_NF_INET_PRE_ROUTING,   "Pre-routing" },
 	{ WS_NF_INET_LOCAL_IN,      "Local in" },
 	{ WS_NF_INET_FORWARD,       "Forward" },
@@ -487,7 +487,7 @@ static header_field_info hfi_nfq_packet_hwprotocol NETLINK_NETFILTER_HFI_INIT =
 
 static header_field_info hfi_nfq_packet_hook NETLINK_NETFILTER_HFI_INIT =
 	{ "Netfilter hook", "netlink-netfilter.queue.packet.hook", FT_UINT8, BASE_DEC,
-	  VALS(nfq_hooks_vals), 0x00, NULL, HFILL };
+	  VALS(netfilter_hooks_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_nfq_nfmark NETLINK_NETFILTER_HFI_INIT =
 	{ "Mark", "netlink-netfilter.queue.nfmark", FT_UINT32, BASE_DEC,

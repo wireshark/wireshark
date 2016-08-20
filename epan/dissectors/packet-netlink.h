@@ -94,6 +94,7 @@ enum ws_nfproto {
 	WS_NFPROTO_DECNET = 12,
 };
 extern const value_string nfproto_family_vals[];
+extern const value_string netfilter_hooks_vals[];
 
 #define PACKET_NETLINK_MAGIC 0x4A5ACCCE
 
