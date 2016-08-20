@@ -82,6 +82,19 @@ enum {
 	WS_NLMSG_MIN_TYPE     = 0x10    /** type < WS_NLMSG_MIN_TYPE are reserved */
 };
 
+/* from <linux/netfilter.h>. Looks like AF_xxx, except for NFPROTO_ARP */
+enum ws_nfproto {
+	WS_NFPROTO_UNSPEC =  0,
+	WS_NFPROTO_INET   =  1,
+	WS_NFPROTO_IPV4   =  2,
+	WS_NFPROTO_ARP    =  3,
+	WS_NFPROTO_NETDEV =  5,
+	WS_NFPROTO_BRIDGE =  7,
+	WS_NFPROTO_IPV6   = 10,
+	WS_NFPROTO_DECNET = 12,
+};
+extern const value_string nfproto_family_vals[];
+
 #define PACKET_NETLINK_MAGIC 0x4A5ACCCE
 
 struct packet_netlink_data {

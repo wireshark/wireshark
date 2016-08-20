@@ -318,8 +318,8 @@ static header_field_info hfi_nfq_config_command_command NETLINK_NETFILTER_HFI_IN
 	  VALS(nfq_config_command_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_nfq_config_command_pf NETLINK_NETFILTER_HFI_INIT =
-	{ "Protocol family", "netlink-netfilter.queue.config.command.pf", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
-	  &linux_af_vals_ext, 0x00, NULL, HFILL };
+	{ "Protocol family", "netlink-netfilter.queue.config.command.pf", FT_UINT16, BASE_DEC,
+	  VALS(nfproto_family_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_nfq_config_params_copyrange NETLINK_NETFILTER_HFI_INIT =
 	{ "Copy range", "netlink-netfilter.queue.config.params.copy_range", FT_UINT32, BASE_HEX,
@@ -443,6 +443,18 @@ static const value_string nfq_hooks_vals[] = {
 	{ WS_NF_INET_FORWARD,       "Forward" },
 	{ WS_NF_INET_LOCAL_OUT,     "Local out" },
 	{ WS_NF_INET_POST_ROUTING,  "Post-routing" },
+	{ 0, NULL }
+};
+
+const value_string nfproto_family_vals[] = {
+	{ WS_NFPROTO_UNSPEC,    "Unspecified" },
+	{ WS_NFPROTO_INET,      "IPv4/IPv6" },
+	{ WS_NFPROTO_IPV4,      "IPv4" },
+	{ WS_NFPROTO_ARP,       "ARP" },
+	{ WS_NFPROTO_NETDEV,    "Netdev" },
+	{ WS_NFPROTO_BRIDGE,    "Bridge" },
+	{ WS_NFPROTO_IPV6,      "IPv6" },
+	{ WS_NFPROTO_DECNET,    "DECNET" },
 	{ 0, NULL }
 };
 
@@ -863,8 +875,8 @@ static header_field_info hfi_ipset_attr_typename NETLINK_NETFILTER_HFI_INIT =
 	  NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_ipset_attr_family NETLINK_NETFILTER_HFI_INIT =
-	{ "Address family", "netlink-netfilter.ipset.family", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
-	  &linux_af_vals_ext, 0x00, NULL, HFILL };
+	{ "Settype family", "netlink-netfilter.ipset.family", FT_UINT8, BASE_DEC,
+	  VALS(nfproto_family_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_ipset_attr_flags NETLINK_NETFILTER_HFI_INIT =
 	{ "Flags", "netlink-netfilter.ipset.flags", FT_UINT32, BASE_HEX,

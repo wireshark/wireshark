@@ -25,8 +25,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/aftypes.h>
 #include <wiretap/wtap.h>
+
+#include "packet-netlink.h"
 
 void proto_register_nflog(void);
 void proto_reg_handoff_nflog(void);
@@ -84,7 +85,7 @@ static header_field_info *hfi_nflog = NULL;
 
 /* Header */
 static header_field_info hfi_nflog_family NFLOG_HFI_INIT =
-    { "Family", "nflog.family", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &linux_af_vals_ext, 0x00, NULL, HFILL };
+    { "Family", "nflog.family", FT_UINT8, BASE_DEC, VALS(nfproto_family_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_nflog_version NFLOG_HFI_INIT =
     { "Version", "nflog.version", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL };
@@ -132,12 +133,12 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     int offset = 0;
 
     tvbuff_t *next_tvb = NULL;
-    int aftype;
+    int pf;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NFLOG");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    aftype = tvb_get_guint8(tvb, 0);
+    pf = tvb_get_guint8(tvb, 0);
 
     /* Header */
     if (proto_field_is_referenced(tree, hfi_nflog->id)) {
@@ -237,11 +238,13 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     }
 
     if (next_tvb) {
-        switch (aftype) {
-            case LINUX_AF_INET:
+        switch (pf) {
+            /* Note: NFPROTO_INET is not supposed to appear here, it is mapped
+             * to NFPROTO_IPV4 or NFPROTO_IPV6 */
+            case WS_NFPROTO_IPV4:
                 call_dissector(ip_handle, next_tvb, pinfo, tree);
                 break;
-            case LINUX_AF_INET6:
+            case WS_NFPROTO_IPV6:
                 call_dissector(ip6_handle, next_tvb, pinfo, tree);
                 break;
             default:
