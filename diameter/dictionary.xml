@@ -222,18 +222,18 @@
      <command name="Aggregated-RUCI-Report"		code="8388721" vendor-id="None"/>
      <command name="Modify-Uecontext"		code="8388722" vendor-id="None"/>
     <!--
-      8388723 Background-Data-Transfer-Request/Answer (BTR/BTA) [3GPP TS 29.154][Kimmo_Kymalainen] 
-      8388724 Network-Status-Request/Answer (NSR/NSA) [3GPP TS 29.153][Kimmo_Kymalainen] 
-      8388725 Network-Status-Continuous-Report-Request/Answer (NCR/NCA) [3GPP TS 29.153][Kimmo_Kymalainen] 
-      8388726 NIDD-Information-Request/Answer (NIR/NIA) [3GPP TS 29.336][Kimmo_Kymalainen] 
-      8388727 ProXimity-Application-Request/Answer (XAR/XAA) [3GPP TS 29.343][Kimmo_Kymalainen] 
-      8388728 Data-Pull-Request/Answer (DPR/DPA) [3GPP TS 29.283][Kimmo_Kymalainen] 
-      8388729 Data-Update-Request/Answer (DMR/DMA) [3GPP TS 29.283][Kimmo_Kymalainen] 
-      8388730 Notification-Data-Request/Answer (NDR/NDA) [3GPP TS 29.283][Kimmo_Kymalainen] 
-      8388731 TSSF-Notification-Request/Answer (TNR/TNA) [3GPP TS 29.212][Kimmo_Kymalainen] 
-      8388732 Connection-Management-Request/Answer (CMR/CMA) [3GPP TS 29.128][Kimmo_Kymalainen] 
-      8388733 MO-Data-Request/Answer (ODR/ODA) [3GPP TS 29.128][Kimmo_Kymalainen] 
-      8388734 MT-Data-Request/Answer (TDR/TDA) [3GPP TS 29.128][Kimmo_Kymalainen] 
+      8388723 Background-Data-Transfer-Request/Answer (BTR/BTA) [3GPP TS 29.154][Kimmo_Kymalainen]
+      8388724 Network-Status-Request/Answer (NSR/NSA) [3GPP TS 29.153][Kimmo_Kymalainen]
+      8388725 Network-Status-Continuous-Report-Request/Answer (NCR/NCA) [3GPP TS 29.153][Kimmo_Kymalainen]
+      8388726 NIDD-Information-Request/Answer (NIR/NIA) [3GPP TS 29.336][Kimmo_Kymalainen]
+      8388727 ProXimity-Application-Request/Answer (XAR/XAA) [3GPP TS 29.343][Kimmo_Kymalainen]
+      8388728 Data-Pull-Request/Answer (DPR/DPA) [3GPP TS 29.283][Kimmo_Kymalainen]
+      8388729 Data-Update-Request/Answer (DMR/DMA) [3GPP TS 29.283][Kimmo_Kymalainen]
+      8388730 Notification-Data-Request/Answer (NDR/NDA) [3GPP TS 29.283][Kimmo_Kymalainen]
+      8388731 TSSF-Notification-Request/Answer (TNR/TNA) [3GPP TS 29.212][Kimmo_Kymalainen]
+      8388732 Connection-Management-Request/Answer (CMR/CMA) [3GPP TS 29.128][Kimmo_Kymalainen]
+      8388733 MO-Data-Request/Answer (ODR/ODA) [3GPP TS 29.128][Kimmo_Kymalainen]
+      8388734 MT-Data-Request/Answer (TDR/TDA) [3GPP TS 29.128][Kimmo_Kymalainen]
 
     -->
 		<!--
