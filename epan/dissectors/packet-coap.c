@@ -873,13 +873,13 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	coap_uri_str_strbuf   = wmem_strbuf_sized_new(wmem_packet_scope(), 0, 1024);
 	coap_uri_query_strbuf = wmem_strbuf_sized_new(wmem_packet_scope(), 0, 1024);
 	coap_token_str = NULL;
+	memset(&key_token[0], 0, sizeof(key_token));
 	if (token_len > 0)
 	{
 		coap_token_str = tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, token_len, ' ');
 		proto_tree_add_item(coap_tree, hf_coap_token,
 				    tvb, offset, token_len, ENC_NA);
 
-		memset(&key_token[0], 0, sizeof(key_token));
 		if ( token_len > 8 ) {
 			/* The token is limited to a maximum length of 8 but the bits in the
 			 * protocol specifies 4 bits. Use 8 bytes at most. */
