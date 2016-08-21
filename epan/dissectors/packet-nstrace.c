@@ -740,10 +740,9 @@ void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tre
 					break;
 				case NS_TCPCC_DEFAULT:
 					break;
-
-				offset += reclen;
-				cur_record = nextrec;
-		}
+			}
+			offset += reclen;
+			cur_record = nextrec;
 			break;
 
 			case NSREC_INFO:
