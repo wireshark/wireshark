@@ -215,6 +215,7 @@ typedef struct _StringInfo {
 #define TLSV1_VERSION          0x301
 #define TLSV1DOT1_VERSION      0x302
 #define TLSV1DOT2_VERSION      0x303
+#define TLSV1DOT3_VERSION      0x304
 #define DTLSV1DOT0_VERSION     0xfeff
 #define DTLSV1DOT0_OPENSSL_VERSION 0x100
 #define DTLSV1DOT2_VERSION     0xfefd

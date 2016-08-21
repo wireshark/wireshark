@@ -64,6 +64,7 @@ const value_string ssl_version_short_names[] = {
     { TLSV1_VERSION,        "TLSv1" },
     { TLSV1DOT1_VERSION,    "TLSv1.1" },
     { TLSV1DOT2_VERSION,    "TLSv1.2" },
+    { TLSV1DOT3_VERSION,    "TLSv1.3" },
     { DTLSV1DOT0_VERSION,   "DTLSv1.0" },
     { DTLSV1DOT2_VERSION,   "DTLSv1.2" },
     { DTLSV1DOT0_OPENSSL_VERSION, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
@@ -472,6 +473,7 @@ const value_string ssl_versions[] = {
     { 0xfefd, "DTLS 1.2" },
     { 0xfeff, "DTLS 1.0" },
     { 0x0100, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
+    { 0x0304, "TLS 1.3" },
     { 0x0303, "TLS 1.2" },
     { 0x0302, "TLS 1.1" },
     { 0x0301, "TLS 1.0" },
@@ -5841,6 +5843,7 @@ ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
     case TLSV1_VERSION:
     case TLSV1DOT1_VERSION:
     case TLSV1DOT2_VERSION:
+    case TLSV1DOT3_VERSION:
         if (is_dtls)
             return;
         break;
