@@ -407,7 +407,8 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         case TYPE_PORT_ID:
             real_length = length;
-            if (tvb_get_guint8(tvb, offset + real_length) != 0x00) {
+            if ((tvb_reported_length_remaining(tvb, offset) >= length + 3) &&
+                (tvb_get_guint8(tvb, offset + real_length) != 0x00)) {
                 /* The length in the TLV doesn't appear to be the
                    length of the TLV, as the byte just past it
                    isn't the first byte of a 2-byte big-endian
