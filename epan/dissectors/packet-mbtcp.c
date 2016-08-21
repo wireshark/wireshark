@@ -77,6 +77,7 @@ void proto_reg_handoff_mbrtu(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_mbtcp = -1;
+static int proto_mbudp = -1;
 static int proto_mbrtu = -1;
 static int proto_modbus = -1;
 static int hf_mbtcp_transid = -1;
@@ -163,6 +164,7 @@ static expert_field ei_mbtcp_cannot_classify = EI_INIT;
 
 static dissector_handle_t modbus_handle;
 static dissector_handle_t mbtcp_handle;
+static dissector_handle_t mbudp_handle;
 static dissector_handle_t mbrtu_handle;
 
 static dissector_table_t   modbus_data_dissector_table;
@@ -391,7 +393,7 @@ static const enum_val_t mbus_register_format[] = {
 
 /* Code to dissect Modbus/TCP packets */
 static int
-dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_mbtcp_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int proto)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item    *mi;
@@ -403,10 +405,6 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     const char    *err_str = "";
     guint16       transaction_id, protocol_id, len;
     guint8        unit_id, function_code, exception_code, subfunction_code;
-
-    /* Make entries in Protocol column on summary display */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Modbus/TCP");
-    col_clear(pinfo->cinfo, COL_INFO);
 
     transaction_id = tvb_get_ntohs(tvb, 0);
     protocol_id = tvb_get_ntohs(tvb, 2);
@@ -490,8 +488,7 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     }
 
     /* Create protocol tree */
-    mi = proto_tree_add_protocol_format(tree, proto_mbtcp, tvb, offset,
-            len+6, "Modbus/TCP");
+    mi = proto_tree_add_item(tree, proto, tvb, offset, len+6, ENC_NA);
     mbtcp_tree = proto_item_add_subtree(mi, ett_mbtcp);
 
     if (packet_type == CANNOT_CLASSIFY)
@@ -511,6 +508,16 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         call_dissector_with_data(modbus_handle, next_tvb, pinfo, tree, &packet_type);
 
     return tvb_captured_length(tvb);
+}
+
+static int
+dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    /* Make entries in Protocol column on summary display */
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Modbus/TCP");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    return dissect_mbtcp_pdu_common(tvb, pinfo, tree, proto_mbtcp);
 }
 
 /* Code to dissect Modbus RTU over TCP packets */
@@ -755,6 +762,31 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                      get_mbtcp_pdu_len, dissect_mbtcp_pdu, data);
 
     return tvb_captured_length(tvb);
+}
+
+static int
+dissect_mbudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+
+    /* Make sure there's at least enough data to determine it's a Modbus UDP packet */
+    if (!tvb_bytes_exist(tvb, 0, 8))
+        return 0;
+
+    /* check that it actually looks like Modbus/TCP */
+    /* protocol id == 0 */
+    if(tvb_get_ntohs(tvb, 2) != 0 ){
+        return 0;
+    }
+    /* length is at least 2 (unit_id + function_code) */
+    if(tvb_get_ntohs(tvb, 4) < 2 ){
+        return 0;
+    }
+
+    /* Make entries in Protocol column on summary display */
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Modbus/UDP");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    return dissect_mbtcp_pdu_common(tvb, pinfo, tree, proto_mbudp);
 }
 
 /* Code to dissect Modbus RTU over TCP messages */
@@ -1929,6 +1961,7 @@ proto_register_modbus(void)
 
     /* Register the protocol name and description */
     proto_mbtcp = proto_register_protocol("Modbus/TCP", "Modbus/TCP", "mbtcp");
+    proto_mbudp = proto_register_protocol("Modbus/UDP", "Modbus/UDP", "mbudp");
     proto_mbrtu = proto_register_protocol("Modbus RTU", "Modbus RTU", "mbrtu");
     proto_modbus = proto_register_protocol("Modbus", "Modbus", "modbus");
 
@@ -1936,6 +1969,7 @@ proto_register_modbus(void)
     modbus_handle = register_dissector("modbus", dissect_modbus, proto_modbus);
     mbtcp_handle = register_dissector("mbtcp", dissect_mbtcp, proto_mbtcp);
     mbrtu_handle = register_dissector("mbrtu", dissect_mbrtu, proto_mbrtu);
+    mbudp_handle = register_dissector("mbudp", dissect_mbudp, proto_mbudp);
 
     /* Registering subdissectors table */
     modbus_data_dissector_table = register_dissector_table("modbus.data", "Modbus Data", proto_modbus, FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
@@ -2015,13 +2049,14 @@ proto_reg_handoff_mbtcp(void)
     static unsigned int mbtcp_port;
 
     /* Make sure to use Modbus/TCP Preferences field to determine default TCP port */
-
     if(mbtcp_port != 0 && mbtcp_port != global_mbus_tcp_port){
         dissector_delete_uint("tcp.port", mbtcp_port, mbtcp_handle);
+        dissector_delete_uint("udp.port", mbtcp_port, mbudp_handle);
     }
 
     if(global_mbus_tcp_port != 0 && mbtcp_port != global_mbus_tcp_port) {
         dissector_add_uint("tcp.port", global_mbus_tcp_port, mbtcp_handle);
+        dissector_add_uint("udp.port", global_mbus_tcp_port, mbudp_handle);
     }
 
     mbtcp_port = global_mbus_tcp_port;
