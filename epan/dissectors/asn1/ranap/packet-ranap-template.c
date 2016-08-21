@@ -102,10 +102,10 @@ static dissector_handle_t ranap_handle;
  * PDU type is stored in a global variable and can is used in the IE decoding section.
  */
 /*
- * 	&InitiatingMessage				,
- *	&SuccessfulOutcome				OPTIONAL,
- *	&UnsuccessfulOutcome				OPTIONAL,
- *	&Outcome					OPTIONAL,
+ *  &InitiatingMessage        ,
+ *  &SuccessfulOutcome        OPTIONAL,
+ *  &UnsuccessfulOutcome      OPTIONAL,
+ *  &Outcome                  OPTIONAL,
  *
  * Only these two needed currently
  */
@@ -153,21 +153,21 @@ dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
   /* Special handling, same ID used for different IE's depending on signal */
   switch(ProcedureCode){
-	  case id_RelocationPreparation:
-		  if((ProtocolIE_ID == id_Source_ToTarget_TransparentContainer)||(ProtocolIE_ID == id_Target_ToSource_TransparentContainer)){
-			  key = SPECIAL | ProtocolIE_ID;
-			  ret = (dissector_try_uint_new(ranap_ies_dissector_table, key, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
-			  break;
-		  }
-		  /* Fall through */
-	  default:
-		  /* no special handling */
-		  ret = (dissector_try_uint_new(ranap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
-		  if (ret == 0) {
-			  key = pdu_type | ProtocolIE_ID;
-			  ret = (dissector_try_uint_new(ranap_ies_dissector_table, key, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
-		  }
-		  break;
+    case id_RelocationPreparation:
+      if((ProtocolIE_ID == id_Source_ToTarget_TransparentContainer)||(ProtocolIE_ID == id_Target_ToSource_TransparentContainer)){
+        key = SPECIAL | ProtocolIE_ID;
+        ret = (dissector_try_uint_new(ranap_ies_dissector_table, key, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+        break;
+      }
+      /* Fall through */
+    default:
+      /* no special handling */
+      ret = (dissector_try_uint_new(ranap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+      if (ret == 0) {
+        key = pdu_type | ProtocolIE_ID;
+        ret = (dissector_try_uint_new(ranap_ies_dissector_table, key, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+      }
+      break;
   }
   return ret;
 }
@@ -227,83 +227,83 @@ dissect_OutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 static int
 dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	proto_item	*ranap_item = NULL;
-	proto_tree	*ranap_tree = NULL;
-	sccp_msg_info_t *sccp_msg_lcl = (sccp_msg_info_t *)data;
+  proto_item *ranap_item = NULL;
+  proto_tree *ranap_tree = NULL;
+  sccp_msg_info_t *sccp_msg_lcl = (sccp_msg_info_t *)data;
 
-	pdu_type = 0;
-	ProtocolIE_ID = 0;
+  pdu_type = 0;
+  ProtocolIE_ID = 0;
 
-	/* make entry in the Protocol column on summary display */
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RANAP");
+  /* make entry in the Protocol column on summary display */
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "RANAP");
 
-	/* create the ranap protocol tree */
-	ranap_item = proto_tree_add_item(tree, proto_ranap, tvb, 0, -1, ENC_NA);
-	ranap_tree = proto_item_add_subtree(ranap_item, ett_ranap);
+  /* create the ranap protocol tree */
+  ranap_item = proto_tree_add_item(tree, proto_ranap, tvb, 0, -1, ENC_NA);
+  ranap_tree = proto_item_add_subtree(ranap_item, ett_ranap);
 
-	/* Save the sccp_msg_info_t data (if present) because it can't be passed
-	   through function calls */
-	p_add_proto_data(pinfo->pool, pinfo, proto_ranap, pinfo->curr_layer_num, data);
+  /* Save the sccp_msg_info_t data (if present) because it can't be passed
+     through function calls */
+  p_add_proto_data(pinfo->pool, pinfo, proto_ranap, pinfo->curr_layer_num, data);
 
-	dissect_RANAP_PDU_PDU(tvb, pinfo, ranap_tree, NULL);
-	if (sccp_msg_lcl) {
+  dissect_RANAP_PDU_PDU(tvb, pinfo, ranap_tree, NULL);
+  if (sccp_msg_lcl) {
 
-		if (sccp_msg_lcl->data.co.assoc)
-			sccp_msg_lcl->data.co.assoc->payload = SCCP_PLOAD_RANAP;
+    if (sccp_msg_lcl->data.co.assoc)
+      sccp_msg_lcl->data.co.assoc->payload = SCCP_PLOAD_RANAP;
 
-		if (! sccp_msg_lcl->data.co.label && ProcedureCode != 0xFFFFFFFF) {
-			const gchar* str = val_to_str(ProcedureCode, ranap_ProcedureCode_vals,"Unknown RANAP");
-			sccp_msg_lcl->data.co.label = wmem_strdup(wmem_file_scope(), str);
-		}
-	}
+    if (! sccp_msg_lcl->data.co.label && ProcedureCode != 0xFFFFFFFF) {
+      const gchar* str = val_to_str(ProcedureCode, ranap_ProcedureCode_vals,"Unknown RANAP");
+      sccp_msg_lcl->data.co.label = wmem_strdup(wmem_file_scope(), str);
+    }
+  }
 
-	return tvb_reported_length(tvb);
+  return tvb_reported_length(tvb);
 }
 
 #define RANAP_MSG_MIN_LENGTH 7
 static gboolean
 dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    guint8 temp;
-	guint16 word;
-	asn1_ctx_t asn1_ctx;
-	guint length;
-	int offset;
+  guint8 temp;
+  guint16 word;
+  asn1_ctx_t asn1_ctx;
+  guint length;
+  int offset;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 
-    /* Is it a ranap packet?
-     *
-     * 4th octet should be the length of the rest of the message.
-     * 2nd octet is the message-type e Z[0, 28]
-     * (obviously there must be at least four octets)
-     *
-     * If both hold true we'll assume it's RANAP
-     */
+  /* Is it a ranap packet?
+   *
+   * 4th octet should be the length of the rest of the message.
+   * 2nd octet is the message-type e Z[0, 28]
+   * (obviously there must be at least four octets)
+   *
+   * If both hold true we'll assume it's RANAP
+   */
 
-    #define LENGTH_OFFSET 3
-    #define MSG_TYPE_OFFSET 1
-    if (tvb_captured_length(tvb) < RANAP_MSG_MIN_LENGTH) { return FALSE; }
-	/* Read the length NOTE offset in bits */
-	offset = dissect_per_length_determinant(tvb, LENGTH_OFFSET<<3, &asn1_ctx, tree, -1, &length);
-	offset = offset>>3;
-	if (length!= (tvb_reported_length(tvb) - offset)){
-		return FALSE;
-	}
+  #define LENGTH_OFFSET 3
+  #define MSG_TYPE_OFFSET 1
+  if (tvb_captured_length(tvb) < RANAP_MSG_MIN_LENGTH) { return FALSE; }
+  /* Read the length NOTE offset in bits */
+  offset = dissect_per_length_determinant(tvb, LENGTH_OFFSET<<3, &asn1_ctx, tree, -1, &length);
+  offset = offset>>3;
+  if (length!= (tvb_reported_length(tvb) - offset)){
+    return FALSE;
+  }
 
-    temp = tvb_get_guint8(tvb, MSG_TYPE_OFFSET);
-    if (temp > RANAP_MAX_PC) { return FALSE; }
+  temp = tvb_get_guint8(tvb, MSG_TYPE_OFFSET);
+  if (temp > RANAP_MAX_PC) { return FALSE; }
 
-    /* Try to strengthen the heuristic further, by checking the byte following the length and the bitfield indicating extensions etc
-     * which usually is a sequence-of length
-     */
-    word = tvb_get_ntohs(tvb, offset + 1);
-    if (word > 0x1ff){
-        return FALSE;
-    }
-    dissect_ranap(tvb, pinfo, tree, data);
+  /* Try to strengthen the heuristic further, by checking the byte following the length and the bitfield indicating extensions etc
+   * which usually is a sequence-of length
+   */
+  word = tvb_get_ntohs(tvb, offset + 1);
+  if (word > 0x1ff){
+    return FALSE;
+  }
+  dissect_ranap(tvb, pinfo, tree, data);
 
-    return TRUE;
+  return TRUE;
 }
 
 /*--- proto_register_ranap -------------------------------------------*/
@@ -332,9 +332,9 @@ void proto_register_ranap(void) {
 
   /* List of subtrees */
   static gint *ett[] = {
-		  &ett_ranap,
-		  &ett_ranap_TransportLayerAddress,
-		  &ett_ranap_TransportLayerAddress_nsap,
+    &ett_ranap,
+    &ett_ranap_TransportLayerAddress,
+    &ett_ranap_TransportLayerAddress_nsap,
 #include "packet-ranap-ettarr.c"
   };
 
@@ -362,8 +362,8 @@ void proto_register_ranap(void) {
 
   ranap_module = prefs_register_protocol(proto_ranap, proto_reg_handoff_ranap);
   prefs_register_uint_preference(ranap_module, "sccp_ssn", "SCCP SSN for RANAP",
-				 "The SCCP SubSystem Number for RANAP (default 142)", 10,
-				 &global_ranap_sccp_ssn);
+                                 "The SCCP SubSystem Number for RANAP (default 142)", 10,
+                                 &global_ranap_sccp_ssn);
   prefs_register_bool_preference(ranap_module, "dissect_rrc_container",
                                  "Attempt to dissect RRC-Container",
                                  "Attempt to dissect RRC message embedded in RRC-Container IE",
@@ -375,24 +375,35 @@ void proto_register_ranap(void) {
 void
 proto_reg_handoff_ranap(void)
 {
-	static gboolean initialized = FALSE;
-	static gint local_ranap_sccp_ssn;
+  static gboolean initialized = FALSE;
+  static gint local_ranap_sccp_ssn;
 
-	if (!initialized) {
-		rrc_s_to_trnc_handle = find_dissector_add_dependency("rrc.s_to_trnc_cont", proto_ranap);
-		rrc_t_to_srnc_handle = find_dissector_add_dependency("rrc.t_to_srnc_cont", proto_ranap);
-		rrc_ho_to_utran_cmd = find_dissector("rrc.irat.ho_to_utran_cmd");
-		initialized = TRUE;
+  if (!initialized) {
+    rrc_s_to_trnc_handle = find_dissector_add_dependency("rrc.s_to_trnc_cont", proto_ranap);
+    rrc_t_to_srnc_handle = find_dissector_add_dependency("rrc.t_to_srnc_cont", proto_ranap);
+    rrc_ho_to_utran_cmd = find_dissector("rrc.irat.ho_to_utran_cmd");
+    initialized = TRUE;
 #include "packet-ranap-dis-tab.c"
-	} else {
-		dissector_delete_uint("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
-	}
+  } else {
+    dissector_delete_uint("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
+  }
 
-	dissector_add_uint("sccp.ssn", global_ranap_sccp_ssn, ranap_handle);
-	local_ranap_sccp_ssn = global_ranap_sccp_ssn;
+  dissector_add_uint("sccp.ssn", global_ranap_sccp_ssn, ranap_handle);
+  local_ranap_sccp_ssn = global_ranap_sccp_ssn;
 
-	heur_dissector_add("sccp", dissect_sccp_ranap_heur, "RANAP over SCCP", "ranap_sccp", proto_ranap, HEURISTIC_ENABLE);
-	heur_dissector_add("sua", dissect_sccp_ranap_heur, "RANAP over SUA", "ranap_sua", proto_ranap, HEURISTIC_ENABLE);
+  heur_dissector_add("sccp", dissect_sccp_ranap_heur, "RANAP over SCCP", "ranap_sccp", proto_ranap, HEURISTIC_ENABLE);
+  heur_dissector_add("sua", dissect_sccp_ranap_heur, "RANAP over SUA", "ranap_sua", proto_ranap, HEURISTIC_ENABLE);
 }
 
-
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
