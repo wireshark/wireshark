@@ -1784,12 +1784,16 @@ typedef struct _ikev2_auth_alg_spec {
 #define IKEV2_AUTH_ANY_192BITS  11
 #define IKEV2_AUTH_ANY_256BITS  12
 #define IKEV2_AUTH_ANY_64BITS   13
+#define IKEV2_AUTH_HMAC_MD5_128  14
+#define IKEV2_AUTH_HMAC_SHA1_160 15
 
 static ikev2_auth_alg_spec_t ikev2_auth_algs[] = {
 /*{number, output_len, key_len, trunc_len, gcry_alg, gcry_flag}*/
   {IKEV2_AUTH_NONE, 0, 0, 0, GCRY_MD_NONE, 0},
   {IKEV2_AUTH_HMAC_MD5_96, 16, 16, 12, GCRY_MD_MD5, GCRY_MD_FLAG_HMAC},
   {IKEV2_AUTH_HMAC_SHA1_96, 20, 20, 12, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC},
+  {IKEV2_AUTH_HMAC_MD5_128, 16, 16, 16, GCRY_MD_MD5, GCRY_MD_FLAG_HMAC},
+  {IKEV2_AUTH_HMAC_SHA1_160, 20, 20, 20, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC},
   {IKEV2_AUTH_HMAC_SHA2_256_96, 32, 32, 12, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC},
   {IKEV2_AUTH_HMAC_SHA2_256_128, 32, 32, 16, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC},
   {IKEV2_AUTH_HMAC_SHA2_384_192, 48, 48, 24, GCRY_MD_SHA384, GCRY_MD_FLAG_HMAC},
@@ -1884,6 +1888,8 @@ static const value_string vs_ikev2_encr_algs[] = {
 static const value_string vs_ikev2_auth_algs[] = {
   {IKEV2_AUTH_HMAC_MD5_96,  "HMAC_MD5_96 [RFC2403]"},
   {IKEV2_AUTH_HMAC_SHA1_96, IKEV2_AUTH_HMAC_SHA1_96_STR},
+  {IKEV2_AUTH_HMAC_MD5_128,  "HMAC_MD5_128 [RFC4595]"},
+  {IKEV2_AUTH_HMAC_SHA1_160, "HMAC_SHA1_160 [RFC4595]"},
   {IKEV2_AUTH_HMAC_SHA2_256_96, "HMAC_SHA2_256_96 [draft-ietf-ipsec-ciph-sha-256-00]"},
   {IKEV2_AUTH_HMAC_SHA2_256_128, "HMAC_SHA2_256_128 [RFC4868]"},
   {IKEV2_AUTH_HMAC_SHA2_384_192, "HMAC_SHA2_384_192 [RFC4868]"},
@@ -5336,8 +5342,7 @@ dissect_enc(tvbuff_t *tvb,
             key_info->encr_spec->gcry_alg, encr_key_len, key_info->encr_spec->salt_len, iv_len, encr_iv_len));
         }
 
-        encr_iv = (guchar *)wmem_alloc(pinfo->pool, encr_iv_len );
-        memset( encr_iv, 0, encr_iv_len );
+        encr_iv = (guchar *)wmem_alloc0(wmem_packet_scope(), encr_iv_len);
         memcpy( encr_iv + encr_iv_offset, key_info->encr_key + encr_key_len, key_info->encr_spec->salt_len );
         memcpy( encr_iv + encr_iv_offset + key_info->encr_spec->salt_len, iv, iv_len );
         if (key_info->encr_spec->gcry_mode == GCRY_CIPHER_MODE_CTR) {
@@ -5403,19 +5408,47 @@ dissect_enc(tvbuff_t *tvb,
 
 #ifdef HAVE_LIBGCRYPT_AEAD
       if (icv_len) {
-       err = gcry_cipher_checktag(cipher_hd, icv_data, icv_len );
-        if (gcry_err_code(err) == GPG_ERR_CHECKSUM) {
-          proto_item_append_text(icd_item, "[incorrect]");
-          expert_add_info(pinfo, icd_item, &ei_isakmp_ikev2_integrity_checksum);
-        }
-        else if (err) {
+        /* gcry_cipher_checktag() doesn't work on 1.6.x version well - requires all of 16 bytes
+         * of ICV, so it won't work with 12 and 8 bytes of ICV.
+         * For 1.7.x version of libgcrypt we could use it safely. But for libgcrypt-1.6.x
+         * we need to read tag from library and compare manually. Using that way we can also show
+         * correct value if it is not valid.
+         * CCM mode is not affected, but requires to pass icv_len to cry_cipher_gettag().
+         *
+         * Unfortunately gcrypt_cipher_gettag() have nothing similar to gcry_md_read(),
+         * so we need copy data to buffer here.
+         * Here, depending on cgrypt version gcm length shall be given differently:
+         * - in 1.7.x length can be of any aproved length (4,8,12,13,14,15,16 bytes),
+         * - in 1.6.x length must be equal of cipher block length. Aaargh... :-(
+         * We use accepted for both versions length of block size for GCM (16 bytes).
+         * For CCM length given must be the same as given to gcry_cipher_ctl(GCRYCTL_SET_CCM_LENGTHS)
+         */
+        guchar *tag;
+        gint tag_len = icv_len;
+        if (key_info->encr_spec->gcry_mode == GCRY_CIPHER_MODE_GCM)
+          tag_len = (int)gcry_cipher_get_algo_blklen(key_info->encr_spec->gcry_alg);
+
+        if (tag_len < icv_len) {
           gcry_cipher_close(cipher_hd);
           REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-            "IKEv2 decryption error: algorithm %d:  gcry_cipher_checktag failed: %s",
+            "IKEv2 decryption error: algorithm %d:  gcry_cipher_get_algo_blklen returned %d which is smaller than icv length %d",
+            key_info->encr_spec->gcry_alg, tag_len, icv_len));
+        }
+
+        tag = (guchar *)wmem_alloc(wmem_packet_scope(), tag_len);
+        err = gcry_cipher_gettag(cipher_hd, tag, tag_len);
+        if (err) {
+          gcry_cipher_close(cipher_hd);
+          REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+            "IKEv2 decryption error: algorithm %d:  gcry_cipher_gettag failed: %s",
             key_info->encr_spec->gcry_alg, gcry_strerror(err)));
         }
-        else
+        else if (memcmp(tag, icv_data, icv_len) == 0)
           proto_item_append_text(icd_item, "[correct]");
+        else {
+          proto_item_append_text(icd_item, "[incorrect, should be %s]", bytes_to_str(wmem_packet_scope(), tag, icv_len));
+          expert_add_info(pinfo, icd_item, &ei_isakmp_ikev2_integrity_checksum);
+        }
       }
 #endif
 

@@ -45,6 +45,7 @@ UAT_FILES="
 	ssl_keys
 	c1222_decryption_table
 	ikev1_decryption_table
+	ikev2_decryption_table
 "
 
 TEST_KEYS_DIR="$TESTS_DIR/keys/"
@@ -340,6 +341,118 @@ decryption_step_ikev1_unencrypted() {
 	test_step_ok
 }
 
+# IKEv2 decryption test (3DES-CBC/SHA1_160)
+decryption_step_ikev2_3des_sha160() {
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-Tfields -e isakmp.auth.data \
+		-r "$CAPTURE_DIR/ikev2-decrypt-3des-sha1_160.pcap" \
+		| grep "02:f7:a0:d5:f1:fd:c8:ea:81:03:98:18:c6:5b:b9:bd:09:af:9b:89:17:31:9b:88:7f:f9:ba:30:46:c3:44:c7" > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt encrypted with 3_DES_CBC/SHA1_160 packet of IKEv2 exchange"
+		return
+	fi
+	test_step_ok
+}
+
+# IKEv2 decryption test (AES-128-CCM-12) - with CBC-MAC verification
+decryption_step_ikev2_aes128_ccm12() {
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-Tfields -e isakmp.auth.data \
+		-r "$CAPTURE_DIR/ikev2-decrypt-aes128ccm12.pcap" \
+		| grep "c2:10:43:94:29:9e:1f:fe:79:08:ea:72:0a:d5:d1:37:17:a0:d4:54:e4:fa:0a:21:28:ea:68:94:11:f4:79:c4" > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt encrypted with AES_128_CCM_12 packet of IKEv2 exchange"
+		return
+	fi
+	test_step_ok
+}
+
+# IKEv2 decryption test (AES-128-CCM-12 using CTR mode, without checksum)
+decryption_step_ikev2_aes128_ccm12_2() {
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-Tfields -e isakmp.auth.data \
+		-r "$CAPTURE_DIR/ikev2-decrypt-aes128ccm12-2.pcap" \
+		| grep "aa:a2:81:c8:7b:4a:19:04:6c:57:27:1d:55:74:88:ca:41:3b:57:22:8c:b9:51:f5:fa:96:40:99:2a:02:85:b9" > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt (using CTR mode) encrypted with AES_128_CCM_12  packet of IKEv2 exchange"
+		return
+	fi
+	test_step_ok
+}
+
+# IKEv2 decryption test (AES-192-CTR/SHA2-512)
+decryption_step_ikev2_aes192ctr_sha512() {
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-Tfields -e isakmp.auth.data \
+		-r "$CAPTURE_DIR/ikev2-decrypt-aes192ctr.pcap" \
+		| grep "3e:c2:3d:cf:93:48:48:56:38:40:7c:75:45:47:ae:b3:08:52:90:08:2c:49:f5:83:fd:ba:e5:92:63:a2:0b:4a" > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt encrypted with AES-192-CTR/SHA2_512 packet of IKEv2 exchange"
+		return
+	fi
+	test_step_ok
+}
+
+# IKEv2 decryption test (AES-256-CBC/SHA2-256)
+decryption_step_ikev2_aes256cbc_sha256() {
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-Tfields -e isakmp.auth.data \
+		-r "$CAPTURE_DIR/ikev2-decrypt-aes256cbc.pcapng" \
+		| grep "e1:a8:d5:50:06:42:01:a7:ec:02:4a:85:75:8d:06:73:c6:1c:5c:51:0a:c1:3b:cd:22:5d:63:27:f5:0d:a3:d3" > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt encrypted with AES-256-CBC/SHA2-256 packet of IKEv2 exchange"
+		return
+	fi
+	test_step_ok
+}
+
+# IKEv2 decryption test (AES-256-CCM-16)
+decryption_step_ikev2_aes256ccm16() {
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-Tfields -e isakmp.auth.data \
+		-r "$CAPTURE_DIR/ikev2-decrypt-aes256ccm16.pcapng" \
+		| grep "fa:2e:74:bd:c0:1e:30:fb:0b:3d:dc:97:23:c9:44:90:95:96:9d:a5:1f:69:e5:60:20:9d:2c:2b:79:40:21:0a" > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt encrypted with AES-256-CCM-16 packet of IKEv2 exchange"
+		return
+	fi
+	test_step_ok
+}
+
+# IKEv2 decryption test (AES-256-GCM-16)
+decryption_step_ikev2_aes256gcm16() {
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-Tfields -e isakmp.auth.data \
+		-r "$CAPTURE_DIR/ikev2-decrypt-aes256gcm16.pcap" \
+		| grep "9a:b7:1f:14:ab:55:3c:ad:87:3a:1a:a7:0b:99:df:15:5d:ee:77:cd:cf:36:94:b3:b7:52:7a:cb:b9:71:2d:ed" > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt encrypted with AES-256-GCM-16 packet of IKEv2 exchange"
+		return
+	fi
+	test_step_ok
+}
+
+# IKEv2 decryption test (AES-256-GCM-8)
+decryption_step_ikev2_aes256gcm8() {
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-Tfields -e isakmp.auth.data \
+		-r "$CAPTURE_DIR/ikev2-decrypt-aes256gcm8.pcap" \
+		| grep "4a:66:d8:22:d0:af:bc:22:ad:9a:92:a2:cf:42:87:c9:20:ad:8a:c3:b0:69:a4:a7:e7:5f:e0:a5:d4:99:f9:14" > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt encrypted with AES-256-GCM-8 packet of IKEv2 exchange"
+		return
+	fi
+	test_step_ok
+}
+
 # HTTP2 (HPACK)
 decryption_step_http2() {
 	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
@@ -382,9 +495,20 @@ tshark_decryption_suite() {
 	test_step_add "ZigBee Decryption" decryption_step_zigbee
 	test_step_add "ANSI C12.22 Decryption" decryption_step_c1222
 	test_step_add "DVB-CI Decryption" decryption_step_dvb_ci
+
 	test_step_add "IKEv1 Decryption (certificates)" decryption_step_ikev1_certs
 	test_step_add "IKEv1 Decryption (simultaneous exchanges)" decryption_step_ikev1_simultaneous
 	test_step_add "IKEv1 Decryption (unencrypted phase 1)" decryption_step_ikev1_unencrypted
+
+	test_step_add "IKEv2 Decryption (3DES-CBC/SHA1_160)" decryption_step_ikev2_3des_sha160
+	test_step_add "IKEv2 Decryption (AES-128-CCM-12)" decryption_step_ikev2_aes128_ccm12
+	test_step_add "IKEv2 Decryption (AES-128-CCM-12 using CTR mode)" decryption_step_ikev2_aes128_ccm12_2
+	test_step_add "IKEv2 Decryption (AES-192-CTR/SHA2-512)" decryption_step_ikev2_aes192ctr_sha512
+	test_step_add "IKEv2 Decryption (AES-256-CBC/SHA2-256)" decryption_step_ikev2_aes256cbc_sha256
+	test_step_add "IKEv2 Decryption (AES-256-CCM-16)" decryption_step_ikev2_aes256ccm16
+	test_step_add "IKEv2 Decryption (AES-256-GCM-16)" decryption_step_ikev2_aes256gcm16
+	test_step_add "IKEv2 Decryption (AES-256-GCM-8)" decryption_step_ikev2_aes256gcm8
+
 	test_step_add "HTTP2 (HPACK)" decryption_step_http2
 }
 
