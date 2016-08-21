@@ -3186,7 +3186,7 @@ dissect_http_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	}
 
 	/* Check if the line start or ends with the HTTP token */
-	if((tvb_strncaseeql(tvb, linelen-8, "HTTP/1.1", 8) == 0)||(tvb_strncaseeql(tvb, 0, "HTTP/1.1", 8) == 0)){
+	if((tvb_strncaseeql(tvb, linelen-8, "HTTP/1.", 7) == 0)||(tvb_strncaseeql(tvb, 0, "HTTP/1.", 7) == 0)){
 		conversation = find_or_create_conversation(pinfo);
 		conversation_set_dissector_from_frame_number(conversation, pinfo->num, http_tcp_handle);
 		dissect_http_tcp(tvb, pinfo, tree, data);
