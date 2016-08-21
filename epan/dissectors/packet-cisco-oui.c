@@ -45,6 +45,8 @@ static const value_string cisco_pid_vals[] = {
 	{ 0x0102,	"DRIP" },
 	{ 0x0104,	"PAgP" },	/* Port Aggregation Protocol */
 	{ 0x0105,	"MLS Hello" },	/* from a mail message found on the Web */
+	{ 0x0108,	"RLQ BPDUs (request)" }, /* Root Link Query, see Bug: 12772 */
+	{ 0x0109,	"RLQ BPDUs (response)" }, /* Root Link Query, see Bug: 12772 */
 	{ 0x010b,	"PVSTP+" },	/* Per-VLAN Spanning Tree Protocol */
 	{ 0x010c,	"VLAN Bridge" },
 	{ 0x0111,	"UDLD" },	/* Unidirectional Link Detection */

@@ -1375,7 +1375,10 @@ proto_reg_handoff_bpdu(void)
   dissector_add_uint("llc.dsap", SAP_BPDU, bpdu_handle);
   dissector_add_uint("chdlc.protocol", CHDLCTYPE_BPDU, bpdu_handle);
   dissector_add_uint("ethertype", ETHERTYPE_STP, bpdu_handle);
+  dissector_add_uint("llc.cisco_pid", 0x0108, bpdu_handle); /* Cisco's RLQ is just plain STP */
+  dissector_add_uint("llc.cisco_pid", 0x0109, bpdu_handle); /* Cisco's RLQ is just plain STP */
   dissector_add_uint("llc.cisco_pid", 0x010c, bpdu_handle); /* Cisco's VLAN-bridge STP is just plain STP */
+
 
   bpdu_handle = find_dissector("bpdu_cisco");
   dissector_add_uint("llc.cisco_pid", 0x010b, bpdu_handle); /* Handle Cisco's (R)PVST+ TLV extensions */
