@@ -5323,7 +5323,9 @@ dissect_enc(tvbuff_t *tvb,
 
         encr_iv = (guchar *)wmem_alloc0(wmem_packet_scope(), encr_iv_len);
         memcpy( encr_iv + encr_iv_offset, key_info->encr_key + encr_key_len, key_info->encr_spec->salt_len );
-        memcpy( encr_iv + encr_iv_offset + key_info->encr_spec->salt_len, iv, iv_len );
+        if(iv) {
+          memcpy( encr_iv + encr_iv_offset + key_info->encr_spec->salt_len, iv, iv_len );
+        }
         if (key_info->encr_spec->gcry_mode == GCRY_CIPHER_MODE_CTR) {
           encr_iv[encr_iv_len-1] = 1;
           /* fallback for gcrypt not having AEAD ciphers */
