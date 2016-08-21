@@ -1089,7 +1089,7 @@ static int dissect_1722_aaf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         ti            = proto_tree_add_item(ti_aaf_tree, hf_1722_aaf_data, tvb, offset, datalen, ENC_NA);
         ti_audio_tree = proto_item_add_subtree(ti, ett_1722_aaf_audio);
 
-        if (sample_width == 0)
+        if (sample_width == 0 || channels_per_frame == 0)
         {
             expert_add_info(pinfo, ti, &ei_aaf_sample_width);
         }
