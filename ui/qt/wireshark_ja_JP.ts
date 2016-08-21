@@ -10030,12 +10030,12 @@ a:hover {
 <context>
     <name>PacketListModel</name>
     <message>
-        <location filename="packet_list_model.cpp" line="312"/>
+        <location filename="packet_list_model.cpp" line="319"/>
         <source>Dissecting</source>
         <translation>解析中</translation>
     </message>
     <message>
-        <location filename="packet_list_model.cpp" line="334"/>
+        <location filename="packet_list_model.cpp" line="341"/>
         <source>Sorting &quot;%1&quot;</source>
         <translation>ソート中 &quot;%1&quot;</translation>
     </message>

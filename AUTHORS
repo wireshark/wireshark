@@ -3663,7 +3663,7 @@ Pratik Yeole		<pyeole[AT]ncsu.edu> {
          Fixed incorrect decoding of Network Layer Reachability Information (NLRI) in BGP UPDATE message with add-path support
 }
 
-Guillaume Autran	<gautran[AT]clearpathrobotics.com> {
+Guillaume Autran	<gautran[AT]clearpath.ai> {
 	TCPROS support
 }
 
@@ -3673,6 +3673,9 @@ Barbu Paul - Gheorghe	<barbu.paul.gheorghe[AT]gmail.com> {
 
 Martin Kacer	<kacer.martin[AT]gmail.com> {
 	JSON and Elasticsearch tshark output
+}
+Ben Stewart		<bst[AT]google.com> {
+	SCTE-35 dissector
 }
 
 Sumit Kumar Jha		<sjha3[AT]ncsu.edu> {
@@ -4052,6 +4055,7 @@ Fabian Raetz		<fabian.raetz[AT]gmail.com>
 Fabrizio Demaria	<fabrizio.demaria[AT]intel.com>
 Florian Lohoff		<f[AT]zz.de>
 Francois Schneider	<francois.schneider[AT]airbus.com>
+Francois-Xavier Le Bail	<fx.lebail[AT]yahoo.com>
 Ganesh Nawsupe		<ganesh991[AT]gmail.com>
 Garming Sam		<garming[AT]catalyst.net.nz>
 Gerard Garcia		<ggarcia[AT]deic.uab.cat>
@@ -4062,6 +4066,7 @@ Gordon Ross		<gordon.w.ross[AT]gmail.com>
 Gregor Beck		<gbeck[AT]sernet.de>
 Gregor Jasny		<gjasny[AT]googlemail.com>
 Gregor Miernik		<gregor.miernik[AT]hytec.de>
+Guillaume Autran	<gautran[AT]clearpathrobotics.com>
 Guy Davies		<aguydavies[AT]gmail.com>
 Günther Deschner	<gd[AT]samba.org>
 Hanspeter Portner	<dev[AT]open-music-kontrollers.ch>
@@ -4147,6 +4152,7 @@ Michael Pergament	<mpergament[AT]googlemail.com>
 Michael Vigovsky	<upliner[AT]gmail.com>
 Michal Pazdera		<michal.pazdera[AT]gmail.com>
 Michal Prívozník	<mprivozn[AT]redhat.com>
+Michał Skalski		<mskalski13[AT]gmail.com>
 Michele Baldessari	<michele[AT]acksyn.org>
 Mikael Kanstrup		<mikael.kanstrup[AT]gmail.com>
 Mike Frysinger		<vapier[AT]chromium.org>
