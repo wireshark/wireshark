@@ -43,7 +43,7 @@ WS_DLL_PUBLIC gint
 index_of_char(const char *str, const char c);
 
 WS_DLL_PUBLIC char *
-find_parameter(const char *parameters, const char *key, int *retlen);
+ws_find_media_type_parameter(const char *parameters, const char *key, int *retlen);
 
 #ifdef __cplusplus
 }

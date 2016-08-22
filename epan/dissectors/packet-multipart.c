@@ -346,13 +346,13 @@ get_multipart_info(packet_info *pinfo, http_message_info_t *message_info)
     /* Clean up the parameters */
     parameters = unfold_and_compact_mime_header(message_info->media_str, &dummy);
 
-    start_boundary = find_parameter(parameters, "boundary=", &len_boundary);
+    start_boundary = ws_find_media_type_parameter(parameters, "boundary=", &len_boundary);
 
     if(!start_boundary) {
         return NULL;
     }
     if(strncmp(type, "multipart/encrypted", sizeof("multipart/encrypted")-1) == 0) {
-        start_protocol = find_parameter(parameters, "protocol=", &len_protocol);
+        start_protocol = ws_find_media_type_parameter(parameters, "protocol=", &len_protocol);
         if(!start_protocol) {
             return NULL;
         }
@@ -646,7 +646,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                         {
                             gint semicolon_offset;
                             /* The Content-Type starts at colon_offset + 1 or after the type parameter */
-                            char* type_str = find_parameter(value_str, "type=", NULL);
+                            char* type_str = ws_find_media_type_parameter(value_str, "type=", NULL);
                             if(type_str != NULL) {
                                 value_str = type_str;
                             }
@@ -682,7 +682,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                             proto_item_append_text(ti, " (%s)", content_type_str);
 
                             /* find the "name" parameter in case we don't find a content disposition "filename" */
-                            if((mimetypename = find_parameter(message_info.media_str, "name=", &len)) != NULL) {
+                            if((mimetypename = ws_find_media_type_parameter(message_info.media_str, "name=", &len)) != NULL) {
                               mimetypename = g_strndup(mimetypename, len);
                             }
 
@@ -715,7 +715,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                         case POS_CONTENT_DISPOSITION:
                             {
                             /* find the "filename" parameter */
-                            if((filename = find_parameter(value_str, "filename=", &len)) != NULL) {
+                            if((filename = ws_find_media_type_parameter(value_str, "filename=", &len)) != NULL) {
                                 filename = g_strndup(filename, len);
                             }
                         }

@@ -53,7 +53,7 @@ index_of_char(const char *str, const char c)
 }
 
 char *
-find_parameter(const char *parameters, const char *key, int *retlen)
+ws_find_media_type_parameter(const char *parameters, const char *key, int *retlen)
 {
     const char *start, *p;
     int   keylen = 0;
