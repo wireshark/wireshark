@@ -499,11 +499,16 @@ void UatDialog::addRecord(bool copy_from_current)
 
     void *rec = g_malloc0(uat_->record_size);
 
-    if (copy_from_current && uat_->copy_cb) {
+    if (copy_from_current) {
         QTreeWidgetItem *item = ui->uatTreeWidget->currentItem();
         if (!item) return;
         guint row = item->data(0, Qt::UserRole).toUInt();
-        uat_->copy_cb(rec, UAT_INDEX_PTR(uat_, row), uat_->record_size);
+        if (uat_->copy_cb) {
+          uat_->copy_cb(rec, UAT_INDEX_PTR(uat_, row), uat_->record_size);
+        } else {
+          /* According to documentation of uat_copy_cb_t memcpy should be used if uat_->copy_cb is NULL */
+          memcpy(rec, UAT_INDEX_PTR(uat_, row), uat_->record_size);
+        }
     } else {
         for (guint col = 0; col < uat_->ncols; col++) {
             uat_field_t *field = &uat_->fields[col];

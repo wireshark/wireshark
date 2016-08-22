@@ -470,6 +470,10 @@ static void uat_edit_dialog(uat_t *uat, gint row, gboolean copy) {
 	  if (uat->copy_cb) {
 	    uat->copy_cb (dd->rec, UAT_INDEX_PTR(uat, row), uat->record_size);
 	  }
+	  else {
+	    /* According to documentation of uat_copy_cb_t memcpy should be used if uat->copy_cb is NULL */
+	    memcpy(dd->rec, UAT_INDEX_PTR(uat, row), uat->record_size);
+	  }
 	  dd->is_new = TRUE;
 	} else if (row >= 0) {
 	  dd->rec = UAT_INDEX_PTR(uat, row);
