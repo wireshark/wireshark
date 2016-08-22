@@ -38,6 +38,8 @@
 
 #include <wiretap/wtap.h>
 
+#include "packet-http.h"
+
 void proto_register_json(void);
 void proto_reg_handoff_json(void);
 static char *json_string_unescape(tvbparse_elem_t *tok);
@@ -116,6 +118,7 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	json_parser_data_t parser_data;
 	tvbparse_t *tt;
 
+	http_message_info_t *message_info;
 	const char *data_name;
 	int offset;
 
@@ -138,12 +141,20 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		/*
 		 * No information from "match_string"
 		 */
-		data_name = (char *)data;
-		if (! (data_name && data_name[0])) {
+		message_info = (http_message_info_t *)data;
+		if (message_info == NULL) {
 			/*
 			 * No information from dissector data
 			 */
 			data_name = NULL;
+		} else {
+			data_name = message_info->media_str;
+			if (! (data_name && data_name[0])) {
+				/*
+				 * No information from dissector data
+				 */
+				data_name = NULL;
+			}
 		}
 	}
 

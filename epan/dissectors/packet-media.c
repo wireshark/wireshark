@@ -32,6 +32,8 @@
 
 #include <wsutil/str_util.h>
 
+#include "packet-http.h"
+
 void proto_register_media(void);
 
 /* proto_media cannot be static because it's referenced in the
@@ -48,6 +50,7 @@ dissect_media(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree, void* data)
     int bytes;
     proto_item *ti;
     proto_tree *media_tree = 0;
+    http_message_info_t *message_info = (http_message_info_t *)data;
     heur_dtbl_entry_t *hdtbl_entry;
 
     if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, data)) {
@@ -63,11 +66,12 @@ dissect_media(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree, void* data)
             ti = proto_tree_add_item(tree, proto_media, tvb, 0, -1, ENC_NA);
             media_tree = proto_item_add_subtree(ti, ett_media);
 
-            if (data) {
+            if (message_info != NULL && message_info->media_str != NULL) {
                 /* The media type has parameters */
+
                 proto_tree_add_bytes_format_value(media_tree, hf_media_type, tvb, 0, bytes,
                     NULL, "%s; %s (%d byte%s)",
-                    pinfo->match_string, (char *)data,
+                    pinfo->match_string, message_info->media_str,
                     bytes, plurality(bytes, "", "s"));
             } else {
                 /* The media type has no parameters */

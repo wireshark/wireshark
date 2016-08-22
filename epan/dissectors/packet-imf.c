@@ -31,6 +31,7 @@
 #include <wsutil/str_util.h>
 
 #include "packet-ber.h"
+#include "packet-http.h"
 #include "packet-imf.h"
 #include "packet-ess.h"
 #include "packet-p1.h"
@@ -813,6 +814,8 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   /* now dissect the MIME based upon the content type */
 
   if(content_type_str && media_type_dissector_table) {
+    http_message_info_t message_info;
+
     col_set_fence(pinfo->cinfo, COL_INFO);
 
     if(content_encoding_str && !g_ascii_strncasecmp(content_encoding_str, "base64", 6)) {
@@ -823,7 +826,9 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       next_tvb = tvb_new_subset_remaining(tvb, end_offset);
     }
 
-    dissector_try_string(media_type_dissector_table, content_type_str, next_tvb, pinfo, tree, (void*)parameters);
+    message_info.type = HTTP_OTHERS;
+    message_info.media_str = parameters;
+    dissector_try_string(media_type_dissector_table, content_type_str, next_tvb, pinfo, tree, (void*)&message_info);
   } else {
 
     /* just show the lines or highlight the rest of the buffer as message text */

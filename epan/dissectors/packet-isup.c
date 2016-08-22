@@ -38,6 +38,7 @@
  *
  * National variants
  * French ISUP Specification: SPIROU 1998 - 002-005 edition 1 ( Info found here http://www.icg-corp.com/docs/ISUP.pdf ).
+ *   See also http://www.fftelecoms.org/sites/default/files/contenus_lies/fft_interco_ip_-_sip-i_interface_specification_v1_0.pdf
  * Israeli ISUP Specification: excertp (for BCM message) found in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4231 .
  * Russian national ISUP-R 2000: RD 45.217-2001 book 4
  * Japan ISUP http://www.ttc.or.jp/jp/document_list/sum/sum_JT-Q763v21.1.pdf
@@ -54,12 +55,14 @@
 #include <epan/sctpppids.h>
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
+#include <epan/media_params.h>
 #include <wsutil/str_util.h>
 #include "packet-q931.h"
 #include "packet-isup.h"
 #include "packet-e164.h"
 #include "packet-charging_ase.h"
 #include "packet-mtp3.h"
+#include "packet-http.h"
 
 void proto_register_isup(void);
 void proto_reg_handoff_isup(void);
@@ -10415,31 +10418,47 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   proto_tree *isup_tree = NULL;
   tvbuff_t   *message_tvb;
   guint8      message_type;
-  gchar      *content_type_parameter_str;
+  const char *version, *base;
+  int         len_version, len_base;
   guint8      itu_isup_variant = ISUP_ITU_STANDARD_VARIANT; /* Default */
 
   if (data) {
-    content_type_parameter_str = ascii_strdown_inplace((gchar *)data);
-    if (strstr(content_type_parameter_str, "ansi")) {
-      isup_standard = ANSI_STANDARD;
-      col_append_str(pinfo->cinfo, COL_PROTOCOL, "/ISUP(ANSI)");
-      message_type = tvb_get_guint8(tvb, 0);
-      /* application/ISUP has no  CIC  */
-      col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ",
-                          "ISUP:%s",
-                          val_to_str_ext_const(message_type, &ansi_isup_message_type_value_acro_ext, "reserved"));
-      if (tree) {
-        ti = proto_tree_add_item(tree, proto_isup, tvb, 0, -1, ENC_NA);
-        isup_tree = proto_item_add_subtree(ti, ett_isup);
-      }
+    http_message_info_t *message_info = (http_message_info_t *)data;
+    if (message_info->media_str) {
+      version = find_parameter(message_info->media_str, "version=", &len_version);
+      base = find_parameter(message_info->media_str, "base=", &len_base);
+      if ((version && len_version >= 4 && g_ascii_strncasecmp(version, "ansi", 4) == 0) ||
+          (base && len_base >= 4 && g_ascii_strncasecmp(base, "ansi", 4) == 0)) {
+        /*
+         * "version" or "base" parameter begins with "ansi", so it's ANSI.
+         */
+        isup_standard = ANSI_STANDARD;
+        col_append_str(pinfo->cinfo, COL_PROTOCOL, "/ISUP(ANSI)");
+        message_type = tvb_get_guint8(tvb, 0);
+        /* application/ISUP has no  CIC  */
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ",
+                            "ISUP:%s",
+                            val_to_str_ext_const(message_type, &ansi_isup_message_type_value_acro_ext, "reserved"));
+        if (tree) {
+          ti = proto_tree_add_item(tree, proto_isup, tvb, 0, -1, ENC_NA);
+          isup_tree = proto_item_add_subtree(ti, ett_isup);
+        }
 
-      message_tvb = tvb_new_subset_remaining(tvb, 0);
-      dissect_ansi_isup_message(message_tvb, pinfo, isup_tree, ISUP_ITU_STANDARD_VARIANT, 0);
-      return tvb_reported_length(tvb);
-    } else if (strstr(content_type_parameter_str, "spirou")) {
-      isup_standard    = ITU_STANDARD;
-      itu_isup_variant = ISUP_FRENCH_VARIANT;
+        message_tvb = tvb_new_subset_remaining(tvb, 0);
+        dissect_ansi_isup_message(message_tvb, pinfo, isup_tree, ISUP_ITU_STANDARD_VARIANT, 0);
+        return tvb_reported_length(tvb);
+      } else if ((version && g_ascii_strncasecmp(version, "spirou", len_version) == 0) ||
+          (base && g_ascii_strncasecmp(base, "spirou", len_base) == 0)) {
+        /*
+         * "version" or "base" version is "spirou", so it's SPIROU.
+         */
+        isup_standard    = ITU_STANDARD;
+        itu_isup_variant = ISUP_FRENCH_VARIANT;
+      } else {
+        isup_standard = ITU_STANDARD;
+      }
     } else {
+      /* default to ITU */
       isup_standard = ITU_STANDARD;
     }
   } else {

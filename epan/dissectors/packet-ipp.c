@@ -189,15 +189,33 @@ static int add_value_head(const gchar *tag_desc, proto_tree *tree,
                                         tvbuff_t *tvb, int offset, int name_length, int value_length, char **name_val);
 
 static int
-dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_tree  *ipp_tree;
     proto_item  *ti;
     int          offset     = 0;
-    gboolean     is_request = (pinfo->destport == pinfo->match_uint);
-    /* XXX - should this be based on the HTTP header? */
+    http_message_info_t *message_info = (http_message_info_t *)data;
+    gboolean     is_request;
     guint16      status_code;
     const gchar *status_type;
+
+    if (message_info != NULL) {
+        switch (message_info->type) {
+
+        case HTTP_REQUEST:
+            is_request = TRUE;
+            break;
+
+        case HTTP_RESPONSE:
+            is_request = FALSE;
+            break;
+
+        default:
+            is_request = (pinfo->destport == pinfo->match_uint);
+            break;
+	}
+    } else
+        is_request = (pinfo->destport == pinfo->match_uint);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPP");
     if (is_request)
