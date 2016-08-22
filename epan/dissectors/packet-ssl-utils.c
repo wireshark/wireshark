@@ -1152,6 +1152,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_SESSION_TICKET, "SessionTicket TLS" },  /* RFC 4507 */
     { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* http://technotes.googlecode.com/git/nextprotoneg.html */
     { SSL_HND_HELLO_EXT_RENEG_INFO, "renegotiation_info" }, /* RFC 5746 */
+    { SSL_HND_HELLO_EXT_DRAFT_VERSION_TLS13, "Draft version of TLS 1.3" }, /* for experimentation only  https://www.ietf.org/mail-archive/web/tls/current/msg20853.html */
     /* http://tools.ietf.org/html/draft-balfanz-tls-channelid-00
        https://twitter.com/ericlaw/status/274237352531083264 */
     { SSL_HND_HELLO_EXT_CHANNEL_ID_OLD, "channel_id_old" },
@@ -6557,6 +6558,11 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_RENEG_INFO:
             offset = ssl_dissect_hnd_hello_ext_reneg_info(hf, tvb, ext_tree, offset, ext_len);
+            break;
+        case SSL_HND_HELLO_EXT_DRAFT_VERSION_TLS13:
+            proto_tree_add_item(ext_tree, hf->hf.hs_ext_draft_version_tls13,
+                                tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += ext_len;
             break;
         case SSL_HND_HELLO_EXT_SERVER_NAME:
             offset = ssl_dissect_hnd_hello_ext_server_name(hf, tvb, ext_tree, offset, ext_len);

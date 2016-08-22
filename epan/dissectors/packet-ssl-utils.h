@@ -151,6 +151,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET_TYPE 0x0017
 #define SSL_HND_HELLO_EXT_SESSION_TICKET     0x0023
 #define SSL_HND_HELLO_EXT_RENEG_INFO         0xff01
+#define SSL_HND_HELLO_EXT_DRAFT_VERSION_TLS13 0xff02
 #define SSL_HND_HELLO_EXT_NPN                0x3374
 #define SSL_HND_HELLO_EXT_CHANNEL_ID_OLD     0x754f
 #define SSL_HND_HELLO_EXT_CHANNEL_ID         0x7550
@@ -715,6 +716,9 @@ typedef struct ssl_common_dissect {
         gint hs_client_cert_vrfy_sig_len;
         gint hs_client_cert_vrfy_sig;
 
+        /* TLS 1.3 */
+        gint hs_ext_draft_version_tls13;
+
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
     struct {
@@ -838,7 +842,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1                                              \
+        -1, -1, -1, -1, -1, -1                                          \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1357,6 +1361,11 @@ ssl_common_dissect_t name = {   \
       { "Signature", prefix ".handshake.client_cert_vrfy.sig",          \
         FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
         "CertificateVerify's signature", HFILL }                        \
+    },                                                                  \
+    { & name .hf.hs_ext_draft_version_tls13,                            \
+      { "Draft version of TLS 1.3", prefix ".extension.draft_version_tls13", \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Indicate the version of draft supported by client", HFILL }    \
     }
 /* }}} */
 
