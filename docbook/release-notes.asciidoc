@@ -26,8 +26,8 @@ used for troubleshooting, analysis, development and education.
 
 === New and Updated Features
 
-The following features are new (or have been significantly updated)
-since version 2.1.1:
+There have been no new or significantly updated features since
+version 2.1.1.
 
 The following features are new (or have been significantly updated)
 since version 2.1.0:
@@ -87,7 +87,7 @@ about, or debugging, a file and its format.  To open a capture file (such as
 PCAP) in this mode specify "MIME Files Format" as the file's format in the
 Open File dialog.
 
-New files that Wireshark can open in this mode include:
+//New files that Wireshark can open in this mode include:
 
 //_Non-empty section placeholder._
 --sort-and-group--
