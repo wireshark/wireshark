@@ -1002,6 +1002,10 @@ static const value_string transform_dh_group_type[] = {
   { 24, "2048-bit MODP Group with 256-bit Prime Order Subgroup" },
   { 25, "192-bit Random ECP Group" },
   { 26, "224-bit Random ECP Group" },
+  { 27, "224-bit Brainpool ECP group" },
+  { 28, "256-bit Brainpool ECP group" },
+  { 29, "384-bit Brainpool ECP group" },
+  { 30, "512-bit Brainpool ECP group" },
   { 0,  NULL }
 };
 
