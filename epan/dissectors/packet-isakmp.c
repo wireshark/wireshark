@@ -5184,8 +5184,7 @@ dissect_enc(tvbuff_t *tvb,
     /* Need decryption details to know field lengths. */
     key_info = (ikev2_decrypt_data_t*)(decr_info);
 
-    /* BUG: encr/auth specs are not set properly after editing IKEv2 UAT (adding / removing rows).
-     * Key value in key_info->encr_key is set properly */
+    /* Check if encr/auth specs are set properly (if for some case not, wireshark would crash) */
     if (!key_info->encr_spec || !key_info->auth_spec) {
       REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
         "IKEv2: decryption/integrity specs not set-up properly: encr_spec: %p, auth_spec: %p",
@@ -5643,6 +5642,9 @@ isakmp_init_protocol(void) {
   ikev2_key_hash = g_hash_table_new(ikev2_key_hash_func, ikev2_key_equal_func);
   for (i = 0; i < num_ikev2_uat_data; i++) {
     g_hash_table_insert(ikev2_key_hash, &(ikev2_uat_data[i].key), &(ikev2_uat_data[i]));
+    /* Need find references to algorithms (as UAT table editing looses data not stored in file) */
+    ikev2_uat_data[i].encr_spec = ikev2_decrypt_find_encr_spec(ikev2_uat_data[i].encr_alg);
+    ikev2_uat_data[i].auth_spec = ikev2_decrypt_find_auth_spec(ikev2_uat_data[i].auth_alg);
   }
   defrag_next_payload_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
 #endif /* HAVE_LIBGCRYPT */
@@ -5662,6 +5664,7 @@ isakmp_cleanup_protocol(void) {
 #ifdef HAVE_LIBGCRYPT
 static void
 isakmp_prefs_apply_cb(void) {
+  isakmp_cleanup_protocol();
   isakmp_init_protocol();
 }
 #endif /* HAVE_LIBGCRYPT */
