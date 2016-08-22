@@ -56,13 +56,13 @@ add_library(wscodecs ${LINK_MODE_LIB}
   ${CMAKE_BINARY_DIR}/image/libwscodecs.rc
 )
 
-set(FULL_SO_VERSION "0.0.0")
+set(FULL_SO_VERSION "1.0.0")
 
 set_target_properties(wscodecs PROPERTIES
   PREFIX "lib"
   COMPILE_DEFINITIONS "WS_BUILD_DLL"
   LINK_FLAGS "${WS_LINK_FLAGS}"
-  VERSION ${FULL_SO_VERSION} SOVERSION 0
+  VERSION ${FULL_SO_VERSION} SOVERSION 1
   FOLDER "DLLs"
 )
 

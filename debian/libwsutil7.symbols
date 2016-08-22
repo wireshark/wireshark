@@ -1,4 +1,4 @@
-libwsutil.so.0 libwsutil0 #MINVER#
+libwsutil.so.7 libwsutil7 #MINVER#
  AirPDcapWepDecrypt@Base 1.10.0
  Eax_Decrypt@Base 1.12.0~rc1
  add_plugin_type@Base 1.12.0~rc1
