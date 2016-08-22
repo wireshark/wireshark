@@ -73,6 +73,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_profile_name@Base 1.12.0~rc1
  get_profiles_dir@Base 1.12.0~rc1
  get_progfile_dir@Base 1.12.0~rc1
+ get_resource_usage@Base 2.3.0
  get_systemfile_dir@Base 1.12.0~rc1
  get_tempfile_path@Base 1.12.0~rc1
  has_global_profiles@Base 1.12.0~rc1

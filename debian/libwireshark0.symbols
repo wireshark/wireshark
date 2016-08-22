@@ -968,6 +968,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_can_match_selected@Base 1.9.1
  proto_can_toggle_protocol@Base 1.9.1
  proto_check_field_name@Base 1.9.1
+ proto_checksum_vals@Base 2.2.0
  proto_construct_match_selected_string@Base 1.9.1
  proto_deregister_field@Base 1.99.9
  proto_disable_by_default@Base 2.1.2
@@ -1730,6 +1731,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  write_psml_columns@Base 1.99.1
  write_psml_finale@Base 1.12.0~rc1
  write_psml_preamble@Base 1.12.0~rc1
+ ws_find_media_type_parameter@Base 2.2.0
  ws_strdup_escape_char@Base 1.9.1
  ws_strdup_unescape_char@Base 1.9.1
  wslua_count_plugins@Base 1.12.0~rc1
