@@ -2189,7 +2189,7 @@ static int hf_skinny_wYear = -1;
 static int hf_skinny_waitTimeBeforeNextReq = -1;
 static int hf_skinny_xmldata = -1;
 
-static dissector_table_t media_type_dissector_table;
+static dissector_handle_t xml_handle;
 
 /* Initialize the subtree pointers */
 static gint ett_skinny          = -1;
@@ -2227,7 +2227,6 @@ dissect_skinny_xml(ptvcursor_t *cursor, int hfindex, packet_info *pinfo, guint32
 {
   proto_item         *item       = NULL;
   proto_tree         *subtree    = NULL;
-  dissector_handle_t handle      = NULL;
   proto_tree         *tree       = ptvcursor_tree(cursor);
   guint32            offset      = ptvcursor_current_offset(cursor);
   tvbuff_t           *tvb        = ptvcursor_tvbuff(cursor);
@@ -2245,9 +2244,8 @@ dissect_skinny_xml(ptvcursor_t *cursor, int hfindex, packet_info *pinfo, guint32
   item = proto_tree_add_item(tree, hf_skinny_xmlData, tvb, offset, length, ENC_ASCII|ENC_NA);
   subtree = proto_item_add_subtree(item, 0);
   next_tvb = tvb_new_subset(tvb, offset, length, -1);
-  handle = dissector_get_string_handle(media_type_dissector_table, "text/xml");
-  if (handle != NULL) {
-    call_dissector(handle, next_tvb, pinfo, subtree);
+  if (xml_handle != NULL) {
+    call_dissector(xml_handle, next_tvb, pinfo, subtree);
   }
   ptvcursor_advance(cursor, maxlength);
 }
@@ -9800,7 +9798,7 @@ void
 proto_reg_handoff_skinny(void)
 {
   /* Skinny content type and internet media type used by other dissectors are the same */
-  media_type_dissector_table = find_dissector_table("media_type");
+  xml_handle = find_dissector("xml");
   dissector_add_uint("tcp.port", TCP_PORT_SKINNY, skinny_handle);
   ssl_dissector_add(SSL_PORT_SKINNY, skinny_handle);
 }
