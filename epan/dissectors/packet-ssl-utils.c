@@ -1152,6 +1152,10 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_SESSION_TICKET, "SessionTicket TLS" },  /* RFC 4507 */
     { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* http://technotes.googlecode.com/git/nextprotoneg.html */
     { SSL_HND_HELLO_EXT_RENEG_INFO, "renegotiation_info" }, /* RFC 5746 */
+    { SSL_HND_HELLO_EXT_KEY_SHARE, "key_share" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
+    { SSL_HND_HELLO_EXT_PRE_SHARED_KEY, "pre_shared_key" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
+    { SSL_HND_HELLO_EXT_EARLY_DATA, "early_data" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
+    { SSL_HND_HELLO_EXT_COOKIE, "cookie" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { SSL_HND_HELLO_EXT_DRAFT_VERSION_TLS13, "Draft version of TLS 1.3" }, /* for experimentation only  https://www.ietf.org/mail-archive/web/tls/current/msg20853.html */
     /* http://tools.ietf.org/html/draft-balfanz-tls-channelid-00
        https://twitter.com/ericlaw/status/274237352531083264 */
