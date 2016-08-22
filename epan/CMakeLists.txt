@@ -127,6 +127,7 @@ set(LIBWIRESHARK_FILES
 	in_cksum.c
 	ipproto.c
 	ipv4.c
+	media_params.c
 	next_tvb.c
 	oids.c
 	osi-utils.c

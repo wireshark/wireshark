@@ -85,4 +85,17 @@ typedef struct _http_conv_t {
 	http_req_res_t *req_res_tail;
 } http_conv_t;
 
+typedef enum _http_type {
+	HTTP_REQUEST,
+	HTTP_RESPONSE,
+	HTTP_NOTIFICATION,
+	HTTP_OTHERS
+} http_type_t;
+
+/** Passed to dissectors called by the HTTP dissector. */
+typedef struct _http_message_info_t {
+	http_type_t type;      /* Message type; may be HTTP_OTHERS if not called by HTTP */
+	const char *media_str; /* Content-Type parameters */
+} http_message_info_t;
+
 #endif /* __PACKET_HTTP_H__ */

@@ -42,6 +42,7 @@
 #include <wsutil/str_util.h>
 
 #include "packet-jxta.h"
+#include "packet-http.h"
 
 void proto_register_jxta(void);
 void proto_reg_handoff_jxta(void);
@@ -2052,11 +2053,11 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
         gchar *mediatype = wmem_strdup(wmem_packet_scope(), fullmediatype);
         gchar *parms_at = strchr(mediatype, ';');
         const char *save_match_string = pinfo->match_string;
-        char *media_str = NULL;
+        http_message_info_t message_info = { HTTP_OTHERS, NULL };
 
         /* Based upon what is done in packet-media.c we set up type and params */
         if (NULL != parms_at) {
-            media_str = wmem_strdup( wmem_packet_scope(), parms_at + 1 );
+            message_info.media_str = wmem_strdup( wmem_packet_scope(), parms_at + 1 );
             *parms_at = '\0';
         }
 
@@ -2086,7 +2087,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
                 }
             }
         } else {
-            dissected = dissector_try_string(media_type_dissector_table, mediatype, tvb, pinfo, tree, media_str) ? tvb_captured_length(tvb) : 0;
+            dissected = dissector_try_string(media_type_dissector_table, mediatype, tvb, pinfo, tree, &message_info) ? tvb_captured_length(tvb) : 0;
 
             if( dissected != (int) tvb_captured_length(tvb) ) {
                 /* g_message( "%s : %d expected, %d dissected", mediatype, tvb_captured_length(tvb), dissected ); */
@@ -2094,7 +2095,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
         }
 
         if (0 == dissected) {
-            dissected = call_dissector_with_data(media_handle, tvb, pinfo, tree, media_str);
+            dissected = call_dissector_with_data(media_handle, tvb, pinfo, tree, &message_info);
         }
 
         pinfo->match_string = save_match_string;

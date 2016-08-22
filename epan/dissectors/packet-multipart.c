@@ -59,12 +59,14 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/media_params.h>
 #include <epan/prefs.h>
 #include <wsutil/str_util.h>
 #include "packet-imf.h"
 
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
+#include "packet-http.h"
 
 void proto_register_multipart(void);
 void proto_reg_handoff_multipart(void);
@@ -179,13 +181,12 @@ static gint
 process_preamble(proto_tree *tree, tvbuff_t *tvb, multipart_info_t *m_info,
         gboolean *last_boundary);
 static gint
-process_body_part(proto_tree *tree, tvbuff_t *tvb, multipart_info_t *m_info,
+process_body_part(proto_tree *tree, tvbuff_t *tvb,
+        http_message_info_t *input_message_info, multipart_info_t *m_info,
         packet_info *pinfo, gint start, gint idx,
         gboolean *last_boundary);
 static gint
 is_known_multipart_header(const char *header_str, guint len);
-static gint
-index_of_char(const char *str, const char c);
 
 
 /* Return a tvb that contains the binary representation of a base64
@@ -310,96 +311,6 @@ unfold_and_compact_mime_header(const char *lines, gint *first_colon_offset)
     return (ret);
 }
 
-/* Return the index of a given char in the given string,
- * or -1 if not found.
- */
-static gint
-index_of_char(const char *str, const char c)
-{
-    gint len = 0;
-    const char *p = str;
-
-    while (*p && *p != c) {
-        p++;
-        len++;
-    }
-
-    if (*p)
-        return len;
-    return -1;
-}
-
-static char *find_parameter(char *parameters, const char *key, int *retlen)
-{
-    char *start, *p;
-    int   keylen = 0;
-    int   len = 0;
-
-    if(!parameters || !*parameters || !key || strlen(key) == 0)
-        /* we won't be able to find anything */
-        return NULL;
-
-    keylen = (int) strlen(key);
-    p = parameters;
-
-    while (*p) {
-
-        while ((*p) && g_ascii_isspace(*p))
-            p++; /* Skip white space */
-
-        if (g_ascii_strncasecmp(p, key, keylen) == 0)
-            break;
-        /* Skip to next parameter */
-        p = strchr(p, ';');
-        if (p == NULL)
-        {
-            return NULL;
-        }
-        p++; /* Skip semicolon */
-
-    }
-    if (*p == 0x0)
-        return NULL;  /* key wasn't found */
-
-    start = p + keylen;
-    if (start[0] == 0) {
-        return NULL;
-    }
-
-    /*
-     * Process the parameter value
-     */
-    if (start[0] == '"') {
-        /*
-         * Parameter value is a quoted-string
-         */
-        start++; /* Skip the quote */
-        len = index_of_char(start, '"');
-        if (len < 0) {
-            /*
-             * No closing quote
-             */
-            return NULL;
-        }
-    } else {
-        /*
-         * Look for end of boundary
-         */
-        p = start;
-        while (*p) {
-            if (*p == ';' || g_ascii_isspace(*p))
-                break;
-            p++;
-            len++;
-        }
-    }
-
-    if(retlen)
-        (*retlen) = len;
-
-    return start;
-}
-
 /* Retrieve the media information from pinfo->private_data,
  * and compute the boundary string and its length.
  * Return a pointer to a filled-in multipart_info_t, or NULL on failure.
@@ -409,7 +320,7 @@ static char *find_parameter(char *parameters, const char *key, int *retlen)
  * leading hyphens. (quote from rfc2046)
  */
 static multipart_info_t *
-get_multipart_info(packet_info *pinfo, const char *str)
+get_multipart_info(packet_info *pinfo, http_message_info_t *message_info)
 {
     const char *start_boundary, *start_protocol = NULL;
     int len_boundary = 0, len_protocol = 0;
@@ -418,16 +329,22 @@ get_multipart_info(packet_info *pinfo, const char *str)
     char *parameters;
     gint dummy;
 
-    if ((type == NULL) || (str == NULL)) {
-        /*
-         * We need both a content type AND parameters
-         * for multipart dissection.
-         */
+    /*
+     * We need both a content type AND parameters
+     * for multipart dissection.
+     */
+    if (type == NULL) {
+        return NULL;
+    }
+    if (message_info == NULL) {
+        return NULL;
+    }
+    if (message_info->media_str == NULL) {
         return NULL;
     }
 
     /* Clean up the parameters */
-    parameters = unfold_and_compact_mime_header(str, &dummy);
+    parameters = unfold_and_compact_mime_header(message_info->media_str, &dummy);
 
     start_boundary = find_parameter(parameters, "boundary=", &len_boundary);
 
@@ -626,14 +543,15 @@ dissect_kerberos_encrypted_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree
  * Return the offset to the start of the next body-part.
  */
 static gint
-process_body_part(proto_tree *tree, tvbuff_t *tvb, multipart_info_t *m_info,
+process_body_part(proto_tree *tree, tvbuff_t *tvb,
+        http_message_info_t *input_message_info, multipart_info_t *m_info,
         packet_info *pinfo, gint start, gint idx,
         gboolean *last_boundary)
 {
     proto_tree *subtree;
     proto_item *ti;
     gint offset = start, next_offset = 0;
-    char *parameters = NULL;
+    http_message_info_t message_info = { input_message_info->type, NULL };
     gint body_start, boundary_start, boundary_line_len;
 
     gchar *content_type_str = NULL;
@@ -753,9 +671,9 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, multipart_info_t *m_info,
 
                             if (semicolon_offset > 0) {
                                 value_str[semicolon_offset] = '\0';
-                                parameters = wmem_strdup(wmem_packet_scope(), value_str + semicolon_offset + 1);
+                                message_info.media_str = wmem_strdup(wmem_packet_scope(), value_str + semicolon_offset + 1);
                             } else {
-                                parameters = NULL;
+                                message_info.media_str = NULL;
                             }
 
                             content_type_str = wmem_ascii_strdown(wmem_packet_scope(), value_str, -1);
@@ -764,7 +682,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, multipart_info_t *m_info,
                             proto_item_append_text(ti, " (%s)", content_type_str);
 
                             /* find the "name" parameter in case we don't find a content disposition "filename" */
-                            if((mimetypename = find_parameter(parameters, "name=", &len)) != NULL) {
+                            if((mimetypename = find_parameter(message_info.media_str, "name=", &len)) != NULL) {
                               mimetypename = g_strndup(mimetypename, len);
                             }
 
@@ -835,7 +753,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, multipart_info_t *m_info,
                     tmp_tvb = encrypt.gssapi_decrypted_tvb;
                     is_raw_data = FALSE;
                     content_type_str = m_info->orig_content_type;
-                    parameters = m_info->orig_parameters;
+                    message_info.media_str = m_info->orig_parameters;
             } else if(encrypt.gssapi_encrypted_tvb) {
                     tmp_tvb = encrypt.gssapi_encrypted_tvb;
                     proto_tree_add_expert(tree, pinfo, &ei_multipart_decryption_not_possible, tmp_tvb, 0, -1);
@@ -867,21 +785,21 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, multipart_info_t *m_info,
              * First try the dedicated multipart dissector table
              */
             dissected = dissector_try_string(multipart_media_subdissector_table,
-                        content_type_str, tmp_tvb, pinfo, subtree, parameters);
+                        content_type_str, tmp_tvb, pinfo, subtree, &message_info);
             if (! dissected) {
                 /*
                  * Fall back to the default media dissector table
                  */
                 dissected = dissector_try_string(media_type_dissector_table,
-                        content_type_str, tmp_tvb, pinfo, subtree, parameters);
+                        content_type_str, tmp_tvb, pinfo, subtree, &message_info);
             }
             if (! dissected) {
                 const char *save_match_string = pinfo->match_string;
                 pinfo->match_string = content_type_str;
-                call_dissector_with_data(media_handle, tmp_tvb, pinfo, subtree, parameters);
+                call_dissector_with_data(media_handle, tmp_tvb, pinfo, subtree, &message_info);
                 pinfo->match_string = save_match_string;
             }
-            parameters = NULL; /* Shares same memory as content_type_str */
+            message_info.media_str = NULL; /* Shares same memory as content_type_str */
         } else {
             call_data_dissector(tmp_tvb, pinfo, subtree);
         }
@@ -908,7 +826,8 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_tree *subtree;
     proto_item *ti;
     proto_item *type_ti;
-    multipart_info_t *m_info = get_multipart_info(pinfo, (const char*)data);
+    http_message_info_t *message_info = (http_message_info_t *)data;
+    multipart_info_t *m_info = get_multipart_info(pinfo, message_info);
     gint header_start = 0;
     gint body_index = 0;
     gboolean last_boundary = FALSE;
@@ -952,7 +871,7 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
      * Process the encapsulated bodies
      */
     while (last_boundary == FALSE) {
-        header_start = process_body_part(subtree, tvb, m_info,
+        header_start = process_body_part(subtree, tvb, message_info, m_info,
                 pinfo, header_start, body_index++, &last_boundary);
         if (header_start == -1) {
             return tvb_reported_length(tvb);

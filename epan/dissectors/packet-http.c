@@ -49,14 +49,6 @@
 #include "packet-tcp.h"
 #include "packet-ssl.h"
 
-typedef enum _http_type {
-	HTTP_REQUEST,
-	HTTP_RESPONSE,
-	HTTP_NOTIFICATION,
-	HTTP_OTHERS
-} http_type_t;
-
-
 void proto_register_http(void);
 void proto_reg_handoff_http(void);
 void proto_register_message_http(void);
@@ -764,6 +756,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int reported_length;
 	guint16 word;
 	gboolean	leading_crlf = FALSE;
+	http_message_info_t message_info;
 
 	reported_length = tvb_reported_length_remaining(tvb, offset);
 	if (reported_length < 1) {
@@ -1428,13 +1421,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (headers.content_encoding != NULL &&
 		    g_ascii_strcasecmp(headers.content_encoding, "identity") != 0) {
 			/*
-			 * We currently can't handle, for example, "compress";
+			 * We currently don't handle, for example, "compress";
 			 * just handle them as data for now.
 			 *
-			 * After July 7, 2004 the LZW patent expires, so support
-			 * might be added then.  However, I don't think that
-			 * anybody ever really implemented "compress", due to
-			 * the aforementioned patent.
+			 * After July 7, 2004 the LZW patent expired, so
+			 * support could be added.  However, I don't think
+			 * that anybody ever really implemented "compress",
+			 * due to the aforementioned patent.
 			 */
 			tvbuff_t *uncomp_tvb = NULL;
 			proto_item *e_ti = NULL;
@@ -1559,11 +1552,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    pinfo->match_uint);
 		}
 
+		message_info.type = http_type;
+		message_info.media_str = media_str;
 		if (handle != NULL) {
 			/*
 			 * We have a subdissector - call it.
 			 */
-			dissected = call_dissector_only(handle, next_tvb, pinfo, tree, media_str);
+			dissected = call_dissector_only(handle, next_tvb, pinfo, tree, &message_info);
 			if (!dissected)
 				expert_add_info(pinfo, http_tree, &ei_http_subdissector_failed);
 		}
@@ -1591,7 +1586,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * Calling the default media handle if there is a content-type that
 				 * wasn't handled above.
 				 */
-				call_dissector_with_data(media_handle, next_tvb, pinfo, tree, media_str);
+				call_dissector_with_data(media_handle, next_tvb, pinfo, tree, &message_info);
 			} else {
 				/* Call the default data dissector */
 				call_data_dissector(next_tvb, pinfo, http_tree);

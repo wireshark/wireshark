@@ -36,6 +36,7 @@
 #include <wsutil/str_util.h>
 
 #include "packet-msrp.h"
+#include "packet-http.h"
 
 void proto_register_msrp(void);
 void proto_reg_handoff_msrp(void);
@@ -471,7 +472,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     int found_match = 0;
     gint content_type_len, content_type_parameter_str_len;
     gchar *media_type_str_lower_case = NULL;
-    char *content_type_parameter_str = NULL;
+    http_message_info_t message_info = { HTTP_OTHERS, NULL };
     tvbuff_t *next_tvb;
     gint parameter_offset;
     gint semi_colon_offset;
@@ -655,7 +656,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                     parameter_offset++;
                                 content_type_len = semi_colon_offset - value_offset;
                                 content_type_parameter_str_len = line_end_offset - parameter_offset;
-                                content_type_parameter_str = tvb_get_string_enc(wmem_packet_scope(), tvb,
+                                message_info.media_str = tvb_get_string_enc(wmem_packet_scope(), tvb,
                                              parameter_offset, content_type_parameter_str_len, ENC_UTF_8|ENC_NA);
                             }
                             media_type_str_lower_case = ascii_strdown_inplace(
@@ -689,7 +690,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 found_match = dissector_try_string(media_type_dissector_table,
                                                media_type_str_lower_case,
                                                next_tvb, pinfo,
-                                               msrp_data_tree, content_type_parameter_str);
+                                               msrp_data_tree, &message_info);
                 /* If no match dump as text */
             }
             if ( found_match == 0 )
