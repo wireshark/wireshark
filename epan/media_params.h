@@ -36,12 +36,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* Return the index of a given char in the given string,
- * or -1 if not found.
- */
-WS_DLL_PUBLIC gint
-index_of_char(const char *str, const char c);
-
 WS_DLL_PUBLIC char *
 ws_find_media_type_parameter(const char *parameters, const char *key, int *retlen);
 
