@@ -1071,40 +1071,43 @@ static int dissect_1722_aaf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         {
             expert_add_info(pinfo, ti_channels_per_frame, &ei_aaf_channels_per_frame);
         }
-        offset += 2;
-        ti = proto_tree_add_item_ret_uint(ti_aaf_tree, hf_1722_aaf_bit_depth, tvb, offset, 1, ENC_BIG_ENDIAN, &bit_depth);
-        if ((bit_depth == 0) || (bit_depth > sample_width))
-        {
-            expert_add_info(pinfo, ti, &ei_aaf_incorrect_bit_depth);
-        }
-        offset += 1;
-        ti = proto_tree_add_item_ret_uint(ti_aaf_tree, hf_1722_aaf_stream_data_length, tvb, offset, 2, ENC_BIG_ENDIAN, &datalen);
-        proto_item_append_text(ti, " bytes");
-        offset += 2;
-
-        proto_tree_add_bitmask_list(ti_aaf_tree, tvb, offset, 1, fields_pcm, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        /* Make the Audio sample tree. */
-        ti            = proto_tree_add_item(ti_aaf_tree, hf_1722_aaf_data, tvb, offset, datalen, ENC_NA);
-        ti_audio_tree = proto_item_add_subtree(ti, ett_1722_aaf_audio);
-
-        if (sample_width == 0 || channels_per_frame == 0)
-        {
-            expert_add_info(pinfo, ti, &ei_aaf_sample_width);
-        }
         else
         {
-            /* Loop through all samples and add them to the audio tree. */
-            for (j = 0; j < ((datalen * 8) / (channels_per_frame * sample_width)); j++)
+            offset += 2;
+            ti = proto_tree_add_item_ret_uint(ti_aaf_tree, hf_1722_aaf_bit_depth, tvb, offset, 1, ENC_BIG_ENDIAN, &bit_depth);
+            if ((bit_depth == 0) || (bit_depth > sample_width))
             {
-                ti_sample_tree = proto_tree_add_subtree_format(ti_audio_tree, tvb, offset, 1,
-                                     ett_1722_aaf_sample, NULL, "Sample Chunk %d", j);
-                for (i = 0; i < channels_per_frame; i++)
+                expert_add_info(pinfo, ti, &ei_aaf_incorrect_bit_depth);
+            }
+            offset += 1;
+            ti = proto_tree_add_item_ret_uint(ti_aaf_tree, hf_1722_aaf_stream_data_length, tvb, offset, 2, ENC_BIG_ENDIAN, &datalen);
+            proto_item_append_text(ti, " bytes");
+            offset += 2;
+
+            proto_tree_add_bitmask_list(ti_aaf_tree, tvb, offset, 1, fields_pcm, ENC_BIG_ENDIAN);
+            offset += 2;
+
+            /* Make the Audio sample tree. */
+            ti            = proto_tree_add_item(ti_aaf_tree, hf_1722_aaf_data, tvb, offset, datalen, ENC_NA);
+            ti_audio_tree = proto_item_add_subtree(ti, ett_1722_aaf_audio);
+
+            if (sample_width == 0)
+            {
+                expert_add_info(pinfo, ti, &ei_aaf_sample_width);
+            }
+            else
+            {
+                /* Loop through all samples and add them to the audio tree. */
+                for (j = 0; j < ((datalen * 8) / (channels_per_frame * sample_width)); j++)
                 {
-                    ti = proto_tree_add_item(ti_sample_tree, hf_1722_aaf_sample, tvb, offset, sample_width / 8, ENC_NA);
-                    proto_item_prepend_text(ti, "Channel: %d ", i);
-                    offset += (sample_width / 8);
+                    ti_sample_tree = proto_tree_add_subtree_format(ti_audio_tree, tvb, offset, 1,
+                                         ett_1722_aaf_sample, NULL, "Sample Chunk %d", j);
+                    for (i = 0; i < channels_per_frame; i++)
+                    {
+                        ti = proto_tree_add_item(ti_sample_tree, hf_1722_aaf_sample, tvb, offset, sample_width / 8, ENC_NA);
+                        proto_item_prepend_text(ti, "Channel: %d ", i);
+                        offset += (sample_width / 8);
+                    }
                 }
             }
         }
