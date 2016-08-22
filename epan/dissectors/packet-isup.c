@@ -10425,8 +10425,8 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   if (data) {
     http_message_info_t *message_info = (http_message_info_t *)data;
     if (message_info->media_str) {
-      version = find_parameter(message_info->media_str, "version=", &len_version);
-      base = find_parameter(message_info->media_str, "base=", &len_base);
+      version = ws_find_media_type_parameter(message_info->media_str, "version=", &len_version);
+      base = ws_find_media_type_parameter(message_info->media_str, "base=", &len_base);
       if ((version && len_version >= 4 && g_ascii_strncasecmp(version, "ansi", 4) == 0) ||
           (base && len_base >= 4 && g_ascii_strncasecmp(base, "ansi", 4) == 0)) {
         /*
