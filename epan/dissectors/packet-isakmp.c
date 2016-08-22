@@ -3953,10 +3953,6 @@ dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int is
 #endif
 )
 {
-#ifdef HAVE_LIBGCRYPT
-  decrypt_data_t *decr = (decrypt_data_t *)decr_data;
-#endif /* HAVE_LIBGCRYPT */
-
   if (isakmp_version == 2) {
     proto_tree_add_item(tree, hf_isakmp_key_exch_dh_group, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 4;
@@ -3966,14 +3962,18 @@ dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int is
   proto_tree_add_item(tree, hf_isakmp_key_exch_data, tvb, offset, length, ENC_NA);
 
 #ifdef HAVE_LIBGCRYPT
-  if (decr && decr->gi_len == 0 && addresses_equal(&decr->initiator, &pinfo->src)) {
-    decr->gi = (gchar *)g_malloc(length);
-    tvb_memcpy(tvb, decr->gi, offset, length);
-    decr->gi_len = length;
-  } else if (decr && decr->gr_len == 0 && !addresses_equal(&decr->initiator, &pinfo->src)) {
-    decr->gr = (gchar *)g_malloc(length);
-    tvb_memcpy(tvb, decr->gr, offset, length);
-    decr->gr_len = length;
+  if (isakmp_version == 1 && decr_data) {
+    decrypt_data_t *decr = (decrypt_data_t *)decr_data;
+
+    if (decr->gi_len == 0 && addresses_equal(&decr->initiator, &pinfo->src)) {
+      decr->gi = (gchar *)g_malloc(length);
+      tvb_memcpy(tvb, decr->gi, offset, length);
+      decr->gi_len = length;
+    } else if (decr->gr_len == 0 && !addresses_equal(&decr->initiator, &pinfo->src)) {
+      decr->gr = (gchar *)g_malloc(length);
+      tvb_memcpy(tvb, decr->gr, offset, length);
+      decr->gr_len = length;
+    }
   }
 #endif /* HAVE_LIBGCRYPT */
 }
