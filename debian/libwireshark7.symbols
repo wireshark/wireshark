@@ -1,20 +1,20 @@
-docsis.so libwireshark6 #MINVER#
+docsis.so libwireshark7 #MINVER#
  plugin_reg_handoff@Base 1.9.1
  plugin_register@Base 1.9.1
  version@Base 1.9.1
-ethercat.so libwireshark6 #MINVER#
+ethercat.so libwireshark7 #MINVER#
  plugin_reg_handoff@Base 1.9.1
  plugin_register@Base 1.9.1
  version@Base 1.9.1
-gryphon.so libwireshark6 #MINVER#
+gryphon.so libwireshark7 #MINVER#
  plugin_reg_handoff@Base 1.9.1
  plugin_register@Base 1.9.1
  version@Base 1.9.1
-irda.so libwireshark6 #MINVER#
+irda.so libwireshark7 #MINVER#
  plugin_reg_handoff@Base 1.9.1
  plugin_register@Base 1.9.1
  version@Base 1.9.1
-libwireshark.so.6 libwireshark6 #MINVER#
+libwireshark.so.7 libwireshark7 #MINVER#
  AdmissionRejectReason_vals@Base 1.9.1
  AirPDcapDestroyContext@Base 1.9.1
  AirPDcapInitContext@Base 1.9.1
@@ -1664,38 +1664,38 @@ libwireshark.so.6 libwireshark6 #MINVER#
  xml_get_attrib@Base 1.9.1
  xml_get_cdata@Base 1.9.1
  xml_get_tag@Base 1.9.1
-m2m.so libwireshark6 #MINVER#
+m2m.so libwireshark7 #MINVER#
  plugin_reg_handoff@Base 1.9.1
  plugin_register@Base 1.9.1
  version@Base 1.9.1
-mate.so libwireshark6 #MINVER#
+mate.so libwireshark7 #MINVER#
  plugin_reg_handoff@Base 1.9.1
  plugin_register@Base 1.9.1
  version@Base 1.9.1
-opcua.so libwireshark6 #MINVER#
+opcua.so libwireshark7 #MINVER#
  plugin_reg_handoff@Base 1.9.1
  plugin_register@Base 1.9.1
  version@Base 1.9.1
-profinet.so libwireshark6 #MINVER#
+profinet.so libwireshark7 #MINVER#
  plugin_reg_handoff@Base 1.9.1
  plugin_register@Base 1.9.1
  version@Base 1.9.1
-stats_tree.so libwireshark6 #MINVER#
+stats_tree.so libwireshark7 #MINVER#
  plugin_register_tap_listener@Base 1.9.1
  version@Base 1.9.1
-unistim.so libwireshark6 #MINVER#
+unistim.so libwireshark7 #MINVER#
  plugin_reg_handoff@Base 1.9.1
  plugin_register@Base 1.9.1
  version@Base 1.9.1
-wimax.so libwireshark6 #MINVER#
+wimax.so libwireshark7 #MINVER#
  plugin_reg_handoff@Base 1.9.1
  plugin_register@Base 1.9.1
  version@Base 1.9.1
-wimaxasncp.so libwireshark6 #MINVER#
+wimaxasncp.so libwireshark7 #MINVER#
  plugin_reg_handoff@Base 1.9.1
  plugin_register@Base 1.9.1
  version@Base 1.9.1
-wimaxmacphy.so libwireshark6 #MINVER#
+wimaxmacphy.so libwireshark7 #MINVER#
  plugin_reg_handoff@Base 1.9.1
  plugin_register@Base 1.9.1
  version@Base 1.9.1

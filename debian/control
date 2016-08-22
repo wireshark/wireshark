@@ -29,7 +29,7 @@ Homepage: http://www.wireshark.org/
 
 Package: wireshark-common
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libwireshark6 (>= ${binary:Version}),
+Depends: ${shlibs:Depends}, ${misc:Depends}, libwireshark7 (>= ${binary:Version}),
  libwiretap5 (>= ${binary:Version}), debconf, libcap2-bin [linux-any]
 Recommends: wireshark (>= ${binary:Version}) | tshark (>= ${binary:Version})
 Replaces: ethereal-common (<< 1.0.0-3)
@@ -135,7 +135,7 @@ Description: network traffic analyzer - documentation
  This package contains Wireshark User's guide, Wireshark Developer's Guide
  and the Lua Reference.
 
-Package: libwireshark6
+Package: libwireshark7
 Section: libs
 Architecture: any
 Multi-Arch: same
@@ -158,7 +158,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Conflicts: wireshark-common (<< 1.4.0~rc2-1), libwireshark1 (<< 1.4.2-2)
 Replaces: wireshark-common (<< 1.4.0~rc2-1), libwireshark1 (<< 1.4.2-2)
 Description: network packet dissection utilities library -- shared library
- The libwsutil library provides utility functions for libwireshark6.
+ The libwsutil library provides utility functions for libwireshark7.
 
 Package: libwsutil-dev
 Section: libdevel
@@ -169,7 +169,7 @@ Conflicts: wireshark-common (<< 1.4.0~rc2-1), libwireshark-dev (<< 1.4.2-2),
 Replaces: wireshark-common (<< 1.4.0~rc2-1), libwireshark-dev (<< 1.4.2-2),
  wireshark-dev (<< 1.4.0~rc2-1)
 Description: network packet dissection utilities library -- development files
- The libwsutil library provides utility functions for libwireshark6.
+ The libwsutil library provides utility functions for libwireshark7.
  .
  This package contains the static library and the C header files that are
  needed for applications to use the libwsutil library.
@@ -191,7 +191,7 @@ Description: network packet dissection library -- data files
 
 Package: libwireshark-dev
 Section: libdevel
-Depends: ${misc:Depends}, libwsutil-dev, libwireshark6 (= ${binary:Version})
+Depends: ${misc:Depends}, libwsutil-dev, libwireshark7 (= ${binary:Version})
 Conflicts: wireshark-dev (<< 1.4.0~rc2-1)
 Replaces: wireshark-dev (<< 1.4.0~rc2-1)
 Architecture: any
