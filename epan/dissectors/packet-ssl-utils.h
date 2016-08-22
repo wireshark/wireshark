@@ -695,6 +695,7 @@ typedef struct ssl_common_dissect {
         gint hs_dnames;
         gint hs_dname_len;
         gint hs_dname;
+        gint hs_random;
         gint hs_random_time;
         gint hs_random_bytes;
         gint hs_session_id;
@@ -837,7 +838,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1,                                                 \
+        -1, -1, -1, -1, -1                                              \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1261,13 +1262,18 @@ ssl_common_dissect_t name = {   \
         FT_NONE, BASE_NONE, NULL, 0x0,                                  \
         "Distinguished name of a CA that server trusts", HFILL }        \
     },                                                                  \
+    { & name .hf.hs_random,                                             \
+      { "Random", prefix ".handshake.random",                           \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "Random values used for deriving keys", HFILL }                 \
+    },                                                                  \
     { & name .hf.hs_random_time,                                        \
       { "GMT Unix Time", prefix ".handshake.random_time",               \
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,               \
         "Unix time field of random structure", HFILL }                  \
     },                                                                  \
     { & name .hf.hs_random_bytes,                                       \
-      { "Random Bytes", prefix ".handshake.random",                     \
+      { "Random Bytes", prefix ".handshake.random_bytes",               \
         FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
         "Random values used for deriving keys", HFILL }                 \
     },                                                                  \

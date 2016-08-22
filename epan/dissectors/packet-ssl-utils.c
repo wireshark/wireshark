@@ -5567,6 +5567,7 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     nstime_t     gmt_unix_time;
     guint8       sessid_length;
     proto_tree  *rnd_tree;
+    proto_tree  *ti_rnd;
 
     /* Prepare for renegotiation by resetting the state. */
     ssl_reset_session(session, ssl, !from_server);
@@ -5589,40 +5590,47 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                 from_server ? "SERVER" : "CLIENT", ssl->state);
     }
 
-    rnd_tree = proto_tree_add_subtree(tree, tvb, offset, 32,
-            hf->ett.hs_random, NULL, "Random");
+    ti_rnd = proto_tree_add_item(tree, hf->hf.hs_random, tvb, offset, 32, ENC_NA);
 
-    /* show the time */
-    gmt_unix_time.secs  = tvb_get_ntohl(tvb, offset);
-    gmt_unix_time.nsecs = 0;
-    proto_tree_add_time(rnd_tree, hf->hf.hs_random_time,
-            tvb, offset, 4, &gmt_unix_time);
-    offset += 4;
+    if (session->version != TLSV1DOT3_VERSION) { /* No time on first bytes random with TLS 1.3 */
 
-    /* show the random bytes */
-    proto_tree_add_item(rnd_tree, hf->hf.hs_random_bytes,
-            tvb, offset, 28, ENC_NA);
-    offset += 28;
+        rnd_tree = proto_item_add_subtree(ti_rnd, hf->ett.hs_random);
+        /* show the time */
+        gmt_unix_time.secs  = tvb_get_ntohl(tvb, offset);
+        gmt_unix_time.nsecs = 0;
+        proto_tree_add_time(rnd_tree, hf->hf.hs_random_time,
+                tvb, offset, 4, &gmt_unix_time);
+        offset += 4;
 
-    /* show the session id (length followed by actual Session ID) */
-    sessid_length = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf->hf.hs_session_id_len,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
-
-    if (ssl) {
-        /* save the authorative SID for later use in ChangeCipherSpec.
-         * (D)TLS restricts the SID to 32 chars, it does not make sense to
-         * save more, so ignore larger ones. */
-        if (from_server && sessid_length <= 32) {
-            tvb_memcpy(tvb, ssl->session_id.data, offset, sessid_length);
-            ssl->session_id.data_len = sessid_length;
-        }
+        /* show the random bytes */
+        proto_tree_add_item(rnd_tree, hf->hf.hs_random_bytes,
+                tvb, offset, 28, ENC_NA);
+        offset += 28;
+    } else {
+        offset += 32;
     }
-    if (sessid_length > 0) {
-        proto_tree_add_item(tree, hf->hf.hs_session_id,
-                tvb, offset, sessid_length, ENC_NA);
-        offset += sessid_length;
+
+    if (from_server == 0 || session->version != TLSV1DOT3_VERSION) { /* No Session ID with TLS 1.3 on Server Hello */
+        /* show the session id (length followed by actual Session ID) */
+        sessid_length = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(tree, hf->hf.hs_session_id_len,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+
+        if (ssl) {
+            /* save the authorative SID for later use in ChangeCipherSpec.
+             * (D)TLS restricts the SID to 32 chars, it does not make sense to
+             * save more, so ignore larger ones. */
+            if (from_server && sessid_length <= 32) {
+                tvb_memcpy(tvb, ssl->session_id.data, offset, sessid_length);
+                ssl->session_id.data_len = sessid_length;
+            }
+        }
+        if (sessid_length > 0) {
+            proto_tree_add_item(tree, hf->hf.hs_session_id,
+                    tvb, offset, sessid_length, ENC_NA);
+            offset += sessid_length;
+        }
     }
 
     return offset;
@@ -6053,14 +6061,16 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                         tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    if (ssl) {
-        /* store selected compression method for decryption */
-        ssl->session.compression = tvb_get_guint8(tvb, offset);
+    if (session->version != TLSV1DOT3_VERSION) { /* No compression with TLS 1.3 */
+        if (ssl) {
+            /* store selected compression method for decryption */
+            ssl->session.compression = tvb_get_guint8(tvb, offset);
+        }
+        /* and the server-selected compression method */
+        proto_tree_add_item(tree, hf->hf.hs_comp_method,
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
     }
-    /* and the server-selected compression method */
-    proto_tree_add_item(tree, hf->hf.hs_comp_method,
-                        tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
 
     /* remaining data are extensions */
     if (length > offset - start_offset) {
