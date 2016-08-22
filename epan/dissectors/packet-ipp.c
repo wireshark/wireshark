@@ -213,7 +213,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         default:
             is_request = (pinfo->destport == pinfo->match_uint);
             break;
-	}
+        }
     } else
         is_request = (pinfo->destport == pinfo->match_uint);
 
