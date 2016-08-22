@@ -1,3 +1,5 @@
+= Introduction =
+
 This directory contains the source files needed to build the:
 
  - Wireshark User's guide
@@ -5,12 +7,13 @@ This directory contains the source files needed to build the:
  - Release notes (NEWS)
  - Lua Reference
 
+To build everything, just run `make` (for Windows see README.cmake).
+Requirements are listed below.
 
-To build everything, just do 'make' (for Win32: see README.cmake)
-but see the requirements below.
-
-The guides are written in Docbook/XML (formerly Docbook/SGML). The release
-notes are written in AsciiDoc (http://asciidoc.org/).
+The guides and release notes are written in AsciiDoc (http://asciidoc.org),
+but use many Asciidoctor (http://asciidoctor.org/) markup extensions which
+are provided in asciidoctor-asciidoc.conf. The documentation toolchain may
+switch exclusively to Asciidoctor at some point in the future.
 
 To get HTML, PDF or other output formats, conversions are done using XSL
 stylesheets, which provides a flexible way for these conversions.
@@ -20,6 +23,11 @@ formats and two PDF's.
 
 Requirements:
 -------------
+
+AsciiDoc
+--------
+Text documentation format and conversion suite:
+http://asciidoc.org/
 
 DocBook XML DTD
 ---------------
@@ -60,12 +68,13 @@ http://offo.sourceforge.net/hyphenation/. Different pattern files have
 different licenses. The English patterns may have restrictions on
 commercial use.
 
-AsciiDoc
---------
-Text documentation format and conversion suite: http://asciidoc.org/. AsciiDoc
-can use either w3m (default) or Lynx for plain text output. We use AsciiDoc for
-the Developer's Guide, User's Guide, and for the release notes. Lynx is used to
-render the official plaintext release announcements.
+
+AsciiDoc Notes
+--------------
+
+AsciiDoc can use either w3m (default) or Lynx for plain text output. We use
+AsciiDoc for the Developer's Guide, User's Guide, and for the release notes.
+Lynx is used to render the official plaintext release announcements.
 
 The AsciiDoc files have been converted from DocBook. In a lot of cases the
 markup is wrong, inconsistent, or both. Use the following markup conventions
@@ -100,7 +109,7 @@ many (especially in a row) are distracting and annoying.
 Lynx
 ----
 Text based web browser which can convert HTML to plain text.
-(Alternative [*nix]: elinks)
+(Alternatives: w3m and elinks)
 
 dblatex
 -------
@@ -235,58 +244,3 @@ Using the prefix wsdg_ instead of wsug_ will build the same targets but for the
 Wireshark Developer's Guide.
 
 The makefile is written to be run with make on UNIX/Linux platforms.
-
-
-Notes to authors
-----------------
-The docbook DTD provides you with all tags required to mark up a documents
-structure. Please have a look at the existing XML files to see what these
-structural tags are, and look at the DocBook web references below.
-To maintain a consistent look and feel in the documents please use the
-following tags for the indicated purposes.
-
-Tag           Purpose
----           -------
-<application> to mark application names, like Wireshark.
-<filename>    to mark an individual file or path.
-<command>     to mark a command, with parameters.
-<prompt>      to mark a prompt before user input.
-<userinput>   to mark an example of user input, like an actual command line.
-<function>    to mark a function name, ending with parenthesis.
-<parameter>   to mark (function) parameters.
-<varname>     to mark (environment) variables.
-<literal>     to mark some literal value.
-
-These are all tags for inline text. Wrap literal text output in a CDATA block,
-like so:
-
-       <programlisting>
-<![CDATA[#include <epan/tap.h>
-...
-]]>
-       </programlisting>
-
-Make sure the CDATA clause is at column 1, because prefixed whitespace will be
-present in the verbatim output as well.
-
-
-Docbook web references:
------------------------
-Some web references to further documentation about Docbook/XML and Docbook XSL
-conversions:
-
-DocBook: The Definitive Guide
-by Norman Walsh and Leonard Muellner
-http://www.docbook.org/tdg/en/html/docbook.html
-
-DocBook XSL: The Complete Guide
-by Bob Stayton
-http://www.sagehill.net/docbookxsl/index.html
-
-Documention with DocBook on Win32
-by Jim Crafton
-http://www.codeproject.com/KB/winhelp/docbook_howto.aspx
-
-FO Parameter Reference
-by Norman Walsh
-http://docbook.sourceforge.net/release/xsl/current/doc/fo/
