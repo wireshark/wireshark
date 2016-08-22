@@ -130,4 +130,3 @@ find_parameter(const char *parameters, const char *key, int *retlen)
      */
     return (char *)start;
 }
-
