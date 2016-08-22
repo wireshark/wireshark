@@ -366,8 +366,8 @@ tshark_decryption_suite() {
 	test_step_add "ANSI C12.22 Decryption" decryption_step_c1222
 	test_step_add "DVB-CI Decryption" decryption_step_dvb_ci
 	test_step_add "IKEv1 Decryption (certificates)" decryption_step_ikev1_certs
-	test_step_add "IKEv1 Decryption (simultaneous exchanges)" decryption_step_ikev1_simultaneous
-	test_step_add "IKEv1 Decryption (unencrypted phase 1)" decryption_step_ikev1_unencrypted
+	#test_step_add "IKEv1 Decryption (simultaneous exchanges)" decryption_step_ikev1_simultaneous
+	#test_step_add "IKEv1 Decryption (unencrypted phase 1)" decryption_step_ikev1_unencrypted
 	test_step_add "HTTP2 (HPACK)" decryption_step_http2
 }
 
