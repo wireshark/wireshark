@@ -33,25 +33,6 @@
 
 #include <epan/media_params.h>
 
-/* Return the index of a given char in the given string,
- * or -1 if not found.
- */
-gint
-index_of_char(const char *str, const char c)
-{
-    gint len = 0;
-    const char *p = str;
-
-    while (*p && *p != c) {
-        p++;
-        len++;
-    }
-
-    if (*p)
-        return len;
-    return -1;
-}
-
 char *
 ws_find_media_type_parameter(const char *parameters, const char *key, int *retlen)
 {
@@ -98,8 +79,7 @@ ws_find_media_type_parameter(const char *parameters, const char *key, int *retle
          * Parameter value is a quoted-string
          */
         start++; /* Skip the quote */
-        len = index_of_char(start, '"');
-        if (len < 0) {
+        if (NULL == strchr(start, '"')) {
             /*
              * No closing quote
              */
