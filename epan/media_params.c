@@ -169,7 +169,7 @@ ws_find_media_type_parameter(const char *parameters, const char *key)
     }
 
     /* We found the parameter with that name; now extract the value. */
-    valuestr = g_malloc(valuelen + 1);
+    valuestr = (char *)g_malloc(valuelen + 1);
     vp = valuestr;
     p = value;
     /* Is the value a quoted string? */
