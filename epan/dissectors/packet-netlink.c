@@ -355,7 +355,15 @@ dissect_netlink_hdr(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding, g
 static void
 dissect_netlink_error(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding)
 {
-	/* Assume sizeof(int) == 4. */
+	/*
+	 * XXX - this should make sure we don't run past the end of the
+	 * message.
+	 */
+
+	/*
+	 * Assume sizeof(int) == 4; RFC 3549 doesn't say "32 bits", it
+	 * says "integer (typically 32 bits)".
+	 */
 	proto_tree_add_item(tree, &hfi_netlink_error, tvb, offset, 4, encoding);
 	offset += 4;
 
@@ -450,9 +458,6 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 			if (!dissector_try_uint_new(netlink_dissector_table, protocol, next_tvb, pinfo, fh_msg, TRUE, &data))
 				call_data_dissector(next_tvb, pinfo, fh_msg);
 
-		} else if (pkt_len != 16) {
-			/* XXX, expert info */
-			break;
 		}
 
 		offset = pkt_end_offset;
