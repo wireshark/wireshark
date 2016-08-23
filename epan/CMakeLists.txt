@@ -319,20 +319,23 @@ set(CORBA_IDL_DISSECTOR_FILES
 	${DIRTY_CORBA_IDL_DISSECTOR_SRC}
 )
 
-source_group(dissectors-corba FILES ${CORBA_IDL_DISSECTOR_FILES})
-
-add_library(dissectors-corba OBJECT
-	${CORBA_IDL_DISSECTOR_FILES}
-)
-
-set_target_properties(dissectors-corba PROPERTIES
-	FOLDER "Libs/epan"
-	COMPILE_DEFINITIONS "WS_BUILD_DLL"
-)
-
 if(WIN32 AND "${CMAKE_GENERATOR}" STREQUAL "Visual Studio 12 2013 Win64")
+	source_group(dissectors-corba FILES ${CORBA_IDL_DISSECTOR_FILES})
+
+	add_library(dissectors-corba OBJECT
+		${CORBA_IDL_DISSECTOR_FILES}
+	)
+
+	set_target_properties(dissectors-corba PROPERTIES
+		FOLDER "Libs/epan"
+		COMPILE_DEFINITIONS "WS_BUILD_DLL"
+	)
+
 	# CORBA IDL dissectors are triggering a MSVC 2013 x64 /O2 bug leading to a NULL pointer dereference (see bug 12495)
 	target_compile_options(dissectors-corba PRIVATE $<$<CONFIG:Release>:/Ox> $<$<CONFIG:RelWithDebInfo>:/Ox>)
+	set(CORBA_IDL_DISSECTOR $<TARGET_OBJECTS:dissectors-corba>)
+else()
+	set(CORBA_IDL_DISSECTOR ${CORBA_IDL_DISSECTOR_FILES})
 endif()
 
 set(DISSECTOR_SRC
@@ -1773,7 +1776,7 @@ add_library(epan ${LINK_MODE_LIB}
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
 	${LIBWIRESHARK_ASM_FILES}
-	$<TARGET_OBJECTS:dissectors-corba>
+	${CORBA_IDL_DISSECTOR}
 	${CMAKE_BINARY_DIR}/image/libwireshark.rc
 )
 
