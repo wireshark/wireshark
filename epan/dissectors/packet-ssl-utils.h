@@ -650,6 +650,10 @@ typedef struct ssl_common_dissect {
         gint hs_ext_npn_str_len;
         gint hs_ext_reneg_info_len;
         gint hs_ext_reneg_info;
+        gint hs_ext_key_share_client_length;
+        gint hs_ext_key_share_group;
+        gint hs_ext_key_share_key_exchange_length;
+        gint hs_ext_key_share_key_exchange;
         gint hs_ext_server_name;
         gint hs_ext_server_name_len;
         gint hs_ext_server_name_list_len;
@@ -733,6 +737,8 @@ typedef struct ssl_common_dissect {
         gint hs_ext_curves_point_formats;
         gint hs_ext_npn;
         gint hs_ext_reneg_info;
+        gint hs_ext_key_share;
+        gint hs_ext_key_share_ks;
         gint hs_ext_server_name;
         gint hs_ext_padding;
         gint hs_sig_hash_alg;
@@ -846,11 +852,11 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1                                          \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                         \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1,                                                 \
+        -1, -1, -1, -1, -1, -1,                                         \
     },                                                                  \
     /* ei */ {                                                          \
         EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,                    \
@@ -947,6 +953,26 @@ ssl_common_dissect_t name = {   \
     },                                                                  \
     { & name .hf.hs_ext_reneg_info,                                     \
       { "Renegotiation info", prefix ".handshake.extensions_reneg_info",\
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_key_share_client_length,                        \
+      { "Client Key Share Length", prefix ".handshake.extensions_key_share_client_length",  \
+         FT_UINT16, BASE_DEC, NULL, 0x00,                               \
+         NULL, HFILL }                                                  \
+    },                                                                  \
+    { & name .hf.hs_ext_key_share_group,                                \
+      { "Group", prefix ".handshake.extensions_key_share_group",        \
+         FT_UINT16, BASE_DEC, VALS(ssl_extension_curves), 0x00,         \
+         NULL, HFILL }                                                  \
+    },                                                                  \
+    { & name .hf.hs_ext_key_share_key_exchange_length,                  \
+      { "Key Exchange Length", prefix ".handshake.extensions_key_share_key_exchange_length",   \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_key_share_key_exchange,                         \
+      { "Key Exchange", prefix ".handshake.extensions_key_share_key_exchange",  \
         FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
         NULL, HFILL }                                                   \
     },                                                                  \
@@ -1382,6 +1408,8 @@ ssl_common_dissect_t name = {   \
         & name .ett.hs_ext_curves_point_formats,    \
         & name .ett.hs_ext_npn,                     \
         & name .ett.hs_ext_reneg_info,              \
+        & name .ett.hs_ext_key_share,               \
+        & name .ett.hs_ext_key_share_ks,            \
         & name .ett.hs_ext_server_name,             \
         & name .ett.hs_ext_padding,                 \
         & name .ett.hs_sig_hash_alg,                \

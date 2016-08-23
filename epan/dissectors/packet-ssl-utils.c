@@ -5430,6 +5430,66 @@ ssl_dissect_hnd_hello_ext_reneg_info(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 static gint
+ssl_dissect_hnd_hello_ext_key_share_entry(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                          proto_tree *tree, guint32 offset, guint32 offset_end)
+{
+    guint32 key_exchange_length, group;
+    proto_tree *ks_tree;
+
+    ks_tree = proto_tree_add_subtree(tree, tvb, offset, 4, hf->ett.hs_ext_key_share_ks, NULL, "Key Share Entry");
+
+    proto_tree_add_item_ret_uint(ks_tree, hf->hf.hs_ext_key_share_group, tvb, offset, 2, ENC_BIG_ENDIAN, &group);
+    offset += 2;
+
+    proto_tree_add_item_ret_uint(ks_tree, hf->hf.hs_ext_key_share_key_exchange_length, tvb, offset, 2, ENC_BIG_ENDIAN, &key_exchange_length);
+    offset += 2;
+
+    proto_item_set_len(ks_tree, 2 + 2 + key_exchange_length);
+    proto_item_append_text(ks_tree, ": Group: %s, Key Exchange length: %u", val_to_str(group, ssl_extension_curves, "Unknown (%u)"), key_exchange_length);
+
+    if (key_exchange_length > offset_end - offset) {
+        offset = offset_end;
+        return offset; /* XXX expert info? */
+    }
+
+    proto_tree_add_item(ks_tree, hf->hf.hs_ext_key_share_key_exchange, tvb, offset, key_exchange_length, ENC_NA);
+    offset += key_exchange_length;
+
+    return offset;
+}
+static gint
+ssl_dissect_hnd_hello_ext_key_share(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                    proto_tree *tree, guint32 offset, guint32 ext_len,
+                                    guint8 hnd_type)
+{
+    proto_tree *key_share_tree;
+    guint32 offset_end = offset + ext_len;
+
+    if (offset_end <= offset) {  /* Check if ext_len == 0 and "overflow" (offset + ext_len) > guint32) */
+        return offset;
+    }
+
+    key_share_tree = proto_tree_add_subtree(tree, tvb, offset, ext_len, hf->ett.hs_ext_key_share, NULL, "Key Share extension");
+
+    switch(hnd_type){
+        case SSL_HND_CLIENT_HELLO:
+            proto_tree_add_item(key_share_tree, hf->hf.hs_ext_key_share_client_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            while (offset + 4 <= offset_end) { /* (NamedGroup (2 bytes), key_exchange (1 byte for length, 1 byte minimum data) */
+                offset = ssl_dissect_hnd_hello_ext_key_share_entry(hf, tvb, key_share_tree, offset, offset_end);
+            }
+        break;
+        case SSL_HND_SERVER_HELLO:
+            offset = ssl_dissect_hnd_hello_ext_key_share_entry(hf, tvb, key_share_tree, offset, offset_end);
+        break;
+        default: /* no default */
+        break;
+    }
+
+    return offset;
+}
+
+static gint
 ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                       proto_tree *tree, guint32 offset, guint32 ext_len)
 {
@@ -6567,6 +6627,9 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_RENEG_INFO:
             offset = ssl_dissect_hnd_hello_ext_reneg_info(hf, tvb, ext_tree, offset, ext_len);
+            break;
+        case SSL_HND_HELLO_EXT_KEY_SHARE:
+            offset = ssl_dissect_hnd_hello_ext_key_share(hf, tvb, ext_tree, offset, ext_len, hnd_type);
             break;
         case SSL_HND_HELLO_EXT_DRAFT_VERSION_TLS13:
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_draft_version_tls13,
