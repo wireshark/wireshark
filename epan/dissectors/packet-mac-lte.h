@@ -167,6 +167,9 @@ typedef struct mac_lte_info
     /* DL and UL. NB-IoT mode of the UE */
     mac_lte_nb_mode nbMode;
 
+    /* UL only, for now used for CE mode A RAR decoding */
+    guint8          nUlRb;
+
     /* More Physical layer info (see direction above for which side of union to use) */
     union {
         struct mac_lte_ul_phy_info
@@ -304,17 +307,20 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
           MCS index (1 byte), redundancy version (1 byte), resource block length (1 byte),
           HARQ id (1 byte), NDI (1 byte), TB (1 byte), DL reTx (1 byte) */
 
-#define MAC_LTE_SIMULT_PUCCH_PUSCH_PCELL  0x0C
+#define MAC_LTE_SIMULT_PUCCH_PUSCH_PCELL_TAG  0x0C
 /* 0 byte */
 
-#define MAC_LTE_SIMULT_PUCCH_PUSCH_PSCELL 0x0D
+#define MAC_LTE_SIMULT_PUCCH_PUSCH_PSCELL_TAG 0x0D
 /* 0 byte */
 
-#define MAC_LTE_CE_MODE             0x0E
+#define MAC_LTE_CE_MODE_TAG         0x0E
 /* 1 byte containing mac_lte_ce_mode enum value */
 
-#define MAC_LTE_NB_MODE             0x0F
+#define MAC_LTE_NB_MODE_TAG         0x0F
 /* 1 byte containing mac_lte_nb_mode enum value */
+
+#define MAC_LTE_N_UL_RB_TAG         0x10
+/* 1 byte containing the number of UL resource blocks: 6, 15, 25, 50, 75 or 100 */
 
 /* MAC PDU. Following this tag comes the actual MAC PDU (there is no length, the PDU
    continues until the end of the frame) */
