@@ -6429,9 +6429,9 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         ext_len  = tvb_get_ntohs(tvb, offset + 2);
 
         ext_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 + ext_len, hf->ett.hs_ext, NULL,
-                                  "Extension: %s", val_to_str(ext_type,
+                                  "Extension: %s (len=%u)", val_to_str(ext_type,
                                             tls_hello_extension_types,
-                                            "Unknown %u"));
+                                            "Unknown type %u"), ext_len);
 
         proto_tree_add_uint(ext_tree, hf->hf.hs_ext_type,
                             tvb, offset, 2, ext_type);
@@ -6499,10 +6499,8 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
                 ssl->state |= (is_client ? SSL_CLIENT_EXTENDED_MASTER_SECRET : SSL_SERVER_EXTENDED_MASTER_SECRET);
             break;
         default:
-            proto_tree_add_bytes_format(ext_tree, hf->hf.hs_ext_data,
-                                        tvb, offset, ext_len, NULL,
-                                        "Data (%u byte%s)",
-                                        ext_len, plurality(ext_len, "", "s"));
+            proto_tree_add_item(ext_tree, hf->hf.hs_ext_data,
+                                        tvb, offset, ext_len, ENC_NA);
             offset += ext_len;
             break;
         }
