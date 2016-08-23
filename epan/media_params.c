@@ -34,8 +34,8 @@
 #include <epan/media_params.h>
 
 static const char *
-ws_get_next_media_type_parameter(const char *pos, int *retnamelen,
-                                 const char **retvalue, int *retvaluelen,
+ws_get_next_media_type_parameter(const char *pos, gsize *retnamelen,
+                                 const char **retvalue, gsize *retvaluelen,
                                  const char **nextp)
 {
     const char *p, *namep, *valuep;
@@ -56,7 +56,7 @@ ws_get_next_media_type_parameter(const char *pos, int *retnamelen,
        beginning of parameter value), or ';' (end of parameter). */
     while ((c = *p) != '\0' && c != '=' && c != ';')
         p++;
-    *retnamelen = (int) (p - namep);
+    *retnamelen = (gsize) (p - namep);
     if (c == '\0') {
         /* End of string, so end of parameter, no parameter value */
         if (retvalue != NULL)
@@ -91,7 +91,7 @@ ws_get_next_media_type_parameter(const char *pos, int *retnamelen,
                 /* End-of-string.  We're done.
                    (XXX - this is an error.) */
                 if (retvaluelen != NULL) {
-                    *retvaluelen = (int) (p - valuep);
+                    *retvaluelen = (gsize) (p - valuep);
                 }
                 *nextp = p;
                 return namep;
@@ -130,14 +130,14 @@ ws_get_next_media_type_parameter(const char *pos, int *retnamelen,
     if (c == '\0') {
         /* End of string, so end of parameter */
         if (retvaluelen != NULL) {
-            *retvaluelen = (int) (p - valuep);
+            *retvaluelen = (gsize) (p - valuep);
         }
         *nextp = p;
         return namep;
     }
     /* End of parameter; point past the terminating ';' */
     if (retvaluelen != NULL) {
-        *retvaluelen = (int) (p - valuep);
+        *retvaluelen = (gsize) (p - valuep);
     }
     *nextp = p + 1;
     return namep;
@@ -148,17 +148,25 @@ ws_find_media_type_parameter(const char *parameters, const char *key)
 {
     const char *p, *name, *value;
     char c;
-    int   keylen, namelen, valuelen;
+    gsize keylen, namelen, valuelen;
     char *valuestr, *vp;
 
-    if(!parameters || !*parameters || !key || strlen(key) == 0)
+    if (parameters == NULL || key == NULL)
         /* we won't be able to find anything */
         return NULL;
 
-    keylen = (int) strlen(key);
+    keylen = (gsize) strlen(key);
+    if (keylen == 0) {
+        /* There's no parameter name to searh for */
+        return NULL;
+    }
     p = parameters;
+    if (*p == '\0') {
+        /* There are no parameters in which to search */
+        return NULL;
+    }
 
-    while (*p) {
+    do {
         /* Get the next parameter. */
         name = ws_get_next_media_type_parameter(p, &namelen, &value,
                                                 &valuelen, &p);
@@ -172,7 +180,7 @@ ws_find_media_type_parameter(const char *parameters, const char *key)
             /* Yes. */
             break;
         }
-    }
+    } while (*p);
 
     if (value == NULL) {
         /* The parameter doesn't have a value. */
