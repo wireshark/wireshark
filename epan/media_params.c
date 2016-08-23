@@ -1,5 +1,5 @@
 /* media_params.c
- * Routines for parsing media type parameters
+ * Routines for parsing media type parameters as per RFC 822 and RFC 2045
  * Copyright 2004, Anders Broman.
  * Copyright 2004, Olivier Biot.
  *
@@ -33,12 +33,117 @@
 
 #include <epan/media_params.h>
 
-char *
-ws_find_media_type_parameter(const char *parameters, const char *key, int *retlen)
+static const char *
+ws_get_next_media_type_parameter(const char *pos, int *retnamelen,
+                                 const char **retvalue, int *retvaluelen,
+                                 const char **nextp)
 {
-    const char *start, *p;
-    int   keylen = 0;
-    int   len = 0;
+    const char *p, *namep, *valuep;
+    char c;
+
+    p = pos;
+    while ((c = *p) != '\0' && g_ascii_isspace(c))
+        p++; /* Skip white space */
+
+    if (c == '\0') {
+        /* No more parameters left */
+        return NULL;
+    }
+
+    namep = p;
+
+    /* Look for a '\0' (end of string), '=' (end of parameter name,
+       beginning of parameter value), or ';' (end of parameter). */
+    while ((c = *p) != '\0' && c != '=' && c != ';')
+        p++;
+    *retnamelen = (int) (p - namep);
+    if (c == '\0') {
+        /* End of string, so end of parameter, no parameter value */
+        *retvalue = NULL;
+        *nextp = p;
+        return namep;
+    }
+    if (c == ';') {
+        /* End of parameter, no parameter value */
+        *retvalue = NULL;
+        *nextp = p + 1;
+        return namep;
+    }
+    /* The parameter has a value.  Skip the '=' */
+    p++;
+    valuep = p;
+    if (retvalue != NULL)
+        *retvalue = valuep;
+    /* Is the value a quoted string? */
+    if (*p == '"') {
+        /* Yes. Skip the opening quote, and scan forward looking for
+           a non-escaped closing quote. */
+        p++;
+        for (;;) {
+            c = *p;
+            if (c == '\0') {
+                /* End-of-string.  We're done.
+                   (XXX - this is an error.) */
+                if (retvaluelen != NULL) {
+                    *retvaluelen = (int) (p - valuep);
+                }
+                *nextp = p;
+                return namep;
+            }
+            if (c == '"') {
+                /* Closing quote.  Skip it; we're done with
+                   the quoted-string. */
+                p++;
+                break;
+            }
+            if (c == '\\') {
+                /* Backslash; this escapes the next character
+                   (quoted-pair). Skip the backslash, and make
+                   sure there *is* a next character. */
+                p++;
+                if (*p == '\0') {
+                    /* Nothing left; we're done.
+                       (XXX - this is an error.) */
+                    break;
+                }
+            }
+            /* Skip the character we just processed. */
+            p++;
+        }
+        /* Now scan forward looking for a '\0' (end of string)
+           or ';' (end of parameter), in case there's any
+            extra cruft after the quoted-string. */
+        while ((c = *p) != '\0' && c != ';')
+           p++;
+    } else {
+        /* No.  Just scan forward looking for a '\0' (end
+           of string) or ';' (end of parameter). */
+        while ((c = *p) != '\0' && c != ';')
+            p++;
+    }
+    if (c == '\0') {
+        /* End of string, so end of parameter */
+        if (retvaluelen != NULL) {
+            *retvaluelen = (int) (p - valuep);
+        }
+        *nextp = p;
+        return namep;
+    }
+    /* End of parameter; point past the terminating ';' */
+    if (retvaluelen != NULL) {
+        *retvaluelen = (int) (p - valuep);
+    }
+    *nextp = p + 1;
+    return namep;
+}
+
+char *
+ws_find_media_type_parameter(const char *parameters, const char *key)
+{
+    const char *p, *name, *value;
+    char c;
+    int   keylen, namelen, valuelen;
+    char *valuestr, *vp;
 
     if(!parameters || !*parameters || !key || strlen(key) == 0)
         /* we won't be able to find anything */
@@ -48,65 +153,70 @@ ws_find_media_type_parameter(const char *parameters, const char *key, int *retle
     p = parameters;
 
     while (*p) {
-
-        while ((*p) && g_ascii_isspace(*p))
-            p++; /* Skip white space */
-
-        if (g_ascii_strncasecmp(p, key, keylen) == 0)
-            break;
-        /* Skip to next parameter */
-        p = strchr(p, ';');
-        if (p == NULL)
-        {
+        /* Get the next parameter. */
+        name = ws_get_next_media_type_parameter(p, &namelen, &value,
+                                                &valuelen, &p);
+        if (name == NULL) {
+            /* No more parameters - not found. */
             return NULL;
         }
-        p++; /* Skip semicolon */
 
-    }
-    if (*p == 0x0)
-        return NULL;  /* key wasn't found */
-
-    start = p + keylen;
-    if (start[0] == 0) {
-        return NULL;
+        /* Is it the parameter we're looking for? */
+        if (namelen == keylen && g_ascii_strncasecmp(name, key, keylen) == 0) {
+            /* Yes. */
+            break;
+        }
     }
 
-    /*
-     * Process the parameter value
-     */
-    if (start[0] == '"') {
-        /*
-         * Parameter value is a quoted-string
-         */
-        start++; /* Skip the quote */
-        if (NULL == strchr(start, '"')) {
-            /*
-             * No closing quote
-             */
-            return NULL;
+    /* We found the parameter with that name; now extract the value. */
+    valuestr = g_malloc(valuelen + 1);
+    vp = valuestr;
+    p = value;
+    /* Is the value a quoted string? */
+    if (*p == '"') {
+        /* Yes. Skip the opening quote, and scan forward looking for
+           a non-escaped closing quote, copying characters. */
+        p++;
+        for (;;) {
+            c = *p;
+            if (c == '\0') {
+                /* End-of-string.  We're done.
+                   (XXX - this is an error.) */
+                *vp = '\0';
+                return valuestr;
+            }
+            if (c == '"') {
+                /* Closing quote.  Skip it; we're done with
+                   the quoted-string. */
+                p++;
+                break;
+            }
+            if (c == '\\') {
+                /* Backslash; this escapes the next character
+                   (quoted-pair). Skip the backslash, and make
+                   sure there *is* a next character. */
+                p++;
+                if (*p == '\0') {
+                    /* Nothing left; we're done.
+                       (XXX - this is an error.) */
+                    break;
+                }
+            }
+            /* Copy the character. */
+            *vp++ = *p++;
         }
     } else {
-        /*
-         * Look for end of boundary
-         */
-        p = start;
-        while (*p) {
-            if (*p == ';' || g_ascii_isspace(*p))
-                break;
+        /* No.  Just scan forward until we see a '\0' (end of
+           string or a non-token character, copying characters. */
+        while ((c = *p) != '\0' && g_ascii_isgraph(c) && c != '(' &&
+                c != ')' && c != '<' && c != '>' && c != '@' &&
+                c != ',' && c != ';' && c != ':' && c != '\\' &&
+                c != '"' && c != '/' && c != '[' && c != ']' &&
+                c != '?' && c != '=' && c != '{' && c != '}') {
+            *vp++ = c;
             p++;
-            len++;
         }
     }
-
-    if(retlen)
-        (*retlen) = len;
-
-    /*
-     * This is one of those ugly routines like strchr() where you can
-     * pass in a constant or non-constant string, and the result
-     * points into that string and inherits the constness of the
-     * input argument, but C doesn't support that, so the input
-     * parameter is const char * and the result is char *.
-     */
-    return (char *)start;
+    *vp = '\0';
+    return valuestr;
 }

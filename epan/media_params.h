@@ -1,5 +1,5 @@
 /* media_params.h
- * Routines for parsing media type parameters
+ * Routines for parsing media type parameters as per RFC 822 and RFC 2045
  * Copyright 2004, Anders Broman.
  * Copyright 2004, Olivier Biot.
  *
@@ -37,7 +37,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 WS_DLL_PUBLIC char *
-ws_find_media_type_parameter(const char *parameters, const char *key, int *retlen);
+ws_find_media_type_parameter(const char *parameters, const char *key);
 
 #ifdef __cplusplus
 }
