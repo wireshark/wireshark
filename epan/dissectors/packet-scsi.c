@@ -4948,10 +4948,10 @@ dissect_spc_modesense10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 2;    /* skip LongLBA byte and reserved byte */
         tot_len -= 2;
 
-        if (tot_len < 1)
+        if (tot_len < 2)
             return;
-        desclen = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_scsi_modesel_block_descriptor_length8, tvb, offset, 1, ENC_BIG_ENDIAN);
+        desclen = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(tree, hf_scsi_modesel_block_descriptor_length16, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         tot_len -= 2;
 
