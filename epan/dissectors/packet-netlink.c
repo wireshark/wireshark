@@ -416,6 +416,21 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 
 		fh_msg = proto_tree_add_subtree(tree, tvb, offset, pkt_len, ett_netlink_msg, NULL, "Netlink message");
 
+		if (pkt_len < 16) {
+			/*
+			 * This field includes the length of the 16-byte header,
+			 * so its value is invalid.  Add it, report an error,
+			 * and stop trying to dissect.
+			 */
+			proto_tree *fh_hdr;
+
+			fh_hdr = proto_tree_add_subtree(tree, tvb, offset, 4, ett_netlink_msghdr, NULL, "Header");
+
+			proto_tree_add_item(fh_hdr, &hfi_netlink_hdr_len, tvb, offset, 4, encoding);
+			/* XXX invalid expert */
+			break;
+		}
+			
 		offset = dissect_netlink_hdr(tvb, fh_msg, offset, encoding, &data.type, &port_id);
 
 		/* XXX */
