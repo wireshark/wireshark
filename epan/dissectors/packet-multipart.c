@@ -279,9 +279,15 @@ unfold_and_compact_mime_header(const char *lines, gint *first_colon_offset)
             *(q++) = c;
             while (c) {
                 c = *(q++) = *(++p);
-                if (c == '"') {
-                    p++; /* Skip closing quote */
-                    break;
+                if (c == '\\') {
+                    /* First part of a quoted-pair; copy the other part,
+                       without checking if it's a quote */
+                    c = *(q++) = *(++p);
+                } else {
+                    if (c == '"') {
+                        p++; /* Skip closing quote */
+                        break;
+                    }
                 }
             }
             /* if already zero terminated now, rewind one char to avoid an "off by one" */
@@ -311,25 +317,6 @@ unfold_and_compact_mime_header(const char *lines, gint *first_colon_offset)
     return (ret);
 }
 
-/* Return the index of a given char in the given string,
- * or -1 if not found.
- */
-static gint
-index_of_char(const char *str, const char c)
-{
-    gint len = 0;
-    const char *p = str;
-
-    while (*p && *p != c) {
-        p++;
-        len++;
-    }
-
-    if (*p)
-        return len;
-    return -1;
-}
-
 /* Retrieve the media information from pinfo->private_data,
  * and compute the boundary string and its length.
  * Return a pointer to a filled-in multipart_info_t, or NULL on failure.
@@ -341,8 +328,7 @@ index_of_char(const char *str, const char c)
 static multipart_info_t *
 get_multipart_info(packet_info *pinfo, http_message_info_t *message_info)
 {
-    const char *start_boundary, *start_protocol = NULL;
-    int len_boundary = 0, len_protocol = 0;
+    char *start_boundary, *start_protocol = NULL;
     multipart_info_t *m_info = NULL;
     const char *type = pinfo->match_string;
     char *parameters;
@@ -365,14 +351,15 @@ get_multipart_info(packet_info *pinfo, http_message_info_t *message_info)
     /* Clean up the parameters */
     parameters = unfold_and_compact_mime_header(message_info->media_str, &dummy);
 
-    start_boundary = ws_find_media_type_parameter(parameters, "boundary=", &len_boundary);
+    start_boundary = ws_find_media_type_parameter(parameters, "boundary");
 
     if(!start_boundary) {
         return NULL;
     }
     if(strncmp(type, "multipart/encrypted", sizeof("multipart/encrypted")-1) == 0) {
-        start_protocol = ws_find_media_type_parameter(parameters, "protocol=", &len_protocol);
+        start_protocol = ws_find_media_type_parameter(parameters, "protocol");
         if(!start_protocol) {
+            g_free(start_boundary);
             return NULL;
         }
     }
@@ -382,11 +369,13 @@ get_multipart_info(packet_info *pinfo, http_message_info_t *message_info)
      */
     m_info = wmem_new(wmem_packet_scope(), multipart_info_t);
     m_info->type = type;
-    m_info->boundary = wmem_strndup(wmem_packet_scope(), start_boundary, len_boundary);
-    m_info->boundary_length = len_boundary;
+    m_info->boundary = wmem_strdup(wmem_packet_scope(), start_boundary);
+    m_info->boundary_length = (guint)strlen(start_boundary);
+    g_free(start_boundary);
     if(start_protocol) {
-        m_info->protocol = wmem_strndup(wmem_packet_scope(), start_protocol, len_protocol);
-        m_info->protocol_length = len_protocol;
+        m_info->protocol = wmem_strdup(wmem_packet_scope(), start_protocol);
+        m_info->protocol_length = (guint)strlen(start_protocol);
+        g_free(start_protocol);
     } else {
         m_info->protocol = NULL;
         m_info->protocol_length = -1;
@@ -577,7 +566,6 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
     gchar *content_encoding_str = NULL;
     char *filename = NULL;
     char *mimetypename = NULL;
-    int  len = 0;
     gboolean last_field = FALSE;
     gboolean is_raw_data = FALSE;
 
@@ -652,7 +640,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                     break;
                 }
             } else {
-                char *value_str = header_str + colon_offset + 1;
+                char *value_str = g_strdup(header_str + colon_offset + 1);
 
                 proto_tree_add_string_format(subtree,
                       hf_header_array[hf_index], tvb,
@@ -663,20 +651,20 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                 switch (hf_index) {
                     case POS_ORIGINALCONTENT:
                         {
-                            gint semicolon_offset;
+                            char *semicolonp;
                             /* The Content-Type starts at colon_offset + 1 or after the type parameter */
-                            char* type_str = ws_find_media_type_parameter(value_str, "type=", NULL);
+                            char* type_str = ws_find_media_type_parameter(value_str, "type");
                             if(type_str != NULL) {
+                                g_free(value_str);
                                 value_str = type_str;
                             }
 
-                            semicolon_offset = index_of_char(
-                                    value_str, ';');
+                            semicolonp = strchr(value_str, ';');
 
-                            if (semicolon_offset > 0) {
-                                value_str[semicolon_offset] = '\0';
+                            if (semicolonp != NULL) {
+                                *semicolonp = '\0';
                                 m_info->orig_parameters = wmem_strdup(wmem_packet_scope(),
-                                                            value_str + semicolon_offset + 1);
+                                                             semicolonp + 1);
                             }
 
                             m_info->orig_content_type = wmem_ascii_strdown(wmem_packet_scope(), value_str, -1);
@@ -685,12 +673,11 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                     case POS_CONTENT_TYPE:
                         {
                             /* The Content-Type starts at colon_offset + 1 */
-                            gint semicolon_offset = index_of_char(
-                                    value_str, ';');
+                            char *semicolonp = strchr(value_str, ';');
 
-                            if (semicolon_offset > 0) {
-                                value_str[semicolon_offset] = '\0';
-                                message_info.media_str = wmem_strdup(wmem_packet_scope(), value_str + semicolon_offset + 1);
+                            if (semicolonp != NULL) {
+                                *semicolonp = '\0';
+                                message_info.media_str = wmem_strdup(wmem_packet_scope(), semicolonp + 1);
                             } else {
                                 message_info.media_str = NULL;
                             }
@@ -701,9 +688,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                             proto_item_append_text(ti, " (%s)", content_type_str);
 
                             /* find the "name" parameter in case we don't find a content disposition "filename" */
-                            if((mimetypename = ws_find_media_type_parameter(message_info.media_str, "name=", &len)) != NULL) {
-                              mimetypename = g_strndup(mimetypename, len);
-                            }
+                            mimetypename = ws_find_media_type_parameter(message_info.media_str, "name");
 
                             if(strncmp(content_type_str, "application/octet-stream",
                                     sizeof("application/octet-stream")-1) == 0) {
@@ -722,26 +707,25 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                         case POS_CONTENT_TRANSFER_ENCODING:
                         {
                             /* The Content-Transferring starts at colon_offset + 1 */
-                            gint cr_offset = index_of_char(value_str, '\r');
+                            char *crp = strchr(value_str, '\r');
 
-                            if (cr_offset > 0) {
-                                value_str[cr_offset] = '\0';
+                            if (crp != NULL) {
+                                *crp = '\0';
                             }
 
                             content_encoding_str = wmem_ascii_strdown(wmem_packet_scope(), value_str, -1);
                         }
                         break;
                         case POS_CONTENT_DISPOSITION:
-                            {
+                        {
                             /* find the "filename" parameter */
-                            if((filename = ws_find_media_type_parameter(value_str, "filename=", &len)) != NULL) {
-                                filename = g_strndup(filename, len);
-                            }
+                            filename = ws_find_media_type_parameter(value_str, "filename");
                         }
                         break;
                     default:
                         break;
                 }
+                g_free(value_str);
             }
         }
         offset = next_offset;
