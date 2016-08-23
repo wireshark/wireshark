@@ -807,7 +807,9 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
             switch (func) {
                 /* Function Code 0 Analog Change Report */
+                /* Function Code 2 Analog Group Change Report */
                 case LG8979_FC_ANG_CHGRPT:
+                case LG8979_FC_ANGGRP_CHGRPT:
 
                     num_points = (data_len / 3);
 
