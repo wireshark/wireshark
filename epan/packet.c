@@ -2618,16 +2618,16 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 
 	if (heur_dtbl_entry->protocol != NULL) {
 		/* do NOT change this behavior - wslua uses the protocol short name set here in order
-			to determine which Lua-based heurisitc dissector to call */
+			to determine which Lua-based heuristic dissector to call */
 		pinfo->current_proto = proto_get_protocol_short_name(heur_dtbl_entry->protocol);
 		wmem_list_append(pinfo->layers, GINT_TO_POINTER(proto_get_id(heur_dtbl_entry->protocol)));
 	}
 
 	pinfo->heur_list_name = heur_dtbl_entry->list_name;
 
-	/* call the dissector, as we have saved the result heuristic failure is an error */
+	/* call the dissector, in case of failure call data handle (might happen with exported PDUs) */
 	if(!(*heur_dtbl_entry->dissector)(tvb, pinfo, tree, data))
-		g_assert_not_reached();
+		call_dissector_work(data_handle, tvb, pinfo, tree, TRUE, NULL);
 
 	/* Restore info from caller */
 	pinfo->can_desegment = saved_can_desegment;
