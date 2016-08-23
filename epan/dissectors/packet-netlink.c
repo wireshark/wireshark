@@ -430,7 +430,7 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 			/* XXX invalid expert */
 			break;
 		}
-			
+
 		offset = dissect_netlink_hdr(tvb, fh_msg, offset, encoding, &data.type, &port_id);
 
 		/* XXX */
