@@ -4198,7 +4198,7 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
   offset_end = offset + length;
 
   if (isakmp_version == 1) {
-    proto_tree_add_item(tree, hf_isakmp_notify_doi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_isakmp_notify_doi, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     length -= 4;
   }
@@ -4350,7 +4350,7 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isak
   guint8                spi_size;
 
   if (isakmp_version == 1) {
-    proto_tree_add_item(tree, hf_isakmp_delete_doi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_isakmp_delete_doi, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     length -= 4;
   }
