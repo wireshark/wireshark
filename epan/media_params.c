@@ -59,13 +59,19 @@ ws_get_next_media_type_parameter(const char *pos, int *retnamelen,
     *retnamelen = (int) (p - namep);
     if (c == '\0') {
         /* End of string, so end of parameter, no parameter value */
-        *retvalue = NULL;
+        if (retvalue != NULL)
+            *retvalue = NULL;
+        if (retvaluelen != NULL)
+            *retvaluelen = 0;
         *nextp = p;
         return namep;
     }
     if (c == ';') {
         /* End of parameter, no parameter value */
-        *retvalue = NULL;
+        if (retvalue != NULL)
+            *retvalue = NULL;
+        if (retvaluelen != NULL)
+            *retvaluelen = 0;
         *nextp = p + 1;
         return namep;
     }
@@ -166,6 +172,11 @@ ws_find_media_type_parameter(const char *parameters, const char *key)
             /* Yes. */
             break;
         }
+    }
+
+    if (value == NULL) {
+        /* The parameter doesn't have a value. */
+        return NULL;
     }
 
     /* We found the parameter with that name; now extract the value. */
