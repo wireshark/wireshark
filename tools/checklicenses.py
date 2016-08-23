@@ -83,6 +83,9 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'wimaxasncp/dictionary.dtd': [
         'UNKNOWN',
     ],
+    'doc/': [
+        'UNKNOWN',
+    ],
     'docbook/custom_layer_pdf.xsl': [
         'UNKNOWN',
     ],
@@ -197,30 +200,6 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     ],
 }
 
-# Files pre-existing prior to licensecheck upgrade to v2.16.2.
-# Other new files being added to the source tree that fail checklicenses.py
-# must *not* be added to FIXME_FILES.
-FIXME_FILES = [
-    'doc/captype.pod', # Should it have a license?
-    'doc/dftest.pod',
-    'doc/idl2deb.pod',
-    'doc/mergecap.pod',
-    'doc/reordercap.pod',
-    'doc/wireshark-filter.pod',
-    'doc/androiddump.pod',
-    'doc/ciscodump.pod',
-    'doc/dumpcap.pod',
-    'doc/editcap.pod',
-    'doc/extcap.pod',
-    'doc/randpkt.pod',
-    'doc/randpktdump.pod',
-    'doc/rawshark.pod',
-    'doc/sshdump.pod',
-    'doc/tshark.pod',
-    'doc/wireshark.pod', # wireshark.pod.template
-]
-
-
 def check_licenses(options, args):
   # Figure out which directory we have to check.
   if len(args) == 0:
@@ -265,7 +244,6 @@ def check_licenses(options, args):
 
   success = True
   exit_status = 0
-  fixme = []
   for line in stdout.splitlines():
     filename, license = line.split(':', 1)
     filename = os.path.relpath(filename.strip(), options.base_directory)
@@ -297,16 +275,8 @@ def check_licenses(options, args):
 
     reason = "'%s' has non-whitelisted license '%s'" % (filename, license)
     success = False
-    if filename not in FIXME_FILES:
-      print(reason)
-      exit_status = 1
-    else:
-      fixme.append(reason)
-
-  if fixme:
-    print("")
-    for line in fixme:
-        print(line)
+    print(reason)
+    exit_status = 1
 
   if success:
     print("\nSUCCESS\n")
