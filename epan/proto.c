@@ -6805,7 +6805,7 @@ register_number_string_decoding_error(void)
 	proto_set_cant_toggle(proto_number_string_decoding_error);
 }
 
-#define PROTO_PRE_ALLOC_HF_FIELDS_MEM (178000+PRE_ALLOC_EXPERT_FIELDS_MEM)
+#define PROTO_PRE_ALLOC_HF_FIELDS_MEM (183000+PRE_ALLOC_EXPERT_FIELDS_MEM)
 static int
 proto_register_field_init(header_field_info *hfinfo, const int parent)
 {
