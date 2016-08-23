@@ -10,9 +10,6 @@ used for troubleshooting, analysis, development and education.
 
 == What's New
 
-* Invalid coloring rules are now disabled instead of discarded. This will
-  provide backward compatibility with a coloring rule change in Wireshark 2.2.
-
 === Bug Fixes
 
 //The following bugs have been fixed:
@@ -24,10 +21,18 @@ used for troubleshooting, analysis, development and education.
 
 * Upgrading to latest version uninstalls Microsoft Visual C++ redistributable. (ws-buglink:12712[])
 
+* Extcap errors not reported back to UI. (ws-buglink:11892[])
+
 === New and Updated Features
 
-There have been no new or significantly updated features since
-version 2.1.1.
+The following features are new (or have been significantly updated)
+since version 2.2.0rc1:
+
+The following features are new (or have been significantly updated)
+since version 2.1.1:
+
+* Invalid coloring rules are now disabled instead of discarded. This will
+  provide backward compatibility with a coloring rule change in Wireshark 2.2.
 
 The following features are new (or have been significantly updated)
 since version 2.1.0:
@@ -97,31 +102,39 @@ Open File dialog.
 
 // Add one protocol per line between the --sort-and-group-- delimiters.
 --sort-and-group--
-CISCO ERSPAN3 Marker
-Nokia Intelligent Service Interface (ISI)
-ISO14443
-Extensible Control & Management Protocol (eCMP)
-RTI TCP Transport Layer (RTITCP)
-ITU-T G.7041/Y.1303 Generic Framing Procedure (GFP)
-Zigbee Protocol Clusters Dissectors Added (Closures, Lighting, General, Measurement & Sensing, HVAC, Security & Safety)
-LAT protocol (DECNET)
+Apache Cassandra - CQL version 3.0
+Bachmann bluecom Protocol
+Bluetooth Pseudoheader for BR/EDR
+Cisco ERSPAN3 Marker
+Cisco ttag
+Digital Equipment Corporation Local Area Transport
+Distributed Object Framework
+DOCSIS Upstream Channel Descriptor Type 35
+Edge Control Protocol (ECP)
+Encrypted UDP based FTP with multicast
 Ericsson IPOS Kernel Packet Header Dissector Added (IPOS)
-STANAG 5602 SIMPLE
-UserLog Protocol
+Extensible Control & Management Protocol (eCMP)
 FLEXRAY Protocol dissector added (automotive bus)
+IEEE 802.1BR E-Tag
+Intel Omni-Path Architecture
+ISO 8583-1
+ISO14443
+ITU-T G.7041/Y.1303 Generic Framing Procedure (GFP)
+LAT protocol (DECNET)
+Metamako trailers
+Network-Based IP Flow Mobility (NBIFOM)
+Network Service Header for Ethernet & GRE
+Nokia Intelligent Service Interface (ISI)
+Open Mobile Alliance Lightweight Machine to Machine TLV payload Added (LwM2M TLV)
+RTI TCP Transport Layer (RTITCP)
+Real Time Location System (RTLS)
+SMB Witness Service
+STANAG 5602 SIMPLE
+Standard Interface for Multiple Platform Link Evaluation (SIMPLE)
 USB3 Vision Protocol (USB machine vision cameras)
 USBIP Protocol
-Open Mobile Alliance Lightweight Machine to Machine TLV payload Added (LwM2M TLV)
-Metamako trailers
-ISO 8583-1
-Bluetooth Pseudoheader for BR/EDR
-Edge Control Protocol (ECP)
-Bachmann bluecom Protocol
-Apache Cassandra - CQL version 3.0
-Real Time Location System (RTLS)
-Network-Based IP Flow Mobility (NBIFOM)
-IEEE 802.1BR E-Tag
-Encrypted UDP based FTP with multicast
+UserLog Protocol
+Zigbee Protocol Clusters Dissectors Added (Closures, Lighting, General, Measurement & Sensing, HVAC, Security & Safety)
 --sort-and-group--
 
 === Updated Protocol Support
