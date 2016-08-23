@@ -1,4 +1,4 @@
-libwscodecs.so.1 libwireshark1 #MINVER#
+libwscodecs.so.1 libwscodecs1 #MINVER#
  codec_decode@Base 2.1.0
  codec_get_channels@Base 2.1.0
  codec_get_frequency@Base 2.1.0
