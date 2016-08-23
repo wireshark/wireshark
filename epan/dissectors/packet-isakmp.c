@@ -5662,14 +5662,6 @@ isakmp_cleanup_protocol(void) {
 }
 
 #ifdef HAVE_LIBGCRYPT
-static void
-isakmp_prefs_apply_cb(void) {
-  isakmp_cleanup_protocol();
-  isakmp_init_protocol();
-}
-#endif /* HAVE_LIBGCRYPT */
-
-#ifdef HAVE_LIBGCRYPT
 
 UAT_BUFFER_CB_DEF(ikev1_users, icookie, ikev1_uat_data_key_t, icookie, icookie_len)
 UAT_BUFFER_CB_DEF(ikev1_users, key, ikev1_uat_data_key_t, key, key_len)
@@ -6937,7 +6929,7 @@ proto_register_isakmp(void)
   register_dissector("isakmp", dissect_isakmp, proto_isakmp);
 
 #ifdef HAVE_LIBGCRYPT
-  isakmp_module = prefs_register_protocol(proto_isakmp, isakmp_prefs_apply_cb);
+  isakmp_module = prefs_register_protocol(proto_isakmp, NULL);
   ikev1_uat = uat_new("IKEv1 Decryption Table",
       sizeof(ikev1_uat_data_key_t),
       "ikev1_decryption_table",
