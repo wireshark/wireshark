@@ -769,8 +769,8 @@ EXTRA_DIST = \
 	debian/ethereal-common.NEWS	\
 	debian/geoip_db_paths	\
 	debian/headers-check.c	\
-	debian/libwireshark6.install	\
-	debian/libwireshark6.symbols	\
+	debian/libwireshark7.install	\
+	debian/libwireshark7.symbols	\
 	debian/libwireshark-data.install	\
 	debian/libwireshark-dev.install	\
 	debian/libwiretap5.docs	\
