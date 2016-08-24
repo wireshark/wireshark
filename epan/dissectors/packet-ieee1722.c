@@ -146,7 +146,7 @@ void proto_reg_handoff_1722_61883(void);
 /* 1722                                                                                           */
 /*                                                                                                */
 /**************************************************************************************************/
-static const range_string subtype_range_vals[] = {
+static const range_string subtype_range_rvals[] = {
     { 0,    0,      "IEC 61883/IIDC Format" },
     { 1,    1,      "MMA Streams" },
     { 2,    2,      "AVTP Audio Format" },
@@ -199,7 +199,7 @@ static const value_string tag_vals [] = {
     {0, NULL}
 };
 
-static const range_string format_vals [] = {
+static const range_string format_rvals [] = {
     {0,                 0,                  "DVCR transmission"},
     {1,                 0x0f,               "Reserved"},
     {IEEE_1722_61883_4, IEEE_1722_61883_4,  "IEC 61883-4: MPEG2-TS data transmission"},
@@ -222,7 +222,7 @@ static const value_string fraction_number_vals [] = {
     {0,    NULL}
 };
 
-static const range_string fdf_vals [] = {
+static const range_string fdf_rvals [] = {
     {0x00, 0x07,    "Basic format for AM824"},
     {0x08, 0x0f,    "Basic format for AM824. Transmission rate may be controlled by an AV/C command set"},
     {0x10, 0x17,    "Basic format for 24-bit*4 audio pack"},
@@ -236,7 +236,7 @@ static const range_string fdf_vals [] = {
     {0,    0,       NULL}
 };
 
-static const range_string syt_vals [] = {
+static const range_string syt_rvals [] = {
     {0x0000, 0x0bff,    "Timestamp"},
     {0x0c00, 0x0fff,    "Reserved"},
     {0x1000, 0x1bff,    "Timestamp"},
@@ -333,7 +333,7 @@ static expert_field ei_1722_61883_incorrect_cip_fdf = EI_INIT;
 /* subtype AAF                                                                                    */
 /*                                                                                                */
 /**************************************************************************************************/
-static const range_string aaf_format_range_vals [] = {
+static const range_string aaf_format_range_rvals [] = {
     {0, 0,      "User specified"},
     {1, 1,      "32bit floating point"},
     {2, 2,      "32bit integer"},
@@ -344,7 +344,7 @@ static const range_string aaf_format_range_vals [] = {
     {0, 0,      NULL}
 };
 
-static const range_string aaf_nominal_sample_rate_range_vals [] = {
+static const range_string aaf_nominal_sample_rate_range_rvals [] = {
     {0,    0,       "User specified"},
     {1,    1,       "8kHz"},
     {2,    2,       "16kHz"},
@@ -400,7 +400,7 @@ static expert_field ei_aaf_incorrect_bit_depth = EI_INIT;
 /* subtype CRF                                                                                    */
 /*                                                                                                */
 /**************************************************************************************************/
-static const range_string crf_pull_range_vals [] = {
+static const range_string crf_pull_range_rvals [] = {
     {0, 0,  "[1.0]"},
     {1, 1,  "[1/1.001]"},
     {2, 2,  "[1.001]"},
@@ -411,7 +411,7 @@ static const range_string crf_pull_range_vals [] = {
     {0, 0,  NULL}
 };
 
-static const range_string crf_type_range_vals [] = {
+static const range_string crf_type_range_rvals [] = {
     {0, 0,      "User Specified"},
     {1, 1,      "Audio Sample Timestamp"},
     {2, 2,      "Video Frame Sync Timestamp"},
@@ -482,7 +482,7 @@ void proto_register_1722(void)
     static hf_register_info hf[] = {
         { &hf_1722_subtype,
             { "AVBTP Subtype", "ieee1722.subtype",
-              FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(subtype_range_vals), IEEE_1722_SUBTYPE_MASK, NULL, HFILL }
+              FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(subtype_range_rvals), IEEE_1722_SUBTYPE_MASK, NULL, HFILL }
         },
         { &hf_1722_svfield,
             { "AVTP Stream ID Valid", "ieee1722.svfield",
@@ -891,7 +891,7 @@ void proto_register_1722_61883(void)
         },
         { &hf_1722_61883_cip_fmt,
             { "CIP Format ID", "61883.fmt",
-              FT_UINT8, BASE_HEX, VALS(format_vals), IEEE_1722_FMT_MASK, NULL, HFILL }
+              FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(format_rvals), IEEE_1722_FMT_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_fdf_no_syt,
             { "CIP Format Dependent Field", "61883.fdf_no_syt",
@@ -903,11 +903,11 @@ void proto_register_1722_61883(void)
         },
         { &hf_1722_61883_cip_fdf,
             { "CIP Format Dependent Field", "61883.fdf",
-              FT_UINT8, BASE_HEX, VALS(fdf_vals), IEEE_1722_FDF_MASK, NULL, HFILL }
+              FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(fdf_rvals), IEEE_1722_FDF_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_syt,
             { "CIP SYT", "61883.syt",
-              FT_UINT16, BASE_HEX, VALS(syt_vals), 0x00, NULL, HFILL }
+              FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(syt_rvals), 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_audio_data,
             { "Audio Data", "61883.audiodata",
@@ -1153,11 +1153,11 @@ void proto_register_1722_aaf (void)
         },
         { &hf_1722_aaf_format,
             { "Format", "aaf.format_info",
-              FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(aaf_format_range_vals), IEEE_1722_FORMAT_MASK, NULL, HFILL }
+              FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(aaf_format_range_rvals), IEEE_1722_FORMAT_MASK, NULL, HFILL }
         },
         { &hf_1722_aaf_nominal_sample_rate,
             { "Nominal Sample Rate", "aaf.nominal_sample_rate",
-              FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(aaf_nominal_sample_rate_range_vals), IEEE_1722_NOM_SAMPLE_RATE_MASK, NULL, HFILL }
+              FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(aaf_nominal_sample_rate_range_rvals), IEEE_1722_NOM_SAMPLE_RATE_MASK, NULL, HFILL }
         },
         { &hf_1722_aaf_channels_per_frame,
             { "Channels per Frame", "aaf.channels_per_frame",
@@ -1312,7 +1312,7 @@ void proto_register_1722_crf(void)
         },
         { &hf_1722_crf_type,
             { "Type", "crf.type",
-              FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(crf_type_range_vals), 0x00, NULL, HFILL }
+              FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(crf_type_range_rvals), 0x00, NULL, HFILL }
         },
         { &hf_1722_crf_stream_id,
             { "Stream ID", "crf.stream_id",
@@ -1320,7 +1320,7 @@ void proto_register_1722_crf(void)
         },
         { &hf_1722_crf_pull,
             { "Pull", "crf.pull",
-              FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(crf_pull_range_vals), IEEE_1722_PULL_MASK, NULL, HFILL }
+              FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(crf_pull_range_rvals), IEEE_1722_PULL_MASK, NULL, HFILL }
         },
         { &hf_1722_crf_base_frequency,
             { "Base Frequency", "crf.base_frequency",
