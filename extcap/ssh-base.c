@@ -30,8 +30,6 @@
 #include <log.h>
 #include <string.h>
 
-#define verbose_print(...) { if (verbose) printf(__VA_ARGS__); }
-
 ssh_session create_ssh_connection(const char* hostname, const unsigned int port, const char* username,
 	const char* password, const char* sshkey_path, const char* sshkey_passphrase, char** err_info)
 {
