@@ -180,7 +180,7 @@ set(wsutil_LIBS
 	${WIN_WSOCK32_LIBRARY}
 )
 IF(WIN32)
-	set(wsutil_LIBS ${wsutil_LIBS} "ws2_32.lib")
+	set(wsutil_LIBS ${wsutil_LIBS} "iphlpapi.lib" "ws2_32.lib")
 ENDIF(WIN32)
 
 set(CLEAN_FILES
