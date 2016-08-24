@@ -1078,8 +1078,6 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
        */
       if (offset + fragment_length <= record_length)
           msg_type_str = try_val_to_str(msg_type, ssl_31_handshake_type);
-      else
-          msg_type_str = NULL;
 
       if (!msg_type_str && !first_iteration)
         {
@@ -1099,12 +1097,16 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
       /*
        * Update our info string
        */
-      col_append_str(pinfo->cinfo, COL_INFO, (msg_type_str != NULL)
-            ? msg_type_str : "Encrypted Handshake Message");
-
-      /* if we don't have a valid handshake type, just quit dissecting */
-      if (!msg_type_str)
+      if (msg_type_str)
+        {
+          col_append_str(pinfo->cinfo, COL_INFO, msg_type_str);
+        }
+      else
+        {
+          /* if we don't have a valid handshake type, just quit dissecting */
+          col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Handshake Message");
           return;
+        }
 
       proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_type,
                             tvb, offset, 1, msg_type);
@@ -1217,9 +1219,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
               proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s%s",
                                   val_to_str_const(session->version, ssl_version_short_names, "DTLS"),
                                   val_to_str_const(content_type, ssl_31_content_type, "unknown"),
-                                  (msg_type_str!=NULL) ? msg_type_str :
-                                  "Encrypted Handshake Message",
-                                  (frag_str!=NULL) ? frag_str : "");
+                                  msg_type_str, (frag_str!=NULL) ? frag_str : "");
             }
           else
             {
@@ -1234,9 +1234,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             {
               /* set the text label on the subtree node */
               proto_item_set_text(ssl_hand_tree, "Handshake Protocol: %s%s",
-                                  (msg_type_str != NULL) ? msg_type_str :
-                                  "Encrypted Handshake Message",
-                                  (frag_str!=NULL) ? frag_str : "");
+                                  msg_type_str, (frag_str!=NULL) ? frag_str : "");
             }
         }
 
