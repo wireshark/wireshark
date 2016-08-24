@@ -537,7 +537,8 @@ int main(int argc, char **argv)
 	attach_parent_console();
 #endif  /* _WIN32 */
 
-	extcap_base_set_util_info(extcap_conf, CISCODUMP_VERSION_MAJOR, CISCODUMP_VERSION_MINOR, CISCODUMP_VERSION_RELEASE, NULL);
+	extcap_base_set_util_info(extcap_conf, argv[0], CISCODUMP_VERSION_MAJOR, CISCODUMP_VERSION_MINOR,
+		CISCODUMP_VERSION_RELEASE, NULL);
 	extcap_base_register_interface(extcap_conf, CISCODUMP_EXTCAP_INTERFACE, "Cisco remote capture", 147, "Remote capture dependent DLT");
 
 	help_header = g_strdup_printf(

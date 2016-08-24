@@ -326,7 +326,8 @@ int main(int argc, char **argv)
 	attach_parent_console();
 #endif  /* _WIN32 */
 
-	extcap_base_set_util_info(extcap_conf, SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR, SSHDUMP_VERSION_RELEASE, NULL);
+	extcap_base_set_util_info(extcap_conf, argv[0], SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR,
+		SSHDUMP_VERSION_RELEASE, NULL);
 	extcap_base_register_interface(extcap_conf, SSH_EXTCAP_INTERFACE, "SSH remote capture", 147, "Remote capture dependent DLT");
 
 	help_header = g_strdup_printf(

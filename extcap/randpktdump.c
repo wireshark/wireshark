@@ -144,7 +144,8 @@ int main(int argc, char *argv[])
 	extcap_parameters * extcap_conf = g_new0(extcap_parameters, 1);
 	char* help_header = NULL;
 
-	extcap_base_set_util_info(extcap_conf, RANDPKTDUMP_VERSION_MAJOR, RANDPKTDUMP_VERSION_MINOR, RANDPKTDUMP_VERSION_RELEASE, NULL);
+	extcap_base_set_util_info(extcap_conf, argv[0], RANDPKTDUMP_VERSION_MAJOR, RANDPKTDUMP_VERSION_MINOR,
+		RANDPKTDUMP_VERSION_RELEASE, NULL);
 	extcap_base_register_interface(extcap_conf, RANDPKT_EXTCAP_INTERFACE, "Random packet generator", 147, "Generator dependent DLT");
 
 	help_header = g_strdup_printf(

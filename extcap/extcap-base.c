@@ -129,8 +129,10 @@ void extcap_base_register_interface_ext(extcap_parameters * extcap,
     extcap->interfaces = g_list_append(extcap->interfaces, (gpointer) iface);
 }
 
-void extcap_base_set_util_info(extcap_parameters * extcap, const char * major, const char * minor, const char * release, const char * helppage)
+void extcap_base_set_util_info(extcap_parameters * extcap, const char * exename, const char * major, const char * minor, const char * release, const char * helppage)
 {
+    extcap->exename = g_path_get_basename(exename);
+
     g_assert(major);
     if (!minor)
         g_assert(!release);
@@ -277,6 +279,7 @@ void extcap_base_cleanup(extcap_parameters ** extcap)
     /* g_list_free_full() only exists since 2.28. g_list_free_full((*extcap)->interfaces, extcap_iface_free);*/
     g_list_foreach((*extcap)->interfaces, (GFunc)extcap_iface_free, NULL);
     g_list_free((*extcap)->interfaces);
+    g_free((*extcap)->exename);
     g_free((*extcap)->fifo);
     g_free((*extcap)->interface);
     g_free((*extcap)->version);
@@ -296,7 +299,8 @@ static void extcap_print_option(gpointer option)
 
 void extcap_help_print(extcap_parameters * extcap)
 {
-    printf("\nHelp\n\nUsage:\n");
+    printf("\nWireshark - %s v%s\n\n", extcap->exename, extcap->version);
+    printf("Usage:\n");
     printf("%s", extcap->help_header);
     printf("\n");
     printf("Options:\n");
