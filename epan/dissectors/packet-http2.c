@@ -1200,7 +1200,7 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
 
     headlen = tvb_reported_length_remaining(tvb, offset) - padding;
     proto_tree_add_item(http2_tree, hf_http2_push_promise_header, tvb, offset, headlen,
-                        ENC_ASCII|ENC_NA);
+                        ENC_NA);
 
     inflate_http2_header_block(tvb, pinfo, offset, http2_tree, headlen, h2session, flags);
 
@@ -1819,9 +1819,9 @@ proto_register_http2(void)
               "Identifies the stream the endpoint intends to start sending frames for", HFILL }
         },
         { &hf_http2_push_promise_header,
-            { "Header", "http2.push_promise.header",
-               FT_STRING, BASE_NONE, NULL, 0x0,
-              NULL, HFILL }
+            { "Header Block Fragment", "http2.push_promise.header",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+              "Containing request header fields", HFILL }
         },
         { &hf_http2_push_promise_padding,
             { "Padding", "http2.push_promise.padding",
