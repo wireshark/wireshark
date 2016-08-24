@@ -2527,7 +2527,21 @@ int main(int argc, char **argv) {
         " %s --extcap-interfaces [--adb-server-ip=<arg>] [--adb-server-tcp-port=<arg>]\n"
         " %s --extcap-interface=INTERFACE --extcap-dlts\n"
         " %s --extcap-interface=INTERFACE --extcap-config\n"
-        " %s --extcap-interface=INTERFACE --fifo=PATH_FILENAME --capture \n",
+        " %s --extcap-interface=INTERFACE --fifo=PATH_FILENAME --capture\n"
+        "\nINTERFACE can be:\n\n"
+        "\tandroid-logcat-main\n"
+        "\tandroid-logcat-system\n"
+        "\tandroid-logcat-radio\n"
+        "\tandroid-logcat-events\n"
+        "\tandroid-logcat-text-main\n"
+        "\tandroid-logcat-text-system\n"
+        "\tandroid-logcat-text-radio\n"
+        "\tandroid-logcat-text-events\n"
+        "\tandroid-logcat-text-crash\n"
+        "\tandroid-bluetooth-hcidump\n"
+        "\tandroid-bluetooth-external-parser\n"
+        "\tandroid-bluetooth-btsnoop-net\n"
+        "\tandroid-wifi-tcpdump\n",
         argv[0], argv[0], argv[0], argv[0]);
     extcap_help_add_header(extcap_conf, help_header);
     g_free(help_header);

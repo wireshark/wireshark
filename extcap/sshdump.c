@@ -332,11 +332,12 @@ int main(int argc, char **argv)
 
 	help_header = g_strdup_printf(
 		" %s --extcap-interfaces\n"
-		" %s --extcap-interface=INTERFACE --extcap-dlts\n"
-		" %s --extcap-interface=INTERFACE --extcap-config\n"
-		" %s --extcap-interface=INTERFACE --remote-host myhost --remote-port 22222 "
+		" %s --extcap-interface=%s --extcap-dlts\n"
+		" %s --extcap-interface=%s --extcap-config\n"
+		" %s --extcap-interface=%s --remote-host myhost --remote-port 22222 "
 		"--remote-username myuser --remote-interface eth2 --remote-capture-bin /bin/dumpcap "
-		"--fifo=FILENAME --capture\n", argv[0], argv[0], argv[0], argv[0]);
+		"--fifo=FILENAME --capture\n", argv[0], argv[0], SSH_EXTCAP_INTERFACE, argv[0],
+		SSH_EXTCAP_INTERFACE, argv[0], SSH_EXTCAP_INTERFACE);
 	extcap_help_add_header(extcap_conf, help_header);
 	g_free(help_header);
 	extcap_help_add_option(extcap_conf, "--help", "print this help");
