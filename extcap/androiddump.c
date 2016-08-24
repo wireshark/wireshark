@@ -2554,7 +2554,7 @@ int main(int argc, char **argv) {
         switch (result) {
 
         case OPT_VERSION:
-            printf("%s.%s.%s\n", ANDROIDDUMP_VERSION_MAJOR, ANDROIDDUMP_VERSION_MINOR, ANDROIDDUMP_VERSION_RELEASE);
+            printf("%s\n", extcap_conf->version);
             return EXIT_CODE_SUCCESS;
         case OPT_HELP:
             extcap_help_print(extcap_conf);

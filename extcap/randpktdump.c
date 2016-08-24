@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
 	while ((result = getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
 		switch (result) {
 		case OPT_VERSION:
-			printf("%s.%s.%s\n", RANDPKTDUMP_VERSION_MAJOR, RANDPKTDUMP_VERSION_MINOR, RANDPKTDUMP_VERSION_RELEASE);
+			printf("%s\n", extcap_conf->version);
 			ret = EXIT_SUCCESS;
 			goto end;
 

@@ -313,7 +313,6 @@ void extcap_help_add_option(extcap_parameters * extcap, const char * help_option
     extcap->help_options = g_list_append(extcap->help_options, o);
 }
 
-
 void extcap_help_add_header(extcap_parameters * extcap, char * help_header)
 {
     extcap->help_header = g_strdup(help_header);

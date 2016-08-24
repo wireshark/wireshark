@@ -369,7 +369,7 @@ int main(int argc, char **argv)
 			goto end;
 
 		case OPT_VERSION:
-			printf("%s.%s.%s\n", SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR, SSHDUMP_VERSION_RELEASE);
+			printf("%s\n", extcap_conf->version);
 			ret = EXIT_SUCCESS;
 			goto end;
 

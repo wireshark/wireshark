@@ -585,7 +585,7 @@ int main(int argc, char **argv)
 			goto end;
 
 		case OPT_VERSION:
-			printf("%s.%s.%s\n", CISCODUMP_VERSION_MAJOR, CISCODUMP_VERSION_MINOR, CISCODUMP_VERSION_RELEASE);
+			printf("%s\n", extcap_conf->version);
 			goto end;
 
 		case OPT_REMOTE_HOST:
