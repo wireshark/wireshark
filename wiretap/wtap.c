@@ -751,8 +751,8 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_IPNET */
 	{ "Solaris IPNET", "ipnet" },
 
-	/* WTAP_ENCAP_SOCKETCAN_BIGENDIAN */
-	{ "SocketCAN with big-endian CAN ID", "socketcan-bigendian" },
+	/* WTAP_ENCAP_SOCKETCAN */
+	{ "SocketCAN", "socketcan" },
 
 	/* WTAP_ENCAP_IEEE_802_11_NETMON */
 	{ "IEEE 802.11 plus Network Monitor radio header", "ieee-802-11-netmon" },
@@ -921,9 +921,6 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_JUNIPER_VN */
 	{ "Juniper VN", "juniper-vn" },
-
-	/* WTAP_ENCAP_SOCKETCAN_HOSTENDIAN */
-	{ "SocketCAN with host-endian CAN ID", "socketcan-hostendian" },
 };
 
 WS_DLL_LOCAL
