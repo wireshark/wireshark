@@ -745,6 +745,12 @@ wtap_encap_requires_phdr(int encap) {
 #define LINUX_SLL_LEN			16	/* length of the header */
 
 /*
+ * The protocols we have to check for.
+ */
+#define LINUX_SLL_P_CAN			0x000C	/* Controller Area Network */
+#define LINUX_SLL_P_CANFD		0x000D	/* Controller Area Network flexible data rate */
+
+/*
  * The fake link-layer header of IrDA packets as introduced by Jean Tourrilhes
  * to libpcap.
  */
@@ -1200,7 +1206,7 @@ pcap_byteswap_linux_sll_pseudoheader(struct wtap_pkthdr *phdr, guint8 *pd)
 	}
 
 	protocol = pntoh16(&pd[LINUX_SLL_PROTOCOL_OFFSET]);
-	if (protocol != 0x000C) {
+	if (protocol != LINUX_SLL_P_CAN && protocol != LINUX_SLL_P_CANFD) {
 		/* Not a CAN packet; nothing to fix */
 		return;
 	}
