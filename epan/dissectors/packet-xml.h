@@ -76,6 +76,7 @@ typedef struct _xml_frame_t {
 	proto_item* last_item;
 	xml_ns_t* ns;
 	int start_offset;
+	int length;
 	packet_info* pinfo;
 } xml_frame_t;
 
