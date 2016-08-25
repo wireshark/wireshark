@@ -2003,7 +2003,7 @@ void MainWindow::on_actionEditCopyAsFilter_triggered()
 
 void MainWindow::on_actionEditFindPacket_triggered()
 {
-    if (packet_list_->model()->rowCount() < 1) {
+    if (packet_list_->packetListModel()->rowCount() < 1) {
         return;
     }
     previous_focus_ = wsApp->focusWidget();
@@ -3428,7 +3428,7 @@ void MainWindow::on_actionHelpAbout_triggered()
 }
 
 void MainWindow::on_actionGoGoToPacket_triggered() {
-    if (packet_list_->model()->rowCount() < 1) {
+    if (packet_list_->packetListModel()->rowCount() < 1) {
         return;
     }
     previous_focus_ = wsApp->focusWidget();
