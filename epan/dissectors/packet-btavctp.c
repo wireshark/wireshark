@@ -329,7 +329,6 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             call_data_dissector(next_tvb, pinfo, tree);
 
         } else if (packet_type == PACKET_TYPE_END) {
-            guint    i_length = 0;
 
             fragments = (fragments_t *)wmem_tree_lookup32_array_le(reassembling, key);
             if (!(fragments && fragments->interface_id == interface_id &&
@@ -375,22 +374,16 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 expert_add_info(pinfo, pitem, &ei_btavctp_unexpected_frame);
                 call_data_dissector(next_tvb, pinfo, tree);
             } else {
-                guint8   *reassembled;
+                guint8   *reassembled = NULL;
                 bluetooth_uuid_t  uuid;
 
                 for (i_frame = 1; i_frame <= fragments->count; ++i_frame) {
                     fragment = (fragment_t *)wmem_tree_lookup32_le(fragments->fragment, i_frame);
-                    length += fragment->length;
-                }
-
-                reassembled = (guint8 *) wmem_alloc(pinfo->pool, length);
-
-                for (i_frame = 1; i_frame <= fragments->count; ++i_frame) {
-                    fragment = (fragment_t *)wmem_tree_lookup32_le(fragments->fragment, i_frame);
-                    memcpy(reassembled + i_length,
-                            fragment->data,
-                            fragment->length);
-                    i_length += fragment->length;
+                    if (fragment) {
+                        reassembled = (guint8*)wmem_realloc(pinfo->pool, reassembled, length + fragment->length);
+                        memcpy(reassembled + length, fragment->data, fragment->length);
+                        length += fragment->length;
+                    }
                 }
 
                 next_tvb = tvb_new_child_real_data(tvb, reassembled, length, length);
