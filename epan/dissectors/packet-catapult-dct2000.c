@@ -1026,7 +1026,12 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
 
 
 /* Dissect an CCPRI LTE frame by first parsing the header entries then passing
-   the data to the CPRI C&M dissector */
+   the data to the CPRI C&M dissector
+
+   XXX - is this the Common Public Radio Interface?  If so, what's the extra
+   "C" in "CCPRI"?  And why is the LAPB dissector involved here?  The CPRI
+   spec just speaks of HDLC; LAPB is certainly a HDLC-based protocol, but
+   that doesn't mean every HDLC-based protocol is LAPB. */
 static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
                               packet_info *pinfo, proto_tree *tree)
 {
@@ -1077,8 +1082,11 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
     length = tvb_get_ntohs(tvb, offset);
     offset += 2;
 
-    /* Send remainder to lapb dissector (lapb needs patch with preference
-       set to call cpri C&M dissector instead of X.25) */
+    /* Send remainder to lapb dissector; I assume "CPRI" is the Common
+       Public Radio Interface, in which case the "lapb" dissector is
+       being used to dissect the HDLC used by CPRI, and in which case
+       we should really have a CPRI dissector that dissects its HDLC
+       and then hands off to a CPRI C&M dissector. */
     protocol_handle = find_dissector("lapb");
     if ((protocol_handle != NULL) && (tvb_reported_length_remaining(tvb, offset) > 0)) {
         ccpri_tvb = tvb_new_subset_length(tvb, offset, length);
