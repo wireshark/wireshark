@@ -102,6 +102,15 @@ static int hf_hartip_pt_rsp_tv = -1;
 static int hf_hartip_pt_rsp_qv_units = -1;
 static int hf_hartip_pt_rsp_qv = -1;
 
+/* Command 7 response*/
+static int hf_hartip_pt_rsp_loop_current_mode = -1;
+
+/* Command 8 response*/
+static int hf_hartip_pt_rsp_primary_var_classify = -1;
+static int hf_hartip_pt_rsp_secondary_var_classify = -1;
+static int hf_hartip_pt_rsp_tertiary_var_classify = -1;
+static int hf_hartip_pt_rsp_quaternary_var_classify = -1;
+
 /* Command 9 response */
 static int hf_hartip_pt_rsp_slot0_device_var = -1;
 static int hf_hartip_pt_rsp_slot0_device_var_classify = -1;
@@ -159,6 +168,27 @@ static int hf_hartip_pt_rsp_day = -1;
 static int hf_hartip_pt_rsp_month = -1;
 static int hf_hartip_pt_rsp_year = -1;
 
+/* Command 14 response */
+static int hf_hartip_pt_rsp_transducer_serial_number = -1;
+static int hf_hartip_pt_rsp_transducer_limit_min_span_units = -1;
+static int hf_hartip_pt_rsp_upper_transducer_limit = -1;
+static int hf_hartip_pt_rsp_lower_transducer_limit = -1;
+static int hf_hartip_pt_rsp_minimum_span = -1;
+
+/* Command 15 response */
+static int hf_hartip_pt_rsp_pv_alarm_selection_code = -1;
+static int hf_hartip_pt_rsp_pv_transfer_function_code = -1;
+static int hf_hartip_pt_rsp_pv_upper_and_lower_range_values_units = -1;
+static int hf_hartip_pt_rsp_pv_upper_range_value = -1;
+static int hf_hartip_pt_rsp_pv_lower_range_value = -1;
+static int hf_hartip_pt_rsp_pv_damping_value = -1;
+static int hf_hartip_pt_rsp_write_protect_code = -1;
+static int hf_hartip_pt_rsp_reserved = -1;
+static int hf_hartip_pt_rsp_pv_analog_channel_flags = -1;
+
+/* Command 16 and 19 response */
+static int hf_hartip_pt_rsp_final_assembly_number = -1;
+
 /* response Tag */
 static int hf_hartip_pt_rsp_tag = -1;
 
@@ -174,6 +204,44 @@ static int hf_hartip_pt_rsp_analog_channel_saturated = -1;
 static int hf_hartip_pt_rsp_standardized_status_2 = -1;
 static int hf_hartip_pt_rsp_standardized_status_3 = -1;
 static int hf_hartip_pt_rsp_analog_channel_fixed = -1;
+
+/* Command 77 response */
+static int hf_hartip_pt_rsp_io_card = -1;
+static int hf_hartip_pt_rsp_channel = -1;
+static int hf_hartip_pt_rsp_embedded_cmd_delimiter = -1;
+static int hf_hartip_pt_rsp_poll_address = -1;
+static int hf_hartip_pt_rsp_embedded_cmd = -1;
+
+/* Command 31 and 178 response */
+static int hf_hartip_pt_rsp_number_of_commands = -1;
+static int hf_hartip_pt_rsp_command_number = -1;
+static int hf_hartip_pt_rsp_command_byte_count = -1;
+
+/* Command 31, 77 and 178 response */
+static int hf_hartip_pt_rsp_data = -1;
+
+/*Command 203 response*/
+static int hf_hartip_pt_rsp_index_of_first_discrete_var = -1;
+static int hf_hartip_pt_rsp_number_of_discrete_vars = -1;
+static int hf_hartip_pt_rsp_timestamp_for_most_recent_discrete_change = -1;
+
+static int hf_hartip_pt_rsp_slot0_discrete_var_state = -1;
+static int hf_hartip_pt_rsp_slot0_discrete_var_status = -1;
+
+static int hf_hartip_pt_rsp_slot1_discrete_var_state = -1;
+static int hf_hartip_pt_rsp_slot1_discrete_var_status = -1;
+
+static int hf_hartip_pt_rsp_slot2_discrete_var_state = -1;
+static int hf_hartip_pt_rsp_slot2_discrete_var_status = -1;
+
+static int hf_hartip_pt_rsp_slot3_discrete_var_state = -1;
+static int hf_hartip_pt_rsp_slot3_discrete_var_status = -1;
+
+static int hf_hartip_pt_rsp_slot4_discrete_var_state = -1;
+static int hf_hartip_pt_rsp_slot4_discrete_var_status = -1;
+
+static int hf_hartip_pt_rsp_slot5_discrete_var_state = -1;
+static int hf_hartip_pt_rsp_slot5_discrete_var_status = -1;
 
 #define HARTIP_HEADER_LENGTH     8
 #define HARTIP_PORT           5094
@@ -197,7 +265,9 @@ typedef struct _hartip_hdr {
 /* Message types */
 #define REQUEST_MSG_TYPE       0
 #define RESPONSE_MSG_TYPE      1
-#define ERROR_MSG_TYPE         2
+#define PUBLISH_MSG_TYPE       2
+#define ERROR_MSG_TYPE         3
+#define NAK_MSG_TYPE           15
 
 static const value_string hartip_message_id_values[] = {
   { SESSION_INITIATE_ID,     "Session Initiate" },
@@ -210,7 +280,9 @@ static const value_string hartip_message_id_values[] = {
 static const value_string hartip_message_type_values[] = {
   { REQUEST_MSG_TYPE,        "Request" },
   { RESPONSE_MSG_TYPE,       "Response" },
+  { PUBLISH_MSG_TYPE,        "Publish" },
   { ERROR_MSG_TYPE,          "Error" },
+  { NAK_MSG_TYPE,            "Error" },
   { 0, NULL }
 };
 
@@ -249,12 +321,14 @@ typedef struct _hartip_tap_info {
 static const gchar* st_str_packets   = "Total HART_IP Packets";
 static const gchar* st_str_requests  = "Request Packets";
 static const gchar* st_str_responses = "Response Packets";
+static const gchar* st_str_publish   = "Publish Packets";
 static const gchar* st_str_errors    = "Error Packets";
 
 /* Handles of items in statistics tree. */
 static int st_node_packets = -1;
 static int st_node_requests = -1;
 static int st_node_responses = -1;
+static int st_node_publish = -1;
 static int st_node_errors = -1;
 
 static void
@@ -263,6 +337,7 @@ hartip_stats_tree_init(stats_tree* st)
   st_node_packets   = stats_tree_create_node(st, st_str_packets, 0, TRUE);
   st_node_requests  = stats_tree_create_pivot(st, st_str_requests, st_node_packets);
   st_node_responses = stats_tree_create_node(st, st_str_responses, st_node_packets, TRUE);
+  st_node_publish   = stats_tree_create_node(st, st_str_publish, st_node_packets, TRUE);
   st_node_errors    = stats_tree_create_node(st, st_str_errors, st_node_packets, TRUE);
 }
 
@@ -283,7 +358,12 @@ hartip_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
     message_type_node_str = st_str_responses;
     message_type_node     = st_node_responses;
     break;
+  case PUBLISH_MSG_TYPE:
+    message_type_node_str = st_str_publish;
+    message_type_node     = st_node_publish;
+    break;
   case ERROR_MSG_TYPE:
+  case NAK_MSG_TYPE:
     message_type_node_str = st_str_errors;
     message_type_node     = st_node_errors;
     break;
@@ -458,7 +538,7 @@ dissect_timestamp(proto_tree *tree, int hf, const char *name, int len,
 static gint
 dissect_cmd0(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
 {
-  if (bodylen >= 22) {
+  if (bodylen >= 12) {
     offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_expansion_code,                   tvb, offset);
     offset += dissect_short(body_tree, hf_hartip_pt_rsp_expanded_device_type,             tvb, offset);
     offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_req_min_preambles,                tvb, offset);
@@ -469,13 +549,22 @@ dissect_cmd0(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
     offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_flage,                            tvb, offset);
     proto_tree_add_item(body_tree,     hf_hartip_pt_rsp_device_id,                        tvb, offset, 3, ENC_NA);
     offset += 3;
-    offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_rsp_min_preambles,                tvb, offset);
-    offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_max_device_variables,             tvb, offset);
-    offset += dissect_short(body_tree, hf_hartip_pt_rsp_configuration_change_counter,     tvb, offset);
-    offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_extended_device_status,           tvb, offset);
-    offset += dissect_short(body_tree, hf_hartip_pt_rsp_manufacturer_Identification_code, tvb, offset);
-    offset += dissect_short(body_tree, hf_hartip_pt_rsp_private_label,                    tvb, offset);
-    /*offset += */dissect_byte(body_tree,  hf_hartip_pt_rsp_device_profile,                   tvb, offset);
+
+    if (bodylen >= 16) {
+      offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_rsp_min_preambles,                tvb, offset);
+      offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_max_device_variables,             tvb, offset);
+      offset += dissect_short(body_tree, hf_hartip_pt_rsp_configuration_change_counter,     tvb, offset);
+      offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_extended_device_status,           tvb, offset);
+    }
+
+    if (bodylen >= 18) {
+      offset += dissect_short(body_tree, hf_hartip_pt_rsp_manufacturer_Identification_code, tvb, offset);
+    }
+
+    if (bodylen >= 22) {
+      offset += dissect_short(body_tree, hf_hartip_pt_rsp_private_label,                    tvb, offset);
+      /*offset += */dissect_byte(body_tree,  hf_hartip_pt_rsp_device_profile,                   tvb, offset);
+    }
 
     return bodylen;
   }
@@ -528,9 +617,35 @@ dissect_cmd3(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
 }
 
 static gint
+dissect_cmd7(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
+{
+  if (bodylen >= 2) {
+    offset += dissect_byte(body_tree, hf_hartip_pt_rsp_poll_address,     tvb, offset);
+    dissect_byte(body_tree, hf_hartip_pt_rsp_loop_current_mode,          tvb, offset);
+
+    return bodylen;
+  }
+   return 0;
+}
+
+static gint
+dissect_cmd8(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
+{
+  if (bodylen >= 4) {
+    offset += dissect_byte(body_tree, hf_hartip_pt_rsp_primary_var_classify,     tvb, offset);
+    offset += dissect_byte(body_tree, hf_hartip_pt_rsp_secondary_var_classify,   tvb, offset);
+    offset += dissect_byte(body_tree, hf_hartip_pt_rsp_tertiary_var_classify,    tvb, offset);
+    dissect_byte(body_tree, hf_hartip_pt_rsp_quaternary_var_classify,            tvb, offset);
+
+    return bodylen;
+  }
+   return 0;
+}
+
+static gint
 dissect_cmd9(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
 {
-  if (bodylen >= 14) {
+  if (bodylen >= 13) {
     offset += dissect_byte(body_tree,    hf_hartip_pt_rsp_extended_device_status,    tvb, offset);
     offset += dissect_byte(body_tree,    hf_hartip_pt_rsp_slot0_device_var,          tvb, offset);
     offset += dissect_byte(body_tree,    hf_hartip_pt_rsp_slot0_device_var_classify, tvb, offset);
@@ -538,7 +653,7 @@ dissect_cmd9(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
     offset += dissect_float(body_tree,   hf_hartip_pt_rsp_slot0_device_var_value,    tvb, offset);
     offset += dissect_byte(body_tree,    hf_hartip_pt_rsp_slot0_device_var_status,   tvb, offset);
 
-    if (bodylen >= 22) {
+    if (bodylen >= 21) {
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot1_device_var,          tvb, offset);
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot1_device_var_classify, tvb, offset);
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot1_units,               tvb, offset);
@@ -546,7 +661,7 @@ dissect_cmd9(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot1_device_var_status,   tvb, offset);
     }
 
-    if (bodylen >= 30) {
+    if (bodylen >= 29) {
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot2_device_var,          tvb, offset);
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot2_device_var_classify, tvb, offset);
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot2_units,               tvb, offset);
@@ -554,7 +669,7 @@ dissect_cmd9(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot2_device_var_status,   tvb, offset);
     }
 
-    if (bodylen >= 38) {
+    if (bodylen >= 37) {
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot3_device_var,          tvb, offset);
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot3_device_var_classify, tvb, offset);
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot3_units,               tvb, offset);
@@ -562,7 +677,7 @@ dissect_cmd9(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot3_device_var_status,   tvb, offset);
     }
 
-    if (bodylen >= 46) {
+    if (bodylen >= 45) {
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot4_device_var,          tvb, offset);
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot4_device_var_classify, tvb, offset);
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot4_units,               tvb, offset);
@@ -570,7 +685,7 @@ dissect_cmd9(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot4_device_var_status,   tvb, offset);
     }
 
-    if (bodylen >= 54) {
+    if (bodylen >= 53) {
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot5_device_var,          tvb, offset);
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot5_device_var_classify, tvb, offset);
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot5_units,               tvb, offset);
@@ -578,7 +693,7 @@ dissect_cmd9(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot5_device_var_status,   tvb, offset);
     }
 
-    if (bodylen >= 62) {
+    if (bodylen >= 61) {
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot6_device_var,          tvb, offset);
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot6_device_var_classify, tvb, offset);
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot6_units,               tvb, offset);
@@ -586,7 +701,7 @@ dissect_cmd9(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot6_device_var_status,   tvb, offset);
     }
 
-    if (bodylen >= 70) {
+    if (bodylen >= 69) {
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot7_device_var,          tvb, offset);
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot7_device_var_classify, tvb, offset);
       offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_slot7_units,               tvb, offset);
@@ -619,21 +734,120 @@ dissect_cmd13(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
 }
 
 static gint
+dissect_cmd14(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
+{
+  if (bodylen >= 16) {
+    proto_tree_add_item(body_tree, hf_hartip_pt_rsp_transducer_serial_number, tvb, offset, 3, ENC_NA);
+    offset += 3;
+    offset += dissect_byte(body_tree, hf_hartip_pt_rsp_transducer_limit_min_span_units, tvb, offset);
+    offset += dissect_float(body_tree, hf_hartip_pt_rsp_upper_transducer_limit,         tvb, offset);
+    offset += dissect_float(body_tree, hf_hartip_pt_rsp_lower_transducer_limit,         tvb, offset);
+    dissect_float(body_tree, hf_hartip_pt_rsp_minimum_span,                             tvb, offset);
+
+    return bodylen;
+  }
+
+  return 0;
+}
+
+static gint
+dissect_cmd15(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
+{
+  if (bodylen >= 18) {
+    offset += dissect_byte(body_tree, hf_hartip_pt_rsp_pv_alarm_selection_code,               tvb, offset);
+    offset += dissect_byte(body_tree, hf_hartip_pt_rsp_pv_transfer_function_code,             tvb, offset);
+    offset += dissect_byte(body_tree, hf_hartip_pt_rsp_pv_upper_and_lower_range_values_units, tvb, offset);
+    offset += dissect_float(body_tree, hf_hartip_pt_rsp_pv_upper_range_value,                 tvb, offset);
+    offset += dissect_float(body_tree, hf_hartip_pt_rsp_pv_lower_range_value,                 tvb, offset);
+    offset += dissect_float(body_tree, hf_hartip_pt_rsp_pv_damping_value,                     tvb, offset);
+    offset += dissect_byte(body_tree, hf_hartip_pt_rsp_write_protect_code,                    tvb, offset);
+    offset += dissect_byte(body_tree, hf_hartip_pt_rsp_reserved,                              tvb, offset);
+    dissect_byte(body_tree, hf_hartip_pt_rsp_pv_analog_channel_flags,                         tvb, offset);
+
+    return bodylen;
+  }
+
+  return 0;
+}
+
+static gint
+dissect_cmd16(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
+{
+  if (bodylen >= 3) {
+    proto_tree_add_item(body_tree, hf_hartip_pt_rsp_final_assembly_number, tvb, offset, 3, ENC_NA);
+
+    return bodylen;
+  }
+
+  return 0;
+}
+
+static gint
+dissect_cmd33(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
+{
+  if (bodylen >= 6) {
+    offset += dissect_byte(body_tree,    hf_hartip_pt_rsp_slot0_device_var,          tvb, offset);
+    offset += dissect_byte(body_tree,    hf_hartip_pt_rsp_slot0_units,               tvb, offset);
+    offset += dissect_float(body_tree,   hf_hartip_pt_rsp_slot0_device_var_value,    tvb, offset);
+
+    if (bodylen >= 12) {
+      offset += dissect_byte(body_tree,    hf_hartip_pt_rsp_slot1_device_var,        tvb, offset);
+      offset += dissect_byte(body_tree,    hf_hartip_pt_rsp_slot1_units,             tvb, offset);
+      offset += dissect_float(body_tree,   hf_hartip_pt_rsp_slot1_device_var_value,  tvb, offset);
+    }
+
+    if (bodylen >= 18) {
+      offset += dissect_byte(body_tree,    hf_hartip_pt_rsp_slot2_device_var,        tvb, offset);
+      offset += dissect_byte(body_tree,    hf_hartip_pt_rsp_slot2_units,             tvb, offset);
+      offset += dissect_float(body_tree,   hf_hartip_pt_rsp_slot2_device_var_value,  tvb, offset);
+    }
+
+    if (bodylen >= 24) {
+      offset += dissect_byte(body_tree,    hf_hartip_pt_rsp_slot3_device_var,        tvb, offset);
+      offset += dissect_byte(body_tree,    hf_hartip_pt_rsp_slot3_units,             tvb, offset);
+      dissect_float(body_tree,   hf_hartip_pt_rsp_slot3_device_var_value,            tvb, offset);
+    }
+
+    return bodylen;
+  }
+
+  return 0;
+}
+
+static gint
+dissect_cmd38(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
+{
+  if (bodylen >= 2) {
+    dissect_short(body_tree, hf_hartip_pt_rsp_configuration_change_counter, tvb, offset);
+
+   return bodylen;
+  }
+
+  return 0;
+}
+
+static gint
 dissect_cmd48(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
 {
-  if (bodylen >= 9) {
-    proto_tree_add_item(body_tree,      hf_hartip_pt_rsp_device_sp_status,         tvb, offset, 5, ENC_NA);
-    offset += 5;
-    offset += dissect_byte(body_tree,   hf_hartip_pt_rsp_extended_device_status,   tvb, offset);
-    offset += dissect_byte(body_tree,   hf_hartip_pt_rsp_device_op_mode,           tvb, offset);
-    offset += dissect_byte(body_tree,   hf_hartip_pt_rsp_standardized_status_0,    tvb, offset);
+  if (bodylen >= 6) {
+    proto_tree_add_item(body_tree,      hf_hartip_pt_rsp_device_sp_status,         tvb, offset, 6, ENC_NA);
+    offset += 6;
 
-    if (bodylen >= 14) {
+    if (bodylen >= 9) {
+      offset += dissect_byte(body_tree,   hf_hartip_pt_rsp_extended_device_status, tvb, offset);
+      offset += dissect_byte(body_tree,   hf_hartip_pt_rsp_device_op_mode,         tvb, offset);
+      offset += dissect_byte(body_tree,   hf_hartip_pt_rsp_standardized_status_0,  tvb, offset);
+    }
+
+    if (bodylen >= 13) {
       offset += dissect_byte(body_tree, hf_hartip_pt_rsp_standardized_status_1,    tvb, offset);
       offset += dissect_byte(body_tree, hf_hartip_pt_rsp_analog_channel_saturated, tvb, offset);
       offset += dissect_byte(body_tree, hf_hartip_pt_rsp_standardized_status_2,    tvb, offset);
       offset += dissect_byte(body_tree, hf_hartip_pt_rsp_standardized_status_3,    tvb, offset);
-      offset += dissect_byte(body_tree, hf_hartip_pt_rsp_analog_channel_fixed,     tvb, offset);
+    }
+
+    if (bodylen >= 14) {
+        offset += dissect_byte(body_tree, hf_hartip_pt_rsp_analog_channel_fixed,   tvb, offset);
     }
 
     if (bodylen >= 24) {
@@ -647,12 +861,205 @@ dissect_cmd48(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
 }
 
 static gint
+dissect_cmd77(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
+{
+  guint8  byte_count;
+  gint    length = bodylen;
+
+  if (length >= 6) {
+     offset += dissect_byte(body_tree, hf_hartip_pt_rsp_io_card,                tvb, offset);
+     offset += dissect_byte(body_tree, hf_hartip_pt_rsp_channel,                tvb, offset);
+     offset += dissect_byte(body_tree, hf_hartip_pt_rsp_embedded_cmd_delimiter, tvb, offset);
+     offset += dissect_byte(body_tree, hf_hartip_pt_rsp_poll_address,           tvb, offset);
+     offset += dissect_byte(body_tree, hf_hartip_pt_rsp_embedded_cmd,           tvb, offset);
+
+     byte_count = tvb_get_guint8(tvb, offset);
+     proto_tree_add_item(body_tree, hf_hartip_pt_rsp_command_byte_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+     offset += 1;
+     length -= 6;
+
+     if ((byte_count >= 2) && (length >= 2) && (byte_count <= length)) {
+       offset += dissect_byte(body_tree, hf_hartip_pt_response_code, tvb, offset);
+       offset += dissect_byte(body_tree, hf_hartip_pt_device_status, tvb, offset);
+       length -= 2;
+       byte_count -= 2;
+
+       if ((byte_count > 0) && (length > 0) && (byte_count <= length)) {
+         proto_tree_add_item(body_tree, hf_hartip_pt_rsp_data, tvb, offset,
+                             byte_count, ENC_NA);
+       }
+     }
+
+    return bodylen;
+  }
+
+  return 0;
+}
+
+static gint
+dissect_cmd178(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
+{
+   guint16 cmd;
+   guint8  number_of_cmds;
+   guint8  cmd_byte_count;
+   gint    length = bodylen;
+   gint8   i;
+   gint    result;
+
+   if (length >= 5) {
+     number_of_cmds = tvb_get_guint8(tvb, offset);
+     proto_tree_add_uint(body_tree, hf_hartip_pt_rsp_number_of_commands, tvb, offset, 1, number_of_cmds);
+     offset += 1;
+     length -= 1;
+
+     for (i = 0; i < number_of_cmds; i++)
+     {
+       if (length >= 4)
+       {
+         cmd = tvb_get_ntohs(tvb, offset);
+         proto_tree_add_item(body_tree, hf_hartip_pt_rsp_command_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+         offset += 2;
+         length -= 2;
+
+         cmd_byte_count = tvb_get_guint8(tvb, offset);
+         proto_tree_add_item(body_tree, hf_hartip_pt_rsp_command_byte_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+         offset += 1;
+         length -= 1;
+
+         offset += dissect_byte(body_tree, hf_hartip_pt_response_code, tvb, offset);
+         length -= 1;
+         cmd_byte_count -= 1;
+
+         if ((cmd_byte_count > 0) && (length > 0) && (cmd_byte_count <= length))
+         {
+           switch(cmd)
+           {
+             case 3:
+               result = dissect_cmd3(body_tree, tvb, offset, cmd_byte_count);
+               break;
+             case 9:
+               result = dissect_cmd9(body_tree, tvb, offset, cmd_byte_count);
+               break;
+             case 48:
+               result = dissect_cmd48(body_tree, tvb, offset, cmd_byte_count);
+               break;
+             default:
+               result = 0;
+               break;
+           }
+
+           if (result == 0 ) {
+             proto_tree_add_item(body_tree, hf_hartip_pt_rsp_data, tvb, offset,
+                                 cmd_byte_count, ENC_NA);
+           }
+
+           offset += cmd_byte_count;
+           length -= cmd_byte_count;
+         }
+       }
+     }
+
+     return bodylen;
+   }
+
+   return 0;
+}
+
+static gint
+dissect_cmd203(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
+{
+  if (bodylen >= 8) {
+    offset += dissect_short(body_tree, hf_hartip_pt_rsp_index_of_first_discrete_var, tvb, offset);
+    offset += dissect_byte(body_tree, hf_hartip_pt_rsp_number_of_discrete_vars,      tvb, offset);
+    offset += dissect_byte(body_tree, hf_hartip_pt_rsp_extended_device_status,       tvb, offset);
+    dissect_timestamp(body_tree, hf_hartip_pt_rsp_timestamp_for_most_recent_discrete_change,
+                      "TimeStamp for Most Recent Discrete Change", 4,                tvb, offset);
+    offset += 4;
+
+    if (bodylen >= 11)
+    {
+       offset += dissect_short(body_tree, hf_hartip_pt_rsp_slot0_discrete_var_state, tvb, offset);
+       offset += dissect_byte(body_tree, hf_hartip_pt_rsp_slot0_discrete_var_status, tvb, offset);
+    }
+
+    if (bodylen >= 14)
+    {
+       offset += dissect_short(body_tree, hf_hartip_pt_rsp_slot1_discrete_var_state, tvb, offset);
+       offset += dissect_byte(body_tree, hf_hartip_pt_rsp_slot1_discrete_var_status, tvb, offset);
+    }
+
+    if (bodylen >= 17)
+    {
+       offset += dissect_short(body_tree, hf_hartip_pt_rsp_slot2_discrete_var_state, tvb, offset);
+       offset += dissect_byte(body_tree, hf_hartip_pt_rsp_slot2_discrete_var_status, tvb, offset);
+    }
+
+    if (bodylen >= 20)
+    {
+       offset += dissect_short(body_tree, hf_hartip_pt_rsp_slot3_discrete_var_state, tvb, offset);
+       offset += dissect_byte(body_tree, hf_hartip_pt_rsp_slot3_discrete_var_status, tvb, offset);
+    }
+
+    if (bodylen >= 23)
+    {
+       offset += dissect_short(body_tree, hf_hartip_pt_rsp_slot4_discrete_var_state, tvb, offset);
+       offset += dissect_byte(body_tree, hf_hartip_pt_rsp_slot4_discrete_var_status, tvb, offset);
+    }
+
+    if (bodylen >= 26)
+    {
+       offset += dissect_short(body_tree, hf_hartip_pt_rsp_slot5_discrete_var_state, tvb, offset);
+       dissect_byte(body_tree, hf_hartip_pt_rsp_slot5_discrete_var_status,           tvb, offset);
+    }
+
+    return bodylen;
+  }
+
+  return 0;
+}
+
+static gint
+dissect_cmd31(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
+{
+  gint    length = bodylen;
+  gint    result = 0;
+  guint16 cmd;
+
+  if (length >= 2) {
+    cmd = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(body_tree, hf_hartip_pt_rsp_command_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    length -= 2;
+
+    if (length > 0) {
+      switch(cmd)
+      {
+        case 64386:
+          result = dissect_cmd203(body_tree, tvb, offset, length);
+          break;
+      }
+
+      if (result == 0) {
+        proto_tree_add_item(body_tree, hf_hartip_pt_rsp_data, tvb, offset,
+                            length, ENC_NA);
+      }
+    }
+
+    return bodylen;
+  }
+
+  return 0;
+}
+
+static gint
 dissect_parse_hart_cmds(proto_tree *body_tree, tvbuff_t *tvb, guint8 cmd,
                         gint offset, gint bodylen)
 {
   switch(cmd)
   {
   case 0:
+  case 11:
+  case 21:
     return dissect_cmd0(body_tree, tvb, offset, bodylen);
   case 1:
     return dissect_cmd1(body_tree, tvb, offset, bodylen);
@@ -660,23 +1067,50 @@ dissect_parse_hart_cmds(proto_tree *body_tree, tvbuff_t *tvb, guint8 cmd,
     return dissect_cmd2(body_tree, tvb, offset, bodylen);
   case 3:
     return dissect_cmd3(body_tree, tvb, offset, bodylen);
+  case 6:
+  case 7:
+    return dissect_cmd7(body_tree, tvb, offset, bodylen);
+  case 8:
+    return dissect_cmd8(body_tree, tvb, offset, bodylen);
   case 9:
     return dissect_cmd9(body_tree, tvb, offset, bodylen);
   case 12:
+  case 17:
     if (bodylen >= 24)
       return dissect_packAscii(body_tree, hf_hartip_pt_rsp_message, tvb, offset, 24);
     break;
   case 13:
+  case 18:
     return dissect_cmd13(body_tree, tvb, offset, bodylen);
+  case 14:
+    return dissect_cmd14(body_tree, tvb, offset, bodylen);
+  case 15:
+    return dissect_cmd15(body_tree, tvb, offset, bodylen);
+  case 16:
+  case 19:
+    return dissect_cmd16(body_tree, tvb, offset, bodylen);
   case 20:
+  case 22:
     if (bodylen >= 32) {
       proto_tree_add_item(body_tree, hf_hartip_pt_rsp_tag, tvb, offset, 32,
                           ENC_ASCII|ENC_NA);
       return 32;
     }
     break;
+  case 31:
+    return dissect_cmd31(body_tree, tvb, offset, bodylen);
+  case 33:
+    return dissect_cmd33(body_tree, tvb, offset, bodylen);
+  case 38:
+    return dissect_cmd38(body_tree, tvb, offset, bodylen);
   case 48:
     return dissect_cmd48(body_tree, tvb, offset, bodylen);
+  case 77:
+    return dissect_cmd77(body_tree, tvb, offset, bodylen);
+  case 178:
+    return dissect_cmd178(body_tree, tvb, offset, bodylen);
+  case 203:
+    return dissect_cmd203(body_tree, tvb, offset, bodylen);
   }
 
   return 0;
@@ -695,6 +1129,7 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, gint offset,
   gint        is_rsp        = 0;
   gint        num_preambles = 0;
   gint        result;
+  guint8      short_addr;
 
   /* find number of preambles */
   while (length > num_preambles) {
@@ -724,6 +1159,9 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, gint offset,
     } else if ((delimiter & 0x7) == 6) {
       frame_type_str = "ACK";
       is_rsp = 1;
+    } else if ((delimiter & 0x7) == 1) {
+      frame_type_str = "PUB";
+      is_rsp = 1;
     } else {
       frame_type_str = "UNK";
     }
@@ -738,7 +1176,10 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, gint offset,
 
   if (is_short == 1) {
     if (length > 0) {
-      proto_tree_add_item(body_tree, hf_hartip_pt_short_addr, tvb, offset, 1, ENC_BIG_ENDIAN);
+      short_addr = tvb_get_guint8(tvb, offset);
+      short_addr = short_addr & 0x3F;
+      proto_tree_add_uint(body_tree, hf_hartip_pt_short_addr, tvb, offset, 1,
+                               short_addr);
       offset += 1;
       length -= 1;
     }
@@ -779,7 +1220,7 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, gint offset,
   }
 
   if (length > 1) {
-    result = dissect_parse_hart_cmds(body_tree, tvb, cmd, offset, length);
+    result = dissect_parse_hart_cmds(body_tree, tvb, cmd, offset, (length - 1));
     if (result == 0 ) {
       proto_tree_add_item(body_tree, hf_hartip_pt_payload, tvb, offset,
                           (length - 1), ENC_NA);
@@ -897,7 +1338,8 @@ dissect_hartip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            ett_hartip_body, NULL,
                            "HART_IP Body, %s, %s", msg_id_str, msg_type_str);
 
-  if (message_type == ERROR_MSG_TYPE) {
+  if ((message_type == ERROR_MSG_TYPE) ||
+      (message_type == NAK_MSG_TYPE)) {
     offset += dissect_error(body_tree, tvb, offset, bodylen);
   } else {
     /*  Dissect the various HARTIP messages. */
@@ -1019,7 +1461,7 @@ proto_register_hartip(void)
         "Error Code", HFILL }
     },
 
-    /* HARTIP Pass-through commands. */
+    /* HARTIP Pass-through commads. */
     { &hf_hartip_pt_preambles,
       { "Preambles",           "hart_ip.pt.preambles",
         FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -1208,6 +1650,35 @@ proto_register_hartip(void)
         NULL, HFILL }
     },
 
+    /* command 7 */
+    { &hf_hartip_pt_rsp_loop_current_mode,
+      { "Loop Current Mode",                     "hart_ip.pt.rsp.loop_current_mode",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    /* command 8 */
+    { &hf_hartip_pt_rsp_primary_var_classify,
+      { "Primary Variable Classification",       "hart_ip.pt.rsp.primary_variable_classification",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_secondary_var_classify,
+      { "Secondary Variable Classification",     "hart_ip.pt.rsp.secondary_variable_classification",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_tertiary_var_classify,
+      { "Tertiary Variable Classification",      "hart_ip.pt.rsp.tertiary_variable_classification",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_quaternary_var_classify,
+      { "Quaternary Variable Classification",    "hart_ip.pt.rsp.quaternary_variable_classification",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+
     /* command 9 */
     { &hf_hartip_pt_rsp_slot0_device_var,
       { "Slot0 Device Variable",           "hart_ip.pt.rsp.slot0_device_var",
@@ -1215,7 +1686,7 @@ proto_register_hartip(void)
         NULL, HFILL }
     },
     { &hf_hartip_pt_rsp_slot0_device_var_classify,
-      { "Slot0 Device Variable Classification",           "hart_ip.pt.rsp.slot0_device_var_classify",
+      { "Slot0 Device Variable Classification",  "hart_ip.pt.rsp.slot0_device_var_classification",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
@@ -1437,6 +1908,87 @@ proto_register_hartip(void)
         NULL, HFILL }
     },
 
+    /* command 14 */
+    { &hf_hartip_pt_rsp_transducer_serial_number,
+      { "Transducer Serail Number",              "hart_ip.pt.rsp.transducer_serail_number",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_transducer_limit_min_span_units,
+      { "Transducer Limit Min Span Units",  "hart_ip.pt.rsp.transducer_limit_min_span_units",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_upper_transducer_limit,
+      { "Upper Transducer Limit",                "hart_ip.pt.rsp.upper_transducer_limit",
+        FT_FLOAT, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_lower_transducer_limit,
+      { "Lower Transducer Limit",                "hart_ip.pt.rsp.lower_transducer_limit",
+        FT_FLOAT, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_minimum_span,
+      { "Minimum Span",                          "hart_ip.pt.rsp.minimum_span",
+        FT_FLOAT, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    /* command 15 */
+    { &hf_hartip_pt_rsp_pv_alarm_selection_code,
+      { "PV Alarm Selection Code",                     "hart_ip.pt.rsp.pv_alarm_selection_code",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_pv_transfer_function_code,
+      { "PV Transfer Funciton Code",                   "hart_ip.pt.rsp.pv_transfer_function_code",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_pv_upper_and_lower_range_values_units,
+      { "PV Upper and Lower Range Values Units",  "hart_ip.pt.rsp.pv_upper_and_lower_range_values_units",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_pv_upper_range_value,
+      { "PV Upper Range Value",                        "hart_ip.pt.rsp.pv_upper_range_value",
+        FT_FLOAT, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_pv_lower_range_value,
+      { "PV Lower Range Value",                        "hart_ip.pt.rsp.pv_lower_range_value",
+        FT_FLOAT, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_pv_damping_value,
+      { "PV Damping Value",                            "hart_ip.pt.rsp.pv_damping_value",
+        FT_FLOAT, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_write_protect_code,
+      { "Write Protect Code",                          "hart_ip.pt.rsp.write_protect_code",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_reserved,
+      { "Reserved",                                    "hart_ip.pt.rsp.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_pv_analog_channel_flags,
+      { "PV Analog Channel Flags",                     "hart_ip.pt.rsp.pv_analog_channel_flags",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    /* command 16 and 19 */
+    { &hf_hartip_pt_rsp_final_assembly_number,
+      { "Final Assembly Number",                       "hart_ip.pt.rsp.final_assembly_numbe",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+
     /* Tag */
     { &hf_hartip_pt_rsp_tag,
       { "Tag",           "hart_ip.pt.rsp.tag",
@@ -1490,8 +2042,135 @@ proto_register_hartip(void)
     { &hf_hartip_pt_rsp_analog_channel_fixed,
       { "Analog Channel Fixed",           "hart_ip.pt.rsp.analog_channel_fixed",
         FT_UINT8, BASE_DEC, NULL, 0x0,
-        NULL, HFILL
-      }
+        NULL, HFILL }
+    },
+
+    /* command 77 */
+    { &hf_hartip_pt_rsp_io_card,
+      { "IO Card",                     "hart_ip.pt.rsp.io_card",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_channel,
+      { "Channel",                     "hart_ip.pt.rsp.channel",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_embedded_cmd_delimiter,
+      { "Embedded Command Delimter",   "hart_ip.pt.rsp.embedded_command_delimter",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_poll_address,
+      { "Poll Address",                "hart_ip.pt.rsp.poll_address",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_embedded_cmd,
+      { "Embedded Command",            "hart_ip.pt.rsp.embedded_command",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    /* command 178 */
+    { &hf_hartip_pt_rsp_number_of_commands,
+      { "Number of Commands",          "hart_ip.pt.rsp.number_of_commands",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    /* command 31 and 178 */
+    { &hf_hartip_pt_rsp_command_number,
+      { "Command number",              "hart_ip.pt.rsp.command_number",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_data,
+      { "Data",                        "hart_ip.pt.rsp.data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    /* command 77 and 178 */
+    { &hf_hartip_pt_rsp_command_byte_count,
+      { "Command byte count",          "hart_ip.pt.rsp.command_byte_count",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    /* command 203 */
+    { &hf_hartip_pt_rsp_index_of_first_discrete_var,
+      { "Index of First Discrete Variable",           "hart_ip.pt.rsp.index_of_first_discrete_var",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_number_of_discrete_vars,
+      { "Number of Discrete Variables",               "hart_ip.pt.rsp.number_of_discrete_vars",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_timestamp_for_most_recent_discrete_change,
+      { "TimeStamp for Most Recent Discrete Change",  "hart_ip.pt.rsp.timestamp_for_most_recent_discrete_change",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_slot0_discrete_var_state,
+      { "Slot0 Discrete Variable State",              "hart_ip.pt.rsp.slot0_discrete_var_state",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_slot0_discrete_var_status,
+      { "Slot0 Discrete Variable Status",             "hart_ip.pt.rsp.slot0_discrete_var_status",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_slot1_discrete_var_state,
+      { "Slot1 Discrete Variable State",              "hart_ip.pt.rsp.slot1_discrete_var_state",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_slot1_discrete_var_status,
+      { "Slot1 Discrete Variable Status",             "hart_ip.pt.rsp.slot1_discrete_var_status",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_slot2_discrete_var_state,
+      { "Slot2 Discrete Variable State",              "hart_ip.pt.rsp.slot2_discrete_var_state",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_slot2_discrete_var_status,
+      { "Slot2 Discrete Variable Status",             "hart_ip.pt.rsp.slot2_discrete_var_status",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_slot3_discrete_var_state,
+      { "Slot3 Discrete Variable State",              "hart_ip.pt.rsp.slot3_discrete_var_state",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_slot3_discrete_var_status,
+      { "Slot3 Discrete Variable Status",             "hart_ip.pt.rsp.slot3_discrete_var_status",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_slot4_discrete_var_state,
+      { "Slot4 Discrete Variable State",              "hart_ip.pt.rsp.slot4_discrete_var_state",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_slot4_discrete_var_status,
+      { "Slot4 Discrete Variable Status",             "hart_ip.pt.rsp.slot4_discrete_var_status",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_slot5_discrete_var_state,
+      { "Slot5 Discrete Variable State",              "hart_ip.pt.rsp.slot5_discrete_var_state",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_rsp_slot5_discrete_var_status,
+      { "Slot5 Discrete Variable Status",             "hart_ip.pt.rsp.slot5_discrete_var_status",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
     }
   };
 
