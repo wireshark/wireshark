@@ -285,12 +285,10 @@ proto_reg_handoff_socketcan(void)
 
 	socketcan_bigendian_handle = create_dissector_handle(dissect_socketcan_bigendian,
 	    proto_can);
-	dissector_add_uint("wtap_encap", WTAP_ENCAP_SOCKETCAN_BIGENDIAN,
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_SOCKETCAN,
 	    socketcan_bigendian_handle);
 	socketcan_hostendian_handle = create_dissector_handle(dissect_socketcan_hostendian,
 	    proto_can);
-	dissector_add_uint("wtap_encap", WTAP_ENCAP_SOCKETCAN_HOSTENDIAN,
-	    socketcan_hostendian_handle);
 	dissector_add_uint("sll.ltype", LINUX_SLL_P_CAN,
 	    socketcan_hostendian_handle);
 }
