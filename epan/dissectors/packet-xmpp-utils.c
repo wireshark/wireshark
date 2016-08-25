@@ -536,12 +536,8 @@ xmpp_xml_frame_to_element_t(xml_frame_t *xml_frame, xmpp_element_t *parent, tvbu
         g_hash_table_insert(node->namespaces, (gpointer)"", (gpointer)"jabber:client");
     }
 
-    if(xml_frame->item != NULL)
-    {
-        node->length = xml_frame->item->finfo->length;
-    }
-
     node->offset = xml_frame->start_offset;
+    node->length = xml_frame->length;
 
     tt = tvbparse_init(tvb,node->offset,-1,NULL,want_ignore);
 
@@ -573,12 +569,8 @@ xmpp_xml_frame_to_element_t(xml_frame_t *xml_frame, xmpp_element_t *parent, tvbu
                     tvb_memcpy(child->value, value, 0, l);
                 }
 
-                if(child->item)
-                {
-                    attr->length = child->item->finfo->length;
-                }
-
                 attr->offset = child->start_offset;
+                attr->length = child->length;
                 attr->value = value;
                 attr->name = wmem_strdup(wmem_packet_scope(), child->name_orig_case);
 
@@ -618,11 +610,8 @@ xmpp_xml_frame_to_element_t(xml_frame_t *xml_frame, xmpp_element_t *parent, tvbu
 
                 data->value = value;
 
-                if(child->item)
-                {
-                    data->length = child->item->finfo->length;
-                }
                 data->offset = child->start_offset;
+                data->length = child->length;
                 node->data = data;
             }
         } else

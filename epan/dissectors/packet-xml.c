@@ -200,6 +200,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     tt = tvbparse_init(tvb, 0, -1, stack, want_ignore);
     current_frame->start_offset = 0;
+    current_frame->length = tvb_captured_length(tvb);
 
     root_ns = NULL;
 
@@ -338,6 +339,7 @@ static void after_token(void *tvbparse_data, const void *wanted_data _U_, tvbpar
         new_frame->last_item      = pi;
         new_frame->tree           = NULL;
         new_frame->start_offset   = tok->offset;
+        new_frame->length         = tok->len;
         new_frame->ns             = NULL;
         new_frame->pinfo          = current_frame->pinfo;
     }
@@ -382,6 +384,7 @@ static void before_xmpli(void *tvbparse_data, const void *wanted_data _U_, tvbpa
     new_frame->last_item      = pi;
     new_frame->tree           = pt;
     new_frame->start_offset   = tok->offset;
+    new_frame->length         = tok->len;
     new_frame->ns             = ns;
     new_frame->pinfo          = current_frame->pinfo;
 
@@ -471,6 +474,7 @@ static void before_tag(void *tvbparse_data, const void *wanted_data _U_, tvbpars
     new_frame->last_item      = pi;
     new_frame->tree           = pt;
     new_frame->start_offset   = tok->offset;
+    new_frame->length         = tok->len;
     new_frame->ns             = ns;
     new_frame->pinfo          = current_frame->pinfo;
 
@@ -507,6 +511,7 @@ static void after_untag(void *tvbparse_data, const void *wanted_data _U_, tvbpar
     xml_frame_t *current_frame = (xml_frame_t *)g_ptr_array_index(stack, stack->len - 1);
 
     proto_item_set_len(current_frame->item, (tok->offset - current_frame->start_offset) + tok->len);
+    current_frame->length = (tok->offset - current_frame->start_offset) + tok->len;
 
     proto_tree_add_format_text(current_frame->tree, tok->tvb, tok->offset, tok->len);
 
@@ -542,6 +547,7 @@ static void before_dtd_doctype(void *tvbparse_data, const void *wanted_data _U_,
     new_frame->last_item      = dtd_item;
     new_frame->tree           = proto_item_add_subtree(dtd_item, ett_dtd);
     new_frame->start_offset   = tok->offset;
+    new_frame->length         = tok->len;
     new_frame->ns             = NULL;
     new_frame->pinfo          = current_frame->pinfo;
 
@@ -620,6 +626,7 @@ static void after_attrib(void *tvbparse_data, const void *wanted_data _U_, tvbpa
     new_frame->last_item      = pi;
     new_frame->tree           = NULL;
     new_frame->start_offset   = tok->offset;
+    new_frame->length         = tok->len;
     new_frame->ns             = NULL;
     new_frame->pinfo          = current_frame->pinfo;
 
