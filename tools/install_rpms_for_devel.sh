@@ -62,7 +62,7 @@ fi
 
 PKGS="autoconf automake libtool gcc flex bison python perl $GLIB2
 $PCAP $ZLIB lua-devel lua $CARES $GTK3 $GTK2 desktop-file-utils $QT fop
-asciidoc git git-review perl-podlators"
+asciidoc git git-review perl-podlators libnghttp2-devel libnghttp2"
 
 echo "Run this command (as root):"
 echo

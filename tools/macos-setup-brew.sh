@@ -25,7 +25,7 @@
 brew update
 
 #install some lib need by Wireshark
-brew install c-ares glib gnutls lua cmake
+brew install c-ares glib gnutls lua cmake nghttp2
 
 #install Qt5
 brew install qt5

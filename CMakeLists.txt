@@ -709,7 +709,7 @@ endif()
 # - set HAVE_XXX
 
 #The minimum package list
-set(PACKAGELIST Gettext M Git GLIB2 GMODULE2 GTHREAD2 LEX YACC Perl SED SH PythonInterp)
+set(PACKAGELIST Gettext M Git GLIB2 GMODULE2 GTHREAD2 LEX YACC Perl SED SH PythonInterp NGHTTP2)
 set(LEX_REQUIRED TRUE)
 set(GLIB2_REQUIRED TRUE)
 set(GLIB2_FIND_REQUIRED TRUE)
@@ -939,6 +939,9 @@ if(HAVE_LIBGEOIP)
 endif()
 if(LIBSSH_FOUND)
 	set(HAVE_LIBSSH 1)
+endif()
+if(NGHTTP2_FOUND)
+	set(HAVE_NGHTTP2 1)
 endif()
 if(HAVE_LIBCARES)
 	set(HAVE_C_ARES 1)
@@ -1548,6 +1551,13 @@ if(WIN32)
 				"${_dll_output_dir}"
 		)
 	endif(LUA_FOUND)
+	if (NGHTTP2_FOUND)
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${NGHTTP2_DLL_DIR}/${NGHTTP2_DLL}"
+				"${_dll_output_dir}"
+		)
+	endif(NGHTTP2_FOUND)
 	if (SMI_FOUND)
 		# Wireshark.nsi wants SMI_DIR which is the base SMI directory
 		get_filename_component(SMI_DIR ${SMI_DLL_DIR} DIRECTORY)

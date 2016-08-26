@@ -69,6 +69,10 @@
 #include <ares_version.h>
 #endif
 
+#ifdef HAVE_NGHTTP2
+#include <nghttp2/nghttp2ver.h>
+#endif
+
 static wmem_allocator_t *pinfo_pool_cache = NULL;
 
 const gchar*
@@ -563,6 +567,13 @@ epan_get_compiled_version_info(GString *str)
 	g_string_append(str, "without GeoIP");
 #endif /* HAVE_GEOIP */
 
+	/* nghttp2 */
+	g_string_append(str, ", ");
+#ifdef HAVE_NGHTTP2
+	g_string_append(str, "with nghttp2 " NGHTTP2_VERSION);
+#else
+	g_string_append(str, "without nghttp2");
+#endif /* HAVE_NGHTTP2 */
 }
 
 /*

@@ -1170,6 +1170,34 @@ AC_DEFUN([AC_WIRESHARK_LIBSSH_CHECK],
 	fi
 ])
 
+#
+# AC_WIRESHARK_NGHTTP2_CHECK
+#
+AC_DEFUN([AC_WIRESHARK_NGHTTP2_CHECK],
+[
+	want_nghttp2=defaultyes
+
+	if test "x$want_nghttp2" = "xdefaultyes"; then
+		want_nghttp2=yes
+	fi
+
+	if test "x$want_nghttp2" = "xyes"; then
+		AC_CHECK_LIB(nghttp2, nghttp2_hd_inflate_new,
+			[
+				AC_CHECK_HEADERS(nghttp2/nghttp2.h,
+					[
+						NGHTTP2_LIBS=-lnghttp2
+						AC_DEFINE(HAVE_NGHTTP2, 1, [Define to use nghttp2 library])
+						have_good_nghttp2=yes
+					],,
+				)
+			],,
+		)
+	else
+		AC_MSG_RESULT(not required)
+	fi
+])
+
 #AC_WIRESHARK_LDFLAGS_CHECK
 #
 # $1 : ldflag(s) to test

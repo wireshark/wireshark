@@ -114,6 +114,7 @@ $Win64Archives = @{
     "libssh-0.7.2-win64ws.zip" = "";
     "lua-5.2.4_Win64_dllw4_lib.zip" = "lua5.2.4";
     "nasm-2.09.08-win32.zip" = "";
+    "nghttp2-1.14.0-win64ws.zip" = "";
     "portaudio_v19_2.zip" = "";
     "upx303w.zip" = "";
     "WinSparkle-0.3-44-g2c8d9d3-win64ws.zip" = "";
@@ -132,6 +133,7 @@ $Win32Archives = @{
     "libssh-0.7.2-win32ws.zip" = "";
     "lua-5.2.4_Win32_dllw4_lib.zip" = "lua5.2.4";
     "nasm-2.09.08-win32.zip" = "";
+    "nghttp2-1.14.0-win32ws.zip" = "";
     "portaudio_v19_2.zip" = "";
     "upx303w.zip" = "";
     "WinSparkle-0.3-44-g2c8d9d3-win32ws.zip" = "";
@@ -177,6 +179,7 @@ $CleanupItems = @(
     "libsmi-svn-40773-win??ws"
     "libssh-0.7.2-win??ws"
     "nasm-2.09.08"
+    "nghttp2-*-win??ws"
     "portaudio_v19"
     "portaudio_v19_2"
     "upx301w"

@@ -11,6 +11,7 @@
 # Set these to 1 if you want to ensure your package includes support for them:
 %global with_c_ares 1
 %global with_portaudio 0
+%global with_nghttp2 1
 
 # Set at most one of these two:
 # Note that setcap requires rpmbuild 4.7.0 or later.
@@ -78,9 +79,15 @@ BuildRequires:	c-ares-devel
 Requires:	c-ares
 %endif
 %endif
+
 %if %{with lua}
 BuildRequires:	lua-devel < 5.3
 Requires:	lua < 5.3
+%endif
+
+%if %{with_nghttp2}
+BuildRequires:	libnghttp2-devel
+Requires:	libnghttp2
 %endif
 
 # Uncomment these if you want to be sure you get them...
@@ -440,6 +447,9 @@ fi
 %endif
 
 %changelog
+* Mon Aug 29 2016 Jeff Morriss
+- Add libnghttp2 (as an option, defaulting to required).
+
 * Wed Aug 17 2016 Jeff Morriss
 - wireshark.pc is now installed with Wireshark, include it in the RPM.
 

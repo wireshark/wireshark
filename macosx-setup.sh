@@ -138,6 +138,8 @@ CARES_VERSION=1.12.0
 
 LIBSSH_VERSION=0.7.2
 
+NGHTTP2_VERSION=1.14.0
+
 DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 
 #
@@ -1469,11 +1471,57 @@ uninstall_libssh() {
     fi
 }
 
+install_nghttp2() {
+    if [ "$NGHTTP2_VERSION" -a ! -f nghttp2-$NGHTTP2_VERSION-done ] ; then
+        echo "Downloading, building, and installing nghttp2:"
+        [ -f nghttp2-$NGHTTP2_VERSION.tar.xz ] || curl -L -O https://github.com/nghttp2/nghttp2/releases/download/v$NGHTTP2_VERSION/nghttp2-$NGHTTP2_VERSION.tar.xz || exit 1
+        xzcat nghttp2-$NGHTTP2_VERSION.tar.xz | tar xf - || exit 1
+        cd nghttp2-$NGHTTP2_VERSION
+        ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch nghttp2-$NGHTTP2_VERSION-done
+    fi
+}
+
+uninstall_nghttp2() {
+    if [ ! -z "$installed_nghttp2_version" ] ; then
+        echo "Uninstalling nghttp2:"
+        cd nghttp2-$installed_nghttp2_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm nghttp2-$installed_nghttp2_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf nghttp2-$installed_nghttp2_version
+            rm -rf nghttp2-$installed_nghttp2_version.tar.xz
+        fi
+
+        installed_nghttp2_version=""
+    fi
+}
+
 install_all() {
     #
     # Check whether the versions we have installed are the versions
     # requested; if not, uninstall the installed versions.
     #
+    if [ ! -z "$installed_nghttp2_version" -a \
+              "$installed_nghttp2_version" != "$NGHTTP2_VERSION" ] ; then
+        echo "Installed libssh version is $installed_nghttp2_version"
+        if [ -z "$NGHTTP2_VERSION" ] ; then
+            echo "nghttp2 is not requested"
+        else
+            echo "Requested nghttp2 version is $NGHTTP2_VERSION"
+        fi
+        uninstall_nghttp2 -r
+    fi
+
     if [ ! -z "$installed_libssh_version" -a \
               "$installed_libssh_version" != "$LIBSSH_VERSION" ] ; then
         echo "Installed libssh version is $installed_libssh_version"
@@ -1874,6 +1922,8 @@ install_all() {
     install_c_ares
 
     install_libssh
+
+    install_nghttp2
 }
 
 uninstall_all() {
@@ -1890,6 +1940,8 @@ uninstall_all() {
         # We also do a "make distclean", so that we don't have leftovers from
         # old configurations.
         #
+        uninstall_nghttp2
+
         uninstall_libssh
 
         uninstall_c_ares
@@ -2047,6 +2099,7 @@ then
     installed_geoip_version=`ls geoip-*-done 2>/dev/null | sed 's/geoip-\(.*\)-done/\1/'`
     installed_cares_version=`ls c-ares-*-done 2>/dev/null | sed 's/c-ares-\(.*\)-done/\1/'`
     installed_libssh_version=`ls libssh-*-done 2>/dev/null | sed 's/libssh-\(.*\)-done/\1/'`
+    installed_nghttp2_version=`ls nghttp2-*-done 2>/dev/null | sed 's/nghttp2-\(.*\)-done/\1/'`
 
     #
     # If we don't have a versioned -done file for portaudio, but do have

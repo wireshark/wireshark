@@ -2333,6 +2333,31 @@ else
 fi
 AC_SUBST(LIBSSH_LIBS)
 
+dnl nghttp2 Check
+NGHTTP2_LIBS=''
+AC_MSG_CHECKING(whether to use the nghttp2 HPACK library if available)
+
+AC_ARG_WITH(nghttp2,
+  AC_HELP_STRING( [--with-nghttp2@<:@=DIR@:>@],
+		  [use nghttp2 (located in directory DIR, if supplied) @<:@default=yes, if present@:>@]),
+[
+if   test "x$withval" = "xno";  then
+	want_nghttp2=no
+elif test "x$withval" = "xyes"; then
+	want_nghttp2=yes
+elif test -d "$withval"; then
+	want_nghttp2=yes
+	AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
+fi
+])
+if test "x$want_nghttp2" = "xno"; then
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	AC_WIRESHARK_NGHTTP2_CHECK
+fi
+AC_SUBST(NGHTTP2_LIBS)
+
 dnl Checks for typedefs, structures, and compiler characteristics.
 # AC_C_CONST
 
@@ -2835,7 +2860,6 @@ AC_CONFIG_FILES(
   epan/dissectors/Makefile
   epan/dissectors/dcerpc/Makefile
   epan/ftypes/Makefile
-  epan/nghttp2/Makefile
   epan/wmem/Makefile
   epan/wslua/Makefile
   extcap/Makefile
@@ -2993,6 +3017,12 @@ else
 	ssh_userauth_agent_message="no"
 fi
 
+if test "x$have_good_nghttp2" = "xyes" ; then
+	nghttp2_message="yes"
+else
+	nghttp2_message="no"
+fi
+
 echo ""
 echo "  CPPFLAGS: $WS_CPPFLAGS $CPPFLAGS"
 echo ""
@@ -3052,4 +3082,5 @@ echo "                 Use libssh library : $libssh_message"
 echo "            Have ssh_userauth_agent : $ssh_userauth_agent_message"
 echo "                     Use nl library : $libnl_message"
 echo "              Use SBC codec library : $have_sbc"
+echo "                Use nghttp2 library : $nghttp2_message"
 #echo "       Use GDK-Pixbuf with GResource: $have_gresource_pixbuf"

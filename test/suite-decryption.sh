@@ -471,6 +471,10 @@ decryption_step_ikev2_aes256gcm8() {
 
 # HTTP2 (HPACK)
 decryption_step_http2() {
+	if [ $HAVE_NGHTTP2 -ne 0 ]; then
+		test_step_skipped
+		return
+	fi
 	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
 		-Tfields -e http2.header.value \
 		-d tcp.port==3000,http2 \

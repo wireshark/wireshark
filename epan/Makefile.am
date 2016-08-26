@@ -33,7 +33,7 @@ wslua_dir =
 wslua_dist_dir = wslua
 endif		# HAVE_LIBLUA
 
-SUBDIRS = compress crypt ftypes dfilter dissectors nghttp2 wmem $(wslua_dir)
+SUBDIRS = compress crypt ftypes dfilter dissectors wmem $(wslua_dir)
 
 DIST_SUBDIRS = $(SUBDIRS) $(wslua_dist_dir)
 
@@ -318,7 +318,6 @@ libwireshark_la_LIBADD = \
 	dissectors/libdissectors.la		\
 	dissectors/libdirtydissectors.la	\
 	dissectors/libfiledissectors.la		\
-	nghttp2/libnghttp2.la			\
 	wmem/libwmem.la				\
 	$(wslua_lib)				\
 	${top_builddir}/wiretap/libwiretap.la	\
@@ -330,6 +329,7 @@ libwireshark_la_LIBADD = \
 	@SSL_LIBS@		\
 	@LIBSMI_LDFLAGS@	\
 	@GEOIP_LIBS@		\
+	@NGHTTP2_LIBS@		\
 	@GLIB_LIBS@
 
 libwireshark_la_DEPENDENCIES = \
@@ -341,7 +341,6 @@ libwireshark_la_DEPENDENCIES = \
 	dfilter/libdfilter.la			\
 	dissectors/libdissectors.la		\
 	dissectors/libdirtydissectors.la	\
-	nghttp2/libnghttp2.la			\
 	wmem/libwmem.la				\
 	$(wslua_lib)				\
 	${top_builddir}/wsutil/libwsutil.la	\

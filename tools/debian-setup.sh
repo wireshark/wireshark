@@ -58,6 +58,7 @@ trusty)
 	;;
 *)
 	BASIC_LIST="$BASIC_LIST libtool-bin"
+	ADDITIONAL_LIST="$ADDITIONAL_LIST libnghttp2-dev"
 	;;
 esac
 

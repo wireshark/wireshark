@@ -44,7 +44,9 @@
 #include <epan/proto_data.h>
 #include <epan/dissectors/packet-http2.h>
 
-#include <epan/nghttp2/nghttp2.h>
+#ifdef HAVE_NGHTTP2
+#include <nghttp2/nghttp2.h>
+#endif
 
 #include "packet-tcp.h"
 #include <epan/tap.h>
@@ -52,6 +54,7 @@
 
 #include "wsutil/pint.h"
 
+#ifdef HAVE_NGHTTP2
 #define http2_header_repr_type_VALUE_STRING_LIST(XXX)                   \
     XXX(HTTP2_HD_NONE, 0x00, "")                                        \
     XXX(HTTP2_HD_INDEXED, 0x01, "Indexed Header Field")                 \
@@ -65,6 +68,7 @@
 
 VALUE_STRING_ENUM(http2_header_repr_type);
 VALUE_STRING_ARRAY(http2_header_repr_type);
+#endif
 
 /* Decompressed header field */
 typedef struct {
@@ -138,8 +142,10 @@ typedef struct {
        hd_inflater[0].  Otherwise, we use settings_queue[1] and
        hd_inflater[1]. */
     wmem_queue_t *settings_queue[2];
+#ifdef HAVE_NGHTTP2
     nghttp2_hd_inflater *hd_inflater[2];
     http2_header_repr_info_t header_repr_info[2];
+#endif
     tcp_flow_t *fwd_flow;
 } http2_session_t;
 
@@ -270,6 +276,7 @@ static gint ett_http2_headers = -1;
 static gint ett_http2_flags = -1;
 static gint ett_http2_settings = -1;
 
+#ifdef HAVE_NGHTTP2
 /* Due to HPACK compression, we may get lots of relatively large
    header fields (e.g., 4KiB).  Allocating each of them requires lots
    of memory.  The maximum compression is achieved in HPACK by
@@ -280,6 +287,7 @@ static gint ett_http2_settings = -1;
 static wmem_map_t *http2_hdrcache_map = NULL;
 /* Header name_length + name + value_length + value */
 static char *http2_header_pstr = NULL;
+#endif
 
 static dissector_handle_t http2_handle;
 
@@ -404,6 +412,7 @@ static const value_string http2_settings_vals[] = {
     { 0, NULL }
 };
 
+#ifdef HAVE_NGHTTP2
 static gboolean
 hd_inflate_del_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
 {
@@ -413,6 +422,7 @@ hd_inflate_del_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, vo
 
     return FALSE;
 }
+#endif
 
 static http2_session_t*
 get_http2_session(packet_info *pinfo)
@@ -432,6 +442,7 @@ get_http2_session(packet_info *pinfo)
 
         h2session = wmem_new0(wmem_file_scope(), http2_session_t);
 
+#ifdef HAVE_NGHTTP2
         nghttp2_hd_inflate_new(&h2session->hd_inflater[0]);
         nghttp2_hd_inflate_new(&h2session->hd_inflater[1]);
 
@@ -439,6 +450,7 @@ get_http2_session(packet_info *pinfo)
                                h2session->hd_inflater[0]);
         wmem_register_callback(wmem_file_scope(), hd_inflate_del_cb,
                                h2session->hd_inflater[1]);
+#endif
 
         h2session->fwd_flow = tcpd->fwd;
         h2session->settings_queue[0] = wmem_queue_new(wmem_file_scope());
@@ -450,6 +462,7 @@ get_http2_session(packet_info *pinfo)
     return h2session;
 }
 
+#ifdef HAVE_NGHTTP2
 static int
 select_http2_flow_index(packet_info *pinfo, http2_session_t *h2session)
 {
@@ -922,6 +935,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
         offset += in->length;
     }
 }
+#endif
 
 static guint8
 dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 type)
@@ -1049,14 +1063,21 @@ dissect_http2_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree
 
 /* Headers */
 static int
+#ifdef HAVE_NGHTTP2
 dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http2_tree,
                       guint offset, guint8 flags)
+#else
+dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree,
+                      guint offset, guint8 flags)
+#endif
 {
     guint16 padding;
     gint headlen;
+#ifdef HAVE_NGHTTP2
     http2_session_t *h2session;
 
     h2session = get_http2_session(pinfo);
+#endif
 
     offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
     offset = dissect_frame_prio(tvb, http2_tree, offset, flags);
@@ -1064,8 +1085,10 @@ dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http2_tree,
     headlen = tvb_reported_length_remaining(tvb, offset) - padding;
     proto_tree_add_item(http2_tree, hf_http2_headers, tvb, offset, headlen, ENC_NA);
 
+#ifdef HAVE_NGHTTP2
     /* decompress the header block */
     inflate_http2_header_block(tvb, pinfo, offset, http2_tree, headlen, h2session, flags);
+#endif
 
     offset += headlen;
 
@@ -1099,11 +1122,16 @@ dissect_http2_rst_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http
 
 /* Settings */
 static int
+#ifdef HAVE_NGHTTP2
 dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 flags)
+#else
+dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 flags _U_)
+#endif
 {
     guint32 settingsid;
     proto_item *ti_settings;
     proto_tree *settings_tree;
+#ifdef HAVE_NGHTTP2
     guint32 header_table_size;
     guint32 min_header_table_size;
     int header_table_size_found;
@@ -1112,6 +1140,7 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
     header_table_size_found = 0;
     header_table_size = 0;
     min_header_table_size = 0xFFFFFFFFu;
+#endif
 
     while(tvb_reported_length_remaining(tvb, offset) > 0){
 
@@ -1128,12 +1157,14 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
             case HTTP2_SETTINGS_HEADER_TABLE_SIZE:
                 proto_tree_add_item(settings_tree, hf_http2_settings_header_table_size, tvb, offset, 4, ENC_BIG_ENDIAN);
 
+#ifdef HAVE_NGHTTP2
                 /* We only care the last header table size in SETTINGS */
                 header_table_size_found = 1;
                 header_table_size = tvb_get_ntohl(tvb, offset);
                 if(min_header_table_size > header_table_size) {
                     min_header_table_size = header_table_size;
                 }
+#endif
             break;
             case HTTP2_SETTINGS_ENABLE_PUSH:
                 proto_tree_add_item(settings_tree, hf_http2_settings_enable_push, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1158,7 +1189,7 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
         offset += 4;
     }
 
-
+#ifdef HAVE_NGHTTP2
     if(!PINFO_FD_VISITED(pinfo)) {
         h2session = get_http2_session(pinfo);
 
@@ -1176,6 +1207,7 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
             push_settings(pinfo, h2session, settings);
         }
     }
+#endif
 
     return offset;
 }
@@ -1187,9 +1219,11 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
 {
     guint16 padding;
     gint headlen;
+#ifdef HAVE_NGHTTP2
     http2_session_t *h2session;
 
     h2session = get_http2_session(pinfo);
+#endif
 
     offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
 
@@ -1202,7 +1236,9 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
     proto_tree_add_item(http2_tree, hf_http2_push_promise_header, tvb, offset, headlen,
                         ENC_NA);
 
+#ifdef HAVE_NGHTTP2
     inflate_http2_header_block(tvb, pinfo, offset, http2_tree, headlen, h2session, flags);
+#endif
 
     offset += headlen;
 
@@ -1267,16 +1303,20 @@ dissect_http2_continuation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
 {
     guint16 padding;
     gint headlen;
+#ifdef HAVE_NGHTTP2
     http2_session_t *h2session;
 
     h2session = get_http2_session(pinfo);
+#endif
 
     offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
 
     headlen = tvb_reported_length_remaining(tvb, offset) - padding;
     proto_tree_add_item(http2_tree, hf_http2_continuation_header, tvb, offset, headlen, ENC_ASCII|ENC_NA);
 
+#ifdef HAVE_NGHTTP2
     inflate_http2_header_block(tvb, pinfo, offset, http2_tree, headlen, h2session, flags);
+#endif
 
     offset +=  headlen;
 
