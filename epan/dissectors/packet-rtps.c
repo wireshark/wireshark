@@ -244,6 +244,7 @@ static int hf_rtps_locator_filter_list_filter_exp   = -1;
 static int hf_rtps_extra_flags                      = -1;
 static int hf_rtps_param_builtin_endpoint_set_flags = -1;
 static int hf_rtps_param_vendor_builtin_endpoint_set_flags = -1;
+static int hf_rtps_param_endpoint_security_attributes      = -1;
 static int hf_rtps_param_plugin_promiscuity_kind    = -1;
 static int hf_rtps_param_service_kind               = -1;
 
@@ -417,6 +418,10 @@ static int hf_rtps_flag_service_request_writer                  = -1;
 static int hf_rtps_flag_service_request_reader                  = -1;
 static int hf_rtps_flag_locator_ping_writer                     = -1;
 static int hf_rtps_flag_locator_ping_reader                     = -1;
+static int hf_rtps_flag_security_access_protected               = -1;
+static int hf_rtps_flag_security_discovery_protected            = -1;
+static int hf_rtps_flag_security_submessage_protected           = -1;
+static int hf_rtps_flag_security_payload_protected              = -1;
 static int hf_rtps_sm_rti_crc_number                            = -1;
 static int hf_rtps_sm_rti_crc_result                            = -1;
 
@@ -776,6 +781,8 @@ static const value_string parameter_id_vals[] = {
 };
 
 static const value_string parameter_id_inline_qos_rti[] = {
+  { PID_RELATED_ORIGINAL_WRITER_INFO,   "PID_RELATED_ORIGINAL_WRITER_INFO" },
+  { PID_RELATED_SOURCE_GUID,            "PID_RELATED_SOURCE_GUID" },
   { PID_RELATED_READER_GUID,            "PID_RELATED_READER_GUID" },
   { PID_SOURCE_GUID,                    "PID_SOURCE_GUID" },
   { PID_TOPIC_QUERY_GUID,               "PID_TOPIC_QUERY_GUID" },
@@ -894,6 +901,7 @@ static const value_string parameter_id_rti_vals[] = {
   { PID_ENDPOINT_PROPERTY_CHANGE_EPOCH, "PID_ENDPOINT_PROPERTY_CHANGE_EPOCH" },
   { PID_REACHABILITY_LEASE_DURATION,    "PID_REACHABILITY_LEASE_DURATION" },
   { PID_VENDOR_BUILTIN_ENDPOINT_SET,    "PID_VENDOR_BUILTIN_ENDPOINT_SET" },
+  { PID_ENDPOINT_SECURITY_ATTRIBUTES,   "PID_ENDPOINT_SECURITY_ATTRIBUTES" },
   { 0, NULL }
 };
 static const value_string parameter_id_toc_vals[] = {
@@ -1454,6 +1462,14 @@ static const int* VENDOR_BUILTIN_ENDPOINT_FLAGS[] = {
   &hf_rtps_flag_locator_ping_writer,                  /* Bit 2 */
   &hf_rtps_flag_service_request_reader,               /* Bit 1 */
   &hf_rtps_flag_service_request_writer,               /* Bit 0 */
+  NULL
+};
+
+static const int* ENDPOINT_SECURITY_ATTRIBUTES[] = {
+  &hf_rtps_flag_security_payload_protected,            /* Bit 3 */
+  &hf_rtps_flag_security_submessage_protected,         /* Bit 2 */
+  &hf_rtps_flag_security_discovery_protected,          /* Bit 1 */
+  &hf_rtps_flag_security_access_protected,             /* Bit 0 */
   NULL
 };
 
@@ -4100,6 +4116,16 @@ static gboolean dissect_parameter_sequence_rti(proto_tree *rtps_parameter_tree, 
       break;
     }
 
+    case PID_ENDPOINT_SECURITY_ATTRIBUTES: {
+      guint32 flags;
+      ENSURE_LENGTH(4);
+      flags = tvb_get_guint32(tvb, offset, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+      proto_tree_add_bitmask_value(rtps_parameter_tree, tvb, offset,
+                hf_rtps_param_endpoint_security_attributes, ett_rtps_flags,
+                ENDPOINT_SECURITY_ATTRIBUTES, flags);
+      break;
+    }
+
     case PID_TOPIC_QUERY_PUBLICATION: {
       ENSURE_LENGTH(8);
       proto_tree_add_item(rtps_parameter_tree, hf_rtps_param_topic_query_publication_enable,
@@ -4154,6 +4180,15 @@ static gboolean dissect_parameter_sequence_rti(proto_tree *rtps_parameter_tree, 
       break;
     }
 
+    case PID_RELATED_SOURCE_GUID: {
+      ENSURE_LENGTH(16);
+      /* PID_RELATED_SOURCE_GUID */
+      rtps_util_add_generic_guid_v2(rtps_parameter_tree, tvb, offset,
+                  hf_rtps_endpoint_guid, hf_rtps_param_host_id, hf_rtps_param_app_id,
+                  hf_rtps_param_instance_id, hf_rtps_param_entity, hf_rtps_param_entity_key,
+                  hf_rtps_param_hf_entity_kind);
+      break;
+    }
     /* 0...2...........7...............15.............23...............31
     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     * | PID_TRANSPORT_INFO_LIST       |            length             |
@@ -4348,9 +4383,21 @@ static gboolean dissect_parameter_sequence_rti(proto_tree *rtps_parameter_tree, 
     * +---------------+---------------+---------------+---------------+
     */
     case PID_DOMAIN_ID: {
+      if (is_inline_qos) { /* PID_RELATED_ORIGINAL_WRITER_INFO */
+        ENSURE_LENGTH(16);
+        rtps_util_add_guid_prefix_v2(rtps_parameter_tree, tvb, offset, hf_rtps_sm_guid_prefix,
+                    hf_rtps_sm_host_id, hf_rtps_sm_app_id, hf_rtps_sm_instance_id, 0);
+        rtps_util_add_entity_id(rtps_parameter_tree, tvb, offset+12, hf_rtps_sm_entity_id,
+                    hf_rtps_sm_entity_id_key, hf_rtps_sm_entity_id_kind, ett_rtps_entity,
+                    "virtualGUIDSuffix", NULL);
+        /* Sequence number */
+        rtps_util_add_seq_number(rtps_parameter_tree, tvb, offset+16,
+                            little_endian, "virtualSeqNumber");
+      } else {
       ENSURE_LENGTH(4);
       proto_tree_add_item(rtps_parameter_tree, hf_rtps_domain_id, tvb, offset, 4,
         little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+      }
       break;
     }
 
@@ -10809,6 +10856,13 @@ void proto_register_rtps(void) {
         HFILL }
     },
 
+    { &hf_rtps_param_endpoint_security_attributes,
+      { "Flags", "rtps.param.endpoint_security_attributes",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        "bitmask representing the flags in PID_ENDPOINT_SECURITY_ATTRIBUTES",
+        HFILL }
+    },
+
     { &hf_rtps_param_plugin_promiscuity_kind, {
         "promiscuityKind", "rtps.param.plugin_promiscuity_kind",
         FT_UINT32, BASE_HEX, VALS(plugin_promiscuity_kind_vals), 0, NULL, HFILL }
@@ -11333,6 +11387,22 @@ void proto_register_rtps(void) {
     },
     { &hf_rtps_flag_locator_ping_reader, {
         "Locator Ping Reader", "rtps.flag.locator_ping_reader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_access_protected, {
+        "Access Protected" ,"rtps.flag.security.access_protected",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_discovery_protected, {
+        "Discovery Protected", "rtps.flag.security.discovery_protected",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000002, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_submessage_protected, {
+        "Submessage Protected", "rtps.flag.security.submessage_protected",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_payload_protected, {
+        "Payload Protected", "rtps.flag.security.payload_protected",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008, NULL, HFILL }
     },
     { &hf_rtps_param_enable_authentication,

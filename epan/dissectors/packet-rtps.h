@@ -270,6 +270,7 @@ typedef struct _rtps_dissector_data {
 #define PID_ROLE_NAME                           (0x800a)
 #define PID_ACK_KIND                            (0x800b)
 #define PID_PEER_HOST_EPOCH                     (0x800e)
+#define PID_RELATED_ORIGINAL_WRITER_INFO        (0x800f)/* inline QoS */
 #define PID_DOMAIN_ID                           (0x800f)
 #define PID_RELATED_READER_GUID                 (0x8010)/* inline QoS */
 #define PID_TRANSPORT_INFO_LIST                 (0x8010)
@@ -281,6 +282,7 @@ typedef struct _rtps_dissector_data {
 #define PID_ENDPOINT_PROPERTY_CHANGE_EPOCH      (0x8015)
 #define PID_REACHABILITY_LEASE_DURATION         (0x8016)
 #define PID_VENDOR_BUILTIN_ENDPOINT_SET         (0x8017)
+#define PID_ENDPOINT_SECURITY_ATTRIBUTES        (0x8018)
 #define PID_EXTENDED                            (0x3f01)
 #define PID_LIST_END                            (0x3f02)
 
