@@ -361,16 +361,16 @@ static void sdp_dump_disposable_media_info(const disposable_media_info_t* info) 
         DPRINT2(("connection_address=%s",
                 info->connection_address ? info->connection_address : "NULL"));
         DPRINT2(("connection_type=%s",
-                info->connection_type ? info->connection_type : "NULL"));
+                info->connection_type ? (const char *)info->connection_type : "NULL"));
         count = (int)info->media_count;
         DPRINT2(("media_count=%d",count));
         DINDENT();
             for (i=0; i < count; i++) {
                 DPRINT2(("media #%d:",i));
                 DINDENT();
-                    DPRINT2(("media_type=%s", info->media_type[i] ? info->media_type[i] : "NULL"));
-                    DPRINT2(("media_port=%s", info->media_port[i] ? info->media_port[i] : "NULL"));
-                    DPRINT2(("media_proto=%s", info->media_proto[i] ? info->media_proto[i] : "NULL"));
+                    DPRINT2(("media_type=%s", info->media_type[i] ? (const char *)info->media_type[i] : "NULL"));
+                    DPRINT2(("media_port=%s", info->media_port[i] ? (const char *)info->media_port[i] : "NULL"));
+                    DPRINT2(("media_proto=%s", info->media_proto[i] ? (const char *)info->media_proto[i] : "NULL"));
                 DENDENT();
             }
         DENDENT();
