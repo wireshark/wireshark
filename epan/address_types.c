@@ -53,7 +53,7 @@ static int num_dissector_addr_type;
 static address_type_t dissector_type_addresses[MAX_DISSECTOR_ADDR_TYPE];
 
 /* Keep track of address_type_t's via their id number */
-static address_type_t* type_list[MAX_ADDR_TYPE_VALUE];
+static address_type_t* type_list[MAX_ADDR_TYPE_VALUE + 1];
 
 /*
  * If a user _does_ pass in a too-small buffer, this is probably
@@ -125,7 +125,7 @@ int address_type_get_by_name(const char* name)
 {
     address_type_t** addr;
 
-    for (addr = type_list; addr != NULL; addr++)
+    for (addr = type_list; *addr != NULL; addr++)
     {
         if (!strcmp((*addr)->name, name))
         {
@@ -654,7 +654,7 @@ void address_types_initialize(void)
 
     /* Initialize the type array.  This is mostly for handling
        "dissector registered" address type range (for NULL checking) */
-    memset(type_list, 0, MAX_ADDR_TYPE_VALUE*sizeof(address_type_t*));
+    memset(type_list, 0, (MAX_ADDR_TYPE_VALUE + 1)*sizeof(address_type_t*));
 
     address_type_register(AT_NONE, &none_address );
     address_type_register(AT_ETHER, &ether_address );
