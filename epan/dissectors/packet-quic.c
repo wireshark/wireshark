@@ -2240,7 +2240,7 @@ proto_register_quic(void)
         { &hf_quic_frame_type_cc_error_code,
             { "Error code", "quic.frame_type.cc.error_code",
                FT_UINT32, BASE_DEC|BASE_EXT_STRING, &error_code_vals_ext, 0x0,
-              "Stream ID of the stream being terminated", HFILL }
+              "Indicates the reason for closing this connection", HFILL }
         },
         { &hf_quic_frame_type_cc_reason_phrase_length,
             { "Reason phrase Length", "quic.frame_type.cc.reason_phrase.length",
@@ -2255,12 +2255,12 @@ proto_register_quic(void)
         { &hf_quic_frame_type_goaway_error_code,
             { "Error code", "quic.frame_type.goaway.error_code",
                FT_UINT32, BASE_DEC|BASE_EXT_STRING, &error_code_vals_ext, 0x0,
-              "Stream ID of the stream being terminated", HFILL }
+              "Indicates the reason for closing this connection", HFILL }
         },
         { &hf_quic_frame_type_goaway_last_good_stream_id,
-            { "Error code", "quic.frame_type.goaway.error_code",
-               FT_UINT32, BASE_DEC|BASE_EXT_STRING, &error_code_vals_ext, 0x0,
-              "Stream ID of the stream being terminated", HFILL }
+            { "Last Good Stream ID", "quic.frame_type.goaway.last_good_stream_id",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+              "last Stream ID which was accepted by the sender of the GOAWAY message", HFILL }
         },
         { &hf_quic_frame_type_goaway_reason_phrase_length,
             { "Reason phrase Length", "quic.frame_type.goaway.reason_phrase.length",
