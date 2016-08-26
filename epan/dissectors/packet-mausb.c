@@ -431,6 +431,7 @@ static const value_string mausb_status_string[] = {
     { 153, "NO_USB_PING_RESPONSE" },
     { 154, "NOT_SUPPORTED" },
     { 155, "REQUEST_DENIED" },
+    { 156, "MISSING_REQUEST_ID" },
     { 0, NULL}
 };
 
