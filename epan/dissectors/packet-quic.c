@@ -1623,6 +1623,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_goaway_reason_phrase, tvb, offset, len_reason, ENC_ASCII|ENC_NA);
                 offset += len_reason;
                 proto_item_append_text(ti_ft, " Stream ID: %u, Error code: %s", last_good_stream_id, val_to_str_ext(error_code, &error_code_vals_ext, "Unknown (%d)"));
+                col_set_str(pinfo->cinfo, COL_INFO, "GOAWAY");
                 }
             break;
             case FT_WINDOW_UPDATE:{
