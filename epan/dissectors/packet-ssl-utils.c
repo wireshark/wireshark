@@ -1171,6 +1171,31 @@ const value_string tls_hello_ext_server_name_type_vs[] = {
     { 0, NULL }
 };
 
+/* draft-ietf-tls-tls13-15 4.2.5 */
+const value_string tls_hello_ext_psk_ke_mode[] = {
+    { 0, "PSK-only key establishment (psk_ke)" },
+    { 1, "PSK key establishment with (EC)DHE key establishment (psk_dhe_ke)" },
+    { 0, NULL }
+};
+
+static const value_string tls_hello_ext_psk_ke_mode_short[] = {
+    { 0, "psk_ke" },
+    { 1, "psk_dhe_ke" },
+    { 0, NULL }
+};
+
+const value_string tls_hello_ext_psk_auth_mode[] = {
+    { 0, "PSK-only authentication (psk_auth)" },
+    { 1, "PSK authentication plus digital signature (psk_sign_auth)" },
+    { 0, NULL }
+};
+
+static const value_string tls_hello_ext_psk_auth_mode_short[] = {
+    { 0, "psk_auth" },
+    { 1, "psk_sign_auth" },
+    { 0, NULL }
+};
+
 /* RFC 5246 7.4.1.4.1 */
 const value_string tls_hash_algorithm[] = {
     { 0, "None" },
@@ -5490,6 +5515,93 @@ ssl_dissect_hnd_hello_ext_key_share(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 static gint
+ssl_dissect_hnd_hello_ext_pre_shared_key(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                         proto_tree *tree, guint32 offset, guint32 ext_len,
+                                         guint8 hnd_type)
+{
+    proto_tree *psk_tree;
+    guint32 offset_end = offset + ext_len;
+
+    if (offset_end <= offset) { /* Check if ext_len == 0 and "overflow" (offset + ext_len) > guint32) */
+        return offset;
+    }
+
+    psk_tree = proto_tree_add_subtree(tree, tvb, offset, ext_len, hf->ett.hs_ext_pre_shared_key, NULL, "Pre-Shared Key extension");
+
+    switch (hnd_type){
+        case SSL_HND_CLIENT_HELLO: {
+
+            proto_tree_add_item(psk_tree, hf->hf.hs_ext_psk_identities_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+
+            while (offset < offset_end) {
+                guint32 identity_length, ke_modes_length, auth_modes_length;
+                guint32 ke_mode, auth_mode, i;
+                proto_tree *identity_tree;
+
+                identity_tree = proto_tree_add_subtree(psk_tree, tvb, offset, 4, hf->ett.hs_ext_psk_identity, NULL, "PSK Identity (");
+
+                proto_tree_add_item_ret_uint(identity_tree, hf->hf.hs_ext_psk_identity_ke_modes_length, tvb, offset, 1, ENC_NA, &ke_modes_length);
+                offset += 1;
+
+                if (ke_modes_length > offset_end - offset) {
+                    offset = offset_end;
+                    break; /* XXX expert info? */
+                }
+                if (ke_modes_length) {
+                    proto_item_append_text(identity_tree, "KE: ");
+                }
+                for(i = 0; i < ke_modes_length; i++) {
+                    proto_tree_add_item_ret_uint(identity_tree, hf->hf.hs_ext_psk_identity_ke_mode, tvb, offset, 1, ENC_NA, &ke_mode);
+                    offset += 1;
+                    proto_item_append_text(identity_tree, i == 0 ? "%s" : ", %s", val_to_str(ke_mode, tls_hello_ext_psk_ke_mode_short, "Unknown (%u)"));
+                }
+
+                proto_tree_add_item_ret_uint(identity_tree, hf->hf.hs_ext_psk_identity_auth_modes_length, tvb, offset, 1, ENC_NA, &auth_modes_length);
+                offset += 1;
+
+                if (auth_modes_length > offset_end - offset) {
+                    offset = offset_end;
+                    break; /* XXX expert info? */
+                }
+                if (auth_modes_length) {
+                    proto_item_append_text(identity_tree, "%sAuth: ", ke_modes_length == 0 ? "" : ", ");
+                }
+                for(i = 0; i < auth_modes_length; i++) {
+                    proto_tree_add_item_ret_uint(identity_tree, hf->hf.hs_ext_psk_identity_auth_mode, tvb, offset, 1, ENC_NA, &auth_mode);
+                    offset += 1;
+                    proto_item_append_text(identity_tree, i == 0 ? "%s" : ", %s", val_to_str(auth_mode, tls_hello_ext_psk_auth_mode_short, "Unknown (%u)"));
+                }
+
+                proto_tree_add_item_ret_uint(identity_tree, hf->hf.hs_ext_psk_identity_length, tvb, offset, 2, ENC_BIG_ENDIAN, &identity_length);
+                offset += 2;
+                proto_item_append_text(identity_tree, ", Identity length: %u)", identity_length);
+
+                if (identity_length > offset_end - offset) {
+                    offset = offset_end;
+                    break; /* XXX expert info? */
+                }
+
+                proto_tree_add_item(identity_tree, hf->hf.hs_ext_psk_identity, tvb, offset, identity_length, ENC_NA);
+                offset += identity_length;
+
+                proto_item_set_len(identity_tree, 1 + ke_modes_length + 1 + auth_modes_length + 2 + identity_length);
+            }
+        }
+        break;
+        case SSL_HND_SERVER_HELLO: {
+            proto_tree_add_item(psk_tree, hf->hf.hs_ext_psk_identity_selected, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        }
+        break;
+        default:
+        break;
+    }
+
+    return offset;
+}
+
+static gint
 ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                       proto_tree *tree, guint32 offset, guint32 ext_len)
 {
@@ -6630,6 +6742,9 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_KEY_SHARE:
             offset = ssl_dissect_hnd_hello_ext_key_share(hf, tvb, ext_tree, offset, ext_len, hnd_type);
+            break;
+        case SSL_HND_HELLO_EXT_PRE_SHARED_KEY:
+            offset = ssl_dissect_hnd_hello_ext_pre_shared_key(hf, tvb, ext_tree, offset, ext_len, hnd_type);
             break;
         case SSL_HND_HELLO_EXT_DRAFT_VERSION_TLS13:
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_draft_version_tls13,

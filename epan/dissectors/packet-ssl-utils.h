@@ -203,6 +203,8 @@ extern const value_string ssl_extension_curves[];
 extern const value_string ssl_extension_ec_point_formats[];
 extern const value_string ssl_curve_types[];
 extern const value_string tls_hello_ext_server_name_type_vs[];
+extern const value_string tls_hello_ext_psk_ke_mode[];
+extern const value_string tls_hello_ext_psk_auth_mode[];
 
 /* XXX Should we use GByteArray instead? */
 typedef struct _StringInfo {
@@ -654,6 +656,14 @@ typedef struct ssl_common_dissect {
         gint hs_ext_key_share_group;
         gint hs_ext_key_share_key_exchange_length;
         gint hs_ext_key_share_key_exchange;
+        gint hs_ext_psk_identities_length;
+        gint hs_ext_psk_identity_ke_modes_length;
+        gint hs_ext_psk_identity_ke_mode;
+        gint hs_ext_psk_identity_auth_modes_length;
+        gint hs_ext_psk_identity_auth_mode;
+        gint hs_ext_psk_identity_length;
+        gint hs_ext_psk_identity;
+        gint hs_ext_psk_identity_selected;
         gint hs_ext_server_name;
         gint hs_ext_server_name_len;
         gint hs_ext_server_name_list_len;
@@ -739,6 +749,8 @@ typedef struct ssl_common_dissect {
         gint hs_ext_reneg_info;
         gint hs_ext_key_share;
         gint hs_ext_key_share_ks;
+        gint hs_ext_pre_shared_key;
+        gint hs_ext_psk_identity;
         gint hs_ext_server_name;
         gint hs_ext_padding;
         gint hs_sig_hash_alg;
@@ -852,11 +864,12 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                         \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
+        -1, -1,                                                         \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1,                                         \
+        -1, -1, -1, -1, -1, -1, -1, -1,                                 \
     },                                                                  \
     /* ei */ {                                                          \
         EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,                    \
@@ -974,6 +987,46 @@ ssl_common_dissect_t name = {   \
     { & name .hf.hs_ext_key_share_key_exchange,                         \
       { "Key Exchange", prefix ".handshake.extensions_key_share_key_exchange",  \
         FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_psk_identities_length,                          \
+      { "Identities Length", prefix ".handshake.extensions.psk.identities.length",  \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_psk_identity_ke_modes_length,                   \
+      { "Key Exchange Modes length", prefix ".handshake.extensions.psk.identity.ke_modes_length",   \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_psk_identity_ke_mode,                           \
+      { "Key Exchange Mode", prefix ".handshake.extensions.psk.identity.ke_mode",   \
+        FT_UINT8, BASE_DEC, VALS(tls_hello_ext_psk_ke_mode), 0x0,       \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_psk_identity_auth_modes_length,                 \
+      { "Authentification Modes length", prefix ".handshake.extensions.psk.identity.auth_modes_length", \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_psk_identity_auth_mode,                         \
+      { "Authentification Mode", prefix ".handshake.extensions.psk.identity.auth_mode", \
+        FT_UINT8, BASE_DEC, VALS(tls_hello_ext_psk_auth_mode), 0x0,     \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_psk_identity_length,                            \
+      { "Identity Length", prefix ".handshake.extensions.psk.identity.length",   \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_psk_identity,                                   \
+      { "Identity", prefix ".handshake.extensions.psk.identity",        \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_psk_identity_selected,                          \
+      { "Selected Identity", prefix ".handshake.extensions.psk.identity.selected", \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_server_name_list_len,                           \
@@ -1410,6 +1463,8 @@ ssl_common_dissect_t name = {   \
         & name .ett.hs_ext_reneg_info,              \
         & name .ett.hs_ext_key_share,               \
         & name .ett.hs_ext_key_share_ks,            \
+        & name .ett.hs_ext_pre_shared_key,          \
+        & name .ett.hs_ext_psk_identity,            \
         & name .ett.hs_ext_server_name,             \
         & name .ett.hs_ext_padding,                 \
         & name .ett.hs_sig_hash_alg,                \
