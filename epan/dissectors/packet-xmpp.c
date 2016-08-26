@@ -392,16 +392,15 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     int proto_xml = dissector_handle_get_protocol_index(xml_handle);
 
+    gboolean whitespace_keepalive = ((tvb_reported_length(tvb) == 1) && tvb_get_guint8(tvb, 0) == ' ');
+
     /*check if desegment
      * now it checks that last char is '>',
      * TODO checks that first element in packet is closed*/
     int   indx;
     gchar last_char;
 
-    conversation = find_or_create_conversation(pinfo);
-    xmpp_info = (xmpp_conv_info_t *)conversation_get_proto_data(conversation, proto_xmpp);
-
-    if (!xmpp_info && xmpp_desegment)
+    if (xmpp_desegment && !whitespace_keepalive)
     {
         indx = tvb_reported_length(tvb) - 1;
         if (indx >= 0)
@@ -429,7 +428,7 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     xmpp_item = proto_tree_add_item(tree, proto_xmpp, tvb, 0, -1, ENC_NA);
     xmpp_tree = proto_item_add_subtree(xmpp_item, ett_xmpp);
 
-    if ((tvb_reported_length(tvb) == 1) && tvb_get_guint8(tvb, 0) == ' ') {
+    if (whitespace_keepalive) {
         /* RFC 6120 section 4.6.1 */
         col_set_str(pinfo->cinfo, COL_INFO, "Whitespace Keepalive");
         return tvb_captured_length(tvb);
@@ -462,6 +461,9 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     if(!xml_frame)
         return tvb_captured_length(tvb);
+
+    conversation = find_or_create_conversation(pinfo);
+    xmpp_info = (xmpp_conv_info_t *)conversation_get_proto_data(conversation, proto_xmpp);
 
     if (!xmpp_info) {
         xmpp_info = wmem_new(wmem_file_scope(), xmpp_conv_info_t);
