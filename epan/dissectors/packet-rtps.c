@@ -3456,7 +3456,8 @@ gint rtps_util_add_seq_octets(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
   ti = proto_tree_add_uint_format_value(tree, hf_rtps_sequence_size, tvb, offset, 4, seq_length, "%d octets", seq_length);
 
   offset += 4;
-  if (param_length < 4 + (int)seq_length) {
+  /* param length -1 means not specified */
+  if (param_length != -1 && param_length < 4 + (int)seq_length) {
     expert_add_info_format(pinfo, ti, &ei_rtps_parameter_value_invalid, "ERROR: Parameter value too small");
     return offset + seq_length;;
   }
@@ -3468,9 +3469,9 @@ gint rtps_util_add_seq_octets(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 
 static gint rtps_util_add_data_holder(proto_tree *tree, tvbuff_t * tvb, packet_info * pinfo,
         gint offset, gboolean little_endian, gint seq_index, gint alignment_zero) {
-  proto_tree * data_holder_tree, * properties_tree, * property_tree, * seq_values_tree;
-  proto_item * ti, * data_holder;
-  guint32 seq_size, param_id, param_length, i;
+  proto_tree * data_holder_tree, * properties_tree, * property_tree;
+  proto_item * tii, * ti, * data_holder;
+  guint32 seq_size, i;
   gint offset_tmp, data_holder_begin;
 
   data_holder_tree = proto_tree_add_subtree_format(tree, tvb, offset,
@@ -3480,98 +3481,43 @@ static gint rtps_util_add_data_holder(proto_tree *tree, tvbuff_t * tvb, packet_i
           hf_rtps_pgm_data_holder_class_id, little_endian);
   LONG_ALIGN_ZERO(offset, alignment_zero);
 
-  properties_tree = proto_tree_add_subtree_format(data_holder_tree, tvb, offset,
-      -1, ett_rtps_data_holder_properties, &ti, "String Properties");
   offset_tmp = offset;
-  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &param_id, &param_length);
-  proto_item_set_len(ti, offset - offset_tmp + param_length);
-  if (param_length > 0 ) {
-    gint32 local_offset;
-    local_offset = offset;
-    seq_size = NEXT_guint32(tvb, local_offset, little_endian);
-    local_offset += 4;
-    for(i = 0; i < seq_size; i++) {
-      property_tree = proto_tree_add_subtree_format(properties_tree, tvb, local_offset,
-                                              -1, ett_rtps_property_tree, &ti, "Property [%d]", i);
-      local_offset = rtps_util_add_string(property_tree, tvb, local_offset,
+  properties_tree = proto_tree_add_subtree_format(data_holder_tree, tvb, offset,
+      -1, ett_rtps_data_holder_properties, &tii, "String Properties");
+  seq_size = NEXT_guint32(tvb, offset, little_endian);
+  offset += 4;
+  for(i = 0; i < seq_size; i++) {
+    gint local_offset = offset;
+    property_tree = proto_tree_add_subtree_format(properties_tree, tvb, offset,
+             -1, ett_rtps_property_tree, &ti, "Property [%d]", i);
+    offset = rtps_util_add_string(property_tree, tvb, offset,
                     hf_rtps_property_name, little_endian);
-      local_offset = rtps_util_add_string(property_tree, tvb, local_offset,
+    offset = rtps_util_add_string(property_tree, tvb, offset,
                     hf_rtps_property_value, little_endian);
-    }
+    proto_item_set_len(ti, offset - local_offset);
   }
+  proto_item_set_len(tii, offset - offset_tmp);
 
-  offset += param_length;
   offset_tmp = offset;
   properties_tree = proto_tree_add_subtree_format(data_holder_tree, tvb, offset,
-                                  -1, ett_rtps_data_holder_properties, &ti, "Binary Properties");
-  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &param_id, &param_length);
-  proto_item_set_len(ti, offset - offset_tmp + param_length);
-  if (param_length > 0 ) {
-    gint32 local_offset;
-    local_offset = offset;
-    seq_size = NEXT_guint32(tvb, local_offset, little_endian);
-    local_offset += 4;
-    for(i = 0; i < seq_size; i++) {
-      LONG_ALIGN(local_offset);
-      property_tree = proto_tree_add_subtree_format(properties_tree, tvb, local_offset,
+             -1, ett_rtps_data_holder_properties, &tii, "Binary Properties");
+  seq_size = NEXT_guint32(tvb, offset, little_endian);
+  offset += 4;
+  for(i = 0; i < seq_size; i++) {
+    gint local_offset = offset;
+    LONG_ALIGN(offset);
+    property_tree = proto_tree_add_subtree_format(properties_tree, tvb, offset,
                     -1, ett_rtps_property_tree, &ti, "Property [%d]", i);
-      local_offset = rtps_util_add_string(property_tree, tvb, local_offset,
+    offset = rtps_util_add_string(property_tree, tvb, offset,
                     hf_rtps_property_name, little_endian);
-      local_offset = rtps_util_add_seq_octets(property_tree, pinfo, tvb, local_offset,
-                    little_endian, param_length, hf_rtps_param_user_data);
-    }
+    offset = rtps_util_add_seq_octets(property_tree, pinfo, tvb, offset,
+                    little_endian, -1, hf_rtps_param_user_data);
+    proto_item_set_len(ti, offset - local_offset);
   }
+  proto_item_set_len(tii, offset - offset_tmp);
+  proto_item_set_len(data_holder, offset - offset_tmp);
 
-  offset += param_length;
-  offset_tmp = offset;
-  seq_values_tree = proto_tree_add_subtree_format(data_holder_tree, tvb, offset,
-                                      -1, ett_rtps_seq_string, &ti, "String Values");
-  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &param_id, &param_length);
-  proto_item_set_len(ti, offset - offset_tmp + param_length);
-  if (param_length > 0 ) {
-    rtps_util_add_seq_string(seq_values_tree, tvb, offset, little_endian, param_length,
-                hf_rtps_pgm_data_holder_stringseq_size, hf_rtps_pgm_data_holder_stringseq_name,
-                "Sequence");
-  }
-
-  offset += param_length;
-  offset_tmp = offset;
-  seq_values_tree = proto_tree_add_subtree_format(data_holder_tree, tvb, offset,
-                                      -1, ett_rtps_seq_string, &ti, "Binary value 1");
-  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &param_id, &param_length);
-  proto_item_set_len(ti, offset - offset_tmp + param_length);
-  if (param_length > 0 ) {
-    rtps_util_add_seq_octets(seq_values_tree, pinfo, tvb, offset, little_endian, param_length,
-                hf_rtps_param_user_data);
-  }
-
-  offset += param_length;
-  offset_tmp = offset;
-  seq_values_tree = proto_tree_add_subtree_format(data_holder_tree, tvb, offset,
-                                      -1, ett_rtps_seq_string, &ti, "Binary value 2");
-  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &param_id, &param_length);
-  proto_item_set_len(ti, offset - offset_tmp + param_length);
-  if (param_length > 0 ) {
-    rtps_util_add_seq_octets(seq_values_tree, pinfo, tvb, offset, little_endian, param_length,
-                hf_rtps_param_user_data);
-  }
-
-  offset += param_length;
-  offset_tmp = offset;
-  properties_tree = proto_tree_add_subtree_format(data_holder_tree, tvb, offset,
-                                      -1, ett_rtps_seq_string, &ti, "Long Long Sequence");
-  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &param_id, &param_length);
-  proto_item_set_len(ti, offset - offset_tmp + param_length);
-  if (param_length > 0 ) {
-    seq_size = NEXT_guint32(tvb, offset, little_endian);
-    for (i = 0; i < seq_size; i++) {
-      proto_tree_add_item(properties_tree, hf_rtps_pgm_data_holder_long_long, tvb,
-              offset + 4 + 8 * i, 8, little_endian);
-    }
-  }
-  offset += param_length;
   proto_item_set_len(data_holder, offset - data_holder_begin);
-
   return offset;
 }
 
