@@ -788,6 +788,65 @@ static const value_string error_code_vals[] = {
 static value_string_ext error_code_vals_ext = VALUE_STRING_EXT_INIT(error_code_vals);
 
 /**************************************************************************/
+/*                      RST Stream Error Code                             */
+/**************************************************************************/
+/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/quic/core/quic_protocol.h (enum QuicRstStreamErrorCode) */
+
+enum QuicRstStreamErrorCode {
+  /* Complete response has been sent, sending a RST to ask the other endpoint to stop sending request data without discarding the response. */
+
+  QUIC_STREAM_NO_ERROR = 0,
+  /* There was some error which halted stream processing.*/
+  QUIC_ERROR_PROCESSING_STREAM,
+  /* We got two fin or reset offsets which did not match.*/
+  QUIC_MULTIPLE_TERMINATION_OFFSETS,
+  /* We got bad payload and can not respond to it at the protocol level. */
+  QUIC_BAD_APPLICATION_PAYLOAD,
+  /* Stream closed due to connection error. No reset frame is sent when this happens. */
+  QUIC_STREAM_CONNECTION_ERROR,
+  /* GoAway frame sent. No more stream can be created. */
+  QUIC_STREAM_PEER_GOING_AWAY,
+  /* The stream has been cancelled. */
+  QUIC_STREAM_CANCELLED,
+  /* Closing stream locally, sending a RST to allow for proper flow control accounting. Sent in response to a RST from the peer. */
+  QUIC_RST_ACKNOWLEDGEMENT,
+  /* Receiver refused to create the stream (because its limit on open streams has been reached).  The sender should retry the request later (using another stream). */
+  QUIC_REFUSED_STREAM,
+  /* Invalid URL in PUSH_PROMISE request header. */
+  QUIC_INVALID_PROMISE_URL,
+  /* Server is not authoritative for this URL. */
+  QUIC_UNAUTHORIZED_PROMISE_URL,
+  /* Can't have more than one active PUSH_PROMISE per URL. */
+  QUIC_DUPLICATE_PROMISE_URL,
+  /* Vary check failed. */
+  QUIC_PROMISE_VARY_MISMATCH,
+  /* Only GET and HEAD methods allowed. */
+  QUIC_INVALID_PROMISE_METHOD,
+  /* No error. Used as bound while iterating. */
+  QUIC_STREAM_LAST_ERROR,
+};
+
+static const value_string rststream_error_code_vals[] = {
+    { QUIC_STREAM_NO_ERROR, "Complete response has been sent, sending a RST to ask the other endpoint to stop sending request data without discarding the response." },
+    { QUIC_ERROR_PROCESSING_STREAM, "There was some error which halted stream processing" },
+    { QUIC_MULTIPLE_TERMINATION_OFFSETS, "We got two fin or reset offsets which did not match" },
+    { QUIC_BAD_APPLICATION_PAYLOAD, "We got bad payload and can not respond to it at the protocol level" },
+    { QUIC_STREAM_CONNECTION_ERROR, "Stream closed due to connection error. No reset frame is sent when this happens" },
+    { QUIC_STREAM_PEER_GOING_AWAY, "GoAway frame sent. No more stream can be created" },
+    { QUIC_STREAM_CANCELLED, "The stream has been cancelled" },
+    { QUIC_RST_ACKNOWLEDGEMENT, "Closing stream locally, sending a RST to allow for proper flow control accounting. Sent in response to a RST from the peer" },
+    { QUIC_REFUSED_STREAM, "Receiver refused to create the stream (because its limit on open streams has been reached). The sender should retry the request later (using another stream)" },
+    { QUIC_INVALID_PROMISE_URL, "Invalid URL in PUSH_PROMISE request header" },
+    { QUIC_UNAUTHORIZED_PROMISE_URL, "Server is not authoritative for this URL" },
+    { QUIC_DUPLICATE_PROMISE_URL, "Can't have more than one active PUSH_PROMISE per URL" },
+    { QUIC_PROMISE_VARY_MISMATCH, "Vary check failed" },
+    { QUIC_INVALID_PROMISE_METHOD, "Only GET and HEAD methods allowed" },
+    { QUIC_STREAM_LAST_ERROR, "No error. Used as bound while iterating" },
+    { 0, NULL }
+};
+static value_string_ext rststream_error_code_vals_ext = VALUE_STRING_EXT_INIT(rststream_error_code_vals);
+
+/**************************************************************************/
 /*                      Handshake Failure Reason                          */
 /**************************************************************************/
 /* See https://chromium.googlesource.com/chromium/src.git/+/master/net/quic/core/crypto/crypto_handshake.h */
@@ -1591,7 +1650,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 offset += 8;
                 proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_rsts_error_code, tvb, offset, 4, ENC_LITTLE_ENDIAN, &error_code);
                 offset += 4;
-                proto_item_append_text(ti_ft, " Stream ID: %u, Error code: %s", stream_id, val_to_str_ext(error_code, &error_code_vals_ext, "Unknown (%d)"));
+                proto_item_append_text(ti_ft, " Stream ID: %u, Error code: %s", stream_id, val_to_str_ext(error_code, &rststream_error_code_vals_ext, "Unknown (%d)"));
+                col_set_str(pinfo->cinfo, COL_INFO, "RST STREAM");
                 }
             break;
             case FT_CONNECTION_CLOSE:{
@@ -2235,7 +2295,7 @@ proto_register_quic(void)
         },
         { &hf_quic_frame_type_rsts_error_code,
             { "Error code", "quic.frame_type.rsts.error_code",
-               FT_UINT32, BASE_DEC|BASE_EXT_STRING, &error_code_vals_ext, 0x0,
+               FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rststream_error_code_vals_ext, 0x0,
               "Indicates why the stream is being closed", HFILL }
         },
         { &hf_quic_frame_type_cc_error_code,
