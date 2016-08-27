@@ -78,21 +78,26 @@ resolve_column (gint col, capture_file *cf)
 {
     header_field_info *hfi;
     gboolean resolve = FALSE;
+    guint num_fields, *field_idx, ii;
 
     if (!cf) return FALSE;
 
     switch (cf->cinfo.columns[col].col_fmt) {
 
         case COL_CUSTOM:
-            hfi = proto_registrar_get_byname(cf->cinfo.columns[col].col_custom_fields);
-            /* Check if this is a valid field */
-            if (hfi != NULL) {
+            num_fields = g_slist_length(cf->cinfo.columns[col].col_custom_fields_ids);
+            for (ii = 0; ii < num_fields; ii++) {
+                field_idx = (guint *) g_slist_nth_data(cf->cinfo.columns[col].col_custom_fields_ids, ii);
+                hfi = proto_registrar_get_nth(*field_idx);
+
                 /* Check if we have an OID or a strings table with integer values */
                 if ((hfi->type == FT_OID) || (hfi->type == FT_REL_OID) ||
-                        ((hfi->strings != NULL) &&
-                         ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
-                          IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)))) {
+                    ((hfi->strings != NULL) &&
+                     ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
+                      IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type))))
+                {
                     resolve = TRUE;
+                    break;
                 }
             }
             break;
