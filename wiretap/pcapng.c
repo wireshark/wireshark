@@ -2415,7 +2415,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
     return PCAPNG_BLOCK_OK;
 }
 
-/* Process an IDB that we've just read. */
+/* Process an IDB that we've just read. The contents of wblock are copied as needed. */
 static void
 pcapng_process_idb(wtap *wth, pcapng_t *pcapng, wtapng_block_t *wblock)
 {
@@ -2474,7 +2474,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     case PCAPNG_BLOCK_NOT_SHB:
         /* An error indicating that this isn't a pcap-ng file. */
         wtap_block_free(wblock.block);
-        wblock.block = NULL;
         *err = 0;
         *err_info = NULL;
         return WTAP_OPEN_NOT_MINE;
@@ -2482,7 +2481,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     case PCAPNG_BLOCK_ERROR:
         /* An I/O error, or this probably *is* a pcap-ng file but not a valid one. */
         wtap_block_free(wblock.block);
-        wblock.block = NULL;
         return WTAP_OPEN_ERROR;
     }
 
@@ -2495,7 +2493,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
          */
         pcapng_debug("pcapng_open: first block type %u not SHB", wblock.type);
         wtap_block_free(wblock.block);
-        wblock.block = NULL;
         return WTAP_OPEN_NOT_MINE;
     }
     pn.shb_read = TRUE;
@@ -2506,6 +2503,8 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
      * past this point.
      */
     wtap_block_copy(g_array_index(wth->shb_hdrs, wtap_block_t, 0), wblock.block);
+    wtap_block_free(wblock.block);
+    wblock.block = NULL;
 
     wth->file_encap = WTAP_ENCAP_UNKNOWN;
     wth->snapshot_length = 0;
@@ -2548,19 +2547,17 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
             break;  /* No more IDB:s */
         }
         if (pcapng_read_block(wth, wth->fh, &pn, &wblock, err, err_info) != PCAPNG_BLOCK_OK) {
+            wtap_block_free(wblock.block);
             if (*err == 0) {
                 pcapng_debug("No more IDBs available...");
-                wtap_block_free(wblock.block);
-                wblock.block = NULL;
                 break;
             } else {
                 pcapng_debug("pcapng_open: couldn't read IDB");
-                wtap_block_free(wblock.block);
-                wblock.block = NULL;
                 return WTAP_OPEN_ERROR;
             }
         }
         pcapng_process_idb(wth, pcapng, &wblock);
+        wtap_block_free(wblock.block);
         pcapng_debug("pcapng_open: Read IDB number_of_interfaces %u, wtap_encap %i",
                       wth->interface_data->len, wth->file_encap);
     }
@@ -2592,6 +2589,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         if (pcapng_read_block(wth, wth->fh, pcapng, &wblock, err, err_info) != PCAPNG_BLOCK_OK) {
             pcapng_debug("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset);
             pcapng_debug("pcapng_read: couldn't read packet block");
+            wtap_block_free(wblock.block);
             return FALSE;
         }
 
@@ -2614,6 +2612,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                 /* A new interface */
                 pcapng_debug("pcapng_read: block type BLOCK_TYPE_IDB");
                 pcapng_process_idb(wth, pcapng, &wblock);
+                wtap_block_free(wblock.block);
                 break;
 
             case(BLOCK_TYPE_NRB):
@@ -2651,6 +2650,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                     g_array_append_val(wtapng_if_descr_mand->interface_statistics, if_stats);
                     wtapng_if_descr_mand->num_stat_entries++;
                 }
+                wtap_block_free(wblock.block);
                 break;
 
             default:
