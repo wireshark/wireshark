@@ -1938,8 +1938,8 @@ ivcollector      1275/tcp # ivcollector
 ivcollector      1275/udp # ivcollector
 miva-mqs         1277/tcp # mqs [Miva_Corporation] [Miva_Corporation]
 miva-mqs         1277/udp # mqs [Miva_Corporation] [Miva_Corporation]
-dellwebadmin-1   1278/tcp # Dell Web Admin 1
-dellwebadmin-1   1278/udp # Dell Web Admin 1
+dellwebadmin-1   1278/tcp # Dell Web Admin 1 [Bridget_Navoda] [Bridget_Navoda]
+dellwebadmin-1   1278/udp # Dell Web Admin 1 [Bridget_Navoda] [Bridget_Navoda]
 dellwebadmin-2   1279/tcp # Dell Web Admin 2 [Bridget_Navoda] [Bridget_Navoda]
 dellwebadmin-2   1279/udp # Dell Web Admin 2 [Bridget_Navoda] [Bridget_Navoda]
 pictrography     1280/tcp # Pictrography [Takashi_Hoshino] [Takashi_Hoshino]
