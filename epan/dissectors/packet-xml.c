@@ -1083,7 +1083,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
             free_elements(NULL, element, NULL);
         } else {
             g_hash_table_insert(elements, (gpointer)element->name, element);
-            g_ptr_array_add(element_names, g_strdup(element->name));
+            g_ptr_array_add(element_names, wmem_strdup(wmem_epan_scope(), element->name));
         }
 
         g_free(nl);
@@ -1186,8 +1186,6 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
                                               hfs, etts, dtd_data->proto_name);
                 g_hash_table_insert(root_element->elements, (gpointer)fresh->name, fresh);
             }
-
-            g_free(curr_name);
         }
 
     } else {
@@ -1232,19 +1230,21 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
      */
     if( dtd_data->proto_name ) {
         gint *ett_p;
+        gchar *full_name, *short_name;
 
-        if ( ! dtd_data->description) {
-            dtd_data->description = wmem_strdup(wmem_epan_scope(), root_name);
+        if (dtd_data->description) {
+            full_name = wmem_strdup(wmem_epan_scope(), dtd_data->description);
+        } else {
+            full_name = wmem_strdup(wmem_epan_scope(), root_name);
         }
+        short_name = wmem_strdup(wmem_epan_scope(), dtd_data->proto_name);
 
         ett_p = &root_element->ett;
         g_array_append_val(etts, ett_p);
 
         add_xml_field(hfs, &root_element->hf_cdata, root_element->name, root_element->fqn);
 
-        root_element->hf_tag = proto_register_protocol(dtd_data->description,
-                                                       dtd_data->proto_name,
-                                                       dtd_data->proto_name);
+        root_element->hf_tag = proto_register_protocol(full_name, short_name, short_name);
         proto_register_field_array(root_element->hf_tag, (hf_register_info*)wmem_array_get_raw(hfs), wmem_array_get_count(hfs));
         proto_register_subtree_array((gint **)g_array_data(etts), etts->len);
 
@@ -1253,8 +1253,6 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
             dtd_data->media_type = NULL;
         }
 
-        dtd_data->description = NULL;
-        dtd_data->proto_name  = NULL;
         g_array_free(etts, TRUE);
     }
 
