@@ -433,6 +433,14 @@ static int cond_one_of(tvbparse_t* tt, const int offset, const tvbparse_wanted_t
     return -1;
 }
 
+static gboolean
+tvbparse_wanted_cleanup_cb(wmem_allocator_t* allocator _U_, wmem_cb_event_t event _U_, void *user_data)
+{
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)user_data;
+    g_ptr_array_free(w->control.elems, TRUE);
+    return FALSE;
+}
+
 tvbparse_wanted_t* tvbparse_set_oneof(const int id,
                                       const void* data,
                                       tvbparse_action_t before_cb,
@@ -448,6 +456,7 @@ tvbparse_wanted_t* tvbparse_set_oneof(const int id,
     w->before = before_cb;
     w->after = after_cb;
     w->control.elems = g_ptr_array_new();
+    wmem_register_callback(wmem_epan_scope(), tvbparse_wanted_cleanup_cb, w);
 
     va_start(ap,after_cb);
 
@@ -625,6 +634,7 @@ tvbparse_wanted_t* tvbparse_set_seq(const int id,
     w->before = before_cb;
     w->after = after_cb;
     w->control.elems = g_ptr_array_new();
+    wmem_register_callback(wmem_epan_scope(), tvbparse_wanted_cleanup_cb, w);
 
     va_start(ap,after_cb);
 
