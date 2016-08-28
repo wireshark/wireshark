@@ -5953,7 +5953,7 @@ proto_register_isakmp(void)
         NULL, HFILL }},
 
     { &hf_isakmp_num_spis,
-      { "Port", "isakmp.spinum",
+      { "Number of SPIs", "isakmp.spinum",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "ISAKMP Number of SPIs", HFILL }},
     { &hf_isakmp_hash,
