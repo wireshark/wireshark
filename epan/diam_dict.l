@@ -749,8 +749,8 @@ ddict_scan(const char* system_directory, const char* filename, int dbg)
 
 	state.dict = g_new(ddict_t,1);
 	state.dict->applications = NULL;
-	state.dict->cmds = NULL;
 	state.dict->vendors = NULL;
+	state.dict->cmds = NULL;
 	state.dict->typedefns = NULL;
 	state.dict->avps = NULL;
 	state.dict->xmlpis = NULL;
@@ -796,6 +796,7 @@ ddict_scan(const char* system_directory, const char* filename, int dbg)
 	}
 
 	if (DiamDict_lex_init(&scanner) != 0) {
+		/* Note: cannot be reached since memory allocation failure terminates early */
 		D(("Can't initialize scanner: %s\n", g_strerror(errno)));
 		fclose(in);
 		g_free(state.dict);
@@ -827,6 +828,7 @@ ddict_scan(const char* system_directory, const char* filename, int dbg)
 	state.current_yyinput = string_input;
 
 	if (DiamDict_lex_init(&scanner) != 0) {
+		/* Note: cannot be reached since memory allocation failure terminates early */
 		D(("Can't initialize scanner: %s\n", g_strerror(errno)));
 		g_free(state.dict);
 		g_free(state.strbuf);
@@ -840,6 +842,16 @@ ddict_scan(const char* system_directory, const char* filename, int dbg)
 	DiamDict_lex(scanner);
 
 	DiamDict_lex_destroy(scanner);
+	{
+		entity_t *e, *en;
+
+		for (e = state.ents; e; e = en) {
+			en = e->next;
+			g_free(e->name);
+			g_free(e->file);
+			g_free(e);
+		}
+	}
 	g_free(state.strbuf);
 
 	return state.dict;
@@ -853,8 +865,9 @@ ddict_free(ddict_t* d)
 	ddict_cmd_t *c, *cn;
 	ddict_typedefn_t *t, *tn;
 	ddict_avp_t *a, *an;
+	ddict_xmlpi_t *x, *xn;
 
-#define FREE_NAMEANDOBJ(n) do { if(n->name) g_free(n->name); g_free(n); } while(0)
+#define FREE_NAMEANDOBJ(n) do { g_free(n->name); g_free(n); } while(0)
 
 	for (p = d->applications; p; p = pn ) {
 		pn = p->next;
@@ -863,18 +876,19 @@ ddict_free(ddict_t* d)
 
 	for (v = d->vendors; v; v = vn) {
 		vn = v->next;
-		if (v->desc)  g_free(v->desc);
+		g_free(v->desc);
 		FREE_NAMEANDOBJ(v);
 	}
 
 	for (c = d->cmds; c; c = cn ) {
 		cn = c->next;
+		g_free(c->vendor);
 		FREE_NAMEANDOBJ(c);
 	}
 
 	for (t = d->typedefns; t; t = tn) {
 		tn = t->next;
-		if (t->parent)  g_free(t->parent);
+		g_free(t->parent);
 		FREE_NAMEANDOBJ(t);
 	}
 
@@ -893,10 +907,17 @@ ddict_free(ddict_t* d)
 			FREE_NAMEANDOBJ(e);
 		}
 
-		if (a->vendor)  g_free(a->vendor);
-		if (a->type)  g_free(a->type);
-		if (a->description)  g_free(a->description);
+		g_free(a->vendor);
+		g_free(a->type);
+		g_free(a->description);
 		FREE_NAMEANDOBJ(a);
+	}
+
+	for (x = d->xmlpis; x; x = xn) {
+		xn = x->next;
+		g_free(x->key);
+		g_free(x->value);
+		FREE_NAMEANDOBJ(x);
 	}
 
 	g_free(d);
