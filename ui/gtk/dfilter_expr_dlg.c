@@ -51,6 +51,7 @@
 #include "ui/gtk/dfilter_expr_dlg.h"
 #include "ui/gtk/proto_hier_tree_model.h"
 
+#include "ui/gtk/old-gtk-compat.h"
 
 #define E_DFILTER_EXPR_TREE_KEY                 "dfilter_expr_tree"
 #define E_DFILTER_EXPR_CURRENT_VAR_KEY          "dfilter_expr_current_var"

@@ -45,6 +45,7 @@
 #include "ui/gtk/pixbuf-csource.h"
 #endif
 #include "ui/gtk/packet_panes.h"
+#include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/edit_packet_comment_dlg.h"
 #include "ui/gtk/gtkglobals.h"
 

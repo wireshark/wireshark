@@ -67,6 +67,7 @@
 #include <epan/color_filters.h>
 #include "packet_list.h"
 
+#include "ui/gtk/old-gtk-compat.h"
 
 void register_tap_listener_gtkcomparestat(void);
 

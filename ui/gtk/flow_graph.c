@@ -36,6 +36,7 @@
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/gui_stat_menu.h"
+#include "ui/gtk/old-gtk-compat.h"
 
 void register_tap_listener_flow_graph(void);
 

@@ -52,6 +52,7 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/filter_autocomplete.h"
 
+#include "ui/gtk/old-gtk-compat.h"
 
 void register_tap_listener_gtkdcerpcstat(void);
 

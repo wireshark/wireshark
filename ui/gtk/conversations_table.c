@@ -47,6 +47,7 @@
 #include "ui/gtk/follow_stream.h"
 #include "ui/gtk/keys.h"
 
+#include "ui/gtk/old-gtk-compat.h"
 
 #define COL_STR_LEN 16
 #define CONV_PTR_KEY "conversations-pointer"

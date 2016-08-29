@@ -27,6 +27,7 @@
 #include <gtk/gtk.h>
 
 #include <epan/prefs.h>
+#include "ui/gtk/old-gtk-compat.h"
 #include <wsutil/filesystem.h>
 
 #include "ui/alert_box.h"

@@ -37,6 +37,7 @@
 #include "ui/gtk/menus.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/fileset_dlg.h"
+#include "ui/gtk/old-gtk-compat.h"
 
 
 
@@ -213,11 +214,7 @@ fileset_dlg_add_file(fileset_entry *entry, void *window _U_) {
     if (row <= 18) {
       GtkRequisition requisition;
 
-#if GTK_CHECK_VERSION(3,0,0)
       gtk_widget_get_preferred_size(fs_grid, &requisition, NULL);
-#else
-      gtk_widget_size_request(fs_grid, &requisition);
-#endif
       /* XXX use gtk_window_set_default_size()? */
       gtk_widget_set_size_request(fs_sw, -1, requisition.height);
       gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(fs_sw), GTK_POLICY_NEVER, GTK_POLICY_NEVER);

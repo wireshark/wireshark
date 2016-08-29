@@ -39,6 +39,8 @@
 #include "ui/gtk/tap_param_dlg.h"
 #include "ui/gtk/main.h"
 
+#include "ui/gtk/old-gtk-compat.h"
+
 /* XXX - Part of temporary hack */
 #include "epan/conversation.h"
 #include "epan/dissectors/packet-scsi.h"

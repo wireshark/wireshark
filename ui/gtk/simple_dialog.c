@@ -35,6 +35,8 @@
 #include "gui_utils.h"
 #include "stock_icons.h"
 
+#include "ui/gtk/old-gtk-compat.h"
+
 
 static void simple_dialog_cancel_cb(GtkWidget *, gpointer);
 

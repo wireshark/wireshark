@@ -64,6 +64,7 @@
 #include <gdk/gdkwin32.h>
 #include <windows.h>
 #include "ui/win32/file_dlg_win32.h"
+#include "ui/gtk/old-gtk-compat.h"
 #endif
 
 /* save the SSL Session Keys */
