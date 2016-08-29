@@ -5091,9 +5091,11 @@ ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
             } else {
                 /* Can happen if the capture somehow starts in the middle */
                 ssl_debug_printf("%s No Session resumption, missing packets?\n", G_STRFUNC);
+                session->is_session_resumed = FALSE;
             }
         } else {
             ssl_debug_printf("%s Not using Session resumption\n", G_STRFUNC);
+            session->is_session_resumed = FALSE;
         }
     }
     if (is_from_server && session->is_session_resumed)
