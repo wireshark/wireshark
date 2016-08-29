@@ -53,6 +53,7 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/webbrowser.h"
 #include "ui/gtk/gtkglobals.h"
+#include "ui/gtk/old-gtk-compat.h"
 
 void register_tap_listener_gtkfunnel(void);
 

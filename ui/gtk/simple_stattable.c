@@ -40,6 +40,8 @@
 #include "ui/gtk/tap_param_dlg.h"
 #include "ui/gtk/main.h"
 
+#include "ui/gtk/old-gtk-compat.h"
+
 typedef struct _gtk_simplestat_t {
 	GtkWidget *vbox;
 	GtkWidget *win;

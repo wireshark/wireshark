@@ -42,6 +42,7 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/expert_indicators.h"
 #include "ui/gtk/packet_panes.h"
+#include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/edit_packet_comment_dlg.h"
 #include "ui/gtk/capture_comment_icons.h"
 #include "ui/gtk/gtkglobals.h"

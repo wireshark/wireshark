@@ -35,6 +35,7 @@
 #include "ui/gtk/sctp_stat_gtk.h"
 #include "ui/gtk/gtkglobals.h"
 
+#include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/stock_icons.h"
 
 static GtkWidget *sctp_stat_dlg = NULL;

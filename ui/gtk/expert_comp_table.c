@@ -47,6 +47,7 @@
 #include "ui/gtk/webbrowser.h"
 #include "ui/gtk/stock_icons.h"
 
+#include "ui/gtk/old-gtk-compat.h"
 
 const char  *packet = "Packet:";
 

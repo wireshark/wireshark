@@ -48,6 +48,8 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/main.h"
 
+#include "ui/gtk/old-gtk-compat.h"
+
 #include "ui/recent.h"
 
 
