@@ -11627,7 +11627,7 @@ void proto_register_rtps(void) {
   register_init_routine(rtps_init);
 
   rtps_type_name_table = register_dissector_table("rtps.type_name", "RTPS Type Name",
-          proto_rtps, FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+          proto_rtps, FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 }
 
 
