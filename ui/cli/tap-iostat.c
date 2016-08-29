@@ -596,9 +596,9 @@ iostat_draw(void *arg)
 
     /* The following prevents gross inaccuracies when the user specifies an interval that is greater
     *  than the capture duration. */
-    if (iot->interval > duration || iot->interval == G_MAXINT32) {
+    if (iot->interval > duration || iot->interval == G_MAXUINT64) {
         interval = duration;
-        iot->interval = G_MAXINT32;
+        iot->interval = G_MAXUINT64;
     } else {
         interval = iot->interval;
     }
@@ -645,7 +645,7 @@ iostat_draw(void *arg)
          * Recalc dur_mag in case rounding has increased its magnitude */
         dur_mag  = magnitude((guint64)dur_secs, 5);
     }
-    if (iot->interval == G_MAXINT32)
+    if (iot->interval == G_MAXUINT64)
         interval = duration;
 
     /* Calc the width of the time interval column (incl borders and padding). */
@@ -1421,9 +1421,9 @@ iostat_init(const char *opt_arg, void *userdata _U_)
     io = (io_stat_t *)g_malloc(sizeof(io_stat_t));
 
     /* If interval is 0, calculate statistics over the whole file by setting the interval to
-    *  G_MAXINT32 */
+    *  G_MAXUINT64 */
     if (interval_float == 0) {
-        io->interval = G_MAXINT32;
+        io->interval = G_MAXUINT64;
         io->invl_prec = 0;
     } else {
         /* Set interval to the number of us rounded to the nearest integer */
