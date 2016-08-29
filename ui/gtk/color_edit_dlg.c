@@ -39,6 +39,7 @@
 #include "ui/gtk/color_edit_dlg.h"
 #include "ui/gtk/filter_autocomplete.h"
 
+#include "ui/gtk/old-gtk-compat.h"
 
 
 /* Essentially:

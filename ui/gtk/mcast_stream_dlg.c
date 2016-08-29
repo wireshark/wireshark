@@ -46,6 +46,7 @@
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/gtkglobals.h"
+#include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/stock_icons.h"
 
 static void mcaststream_tap_reset(mcaststream_tapinfo_t *tapinfo);
