@@ -2312,7 +2312,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	is_ssl = proto_is_frame_protocol(pinfo->layers, "ssl");
 
 	if (is_response) {
-		if (packet_number == 0 ) {
+		if (packet_number == 0 && mysql_frame_data_p->state == UNDEFINED) {
 			col_set_str(pinfo->cinfo, COL_INFO, "Server Greeting");
 			offset = mysql_dissect_greeting(tvb, pinfo, offset, mysql_tree, conn_data);
 		} else {
@@ -2320,7 +2320,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			offset = mysql_dissect_response(tvb, pinfo, offset, mysql_tree, conn_data);
 		}
 	} else {
-		if (packet_number == 1 || (packet_number == 2 && is_ssl)) {
+		if (mysql_frame_data_p->state == LOGIN && (packet_number == 1 || (packet_number == 2 && is_ssl))) {
 			col_set_str(pinfo->cinfo, COL_INFO, "Login Request");
 			offset = mysql_dissect_login(tvb, pinfo, offset, mysql_tree, conn_data);
 			if (conn_data->srv_caps & MYSQL_CAPS_CP) {
