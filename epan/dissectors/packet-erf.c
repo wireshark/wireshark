@@ -251,7 +251,9 @@ static expert_field ei_erf_extension_headers_not_shown = EI_INIT;
 static expert_field ei_erf_packet_loss = EI_INIT;
 static expert_field ei_erf_checksum_error = EI_INIT;
 static expert_field ei_erf_meta_section_len_error = EI_INIT;
-static expert_field ei_erf_meta_truncated = EI_INIT;
+static expert_field ei_erf_meta_truncated_record = EI_INIT;
+static expert_field ei_erf_meta_truncated_tag = EI_INIT;
+static expert_field ei_erf_meta_zero_len_tag = EI_INIT;
 static expert_field ei_erf_meta_reset = EI_INIT;
 
 typedef enum {
@@ -514,7 +516,7 @@ static const value_string erf_hash_mode[] = {
   { 0x07, "2-tuple (Inner Src/Dst IPs)"},
   { 0x08, "4-tuple (Inner Src/Dst IPs, Outer Src/Dst IPs)"},
   { 0x09, "4-tuple (Inner Src/Dst IPs, Inner Src/Dst L4 Ports)"},
-  { 0x10, "6-tuple (Inner Src/Dst IPs, Outer Src/Dst IPs, Inner Src/Dst L4 Ports)"},
+  { 0x0A, "6-tuple (Inner Src/Dst IPs, Outer Src/Dst IPs, Inner Src/Dst L4 Ports)"},
   { 0, NULL}
 };
 
@@ -740,7 +742,7 @@ static const erf_meta_hf_template_t erf_meta_tags[] = {
   { ERF_META_TAG_if_eui,            { "Interface EUI-64 address",           "if_eui",            FT_EUI64,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_if_ib_gid,         { "Interface InfiniBand GID",           "if_ib_gid",         FT_IPv6,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_if_ib_lid,         { "Interface InfiniBand LID",           "if_ib_lid",         FT_UINT16,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
-  { ERF_META_TAG_if_wwn,            { "Interface WWN",                      "if_wwn",            FT_FCWWN,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_wwn,            { "Interface WWN",                      "if_wwn",            FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_if_fc_id,          { "Interface FCID address",             "if_fc_id",          FT_BYTES,         SEP_DOT,           NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_if_tx_speed,       { "Interface TX Line Rate",             "if_tx_speed",       FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_if_erf_type,       { "Interface ERF type",                 "if_erf_type",       FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
@@ -765,8 +767,8 @@ static const erf_meta_hf_template_t erf_meta_tags[] = {
   { ERF_META_TAG_dest_ib_gid,       { "Destination InfiniBand GID address", "dest_ib_gid",       FT_IPv6,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_src_ib_lid,        { "Source InfiniBand LID address",      "src_ib_lid",        FT_UINT16,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_dest_ib_lid,       { "Destination InfiniBand LID address", "dest_ib_lid",       FT_UINT16,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
-  { ERF_META_TAG_src_wwn,           { "Source WWN address",                 "src_wwn",           FT_FCWWN,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
-  { ERF_META_TAG_dest_wwn,          { "Destination WWN address",            "dest_wwn",          FT_FCWWN,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_src_wwn,           { "Source WWN address",                 "src_wwn",           FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_dest_wwn,          { "Destination WWN address",            "dest_wwn",          FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_src_fc_id,         { "Source FCID address",                "src_fc_id",         FT_BYTES,         SEP_DOT,           NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_dest_fc_id,        { "Destination FCID address",           "dest_fc_id",        FT_BYTES,         SEP_DOT,           NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_src_port,          { "Source Port",                        "src_port",          FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
@@ -809,7 +811,7 @@ static const erf_meta_hf_template_t erf_meta_tags[] = {
   { ERF_META_TAG_ns_host_eui,       { "EUI Name",                           "ns_host_eui",       FT_EUI64,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_ns_host_ib_gid,    { "InfiniBand GID Name",                "ns_host_ib_gid",    FT_IPv6,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_ns_host_ib_lid,    { "InfiniBand LID Name",                "ns_host_ib_lid",    FT_UINT16,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
-  { ERF_META_TAG_ns_host_wwn,       { "WWN Name",                           "ns_host_wwn",       FT_FCWWN,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ns_host_wwn,       { "WWN Name",                           "ns_host_wwn",       FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_ns_host_fc_id,     { "FCID Name",                          "ns_host_fc_id",     FT_BYTES,         SEP_DOT,           NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_ns_dns_ipv4,       { "Nameserver IPv4 address",            "ns_dns_ipv4",       FT_IPv4,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_ns_dns_ipv6,       { "Nameserver IPv6 address",            "ns_dns_ipv6",       FT_IPv6,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
@@ -2113,6 +2115,45 @@ static proto_item *dissect_ptp_timeinterval(proto_tree *tree, const int hfindex,
   return dissect_relative_time(tree, hfindex, tvb, offset, length, &t);
 }
 
+static int
+meta_tag_expected_length(erf_meta_tag_info_t *tag_info) {
+  ftenum_t ftype = tag_info->tag_template->hfinfo.type;
+  int expected_length = 0;
+
+  switch (ftype) {
+    case FT_ABSOLUTE_TIME:
+    case FT_RELATIVE_TIME:
+      /* Timestamps are in ERF timestamp except as below */
+      expected_length = 8;
+      break;
+
+    default:
+      expected_length = ftype_length(ftype); /* Returns 0 if unknown */
+      break;
+  }
+
+  /* Special case overrides */
+  switch (tag_info->code) {
+    case ERF_META_TAG_ptp_current_utc_offset:
+      /*
+       * PTP tags are in native PTP format, but only current_utc_offset is
+       * a different length to the ERF timestamp.
+       */
+      expected_length = 4;
+      break;
+
+    case ERF_META_TAG_if_wwn:
+    case ERF_META_TAG_src_wwn:
+    case ERF_META_TAG_dest_wwn:
+    case ERF_META_TAG_ns_host_wwn:
+      /* 16-byte WWNs */
+      expected_length = 16;
+      break;
+  }
+
+  return expected_length;
+}
+
 static void
 dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_item *pi            = NULL;
@@ -2127,6 +2168,9 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint16                taglength    = 0;
   const gchar           *tagvalstring = NULL;
   erf_meta_tag_info_t   *tag_info;
+  int                    expected_length = 0;
+  expert_field          *truncated_expert = NULL;
+  gboolean               skip_truncated = FALSE;
 
   /* Used for search entry and unknown tags */
   erf_meta_hf_template_t tag_template_unknown = { 0, { "Unknown", "unknown",
@@ -2140,23 +2184,20 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint16 sectionlen    = 0;
   int     remaining_len = 0;
 
+  int captured_length = (int) tvb_captured_length(tvb);
+
   /* Set column heading title*/
   col_set_str(pinfo->cinfo, COL_INFO, "MetaERF Record");
 
   /* Go through the sectionss and their tags */
-  while ((remaining_len = tvb_captured_length_remaining(tvb, offset)) > 0) {
-
-    if (remaining_len < 4) {
-      expert_add_info(pinfo, section_pi, &ei_erf_meta_truncated);
-      /* Malformed final tag, skip to setting sectionlen error */
-      offset += 4;
-      break;
-    }
-
+  /* Not using tvb_captured_length because want to check for overrun */
+  while ((remaining_len = captured_length - offset) >= 4) {
     tagtype = tvb_get_ntohs(tvb, offset);
     taglength = tvb_get_ntohs(tvb, offset + 2);
     tag_tree = NULL;
     tag_pi = NULL;
+    truncated_expert = NULL;
+    skip_truncated = FALSE;
 
     if (ERF_META_IS_SECTION(tagtype))
       sectiontype = tagtype;
@@ -2170,25 +2211,33 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     if (tag_info == NULL)
       tag_info = &tag_info_local;
 
-    if (remaining_len < (gint32)taglength + 4) {
-      /*
-       * Malformed final tag, manually dissect type and length (since they are
-       * normally added last and we likely get an exception in the middle). Top
-       * level tag dissection means can't add the subtree and type/length first.
-       */
-      tag_tree = proto_tree_add_subtree_format(section_tree, tvb, offset, taglength + 4, tag_info->ett, &tag_pi, "%s: [truncated]", tag_info->tag_template->hfinfo.name);
-      /*
-       * XXX: Formatting value manually because don't have erf_meta_vs_list
-       * populated at registration time.
-       */
-      proto_tree_add_uint_format_value(tag_tree, hf_erf_meta_tag_type, tvb, offset, 2, tagtype, "%s (%u)", val_to_str(tagtype, VALS(wmem_array_get_raw(erf_meta_index.vs_abbrev_list)), "Unknown"), tagtype);
-      proto_tree_add_uint(tag_tree, hf_erf_meta_tag_len, tvb, offset + 2, 2, taglength);
+    /* Get expected length (minimum length in the case of ns_host_*) */
+    expected_length = meta_tag_expected_length(tag_info);
 
-      expert_add_info(pinfo, tag_pi, &ei_erf_meta_truncated);
+    if (remaining_len < (gint32)taglength + 4 || taglength < expected_length) {
+      /*
+       * Malformed tag, just dissect type and length. Top level tag
+       * dissection means can't add the subtree and type/length first.
+       *
+       * Allow too-long tags for now (and proto_tree generally generates
+       * a warning for these anyway).
+       */
+      skip_truncated = TRUE;
+      truncated_expert = &ei_erf_meta_truncated_tag;
+    }
 
-      /* Skip to setting sectionlen error, Trying to dissect value could cause duplicate items */
-      offset += (((guint32)taglength + 4) + 0x3U) & ~0x3U;
-      break;
+    if (taglength == 0) {
+      /*
+       * We highlight zero length differently as a special case to indicate
+       * a deliberately invalid tag.
+       */
+      if (!ERF_META_IS_SECTION(tagtype) && tagtype != ERF_META_TAG_padding) {
+        truncated_expert = &ei_erf_meta_zero_len_tag;
+        /* XXX: Still dissect normally too if string/unknown or section header */
+        if (expected_length != 0) {
+          skip_truncated = TRUE;
+        }
+      }
     }
 
     /* Dissect value, length and type */
@@ -2211,9 +2260,10 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
       tagvalstring = val_to_str(tagtype, VALS(wmem_array_get_raw(erf_meta_index.vs_list)), "Unknown Section (0x%x)");
       section_tree = proto_tree_add_subtree_format(tree, tvb, offset, 0, tag_info->extra->ett_value, &section_pi, "MetaERF %s", tagvalstring);
-      tag_tree = proto_tree_add_subtree_format(section_tree, tvb, offset, taglength + 4, tag_info->ett, &tag_pi, "%s Header", tagvalstring);
+      tag_tree = proto_tree_add_subtree_format(section_tree, tvb, offset, MIN(taglength + 4, remaining_len), tag_info->ett, &tag_pi, "%s Header", tagvalstring);
 
-      if (taglength > 0) {
+      /* XXX: Value may have been truncated (avoiding exception so get custom expertinfos) */
+      if (taglength >= 4 && !skip_truncated) {
         sectionid = tvb_get_ntohs(tvb, offset + 4);
         sectionlen = tvb_get_ntohs(tvb, offset + 6);
 
@@ -2229,8 +2279,11 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         if (taglength > 4) {
           proto_tree_add_item(tag_tree, tag_info->extra->hf_values[1], tvb, offset + 8, taglength - 4, ENC_NA);
         }
+      } else if (taglength != 0) {
+        /* Section Header value is too short */
+        truncated_expert = &ei_erf_meta_truncated_tag;
       }
-    } else { /* Not section header tag */
+    } else if (!skip_truncated) { /* Not section header tag (and not truncated) */
       enum ftenum tag_ft;
       char        pi_label[ITEM_LABEL_LENGTH+1];
       gboolean    dissected = TRUE;
@@ -2398,8 +2451,12 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     /* Create subtree for tag if we haven't already */
     if (!tag_tree) {
       /* Make sure we actually put the subtree in the right place */
-      DISSECTOR_ASSERT(tag_pi || !tree);
-      tag_tree = proto_item_add_subtree(tag_pi, tag_info->ett);
+      if (tag_pi || !tree) {
+        tag_tree = proto_item_add_subtree(tag_pi, tag_info->ett);
+      } else {
+        /* Truncated or error (avoiding exception so get custom expertinfos) */
+        tag_tree = proto_tree_add_subtree_format(section_tree, tvb, offset, MIN(taglength + 4, remaining_len), tag_info->ett, &tag_pi, "%s: [Invalid]", tag_info->tag_template->hfinfo.name);
+      }
     }
 
     /* Add tag type field to subtree */
@@ -2410,7 +2467,18 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree_add_uint_format_value(tag_tree, hf_erf_meta_tag_type, tvb, offset, 2, tagtype, "%s (%u)", val_to_str(tagtype, VALS(wmem_array_get_raw(erf_meta_index.vs_abbrev_list)), "Unknown"), tagtype);
     proto_tree_add_uint(tag_tree, hf_erf_meta_tag_len, tvb, offset + 2, 2, taglength);
 
+    /* Add truncated expertinfo if needed */
+    if (truncated_expert) {
+      expert_add_info(pinfo, tag_pi, truncated_expert);
+    }
+
     offset += (((guint32)taglength + 4) + 0x3U) & ~0x3U;
+  }
+
+  if (remaining_len != 0) {
+    /* Record itself is truncated */
+    expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_erf_meta_truncated_record);
+    /* Continue to setting sectionlen error */
   }
 
   /* Check final section length */
@@ -3151,7 +3219,7 @@ proto_register_erf(void)
       { "Tag Length", "erf.meta.tag.len",
         FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_erf_meta_tag_unknown,
-      { "Value", "erf.meta.unknown",
+      { "Unknown Tag", "erf.meta.unknown",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } }
   };
 
@@ -3194,7 +3262,9 @@ proto_register_erf(void)
       { &ei_erf_packet_loss, { "erf.packet_loss", PI_SEQUENCE, PI_WARN, "Packet loss occurred between previous and current packet", EXPFILL }},
       { &ei_erf_extension_headers_not_shown, { "erf.ehdr.more_not_shown", PI_SEQUENCE, PI_WARN, "More extension headers were present, not shown", EXPFILL }},
       { &ei_erf_meta_section_len_error, { "erf.meta.section_len.error", PI_PROTOCOL, PI_ERROR, "MetaERF Section Length incorrect", EXPFILL }},
-      { &ei_erf_meta_truncated, { "erf.meta.truncated", PI_MALFORMED, PI_ERROR, "MetaERF truncated tag", EXPFILL }},
+      { &ei_erf_meta_truncated_record, { "erf.meta.truncated_record", PI_MALFORMED, PI_ERROR, "MetaERF truncated record", EXPFILL }},
+      { &ei_erf_meta_truncated_tag, { "erf.meta.truncated_tag", PI_PROTOCOL, PI_ERROR, "MetaERF truncated tag", EXPFILL }},
+      { &ei_erf_meta_zero_len_tag, { "erf.meta.zero_len_tag", PI_PROTOCOL, PI_NOTE, "MetaERF zero length tag", EXPFILL }},
       { &ei_erf_meta_reset, { "erf.meta.metadata_reset", PI_PROTOCOL, PI_WARN, "MetaERF metadata reset", EXPFILL }}
   };
 
