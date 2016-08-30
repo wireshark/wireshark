@@ -27,6 +27,7 @@
 #include <epan/prefs.h>
 #include <epan/ipproto.h>
 #include <epan/to_str.h>
+#include <epan/g_int64_hash_routines.h>
 #include <wsutil/str_util.h>
 #include "packet-erf.h"
 #include "packet-ptp.h"
