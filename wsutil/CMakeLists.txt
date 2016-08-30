@@ -60,6 +60,7 @@ set(WSUTIL_COMMON_FILES
 	sober128.c
 	strnatcmp.c
 	str_util.c
+	strtoi.c
 	rc4.c
 	report_err.c
 	tempfile.c

@@ -82,6 +82,7 @@ libwsutil_nonrepl_INCLUDES = \
 	sober128.h		\
 	str_util.h		\
 	strnatcmp.h		\
+	strtoi.h		\
 	tempfile.h		\
 	time_util.h		\
 	type_util.h		\
@@ -150,6 +151,7 @@ libwsutil_la_SOURCES = \
 	sha2.c			\
 	sober128.c		\
 	str_util.c		\
+	strtoi.c		\
 	strnatcmp.c		\
 	tempfile.c		\
 	time_util.c		\
