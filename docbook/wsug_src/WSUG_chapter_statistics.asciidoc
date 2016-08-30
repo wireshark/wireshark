@@ -35,7 +35,6 @@ These statistics range from general information about the loaded capture file
 
   - Various other protocol specific statistics.
 
-
 [NOTE]
 ====
 The protocol specific statistics require detailed knowledge about the specific
@@ -45,11 +44,11 @@ be pretty hard to understand.
 
 [[ChStatSummary]]
 
-=== The _Summary_ window
+=== The ``Summary'' window
 
 General statistics about the current capture file.
 
-.The "Summary" window
+.The ``Summary'' window
 image::wsug_graphics/ws-stats-summary.png[]
 
 * __File__: general information about the capture file.
@@ -73,12 +72,12 @@ image::wsug_graphics/ws-stats-summary.png[]
 
 [[ChStatHierarchy]]
 
-=== The "Protocol Hierarchy" window
+=== The ``Protocol Hierarchy'' window
 
 The protocol hierarchy of the captured packets.
 
-.The "Protocol Hierarchy" window
-image::wsug_graphics/ws-stats-hierarchy.png[]
+.The ``Protocol Hierarchy'' window
+image::wsug_graphics/ws-stats-hierarchy.png[scaledwidth="100%"]
 
 This is a tree of all the protocols in the capture. Each row contains the
 statistical values of one protocol. Two of the columns (_Percent Packets_ and
@@ -143,10 +142,11 @@ The conversations window is similar to the endpoint Window. See
 <<ChStatEndpointsWindow>> for a description of their common features. Along with
 addresses, packet counters, and byte counters the conversation window adds four
 columns: the time in seconds between the start of the capture and the start of
-the conversation ("Rel Start"), the duration of the conversation in seconds, and
-the average bits (not bytes) per second in each direction.
+the conversation (``Rel Start''), the duration of the conversation in seconds, and
+the average bits (not bytes) per second in each direction. A timeline graph is
+also drawn across the ``Rel Start'' and ``Duration'' columns.
 
-.The "Conversations" window
+.The ``Conversations'' window
 image::wsug_graphics/ws-stats-conversations.png[scaledwidth="100%"]
 
 Each row in the list shows the statistical values for exactly one conversation.
@@ -241,7 +241,7 @@ will be received by some or all of the listed unicast endpoints.
 
 [[ChStatEndpointsWindow]]
 
-==== The "Endpoints" window
+==== The ``Endpoints'' window
 
 This window shows statistics about the endpoints captured.
 
@@ -281,13 +281,13 @@ it before (or while) you are doing a live capture.
 
 [[ChStatIOGraphs]]
 
-=== The "IO Graphs" window
+=== The ``IO Graphs'' window
 
 User configurable graph of the captured network packets.
 
 You can define up to five differently colored graphs.
 
-.The "IO Graphs" window
+.The ``IO Graphs'' window
 image::wsug_graphics/ws-stats-iographs.png[]
 
 The user can configure the following things:

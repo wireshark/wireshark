@@ -146,6 +146,7 @@ set(WIRESHARK_QT_HEADERS
 	tap_parameter_dialog.h
 	tcp_stream_dialog.h
 	time_shift_dialog.h
+	timeline_delegate.h
 	traffic_table_dialog.h
 	uat_dialog.h
 	voip_calls_dialog.h
@@ -301,6 +302,7 @@ set(WIRESHARK_QT_SRC
 	tap_parameter_dialog.cpp
 	tcp_stream_dialog.cpp
 	time_shift_dialog.cpp
+	timeline_delegate.cpp
 	traffic_table_dialog.cpp
 	uat_dialog.cpp
 	voip_calls_dialog.cpp

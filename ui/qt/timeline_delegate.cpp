@@ -1,4 +1,4 @@
-/* percent_bar_delegate.cpp
+/* timeline_delegate.cpp
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,33 +19,36 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "percent_bar_delegate.h"
+#include "timeline_delegate.h"
 
 #include "color_utils.h"
 
 #include <QApplication>
 #include <QPainter>
 
-static const int bar_em_width_ = 8;
-static const double bar_blend_ = 0.15;
+// XXX We might want to move this to conversation_dialog.cpp.
 
-void PercentBarDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+// PercentBarDelegate uses a stronger blend value, but its bars are also
+// more of a prominent feature. Make the blend weaker here so that we don't
+// obscure our text.
+static const double bar_blend_ = 0.08;
+
+TimelineDelegate::TimelineDelegate(QWidget *parent) :
+    QStyledItemDelegate(parent)
+{}
+
+void TimelineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                                const QModelIndex &index) const
 {
     QStyleOptionViewItem option_vi = option;
     QStyledItemDelegate::initStyleOption(&option_vi, index);
 
+
+    struct timeline_span span_px = index.data(Qt::UserRole).value<struct timeline_span>();
+
     // Paint our rect with no text using the current style, then draw our
     // bar and text over it.
     QStyledItemDelegate::paint(painter, option, QModelIndex());
-
-    bool ok = false;
-    double value = index.data(Qt::UserRole).toDouble(&ok);
-
-    if (!ok || !index.data(Qt::DisplayRole).toString().isEmpty()) {
-        // We don't have a valid value or the item has visible text.
-        return;
-    }
 
     if (QApplication::style()->objectName().contains("vista")) {
         // QWindowsVistaStyle::drawControl does this internally. Unfortunately there
@@ -71,26 +74,19 @@ void PercentBarDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     painter->save();
     int border_radius = 3; // We use 3 px elsewhere, e.g. filter combos.
-    QRect pct_rect = option.rect;
-    pct_rect.adjust(1, 1, -1, -1);
-    pct_rect.setWidth(((pct_rect.width() * value) / 100.0) + 0.5);
+    QRect timeline_rect = option.rect;
+    timeline_rect.adjust(span_px.start, 1, 0, -1);
+    timeline_rect.setWidth(span_px.width);
+    painter->setClipRect(option.rect);
     painter->setPen(Qt::NoPen);
     painter->setBrush(bar_color);
-    painter->drawRoundedRect(pct_rect, border_radius, border_radius);
+    painter->drawRoundedRect(timeline_rect, border_radius, border_radius);
     painter->restore();
 
     painter->save();
-    QString pct_str = QString::number(value, 'f', 1);
     painter->setPen(text_color);
-    painter->drawText(option.rect, Qt::AlignCenter, pct_str);
+    painter->drawText(option.rect, Qt::AlignCenter, index.data(Qt::DisplayRole).toString());
     painter->restore();
-}
-
-QSize PercentBarDelegate::sizeHint(const QStyleOptionViewItem &option,
-                                   const QModelIndex &index) const
-{
-    return QSize(option.fontMetrics.height() * bar_em_width_,
-                 QStyledItemDelegate::sizeHint(option, index).height());
 }
 
 /*
