@@ -2153,8 +2153,8 @@ static const value_string classifier_type[] = {
 };
 
 static const true_false_string ieee80211_block_ack_control_ack_policy_flag = {
-    "Immediate Acknowledgement Required",
-    "Sender Does Not Require Immediate Acknowledgement"
+    "Sender Does Not Require Immediate Acknowledgement",
+    "Immediate Acknowledgement Required"
 };
 
 static const value_string ieee80211_block_ack_request_type_flags[] = {
