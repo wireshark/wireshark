@@ -1746,6 +1746,9 @@ static const value_string gtp_ext_rat_type_vals[] = {
     {3, "WLAN"},
     {4, "GAN"},
     {5, "HSPA Evolution"},
+    {6, "EUTRAN (WB-E-UTRAN)"},
+    {7, "Virtual"},
+    {8, "EUTRAN-NB-IoT"},
     {0, NULL}
 };
 static const value_string chg_rep_act_type_vals[] = {
