@@ -775,7 +775,7 @@ proto_register_gsmtap(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	gsmtap_dissector_table = register_dissector_table("gsmtap.type",
-						"GSMTAP type", proto_gsmtap, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+						"GSMTAP type", proto_gsmtap, FT_UINT8, BASE_HEX);
 }
 
 void

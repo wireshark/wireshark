@@ -375,9 +375,9 @@ void proto_register_p1(void) {
   expert_p1 = expert_register_protocol(proto_p1);
   expert_register_field_array(expert_p1, ei, array_length(ei));
 
-  p1_extension_dissector_table = register_dissector_table("p1.extension", "P1-EXTENSION", proto_p1, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
-  p1_extension_attribute_dissector_table = register_dissector_table("p1.extension-attribute", "P1-EXTENSION-ATTRIBUTE", proto_p1, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
-  p1_tokendata_dissector_table = register_dissector_table("p1.tokendata", "P1-TOKENDATA", proto_p1, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+  p1_extension_dissector_table = register_dissector_table("p1.extension", "P1-EXTENSION", proto_p1, FT_UINT32, BASE_DEC);
+  p1_extension_attribute_dissector_table = register_dissector_table("p1.extension-attribute", "P1-EXTENSION-ATTRIBUTE", proto_p1, FT_UINT32, BASE_DEC);
+  p1_tokendata_dissector_table = register_dissector_table("p1.tokendata", "P1-TOKENDATA", proto_p1, FT_UINT32, BASE_DEC);
 
   /* Register our configuration options for P1, particularly our port */
 

@@ -539,10 +539,10 @@ proto_register_websocket(void)
   heur_subdissector_list = register_heur_dissector_list("ws", proto_websocket);
 
   port_subdissector_table = register_dissector_table("ws.port",
-      "TCP port for protocols using WebSocket", proto_websocket, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+      "TCP port for protocols using WebSocket", proto_websocket, FT_UINT16, BASE_DEC);
 
   protocol_subdissector_table = register_dissector_table("ws.protocol",
-      "Negotiated WebSocket protocol", proto_websocket, FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+      "Negotiated WebSocket protocol", proto_websocket, FT_STRING, BASE_NONE);
 
   proto_register_field_array(proto_websocket, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

@@ -406,7 +406,7 @@ proto_register_bvlc(void)
 	register_dissector("bvlc", dissect_bvlc, proto_bvlc);
 
 	bvlc_dissector_table = register_dissector_table("bvlc.function",
-	    "BVLC Function", proto_bvlc, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	    "BVLC Function", proto_bvlc, FT_UINT8, BASE_HEX);
 }
 
 void

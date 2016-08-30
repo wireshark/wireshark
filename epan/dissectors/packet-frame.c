@@ -917,9 +917,9 @@ proto_register_frame(void)
 	register_dissector("frame",dissect_frame,proto_frame);
 
 	wtap_encap_dissector_table = register_dissector_table("wtap_encap",
-	    "Wiretap encapsulation type", proto_frame, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+	    "Wiretap encapsulation type", proto_frame, FT_UINT32, BASE_DEC);
 	wtap_fts_rec_dissector_table = register_dissector_table("wtap_fts_rec",
-	    "Wiretap file type for file-type-specific records", proto_frame, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+	    "Wiretap file type for file-type-specific records", proto_frame, FT_UINT32, BASE_DEC);
 	register_capture_dissector_table("wtap_encap", "Wiretap encapsulation type");
 
 	/* You can't disable dissection of "Frame", as that would be

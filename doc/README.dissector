@@ -3303,7 +3303,7 @@ Consider the following example using IP dissection, stolen from packet-ip.c:
     static decode_as_t ip_da = {"ip", "Network", "ip.proto", 1, 0, &ip_da_values, NULL, NULL,
                               decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
     ...
-    ip_dissector_table = register_dissector_table("ip.proto", "IP protocol", ip_proto, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+    ip_dissector_table = register_dissector_table("ip.proto", "IP protocol", ip_proto, FT_UINT8, BASE_DEC);
     ...
     register_decode_as(&ip_da);
 

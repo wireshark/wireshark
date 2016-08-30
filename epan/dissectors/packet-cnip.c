@@ -234,7 +234,7 @@ void proto_register_cnip(void)
 
    /* Register table for subdissectors */
    cnip_dissector_table = register_dissector_table("cnip.protocol",
-         "CN/IP Protocol", proto_cnip, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+         "CN/IP Protocol", proto_cnip, FT_UINT8, BASE_DEC);
 }
 
 void proto_reg_handoff_cnip(void)

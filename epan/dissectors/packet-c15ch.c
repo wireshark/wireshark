@@ -11972,7 +11972,7 @@ void proto_register_c15ch(void)
         );
     proto_register_field_array(proto_c15ch_second_level, hf_second_level, array_length(hf_second_level));
     proto_register_subtree_array(ett_second_level, array_length(ett_second_level));
-    c15ch_dissector_table = register_dissector_table("c15", "C15", proto_c15ch, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+    c15ch_dissector_table = register_dissector_table("c15", "C15", proto_c15ch, FT_UINT32, BASE_DEC);
 
     /* third level */
     /* tone */
@@ -11983,7 +11983,7 @@ void proto_register_c15ch(void)
         );
     proto_register_field_array(proto_c15ch_third_level_tone, hf_third_level_tone, array_length(hf_third_level_tone));
     proto_register_subtree_array(ett_third_level_tone, array_length(ett_third_level_tone));
-    c15ch_tone_dissector_table = register_dissector_table("c15.tone", "C15.TONE", proto_c15ch_third_level_tone, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+    c15ch_tone_dissector_table = register_dissector_table("c15.tone", "C15.TONE", proto_c15ch_third_level_tone, FT_UINT32, BASE_DEC);
 
     /* inc gwe */
     proto_c15ch_third_level_inc_gwe = proto_register_protocol(
@@ -11993,7 +11993,7 @@ void proto_register_c15ch(void)
         );
     proto_register_field_array(proto_c15ch_third_level_inc_gwe, hf_third_level_inc_gwe, array_length(hf_third_level_inc_gwe));
     proto_register_subtree_array(ett_third_level_inc_gwe, array_length(ett_third_level_inc_gwe));
-    c15ch_inc_gwe_dissector_table = register_dissector_table("c15.inc_gwe", "C15.INC_GWE", proto_c15ch_third_level_inc_gwe, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+    c15ch_inc_gwe_dissector_table = register_dissector_table("c15.inc_gwe", "C15.INC_GWE", proto_c15ch_third_level_inc_gwe, FT_UINT32, BASE_DEC);
 
     /* out gwe */
     proto_c15ch_third_level_out_gwe = proto_register_protocol(
@@ -12003,7 +12003,7 @@ void proto_register_c15ch(void)
         );
     proto_register_field_array(proto_c15ch_third_level_out_gwe, hf_third_level_out_gwe, array_length(hf_third_level_out_gwe));
     proto_register_subtree_array(ett_third_level_out_gwe, array_length(ett_third_level_out_gwe));
-    c15ch_out_gwe_dissector_table = register_dissector_table("c15.out_gwe", "C15.out_gwe", proto_c15ch_third_level_out_gwe, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+    c15ch_out_gwe_dissector_table = register_dissector_table("c15.out_gwe", "C15.out_gwe", proto_c15ch_third_level_out_gwe, FT_UINT32, BASE_DEC);
 }
 
 

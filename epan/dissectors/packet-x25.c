@@ -2369,7 +2369,7 @@ proto_register_x25(void)
     expert_register_field_array(expert_x25, ei, array_length(ei));
 
     x25_subdissector_table = register_dissector_table("x.25.spi",
-        "X.25 secondary protocol identifier", proto_x25, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+        "X.25 secondary protocol identifier", proto_x25, FT_UINT8, BASE_HEX);
     x25_heur_subdissector_list = register_heur_dissector_list("x.25", proto_x25);
 
     register_dissector("x.25_dir", dissect_x25_dir, proto_x25);

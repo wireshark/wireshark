@@ -1446,7 +1446,7 @@ proto_register_s5066(void)
 				       " This number is registered with IANA.)",
 				       10, &global_s5066_port);
 
-	s5066sis_dissector_table = register_dissector_table("s5066sis.ctl.appid", "STANAG 5066 Application Identifier", proto_s5066, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	s5066sis_dissector_table = register_dissector_table("s5066sis.ctl.appid", "STANAG 5066 Application Identifier", proto_s5066, FT_UINT16, BASE_DEC);
 
 }
 

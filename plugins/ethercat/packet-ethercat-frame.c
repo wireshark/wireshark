@@ -139,7 +139,7 @@ void proto_register_ethercat_frame(void)
    /* Define a handle (ecatf.type) for sub dissectors that want to dissect
       the Ethercat frame ether type (E88A4) payload. */
    ethercat_frame_dissector_table = register_dissector_table("ecatf.type", "EtherCAT frame type",
-                                                             proto_ethercat_frame, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                                                             proto_ethercat_frame, FT_UINT8, BASE_DEC);
 }
 
 void proto_reg_handoff_ethercat_frame(void)

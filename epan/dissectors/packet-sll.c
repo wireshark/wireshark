@@ -338,7 +338,7 @@ proto_register_sll(void)
 		"sll.ltype",
 		"Linux SLL protocol type",
 		proto_sll, FT_UINT16,
-		BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE
+		BASE_HEX
 	);
 	register_capture_dissector_table("sll.ltype", "Linux SLL protocol");
 	register_decode_as(&sll_da);

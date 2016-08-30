@@ -460,7 +460,7 @@ proto_register_aruba_erm(void)
 
     aruba_erm_subdissector_table = register_dissector_table(
         "aruba_erm.type", "Aruba ERM Type", proto_aruba_erm,
-        FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+        FT_UINT32, BASE_DEC);
 
     register_decode_as(&aruba_erm_payload_da);
 

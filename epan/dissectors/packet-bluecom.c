@@ -871,7 +871,7 @@ proto_register_bluecom(void)
 
     /* add dissector table */
     bcp_subdissector_table = register_dissector_table("bluecomseg", "bluecom SegCode", proto_bcp,
-                                                      FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                                                      FT_UINT8, BASE_DEC);
 }
 
 /*

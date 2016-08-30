@@ -6692,7 +6692,7 @@ void proto_register_sip(void)
     /* Register for tapping */
     sip_tap = register_tap("sip");
 
-    ext_hdr_subdissector_table = register_dissector_table("sip.hdr", "SIP Extension header", proto_sip, FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    ext_hdr_subdissector_table = register_dissector_table("sip.hdr", "SIP Extension header", proto_sip, FT_STRING, BASE_NONE);
 
     register_stat_tap_table_ui(&sip_stat_table);
 

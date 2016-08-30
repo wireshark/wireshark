@@ -142,7 +142,7 @@ proto_register_hci_h4(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     hci_h4_table = register_dissector_table("hci_h4.type",
-            "HCI H4 pdu type", proto_hci_h4, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+            "HCI H4 pdu type", proto_hci_h4, FT_UINT8, BASE_HEX);
 }
 
 void

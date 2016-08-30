@@ -308,7 +308,7 @@ proto_register_eapol(void)
   eapol_keydes_type_dissector_table = register_dissector_table("eapol.keydes.type",
                                                                "EAPOL Key Descriptor Type",
                                                                proto_eapol, FT_UINT8,
-                                                               BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+                                                               BASE_DEC);
 }
 
 void

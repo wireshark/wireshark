@@ -715,10 +715,10 @@ proto_register_lapd(void)
 	lapd_bitstream_handle = register_dissector("lapd-bitstream", dissect_lapd_bitstream, proto_lapd);
 
 	lapd_sapi_dissector_table = register_dissector_table("lapd.sapi",
-							     "LAPD SAPI", proto_lapd, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+							     "LAPD SAPI", proto_lapd, FT_UINT16, BASE_DEC);
 
 	lapd_gsm_sapi_dissector_table = register_dissector_table("lapd.gsm.sapi",
-								 "LAPD GSM SAPI", proto_lapd, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+								 "LAPD GSM SAPI", proto_lapd, FT_UINT16, BASE_DEC);
 
 	lapd_module = prefs_register_protocol(proto_lapd, proto_reg_handoff_lapd);
 

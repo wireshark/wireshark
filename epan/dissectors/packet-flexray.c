@@ -460,7 +460,7 @@ proto_register_flexray(void)
 	register_decode_as(&flexray_da);
 
 	subdissector_table = register_dissector_table("flexray.subdissector",
-		"FLEXRAY next level dissector", proto_flexray, FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+		"FLEXRAY next level dissector", proto_flexray, FT_UINT32, BASE_HEX);
 }
 
 void

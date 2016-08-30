@@ -3026,12 +3026,12 @@ proto_register_tipc(void)
 
 	/* this allows e.g. to dissect everything which is TIPC Data */
 	tipc_user_dissector = register_dissector_table("tipc.usr",
-			"TIPC user", proto_tipc, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+			"TIPC user", proto_tipc, FT_UINT8, BASE_DEC);
 	/* this allows to dissect everything which is TIPC Data and uses a specific
 	 * port name type it actually does not really work because the type is not
 	 * necessarily set in every data message */
 	tipc_type_dissector = register_dissector_table("tipcv2.port_name_type",
-			"TIPC port name type", proto_tipc, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+			"TIPC port name type", proto_tipc, FT_UINT32, BASE_DEC);
 
 	/* make heuristic dissectors possible */
 	tipc_heur_subdissector_list = register_heur_dissector_list("tipc", proto_tipc);

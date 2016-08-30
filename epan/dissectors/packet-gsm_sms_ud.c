@@ -707,7 +707,7 @@ proto_register_gsm_sms_ud(void)
 
     /* Subdissector code */
     gsm_sms_dissector_table = register_dissector_table("gsm_sms_ud.udh.port",
-        "GSM SMS port IE in UDH", proto_gsm_sms_ud, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+        "GSM SMS port IE in UDH", proto_gsm_sms_ud, FT_UINT16, BASE_DEC);
 
     /* Preferences for GSM SMS UD */
     gsm_sms_ud_module = prefs_register_protocol(proto_gsm_sms_ud, NULL);

@@ -196,7 +196,7 @@ proto_register_idp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	idp_type_dissector_table = register_dissector_table("idp.packet_type",
-	    "IDP packet type", proto_idp, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	    "IDP packet type", proto_idp, FT_UINT8, BASE_DEC);
 }
 
 void

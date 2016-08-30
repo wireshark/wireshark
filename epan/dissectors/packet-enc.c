@@ -159,7 +159,7 @@ proto_register_enc(void)
   proto_register_field_array(proto_enc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  enc_dissector_table = register_dissector_table("enc", "OpenBSD Encapsulating device", proto_enc, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+  enc_dissector_table = register_dissector_table("enc", "OpenBSD Encapsulating device", proto_enc, FT_UINT32, BASE_DEC);
   register_capture_dissector_table("enc", "ENC");
 }
 

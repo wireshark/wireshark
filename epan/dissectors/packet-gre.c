@@ -740,7 +740,7 @@ proto_register_gre(void)
 
     /* subdissector code */
     gre_dissector_table = register_dissector_table("gre.proto",
-                                                   "GRE protocol type", proto_gre, FT_UINT16, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+                                                   "GRE protocol type", proto_gre, FT_UINT16, BASE_HEX);
 }
 
 void

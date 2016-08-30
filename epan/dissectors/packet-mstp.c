@@ -397,7 +397,7 @@ proto_register_mstp(void)
 	register_dissector("mstp", dissect_mstp_wtap, proto_mstp);
 
 	subdissector_table = register_dissector_table("mstp.vendor_frame_type",
-	    "MSTP Vendor specific Frametypes", proto_mstp, FT_UINT24, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	    "MSTP Vendor specific Frametypes", proto_mstp, FT_UINT24, BASE_DEC);
 	/* Table_type: (Vendor ID << 16) + Frametype */
 
 	mstp_address_type = address_type_dissector_register("AT_MSTP", "BACnet MS/TP Address", mstp_to_str, mstp_str_len, NULL, mstp_col_filter_str, mstp_len, NULL, NULL);

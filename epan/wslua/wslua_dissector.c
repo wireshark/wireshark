@@ -202,7 +202,7 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
             ui_name = g_strdup(ui_name);
 
             /* XXX - can't determine dependencies of Lua protocols if they don't provide protocol name */
-            dt->table = register_dissector_table(name, ui_name, -1, type, base, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+            dt->table = register_dissector_table(name, ui_name, -1, type, base);
             dt->name = name;
             dt->ui_name = ui_name;
             dt->created = TRUE;

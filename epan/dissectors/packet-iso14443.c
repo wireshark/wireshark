@@ -1619,7 +1619,7 @@ proto_register_iso14443(void)
 
     iso14443_cmd_type_table = register_dissector_table(
             "iso14443.cmd_type", "ISO14443 Command Type",
-            proto_iso14443, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+            proto_iso14443, FT_UINT8, BASE_DEC);
 
     iso14443_handle =
         register_dissector("iso14443", dissect_iso14443, proto_iso14443);

@@ -1075,7 +1075,7 @@ proto_register_mtp3(void)
 
   mtp3_sio_dissector_table = register_dissector_table("mtp3.service_indicator",
                   "MTP3 Service indicator",
-                  proto_mtp3, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                  proto_mtp3, FT_UINT8, BASE_HEX);
 
   mtp3_address_type = address_type_dissector_register("AT_SS7PC", "SS7 Point Code", mtp3_addr_to_str, mtp3_str_addr_len, NULL, NULL,
                                                             mtp3_addr_len, NULL, NULL);

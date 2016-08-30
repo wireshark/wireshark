@@ -1389,7 +1389,7 @@ proto_register_pgm(void)
 
 	/* subdissector code */
 	subdissector_table = register_dissector_table("pgm.port",
-						      "PGM port", proto_pgm, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+						      "PGM port", proto_pgm, FT_UINT16, BASE_DEC);
 	heur_subdissector_list = register_heur_dissector_list("pgm", proto_pgm);
 
 	/*

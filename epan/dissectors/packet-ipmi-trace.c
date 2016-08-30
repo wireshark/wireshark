@@ -439,7 +439,7 @@ proto_register_ipmi_trace(void)
 
 	/* register dissector table for IPMI messaging protocols */
 	proto_dissector_table = register_dissector_table("ipmi.protocol",
-			"IPMI Channel Protocol Type", proto_ipmi_trace, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+			"IPMI Channel Protocol Type", proto_ipmi_trace, FT_UINT8, BASE_HEX);
 }
 
 void

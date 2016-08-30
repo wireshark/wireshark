@@ -1276,7 +1276,7 @@ proto_register_dccp(void)
     /* subdissectors */
     dccp_subdissector_table =
         register_dissector_table("dccp.port", "DCCP port", proto_dccp, FT_UINT16,
-                                 BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                                 BASE_DEC);
     heur_subdissector_list = register_heur_dissector_list("dccp", proto_dccp);
 
     /* reg preferences */

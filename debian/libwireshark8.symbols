@@ -437,10 +437,10 @@ libwireshark.so.8 libwireshark8 #MINVER#
  dissector_hostlist_init@Base 1.99.0
  dissector_reset_string@Base 1.9.1
  dissector_reset_uint@Base 1.9.1
+ dissector_table_allow_decode_as@Base 2.3.0
  dissector_table_foreach@Base 1.9.1
  dissector_table_foreach_handle@Base 1.9.1
  dissector_table_get_dissector_handles@Base 1.12.0~rc1
- dissector_table_get_proto_allowed@Base 2.1.0
  dissector_table_get_type@Base 1.12.0~rc1
  dissector_try_guid@Base 2.1.0
  dissector_try_guid_new@Base 2.1.0

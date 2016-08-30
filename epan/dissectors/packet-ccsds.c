@@ -715,7 +715,7 @@ proto_register_ccsds(void)
         &global_dissect_checkword, dissect_checkword, FALSE);
 
     /* Dissector table for sub-dissetors */
-    ccsds_dissector_table = register_dissector_table("ccsds.apid", "CCSDS apid", proto_ccsds, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    ccsds_dissector_table = register_dissector_table("ccsds.apid", "CCSDS apid", proto_ccsds, FT_UINT16, BASE_DEC);
 }
 
 

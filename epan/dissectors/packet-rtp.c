@@ -3670,15 +3670,15 @@ proto_register_rtp(void)
     rtp_tap = register_tap("rtp");
 
     rtp_pt_dissector_table = register_dissector_table("rtp.pt",
-                                    "RTP payload type", proto_rtp, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+                                    "RTP payload type", proto_rtp, FT_UINT8, BASE_DEC);
     rtp_dyn_pt_dissector_table = register_dissector_table("rtp_dyn_payload_type",
-                                    "Dynamic RTP payload type", proto_rtp, FT_STRING, TRUE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+                                    "Dynamic RTP payload type", proto_rtp, FT_STRING, TRUE);
 
 
     rtp_hdr_ext_dissector_table = register_dissector_table("rtp.hdr_ext",
-                                    "RTP header extension", proto_rtp, FT_UINT32, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+                                    "RTP header extension", proto_rtp, FT_UINT32, BASE_HEX);
     rtp_hdr_ext_rfc5285_dissector_table = register_dissector_table("rtp.ext.rfc5285.id",
-                                    "RTP Generic header extension (RFC 5285)", proto_rtp, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+                                    "RTP Generic header extension (RFC 5285)", proto_rtp, FT_UINT8, BASE_DEC);
 
     register_dissector("rtp.ext.ed137", dissect_rtp_hdr_ext_ed137, proto_rtp);
     register_dissector("rtp.ext.ed137a", dissect_rtp_hdr_ext_ed137a, proto_rtp);

@@ -513,7 +513,7 @@ void proto_register_ros(void) {
   expert_ros = expert_register_protocol(proto_ros);
   expert_register_field_array(expert_ros, ei, array_length(ei));
 
-  ros_oid_dissector_table = register_dissector_table("ros.oid", "ROS OID Dissectors", proto_ros, FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+  ros_oid_dissector_table = register_dissector_table("ros.oid", "ROS OID Dissectors", proto_ros, FT_STRING, BASE_NONE);
   oid_table=g_hash_table_new(g_str_hash, g_str_equal);
   protocol_table=g_hash_table_new(g_str_hash, g_str_equal);
 

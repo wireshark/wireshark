@@ -274,7 +274,7 @@ proto_register_docsis_mgmt (void)
 
   docsis_mgmt_dissector_table = register_dissector_table ("docsis_mgmt",
                                                           "DOCSIS Mac Management", proto_docsis_mgmt,
-                                                          FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                                                          FT_UINT8, BASE_DEC);
 
   register_dissector ("docsis_mgmt", dissect_macmgmt, proto_docsis_mgmt);
 }
