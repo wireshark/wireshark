@@ -11094,7 +11094,6 @@ dissect_nfs4_cb_referring_calls(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return offset;
 }
 
-
 static int
 dissect_nfs4_cb_layoutrecall(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, rpc_call_info_value *civ)
 {
@@ -11165,6 +11164,8 @@ dissect_nfs4_cb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			offset = dissect_nfs4_fh(tvb, offset, pinfo, newftree, "FileHandle", NULL, civ);
 			break;
 		case NFS4_OP_CB_GETATTR:
+			offset = dissect_nfs4_fh(tvb, offset, pinfo, tree, "FileHandle", NULL, civ);
+			offset = dissect_nfs4_fattrs(tvb, offset, pinfo, tree, FATTR4_BITMAP_ONLY, civ);
 			break;
 		case NFS4_OP_CB_LAYOUTRECALL:
 			offset = dissect_nfs4_cb_layoutrecall(tvb, offset, newftree, pinfo, civ);
@@ -11227,7 +11228,7 @@ dissect_nfs4_cb_compound_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 
 static int
-dissect_nfs4_cb_resp_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_nfs4_cb_resp_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rpc_call_info_value *civ)
 {
 	guint32	    ops, ops_counter;
 	guint32	    opcode;
@@ -11249,7 +11250,7 @@ dissect_nfs4_cb_resp_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			(opcode != NFS4_OP_ILLEGAL))
 			break;
 
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%c%s",	ops_counter == 0?' ':';',
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%c%s",	ops_counter == 0 ? ' ' : ';',
 				val_to_str_ext_const(opcode, &names_nfs_cb_operation_ext, "Unknown"));
 
 		fitem = proto_tree_add_uint(ftree, hf_nfs4_cb_op, tvb, offset, 4, opcode);
@@ -11275,6 +11276,8 @@ dissect_nfs4_cb_resp_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		case NFS4_OP_CB_RECALL:
 			break;
 		case NFS4_OP_CB_GETATTR:
+			offset = dissect_nfs4_fattrs(tvb, offset, pinfo, newftree, FATTR4_DISSECT_VALUES, civ);
+			break;
 		case NFS4_OP_CB_LAYOUTRECALL:
 		   	break;
 		case NFS4_OP_CB_NOTIFY:
@@ -11308,7 +11311,7 @@ dissect_nfs4_cb_resp_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 static int
 dissect_nfs4_cb_compound_reply(tvbuff_t *tvb, packet_info *pinfo,
-			      proto_tree *tree, void *data _U_)
+			      proto_tree *tree, void *data)
 {
 	guint32	    status;
 	const char *tag	= NULL;
@@ -11318,7 +11321,7 @@ dissect_nfs4_cb_compound_reply(tvbuff_t *tvb, packet_info *pinfo,
 	offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs4_tag, &tag);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tag);
 
-	offset = dissect_nfs4_cb_resp_op(tvb, offset, pinfo, tree);
+	offset = dissect_nfs4_cb_resp_op(tvb, offset, pinfo, tree, (rpc_call_info_value*)data);
 
 	return offset;
 }
