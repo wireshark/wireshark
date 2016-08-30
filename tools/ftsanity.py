@@ -62,7 +62,7 @@ def gather_data(tshark):
     output, error = proc.communicate()
 
     if proc.returncode != 0:
-        sys.exit("Failed: " + cmd)
+        sys.exit("Failed: tshark -G fields")
 
     if sys.version_info[0] >= 3:
         output = output.decode('utf-8')
