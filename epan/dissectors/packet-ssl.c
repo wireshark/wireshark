@@ -92,7 +92,9 @@
 #include <epan/follow.h>
 #include <epan/exported_pdu.h>
 #include <epan/proto_data.h>
+#include <epan/decode_as.h>
 
+#include <wsutil/utf8_entities.h>
 #include <wsutil/str_util.h>
 #include "packet-tcp.h"
 #include "packet-x509af.h"
@@ -3669,6 +3671,36 @@ ssldecrypt_uat_fld_protocol_chk_cb(void* r _U_, const char* p, guint len _U_, co
 }
 #endif
 
+static void
+ssl_src_prompt(packet_info *pinfo, gchar *result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%u%s)", pinfo->srcport, UTF8_RIGHTWARDS_ARROW);
+}
+
+static gpointer
+ssl_src_value(packet_info *pinfo)
+{
+    return GUINT_TO_POINTER(pinfo->srcport);
+}
+
+static void
+ssl_dst_prompt(packet_info *pinfo, gchar *result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, pinfo->destport);
+}
+
+static gpointer
+ssl_dst_value(packet_info *pinfo)
+{
+    return GUINT_TO_POINTER(pinfo->destport);
+}
+
+static void
+ssl_both_prompt(packet_info *pinfo, gchar *result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", pinfo->srcport, UTF8_LEFT_RIGHT_ARROW, pinfo->destport);
+}
+
 /*********************************************************************
  *
  * Standard Wireshark Protocol Registration and housekeeping
@@ -4100,6 +4132,13 @@ proto_register_ssl(void)
         SSL_COMMON_EI_LIST(dissect_ssl3_hf, "ssl")
     };
 
+    static build_valid_func ssl_da_src_values[1] = {ssl_src_value};
+    static build_valid_func ssl_da_dst_values[1] = {ssl_dst_value};
+    static build_valid_func ssl_da_both_values[2] = {ssl_src_value, ssl_dst_value};
+    static decode_as_value_t ssl_da_values[3] = {{ssl_src_prompt, 1, ssl_da_src_values}, {ssl_dst_prompt, 1, ssl_da_dst_values}, {ssl_both_prompt, 2, ssl_da_both_values}};
+    static decode_as_t ssl_da = {"ssl", "Transport", "ssl.port", 3, 2, ssl_da_values, "TCP", "port(s) as",
+                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
     expert_module_t* expert_ssl;
 
     /* Register the protocol name and description */
@@ -4187,6 +4226,8 @@ proto_register_ssl(void)
 
     register_init_routine(ssl_init);
     register_cleanup_routine(ssl_cleanup);
+    register_decode_as(&ssl_da);
+
     ssl_tap = register_tap("ssl");
     ssl_debug_printf("proto_register_ssl: registered tap %s:%d\n",
         "ssl", ssl_tap);
