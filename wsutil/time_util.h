@@ -38,11 +38,11 @@ time_t mktime_utc(struct tm *tm);
  * Fetch the current process user and system CPU times, convert them to
  * seconds, and store them in the provided parameters.
  *
- * @param utime Seconds spent in user mode.
- * @param stime Seconds spent in system (kernel) mode.
+ * @param user_time Seconds spent in user mode.
+ * @param sys_time Seconds spent in system (kernel) mode.
  */
 WS_DLL_PUBLIC
-void get_resource_usage(double *utime, double *stime);
+void get_resource_usage(double *user_time, double *sys_time);
 
 /** Print the process CPU time followed by a log message.
  *
