@@ -3080,7 +3080,7 @@ proto_register_ip(void)
 
   /* subdissector code */
   ip_dissector_table = register_dissector_table("ip.proto", "IP protocol",
-                                                proto_ip, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                                                proto_ip, FT_UINT8, BASE_DEC);
   heur_subdissector_list = register_heur_dissector_list("ip", proto_ip);
   register_capture_dissector_table("ip.proto", "IP protocol");
 

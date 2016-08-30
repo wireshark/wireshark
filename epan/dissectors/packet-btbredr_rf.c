@@ -897,13 +897,13 @@ proto_register_btbredr_rf(void)
     proto_register_subtree_array(ett, array_length(ett));
     btbredr_rf_handle = register_dissector("btbredr_rf", dissect_btbredr_rf, proto_btbredr_rf);
 
-    packet_type_sco_br_table   = register_dissector_table("btbredr_rf.packet_type.sco.br",   "BT Packet Type for SCO BR",   proto_btbredr_rf, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-    packet_type_esco_br_table  = register_dissector_table("btbredr_rf.packet_type.esco.br",  "BT Packet Type for eSCO BR",  proto_btbredr_rf, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-    packet_type_esco_edr_table = register_dissector_table("btbredr_rf.packet_type.esco.edr", "BT Packet Type for eSCO EDR", proto_btbredr_rf, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-    packet_type_acl_br_table   = register_dissector_table("btbredr_rf.packet_type.acl.br",   "BT Packet Type for ACL BR",   proto_btbredr_rf, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-    packet_type_acl_edr_table  = register_dissector_table("btbredr_rf.packet_type.acl.edr",  "BT Packet Type for ACL EDR",  proto_btbredr_rf, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-    packet_type_csb_br_table   = register_dissector_table("btbredr_rf.packet_type.csb.br",   "BT Packet Type for CSB BR",   proto_btbredr_rf, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-    packet_type_csb_edr_table  = register_dissector_table("btbredr_rf.packet_type.csb.edr",  "BT Packet Type for CSB EDR",  proto_btbredr_rf, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    packet_type_sco_br_table   = register_dissector_table("btbredr_rf.packet_type.sco.br",   "BT Packet Type for SCO BR",   proto_btbredr_rf, FT_UINT8, BASE_HEX);
+    packet_type_esco_br_table  = register_dissector_table("btbredr_rf.packet_type.esco.br",  "BT Packet Type for eSCO BR",  proto_btbredr_rf, FT_UINT8, BASE_HEX);
+    packet_type_esco_edr_table = register_dissector_table("btbredr_rf.packet_type.esco.edr", "BT Packet Type for eSCO EDR", proto_btbredr_rf, FT_UINT8, BASE_HEX);
+    packet_type_acl_br_table   = register_dissector_table("btbredr_rf.packet_type.acl.br",   "BT Packet Type for ACL BR",   proto_btbredr_rf, FT_UINT8, BASE_HEX);
+    packet_type_acl_edr_table  = register_dissector_table("btbredr_rf.packet_type.acl.edr",  "BT Packet Type for ACL EDR",  proto_btbredr_rf, FT_UINT8, BASE_HEX);
+    packet_type_csb_br_table   = register_dissector_table("btbredr_rf.packet_type.csb.br",   "BT Packet Type for CSB BR",   proto_btbredr_rf, FT_UINT8, BASE_HEX);
+    packet_type_csb_edr_table  = register_dissector_table("btbredr_rf.packet_type.csb.edr",  "BT Packet Type for CSB EDR",  proto_btbredr_rf, FT_UINT8, BASE_HEX);
 
     expert_module = expert_register_protocol(proto_btbredr_rf);
     expert_register_field_array(expert_module, ei, array_length(ei));

@@ -3825,7 +3825,7 @@ proto_register_obex(void)
 
     obex_handle = register_dissector("obex", dissect_obex, proto_obex);
 
-    obex_profile_table = register_dissector_table("obex.profile", "OBEX Profile", proto_obex, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    obex_profile_table = register_dissector_table("obex.profile", "OBEX Profile", proto_obex, FT_UINT8, BASE_DEC);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_obex, hf, array_length(hf));

@@ -300,7 +300,7 @@ void proto_reg_handoff_ua_msg(void)
         register_dissector_table("ua.opcode",
                                  "ua.opcode",
                                  FT_UINT8,
-                                 BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                                 BASE_HEX);
 
 
 #endif

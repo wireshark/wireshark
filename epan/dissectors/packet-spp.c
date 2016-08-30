@@ -261,7 +261,7 @@ proto_register_spp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	spp_socket_dissector_table = register_dissector_table("spp.socket",
-	    "SPP socket", proto_spp, FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	    "SPP socket", proto_spp, FT_UINT16, BASE_HEX);
 }
 
 void

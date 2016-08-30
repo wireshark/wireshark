@@ -514,7 +514,7 @@ proto_register_lapdm(void)
 
     register_dissector("lapdm", dissect_lapdm, proto_lapdm);
 
-    lapdm_sapi_dissector_table = register_dissector_table("lapdm.sapi", "LAPDm SAPI", proto_lapdm, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    lapdm_sapi_dissector_table = register_dissector_table("lapdm.sapi", "LAPDm SAPI", proto_lapdm, FT_UINT8, BASE_DEC);
 
     lapdm_module = prefs_register_protocol(proto_lapdm, NULL);
     prefs_register_bool_preference(lapdm_module, "reassemble",

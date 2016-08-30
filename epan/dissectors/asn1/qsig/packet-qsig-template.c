@@ -695,7 +695,7 @@ void proto_register_qsig(void) {
   expert_register_field_array(expert_qsig, ei, array_length(ei));
 
   /* Register dissector tables */
-  extension_dissector_table = register_dissector_table("qsig.ext", "QSIG Extension", proto_qsig, FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+  extension_dissector_table = register_dissector_table("qsig.ext", "QSIG Extension", proto_qsig, FT_STRING, BASE_NONE);
 
   qsig_init_tables();
 }

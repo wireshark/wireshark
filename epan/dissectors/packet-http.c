@@ -3667,7 +3667,7 @@ proto_register_http(void)
 	 * HTTP on a specific non-HTTP port.
 	 */
 	port_subdissector_table = register_dissector_table("http.port",
-	    "TCP port for protocols using HTTP", proto_http, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	    "TCP port for protocols using HTTP", proto_http, FT_UINT16, BASE_DEC);
 
 	/*
 	 * Dissectors can register themselves in this table.
@@ -3676,7 +3676,7 @@ proto_register_http(void)
 	 */
 	media_type_subdissector_table =
 	    register_dissector_table("media_type",
-		"Internet media type", proto_http, FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+		"Internet media type", proto_http, FT_STRING, BASE_NONE);
 
 	/*
 	 * Heuristic dissectors SHOULD register themselves in

@@ -1104,7 +1104,7 @@ proto_register_igmp(void)
 	expert_igmp = expert_register_protocol(proto_igmp);
 	expert_register_field_array(expert_igmp, ei, array_length(ei));
 
-	subdissector_table = register_dissector_table("igmp.type", "IGMP commands", proto_igmp, FT_UINT32, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+	subdissector_table = register_dissector_table("igmp.type", "IGMP commands", proto_igmp, FT_UINT32, BASE_HEX);
 
 }
 

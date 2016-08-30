@@ -8867,7 +8867,7 @@ proto_register_gsm_a_gm(void)
 
 	/* subdissector code */
 	gprs_sm_pco_subdissector_table = register_dissector_table("sm_pco.protocol",
-		"GPRS SM PCO PPP protocol", proto_a_gm, FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+		"GPRS SM PCO PPP protocol", proto_a_gm, FT_UINT16, BASE_HEX);
 }
 
 void

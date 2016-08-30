@@ -969,9 +969,9 @@ proto_register_fr(void)
   expert_register_field_array(expert_fr, ei, array_length(ei));
 
   fr_subdissector_table = register_dissector_table("fr.nlpid",
-                                                   "Frame Relay NLPID", proto_fr, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                                                   "Frame Relay NLPID", proto_fr, FT_UINT8, BASE_HEX);
   fr_osinl_subdissector_table = register_dissector_table("fr.osinl",
-                                                         "Frame Relay OSI NLPID", proto_fr, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                                                         "Frame Relay OSI NLPID", proto_fr, FT_UINT8, BASE_HEX);
 
   register_dissector("fr_uncompressed", dissect_fr_uncompressed, proto_fr);
   register_dissector("fr", dissect_fr, proto_fr);

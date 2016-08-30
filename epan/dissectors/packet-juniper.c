@@ -1550,7 +1550,7 @@ proto_register_juniper(void)
   expert_juniper = expert_register_protocol(proto_juniper);
   expert_register_field_array(expert_juniper, ei, array_length(ei));
 
-  payload_table = register_dissector_table("juniper.proto", "Juniper payload dissectors", proto_juniper, FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+  payload_table = register_dissector_table("juniper.proto", "Juniper payload dissectors", proto_juniper, FT_UINT32, BASE_HEX);
 
 }
 

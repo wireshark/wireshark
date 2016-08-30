@@ -1140,7 +1140,7 @@ proto_register_btrfcomm(void)
 
     service_directions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-    rfcomm_dlci_dissector_table = register_dissector_table("btrfcomm.dlci", "BT RFCOMM Directed Channel", proto_btrfcomm, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    rfcomm_dlci_dissector_table = register_dissector_table("btrfcomm.dlci", "BT RFCOMM Directed Channel", proto_btrfcomm, FT_UINT16, BASE_DEC);
 
     module = prefs_register_protocol(proto_btrfcomm, NULL);
     prefs_register_static_text_preference(module, "rfcomm.version",

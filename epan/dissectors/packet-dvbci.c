@@ -6343,7 +6343,7 @@ proto_register_dvbci(void)
             &dvbci_dissect_lsc_msg);
 
     sas_msg_dissector_table = register_dissector_table("dvb-ci.sas.app_id_str",
-                "SAS application id", proto_dvbci, FT_STRING, STR_ASCII, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                "SAS application id", proto_dvbci, FT_STRING, STR_ASCII);
 
     register_init_routine(dvbci_init);
     register_cleanup_routine(dvbci_cleanup);

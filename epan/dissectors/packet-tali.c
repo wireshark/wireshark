@@ -208,7 +208,7 @@ proto_register_tali(void)
   proto_register_fields(proto_tali, hfi, array_length(hfi));
   proto_register_subtree_array(ett, array_length(ett));
 
-  tali_dissector_table = register_dissector_table("tali.opcode", "Tali OPCODE", proto_tali, FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+  tali_dissector_table = register_dissector_table("tali.opcode", "Tali OPCODE", proto_tali, FT_STRING, BASE_NONE);
 
   tali_module = prefs_register_protocol(proto_tali, NULL);
   prefs_register_bool_preference(tali_module, "reassemble",

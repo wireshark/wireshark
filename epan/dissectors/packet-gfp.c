@@ -578,7 +578,7 @@ proto_register_gfp(void)
 
     /* Subdissectors for payload */
     gfp_dissector_table = register_dissector_table("gfp.upi", "GFP UPI (for Client Data frames)",
-                                                   proto_gfp, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                                                   proto_gfp, FT_UINT8, BASE_DEC);
 
     /* Don't register a preferences module yet since there are no prefs in
      * order to avoid a warning. (See section 2.6 of README.dissector

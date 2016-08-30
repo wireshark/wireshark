@@ -444,7 +444,7 @@ proto_register_ecp(void)
 	proto_register_field_array(proto_ecp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	ecp_subdissector_table = register_dissector_table("ecp.subtype", "ECP Subtypes", proto_ecp, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	ecp_subdissector_table = register_dissector_table("ecp.subtype", "ECP Subtypes", proto_ecp, FT_UINT32, BASE_DEC);
 }
 
 void

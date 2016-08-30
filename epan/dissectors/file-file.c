@@ -386,7 +386,7 @@ proto_register_file(void)
 	register_dissector("file",dissect_file_record,proto_file);
 
 	file_encap_dissector_table = register_dissector_table("ftap_encap",
-	    "Filetap encapsulation type", proto_file, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	    "Filetap encapsulation type", proto_file, FT_UINT32, BASE_DEC);
 
 	/* You can't disable dissection of "Frame", as that would be
 	   tantamount to not doing any dissection whatsoever. */

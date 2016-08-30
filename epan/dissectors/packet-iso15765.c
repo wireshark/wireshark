@@ -602,7 +602,7 @@ proto_register_iso15765(void)
 
     subdissector_table = register_dissector_table("iso15765.subdissector",
                                                   "ISO15765 next level dissector", proto_iso15765,
-                                                  FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                                                  FT_UINT32, BASE_HEX);
 
     iso15765_module = prefs_register_protocol(proto_iso15765, NULL);
 

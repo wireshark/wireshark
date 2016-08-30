@@ -10574,7 +10574,7 @@ static void dof_tun_register(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     register_dissector(TUNNEL_PROTOCOL_STACK, dissect_tunnel_common, proto_2012_1_tunnel);
-    dof_tun_app_dissectors = register_dissector_table("dof.tunnel.app", "DOF Tunnel Version", proto_2012_1_tunnel, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    dof_tun_app_dissectors = register_dissector_table("dof.tunnel.app", "DOF Tunnel Version", proto_2012_1_tunnel, FT_UINT8, BASE_DEC);
 }
 
 static void dof_tun_reset(void)
@@ -10944,9 +10944,9 @@ static void dof_register(void)
     char *uat_load_err;
     expert_module_t *expert_security;
 
-    dsp_option_dissectors = register_dissector_table("dof.dsp.options", "DSP Protocol Options", proto_2008_1_dsp, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-    dof_sec_dissectors = register_dissector_table("dof.secmode", "DOF Security Mode of Operation", proto_2008_1_dof, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-    register_dissector_table("dof.2008.1", "DOF Common PDU", proto_2008_1_dof, FT_STRING, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    dsp_option_dissectors = register_dissector_table("dof.dsp.options", "DSP Protocol Options", proto_2008_1_dsp, FT_UINT32, BASE_DEC);
+    dof_sec_dissectors = register_dissector_table("dof.secmode", "DOF Security Mode of Operation", proto_2008_1_dof, FT_UINT16, BASE_DEC);
+    register_dissector_table("dof.2008.1", "DOF Common PDU", proto_2008_1_dof, FT_STRING, BASE_DEC);
 
     proto_2008_1_dof = proto_register_protocol(DOF_PROTOCOL_STACK, "DOF", "dof");
 
@@ -11308,8 +11308,8 @@ static void dof_dnp_register(void)
 
     proto_register_field_array(proto_2008_1_dnp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    dnp_dissectors = register_dissector_table("dof.dnp", "DOF DNP Version", proto_2008_1_dnp, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-    dnp_framing_dissectors = register_dissector_table("dof.dnp.frame", "DOF DNP Framing", proto_2008_1_dnp, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    dnp_dissectors = register_dissector_table("dof.dnp", "DOF DNP Version", proto_2008_1_dnp, FT_UINT8, BASE_DEC);
+    dnp_framing_dissectors = register_dissector_table("dof.dnp.frame", "DOF DNP Framing", proto_2008_1_dnp, FT_UINT8, BASE_DEC);
 
     dof_register_dnp_0();
     dof_register_dnp_1();
@@ -11531,7 +11531,7 @@ static void dof_dpp_register(void)
 
         proto_register_field_array(proto_2008_1_dpp, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
-        dof_dpp_dissectors = register_dissector_table("dof.dpp", "DOF DPP Version", proto_2008_1_dpp, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+        dof_dpp_dissectors = register_dissector_table("dof.dpp", "DOF DPP Version", proto_2008_1_dpp, FT_UINT8, BASE_DEC);
 
         expert_dpp = expert_register_protocol(proto_2008_1_dpp);
         expert_register_field_array(expert_dpp, ei, array_length(ei));
@@ -11565,7 +11565,7 @@ static void app_register(void)
     if (proto_2008_1_app == -1)
     {
         proto_2008_1_app = proto_register_protocol(DOF_APPLICATION_PROTOCOL, "DPS.APP", "dof.app");
-        app_dissectors = register_dissector_table("dof.app", "DOF APP Version", proto_2008_1_app, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+        app_dissectors = register_dissector_table("dof.app", "DOF APP Version", proto_2008_1_app, FT_UINT16, BASE_DEC);
     }
 }
 

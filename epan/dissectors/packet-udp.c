@@ -1219,7 +1219,7 @@ proto_register_udp(void)
 
 /* subdissector code */
   udp_dissector_table = register_dissector_table("udp.port",
-                                                 "UDP port", proto_udp, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                                                 "UDP port", proto_udp, FT_UINT16, BASE_DEC);
   heur_subdissector_list = register_heur_dissector_list("udp", proto_udp);
 
   register_capture_dissector_table("udp.port", "UDP");

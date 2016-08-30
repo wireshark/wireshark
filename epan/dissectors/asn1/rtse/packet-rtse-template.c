@@ -402,7 +402,7 @@ void proto_register_rtse(void) {
                  " \"Allow subdissectors to reassemble TCP streams\""
                  " in the TCP protocol settings.", &rtse_reassemble);
 
-  rtse_oid_dissector_table = register_dissector_table("rtse.oid", "RTSE OID Dissectors", proto_rtse, FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+  rtse_oid_dissector_table = register_dissector_table("rtse.oid", "RTSE OID Dissectors", proto_rtse, FT_STRING, BASE_NONE);
   oid_table=g_hash_table_new(g_str_hash, g_str_equal);
 
 

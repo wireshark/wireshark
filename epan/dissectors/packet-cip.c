@@ -7989,9 +7989,9 @@ proto_register_cip(void)
       &cip_enhanced_info_column);
 
    subdissector_class_table = register_dissector_table("cip.class.iface",
-      "CIP Class Interface Handle", proto_cip, FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+      "CIP Class Interface Handle", proto_cip, FT_UINT32, BASE_HEX);
    subdissector_symbol_table = register_dissector_table("cip.data_segment.iface",
-      "CIP Data Segment Interface Handle", proto_cip, FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+      "CIP Data Segment Interface Handle", proto_cip, FT_UINT32, BASE_HEX);
 
    /* Register the protocol name and description */
    proto_cip_class_generic = proto_register_protocol("CIP Class Generic",

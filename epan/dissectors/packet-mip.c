@@ -1471,7 +1471,7 @@ void proto_register_mip(void)
   expert_register_field_array(expert_mip, ei, array_length(ei));
 
   mip_nvse_ext_dissector_table = register_dissector_table("mip.nvse_ext",
-    "MIP Normal Vendor/Organization Specific Extension", proto_mip, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+    "MIP Normal Vendor/Organization Specific Extension", proto_mip, FT_UINT32, BASE_DEC);
 }
 
 void

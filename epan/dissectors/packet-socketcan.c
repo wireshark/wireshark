@@ -264,7 +264,7 @@ proto_register_socketcan(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	subdissector_table = register_dissector_table("can.subdissector",
-		"CAN next level dissector", proto_can, FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+		"CAN next level dissector", proto_can, FT_UINT32, BASE_HEX);
 
 	can_module = prefs_register_protocol(proto_can, NULL);
 

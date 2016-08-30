@@ -409,7 +409,7 @@ proto_register_ax25(void)
 	proto_register_subtree_array(ett, array_length(ett ) );
 
 	/* Register dissector table for protocol IDs */
-	ax25_dissector_table = register_dissector_table("ax25.pid", "AX.25 protocol ID", proto_ax25, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	ax25_dissector_table = register_dissector_table("ax25.pid", "AX.25 protocol ID", proto_ax25, FT_UINT8, BASE_HEX);
 	register_capture_dissector_table("ax25.pid", "AX.25");
 }
 

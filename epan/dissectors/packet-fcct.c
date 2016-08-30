@@ -275,7 +275,7 @@ proto_register_fcct(void)
 
     fcct_gserver_table = register_dissector_table ("fcct.server",
                                                    "FCCT Server",
-                                                   proto_fcct, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                                                   proto_fcct, FT_UINT8, BASE_HEX);
 }
 
 void

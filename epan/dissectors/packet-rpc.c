@@ -4360,8 +4360,8 @@ proto_register_rpc(void)
 
 	proto_rpc = proto_register_protocol("Remote Procedure Call", "RPC", "rpc");
 
-	subdissector_call_table = register_custom_dissector_table("rpc.call", "RPC Call Functions", proto_rpc, rpc_proc_hash, rpc_proc_equal, DISSECTOR_TABLE_ALLOW_DUPLICATE);
-	subdissector_reply_table = register_custom_dissector_table("rpc.reply", "RPC Reply Functions", proto_rpc, rpc_proc_hash, rpc_proc_equal, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+	subdissector_call_table = register_custom_dissector_table("rpc.call", "RPC Call Functions", proto_rpc, rpc_proc_hash, rpc_proc_equal);
+	subdissector_reply_table = register_custom_dissector_table("rpc.reply", "RPC Reply Functions", proto_rpc, rpc_proc_hash, rpc_proc_equal);
 
 	/* this is a dummy dissector for all those unknown rpc programs */
 	proto_register_field_array(proto_rpc, hf, array_length(hf));

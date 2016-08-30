@@ -3238,7 +3238,7 @@ proto_register_erf(void)
    */
   prefs_register_obsolete_preference(erf_module, "ethfcs");
 
-  erf_dissector_table = register_dissector_table("erf.types.type", "Type", proto_erf, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+  erf_dissector_table = register_dissector_table("erf.types.type", "Type", proto_erf, FT_UINT8, BASE_DEC);
 
   register_init_routine(erf_init_dissection);
   /* No extra cleanup needed */

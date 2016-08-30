@@ -5920,7 +5920,7 @@ proto_register_ppp(void)
 
     /* subdissector code */
     ppp_subdissector_table = register_dissector_table("ppp.protocol",
-        "PPP protocol", proto_ppp, FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+        "PPP protocol", proto_ppp, FT_UINT16, BASE_HEX);
 
     register_dissector("ppp_hdlc", dissect_ppp_hdlc, proto_ppp);
     register_dissector("ppp_lcp_options", dissect_lcp_options, proto_ppp);

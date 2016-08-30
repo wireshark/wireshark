@@ -2126,7 +2126,7 @@ proto_register_isi(void)
 	expert_register_field_array(expert_isi, ei, array_length(ei));
 
 	/* create new dissector table for isi resource */
-	isi_resource_dissector_table = register_dissector_table("isi.resource", "ISI resource", proto_isi, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+	isi_resource_dissector_table = register_dissector_table("isi.resource", "ISI resource", proto_isi, FT_UINT8, BASE_HEX);
 }
 
 /* Handler registration */

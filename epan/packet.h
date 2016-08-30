@@ -103,11 +103,6 @@ typedef enum {
     HEURISTIC_ENABLE
 } heuristic_enable_e;
 
-typedef enum {
-    DISSECTOR_TABLE_ALLOW_DUPLICATE,
-    DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE
-} dissector_table_allow_e;
-
 typedef void (*DATFunc) (const gchar *table_name, ftenum_t selector_type,
     gpointer key, gpointer value, gpointer user_data);
 typedef void (*DATFunc_handle) (const gchar *table_name, gpointer value,
@@ -186,14 +181,14 @@ WS_DLL_PUBLIC void dissector_all_tables_foreach_table (DATFunc_table func,
  * case-sensitive)
  */
 WS_DLL_PUBLIC dissector_table_t register_dissector_table(const char *name,
-    const char *ui_name, const int proto, const ftenum_t type, const int param, dissector_table_allow_e allow_dup);
+    const char *ui_name, const int proto, const ftenum_t type, const int param);
 
 /*
  * Similar to register_dissector_table, but with a "custom" hash function
  * to store subdissectors.
  */
 WS_DLL_PUBLIC dissector_table_t register_custom_dissector_table(const char *name,
-    const char *ui_name, const int proto, GHashFunc hash_func, GEqualFunc key_equal_func, dissector_table_allow_e allow_dup);
+    const char *ui_name, const int proto, GHashFunc hash_func, GEqualFunc key_equal_func);
 
 /** Deregister the dissector table by table name. */
 void deregister_dissector_table(const char *name);
@@ -379,9 +374,9 @@ WS_DLL_PUBLIC GSList *dissector_table_get_dissector_handles(dissector_table_t di
  */
 WS_DLL_PUBLIC ftenum_t dissector_table_get_type(dissector_table_t dissector_table);
 
-/** Get a dissector table's ability to allow duplicate protocols
+/** Mark a dissector table as allowing "Decode As"
  */
-WS_DLL_PUBLIC dissector_table_allow_e dissector_table_get_proto_allowed(dissector_table_t dissector_table);
+WS_DLL_PUBLIC void dissector_table_allow_decode_as(dissector_table_t dissector_table);
 
 /* List of "heuristic" dissectors (which get handed a packet, look at it,
    and either recognize it as being for their protocol, dissect it, and

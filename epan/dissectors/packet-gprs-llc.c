@@ -1325,7 +1325,7 @@ proto_register_llcgprs(void)
 /* Register the protocol name and description */
 	proto_llcgprs = proto_register_protocol("Logical Link Control GPRS",
 	    "GPRS-LLC", "llcgprs");
-	llcgprs_subdissector_table = register_dissector_table("llcgprs.sapi", "GPRS LLC SAPI", proto_llcgprs, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	llcgprs_subdissector_table = register_dissector_table("llcgprs.sapi", "GPRS LLC SAPI", proto_llcgprs, FT_UINT8, BASE_HEX);
 
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_llcgprs, hf, array_length(hf));

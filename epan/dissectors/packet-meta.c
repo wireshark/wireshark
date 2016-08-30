@@ -797,7 +797,7 @@ proto_register_meta(void)
     expert_register_field_array(expert_meta, ei, array_length(ei));
 
     meta_dissector_table = register_dissector_table("meta.proto",
-            "META protocol", proto_meta, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+            "META protocol", proto_meta, FT_UINT16, BASE_DEC);
 }
 
 void

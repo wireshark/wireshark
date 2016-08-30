@@ -413,7 +413,7 @@ proto_register_dmx(void)
 	register_dissector("dmx", dissect_dmx, proto_dmx);
 
 	dmx_dissector_table = register_dissector_table("dmx", "DMX Start Code", proto_dmx,
-                                                FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                                                FT_UINT8, BASE_DEC);
 
 }
 

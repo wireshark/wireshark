@@ -439,8 +439,7 @@ proto_register_scte35_private_command(void)
     /* Allow other modules to hook private commands and decode them. */
     private_identifier_table = register_dissector_table(
         "scte35_private_command.identifier", "SCTE-35 Private Command Identifier",
-        proto_private_command, FT_UINT32, BASE_HEX,
-        DISSECTOR_TABLE_ALLOW_DUPLICATE);
+        proto_private_command, FT_UINT32, BASE_HEX);
 }
 
 void
@@ -1508,7 +1507,7 @@ proto_register_scte35(void)
      */
     scte35_cmd_dissector_table = register_dissector_table(
         "scte35.splice_command_type", "SCTE-35 Command", proto_scte35, FT_UINT8,
-        BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+        BASE_HEX);
 }
 
 void

@@ -2566,7 +2566,7 @@ void proto_register_snmp(void) {
 				"MIB settings can be changed in the Name Resolution preferences");
 #endif
 
-	value_sub_dissectors_table = register_dissector_table("snmp.variable_oid","SNMP Variable OID", proto_snmp, FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+	value_sub_dissectors_table = register_dissector_table("snmp.variable_oid","SNMP Variable OID", proto_snmp, FT_STRING, BASE_NONE);
 
 	register_init_routine(init_ue_cache);
 	register_cleanup_routine(cleanup_ue_cache);
