@@ -2126,7 +2126,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     /* Save next header value for Decode As dialog */
     p_add_proto_data(pinfo->pool, pinfo, proto_ipv6,
-            (pinfo->curr_layer_num<<8) | IPV6_PROTO_NXT_HDR, GUINT_TO_POINTER(iph.ip_nxt));
+            (pinfo->curr_layer_num<<8) | IPV6_PROTO_NXT_HDR, GUINT_TO_POINTER((guint)iph.ip_nxt));
     offset += IPv6_HDR_SIZE;
 
     /* Check for Jumbo option */
@@ -2182,7 +2182,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
 
     /* collect packet info */
-    p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_VALUE, GUINT_TO_POINTER(iph.ip_nxt));
+    p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_VALUE, GUINT_TO_POINTER((guint)iph.ip_nxt));
     tap_queue_packet(ipv6_tap, pinfo, ipv6);
 
     /* Get a tvbuff for the payload. */
