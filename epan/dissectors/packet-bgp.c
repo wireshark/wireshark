@@ -264,10 +264,13 @@ static dissector_handle_t bgp_handle;
 
 /* Extended community type */
 /* according to IANA's number assignment at: http://www.iana.org/assignments/bgp-extended-communities */
-/* BGP trasnsitive extended community type high octet */
+/* BGP transitive extended community type high octet */
 /* Range 0x00-0x3f First Come First Served */
 /* Range 0x80-0x8f Reserved for Experimental */
-/* Range 0x90-0xbf  Standards Action */
+/* Range 0x90-0xbf Standards Action */
+
+#define BGP_EXT_COM_TYPE_AUTH               0x80    /* FCFS or Standard/Early/Experimental allocated */
+#define BGP_EXT_COM_TYPE_TRAN               0x40    /* Non-transitive or Transitive */
 
 #define BGP_EXT_COM_TYPE_HIGH_TR_AS2        0x00    /* Transitive Two-Octet AS-Specific Extended Community */
 #define BGP_EXT_COM_TYPE_HIGH_TR_IP4        0x01    /* Transitive IPv4-Address-specific Extended Community */
@@ -295,12 +298,15 @@ static dissector_handle_t bgp_handle;
 
 
 /* EVPN Extended Community Sub-Types */
-#define BGP_EXT_COM_STYPE_EPVN_MMAC         0x00    /* MAC Mobility [draft-ietf-l2vpn-pbb-evpn] */
+#define BGP_EXT_COM_STYPE_EVPN_MMAC         0x00    /* MAC Mobility [draft-ietf-l2vpn-pbb-evpn] */
 #define BGP_EXT_COM_STYPE_EVPN_LABEL        0x01    /* ESI MPLS Label [draft-ietf-l2vpn-evpn] */
 #define BGP_EXT_COM_STYPE_EVPN_IMP          0x02    /* ES Import [draft-sajassi-l2vpn-evpn-segment-route] */
 
 /* RFC 7432 Flag single active mode */
 #define BGP_EXT_COM_ESI_LABEL_FLAGS         0x01    /* bitmask: set for single active multi-homing site */
+
+/* RFC 7432 Flag Sticky/Static MAC */
+#define BGP_EXT_COM_EVPN_MMAC_STICKY        0x01    /* Bitmask: Set for sticky/static MAC address */
 
 /* EPVN route AD NLRI ESI type */
 #define BGP_NLRI_EVPN_ESI_VALUE             0x00    /* ESI type 0, 9 bytes interger */
@@ -887,10 +893,15 @@ static const value_string subtlv_type[] = {
     { 0, NULL }
 };
 
+static const true_false_string tfs_bgpext_com_type_auth = {
+    "Allocated on First Come First Serve Basis",
+    "Allocated on Standard Action, Early Allocation or Experimental Basis"
+};
+
 static const value_string bgpext_com_type_high[] = {
-    { BGP_EXT_COM_TYPE_HIGH_TR_AS2,         "Transitive Two-Octet AS" },
-    { BGP_EXT_COM_TYPE_HIGH_TR_IP4,         "Transitive IPv4-Address" },
-    { BGP_EXT_COM_TYPE_HIGH_TR_AS4,         "Transitive Four-Octet AS" },
+    { BGP_EXT_COM_TYPE_HIGH_TR_AS2,         "Transitive 2-Octet AS-Specific" },
+    { BGP_EXT_COM_TYPE_HIGH_TR_IP4,         "Transitive IPv4-Address-Specific" },
+    { BGP_EXT_COM_TYPE_HIGH_TR_AS4,         "Transitive 4-Octet AS-Specific" },
     { BGP_EXT_COM_TYPE_HIGH_TR_OPAQUE,      "Transitive Opaque" },
     { BGP_EXT_COM_TYPE_HIGH_TR_QOS,         "Transitive QoS Marking" },
     { BGP_EXT_COM_TYPE_HIGH_TR_COS,         "Transitive CoS Capability" },
@@ -899,11 +910,11 @@ static const value_string bgpext_com_type_high[] = {
     { BGP_EXT_COM_TYPE_HIGH_TR_EXP,         "Transitive Experimental"},
     { BGP_EXT_COM_TYPE_HIGH_TR_EXP_FSIP4,   "Transitive Experimental Redirect IPv4"},
     { BGP_EXT_COM_TYPE_HIGH_TR_EXP_FSAS4,   "Transitive Experimental Redirect AS4"},
-    { BGP_EXT_COM_TYPE_HIGH_NTR_AS2,        "Non-Transitive Two-Octet AS" },
-    { BGP_EXT_COM_TYPE_HIGH_NTR_IP4,        "Non-Transitive IPv4-Address" },
-    { BGP_EXT_COM_TYPE_HIGH_NTR_AS4,        "Non-Transitive Four-Octet AS" },
+    { BGP_EXT_COM_TYPE_HIGH_NTR_AS2,        "Non-Transitive 2-Octet AS-Specific" },
+    { BGP_EXT_COM_TYPE_HIGH_NTR_IP4,        "Non-Transitive IPv4-Address-Specific" },
+    { BGP_EXT_COM_TYPE_HIGH_NTR_AS4,        "Non-Transitive 4-Octet AS-Specific" },
     { BGP_EXT_COM_TYPE_HIGH_NTR_OPAQUE,     "Non-Transitive Opaque" },
-    { BGP_EXT_COM_TYPE_HIGH_NTR_QOS,        "Non-Transive QoS Marking" },
+    { BGP_EXT_COM_TYPE_HIGH_NTR_QOS,        "Non-Transitive QoS Marking" },
     { 0, NULL}
 };
 
@@ -918,7 +929,7 @@ static const value_string bgpext_com_stype_tr_exp_fs_as4[] = {
 };
 
 static const value_string bgpext_com_stype_tr_evpn[] = {
-    { BGP_EXT_COM_STYPE_EPVN_MMAC,  "MAC Mobility" },
+    { BGP_EXT_COM_STYPE_EVPN_MMAC,  "MAC Mobility" },
     { BGP_EXT_COM_STYPE_EVPN_LABEL, "ESI MPLS Label" },
     { BGP_EXT_COM_STYPE_EVPN_IMP,   "ES Import" },
     { 0, NULL}
@@ -965,6 +976,10 @@ static const value_string bgpext_com_stype_tr_IP4[] = {
     { BGP_EXT_COM_STYPE_IP4_VRF_I,  "VRF Route Import" },
     { BGP_EXT_COM_STYPE_IP4_CIS_D,  "Cisco VPN-Distinguisher" },
     { BGP_EXT_COM_STYPE_IP4_SEG_NH, "Inter-area P2MP Segmented Next-Hop" },
+    { 0, NULL}
+};
+
+static const value_string bgpext_com_stype_ntr_IP4[] = {
     { 0, NULL}
 };
 
@@ -1254,6 +1269,7 @@ static const value_string route_refresh_subtype_vals[] = {
 
 static const true_false_string tfs_optional_wellknown = { "Optional", "Well-known" };
 static const true_false_string tfs_transitive_non_transitive = { "Transitive", "Non-transitive" };
+static const true_false_string tfs_non_transitive_transitive = { "Non-transitive", "Transitive" };
 static const true_false_string tfs_partial_complete = { "Partial", "Complete" };
 static const true_false_string tfs_extended_regular_length = { "Extended length", "Regular length" };
 static const true_false_string tfs_esi_label_flag = { "Single-Active redundancy", "All-Active redundancy" };
@@ -1753,6 +1769,8 @@ static int hf_bgp_mdt_nlri_safi_group_addr = -1;
 
 static int hf_bgp_ext_communities = -1;
 static int hf_bgp_ext_community = -1;
+static int hf_bgp_ext_com_type_auth = -1;
+static int hf_bgp_ext_com_type_tran = -1;
 
 static int hf_bgp_ext_com_type_high = -1;
 static int hf_bgp_ext_com_stype_low_unknown = -1;
@@ -1762,6 +1780,7 @@ static int hf_bgp_ext_com_stype_ntr_as2 = -1;
 static int hf_bgp_ext_com_stype_tr_as4 = -1;
 static int hf_bgp_ext_com_stype_ntr_as4 = -1;
 static int hf_bgp_ext_com_stype_tr_IP4 = -1;
+static int hf_bgp_ext_com_stype_ntr_IP4 = -1;
 static int hf_bgp_ext_com_stype_tr_opaque = -1;
 static int hf_bgp_ext_com_stype_ntr_opaque = -1;
 static int hf_bgp_ext_com_tunnel_type = -1;
@@ -1774,8 +1793,7 @@ static int hf_bgp_ext_com_value_as4 = -1;
 static int hf_bgp_ext_com_value_IP4 = -1;
 static int hf_bgp_ext_com_value_an2 = -1;
 static int hf_bgp_ext_com_value_an4 = -1;
-static int hf_bgp_ext_com_value_unknown16 = -1;
-static int hf_bgp_ext_com_value_unknown32 = -1;
+static int hf_bgp_ext_com_value_raw = -1;
 static int hf_bgp_ext_com_value_link_bw = -1;
 static int hf_bgp_ext_com_value_ospf_rtype = -1;
 static int hf_bgp_ext_com_value_ospf_rtype_option = -1;
@@ -1819,6 +1837,11 @@ static int hf_bgp_ext_com_l2_flag_c = -1;
 static int hf_bgp_ext_com_l2_flag_s = -1;
 static int hf_bgp_ext_com_l2_esi_label_flag = -1;
 
+static int hf_bgp_ext_com_evpn_mmac_flag = -1;
+static int hf_bgp_ext_com_evpn_mmac_seq = -1;
+static int hf_bgp_ext_com_evpn_esirt = -1;
+static int hf_bgp_ext_com_evpn_mmac_flag_sticky = -1;
+
 static gint ett_bgp = -1;
 static gint ett_bgp_prefix = -1;
 static gint ett_bgp_unfeas = -1;
@@ -1844,10 +1867,12 @@ static gint ett_bgp_options = -1;       /* optional parameters tree   */
 static gint ett_bgp_option = -1;        /* an optional parameter tree */
 static gint ett_bgp_cap = -1;           /* an cap parameter tree */
 static gint ett_bgp_extended_communities = -1; /* extended communities list tree */
-static gint ett_bgp_extended_community = -1; /* extended comminiy tree for each community of BGP update */
+static gint ett_bgp_extended_community = -1; /* extended community tree for each community of BGP update */
+static gint ett_bgp_ext_com_type = -1;  /* Extended Community Type High tree (IANA, Transitive bits) */
 static gint ett_bgp_extended_com_fspec_redir = -1; /* extended communities BGP flow act redirect */
 static gint ett_bgp_ext_com_flags = -1; /* extended communities flags tree */
 static gint ett_bgp_ext_com_l2_flags = -1; /* extended commuties tree for l2 services flags */
+static gint ett_bgp_ext_com_evpn_mmac_flags = -1;
 static gint ett_bgp_ssa = -1;           /* safi specific attribute */
 static gint ett_bgp_ssa_subtree = -1;   /* safi specific attribute Subtrees */
 static gint ett_bgp_orf = -1;           /* orf (outbound route filter) tree */
@@ -5722,18 +5747,14 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
 {
     int             offset=0;
     int             end=0;
-    int             i=0;
     guint8          com_type_high_byte;
     guint8          com_stype_low_byte;
-    guint8          dscp_flags;
-    guint8          esi_label_flag;
     proto_tree      *communities_tree;
     proto_tree      *community_tree;
+    proto_tree      *community_type_tree;
     proto_item      *communities_item=NULL;
     proto_item      *community_item=NULL;
-    gfloat          linkband;                   /* Link bandwidth           */
-    guint16         as_num;
-    guint16         tunnel_type=0;
+    proto_item      *community_type_item=NULL;
 
     offset = tvb_off ;
     end = tvb_off + tlen ;
@@ -5742,126 +5763,192 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
     proto_item_append_text(communities_item, ": (%u communit%s)", tlen/8, plurality(tlen/8, "y", "ies"));
     while (offset < end) {
         com_type_high_byte = tvb_get_guint8(tvb,offset); /* high community type octet */
-        com_stype_low_byte = tvb_get_guint8(tvb,offset+1); /* sur type low community type octet */
+        com_stype_low_byte = tvb_get_guint8(tvb,offset+1); /* sub type low community type octet */
         community_item = proto_tree_add_item(communities_tree, hf_bgp_ext_community, tvb, offset, 8, ENC_NA);
         community_tree = proto_item_add_subtree(community_item,ett_bgp_extended_community);
+
+        /* Add the Type octet as a decoded item to the community_tree right away,
+         * and also dissect its two top bits in a subtree.
+         */
+
+        community_type_item = proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
+        community_type_tree = proto_item_add_subtree(community_type_item, ett_bgp_ext_com_type);
+        proto_tree_add_item(community_type_tree, hf_bgp_ext_com_type_auth, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(community_type_tree, hf_bgp_ext_com_type_tran, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+        /* In the switch(), handlers of individual types and subtypes should
+         * add and dissect the remaining 7 octets. Dissectors should use the
+         * proto_item_set_text() on the community_item to set the community
+         * name in the displayed label as specifically as possible, and
+         * proto_item_append_text() to add reasonable details.
+         *
+         * The intended text label of the community_item for each extended
+         * community attribute is:
+         *
+         * Community Name: Values [General Community Type Name]
+         *
+         * For example:
+         * Route Target: 1:1 [Transitive 2-Octet AS-Specific]
+         * Unknown subtype 0x01: 0x8081 0x0000 0x2800 [Non-Transitive Opaque]
+         * Unknown type 0x88 subtype 0x00: 0x0000 0x0000 0x0000 [Unknown community]
+         *
+         * The [] part with general community name is added at the end
+         * of the switch().
+         *
+         * The first option (Route Target) shows a fully recognized and
+         * dissected extended community. Note that the line immediately calls
+         * the community by its most specific known type (Route Target), while
+         * the general type is shown in the brackets. The second option shows a
+         * community whose Type is recognized (Non-Transitive Opaque) but whose
+         * Subtype is not known. The third option shows an unrecognized
+         * extended community.
+         *
+         * Printing out the community raw value as 3 short ints is intentional:
+         * With an unknown community, we cannot assume any particular internal
+         * value format, and dumping the value in short ints provides for easy
+         * readability.
+         */
+
         switch (com_type_high_byte) {
             case BGP_EXT_COM_TYPE_HIGH_TR_AS2: /* Transitive Two-Octet AS-Specific Extended Community */
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_as2, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_as2, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-                proto_item_append_text(community_item, " %s %s: %u%s%d",
-                        val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
-                        val_to_str_const(com_stype_low_byte, bgpext_com_stype_tr_as2, "Unknown"),
-                        tvb_get_ntohs(tvb,offset+2),":",tvb_get_ntohl(tvb,offset+4));
+
+                proto_item_set_text(community_item, "%s: %u:%u",
+                        val_to_str(com_stype_low_byte, bgpext_com_stype_tr_as2, "Unknown subtype 0x%02x"),
+                        tvb_get_ntohs(tvb,offset+2), tvb_get_ntohl(tvb, offset+4));
                 break;
 
             case BGP_EXT_COM_TYPE_HIGH_NTR_AS2: /* Non-Transitive Two-Octet AS-Specific Extended Community */
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_ntr_as2, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_as2, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-                if (com_stype_low_byte == BGP_EXT_COM_STYPE_AS2_LBW) {
-                    proto_tree_add_item(community_tree, hf_bgp_ext_com_value_link_bw, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-                    linkband = tvb_get_ntohieee_float(tvb,offset+4);
-                    as_num = tvb_get_ntohs(tvb,offset+2);
-                    proto_item_append_text(community_item, ": ASN %u, %.3f Mbps", as_num,linkband*8/1000000);
-                } else {
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-                proto_item_append_text(community_item, " %s %s: %u%s%d",
-                        val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
-                        val_to_str_const(com_stype_low_byte, bgpext_com_stype_ntr_as2, "Unknown"),
-                        tvb_get_ntohs(tvb,offset+2),":",tvb_get_ntohl(tvb,offset+4));
+
+                proto_item_set_text(community_item, "%s:",
+                        val_to_str(com_stype_low_byte, bgpext_com_stype_ntr_as2, "Unknown subtype 0x%02x"));
+
+                switch (com_stype_low_byte) {
+                    case BGP_EXT_COM_STYPE_AS2_LBW:
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_value_link_bw, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+
+                        proto_item_append_text(community_item, " ASN %u, %.3f Mbps",
+                                tvb_get_ntohs(tvb,offset+2),
+                                tvb_get_ntohieee_float(tvb,offset+4)*8/1000000);
+                        break;
+
+                    default:
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+
+                        proto_item_append_text(community_item, " %u:%u",
+                                tvb_get_ntohs(tvb,offset+2), tvb_get_ntohl(tvb,offset+4));
+                    break;
                 }
                 break;
 
             case BGP_EXT_COM_TYPE_HIGH_TR_IP4: /* Transitive IPv4-Address-specific Extended Community */
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_IP4, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_IP4, tvb, offset+2, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an2, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-                proto_item_append_text(community_item, " %s %s: %s%s%u",
-                                        val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
-                                        val_to_str_const(com_stype_low_byte, bgpext_com_stype_tr_IP4, "Unknown"),
-                                        tvb_ip_to_str(tvb, offset+2),":",tvb_get_ntohs(tvb,offset+6));
+
+                proto_item_set_text(community_item, "%s: %s:%u",
+                        val_to_str(com_stype_low_byte, bgpext_com_stype_tr_IP4, "Unknown subtype 0x%02x"),
+                        tvb_ip_to_str(tvb, offset+2), tvb_get_ntohs(tvb,offset+6));
                 break;
 
             case BGP_EXT_COM_TYPE_HIGH_NTR_IP4: /* Non-Transitive IPv4-Address-specific Extended Community */
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
-                /* no subtype defined in IANA */
+                proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_ntr_IP4, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_IP4, tvb, offset+2, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an2, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-                proto_item_append_text(community_item, " %s: %s%s%u",
-                                        val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
-                                        tvb_ip_to_str(tvb, offset+2),":",tvb_get_ntohs(tvb,offset+6));
+
+                proto_item_set_text(community_item, "%s: %s:%u",
+                        val_to_str(com_stype_low_byte, bgpext_com_stype_ntr_IP4, "Unknown subtype 0x%02x"),
+                        tvb_ip_to_str(tvb, offset+2), tvb_get_ntohs(tvb,offset+6));
                 break;
 
             case BGP_EXT_COM_TYPE_HIGH_TR_AS4: /* Transitive Four-Octet AS-Specific Extended Community */
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_as4, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_as4, tvb, offset+2, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an2, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-                proto_item_append_text(community_item, " %s %s: %u.%u(%u):%u",
-                                        val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
-                                        val_to_str_const(com_stype_low_byte, bgpext_com_stype_tr_as4, "Unknown"),
-                                        tvb_get_ntohs(tvb,offset+2),tvb_get_ntohs(tvb,offset+4) ,tvb_get_ntohl(tvb,offset+2),
-                                        tvb_get_ntohs(tvb,offset+6));
+
+                proto_item_set_text(community_item, "%s: %u.%u(%u):%u",
+                        val_to_str(com_stype_low_byte, bgpext_com_stype_tr_as4, "Unknown subtype 0x%02x"),
+                        tvb_get_ntohs(tvb,offset+2), tvb_get_ntohs(tvb,offset+4), tvb_get_ntohl(tvb,offset+2),
+                        tvb_get_ntohs(tvb,offset+6));
                 break;
 
             case BGP_EXT_COM_TYPE_HIGH_NTR_AS4: /* Non-Transitive Four-Octet AS-Specific Extended Community */
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_ntr_as4, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_as4, tvb, offset+2, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an2, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-                proto_item_append_text(community_item, " %s %s: %u.%u:%u",
-                                        val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
-                                        val_to_str_const(com_stype_low_byte, bgpext_com_stype_ntr_as4, "Unknown"),
-                                        tvb_get_ntohs(tvb,offset+2),tvb_get_ntohs(tvb,offset+4), tvb_get_ntohs(tvb,offset+6));
+
+                proto_item_set_text(community_item, "%s: %u.%u(%u):%u",
+                        val_to_str(com_stype_low_byte, bgpext_com_stype_ntr_as4, "Unknown subtype 0x%02x"),
+                        tvb_get_ntohs(tvb,offset+2), tvb_get_ntohs(tvb,offset+4), tvb_get_ntohl(tvb,offset+2),
+                        tvb_get_ntohs(tvb,offset+6));
                 break;
 
             case BGP_EXT_COM_TYPE_HIGH_TR_OPAQUE: /* Transitive Opaque Extended Community */
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_opaque, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+
+                proto_item_set_text(community_item, "%s:",
+                        val_to_str(com_stype_low_byte, bgpext_com_stype_tr_opaque, "Unknown subtype 0x%02x"));
+
                 switch (com_stype_low_byte) {
                     case BGP_EXT_COM_STYPE_OPA_OSPF:
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_value_IP4, tvb, offset+2, 4, ENC_BIG_ENDIAN);
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_value_ospf_rtype, tvb, offset+6, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_value_ospf_rtype_option, tvb, offset+7, 1, ENC_BIG_ENDIAN);
-                        proto_item_append_text(community_item, " Area: %s, Type: %s", tvb_ip_to_str(tvb,offset+2),
-                                               val_to_str_const(tvb_get_guint8(tvb,offset+6),
-                                               bgpext_com_ospf_rtype, "Unknown"));
+
+                        proto_item_append_text(community_item, " Area: %s, Type: %s",
+                                tvb_ip_to_str(tvb,offset+2),
+                                val_to_str_const(tvb_get_guint8(tvb,offset+6), bgpext_com_ospf_rtype, "Unknown"));
                         break;
+
                     case BGP_EXT_COM_STYPE_OPA_ENCAP:
-                        tunnel_type = tvb_get_ntohs(tvb,offset+6);
-                        proto_tree_add_item(community_tree, hf_bgp_ext_com_value_unknown32, tvb, offset+2, 4, ENC_BIG_ENDIAN);
+                        /* Community octets 2 through 5 are reserved and carry no useful value according to RFC 5512. */
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_tunnel_type, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-                        proto_item_append_text(community_item, " %s %s: %s",
-                                                val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
-                                                val_to_str_const(com_stype_low_byte, bgpext_com_stype_tr_opaque, "Unknown"),
-                                                val_to_str_const(tunnel_type, bgpext_com_tunnel_type, "Unknown"));
+
+                        proto_item_append_text(community_item, " %s",
+                                val_to_str_const(tvb_get_ntohs(tvb,offset+6), bgpext_com_tunnel_type, "Unknown"));
                         break;
+
                     case BGP_EXT_COM_STYPE_OPA_COLOR:
                     case BGP_EXT_COM_STYPE_OPA_DGTW:
                     default:
-                        proto_tree_add_item(community_tree, hf_bgp_ext_com_value_unknown16, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(community_tree, hf_bgp_ext_com_value_unknown32, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-                        proto_item_append_text(community_item, " %s %s: 0x%02x 0x%04x",
-                                                val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
-                                                val_to_str_const(com_stype_low_byte, bgpext_com_stype_tr_opaque, "Unknown"),
-                                                tvb_get_ntohs(tvb,offset+2) ,tvb_get_ntohl(tvb,offset+4));
+                        /* The particular Opaque subtype is unknown or the
+                         * dissector is not written yet. We will dump the
+                         * entire community value in 2-byte short words.
+                         */
+                        proto_tree_add_uint64_format_value(community_tree, hf_bgp_ext_com_value_raw, tvb, offset+2, 6,
+                                tvb_get_ntoh48 (tvb, offset+2), "0x%04x 0x%04x 0x%04x",
+                                tvb_get_ntohs(tvb,offset+2),
+                                tvb_get_ntohs(tvb,offset+4),
+                                tvb_get_ntohs(tvb,offset+6));
+
+                        proto_item_append_text(community_item, " 0x%04x 0x%04x 0x%04x",
+                                tvb_get_ntohs(tvb,offset+2), tvb_get_ntohs(tvb,offset+4), tvb_get_ntohs(tvb,offset+6));
                         break;
                 }
                 break;
 
             case BGP_EXT_COM_TYPE_HIGH_NTR_OPAQUE: /* Non-Transitive Opaque Extended Community */
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_ntr_opaque, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_unknown16, tvb, offset+2, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_unknown32, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-                proto_item_append_text(community_item, " %s %s: 0x%02x 0x%04x",
-                                            val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
-                                            val_to_str_const(com_stype_low_byte, bgpext_com_stype_ntr_opaque, "Unknown"),
-                                            tvb_get_ntohs(tvb,offset+2) ,tvb_get_ntohl(tvb,offset+4));
+
+                proto_item_set_text(community_item, "%s:",
+                        val_to_str(com_stype_low_byte, bgpext_com_stype_ntr_opaque, "Unknown subtype 0x%02x"));
+
+                /* We currently do not recognize any Non-Transitive Opaque
+                 * extended community. Let's dump the entire value in 2-byte
+                 * short words.
+                 */
+                proto_tree_add_uint64_format_value(community_tree, hf_bgp_ext_com_value_raw, tvb, offset+2, 6,
+                        tvb_get_ntoh48 (tvb, offset+2), "0x%04x 0x%04x 0x%04x",
+                        tvb_get_ntohs(tvb,offset+2),
+                        tvb_get_ntohs(tvb,offset+4),
+                        tvb_get_ntohs(tvb,offset+6));
+
+                proto_item_append_text(community_item, " 0x%04x 0x%04x 0x%04x",
+                        tvb_get_ntohs(tvb,offset+2), tvb_get_ntohs(tvb,offset+4), tvb_get_ntohs(tvb,offset+6));
                 break;
 
             case BGP_EXT_COM_TYPE_HIGH_TR_QOS: /* QoS Marking [Thomas_Martin_Knoll] */
@@ -5874,11 +5961,10 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                     NULL
                 };
 
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_item_append_text(community_item, " %s: 0x%02x",val_to_str(com_type_high_byte, bgpext_com_type_high,
-                                        "Unknown type: 0x%02x"),com_type_high_byte);
+                proto_item_set_text(community_item, "QoS Marking");
 
-                proto_tree_add_bitmask(community_tree, tvb, offset, hf_bgp_ext_com_qos_flags, ett_bgp_ext_com_flags, qos_flags, ENC_BIG_ENDIAN);
+                proto_tree_add_bitmask(community_tree, tvb, offset, hf_bgp_ext_com_qos_flags,
+                        ett_bgp_ext_com_flags, qos_flags, ENC_BIG_ENDIAN);
 
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_qos_set_number, tvb, offset+2, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_qos_tech_type, tvb, offset+3, 1, ENC_BIG_ENDIAN);
@@ -5889,9 +5975,11 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                 break;
 
             case BGP_EXT_COM_TYPE_HIGH_TR_COS: /* CoS Capability [Thomas_Martin_Knoll] */
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_item_append_text(community_item, " %s: 0x%02x",val_to_str(com_type_high_byte, bgpext_com_type_high,
-                                    "Unknown type: 0x%02x"),com_type_high_byte);
+                {
+                int i;
+
+                proto_item_set_text(community_item, "CoS Capability");
+
                 for (i=1; i < 8; i++) {
                     static const int * cos_flags[] = {
                         &hf_bgp_ext_com_cos_flags_be,
@@ -5901,55 +5989,109 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                         NULL
                     };
 
-                    proto_tree_add_bitmask(community_tree, tvb, offset+i, hf_bgp_ext_com_cos_flags, ett_bgp_ext_com_flags, cos_flags, ENC_BIG_ENDIAN);
+                    proto_tree_add_bitmask(community_tree, tvb, offset+i, hf_bgp_ext_com_cos_flags,
+                            ett_bgp_ext_com_flags, cos_flags, ENC_BIG_ENDIAN);
+                }
                 }
                 break;
 
             case BGP_EXT_COM_TYPE_HIGH_TR_EVPN: /* EVPN (Sub-Types are defined in the "EVPN Extended Community Sub-Types" registry) */
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_evpn, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_l2_esi_label_flag, tvb, offset+2, 1, ENC_BIG_ENDIAN);
-                esi_label_flag = tvb_get_guint8(tvb, offset+2);
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_unknown16, tvb, offset+3, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(community_tree, hf_bgp_update_mpls_label_value, tvb, offset+5, 3, ENC_BIG_ENDIAN);
-                proto_item_append_text(community_item, " %s %s: %s Label: %u",
-                                            val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
-                                            val_to_str_const(com_stype_low_byte, bgpext_com_stype_tr_evpn, "Unknown"),
-                                            ((esi_label_flag & BGP_EXT_COM_ESI_LABEL_FLAGS) == 0) ? "All active redundancy" : "Single Active redundancy",
-                                            tvb_get_ntoh24(tvb,offset+5));
+
+                proto_item_set_text(community_item, "%s:",
+                        val_to_str(com_stype_low_byte, bgpext_com_stype_tr_evpn, "Unknown subtype 0x%02x"));
+
+                switch (com_stype_low_byte) {
+                    case BGP_EXT_COM_STYPE_EVPN_MMAC:
+                        {
+                        proto_tree *evpn_mmac_flag_tree;
+                        proto_item *evpn_mmac_flag_item;
+
+                        evpn_mmac_flag_item = proto_tree_add_item(community_tree, hf_bgp_ext_com_evpn_mmac_flag, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+                        evpn_mmac_flag_tree = proto_item_add_subtree(evpn_mmac_flag_item, ett_bgp_ext_com_evpn_mmac_flags);
+                        proto_tree_add_item (evpn_mmac_flag_tree, hf_bgp_ext_com_evpn_mmac_flag_sticky, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+                        /* Octet at offset 3 is reserved per RFC 7432 Section 7.7 */
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_evpn_mmac_seq, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+
+                        proto_item_append_text(community_item, " %s MAC",
+                          (tvb_get_guint8(tvb,offset+2) & BGP_EXT_COM_EVPN_MMAC_STICKY) ? "Sticky" : "Movable");
+                        }
+                        break;
+
+                    case BGP_EXT_COM_STYPE_EVPN_LABEL:
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_l2_esi_label_flag, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+                        /* Octets at offsets 3 and 4 are reserved perf RFC 7432 Section 7.5 */
+                        proto_tree_add_item(community_tree, hf_bgp_update_mpls_label_value, tvb, offset+5, 3, ENC_BIG_ENDIAN);
+
+                        proto_item_append_text(community_item, " %s, Label: %u",
+                                ((tvb_get_guint8(tvb, offset+2) & BGP_EXT_COM_ESI_LABEL_FLAGS) == 0) ? "All-Active redundancy" : "Single-Active redundancy",
+                                tvb_get_ntoh24(tvb,offset+5));
+                        break;
+
+                    case BGP_EXT_COM_STYPE_EVPN_IMP:
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_evpn_esirt, tvb, offset+2, 6, ENC_NA);
+
+                        proto_item_append_text(community_item, " RT: %s", tvb_ether_to_str(tvb, offset+2));
+                        break;
+
+                    default:
+                        /* The particular EVPN subtype is unknown or the
+                         * dissector is not written yet. We will dump the
+                         * entire community value in 2-byte short words.
+                         */
+                        proto_tree_add_uint64_format_value(community_tree, hf_bgp_ext_com_value_raw, tvb, offset+2, 6,
+                                tvb_get_ntoh48 (tvb, offset+2), "0x%04x 0x%04x 0x%04x",
+                                tvb_get_ntohs(tvb,offset+2),
+                                tvb_get_ntohs(tvb,offset+4),
+                                tvb_get_ntohs(tvb,offset+6));
+
+                        proto_item_append_text(community_item, " 0x%04x 0x%04x 0x%04x",
+                                tvb_get_ntohs(tvb,offset+2), tvb_get_ntohs(tvb,offset+4), tvb_get_ntohs(tvb,offset+6));
+                        break;
+                }
                 break;
 
             case BGP_EXT_COM_TYPE_HIGH_TR_EXP: /* Generic Transitive Experimental Extended Community */
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_exp, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-                proto_item_append_text(community_item, " %s %s",
-                                        val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
-                                        val_to_str_const(com_stype_low_byte, bgpext_com_stype_tr_exp, "Unknown"));
+
+                proto_item_set_text(community_item, "%s:",
+                        val_to_str(com_stype_low_byte, bgpext_com_stype_tr_exp, "Unknown subtype 0x%02x"));
 
                 switch (com_stype_low_byte) {
                     case BGP_EXT_COM_STYPE_EXP_F_TR:  /* Flow spec traffic-rate [RFC5575] */
-                        proto_tree_add_item(community_tree, hf_bgp_update_path_attribute_community_as,
-                                            tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_value_as2,
+                                tvb, offset+2, 2, ENC_BIG_ENDIAN);
                         /* remaining 4 bytes gives traffic rate in IEEE floating point */
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_flow_rate_float, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+
+                        proto_item_append_text(community_item, " ASN %u, %.3f Mbps",
+                                tvb_get_ntohs(tvb,offset+2),
+                                tvb_get_ntohieee_float(tvb,offset+4)*8/1000000);
                         break;
 
                     case BGP_EXT_COM_STYPE_EXP_F_TA:  /* Flow spec traffic-action [RFC5575] */
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_flow_act_allset, tvb, offset+2, 5, ENC_NA);
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_flow_act_samp_act, tvb, offset+7, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_flow_act_term_act, tvb, offset+7, 1, ENC_BIG_ENDIAN);
+
+                        proto_item_append_text(community_item, " Sample: %s, Terminal: %s",
+                                (tvb_get_guint8(tvb,offset+7) & BGP_EXT_COM_FSPEC_ACT_S) ? "Yes" : "No",
+                                (tvb_get_guint8(tvb,offset+7) & BGP_EXT_COM_FSPEC_ACT_T) ? "Yes" : "No");
                         break;
 
                     case BGP_EXT_COM_STYPE_EXP_F_RED: /* Flow spec redirect [RFC5575] */
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_value_as2, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-                        proto_item_append_text(community_item, " RT %u:%u", tvb_get_ntohs(tvb,offset+2), tvb_get_ntohl(tvb,offset+4));
+
+                        proto_item_append_text(community_item, " RT %u:%u",
+                                tvb_get_ntohs(tvb,offset+2), tvb_get_ntohl(tvb,offset+4));
                         break;
 
                     case BGP_EXT_COM_STYPE_EXP_F_RMARK: /* Flow spec traffic-remarking [RFC5575] */
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_value_fs_remark, tvb, offset+7, 1, ENC_BIG_ENDIAN);
-                        dscp_flags = tvb_get_guint8(tvb,offset+7);
-                        proto_item_append_text(community_item, "%s", val_to_str_ext_const(dscp_flags,&dscp_vals_ext, "Unknown DSCP"));
+
+                        proto_item_append_text(community_item, " %s",
+                                val_to_str_ext_const(tvb_get_guint8(tvb,offset+7), &dscp_vals_ext, "Unknown DSCP"));
                         break;
 
                     case BGP_EXT_COM_STYPE_EXP_L2:
@@ -5970,43 +6112,61 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_l2_mtu, tvb, offset+4, 2, ENC_BIG_ENDIAN);
                         }
                         break;
+
+                    default:
+                        /* The particular Experimental subtype is unknown or
+                         * the dissector is not written yet. We will dump the
+                         * entire community value in 2-byte short words.
+                         */
+                        proto_tree_add_uint64_format_value(community_tree, hf_bgp_ext_com_value_raw, tvb, offset+2, 6,
+                                tvb_get_ntoh48 (tvb, offset+2), "0x%04x 0x%04x 0x%04x",
+                                tvb_get_ntohs(tvb,offset+2),
+                                tvb_get_ntohs(tvb,offset+4),
+                                tvb_get_ntohs(tvb,offset+6));
+
+                        proto_item_append_text(community_item, " 0x%04x 0x%04x 0x%04x",
+                                tvb_get_ntohs(tvb,offset+2), tvb_get_ntohs(tvb,offset+4), tvb_get_ntohs(tvb,offset+6));
+                        break;
                 }
                 break;
 
             case BGP_EXT_COM_TYPE_HIGH_TR_EXP_FSIP4:
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_exp_fs_ip4, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_IP4, tvb, offset+2, 4, ENC_NA);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an2, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-                proto_item_append_text(community_item, " %s %s: %s%s%u",
-                                        val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
-                                        val_to_str_const(com_stype_low_byte, bgpext_com_stype_tr_exp_fs_ip4, "Unknown"),
-                                        tvb_ip_to_str(tvb, offset+2),":",tvb_get_ntohs(tvb,offset+6));
+
+                proto_item_set_text(community_item, "%s: %s:%u",
+                        val_to_str(com_stype_low_byte, bgpext_com_stype_tr_exp_fs_ip4, "Unknown subtype 0x%02x"),
+                        tvb_ip_to_str(tvb, offset+2), tvb_get_ntohs(tvb,offset+6));
                 break;
 
             case BGP_EXT_COM_TYPE_HIGH_TR_EXP_FSAS4:
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_exp_fs_as4, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_as4, tvb, offset+2, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an2, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-                proto_item_append_text(community_item, " %s %s: %u.%u(%u):%u",
-                                        val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
-                                        val_to_str_const(com_stype_low_byte, bgpext_com_stype_tr_exp_fs_as4, "Unknown"),
-                                        tvb_get_ntohs(tvb,offset+2),tvb_get_ntohs(tvb,offset+4) ,tvb_get_ntohl(tvb,offset+2),
-                                        tvb_get_ntohs(tvb,offset+6));
+
+                proto_item_set_text(community_item, "%s: %u.%u(%u):%u",
+                        val_to_str(com_stype_low_byte, bgpext_com_stype_tr_exp_fs_as4, "Unknown subtype 0x%02x"),
+                        tvb_get_ntohs(tvb,offset+2), tvb_get_ntohs(tvb,offset+4), tvb_get_ntohl(tvb,offset+2),
+                        tvb_get_ntohs(tvb,offset+6));
                 break;
 
             case BGP_EXT_COM_TYPE_HIGH_TR_FLOW: /* Flow spec redirect/mirror to IP next-hop [draft-simpson-idr-flowspec-redirect] */
             default:
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_low_unknown, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_unknown16, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_unknown32, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-                proto_item_append_text(community_item, " %s : 0x%02x 0x%04x",
-                                            val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
-                                            tvb_get_ntohs(tvb,offset+2) ,tvb_get_ntohl(tvb,offset+4));
+
+                proto_tree_add_uint64_format_value(community_tree, hf_bgp_ext_com_value_raw, tvb, offset+2, 6,
+                        tvb_get_ntoh48 (tvb, offset+2), "0x%04x 0x%04x 0x%04x",
+                        tvb_get_ntohs(tvb,offset+2),
+                        tvb_get_ntohs(tvb,offset+4),
+                        tvb_get_ntohs(tvb,offset+6));
+
+                proto_item_set_text(community_item, "Unknown type 0x%02x subtype 0x%02x: 0x%04x 0x%04x 0x%04x",
+                        com_type_high_byte, com_stype_low_byte,
+                        tvb_get_ntohs(tvb,offset+2), tvb_get_ntohs(tvb,offset+4), tvb_get_ntohs(tvb,offset+6));
                 break;
         }
+        proto_item_append_text (community_item, " [%s]", val_to_str(com_type_high_byte, bgpext_com_type_high, "Unknown community"));
         offset = offset + 8;
     }
     return(0);
@@ -8168,82 +8328,88 @@ proto_register_bgp(void)
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_ext_community,
         { "Community", "bgp.ext_community", FT_NONE, BASE_NONE,
-          NULL, 0x0, NULL, HFILL }},
+          NULL, 0x0, "Extended Community attribute", HFILL }},
       { &hf_bgp_ext_com_type_high,
-        { "Community type high", "bgp.ext_com.type_high", FT_UINT8, BASE_HEX,
-          VALS(bgpext_com_type_high), 0x0, "Type high unknown", HFILL }},
+        { "Type", "bgp.ext_com.type", FT_UINT8, BASE_HEX,
+          VALS(bgpext_com_type_high), 0x0, "Extended Community type", HFILL }},
+      { &hf_bgp_ext_com_type_auth,
+        { "IANA Authority", "bgp.ext_com.type.auth", FT_BOOLEAN, 8,
+          TFS(&tfs_bgpext_com_type_auth), BGP_EXT_COM_TYPE_AUTH, "IANA Type Allocation Policy", HFILL }},
+      {&hf_bgp_ext_com_type_tran,
+        { "Transitive across AS", "bgp.ext_com.type.tran", FT_BOOLEAN, 8,
+          TFS(&tfs_non_transitive_transitive), BGP_EXT_COM_TYPE_TRAN, "Transitivity of the attribute across autonomous systems", HFILL }},
       { &hf_bgp_ext_com_stype_low_unknown,
-        { "Community subtype low: unknown", "bgp.ext_com.type_low", FT_UINT8, BASE_HEX,
-          NULL, 0x0, NULL, HFILL }},
+        { "Subtype", "bgp.ext_com.stype_unknown", FT_UINT8, BASE_HEX,
+          NULL, 0x0, "Extended Community subtype", HFILL }},
       { &hf_bgp_ext_com_stype_tr_evpn,
-        { "Subtype evpn", "bgp.ext_com.stype_tr_evpn", FT_UINT8, BASE_HEX,
-          VALS(bgpext_com_stype_tr_evpn), 0x0, "Subtype unknown", HFILL}},
+        { "Subtype (EVPN)", "bgp.ext_com.stype_tr_evpn", FT_UINT8, BASE_HEX,
+          VALS(bgpext_com_stype_tr_evpn), 0x0, "EVPN Extended Community subtype", HFILL}},
       { &hf_bgp_ext_com_stype_tr_as2,
-        { "Subtype as2", "bgp.ext_com.stype_tr_as2", FT_UINT8, BASE_HEX,
-          VALS(bgpext_com_stype_tr_as2), 0x0, "Subtype unknown", HFILL}},
+        { "Subtype (AS2)", "bgp.ext_com.stype_tr_as2", FT_UINT8, BASE_HEX,
+          VALS(bgpext_com_stype_tr_as2), 0x0, "2-Octet AS-Specific Transitive Extended Community subtype", HFILL}},
       { &hf_bgp_ext_com_stype_ntr_as2,
-        { "Subtype non-transitive as2", "bgp.ext_com.stype_ntr_as2", FT_UINT8, BASE_HEX,
-          VALS(bgpext_com_stype_ntr_as2), 0x0, "Subtype unknown", HFILL}},
+        { "Subtype (Non-transitive AS2)", "bgp.ext_com.stype_ntr_as2", FT_UINT8, BASE_HEX,
+          VALS(bgpext_com_stype_ntr_as2), 0x0, "2-Octet AS-Specific Non-transitive Extended Community subtype", HFILL}},
       { &hf_bgp_ext_com_stype_tr_as4,
-        { "Subtype as4", "bgp.ext_com.stype_tr_as4", FT_UINT8, BASE_HEX,
-          VALS(bgpext_com_stype_tr_as4), 0x0, "Subtype unknown", HFILL}},
+        { "Subtype (AS4)", "bgp.ext_com.stype_tr_as4", FT_UINT8, BASE_HEX,
+          VALS(bgpext_com_stype_tr_as4), 0x0, "4-Octet AS-Specific Transitive Extended Community subtype", HFILL}},
       { &hf_bgp_ext_com_stype_ntr_as4,
-        { "Subtype non-transitive as4", "bgp.ext_com.stype_ntr_as4", FT_UINT8, BASE_HEX,
-          VALS(bgpext_com_stype_ntr_as4), 0x0, "Subtype unknown", HFILL}},
+        { "Subtype (Non-transitive AS4)", "bgp.ext_com.stype_ntr_as4", FT_UINT8, BASE_HEX,
+          VALS(bgpext_com_stype_ntr_as4), 0x0, "4-Octet AS-Specific Non-transitive Extended Community subtype", HFILL}},
       { &hf_bgp_ext_com_stype_tr_IP4,
-        { "Subtype IPv4", "bgp.ext_com.stype_tr_IP4", FT_UINT8, BASE_HEX,
-          VALS(bgpext_com_stype_tr_IP4), 0x0, "Subtype unknown", HFILL}},
+        { "Subtype (IPv4)", "bgp.ext_com.stype_tr_IP4", FT_UINT8, BASE_HEX,
+          VALS(bgpext_com_stype_tr_IP4), 0x0, "IPv4-Address-Specific Transitive Extended Community subtype", HFILL}},
+      { &hf_bgp_ext_com_stype_ntr_IP4,
+        { "Subtype (Non-transitive IPv4)", "bgp.ext_com.stype_ntr_IP4", FT_UINT8, BASE_HEX,
+          VALS(bgpext_com_stype_ntr_IP4), 0x0, "IPv4-Address-Specific Non-transitive Extended Community subtype", HFILL}},
       { &hf_bgp_ext_com_stype_tr_opaque,
-        { "Subtype opaque", "bgp.ext_com.stype_tr_opaque", FT_UINT8, BASE_HEX,
-          VALS(bgpext_com_stype_tr_opaque), 0x0, "Subtype unknown", HFILL}},
+        { "Subtype (Opaque)", "bgp.ext_com.stype_tr_opaque", FT_UINT8, BASE_HEX,
+          VALS(bgpext_com_stype_tr_opaque), 0x0, "Opaque Transitive Extended Community subtype", HFILL}},
       { &hf_bgp_ext_com_stype_ntr_opaque,
-        { "Subtype opaque", "bgp.ext_com.stype_ntr_opaque", FT_UINT8, BASE_HEX,
-          VALS(bgpext_com_stype_ntr_opaque), 0x0, "Subtype unknown", HFILL}},
+        { "Subtype (Non-transitive Opaque)", "bgp.ext_com.stype_ntr_opaque", FT_UINT8, BASE_HEX,
+          VALS(bgpext_com_stype_ntr_opaque), 0x0, "Opaque Non-transitive Extended Community subtype", HFILL}},
       { &hf_bgp_ext_com_tunnel_type,
-        { "Tunnel types", "bgp.ext_com.tunnel_type", FT_UINT16, BASE_DEC,
-          VALS(bgpext_com_tunnel_type), 0x0, "Type unknown", HFILL}},
+        { "Tunnel type", "bgp.ext_com.tunnel_type", FT_UINT16, BASE_DEC,
+          VALS(bgpext_com_tunnel_type), 0x0, "Tunnel encapsulation type", HFILL}},
       { &hf_bgp_ext_com_stype_tr_exp,
-        { "Subtype Experimental", "bgp.ext_com.stype_tr_exp", FT_UINT8, BASE_HEX,
-          VALS(bgpext_com_stype_tr_exp), 0x0, "Subtype unknown", HFILL}},
+        { "Subtype (Experimental)", "bgp.ext_com.stype_tr_exp", FT_UINT8, BASE_HEX,
+          VALS(bgpext_com_stype_tr_exp), 0x0, "Experimental Transitive Extended Community subtype", HFILL}},
       { &hf_bgp_ext_com_stype_tr_exp_fs_ip4,
-        { "Subtype Experimental Flow spec", "bgp.ext_com.stype_tr_exp_fs_ip4", FT_UINT8, BASE_HEX,
-          VALS(bgpext_com_stype_tr_exp_fs_ip4), 0x0, "Subtype unknown", HFILL}},
+        { "Subtype (Flowspec)", "bgp.ext_com.stype_tr_exp_fs_ip4", FT_UINT8, BASE_HEX,
+          VALS(bgpext_com_stype_tr_exp_fs_ip4), 0x0, "IPv4-Address-Specific Flowspec Experimental Extended Community subtype", HFILL}},
       { &hf_bgp_ext_com_stype_tr_exp_fs_as4,
-        { "Subtype Experimental Flow spec", "bgp.ext_com.stype_tr_exp_fs_as4", FT_UINT8, BASE_HEX,
-          VALS(bgpext_com_stype_tr_exp_fs_as4), 0x0, "Subtype unknown", HFILL}},
+        { "Subtype (Flowspec)", "bgp.ext_com.stype_tr_exp_fs_as4", FT_UINT8, BASE_HEX,
+          VALS(bgpext_com_stype_tr_exp_fs_as4), 0x0, "4-Octet AS-Specific Flowspec Experimental Extended Community subtype", HFILL}},
       { &hf_bgp_ext_com_value_as2,
-        { "Two octets AS specific", "bgp.ext_com.value_as2", FT_UINT16, BASE_DEC,
-          NULL, 0x0, NULL, HFILL }},
+        { "2-Octet AS", "bgp.ext_com.value_as2", FT_UINT16, BASE_DEC,
+          NULL, 0x0, "Global Administrator Field value (2B Autonomous System Number)", HFILL }},
       { &hf_bgp_ext_com_value_as4,
-        { "Four octets AS specific", "bgp.ext_com.value_as4", FT_UINT32, BASE_DEC,
-          NULL, 0x0, NULL, HFILL }},
+        { "4-Octet AS", "bgp.ext_com.value_as4", FT_UINT32, BASE_DEC,
+          NULL, 0x0, "Global Administrator Field value (4B Autonomous System Number)", HFILL }},
       { &hf_bgp_ext_com_value_IP4,
-        { "IPv4 address specific", "bgp.ext_com.value_IP4", FT_IPv4, BASE_NONE,
-          NULL, 0x0, NULL, HFILL }},
+        { "IPv4 address", "bgp.ext_com.value_IP4", FT_IPv4, BASE_NONE,
+          NULL, 0x0, "Global Administrator Field value (IPv4 Address)", HFILL }},
       { &hf_bgp_ext_com_value_an2,
-        { "Two octets AN specific", "bgp.ext_com.value_an2", FT_UINT16, BASE_DEC,
-          NULL, 0x0, NULL, HFILL }},
+        { "2-Octet AN", "bgp.ext_com.value_an2", FT_UINT16, BASE_DEC,
+          NULL, 0x0, "Local Administrator Field value (2B Assigned Number)", HFILL }},
       { &hf_bgp_ext_com_value_an4,
-        { "Four octets AN specific", "bgp.ext_com.value_an4", FT_UINT32, BASE_DEC,
-          NULL, 0x0, NULL, HFILL }},
+        { "4-Octet AN", "bgp.ext_com.value_an4", FT_UINT32, BASE_DEC,
+          NULL, 0x0, "Local Administrator Field value (4B Assigned Number)", HFILL }},
       { &hf_bgp_ext_com_value_link_bw,
         { "Link bandwidth", "bgp.ext_com.value_link_bw", FT_FLOAT, BASE_NONE,
           NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ext_com_value_ospf_rtype,
         { "OSPF route type", "bgp.ext_com.value_ospf_rtype", FT_UINT8, BASE_DEC,
-          VALS(bgpext_com_ospf_rtype), 0x0, "OSPF route type unknown", HFILL}},
+          VALS(bgpext_com_ospf_rtype), 0x0, "Original OSPF LSA Type that carried this route", HFILL}},
       { &hf_bgp_ext_com_value_ospf_rtype_option,
         { "OSPF route option", "bgp.ext_com.value_ospf_rtype_option", FT_BOOLEAN, 8,
           TFS(&tfs_set_notset), BGP_OSPF_RTYPE_METRIC_TYPE, NULL, HFILL }},
       { &hf_bgp_ext_com_value_fs_remark,
         { "Remarking value", "bgp.ext_com.value_fs_dscp", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
           &dscp_vals_ext, BGPNLRI_FSPEC_DSCP_BITMASK, NULL, HFILL }},
-      { &hf_bgp_ext_com_value_unknown16,
-        { "Two octets Value specific", "bgp.ext_com.value_2octets", FT_UINT16, BASE_HEX,
-          NULL, 0x0, NULL, HFILL}},
-      { &hf_bgp_ext_com_value_unknown32,
-        { "Four octets Value specific", "bgp.ext_com.value_4octets", FT_UINT32, BASE_HEX,
-          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ext_com_value_raw,
+        { "Raw Value", "bgp.ext_com.value_raw", FT_UINT48, BASE_HEX,
+          NULL, 0x0, "Raw value of the lowmost 6 octets of the Extended Community attribute", HFILL }},
             /* BGP update extended community flow spec RFC 5575 */
       { &hf_bgp_ext_com_flow_act_samp_act,
         { "Sample", "bgp.ext_com_flow.sample", FT_BOOLEAN, 8,
@@ -8332,6 +8498,18 @@ proto_register_bgp(void)
       { &hf_bgp_ext_com_l2_esi_label_flag,
         { "Single active bit", "bgp.ext_com_l2.esi_label_flag",FT_BOOLEAN, 8,
           TFS(&tfs_esi_label_flag), BGP_EXT_COM_ESI_LABEL_FLAGS, NULL, HFILL }},
+      { &hf_bgp_ext_com_evpn_mmac_flag,
+        { "Flags", "bgp.ext_com_evpn.mmac.flags", FT_UINT8, BASE_HEX,
+          NULL, 0x0, "MAC Mobility flags", HFILL }},
+      { &hf_bgp_ext_com_evpn_mmac_flag_sticky,
+        { "Sticky/Static MAC", "bgp.ext_com_evpn.mmac.flags.sticky", FT_BOOLEAN, 8,
+          TFS(&tfs_yes_no), BGP_EXT_COM_EVPN_MMAC_STICKY, "Indicates whether the MAC address is fixed or movable", HFILL }},
+      { &hf_bgp_ext_com_evpn_mmac_seq,
+        { "Sequence number", "bgp.ext_com_evpn.mmac.seq", FT_UINT32, BASE_DEC,
+          NULL, 0x0, "MAC Mobility Update Sequence number", HFILL }},
+      { &hf_bgp_ext_com_evpn_esirt,
+        { "ES-Import Route Target", "bgp.ext_com_evpn.esi.rt", FT_ETHER, BASE_NONE,
+          NULL, 0x0, "Route Target as a MAC Address", HFILL }},
       /* idr-ls-03 */
       { &hf_bgp_ls_type,
         { "Type", "bgp.ls.type", FT_UINT16, BASE_DEC,
@@ -8902,9 +9080,11 @@ proto_register_bgp(void)
       &ett_bgp_cap,
       &ett_bgp_extended_communities,
       &ett_bgp_extended_community,
+      &ett_bgp_ext_com_type,
       &ett_bgp_extended_com_fspec_redir,
       &ett_bgp_ext_com_flags,
       &ett_bgp_ext_com_l2_flags,
+      &ett_bgp_ext_com_evpn_mmac_flags,
       &ett_bgp_ssa,
       &ett_bgp_ssa_subtree,
       &ett_bgp_orf,
