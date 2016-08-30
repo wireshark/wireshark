@@ -9747,7 +9747,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			break;
 
 		case NFS4_OP_PUTFH:
-			offset = dissect_nfs4_fh(tvb, offset, pinfo, newftree, "filehandle", &last_fh_hash, civ);
+			offset = dissect_nfs4_fh(tvb, offset, pinfo, newftree, "FileHandle", &last_fh_hash, civ);
 			break;
 
 		case NFS4_OP_PUTPUBFH:
@@ -11108,7 +11108,7 @@ dissect_nfs4_cb_layoutrecall(tvbuff_t *tvb, int offset, proto_tree *tree, packet
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_cb_layoutrecall_type, offset);
 
 	if (recall_type == 1) { /* RECALL_FILE */
-		offset = dissect_nfs4_fh(tvb, offset, pinfo, tree, "filehandle", NULL, civ);
+		offset = dissect_nfs4_fh(tvb, offset, pinfo, tree, "FileHandle", NULL, civ);
 		offset = dissect_rpc_uint64(tvb, tree, hf_nfs4_offset, offset);
 		offset = dissect_rpc_uint64(tvb, tree, hf_nfs4_length, offset);
 		offset = dissect_nfs4_stateid(tvb, offset, tree, NULL);
@@ -11162,7 +11162,7 @@ dissect_nfs4_cb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		case NFS4_OP_CB_RECALL:
 		  	offset = dissect_nfs4_stateid(tvb, offset, newftree, NULL);
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs4_cb_truncate, offset);
-			offset = dissect_nfs4_fh(tvb, offset, pinfo, newftree, "filehandle", NULL, civ);
+			offset = dissect_nfs4_fh(tvb, offset, pinfo, newftree, "FileHandle", NULL, civ);
 			break;
 		case NFS4_OP_CB_GETATTR:
 		case NFS4_OP_CB_LAYOUTRECALL:
@@ -11187,7 +11187,7 @@ dissect_nfs4_cb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		case NFS4_OP_CB_NOTIFY_DEVICEID:
 		  	break;
 		case NFS4_OP_CB_OFFLOAD:
-			offset = dissect_nfs4_fh(tvb, offset, pinfo, newftree, "filehandle", NULL, civ);
+			offset = dissect_nfs4_fh(tvb, offset, pinfo, newftree, "FileHandle", NULL, civ);
 			offset = dissect_nfs4_stateid(tvb, offset, newftree, NULL);
 			offset = dissect_nfs4_status(tvb, offset, newftree, &status);
 			if (status == NFS4_OK) {
@@ -12629,7 +12629,7 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_fh_fhandle_data, {
-			"filehandle", "nfs.fhandle", FT_BYTES, BASE_NONE,
+			"FileHandle", "nfs.fhandle", FT_BYTES, BASE_NONE,
 			NULL, 0, "Opaque nfs filehandle", HFILL }},
 
 		{ &hf_nfs4_secinfo_arr, {
