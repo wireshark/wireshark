@@ -232,7 +232,7 @@ dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const guint8  itu_oui[] = {ITU_OUI_0, ITU_OUI_1, ITU_OUI_2};
 
     /* OUI of the organization defining the protocol */
-    str = tvb_get_manuf_name(tvb, offset+1);
+    str = tvb_get_manuf_name(tvb, offset);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OSSP");
     col_add_fstr(pinfo->cinfo, COL_INFO, "OUI: %s", str);
@@ -251,17 +251,17 @@ dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * support OUIs as keys in dissector tables.
      */
     ossp_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (tvb_memeql(tvb, 1, itu_oui, OUI_SIZE) == 0)
+    if (tvb_memeql(tvb, 0, itu_oui, OUI_SIZE) == 0)
     {
        dissect_itu_ossp(ossp_tvb, pinfo, ossp_tree);
     }
 /*    new Organization Specific Slow Protocols go hereafter */
 #if 0
-    else if (tvb_memeql(tvb, 1, xxx_oui, OUI_SIZE) == 0)
+    else if (tvb_memeql(tvb, 0, xxx_oui, OUI_SIZE) == 0)
     {
         dissect_xxx_ossp(ossp_tvb, pinfo, ossp_tree);
     }
-    else if (tvb_memeql(tvb, 1, yyy_oui, OUI_SIZE) == 0)
+    else if (tvb_memeql(tvb, 0, yyy_oui, OUI_SIZE) == 0)
     {
         dissect_yyy_ossp(ossp_tvb, pinfo, ossp_tree);
     }
