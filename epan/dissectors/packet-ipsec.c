@@ -1120,7 +1120,7 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   proto_tree *ah_tree, *root_tree;
   proto_item *pi, *ti;
-  guint8      ah_nxt;         /* Next header */
+  guint       ah_nxt;         /* Next header */
   guint8      ah_len;         /* Length of header in 32bit words minus 2 */
   guint       ah_hdr_len;     /* Length of header in octets */
   guint       ah_icv_len;     /* Length of ICV header field in octets */
