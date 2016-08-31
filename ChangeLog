@@ -1,3359 +1,818 @@
-commit bb8f307
-Author: Balint Reczey <balint@balintreczey.hu>
-Date:   Mon Aug 22 10:45:26 2016 +0200
-
-    Bump SOVERSION for upcoming 2.2.0 release
-    
-    Change-Id: I3c9e3f42d32921288fbf38029d786d40d42ed017
-    Reviewed-on: https://code.wireshark.org/review/17236
-    Reviewed-by: Balint Reczey <balint@balintreczey.hu>
-    Petri-Dish: Balint Reczey <balint@balintreczey.hu>
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit de5d20a
-Author: Balint Reczey <balint@balintreczey.hu>
-Date:   Mon Aug 22 14:11:32 2016 +0200
-
-    debian: Update symbols file with new symbols
-    
-    Change-Id: I67ecc259128dfa90ba8b47fc040cdc9a38e264c5
-    Reviewed-on: https://code.wireshark.org/review/17235
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit 8a0abec
-Author: Balint Reczey <balint@balintreczey.hu>
-Date:   Mon Aug 22 13:26:14 2016 +0200
-
-    Make index_of_char() static again
-    
-    Change-Id: I1c0d344c50ee5d78dd8247ccfe795ce0cd94aaa2
-    Reviewed-on: https://code.wireshark.org/review/17230
-    Reviewed-by: Balint Reczey <balint@balintreczey.hu>
-    (cherry picked from commit ee0f94aaaec4cc35b463a94df601a83a23f7967e)
-    Reviewed-on: https://code.wireshark.org/review/17234
-
-commit 4843a66
-Author: Balint Reczey <balint@balintreczey.hu>
-Date:   Mon Aug 22 12:59:01 2016 +0200
-
-    Rename find_parameter() to ws_find_media_type_parameter()
-    
-    The symbols exported from libs should use less generic. preferably
-    prefixed names to avoid name collisions with other shared library
-    symbols.
-    
-    Change-Id: I8323b3e194a7ee4d61baec0c007342fab6cbde84
-    Reviewed-on: https://code.wireshark.org/review/17229
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit c43b8b5ef95b7b2dc865d8b0df89222b224059ce)
-    Reviewed-on: https://code.wireshark.org/review/17233
-    Reviewed-by: Balint Reczey <balint@balintreczey.hu>
-
-commit 32ac8d2
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Mon Aug 22 00:37:42 2016 -0700
-
-    wmem_array_index() returns a *pointer* to the array element.
-    
-    The array is an array of guint8 *'s that point to strings;
-    wmem_array_index() doesn't return a pointer to the string, it returns a
-    pointer to a pointer to the string, and you have to dereference the
-    result of the wmem_array_index() call to get a pointer to the string.
-    
-    Change-Id: I8c7b3320f0979b01383ad255419c21cdeb7df4c7
-    Reviewed-on: https://code.wireshark.org/review/17221
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit e83bdc67cc413c25321ae75792a2c92d55b6e544)
-    Reviewed-on: https://code.wireshark.org/review/17222
-
-commit e388dd0
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Sun Aug 21 23:36:54 2016 -0700
-
-    Get rid of trailing blank line.
-    
-    Change-Id: I409a843b48983355c242708f6c9972bd8f337bf6
-    Reviewed-on: https://code.wireshark.org/review/17218
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit e1f11c97349dad879c3d3a875c289a195a8ba52c)
-    Reviewed-on: https://code.wireshark.org/review/17220
-
-commit 359fdbb
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Sun Aug 21 23:33:23 2016 -0700
-
-    Pass an HTTP message type to all HTTP subdissectors.
-    
-    This gets complicated, because those subdissectors might be called by
-    other dissectors as well.  We need a better way of passing that sort of
-    out-of-bound information.
-    
-    Pull some routines used for processing Content-Type parameters into
-    common code; we can't guarantee that the media parameters passed in
-    would be writable (passing it as *the* data hid that; passing a
-    structure with that *and* the HTTP message type revealed it), so don't
-    convert it to lower-case in place.
-    
-    Use that information, if available, to determine whether an IPP message
-    is a requet or a response.
-    
-    Change-Id: I4bccc9f05cd0b14ad445be7ab37b3d884d841325
-    Reviewed-on: https://code.wireshark.org/review/17216
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 5825f59ddccb8af2b4a06356f61195dd26c977d7)
-    Reviewed-on: https://code.wireshark.org/review/17217
-
-commit a35bcd1
-Author: Uli Heilmeier <uh@heilmeier.eu>
-Date:   Sun Aug 21 17:27:39 2016 +0200
-
-    CDP: Don't read outside payload for Port ID
-    
-    Check if tvb remaining length is greater than expected length.
-    
-    Bug: 12767
-    Change-Id: Ia04b559432af417db519cfcfbec06e6010b496bf
-    Reviewed-on: https://code.wireshark.org/review/17208
-    Petri-Dish: Jim Young <jim.young.ws@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
-    (cherry picked from commit dc42aadcac2636df4c15f8650b668503911e3017)
-    Reviewed-on: https://code.wireshark.org/review/17210
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 8ea0e9b
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Aug 21 08:08:24 2016 -0700
-
-    [Automatic update for 2016-08-21]
-    
-    Update manuf, services enterprise-numbers, translations, and other items.
-    
-    Change-Id: I8a0cd33f827f67960d0f320fb5b56f7d8bdc4326
-    Reviewed-on: https://code.wireshark.org/review/17206
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit 7ee6861
-Author: Mirko Parthey <mirko.parthey@web.de>
-Date:   Sun Aug 14 23:50:25 2016 +0200
-
-    ISAKMP: Add regression tests
-    
-    Add regression tests for bugs 12610 and 12620
-    
-    Bug: 12610
-    Bug: 12620
-    Change-Id: I6325a3ccb3e27fd4d3be52190e8763737b99fe73
-    Reviewed-on: https://code.wireshark.org/review/17083
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit 302660bf575fcb7b8423b9cfbdf32e58e3a14e94)
-    Reviewed-on: https://code.wireshark.org/review/17199
-
-commit 8926347
-Author: Uli Heilmeier <uh@heilmeier.eu>
-Date:   Fri Aug 19 21:21:29 2016 +0200
-
-    BOOTP: Catch undefined Client Identifier (Option 61)
-    
-    [1] stats "A hardware type of 0 (zero) should be used when the value field
-    contains an identifier other than a hardware address (e.g. a fully
-    qualified domain name)."
-    
-    This commit displays these other identifier.
-    
-    [1] https://tools.ietf.org/html/rfc2132#section-9.14
-    
-    Bug: 12766
-    Change-Id: I3d991164641b41fb95891b2f78411d2e98a22e0d
-    Reviewed-on: https://code.wireshark.org/review/17180
-    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
-    (cherry picked from commit 8f98f7ce67d23fbeb17a4a3fd75cb376a705300f)
-    Reviewed-on: https://code.wireshark.org/review/17200
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit b6f7d73
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Sat Aug 20 21:03:02 2016 +0200
-
-    COAP: ensure that key_token is always initialized
-    
-    Even when the token length is 0.
-    
-    Bug: 12771
-    Change-Id: I0d77f0411fe90a6702d1f23ba9cd4b61433a5995
-    Reviewed-on: https://code.wireshark.org/review/17194
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit 0a9e84264947c75bbe96d0b67cb2dbe0f521f3b8)
-    Reviewed-on: https://code.wireshark.org/review/17196
-
-commit 80b4d0d
-Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
-Date:   Fri Aug 19 11:10:50 2016 +0200
-
-    mongo: set on subtree when Empty Document
-    
-    Change-Id: I2b6b7cf771ab7bc2f6dbc0aac5eddda2a9d2fb53
-    Reviewed-on: https://code.wireshark.org/review/17167
-    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit 2557f033f5124ad5d777c0f8a93c80b2722a80bb)
-    Reviewed-on: https://code.wireshark.org/review/17170
-
-commit 0f5414b
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Aug 19 16:18:43 2016 -0700
-
-    Add a preference to byte-swap the CAN ID field.
-    
-    This can be useful when dealing with 1) captures from versions of
-    libpcap without the bug fix to use DLT_CAN_SOCKETCAN_HOSTENDIAN when
-    appropriate and 2) DLT_CAN_SOCKETCAN_HOSTENDIAN captures if processed by
-    a machine with a different byte order from the capturing machine with
-    software that doesn't properly put the field into host byte order when
-    reading and writing.
-    
-    Change-Id: Ia206e5c51aecccf2508cca01cff65a4feb379ac8
-    Reviewed-on: https://code.wireshark.org/review/17187
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit c06da45f3cea0263cfe2a02ee4294b754e5657df)
-    Reviewed-on: https://code.wireshark.org/review/17188
-
-commit 566e871
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Fri Aug 19 18:00:36 2016 +0200
-
-    NLM: fix dissection of NLM_FREE_ALL message
-    
-    The second parameter is the state, not the status as seen in C702 doc, page 159
-    
-    Bug: 12764
-    Change-Id: I0a91a0e586c7663ace7c4c6b1044cafc1c0975ac
-    Reviewed-on: https://code.wireshark.org/review/17178
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
-    (cherry picked from commit 6cfb20da0dd5617c620e7f48f95e931c19a0dac4)
-    Reviewed-on: https://code.wireshark.org/review/17185
-
-commit d969641
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Aug 19 13:19:06 2016 -0700
-
-    Do all data fetching in the appropriate byte order.
-    
-    Change-Id: I481288b566c2b9888b3f068d2dbae1240fa2930e
-    Reviewed-on: https://code.wireshark.org/review/17181
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 9a0a7e50cf2f832d1f140e8d7db65efd18c6c0b0)
-    Reviewed-on: https://code.wireshark.org/review/17183
-
-commit 1a1686d
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Thu Aug 18 21:15:52 2016 +0200
-
-    NAS EPS: fix dissection of multiple partial tracking area identity list
-    
-    As reported on https://ask.wireshark.org/questions/54955/nas-tracking-area-identity-list-decoding-not-proper
-    
-    Change-Id: I8c4ed1982e1d72136558fb381d2d15b15c9e376c
-    Reviewed-on: https://code.wireshark.org/review/17151
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit d1c763c3f68c764ed7da85c79c4b000e5dad7ffb)
-    Reviewed-on: https://code.wireshark.org/review/17161
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-
-commit 6380882
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Aug 18 19:48:35 2016 -0700
-
-    Adjust to the split of the SocketCAN encapsulation.
-    
-    Change-Id: Ibbe97f15854163163ad2bdf3b425c63d4cbfed50
-    Reviewed-on: https://code.wireshark.org/review/17158
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 8963303df76537d9520a3e9c431cb420fdcd7707)
-    Reviewed-on: https://code.wireshark.org/review/17159
-
-commit bc1cc26
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Aug 18 18:39:43 2016 -0700
-
-    Handle the new LINKTYPE_CAN_SOCKETCAN_HOSTENDIAN.
-    
-    Unfortunately, only one libpcap code path puts the CAN ID in the
-    SocketCAN header in network byte order; the others leave it in host byte
-    order.  Therefore, a new LINKTYPE_/DLT_ value was introduced, and
-    libpcap was changed to use that for the cases where the CAN ID is in
-    host byte order.  Support them both.
-    
-    This means we need to, when reading pcap and pcapng files, fix up the
-    CAN ID if the host that wrote the file has a different byte order from
-    ours (as libpcap also now does).  This includes Linux "cooked" captures,
-    which can include CAN packets.
-    
-    Change-Id: I75ff2d68d1fbdb42753ce85d18f04166f21736dd
-    Reviewed-on: https://code.wireshark.org/review/17155
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 95c4c432c43a07d8a43eae33591616145cabc57a)
-    Reviewed-on: https://code.wireshark.org/review/17156
-
-commit c9b37bb
-Author: Chris Brandson <chris.brandson@gmail.com>
-Date:   Thu Aug 18 11:05:55 2016 -0700
-
-    fix endianess of rejoin source address
-    
-    Change-Id: I71e6e2f569524642a24778ceef81c03fdc0f54c5
-    Reviewed-on: https://code.wireshark.org/review/17149
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 2a4d6f1b3caccc015a1d18ea3267233a5503c703)
-    Reviewed-on: https://code.wireshark.org/review/17154
-
-commit 9af0adc
-Author: Chris Bontje <cbontje@gmail.com>
-Date:   Thu Aug 18 11:07:13 2016 -0600
-
-    SEL Protocol - Fix 'Fast Meter Config' sub-tree addition typo & 'if (tree)' usage
-    
-    - The proto_tree_add_subtree call was previously using the length of the full tvb,
-    instead of len-2 like all other calls.  This typo did not previously cause an issue,
-    but in newer versions of Wireshark it causes an assert.
-    
-    - When I created the selfm dissector 4-5 years ago, I used packet-synphasor.c
-    as a template and there was an 'if (tree)' wrapper around several initial GUI calls
-    including col_*** info column clear/set functions.  It looks like in recent years
-    this layout has been removed (for example, https://code.wireshark.org/review/#/c/6725/ ).
-    I'm not sure of the exact reasoning behind this, but in Wireshark 2.x (QT), there are
-    several conditions where in the SEL protocol dissector the info column will be
-    cleared and not repopulate - I can only assume because col_clear has been called
-    with no col_add's.  Removal of this 'if' condition does correct the issue with no immediate ill effects..
-    
-    Change-Id: I4c619cb320cd2152e1d4d1b76c809b1498dfda61
-    Reviewed-on: https://code.wireshark.org/review/17147
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit ea024e245e3db5f65a99479be54414ba5f2413fc)
-    Reviewed-on: https://code.wireshark.org/review/17152
-
-commit 677aee3
-Author: Dario Lombardo <lomato@gmail.com>
-Date:   Fri Aug 12 23:12:18 2016 +0200
-
-    xbxml: restore removed line.
-    
-    This makes CID 1317251 obsolete.
-    
-    Change-Id: Id342b996268ac0734a52e93c02ae368960ee2294
-    Reviewed-on: https://code.wireshark.org/review/17027
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit b366d6e4dd5f14cfea820d132ee16b45b18bd869)
-    Reviewed-on: https://code.wireshark.org/review/17136
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-
-commit da8b4fd
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Wed Aug 17 19:03:11 2016 -0700
-
-    Don't distinguish between PARSED_NONRECORD and PARSE_FAILED.
-    
-    If we got no bytes of data from a putative packet, the file isn't a
-    valid Ascend file, regardless of whether the parser failed or not.  Just
-    have parse_ascend() return a Boolean, TRUE if we got a packet and FALSE
-    if not, and, in the case where we got no data but the parser didn't
-    fail, provide "no data returned by parse" as the error string.
-    
-    (We weren't actually distinguishing between them when we called
-    parse_ascend() - we were treating all non-PARSED_RECORD returns as an
-    error.)
-    
-    Change-Id: I85a3e318015258f6a62c8d23ac2f906e28789982
-    Reviewed-on: https://code.wireshark.org/review/17130
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 45a8861b1ed6d394de786e276db8998ea0ea0efc)
-    Reviewed-on: https://code.wireshark.org/review/17131
-
-commit 2ea7620
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Wed Aug 17 18:41:36 2016 -0700
-
-    Make it a little clearer what ascend_open() is doing.
-    
-    Expand comments, and merge two separate if checks.
-    
-    Change-Id: If339ce632ccc91c425ba6db4a32296c3038253ac
-    Reviewed-on: https://code.wireshark.org/review/17128
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 85ebd88083e134304c76af52aa573064e73df19f)
-    Reviewed-on: https://code.wireshark.org/review/17129
-
-commit 8727e9c
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Wed Aug 17 18:34:33 2016 -0700
-
-    Just return the value of yyparse() from run_ascend_parser().
-    
-    That's what we're doing already, but get rid of the variable to which we
-    assigned the return value.
-    
-    Change-Id: I55e31664bc26bbfffe4a4ca764c917eefbb9a8f1
-    Reviewed-on: https://code.wireshark.org/review/17126
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 3ba8a28f50ac695233c711c392aed33d9dd398bf)
-    Reviewed-on: https://code.wireshark.org/review/17127
-
-commit 5a54ca7
-Author: Jeff Morriss <jeff.morriss.ws@gmail.com>
-Date:   Wed Aug 17 10:26:48 2016 -0400
-
-    RPM: distribute the wireshark.pc file.
-    
-    It's been installed since Idb60157a51ea1dd0afd6cfac695bfa5760485241.
-    
-    Change-Id: I2171f2a0bc9b05059b8ecf4451715f7f6d9506e3
-    Reviewed-on: https://code.wireshark.org/review/17113
-    Reviewed-by: Jeff Morriss <jeff.morriss.ws@gmail.com>
-    (cherry picked from commit cdd3f45c6455012ea573c8324009838db2570286)
-    Reviewed-on: https://code.wireshark.org/review/17125
-
-commit 738756a
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Thu Aug 18 00:05:05 2016 +0100
-
-    pre-commit: Make version check work with git-worktree
-    
-    By disabling it outside the main working tree this time.
-    
-    Change-Id: I2075b07370e3cc1395c6de9695e40b0a952e3eab
-    Reviewed-on: https://code.wireshark.org/review/17122
-    Petri-Dish: João Valverde <j@v6e.pt>
-    Reviewed-by: João Valverde <j@v6e.pt>
-    (cherry picked from commit 9cbcdee7538b8b22eb27e68d0697c3a15635960f)
-    Reviewed-on: https://code.wireshark.org/review/17123
-
-commit b240632
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Wed Aug 17 15:48:38 2016 -0700
-
-    The caplen for a packet is always "number of bytes seen".
-    
-    Set wirelen to the length from the header, but don't set caplen; start
-    caplen out as 0 and count it up whenever we add a byte.
-    
-    Bug: 12754
-    Change-Id: Ib4e45e947df6077f97a423157c152dac9f57734a
-    Reviewed-on: https://code.wireshark.org/review/17120
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 72a3195c8649c315c301942da68e4ee31af17445)
-    Reviewed-on: https://code.wireshark.org/review/17121
-
-commit 9c8578e
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Sun Aug 14 14:23:07 2016 +0100
-
-    pre-commit: Fix version check to work with git-worktree
-    
-    Change-Id: Ie895ca194738a022cc211ae50afbff0a561156a3
-    Reviewed-on: https://code.wireshark.org/review/17047
-    Reviewed-by: João Valverde <j@v6e.pt>
-    (cherry picked from commit 3119e2fc23ec2b1d533a37db29fa3c512429d27e)
-    Reviewed-on: https://code.wireshark.org/review/17075
-    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
-
-commit 70a6b83
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Tue Aug 16 23:52:03 2016 +0200
-
-    DCT2000: fix a buffer overflow in case of malformed packet
-    
-    Bug: 12750
-    Change-Id: Iff20efa46e000ab4ae77b2edbcb0b9af4634508c
-    Reviewed-on: https://code.wireshark.org/review/17096
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit 2e37b271c473e1cbd01d62ebe1f3b011fc9fe638)
-    Reviewed-on: https://code.wireshark.org/review/17105
-
-commit 3380b52
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Tue Aug 16 23:40:25 2016 +0200
-
-    DCT2000: prevent a stack buffer overflow
-    
-    Bug: 12752
-    Change-Id: I2007082909cea07314ac40d6db32ee9c2804ecdf
-    Reviewed-on: https://code.wireshark.org/review/17095
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit 3b97fbddc23c065727b0147aab52a27c4aadffe7)
-    Reviewed-on: https://code.wireshark.org/review/17103
-
-commit 7dc8d30
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Tue Aug 16 23:11:12 2016 +0200
-
-    FP: ensure that mac and rlc structures are always allocated
-    
-    Rather han checking everywhere that the RLC and MAC info are present in pinfo,
-    allocate a temporary structure that will be dropped once packet dissection is
-    over.
-    
-    Bug: 12751
-    Change-Id: I890430dd0c0b56d641777c15eedbf07fef082904
-    Reviewed-on: https://code.wireshark.org/review/17094
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit 315bba7c645b75af24215c6303d187b188610bba)
-    Reviewed-on: https://code.wireshark.org/review/17101
-
-commit aa7246d
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Tue Aug 16 23:59:03 2016 -0700
-
-    Show millisecond values as both raw and "(N msec)".
-    
-    Do as we do with other Bluetooth fields that, when multiplied by 1.25,
-    give time amounts in milliseconds.
-    
-    Change-Id: I89c599e68f91c134b216c495dabdbf77db10def3
-    Reviewed-on: https://code.wireshark.org/review/17100
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit d7620ff
+commit 987fb23
 Author: Peter Wu <peter@lekensteyn.nl>
-Date:   Wed Aug 10 23:41:37 2016 +0200
+Date:   Wed Aug 31 16:51:16 2016 +0200
 
-    make-version.pl: make it work with git worktrees
+    autotools: really disable warnings by default
     
-    When using git worktrees, the .git file is a regular file pointing to
-    the original git repository. Accept this case too. Also ignore the fact
-    that the original repo could be a git-svn repo, that is very unlikely.
+    The v2.2.0rc1 release tarball accidentally enables warnings as errors,
+    this led to build failures due to warnings that occur on 32-bit builds.
     
-    Example workflow (requires git 2.5):
+    Change-Id: Ib12f5762e9b30a681b193014ed78dc73bc794b0f
+    Reviewed-on: https://code.wireshark.org/review/17420
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 50c51c8
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Wed Aug 31 00:04:38 2016 +0200
+
+    ipv6: fix build with old 32-bit glib headers
     
-        # Assume work in progress in current tree. Goal is to quickly do a
-        # fix in another branch and publish the changes without interfering
-        # with the WIP and without marking all files out of date (which
-        # slows down re-compilation).
-        git worktree add /tmp/wireshark-2.2 master-2.2
-        pushd /tmp/wireshark-2.2        # go to temporary tree
-        git cherry-pick -x COMMIT       # backport the fix
-        git review                      # submit for review
-        popd                            # go back to original tree
-        rm -rf /tmp/wireshark-2.2 && git worktree prune     # cleanup
-        # now continue working where you left work
+    glib versions before 2.31.2 expand GUINT_TO_POINTER(x) as (gpointer)x
+    instead of (gpointer)(guint)x, resulting in these errors:
     
-    Change-Id: Iba3c723142d9cbd8b07e76647594b5699ecafc67
-    Reviewed-on: https://code.wireshark.org/review/17002
-    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
-    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+        packet-ipv6.c:2129: error: cast to pointer from integer of different size
+        packet-ipv6.c:2185: error: cast to pointer from integer of different size
+    
+    Change-Id: I1b25060ed329ce05e4f1ab75e32a56feda8e3435
+    Reviewed-on: https://code.wireshark.org/review/17401
     Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 94c4329b8a0f64805e432af9ae89b7d624437a08)
-    Reviewed-on: https://code.wireshark.org/review/17074
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: João Valverde <j@v6e.pt>
+
+commit 8b7444e
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Aug 30 17:59:59 2016 -0700
+
+    Use "ecatf" as the protocol name, to parallel everything else.
+    
+    The fields have names beginning with "ecatf.", the dissector is called
+    "ecatf", and it's only the frame layer of EtherCAT anyway, so just call
+    it "ecatf".
+    
+    Change-Id: I2f127363fd115c307f0525f612fe184a30d46c55
+    Reviewed-on: https://code.wireshark.org/review/17406
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit d78197955050f0ddf4a91379018f41b58923c56b)
+    Reviewed-on: https://code.wireshark.org/review/17407
+
+commit 6b6cf99
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Aug 30 15:51:54 2016 -0700
+
+    Don't do any Decode As stuff for dissector tables not used with Decode As.
+    
+    Have all dissector tables have a "supports Decode As" flag, which
+    defaults to FALSE, and which is set to TRUE if a register_decode_as()
+    refers to it.
+    
+    When adding a dissector to a dissector table with a given key, only add
+    it for Decode As if the dissector table supports it.
+    
+    For non-FT_STRING dissector tables, always check for multiple entries
+    for the same protocol with different dissectors, and report an error if
+    we found them.
+    
+    This means there's no need for the creator of a dissector table to
+    specify whether duplicates of that sort should be allowed - we always do
+    the check when registering something for "Decode As" (in a non-FT_STRING
+    dissector table), and just don't bother registering anything for "Decode
+    As" if the dissector table doesn't support "Decode As", so there's no
+    check done for those dissector tables.
+    
+    Change-Id: I4e98bfe0061f1014cd7ffdf4c51d9b6e8a2a5689
+    Reviewed-on: https://code.wireshark.org/review/17405
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 0158d62
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Aug 30 13:38:03 2016 -0700
+
+    Support Decode As for {SSL,TLS}-over-TCP.
+    
+    We register dissectors for "Decode As" for {SSL,TLS}-over-TCP, so we
+    should actually set up the "Decode As" stuff for it.
+    
+    Change-Id: I2a738667efdec1007069df74885a4fe8fc3fcbab
+    Reviewed-on: https://code.wireshark.org/review/17400
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit afa2605e4359509a8e188f3d7ae118246e9e0ac7)
+    Reviewed-on: https://code.wireshark.org/review/17404
+
+commit 1ba7176
+Author: Juanjo Martin <juanjo@rti.com>
+Date:   Tue Aug 30 01:57:32 2016 +0200
+
+    RTPS: Allowing duplicates in the rtps.type_name table
+    
+    Change-Id: Ie7a35b0bb3275a0895fad646bf9a81406eadf37c
+    Reviewed-on: https://code.wireshark.org/review/17393
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 1dbd2216edfe34e3dbb1f8967d325e7fa00ecb51)
+    Reviewed-on: https://code.wireshark.org/review/17403
+
+commit 7968175
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Tue Aug 30 11:12:44 2016 +0200
+
+    time_util: fix -Wshadow issue
+    
+    time_util.c was already fixed, but the header was missing the change,
+    breaking the build on a very old compiler.
+    
+    Change-Id: I95685c9a3e25dcb7567f2551b92f20c8792a6e47
+    Reviewed-on: https://code.wireshark.org/review/17384
+    Petri-Dish: Dario Lombardo <lomato@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Dario Lombardo <lomato@gmail.com>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit a892c90367a9f1b1d3d962cfe958174b8fefcaee)
+    Reviewed-on: https://code.wireshark.org/review/17390
+
+commit a9e19bc
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Aug 6 20:07:04 2016 -0700
+
+    Avoid colliding with the (old) UNIX stime() system call.
+    
+    Rename "stime" to "sys_time", and, for consistency, do the same with
+    "utime".  This failed when I tried a build on an Ubuntu 12.04 LTS
+    machine.
+    
+    Change-Id: Ib955b723506346aa742db0de4d26dc157bcd4fc8
+    Reviewed-on: https://code.wireshark.org/review/16935
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 66711eb2612ddc7f523b7cc5990e1674a755cb00)
+    Reviewed-on: https://code.wireshark.org/review/17389
     Reviewed-by: Peter Wu <peter@lekensteyn.nl>
 
-commit 628734c
-Author: Gerald Combs <gerald@zing.org>
-Date:   Sun Aug 14 13:49:19 2016 -0700
+commit 5f59439
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Jul 30 13:50:04 2016 -0700
 
-    Fix UAT escape widths.
+    Use correct relative path.
     
-    Pass unsigned values to the %x format specifier so that naming an IO graph
+    The build is done in epan/wmem, so libwsutil.la is in ../../wsutil.
     
-    你好 TCP Segments
+    Change-Id: I053f6b925829e9c5e9ded014fbc716abc527b46a
+    Reviewed-on: https://code.wireshark.org/review/16790
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit c2ac9c5c0316a27f54830fae0b70cf7825c6d99c)
+    Reviewed-on: https://code.wireshark.org/review/17388
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit b25ce3d
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Jul 30 13:37:03 2016 -0700
+
+    ifdef out a variable used only on Windows.
     
-    doesn't end up saving
+    Also, fix identation - tab stops are set every 8 spaces, not every 4
+    spaces, in UN*X, which is why the mode lines specify that.
     
-    "\xffffffe4\xffffffbd\xffffffa0\xffffffe5\xffffffa5\xffffffbd TCP Segments"
+    Change-Id: If7cfc2cdae26feb2d5c13e31a32ed950354fb15b
+    Reviewed-on: https://code.wireshark.org/review/16789
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit f6322a4977181103431637703f11649e5023d6b0)
+    Reviewed-on: https://code.wireshark.org/review/17387
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit 1eb6828
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Apr 7 15:31:21 2016 -0700
+
+    Add string function times to wmem_test.
     
-    to io_graphs. Fixes https://ask.wireshark.org/questions/54781/statistic-io-graph-add-a-new-graph-if-graph-name-use-chinese-it-will-cause-all-graph-name-garbled
+    The system, GLib, and wmem string functions can perform differently,
+    particularly on Windows. Start adding performance tests to wmem_test so
+    that we can see the differences.
     
-    Change-Id: I5bcae05ef9b3e17532edbb293f323586c9aeb471
-    Reviewed-on: https://code.wireshark.org/review/17053
+    With this change applied "wmem_test --verbose" prints out the following
+    on a Windows 7 x64 VM here. wmem_test is linked against GLib 2.4.20.
+    
+    (MINPERF:g_printf_string_upper_bound (via g_snprintf) 1 string: u 327.602 ms s 0
+    .000 ms)
+    (MINPERF:g_printf_string_upper_bound (via g_snprintf) 5 strings: u 1419.609 ms s
+     0.000 ms)
+    (MINPERF:g_printf_string_upper_bound (via g_snprintf) mixed args: u 1606.810 ms
+    s 0.000 ms)
+    (MINPERF:_snprintf_s upper bound 1 string: u 124.801 ms s 0.000 ms)
+    (MINPERF:_snprintf_s upper bound 5 strings: u 140.401 ms s 0.000 ms)
+    (MINPERF:_snprintf_s upper bound mixed args: u 124.801 ms s 0.000 ms)
+    (MINPERF:g_strdup_printf 2 strings: u 702.005 ms s 0.156 ms)
+    (MINPERF:g_strconcat 2 strings: u 78.000 ms s 0.000 ms)
+    (MINPERF:g_strdup_printf 5 strings: u 1419.609 ms s 0.156 ms)
+    (MINPERF:g_strconcat 5 strings: u 93.601 ms s 0.156 ms)
+    (MINPERF:wmem_strdup_printf 2 strings: u 343.202 ms s 0.312 ms)
+    (MINPERF:wmem_strconcat 2 strings: u 93.601 ms s 0.468 ms)
+    (MINPERF:wmem_strdup_printf 5 strings: u 327.602 ms s 8.268 ms)
+    (MINPERF:wmem_strconcat 5 strings: u 62.400 ms s 3.432 ms)
+    
+    Change-Id: Id9b23918829db1719d141e7f830b9eba6245a25b
+    Reviewed-on: https://code.wireshark.org/review/14857
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
     Petri-Dish: Gerald Combs <gerald@wireshark.org>
     Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-    (cherry picked from commit 4b403b0b5472333fb3751b695632e219c364f4d5)
-    Reviewed-on: https://code.wireshark.org/review/17072
-    Reviewed-by: Jeff Morriss <jeff.morriss.ws@gmail.com>
-
-commit ba26f80
-Author: AndersBroman <anders.broman@ericsson.com>
-Date:   Tue Aug 16 12:42:20 2016 +0200
-
-    [H248] Fix Warn Dissector bug, protocol H248, in packet 1: tvbuff.c:532: failed assertion "tvb && tvb->initialized"
-    
-    gcp_analyze_msg() is called with a NULL tvb, remove h248_tvb and use tvb
-    instead.
-    
-    Change-Id: I2cb4c3577817bbaa4ec50b2a5ef0ef296059e683
-    Reviewed-on: https://code.wireshark.org/review/17082
-    Petri-Dish: Anders Broman <a.broman58@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit dfbfdc411c11a5c49307a3125810f65a099bdd85)
-    Reviewed-on: https://code.wireshark.org/review/17084
-
-commit f4a0a34
-Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
-Date:   Mon Aug 15 19:25:15 2016 +0200
-
-    extcap: Fix Dereference of null pointer
-    
-    Change-Id: I03098de9bd8684953a4fe024a3e6b604eeecf03f
-    Reviewed-on: https://code.wireshark.org/review/17066
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Reviewed-by: Dario Lombardo <lomato@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit 5ebfbf4fec09b0c316d97a339733af7379c73398)
-    Reviewed-on: https://code.wireshark.org/review/17073
-
-commit b9eac25
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Mon Aug 15 19:12:11 2016 +0200
-
-    Exported PDU: dump payload before calling sub dissector
-    
-    This way, the payload is displayed even if the sub dissector triggers an exception
-    
-    Change-Id: Ife062f59035776c4eb9e550eb202a5e40afc4b60
-    Reviewed-on: https://code.wireshark.org/review/17063
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit fab5a740744b20f1d71b0535ddd08a394923db54)
-    Reviewed-on: https://code.wireshark.org/review/17068
-
-commit 3d908ef
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Mon Aug 15 18:36:12 2016 +0200
-
-    Exported PDU: fix a typo
-    
-    While we are at it, let's remove dead code
-    
-    Change-Id: I3a001f07b9becc885d544551a1fa578642517d08
-    Reviewed-on: https://code.wireshark.org/review/17061
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit ede140a46a2af7febaaade67453c4c8f1d6c946d)
-    Reviewed-on: https://code.wireshark.org/review/17062
-
-commit 6b25c1a
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Mon Aug 15 11:30:56 2016 +0200
-
-    ISIS LSP: fix checksum verification
-    
-    Regression introduced in gad6fc87
-    
-    Bug: 12745
-    Change-Id: I46f8364651c5774544007d9e74ce479904a52e05
-    Reviewed-on: https://code.wireshark.org/review/17059
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit ba820319761dd2c4589ed76fc8aac3f8c9ff2fc8)
-    Reviewed-on: https://code.wireshark.org/review/17060
-
-commit 5cddd30
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Mon Aug 8 22:37:55 2016 +0100
-
-    checklicenses: Remove whitelisted licenses not being used
-    
-    Removed a few licenses we shouldn't use (Apache v2, BSD 4-clause) and
-    removed many others not currently being used. (Add on a need-to basis).
-    
-    Added GPLv3+ with Bison exception to licensecheck.pl.
-    
-    Also removed some crud to work around bugs for older licensecheck.pl versions.
-    
-    The original list came from the chromium project, which has a BSD-like license,
-    and many more licenses in use, not all of them vetted for GPLv2+ compatibility.
-    
-    Change-Id: I67f334f21cd94904cf8a0e5d9beb659c82437df4
-    Reviewed-on: https://code.wireshark.org/review/16966
-    Petri-Dish: João Valverde <j@v6e.pt>
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: João Valverde <j@v6e.pt>
-    (cherry picked from commit ba70b88419c0282dd61b2384239874440f2594bc)
-    Reviewed-on: https://code.wireshark.org/review/17057
-
-commit bec267e
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Sat Aug 6 20:09:15 2016 +0100
-
-    checklicenses.py: Remove some boilerplate from upstream
-    
-    Change-Id: If8a1537fe5ad0c5decaf2facf6fd0c43b32ffe70
-    Reviewed-on: https://code.wireshark.org/review/16930
-    Reviewed-by: João Valverde <j@v6e.pt>
-    (cherry picked from commit e32890af11483db4c64bb33133396f8bb5a44ed0)
-    Reviewed-on: https://code.wireshark.org/review/17056
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit efbbb8d
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Fri Aug 5 20:49:33 2016 +0100
-
-    Add licensecheck.pl to our /tools directory and use it
-    
-    Source: https://anonscm.debian.org/cgit/collab-maint/devscripts.git/plain/scripts/licensecheck.pl?h=v2.16.2
-    
-    Removed regex to check files without an extension.
-    
-    Change-Id: Icf98d0da2d201731da7134799ead0d2dc5c3fc39
-    Reviewed-on: https://code.wireshark.org/review/16913
-    Petri-Dish: João Valverde <j@v6e.pt>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: João Valverde <j@v6e.pt>
-    (cherry picked from commit 57be744df5a2e9c43a42544909c533733565291a)
-    Reviewed-on: https://code.wireshark.org/review/17055
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit db6718d
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Sat Aug 13 16:41:54 2016 -0700
-
-    Allocate all the wmem maps with epan scope.
-    
-    That doesn't seem to affect the performance negatively (or
-    positively...) to any noticeable degree with my simple "run tshark under
-    the time command with an empty file" tests, and it does appear to reduce
-    the amount of memory that valgrind thinks is leaked.
-    
-    All the other maps were already allocated with epan scope, so do that
-    with these as well.
-    
-    Change-Id: Ib5ee85c8cf025e53455564a67cd1adbf28b47f78
-    Ping-Bug: 12656
-    Reviewed-on: https://code.wireshark.org/review/17040
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit c0f24bdf6c255068d3de386b00c1d0db3041a98f)
-    Reviewed-on: https://code.wireshark.org/review/17054
-
-commit ac6c49b
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Aug 14 08:17:26 2016 -0700
-
-    [Automatic update for 2016-08-14]
-    
-    Update manuf, services enterprise-numbers, translations, and other items.
-    
-    Change-Id: Ia1d061b8b1db65b3b6f61aa4042699f58a4ff2a9
-    Reviewed-on: https://code.wireshark.org/review/17050
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit 434451f
-Author: Martin Kaiser <wireshark@kaiser.cx>
-Date:   Wed Aug 10 22:54:58 2016 +0200
-
-    asciidoc.conf, sort-and-group: remove "and" if we have only one element
-    
-    --sort-and-group--
-    One
-    --sort-and-group--
-    
-    used to be converted into
-    
-    and One
-    
-    Remove the leading and in this case.
-    
-    Change-Id: I3332b316c4fcce164c94e36c3c7b4480947bdf68
-    Reviewed-on: https://code.wireshark.org/review/17003
-    Reviewed-by: Martin Kaiser <wireshark@kaiser.cx>
-    Petri-Dish: Martin Kaiser <wireshark@kaiser.cx>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
     Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit c7e45607fc70eae886f5cee4b5808112193fe339)
-    Reviewed-on: https://code.wireshark.org/review/17045
+    (cherry picked from commit 183d7f3b78de30581390244a72c6ab328e6338f0)
+    Reviewed-on: https://code.wireshark.org/review/17386
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
 
-commit 3d94b68
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Sat Aug 13 20:41:55 2016 -0400
+commit f3a5b33
+Author: Roland Knall <roland.knall@br-automation.com>
+Date:   Mon Aug 1 16:57:51 2016 +0200
 
-    dcerpc: Check dissect_ndr_ucvarray_core when looping over elements that we're incrementing offset.
+    extcap: Remove g_spawn_check_exit_status
     
-    Bug: 12720
-    Change-Id: Ib9c9eb2e60c35b23b4c6b4898b036bcdc442fc84
-    Reviewed-on: https://code.wireshark.org/review/17041
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 7c66a6b8dc8f32c9dd571884ac59bb0db7ee64b6)
-    Reviewed-on: https://code.wireshark.org/review/17042
-
-commit 8f03ff0
-Author: Uli Heilmeier <uh@heilmeier.eu>
-Date:   Sat Aug 13 13:41:06 2016 +0200
-
-    OUI: Add 0x000142 Cisco to oui_vals
+    This function is not supported in the min GLIB version, therefore
+    the code is to be removed
     
-    The LLDP dissector is using oui_vals to resolve OUIs for hf_org_spc_oui.
-    Therefore it currently shows "Unknown" for OUI 0x000142.
-    
-    Change-Id: Ie5f926a183dc42a957fb05c5a38d677a2064ff28
-    Reviewed-on: https://code.wireshark.org/review/17036
-    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 5ae7076b3ead0d3c7ae3ad4d9d05d9a89930d848)
-    Reviewed-on: https://code.wireshark.org/review/17037
-
-commit da9b9d4
-Author: Jaap Keuter <jaap.keuter@xs4all.nl>
-Date:   Wed Aug 3 23:59:48 2016 +0200
-
-    UFTP: Add dissector for Encrypted UDP based FTP with multicast
-    
-    See http://uftp-multicast.sourceforge.net/ for the original publication
-    of these dissectors. Both v3 and v4 protocols are dissected.
-    
-    Bug: 12718
-    Change-Id: If691a573b9440c7cbe3b35711231b628cf3c8604
-    Reviewed-on: https://code.wireshark.org/review/16936
-    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
-    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit e2b2d986cc3b86ef98ebd92d2e8b5fabb5666a35)
-    Reviewed-on: https://code.wireshark.org/review/17034
-
-commit cedf64d
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Fri Aug 12 08:37:58 2016 +0200
-
-    IEEE 802.11: fix dissection of PLMN Information IE
-    
-    According to 3GPP 24.302 annex H, it uses little endian encoding
-    
-    Change-Id: Ia764e0bb16f8bb197214109e40b1f4c5079ec654
-    Reviewed-on: https://code.wireshark.org/review/17026
-    Reviewed-by: Adrian Granados <adrian@adriangranados.com>
-    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit cf6aa84810e4f9edf95d82af683790be150feeda)
-    Reviewed-on: https://code.wireshark.org/review/17032
-
-commit 9efee4b
-Author: Martin Kaiser <wireshark@kaiser.cx>
-Date:   Sun Jul 31 15:03:43 2016 +0200
-
-    extcap: fix a compile error with Qt4
-    
-    declare ExtcapArgument * as a metatype so it can be used by QVariant
-    
-      CXX    extcap_argument.moc.o
-    In file included from /usr/include/qt4/QtCore/qvariant.h:48:0,
-                     from /usr/include/qt4/QtCore/qabstractitemmodel.h:45,
-                     from /usr/include/qt4/QtGui/qabstractitemview.h:46,
-                     from /usr/include/qt4/QtGui/qtreeview.h:45,
-                     from /usr/include/qt4/QtGui/qtreewidget.h:45,
-                     from /usr/include/qt4/QtGui/QTreeWidget:1,
-                     from ./interface_tree.h:38,
-                     from ./extcap_options_dialog.h:35,
-                     from extcap_options_dialog.cpp:26:
-    /usr/include/qt4/QtCore/qmetatype.h: In instantiation of ‘static int QMetaTypeId2<T>::qt_metatype_id() [with T = ExtcapArgument*]’:
-    /usr/include/qt4/QtCore/qmetatype.h:230:44:   required from ‘int qMetaTypeId(T*) [with T = ExtcapArgument*]’
-    /usr/include/qt4/QtCore/qvariant.h:341:47:   required from ‘bool QVariant::canConvert() const [with T = ExtcapArgument*]’
-    extcap_options_dialog.cpp:378:74:   required from here /usr/include/qt4/QtCore/qmetatype.h:169:80: error: ‘qt_metatype_id’ is not a member of ‘QMetaTypeId<ExtcapArgument*>’
-    make[2]: *** [extcap_options_dialog.o] Error 1
-    
-    Change-Id: Ib7d052a5cb550ab2595b8d9580d35ffeb62093da
-    Reviewed-on: https://code.wireshark.org/review/16799
-    Reviewed-by: Martin Kaiser <wireshark@kaiser.cx>
-    Petri-Dish: Martin Kaiser <wireshark@kaiser.cx>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 63c5216843e84f07089903e330bb75e67ce114aa)
-    Reviewed-on: https://code.wireshark.org/review/17009
+    Change-Id: Ie39170bfc0662e5a477cbc45d7eadebcf2c70d4e
+    Reviewed-on: https://code.wireshark.org/review/16827
     Petri-Dish: Roland Knall <rknall@gmail.com>
-    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Reviewed-by: Dario Lombardo <lomato@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Roland Knall <rknall@gmail.com>
+    (cherry picked from commit d62ad9dd47d368f7545c3cc91f44ecc07476d2e1)
+    Reviewed-on: https://code.wireshark.org/review/17383
+    Reviewed-by: Anthony Coddington <anthony.coddington@endace.com>
 
-commit 074f310
-Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
-Date:   Mon Aug 8 20:12:01 2016 +0200
+commit 0962de8
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Aug 29 19:49:58 2016 -0700
 
-    QUIC: Fix dissection of ACK frame with Q034
+    Don't use a no-longer-extant variable.
     
-    The ACK Frame is different after Q034
+    Change-Id: I41c1a37248335d983da58b0b657a28ec521be290
+    Reviewed-on: https://code.wireshark.org/review/17378
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 8e9b6f4abe06a32bb5c8e8842403c4cf8dccd765)
+    Reviewed-on: https://code.wireshark.org/review/17379
+
+commit 5d9f67f
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Aug 29 11:31:11 2016 +0200
+
+    tap-iostat.c: ensure that interval is set to its maximum value when using 0
     
-    Change-Id: Ib7a14ea20c37743c5af029b2bc38abc2377cc0e7
-    Ping-Bug:12590
-    Reviewed-on: https://code.wireshark.org/review/16960
-    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Otherwise the statistics will be wrong if the capture duration is greater
+    than G_MAXINT32 and it the user specifies an interval of 0
+    
+    Bug: 12778
+    Change-Id: I83a0f627ec0bb7c535446c17afa486835091ab8b
+    Reviewed-on: https://code.wireshark.org/review/17367
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
     Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
     Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 02674faf8a7b8272c08cbeb2eb1cd32da5a20949)
-    Reviewed-on: https://code.wireshark.org/review/16991
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 24fd16d86553279ca3fe8f651d85cace14edfc6c)
+    Reviewed-on: https://code.wireshark.org/review/17369
 
-commit 291e6d2
-Author: Peter Wu <peter@lekensteyn.nl>
-Date:   Mon Aug 8 23:43:24 2016 +0200
-
-    qnet6: fix display of MAC addresses and avoid overflow
-    
-    The MAC address is binary data, do not use tvb_get_string_enc since it
-    substituted some bytes by a Unicode replacement character. Use FT_ETHER
-    instead of FT_STRING to fix the display.
-    
-    Bug: 11850
-    Change-Id: I3f02cfa13e8fccc18a199e4e293580c183eeddd1
-    Reviewed-on: https://code.wireshark.org/review/16965
-    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit 1396f6ad555178f6b81cc1a65f9cb37b2d99aebf)
-    Reviewed-on: https://code.wireshark.org/review/17000
-    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
-
-commit 9a131fb
-Author: Dario Lombardo <lomato@gmail.com>
-Date:   Sat Aug 6 14:36:18 2016 +0200
-
-    docbook: add tip about recommended Qt version.
-    
-    Change-Id: I25d3e914c9210ca79313f6ea8b82bc7280d5c095
-    Reviewed-on: https://code.wireshark.org/review/16924
-    Reviewed-by: Dario Lombardo <lomato@gmail.com>
-    (cherry picked from commit a7685ddae78d5aa21d0131c9333400bb487a8402)
-    Reviewed-on: https://code.wireshark.org/review/16992
-
-commit edce131
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Tue Aug 9 21:35:38 2016 +0200
-
-    Windows: upgrade Lua library to 5.2.4
-    
-    Change-Id: Ib0a4afc9b6143cf5ff78f72f0808f9f804549dd9
-    Reviewed-on: https://code.wireshark.org/review/16979
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit 2227c26cb696eb264cd8ecddc48398c6c5afd57b)
-    Reviewed-on: https://code.wireshark.org/review/16986
-
-commit 6aaaab8
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Tue Aug 9 12:48:49 2016 -0700
-
-    Update to Lua 5.2.4.
-    
-    Change-Id: Icadf4001799a58c5bc686caff4ffa99289bf08a8
-    Reviewed-on: https://code.wireshark.org/review/16980
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit e812c0e384ff7e8ae17c9ec681f3aba0416b3615)
-    Reviewed-on: https://code.wireshark.org/review/16981
-
-commit 0c56422
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Tue Aug 9 18:29:00 2016 +0200
-
-    Display Lua release version in about dialog
-    
-    It allows to have more info on the version used (for ex 5.2.4 instead of 5.2)
-    
-    Change-Id: I24a5b83f0a7a72fbb131e9ddc3e735ffea689ee6
-    Reviewed-on: https://code.wireshark.org/review/16977
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit 80af5edbfec14978c65e9aabefd427b41ca8ccd1)
-    Reviewed-on: https://code.wireshark.org/review/16978
-
-commit 48c1478
-Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
-Date:   Mon Aug 8 23:11:04 2016 +0200
-
-    QUIC: Fix typo on diversification nonce display field name
-    
-    Change-Id: I11455fba1ebc981e3f3865469a6cb537b3cdc11f
-    Reviewed-on: https://code.wireshark.org/review/16964
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit 7596268b9b34e24404e358f73190829e366add3b)
-    Reviewed-on: https://code.wireshark.org/review/16971
-    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-
-commit 4db76ba
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Mon Aug 8 19:13:11 2016 -0700
-
-    Use -r rather than -i for the "via stdin" tests.
-    
-    TShark, at least when running in one-pass mode, now supports reading
-    from the standard input if the file format is one that *can* be read
-    purely sequentially; both pcap and pcapng can be read purely
-    sequentially (unlike, for example, Microsoft Network Monitor format,
-    where you have to read the frame table, at the end of the file, before
-    you can read the frames, meaning you have to seek backwards, which you
-    can't do on a pipe).
-    
-    Using -r 1) tests the "read from standard input" path, which we should
-    do in versions that support it, and 2) means we can check whether, for
-    the crashes we're seeing on 32-bit Windows 8.1, it's a problem with
-    reading from the standard input in general, or just a problem with
-    *capturing* from the standard input.
-    
-    Change-Id: I67da34de43f47dd8c63fa2f2072be41148cfe5a7
-    Reviewed-on: https://code.wireshark.org/review/16968
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 8a141febc849c36dc40d4da2a39318f8f8856091)
-    Reviewed-on: https://code.wireshark.org/review/16969
-
-commit 98040c2
+commit 6deac90
 Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Aug 7 08:13:00 2016 -0700
+Date:   Sun Aug 28 08:22:26 2016 -0700
 
-    [Automatic update for 2016-08-07]
+    [Automatic update for 2016-08-28]
     
     Update manuf, services enterprise-numbers, translations, and other items.
     
-    Change-Id: Ia5dfb9aae9f2d7e24fc859c6ceae1e3a09970a09
-    Reviewed-on: https://code.wireshark.org/review/16942
+    Change-Id: I582a41fbd6f895572b3c5822cf04fb3c5fb03c2b
+    Reviewed-on: https://code.wireshark.org/review/17359
     Reviewed-by: Gerald Combs <gerald@wireshark.org>
 
-commit 08b0221
-Author: Dario Lombardo <lomato@gmail.com>
-Date:   Fri Aug 5 16:11:23 2016 +0200
+commit 0180c29
+Author: Mirko Parthey <mirko.parthey@web.de>
+Date:   Sun Aug 28 14:49:52 2016 +0200
 
-    docbook: fix typos.
+    ISAKMP: fix # of SPIs field name in Delete payload
     
-    Change-Id: If94a1427d91a5de2f5f2308be454479e6b4d8d5a
-    Reviewed-on: https://code.wireshark.org/review/16900
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit 704c12a5724b4c79613da13408d47e46d442b7c8)
-    Reviewed-on: https://code.wireshark.org/review/16940
-    Reviewed-by: Dario Lombardo <lomato@gmail.com>
+    Fix the "Number of SPIs" field name in the Delete payload.
+    References: RFC 2408, RFC 7296
+    
+    Change-Id: I205fb830275fc011e6605fdae53c6b9141e1628b
+    Reviewed-on: https://code.wireshark.org/review/17353
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 294fcd11bfc2a76306e0c6ea8e8f53445df940cf)
+    Reviewed-on: https://code.wireshark.org/review/17356
 
-commit bede749
+commit c66deb9
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sat Aug 27 11:53:29 2016 +0200
+
+    Qt: Support "Resolve Names" with multiple custom column fields
+    
+    Make "Resolve Names" enabled if at least one of the custom column
+    fields can be resolved.
+    
+    Change-Id: I702471be5d90c91f71209923e6abcc6921dca850
+    Reviewed-on: https://code.wireshark.org/review/17350
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit 5fe3e6af39fc55650ff9563906d016aa7becbaf1)
+    Reviewed-on: https://code.wireshark.org/review/17351
+
+commit 4229951
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Fri Aug 26 10:41:45 2016 +0200
+
+    QUIC: Fix some typo (copy/paste error) on GOAWAY/CONNECTION_CLOSE Frame
+    
+    Issue reported by Lucas Perdue
+    
+    Change-Id: I9c4ede6ba2fb0303aab05f1d59835e5a8b386a3e
+    Reviewed-on: https://code.wireshark.org/review/17340
+    Reviewed-by: Lucas Pardue <lucas.pardue@bbc.co.uk>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit df28c8266ff9ebc404fd53408050c507a442ac04)
+    Reviewed-on: https://code.wireshark.org/review/17349
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit c71ac83
 Author: Peter Wu <peter@lekensteyn.nl>
-Date:   Sun Aug 7 12:58:59 2016 +0200
+Date:   Thu Aug 25 18:03:35 2016 +0200
 
-    prefs: fix crash with -o column.foo:x
+    qt: fix crash on Search Packet while redissecting
     
-    The gui.column module is somehow special, it has no name since it is
-    part of the gui module. This causes a crash when trying to invoke
-    `strcmp(module->name /* NULL */, "mgcp")`.
+    Before redissection, PacketList::freeze() is called which clears the
+    model. This results in a NULL-deref when pressing Ctrl-F (Packet
+    Search) or Ctrl-G (Go To Packet). Reproducer: in a large capture file,
+    enter some display filter (e.g. "udp") and immediately press Ctrl-F.
     
-    Always look up prefs inside gui_column_module when the given prefs
-    module is "column" instead of matching two specific names.
+    Thanks to Github user SNAPESNATCH for the initial report via IRC that
+    included a helpful stack trace on Windows.
     
-    Change-Id: I47e354d11b6fd01818b0627a249b506a8f9510cc
-    Reviewed-on: https://code.wireshark.org/review/16937
+    Change-Id: If7334d6df4e9591fb1f2a52e3e2f837285b2959f
+    Reviewed-on: https://code.wireshark.org/review/17326
     Petri-Dish: Peter Wu <peter@lekensteyn.nl>
     Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
     Reviewed-by: Peter Wu <peter@lekensteyn.nl>
-    (cherry picked from commit 1ea6b4fe2e4b6e068694301c4ffc731e2309c797)
-    Reviewed-on: https://code.wireshark.org/review/16938
+    (cherry picked from commit 09be46361bab677842cc598405cbc7a44b974f1f)
+    Reviewed-on: https://code.wireshark.org/review/17342
 
-commit ace007b
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Fri Aug 5 13:37:39 2016 +0100
+commit 608befb
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Thu Aug 25 15:39:40 2016 +0200
 
-    checklicenses.py: Whitelist some plaintext files without license requirements
+    xmpp/xml: Store item length in xml_frame.
     
-    Change-Id: I029ef1d52ac6edd44c0bac41adb86361ddd94272
-    Reviewed-on: https://code.wireshark.org/review/16898
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    The created XML proto_item can be faked (if not visible and not referenced),
+    so ensure we store the correct item length to be used in XMPP.
+    
+    This will avoid an invalid "Malformed Packet" for some XMPP packets.
+    
+    Change-Id: I79d805b725dbeb93f26a38b72bdcc84187aee16f
+    Reviewed-on: https://code.wireshark.org/review/17324
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
     Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit ce9a4b212ec7b75985cef3b9ab362808e6fd25c5)
+    Reviewed-on: https://code.wireshark.org/review/17338
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit c84ce03
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Aug 25 16:58:25 2016 -0700
+
+    Handle ETH_P_CANFD as well as ETH_P_CAN.
+    
+    Both of them need to have the CAN ID/flags field of the header
+    byte-swapped as necessary to make sure it's in the *reading* host's byte
+    order, not the *writing* host's byte order, if the two are different.
+    
+    Change-Id: Iac1589fdd9fe4d9ee6fbac8d821b48694d68919b
+    Reviewed-on: https://code.wireshark.org/review/17333
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 17f977ec5695259ec02c7e6e4cd24e3e2ed263c1)
+    Reviewed-on: https://code.wireshark.org/review/17334
+
+commit ddbae1c
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Aug 25 14:39:42 2016 -0700
+
+    One more change for the removal of LINKTYPE_SOCKETCAN_HOSTENDIAN.
+    
+    Change-Id: If1615e23efa30119fff5eb2935335c2cde34b89e
+    Reviewed-on: https://code.wireshark.org/review/17330
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 27372ca7379b3ff5cccf1488d96a72d06dfba0d1)
+    Reviewed-on: https://code.wireshark.org/review/17331
+
+commit 6d074ae
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Aug 25 14:14:11 2016 -0700
+
+    Go back to having only one SocketCAN LINKTYPE_ value.
+    
+    Libpcap just backed out the "host-endian" SocketCAN LINKTYPE_ value; we
+    don't need it any more.
+    
+    Change-Id: I33a7dc21207a0009e20b4abaefe1119eb649c39a
+    Reviewed-on: https://code.wireshark.org/review/17327
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit c8157aa6b4afdbc2f84779ffbeea4f8d3bdc8666)
+    Reviewed-on: https://code.wireshark.org/review/17328
+
+commit 2e3c898
+Author: Balint Reczey <balint@balintreczey.hu>
+Date:   Tue Aug 23 13:53:23 2016 +0200
+
+    Documentation with unset license is under project's license (GPL-2+)
+    
+    doc/idl2deb.pod is licensed explicitly under GPL-2+ it is just
+    not recognized by the check.
+    
+    Change-Id: Iabc7ee6bd6fe9080d6cdd28a29bb4c5f97b0ece9
+    Reviewed-on: https://code.wireshark.org/review/17268
+    Reviewed-by: Balint Reczey <balint@balintreczey.hu>
+    Petri-Dish: Balint Reczey <balint@balintreczey.hu>
+    Reviewed-by: Dario Lombardo <lomato@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    (cherry picked from commit 40ac3c86825d4a15e585035fbae6e9a86424ee4e)
+    Reviewed-on: https://code.wireshark.org/review/17283
     Reviewed-by: Michael Mann <mmann78@netscape.net>
-    Reviewed-on: https://code.wireshark.org/review/16927
-    Reviewed-by: João Valverde <j@v6e.pt>
 
-commit 2baf7f9
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Thu Aug 4 19:39:30 2016 +0100
-
-    test.sh: Don't abort on failed test
-    
-    This behavior severely limits the usefulness of the test suite. An option
-    to configure it would still be nice.
-    
-    Change-Id: I2bc96a043cc4ec76f334a3bfe48967703ef1be5e
-    Reviewed-on: https://code.wireshark.org/review/16890
-    Reviewed-by: João Valverde <j@v6e.pt>
-    Reviewed-on: https://code.wireshark.org/review/16925
-
-commit 5b49f66
+commit 1c16105
 Author: Gerald Combs <gerald@wireshark.org>
-Date:   Fri Aug 5 11:14:58 2016 -0700
+Date:   Tue Aug 23 16:55:16 2016 -0700
+
+    Fuzz test: Make Valgrind error detection more verbose.
+    
+    When we set VG_ERR_CNT=1 print the reason.
+    
+    Change-Id: Icb8f2a1e7074044521873b116fc891cc4be4b204
+    Reviewed-on: https://code.wireshark.org/review/17286
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit e8d5252
+Author: Michał Skalski <mskalski13@gmail.com>
+Date:   Tue Aug 23 01:12:59 2016 +0200
+
+    isakmp Fix IKEv2 modification UAT crash
+    
+    Problem is that not all fields of UAT are updated on change (only those
+    defined in UAT definition with ikev2_uat_flds, specifically pointers to
+    encr_spec and auth_spec in ike2_decr_data_t were set to NULL.
+    
+    Fixed by re-setting pointers after update table callback was called.
+    
+    Also fixed memory leaks after UAT modification.
+    
+    Bug was partially resolved with change
+    Ibdab979b5959eb561635cbcb446e17138baca87b
+    https://code.wireshark.org/review/17078
+    
+    which eliminated crash, but decryption still didn't work after UAT
+    modification (DISSECTOR BUG was displayed).
+    
+    Bug: 12748
+    Change-Id: I8209edd8e214d62e34b641fdd2e046b9ff4c95eb
+    Reviewed-on: https://code.wireshark.org/review/17249
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 505bcefd20501ae0811f6074f2113b52788d78c5)
+    Conflicts:
+    	epan/dissectors/packet-isakmp.c
+    Reviewed-on: https://code.wireshark.org/review/17299
+    Reviewed-by: Michał Skalski <mskalski13@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit fb6b0e6
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Aug 15 18:55:45 2016 +0200
+
+    ISAKMP: Fix Result of operation is garbage or undefined found by Clang Analyzer
+    
+    Change-Id: I47233968dfc87494b3c959896622db5cd31244a7
+    Reviewed-on: https://code.wireshark.org/review/17065
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Mirko Parthey <mirko.parthey@web.de>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 3c8f657e01f1548fbf9cc5740374552aa8c6fdc6)
+    Reviewed-on: https://code.wireshark.org/review/17267
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit 5c07723
+Author: Mirko Parthey <mirko.parthey@web.de>
+Date:   Tue Jul 19 00:43:19 2016 +0200
+
+    Fix IKEv1 decryption and initialization vectors
+    
+    Generate initialization vectors during Wireshark's first pass,
+    in order to improve reliability and efficiency. (bug #12699)
+    Remove a dissection shortcut in first pass to allow early analysis
+    of the transform payloads, which is needed to find out the crypto
+    algorithms.
+    
+    Introduce a hash table to store an IV per message ID. (bug #12610)
+    Fix handling of the initial phase 1 IV. (bug #12620)
+    Cache IVs as per-packet data instead of a list.
+    
+    Use the wmem allocator to avoid memory leaks.
+    Ensure libgcrypt resource cleanup on error paths.
+    
+    Rely only on IKE attributes to find the decryption algorithm,
+    do not consider the length of the user-configured secret at this point.
+    
+    Split code into small functions.
+    
+    Ping-Bug: 12610
+    Ping-Bug: 12620
+    Ping-Bug: 12699
+    Change-Id: I7137943da42d54816808312cd1716a7e05478cbb
+    Reviewed-on: https://code.wireshark.org/review/16846
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 561a2f056bd76bfcb4f89a05542ffce32eed5049)
+    Reviewed-on: https://code.wireshark.org/review/17198
+    Reviewed-by: Mirko Parthey <mirko.parthey@web.de>
+
+commit fef8471
+Author: Mirko Parthey <mirko.parthey@web.de>
+Date:   Tue Aug 23 16:29:57 2016 +0200
+
+    ISAKMP: fix DOI field read size
+    
+    Read 4 bytes from the packet instead of 1 because that is the
+    correct size of the DOI field.
+    Reference: RFC 2408
+    
+    Change-Id: I5745363811bb46af307a925d688ec36cfb29984b
+    Reviewed-on: https://code.wireshark.org/review/17271
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 0fcca6f0c8392b16ebfefdc69086d02e1dba2c7e)
+    Reviewed-on: https://code.wireshark.org/review/17295
+
+commit 7dc3d01
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Aug 23 22:10:08 2016 +0200
+
+    call_heur_dissector_direct: do not trigger an assert if heuristic dissector rejects packet
+    
+    This can happen for example is the heuristics changed between the Wireshark
+    version used to export PDUs, and the one used to open the file.
+    Instead, call data dissector.
+    
+    Change-Id: I29f7754f883fd710c3557a610583ef988ca13e43
+    Reviewed-on: https://code.wireshark.org/review/17280
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 2095b325998f1da06a4e80efeb186ec99d6e39ed)
+    Reviewed-on: https://code.wireshark.org/review/17294
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit a7e78b4
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Tue Aug 23 19:41:46 2016 +0200
+
+    SCSI: Mode Sense 10: Wrong block descriptor length
+    
+    Issue reported by Sharon Samuel Enoch
+    
+    Bug:12780
+    Change-Id: I94ad5355cdfa4d8cd3915c9e261931ff56dc765b
+    Reviewed-on: https://code.wireshark.org/review/17272
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 20908f55f6c93fb79fbd39e60affa2d4428b4951)
+    Reviewed-on: https://code.wireshark.org/review/17292
+
+commit 2a4150a
+Author: Chris Bontje <cbontje@gmail.com>
+Date:   Tue Aug 23 08:42:59 2016 -0600
+
+    [lg8979] - Fix dissection of 'Analog Group Change Report' Responses (FC2)
+    
+    They follow the same dissection as normal 'Analog Change Report' Responses (FC0)
+    
+    Change-Id: I854084f43fd0cc52ba02b6f1e760a63033ab48dd
+    Reviewed-on: https://code.wireshark.org/review/17270
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    (cherry picked from commit e11d4a891373c0f47062dd526a1f5ff6baa09ba6)
+    Reviewed-on: https://code.wireshark.org/review/17281
+
+commit f9598b8
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Wed Aug 24 08:10:27 2016 +0200
+
+    IPMI: do not use col_set_str with non const strings
+    
+    Bug: 12782
+    Change-Id: Ia082ccf5355d7f8dd6073861c59c804fecc96266
+    Reviewed-on: https://code.wireshark.org/review/17289
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 5213496250aceff086404c568e3718ebc0060934)
+    Reviewed-on: https://code.wireshark.org/review/17290
+
+commit 96e712f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Aug 23 10:44:32 2016 -0700
 
     Update the release notes.
     
-    Add bug 12712 and note the coloring rule behavior change.
+    Add missing new protocols, move a "what's new item", add a bug.
     
-    Change-Id: I760c901d09aa5bba78de40ab7b55741a8bf33c8f
-    Reviewed-on: https://code.wireshark.org/review/16904
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Change-Id: I84e4cf36591a503d96032c6be9ba14bdc0dc016c
+    Reviewed-on: https://code.wireshark.org/review/17273
     Petri-Dish: Gerald Combs <gerald@wireshark.org>
     Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit 7dd70ca
-Author: Dario Lombardo <lomato@gmail.com>
-Date:   Fri Aug 5 22:00:05 2016 +0200
-
-    doc: fix typos.
-    
-    Change-Id: Id34affcb33c00e224dafbccc347b1d91b9e74c8d
-    Reviewed-on: https://code.wireshark.org/review/16914
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 37649c4d0f0e3c87308687f9000dbe9f627594de)
-    Reviewed-on: https://code.wireshark.org/review/16923
-
-commit 17f46af
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Aug 5 13:24:26 2016 -0700
-
-    Update FSF address.
-    
-    Change-Id: I2a36a833f00f4acda253e5741c96c519588aa046
-    Reviewed-on: https://code.wireshark.org/review/16919
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit d1847f0b490302f671133b770efd475f7b209971)
-    Reviewed-on: https://code.wireshark.org/review/16920
-
-commit 4f3d776
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Aug 5 13:16:07 2016 -0700
-
-    Fix FSF address.
-    
-    Change-Id: Icf473af9487e60003813435f18551225224c6d58
-    Reviewed-on: https://code.wireshark.org/review/16915
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit d1f0ffd7e7176597d26e7a3a6087a147ba85cd21)
-    Reviewed-on: https://code.wireshark.org/review/16916
-
-commit 4289c06
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Aug 5 11:24:01 2016 -0700
-
-    Fix copyright.
-    
-    I'd just copied and pasted the copyright notice from test/test.sh; Ulf
-    wrote test/test.sh, but didn't write test/run_and_catch_crashes - I did,
-    but, hey, might as well give the copyright to Gerald.  Fix the date as
-    well.
-    
-    Change-Id: Id307f354289ca72931dd83f472d879d733618e3c
-    Reviewed-on: https://code.wireshark.org/review/16910
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 746e04976ec06952e5698d47b30940fe57e8e6d0)
-    Reviewed-on: https://code.wireshark.org/review/16911
-
-commit 1c10a50
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Aug 5 11:20:37 2016 -0700
-
-    Add copyright notices.
-    
-    Change-Id: I481968f154008d62c124ca6f71d6cc0114c293c1
-    Reviewed-on: https://code.wireshark.org/review/16907
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit fd00a4a38d94c16974337fe6cbdadad3cb06ae8c)
-    Reviewed-on: https://code.wireshark.org/review/16908
-
-commit 5696b0d
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Aug 5 11:13:55 2016 -0700
-
-    Put the usual copyright notice on test/run_and_catch_crashes.
-    
-    Change-Id: I397e5483baa79b5bf043d746aabab6c54499fabc
-    Reviewed-on: https://code.wireshark.org/review/16903
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 73c7cc67b6f4e533eae71a1d0a41f2d9bcde1990)
-    Reviewed-on: https://code.wireshark.org/review/16905
-
-commit fc2026d
-Author: Jaap Keuter <jaap.keuter@xs4all.nl>
-Date:   Thu Aug 4 23:35:01 2016 +0200
-
-    pkix1implicit: Make sure distribution takes in all the files.
-    
-    By including ../Makefile.inc (like all other ASN1 based dissectors)
-    assure the symbols are setup correctly for all make related actions,
-    including packaging the files for distribution.
-    
-    Bug: 12703
-    Change-Id: Ia7279fcc30bb08e749f35b6d893136b053f3544c
-    Reviewed-on: https://code.wireshark.org/review/16893
-    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
-    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit 333ba807e700f73a74ed42034e99ef21c9ab6127)
-    Reviewed-on: https://code.wireshark.org/review/16894
-
-commit 361195b
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Thu Aug 4 08:15:08 2016 +0200
-
-    extcap: preference name must only contain lower case ASCII, numbers, dots or underscores
-    
-    This chage set restores the normalization that was done before g485bc45.
-    Without it, USBPcap extacp utility triggers a crash.
-    
-    Change-Id: Id960db186888452ec3d04df1ee48dcc3899e8951
-    Reviewed-on: https://code.wireshark.org/review/16871
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Roland Knall <rknall@gmail.com>
-    (cherry picked from commit 0bf128860783da20706506f7580927c7755cb52a)
-    Reviewed-on: https://code.wireshark.org/review/16878
-    Petri-Dish: Roland Knall <rknall@gmail.com>
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-
-commit 1c9cdc2
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Thu Aug 4 17:47:58 2016 +0200
-
-    asn2wrs: put back parsetab.py file in ASN.1 source folder
-    
-    Otherwise it breaks multi threaded compilation.
-    Follow-up of gd04be01
-    
-    Bug: 12621
-    Change-Id: I2f6b7d6ca85a1cf5a6713c2b36c823a520d3bf3d
-    Reviewed-on: https://code.wireshark.org/review/16886
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Reviewed-by: João Valverde <j@v6e.pt>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit 5661420d7f5e8247183eb8fa3683a4d8143874a1)
-    Reviewed-on: https://code.wireshark.org/review/16891
-
-commit 74b3fa4
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Thu Aug 4 17:01:45 2016 +0200
-
-    Qt: fix a NULL pointer dereference in extcap_argument_multiselect.cpp
-    
-    Guard treeView dereference by a cehck on viewModel (as it is done elsewhere in
-    the file, both are allocated at the same time).
-    This can happen for example when USBPcap lists a USB Hub with no devices connected.
-    
-    Change-Id: Iee412b8c95539e9e3d65706c14f62194cafcaffc
-    Reviewed-on: https://code.wireshark.org/review/16885
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Reviewed-by: Roland Knall <rknall@gmail.com>
-    (cherry picked from commit 6168d8bf809edf514f6356c2c35afb41e6eedf36)
-    Reviewed-on: https://code.wireshark.org/review/16887
-    Petri-Dish: Roland Knall <rknall@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-
-commit 54bf645
-Author: Roland Knall <roland.knall@br-automation.com>
-Date:   Thu Aug 4 13:15:48 2016 +0200
-
-    extcap: Use stderr to print error message
-    
-    This patch reads out the stderr messages from an extcap
-    utility and displays it to an user. It was tested on Qt
-    but not on GTK, but should work their as well.
-    
-    On Mac OS/X and Windows the child_watch does not behave
-    as it was intended. Therefore in extcap_cleanup, the callbacks
-    are called manually, if and only if, they have not been
-    called already.
-    
-    The reason why it displays two error messages is, that
-    by the time the first one is being displayed, glib has not
-    returned from the spawned process on Linux yet. So there
-    is no way to add the stderr correctly, and putting a handler
-    to stderr into interface_opts will lead to memory errors,
-    cause then the code tries to access memory outside of its
-    protection.
-    
-    This is a combination of the following commits, where 12954 was
-    the main commit:
-    
-     - Change: 12954 - extcap: Use stderr to print error message
-     - Change: 16827 - extcap: Remove g_spawn_check_exit_status
-     - Change: 16831 - extcap: extend buffer (CID 1364684)
-    
-    Bug: 11892
-    Reviewed-on: https://code.wireshark.org/review/12954
-    Reviewed-by: Roland Knall <rknall@gmail.com>
-    Petri-Dish: Roland Knall <rknall@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Dario Lombardo <lomato@gmail.com>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit c611eded2272ac79997fb3ce11f2339dc32b53cb)
-    
-    Change-Id: Ic3ba03543cfbd1e9a196764b435e78aca218e1ad
-    Reviewed-on: https://code.wireshark.org/review/16876
-    Petri-Dish: Roland Knall <rknall@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Roland Knall <rknall@gmail.com>
-
-commit d5780aa
-Author: Roland Knall <roland.knall@br-automation.com>
-Date:   Thu Aug 4 16:10:50 2016 +0200
-
-    openSAFETY: Remove SCM UDID check
-    
-    This leads to too many false-negatives in certain traces
-    
-    Change-Id: Ia081dc802b6f55926beec2383a864173cae6eb51
-    Reviewed-on: https://code.wireshark.org/review/16883
-    Reviewed-by: Roland Knall <rknall@gmail.com>
-    Petri-Dish: Roland Knall <rknall@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    (cherry picked from commit 47e2849ada67ad9d51845c27d4b10479a6dbccf9)
-    Reviewed-on: https://code.wireshark.org/review/16884
-
-commit aae29c3
-Author: Balint Reczey <balint@balintreczey.hu>
-Date:   Wed Aug 3 23:28:28 2016 +0200
-
-    Ply parser updated to 3.8 from http://www.dabeaz.com/ply/
-    
-    The Ubuntu packaged Ply 3.7 with Ubuntu 16.04's Python makes
-    ASN.1 based dissector generation fail.
-    
-    Ply's API changed after 3.5 and the small change to asn2wrs.py
-    adapts to that.
-    The commit breaking the API in Ply's repository is the following:
-    
-     commit af651673ba6117a0a5405055a92170fffd028106
-     Author: David Beazley <dave@dabeaz.com>
-     Date:   Tue Apr 21 16:31:32 2015 -0500
-    
-        Added optional support for defaulted states
-    
-    Change-Id: I1db33fdcccf7c39ecdb0e435a5ea9183362471ad
-    Bug: 12621
-    Reviewed-on: https://code.wireshark.org/review/16864
-    Reviewed-by: Balint Reczey <balint@balintreczey.hu>
-    Petri-Dish: Balint Reczey <balint@balintreczey.hu>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: João Valverde <j@v6e.pt>
-    Tested-by: João Valverde <j@v6e.pt>
-    Reviewed-on: https://code.wireshark.org/review/16874
-
-commit 66721ca
-Author: Roland Knall <roland.knall@br-automation.com>
-Date:   Tue Dec 29 07:57:36 2015 +0100
-
-    extcap: Restore functionality for options
-    
-    Allow stored options to be restored to their default values. This
-    adds a global cleanup method for extcap and globally defined
-    preference values, which fixes the parameter problem with windows
-    
-    Change-Id: I48e0cf846ef81f4732d652c6a2ad0020db5df08e
-    Reviewed-on: https://code.wireshark.org/review/13741
-    Petri-Dish: Roland Knall <rknall@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Roland Knall <rknall@gmail.com>
-    (cherry picked from commit 485bc456c57a16dbe50b76c476e48223038bb0e8)
-    Reviewed-on: https://code.wireshark.org/review/16759
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit 527650d
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Wed Aug 3 18:05:21 2016 -0700
-
-    Report the pathname of the color filter file in "Could not compile" messages.
-    
-    This also fixes some cases where we wouldn't report the path in a read
-    error message, as we'd already freed the path up and set the path string
-    pointer to null.
-    
-    Change-Id: I521435d1566db7df0f6815ce23aedc1366ac8b50
-    Reviewed-on: https://code.wireshark.org/review/16869
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 0b10427
-Author: Jaap Keuter <jaap.keuter@xs4all.nl>
-Date:   Thu Aug 4 00:14:56 2016 +0200
-
-    SSL utils: Add proper check while getting bag type
-    
-    Implementing proper return value check, as done for other gnutls function
-    calls, catches (unlikely) errors and allows C++ compatible build.
-    
-    Change-Id: Idf5bd3fe6e68d006a469fe72663dea1c7e2d17f7
-    Reviewed-on: https://code.wireshark.org/review/16865
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 9affd2656c9c2f6e911817f196a524f4b5b2c1cd)
-    Reviewed-on: https://code.wireshark.org/review/16866
-
-commit 6bdac11
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Wed Aug 3 22:35:44 2016 +0200
-
-    Update USBPcap installer packaged in our Windows installer
-    
-    This new version contains kernel drivers with an EV certificate that is cross-signed
-    by Microsoft as it will become mandatory.
-    See https://blogs.msdn.microsoft.com/windows_hardware_certification/2016/07/26/driver-signing-changes-in-windows-10-version-1607/
-    for details.
-    
-    Change-Id: I76bb1005ea540f39dca8874abb88d71a3ad53625
-    Reviewed-on: https://code.wireshark.org/review/16862
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit a723a30ad4cde5aa8d30b4479fd4b3280b007ae0)
-    Reviewed-on: https://code.wireshark.org/review/16863
-
-commit b19a088
-Author: Roland Knall <roland.knall@br-automation.com>
-Date:   Tue Aug 2 17:04:56 2016 +0200
-
-    openSAFETY: Add two checks for scm udid validity
-    
-    This is being done, to prevent false-positives which can
-    not be filtered out using the heuristics, but have to be
-    caught using additional check measurements
-    
-    Change-Id: I2ff2c97decf8a93d43f8f5b54e4d147552970b3f
-    Reviewed-on: https://code.wireshark.org/review/16843
-    Petri-Dish: Roland Knall <rknall@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Roland Knall <rknall@gmail.com>
-    (cherry picked from commit e631e1156daa25671f4b61b92f9bee646866d0c2)
-    Reviewed-on: https://code.wireshark.org/review/16853
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit 50b65f1
-Author: Irene Ruengeler <ruengeler@wireshark.org>
-Date:   Wed Aug 3 11:40:35 2016 +0200
-
-    Set correct length for Req_Seq_Nr field
-    
-    Change-Id: Iec228708423743e0268305da6ed606d464d1e1ea
-    Reviewed-on: https://code.wireshark.org/review/16854
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit 0d5cf544836b5627e977ab177517317f90f81f75)
-    Reviewed-on: https://code.wireshark.org/review/16855
-
-commit 8eb7e54
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Tue Aug 2 20:28:41 2016 -0700
-
-    Don't snprintf() into a string with one of the arguments being the same string.
-    
-    That doesn't work - you could be writing into the string from which
-    you're reading.
-    
-    Bug: 12700
-    Change-Id: I70f3ce6048dea582ec5e08c24c99e9a553b352df
-    Reviewed-on: https://code.wireshark.org/review/16850
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 6d8261994bb928b7e80e3a2478a3d939ea1ef373)
-    Reviewed-on: https://code.wireshark.org/review/16851
-
-commit 57ab1d4
-Author: David McKay <mckay.david@gmail.com>
-Date:   Mon Aug 1 22:56:45 2016 -0400
-
-    Bugfix endian issues with 802.11 FCS
-    
-    Rather than trying to swap fields to be big-endian, just make everything
-    little-endian.
-    
-    Bug: 12697
-    Change-Id: I07e7fd651c4a32dba764d111b34acdf32958c195
-    Reviewed-on: https://code.wireshark.org/review/16836
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit 6343e1dc67b3c99f2ac900b026ad00ee2d04b063)
-    Reviewed-on: https://code.wireshark.org/review/16845
-
-commit f3cedfe
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Mon Aug 1 20:33:38 2016 +0200
-
-    Exported PDU: allow the use of EXP_PDU_TAG_DISSECTOR_TABLE_NAME
-    
-    Change-Id: I955d5047949534b085d8ac8e2089793cfcbc698d
-    Reviewed-on: https://code.wireshark.org/review/16830
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-
-commit 1c9e52e
-Author: Vasil Velichckov <vvvelichkov@gmail.com>
-Date:   Sun Jul 31 16:59:01 2016 +0300
-
-    BER: Fix segmentation fault when configuring new OIDs
-    
-     Program terminated with signal 11, Segmentation fault.
-     #0  0x00007f573e5bdecf in uat_fld_chk_oid (u1=0x2eb1830, strptr=0x7f573c8431e4 "", len=0, u2=0x0, u3=0x0, err=0x7ffee1668748) at uat.c:494
-     494	    if(strptr[len-1] == '.') {
-     (gdb)
-     (gdb) bt
-     #0  0x00007f573e5bdecf in uat_fld_chk_oid (u1=0x2eb1830, strptr=0x7f573c8431e4 "", len=0, u2=0x0, u3=0x0, err=0x7ffee1668748) at uat.c:494
-     #1  0x0000000000485dfc in uat_dlg_cb (win=0x3844290, user_data=0x3632bc0) at uat_gui.c:364
-     #2  0x00007f573b2f19a7 in _g_closure_invoke_va (closure=0x3367130, return_value=0x0, instance=0x3844290, args=0x7ffee1668a78, n_params=0,
-    
-    Change-Id: Ic61480f8c1f2cd833c58de0b2acc24dcb831578f
-    Reviewed-on: https://code.wireshark.org/review/16800
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
-    (cherry picked from commit bf123efe154dfdde06ee3c78cf8af05ed01a691b)
-    Reviewed-on: https://code.wireshark.org/review/16814
-
-commit e64b3d8
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Jul 31 08:15:28 2016 -0700
-
-    [Automatic update for 2016-07-31]
-    
-    Update manuf, services enterprise-numbers, translations, and other items.
-    
-    Change-Id: I093826fecbd0713cde970b752e843f85c31b05e2
-    Reviewed-on: https://code.wireshark.org/review/16808
     Reviewed-by: Gerald Combs <gerald@wireshark.org>
 
-commit ca6ac8a
+commit 02f6c94
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Aug 23 19:41:48 2016 +0200
+
+    MAC LTE: fix dissection of CE Mode A RAR message
+    
+    The Msg3 PUSCH narrowband index parameter depends on the UL bandwidth
+    
+    Change-Id: Ib57c85ffbd4c108e9c8f3d14fa53a48f0df1b0e6
+    Reviewed-on: https://code.wireshark.org/review/17274
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 12cae9dc80a09ba0ed75b421d328143ac98a298b)
+    Reviewed-on: https://code.wireshark.org/review/17276
+
+commit 934bcae
+Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
+Date:   Mon Aug 8 16:48:14 2016 +0100
+
+    checklicenses: Fix a FIXME
+    
+    We do not whitelist GPLv2 only code because of the
+    incompatibility with GPLv3.
+    
+    Move the path exception to its proper place. These files are
+    dual-licensed in the sense of "choose one or the other", not
+    "both licenses are in use".
+    
+    If the exception becomes unnecessary later it can be removed,
+    but let's get rid of the FIXME until then.
+    
+    Change-Id: Ia040284b72c2ff6588b0544896cc37ae19a61613
+    Reviewed-on: https://code.wireshark.org/review/16957
+    Reviewed-by: João Valverde <j@v6e.pt>
+    (cherry picked from commit e3009b0b1c78b25337c915fb66232314f769688c)
+    Reviewed-on: https://code.wireshark.org/review/17264
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit ac1b8b3
 Author: Michael Mann <mmann78@netscape.net>
-Date:   Sat Jul 30 21:39:19 2016 -0400
+Date:   Tue Jul 26 09:27:07 2016 -0400
 
-    Properly mask Modbus function code
+    Move airpdcap's print_debug_line() to airpdcap_debug.h
     
-    Bug: 12693
-    Change-Id: Ic0b226d2ba9518f9a1efe85527678daa5302cc3f
-    Reviewed-on: https://code.wireshark.org/review/16792
+    It saves a little on file pollution and the g_warning call isn't
+    bothered in the header file.
+    
+    Change-Id: Ia9bdd96d9d93bbba6811769c4e6e1ed9124c2e5a
+    Reviewed-on: https://code.wireshark.org/review/16698
     Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 30dbb85df8ec8a1f2f0788260bafb11bc5f3c36f)
-    Reviewed-on: https://code.wireshark.org/review/16793
-
-commit d927db5
-Author: Uli Heilmeier <uh@heilmeier.eu>
-Date:   Sat Jul 23 22:10:07 2016 +0200
-
-    RSVP: Wrong order of Attribute Flags TLV
-    
-    According to RFC 5420 Section 3.1 the MSB is bit zero.
-    Reported by Alexander Okonnikov.
-    
-    Bug: 12652
-    Change-Id: I9b414464b05ab0724a6560aa441c3f5324130fdb
-    Reviewed-on: https://code.wireshark.org/review/16611
     Petri-Dish: Michael Mann <mmann78@netscape.net>
     Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 4c9f7b56639603a3bc6f97ce5d2e9453485ffb28)
-    Reviewed-on: https://code.wireshark.org/review/16788
-
-commit e11b994
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Mon Jul 25 10:49:30 2016 -0700
-
-    Don't discard unknown coloring rules.
-    
-    When processing the colorfilters file, keep and disable unknown coloring
-    rules instead of skipping over and discarding them. This should
-    hopefully keep people from losing the standard "Checksum Errors" rule
-    (and it's less rude in general).
-    
-    Change-Id: I21796c25045d9dbf7612238ce3d27b613f1ec75f
-    Reviewed-on: https://code.wireshark.org/review/16673
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-    Petri-Dish: Gerald Combs <gerald@wireshark.org>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit e727ecf5e302c9f765d0038b234e6775fb4ca45b)
-    Reviewed-on: https://code.wireshark.org/review/16758
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-
-commit 0f21919
-Author: Uli Heilmeier <uh@heilmeier.eu>
-Date:   Sat Jul 30 11:36:15 2016 +0200
-
-    README.dissector: Add proto_tree_add_bitmask_with_flags()
-    
-    Extend README with proto_tree_add_bitmask_with_flags() function.
-    
-    Change-Id: Ia984080eda77ab93b063771d625bc45b5b0fc6d2
-    Reviewed-on: https://code.wireshark.org/review/16785
-    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 62ea2370f8c84964249771590357f2153044a43a)
-    Reviewed-on: https://code.wireshark.org/review/16786
-
-commit 710857d
-Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
-Date:   Fri Jul 29 15:11:03 2016 +0200
-
-    ieee80211: PMKID is incorrectly decoded under RSN Vendor specific IE in EAPOL packet 1
-    
-    Issue reported by Padmaja Reddy
-    
-    Bug:12675
-    Change-Id: I17323a70fdbe6f52c350a875c467c233877f4505
-    Reviewed-on: https://code.wireshark.org/review/16761
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 98e8b268e5f5583522a826512cf57c2f683cb9ea)
-    Reviewed-on: https://code.wireshark.org/review/16777
-
-commit 5a0094b
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Jul 29 13:21:13 2016 -0700
-
-    Upgrade to libtool 2.4.6.
-    
-    As per bug 12689, earlier versions of libtool had a bug wherein they
-    assumed a 1-digit second component of the OS version number, and thought
-    OS X 10.10 was OS X 10.1 and used the wrong linker flags.  A build from
-    Git would succeed, but a build from the source tarball wouldn't.
-    
-    Change-Id: I412d1e0b02976f44c573f9ff1b62465f5eeaeb05
-    Ping-Bug: 12689
-    Reviewed-on: https://code.wireshark.org/review/16773
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 3e48148e1e82e2925f46c1ef0a6b70d9f4823c84)
-    Reviewed-on: https://code.wireshark.org/review/16774
-
-commit 8cca0d7
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Fri Jul 29 20:26:19 2016 +0200
-
-    GTP: fix dissection of NSAPI
-    
-    Bug: 12686
-    Change-Id: Icdf1fd0f24a2f667b27bb957fd932bd9c17ef0f4
-    Reviewed-on: https://code.wireshark.org/review/16769
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit fe7dd4e76eb9384333fdffc6cb49b631e58483c9)
-    Reviewed-on: https://code.wireshark.org/review/16770
-
-commit 8c7ab5f
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Thu Jul 28 19:56:56 2016 +0200
-
-    proto.c: do not perform bound checks in proto_tree_add_text(_valist)_internal if tvb is NULL
-    
-    As seen in bug 12676, some buggy dissectors do not systematically provide a tvb when calling proto_tree_add_XXX functions.
-    On stable branch, let's deactivate the bound checks in that case.
-    
-    Bug: 12676
-    Change-Id: Ia3cf0b0972c127f34feca2e097e0ec1fd1753b23
-    Reviewed-on: https://code.wireshark.org/review/16752
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 9a73978ba5bbb78026721500aaf332f53e19d0cd)
+    Reviewed-on: https://code.wireshark.org/review/17266
     Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
     Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
 
-commit 917b2fe
-Author: Thomas Klausner <tk@giga.or.at>
-Date:   Thu Jul 28 16:31:44 2016 +0200
-
-    Fix build on NetBSD.
-    
-    sys/siginfo.h (which is included by this file) defines si_code.
-    
-    Change-Id: I59cfe1ea3ec01345965028db4bba3223752459e3
-    Reviewed-on: https://code.wireshark.org/review/16750
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 12b859f4538fd84a1f1ae89bc994429ac51611ad)
-    Reviewed-on: https://code.wireshark.org/review/16753
-
-commit c90a494
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Thu Jul 28 14:44:11 2016 +0200
-
-    CIP: ensure to give a valid tvb pointer when calling proto_tree_add_XXX functions
-    
-    Bug: 12676
-    Change-Id: I1567ecd70d0975ed47d8c659b9086206c2a0a89a
-    Reviewed-on: https://code.wireshark.org/review/16748
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 6ea3dd69aa95239a57e8a1de8521a5d0f1ae4901)
-    Reviewed-on: https://code.wireshark.org/review/16749
-
-commit 8b19829
-Author: Kim Kempf <kim.kempf@apcon.com>
-Date:   Wed Jul 27 19:34:51 2016 -0700
-
-    Fixed compile error in packet-ssl-utils.c when HAVE_LIBCRYPT not defined
-    
-    Bug: 12680
-    Change-Id: I7219e38be48d1115e7e80b41337423be64776e5a
-    Reviewed-on: https://code.wireshark.org/review/16742
-    Reviewed-by: João Valverde <j@v6e.pt>
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit 7a9ab60a6e7808e879c7151330e18405af7fc1b5)
-    Reviewed-on: https://code.wireshark.org/review/16744
-
-commit 8647f42
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Wed Jul 27 14:31:21 2016 -0700
-
-    If we don't get any OS information, remove the old OS information.
-    
-    The old information is copied over from one of the input files; if we
-    don't have information about the OS on the machine writing the *output*
-    file, just throw the old information away.
-    
-    (We need a better way to preserve information from the input files;
-    perhaps this:
-    
-       http://www.winpcap.org/pipermail/pcap-ng-format/2016-June/000362.html
-    
-    might work.)
-    
-    Change-Id: Ia25771736d267173f2b6949a91e81e217ee7d16f
-    Reviewed-on: https://code.wireshark.org/review/16730
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 93d5df468fc9013debe4a30f6f670eeedc01c911)
-    Reviewed-on: https://code.wireshark.org/review/16731
-
-commit fdd25af
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Wed Jul 27 09:14:43 2016 +0200
-
-    IPSec: fix decryption broken in g8cd167a
-    
-    Having no matching in sscanf is a valid use case as the object is already initialized
-    
-    Bug: 12671
-    Change-Id: Iee7185290ea72968437159c344a376defe464dd4
-    Reviewed-on: https://code.wireshark.org/review/16711
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 8e60500855a6258388c3041196766a10f9051950)
-    Reviewed-on: https://code.wireshark.org/review/16723
-
-commit 6eebb5a
+commit 562457a
 Author: Peter Wu <peter@lekensteyn.nl>
-Date:   Tue Jul 26 00:14:40 2016 +0200
+Date:   Mon Aug 22 22:29:21 2016 +0200
 
-    ssl-utils: ensure that the cipher suite matches decoder
+    isakmp: fix type confusion
     
-    When the cipher suite for the current decryption session is changed via
-    a Server Hello, it should not change the cipher suite field of the
-    decoder. Otherwise there is a mismatch between the cipher suite and the
-    capabilities of the decoder.
+    Caught by ASAN with WIRESHARK_DEBUG_WMEM_OVERRIDE=simple set.
     
-    Fix this issue by making the decoder hold a pointer to the (constant)
-    SslCipherSuite structure rather than making a copy (and have the decoder
-    point to that data).
+    Manually inspection of all type casts to decrypt_data_t and
+    ikev2_decrypt_data_t showed no other users that do not check
+    isakmp_version first.
     
-    I also considered resetting the decoder once the cipher suite changes in
-    the Server Hello, but that breaks renegotiation.
-    
-    Bug: 12665
-    Change-Id: Ieff38a535cd111d95933ec383378643b6fbab7bf
-    Reviewed-on: https://code.wireshark.org/review/16674
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Change-Id: If889afff85a20e31222d33cbea8db3a91a77f389
+    Reviewed-on: https://code.wireshark.org/review/17246
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
     Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michał Skalski <mskalski13@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 52910f4e3fa7d771a671cd30bd5320d70aee3eec)
+    Reviewed-on: https://code.wireshark.org/review/17260
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
     Reviewed-by: Peter Wu <peter@lekensteyn.nl>
-    (cherry picked from commit ae0f130582c36978908a965aed32e446ba8d40db)
-    Reviewed-on: https://code.wireshark.org/review/16716
-
-commit 9b2ec33
-Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
-Date:   Tue Jul 26 11:28:28 2016 +0200
-
-    Transifex: Add master-22 branch
-    
-    Change-Id: I5c5c1294f6f7491cf800a9f854e0fa9c7f989b27
-    Reviewed-on: https://code.wireshark.org/review/16690
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit 0181b47
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Tue Jul 26 13:58:55 2016 +0200
-
-    Ensure to have a valid string pointer when writing OS SHB option
-    
-    Change-Id: Ib0b6dcdf1700e88383d30bf43739312fce10e1c7
-    Reviewed-on: https://code.wireshark.org/review/16696
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
     Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit 4713ce4476cadb2d4a8869dd2e6f19547841aa9a)
-    Reviewed-on: https://code.wireshark.org/review/16700
 
-commit b9a7fc1
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Mon Jul 25 17:39:10 2016 +0200
-
-    WBXML: limit the recursion level
-    
-    Bug: 12663
-    Change-Id: Ibbab2f20f4eda9f42ea0ea5e88dcf553cce1b55c
-    Reviewed-on: https://code.wireshark.org/review/16670
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit 347f071f1b9180563c28b0f3d0627b91eb456c72)
-    Reviewed-on: https://code.wireshark.org/review/16687
-
-commit 8a55b2d
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Mon Jul 25 17:08:26 2016 +0200
-
-    WAP: check that tvb_get_guintvar does not overflow
-    
-    Bug: 12661
-    Change-Id: I2ef857d6be6595fd89f3dbb8d41c1c70d550ad93
-    Reviewed-on: https://code.wireshark.org/review/16665
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Pascal Quantin <pascal.quantin@gmail.com>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit 2193bea3212d74e2a907152055e27d409b59485e)
-    Reviewed-on: https://code.wireshark.org/review/16683
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-
-commit 7583a2c
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Mon Jul 25 11:19:05 2016 +0200
-
-    proto.c: add bounds check to proto_tree_add_text(_valist)_internal
-    
-    Bug: 12659
-    Change-Id: I44cb3ce8e647ae2816d5ffa95435068c435a1e5c
-    Reviewed-on: https://code.wireshark.org/review/16648
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit 56706427f53cc64793870bf072c2c06248ae88f3)
-    Reviewed-on: https://code.wireshark.org/review/16685
-
-commit e645f54
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Mon Jul 25 13:32:45 2016 +0200
-
-    LDSS: check if a conversation already exists before recreating it
-    
-    Bug: 12662
-    Change-Id: I81d91d54544e5865336dc08ffda9fe109fc643ed
-    Reviewed-on: https://code.wireshark.org/review/16660
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit 5a469ddc893f7c1912d0e15cc73bd3011e6cc2fb)
-    Reviewed-on: https://code.wireshark.org/review/16661
-
-commit 9349212
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Mon Jul 25 09:37:25 2016 +0200
-
-    RLC: fix a variable overflow in rlc_decode_li function
-    
-    Bug: 12660
-    Change-Id: I20a423eb9aa72383ac28d176bc60751ed36be9bd
-    Reviewed-on: https://code.wireshark.org/review/16639
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit 6cf9616df68a4db7e436bb77392586ff9ad84feb)
-    Reviewed-on: https://code.wireshark.org/review/16645
-
-commit bf8cd43
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Mon Jul 25 09:54:06 2016 +0200
-
-    RLC: fix a stack overflow in rlc_decode_li function
-    
-    The test to check whether the array was full or not was off by 1
-    
-    Bug: 12664
-    Change-Id: If2057b71d92c7f03e05b0f4676abc62d5a03ae73
-    Reviewed-on: https://code.wireshark.org/review/16640
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit 47a5fa850b388fcf4ea762073806f01b459820fe)
-    Reviewed-on: https://code.wireshark.org/review/16641
-
-commit 179d2a5
-Author: Martin Kaiser <wireshark@kaiser.cx>
-Date:   Sun Jul 24 18:43:14 2016 +0200
-
-    zvt: use a hash table for the bitmaps
-    
-    table entries contain the length (if known and constant) and a function
-    to dissect the payload
-    
-    this should clean up the code for bitmap dissection and make it easier
-    to add new entries
-    
-    Change-Id: Id0ef5ff9e53c82171789c8a3352e56d3997d82b9
-    Reviewed-on: https://code.wireshark.org/review/16632
-    Petri-Dish: Martin Kaiser <wireshark@kaiser.cx>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Martin Kaiser <wireshark@kaiser.cx>
-    (cherry picked from commit 688d055acd523e645c1e87267dcf4a0a9867adbd)
-    Reviewed-on: https://code.wireshark.org/review/16638
-
-commit 26f8389
-Author: Martin Kaiser <wireshark@kaiser.cx>
-Date:   Sun Jul 24 19:23:48 2016 +0200
-
-    zvt: rename dissect_zvt_bitmap_apdu() to dissect_zvt_bitmap_seq()
-    
-    the sequence of bitmaps can either be the complete APDU payload or a
-    part of it
-    
-    Change-Id: I3e3d176f29a5c2a0ad2c7fb61102c46255f436da
-    Reviewed-on: https://code.wireshark.org/review/16631
-    Reviewed-by: Martin Kaiser <wireshark@kaiser.cx>
-    (cherry picked from commit 3e6df076c60469ef42b289615590a790538b29b9)
-    Reviewed-on: https://code.wireshark.org/review/16634
-
-commit 4fa8a10
-Author: Martin Kaiser <wireshark@kaiser.cx>
-Date:   Sun Jul 24 18:24:08 2016 +0200
-
-    zvt: rename bitmap to bmp
-    
-    It looks like the specs call the first byte BMP and the whole record
-    (BMP + content) is called the bitmap.
-    
-    Change-Id: I60ce75b131b3cddc59f614b8ca156ceacc890cf8
-    Reviewed-on: https://code.wireshark.org/review/16630
-    Reviewed-by: Martin Kaiser <wireshark@kaiser.cx>
-    (cherry picked from commit 20f3a9a632d49c2c1302a435b8db1a2e8051449b)
-    Reviewed-on: https://code.wireshark.org/review/16633
-
-commit 6f37baf
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Jul 24 08:12:47 2016 -0700
-
-    [Automatic update for 2016-07-24]
-    
-    Update manuf, services enterprise-numbers, translations, and other items.
-    
-    Change-Id: I02bdc3094108fc7a76a1611c145a604a510d9907
-    Reviewed-on: https://code.wireshark.org/review/16627
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit 8e089c3
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Sat Jul 23 19:16:36 2016 -0700
-
-    Enable "Save As..." iff cf_can_save_as() returns TRUE.
-    
-    Currently, cf_can_save() really means "*there's something to save* and
-    we can write it out"; "Save As..." should be enabled even if there are
-    no changes to save, in case the user just wants to write the existing
-    file contents out to a new file and have the new file be the current
-    file.  That matches the behavior of the GTK+ version.
-    
-    (We might want to enable "Save" even if there are no changes to save;
-    some other programs do that, such as the TextEdit, WordPad, KWrite, and
-    gedit simple text editors.  If so, however, we should make "Save" write
-    stuff out even if there are no changes to save.
-    
-    Note, however, that we're a bit different from most "editors", in that
-    we don't read the entire file into memory - we keep the file open and
-    read packet data from it, because we want to be able to read files that
-    won't fit into memory.  That *might* change what we ultimately want to
-    do with "Save".)
-    
-    Bug: 12630
-    Change-Id: I8a2327b5d6ddab7c4f0367f132460b507da38577
-    Reviewed-on: https://code.wireshark.org/review/16612
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit f930da87a738171f10af56a4acd7979c1469211a)
-    Reviewed-on: https://code.wireshark.org/review/16613
-
-commit f33abb8
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Sat Jul 23 14:03:32 2016 -0400
-
-    packet-socketcan.c - Add subdissector name to layer list.
-    
-    This allows GTK Decode As to function properly if CAN subdissector
-    has a dissector table.
-    
-    Change-Id: I5eb3642c34642302939d27e844fe93f626ba039c
-    Reviewed-on: https://code.wireshark.org/review/16606
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit c07bf81082f22e102c4aed00d7ecfdffd1eeb8ed)
-    Reviewed-on: https://code.wireshark.org/review/16607
-
-commit b238b0f
-Author: Jeff Morriss <jeff.morriss.ws@gmail.com>
-Date:   Sun Jul 17 22:42:32 2016 -0400
-
-    Qt follow stream: don't clear the text widget when doing Save-As.
-    
-    ... Otherwise the user will see an empty stream after the Save-As operation.
-    
-    Change-Id: Ibafcb4e4b670807702a8d8a5756544471f2eccc3
-    Reviewed-on: https://code.wireshark.org/review/16521
-    Petri-Dish: Jeff Morriss <jeff.morriss.ws@gmail.com>
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit ba0b0b1bc9818611a255b95cd0f1123155cef9d3)
-    Reviewed-on: https://code.wireshark.org/review/16599
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-
-commit 77bfed2
-Author: Roland Knall <roland.knall@br-automation.com>
-Date:   Fri Jul 22 13:31:07 2016 +0200
-
-    sshdump: Change ws_close to closesocket
-    
-    ws_close just calls _close(); that doesn't close sockets.  closesocket()
-    is the API to close a socket on Windows, and is defined as close()
-    on UN*X, so using closesocket() will close sockets on Windows and UN*X.
-    
-    This way, we close the pipe socket correctly on Windows.
-    
-    Change-Id: I6d50e26bfabac5618c74a180cbe94d444b591bd4
-    Reviewed-on: https://code.wireshark.org/review/16582
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 4a6089795aa3dfcfa9cc2839190b05a10642c63e)
-    Reviewed-on: https://code.wireshark.org/review/16594
-
-commit a2ebb9b
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Fri Jul 22 08:13:36 2016 -0700
-
-    Fix a Windows library path definition.
-    
-    Hopefully this will fix the Windows buildbots.
-    
-    Change-Id: I9d100bdebbf6e90a871c7d023610e3089a1cc636
-    Reviewed-on: https://code.wireshark.org/review/16588
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit 57d843a
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Fri Jul 22 13:48:58 2016 +0200
-
-    MPTCP: fix offset used for AddrID field in MP_JOIN and MP_PRIO messages
-    
-    Bug: 12641
-    Change-Id: I7ba5cbf795eef3e77a7161b8dc8752d9c10610f8
-    Reviewed-on: https://code.wireshark.org/review/16583
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit ba607a15277f6a9475ba19d0cb60f003b3a40019)
-    Reviewed-on: https://code.wireshark.org/review/16586
-
-commit 95c7d2d
-Author: William Tu <u9012063@gmail.com>
-Date:   Wed Jul 20 21:38:47 2016 -0700
-
-    Fix ERSPAN type II and type III offset.
-    
-    For ERSPAN type II (version == 1), the offset is shifted by 4 at the
-    end. As a result, the 'offset+=2' at the end of ERSPAN type III should
-    be in its own 'else' scope.
-    
-    Change-Id: I64a55d5722e3f4f5672ca2a4228583b3b51559e1
-    Reviewed-on: https://code.wireshark.org/review/16568
-    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
-    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    (cherry picked from commit e3a15cfbb24b79c0225d391dc44362ac9cdcb077)
-    Reviewed-on: https://code.wireshark.org/review/16580
-
-commit 65d74aa
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Thu Jul 21 15:31:47 2016 -0700
-
-    Initialize master-2.2.
-    
-    Change-Id: I05d9549c0378af0b777b7b499abc258c127500bf
-    Reviewed-on: https://code.wireshark.org/review/16574
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit 913e0f4
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Fri Jul 15 13:59:23 2016 -0700
-
-    Use Windows CRT string functions in some places.
-    
-    Copy wsutil/wsprintf.h from change 16537. Update it to use functions
-    appropriate to Visual C++ >= 2015, < 2015, and everything else. Add
-    notes about specific API issues.
-    
-    Update epan/expert.c to use ws_snprintf, since the VS profiler shows it
-    as a minor hot spot. This reduces load time for a large-ish capture from
-    ~14s to ~12s here.
-    
-    Migrate a previous column-utils change.
-    
-    Change-Id: Id4064b7c06c35fd447b63c73f731afee181df4f9
-    Reviewed-on: https://code.wireshark.org/review/16483
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-    Petri-Dish: Gerald Combs <gerald@wireshark.org>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit 97d194c
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Thu Jul 21 10:27:45 2016 -0700
-
-    Qt: Set the LabelStack CSS only when it changes.
-    
-    We call fillLabel repeatedly while loading a capture. Try to avoid
-    applying a style sheet when we do since it can affect performance.
-    
-    Change-Id: I9ee188cb79f7cad340ba35b12011b82004ed8262
-    Reviewed-on: https://code.wireshark.org/review/16571
-    Petri-Dish: Gerald Combs <gerald@wireshark.org>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit ad6fc87
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Sun Jul 10 23:47:28 2016 -0400
-
-    Add proto_tree_add_checksum.
-    
-    This is an attempt to standardize display/handling of checksum fields for all dissectors.
-    The main target is for dissectors that do validation, but dissectors that just report the
-    checksum were also included just to make them easier to find in the future.
-    
-    Bug: 10620
-    Bug: 12058
-    Ping-Bug: 8859
-    Change-Id: Ia8abd86e42eaf8ed50de6b173409e914b17993bf
-    Reviewed-on: https://code.wireshark.org/review/16380
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Jeff Morriss <jeff.morriss.ws@gmail.com>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 1e19f55
+commit f60c4b2
 Author: Balint Reczey <balint@balintreczey.hu>
-Date:   Mon Jun 20 23:18:46 2016 +0200
+Date:   Tue Aug 23 03:01:32 2016 +0200
 
-    Constify a few value_strings which were generated at run-time
+    debian: Fix libwscodecs' symbols file
     
-    Change-Id: Idc479a89a34fd21b743faee07020be284f828e2c
-    Reviewed-on: https://code.wireshark.org/review/16298
+    Change-Id: I168a630643fc7a6cbc27d7879006d31acca30e37
+    Reviewed-on: https://code.wireshark.org/review/17263
     Petri-Dish: Balint Reczey <balint@balintreczey.hu>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Balint Reczey <balint@balintreczey.hu>
+    Tested-by: Balint Reczey <balint@balintreczey.hu>
+
+commit 5a1c9a0
+Author: Balint Reczey <balint@balintreczey.hu>
+Date:   Tue Aug 23 02:49:34 2016 +0200
+
+    debian: Refresh patches
+    
+    Change-Id: I7b756f3f88e664687602be6ced77f0d9a29a1238
+    Reviewed-on: https://code.wireshark.org/review/17262
     Reviewed-by: Balint Reczey <balint@balintreczey.hu>
 
-commit d2727ec
+commit dba08c5
+Author: Balint Reczey <balint@balintreczey.hu>
+Date:   Tue Aug 23 02:25:17 2016 +0200
+
+    debian: Make wireshark-common depend on proper libwiretap package
+    
+    Change-Id: I251f4807732fc091629899b6c792bc53a43d3e64
+    Reviewed-on: https://code.wireshark.org/review/17261
+    Reviewed-by: Balint Reczey <balint@balintreczey.hu>
+
+commit 2697dbb
 Author: Guy Harris <guy@alum.mit.edu>
-Date:   Wed Jul 20 19:53:33 2016 -0700
+Date:   Mon Aug 22 20:36:24 2016 -0700
 
-    Don't pass NULL to wtap_block_set_string_option_value().
+    See if *this* convinces the compiler that valuelen and value will be set.
     
-    To remove OPT_SHB_HARDWARE, use wtap_block_remove_option().
-    
-    To get the string value from a GString, use g_string_free(string,
-    FALSE), not g_string_free(string, TRUE) - the latter will free the
-    string value and return NULL.
-    
-    Change-Id: I0c5a9f818543f6752f455f04fb3c024208e23954
-    Reviewed-on: https://code.wireshark.org/review/16567
+    Change-Id: I2a7715ac3255502f244a0d0a7e588b3a44c34f11
+    Reviewed-on: https://code.wireshark.org/review/17258
     Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit bee0cd776219fc3cd6ac6a932a1d25b944c299a0)
+    Reviewed-on: https://code.wireshark.org/review/17259
 
-commit 52323b2
+commit e23a7d0
 Author: Guy Harris <guy@alum.mit.edu>
-Date:   Wed Jul 20 17:45:07 2016 -0700
+Date:   Mon Aug 22 19:28:24 2016 -0700
 
-    Remove more string option value null checks.
+    Fix handling of parameters with no value.
     
-    Also, rename routines that write out an option write_wtap_XXb_option()
-    from write_wtap_XXb_block().
+    Return a value length of 0 if there's no parameter value.
     
-    Change-Id: I4884a2f5275a5e2e32137b47255fac6995f311ef
-    Reviewed-on: https://code.wireshark.org/review/16566
+    (And don't return anything if the pointers through which we return them
+    are null.)
+    
+    If no value is present, return NULL from ws_find_media_type_parameter().
+    
+    Change-Id: I32b57623d7651bcf065af5b81f2390a600988b21
+    Reviewed-on: https://code.wireshark.org/review/17255
     Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit ff00166a96d887e03899577caae3a355c26b0837)
+    Reviewed-on: https://code.wireshark.org/review/17256
 
-commit 3beab65
+commit 1c167f8
 Author: Guy Harris <guy@alum.mit.edu>
-Date:   Wed Jul 20 17:27:36 2016 -0700
+Date:   Mon Aug 22 18:25:33 2016 -0700
 
-    No need to check for string option values being null.
+    Add cast to squelch "building with a C++ compiler" warnings.
     
-    A string option, if present, always has a value; it might be a null
-    *string*, but you won't get a null pointer (if the option isn't present,
-    it simply isn't present).
-    
-    Fix some comments while we're at it.
-    
-    Change-Id: I9c1420f56998a7d04de5c5cc2e92631b181f303a
-    Reviewed-on: https://code.wireshark.org/review/16564
+    Change-Id: Ia95c40096018479aec99fafd93d7b95d31ba4723
+    Reviewed-on: https://code.wireshark.org/review/17253
     Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 4458c48cf4b94da8626361499a044d7c8c096538)
+    Reviewed-on: https://code.wireshark.org/review/17254
 
-commit be1398c
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Tue Jul 19 22:53:28 2016 -0400
+commit d6f83a3
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Aug 22 17:53:10 2016 -0700
 
-    Convert uses of g_alloced data with tvb_new_child_real_data to use pinfo->pool instead.
+    Handle quoted-pairs in quoted-strings correctly.
     
-    Aldo update documentation to suggest using wmem pinfo->pool instead of glib memory
+    Backslash, in a quoted-string, escapes quotes (and any other characters,
+    although the only ones that *need* escaping are a double-quote and a
+    backslash).
     
-    Change-Id: I5d34cc6c1515aa9f0d57784b38da501ffcb95ccc
-    Reviewed-on: https://code.wireshark.org/review/16551
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Evan Huus <eapache@gmail.com>
-
-commit e07b4aa
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Wed Jul 20 04:11:07 2016 +0100
-
-    IPv6: Add option type encodings
+    This means that the value of a parameter isn't just the raw characters
+    from the parameters string; for a quoted string, it needs to be
+    un-escaped, and for a *non*-quoted string, it has to stop at the first
+    non-token character (you can put comments in).  So
+    ws_find_media_type_parameter() must return an allocated string with the
+    actual value.
     
-    Change-Id: I9c8811dd30fed59591edb84166d2c854fd5b1885
-    Reviewed-on: https://code.wireshark.org/review/16553
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit 4abf60f
-Author: AndersBroman <anders.broman@ericsson.com>
-Date:   Wed Jul 20 15:45:14 2016 +0200
-
-    [RRC] Update to V13.3.0 (2016-07)
+    Get rid of index_of_char(); it doesn't do anything that strchr() does.
     
-    Change-Id: Ide2017d2610a55345a4ab1ef631b1da57a06ceb7
-    Reviewed-on: https://code.wireshark.org/review/16560
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    Change-Id: I36328ea71c28fe6ac4918a8e73c281a25f6be844
+    Reviewed-on: https://code.wireshark.org/review/17251
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 0b3a96222b39ea4df1fdc899a950c50ec56a1077)
+    Reviewed-on: https://code.wireshark.org/review/17252
 
-commit 31f5e81
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Wed Jul 20 13:57:02 2016 +0100
-
-    IPv6: Mark ENDI option as deprecated (do not ignore)
-    
-    As requested by Alexis.
-    
-    Change-Id: I33e91aa0234e7c07869d69b5da6d0df8f94254ba
-    Reviewed-on: https://code.wireshark.org/review/16559
-    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
-
-commit 15a202e
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Wed Jul 20 14:50:09 2016 +0200
-
-    PCP: add a missing cast
-    
-    Change-Id: I3fd85defefb5ba3c27ef7c7cc5e83a8193cf1263
-    Reviewed-on: https://code.wireshark.org/review/16558
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-
-commit 95fa045
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Tue Jul 19 22:49:55 2016 -0400
-
-    Convert some g_ APIs to wmem.
-    
-    Change-Id: I7fb0b60fc54004326680f07298fe43e8c48e9b39
-    Reviewed-on: https://code.wireshark.org/review/16550
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit f7e078c
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Wed Jul 20 03:06:09 2016 +0100
-
-    IPv6: Fix LIO option dissection
-    
-    It was passing the wrong offset for an FT_UINT_STRING type.
-    
-    Change-Id: I739eb5bbf86768f6bf953662d407270cc8e27f2b
-    Reviewed-on: https://code.wireshark.org/review/16547
-    Petri-Dish: João Valverde <j@v6e.pt>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit 928f190
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Wed Jul 20 09:25:23 2016 +0200
-
-    MPTCP: fix mask used to display backup flag
-    
-    Bug: 12635
-    Change-Id: I077e0a2632c528acf7978123a61d8e0380f3e4e2
-    Reviewed-on: https://code.wireshark.org/review/16556
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-
-commit 91ceccb
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Wed Jul 20 03:40:28 2016 +0100
-
-    IPv6: Mark ENDI option as deprecated (ignore)
-    
-    In accordance with the IANA registry. This option was never used.
-    
-    Change-Id: I2fc16579b084a0d537f16b9104b025d97a0afd8d
-    Reviewed-on: https://code.wireshark.org/review/16552
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit 60e882c
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Tue Jul 19 22:49:32 2016 -0400
-
-    packet-ldap.c: Convert some g_ APIs to wmem.
-    
-    Change-Id: I41bd5c66a51088cedeae993c15c520d4075c5620
-    Reviewed-on: https://code.wireshark.org/review/16549
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit 9c9fd67
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Tue Jul 19 16:11:55 2016 -0400
-
-    packet-nbap.c: Convert some g_ APIs to wmem.
-    
-    Change-Id: I480dd5c533b53cc90e483f42e974c5f3e660e305
-    Reviewed-on: https://code.wireshark.org/review/16548
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit 29a98d1
-Author: Jeff Morriss <jeff.morriss.ws@gmail.com>
-Date:   Sun Jul 17 18:24:45 2016 -0400
-
-    Allow BASE_NONE (with strings conversion) for integral values again.
-    
-    This mostly reverts SVN rev 43412 (3fa645481f82e32d5ad01ebce9c482c4edae31ae)
-    with the addition of documenting that FT_*INT*'s with BASE_NONE and a
-    FIELDCONVERT tells the Wireshark core that the field's numeric value is
-    meaningless and should not be shown to the user.
-    
-    Use BASE_NONE again with the expert info group and severity fields.  This
-    (finally) resolves the complaint from:
-    
-    https://www.wireshark.org/lists/wireshark-dev/201206/msg00188.html
-    
-    (yes, this mail's been sitting in my "todo" pile since then! <sigh>)
-    
-    Change-Id: I1c6dd2864e7a2e959c97c409f277853af74a8d93
-    Reviewed-on: https://code.wireshark.org/review/16518
-    Petri-Dish: Jeff Morriss <jeff.morriss.ws@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 83174a2
+commit d24bf49
 Author: Gerald Combs <gerald@wireshark.org>
-Date:   Tue Jul 19 09:26:24 2016 -0700
+Date:   Mon Aug 22 15:54:41 2016 -0700
 
-    Qt: Fix Windows taskbar progress behavior.
+    2.2.0rc1 → 2.2.0rc2.
     
-    Connect the valueChanged signal each time we show the taskbar progress
-    indicator and disconnect it each time we hide. Fixes stuck behavior seen
-    here when reloading a capture.
-    
-    Change-Id: I11c6205675823e041cda7816237e54fa8a8afb7a
-    Reviewed-on: https://code.wireshark.org/review/16544
-    Petri-Dish: Gerald Combs <gerald@wireshark.org>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit 11387e2
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Mon Jul 18 23:25:11 2016 +0100
-
-    AH: Make some display formats more standard
-    
-    Minor code improvements too.
-    
-    Change-Id: I65992f7733289a553efa3c2bf8ff144de796a985
-    Reviewed-on: https://code.wireshark.org/review/16540
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit d26e151
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Mon Jul 18 20:36:51 2016 +0100
-
-    AH: Remove ah_header_data and subtree payload preference
-    
-    When combined with the IPv6 preference for extension headers under the
-    IPv6 header tree it's too many hierarchical levels, confusing in code
-    and UX.
-    
-    Change-Id: Ia593da8ef543d1014b9e7575084a72b5b630ea08
-    Reviewed-on: https://code.wireshark.org/review/16539
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit d75de9f
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Tue Jul 19 09:41:33 2016 +0200
-
-    VXLAN: use the newly created vxlan.next_proto dissector table everywhere
-    
-    Change-Id: Ib6f44e0f1d3d8c76d2b6e6c778af8c243af4389c
-    Reviewed-on: https://code.wireshark.org/review/16543
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit 0da9995
-Author: sjha3 <sjha3@ncsu.edu>
-Date:   Sun Jul 17 16:10:09 2016 -0400
-
-    Support for NSH with VXLAN encapsulation
-    
-    Bug: 12271
-    Change-Id: Ia6d999049d56a4828936c95e272524e47d84bf8f
-    Reviewed-on: https://code.wireshark.org/review/16517
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit f3d91fb
-Author: Martin Kaiser <wireshark@kaiser.cx>
-Date:   Mon Jul 18 22:38:36 2016 +0200
-
-    asterix: remove unused hf entry
-    
-    Change-Id: I17dc7cfb8144dbfe3e36ff1902ce91241c5629ed
-    Reviewed-on: https://code.wireshark.org/review/16536
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit e5fa40a
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Mon Jul 18 16:04:22 2016 -0700
-
-    Mark the file as having unsaved data if you change address resolution.
-    
-    That information can, and will, get saved in some file formats, so mark
-    the file as changed so it can and will get saved by "Save".
-    
-    XXX - we need to treat it as a type of data that can be discarded when
-    saving in some file formats, just like comments.
-    
-    Bug: 12629
-    Change-Id: I1fd69b95f4f7345c339961b4c53c28b98b364e4e
-    Reviewed-on: https://code.wireshark.org/review/16538
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 6df8e83
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Mon Jul 18 12:58:40 2016 -0700
-
-    block->options is never null; don't check for it.
-    
-    A wtap_block_t always has an array of options, even if it's empty.
-    
-    Fixes CID 1364135.
-    
-    Change-Id: Ib1ba791ddcac078ec34def321d63d140c5576037
-    Reviewed-on: https://code.wireshark.org/review/16535
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit d54f372
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Mon Jul 18 12:46:40 2016 -0700
-
-    Remove wtap_block_num_options_of_type().
-    
-    It's not used; currently, everything that accesses instances of a
-    multiple-instance-allowed option do so in a loop that iterates over
-    option instances by fetching values of the Nth option until the attempt
-    to fetch the option fails, making only one pass over the options.
-    
-    Change-Id: Ife9583a5d246027dbfc133ab58027ef6641d65ef
-    Reviewed-on: https://code.wireshark.org/review/16534
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit d08e767
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Sat Jul 16 00:48:24 2016 +0100
-
-    IPv6: Export ipv6_pinfo interface for sub-dissectors
-    
-    Change-Id: If39838f6952356aa3417ea9241d974f4c64f9898
-    Reviewed-on: https://code.wireshark.org/review/16530
-    Petri-Dish: João Valverde <j@v6e.pt>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit 994d418
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Sun Jul 17 01:54:42 2016 +0100
-
-    IPv6: Remove unknown extension header dissection
-    
-    It's not being used and makes some things more difficult so kill it.
-    
-    It's not possible in general to distinguish an unknown extension header from
-    an unknown IP protocol and the concept is fuzzy anyway (for example ESP is
-    officially an extension header but meh) so don't bother trying for now.
-    
-    Change-Id: I3bdfcc2b76b47e8c1588e91838225b14808e43a7
-    Reviewed-on: https://code.wireshark.org/review/16529
-    Petri-Dish: João Valverde <j@v6e.pt>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit 2b2953f
-Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
-Date:   Mon Jul 18 21:07:11 2016 +0200
-
-    ouch: fix indent (use 4spaces)
-    
-    Change-Id: Ifdfaa87cc1818768ca939ff93015fbb8d77cddc5
-    Reviewed-on: https://code.wireshark.org/review/16533
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit beedeb2
-Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
-Date:   Mon Jul 18 21:08:12 2016 +0200
-
-    SHIM6: fix no previous prototype for 'proto_register_shim6/proto_reg_handoff_shim6' [-Wmissing-prototypes]
-    
-    Change-Id: I148ecae8d2e9926fcfebab75b3b2f0a769813ef5
-    Reviewed-on: https://code.wireshark.org/review/16532
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit a211020
-Author: AndersBroman <anders.broman@ericsson.com>
-Date:   Mon Jul 18 17:58:27 2016 +0200
-
-    [GTPv2] Extend MM Context dissection.
-    
-    Change-Id: I24e9f8307ea199d5da0713f26aa075466c59bb1f
-    Reviewed-on: https://code.wireshark.org/review/16528
-    Petri-Dish: Anders Broman <a.broman58@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit 83733a3
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Sat Jul 16 14:07:40 2016 +0100
-
-    IPv6: Set (jumbo) length by inspecting hop-by-hop header, if existing
-    
-    Change-Id: I84bade7526ef3f094875eaf207b2650d734ed10f
-    Reviewed-on: https://code.wireshark.org/review/16523
-    Petri-Dish: João Valverde <j@v6e.pt>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit de7241c
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Sat Jul 16 18:23:23 2016 +0100
-
-    IPv6: Dissect as much as possible in case of errors
-    
-    Don't require 40 bytes upfront, do it by field.
-    
-    Miscellaneous cleanups.
-    
-    Change-Id: Ib40b43eb3cf9aa52aa490cdabc6de26b0e977483
-    Reviewed-on: https://code.wireshark.org/review/16522
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit cde7b03
-Author: AndersBroman <anders.broman@ericsson.com>
-Date:   Mon Jul 18 14:52:54 2016 +0200
-
-    [Diameter] Update with new AVPs
-    
-    Change-Id: I6dfa43320ae3e02afb2b795dd352d492c75a0e60
-    Reviewed-on: https://code.wireshark.org/review/16526
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit d131898
-Author: Michael Tuexen <tuexen@wireshark.org>
-Date:   Mon Jul 18 12:22:53 2016 +0200
-
-    Add support for the U-bit in I-FORWARD-TSN chunks.
-    
-    This adds support for the upcoming Internet Draft
-    draft-ietf-tsvwg-sctp-ndata-07.
-    
-    Change-Id: Icb7c464504c41a743aa9c61d449f54bf400c1cd3
-    Reviewed-on: https://code.wireshark.org/review/16525
-    Petri-Dish: Michael Tüxen <tuexen@wireshark.org>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Tüxen <tuexen@wireshark.org>
-
-commit 468a5e2
-Author: Jeff Morriss <jeff.morriss.ws@gmail.com>
-Date:   Sun Jul 17 15:24:55 2016 -0400
-
-    Use follow_record_t in SSL follow stream.
-    
-    ... rather than a structure (SslDecryptedRecord) which looks (mostly) like a
-    follow_record_t.  (The biggest different is the former carries its data in a
-    StringInfo while the latter uses a GByteArray.)
-    
-    With this change following SSL no longer needs its own special code.
-    
-    This also fixes a crash after saving a followed SSL stream (in the Qt UI).
-    
-    Bug: 12616
-    Change-Id: Ibdb2b85f8a6a30712743a5da420be1e6b78f5b92
-    Reviewed-on: https://code.wireshark.org/review/16516
-    Petri-Dish: Jeff Morriss <jeff.morriss.ws@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
-
-commit 752ba1a
-Author: Hiroshi Ioka <hirochachacha@gmail.com>
-Date:   Sun Jul 17 20:32:35 2016 +0900
-
-    packet-smb2: add dissectors for
-    FSCTL_GET_REPARSE_POINT/FSCTL_SET_REPARSE_POINT
-    
-    Change-Id: I3b6230aea2a0027d7b85d35d3aea6385cace569b
-    Reviewed-on: https://code.wireshark.org/review/16511
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit 4b8cb97
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Sun Jul 17 14:58:03 2016 +0100
-
-    Rename iph->ip_p to iph->ip_nxt
-    
-    struct ws_ip is IP version agnostic. "ip_p" is too terse and less
-    appropriate.
-    
-    Change-Id: I06b8740ab420e20781bf7b9efcf5dce19ad22ab2
-    Reviewed-on: https://code.wireshark.org/review/16519
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit 1a3fc2e
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Sun Jul 17 15:04:52 2016 +0100
-
-    IPv6: Remove union from struct ip6_hdr
-    
-    The field macros are a particularly obnoxious form of namespace pollution.
-    
-    Change-Id: I9010a767625fd1c4b4a48c9d75481c577915fce6
-    Reviewed-on: https://code.wireshark.org/review/16520
-    Petri-Dish: João Valverde <j@v6e.pt>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit 5123fa2
-Author: Harald Welte <laforge@gnumonks.org>
-Date:   Sat Jul 16 15:41:02 2016 +0200
-
-    L2TP: Add dissectors for Ericsson specific L2TP AVPs
-    
-    Ericsson's L2TP implementation uses some vendor-specific AVPs. Let's add
-    some decoder/dissector support for these.
-    
-    Change-Id: I65d5527087a9c0f4e18ba17c9e7c63793ef6e995
-    Reviewed-on: https://code.wireshark.org/review/16507
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit f59fa1b
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Jul 17 08:07:44 2016 -0700
-
-    [Automatic update for 2016-07-17]
-    
-    Update manuf, services enterprise-numbers, translations, and other items.
-    
-    Change-Id: I0ca539cf81e1708a6ea8eafbdf91488086e9ee2d
-    Reviewed-on: https://code.wireshark.org/review/16513
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit 6e44ea3
-Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
-Date:   Sat Jul 16 08:34:50 2016 +0200
-
-    Add osx/macos build for Travis CI
-    
-    Change-Id: Id6beedfbe909ac3639790cbb7471bd968bed5b82
-    Reviewed-on: https://code.wireshark.org/review/16496
-    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Dario Lombardo <lomato@gmail.com>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit db1e0bc
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Sat Jul 16 22:29:35 2016 -0400
-
-    Fix printf style parameters complaints from VS Code Analysis
-    
-    Change-Id: I5669e2442582f899643fae4a9f86ab6d505dde07
-    Reviewed-on: https://code.wireshark.org/review/16505
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 25dfe44
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Sat Jul 16 11:54:38 2016 -0400
-
-    ciscodump.c - Address VS Code Analysis warnings.
-    
-    1. Check sscanf return value
-    2. Take large "packet" byte array off of stack and onto heap.
-    
-    Change-Id: I8ade76359f1b0739ec31d7f3b688d212f21357ba
-    Reviewed-on: https://code.wireshark.org/review/16498
-    Reviewed-by: Dario Lombardo <lomato@gmail.com>
-    Petri-Dish: Dario Lombardo <lomato@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 6e7b1b8
-Author: David Arnold <d@0x1.org>
-Date:   Sun Sep 20 18:54:38 2015 -0400
-
-    Update to support OUCH-4.2 as of 2016/02/29 release
-    
-    Bug: 12615
-    Change-Id: I7122ded30083dd85e7785a842c6dd62b459d9676
-    Reviewed-on: https://code.wireshark.org/review/16465
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit 8cd167a
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Sat Jul 16 13:06:28 2016 -0400
-
-    Fix sscanf VS Code Analysis warnings.
-    
-    Some needed to check return value, others were converted to use strtoul.
-    
-    Change-Id: I55aae216f95362b67e006f6e682abbd5ae2c8dcc
-    Reviewed-on: https://code.wireshark.org/review/16502
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 379c3c6
-Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
-Date:   Thu Jul 14 20:07:14 2016 +0200
-
-    ISIS (LSP): Fix Malformed packet
-    
-    Coming from fetch too longer bytes...
-    
-    Rework the display for add some missing field (SubTLV indicator, prefix len) and for prefix IPv4 use the same code like BGP
-    
-    Issue reported by Garri Djavadyan
-    
-    Bug:12617
-    Change-Id: Ib40f1badf8e03fadacfbb0aff1ebd3eab8ca342b
-    Reviewed-on: https://code.wireshark.org/review/16436
-    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit abd0033
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Sat Jul 16 12:26:15 2016 -0400
-
-    androiddump.c - Address VS Code Analysis warnings.
-    
-    1. Take large "packet" byte arrays off of stack and onto heap.
-    2. Cast away an shift operation that should have been identified as safe anyway.
-    
-    Change-Id: I159c4a7452744763f667336cf4824d5ac3472343
-    Reviewed-on: https://code.wireshark.org/review/16500
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 9a9c72c
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Sat Jul 16 12:09:27 2016 -0400
-
-    Have extcap executables mirror the GTK's WinMain signature.
-    
-    This is for appeasing VS Code Analysis.
-    
-    Change-Id: Ib7b3d8a3025dd764da283335051d0f77b45f6dee
-    Reviewed-on: https://code.wireshark.org/review/16499
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 6d8ea38
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Sat Jul 16 12:44:47 2016 -0400
-
-    wmem_map.c: Address some VS Code Analysis warnings.
-    
-    size_t can vary on size, so you can't always mix it with guint.
-    
-    Change-Id: I7e2ea3a990dd4df99422f6113aa3ae53dbf2bc4f
-    Reviewed-on: https://code.wireshark.org/review/16501
-    Petri-Dish: Guy Harris <guy@alum.mit.edu>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit ed30748
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Fri Jul 15 01:56:44 2016 +0100
-
-    IPv6: Improve offset handling for options sub-dissectors
-    
-    We pass the Option Data offset to sub-dissectors.
-    
-    Change-Id: I4a20514f3f1c31179f93c86e251ba67d671844b3
-    Reviewed-on: https://code.wireshark.org/review/16484
-    Petri-Dish: João Valverde <j@v6e.pt>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit dbcabe8
-Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
-Date:   Sun Jun 19 19:27:38 2016 +0200
-
-    Use debian tools script for travis
-    
-    Change-Id: I0e3390048fe2723579cc108f5adf582f570a41e5
-    Reviewed-on: https://code.wireshark.org/review/16494
-    Reviewed-by: Dario Lombardo <lomato@gmail.com>
-
-commit b5a585c
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Fri Jul 15 11:09:01 2016 -0700
-
-    Use timers instead of packet counts to update our UI.
-    
-    In file.c, update our UI based on the time elapsed since we last
-    finished updating the UI instead of on the number of packets we've
-    processed. Remove the timer code from progress_frame.cpp since it's now
-    redundant.
-    
-    This makes the UI more responsive here for captures with large numbers
-    of packets and it should mean that packets_bar_update spends less time
-    repainting, at least on Windows.
-    
-    Change-Id: I9edfa944c44192350bef75b8c0c3ad63bae9c131
-    Reviewed-on: https://code.wireshark.org/review/16476
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-    Petri-Dish: Gerald Combs <gerald@wireshark.org>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit adec7c4
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Thu Jul 14 17:18:24 2016 -0700
-
-    Allocate data sources using wmem.
-    
-    Use wmem_strdup + the pinfo pool instead of g_strdup.
-    
-    Change-Id: I11fbb5ce31b7139421c558ee65ca43c8d8e85900
-    Reviewed-on: https://code.wireshark.org/review/16445
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-    Petri-Dish: Gerald Combs <gerald@wireshark.org>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit 7e5cbf4
-Author: Martin Kaiser <wireshark@kaiser.cx>
-Date:   Wed Jul 13 23:21:35 2016 +0200
-
-    always update the status bar at the end of a capture
-    
-    We used to update the status bar when we get a stopCapture signal.
-    
-    This does not work for extcap interfaces like randpktdump which
-    creates 1000 packets and then exits. The status bar message "Live capture
-    in progress" is not deleted.
-    
-    For randpktdump, the only reliable indication to detect the end of
-    the "capture" is when the pipe to dumpcap is destroyed. Update the
-    status bar at this time.
-    
-    Change-Id: I59768e7f518625283b2c27c34c428bb115e27a61
-    Reviewed-on: https://code.wireshark.org/review/16479
-    Reviewed-by: Martin Kaiser <wireshark@kaiser.cx>
-    Petri-Dish: Martin Kaiser <wireshark@kaiser.cx>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-
-commit 5c99fc2
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Fri Jul 15 22:33:40 2016 -0400
-
-    Another attempt to squash warnings from printf use in reassemble_test.c
-    
-    Change-Id: Ieae9466c6785cf931fc96f8e216c0c1383a5b6a2
-    Reviewed-on: https://code.wireshark.org/review/16489
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 16a01cf
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Jul 15 17:33:25 2016 -0700
-
-    Comment cleanups.
-    
-    Change-Id: I995ba14cbd9bbe2c01b0770c16095084895498db
-    Reviewed-on: https://code.wireshark.org/review/16486
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit ae598d1
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Jul 15 17:25:41 2016 -0700
-
-    Add APIs to remove option instances from blocks.
-    
-    That will allow deletion of comments, stripping of options when
-    sanitizing captures, etc..
-    
-    Change-Id: I9667ba2ccf4e548ff3b7d500796b260a437bcea0
-    Reviewed-on: https://code.wireshark.org/review/16485
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 9dd2674
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Fri Jul 15 22:54:59 2016 +0100
-
-    IPv6: Minor loop cleanup
-    
-    Change-Id: I73e11c353695a565d9c4222f2a3646d0530c3c40
-    Reviewed-on: https://code.wireshark.org/review/16482
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit 4bf78ca
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Thu Jul 14 19:50:09 2016 +0100
-
-    IPv6: Register fragment header dissector handle
-    
-    Change-Id: Ie49c8cdc010630c8963a730562aaf33f61236058
-    Reviewed-on: https://code.wireshark.org/review/16443
-    Petri-Dish: João Valverde <j@v6e.pt>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit 18d5bcc
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Jul 15 14:00:29 2016 -0700
-
-    Use spaces rather than tabs for indentation.
-    
-    Change-Id: I6028253f7c8c30804eaa4b23d2b09827aacb3c9d
-    Reviewed-on: https://code.wireshark.org/review/16481
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit ea4a62d
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Jul 15 13:57:35 2016 -0700
-
-    Update comments, give option numbers in decimal.
-    
-    The pcapng spec gives option numbers in decimal, not hex.
-    
-    Get rid of the "XXX if not available" comments - if an option isn't
-    present in a block, it's not present, and doesn't have *any* value.
-    
-    Change-Id: I1bf0c9a5aaad7dfadf9248e22b67e172625bdd0d
-    Reviewed-on: https://code.wireshark.org/review/16480
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 29cecf2
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Fri Jul 15 09:53:19 2016 -0700
-
-    Qt: Reserve packet list model vectors.
-    
-    Preallocate and hold onto the data in the various packet list model
-    vectors. I'm not sure how much this will affect performance, but the
-    documentation suggests that it's the right thing to do in our case.
-    
-    Change-Id: If2d5ad142bf2d61e0bc2302990bd288274447df5
-    Reviewed-on: https://code.wireshark.org/review/16475
-    Petri-Dish: Gerald Combs <gerald@wireshark.org>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit d0af229
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Jul 15 11:21:05 2016 -0700
-
-    Squelch a compiler warning.
-    
-    Explicitly cst the results of g_memdup().
-    
-    Change-Id: I20fd1f355e68735d7cc9bbeb41717a1c2a74de37
-    Reviewed-on: https://code.wireshark.org/review/16477
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 2c2bdc1
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Fri Jul 15 16:33:14 2016 +0100
-
-    IPv6: Fix comment
-    
-    Change-Id: Ib5c44f806e5844e1eb1579ade4b92d2b719564c1
-    Reviewed-on: https://code.wireshark.org/review/16474
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit eb66800
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Thu Jul 14 19:44:51 2016 +0100
-
-    IPv6: Register extension headers ett/ei arrays
-    
-    Change-Id: I1208638580efe06a94a055613a0de3ecf2acdb26
-    Reviewed-on: https://code.wireshark.org/review/16442
-    Petri-Dish: João Valverde <j@v6e.pt>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit cfaf756
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Wed Jul 13 03:21:17 2016 +0100
-
-    Move Shim6 dissector to packet-shim6.c
-    
-    Change-Id: Ia0bfbf48e8a4eb23d62c8c5cdccad350caedef9e
-    Reviewed-on: https://code.wireshark.org/review/16425
-    Petri-Dish: João Valverde <j@v6e.pt>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit b8ff743
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Fri Jul 15 09:46:57 2016 -0400
-
-    wtap_opttypes.c: Fix build error.
-    
-    Change-Id: I3ee146d441e4d59701c72ed85dcb4efe97766df8
-    Reviewed-on: https://code.wireshark.org/review/16473
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 5e09a57
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Fri Jul 15 07:54:10 2016 -0400
-
-    reassemble_test.c: Fix checking macros with correct printf style arguments.
-    
-    Complaints of VS Code Analysis
-    
-    Change-Id: Ib5a4649b78ae4c9109249e915c04481ae7fa5524
-    Reviewed-on: https://code.wireshark.org/review/16472
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 710b0a8
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Thu Jul 14 17:42:34 2016 +0100
-
-    IPv6: Check pinfo->layers for hop-by-hop exthdr order
-    
-    Change-Id: I0467417c4d9a62013d8fe5cbcc03c09147f92cf1
-    Reviewed-on: https://code.wireshark.org/review/16435
-    Petri-Dish: João Valverde <j@v6e.pt>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: João Valverde <j@v6e.pt>
-
-commit e0242a7
-Author: Michal Labedzki <michal.labedzki@tieto.com>
-Date:   Wed Jan 13 12:45:35 2016 +0100
-
-    Bluetooth: GATT: Add services error codes
-    
-    GATT Service may define own error code. Add them.
-    
-    Change-Id: I9e5c0d38b2dd01c16cfd47578f151cefdc9393fe
-    Reviewed-on: https://code.wireshark.org/review/16467
-    Petri-Dish: Michal Labedzki <michal.labedzki@tieto.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit e996122
-Author: Michal Labedzki <michal.labedzki@tieto.com>
-Date:   Fri Jul 15 08:06:25 2016 +0200
-
-    Bluetooth: RFCOMM: Fix CID 1364086
-    
-    Fix null pointer dereferences.
-    
-    Change-Id: Id095fd0d7c9d70f79fd7367ef5c226f271a24cbe
-    Reviewed-on: https://code.wireshark.org/review/16466
-    Petri-Dish: Michal Labedzki <michal.labedzki@tieto.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 7533c72
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Fri Jul 15 02:36:42 2016 +0100
-
-    IPv6: Remove null check (CID 1364087)
-    
-    Change-Id: Ia35a78ccaa4f61fbbbfff304f12d813fdbdd009d
-    Reviewed-on: https://code.wireshark.org/review/16452
-    Reviewed-by: João Valverde <j@v6e.pt>
-    Petri-Dish: João Valverde <j@v6e.pt>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 996dcc0
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Jul 15 01:31:16 2016 -0700
-
-    Do a deep copy in wtap_block_add_custom_option().
-    
-    That way, we don't have to worry about multiple instances of an option
-    pointing to the same data. and having to worry about freeing data that's
-    pointed to by another instance.
-    
-    Change-Id: I3470a9eebf346023713fd0d6ff2451d727c25089
-    Reviewed-on: https://code.wireshark.org/review/16471
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit ced2071
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Jul 15 00:29:41 2016 -0700
-
-    Fix the snapshot length part of the "same interface?" check.
-    
-    Fix a typo - compare for unequal snapshot lengths, not equal snapshot
-    lengths.
-    
-    Also, move the debug messages about checks right above the checks.
-    
-    Change-Id: If6f5e125f05f3788b63e9f75d98f55e27830870b
-    Reviewed-on: https://code.wireshark.org/review/16470
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 8164290
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Jul 14 20:29:41 2016 -0700
-
-    Update Debian symbol files to reflect current reality.
-    
-    Change-Id: I3e310fc5c43e9045956c17406b9c5a2f2f9090a3
-    Reviewed-on: https://code.wireshark.org/review/16456
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 473910b
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Jul 14 20:15:48 2016 -0700
-
-    We no longer add default names to interfaces in an IDB.
-    
-    The way you say "this interface's name is unknown" is by not giving it
-    an if_name option, not by giving it an if_name option that says "this
-    isn't known".  Remove the if_name option from the interfaces in this
-    capture file.
-    
-    Change-Id: Ie3569c81bd065e48278cfa83b82b06ea6b5258af
-    Reviewed-on: https://code.wireshark.org/review/16455
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 7f92c24
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Jul 14 19:04:32 2016 -0700
-
-    Widen some variables.
-    
-    Perhaps they cannot ever have values > 65535, but there's really no
-    benefit to restricting them to 16 bits on the 32-bit and 64-bit
-    platforms on which we run, and this might address what CID 1364088 is
-    *really* complaining about.
-    
-    Change-Id: I5238261d04783401873de89469f8e2906554add4
-    Reviewed-on: https://code.wireshark.org/review/16454
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 9397b26
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Thu Jul 14 20:53:43 2016 -0400
-
-    tvbtest.c - Fix printf style argument types
-    
-    Change-Id: I05ecbd06262e0dd68851dd6728817ad721a91962
-    Reviewed-on: https://code.wireshark.org/review/16449
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit f2a7594
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Thu Jul 14 20:28:41 2016 -0400
-
-    reassemble_test.c: Reorder macro behavior to make it clearer we have NULL checks in place.
-    
-    Trying to pacify VS Code Analysis.
-    
-    Change-Id: I76379b23a5d4c772b91d6113af3974e105e4da88
-    Reviewed-on: https://code.wireshark.org/review/16448
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 2c31279
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Thu Jul 14 20:04:48 2016 -0400
-
-    exntest.c: Create local functions to handle "nesting" TRY/CATCH macros to fix shadow warnings.
-    
-    Found by VS Code Analysis, although it appears it's been discovered before
-    and warranted the DIAG_ON/OFF macros.  Those have been removed as this is
-    believed to be a good solution.
-    
-    Change-Id: I376d816855366d55affe7b9e4b8616509aa4e7fe
-    Reviewed-on: https://code.wireshark.org/review/16447
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 8428d3a
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Jul 14 18:28:00 2016 -0700
-
-    Squelch compiler warnings.
-    
-    Cast some numerical values to wtap_block_type_t.
-    
-    Change-Id: I56651c62045880638175c39174341feffb4b1068
-    Reviewed-on: https://code.wireshark.org/review/16451
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit f8b7380
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Fri Jul 15 01:21:58 2016 +0100
-
-    Fix manpages typo.
-    
-    Change-Id: Iac747655d09c94926e51c7ea1f23375650cd6641
-    Ping-Bug: 12305
-    Reviewed-on: https://code.wireshark.org/review/16446
-    Reviewed-by: João Valverde <j@v6e.pt>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit bb610ac
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Jul 14 17:43:14 2016 -0700
-
-    Fix signature of wtap_opttype_block_register().
-    
-    It gets passed a wtap_block_type_t value, so declare it as such.
-    
-    Change-Id: I6980cab7e1885c9920b2a75e12f9d2d2a64d6f96
-    Reviewed-on: https://code.wireshark.org/review/16450
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 1f8999b
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Jul 14 16:01:57 2016 -0700
-
-    Redo the block options APIs.
-    
-    A block can have zero or more instances of a given option.  We
-    distinguish between "one instance only" options, where a block can have
-    zero or one instance, and "multiple instances allowed" options, where a
-    block can have zero or more instances.
-    
-    For "one instance only" options:
-    
-    	"add" routines add an instance if there isn't one already
-    	and fail if there is;
-    
-    	"set" routines add an instance if there isn't one already
-    	and change the value of the existing instance if there is one;
-    
-    	"set nth" routines fail;
-    
-    	"get" routines return the value of the instance if there is one
-    	and fail if there isn't;
-    
-    	"get nth" routines fail.
-    
-    For "multiple instances allowed" options:
-    
-    	"add" routines add an instance;
-    
-    	"set" routines fail;
-    
-    	"set nth" routines set the value of the nth instance if there is
-    	one and fail otherwise;
-    
-    	"get" routines fail;
-    
-    	"get nth" routines get the value if the nth instance if there is
-    	one and fail otherwise.
-    
-    Rename "optionblock" to just "block"; it describes the contents of a
-    block, including both mandatory items and options.
-    
-    Add some support for NRB options, including IPv4 and IPv6 option types.
-    
-    Change-Id: Iad184f668626c3d1498b2ed00c7f1672e4abf52e
-    Reviewed-on: https://code.wireshark.org/review/16444
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 42e72d5
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Fri Jul 15 00:19:01 2016 +0200
-
-    More 2.1.1 → 2.1.2 changes
-    
-    Change-Id: If1a7f1232bbb23b27063d4ef618c2059293ff0c4
-    Reviewed-on: https://code.wireshark.org/review/16441
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-
-commit af5daa6
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Thu Jul 14 10:39:52 2016 -0700
-
-    Qt: Replace a QMap with a QVector.
-    
-    Use a vector to map packet numbers to their respective rows. This reduces
-    load times slightly here.
-    
-    Change-Id: I80dc8656e1d0b6b1b7c75d33c001397b6221d25e
-    Reviewed-on: https://code.wireshark.org/review/16438
-    Petri-Dish: Gerald Combs <gerald@wireshark.org>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit ee29efb
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Thu Jul 14 14:06:14 2016 -0700
-
-    2.1.1 → 2.1.2.
-    
-    Change-Id: If03589159cbf7c1a0de97fd50edd06d1cd0e63bd
-    Reviewed-on: https://code.wireshark.org/review/16440
+    Change-Id: I8272c2a8eb05fd5215999657728f56cf09950920
+    Reviewed-on: https://code.wireshark.org/review/17248
     Reviewed-by: Gerald Combs <gerald@wireshark.org>

@@ -28,6 +28,8 @@ used for troubleshooting, analysis, development and education.
 The following features are new (or have been significantly updated)
 since version 2.2.0rc1:
 
+"Decode As" supports SSL (TLS) over TCP.
+
 The following features are new (or have been significantly updated)
 since version 2.1.1:
 
@@ -112,9 +114,9 @@ Distributed Object Framework
 DOCSIS Upstream Channel Descriptor Type 35
 Edge Control Protocol (ECP)
 Encrypted UDP based FTP with multicast
-Ericsson IPOS Kernel Packet Header Dissector Added (IPOS)
+Ericsson IPOS Kernel Packet Header (IPOS)
 Extensible Control & Management Protocol (eCMP)
-FLEXRAY Protocol dissector added (automotive bus)
+FLEXRAY Protocol (automotive bus)
 IEEE 802.1BR E-Tag
 Intel Omni-Path Architecture
 ISO 8583-1
@@ -125,7 +127,7 @@ Metamako trailers
 Network-Based IP Flow Mobility (NBIFOM)
 Network Service Header for Ethernet & GRE
 Nokia Intelligent Service Interface (ISI)
-Open Mobile Alliance Lightweight Machine to Machine TLV payload Added (LwM2M TLV)
+Open Mobile Alliance Lightweight Machine to Machine TLV (LwM2M TLV)
 RTI TCP Transport Layer (RTITCP)
 Real Time Location System (RTLS)
 SMB Witness Service
@@ -134,13 +136,13 @@ Standard Interface for Multiple Platform Link Evaluation (SIMPLE)
 USB3 Vision Protocol (USB machine vision cameras)
 USBIP Protocol
 UserLog Protocol
-Zigbee Protocol Clusters Dissectors Added (Closures, Lighting, General, Measurement & Sensing, HVAC, Security & Safety)
+Zigbee Protocol Clusters (Closures, Lighting, General, Measurement & Sensing, HVAC, Security & Safety)
 --sort-and-group--
 
 === Updated Protocol Support
 
-Bluetooth OBEX dissector (btobex) was renamed to Obex Dissector (obex), allow to
-DecodeAs it over USB, TCP and UDP.
+Bluetooth OBEX dissector (btobex) was renamed to Obex Dissector (obex), which allows
+it to be used with "Decode As" over USB, TCP and UDP.
 
 A preference was added to TCP dissector for handling IPFIX process
 information.  It has been disabled by default.

@@ -1,4 +1,4 @@
-                        Wireshark 2.2.0rc1 Release Notes
+                        Wireshark 2.2.0rc2 Release Notes
 
    This is the first release candidate for Wireshark 2.2.0.
      __________________________________________________________________
@@ -11,19 +11,24 @@ What is Wireshark?
 
 What's New
 
-     * Invalid coloring rules are now disabled instead of discarded. This
-       will provide backward compatibility with a coloring rule change in
-       Wireshark 2.2.
-
   Bug Fixes
 
      * Upgrading to latest version uninstalls Microsoft Visual C++
        redistributable. ([1]Bug 12712)
+     * Extcap errors not reported back to UI. ([2]Bug 11892)
 
   New and Updated Features
 
-   There have been no new or significantly updated features since version
-   2.1.1.
+   The following features are new (or have been significantly updated)
+   since version 2.2.0rc1:
+
+   "Decode As" supports SSL (TLS) over TCP.
+
+   The following features are new (or have been significantly updated)
+   since version 2.1.1:
+     * Invalid coloring rules are now disabled instead of discarded. This
+       will provide backward compatibility with a coloring rule change in
+       Wireshark 2.2.
 
    The following features are new (or have been significantly updated)
    since version 2.1.0:
@@ -88,20 +93,24 @@ What's New
   New Protocol Support
 
    Apache Cassandra - CQL version 3.0, Bachmann bluecom Protocol,
-   Bluetooth Pseudoheader for BR/EDR, CISCO ERSPAN3 Marker, Edge Control
+   Bluetooth Pseudoheader for BR/EDR, Cisco ERSPAN3 Marker, Cisco ttag,
+   Digital Equipment Corporation Local Area Transport, Distributed Object
+   Framework, DOCSIS Upstream Channel Descriptor Type 35, Edge Control
    Protocol (ECP), Encrypted UDP based FTP with multicast, Ericsson IPOS
    Kernel Packet Header Dissector Added (IPOS), Extensible Control &
    Management Protocol (eCMP), FLEXRAY Protocol dissector added
-   (automotive bus), IEEE 802.1BR E-Tag, ISO 8583-1, ISO14443, ITU-T
-   G.7041/Y.1303 Generic Framing Procedure (GFP), LAT protocol (DECNET),
-   Metamako trailers, Network-Based IP Flow Mobility (NBIFOM), Nokia
+   (automotive bus), IEEE 802.1BR E-Tag, Intel Omni-Path Architecture, ISO
+   8583-1, ISO14443, ITU-T G.7041/Y.1303 Generic Framing Procedure (GFP),
+   LAT protocol (DECNET), Metamako trailers, Network Service Header for
+   Ethernet & GRE, Network-Based IP Flow Mobility (NBIFOM), Nokia
    Intelligent Service Interface (ISI), Open Mobile Alliance Lightweight
    Machine to Machine TLV payload Added (LwM2M TLV), Real Time Location
-   System (RTLS), RTI TCP Transport Layer (RTITCP), STANAG 5602 SIMPLE,
-   USB3 Vision Protocol (USB machine vision cameras), USBIP Protocol,
-   UserLog Protocol, and Zigbee Protocol Clusters Dissectors Added
-   (Closures Lighting General Measurement & Sensing HVAC Security &
-   Safety)
+   System (RTLS), RTI TCP Transport Layer (RTITCP), SMB Witness Service,
+   STANAG 5602 SIMPLE, Standard Interface for Multiple Platform Link
+   Evaluation (SIMPLE), USB3 Vision Protocol (USB machine vision cameras),
+   USBIP Protocol, UserLog Protocol, and Zigbee Protocol Clusters
+   Dissectors Added (Closures Lighting General Measurement & Sensing HVAC
+   Security & Safety)
 
   Updated Protocol Support
 
@@ -134,14 +143,14 @@ What's New
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   [2]https://www.wireshark.org/download.html.
+   [3]https://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can be
-   found on the [3]download page on the Wireshark web site.
+   found on the [4]download page on the Wireshark web site.
      __________________________________________________________________
 
 File Locations
@@ -154,62 +163,63 @@ File Locations
 
 Known Problems
 
-   Dumpcap might not quit if Wireshark or TShark crashes. ([4]Bug 1419)
+   Dumpcap might not quit if Wireshark or TShark crashes. ([5]Bug 1419)
 
-   The BER dissector might infinitely loop. ([5]Bug 1516)
+   The BER dissector might infinitely loop. ([6]Bug 1516)
 
-   Capture filters aren't applied when capturing from named pipes. ([6]Bug
+   Capture filters aren't applied when capturing from named pipes. ([7]Bug
    1814)
 
    Filtering tshark captures with read filters (-R) no longer works.
-   ([7]Bug 2234)
+   ([8]Bug 2234)
 
-   Application crash when changing real-time option. ([8]Bug 4035)
+   Application crash when changing real-time option. ([9]Bug 4035)
 
-   Packet list rows are oversized. ([9]Bug 4357)
+   Packet list rows are oversized. ([10]Bug 4357)
 
    Wireshark and TShark will display incorrect delta times in some cases.
-   ([10]Bug 4985)
+   ([11]Bug 4985)
 
-   Wireshark should let you work with multiple capture files. ([11]Bug
+   Wireshark should let you work with multiple capture files. ([12]Bug
    10488)
 
    Dell Backup and Recovery (DBAR) makes many Windows applications crash,
-   including Wireshark. ([12]Bug 12036)
+   including Wireshark. ([13]Bug 12036)
      __________________________________________________________________
 
 Getting Help
 
-   Community support is available on [13]Wireshark's Q&A site and on the
+   Community support is available on [14]Wireshark's Q&A site and on the
    wireshark-users mailing list. Subscription information and archives for
-   all of Wireshark's mailing lists can be found on [14]the web site.
+   all of Wireshark's mailing lists can be found on [15]the web site.
 
    Official Wireshark training and certification are available from
-   [15]Wireshark University.
+   [16]Wireshark University.
      __________________________________________________________________
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [16]Wireshark web site.
+   A complete FAQ is available on the [17]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2016-08-22 19:30:33 UTC
+   Last updated 2016-08-31 17:09:12 UTC
 
 References
 
    1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12712
-   2. https://www.wireshark.org/download.html
-   3. https://www.wireshark.org/download.html#thirdparty
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
-  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036
-  13. https://ask.wireshark.org/
-  14. https://www.wireshark.org/lists/
-  15. http://www.wiresharktraining.com/
-  16. https://www.wireshark.org/faq.html
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=11892
+   3. https://www.wireshark.org/download.html
+   4. https://www.wireshark.org/download.html#thirdparty
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
+  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036
+  14. https://ask.wireshark.org/
+  15. https://www.wireshark.org/lists/
+  16. http://www.wiresharktraining.com/
+  17. https://www.wireshark.org/faq.html
