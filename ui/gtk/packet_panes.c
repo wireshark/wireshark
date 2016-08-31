@@ -994,7 +994,7 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY, GINT_TO_POINTER(bstart));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bend));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_LO_KEY, GINT_TO_POINTER((guint32) bmask));
-    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_HI_KEY, GINT_TO_POINTER(bmask >> 32));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_HI_KEY, GINT_TO_POINTER((guint32)(bmask >> 32)));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASKLE_KEY, GINT_TO_POINTER(bmask_le));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY, GINT_TO_POINTER(astart));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY, GINT_TO_POINTER(aend));
@@ -1038,7 +1038,7 @@ packet_hex_editor_print(GtkWidget *bv, const guint8 *pd, frame_data *fd, int off
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY, GINT_TO_POINTER(bstart));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bend));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_LO_KEY, GINT_TO_POINTER((guint32) bmask));
-    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_HI_KEY, GINT_TO_POINTER(bmask >> 32));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_HI_KEY, GINT_TO_POINTER((guint32)(bmask >> 32)));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASKLE_KEY, GINT_TO_POINTER(bmask_le));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY, GINT_TO_POINTER(astart));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY, GINT_TO_POINTER(aend));
