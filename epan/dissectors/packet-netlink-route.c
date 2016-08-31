@@ -334,7 +334,7 @@ dissect_netlink_route_attributes(tvbuff_t *tvb, header_field_info *hfi_type, str
 	 */
 
 	/* XXX, nice */
-	return dissect_netlink_attributes(tvb, hfi_type, ett_netlink_route_attr, info, tree, offset, -1, (netlink_attributes_cb_t *) cb);
+	return dissect_netlink_attributes(tvb, hfi_type, ett_netlink_route_attr, info, info->data, tree, offset, -1, (netlink_attributes_cb_t *) cb);
 }
 
 /* Interface */
