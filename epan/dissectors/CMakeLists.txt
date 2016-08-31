@@ -1096,6 +1096,7 @@ set(DISSECTOR_SRC
 	packet-rfid-mifare.c
 	packet-rfid-pn532.c
 	packet-rfid-pn532-hci.c
+	packet-rftap.c
 	packet-rgmp.c
 	packet-riemann.c
 	packet-rip.c
