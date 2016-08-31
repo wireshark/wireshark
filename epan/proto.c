@@ -889,6 +889,7 @@ void
 proto_register_prefix(const char *prefix, prefix_initializer_t pi ) {
 	if (! prefixes ) {
 		prefixes = g_hash_table_new(prefix_hash, prefix_equal);
+fprintf(stderr, "Created prefixes hash table: %p\n", prefixes);
 	}
 
 	g_hash_table_insert(prefixes, (gpointer)prefix, (gpointer)pi);
@@ -904,6 +905,7 @@ initialize_prefix(gpointer k, gpointer v, gpointer u _U_) {
 /** Initialize every remaining uninitialized prefix. */
 void
 proto_initialize_all_prefixes(void) {
+fprintf(stderr, "proto_initialize_all_prefixes(): prefixes %p\n", prefixes);
 	g_hash_table_foreach_remove(prefixes, initialize_prefix, NULL);
 }
 

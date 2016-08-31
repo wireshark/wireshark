@@ -829,18 +829,11 @@ main(int argc, char *argv[])
      XXX - we do this here, for now, to support "-G" with no arguments.
      If none of our build or other processes uses "-G" with no arguments,
      we can just process it with the other arguments. */
-fprintf(stderr, "Checking for -G\n");
   if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
-fprintf(stderr, "-G detected\n");
     proto_initialize_all_prefixes();
-fprintf(stderr, "proto_initialize_all_prefixes() returned\n");
 
     if (argc == 2)
-{
-fprintf(stderr, "calling proto_registrar_dump_fields()\n");
       proto_registrar_dump_fields();
-fprintf(stderr, "proto_registrar_dump_fields() returned\n");
-}
     else {
       if (strcmp(argv[2], "column-formats") == 0)
         column_dump_column_formats();
@@ -885,7 +878,6 @@ fprintf(stderr, "proto_registrar_dump_fields() returned\n");
         return 1;
       }
     }
-fprintf(stderr, "About to return\n");
     return 0;
   }
 
