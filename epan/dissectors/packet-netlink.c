@@ -319,7 +319,7 @@ dissect_netlink_hdr(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding, g
 	offset += 4;
 
 	pi_type = proto_tree_add_item(fh_hdr, &hfi_netlink_hdr_type, tvb, offset, 2, encoding);
-	hdr_type = tvb_get_letohs(tvb, offset);
+	hdr_type = tvb_get_guint16(tvb, offset, encoding);
 	if (hdr_type >= WS_NLMSG_MIN_TYPE) {
 		proto_item_set_text(pi_type, "Message type: Protocol-specific (0x%04x)", hdr_type);
 	}
@@ -379,6 +379,8 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 	proto_tree *fh_tree;
 
 	int offset;
+	int encoding;
+	guint len_rem, len_le, len_be;
 
 	hatype = tvb_get_ntohs(tvb, 2);
 	if (hatype != ARPHRD_NETLINK)
@@ -406,6 +408,23 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 
 	/* DISSECTOR_ASSERT(offset == 16); */
 
+	/*
+	 * We are unable to detect the endianness, we have to guess. Compare
+	 * the size of the inner package with the size of the outer package,
+	 * take the endianness in which the inner package length is closer to
+	 * the size of the outer package. Normally we have packages with less
+	 * than 10KB here so the sizes are very huge in the wrong endianness.
+	 */
+	len_rem = tvb_reported_length_remaining(tvb, offset);
+	len_le = tvb_get_letohl(tvb, offset);
+	len_be = tvb_get_ntohl(tvb, offset);
+	#define abs_diff(a, b) ((a) > (b) ? (a) - (b) : (b) - (a))
+	if (abs_diff(len_be, len_rem) < abs_diff(len_le, len_rem)) {
+		encoding = ENC_BIG_ENDIAN;
+	} else {
+		encoding = ENC_LITTLE_ENDIAN;
+	}
+
 	while (tvb_reported_length_remaining(tvb, offset) >= 16) {
 		struct packet_netlink_data data;
 
@@ -416,9 +435,7 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 		proto_tree *fh_msg;
 
 
-		int encoding = ENC_LITTLE_ENDIAN; /* XXX */
-
-		pkt_len = tvb_get_letohl(tvb, offset);
+		pkt_len = tvb_get_guint32(tvb, offset, encoding);
 
 		pkt_end_offset = offset + pkt_len;
 
