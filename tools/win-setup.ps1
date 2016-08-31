@@ -31,8 +31,6 @@
 # To do:
 # - Make this the source of truth. Keep the list of libs here.
 # - Download everything unconditionally, at least initially.
-# - Download the Lua package for our compiler? It might make more
-#   sense to switch to Nuget instead.
 
 # Bugs:
 # - Unzipping from the shell seems to be slower than Cygwin's unzip or 7zip.
@@ -101,8 +99,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2016-08-09"
-$Win32CurrentTag = "2016-08-09"
+$Win64CurrentTag = "2016-08-31"
+$Win32CurrentTag = "2016-08-31"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -114,6 +112,7 @@ $Win64Archives = @{
     "kfw-3-2-2-x64-ws.zip" = "";
     "libsmi-svn-40773-win64ws.zip" = "";
     "libssh-0.7.2-win64ws.zip" = "";
+    "lua-5.2.4_Win64_dllw4_lib.zip" = "lua5.2.4";
     "nasm-2.09.08-win32.zip" = "";
     "portaudio_v19_2.zip" = "";
     "upx303w.zip" = "";
@@ -131,6 +130,7 @@ $Win32Archives = @{
     "kfw-3-2-2-i386-ws-vc6.zip" = "";
     "libsmi-svn-40773-win32ws.zip" = "";
     "libssh-0.7.2-win32ws.zip" = "";
+    "lua-5.2.4_Win32_dllw4_lib.zip" = "lua5.2.4";
     "nasm-2.09.08-win32.zip" = "";
     "portaudio_v19_2.zip" = "";
     "upx303w.zip" = "";
@@ -138,14 +138,6 @@ $Win32Archives = @{
     "WpdPack_4_1_2.zip" = "";
     "zlib-1.2.8-ws.zip" = "";
 }
-
-# Lua
-
-if ( @("14", "12", "11", "10") -contains $VSVersion ) {
-    $Win64Archives["lua-5.2.4_Win64_dll$($VSVersion)_lib.zip"] = "lua5.2.4"
-    $Win32Archives["lua-5.2.4_Win32_dll$($VSVersion)_lib.zip"] = "lua5.2.4"
-}
-
 
 # Plain file downloads
 
