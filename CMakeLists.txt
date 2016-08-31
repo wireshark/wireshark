@@ -308,7 +308,9 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	#  when compiling Wireshark sources. (Selected from "level 4" warnings).
 	## 4295: array is too small to include a terminating null character
 	## 4189: local variable is initialized but not referenced
-	set(WARNINGS_CFLAGS "/w34295 /w34189")
+	# Disable warnings about about use of flexible array members:
+	## 4200: nonstandard extension used : zero-sized array in struct/union
+	set(WARNINGS_CFLAGS "/w34295 /w34189 /wd4200")
 
 	set(WIRESHARK_COMMON_FLAGS
 		${LOCAL_CFLAGS}
@@ -341,6 +343,17 @@ else()
 		else()
 			message(FATAL_ERROR "CMAKE_OSX_DEPLOYMENT_TARGET only applies when building for OS X")
 		endif()
+	endif()
+
+	if(CMAKE_VERSION VERSION_LESS "3.1")
+		# Many modern compilers use c99 by default, but for older ones
+		# (like GCC 4.4.7), -std=gnu99 is required to avoid errors about
+		# use constructs like "for (int i = 0; i < n; i++) ;"
+		if(CMAKE_C_COMPILER_ID MATCHES "GNU")
+			set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
+		endif()
+	else()
+		set(CMAKE_C_STANDARD 99)
 	endif()
 
 	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
@@ -391,8 +404,6 @@ else()
 		# The Qt headers generate a ton of shortening errors on 64-bit systems
 		# so only enable this for C for now.
 		-Wshorten-64-to-32
-		# Clang only
-		-Wc99-extensions
 	)
 
 	set(CXX_WARN_FLAGS

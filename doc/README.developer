@@ -67,18 +67,20 @@ Wireshark runs on many platforms, and can be compiled with a number of
 different compilers; here are some rules for writing code that will work
 on multiple platforms.
 
-Don't use C++-style comments (comments beginning with "//" and running
-to the end of the line) in C code. Wireshark's dissectors are written in
-C, and thus run through C rather than C++ compilers, and not all C
-compilers support C++-style comments (GCC does, but IBM's C compiler for
-AIX, for example, doesn't do so by default). C++-style comments can be
-used in C++ code, of course.
-
-In general, don't use C99 features since some C compilers used to compile
-Wireshark, such as Microsoft's C compiler, don't support all C99
+In general, not all C99 features can be used since some C compilers used to
+compile Wireshark, such as Microsoft's C compiler, don't support all C99
 features.  The C99 features that can be used are:
 
-	variadic macros
+ - flexible array members
+ - compound literals
+ - designated initializers
+ - "//" comments
+ - mixed declarations and code
+ - new block scopes for selection and iteration statements (that is, declaring
+   the type in a for-loop like: for (int i = 0; i < n; i++) ;)
+ - macros with a variable number of arguments (variadic macros)
+ - trailing comma in enum declarations
+ - inline functions (guaranteed only by use of glib.h)
 
 Don't initialize variables in their declaration with non-constant
 values. Not all compilers support this. E.g. don't use
@@ -88,12 +90,8 @@ use
     i = somearray[2];
 instead.
 
-Don't use zero-length arrays; not all compilers support them.  If an
-array would have no members, just leave it out.
-
-Don't declare variables in the middle of executable code; not all C
-compilers support that.  Variables should be declared outside a
-function, or at the beginning of a function or compound statement.
+Don't use zero-length arrays as structure members, use flexible array members
+instead.
 
 Don't use anonymous unions; not all compilers support them.
 Example:
@@ -296,9 +294,6 @@ not *little-endian* byte order; not all machines on which Wireshark runs
 are little-endian, even though PCs are.  Fetch those values using
 "tvb_get_letohs()" and "tvb_get_letohl()".
 
-Don't put a comma after the last element of an enum - some compilers may
-either warn about it (producing extra noise) or refuse to accept it.
-
 Do not use "open()", "rename()", "mkdir()", "stat()", "unlink()", "remove()",
 "fopen()", "freopen()" directly.  Instead use "ws_open()", "ws_rename()",
 "ws_mkdir()", "ws_stat()", "ws_unlink()", "ws_remove()", "ws_fopen()",
@@ -359,8 +354,6 @@ in a fashion such as this:
 as some compilers will reject the first of those statements.  Instead,
 initialize the array at the point at which it's first declared, so that
 the size is known.
-
-Don't put a comma after the last tuple of an initializer of an array.
 
 For #define names and enum member names, prefix the names with a tag so
 as to avoid collisions with other names - this might be more of an issue

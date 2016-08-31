@@ -23,8 +23,6 @@
 #define AIRPCAP_H__EAE405F5_0171_9592_B3C2_C19EC426AD34__INCLUDED_
 
 #ifdef _MSC_VER
-/* This disables a VS warning for zero-sized arrays. */
-#pragma warning( disable : 4200)
 /* This stops VS2005 ranting against stdio. */
 #pragma warning( disable : 4996)
 #endif

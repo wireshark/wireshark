@@ -69,10 +69,12 @@ AC_CONFIG_LIBOBJ_DIR([wsutil])
 #
 # Checks for programs used in the main build process.
 #
-AC_PROG_CC_STDC
-if test "$ac_cv_prog_cc_stdc" = "no"
+# See doc/README.developer for allowed C99 features
+#
+AC_PROG_CC_C99
+if test "$ac_cv_prog_cc_c99" = "no"
 then
-	AC_MSG_ERROR([The C compiler does not support standard C])
+	AC_MSG_ERROR([The C compiler does not support C99])
 fi
 AC_PROG_CPP
 
@@ -689,9 +691,6 @@ then
 		AC_MSG_WARN(Compiler will export all symbols from shared libraries)
 	fi
 fi
-
-#Clang only
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wc99-extensions, C)
 
 #
 # Try to add some additional checks to CFLAGS.
