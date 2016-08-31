@@ -378,7 +378,7 @@ static gpointer ipv6_value(packet_info *pinfo)
     if (nxt == NULL) {
         return GUINT_TO_POINTER(255); /* Reserved IP Protocol */
     }
-    return GUINT_TO_POINTER(*nxt);
+    return GUINT_TO_POINTER((guint)*nxt);
 }
 
 static void ipv6_prompt(packet_info *pinfo, gchar *result)
