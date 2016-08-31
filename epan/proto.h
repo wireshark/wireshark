@@ -2862,7 +2862,7 @@ proto_tree_add_ascii_7bits_item(proto_tree *tree, const int hfindex, tvbuff_t *t
  exists, just pass -1
  @param bad_checksum_expert optional expert info for a bad checksum.  If
  none exists, just pass NULL
- @pinfo Packet info used for optional expert info.  If unused, NULL can
+ @param pinfo Packet info used for optional expert info.  If unused, NULL can
  be passed
  @param computed_checksum Checksum to verify against
  @param encoding data encoding of checksum from tvb

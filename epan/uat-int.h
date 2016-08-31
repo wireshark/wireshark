@@ -55,8 +55,8 @@ struct epan_uat {
     gboolean from_profile;
     const char* help;
     guint flags;
-    void** user_ptr;
-    guint* nrows_p;
+    void** user_ptr;    /**< Pointer to a dissector variable where an array of valid records are stored. */
+    guint* nrows_p;     /**< Pointer to a dissector variable where the number of valid records in user_ptr are written. */
     uat_copy_cb_t copy_cb;
     uat_update_cb_t update_cb;
     uat_free_cb_t free_cb;
@@ -64,9 +64,9 @@ struct epan_uat {
 
     uat_field_t* fields;
     guint ncols;
-    GArray* user_data;
-    GArray* raw_data;
-    GArray* valid_data;
+    GArray* user_data;  /**< An array of valid records that will be exposed to the dissector. */
+    GArray* raw_data;   /**< An array of records containing possibly invalid data. For internal use only. */
+    GArray* valid_data; /**< An array of booleans describing whether the records in 'raw_data' are valid or not. */
     gboolean changed;
     uat_rep_t* rep;
     uat_rep_free_cb_t free_rep;
@@ -81,30 +81,69 @@ void uat_init(void);
 
 void uat_reset(void);
 
+/**
+ * Clones the given record and stores it internally in the UAT. If it is
+ * considered a valid record, then it will also be cloned and stored in the
+ * externally visible list.
+ */
 WS_DLL_PUBLIC
-void* uat_add_record(uat_t*, const void* orig_rec_ptr, gboolean valid_rec);
+void* uat_add_record(uat_t *uat, const void *orig_rec_ptr, gboolean valid_rec);
 
+/**
+ * Marks the internal record in the UAT as valid or invalid. The record must
+ * exist in the UAT.
+ */
 WS_DLL_PUBLIC
-void uat_update_record(uat_t *uat, const void *data, gboolean valid_rec);
+void uat_update_record(uat_t *uat, const void *record, gboolean valid_rec);
 
+/**
+ * Changes the order of two internal UAT records.
+ */
 WS_DLL_PUBLIC
-void uat_swap(uat_t*, guint idx_a, guint idx_b);
+void uat_swap(uat_t *uat, guint idx_a, guint idx_b);
 
+/**
+ * Removes the record with the given index from the internal record list.
+ */
 WS_DLL_PUBLIC
-void uat_remove_record_idx(uat_t*, guint rec_idx);
+void uat_remove_record_idx(uat_t *uat, guint rec_idx);
 
-void uat_destroy(uat_t*);
+void uat_destroy(uat_t *uat);
 
+/**
+ * Removes and destroys all records from the UAT.
+ */
 WS_DLL_PUBLIC
-void uat_clear(uat_t*);
+void uat_clear(uat_t *uat);
 
+/**
+ * Saves the records from an UAT to file.
+ * Returns TRUE on success and FALSE on failure, storing the reason in 'error'
+ * (which must be freed using g_free).
+ */
 WS_DLL_PUBLIC
-gboolean uat_save(uat_t* , char** );
+gboolean uat_save(uat_t *uat, char **error);
 
+/**
+ * Loads the records for all registered UATs from file.
+ */
 void uat_load_all(void);
 
+/**
+ * Exposes the array of valid records to the UAT consumer (dissectors), updating
+ * the contents of 'data_ptr' and 'num_items_ptr' (see 'uat_new').
+ */
 #define UAT_UPDATE(uat) do { *((uat)->user_ptr) = (void*)((uat)->user_data->data); *((uat)->nrows_p) = (uat)->user_data->len; } while(0)
+/**
+ * Get a record from the array of all UAT entries, whether they are semantically
+ * valid or not. This memory must only be used internally in the UAT core and
+ * must not be exposed to dissectors.
+ */
 #define UAT_INDEX_PTR(uat,idx) (uat->raw_data->data + (uat->record_size * (idx)))
+/**
+ * Get a record from the array of all valid entries. These records will be
+ * shared with UAT consumers (dissectors).
+ */
 #define UAT_USER_INDEX_PTR(uat,idx) (uat->user_data->data + (uat->record_size * (idx)))
 
 #ifdef __cplusplus

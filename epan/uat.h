@@ -2,7 +2,7 @@
  *  uat.h
  *
  *  User Accessible Tables
- *  Maintain an array of user accessible data strucures
+ *  Maintain an array of user accessible data structures
  *
  * (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>
  *
@@ -37,24 +37,31 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*
- * uat mantains a dynamically allocated table accessible to the user
- * via a file and/or gui tables.
+ * UAT maintains a dynamically allocated table accessible to the user
+ * via a file and/or via GUI preference dialogs.
  *
- * the file is located either in userdir(when first read or when writen) or
- * in datadir for defaults (read only , it will be always written to userdir).
+ * The file is read from and written in the personal configuration directory. If
+ * there is no such file, defaults will be loaded from the global data
+ * directory.
  *
- * the behaviour of the table is controlled by a series of callbacks
- * the caller must provide.
+ * The behaviour of the table is controlled by a series of callbacks which
+ * the caller (e.g. a dissector) must provide.
  *
- * BEWARE that the user can change an uat at (almost) any time,
- * That is pointers to records in an uat are valid only during the call
- * to the function that obtains them (do not store them).
+ * BEWARE that the user can change an UAT at (almost) any time (via the GUI).
+ * That is, pointers to records in an UAT are valid only during the call
+ * to the function that obtains them (do not store pointers to these records).
+ * The records contents are only guaranteed to be valid in the post_update_cb
+ * function. (Implementation detail: currently a race condition is possible
+ * where the UAT consumer (dissector code) tries to use the UAT while the GUI
+ * user frees a record resulting in use-after-free. This is not ideal and might
+ * be fixed later.)
  *
- * UATs are meant for short tables of user data (passwords and such) there's
+ * UATs are meant for short tables of user data (passwords and such), there is
  * no quick access, you must iterate through them each time to fetch the record
  * you are looking for.
  *
- * Only users via gui or editing the file can add/remove records your code cannot.
+ * Only users via GUI or editing the file can add/remove records, your
+ * (dissector) code cannot.
  */
 
 /* obscure data type to handle an uat */
@@ -71,7 +78,7 @@ typedef struct epan_uat uat_t;
 /*
  * Post-Update CB
  *
- * to be called after to the table has being edited
+ * To be called by the GUI code after to the table has being edited.
  * Will be called once the user clicks the Apply or OK button
  * optional
  */
@@ -82,38 +89,38 @@ typedef void (*uat_post_update_cb_t)(void);
  * Callbacks dealing with records (these deal with entire records)
  ********/
 
-/*
+/**
  * Copy CB
- * copy(dest,orig,len)
+ * copy(dest, source, len)
  *
- * used to copy a record
- * optional, memcpy will be used if not given
+ * Used to duplicate the contents of one record to another.
+ * Optional, memcpy will be used if not given.
  */
-typedef void* (*uat_copy_cb_t)(void*, const void*, size_t);
+typedef void* (*uat_copy_cb_t)(void *dest, const void *source, size_t len);
 
-/*
+/**
  * Free CB
  * free(record)
  *
- * destroy a record's child data
- * (do not free the container, it will be handled by uat)
- * it is optional, no child data will be freed if no present
+ * Destroy the contents of a record, possibly freeing some fields.
+ * Do not free the container itself, this memory is owned by the UAT core.
+ * Optional if the record contains no pointers that need to be freed.
  */
-typedef void (*uat_free_cb_t)(void*);
+typedef void (*uat_free_cb_t)(void *record);
 
-/*
+/**
  * Update CB
  * update(record,&error)
  *
- * to be called after any record fields had been updated
- * optional, record will be updated always if not given
- * it will return TRUE if OK or else
- * it will return FALSE and set *error to inform the user on what's
- * wrong with the given input
- * The error string must be allocated with g_malloc() or
- * a routine that calls it.
+ * Validates the contents of the record contents, to be called after any record
+ * fields had been updated (either from file or after modifications in the GUI).
+ *
+ * Optional, the record will be considered valid if the callback is omitted.
+ * It must return TRUE if the contents are considered valid and FALSE otherwise
+ * in which case the failure reason is set in 'error'. The error string will be
+ * freed by g_free.
  */
-typedef gboolean (*uat_update_cb_t)(void *, char**);
+typedef gboolean (*uat_update_cb_t)(void *record, char **error);
 
 
 /*******
@@ -133,7 +140,7 @@ typedef gboolean (*uat_update_cb_t)(void *, char**);
  * a routine that calls it.
  * optional, if not given any input is considered OK and the set cb will be called
  */
-typedef gboolean (*uat_fld_chk_cb_t)(void*, const char*, unsigned, const void*, const void*, char**);
+typedef gboolean (*uat_fld_chk_cb_t)(void *record, const char *ptr, unsigned len, const void *chk_data, const void *fld_data, char **error);
 
 /*
  * Set Field CB
@@ -142,7 +149,7 @@ typedef gboolean (*uat_fld_chk_cb_t)(void*, const char*, unsigned, const void*, 
  * given an input string (ptr, len) sets the value of a field in the record,
  * it is mandatory
  */
-typedef void (*uat_fld_set_cb_t)(void*, const char*, unsigned, const void*, const void*);
+typedef void (*uat_fld_set_cb_t)(void *record, const char *ptr, unsigned len, const void *set_data, const void *fld_data);
 
 /*
  * Convert-to-string CB
@@ -151,7 +158,7 @@ typedef void (*uat_fld_set_cb_t)(void*, const char*, unsigned, const void*, cons
  * given a record returns a string representation of the field
  * mandatory
  */
-typedef void (*uat_fld_tostr_cb_t)(void*, char**, unsigned*, const void*, const void*);
+typedef void (*uat_fld_tostr_cb_t)(void *record, char **out_ptr, unsigned *out_len, const void *tostr_data, const void *fld_data);
 
 /***********
  * Text Mode

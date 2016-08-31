@@ -163,13 +163,13 @@ void* uat_add_record(uat_t* uat, const void* data, gboolean valid_rec) {
 }
 
 /* Updates the validity of a record. */
-void uat_update_record(uat_t *uat, const void *data, gboolean valid_rec) {
+void uat_update_record(uat_t *uat, const void *record, gboolean valid_rec) {
     guint pos;
     gboolean *valid;
 
     /* Locate internal UAT data pointer. */
     for (pos = 0; pos < uat->raw_data->len; pos++) {
-        if (UAT_INDEX_PTR(uat, pos) == data) {
+        if (UAT_INDEX_PTR(uat, pos) == record) {
             break;
         }
     }
