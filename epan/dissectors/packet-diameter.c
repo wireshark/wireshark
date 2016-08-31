@@ -681,7 +681,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 		wmem_array_sort(vendor->vs_avps, compare_avps);
 		vendor->vs_avps_ext = value_string_ext_new(VND_AVP_VS(vendor),
 							   VND_AVP_VS_LEN(vendor)+1,
-							   wmem_strdup_printf(wmem_epan_scope(), "diameter_vendor_%s",
+							   g_strdup_printf("diameter_vendor_%s",
 									   val_to_str_ext_const(vendorid,
 												&sminmpec_values_ext,
 												"Unknown")));
@@ -1847,14 +1847,6 @@ strcase_equal(gconstpointer ka, gconstpointer kb)
 	return g_ascii_strcasecmp(a,b) == 0;
 }
 
-static gboolean
-ddict_cleanup_cb(wmem_allocator_t* allocator _U_, wmem_cb_event_t event _U_, void *user_data)
-{
-	ddict_t *d = (ddict_t *)user_data;
-	ddict_free(d);
-	return FALSE;
-}
-
 
 /* Note: Dynamic "value string arrays" (e.g., vs_cmds, vs_avps, ...) are constructed using */
 /*       "zero-terminated" GArrays so that they will have the same form as standard        */
@@ -1913,6 +1905,7 @@ dictionary_load(void)
 
 	/* load the dictionary */
 	dir = wmem_strdup_printf(NULL, "%s" G_DIR_SEPARATOR_S "diameter" G_DIR_SEPARATOR_S, get_datafile_dir());
+	/* XXX We don't call ddict_free anywhere. */
 	d = ddict_scan(dir,"dictionary.xml",do_debug_parser);
 	wmem_free(NULL, dir);
 	if (d == NULL) {
@@ -1920,7 +1913,6 @@ dictionary_load(void)
 		g_array_free(vnd_shrt_arr, TRUE);
 		return 0;
 	}
-	wmem_register_callback(wmem_epan_scope(), ddict_cleanup_cb, d);
 
 	if (do_dump_dict) ddict_print(stdout, d);
 
