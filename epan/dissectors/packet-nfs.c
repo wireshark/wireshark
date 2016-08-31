@@ -2067,9 +2067,9 @@ dissect_fhandle_data_CELERRA_VNX(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tr
 	/* Display the entire file handle */
 	proto_tree_add_item(tree, hf_nfs_fh_fhandle_data, tvb, 0, fhlen, ENC_NA);
 
-	/* 	If fhlen = 32, it's an NFSv3 file handle */
+	/*	If fhlen = 32, it's an NFSv3 file handle */
 	if (fhlen == 32) {
-		/* Create a "File/Dir" subtree: bytes 0 thru 15 of the 32-byte file handle 	 */
+		/* Create a "File/Dir" subtree: bytes 0 thru 15 of the 32-byte file handle	 */
 		{
 		proto_item *obj_item;
 		proto_tree *obj_tree;
@@ -2185,10 +2185,10 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
 			/* XXX here we should really check that we haven't stored
 			   this fhandle for this frame number already.
-		   	   We should also make sure we can handle when we have multiple
-		   	   fhandles seen for the same frame, which WILL happen for certain
-		   	   nfs calls. For now, we don't handle this and those calls will
-		   	   not work properly with this feature
+			   We should also make sure we can handle when we have multiple
+			   fhandles seen for the same frame, which WILL happen for certain
+			   nfs calls. For now, we don't handle this and those calls will
+			   not work properly with this feature
 			*/
 			wmem_tree_insert32(nfs_fhandle_frame_table, pinfo->num, old_fhd);
 		}
@@ -8000,7 +8000,7 @@ dissect_nfs4_open_write_delegation(tvbuff_t *tvb, int offset,
 #define OPEN_DELEGATE_NONE_EXT 3 /* new to v4.1 */
 static const value_string names_open_delegation_type4[] = {
 	{	OPEN_DELEGATE_NONE,	"OPEN_DELEGATE_NONE" },
-	{	OPEN_DELEGATE_READ, 	"OPEN_DELEGATE_READ" },
+	{	OPEN_DELEGATE_READ,	"OPEN_DELEGATE_READ" },
 	{	OPEN_DELEGATE_WRITE,	"OPEN_DELEGATE_WRITE" },
 	{	OPEN_DELEGATE_NONE_EXT, "OPEN_DELEGATE_NONE_EXT"},
 	{	0,	NULL }
@@ -9380,7 +9380,7 @@ typedef struct _nfs4_operation_summary {
 static int nfs4_operation_tiers[] = {
 		 1 /* 0 */ ,
 		 1 /* 1 */ ,
-	 	 1 /* 2 */ ,
+		 1 /* 2 */ ,
 		 2 /* 3, NFS4_OP_ACCESS */ ,
 		 1 /* 4, NFS4_OP_CLOSE */,
 		 1 /* 5, NFS4_OP_COMMIT	*/,
@@ -11146,20 +11146,20 @@ dissect_nfs4_cb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	/* the opcodes are not contiguous */
 		if ((opcode < NFS4_OP_CB_GETATTR || opcode > NFS4_OP_CB_OFFLOAD) &&
 		    (opcode != NFS4_OP_CB_ILLEGAL))
-		  	break;
+			break;
 
 	/* all of the V4 ops are contiguous, except for NFS4_OP_ILLEGAL */
 		if (opcode == NFS4_OP_CB_ILLEGAL)
-		  	newftree = proto_item_add_subtree(fitem, ett_nfs4_cb_illegal);
+			newftree = proto_item_add_subtree(fitem, ett_nfs4_cb_illegal);
 		else if (nfs4_cb_operation_ett[opcode - 3])
-		  	newftree = proto_item_add_subtree(fitem, *nfs4_cb_operation_ett[opcode - 3]);
+			newftree = proto_item_add_subtree(fitem, *nfs4_cb_operation_ett[opcode - 3]);
 		else
-		  	break;
+			break;
 
 		switch (opcode)
 		{
 		case NFS4_OP_CB_RECALL:
-		  	offset = dissect_nfs4_stateid(tvb, offset, newftree, NULL);
+			offset = dissect_nfs4_stateid(tvb, offset, newftree, NULL);
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs4_cb_truncate, offset);
 			offset = dissect_nfs4_fh(tvb, offset, pinfo, newftree, "FileHandle", NULL, civ);
 			break;
@@ -11187,7 +11187,7 @@ dissect_nfs4_cb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		case NFS4_OP_CB_WANTS_CANCELLED:
 		case NFS4_OP_CB_NOTIFY_LOCK:
 		case NFS4_OP_CB_NOTIFY_DEVICEID:
-		  	break;
+			break;
 		case NFS4_OP_CB_OFFLOAD:
 			offset = dissect_nfs4_fh(tvb, offset, pinfo, newftree, "FileHandle", NULL, civ);
 			offset = dissect_nfs4_stateid(tvb, offset, newftree, NULL);
@@ -11199,9 +11199,9 @@ dissect_nfs4_cb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			}
 			break;
 		case NFS4_OP_ILLEGAL:
-		  	break;
+			break;
 		default:
-		  	break;
+			break;
 		}
 	}
 
@@ -11279,7 +11279,7 @@ dissect_nfs4_cb_resp_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			offset = dissect_nfs4_fattrs(tvb, offset, pinfo, newftree, FATTR4_DISSECT_VALUES, civ);
 			break;
 		case NFS4_OP_CB_LAYOUTRECALL:
-		   	break;
+			break;
 		case NFS4_OP_CB_NOTIFY:
 		case NFS4_OP_CB_PUSH_DELEG:
 		case NFS4_OP_CB_RECALL_ANY:
@@ -11297,12 +11297,12 @@ dissect_nfs4_cb_resp_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		case NFS4_OP_CB_NOTIFY_LOCK:
 		case NFS4_OP_CB_NOTIFY_DEVICEID:
 		case NFS4_OP_CB_OFFLOAD:
-		   	break;
+			break;
 		case NFS4_OP_ILLEGAL:
 			break;
 		default:
-		   	break;
-		  }
+			break;
+		}
 	}
 
 	return offset;
