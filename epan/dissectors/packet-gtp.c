@@ -5668,6 +5668,13 @@ decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree
     if (length == 0){
         return 3 + length;
     }
+
+    /* Patch for systems still not following NOTE 2 */
+    if (length == 9) {
+        proto_tree_add_expert_format(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, 1, "Not Compliant with 3GPP TS 29.060 7.7.37: The preamble of the \"Target RNC-ID\" (numerical value of e.g. 0x20) however shall not be included in octets 4-n.");
+        offset+=1;
+    }
+
     /* Quote from specification:
      * The Target Identification information element contains the identification of a target RNC. Octets 4-n shall contain a
      * non-transparent copy of the corresponding IEs (see subclause 7.7.2) and be encoded as specified in Figure 51 below.
