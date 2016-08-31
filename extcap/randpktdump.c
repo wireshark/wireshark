@@ -27,6 +27,7 @@
 #include "extcap-base.h"
 
 #include "randpkt_core/randpkt_core.h"
+#include <wsutil/strtoi.h>
 
 #define RANDPKT_EXTCAP_INTERFACE "randpkt"
 #define RANDPKTDUMP_VERSION_MAJOR "0"
@@ -126,7 +127,7 @@ int main(int argc, char *argv[])
 {
 	int option_idx = 0;
 	int result;
-	int maxbytes = 5000;
+	guint16 maxbytes = 5000;
 	guint64 count = 1000;
 	int random_type = FALSE;
 	int all_random = FALSE;
@@ -192,15 +193,18 @@ int main(int argc, char *argv[])
 			goto end;
 
 		case OPT_MAXBYTES:
-			maxbytes = atoi(optarg);
-			if (maxbytes > MAXBYTES_LIMIT) {
-				g_warning("randpktdump: Max bytes is %d", MAXBYTES_LIMIT);
+			if (!ws_strtou16(optarg, NULL, &maxbytes)) {
+				g_warning("Invalid parameter maxbytes: %s (max value is %u)",
+					optarg, G_MAXUINT16);
 				goto end;
 			}
 			break;
 
 		case OPT_COUNT:
-			count = g_ascii_strtoull(optarg, NULL, 10);
+			if (!ws_strtou64(optarg, NULL, &count)) {
+				g_warning("Invalid packet count: %s", optarg);
+				goto end;
+			}
 			break;
 
 		case OPT_RANDOM_TYPE:

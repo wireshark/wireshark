@@ -27,8 +27,6 @@
 #include <glib.h>
 #include "wiretap/wtap.h"
 
-#define MAXBYTES_LIMIT 65536
-
 typedef struct {
 	const char*  abbrev;
 	const char*  longname;

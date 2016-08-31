@@ -27,6 +27,8 @@
 
 #include <libssh/libssh.h>
 
+#include <glib.h>
+
 #ifndef STDERR_FILENO
 #define STDERR_FILENO 2
 #endif
@@ -47,7 +49,7 @@
 	{ "sshkey-passphrase", required_argument, NULL, OPT_SSHKEY_PASSPHRASE}
 
 /* Create a ssh connection using all the possible authentication menthods */
-ssh_session create_ssh_connection(const char* hostname, const unsigned int port, const char* username,
+ssh_session create_ssh_connection(const char* hostname, const guint16 port, const char* username,
 	const char* password, const char* sshkey_path, const char* sshkey_passphrase, char** err_info);
 
 /* Write a formatted message in the channel */

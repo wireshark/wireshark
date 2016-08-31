@@ -26,6 +26,7 @@
 
 #include <extcap/extcap-base.h>
 #include <wsutil/interface.h>
+#include <wsutil/strtoi.h>
 #include <extcap/ssh-base.h>
 #include <writecap/pcapio.h>
 
@@ -153,7 +154,7 @@ static void ciscodump_cleanup(ssh_session sshs, ssh_channel channel, const char*
 	ssh_cleanup(&sshs, &channel);
 }
 
-static int wait_until_data(ssh_channel channel, const long unsigned count)
+static int wait_until_data(ssh_channel channel, const guint32 count)
 {
 	long unsigned got = 0;
 	char output[SSH_READ_BLOCK_SIZE];
@@ -226,7 +227,7 @@ static int parse_line(char* packet _U_, unsigned* offset, char* line, int status
 	return CISCODUMP_PARSER_IN_PACKET;
 }
 
-static void ssh_loop_read(ssh_channel channel, FILE* fp, const long unsigned count)
+static void ssh_loop_read(ssh_channel channel, FILE* fp, const guint32 count)
 {
 	char line[SSH_READ_BLOCK_SIZE];
 	char chr;
@@ -308,7 +309,7 @@ static int check_ios_version(ssh_channel channel)
 	return FALSE;
 }
 
-static ssh_channel run_capture(ssh_session sshs, const char* iface, const char* cfilter, const unsigned long int count)
+static ssh_channel run_capture(ssh_session sshs, const char* iface, const char* cfilter, const guint32 count)
 {
 	char* cmdline = NULL;
 	ssh_channel channel;
@@ -339,7 +340,7 @@ static ssh_channel run_capture(ssh_session sshs, const char* iface, const char* 
 	if (ssh_channel_printf(channel, "monitor capture buffer %s max-size 9500\n", WIRESHARK_CAPTURE_BUFFER) == EXIT_FAILURE)
 		goto error;
 
-	if (ssh_channel_printf(channel, "monitor capture buffer %s limit packet-count %lu\n", WIRESHARK_CAPTURE_BUFFER, count) == EXIT_FAILURE)
+	if (ssh_channel_printf(channel, "monitor capture buffer %s limit packet-count %u\n", WIRESHARK_CAPTURE_BUFFER, count) == EXIT_FAILURE)
 		goto error;
 
 	if (cfilter) {
@@ -412,7 +413,7 @@ error:
 
 static int ssh_open_remote_connection(const char* hostname, const unsigned int port, const char* username, const char* password,
 	const char* sshkey, const char* sshkey_passphrase, const char* iface, const char* cfilter,
-	const unsigned long int count, const char* fifo)
+	const guint32 count, const char* fifo)
 {
 	ssh_session sshs;
 	ssh_channel channel;
@@ -520,14 +521,14 @@ int main(int argc, char **argv)
 	int option_idx = 0;
 	int i;
 	char* remote_host = NULL;
-	unsigned int remote_port = 22;
+	guint16 remote_port = 22;
 	char* remote_username = NULL;
 	char* remote_password = NULL;
 	char* remote_interface = NULL;
 	char* sshkey = NULL;
 	char* sshkey_passphrase = NULL;
 	char* remote_filter = NULL;
-	unsigned long int count = 0;
+	guint32 count = 0;
 	int ret = EXIT_FAILURE;
 	extcap_parameters * extcap_conf = g_new0(extcap_parameters, 1);
 	char* help_header = NULL;
@@ -597,8 +598,7 @@ int main(int argc, char **argv)
 			break;
 
 		case OPT_REMOTE_PORT:
-			remote_port = (unsigned int)strtoul(optarg, NULL, 10);
-			if (remote_port > 65535 || remote_port == 0) {
+			if (!ws_strtou16(optarg, NULL, &remote_port) || remote_port == 0) {
 				g_warning("Invalid port: %s", optarg);
 				goto end;
 			}
@@ -637,7 +637,10 @@ int main(int argc, char **argv)
 			break;
 
 		case OPT_REMOTE_COUNT:
-			count = strtoul(optarg, NULL, 10);
+			if (!ws_strtou32(optarg, NULL, &count)) {
+				g_warning("Invalid packet count: %s", optarg);
+				goto end;
+			}
 			break;
 
 		case ':':

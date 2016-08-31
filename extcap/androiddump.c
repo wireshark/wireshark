@@ -30,6 +30,7 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
+#include <wsutil/strtoi.h>
 
 #ifdef HAVE_NETINET_IN_H
 #    include <netinet/in.h>
@@ -438,7 +439,7 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
 static char *adb_send_and_receive(socket_handle_t sock, const char *adb_service,
         char *buffer, int buffer_length, gssize *data_length) {
     gssize   used_buffer_length;
-    gssize   length;
+    gint32   length;
     gssize   result;
     char     status[4];
     char     tmp_buffer;
@@ -2587,7 +2588,10 @@ int main(int argc, char **argv) {
                 g_warning("Impossible exception. Parameter required argument, but there is no it right now.");
                 goto end;
             }
-            *adb_server_tcp_port = (unsigned short) g_ascii_strtoull(optarg, NULL, 10);
+            if (!ws_strtou16(optarg, NULL, adb_server_tcp_port)) {
+                g_warning("Invalid adb server TCP port: %s", optarg);
+                goto end;
+            }
             break;
         case OPT_CONFIG_LOGCAT_TEXT:
             logcat_text = (g_ascii_strncasecmp(optarg, "TRUE", 4) == 0);
@@ -2598,7 +2602,10 @@ int main(int argc, char **argv) {
                 g_warning("Impossible exception. Parameter required argument, but there is no it right now.");
                 goto end;
             }
-            *bt_server_tcp_port = (unsigned short) g_ascii_strtoull(optarg, NULL, 10);
+            if (!ws_strtou16(optarg, NULL, bt_server_tcp_port)) {
+                g_warning("Invalid bluetooth server TCP port: %s", optarg);
+                goto end;
+            }
             break;
         case OPT_CONFIG_BT_FORWARD_SOCKET:
             bt_forward_socket = (g_ascii_strncasecmp(optarg, "TRUE", 4) == 0);
@@ -2612,7 +2619,10 @@ int main(int argc, char **argv) {
                 g_warning("Impossible exception. Parameter required argument, but there is no it right now.");
                 goto end;
             }
-            *bt_local_tcp_port = (unsigned short) g_ascii_strtoull(optarg, NULL, 10);
+            if (!ws_strtou16(optarg, NULL, bt_local_tcp_port)) {
+                g_warning("Invalid bluetooth local tcp port: %s", optarg);
+                goto end;
+            }
             break;
         default:
             if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg))
