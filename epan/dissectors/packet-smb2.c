@@ -127,6 +127,10 @@ static int hf_smb2_max_ioctl_in_size = -1;
 static int hf_smb2_max_ioctl_out_size = -1;
 static int hf_smb2_flags = -1;
 static int hf_smb2_required_buffer_size = -1;
+static int hf_smb2_getinfo_size = -1;
+static int hf_smb2_getinfo_offset = -1;
+static int hf_smb2_getinfo_additional = -1;
+static int hf_smb2_getinfo_flags = -1;
 static int hf_smb2_setinfo_size = -1;
 static int hf_smb2_setinfo_offset = -1;
 static int hf_smb2_file_basic_info = -1;
@@ -4215,39 +4219,20 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 static int
 dissect_smb2_getinfo_parameters(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si)
 {
+	/* Additional Info */
 	switch (si->saved->smb2_class) {
-	case SMB2_CLASS_FILE_INFO:
-		switch (si->saved->infolevel) {
-		default:
-			/* we don't handle this infolevel yet */
-			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, ENC_NA);
-			offset += tvb_captured_length_remaining(tvb, offset);
-		}
-		break;
-	case SMB2_CLASS_FS_INFO:
-		switch (si->saved->infolevel) {
-		default:
-			/* we don't handle this infolevel yet */
-			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, ENC_NA);
-			offset += tvb_captured_length_remaining(tvb, offset);
-		}
-		break;
 	case SMB2_CLASS_SEC_INFO:
-		switch (si->saved->infolevel) {
-		case SMB2_SEC_INFO_00:
-			dissect_security_information_mask(tvb, tree, offset+8);
-			break;
-		default:
-			/* we don't handle this infolevel yet */
-			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, ENC_NA);
-			offset += tvb_captured_length_remaining(tvb, offset);
-		}
+		dissect_security_information_mask(tvb, tree, offset);
 		break;
 	default:
-		/* we don't handle this class yet */
-		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, ENC_NA);
-		offset += tvb_captured_length_remaining(tvb, offset);
+		proto_tree_add_item(tree, hf_smb2_getinfo_additional, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	}
+	offset += 4;
+
+	/* Flags */
+	proto_tree_add_item(tree, hf_smb2_getinfo_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
 	return offset;
 }
 
@@ -4342,14 +4327,22 @@ dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree_add_item(tree, hf_smb2_max_response_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
+	/* offset */
+	proto_tree_add_item(tree, hf_smb2_getinfo_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* size */
+	proto_tree_add_item(tree, hf_smb2_getinfo_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
 	/* parameters */
 	if (si->saved) {
 		dissect_smb2_getinfo_parameters(tvb, pinfo, tree, offset, si);
 	} else {
 		/* some unknown bytes */
-		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, ENC_NA);
+		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, ENC_NA);
 	}
-	offset += 16;
+	offset += 8;
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
@@ -8966,6 +8959,26 @@ proto_register_smb2(void)
 		{ &hf_smb2_max_response_size,
 			{ "Max Response Size", "smb2.max_response_size", FT_UINT32, BASE_DEC,
 			NULL, 0, "SMB2 Maximum response size", HFILL }
+		},
+
+		{ &hf_smb2_getinfo_size,
+			{ "Getinfo Size", "smb2.getinfo_size", FT_UINT32, BASE_DEC,
+			NULL, 0, "SMB2 getinfo size", HFILL }
+		},
+
+		{ &hf_smb2_getinfo_offset,
+			{ "Getinfo Offset", "smb2.getinfo_offset", FT_UINT16, BASE_HEX,
+			NULL, 0, "SMB2 getinfo offset", HFILL }
+		},
+
+		{ &hf_smb2_getinfo_additional,
+			{ "Additional Info", "smb2.getinfo_additional", FT_UINT32, BASE_HEX,
+			NULL, 0, "SMB2 getinfo additional info", HFILL }
+		},
+
+		{ &hf_smb2_getinfo_flags,
+			{ "Flags", "smb2.getinfo_flags", FT_UINT32, BASE_HEX,
+			NULL, 0, "SMB2 getinfo flags", HFILL }
 		},
 
 		{ &hf_smb2_setinfo_size,
