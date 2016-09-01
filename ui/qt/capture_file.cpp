@@ -99,6 +99,14 @@ struct _packet_info *CaptureFile::packetInfo()
     return NULL;
 }
 
+int CaptureFile::timestampPrecision()
+{
+    if (capFile() && capFile()->wth) {
+        return wtap_file_tsprec(capFile()->wth);
+    }
+    return WTAP_TSPREC_UNKNOWN;
+}
+
 void CaptureFile::retapPackets()
 {
     if (cap_file_) {

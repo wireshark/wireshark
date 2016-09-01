@@ -15,7 +15,7 @@
     <widget class="QTabWidget" name="trafficTableTabWidget"/>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,1,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,1,0">
      <item>
       <widget class="QCheckBox" name="nameResolutionCheckBox">
        <property name="toolTip">
@@ -46,6 +46,29 @@
        </property>
        <property name="text">
         <string>Limit to display filter</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="absoluteTimeCheckBox">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Absolute start time</string>
        </property>
       </widget>
      </item>
@@ -83,6 +106,7 @@
    </item>
   </layout>
  </widget>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

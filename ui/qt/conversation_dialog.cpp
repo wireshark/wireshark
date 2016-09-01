@@ -34,6 +34,7 @@
 #include "wireshark_application.h"
 
 #include <QCheckBox>
+#include <QDateTime>
 #include <QDialogButtonBox>
 #include <QPushButton>
 
@@ -57,6 +58,9 @@
 // Fixed bugs:
 // - Friendly unit displays https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9231
 // - Misleading bps calculation https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8703
+// - Show Absolute time in conversation tables https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=11618
+// - The value of 'Rel start' and 'Duration' in "Conversations" no need too precise https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12803
+
 
 static const QString table_name_ = QObject::tr("Conversation");
 ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
@@ -69,6 +73,8 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli
     graph_bt_ = buttonBox()->addButton(tr("Graph" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ActionRole);
     graph_bt_->setToolTip(tr("Graph a TCP conversation."));
     connect(graph_bt_, SIGNAL(clicked()), this, SLOT(graphTcp()));
+
+    absoluteTimeCheckBox()->show();
 
     addProgressFrame(&parent);
 
@@ -159,6 +165,9 @@ bool ConversationDialog::addTrafficTable(register_ct_t* table)
             this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     connect(nameResolutionCheckBox(), SIGNAL(toggled(bool)),
             conv_tree, SLOT(setNameResolutionEnabled(bool)));
+    connect(absoluteTimeCheckBox(), SIGNAL(toggled(bool)),
+            conv_tree, SLOT(updateStartTime(bool)));
+
 
     // XXX Move to ConversationTreeWidget ctor?
     QByteArray filter_utf8;
@@ -356,9 +365,31 @@ public:
             case CONV_COLUMN_BYTES_BA:
                 return gchar_free_to_qstring(format_size(conv_item->rx_bytes, format_size_unit_none|format_size_prefix_si));
             case CONV_COLUMN_START:
-                return QString::number(nstime_to_sec(&conv_item->start_time), 'f', 9);
+            {
+                bool use_ns = treeWidget()->window()->property("nanosecond_precision").toBool();
+                int width = use_ns ? 9 : 6;
+
+                if (treeWidget()->window()->property("absolute_start_time").toBool()) {
+                    nstime_t *abs_time = &conv_item->start_abs_time;
+                    QDateTime abs_dt = QDateTime::fromMSecsSinceEpoch(nstime_to_msec(abs_time));
+                    return QString("%1.%2")
+                            // Mimic column-utils:set_abs_time as best we can
+                            .arg(abs_dt.toString("hh:mm:ss"))
+                            .arg(use_ns ? abs_time->nsecs : abs_time->nsecs / 1000, width, 10, QChar('0'));
+                }
+
+                return QString::number(nstime_to_sec(&conv_item->start_time), 'f', width);
+            }
             case CONV_COLUMN_DURATION:
-                return QString::number(duration, 'f', 6);
+            {
+                // The GTK+ UI uses 9 digit precision for the start time and 4 for the duration.
+                // Do the same here and above for non-nanosecond precision and add a couple
+                // of digits for nanosecond precision.
+                bool use_ns = treeWidget()->window()->property("nanosecond_precision").toBool();
+                int width = use_ns ? 6 : 4;
+
+                return QString::number(duration, 'f', width);
+            }
             case CONV_COLUMN_BPS_AB:
                 if (duration > min_bw_calc_duration_) {
                     bps_ab = gchar_free_to_qstring(format_size((gint64) conv_item->tx_bytes * 8 / duration, format_size_unit_none|format_size_prefix_si));
@@ -627,6 +658,19 @@ void ConversationTreeWidget::tapDraw(void *conv_hash_ptr)
     if (!conv_tree) return;
 
     conv_tree->updateItems();
+}
+
+void ConversationTreeWidget::updateStartTime(bool absolute)
+{
+    headerItem()->setText(CONV_COLUMN_START, absolute
+                          ? conv_abs_start_title
+                          : conv_column_titles[CONV_COLUMN_START]);
+
+    dataChanged(QModelIndex(), QModelIndex());
+
+    if (topLevelItemCount() > 0) {
+        resizeColumnToContents(CONV_COLUMN_START);
+    }
 }
 
 QMap<FilterAction::ActionDirection, conv_direction_e> fad_to_cd_;

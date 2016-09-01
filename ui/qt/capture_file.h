@@ -76,6 +76,12 @@ public:
      */
     struct _packet_info *packetInfo();
 
+    /** Timestamp precision for the current file.
+     * @return One of the WTAP_TSPREC_x values defined in wiretap/wtap.h,
+     * or WTAP_TSPREC_UNKNOWN if no file is open.
+     */
+    int timestampPrecision();
+
     /** Reload the capture file
      */
     void reload();

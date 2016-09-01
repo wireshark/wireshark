@@ -56,12 +56,14 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const c
     ui(new Ui::TrafficTableDialog),
     cap_file_(cf),
     file_closed_(false),
-    filter_(filter)
+    filter_(filter),
+    nanosecond_timestamps_(false)
 {
     ui->setupUi(this);
     loadGeometry(parent.width(), parent.height() * 3 / 4);
 
     ui->enabledTypesPushButton->setText(tr("%1 Types").arg(table_name));
+    ui->absoluteTimeCheckBox->hide();
     setWindowSubtitle(QString("%1s").arg(table_name));
 
     QMenu *copy_menu = new QMenu();
@@ -78,6 +80,10 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const c
     ui->enabledTypesPushButton->setMenu(&traffic_type_menu_);
     ui->trafficTableTabWidget->setFocus();
 
+    if (cf.timestampPrecision() == WTAP_TSPREC_NSEC) {
+        nanosecond_timestamps_ = true;
+    }
+
     connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(currentTabChanged()));
     connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(updateWidgets()));
     connect(ui->trafficTableTabWidget, SIGNAL(currentChanged(int)),
@@ -91,6 +97,11 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const c
 TrafficTableDialog::~TrafficTableDialog()
 {
     delete ui;
+}
+
+bool TrafficTableDialog::absoluteStartTime()
+{
+    return absoluteTimeCheckBox()->isChecked();
 }
 
 const QList<int> TrafficTableDialog::defaultProtos() const
@@ -142,6 +153,11 @@ QCheckBox *TrafficTableDialog::displayFilterCheckBox() const
 QCheckBox *TrafficTableDialog::nameResolutionCheckBox() const
 {
     return ui->nameResolutionCheckBox;
+}
+
+QCheckBox *TrafficTableDialog::absoluteTimeCheckBox() const
+{
+    return ui->absoluteTimeCheckBox;
 }
 
 QPushButton *TrafficTableDialog::enabledTypesPushButton() const

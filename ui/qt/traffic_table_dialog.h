@@ -103,6 +103,8 @@ signals:
 class TrafficTableDialog : public WiresharkDialog
 {
     Q_OBJECT
+    Q_PROPERTY(bool absolute_start_time READ absoluteStartTime)
+    Q_PROPERTY(bool nanosecond_timestamps READ nanosecondTimestamps)
 
 public:
     /** Create a new conversation window.
@@ -114,6 +116,16 @@ public:
      */
     explicit TrafficTableDialog(QWidget &parent, CaptureFile &cf, const char *filter = NULL, const QString &table_name = tr("Unknown"));
     ~TrafficTableDialog();
+
+    /** Use absolute start times.
+     * @return true if the "Absolute start time" checkbox is checked, false otherwise.
+     */
+    bool absoluteStartTime();
+
+    /** Use nanosecond timestamps.
+     * @return true if the current capture file uses nanosecond timestamps, false otherwise.
+     */
+    bool nanosecondTimestamps() { return nanosecond_timestamps_; }
 
 public slots:
 
@@ -143,6 +155,7 @@ protected:
     QTabWidget *trafficTableTabWidget() const;
     QCheckBox *displayFilterCheckBox() const;
     QCheckBox *nameResolutionCheckBox() const;
+    QCheckBox *absoluteTimeCheckBox() const;
     QPushButton *enabledTypesPushButton() const;
 
 protected slots:
@@ -151,6 +164,7 @@ protected slots:
 
 private:
     QString window_name_;
+    bool nanosecond_timestamps_;
 
     QList<QVariant> curTreeRowData(int row) const;
 

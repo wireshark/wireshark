@@ -36,6 +36,9 @@ public:
     static void tapReset(void *conv_hash_ptr);
     static void tapDraw(void *conv_hash_ptr);
 
+public slots:
+    void updateStartTime(bool absolute);
+
 private:
     void initDirectionMap();
     void updateItems();

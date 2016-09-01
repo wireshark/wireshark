@@ -54,6 +54,7 @@ typedef enum {
 extern const char *conv_column_titles[CONV_NUM_COLUMNS];
 extern const char *conv_conn_a_title;
 extern const char *conv_conn_b_title;
+extern const char *conv_abs_start_title;
 
 typedef enum
 {

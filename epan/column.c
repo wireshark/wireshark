@@ -47,7 +47,7 @@ col_format_to_string(const gint fmt) {
     "%At",                                      /* 3) COL_ABS_TIME */
     "%V",                                       /* 4) COL_VSAN - !! DEPRECATED !!*/
     "%B",                                       /* 5) COL_CUMULATIVE_BYTES */
-    "%Cus",                                     /* 6 COL_CUSTOM */
+    "%Cus",                                     /* 6) COL_CUSTOM */
     "%y",                                       /* 7) COL_DCE_CALL */
     "%Tt",                                      /* 8) COL_DELTA_TIME */
     "%Gt",                                      /* 9) COL_DELTA_TIME_DIS */
