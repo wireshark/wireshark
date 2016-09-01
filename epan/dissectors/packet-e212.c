@@ -26,8 +26,9 @@
  * according to www.uke.gov.pl status from January 2011
  * Copyright 2011, Grzegorz Szczytowski <grzegorz.szczytowski@gmail.com>
  */
-/* SoftBank PLMN codes updated according to http://ja.wikipedia.org/wiki/Mobile_Network_Code
+/* Japanese PLMN codes updated according to http://ja.wikipedia.org/wiki/Mobile_Network_Code
  * as E.212 is still not updated
+ * Chinese PLMN codes updated according to http://www.mcc-mnc.com
  */
 
 #include "config.h"
@@ -47,7 +48,7 @@ void proto_register_e212(void);
  *
  * COMPLEMENT TO ITU-T RECOMMENDATION E.212 (05/2008)
  *
- * Amendment No. 17 ITU Operational Bulletin No. 1106 - 15.VIII.2016
+ * Amendment No. 18 ITU Operational Bulletin No. 1107 - 1.IX.2016
  *
  * Find the bulletins here:
  * http://www.itu.int/pub/T-SP-OB
@@ -2180,7 +2181,7 @@ static const value_string mcc_mnc_codes[] = {
     {  454250, "Public Mobile Networks/Reserved" },
     {  454260, "Public Mobile Networks/Reserved" },
     {  454270, "Government use" },
-    {  454280, "Government use" },
+    {  454280, "China Mobile Hong Kong Co Ltd" },
     {  454290, "Hong Kong Telecommunications (HKT) Ltd" },
     {  454300, "Public Mobile Networks/Reserved" },
     {  454310, "Public Mobile Networks/Reserved" },
@@ -2214,8 +2215,11 @@ static const value_string mcc_mnc_codes[] = {
     {  460000, "China Mobile" },
     {  460010, "China Unicom" },
     {  460020, "China Mobile" },
-    {  460030, "China Unicom CDMA" },
-    {  460040, "China Satellite Global Star Network" },
+    {  460030, "China Telecom" },
+    {  460040, "China Spacecom" },
+    {  460050, "China Telecom" },
+    {  460060, "China Unicom" },
+    {  460070, "China Mobile" },
     {  470010, "GramenPhone" },
     {  470020, "Aktel" },
     {  470030, "Mobile 2000" },
