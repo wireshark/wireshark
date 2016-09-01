@@ -157,6 +157,7 @@ static int hf_smb2_fs_info_06 = -1;
 static int hf_smb2_fs_info_07 = -1;
 static int hf_smb2_fs_objectid_info = -1;
 static int hf_smb2_sec_info_00 = -1;
+static int hf_smb2_quota_info = -1;
 static int hf_smb2_fid = -1;
 static int hf_smb2_write_length = -1;
 static int hf_smb2_write_data = -1;
@@ -479,6 +480,7 @@ static gint ett_smb2_fs_info_06 = -1;
 static gint ett_smb2_fs_info_07 = -1;
 static gint ett_smb2_fs_objectid_info = -1;
 static gint ett_smb2_sec_info_00 = -1;
+static gint ett_smb2_quota_info = -1;
 static gint ett_smb2_tid_tree = -1;
 static gint ett_smb2_sesid_tree = -1;
 static gint ett_smb2_create_chain_element = -1;
@@ -572,6 +574,7 @@ static const fragment_items smb2_pipe_frag_items = {
 #define SMB2_CLASS_FILE_INFO	0x01
 #define SMB2_CLASS_FS_INFO	0x02
 #define SMB2_CLASS_SEC_INFO	0x03
+#define SMB2_CLASS_QUOTA_INFO	0x04
 #define SMB2_CLASS_POSIX_INFO	0x80
 static const value_string smb2_class_vals[] = {
 	{ SMB2_CLASS_FILE_INFO,	"FILE_INFO"},
@@ -2443,6 +2446,24 @@ dissect_smb2_sec_info_00(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pare
 
 	/* security descriptor */
 	offset = dissect_nt_sec_desc(tvb, offset, pinfo, tree, NULL, TRUE, tvb_captured_length_remaining(tvb, offset), NULL);
+
+	return offset;
+}
+
+static int
+dissect_smb2_quota_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	guint16 bcp;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_smb2_quota_info, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_smb2_quota_info);
+	}
+
+	bcp = tvb_captured_length_remaining(tvb, offset);
+	offset = dissect_nt_user_quota(tvb, tree, offset, &bcp);
 
 	return offset;
 }
@@ -4443,6 +4464,9 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
 			offset += tvb_captured_length_remaining(tvb, offset);
 		}
+		break;
+	case SMB2_CLASS_QUOTA_INFO:
+		offset = dissect_smb2_quota_info(tvb, pinfo, tree, offset, si);
 		break;
 	default:
 		/* we don't handle this class yet */
@@ -9388,6 +9412,11 @@ proto_register_smb2(void)
 			NULL, 0, "SMB2_SEC_INFO_00 structure", HFILL }
 		},
 
+		{ &hf_smb2_quota_info,
+			{ "SMB2_QUOTA_INFO", "smb2.quota_info", FT_NONE, BASE_NONE,
+			NULL, 0, "SMB2_QUOTA_INFO structure", HFILL }
+		},
+
 		{ &hf_smb2_disposition_delete_on_close,
 			{ "Delete on close", "smb2.disposition.delete_on_close", FT_BOOLEAN, 8,
 			TFS(&tfs_disposition_delete_on_close), 0x01, NULL, HFILL }
@@ -10792,6 +10821,7 @@ proto_register_smb2(void)
 		&ett_smb2_fs_info_07,
 		&ett_smb2_fs_objectid_info,
 		&ett_smb2_sec_info_00,
+		&ett_smb2_quota_info,
 		&ett_smb2_tid_tree,
 		&ett_smb2_sesid_tree,
 		&ett_smb2_create_chain_element,
