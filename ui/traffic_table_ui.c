@@ -65,6 +65,7 @@ const char *conv_column_titles[CONV_NUM_COLUMNS] = {
 
 const char *conv_conn_a_title = "Connection A";
 const char *conv_conn_b_title = "Connection B";
+const char *conv_abs_start_title = "Abs Start";
 
 const char *endp_column_titles[ENDP_NUM_COLUMNS] = {
     "Address",

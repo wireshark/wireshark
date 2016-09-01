@@ -38,6 +38,9 @@ public:
     double minRelStartTime() { return min_rel_start_time_; }
     double maxRelStopTime() { return max_rel_stop_time_; }
 
+public slots:
+    void updateStartTime(bool absolute);
+
 private:
     void initDirectionMap();
     void updateItems();
