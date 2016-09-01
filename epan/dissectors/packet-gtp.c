@@ -69,6 +69,7 @@
 #include "packet-bssgp.h"
 #include "packet-e212.h"
 #include "packet-gtp.h"
+#include "packet-ranap.h"
 
 void proto_register_gtp(void);
 void proto_reg_handoff_gtp(void);
@@ -400,6 +401,7 @@ static gint ett_gtp_cdr_ver = -1;
 static gint ett_gtp_cdr_dr = -1;
 static gint ett_gtp_uli_rai = -1;
 static gint ett_gtp_mm_cntxt = -1;
+static gint ett_gtp_utran_cont = -1;
 
 static expert_field ei_gtp_ext_hdr_pdcpsn = EI_INIT;
 static expert_field ei_gtp_ext_length_mal = EI_INIT;
@@ -3396,6 +3398,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
     case GTP_MSG_CREATE_PDP_REQ:
     case GTP_MSG_UPDATE_PDP_REQ:
     case GTP_MSG_DELETE_PDP_REQ:
+    case GTP_MSG_FORW_RELOC_REQ:
         gcr.is_request=TRUE;
         gcr.req_frame=pinfo->num;
         gcr.rep_frame=0;
@@ -3404,6 +3407,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
     case GTP_MSG_CREATE_PDP_RESP:
     case GTP_MSG_UPDATE_PDP_RESP:
     case GTP_MSG_DELETE_PDP_RESP:
+    case GTP_MSG_FORW_RELOC_RESP:
         gcr.is_request=FALSE;
         gcr.req_frame=0;
         gcr.rep_frame=pinfo->num;
@@ -3429,6 +3433,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
         case GTP_MSG_CREATE_PDP_REQ:
         case GTP_MSG_UPDATE_PDP_REQ:
         case GTP_MSG_DELETE_PDP_REQ:
+        case GTP_MSG_FORW_RELOC_REQ:
             gcr.seq_nr=seq_nr;
 
             gcrp=(gtp_msg_hash_t *)g_hash_table_lookup(gtp_info->unmatched, &gcr);
@@ -3452,6 +3457,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
         case GTP_MSG_CREATE_PDP_RESP:
         case GTP_MSG_UPDATE_PDP_RESP:
         case GTP_MSG_DELETE_PDP_RESP:
+        case GTP_MSG_FORW_RELOC_RESP:
             gcr.seq_nr=seq_nr;
             gcrp=(gtp_msg_hash_t *)g_hash_table_lookup(gtp_info->unmatched, &gcr);
 
@@ -5715,6 +5721,8 @@ decode_gtp_utran_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto
 
     guint16     length;
     proto_tree *ext_tree;
+    tvbuff_t   *new_tvb;
+    proto_tree *sub_tree;
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
@@ -5724,6 +5732,21 @@ decode_gtp_utran_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
     proto_tree_add_item(ext_tree, hf_gtp_utran_field, tvb, offset, length, ENC_NA);
+
+    switch (pinfo->link_dir) {
+    case P2P_DIR_UL:
+        sub_tree = proto_tree_add_subtree(ext_tree, tvb, offset, length, ett_gtp_utran_cont, NULL, "Source RNC to Target RNC Transparent Container");
+        new_tvb = tvb_new_subset_remaining(tvb, offset);
+        dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(new_tvb, pinfo, sub_tree, NULL);
+        break;
+    case P2P_DIR_DL:
+        sub_tree = proto_tree_add_subtree(ext_tree, tvb, offset, length, ett_gtp_utran_cont, NULL, "Target RNC to Source RNC Transparent Container");
+        new_tvb = tvb_new_subset_remaining(tvb, offset);
+        dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU(new_tvb, pinfo, sub_tree, NULL);
+        break;
+    default:
+        break;
+    }
 
     return 3 + length;
 
@@ -8636,12 +8659,14 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         case GTP_MSG_INIT_PDP_CONTEXT_ACT_REQ:
         case GTP_MSG_PDU_NOTIFY_REQ:
         case GTP_MSG_PDU_NOTIFY_REJ_REQ:
+        case GTP_MSG_FORW_RELOC_REQ: /* direction added for UTRAN Container decode */
             pinfo->link_dir = P2P_DIR_UL;
             break;
         case GTP_MSG_DELETE_PDP_RESP:
         case GTP_MSG_UPDATE_PDP_RESP:
         case GTP_MSG_CREATE_PDP_RESP:
         case GTP_MSG_INIT_PDP_CONTEXT_ACT_RESP:
+        case GTP_MSG_FORW_RELOC_RESP: /* direction added for UTRAN Container decode */
             pinfo->link_dir = P2P_DIR_DL;
             break;
     default:
@@ -10084,7 +10109,7 @@ proto_register_gtp(void)
     };
 
     /* Setup protocol subtree array */
-#define GTP_NUM_INDIVIDUAL_ELEMS    29
+#define GTP_NUM_INDIVIDUAL_ELEMS    30
     static gint *ett_gtp_array[GTP_NUM_INDIVIDUAL_ELEMS + NUM_GTP_IES];
 
     ett_gtp_array[0] = &ett_gtp;
@@ -10116,6 +10141,7 @@ proto_register_gtp(void)
     ett_gtp_array[26] = &ett_gtp_rel_pack;
     ett_gtp_array[27] = &ett_gtp_node_addr;
     ett_gtp_array[28] = &ett_gtp_mm_cntxt;
+    ett_gtp_array[29] = &ett_gtp_utran_cont;
 
     last_offset = GTP_NUM_INDIVIDUAL_ELEMS;
 
