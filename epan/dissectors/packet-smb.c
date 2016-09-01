@@ -8258,7 +8258,7 @@ dissect_security_information_mask(tvbuff_t *tvb, proto_tree *parent_tree, int of
 	return offset;
 }
 
-static int
+int
 dissect_nt_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 *bcp)
 {
 	int     old_offset, old_sid_offset;
