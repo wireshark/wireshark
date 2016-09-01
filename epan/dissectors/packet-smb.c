@@ -8312,6 +8312,40 @@ dissect_nt_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 *bcp)
 }
 
 
+int
+dissect_nt_get_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, guint32 *bcp)
+{
+	int     old_offset, old_sid_offset;
+	guint32 qsize;
+
+	do {
+		old_offset = offset;
+
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		qsize = tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_user_quota_offset, tvb, offset, 4, qsize);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		/* length of SID */
+		proto_tree_add_item(tree, hf_smb_length_of_sid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* SID of the user */
+		old_sid_offset = offset;
+		offset = dissect_nt_sid(tvb, offset, tree, "SID", NULL, -1);
+		*bcp -= (offset-old_sid_offset);
+
+		if (qsize) {
+			offset = old_offset+qsize;
+		}
+	}while (qsize);
+
+
+	return offset;
+}
+
+
 static int
 dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int bc, nt_trans_data *ntd, smb_nt_transact_info_t *nti, smb_info_t *si)
 {
