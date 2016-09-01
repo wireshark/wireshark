@@ -684,6 +684,7 @@ static int hf_smb_quota_flags_log_warning = -1;
 static int hf_smb_soft_quota_limit = -1;
 static int hf_smb_hard_quota_limit = -1;
 static int hf_smb_user_quota_used = -1;
+static int hf_smb_user_quota_change_time = -1;
 static int hf_smb_length_of_sid = -1;
 static int hf_smb_user_quota_offset = -1;
 static int hf_smb_nt_rename_level = -1;
@@ -8276,11 +8277,10 @@ dissect_nt_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 *bcp)
 		proto_tree_add_item(tree, hf_smb_length_of_sid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(4);
 
-		/* 16 unknown bytes */
+		/* change time */
 		CHECK_BYTE_COUNT_TRANS_SUBR(8);
-		proto_tree_add_item(tree, hf_smb_unknown, tvb,
-			    offset, 8, ENC_NA);
-		COUNT_BYTES_TRANS_SUBR(8);
+		offset = dissect_nt_64bit_time(tvb, tree, offset,
+			hf_smb_user_quota_change_time);
 
 		/* number of bytes for used quota */
 		CHECK_BYTE_COUNT_TRANS_SUBR(8);
@@ -19958,6 +19958,10 @@ proto_register_smb(void)
 	{ &hf_smb_fs_attr_rov,
 		{ "Read Only Volume", "smb.fs_attr.rov", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_attr_rov), 0x00080000, "Is this FS on a read only volume?", HFILL }},
+
+	{ &hf_smb_user_quota_change_time,
+		{ "Change Time", "smb.quota.user.change_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+		NULL, 0x0, "The last time the quota was changed", HFILL }},
 
 	{ &hf_smb_length_of_sid,
 		{ "Length of SID", "smb.length_of_sid", FT_UINT32, BASE_DEC,
