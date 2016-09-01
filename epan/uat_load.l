@@ -107,17 +107,36 @@ typedef struct {
 	size_t parse_str_pos;
 } uat_load_scanner_state_t;
 
+/*
+ * Signal a fatal error and stops parsing.
+ * Since the record is internal to the parsing process, its contents must also
+ * be cleared before terminating. Any values that are not handled yet (ptrx)
+ * must also be freed.
+ */
 #define ERROR(fmtd) do { \
-    char* fmt_str = g_strdup_printf fmtd; \
-    yyextra->error = g_strdup_printf("%s:%d: %s",yyextra->uat->filename,yyextra->linenum,fmt_str); \
-    g_free(fmt_str); \
-    yyterminate(); \
+	char* fmt_str = g_strdup_printf fmtd; \
+	g_free(yyextra->error); \
+	yyextra->error = g_strdup_printf("%s:%d: %s",yyextra->uat->filename,yyextra->linenum,fmt_str); \
+	g_free(fmt_str); \
+	if (yyextra->uat->free_cb) { \
+		yyextra->uat->free_cb(yyextra->record); \
+	} \
+	g_free(yyextra->ptrx); \
+	yyterminate(); \
 } while(0)
 
+/*
+ * Sets the field of the current (scanner-internal) record, using the parsed
+ * value. If the field validation function exists and returns an error, then
+ * the record is marked as invalid and an error message is stored such that it
+ * can be shown after parsing. (If other errors occur after this issue, then
+ * this message will be overwritten though.)
+ */
 #define SET_FIELD() \
 	{ gchar* errx; \
 	if (yyextra->uat->fields[yyextra->colnum].cb.chk) { \
 		if ( ! yyextra->uat->fields[yyextra->colnum].cb.chk(yyextra->record, yyextra->ptrx, yyextra->len, yyextra->uat->fields[yyextra->colnum].cbdata.chk, yyextra->uat->fields[yyextra->colnum].fld_data, &errx) ) { \
+			g_free(yyextra->error); \
 			yyextra->error = g_strdup_printf("%s:%d: %s",yyextra->uat->filename,yyextra->linenum,errx); \
 			g_free(errx); \
 			yyextra->valid_record = FALSE; \
@@ -125,6 +144,7 @@ typedef struct {
 	}\
 	yyextra->uat->fields[yyextra->colnum].cb.set(yyextra->record, yyextra->ptrx, yyextra->len, yyextra->uat->fields[yyextra->colnum].cbdata.chk, yyextra->uat->fields[yyextra->colnum].fld_data);\
 	g_free(yyextra->ptrx);\
+	yyextra->ptrx = NULL;\
 	yyextra->colnum++; \
 	} while(0)
 
@@ -292,22 +312,27 @@ comment #[^\n]*\n
 
 	SET_FIELD();
 
+	/* Last field was processed, try to store the full record in the UAT. */
 	rec = uat_add_record(yyextra->uat, yyextra->record, yyextra->valid_record);
 
 	if ((yyextra->uat->update_cb) && (rec != NULL)) {
 		if (!yyextra->uat->update_cb(rec,&err)) {
+			g_free(yyextra->error);
 			yyextra->error = err;
 			yyterminate();
 		}
 	}
 
+	/* The record was duplicated to the UAT above, now free our fields. */
+	if (yyextra->uat->free_cb) {
+		yyextra->uat->free_cb(yyextra->record);
+	}
+	memset(yyextra->record, 0, yyextra->uat->record_size);
+
 	yyextra->valid_record = TRUE;
 	yyextra->colnum = 0;
 	yyextra->ptrx = NULL;
 	yyextra->len = 0;
-
-	/* XXX is this necessary since we free it before reusing anyway? */
-	memset(yyextra->record,0,yyextra->uat->record_size);
 
 	BEGIN START_OF_LINE;
  }
