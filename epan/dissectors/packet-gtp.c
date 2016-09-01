@@ -5675,12 +5675,6 @@ decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree
         return 3 + length;
     }
 
-    /* Patch for systems still not following NOTE 2 */
-    if (length == 9) {
-        proto_tree_add_expert_format(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, 1, "Not Compliant with 3GPP TS 29.060 7.7.37: The preamble of the \"Target RNC-ID\" (numerical value of e.g. 0x20) however shall not be included in octets 4-n.");
-        offset+=1;
-    }
-
     /* Quote from specification:
      * The Target Identification information element contains the identification of a target RNC. Octets 4-n shall contain a
      * non-transparent copy of the corresponding IEs (see subclause 7.7.2) and be encoded as specified in Figure 51 below.
@@ -5690,8 +5684,17 @@ decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree
      *         octets 4-n. Also the optional "iE-Extensions" parameter shall not be included into the GTP IE.
      */
     /* Octet 4-6 MCC + MNC */
-    dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, E212_NONE, TRUE);
+    if (length == 9) {
+        /* Patch for systems still not following NOTE 2 */
+        proto_tree_add_expert_format(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, 1, "Not Compliant with 3GPP TS 29.060 7.7.37: The preamble of the \"Target RNC-ID\" (numerical value of e.g. 0x20) however shall not be included in octets 4-n.");
+        offset+=1;
+        dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, E212_NONE, FALSE);
+    } else {
+        /* Following Standards */
+        dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, E212_NONE, TRUE);
+    }
     offset+=3;
+
     /* Octet 7-8 LAC */
     proto_tree_add_item(ext_tree, hf_gtp_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
