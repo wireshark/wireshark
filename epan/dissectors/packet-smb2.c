@@ -580,6 +580,7 @@ static const value_string smb2_class_vals[] = {
 	{ SMB2_CLASS_FILE_INFO,	"FILE_INFO"},
 	{ SMB2_CLASS_FS_INFO,	"FS_INFO"},
 	{ SMB2_CLASS_SEC_INFO,	"SEC_INFO"},
+	{ SMB2_CLASS_QUOTA_INFO, "QUOTA_INFO"},
 	{ SMB2_CLASS_POSIX_INFO, "POSIX_INFO"},
 	{ 0, NULL }
 };
@@ -4287,6 +4288,11 @@ dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 	case SMB2_CLASS_SEC_INFO:
 		hfindex = hf_smb2_infolevel_sec_info;
 		vsx = &smb2_sec_info_levels_ext;
+		break;
+	case SMB2_CLASS_QUOTA_INFO:
+		/* infolevel is not being used for quota */
+		hfindex = hf_smb2_infolevel;
+		vsx = NULL;
 		break;
 	case SMB2_CLASS_POSIX_INFO:
 		hfindex = hf_smb2_infolevel_posix_info;
