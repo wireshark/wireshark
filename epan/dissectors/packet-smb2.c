@@ -162,6 +162,12 @@ static int hf_smb2_fs_info_07 = -1;
 static int hf_smb2_fs_objectid_info = -1;
 static int hf_smb2_sec_info_00 = -1;
 static int hf_smb2_quota_info = -1;
+static int hf_smb2_query_quota_info = -1;
+static int hf_smb2_qq_single = -1;
+static int hf_smb2_qq_restart = -1;
+static int hf_smb2_qq_sidlist_len = -1;
+static int hf_smb2_qq_start_sid_len = -1;
+static int hf_smb2_qq_start_sid_offset = -1;
 static int hf_smb2_fid = -1;
 static int hf_smb2_write_length = -1;
 static int hf_smb2_write_data = -1;
@@ -485,6 +491,7 @@ static gint ett_smb2_fs_info_07 = -1;
 static gint ett_smb2_fs_objectid_info = -1;
 static gint ett_smb2_sec_info_00 = -1;
 static gint ett_smb2_quota_info = -1;
+static gint ett_smb2_query_quota_info = -1;
 static gint ett_smb2_tid_tree = -1;
 static gint ett_smb2_sesid_tree = -1;
 static gint ett_smb2_create_chain_element = -1;
@@ -4238,6 +4245,65 @@ dissect_smb2_getinfo_parameters(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 
 static int
+dissect_smb2_getinfo_buffer_quota(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+{
+	guint32 sidlist_len = 0;
+	guint32 startsid_len = 0;
+	guint32 startsid_offset = 0;
+
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_smb2_query_quota_info, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_smb2_query_quota_info);
+	}
+
+	proto_tree_add_item(tree, hf_smb2_qq_single, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_smb2_qq_restart, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	/* reserved */
+	offset += 2;
+
+	proto_tree_add_item_ret_uint(tree, hf_smb2_qq_sidlist_len, tvb, offset, 4, ENC_LITTLE_ENDIAN, &sidlist_len);
+	offset += 4;
+
+	proto_tree_add_item_ret_uint(tree, hf_smb2_qq_start_sid_len, tvb, offset, 4, ENC_LITTLE_ENDIAN, &startsid_len);
+	offset += 4;
+
+	proto_tree_add_item_ret_uint(tree, hf_smb2_qq_start_sid_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &startsid_offset);
+	offset += 4;
+
+	if (sidlist_len != 0) {
+		offset = dissect_nt_get_user_quota(tvb, tree, offset, &sidlist_len);
+	} else if (startsid_len != 0) {
+		offset = dissect_nt_sid(tvb, offset + startsid_offset, tree, "Start SID", NULL, -1);
+	}
+
+	return offset;
+}
+
+static int
+dissect_smb2_getinfo_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int size, smb2_info_t *si)
+{
+	switch (si->saved->smb2_class) {
+	case SMB2_CLASS_QUOTA_INFO:
+		dissect_smb2_getinfo_buffer_quota(tvb, pinfo, tree, offset, si);
+		break;
+	default:
+		if (size > 0) {
+			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, size, ENC_NA);
+		}
+	}
+	offset += size;
+
+	return offset;
+}
+
+static int
 dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree, smb2_info_t *si)
 {
 	guint8		  cl, il;
@@ -4317,6 +4383,9 @@ dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 static int
 dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
+	guint32 getinfo_size = 0;
+	guint32 getinfo_offset = 0;
+
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
@@ -4328,11 +4397,11 @@ dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset += 4;
 
 	/* offset */
-	proto_tree_add_item(tree, hf_smb2_getinfo_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_smb2_getinfo_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &getinfo_offset);
 	offset += 4;
 
 	/* size */
-	proto_tree_add_item(tree, hf_smb2_getinfo_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_smb2_getinfo_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &getinfo_size);
 	offset += 4;
 
 	/* parameters */
@@ -4346,6 +4415,12 @@ dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
+
+	/* buffer */
+	if (si->saved) {
+		dissect_smb2_getinfo_buffer(tvb, pinfo, tree, getinfo_offset, getinfo_size, si);
+	}
+	offset = getinfo_offset + getinfo_size;
 
 	return offset;
 }
@@ -9436,6 +9511,36 @@ proto_register_smb2(void)
 			NULL, 0, "SMB2_QUOTA_INFO structure", HFILL }
 		},
 
+		{ &hf_smb2_query_quota_info,
+			{ "SMB2_QUERY_QUOTA_INFO", "smb2.query_quota_info", FT_NONE, BASE_NONE,
+			NULL, 0, "SMB2_QUERY_QUOTA_INFO structure", HFILL }
+		},
+
+		{ &hf_smb2_qq_single,
+			{ "ReturnSingle", "smb2.query_quota_info.single", FT_BOOLEAN, 8,
+			NULL, 0xff, NULL, HFILL }
+		},
+
+		{ &hf_smb2_qq_restart,
+			{ "RestartScan", "smb2.query_quota_info.restart", FT_BOOLEAN, 8,
+			NULL, 0xff, NULL, HFILL }
+		},
+
+		{ &hf_smb2_qq_sidlist_len,
+			{ "SidListLength", "smb2.query_quota_info.sidlistlen", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_qq_start_sid_len,
+			{ "StartSidLength", "smb2.query_quota_info.startsidlen", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_qq_start_sid_offset,
+			{ "StartSidOffset", "smb2.query_quota_info.startsidoffset", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
 		{ &hf_smb2_disposition_delete_on_close,
 			{ "Delete on close", "smb2.disposition.delete_on_close", FT_BOOLEAN, 8,
 			TFS(&tfs_disposition_delete_on_close), 0x01, NULL, HFILL }
@@ -10841,6 +10946,7 @@ proto_register_smb2(void)
 		&ett_smb2_fs_objectid_info,
 		&ett_smb2_sec_info_00,
 		&ett_smb2_quota_info,
+		&ett_smb2_query_quota_info,
 		&ett_smb2_tid_tree,
 		&ett_smb2_sesid_tree,
 		&ett_smb2_create_chain_element,
