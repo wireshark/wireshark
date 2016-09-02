@@ -433,7 +433,11 @@ get_if_capabilities_local(interface_options *interface_opts, char **err_str)
 }
 
 pcap_t *
-open_capture_device_local(capture_options *capture_opts,
+open_capture_device_local(capture_options *capture_opts
+#ifndef HAVE_PCAP_CREATE
+	_U_
+#endif
+	,
     interface_options *interface_opts, int timeout,
     char (*open_err_str)[PCAP_ERRBUF_SIZE])
 {
