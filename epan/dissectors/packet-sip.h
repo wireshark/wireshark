@@ -38,6 +38,18 @@ typedef struct _sip_info_value_t
     gchar    *reason_phrase;
 } sip_info_value_t;
 
+typedef enum {
+    SIP_PROTO_OTHER = 0,
+    SIP_PROTO_SIP = 1,
+    SIP_PROTO_Q850 = 2
+} sip_reason_code_proto_t;
+
+typedef struct _sip_reason_code_info_t
+{
+    sip_reason_code_proto_t    protocol_type_num;
+    guint                      cause_value;
+} sip_reason_code_info_t;
+
 extern void dfilter_store_sip_from_addr(tvbuff_t *tvb, proto_tree *tree,
     guint parameter_offset, guint parameter_len);
 
