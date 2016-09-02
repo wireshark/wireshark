@@ -11185,7 +11185,11 @@ dissect_nfs4_cb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			offset = dissect_nfs4_cb_referring_calls(tvb, offset, newftree);
 			break;
 		case NFS4_OP_CB_WANTS_CANCELLED:
+			break;
 		case NFS4_OP_CB_NOTIFY_LOCK:
+			offset = dissect_nfs4_fh(tvb, offset, pinfo, newftree, "FileHandle", NULL, civ);
+			offset = dissect_nfs4_lock_owner(tvb, offset, newftree);
+			break;
 		case NFS4_OP_CB_NOTIFY_DEVICEID:
 			break;
 		case NFS4_OP_CB_OFFLOAD:
