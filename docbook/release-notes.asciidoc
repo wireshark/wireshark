@@ -17,12 +17,57 @@ The following vulnerabilities have been fixed:
 
 * ws-salink:2016-50[]
 +
-A dissector went awry.
-(ws-buglink:XXXX[])
+QNX6 QNET dissector crash.
+(ws-buglink:11850[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: XXXX
-// Fixed in master-2.0: XXXX
-// Fixed in master-1.12: XXXX
+// Fixed in master: 1396f6a
+// Fixed in master-2.2: 291e6d2
+// Fixed in master-2.0: 4451dc8
+
+* ws-salink:2016-51[]
++
+H.225 dissector crash.
+(ws-buglink:12700[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 6d82619
+// Fixed in master-2.2: 8eb7e54
+// Fixed in master-2.0: f5c7b56
+
+* ws-salink:2016-52[]
++
+Catapult DCT2000 dissector crash.
+(ws-buglink:12750[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 2e37b27
+// Fixed in master-2.2: 70a6b83
+// Fixed in master-2.0: 2024fd0
+
+* ws-salink:2016-53[]
++
+UMTS FP dissector crash.
+(ws-buglink:12751[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 315bba7
+// Fixed in master-2.2: 7dc8d30
+// Fixed in master-2.0: 1531d53
+
+* ws-salink:2016-54[]
++
+Catapult DCT2000 dissector crash.
+(ws-buglink:12752[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 3b97fbd
+// Fixed in master-2.2: 70a6b83
+// Fixed in master-2.0: 2024fd0
+
+* ws-salink:2016-55[]
++
+IPMI trace dissector crash.
+(ws-buglink:12782[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 5213496
+// Fixed in master-2.2: f9598b8
+// Fixed in master-2.0: 26daf4a
 
 The following bugs have been fixed:
 
@@ -30,9 +75,37 @@ The following bugs have been fixed:
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2016-7000[]
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.6rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.7rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Apply display filter when changing configuration profiles. (ws-buglink:6130[])
+
+* Unrecognized text: CDATA in XML not parsed correctly. (ws-buglink:11755[])
+
+* asn2wrs.py "Unexpected token" error. (ws-buglink:12621[])
+
+* PMKID is incorrectly decoded under RSN Vendor specific IE in EAPOL packet 1. (ws-buglink:12675[])
+
+* CIP dissector fails tvb initialization assertion. (ws-buglink:12676[])
+
+* GTP: Decoding of NSAPI is broken in version 2.0.5. (ws-buglink:12686[])
+
+* Small bug in Modbus (mbtcp.c/h) dissector exception information. (ws-buglink:12693[])
 
 * Upgrading to latest version uninstalls Microsoft Visual C++ redistributable. (ws-buglink:12712[])
+
+* ZGP encrypted differencce between packet details and bytes. (ws-buglink:12728[])
+
+* Crash in ISAKMP dissector after modifying UAT with IKEv2 keys. (ws-buglink:12748[])
+
+* Incorrect parsing of NLMv4 FREE_ALL request. (ws-buglink:12764[])
+
+* Malformed Packet: CDP (forced entry aging). (ws-buglink:12767[])
+
+* tshark -z io,stat does not count frame not correctly when applying an interval of 0. (ws-buglink:12778[])
+
+* MODE SENSE 10 : Mode parameter header 10 : block descriptor length needs to be 2 bytes not 1 byte. (ws-buglink:12780[])
+
+* Organization Specific Slow Protocol dissection errors when retrieving OUI. (ws-buglink:12801[])
 
 === New and Updated Features
 
