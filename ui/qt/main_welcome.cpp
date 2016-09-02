@@ -336,6 +336,13 @@ void MainWelcome::updateRecentFiles() {
         selectedFilename = rfItem->data(Qt::UserRole).toString();
     }
 
+    if (wsApp->recentItems().count() == 0) {
+       // Recent menu has been cleared, remove all recent files.
+       while (recent_files_->count()) {
+          delete recent_files_->item(0);
+       }
+    }
+
     int rfRow = 0;
     foreach (recent_item_status *ri, wsApp->recentItems()) {
         itemLabel = ri->filename;
