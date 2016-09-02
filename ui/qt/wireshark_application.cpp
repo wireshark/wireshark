@@ -157,7 +157,14 @@ add_menu_recent_capture_file(const gchar *cf_name) {
             /* do a case insensitive compare on win32 */
             ri->filename.compare(normalized_cf_name, Qt::CaseInsensitive) == 0 ||
 #else   /* _WIN32 */
-            /* do a case sensitive compare on unix */
+            /*
+             * Do a case sensitive compare on UN*Xes.
+             *
+             * XXX - on UN*Xes such as macOS, where you can use pathconf()
+             * to check whether a given file system is case-sensitive or
+             * not, we should check whether this particular file system
+             * is case-sensitive and do the appropriate comparison.
+             */
             ri->filename.compare(normalized_cf_name) == 0 ||
 #endif
             cnt >= prefs.gui_recent_files_count_max) {
