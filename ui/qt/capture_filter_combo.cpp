@@ -91,7 +91,8 @@ CaptureFilterCombo::CaptureFilterCombo(QWidget *parent, bool plain) :
     clearEditText();
 }
 
-void CaptureFilterCombo::writeRecent(FILE *rf) {
+void CaptureFilterCombo::writeRecent(FILE *rf)
+{
     int i;
 
     for (i = 0; i < count(); i++) {
@@ -109,14 +110,17 @@ void CaptureFilterCombo::saveAndRebuildFilterList()
     }
     rebuildFilterList();
 }
+
 void CaptureFilterCombo::rebuildFilterList()
 {
     lineEdit()->blockSignals(true);
     GList *cfilter_list = recent_get_cfilter_list(NULL);
+    QString cur_filter = currentText();
     clear();
     for (GList *li = g_list_first(cfilter_list); li != NULL; li = g_list_next(li)) {
         insertItem(0, (const gchar *) li->data);
     }
+    lineEdit()->setText(cur_filter);
     lineEdit()->blockSignals(false);
 }
 
