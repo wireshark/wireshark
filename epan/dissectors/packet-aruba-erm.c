@@ -458,6 +458,7 @@ proto_register_aruba_erm(void)
     expert_aruba_erm = expert_register_protocol(proto_aruba_erm);
     expert_register_field_array(expert_aruba_erm, ei, array_length(ei));
 
+    register_dissector("aruba_erm", dissect_aruba_erm, proto_aruba_erm);
     aruba_erm_subdissector_table = register_dissector_table(
         "aruba_erm.type", "Aruba ERM Type", proto_aruba_erm,
         FT_UINT32, BASE_DEC);
