@@ -45,6 +45,7 @@
 #include "ui/capture_globals.h"
 #include "ui/main_statusbar.h"
 #include "ui/recent.h"
+#include "ui/recent_utils.h"
 #include "ui/util.h"
 #include "ui/preference_utils.h"
 
@@ -1330,6 +1331,8 @@ bool MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
 
             cf->unsaved_changes = false; //we just saved so we signal that we have no unsaved changes
             updateForUnsavedChanges(); // we update the title bar to remove the *
+            /* Add this filename to the list of recent files in the "Recent Files" submenu */
+            add_menu_recent_capture_file(file_name.toUtf8().constData());
             return true;
 
         case CF_WRITE_ERROR:
