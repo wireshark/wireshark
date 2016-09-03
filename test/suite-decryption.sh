@@ -245,6 +245,22 @@ decryption_step_ssl_master_secret() {
 	test_step_ok
 }
 
+# TLS 1.2 with renegotiation
+decryption_step_ssl_renegotiation() {
+	TEST_KEYS_FILE="$TESTS_DIR/keys/rsasnakeoil2.key"
+	if [ "$WS_SYSTEM" == "Windows" ] ; then
+		TEST_KEYS_FILE="`cygpath -w $TEST_KEYS_FILE`"
+	fi
+	output=$($TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.content_length \
+		-o ssl.keys_list:"0.0.0.0,4433,http,$TEST_KEYS_FILE" \
+		-r "$CAPTURE_DIR/tls-renegotiation.pcap" -Y http)
+	if [[ "$output" != 0*2151* ]]; then
+		test_step_failed "Failed to decrypt SSL with renegotiation"
+		return
+	fi
+	test_step_ok
+}
+
 # ZigBee
 # https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7022
 decryption_step_zigbee() {
@@ -492,6 +508,7 @@ tshark_decryption_suite() {
 	test_step_add "SSL Decryption (RSA private key with p smaller than q)" decryption_step_ssl_rsa_pq
 	test_step_add "SSL Decryption (private key with password)" decryption_step_ssl_with_password
 	test_step_add "SSL Decryption (master secret)" decryption_step_ssl_master_secret
+	test_step_add "SSL Decryption (renegotiation)" decryption_step_ssl_renegotiation
 	test_step_add "ZigBee Decryption" decryption_step_zigbee
 	test_step_add "ANSI C12.22 Decryption" decryption_step_c1222
 	test_step_add "DVB-CI Decryption" decryption_step_dvb_ci

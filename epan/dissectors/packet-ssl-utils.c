@@ -2780,7 +2780,6 @@ ssl_create_decoder(const SslCipherSuite *cipher_suite, gint compression,
     }
     dec->seq = 0;
     dec->decomp = ssl_create_decompressor(compression);
-    dec->flow = ssl_create_flow();
 
     /* TODO this does nothing as dec->evp is always NULL. */
     if (dec->evp)
@@ -3221,6 +3220,10 @@ create_decoders:
         ssl_debug_printf("%s can't init client decoder\n", G_STRFUNC);
         goto fail;
     }
+
+    /* Continue the SSL stream after renegotiation with new keys. */
+    ssl_session->client_new->flow = ssl_session->client ? ssl_session->client->flow : ssl_create_flow();
+    ssl_session->server_new->flow = ssl_session->server ? ssl_session->server->flow : ssl_create_flow();
 
     ssl_debug_printf("%s: client seq %d, server seq %d\n",
         G_STRFUNC, ssl_session->client_new->seq, ssl_session->server_new->seq);
@@ -4107,6 +4110,48 @@ ssl_get_session(conversation_t *conversation, dissector_handle_t ssl_handle)
 
     conversation_add_proto_data(conversation, proto_ssl, ssl_session);
     return ssl_session;
+}
+
+/* Resets the decryption parameters for the next decoder. */
+static void ssl_reset_session(SslSession *session, SslDecryptSession *ssl, gboolean is_client)
+{
+    if (ssl) {
+        /* Ensure that secrets are not restored using stale identifiers. Split
+         * between client and server in case the packets somehow got out of order. */
+        gint clear_flags = SSL_HAVE_SESSION_KEY | SSL_MASTER_SECRET | SSL_PRE_MASTER_SECRET;
+
+        if (is_client) {
+            clear_flags |= SSL_CLIENT_EXTENDED_MASTER_SECRET;
+            ssl->session_id.data_len = 0;
+            ssl->session_ticket.data_len = 0;
+            ssl->master_secret.data_len = 0;
+            ssl->client_random.data_len = 0;
+        } else {
+            clear_flags |= SSL_SERVER_EXTENDED_MASTER_SECRET | SSL_NEW_SESSION_TICKET;
+            ssl->server_random.data_len = 0;
+            ssl->pre_master_secret.data_len = 0;
+#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+            ssl->private_key = NULL;
+#endif
+            ssl->psk.data_len = 0;
+        }
+
+        if (ssl->state & clear_flags) {
+            ssl_debug_printf("%s detected renegotiation, clearing 0x%02x (%s side)\n",
+                    G_STRFUNC, ssl->state & clear_flags, is_client ? "client" : "server");
+            ssl->state &= ~clear_flags;
+        }
+    }
+
+    /* These flags might be used for non-decryption purposes and may affect the
+     * dissection, so reset them as well. */
+    if (is_client) {
+        session->client_cert_type = 0;
+    } else {
+        session->compression = 0;
+        session->server_cert_type = 0;
+        /* session->is_session_resumed is already handled in the ServerHello dissection. */
+    }
 }
 
 static guint32
@@ -5441,11 +5486,15 @@ ssl_dissect_hnd_hello_ext_cert_type(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 static gint
 ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                              proto_tree *tree, guint32 offset,
-                             SslDecryptSession *ssl, gboolean from_server)
+                             SslSession *session, SslDecryptSession *ssl,
+                             gboolean from_server)
 {
     nstime_t     gmt_unix_time;
     guint8       sessid_length;
     proto_tree  *rnd_tree;
+
+    /* Prepare for renegotiation by resetting the state. */
+    ssl_reset_session(session, ssl, !from_server);
 
     if (ssl) {
         StringInfo *rnd;
@@ -5778,7 +5827,7 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     offset += 2;
 
     /* dissect fields that are also present in ClientHello */
-    offset = ssl_dissect_hnd_hello_common(hf, tvb, tree, offset, ssl, FALSE);
+    offset = ssl_dissect_hnd_hello_common(hf, tvb, tree, offset, session, ssl, FALSE);
 
     /* fields specific for DTLS (cookie_len, cookie) */
     if (dtls_hfs != NULL) {
@@ -5898,7 +5947,7 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     offset += 2;
 
     /* dissect fields that are also present in ClientHello */
-    offset = ssl_dissect_hnd_hello_common(hf, tvb, tree, offset, ssl, TRUE);
+    offset = ssl_dissect_hnd_hello_common(hf, tvb, tree, offset, session, ssl, TRUE);
 
     if (ssl) {
         /* store selected cipher suite for decryption */
