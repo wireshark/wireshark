@@ -1,0 +1,786 @@
+-- 3GPP TS 36.443 V13.3.0 (2016-03)
+-- **************************************************************
+--
+-- PDU definitions for M2AP.
+--
+-- **************************************************************
+
+M2AP-PDU-Contents {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+eps-Access (21) modules (3) m2ap (4) version1 (1) m2ap-PDU-Contents (1) }
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+
+	Cause,
+	CriticalityDiagnostics,
+	ENB-MBMS-Configuration-data-Item,
+	ENB-MBMS-Configuration-data-ConfigUpdate-Item,
+	ENB-MBMS-M2AP-ID,
+	ENBname,
+	GlobalENB-ID,
+	GlobalMCE-ID,
+	MBSFN-Area-ID,
+	MBMS-Service-Area,
+	MBMS-Session-ID,
+	MBMSsessionListPerPMCH-Item,
+	MBMS-Service-associatedLogicalM2-ConnectionItem,
+	MBSFN-Subframe-Configuration,
+	MCCH-Update-Time,
+	MCCHrelatedBCCH-ConfigPerMBSFNArea-Item,
+	MCE-MBMS-M2AP-ID,
+	MCEname,
+	PMCH-Configuration,
+	Common-Subframe-Allocation-Period,
+	TimeToWait,
+	TMGI,
+	TNL-Information,
+	SFN,
+	MBMSsessionsToBeSuspendedListPerPMCH-Item,
+	SC-PTM-Information
+
+FROM M2AP-IEs
+
+	PrivateIE-Container{},
+	ProtocolExtensionContainer{},
+	ProtocolIE-Container{},
+	ProtocolIE-ContainerList{},
+	ProtocolIE-ContainerPair{},
+	ProtocolIE-ContainerPairList{},
+	ProtocolIE-Single-Container{},
+	M2AP-PRIVATE-IES,
+	M2AP-PROTOCOL-EXTENSION,
+	M2AP-PROTOCOL-IES,
+	M2AP-PROTOCOL-IES-PAIR
+FROM M2AP-Containers
+
+	id-MCE-MBMS-M2AP-ID,
+	id-ENB-MBMS-M2AP-ID,
+	id-TMGI,
+	id-MBMS-Session-ID,
+	id-MBMS-Service-Area,
+	id-TNL-Information,
+	id-Alternative-TNL-Information,
+	id-CriticalityDiagnostics,
+	id-Cause,
+	id-MBSFN-Area-Configuration-List,
+	id-MBSFN-Subframe-Configuration-Item,
+	id-MBSFN-Subframe-Configuration-List,
+	id-MCCH-Update-Time,
+	id-PMCH-Configuration-List,
+	id-PMCH-Configuration-Item,
+	id-Common-Subframe-Allocation-Period,
+	id-GlobalENB-ID,
+	id-ENBname,
+	id-ENB-MBMS-Configuration-data-List,
+	id-ENB-MBMS-Configuration-data-Item,
+	id-GlobalMCE-ID,
+	id-MCEname,
+	id-MCCHrelatedBCCH-ConfigPerMBSFNArea,
+	id-MCCHrelatedBCCH-ConfigPerMBSFNArea-Item,
+	id-TimeToWait,
+	id-ENB-MBMS-Configuration-data-List-ConfigUpdate,
+	id-ENB-MBMS-Configuration-data-ConfigUpdate-Item,
+	id-MBSFN-Area-ID,
+	id-ResetType,
+	id-MBMS-Service-associatedLogicalM2-ConnectionItem,
+	id-MBMS-Service-associatedLogicalM2-ConnectionListResAck,
+	id-MBMS-Counting-Request-Session,
+	id-MBMS-Counting-Request-Session-Item,
+	id-MBMS-Counting-Result-List,
+	id-MBMS-Counting-Result-Item,
+	id-MBMS-Suspension-Notification-List,
+	id-MBMS-Suspension-Notification-Item,
+	id-PMCH-Overload-Status,
+	id-Overload-Status-Per-PMCH-List,
+	id-Active-MBMS-Session-List,
+	id-SC-PTM-Information,
+	maxnoofMBSFN-Allocations,
+	maxnoofMBSFNareas,
+	maxnoofPMCHsperMBSFNarea,
+	maxnoofCells,
+	maxnoofMBMSServiceAreasPerCell,
+	maxnoofSessionsPerPMCH,
+	maxnooferrors,
+	maxNrOfIndividualM2ConnectionsToReset,
+	maxnoofCountingService
+
+FROM M2AP-Constants;
+
+-- **************************************************************
+--
+-- SESSION START REQUEST
+--
+-- **************************************************************
+
+SessionStartRequest ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{SessionStartRequest-IEs}},
+	...
+}
+
+SessionStartRequest-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-MCE-MBMS-M2AP-ID					CRITICALITY reject	TYPE MCE-MBMS-M2AP-ID					PRESENCE mandatory}|
+	{ ID id-TMGI								CRITICALITY reject	TYPE TMGI								PRESENCE mandatory}|
+	{ ID id-MBMS-Session-ID						CRITICALITY ignore	TYPE MBMS-Session-ID					PRESENCE optional}|
+	{ ID id-MBMS-Service-Area					CRITICALITY reject	TYPE MBMS-Service-Area					PRESENCE mandatory}|
+	{ ID id-TNL-Information						CRITICALITY reject	TYPE TNL-Information					PRESENCE mandatory}|
+	{ ID id-Alternative-TNL-Information			CRITICALITY ignore	TYPE TNL-Information					PRESENCE optional}|
+	{ ID id-SC-PTM-Information					CRITICALITY reject	TYPE SC-PTM-Information					PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- SESSION START RESPONSE
+--
+-- **************************************************************
+
+SessionStartResponse ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ SessionStartResponse-IEs}},
+	...
+}
+
+SessionStartResponse-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-MCE-MBMS-M2AP-ID					CRITICALITY ignore	TYPE MCE-MBMS-M2AP-ID					PRESENCE mandatory } |
+	{ ID id-ENB-MBMS-M2AP-ID					CRITICALITY ignore	TYPE ENB-MBMS-M2AP-ID					PRESENCE mandatory } |
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional  },
+	...
+}
+
+
+-- **************************************************************
+--
+-- SESSION START FAILURE
+--
+-- **************************************************************
+
+SessionStartFailure ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ SessionStartFailure-IEs}},
+	...
+}
+
+SessionStartFailure-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-MCE-MBMS-M2AP-ID					CRITICALITY ignore	TYPE MCE-MBMS-M2AP-ID					PRESENCE mandatory } |
+	{ ID id-Cause								CRITICALITY ignore	TYPE Cause								PRESENCE mandatory } |
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional  },
+	...
+}
+
+
+-- **************************************************************
+--
+-- SESSION STOP REQUEST
+--
+-- **************************************************************
+
+SessionStopRequest ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{SessionStopRequest-IEs}},
+	...
+}
+
+SessionStopRequest-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-MCE-MBMS-M2AP-ID					CRITICALITY reject	TYPE MCE-MBMS-M2AP-ID					PRESENCE mandatory } |
+	{ ID id-ENB-MBMS-M2AP-ID					CRITICALITY reject	TYPE ENB-MBMS-M2AP-ID					PRESENCE mandatory } ,
+	...
+}
+
+-- **************************************************************
+--
+-- SESSION STOP RESPONSE
+--
+-- **************************************************************
+
+SessionStopResponse ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ SessionStopResponse-IEs}},
+	...
+}
+
+SessionStopResponse-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-MCE-MBMS-M2AP-ID					CRITICALITY ignore	TYPE MCE-MBMS-M2AP-ID					PRESENCE mandatory } |
+	{ ID id-ENB-MBMS-M2AP-ID					CRITICALITY ignore	TYPE ENB-MBMS-M2AP-ID					PRESENCE mandatory } |
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional  } ,
+	...
+}
+
+-- **************************************************************
+--
+-- SESSION UPDATE REQUEST
+--
+-- **************************************************************
+
+SessionUpdateRequest ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{SessionUpdateRequest-IEs}},
+	...
+}
+
+SessionUpdateRequest-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-MCE-MBMS-M2AP-ID			CRITICALITY reject	TYPE MCE-MBMS-M2AP-ID					PRESENCE mandatory}|
+	{ ID id-ENB-MBMS-M2AP-ID			CRITICALITY reject	TYPE ENB-MBMS-M2AP-ID					PRESENCE mandatory}|
+	{ ID id-TMGI						CRITICALITY reject	TYPE TMGI		 						PRESENCE mandatory}|
+	{ ID id-MBMS-Session-ID				CRITICALITY ignore	TYPE MBMS-Session-ID					PRESENCE optional}|
+	{ ID id-MBMS-Service-Area			CRITICALITY ignore	TYPE MBMS-Service-Area					PRESENCE optional}|
+	{ ID id-TNL-Information				CRITICALITY reject	TYPE TNL-Information					PRESENCE optional}|
+	{ ID id-SC-PTM-Information			CRITICALITY reject	TYPE SC-PTM-Information					PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- SESSION UPDATE RESPONSE
+--
+-- **************************************************************
+
+SessionUpdateResponse ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ SessionUpdateResponse-IEs}},
+	...
+}
+
+SessionUpdateResponse-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-MCE-MBMS-M2AP-ID					CRITICALITY ignore	TYPE MCE-MBMS-M2AP-ID					PRESENCE mandatory } |
+	{ ID id-ENB-MBMS-M2AP-ID					CRITICALITY ignore	TYPE ENB-MBMS-M2AP-ID					PRESENCE mandatory } |
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional  },
+	...
+}
+-- **************************************************************
+--
+-- SESSION UPDATE FAILURE
+--
+-- **************************************************************
+
+SessionUpdateFailure ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ SessionUpdateFailure-IEs}},
+	...
+}
+
+SessionUpdateFailure-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-MCE-MBMS-M2AP-ID					CRITICALITY ignore	TYPE MCE-MBMS-M2AP-ID					PRESENCE mandatory } |
+	{ ID id-ENB-MBMS-M2AP-ID					CRITICALITY ignore	TYPE ENB-MBMS-M2AP-ID					PRESENCE mandatory } |
+	{ ID id-Cause								CRITICALITY ignore	TYPE Cause								PRESENCE mandatory } |
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional  },
+	...
+}
+
+-- **************************************************************
+--
+-- MBMS SCHEDULING INFORMATION
+--
+-- **************************************************************
+
+MbmsSchedulingInformation ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ MbmsSchedulingInformation-IEs}},
+	...
+}
+
+MbmsSchedulingInformation-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-MCCH-Update-Time					CRITICALITY reject	TYPE MCCH-Update-Time						PRESENCE mandatory }|
+	{ ID id-MBSFN-Area-Configuration-List		CRITICALITY reject	TYPE MBSFN-Area-Configuration-List			PRESENCE mandatory },
+	...
+}
+
+MBSFN-Area-Configuration-List ::= SEQUENCE (SIZE(1.. maxnoofMBSFNareas)) OF ProtocolIE-Container { { MBSFN-Area-Configuration-Item } }
+
+MBSFN-Area-Configuration-Item M2AP-PROTOCOL-IES ::= {
+	{ ID id-PMCH-Configuration-List				CRITICALITY reject	TYPE PMCH-Configuration-List				PRESENCE mandatory }|
+	{ ID id-MBSFN-Subframe-Configuration-List	CRITICALITY reject	TYPE MBSFN-Subframe-ConfigurationList		PRESENCE mandatory }|
+	{ ID id-Common-Subframe-Allocation-Period	CRITICALITY reject	TYPE Common-Subframe-Allocation-Period		PRESENCE mandatory }|
+	{ ID id-MBSFN-Area-ID						CRITICALITY reject	TYPE MBSFN-Area-ID							PRESENCE mandatory }|
+	{ ID id-MBMS-Suspension-Notification-List	CRITICALITY ignore	TYPE MBMS-Suspension-Notification-List		PRESENCE optional },
+	...
+}
+
+PMCH-Configuration-List ::= SEQUENCE (SIZE(0.. maxnoofPMCHsperMBSFNarea)) OF ProtocolIE-Single-Container { { PMCH-Configuration-ItemIEs } }
+
+PMCH-Configuration-ItemIEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-PMCH-Configuration-Item	 CRITICALITY reject	TYPE PMCH-Configuration-Item	PRESENCE mandatory },
+	...
+}
+
+PMCH-Configuration-Item ::= SEQUENCE {
+	pmch-Configuration				PMCH-Configuration,
+	mbms-Session-List				MBMSsessionListPerPMCH-Item,
+	iE-Extensions					ProtocolExtensionContainer { { PMCH-Configuration-ItemExtIEs} } OPTIONAL,
+	...
+}
+
+PMCH-Configuration-ItemExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MBSFN-Subframe-ConfigurationList ::= SEQUENCE (SIZE(1.. maxnoofMBSFN-Allocations)) OF ProtocolIE-Single-Container { { MBSFN-Subframe-ConfigurationItem } }
+
+MBSFN-Subframe-ConfigurationItem M2AP-PROTOCOL-IES ::= {
+	{ ID id-MBSFN-Subframe-Configuration-Item		CRITICALITY reject	TYPE MBSFN-Subframe-Configuration		PRESENCE mandatory },
+	...
+}
+
+MBMS-Suspension-Notification-List ::= SEQUENCE (SIZE(1.. maxnoofPMCHsperMBSFNarea)) OF ProtocolIE-Single-Container { { MBMS-Suspension-Notification-ItemIEs } }
+
+MBMS-Suspension-Notification-ItemIEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-MBMS-Suspension-Notification-Item	CRITICALITY ignore	TYPE MBMS-Suspension-Notification-Item	PRESENCE optional},
+	...
+}
+
+MBMS-Suspension-Notification-Item ::= SEQUENCE {
+	sfn											SFN,
+	mbms-Sessions-To-Be-Suspended-List			MBMSsessionsToBeSuspendedListPerPMCH-Item,
+	iE-Extensions								ProtocolExtensionContainer { { MBMS-Suspension-Notification-ItemExtIEs} } OPTIONAL,
+	...
+}
+
+MBMS-Suspension-Notification-ItemExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- MBMS SCHEDULING INFORMATION RESPONSE
+--
+-- **************************************************************
+
+MbmsSchedulingInformationResponse ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ MbmsSchedulingInformationResponse-IEs}},
+	...
+}
+
+MbmsSchedulingInformationResponse-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional },
+	...
+}
+
+
+-- **************************************************************
+--
+-- M2 SETUP REQUEST
+--
+-- **************************************************************
+
+M2SetupRequest ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{M2SetupRequest-IEs}},
+	...
+}
+
+M2SetupRequest-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-GlobalENB-ID							CRITICALITY reject	TYPE GlobalENB-ID						PRESENCE mandatory}|
+	{ ID id-ENBname									CRITICALITY ignore	TYPE ENBname 							PRESENCE optional}|
+	{ ID id-ENB-MBMS-Configuration-data-List		CRITICALITY reject	TYPE ENB-MBMS-Configuration-data-List		PRESENCE mandatory},
+	...
+}
+
+ENB-MBMS-Configuration-data-List ::= SEQUENCE (SIZE(1.. maxnoofCells)) OF ProtocolIE-Single-Container { { ENB-MBMS-Configuration-data-ItemIEs } }
+
+ENB-MBMS-Configuration-data-ItemIEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-ENB-MBMS-Configuration-data-Item	CRITICALITY reject	TYPE ENB-MBMS-Configuration-data-Item		PRESENCE mandatory },
+	...
+}
+
+
+-- **************************************************************
+--
+-- M2 SETUP RESPONSE
+--
+-- **************************************************************
+
+M2SetupResponse ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ M2SetupResponse-IEs}},
+	...
+}
+
+M2SetupResponse-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-GlobalMCE-ID							CRITICALITY reject	TYPE GlobalMCE-ID							PRESENCE mandatory }|
+	{ ID id-MCEname									CRITICALITY ignore	TYPE MCEname								PRESENCE optional }|
+	{ ID id-MCCHrelatedBCCH-ConfigPerMBSFNArea		CRITICALITY reject	TYPE MCCHrelatedBCCH-ConfigPerMBSFNArea			PRESENCE mandatory }|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional },
+	...
+}
+
+MCCHrelatedBCCH-ConfigPerMBSFNArea ::= SEQUENCE (SIZE(1.. maxnoofMBSFNareas)) OF ProtocolIE-Single-Container { { MCCHrelatedBCCH-ConfigPerMBSFNArea-ItemIEs } }
+
+MCCHrelatedBCCH-ConfigPerMBSFNArea-ItemIEs 	M2AP-PROTOCOL-IES ::= {
+	{ ID id-MCCHrelatedBCCH-ConfigPerMBSFNArea-Item		CRITICALITY reject	TYPE MCCHrelatedBCCH-ConfigPerMBSFNArea-Item	PRESENCE mandatory },
+	...
+}
+
+-- **************************************************************
+--
+-- M2 SETUP FAILURE
+--
+-- **************************************************************
+
+M2SetupFailure ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ M2SetupFailure-IEs}},
+	...
+}
+
+M2SetupFailure-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
+	{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait					PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
+
+	...
+}
+
+-- **************************************************************
+--
+-- ENB CONFIGURATION UPDATE
+--
+-- **************************************************************
+
+ENBConfigurationUpdate ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ENBConfigurationUpdate-IEs}},
+	...
+}
+
+ENBConfigurationUpdate-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-GlobalENB-ID									CRITICALITY reject	TYPE GlobalENB-ID					PRESENCE optional }|
+	{ ID id-ENBname											CRITICALITY ignore	TYPE ENBname						PRESENCE optional }|
+	{ ID id-ENB-MBMS-Configuration-data-List-ConfigUpdate	CRITICALITY reject	TYPE ENB-MBMS-Configuration-data-List-ConfigUpdate	PRESENCE optional },
+	...
+}
+ENB-MBMS-Configuration-data-List-ConfigUpdate ::= SEQUENCE (SIZE(1.. maxnoofCells)) OF ProtocolIE-Single-Container { { ENB-MBMS-Configuration-data-ConfigUpdate-ItemIEs } }
+
+ENB-MBMS-Configuration-data-ConfigUpdate-ItemIEs 	M2AP-PROTOCOL-IES ::= {
+	{ ID id-ENB-MBMS-Configuration-data-ConfigUpdate-Item	CRITICALITY reject	TYPE ENB-MBMS-Configuration-data-ConfigUpdate-Item	PRESENCE mandatory },
+	...
+}
+
+-- **************************************************************
+--
+-- ENB CONFIGURATION UPDATE ACKNOWLEDGE
+--
+-- **************************************************************
+
+ENBConfigurationUpdateAcknowledge ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ ENBConfigurationUpdateAcknowledge-IEs}},
+	...
+}
+
+ENBConfigurationUpdateAcknowledge-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-MCCHrelatedBCCH-ConfigPerMBSFNArea				CRITICALITY reject	TYPE MCCHrelatedBCCH-ConfigPerMBSFNArea		PRESENCE optional }|
+	{ ID id-CriticalityDiagnostics							CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional },
+	...
+}
+
+
+-- **************************************************************
+--
+-- ENB CONFIGURATION UPDATE FAILURE
+--
+-- **************************************************************
+
+ENBConfigurationUpdateFailure ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ ENBConfigurationUpdateFailure-IEs}},
+	...
+}
+
+ENBConfigurationUpdateFailure-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
+	{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait					PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
+
+	...
+}
+
+
+-- **************************************************************
+--
+-- MCE CONFIGURATION UPDATE
+--
+-- **************************************************************
+
+MCEConfigurationUpdate ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{MCEConfigurationUpdate-IEs}},
+	...
+}
+
+MCEConfigurationUpdate-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-GlobalMCE-ID							CRITICALITY reject	TYPE GlobalMCE-ID						PRESENCE optional }|
+	{ ID id-MCEname									CRITICALITY ignore	TYPE MCEname							PRESENCE optional }|
+	{ ID id-MCCHrelatedBCCH-ConfigPerMBSFNArea		CRITICALITY reject	TYPE MCCHrelatedBCCH-ConfigPerMBSFNArea		PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- MCE CONFIGURATION UPDATE ACKNOWLEDGE
+--
+-- **************************************************************
+
+MCEConfigurationUpdateAcknowledge ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ MCEConfigurationUpdateAcknowledge-IEs}},
+	...
+}
+
+MCEConfigurationUpdateAcknowledge-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
+	...
+}
+
+
+-- **************************************************************
+--
+-- MCE CONFIGURATION UPDATE FAILURE
+--
+-- **************************************************************
+
+MCEConfigurationUpdateFailure ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ MCEConfigurationUpdateFailure-IEs}},
+	...
+}
+
+MCEConfigurationUpdateFailure-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
+	{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait					PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
+
+	...
+}
+
+
+-- **************************************************************
+--
+-- ERROR INDICATION
+--
+-- **************************************************************
+
+ErrorIndication ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ErrorIndication-IEs}},
+	...
+}
+
+ErrorIndication-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-MCE-MBMS-M2AP-ID				CRITICALITY ignore	TYPE MCE-MBMS-M2AP-ID				PRESENCE optional}|
+	{ ID id-ENB-MBMS-M2AP-ID				CRITICALITY ignore	TYPE ENB-MBMS-M2AP-ID				PRESENCE optional}|
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause							PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- RESET
+--
+-- **************************************************************
+
+Reset ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{Reset-IEs}},
+	...
+}
+
+Reset-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-Cause					CRITICALITY ignore	TYPE Cause				PRESENCE mandatory}|
+	{ ID id-ResetType				CRITICALITY reject	TYPE ResetType			PRESENCE mandatory},
+	...
+}
+
+ResetType ::= CHOICE {
+	m2-Interface			ResetAll,
+	partOfM2-Interface		MBMS-Service-associatedLogicalM2-ConnectionListRes,
+	...
+}
+
+ResetAll ::= ENUMERATED {
+	reset-all,
+	...
+}
+
+MBMS-Service-associatedLogicalM2-ConnectionListRes ::= SEQUENCE (SIZE(1.. maxNrOfIndividualM2ConnectionsToReset)) OF ProtocolIE-Single-Container { { MBMS-Service-associatedLogicalM2-ConnectionItemRes } }
+
+MBMS-Service-associatedLogicalM2-ConnectionItemRes 	M2AP-PROTOCOL-IES ::= {
+	{ ID id-MBMS-Service-associatedLogicalM2-ConnectionItem	CRITICALITY reject	TYPE MBMS-Service-associatedLogicalM2-ConnectionItem	PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- RESET ACKNOWLEDGE
+--
+-- **************************************************************
+
+ResetAcknowledge ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ResetAcknowledge-IEs}},
+	...
+}
+
+ResetAcknowledge-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-MBMS-Service-associatedLogicalM2-ConnectionListResAck	CRITICALITY ignore	TYPE MBMS-Service-associatedLogicalM2-ConnectionListResAck		PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional},
+	...
+}
+
+MBMS-Service-associatedLogicalM2-ConnectionListResAck ::= SEQUENCE (SIZE(1.. maxNrOfIndividualM2ConnectionsToReset)) OF ProtocolIE-Single-Container { { MBMS-Service-associatedLogicalM2-ConnectionItemResAck } }
+
+MBMS-Service-associatedLogicalM2-ConnectionItemResAck 	M2AP-PROTOCOL-IES ::= {
+	{ ID id-MBMS-Service-associatedLogicalM2-ConnectionItem	CRITICALITY ignore	TYPE MBMS-Service-associatedLogicalM2-ConnectionItem	PRESENCE mandatory},
+	...
+}
+
+
+-- **************************************************************
+--
+-- PRIVATE MESSAGE
+--
+-- **************************************************************
+
+PrivateMessage ::= SEQUENCE {
+	privateIEs		PrivateIE-Container  {{PrivateMessage-IEs}},
+	...
+}
+
+PrivateMessage-IEs M2AP-PRIVATE-IES ::= {
+	...
+}
+
+
+-- **************************************************************
+--
+-- MBMS SERVICE COUNTING REQUEST
+--
+-- **************************************************************
+
+MbmsServiceCountingRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{MbmsServiceCountingRequest-IEs}},
+	...
+}
+
+MbmsServiceCountingRequest-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-MCCH-Update-Time						CRITICALITY reject	TYPE MCCH-Update-Time				PRESENCE mandatory }|
+	{ ID id-MBSFN-Area-ID							CRITICALITY reject	TYPE MBSFN-Area-ID					PRESENCE mandatory }|
+	{ ID id-MBMS-Counting-Request-Session			CRITICALITY reject	TYPE MBMS-Counting-Request-Session	PRESENCE mandatory },
+	...
+}
+
+MBMS-Counting-Request-Session ::= SEQUENCE (SIZE(1.. maxnoofCountingService)) OF ProtocolIE-Container { { MBMS-Counting-Request-Session-Item } }
+
+MBMS-Counting-Request-Session-Item M2AP-PROTOCOL-IES ::= {
+	{ ID id-MBMS-Counting-Request-Session-Item	CRITICALITY reject	TYPE MBMS-Counting-Request-SessionIE		PRESENCE mandatory },
+	...
+}
+
+MBMS-Counting-Request-SessionIE ::= SEQUENCE{
+	tmgi					TMGI,
+	iE-Extensions			ProtocolExtensionContainer { { MBMS-Counting-Request-SessionIE-ExtIEs} } OPTIONAL,
+	...
+}
+
+MBMS-Counting-Request-SessionIE-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- MBMS SERVICE COUNTING RESPONSE
+--
+-- **************************************************************
+
+MbmsServiceCountingResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{{MbmsServiceCountingResponse-IEs}},
+	...
+}
+
+MbmsServiceCountingResponse-IEs M2AP-PROTOCOL-IES ::= {
+
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional },
+	...
+}
+
+
+-- **************************************************************
+--
+-- MBMS SERVICE COUNTING FAILURE
+--
+-- **************************************************************
+
+MbmsServiceCountingFailure ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{{ MbmsServiceCountingFailure-IEs}},
+	...
+}
+
+MbmsServiceCountingFailure-IEs M2AP-PROTOCOL-IES ::= {
+
+	{ ID id-Cause								CRITICALITY ignore	TYPE Cause							PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional},
+	...
+}
+
+
+-- **************************************************************
+--
+-- MBMS SERVICE COUNTING RESULTS REPORT
+--
+-- **************************************************************
+
+MbmsServiceCountingResultsReport ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container		{{ MbmsServiceCountingResultsReport-IEs}},
+	...
+}
+
+MbmsServiceCountingResultsReport-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-MBSFN-Area-ID					CRITICALITY reject	TYPE MBSFN-Area-ID						PRESENCE mandatory}|
+	{ ID id-MBMS-Counting-Result-List		CRITICALITY reject	TYPE MBMS-Counting-Result-List			PRESENCE mandatory},
+	...
+}
+
+MBMS-Counting-Result-List ::= SEQUENCE (SIZE(1.. maxnoofCountingService)) OF ProtocolIE-Container { { MBMS-Counting-Result-Item } }
+
+MBMS-Counting-Result-Item M2AP-PROTOCOL-IES ::= {
+	{ ID id-MBMS-Counting-Result-Item		CRITICALITY reject	TYPE MBMS-Counting-Result		PRESENCE mandatory },
+	...
+}
+
+MBMS-Counting-Result ::= SEQUENCE{
+	tmgi				TMGI,
+	countingResult		CountingResult,
+	iE-Extensions		ProtocolExtensionContainer { { MBMS-Counting-Result-ExtIEs} } OPTIONAL,
+	...
+}
+
+MBMS-Counting-Result-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CountingResult ::= INTEGER (0..1023)
+
+-- **************************************************************
+--
+-- MBMS OVERLOAD NOTIFICATION
+--
+-- **************************************************************
+
+MbmsOverloadNotification ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container		{{ MbmsOverloadNotification-IEs}},
+	...
+}
+
+MbmsOverloadNotification-IEs M2AP-PROTOCOL-IES ::= {
+	{ ID id-MBSFN-Area-ID						CRITICALITY reject	TYPE MBSFN-Area-ID						PRESENCE mandatory}|
+	{ ID id-Overload-Status-Per-PMCH-List		CRITICALITY reject	TYPE Overload-Status-Per-PMCH-List		PRESENCE mandatory},
+	...
+}
+
+Overload-Status-Per-PMCH-List ::= SEQUENCE (SIZE(1..maxnoofPMCHsperMBSFNarea)) OF ProtocolIE-Container { { Overload-Status-Per-PMCH-Item } }
+
+Overload-Status-Per-PMCH-Item M2AP-PROTOCOL-IES ::= {
+	{ ID id-PMCH-Overload-Status			CRITICALITY reject	TYPE PMCH-Overload-Status			PRESENCE mandatory }|
+	{ ID id-Active-MBMS-Session-List		CRITICALITY reject	TYPE Active-MBMS-Session-List		PRESENCE optional },
+	...
+}
+
+PMCH-Overload-Status ::= ENUMERATED {normal, overload, ...}
+
+Active-MBMS-Session-List ::= SEQUENCE (SIZE(1..maxnoofSessionsPerPMCH)) OF ProtocolIE-Container { { Active-MBMS-Session-Item } }
+
+Active-MBMS-Session-Item M2AP-PROTOCOL-IES ::= {
+	{ ID id-TMGI		CRITICALITY reject	TYPE TMGI		PRESENCE mandatory },
+	...
+}
+
+END

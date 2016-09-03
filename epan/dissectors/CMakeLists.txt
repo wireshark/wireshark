@@ -107,6 +107,7 @@ set(ASN1_DISSECTOR_SRC
 	packet-lppa.c
 	packet-lppe.c
 	packet-lte-rrc.c
+	packet-m2ap.c
 	packet-m3ap.c
 	packet-mms.c
 	packet-mpeg-audio.c

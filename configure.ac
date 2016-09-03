@@ -2724,6 +2724,7 @@ AC_CONFIG_FILES(
   epan/dissectors/asn1/lppa/Makefile
   epan/dissectors/asn1/lppe/Makefile
   epan/dissectors/asn1/lte-rrc/Makefile
+  epan/dissectors/asn1/m2ap/Makefile
   epan/dissectors/asn1/m3ap/Makefile
   epan/dissectors/asn1/mms/Makefile
   epan/dissectors/asn1/mpeg-audio/Makefile

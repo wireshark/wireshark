@@ -1,0 +1,109 @@
+-- 3GPP TS 36.443 V13.3.0 (2016-03)
+-- **************************************************************
+--
+-- Constant definitions
+--
+-- **************************************************************
+
+M2AP-Constants {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+eps-Access (21) modules (3) m2ap (4) version1 (1) m2ap-Constants (4) }
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+	ProcedureCode,
+	ProtocolIE-ID
+FROM M2AP-CommonDataTypes;
+
+-- **************************************************************
+--
+-- Elementary Procedures
+--
+-- **************************************************************
+
+id-sessionStart													ProcedureCode ::= 0
+id-sessionStop													ProcedureCode ::= 1
+id-mbmsSchedulingInformation									ProcedureCode ::= 2
+id-errorIndication												ProcedureCode ::= 3
+id-reset														ProcedureCode ::= 4
+id-m2Setup														ProcedureCode ::= 5
+id-eNBConfigurationUpdate										ProcedureCode ::= 6
+id-mCEConfigurationUpdate										ProcedureCode ::= 7
+id-privateMessage												ProcedureCode ::= 8
+id-sessionUpdate												ProcedureCode ::= 9
+id-mbmsServiceCounting											ProcedureCode ::= 10
+id-mbmsServiceCountingResultsReport								ProcedureCode ::= 11
+id-mbmsOverloadNotification										ProcedureCode ::= 12
+
+-- **************************************************************
+--
+-- Lists
+--
+-- **************************************************************
+
+maxnoofMBSFNareas							INTEGER ::= 256
+maxnoofMBSFN-Allocations					INTEGER ::= 8
+maxnoofPMCHsperMBSFNarea					INTEGER ::= 15
+maxnoofCells								INTEGER ::= 256
+maxnoofMBMSServiceAreasPerCell				INTEGER ::= 256
+maxnoofSessionsPerPMCH						INTEGER ::= 29
+maxnooferrors								INTEGER ::= 256
+maxNrOfIndividualM2ConnectionsToReset		INTEGER ::= 256
+maxnoofCountingService						INTEGER ::= 16
+maxnoofCellsforMBMS							INTEGER ::= 4096
+
+
+-- **************************************************************
+--
+-- IEs
+--
+-- **************************************************************
+
+id-MCE-MBMS-M2AP-ID															ProtocolIE-ID ::= 0
+id-ENB-MBMS-M2AP-ID															ProtocolIE-ID ::= 1
+id-TMGI																		ProtocolIE-ID ::= 2
+id-MBMS-Session-ID															ProtocolIE-ID ::= 3
+id-MBMS-Service-Area														ProtocolIE-ID ::= 6
+id-TNL-Information															ProtocolIE-ID ::= 7
+id-CriticalityDiagnostics													ProtocolIE-ID ::= 8
+id-Cause																	ProtocolIE-ID ::= 9
+id-MBSFN-Area-Configuration-List											ProtocolIE-ID ::= 10
+id-PMCH-Configuration-List													ProtocolIE-ID ::= 11
+id-PMCH-Configuration-Item													ProtocolIE-ID ::= 12
+id-GlobalENB-ID																ProtocolIE-ID ::= 13
+id-ENBname																	ProtocolIE-ID ::= 14
+id-ENB-MBMS-Configuration-data-List											ProtocolIE-ID ::= 15
+id-ENB-MBMS-Configuration-data-Item											ProtocolIE-ID ::= 16
+id-GlobalMCE-ID																ProtocolIE-ID ::= 17
+id-MCEname																	ProtocolIE-ID ::= 18
+id-MCCHrelatedBCCH-ConfigPerMBSFNArea										ProtocolIE-ID ::= 19
+id-MCCHrelatedBCCH-ConfigPerMBSFNArea-Item									ProtocolIE-ID ::= 20
+id-TimeToWait																ProtocolIE-ID ::= 21
+id-MBSFN-Subframe-Configuration-List										ProtocolIE-ID ::= 22
+id-MBSFN-Subframe-Configuration-Item										ProtocolIE-ID ::= 23
+id-Common-Subframe-Allocation-Period										ProtocolIE-ID ::= 24
+id-MCCH-Update-Time															ProtocolIE-ID ::= 25
+id-ENB-MBMS-Configuration-data-List-ConfigUpdate							ProtocolIE-ID ::= 26
+id-ENB-MBMS-Configuration-data-ConfigUpdate-Item							ProtocolIE-ID ::= 27
+id-MBMS-Service-associatedLogicalM2-ConnectionItem							ProtocolIE-ID ::= 28
+id-MBSFN-Area-ID															ProtocolIE-ID ::= 29
+id-ResetType																ProtocolIE-ID ::= 30
+id-MBMS-Service-associatedLogicalM2-ConnectionListResAck					ProtocolIE-ID ::= 31
+id-MBMS-Counting-Request-Session											ProtocolIE-ID ::= 32
+id-MBMS-Counting-Request-Session-Item										ProtocolIE-ID ::= 33
+id-MBMS-Counting-Result-List												ProtocolIE-ID ::= 34
+id-MBMS-Counting-Result-Item												ProtocolIE-ID ::= 35
+id-Modulation-Coding-Scheme2												ProtocolIE-ID ::= 36
+id-MCH-Scheduling-PeriodExtended											ProtocolIE-ID ::= 37
+id-Alternative-TNL-Information												ProtocolIE-ID ::= 38
+id-Overload-Status-Per-PMCH-List											ProtocolIE-ID ::= 39
+id-PMCH-Overload-Status														ProtocolIE-ID ::= 41
+id-Active-MBMS-Session-List													ProtocolIE-ID ::= 42
+id-MBMS-Suspension-Notification-List 										ProtocolIE-ID ::= 43
+id-MBMS-Suspension-Notification-Item										ProtocolIE-ID ::= 44
+id-SC-PTM-Information														ProtocolIE-ID ::= 45
+
+END

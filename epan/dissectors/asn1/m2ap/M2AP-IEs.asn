@@ -1,0 +1,452 @@
+-- 3GPP TS 36.443 V13.3.0 (2016-03)
+-- **************************************************************
+--
+-- Information Element Definitions
+--
+-- **************************************************************
+
+M2AP-IEs {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+eps-Access (21) modules (3) m2ap (4) version1 (1) m2ap-IEs (2) }
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+	id-MCH-Scheduling-PeriodExtended,
+	id-Modulation-Coding-Scheme2,
+	maxnoofMBSFNareas,
+	maxnoofPMCHsperMBSFNarea,
+	maxnoofCells,
+	maxnoofMBMSServiceAreasPerCell,
+	maxnoofSessionsPerPMCH,
+	maxnooferrors,
+	maxnoofCellsforMBMS
+
+FROM M2AP-Constants
+
+	Criticality,
+	ProcedureCode,
+	ProtocolIE-ID,
+	TriggeringMessage
+FROM M2AP-CommonDataTypes
+
+	ProtocolExtensionContainer{},
+	ProtocolIE-Single-Container{},
+	M2AP-PROTOCOL-EXTENSION,
+	M2AP-PROTOCOL-IES
+FROM M2AP-Containers;
+
+-- A
+
+AllocatedSubframesEnd ::= INTEGER (0..1535)
+
+AllocationAndRetentionPriority ::= SEQUENCE {
+	priorityLevel				PriorityLevel,
+	pre-emptionCapability		Pre-emptionCapability,
+	pre-emptionVulnerability	Pre-emptionVulnerability,
+	iE-Extensions				ProtocolExtensionContainer { {AllocationAndRetentionPriority-ExtIEs} } OPTIONAL
+}
+
+AllocationAndRetentionPriority-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- B
+
+BitRate ::= INTEGER (0..10000000000)
+
+-- C
+
+Cause ::= CHOICE {
+	radioNetwork		CauseRadioNetwork,
+	transport			CauseTransport,
+	nAS					CauseNAS,
+	protocol			CauseProtocol,
+	misc				CauseMisc,
+	...
+}
+
+CauseMisc ::= ENUMERATED {
+	control-processing-overload,
+	hardware-failure,
+	om-intervention,
+	unspecified,
+	...
+}
+
+CauseNAS ::= ENUMERATED {
+	unspecified,
+	...
+}
+
+CauseProtocol ::= ENUMERATED {
+	transfer-syntax-error,
+	abstract-syntax-error-reject,
+	abstract-syntax-error-ignore-and-notify,
+	message-not-compatible-with-receiver-state,
+	semantic-error,
+	abstract-syntax-error-falsely-constructed-message,
+	unspecified,
+	...
+}
+
+CauseRadioNetwork ::= ENUMERATED {
+	unknown-or-already-allocated-MCE-MBMS-M2AP-ID,
+	unknown-or-already-allocated-eNB-MBMS-M2AP-ID,
+	unknown-or-inconsistent-pair-of-MBMS-M2AP-IDs,
+	radio-resources-not-available,
+	interaction-with-other-procedure,
+	unspecified,
+	...,
+	invalid-QoS-combination,
+	not-supported-QCI-value
+
+}
+
+CauseTransport ::= ENUMERATED {
+	transport-resource-unavailable,
+	unspecified,
+	...
+}
+
+Cell-Information ::= SEQUENCE {
+	eCGI							ECGI,
+	cellReservationInfo			ENUMERATED {reservedCell, nonReservedCell, ...},
+	iE-Extensions					ProtocolExtensionContainer { { Cell-Information-ExtIEs} } OPTIONAL,
+	...
+}
+
+Cell-Information-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Cell-Information-List ::= SEQUENCE (SIZE(1..maxnoofCells)) OF Cell-Information
+
+CriticalityDiagnostics ::= SEQUENCE {
+	procedureCode					ProcedureCode					OPTIONAL,
+	triggeringMessage				TriggeringMessage				OPTIONAL,
+	procedureCriticality			Criticality						OPTIONAL,
+	iEsCriticalityDiagnostics		CriticalityDiagnostics-IE-List	OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {CriticalityDiagnostics-ExtIEs} }	OPTIONAL,
+	...
+}
+
+
+CriticalityDiagnostics-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CriticalityDiagnostics-IE-List ::= SEQUENCE (SIZE (1..maxnooferrors)) OF
+	SEQUENCE {
+		iECriticality			Criticality,
+		iE-ID					ProtocolIE-ID,
+		typeOfError				TypeOfError,
+		iE-Extensions			ProtocolExtensionContainer { {CriticalityDiagnostics-IE-List-ExtIEs} } OPTIONAL,
+		...
+}
+
+CriticalityDiagnostics-IE-List-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- D
+-- E
+
+ECGI ::= SEQUENCE {
+	pLMN-Identity				PLMN-Identity,
+	eUTRANcellIdentifier		EUTRANCellIdentifier,
+	iE-Extensions				ProtocolExtensionContainer { {ECGI-ExtIEs} } OPTIONAL,
+	...
+}
+
+ECGI-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+ENB-ID ::= CHOICE {
+	macro-eNB-ID	BIT STRING (SIZE (20)),
+	...
+}
+
+ENB-MBMS-Configuration-data-Item ::= SEQUENCE {
+	eCGI							ECGI,
+	mbsfnSynchronisationArea		MBSFN-SynchronisationArea-ID,
+	mbmsServiceAreaList				MBMS-Service-Area-ID-List,
+	iE-Extensions					ProtocolExtensionContainer { { ENB-MBMS-Configuration-data-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ENB-MBMS-Configuration-data-Item-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ENB-MBMS-Configuration-data-ConfigUpdate-Item ::= CHOICE {
+	mBMSConfigData					ENB-MBMS-Configuration-data-Item,
+	eCGI							ECGI,
+	...
+}
+
+ENB-MBMS-M2AP-ID ::= INTEGER (0..65535)
+
+ENBname ::= PrintableString (SIZE (1..150,...))
+
+EUTRANCellIdentifier ::= BIT STRING (SIZE (28))
+
+
+-- F
+-- G
+
+GBR-QosInformation ::= SEQUENCE {
+	mBMS-E-RAB-MaximumBitrateDL			BitRate,
+	mBMS-E-RAB-GuaranteedBitrateDL		BitRate,
+	iE-Extensions						ProtocolExtensionContainer { { GBR-QosInformation-ExtIEs} } OPTIONAL,
+	...
+}
+
+GBR-QosInformation-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GlobalENB-ID ::= SEQUENCE {
+	pLMN-Identity			PLMN-Identity,
+	eNB-ID					ENB-ID,
+	iE-Extensions			ProtocolExtensionContainer { {GlobalENB-ID-ExtIEs} } OPTIONAL,
+	...
+}
+
+GlobalENB-ID-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GlobalMCE-ID ::= SEQUENCE {
+	pLMN-Identity			PLMN-Identity,
+	mCE-ID					MCE-ID,
+	iE-Extensions			ProtocolExtensionContainer { {GlobalMCE-ID-ExtIEs} } OPTIONAL,
+	...
+}
+
+GlobalMCE-ID-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GTP-TEID ::= OCTET STRING (SIZE (4))
+
+-- H
+-- I
+
+IPAddress ::= OCTET STRING (SIZE(4..16))
+
+-- J
+-- K
+-- L
+
+LCID ::= INTEGER (0..28)
+
+-- M
+
+MBMS-Cell-List ::= SEQUENCE (SIZE(1.. maxnoofCellsforMBMS)) OF ECGI
+
+MBMS-E-RAB-QoS-Parameters ::= SEQUENCE {
+	qCI								QCI,
+	gbrQosInformation				GBR-QosInformation		OPTIONAL,
+	allocationAndRetentionPriority	AllocationAndRetentionPriority,
+	iE-Extensions					ProtocolExtensionContainer { { MBMS-E-RAB-QoS-Parameters-ExtIEs} }	OPTIONAL,
+	...
+}
+
+MBMS-E-RAB-QoS-Parameters-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MBMS-Service-associatedLogicalM2-ConnectionItem ::= SEQUENCE {
+	eNB-MBMS-M2AP-ID				ENB-MBMS-M2AP-ID OPTIONAL,
+	mCE-MBMS-M2AP-ID				MCE-MBMS-M2AP-ID OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { MBMS-Service-associatedLogicalM2-ConnectionItemExtIEs} } OPTIONAL,
+	...
+}
+
+
+MBMS-Service-associatedLogicalM2-ConnectionItemExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MBMS-Service-Area ::= OCTET STRING
+
+MBMS-Service-Area-ID-List ::= SEQUENCE (SIZE(1..maxnoofMBMSServiceAreasPerCell)) OF MBMS-Service-Area
+
+MBMS-Session-ID ::= OCTET STRING (SIZE (1))
+
+MBMSsessionListPerPMCH-Item ::= SEQUENCE (SIZE(1..maxnoofSessionsPerPMCH)) OF SEQUENCE {
+	tmgi							TMGI,
+	lcid							LCID,
+	iE-Extensions					ProtocolExtensionContainer { { MBMSsessionListPerPMCH-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+MBMSsessionListPerPMCH-Item-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MBMSsessionsToBeSuspendedListPerPMCH-Item ::= SEQUENCE (SIZE(1..maxnoofSessionsPerPMCH)) OF SEQUENCE {
+	tmgi							TMGI,
+	iE-Extensions					ProtocolExtensionContainer { { MBMSsessionsToBeSuspendedListPerPMCH-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+MBMSsessionsToBeSuspendedListPerPMCH-Item-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MBSFN-Area-ID ::= INTEGER (0..255)
+
+MBSFN-SynchronisationArea-ID ::= INTEGER (0..65535)
+
+MBSFN-Subframe-Configuration ::= SEQUENCE {
+	radioframeAllocationPeriod		ENUMERATED {n1, n2, n4, n8, n16, n32},
+	radioframeAllocationOffset		INTEGER (0..7),
+	subframeAllocation				CHOICE {
+		oneFrame						BIT STRING (SIZE (6)  ),
+		fourFrames						BIT STRING (SIZE (24) ) },
+	iE-Extensions					ProtocolExtensionContainer { { MBSFN-Subframe-Configuration-ExtIEs} } OPTIONAL,
+	...
+}
+
+MBSFN-Subframe-Configuration-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MCCH-Update-Time ::= INTEGER (0..255)
+
+MCCHrelatedBCCH-ConfigPerMBSFNArea-Item ::= SEQUENCE {
+	mbsfnArea						MBSFN-Area-ID,
+	pdcchLength						ENUMERATED {s1, s2, ...},
+	repetitionPeriod				ENUMERATED {rf32, rf64, rf128, rf256},
+	offset							INTEGER (0..10),
+	modificationPeriod				ENUMERATED {rf512, rf1024},
+	subframeAllocationInfo			BIT STRING (SIZE(6)),
+	modulationAndCodingScheme		ENUMERATED {n2, n7, n13, n19},
+	cellInformationList				Cell-Information-List	OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { MCCHrelatedBCCH-ConfigPerMBSFNArea-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+MCCHrelatedBCCH-ConfigPerMBSFNArea-Item-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MCE-ID ::= OCTET STRING (SIZE(2))
+
+MCE-MBMS-M2AP-ID ::= INTEGER (0.. 16777215)
+
+MCEname ::= PrintableString (SIZE (1..150,...))
+
+
+MCH-Scheduling-Period ::= ENUMERATED {rf8, rf16, rf32, rf64, rf128, rf256, rf512, rf1024}
+
+MCH-Scheduling-PeriodExtended ::= ENUMERATED {rf4, ...}
+
+Modulation-Coding-Scheme2 ::= INTEGER (0..27)
+
+-- N
+-- O
+-- P
+
+PLMN-Identity ::= OCTET STRING (SIZE(3))
+
+PMCH-Configuration ::= SEQUENCE {
+	allocatedSubframesEnd			AllocatedSubframesEnd,
+	dataMCS							INTEGER (0..28),
+	mchSchedulingPeriod				MCH-Scheduling-Period,
+	iE-Extensions					ProtocolExtensionContainer { {PMCH-Configuration-ExtIEs} } OPTIONAL,
+	...
+}
+
+PMCH-Configuration-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+-- Extension for Rel-12 to support 256QAM for MTCH --
+	{ID id-Modulation-Coding-Scheme2			CRITICALITY reject	EXTENSION Modulation-Coding-Scheme2		PRESENCE optional}|
+-- Extension for Rel-12 to support shorter MCH scheduling period --
+	{ID id-MCH-Scheduling-PeriodExtended		CRITICALITY reject	EXTENSION MCH-Scheduling-PeriodExtended	PRESENCE optional},
+	...
+}
+
+Common-Subframe-Allocation-Period ::= ENUMERATED {rf4, rf8, rf16, rf32, rf64, rf128, rf256}
+
+Pre-emptionCapability ::= ENUMERATED {
+	shall-not-trigger-pre-emption,
+	may-trigger-pre-emption
+}
+
+Pre-emptionVulnerability ::= ENUMERATED {
+	not-pre-emptable,
+	pre-emptable
+}
+
+PriorityLevel ::= INTEGER { spare (0), highest (1), lowest (14), no-priority (15) } (0..15)
+
+-- Q
+
+QCI ::= INTEGER (0..255)
+
+-- R
+-- S
+
+SC-PTM-Information ::= SEQUENCE {
+	mbmsCellList					MBMS-Cell-List,
+	mbms-E-RAB-QoS-Parameters		MBMS-E-RAB-QoS-Parameters,
+	iE-Extensions					ProtocolExtensionContainer { {SC-PTM-Information-ExtIEs} } OPTIONAL,
+	...
+}
+
+SC-PTM-Information-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SFN ::= INTEGER (0..1023)
+
+-- T
+
+TimeToWait ::= ENUMERATED {v1s, v2s, v5s, v10s, v20s, v60s, ...}
+
+TMGI ::= SEQUENCE {
+	pLMNidentity			PLMN-Identity,
+	serviceID				OCTET STRING (SIZE (3)),
+	iE-Extensions			ProtocolExtensionContainer { {TMGI-ExtIEs} } OPTIONAL,
+	...
+}
+
+TMGI-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+TNL-Information ::= SEQUENCE {
+	iPMCAddress						IPAddress,
+	iPSourceAddress					IPAddress,
+	gTP-TEID						GTP-TEID,
+	iE-Extensions					ProtocolExtensionContainer { {TNL-Information-ExtIEs} } OPTIONAL,
+	...
+}
+
+TNL-Information-ExtIEs M2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TypeOfError ::= ENUMERATED {
+	not-understood,
+	missing,
+	...
+}
+
+
+-- U
+-- V
+-- W
+-- X
+-- Y
+-- Z
+
+END

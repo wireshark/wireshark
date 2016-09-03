@@ -1,0 +1,261 @@
+-- 3GPP TS 36.443 V13.3.0 (2016-03)
+-- **************************************************************
+--
+-- Elementary Procedure definitions
+--
+-- **************************************************************
+
+M2AP-PDU-Descriptions {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+eps-Access (21) modules (3) m2ap (4) version1 (1) m2ap-PDU-Descriptions (0) }
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+	Criticality,
+	ProcedureCode
+FROM M2AP-CommonDataTypes
+
+
+	SessionStartRequest,
+	SessionStartResponse,
+	SessionStartFailure,
+	SessionStopRequest,
+	SessionStopResponse,
+	SessionUpdateRequest,
+	SessionUpdateResponse,
+	SessionUpdateFailure,
+	MbmsSchedulingInformation,
+	MbmsSchedulingInformationResponse,
+	ErrorIndication,
+	Reset,
+	ResetAcknowledge,
+	M2SetupRequest,
+	M2SetupResponse,
+	M2SetupFailure,
+	ENBConfigurationUpdate,
+	ENBConfigurationUpdateAcknowledge,
+	ENBConfigurationUpdateFailure,
+	MCEConfigurationUpdate,
+	MCEConfigurationUpdateAcknowledge,
+	MCEConfigurationUpdateFailure,
+	MbmsServiceCountingRequest,
+	MbmsServiceCountingResponse,
+	MbmsServiceCountingFailure,
+	MbmsServiceCountingResultsReport,
+	PrivateMessage,
+	MbmsOverloadNotification
+FROM M2AP-PDU-Contents
+
+	id-sessionStart,
+	id-sessionStop,
+	id-sessionUpdate,
+	id-mbmsServiceCounting,
+	id-mbmsServiceCountingResultsReport,
+	id-mbmsSchedulingInformation,
+	id-errorIndication,
+	id-reset,
+	id-m2Setup,
+	id-eNBConfigurationUpdate,
+	id-mCEConfigurationUpdate,
+	id-privateMessage,
+	id-mbmsOverloadNotification
+FROM M2AP-Constants;
+
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure Class
+--
+-- **************************************************************
+
+M2AP-ELEMENTARY-PROCEDURE ::= CLASS {
+	&InitiatingMessage				,
+	&SuccessfulOutcome				OPTIONAL,
+	&UnsuccessfulOutcome				OPTIONAL,
+	&procedureCode			ProcedureCode 	UNIQUE,
+	&criticality			Criticality 	DEFAULT ignore
+}
+WITH SYNTAX {
+	INITIATING MESSAGE		&InitiatingMessage
+	[SUCCESSFUL OUTCOME		&SuccessfulOutcome]
+	[UNSUCCESSFUL OUTCOME		&UnsuccessfulOutcome]
+	PROCEDURE CODE			&procedureCode
+	[CRITICALITY			&criticality]
+}
+
+-- **************************************************************
+--
+-- Interface PDU Definition
+--
+-- **************************************************************
+
+M2AP-PDU ::= CHOICE {
+	initiatingMessage	InitiatingMessage,
+	successfulOutcome	SuccessfulOutcome,
+	unsuccessfulOutcome	UnsuccessfulOutcome,
+	...
+}
+
+InitiatingMessage ::= SEQUENCE {
+	procedureCode	M2AP-ELEMENTARY-PROCEDURE.&procedureCode		({M2AP-ELEMENTARY-PROCEDURES}),
+	criticality		M2AP-ELEMENTARY-PROCEDURE.&criticality			({M2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			M2AP-ELEMENTARY-PROCEDURE.&InitiatingMessage	({M2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+SuccessfulOutcome ::= SEQUENCE {
+	procedureCode	M2AP-ELEMENTARY-PROCEDURE.&procedureCode		({M2AP-ELEMENTARY-PROCEDURES}),
+	criticality		M2AP-ELEMENTARY-PROCEDURE.&criticality			({M2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			M2AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({M2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+UnsuccessfulOutcome ::= SEQUENCE {
+	procedureCode	M2AP-ELEMENTARY-PROCEDURE.&procedureCode		({M2AP-ELEMENTARY-PROCEDURES}),
+	criticality		M2AP-ELEMENTARY-PROCEDURE.&criticality			({M2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			M2AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({M2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure List
+--
+-- **************************************************************
+
+M2AP-ELEMENTARY-PROCEDURES M2AP-ELEMENTARY-PROCEDURE ::= {
+	M2AP-ELEMENTARY-PROCEDURES-CLASS-1			|
+	M2AP-ELEMENTARY-PROCEDURES-CLASS-2			,
+	...
+}
+
+M2AP-ELEMENTARY-PROCEDURES-CLASS-1 M2AP-ELEMENTARY-PROCEDURE ::= {
+	sessionStart											|
+	sessionStop												|
+	sessionUpdate											|
+	mbmsSchedulingInformation								|
+	reset													|
+	m2Setup													|
+	eNBConfigurationUpdate									|
+	mCEConfigurationUpdate									|
+	mbmsServiceCounting										,
+	...
+}
+
+M2AP-ELEMENTARY-PROCEDURES-CLASS-2 M2AP-ELEMENTARY-PROCEDURE ::= {
+	errorIndication							|
+	privateMessage							|
+	mbmsServiceCountingResultsReport		|
+	mbmsOverloadNotification				,
+	...
+
+}
+
+
+-- **************************************************************
+--
+-- Interface Elementary Procedures
+--
+-- **************************************************************
+
+sessionStart M2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SessionStartRequest
+	SUCCESSFUL OUTCOME		SessionStartResponse
+	UNSUCCESSFUL OUTCOME	SessionStartFailure
+	PROCEDURE CODE			id-sessionStart
+	CRITICALITY				reject
+}
+
+sessionStop M2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SessionStopRequest
+	SUCCESSFUL OUTCOME		SessionStopResponse
+	PROCEDURE CODE			id-sessionStop
+	CRITICALITY				reject
+}
+
+sessionUpdate M2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SessionUpdateRequest
+	SUCCESSFUL OUTCOME		SessionUpdateResponse
+	UNSUCCESSFUL OUTCOME	SessionUpdateFailure
+	PROCEDURE CODE			id-sessionUpdate
+	CRITICALITY				reject
+}
+
+mbmsSchedulingInformation M2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MbmsSchedulingInformation
+	SUCCESSFUL OUTCOME		MbmsSchedulingInformationResponse
+	PROCEDURE CODE			id-mbmsSchedulingInformation
+	CRITICALITY				reject
+}
+
+errorIndication M2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ErrorIndication
+	PROCEDURE CODE			id-errorIndication
+	CRITICALITY				ignore
+}
+
+reset	M2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		Reset
+	SUCCESSFUL OUTCOME		ResetAcknowledge
+	PROCEDURE CODE			id-reset
+	CRITICALITY				reject
+}
+
+m2Setup	M2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		M2SetupRequest
+	SUCCESSFUL OUTCOME		M2SetupResponse
+	UNSUCCESSFUL OUTCOME	M2SetupFailure
+	PROCEDURE CODE			id-m2Setup
+	CRITICALITY				reject
+}
+
+eNBConfigurationUpdate		M2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ENBConfigurationUpdate
+	SUCCESSFUL OUTCOME		ENBConfigurationUpdateAcknowledge
+	UNSUCCESSFUL OUTCOME	ENBConfigurationUpdateFailure
+	PROCEDURE CODE			id-eNBConfigurationUpdate
+	CRITICALITY				reject
+}
+
+mCEConfigurationUpdate		M2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MCEConfigurationUpdate
+	SUCCESSFUL OUTCOME		MCEConfigurationUpdateAcknowledge
+	UNSUCCESSFUL OUTCOME	MCEConfigurationUpdateFailure
+	PROCEDURE CODE			id-mCEConfigurationUpdate
+	CRITICALITY				reject
+}
+
+mbmsServiceCounting			M2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MbmsServiceCountingRequest
+	SUCCESSFUL OUTCOME		MbmsServiceCountingResponse
+	UNSUCCESSFUL OUTCOME	MbmsServiceCountingFailure
+	PROCEDURE CODE			id-mbmsServiceCounting
+	CRITICALITY				reject
+}
+
+mbmsServiceCountingResultsReport	M2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MbmsServiceCountingResultsReport
+	PROCEDURE CODE			id-mbmsServiceCountingResultsReport
+	CRITICALITY				reject
+}
+
+privateMessage			M2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PrivateMessage
+	PROCEDURE CODE			id-privateMessage
+	CRITICALITY				ignore
+}
+
+mbmsOverloadNotification	M2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MbmsOverloadNotification
+	PROCEDURE CODE			id-mbmsOverloadNotification
+	CRITICALITY				reject
+}
+
+END

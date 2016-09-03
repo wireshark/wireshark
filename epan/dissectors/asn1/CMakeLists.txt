@@ -72,6 +72,7 @@ set(ASN1_SRC_DIRS
 	lppa
 	lppe
 	lte-rrc
+	m2ap
 	m3ap
 	mms
 	mpeg-audio
