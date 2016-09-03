@@ -30,7 +30,6 @@ SONtransferResponseContainer
 SONtransferCause_PDU
 UE-HistoryInformation_PDU
 
-
 #.PDU
 S1AP-PDU
 SourceeNB-ToTargeteNB-TransparentContainer
@@ -487,11 +486,11 @@ tvbuff_t *parameter_tvb=NULL;
 
     switch(message_type){
       case INITIATING_MESSAGE:
-      /* 9.2.1.7 Source eNB to Target eNB Transparent Container */
+        /* 9.2.1.7 Source eNB to Target eNB Transparent Container */
         dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
         break;
       case SUCCESSFUL_OUTCOME:
-      /* 9.2.1.7 Source eNB to Target eNB Transparent Container */
+        /* 9.2.1.8 Target eNB to Source eNB Transparent Container */
         dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
         break;
       default:
@@ -499,8 +498,18 @@ tvbuff_t *parameter_tvb=NULL;
     }
   }
 
+#.FN_BODY UE-HistoryInformationFromTheUE VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree = NULL;
 
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
 
+  if (g_s1ap_dissect_container) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_HistoryInformationFromTheUE);
+    dissect_lte_rrc_VisitedCellInfoList_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
 
 #.FN_BODY UERadioCapability VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
@@ -513,7 +522,13 @@ tvbuff_t *parameter_tvb=NULL;
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UERadioCapability);
     dissect_lte_rrc_UERadioAccessCapabilityInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-}
+  }
+
+#.TYPE_ATTR
+Threshold-RSRP DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(s1ap_Threshold_RSRP_fmt)
+
+#.TYPE_ATTR
+Threshold-RSRQ DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(s1ap_Threshold_RSRQ_fmt)
 
 # 9.2.3.24 RIM Information
 # Contains the BSSGP RIM PDU
@@ -577,9 +592,66 @@ if (gcsna_handle) {
   if (!parameter_tvb)
     return offset;
 
-  subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UERadioPagingInformation);
-  dissect_lte_rrc_UERadioPagingInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  if (g_s1ap_dissect_container) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UERadioPagingInformation);
+    dissect_lte_rrc_UERadioPagingInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
 
+#.FN_BODY CELevel VAL_PTR = &parameter_tvb
+# 9.2.1.109 Cell Identifier and Coverage Enhancement Level
+# Includes the UEPagingCoverageInformation message as defined in 10.2.2 of TS 36.331
+ tvbuff_t *parameter_tvb;
+ proto_tree *subtree = NULL;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+
+  if (g_s1ap_dissect_container) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_CELevel);
+    dissect_lte_rrc_UEPagingCoverageInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY UE-RLF-Report-Container VAL_PTR = &parameter_tvb
+# 9.2.3.40 RLF Report Information
+# Includes the rlf-Report-r9 contained in UEInformationResponse message as defined in TS 36.331
+ tvbuff_t *parameter_tvb;
+ proto_tree *subtree = NULL;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+
+  if (g_s1ap_dissect_container) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_RLF_Report_Container);
+    dissect_lte_rrc_RLF_Report_r9_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY UE-RLF-Report-Container-for-extended-bands VAL_PTR = &parameter_tvb
+# 9.2.3.40 RLF Report Information
+# Includes the rlf-Report-v9e0 contained in UEInformationResponse message as defined in TS 36.331
+ tvbuff_t *parameter_tvb;
+ proto_tree *subtree = NULL;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+
+  if (g_s1ap_dissect_container) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_RLF_Report_Container_for_extended_bands);
+    dissect_lte_rrc_RLF_Report_v9e0_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY TooEarlyInterRATHOReportReportFromEUTRAN/uERLFReportContainer VAL_PTR = &parameter_tvb
+# B.1.17 Failure Event Report
+# Includes the RLF Report contained in the UEInformationResponse message (TS 36.331 [16])
+ tvbuff_t *parameter_tvb;
+ proto_tree *subtree = NULL;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+
+  if (g_s1ap_dissect_container) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_RLF_Report_Container);
+    dissect_lte_rrc_RLF_Report_r9_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
 
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &s1ap_ProtocolIE_ID_vals_ext
@@ -1400,7 +1472,7 @@ UEContextResumeFailure                  N s1ap.proc.uout id-UEContextResume
 #.FN_BODY CauseProtocol VAL_PTR=&value
   guint32 value;
 %(DEFAULT_BODY)s
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Protocol-cause=%%s]", val_to_str_const(value, s1ap_CauseProtocol_vals, "Unknown"));     
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Protocol-cause=%%s]", val_to_str_const(value, s1ap_CauseProtocol_vals, "Unknown"));
 
 #.FN_BODY CauseMisc VAL_PTR=&value
   guint32 value;

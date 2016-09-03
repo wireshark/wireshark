@@ -22,29 +22,30 @@ T-StatusProhibit
 WLAN-backhaulRate-r12
 
 #.EXPORTS
-HandoverCommand
 HandoverCommand_PDU
-HandoverPreparationInformation
 HandoverPreparationInformation_PDU
-HandoverPreparationInformation-NB
 HandoverPreparationInformation-NB_PDU
-UERadioAccessCapabilityInformation
+RLF-Report-r9_PDU
+RLF-Report-v9e0_PDU
 UERadioAccessCapabilityInformation_PDU
-UERadioAccessCapabilityInformation-NB
 UERadioAccessCapabilityInformation-NB_PDU
-UE-EUTRA-Capability
 UE-EUTRA-Capability_PDU
-UERadioPagingInformation
+UEPagingCoverageInformation_PDU
 UERadioPagingInformation_PDU
+VisitedCellInfoList-r12_PDU
 #.END
 
 #.PDU
 HandoverCommand
 HandoverPreparationInformation
 HandoverPreparationInformation-NB
+RLF-Report-r9
+RLF-Report-v9e0
+UEPagingCoverageInformation
 UERadioAccessCapabilityInformation
 UERadioAccessCapabilityInformation-NB
 UERadioPagingInformation
+VisitedCellInfoList-r12
 BCCH-BCH-Message             @bcch.bch
 BCCH-DL-SCH-Message          @bcch.dl.sch
 BCCH-DL-SCH-Message-BR       @bcch.dl.sch.br
@@ -97,10 +98,8 @@ SL-PreconfigRelay-r13
 SL-PreconfigSync-r12
 SL-Preconfiguration-r12
 SL-TxPoolIdentity-r13
-UEPagingCoverageInformation
 UEPagingCoverageInformation-NB
 UEPagingCoverageInformation-NB-IEs
-UEPagingCoverageInformation-r13-IEs
 UERadioPagingInformation-NB
 UERadioPagingInformation-NB-IEs
 VarConnEstFailReport-r11

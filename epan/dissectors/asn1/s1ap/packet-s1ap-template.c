@@ -1,6 +1,6 @@
 /* packet-s1ap.c
  * Routines for E-UTRAN S1 Application Protocol (S1AP) packet dissection
- * Copyright 2007-2010, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2007-2016, Anders Broman <anders.broman@ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -22,7 +22,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V9.2.0 (2010-03)
+ * References: 3GPP TS 36.413 V13.3.0 (2016-06)
  */
 
 #include "config.h"
@@ -83,6 +83,10 @@ static int ett_s1ap_RIMInformation = -1;
 static int ett_s1ap_Cdma2000PDU = -1;
 static int ett_s1ap_Cdma2000SectorID = -1;
 static int ett_s1ap_UERadioPagingInformation = -1;
+static int ett_s1ap_UE_HistoryInformationFromTheUE = -1;
+static int ett_s1ap_CELevel = -1;
+static int ett_s1ap_UE_RLF_Report_Container = -1;
+static int ett_s1ap_UE_RLF_Report_Container_for_extended_bands = -1;
 
 #include "packet-s1ap-ett.c"
 
@@ -134,6 +138,18 @@ static int dissect_TargetRNC_ToSourceRNC_TransparentContainer_PDU(tvbuff_t *tvb,
 static int dissect_SourceBSS_ToTargetBSS_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_TargetBSS_ToSourceBSS_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 #endif
+
+static void
+s1ap_Threshold_RSRP_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (gint32)v-140, v);
+}
+
+static void
+s1ap_Threshold_RSRQ_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-20, v);
+}
 
 #include "packet-s1ap-fn.c"
 
@@ -264,6 +280,10 @@ void proto_register_s1ap(void) {
     &ett_s1ap_Cdma2000PDU,
     &ett_s1ap_Cdma2000SectorID,
     &ett_s1ap_UERadioPagingInformation,
+    &ett_s1ap_UE_HistoryInformationFromTheUE,
+    &ett_s1ap_CELevel,
+    &ett_s1ap_UE_RLF_Report_Container,
+    &ett_s1ap_UE_RLF_Report_Container_for_extended_bands,
 #include "packet-s1ap-ettarr.c"
   };
 
