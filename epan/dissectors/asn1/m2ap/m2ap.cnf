@@ -257,8 +257,6 @@ MBMS-Counting-Request-Session                         N m2ap.ies id-MBMS-Countin
 MBMS-Counting-Request-SessionIE                       N m2ap.ies id-MBMS-Counting-Request-Session-Item
 MBMS-Counting-Result-List                             N m2ap.ies id-MBMS-Counting-Result-List
 MBMS-Counting-Result                                  N m2ap.ies id-MBMS-Counting-Result-Item
-Modulation-Coding-Scheme2                             N m2ap.ies id-Modulation-Coding-Scheme2
-MCH-Scheduling-PeriodExtended                         N m2ap.ies id-MCH-Scheduling-PeriodExtended
 TNL-Information                                       N m2ap.ies id-Alternative-TNL-Information
 Overload-Status-Per-PMCH-List                         N m2ap.ies id-Overload-Status-Per-PMCH-List
 PMCH-Overload-Status                                  N m2ap.ies id-PMCH-Overload-Status
@@ -266,6 +264,10 @@ Active-MBMS-Session-List                              N m2ap.ies id-Active-MBMS-
 MBMS-Suspension-Notification-List                     N m2ap.ies id-MBMS-Suspension-Notification-List
 MBMS-Suspension-Notification-Item                     N m2ap.ies id-MBMS-Suspension-Notification-Item
 SC-PTM-Information                                    N m2ap.ies id-SC-PTM-Information
+
+#M2AP-PROTOCOL-EXTENSION
+Modulation-Coding-Scheme2                             N m2ap.extension id-Modulation-Coding-Scheme2
+MCH-Scheduling-PeriodExtended                         N m2ap.extension id-MCH-Scheduling-PeriodExtended
 
 #M2AP-ELEMENTARY-PROCEDURE
 SessionStartRequest               N m2ap.proc.imsg id-sessionStart

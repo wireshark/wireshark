@@ -4284,8 +4284,6 @@ proto_reg_handoff_m2ap(void)
   dissector_add_uint("m2ap.ies", id_MBMS_Counting_Request_Session_Item, create_dissector_handle(dissect_MBMS_Counting_Request_SessionIE_PDU, proto_m2ap));
   dissector_add_uint("m2ap.ies", id_MBMS_Counting_Result_List, create_dissector_handle(dissect_MBMS_Counting_Result_List_PDU, proto_m2ap));
   dissector_add_uint("m2ap.ies", id_MBMS_Counting_Result_Item, create_dissector_handle(dissect_MBMS_Counting_Result_PDU, proto_m2ap));
-  dissector_add_uint("m2ap.ies", id_Modulation_Coding_Scheme2, create_dissector_handle(dissect_Modulation_Coding_Scheme2_PDU, proto_m2ap));
-  dissector_add_uint("m2ap.ies", id_MCH_Scheduling_PeriodExtended, create_dissector_handle(dissect_MCH_Scheduling_PeriodExtended_PDU, proto_m2ap));
   dissector_add_uint("m2ap.ies", id_Alternative_TNL_Information, create_dissector_handle(dissect_TNL_Information_PDU, proto_m2ap));
   dissector_add_uint("m2ap.ies", id_Overload_Status_Per_PMCH_List, create_dissector_handle(dissect_Overload_Status_Per_PMCH_List_PDU, proto_m2ap));
   dissector_add_uint("m2ap.ies", id_PMCH_Overload_Status, create_dissector_handle(dissect_PMCH_Overload_Status_PDU, proto_m2ap));
@@ -4293,6 +4291,8 @@ proto_reg_handoff_m2ap(void)
   dissector_add_uint("m2ap.ies", id_MBMS_Suspension_Notification_List, create_dissector_handle(dissect_MBMS_Suspension_Notification_List_PDU, proto_m2ap));
   dissector_add_uint("m2ap.ies", id_MBMS_Suspension_Notification_Item, create_dissector_handle(dissect_MBMS_Suspension_Notification_Item_PDU, proto_m2ap));
   dissector_add_uint("m2ap.ies", id_SC_PTM_Information, create_dissector_handle(dissect_SC_PTM_Information_PDU, proto_m2ap));
+  dissector_add_uint("m2ap.extension", id_Modulation_Coding_Scheme2, create_dissector_handle(dissect_Modulation_Coding_Scheme2_PDU, proto_m2ap));
+  dissector_add_uint("m2ap.extension", id_MCH_Scheduling_PeriodExtended, create_dissector_handle(dissect_MCH_Scheduling_PeriodExtended_PDU, proto_m2ap));
   dissector_add_uint("m2ap.proc.imsg", id_sessionStart, create_dissector_handle(dissect_SessionStartRequest_PDU, proto_m2ap));
   dissector_add_uint("m2ap.proc.sout", id_sessionStart, create_dissector_handle(dissect_SessionStartResponse_PDU, proto_m2ap));
   dissector_add_uint("m2ap.proc.uout", id_sessionStart, create_dissector_handle(dissect_SessionStartFailure_PDU, proto_m2ap));
