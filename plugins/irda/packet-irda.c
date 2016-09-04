@@ -1191,7 +1191,7 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
 
 /*g_message("%d: add_lmp_conversation(%p, %d, %d, %p) = ", pinfo->num, pinfo, dlsap, ttp, proto_dissector); */
     set_address(&srcaddr, irda_address_type, 1, &circuit_id);
-
+    dest = circuit_id ^ CMD_FRAME;
     set_address(&destaddr, irda_address_type, 1, &dest);
 
     conv = find_conversation(pinfo->num, &destaddr, &srcaddr, PT_NONE, dlsap, 0, NO_PORT_B);
