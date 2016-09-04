@@ -152,6 +152,8 @@ typedef struct _bitmap_info_t {
 
 static gint dissect_zvt_tlv_container(
         tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
+static gint dissect_zvt_cc(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
 
 static const bitmap_info_t bitmap_info[] = {
     { BMP_TIMEOUT,                         1, NULL },
@@ -167,7 +169,7 @@ static const bitmap_info_t bitmap_info[] = {
     { BMP_T1_DAT,        BMP_PLD_LEN_UNKNOWN, NULL },
     { BMP_CVV_CVC,                         2, NULL },
     { BMP_ADD_DATA,      BMP_PLD_LEN_UNKNOWN, NULL },
-    { BMP_CC,                              2, NULL }
+    { BMP_CC,                              2, dissect_zvt_cc }
 };
 
 
@@ -234,6 +236,11 @@ static const value_string ctrl_field[] = {
     { 0, NULL }
 };
 static value_string_ext ctrl_field_ext = VALUE_STRING_EXT_INIT(ctrl_field);
+
+static const value_string zvt_cc[] = {
+    { 0x0978, "EUR" },
+    { 0, NULL }
+};
 
 static const value_string bitmap[] = {
     { BMP_TIMEOUT,       "Timeout" },
@@ -389,6 +396,14 @@ dissect_zvt_tlv_container(tvbuff_t *tvb, gint offset,
 }
 
 
+static gint dissect_zvt_cc(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_zvt_cc, tvb, offset, 2, ENC_BIG_ENDIAN);
+    return 2;
+}
+
+
 /* dissect one "bitmap", i.e BMP and the corresponding data */
 static gint
 dissect_zvt_bitmap(tvbuff_t *tvb, gint offset,
@@ -448,9 +463,7 @@ dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len _U_,
     if (tvb_captured_length_remaining(tvb, offset)>=4 &&
             tvb_get_guint8(tvb, offset+2)==0x03) {
 
-        proto_tree_add_item(tree, hf_zvt_cc,
-            tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+        offset += dissect_zvt_cc(tvb, offset, pinfo, tree);
 
         offset++; /* 0x03 */
 
@@ -848,8 +861,8 @@ proto_register_zvt(void)
         /* we don't call the filter zvt.reg.cc, the currency code
            appears in several apdus */
         { &hf_zvt_cc,
-            { "Currency Code (CC)", "zvt.cc",
-                FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
+            { "Currency Code", "zvt.cc",
+                FT_UINT16, BASE_HEX, VALS(zvt_cc), 0, NULL, HFILL } },
         { &hf_zvt_reg_svc_byte,
             { "Service byte", "zvt.reg.service_byte",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
