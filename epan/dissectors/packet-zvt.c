@@ -113,6 +113,8 @@ static void dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len,
         packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans);
 static void dissect_zvt_bitmap_seq(tvbuff_t *tvb, gint offset, guint16 len,
         packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans);
+static void dissect_zvt_init(tvbuff_t *tvb, gint offset, guint16 len,
+        packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans);
 
 static const apdu_info_t apdu_info[] = {
     { CTRL_STATUS,        0, DIRECTION_PT_TO_ECR, NULL },
@@ -124,7 +126,7 @@ static const apdu_info_t apdu_info[] = {
     { CTRL_ABORT,         0, DIRECTION_PT_TO_ECR, NULL },
     { CTRL_END_OF_DAY,    0, DIRECTION_ECR_TO_PT, NULL },
     { CTRL_DIAG,          0,  DIRECTION_ECR_TO_PT, NULL },
-    { CTRL_INIT,          0, DIRECTION_ECR_TO_PT, NULL },
+    { CTRL_INIT,          0, DIRECTION_ECR_TO_PT, dissect_zvt_init },
     { CTRL_PRINT_LINE,    0, DIRECTION_PT_TO_ECR, NULL }
 };
 
@@ -200,7 +202,7 @@ static int hf_zvt_aprc = -1;
 static int hf_zvt_len = -1;
 static int hf_zvt_data = -1;
 static int hf_zvt_int_status = -1;
-static int hf_zvt_reg_pwd = -1;
+static int hf_zvt_pwd = -1;
 static int hf_zvt_reg_cfg = -1;
 static int hf_zvt_cc = -1;
 static int hf_zvt_reg_svc_byte = -1;
@@ -470,7 +472,7 @@ static void
 dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len _U_,
         packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans)
 {
-    proto_tree_add_item(tree, hf_zvt_reg_pwd, tvb, offset, 3, ENC_NA);
+    proto_tree_add_item(tree, hf_zvt_pwd, tvb, offset, 3, ENC_NA);
     offset += 3;
 
     proto_tree_add_item(tree, hf_zvt_reg_cfg,
@@ -494,6 +496,15 @@ dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len _U_,
     dissect_zvt_bitmap_seq(tvb, offset,
             tvb_captured_length_remaining(tvb, offset),
             pinfo, tree, zvt_trans);
+}
+
+
+static void dissect_zvt_init(
+        tvbuff_t *tvb, gint offset, guint16 len _U_, packet_info *pinfo _U_,
+        proto_tree *tree, zvt_transaction_t *zvt_trans _U_)
+{
+    proto_tree_add_item(tree, hf_zvt_pwd, tvb, offset, 3, ENC_NA);
+    offset += 3;
 }
 
 
@@ -873,8 +884,8 @@ proto_register_zvt(void)
         { &hf_zvt_int_status,
             { "Intermediate status", "zvt.int_status",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
-        { &hf_zvt_reg_pwd,
-            { "Password", "zvt.reg.password",
+        { &hf_zvt_pwd,
+            { "Password", "zvt.password",
                 FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_zvt_reg_cfg,
             { "Config byte", "zvt.reg.config_byte",
