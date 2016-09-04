@@ -11460,6 +11460,8 @@ rs-status       45002/tcp # Redspeed Status Monitor [Redspeed_International_Ltd]
 synctest        45045/tcp # Remote application control protocol [Eleks_Ltd] [Andriy_Skop] 2013-04-08
 invision-ag     45054/tcp # InVision AG [Matthias_Schroer] [Matthias_Schroer]
 invision-ag     45054/udp # InVision AG [Matthias_Schroer] [Matthias_Schroer]
+cloudcheck      45514/tcp # ASSIA CloudCheck WiFi Management System [ASSIA_Inc] [Leonardo_Dagum] 2016-08-29
+cloudcheck-ping 45514/udp # ASSIA CloudCheck WiFi Management keepalive [ASSIA_Inc] [Leonardo_Dagum] 2016-08-29
 eba             45678/tcp # EBA PRISE [Patrick_Kara] [Patrick_Kara]
 eba             45678/udp # EBA PRISE [Patrick_Kara] [Patrick_Kara]
 dai-shell       45824/tcp # Server for the DAI family of client-server products [Data_Access_Inc] [Adam_Robinson] 2012-04-30
