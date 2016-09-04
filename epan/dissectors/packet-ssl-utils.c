@@ -5087,7 +5087,7 @@ ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      * Normally this should be done at the Finished message, but that may be
      * encrypted so we do it here, at the last cleartext message. */
     if (is_from_server && ssl) {
-        if (!(ssl->state & SSL_SERVER_HELLO_DONE)) {
+        if (session->is_session_resumed) {
             const char *resumed = NULL;
             if (ssl->session_ticket.data_len) {
                 resumed = "Session Ticket";
@@ -5096,15 +5096,12 @@ ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
             }
             if (resumed) {
                 ssl_debug_printf("%s Session resumption using %s\n", G_STRFUNC, resumed);
-                session->is_session_resumed = TRUE;
             } else {
                 /* Can happen if the capture somehow starts in the middle */
                 ssl_debug_printf("%s No Session resumption, missing packets?\n", G_STRFUNC);
-                session->is_session_resumed = FALSE;
             }
         } else {
             ssl_debug_printf("%s Not using Session resumption\n", G_STRFUNC);
-            session->is_session_resumed = FALSE;
         }
     }
     if (is_from_server && session->is_session_resumed)
@@ -5889,6 +5886,11 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     /* This version is always better than the guess at the Record Layer */
     ssl_try_set_version(session, ssl, SSL_ID_HANDSHAKE, SSL_HND_SERVER_HELLO,
             is_dtls, tvb_get_ntohs(tvb, offset));
+
+    /* Initially assume that the session is resumed. If this is not the case, a
+     * ServerHelloDone will be observed before the ChangeCipherSpec message
+     * which will reset this flag. */
+    session->is_session_resumed = TRUE;
 
     /* show the server version */
     proto_tree_add_item(tree, hf->hf.hs_server_version, tvb,

@@ -1684,6 +1684,11 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             ssl_finalize_decryption(ssl, &ssl_master_key_map);
             ssl_change_cipher(ssl, ssl_packet_from_server(session, ssl_associations, pinfo));
         }
+        /* Heuristic: any later ChangeCipherSpec is not a resumption of this
+         * session. Set the flag after ssl_finalize_decryption such that it has
+         * a chance to use resume using Session Tickets. */
+        if (is_from_server)
+          session->is_session_resumed = FALSE;
         break;
     case SSL_ID_ALERT:
     {
@@ -2063,8 +2068,8 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_SVR_HELLO_DONE:
-                if (ssl)
-                    ssl->state |= SSL_SERVER_HELLO_DONE;
+                /* This is not an abbreviated handshake, it is certainly not resumed. */
+                session->is_session_resumed = FALSE;
                 break;
 
             case SSL_HND_CERT_VERIFY:
