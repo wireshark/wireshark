@@ -471,6 +471,9 @@ WS_DLL_PUBLIC guint32
 ssl_starttls_post_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
                  dissector_handle_t app_handle);
 
+extern dissector_handle_t
+ssl_find_appdata_dissector(const char *name);
+
 /** set the data and len for the stringInfo buffer. buf should be big enough to
  * contain the provided data
  @param buf the buffer to update
