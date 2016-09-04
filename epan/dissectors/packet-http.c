@@ -3585,7 +3585,7 @@ proto_register_http(void)
 
 	http_handle = register_dissector("http", dissect_http, proto_http);
 	http_tcp_handle = register_dissector("http-over-tcp", dissect_http_tcp, proto_http);
-	http_ssl_handle = register_dissector("http-over-ssl", dissect_http_ssl, proto_http);
+	http_ssl_handle = register_dissector("http-over-tls", dissect_http_ssl, proto_http); /* RFC 2818 */
 	http_sctp_handle = register_dissector("http-over-sctp", dissect_http_sctp, proto_http);
 
 	http_module = prefs_register_protocol(proto_http, reinit_http);

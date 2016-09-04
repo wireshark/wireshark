@@ -3653,7 +3653,7 @@ ssldecrypt_uat_fld_protocol_chk_cb(void* r _U_, const char* p, guint len _U_, co
         return FALSE;
     }
 
-    if (!find_dissector(p)) {
+    if (!ssl_find_appdata_dissector(p)) {
         if (proto_get_id_by_filter_name(p) != -1) {
             *err = g_strdup_printf("While '%s' is a valid dissector filter name, that dissector is not configured"
                                    " to support SSL decryption.\n\n"

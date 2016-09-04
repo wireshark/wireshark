@@ -4162,6 +4162,15 @@ ssl_starttls_post_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
     return ssl_starttls(ssl_handle, pinfo, app_handle, pinfo->num - 1);
 }
 
+dissector_handle_t
+ssl_find_appdata_dissector(const char *name)
+{
+    /* Accept 'http' for backwards compatibility and sanity. */
+    if (!strcmp(name, "http"))
+        name = "http-over-tls";
+    return find_dissector(name);
+}
+
 /* Functions for TLS/DTLS sessions and RSA private keys hashtables. {{{ */
 static gint
 ssl_equal (gconstpointer v, gconstpointer v2)
@@ -4488,7 +4497,7 @@ ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, const c
         ssl_debug_printf("ssl_init port '%d' filename '%s' password(only for p12 file) '%s'\n",
             port, uats->keyfile, uats->password);
 
-        handle = find_dissector(uats->protocol);
+        handle = ssl_find_appdata_dissector(uats->protocol);
         ssl_association_add(dissector_table_name, main_handle, handle, port, tcp);
     }
 
@@ -5212,7 +5221,7 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                 /* ProtocolName match, so set the App data dissector handle.
                  * This may override protocols given via the UAT dialog, but
                  * since the ALPN hint is precise, do it anyway. */
-                handle = find_dissector(alpn_proto->dissector_name);
+                handle = ssl_find_appdata_dissector(alpn_proto->dissector_name);
                 ssl_debug_printf("%s: changing handle %p to %p (%s)", G_STRFUNC,
                                  (void *)session->app_handle,
                                  (void *)handle, alpn_proto->dissector_name);
