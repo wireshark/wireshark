@@ -5930,11 +5930,15 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      *     Extension server_hello_extension_list<0..2^16-1>;
      * } ServerHello;
      */
+    guint16 server_version;
     guint16 start_offset = offset;
 
     /* This version is always better than the guess at the Record Layer */
+    server_version = tvb_get_ntohs(tvb, offset);
     ssl_try_set_version(session, ssl, SSL_ID_HANDSHAKE, SSL_HND_SERVER_HELLO,
-            is_dtls, tvb_get_ntohs(tvb, offset));
+            is_dtls, server_version);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL,
+                val_to_str_const(server_version, ssl_version_short_names, "SSL"));
 
     /* Initially assume that the session is resumed. If this is not the case, a
      * ServerHelloDone will be observed before the ChangeCipherSpec message

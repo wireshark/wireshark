@@ -547,7 +547,8 @@ static void dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, guint32 offset,
                                    guint32 record_length,
                                    SslSession *session, gint is_from_server,
-                                   SslDecryptSession *conv_data, const guint8 content_type);
+                                   SslDecryptSession *conv_data,
+                                   const guint8 content_type, const guint16 version);
 
 /* heartbeat message dissector */
 static void dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
@@ -705,10 +706,11 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     ssl_debug_printf("  conversation = %p, ssl_session = %p\n", (void *)conversation, (void *)ssl_session);
 
-    /* Initialize the protocol column; we'll set it later when we
-     * figure out what flavor of SSL it is (assuming we don't
+    /* Initialize the protocol column; we'll override it later when we
+     * detect a different version or flavor of SSL (assuming we don't
      * throw an exception before we get the chance to do so). */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSL");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL,
+             val_to_str_const(session->version, ssl_version_short_names, "SSL"));
     /* clear the the info column */
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -833,10 +835,6 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 offset = tvb_reported_length(tvb);
                 col_append_str(pinfo->cinfo, COL_INFO,
                                    "Continuation Data");
-
-                /* Set the protocol column */
-                col_set_str(pinfo->cinfo, COL_PROTOCOL,
-                         val_to_str_const(session->version, ssl_version_short_names, "SSL"));
             }
             break;
         }
@@ -1534,7 +1532,6 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             col_append_str(pinfo->cinfo, COL_INFO, ", ");
         }
         col_append_str(pinfo->cinfo, COL_INFO, "Ignored Unknown Record");
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, val_to_str_const(session->version, ssl_version_short_names, "SSL"));
         return offset + available_bytes;
     }
 
@@ -1617,10 +1614,6 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
          */
         col_append_str(pinfo->cinfo, COL_INFO, "Continuation Data");
 
-        /* Set the protocol column */
-        col_set_str(pinfo->cinfo, COL_PROTOCOL,
-                        val_to_str_const(session->version, ssl_version_short_names, "SSL"));
-
         return offset + 5 + record_length;
     }
 
@@ -1648,11 +1641,19 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
      * if we don't already have a version set for this conversation,
      * but this message's version is authoritative (i.e., it's
      * not client_hello, then save the version to to conversation
-     * structure and print the column version
+     * structure and print the column version. If the message is not authorative
+     * (i.e. it is a Client Hello), then this version will still be used for
+     * display purposes only (it will not be stored in the conversation).
      */
     next_byte = tvb_get_guint8(tvb, offset);
-    if (session->version == SSL_VER_UNKNOWN)
+    if (session->version == SSL_VER_UNKNOWN) {
         ssl_try_set_version(session, ssl, content_type, next_byte, FALSE, version);
+        /* Version has possibly changed, adjust the column accordingly. */
+        col_set_str(pinfo->cinfo, COL_PROTOCOL,
+                            val_to_str_const(version, ssl_version_short_names, "SSL"));
+    } else {
+        version = session->version;
+    }
 
     /* on second and subsequent records per frame
      * add a delimiter on info column
@@ -1660,9 +1661,6 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     if (!first_record_in_frame) {
         col_append_str(pinfo->cinfo, COL_INFO, ", ");
     }
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL,
-                        val_to_str_const(session->version, ssl_version_short_names, "SSL"));
 
     /*
      * now dissect the next layer
@@ -1731,11 +1729,11 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
             dissect_ssl3_handshake(decrypted, pinfo, ssl_record_tree, 0,
                                    tvb_reported_length(decrypted), session,
-                                   is_from_server, ssl, content_type);
+                                   is_from_server, ssl, content_type, version);
         } else {
             dissect_ssl3_handshake(tvb, pinfo, ssl_record_tree, offset,
                                    record_length, session, is_from_server, ssl,
-                                   content_type);
+                                   content_type, version);
         }
         break;
     }
@@ -1768,7 +1766,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
         proto_item_set_text(ssl_record_tree,
            "%s Record Layer: %s Protocol: %s",
-            val_to_str_const(session->version, ssl_version_short_names, "SSL"),
+            val_to_str_const(version, ssl_version_short_names, "SSL"),
             val_to_str_const(content_type, ssl_31_content_type, "unknown"),
             app_handle ? dissector_handle_get_dissector_name(app_handle)
             : "Application Data");
@@ -1782,7 +1780,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         if (session->app_handle && session->app_handle != app_handle)
             proto_item_set_text(ssl_record_tree,
                "%s Record Layer: %s Protocol: %s",
-                val_to_str_const(session->version, ssl_version_short_names, "SSL"),
+                val_to_str_const(version, ssl_version_short_names, "SSL"),
                 val_to_str_const(content_type, ssl_31_content_type, "unknown"),
                 dissector_handle_get_dissector_name(session->app_handle));
 
@@ -1902,7 +1900,8 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                        proto_tree *tree, guint32 offset,
                        guint32 record_length, SslSession *session,
                        gint is_from_server,
-                       SslDecryptSession *ssl, const guint8 content_type)
+                       SslDecryptSession *ssl, const guint8 content_type,
+                       const guint16 version)
 {
     /*     struct {
      *         HandshakeType msg_type;
@@ -1986,7 +1985,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
         if (first_iteration)
         {
             proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
-                    val_to_str_const(session->version, ssl_version_short_names, "SSL"),
+                    val_to_str_const(version, ssl_version_short_names, "SSL"),
                     val_to_str_const(content_type, ssl_31_content_type, "unknown"),
                     (msg_type_str!=NULL) ? msg_type_str :
                     "Encrypted Handshake Message");
@@ -1994,7 +1993,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
         else
         {
             proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
-                    val_to_str_const(session->version, ssl_version_short_names, "SSL"),
+                    val_to_str_const(version, ssl_version_short_names, "SSL"),
                     val_to_str_const(content_type, ssl_31_content_type, "unknown"),
                     "Multiple Handshake Messages");
         }
