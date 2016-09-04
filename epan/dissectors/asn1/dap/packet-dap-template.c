@@ -53,11 +53,6 @@
 void proto_register_dap(void);
 void proto_reg_handoff_dap(void);
 
-static guint global_dap_tcp_port = 102;
-static dissector_handle_t tpkt_handle;
-static void prefs_register_dap(void); /* forward declaration for use in preferences registration */
-
-
 /* Initialize the protocol and registered fields */
 static int proto_dap = -1;
 
@@ -123,13 +118,13 @@ void proto_register_dap(void) {
 
   /* Register our configuration options for DAP, particularly our port */
 
-  dap_module = prefs_register_protocol_subtree("OSI/X.500", proto_dap, prefs_register_dap);
+  dap_module = prefs_register_protocol_subtree("OSI/X.500", proto_dap, NULL);
 
-  prefs_register_uint_preference(dap_module, "tcp.port", "DAP TCP Port",
-				 "Set the port for DAP operations (if other"
-				 " than the default of 102)",
-				 10, &global_dap_tcp_port);
+  prefs_register_obsolete_preference(dap_module, "tcp.port");
 
+  prefs_register_static_text_preference(dap_module, "tcp_port_info",
+            "The TCP ports used by the DAP protocol should be added to the TPKT preference \"TPKT TCP ports\", or the IDMP preference \"IDMP TCP Port\", or by selecting \"TPKT\" as the \"Transport\" protocol in the \"Decode As\" dialog.",
+            "DAP TCP Port preference moved information");
 }
 
 
@@ -149,9 +144,6 @@ void proto_reg_handoff_dap(void) {
 
   register_idmp_protocol_info("2.5.33.0", &dap_ros_info, 0, "dap-ip");
 
-  /* remember the tpkt handler for change in preferences */
-  tpkt_handle = find_dissector("tpkt");
-
   /* AttributeValueAssertions */
   x509if_register_fmt(hf_dap_equality, "=");
   x509if_register_fmt(hf_dap_greaterOrEqual, ">=");
@@ -159,24 +151,5 @@ void proto_reg_handoff_dap(void) {
   x509if_register_fmt(hf_dap_approximateMatch, "=~");
   /* AttributeTypes */
   x509if_register_fmt(hf_dap_present, "= *");
-
-}
-
-
-static void
-prefs_register_dap(void)
-{
-  static guint tcp_port = 0;
-
-  /* de-register the old port */
-  /* port 102 is registered by TPKT - don't undo this! */
-  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_delete_uint("tcp.port", tcp_port, tpkt_handle);
-
-  /* Set our port number for future use */
-  tcp_port = global_dap_tcp_port;
-
-  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_add_uint("tcp.port", global_dap_tcp_port, tpkt_handle);
 
 }

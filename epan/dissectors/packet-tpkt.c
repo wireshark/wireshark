@@ -53,10 +53,11 @@ static gint ett_tpkt           = -1;
 /* desegmentation of OSI over TPKT over TCP */
 static gboolean tpkt_desegment = TRUE;
 
-#define TCP_PORT_TPKT       102
-
 /* find the dissector for OSI TP (aka COTP) */
 static dissector_handle_t osi_tp_handle;
+
+#define DEFAULT_TPKT_PORT_RANGE "102"
+static range_t *tpkt_tcp_port_range;
 
 /*
  * Check whether this could be a TPKT-encapsulated PDU.
@@ -648,22 +649,42 @@ proto_register_tpkt(void)
     proto_register_subtree_array(ett, array_length(ett));
     register_dissector("tpkt", dissect_tpkt, proto_tpkt);
 
-    tpkt_module = prefs_register_protocol(proto_tpkt, NULL);
+    tpkt_module = prefs_register_protocol(proto_tpkt, proto_reg_handoff_tpkt);
     prefs_register_bool_preference(tpkt_module, "desegment",
         "Reassemble TPKT messages spanning multiple TCP segments",
         "Whether the TPKT dissector should reassemble messages spanning multiple TCP segments. "
         "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
         &tpkt_desegment);
+
+    range_convert_str(&tpkt_tcp_port_range, DEFAULT_TPKT_PORT_RANGE, MAX_TCP_PORT);
+
+    prefs_register_range_preference(tpkt_module, "tcp.ports", "TPKT TCP ports",
+                                  "TCP ports to be decoded as TPKT (default: "
+                                  DEFAULT_TPKT_PORT_RANGE ")",
+                                  &tpkt_tcp_port_range, MAX_TCP_PORT);
 }
 
 void
 proto_reg_handoff_tpkt(void)
 {
-    dissector_handle_t tpkt_handle;
+    static dissector_handle_t tpkt_handle;
+    static range_t *port_range;
+    static gboolean initialized = FALSE;
 
-    osi_tp_handle = find_dissector("ositp");
-    tpkt_handle = find_dissector("tpkt");
-    dissector_add_uint("tcp.port", TCP_PORT_TPKT, tpkt_handle);
+    if (!initialized)
+    {
+        osi_tp_handle = find_dissector("ositp");
+        tpkt_handle = find_dissector("tpkt");
+        initialized = TRUE;
+    }
+    else
+    {
+        dissector_delete_uint_range("tcp.port", port_range, tpkt_handle);
+        g_free(port_range);
+    }
+
+    port_range = range_copy(tpkt_tcp_port_range);
+    dissector_add_uint_range("tcp.port", port_range, tpkt_handle);
 
     /*
     tpkt_ascii_handle = create_dissector_handle(dissect_ascii_tpkt, proto_tpkt);

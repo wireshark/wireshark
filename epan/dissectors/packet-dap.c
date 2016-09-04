@@ -61,11 +61,6 @@
 void proto_register_dap(void);
 void proto_reg_handoff_dap(void);
 
-static guint global_dap_tcp_port = 102;
-static dissector_handle_t tpkt_handle;
-static void prefs_register_dap(void); /* forward declaration for use in preferences registration */
-
-
 /* Initialize the protocol and registered fields */
 static int proto_dap = -1;
 
@@ -480,7 +475,7 @@ static int hf_dap_SearchControlOptions_separateFamilyMembers = -1;
 static int hf_dap_SearchControlOptions_searchFamily = -1;
 
 /*--- End of included file: packet-dap-hf.c ---*/
-#line 66 "./asn1/dap/packet-dap-template.c"
+#line 61 "./asn1/dap/packet-dap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dap = -1;
@@ -659,7 +654,7 @@ static gint ett_dap_UpdateError = -1;
 static gint ett_dap_T_signedUpdateError = -1;
 
 /*--- End of included file: packet-dap-ett.c ---*/
-#line 70 "./asn1/dap/packet-dap-template.c"
+#line 65 "./asn1/dap/packet-dap-template.c"
 
 static expert_field ei_dap_anonymous = EI_INIT;
 
@@ -686,7 +681,7 @@ static expert_field ei_dap_anonymous = EI_INIT;
 #define id_errcode_dsaReferral         9
 
 /*--- End of included file: packet-dap-val.h ---*/
-#line 74 "./asn1/dap/packet-dap-template.c"
+#line 69 "./asn1/dap/packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-table.c ---*/
@@ -724,7 +719,7 @@ static const value_string dap_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-dap-table.c ---*/
-#line 76 "./asn1/dap/packet-dap-template.c"
+#line 71 "./asn1/dap/packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-fn.c ---*/
@@ -4774,7 +4769,7 @@ static int dissect_UpdateError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-dap-fn.c ---*/
-#line 78 "./asn1/dap/packet-dap-template.c"
+#line 73 "./asn1/dap/packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-table11.c ---*/
@@ -4806,7 +4801,7 @@ static const ros_opr_t dap_opr_tab[] = {
 
 
 /*--- End of included file: packet-dap-table11.c ---*/
-#line 80 "./asn1/dap/packet-dap-template.c"
+#line 75 "./asn1/dap/packet-dap-template.c"
 
 /*--- Included file: packet-dap-table21.c ---*/
 #line 1 "./asn1/dap/packet-dap-table21.c"
@@ -4835,7 +4830,7 @@ static const ros_err_t dap_err_tab[] = {
 
 
 /*--- End of included file: packet-dap-table21.c ---*/
-#line 81 "./asn1/dap/packet-dap-template.c"
+#line 76 "./asn1/dap/packet-dap-template.c"
 
 static const ros_info_t dap_ros_info = {
   "DAP",
@@ -6475,7 +6470,7 @@ void proto_register_dap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-dap-hfarr.c ---*/
-#line 100 "./asn1/dap/packet-dap-template.c"
+#line 95 "./asn1/dap/packet-dap-template.c"
   };
 
   /* List of subtrees */
@@ -6656,7 +6651,7 @@ void proto_register_dap(void) {
     &ett_dap_T_signedUpdateError,
 
 /*--- End of included file: packet-dap-ettarr.c ---*/
-#line 106 "./asn1/dap/packet-dap-template.c"
+#line 101 "./asn1/dap/packet-dap-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -6677,13 +6672,13 @@ void proto_register_dap(void) {
 
   /* Register our configuration options for DAP, particularly our port */
 
-  dap_module = prefs_register_protocol_subtree("OSI/X.500", proto_dap, prefs_register_dap);
+  dap_module = prefs_register_protocol_subtree("OSI/X.500", proto_dap, NULL);
 
-  prefs_register_uint_preference(dap_module, "tcp.port", "DAP TCP Port",
-				 "Set the port for DAP operations (if other"
-				 " than the default of 102)",
-				 10, &global_dap_tcp_port);
+  prefs_register_obsolete_preference(dap_module, "tcp.port");
 
+  prefs_register_static_text_preference(dap_module, "tcp_port_info",
+            "The TCP ports used by the DAP protocol should be added to the TPKT preference \"TPKT TCP ports\", or the IDMP preference \"IDMP TCP Port\", or by selecting \"TPKT\" as the \"Transport\" protocol in the \"Decode As\" dialog.",
+            "DAP TCP Port preference moved information");
 }
 
 
@@ -6703,9 +6698,6 @@ void proto_reg_handoff_dap(void) {
 
   register_idmp_protocol_info("2.5.33.0", &dap_ros_info, 0, "dap-ip");
 
-  /* remember the tpkt handler for change in preferences */
-  tpkt_handle = find_dissector("tpkt");
-
   /* AttributeValueAssertions */
   x509if_register_fmt(hf_dap_equality, "=");
   x509if_register_fmt(hf_dap_greaterOrEqual, ">=");
@@ -6713,24 +6705,5 @@ void proto_reg_handoff_dap(void) {
   x509if_register_fmt(hf_dap_approximateMatch, "=~");
   /* AttributeTypes */
   x509if_register_fmt(hf_dap_present, "= *");
-
-}
-
-
-static void
-prefs_register_dap(void)
-{
-  static guint tcp_port = 0;
-
-  /* de-register the old port */
-  /* port 102 is registered by TPKT - don't undo this! */
-  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_delete_uint("tcp.port", tcp_port, tpkt_handle);
-
-  /* Set our port number for future use */
-  tcp_port = global_dap_tcp_port;
-
-  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_add_uint("tcp.port", global_dap_tcp_port, tpkt_handle);
 
 }

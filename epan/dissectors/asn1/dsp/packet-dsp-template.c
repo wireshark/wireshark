@@ -48,11 +48,6 @@
 void proto_register_dsp(void);
 void proto_reg_handoff_dsp(void);
 
-static guint global_dsp_tcp_port = 102;
-static dissector_handle_t tpkt_handle;
-static void prefs_register_dsp(void); /* forward declaration for use in preferences registration */
-
-
 /* Initialize the protocol and registered fields */
 static int proto_dsp = -1;
 
@@ -303,13 +298,13 @@ void proto_register_dsp(void) {
 
   /* Register our configuration options for DSP, particularly our port */
 
-  dsp_module = prefs_register_protocol_subtree("OSI/X.500", proto_dsp, prefs_register_dsp);
+  dsp_module = prefs_register_protocol_subtree("OSI/X.500", proto_dsp, NULL);
 
-  prefs_register_uint_preference(dsp_module, "tcp.port", "DSP TCP Port",
-				 "Set the port for DSP operations (if other"
-				 " than the default of 102)",
-				 10, &global_dsp_tcp_port);
+  prefs_register_obsolete_preference(dsp_module, "tcp.port");
 
+  prefs_register_static_text_preference(dsp_module, "tcp_port_info",
+            "The TCP ports used by the DSP protocol should be added to the TPKT preference \"TPKT TCP ports\", or by selecting \"TPKT\" as the \"Transport\" protocol in the \"Decode As\" dialog.",
+            "DSP TCP Port preference moved information");
 
 }
 
@@ -324,28 +319,7 @@ void proto_reg_handoff_dsp(void) {
 
   /* ABSTRACT SYNTAXES */
 
-  /* remember the tpkt handler for change in preferences */
-  tpkt_handle = find_dissector("tpkt");
-
   /* Register DSP with ROS (with no use of RTSE) */
   register_ros_oid_dissector_handle("2.5.9.2", dsp_handle, 0, "id-as-directory-system", FALSE);
-
-}
-
-static void
-prefs_register_dsp(void)
-{
-  static guint tcp_port = 0;
-
-  /* de-register the old port */
-  /* port 102 is registered by TPKT - don't undo this! */
-  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_delete_uint("tcp.port", tcp_port, tpkt_handle);
-
-  /* Set our port number for future use */
-  tcp_port = global_dsp_tcp_port;
-
-  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_add_uint("tcp.port", global_dsp_tcp_port, tpkt_handle);
 
 }

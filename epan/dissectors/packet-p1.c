@@ -54,10 +54,6 @@
 #define PSNAME "P1"
 #define PFNAME "p1"
 
-static guint global_p1_tcp_port = 102;
-static dissector_handle_t tpkt_handle;
-static void prefs_register_p1(void); /* forward declaration for use in preferences registration */
-
 /* Initialize the protocol and registered fields */
 static int proto_p1 = -1;
 static int proto_p3 = -1;
@@ -635,7 +631,7 @@ static int hf_p1_G3FacsimileNonBasicParameters_jpeg = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_processable_mode_26 = -1;
 
 /*--- End of included file: packet-p1-hf.c ---*/
-#line 63 "./asn1/p1/packet-p1-template.c"
+#line 59 "./asn1/p1/packet-p1-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_p1 = -1;
@@ -830,7 +826,7 @@ static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientMessageSubmissio
 static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields = -1;
 
 /*--- End of included file: packet-p1-ett.c ---*/
-#line 74 "./asn1/p1/packet-p1-template.c"
+#line 70 "./asn1/p1/packet-p1-template.c"
 
 static expert_field ei_p1_unknown_extension_attribute_type = EI_INIT;
 static expert_field ei_p1_unknown_standard_extension = EI_INIT;
@@ -890,7 +886,7 @@ static const value_string p3_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-p1-table.c ---*/
-#line 90 "./asn1/p1/packet-p1-template.c"
+#line 86 "./asn1/p1/packet-p1-template.c"
 
 #define P1_ADDRESS_CTX "p1-address-ctx"
 typedef struct p1_address_ctx {
@@ -8390,7 +8386,7 @@ static int dissect_SecurityClassification_PDU(tvbuff_t *tvb _U_, packet_info *pi
 
 
 /*--- End of included file: packet-p1-fn.c ---*/
-#line 167 "./asn1/p1/packet-p1-template.c"
+#line 163 "./asn1/p1/packet-p1-template.c"
 
 
 /*--- Included file: packet-p1-table11.c ---*/
@@ -8422,7 +8418,7 @@ static const ros_opr_t p3_opr_tab[] = {
 
 
 /*--- End of included file: packet-p1-table11.c ---*/
-#line 169 "./asn1/p1/packet-p1-template.c"
+#line 165 "./asn1/p1/packet-p1-template.c"
 
 /*--- Included file: packet-p1-table21.c ---*/
 #line 1 "./asn1/p1/packet-p1-table21.c"
@@ -8467,7 +8463,7 @@ static const ros_err_t p3_err_tab[] = {
 
 
 /*--- End of included file: packet-p1-table21.c ---*/
-#line 170 "./asn1/p1/packet-p1-template.c"
+#line 166 "./asn1/p1/packet-p1-template.c"
 
 static const ros_info_t p3_ros_info = {
   "P3",
@@ -10889,7 +10885,7 @@ void proto_register_p1(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p1-hfarr.c ---*/
-#line 339 "./asn1/p1/packet-p1-template.c"
+#line 335 "./asn1/p1/packet-p1-template.c"
   };
 
   /* List of subtrees */
@@ -11086,7 +11082,7 @@ void proto_register_p1(void) {
     &ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields,
 
 /*--- End of included file: packet-p1-ettarr.c ---*/
-#line 352 "./asn1/p1/packet-p1-template.c"
+#line 348 "./asn1/p1/packet-p1-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -11119,12 +11115,13 @@ void proto_register_p1(void) {
 
   /* Register our configuration options for P1, particularly our port */
 
-  p1_module = prefs_register_protocol_subtree("OSI/X.400", proto_p1, prefs_register_p1);
+  p1_module = prefs_register_protocol_subtree("OSI/X.400", proto_p1, NULL);
 
-  prefs_register_uint_preference(p1_module, "tcp.port", "P1 TCP Port",
-                 "Set the port for P1 operations (if other"
-                 " than the default of 102)",
-                 10, &global_p1_tcp_port);
+  prefs_register_obsolete_preference(p1_module, "tcp.port");
+
+  prefs_register_static_text_preference(p1_module, "tcp_port_info",
+            "The TCP ports used by the P1 protocol should be added to the TPKT preference \"TPKT TCP ports\", or by selecting \"TPKT\" as the \"Transport\" protocol in the \"Decode As\" dialog.",
+            "P1 TCP Port preference moved information");
 
   register_ber_syntax_dissector("P1 Message", proto_p1, dissect_p1_mts_apdu);
 
@@ -11135,7 +11132,7 @@ void proto_register_p1(void) {
   register_ber_syntax_dissector("ORName", proto_p1, dissect_ORName_PDU);
 
 /*--- End of included file: packet-p1-syn-reg.c ---*/
-#line 393 "./asn1/p1/packet-p1-template.c"
+#line 390 "./asn1/p1/packet-p1-template.c"
 }
 
 
@@ -11299,7 +11296,7 @@ void proto_reg_handoff_p1(void) {
 
 
 /*--- End of included file: packet-p1-dis-tab.c ---*/
-#line 399 "./asn1/p1/packet-p1-template.c"
+#line 396 "./asn1/p1/packet-p1-template.c"
 
   /* APPLICATION CONTEXT */
 
@@ -11316,9 +11313,6 @@ void proto_reg_handoff_p1(void) {
   /* the ROS dissector will use the registered P3 ros info */
   register_rtse_oid_dissector_handle(id_as_mts_rtse, NULL, 0, "id-as-mts-rtse", TRUE);
   register_rtse_oid_dissector_handle(id_as_msse, NULL, 0, "id-as-msse", TRUE);
-
-  /* remember the tpkt handler for change in preferences */
-  tpkt_handle = find_dissector("tpkt");
 
   /* APPLICATION CONTEXT */
 
@@ -11340,24 +11334,6 @@ void proto_reg_handoff_p1(void) {
 
   register_ros_protocol_info(id_as_mts, &p3_ros_info, 0, "id-as-mts", FALSE);
   register_ros_protocol_info(id_as_mts_rtse, &p3_ros_info, 0, "id-as-mts-rtse", TRUE);
-
-}
-
-static void
-prefs_register_p1(void)
-{
-  static guint tcp_port = 0;
-
-  /* de-register the old port */
-  /* port 102 is registered by TPKT - don't undo this! */
-  if ((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_delete_uint("tcp.port", tcp_port, tpkt_handle);
-
-  /* Set our port number for future use */
-  tcp_port = global_p1_tcp_port;
-
-  if ((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_add_uint("tcp.port", tcp_port, tpkt_handle);
 
 }
 

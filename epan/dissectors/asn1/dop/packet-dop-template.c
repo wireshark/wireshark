@@ -50,10 +50,6 @@
 void proto_register_dop(void);
 void proto_reg_handoff_dop(void);
 
-static guint global_dop_tcp_port = 102;
-static dissector_handle_t tpkt_handle;
-static void prefs_register_dop(void); /* forward declaration for use in preferences registration */
-
 /* Initialize the protocol and registered fields */
 static int proto_dop = -1;
 
@@ -273,13 +269,13 @@ void proto_register_dop(void) {
 
   /* Register our configuration options for DOP, particularly our port */
 
-  dop_module = prefs_register_protocol_subtree("OSI/X.500", proto_dop, prefs_register_dop);
+  dop_module = prefs_register_protocol_subtree("OSI/X.500", proto_dop, NULL);
 
-  prefs_register_uint_preference(dop_module, "tcp.port", "DOP TCP Port",
-				 "Set the port for DOP operations (if other"
-				 " than the default of 102)",
-				 10, &global_dop_tcp_port);
+  prefs_register_obsolete_preference(dop_module, "tcp.port");
 
+  prefs_register_static_text_preference(dop_module, "tcp_port_info",
+            "The TCP ports used by the DOP protocol should be added to the TPKT preference \"TPKT TCP ports\", or by selecting \"TPKT\" as the \"Transport\" protocol in the \"Decode As\" dialog.",
+            "DOP TCP Port preference moved information");
 
 }
 
@@ -321,26 +317,4 @@ void proto_reg_handoff_dop(void) {
   oid_add_from_string("id-ar-collectiveAttributeInnerArea","2.5.23.6");
   oid_add_from_string("id-ar-contextDefaultSpecificArea","2.5.23.7");
   oid_add_from_string("id-ar-serviceSpecificArea","2.5.23.8");
-
-  /* remember the tpkt handler for change in preferences */
-  tpkt_handle = find_dissector("tpkt");
-
-}
-
-static void
-prefs_register_dop(void)
-{
-  static guint tcp_port = 0;
-
-  /* de-register the old port */
-  /* port 102 is registered by TPKT - don't undo this! */
-  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_delete_uint("tcp.port", tcp_port, tpkt_handle);
-
-  /* Set our port number for future use */
-  tcp_port = global_dop_tcp_port;
-
-  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_add_uint("tcp.port", tcp_port, tpkt_handle);
-
 }

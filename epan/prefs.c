@@ -41,6 +41,7 @@
 #include <epan/proto.h>
 #include <epan/strutil.h>
 #include <epan/column.h>
+#include <epan/decode_as.h>
 #include "print.h"
 #include <wsutil/file_util.h>
 #include <wsutil/ws_printf.h> /* ws_g_warning */
@@ -4018,6 +4019,61 @@ deprecated_heur_dissector_pref(gchar *pref_name, const gchar *value)
     return FALSE;
 }
 
+static gboolean
+deprecated_port_pref(gchar *pref_name, const gchar *value)
+{
+    struct port_pref_name
+    {
+        const char* pref_name;
+        const char* module_name;
+        const char* table_name;
+        guint base;
+    };
+
+    /* These are subdissectors of TPKT/OSITP that used to have a
+       TCP port preference even though they were never
+       directly on TCP.  Convert them to use Decode As
+       with the TPKT dissector handle */
+    struct port_pref_name tpkt_subdissector_port_prefs[] = {
+        {"dap.tcp.port", "DAP", "tcp.port", 10},
+        {"disp.tcp.port", "DISP", "tcp.port", 10},
+        {"dop.tcp.port", "DOP", "tcp.port", 10},
+        {"dsp.tcp.port", "DSP", "tcp.port", 10},
+        {"p1.tcp.port", "P1", "tcp.port", 10},
+        {"p7.tcp.port", "P7", "tcp.port", 10},
+        {"rdp.tcp.port", "RDP", "tcp.port", 10},
+    };
+
+    unsigned int i;
+    char     *p;
+    guint    uval;
+    dissector_handle_t tpkt_handle;
+
+    for (i = 0; i < sizeof(tpkt_subdissector_port_prefs)/sizeof(struct port_pref_name); i++)
+    {
+        if (strcmp(pref_name, tpkt_subdissector_port_prefs[i].pref_name) == 0)
+        {
+            /* XXX - give an error if it doesn't fit in a guint? */
+            uval = (guint)strtoul(value, &p, tpkt_subdissector_port_prefs[i].base);
+            if (p == value || *p != '\0')
+                return FALSE;        /* number was bad */
+
+            /* If the value is 0 or 102 (default TPKT port), don't add to the Decode As tables */
+            if ((uval != 0) && (uval != 102))
+            {
+                tpkt_handle = find_dissector("tpkt");
+                if (tpkt_handle != NULL) {
+                    dissector_change_uint(tpkt_subdissector_port_prefs[i].table_name, uval, tpkt_handle);
+                }
+            }
+
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
 static prefs_set_pref_e
 set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
          gboolean return_range_errors)
@@ -4077,6 +4133,8 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
         }
     } else if (deprecated_heur_dissector_pref(pref_name, value)) {
          /* Handled within deprecated_heur_dissector_pref() if found */
+    } else if (deprecated_port_pref(pref_name, value)) {
+         /* Handled within deprecated_port_pref() if found */
     } else {
         /* Handle deprecated "global" options that don't have a module
          * associated with them

@@ -62,11 +62,6 @@
 void proto_register_disp(void);
 void proto_reg_handoff_disp(void);
 
-static guint global_disp_tcp_port = 102;
-static dissector_handle_t tpkt_handle;
-static void prefs_register_disp(void); /* forward declaration for use in preferences registration */
-
-
 /* Initialize the protocol and registered fields */
 static int proto_disp = -1;
 
@@ -182,7 +177,7 @@ static int hf_disp_signedShadowError = -1;        /* T_signedShadowError */
 static int hf_disp_shadowError = -1;              /* ShadowErrorData */
 
 /*--- End of included file: packet-disp-hf.c ---*/
-#line 66 "./asn1/disp/packet-disp-template.c"
+#line 61 "./asn1/disp/packet-disp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_disp = -1;
@@ -245,7 +240,7 @@ static gint ett_disp_ShadowError = -1;
 static gint ett_disp_T_signedShadowError = -1;
 
 /*--- End of included file: packet-disp-ett.c ---*/
-#line 70 "./asn1/disp/packet-disp-template.c"
+#line 65 "./asn1/disp/packet-disp-template.c"
 
 static expert_field ei_disp_unsupported_opcode = EI_INIT;
 static expert_field ei_disp_unsupported_errcode = EI_INIT;
@@ -1484,7 +1479,7 @@ static int dissect_ShadowingAgreementInfo_PDU(tvbuff_t *tvb _U_, packet_info *pi
 
 
 /*--- End of included file: packet-disp-fn.c ---*/
-#line 79 "./asn1/disp/packet-disp-template.c"
+#line 74 "./asn1/disp/packet-disp-template.c"
 
 /*
 * Dissect DISP PDUs inside a ROS PDUs
@@ -2042,7 +2037,7 @@ void proto_register_disp(void) {
         "ShadowErrorData", HFILL }},
 
 /*--- End of included file: packet-disp-hfarr.c ---*/
-#line 204 "./asn1/disp/packet-disp-template.c"
+#line 199 "./asn1/disp/packet-disp-template.c"
   };
 
   /* List of subtrees */
@@ -2107,7 +2102,7 @@ void proto_register_disp(void) {
     &ett_disp_T_signedShadowError,
 
 /*--- End of included file: packet-disp-ettarr.c ---*/
-#line 210 "./asn1/disp/packet-disp-template.c"
+#line 205 "./asn1/disp/packet-disp-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -2132,12 +2127,13 @@ void proto_register_disp(void) {
 
   /* Register our configuration options for DISP, particularly our port */
 
-  disp_module = prefs_register_protocol_subtree("OSI/X.500", proto_disp, prefs_register_disp);
+  disp_module = prefs_register_protocol_subtree("OSI/X.500", proto_disp, NULL);
 
-  prefs_register_uint_preference(disp_module, "tcp.port", "DISP TCP Port",
-				 "Set the port for DISP operations (if other"
-				 " than the default of 102)",
-				 10, &global_disp_tcp_port);
+  prefs_register_obsolete_preference(disp_module, "tcp.port");
+
+  prefs_register_static_text_preference(disp_module, "tcp_port_info",
+            "The TCP ports used by the DISP protocol should be added to the TPKT preference \"TPKT TCP ports\", or by selecting \"TPKT\" as the \"Transport\" protocol in the \"Decode As\" dialog.",
+            "DISP TCP Port preference moved information");
 
 }
 
@@ -2155,7 +2151,7 @@ void proto_reg_handoff_disp(void) {
 
 
 /*--- End of included file: packet-disp-dis-tab.c ---*/
-#line 247 "./asn1/disp/packet-disp-template.c"
+#line 243 "./asn1/disp/packet-disp-template.c"
 
   /* APPLICATION CONTEXT */
 
@@ -2172,28 +2168,7 @@ void proto_reg_handoff_disp(void) {
   /* OPERATIONAL BINDING */
   oid_add_from_string("id-op-binding-shadow","2.5.1.0.5.1");
 
-  tpkt_handle = find_dissector("tpkt");
-
   /* DNs */
   x509if_register_fmt(hf_disp_contextPrefix, "cp=");
-
-}
-
-
-static void
-prefs_register_disp(void)
-{
-  static guint tcp_port = 0;
-
-  /* de-register the old port */
-  /* port 102 is registered by TPKT - don't undo this! */
-  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_delete_uint("tcp.port", tcp_port, tpkt_handle);
-
-  /* Set our port number for future use */
-  tcp_port = global_disp_tcp_port;
-
-  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_add_uint("tcp.port", global_disp_tcp_port, tpkt_handle);
 
 }

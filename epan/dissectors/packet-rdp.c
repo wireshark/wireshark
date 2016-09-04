@@ -40,13 +40,8 @@
 #define PSNAME "RDP"
 #define PFNAME "rdp"
 
-
-static guint global_rdp_tcp_port = 3389;
-static dissector_handle_t tpkt_handle;
-
 void proto_register_rdp(void);
 void proto_reg_handoff_rdp(void);
-static void prefs_register_rdp(void);
 
 static int proto_rdp = -1;
 
@@ -3316,46 +3311,23 @@ proto_register_rdp(void) {
 
   /* Register our configuration options for RDP, particularly our port */
 
-  rdp_module = prefs_register_protocol(proto_rdp, prefs_register_rdp);
+  rdp_module = prefs_register_protocol(proto_rdp, NULL);
 
-  prefs_register_uint_preference(rdp_module, "tcp.port", "RDP TCP Port",
-                                 "Set the port for RDP operations (if other"
-                                 " than the default of 3389)",
-                                 10, &global_rdp_tcp_port);
+  prefs_register_obsolete_preference(rdp_module, "tcp.port");
 
+  prefs_register_static_text_preference(rdp_module, "tcp_port_info",
+            "The TCP ports used by the RDP protocol should be added to the TPKT preference \"TPKT TCP ports\", or by selecting \"TPKT\" as the \"Transport\" protocol in the \"Decode As\" dialog.",
+            "RDP TCP Port preference moved information");
 }
 
 void
 proto_reg_handoff_rdp(void)
 {
-
-  /* remember the tpkt handler for change in preferences */
-  tpkt_handle = find_dissector("tpkt");
-
   heur_dissector_add("cotp_cr", dissect_rdp_cr, "RDP", "rdp_cr", proto_rdp, HEURISTIC_ENABLE);
   heur_dissector_add("cotp_cc", dissect_rdp_cc, "RDP", "rdp_cc", proto_rdp, HEURISTIC_ENABLE);
 
-  prefs_register_rdp();
-
   register_t124_ns_dissector("Duca", dissect_rdp_ClientData, proto_rdp);
   register_t124_ns_dissector("McDn", dissect_rdp_ServerData, proto_rdp);
-}
-
-static void
-prefs_register_rdp(void) {
-
-  static guint tcp_port = 0;
-
-  /* de-register the old port */
-  /* port 102 is registered by TPKT - don't undo this! */
-  if ((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_delete_uint("tcp.port", tcp_port, tpkt_handle);
-
-  /* Set our port number for future use */
-  tcp_port = global_rdp_tcp_port;
-
-  if ((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_add_uint("tcp.port", tcp_port, tpkt_handle);
 }
 
 /*

@@ -58,10 +58,6 @@
 void proto_register_dop(void);
 void proto_reg_handoff_dop(void);
 
-static guint global_dop_tcp_port = 102;
-static dissector_handle_t tpkt_handle;
-static void prefs_register_dop(void); /* forward declaration for use in preferences registration */
-
 /* Initialize the protocol and registered fields */
 static int proto_dop = -1;
 
@@ -265,7 +261,7 @@ static int hf_dop_GrantsAndDenials_grantInvoke = -1;
 static int hf_dop_GrantsAndDenials_denyInvoke = -1;
 
 /*--- End of included file: packet-dop-hf.c ---*/
-#line 65 "./asn1/dop/packet-dop-template.c"
+#line 61 "./asn1/dop/packet-dop-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dop = -1;
@@ -342,7 +338,7 @@ static gint ett_dop_T_basicLevels = -1;
 static gint ett_dop_GrantsAndDenials = -1;
 
 /*--- End of included file: packet-dop-ett.c ---*/
-#line 70 "./asn1/dop/packet-dop-template.c"
+#line 66 "./asn1/dop/packet-dop-template.c"
 
 static expert_field ei_dop_unknown_binding_parameter = EI_INIT;
 static expert_field ei_dop_unsupported_opcode = EI_INIT;
@@ -2041,7 +2037,7 @@ static int dissect_ACIItem_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-dop-fn.c ---*/
-#line 89 "./asn1/dop/packet-dop-template.c"
+#line 85 "./asn1/dop/packet-dop-template.c"
 
 static int
 call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *col_info, void* data)
@@ -2958,7 +2954,7 @@ void proto_register_dop(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-dop-hfarr.c ---*/
-#line 241 "./asn1/dop/packet-dop-template.c"
+#line 237 "./asn1/dop/packet-dop-template.c"
   };
 
   /* List of subtrees */
@@ -3037,7 +3033,7 @@ void proto_register_dop(void) {
     &ett_dop_GrantsAndDenials,
 
 /*--- End of included file: packet-dop-ettarr.c ---*/
-#line 248 "./asn1/dop/packet-dop-template.c"
+#line 244 "./asn1/dop/packet-dop-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -3066,13 +3062,13 @@ void proto_register_dop(void) {
 
   /* Register our configuration options for DOP, particularly our port */
 
-  dop_module = prefs_register_protocol_subtree("OSI/X.500", proto_dop, prefs_register_dop);
+  dop_module = prefs_register_protocol_subtree("OSI/X.500", proto_dop, NULL);
 
-  prefs_register_uint_preference(dop_module, "tcp.port", "DOP TCP Port",
-				 "Set the port for DOP operations (if other"
-				 " than the default of 102)",
-				 10, &global_dop_tcp_port);
+  prefs_register_obsolete_preference(dop_module, "tcp.port");
 
+  prefs_register_static_text_preference(dop_module, "tcp_port_info",
+            "The TCP ports used by the DOP protocol should be added to the TPKT preference \"TPKT TCP ports\", or by selecting \"TPKT\" as the \"Transport\" protocol in the \"Decode As\" dialog.",
+            "DOP TCP Port preference moved information");
 
 }
 
@@ -3104,7 +3100,7 @@ void proto_reg_handoff_dop(void) {
 
 
 /*--- End of included file: packet-dop-dis-tab.c ---*/
-#line 292 "./asn1/dop/packet-dop-template.c"
+#line 288 "./asn1/dop/packet-dop-template.c"
   /* APPLICATION CONTEXT */
 
   oid_add_from_string("id-ac-directory-operational-binding-management","2.5.3.3");
@@ -3137,26 +3133,4 @@ void proto_reg_handoff_dop(void) {
   oid_add_from_string("id-ar-collectiveAttributeInnerArea","2.5.23.6");
   oid_add_from_string("id-ar-contextDefaultSpecificArea","2.5.23.7");
   oid_add_from_string("id-ar-serviceSpecificArea","2.5.23.8");
-
-  /* remember the tpkt handler for change in preferences */
-  tpkt_handle = find_dissector("tpkt");
-
-}
-
-static void
-prefs_register_dop(void)
-{
-  static guint tcp_port = 0;
-
-  /* de-register the old port */
-  /* port 102 is registered by TPKT - don't undo this! */
-  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_delete_uint("tcp.port", tcp_port, tpkt_handle);
-
-  /* Set our port number for future use */
-  tcp_port = global_dop_tcp_port;
-
-  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_add_uint("tcp.port", tcp_port, tpkt_handle);
-
 }
