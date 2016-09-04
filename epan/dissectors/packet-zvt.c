@@ -107,6 +107,8 @@ typedef struct _apdu_info_t {
 #define CTRL_INIT          0x0693
 #define CTRL_PRINT_LINE    0x06D1
 
+static void dissect_zvt_int_status(tvbuff_t *tvb, gint offset, guint16 len,
+        packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans);
 static void dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len,
         packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans);
 static void dissect_zvt_bitmap_seq(tvbuff_t *tvb, gint offset, guint16 len,
@@ -114,7 +116,7 @@ static void dissect_zvt_bitmap_seq(tvbuff_t *tvb, gint offset, guint16 len,
 
 static const apdu_info_t apdu_info[] = {
     { CTRL_STATUS,        0, DIRECTION_PT_TO_ECR, NULL },
-    { CTRL_INT_STATUS,    0, DIRECTION_PT_TO_ECR, NULL },
+    { CTRL_INT_STATUS,    0, DIRECTION_PT_TO_ECR, dissect_zvt_int_status },
     { CTRL_REGISTRATION,  4, DIRECTION_ECR_TO_PT, dissect_zvt_reg },
     /* authorisation has at least a 0x04 tag and 6 bytes for the amount */
     { CTRL_AUTHORISATION, 7, DIRECTION_ECR_TO_PT, dissect_zvt_bitmap_seq },
@@ -197,6 +199,7 @@ static int hf_zvt_ccrc = -1;
 static int hf_zvt_aprc = -1;
 static int hf_zvt_len = -1;
 static int hf_zvt_data = -1;
+static int hf_zvt_int_status = -1;
 static int hf_zvt_reg_pwd = -1;
 static int hf_zvt_reg_cfg = -1;
 static int hf_zvt_cc = -1;
@@ -445,6 +448,21 @@ dissect_zvt_bitmap(tvbuff_t *tvb, gint offset,
 
     proto_item_set_len(bitmap_it, offset - offset_start);
     return offset - offset_start;
+}
+
+
+static void dissect_zvt_int_status(tvbuff_t *tvb, gint offset, guint16 len _U_,
+        packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans)
+{
+    proto_tree_add_item(tree, hf_zvt_int_status,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    if (len > 1)
+        offset++; /* skip "timeout" */
+
+    if (len > 2)
+        dissect_zvt_bitmap_seq(tvb, offset, len-2, pinfo, tree, zvt_trans);
 }
 
 
@@ -852,6 +870,9 @@ proto_register_zvt(void)
         { &hf_zvt_data,
           { "APDU data", "zvt.data",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_zvt_int_status,
+            { "Intermediate status", "zvt.int_status",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_zvt_reg_pwd,
             { "Password", "zvt.reg.password",
                 FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
