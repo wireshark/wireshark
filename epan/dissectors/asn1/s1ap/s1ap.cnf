@@ -280,19 +280,25 @@ tvbuff_t *parameter_tvb=NULL;
     return offset;
 
 # The Transport Layer Address signalled in S1-AP messages is a bit string of
-# a) 32 bits in case of IPv4 address according to [6]; and
-# b) 128 bits in case of IPv6 address according to [5].
+# a) 32 bits in case of IPv4 address according to IETF RFC 791 [6]; or
+# b) 128 bits in case of IPv6 address according to IETF RFC 2460 [5]; or
+# c) 160 bits if both IPv4 and IPv6 addresses are signalled, in which case the IPv4 address is contained in the first 32 bits.
   /* Get the length */
   tvb_len = tvb_reported_length(parameter_tvb);
   subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_TransportLayerAddress);
-  if (tvb_len==4){
+  if (tvb_len==4) {
     /* IPv4 */
-     proto_tree_add_item(subtree, hf_s1ap_transportLayerAddressIPv4, parameter_tvb, 0, tvb_len, ENC_BIG_ENDIAN);
-  }
-  if (tvb_len==16){
+     proto_tree_add_item(subtree, hf_s1ap_transportLayerAddressIPv4, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
+  } else if (tvb_len==16) {
     /* IPv6 */
-     proto_tree_add_item(subtree, hf_s1ap_transportLayerAddressIPv6, parameter_tvb, 0, tvb_len, ENC_NA);
+     proto_tree_add_item(subtree, hf_s1ap_transportLayerAddressIPv6, parameter_tvb, 0, 16, ENC_NA);
+  } else if (tvb_len==20) {
+    /* IPv4 */
+     proto_tree_add_item(subtree, hf_s1ap_transportLayerAddressIPv4, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
+    /* IPv6 */
+     proto_tree_add_item(subtree, hf_s1ap_transportLayerAddressIPv6, parameter_tvb, 4, 16, ENC_NA);
   }
+
 #.FN_HDR InitialUEMessage
   /* Set the direction of the message */
   actx->pinfo->link_dir=P2P_DIR_UL;
