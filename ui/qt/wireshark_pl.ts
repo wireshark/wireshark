@@ -720,12 +720,12 @@
 <context>
     <name>CaptureFile</name>
     <message>
-        <location filename="capture_file.cpp" line="171"/>
+        <location filename="capture_file.cpp" line="179"/>
         <source> [closing]</source>
         <translation>[zamykanie]</translation>
     </message>
     <message>
-        <location filename="capture_file.cpp" line="176"/>
+        <location filename="capture_file.cpp" line="184"/>
         <source> [closed]</source>
         <translation>[zamknięty]</translation>
     </message>
@@ -1903,24 +1903,24 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
 <context>
     <name>ConversationDialog</name>
     <message>
-        <location filename="conversation_dialog.cpp" line="65"/>
+        <location filename="conversation_dialog.cpp" line="69"/>
         <source>Follow Stream</source>
         <oldsource>Follow Stream...</oldsource>
         <translation>Podążaj za strumieniem</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="66"/>
+        <location filename="conversation_dialog.cpp" line="70"/>
         <source>Follow a TCP or UDP stream.</source>
         <translation>Podążaj za strumieniem TCP lub UDP.</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="69"/>
+        <location filename="conversation_dialog.cpp" line="73"/>
         <source>Graph</source>
         <oldsource>Graph...</oldsource>
         <translation>Wykres</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="70"/>
+        <location filename="conversation_dialog.cpp" line="74"/>
         <source>Graph a TCP conversation.</source>
         <translation>Wykres konwersacji TCP.</translation>
     </message>
@@ -6887,12 +6887,12 @@ text-decoration: underline;
         <translation>Automatyczne aktualizacje są wyłączone.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="383"/>
+        <location filename="main_welcome.cpp" line="390"/>
         <source>not found</source>
         <translation>nie znaleziono</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="465"/>
+        <location filename="main_welcome.cpp" line="472"/>
         <source>Copy file path</source>
         <translation>Kopiuj ścieżkę</translation>
     </message>
@@ -9108,33 +9108,33 @@ text-decoration: underline;
         <translation>Włącz lub wyłącz wybrane protokoły</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="436"/>
+        <location filename="main_window.cpp" line="437"/>
         <source>Check for Updates</source>
         <oldsource>Check for Updates...</oldsource>
         <translation>Sprawdź aktualizacje</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="818"/>
+        <location filename="main_window.cpp" line="819"/>
         <source> before quitting</source>
         <translation>przed wyjściem</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1003"/>
+        <location filename="main_window.cpp" line="1004"/>
         <source>Save packets before merging?</source>
         <translation>Zapisać pakiety przed scaleniem?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1004"/>
+        <location filename="main_window.cpp" line="1005"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>Tymczasowy plik przechwytywania nie może zostać scalony.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1010"/>
+        <location filename="main_window.cpp" line="1011"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>Zapisać zmiany w &quot;%1&quot;  przed scaleniem?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1012"/>
+        <location filename="main_window.cpp" line="1013"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>Zmiany muszą być zapisane przed próbą scalenia plików.</translation>
     </message>
@@ -9144,117 +9144,117 @@ text-decoration: underline;
         <translation>Niepoprawny filtr</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1049"/>
+        <location filename="main_window.cpp" line="1050"/>
         <source>Invalid Read Filter</source>
         <translation>Niepoprawny filtr wczytywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1050"/>
+        <location filename="main_window.cpp" line="1051"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation>Postać filtru wczytywania %1 nie jest poprawna. (%2).</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1140"/>
+        <location filename="main_window.cpp" line="1141"/>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
         <translation>przed zaimportowaniem nowego pliku przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1414"/>
+        <location filename="main_window.cpp" line="1417"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>Nie można wyeksportować do &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1415"/>
+        <location filename="main_window.cpp" line="1418"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>Nie można wyeksportować pakietów do aktualnego pliku.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1502"/>
-        <location filename="main_window.cpp" line="1527"/>
+        <location filename="main_window.cpp" line="1505"/>
+        <location filename="main_window.cpp" line="1530"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1574"/>
+        <location filename="main_window.cpp" line="1577"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Czy chcesz zapisać zrobione zmiany %1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1570"/>
-        <location filename="main_window.cpp" line="1578"/>
+        <location filename="main_window.cpp" line="1573"/>
+        <location filename="main_window.cpp" line="1581"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>Twoje przechwycone pakiety zostaną utracone jeśli nie zapiszesz ich.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1583"/>
+        <location filename="main_window.cpp" line="1586"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Czy chcesz zapisać zmiany, które zrobiłeś do pliku przechytywania  &quot;%1&quot;%2?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1575"/>
-        <location filename="main_window.cpp" line="1584"/>
+        <location filename="main_window.cpp" line="1578"/>
+        <location filename="main_window.cpp" line="1587"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Twoje zmiany zostaną utracone jeśli nie zapiszesz ich.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1569"/>
+        <location filename="main_window.cpp" line="1572"/>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
         <translation>Czy chcesz zatrzymać przechwytywanie i zapisać przechwycone pakiety%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1577"/>
+        <location filename="main_window.cpp" line="1580"/>
         <source>Do you want to save the captured packets%1?</source>
         <translation>Czy chcesz zapisać przechwycone pakiety%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1601"/>
+        <location filename="main_window.cpp" line="1604"/>
         <source>Save before Continue</source>
         <translation>Zapisz przed kontynuowaniem</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1603"/>
+        <location filename="main_window.cpp" line="1606"/>
         <source>Stop and Save</source>
         <translation>Zatrzymaj i zapisz</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1615"/>
+        <location filename="main_window.cpp" line="1618"/>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
         <translation>Zatrzymaj i wyjdź bez zapisy&amp;wania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1627"/>
+        <location filename="main_window.cpp" line="1630"/>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation>Wyjdź bez zapisy&amp;wania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1618"/>
-        <location filename="main_window.cpp" line="1631"/>
+        <location filename="main_window.cpp" line="1621"/>
+        <location filename="main_window.cpp" line="1634"/>
         <source>Continue &amp;without Saving</source>
         <oldsource>Continue without Saving</oldsource>
         <translation>Kontynuuj bez zapisy&amp;wania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1621"/>
+        <location filename="main_window.cpp" line="1624"/>
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
         <translation>Zatrzymaj i kontynuuj bez zapisy&amp;wania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1953"/>
+        <location filename="main_window.cpp" line="1956"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Nazwa pliku nie może być przekonwertowana do formatu UTF-8)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1974"/>
+        <location filename="main_window.cpp" line="1977"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Analizator Wireshark</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1999"/>
+        <location filename="main_window.cpp" line="2002"/>
         <source>Capturing from %1</source>
         <translation>Przechwytywanie z %1</translation>
     </message>
@@ -10723,7 +10723,7 @@ text-decoration: underline;
         <translation>Nowa reguła kolorowania</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="61"/>
+        <location filename="conversation_dialog.cpp" line="65"/>
         <source>Conversation</source>
         <translation>Konwersacja</translation>
     </message>
@@ -10809,7 +10809,7 @@ text-decoration: underline;
         <translation>Każdy</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="231"/>
+        <location filename="main_window.cpp" line="232"/>
         <source>Don&apos;t show this message again.</source>
         <translation>Nie pokazuj więcej tego komunikatu.</translation>
     </message>
@@ -11135,12 +11135,12 @@ text-decoration: underline;
         <translation>Priorytet</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="448"/>
+        <location filename="main_welcome.cpp" line="455"/>
         <source>Show in Finder</source>
         <translation>Otwórz w wyszukiwajce</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="450"/>
+        <location filename="main_welcome.cpp" line="457"/>
         <source>Show in Folder</source>
         <translation>Otwórz w folderze</translation>
     </message>
@@ -15156,42 +15156,47 @@ text-decoration: underline;
         <translation>Ogranicz do filtru</translation>
     </message>
     <message>
-        <location filename="traffic_table_dialog.ui" line="68"/>
+        <location filename="traffic_table_dialog.ui" line="71"/>
+        <source>Absolute start time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="traffic_table_dialog.ui" line="91"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dodaj lub usuń typ konwersacji.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="traffic_table_dialog.cpp" line="64"/>
+        <location filename="traffic_table_dialog.cpp" line="65"/>
         <source>%1 Types</source>
         <translation>%1 Typy</translation>
     </message>
     <message>
-        <location filename="traffic_table_dialog.cpp" line="69"/>
+        <location filename="traffic_table_dialog.cpp" line="71"/>
         <source>Copy</source>
         <translation>Kopiuj</translation>
     </message>
     <message>
-        <location filename="traffic_table_dialog.cpp" line="70"/>
+        <location filename="traffic_table_dialog.cpp" line="72"/>
         <source>as CSV</source>
         <translation>jako CSV</translation>
     </message>
     <message>
-        <location filename="traffic_table_dialog.cpp" line="71"/>
+        <location filename="traffic_table_dialog.cpp" line="73"/>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
         <translation>Kopiuj wszystkie wartości z tej strony w CSV do schowka.</translation>
     </message>
     <message>
-        <location filename="traffic_table_dialog.cpp" line="73"/>
+        <location filename="traffic_table_dialog.cpp" line="75"/>
         <source>as YAML</source>
         <translation>jako YAML</translation>
     </message>
     <message>
-        <location filename="traffic_table_dialog.cpp" line="74"/>
+        <location filename="traffic_table_dialog.cpp" line="76"/>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
         <translation>Kopiuj wszystkie wartości z tej strony w formacie serializacji YAML do schowka.</translation>
     </message>
     <message>
-        <location filename="traffic_table_dialog.h" line="115"/>
+        <location filename="traffic_table_dialog.h" line="117"/>
         <source>Unknown</source>
         <translation>Nieznany</translation>
     </message>
