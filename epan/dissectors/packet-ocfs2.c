@@ -1052,8 +1052,19 @@ static int dissect_ocfs2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree_add_item_ret_uint(subtree, hf_msg_msg_type, tvb, 4, 2, ENC_BIG_ENDIAN, &msg_type);
 	offset += 2;
 
-	col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%s",
-		val_to_str_ext(msg_type, &ext_dlm_magic, "Unknown Type (0x%02x)") );
+	switch(magic){
+	case O2NET_MSG_KEEP_REQ_MAGIC:
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "Keepalive Request");
+		break;
+	case O2NET_MSG_KEEP_RESP_MAGIC:
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "Keepalive Response");
+		break;
+	default:
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%s",
+			val_to_str_ext(msg_type, &ext_dlm_magic, "Unknown Type (0x%02x)") );
+		break;
+	}
+
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
 	proto_tree_add_item(subtree, hf_msg_pad, tvb, 4, 2, ENC_BIG_ENDIAN);
