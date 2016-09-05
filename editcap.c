@@ -88,6 +88,7 @@
 #include <wsutil/str_util.h>
 #include <ws_version_info.h>
 #include <wsutil/pint.h>
+#include <wsutil/strtoi.h>
 #include <wiretap/wtap_opttypes.h>
 #include <wiretap/pcapng.h>
 
@@ -118,7 +119,7 @@ static fd_hash_t fd_hash[MAX_DUP_DEPTH];
 static int       dup_window    = DEFAULT_DUP_DEPTH;
 static int       cur_dup_entry = 0;
 
-static int       ignored_bytes  = 0;  /* Used with -I */
+static guint32   ignored_bytes  = 0;  /* Used with -I */
 
 #define ONE_BILLION 1000000000
 
@@ -285,7 +286,10 @@ add_selection(char *sel, guint* max_selection)
             fprintf(stderr, "Not inclusive ...");
 
         selectfrm[max_selected].inclusive = FALSE;
-        selectfrm[max_selected].first = (guint)strtoul(sel, NULL, 10);
+        if (!ws_strtou32(sel, NULL, &selectfrm[max_selected].first)) {
+            fprintf(stderr, "editcap: invalid integer conversion: %s\n", sel);
+            return FALSE;
+        }
         if (selectfrm[max_selected].first > *max_selection)
             *max_selection = selectfrm[max_selected].first;
 
@@ -297,8 +301,14 @@ add_selection(char *sel, guint* max_selection)
 
         next = locn + 1;
         selectfrm[max_selected].inclusive = TRUE;
-        selectfrm[max_selected].first = (guint)strtoul(sel, NULL, 10);
-        selectfrm[max_selected].second = (guint)strtoul(next, NULL, 10);
+        if (!ws_strtou32(sel, NULL, &selectfrm[max_selected].first)) {
+            fprintf(stderr, "editcap: invalid integer conversion: %s\n", sel);
+            return FALSE;
+        }
+        if (!ws_strtou32(next, NULL, &selectfrm[max_selected].first)) {
+            fprintf(stderr, "editcap: invalid integer conversion: %s\n", sel);
+            return FALSE;
+        }
 
         if (selectfrm[max_selected].second == 0)
         {
@@ -963,11 +973,11 @@ main(int argc, char *argv[])
     int           err_type;
     guint8       *buf;
     guint32       read_count         = 0;
-    int           split_packet_count = 0;
+    guint32       split_packet_count = 0;
     int           written_count      = 0;
     char         *filename           = NULL;
     gboolean      ts_okay;
-    int           secs_per_block     = 0;
+    guint32       secs_per_block     = 0;
     int           block_cnt          = 0;
     nstime_t      block_start;
     gchar        *fprefix            = NULL;
@@ -1103,15 +1113,9 @@ main(int argc, char *argv[])
         }
 
         case 'c':
-            split_packet_count = (int)strtol(optarg, &p, 10);
-            if (p == optarg || *p != '\0') {
+            if (!ws_strtou32(optarg, NULL, &split_packet_count) || split_packet_count == 0) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid packet count\n",
                         optarg);
-                exit(1);
-            }
-            if (split_packet_count <= 0) {
-                fprintf(stderr, "editcap: \"%d\" packet count must be larger than zero\n",
-                        split_packet_count);
                 exit(1);
             }
             break;
@@ -1161,13 +1165,7 @@ main(int argc, char *argv[])
         case 'D':
             dup_detect = TRUE;
             dup_detect_by_time = FALSE;
-            dup_window = (int)strtol(optarg, &p, 10);
-            if (p == optarg || *p != '\0') {
-                fprintf(stderr, "editcap: \"%s\" isn't a valid duplicate window value\n",
-                        optarg);
-                exit(1);
-            }
-            if (dup_window < 0 || dup_window > MAX_DUP_DEPTH) {
+            if (!ws_strtou32(optarg, NULL, &dup_window) || dup_window > MAX_DUP_DEPTH) {
                 fprintf(stderr, "editcap: \"%d\" duplicate window value must be between 0 and %d inclusive.\n",
                         dup_window, MAX_DUP_DEPTH);
                 exit(1);
@@ -1216,7 +1214,10 @@ main(int argc, char *argv[])
             break;
 
         case 'o':
-            change_offset = (guint32)strtol(optarg, &p, 10);
+            if (!ws_strtou32(optarg, NULL, &change_offset) || change_offset == 0) {
+                fprintf(stderr, "editcap: invalid offset %s\n", optarg);
+                exit(1);
+            }
             break;
 
         case 'r':
@@ -1224,8 +1225,7 @@ main(int argc, char *argv[])
             break;
 
         case 's':
-            snaplen = (guint32)strtol(optarg, &p, 10);
-            if (p == optarg || *p != '\0') {
+            if (!ws_strtou32(optarg, NULL, &snaplen)) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid snapshot length\n",
                         optarg);
                 exit(1);
@@ -1314,7 +1314,7 @@ main(int argc, char *argv[])
         exit(1);
     }
 
-    if (split_packet_count > 0 && secs_per_block > 0) {
+    if (split_packet_count != 0 && secs_per_block != 0) {
         fprintf(stderr, "editcap: can't split on both packet count and time interval\n");
         fprintf(stderr, "editcap: at the same time\n");
         exit(1);
@@ -1376,7 +1376,7 @@ main(int argc, char *argv[])
 
             /* Extra actions for the first packet */
             if (read_count == 1) {
-                if (split_packet_count > 0 || secs_per_block > 0) {
+                if (split_packet_count != 0 || secs_per_block != 0) {
                     if (!fileset_extract_prefix_suffix(argv[optind+1], &fprefix, &fsuffix))
                         goto error_on_exit;
 
@@ -1413,7 +1413,6 @@ main(int argc, char *argv[])
                 if (nstime_is_unset(&block_start)) {
                     block_start = phdr->ts;
                 }
-
                 if (secs_per_block > 0) {
                     while ((phdr->ts.secs - block_start.secs >  secs_per_block)
                            || (phdr->ts.secs - block_start.secs == secs_per_block
