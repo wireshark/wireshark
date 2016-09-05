@@ -26,6 +26,8 @@
 #include <glib.h>
 #include <string.h>
 
+#include <config.h>
+
 typedef enum {
     EXTCAP_SENTENCE_UNKNOWN,
     EXTCAP_SENTENCE_ARG,
@@ -75,6 +77,8 @@ typedef enum {
     EXTCAP_PARAM_VALIDATION,
     EXTCAP_PARAM_VERSION
 } extcap_param_type;
+
+#define ENUM_KEY(s) GUINT_TO_POINTER((guint)s)
 
 /* Values for a given sentence; values are all stored as a call
  * and a value string, or a valid range, so we only need to store
@@ -134,44 +138,23 @@ typedef struct _extcap_interface {
     gchar *version;
 
     extcap_sentence_type if_type;
-    struct _extcap_interface *next_interface;
 } extcap_interface;
 
 typedef struct _extcap_dlt {
     gint number;
     gchar *name;
     gchar *display;
-
-    struct _extcap_dlt *next_dlt;
 } extcap_dlt;
-
-/* Parser internals */
-typedef struct _extcap_token_param {
-    gchar *arg;
-    gchar *value;
-
-    extcap_param_type param_type;
-
-    struct _extcap_token_param *next_token;
-} extcap_token_param;
 
 typedef struct _extcap_token_sentence {
     gchar *sentence;
 
-    extcap_token_param *param_list;
-
-    struct _extcap_token_sentence *next_sentence;
+    GHashTable *param_list;
 } extcap_token_sentence;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-extcap_interface *extcap_new_interface(void);
-void extcap_free_interface(extcap_interface *interface);
-
-extcap_dlt *extcap_new_dlt(void);
-void extcap_free_dlt(extcap_dlt *dlt);
 
 /* Parse a string into a complex type */
 extcap_complex *extcap_parse_complex(extcap_arg_type complex_type,
@@ -199,24 +182,6 @@ gchar *extcap_complex_get_string(extcap_complex *comp);
 /* compares the default value of an element with a given parameter */
 gboolean extcap_compare_is_default(extcap_arg *element, extcap_complex *test);
 
-void extcap_free_tokenized_param(extcap_token_param *v);
-void extcap_free_tokenized_sentence(extcap_token_sentence *s);
-void extcap_free_tokenized_sentence_list(extcap_token_sentence *f);
-
-/* Turn a sentence into logical tokens, don't validate beyond basic syntax */
-extcap_token_sentence *extcap_tokenize_sentence(const gchar *s);
-
-/* Tokenize a set of sentences (such as the output of a g_spawn_sync) */
-extcap_token_sentence *extcap_tokenize_sentences(const gchar *s);
-
-/* Find an argument in the extcap_arg list which matches the given arg=X number */
-extcap_arg *extcap_find_numbered_arg(extcap_arg *first, int number);
-
-/* Find the first occurrence in a parameter list of a parameter of the given type */
-extcap_token_param *extcap_find_param_by_type(extcap_token_param *first,
-        extcap_param_type t);
-
-void extcap_free_value(extcap_value *v);
 
 /* Free a single argument */
 void extcap_free_arg(extcap_arg *a);
@@ -224,31 +189,17 @@ void extcap_free_arg(extcap_arg *a);
 /* Free an entire arg list */
 void extcap_free_arg_list(GList *a);
 
-/*
- * Parse a tokenized sentence and validate.  If a new sentence is created, the result
- * is returned in 'ra'.  On error, < 0 is returned.  Not all sentences will create a
- * new returned sentence (VALUE sentences, for example)
- */
-extcap_arg * extcap_parse_arg_sentence(GList * args, extcap_token_sentence *s);
+
+/** Parser for extcap data */
 
 /* Parse all sentences for args and values */
-GList * extcap_parse_args(extcap_token_sentence *first_s);
-
-/*
- * Parse a tokenized set of sentences and validate, looking for interface definitions.
- */
-int extcap_parse_interface_sentence(extcap_token_sentence *s,
-        extcap_interface **ri);
+GList * extcap_parse_args(gchar *output);
 
 /* Parse all sentences for interfaces */
-int extcap_parse_interfaces(extcap_token_sentence *first_s,
-        extcap_interface **first_int);
-
-/* Parse a tokenized set of sentences and validate, looking for DLT definitions */
-int extcap_parse_dlt_sentence(extcap_token_sentence *s, extcap_dlt **ri);
+GList * extcap_parse_interfaces(gchar *output);
 
 /* Parse all sentences for DLTs */
-int extcap_parse_dlts(extcap_token_sentence *first_s, extcap_dlt **first_dlt);
+GList * extcap_parse_dlts(gchar *output);
 
 #ifdef __cplusplus
 }
