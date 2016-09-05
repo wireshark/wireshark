@@ -143,6 +143,7 @@ my %APIs = (
                 'freopen',
                 'fstat',
                 'lseek',
+                'atoi', # use wsutil/ws_strtoi.h function
                 # Misc
                 'tmpnam',       # use mkstemp
                 '_snwprintf'    # use StringCchPrintf
