@@ -3693,6 +3693,7 @@ set_80211_channel(const char *iface, const char *opt)
     if (args >= 1 && options[1]) {
         type = ws80211_str_to_chan_type(options[1]);
         if (type == -1) {
+            cmdarg_err("\"%s\" is not a valid 802.11 channel type", options[1]);
             ret = EINVAL;
             goto out;
         }
