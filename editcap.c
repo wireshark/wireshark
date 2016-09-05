@@ -76,6 +76,8 @@
 #endif
 
 #include <wsutil/crash_info.h>
+#include <wsutil/clopts_common.h>
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/md5.h>
@@ -892,7 +894,6 @@ framenum_compare(gconstpointer a, gconstpointer b, gpointer user_data _U_)
     return 0;
 }
 
-#ifdef HAVE_PLUGINS
 /*
  * General errors are reported with an console message in editcap.
  */
@@ -903,7 +904,16 @@ failure_message(const char *msg_format, va_list ap)
   vfprintf(stderr, msg_format, ap);
   fprintf(stderr, "\n");
 }
-#endif
+
+/*
+ * Report additional information for an error in command-line arguments.
+ */
+static void
+failure_message_cont(const char *msg_format, va_list ap)
+{
+    vfprintf(stderr, msg_format, ap);
+    fprintf(stderr, "\n");
+}
 
 static wtap_dumper *
 editcap_dump_open(const char *filename, guint32 snaplen,
@@ -974,6 +984,8 @@ main(int argc, char *argv[])
 #ifdef HAVE_PLUGINS
     char* init_progfile_dir_error;
 #endif
+
+    cmdarg_err_init(failure_message, failure_message_cont);
 
 #ifdef _WIN32
     arg_list_utf_16to8(argc, argv);
@@ -1192,20 +1204,11 @@ main(int argc, char *argv[])
             break;
 
         case 'i': /* break capture file based on time interval */
-            secs_per_block = atoi(optarg);
-            if (secs_per_block <= 0) {
-                fprintf(stderr, "editcap: \"%s\" isn't a valid time interval\n\n",
-                        optarg);
-                exit(1);
-            }
+            secs_per_block = get_positive_int(optarg, "time interval");
             break;
 
         case 'I': /* ignored_bytes at the beginning of the frame for duplications removal */
-            ignored_bytes = atoi(optarg);
-            if(ignored_bytes <= 0) {
-                fprintf(stderr, "editcap: \"%s\" isn't a valid number of bytes to ignore\n", optarg);
-                exit(1);
-            }
+            ignored_bytes = get_positive_int(optarg, "number of bytes to ignore");
             break;
 
         case 'L':
