@@ -34,6 +34,8 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGridLayout>
+#include <QUrl>
+#include <QDesktopServices>
 
 #include "ringbuffer.h"
 #include "ui/capture_ui_utils.h"
@@ -304,8 +306,21 @@ void ExtcapOptionsDialog::on_buttonBox_rejected()
 
 void ExtcapOptionsDialog::on_buttonBox_helpRequested()
 {
-    // Probably the wrong URL.
-    wsApp->helpTopicAction(HELP_EXTCAP_OPTIONS_DIALOG);
+    interface_t device;
+    gchar * interface_help = NULL;
+
+    device = g_array_index(global_capture_opts.all_ifaces, interface_t, device_idx);
+    interface_help = extcap_get_help_for_ifname(device.name);
+
+    if (interface_help)
+    {
+        QUrl help_url = QString(interface_help);
+        QDesktopServices::openUrl(help_url);
+    }
+    else
+    {
+        wsApp->helpTopicAction(HELP_EXTCAP_OPTIONS_DIALOG);
+    }
 }
 
 bool ExtcapOptionsDialog::saveOptionToCaptureInfo()

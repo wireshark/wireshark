@@ -75,6 +75,10 @@ extcap_get_if_dlts(const gchar * ifname, char ** err_str);
 GList *
 append_extcap_interface_list(GList *list, char **err_str);
 
+/* return the help page or NULL for the given ifname */
+gchar *
+extcap_get_help_for_ifname(const char *ifname);
+
 /* get a list of all available extcap tools */
 GHashTable *
 extcap_tools_list(void);

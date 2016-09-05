@@ -105,9 +105,9 @@ extcap_if_exists(const gchar *ifname)
 static gboolean
 extcap_if_exists_for_extcap(const gchar *ifname, const gchar *extcap)
 {
-    gchar *entry = (gchar *)g_hash_table_lookup(ifaces, ifname);
+    extcap_interface * entry = (extcap_interface *)g_hash_table_lookup(ifaces, ifname);
 
-    if ( entry && strcmp(entry, extcap) == 0 )
+    if ( entry && strcmp(entry->extcap_path, extcap) == 0 )
         return TRUE;
 
     return FALSE;
@@ -116,14 +116,15 @@ extcap_if_exists_for_extcap(const gchar *ifname, const gchar *extcap)
 static gchar *
 extcap_if_executable(const gchar *ifname)
 {
-    return (gchar *)g_hash_table_lookup(ifaces, ifname);
+    extcap_interface * interface = (extcap_interface *)g_hash_table_lookup(ifaces, ifname);
+    return interface != NULL ? interface->extcap_path : NULL;
 }
 
 static void
-extcap_if_add(const gchar *ifname, const gchar *extcap)
+extcap_if_add(extcap_interface * interface)
 {
-    if ( !g_hash_table_lookup(ifaces, ifname) )
-        g_hash_table_insert(ifaces, g_strdup(ifname), g_strdup(extcap));
+    if (!g_hash_table_lookup(ifaces, interface->call))
+        g_hash_table_insert(ifaces, g_strdup(interface->call), interface);
 }
 
 static void
@@ -282,7 +283,7 @@ extcap_get_if_dlts(const gchar *ifname, char **err_str) {
     return caps;
 }
 
-static void extcap_free_interface(gpointer i, gpointer user_data _U_) {
+static void extcap_free_interface(gpointer i) {
 
     extcap_interface * interface = (extcap_interface *)i;
 
@@ -292,6 +293,7 @@ static void extcap_free_interface(gpointer i, gpointer user_data _U_) {
     g_free(interface->call);
     g_free(interface->display);
     g_free(interface->version);
+    g_free(interface->help);
 }
 
 static gboolean interfaces_cb(const gchar *extcap, const gchar *ifname _U_, gchar *output, void *data,
@@ -334,7 +336,8 @@ static gboolean interfaces_cb(const gchar *extcap, const gchar *ifname _U_, gcha
                 *il = g_list_append(*il, if_info);
             }
 
-            extcap_if_add(int_iter->call, extcap);
+            int_iter->extcap_path = g_strdup(extcap);
+            extcap_if_add(int_iter);
         }
 
         /* Call for interfaces and tools alike. Multiple calls (because a tool has multiple
@@ -343,8 +346,6 @@ static gboolean interfaces_cb(const gchar *extcap, const gchar *ifname _U_, gcha
 
         walker = g_list_next(walker);
     }
-
-    g_list_foreach(interfaces, extcap_free_interface, NULL);
 
     return TRUE;
 }
@@ -372,7 +373,7 @@ extcap_reload_interface_list(GList **retp, char **err_str) {
     /* ifaces is used as cache, do not destroy its contents when
      * returning or no extcap interfaces can be queried for options */
     if (ifaces == NULL)
-        ifaces = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+        ifaces = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, extcap_free_interface);
     else
         g_hash_table_remove_all(ifaces);
 
@@ -386,6 +387,13 @@ extcap_reload_interface_list(GList **retp, char **err_str) {
     extcap_foreach(1, &argv, interfaces_cb, retp, err_str, NULL);
 
     g_free(argv);
+}
+
+gchar *
+extcap_get_help_for_ifname(const char *ifname)
+{
+    extcap_interface * interface = (extcap_interface *)g_hash_table_lookup(ifaces, ifname);
+    return interface != NULL ? interface->help : NULL;
 }
 
 GHashTable *

@@ -188,6 +188,8 @@ static extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
                 param_type = EXTCAP_PARAM_VALIDATION;
             } else if (g_ascii_strcasecmp(arg, "version") == 0) {
                 param_type = EXTCAP_PARAM_VERSION;
+            } else if (g_ascii_strcasecmp(arg, "help") == 0) {
+                param_type = EXTCAP_PARAM_HELP;
             } else {
                 param_type = EXTCAP_PARAM_UNKNOWN;
             }
@@ -550,11 +552,7 @@ static extcap_interface * extcap_parse_interface_sentence(extcap_token_sentence 
     if (sent == EXTCAP_SENTENCE_UNKNOWN)
         return NULL;
 
-    ri = g_new(extcap_interface, 1);
-
-    ri->call = NULL;
-    ri->display = NULL;
-    ri->version = NULL;
+    ri = g_new0(extcap_interface, 1);
 
     ri->if_type = sent;
 
@@ -578,6 +576,11 @@ static extcap_interface * extcap_parse_interface_sentence(extcap_token_sentence 
     if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_VERSION)))
             != NULL) {
         ri->version = g_strdup(param_value);
+    }
+
+    if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_HELP)))
+            != NULL) {
+        ri->help = g_strdup(param_value);
     }
 
     return ri;

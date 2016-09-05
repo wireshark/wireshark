@@ -75,7 +75,8 @@ typedef enum {
     EXTCAP_PARAM_REQUIRED,
     EXTCAP_PARAM_SAVE,
     EXTCAP_PARAM_VALIDATION,
-    EXTCAP_PARAM_VERSION
+    EXTCAP_PARAM_VERSION,
+    EXTCAP_PARAM_HELP
 } extcap_param_type;
 
 #define ENUM_KEY(s) GUINT_TO_POINTER((guint)s)
@@ -127,15 +128,12 @@ typedef struct _extcap_arg {
     GList * values;
 } extcap_arg;
 
-typedef struct _extcap_if {
-    gchar * extcap_path;
-    GList * interfaces;
-} extcap_if;
-
 typedef struct _extcap_interface {
-    gchar *call;
-    gchar *display;
-    gchar *version;
+    gchar * call;
+    gchar * display;
+    gchar * version;
+    gchar * help;
+    gchar * extcap_path;
 
     extcap_sentence_type if_type;
 } extcap_interface;

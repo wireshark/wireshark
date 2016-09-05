@@ -44,7 +44,7 @@ in the doc/extcap.4 generated man page (in the build dir).
 Example:
 
 $ extcapbin --extcap-interfaces
-extcap {version=1.0}
+extcap {version=1.0}{help=Some help url}
 interface {value=example1}{display=Example interface 1 for extcap}
 interface {value=example2}{display=Example interface 2 for extcap}
 
@@ -54,6 +54,8 @@ interface in the about dialog of Wireshark (Qt only).
 
 The value for each interface will be used in subsequent calls as the interface
 name IFACE.
+
+Using the help argument, an interface may provide a generic help url for the extcap utility.
 
 STEP2: the extcap is queried for valid DLTs (Data Link Types) for all the
 interfaces returned by the step 1.
