@@ -88,7 +88,7 @@ main(int argc, char **argv)
 
 	/* Scan for plugins.  This does *not* call their registration routines;
 	   that's done later. */
-	scan_plugins();
+	scan_plugins(REPORT_LOAD_FAILURE);
 #endif
 
 	/* Register all dissectors; we must do this before checking for the

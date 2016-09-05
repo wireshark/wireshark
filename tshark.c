@@ -791,7 +791,7 @@ main(int argc, char *argv[])
 
   /* Scan for plugins.  This does *not* call their registration routines;
      that's done later. */
-  scan_plugins();
+  scan_plugins(REPORT_LOAD_FAILURE);
 
   /* Register all libwiretap plugin modules. */
   register_all_wiretap_modules();

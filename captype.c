@@ -70,14 +70,14 @@ print_usage(FILE *output)
 
 #ifdef HAVE_PLUGINS
 /*
- *  Don't report failures to load plugins because most (non-wiretap) plugins
- *  *should* fail to load (because we're not linked against libwireshark and
- *  dissector plugins need libwireshark).
+ * General errors are reported with an console message in captype.
  */
 static void
-failure_message(const char *msg_format _U_, va_list ap _U_)
+failure_message(const char *msg_format, va_list ap)
 {
-  return;
+  fprintf(stderr, "captype: ");
+  vfprintf(stderr, msg_format, ap);
+  fprintf(stderr, "\n");
 }
 #endif
 
@@ -141,8 +141,12 @@ main(int argc, char *argv[])
     init_report_err(failure_message,NULL,NULL,NULL);
 
     /* Scan for plugins.  This does *not* call their registration routines;
-       that's done later. */
-    scan_plugins();
+       that's done later.
+
+       Don't report failures to load plugins because most (non-wiretap)
+       plugins *should* fail to load (because we're not linked against
+       libwireshark and dissector plugins need libwireshark). */
+    scan_plugins(DONT_REPORT_LOAD_FAILURE);
 
     /* Register all libwiretap plugin modules. */
     register_all_wiretap_modules();

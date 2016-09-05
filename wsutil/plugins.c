@@ -143,7 +143,7 @@ call_plugin_callback(gpointer data, gpointer user_data)
 }
 
 static void
-plugins_scan_dir(const char *dirname)
+plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
 {
 #define FILENAME_LEN        1024
     WS_DIR        *dir;             /* scanned directory */
@@ -175,8 +175,21 @@ plugins_scan_dir(const char *dirname)
                        dirname, name);
             if ((handle = g_module_open(filename, G_MODULE_BIND_LOCAL)) == NULL)
             {
-                report_failure("Couldn't load module %s: %s", filename,
-                               g_module_error());
+                /*
+                 * Only report load failures if we were asked to.
+                 *
+                 * XXX - we really should put different types of plugins
+                 * (libwiretap, libwireshark) in different subdirectories,
+                 * give libwiretap and libwireshark init routines that
+                 * load the plugins, and have them scan the appropriate
+                 * subdirectories so tha we don't even *try* to, for
+                 * example, load libwireshark plugins in programs that
+                 * only use libwiretap.
+                 */
+                if (mode == REPORT_LOAD_FAILURE) {
+                    report_failure("Couldn't load module %s: %s", filename,
+                                   g_module_error());
+                }
                 continue;
             }
 
@@ -241,7 +254,7 @@ plugins_scan_dir(const char *dirname)
  * Scan for plugins.
  */
 void
-scan_plugins(void)
+scan_plugins(plugin_load_failure_mode mode)
 {
     const char *plugin_dir;
     const char *name;
@@ -264,7 +277,7 @@ scan_plugins(void)
         {
             if ((dir = ws_dir_open(plugin_dir, 0, NULL)) != NULL)
             {
-                plugins_scan_dir(plugin_dir);
+                plugins_scan_dir(plugin_dir, mode);
                 while ((file = ws_dir_read_name(dir)) != NULL)
                 {
                     name = ws_dir_get_name(file);
@@ -290,14 +303,14 @@ scan_plugins(void)
                         plugin_dir_path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
                             plugin_dir, name);
                     }
-                    plugins_scan_dir(plugin_dir_path);
+                    plugins_scan_dir(plugin_dir_path, mode);
                     g_free(plugin_dir_path);
                 }
                 ws_dir_close(dir);
             }
         }
         else
-            plugins_scan_dir(plugin_dir);
+            plugins_scan_dir(plugin_dir, mode);
 
         /*
          * If the program wasn't started with special privileges,
@@ -310,7 +323,7 @@ scan_plugins(void)
         if (!started_with_special_privs())
         {
             plugins_pers_dir = get_plugins_pers_dir();
-            plugins_scan_dir(plugins_pers_dir);
+            plugins_scan_dir(plugins_pers_dir, mode);
             g_free(plugins_pers_dir);
         }
     }
