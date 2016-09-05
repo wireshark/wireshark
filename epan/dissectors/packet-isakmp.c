@@ -4148,6 +4148,9 @@ dissect_certreq(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isa
 
   if (isakmp_version == 1)
   {
+    if (length == 0)
+      return;
+
     switch(cert_type){
       case 4:
         dissect_x509if_Name(FALSE, tvb, offset, &asn1_ctx, tree, hf_isakmp_certreq_authority_sig);
