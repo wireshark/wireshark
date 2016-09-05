@@ -104,7 +104,7 @@ void ws80211_free_interfaces(GArray *interfaces);
  * @param center_freq2 The 2nd center frequency in MHz (if 80+80MHz).
  * @return Zero on success, nonzero on failure.
  */
-int ws80211_set_freq(const char *name, int freq, int chan_type, int _U_ center_freq, int _U_ center_freq2);
+int ws80211_set_freq(const char *name, guint32 freq, int chan_type, guint32 _U_ center_freq, guint32 _U_ center_freq2);
 
 int ws80211_str_to_chan_type(const gchar *s); /* GTK+ only? */
 const gchar *ws80211_chan_type_to_str(int type); /* GTK+ only? */

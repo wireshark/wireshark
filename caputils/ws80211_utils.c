@@ -769,7 +769,7 @@ nla_put_failure:
 }
 DIAG_ON_CLANG(shorten-64-to-32)
 
-int ws80211_set_freq(const char *name, int freq, int chan_type, int _U_ center_freq, int _U_ center_freq2)
+int ws80211_set_freq(const char *name, guint32 freq, int chan_type, guint32 _U_ center_freq, guint32 _U_ center_freq2)
 {
 	int devidx, err;
 	struct nl_msg *msg;
@@ -1063,7 +1063,7 @@ int ws80211_get_iface_info(const char *name, struct ws80211_iface_info *iface_in
 	return 0;
 }
 
-int ws80211_set_freq(const char *name, int freq, int chan_type, int _U_ center_freq, int _U_ center_freq2)
+int ws80211_set_freq(const char *name, guint32 freq, int chan_type, guint32 _U_ center_freq, guint32 _U_ center_freq2)
 {
 	GList *airpcap_if_list;
 	int err;

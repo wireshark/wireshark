@@ -56,6 +56,7 @@
 
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
+#include <wsutil/strtoi.h>
 #include <ws_version_info.h>
 
 #ifndef HAVE_GETOPT_LONG
@@ -3676,12 +3677,12 @@ capture_loop_queue_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
 static int
 set_80211_channel(const char *iface, const char *opt)
 {
-    int freq = 0;
+    guint32 freq = 0;
     int type = -1;
-    int center_freq1 = -1;
-    int center_freq2 = -1;
+    guint32 center_freq1 = 0;
+    guint32 center_freq2 = 0;
     int args;
-    int ret;
+    int ret = 0;
     gchar **options = NULL;
 
     options = g_strsplit_set(opt, ",", 4);
@@ -3721,7 +3722,6 @@ set_80211_channel(const char *iface, const char *opt)
 
     if (capture_child)
         pipe_write_block(2, SP_SUCCESS, NULL);
-    ret = 0;
 
 out:
     g_strfreev(options);
