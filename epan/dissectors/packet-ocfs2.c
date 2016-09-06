@@ -430,6 +430,13 @@ static const value_string dlm_proxy_ast_types[] = {
 	{ 0x0000,  NULL }
 };
 
+/* DLM lock flag types */
+enum {
+	DLM_LOCK_FLAGS_PUT_LVB = 0x20000000,
+	DLM_LOCK_FLAGS_GET_LVB = 0x40000000
+};
+
+
 static int dlm_cookie_handler(proto_tree *tree, tvbuff_t *tvb, guint offset, int hf_cookie)
 {
 	proto_item *item;
@@ -449,7 +456,8 @@ static int dlm_cookie_handler(proto_tree *tree, tvbuff_t *tvb, guint offset, int
 	return offset + 8;
 }
 
-static int dlm_lkm_flags_handler(proto_tree *tree, tvbuff_t *tvb, guint offset)
+static int dlm_lkm_flags_handler(proto_tree *tree, tvbuff_t *tvb, guint offset,
+				 guint32 *dlm_lock_flags_ptr)
 {
 	static const int *flags[] = {
 		&hf_dlm_lock_flag_unused1,
@@ -482,6 +490,9 @@ static int dlm_lkm_flags_handler(proto_tree *tree, tvbuff_t *tvb, guint offset)
 		NULL
 	};
 
+	if(dlm_lock_flags_ptr != NULL){
+		*dlm_lock_flags_ptr = tvb_get_ntohl(tvb, offset);
+	}
 	proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_dlm_lock_flags,
 					ett_dtm_lock_flags, flags, ENC_BIG_ENDIAN, BMT_NO_INT | BMT_NO_FALSE | BMT_NO_TFS);
 	return offset + 4;
@@ -796,12 +807,13 @@ static int dissect_master_msg(proto_tree *tree, tvbuff_t *tvb, int offset, int h
 	return dlm_name_handler(tree, tvb, offset, namelen);
 }
 
-static int dissect_create_lock_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
+static int dissect_create_lock_msg(proto_tree *tree, tvbuff_t *tvb, int offset,
+				   guint32 *dlm_lock_flags_ptr)
 {
 	guint32 namelen;
 
 	offset = dlm_cookie_handler(tree, tvb, offset, hf_dlm_cookie);
-	offset = dlm_lkm_flags_handler(tree, tvb, offset);
+	offset = dlm_lkm_flags_handler(tree, tvb, offset, dlm_lock_flags_ptr);
 
 	proto_tree_add_item(tree, hf_dlm_pad8, tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -821,16 +833,19 @@ static int dissect_create_lock_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 
 static int dissect_convert_lock_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset = dissect_create_lock_msg(tree, tvb, offset);
+	guint32 dlm_lock_flags;
+	offset = dissect_create_lock_msg(tree, tvb, offset, &dlm_lock_flags);
 
-	proto_tree_add_item(tree, hf_dlm_lvb1, tvb, offset, 24, ENC_NA);
-	offset += 24;
+	if(dlm_lock_flags & DLM_LOCK_FLAGS_PUT_LVB){
+		proto_tree_add_item(tree, hf_dlm_lvb1, tvb, offset, 24, ENC_NA);
+		offset += 24;
 
-	proto_tree_add_item(tree, hf_dlm_lvb2, tvb, offset, 24, ENC_NA);
-	offset += 24;
+		proto_tree_add_item(tree, hf_dlm_lvb2, tvb, offset, 24, ENC_NA);
+		offset += 24;
 
-	proto_tree_add_item(tree, hf_dlm_lvb3, tvb, offset, 16, ENC_NA);
-	offset += 16;
+		proto_tree_add_item(tree, hf_dlm_lvb3, tvb, offset, 16, ENC_NA);
+		offset += 16;
+	}
 
 	return offset;
 }
@@ -838,9 +853,10 @@ static int dissect_convert_lock_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 static int dissect_unlock_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	guint32 namelen;
+	guint32 dlm_lock_flags;
 
 	offset = dlm_cookie_handler(tree, tvb, offset, hf_dlm_cookie);
-	offset = dlm_lkm_flags_handler(tree, tvb, offset);
+	offset = dlm_lkm_flags_handler(tree, tvb, offset, &dlm_lock_flags);
 
 	proto_tree_add_item(tree, hf_dlm_pad16, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
@@ -854,14 +870,16 @@ static int dissect_unlock_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 	dlm_name_handler(tree, tvb, offset, namelen);
 	offset += O2NM_MAX_NAME_LEN;
 
-	proto_tree_add_item(tree, hf_dlm_lvb1, tvb, offset, 24, ENC_NA);
-	offset += 24;
+	if(dlm_lock_flags & DLM_LOCK_FLAGS_PUT_LVB){
+		proto_tree_add_item(tree, hf_dlm_lvb1, tvb, offset, 24, ENC_NA);
+		offset += 24;
 
-	proto_tree_add_item(tree, hf_dlm_lvb2, tvb, offset, 24, ENC_NA);
-	offset += 24;
+		proto_tree_add_item(tree, hf_dlm_lvb2, tvb, offset, 24, ENC_NA);
+		offset += 24;
 
-	proto_tree_add_item(tree, hf_dlm_lvb3, tvb, offset, 16, ENC_NA);
-	offset += 16;
+		proto_tree_add_item(tree, hf_dlm_lvb3, tvb, offset, 16, ENC_NA);
+		offset += 16;
+	}
 
 	return offset;
 }
@@ -869,9 +887,10 @@ static int dissect_unlock_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 static int dissect_proxy_ast_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	guint32 namelen;
+	guint32 dlm_lock_flags;
 
 	offset = dlm_cookie_handler(tree, tvb, offset, hf_dlm_cookie);
-	offset = dlm_lkm_flags_handler(tree, tvb, offset);
+	offset = dlm_lkm_flags_handler(tree, tvb, offset, &dlm_lock_flags);
 
 	proto_tree_add_item(tree, hf_dlm_node_idx, tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -888,15 +907,16 @@ static int dissect_proxy_ast_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 	dlm_name_handler(tree, tvb, offset, namelen);
 	offset += O2NM_MAX_NAME_LEN;
 
-	proto_tree_add_item(tree, hf_dlm_lvb1, tvb, offset, 24, ENC_NA);
-	offset += 24;
+	if(dlm_lock_flags & DLM_LOCK_FLAGS_GET_LVB){
+		proto_tree_add_item(tree, hf_dlm_lvb1, tvb, offset, 24, ENC_NA);
+		offset += 24;
 
-	proto_tree_add_item(tree, hf_dlm_lvb2, tvb, offset, 24, ENC_NA);
-	offset += 24;
+		proto_tree_add_item(tree, hf_dlm_lvb2, tvb, offset, 24, ENC_NA);
+		offset += 24;
 
-	proto_tree_add_item(tree, hf_dlm_lvb3, tvb, offset, 16, ENC_NA);
-	offset += 16;
-
+		proto_tree_add_item(tree, hf_dlm_lvb3, tvb, offset, 16, ENC_NA);
+		offset += 16;
+	}
 	return offset;
 }
 
@@ -1091,7 +1111,7 @@ static int dissect_ocfs2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			dissect_master_msg(subtree, tvb, offset, hf_dlm_am_flags);
 			break;
 		case DLM_CREATE_LOCK_MSG:
-			dissect_create_lock_msg(subtree, tvb, offset);
+			dissect_create_lock_msg(subtree, tvb, offset, NULL);
 			break;
 		case DLM_CONVERT_LOCK_MSG:
 			dissect_convert_lock_msg(subtree, tvb, offset);
