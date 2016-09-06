@@ -30,6 +30,8 @@
 #include "vms.h"
 #include "file_wrappers.h"
 
+#include <wsutil/strtoi.h>
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -386,7 +388,11 @@ parse_vms_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gch
                 return FALSE;
             }
 
-            pkt_len = atoi(p);
+            if (!ws_strtoi32(p, &pkt_len)) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("vms: packet length: %s", p);
+                return FALSE;
+            }
             break;
         }
     } while (! isdumpline(line));
