@@ -2810,6 +2810,7 @@ AC_CONFIG_FILES(
   packaging/svr4/Makefile
   packaging/svr4/checkinstall
   packaging/svr4/pkginfo
+  packaging/wix/Makefile
   plugins/Makefile
   plugins/docsis/Makefile
   plugins/easy_codec/Makefile
