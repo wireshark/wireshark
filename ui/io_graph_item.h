@@ -248,18 +248,20 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                 new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[i])->value);
 
                 switch (item_unit) {
+                case IOG_ITEM_UNIT_CALC_LOAD:
+                {
                     guint64 t, pt; /* time in us */
                     int j;
-                case IOG_ITEM_UNIT_CALC_LOAD:
                     /*
-                    * Add the time this call spanned each interval according to its contribution
-                    * to that interval.
-                    */
+                     * Add the time this call spanned each interval according to its contribution
+                     * to that interval.
+                     */
                     t = new_time->secs;
                     t = t * 1000000 + new_time->nsecs / 1000;
                     j = idx;
                     /*
-                     * Handle current interval */
+                     * Handle current interval
+                     */
                     pt = pinfo->rel_ts.secs * 1000000 + pinfo->rel_ts.nsecs / 1000;
                     pt = pt % (interval * 1000);
                     if (pt > t) {
@@ -287,6 +289,7 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                         }
                     }
                     break;
+                }
                 default:
                     if ( (new_time->secs > item->time_max.secs)
                          || ( (new_time->secs == item->time_max.secs)
