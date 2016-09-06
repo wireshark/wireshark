@@ -208,7 +208,7 @@ static int parse_line(char* packet _U_, unsigned* offset, char* line, int status
 	/* ABCDEF01: 01020304 05060708 090A0B0C 0D0E0F10 ................                       */
 	/* Note that any of the 4 groups are optional and that a group can be 1 to 4 bytes long */
 	parts = g_regex_split_simple(
-		"^[\\dA-Z]{8,8}:\\s+([\\dA-Z]{2,8})\\s+([\\dA-Z]{2,8}){0,1}\\s+([\\dA-Z]{2,8}){0,1}\\s+([\\dA-Z]{2,8}){0,1}.*",
+		"^[\\dA-F]{8,8}:\\s+([\\dA-F]{2,8})\\s+([\\dA-F]{2,8}){0,1}\\s+([\\dA-F]{2,8}){0,1}\\s+([\\dA-F]{2,8}){0,1}.*",
 		line, G_REGEX_CASELESS, G_REGEX_MATCH_ANCHORED);
 
 	part = parts;
@@ -222,6 +222,7 @@ static int parse_line(char* packet _U_, unsigned* offset, char* line, int status
 		}
 		part++;
 	}
+	g_strfreev(parts);
 	return CISCODUMP_PARSER_IN_PACKET;
 }
 
