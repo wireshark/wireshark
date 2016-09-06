@@ -53,6 +53,13 @@ gboolean ws_strtou64(const gchar* str, guint64* cint)
 	gchar* endptr;
 	guint64 val;
 
+	if (str[0] == '-' || str[0] == '+') {
+		/*
+		 * Unsigned numbers don't have a sign.
+		 */
+		errno = EINVAL;
+		return FALSE;
+	}
 	errno = 0;
 	val = g_ascii_strtoull(str, &endptr, 10);
 	if ((val == 0 && endptr == str) || (*endptr != 0)) {
