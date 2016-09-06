@@ -219,9 +219,24 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
             {
                 /*
                  * No.
+                 *
+                 * Only report this failure if we were asked to; it might
+                 * just mean that it's a plugin type that this program
+                 * doesn't support, such as a libwireshark plugin in
+                 * a program that doesn't use libwireshark.
+                 *
+                 * XXX - we really should put different types of plugins
+                 * (libwiretap, libwireshark) in different subdirectories,
+                 * give libwiretap and libwireshark init routines that
+                 * load the plugins, and have them scan the appropriate
+                 * subdirectories so tha we don't even *try* to, for
+                 * example, load libwireshark plugins in programs that
+                 * only use libwiretap.
                  */
-                report_failure("The plugin '%s' has no registration routines",
-                               name);
+                if (mode == REPORT_LOAD_FAILURE) {
+                    report_failure("The plugin '%s' has no registration routines",
+                                   name);
+                }
                 g_module_close(handle);
                 g_free(new_plug->name);
                 g_free(new_plug);
