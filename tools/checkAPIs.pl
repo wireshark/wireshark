@@ -143,7 +143,6 @@ my %APIs = (
                 'freopen',
                 'fstat',
                 'lseek',
-                'atoi', # use wsutil/ws_strtoi.h function
                 # Misc
                 'tmpnam',       # use mkstemp
                 '_snwprintf'    # use StringCchPrintf
@@ -160,7 +159,13 @@ my %APIs = (
                 # "I" isn't always the upper-case form of "i", and "i" isn't
                 # always the lower-case form of "I").  Use the g_ascii_* version
                 # instead.
-                'toupper'
+                'toupper',
+
+                # use wsutil/ws_strtoi.h function
+                # because of the wide use of atoi, we keep it in soft-deprecation status
+                # until we approach its complete removal, otherwise windows buildbot
+                # will keep to stuck with error.
+                'atoi',
             ] },
 
         # APIs that SHOULD NOT be used in Wireshark (any more)
