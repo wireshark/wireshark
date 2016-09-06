@@ -4414,7 +4414,7 @@ dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset += 8;
 
 	/* fid */
-	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
+	dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
 
 	/* buffer */
 	if (si->saved) {
