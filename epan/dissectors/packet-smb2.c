@@ -4266,6 +4266,7 @@ dissect_smb2_getinfo_buffer_quota(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	offset += 1;
 
 	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	proto_tree_add_item_ret_uint(tree, hf_smb2_qq_sidlist_len, tvb, offset, 4, ENC_LITTLE_ENDIAN, &sidlist_len);
