@@ -504,7 +504,6 @@ static void dissect_zvt_init(
         proto_tree *tree, zvt_transaction_t *zvt_trans _U_)
 {
     proto_tree_add_item(tree, hf_zvt_pwd, tvb, offset, 3, ENC_NA);
-    offset += 3;
 }
 
 
