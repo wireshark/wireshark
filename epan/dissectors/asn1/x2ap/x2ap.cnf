@@ -452,107 +452,107 @@ LHN-ID TYPE=FT_STRING DISPLAY = STR_UNICODE
 #.END
 
 #.FN_HDR HandoverRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverRequest");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverRequest ");
 #.FN_HDR HandoverRequestAcknowledge
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverRequestAcknowledge");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverRequestAcknowledge ");
 #.FN_HDR HandoverPreparationFailure
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverPreparationFailure");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverPreparationFailure ");
 #.FN_HDR SNStatusTransfer
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SNStatusTransfer");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SNStatusTransfer ");
 #.FN_HDR UEContextRelease
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextRelease");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextRelease ");
 #.FN_HDR HandoverCancel
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverCancel");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverCancel ");
 #.FN_HDR ErrorIndication
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ErrorIndication");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ErrorIndication ");
 #.FN_HDR ResetRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResetRequest");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResetRequest ");
 #.FN_HDR ResetResponse
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResetResponse");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResetResponse ");
 #.FN_HDR X2SetupRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2SetupRequest");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2SetupRequest ");
 #.FN_HDR X2SetupResponse
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2SetupResponse");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2SetupResponse ");
 #.FN_HDR X2SetupFailure
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2SetupFailure");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2SetupFailure ");
 #.FN_HDR LoadInformation
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", LoadInformation");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", LoadInformation ");
 #.FN_HDR ENBConfigurationUpdate
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdate");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdate ");
 #.FN_HDR ENBConfigurationUpdateAcknowledge
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdateAcknowledge");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdateAcknowledge ");
 #.FN_HDR ENBConfigurationUpdateFailure
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdateFailure");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdateFailure ");
 #.FN_HDR ResourceStatusRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResourceStatusRequest");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResourceStatusRequest ");
 #.FN_HDR ResourceStatusResponse
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResourceStatusResponse");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResourceStatusResponse ");
 #.FN_HDR ResourceStatusFailure
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResourceStatusFailure");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResourceStatusFailure ");
 #.FN_HDR ResourceStatusUpdate
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResourceStatusUpdate");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResourceStatusUpdate ");
 #.FN_HDR PrivateMessage
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", PrivateMessage");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", PrivateMessage ");
 #.FN_HDR HandoverReport
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverReport");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverReport ");
 #.FN_HDR RLFIndication
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", RLFIndication");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", RLFIndication ");
 #.FN_HDR MobilityChangeRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", MobilityChangeRequest");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", MobilityChangeRequest ");
 #.FN_HDR MobilityChangeAcknowledge
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", MobilityChangeAcknowledge");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", MobilityChangeAcknowledge ");
 #.FN_HDR MobilityChangeFailure
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", MobilityChangeFailure");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", MobilityChangeFailure ");
 #.FN_HDR CellActivationRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", CellActivationRequest");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", CellActivationRequest ");
 #.FN_HDR CellActivationResponse
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", CellActivationResponse");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", CellActivationResponse ");
 #.FN_HDR CellActivationFailure
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", CellActivationFailure");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", CellActivationFailure ");
 #.FN_HDR X2Release
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2Release");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2Release ");
 #.FN_HDR X2APMessageTransfer
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2APMessageTransfer");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2APMessageTransfer ");
 #.FN_HDR X2RemovalRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2RemovalRequest");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2RemovalRequest ");
 #.FN_HDR X2RemovalResponse
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2RemovalResponse");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2RemovalResponse ");
 #.FN_HDR X2RemovalFailure
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2RemovalFailure");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2RemovalFailure ");
 #.FN_HDR SeNBAdditionRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBAdditionRequest");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBAdditionRequest ");
 #.FN_HDR SeNBAdditionRequestAcknowledge
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBAdditionRequestAcknowledge");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBAdditionRequestAcknowledge ");
 #.FN_HDR SeNBAdditionRequestReject
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBAdditionRequestReject");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBAdditionRequestReject ");
 #.FN_HDR SeNBReconfigurationComplete
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBReconfigurationComplete");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBReconfigurationComplete ");
 #.FN_HDR SeNBModificationRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRequest");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRequest ");
 #.FN_HDR SeNBModificationRequestAcknowledge
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRequestAcknowledge");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRequestAcknowledge ");
 #.FN_HDR SeNBModificationRequestReject
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRequestReject");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRequestReject ");
 #.FN_HDR SeNBModificationRequired
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRequired");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRequired ");
 #.FN_HDR SeNBModificationConfirm
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationConfirm");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationConfirm ");
 #.FN_HDR SeNBModificationRefuse
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRefuse");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRefuse ");
 #.FN_HDR SeNBReleaseRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBReleaseRequest");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBReleaseRequest ");
 #.FN_HDR SeNBReleaseRequired
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBReleaseRequired");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBReleaseRequired ");
 #.FN_HDR SeNBReleaseConfirm
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBReleaseConfirm");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBReleaseConfirm ");
 #.FN_HDR SeNBCounterCheckRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBCounterCheckRequest");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBCounterCheckRequest ");
 #.FN_HDR RetrieveUEContextRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", RetrieveUEContextRequest");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", RetrieveUEContextRequest ");
 #.FN_HDR RetrieveUEContextResponse
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", RetrieveUEContextResponse");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", RetrieveUEContextResponse ");
 #.FN_HDR RetrieveUEContextFailure
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", RetrieveUEContextFailure");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", RetrieveUEContextFailure ");
 
 #.ASSIGN_VALUE_TO_TYPE  # X2AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
@@ -574,7 +574,6 @@ id-rLFIndication						ProcedureCode
 id-handoverReport						ProcedureCode
 id-cellActivation						ProcedureCode
 id-x2Release							ProcedureCode
-id-x2APMessageTransfer					ProcedureCode
 id-x2APMessageTransfer						ProcedureCode
 id-x2Removal							ProcedureCode
 id-seNBAdditionPreparation					ProcedureCode
