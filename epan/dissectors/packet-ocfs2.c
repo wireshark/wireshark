@@ -1149,7 +1149,7 @@ get_ocfs2_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data 
 	guint16 plen;
 
 	/* Get the length of the data from header. */
-	plen = tvb_get_letohs(tvb, offset + 2);
+	plen = tvb_get_ntohs(tvb, offset + 2);
 
 	/* That length doesn't include the header itself, add that in. */
 	return plen + 24;
