@@ -25,6 +25,7 @@
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
+#include <wsutil/strtoi.h>
 
 #include "catapult_dct2000.h"
 
@@ -924,7 +925,9 @@ parse_line(gchar *linebuff, gint line_length,
             *context_portp = port_number_string[0] - '0';
         }
         else {
-            *context_portp = atoi(port_number_string);
+            if (!ws_strtou8(port_number_string, NULL, context_portp)) {
+              return FALSE;
+            }
         }
         /* Skip it */
         n++;
@@ -973,7 +976,9 @@ parse_line(gchar *linebuff, gint line_length,
                 variant = variant_name[0] - '0';
             }
             else {
-                variant = atoi(variant_name);
+                if (!ws_strtoi32(variant_name, NULL, &variant)) {
+                  return FALSE;
+                }
             }
         }
         else {
@@ -1198,7 +1203,9 @@ parse_line(gchar *linebuff, gint line_length,
 
     /* Convert found value into number */
     seconds_buff[seconds_chars] = '\0';
-    *seconds = atoi(seconds_buff);
+    if (!ws_strtoi32(seconds_buff, NULL, seconds)) {
+      return FALSE;
+    }
 
     /* The decimal point must follow the last of the seconds digits */
     if (linebuff[n] != '.') {
@@ -1225,7 +1232,10 @@ parse_line(gchar *linebuff, gint line_length,
     }
     /* Convert found value into microseconds */
     subsecond_decimals_buff[subsecond_decimals_chars] = '\0';
-    *useconds = atoi(subsecond_decimals_buff) * 100;
+    if (!ws_strtoi32(subsecond_decimals_buff, NULL, useconds)) {
+      return FALSE;
+    }
+    (*useconds) *= 100;
 
     /* Space character must follow end of timestamp */
     if (linebuff[n] != ' ') {
