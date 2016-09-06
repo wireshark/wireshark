@@ -31,6 +31,8 @@
 
 #include <signal.h>
 
+#include <wsutil/strtoi.h>
+
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
 #include <wsutil/win32-utils.h>
@@ -1687,7 +1689,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     int  secondary_len;
     char *secondary_msg;
     char *wait_msg, *combined_msg;
-    int npackets;
+    guint32 npackets = 0;
 
     nread = pipe_read_block(source, &indicator, SP_MAX_MSG_LEN, buffer,
                             &primary_msg);
@@ -1768,7 +1770,9 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         }
         break;
     case SP_PACKET_COUNT:
-        npackets = atoi(buffer);
+        if (!ws_strtou32(buffer, NULL, &npackets)) {
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING, "Invalid packets number: %s", buffer);
+        }
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: new packets %u", npackets);
         cap_session->count += npackets;
         capture_input_new_packets(cap_session, npackets);
