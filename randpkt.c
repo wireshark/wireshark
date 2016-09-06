@@ -172,6 +172,7 @@ main(int argc, char **argv)
 				produce_max_bytes = get_positive_int(optarg, "max bytes");
 				if (produce_max_bytes > 65536) {
 					cmdarg_err("max bytes is > 65536");
+					return 1;
 				}
 				break;
 
