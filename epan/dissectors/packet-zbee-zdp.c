@@ -725,7 +725,7 @@ zdp_parse_server_flags(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
  *@param offset offset into the tvb to find the node descriptor.
 */
 void
-zdp_parse_node_desc(proto_tree *tree, packet_info *pinfo, gint ettindex, tvbuff_t *tvb, guint *offset, guint8 version)
+zdp_parse_node_desc(proto_tree *tree, packet_info *pinfo, gboolean show_ver_flags, gint ettindex, tvbuff_t *tvb, guint *offset, guint8 version)
 {
     proto_item  *ti;
     proto_item  *field_root = NULL;
@@ -784,7 +784,7 @@ zdp_parse_node_desc(proto_tree *tree, packet_info *pinfo, gint ettindex, tvbuff_
         };
 
         ver_flags = zdp_parse_server_flags(field_tree, ett_zbee_zdp_server, tvb, offset) & ZBEE_ZDP_NODE_SERVER_STACK_COMPL_REV;
-        if (ver_flags) {
+        if (show_ver_flags && ver_flags) {
             zbee_append_info(tree, pinfo, ", Rev: %d",
                              (ver_flags >> ws_ctz(ZBEE_ZDP_NODE_SERVER_STACK_COMPL_REV)));
         }
