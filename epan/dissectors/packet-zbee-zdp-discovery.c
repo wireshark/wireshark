@@ -481,7 +481,7 @@ dissect_zbee_zdp_req_store_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     /*device   =*/ zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, (int)sizeof(guint16), NULL);
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
-    zdp_parse_node_desc(tree, ett_zbee_zdp_node, tvb, &offset, version);
+    zdp_parse_node_desc(tree, NULL, ett_zbee_zdp_node, tvb, &offset, version);
 
     zbee_append_info(tree, pinfo, ", Device: %s", eui64_to_display(wmem_packet_scope(), ext_addr));
 
@@ -783,7 +783,7 @@ dissect_zbee_zdp_rsp_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     status   = zdp_parse_status(tree, tvb, &offset);
     device   = zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, (int)sizeof(guint16), NULL);
     if (status == ZBEE_ZDP_STATUS_SUCCESS) {
-        zdp_parse_node_desc(tree, ett_zbee_zdp_node, tvb, &offset, version);
+        zdp_parse_node_desc(tree, pinfo, ett_zbee_zdp_node, tvb, &offset, version);
     }
 
     zbee_append_info(tree, pinfo, ", Device: 0x%04x", device);

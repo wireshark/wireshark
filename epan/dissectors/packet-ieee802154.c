@@ -2384,6 +2384,7 @@ static const true_false_string tfs_cinfo_power_src = { "AC/Mains Power", "Batter
 static void
 dissect_ieee802154_assoc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
 {
+    guint8 cap;
     proto_tree *subtree;
     static const int * capability[] = {
         &hf_ieee802154_cinfo_alt_coord,
@@ -2394,6 +2395,9 @@ dissect_ieee802154_assoc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         &hf_ieee802154_cinfo_alloc_addr,
         NULL
     };
+
+    cap = tvb_get_guint8(tvb, 0);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", (cap & IEEE802154_CMD_CINFO_DEVICE_TYPE) ? tfs_cinfo_device_type.true_string : tfs_cinfo_device_type.false_string);
 
     /* Create a subtree for this command frame. */
     subtree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ieee802154_cmd, NULL,

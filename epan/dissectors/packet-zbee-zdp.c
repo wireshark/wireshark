@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <wsutil/bits_ctz.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-nwk.h"
@@ -724,7 +725,7 @@ zdp_parse_server_flags(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
  *@param offset offset into the tvb to find the node descriptor.
 */
 void
-zdp_parse_node_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset, guint8 version)
+zdp_parse_node_desc(proto_tree *tree, packet_info *pinfo, gint ettindex, tvbuff_t *tvb, guint *offset, guint8 version)
 {
     proto_item  *ti;
     proto_item  *field_root = NULL;
@@ -775,13 +776,18 @@ zdp_parse_node_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offse
 
     /* Get and display the server flags. */
     if (version >= ZBEE_VERSION_2007) {
+        guint16 ver_flags;
         const int * descriptors[] = {
             &hf_zbee_zdp_dcf_eaela,
             &hf_zbee_zdp_dcf_esdla,
             NULL
         };
 
-        zdp_parse_server_flags(field_tree, ett_zbee_zdp_server, tvb, offset);
+        ver_flags = zdp_parse_server_flags(field_tree, ett_zbee_zdp_server, tvb, offset) & ZBEE_ZDP_NODE_SERVER_STACK_COMPL_REV;
+        if (ver_flags) {
+            zbee_append_info(tree, pinfo, ", Rev: %d",
+                             (ver_flags >> ws_ctz(ZBEE_ZDP_NODE_SERVER_STACK_COMPL_REV)));
+        }
         zbee_parse_uint(field_tree, hf_zbee_zdp_node_max_outgoing_transfer, tvb, offset, 2, NULL);
         proto_tree_add_bitmask_with_flags(field_tree, tvb, *offset, hf_zbee_zdp_dcf, ett_zbee_zdp_descriptor_capability_field, descriptors, ENC_NA, BMT_NO_APPEND);
         *offset += 1;
