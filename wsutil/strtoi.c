@@ -128,9 +128,9 @@ gboolean ws_strtoi##bits(const gchar* str, gint##bits* cint) \
 	return TRUE; \
 }
 
-DEFINE_WS_STRTOI_BITS(32);
-DEFINE_WS_STRTOI_BITS(16);
-DEFINE_WS_STRTOI_BITS(8);
+DEFINE_WS_STRTOI_BITS(32)
+DEFINE_WS_STRTOI_BITS(16)
+DEFINE_WS_STRTOI_BITS(8)
 
 #define DEFINE_WS_STRTOU_BITS(bits) \
 int ws_strtou##bits(const gchar* str, guint##bits* cint) \
@@ -163,9 +163,9 @@ int ws_strtou##bits(const gchar* str, guint##bits* cint) \
 	return TRUE; \
 }
 
-DEFINE_WS_STRTOU_BITS(32);
-DEFINE_WS_STRTOU_BITS(16);
-DEFINE_WS_STRTOU_BITS(8);
+DEFINE_WS_STRTOU_BITS(32)
+DEFINE_WS_STRTOU_BITS(16)
+DEFINE_WS_STRTOU_BITS(8)
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
