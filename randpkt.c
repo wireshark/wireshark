@@ -27,6 +27,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <wsutil/clopts_common.h>
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/unicode-utils.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
@@ -47,7 +49,6 @@
 
 #include "randpkt_core/randpkt_core.h"
 
-#ifdef HAVE_PLUGINS
 /*
  * General errors are reported with an console message in randpkt.
  */
@@ -58,7 +59,16 @@ failure_message(const char *msg_format, va_list ap)
 	vfprintf(stderr, msg_format, ap);
 	fprintf(stderr, "\n");
 }
-#endif
+
+/*
+ * Report additional information for an error in command-line arguments.
+ */
+static void
+failure_message_cont(const char *msg_format, va_list ap)
+{
+	vfprintf(stderr, msg_format, ap);
+	fprintf(stderr, "\n");
+}
 
 /* Print usage statement and exit program */
 static void
@@ -118,11 +128,13 @@ main(int argc, char **argv)
 	char  *init_progfile_dir_error;
 #endif
 
-  /*
-   * Get credential information for later use.
-   */
-  init_process_policies();
-  init_open_routines();
+	/*
+	 * Get credential information for later use.
+	 */
+	init_process_policies();
+	init_open_routines();
+
+	cmdarg_err_init(failure_message, failure_message_cont);
 
 #ifdef _WIN32
 	arg_list_utf_16to8(argc, argv);
@@ -157,15 +169,14 @@ main(int argc, char **argv)
 	while ((opt = getopt_long(argc, argv, "b:c:ht:r", long_options, NULL)) != -1) {
 		switch (opt) {
 			case 'b':	/* max bytes */
-				produce_max_bytes = atoi(optarg);
+				produce_max_bytes = get_positive_int(optarg, "max bytes");
 				if (produce_max_bytes > 65536) {
-					fprintf(stderr, "randpkt: Max bytes is 65536\n");
-					return 1;
+					cmdarg_err("max bytes is > 65536");
 				}
 				break;
 
 			case 'c':	/* count */
-				produce_count = atoi(optarg);
+				produce_count = get_positive_int(optarg, "count");
 				break;
 
 			case 't':	/* type of packet to produce */
