@@ -22,7 +22,8 @@
  */
 
 /*
- * CQL V3 reference: https://github.com/apache/cassandra/blob/cassandra-2.1.11/doc/native_protocol_v3.spec
+ * CQL V3 reference: https://github.com/apache/cassandra/blob/trunk/doc/native_protocol_v3.spec
+ * CQL V4 reference: https://github.com/apache/cassandra/blob/trunk/doc/native_protocol_v4.spec
  */
 #include "config.h"
 #include <epan/conversation.h>
@@ -46,6 +47,9 @@ static int hf_cql_flags_bitmap = -1;
 static int hf_cql_flag_compression = -1;
 static int hf_cql_flag_tracing = -1;
 static int hf_cql_flag_reserved3 = -1;
+static int hf_cql_flag_custom_payload = -1;
+static int hf_cql_flag_warning = -1;
+static int hf_cql_flag_reserved4 = -1;
 static int hf_cql_stream = -1;
 static int hf_cql_opcode = -1;
 static int hf_cql_length = -1;
@@ -172,7 +176,10 @@ static const value_string cql_opcode_names[] = {
 typedef enum {
 	CQL_HEADER_FLAG_COMPRESSION = 0x01,
 	CQL_HEADER_FLAG_TRACING = 0x02,
-	CQL_HEADER_FLAG_V3_RESERVED = 0xFC
+	CQL_HEADER_FLAG_V3_RESERVED = 0xFC,
+	CQL_HEADER_FLAG_CUSTOM_PAYLOAD = 0x04,
+	CQL_HEADER_FLAG_WARNING = 0x08,
+	CQL_HEADER_FLAG_V4_RESERVED = 0xF0
 } cql_flags;
 
 typedef enum {
@@ -283,6 +290,10 @@ typedef enum {
 	CQL_RESULT_ROW_TYPE_VARINT = 0x000E,
 	CQL_RESULT_ROW_TYPE_TIMEUUID = 0x000F,
 	CQL_RESULT_ROW_TYPE_INET = 0x0010,
+	CQL_RESULT_ROW_TYPE_DATE = 0x0011,
+	CQL_RESULT_ROW_TYPE_TIME = 0x0012,
+	CQL_RESULT_ROW_TYPE_SMALLINT = 0x0013,
+	CQL_RESULT_ROW_TYPE_TINYINT = 0x0014,
 	CQL_RESULT_ROW_TYPE_LIST = 0x0020,
 	CQL_RESULT_ROW_TYPE_MAP = 0x0021,
 	CQL_RESULT_ROW_TYPE_SET = 0x0022,
@@ -307,6 +318,10 @@ static const value_string cql_result_row_type_names[] = {
 	{ CQL_RESULT_ROW_TYPE_VARINT, "VARINT" },
 	{ CQL_RESULT_ROW_TYPE_TIMEUUID, "TIMEUUID" },
 	{ CQL_RESULT_ROW_TYPE_INET, "INET" },
+	{ CQL_RESULT_ROW_TYPE_DATE, "DATE" },
+	{ CQL_RESULT_ROW_TYPE_TIME, "TIME" },
+	{ CQL_RESULT_ROW_TYPE_SMALLINT, "SMALLINT" },
+	{ CQL_RESULT_ROW_TYPE_TINYINT, "TINYINT" },
 	{ CQL_RESULT_ROW_TYPE_LIST, "LIST" },
 	{ CQL_RESULT_ROW_TYPE_MAP, "MAP" },
 	{ CQL_RESULT_ROW_TYPE_SET, "SET" },
@@ -530,6 +545,15 @@ dissect_cql_tcp_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
 		NULL
 	};
 
+	static const int * cql_header_bitmaps_v4[] = {
+		&hf_cql_flag_compression,
+		&hf_cql_flag_tracing,
+		&hf_cql_flag_custom_payload,
+		&hf_cql_flag_warning,
+		&hf_cql_flag_reserved4,
+		NULL
+	};
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CQL");
 	col_clear(pinfo->cinfo, COL_INFO);
 
@@ -557,7 +581,17 @@ dissect_cql_tcp_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
 
 	proto_tree_add_item(cql_tree, hf_cql_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_bitmask(cql_tree, tvb, offset, hf_cql_flags_bitmap, ett_cql_header_flags_bitmap, cql_header_bitmaps_v3, ENC_BIG_ENDIAN);
+	switch(cql_version){
+		case 3:
+		proto_tree_add_bitmask(cql_tree, tvb, offset, hf_cql_flags_bitmap, ett_cql_header_flags_bitmap, cql_header_bitmaps_v3, ENC_BIG_ENDIAN);
+		break;
+		case 4:
+		proto_tree_add_bitmask(cql_tree, tvb, offset, hf_cql_flags_bitmap, ett_cql_header_flags_bitmap, cql_header_bitmaps_v4, ENC_BIG_ENDIAN);
+		break;
+		default:
+		proto_tree_add_item(cql_tree, hf_cql_flags_bitmap, tvb, offset, 1, ENC_BIG_ENDIAN);
+		break;
+	}
 	offset += 1;
 	proto_tree_add_item_ret_int(cql_tree, hf_cql_stream, tvb, offset, 2, ENC_BIG_ENDIAN, &stream);
 	offset += 2;
@@ -921,11 +955,13 @@ dissect_cql_tcp_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
 static int
 dissect_cql_tcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
-	/* This dissector version only understands CQL protocol v3. */
+	guint8 version;
+	/* This dissector version only understands CQL protocol v3 and v4. */
 	if (tvb_reported_length(tvb) < 1)
 		return 0;
 
-	if ((tvb_get_guint8(tvb, 0) & 0x7F) != 3)
+	version = tvb_get_guint8(tvb, 0) & 0x7F;
+	if ((version != 3 && version != 4))
 		return 0;
 
 	tcp_dissect_pdus(tvb, pinfo, tree, cql_desegment, 9 /* bytes to determine length of PDU */, get_cql_pdu_len, dissect_cql_tcp_pdu, data);
@@ -1020,11 +1056,38 @@ proto_register_cql(void)
 			}
 		},
 		{
+			&hf_cql_flag_custom_payload,
+			{
+				"Custom Payload", "cql.flags.custom_payload",
+				FT_BOOLEAN, 8,
+				NULL, CQL_HEADER_FLAG_CUSTOM_PAYLOAD,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_flag_warning,
+			{
+				"Warning", "cql.flags.warning",
+				FT_BOOLEAN, 8,
+				NULL, CQL_HEADER_FLAG_WARNING,
+				NULL, HFILL
+			}
+		},
+		{
 			&hf_cql_flag_reserved3,
 			{
 				"Reserved", "cql.flags.reserved",
 				FT_UINT8, BASE_HEX,
 				NULL, CQL_HEADER_FLAG_V3_RESERVED,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_flag_reserved4,
+			{
+				"Reserved", "cql.flags.reserved",
+				FT_UINT8, BASE_HEX,
+				NULL, CQL_HEADER_FLAG_V4_RESERVED,
 				NULL, HFILL
 			}
 		},
