@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V10.3.0 (2011-09)
+-- 3GPP TS 36.423 V13.4.0 (2016-06)
 -- 9.3.7	Constant Definitions
 -- **************************************************************
 --
@@ -7,10 +7,10 @@
 -- **************************************************************
 
 X2AP-Constants {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 eps-Access (21) modules (3) x2ap (2) version1 (1) x2ap-Constants (4) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -42,8 +42,16 @@ id-rLFIndication												ProcedureCode ::= 13
 id-handoverReport												ProcedureCode ::= 14
 id-cellActivation												ProcedureCode ::= 15
 id-x2Release													ProcedureCode ::= 16
-id-x2MessageTransfer											ProcedureCode ::= 17
-
+id-x2APMessageTransfer											ProcedureCode ::= 17
+id-x2Removal													ProcedureCode ::= 18
+id-seNBAdditionPreparation										ProcedureCode ::= 19
+id-seNBReconfigurationCompletion								ProcedureCode ::= 20
+id-meNBinitiatedSeNBModificationPreparation						ProcedureCode ::= 21
+id-seNBinitiatedSeNBModification								ProcedureCode ::= 22
+id-meNBinitiatedSeNBRelease										ProcedureCode ::= 23
+id-seNBinitiatedSeNBRelease										ProcedureCode ::= 24
+id-seNBCounterCheck												ProcedureCode ::= 25
+id-retrieveUEContext											ProcedureCode ::= 26
 
 
 -- **************************************************************
@@ -64,7 +72,7 @@ maxnoofPDCP-SN								INTEGER ::= 16
 maxnoofEPLMNs								INTEGER ::= 15
 maxnoofEPLMNsPlusOne						INTEGER ::= 16
 maxnoofForbLACs								INTEGER ::= 4096
-maxnoofForbTACs							    INTEGER ::= 4096
+maxnoofForbTACs								INTEGER ::= 4096
 maxnoofBPLMNs								INTEGER ::= 6
 maxnoofNeighbours							INTEGER ::= 512
 maxnoofPRBs									INTEGER ::= 110
@@ -76,7 +84,14 @@ maxnoofCellIDforMDT							INTEGER ::= 32
 maxnoofTAforMDT								INTEGER ::= 8
 maxnoofMBMSServiceAreaIdentities			INTEGER ::= 256
 maxnoofMDTPLMNs								INTEGER ::= 16
-
+maxnoofCoMPHypothesisSet					INTEGER ::= 256
+maxnoofCoMPCells							INTEGER ::= 32
+maxUEReport									INTEGER ::= 128
+maxCellReport								INTEGER ::= 9
+maxnoofPA									INTEGER ::= 3
+maxCSIProcess								INTEGER ::= 4
+maxCSIReport								INTEGER ::= 2
+maxSubband									INTEGER ::= 14
 
 -- **************************************************************
 --
@@ -185,5 +200,77 @@ id-IntendedULDLConfiguration												ProtocolIE-ID ::= 99
 id-ExtendedULInterferenceOverloadInfo										ProtocolIE-ID ::= 100
 id-RNL-Header																ProtocolIE-ID ::= 101
 id-x2APMessage																ProtocolIE-ID ::= 102
+id-ProSeAuthorized															ProtocolIE-ID ::= 103
+id-ExpectedUEBehaviour														ProtocolIE-ID ::= 104
+id-UE-HistoryInformationFromTheUE											ProtocolIE-ID ::= 105
+id-DynamicDLTransmissionInformation											ProtocolIE-ID ::= 106
+id-UE-RLF-Report-Container-for-extended-bands								ProtocolIE-ID ::= 107
+id-CoMPInformation															ProtocolIE-ID ::= 108
+id-ReportingPeriodicityRSRPMR												ProtocolIE-ID ::= 109
+id-RSRPMRList																ProtocolIE-ID ::= 110
+id-MeNB-UE-X2AP-ID															ProtocolIE-ID ::= 111
+id-SeNB-UE-X2AP-ID															ProtocolIE-ID ::= 112
+id-UE-SecurityCapabilities													ProtocolIE-ID ::= 113
+id-SeNBSecurityKey															ProtocolIE-ID ::= 114
+id-SeNBUEAggregateMaximumBitRate											ProtocolIE-ID ::= 115
+id-ServingPLMN																ProtocolIE-ID ::= 116
+id-E-RABs-ToBeAdded-List													ProtocolIE-ID ::= 117
+id-E-RABs-ToBeAdded-Item													ProtocolIE-ID ::= 118
+id-MeNBtoSeNBContainer														ProtocolIE-ID ::= 119
+id-E-RABs-Admitted-ToBeAdded-List											ProtocolIE-ID ::= 120
+id-E-RABs-Admitted-ToBeAdded-Item											ProtocolIE-ID ::= 121
+id-SeNBtoMeNBContainer														ProtocolIE-ID ::= 122
+id-ResponseInformationSeNBReconfComp										ProtocolIE-ID ::= 123
+id-UE-ContextInformationSeNBModReq											ProtocolIE-ID ::= 124
+id-E-RABs-ToBeAdded-ModReqItem												ProtocolIE-ID ::= 125
+id-E-RABs-ToBeModified-ModReqItem											ProtocolIE-ID ::= 126
+id-E-RABs-ToBeReleased-ModReqItem											ProtocolIE-ID ::= 127
+id-E-RABs-Admitted-ToBeAdded-ModAckList										ProtocolIE-ID ::= 128
+id-E-RABs-Admitted-ToBeModified-ModAckList									ProtocolIE-ID ::= 129
+id-E-RABs-Admitted-ToBeReleased-ModAckList									ProtocolIE-ID ::= 130
+id-E-RABs-Admitted-ToBeAdded-ModAckItem										ProtocolIE-ID ::= 131
+id-E-RABs-Admitted-ToBeModified-ModAckItem									ProtocolIE-ID ::= 132
+id-E-RABs-Admitted-ToBeReleased-ModAckItem									ProtocolIE-ID ::= 133
+id-E-RABs-ToBeReleased-ModReqd												ProtocolIE-ID ::= 134
+id-E-RABs-ToBeReleased-ModReqdItem											ProtocolIE-ID ::= 135
+id-SCGChangeIndication														ProtocolIE-ID ::= 136
+id-E-RABs-ToBeReleased-List-RelReq											ProtocolIE-ID ::= 137
+id-E-RABs-ToBeReleased-RelReqItem											ProtocolIE-ID ::= 138
+id-E-RABs-ToBeReleased-List-RelConf											ProtocolIE-ID ::= 139
+id-E-RABs-ToBeReleased-RelConfItem											ProtocolIE-ID ::= 140
+id-E-RABs-SubjectToCounterCheck-List										ProtocolIE-ID ::= 141
+id-E-RABs-SubjectToCounterCheckItem											ProtocolIE-ID ::= 142
+id-CoverageModificationList													ProtocolIE-ID ::= 143
+id-ReportingPeriodicityCSIR													ProtocolIE-ID ::= 145
+id-CSIReportList															ProtocolIE-ID ::= 146
+id-UEID																		ProtocolIE-ID ::= 147
+id-enhancedRNTP																ProtocolIE-ID ::= 148
+id-ProSeUEtoNetworkRelaying													ProtocolIE-ID ::= 149
+id-ReceiveStatusOfULPDCPSDUsPDCP-SNlength18									ProtocolIE-ID ::= 150
+id-ULCOUNTValuePDCP-SNlength18												ProtocolIE-ID ::= 151
+id-DLCOUNTValuePDCP-SNlength18												ProtocolIE-ID ::= 152
+id-UE-ContextReferenceAtSeNB												ProtocolIE-ID ::= 153
+id-UE-ContextKeptIndicator													ProtocolIE-ID ::= 154
+id-New-eNB-UE-X2AP-ID-Extension												ProtocolIE-ID ::= 155
+id-Old-eNB-UE-X2AP-ID-Extension												ProtocolIE-ID ::= 156
+id-MeNB-UE-X2AP-ID-Extension												ProtocolIE-ID ::= 157
+id-SeNB-UE-X2AP-ID-Extension												ProtocolIE-ID ::= 158
+id-LHN-ID																	ProtocolIE-ID ::= 159
+id-FreqBandIndicatorPriority												ProtocolIE-ID ::= 160
+id-M6Configuration															ProtocolIE-ID ::= 161
+id-M7Configuration															ProtocolIE-ID ::= 162
+id-Tunnel-Information-for-BBF												ProtocolIE-ID ::= 163
+id-SIPTO-BearerDeactivationIndication										ProtocolIE-ID ::= 164
+id-GW-TransportLayerAddress													ProtocolIE-ID ::= 165
+id-Correlation-ID															ProtocolIE-ID ::= 166
+id-SIPTO-Correlation-ID														ProtocolIE-ID ::= 167
+id-SIPTO-L-GW-TransportLayerAddress											ProtocolIE-ID ::= 168
+id-X2RemovalThreshold														ProtocolIE-ID ::= 169
+id-CellReportingIndicator													ProtocolIE-ID ::= 170
+id-BearerType																ProtocolIE-ID ::= 171
+id-resumeID																	ProtocolIE-ID ::= 172
+id-UE-ContextInformationRetrieve											ProtocolIE-ID ::= 173
+id-E-RABs-ToBeSetupRetrieve-Item											ProtocolIE-ID ::= 174
+id-NewEUTRANCellIdentifier													ProtocolIE-ID ::= 175
 
 END

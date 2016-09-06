@@ -18,14 +18,17 @@ X2AP-PDU
 ProtocolIE-ID
 ProcedureCode
 
-#.TYPE_RENAME
+#.USE_VALS_EXT
+CauseRadioNetwork
+ProcedureCode
+ProtocolIE-ID
 
+#.TYPE_RENAME
 ProtocolIE-Field/value     ProtocolIE_Field_value
 PrivateIE-Field/value      PrivateIE_Field_value
 InitiatingMessage/value    InitiatingMessage_value
 SuccessfulOutcome/value    SuccessfulOutcome_value
 UnsuccessfulOutcome/value  UnsuccessfulOutcome_value
-
 
 #.FIELD_RENAME
 ProtocolExtensionField/id extension_id
@@ -47,7 +50,7 @@ ProtocolIE-ContainerPairList
 #.FN_PARS ProtocolIE-ID  VAL_PTR = &ProtocolIE_ID
 #.FN_FTR ProtocolIE-ID
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(x2ap_ProtocolIE_ID_vals), "unknown (%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str_ext(ProtocolIE_ID, &x2ap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
   }
 #.END
 
@@ -57,8 +60,8 @@ ProtocolIE-ContainerPairList
 
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
-    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                val_to_str(ProcedureCode, x2ap_ProcedureCode_vals,
+  col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s",
+                val_to_str_ext(ProcedureCode, &x2ap_ProcedureCode_vals_ext,
                            "unknown message"));
 #.END
 
@@ -73,67 +76,483 @@ ProtocolIE-ContainerPairList
 
 #.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
 
-#.FN_BODY PLMN-Identity  VAL_PTR = &parameter_tvb
-  tvbuff_t *parameter_tvb=NULL;
-
-%(DEFAULT_BODY)s
-
-	if(tvb_reported_length(tvb)==0)
-		return offset;
-
-	if (!parameter_tvb)
-		return offset;
-	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, E212_NONE, FALSE);
-#.END
-
 #.FN_BODY TargeteNBtoSource-eNBTransparentContainer  VAL_PTR = &parameter_tvb
-  tvbuff_t *parameter_tvb=NULL;
-
-%(DEFAULT_BODY)s
-	if (!parameter_tvb)
-		return offset;
-
-     dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, tree, NULL);
-
-#.TYPE_ATTR
-ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(x2ap_ProtocolIE_ID_vals)
-#.END
-
-#.FN_BODY TransportLayerAddress VAL_PTR = &parameter_tvb
-# For details on the Transport Layer Address, see
-# ref. [8], [19]
-# [8] 3GPP TS 36.424: "Evolved Universal Terrestrial Radio Access Network (E-UTRAN); X2 data transport".
-# [19] 3GPP TS 36.414: "Evolved Universal Terrestrial Radio Access Network (E-UTRAN); S1 data transport".
-  tvbuff_t *parameter_tvb=NULL;
+  tvbuff_t *parameter_tvb = NULL;
   proto_tree *subtree;
-  gint tvb_len;
 
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
-	/* Get the length */
-	tvb_len = tvb_reported_length(parameter_tvb);
-	subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_TransportLayerAddress);
-	if (tvb_len==4){
-		/* IPv4 */
-		 proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv4, parameter_tvb, 0, tvb_len, ENC_BIG_ENDIAN);
-	}
-	if (tvb_len==16){
-		/* IPv6 */
-		 proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv6, parameter_tvb, 0, tvb_len, ENC_NA);
-	}
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_TargeteNBtoSource_eNBTransparentContainer);
+  dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+
+#.TYPE_ATTR
+ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &x2ap_ProtocolIE_ID_vals_ext
+#.END
+
+#.FN_BODY TransportLayerAddress VAL_PTR = &parameter_tvb LEN_PTR = &len
+# For details on the Transport Layer Address, see
+# ref. [8], [19]
+# [8] 3GPP TS 36.424: "Evolved Universal Terrestrial Radio Access Network (E-UTRAN); X2 data transport".
+# [19] 3GPP TS 36.414: "Evolved Universal Terrestrial Radio Access Network (E-UTRAN); S1 data transport".
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+  int len;
+
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_TransportLayerAddress);
+  if (len == 32) {
+    /* IPv4 */
+     proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv4, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
+  } else if (len == 128) {
+    /* IPv6 */
+     proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv6, parameter_tvb, 0, 16, ENC_NA);
+  } else if (len == 160) {
+    /* IPv4 */
+     proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv4, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
+    /* IPv6 */
+     proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv6, parameter_tvb, 4, 16, ENC_NA);
+  }
+
+#.TYPE_ATTR
+Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
+#.FN_BODY Port-Number VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
 
 #.FN_BODY RRC-Context VAL_PTR = &parameter_tvb
 # Includes the RRC Handover Preparation Information message as defined in
 # subclause 10.2.2 of [9].
 # [9] 3GPP TS 36.331: "Evolved Universal Terrestrial Radio Access (E-UTRAN); Radio Resource
 # Control (RRC) Protocol Specification".
-  tvbuff_t *parameter_tvb=NULL;
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
-  dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, tree, NULL);
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_RRC_Context);
+  dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+
+#.FN_BODY UE-HistoryInformationFromTheUE VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+  subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_UE_HistoryInformationFromTheUE);
+  dissect_lte_rrc_VisitedCellInfoList_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+
+#.FN_BODY ReportCharacteristics VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    const gint *fields[] = {
+      &hf_x2ap_ReportCharacteristics_PRBPeriodic,
+      &hf_x2ap_ReportCharacteristics_TNLLoadIndPeriodic,
+      &hf_x2ap_ReportCharacteristics_HWLoadIndPeriodic,
+      &hf_x2ap_ReportCharacteristics_CompositeAvailableCapacityPeriodic,
+      &hf_x2ap_ReportCharacteristics_ABSStatusPeriodic,
+      &hf_x2ap_ReportCharacteristics_RSRPMeasurementReportPeriodic,
+      &hf_x2ap_ReportCharacteristics_CSIReportPeriodic,
+      &hf_x2ap_ReportCharacteristics_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_ReportCharacteristics);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 4, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY MeasurementFailureCause-Item/measurementFailedReportCharacteristics VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     32, 32, FALSE, &parameter_tvb, NULL);
+
+  if(parameter_tvb){
+    const gint *fields[] = {
+      &hf_x2ap_measurementFailedReportCharacteristics_PRBPeriodic,
+      &hf_x2ap_measurementFailedReportCharacteristics_TNLLoadIndPeriodic,
+      &hf_x2ap_measurementFailedReportCharacteristics_HWLoadIndPeriodic,
+      &hf_x2ap_measurementFailedReportCharacteristics_CompositeAvailableCapacityPeriodic,
+      &hf_x2ap_measurementFailedReportCharacteristics_ABSStatusPeriodic,
+      &hf_x2ap_measurementFailedReportCharacteristics_RSRPMeasurementReportPeriodic,
+      &hf_x2ap_measurementFailedReportCharacteristics_CSIReportPeriodic,
+      &hf_x2ap_measurementFailedReportCharacteristics_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_measurementFailedReportCharacteristics);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 4, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY UE-RLF-Report-Container VAL_PTR = &parameter_tvb
+ tvbuff_t *parameter_tvb;
+ proto_tree *subtree = NULL;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+  subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_UE_RLF_Report_Container);
+  dissect_lte_rrc_RLF_Report_r9_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+
+#.FN_BODY UE-RLF-Report-Container-for-extended-bands VAL_PTR = &parameter_tvb
+ tvbuff_t *parameter_tvb;
+ proto_tree *subtree = NULL;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+  subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_UE_RLF_Report_Container_for_extended_bands);
+  dissect_lte_rrc_RLF_Report_v9e0_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+
+#.FN_BODY MeNBtoSeNBContainer VAL_PTR = &parameter_tvb
+ tvbuff_t *parameter_tvb;
+ proto_tree *subtree = NULL;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+  subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_MeNBtoSeNBContainer);
+  dissect_lte_rrc_SCG_ConfigInfo_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+
+#.FN_BODY SeNBtoMeNBContainer VAL_PTR = &parameter_tvb
+ tvbuff_t *parameter_tvb;
+ proto_tree *subtree = NULL;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+  subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_SeNBtoMeNBContainer);
+  dissect_lte_rrc_SCG_ConfigInfo_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+
+#.FN_BODY EUTRANTraceID VAL_PTR = &parameter_tvb
+ tvbuff_t *parameter_tvb;
+ proto_tree *subtree = NULL;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+  subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_EUTRANTraceID);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+  proto_tree_add_item(subtree, hf_x2ap_eUTRANTraceID_TraceID, parameter_tvb, 3, 3, ENC_BIG_ENDIAN);
+  proto_tree_add_item(subtree, hf_x2ap_eUTRANTraceID_TraceRecordingSessionReference, parameter_tvb, 6, 2, ENC_BIG_ENDIAN);
+
+#.FN_BODY InterfacesToTrace VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    const gint *fields[] = {
+      &hf_x2ap_interfacesToTrace_S1_MME,
+      &hf_x2ap_interfacesToTrace_X2,
+      &hf_x2ap_interfacesToTrace_Uu,
+      &hf_x2ap_interfacesToTrace_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_InterfacesToTrace);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY TraceCollectionEntityIPAddress VAL_PTR = &parameter_tvb LEN_PTR = &len
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+  int len;
+
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_TraceCollectionEntityIPAddress);
+  if (len == 32) {
+    /* IPv4 */
+     proto_tree_add_item(subtree, hf_x2ap_traceCollectionEntityIPAddress_IPv4, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
+  } else if (len == 128) {
+    /* IPv6 */
+     proto_tree_add_item(subtree, hf_x2ap_traceCollectionEntityIPAddress_IPv6, parameter_tvb, 0, 16, ENC_NA);
+  } else if (len == 160) {
+    /* IPv4 */
+     proto_tree_add_item(subtree, hf_x2ap_traceCollectionEntityIPAddress_IPv4, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
+    /* IPv6 */
+     proto_tree_add_item(subtree, hf_x2ap_traceCollectionEntityIPAddress_IPv6, parameter_tvb, 4, 16, ENC_NA);
+  }
+
+#.TYPE_ATTR
+TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
+#.FN_BODY TAC VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+LAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
+#.FN_BODY LAC VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY PLMN-Identity  VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+
+  if(tvb_reported_length(tvb)==0)
+    return offset;
+
+  if (!parameter_tvb)
+    return offset;
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_PLMN_Identity);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+
+#.FN_FTR BitRate
+  proto_item_append_text(actx->created_item, "bit/s");
+
+#.TYPE_ATTR
+MME-Code TYPE = FT_UINT8 DISPLAY = BASE_DEC_HEX
+#.FN_BODY MME-Code VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+MME-Group-ID TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
+#.FN_BODY MME-Group-ID VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY EncryptionAlgorithms VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    const gint *fields[] = {
+      &hf_x2ap_encryptionAlgorithms_EEA1,
+      &hf_x2ap_encryptionAlgorithms_EEA2,
+      &hf_x2ap_encryptionAlgorithms_EEA3,
+      &hf_x2ap_encryptionAlgorithms_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_EncryptionAlgorithms);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 2, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY IntegrityProtectionAlgorithms VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    const gint *fields[] = {
+      &hf_x2ap_integrityProtectionAlgorithms_EIA1,
+      &hf_x2ap_integrityProtectionAlgorithms_EIA2,
+      &hf_x2ap_integrityProtectionAlgorithms_EIA3,
+      &hf_x2ap_integrityProtectionAlgorithms_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_IntegrityProtectionAlgorithms);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 2, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_FTR Time-UE-StayedInCell
+  proto_item_append_text(actx->created_item, "s");
+
+#.TYPE_ATTR
+Time-UE-StayedInCell-EnhancedGranularity DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_Time_UE_StayedInCell_EnhancedGranularity_fmt)
+
+#.TYPE_ATTR
+MobilityParametersInformation/handoverTriggerChange DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_handoverTriggerChange_fmt)
+
+#.TYPE_ATTR
+MobilityParametersModificationRange/handoverTriggerChangeLowerLimit DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_handoverTriggerChange_fmt)
+
+#.TYPE_ATTR
+MobilityParametersModificationRange/handoverTriggerChangeUpperLimit DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_handoverTriggerChange_fmt)
+
+#.FN_BODY MeasurementsToActivate VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    const gint *fields[] = {
+      &hf_x2ap_measurementsToActivate_M1,
+      &hf_x2ap_measurementsToActivate_M2,
+      &hf_x2ap_measurementsToActivate_M3,
+      &hf_x2ap_measurementsToActivate_M4,
+      &hf_x2ap_measurementsToActivate_M5,
+      &hf_x2ap_measurementsToActivate_LoggingM1FromEventTriggered,
+      &hf_x2ap_measurementsToActivate_M6,
+      &hf_x2ap_measurementsToActivate_M7,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_MeasurementsToActivate);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+Threshold-RSRP DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_Threshold_RSRP_fmt)
+
+#.TYPE_ATTR
+Threshold-RSRQ DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_Threshold_RSRQ_fmt)
+
+#.FN_BODY MDT-Location-Info VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    const gint *fields[] = {
+      &hf_x2ap_MDT_Location_Info_GNSS,
+      &hf_x2ap_MDT_Location_Info_E_CID,
+      &hf_x2ap_MDT_Location_Info_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_MDT_Location_Info);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_FTR ExpectedActivityPeriod
+proto_item_append_text(actx->created_item, "s");
+
+#.FN_FTR ExpectedIdlePeriod
+proto_item_append_text(actx->created_item, "s");
+
+#.TYPE_ATTR
+RSRPMeasurementResult/_item/rSRPMeasured DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_Threshold_RSRP_fmt)
+
+#.FN_BODY DynamicNAICSInformation/transmissionModes VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    const gint *fields[] = {
+      &hf_x2ap_MDT_transmissionModes_tm1,
+      &hf_x2ap_MDT_transmissionModes_tm2,
+      &hf_x2ap_MDT_transmissionModes_tm3,
+      &hf_x2ap_MDT_transmissionModes_tm4,
+      &hf_x2ap_MDT_transmissionModes_tm6,
+      &hf_x2ap_MDT_transmissionModes_tm8,
+      &hf_x2ap_MDT_transmissionModes_tm9,
+      &hf_x2ap_MDT_transmissionModes_tm10,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_transmissionModes);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+LHN-ID TYPE=FT_STRING DISPLAY = STR_UNICODE
+#.FN_BODY LHN-ID VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, -1, ENC_UTF_8|ENC_NA);
+#.END
+
+#.FN_HDR HandoverRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverRequest");
+#.FN_HDR HandoverRequestAcknowledge
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverRequestAcknowledge");
+#.FN_HDR HandoverPreparationFailure
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverPreparationFailure");
+#.FN_HDR SNStatusTransfer
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SNStatusTransfer");
+#.FN_HDR UEContextRelease
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextRelease");
+#.FN_HDR HandoverCancel
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverCancel");
+#.FN_HDR ErrorIndication
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ErrorIndication");
+#.FN_HDR ResetRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResetRequest");
+#.FN_HDR ResetResponse
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResetResponse");
+#.FN_HDR X2SetupRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2SetupRequest");
+#.FN_HDR X2SetupResponse
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2SetupResponse");
+#.FN_HDR X2SetupFailure
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2SetupFailure");
+#.FN_HDR LoadInformation
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", LoadInformation");
+#.FN_HDR ENBConfigurationUpdate
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdate");
+#.FN_HDR ENBConfigurationUpdateAcknowledge
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdateAcknowledge");
+#.FN_HDR ENBConfigurationUpdateFailure
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdateFailure");
+#.FN_HDR ResourceStatusRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResourceStatusRequest");
+#.FN_HDR ResourceStatusResponse
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResourceStatusResponse");
+#.FN_HDR ResourceStatusFailure
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResourceStatusFailure");
+#.FN_HDR ResourceStatusUpdate
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResourceStatusUpdate");
+#.FN_HDR PrivateMessage
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", PrivateMessage");
+#.FN_HDR HandoverReport
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverReport");
+#.FN_HDR RLFIndication
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", RLFIndication");
+#.FN_HDR MobilityChangeRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", MobilityChangeRequest");
+#.FN_HDR MobilityChangeAcknowledge
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", MobilityChangeAcknowledge");
+#.FN_HDR MobilityChangeFailure
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", MobilityChangeFailure");
+#.FN_HDR CellActivationRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", CellActivationRequest");
+#.FN_HDR CellActivationResponse
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", CellActivationResponse");
+#.FN_HDR CellActivationFailure
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", CellActivationFailure");
+#.FN_HDR X2Release
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2Release");
+#.FN_HDR X2APMessageTransfer
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2APMessageTransfer");
+#.FN_HDR X2RemovalRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2RemovalRequest");
+#.FN_HDR X2RemovalResponse
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2RemovalResponse");
+#.FN_HDR X2RemovalFailure
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2RemovalFailure");
+#.FN_HDR SeNBAdditionRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBAdditionRequest");
+#.FN_HDR SeNBAdditionRequestAcknowledge
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBAdditionRequestAcknowledge");
+#.FN_HDR SeNBAdditionRequestReject
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBAdditionRequestReject");
+#.FN_HDR SeNBReconfigurationComplete
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBReconfigurationComplete");
+#.FN_HDR SeNBModificationRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRequest");
+#.FN_HDR SeNBModificationRequestAcknowledge
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRequestAcknowledge");
+#.FN_HDR SeNBModificationRequestReject
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRequestReject");
+#.FN_HDR SeNBModificationRequired
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRequired");
+#.FN_HDR SeNBModificationConfirm
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationConfirm");
+#.FN_HDR SeNBModificationRefuse
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRefuse");
+#.FN_HDR SeNBReleaseRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBReleaseRequest");
+#.FN_HDR SeNBReleaseRequired
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBReleaseRequired");
+#.FN_HDR SeNBReleaseConfirm
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBReleaseConfirm");
+#.FN_HDR SeNBCounterCheckRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBCounterCheckRequest");
+#.FN_HDR RetrieveUEContextRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", RetrieveUEContextRequest");
+#.FN_HDR RetrieveUEContextResponse
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", RetrieveUEContextResponse");
+#.FN_HDR RetrieveUEContextFailure
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", RetrieveUEContextFailure");
 
 #.ASSIGN_VALUE_TO_TYPE  # X2AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
@@ -155,7 +574,17 @@ id-rLFIndication						ProcedureCode
 id-handoverReport						ProcedureCode
 id-cellActivation						ProcedureCode
 id-x2Release							ProcedureCode
-id-x2MessageTransfer					ProcedureCode
+id-x2APMessageTransfer					ProcedureCode
+id-x2APMessageTransfer						ProcedureCode
+id-x2Removal							ProcedureCode
+id-seNBAdditionPreparation					ProcedureCode
+id-seNBReconfigurationCompletion				ProcedureCode
+id-meNBinitiatedSeNBModificationPreparation			ProcedureCode
+id-seNBinitiatedSeNBModification				ProcedureCode
+id-meNBinitiatedSeNBRelease					ProcedureCode
+id-seNBinitiatedSeNBRelease					ProcedureCode
+id-seNBCounterCheck						ProcedureCode
+id-retrieveUEContext						ProcedureCode
 
 
 # ProtocolIE-ID
@@ -261,6 +690,78 @@ id-IntendedULDLConfiguration												ProtocolIE-ID
 id-ExtendedULInterferenceOverloadInfo										ProtocolIE-ID
 id-RNL-Header																ProtocolIE-ID
 id-x2APMessage																ProtocolIE-ID
+id-ProSeAuthorized															ProtocolIE-ID
+id-ExpectedUEBehaviour														ProtocolIE-ID
+id-UE-HistoryInformationFromTheUE											ProtocolIE-ID
+id-DynamicDLTransmissionInformation											ProtocolIE-ID
+id-UE-RLF-Report-Container-for-extended-bands								ProtocolIE-ID
+id-CoMPInformation															ProtocolIE-ID
+id-ReportingPeriodicityRSRPMR												ProtocolIE-ID
+id-RSRPMRList																ProtocolIE-ID
+id-MeNB-UE-X2AP-ID															ProtocolIE-ID
+id-SeNB-UE-X2AP-ID															ProtocolIE-ID
+id-UE-SecurityCapabilities													ProtocolIE-ID
+id-SeNBSecurityKey															ProtocolIE-ID
+id-SeNBUEAggregateMaximumBitRate											ProtocolIE-ID
+id-ServingPLMN																ProtocolIE-ID
+id-E-RABs-ToBeAdded-List													ProtocolIE-ID
+id-E-RABs-ToBeAdded-Item													ProtocolIE-ID
+id-MeNBtoSeNBContainer														ProtocolIE-ID
+id-E-RABs-Admitted-ToBeAdded-List											ProtocolIE-ID
+id-E-RABs-Admitted-ToBeAdded-Item											ProtocolIE-ID
+id-SeNBtoMeNBContainer														ProtocolIE-ID
+id-ResponseInformationSeNBReconfComp										ProtocolIE-ID
+id-UE-ContextInformationSeNBModReq											ProtocolIE-ID
+id-E-RABs-ToBeAdded-ModReqItem												ProtocolIE-ID
+id-E-RABs-ToBeModified-ModReqItem											ProtocolIE-ID
+id-E-RABs-ToBeReleased-ModReqItem											ProtocolIE-ID
+id-E-RABs-Admitted-ToBeAdded-ModAckList										ProtocolIE-ID
+id-E-RABs-Admitted-ToBeModified-ModAckList									ProtocolIE-ID
+id-E-RABs-Admitted-ToBeReleased-ModAckList									ProtocolIE-ID
+id-E-RABs-Admitted-ToBeAdded-ModAckItem										ProtocolIE-ID
+id-E-RABs-Admitted-ToBeModified-ModAckItem									ProtocolIE-ID
+id-E-RABs-Admitted-ToBeReleased-ModAckItem									ProtocolIE-ID
+id-E-RABs-ToBeReleased-ModReqd												ProtocolIE-ID
+id-E-RABs-ToBeReleased-ModReqdItem											ProtocolIE-ID
+id-SCGChangeIndication														ProtocolIE-ID
+id-E-RABs-ToBeReleased-List-RelReq											ProtocolIE-ID
+id-E-RABs-ToBeReleased-RelReqItem											ProtocolIE-ID
+id-E-RABs-ToBeReleased-List-RelConf											ProtocolIE-ID
+id-E-RABs-ToBeReleased-RelConfItem											ProtocolIE-ID
+id-E-RABs-SubjectToCounterCheck-List										ProtocolIE-ID
+id-E-RABs-SubjectToCounterCheckItem											ProtocolIE-ID
+id-CoverageModificationList													ProtocolIE-ID
+id-ReportingPeriodicityCSIR													ProtocolIE-ID
+id-CSIReportList															ProtocolIE-ID
+id-UEID																		ProtocolIE-ID
+id-enhancedRNTP																ProtocolIE-ID
+id-ProSeUEtoNetworkRelaying													ProtocolIE-ID
+id-ReceiveStatusOfULPDCPSDUsPDCP-SNlength18									ProtocolIE-ID
+id-ULCOUNTValuePDCP-SNlength18												ProtocolIE-ID
+id-DLCOUNTValuePDCP-SNlength18												ProtocolIE-ID
+id-UE-ContextReferenceAtSeNB												ProtocolIE-ID
+id-UE-ContextKeptIndicator													ProtocolIE-ID
+id-New-eNB-UE-X2AP-ID-Extension												ProtocolIE-ID
+id-Old-eNB-UE-X2AP-ID-Extension												ProtocolIE-ID
+id-MeNB-UE-X2AP-ID-Extension												ProtocolIE-ID
+id-SeNB-UE-X2AP-ID-Extension												ProtocolIE-ID
+id-LHN-ID																	ProtocolIE-ID
+id-FreqBandIndicatorPriority												ProtocolIE-ID
+id-M6Configuration															ProtocolIE-ID
+id-M7Configuration															ProtocolIE-ID
+id-Tunnel-Information-for-BBF												ProtocolIE-ID
+id-SIPTO-BearerDeactivationIndication										ProtocolIE-ID
+id-GW-TransportLayerAddress													ProtocolIE-ID
+id-Correlation-ID															ProtocolIE-ID
+id-SIPTO-Correlation-ID														ProtocolIE-ID
+id-SIPTO-L-GW-TransportLayerAddress											ProtocolIE-ID
+id-X2RemovalThreshold														ProtocolIE-ID
+id-CellReportingIndicator													ProtocolIE-ID
+id-BearerType																ProtocolIE-ID
+id-resumeID																	ProtocolIE-ID
+id-UE-ContextInformationRetrieve											ProtocolIE-ID
+id-E-RABs-ToBeSetupRetrieve-Item											ProtocolIE-ID
+id-NewEUTRANCellIdentifier													ProtocolIE-ID
 
 #.REGISTER
 
@@ -335,6 +836,61 @@ CRNTI										N x2ap.ies id-SourceCellCRNTI
 Masked-IMEISV								N x2ap.ies id-Masked-IMEISV
 RNL-Header									N x2ap.ies id-RNL-Header
 X2AP-Message								N x2ap.ies id-x2APMessage
+ProSeAuthorized							N x2ap.ies id-ProSeAuthorized
+ExpectedUEBehaviour						N x2ap.ies id-ExpectedUEBehaviour
+UE-HistoryInformationFromTheUE					N x2ap.ies id-UE-HistoryInformationFromTheUE
+UE-RLF-Report-Container-for-extended-bands			N x2ap.ies id-UE-RLF-Report-Container-for-extended-bands
+ReportingPeriodicityRSRPMR					N x2ap.ies id-ReportingPeriodicityRSRPMR
+UE-X2AP-ID							N x2ap.ies id-MeNB-UE-X2AP-ID
+UE-X2AP-ID							N x2ap.ies id-SeNB-UE-X2AP-ID
+UESecurityCapabilities						N x2ap.ies id-UE-SecurityCapabilities
+SeNBSecurityKey							N x2ap.ies id-SeNBSecurityKey
+UEAggregateMaximumBitRate					N x2ap.ies id-SeNBUEAggregateMaximumBitRate
+PLMN-Identity							N x2ap.ies id-ServingPLMN
+E-RABs-ToBeAdded-List						N x2ap.ies id-E-RABs-ToBeAdded-List
+E-RABs-ToBeAdded-Item						N x2ap.ies id-E-RABs-ToBeAdded-Item
+MeNBtoSeNBContainer						N x2ap.ies id-MeNBtoSeNBContainer
+E-RABs-Admitted-ToBeAdded-List					N x2ap.ies id-E-RABs-Admitted-ToBeAdded-List
+E-RABs-Admitted-ToBeAdded-Item					N x2ap.ies id-E-RABs-Admitted-ToBeAdded-Item
+SeNBtoMeNBContainer						N x2ap.ies id-SeNBtoMeNBContainer
+ResponseInformationSeNBReconfComp				N x2ap.ies id-ResponseInformationSeNBReconfComp
+UE-ContextInformationSeNBModReq					N x2ap.ies id-UE-ContextInformationSeNBModReq
+E-RABs-ToBeAdded-ModReqItem					N x2ap.ies id-E-RABs-ToBeAdded-ModReqItem
+E-RABs-ToBeModified-ModReqItem					N x2ap.ies id-E-RABs-ToBeModified-ModReqItem
+E-RABs-ToBeReleased-ModReqItem					N x2ap.ies id-E-RABs-ToBeReleased-ModReqItem
+E-RABs-Admitted-ToBeAdded-ModAckList				N x2ap.ies id-E-RABs-Admitted-ToBeAdded-ModAckList
+E-RABs-Admitted-ToBeModified-ModAckList				N x2ap.ies id-E-RABs-Admitted-ToBeModified-ModAckList
+E-RABs-Admitted-ToBeReleased-ModAckList				N x2ap.ies id-E-RABs-Admitted-ToBeReleased-ModAckList
+E-RABs-Admitted-ToBeAdded-ModAckItem				N x2ap.ies id-E-RABs-Admitted-ToBeAdded-ModAckItem
+E-RABs-Admitted-ToBeModified-ModAckItem				N x2ap.ies id-E-RABs-Admitted-ToBeModified-ModAckItem
+E-RABs-Admitted-ToReleased-ModAckItem				N x2ap.ies id-E-RABs-Admitted-ToBeReleased-ModAckItem
+E-RABs-ToBeReleased-ModReqd					N x2ap.ies id-E-RABs-ToBeReleased-ModReqd
+E-RABs-ToBeReleased-ModReqdItem					N x2ap.ies id-E-RABs-ToBeReleased-ModReqdItem
+SCGChangeIndication						N x2ap.ies id-SCGChangeIndication
+E-RABs-ToBeReleased-List-RelReq					N x2ap.ies id-E-RABs-ToBeReleased-List-RelReq
+E-RABs-ToBeReleased-RelReqItem					N x2ap.ies id-E-RABs-ToBeReleased-RelReqItem
+E-RABs-ToBeReleased-List-RelConf				N x2ap.ies id-E-RABs-ToBeReleased-List-RelConf
+E-RABs-ToBeReleased-RelConfItem					N x2ap.ies id-E-RABs-ToBeReleased-RelConfItem
+E-RABs-SubjectToCounterCheck-List				N x2ap.ies id-E-RABs-SubjectToCounterCheck-List
+E-RABs-SubjectToCounterCheckItem				N x2ap.ies id-E-RABs-SubjectToCounterCheckItem
+CoverageModificationList					N x2ap.ies id-CoverageModificationList
+ReportingPeriodicityCSIR					N x2ap.ies id-ReportingPeriodicityCSIR
+UE-ContextReferenceAtSeNB					N x2ap.ies id-UE-ContextReferenceAtSeNB
+UE-ContextKeptIndicator						N x2ap.ies id-UE-ContextKeptIndicator
+UE-X2AP-ID-Extension						N x2ap.ies id-New-eNB-UE-X2AP-ID-Extension
+UE-X2AP-ID-Extension						N x2ap.ies id-Old-eNB-UE-X2AP-ID-Extension
+UE-X2AP-ID-Extension						N x2ap.ies id-MeNB-UE-X2AP-ID-Extension
+UE-X2AP-ID-Extension						N x2ap.ies id-SeNB-UE-X2AP-ID-Extension
+LHN-ID								N x2ap.ies id-LHN-ID
+TunnelInformation						N x2ap.ies id-Tunnel-Information-for-BBF
+SIPTOBearerDeactivationIndication				N x2ap.ies id-SIPTO-BearerDeactivationIndication
+TransportLayerAddress						N x2ap.ies id-GW-TransportLayerAddress
+TransportLayerAddress						N x2ap.ies id-SIPTO-L-GW-TransportLayerAddress
+X2BenefitValue							N x2ap.ies id-X2RemovalThreshold
+ResumeID							N x2ap.ies id-resumeID
+UE-ContextInformationRetrieve					N x2ap.ies id-UE-ContextInformationRetrieve
+E-RABs-ToBeSetupRetrieve-Item					N x2ap.ies id-E-RABs-ToBeSetupRetrieve-Item
+EUTRANCellIdentifier						N x2ap.ies id-NewEUTRANCellIdentifier
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
@@ -342,7 +898,6 @@ CompositeAvailableCapacityGroup				N x2ap.extension id-CompositeAvailableCapacit
 PRACH-Configuration							N x2ap.extension id-PRACH-Configuration
 MBSFN-Subframe-Infolist						N x2ap.extension id-MBSFN-Subframe-Info
 DeactivationIndication						N x2ap.extension id-DeactivationIndication
-
 ABSInformation								N x2ap.extension id-ABSInformation
 InvokeIndication							N x2ap.extension id-InvokeIndication
 ABS-Status									N x2ap.extension id-ABS-Status
@@ -369,6 +924,23 @@ EARFCNExtension								N x2ap.extension id-DL-EARFCNExtension
 AdditionalSpecialSubframe-Info				N x2ap.extension id-AdditionalSpecialSubframe-Info
 SubframeAssignment							N x2ap.extension id-IntendedULDLConfiguration
 ExtendedULInterferenceOverloadInfo			N x2ap.extension id-ExtendedULInterferenceOverloadInfo
+DynamicDLTransmissionInformation				N x2ap.extension id-DynamicDLTransmissionInformation
+CoMPInformation							N x2ap.extension id-CoMPInformation
+RSRPMRList							N x2ap.extension id-RSRPMRList
+CSIReportList							N x2ap.extension id-CSIReportList
+UEID								N x2ap.extension id-UEID
+EnhancedRNTP							N x2ap.extension id-enhancedRNTP
+ProSeUEtoNetworkRelaying					N x2ap.extension id-ProSeUEtoNetworkRelaying
+ReceiveStatusOfULPDCPSDUsPDCP-SNlength18			N x2ap.extension id-ReceiveStatusOfULPDCPSDUsPDCP-SNlength18
+COUNTvaluePDCP-SNlength18					N x2ap.extension id-ULCOUNTValuePDCP-SNlength18
+COUNTvaluePDCP-SNlength18					N x2ap.extension id-DLCOUNTValuePDCP-SNlength18
+FreqBandIndicatorPriority					N x2ap.extension id-FreqBandIndicatorPriority
+M6Configuration							N x2ap.extension id-M6Configuration
+M7Configuration							N x2ap.extension id-M7Configuration
+Correlation-ID							N x2ap.extension id-Correlation-ID
+Correlation-ID							N x2ap.extension id-SIPTO-Correlation-ID
+CellReportingIndicator						N x2ap.extension id-CellReportingIndicator
+BearerType							N x2ap.extension id-BearerType
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
@@ -419,6 +991,34 @@ CellActivationFailure				N x2ap.proc.uout id-cellActivation
 
 X2Release							N x2ap.proc.imsg id-x2Release
 
-X2MessageTransfer					N x2ap.proc.imsg id-x2MessageTransfer
+X2APMessageTransfer					N x2ap.proc.imsg id-x2APMessageTransfer
 
+X2RemovalRequest				N x2ap.proc.imsg id-x2Removal
+X2RemovalResponse				N x2ap.proc.sout id-x2Removal
+X2RemovalFailure				N x2ap.proc.uout id-x2Removal
+
+SeNBAdditionRequest				N x2ap.proc.imsg id-seNBAdditionPreparation
+SeNBAdditionRequestAcknowledge			N x2ap.proc.sout id-seNBAdditionPreparation
+SeNBAdditionRequestReject			N x2ap.proc.uout id-seNBAdditionPreparation
+
+SeNBReconfigurationComplete			N x2ap.proc.imsg id-seNBReconfigurationCompletion
+
+SeNBModificationRequest				N x2ap.proc.imsg id-meNBinitiatedSeNBModificationPreparation
+SeNBModificationRequestAcknowledge		N x2ap.proc.sout id-meNBinitiatedSeNBModificationPreparation
+SeNBModificationRequestReject			N x2ap.proc.uout id-meNBinitiatedSeNBModificationPreparation
+
+SeNBModificationRequired			N x2ap.proc.imsg id-seNBinitiatedSeNBModification
+SeNBModificationConfirm				N x2ap.proc.sout id-seNBinitiatedSeNBModification
+SeNBModificationRefuse				N x2ap.proc.uout id-seNBinitiatedSeNBModification
+
+SeNBReleaseRequest				N x2ap.proc.imsg id-meNBinitiatedSeNBRelease
+
+SeNBReleaseRequired				N x2ap.proc.imsg id-seNBinitiatedSeNBRelease
+SeNBReleaseConfirm				N x2ap.proc.sout id-seNBinitiatedSeNBRelease
+
+SeNBCounterCheckRequest				N x2ap.proc.imsg id-seNBCounterCheck
+
+RetrieveUEContextRequest			N x2ap.proc.imsg id-retrieveUEContext
+RetrieveUEContextResponse			N x2ap.proc.sout id-retrieveUEContext
+RetrieveUEContextFailure			N x2ap.proc.uout id-retrieveUEContext
 #.END

@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V12.2.0 (2014-06)
+-- 3GPP TS 36.423 V13.4.0 (2016-06)
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -6,11 +6,11 @@
 --
 -- **************************************************************
 
- X2AP-PDU-Descriptions {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+X2AP-PDU-Descriptions {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 eps-Access (21) modules (3) x2ap (2) version1 (1) x2ap-PDU-Descriptions (0) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -23,8 +23,8 @@ BEGIN
 IMPORTS
 	Criticality,
 	ProcedureCode
-FROM X2AP-CommonDataTypes
 
+FROM X2AP-CommonDataTypes
 
 	CellActivationRequest,
 	CellActivationResponse,
@@ -33,9 +33,9 @@ FROM X2AP-CommonDataTypes
 	ENBConfigurationUpdateAcknowledge,
 	ENBConfigurationUpdateFailure,
 	ErrorIndication,
-	HandoverCancel, 
+	HandoverCancel,
 	HandoverReport,
-	HandoverPreparationFailure,	
+	HandoverPreparationFailure,
 	HandoverRequest,
 	HandoverRequestAcknowledge,
 	LoadInformation,
@@ -45,7 +45,7 @@ FROM X2AP-CommonDataTypes
 	ResourceStatusFailure,
 	ResourceStatusRequest,
 	ResourceStatusResponse,
-	ResourceStatusUpdate, 
+	ResourceStatusUpdate,
 	RLFIndication,
 	SNStatusTransfer,
 	UEContextRelease,
@@ -56,35 +56,59 @@ FROM X2AP-CommonDataTypes
 	MobilityChangeAcknowledge,
 	MobilityChangeFailure,
 	X2Release,
-	X2MessageTransfer
-
-
+	X2APMessageTransfer,
+	SeNBAdditionRequest,
+	SeNBAdditionRequestAcknowledge,
+	SeNBAdditionRequestReject,
+	SeNBReconfigurationComplete,
+	SeNBModificationRequest,
+	SeNBModificationRequestAcknowledge,
+	SeNBModificationRequestReject,
+	SeNBModificationRequired,
+	SeNBModificationConfirm,
+	SeNBModificationRefuse,
+	SeNBReleaseRequest,
+	SeNBReleaseRequired,
+	SeNBReleaseConfirm,
+	SeNBCounterCheckRequest,
+	X2RemovalFailure,
+	X2RemovalRequest,
+	X2RemovalResponse,
+	RetrieveUEContextRequest,
+	RetrieveUEContextResponse,
+	RetrieveUEContextFailure
 
 FROM X2AP-PDU-Contents
 
 	id-cellActivation,
 	id-eNBConfigurationUpdate,
 	id-errorIndication,
-	id-handoverCancel, 
+	id-handoverCancel,
 	id-handoverReport,
 	id-handoverPreparation,
-	
+
 	id-loadIndication,
 	id-privateMessage,
 	id-reset,
-	
+
 	id-resourceStatusReporting,
-	id-resourceStatusReportingInitiation, 
+	id-resourceStatusReportingInitiation,
 	id-rLFIndication,
 	id-snStatusTransfer,
 	id-uEContextRelease,
 	id-x2Setup,
 	id-mobilitySettingsChange,
 	id-x2Release,
-	id-x2MessageTransfer
-
-
-
+	id-x2APMessageTransfer,
+	id-seNBAdditionPreparation,
+	id-seNBReconfigurationCompletion,
+	id-meNBinitiatedSeNBModificationPreparation,
+	id-seNBinitiatedSeNBModification,
+	id-meNBinitiatedSeNBRelease,
+	id-seNBinitiatedSeNBRelease,
+	id-seNBCounterCheck,
+	id-x2Removal,
+	id-retrieveUEContext
 
 FROM X2AP-Constants;
 
@@ -140,7 +164,6 @@ UnsuccessfulOutcome ::= SEQUENCE {
 	value			X2AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
 }
 
-
 -- **************************************************************
 --
 -- Interface Elementary Procedure List
@@ -160,7 +183,13 @@ X2AP-ELEMENTARY-PROCEDURES-CLASS-1 X2AP-ELEMENTARY-PROCEDURE ::= {
 	resourceStatusReportingInitiation						|
 	eNBConfigurationUpdate									|
 	mobilitySettingsChange									|
-	cellActivation											,
+	cellActivation											|
+	seNBAdditionPreparation									|
+	meNBinitiatedSeNBModificationPreparation				|
+	seNBinitiatedSeNBModification							|
+	seNBinitiatedSeNBRelease								|
+	x2Removal												|
+	retrieveUEContext,
 	...
 }
 
@@ -175,11 +204,13 @@ X2AP-ELEMENTARY-PROCEDURES-CLASS-2 X2AP-ELEMENTARY-PROCEDURE ::= {
 	rLFIndication							|
 	handoverReport							|
 	x2Release								|
-	x2MessageTransfer,
+	x2APMessageTransfer						|
+	seNBReconfigurationCompletion			|
+	meNBinitiatedSeNBRelease				|
+	seNBCounterCheck,
 	...
 
 }
-
 
 -- **************************************************************
 --
@@ -304,9 +335,74 @@ x2Release X2AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				reject
 }
 
-x2MessageTransfer X2AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE		X2MessageTransfer
-	PROCEDURE CODE			id-x2MessageTransfer
+x2APMessageTransfer X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		X2APMessageTransfer
+	PROCEDURE CODE			id-x2APMessageTransfer
+	CRITICALITY				reject
+}
+
+seNBAdditionPreparation	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SeNBAdditionRequest
+	SUCCESSFUL OUTCOME		SeNBAdditionRequestAcknowledge
+	UNSUCCESSFUL OUTCOME	SeNBAdditionRequestReject
+	PROCEDURE CODE			id-seNBAdditionPreparation
+	CRITICALITY				reject
+}
+
+seNBReconfigurationCompletion	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SeNBReconfigurationComplete
+	PROCEDURE CODE			id-seNBReconfigurationCompletion
+	CRITICALITY				ignore
+}
+
+meNBinitiatedSeNBModificationPreparation	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SeNBModificationRequest
+	SUCCESSFUL OUTCOME		SeNBModificationRequestAcknowledge
+	UNSUCCESSFUL OUTCOME	SeNBModificationRequestReject
+	PROCEDURE CODE			id-meNBinitiatedSeNBModificationPreparation
+	CRITICALITY				reject
+}
+
+seNBinitiatedSeNBModification	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SeNBModificationRequired
+	SUCCESSFUL OUTCOME		SeNBModificationConfirm
+	UNSUCCESSFUL OUTCOME	SeNBModificationRefuse
+	PROCEDURE CODE			id-seNBinitiatedSeNBModification
+	CRITICALITY				reject
+}
+
+meNBinitiatedSeNBRelease	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SeNBReleaseRequest
+	PROCEDURE CODE			id-meNBinitiatedSeNBRelease
+	CRITICALITY				ignore
+}
+
+seNBinitiatedSeNBRelease	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SeNBReleaseRequired
+	SUCCESSFUL OUTCOME		SeNBReleaseConfirm
+	PROCEDURE CODE			id-seNBinitiatedSeNBRelease
+	CRITICALITY				reject
+}
+
+seNBCounterCheck	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SeNBCounterCheckRequest
+	PROCEDURE CODE			id-seNBCounterCheck
+	CRITICALITY				reject
+}
+
+x2Removal	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		X2RemovalRequest
+	SUCCESSFUL OUTCOME		X2RemovalResponse
+	UNSUCCESSFUL OUTCOME	X2RemovalFailure
+	PROCEDURE CODE			id-x2Removal
+	CRITICALITY				reject
+}
+
+retrieveUEContext	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RetrieveUEContextRequest
+	SUCCESSFUL OUTCOME		RetrieveUEContextResponse
+	UNSUCCESSFUL OUTCOME	RetrieveUEContextFailure
+	PROCEDURE CODE			id-retrieveUEContext
 	CRITICALITY				reject
 }
 

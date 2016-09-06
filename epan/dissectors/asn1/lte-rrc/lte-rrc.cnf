@@ -27,6 +27,7 @@ HandoverPreparationInformation_PDU
 HandoverPreparationInformation-NB_PDU
 RLF-Report-r9_PDU
 RLF-Report-v9e0_PDU
+SCG-ConfigInfo-r12_PDU
 UERadioAccessCapabilityInformation_PDU
 UERadioAccessCapabilityInformation-NB_PDU
 UE-EUTRA-Capability_PDU
@@ -41,6 +42,7 @@ HandoverPreparationInformation
 HandoverPreparationInformation-NB
 RLF-Report-r9
 RLF-Report-v9e0
+SCG-ConfigInfo-r12
 UEPagingCoverageInformation
 UERadioAccessCapabilityInformation
 UERadioAccessCapabilityInformation-NB
@@ -70,22 +72,10 @@ UL-DCCH-Message-NB           @ul.dcch.nb
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
-Cell-ToAddMod-r12
 CellsTriggeredList
 CSI-RS-TriggeredList-r12
-DRB-InfoListSCG-r12
-DRB-InfoSCG-r12
 LogMeasInfoList2-r10
-MeasResultServCellListSCG-r12
-MeasResultServCellListSCG-Ext-r13
-MeasResultServCellSCG-r12
 RSRP-RangeSL3-r12
-SCellToAddModListSCG-r12
-SCellToAddModListSCG-Ext-r13
-SCG-ConfigInfo-r12
-SCG-ConfigInfo-r12-IEs
-SCG-ConfigInfo-v1310-IEs
-SCG-ConfigRestrictInfo-r12
 SL-PreconfigCommPool-r12
 SL-PreconfigCommPoolList4-r12
 SL-PreconfigCommRxPoolList-r13

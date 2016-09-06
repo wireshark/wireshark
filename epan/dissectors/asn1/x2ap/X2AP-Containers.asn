@@ -1,15 +1,16 @@
--- 3GPP TS 36.423  V12.2.0 (2014-06)
+-- 3GPP TS 36.423 V13.4.0 (2016-06)
 -- 9.3.8	Container Definitions
 -- **************************************************************
 --
 -- Container definitions
 --
 -- **************************************************************
-X2AP-Containers {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
-eps-Access (21) modules (3) x2ap (2) version1 (1) x2ap-Containers (5)  }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+X2AP-Containers {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+eps-Access (21) modules (3) x2ap (2) version1 (1) x2ap-Containers (5) }
+
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -26,7 +27,7 @@ IMPORTS
 	Criticality,
 	Presence,
 	PrivateIE-ID,
-	ProtocolIE-ID	
+	ProtocolIE-ID
 FROM X2AP-CommonDataTypes;
 
 -- **************************************************************
@@ -115,17 +116,17 @@ WITH SYNTAX {
 --
 -- **************************************************************
 
-ProtocolIE-Container {X2AP-PROTOCOL-IES : IEsSetParam} ::= 
+ProtocolIE-Container {X2AP-PROTOCOL-IES : IEsSetParam} ::=
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-Field {{IEsSetParam}}
 
-ProtocolIE-Single-Container {X2AP-PROTOCOL-IES : IEsSetParam} ::= 
+ProtocolIE-Single-Container {X2AP-PROTOCOL-IES : IEsSetParam} ::=
 	ProtocolIE-Field {{IEsSetParam}}
 
 ProtocolIE-Field {X2AP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
 	id				X2AP-PROTOCOL-IES.&id					({IEsSetParam}),
 	criticality		X2AP-PROTOCOL-IES.&criticality			({IEsSetParam}{@id}),
-	value			X2AP-PROTOCOL-IES.&Value	        	({IEsSetParam}{@id})
+	value			X2AP-PROTOCOL-IES.&Value				({IEsSetParam}{@id})
 }
 
 -- **************************************************************
@@ -134,16 +135,16 @@ ProtocolIE-Field {X2AP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
 --
 -- **************************************************************
 
-ProtocolIE-ContainerPair {X2AP-PROTOCOL-IES-PAIR : IEsSetParam} ::= 
+ProtocolIE-ContainerPair {X2AP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-FieldPair {{IEsSetParam}}
 
 ProtocolIE-FieldPair {X2AP-PROTOCOL-IES-PAIR : IEsSetParam} ::= SEQUENCE {
 	id					X2AP-PROTOCOL-IES-PAIR.&id					({IEsSetParam}),
 	firstCriticality	X2AP-PROTOCOL-IES-PAIR.&firstCriticality	({IEsSetParam}{@id}),
-	firstValue			X2AP-PROTOCOL-IES-PAIR.&FirstValue	        ({IEsSetParam}{@id}),
+	firstValue			X2AP-PROTOCOL-IES-PAIR.&FirstValue			({IEsSetParam}{@id}),
 	secondCriticality	X2AP-PROTOCOL-IES-PAIR.&secondCriticality	({IEsSetParam}{@id}),
-	secondValue			X2AP-PROTOCOL-IES-PAIR.&SecondValue	        ({IEsSetParam}{@id})
+	secondValue			X2AP-PROTOCOL-IES-PAIR.&SecondValue			({IEsSetParam}{@id})
 }
 
 -- **************************************************************
@@ -166,7 +167,7 @@ ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, X2AP-P
 --
 -- **************************************************************
 
-ProtocolExtensionContainer {X2AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= 
+ProtocolExtensionContainer {X2AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::=
 	SEQUENCE (SIZE (1..maxProtocolExtensions)) OF
 	ProtocolExtensionField {{ExtensionSetParam}}
 
@@ -182,7 +183,7 @@ ProtocolExtensionField {X2AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUENC
 --
 -- **************************************************************
 
-PrivateIE-Container {X2AP-PRIVATE-IES : IEsSetParam} ::= 
+PrivateIE-Container {X2AP-PRIVATE-IES : IEsSetParam} ::=
 	SEQUENCE (SIZE (1..maxPrivateIEs)) OF
 	PrivateIE-Field {{IEsSetParam}}
 
