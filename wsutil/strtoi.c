@@ -61,6 +61,7 @@ gboolean ws_strtou64(const gchar* str, guint64* cint)
 		/*
 		 * Unsigned numbers don't have a sign.
 		 */
+		*cint = 0;
 		errno = EINVAL;
 		return FALSE;
 	}
