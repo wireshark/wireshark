@@ -40,7 +40,11 @@ gboolean ws_strtoi64(const gchar* str, gint64* cint)
 		return FALSE;
 	}
 	if ((val == G_MAXINT64 || val == G_MININT64) && errno == ERANGE) {
-		*cint = 0;
+		/*
+		 * Return the value, so our caller knows whether to
+		 * report the value as "too small" or "too large".
+		 */
+		*cint = val;
 		/* errno is already set */
 		return FALSE;
 	}
@@ -68,7 +72,11 @@ gboolean ws_strtou64(const gchar* str, guint64* cint)
 		return FALSE;
 	}
 	if (val == G_MAXUINT64 && errno == ERANGE) {
-		*cint = 0;
+		/*
+		 * Return the value, because ws_strtoi64() does.
+		 */
+		*cint = val;
+		/* errno is already set */
 		return FALSE;
 	}
 	*cint = val;
@@ -80,10 +88,39 @@ gboolean ws_strtoi##bits(const gchar* str, gint##bits* cint) \
 { \
 	gint64 val; \
 	if (!ws_strtoi64(str, &val)) { \
+		/* \
+		 * For ERANGE, return either G_MININT##bits or \
+		 * G_MAXINT##bits so our caller knows whether \
+		 * to report the value as "too small" or "too \
+		 * large". \
+		 * \
+		 * For other errors, return 0, for parallelism \
+		 * with ws_strtoi64(). \
+		 */ \
+		if (errno == ERANGE) { \
+			if (val < 0) \
+				*cint = G_MININT##bits; \
+			else \
+				*cint = G_MAXINT##bits; \
+		} else \
+			*cint = 0; \
 		return FALSE; \
 	} \
-	if (val < G_MININT##bits || val > G_MAXINT##bits) { \
-		*cint = 0; \
+	if (val < G_MININT##bits) { \
+		/* \
+		 * Return G_MININT##bits so our caller knows whether to \
+		 * report the value as "too small" or "too large". \
+		 */ \
+		*cint = G_MININT##bits; \
+		errno = ERANGE; \
+		return FALSE; \
+	} \
+	if (val > G_MAXINT##bits) { \
+		/* \
+		 * Return G_MAXINT##bits so our caller knows whether to \
+		 * report the value as "too small" or "too large". \
+		 */ \
+		*cint = G_MAXINT##bits; \
 		errno = ERANGE; \
 		return FALSE; \
 	} \
@@ -100,10 +137,25 @@ int ws_strtou##bits(const gchar* str, guint##bits* cint) \
 { \
 	guint64 val; \
 	if (!ws_strtou64(str, &val)) { \
+		/* \
+		 * For ERANGE, return G_MAXUINT##bits for parallelism \
+		 * with ws_strtoi##bits(). \
+		 * \
+		 * For other errors, return 0, for parallelism \
+		 * with ws_strtou64(). \
+		 */ \
+		if (errno == ERANGE) \
+			*cint = G_MAXUINT##bits; \
+		else \
+			*cint = 0; \
 		return FALSE; \
 	} \
 	if (val > G_MAXUINT##bits) { \
-		*cint = 0; \
+		/* \
+		 * Return G_MAXUINT##bits for parallelism with \
+		 * ws_strtoi##bits(). \
+		 */ \
+		*cint = G_MAXUINT##bits; \
 		errno = ERANGE; \
 		return FALSE; \
 	} \
