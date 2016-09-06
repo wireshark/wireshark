@@ -1,11 +1,10 @@
 #
-SUBDIRS = macosx rpm svr4 nsis
+SUBDIRS = macosx rpm svr4 nsis wix
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
 
 EXTRA_DIST = \
-	macosx/Info.plist.in			\
 	portableapps/appinfo.tmpl		\
 	portableapps/CMakeLists.txt		\
 	portableapps/help.html			\
