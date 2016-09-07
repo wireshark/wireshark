@@ -49,6 +49,7 @@
 #include <glib.h>
 
 #include <wsutil/crc32.h>
+#include <wsutil/strtoi.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -237,7 +238,7 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
 
   /* number of records to scan before deciding if this really is ERF */
   if ((s = getenv("ERF_RECORDS_TO_CHECK")) != NULL) {
-    if ((n = atoi(s)) >= 0 && n < 101) {
+    if (ws_strtoi32(s, NULL, &n) && n >= 0 && n < 101) {
       records_for_erf_check = n;
     }
   }
