@@ -349,10 +349,36 @@ else()
 		# Many modern compilers use c99 by default, but for older ones
 		# (like GCC 4.4.7), -std=gnu99 is required to avoid errors about
 		# use constructs like "for (int i = 0; i < n; i++) ;"
+		#
+		# Older versions of IBM XL C may require -qlanglvl=extc99.
+		# With V7.0, the "xlc" command defaults to C89; with 10.1,
+		# it defaults to C99 (both with IBM syntax extensions).
+		#
+		# HP's manual for HP C/HP-UX B.11.11.04 (the tenth
+		# edition of the manual), for PA-RISC, "documents
+		# new HP C features that support C99 industry standards".
+		# The manual for Version A.06.25 for Itanium mentions an
+		# -AC99 flag to support C99, but says it's the default;
+		# some older versions might require -AC99.
+		#
+		# As of Sun Studio 8, the compiler appears to default
+		# to supporting some C99 language features, but not
+		# C99 library differences from C89; -xc99 will give
+		# you both.  The earlier Sun Forte Developer 6 update 2
+		# might or might not support thosee C99 language features
+		# by default, and doesn't speak of library differences;
+		# if it doesn't support the language features by default,
+		# -xc99 will support them.
+		#
 		if(CMAKE_C_COMPILER_ID MATCHES "GNU")
 			set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
 		endif()
 	else()
+		#
+		# Current versions of CMake do not support options to
+		# request C99 for XL C, HP C, or Oracle C.  (They may
+		# not be necessary for current versions.)
+		#
 		set(CMAKE_C_STANDARD 99)
 	endif()
 
