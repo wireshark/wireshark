@@ -11,6 +11,7 @@ EXTRA_DIST = \
 	Plugins.wxi		\
 	Prerequisites.wxi	\
 	README			\
+	StringOverrides.wxl	\
 	UserInterface.wxi	\
 	Wireshark.wxs		\
 	WiresharkOptionsDlg.wxs	\

@@ -8,10 +8,13 @@
   <!-- Windows 8 and later supports PNG. Until then we use cave paintings^W^W BMP. -->
   <?define BannerImagePath="$(var.AssetDir)\banner.bmp"?>
   <?define DialogImagePath="$(var.AssetDir)\dialog.bmp"?>
-  <!-- Use the application icon in "Programs and Features" -->
+  <!-- Use the application icon in "Programs and Features"
+       This is apparently stored uncompressed, i.e. we should use a dedicated
+       .ico file instead of pointing to wireshark.exe.
+  -->
   <?define ProgramsFeaturesIconPath="$(var.IconDir)\wireshark.ico"?>
 
-  <Product Id="*" Name="$(var.WiresharkName) $(var.WiresharkVersion)" Language="1033" Version="$(var.WiresharkVersion)" Manufacturer="The Wireshark developer community, http://www.wireshark.org/" UpgradeCode="0d67aace-269a-4264-81a3-da8055c1c79c">
+  <Product Id="*" Name="$(var.WiresharkName)" Language="1033" Version="$(var.WiresharkVersion)" Manufacturer="The Wireshark developer community, http://www.wireshark.org/" UpgradeCode="0d67aace-269a-4264-81a3-da8055c1c79c">
         <Package InstallerVersion="405" Compressed="yes" InstallScope="perMachine" />
     <!-- Values for Additional Tasks -->
     <Property Id="WIRESHARK_START_MENU" Value="1" Secure="yes"/>
@@ -23,7 +26,7 @@
     <Property Id="WIRESHARK_FILE_EXTENSIONS" Value="0"/>
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of $(var.WiresharkName) is already installed." />
-        <MediaTemplate EmbedCab="yes" />
+        <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
 
     <!-- Include the prerequisites, by referencing the placeholder property -->
     <PropertyRef Id="IncludePrerequisites" />
