@@ -158,6 +158,7 @@ Number  S/R  Length    Timer                        MAC Address   MAC Address   
 #include <errno.h>
 
 #include <wsutil/str_util.h>
+#include <wsutil/strtoi.h>
 
 #define ISERIES_LINE_LENGTH           270
 #define ISERIES_HDR_LINES_TO_CHECK    100
@@ -569,6 +570,21 @@ done:
   return out_offset;
 }
 
+/* return the multiplier for nanoseconds */
+static guint32
+csec_multiplier(guint32 csec)
+{
+  if (csec < 10) return 100000000;
+  if (csec < 100) return 10000000;
+  if (csec < 1000) return 1000000;
+  if (csec < 10000) return 100000;
+  if (csec < 100000) return 10000;
+  if (csec < 1000000) return 1000;
+  if (csec < 10000000) return 100;
+  if (csec < 100000000) return 10;
+  return 1;
+}
+
 /* Parses a packet. */
 static gboolean
 iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
@@ -579,7 +595,8 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
   gboolean   isValid, isCurrentPacket;
   int        num_items_scanned, line, pktline, buflen;
   int        pkt_len, pktnum, hr, min, sec;
-  char       direction[2], destmac[13], srcmac[13], type[5], csec[9+1];
+  char       direction[2], destmac[13], srcmac[13], type[5];
+  guint32    csec;
   char       data[ISERIES_LINE_LENGTH * 2];
   int        offset;
   char      *ascii_buf;
@@ -607,9 +624,9 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
       ascii_strup_inplace (data);
       num_items_scanned =
         sscanf (data,
-                "%*[ \n\t]%6d%*[ *\n\t]%1s%*[ \n\t]%6d%*[ \n\t]%2d:%2d:%2d.%9[0-9]%*[ \n\t]"
+                "%*[ \n\t]%6d%*[ *\n\t]%1s%*[ \n\t]%6d%*[ \n\t]%2d:%2d:%2d.%9u%*[ \n\t]"
                 "%12s%*[ \n\t]%12s%*[ \n\t]ETHV2%*[ \n\t]TYPE:%*[ \n\t]%4s",
-                &pktnum, direction, &pkt_len, &hr, &min, &sec, csec, destmac,
+                &pktnum, direction, &pkt_len, &hr, &min, &sec, &csec, destmac,
                 srcmac, type);
       if (num_items_scanned == 10)
         {
@@ -753,40 +770,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
       tm.tm_sec         = sec;
       tm.tm_isdst       = -1;
       phdr->ts.secs = mktime (&tm);
-      csec[sizeof(csec) - 1] = '\0';
-      switch (strlen(csec))
-        {
-          case 0:
-            phdr->ts.nsecs = 0;
-            break;
-          case 1:
-            phdr->ts.nsecs = atoi(csec) * 100000000;
-            break;
-          case 2:
-            phdr->ts.nsecs = atoi(csec) * 10000000;
-            break;
-          case 3:
-            phdr->ts.nsecs = atoi(csec) * 1000000;
-            break;
-          case 4:
-            phdr->ts.nsecs = atoi(csec) * 100000;
-            break;
-          case 5:
-            phdr->ts.nsecs = atoi(csec) * 10000;
-            break;
-          case 6:
-            phdr->ts.nsecs = atoi(csec) * 1000;
-            break;
-          case 7:
-            phdr->ts.nsecs = atoi(csec) * 100;
-            break;
-          case 8:
-            phdr->ts.nsecs = atoi(csec) * 10;
-            break;
-          case 9:
-            phdr->ts.nsecs = atoi(csec);
-            break;
-        }
+      phdr->ts.nsecs = csec * csec_multiplier(csec);
     }
 
   phdr->len                       = pkt_len;
