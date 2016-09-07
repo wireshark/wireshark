@@ -33,10 +33,11 @@
 int
 get_natural_int(const char *string, const char *name)
 {
+  const char *end;
   gint32 number;
 
-  if (!ws_strtoi32(string, &number)) {
-    if (errno == EINVAL) {
+  if (!ws_strtoi32(string, &end, &number)) {
+    if (errno == EINVAL || *end != '\0') {
       cmdarg_err("The specified %s \"%s\" isn't a decimal number", name, string);
       exit(1);
     }

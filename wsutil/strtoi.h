@@ -32,20 +32,22 @@
 /*
  * \brief Convert a string to a signed/unsigned int, with error checks.
  * \param str The string to convert
+ * \param endptr NULL or pointer to a pointer set to point to the
+ * character after the last character of the number
  * \param cint The converted integer
  * \return TRUE if the conversion suceeds, FALSE otherwise.
  * On error, errno is set to EINVAL for unrecognized input and ERANGE
  * if the resulting number does not fit in the type.
  */
-WS_DLL_PUBLIC gboolean ws_strtoi64(const gchar* str, gint64* cint);
-WS_DLL_PUBLIC gboolean ws_strtoi32(const gchar* str, gint32* cint);
-WS_DLL_PUBLIC gboolean ws_strtoi16(const gchar* str, gint16* cint);
-WS_DLL_PUBLIC gboolean ws_strtoi8 (const gchar* str, gint8*  cint);
+WS_DLL_PUBLIC gboolean ws_strtoi64(const gchar* str, const gchar** endptr, gint64* cint);
+WS_DLL_PUBLIC gboolean ws_strtoi32(const gchar* str, const gchar** endptr, gint32* cint);
+WS_DLL_PUBLIC gboolean ws_strtoi16(const gchar* str, const gchar** endptr, gint16* cint);
+WS_DLL_PUBLIC gboolean ws_strtoi8 (const gchar* str, const gchar** endptr, gint8*  cint);
 
-WS_DLL_PUBLIC gboolean ws_strtou64(const gchar* str, guint64* cint);
-WS_DLL_PUBLIC gboolean ws_strtou32(const gchar* str, guint32* cint);
-WS_DLL_PUBLIC gboolean ws_strtou16(const gchar* str, guint16* cint);
-WS_DLL_PUBLIC gboolean ws_strtou8 (const gchar* str, guint8*  cint);
+WS_DLL_PUBLIC gboolean ws_strtou64(const gchar* str, const gchar** endptr, guint64* cint);
+WS_DLL_PUBLIC gboolean ws_strtou32(const gchar* str, const gchar** endptr, guint32* cint);
+WS_DLL_PUBLIC gboolean ws_strtou16(const gchar* str, const gchar** endptr, guint16* cint);
+WS_DLL_PUBLIC gboolean ws_strtou8 (const gchar* str, const gchar** endptr, guint8*  cint);
 
 #endif
 

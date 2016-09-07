@@ -27,15 +27,17 @@
 #include "strtoi.h"
 #include <errno.h>
 
-gboolean ws_strtoi64(const gchar* str, gint64* cint)
+gboolean ws_strtoi64(const gchar* str, const gchar** endptr, gint64* cint)
 {
-	gchar* endptr;
+	gchar* end;
 	gint64 val;
 
 	errno = 0;
-	val = g_ascii_strtoll(str, &endptr, 10);
-	if ((val == 0 && endptr == str) || (*endptr != 0)) {
+	val = g_ascii_strtoll(str, &end, 10);
+	if (val == 0 && end == str) {
 		*cint = 0;
+		if (endptr != NULL)
+			*endptr = end;
 		errno = EINVAL;
 		return FALSE;
 	}
@@ -45,16 +47,20 @@ gboolean ws_strtoi64(const gchar* str, gint64* cint)
 		 * report the value as "too small" or "too large".
 		 */
 		*cint = val;
+		if (endptr != NULL)
+			*endptr = end;
 		/* errno is already set */
 		return FALSE;
 	}
+	if (endptr != NULL)
+		*endptr = end;
 	*cint = val;
 	return TRUE;
 }
 
-gboolean ws_strtou64(const gchar* str, guint64* cint)
+gboolean ws_strtou64(const gchar* str, const gchar** endptr, guint64* cint)
 {
-	gchar* endptr;
+	gchar* end;
 	guint64 val;
 
 	if (str[0] == '-' || str[0] == '+') {
@@ -62,13 +68,17 @@ gboolean ws_strtou64(const gchar* str, guint64* cint)
 		 * Unsigned numbers don't have a sign.
 		 */
 		*cint = 0;
+		if (endptr != NULL)
+			*endptr = str;
 		errno = EINVAL;
 		return FALSE;
 	}
 	errno = 0;
-	val = g_ascii_strtoull(str, &endptr, 10);
-	if ((val == 0 && endptr == str) || (*endptr != 0)) {
+	val = g_ascii_strtoull(str, &end, 10);
+	if (val == 0 && end == str) {
 		*cint = 0;
+		if (endptr != NULL)
+			*endptr = end;
 		errno = EINVAL;
 		return FALSE;
 	}
@@ -77,18 +87,22 @@ gboolean ws_strtou64(const gchar* str, guint64* cint)
 		 * Return the value, because ws_strtoi64() does.
 		 */
 		*cint = val;
+		if (endptr != NULL)
+			*endptr = end;
 		/* errno is already set */
 		return FALSE;
 	}
+	if (endptr != NULL)
+		*endptr = end;
 	*cint = val;
 	return TRUE;
 }
 
 #define DEFINE_WS_STRTOI_BITS(bits) \
-gboolean ws_strtoi##bits(const gchar* str, gint##bits* cint) \
+gboolean ws_strtoi##bits(const gchar* str, const gchar** endptr, gint##bits* cint) \
 { \
 	gint64 val; \
-	if (!ws_strtoi64(str, &val)) { \
+	if (!ws_strtoi64(str, endptr, &val)) { \
 		/* \
 		 * For ERANGE, return either G_MININT##bits or \
 		 * G_MAXINT##bits so our caller knows whether \
@@ -134,10 +148,10 @@ DEFINE_WS_STRTOI_BITS(16)
 DEFINE_WS_STRTOI_BITS(8)
 
 #define DEFINE_WS_STRTOU_BITS(bits) \
-int ws_strtou##bits(const gchar* str, guint##bits* cint) \
+int ws_strtou##bits(const gchar* str, const gchar** endptr, guint##bits* cint) \
 { \
 	guint64 val; \
-	if (!ws_strtou64(str, &val)) { \
+	if (!ws_strtou64(str, endptr, &val)) { \
 		/* \
 		 * For ERANGE, return G_MAXUINT##bits for parallelism \
 		 * with ws_strtoi##bits(). \

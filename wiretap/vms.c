@@ -328,6 +328,7 @@ parse_vms_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gch
     struct tm tm;
     char mon[4] = {'J', 'A', 'N', 0};
     gchar  *p;
+    const gchar *endp;
     static const gchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
     guint32 i;
     int     offset = 0;
@@ -388,7 +389,7 @@ parse_vms_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gch
                 return FALSE;
             }
 
-            if (!ws_strtou32(p, &pkt_len)) {
+            if (!ws_strtou32(p, &endp, &pkt_len) || (*endp != '\0' && !g_ascii_isspace(*endp))) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("vms: Length field '%s' not valid", p);
                 return FALSE;
