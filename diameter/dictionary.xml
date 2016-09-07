@@ -6245,6 +6245,12 @@ UTRAN-Additional-Positioning-Data 2558 7.4.63 OctetString V M No
 		<!--
 		Note: The AVP codes from 2607 to 2699 are reserved for TS 32.299
 		-->
+		<avp name="TWAN-User-Location-Info" code="2714" mandatory="must" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="SSID"/>
+				<gavp name="BSSID"/>
+			</grouped>
+		</avp>
 		<avp name="BSSID" code="2716" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
