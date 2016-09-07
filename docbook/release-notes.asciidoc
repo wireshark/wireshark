@@ -17,169 +17,38 @@ used for troubleshooting, analysis, development and education.
 //* cve-idlink:2014-2486[]
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
 
-* Upgrading to latest version uninstalls Microsoft Visual C++ redistributable. (ws-buglink:12712[])
-
-* Extcap errors not reported back to UI. (ws-buglink:11892[])
-
 === New and Updated Features
 
-The following features are new (or have been significantly updated)
-since version 2.2.0rc2:
-
-* No major changes since 2.2.0rc2.
-
-The following features are new (or have been significantly updated)
-since version 2.2.0rc1:
-
-"Decode As" supports SSL (TLS) over TCP.
-
-The following features are new (or have been significantly updated)
-since version 2.1.1:
-
-* Invalid coloring rules are now disabled instead of discarded. This will
-  provide backward compatibility with a coloring rule change in Wireshark 2.2.
-
-The following features are new (or have been significantly updated)
-since version 2.1.0:
-
-* Added -d option for Decode As support in Wireshark (mimics TShark
-  functionality)
-* The Qt UI, GTK+ UI, and TShark can now export packets as JSON.
-  TShark can additionally export packets as Elasticsearch-compatible
-  JSON.
-* The Qt UI now supports the -j, -J, and -l flags. The -m flag is now
-  deprecated.
-* The Conversations and Endpoints dialogs are more responsive when
-  viewing large numbers of items.
-* The RTP player now allows up to 30 minutes of silence frames.
-* Packet bytes can now be displayed as EBCDIC.
-* The Qt UI loads captures faster on Windows.
-* proto_tree_add_checksum was added as an API.  This attempts to
-  standardize how checksums are reported and filtered for within
-  *Shark.  There are no more individual "good" and "bad" filter
-  fields, protocols now have a "checksum.status" field that records
-  "Good", "Bad" and "Unverified" (neither good or bad). Color filters
-  provided with Wireshark have been adjusted to the new display filter
-  names, but custom ones may need to be updated.
-
-The following features are new (or have been significantly updated)
-since version 2.0.0:
-
-* The intelligent scroll bar now sits to the left of a normal scroll bar and
-  provides a clickable map of nearby packets.
-* You can now switch between between Capture and File Format dissection of
-the current capture file via the View menu in the Qt GUI.
-* You can now show selected packet bytes as ASCII, HTML, Image, ISO 8859-1, Raw, UTF-8,
-a C array, or YAML.
-* You can now use regular expressions in Find Packet and in the advanced preferences.
-* Name resolution for packet capture now supports asynchronous DNS lookups only. Therefore the
-"concurrent DNS resolution" preference has been deprecated and is a no-op. To enable DNS name
-resolution some build dependencies must be present (currently c-ares). If that is not the case DNS
-name resolution will be disabled (but other name resolution mechanisms, such as host files,
-are still available).
-* The byte under the mouse in the Packet Bytes pane is now highlighted.
-* TShark supports exporting PDUs via the `-U` flag.
-* The Windows and OS X installers now come with the "sshdump" and "ciscodump" extcap interfaces.
-* Most dialogs in the Qt UI now save their size and positions.
-* The Follow Stream dialog now supports UTF-16.
-* The Firewall ACL Rules dialog has returned.
-* The Flow (Sequence) Analysis dialog has been improved.
-* We no longer provide packages for 32-bit versions of OS X.
-* The Bluetooth Device details dialog has been added.
+There are no new features in this release.
 
 //=== Removed Dissectors
 
 === New File Format Decoding Support
 
-Wireshark is able to display the format of some types of files (rather than
-displaying the contents of those files). This is useful when you're curious
-about, or debugging, a file and its format.  To open a capture file (such as
-PCAP) in this mode specify "MIME Files Format" as the file's format in the
-Open File dialog.
-
-//New files that Wireshark can open in this mode include:
-
-//_Non-empty section placeholder._
---sort-and-group--
---sort-and-group--
+There are no new file formats in this release.
 
 === New Protocol Support
 
-// Add one protocol per line between the --sort-and-group-- delimiters.
---sort-and-group--
-Apache Cassandra - CQL version 3.0
-Bachmann bluecom Protocol
-Bluetooth Pseudoheader for BR/EDR
-Cisco ERSPAN3 Marker
-Cisco ttag
-Digital Equipment Corporation Local Area Transport
-Distributed Object Framework
-DOCSIS Upstream Channel Descriptor Type 35
-Edge Control Protocol (ECP)
-Encrypted UDP based FTP with multicast
-Ericsson IPOS Kernel Packet Header (IPOS)
-Extensible Control & Management Protocol (eCMP)
-FLEXRAY Protocol (automotive bus)
-IEEE 802.1BR E-Tag
-Intel Omni-Path Architecture
-ISO 8583-1
-ISO14443
-ITU-T G.7041/Y.1303 Generic Framing Procedure (GFP)
-LAT protocol (DECNET)
-Metamako trailers
-Network-Based IP Flow Mobility (NBIFOM)
-Network Service Header for Ethernet & GRE
-Nokia Intelligent Service Interface (ISI)
-Open Mobile Alliance Lightweight Machine to Machine TLV (LwM2M TLV)
-RTI TCP Transport Layer (RTITCP)
-Real Time Location System (RTLS)
-SMB Witness Service
-STANAG 5602 SIMPLE
-Standard Interface for Multiple Platform Link Evaluation (SIMPLE)
-USB3 Vision Protocol (USB machine vision cameras)
-USBIP Protocol
-UserLog Protocol
-Zigbee Protocol Clusters (Closures, Lighting, General, Measurement & Sensing, HVAC, Security & Safety)
---sort-and-group--
+There are no new protocols in this release.
 
 === Updated Protocol Support
 
-Bluetooth OBEX dissector (btobex) was renamed to Obex Dissector (obex), which allows
-it to be used with "Decode As" over USB, TCP and UDP.
-
-A preference was added to TCP dissector for handling IPFIX process
-information.  It has been disabled by default.
-
-//Too many protocols have been updated to list here.
+--sort-and-group--
+--sort-and-group--
 
 === New and Updated Capture File Support
 
-//_Non-empty section placeholder._
-// Add one file type per line between the --sort-and-group-- delimiters.
+//There is no new or updated capture file support in this release.
 --sort-and-group--
-Micropross mplog
 --sort-and-group--
 
 === New and Updated Capture Interfaces support
 
-_Non-empty section placeholder._
---sort-and-group--
---sort-and-group--
+There are no new or updated capture interfaces supported in this release.
 
 === Major API Changes
 
-The libwireshark API has undergone some major changes:
-
-* The address macros (e.g., SET_ADDRESS) have been removed.  Use the
-(lower case) functions of the same names instead.
-
-* "old style" dissector functions (that don't return number of bytes
-used) have been replaced in name with the "new style" dissector
-functions.
-
-* tvb_get_string and tvb_get_stringz have been replaced with
-tvb_get_string_enc and tvb_get_stringz_enc respectively.
-
+There are no major API changes in this release.
 
 == Getting Wireshark
 
