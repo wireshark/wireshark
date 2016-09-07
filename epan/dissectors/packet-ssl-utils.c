@@ -5304,7 +5304,7 @@ ssl_dissect_hnd_hello_ext_sig_hash_algs(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 static gint
 ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                proto_tree *tree, guint32 offset, guint32 ext_len,
-                               gboolean is_client, SslSession *session)
+                               guint8 hnd_type, SslSession *session)
 {
     guint16 alpn_length;
     guint8 name_length;
@@ -5326,7 +5326,7 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     /* If ALPN is given in ServerHello, then ProtocolNameList MUST contain
      * exactly one "ProtocolName". */
-    if (!is_client) {
+    if (hnd_type == SSL_HND_SERVER_HELLO) {
         guint8 *proto_name;
         size_t i;
 
@@ -5498,9 +5498,9 @@ ssl_dissect_hnd_hello_ext_padding(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
 static gint
 ssl_dissect_hnd_hello_ext_session_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                                      proto_tree *tree, guint32 offset, guint32 ext_len, gboolean is_client, SslDecryptSession *ssl)
+                                      proto_tree *tree, guint32 offset, guint32 ext_len, guint8 hnd_type, SslDecryptSession *ssl)
 {
-    if (is_client && ssl && ext_len != 0) {
+    if (hnd_type == SSL_HND_CLIENT_HELLO && ssl && ext_len != 0) {
         tvb_ensure_bytes_exist(tvb, offset, ext_len);
         /* Save the Session Ticket such that it can be used as identifier for
          * restoring a previous Master Secret (in ChangeCipherSpec) */
@@ -5519,14 +5519,15 @@ ssl_dissect_hnd_hello_ext_session_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb
 static gint
 ssl_dissect_hnd_hello_ext_cert_type(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                     proto_tree *tree, guint32 offset, guint32 ext_len,
-                                    gboolean is_client, guint16 ext_type, SslSession *session)
+                                    guint8 hnd_type, guint16 ext_type, SslSession *session)
 {
     guint8      cert_list_length;
     guint8      cert_type;
     proto_tree *cert_list_tree;
     proto_item *ti;
 
-    if (is_client) {
+    switch(hnd_type){
+    case SSL_HND_CLIENT_HELLO:
         cert_list_length = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf->hf.hs_ext_cert_types_len,
                             tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5548,7 +5549,8 @@ ssl_dissect_hnd_hello_ext_cert_type(ssl_common_dissect_t *hf, tvbuff_t *tvb,
             offset++;
             cert_list_length--;
         }
-    } else {
+    break;
+    case SSL_HND_SERVER_HELLO:
         cert_type = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf->hf.hs_ext_cert_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -5556,8 +5558,11 @@ ssl_dissect_hnd_hello_ext_cert_type(ssl_common_dissect_t *hf, tvbuff_t *tvb,
             session->client_cert_type = cert_type;
         }
         if (ext_type == SSL_HND_HELLO_EXT_CERT_TYPE || ext_type == SSL_HND_HELLO_EXT_SERVER_CERT_TYPE) {
-            session->server_cert_type = cert_type;
+           session->server_cert_type = cert_type;
         }
+    break;
+    default: /* no default */
+    break;
     }
 
     return offset;
@@ -5884,7 +5889,7 @@ ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
 /* Client Hello and Server Hello dissections. {{{ */
 static gint
 ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                          packet_info* pinfo, guint32 offset, guint32 left, gboolean is_client,
+                          packet_info* pinfo, guint32 offset, guint32 left, guint8 hnd_type,
                           SslSession *session, SslDecryptSession *ssl);
 void
 ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
@@ -5999,7 +6004,7 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     }
     if (length > offset - start_offset) {
         ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
-                                  length - (offset - start_offset), TRUE,
+                                  length - (offset - start_offset), SSL_HND_CLIENT_HELLO,
                                   session, ssl);
     }
 }
@@ -6080,7 +6085,7 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     /* remaining data are extensions */
     if (length > offset - start_offset) {
         ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
-                                  length - (offset - start_offset), FALSE,
+                                  length - (offset - start_offset), SSL_HND_SERVER_HELLO,
                                   session, ssl);
     }
 }
@@ -6497,7 +6502,7 @@ ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tr
 /* Client Hello and Server Hello TLS extensions dissection. {{{ */
 static gint
 ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                          packet_info* pinfo, guint32 offset, guint32 left, gboolean is_client,
+                          packet_info* pinfo, guint32 offset, guint32 left, guint8 hnd_type,
                           SslSession *session, SslDecryptSession *ssl)
 {
     guint16     extension_length;
@@ -6534,13 +6539,13 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
 
         switch (ext_type) {
         case SSL_HND_HELLO_EXT_STATUS_REQUEST:
-            if (is_client)
+            if (hnd_type == SSL_HND_CLIENT_HELLO)
                 offset = ssl_dissect_hnd_hello_ext_status_request(hf, tvb, ext_tree, offset, FALSE);
             else
                 offset += ext_len; /* server must return empty extension_data */
             break;
         case SSL_HND_HELLO_EXT_STATUS_REQUEST_V2:
-            if (is_client)
+            if (hnd_type == SSL_HND_CLIENT_HELLO)
                 offset = ssl_dissect_hnd_hello_ext_status_request_v2(hf, tvb, ext_tree, offset);
             else
                 offset += ext_len; /* server must return empty extension_data */
@@ -6555,7 +6560,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_sig_hash_algs(hf, tvb, ext_tree, pinfo, offset, ext_len);
             break;
         case SSL_HND_HELLO_EXT_ALPN:
-            offset = ssl_dissect_hnd_hello_ext_alpn(hf, tvb, ext_tree, offset, ext_len, is_client, session);
+            offset = ssl_dissect_hnd_hello_ext_alpn(hf, tvb, ext_tree, offset, ext_len, hnd_type, session);
             break;
         case SSL_HND_HELLO_EXT_NPN:
             offset = ssl_dissect_hnd_hello_ext_npn(hf, tvb, ext_tree, offset, ext_len);
@@ -6580,19 +6585,29 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_padding(hf, tvb, ext_tree, offset, ext_len);
             break;
         case SSL_HND_HELLO_EXT_SESSION_TICKET:
-            offset = ssl_dissect_hnd_hello_ext_session_ticket(hf, tvb, ext_tree, offset, ext_len, is_client, ssl);
+            offset = ssl_dissect_hnd_hello_ext_session_ticket(hf, tvb, ext_tree, offset, ext_len, hnd_type, ssl);
             break;
         case SSL_HND_HELLO_EXT_CERT_TYPE:
         case SSL_HND_HELLO_EXT_SERVER_CERT_TYPE:
         case SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE:
             offset = ssl_dissect_hnd_hello_ext_cert_type(hf, tvb, ext_tree,
                                                          offset, ext_len,
-                                                         is_client, ext_type,
+                                                         hnd_type, ext_type,
                                                          session);
             break;
         case SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET_TYPE:
-            if (ssl)
-                ssl->state |= (is_client ? SSL_CLIENT_EXTENDED_MASTER_SECRET : SSL_SERVER_EXTENDED_MASTER_SECRET);
+            if (ssl){
+                switch(hnd_type){
+                    case SSL_HND_CLIENT_HELLO:
+                        ssl->state |= SSL_CLIENT_EXTENDED_MASTER_SECRET;
+                    break;
+                    case SSL_HND_SERVER_HELLO:
+                        ssl->state |= SSL_SERVER_EXTENDED_MASTER_SECRET;
+                    break;
+                    default: /* no default */
+                    break;
+                }
+            }
             break;
         default:
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_data,
