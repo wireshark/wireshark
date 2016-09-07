@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <wsutil/strtoi.h>
 
 /*
    Example downlink data:
@@ -147,7 +148,8 @@ xml_get_int(int *val, const char *str, const char *pattern)
 
 	memcpy(buf, start, end - start);
 	buf[end - start] = '\0';
-	*val = atoi(buf);
+	if (!ws_strtoi32(buf, NULL, val))
+		return -5;
 	return 0;
 }
 
