@@ -1349,7 +1349,7 @@ static const value_string message_types[] = {
 
 static const value_string nbss_error_codes[] = {
     { 0x80, "Not listening on called name" },
-    { 0x81, "Not listening for called name" },
+    { 0x81, "Not listening for calling name" },
     { 0x82, "Called name not present" },
     { 0x83, "Called name present, but insufficient resources" },
     { 0x8F, "Unspecified error" },
