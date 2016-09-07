@@ -127,7 +127,7 @@ dissect_m3ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_tree      *m3ap_tree = NULL;
 
   /* make entry in the Protocol column on summary display */
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
   /* create the m3ap protocol tree */
   if (tree) {
