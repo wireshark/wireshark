@@ -1,8 +1,6 @@
 = Wireshark {wireshark-version} Release Notes
 // AsciiDoc quick reference: http://powerman.name/doc/asciidoc
 
-This is the third release candidate for Wireshark 2.2.0.
-
 == What is Wireshark?
 
 Wireshark is the world's most popular network protocol analyzer. It is
@@ -24,6 +22,11 @@ used for troubleshooting, analysis, development and education.
 * Extcap errors not reported back to UI. (ws-buglink:11892[])
 
 === New and Updated Features
+
+The following features are new (or have been significantly updated)
+since version 2.2.0rc2:
+
+* No major changes since 2.2.0rc2.
 
 The following features are new (or have been significantly updated)
 since version 2.2.0rc1:
