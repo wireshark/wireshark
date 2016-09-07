@@ -27,7 +27,11 @@ used for troubleshooting, analysis, development and education.
 The following features are new (or have been significantly updated)
 since version 2.2.0:
 
-* ...
+* Experimental 32-bit and 64-bit Windows Installer (.msi) packages are available.
+  It is recommended that you use these independently of the NSIS (.exe) installers.
+  That is, you should make sure the NSIS package is completely uninstalled before
+  installing the Windows Installer package and vice-versa.
+* Source packages are now compressed using xz instead of bzip2.
 
 //=== Removed Dissectors
 
@@ -47,7 +51,6 @@ SCTE-35 Digital Program Insertion Messages
 Windows Cluster Management API (clusapi)
 RFTap Protocol
 M2 Application Protocol
-
 --sort-and-group--
 
 === Updated Protocol Support
