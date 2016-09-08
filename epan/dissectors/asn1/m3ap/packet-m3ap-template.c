@@ -61,7 +61,7 @@ static int hf_m3ap_IPAddress_v6 = -1;
 
 /* Initialize the subtree pointers */
 static int ett_m3ap = -1;
-
+static int ett_m3ap_IPAddress = -1;
 #include "packet-m3ap-ett.c"
 
 static expert_field ei_m3ap_invalid_ip_address_len = EI_INIT;
@@ -164,7 +164,8 @@ void proto_register_m3ap(void) {
 
   /* List of subtrees */
   static gint *ett[] = {
-                  &ett_m3ap,
+    &ett_m3ap,
+    &ett_m3ap_IPAddress,
 #include "packet-m3ap-ettarr.c"
   };
 
