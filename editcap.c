@@ -286,10 +286,7 @@ add_selection(char *sel, guint* max_selection)
             fprintf(stderr, "Not inclusive ...");
 
         selectfrm[max_selected].inclusive = FALSE;
-        if (!ws_strtou32(sel, NULL, &selectfrm[max_selected].first)) {
-            fprintf(stderr, "editcap: invalid integer conversion: %s\n", sel);
-            return FALSE;
-        }
+        selectfrm[max_selected].first = get_guint32(sel, "packet number");
         if (selectfrm[max_selected].first > *max_selection)
             *max_selection = selectfrm[max_selected].first;
 
@@ -301,14 +298,8 @@ add_selection(char *sel, guint* max_selection)
 
         next = locn + 1;
         selectfrm[max_selected].inclusive = TRUE;
-        if (!ws_strtou32(sel, NULL, &selectfrm[max_selected].first)) {
-            fprintf(stderr, "editcap: invalid integer conversion: %s\n", sel);
-            return FALSE;
-        }
-        if (!ws_strtou32(next, NULL, &selectfrm[max_selected].first)) {
-            fprintf(stderr, "editcap: invalid integer conversion: %s\n", sel);
-            return FALSE;
-        }
+        selectfrm[max_selected].first = get_guint32(sel, "beginning of packet range");
+        selectfrm[max_selected].second = get_guint32(sel, "end of packet range");
 
         if (selectfrm[max_selected].second == 0)
         {
@@ -1113,11 +1104,7 @@ main(int argc, char *argv[])
         }
 
         case 'c':
-            if (!ws_strtou32(optarg, NULL, &split_packet_count) || split_packet_count == 0) {
-                fprintf(stderr, "editcap: \"%s\" isn't a valid packet count\n",
-                        optarg);
-                exit(1);
-            }
+            split_packet_count = get_nonzero_guint32(optarg, "packet count");
             break;
 
         case 'C':
@@ -1165,7 +1152,8 @@ main(int argc, char *argv[])
         case 'D':
             dup_detect = TRUE;
             dup_detect_by_time = FALSE;
-            if (!ws_strtou32(optarg, NULL, &dup_window) || dup_window > MAX_DUP_DEPTH) {
+            dup_window = get_guint32(optarg, "duplicate window");
+            if (dup_window > MAX_DUP_DEPTH) {
                 fprintf(stderr, "editcap: \"%d\" duplicate window value must be between 0 and %d inclusive.\n",
                         dup_window, MAX_DUP_DEPTH);
                 exit(1);
@@ -1214,10 +1202,7 @@ main(int argc, char *argv[])
             break;
 
         case 'o':
-            if (!ws_strtou32(optarg, NULL, &change_offset) || change_offset == 0) {
-                fprintf(stderr, "editcap: invalid offset %s\n", optarg);
-                exit(1);
-            }
+            change_offset = get_nonzero_guint32(optarg, "change offset");
             break;
 
         case 'r':
@@ -1225,11 +1210,7 @@ main(int argc, char *argv[])
             break;
 
         case 's':
-            if (!ws_strtou32(optarg, NULL, &snaplen)) {
-                fprintf(stderr, "editcap: \"%s\" isn't a valid snapshot length\n",
-                        optarg);
-                exit(1);
-            }
+            snaplen = get_nonzero_guint32(optarg, "snapshot length");
             break;
 
         case 'S':
@@ -1413,7 +1394,7 @@ main(int argc, char *argv[])
                 if (nstime_is_unset(&block_start)) {
                     block_start = phdr->ts;
                 }
-                if (secs_per_block > 0) {
+                if (secs_per_block != 0) {
                     while ((phdr->ts.secs - block_start.secs >  secs_per_block)
                            || (phdr->ts.secs - block_start.secs == secs_per_block
                                && phdr->ts.nsecs >= block_start.nsecs )) { /* time for the next file */
@@ -1444,9 +1425,9 @@ main(int argc, char *argv[])
                 }
             }  /* time stamp handling */
 
-            if (split_packet_count > 0) {
+            if (split_packet_count != 0) {
                 /* time for the next file? */
-                if (written_count > 0 && written_count % split_packet_count == 0) {
+                if (written_count > 0 && (written_count % split_packet_count) == 0) {
                     if (!wtap_dump_close(pdh, &write_err)) {
                         fprintf(stderr, "editcap: Error writing to %s: %s\n",
                                 filename, wtap_strerror(write_err));

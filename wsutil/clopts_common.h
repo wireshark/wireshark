@@ -35,6 +35,12 @@ get_natural_int(const char *string, const char *name);
 WS_DLL_PUBLIC int
 get_positive_int(const char *string, const char *name);
 
+WS_DLL_PUBLIC guint32
+get_guint32(const char *string, const char *name);
+
+WS_DLL_PUBLIC guint32
+get_nonzero_guint32(const char *string, const char *name);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
