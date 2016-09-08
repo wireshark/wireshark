@@ -1215,7 +1215,7 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         offset++;
 
         proto_tree_add_item(canopen_type_tree,
-            hf_canopen_em_err_field, tvb, offset, 4, ENC_NA);
+            hf_canopen_em_err_field, tvb, offset, 5, ENC_NA);
         break;
     case MT_PDO:
         if (can_data_len != 0) {
@@ -1386,12 +1386,12 @@ proto_register_canopen(void)
             NULL, HFILL }
         },
         { &hf_canopen_em_err_reg_ma,
-          { "Manufacturer specfic", "canopen.em.err_reg_ma",
+          { "Manufacturer specific", "canopen.em.err_reg_ma",
             FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
         { &hf_canopen_em_err_field,
-          { "Manufacture specific error field", "canopen.em.err_field",
+          { "Manufacturer specific error field", "canopen.em.err_field",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
