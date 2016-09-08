@@ -2235,6 +2235,7 @@ dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             default: /* just use the data dissector */
                 if (pie_length > 0) {
                     proto_tree_add_item(subtree, hf_ieee802154_payload_ie_data, tvb, offset, pie_length, ENC_NA);
+                    offset += pie_length;
                 }
         }
     } while ((tvb_reported_length_remaining(tvb, offset) - IEEE802154_FCS_LEN > 1) && (pie_id != IEEE802154_PAYLOAD_IE_GID_TERM));
