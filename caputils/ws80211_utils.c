@@ -1221,7 +1221,7 @@ int ws80211_get_iface_info(const char *name _U_, struct ws80211_iface_info *ifac
 	return -1;
 }
 
-int ws80211_set_freq(const char *name _U_, int freq _U_, int _U_ chan_type, int _U_ center_freq, int _U_ center_freq2)
+int ws80211_set_freq(const char *name _U_, guint32 freq _U_, int _U_ chan_type, guint32 _U_ center_freq, guint32 _U_ center_freq2)
 {
 	return -1;
 }
