@@ -55,6 +55,7 @@ static int hf_m2ap_IPAddress_v6 = -1;
 /* Initialize the subtree pointers */
 static int ett_m2ap = -1;
 static int ett_m2ap_PLMN_Identity = -1;
+static int ett_m2ap_IPAddress = -1;
 #include "packet-m2ap-ett.c"
 
 static expert_field ei_m2ap_invalid_ip_address_len = EI_INIT;
@@ -155,6 +156,7 @@ proto_register_m2ap(void) {
   static gint *ett[] = {
     &ett_m2ap,
     &ett_m2ap_PLMN_Identity,
+    &ett_m2ap_IPAddress,
 #include "packet-m2ap-ettarr.c"
   };
 

@@ -72,7 +72,7 @@ ProtocolIE-Field/value ie_field_value
   message_type = UNSUCCESSFUL_OUTCOME;
 
 #.FN_BODY PLMN-Identity  VAL_PTR = &parameter_tvb
-  tvbuff_t *parameter_tvb=NULL;
+  tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_m2ap_PLMN_Identity);
@@ -81,20 +81,21 @@ ProtocolIE-Field/value ie_field_value
 #.END
 
 #.FN_BODY IPAddress VAL_PTR = &parameter_tvb
-  tvbuff_t *parameter_tvb=NULL;
+  tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     gint tvb_len = tvb_reported_length(parameter_tvb);
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_m2ap_IPAddress);
 
     switch (tvb_len) {
       case 4:
-        proto_tree_add_item(tree, hf_m2ap_IPAddress_v4, parameter_tvb, 0, tvb_len, ENC_NA);
+        proto_tree_add_item(subtree, hf_m2ap_IPAddress_v4, parameter_tvb, 0, tvb_len, ENC_NA);
         break;
       case 6:
-        proto_tree_add_item(tree, hf_m2ap_IPAddress_v6, parameter_tvb, 0, tvb_len, ENC_NA);
+        proto_tree_add_item(subtree, hf_m2ap_IPAddress_v6, parameter_tvb, 0, tvb_len, ENC_NA);
         break;
       default:
-        proto_tree_add_expert(tree, actx->pinfo, &ei_m2ap_invalid_ip_address_len, parameter_tvb, 0, tvb_len);
+        proto_tree_add_expert(subtree, actx->pinfo, &ei_m2ap_invalid_ip_address_len, parameter_tvb, 0, tvb_len);
         break;
       }
     }
