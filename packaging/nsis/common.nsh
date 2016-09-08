@@ -15,7 +15,7 @@
 !define BITS 64
 !endif
 
-!define DISPLAY_NAME "${PROGRAM_NAME} ${VERSION} (${BITS}-bit)"
+!define DISPLAY_NAME "${PROGRAM_NAME} ${VERSION} ${BITS}-bit"
 Name "${DISPLAY_NAME}"
 
 !define PROGRAM_NAME_QT "${PROGRAM_NAME}"
