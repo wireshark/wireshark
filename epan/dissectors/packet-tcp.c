@@ -5685,6 +5685,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
             /* Compute the sequence number of next octet after this segment. */
             nxtseq = tcph->th_seq + tcph->th_seglen;
+            if ((tcph->th_flags&(TH_SYN|TH_FIN)) && (tcph->th_seglen > 0)) {
+                nxtseq += 1;
+            }
         }
     } else
         tcph->th_have_seglen = FALSE;
@@ -6195,6 +6198,14 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              */
             proto_tree_add_item(tcp_tree, hf_tcp_reset_cause, tvb, offset, captured_length_remaining, ENC_NA|ENC_ASCII);
         } else {
+            /*
+             * XXX - dissect_tcp_payload() expects the payload length, however
+             * SYN and FIN increments the nxtseq by one without having
+             * the data.
+             */
+            if ((tcph->th_flags&(TH_FIN|TH_SYN)) && (tcph->th_seglen > 0)) {
+                nxtseq -= 1;
+            }
             dissect_tcp_payload(tvb, pinfo, offset, tcph->th_seq, nxtseq,
                                 tcph->th_sport, tcph->th_dport, tree, tcp_tree, tcpd, &tcpinfo);
         }
