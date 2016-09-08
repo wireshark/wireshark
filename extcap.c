@@ -65,7 +65,7 @@ static HANDLE pipe_h = NULL;
 #endif
 
 #define EXTCAP_PREF_SIZE 256
-static void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data);
+static void extcap_child_watch_cb(GPid pid, gint status, gpointer user_data);
 
 /* internal container, for all the extcap interfaces that have been found.
  * will be resetted by every call to extcap_interface_list() and is being
@@ -841,7 +841,7 @@ extcap_add_arg_and_remove_cb(gpointer key, gpointer value, gpointer data) {
     return FALSE;
 }
 
-void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
+void extcap_child_watch_cb(GPid pid, gint status, gpointer user_data)
 {
     guint i;
     interface_options interface_opts;
