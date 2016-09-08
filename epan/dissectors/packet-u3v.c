@@ -1793,7 +1793,7 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         if (!PINFO_FD_VISITED(pinfo)) {
               if ((command_id % 2) == 0) {
                     /* This is a command */
-                    gencp_trans = wmem_new(wmem_file_scope(), gencp_transaction_t);
+                    gencp_trans = wmem_new0(wmem_file_scope(), gencp_transaction_t);
                     gencp_trans->cmd_frame = pinfo->fd->num;
                     gencp_trans->ack_frame = 0;
                     gencp_trans->cmd_time = pinfo->fd->abs_ts;
@@ -1815,7 +1815,7 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         if (!gencp_trans) {
             /* create a "fake" gencp_trans structure */
-            gencp_trans = wmem_new(wmem_packet_scope(), gencp_transaction_t);
+            gencp_trans = wmem_new0(wmem_packet_scope(), gencp_transaction_t);
             gencp_trans->cmd_frame = 0;
             gencp_trans->ack_frame = 0;
             gencp_trans->cmd_time = pinfo->fd->abs_ts;
