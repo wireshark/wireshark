@@ -105,7 +105,7 @@ dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
 
     /* limit the allocation to a reasonable size */
     if(u32ArraySize < 100) {
-        call = (remunk_remqueryinterface_call_t *)wmem_alloc(wmem_file_scope(), sizeof(remunk_remqueryinterface_call_t) + u32ArraySize * sizeof(e_guid_t));
+        call = (remunk_remqueryinterface_call_t *)wmem_alloc0(wmem_file_scope(), sizeof(remunk_remqueryinterface_call_t) + u32ArraySize * sizeof(e_guid_t));
         call->iid_count = u32ArraySize;
         call->iids = (e_guid_t *) (call+1);
         di->call_data->private_data = call;
