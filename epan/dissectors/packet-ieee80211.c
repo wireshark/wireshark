@@ -17581,10 +17581,15 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         qos_ti = proto_tree_add_item(qos_tree, hf_ieee80211_qos_priority, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
         PROTO_ITEM_SET_GENERATED(qos_ti);
 
-        if (flags & FLAG_TO_DS) {
-          proto_tree_add_item(qos_tree, hf_ieee80211_qos_bit4, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
-        } else {
+        if (FLAGS_DS_STATUS(flags)) {
+          /* mesh frame */
           proto_tree_add_item(qos_tree, hf_ieee80211_qos_eosp, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
+        } else {
+          if (flags & FLAG_TO_DS) {
+            proto_tree_add_item(qos_tree, hf_ieee80211_qos_bit4, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
+          } else {
+            proto_tree_add_item(qos_tree, hf_ieee80211_qos_eosp, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
+          }
         }
 
         proto_tree_add_item(qos_tree, hf_ieee80211_qos_ack_policy, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
