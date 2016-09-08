@@ -119,11 +119,14 @@ extcap_if_executable(const gchar *ifname)
     return interface != NULL ? interface->extcap_path : NULL;
 }
 
-static void
+static gboolean
 extcap_if_add(extcap_interface * interface)
 {
-    if (!g_hash_table_lookup(ifaces, interface->call))
-        g_hash_table_insert(ifaces, g_strdup(interface->call), interface);
+    if (g_hash_table_lookup(ifaces, interface->call))
+        return FALSE;
+
+    g_hash_table_insert(ifaces, g_strdup(interface->call), interface);
+    return TRUE;
 }
 
 static void
@@ -202,6 +205,12 @@ static void extcap_free_dlt(gpointer d, gpointer user_data _U_) {
 
     g_free(((extcap_dlt *)d)->name);
     g_free(((extcap_dlt *)d)->display);
+    g_free(d);
+}
+
+static void extcap_free_dlts(GList * dlts) {
+    g_list_foreach(dlts, extcap_free_dlt, NULL);
+    g_list_free(dlts);
 }
 
 static gboolean dlt_cb(const gchar *extcap _U_, const gchar *ifname _U_, gchar *output, void *data,
@@ -253,7 +262,7 @@ static gboolean dlt_cb(const gchar *extcap _U_, const gchar *ifname _U_, gchar *
         g_free(caps);
     }
 
-    g_list_foreach(temp, extcap_free_dlt, NULL);
+    extcap_free_dlts(temp);
 
     return FALSE;
 }
@@ -293,12 +302,22 @@ static void extcap_free_interface(gpointer i) {
     g_free(interface->display);
     g_free(interface->version);
     g_free(interface->help);
+    g_free(interface->extcap_path);
+    g_free(interface);
+}
+
+static void extcap_free_interfaces(GList * interfaces) {
+    if (interfaces == NULL)
+        return;
+
+    g_list_foreach(interfaces, (GFunc)extcap_free_interface, NULL);
+    g_list_free(interfaces);
 }
 
 static gboolean interfaces_cb(const gchar *extcap, const gchar *ifname _U_, gchar *output, void *data,
         char **err_str _U_) {
     GList **il = (GList **) data;
-    GList *interfaces = NULL, *walker = NULL;
+    GList *interfaces = NULL, *walker = NULL, *tmp = NULL;
     extcap_interface *int_iter = NULL;
     if_info_t *if_info = NULL;
 
@@ -308,6 +327,9 @@ static gboolean interfaces_cb(const gchar *extcap, const gchar *ifname _U_, gcha
 
     walker = interfaces;
     while (walker != NULL ) {
+        /* Whether the interface information needs to be preserved or not. */
+        gboolean preserve_interface = FALSE;
+
         int_iter = (extcap_interface *)walker->data;
         if ( int_iter->if_type == EXTCAP_SENTENCE_INTERFACE && extcap_if_exists(int_iter->call) )
         {
@@ -336,15 +358,23 @@ static gboolean interfaces_cb(const gchar *extcap, const gchar *ifname _U_, gcha
             }
 
             int_iter->extcap_path = g_strdup(extcap);
-            extcap_if_add(int_iter);
+            preserve_interface = extcap_if_add(int_iter);
         }
 
         /* Call for interfaces and tools alike. Multiple calls (because a tool has multiple
          * interfaces) are handled internally */
         extcap_tool_add(extcap, int_iter);
 
+        tmp = walker;
         walker = g_list_next(walker);
+
+        /* If interface was added to ifaces hash list then the hash list will free
+         * the resources. Remove the interface from interfaces list so it won't be
+         * freed when exiting this function */
+        if (preserve_interface)
+            interfaces = g_list_delete_link(interfaces, tmp);
     }
+    extcap_free_interfaces(interfaces);
 
     return TRUE;
 }
@@ -425,11 +455,6 @@ append_extcap_interface_list(GList *list, char **err_str) {
     return list;
 }
 
-static void extcap_free_arg_elem(gpointer data, gpointer user_data _U_) {
-    extcap_free_arg((extcap_arg *) data);
-    g_free(data);
-}
-
 void extcap_register_preferences(void)
 {
     GList * interfaces = NULL;
@@ -497,17 +522,18 @@ static gchar ** extcap_prefs_dynamic_valptr(const char *name)
     return valp;
 }
 
-static void extcap_free_if_configuration(GList *list)
+void extcap_free_if_configuration(GList *list, gboolean free_args)
 {
     GList *elem, *sl;
 
     for (elem = g_list_first(list); elem; elem = elem->next)
     {
         if (elem->data != NULL) {
-            /* g_list_free_full() only exists since 2.28. */
             sl = g_list_first((GList *)elem->data);
-            g_list_foreach(sl, (GFunc)extcap_free_arg_elem, NULL);
-            g_list_free(sl);
+            if (free_args)
+                extcap_free_arg_list(sl);
+            else
+                g_list_free(sl);
         }
     }
     g_list_free(list);
@@ -692,7 +718,7 @@ extcap_has_configuration(const char * ifname, gboolean is_required) {
         }
         walker = walker->next;
     }
-    extcap_free_if_configuration(arguments);
+    extcap_free_if_configuration(arguments, TRUE);
 
     return found;
 }
@@ -988,7 +1014,7 @@ GPtrArray * extcap_prepare_arguments(interface_options interface_opts)
                 }
             }
 
-            extcap_free_if_configuration(arglist);
+            extcap_free_if_configuration(arglist, TRUE);
         }
         else
         {

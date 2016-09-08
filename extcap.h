@@ -88,6 +88,15 @@ extcap_tools_list(void);
 GList *
 extcap_get_if_configuration(const char * ifname);
 
+/**
+ * Frees the memory from extcap_get_if_configuration.
+ * @param list The list returned by extcap_get_if_configuration.
+ * @param free_args TRUE if all arguments in the list must be freed too or FALSE
+ * if the ownership of the arguments is taken by the caller.
+ */
+void
+extcap_free_if_configuration(GList *list, gboolean free_args);
+
 gboolean
 extcap_has_configuration(const char * ifname, gboolean is_required);
 

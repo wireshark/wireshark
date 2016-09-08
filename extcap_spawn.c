@@ -122,6 +122,7 @@ gboolean extcap_spawn_sync ( gchar * dirname, gchar * command, gint argc, gchar 
 
     if (!CreatePipe(&child_stdout_rd, &child_stdout_wr, &sa, 0))
     {
+        g_free(argv[0]);
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stdout handle");
         return FALSE;
     }
@@ -130,6 +131,7 @@ gboolean extcap_spawn_sync ( gchar * dirname, gchar * command, gint argc, gchar 
     {
         CloseHandle(child_stdout_rd);
         CloseHandle(child_stdout_wr);
+        g_free(argv[0]);
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stderr handle");
         return FALSE;
     }
@@ -192,6 +194,7 @@ gboolean extcap_spawn_sync ( gchar * dirname, gchar * command, gint argc, gchar 
     }
 
     g_free(local_output);
+    g_free(argv[0]);
     g_free(argv);
 
     return result;

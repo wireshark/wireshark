@@ -194,7 +194,7 @@ void ExtcapOptionsDialog::anyValueChanged()
 
 void ExtcapOptionsDialog::loadArguments()
 {
-    GList * arguments = NULL, * item = NULL;
+    GList * arguments = NULL, * walker = NULL, * item = NULL;
     ExtcapArgument * argument = NULL;
 
     if ( device_name.length() == 0  )
@@ -207,9 +207,10 @@ void ExtcapOptionsDialog::loadArguments()
     ExtcapArgumentList required;
     ExtcapArgumentList optional;
 
-    while ( arguments != NULL )
+    walker = arguments;
+    while ( walker != NULL )
     {
-        item = g_list_first((GList *)(arguments->data));
+        item = g_list_first((GList *)(walker->data));
         while ( item != NULL )
         {
             argument = ExtcapArgument::create((extcap_arg *)(item->data));
@@ -223,7 +224,7 @@ void ExtcapOptionsDialog::loadArguments()
             }
             item = item->next;
         }
-        arguments = g_list_next(arguments);
+        walker = g_list_next(walker);
     }
 
     if ( required.length() > 0 )
@@ -231,6 +232,9 @@ void ExtcapOptionsDialog::loadArguments()
 
     if ( optional.length() > 0 )
         extcapArguments << optional;
+
+    /* argument items are now owned by ExtcapArgument. Only free the lists */
+    extcap_free_if_configuration(arguments, FALSE);
 }
 
 void ExtcapOptionsDialog::updateWidgets()
