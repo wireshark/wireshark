@@ -3689,7 +3689,7 @@ set_80211_channel(const char *iface, const char *opt)
     for (args = 0; options[args]; args++);
 
     if (options[0])
-        freq = get_positive_int(options[0], "802.11 channel frequency");
+        freq = get_nonzero_guint32(options[0], "802.11 channel frequency");
 
     if (args >= 1 && options[1]) {
         type = ws80211_str_to_chan_type(options[1]);
@@ -3701,10 +3701,10 @@ set_80211_channel(const char *iface, const char *opt)
     }
 
     if (args >= 2 && options[2])
-        center_freq1 = get_positive_int(options[2], "VHT center frequency");
+        center_freq1 = get_nonzero_guint32(options[2], "VHT center frequency");
 
     if (args >= 3 && options[3])
-        center_freq2 = get_positive_int(options[3], "VHT center frequency 2");
+        center_freq2 = get_nonzero_guint32(options[3], "VHT center frequency 2");
 
     ret = ws80211_init();
     if (ret) {
