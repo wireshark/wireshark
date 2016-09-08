@@ -101,9 +101,7 @@ private:
 
     QLabel preview_format_;
     QLabel preview_size_;
-    QLabel preview_packets_;
-    QLabel preview_first_;
-    QLabel preview_elapsed_;
+    QLabel preview_first_elapsed_;
     QList<QLabel *> preview_labels_;
 
     QRadioButton merge_prepend_;
@@ -113,7 +111,6 @@ private:
     QComboBox format_type_;
     QHash<QString, int>type_hash_;
 
-    void addResolutionControls(QVBoxLayout &v_box);
     void addGzipControls(QVBoxLayout &v_box);
     void addRangeControls(QVBoxLayout &v_box, packet_range_t *range);
     QDialogButtonBox *addHelpButton(topic_action_e help_topic);
@@ -121,11 +118,6 @@ private:
     QStringList buildFileSaveAsTypeList(bool must_support_comments);
 
     int default_ft_;
-
-    QCheckBox mac_res_;
-    QCheckBox transport_res_;
-    QCheckBox network_res_;
-    QCheckBox external_res_;
 
     QCheckBox compress_;
 

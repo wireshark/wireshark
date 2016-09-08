@@ -27,7 +27,6 @@
 #include <gtk/gtk.h>
 
 #include <wsutil/filesystem.h>
-#include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 
 #include "globals.h"
@@ -87,12 +86,11 @@ static gboolean test_file_close(capture_file *cf, gboolean from_quit,
 #define E_FILE_TYPE_COMBO_BOX_KEY "file_type_combo_box"
 #define E_COMPRESSED_CB_KEY       "compressed_cb"
 
-#define PREVIEW_TABLE_KEY       "preview_table_key"
-#define PREVIEW_FORMAT_KEY      "preview_format_key"
-#define PREVIEW_SIZE_KEY        "preview_size_key"
-#define PREVIEW_ELAPSED_KEY     "preview_elapsed_key"
-#define PREVIEW_PACKETS_KEY     "preview_packets_key"
-#define PREVIEW_FIRST_KEY       "preview_first_key"
+#define PREVIEW_TABLE_KEY         "preview_table_key"
+#define PREVIEW_FORMAT_KEY        "preview_format_key"
+#define PREVIEW_SIZE_KEY          "preview_size_key"
+#define PREVIEW_PACKETS_KEY       "preview_packets_key"
+#define PREVIEW_FIRST_ELAPSED_KEY "preview_first_elapsed_key"
 
 /* XXX - can we make these not be static? */
 static gboolean        color_selected;
@@ -117,11 +115,9 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
   gtk_label_set_text(GTK_LABEL(label), "-");
   label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_SIZE_KEY);
   gtk_label_set_text(GTK_LABEL(label), "-");
-  label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_ELAPSED_KEY);
-  gtk_label_set_text(GTK_LABEL(label), "-");
   label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
   gtk_label_set_text(GTK_LABEL(label), "-");
-  label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_KEY);
+  label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_ELAPSED_KEY);
   gtk_label_set_text(GTK_LABEL(label), "-");
 
   if (!cf_name) {
@@ -182,6 +178,7 @@ preview_do(GtkWidget *prev, wtap *wth)
   unsigned int  packets    = 0;
   gboolean      is_breaked = FALSE;
   gchar         string_buff[PREVIEW_STR_MAX];
+  gchar         first_buff[PREVIEW_STR_MAX];
   time_t        ti_time;
   struct tm    *ti_tm;
   const struct wtap_pkthdr *phdr;
@@ -234,7 +231,7 @@ preview_do(GtkWidget *prev, wtap *wth)
   ti_time = (long)start_time;
   ti_tm = localtime( &ti_time );
   if (ti_tm) {
-    g_snprintf(string_buff, PREVIEW_STR_MAX,
+    g_snprintf(first_buff, PREVIEW_STR_MAX,
                "%04d-%02d-%02d %02d:%02d:%02d",
                ti_tm->tm_year + 1900,
                ti_tm->tm_mon + 1,
@@ -243,24 +240,22 @@ preview_do(GtkWidget *prev, wtap *wth)
                ti_tm->tm_min,
                ti_tm->tm_sec);
   } else {
-    g_snprintf(string_buff, PREVIEW_STR_MAX, "?");
+    g_snprintf(first_buff, PREVIEW_STR_MAX, "?");
   }
-  label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_KEY);
-  gtk_label_set_text(GTK_LABEL(label), string_buff);
 
   /* elapsed time */
   elapsed_time = (unsigned int)(stop_time-start_time);
   if (elapsed_time/86400) {
-    g_snprintf(string_buff, PREVIEW_STR_MAX, "%02u days %02u:%02u:%02u",
-               elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+    g_snprintf(string_buff, PREVIEW_STR_MAX, "%s / %02u days %02u:%02u:%02u",
+               first_buff, elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
   } else {
-    g_snprintf(string_buff, PREVIEW_STR_MAX, "%02u:%02u:%02u",
-               elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+    g_snprintf(string_buff, PREVIEW_STR_MAX, "%s / %02u:%02u:%02u",
+               first_buff, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
   }
   if (is_breaked) {
-    g_snprintf(string_buff, PREVIEW_STR_MAX, "unknown");
+    g_snprintf(string_buff, PREVIEW_STR_MAX, "%s / unknown", first_buff);
   }
-  label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_ELAPSED_KEY);
+  label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_ELAPSED_KEY);
   gtk_label_set_text(GTK_LABEL(label), string_buff);
 
   wtap_close(wth);
@@ -395,10 +390,8 @@ preview_new(void)
   g_object_set_data(G_OBJECT(grid), PREVIEW_SIZE_KEY, label);
   label = add_string_to_grid(grid, &row, "Packets:", "-");
   g_object_set_data(G_OBJECT(grid), PREVIEW_PACKETS_KEY, label);
-  label = add_string_to_grid(grid, &row, "First Packet:", "-");
-  g_object_set_data(G_OBJECT(grid), PREVIEW_FIRST_KEY, label);
-  label = add_string_to_grid(grid, &row, "Elapsed time:", "-");
-  g_object_set_data(G_OBJECT(grid), PREVIEW_ELAPSED_KEY, label);
+  label = add_string_to_grid(grid, &row, "Start / elapsed:", "-");
+  g_object_set_data(G_OBJECT(grid), PREVIEW_FIRST_ELAPSED_KEY, label);
 
   return grid;
 }
@@ -473,7 +466,7 @@ gtk_open_file(GtkWidget *w, GString *file_name, gint *type, GString *display_fil
 {
   GtkWidget *file_open_w;
   GtkWidget *main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te;
-  GtkWidget *m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *e_resolv_cb, *prev;
+  GtkWidget *prev;
   GtkWidget *format_type_co;
   GtkCellRenderer *cell;
   gint i;
@@ -547,7 +540,7 @@ gtk_open_file(GtkWidget *w, GString *file_name, gint *type, GString *display_fil
   gtk_widget_set_tooltip_text(format_type_co, "Format type of capture file");
   gtk_box_pack_start(GTK_BOX(main_vb), format_type_co, FALSE, FALSE, 0);
 
-  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(format_type_co), (const gchar *) "Automatic");
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(format_type_co), (const gchar *) "Automatically detect file type");
   for (i = 0; open_routines[i].name != NULL; i += 1) {
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(format_type_co), open_routines[i].name);
   }
@@ -585,31 +578,6 @@ gtk_open_file(GtkWidget *w, GString *file_name, gint *type, GString *display_fil
 
   g_object_set_data(G_OBJECT(file_open_w), E_RFILTER_TE_KEY, filter_te);
 
-  /* Resolve buttons */
-  m_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _MAC name resolution");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(m_resolv_cb),
-                               gbl_resolv_flags.mac_name);
-  gtk_box_pack_start(GTK_BOX(main_vb), m_resolv_cb, FALSE, FALSE, 0);
-  gtk_widget_show(m_resolv_cb);
-
-  t_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _transport name resolution");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(t_resolv_cb),
-                               gbl_resolv_flags.transport_name);
-  gtk_box_pack_start(GTK_BOX(main_vb), t_resolv_cb, FALSE, FALSE, 0);
-  gtk_widget_show(t_resolv_cb);
-
-  n_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _network name resolution");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(n_resolv_cb),
-                               gbl_resolv_flags.network_name);
-  gtk_box_pack_start(GTK_BOX(main_vb), n_resolv_cb, FALSE, FALSE, 0);
-  gtk_widget_show(n_resolv_cb);
-
-  e_resolv_cb = gtk_check_button_new_with_mnemonic("Use _external network name resolver");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(e_resolv_cb),
-                               gbl_resolv_flags.use_external_net_name_resolver);
-  gtk_box_pack_start(GTK_BOX(main_vb), e_resolv_cb, FALSE, FALSE, 0);
-  gtk_widget_show(e_resolv_cb);
-
   /* Preview widget */
   prev = preview_new();
   g_object_set_data(G_OBJECT(file_open_w), PREVIEW_TABLE_KEY, prev);
@@ -634,24 +602,6 @@ gtk_open_file(GtkWidget *w, GString *file_name, gint *type, GString *display_fil
   g_free(cf_name);
   g_string_printf(display_filter, "%s", gtk_entry_get_text(GTK_ENTRY(filter_te)));
 
-  /* Set the global resolving variable */
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(m_resolv_cb)))
-    gbl_resolv_flags.mac_name = TRUE;
-  else
-    gbl_resolv_flags.mac_name = FALSE;
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(n_resolv_cb)))
-   gbl_resolv_flags.network_name = TRUE;
-  else
-   gbl_resolv_flags.network_name = FALSE;
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(t_resolv_cb)))
-    gbl_resolv_flags.transport_name = TRUE;
-  else
-    gbl_resolv_flags.transport_name = FALSE;
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(e_resolv_cb)))
-    gbl_resolv_flags.use_external_net_name_resolver = TRUE;
-  else
-    gbl_resolv_flags.use_external_net_name_resolver = FALSE;
-
   *type = gtk_combo_box_get_active((GtkComboBox *) format_type_co);
 
   /* We've crossed the Rubicon; get rid of the file selection box. */
@@ -667,10 +617,8 @@ gtk_open_file(GtkWidget *w, GString *file_name, gint *type, GString *display_fil
  * <platform/>_open_file routines should upon entry...
  *   Set the path and fill in the filename if the path+filename is provided.
  *   Set the display filter if provided. Filter syntax should be checked.
- *   Set the name resolution check boxes to match the global settings.
  * ...and upon exit...
  *   Return TRUE on "OK" and "FALSE" on "Cancel".
- *   Set the global name resolution preferences on "OK".
  *   Close the window.
  */
 

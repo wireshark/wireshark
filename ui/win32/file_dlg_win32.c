@@ -38,7 +38,6 @@
 #include "wsutil/unicode-utils.h"
 
 #include "wsutil/filesystem.h"
-#include "epan/addr_resolv.h"
 #include "epan/prefs.h"
 
 #include "epan/color_filters.h"
@@ -1121,9 +1120,11 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
     int         err = 0;
     gchar      *err_info;
     TCHAR       string_buff[PREVIEW_STR_MAX];
+    TCHAR       first_buff[PREVIEW_STR_MAX];
     gint64      data_offset;
     guint       packet = 0;
     gint64      filesize;
+    gchar      *size_str;
     time_t      ti_time;
     struct tm  *ti_tm;
     guint       elapsed_time;
@@ -1134,14 +1135,14 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
     double      cur_time;
     gboolean    is_breaked = FALSE;
 
-    for (i = EWFD_PTX_FORMAT; i <= EWFD_PTX_ELAPSED; i++) {
+    for (i = EWFD_PTX_FORMAT; i <= EWFD_PTX_START_ELAPSED; i++) {
         cur_ctrl = GetDlgItem(of_hwnd, i);
         if (cur_ctrl) {
             EnableWindow(cur_ctrl, FALSE);
         }
     }
 
-    for (i = EWFD_PTX_FORMAT; i <= EWFD_PTX_ELAPSED; i++) {
+    for (i = EWFD_PTX_FORMAT; i <= EWFD_PTX_START_ELAPSED; i++) {
         cur_ctrl = GetDlgItem(of_hwnd, i);
         if (cur_ctrl) {
             SetWindowText(cur_ctrl, _T("-"));
@@ -1170,7 +1171,7 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
     }
 
     /* Success! */
-    for (i = EWFD_PT_FORMAT; i <= EWFD_PTX_ELAPSED; i++) {
+    for (i = EWFD_PT_FORMAT; i <= EWFD_PTX_START_ELAPSED; i++) {
         cur_ctrl = GetDlgItem(of_hwnd, i);
         if (cur_ctrl) {
             EnableWindow(cur_ctrl, TRUE);
@@ -1183,9 +1184,8 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
 
     /* Size */
     filesize = wtap_file_size(wth, &err);
-    utf_8to16_snprintf(string_buff, PREVIEW_STR_MAX, "%" G_GINT64_FORMAT " bytes", filesize);
-    cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_SIZE);
-    SetWindowText(cur_ctrl, string_buff);
+    // Windows Explorer uses IEC.
+    size_str = format_size(filesize, format_size_unit_bytes|format_size_prefix_iec);
 
     time(&time_preview);
     while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
@@ -1212,8 +1212,10 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
     }
 
     if(err != 0) {
-        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("error after reading %u packets"), packet);
-        cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_PACKETS);
+        utf_8to16_snprintf(string_buff, PREVIEW_STR_MAX, "%s, error after %u packets",
+            size_str, packet);
+        g_free(size_str);
+        cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_SIZE);
         SetWindowText(cur_ctrl, string_buff);
         wtap_close(wth);
         return TRUE;
@@ -1221,18 +1223,21 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
 
     /* Packets */
     if(is_breaked) {
-        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("more than %u packets (preview timeout)"), packet);
+        utf_8to16_snprintf(string_buff, PREVIEW_STR_MAX, "%s, timed out at %u packets",
+            size_str, packet);
     } else {
-        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%u"), packet);
+        utf_8to16_snprintf(string_buff, PREVIEW_STR_MAX, "%s, %u packets",
+            size_str, packet);
     }
-    cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_PACKETS);
+    g_free(size_str);
+    cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_SIZE);
     SetWindowText(cur_ctrl, string_buff);
 
-    /* First packet */
+    /* First packet / elapsed time */
     ti_time = (long)start_time;
     ti_tm = localtime( &ti_time );
     if(ti_tm) {
-        StringCchPrintf(string_buff, PREVIEW_STR_MAX,
+        StringCchPrintf(first_buff, PREVIEW_STR_MAX,
                  _T("%04d-%02d-%02d %02d:%02d:%02d"),
                  ti_tm->tm_year + 1900,
                  ti_tm->tm_mon + 1,
@@ -1241,24 +1246,21 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
                  ti_tm->tm_min,
                  ti_tm->tm_sec);
     } else {
-        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("?"));
+        StringCchPrintf(first_buff, PREVIEW_STR_MAX, _T("?"));
     }
-    cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FIRST_PKT);
-    SetWindowText(cur_ctrl, string_buff);
 
-    /* Elapsed time */
     elapsed_time = (unsigned int)(stop_time-start_time);
     if(elapsed_time/86400) {
-        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%02u days %02u:%02u:%02u"),
-        elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%s / %02u days %02u:%02u:%02u"),
+        first_buff, elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
     } else {
-        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%02u:%02u:%02u"),
-        elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%s / %02u:%02u:%02u"),
+        first_buff, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
     }
     if(is_breaked) {
-        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("unknown"));
+        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%s / unknown"), first_buff);
     }
-    cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_ELAPSED);
+    cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_START_ELAPSED);
     SetWindowText(cur_ctrl, string_buff);
 
     wtap_close(wth);
@@ -1349,21 +1351,11 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
             }
 
             cur_ctrl = GetDlgItem(of_hwnd, EWFD_FORMAT_TYPE);
-            SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) _T("Automatic"));
+            SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) _T("Automatically detect file type"));
             for (i = 0; open_routines[i].name != NULL; i += 1) {
                 SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) utf_8to16(open_routines[i].name));
             }
             SendMessage(cur_ctrl, CB_SETCURSEL, 0, 0);
-
-            /* Fill in our resolution values */
-            cur_ctrl = GetDlgItem(of_hwnd, EWFD_MAC_NR_CB);
-            SendMessage(cur_ctrl, BM_SETCHECK, gbl_resolv_flags.mac_name, 0);
-            cur_ctrl = GetDlgItem(of_hwnd, EWFD_NET_NR_CB);
-            SendMessage(cur_ctrl, BM_SETCHECK, gbl_resolv_flags.network_name, 0);
-            cur_ctrl = GetDlgItem(of_hwnd, EWFD_TRANS_NR_CB);
-            SendMessage(cur_ctrl, BM_SETCHECK, gbl_resolv_flags.transport_name, 0);
-            cur_ctrl = GetDlgItem(of_hwnd, EWFD_EXTERNAL_NR_CB);
-            SendMessage(cur_ctrl, BM_SETCHECK, gbl_resolv_flags.use_external_net_name_resolver, 0);
 
             preview_set_file_info(of_hwnd, NULL);
             break;
@@ -1379,19 +1371,6 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     cur_ctrl = GetDlgItem(of_hwnd, EWFD_FORMAT_TYPE);
                     g_format_type = (unsigned int) SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
 
-                    /* Fetch our resolution values */
-                    cur_ctrl = GetDlgItem(of_hwnd, EWFD_MAC_NR_CB);
-                    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-                        gbl_resolv_flags.mac_name = TRUE;
-                    cur_ctrl = GetDlgItem(of_hwnd, EWFD_NET_NR_CB);
-                    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-                        gbl_resolv_flags.network_name = TRUE;
-                    cur_ctrl = GetDlgItem(of_hwnd, EWFD_TRANS_NR_CB);
-                    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-                        gbl_resolv_flags.transport_name = TRUE;
-                    cur_ctrl = GetDlgItem(of_hwnd, EWFD_EXTERNAL_NR_CB);
-                    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-                        gbl_resolv_flags.use_external_net_name_resolver = TRUE;
                     break;
                 case CDN_SELCHANGE:
                     /* This _almost_ works correctly. We need to handle directory
