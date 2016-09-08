@@ -28,7 +28,6 @@
 
 #define ELASTICSEARCH_DISCOVERY_PORT 54328
 #define ELASTICSEARCH_BINARY_PORT 9300
-#define ELASTICSEARCH_HTTP_PORT 9200
 
 #define IPv4_ADDRESS_LENGTH 4
 #define ELASTICSEARCH_STATUS_FLAG_RESPONSE 1   /* 001 */
@@ -61,7 +60,6 @@ typedef struct {
 void proto_register_elasticsearch(void);
 void proto_reg_handoff_elasticsearch(void);
 
-static dissector_handle_t elasticsearch_http_handle;
 static int proto_elasticsearch = -1;
 
 /* Fields */
@@ -106,7 +104,6 @@ static gint ett_elasticsearch_discovery_node = -1;
 static gint ett_elasticsearch_status_flags = -1;
 
 /* Forward declarations */
-static int dissect_elasticsearch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 static int dissect_elasticsearch_zen_ping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
 static const value_string address_types[] = {
@@ -359,7 +356,7 @@ static int elasticsearch_binary_header_is_valid(tvbuff_t *tvb){
     /* Header was introduced in V0.20.0RC1. At the moment I'm not supporting versions before this
     *  See: org.elasticsearch.transport.netty.NettyHeader#writeHeader
     * */
-    return tvb_captured_length(tvb) >= 1 && tvb_get_ntohs(tvb, 0) == ELASTICSEARCH_BINARY_HEADER_TOKEN;
+    return tvb_captured_length(tvb) >= 2 && tvb_get_ntohs(tvb, 0) == ELASTICSEARCH_BINARY_HEADER_TOKEN;
 }
 
 static int elasticsearch_transport_status_flag_is_a_response(gint8 transport_status_flags) {
@@ -478,30 +475,7 @@ static guint elasticsearch_get_binary_message_len(packet_info *pinfo _U_, tvbuff
     return (guint)tvb_get_ntohl(tvb, offset+ELASTICSEARCH_MESSAGE_LENGTH_OFFSET) + ELASTICSEARCH_HEADER_LENGTH;
 }
 
-static void elasticsearch_dissect_binary_protocol(tvbuff_t *tvb, packet_info *pinfo, void *data, int offset, proto_tree *elasticsearch_tree) {
-    if(elasticsearch_binary_header_is_valid(tvb)){
-        /* pass all packets through TCP-reassembly */
-        tcp_dissect_pdus(tvb, pinfo, elasticsearch_tree, TRUE, ELASTICSEARCH_HEADER_LENGTH,
-                elasticsearch_get_binary_message_len, elasticsearch_dissect_valid_binary_packet, data);
-    } else {
-        proto_tree_add_item(elasticsearch_tree, hf_elasticsearch_data, tvb, offset, -1, ENC_NA);
-        expert_add_info(pinfo, elasticsearch_tree, &ei_elasticsearch_unsupported_version);
-    }
-}
-
-static void elasticsearch_dissect_tcp_message_types(tvbuff_t *tvb, packet_info *pinfo, void *data, int offset,
-        proto_tree *elasticsearch_tree, proto_tree *root_tree) {
-
-    if(pinfo->srcport == ELASTICSEARCH_BINARY_PORT || pinfo->destport == ELASTICSEARCH_BINARY_PORT){
-        elasticsearch_dissect_binary_protocol(tvb, pinfo, data, offset, elasticsearch_tree);
-    } else if(pinfo->srcport == ELASTICSEARCH_HTTP_PORT || pinfo->destport == ELASTICSEARCH_HTTP_PORT) {
-        /* Restore count before as we want the HTTP dissector to do desegmentation */
-        pinfo->can_desegment = pinfo->saved_can_desegment;
-        call_dissector(elasticsearch_http_handle, tvb, pinfo, root_tree);
-    }
-}
-
-static int dissect_elasticsearch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
+static int dissect_elasticsearch_binary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
 
     int offset = 0;
     proto_item *root_elasticsearch_item;
@@ -513,7 +487,14 @@ static int dissect_elasticsearch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     root_elasticsearch_item = proto_tree_add_item(tree, proto_elasticsearch, tvb, 0, -1, ENC_NA);
     elasticsearch_tree = proto_item_add_subtree(root_elasticsearch_item,ett_elasticsearch);
 
-    elasticsearch_dissect_tcp_message_types(tvb, pinfo, data, offset, elasticsearch_tree, tree);
+    if(elasticsearch_binary_header_is_valid(tvb)){
+        /* pass all packets through TCP-reassembly */
+        tcp_dissect_pdus(tvb, pinfo, elasticsearch_tree, TRUE, ELASTICSEARCH_HEADER_LENGTH,
+                elasticsearch_get_binary_message_len, elasticsearch_dissect_valid_binary_packet, data);
+    } else {
+        proto_tree_add_item(elasticsearch_tree, hf_elasticsearch_data, tvb, offset, -1, ENC_NA);
+        expert_add_info(pinfo, elasticsearch_tree, &ei_elasticsearch_unsupported_version);
+    }
 
     return tvb_captured_length(tvb);
 }
@@ -731,11 +712,7 @@ void proto_register_elasticsearch(void) {
     expert_elasticsearch = expert_register_protocol(proto_elasticsearch);
     expert_register_field_array(expert_elasticsearch, ei, array_length(ei));
 
-    proto_elasticsearch = proto_register_protocol(
-        "Elasticsearch",
-        "Elasticsearch",
-        "elasticsearch"
-    );
+    proto_elasticsearch = proto_register_protocol("Elasticsearch", "Elasticsearch", "elasticsearch");
 
     proto_register_field_array(proto_elasticsearch, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -744,15 +721,14 @@ void proto_register_elasticsearch(void) {
 
 void proto_reg_handoff_elasticsearch(void) {
 
-    dissector_handle_t elasticsearch_handle;
+    dissector_handle_t elasticsearch_handle_binary;
     dissector_handle_t elasticsearch_zen_handle;
-    elasticsearch_http_handle = find_dissector_add_dependency("http", proto_elasticsearch);
 
-    elasticsearch_handle = create_dissector_handle(dissect_elasticsearch, proto_elasticsearch);
+    elasticsearch_handle_binary = create_dissector_handle(dissect_elasticsearch_binary, proto_elasticsearch);
     elasticsearch_zen_handle = create_dissector_handle(dissect_elasticsearch_zen_ping, proto_elasticsearch);
+
     dissector_add_uint("udp.port", ELASTICSEARCH_DISCOVERY_PORT, elasticsearch_zen_handle);
-    dissector_add_uint("tcp.port", ELASTICSEARCH_BINARY_PORT, elasticsearch_handle);
-    dissector_add_uint("tcp.port", ELASTICSEARCH_HTTP_PORT, elasticsearch_handle);
+    dissector_add_uint("tcp.port", ELASTICSEARCH_BINARY_PORT, elasticsearch_handle_binary);
 
 }
 
