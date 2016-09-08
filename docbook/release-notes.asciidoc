@@ -124,12 +124,37 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+ASN.1 BER
+CAN
+CDP
+CIP
+DCT2000
+GTP
+IEEE 802.11
+IPMI
+ISAKMP
+L&G 8979
+Modbus
+NAS EPS
+NLM
+OCFS2
+OSSP
+QNX6 QNET
+S1AP
+SCSI
+SEL Protocol
+SSL/TLS
+UMTS FP
+XML
+XMPP
+ZBEE NWK GP
 --sort-and-group--
 
 === New and Updated Capture File Support
 
 //There is no new or updated capture file support in this release.
 --sort-and-group--
+Libpcap
 --sort-and-group--
 
 === New and Updated Capture Interfaces support
