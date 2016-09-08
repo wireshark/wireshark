@@ -1317,10 +1317,10 @@ dissect_m2ap_IPAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
     switch (tvb_len) {
       case 4:
-        proto_tree_add_item(subtree, hf_m2ap_IPAddress_v4, parameter_tvb, 0, tvb_len, ENC_NA);
+        proto_tree_add_item(subtree, hf_m2ap_IPAddress_v4, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
         break;
-      case 6:
-        proto_tree_add_item(subtree, hf_m2ap_IPAddress_v6, parameter_tvb, 0, tvb_len, ENC_NA);
+      case 16:
+        proto_tree_add_item(subtree, hf_m2ap_IPAddress_v6, parameter_tvb, 0, 16, ENC_NA);
         break;
       default:
         proto_tree_add_expert(subtree, actx->pinfo, &ei_m2ap_invalid_ip_address_len, parameter_tvb, 0, tvb_len);
