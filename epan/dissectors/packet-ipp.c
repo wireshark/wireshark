@@ -406,7 +406,6 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     http_message_info_t *message_info = (http_message_info_t *)data;
     gboolean    is_request;
     guint16     operation_status;
-    const gchar *info;
     const gchar *status_type;
     guint32	request_id;
     conversation_t *conversation;
@@ -439,11 +438,9 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPP");
     if (is_request)
-        info = wmem_strdup_printf(wmem_packet_scope(), "IPP Request (%s)", val_to_str(operation_status, operation_vals, "0x%04x"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "IPP Request (%s)", val_to_str(operation_status, operation_vals, "0x%04x"));
     else
-        info = wmem_strdup_printf(wmem_packet_scope(), "IPP Response (%s)", val_to_str(operation_status, status_vals, "0x%04x"));
-
-    col_set_str(pinfo->cinfo, COL_INFO, info);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "IPP Response (%s)", val_to_str(operation_status, status_vals, "0x%04x"));
 
     ti = proto_tree_add_item(tree, proto_ipp, tvb, offset, -1, ENC_NA);
     ipp_tree = proto_item_add_subtree(ti, ett_ipp);
