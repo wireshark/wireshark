@@ -420,6 +420,8 @@ main(int argc, char *argv[])
          "\n"
          "%s",
       get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
+  g_string_free(comp_info_str, TRUE);
+  g_string_free(runtime_info_str, TRUE);
 
   /*
    * In order to have the -X opts assigned before the wslua machine starts
@@ -854,7 +856,8 @@ main(int argc, char *argv[])
       }
       break;
     case 'v':         /* Show version and exit */
-    {
+      comp_info_str = get_compiled_version_info(NULL, epan_get_compiled_version_info);
+      runtime_info_str = get_runtime_version_info(get_tfshark_runtime_version_info);
       show_version("TFShark (Wireshark)", comp_info_str, runtime_info_str);
       g_string_free(comp_info_str, TRUE);
       g_string_free(runtime_info_str, TRUE);
@@ -868,7 +871,6 @@ main(int argc, char *argv[])
 #endif
       epan_cleanup();
       return 0;
-    }
     case 'O':        /* Only output these protocols */
       /* already processed; just ignore it now */
       break;

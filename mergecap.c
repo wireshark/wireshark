@@ -291,6 +291,8 @@ main(int argc, char *argv[])
        "\n"
        "%s",
     get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
+  g_string_free(comp_info_str, TRUE);
+  g_string_free(runtime_info_str, TRUE);
 
   /*
    * Get credential information for later use.
@@ -368,6 +370,8 @@ main(int argc, char *argv[])
       break;
 
     case 'V':
+      comp_info_str = get_compiled_version_info(NULL, NULL);
+      runtime_info_str = get_runtime_version_info(NULL);
       show_version("Mergecap (Wireshark)", comp_info_str, runtime_info_str);
       g_string_free(comp_info_str, TRUE);
       g_string_free(runtime_info_str, TRUE);

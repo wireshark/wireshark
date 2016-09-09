@@ -1467,6 +1467,8 @@ parse_options (int argc, char *argv[])
          "\n"
          "%s",
       get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
+    g_string_free(comp_info_str, TRUE);
+    g_string_free(runtime_info_str, TRUE);
 
     /* Scan CLI parameters */
     while ((c = getopt_long(argc, argv, "aDdhqe:i:l:m:no:u:s:S:t:T:v4:6:", long_options, NULL)) != -1) {
@@ -1675,6 +1677,8 @@ parse_options (int argc, char *argv[])
             break;
 
         case 'v':
+            comp_info_str = get_compiled_version_info(NULL, NULL);
+            runtime_info_str = get_runtime_version_info(NULL);
             show_version("Text2pcap (Wireshark)", comp_info_str, runtime_info_str);
             g_string_free(comp_info_str, TRUE);
             g_string_free(runtime_info_str, TRUE);
