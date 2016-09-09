@@ -1443,6 +1443,8 @@ main(int argc, char *argv[])
          "\n"
          "%s",
       get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
+  g_string_free(comp_info_str, TRUE);
+  g_string_free(runtime_info_str, TRUE);
 
 #ifdef _WIN32
   arg_list_utf_16to8(argc, argv);
@@ -1642,6 +1644,8 @@ main(int argc, char *argv[])
         break;
 
       case 'v':
+        comp_info_str = get_compiled_version_info(NULL, NULL);
+        runtime_info_str = get_runtime_version_info(NULL);
         show_version("Capinfos (Wireshark)", comp_info_str, runtime_info_str);
         g_string_free(comp_info_str, TRUE);
         g_string_free(runtime_info_str, TRUE);
@@ -1712,7 +1716,7 @@ main(int argc, char *argv[])
       }
       overall_error_status = 1; /* remember that an error has occurred */
       if (!continue_after_wtap_open_offline_failure)
-        exit(1); /* error status */
+        goto exit;
     }
 
     if (wth) {
@@ -1721,11 +1725,17 @@ main(int argc, char *argv[])
       status = process_cap_file(wth, argv[opt]);
 
       wtap_close(wth);
-      if (status)
-        exit(status);
+      if (status) {
+        overall_error_status = status;
+        goto exit;
+      }
     }
   }
 
+exit:
+#ifdef HAVE_LIBGCRYPT
+  g_free(hash_buf);
+#endif
   return overall_error_status;
 }
 
