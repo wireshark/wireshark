@@ -2204,7 +2204,8 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 	if ((idb_inf != NULL) && (idb_inf->interface_data->len > 0)) {
 		guint itf_count;
 
-		/* XXX: what free's this stuff? */
+		/* Note: this memory is owned by wtap_dumper and will become
+		 * invalid after wtap_dump_close. */
 		wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 		for (itf_count = 0; itf_count < idb_inf->interface_data->len; itf_count++) {
 			file_int_data = g_array_index(idb_inf->interface_data, wtap_block_t, itf_count);
@@ -2574,6 +2575,7 @@ wtap_dump_close(wtap_dumper *wdh, int *err)
 	}
 	if (wdh->priv != NULL)
 		g_free(wdh->priv);
+	wtap_block_array_free(wdh->interface_data);
 	g_free(wdh);
 	return ret;
 }

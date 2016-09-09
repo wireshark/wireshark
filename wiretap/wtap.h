@@ -1713,9 +1713,11 @@ void wtap_fdclose(wtap *wth);
 WS_DLL_PUBLIC
 gboolean wtap_fdreopen(wtap *wth, const char *filename, int *err);
 
-/*** close the current file ***/
+/** Close only the sequential side, freeing up memory it uses. */
 WS_DLL_PUBLIC
 void wtap_sequential_close(wtap *wth);
+
+/** Closes any open file handles and frees the memory associated with wth. */
 WS_DLL_PUBLIC
 void wtap_close(wtap *wth);
 
@@ -1874,8 +1876,13 @@ void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped);
 struct addrinfo;
 WS_DLL_PUBLIC
 gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists);
+
+/**
+ * Closes open file handles and frees memory associated with wdh. Note that
+ * shb_hdr, idb_inf and nrb_hdr are not freed by this routine.
+ */
 WS_DLL_PUBLIC
-gboolean wtap_dump_close(wtap_dumper *, int *);
+gboolean wtap_dump_close(wtap_dumper *wdh, int *err);
 
 /**
  * Return TRUE if we can write a file out with the given GArray of file
