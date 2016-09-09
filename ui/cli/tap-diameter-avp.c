@@ -42,6 +42,8 @@
 
 #include <glib.h>
 
+#include <wsutil/strtoi.h>
+
 #include <epan/packet_info.h>
 #include <epan/tap.h>
 #include <epan/epan_dissect.h>
@@ -238,8 +240,16 @@ diameteravp_init(const char *opt_arg, void *userdata _U_)
 	opt_count = 0;
 	while (tokens[opt_count])
 		opt_count++;
-	if (opt_count > 2)
-		ds->cmd_code = (guint32)atoi(tokens[2]);
+	if (opt_count > 2) {
+		/* if the token is a not-null string and it's not *, the conversion must succeeed */
+		if (strlen(tokens[2]) > 0 && tokens[2][0] != '*') {
+			if (!ws_strtou32(tokens[2], NULL, &ds->cmd_code)) {
+				fprintf(stderr, "Invalid integer token: %s\n", tokens[2]);
+				g_strfreev(tokens);
+				exit(1);
+			}
+		}
+	}
 
 	/* Loop over diameter field names. */
 	for (opt_idx=3; opt_idx<opt_count; opt_idx++)
