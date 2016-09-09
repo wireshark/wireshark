@@ -32,6 +32,7 @@ The following bugs have been fixed:
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.7rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+* Multiple PortableApps instances can once again be run at the same time.
 
 === New and Updated Features
 
