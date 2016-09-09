@@ -236,18 +236,30 @@ obj_id = NULL;
     }
   }
   if (is_ascii)
-     proto_item_append_text(actx->created_item,"(%%s)",tvb_format_text(parameter_tvb, 0, length));
+     proto_item_append_text(actx->created_item," (%%s)",tvb_format_text(parameter_tvb, 0, length));
 
-
-#.FN_BODY TAC VAL_PTR = &parameter_tvb
-tvbuff_t *parameter_tvb=NULL;
+#.FN_BODY MMEname VAL_PTR = parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+  int length;
+  int p_offset;
+  gboolean is_ascii;
 
 %(DEFAULT_BODY)s
 
   if (!parameter_tvb)
     return offset;
 
-  proto_item_append_text(actx->created_item," (%%u)",tvb_get_ntohs(parameter_tvb, 0));
+  length = tvb_reported_length(parameter_tvb);
+
+  is_ascii = TRUE;
+  for (p_offset=0; p_offset < length; p_offset++){
+    if(!g_ascii_isprint(tvb_get_guint8(parameter_tvb, p_offset ))){
+      is_ascii = FALSE;
+      break;
+    }
+  }
+  if (is_ascii)
+     proto_item_append_text(actx->created_item," (%%s)",tvb_format_text(parameter_tvb, 0, length));
 
 #.END
 
@@ -299,6 +311,15 @@ tvbuff_t *parameter_tvb=NULL;
      proto_tree_add_item(subtree, hf_s1ap_transportLayerAddressIPv6, parameter_tvb, 4, 16, ENC_NA);
   }
 
+#.TYPE_ATTR
+Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
+#.FN_BODY Port-Number VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
 #.FN_HDR InitialUEMessage
   /* Set the direction of the message */
   actx->pinfo->link_dir=P2P_DIR_UL;
@@ -334,7 +355,7 @@ tvbuff_t *parameter_tvb=NULL;
 # it is described how the container shall be encoded with respect to the scenario
 # in which it is used.
   tvbuff_t *parameter_tvb;
-  proto_tree *subtree = NULL;
+  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 
@@ -392,7 +413,7 @@ tvbuff_t *parameter_tvb=NULL;
 # See Target-ToSource-TransparentContainer in RANAP
 
   tvbuff_t *parameter_tvb;
-  proto_tree *subtree = NULL;
+  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 
@@ -481,7 +502,7 @@ tvbuff_t *parameter_tvb=NULL;
 # HandoverCommand and HandoverRequestAcknowledge.
 
   tvbuff_t *parameter_tvb;
-  proto_tree *subtree = NULL;
+  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
@@ -506,7 +527,7 @@ tvbuff_t *parameter_tvb=NULL;
 
 #.FN_BODY UE-HistoryInformationFromTheUE VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
-  proto_tree *subtree = NULL;
+  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
@@ -519,7 +540,7 @@ tvbuff_t *parameter_tvb=NULL;
 
 #.FN_BODY UERadioCapability VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
-  proto_tree *subtree = NULL;
+  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
@@ -531,10 +552,10 @@ tvbuff_t *parameter_tvb=NULL;
   }
 
 #.TYPE_ATTR
-Threshold-RSRP DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(s1ap_Threshold_RSRP_fmt)
+Threshold-RSRP DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_Threshold_RSRP_fmt)
 
 #.TYPE_ATTR
-Threshold-RSRQ DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(s1ap_Threshold_RSRQ_fmt)
+Threshold-RSRQ DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_Threshold_RSRQ_fmt)
 
 # 9.2.3.24 RIM Information
 # Contains the BSSGP RIM PDU
@@ -545,7 +566,7 @@ Threshold-RSRQ DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(s1ap_Threshold_RSRQ_fmt)
 %(DEFAULT_BODY)s
 
   if (!parameter_tvb)
-   return offset;
+    return offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_RIMInformation);
   if ((tvb_reported_length(parameter_tvb)>0)&&(bssgp_handle)){
@@ -557,7 +578,7 @@ Threshold-RSRQ DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(s1ap_Threshold_RSRQ_fmt)
 #.FN_BODY Cdma2000PDU VAL_PTR = &parameter_tvb
 
   tvbuff_t *parameter_tvb;
-  proto_tree *subtree = NULL;
+  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
@@ -577,8 +598,8 @@ if (gcsna_handle) {
  * to handover to. The CDMA2000 Reference Cell
  * ID is statically configured in the eNB.
  */
- tvbuff_t *parameter_tvb;
- proto_tree *subtree = NULL;
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
@@ -591,8 +612,8 @@ if (gcsna_handle) {
 # 9.2.1.98 UE Radio Capability for Paging
 # Includes the UERadioPagingInformation message as defined in 10.2.2 of TS 36.331 [16].
 
- tvbuff_t *parameter_tvb;
- proto_tree *subtree = NULL;
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
@@ -606,8 +627,8 @@ if (gcsna_handle) {
 #.FN_BODY CELevel VAL_PTR = &parameter_tvb
 # 9.2.1.109 Cell Identifier and Coverage Enhancement Level
 # Includes the UEPagingCoverageInformation message as defined in 10.2.2 of TS 36.331
- tvbuff_t *parameter_tvb;
- proto_tree *subtree = NULL;
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
@@ -620,8 +641,8 @@ if (gcsna_handle) {
 #.FN_BODY UE-RLF-Report-Container VAL_PTR = &parameter_tvb
 # 9.2.3.40 RLF Report Information
 # Includes the rlf-Report-r9 contained in UEInformationResponse message as defined in TS 36.331
- tvbuff_t *parameter_tvb;
- proto_tree *subtree = NULL;
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
@@ -634,8 +655,8 @@ if (gcsna_handle) {
 #.FN_BODY UE-RLF-Report-Container-for-extended-bands VAL_PTR = &parameter_tvb
 # 9.2.3.40 RLF Report Information
 # Includes the rlf-Report-v9e0 contained in UEInformationResponse message as defined in TS 36.331
- tvbuff_t *parameter_tvb;
- proto_tree *subtree = NULL;
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
@@ -648,8 +669,8 @@ if (gcsna_handle) {
 #.FN_BODY TooEarlyInterRATHOReportReportFromEUTRAN/uERLFReportContainer VAL_PTR = &parameter_tvb
 # B.1.17 Failure Event Report
 # Includes the RLF Report contained in the UEInformationResponse message (TS 36.331 [16])
- tvbuff_t *parameter_tvb;
- proto_tree *subtree = NULL;
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
@@ -661,6 +682,294 @@ if (gcsna_handle) {
 
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &s1ap_ProtocolIE_ID_vals_ext
+
+#.FN_BODY S1-Message VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_S1_Message);
+    dissect_InitialUEMessage_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+
+#.FN_BODY E-UTRAN-Trace-ID VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+  subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_E_UTRAN_Trace_ID);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+  proto_tree_add_item(subtree, hf_s1ap_E_UTRAN_Trace_ID_TraceID, parameter_tvb, 3, 3, ENC_BIG_ENDIAN);
+  proto_tree_add_item(subtree, hf_s1ap_E_UTRAN_Trace_ID_TraceRecordingSessionReference, parameter_tvb, 6, 2, ENC_BIG_ENDIAN);
+
+#.FN_BODY InterfacesToTrace VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    const gint *fields[] = {
+      &hf_s1ap_interfacesToTrace_S1_MME,
+      &hf_s1ap_interfacesToTrace_X2,
+      &hf_s1ap_interfacesToTrace_Uu,
+      &hf_s1ap_interfacesToTrace_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_InterfacesToTrace);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_FTR BitRate
+  proto_item_append_text(actx->created_item, "bit/s");
+
+#.TYPE_ATTR
+MME-Code TYPE = FT_UINT8 DISPLAY = BASE_DEC_HEX
+#.FN_BODY MME-Code VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+MME-Group-ID TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
+#.FN_BODY MME-Group-ID VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY EncryptionAlgorithms VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    const gint *fields[] = {
+      &hf_s1ap_encryptionAlgorithms_EEA1,
+      &hf_s1ap_encryptionAlgorithms_EEA2,
+      &hf_s1ap_encryptionAlgorithms_EEA3,
+      &hf_s1ap_encryptionAlgorithms_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_EncryptionAlgorithms);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 2, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY IntegrityProtectionAlgorithms VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    const gint *fields[] = {
+      &hf_s1ap_integrityProtectionAlgorithms_EIA1,
+      &hf_s1ap_integrityProtectionAlgorithms_EIA2,
+      &hf_s1ap_integrityProtectionAlgorithms_EIA3,
+      &hf_s1ap_integrityProtectionAlgorithms_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_IntegrityProtectionAlgorithms);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 2, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_FTR Time-UE-StayedInCell
+  proto_item_append_text(actx->created_item, "s");
+
+#.TYPE_ATTR
+Time-UE-StayedInCell-EnhancedGranularity DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_Time_UE_StayedInCell_EnhancedGranularity_fmt)
+
+#.FN_BODY LastVisitedUTRANCellInformation VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+
+  if (g_s1ap_dissect_container) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_LastVisitedUTRANCellInformation);
+    dissect_ranap_LastVisitedUTRANCell_Item_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.TYPE_ATTR
+MessageIdentifier TYPE = FT_UINT16 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &lte_rrc_messageIdentifier_vals_ext
+
+#.FN_BODY MessageIdentifier VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY SerialNumber VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_SerialNumber);
+    proto_tree_add_item(subtree, hf_s1ap_SerialNumber_gs, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_s1ap_SerialNumber_msg_code, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_s1ap_SerialNumber_upd_nb, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_FTR RepetitionPeriod
+  proto_item_append_text(actx->created_item, "s");
+
+#.FN_BODY WarningType VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_WarningType);
+    proto_tree_add_item(subtree, hf_s1ap_WarningType_value, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_s1ap_WarningType_emergency_user_alert, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_s1ap_WarningType_popup, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY DataCodingScheme VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_DataCodingScheme);
+    dataCodingScheme = dissect_cbs_data_coding_scheme(parameter_tvb, actx->pinfo, subtree, 0);
+  }
+
+#.FN_BODY WarningMessageContents VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_WarningMessageContents);
+    dissect_s1ap_warningMessageContents(parameter_tvb, subtree, actx->pinfo, dataCodingScheme);
+  }
+
+#.FN_BODY MSClassmark2 VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_MSClassmark);
+    de_ms_cm_2(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(tvb), NULL, 0);
+  }
+
+#.FN_BODY MSClassmark3 VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_MSClassmark);
+    de_ms_cm_3(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(tvb), NULL, 0);
+  }
+
+#.TYPE_ATTR
+EUTRANRoundTripDelayEstimationInfo DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_EUTRANRoundTripDelayEstimationInfo_fmt)
+
+#.FN_FTR ExtendedRepetitionPeriod
+  proto_item_append_text(actx->created_item, "s");
+
+#.FN_BODY MeasurementsToActivate VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    const gint *fields[] = {
+      &hf_s1ap_measurementsToActivate_M1,
+      &hf_s1ap_measurementsToActivate_M2,
+      &hf_s1ap_measurementsToActivate_M3,
+      &hf_s1ap_measurementsToActivate_M4,
+      &hf_s1ap_measurementsToActivate_M5,
+      &hf_s1ap_measurementsToActivate_LoggingM1FromEventTriggered,
+      &hf_s1ap_measurementsToActivate_M6,
+      &hf_s1ap_measurementsToActivate_M7,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_MeasurementsToActivate);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY MDT-Location-Info VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    const gint *fields[] = {
+      &hf_s1ap_MDT_Location_Info_GNSS,
+      &hf_s1ap_MDT_Location_Info_E_CID,
+      &hf_s1ap_MDT_Location_Info_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_MDT_Location_Info);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+LHN-ID TYPE=FT_STRING DISPLAY = STR_UNICODE
+#.FN_BODY LHN-ID VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, -1, ENC_UTF_8|ENC_NA);
+#.END
+
+#.FN_FTR ExpectedActivityPeriod
+proto_item_append_text(actx->created_item, "s");
+
+#.FN_FTR ExpectedIdlePeriod
+proto_item_append_text(actx->created_item, "s");
+
+#.FN_FTR Time-UE-StayedInCell
+  proto_item_append_text(actx->created_item, "s");
+
+#.TYPE_ATTR
+TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
+#.FN_BODY TAC VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+LAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
+#.FN_BODY LAC VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+RAC TYPE = FT_UINT8 DISPLAY = BASE_DEC_HEX
+#.FN_BODY RAC VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
+#.FN_BODY M-TMSI VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY IMSI VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_IMSI);
+    dissect_e212_imsi(parameter_tvb, actx->pinfo, subtree, 0, tvb_reported_length(parameter_tvb), FALSE);
+  }
+
+#.FN_BODY NASSecurityParametersfromE-UTRAN VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_NASSecurityParameters);
+    de_emm_sec_par_from_eutra(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(parameter_tvb), NULL, 0);
+  }
+
+#.FN_BODY NASSecurityParameterstoE-UTRAN VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_NASSecurityParameters);
+    de_emm_sec_par_to_eutra(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(parameter_tvb), NULL, 0);
+  }
 
 #.ASSIGN_VALUE_TO_TYPE  # S1AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
@@ -1125,7 +1434,7 @@ RecommendedENBItem                              N s1ap.ies id-RecommendedENBItem
 PWSfailedECGIList                               N s1ap.ies id-PWSfailedECGIList
 MME-Group-ID                                    N s1ap.ies id-MME-Group-ID
 Additional-GUTI                                 N s1ap.ies id-Additional-GUTI
-#OCTET STRING                                   N s1ap.ies id-S1-Message
+S1-Message                                      N s1ap.ies id-S1-Message
 CSGMembershipInfo                               N s1ap.ies id-CSGMembershipInfo
 Paging-eDRXInformation                          N s1ap.ies id-Paging-eDRXInformation
 UE-RetentionInformation                         N s1ap.ies id-UE-RetentionInformation
@@ -1414,6 +1723,7 @@ UEContextResumeFailure                  N s1ap.proc.uout id-UEContextResume
 
 #.FN_HDR WriteReplaceWarningRequest
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", WriteReplaceWarningRequest ");
+  dataCodingScheme = SMS_ENCODING_NOT_SET;
 #.FN_HDR WriteReplaceWarningResponse
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", WriteReplaceWarningResponse ");
 #.FN_HDR KillRequest

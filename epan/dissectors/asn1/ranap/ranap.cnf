@@ -9,16 +9,18 @@ ALIGNED
 #.EXPORTS
 EncryptionInformation
 IntegrityProtectionInformation
+InterSystemInformation-TransparentContainer_PDU
+LastVisitedUTRANCell-Item_PDU
 Service-Handover
+Source-ToTarget-TransparentContainer_PDU
 SourceCellID_PDU
 SourceRNC-ToTargetRNC-TransparentContainer_PDU
 TargetRNC-ToSourceRNC-TransparentContainer_PDU
 TargetRNC-ID
 TargetRNC-ID_PDU
-InterSystemInformation-TransparentContainer_PDU
-Source-ToTarget-TransparentContainer_PDU
 
 #.PDU
+LastVisitedUTRANCell-Item
 RANAP-PDU
 SourceCellID
 SourceRNC-ToTargetRNC-TransparentContainer
@@ -44,10 +46,6 @@ ProtocolError-IE-ContainerList
 Presence
 # NOTE when updating the asn1 spec check if these are used !!!!
 ForwardingIndication
-LastVisitedUTRANCell-Item
-UTRAN-CellID
-CellType
-Time-UE-StayedInCell
 SourceeNodeB-ToTargeteNodeB-TransparentContainer
 TargeteNodeB-ToSourceeNodeB-TransparentContainer
 #.TYPE_RENAME

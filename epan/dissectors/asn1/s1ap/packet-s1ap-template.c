@@ -33,6 +33,7 @@
 #include <epan/asn1.h>
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
+#include <epan/expert.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -43,11 +44,9 @@
 #include "packet-bssgp.h"
 #include "packet-s1ap.h"
 #include "packet-a21.h"
-
-#ifdef _MSC_VER
-/* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
-#pragma warning(disable:4146)
-#endif
+#include "packet-gsm_map.h"
+#include "packet-cell_broadcast.h"
+#include "packet-gsm_a_common.h"
 
 #define PNAME  "S1 Application Protocol"
 #define PSNAME "S1AP"
@@ -70,6 +69,39 @@ static int proto_s1ap = -1;
 
 static int hf_s1ap_transportLayerAddressIPv4 = -1;
 static int hf_s1ap_transportLayerAddressIPv6 = -1;
+static int hf_s1ap_E_UTRAN_Trace_ID_TraceID = -1;
+static int hf_s1ap_E_UTRAN_Trace_ID_TraceRecordingSessionReference = -1;
+static int hf_s1ap_interfacesToTrace_S1_MME = -1;
+static int hf_s1ap_interfacesToTrace_X2 = -1;
+static int hf_s1ap_interfacesToTrace_Uu = -1;
+static int hf_s1ap_interfacesToTrace_Reserved = -1;
+static int hf_s1ap_encryptionAlgorithms_EEA1 = -1;
+static int hf_s1ap_encryptionAlgorithms_EEA2 = -1;
+static int hf_s1ap_encryptionAlgorithms_EEA3 = -1;
+static int hf_s1ap_encryptionAlgorithms_Reserved = -1;
+static int hf_s1ap_integrityProtectionAlgorithms_EIA1 = -1;
+static int hf_s1ap_integrityProtectionAlgorithms_EIA2 = -1;
+static int hf_s1ap_integrityProtectionAlgorithms_EIA3 = -1;
+static int hf_s1ap_integrityProtectionAlgorithms_Reserved = -1;
+static int hf_s1ap_SerialNumber_gs = -1;
+static int hf_s1ap_SerialNumber_msg_code = -1;
+static int hf_s1ap_SerialNumber_upd_nb = -1;
+static int hf_s1ap_WarningType_value = -1;
+static int hf_s1ap_WarningType_emergency_user_alert = -1;
+static int hf_s1ap_WarningType_popup = -1;
+static int hf_s1ap_WarningMessageContents_nb_pages = -1;
+static int hf_s1ap_WarningMessageContents_decoded_page = -1;
+static int hf_s1ap_measurementsToActivate_M1 = -1;
+static int hf_s1ap_measurementsToActivate_M2 = -1;
+static int hf_s1ap_measurementsToActivate_M3 = -1;
+static int hf_s1ap_measurementsToActivate_M4 = -1;
+static int hf_s1ap_measurementsToActivate_M5 = -1;
+static int hf_s1ap_measurementsToActivate_LoggingM1FromEventTriggered = -1;
+static int hf_s1ap_measurementsToActivate_M6 = -1;
+static int hf_s1ap_measurementsToActivate_M7 = -1;
+static int hf_s1ap_MDT_Location_Info_GNSS = -1;
+static int hf_s1ap_MDT_Location_Info_E_CID = -1;
+static int hf_s1ap_MDT_Location_Info_Reserved = -1;
 #include "packet-s1ap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -87,15 +119,30 @@ static int ett_s1ap_UE_HistoryInformationFromTheUE = -1;
 static int ett_s1ap_CELevel = -1;
 static int ett_s1ap_UE_RLF_Report_Container = -1;
 static int ett_s1ap_UE_RLF_Report_Container_for_extended_bands = -1;
-
+static int ett_s1ap_S1_Message = -1;
+static int ett_s1ap_E_UTRAN_Trace_ID = -1;
+static int ett_s1ap_InterfacesToTrace = -1;
+static int ett_s1ap_EncryptionAlgorithms = -1;
+static int ett_s1ap_IntegrityProtectionAlgorithms = -1;
+static int ett_s1ap_LastVisitedUTRANCellInformation = -1;
+static int ett_s1ap_SerialNumber = -1;
+static int ett_s1ap_WarningType = -1;
+static int ett_s1ap_DataCodingScheme = -1;
+static int ett_s1ap_WarningMessageContents = -1;
+static int ett_s1ap_MSClassmark = -1;
+static int ett_s1ap_MeasurementsToActivate = -1;
+static int ett_s1ap_MDT_Location_Info = -1;
+static int ett_s1ap_IMSI = -1;
+static int ett_s1ap_NASSecurityParameters = -1;
 #include "packet-s1ap-ett.c"
+
+static expert_field ei_s1ap_number_pages_le15 = EI_INIT;
 
 enum{
   INITIATING_MESSAGE,
   SUCCESSFUL_OUTCOME,
   UNSUCCESSFUL_OUTCOME
 };
-
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -106,6 +153,7 @@ static guint32 handover_type_value;
 static guint32 message_type;
 static gboolean g_s1ap_dissect_container = TRUE;
 static const char *obj_id = NULL;
+static guint8 dataCodingScheme = SMS_ENCODING_NOT_SET;
 
 static dissector_handle_t gcsna_handle = NULL;
 static dissector_handle_t s1ap_handle;
@@ -132,6 +180,7 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 
 static int dissect_SourceeNB_ToTargeteNB_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_TargeteNB_ToSourceeNB_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
+static int dissect_InitialUEMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data);
 #if 0
 static int dissect_SourceRNC_ToTargetRNC_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_TargetRNC_ToSourceRNC_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -150,6 +199,74 @@ s1ap_Threshold_RSRQ_fmt(gchar *s, guint32 v)
 {
   g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-20, v);
 }
+
+static const true_false_string s1ap_tfs_interfacesToTrace = {
+  "Should be traced",
+  "Should not be traced"
+};
+
+static void
+s1ap_Time_UE_StayedInCell_EnhancedGranularity_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fs", ((float)v)/10);
+}
+
+static const value_string s1ap_serialNumber_gs_vals[] = {
+  { 0, "Display mode immediate, cell wide"},
+  { 1, "Display mode normal, PLMN wide"},
+  { 2, "Display mode normal, tracking area wide"},
+  { 3, "Display mode normal, cell wide"},
+  { 0, NULL},
+};
+
+static const value_string s1ap_warningType_vals[] = {
+  { 0, "Earthquake"},
+  { 1, "Tsunami"},
+  { 2, "Earthquake and Tsunami"},
+  { 3, "Test"},
+  { 4, "Other"},
+  { 0, NULL},
+};
+
+static void
+dissect_s1ap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree, packet_info *pinfo, guint8 dcs)
+{
+  guint32 offset;
+  guint8 nb_of_pages, length, *str;
+  proto_item *ti;
+  tvbuff_t *cb_data_page_tvb, *cb_data_tvb;
+  int i;
+
+  nb_of_pages = tvb_get_guint8(warning_msg_tvb, 0);
+  ti = proto_tree_add_uint(tree, hf_s1ap_WarningMessageContents_nb_pages, warning_msg_tvb, 0, 1, nb_of_pages);
+  if (nb_of_pages > 15) {
+    expert_add_info_format(pinfo, ti, &ei_s1ap_number_pages_le15,
+                           "Number of pages should be <=15 (found %u)", nb_of_pages);
+    nb_of_pages = 15;
+  }
+  for (i = 0, offset = 1; i < nb_of_pages; i++) {
+    length = tvb_get_guint8(warning_msg_tvb, offset+82);
+    cb_data_page_tvb = tvb_new_subset_length(warning_msg_tvb, offset, length);
+    cb_data_tvb = dissect_cbs_data(dcs, cb_data_page_tvb, tree, pinfo, 0);
+    if (cb_data_tvb) {
+      str = tvb_get_string_enc(wmem_packet_scope(), cb_data_tvb, 0, tvb_reported_length(cb_data_tvb), ENC_UTF_8|ENC_NA);
+      proto_tree_add_string_format(tree, hf_s1ap_WarningMessageContents_decoded_page, warning_msg_tvb, offset, 83,
+                                   str, "Decoded Page %u: %s", i+1, str);
+    }
+    offset += 83;
+  }
+}
+
+static void
+s1ap_EUTRANRoundTripDelayEstimationInfo_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%uTs (%u)", 16*v, v);
+}
+
+static const true_false_string s1ap_tfs_activate_do_not_activate = {
+  "Activate",
+  "Do not activate"
+};
 
 #include "packet-s1ap-fn.c"
 
@@ -264,7 +381,138 @@ void proto_register_s1ap(void) {
       { "transportLayerAddress(IPv6)", "s1ap.transportLayerAddressIPv6",
         FT_IPv6, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
+    { &hf_s1ap_E_UTRAN_Trace_ID_TraceID,
+      { "TraceID", "s1ap.E_UTRAN_Trace_ID.TraceID",
+        FT_UINT24, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_E_UTRAN_Trace_ID_TraceRecordingSessionReference,
+      { "TraceRecordingSessionReference", "s1ap.E_UTRAN_Trace_ID.TraceRecordingSessionReference",
+        FT_UINT16, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_interfacesToTrace_S1_MME,
+      { "S1-MME", "s1ap.interfacesToTrace.S1_MME",
+        FT_BOOLEAN, 8, TFS(&s1ap_tfs_interfacesToTrace), 0x80,
+        NULL, HFILL }},
+    { &hf_s1ap_interfacesToTrace_X2,
+      { "X2", "s1ap.interfacesToTrace.X2",
+        FT_BOOLEAN, 8, TFS(&s1ap_tfs_interfacesToTrace), 0x40,
+        NULL, HFILL }},
+    { &hf_s1ap_interfacesToTrace_Uu,
+      { "Uu", "s1ap.interfacesToTrace.Uu",
+        FT_BOOLEAN, 8, TFS(&s1ap_tfs_interfacesToTrace), 0x20,
+        NULL, HFILL }},
+    { &hf_s1ap_interfacesToTrace_Reserved,
+      { "Reserved", "s1ap.interfacesToTrace.Reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x1f,
+        NULL, HFILL }},
+    { &hf_s1ap_encryptionAlgorithms_EEA1,
+      { "128-EEA1", "s1ap.encryptionAlgorithms.EEA1",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x8000,
+        NULL, HFILL }},
+    { &hf_s1ap_encryptionAlgorithms_EEA2,
+      { "128-EEA2", "s1ap.encryptionAlgorithms.EEA2",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x4000,
+        NULL, HFILL }},
+    { &hf_s1ap_encryptionAlgorithms_EEA3,
+      { "128-EEA3", "s1ap.encryptionAlgorithms.EEA3",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000,
+        NULL, HFILL }},
+    { &hf_s1ap_encryptionAlgorithms_Reserved,
+      { "Reserved", "s1ap.encryptionAlgorithms.Reserved",
+        FT_UINT16, BASE_HEX, NULL, 0x1fff,
+        NULL, HFILL }},
+    { &hf_s1ap_integrityProtectionAlgorithms_EIA1,
+      { "128-EIA1", "s1ap.integrityProtectionAlgorithms.EIA1",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x8000,
+        NULL, HFILL }},
+    { &hf_s1ap_integrityProtectionAlgorithms_EIA2,
+      { "128-EIA2", "s1ap.integrityProtectionAlgorithms.EIA2",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x4000,
+        NULL, HFILL }},
+    { &hf_s1ap_integrityProtectionAlgorithms_EIA3,
+      { "128-EIA3", "s1ap.integrityProtectionAlgorithms.EIA3",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000,
+        NULL, HFILL }},
+    { &hf_s1ap_integrityProtectionAlgorithms_Reserved,
+      { "Reserved", "s1ap.integrityProtectionAlgorithms.Reserved",
+        FT_UINT16, BASE_HEX, NULL, 0x1fff,
+        NULL, HFILL }},
+    { &hf_s1ap_SerialNumber_gs,
+      { "Geographical Scope", "s1ap.SerialNumber.gs",
+        FT_UINT16, BASE_DEC, VALS(s1ap_serialNumber_gs_vals), 0xc000,
+        NULL, HFILL }},
+    { &hf_s1ap_SerialNumber_msg_code,
+      { "Message Code", "s1ap.SerialNumber.msg_code",
+        FT_UINT16, BASE_DEC, NULL, 0x3ff0,
+        NULL, HFILL }},
+    { &hf_s1ap_SerialNumber_upd_nb,
+      { "Update Number", "s1ap.SerialNumber.upd_nb",
+        FT_UINT16, BASE_DEC, NULL, 0x000f,
+        NULL, HFILL }},
+    { &hf_s1ap_WarningType_value,
+      { "Warning Type Value", "s1ap.WarningType.value",
+        FT_UINT16, BASE_DEC, VALS(s1ap_warningType_vals), 0xfe00,
+        NULL, HFILL }},
+    { &hf_s1ap_WarningType_emergency_user_alert,
+      { "Emergency User Alert", "s1ap.WarningType.emergency_user_alert",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0100,
+        NULL, HFILL }},
+    { &hf_s1ap_WarningType_popup,
+      { "Popup", "s1ap.WarningType.popup",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0080,
+        NULL, HFILL }},
+    { &hf_s1ap_WarningMessageContents_nb_pages,
+      { "Number of Pages", "s1ap.WarningMessageContents.nb_pages",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_WarningMessageContents_decoded_page,
+      { "Decoded Page", "lte-rrc.WarningMessageContents.decoded_page",
+        FT_STRING, STR_UNICODE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_measurementsToActivate_M1,
+      { "M1", "s1ap.measurementsToActivate.M1",
+        FT_BOOLEAN, 8, TFS(&s1ap_tfs_activate_do_not_activate), 0x80,
+        NULL, HFILL }},
+    { &hf_s1ap_measurementsToActivate_M2,
+      { "M2", "s1ap.measurementsToActivate.M2",
+        FT_BOOLEAN, 8, TFS(&s1ap_tfs_activate_do_not_activate), 0x40,
+        NULL, HFILL }},
+    { &hf_s1ap_measurementsToActivate_M3,
+      { "M3", "s1ap.measurementsToActivate.M3",
+        FT_BOOLEAN, 8, TFS(&s1ap_tfs_activate_do_not_activate), 0x20,
+        NULL, HFILL }},
+    { &hf_s1ap_measurementsToActivate_M4,
+      { "M4", "s1ap.measurementsToActivate.M4",
+        FT_BOOLEAN, 8, TFS(&s1ap_tfs_activate_do_not_activate), 0x10,
+        NULL, HFILL }},
+    { &hf_s1ap_measurementsToActivate_M5,
+      { "M5", "s1ap.measurementsToActivate.M5",
+        FT_BOOLEAN, 8, TFS(&s1ap_tfs_activate_do_not_activate), 0x08,
+        NULL, HFILL }},
+    { &hf_s1ap_measurementsToActivate_LoggingM1FromEventTriggered,
+      { "LoggingOfM1FromEventTriggeredMeasurementReports", "s1ap.measurementsToActivate.LoggingM1FromEventTriggered",
+        FT_BOOLEAN, 8, TFS(&s1ap_tfs_activate_do_not_activate), 0x04,
+        NULL, HFILL }},
+    { &hf_s1ap_measurementsToActivate_M6,
+      { "M6", "s1ap.measurementsToActivate.M6",
+        FT_BOOLEAN, 8, TFS(&s1ap_tfs_activate_do_not_activate), 0x02,
+        NULL, HFILL }},
+    { &hf_s1ap_measurementsToActivate_M7,
+      { "M7", "s1ap.measurementsToActivate.M7",
+        FT_BOOLEAN, 8, TFS(&s1ap_tfs_activate_do_not_activate), 0x01,
+        NULL, HFILL }},
+    { &hf_s1ap_MDT_Location_Info_GNSS,
+      { "GNSS", "s1ap.MDT_Location_Info.GNSS",
+        FT_BOOLEAN, 8, TFS(&s1ap_tfs_activate_do_not_activate), 0x80,
+        NULL, HFILL }},
+    { &hf_s1ap_MDT_Location_Info_E_CID,
+      { "E-CID", "s1ap.MDT_Location_Info.E_CID",
+        FT_BOOLEAN, 8, TFS(&s1ap_tfs_activate_do_not_activate), 0x40,
+        NULL, HFILL }},
+    { &hf_s1ap_MDT_Location_Info_Reserved,
+      { "Reserved", "s1ap.MDT_Location_Info.Reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x3f,
+        NULL, HFILL }},
 #include "packet-s1ap-hfarr.c"
   };
 
@@ -284,16 +532,38 @@ void proto_register_s1ap(void) {
     &ett_s1ap_CELevel,
     &ett_s1ap_UE_RLF_Report_Container,
     &ett_s1ap_UE_RLF_Report_Container_for_extended_bands,
+    &ett_s1ap_S1_Message,
+    &ett_s1ap_E_UTRAN_Trace_ID,
+    &ett_s1ap_InterfacesToTrace,
+    &ett_s1ap_EncryptionAlgorithms,
+    &ett_s1ap_IntegrityProtectionAlgorithms,
+    &ett_s1ap_LastVisitedUTRANCellInformation,
+    &ett_s1ap_SerialNumber,
+    &ett_s1ap_WarningType,
+    &ett_s1ap_DataCodingScheme,
+    &ett_s1ap_WarningMessageContents,
+    &ett_s1ap_MSClassmark,
+    &ett_s1ap_MeasurementsToActivate,
+    &ett_s1ap_MDT_Location_Info,
+    &ett_s1ap_IMSI,
+    &ett_s1ap_NASSecurityParameters,
 #include "packet-s1ap-ettarr.c"
   };
 
+  static ei_register_info ei[] = {
+    { &ei_s1ap_number_pages_le15, { "s1ap.number_pages_le15", PI_MALFORMED, PI_ERROR, "Number of pages should be <=15", EXPFILL }}
+  };
+
   module_t *s1ap_module;
+  expert_module_t* expert_s1ap;
 
   /* Register protocol */
   proto_s1ap = proto_register_protocol(PNAME, PSNAME, PFNAME);
   /* Register fields and subtrees */
   proto_register_field_array(proto_s1ap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_s1ap = expert_register_protocol(proto_s1ap);
+  expert_register_field_array(expert_s1ap, ei, array_length(ei));
 
   /* Register dissector */
   s1ap_handle = register_dissector("s1ap", dissect_s1ap, proto_s1ap);

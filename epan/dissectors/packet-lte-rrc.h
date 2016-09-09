@@ -31,6 +31,8 @@
 #ifndef PACKET_LTE_RRC_H
 #define PACKET_LTE_RRC_H
 
+extern value_string_ext lte_rrc_messageIdentifier_vals_ext;
+
 
 /*--- Included file: packet-lte-rrc-exp.h ---*/
 #line 1 "./asn1/lte-rrc/packet-lte-rrc-exp.h"
@@ -48,6 +50,6 @@ int dissect_lte_rrc_HandoverPreparationInformation_NB_PDU(tvbuff_t *tvb _U_, pac
 int dissect_lte_rrc_UERadioAccessCapabilityInformation_NB_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-lte-rrc-exp.h ---*/
-#line 27 "./asn1/lte-rrc/packet-lte-rrc-template.h"
+#line 29 "./asn1/lte-rrc/packet-lte-rrc-template.h"
 
 #endif  /* PACKET_LTE_RRC_H */

@@ -23,6 +23,8 @@
 #ifndef PACKET_LTE_RRC_H
 #define PACKET_LTE_RRC_H
 
+extern value_string_ext lte_rrc_messageIdentifier_vals_ext;
+
 #include "packet-lte-rrc-exp.h"
 
 #endif  /* PACKET_LTE_RRC_H */

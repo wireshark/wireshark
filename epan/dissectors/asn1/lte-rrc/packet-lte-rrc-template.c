@@ -2198,7 +2198,7 @@ static const value_string lte_rrc_messageIdentifier_vals[] = {
   { 0x112b, "CMAS Identifier for operator defined use for additional languages"},
   {      0, NULL},
 };
-static value_string_ext lte_rrc_messageIdentifier_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_messageIdentifier_vals);
+value_string_ext lte_rrc_messageIdentifier_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_messageIdentifier_vals);
 
 static const value_string lte_rrc_serialNumber_gs_vals[] = {
   { 0, "Display mode immediate, cell wide"},
@@ -3624,7 +3624,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
     { &hf_lte_rrc_warningMessageSegment_decoded_page,
       { "Decoded Page", "lte-rrc.warningMessageSegment.decoded_page",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_STRING, STR_UNICODE, NULL, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit1,
       { "Bit 1", "lte-rrc.interBandTDD_CA_WithDifferentConfig.bit1",
