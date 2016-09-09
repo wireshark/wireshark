@@ -299,7 +299,7 @@ add_selection(char *sel, guint* max_selection)
         next = locn + 1;
         selectfrm[max_selected].inclusive = TRUE;
         selectfrm[max_selected].first = get_guint32(sel, "beginning of packet range");
-        selectfrm[max_selected].second = get_guint32(sel, "end of packet range");
+        selectfrm[max_selected].second = get_guint32(next, "end of packet range");
 
         if (selectfrm[max_selected].second == 0)
         {
