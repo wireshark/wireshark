@@ -175,7 +175,7 @@ xml_get_int(int *val, const char *str, const char *pattern, int *err, gchar **er
 	if (!ws_strtoi32(buf, &endptr, val)) {
 		*err = WTAP_ERR_BAD_FILE;
 		if (errno == ERANGE) {
-			if (*val < 0) 
+			if (*val < 0)
 				*err_info = g_strdup_printf("dct3trace: %s value is too small, minimum is %d", pattern, *val);
 			else
 				*err_info = g_strdup_printf("dct3trace: %s value is too large, maximum is %d", pattern, *val);
