@@ -30,7 +30,7 @@ indent_size = 4
 indent_style = space
 indent_size = 4
 
-[{capinfos,captype,mergecap,mkcap,tfshark,tshark}.c]
+[{capinfos,captype,mergecap,tfshark,tshark}.c]
 indent_size = 2
 
 [{dftest,echld_test,randpkt,trigcap}.c]
