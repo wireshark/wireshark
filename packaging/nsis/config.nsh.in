@@ -4,6 +4,7 @@
 
 # Do not prefix comments with ";". They will be removed by CMake.
 
+# MUST match "<Product ... Name=" in wix/Wireshark.wxs.
 !define PROGRAM_NAME "@PROGRAM_NAME@"
 !define TOP_SRC_DIR "@TOP_SRC_DIR@"
 !define STAGING_DIR "@STAGING_DIR@"

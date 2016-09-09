@@ -205,10 +205,18 @@ Associate.end:
     Pop $R0
 FunctionEnd
 
+; NSIS
 Var OLD_UNINSTALLER
 Var OLD_INSTDIR
 Var OLD_DISPLAYNAME
 Var TMP_UNINSTALLER
+
+; WiX
+Var REGISTRY_BITS
+Var TMP_PRODUCT_GUID
+Var WIX_DISPLAYNAME
+Var WIX_DISPLAYVERSION
+Var WIX_UNINSTALLSTRING
 
 ; ============================================================================
 ; 64-bit support
@@ -270,16 +278,17 @@ lbl_winversion_unsupported_xp_2003:
 lbl_winversion_supported:
 !insertmacro IsWiresharkRunning
 
+  ; Look for an NSIS-installed package.
   ; Copied from http://nsis.sourceforge.net/Auto-uninstall_old_before_installing_new
   ReadRegStr $OLD_UNINSTALLER HKLM \
     "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}" \
     "UninstallString"
-  StrCmp $OLD_UNINSTALLER "" done
+  StrCmp $OLD_UNINSTALLER "" check_wix
 
   ReadRegStr $OLD_INSTDIR HKLM \
     "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME}.exe" \
     "Path"
-  StrCmp $OLD_INSTDIR "" done
+  StrCmp $OLD_INSTDIR "" check_wix
 
   ReadRegStr $OLD_DISPLAYNAME HKLM \
     "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}" \
@@ -290,14 +299,14 @@ lbl_winversion_supported:
     "$OLD_DISPLAYNAME is already installed.\
      $\n$\nWould you like to uninstall it first?" \
       /SD IDYES \
-      IDYES prep_uninstaller \
+      IDYES prep_nsis_uninstaller \
       IDNO done
   Abort
 
 ; Copy the uninstaller to $TEMP and run it.
 ; The uninstaller normally does this by itself, but doesn't wait around
 ; for the executable to finish, which means ExecWait won't work correctly.
-prep_uninstaller:
+prep_nsis_uninstaller:
   ClearErrors
   StrCpy $TMP_UNINSTALLER "$TEMP\${PROGRAM_NAME}_uninstaller.exe"
   ; ...because we surround UninstallString in quotes.
@@ -309,7 +318,56 @@ prep_uninstaller:
 
   Delete "$TMP_UNINSTALLER"
 
+; Look for a WiX-installed package.
+
+check_wix:
+  StrCpy $REGISTRY_BITS 64
+  SetRegView 64
+  check_wix_restart:
+    StrCpy $0 0
+  wix_reg_enum_loop:
+    EnumRegKey $TMP_PRODUCT_GUID HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" $0
+    StrCmp $TMP_PRODUCT_GUID "" wix_enum_reg_done
+    IntOp $0 $0 + 1
+    ReadRegStr $WIX_DISPLAYNAME HKLM \
+      "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$TMP_PRODUCT_GUID" \
+      "DisplayName"
+    ; MessageBox MB_OK|MB_ICONINFORMATION "Reading HKLM SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$1 DisplayName = $2"
+    ; Look for "Wireshark".
+    StrCmp $WIX_DISPLAYNAME "${PROGRAM_NAME}" wix_found wix_reg_enum_loop
+
+    wix_found:
+      ReadRegStr $WIX_DISPLAYVERSION HKLM \
+        "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$TMP_PRODUCT_GUID" \
+        "DisplayVersion"
+      ReadRegStr $WIX_UNINSTALLSTRING HKLM \
+        "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$TMP_PRODUCT_GUID" \
+        "UninstallString"
+      StrCmp $WIX_UNINSTALLSTRING "" done
+      MessageBox MB_YESNOCANCEL|MB_ICONQUESTION \
+        "$WIX_DISPLAYNAME $WIX_DISPLAYVERSION (msi) is already installed.\
+         $\n$\nWould you like to uninstall it first?" \
+          /SD IDYES \
+          IDYES prep_wix_uninstaller \
+          IDNO done
+      Abort
+
+      ; Run the WiX-provided UninstallString.
+      prep_wix_uninstaller:
+        ClearErrors
+        ExecWait "$WIX_UNINSTALLSTRING"
+
+      Goto done
+
+  wix_enum_reg_done:
+    MessageBox MB_OK|MB_ICONINFORMATION "Checked $0 $REGISTRY_BITS bit keys"
+    IntCmp $REGISTRY_BITS 32 done
+    StrCpy $REGISTRY_BITS 32
+    SetRegView 32
+    Goto check_wix_restart
+
 done:
+
   ;Extract InstallOptions INI files
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "AdditionalTasksPage.ini"
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "WinpcapPage.ini"
