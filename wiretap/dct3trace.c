@@ -31,6 +31,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include <wsutil/strtoi.h>
 
@@ -126,31 +127,68 @@ hex2bin(guint8 *out, guint8 *out_end, char *in)
 	return (int)(out - out_start);
 }
 
-static int
-xml_get_int(int *val, const char *str, const char *pattern)
+static gboolean
+xml_get_int(int *val, const char *str, const char *pattern, int *err, gchar **err_info)
 {
-	const char *ptr;
+	const char *ptr, *endptr;
 	char *start, *end;
 	char buf[32];
 
 	ptr = strstr(str, pattern);
-	if (ptr == NULL)
-		return -1;
+	if (ptr == NULL) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("dct3trace: %s not found", pattern);
+		return FALSE;
+	}
+	/*
+	 * XXX - should we just skip past the pattern and check for ="?
+	 */
 	start = strchr(ptr, '"');
-	if (start == NULL)
-		return -2;
+	if (start == NULL) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("dct3trace: opening quote for %s not found", pattern);
+		return FALSE;
+	}
 	start++;
+	/*
+	 * XXX - should we just use ws_strtoi32() and check whether
+	 * the character following the number is a "?
+	 */
 	end = strchr(start, '"');
-	if (end == NULL)
-		return -3;
-	if (end - start > 31)
-		return -4;
+	if (end == NULL) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("dct3trace: closing quote for %s not found", pattern);
+		return FALSE;
+	}
+	if (end - start > 31) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("dct3trace: %s value is too long", pattern);
+		return FALSE;
+	}
 
 	memcpy(buf, start, end - start);
 	buf[end - start] = '\0';
-	if (!ws_strtoi32(buf, NULL, val))
-		return -5;
-	return 0;
+	/*
+	 * XXX - should we allow negative numbers in all cases?  Or are
+	 * there cases where the number is unsigned?
+	 */
+	if (!ws_strtoi32(buf, &endptr, val)) {
+		*err = WTAP_ERR_BAD_FILE;
+		if (errno == ERANGE) {
+			if (*val < 0) 
+				*err_info = g_strdup_printf("dct3trace: %s value is too small, minimum is %d", pattern, *val);
+			else
+				*err_info = g_strdup_printf("dct3trace: %s value is too large, maximum is %d", pattern, *val);
+		} else
+			*err_info = g_strdup_printf("dct3trace: %s value \"%s\" not a number", pattern, buf);
+		return FALSE;
+	}
+	if (*endptr != '\0') {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("dct3trace: %s value \"%s\" not a number", pattern, buf);
+		return FALSE;
+	}
+	return TRUE;
 }
 
 
@@ -239,26 +277,26 @@ static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 			char *ptr;
 
 			phdr->pseudo_header.gsm_um.uplink = !strstr(line, "direction=\"down\"");
-			if (xml_get_int(&channel, line, "logicalchannel") != 0)
-				goto baddata;
+			if (!xml_get_int(&channel, line, "logicalchannel", err, err_info))
+				return FALSE;
 
 			/* Parse downlink only fields */
 			if( !phdr->pseudo_header.gsm_um.uplink )
 			{
-				if (xml_get_int(&tmp, line, "physicalchannel") != 0)
-					goto baddata;
+				if (!xml_get_int(&tmp, line, "physicalchannel", err, err_info))
+					return FALSE;
 				phdr->pseudo_header.gsm_um.arfcn = tmp;
-				if (xml_get_int(&tmp, line, "sequence") != 0)
-					goto baddata;
+				if (!xml_get_int(&tmp, line, "sequence", err, err_info))
+					return FALSE;
 				phdr->pseudo_header.gsm_um.tdma_frame = tmp;
-				if (xml_get_int(&tmp, line, "bsic") != 0)
-					goto baddata;
+				if (!xml_get_int(&tmp, line, "bsic", err, err_info))
+					return FALSE;
 				phdr->pseudo_header.gsm_um.bsic = tmp;
-				if (xml_get_int(&tmp, line, "error") != 0)
-					goto baddata;
+				if (!xml_get_int(&tmp, line, "error", err, err_info))
+					return FALSE;
 				phdr->pseudo_header.gsm_um.error = tmp;
-				if (xml_get_int(&tmp, line, "timeshift") != 0)
-					goto baddata;
+				if (!xml_get_int(&tmp, line, "timeshift", err, err_info))
+					return FALSE;
 				phdr->pseudo_header.gsm_um.timeshift = tmp;
 			}
 
@@ -336,11 +374,6 @@ static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 	{
 		*err = WTAP_ERR_SHORT_READ;
 	}
-	return FALSE;
-
-baddata:
-	*err = WTAP_ERR_BAD_FILE;
-	*err_info = g_strdup("dct3trace: record missing mandatory attributes");
 	return FALSE;
 }
 
