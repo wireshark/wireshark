@@ -925,6 +925,9 @@ parse_line(gchar *linebuff, gint line_length,
             *context_portp = port_number_string[0] - '0';
         }
         else {
+            /* Everything in here is a digit, so we don't need to check
+               whether what follows the number is anything other than
+               a '\0'. */
             if (!ws_strtou8(port_number_string, NULL, context_portp)) {
               return FALSE;
             }
