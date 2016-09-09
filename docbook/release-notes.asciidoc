@@ -17,6 +17,8 @@ used for troubleshooting, analysis, development and education.
 //* cve-idlink:2014-2486[]
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
 
+* Multiple PortableApps instances can once again be run at the same time.
+
 === New and Updated Features
 
 There are no new features in this release.
