@@ -118,6 +118,11 @@ static header_field_info hfi_sll_src_other SLL_HFI_INIT =
 	{ "Source",	"sll.src.other", FT_BYTES, BASE_NONE,
 	  NULL, 0x0, "Source link-layer address", HFILL };
 
+/* Unused remaining bytes */
+static header_field_info hfi_sll_unused SLL_HFI_INIT =
+	{ "Unused", "sll.unused", FT_BYTES, BASE_NONE,
+	  NULL, 0x0, "Unused bytes", HFILL };
+
 /* if the protocol field is an internal Linux protocol type */
 static header_field_info hfi_sll_ltype SLL_HFI_INIT =
 	{ "Protocol",	"sll.ltype", FT_UINT16, BASE_HEX,
@@ -254,6 +259,11 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		break;
 	}
 
+	/* Not all bytes of SLL_ADDRLEN have been used. Add remaining as unused */
+	if (SLL_ADDRLEN - halen > 0)
+		proto_tree_add_item(fh_tree, &hfi_sll_unused, tvb, 6 + halen,
+			SLL_ADDRLEN - halen, ENC_BIG_ENDIAN);
+
 	protocol = tvb_get_ntohs(tvb, 14);
 	next_tvb = tvb_new_subset_remaining(tvb, SLL_HEADER_SIZE);
 	if (protocol <= 1536) {	/* yes, 1536 - that's how Linux does it */
@@ -308,6 +318,7 @@ proto_register_sll(void)
 		&hfi_sll_src_eth,
 		&hfi_sll_src_ipv4,
 		&hfi_sll_src_other,
+		&hfi_sll_unused,
 		&hfi_sll_ltype,
 		&hfi_sll_gretype,
 		/* registered here but handled in ethertype.c */
