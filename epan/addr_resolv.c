@@ -32,6 +32,8 @@
 #include <string.h>
 #include <errno.h>
 
+#include <wsutil/strtoi.h>
+
 /*
  * Win32 doesn't have SIGALRM (and it's the OS where name lookup calls
  * are most likely to take a long time, given the way address-to-name
@@ -412,7 +414,7 @@ fgetline(char **buf, int *size, FILE *fp)
  *  Local function definitions
  */
 static subnet_entry_t subnet_lookup(const guint32 addr);
-static void subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, const gchar* name);
+static void subnet_entry_set(guint32 subnet_addr, const guint8 mask_length, const gchar* name);
 
 
 static void
@@ -2135,7 +2137,7 @@ read_subnets_file (const char *subnetspath)
     int size = 0;
     gchar *cp, *cp2;
     guint32 host_addr; /* IPv4 ONLY */
-    int mask_length;
+    guint8 mask_length;
 
     if ((hf = ws_fopen(subnetspath, "r")) == NULL)
         return FALSE;
@@ -2162,15 +2164,14 @@ read_subnets_file (const char *subnetspath)
             continue; /* no */
         }
 
-        mask_length = atoi(cp2);
-        if (0 >= mask_length || mask_length > 32) {
+        if (!ws_strtou8(cp2, NULL, &mask_length) || mask_length == 0 || mask_length > 32) {
             continue; /* invalid mask length */
         }
 
         if ((cp = strtok(NULL, " \t")) == NULL)
             continue; /* no subnet name */
 
-        subnet_entry_set(host_addr, (guint32)mask_length, cp);
+        subnet_entry_set(host_addr, mask_length, cp);
     }
     wmem_free(wmem_epan_scope(), line);
 
@@ -2231,7 +2232,7 @@ subnet_lookup(const guint32 addr)
  * given length.
  */
 static void
-subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, const gchar* name)
+subnet_entry_set(guint32 subnet_addr, const guint8 mask_length, const gchar* name)
 {
     subnet_length_entry_t* entry;
     sub_net_hashipv4_t * tp;
