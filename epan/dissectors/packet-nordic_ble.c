@@ -686,7 +686,7 @@ proto_register_nordic_ble(void)
      expert_module_t* expert_nordic_ble;
     /* Register the protocol name and description */
     proto_nordic_ble = proto_register_protocol("Nordic BLE sniffer meta",
-        "nordic_ble", "nordic_ble");
+        "NORDIC_BLE", "nordic_ble");
 
     register_dissector("nordic_ble", dissect_nordic_ble, proto_nordic_ble);
 
