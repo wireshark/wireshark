@@ -2754,11 +2754,9 @@ main(int argc, char *argv[])
     gtk_iface_mon_stop();
 #endif
 
-#ifdef HAVE_EXTCAP
-    extcap_cleanup();
-#endif
-
     epan_cleanup();
+
+    extcap_cleanup();
 
     AirPDcapDestroyContext(&airpdcap_ctx);
 

@@ -1310,10 +1310,8 @@ main(int argc, char *argv[])
        * cruft getting in the way. Makes the results of running
        * $ ./tools/valgrind-wireshark -n
        * much more useful. */
-#ifdef HAVE_EXTCAP
-      extcap_cleanup();
-#endif
       epan_cleanup();
+      extcap_cleanup();
       return 0;
     case 'O':        /* Only output these protocols */
       /* already processed; just ignore it now */
@@ -1732,10 +1730,8 @@ main(int argc, char *argv[])
     if (!dfilter_compile(rfilter, &rfcode, &err_msg)) {
       cmdarg_err("%s", err_msg);
       g_free(err_msg);
-#ifdef HAVE_EXTCAP
-      extcap_cleanup();
-#endif
       epan_cleanup();
+      extcap_cleanup();
 #ifdef HAVE_PCAP_OPEN_DEAD
       {
         pcap_t *pc;
@@ -1761,10 +1757,8 @@ main(int argc, char *argv[])
     if (!dfilter_compile(dfilter, &dfcode, &err_msg)) {
       cmdarg_err("%s", err_msg);
       g_free(err_msg);
-#ifdef HAVE_EXTCAP
-      extcap_cleanup();
-#endif
       epan_cleanup();
+      extcap_cleanup();
 #ifdef HAVE_PCAP_OPEN_DEAD
       {
         pcap_t *pc;
@@ -1875,10 +1869,8 @@ main(int argc, char *argv[])
      * We're reading a capture file.
      */
     if (cf_open(&cfile, cf_name, in_file_type, FALSE, &err) != CF_OK) {
-#ifdef HAVE_EXTCAP
-      extcap_cleanup();
-#endif
       epan_cleanup();
+      extcap_cleanup();
       return 2;
     }
 
@@ -2039,10 +2031,8 @@ main(int argc, char *argv[])
   draw_tap_listeners(TRUE);
   funnel_dump_all_text_windows();
   epan_free(cfile.epan);
-#ifdef HAVE_EXTCAP
-  extcap_cleanup();
-#endif
   epan_cleanup();
+  extcap_cleanup();
 
   output_fields_free(output_fields);
   output_fields = NULL;

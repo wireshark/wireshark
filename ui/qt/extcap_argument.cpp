@@ -61,7 +61,8 @@ QWidget * ExtArgSelector::createEditor(QWidget * parent)
 {
     int counter = 0;
     int selected = -1;
-    QString stored = _argument->storeval ? QString(_argument->storeval) : QString();
+    const char *prefval = _argument->pref_valptr ? *_argument->pref_valptr : NULL;
+    QString stored(prefval ? prefval : "");
 
     boxSelection = new QComboBox(parent);
 
@@ -73,9 +74,9 @@ QWidget * ExtArgSelector::createEditor(QWidget * parent)
         {
             boxSelection->addItem((*iter).value(), (*iter).call());
 
-            if ( ! _argument->storeval && (*iter).isDefault() )
+            if ( !prefval && (*iter).isDefault() )
                 selected = counter;
-            else if ( _argument->storeval && stored.compare((*iter).call()) == 0 )
+            else if ( prefval && stored.compare((*iter).call()) == 0 )
                 selected = counter;
 
             counter++;
@@ -227,11 +228,12 @@ QWidget * ExtArgBool::createEditor(QWidget * parent)
     if ( _argument->tooltip != NULL )
         boolBox->setToolTip(QString().fromUtf8(_argument->tooltip));
 
-    if ( _argument->storeval )
+    const char *prefval = _argument->pref_valptr ? *_argument->pref_valptr : NULL;
+    if ( prefval )
     {
         QRegExp regexp(EXTCAP_BOOLEAN_REGEX);
 
-        bool savedstate = ( regexp.indexIn(QString(_argument->storeval[0]), 0) != -1 );
+        bool savedstate = ( regexp.indexIn(QString(prefval[0]), 0) != -1 );
         if ( savedstate != state )
             state = savedstate;
     }
@@ -303,9 +305,9 @@ QWidget * ExtArgText::createEditor(QWidget * parent)
     QString storeValue;
     QString text = defaultValue();
 
-    if ( _argument->storeval )
+    if ( _argument->pref_valptr && *_argument->pref_valptr)
     {
-        QString storeValue = _argument->storeval;
+        QString storeValue(*_argument->pref_valptr);
 
         if ( storeValue.length() > 0 && storeValue.compare(text) != 0 )
             text = storeValue.trimmed();
@@ -367,9 +369,9 @@ QWidget * ExtArgNumber::createEditor(QWidget * parent)
     QString storeValue;
     QString text = defaultValue();
 
-    if ( _argument->storeval )
+    if ( _argument->pref_valptr && *_argument->pref_valptr)
     {
-        QString storeValue = _argument->storeval;
+        QString storeValue(*_argument->pref_valptr);
 
         if ( storeValue.length() > 0 && storeValue.compare(text) != 0 )
             text = storeValue;
@@ -596,8 +598,12 @@ QString ExtcapArgument::prefValue()
 
 void ExtcapArgument::resetValue()
 {
-    if (_argument && _argument->storeval)
-        memset(_argument->storeval, 0, 128 * sizeof(char));
+    // XXX consider using the preferences API which can store the default value
+    // and put that here instead of an empty value.
+    if (_argument->pref_valptr) {
+        g_free(*_argument->pref_valptr);
+        *_argument->pref_valptr = NULL;
+    }
 }
 
 bool ExtcapArgument::isValid()

@@ -122,7 +122,7 @@ typedef struct _extcap_arg {
     extcap_complex *range_end;
     extcap_complex *default_complex;
 
-    gchar * storeval;
+    gchar ** pref_valptr; /**< A copy of the pointer containing the current preference value. */
     gchar * device_name;
 
     GList * values;
