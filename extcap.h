@@ -109,7 +109,11 @@ void
 extcap_pref_store(struct _extcap_arg * arg, const char * newval);
 
 /* Clean up global extcap stuff on program exit */
+#ifdef HAVE_EXTCAP
 void extcap_cleanup(void);
+#else
+static inline void extcap_cleanup(void) {}
+#endif
 
 #ifdef __cplusplus
 }

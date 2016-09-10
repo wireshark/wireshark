@@ -64,7 +64,6 @@
 static HANDLE pipe_h = NULL;
 #endif
 
-#define EXTCAP_PREF_SIZE 256
 static void extcap_child_watch_cb(GPid pid, gint status, gpointer user_data);
 
 /* internal container, for all the extcap interfaces that have been found.
@@ -80,9 +79,9 @@ static GHashTable *ifaces = NULL;
  */
 static GHashTable *tools = NULL;
 
-/* internal container, to map preferences for extcap utilities to dynamic
- * memory content, which survives extcap if garbage collection, and does
- * not lead to dangling pointers
+/* internal container, to map preference names to pointers that hold preference
+ * values. These ensure that preferences can survive extcap if garbage
+ * collection, and does not lead to dangling pointers in the prefs subsystem.
  */
 static GHashTable *extcap_prefs_dynamic_vals = NULL;
 
@@ -433,6 +432,10 @@ void extcap_register_preferences(void)
     }
 }
 
+/**
+ * Releases the dynamic preference value pointers. Must not be called before
+ * prefs_cleanup since these pointers could still be in use.
+ */
 void extcap_cleanup(void)
 {
     if (extcap_prefs_dynamic_vals) {
@@ -442,27 +445,34 @@ void extcap_cleanup(void)
 
 void extcap_pref_store(extcap_arg * arg, const char * newval)
 {
-    if (arg && arg->storeval != NULL)
+    if (arg && arg->pref_valptr != NULL)
     {
-        memset(arg->storeval, 0, EXTCAP_PREF_SIZE * sizeof(char));
-        if ( newval )
-            g_snprintf(arg->storeval, EXTCAP_PREF_SIZE, "%s", newval);
+        g_free(*arg->pref_valptr);
+        *arg->pref_valptr = g_strdup(newval);
     }
 
 }
 
-static gchar * extcap_prefs_dynamic_valptr(const char *name)
+/**
+ * Obtains a pointer which can store a value for the given preference name.
+ *
+ * Extcap interfaces (and their preferences) are dynamic, they can be created
+ * and destroyed at will. Thus their data structures are insufficient to pass to
+ * the preferences APIs which require pointers which are valid until the
+ * preferences are removed (at exit).
+ */
+static gchar ** extcap_prefs_dynamic_valptr(const char *name)
 {
-    gchar *valp;
+    gchar **valp;
     if (!extcap_prefs_dynamic_vals) {
         /* Initialize table only as needed, most preferences are not dynamic */
         extcap_prefs_dynamic_vals = g_hash_table_new_full(g_str_hash, g_str_equal,
                 g_free, g_free);
     }
-    valp = (gchar *)g_hash_table_lookup(extcap_prefs_dynamic_vals, name);
+    valp = (gchar **)g_hash_table_lookup(extcap_prefs_dynamic_vals, name);
     if (!valp) {
         /* New dynamic pref, allocate, initialize and store. */
-        valp = g_new0(gchar, EXTCAP_PREF_SIZE);
+        valp = g_new0(gchar *, 1);
         g_hash_table_insert(extcap_prefs_dynamic_vals, g_strdup(name), valp);
     }
     return valp;
@@ -552,21 +562,19 @@ static gboolean search_cb(const gchar *extcap _U_, const gchar *ifname _U_, gcha
                     gchar * pref_ifname = g_strconcat(ifname_lowercase, ".", pref_name, NULL);
 
                     if ( ( pref = prefs_find_preference(dev_module, pref_ifname) ) == NULL ) {
-                        /* Set an initial value */
-                        if ( ! arg->storeval && arg->default_complex )
-                        {
-                            arg->storeval = extcap_prefs_dynamic_valptr(pref_ifname);
-                            g_snprintf(arg->storeval, EXTCAP_PREF_SIZE, "%s", arg->default_complex->_val);
+                        arg->pref_valptr = extcap_prefs_dynamic_valptr(pref_ifname);
+                        /* Set an initial value if any (the string will be copied at registration) */
+                        if (arg->default_complex) {
+                            *arg->pref_valptr = arg->default_complex->_val;
                         }
 
                         prefs_register_string_preference(dev_module, g_strdup(pref_ifname),
-                                arg->display, arg->display, (const gchar **)&(arg->storeval));
+                                arg->display, arg->display, (const char **)arg->pref_valptr);
                     } else {
                         /* Been here before, restore stored value */
-                        if (! arg->storeval && pref->varp.string)
+                        if (! arg->pref_valptr && pref->varp.string)
                         {
-                            arg->storeval = extcap_prefs_dynamic_valptr(pref_ifname);
-                            g_snprintf(arg->storeval, EXTCAP_PREF_SIZE, "%s", *(pref->varp.string));
+                            arg->pref_valptr = pref->varp.string;
                         }
                     }
 
@@ -618,6 +626,13 @@ extcap_get_if_configuration(const char * ifname) {
     return ret;
 }
 
+/**
+ * If is_required is FALSE: returns TRUE if the extcap interface has
+ * configurable options.
+ * If is_required is TRUE: returns TRUE when the extcap interface has
+ * configurable options that required modification. (For example, when an
+ * argument is required but empty.)
+ */
 gboolean
 extcap_has_configuration(const char * ifname, gboolean is_required) {
     GList * arguments = 0;
@@ -637,11 +652,11 @@ extcap_has_configuration(const char * ifname, gboolean is_required) {
                 if ( ! is_required )
                     found = TRUE;
                 else if ( arg->is_required ) {
-                    gchar * stored = NULL;
-                    gchar * defval = NULL;
+                    const gchar * stored = NULL;
+                    const gchar * defval = NULL;
 
-                    if ( arg->storeval != NULL )
-                        stored = arg->storeval;
+                    if (arg->pref_valptr != NULL)
+                        stored = *arg->pref_valptr;
 
                     if ( arg->default_complex != NULL && arg->default_complex->_val != NULL )
                         defval = arg->default_complex->_val;
@@ -651,7 +666,7 @@ extcap_has_configuration(const char * ifname, gboolean is_required) {
                          * configuration is needed */
                         if ( defval && stored && g_strcmp0(stored, defval) == 0 )
                             found = TRUE;
-                        else if ( ! defval && (!stored || strlen(g_strchomp(stored)) <= (size_t)0) )
+                        else if ( ! defval && (!stored || !*stored) )
                             found = TRUE;
                     }
 
@@ -938,11 +953,11 @@ GPtrArray * extcap_prepare_arguments(interface_options interface_opts)
 
                 arg_list = g_list_first((GList *)elem->data);
                 while (arg_list != NULL) {
-                    gchar * stored = NULL, * defval = NULL;
+                    const gchar * stored = NULL, * defval = NULL;
                     /* In case of boolflags only first element in arg_list is relevant. */
                     arg_iter = (extcap_arg*) (arg_list->data);
-                    if ( arg_iter->storeval != NULL )
-                        stored = arg_iter->storeval;
+                    if (arg_iter->pref_valptr != NULL)
+                        stored = *arg_iter->pref_valptr;
 
                     if ( arg_iter->default_complex != NULL && arg_iter->default_complex->_val != NULL )
                         defval = arg_iter->default_complex->_val;

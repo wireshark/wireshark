@@ -802,10 +802,8 @@ main(int argc, char *argv[])
                 cmdarg_err("%s", err_msg);
                 g_free(err_msg);
                 epan_free(cfile.epan);
-#ifdef HAVE_EXTCAP
-                extcap_cleanup();
-#endif
                 epan_cleanup();
+                extcap_cleanup();
                 exit(2);
             }
             n_rfcodes++;
@@ -826,10 +824,8 @@ main(int argc, char *argv[])
 
         if (raw_cf_open(&cfile, pipe_name) != CF_OK) {
             epan_free(cfile.epan);
-#ifdef HAVE_EXTCAP
-            extcap_cleanup();
-#endif
             epan_cleanup();
+            extcap_cleanup();
             exit(2);
         }
 
@@ -850,10 +846,8 @@ main(int argc, char *argv[])
         /* Process the packets in the file */
         if (!load_cap_file(&cfile)) {
             epan_free(cfile.epan);
-#ifdef HAVE_EXTCAP
-            extcap_cleanup();
-#endif
             epan_cleanup();
+            extcap_cleanup();
             exit(2);
         }
     } else {
@@ -863,10 +857,8 @@ main(int argc, char *argv[])
     }
 
     epan_free(cfile.epan);
-#ifdef HAVE_EXTCAP
-    extcap_cleanup();
-#endif
     epan_cleanup();
+    extcap_cleanup();
 
     return 0;
 }

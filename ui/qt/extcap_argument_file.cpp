@@ -55,7 +55,6 @@ ExtcapArgumentFileSelection::~ExtcapArgumentFileSelection()
 
 QWidget * ExtcapArgumentFileSelection::createEditor(QWidget * parent)
 {
-    QString storeval;
     QString text = defaultValue();
     QString buttonText(UTF8_HORIZONTAL_ELLIPSIS);
 
@@ -69,9 +68,10 @@ QWidget * ExtcapArgumentFileSelection::createEditor(QWidget * parent)
     textBox = new QLineEdit(text, parent);
     textBox->setReadOnly(true);
 
-    if ( _argument->storeval )
+    const char *prefval = _argument->pref_valptr ? *_argument->pref_valptr : NULL;
+    if (prefval)
     {
-        QString storeValue = _argument->storeval;
+        QString storeValue(prefval);
 
         if ( storeValue.length() > 0 && storeValue.compare(text) != 0 )
             text = storeValue.trimmed();
