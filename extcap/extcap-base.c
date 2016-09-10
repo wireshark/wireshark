@@ -272,6 +272,7 @@ static void extcap_help_option_free(gpointer option)
     extcap_option_t* o = (extcap_option_t*)option;
     g_free(o->optname);
     g_free(o->optdesc);
+    g_free(o);
 }
 
 void extcap_base_cleanup(extcap_parameters ** extcap)
@@ -334,10 +335,10 @@ void extcap_help_add_header(extcap_parameters * extcap, char * help_header)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: t
+ * tab-width: 4
+ * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=8 noexpandtab:
- * :indentSize=4:tabSize=8:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=4 expandtab:
+ * :indentSize=4:tabSize=4:noTabs=true:
  */
