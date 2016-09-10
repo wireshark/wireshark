@@ -63,7 +63,9 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_dirname@Base 1.12.0~rc1
  get_extcap_dir@Base 1.99.0
  get_global_profiles_dir@Base 1.12.0~rc1
+ get_guint32@Base 2.3.0
  get_natural_int@Base 1.99.0
+ get_nonzero_guint32@Base 2.3.0
  get_os_version_info@Base 1.99.0
  get_persconffile_path@Base 1.12.0~rc1
  get_persdatafile_dir@Base 1.12.0~rc1
@@ -179,5 +181,13 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_inet_pton6@Base 2.1.2
  ws_mempbrk_compile@Base 1.99.4
  ws_mempbrk_exec@Base 1.99.4
+ ws_strtoi16@Base 2.3.0
+ ws_strtoi32@Base 2.3.0
+ ws_strtoi64@Base 2.3.0
+ ws_strtoi8@Base 2.3.0
+ ws_strtou16@Base 2.3.0
+ ws_strtou32@Base 2.3.0
+ ws_strtou64@Base 2.3.0
+ ws_strtou8@Base 2.3.0
  ws_utf8_char_len@Base 1.12.0~rc1
  ws_xton@Base 1.12.0~rc1
