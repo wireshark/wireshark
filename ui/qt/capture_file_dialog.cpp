@@ -379,16 +379,15 @@ QStringList CaptureFileDialog::buildFileOpenTypeList() {
     filters << QString(tr("All Files (" ALL_FILES_WILDCARD ")"));
 
     /*
-     * Add an "All Capture Files" entry, with all the extensions we
-     * know about.
+     * Add an "All Capture Files" entry, with all the capture file
+     * extensions we know about.
      */
     filter = tr("All Capture Files");
 
     /*
-     * Construct its list of patterns from a list of all extensions
-     * we support.
+     * Construct its list of patterns.
      */
-    extensions_list = wtap_get_all_file_extensions_list();
+    extensions_list = wtap_get_all_capture_file_extensions_list();
     sep = " (";
     for (extension = extensions_list; extension != NULL;
          extension = g_slist_next(extension)) {

@@ -1488,19 +1488,18 @@ build_file_open_type_list(void) {
     sa = g_array_append_val(sa, zero);
 
     /*
-     * Add an "All Capture Files" entry, with all the extensions we
-     * know about.
+     * Add an "All Capture Files" entry, with all the capture file
+     * extensions we know about.
      */
     str16 = utf_8to16("All Capture Files");
     sa = g_array_append_vals(sa, str16, (guint) strlen("All Capture Files"));
     sa = g_array_append_val(sa, zero);
 
     /*
-     * Construct its list of patterns from a list of all extensions
-     * we support.
+     * Construct its list of patterns.
      */
     pattern_str = g_string_new("");
-    extensions_list = wtap_get_all_file_extensions_list();
+    extensions_list = wtap_get_all_capture_file_extensions_list();
     sep = '\0';
     for (extension = extensions_list; extension != NULL;
          extension = g_slist_next(extension)) {

@@ -1359,22 +1359,28 @@ typedef struct wtap_wslua_file_info {
 } wtap_wslua_file_info_t;
 
 /*
- * For registering extensions used for capture file formats.
+ * For registering extensions used for file formats.
  *
  * These items are used in dialogs for opening files, so that
  * the user can ask to see all capture files (as identified
  * by file extension) or particular types of capture files.
  *
- * Each file type has a description and a list of extensions the file
- * might have.  Some file types aren't real file types, they're
- * just generic types, such as "text file" or "XML file", that can
- * be used for, among other things, captures we can read, or for
- * extensions such as ".cap" that were unimaginatively chosen by
- * several different sniffers for their file formats.
+ * Each file type has a description, a flag indicating whether it's
+ * a capture file or just some file whose contents we can dissect,
+ * and a list of extensions the file might have.
+ *
+ * Some file types aren't real file types, they're just generic types,
+ * such as "text file" or "XML file", that can be used for, among other
+ * things, captures we can read, or for extensions such as ".cap" that
+ * were unimaginatively chosen by several different sniffers for their
+ * file formats.
  */
 struct file_extension_info {
     /* the file type name */
     const char *name;
+
+    /* TRUE if this is a capture file type */
+    gboolean is_capture_file;
 
     /* a semicolon-separated list of file extensions used for this type */
     const char *extensions;
@@ -1897,7 +1903,7 @@ int wtap_short_string_to_file_type_subtype(const char *short_name);
 
 /*** various file extension functions ***/
 WS_DLL_PUBLIC
-GSList *wtap_get_all_file_extensions_list(void);
+GSList *wtap_get_all_capture_file_extensions_list(void);
 WS_DLL_PUBLIC
 const char *wtap_default_file_extension(int filetype);
 WS_DLL_PUBLIC
