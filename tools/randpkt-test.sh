@@ -9,13 +9,17 @@
 TEST_TYPE="randpkt"
 . `dirname $0`/test-common.sh || exit 1
 
+# Run under AddressSanitizer ?
+ASAN=0
+
 # Trigger an abort if a dissector finds a bug.
 # Uncomment to disable
 WIRESHARK_ABORT_ON_DISSECTOR_BUG="True"
 
 # To do: add options for file names and limits
-while getopts ":b:d:p:t:" OPTCHAR ; do
+while getopts "a:b:d:p:t:" OPTCHAR ; do
     case $OPTCHAR in
+        a) ASAN=1 ;;
         b) WIRESHARK_BIN_DIR=$OPTARG ;;
         d) TMP_DIR=$OPTARG ;;
         p) MAX_PASSES=$OPTARG ;;
@@ -38,6 +42,13 @@ ws_check_exec "$TSHARK" "$RANDPKT" "$DATE" "$TMP_DIR"
 # r Read packet data from the following infile
 declare -a TSHARK_ARGS=("-nVxr" "-nr")
 RANDPKT_ARGS="-b 2000 -c 5000"
+
+if [ $ASAN -ne 0 ]; then
+    echo -n "ASan enabled. Virtual memory limit is "
+    ulimit -v
+else
+    echo "ASan disabled. Virtual memory limit is $MAX_VMEM"
+fi
 
 HOWMANY="forever"
 if [ $MAX_PASSES -gt 0 ]; then
@@ -77,8 +88,15 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
             # longer then MAX_CPU_TIME seconds. (ulimit may not be supported
             # well on some platforms, particularly cygwin.)
             (
-                ulimit -S -t $MAX_CPU_TIME -v $MAX_VMEM -s $MAX_STACK
+                ulimit -S -t $MAX_CPU_TIME -s $MAX_STACK
                 ulimit -c unlimited
+
+                # Don't enable ulimit -v when using ASAN. See
+                # https://github.com/google/sanitizers/wiki/AddressSanitizer#ulimit--v
+                if [ $ASAN -eq 0 ]; then
+                    ulimit -v $MAX_VMEM
+                fi
+
                 "$TSHARK" $ARGS $TMP_DIR/$TMP_FILE \
                     > /dev/null 2>> $TMP_DIR/$ERR_FILE
             )
