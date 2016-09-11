@@ -451,7 +451,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                 global_commandline_info.jump_backwards = SD_BACKWARD;
                 break;
             case 'g':        /* Go to packet with the given packet number */
-                global_commandline_info.go_to_packet = get_positive_int(optarg, "go to packet");
+                global_commandline_info.go_to_packet = get_nonzero_guint32(optarg, "go to packet");
                 break;
             case 'J':        /* Jump to the first packet which matches the filter criteria */
                 global_commandline_info.jfilter = optarg;

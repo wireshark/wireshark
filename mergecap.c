@@ -251,7 +251,7 @@ main(int argc, char *argv[])
   gboolean            do_append          = FALSE;
   gboolean            verbose            = FALSE;
   int                 in_file_count      = 0;
-  guint               snaplen            = 0;
+  guint32             snaplen            = 0;
 #ifdef PCAP_NG_DEFAULT
   int                 file_type          = WTAP_FILE_TYPE_SUBTYPE_PCAPNG; /* default to pcap format */
 #else
@@ -362,7 +362,7 @@ main(int argc, char *argv[])
       break;
 
     case 's':
-      snaplen = get_positive_int(optarg, "snapshot length");
+      snaplen = get_nonzero_guint32(optarg, "snapshot length");
       break;
 
     case 'v':

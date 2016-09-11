@@ -42,7 +42,7 @@ typedef struct commandline_param_info
 #endif
     e_prefs *prefs_p;
     search_direction jump_backwards;
-    guint go_to_packet;
+    guint32 go_to_packet;
     gchar* jfilter;
     gchar* cf_name;
     gchar* rfilter;
