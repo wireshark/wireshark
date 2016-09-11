@@ -133,6 +133,7 @@ static int ett_x2ap_IntegrityProtectionAlgorithms = -1;
 static int ett_x2ap_MeasurementsToActivate = -1;
 static int ett_x2ap_MDT_Location_Info = -1;
 static int ett_x2ap_transmissionModes = -1;
+static int ett_x2ap_X2AP_Message = -1;
 #include "packet-x2ap-ett.c"
 
 /* Global variables */
@@ -152,6 +153,7 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
+static int dissect_X2AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 void proto_reg_handoff_x2ap(void);
 
 static dissector_handle_t x2ap_handle;
@@ -481,6 +483,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_MeasurementsToActivate,
     &ett_x2ap_MDT_Location_Info,
     &ett_x2ap_transmissionModes,
+    &ett_x2ap_X2AP_Message,
 #include "packet-x2ap-ettarr.c"
   };
 

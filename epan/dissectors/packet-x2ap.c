@@ -964,6 +964,7 @@ static int ett_x2ap_IntegrityProtectionAlgorithms = -1;
 static int ett_x2ap_MeasurementsToActivate = -1;
 static int ett_x2ap_MDT_Location_Info = -1;
 static int ett_x2ap_transmissionModes = -1;
+static int ett_x2ap_X2AP_Message = -1;
 
 /*--- Included file: packet-x2ap-ett.c ---*/
 #line 1 "./asn1/x2ap/packet-x2ap-ett.c"
@@ -1241,7 +1242,7 @@ static gint ett_x2ap_SuccessfulOutcome = -1;
 static gint ett_x2ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-x2ap-ett.c ---*/
-#line 137 "./asn1/x2ap/packet-x2ap-template.c"
+#line 138 "./asn1/x2ap/packet-x2ap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -1260,6 +1261,7 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
+static int dissect_X2AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 void proto_reg_handoff_x2ap(void);
 
 static dissector_handle_t x2ap_handle;
@@ -4704,6 +4706,7 @@ dissect_x2ap_LHN_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
   actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, -1, ENC_UTF_8|ENC_NA);
 
 
+
   return offset;
 }
 
@@ -6533,7 +6536,7 @@ static const per_sequence_t HandoverRequest_sequence[] = {
 
 static int
 dissect_x2ap_HandoverRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 455 "./asn1/x2ap/x2ap.cnf"
+#line 463 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6632,7 +6635,7 @@ static const per_sequence_t HandoverRequestAcknowledge_sequence[] = {
 
 static int
 dissect_x2ap_HandoverRequestAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 457 "./asn1/x2ap/x2ap.cnf"
+#line 465 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverRequestAcknowledge ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6680,7 +6683,7 @@ static const per_sequence_t HandoverPreparationFailure_sequence[] = {
 
 static int
 dissect_x2ap_HandoverPreparationFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 459 "./asn1/x2ap/x2ap.cnf"
+#line 467 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverPreparationFailure ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6697,7 +6700,7 @@ static const per_sequence_t HandoverReport_sequence[] = {
 
 static int
 dissect_x2ap_HandoverReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 497 "./asn1/x2ap/x2ap.cnf"
+#line 505 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverReport ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6714,7 +6717,7 @@ static const per_sequence_t SNStatusTransfer_sequence[] = {
 
 static int
 dissect_x2ap_SNStatusTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 461 "./asn1/x2ap/x2ap.cnf"
+#line 469 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", SNStatusTransfer ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6763,7 +6766,7 @@ static const per_sequence_t UEContextRelease_sequence[] = {
 
 static int
 dissect_x2ap_UEContextRelease(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 463 "./asn1/x2ap/x2ap.cnf"
+#line 471 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextRelease ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6780,7 +6783,7 @@ static const per_sequence_t HandoverCancel_sequence[] = {
 
 static int
 dissect_x2ap_HandoverCancel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 465 "./asn1/x2ap/x2ap.cnf"
+#line 473 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverCancel ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6797,7 +6800,7 @@ static const per_sequence_t ErrorIndication_sequence[] = {
 
 static int
 dissect_x2ap_ErrorIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 467 "./asn1/x2ap/x2ap.cnf"
+#line 475 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", ErrorIndication ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6814,7 +6817,7 @@ static const per_sequence_t ResetRequest_sequence[] = {
 
 static int
 dissect_x2ap_ResetRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 469 "./asn1/x2ap/x2ap.cnf"
+#line 477 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResetRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6831,7 +6834,7 @@ static const per_sequence_t ResetResponse_sequence[] = {
 
 static int
 dissect_x2ap_ResetResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 471 "./asn1/x2ap/x2ap.cnf"
+#line 479 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResetResponse ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6848,7 +6851,7 @@ static const per_sequence_t X2SetupRequest_sequence[] = {
 
 static int
 dissect_x2ap_X2SetupRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 473 "./asn1/x2ap/x2ap.cnf"
+#line 481 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2SetupRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6865,7 +6868,7 @@ static const per_sequence_t X2SetupResponse_sequence[] = {
 
 static int
 dissect_x2ap_X2SetupResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 475 "./asn1/x2ap/x2ap.cnf"
+#line 483 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2SetupResponse ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6882,7 +6885,7 @@ static const per_sequence_t X2SetupFailure_sequence[] = {
 
 static int
 dissect_x2ap_X2SetupFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 477 "./asn1/x2ap/x2ap.cnf"
+#line 485 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2SetupFailure ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6899,7 +6902,7 @@ static const per_sequence_t LoadInformation_sequence[] = {
 
 static int
 dissect_x2ap_LoadInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 479 "./asn1/x2ap/x2ap.cnf"
+#line 487 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", LoadInformation ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6948,7 +6951,7 @@ static const per_sequence_t ENBConfigurationUpdate_sequence[] = {
 
 static int
 dissect_x2ap_ENBConfigurationUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 481 "./asn1/x2ap/x2ap.cnf"
+#line 489 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdate ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7010,7 +7013,7 @@ static const per_sequence_t ENBConfigurationUpdateAcknowledge_sequence[] = {
 
 static int
 dissect_x2ap_ENBConfigurationUpdateAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 483 "./asn1/x2ap/x2ap.cnf"
+#line 491 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdateAcknowledge ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7027,7 +7030,7 @@ static const per_sequence_t ENBConfigurationUpdateFailure_sequence[] = {
 
 static int
 dissect_x2ap_ENBConfigurationUpdateFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 485 "./asn1/x2ap/x2ap.cnf"
+#line 493 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdateFailure ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7044,7 +7047,7 @@ static const per_sequence_t ResourceStatusRequest_sequence[] = {
 
 static int
 dissect_x2ap_ResourceStatusRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 487 "./asn1/x2ap/x2ap.cnf"
+#line 495 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResourceStatusRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7123,7 +7126,7 @@ static const per_sequence_t ResourceStatusResponse_sequence[] = {
 
 static int
 dissect_x2ap_ResourceStatusResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 489 "./asn1/x2ap/x2ap.cnf"
+#line 497 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResourceStatusResponse ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7231,7 +7234,7 @@ static const per_sequence_t ResourceStatusFailure_sequence[] = {
 
 static int
 dissect_x2ap_ResourceStatusFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 491 "./asn1/x2ap/x2ap.cnf"
+#line 499 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResourceStatusFailure ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7278,7 +7281,7 @@ static const per_sequence_t ResourceStatusUpdate_sequence[] = {
 
 static int
 dissect_x2ap_ResourceStatusUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 493 "./asn1/x2ap/x2ap.cnf"
+#line 501 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResourceStatusUpdate ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7327,7 +7330,7 @@ static const per_sequence_t PrivateMessage_sequence[] = {
 
 static int
 dissect_x2ap_PrivateMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 495 "./asn1/x2ap/x2ap.cnf"
+#line 503 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", PrivateMessage ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7344,7 +7347,7 @@ static const per_sequence_t MobilityChangeRequest_sequence[] = {
 
 static int
 dissect_x2ap_MobilityChangeRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 501 "./asn1/x2ap/x2ap.cnf"
+#line 509 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", MobilityChangeRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7361,7 +7364,7 @@ static const per_sequence_t MobilityChangeAcknowledge_sequence[] = {
 
 static int
 dissect_x2ap_MobilityChangeAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 503 "./asn1/x2ap/x2ap.cnf"
+#line 511 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", MobilityChangeAcknowledge ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7378,7 +7381,7 @@ static const per_sequence_t MobilityChangeFailure_sequence[] = {
 
 static int
 dissect_x2ap_MobilityChangeFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 505 "./asn1/x2ap/x2ap.cnf"
+#line 513 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", MobilityChangeFailure ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7395,7 +7398,7 @@ static const per_sequence_t RLFIndication_sequence[] = {
 
 static int
 dissect_x2ap_RLFIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 499 "./asn1/x2ap/x2ap.cnf"
+#line 507 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", RLFIndication ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7412,7 +7415,7 @@ static const per_sequence_t CellActivationRequest_sequence[] = {
 
 static int
 dissect_x2ap_CellActivationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 507 "./asn1/x2ap/x2ap.cnf"
+#line 515 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", CellActivationRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7458,7 +7461,7 @@ static const per_sequence_t CellActivationResponse_sequence[] = {
 
 static int
 dissect_x2ap_CellActivationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 509 "./asn1/x2ap/x2ap.cnf"
+#line 517 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", CellActivationResponse ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7504,7 +7507,7 @@ static const per_sequence_t CellActivationFailure_sequence[] = {
 
 static int
 dissect_x2ap_CellActivationFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 511 "./asn1/x2ap/x2ap.cnf"
+#line 519 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", CellActivationFailure ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7521,7 +7524,7 @@ static const per_sequence_t X2Release_sequence[] = {
 
 static int
 dissect_x2ap_X2Release(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 513 "./asn1/x2ap/x2ap.cnf"
+#line 521 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2Release ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7538,7 +7541,7 @@ static const per_sequence_t X2APMessageTransfer_sequence[] = {
 
 static int
 dissect_x2ap_X2APMessageTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 515 "./asn1/x2ap/x2ap.cnf"
+#line 523 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2APMessageTransfer ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7567,8 +7570,16 @@ dissect_x2ap_RNL_Header(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_x2ap_X2AP_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 454 "./asn1/x2ap/x2ap.cnf"
+  tvbuff_t *parameter_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_X2AP_Message);
+    dissect_X2AP_PDU_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 
   return offset;
 }
@@ -7581,7 +7592,7 @@ static const per_sequence_t SeNBAdditionRequest_sequence[] = {
 
 static int
 dissect_x2ap_SeNBAdditionRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 523 "./asn1/x2ap/x2ap.cnf"
+#line 531 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBAdditionRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7669,7 +7680,7 @@ static const per_sequence_t SeNBAdditionRequestAcknowledge_sequence[] = {
 
 static int
 dissect_x2ap_SeNBAdditionRequestAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 525 "./asn1/x2ap/x2ap.cnf"
+#line 533 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBAdditionRequestAcknowledge ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7756,7 +7767,7 @@ static const per_sequence_t SeNBAdditionRequestReject_sequence[] = {
 
 static int
 dissect_x2ap_SeNBAdditionRequestReject(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 527 "./asn1/x2ap/x2ap.cnf"
+#line 535 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBAdditionRequestReject ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7773,7 +7784,7 @@ static const per_sequence_t SeNBReconfigurationComplete_sequence[] = {
 
 static int
 dissect_x2ap_SeNBReconfigurationComplete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 529 "./asn1/x2ap/x2ap.cnf"
+#line 537 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBReconfigurationComplete ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7843,7 +7854,7 @@ static const per_sequence_t SeNBModificationRequest_sequence[] = {
 
 static int
 dissect_x2ap_SeNBModificationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 531 "./asn1/x2ap/x2ap.cnf"
+#line 539 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -8090,7 +8101,7 @@ static const per_sequence_t SeNBModificationRequestAcknowledge_sequence[] = {
 
 static int
 dissect_x2ap_SeNBModificationRequestAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 533 "./asn1/x2ap/x2ap.cnf"
+#line 541 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRequestAcknowledge ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -8311,7 +8322,7 @@ static const per_sequence_t SeNBModificationRequestReject_sequence[] = {
 
 static int
 dissect_x2ap_SeNBModificationRequestReject(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 535 "./asn1/x2ap/x2ap.cnf"
+#line 543 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRequestReject ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -8328,7 +8339,7 @@ static const per_sequence_t SeNBModificationRequired_sequence[] = {
 
 static int
 dissect_x2ap_SeNBModificationRequired(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 537 "./asn1/x2ap/x2ap.cnf"
+#line 545 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRequired ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -8375,7 +8386,7 @@ static const per_sequence_t SeNBModificationConfirm_sequence[] = {
 
 static int
 dissect_x2ap_SeNBModificationConfirm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 539 "./asn1/x2ap/x2ap.cnf"
+#line 547 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationConfirm ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -8392,7 +8403,7 @@ static const per_sequence_t SeNBModificationRefuse_sequence[] = {
 
 static int
 dissect_x2ap_SeNBModificationRefuse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 541 "./asn1/x2ap/x2ap.cnf"
+#line 549 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBModificationRefuse ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -8409,7 +8420,7 @@ static const per_sequence_t SeNBReleaseRequest_sequence[] = {
 
 static int
 dissect_x2ap_SeNBReleaseRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 543 "./asn1/x2ap/x2ap.cnf"
+#line 551 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBReleaseRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -8495,7 +8506,7 @@ static const per_sequence_t SeNBReleaseRequired_sequence[] = {
 
 static int
 dissect_x2ap_SeNBReleaseRequired(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 545 "./asn1/x2ap/x2ap.cnf"
+#line 553 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBReleaseRequired ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -8512,7 +8523,7 @@ static const per_sequence_t SeNBReleaseConfirm_sequence[] = {
 
 static int
 dissect_x2ap_SeNBReleaseConfirm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 547 "./asn1/x2ap/x2ap.cnf"
+#line 555 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBReleaseConfirm ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -8598,7 +8609,7 @@ static const per_sequence_t SeNBCounterCheckRequest_sequence[] = {
 
 static int
 dissect_x2ap_SeNBCounterCheckRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 549 "./asn1/x2ap/x2ap.cnf"
+#line 557 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", SeNBCounterCheckRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -8656,7 +8667,7 @@ static const per_sequence_t X2RemovalRequest_sequence[] = {
 
 static int
 dissect_x2ap_X2RemovalRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 517 "./asn1/x2ap/x2ap.cnf"
+#line 525 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2RemovalRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -8673,7 +8684,7 @@ static const per_sequence_t X2RemovalResponse_sequence[] = {
 
 static int
 dissect_x2ap_X2RemovalResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 519 "./asn1/x2ap/x2ap.cnf"
+#line 527 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2RemovalResponse ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -8690,7 +8701,7 @@ static const per_sequence_t X2RemovalFailure_sequence[] = {
 
 static int
 dissect_x2ap_X2RemovalFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 521 "./asn1/x2ap/x2ap.cnf"
+#line 529 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", X2RemovalFailure ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -8707,7 +8718,7 @@ static const per_sequence_t RetrieveUEContextRequest_sequence[] = {
 
 static int
 dissect_x2ap_RetrieveUEContextRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 551 "./asn1/x2ap/x2ap.cnf"
+#line 559 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", RetrieveUEContextRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -8724,7 +8735,7 @@ static const per_sequence_t RetrieveUEContextResponse_sequence[] = {
 
 static int
 dissect_x2ap_RetrieveUEContextResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 553 "./asn1/x2ap/x2ap.cnf"
+#line 561 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", RetrieveUEContextResponse ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -8797,7 +8808,7 @@ static const per_sequence_t RetrieveUEContextFailure_sequence[] = {
 
 static int
 dissect_x2ap_RetrieveUEContextFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 555 "./asn1/x2ap/x2ap.cnf"
+#line 563 "./asn1/x2ap/x2ap.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", RetrieveUEContextFailure ");
 
 
@@ -10495,7 +10506,7 @@ static int dissect_X2AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-x2ap-fn.c ---*/
-#line 199 "./asn1/x2ap/packet-x2ap-template.c"
+#line 201 "./asn1/x2ap/packet-x2ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -13049,7 +13060,7 @@ void proto_register_x2ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-x2ap-hfarr.c ---*/
-#line 460 "./asn1/x2ap/packet-x2ap-template.c"
+#line 462 "./asn1/x2ap/packet-x2ap-template.c"
   };
 
   /* List of subtrees */
@@ -13074,6 +13085,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_MeasurementsToActivate,
     &ett_x2ap_MDT_Location_Info,
     &ett_x2ap_transmissionModes,
+    &ett_x2ap_X2AP_Message,
 
 /*--- Included file: packet-x2ap-ettarr.c ---*/
 #line 1 "./asn1/x2ap/packet-x2ap-ettarr.c"
@@ -13351,7 +13363,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-x2ap-ettarr.c ---*/
-#line 485 "./asn1/x2ap/packet-x2ap-template.c"
+#line 488 "./asn1/x2ap/packet-x2ap-template.c"
   };
 
   module_t *x2ap_module;
@@ -13624,7 +13636,7 @@ proto_reg_handoff_x2ap(void)
 
 
 /*--- End of included file: packet-x2ap-dis-tab.c ---*/
-#line 529 "./asn1/x2ap/packet-x2ap-template.c"
+#line 532 "./asn1/x2ap/packet-x2ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, x2ap_handle);

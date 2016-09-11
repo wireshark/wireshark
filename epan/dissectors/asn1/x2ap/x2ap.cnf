@@ -449,6 +449,14 @@ LHN-ID TYPE=FT_STRING DISPLAY = STR_UNICODE
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, -1, ENC_UTF_8|ENC_NA);
+
+#.FN_BODY X2AP-Message VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_X2AP_Message);
+    dissect_X2AP_PDU_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
 #.END
 
 #.FN_HDR HandoverRequest
