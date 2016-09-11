@@ -52,6 +52,7 @@
 
 #include <QPushButton>
 #include "epan/prefs.h"
+#include "qt_ui_utils.h"
 #include <wireshark_application.h>
 
 CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString &display_filter) :
@@ -396,6 +397,7 @@ QStringList CaptureFileDialog::buildFileOpenTypeList() {
         filter += (char *)extension->data;
         sep = " ";
     }
+    wtap_free_extensions_list(extensions_list);
     filter += ")";
     filters << filter;
 
@@ -740,7 +742,7 @@ void CaptureFileDialog::preview(const QString & path)
     // Size
     gint64 filesize = wtap_file_size(wth, &err);
     // Finder and Windows Explorer use IEC. What do the various Linux file managers use?
-    QString size_str = format_size(filesize, format_size_unit_bytes|format_size_prefix_iec);
+    QString size_str(gchar_free_to_qstring(format_size(filesize, format_size_unit_bytes|format_size_prefix_iec)));
 
     time(&time_preview);
     while ((wtap_read(wth, &err, &err_info, &data_offset))) {

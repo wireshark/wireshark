@@ -235,6 +235,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 	}
 
 	if (df_lex_init(&scanner) != 0) {
+		wmem_free(NULL, expanded_text);
 		*dfp = NULL;
 		if (err_msg != NULL)
 			*err_msg = g_strdup_printf("Can't initialize scanner: %s",
@@ -398,6 +399,7 @@ FAILURE:
 		if (*err_msg == NULL)
 			*err_msg = g_strdup_printf("Unable to parse filter string \"%s\".", expanded_text);
 	}
+	wmem_free(NULL, expanded_text);
 	*dfp = NULL;
 	return FALSE;
 }
