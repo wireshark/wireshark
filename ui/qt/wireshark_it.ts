@@ -15151,6 +15151,11 @@ a:hover {
         <translation>Limita al filtro di visualizzazione</translation>
     </message>
     <message>
+        <location filename="traffic_table_dialog.ui" line="68"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="traffic_table_dialog.ui" line="71"/>
         <source>Absolute start time</source>
         <translation type="unfinished"></translation>
