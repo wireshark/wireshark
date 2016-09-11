@@ -1576,12 +1576,12 @@ static void
 epl_duplication_remove(GHashTable* table, guint8 src, guint8 dest)
 {
 	GHashTableIter iter;
-	gpointer pkey, pvalue;
+	gpointer pkey;
 	duplication_key *key;
 
 	g_hash_table_iter_init(&iter, table);
 
-	while(g_hash_table_iter_next(&iter, &pkey, &pvalue))
+	while(g_hash_table_iter_next(&iter, &pkey, NULL))
 	{
 		key = (duplication_key *)pkey;
 
@@ -1599,15 +1599,13 @@ epl_duplication_insert(GHashTable* table, gpointer ptr, guint32 frame)
 {
 	duplication_data *data = NULL;
 	duplication_key *key = NULL;
-	gpointer pkey = NULL;
 	gpointer pdata;
 
 	/* check if the values are stored */
-	if(g_hash_table_lookup_extended(table,ptr,&pkey,&pdata))
+	if(g_hash_table_lookup_extended(table, ptr, NULL, &pdata))
 	{
 		data = (duplication_data *)pdata;
 		data->frame = frame;
-		g_hash_table_insert(table, pkey, data);
 	}
 	/* insert the data struct into the table */
 	else
@@ -1639,10 +1637,9 @@ static guint32
 epl_duplication_get(GHashTable* table, gpointer ptr)
 {
 	duplication_data *data = NULL;
-	gpointer *pkey = NULL;
 	gpointer pdata;
 
-	if(g_hash_table_lookup_extended(table,ptr,pkey,&pdata))
+	if(g_hash_table_lookup_extended(table, ptr, NULL, &pdata))
 	{
 		data = (duplication_data *)pdata;
 		if(data->frame == 0x00)
@@ -1671,6 +1668,7 @@ static void
 cleanup_dissector(void)
 {
 	reassembly_table_destroy(&epl_reassembly_table);
+	g_hash_table_destroy(epl_duplication_table);
 	count = 0;
 	ct = 0;
 	first_read = TRUE;
