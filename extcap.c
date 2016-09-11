@@ -455,10 +455,19 @@ append_extcap_interface_list(GList *list, char **err_str) {
     return list;
 }
 
+static void
+extcap_register_preferences_callback(gpointer key, gpointer value _U_, gpointer user_data _U_)
+{
+    GList *arguments;
+
+    arguments = extcap_get_if_configuration((gchar *)key);
+    /* Memory for prefs are external to an interface, they are part of
+     * extcap core, so the parsed arguments can be freed. */
+    extcap_free_if_configuration(arguments, TRUE);
+}
+
 void extcap_register_preferences(void)
 {
-    GList * interfaces = NULL;
-
     module_t * dev_module = prefs_find_module("extcap");
 
     if ( !dev_module )
@@ -467,13 +476,7 @@ void extcap_register_preferences(void)
     if ( ! ifaces || g_hash_table_size(ifaces) == 0 )
         extcap_reload_interface_list(NULL, NULL);
 
-    interfaces = g_hash_table_get_keys(ifaces);
-
-    while ( interfaces ) {
-        extcap_get_if_configuration((gchar *)interfaces->data);
-
-        interfaces = g_list_next(interfaces);
-    }
+    g_hash_table_foreach(ifaces, extcap_register_preferences_callback, NULL);
 }
 
 /**
@@ -499,13 +502,15 @@ void extcap_pref_store(extcap_arg * arg, const char * newval)
 
 /**
  * Obtains a pointer which can store a value for the given preference name.
+ * The preference name that can be passed to the prefs API is stored into
+ * 'prefs_name'.
  *
  * Extcap interfaces (and their preferences) are dynamic, they can be created
  * and destroyed at will. Thus their data structures are insufficient to pass to
  * the preferences APIs which require pointers which are valid until the
  * preferences are removed (at exit).
  */
-static gchar ** extcap_prefs_dynamic_valptr(const char *name)
+static gchar ** extcap_prefs_dynamic_valptr(const char *name, char **pref_name)
 {
     gchar **valp;
     if (!extcap_prefs_dynamic_vals) {
@@ -513,11 +518,12 @@ static gchar ** extcap_prefs_dynamic_valptr(const char *name)
         extcap_prefs_dynamic_vals = g_hash_table_new_full(g_str_hash, g_str_equal,
                 g_free, g_free);
     }
-    valp = (gchar **)g_hash_table_lookup(extcap_prefs_dynamic_vals, name);
-    if (!valp) {
+    if (!g_hash_table_lookup_extended(extcap_prefs_dynamic_vals, name,
+                (gpointer *)pref_name, (gpointer *)&valp)) {
         /* New dynamic pref, allocate, initialize and store. */
         valp = g_new0(gchar *, 1);
-        g_hash_table_insert(extcap_prefs_dynamic_vals, g_strdup(name), valp);
+        *pref_name = g_strdup(name);
+        g_hash_table_insert(extcap_prefs_dynamic_vals, *pref_name, valp);
     }
     return valp;
 }
@@ -599,13 +605,15 @@ static gboolean search_cb(const gchar *extcap _U_, const gchar *ifname _U_, gcha
                     gchar * pref_ifname = g_strconcat(ifname_lowercase, ".", pref_name, NULL);
 
                     if ( ( pref = prefs_find_preference(dev_module, pref_ifname) ) == NULL ) {
-                        arg->pref_valptr = extcap_prefs_dynamic_valptr(pref_ifname);
+                        char *pref_name_for_prefs;
+
+                        arg->pref_valptr = extcap_prefs_dynamic_valptr(pref_ifname, &pref_name_for_prefs);
                         /* Set an initial value if any (the string will be copied at registration) */
                         if (arg->default_complex) {
                             *arg->pref_valptr = arg->default_complex->_val;
                         }
 
-                        prefs_register_string_preference(dev_module, g_strdup(pref_ifname),
+                        prefs_register_string_preference(dev_module, pref_name_for_prefs,
                                 arg->display, arg->display, (const char **)arg->pref_valptr);
                     } else {
                         /* Been here before, restore stored value */
