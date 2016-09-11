@@ -2492,6 +2492,7 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
 }
 
 int main(int argc, char **argv) {
+    int              ret = EXIT_CODE_GENERIC;
     int              option_idx = 0;
     int              result;
     const char      *adb_server_ip       = NULL;
@@ -2562,7 +2563,8 @@ int main(int argc, char **argv) {
 
     if (argc == 1) {
         extcap_help_print(extcap_conf);
-        return EXIT_CODE_SUCCESS;
+        ret = EXIT_CODE_SUCCESS;
+        goto end;
     }
 
     while ((result = getopt_long(argc, argv, "", longopts, &option_idx)) != -1) {
@@ -2570,10 +2572,12 @@ int main(int argc, char **argv) {
 
         case OPT_VERSION:
             printf("%s\n", extcap_conf->version);
-            return EXIT_CODE_SUCCESS;
+            ret = EXIT_CODE_SUCCESS;
+            goto end;
         case OPT_HELP:
             extcap_help_print(extcap_conf);
-            return EXIT_CODE_SUCCESS;
+            ret = EXIT_CODE_SUCCESS;
+            goto end;
         case OPT_CONFIG_ADB_SERVER_IP:
             adb_server_ip = optarg;
             break;
@@ -2581,7 +2585,7 @@ int main(int argc, char **argv) {
             adb_server_tcp_port = &local_adb_server_tcp_port;
             if (!optarg){
                 g_warning("Impossible exception. Parameter required argument, but there is no it right now.");
-                return EXIT_CODE_GENERIC;
+                goto end;
             }
             *adb_server_tcp_port = (unsigned short) g_ascii_strtoull(optarg, NULL, 10);
             break;
@@ -2592,7 +2596,7 @@ int main(int argc, char **argv) {
             bt_server_tcp_port = &local_bt_server_tcp_port;
             if (!optarg){
                 g_warning("Impossible exception. Parameter required argument, but there is no it right now.");
-                return EXIT_CODE_GENERIC;
+                goto end;
             }
             *bt_server_tcp_port = (unsigned short) g_ascii_strtoull(optarg, NULL, 10);
             break;
@@ -2606,15 +2610,15 @@ int main(int argc, char **argv) {
             bt_local_tcp_port = &local_bt_local_tcp_port;
             if (!optarg){
                 g_warning("Impossible exception. Parameter required argument, but there is no it right now.");
-                return EXIT_CODE_GENERIC;
+                goto end;
             }
             *bt_local_tcp_port = (unsigned short) g_ascii_strtoull(optarg, NULL, 10);
             break;
         default:
             if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg))
             {
-                printf("Invalid argument <%s>. Try --help.\n", argv[optind - 1]);
-                return EXIT_CODE_GENERIC;
+                g_warning("Invalid argument <%s>. Try --help.\n", argv[optind - 1]);
+                goto end;
             }
         }
     }
@@ -2638,18 +2642,22 @@ int main(int argc, char **argv) {
     result = WSAStartup(MAKEWORD(1,1), &wsaData);
     if (result != 0) {
         g_warning("WSAStartup failed with %d", result);
-        return EXIT_CODE_GENERIC;
+        goto end;
     }
 #endif  /* _WIN32 */
 
     if (extcap_conf->do_list_interfaces)
         register_interfaces(extcap_conf, adb_server_ip, adb_server_tcp_port);
 
-    if (extcap_base_handle_interface(extcap_conf))
-        return EXIT_CODE_SUCCESS;
+    if (extcap_base_handle_interface(extcap_conf)) {
+        ret = EXIT_CODE_SUCCESS;
+        goto end;
+    }
 
-    if (extcap_conf->show_config)
-        return list_config(extcap_conf->interface);
+    if (extcap_conf->show_config) {
+        ret = list_config(extcap_conf->interface);
+        goto end;
+    }
 
     if (extcap_conf->capture) {
         if (extcap_conf->interface && (is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_MAIN) ||
@@ -2657,32 +2665,36 @@ int main(int argc, char **argv) {
                 is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_RADIO) ||
                 is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_EVENTS)))
             if (logcat_text)
-                return capture_android_logcat_text(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
+                ret = capture_android_logcat_text(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
             else
-                return capture_android_logcat(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
+                ret = capture_android_logcat(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
         else if (extcap_conf->interface && (is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN) ||
                 is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM) ||
                 is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_RADIO) ||
                 is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS) ||
                 (is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_CRASH))))
-            return capture_android_logcat_text(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
+            ret = capture_android_logcat_text(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
         else if (extcap_conf->interface && is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP))
-            return capture_android_bluetooth_hcidump(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
+            ret = capture_android_bluetooth_hcidump(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
         else if (extcap_conf->interface && is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER))
-            return capture_android_bluetooth_external_parser(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port,
+            ret = capture_android_bluetooth_external_parser(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port,
                     bt_server_tcp_port, bt_forward_socket, bt_local_ip, bt_local_tcp_port);
         else if (extcap_conf->interface && (is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET)))
-            return capture_android_bluetooth_btsnoop_net(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
+            ret = capture_android_bluetooth_btsnoop_net(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
         else if (extcap_conf->interface && (is_specified_interface(extcap_conf->interface,INTERFACE_ANDROID_WIFI_TCPDUMP)))
-            return capture_android_wifi_tcpdump(extcap_conf->interface, extcap_conf->fifo, adb_server_ip,adb_server_tcp_port);
-        else
-            return EXIT_CODE_GENERIC;
+            ret = capture_android_wifi_tcpdump(extcap_conf->interface, extcap_conf->fifo, adb_server_ip,adb_server_tcp_port);
+
+        goto end;
     }
 
+    /* no action was given, assume success */
+    ret = EXIT_CODE_SUCCESS;
+
+end:
     /* clean up stuff */
     extcap_base_cleanup(&extcap_conf);
 
-    return EXIT_CODE_SUCCESS;
+    return ret;
 }
 
 #ifdef _WIN32
