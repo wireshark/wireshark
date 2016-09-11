@@ -521,7 +521,7 @@ void proto_register_mqtt(void)
         NULL, HFILL }},
     { &hf_mqtt_sub_qos,
       { "Requested QoS", "mqtt.sub.qos",
-        FT_UINT8, BASE_DEC, VALS(mqtt_subqos_vals), 0,
+        FT_UINT8, BASE_DEC, VALS(mqtt_qos_vals), 0,
         NULL, HFILL }},
     { &hf_mqtt_suback_qos,
       { "Granted QoS", "mqtt.suback.qos",
