@@ -1192,11 +1192,11 @@ main(int argc, char *argv[])
             break;
 
         case 'i': /* break capture file based on time interval */
-            secs_per_block = get_positive_int(optarg, "time interval");
+            secs_per_block = get_nonzero_guint32(optarg, "time interval");
             break;
 
         case 'I': /* ignored_bytes at the beginning of the frame for duplications removal */
-            ignored_bytes = get_positive_int(optarg, "number of bytes to ignore");
+            ignored_bytes = get_guint32(optarg, "number of bytes to ignore");
             break;
 
         case 'L':
