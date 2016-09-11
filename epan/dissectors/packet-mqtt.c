@@ -97,17 +97,15 @@ static const value_string mqtt_qos_vals[] = {
   { 0,                          NULL }
 };
 
-#define MQTT_QOS_0             0
-#define MQTT_QOS_1             1
-#define MQTT_QOS_2             2
 #define MQTT_SUBACK_FAILURE  128
 
 static const value_string mqtt_subqos_vals[] = {
-  { MQTT_QOS_0,           "0" },
-  { MQTT_QOS_1,           "1" },
-  { MQTT_QOS_2,           "2" },
-  { MQTT_SUBACK_FAILURE,  "Failure" },
-  { 0,                    NULL }
+  { MQTT_QOS_ATMOST_ONCE,       "At most once delivery (Fire and Forget)" },
+  { MQTT_QOS_ATLEAST_ONCE,      "At least once delivery (Acknowledged deliver)" },
+  { MQTT_QOS_EXACTLY_ONCE,      "Exactly once delivery (Assured Delivery)" },
+  { MQTT_QOS_RESERVED,          "Reserved" },
+  { MQTT_SUBACK_FAILURE,        "Failure" },
+  { 0,                          NULL }
 };
 
 #define MQTT_CON_ACCEPTED                   0
