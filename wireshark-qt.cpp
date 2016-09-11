@@ -475,6 +475,8 @@ int main(int argc, char *argv[])
            "\n"
            "%s",
         get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
+    g_string_free(comp_info_str, TRUE);
+    g_string_free(runtime_info_str, TRUE);
 
 #ifdef _WIN32
     /* Start windows sockets */

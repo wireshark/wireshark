@@ -918,7 +918,7 @@ void WiresharkApplication::allSystemsGo()
     err = iface_mon_start(&iface_mon_event_cb);
     if (err == 0) {
         if_notifier_ = new QSocketNotifier(iface_mon_get_sock(),
-                                           QSocketNotifier::Read);
+                                           QSocketNotifier::Read, this);
         connect(if_notifier_, SIGNAL(activated(int)), SLOT(ifChangeEventsAvailable()));
     }
 #endif
