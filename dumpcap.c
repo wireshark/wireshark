@@ -3802,6 +3802,8 @@ main(int argc, char *argv[])
            "\n"
            "%s",
         get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
+    g_string_free(comp_info_str, TRUE);
+    g_string_free(runtime_info_str, TRUE);
 
 #ifdef _WIN32
     arg_list_utf_16to8(argc, argv);
@@ -4102,13 +4104,13 @@ main(int argc, char *argv[])
             exit_main(0);
             break;
         case 'v':        /* Show version and exit */
-        {
+            comp_info_str = get_compiled_version_info(NULL, get_dumpcap_compiled_info);
+            runtime_info_str = get_runtime_version_info(get_dumpcap_runtime_info);
             show_version("Dumpcap (Wireshark)", comp_info_str, runtime_info_str);
             g_string_free(comp_info_str, TRUE);
             g_string_free(runtime_info_str, TRUE);
             exit_main(0);
             break;
-        }
         /*** capture option specific ***/
         case 'a':        /* autostop criteria */
         case 'b':        /* Ringbuffer option */
