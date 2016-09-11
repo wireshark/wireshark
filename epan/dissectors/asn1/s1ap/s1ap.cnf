@@ -1636,39 +1636,6 @@ UEContextResumeRequest                  N s1ap.proc.imsg id-UEContextResume
 UEContextResumeResponse                 N s1ap.proc.sout id-UEContextResume
 UEContextResumeFailure                  N s1ap.proc.uout id-UEContextResume
 
-#.FN_HDR E-RABSetupRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABSetupRequest ");
-#.FN_HDR E-RABSetupResponse
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABSetupResponse ");
-#.FN_HDR E-RABModifyRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABModifyRequest ");
-#.FN_HDR E-RABModifyResponse
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABModifyResponse ");
-#.FN_HDR E-RABReleaseCommand
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABReleaseCommand ");
-#.FN_HDR E-RABReleaseResponse
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABReleaseResponse ");
-#.FN_HDR E-RABReleaseIndication
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABReleaseIndication ");
-
-#.FN_HDR InitialContextSetupRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", InitialContextSetupRequest ");
-#.FN_HDR InitialContextSetupResponse
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", InitialContextSetupResponse ");
-#.FN_HDR InitialContextSetupFailure
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", InitialContextSetupFailure ");
-#.FN_HDR UEContextReleaseRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextReleaseRequest ");
-#.FN_HDR UEContextReleaseCommand
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextReleaseCommand ");
-#.FN_HDR UEContextReleaseComplete
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextReleaseComplete ");
-#.FN_HDR UEContextModificationRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextModificationRequest ");
-#.FN_HDR UEContextModificationResponse
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextModificationResponse ");
-#.FN_HDR UEContextModificationFailure
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextModificationFailure ");
 
 #.FN_HDR HandoverRequired
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverRequired ");
@@ -1694,8 +1661,54 @@ UEContextResumeFailure                  N s1ap.proc.uout id-UEContextResume
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverCancel ");
 #.FN_HDR HandoverCancelAcknowledge
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverCancelAcknowledge ");
-
-
+#.FN_HDR E-RABSetupRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E-RABSetupRequest ");
+#.FN_HDR E-RABSetupResponse
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E-RABSetupResponse ");
+#.FN_HDR E-RABModifyRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E-RABModifyRequest ");
+#.FN_HDR E-RABModifyResponse
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E-RABModifyResponse ");
+#.FN_HDR E-RABReleaseCommand
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E-RABReleaseCommand ");
+#.FN_HDR E-RABReleaseResponse
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E-RABReleaseResponse ");
+#.FN_HDR E-RABReleaseIndication
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E-RABReleaseIndication ");
+#.FN_HDR InitialContextSetupRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", InitialContextSetupRequest ");
+#.FN_HDR InitialContextSetupResponse
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", InitialContextSetupResponse ");
+#.FN_HDR InitialContextSetupFailure
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", InitialContextSetupFailure ");
+#.FN_HDR Paging
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", Paging ");
+#.FN_HDR UEContextReleaseRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextReleaseRequest ");
+#.FN_HDR UEContextReleaseCommand
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextReleaseCommand ");
+#.FN_HDR UEContextReleaseComplete
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextReleaseComplete ");
+#.FN_HDR UEContextModificationRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextModificationRequest ");
+#.FN_HDR UEContextModificationResponse
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextModificationResponse ");
+#.FN_HDR UEContextModificationFailure
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextModificationFailure ");
+#.FN_HDR UERadioCapabilityMatchRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UERadioCapabilityMatchRequest ");
+#.FN_HDR UERadioCapabilityMatchResponse
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UERadioCapabilityMatchResponse ");
+#.FN_HDR DownlinkNASTransport
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", DownlinkNASTransport ");
+#.FN_HDR InitialUEMessage
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", InitialUEMessage ");
+#.FN_HDR UplinkNASTransport
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UplinkNASTransport ");
+#.FN_HDR NASNonDeliveryIndication
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", NASNonDeliveryIndication ");
+#.FN_HDR RerouteNASRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", RerouteNASRequest ");
 #.FN_HDR Reset
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", Reset ");
 #.FN_HDR ResetAcknowledge
@@ -1720,53 +1733,86 @@ UEContextResumeFailure                  N s1ap.proc.uout id-UEContextResume
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", MMEConfigurationUpdateAcknowledge ");
 #.FN_HDR MMEConfigurationUpdateFailure
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", MMEConfigurationUpdateFailure ");
-
+#.FN_HDR DownlinkS1cdma2000tunnelling
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", DownlinkS1cdma2000tunnelling ");
+#.FN_HDR UplinkS1cdma2000tunnelling
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UplinkS1cdma2000tunnelling ");
+#.FN_HDR UECapabilityInfoIndication
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UECapabilityInfoIndication ");
+#.FN_HDR ENBStatusTransfer
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBStatusTransfer ");
+#.FN_HDR MMEStatusTransfer
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", MMEStatusTransfer ");
+#.FN_HDR TraceStart
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", TraceStart ");
+#.FN_HDR TraceFailureIndication
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", TraceFailureIndication ");
+#.FN_HDR DeactivateTrace
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", DeactivateTrace ");
+#.FN_HDR CellTrafficTrace
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", CellTrafficTrace ");
+#.FN_HDR LocationReportingControl
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", LocationReportingControl ");
+#.FN_HDR LocationReportingFailureIndication
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", LocationReportingFailureIndication ");
+#.FN_HDR LocationReport
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", LocationReport ");
+#.FN_HDR OverloadStart
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", OverloadStart ");
+#.FN_HDR OverloadStop
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", OverloadStop ");
 #.FN_HDR WriteReplaceWarningRequest
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", WriteReplaceWarningRequest ");
   dataCodingScheme = SMS_ENCODING_NOT_SET;
 #.FN_HDR WriteReplaceWarningResponse
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", WriteReplaceWarningResponse ");
+#.FN_HDR ENBDirectInformationTransfer
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBDirectInformationTransfer ");
+#.FN_HDR MMEDirectInformationTransfer
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", MMEDirectInformationTransfer ");
+#.FN_HDR ENBConfigurationTransfer
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationTransfer ");
+#.FN_HDR MMEConfigurationTransfer
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", MMEConfigurationTransfer ");
+#.FN_HDR PrivateMessage
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", PrivateMessage ");
 #.FN_HDR KillRequest
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", KillRequest ");
 #.FN_HDR KillResponse
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", KillResponse ");
-
-#.FN_HDR DownlinkUEAssociatedLPPaTransport
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", DownlinkUEAssociatedLPPaTransport ");
-
-#.FN_HDR UplinkUEAssociatedLPPaTransport
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UplinkUEAssociatedLPPaTransport ");
-
-#.FN_HDR DownlinkNonUEAssociatedLPPaTransport
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", DownlinkNonUEAssociatedLPPaTransport ");
-
-#.FN_HDR UplinkNonUEAssociatedLPPaTransport
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UplinkNonUEAssociatedLPPaTransport ");
-
-#.FN_HDR UERadioCapabilityMatchRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UERadioCapabilityMatchRequest ");
-
-#.FN_HDR UERadioCapabilityMatchResponse
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UERadioCapabilityMatchResponse ");
-
-#.FN_HDR E-RABModificationIndication
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E-RABModificationIndication ");
-
-#.FN_HDR E-RABModificationConfirm
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E-RABModificationConfirm ");
-
-#.FN_HDR UEContextModificationIndication
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextModificationIndication ");
-
-#.FN_HDR UEContextModificationConfirm
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextModificationConfirm ");
-
-#.FN_HDR RerouteNASRequest
-  col_append_str(actx->pinfo->cinfo, COL_INFO, ", RerouteNASRequest ");
-
+#.FN_HDR PWSRestartIndication
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", PWSRestartIndication ");
 #.FN_HDR PWSFailureIndication
   col_append_str(actx->pinfo->cinfo, COL_INFO, ", PWSFailureIndication ");
-
+#.FN_HDR DownlinkUEAssociatedLPPaTransport
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", DownlinkUEAssociatedLPPaTransport ");
+#.FN_HDR UplinkUEAssociatedLPPaTransport
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UplinkUEAssociatedLPPaTransport ");
+#.FN_HDR DownlinkNonUEAssociatedLPPaTransport
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", DownlinkNonUEAssociatedLPPaTransport ");
+#.FN_HDR UplinkNonUEAssociatedLPPaTransport
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UplinkNonUEAssociatedLPPaTransport ");
+#.FN_HDR E-RABModificationIndication
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E-RABModificationIndication ");
+#.FN_HDR E-RABModificationConfirm
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", E-RABModificationConfirm ");
+#.FN_HDR UEContextModificationIndication
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextModificationIndication ");
+#.FN_HDR UEContextModificationConfirm
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextModificationConfirm ");
+#.FN_HDR UEContextSuspendRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextSuspendRequest ");
+#.FN_HDR UEContextSuspendResponse
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextSuspendResponse ");
+#.FN_HDR UEContextResumeRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextResumeRequest ");
+#.FN_HDR UEContextResumeResponse
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextResumeResponse ");
+#.FN_HDR UEContextResumeFailure
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextResumeFailure ");
+#.FN_HDR ConnectionEstablishmentIndication
+  col_append_str(actx->pinfo->cinfo, COL_INFO, ", ConnectionEstablishmentIndication ");
+#.END
 
 /* Whenever a Cause appears, look up the reason and show it in the Info column */
 
