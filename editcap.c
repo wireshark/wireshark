@@ -1204,7 +1204,7 @@ main(int argc, char *argv[])
             break;
 
         case 'o':
-            change_offset = get_nonzero_guint32(optarg, "change offset");
+            change_offset = get_guint32(optarg, "change offset");
             break;
 
         case 'r':
