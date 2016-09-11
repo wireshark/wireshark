@@ -733,211 +733,214 @@
 <context>
     <name>CaptureFileDialog</name>
     <message>
-        <location filename="capture_file_dialog.cpp" line="173"/>
+        <location filename="capture_file_dialog.cpp" line="140"/>
         <source>This capture file contains comments.</source>
         <translation>Diese Mitschnittdatei enthält Kommentare.</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="183"/>
+        <location filename="capture_file_dialog.cpp" line="150"/>
         <source>The file format you chose doesn&apos;t support comments. Do you want to save the capture in a format that supports comments or discard the comments and save in the format you chose?</source>
         <translation>Das ausgewählte Dateiformat unterstützt keine Kommentare. Möchten Sie den Mitschnitt in einem Dateiformat abspeichern das Kommentare unterstützt, oder wollen Sie die Kommentare verwerfen und im ausgewählten Format abspeichern?</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="187"/>
-        <location filename="capture_file_dialog.cpp" line="196"/>
+        <location filename="capture_file_dialog.cpp" line="154"/>
+        <location filename="capture_file_dialog.cpp" line="163"/>
         <source>Discard comments and save</source>
         <translation>Kommentare verwerfen und speichern</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="188"/>
+        <location filename="capture_file_dialog.cpp" line="155"/>
         <source>Save in another format</source>
         <translation>In einem anderen Format speichern</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="193"/>
+        <location filename="capture_file_dialog.cpp" line="160"/>
         <source>No file format in which it can be saved supports comments. Do you want to discard the comments and save in the format you chose?</source>
         <translation>Kein mögliches Dateiformat unterstützt Kommentare. Möchten Sie die Kommentare verwerfen und in dem ausgewählten Format speichern?</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="412"/>
+        <location filename="capture_file_dialog.cpp" line="379"/>
         <source>All Files (</source>
         <translation>Alle Dateien (</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="418"/>
+        <location filename="capture_file_dialog.cpp" line="385"/>
         <source>All Capture Files</source>
         <translation>Alle Mitschnittdateien</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="454"/>
+        <location filename="capture_file_dialog.cpp" line="420"/>
         <source>Format:</source>
         <translation>Format:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="459"/>
+        <location filename="capture_file_dialog.cpp" line="425"/>
         <source>Size:</source>
         <translation>Größe:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="464"/>
+        <location filename="capture_file_dialog.cpp" line="430"/>
+        <source>Start / elapsed:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="476"/>
+        <source>Automatically detect file type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="772"/>
+        <source>%1, error after %2 packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="779"/>
+        <source>%1, timed out at %2 packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packets:</source>
-        <translation>Pakete:</translation>
+        <translation type="vanished">Pakete:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="469"/>
         <source>First Packet:</source>
-        <translation>Erstes Paket:</translation>
+        <translation type="vanished">Erstes Paket:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="474"/>
         <source>Elapsed Time:</source>
-        <translation>Verstrichene Zeit:</translation>
+        <translation type="vanished">Verstrichene Zeit:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="486"/>
+        <location filename="capture_file_dialog.cpp" line="442"/>
         <source>Prepend packets</source>
         <translation>Pakete vorne einfügen</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="487"/>
+        <location filename="capture_file_dialog.cpp" line="443"/>
         <source>Insert packets from the selected file before the current file. Packet timestamps will be ignored.</source>
         <translation>Pakete aus der ausgewählten Datei vor der aktuellen Datei einfügen. Der Zeitstempel der Pakete wird dabei ignoriert.</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="490"/>
+        <location filename="capture_file_dialog.cpp" line="446"/>
         <source>Merge chronologically</source>
         <translation>Chronologisch zusammenführen</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="491"/>
+        <location filename="capture_file_dialog.cpp" line="447"/>
         <source>Insert packets in chronological order.</source>
         <translation>Pakete in chronologischer Reihenfolge einfügen</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="495"/>
+        <location filename="capture_file_dialog.cpp" line="451"/>
         <source>Append packets</source>
         <translation>Pakete anfügen</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="496"/>
+        <location filename="capture_file_dialog.cpp" line="452"/>
         <source>Insert packets from the selected file after the current file. Packet timestamps will be ignored.</source>
         <translation>Pakete aus der ausgewählten Datei nach der aktuellen Datei anfügen. Die Zeitstempel der Pakete werden ignoriert.</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="511"/>
+        <location filename="capture_file_dialog.cpp" line="467"/>
         <source>Read filter:</source>
         <translation>Lesefilter:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="520"/>
         <source>Automatic</source>
-        <translation>Automatisch</translation>
+        <translation type="vanished">Automatisch</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="529"/>
         <source>&amp;MAC name resolution</source>
-        <translation>&amp;MAC-Namensauflösung</translation>
+        <translation type="vanished">&amp;MAC-Namensauflösung</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="533"/>
         <source>&amp;Transport name resolution</source>
-        <translation>&amp;Transportschicht-Namensauflösung</translation>
+        <translation type="vanished">&amp;Transportschicht-Namensauflösung</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="537"/>
         <source>&amp;Network name resolution</source>
-        <translation>&amp;Netzwerk-Namensauflösung</translation>
+        <translation type="vanished">&amp;Netzwerk-Namensauflösung</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="541"/>
         <source>&amp;External name resolver</source>
-        <translation>&amp;Externe Namensauflösung</translation>
+        <translation type="vanished">&amp;Externe Namensauflösung</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="547"/>
+        <location filename="capture_file_dialog.cpp" line="485"/>
         <source>Compress with g&amp;zip</source>
         <translation>Mit g&amp;zip komprimieren</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="578"/>
+        <location filename="capture_file_dialog.cpp" line="516"/>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>Mitschnittdatei öffnen</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="614"/>
+        <location filename="capture_file_dialog.cpp" line="546"/>
         <source>Save Capture File As</source>
         <oldsource>Wireshark: Save Capture File As</oldsource>
         <translation>Mitschnittdatei speichern unter</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="620"/>
+        <location filename="capture_file_dialog.cpp" line="552"/>
         <source>Save as:</source>
         <translation>Speichern als:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="642"/>
+        <location filename="capture_file_dialog.cpp" line="574"/>
         <source>Export Specified Packets</source>
         <oldsource>Wireshark: Export Specified Packets</oldsource>
         <translation>Ausgewählte Pakete exportieren</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="646"/>
+        <location filename="capture_file_dialog.cpp" line="578"/>
         <source>Export as:</source>
         <translation>Exportieren als:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="675"/>
+        <location filename="capture_file_dialog.cpp" line="607"/>
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Mitschnittdatei zusammenführen</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="777"/>
-        <location filename="capture_file_dialog.cpp" line="778"/>
-        <location filename="capture_file_dialog.cpp" line="779"/>
-        <location filename="capture_file_dialog.cpp" line="780"/>
-        <location filename="capture_file_dialog.cpp" line="781"/>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="vanished">-</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="788"/>
+        <location filename="capture_file_dialog.cpp" line="718"/>
         <source>directory</source>
         <translation>Verzeichnis</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="795"/>
+        <location filename="capture_file_dialog.cpp" line="725"/>
         <source>unknown file format</source>
         <translation>unbekanntes Dateiformat</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="797"/>
+        <location filename="capture_file_dialog.cpp" line="727"/>
         <source>error opening file</source>
         <translation>Fehler beim Öffnen der Datei</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="811"/>
         <source>%1 bytes</source>
-        <translation>%1 Byte</translation>
+        <translation type="vanished">%1 Byte</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="840"/>
         <source>error after reading %1 packets</source>
-        <translation>Fehler nach dem Lesen von %1 Paketen</translation>
+        <translation type="vanished">Fehler nach dem Lesen von %1 Paketen</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="846"/>
         <source>more than %1 (preview timeout)</source>
-        <translation>mehr als %1 (Vorschauzeitüberschreitung)</translation>
+        <translation type="vanished">mehr als %1 (Vorschauzeitüberschreitung)</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="865"/>
         <source>?</source>
-        <translation>?</translation>
+        <translation type="vanished">?</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="871"/>
+        <location filename="capture_file_dialog.cpp" line="806"/>
         <source>unknown</source>
         <translation>unbekannt</translation>
     </message>
@@ -2654,13 +2657,13 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
 <context>
     <name>ExtcapOptionsDialog</name>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="74"/>
-        <location filename="extcap_options_dialog.cpp" line="108"/>
+        <location filename="extcap_options_dialog.cpp" line="76"/>
+        <location filename="extcap_options_dialog.cpp" line="110"/>
         <source>Extcap Interface Options</source>
         <translation>Extcap-Schnittstellenoptionen</translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="78"/>
+        <location filename="extcap_options_dialog.cpp" line="80"/>
         <source>Start</source>
         <translation>Start</translation>
     </message>
@@ -15161,6 +15164,11 @@ text-decoration: underline;
         <location filename="traffic_table_dialog.ui" line="48"/>
         <source>Limit to display filter</source>
         <translation>Auf Anzeigenfilter einschränken</translation>
+    </message>
+    <message>
+        <location filename="traffic_table_dialog.ui" line="68"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="71"/>
