@@ -1828,13 +1828,11 @@ if(ENABLE_APPLICATION_BUNDLE)
 	)
 
 	# Wireshark.app/Contents/Resources/share/man/man1
-	set(BUNDLE_RESOURCE_SHARE_MAN1_FILES ${MAN1_FILES})
 	set_source_files_properties(${BUNDLE_RESOURCE_SHARE_MAN1_FILES} PROPERTIES
 		MACOSX_PACKAGE_LOCATION Resources/share/man/man1
 	)
 
 	# Wireshark.app/Contents/Resources/share/man/man1
-	set(BUNDLE_RESOURCE_SHARE_MAN4_FILES ${MAN4_FILES})
 	set_source_files_properties(${BUNDLE_RESOURCE_SHARE_MAN4_FILES} PROPERTIES
 		MACOSX_PACKAGE_LOCATION Resources/share/man/man4
 	)
