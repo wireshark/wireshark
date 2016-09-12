@@ -33,11 +33,10 @@
 int
 get_natural_int(const char *string, const char *name)
 {
-  const char *end;
   gint32 number;
 
-  if (!ws_strtoi32(string, &end, &number)) {
-    if (errno == EINVAL || *end != '\0') {
+  if (!ws_strtoi32(string, NULL, &number)) {
+    if (errno == EINVAL) {
       cmdarg_err("The specified %s \"%s\" isn't a decimal number", name, string);
       exit(1);
     }
@@ -74,11 +73,10 @@ get_positive_int(const char *string, const char *name)
 guint32
 get_guint32(const char *string, const char *name)
 {
-  const char *end;
   guint32 number;
 
-  if (!ws_strtou32(string, &end, &number)) {
-    if (errno == EINVAL || *end != '\0') {
+  if (!ws_strtou32(string, NULL, &number)) {
+    if (errno == EINVAL) {
       cmdarg_err("The specified %s \"%s\" isn't a decimal number", name, string);
       exit(1);
     }

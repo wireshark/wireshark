@@ -34,7 +34,7 @@ gboolean ws_strtoi64(const gchar* str, const gchar** endptr, gint64* cint)
 
 	errno = 0;
 	val = g_ascii_strtoll(str, &end, 10);
-	if (val == 0 && end == str) {
+	if ((val == 0 && end == str) || (endptr == NULL && *end != '\0')) {
 		*cint = 0;
 		if (endptr != NULL)
 			*endptr = end;
@@ -75,7 +75,7 @@ gboolean ws_strtou64(const gchar* str, const gchar** endptr, guint64* cint)
 	}
 	errno = 0;
 	val = g_ascii_strtoull(str, &end, 10);
-	if (val == 0 && end == str) {
+	if ((val == 0 && end == str) || (endptr == NULL && *end != '\0')) {
 		*cint = 0;
 		if (endptr != NULL)
 			*endptr = end;
