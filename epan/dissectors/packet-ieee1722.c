@@ -51,7 +51,6 @@ void proto_reg_handoff_1722_aaf(void);
 void proto_register_1722_61883(void);
 void proto_reg_handoff_1722_61883(void);
 
-
 /**************************************************************************************************/
 /* 1722                                                                                           */
 /*                                                                                                */
@@ -63,7 +62,6 @@ void proto_reg_handoff_1722_61883(void);
 /* Bit Field Masks */
 #define IEEE_1722_SV_MASK        0x80
 #define IEEE_1722_VER_MASK       0x70
-#define IEEE_1722_SUBTYPE_MASK   0x7F
 
 /**************************************************************************************************/
 /* subtype IEC 61883                                                                              */
@@ -482,7 +480,7 @@ void proto_register_1722(void)
     static hf_register_info hf[] = {
         { &hf_1722_subtype,
             { "AVBTP Subtype", "ieee1722.subtype",
-              FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(subtype_range_rvals), IEEE_1722_SUBTYPE_MASK, NULL, HFILL }
+              FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(subtype_range_rvals), 0x00, NULL, HFILL }
         },
         { &hf_1722_svfield,
             { "AVTP Stream ID Valid", "ieee1722.svfield",

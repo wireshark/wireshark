@@ -7021,9 +7021,9 @@ proto_reg_handoff_17221(void)
    /* avb17221_handle = find_dissector("ieee1722"); */
 
    avb17221_handle = create_dissector_handle(dissect_17221, proto_17221);
-   dissector_add_uint("ieee1722.subtype", 0x7A, avb17221_handle);
-   dissector_add_uint("ieee1722.subtype", 0x7B, avb17221_handle);
-   dissector_add_uint("ieee1722.subtype", 0x7C, avb17221_handle);
+   dissector_add_uint("ieee1722.subtype", 0xFA, avb17221_handle);
+   dissector_add_uint("ieee1722.subtype", 0xFB, avb17221_handle);
+   dissector_add_uint("ieee1722.subtype", 0xFC, avb17221_handle);
 }
 
 /*
