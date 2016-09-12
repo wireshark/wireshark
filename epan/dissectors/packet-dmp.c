@@ -139,15 +139,7 @@ void proto_reg_handoff_dmp(void);
 #define ALGORITHM_NONE    0x0
 #define ALGORITHM_ZLIB    0x1
 
-/* Type of structured id to print */
-#define STRUCT_ID_NONE     0
-#define STRUCT_ID_UINT8    1
-#define STRUCT_ID_UINT16   2
-#define STRUCT_ID_UINT32   3
-#define STRUCT_ID_UINT64   4
-#define STRUCT_ID_STRING   5
-#define STRUCT_ID_ZSTRING  6
-
+/* National Decoding */
 #define NAT_DECODE_NONE    0
 #define NAT_DECODE_DMP     1
 #define NAT_DECODE_THALES  2
@@ -316,12 +308,6 @@ static int hf_message_compr = -1;
 static int hf_message_body_data = -1;
 static int hf_message_body_compressed = -1;
 static int hf_message_body_plain = -1;
-static int hf_message_bodyid_uint8 = -1;
-static int hf_message_bodyid_uint16 = -1;
-static int hf_message_bodyid_uint32 = -1;
-static int hf_message_bodyid_uint64 = -1;
-static int hf_message_bodyid_string = -1;
-static int hf_message_bodyid_zstring = -1;
 static int hf_message_body_structured = -1;
 
 static int hf_delivery_report = -1;
@@ -530,7 +516,6 @@ static struct dmp_data {
   gint     prec;
   gint     body_format;
   gint     notif_type;
-  const guint8 *struct_id;
   gint32   subm_time;
   guint8   msg_id_type;
   guint8   mts_id_length;
@@ -552,10 +537,6 @@ static gint     dmp_nat_decode = NAT_DECODE_DMP;
 static gint     dmp_local_nation = 0;
 static gboolean use_seq_ack_analysis = TRUE;
 static gboolean dmp_align = FALSE;
-static gboolean dmp_subject_as_id = FALSE;
-static gint     dmp_struct_format = STRUCT_ID_NONE;
-static guint    dmp_struct_offset = 0;
-static guint    dmp_struct_length = 1;
 
 typedef struct _dmp_security_class_t {
   guint nation;
@@ -980,17 +961,6 @@ static const value_string ack_msg_type [] = {
   { NOTIF,  " (notif)"   },
   { ACK,    " (ack)"     },
   { 0,      NULL } };
-
-static const enum_val_t struct_id_options[] = {
-  { "none",    "None",                        STRUCT_ID_NONE     },
-  { "1byte",   "1 Byte value",                STRUCT_ID_UINT8    },
-  { "2byte",   "2 Byte value",                STRUCT_ID_UINT16   },
-  { "4byte",   "4 Byte value",                STRUCT_ID_UINT32   },
-  { "8byte",   "8 Byte value",                STRUCT_ID_UINT64   },
-  { "fstring", "Fixed text string",           STRUCT_ID_STRING   },
-  { "zstring", "Zero terminated text string", STRUCT_ID_ZSTRING  },
-  { NULL,      NULL,                          0                  }
-};
 
 static const enum_val_t national_decoding[] = {
   { "none",    "None (raw data)", NAT_DECODE_NONE   },
@@ -3068,46 +3038,6 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   return offset;
 }
 
-static void dissect_dmp_structured_id (tvbuff_t *tvb, proto_tree *body_tree,
-                                       gint offset)
-{
-  gint        length;
-
-  offset += dmp_struct_offset;
-  switch (dmp_struct_format) {
-
-  case STRUCT_ID_UINT8:
-    dmp.struct_id = wmem_strdup_printf (wmem_packet_scope(), "%u", tvb_get_guint8 (tvb, offset));
-    proto_tree_add_item (body_tree, hf_message_bodyid_uint8, tvb, offset, 1, ENC_BIG_ENDIAN);
-    break;
-
-  case STRUCT_ID_UINT16:
-    dmp.struct_id = wmem_strdup_printf (wmem_packet_scope(), "%u", tvb_get_ntohs (tvb, offset));
-    proto_tree_add_item (body_tree, hf_message_bodyid_uint16, tvb, offset, 2, ENC_BIG_ENDIAN);
-    break;
-
-  case STRUCT_ID_UINT32:
-    dmp.struct_id = wmem_strdup_printf (wmem_packet_scope(), "%u", tvb_get_ntohl (tvb, offset));
-    proto_tree_add_item (body_tree, hf_message_bodyid_uint32, tvb, offset, 4, ENC_BIG_ENDIAN);
-    break;
-
-  case STRUCT_ID_UINT64:
-    dmp.struct_id = wmem_strdup_printf (wmem_packet_scope(), "%" G_GINT64_MODIFIER "u", tvb_get_ntoh64 (tvb, offset));
-    proto_tree_add_item (body_tree, hf_message_bodyid_uint64, tvb, offset, 8, ENC_BIG_ENDIAN);
-    break;
-
-  case STRUCT_ID_STRING:
-    proto_tree_add_item_ret_string(body_tree, hf_message_bodyid_string, tvb, offset, dmp_struct_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &dmp.struct_id);
-    break;
-
-  case STRUCT_ID_ZSTRING:
-    dmp.struct_id = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &length, ENC_ASCII);
-    proto_tree_add_item (body_tree, hf_message_bodyid_zstring, tvb, offset, length, ENC_ASCII|ENC_NA);
-    break;
-
-  }
-}
-
 /*
  * Ref chapter 6.3.7.1 STANAG 4406 message structure
  * and chapter 6.3.8.1 IPM 88 message structure
@@ -3127,9 +3057,6 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
 
   if (dmp.body_format == FREE_TEXT_SUBJECT) {
     len = tvb_strsize (tvb, offset);
-    if (dmp_subject_as_id) {
-      dmp.struct_id = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
-    }
     proto_tree_add_item (message_tree, hf_message_subject, tvb, offset, len, ENC_ASCII|ENC_NA);
     offset += len;
   }
@@ -3192,7 +3119,6 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
   if (dmp.body_format == STRUCTURED) {
     /* Structured Message ID */
     field_tree = proto_item_add_subtree (tf, ett_message_body);
-    dissect_dmp_structured_id (tvb, field_tree, offset);
     proto_tree_add_item (field_tree, hf_message_body_structured, tvb, offset, len, ENC_NA);
   } else if (len > 0 && (dmp.body_format == FREE_TEXT ||
                          dmp.body_format == FREE_TEXT_SUBJECT)) {
@@ -3220,10 +3146,6 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
     }
   }
   offset += len;
-
-  if (dmp.struct_id) {
-    proto_item_append_text (en, ", Id: %s", format_text (dmp.struct_id, strlen(dmp.struct_id)));
-  }
 
   proto_item_set_len (en, offset - boffset);
 
@@ -4061,14 +3983,6 @@ static int dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
       col_append_fstr (pinfo->cinfo, COL_INFO, ", Subj Id: %d",
                        dmp.subj_id);
     }
-  } else if (dmp.struct_id) {
-    if (dmp_align && !retrans_or_dup_ack) {
-      col_append_fstr (pinfo->cinfo, COL_INFO, "  Body Id: %s",
-                       format_text (dmp.struct_id, strlen(dmp.struct_id)));
-    } else {
-      col_append_fstr (pinfo->cinfo, COL_INFO, ", Body Id: %s",
-                       format_text (dmp.struct_id, strlen(dmp.struct_id)));
-    }
   }
   if (dmp.checksum && (checksum1 != checksum2)) {
     col_append_str (pinfo->cinfo, COL_INFO, ", Checksum incorrect");
@@ -4610,25 +4524,6 @@ void proto_register_dmp (void)
     { &hf_message_body_plain,
       { "Message Body", "dmp.body.plain", FT_STRING, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
-    { &hf_message_bodyid_uint8,
-      { "Structured Id", "dmp.body.id", FT_UINT8, BASE_DEC,
-        NULL, 0x0, "Structured Body Id (1 byte)", HFILL } },
-    { &hf_message_bodyid_uint16,
-      { "Structured Id", "dmp.body.id", FT_UINT16, BASE_DEC,
-        NULL, 0x0, "Structured Body Id (2 bytes)", HFILL } },
-    { &hf_message_bodyid_uint32,
-      { "Structured Id", "dmp.body.id", FT_UINT32, BASE_DEC,
-        NULL, 0x0, "Structured Body Id (4 bytes)", HFILL } },
-    { &hf_message_bodyid_uint64,
-      { "Structured Id", "dmp.body.id64", FT_UINT64, BASE_DEC,
-        NULL, 0x0, "Structured Body Id (8 bytes)", HFILL } },
-    { &hf_message_bodyid_string,
-      { "Structured Id", "dmp.body.idstring", FT_STRING, BASE_NONE,
-        NULL, 0x0, "Structured Body Id (fixed text string)", HFILL } },
-    { &hf_message_bodyid_zstring,
-      { "Structured Id", "dmp.body.idstring", FT_STRINGZ, BASE_NONE,
-        NULL, 0x0, "Structured Body Id (zero terminated text string)",
-        HFILL } },
     { &hf_message_body_structured,
       { "Structured Body", "dmp.body.structured", FT_BYTES, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
@@ -5039,28 +4934,10 @@ void proto_register_dmp (void)
                                   " (does not align when retransmission or"
                                   " duplicate acknowledgement indication)",
                                   &dmp_align);
-  prefs_register_bool_preference (dmp_module, "subject_as_id",
-                                  "Print subject as body id",
-                                  "Print subject as body id in free text "
-                                  "messages with subject",
-                                  &dmp_subject_as_id);
-  prefs_register_enum_preference (dmp_module, "struct_print",
-                                  "Structured message id format",
-                                  "Format of the structured message id",
-                                  &dmp_struct_format, struct_id_options,
-                                  FALSE);
-  prefs_register_uint_preference (dmp_module, "struct_offset",
-                                  "Offset to structured message id",
-                                  "Used to set where the structured message "
-                                  "id starts in the User Data",
-                                  10, &dmp_struct_offset);
-
-  prefs_register_uint_preference (dmp_module, "struct_length",
-                                  "Fixed text string length",
-                                  "Used to set length of fixed text string "
-                                  "in the structured message id format "
-                                  "(maximum 128 characters)",
-                                  10, &dmp_struct_length);
+  prefs_register_obsolete_preference(dmp_module, "subject_as_id");
+  prefs_register_obsolete_preference(dmp_module, "struct_print");
+  prefs_register_obsolete_preference(dmp_module, "struct_offset");
+  prefs_register_obsolete_preference(dmp_module, "struct_length");
 }
 
 void proto_reg_handoff_dmp (void)
