@@ -37,6 +37,7 @@ TimeShiftDialog::TimeShiftDialog(QWidget *parent, capture_file *cf) :
     ts_ui_->setupUi(this);
     setWindowTitle(wsApp->windowTitleString(tr("Time Shift")));
     apply_button_ = ts_ui_->buttonBox->button(QDialogButtonBox::Apply);
+    apply_button_->setDefault(true);
     connect(apply_button_, SIGNAL(clicked()), this, SLOT(applyTimeShift()));
 
     QStyleOption style_opt;
