@@ -803,7 +803,9 @@ main(int argc, char *argv[])
                 g_free(err_msg);
                 epan_free(cfile.epan);
                 epan_cleanup();
+#ifdef HAVE_EXTCAP
                 extcap_cleanup();
+#endif
                 exit(2);
             }
             n_rfcodes++;
@@ -825,7 +827,9 @@ main(int argc, char *argv[])
         if (raw_cf_open(&cfile, pipe_name) != CF_OK) {
             epan_free(cfile.epan);
             epan_cleanup();
+#ifdef HAVE_EXTCAP
             extcap_cleanup();
+#endif
             exit(2);
         }
 
@@ -847,7 +851,9 @@ main(int argc, char *argv[])
         if (!load_cap_file(&cfile)) {
             epan_free(cfile.epan);
             epan_cleanup();
+#ifdef HAVE_EXTCAP
             extcap_cleanup();
+#endif
             exit(2);
         }
     } else {
@@ -858,8 +864,9 @@ main(int argc, char *argv[])
 
     epan_free(cfile.epan);
     epan_cleanup();
+#ifdef HAVE_EXTCAP
     extcap_cleanup();
-
+#endif
     return 0;
 }
 

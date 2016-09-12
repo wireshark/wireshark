@@ -2760,7 +2760,9 @@ main(int argc, char *argv[])
 
     epan_cleanup();
 
+#ifdef HAVE_EXTCAP
     extcap_cleanup();
+#endif
 
     AirPDcapDestroyContext(&airpdcap_ctx);
 

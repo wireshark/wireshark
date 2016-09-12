@@ -864,7 +864,9 @@ main(int argc, char *argv[])
        * $ ./tools/valgrind-wireshark -n
        * much more useful. */
       epan_cleanup();
+#ifdef HAVE_EXTCAP
       extcap_cleanup();
+#endif
       return 0;
     }
     case 'O':        /* Only output these protocols */
@@ -993,7 +995,9 @@ main(int argc, char *argv[])
       cmdarg_err("%s", err_msg);
       g_free(err_msg);
       epan_cleanup();
+#ifdef HAVE_EXTCAP
       extcap_cleanup();
+#endif
       return 2;
     }
   }
@@ -1004,7 +1008,9 @@ main(int argc, char *argv[])
       cmdarg_err("%s", err_msg);
       g_free(err_msg);
       epan_cleanup();
+#ifdef HAVE_EXTCAP
       extcap_cleanup();
+#endif
       return 2;
     }
   }
@@ -1050,7 +1056,9 @@ main(int argc, char *argv[])
        open_routine reader to use, then the following needs to change. */
     if (cf_open(&cfile, cf_name, WTAP_TYPE_AUTO, FALSE, &err) != CF_OK) {
       epan_cleanup();
+#ifdef HAVE_EXTCAP
       extcap_cleanup();
+#endif
       return 2;
     }
 
@@ -1089,7 +1097,9 @@ main(int argc, char *argv[])
   funnel_dump_all_text_windows();
   epan_free(cfile.epan);
   epan_cleanup();
+#ifdef HAVE_EXTCAP
   extcap_cleanup();
+#endif
 
   output_fields_free(output_fields);
   output_fields = NULL;
