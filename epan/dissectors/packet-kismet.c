@@ -30,6 +30,8 @@
 #include <epan/to_str.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
+#include <wsutil/strtoi.h>
 
 static int proto_kismet = -1;
 static int hf_kismet_response = -1;
@@ -44,6 +46,8 @@ static int hf_kismet_time = -1;
 
 static gint ett_kismet = -1;
 static gint ett_kismet_reqresp = -1;
+
+static expert_field ei_time_invalid = EI_INIT;
 
 #define TCP_PORT_KISMET	2501
 
@@ -224,7 +228,10 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 					 */
 					if (!strncmp(reqresp, "*TIME", 5)) {
 						nstime_t t;
-						char *ptr;
+						char *ptr = NULL;
+						proto_tree* time_item;
+
+						t.nsecs = 0;
 
 						offset += (gint) (next_token - line);
 						linelen -= (int) (next_token - line);
@@ -232,14 +239,17 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 						tokenlen = get_token_len(line, line + linelen, &next_token);
 
 						/* Convert form ascii to nstime */
-						t.secs = atoi(format_text (line, tokenlen));
-						t.nsecs = 0;
+						if (ws_strtou64(format_text(line, tokenlen), NULL, &t.secs)) {
 
-						/*
-						 * Format ascii representation of time
-						 */
-						ptr = abs_time_secs_to_str(wmem_packet_scope(), t.secs, ABSOLUTE_TIME_LOCAL, TRUE);
-						proto_tree_add_time_format_value(reqresp_tree, hf_kismet_time, tvb, offset, tokenlen, &t, "%s", ptr);
+							/*
+							 * Format ascii representation of time
+							 */
+							ptr = abs_time_secs_to_str(wmem_packet_scope(), t.secs, ABSOLUTE_TIME_LOCAL, TRUE);
+						}
+						time_item = proto_tree_add_time_format_value(reqresp_tree, hf_kismet_time, tvb, offset,
+							tokenlen, &t, "%s", ptr ? ptr : "");
+						if (!ptr)
+							expert_add_info(pinfo, time_item, &ei_time_invalid);
 					}
 				}
 
@@ -307,15 +317,22 @@ proto_register_kismet(void)
 		NULL, 0x0, NULL, HFILL}},
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_time_invalid, { "kismet.time.invalid", PI_PROTOCOL, PI_WARN, "Invalid time", EXPFILL }}
+	};
+
 	static gint *ett[] = {
 		&ett_kismet,
 		&ett_kismet_reqresp,
 	};
 	module_t *kismet_module;
+	expert_module_t* expert_kismet;
 
 	proto_kismet = proto_register_protocol("Kismet Client/Server Protocol", "Kismet", "kismet");
 	proto_register_field_array(proto_kismet, hf, array_length (hf));
 	proto_register_subtree_array(ett, array_length (ett));
+	expert_kismet = expert_register_protocol(proto_kismet);
+	expert_register_field_array(expert_kismet, ei, array_length(ei));
 
 	/* Register our configuration options for Kismet, particularly our port */
 
