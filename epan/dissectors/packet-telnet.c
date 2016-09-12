@@ -225,7 +225,6 @@ static void
 check_tn3270_model(packet_info *pinfo _U_, const char *terminaltype)
 {
   int  model;
-  char str_model[2];
 
   if ((strcmp(terminaltype,"IBM-3278-2-E") == 0) || (strcmp(terminaltype,"IBM-3278-2") == 0) ||
       (strcmp(terminaltype,"IBM-3278-3") == 0) || (strcmp(terminaltype,"IBM-3278-4") == 0) ||
@@ -233,9 +232,7 @@ check_tn3270_model(packet_info *pinfo _U_, const char *terminaltype)
       (strcmp(terminaltype,"IBM-3279-3") == 0) || (strcmp(terminaltype,"IBM-3279-4") == 0) ||
       (strcmp(terminaltype,"IBM-3279-2-E") == 0) || (strcmp(terminaltype,"IBM-3279-2") == 0) ||
       (strcmp(terminaltype,"IBM-3279-4-E") == 0)) {
-    str_model[0] = terminaltype[9];
-    str_model[1] = '\0';
-    model = atoi(str_model);
+    model = terminaltype[9] - '0';
     add_tn3270_conversation(pinfo, 0, model);
   }
 }
