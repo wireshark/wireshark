@@ -19,6 +19,8 @@ used for troubleshooting, analysis, development and education.
 
 * Multiple PortableApps instances can once again be run at the same time.
 
+* The Windows installers now ship with Qt 5.6. Previously they shipped with Qt 5.3.
+
 === New and Updated Features
 
 There are no new features in this release.
