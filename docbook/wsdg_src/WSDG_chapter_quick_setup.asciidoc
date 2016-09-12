@@ -154,16 +154,17 @@ sure it doesn't install Visual Studio 2010 SP1 out of order.
 
 ==== Install Qt
 
-The main Wireshark application uses the Qt windowing toolkit. To install Qt
-download the *Online Installer* from the Qt Project
-http://qt-project.org/downloads[download page] and select a component that
-matches your target system and compiler. For example, the ``msvc2013 64-bit
-OpenGL'' component is used to build the official 64-bit packages.
+The main Wireshark application uses the Qt windowing toolkit. To install
+Qt download the *Qt Online Installer for Windows* from the Qt Project
+https://www.qt.io/download-open-source/["Download Open Source" page] and
+select a component that matches your target system and compiler. For example,
+the ``msvc2013 64-bit'' component is used to build the official 64-bit packages.
 
 Note that separate installations (into different directories) of Qt
-are required for 32 bit and 64 bit builds.  The environment variable QT5_BASE_DIR should be
-set as appropriate for your environment and should point to the Qt directory that contains the
-bin directory, e.g. C:\Qt\Qt5.5.0\5.5\msvc2013
+are required for 32 bit and 64 bit builds.  The environment variable
+`QT5_BASE_DIR` should be set as appropriate for your environment and
+should point to the Qt directory that contains the bin directory, e.g.
+`C:\Qt\5.6\msvc2013_64`
 
 [[ChSetupCygwin]]
 
@@ -401,7 +402,7 @@ Set the following environment variables, using paths and values suitable for you
 > set CYGWIN=nodosfilewarning
 > set WIRESHARK_BASE_DIR=C:\Development or set WIRESHARK_LIB_DIR to the appropriate library directory for your build.
 > set WIRESHARK_TARGET_PLATFORM=win32 or win64 as required
-> set QT5_BASE_DIR=C:\Qt\Qt5.5.0\5.5\msvc2013
+> set QT5_BASE_DIR=C:\Qt\5.6\msvc2013_64
 
 > set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 ----
@@ -422,7 +423,8 @@ the Visual Studio Tools Command Prompt.
 
 [TIP]
 ====
-The recommended Qt version to compile Wireshark on Windows is 5.6.1.
+Qt 5.6 is a "long term support" branch of Qt5. We recommend using it
+to compile Wireshark on Windows.
 ====
 
 --
@@ -505,7 +507,7 @@ to build Wireshark.
 
 . Wait for Wireshark to compile. This will take a while, and there will be a lot of text output in the command prompt window
 
-. For the QT version run `C:\Development\wsbuild32\run\RelWithDebInfo\Wireshark.exe` and make sure it starts.
+. For the Qt version run `C:\Development\wsbuild32\run\RelWithDebInfo\Wireshark.exe` and make sure it starts.
 
 . For the older GTK version run `C:\Development\wsbuild32\run\RelWithDebInfo\wireshark-gtk.exe`.
 
