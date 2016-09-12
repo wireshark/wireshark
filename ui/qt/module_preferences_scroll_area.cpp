@@ -178,6 +178,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
     {
         QLabel *label = new QLabel(pref->title);
         label->setToolTip(tooltip);
+        label->setWordWrap(true);
         vb->addWidget(label);
         break;
     }
