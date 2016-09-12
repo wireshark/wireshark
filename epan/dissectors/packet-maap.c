@@ -214,7 +214,7 @@ proto_reg_handoff_maap(void)
     dissector_handle_t maap_handle;
 
     maap_handle = create_dissector_handle(dissect_maap, proto_maap);
-    dissector_add_uint("ieee1722.subtype", 0x7E, maap_handle);
+    dissector_add_uint("ieee1722.subtype", 0xFE, maap_handle);
 }
 
 /*
