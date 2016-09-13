@@ -43,6 +43,7 @@
 #include <epan/prefs.h>
 #include <epan/address_types.h>
 #include <wiretap/wtap.h>
+#include <epan/addr_resolv.h>
 
 #include "packet-q708.h"
 #include "packet-sccp.h"
@@ -423,6 +424,33 @@ int mtp3_addr_len(void)
 {
     return sizeof(mtp3_addr_pc_t);
 }
+
+static const gchar* mtp3_addr_name_res_str(const address* addr)
+{
+    const mtp3_addr_pc_t *mtp3_addr = (const mtp3_addr_pc_t *)addr->data;
+    const gchar *tmp;
+
+    tmp = get_hostname_ss7pc(mtp3_addr->ni, mtp3_addr->pc);
+
+    if (tmp[0] == '\0') {
+        gchar* str;
+        str = (gchar *)wmem_alloc(NULL, MAXNAMELEN);
+        mtp3_addr_to_str_buf(mtp3_addr, str, MAXNAMELEN);
+        fill_unresolved_ss7pc(str, mtp3_addr->ni, mtp3_addr->pc);
+        wmem_free(NULL, str);
+        return get_hostname_ss7pc(mtp3_addr->ni, mtp3_addr->pc);
+    }
+    return tmp;
+
+}
+
+static int mtp3_addr_name_res_len(void)
+{
+    return MAXNAMELEN;
+}
+
+
+
 
 /*  Common function for dissecting 3-byte (ANSI or China) PCs. */
 void
@@ -1078,7 +1106,7 @@ proto_register_mtp3(void)
                   proto_mtp3, FT_UINT8, BASE_HEX);
 
   mtp3_address_type = address_type_dissector_register("AT_SS7PC", "SS7 Point Code", mtp3_addr_to_str, mtp3_str_addr_len, NULL, NULL,
-                                                            mtp3_addr_len, NULL, NULL);
+                                                            mtp3_addr_len, mtp3_addr_name_res_str, mtp3_addr_name_res_len);
 
 
   mtp3_tap = register_tap("mtp3");

@@ -62,6 +62,7 @@ typedef struct _e_addr_resolve {
   gboolean use_external_net_name_resolver;    /**< Whether to system's configured DNS server to resolve names */
   gboolean load_hosts_file_from_profile_only; /**< Whether to only load the hosts in the current profile, not hosts files */
   gboolean vlan_name;                         /**< Whether to resolve VLAN IDs to names */
+  gboolean ss7pc_name;                        /**< Whether to resolve SS7 Point Codes to names */
 } e_addr_resolve;
 
 #define ADDR_RESOLV_MACADDR(at) \
@@ -191,6 +192,14 @@ WS_DLL_PUBLIC const gchar *get_hostname6(const struct e_in6_addr *ad);
    "<vendor>_%02x:%02x:%02x" if the vendor code is known else
    "%02x:%02x:%02x:%02x:%02x:%02x" */
 WS_DLL_PUBLIC const gchar *get_ether_name(const guint8 *addr);
+
+/* get_hostname_ss7pc returns the logical name if found in ss7pcs file else
+   '\0' on the first call or the unresolved Point Code in the subsequent calls */
+const gchar *get_hostname_ss7pc(const guint8 ni, const guint32 pc);
+
+/* fill_unresolved_ss7pc initializes the unresolved Point Code Address string in the hashtable */
+void fill_unresolved_ss7pc(const gchar * pc_addr, const guint8 ni, const guint32 pc);
+
 
 /* Same as get_ether_name with tvb support */
 WS_DLL_PUBLIC const gchar *tvb_get_ether_name(tvbuff_t *tvb, gint offset);

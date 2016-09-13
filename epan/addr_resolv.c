@@ -117,6 +117,7 @@
 #define ENAME_MANUF     "manuf"
 #define ENAME_SERVICES  "services"
 #define ENAME_VLANS     "vlans"
+#define ENAME_SS7PCS    "ss7pcs"
 
 #define HASHETHSIZE      2048
 #define HASHHOSTSIZE     2048
@@ -160,6 +161,12 @@ typedef struct hashvlan {
 /*    struct hashvlan     *next; */
     gchar               name[MAXVLANNAMELEN];
 } hashvlan_t;
+
+typedef struct ss7pc {
+    guint32             id; /* 1st byte NI, 3 following bytes: Point Code */
+    gchar               pc_addr[MAXNAMELEN];
+    gchar               name[MAXNAMELEN];
+} hashss7pc_t;
 
 /* hash tables used for ethernet and manufacturer lookup */
 #define HASHETHER_STATUS_UNRESOLVED     1
@@ -205,6 +212,7 @@ static wmem_map_t *ipxnet_hash_table = NULL;
 static wmem_map_t *ipv4_hash_table = NULL;
 static wmem_map_t *ipv6_hash_table = NULL;
 static wmem_map_t *vlan_hash_table = NULL;
+static wmem_map_t *ss7pc_hash_table = NULL;
 
 static wmem_list_t *manually_resolved_ipv4_list = NULL;
 static wmem_list_t *manually_resolved_ipv6_list = NULL;
@@ -288,7 +296,8 @@ e_addr_resolve gbl_resolv_flags = {
     TRUE,   /* dns_pkt_addr_resolution */
     TRUE,   /* use_external_net_name_resolver */
     FALSE,  /* load_hosts_file_from_profile_only */
-    FALSE   /* vlan_name */
+    FALSE,  /* vlan_name */
+    FALSE   /* ss7 point code names */
 };
 #ifdef HAVE_C_ARES
 static guint name_resolve_concurrency = 500;
@@ -307,6 +316,7 @@ gchar *g_pipxnets_path  = NULL;     /* personal ipxnets file  */
 gchar *g_services_path  = NULL;     /* global services file   */
 gchar *g_pservices_path = NULL;     /* personal services file */
 gchar *g_pvlan_path     = NULL;     /* personal vlans file    */
+gchar *g_ss7pcs_path    = NULL;     /* personal ss7pcs file   */
                                     /* first resolving call   */
 
 /* c-ares */
@@ -2306,6 +2316,151 @@ subnet_name_lookup_init(void)
     g_free(subnetspath);
 }
 
+/* SS7 PC Name Resolution Portion */
+static hashss7pc_t *
+new_ss7pc(const guint8 ni, const guint32 pc)
+{
+    hashss7pc_t *tp = wmem_new(wmem_epan_scope(), hashss7pc_t);
+    tp->id = (ni<<24) + (pc&0xffffff);
+    tp->pc_addr[0] = '\0';
+    tp->name[0] = '\0';
+
+    return tp;
+}
+
+static hashss7pc_t *
+host_lookup_ss7pc(const guint8 ni, const guint32 pc)
+{
+    hashss7pc_t * volatile tp;
+    guint32 id;
+
+    id = (ni<<24) + (pc&0xffffff);
+
+    tp = (hashss7pc_t *)wmem_map_lookup(ss7pc_hash_table, GUINT_TO_POINTER(id));
+    if (tp == NULL) {
+        tp = new_ss7pc(ni, pc);
+        wmem_map_insert(ss7pc_hash_table, GUINT_TO_POINTER(id), tp);
+    }
+
+    return tp;
+}
+
+void fill_unresolved_ss7pc(const gchar * pc_addr, const guint8 ni, const guint32 pc)
+{
+    hashss7pc_t *tp = host_lookup_ss7pc(ni, pc);
+
+    g_strlcpy(tp->pc_addr, pc_addr, MAXNAMELEN);
+}
+
+const gchar *
+get_hostname_ss7pc(const guint8 ni, const guint32 pc)
+{
+    hashss7pc_t *tp = host_lookup_ss7pc(ni, pc);
+
+    /* never resolved yet*/
+    if (tp->pc_addr[0] == '\0')
+        return tp->pc_addr;
+
+    /* Don't have name in file */
+    if (tp->name[0] == '\0')
+        return tp->pc_addr;
+
+    if (!gbl_resolv_flags.ss7pc_name)
+        return tp->pc_addr;
+
+    return tp->name;
+}
+
+void
+add_ss7pc_name(const guint8 ni, guint32 pc, const gchar *name)
+{
+    hashss7pc_t *tp;
+    guint32 id;
+
+    if (!name || name[0] == '\0')
+        return;
+
+    id = (ni<<24) + (pc&0xffffff);
+    tp = (hashss7pc_t *)wmem_map_lookup(ss7pc_hash_table, GUINT_TO_POINTER(id));
+    if (!tp) {
+        tp = new_ss7pc(ni, pc);
+        wmem_map_insert(ss7pc_hash_table, GUINT_TO_POINTER(id), tp);
+    }
+
+    if (g_ascii_strcasecmp(tp->name, name)) {
+        g_strlcpy(tp->name, name, MAXNAMELEN);
+    }
+}
+
+static gboolean
+read_ss7pcs_file(const char *ss7pcspath)
+{
+    FILE *hf;
+    char *line = NULL;
+    int size = 0;
+    gchar *cp;
+    guint8 ni;
+    guint32 pc;
+    gboolean entry_found = FALSE;
+
+    /*
+    *  File format is Network Indicator (decimal)<dash>Point Code (Decimal)<tab/space>Hostname
+    */
+    if ((hf = ws_fopen(ss7pcspath, "r")) == NULL)
+        return FALSE;
+
+    while (fgetline(&line, &size, hf) >= 0) {
+        if ((cp = strchr(line, '#')))
+            *cp = '\0';
+
+        if ((cp = strtok(line, "-")) == NULL)
+            continue; /*no ni-pc separator*/
+        if (!ws_strtou8(cp, NULL, &ni))
+            continue;
+        if (ni > 3)
+             continue;
+
+        if ((cp = strtok(NULL, " \t")) == NULL)
+            continue; /* no tokens for pc and name */
+        if (!ws_strtou32(cp, NULL, &pc))
+            continue;
+        if (pc >> 24 > 0)
+            continue;
+
+        if ((cp = strtok(NULL, " \t")) == NULL)
+            continue; /* no host name */
+
+        entry_found = TRUE;
+        add_ss7pc_name(ni, pc, cp);
+    }
+    wmem_free(wmem_epan_scope(), line);
+
+    fclose(hf);
+    return entry_found ? TRUE : FALSE;
+}
+
+void
+ss7pc_name_lookup_init(void)
+{
+    char *ss7pcspath;
+
+    g_assert(ss7pc_hash_table == NULL);
+
+    ss7pc_hash_table = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
+
+    /*
+     * Load the user's ss7pcs file
+     */
+    ss7pcspath = get_persconffile_path(ENAME_SS7PCS, TRUE);
+    if (!read_ss7pcs_file(ss7pcspath) && errno != ENOENT) {
+        report_open_failure(ss7pcspath, errno, FALSE);
+    }
+    g_free(ss7pcspath);
+}
+
+/* SS7PC Name Resolution End*/
+
+
 /*
  *  External Functions
  */
@@ -2377,6 +2532,15 @@ addr_resolve_pref_init(module_t *nameres)
             " One line per VLAN.",
             &gbl_resolv_flags.vlan_name);
 
+    prefs_register_bool_preference(nameres, "ss7_pc_name",
+        "Resolve SS7 PC",
+        "Resolve SS7 Point Codes to describing names."
+        " To do so you need a file called ss7pcs in your"
+        " user preference directory. Format of the file is:"
+        "  \"Network_Indicator<Dash>PC_Decimal<Tab>Name\""
+        " One line per Point Code. e.g.: 2-1234 MyPointCode1",
+        &gbl_resolv_flags.ss7pc_name);
+
 }
 
 void
@@ -2387,6 +2551,7 @@ disable_name_resolution(void) {
     gbl_resolv_flags.dns_pkt_addr_resolution            = FALSE;
     gbl_resolv_flags.use_external_net_name_resolver     = FALSE;
     gbl_resolv_flags.vlan_name                          = FALSE;
+    gbl_resolv_flags.ss7pc_name                         = FALSE;
 }
 
 #ifdef HAVE_C_ARES
@@ -2653,6 +2818,8 @@ host_name_lookup_init(void)
     subnet_name_lookup_init();
 
     add_manually_resolved();
+
+    ss7pc_name_lookup_init();
 }
 
 void
@@ -2666,6 +2833,7 @@ host_name_lookup_cleanup(void)
     ipxnet_hash_table = NULL;
     ipv4_hash_table = NULL;
     ipv6_hash_table = NULL;
+    ss7pc_hash_table = NULL;
 
     for(i = 0; i < SUBNETLENGTHSIZE; ++i) {
         if (subnet_length_entries[i].subnet_addresses != NULL) {
