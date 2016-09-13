@@ -360,7 +360,7 @@ check_wix:
       Goto done
 
   wix_enum_reg_done:
-    MessageBox MB_OK|MB_ICONINFORMATION "Checked $0 $REGISTRY_BITS bit keys"
+    ; MessageBox MB_OK|MB_ICONINFORMATION "Checked $0 $REGISTRY_BITS bit keys"
     IntCmp $REGISTRY_BITS 32 done
     StrCpy $REGISTRY_BITS 32
     SetRegView 32
