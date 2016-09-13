@@ -87,6 +87,11 @@ EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_i
     tabChanged();
 #endif
 
+    QPushButton *close_bt = buttonBox()->button(QDialogButtonBox::Close);
+    if (close_bt) {
+        close_bt->setDefault(true);
+    }
+
     updateWidgets();
 //    currentTabChanged();
 

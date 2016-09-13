@@ -104,6 +104,11 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli
 
     fillTypeMenu(conv_protos);
 
+    QPushButton *close_bt = buttonBox()->button(QDialogButtonBox::Close);
+    if (close_bt) {
+        close_bt->setDefault(true);
+    }
+
     updateWidgets();
 //    currentTabChanged();
 

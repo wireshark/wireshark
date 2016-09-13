@@ -240,6 +240,10 @@ ProtocolHierarchyDialog::ProtocolHierarchyDialog(QWidget &parent, CaptureFile &c
     connect(ca, SIGNAL(triggered()), this, SLOT(on_actionCopyAsYaml_triggered()));
     copy_button_->setMenu(copy_menu);
 
+    QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
+    if (close_bt) {
+        close_bt->setDefault(true);
+    }
 
     display_filter_ = cap_file_.capFile()->dfilter;
     updateWidgets();
