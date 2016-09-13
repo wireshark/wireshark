@@ -94,7 +94,7 @@ it can be a good idea to set at least the filter in advance here.
 [[ChIOOpenFileDialogWin32]]
 
 .``Open'' on Microsoft Windows
-image::wsug_graphics/ws-open-win32.png[]
+image::wsug_graphics/ws-open-win32.png[{screenshot-attrs}]
 
 This is the common Windows file open dialog - plus some Wireshark extensions.
 
@@ -105,7 +105,7 @@ Specific for this dialog:
 [[ChIOOpenFileDialog]]
 
 .``Open'' - Linux and UNIX
-image::wsug_graphics/ws-open-gtk24.png[]
+image::wsug_graphics/ws-open-gtk24.png[{screenshot-attrs}]
 
 This is the common Gimp/GNOME file open dialog plus some Wireshark extensions.
 
@@ -237,7 +237,7 @@ should be the same across systems.
 [[ChIOSaveAsFileWin32]]
 
 .``Save'' on Microsoft Windows
-image::wsug_graphics/ws-save-as-win32.png[]
+image::wsug_graphics/ws-save-as-win32.png[{screenshot-attrs}]
 
 This is the common Windows file save dialog with some additional Wireshark extensions.
 
@@ -251,7 +251,7 @@ Specific behavior for this dialog:
 [[ChIOSaveAsFile2]]
 
 .``Save'' on Linux and UNIX
-image::wsug_graphics/ws-save-as-gtk24.png[]
+image::wsug_graphics/ws-save-as-gtk24.png[{screenshot-attrs}]
 
 This is the common Gimp/GNOME file save dialog with additional Wireshark extensions.
 
@@ -399,14 +399,14 @@ Append the packets from the selected file after the currently loaded packets.
 [[ChIOMergeFileWin32]]
 
 .``Merge'' on Microsoft Windows
-image::wsug_graphics/ws-merge-win32.png[]
+image::wsug_graphics/ws-merge-win32.png[{screenshot-attrs}]
 
 This is the common Windows file open dialog with additional Wireshark extensions.
 
 [[ChIOMergeFile2]]
 
 .``Merge'' on Linux and UNIX
-image::wsug_graphics/ws-merge-gtk24.png[]
+image::wsug_graphics/ws-merge-gtk24.png[{screenshot-attrs}]
 
 This is the common Gimp/GNOME file open dialog with additional Wireshark extensions.
 
@@ -477,7 +477,7 @@ data, to be imported and set import parameters.
 [[ChIOFileImportDialog]]
 
 .The ``Import from Hex Dump'' dialog
-image::wsug_graphics/ws-file-import.png[]
+image::wsug_graphics/ws-file-import.png[{screenshot-attrs}]
 
 Specific controls of this import dialog are split in two sections:
 
@@ -580,7 +580,7 @@ with file sets in a convenient way:
 ==== The ``List Files'' dialog box
 
 .The "List Files" dialog box
-image::wsug_graphics/ws-file-set-dialog.png[]
+image::wsug_graphics/ws-file-set-dialog.png[{screenshot-attrs}]
 
 Each line contains information about a file of the file set:
 
@@ -646,7 +646,7 @@ plain text file it is recommended that you:
 ====
 
 .The ``Export as Plain Text File'' dialog box
-image::wsug_graphics/ws-export-plain.png[]
+image::wsug_graphics/ws-export-plain.png[{screenshot-attrs}]
 
 *  The ``Export to file:'' frame chooses the file to export the packet data to.
 
@@ -659,7 +659,7 @@ image::wsug_graphics/ws-export-plain.png[]
 ==== The ``Export as PostScript File'' dialog box
 
 .The "Export as PostScript File" dialog box
-image::wsug_graphics/ws-export-ps.png[]
+image::wsug_graphics/ws-export-ps.png[{screenshot-attrs}]
 
 *  _Export to file:_ frame chooses the file to export the packet data to.
 
@@ -710,7 +710,7 @@ packet summary. The PSML file specification is available at:
 link:$$http://www.nbee.org/doku.php?id=netpdl:psml_specification$$[].
 
 .The "Export as PSML File" dialog box
-image::wsug_graphics/ws-export-psml.png[]
+image::wsug_graphics/ws-export-psml.png[{screenshot-attrs}]
 
 *  _Export to file:_ frame chooses the file to export the packet data to.
 
@@ -735,7 +735,7 @@ Wireshark versions.
 ====
 
 .The "Export as PDML File" dialog box
-image::wsug_graphics/ws-export-pdml.png[]
+image::wsug_graphics/ws-export-pdml.png[{screenshot-attrs}]
 
 *  _Export to file:_ frame chooses the file to export the packet data to.
 
@@ -751,7 +751,7 @@ format is defined by the PDML specification.
 Export the bytes selected in the "Packet Bytes" pane into a raw binary file.
 
 .The "Export Selected Packet Bytes" dialog box
-image::wsug_graphics/ws-export-selected.png[]
+image::wsug_graphics/ws-export-selected.png[{screenshot-attrs}]
 
 *  _Name:_ the filename to export the packet data to.
 
@@ -773,7 +773,7 @@ is for the same platform you are running Wireshark on) without any further work
 on your part. This feature is not available when using GTK2 versions below 2.4.
 
 .The "Export Objects" dialog box
-image::wsug_graphics/ws-export-objects.png[]
+image::wsug_graphics/ws-export-objects.png[{screenshot-attrs}]
 
 *  _Packet num:_ The packet number in which this object was found. In some
    cases, there can be multiple objects in the same packet.
@@ -817,7 +817,7 @@ do this Wireshark pops up the ``Print'' dialog box as shown in
 [[ChIOPrintDialogBox]]
 
 .The ``Print'' dialog box
-image::wsug_graphics/ws-print.png[]
+image::wsug_graphics/ws-print.png[{screenshot-attrs}]
 
 The following fields are available in the Print dialog box: _Printer_::
 This field contains a pair of mutually exclusive radio buttons:
@@ -870,7 +870,7 @@ function.
 [[ChIOPacketRangeFrame]]
 
 .The ``Packet Range'' frame
-image::wsug_graphics/ws-packet-range.png[]
+image::wsug_graphics/ws-packet-range.png[{screenshot-attrs}]
 
 If the button:[Captured] button is set (default), all packets from the selected rule
 will be processed. If the button:[Displayed] button is set, only the currently
@@ -901,7 +901,7 @@ function.
 [[ChIOPacketFormatFrame]]
 
 .The ``Packet Format'' frame
-image::wsug_graphics/ws-packet-format.png[]
+image::wsug_graphics/ws-packet-format.png[{screenshot-attrs}]
 
 * _Packet summary line_ enable the output of the summary line, just as in the
   ``Packet List'' pane.

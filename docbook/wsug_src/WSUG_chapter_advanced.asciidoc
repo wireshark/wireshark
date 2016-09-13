@@ -40,7 +40,7 @@ select all the packets in the TCP stream you have selected.
 [[ChAdvFollowStream]]
 
 .The ``Follow TCP Stream'' dialog box
-image::wsug_graphics/ws-follow-stream.png[]
+image::wsug_graphics/ws-follow-stream.png[{screenshot-attrs}]
 
 The stream content is displayed in the same sequence as it appeared on the
 network. Traffic from A to B is marked in red, while traffic from B to A is
@@ -274,7 +274,7 @@ You can open the expert info dialog by selecting menu:Analyze[Expert Info].
 // XXX - add explanation of the dialogs context menu.
 
 .The ``Expert Info'' dialog box
-image::wsug_graphics/ws-expert-infos.png[]
+image::wsug_graphics/ws-expert-infos.png[{screenshot-attrs}]
 
 [[ChAdvExpertDialogTabs]]
 
@@ -306,7 +306,7 @@ pinpoint problems.
 ==== ``Colorized'' Protocol Details Tree
 
 .The ``Colorized'' protocol details tree
-image::wsug_graphics/ws-expert-colored-tree.png[]
+image::wsug_graphics/ws-expert-colored-tree.png[{screenshot-attrs}]
 
 The protocol field causing an expert info is colorized, e.g. uses a cyan
 background for a note severity level. This color is propagated to the toplevel
@@ -323,7 +323,7 @@ marked cyan as well.
 ==== ``Expert'' Packet List Column (optional)
 
 .The ``Expert'' packet list column
-image::wsug_graphics/ws-expert-column.png[]
+image::wsug_graphics/ws-expert-column.png[{screenshot-attrs}]
 
 An optional ``Expert Info Severity'' packet list column is available that
 displays the most significant severity of a packet or stays empty if everything
@@ -601,7 +601,7 @@ See <<ChUsePacketBytesPaneSection>>).
 [[ChAdvWiresharkBytesPaneTabs]]
 
 .The ``Packet Bytes'' pane with a reassembled tab
-image::wsug_graphics/ws-bytes-pane-tabs.png[]
+image::wsug_graphics/ws-bytes-pane-tabs.png[{screenshot-attrs}]
 
 Reassembly might take place at several protocol layers, so it's possible that
 multiple tabs in the ``Packet Bytes'' pane appear.

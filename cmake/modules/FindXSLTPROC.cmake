@@ -151,6 +151,7 @@ ENDMACRO(XML2HTML)
 MACRO(XML2PDF _target_dep _output _dbk_source _stylesheet _paper)
     # We depend on the docbook target to avoid parallel builds.
     SET(_dbk_dep ${_target_dep}_docbook)
+    file(RELATIVE_PATH _img_relative_path ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
     ADD_CUSTOM_COMMAND(
         OUTPUT
             ${_output}
@@ -158,10 +159,10 @@ MACRO(XML2PDF _target_dep _output _dbk_source _stylesheet _paper)
         COMMAND ${XSLTPROC_EXECUTABLE}
             --path "${_xsltproc_path}"
             --stringparam paper.type ${_paper}
-            --stringparam img.src.path ${CMAKE_CURRENT_SOURCE_DIR}/
+            --stringparam img.src.path ${_img_relative_path}/
             --stringparam use.id.as.filename 1
             --stringparam admon.graphics 1
-            --stringparam admon.graphics.path ${CMAKE_CURRENT_SOURCE_DIR}/common_graphics/
+            --stringparam admon.graphics.path ${_img_relative_path}/common_graphics/
             --stringparam admon.graphics.extension .svg
             --nonet
             --output ${_output}.fo

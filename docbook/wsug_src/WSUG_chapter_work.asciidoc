@@ -24,7 +24,7 @@ header selected, which shows up in the byte view as the selected bytes.
 [[ChWorkSelPack1]]
 
 .Wireshark with a TCP packet selected for viewing
-image::wsug_graphics/ws-packet-selected.png[]
+image::wsug_graphics/ws-packet-selected.png[{screenshot-attrs}]
 
 You can also select and view packets the same way while Wireshark is capturing
 if you selected ``Update list of packets in real time'' in the ``Capture
@@ -39,7 +39,7 @@ easily compare two or more packets, even across multiple files.
 [[ChWorkPacketSepView]]
 
 .Viewing a packet in a separate window
-image::wsug_graphics/ws-packet-sep-win.png[]
+image::wsug_graphics/ws-packet-sep-win.png[{screenshot-attrs}]
 
 Along with double-clicking the packet list and using the main menu there are a
 number of other ways to open a new packet window:
@@ -63,7 +63,7 @@ corresponding pane.
 
 [[ChWorkColumnHeaderPopUpMenu]]
 .Pop-up menu of the ``Packet List'' column header
-image::wsug_graphics/ws-column-header-popup-menu.png[]
+image::wsug_graphics/ws-column-header-popup-menu.png[{screenshot-attrs}]
 
 The following table gives an overview of which functions are available in this
 header, where to find the corresponding function in the main menu, and a short
@@ -95,7 +95,7 @@ description of each item.
 [[ChWorkPacketListPanePopUpMenu]]
 
 .Pop-up menu of the ``Packet List'' pane
-image::wsug_graphics/ws-packet-pane-popup-menu.png[]
+image::wsug_graphics/ws-packet-pane-popup-menu.png[{screenshot-attrs}]
 
 The following table gives an overview of which functions are available  in this pane, where to find the corresponding function in the main menu,  and a short description of each item.
 
@@ -137,7 +137,7 @@ The following table gives an overview of which functions are available  in this 
 [[ChWorkPacketDetailsPanePopUpMenu]]
 
 .Pop-up menu of the ``Packet Details'' pane
-image::wsug_graphics/ws-details-pane-popup-menu.png[]
+image::wsug_graphics/ws-details-pane-popup-menu.png[{screenshot-attrs}]
 
 The following table gives an overview of which functions are available in this
 pane, where to find the corresponding function in the main menu, and a short
@@ -217,7 +217,7 @@ All protocol and field names are entered in lowercase.  Also, don't  forget to p
 [[ChWorkTCPFilter]]
 
 .Filtering on the TCP protocol
-image::wsug_graphics/ws-display-filter-tcp.png[]
+image::wsug_graphics/ws-display-filter-tcp.png[{screenshot-attrs}]
 
 As you might have noticed, only packets of the TCP protocol are displayed now
 (e.g. packets 1-10 are hidden). The packet numbering will remain as before, so
@@ -446,7 +446,7 @@ Wireshark display filter strings.
 [[ChWorkFilterAddExpression1]]
 
 .The ``Filter Expression'' dialog box
-image::wsug_graphics/ws-filter-add-expression.png[]
+image::wsug_graphics/ws-filter-add-expression.png[{screenshot-attrs}]
 
 When you first bring up the Filter Expression dialog box you are shown a tree
 of field names, organized by protocol, and a box for selecting a relation.
@@ -516,7 +516,7 @@ Wireshark.
 [[FiltersDialog]]
 
 .The ``Capture Filters'' and ``Display Filters'' dialog boxes
-image::wsug_graphics/ws-filters.png[]
+image::wsug_graphics/ws-filters.png[{screenshot-attrs}]
 
 _New_::
 This button adds a new filter to the list of filters. The currently entered
@@ -589,7 +589,7 @@ from the _Edit_ menu. Wireshark will pop up the dialog box shown in
 [[ChWorkFindPacketDialog]]
 
 .The ``Find Packet'' dialog box
-image::wsug_graphics/ws-find-packet.png[]
+image::wsug_graphics/ws-find-packet.png[{screenshot-attrs}]
 
 You might first select the kind of thing to search for:
 
@@ -656,7 +656,7 @@ Go forward in the packet history, works much like the page history in  current w
 [[ChWorkGoToPacketDialog]]
 
 .The ``Go To Packet'' dialog box
-image::wsug_graphics/ws-goto-packet.png[]
+image::wsug_graphics/ws-goto-packet.png[{screenshot-attrs}]
 
 This dialog box will let you enter a packet number. When you press button:[OK],
 Wireshark will jump to that packet.
@@ -809,7 +809,7 @@ the menu:Edit[] menu or from the pop-up menu of the ``Packet List'' pane. See
 [[ChWorkTimeReference]]
 
 .Wireshark showing a time referenced packet
-image::wsug_graphics/ws-time-reference.png[]
+image::wsug_graphics/ws-time-reference.png[{screenshot-attrs}]
 
 A time referenced packet will be marked with the string $$*REF*$$ in the Time
 column (see packet number 10). All subsequent packets will show the time since

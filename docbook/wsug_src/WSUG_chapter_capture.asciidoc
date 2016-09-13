@@ -114,12 +114,12 @@ simultaneously.
 [[ChCapCaptureInterfacesDialogWin32]]
 
 .The ``Capture Interfaces'' dialog box on Microsoft Windows
-image::wsug_graphics/ws-capture-interfaces-win32.png[]
+image::wsug_graphics/ws-capture-interfaces-win32.png[{screenshot-attrs}]
 
 [[ChCapCaptureInterfacesDialog]]
 
 .The ``Capture Interfaces'' dialog box on Unix/Linux
-image::wsug_graphics/ws-capture-interfaces.png[]
+image::wsug_graphics/ws-capture-interfaces.png[{screenshot-attrs}]
 
 _Device (Unix/Linux only)_::
 The interface device name.
@@ -173,7 +173,7 @@ main toolbar), Wireshark pops up the ``Capture Options'' dialog box as shown in
 
 [[ChCapCaptureOptionsDialog]]
 .The ``Capture Options'' dialog box
-image::wsug_graphics/ws-capture-options.png[]
+image::wsug_graphics/ws-capture-options.png[{screenshot-attrs}]
 
 [TIP]
 ====
@@ -358,7 +358,7 @@ If you double-click on an interface in <<ChCapCaptureOptionsDialog>> the followi
 
 [[ChCapEditInterfacesSettingsDialog]]
 .The ``Edit Interface Settings'' dialog box
-image::wsug_graphics/ws-capture-options-settings.png[]
+image::wsug_graphics/ws-capture-options-settings.png[{screenshot-attrs}]
 
 You can set the following fields in this dialog box:
 
@@ -451,7 +451,7 @@ This figure shows the compile results of the selected interfaces.
 
 [[ChCapCompileSelectedBpfsDialog]]
 .The ``Compile Results'' dialog box
-image::wsug_graphics/ws-capture-options-compile-selected-bpfs.png[]
+image::wsug_graphics/ws-capture-options-compile-selected-bpfs.png[{screenshot-attrs}]
 
 In the left window the interface names are listed. The results of an individual
 interface are shown in the right window when it is selected.
@@ -465,13 +465,13 @@ to add or remove interfaces.
 
 [[ChCapManageInterfacesDialog]]
 .The ``Add New Interfaces'' dialog box
-image::wsug_graphics/ws-capture-options-manage-interfaces.png[]
+image::wsug_graphics/ws-capture-options-manage-interfaces.png[{screenshot-attrs}]
 
 ==== Add or remove pipes
 
 [[ChCapManageInterfacesPipesDialog]]
 .The ``Add New Interfaces - Pipes'' dialog box
-image::wsug_graphics/ws-capture-options-manage-interfaces-pipes.png[]
+image::wsug_graphics/ws-capture-options-manage-interfaces-pipes.png[{screenshot-attrs}]
 
 To successfully add a pipe, this pipe must have already been created. Click the
 button:[New] button and type the name of the pipe including its path.
@@ -486,7 +486,7 @@ click the button:[Delete] button.
 
 [[ChCapManageInterfacesLocalDialog]]
 .The ``Add New Interfaces - Local Interfaces'' dialog box
-image::wsug_graphics/ws-capture-options-manage-interfaces-local.png[]
+image::wsug_graphics/ws-capture-options-manage-interfaces-local.png[{screenshot-attrs}]
 
 The tab ``Local Interfaces'' contains a list of available local interfaces,
 including the hidden ones, which are not shown in the other lists.
@@ -505,7 +505,7 @@ changes are also saved in the `preferences` file.
 
 [[ChCapManageInterfacesRemoteDialog]]
 .The ``Add New Interfaces - Remote Interfaces'' dialog box
-image::wsug_graphics/ws-capture-options-manage-interfaces-remote.png[]
+image::wsug_graphics/ws-capture-options-manage-interfaces-remote.png[{screenshot-attrs}]
 
 In this tab interfaces on remote hosts can be added. One or more of these
 interfaces can be hidden. In contrast to the local interfaces they are not saved
@@ -551,7 +551,7 @@ Remote'' dialog. See <<ChCapManageInterfacesRemoteDialog>> and select button:[Ad
 
 [[ChCapInterfaceRemoteDialog]]
 .The ``Remote Capture Interfaces'' dialog box
-image::wsug_graphics/ws-capture-options-manage-interfaces-remote-plus.png[]
+image::wsug_graphics/ws-capture-options-manage-interfaces-remote-plus.png[{screenshot-attrs}]
 
 You have to set the following parameters in this dialog:
 
@@ -583,7 +583,7 @@ you this option. It pops up the dialog shown in
 
 [[ChCapInterfaceRemoteSettingsDialog]]
 .The ``Remote Capture Settings'' dialog box
-image::wsug_graphics/ws-capture-options-remote-settings.png[]
+image::wsug_graphics/ws-capture-options-remote-settings.png[{screenshot-attrs}]
 
 You can set the following parameters in this dialog:
 
@@ -632,7 +632,7 @@ This dialog is only available on Microsoft Windows
 
 [[ChCapInterfaceDetailsDialog]]
 .The ``Interface Details'' dialog box
-image::wsug_graphics/ws-capture-interface-details.png[]
+image::wsug_graphics/ws-capture-interface-details.png[{screenshot-attrs}]
 
 [[ChCapCaptureFiles]]
 
@@ -880,7 +880,7 @@ While a capture is running, the following dialog box is shown:
 
 [[ChCapCaptureInfoDialog]]
 .The ``Capture Info'' dialog box
-image::wsug_graphics/ws-capture-info.png[]
+image::wsug_graphics/ws-capture-info.png[{screenshot-attrs}]
 
 This dialog box will inform you about the number of captured packets and the
 time since the capture was started. The selection of which protocols are counted

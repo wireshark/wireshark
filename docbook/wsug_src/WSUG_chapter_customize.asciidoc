@@ -481,7 +481,7 @@ will display the ``Coloring Rules'' dialog box as shown in
 
 [[ChCustColoringRulesDialog]]
 .The ``Coloring Rules'' dialog box
-image::wsug_graphics/ws-coloring-rules-dialog.png[]
+image::wsug_graphics/ws-coloring-rules-dialog.png[{screenshot-attrs}]
 
 If this is the first time using the Coloring Rules dialog and you're using the
 default configuration profile you should see the default rules, shown above.
@@ -507,7 +507,7 @@ background colors respectively.
 
 [[ChCustChooseColorDialog]]
 .A color chooser
-image::wsug_graphics/ws-choose-color-rule.png[]
+image::wsug_graphics/ws-choose-color-rule.png[{screenshot-attrs}]
 
 The color chooser appearance depends on your operating system. The OS X color
 picker is shown. Select the color you desire for the selected packets and click
@@ -519,7 +519,7 @@ was applied, along with the matching filter.
 
 [[ChCustColorFilterMany]]
 .Using color filters with Wireshark
-image::wsug_graphics/ws-coloring-fields.png[]
+image::wsug_graphics/ws-coloring-fields.png[{screenshot-attrs}]
 
 
 [[ChCustProtocolDissectionSection]]
@@ -562,7 +562,7 @@ Wireshark will pop up the ``Enabled Protocols'' dialog box as shown in
 
 [[ChAdvEnabledProtocolsFig]]
 .The ``Enabled Protocols'' dialog box
-image::wsug_graphics/ws-enabled-protocols.png[]
+image::wsug_graphics/ws-enabled-protocols.png[{screenshot-attrs}]
 
 To disable or enable a protocol, simply click on it using the mouse or press the
 space bar when the protocol is highlighted. Note that typing the first few
@@ -603,7 +603,7 @@ will pop up the ``Decode As'' dialog box as shown in <<ChAdvDecodeAsFig>>.
 
 [[ChAdvDecodeAsFig]]
 .The ``Decode As'' dialog box
-image::wsug_graphics/ws-decode-as.png[]
+image::wsug_graphics/ws-decode-as.png[{screenshot-attrs}]
 
 The content of this dialog box depends on the selected packet when it was opened.
 
@@ -638,7 +638,7 @@ can be saved into current profile for later session.
 
 [[ChAdvDecodeAsShowFig]]
 .The ``Decode As: Show'' dialog box
-image::wsug_graphics/ws-decode-as-show.png[]
+image::wsug_graphics/ws-decode-as-show.png[{screenshot-attrs}]
 
 . button:[OK]: Close this dialog box.
 
@@ -664,7 +664,7 @@ side is a tree where you can select the page to be shown.
 
 [[ChCustGUIPrefPage]]
 .The preferences dialog box
-image::wsug_graphics/ws-gui-preferences.png[]
+image::wsug_graphics/ws-gui-preferences.png[{screenshot-attrs}]
 
 [[ChCustInterfaceOptionsSection]]
 
@@ -678,7 +678,7 @@ interface from other parts of the program.
 
 [[ChCustInterfaceOptionsPage]]
 .The interface options dialog box
-image::wsug_graphics/ws-gui-interface-options.png[]
+image::wsug_graphics/ws-gui-interface-options.png[{screenshot-attrs}]
 
 Each row contains options for each interface available on your computer.
 
@@ -770,7 +770,7 @@ are common to all profiles.
 
 [[ChCustGUIConfigProfilesPage]]
 .The configuration profiles dialog box
-image::wsug_graphics/ws-gui-config-profiles.png[]
+image::wsug_graphics/ws-gui-config-profiles.png[{screenshot-attrs}]
 
 New::
 This button adds a new profile to the profiles list. The name of the created

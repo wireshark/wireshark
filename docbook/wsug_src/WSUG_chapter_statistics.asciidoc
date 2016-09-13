@@ -49,7 +49,7 @@ be pretty hard to understand.
 General statistics about the current capture file.
 
 .The ``Summary'' window
-image::wsug_graphics/ws-stats-summary.png[]
+image::wsug_graphics/ws-stats-summary.png[{screenshot-attrs}]
 
 * __File__: general information about the capture file.
 
@@ -77,7 +77,7 @@ image::wsug_graphics/ws-stats-summary.png[]
 The protocol hierarchy of the captured packets.
 
 .The ``Protocol Hierarchy'' window
-image::wsug_graphics/ws-stats-hierarchy.png[scaledwidth="100%"]
+image::wsug_graphics/ws-stats-hierarchy.png[{screenshot-attrs}]
 
 This is a tree of all the protocols in the capture. Each row contains the
 statistical values of one protocol. Two of the columns (_Percent Packets_ and
@@ -147,7 +147,7 @@ per second in each direction. A timeline graph is also drawn across the
 ``Rel Start'' / ``Abs Start'' and ``Duration'' columns.
 
 .The ``Conversations'' window
-image::wsug_graphics/ws-stats-conversations.png[scaledwidth="100%"]
+image::wsug_graphics/ws-stats-conversations.png[{screenshot-attrs}]
 
 Each row in the list shows the statistical values for exactly one conversation.
 
@@ -249,7 +249,7 @@ will be received by some or all of the listed unicast endpoints.
 This window shows statistics about the endpoints captured.
 
 .The ``Endpoints'' window
-image::wsug_graphics/ws-stats-endpoints.png[scaledwidth="100%"]
+image::wsug_graphics/ws-stats-endpoints.png[{screenshot-attrs}]
 
 For each supported protocol, a tab is shown in this window. Each tab label shows
 the number of endpoints captured (e.g. the tab label ``Ethernet &#183; 4'' tells
@@ -291,7 +291,7 @@ User configurable graph of the captured network packets.
 You can define up to five differently colored graphs.
 
 .The ``IO Graphs'' window
-image::wsug_graphics/ws-stats-iographs.png[]
+image::wsug_graphics/ws-stats-iographs.png[{screenshot-attrs}]
 
 The user can configure the following things:
 
@@ -374,12 +374,12 @@ corresponding response.
 First of all, you have to select the DCE-RPC interface:
 
 .The "Compute DCE-RPC statistics" window
-image::wsug_graphics/ws-stats-srt-dcerpc-filter.png[]
+image::wsug_graphics/ws-stats-srt-dcerpc-filter.png[{screenshot-attrs}]
 
 You can optionally set a display filter, to reduce the amount of packets.
 
 .The "DCE-RPC Statistic for ..." window
-image::wsug_graphics/ws-stats-srt-dcerpc.png[]
+image::wsug_graphics/ws-stats-srt-dcerpc.png[{screenshot-attrs}]
 
 Each row corresponds to a method of the interface selected (so the EPM interface
 in version 3 has 7 methods). For each method the number of calls, and the
@@ -404,7 +404,7 @@ is found it is checked for:
 * Packet order
 
 .The "Compare" window
-image::wsug_graphics/ws-stats-compare.png[]
+image::wsug_graphics/ws-stats-compare.png[{screenshot-attrs}]
 
 You can configure the following:
 
@@ -440,7 +440,7 @@ network traffic found in the capture. Probe requests will be merged into an
 existing network if the SSID matches.
 
 .The "WLAN Traffic Statistics" window
-image::wsug_graphics/ws-stats-wlan-traffic.png[]
+image::wsug_graphics/ws-stats-wlan-traffic.png[{screenshot-attrs}]
 
 Each row in the list shows the statistical values for exactly one wireless
 network.

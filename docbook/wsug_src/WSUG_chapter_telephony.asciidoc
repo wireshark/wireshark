@@ -25,7 +25,7 @@ The RTP analysis function takes the selected RTP stream (and the reverse stream,
 if possible) and generates a list of statistics on it.
 
 .The ``RTP Stream Analysis'' window
-image::wsug_graphics/ws-tel-rtpstream-analysis.png[]
+image::wsug_graphics/ws-tel-rtpstream-analysis.png[{screenshot-attrs}]
 
 Starting with basic data as packet number and sequence number, further
 statistics are created based on arrival time, delay, jitter, packet size, etc.
@@ -72,7 +72,7 @@ Statistics of the captured LTE MAC traffic. This window will summarize the LTE
 MAC traffic found in the capture.
 
 .The ``LTE MAC Traffic Statistics'' window
-image::wsug_graphics/ws-stats-lte-mac-traffic.png[]
+image::wsug_graphics/ws-stats-lte-mac-traffic.png[{screenshot-attrs}]
 
 The top pane shows statistics for common channels. Each row in the middle pane
 shows statistical highlights for exactly one UE/C-RNTI. In the lower pane, you
@@ -87,7 +87,7 @@ Statistics of the captured LTE RLC traffic. This window will summarize the LTE
 RLC traffic found in the capture.
 
 .The ``LTE RLC Traffic Statistics'' window
-image::wsug_graphics/ws-stats-lte-rlc-traffic.png[]
+image::wsug_graphics/ws-stats-lte-rlc-traffic.png[{screenshot-attrs}]
 
 At the top, the check-box allows this window to include RLC PDUs found within
 MAC PDUs or not. This will affect both the PDUs counted as well as the display
