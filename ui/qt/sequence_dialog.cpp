@@ -201,6 +201,8 @@ void SequenceDialog::showEvent(QShowEvent *)
 
 void SequenceDialog::resizeEvent(QResizeEvent *)
 {
+    if (!info_) return;
+
     resetAxes(true);
 }
 
