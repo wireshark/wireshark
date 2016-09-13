@@ -55,6 +55,7 @@ static int proto_nfs_ontap_gx_v3 = -1;
 static int proto_nfs_celerra_vnx = -1;
 static int proto_nfs_gluster = -1;
 static int proto_nfs_dcache = -1;
+static int proto_nfs_primary_data = -1;
 static int proto_nfs_cb = -1;
 static int hf_nfs_access_check  = -1;
 static int hf_nfs_access_supported  = -1;
@@ -153,6 +154,11 @@ static int hf_nfs_fh_endianness = -1;
 static int hf_nfs_fh_dc_opaque = -1;
 static int hf_nfs_fh_dc_exportid = -1;
 static int hf_nfs_fh_dc_handle_type = -1;
+static int hf_nfs4_fh_pd_share = -1;
+static int hf_nfs4_fh_pd_flags = -1;
+static int hf_nfs4_fh_pd_flags_reserved = -1;
+static int hf_nfs4_fh_pd_flags_version = -1;
+static int hf_nfs4_fh_pd_inum = -1;
 static int hf_nfs_full_name = -1;
 static int hf_nfs_name = -1;
 static int hf_nfs_data = -1;
@@ -712,6 +718,7 @@ static gint ett_nfs3_fsinfo_properties = -1;
 static gint ett_nfs3_gxfh_utlfield = -1;
 static gint ett_nfs3_gxfh_sfhfield = -1;
 static gint ett_nfs3_gxfh_sfhflags = -1;
+static gint ett_nfs4_fh_pd_flags = -1;
 
 static gint ett_nfs4_compound_call = -1;
 static gint ett_nfs4_request_op = -1;
@@ -2051,6 +2058,30 @@ dissect_fhandle_data_DCACHE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 	proto_tree_add_item(tree, hf_nfs_fh_dc_handle_type, tvb, offset+15, 1, ENC_BIG_ENDIAN);
 	obj_len = tvb_get_guint8(tvb, offset + 16);
 	proto_tree_add_item(tree, hf_nfs_fh_dc_opaque, tvb, offset + 17, obj_len, ENC_NA);
+	return tvb_captured_length(tvb);
+}
+
+#define PD_VERSION_MASK  0xFF000000
+#define PD_RESERVED_MASK 0x00FFFFFF
+
+static int
+dissect_fhandle_data_PRIMARY_DATA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+	int offset = 0;
+
+	static const int *fh_flags[] = {
+		&hf_nfs4_fh_pd_flags_version,
+		&hf_nfs4_fh_pd_flags_reserved,
+		NULL
+	};
+
+	if (!tree)
+		return tvb_captured_length(tvb);
+
+	proto_tree_add_item(tree, hf_nfs4_fh_pd_share, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_bitmask(tree, tvb, offset + 4, hf_nfs4_fh_pd_flags, ett_nfs4_fh_pd_flags, fh_flags, ENC_NA);
+	proto_tree_add_item(tree, hf_nfs4_fh_pd_inum, tvb, offset + 8, 8, ENC_LITTLE_ENDIAN);
+
 	return tvb_captured_length(tvb);
 }
 
@@ -11618,6 +11649,21 @@ proto_register_nfs(void)
 		{ &hf_nfs_fh_dc_handle_type, {
 			"fh type", "nfs.fh.dc.type", FT_UINT8, BASE_DEC,
 			VALS(dcache_handle_types), 0, NULL, HFILL }},
+		{ &hf_nfs4_fh_pd_share, {
+			"shareid", "nfs.fh.pd.shareid", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_nfs4_fh_pd_flags, {
+			"flags", "nfs.fh.pd.flags", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_nfs4_fh_pd_flags_reserved, {
+			"reserved", "nfs.fh.pd.flags.reserved", FT_UINT32, BASE_HEX,
+			NULL, PD_RESERVED_MASK, NULL, HFILL }},
+		{ &hf_nfs4_fh_pd_flags_version, {
+			"version", "nfs.fh.pd.flags.version", FT_UINT32, BASE_DEC,
+			NULL, PD_VERSION_MASK, NULL, HFILL }},
+		{ &hf_nfs4_fh_pd_inum, {
+			"inum", "nfs.fh.pd.inum", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs2_status, {
 			"Status", "nfs.status2", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
 			&names_nfs2_stat_ext, 0, "Reply status", HFILL }},
@@ -13916,7 +13962,8 @@ proto_register_nfs(void)
 		&ett_nfs4_io_advise,
 		&ett_nfs4_read_plus,
 		&ett_nfs4_read_plus_content_sub,
-		&ett_nfs4_write_same
+		&ett_nfs4_write_same,
+		&ett_nfs4_fh_pd_flags
 	};
 
 	static ei_register_info ei[] = {
@@ -13950,6 +13997,7 @@ proto_register_nfs(void)
 	proto_nfs_celerra_vnx = proto_register_protocol("CELERRA_VNX", "celerra_vnx", "nfs.celerra_vnx");
 	proto_nfs_gluster = proto_register_protocol("GLUSTER", "gluster", "nfs.gluster");
 	proto_nfs_dcache = proto_register_protocol("dCache", "dcache", "nfs.dcache");
+	proto_nfs_primary_data = proto_register_protocol("Primary_Data", "pd", "nfs.primary_data");
 
 	/* "protocols" registered just for ONC-RPC Service Response Time */
 	proto_nfs_cb = proto_register_protocol("Network File System CB", "NFS CB", "nfs.cb");
@@ -14044,6 +14092,9 @@ proto_reg_handoff_nfs(void)
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
 	fhandle_handle = create_dissector_handle(dissect_fhandle_data_DCACHE, proto_nfs_dcache);
+	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
+
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_PRIMARY_DATA, proto_nfs_primary_data);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
 	fhandle_handle = create_dissector_handle(dissect_fhandle_data_unknown, proto_nfs_unknown);
