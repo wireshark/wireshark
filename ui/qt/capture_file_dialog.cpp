@@ -39,16 +39,17 @@
 
 #include "ui/all_files_wildcard.h"
 
-#include <QGridLayout>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
 #include <QCheckBox>
 #include <QFileInfo>
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
 #include <QMessageBox>
+#include <QSortFilterProxyModel>
 #include <QSpacerItem>
-#endif // Q_OS_WIN
+#include <QVBoxLayout>
+#endif // ! Q_OS_WIN
 
 #include <QPushButton>
 #include "epan/prefs.h"
@@ -93,6 +94,7 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString 
     // Add extra widgets
     // https://wiki.qt.io/Qt_project_org_faq#How_can_I_add_widgets_to_my_QFileDialog_instance.3F
     setOption(QFileDialog::DontUseNativeDialog, true);
+    setOption(QFileDialog::HideNameFilterDetails, true);
     QGridLayout *fd_grid = qobject_cast<QGridLayout*>(layout());
     QHBoxLayout *h_box = new QHBoxLayout();
 
@@ -289,32 +291,38 @@ int CaptureFileDialog::mergeType() {
 // We use the Qt dialogs here
 QString CaptureFileDialog::fileExtensionType(int et, bool extension_globs)
 {
-    QString filter;
+    QString extension_type_name;
+    QStringList all_wildcards;
+    QStringList nogz_wildcards;
     GSList *extensions_list;
     GSList *extension;
 
-    filter = wtap_get_file_extension_type_name(et);
+    extension_type_name = wtap_get_file_extension_type_name(et);
 
     if (!extension_globs) {
-        return filter;
+        return extension_type_name;
     }
-
-    filter += " (";
 
     extensions_list = wtap_get_file_extension_type_extensions(et);
 
     /* Construct the list of patterns. */
     for (extension = extensions_list; extension != NULL;
          extension = g_slist_next(extension)) {
-        if (!filter.endsWith('('))
-            filter += ' ';
-        filter += "*.";
-        filter += (char *)extension->data;
+        QString bare_wc = QString("*.%1").arg((char *)extension->data);
+        all_wildcards << bare_wc;
+        if (!bare_wc.endsWith(".gz")) {
+            nogz_wildcards << bare_wc;
+        }
     }
     wtap_free_extensions_list(extensions_list);
-    filter += ')';
-    return filter;
-    /* XXX - does QStringList's destructor destroy the strings in the list? */
+
+    // We set HideNameFilterDetails so that "All Files" and "All Capture
+    // Files" don't show a wildcard list. We want to show the associated
+    // wildcards for individual file types so we add them twice.
+    return QString("%1 (%2) (%3)")
+            .arg(extension_type_name)
+            .arg(nogz_wildcards.join(" "))
+            .arg(all_wildcards.join(" "));
 }
 
 QString CaptureFileDialog::fileType(int ft, bool extension_globs)
