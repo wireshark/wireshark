@@ -233,6 +233,11 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
     save_bt->setText(tr("Save As" UTF8_HORIZONTAL_ELLIPSIS));
 
+    QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
+    if (close_bt) {
+        close_bt->setDefault(true);
+    }
+
     ProgressFrame::addToButtonBox(ui->buttonBox, parent);
 
     connect(sp, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(graphClicked(QMouseEvent*)));

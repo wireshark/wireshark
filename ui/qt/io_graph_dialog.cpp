@@ -204,6 +204,11 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     QPushButton *copy_bt = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
     connect (copy_bt, SIGNAL(clicked()), this, SLOT(copyAsCsvClicked()));
 
+    QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
+    if (close_bt) {
+        close_bt->setDefault(true);
+    }
+
     stat_timer_ = new QTimer(this);
     connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
     stat_timer_->start(stat_update_interval_);

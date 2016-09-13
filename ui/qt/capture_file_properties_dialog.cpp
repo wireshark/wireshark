@@ -64,6 +64,11 @@ CaptureFilePropertiesDialog::CaptureFilePropertiesDialog(QWidget &parent, Captur
         button->setText(tr("Save Comments"));
     }
 
+    button = ui->buttonBox->button(QDialogButtonBox::Close);
+    if (button) {
+        button->setDefault(true);
+    }
+
     setWindowSubtitle(tr("Capture File Properties"));
     QTimer::singleShot(0, this, SLOT(updateWidgets()));
 }
