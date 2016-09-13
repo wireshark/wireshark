@@ -156,7 +156,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, co
 	if (count > 0)
 		count_str = g_strdup_printf("-c %lu", count);
 
-	cmdline = g_strdup_printf("%s -i %s -P -w - -f %s %s", quoted_bin, quoted_iface, quoted_filter,
+	cmdline = g_strdup_printf("%s -i %s -w - -f %s %s", quoted_bin, quoted_iface, quoted_filter,
 		count_str ? count_str : "");
 
 	verbose_print("Running: %s\n", cmdline);
