@@ -51,6 +51,8 @@ static int proto_nas_eps = -1;
 static dissector_handle_t gsm_a_dtap_handle;
 static dissector_handle_t lpp_handle;
 static dissector_handle_t nbifom_handle;
+static dissector_handle_t ipv4_handle;
+static dissector_handle_t ipv6_handle;
 
 /* Forward declaration */
 static void disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
@@ -288,6 +290,7 @@ static int ett_nas_eps_nas_msg_cont = -1;
 static int ett_nas_eps_gen_msg_cont = -1;
 static int ett_nas_eps_cmn_add_info = -1;
 static int ett_nas_eps_remote_ue_context = -1;
+static int ett_nas_eps_esm_user_data_cont = -1;
 
 static expert_field ei_nas_eps_extraneous_data = EI_INIT;
 static expert_field ei_nas_eps_unknown_identity = EI_INIT;
@@ -300,6 +303,7 @@ static expert_field ei_nas_eps_esm_tp_not_integ_prot = EI_INIT;
 /* Global variables */
 static gboolean g_nas_eps_dissect_plain = FALSE;
 static gboolean g_nas_eps_null_decipher = TRUE;
+static gboolean g_nas_eps_user_data_container_as_ip = TRUE;
 
 guint8 eps_nas_gen_msg_cont_type = 0;
 
@@ -3116,7 +3120,33 @@ static guint16
 de_esm_user_data_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                       guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_item(tree, hf_nas_eps_esm_user_data_cont, tvb, offset, len, ENC_NA);
+    proto_item *it;
+    proto_tree *subtree;
+    tvbuff_t *user_data_cont_tvb;
+
+    it = proto_tree_add_item(tree, hf_nas_eps_esm_user_data_cont, tvb, offset, len, ENC_NA);
+    if (g_nas_eps_user_data_container_as_ip) {
+        subtree = proto_item_add_subtree(it, ett_nas_eps_esm_user_data_cont);
+        user_data_cont_tvb = tvb_new_subset(tvb, offset, len, len);
+        switch (tvb_get_guint8(user_data_cont_tvb, 0) & 0xf0) {
+            case 0x40:
+                col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+                col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+                col_append_str(pinfo->cinfo, COL_INFO, ", ");
+                col_set_fence(pinfo->cinfo, COL_INFO);
+                call_dissector_only(ipv4_handle, user_data_cont_tvb, pinfo, subtree, NULL);
+                break;
+            case 0x60:
+                col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+                col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+                col_append_str(pinfo->cinfo, COL_INFO, ", ");
+                col_set_fence(pinfo->cinfo, COL_INFO);
+                call_dissector_only(ipv6_handle, user_data_cont_tvb, pinfo, subtree, NULL);
+                break;
+            default:
+                break;
+        }
+    }
 
     return len;
 }
@@ -6889,7 +6919,7 @@ proto_register_nas_eps(void)
     expert_module_t* expert_nas_eps;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    6
+#define NUM_INDIVIDUAL_ELEMS    7
     gint *ett[NUM_INDIVIDUAL_ELEMS +
           NUM_NAS_EPS_COMMON_ELEM +
           NUM_NAS_MSG_EMM + NUM_NAS_EMM_ELEM+
@@ -6901,6 +6931,7 @@ proto_register_nas_eps(void)
     ett[3] = &ett_nas_eps_gen_msg_cont;
     ett[4] = &ett_nas_eps_cmn_add_info;
     ett[5] = &ett_nas_eps_remote_ue_context;
+    ett[6] = &ett_nas_eps_esm_user_data_cont;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
@@ -6961,8 +6992,14 @@ proto_register_nas_eps(void)
     prefs_register_bool_preference(nas_eps_module,
                                    "null_decipher",
                                    "Try to detect and decode EEA0 ciphered messages",
-                                   "This should work when the NAS security algorithm is NULL (128-EEA0).",
+                                   "This should work when the NAS ciphering algorithm is NULL (128-EEA0)",
                                    &g_nas_eps_null_decipher);
+
+    prefs_register_bool_preference(nas_eps_module,
+                                   "user_data_container_as_ip",
+                                   "Try to decode User Data Container content as IP",
+                                   NULL,
+                                   &g_nas_eps_user_data_container_as_ip);
 }
 
 void
@@ -6971,6 +7008,8 @@ proto_reg_handoff_nas_eps(void)
     gsm_a_dtap_handle = find_dissector_add_dependency("gsm_a_dtap", proto_nas_eps);
     lpp_handle = find_dissector_add_dependency("lpp", proto_nas_eps);
     nbifom_handle = find_dissector_add_dependency("nbifom", proto_nas_eps);
+    ipv4_handle = find_dissector_add_dependency("ip", proto_nas_eps);
+    ipv6_handle = find_dissector_add_dependency("ipv6", proto_nas_eps);
 }
 
 /*
