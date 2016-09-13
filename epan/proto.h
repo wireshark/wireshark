@@ -2884,7 +2884,7 @@ typedef enum
 #define PROTO_CHECKSUM_VERIFY		0x01	/**< Compare against computed checksum */
 #define PROTO_CHECKSUM_GENERATED	0x02	/**< Checksum is generated only */
 #define PROTO_CHECKSUM_IN_CKSUM		0x04	/**< Internet checksum routine used for computation */
-#define PROTO_CHECKSUM_ZERO			0x08	/**< Computed checksum must be zero (but correct checksum can't be calculated) */
+#define PROTO_CHECKSUM_ZERO		0x08	/**< Computed checksum must be zero (but correct checksum can't be calculated) */
 #define PROTO_CHECKSUM_NOT_PRESENT	0x10	/**< Checksum field is not present (Just populates status field) */
 
 WS_DLL_PUBLIC const value_string proto_checksum_vals[];
