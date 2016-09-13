@@ -1533,6 +1533,7 @@ DISSECTOR_INCLUDES = \
 	packet-e164.h		\
 	packet-e212.h		\
 	packet-edonkey.h	\
+	packet-eigrp.h		\
 	packet-epmd.h		\
 	packet-ess.h		\
 	packet-eth.h		\

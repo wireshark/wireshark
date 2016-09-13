@@ -32,6 +32,7 @@
 #include <epan/ipproto.h>
 #include <epan/expert.h>
 
+#include "packet-eigrp.h"
 #include "packet-ipx.h"
 #include "packet-atalk.h"
 
@@ -609,7 +610,7 @@ static const value_string eigrp_tlv2string[] = {
     { 0, NULL}
 };
 
-static const value_string eigrp_proto2string[] = {
+const value_string eigrp_proto2string[] = {
     { IGRP1_PROTID,             "IGRP"},
     { IGRP2_PROTID,             "EIGRP"},
     { STATIC_PROTID,            "Static Route"},
