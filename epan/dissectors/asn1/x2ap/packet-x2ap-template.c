@@ -232,6 +232,8 @@ dissect_x2ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
   /* make entry in the Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "X2AP");
+  col_clear_fence(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   /* create the x2ap protocol tree */
   x2ap_item = proto_tree_add_item(tree, proto_x2ap, tvb, 0, -1, ENC_NA);
