@@ -1824,9 +1824,12 @@ ssl_cipher_init(gcry_cipher_hd_t *cipher, gint algo, guchar* sk,
     err = gcry_cipher_setkey(*(cipher), sk, gcry_cipher_get_algo_keylen (algo));
     if (err != 0)
         return -1;
-    err = gcry_cipher_setiv(*(cipher), iv, gcry_cipher_get_algo_blklen (algo));
-    if (err != 0)
-        return -1;
+    /* AEAD cipher suites will set the nonce later. */
+    if (mode == MODE_CBC) {
+        err = gcry_cipher_setiv(*(cipher), iv, gcry_cipher_get_algo_blklen(algo));
+        if (err != 0)
+            return -1;
+    }
     return 0;
 }
 static inline gint
