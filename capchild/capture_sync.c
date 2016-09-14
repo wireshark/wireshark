@@ -1189,8 +1189,12 @@ sync_interface_set_80211_chan(const gchar *iface, const char *freq, const gchar 
     argv = sync_pipe_add_arg(argv, &argc, "-i");
     argv = sync_pipe_add_arg(argv, &argc, iface);
 
-    if (type)
+    if (center_freq2)
         opt = g_strdup_printf("%s,%s,%s,%s", freq, type, center_freq1, center_freq2);
+    else if (center_freq1)
+        opt = g_strdup_printf("%s,%s,%s", freq, type, center_freq1);
+    else if (type)
+        opt = g_strdup_printf("%s,%s", freq, type);
     else
         opt = g_strdup(freq);
 
