@@ -26,5 +26,77 @@
       <![CDATA[Installed OR (VersionNT >= 600)]]>
     </Condition>
 
+<!--
+  NSIS package uninstallation. The NSIS installer writes a bunch of keys to
+  'HKEY_LOCAL_MACHINE\SOFTWARE\{Wow6432Node\,}Microsoft\Windows\CurrentVersion\Uninstall\Wireshark'.
+  See the 'WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}"' statements
+  starting at around line 780 in nsis\wireshark.nsi for a complete list.
+
+  For now look for 'InstallLocation' and cancel the installation if
+  it's defined and exists. Next steps:
+  - look for 'QuietUninstallString' and offer to run it.
+  - Show properties in condition messages as described below.
+-->
+
+    <Property Id="NSIS_INSTALL_LOCATION_32" Secure="yes">
+      <RegistrySearch Id='NsisInstallRegistrySearch32'
+          Type='raw'
+          Root='HKLM'
+          Key='SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark'
+          Name='InstallLocation'
+          Win64='no'>
+        <DirectorySearch Id='NsisInstallDirectorySearch32' AssignToProperty='yes'/>
+      </RegistrySearch>
+    </Property>
+
+    <!-- XXX It looks like messages are compiled before properties are evaluated.
+    <Property Id="NSIS_DISPLAY_NAME_32" Value="Wireshark" Secure="yes">
+      <RegistrySearch Id='NsisDisplayNameRegistrySearch32'
+          Type='raw'
+          Root='HKLM'
+          Key='SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark'
+          Name='DisplayName'
+          Win64='no'/>
+    </Property>
+
+    <Condition Message="[NSIS_DISPLAY_NAME_32] is installed in [NSIS_INSTALL_LOCATION_32]. Please uninstall it using Programs and Features.">
+      <![CDATA[Installed OR NSIS_INSTALL_LOCATION_32]]>
+    </Condition>
+    -->
+
+    <Condition Message="Wireshark was installed using the .exe installer. Please uninstall it using Programs and Features.">
+      <![CDATA[Installed OR NSIS_INSTALL_LOCATION_32]]>
+    </Condition>
+
+    <Property Id="NSIS_DISPLAY_NAME_64" Value="Wireshark" Secure="yes">
+      <RegistrySearch Id='NsisDisplayNameRegistrySearch64'
+          Type='raw'
+          Root='HKLM'
+          Key='SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark'
+          Name='DisplayName'
+          Win64='yes'/>
+    </Property>
+
+    <!-- XXX It looks like messages are compiled before properties are evaluated.
+    <Property Id="NSIS_INSTALL_LOCATION_64" Secure="yes">
+      <RegistrySearch Id='NsisInstallRegistrySearch64'
+          Type='raw'
+          Root='HKLM'
+          Key='SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark'
+          Name='InstallLocation'
+          Win64='yes'>
+        <DirectorySearch Id='NsisInstallDirectorySearch64' AssignToProperty='yes'/>
+      </RegistrySearch>
+    </Property>
+
+    <Condition Message="[NSIS_DISPLAY_NAME_64] is installed in [NSIS_INSTALL_LOCATION_64]. Please uninstall it using Programs and Features.">
+      <![CDATA[Installed OR NSIS_INSTALL_LOCATION_64]]>
+    </Condition>
+    -->
+
+    <Condition Message="Wireshark was installed using the .exe installer. Please uninstall it using Programs and Features.">
+      <![CDATA[Installed OR NSIS_INSTALL_LOCATION_64]]>
+    </Condition>
+
   </Fragment>
 </Include>
