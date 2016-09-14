@@ -2601,7 +2601,17 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
 }
 
 /******************************************************************************************************/
-/* Dissect (and possibly Re-assemble) SEL protocol payload data                                       */
+/* Dissect (and possibly re-assemble) SEL protocol payload data                                       */
+/******************************************************************************************************/
+/* Since we are dealing with (usually) Telnet-encapsulated data with possible extra IAC bytes present,*/
+/* we cannot know the 'true' length of re-assembled TCP messages by just looking at the protocol PDU  */
+/* header and it's included length byte.  This precludes the use of tcp_dissect_pdus() and requires   */
+/* us to do the reassembly efforts here.                                                              */
+/* The tvb structure is as follows:                                                                   */
+/* tvb = original data tvb from TCP dissector                                                         */
+/* selfm_tvb = 'IAC-sanitized' (0xFF) version of tvb                                                  */
+/* selfm_pdu_tvb = with multiple PDUs in a single selfm_tvb, split them out for separate dissection   */
+/*                                                                                                    */
 /* tvb -> selfm_tvb -> selfm_pdu_tvb                                                                  */
 /*                  -> selfm_pdu_tvb                                                                  */
 /******************************************************************************************************/
@@ -2611,6 +2621,7 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     tvbuff_t      *selfm_tvb, *selfm_pdu_tvb;
     int           skip_byte = 0, selfm_tvb_len, offset = 0;
+    guint8        selfm_PDU_len=0, new_selfm_PDU_len=0;
     gint length = tvb_reported_length(tvb);
 
     /* Check for a SEL Protocol packet.  It should begin with 0xA5 */
@@ -2619,17 +2630,19 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         return 0;
     }
 
+    /* If the length of this packet is only 2 bytes, it's a scan message so just do a simple dissection */
     if (length == 2) {
         return dissect_selfm(tvb, pinfo, tree, data);
     }
 
-    /* If the selfm message lenght is greater than the TCP segment, request more data */
-    if (length < tvb_get_guint8(tvb,2)) {
+    selfm_PDU_len = tvb_get_guint8(tvb,2);
+
+    /* If the reported selfm PDU length is greater than the present tvb length, request more data */
+    if (length < selfm_PDU_len) {
         pinfo->desegment_offset = 0;
         pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
         return tvb_captured_length(tvb);
     }
-
 
     /* If this is a Telnet-encapsulated Ethernet packet, let's clean out the IAC 0xFF instances */
     /* before we attempt any kind of re-assembly of the message */
@@ -2641,10 +2654,32 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     selfm_tvb_len = tvb_reported_length(selfm_tvb);
-    if (selfm_tvb_len < tvb_get_guint8(tvb, 2)) {
+
+    /* If sanitized selfm_tvb length is still less than the reported selfm PDU length, there is more segment data to follow */
+    if (selfm_tvb_len < selfm_PDU_len) {
         pinfo->desegment_offset = 0;
         pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
         return tvb_captured_length(tvb);
+    }
+
+    /* If the available selfm_tvb length is greater than the reported selfm PDU length,  */
+    /* there is possibly a second PDU to follow so let's dig deeper...                   */
+    if (selfm_tvb_len > selfm_PDU_len) {
+        /* Check if additional data is actually selfm PDU data */
+        if (tvb_get_guint8(selfm_tvb, selfm_PDU_len) == 0xA5) {
+            new_selfm_PDU_len = tvb_get_guint8(selfm_tvb, selfm_PDU_len+2);
+            /* If we still don't have enough data to accomodate the 2 PDUs... */
+            if (selfm_tvb_len < (selfm_PDU_len + new_selfm_PDU_len)) {
+#if 0
+                fprintf(stderr, "On Packet: %d, continuing to desegment. PDU: %d NewPDU: %d  Still need %d bytes.. \n", pinfo->fd->num, selfm_PDU_len, new_selfm_PDU_len, (selfm_PDU_len + new_selfm_PDU_len) - selfm_tvb_len);
+#endif
+                /* If the current selfm_tvb length is less than the combined reported selfm length of the 2 PDUs, continue TCP desegmentation */
+                /* The desegment_len field will be used to report how many additional bytes remain to be reassembled */
+                pinfo->desegment_offset = 0;
+                pinfo->desegment_len = (selfm_PDU_len + new_selfm_PDU_len) - selfm_tvb_len;
+                return tvb_captured_length(tvb);
+            }
+        }
     }
 
     /* If multiple SEL protocol PDUs exist within a single tvb, dissect each of them sequentially */
@@ -2652,15 +2687,16 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         /* If random ASCII data makes its way onto the end of an SEL protocol PDU, ignore it */
         if (tvb_get_guint8(selfm_tvb, offset) != 0xA5) {
 #if 0
-            fprintf(stderr, "On Packet: %d, extraneous data (%x).. \n", pinfo->fd->num, tvb_get_guint8(selfm_tvb, offset));
+            fprintf(stderr, "On Packet: %d, extraneous data (starts with: %x).. \n", pinfo->fd->num, tvb_get_guint8(selfm_tvb, offset));
 #endif
             break;
         }
-        /* In the case of multiple PDUs, create new selfm_pdu_tvb */
+        /* Create new selfm_pdu_tvb that contains only a single PDU worth of data */
         selfm_pdu_tvb = tvb_new_subset_length( selfm_tvb, offset, tvb_get_guint8(selfm_tvb, offset+2));
         offset += dissect_selfm(selfm_pdu_tvb, pinfo, tree, data);
     }
 
+    /* Return the completed selfm_tvb dissected length + the count of any IAC skip bytes that were removed from the tvb payload */
     return selfm_tvb_len + skip_byte;
 }
 
