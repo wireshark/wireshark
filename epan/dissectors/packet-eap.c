@@ -632,6 +632,35 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
   }
 }
 
+static gboolean eap_maybe_from_server(packet_info *pinfo, guint8 eap_code, gboolean default_assume_server)
+{
+  switch (eap_code) {
+  /* Packets which can only be sent by the peer. */
+  case EAP_REQUEST:
+    return FALSE;
+
+  /* Packets which can only be sent by the authenticator. */
+  case EAP_RESPONSE:
+  case EAP_SUCCESS:
+  case EAP_FAILURE:
+    return TRUE;
+  }
+
+  /* EAP_INITIATE and EAP_FINISH can be sent to/from a server (see Figure 2 in
+   * RFC 5296), so an additional heuristic is needed (does not work for EAPOL
+   * which has no ports). */
+  if (pinfo->ptype != PT_NONE) {
+    if (pinfo->match_uint == pinfo->destport) {
+      return FALSE;
+    } else if (pinfo->match_uint == pinfo->srcport) {
+      return TRUE;
+    }
+  }
+
+  /* No idea if this is a server or client, fallback to requested guess. */
+  return default_assume_server;
+}
+
 static int
 dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -639,7 +668,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   guint16         eap_len;
   guint8          eap_type;
   gint            len;
-  conversation_t *conversation;
+  conversation_t *conversation       = NULL;
   conv_state_t   *conversation_state;
   frame_state_t  *packet_state;
   int             leap_state;
@@ -657,39 +686,46 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 val_to_str(eap_code, eap_code_vals, "Unknown code (0x%02X)"));
 
   /*
-   * Find a conversation to which we belong; create one if we don't find
-   * it.
+   * Find a conversation to which we belong; create one if we don't find it.
    *
-   * We use the source and destination addresses, and the *matched* port
+   * We use the source and destination addresses, and the server's port
    * number, because if this is running over RADIUS, there's no guarantee
    * that the source port number for request and the destination port
    * number for replies will be the same in all messages - the client
    * may use different port numbers for each request.
    *
-   * We have to pair up the matched port number with the corresponding
-   * address; we determine which that is by comparing it with the
-   * destination port - if it matches, we matched on the destination
-   * port (this is a request), otherwise we matched on the source port
-   * (this is a reply).
+   * To figure out whether we are the server (authenticator) or client (peer)
+   * side, use heuristics. First try to exclude the side based on a guess using
+   * the EAP code. For example, a Response always come from the server and not
+   * the client so we could exclude the server side in this case.
    *
-   * XXX - what if we're running over a TCP or UDP protocol with a
-   * heuristic dissector, meaning the matched port number won't be set?
+   * If that yields no match, then try to guess based on the port number. This
+   * could possibly give no (or a false) match with a heuristics dissector
+   * though since the match_uint field is not set (or not overwritten). Assume a
+   * client if the destination port matches and assume a server otherwise.
+   *
+   * If EAP runs over EAPOL (802.1X Authentication), then note that we have no
+   * concept of a port so the port number will always be zero for both sides.
+   * Therefore try to find conversations in both directions unless we are really
+   * sure (based on the EAP Code for example). If no existing conversation
+   * exists, the client side is assumed in case of doubt.
    *
    * XXX - what if we have a capture file with captures on multiple
    * PPP interfaces, with LEAP traffic on all of them?  How can we
    * keep them separate?  (Or is that not going to happen?)
    */
-  if (pinfo->destport == pinfo->match_uint) {
+  if (!eap_maybe_from_server(pinfo, eap_code, FALSE)) {
     conversation = find_conversation(pinfo->num, &pinfo->dst, &pinfo->src,
                                      pinfo->ptype, pinfo->destport,
                                      0, NO_PORT_B);
-  } else {
+  }
+  if (conversation == NULL && eap_maybe_from_server(pinfo, eap_code, TRUE)) {
     conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                      pinfo->ptype, pinfo->srcport,
                                      0, NO_PORT_B);
   }
   if (conversation == NULL) {
-    if (pinfo->destport == pinfo->match_uint) {
+    if (!eap_maybe_from_server(pinfo, eap_code, FALSE)) {
       conversation = conversation_new(pinfo->num, &pinfo->dst, &pinfo->src,
                                       pinfo->ptype, pinfo->destport,
                                       0, NO_PORT2);

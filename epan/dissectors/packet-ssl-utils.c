@@ -4327,7 +4327,7 @@ int
 ssl_packet_from_server(SslSession *session, dissector_table_t table, packet_info *pinfo)
 {
     gint ret;
-    if (session->srv_ptype != PT_NONE) {
+    if (session->srv_addr.type != AT_NONE) {
         ret = (session->srv_ptype == pinfo->ptype) &&
               (session->srv_port == pinfo->srcport) &&
               addresses_equal(&session->srv_addr, &pinfo->src);
