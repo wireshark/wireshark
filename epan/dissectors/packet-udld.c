@@ -30,7 +30,7 @@
 /*
  * See
  *
- *  http://www.ietf.org/internet-drafts/draft-foschiano-udld-02.txt
+ *  http://tools.ietf.org/rfc/rfc5171.txt
  *
  * for some information on UDLD.
  */
@@ -110,25 +110,25 @@ dissect_udld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
-    proto_item *flags_ti;
-    proto_tree *flags_tree;
+        proto_item *flags_ti;
+        proto_tree *flags_tree;
 
-    ti = proto_tree_add_item(tree, proto_udld, tvb, offset, -1, ENC_NA);
-    udld_tree = proto_item_add_subtree(ti, ett_udld);
+        ti = proto_tree_add_item(tree, proto_udld, tvb, offset, -1, ENC_NA);
+        udld_tree = proto_item_add_subtree(ti, ett_udld);
 
-    /* UDLD header */
-    proto_tree_add_item(udld_tree, hf_udld_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(udld_tree, hf_udld_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-    flags_ti = proto_tree_add_item(udld_tree, hf_udld_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-    flags_tree = proto_item_add_subtree(flags_ti, ett_udld_flags);
-    proto_tree_add_item(flags_tree, hf_udld_flags_rt, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(flags_tree, hf_udld_flags_rsy, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-    proto_tree_add_checksum(udld_tree, tvb, offset, hf_udld_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
-    offset += 2;
+        /* UDLD header */
+        proto_tree_add_item(udld_tree, hf_udld_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(udld_tree, hf_udld_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        flags_ti = proto_tree_add_item(udld_tree, hf_udld_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+        flags_tree = proto_item_add_subtree(flags_ti, ett_udld_flags);
+        proto_tree_add_item(flags_tree, hf_udld_flags_rt, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_udld_flags_rsy, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_checksum(udld_tree, tvb, offset, hf_udld_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+        offset += 2;
     } else {
-    offset += 4; /* The version/opcode/flags/checksum fields from above */
+        offset += 4; /* The version/opcode/flags/checksum fields from above */
     }
 
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
