@@ -44,7 +44,8 @@ public:
         copyDataHexDump,
         copyDataPrintableText,
         copyDataHexStream,
-        copyDataBinary
+        copyDataBinary,
+        copyDataEscapedString
     };
 
     explicit ByteViewTab(QWidget *parent = 0);
@@ -61,6 +62,7 @@ private:
     void copyPrintableText(const guint8 *data_p, int data_len);
     void copyHexStream(const guint8 *data_p, int data_len);
     void copyBinary(const guint8 *data_p, int data_len);
+    void copyEscapedString(const guint8 *data_p, int data_len);
 
 protected:
     void tabInserted(int index);

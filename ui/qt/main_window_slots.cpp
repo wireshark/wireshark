@@ -3788,6 +3788,16 @@ void MainWindow::on_actionContextCopyBytesBinary_triggered()
     byte_view_tab_->copyData(ByteViewTab::copyDataBinary, fi);
 }
 
+void MainWindow::on_actionContextCopyBytesEscapedString_triggered()
+{
+    QAction *ca = qobject_cast<QAction*>(sender());
+    if (!ca) return;
+
+    field_info *fi = ca->data().value<field_info *>();
+
+    byte_view_tab_->copyData(ByteViewTab::copyDataEscapedString, fi);
+}
+
 void MainWindow::on_actionContextWikiProtocolPage_triggered()
 {
     QAction *wa = qobject_cast<QAction*>(sender());

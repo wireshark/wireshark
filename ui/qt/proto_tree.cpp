@@ -241,6 +241,9 @@ ProtoTree::ProtoTree(QWidget *parent) :
         action = window()->findChild<QAction *>("actionContextCopyBytesBinary");
         submenu->addAction(action);
         copy_actions_ << action;
+        action = window()->findChild<QAction *>("actionContextCopyBytesEscapedString");
+        submenu->addAction(action);
+        copy_actions_ << action;
 
         action = window()->findChild<QAction *>("actionContextShowPacketBytes");
         ctx_menu_.addAction(action);

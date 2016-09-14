@@ -616,6 +616,7 @@ private slots:
     void on_actionContextCopyBytesPrintableText_triggered();
     void on_actionContextCopyBytesHexStream_triggered();
     void on_actionContextCopyBytesBinary_triggered();
+    void on_actionContextCopyBytesEscapedString_triggered();
 
     void on_actionContextShowPacketBytes_triggered();
 

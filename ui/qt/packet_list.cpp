@@ -369,6 +369,9 @@ PacketList::PacketList(QWidget *parent) :
     action = window()->findChild<QAction *>("actionContextCopyBytesBinary");
     submenu->addAction(action);
     copy_actions_ << action;
+    action = window()->findChild<QAction *>("actionContextCopyBytesEscapedString");
+    submenu->addAction(action);
+    copy_actions_ << action;
 
     ctx_menu_.addSeparator();
     ctx_menu_.addMenu(&proto_prefs_menu_);

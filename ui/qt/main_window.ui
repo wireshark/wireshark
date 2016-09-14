@@ -141,7 +141,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -2923,6 +2923,14 @@
    </property>
    <property name="toolTip">
     <string>Create firewall ACL rules</string>
+   </property>
+  </action>
+  <action name="actionContextCopyBytesEscapedString">
+   <property name="text">
+    <string>…as Escaped String</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy packet bytes as a Escaped string</string>
    </property>
   </action>
  </widget>
