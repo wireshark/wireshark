@@ -70,30 +70,49 @@ static struct option longopts[] = {
 
 static char* interfaces_list_to_filter(GSList* if_list, const unsigned int remote_port);
 
-static void ssh_loop_read(ssh_channel channel, int fd)
+static int ssh_loop_read(ssh_channel channel, FILE* fp)
 {
 	int nbytes;
+	int ret = EXIT_SUCCESS;
 	char buffer[SSH_READ_BLOCK_SIZE];
 
 	/* read from stdin until data are available */
-	do {
+	while (ssh_channel_is_open(channel) && !ssh_channel_is_eof(channel)) {
 		nbytes = ssh_channel_read(channel, buffer, SSH_READ_BLOCK_SIZE, 0);
-		if (ws_write(fd, buffer, nbytes) != nbytes) {
-			g_warning("ERROR reading: %s", g_strerror(errno));
-			return;
+		if (nbytes < 0) {
+			g_warning("Error reading from channel");
+			goto end;
 		}
-	} while(nbytes > 0);
+		if (nbytes == 0) {
+			goto end;
+		}
+		if (fwrite(buffer, 1, nbytes, fp) != (guint)nbytes) {
+			g_warning("Error writing to fifo");
+			ret = EXIT_FAILURE;
+			goto end;
+		}
+		fflush(fp);
+	}
 
 	/* read loop finished... maybe something wrong happened. Read from stderr */
-	do {
+	while (ssh_channel_is_open(channel) && !ssh_channel_is_eof(channel)) {
 		nbytes = ssh_channel_read(channel, buffer, SSH_READ_BLOCK_SIZE, 1);
-		if (ws_write(STDERR_FILENO, buffer, nbytes) != nbytes) {
-			return;
+		if (nbytes < 0) {
+			g_warning("Error reading from channel");
+			goto end;
 		}
-	} while(nbytes > 0);
+		if (fwrite(buffer, 1, nbytes, stderr) != (guint)nbytes) {
+			g_warning("Error writing to stderr");
+			break;
+		}
+	}
 
-	if (ssh_channel_send_eof(channel) != SSH_OK)
-		return;
+end:
+	if (ssh_channel_send_eof(channel) != SSH_OK) {
+		g_warning("Error sending EOF in ssh channel");
+		ret = EXIT_FAILURE;
+	}
+	return ret;
 }
 
 static char* local_interfaces_to_filter(const guint16 remote_port)
@@ -123,10 +142,13 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, co
 		iface = "eth0";
 
 	channel = ssh_channel_new(sshs);
-	if (!channel)
+	if (!channel) {
+		g_warning("Can't create channel");
 		return NULL;
+	}
 
 	if (ssh_channel_open_session(channel) != SSH_OK) {
+		g_warning("Can't open session");
 		ssh_channel_free(channel);
 		return NULL;
 	}
@@ -143,11 +165,12 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, co
 	if (count > 0)
 		count_str = g_strdup_printf("-c %u", count);
 
-	cmdline = g_strdup_printf("%s -i %s -w - -f %s %s", quoted_bin, quoted_iface, quoted_filter,
+	cmdline = g_strdup_printf("%s -i %s -P -w - -f %s %s", quoted_bin, quoted_iface, quoted_filter,
 		count_str ? count_str : "");
 
 	g_debug("Running: %s", cmdline);
 	if (ssh_channel_request_exec(channel, cmdline) != SSH_OK) {
+		g_warning("Can't request exec");
 		ssh_channel_close(channel);
 		ssh_channel_free(channel);
 		channel = NULL;
@@ -170,19 +193,16 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 {
 	ssh_session sshs = NULL;
 	ssh_channel channel = NULL;
-	int fd = STDOUT_FILENO;
+	FILE* fp = stdout;
 	int ret = EXIT_FAILURE;
 	char* err_info = NULL;
 
 	if (g_strcmp0(fifo, "-")) {
 		/* Open or create the output file */
-		fd = ws_open(fifo, O_WRONLY, 0640);
-		if (fd == -1) {
-			fd = ws_open(fifo, O_WRONLY | O_CREAT, 0640);
-			if (fd == -1) {
-				g_warning("Error creating output file: %s", g_strerror(errno));
-				return EXIT_FAILURE;
-			}
+		fp = fopen(fifo, "wb");
+		if (fp == NULL) {
+			g_warning("Error creating output file: %s (%s)", fifo, g_strerror(errno));
+			return EXIT_FAILURE;
 		}
 	}
 
@@ -194,11 +214,17 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 	}
 
 	channel = run_ssh_command(sshs, capture_bin, iface, cfilter, count);
-	if (!channel)
+	if (!channel) {
+		g_warning("Can't run ssh command");
 		goto cleanup;
+	}
 
-	/* read from channel and write into fd */
-	ssh_loop_read(channel, fd);
+	/* read from channel and write into fp */
+	if (ssh_loop_read(channel, fp) != EXIT_SUCCESS) {
+		g_warning("Error in read loop");
+		ret = EXIT_FAILURE;
+		goto cleanup;
+	}
 
 	ret = EXIT_SUCCESS;
 cleanup:
@@ -210,7 +236,7 @@ cleanup:
 	ssh_cleanup(&sshs, &channel);
 
 	if (g_strcmp0(fifo, "-"))
-		closesocket(fd);
+		fclose(fp);
 	return ret;
 }
 
@@ -352,7 +378,9 @@ int main(int argc, char **argv)
 	extcap_help_add_option(extcap_conf, "--sshkey-passphrase <public key passphrase>", "the passphrase to unlock public ssh");
 	extcap_help_add_option(extcap_conf, "--remote-interface <iface>", "the remote capture interface (default: eth0)");
 	extcap_help_add_option(extcap_conf, "--remote-capture-bin <capture bin>", "the remote dumcap binary (default: " DEFAULT_CAPTURE_BIN ")");
-	extcap_help_add_option(extcap_conf, "--remote-filter <filter>", "a filter for remote capture (default: don't listen on local local interfaces IPs)\n");
+	extcap_help_add_option(extcap_conf, "--remote-filter <filter>", "a filter for remote capture (default: don't "
+		"listen on local interfaces IPs)");
+	extcap_help_add_option(extcap_conf, "--remote-count <count>", "the number of packets to capture");
 
 	opterr = 0;
 	optind = 0;
