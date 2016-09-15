@@ -297,6 +297,11 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     save_menu->addAction(ui->actionSaveGraph);
     ui->buttonBox->button(QDialogButtonBox::Save)->setMenu(save_menu);
 
+    ui->buttonBox->button(QDialogButtonBox::Close)->setDefault(true);
+
+    resetStatistics();
+    updateStatistics(); // Initialize stats if an error occurs
+
 #if 0
     /* Only accept Voice or MiniPacket packets */
     const gchar filter_text[] = "iax2.call && (ip || ipv6)";
@@ -314,7 +319,12 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
         return;
     }
 
-    if (!cap_file_.capFile() || !cap_file_.capFile()->current_frame) close();
+    if (!cap_file_.capFile() || !cap_file_.capFile()->current_frame) {
+        err_str_ = tr("Please select an IAX2 packet.");
+        save_payload_error_ = TAP_IAX2_NO_PACKET_SELECTED;
+        updateWidgets();
+        return;
+    }
 
     frame_data *fdata = cap_file_.capFile()->current_frame;
 
@@ -331,7 +341,8 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     if (!dfilter_apply_edt(sfcode, &edt)) {
         epan_dissect_cleanup(&edt);
         dfilter_free(sfcode);
-        err_str_ = tr("Please select an IAX2 packet");
+        err_str_ = tr("Please select an IAX2 packet.");
+        save_payload_error_ = TAP_IAX2_NO_PACKET_SELECTED;
         updateWidgets();
         return;
     }

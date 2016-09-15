@@ -49,6 +49,7 @@ class QTemporaryFile;
 
 typedef enum {
     TAP_IAX2_NO_ERROR,
+    TAP_IAX2_NO_PACKET_SELECTED,
     TAP_IAX2_WRONG_LENGTH,
     TAP_IAX2_FILE_IO_ERROR
 } iax2_error_type_t;
