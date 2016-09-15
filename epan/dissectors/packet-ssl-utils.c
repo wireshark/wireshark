@@ -2702,7 +2702,7 @@ ssl_create_decompressor(gint compression)
             decomp->istream.next_out = Z_NULL;
             decomp->istream.avail_in = 0;
             decomp->istream.avail_out = 0;
-            err = inflateInit_(&decomp->istream, ZLIB_VERSION, sizeof(z_stream));
+            err = inflateInit(&decomp->istream);
             if (err != Z_OK) {
                 ssl_debug_printf("ssl_create_decompressor: inflateInit_() failed - %d\n", err);
                 return NULL;
@@ -2794,6 +2794,9 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server)
 /* }}} */
 
 /* Init cipher state given some security parameters. {{{ */
+static gboolean
+ssl_decoder_destroy_cb(wmem_allocator_t *, wmem_cb_event_t, void *);
+
 static SslDecoder*
 ssl_create_decoder(const SslCipherSuite *cipher_suite, gint cipher_algo,
         gint compression, guint8 *mk, guint8 *sk, guint8 *iv)
@@ -2817,10 +2820,7 @@ ssl_create_decoder(const SslCipherSuite *cipher_suite, gint cipher_algo,
     }
     dec->seq = 0;
     dec->decomp = ssl_create_decompressor(compression);
-
-    /* TODO this does nothing as dec->evp is always NULL. */
-    if (dec->evp)
-        ssl_cipher_cleanup(&dec->evp);
+    wmem_register_callback(wmem_file_scope(), ssl_decoder_destroy_cb, dec);
 
     if (ssl_cipher_init(&dec->evp,cipher_algo,sk,iv,cipher_suite->mode) < 0) {
         ssl_debug_printf("%s: can't create cipher id:%d mode:%d\n", G_STRFUNC,
@@ -2830,6 +2830,22 @@ ssl_create_decoder(const SslCipherSuite *cipher_suite, gint cipher_algo,
 
     ssl_debug_printf("decoder initialized (digest len %d)\n", ssl_cipher_suite_dig(cipher_suite)->len);
     return dec;
+}
+
+static gboolean
+ssl_decoder_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
+{
+    SslDecoder *dec = (SslDecoder *) user_data;
+
+    if (dec->evp)
+        ssl_cipher_cleanup(&dec->evp);
+
+#ifdef HAVE_ZLIB
+    if (dec->decomp != NULL && dec->decomp->compression == 1 /* DEFLATE */)
+        inflateEnd(&dec->decomp->istream);
+#endif
+
+    return FALSE;
 }
 /* }}} */
 
