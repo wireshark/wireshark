@@ -253,9 +253,6 @@ typedef struct _SslCipherSuite {
     gint number;
     gint kex;
     gint enc;
-    gint block; /* IV block size */
-    gint bits;
-    gint eff_bits;
     gint dig;
     ssl_cipher_mode_t mode;
 } SslCipherSuite;
@@ -489,6 +486,13 @@ ssl_cipher_setiv(SSL_CIPHER_CTX *cipher, guchar* iv, gint iv_len);
  @return pointer to the cipher suite struct (or NULL if not found). */
 extern const SslCipherSuite *
 ssl_find_cipher(int num);
+
+/** Obtains the block size for a CBC block cipher.
+ * @param cipher_suite a cipher suite as returned by ssl_find_cipher().
+ * @return the block size of a cipher or 0 if unavailable.
+ */
+guint
+ssl_get_cipher_blocksize(const SslCipherSuite *cipher_suite);
 
 gboolean
 ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,

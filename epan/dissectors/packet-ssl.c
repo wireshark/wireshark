@@ -3359,7 +3359,7 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
     }
 
     /* update IV from last data */
-    iv_len = (ssl->cipher_suite->block>1) ? ssl->cipher_suite->block : 8;
+    iv_len = ssl_get_cipher_blocksize(ssl->cipher_suite);
     if (ssl->client && ((ssl->client->seq > 0) || (ssl->client_data_for_iv.data_len > iv_len))) {
         ssl_cipher_setiv(&ssl->client->evp, ssl->client_data_for_iv.data + ssl->client_data_for_iv.data_len - iv_len, iv_len);
         ssl_print_data("ssl_set_master_secret client IV updated",ssl->client_data_for_iv.data + ssl->client_data_for_iv.data_len - iv_len, iv_len);
