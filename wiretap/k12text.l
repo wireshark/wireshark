@@ -115,8 +115,8 @@
  */
 typedef struct {
 	FILE_T fh;
-	int *err;
-	gchar **err_info;
+	int err;
+	gchar *err_info;
 	int start_state;
 
 	guint g_h;
@@ -153,10 +153,10 @@ typedef struct {
 	k12text_state_t *scanner_state = k12text_get_extra(yyscanner); \
 	int c = file_getc(scanner_state->fh); \
 	if (c == EOF) { \
-		*(scanner_state->err) = file_error(scanner_state->fh, \
-		    scanner_state->err_info); \
-		if (*(scanner_state->err) == 0) \
-			*(scanner_state->err) = WTAP_ERR_SHORT_READ; \
+		scanner_state->err = file_error(scanner_state->fh, \
+		    &scanner_state->err_info); \
+		if (scanner_state->err == 0) \
+			scanner_state->err = WTAP_ERR_SHORT_READ; \
 		result = YY_NULL; \
 	} else { \
 		buf[0] = c; \
@@ -305,8 +305,8 @@ k12text_run_scanner(k12text_state_t *state, FILE_T fh, int start_state,
 		return FALSE;
 	}
 	state->fh = fh;
-	state->err = err;
-	state->err_info = err_info;
+	state->err = 0;
+	state->err_info = NULL;
 	state->start_state = start_state;
 
 	state->g_encap = WTAP_ENCAP_UNKNOWN;
@@ -328,8 +328,10 @@ k12text_run_scanner(k12text_state_t *state, FILE_T fh, int start_state,
 
 	yylex(scanner);
 	yylex_destroy(scanner);
-	if (*err != 0 && *err != WTAP_ERR_SHORT_READ) {
+	if (state->err != 0 && state->err != WTAP_ERR_SHORT_READ) {
 		/* I/O error. */
+		*err = state->err;
+		*err_info = state->err_info;
 		return FALSE;
 	}
 	return TRUE;
