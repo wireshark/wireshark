@@ -2499,7 +2499,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
             offset = dissect_fastmsg_readresp_frame( selfm_tvb, tree, pinfo, offset, seq);
 
             /* Skip CRC16 */
-            offset = len;
+            offset += 2;
 
         }
 
