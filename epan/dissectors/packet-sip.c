@@ -75,6 +75,7 @@ static gint exported_pdu_tap = -1;
 static dissector_handle_t sigcomp_handle;
 static dissector_handle_t sip_diag_handle;
 static dissector_handle_t sip_uri_userinfo_handle;
+static dissector_handle_t sip_via_branch_handle;
 /* Dissector to dissect the text part of an reason code */
 static dissector_handle_t sip_reason_code_handle;
 
@@ -2314,7 +2315,7 @@ static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_inf
  * ttl               =  1*3DIGIT ; 0 to 255
  *
  */
-static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
+static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset, packet_info *pinfo)
 {
     gint  current_offset;
     gint  address_start_offset;
@@ -2560,6 +2561,14 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
                         proto_tree_add_item(tree, *(via_parameter->hf_item), tvb,
                                             parameter_name_end+1, current_offset-parameter_name_end-1,
                                             ENC_UTF_8|ENC_NA);
+
+                        if (sip_via_branch_handle && g_ascii_strcasecmp (param_name, "branch") == 0)
+                        {
+                            tvbuff_t *next_tvb;
+                            next_tvb = tvb_new_subset(tvb, parameter_name_end + 1, current_offset - parameter_name_end - 1, current_offset - parameter_name_end - 1);
+
+                            call_dissector (sip_via_branch_handle, next_tvb, pinfo, tree);
+                        }
                     }
                     else
                     {
@@ -3888,7 +3897,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
 
                             via_tree = proto_item_add_subtree(sip_element_item, ett_sip_via);
-                            dissect_sip_via_header(tvb, via_tree, value_offset, line_end_offset);
+                            dissect_sip_via_header(tvb, via_tree, value_offset, line_end_offset, pinfo);
                         }
                         break;
                     case POS_REASON:
@@ -6792,6 +6801,7 @@ proto_reg_handoff_sip(void)
         sigcomp_handle = find_dissector_add_dependency("sigcomp", proto_sip);
         sip_diag_handle = find_dissector("sip.diagnostic");
         sip_uri_userinfo_handle = find_dissector("sip.uri_userinfo");
+        sip_via_branch_handle = find_dissector("sip.via_branch");
         /* Check for a dissector to parse Reason Code texts */
         sip_reason_code_handle = find_dissector("sip.reason_code");
         /* SIP content type and internet media type used by other dissectors are the same */
