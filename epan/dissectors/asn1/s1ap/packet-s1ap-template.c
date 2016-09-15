@@ -34,6 +34,8 @@
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
 #include <epan/expert.h>
+#include <epan/conversation.h>
+#include <epan/proto_data.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -144,20 +146,55 @@ enum{
   UNSUCCESSFUL_OUTCOME
 };
 
+struct s1ap_conv_info {
+  wmem_map_t *nbiot_ta;
+  wmem_tree_t *nbiot_enb_ue_s1ap_id;
+};
+
+struct s1ap_supported_ta {
+  guint16 tac;
+  wmem_array_t *plmn;
+};
+
+struct s1ap_tai {
+  guint32 plmn;
+  guint16 tac;
+};
+
+struct s1ap_private_data {
+  struct s1ap_conv_info *s1ap_conv;
+  guint32 procedure_code;
+  guint32 protocol_ie_id;
+  guint32 protocol_extension_id;
+  guint32 handover_type_value;
+  guint32 message_type;
+  guint8 data_coding_scheme;
+  struct s1ap_supported_ta *supported_ta;
+  const char *obj_id;
+  struct s1ap_tai *tai;
+  guint16 enb_ue_s1ap_id;
+};
+
+enum {
+  S1AP_LTE_CONTAINER_AUTOMATIC,
+  S1AP_LTE_CONTAINER_LEGACY,
+  S1AP_LTE_CONTAINER_NBIOT
+};
+
+static const enum_val_t s1ap_lte_container_vals[] = {
+  {"automatic", "Automatic", S1AP_LTE_CONTAINER_AUTOMATIC},
+  {"legacy", "Legacy LTE", S1AP_LTE_CONTAINER_LEGACY},
+  {"nb-iot","NB-IoT", S1AP_LTE_CONTAINER_NBIOT},
+  {NULL, NULL, -1}
+};
+
 /* Global variables */
-static guint32 ProcedureCode;
-static guint32 ProtocolIE_ID;
-static guint32 ProtocolExtensionID;
 static guint gbl_s1apSctpPort=SCTP_PORT_S1AP;
-static guint32 handover_type_value;
-static guint32 message_type;
 static gboolean g_s1ap_dissect_container = TRUE;
-static const char *obj_id = NULL;
-static guint8 dataCodingScheme = SMS_ENCODING_NOT_SET;
+static gint g_s1ap_dissect_lte_container_as = S1AP_LTE_CONTAINER_AUTOMATIC;
 
 static dissector_handle_t gcsna_handle = NULL;
 static dissector_handle_t s1ap_handle;
-
 
 /* Dissector tables */
 static dissector_table_t s1ap_ies_dissector_table;
@@ -268,56 +305,103 @@ static const true_false_string s1ap_tfs_activate_do_not_activate = {
   "Do not activate"
 };
 
+static struct s1ap_private_data*
+s1ap_get_private_data(packet_info *pinfo)
+{
+  struct s1ap_private_data *s1ap_data = (struct s1ap_private_data*)p_get_proto_data(pinfo->pool, pinfo, proto_s1ap, 0);
+  if (!s1ap_data) {
+    s1ap_data = wmem_new0(pinfo->pool, struct s1ap_private_data);
+    p_add_proto_data(pinfo->pool, pinfo, proto_s1ap, 0, s1ap_data);
+  }
+  return s1ap_data;
+}
+
+static gboolean
+s1ap_is_nbiot_ue(packet_info *pinfo)
+{
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(pinfo);
+
+  if (s1ap_data->s1ap_conv) {
+    wmem_tree_key_t tree_key[3];
+    guint32 *id;
+    guint32 enb_ue_s1ap_id = s1ap_data->enb_ue_s1ap_id;
+
+    tree_key[0].length = 1;
+    tree_key[0].key = &enb_ue_s1ap_id;
+    tree_key[1].length = 1;
+    tree_key[1].key = &pinfo->num;
+    tree_key[2].length = 0;
+    tree_key[2].key = NULL;
+    id = (guint32*)wmem_tree_lookup32_array_le(s1ap_data->s1ap_conv->nbiot_enb_ue_s1ap_id, tree_key);
+    if (id && (*id == enb_ue_s1ap_id)) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
 #include "packet-s1ap-fn.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   s1ap_ctx_t s1ap_ctx;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(pinfo);
 
-  s1ap_ctx.message_type        = message_type;
-  s1ap_ctx.ProcedureCode       = ProcedureCode;
-  s1ap_ctx.ProtocolIE_ID       = ProtocolIE_ID;
-  s1ap_ctx.ProtocolExtensionID = ProtocolExtensionID;
+  s1ap_ctx.message_type        = s1ap_data->message_type;
+  s1ap_ctx.ProcedureCode       = s1ap_data->procedure_code;
+  s1ap_ctx.ProtocolIE_ID       = s1ap_data->protocol_ie_id;
+  s1ap_ctx.ProtocolExtensionID = s1ap_data->protocol_extension_id;
 
-  return (dissector_try_uint_new(s1ap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, TRUE, &s1ap_ctx)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(s1ap_ies_dissector_table, s1ap_data->protocol_ie_id, tvb, pinfo, tree, TRUE, &s1ap_ctx)) ? tvb_captured_length(tvb) : 0;
 }
 /* Currently not used
 static int dissect_ProtocolIEFieldPairFirstValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_uint(s1ap_ies_p1_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(pinfo);
+
+  return (dissector_try_uint(s1ap_ies_p1_dissector_table, s1ap_data->protocol_ie_id, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_ProtocolIEFieldPairSecondValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_uint(s1ap_ies_p2_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(pinfo);
+
+  return (dissector_try_uint(s1ap_ies_p2_dissector_table, s1ap_data->protocol_ie_id, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
 }
 */
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   s1ap_ctx_t s1ap_ctx;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(pinfo);
 
-  s1ap_ctx.message_type        = message_type;
-  s1ap_ctx.ProcedureCode       = ProcedureCode;
-  s1ap_ctx.ProtocolIE_ID       = ProtocolIE_ID;
-  s1ap_ctx.ProtocolExtensionID = ProtocolExtensionID;
+  s1ap_ctx.message_type        = s1ap_data->message_type;
+  s1ap_ctx.ProcedureCode       = s1ap_data->procedure_code;
+  s1ap_ctx.ProtocolIE_ID       = s1ap_data->protocol_ie_id;
+  s1ap_ctx.ProtocolExtensionID = s1ap_data->protocol_extension_id;
 
-  return (dissector_try_uint_new(s1ap_extension_dissector_table, ProtocolExtensionID, tvb, pinfo, tree, TRUE, &s1ap_ctx)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_new(s1ap_extension_dissector_table, s1ap_data->protocol_extension_id, tvb, pinfo, tree, TRUE, &s1ap_ctx)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  return (dissector_try_uint_new(s1ap_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree, TRUE, data)) ? tvb_captured_length(tvb) : 0;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(pinfo);
+
+  return (dissector_try_uint_new(s1ap_proc_imsg_dissector_table, s1ap_data->procedure_code, tvb, pinfo, tree, TRUE, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  return (dissector_try_uint_new(s1ap_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree, TRUE, data)) ? tvb_captured_length(tvb) : 0;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(pinfo);
+
+  return (dissector_try_uint_new(s1ap_proc_sout_dissector_table, s1ap_data->procedure_code, tvb, pinfo, tree, TRUE, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  return (dissector_try_uint_new(s1ap_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree, TRUE, data)) ? tvb_captured_length(tvb) : 0;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(pinfo);
+
+  return (dissector_try_uint_new(s1ap_proc_uout_dissector_table, s1ap_data->procedure_code, tvb, pinfo, tree, TRUE, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 
@@ -326,6 +410,8 @@ dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 {
   proto_item *s1ap_item = NULL;
   proto_tree *s1ap_tree = NULL;
+  conversation_t *conversation;
+  struct s1ap_private_data* s1ap_data;
 
   /* make entry in the Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "S1AP");
@@ -335,6 +421,16 @@ dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   /* create the s1ap protocol tree */
   s1ap_item = proto_tree_add_item(tree, proto_s1ap, tvb, 0, -1, ENC_NA);
   s1ap_tree = proto_item_add_subtree(s1ap_item, ett_s1ap);
+
+  s1ap_data = s1ap_get_private_data(pinfo);
+  conversation = find_or_create_conversation(pinfo);
+  s1ap_data->s1ap_conv = (struct s1ap_conv_info *)conversation_get_proto_data(conversation, proto_s1ap);
+  if (!s1ap_data->s1ap_conv) {
+    s1ap_data->s1ap_conv = wmem_new(wmem_file_scope(), struct s1ap_conv_info);
+    s1ap_data->s1ap_conv->nbiot_ta = wmem_map_new(wmem_file_scope(), wmem_int64_hash, g_int64_equal);
+    s1ap_data->s1ap_conv->nbiot_enb_ue_s1ap_id = wmem_tree_new(wmem_file_scope());
+    conversation_add_proto_data(conversation, proto_s1ap, s1ap_data->s1ap_conv);
+  }
 
   dissect_S1AP_PDU_PDU(tvb, pinfo, s1ap_tree, NULL);
   return tvb_captured_length(tvb);
@@ -588,7 +684,9 @@ void proto_register_s1ap(void) {
                                  10,
                                  &gbl_s1apSctpPort);
   prefs_register_bool_preference(s1ap_module, "dissect_container", "Dissect TransparentContainer", "Dissect TransparentContainers that are opaque to S1AP", &g_s1ap_dissect_container);
-
+  prefs_register_enum_preference(s1ap_module, "dissect_lte_container_as", "Dissect LTE TransparentContainer as",
+                                 "Select whether LTE TransparentContainer should be dissected as NB-IOT or legacy LTE",
+                                 &g_s1ap_dissect_lte_container_as, s1ap_lte_container_vals, FALSE);
 }
 
 /*

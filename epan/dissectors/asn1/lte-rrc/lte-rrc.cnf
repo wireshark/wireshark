@@ -28,11 +28,13 @@ HandoverPreparationInformation-NB_PDU
 RLF-Report-r9_PDU
 RLF-Report-v9e0_PDU
 SCG-ConfigInfo-r12_PDU
+UEPagingCoverageInformation_PDU
+UEPagingCoverageInformation-NB_PDU
 UERadioAccessCapabilityInformation_PDU
 UERadioAccessCapabilityInformation-NB_PDU
 UE-EUTRA-Capability_PDU
-UEPagingCoverageInformation_PDU
 UERadioPagingInformation_PDU
+UERadioPagingInformation-NB_PDU
 VisitedCellInfoList-r12_PDU
 #.END
 
@@ -44,9 +46,11 @@ RLF-Report-r9
 RLF-Report-v9e0
 SCG-ConfigInfo-r12
 UEPagingCoverageInformation
+UEPagingCoverageInformation-NB
 UERadioAccessCapabilityInformation
 UERadioAccessCapabilityInformation-NB
 UERadioPagingInformation
+UERadioPagingInformation-NB
 VisitedCellInfoList-r12
 BCCH-BCH-Message             @bcch.bch
 BCCH-DL-SCH-Message          @bcch.dl.sch
@@ -88,10 +92,6 @@ SL-PreconfigRelay-r13
 SL-PreconfigSync-r12
 SL-Preconfiguration-r12
 SL-TxPoolIdentity-r13
-UEPagingCoverageInformation-NB
-UEPagingCoverageInformation-NB-IEs
-UERadioPagingInformation-NB
-UERadioPagingInformation-NB-IEs
 VarConnEstFailReport-r11
 VarLogMeasConfig-r10
 VarLogMeasConfig-r11

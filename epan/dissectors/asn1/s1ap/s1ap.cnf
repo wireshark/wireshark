@@ -44,6 +44,7 @@ UE-HistoryInformation
 #.MAKE_ENUM
 ProcedureCode
 ProtocolIE-ID
+RAT-Type
 
 #.NO_EMIT
 TBCD-STRING
@@ -86,10 +87,14 @@ ProtocolExtensionField/id ext_id
 #PrivateIE-Field/value private_value
 ProtocolIE-Field/value ie_field_value
 
-#.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
+#.FN_BODY ProtocolIE-ID VAL_PTR=&s1ap_data->protocol_ie_id
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+
 #.FN_FTR ProtocolIE-ID
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str_ext(ProtocolIE_ID, &s1ap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s",
+                           val_to_str_ext(s1ap_data->protocol_ie_id, &s1ap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
   }
 #.END
 
@@ -100,21 +105,29 @@ ProtocolIE-Field/value ie_field_value
 # FN_PARS ProtocolIE-FieldPair/firstValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairFirstValue
 # FN_PARS ProtocolIE-FieldPair/secondValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairSecondValue
 
-#.FN_PARS ProtocolExtensionID  VAL_PTR=&ProtocolExtensionID
+#.FN_BODY ProtocolExtensionID  VAL_PTR=&s1ap_data->protocol_extension_id
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+
 #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
-#.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
+#.FN_BODY ProcedureCode  VAL_PTR = &s1ap_data->procedure_code
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
 #.END
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
 #.FN_HDR InitiatingMessage/value
-    message_type = INITIATING_MESSAGE;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+  s1ap_data->message_type = INITIATING_MESSAGE;
 #.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
 #.FN_HDR SuccessfulOutcome/value
-    message_type = SUCCESSFUL_OUTCOME;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+  s1ap_data->message_type = SUCCESSFUL_OUTCOME;
 #.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
 #.FN_HDR UnsuccessfulOutcome/value
-    message_type = UNSUCCESSFUL_OUTCOME;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+  s1ap_data->message_type = UNSUCCESSFUL_OUTCOME;
 
 #--- Parameterization is not supported in asn2wrs ---
 
@@ -181,15 +194,18 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 # END
 
 #.FN_HDR PrivateIE-ID
-obj_id = NULL;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+  s1ap_data->obj_id = NULL;
 
-#.FN_PARS PrivateIE-ID/global  FN_VARIANT = _str  VAL_PTR = &obj_id
+#.FN_BODY PrivateIE-ID/global  FN_VARIANT = _str  VAL_PTR = &s1ap_data->obj_id
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
 
 #.FN_BODY PrivateIE-Field/value
-
-  if (obj_id){
-    offset=call_per_oid_callback(obj_id, tvb, actx->pinfo, tree, offset, actx, hf_index);
-  }else{
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+  if (s1ap_data->obj_id) {
+    offset = call_per_oid_callback(s1ap_data->obj_id, tvb, actx->pinfo, tree, offset, actx, hf_index);
+  } else {
 %(DEFAULT_BODY)s
   }
 
@@ -200,6 +216,7 @@ obj_id = NULL;
 
 #.FN_BODY PLMNidentity  VAL_PTR = parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, &parameter_tvb);
@@ -209,6 +226,12 @@ obj_id = NULL;
   if (!parameter_tvb)
     return offset;
   dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, E212_NONE, FALSE);
+  if (s1ap_data->supported_ta) {
+    guint32 plmn = tvb_get_ntoh24(parameter_tvb, 0);
+    wmem_array_append_one(s1ap_data->supported_ta->plmn, plmn);
+  } else if (s1ap_data->tai) {
+    s1ap_data->tai->plmn = tvb_get_ntoh24(parameter_tvb, 0);
+  }
 #.END
 
 #.FN_BODY ENBname VAL_PTR = parameter_tvb
@@ -328,19 +351,23 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   /* Set the direction of the message */
   actx->pinfo->link_dir=P2P_DIR_UL;
 
-#.FN_BODY HandoverType VAL_PTR = &handover_type_value
-
+#.FN_BODY HandoverType VAL_PTR = &s1ap_data->handover_type_value
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
 
 #Zero the value before use
 #.FN_HDR HandoverRequired
-  handover_type_value = 0;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+  s1ap_data->handover_type_value = 0;
 #.FN_HDR HandoverCommand
-  handover_type_value = 0;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+  s1ap_data->handover_type_value = 0;
 #.FN_HDR HandoverRequest
-  handover_type_value = 0;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+  s1ap_data->handover_type_value = 0;
 #.FN_HDR HandoverRequestAcknowledge
-  handover_type_value = 0;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+  s1ap_data->handover_type_value = 0;
 
 #.FN_BODY Source-ToTarget-TransparentContainer VAL_PTR = &parameter_tvb
 # I think the message is "directly encoded" into the octet string(no "double encoding")
@@ -356,11 +383,12 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
 %(DEFAULT_BODY)s
 
   if (g_s1ap_dissect_container) {
+    struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
     /* Don't want elements inside container to write to info column */
     col_set_writable(actx->pinfo->cinfo, COL_INFO, FALSE);
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToTargetTransparentContainer);
 
-  switch(handover_type_value){
+    switch(s1ap_data->handover_type_value){
       /*
       HandoverType ::= ENUMERATED {
       intralte,
@@ -414,9 +442,10 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
 %(DEFAULT_BODY)s
 
   if (g_s1ap_dissect_container) {
+    struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToSourceTransparentContainer);
 
-  switch(handover_type_value){
+    switch(s1ap_data->handover_type_value){
     /*
       HandoverType ::= ENUMERATED {
       intralte,
@@ -505,12 +534,18 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
     return offset;
 
   if (g_s1ap_dissect_container) {
+    struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_RRCContainer);
 
-    switch(message_type){
+    switch(s1ap_data->message_type){
       case INITIATING_MESSAGE:
         /* 9.2.1.7 Source eNB to Target eNB Transparent Container */
-        dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+        if ((s1ap_is_nbiot_ue(actx->pinfo) && (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_AUTOMATIC)) ||
+            (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_NBIOT)) {
+          dissect_lte_rrc_HandoverPreparationInformation_NB_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+        } else {
+          dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+        }
         break;
       case SUCCESSFUL_OUTCOME:
         /* 9.2.1.8 Target eNB to Source eNB Transparent Container */
@@ -544,7 +579,12 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UERadioCapability);
-    dissect_lte_rrc_UERadioAccessCapabilityInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    if ((s1ap_is_nbiot_ue(actx->pinfo) && (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_AUTOMATIC)) ||
+        (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_NBIOT)) {
+       dissect_lte_rrc_UERadioAccessCapabilityInformation_NB_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    } else {
+      dissect_lte_rrc_UERadioAccessCapabilityInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    }
   }
 
 #.TYPE_ATTR
@@ -617,7 +657,12 @@ if (gcsna_handle) {
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UERadioPagingInformation);
-    dissect_lte_rrc_UERadioPagingInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    if ((s1ap_is_nbiot_ue(actx->pinfo) && (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_AUTOMATIC)) ||
+        (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_NBIOT)) {
+       dissect_lte_rrc_UERadioPagingInformation_NB_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    } else {
+      dissect_lte_rrc_UERadioPagingInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    }
   }
 
 #.FN_BODY CELevel VAL_PTR = &parameter_tvb
@@ -631,7 +676,12 @@ if (gcsna_handle) {
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_CELevel);
-    dissect_lte_rrc_UEPagingCoverageInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    if ((s1ap_is_nbiot_ue(actx->pinfo) && (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_AUTOMATIC)) ||
+        (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_NBIOT)) {
+      dissect_lte_rrc_UEPagingCoverageInformation_NB_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    } else {
+      dissect_lte_rrc_UEPagingCoverageInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    }
   }
 
 #.FN_BODY UE-RLF-Report-Container VAL_PTR = &parameter_tvb
@@ -821,18 +871,20 @@ MessageIdentifier TYPE = FT_UINT16 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = 
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
+    struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
     proto_tree *subtree;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_DataCodingScheme);
-    dataCodingScheme = dissect_cbs_data_coding_scheme(parameter_tvb, actx->pinfo, subtree, 0);
+    s1ap_data->data_coding_scheme = dissect_cbs_data_coding_scheme(parameter_tvb, actx->pinfo, subtree, 0);
   }
 
 #.FN_BODY WarningMessageContents VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
+    struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_WarningMessageContents);
-    dissect_s1ap_warningMessageContents(parameter_tvb, subtree, actx->pinfo, dataCodingScheme);
+    dissect_s1ap_warningMessageContents(parameter_tvb, subtree, actx->pinfo, s1ap_data->data_coding_scheme);
   }
 
 #.FN_BODY MSClassmark2 VAL_PTR = &parameter_tvb
@@ -911,9 +963,15 @@ proto_item_append_text(actx->created_item, "s");
 TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
 #.FN_BODY TAC VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+    if (s1ap_data->supported_ta) {
+      s1ap_data->supported_ta->tac = tvb_get_ntohs(parameter_tvb, 0);
+    } else if (s1ap_data->tai) {
+      s1ap_data->tai->tac = tvb_get_ntohs(parameter_tvb, 0);
+    }
   }
 
 #.TYPE_ATTR
@@ -965,6 +1023,66 @@ M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
   if (parameter_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_NASSecurityParameters);
     de_emm_sec_par_to_eutra(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(parameter_tvb), NULL, 0);
+  }
+
+#.FN_HDR SupportedTAs-Item
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+
+  if (!PINFO_FD_VISITED(actx->pinfo) &&
+      (s1ap_data->message_type == INITIATING_MESSAGE) &&
+      ((s1ap_data->procedure_code == id_S1Setup) ||
+       (s1ap_data->procedure_code == id_ENBConfigurationUpdate))) {
+    s1ap_data->supported_ta = wmem_new0(wmem_packet_scope(), struct s1ap_supported_ta);
+    s1ap_data->supported_ta->plmn = wmem_array_new(wmem_packet_scope(), sizeof(guint32));
+  }
+
+#.FN_FTR SupportedTAs-Item
+  s1ap_data->supported_ta = NULL;
+
+#.FN_BODY RAT-Type VAL_PTR = &rat_type
+  guint32 rat_type = 0xffffffff;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+  if (s1ap_data->s1ap_conv && s1ap_data->supported_ta && (rat_type == nbiot)) {
+    guint64 *key;
+    guint i;
+
+    for (i = 0; i < wmem_array_get_count(s1ap_data->supported_ta->plmn); i++) {
+      key = wmem_new(wmem_file_scope(), guint64);
+      *key = ((*(guint32*)wmem_array_index(s1ap_data->supported_ta->plmn, i)) << 16) | s1ap_data->supported_ta->tac;
+      wmem_map_insert(s1ap_data->s1ap_conv->nbiot_ta, key, GUINT_TO_POINTER(1));
+    }
+  }
+
+#.FN_BODY ENB-UE-S1AP-ID VAL_PTR = &enb_ue_s1ap_id
+  guint32 enb_ue_s1ap_id;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+  s1ap_data->enb_ue_s1ap_id = (guint16)enb_ue_s1ap_id;
+
+#.FN_BODY TAI
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+
+  s1ap_data->tai = wmem_new0(wmem_packet_scope(), struct s1ap_tai);
+%(DEFAULT_BODY)s
+  if (!PINFO_FD_VISITED(actx->pinfo) && s1ap_data->s1ap_conv &&
+      (s1ap_data->message_type == INITIATING_MESSAGE) &&
+      (s1ap_data->procedure_code == id_initialUEMessage)) {
+    guint64 key = (s1ap_data->tai->plmn << 16) | s1ap_data->tai->tac;
+
+    if (wmem_map_lookup(s1ap_data->s1ap_conv->nbiot_ta, &key)) {
+      wmem_tree_key_t tree_key[3];
+      guint32 *id = wmem_new(wmem_file_scope(), guint32);
+
+      *id = s1ap_data->enb_ue_s1ap_id;
+      tree_key[0].length = 1;
+      tree_key[0].key = id;
+      tree_key[1].length = 1;
+      tree_key[1].key = &actx->pinfo->num;
+      tree_key[2].length = 0;
+      tree_key[2].key = NULL;
+      wmem_tree_insert32_array(s1ap_data->s1ap_conv->nbiot_enb_ue_s1ap_id, tree_key, id);
+    }
   }
 
 #.ASSIGN_VALUE_TO_TYPE  # S1AP does not have constants assigned to types, they are pure INTEGER
@@ -1759,7 +1877,6 @@ col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "OverloadStart");
 col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "OverloadStop");
 #.FN_HDR WriteReplaceWarningRequest
 col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "WriteReplaceWarningRequest");
-  dataCodingScheme = SMS_ENCODING_NOT_SET;
 #.FN_HDR WriteReplaceWarningResponse
 col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "WriteReplaceWarningResponse");
 #.FN_HDR ENBDirectInformationTransfer
