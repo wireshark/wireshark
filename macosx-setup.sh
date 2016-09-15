@@ -2346,7 +2346,15 @@ if [ "$QT_VERSION" ]; then
     # We need Xcode, not just the command-line tools, installed to build
     # Qt.
     #
-    if ! /usr/bin/xcrun -find xcrun >/dev/null 2>&1; then
+    # XXX - is this sufficient to differentiate between "command-line
+    # tools installed" and "Xcode installed"?  The old
+    #
+    #    if ! /usr/bin/xcrun -find xcrun >/dev/null 2>&1
+    #
+    # test did *not* work with Xcode 8 - it thought you didn't have
+    # Xcode installed even if you have Xcode 8 installed.
+    #
+    if [ ! -x /usr/bin/xcodebuild ]; then
         echo "Please install Xcode first (should be available on DVD or from http://developer.apple.com/xcode/index.php)."
         echo "The command-line build tools are not sufficient to build Qt."
         exit 1
