@@ -999,7 +999,7 @@ dissect_zbee_aps_no_endpt:
     if ((payload_tvb) && (packet.fragmentation != ZBEE_APS_EXT_FCF_FRAGMENT_NONE)) {
         guint32         msg_id;
         guint32         block_num;
-        guint32         num_blocks = -1;
+        guint32         num_blocks;
         fragment_head   *frag_msg = NULL;
         tvbuff_t        *new_tvb;
 
@@ -1022,6 +1022,7 @@ dissect_zbee_aps_no_endpt:
         }
         else {
             block_num = packet.block_number;
+            num_blocks = 0;
         }
 
         /* Add this fragment to the reassembly handler. */
