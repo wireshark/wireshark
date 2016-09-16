@@ -36,8 +36,8 @@ typedef struct {
 typedef struct {
 	FILE_T fh;
 	const gchar *ascend_parse_error;
-	int *err;
-	gchar **err_info;
+	int err;
+	gchar *err_info;
 	struct ascend_phdr *pseudo_header;
 	guint8 *pkt_data;
 
