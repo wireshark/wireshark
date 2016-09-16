@@ -109,26 +109,26 @@ static int list_config(char *interface)
 	return EXIT_SUCCESS;
 }
 
-static int setup_listener(const guint16 port, int* sockfd)
+static int setup_listener(const guint16 port, socket_handle_t* sock)
 {
 	int optval;
 	struct sockaddr_in serveraddr;
 	struct timeval timeout = { 1, 0 };
 
-	*sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	*sock = socket(AF_INET, SOCK_DGRAM, 0);
 
-	if (*sockfd < 0) {
+	if (*sock == INVALID_SOCKET) {
 		g_warning("Error opening socket: %s", strerror(errno));
 		return EXIT_FAILURE;
 	}
 
 	optval = 1;
-	if (setsockopt(*sockfd, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, sizeof(int)) < 0) {
+	if (setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, sizeof(int)) < 0) {
 		g_warning("Can't set socket option SO_REUSEADDR: %s", strerror(errno));
 		goto cleanup_setup_listener;
 	}
 
-	if (setsockopt (*sockfd, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) < 0) {
+	if (setsockopt (*sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) < 0) {
 		g_warning("Can't set socket option SO_RCVTIMEO: %s", strerror(errno));
 		goto cleanup_setup_listener;
 	}
@@ -138,7 +138,7 @@ static int setup_listener(const guint16 port, int* sockfd)
 	serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	serveraddr.sin_port = htons(port);
 
-	if (bind(*sockfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) < 0) {
+	if (bind(*sock, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) < 0) {
 		g_warning("Error on binding: %s", strerror(errno));
 		goto cleanup_setup_listener;
 	}
@@ -146,7 +146,7 @@ static int setup_listener(const guint16 port, int* sockfd)
 	return EXIT_SUCCESS;
 
 cleanup_setup_listener:
-	closesocket(*sockfd);
+	closesocket(*sock);
 	return EXIT_FAILURE;
 
 }
@@ -234,7 +234,7 @@ static void run_listener(const char* fifo, const guint16 port, const char* proto
 {
 	struct sockaddr_in clientaddr;
 	int clientlen;
-	int sockfd;
+	socket_handle_t sock;
 	char buf[PKT_BUF_SIZE];
 	ssize_t buflen;
 	FILE* fp;
@@ -247,7 +247,7 @@ static void run_listener(const char* fifo, const guint16 port, const char* proto
 	if (setup_dumpfile(fifo, &fp) == EXIT_FAILURE)
 		return;
 
-	if (setup_listener(port, &sockfd) == EXIT_FAILURE)
+	if (setup_listener(port, &sock) == EXIT_FAILURE)
 		return;
 
 	g_debug("Listener running on port %u", port);
@@ -255,7 +255,7 @@ static void run_listener(const char* fifo, const guint16 port, const char* proto
 	while(run_loop == TRUE) {
 		memset(buf, 0x0, PKT_BUF_SIZE);
 
-		buflen = recvfrom(sockfd, buf, PKT_BUF_SIZE, 0, (struct sockaddr *)&clientaddr, &clientlen);
+		buflen = recvfrom(sock, buf, PKT_BUF_SIZE, 0, (struct sockaddr *)&clientaddr, &clientlen);
 		if (buflen < 0) {
 			switch(errno) {
 				case EAGAIN:
@@ -273,7 +273,7 @@ static void run_listener(const char* fifo, const guint16 port, const char* proto
 	}
 
 	fclose(fp);
-	closesocket(sockfd);
+	closesocket(sock);
 }
 
 int main(int argc, char *argv[])
