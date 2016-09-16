@@ -72,6 +72,7 @@ static int hf_vtp_vlan_max_are_hop_count = -1;
 static int hf_vtp_vlan_max_ste_hop_count = -1;
 static int hf_vtp_vlan_backup_crf_mode = -1;
 static int hf_vtp_vlan_data = -1;
+static int hf_vtp_reserved = -1;
 
 static gint ett_vtp = -1;
 static gint ett_vtp_vlan_info = -1;
@@ -212,7 +213,8 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		break;
 
 	case ADVERT_REQUEST:
-		offset += 1;	/* skip reserved field */
+		proto_tree_add_item(vtp_tree, hf_vtp_reserved, tvb, offset, 1, ENC_NA);
+		offset += 1;
 
 		proto_tree_add_item(vtp_tree, hf_vtp_md_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
@@ -224,7 +226,8 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		break;
 
 	case JOIN_MSG:
-		offset += 1;	/* skip reserved/unused field */
+		proto_tree_add_item(vtp_tree, hf_vtp_reserved, tvb, offset, 1, ENC_NA);
+		offset += 1;
 
 		proto_tree_add_item(vtp_tree, hf_vtp_md_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
@@ -650,6 +653,10 @@ proto_register_vtp(void)
 
 		{ &hf_vtp_vlan_data,
 		{ "Data",	"vtp.vlan_info.data", FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_vtp_reserved,
+		{ "Reserved", "vtp.reserved", FT_BYTES, BASE_NONE, NULL, 0,
 			NULL, HFILL }},
 	};
 
