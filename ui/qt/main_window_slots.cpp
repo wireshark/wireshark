@@ -673,6 +673,10 @@ void MainWindow::captureCaptureFailed(capture_session *) {
     setForCaptureInProgress(false);
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
 
+    // Reset expert information indicator
+    main_ui_->statusBar->captureFileClosing();
+    main_ui_->statusBar->popFileStatus();
+
     setWindowIcon(wsApp->normalIcon());
 
     if (global_capture_opts.quit_after_cap) {
@@ -775,7 +779,6 @@ void MainWindow::captureFileClosed() {
 
     // Reset expert information indicator
     main_ui_->statusBar->captureFileClosing();
-
     main_ui_->statusBar->popFileStatus();
 
     setWSWindowTitle();
