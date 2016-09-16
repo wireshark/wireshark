@@ -2275,7 +2275,7 @@ ssl_get_cipher_blocksize(const SslCipherSuite *cipher_suite)
     gint cipher_algo;
     if (cipher_suite->mode != MODE_CBC) return 0;
     cipher_algo = ssl_get_cipher_by_name(ciphers[cipher_suite->enc - 0x30]);
-    return gcry_cipher_get_algo_blklen(cipher_algo);
+    return (guint)gcry_cipher_get_algo_blklen(cipher_algo);
 }
 
 static guint
@@ -3114,11 +3114,11 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
     encr_key_len = ssl_get_cipher_export_keymat_size(cipher_suite->number);
     is_export_cipher = encr_key_len > 0;
     if (!is_export_cipher && cipher_suite->enc != ENC_NULL) {
-        encr_key_len = gcry_cipher_get_algo_keylen(cipher_algo);
+        encr_key_len = (guint)gcry_cipher_get_algo_keylen(cipher_algo);
     }
 
     if (cipher_suite->mode == MODE_CBC) {
-        write_iv_len = gcry_cipher_get_algo_blklen(cipher_algo);
+        write_iv_len = (guint)gcry_cipher_get_algo_blklen(cipher_algo);
     } else if (cipher_suite->mode == MODE_GCM || cipher_suite->mode == MODE_CCM || cipher_suite->mode == MODE_CCM_8) {
         /* account for a four-byte salt for client and server side (from
          * client_write_IV and server_write_IV), see GCMNonce (RFC 5288) */
