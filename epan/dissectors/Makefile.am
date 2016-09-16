@@ -138,6 +138,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-h460.c		\
 	packet-h501.c		\
 	packet-hnbap.c		\
+	packet-hl7.c		\
 	packet-idmp.c		\
 	packet-ilp.c		\
 	packet-inap.c		\

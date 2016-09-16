@@ -698,6 +698,7 @@ set(DISSECTOR_SRC
 	packet-hip.c
 	packet-hiqnet.c
 	packet-hislip.c
+	packet-hl7.c
 	packet-homeplug-av.c
 	packet-homeplug.c
 	packet-hp-erm.c
