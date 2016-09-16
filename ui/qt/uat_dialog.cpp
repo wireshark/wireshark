@@ -274,6 +274,7 @@ void UatDialog::on_uatTreeWidget_itemActivated(QTreeWidgetItem *item, int column
                 field->title, cur_path).toUtf8();
         field->cb.set(rec, new_path.constData(), (unsigned) new_path.size(), field->cbdata.set, field->fld_data);
         updateItem(*item);
+        uat_->changed = TRUE;
         break;
     }
 
@@ -284,6 +285,7 @@ void UatDialog::on_uatTreeWidget_itemActivated(QTreeWidgetItem *item, int column
                 field->title, cur_path, QString(), NULL, QFileDialog::DontConfirmOverwrite).toUtf8();
         field->cb.set(rec, new_path.constData(), (unsigned) new_path.size(), field->cbdata.set, field->fld_data);
         updateItem(*item);
+        uat_->changed = TRUE;
         break;
     }
 
