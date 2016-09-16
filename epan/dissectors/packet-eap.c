@@ -44,6 +44,8 @@ static int hf_eap_type = -1;
 static int hf_eap_type_nak = -1;
 
 static int hf_eap_identity = -1;
+static int hf_eap_identity_prefix = -1;
+static int hf_eap_identity_actual_len = -1;
 
 static int hf_eap_notification = -1;
 
@@ -182,6 +184,19 @@ static const value_string eap_type_vals[] = {
 };
 value_string_ext eap_type_vals_ext = VALUE_STRING_EXT_INIT(eap_type_vals);
 
+const value_string eap_identity_prefix_vals[] = {
+  { 0, "EAP-AKA Permanent" },
+  { 1, "EAP-SIM Permanent" },
+  { 2, "EAP-AKA Pseudonym" },
+  { 3, "EAP-SIM Pseudonym" },
+  { 4, "EAP-AKA Reauth ID" },
+  { 5, "EAP-SIM Reauth ID" },
+  { 6, "EAP-AKA Prime Permanent" },
+  { 7, "EAP-AKA Prime Pseudonym" },
+  { 8, "EAP-AKA Prime Reauth ID" },
+  { 0, NULL }
+};
+
 const value_string eap_sim_subtype_vals[] = {
   { SIM_START,             "Start" },
   { SIM_CHALLENGE,         "Challenge" },
@@ -210,6 +225,8 @@ References:
   4) RFC5448
   5) 3GPP TS 24.302
 */
+
+#define AT_IDENTITY 14
 
 static const value_string eap_sim_aka_attribute_vals[] = {
   {   1, "AT_RAND" },
@@ -351,6 +368,7 @@ static gint ett_eap_sim_attr = -1;
 static gint ett_eap_aka_attr = -1;
 static gint ett_eap_exp_attr = -1;
 static gint ett_eap_tls_flags = -1;
+static gint ett_identity = -1;
 
 static const fragment_items eap_tls_frag_items = {
   &ett_eap_tls_fragment,
@@ -625,7 +643,21 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
     proto_tree_add_item(attr_tree, hf_eap_aka_subtype_length, tvb, aoffset, 1, ENC_BIG_ENDIAN);
     aoffset += 1;
     aleft   -= 1;
-    proto_tree_add_item(attr_tree, hf_eap_aka_subtype_value, tvb, aoffset, aleft, ENC_NA);
+
+    if (type == AT_IDENTITY) {
+      guint8 eap_identity_prefix;
+
+      proto_tree_add_item(attr_tree, hf_eap_identity_actual_len, tvb, aoffset, 2, ENC_BIG_ENDIAN);
+
+      eap_identity_prefix = tvb_get_guint8(tvb, aoffset + 2) - '0';
+      proto_tree_add_string_format(attr_tree, hf_eap_identity_prefix, tvb, aoffset + 2, 1,
+            &eap_identity_prefix, "Identity Prefix: %s (%u)",
+            val_to_str(eap_identity_prefix, eap_identity_prefix_vals, "Unknown"),
+            eap_identity_prefix);
+      proto_tree_add_item(attr_tree, hf_eap_identity, tvb, aoffset + 2, aleft - 2, ENC_ASCII|ENC_NA);
+    }
+    else
+      proto_tree_add_item(attr_tree, hf_eap_aka_subtype_value, tvb, aoffset, aleft, ENC_NA);
 
     offset += 4 * length;
     left   -= 4 * length;
@@ -667,6 +699,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   guint8          eap_code;
   guint16         eap_len;
   guint8          eap_type;
+  guint8          eap_identity_prefix;
   gint            len;
   conversation_t *conversation       = NULL;
   conv_state_t   *conversation_state;
@@ -674,8 +707,10 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   int             leap_state;
   proto_tree     *ti;
   proto_tree     *eap_tree           = NULL;
+  proto_tree     *eap_identity_tree  = NULL;
   proto_tree     *eap_tls_flags_tree = NULL;
   proto_item     *eap_type_item      = NULL;
+  proto_item     *eap_identity_item  = NULL;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -796,7 +831,13 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         **********************************************************************/
       case EAP_TYPE_ID:
         if (tree && size > 0) {
-          proto_tree_add_item(eap_tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
+          eap_identity_item = proto_tree_add_item(eap_tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
+          eap_identity_tree = proto_item_add_subtree(eap_identity_item, ett_identity);
+          eap_identity_prefix = tvb_get_guint8(tvb, offset) - '0';
+          proto_tree_add_string_format(eap_identity_tree, hf_eap_identity_prefix, tvb, offset, 1,
+            &eap_identity_prefix, "Identity Prefix: %s (%u)",
+            val_to_str(eap_identity_prefix, eap_identity_prefix_vals, "Unknown"),
+            eap_identity_prefix);
         }
         if(!pinfo->fd->flags.visited) {
           conversation_state->leap_state  =  0;
@@ -1269,6 +1310,16 @@ proto_register_eap(void)
       FT_STRING, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
+    { &hf_eap_identity_prefix, {
+      "Identity", "eap.identity.prefix",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_identity_actual_len, {
+      "Identity Actual Length", "eap.identity.actual_len",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
     { &hf_eap_notification, {
       "Notification", "eap.notification",
       FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1562,7 +1613,8 @@ proto_register_eap(void)
     &ett_eap_sim_attr,
     &ett_eap_aka_attr,
     &ett_eap_exp_attr,
-    &ett_eap_tls_flags
+    &ett_eap_tls_flags,
+    &ett_identity
   };
   static ei_register_info ei[] = {
      { &ei_eap_ms_chap_v2_length, { "eap.ms_chap_v2.length.invalid", PI_PROTOCOL, PI_WARN, "Invalid Length", EXPFILL }},
