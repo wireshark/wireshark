@@ -79,10 +79,10 @@
 	ascend_state_t *parser_state = ascendget_extra(yyscanner); \
 	int c = file_getc(parser_state->fh); \
 	if (c == EOF) { \
-		*(parser_state->err) = file_error(parser_state->fh, \
-		    parser_state->err_info); \
-		if (*(parser_state->err) == 0) \
-			*(parser_state->err) = WTAP_ERR_SHORT_READ; \
+		parser_state->err = file_error(parser_state->fh, \
+		    &parser_state->err_info); \
+		if (parser_state->err == 0) \
+			parser_state->err = WTAP_ERR_SHORT_READ; \
 		result = YY_NULL; \
 	} else { \
 		buf[0] = c; \

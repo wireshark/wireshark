@@ -448,6 +448,7 @@ run_ascend_parser(FILE_T fh, struct wtap_pkthdr *phdr, guint8 *pd,
                   ascend_state_t *parser_state, int *err, gchar **err_info)
 {
   yyscan_t scanner = NULL;
+  int status;
 
   if (ascendlex_init(&scanner) != 0) {
     /* errno is set if this fails */
@@ -459,8 +460,8 @@ run_ascend_parser(FILE_T fh, struct wtap_pkthdr *phdr, guint8 *pd,
   ascendset_extra(parser_state, scanner);
   parser_state->fh = fh;
   parser_state->ascend_parse_error = NULL;
-  parser_state->err = err;
-  parser_state->err_info = err_info;
+  parser_state->err = 0;
+  parser_state->err_info = NULL;
   parser_state->pseudo_header = &phdr->pseudo_header.ascend;
   parser_state->pkt_data = pd;
 
@@ -490,7 +491,10 @@ run_ascend_parser(FILE_T fh, struct wtap_pkthdr *phdr, guint8 *pd,
    */
   parser_state->pseudo_header->call_num[0] = '\0';
 
-  return yyparse(scanner, parser_state, fh);
+  status = yyparse(scanner, parser_state, fh);
+  *err = parser_state->err;
+  *err_info = parser_state->err_info;
+  return status;
 }
 
 void
