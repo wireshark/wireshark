@@ -437,8 +437,9 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
 
 
 static char *adb_send_and_receive(socket_handle_t sock, const char *adb_service,
-        char *buffer, int buffer_length, gssize *data_length) {
-    gssize   used_buffer_length;
+        char *buffer, size_t buffer_length, size_t *data_length) {
+    size_t   used_buffer_length;
+    size_t   bytes_to_read;
     guint32  length;
     gssize   result;
     char     status[4];
@@ -446,6 +447,20 @@ static char *adb_send_and_receive(socket_handle_t sock, const char *adb_service,
     size_t   adb_service_length;
 
     adb_service_length = strlen(adb_service);
+    if (adb_service_length > INT_MAX) {
+        g_warning("Service name too long when sending <%s> to ADB daemon", adb_service);
+        if (data_length)
+            *data_length = 0;
+        return NULL;
+    }
+
+    /* 8 bytes of hex length + terminating NUL */
+    if (buffer_length < 9) {
+        g_warning("Buffer for response too short while sending <%s> to ADB daemon", adb_service);
+        if (data_length)
+            *data_length = 0;
+        return NULL;
+    }
 
     result = send(sock, adb_service, (int) adb_service_length, 0);
     if (result != (gssize) adb_service_length) {
@@ -457,11 +472,15 @@ static char *adb_send_and_receive(socket_handle_t sock, const char *adb_service,
 
     used_buffer_length = 0;
     while (used_buffer_length < 8) {
-        result = recv(sock, buffer + used_buffer_length,  (int)(buffer_length - used_buffer_length), 0);
+        bytes_to_read = buffer_length - used_buffer_length;
+        if (bytes_to_read > INT_MAX)
+            bytes_to_read = INT_MAX;
+        result = recv(sock, buffer + used_buffer_length,  (int)bytes_to_read, 0);
 
         if (result <= 0) {
             g_warning("Broken socket connection while fetching reply status for <%s>", adb_service);
-
+            if (data_length)
+                *data_length = 0;
             return NULL;
         }
 
@@ -473,17 +492,29 @@ static char *adb_send_and_receive(socket_handle_t sock, const char *adb_service,
     buffer[8] = '\0';
     if (!ws_hexstrtou32(buffer + 4, NULL, &length)) {
         g_warning("Invalid reply length <%s> while reading reply for <%s>", buffer + 4, adb_service);
-
+        if (data_length)
+            *data_length = 0;
         return NULL;
     }
     buffer[8] = tmp_buffer;
 
+    if (buffer_length < length + 8) {
+        g_warning("Buffer for response too short while sending <%s> to ADB daemon", adb_service);
+        if (data_length)
+            *data_length = 0;
+        return NULL;
+    }
+
     while (used_buffer_length < length + 8) {
-        result = recv(sock, buffer + used_buffer_length,  (int)(buffer_length - used_buffer_length), 0);
+        bytes_to_read = buffer_length - used_buffer_length;
+        if (bytes_to_read > INT_MAX)
+            bytes_to_read = INT_MAX;
+        result = recv(sock, buffer + used_buffer_length,  (int)bytes_to_read, 0);
 
         if (result <= 0) {
             g_warning("Broken socket connection while reading reply for <%s>", adb_service);
-
+            if (data_length)
+                *data_length = 0;
             return NULL;
         }
 
@@ -635,7 +666,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
     char                  *response;
     char                  *device_list;
     gssize                 data_length;
-    gssize                 device_length;
+    size_t                 device_length;
     socket_handle_t        sock;
     const char            *adb_transport_serial_templace = "%04x""host:transport:%s";
     const char            *adb_check_port_templace       = "%04x""shell:cat /proc/%s/net/tcp";
