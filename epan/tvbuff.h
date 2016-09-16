@@ -497,6 +497,9 @@ WS_DLL_PUBLIC const guint8 *tvb_get_ptr(tvbuff_t *tvb, const gint offset,
 WS_DLL_PUBLIC gint tvb_find_guint8(tvbuff_t *tvb, const gint offset,
     const gint maxlength, const guint8 needle);
 
+/** Same as tvb_find_guint8() with 16bit needle. */
+WS_DLL_PUBLIC gint tvb_find_guint16(tvbuff_t *tvb, const gint offset,
+    const gint maxlength, const guint16 needle);
 
 /** Find first occurrence of any of the needles of the pre-compiled pattern in
  * tvbuff, starting at offset. The passed in pattern must have been "compiled"

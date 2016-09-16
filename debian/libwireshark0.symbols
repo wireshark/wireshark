@@ -1474,6 +1474,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_ensure_bytes_exist64@Base 1.99.0
  tvb_ensure_captured_length_remaining@Base 1.12.0~rc1
  tvb_find_guint8@Base 1.9.1
+ tvb_find_guint16@Base 2.3.0
  tvb_find_line_end@Base 1.9.1
  tvb_find_line_end_unquoted@Base 1.9.1
  tvb_find_tvb@Base 1.9.1

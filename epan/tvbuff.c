@@ -1893,6 +1893,48 @@ tvb_find_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 	return tvb_find_guint8_generic(tvb, offset, limit, needle);
 }
 
+/* Same as tvb_find_guint8() with 16bit needle. */
+gint
+tvb_find_guint16(tvbuff_t *tvb, const gint offset, const gint maxlength,
+		 const guint16 needle)
+{
+	const guint8 needle1 = ((needle & 0xFF00) >> 8);
+	const guint8 needle2 = ((needle & 0x00FF) >> 0);
+	gint searched_bytes = 0;
+	gint pos = offset;
+
+	do {
+		gint offset1 =
+			tvb_find_guint8(tvb, pos, maxlength - searched_bytes, needle1);
+		gint offset2 = -1;
+
+		if (offset1 == -1) {
+			return -1;
+		}
+
+		searched_bytes = offset1 - pos + 1;
+
+		if ((maxlength != -1) && (searched_bytes >= maxlength)) {
+			return -1;
+		}
+
+		offset2 = tvb_find_guint8(tvb, offset1 + 1, 1, needle2);
+
+		searched_bytes += 1;
+
+		if (offset2 != -1) {
+			if ((maxlength != -1) && (searched_bytes > maxlength)) {
+				return -1;
+			}
+			return offset1;
+		}
+
+		pos = offset1 + 1;
+	} while (pos < maxlength);
+
+	return -1;
+}
+
 static inline gint
 tvb_ws_mempbrk_guint8_generic(tvbuff_t *tvb, guint abs_offset, guint limit, const ws_mempbrk_pattern* pattern, guchar *found_needle)
 {
