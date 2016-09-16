@@ -419,7 +419,7 @@
     </ComponentGroup>
   </Fragment>
 
-  <!-- Andrioddump -->
+  <!-- Androiddump -->
   <Fragment>
     <DirectoryRef Id="dirExtcap">
       <Component Id="cmpAndroiddump_exe" Guid="*">
@@ -459,7 +459,7 @@
     </ComponentGroup>
   </Fragment>
 
-  <!-- Sshdump - WIP: uncomment this section when sshdump on windows will be ready to go
+  <!-- Sshdump -->
   <Fragment>
     <DirectoryRef Id="dirExtcap">
       <Component Id="cmpSshdump_exe" Guid="*">
@@ -473,12 +473,51 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
-    <ComponentGroup Id="CG.Tools.Randpktdump">
+    <ComponentGroup Id="CG.Tools.Sshdump">
       <ComponentRef Id="cmpSshdump_exe" />
       <ComponentRef Id="cmpSshdump_html" />
     </ComponentGroup>
   </Fragment>
-  -->
+
+  <!-- Ciscodump -->
+  <Fragment>
+    <DirectoryRef Id="dirExtcap">
+      <Component Id="cmpCiscodump_exe" Guid="*">
+        <File Id="filCiscodump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\Ciscodump.exe" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpCiscodump_html" Guid="*">
+        <File Id="filCiscodump_html" KeyPath="yes" Source="$(var.Staging.Dir)\Ciscodump.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Ciscodump">
+      <ComponentRef Id="cmpCiscodump_exe" />
+      <ComponentRef Id="cmpCiscodump_html" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Udpdump -->
+  <Fragment>
+    <DirectoryRef Id="dirExtcap">
+      <Component Id="cmpUdpdump_exe" Guid="*">
+        <File Id="filUdpdump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\Udpdump.exe" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpUdpdump_html" Guid="*">
+        <File Id="filUdpdump_html" KeyPath="yes" Source="$(var.Staging.Dir)\Udpdump.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Udpdump">
+      <ComponentRef Id="cmpUdpdump_exe" />
+      <ComponentRef Id="cmpUdpdump_html" />
+    </ComponentGroup>
+  </Fragment>
 
   <?ifdef USER_GUIDE_DIR?>
     <!-- User Guide -->

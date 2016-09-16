@@ -84,11 +84,15 @@
       <Feature Id="Fe.Tools.Randpktdump" Title="Randpktdump" Level="2" AllowAdvertise="yes" Display="expand" Description="Provide random packet generator.">
         <ComponentGroupRef Id="CG.Tools.Randpktdump" />
       </Feature>
-      <!-- WIP: uncomment this section when sshdump on windows will be ready to go
-      <Feature Id="Fe.Tools.Sshdump" Title="Sshdump" Level="1" AllowAdvertise="no" Display="expand" Description="Provide remote capture through SSH.">
+      <Feature Id="Fe.Tools.Sshdump" Title="Sshdump" Level="1" AllowAdvertise="yes" Display="expand" Description="Provide remote capture through SSH.">
         <ComponentGroupRef Id="CG.Tools.Sshdump" />
       </Feature>
-        -->
+      <Feature Id="Fe.Tools.Ciscodump" Title="Ciscodump" Level="1" AllowAdvertise="yes" Display="expand" Description="Provide capture interface from a remote Cisco router through SSH.">
+        <ComponentGroupRef Id="CG.Tools.Ciscodump" />
+      </Feature>
+      <Feature Id="Fe.Tools.Udpdump" Title="Udpdump" Level="1" AllowAdvertise="yes" Display="expand" Description="Provide capture interface that gets UDP packets from network devices.">
+        <ComponentGroupRef Id="CG.Tools.Udpdump" />
+      </Feature>
     </Feature>
     <?ifdef USER_GUIDE_DIR?>
       <Feature Id="Fe.UserGuide" Title="User's Guide" Level="1" AllowAdvertise="yes" Display="expand" Description="Install an offline copy of the User's Guide.">
