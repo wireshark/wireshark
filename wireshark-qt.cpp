@@ -307,7 +307,7 @@ reset_library_path(void)
 #endif
 
 /* And now our feature presentation... [ fade to music ] */
-int main(int argc, char *argv[])
+int main(int argc, char *qt_argv[])
 {
     MainWindow *main_w;
 
@@ -315,7 +315,7 @@ int main(int argc, char *argv[])
     int                  opt;
 #endif
     int                  ret_val;
-    char               **ws_argv = argv;
+    char               **argv = qt_argv;
 
 #ifdef _WIN32
     WSADATA              wsaData;
@@ -356,11 +356,11 @@ int main(int argc, char *argv[])
 
 #ifdef _WIN32
     // QCoreApplication clobbers argv. Let's have a local copy.
-    ws_argv = (char **) g_malloc(sizeof(char *) * argc);
+    argv = (char **) g_malloc(sizeof(char *) * argc);
     for (opt = 0; opt < argc; opt++) {
-        ws_argv[opt] = argv[opt];
+        argv[opt] = qt_argv[opt];
     }
-    arg_list_utf_16to8(argc, ws_argv);
+    arg_list_utf_16to8(argc, argv);
     create_app_running_mutex();
 #endif /* _WIN32 */
 
@@ -375,7 +375,7 @@ int main(int argc, char *argv[])
     /*
      * Attempt to get the pathname of the executable file.
      */
-    /* init_progfile_dir_error = */ init_progfile_dir(ws_argv[0],
+    /* init_progfile_dir_error = */ init_progfile_dir(argv[0],
         (int (*)(int, char **)) get_gui_compiled_info);
     g_log(NULL, G_LOG_LEVEL_DEBUG, "progfile_dir: %s", get_progfile_dir());
 
@@ -449,14 +449,14 @@ int main(int argc, char *argv[])
         g_free(rf_path);
     }
 
-    commandline_early_options(argc, ws_argv, comp_info_str, runtime_info_str);
+    commandline_early_options(argc, argv, comp_info_str, runtime_info_str);
 
 #ifdef _WIN32
     reset_library_path();
 #endif
 
     /* Create The Wireshark app */
-    WiresharkApplication ws_app(argc, argv);
+    WiresharkApplication ws_app(argc, qt_argv);
 
     /* initialize the funnel mini-api */
     // xxx qtshark
