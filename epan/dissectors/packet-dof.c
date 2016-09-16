@@ -5800,7 +5800,7 @@ static dof_packet_data* create_packet_data(packet_info *pinfo)
  */
 static int dissect_dof_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    dof_api_data *api_data = (dof_api_data *)p_get_proto_data(NULL, pinfo, proto_2008_1_dof_udp, 0);
+    dof_api_data *api_data = (dof_api_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_2008_1_dof_udp, 0);
     if (api_data == NULL)
     {
         conversation_t *conversation;
@@ -5861,7 +5861,7 @@ static int dissect_dof_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
         api_data->transport_session = &transport_session->common;
         api_data->transport_packet = transport_packet;
-        p_add_proto_data(NULL, pinfo, proto_2008_1_dof_udp, 0, api_data);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_2008_1_dof_udp, 0, api_data);
     }
 
     return dissect_dof_common(tvb, pinfo, tree, api_data);
@@ -6018,7 +6018,7 @@ static int dissect_dof_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     if (session->not_dps)
         return 0;
 
-    packet = (tcp_packet_data *)p_get_proto_data(NULL, pinfo, proto_2008_1_dof_tcp, 0);
+    packet = (tcp_packet_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_2008_1_dof_tcp, 0);
     if (packet == NULL)
     {
         packet = (tcp_packet_data *)wmem_alloc0(wmem_file_scope(), sizeof(tcp_packet_data));
@@ -6028,7 +6028,7 @@ static int dissect_dof_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             return 0;
         }
 
-        p_add_proto_data(NULL, pinfo, proto_2008_1_dof_tcp, 0, packet);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_2008_1_dof_tcp, 0, packet);
     }
 
     if (is_retransmission(pinfo, session, packet, tcpinfo))
@@ -6188,16 +6188,16 @@ static int dissect_tunnel_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
 
     /* Add the packet data. */
-    packet = p_get_proto_data(pinfo->fd, proto_2012_1_tunnel, 0);
+    packet = p_get_proto_data(wmem_file_scope(), proto_2012_1_tunnel, 0);
     if (!packet)
     {
-        packet = se_alloc0(sizeof(dof_packet_data));
+        packet = wmem_alloc0(wmem_file_scope(), sizeof(dof_packet_data));
         packet->frame = pinfo->fd->num;
         packet->next = NULL;
         packet->start_offset = 0;
         packet->session_counter = &session_counter;
         packet->transport_session = udp_transport_session;
-        p_add_proto_data(pinfo->fd, proto_2012_1_tunnel, 0, packet);
+        p_add_proto_data(wmem_file_scope(), proto_2012_1_tunnel, 0, packet);
     }
 
     pinfo->private_data = packet;
@@ -6268,7 +6268,7 @@ static int dissect_tunnel_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         conversation_add_proto_data(conversation, proto_2012_1_tunnel, session);
     }
 
-    packet = (tcp_packet_data *)p_get_proto_data(NULL, pinfo, proto_2012_1_tunnel, 0);
+    packet = (tcp_packet_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_2012_1_tunnel, 0);
     if (packet == NULL)
     {
         packet = (tcp_packet_data *)wmem_alloc0(wmem_file_scope(), sizeof(tcp_packet_data));
@@ -6278,7 +6278,7 @@ static int dissect_tunnel_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             return 0;
         }
 
-        p_add_proto_data(NULL, pinfo, proto_2012_1_tunnel, 0, packet);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_2012_1_tunnel, 0, packet);
     }
 
     if (is_retransmission(pinfo, session, packet, tcpinfo))

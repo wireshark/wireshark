@@ -371,7 +371,7 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   /* Init struct for collecting h225_packet_info */
   h225_pi = create_h225_packet_info(pinfo);
   h225_pi->msg_type = H225_CS;
-  p_add_proto_data(wmem_packet_scope(), pinfo, proto_h225, 0, h225_pi);
+  p_add_proto_data(pinfo->pool, pinfo, proto_h225, 0, h225_pi);
 
   next_tvb_init(&h245_list);
   next_tvb_init(&tp_list);
@@ -406,7 +406,7 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   /* Init struct for collecting h225_packet_info */
   h225_pi = create_h225_packet_info(pinfo);
   h225_pi->msg_type = H225_RAS;
-  p_add_proto_data(wmem_packet_scope(), pinfo, proto_h225, 0, h225_pi);
+  p_add_proto_data(pinfo->pool, pinfo, proto_h225, 0, h225_pi);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
