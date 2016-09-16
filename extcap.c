@@ -606,6 +606,7 @@ static gboolean search_cb(const gchar *extcap _U_, const gchar *ifname _U_, gcha
 
                     if ( ( pref = prefs_find_preference(dev_module, pref_ifname) ) == NULL ) {
                         char *pref_name_for_prefs;
+                        char *pref_title = wmem_strdup(wmem_epan_scope(), arg->display);
 
                         arg->pref_valptr = extcap_prefs_dynamic_valptr(pref_ifname, &pref_name_for_prefs);
                         /* Set an initial value if any (the string will be copied at registration) */
@@ -614,7 +615,7 @@ static gboolean search_cb(const gchar *extcap _U_, const gchar *ifname _U_, gcha
                         }
 
                         prefs_register_string_preference(dev_module, pref_name_for_prefs,
-                                arg->display, arg->display, (const char **)arg->pref_valptr);
+                                pref_title, pref_title, (const char **)arg->pref_valptr);
                     } else {
                         /* Been here before, restore stored value */
                         if (! arg->pref_valptr && pref->varp.string)
