@@ -419,7 +419,6 @@ else()
 	set(C_WARN_FLAGS
 		# The following are C only, not C++
 		-Wc++-compat
-		-Wdeclaration-after-statement
 		-Wshadow
 		-Wno-pointer-sign
 		-Wold-style-definition

@@ -591,7 +591,6 @@ AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wheader-guard)
 # The following are C only, not C++
 #
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wc++-compat, C)
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wdeclaration-after-statement, C)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wunused-const-variable, C)
 
 #
