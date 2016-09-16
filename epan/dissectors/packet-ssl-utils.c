@@ -1207,7 +1207,7 @@ const value_string tls_cert_status_type[] = {
 /* string_string is inappropriate as it compares strings while
  * "byte strings MUST NOT be truncated" (RFC 7301) */
 typedef struct ssl_alpn_protocol {
-    const guint8    *proto_name;
+    const char      *proto_name;
     size_t           proto_name_len;
     const char      *dissector_name;
 } ssl_alpn_protocol_t;
@@ -4060,7 +4060,6 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, char** err) {
                     /* Private key found, return it. */
                     priv_key = ssl_pkey;
                     goto done;
-                    break;
 
                 default: ;
             }
