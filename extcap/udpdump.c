@@ -331,7 +331,7 @@ int main(int argc, char *argv[])
 			goto end;
 
 		case OPT_PORT:
-			if (!ws_strtou16(optarg, &port)) {
+			if (!ws_strtou16(optarg, NULL, &port)) {
 				g_warning("Invalid port: %s", optarg);
 				goto end;
 			}
