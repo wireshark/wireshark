@@ -1111,6 +1111,14 @@ File "${STAGING_DIR}\extcap\sshdump.exe"
 File "${STAGING_DIR}\extcap\ciscodump.exe"
 SectionEnd
 
+Section /o "UDPdump" SecUDPdumpinfos
+;-------------------------------------------
+SetOutPath $INSTDIR
+File "${STAGING_DIR}\udpdump.html"
+SetOutPath $INSTDIR\extcap
+File "${STAGING_DIR}\extcap\udpdump.exe"
+SectionEnd
+
 Section /o "Randpktdump" SecRandpktdumpinfos
 ;-------------------------------------------
 SetOutPath $INSTDIR
@@ -1166,6 +1174,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecToolsGroup} "Additional command line based tools."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecAndroiddumpinfos} "Provide capture interfaces from Android devices"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecSSHdumpinfos} "Provide remote capture through SSH"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecUDPdumpinfos} "Provide capture interface that gets UDP packets from network devices"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecRandpktdumpinfos} "Provide random packet generator"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Copy packets to a new file, optionally trimmming packets, omitting them, or saving to a different format."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Read an ASCII hex dump and write the data into a libpcap-style capture file."
