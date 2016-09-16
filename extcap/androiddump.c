@@ -439,7 +439,7 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
 static char *adb_send_and_receive(socket_handle_t sock, const char *adb_service,
         char *buffer, int buffer_length, gssize *data_length) {
     gssize   used_buffer_length;
-    gint32   length;
+    guint32  length;
     gssize   result;
     char     status[4];
     char     tmp_buffer;
@@ -471,7 +471,11 @@ static char *adb_send_and_receive(socket_handle_t sock, const char *adb_service,
     memcpy(status, buffer, 4);
     tmp_buffer = buffer[8];
     buffer[8] = '\0';
-    length = (gssize) g_ascii_strtoll(buffer + 4, NULL, 16);
+    if (!ws_hexstrtou32(buffer + 4, NULL, &length)) {
+        g_warning("Invalid reply length <%s> while reading reply for <%s>", buffer + 4, adb_service);
+
+        return NULL;
+    }
     buffer[8] = tmp_buffer;
 
     while (used_buffer_length < length + 8) {

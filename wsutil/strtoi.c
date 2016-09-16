@@ -58,46 +58,6 @@ gboolean ws_strtoi64(const gchar* str, const gchar** endptr, gint64* cint)
 	return TRUE;
 }
 
-gboolean ws_strtou64(const gchar* str, const gchar** endptr, guint64* cint)
-{
-	gchar* end;
-	guint64 val;
-
-	if (str[0] == '-' || str[0] == '+') {
-		/*
-		 * Unsigned numbers don't have a sign.
-		 */
-		*cint = 0;
-		if (endptr != NULL)
-			*endptr = str;
-		errno = EINVAL;
-		return FALSE;
-	}
-	errno = 0;
-	val = g_ascii_strtoull(str, &end, 10);
-	if ((val == 0 && end == str) || (endptr == NULL && *end != '\0')) {
-		*cint = 0;
-		if (endptr != NULL)
-			*endptr = end;
-		errno = EINVAL;
-		return FALSE;
-	}
-	if (val == G_MAXUINT64 && errno == ERANGE) {
-		/*
-		 * Return the value, because ws_strtoi64() does.
-		 */
-		*cint = val;
-		if (endptr != NULL)
-			*endptr = end;
-		/* errno is already set */
-		return FALSE;
-	}
-	if (endptr != NULL)
-		*endptr = end;
-	*cint = val;
-	return TRUE;
-}
-
 #define DEFINE_WS_STRTOI_BITS(bits) \
 gboolean ws_strtoi##bits(const gchar* str, const gchar** endptr, gint##bits* cint) \
 { \
@@ -147,17 +107,67 @@ DEFINE_WS_STRTOI_BITS(32)
 DEFINE_WS_STRTOI_BITS(16)
 DEFINE_WS_STRTOI_BITS(8)
 
+static gboolean ws_basestrtou64(const gchar* str, const gchar** endptr, guint64* cint, int base)
+{
+	gchar* end;
+	guint64 val;
+
+	if (str[0] == '-' || str[0] == '+') {
+		/*
+		 * Unsigned numbers don't have a sign.
+		 */
+		*cint = 0;
+		if (endptr != NULL)
+			*endptr = str;
+		errno = EINVAL;
+		return FALSE;
+	}
+	errno = 0;
+	val = g_ascii_strtoull(str, &end, base);
+	if ((val == 0 && end == str) || (endptr == NULL && *end != '\0')) {
+		*cint = 0;
+		if (endptr != NULL)
+			*endptr = end;
+		errno = EINVAL;
+		return FALSE;
+	}
+	if (val == G_MAXUINT64 && errno == ERANGE) {
+		/*
+		 * Return the value, because ws_strtoi64() does.
+		 */
+		*cint = val;
+		if (endptr != NULL)
+			*endptr = end;
+		/* errno is already set */
+		return FALSE;
+	}
+	if (endptr != NULL)
+		*endptr = end;
+	*cint = val;
+	return TRUE;
+}
+
+gboolean ws_strtou64(const gchar* str, const gchar** endptr, guint64* cint)
+{
+	return ws_basestrtou64(str, endptr, cint, 10);
+}
+
+gboolean ws_hexstrtou64(const gchar* str, const gchar** endptr, guint64* cint)
+{
+	return ws_basestrtou64(str, endptr, cint, 16);
+}
+
 #define DEFINE_WS_STRTOU_BITS(bits) \
-int ws_strtou##bits(const gchar* str, const gchar** endptr, guint##bits* cint) \
+static gboolean ws_basestrtou##bits(const gchar* str, const gchar** endptr, guint##bits* cint, int base) \
 { \
 	guint64 val; \
-	if (!ws_strtou64(str, endptr, &val)) { \
+	if (!ws_basestrtou64(str, endptr, &val, base)) { \
 		/* \
 		 * For ERANGE, return G_MAXUINT##bits for parallelism \
 		 * with ws_strtoi##bits(). \
 		 * \
 		 * For other errors, return 0, for parallelism \
-		 * with ws_strtou64(). \
+		 * with ws_basestrtou64(). \
 		 */ \
 		if (errno == ERANGE) \
 			*cint = G_MAXUINT##bits; \
@@ -176,6 +186,16 @@ int ws_strtou##bits(const gchar* str, const gchar** endptr, guint##bits* cint) \
 	} \
 	*cint = (guint##bits)val; \
 	return TRUE; \
+} \
+\
+gboolean ws_strtou##bits(const gchar* str, const gchar** endptr, guint##bits* cint) \
+{ \
+	return ws_basestrtou##bits(str, endptr, cint, 10); \
+} \
+\
+gboolean ws_hexstrtou##bits(const gchar* str, const gchar** endptr, guint##bits* cint) \
+{ \
+	return ws_basestrtou##bits(str, endptr, cint, 16); \
 }
 
 DEFINE_WS_STRTOU_BITS(32)

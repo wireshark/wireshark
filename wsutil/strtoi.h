@@ -30,7 +30,7 @@
 #include "ws_symbol_export.h"
 
 /*
- * \brief Convert a string to a signed/unsigned int, with error checks.
+ * \brief Convert a decimal string to a signed/unsigned int, with error checks.
  * \param str The string to convert
  * \param endptr A pointer that will store a pointer to the first invalid
  * character in str, allowing a number to be parsed even if there is trailing
@@ -50,6 +50,24 @@ WS_DLL_PUBLIC gboolean ws_strtou64(const gchar* str, const gchar** endptr, guint
 WS_DLL_PUBLIC gboolean ws_strtou32(const gchar* str, const gchar** endptr, guint32* cint);
 WS_DLL_PUBLIC gboolean ws_strtou16(const gchar* str, const gchar** endptr, guint16* cint);
 WS_DLL_PUBLIC gboolean ws_strtou8 (const gchar* str, const gchar** endptr, guint8*  cint);
+
+/*
+ * \brief Convert a hexadecimal string to an unsigned int, with error checks.
+ * \param str The string to convert
+ * \param endptr A pointer that will store a pointer to the first invalid
+ * character in str, allowing a number to be parsed even if there is trailing
+ * whitespace. If NULL, then the string is assumed to contain only valid
+ * characters (or it will error out).
+ * \param cint The converted integer
+ * \return TRUE if the conversion succeeds, FALSE otherwise.
+ * On error, errno is set to EINVAL for unrecognized input and ERANGE
+ * if the resulting number does not fit in the type.
+ */
+
+WS_DLL_PUBLIC gboolean ws_hexstrtou64(const gchar* str, const gchar** endptr, guint64* cint);
+WS_DLL_PUBLIC gboolean ws_hexstrtou32(const gchar* str, const gchar** endptr, guint32* cint);
+WS_DLL_PUBLIC gboolean ws_hexstrtou16(const gchar* str, const gchar** endptr, guint16* cint);
+WS_DLL_PUBLIC gboolean ws_hexstrtou8 (const gchar* str, const gchar** endptr, guint8*  cint);
 
 #endif
 
