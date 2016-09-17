@@ -1114,8 +1114,8 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       break; /*  EAP_TYPE_TLS */
 
       /*********************************************************************
-                                Cisco's Lightweight EAP (LEAP)
-    http://www.missl.cs.umd.edu/wireless/ethereal/leap.txt
+        Cisco's Lightweight EAP (LEAP)
+        http://www.missl.cs.umd.edu/wireless/ethereal/leap.txt
       **********************************************************************/
       case EAP_TYPE_LEAP:
       {
