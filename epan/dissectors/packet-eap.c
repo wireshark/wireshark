@@ -651,17 +651,14 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
       proto_tree_add_item(attr_tree, hf_eap_identity_actual_len, tvb, aoffset, 2, ENC_BIG_ENDIAN);
 
       /*
-       * XXX - is there a better way to determine whether the identity
-       * is something that would actually *have* a prefix?  Not all EAP
-       * is EAP-AKA or EAP-SIM.
+       * XXX - is the first octet of the identity guaranteed to be a prefix
+       * in EAP-AKA?
        */
       eap_identity_prefix = tvb_get_guint8(tvb, aoffset + 2);
       eap_identity_prefix_str = try_val_to_str(eap_identity_prefix, eap_identity_prefix_vals);
       if (eap_identity_prefix_str != NULL) {
           /*
-           * XXX - see previous comment; just because the first byte
-           * of the identity is a value that happens to be a valid
-           * prefix, that doesn't *ipso facto* mean it *is* a prefix.
+           * XXX - see previous comment.
            */
           proto_tree_add_uint_format_value(attr_tree, hf_eap_identity_prefix,
               tvb, aoffset+2, 1, eap_identity_prefix, "%s ('%c')",
