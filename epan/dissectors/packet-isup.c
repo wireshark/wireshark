@@ -3432,9 +3432,6 @@ dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, p
     }
   }
 
-  /* Now that we have all the digits decoded, add them to the parameter field */
-  proto_item_append_text(digits_item, "%s", number);
-
   if (number_type != NONE) {
     e164_info.e164_number_type = number_type;
     e164_info.nature_of_address = nature_of_address;
