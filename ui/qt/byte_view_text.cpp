@@ -59,8 +59,8 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
     format_actions_(new QActionGroup(this)),
     encoding_actions_(new QActionGroup(this)),
     encoding_(encoding),
-    hovered_byte_offset(-1),
-    hovered_byte_lock(false),
+    hovered_byte_offset_(-1),
+    hovered_byte_lock_(false),
     p_bound_(0, 0),
     f_bound_(0, 0),
     fa_bound_(0, 0),
@@ -250,7 +250,7 @@ void ByteViewText::mousePressEvent (QMouseEvent *event) {
         return;
     }
 
-    hovered_byte_lock = !hovered_byte_lock;
+    hovered_byte_lock_ = !hovered_byte_lock_;
     QPoint pos = event->pos();
     field_info *fi = fieldAtPixel(pos);
 
@@ -270,7 +270,7 @@ void ByteViewText::mousePressEvent (QMouseEvent *event) {
 
 void ByteViewText::mouseMoveEvent(QMouseEvent *event)
 {
-    if (hovered_byte_lock) {
+    if (hovered_byte_lock_) {
         return;
     }
 
@@ -285,7 +285,7 @@ void ByteViewText::mouseMoveEvent(QMouseEvent *event)
         return;
     }
     QPoint pos = event->pos();
-    hovered_byte_offset = byteOffsetAtPixel(pos);
+    hovered_byte_offset_ = byteOffsetAtPixel(pos);
     field_info *fi = fieldAtPixel(pos);
     if (fi) {
         if (fi->length < 2) {
@@ -315,8 +315,8 @@ void ByteViewText::leaveEvent(QEvent *event)
 {
     QString empty;
     emit byteFieldHovered(empty);
-    if (!hovered_byte_lock) {
-        hovered_byte_offset = -1;
+    if (!hovered_byte_lock_) {
+        hovered_byte_offset_ = -1;
     }
     p_bound_ = p_bound_save_;
     f_bound_ = f_bound_save_;
@@ -361,7 +361,7 @@ void ByteViewText::drawOffsetLine(QPainter &painter, const guint offset, const i
         for (guint tvb_pos = offset; tvb_pos < max_pos; tvb_pos++) {
             highlight_state hex_state = StateNormal;
             bool add_space = tvb_pos != offset;
-            bool highlight_text = tvb_pos == hovered_byte_offset;
+            bool highlight_text = tvb_pos == hovered_byte_offset_;
 
             if ((tvb_pos >= f_bound_.first && tvb_pos < f_bound_.second) || (tvb_pos >= fa_bound_.first && tvb_pos < fa_bound_.second)) {
                 hex_state = StateField;
@@ -415,7 +415,7 @@ void ByteViewText::drawOffsetLine(QPainter &painter, const guint offset, const i
         for (guint tvb_pos = offset; tvb_pos < max_pos; tvb_pos++) {
             highlight_state ascii_state = StateNormal;
             bool add_space = tvb_pos != offset;
-            bool highlight_text = tvb_pos == hovered_byte_offset;
+            bool highlight_text = tvb_pos == hovered_byte_offset_;
 
             if ((tvb_pos >= f_bound_.first && tvb_pos < f_bound_.second) || (tvb_pos >= fa_bound_.first && tvb_pos < fa_bound_.second)) {
                 ascii_state = StateField;

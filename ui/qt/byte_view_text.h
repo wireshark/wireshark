@@ -109,8 +109,8 @@ private:
     QMenu ctx_menu_;
 
     // Data highlight
-    guint hovered_byte_offset;
-    bool hovered_byte_lock;
+    guint hovered_byte_offset_;
+    bool hovered_byte_lock_;
     QPair<guint,guint> p_bound_;
     QPair<guint,guint> f_bound_;
     QPair<guint,guint> fa_bound_;
