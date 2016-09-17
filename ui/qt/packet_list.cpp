@@ -780,10 +780,10 @@ void PacketList::columnsChanged()
     prefs.num_cols = g_list_length(prefs.col_list);
     col_cleanup(&cap_file_->cinfo);
     build_column_format_array(&cap_file_->cinfo, prefs.num_cols, FALSE);
-    setColumnVisibility();
     create_far_overlay_ = true;
     resetColumns();
     applyRecentColumnWidths();
+    setColumnVisibility();
     columns_changed_ = false;
 }
 
