@@ -7,8 +7,8 @@ INCLUDE(FindChocolatey)
 
 FIND_PROGRAM(LEX_EXECUTABLE
   NAMES
-    flex
     win_flex
+    flex
     lex
   PATHS
     ${CHOCOLATEY_BIN_PATH}/bin

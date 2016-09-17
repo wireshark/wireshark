@@ -7,8 +7,8 @@ INCLUDE(FindChocolatey)
 
 FIND_PROGRAM(YACC_EXECUTABLE
   NAMES
-    bison
     win_bison
+    bison
     yacc
   PATHS
     ${CHOCOLATEY_BIN_PATH}/bin
