@@ -650,10 +650,10 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
       proto_tree_add_item(attr_tree, hf_eap_identity_actual_len, tvb, aoffset, 2, ENC_BIG_ENDIAN);
 
       eap_identity_prefix = tvb_get_guint8(tvb, aoffset + 2) - '0';
-      proto_tree_add_string_format(attr_tree, hf_eap_identity_prefix, tvb, aoffset + 2, 1,
-            &eap_identity_prefix, "Identity Prefix: %s (%u)",
-            val_to_str(eap_identity_prefix, eap_identity_prefix_vals, "Unknown"),
-            eap_identity_prefix);
+      proto_tree_add_uint_format_value(attr_tree, hf_eap_identity_prefix,
+          tvb, aoffset+2, 1, eap_identity_prefix, "%s (%u)",
+          val_to_str(eap_identity_prefix, eap_identity_prefix_vals, "Unknown"),
+          eap_identity_prefix);
       proto_tree_add_item(attr_tree, hf_eap_identity, tvb, aoffset + 2, aleft - 2, ENC_ASCII|ENC_NA);
     }
     else
@@ -831,10 +831,10 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
           eap_identity_item = proto_tree_add_item(eap_tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
           eap_identity_tree = proto_item_add_subtree(eap_identity_item, ett_identity);
           eap_identity_prefix = tvb_get_guint8(tvb, offset) - '0';
-          proto_tree_add_string_format(eap_identity_tree, hf_eap_identity_prefix, tvb, offset, 1,
-            &eap_identity_prefix, "Identity Prefix: %s (%u)",
-            val_to_str(eap_identity_prefix, eap_identity_prefix_vals, "Unknown"),
-            eap_identity_prefix);
+          proto_tree_add_uint_format_value(eap_identity_tree, hf_eap_identity_prefix,
+              tvb, offset, 1, eap_identity_prefix, "%s (%u)",
+              val_to_str(eap_identity_prefix, eap_identity_prefix_vals, "Unknown"),
+              eap_identity_prefix);
         }
         if(!pinfo->fd->flags.visited) {
           conversation_state->leap_state  =  0;
@@ -1289,9 +1289,8 @@ proto_register_eap(void)
       NULL, HFILL }},
 
     { &hf_eap_identity_prefix, {
-      "Identity", "eap.identity.prefix",
-      FT_STRING, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }},
+      "Identity Prefix", "eap.identity.prefix",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eap_identity_actual_len, {
       "Identity Actual Length", "eap.identity.actual_len",
