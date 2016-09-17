@@ -1,8 +1,10 @@
 <?xml version="1.0"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <!-- This XSLT will convert a PDML file, saved by Wireshark, into
-     HTML. The HTML page should look like Wireshark. For questions contact
-     Dirk Jagdmann (doj@cubic.org).
+     HTML. The HTML page should look similar to Wireshark. See
+     https://wiki.wireshark.org/PDML how to generate such a HTML file from PDML.
+     For questions contact Dirk Jagdmann (doj@cubic.org).
+
      Version: 2010-06-09
 
      Wireshark - Network traffic analyzer
