@@ -858,7 +858,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 tvb, offset, 1, eap_identity_prefix, "%s ('%c')",
                 eap_identity_prefix_str, eap_identity_prefix);
           }
-          proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
         }
         if(!pinfo->fd->flags.visited) {
           conversation_state->leap_state  =  0;
