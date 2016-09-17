@@ -185,15 +185,15 @@ static const value_string eap_type_vals[] = {
 value_string_ext eap_type_vals_ext = VALUE_STRING_EXT_INIT(eap_type_vals);
 
 const value_string eap_identity_prefix_vals[] = {
-  { 0, "EAP-AKA Permanent" },
-  { 1, "EAP-SIM Permanent" },
-  { 2, "EAP-AKA Pseudonym" },
-  { 3, "EAP-SIM Pseudonym" },
-  { 4, "EAP-AKA Reauth ID" },
-  { 5, "EAP-SIM Reauth ID" },
-  { 6, "EAP-AKA Prime Permanent" },
-  { 7, "EAP-AKA Prime Pseudonym" },
-  { 8, "EAP-AKA Prime Reauth ID" },
+  { '0', "EAP-AKA Permanent" },
+  { '1', "EAP-SIM Permanent" },
+  { '2', "EAP-AKA Pseudonym" },
+  { '3', "EAP-SIM Pseudonym" },
+  { '4', "EAP-AKA Reauth ID" },
+  { '5', "EAP-SIM Reauth ID" },
+  { '6', "EAP-AKA Prime Permanent" },
+  { '7', "EAP-AKA Prime Pseudonym" },
+  { '8', "EAP-AKA Prime Reauth ID" },
   { 0, NULL }
 };
 
@@ -646,14 +646,27 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 
     if (type == AT_IDENTITY) {
       guint8 eap_identity_prefix;
+      const char *eap_identity_prefix_str;
 
       proto_tree_add_item(attr_tree, hf_eap_identity_actual_len, tvb, aoffset, 2, ENC_BIG_ENDIAN);
 
-      eap_identity_prefix = tvb_get_guint8(tvb, aoffset + 2) - '0';
-      proto_tree_add_uint_format_value(attr_tree, hf_eap_identity_prefix,
-          tvb, aoffset+2, 1, eap_identity_prefix, "%s (%u)",
-          val_to_str(eap_identity_prefix, eap_identity_prefix_vals, "Unknown"),
-          eap_identity_prefix);
+      /*
+       * XXX - is there a better way to determine whether the identity
+       * is something that would actually *have* a prefix?  Not all EAP
+       * is EAP-AKA or EAP-SIM.
+       */
+      eap_identity_prefix = tvb_get_guint8(tvb, aoffset + 2);
+      eap_identity_prefix_str = try_val_to_str(eap_identity_prefix, eap_identity_prefix_vals);
+      if (eap_identity_prefix_str != NULL) {
+          /*
+           * XXX - see previous comment; just because the first byte
+           * of the identity is a value that happens to be a valid
+           * prefix, that doesn't *ipso facto* mean it *is* a prefix.
+           */
+          proto_tree_add_uint_format_value(attr_tree, hf_eap_identity_prefix,
+              tvb, aoffset+2, 1, eap_identity_prefix, "%s ('%c')",
+              eap_identity_prefix_str, eap_identity_prefix);
+      }
       proto_tree_add_item(attr_tree, hf_eap_identity, tvb, aoffset + 2, aleft - 2, ENC_ASCII|ENC_NA);
     }
     else
@@ -700,6 +713,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   guint16         eap_len;
   guint8          eap_type;
   guint8          eap_identity_prefix;
+  const char     *eap_identity_prefix_str;
   gint            len;
   conversation_t *conversation       = NULL;
   conv_state_t   *conversation_state;
@@ -830,11 +844,24 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         if (size > 0) {
           eap_identity_item = proto_tree_add_item(eap_tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
           eap_identity_tree = proto_item_add_subtree(eap_identity_item, ett_identity);
-          eap_identity_prefix = tvb_get_guint8(tvb, offset) - '0';
-          proto_tree_add_uint_format_value(eap_identity_tree, hf_eap_identity_prefix,
-              tvb, offset, 1, eap_identity_prefix, "%s (%u)",
-              val_to_str(eap_identity_prefix, eap_identity_prefix_vals, "Unknown"),
-              eap_identity_prefix);
+          /*
+           * XXX - is there a better way to determine whether the identity
+           * is something that would actually *have* a prefix?  Not all EAP
+           * is EAP-AKA or EAP-SIM.
+           */
+          eap_identity_prefix = tvb_get_guint8(tvb, offset);
+          eap_identity_prefix_str = try_val_to_str(eap_identity_prefix, eap_identity_prefix_vals);
+          if (eap_identity_prefix_str != NULL) {
+            /*
+             * XXX - see previous comment; just because the first byte
+             * of the identity is a value that happens to be a valid
+             * prefix, that doesn't *ipso facto* mean it *is* a prefix.
+             */
+            proto_tree_add_uint_format_value(eap_identity_tree, hf_eap_identity_prefix,
+                tvb, offset, 1, eap_identity_prefix, "%s ('%c')",
+                eap_identity_prefix_str, eap_identity_prefix);
+          }
+          proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
         }
         if(!pinfo->fd->flags.visited) {
           conversation_state->leap_state  =  0;
@@ -1290,7 +1317,7 @@ proto_register_eap(void)
 
     { &hf_eap_identity_prefix, {
       "Identity Prefix", "eap.identity.prefix",
-      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, VALS(eap_identity_prefix_vals), 0x0, NULL, HFILL }},
 
     { &hf_eap_identity_actual_len, {
       "Identity Actual Length", "eap.identity.actual_len",
