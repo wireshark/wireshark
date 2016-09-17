@@ -706,11 +706,11 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   frame_state_t  *packet_state;
   int             leap_state;
   proto_tree     *ti;
-  proto_tree     *eap_tree           = NULL;
-  proto_tree     *eap_identity_tree  = NULL;
-  proto_tree     *eap_tls_flags_tree = NULL;
-  proto_item     *eap_type_item      = NULL;
-  proto_item     *eap_identity_item  = NULL;
+  proto_tree     *eap_tree;
+  proto_tree     *eap_identity_tree;
+  proto_tree     *eap_tls_flags_tree;
+  proto_item     *eap_type_item;
+  proto_item     *eap_identity_item;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -797,14 +797,12 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   eap_len = tvb_get_ntohs(tvb, 2);
   len     = eap_len;
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_eap, tvb, 0, len, ENC_NA);
-    eap_tree = proto_item_add_subtree(ti, ett_eap);
+  ti = proto_tree_add_item(tree, proto_eap, tvb, 0, len, ENC_NA);
+  eap_tree = proto_item_add_subtree(ti, ett_eap);
 
-    proto_tree_add_item(eap_tree, hf_eap_code,       tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(eap_tree, hf_eap_identifier, tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(eap_tree, hf_eap_len,        tvb, 2, 2, ENC_BIG_ENDIAN);
-  }
+  proto_tree_add_item(eap_tree, hf_eap_code,       tvb, 0, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(eap_tree, hf_eap_identifier, tvb, 1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(eap_tree, hf_eap_len,        tvb, 2, 2, ENC_BIG_ENDIAN);
 
   switch (eap_code) {
 
@@ -819,8 +817,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
                       val_to_str_ext(eap_type, &eap_type_vals_ext,
                                      "Unknown type (0x%02x)"));
-    if (tree)
-      eap_type_item = proto_tree_add_item(eap_tree, hf_eap_type, tvb, 4, 1, ENC_BIG_ENDIAN);
+    eap_type_item = proto_tree_add_item(eap_tree, hf_eap_type, tvb, 4, 1, ENC_BIG_ENDIAN);
 
     if ((len > 5) || ((len == 5) && (eap_type == EAP_TYPE_ID))) {
       int     offset = 5;
@@ -830,7 +827,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         /*********************************************************************
         **********************************************************************/
       case EAP_TYPE_ID:
-        if (tree && size > 0) {
+        if (size > 0) {
           eap_identity_item = proto_tree_add_item(eap_tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
           eap_identity_tree = proto_item_add_subtree(eap_identity_item, ett_identity);
           eap_identity_prefix = tvb_get_guint8(tvb, offset) - '0';
@@ -848,19 +845,15 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         /*********************************************************************
         **********************************************************************/
       case EAP_TYPE_NOTIFY:
-        if (tree) {
-          proto_tree_add_item(eap_tree, hf_eap_notification, tvb,
-                              offset, size, ENC_ASCII|ENC_NA);
-        }
+        proto_tree_add_item(eap_tree, hf_eap_notification, tvb,
+            offset, size, ENC_ASCII|ENC_NA);
         break;
 
         /*********************************************************************
         **********************************************************************/
       case EAP_TYPE_NAK:
-        if (tree) {
-          proto_tree_add_item(eap_tree, hf_eap_type_nak, tvb,
-                              offset, 1, ENC_BIG_ENDIAN);
-        }
+        proto_tree_add_item(eap_tree, hf_eap_type_nak, tvb,
+            offset, 1, ENC_BIG_ENDIAN);
         break;
         /*********************************************************************
         **********************************************************************/
@@ -913,25 +906,22 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
           conversation_state->eap_tls_seq = -1;
 
         /* Flags field, 1 byte */
-        if (tree) {
-          ti = proto_tree_add_item(eap_tree, hf_eap_tls_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-          eap_tls_flags_tree = proto_item_add_subtree(ti, ett_eap_tls_flags);
-          proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flag_l, tvb, offset, 1, ENC_BIG_ENDIAN);
-          proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flag_m, tvb, offset, 1, ENC_BIG_ENDIAN);
-          proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flag_s, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(eap_tree, hf_eap_tls_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+        eap_tls_flags_tree = proto_item_add_subtree(ti, ett_eap_tls_flags);
+        proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flag_l, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flag_m, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flag_s, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-          if ((eap_type == EAP_TYPE_PEAP) || (eap_type == EAP_TYPE_TTLS) ||
-              (eap_type == EAP_TYPE_FAST)) {
-            proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flags_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-          }
+        if ((eap_type == EAP_TYPE_PEAP) || (eap_type == EAP_TYPE_TTLS) ||
+            (eap_type == EAP_TYPE_FAST)) {
+          proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flags_version, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
         size   -= 1;
         offset += 1;
 
         /* Length field, 4 bytes, OPTIONAL. */
         if (has_length) {
-          if (tree)
-            proto_tree_add_item(eap_tree, hf_eap_tls_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+          proto_tree_add_item(eap_tree, hf_eap_tls_len, tvb, offset, 4, ENC_BIG_ENDIAN);
           size   -= 4;
           offset += 4;
         }
@@ -1135,22 +1125,16 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         expert_add_info(pinfo, eap_type_item, &ei_eap_dictionary_attacks);
 
         /* Version (byte) */
-        if (tree) {
-          proto_tree_add_item(eap_tree, hf_eap_leap_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-        }
+        proto_tree_add_item(eap_tree, hf_eap_leap_version, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         /* Unused  (byte) */
-        if (tree) {
-          proto_tree_add_item(eap_tree, hf_eap_leap_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-        }
+        proto_tree_add_item(eap_tree, hf_eap_leap_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         /* Count   (byte) */
         count = tvb_get_guint8(tvb, offset);
-        if (tree) {
-          proto_tree_add_item(eap_tree, hf_eap_leap_count, tvb, offset, 1, ENC_BIG_ENDIAN);
-        }
+        proto_tree_add_item(eap_tree, hf_eap_leap_count, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         /* Data    (byte*Count) */
@@ -1189,8 +1173,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         /* Get the remembered state. */
         leap_state = packet_state->info;
 
-        if (tree) {
-          switch (leap_state) {
+        switch (leap_state) {
           case 1:
             proto_tree_add_item(eap_tree, hf_eap_leap_peer_challenge, tvb, offset, count, ENC_NA);
             break;
@@ -1210,16 +1193,13 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
           default:
             proto_tree_add_item(eap_tree, hf_eap_leap_data, tvb, offset, count, ENC_NA);
             break;
-          }
         }
 
         offset += count;
 
         /* Name    (Length-(8+Count)) */
         namesize = eap_len - (8+count);
-        if (tree) {
-          proto_tree_add_item(eap_tree, hf_eap_leap_name, tvb, offset, namesize, ENC_ASCII|ENC_NA);
-        }
+        proto_tree_add_item(eap_tree, hf_eap_leap_name, tvb, offset, namesize, ENC_ASCII|ENC_NA);
       }
 
       break; /* EAP_TYPE_LEAP */
@@ -1235,8 +1215,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
            EAP-SIM - draft-haverinen-pppext-eap-sim-13.txt
         **********************************************************************/
       case EAP_TYPE_SIM:
-        if (tree)
-          dissect_eap_sim(eap_tree, tvb, offset, size);
+        dissect_eap_sim(eap_tree, tvb, offset, size);
         break; /* EAP_TYPE_SIM */
 
         /*********************************************************************
@@ -1244,8 +1223,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         **********************************************************************/
       case EAP_TYPE_AKA:
       case EAP_TYPE_AKA_PRIME:
-        if (tree)
-          dissect_eap_aka(eap_tree, tvb, offset, size);
+        dissect_eap_aka(eap_tree, tvb, offset, size);
         break; /* EAP_TYPE_AKA */
 
         /*********************************************************************
