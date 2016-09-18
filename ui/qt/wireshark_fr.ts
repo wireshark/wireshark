@@ -140,12 +140,12 @@
         <translation>Enregistrer en tant qu&apos;image</translation>
     </message>
     <message>
-        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="313"/>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="316"/>
         <source>Save Table Image</source>
         <translation>Sauvegarder Image Tableau</translation>
     </message>
     <message>
-        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="315"/>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="318"/>
         <source>PNG Image (*.png)</source>
         <translation>Image PNG (*.png)</translation>
     </message>
@@ -279,7 +279,7 @@
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="206"/>
-        <location filename="bluetooth_device_dialog.cpp" line="586"/>
+        <location filename="bluetooth_device_dialog.cpp" line="588"/>
         <source>%1 changes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -304,37 +304,37 @@
         <translation type="unfinished">Enregistrer en tant qu&apos;image</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="180"/>
+        <location filename="bluetooth_device_dialog.cpp" line="182"/>
         <source>Unknown</source>
         <translation type="unfinished">Inconnu</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="189"/>
+        <location filename="bluetooth_device_dialog.cpp" line="191"/>
         <source>Bluetooth Device - %1%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="521"/>
+        <location filename="bluetooth_device_dialog.cpp" line="523"/>
         <source>enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="521"/>
+        <location filename="bluetooth_device_dialog.cpp" line="523"/>
         <source>disabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="529"/>
+        <location filename="bluetooth_device_dialog.cpp" line="531"/>
         <source>%1 ms (%2 slots)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="621"/>
+        <location filename="bluetooth_device_dialog.cpp" line="623"/>
         <source>Save Table Image</source>
         <translation type="unfinished">Sauvegarder Image Tableau</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="623"/>
+        <location filename="bluetooth_device_dialog.cpp" line="625"/>
         <source>PNG Image (*.png)</source>
         <translation type="unfinished">Image PNG (*.png)</translation>
     </message>
@@ -403,7 +403,7 @@
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="146"/>
-        <location filename="bluetooth_devices_dialog.cpp" line="329"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="331"/>
         <source>%1 items; Right click for more option; Double click for device details</source>
         <translation type="unfinished"></translation>
     </message>
@@ -428,18 +428,18 @@
         <translation>Enregistrer en tant qu&apos;image</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="290"/>
-        <location filename="bluetooth_devices_dialog.cpp" line="310"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="292"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="312"/>
         <source>true</source>
         <translation>vrai</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="398"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="400"/>
         <source>Save Table Image</source>
         <translation>Sauvegarder Image Tableau</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="400"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="402"/>
         <source>PNG Image (*.png)</source>
         <translation>Image PNG (*.png)</translation>
     </message>
@@ -652,37 +652,37 @@
         <translation>Enregistrer en tant qu&apos;image</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="308"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="310"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="326"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="328"/>
         <source>Adapter %1</source>
         <translation>Adaptateur %1</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="414"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="464"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="501"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="535"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="572"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="606"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="416"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="466"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="503"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="537"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="574"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="608"/>
         <source>Frame %1</source>
         <translation>Trame %1</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="524"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="526"/>
         <source>Pending</source>
         <translation>En attente</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="717"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="719"/>
         <source>Save Table Image</source>
         <translation>Sauvegarder Image Tableau</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="719"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="721"/>
         <source>PNG Image (*.png)</source>
         <translation>Image PNG (*.png)</translation>
     </message>
@@ -733,68 +733,68 @@
 <context>
     <name>CaptureFileDialog</name>
     <message>
-        <location filename="capture_file_dialog.cpp" line="140"/>
+        <location filename="capture_file_dialog.cpp" line="143"/>
         <source>This capture file contains comments.</source>
         <translation>Le fichier de capture contient des commentaires.</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="150"/>
+        <location filename="capture_file_dialog.cpp" line="153"/>
         <source>The file format you chose doesn&apos;t support comments. Do you want to save the capture in a format that supports comments or discard the comments and save in the format you chose?</source>
         <translation>Le format de fichier que vous avez choisi ne supporte pas les commentaires. Voulez-vous enregistrer la capture dans un format qui prend en charge les commentaires ou ignorer les commentaires et les enregistrer dans le format que vous avez choisi?</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="154"/>
-        <location filename="capture_file_dialog.cpp" line="163"/>
+        <location filename="capture_file_dialog.cpp" line="157"/>
+        <location filename="capture_file_dialog.cpp" line="166"/>
         <source>Discard comments and save</source>
         <translation>Ignorer commentaires et sauvegarder</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="155"/>
+        <location filename="capture_file_dialog.cpp" line="158"/>
         <source>Save in another format</source>
         <translation>Sauvegarder dans un autre format</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="160"/>
+        <location filename="capture_file_dialog.cpp" line="163"/>
         <source>No file format in which it can be saved supports comments. Do you want to discard the comments and save in the format you chose?</source>
         <translation>Le format de fichier dans lequel vous voulez sauvegarder ne prendre pas en charge les commentaires. Voulez-vous supprimer les commentaires et enregistrer dans le format que vous avez choisi?</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="379"/>
+        <location filename="capture_file_dialog.cpp" line="388"/>
         <source>All Files (</source>
         <translation>Tous les Fichiers (</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="385"/>
+        <location filename="capture_file_dialog.cpp" line="394"/>
         <source>All Capture Files</source>
         <translation>Tous les fichiers de capture</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="420"/>
+        <location filename="capture_file_dialog.cpp" line="430"/>
         <source>Format:</source>
         <translation>Format:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="425"/>
+        <location filename="capture_file_dialog.cpp" line="435"/>
         <source>Size:</source>
         <translation>Taille:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="430"/>
+        <location filename="capture_file_dialog.cpp" line="440"/>
         <source>Start / elapsed:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="476"/>
+        <location filename="capture_file_dialog.cpp" line="486"/>
         <source>Automatically detect file type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="772"/>
+        <location filename="capture_file_dialog.cpp" line="782"/>
         <source>%1, error after %2 packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="779"/>
+        <location filename="capture_file_dialog.cpp" line="789"/>
         <source>%1, timed out at %2 packets</source>
         <translation type="unfinished"></translation>
     </message>
@@ -811,37 +811,37 @@
         <translation type="vanished">Temps écoulé</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="442"/>
+        <location filename="capture_file_dialog.cpp" line="452"/>
         <source>Prepend packets</source>
         <translation>Ajout de paquets</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="443"/>
+        <location filename="capture_file_dialog.cpp" line="453"/>
         <source>Insert packets from the selected file before the current file. Packet timestamps will be ignored.</source>
         <translation>Insérer les paquets à partir du fichier sélectionné avant que le fichier actuel. Horodatage des paquets seront ignorés.</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="446"/>
+        <location filename="capture_file_dialog.cpp" line="456"/>
         <source>Merge chronologically</source>
         <translation>Fusionner chronologiquement</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="447"/>
+        <location filename="capture_file_dialog.cpp" line="457"/>
         <source>Insert packets in chronological order.</source>
         <translation>Insérer des paquets dans l&apos;ordre chronologique.</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="451"/>
+        <location filename="capture_file_dialog.cpp" line="461"/>
         <source>Append packets</source>
         <translation>Ajout de paquets</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="452"/>
+        <location filename="capture_file_dialog.cpp" line="462"/>
         <source>Insert packets from the selected file after the current file. Packet timestamps will be ignored.</source>
         <translation>Insérer des paquets à partir du fichier sélectionné après le fichier en cours. Horodatage des paquets seront ignorés.</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="467"/>
+        <location filename="capture_file_dialog.cpp" line="477"/>
         <source>Read filter:</source>
         <translation>Filtre de lecture:</translation>
     </message>
@@ -866,40 +866,40 @@
         <translation type="vanished">Résolution de nom &amp;externe</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="485"/>
+        <location filename="capture_file_dialog.cpp" line="495"/>
         <source>Compress with g&amp;zip</source>
         <translation>Compresser avec g&amp;zip</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="516"/>
+        <location filename="capture_file_dialog.cpp" line="526"/>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>Ouvrir un fichier de capture</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="546"/>
+        <location filename="capture_file_dialog.cpp" line="556"/>
         <source>Save Capture File As</source>
         <oldsource>Wireshark: Save Capture File As</oldsource>
         <translation>Wireshark: Sauvegarder le fichier de capture sous </translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="552"/>
+        <location filename="capture_file_dialog.cpp" line="562"/>
         <source>Save as:</source>
         <translation>Sauvegarder sous:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="574"/>
+        <location filename="capture_file_dialog.cpp" line="584"/>
         <source>Export Specified Packets</source>
         <oldsource>Wireshark: Export Specified Packets</oldsource>
         <translation>Exporter les paquets séléctionnés</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="578"/>
+        <location filename="capture_file_dialog.cpp" line="588"/>
         <source>Export as:</source>
         <translation>Exporter sous:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="607"/>
+        <location filename="capture_file_dialog.cpp" line="617"/>
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Fusionner des captures</translation>
@@ -909,17 +909,17 @@
         <translation type="vanished">-</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="718"/>
+        <location filename="capture_file_dialog.cpp" line="728"/>
         <source>directory</source>
         <translation>dossier</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="725"/>
+        <location filename="capture_file_dialog.cpp" line="735"/>
         <source>unknown file format</source>
         <translation>Format du fichier inconnu</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="727"/>
+        <location filename="capture_file_dialog.cpp" line="737"/>
         <source>error opening file</source>
         <translation>erreur pour ouvrir le fichier</translation>
     </message>
@@ -940,7 +940,7 @@
         <translation type="vanished">?</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="806"/>
+        <location filename="capture_file_dialog.cpp" line="816"/>
         <source>unknown</source>
         <translation>inconnu</translation>
     </message>
@@ -973,212 +973,212 @@
         <translation>Enregister les commentaires</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="67"/>
+        <location filename="capture_file_properties_dialog.cpp" line="72"/>
         <source>Capture File Properties</source>
         <translation>Propriétés du fichier de capture</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="150"/>
+        <location filename="capture_file_properties_dialog.cpp" line="155"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="153"/>
+        <location filename="capture_file_properties_dialog.cpp" line="158"/>
         <source>File</source>
         <translation>Fichier</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="157"/>
+        <location filename="capture_file_properties_dialog.cpp" line="162"/>
         <source>Name</source>
         <translation>Nom</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="162"/>
+        <location filename="capture_file_properties_dialog.cpp" line="167"/>
         <source>Length</source>
         <translation>Longueur</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="168"/>
+        <location filename="capture_file_properties_dialog.cpp" line="173"/>
         <source> (gzip compressed)</source>
         <translation>(compressé gzip)</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="171"/>
+        <location filename="capture_file_properties_dialog.cpp" line="176"/>
         <source>Format</source>
         <translation>Format</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="185"/>
+        <location filename="capture_file_properties_dialog.cpp" line="190"/>
         <source>Encapsulation</source>
         <translation>Encapsulation</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="191"/>
+        <location filename="capture_file_properties_dialog.cpp" line="196"/>
         <source>Snapshot length</source>
         <translation>Taille Snapshot</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="202"/>
+        <location filename="capture_file_properties_dialog.cpp" line="207"/>
         <source>Time</source>
         <translation>Temps</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="207"/>
+        <location filename="capture_file_properties_dialog.cpp" line="212"/>
         <source>First packet</source>
         <translation>Premier paquet</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="213"/>
+        <location filename="capture_file_properties_dialog.cpp" line="218"/>
         <source>Last packet</source>
         <translation>Dernier paquet</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="233"/>
+        <location filename="capture_file_properties_dialog.cpp" line="238"/>
         <source>Elapsed</source>
         <translation>Temps écoulé</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="242"/>
+        <location filename="capture_file_properties_dialog.cpp" line="247"/>
         <source>Capture</source>
         <translation>Capture</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="257"/>
+        <location filename="capture_file_properties_dialog.cpp" line="262"/>
         <source>Hardware</source>
         <translation>Hardware</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="268"/>
+        <location filename="capture_file_properties_dialog.cpp" line="273"/>
         <source>OS</source>
         <translation>Système d&apos;exploitation</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="279"/>
+        <location filename="capture_file_properties_dialog.cpp" line="284"/>
         <source>Application</source>
         <translation>Application</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="288"/>
+        <location filename="capture_file_properties_dialog.cpp" line="293"/>
         <source>Interfaces</source>
         <translation>Interfaces</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="292"/>
+        <location filename="capture_file_properties_dialog.cpp" line="297"/>
         <source>Interface</source>
         <translation>Interface</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="293"/>
+        <location filename="capture_file_properties_dialog.cpp" line="298"/>
         <source>Dropped packets</source>
         <translation>Paquets rejetés</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="294"/>
+        <location filename="capture_file_properties_dialog.cpp" line="299"/>
         <source>Capture filter</source>
         <translation>Filtre de capture</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="295"/>
+        <location filename="capture_file_properties_dialog.cpp" line="300"/>
         <source>Link type</source>
         <translation>Type de lien</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="296"/>
+        <location filename="capture_file_properties_dialog.cpp" line="301"/>
         <source>Packet size limit</source>
         <translation>Limite de taille de paquets </translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="326"/>
+        <location filename="capture_file_properties_dialog.cpp" line="331"/>
         <source>none</source>
         <translation>aucun</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="329"/>
+        <location filename="capture_file_properties_dialog.cpp" line="334"/>
         <source>%1 bytes</source>
         <translation>%1 octets</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="345"/>
+        <location filename="capture_file_properties_dialog.cpp" line="350"/>
         <source>Statistics</source>
         <translation>Statistiques</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="349"/>
+        <location filename="capture_file_properties_dialog.cpp" line="354"/>
         <source>Measurement</source>
         <translation>Mesure</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="350"/>
+        <location filename="capture_file_properties_dialog.cpp" line="355"/>
         <source>Captured</source>
         <translation>Capturés</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="351"/>
+        <location filename="capture_file_properties_dialog.cpp" line="356"/>
         <source>Displayed</source>
         <translation>Affichés</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="352"/>
+        <location filename="capture_file_properties_dialog.cpp" line="357"/>
         <source>Marked</source>
         <translation>Marqués</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="356"/>
+        <location filename="capture_file_properties_dialog.cpp" line="361"/>
         <source>N/A</source>
         <translation>N/A</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="373"/>
+        <location filename="capture_file_properties_dialog.cpp" line="378"/>
         <source>Packets</source>
         <translation>Paquets</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="391"/>
+        <location filename="capture_file_properties_dialog.cpp" line="396"/>
         <source>Time span, s</source>
         <translation>Temps, s</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="409"/>
+        <location filename="capture_file_properties_dialog.cpp" line="414"/>
         <source>Average pps</source>
         <translation>Moyenne de pps</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="427"/>
+        <location filename="capture_file_properties_dialog.cpp" line="432"/>
         <source>Average packet size, B</source>
         <translation>Taille des paquets moyenne, O</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="446"/>
+        <location filename="capture_file_properties_dialog.cpp" line="451"/>
         <source>Bytes</source>
         <translation>Octets</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="467"/>
+        <location filename="capture_file_properties_dialog.cpp" line="472"/>
         <source>Average bytes/s</source>
         <translation>Débit moyen (octets/s)</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="488"/>
+        <location filename="capture_file_properties_dialog.cpp" line="493"/>
         <source>Average bits/s</source>
         <translation>Débit moyen (bits/s)</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="520"/>
+        <location filename="capture_file_properties_dialog.cpp" line="525"/>
         <source>File Comment</source>
         <translation>Commentaire du Fichier</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="529"/>
+        <location filename="capture_file_properties_dialog.cpp" line="534"/>
         <source>Packet Comments</source>
         <translation>Commentaires du Paquet</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="536"/>
+        <location filename="capture_file_properties_dialog.cpp" line="541"/>
         <source>&lt;p&gt;Frame %1: </source>
         <translation>&lt;p&gt;Trame %1:</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="594"/>
+        <location filename="capture_file_properties_dialog.cpp" line="599"/>
         <source>Created by Wireshark %1
 
 </source>
@@ -2354,7 +2354,7 @@ si vous voulez utiliser des fichiers multiples.</translation>
         <translation>Dessine des extrémités IPv4 ou IPv6 sur une carte.</translation>
     </message>
     <message>
-        <location filename="endpoint_dialog.cpp" line="191"/>
+        <location filename="endpoint_dialog.cpp" line="196"/>
         <source>Map file error</source>
         <translation>Erreur de fichier de carte</translation>
     </message>
@@ -3455,7 +3455,7 @@ pour fichiers de filtre : %2.</translation>
 <context>
     <name>IOGraph</name>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1853"/>
+        <location filename="io_graph_dialog.cpp" line="1858"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
@@ -3895,27 +3895,27 @@ pour fichiers de filtre : %2.</translation>
         <translation>Enregistrer sous</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="215"/>
+        <location filename="io_graph_dialog.cpp" line="220"/>
         <source>1 sec</source>
         <translation>1 sec</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="216"/>
+        <location filename="io_graph_dialog.cpp" line="221"/>
         <source>10 sec</source>
         <translation>10 sec</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="217"/>
+        <location filename="io_graph_dialog.cpp" line="222"/>
         <source>1 min</source>
         <translation>1 min</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="218"/>
+        <location filename="io_graph_dialog.cpp" line="223"/>
         <source>10 min</source>
         <translation>10 min</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="248"/>
+        <location filename="io_graph_dialog.cpp" line="253"/>
         <source>Time (s)</source>
         <translation>Temps (s)</translation>
     </message>
@@ -3930,102 +3930,102 @@ pour fichiers de filtre : %2.</translation>
         <translation>Copier</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="212"/>
+        <location filename="io_graph_dialog.cpp" line="217"/>
         <source>1 ms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="213"/>
+        <location filename="io_graph_dialog.cpp" line="218"/>
         <source>10 ms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="214"/>
+        <location filename="io_graph_dialog.cpp" line="219"/>
         <source>100 ms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="256"/>
+        <location filename="io_graph_dialog.cpp" line="261"/>
         <source>Wireshark IO Graphs: %1</source>
         <translation>Wireshark IO Graphiques : %1</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="391"/>
+        <location filename="io_graph_dialog.cpp" line="396"/>
         <source>All packets</source>
         <translation>Tous les paquets</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="395"/>
+        <location filename="io_graph_dialog.cpp" line="400"/>
         <source>TCP errors</source>
         <translation>Erreurs TCP</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="892"/>
+        <location filename="io_graph_dialog.cpp" line="897"/>
         <source>Hover over the graph for details.</source>
         <translation>Survolez le graphique pour plus de détails.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="894"/>
+        <location filename="io_graph_dialog.cpp" line="899"/>
         <source>No packets in interval</source>
         <translation>Aucun paquet dans l&apos;intervale</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="899"/>
+        <location filename="io_graph_dialog.cpp" line="904"/>
         <source>Click to select packet</source>
         <translation>Cliquez pour sélectionner le paquet</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="899"/>
+        <location filename="io_graph_dialog.cpp" line="904"/>
         <source>Packet</source>
         <translation>Paquet</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="903"/>
+        <location filename="io_graph_dialog.cpp" line="908"/>
         <source>%1 (%2s%3).</source>
         <translation>%1 (%2s%3).</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="914"/>
+        <location filename="io_graph_dialog.cpp" line="919"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation>Relâchez pour agrandir, x = %1 de %2, y = %3 de %4</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="920"/>
+        <location filename="io_graph_dialog.cpp" line="925"/>
         <source>Unable to select range.</source>
         <translation>Impossible de sélectionner la plage.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="923"/>
+        <location filename="io_graph_dialog.cpp" line="928"/>
         <source>Click to select a portion of the graph.</source>
         <translation>Cliquez pour sélectionner une partie du graphique.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1545"/>
+        <location filename="io_graph_dialog.cpp" line="1550"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1546"/>
+        <location filename="io_graph_dialog.cpp" line="1551"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1547"/>
+        <location filename="io_graph_dialog.cpp" line="1552"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1549"/>
+        <location filename="io_graph_dialog.cpp" line="1554"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>Format d&apos;2change de Fichier JPEG </translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1550"/>
+        <location filename="io_graph_dialog.cpp" line="1555"/>
         <source>Comma Separated Values (*.csv)</source>
         <translation>Valeurs séparées par des virgules (*.csv)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1562"/>
+        <location filename="io_graph_dialog.cpp" line="1567"/>
         <source>Save Graph As</source>
         <translation>Sauvegarder le Graphique Sous</translation>
     </message>
@@ -4243,113 +4243,118 @@ pour fichiers de filtre : %2.</translation>
         <translation>Impossible de sauvegarder les données RTP.</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="334"/>
         <source>Please select an IAX2 packet</source>
-        <translation>Sélectionnez un paquet IAX2 </translation>
+        <translation type="vanished">Sélectionnez un paquet IAX2 </translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="442"/>
+        <location filename="iax2_analysis_dialog.cpp" line="323"/>
+        <location filename="iax2_analysis_dialog.cpp" line="344"/>
+        <source>Please select an IAX2 packet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="iax2_analysis_dialog.cpp" line="453"/>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation>G: Aller au paquet, N: Paquet à problème suivant</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="563"/>
+        <location filename="iax2_analysis_dialog.cpp" line="574"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="564"/>
+        <location filename="iax2_analysis_dialog.cpp" line="575"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="565"/>
+        <location filename="iax2_analysis_dialog.cpp" line="576"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="567"/>
+        <location filename="iax2_analysis_dialog.cpp" line="578"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>Format d&apos;2change de Fichier JPEG </translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="578"/>
+        <location filename="iax2_analysis_dialog.cpp" line="589"/>
         <source>Save Graph As</source>
         <translation>Sauvegarder le Graphique Sous</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="737"/>
+        <location filename="iax2_analysis_dialog.cpp" line="748"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>Ne peut sauvegarder dans un fichier: Longueur incorrecte des paquets capturés.</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="749"/>
+        <location filename="iax2_analysis_dialog.cpp" line="760"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation>Ne peut sauvegarder dans un fichier: Problème d&apos;E/S fichier.</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="872"/>
+        <location filename="iax2_analysis_dialog.cpp" line="883"/>
         <source>Save forward stream audio</source>
         <translation>Sauvegarder flux audio aller</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="875"/>
+        <location filename="iax2_analysis_dialog.cpp" line="886"/>
         <source>Save reverse stream audio</source>
         <translation>Sauvegarder flux audio retour</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="879"/>
+        <location filename="iax2_analysis_dialog.cpp" line="890"/>
         <source>Save audio</source>
         <translation>Sauvegarder l&apos;audio</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="883"/>
+        <location filename="iax2_analysis_dialog.cpp" line="894"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun Audio (*.au)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="885"/>
+        <location filename="iax2_analysis_dialog.cpp" line="896"/>
         <source>;;Raw (*.raw)</source>
         <translation>;;Raw (*.raw)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="902"/>
-        <location filename="iax2_analysis_dialog.cpp" line="917"/>
+        <location filename="iax2_analysis_dialog.cpp" line="913"/>
+        <location filename="iax2_analysis_dialog.cpp" line="928"/>
         <source>Warning</source>
         <translation>Avertissement</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="902"/>
+        <location filename="iax2_analysis_dialog.cpp" line="913"/>
         <source>Unable to save in that format</source>
         <translation>Impossible de sauvegarder dans ce format</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="917"/>
+        <location filename="iax2_analysis_dialog.cpp" line="928"/>
         <source>Unable to save %1</source>
         <translation>Impossible de sauvegarder %1</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="921"/>
+        <location filename="iax2_analysis_dialog.cpp" line="932"/>
         <source>Saving %1</source>
         <translation>Sauvegarde en cours %1</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1143"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1154"/>
         <source>Save forward stream CSV</source>
         <translation>Sauvegarder CSV flux aller</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1146"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1157"/>
         <source>Save reverse stream CSV</source>
         <translation>Sauvegarder CSV flux retour</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1150"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1161"/>
         <source>Save CSV</source>
         <translation>Sauvegarder le CSV</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1156"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1167"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>Comma-separated values (*.csv)</translation>
     </message>
@@ -8258,6 +8263,16 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="main_window.ui" line="2930"/>
+        <source>…as Escaped String</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2933"/>
+        <source>Copy packet bytes as a Escaped string</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="main_window.ui" line="1170"/>
         <source>&amp;Options…</source>
         <translation>&amp;Options...</translation>
@@ -9240,57 +9255,57 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="704"/>
+        <location filename="main_window_slots.cpp" line="708"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="798"/>
+        <location filename="main_window_slots.cpp" line="801"/>
         <source>Saving %1</source>
         <translation>Sauvegarde en cours %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="838"/>
+        <location filename="main_window_slots.cpp" line="841"/>
         <source>No interface selected</source>
         <translation>Aucune interface sélectionnée</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="848"/>
+        <location filename="main_window_slots.cpp" line="851"/>
         <source>Invalid capture filter</source>
         <translation>Filtre de capture invalide</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1096"/>
+        <location filename="main_window_slots.cpp" line="1099"/>
         <source>Clear Menu</source>
         <translation>Effacer les fichiers récemment ouverts</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1576"/>
+        <location filename="main_window_slots.cpp" line="1579"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Veuillez patienter pendant que Wireshark s&apos;initialise. . .</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1666"/>
+        <location filename="main_window_slots.cpp" line="1669"/>
         <source> before closing the file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1754"/>
+        <location filename="main_window_slots.cpp" line="1757"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Exporter Octets de Paquets Sélectionnés</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1820"/>
+        <location filename="main_window_slots.cpp" line="1823"/>
         <source>No Keys</source>
         <translation>Aucune clés</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1821"/>
+        <location filename="main_window_slots.cpp" line="1824"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Il y a aucune clé de Session SSL à sauvegarder.</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1827"/>
+        <location filename="main_window_slots.cpp" line="1830"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation type="unfinished">
@@ -9299,69 +9314,69 @@ a:hover {
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1756"/>
+        <location filename="main_window_slots.cpp" line="1759"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1831"/>
+        <location filename="main_window_slots.cpp" line="1834"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1969"/>
+        <location filename="main_window_slots.cpp" line="1972"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Impossible de copier le texte. Essayer un autre item.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2379"/>
-        <location filename="main_window_slots.cpp" line="3481"/>
+        <location filename="main_window_slots.cpp" line="2382"/>
+        <location filename="main_window_slots.cpp" line="3484"/>
         <source>Unable to build conversation filter.</source>
         <translation>Impossible de construire un filtre de conversation.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2529"/>
-        <location filename="main_window_slots.cpp" line="2542"/>
+        <location filename="main_window_slots.cpp" line="2532"/>
+        <location filename="main_window_slots.cpp" line="2545"/>
         <source> before reloading the file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2576"/>
+        <location filename="main_window_slots.cpp" line="2579"/>
         <source>No filter available. Try another </source>
         <translation>Aucun filtre disponible. Essayer un autre</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3488"/>
+        <location filename="main_window_slots.cpp" line="3491"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Erreur dans la compilation du filtre pour cette conversation.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3497"/>
+        <location filename="main_window_slots.cpp" line="3500"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Aucun paquet précédent/suivant dans la conversation</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3574"/>
+        <location filename="main_window_slots.cpp" line="3577"/>
         <source>No Interface Selected</source>
         <translation>Aucune Interface Sélectionnée</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3581"/>
+        <location filename="main_window_slots.cpp" line="3584"/>
         <source> before starting a new capture</source>
         <translation>avant de commencer une nouvelle capture</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3599"/>
+        <location filename="main_window_slots.cpp" line="3602"/>
         <source> before restarting the capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3802"/>
+        <location filename="main_window_slots.cpp" line="3815"/>
         <source>Wiki Page for %1</source>
         <translation>Page Wiki pour %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3803"/>
+        <location filename="main_window_slots.cpp" line="3816"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Le Wiki Wireshark est maintenu par la communauté&lt;/p&gt;
 &lt;p&gt;La page que vous vous apprêtez à charger peut être magnifique, incomplète, fausse ou inexistante&lt;/p&gt;
@@ -9996,47 +10011,47 @@ a:hover {
         <translation>Résumé en Texte</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="720"/>
+        <location filename="packet_list.cpp" line="723"/>
         <source>Align Left</source>
         <translation>Aligner à gauche</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="721"/>
+        <location filename="packet_list.cpp" line="724"/>
         <source>Align Center</source>
         <translation>Aligner au centre</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="722"/>
+        <location filename="packet_list.cpp" line="725"/>
         <source>Align Right</source>
         <translation>Aligner à droite</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="724"/>
+        <location filename="packet_list.cpp" line="727"/>
         <source>Column Preferences</source>
         <translation>Préferences de la colonne</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="725"/>
+        <location filename="packet_list.cpp" line="728"/>
         <source>Edit Column</source>
         <translation>Éditer la colonne</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="726"/>
+        <location filename="packet_list.cpp" line="729"/>
         <source>Resize To Contents</source>
         <translation>Ajuster la taille au contenu</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="727"/>
+        <location filename="packet_list.cpp" line="730"/>
         <source>Resolve Names</source>
         <translation>Résoudre les noms</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="732"/>
+        <location filename="packet_list.cpp" line="735"/>
         <source>Remove This Column</source>
         <translation>Supprimer cette colonne</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1090"/>
+        <location filename="packet_list.cpp" line="1093"/>
         <source>Frame %1: %2
 
 </source>
@@ -10045,7 +10060,7 @@ a:hover {
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1094"/>
+        <location filename="packet_list.cpp" line="1097"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Taille maximum de commentaire dépassé %1 Arrêt !]</translation>
     </message>
@@ -10396,12 +10411,12 @@ a:hover {
         <translation>Colorier avec un Filtre</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="431"/>
+        <location filename="proto_tree.cpp" line="434"/>
         <source>, 1 byte</source>
         <translation>, 1 octet</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="433"/>
+        <location filename="proto_tree.cpp" line="436"/>
         <source>, %1 bytes</source>
         <translation>, %1 octets</translation>
     </message>
@@ -10504,12 +10519,12 @@ a:hover {
         <translation>en YAML</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.cpp" line="300"/>
+        <location filename="protocol_hierarchy_dialog.cpp" line="304"/>
         <source>No display filter.</source>
         <translation>Aucun filtre d&apos;affichage.</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.cpp" line="302"/>
+        <location filename="protocol_hierarchy_dialog.cpp" line="306"/>
         <source>Display filter: %1</source>
         <translation>Filtre d&apos;affichage : %1</translation>
     </message>
@@ -10596,97 +10611,97 @@ a:hover {
         <translation>Taille de fenetres (b)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1947"/>
+        <location filename="io_graph_dialog.cpp" line="1952"/>
         <source>Packets</source>
         <translation type="unfinished">Paquets</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1948"/>
+        <location filename="io_graph_dialog.cpp" line="1953"/>
         <source>Bytes</source>
         <translation type="unfinished">Octets</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1949"/>
+        <location filename="io_graph_dialog.cpp" line="1954"/>
         <source>Bits</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1950"/>
+        <location filename="io_graph_dialog.cpp" line="1955"/>
         <source>SUM(Y Field)</source>
         <translation>SOMME(Champs Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1951"/>
+        <location filename="io_graph_dialog.cpp" line="1956"/>
         <source>COUNT FRAMES(Y Field)</source>
         <translation>COMPTER TRAME(Champs Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1952"/>
+        <location filename="io_graph_dialog.cpp" line="1957"/>
         <source>COUNT FIELDS(Y Field)</source>
         <translation>COMPTER CHAMPS(Champs Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1953"/>
+        <location filename="io_graph_dialog.cpp" line="1958"/>
         <source>MAX(Y Field)</source>
         <translation>MAX(Champs Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1954"/>
+        <location filename="io_graph_dialog.cpp" line="1959"/>
         <source>MIN(Y Field)</source>
         <translation>MIN(CHAMPS Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1955"/>
+        <location filename="io_graph_dialog.cpp" line="1960"/>
         <source>AVG(Y Field)</source>
         <translation>AVG(Champs Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1956"/>
+        <location filename="io_graph_dialog.cpp" line="1961"/>
         <source>LOAD(Y Field)</source>
         <translation>LOAD(Champs Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1965"/>
+        <location filename="io_graph_dialog.cpp" line="1970"/>
         <source>Line</source>
         <translation>Ligne</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1966"/>
+        <location filename="io_graph_dialog.cpp" line="1971"/>
         <source>Impulse</source>
         <translation>Impulsion</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1967"/>
+        <location filename="io_graph_dialog.cpp" line="1972"/>
         <source>Bar</source>
         <translation>Bar</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1968"/>
+        <location filename="io_graph_dialog.cpp" line="1973"/>
         <source>Stacked Bar</source>
         <translation>Bar Empilé</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1969"/>
+        <location filename="io_graph_dialog.cpp" line="1974"/>
         <source>Dot</source>
         <translation>Point</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1970"/>
+        <location filename="io_graph_dialog.cpp" line="1975"/>
         <source>Square</source>
         <translation>Carré</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1971"/>
+        <location filename="io_graph_dialog.cpp" line="1976"/>
         <source>Diamond</source>
         <translation>Diamant</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1982"/>
+        <location filename="io_graph_dialog.cpp" line="1987"/>
         <source>None</source>
         <translation>Aucun</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1984"/>
+        <location filename="io_graph_dialog.cpp" line="1989"/>
         <source>%1 interval SMA</source>
         <translation>%1 intervale SMA</translation>
     </message>
@@ -10706,7 +10721,7 @@ a:hover {
         <translation>Conversation</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="342"/>
+        <location filename="conversation_dialog.cpp" line="347"/>
         <source>Bars show the relative timeline for each conversation.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10837,12 +10852,12 @@ a:hover {
         <translation>%1 entrées.</translation>
     </message>
     <message>
-        <location filename="module_preferences_scroll_area.cpp" line="190"/>
+        <location filename="module_preferences_scroll_area.cpp" line="191"/>
         <source>Edit</source>
         <translation>Editer</translation>
     </message>
     <message>
-        <location filename="module_preferences_scroll_area.cpp" line="217"/>
+        <location filename="module_preferences_scroll_area.cpp" line="218"/>
         <source>Browse</source>
         <translation>Parcourir</translation>
     </message>
@@ -11143,12 +11158,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="801"/>
+        <location filename="../../wireshark-qt.cpp" line="803"/>
         <source>Invalid Display Filter</source>
         <translation type="unfinished">Filtre d&apos;affichage invalide</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="802"/>
+        <location filename="../../wireshark-qt.cpp" line="804"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13621,12 +13636,12 @@ a:hover {
         <translation>Enregistrer sous</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="331"/>
+        <location filename="sequence_dialog.cpp" line="338"/>
         <source>No data</source>
         <translation>Pas de données</translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="333"/>
+        <location filename="sequence_dialog.cpp" line="340"/>
         <source>%Ln node(s)</source>
         <translation>
             <numerusform>%n noeud</numerusform>
@@ -13634,7 +13649,7 @@ a:hover {
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="334"/>
+        <location filename="sequence_dialog.cpp" line="341"/>
         <source>%Ln item(s)</source>
         <translation>
             <numerusform>%n item</numerusform>
@@ -13642,32 +13657,32 @@ a:hover {
         </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="360"/>
+        <location filename="sequence_dialog.cpp" line="367"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="361"/>
+        <location filename="sequence_dialog.cpp" line="368"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="362"/>
+        <location filename="sequence_dialog.cpp" line="369"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="364"/>
+        <location filename="sequence_dialog.cpp" line="371"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>Format d&apos;2change de Fichier JPEG </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="365"/>
+        <location filename="sequence_dialog.cpp" line="372"/>
         <source>ASCII (*.txt)</source>
         <translation>ASCII (*.txt)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="376"/>
+        <location filename="sequence_dialog.cpp" line="383"/>
         <source>Save Graph As</source>
         <oldsource>Wireshark: Save Graph As...</oldsource>
         <translation>Sauvegarder le Graphique Sous</translation>
@@ -14722,7 +14737,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="417"/>
-        <location filename="tcp_stream_dialog.cpp" line="717"/>
+        <location filename="tcp_stream_dialog.cpp" line="722"/>
         <source>Round Trip Time</source>
         <translation>Temps d&apos;Aller-Retour</translation>
     </message>
@@ -14738,7 +14753,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="428"/>
-        <location filename="tcp_stream_dialog.cpp" line="640"/>
+        <location filename="tcp_stream_dialog.cpp" line="645"/>
         <source>Throughput</source>
         <translation>Débit</translation>
     </message>
@@ -14769,7 +14784,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="450"/>
-        <location filename="tcp_stream_dialog.cpp" line="771"/>
+        <location filename="tcp_stream_dialog.cpp" line="776"/>
         <source>Window Scaling</source>
         <translation>Mise à l&apos;échelle Fenêtre</translation>
     </message>
@@ -14849,97 +14864,97 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Enregistrer sous</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="403"/>
+        <location filename="tcp_stream_dialog.cpp" line="408"/>
         <source>No Capture Data</source>
         <translation>Aucune donnée de capture</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="459"/>
+        <location filename="tcp_stream_dialog.cpp" line="464"/>
         <source>%1 %2 pkts, %3 %4 %5 pkts, %6 </source>
         <translation>%1 %2 pqts, %3 %4 %5 pqts, %6 </translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="566"/>
+        <location filename="tcp_stream_dialog.cpp" line="571"/>
         <source>Sequence Numbers (Stevens)</source>
         <translation>Numéros de Séquence (Stevens)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="591"/>
+        <location filename="tcp_stream_dialog.cpp" line="596"/>
         <source>Sequence Numbers (tcptrace)</source>
         <translation>Numéros de Séquence (tcptrace)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="642"/>
+        <location filename="tcp_stream_dialog.cpp" line="647"/>
         <source> (1s MA)</source>
         <translation>(1s MA)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="644"/>
+        <location filename="tcp_stream_dialog.cpp" line="649"/>
         <source> (%1 Segment MA)</source>
         <translation>(%1 Segment MA)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="659"/>
+        <location filename="tcp_stream_dialog.cpp" line="664"/>
         <source> [not enough data]</source>
         <translation>[Pas assez de donné]</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="798"/>
+        <location filename="tcp_stream_dialog.cpp" line="803"/>
         <source> for %1:%2 %3 %4:%5</source>
         <translation>Pour %1:%2 %3 %4:%5</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="981"/>
+        <location filename="tcp_stream_dialog.cpp" line="986"/>
         <source>%1 %2 (%3s len %4 seq %5 ack %6 win %7)</source>
         <translation>%1 %2 (%3s len %4 seq %5 ack %6 win %7)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="982"/>
+        <location filename="tcp_stream_dialog.cpp" line="987"/>
         <source>Click to select packet</source>
         <translation>Cliquez pour sélectionner le paquet</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="982"/>
+        <location filename="tcp_stream_dialog.cpp" line="987"/>
         <source>Packet</source>
         <translation>Paquet</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="996"/>
+        <location filename="tcp_stream_dialog.cpp" line="1001"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation>Relâchez pour agrandir, x = %1 de %2, y = %3 de %4</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1002"/>
+        <location filename="tcp_stream_dialog.cpp" line="1007"/>
         <source>Unable to select range.</source>
         <translation>Impossible de sélectionner la plage.</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1005"/>
+        <location filename="tcp_stream_dialog.cpp" line="1010"/>
         <source>Click to select a portion of the graph.</source>
         <translation>Cliquez pour sélectionner une partie du graphique.</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1048"/>
+        <location filename="tcp_stream_dialog.cpp" line="1053"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1049"/>
+        <location filename="tcp_stream_dialog.cpp" line="1054"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1050"/>
+        <location filename="tcp_stream_dialog.cpp" line="1055"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1052"/>
+        <location filename="tcp_stream_dialog.cpp" line="1057"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>Format d&apos;2change de Fichier JPEG </translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1059"/>
+        <location filename="tcp_stream_dialog.cpp" line="1064"/>
         <source>Save Graph As</source>
         <translation>Sauvegarder le Graphique Sous</translation>
     </message>
@@ -15074,17 +15089,17 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Décalage de temps</translation>
     </message>
     <message>
-        <location filename="time_shift_dialog.cpp" line="139"/>
+        <location filename="time_shift_dialog.cpp" line="140"/>
         <source>Frame numbers must be between 1 and %1.</source>
         <translation>Les numeros de trames doit être entre 1 and %1.</translation>
     </message>
     <message>
-        <location filename="time_shift_dialog.cpp" line="141"/>
+        <location filename="time_shift_dialog.cpp" line="142"/>
         <source>Invalid frame number.</source>
         <translation>Numero de trame invalide.</translation>
     </message>
     <message>
-        <location filename="time_shift_dialog.cpp" line="244"/>
+        <location filename="time_shift_dialog.cpp" line="245"/>
         <source>Time shifting is not available capturing packets.</source>
         <translation>Le décalage de temps n&apos;est pas disponible pendant la capture de paquet.</translation>
     </message>
@@ -15192,12 +15207,12 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Ouvrir </translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="415"/>
+        <location filename="uat_dialog.cpp" line="417"/>
         <source>Uneven number of chars hex string (%1)</source>
         <translation>Nombre impair de caractères dans la chaine hex (%1)</translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="422"/>
+        <location filename="uat_dialog.cpp" line="424"/>
         <source>Error parsing hex string</source>
         <translation>Erreur de conversion de la chaine hex</translation>
     </message>
@@ -15404,13 +15419,13 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Ouvrir le Panneau de Configuration AirPcap</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="298"/>
-        <location filename="wireless_frame.cpp" line="307"/>
+        <location filename="wireless_frame.cpp" line="304"/>
+        <location filename="wireless_frame.cpp" line="313"/>
         <source>Unable to set channel or offset.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="314"/>
+        <location filename="wireless_frame.cpp" line="320"/>
         <source>Unable to set FCS validation behavior.</source>
         <translation type="unfinished"></translation>
     </message>
