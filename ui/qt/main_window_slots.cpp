@@ -693,9 +693,7 @@ void MainWindow::captureCaptureFailed(capture_session *) {
 void MainWindow::captureFileOpened() {
     if (capture_file_.window() != this) return;
 
-    if (file_set_dialog_) {
-        file_set_dialog_->fileOpened(capture_file_.capFile());
-    }
+    file_set_dialog_->fileOpened(capture_file_.capFile());
     setMenusForFileSet(true);
     emit setCaptureFile(capture_file_.capFile());
 }
@@ -775,9 +773,7 @@ void MainWindow::captureFileClosing() {
 void MainWindow::captureFileClosed() {
     packets_bar_update();
 
-    if (file_set_dialog_) {
-        file_set_dialog_->fileClosed();
-    }
+    file_set_dialog_->fileClosed();
     setMenusForFileSet(false);
     setWindowModified(false);
 
@@ -1685,12 +1681,6 @@ void MainWindow::on_actionFileSaveAs_triggered()
 
 void MainWindow::on_actionFileSetListFiles_triggered()
 {
-    if (!file_set_dialog_) {
-        file_set_dialog_ = new FileSetDialog(this);
-        connect(file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString)),
-                this, SLOT(openCaptureFile(QString)));
-    }
-
     file_set_dialog_->show();
 }
 

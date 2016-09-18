@@ -377,6 +377,10 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(openCaptureFile(QString,QString)));
     connect(this, SIGNAL(displayFilterSuccess(bool)), df_edit, SLOT(displayFilterSuccess(bool)));
 
+    file_set_dialog_ = new FileSetDialog(this);
+    connect(file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString)),
+            this, SLOT(openCaptureFile(QString)));
+
     initMainToolbarIcons();
 
     main_ui_->displayFilterToolBar->insertWidget(main_ui_->actionDisplayFilterExpression, df_combo_box_);
