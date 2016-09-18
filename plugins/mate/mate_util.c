@@ -28,15 +28,6 @@
 #include <wsutil/file_util.h>
 #include <wsutil/ws_printf.h> /* ws_g_warning */
 
-/***************************************************************************
-*  ADDRDIFF
-***************************************************************************
-* This is a macro that computes the difference between the raw address
-* values of two pointers (rather than the difference between the pointers)
-* as a ptrdiff_t.
-***************************************************************************/
-#define ADDRDIFF(p,q)	(((char *)(void *)(p)) - ((char *)(void *)(q)))
-
 
 /***************************************************************************
 *  dbg_print
@@ -439,6 +430,38 @@ extern void rename_avpl(AVPL* avpl, gchar* name) {
 }
 
 /**
+ * insert_avp_before_node:
+ * @param avpl the avpl in which to insert.
+ * @param next_node the next node before which the new avpn has to be inserted.
+ * @param avp the avp to be inserted.
+ * @param copy_avp whether the original AVP or a copy thereof must be inserted.
+ *
+ * Pre-condition: the avp is sorted before before_avp and does not already exist
+ * in the avpl.
+ */
+static void insert_avp_before_node(AVPL* avpl, AVPN* next_node, AVP *avp, gboolean copy_avp) {
+	AVPN* new_avp_val = (AVPN*)g_slice_new(any_avp_type);
+
+	new_avp_val->avp = copy_avp ? avp_copy(avp) : avp;
+
+#ifdef _AVP_DEBUGGING
+	dbg_print(dbg_avpl_op,7,dbg_fp,"new_avpn: %p",new_avp_val);
+	dbg_print(dbg_avpl,5,dbg_fp,"insert_avp:  inserting %p in %p before %p;",avp,avpl,next_node);
+#endif
+
+	new_avp_val->next = next_node;
+	new_avp_val->prev = next_node->prev;
+	next_node->prev->next = new_avp_val;
+	next_node->prev = new_avp_val;
+
+	avpl->len++;
+
+#ifdef _AVP_DEBUGGING
+	dbg_print(dbg_avpl,4,dbg_fp,"avpl: %p new len: %i",avpl,avpl->len);
+#endif
+}
+
+/**
  * insert_avp:
  * @param avpl the avpl in which to insert.
  * @param avp the avp to be inserted.
@@ -451,55 +474,40 @@ extern void rename_avpl(AVPL* avpl, gchar* name) {
  *         it is not inserted.
  **/
 extern gboolean insert_avp(AVPL* avpl, AVP* avp) {
-	AVPN* new_avp_val = (AVPN*)g_slice_new(any_avp_type);
 	AVPN* c;
 
-	new_avp_val->avp = avp;
-
 #ifdef _AVP_DEBUGGING
-	dbg_print(dbg_avpl_op,7,dbg_fp,"new_avpn: %X",new_avp_val);
 	dbg_print(dbg_avpl_op,4,dbg_fp,"insert_avp: %X %X %s%c%s;",avpl,avp,avp->n,avp->o,avp->v);
 #endif
 
 	/* get to the insertion point */
-	for(c=avpl->null.next; c->avp; c = c->next) {
+	for (c=avpl->null.next; c->avp; c = c->next) {
+		int name_diff = strcmp(avp->n, c->avp->n);
 
-		if ( avp->n == c->avp->n ) {
+		if (name_diff == 0) {
+			int value_diff = strcmp(avp->v, c->avp->v);
 
-			if (avp->v > c->avp->v) {
+			if (value_diff < 0) {
 				break;
 			}
 
-			if (avp->v == c->avp->v) {
-				if (avp->o == AVP_OP_EQUAL) {
-#ifdef _AVP_DEBUGGING
-					dbg_print(dbg_avpl_op,7,dbg_fp,"delete_avpn: %X",new_avp_val);
-#endif
-					g_slice_free(any_avp_type,(any_avp_type*)new_avp_val);
+			if (value_diff == 0) {
+				// ignore duplicate values, prevents (a=1, a=1)
+				// note that this is also used to insert
+				// conditions AVPs, so really check if the name,
+				// value and operator are all equal.
+				if (c->avp->o == avp->o && avp->o == AVP_OP_EQUAL) {
 					return FALSE;
 				}
 			}
 		}
 
-		if (avp->n > c->avp->n) {
+		if (name_diff < 0) {
 			break;
 		}
 	}
 
-#ifdef _AVP_DEBUGGING
-	dbg_print(dbg_avpl,5,dbg_fp,"insert_avp:  inserting %X in %X before %X;",avp,avpl,c);
-#endif
-
-	new_avp_val->next = c;
-	new_avp_val->prev = c->prev;
-	c->prev->next = new_avp_val;
-	c->prev = new_avp_val;
-
-	avpl->len++;
-
-#ifdef _AVP_DEBUGGING
-	dbg_print(dbg_avpl,4,dbg_fp,"avpl: %X new len: %i",avpl,avpl->len);
-#endif
+	insert_avp_before_node(avpl, c, avp, FALSE);
 
 	return TRUE;
 }
@@ -786,14 +794,10 @@ extern gchar* avpl_to_dotstr(AVPL* avpl) {
  *
  * Adds the avps of src that are not existent in dst into dst.
  *
- * Return value: a pointer to the newly allocated string.
- *
  **/
 extern void merge_avpl(AVPL* dst, AVPL* src, gboolean copy_avps) {
 	AVPN* cd = NULL;
 	AVPN* cs = NULL;
-	ptrdiff_t c;
-	AVP* copy;
 
 #ifdef _AVP_DEBUGGING
 	dbg_print(dbg_avpl_op,3,dbg_fp,"merge_avpl: %X %X",dst,src);
@@ -802,41 +806,41 @@ extern void merge_avpl(AVPL* dst, AVPL* src, gboolean copy_avps) {
 	cs = src->null.next;
 	cd = dst->null.next;
 
-	while(cs->avp) {
+	while (cs->avp && cd->avp) {
 
-		if(cd->avp) {
-			c = ADDRDIFF(cd->avp->n,cs->avp->n);
+		int name_diff = strcmp(cd->avp->n, cs->avp->n);
+
+		if (name_diff < 0) {
+			// dest < source, advance dest to find a better place to insert
+			cd = cd->next;
+		} else if (name_diff > 0) {
+			// dest > source, so it can be definitely inserted here.
+			insert_avp_before_node(dst, cd, cs->avp, copy_avps);
+			cs = cs->next;
 		} else {
-			c = -1;
-		}
+			// attribute names are equal. Ignore duplicate values but ensure that other values are sorted.
+			int value_diff = strcmp(cd->avp->v, cs->avp->v);
 
-		if (c > 0) {
-			if (cd->avp) cd = cd->next;
-		} else if (c < 0) {
-			if (copy_avps) {
-				copy = avp_copy(cs->avp);
-				if ( ! insert_avp(dst,copy) ) {
-					delete_avp(copy);
-				}
+			if (value_diff < 0) {
+				// dest < source, do not insert it yet
+				cd = cd->next;
+			} else if (value_diff > 0) {
+				// dest > source, insert AVP before the current dest AVP
+				insert_avp_before_node(dst, cd, cs->avp, copy_avps);
+				cs = cs->next;
 			} else {
-				insert_avp(dst,cs->avp);
+				// identical AVPs, do not create a duplicate.
+				cs = cs->next;
 			}
-
-			cs = cs->next;
-		} else {
-			if ( ! cd->avp || ! (cd->avp->v == cs->avp->v)  ) {
-				if (copy_avps) {
-					copy = avp_copy(cs->avp);
-					if ( ! insert_avp(dst,copy) ) {
-						delete_avp(copy);
-					}
-				} else {
-					insert_avp(dst,cs->avp);
-				}
-			}
-			cs = cs->next;
-			if (cd->avp) cd = cd->next;
 		}
+	}
+
+	// if there are remaing source AVPs while there are no more destination
+	// AVPs (cd now represents the NULL item, after the last item), append
+	// all remaining source AVPs to the end
+	while (cs->avp) {
+		insert_avp_before_node(dst, cd, cs->avp, copy_avps);
+		cs = cs->next;
 	}
 
 #ifdef _AVP_DEBUGGING
@@ -848,7 +852,7 @@ extern void merge_avpl(AVPL* dst, AVPL* src, gboolean copy_avps) {
 
 
 /**
- * merge_avpl:
+ * new_avpl_from_avpl:
  * @param name the name of the new avpl.
  * @param avpl the avpl from which to get the avps.
  * @param copy_avps whether avps should be copied instead of referenced.
@@ -975,20 +979,19 @@ extern AVP* match_avp(AVP* src, AVP* op) {
 
 
 
-/* TODO: rename me */
 /**
  * new_avpl_loose_match:
  * @param name the name of the resulting avpl
- * @param src avpl to be matched agains an "op" avpl
- * @param op the "op" avpl that will be matched against the src avpl
+ * @param src the data AVPL to be matched against a condition AVPL
+ * @param op the conditions AVPL that will be matched against the data AVPL
  * @param copy_avps whether the avps in the resulting avpl should be copied
  *
- * creates an avp list containing any avps in src matching any avps in op
- * it will eventually create an empty list in none match
+ * Creates a new AVP list containing all data AVPs that matched any of the
+ * conditions AVPs. If there are no matches, an empty list will be returned.
  *
- * Return value: a pointer to the newly created avpl containing the
- *				 matching avps.
- **/
+ * Note: Loose will always be considered a successful match, it matches zero or
+ * more conditions.
+ */
 extern AVPL* new_avpl_loose_match(const gchar* name,
 								  AVPL* src,
 								  AVPL* op,
@@ -997,9 +1000,6 @@ extern AVPL* new_avpl_loose_match(const gchar* name,
 	AVPL* newavpl = new_avpl(scs_subscribe(avp_strings, name));
 	AVPN* co = NULL;
 	AVPN* cs = NULL;
-	ptrdiff_t c;
-	AVP* m;
-	AVP* copy;
 
 #ifdef _AVP_DEBUGGING
 	dbg_print(dbg_avpl_op,3,dbg_fp,"new_avpl_loose_match: %X src=%X op=%X name='%s'",newavpl,src,op,name);
@@ -1008,241 +1008,147 @@ extern AVPL* new_avpl_loose_match(const gchar* name,
 
 	cs = src->null.next;
 	co = op->null.next;
-	while(1) {
+	while (cs->avp && co->avp) {
+		int name_diff = strcmp(co->avp->n, cs->avp->n);
 
-		if (!co->avp) {
-			return newavpl;
-		}
-
-		if (!cs->avp) {
-			return newavpl;
-		}
-
-
-		c = ADDRDIFF(co->avp->n, cs->avp->n);
-
-		if ( c > 0 ) {
-			if (co->avp) co = co->next;
-		} else if (c < 0) {
-			if (cs->avp) cs = cs->next;
+		if (name_diff < 0) {
+			// op < source, op is not matching
+			co = co->next;
+		} else if (name_diff > 0) {
+			// op > source, source is not matching
+			cs = cs->next;
 		} else {
-			m = match_avp(cs->avp,co->avp);
-			if(m) {
-
-				if (copy_avps) {
-					copy = avp_copy(m);
-					if ( ! insert_avp(newavpl,copy) ) {
-						delete_avp(copy);
-					}
-				} else {
-					insert_avp(newavpl,m);
+			// attribute match found, let's see if there is any condition (op) that accepts this data AVP.
+			AVPN *cond = co;
+			do {
+				if (match_avp(cs->avp, cond->avp)) {
+					insert_avp_before_node(newavpl, newavpl->null.prev, cs->avp, copy_avps);
+					break;
 				}
-
-
-			}
-
-			if (cs->avp) cs = cs->next;
-
+				cond = cond->next;
+			} while (cond->avp && cond->avp->n == cs->avp->n);
+			cs = cs->next;
 		}
 	}
 
-#ifdef _AVP_DEBUGGING
-	dbg_print(dbg_avpl_op,6,dbg_fp,"new_avpl_loose_match: done!");
-#endif
-
-	return NULL;
+	// return matches (possible none)
+	return newavpl;
 }
 
-/* TODO: rename me */
 /**
-* new_avpl_every_match:
+* new_avpl_pairs_match:
  * @param name the name of the resulting avpl
- * @param src avpl to be matched agains an "op" avpl
- * @param op the "op" avpl that will be matched against the src avpl
+ * @param src the data AVPL to be matched against a condition AVPL
+ * @param op the conditions AVPL that will be matched against the data AVPL
+ * @param strict TRUE if every condition must have a matching data AVP, FALSE if
+ * it is also acceptable that only one of the condition AVPs for the same
+ * attribute is matching.
  * @param copy_avps whether the avps in the resulting avpl should be copied
  *
- * creates an avp list containing any avps in src matching every avp in op
- * it will not create a list if there is not a match for every attribute in op
+ * Creates an AVP list by matching pairs of conditions and data AVPs, returning
+ * the data AVPs. If strict is TRUE, then each condition must be paired with a
+ * matching data AVP. If strict is FALSE, then some conditions are allowed to
+ * fail when other conditions for the same attribute do have a match. Note that
+ * if the condition AVPL is empty, the result will be a match (an empty list).
  *
  * Return value: a pointer to the newly created avpl containing the
- *				 matching avps.
- **/
-extern AVPL* new_avpl_every_match(const gchar* name, AVPL* src, AVPL* op, gboolean copy_avps) {
+ *				 matching avps or NULL if there is no match.
+ */
+extern AVPL* new_avpl_pairs_match(const gchar* name, AVPL* src, AVPL* op, gboolean strict, gboolean copy_avps) {
 	AVPL* newavpl;
 	AVPN* co = NULL;
 	AVPN* cs = NULL;
-	ptrdiff_t c;
-	AVP* m;
-	AVP* copy;
-	gboolean matches;
+	const gchar *last_match = NULL;
+	gboolean matched = TRUE;
 
 #ifdef _AVP_DEBUGGING
-	dbg_print(dbg_avpl_op,3,dbg_fp,"new_avpl_every_match: %X src=%X op=%X name='%s'",newavpl,src,op,name);
+	dbg_print(dbg_avpl_op,3,dbg_fp,"%s: %p src=%p op=%p name='%s'",G_STRFUNC,newavpl,src,op,name);
 #endif
-	if (src->len == 0) return NULL;
 
 	newavpl = new_avpl(scs_subscribe(avp_strings, name));
 
-	if (op->len == 0)
-		return newavpl;
-
-	matches = TRUE;
-
 	cs = src->null.next;
 	co = op->null.next;
-	while(1) {
+	while (cs->avp && co->avp) {
+		int name_diff = strcmp(co->avp->n, cs->avp->n);
+		const gchar *failed_match = NULL;
 
-		if (!co->avp) {
-			break;
-		}
-
-		if (!cs->avp) {
-			break;
-		}
-
-		c = ADDRDIFF(co->avp->n,cs->avp->n);
-
-		if ( c > 0 ) {
-			delete_avpl(newavpl,TRUE);
-			return NULL;
-		} else if (c < 0) {
+		if (name_diff < 0) {
+			// op < source, op has no data avp with same attribute.
+			failed_match = co->avp->n;
+			co = co->next;
+		} else if (name_diff > 0) {
+			// op > source, the source avp is not matched by any condition
 			cs = cs->next;
-			if (! cs->avp ) {
-				break;
-			}
 		} else {
-			m = match_avp(cs->avp,co->avp);
-
-			if(m) {
-				matches++;
+			// Matching attributes found, now try to find a matching data AVP for the condition.
+			if (match_avp(cs->avp, co->avp)) {
+				insert_avp_before_node(newavpl, newavpl->null.prev, cs->avp, copy_avps);
+				last_match = co->avp->n;
 				cs = cs->next;
-				co = co->next;
-
-				if (copy_avps) {
-					copy = avp_copy(m);
-					if ( ! insert_avp(newavpl,copy) ) {
-						delete_avp(copy);
-					}
-				} else {
-					insert_avp(newavpl,m);
-				}
-
 			} else {
-				cs = cs->next;
+				failed_match = co->avp->n;
 			}
+			co = co->next;
 		}
 
+		// condition did not match, check if we can continue matching.
+		if (failed_match) {
+			if (strict) {
+				matched = FALSE;
+				break;
+			} else if (last_match != failed_match) {
+				// None of the conditions so far matched the attribute, check for other candidates
+				if (!co->avp || co->avp->n != last_match) {
+					matched = FALSE;
+					break;
+				}
+			}
+		}
 	}
 
-	if (matches) {
+	// if there are any conditions remaining, then those could not be matched
+	if (matched && strict && co->avp) {
+		matched = FALSE;
+	}
+
+	if (matched) {
+		// there was a match, accept it
 		return newavpl;
 	} else {
-		delete_avpl(newavpl,TRUE);
+		// no match, only delete AVPs too if they were copied
+		delete_avpl(newavpl, copy_avps);
 		return NULL;
 	}
 }
 
 
-/* TODO: rename me */
 /**
- * new_avpl_exact_match:
+ * new_avpl_from_match:
+ * @param mode The matching method, one of AVPL_STRICT, AVPL_LOOSE, AVPL_EVERY.
  * @param name the name of the resulting avpl
- * @param src avpl to be matched agains an "op" avpl
- * @param op the "op" avpl that will be matched against the src avpl
- * @param copy_avps whether the avps in the resulting avpl should be copied
+ * @param src the data AVPL to be matched agains a condition AVPL
+ * @param op the conditions AVPL that will be matched against the data AVPL
  *
- * creates an avp list containing every avp in src matching every avp in op
- * it will not create a list unless every avp in op is matched only once
- * to every avp in op.
- *
- * Return value: a pointer to the newly created avpl containing the
- *				 matching avps.
- **/
-extern AVPL* new_avpl_exact_match(const gchar* name,AVPL* src, AVPL* op, gboolean copy_avps) {
-	AVPL* newavpl = new_avpl(name);
-	AVPN* co = NULL;
-	AVPN* cs = NULL;
-	ptrdiff_t c;
-	AVP* m;
-	AVP* copy;
-
-#ifdef _AVP_DEBUGGING
-	dbg_print(dbg_avpl_op,3,dbg_fp,"new_avpl_every_match: %X src=%X op=%X name='%s'",newavpl,src,op,name);
-#endif
-
-	if (op->len == 0)
-		return newavpl;
-
-	if (src->len == 0) {
-		delete_avpl(newavpl,FALSE);
-		return NULL;
-	}
-
-	cs = src->null.next;
-	co = op->null.next;
-	while(1) {
-
-		c = ADDRDIFF(co->avp->n,cs->avp->n);
-
-		if ( c > 0 ) {
-			delete_avpl(newavpl,TRUE);
-			return NULL;
-		} else if (c < 0) {
-			cs = cs->next;
-			if (! cs->avp ) {
-				delete_avpl(newavpl,TRUE);
-				return NULL;
-			}
-		} else {
-			m = match_avp(cs->avp,co->avp);
-
-			if(m) {
-				cs = cs->next;
-				co = co->next;
-
-				if (copy_avps) {
-					copy = avp_copy(m);
-					if ( ! insert_avp(newavpl,copy) ) {
-						delete_avp(copy);
-					}
-				} else {
-					insert_avp(newavpl,m);
-				}
-
-
-				if (!co->avp) {
-					return newavpl;
-				}
-				if (!cs->avp) {
-					delete_avpl(newavpl,TRUE);
-					return NULL;
-				}
-			} else {
-				delete_avpl(newavpl,TRUE);
-				return NULL;
-			}
-		}
-
-	}
-
-	/* should never be reached */
-	return NULL;
-}
-
+ * Matches the conditions AVPL against the original AVPL according to the mode.
+ * If there is no match, NULL is returned. If there is actually a match, then
+ * the matching AVPs (a subset of the data) are returned.
+ */
 extern AVPL* new_avpl_from_match(avpl_match_mode mode, const gchar* name,AVPL* src, AVPL* op, gboolean copy_avps) {
 	AVPL* avpl = NULL;
 
 	switch (mode) {
 		case AVPL_STRICT:
-			avpl = new_avpl_exact_match(name,src,op,copy_avps);
+			avpl = new_avpl_pairs_match(name, src, op, TRUE, copy_avps);
 			break;
 		case AVPL_LOOSE:
 			avpl = new_avpl_loose_match(name,src,op,copy_avps);
 			break;
 		case AVPL_EVERY:
-			avpl = new_avpl_every_match(name,src,op,copy_avps);
+			avpl = new_avpl_pairs_match(name, src, op, FALSE, copy_avps);
 			break;
 		case AVPL_NO_MATCH:
+			// XXX this seems unused
 			avpl = new_avpl_from_avpl(name,src,copy_avps);
 			merge_avpl(avpl, op, copy_avps);
 			break;
@@ -1317,8 +1223,10 @@ extern void avpl_transform(AVPL* src, AVPL_Transf* op) {
 				case AVPL_REPLACE:
 					cs = src->null.next;
 					cm = avpl->null.next;
-					while(cs->avp) {
-						if (cm->avp && cs->avp->n == cm->avp->n && cs->avp->v == cm->avp->v) {
+					// Removes AVPs from the source which  are in the matched data.
+					// Assume that the matched set is a subset of the source.
+					while (cs->avp && cm->avp) {
+						if (cs->avp->n == cm->avp->n && cs->avp->v == cm->avp->v) {
 							n = cs->next;
 
 							cs->prev->next = cs->next;
@@ -1328,6 +1236,10 @@ extern void avpl_transform(AVPL* src, AVPL_Transf* op) {
 							cs = n;
 							cm = cm->next;
 						} else {
+							// Current matched AVP is not equal to the current
+							// source AVP. Since there must be a source AVP for
+							// each matched AVP, advance current source and not
+							// the match AVP.
 							cs = cs->next;
 						}
 					}

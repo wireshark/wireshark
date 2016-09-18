@@ -179,17 +179,9 @@ extern AVPL* new_avpl(const gchar* name);
 /* creates a copy of an avp list */
 extern AVPL* new_avpl_from_avpl(const gchar* name, AVPL* avpl, gboolean copy_avps);
 
-/* creates an avp list containing any avps in src matching any avps in op
-   it will eventually create an empty list in none match */
-extern AVPL* new_avpl_loose_match(const gchar* name,AVPL* src, AVPL* op, gboolean copy_avps);
+extern AVPL* new_avpl_loose_match(const gchar* name, AVPL* src, AVPL* op, gboolean copy_avps);
 
-/* creates an avp list containing any avps in src matching every avp in op
-  it will not create a list if there is not a match for every attribute in op */
-extern AVPL* new_avpl_every_match(const gchar* name,AVPL* src, AVPL* op, gboolean copy_avps);
-
-/* creates an avp list containing every avp in src matching every avp in op
-   it will not create a list unless every avp in op is matched only once to avery avp in op */
-extern AVPL* new_avpl_exact_match(const gchar* name,AVPL* src, AVPL* op, gboolean copy_avps);
+extern AVPL* new_avpl_pairs_match(const gchar* name, AVPL* src, AVPL* op, gboolean strict, gboolean copy_avps);
 
 /* uses mode to call one of the former matches. NO_MATCH = merge(merge(copy(src),op)) */
 extern AVPL* new_avpl_from_match(avpl_match_mode mode, const gchar* name,AVPL* src, AVPL* op, gboolean copy_avps);
