@@ -2072,8 +2072,8 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
     main_ui_->actionFileExportAsPSML->setEnabled(capture_in_progress);
     main_ui_->actionFileExportAsJSON->setEnabled(capture_in_progress);
 
-    main_ui_->actionFileExportPacketBytes->setEnabled(capture_in_progress);
-    main_ui_->actionFileExportPDU->setEnabled(capture_in_progress);
+    main_ui_->actionFileExportPacketBytes->setEnabled(!capture_in_progress);
+    main_ui_->actionFileExportPDU->setEnabled(!capture_in_progress);
     main_ui_->actionFileExportSSLSessionKeys->setEnabled(capture_in_progress);
 
     foreach (QAction *eo_action, main_ui_->menuFileExportObjects->actions()) {
