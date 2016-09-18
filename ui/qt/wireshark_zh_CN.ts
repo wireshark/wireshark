@@ -8841,108 +8841,108 @@ text-decoration: underline;
         <translation>正在捕获 %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="704"/>
+        <location filename="main_window_slots.cpp" line="708"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="794"/>
+        <location filename="main_window_slots.cpp" line="797"/>
         <source>Saving %1</source>
         <translation>正在保存 %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="834"/>
+        <location filename="main_window_slots.cpp" line="837"/>
         <source>No interface selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="844"/>
+        <location filename="main_window_slots.cpp" line="847"/>
         <source>Invalid capture filter</source>
         <translation>无效捕获过滤器</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1058"/>
+        <location filename="main_window_slots.cpp" line="1061"/>
         <source>Clear Menu</source>
         <translation>清除菜单</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1477"/>
+        <location filename="main_window_slots.cpp" line="1480"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Wireshark 正在初始化，请稍候</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1634"/>
+        <location filename="main_window_slots.cpp" line="1637"/>
         <source>Export Selected Packet Bytes</source>
         <translation>导出选择分组字节流</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1693"/>
+        <location filename="main_window_slots.cpp" line="1696"/>
         <source>No Keys</source>
         <translation>无密钥</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1694"/>
+        <location filename="main_window_slots.cpp" line="1697"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>没有可以保存的 SSL 会话密钥。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1700"/>
+        <location filename="main_window_slots.cpp" line="1703"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>导出 SSL 会话密钥 (%1 密钥%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1636"/>
+        <location filename="main_window_slots.cpp" line="1639"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>原始数据 (*.bin *.dat *.raw);;所有文件 (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1705"/>
+        <location filename="main_window_slots.cpp" line="1708"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSL 会话密钥 (*.keys *.txt);;所有文件 (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1843"/>
+        <location filename="main_window_slots.cpp" line="1846"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>无法复制文本。请尝试其他对象。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2252"/>
-        <location filename="main_window_slots.cpp" line="3307"/>
+        <location filename="main_window_slots.cpp" line="2255"/>
+        <location filename="main_window_slots.cpp" line="3310"/>
         <source>Unable to build conversation filter.</source>
         <translation>无法建立对话过滤器。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2410"/>
+        <location filename="main_window_slots.cpp" line="2413"/>
         <source>No filter available. Try another </source>
         <translation>无过滤器可用。请尝试其他 </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3314"/>
+        <location filename="main_window_slots.cpp" line="3317"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>为此对话编译过滤器时出错。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3323"/>
+        <location filename="main_window_slots.cpp" line="3326"/>
         <source>No previous/next packet in conversation.</source>
         <translation>此对话中没有上一个/下一个分组。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3400"/>
+        <location filename="main_window_slots.cpp" line="3403"/>
         <source>No Interface Selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3407"/>
+        <location filename="main_window_slots.cpp" line="3410"/>
         <source> before starting a new capture</source>
         <translation>在开始新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3613"/>
+        <location filename="main_window_slots.cpp" line="3616"/>
         <source>Wiki Page for %1</source>
         <translation>%1 的 Wiki 页面</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3614"/>
+        <location filename="main_window_slots.cpp" line="3617"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Wireshark Wiki 由社区进行维护。&lt;/p&gt;&lt;p&gt;您即将加载的页面可能是良好的、不完整的、有错误的，甚至不存在的。&lt;/p&gt;&lt;p&gt;继续访问该 Wiki？&lt;/p&gt;</translation>
     </message>
@@ -10403,12 +10403,12 @@ text-decoration: underline;
         <translation>%1 项。</translation>
     </message>
     <message>
-        <location filename="module_preferences_scroll_area.cpp" line="190"/>
+        <location filename="module_preferences_scroll_area.cpp" line="191"/>
         <source>Edit</source>
         <translation>编辑</translation>
     </message>
     <message>
-        <location filename="module_preferences_scroll_area.cpp" line="217"/>
+        <location filename="module_preferences_scroll_area.cpp" line="218"/>
         <source>Browse</source>
         <translation>浏览</translation>
     </message>

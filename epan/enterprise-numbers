@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2016-09-09)
+(last updated 2016-09-18)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -7274,9 +7274,9 @@ Decimal
     Franko Rahimi
       frahimi&bny18.bloomberg.com
 1815
-  Witness Systems, Inc
-    Joe Watson
-      jwatson&witness.com
+  Verint Systems, Inc (formerly Witness Systems, Inc)
+    Marc Calahan
+      marc.calahan&verint.com
 1816
   Rose-Hulman Institute of Technology
     Lans H. Carstensen
@@ -11866,9 +11866,9 @@ Decimal
     John Vrabel
       john&zetacom.demon.co.uk
 2965
-  Syscom Ltd.
+  Fujikura Solutions Ltd. (formerly 'Syscom Ltd.')
     Tomoyuki Ide
-      ide&fujikura.syscom.co.jp
+      tomoyuki.ide&jp.fujikura.com
 2966
   Digital ChoreoGraphics
     DV Black
@@ -21286,9 +21286,9 @@ Decimal
     Trang A. Nguyen
       tnguyen&infonorth.com
 5329
-  Shoreline Teleworks
-    Dwight Wilcox
-      dwilcox&shoretel.com
+  ShoreTel, Inc (formerly 'Shoreline Teleworks')
+    Kevin Coyne
+      kcoyne&shoretel.com
 5330
   Spacelink Systems
     Jim Fitzgerald
@@ -35268,7 +35268,7 @@ Decimal
 8828
   General Dynamics Advanced Information Systems
     Donald Purvis
-      donald.purvis&gd-ais.com
+      donald.purvis&gd-ms.com
 8829
   Axell Wireless Limited (formerly 'Aerial Facilities Limited')
     Martin Hancock
@@ -72883,7 +72883,7 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Florencio Diaz
       fdiaz&anf.es
 18333
-  ANF Autoridad de Certificación
+  ANF AC Entidad de Certificación Perú S.A.C.
     Florencio Diaz
       fdiaz&anf.es
 18334
@@ -82940,9 +82940,9 @@ Information Security of Pr
     Sebastian Hetze
       s.hetze&linux-ag.de
 20846
-  SARA
-    Ron Trompert
-      ron&sara.nl
+  SURFsara
+    Michel Scheerman
+      michel.scheerman&surfsara.nl
 20847
   Atlas Development Corporation
     Russell von Blanck
@@ -126272,7 +126272,7 @@ Decentralization / Helenic Public Administra
       david.fortier&xortec.fr
 31673
   Datacenter Luxembourg
-    Philippe Willig
+    Raoul Thill
       sysadmin&sysadmin.dclux.com
 31674
   Global Star Solutions ULC
@@ -154520,9 +154520,9 @@ Decentralization / Helenic Public Administra
     Krishna Padilha
       krishna&padilha.com
 38735
-  Web Secure Vault, Inc.
+  Stephen Perryman
     Stephen Perryman
-      steve&websecurevault.com
+      steve&stephenperryman.com
 38736
   Promise Regional Medical Center - Hutchinson
     Mickey Bowen
@@ -168137,8 +168137,8 @@ Decentralization / Helenic Public Administra
       josef.liska&virtualmaster.com
 42139
   Internet Corporation for Assigned Names and Numbers
-    Tomofumi Okubo
-      tomofumi.okubo&icann.org
+    Punky Duero
+      punky.duero&icann.org
 42140
   Bitfabrik GmbH & Co. KG
     Peter Schillerwein
@@ -185689,8 +185689,8 @@ Decentralization / Helenic Public Administra
       joakim.nilen&moldeo.se
 46527
   Trans Link Systems B.V.
-    Stefan van Someren
-      stefan.van.someren&translink.nl
+    Gerrit Kraaij
+      registrar&translink.nl
 46528
   Shanghai Chuxun Information Technology Co.,Ltd.
     Yiqing Wang
@@ -193523,6 +193523,270 @@ Decentralization / Helenic Public Administra
   ITEC Training Solutions Ltd
     Simon Watts
       s.watts&itecskills.co.uk
+48486
+  Salzbrenner Media
+    Thomas Baier
+      t.baier&salzbrenner.com
+48487
+  Veropharm
+    Alexandr Simonov
+      simonov&veropharm.ru
+48488
+  ACS International Schools Ltd.
+    Graham Mayers
+      gmayers&acs-schools.com
+48489
+  ANF AC Chile, Ltda.
+    Florencio Díaz
+      fdiaz&anf.es
+48490
+  Bundesministerium fuer Land- und Forstwirtschaft, Umwelt- und Wasserwirtschaft
+    Georg Estelmann
+      georg.estelmann&bmlfuw.gv.at
+48491
+  Strategic Information Technology Ltd.
+    William MacDonald
+      billm&stratinfotech.com
+48492
+  Zequenze
+    Erasmo Zubillaga
+      erasmo&zequenze.com
+48493
+  Naltagrett
+    Jorgen Bjorck
+      naltagrett&gmail.com
+48494
+  Lockstep Technologies
+    Stephen Wilson
+      swilson&lockstep.com.au
+48495
+  Alm. Brand A/S
+    Rene B. Rosenbeck-Larsen
+      it.sikkerhed&almbrand.dk
+48496
+  LOTS Group AB
+    Fredrik Hjelm
+      Fredrik.hjelm&lotsgroup.com
+48497
+  VIDA Energi AB
+    Magnus Linnér
+      magnus.linner&vida.se
+48498
+  VIDA Skog AB
+    Magnus Linnér
+      magnus.linner&vida.se
+48499
+  inovex GmbH
+    Jan Gehring
+      jan.gehring&inovex.de
+48500
+  Ventilatorenfabrik Oelde GmbH
+    Detlef Wilmsen
+      detlef.wilmsen&venti-oelde.de
+48501
+  Wilmers Messtechnik GmbH
+    Hans Wilmers
+      hans&wilmers.no
+48502
+  Startups, Inc.
+    Shilles Steven Albert
+      steven&startupsinc.co
+48503
+  Magrathea Laboratories e.V.
+    Sven Reißmann
+      sven&0x80.io
+48504
+  Pulselight Inc
+    Stuart Jarriel
+      sjarriel&pulselight.com
+48505
+  AI2Co
+    Peter Lasker
+      P.Lasker&AI2Co.nl
+48506
+  Tunnel Radio of America
+    Carlo McKee
+      carlo.mckee&tunnelradio.com
+48507
+  o-byte.com GmbH & Co. KG
+    Martin Weiß
+      info&o-byte.com
+48508
+  Trapeze-Elgeba GmbH
+    Lars Hantschmann
+      lars.hantschmann&trapezegroup.com
+48509
+  add solution GmbH
+    Alberto Mancheno Sanchez
+      alberto.mancheno&add-solution.de
+48510
+  Grand Rapids Adventist Academy
+    Christian McDonald
+      admin&graa.com
+48511
+  ApeComm Sdn. Bhd.
+    Farhah Kamaruzzaman
+      farhah.zm&gmail.com
+48512
+  Inspur Group Co.,Ltd.
+    Fairy Sun
+      sunfl&inspur.com
+48513
+  Owari Precision Products (India) Pvt.Ltd.
+    Man Mohan Kumar
+      mmkumar&oppi.ttp.co.in
+48514
+  Warkdag AS
+    Mirko Klaus Ansgar Tasler
+      mirko&tasler.net
+48515
+  PACE POWER SYSTEMS PVT LTD
+    Basavaraja BR
+      basavaraja.br&pacerenewables.com
+48516
+  Duerr IT Service GmbH
+    Jan Skowron
+      Jan.Skowron&durr.com
+48517
+  Locatel Flotas, S.L.
+    Juan Carlos Mendez
+      jcmendez&locatel.biz
+48518
+  BYOM Electronics LLC
+    Oleg Morozov
+      byom&omino-board.com
+48519
+  St. Bernards Medical Center
+    Kevin Hawley
+      khawley&sbrmc.org
+48520
+  ADISTA SAS
+    Marquet Yannick
+      ymarquet&adista.fr
+48521
+  nCentric Europe BVBA
+    Robin Leblon
+      robin.leblon&ncentric.com
+48522
+  Elisa Eesti AS
+    Agu Kull
+      agu.kull&elisa.ee
+48523
+  ALTEC S.p.A.
+    Carmelo Manetta
+      carmelo.manetta&altecspace.it
+48524
+  Ping Communication (Switzerland) AG
+    Markus Goetsch
+      mg&pingcom.net
+48525
+  SnapServ Ltd
+    Pascal Mathis
+      pascal.mathis&snapserv.net
+48526
+  Twilio
+    Seth Hardiman
+      shardiman&twilio.com
+48527
+  LEGO System A/S
+    Simon Clausen
+      simon.clausen&lego.com
+48528
+  IT Niedersachsen
+    Frank Meyer
+      frank.meyer&it.niedersachsen.de
+48529
+  MediaSift Ltd
+    Gareth Llewellyn
+      gareth&datasift.com
+48530
+  OOO "TIUS"
+    Sergey Mikhaylin
+      info&tius-project.ru
+48531
+  FIS
+    Mark Kaczorowski
+      mark.kaczorowski&fisglobal.com
+48532
+  Inlandsfrakt AB
+    Carina Kristoffersson
+      carina.kristoffersson&inlandsfrakt.se
+48533
+  Sony Mobile Communications AB
+    Security & Enterprise
+      DL-SELD-securityenterprise&sonymobile.com
+48534
+  FIT Networks
+    Oscavo Prata
+      oscavo&fitnetworks.com.br
+48535
+  Blue Ridge Concepts, Inc.
+    Robert M. Gregory, Jr.
+      gregory&BlueRidgeConcepts.com
+48536
+  Hochschule Aschaffenburg
+    Tony Ziroff
+      teamrz&h-ab.de
+48537
+  Defense Information Systems Agency
+    David Wagner
+      david.s.wagner.ctr&mail.mil
+48538
+  ServerCentral
+    Andrew Meyer
+      ameyer&servercentral.com
+48539
+  ED&F Man Capital Markets
+    Timothy Perry
+      tperry&edfmancapital.com
+48540
+  ED&F Man Capital Markets
+    Timothy Perry
+      tperry&edfmancapital.com
+48541
+  BWAY S.r.l.
+    Claudio Botta
+      claudio.botta&bway.it
+48542
+  Chromatic Inc.
+    Stephen Quebe
+      stephen&chromatic.ai
+48543
+  Procesar, S.A de C.V
+    Jorge Sánchez
+      jsanchez&procesar.com
+48544
+  TV-Teknik Jonas Hermansson
+    Jonas Hermansson
+      jonas&tvteknik.se
+48545
+  Triona AB
+    David Lundgren
+      david.lundgren&triona.se
+48546
+  Hans Andersson Recycling AB
+    Claes Dahlberg
+      claes.dahlberg&hansandersson.se
+48547
+  Public Technical Identifiers
+    Punky Duero
+      punky.duero&icann.org
+48548
+  Harbin Yantuo Science and Technology Development Co.,Ltd
+    Minglin lee
+      superlml&163.com
+48549
+  广州阜月软件有限公司 (Guangzhou fuyue Software Co. Ltd.)
+    Ansion
+      1572309495&qq.com
+48550
+  Beijing Redlink Information Technology Co., Ltd.
+    Zhao Zhiquan
+      zhaozhiquan&redlink-tech.com
+48551
+  Profound Solutions
+    Olesov Peter
+      peter&profound.ru
 
 
 End of Document
