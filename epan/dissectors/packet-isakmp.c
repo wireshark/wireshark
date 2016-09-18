@@ -252,6 +252,12 @@ static int hf_isakmp_ipsec_attr_sig_enco_algorithm = -1;
 static int hf_isakmp_ipsec_attr_addr_preservation = -1;
 static int hf_isakmp_ipsec_attr_sa_direction = -1;
 
+static attribute_common_fields hf_isakmp_resp_lifetime_ipsec_attr = { -1, -1, -1, -1, -1 };
+static int hf_isakmp_resp_lifetime_ipsec_attr_life_type = -1;
+static int hf_isakmp_resp_lifetime_ipsec_attr_life_duration_uint32 = -1;
+static int hf_isakmp_resp_lifetime_ipsec_attr_life_duration_uint64 = -1;
+static int hf_isakmp_resp_lifetime_ipsec_attr_life_duration_bytes = -1;
+
 static attribute_common_fields hf_isakmp_ike_attr = { -1, -1, -1, -1, -1 };
 static int hf_isakmp_ike_attr_encryption_algorithm = -1;
 static int hf_isakmp_ike_attr_hash_algorithm = -1;
@@ -271,6 +277,12 @@ static int hf_isakmp_ike_attr_prf = -1;
 static int hf_isakmp_ike_attr_key_length = -1;
 static int hf_isakmp_ike_attr_field_size = -1;
 static int hf_isakmp_ike_attr_group_order = -1;
+
+static attribute_common_fields hf_isakmp_resp_lifetime_ike_attr = { -1, -1, -1, -1, -1 };
+static int hf_isakmp_resp_lifetime_ike_attr_life_type = -1;
+static int hf_isakmp_resp_lifetime_ike_attr_life_duration_uint32 = -1;
+static int hf_isakmp_resp_lifetime_ike_attr_life_duration_uint64 = -1;
+static int hf_isakmp_resp_lifetime_ike_attr_life_duration_bytes = -1;
 
 static int hf_isakmp_trans_type = -1;
 static int hf_isakmp_trans_encr = -1;
@@ -369,6 +381,7 @@ static gint ett_isakmp_fragments = -1;
 static gint ett_isakmp_sa = -1;
 static gint ett_isakmp_attr = -1;
 static gint ett_isakmp_id = -1;
+static gint ett_isakmp_notify_data = -1;
 #ifdef HAVE_LIBGCRYPT
 /* For decrypted IKEv2 Encrypted payload*/
 static gint ett_isakmp_decrypted_data = -1;
@@ -3679,6 +3692,43 @@ dissect_ipsec_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *transform
 
 /* Returns the number of bytes consumed by this option. */
 static int
+dissect_resp_lifetime_ipsec_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *transform_attr_type_tree, int offset)
+{
+  guint headerlen, optlen, transform_attr_type;
+  proto_item *transform_attr_type_item;
+  proto_tree *sub_transform_attr_type_tree;
+
+  dissect_attribute_header(tvb, transform_attr_type_tree, offset,
+                           hf_isakmp_resp_lifetime_ipsec_attr, ipsec_attr_type,
+                           &headerlen, &optlen, &transform_attr_type,
+                           &transform_attr_type_item, &sub_transform_attr_type_tree);
+
+  offset += headerlen;
+
+  if (optlen == 0)
+  {
+    expert_add_info(pinfo, transform_attr_type_item, &ei_isakmp_attribute_value_empty);
+    return headerlen;
+  }
+
+  switch(transform_attr_type) {
+    case IPSEC_ATTR_LIFE_TYPE:
+      proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_resp_lifetime_ipsec_attr_life_type, tvb, offset, optlen, ENC_BIG_ENDIAN);
+      proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), attr_life_type, "Unknown %d"));
+      break;
+    case IPSEC_ATTR_LIFE_DURATION:
+      dissect_life_duration(tvb, sub_transform_attr_type_tree, transform_attr_type_item, hf_isakmp_resp_lifetime_ipsec_attr_life_duration_uint32, hf_isakmp_resp_lifetime_ipsec_attr_life_duration_uint64, hf_isakmp_resp_lifetime_ipsec_attr_life_duration_bytes, offset, optlen);
+      break;
+    default:
+      /* No Default Action */
+      break;
+  }
+
+  return headerlen + optlen;
+}
+
+/* Returns the number of bytes consumed by this option. */
+static int
 dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *transform_attr_type_tree, int offset
                                                                                                 #ifdef HAVE_LIBGCRYPT
                                                                                                 , decrypt_data_t *decr
@@ -3772,6 +3822,43 @@ dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *transform_a
       break;
     case IKE_ATTR_GROUP_ORDER:
       proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_order, tvb, offset, optlen, ENC_NA);
+      break;
+    default:
+      /* No Default Action */
+      break;
+  }
+
+  return headerlen + optlen;
+}
+
+/* Returns the number of bytes consumed by this option. */
+static int
+dissect_resp_lifetime_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *transform_attr_type_tree, int offset)
+{
+  guint headerlen, optlen, transform_attr_type;
+  proto_item *transform_attr_type_item;
+  proto_tree *sub_transform_attr_type_tree;
+
+  dissect_attribute_header(tvb, transform_attr_type_tree, offset,
+                           hf_isakmp_resp_lifetime_ike_attr, ike_attr_type,
+                           &headerlen, &optlen, &transform_attr_type,
+                           &transform_attr_type_item, &sub_transform_attr_type_tree);
+
+  offset += headerlen;
+
+  if (optlen == 0)
+  {
+    expert_add_info(pinfo, transform_attr_type_item, &ei_isakmp_attribute_value_empty);
+    return headerlen;
+  }
+
+  switch(transform_attr_type) {
+    case IKE_ATTR_LIFE_TYPE:
+      proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_resp_lifetime_ike_attr_life_type, tvb, offset, optlen, ENC_BIG_ENDIAN);
+      proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), attr_life_type, "Unknown %d"));
+      break;
+    case IKE_ATTR_LIFE_DURATION:
+      dissect_life_duration(tvb, sub_transform_attr_type_tree, transform_attr_type_item, hf_isakmp_resp_lifetime_ike_attr_life_duration_uint32, hf_isakmp_resp_lifetime_ike_attr_life_duration_uint64, hf_isakmp_resp_lifetime_ike_attr_life_duration_bytes, offset, optlen);
       break;
     default:
       /* No Default Action */
@@ -4411,17 +4498,23 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
 static void
 dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree, int isakmp_version)
 {
+  guint32               doi = 0;
+  guint8                protocol_id;
   guint8                spi_size;
   guint16               msgtype;
+  proto_item            *data_item;
+  proto_tree            *data_tree;
   int                   offset_end = 0;
   offset_end = offset + length;
 
   if (isakmp_version == 1) {
+    doi = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_isakmp_notify_doi, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     length -= 4;
   }
 
+  protocol_id = tvb_get_guint8(tvb, offset);
   if (isakmp_version == 1)
   {
      proto_tree_add_item(tree, hf_isakmp_notify_protoid_v1, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4461,11 +4554,25 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
 
   /* Notification Data */
 
-  proto_tree_add_item(tree, hf_isakmp_notify_data, tvb, offset, length, ENC_NA);
+  data_item = proto_tree_add_item(tree, hf_isakmp_notify_data, tvb, offset, length, ENC_NA);
+  data_tree = proto_item_add_subtree(data_item, ett_isakmp_notify_data);
 
   if (isakmp_version == 1)
   {
     switch (msgtype) {
+      case 24576: /* RESPONDER LIFETIME */
+        if (protocol_id == 1) {
+          /* Phase 1 */
+          while (offset < offset_end) {
+            offset += dissect_resp_lifetime_ike_attribute(tvb, pinfo, data_tree, offset);
+          }
+        } else if (protocol_id > 1 && doi == 1) {
+          /* Phase 2, IPsec DOI */
+          while (offset < offset_end) {
+            offset += dissect_resp_lifetime_ipsec_attribute(tvb, pinfo, data_tree, offset);
+          }
+        }
+        break;
       case 36136: /* DPD ARE YOU THERE */
         proto_tree_add_item(tree, hf_isakmp_notify_data_dpd_are_you_there, tvb, offset, length, ENC_BIG_ENDIAN);
         break;
@@ -6383,7 +6490,7 @@ proto_register_isakmp(void)
         FT_NONE, BASE_NONE, NULL, 0x00,
         NULL, HFILL }},
     { &hf_isakmp_ipsec_attr.type,
-      { "Type", "isakmp.ipsec.attr.type_v1",
+      { "Type", "isakmp.ipsec.attr.type",
         FT_UINT16, BASE_RANGE_STRING | BASE_DEC, VALS(ipsec_attr_type), 0x00,
         "IPsec Attribute type", HFILL }},
     { &hf_isakmp_ipsec_attr.format,
@@ -6465,6 +6572,45 @@ proto_register_isakmp(void)
     { &hf_isakmp_ipsec_attr_sa_direction,
       { "SA Direction", "isakmp.ipsec.attr.sa_direction",
         FT_UINT16, BASE_DEC, VALS(ipsec_attr_sa_direction), 0x00,
+        NULL, HFILL }},
+
+    /* Responder Lifetime Notification for IPsec SA */
+    { &hf_isakmp_resp_lifetime_ipsec_attr.all,
+      { "IPsec Attribute", "isakmp.notify.data.resp_lifetime.ipsec.attr",
+        FT_NONE, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
+    { &hf_isakmp_resp_lifetime_ipsec_attr.type,
+      { "Type", "isakmp.notify.data.resp_lifetime.ipsec.attr.type",
+        FT_UINT16, BASE_RANGE_STRING | BASE_DEC, VALS(ipsec_attr_type), 0x00,
+        "IPsec Attribute type", HFILL }},
+    { &hf_isakmp_resp_lifetime_ipsec_attr.format,
+      { "Format", "isakmp.notify.data.resp_lifetime.ipsec.attr.format",
+        FT_BOOLEAN, 16, TFS(&attribute_format), 0x8000,
+        "IPsec Attribute format", HFILL }},
+    { &hf_isakmp_resp_lifetime_ipsec_attr.length,
+      { "Length", "isakmp.notify.data.resp_lifetime.ipsec.attr.length",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        "IPsec Attribute length", HFILL }},
+    { &hf_isakmp_resp_lifetime_ipsec_attr.value,
+      { "Value", "isakmp.notify.data.resp_lifetime.ipsec.attr.value",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        "IPsec Attribute value", HFILL }},
+
+    { &hf_isakmp_resp_lifetime_ipsec_attr_life_type,
+      { "Life Type", "isakmp.notify.data.resp_lifetime.ipsec.attr.life_type",
+        FT_UINT16, BASE_DEC, VALS(attr_life_type), 0x00,
+        "The unit (seconds or kilobytes) of the associated Life Duration attribute.", HFILL }},
+    { &hf_isakmp_resp_lifetime_ipsec_attr_life_duration_uint32,
+      { "Life Duration", "isakmp.notify.data.resp_lifetime.ipsec.attr.life_duration",
+        FT_UINT32, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
+    { &hf_isakmp_resp_lifetime_ipsec_attr_life_duration_uint64,
+      { "Life Duration", "isakmp.notify.data.resp_lifetime.ipsec.attr.life_duration64",
+        FT_UINT64, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
+    { &hf_isakmp_resp_lifetime_ipsec_attr_life_duration_bytes,
+      { "Life Duration", "isakmp.notify.data.resp_lifetime.ipsec.attr.life_duration_bytes",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
         NULL, HFILL }},
 
     /* IKEv1 SA Attributes (ISAKMP SA, Phase 1) */
@@ -6559,6 +6705,45 @@ proto_register_isakmp(void)
         NULL, HFILL }},
     { &hf_isakmp_ike_attr_group_order,
       { "Key Length", "isakmp.ike.attr.group_order",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
+
+    /* Responder Lifetime Notification for IKEv1 SA */
+    { &hf_isakmp_resp_lifetime_ike_attr.all,
+      { "IKE Attribute", "isakmp.notify.data.resp_lifetime.ike.attr",
+        FT_NONE, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
+    { &hf_isakmp_resp_lifetime_ike_attr.type,
+      { "Type", "isakmp.notify.data.resp_lifetime.ike.attr.type",
+        FT_UINT16, BASE_RANGE_STRING | BASE_DEC, VALS(ike_attr_type), 0x00,
+        "IKEv1 Attribute type", HFILL }},
+    { &hf_isakmp_resp_lifetime_ike_attr.format,
+      { "Format", "isakmp.notify.data.resp_lifetime.ike.attr.format",
+        FT_BOOLEAN, 16, TFS(&attribute_format), 0x8000,
+        "IKEv1 Attribute format", HFILL }},
+    { &hf_isakmp_resp_lifetime_ike_attr.length,
+      { "Length", "isakmp.notify.data.resp_lifetime.ike.attr.length",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        "IKEv1 Attribute length", HFILL }},
+    { &hf_isakmp_resp_lifetime_ike_attr.value,
+      { "Value", "isakmp.notify.data.resp_lifetime.ike.attr.value",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        "IKEv1 Attribute value", HFILL }},
+
+    { &hf_isakmp_resp_lifetime_ike_attr_life_type,
+      { "Life Type", "isakmp.notify.data.resp_lifetime.ike.attr.life_type",
+        FT_UINT16, BASE_DEC, VALS(attr_life_type), 0x00,
+        "The unit (seconds or kilobytes) of the associated Life Duration attribute.", HFILL }},
+    { &hf_isakmp_resp_lifetime_ike_attr_life_duration_uint32,
+      { "Life Duration", "isakmp.notify.data.resp_lifetime.ike.attr.life_duration",
+        FT_UINT32, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
+    { &hf_isakmp_resp_lifetime_ike_attr_life_duration_uint64,
+      { "Life Duration", "isakmp.notify.data.resp_lifetime.ike.attr.life_duration64",
+        FT_UINT64, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
+    { &hf_isakmp_resp_lifetime_ike_attr_life_duration_bytes,
+      { "Life Duration", "isakmp.notify.data.resp_lifetime.ike.attr.life_duration_bytes",
         FT_BYTES, BASE_NONE, NULL, 0x00,
         NULL, HFILL }},
 
@@ -6864,6 +7049,7 @@ proto_register_isakmp(void)
     &ett_isakmp_sa,
     &ett_isakmp_attr,
     &ett_isakmp_id,
+    &ett_isakmp_notify_data,
 #ifdef HAVE_LIBGCRYPT
     &ett_isakmp_decrypted_data,
     &ett_isakmp_decrypted_payloads
