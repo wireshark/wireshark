@@ -156,6 +156,7 @@ static dissector_handle_t media_handle;
 static dissector_handle_t websocket_handle;
 static dissector_handle_t http2_handle;
 static dissector_handle_t sstp_handle;
+static dissector_handle_t spdy_handle;
 static dissector_handle_t ntlmssp_handle;
 static dissector_handle_t gssapi_handle;
 
@@ -283,6 +284,7 @@ static gboolean http_decompress_body = FALSE;
 #define UPGRADE_WEBSOCKET 1
 #define UPGRADE_HTTP2 2
 #define UPGRADE_SSTP 3
+#define UPGRADE_SPDY 4
 
 static range_t *global_http_tcp_range = NULL;
 static range_t *global_http_sctp_range = NULL;
@@ -2837,6 +2839,9 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			if ( (g_str_has_prefix(value, "h2")) == 1){
 				eh_ptr->upgrade = UPGRADE_HTTP2;
 			}
+			if (g_ascii_strncasecmp(value, "spdy/", 5) == 0) {
+				eh_ptr->upgrade = UPGRADE_SPDY;
+			}
 			break;
 
 		case HDR_COOKIE:
@@ -3097,6 +3102,9 @@ dissect_http_on_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 		if (conv_data->upgrade == UPGRADE_SSTP && conv_data->response_code == 200 && pinfo->num >= conv_data->startframe) {
 			next_handle = sstp_handle;
+		}
+		if (conv_data->upgrade == UPGRADE_SPDY && pinfo->num >= conv_data->startframe) {
+			next_handle = spdy_handle;
 		}
 		if (next_handle) {
 			/* Increase pinfo->can_desegment because we are traversing
@@ -3743,6 +3751,7 @@ proto_reg_handoff_http(void)
 	ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_http);
 	gssapi_handle = find_dissector_add_dependency("gssapi", proto_http);
 	sstp_handle = find_dissector_add_dependency("sstp", proto_http);
+	spdy_handle = find_dissector_add_dependency("spdy", proto_http);
 
 	stats_tree_register("http", "http",     "HTTP/Packet Counter",   0, http_stats_tree_packet,      http_stats_tree_init, NULL );
 	stats_tree_register("http", "http_req", "HTTP/Requests",         0, http_req_stats_tree_packet,  http_req_stats_tree_init, NULL );
