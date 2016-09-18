@@ -491,10 +491,6 @@ PacketListModel *PacketList::packetListModel() const {
     return packet_list_model_;
 }
 
-void PacketList::showEvent (QShowEvent *) {
-    setColumnVisibility();
-}
-
 void PacketList::selectionChanged (const QItemSelection & selected, const QItemSelection & deselected) {
     QTreeView::selectionChanged(selected, deselected);
 
@@ -914,8 +910,6 @@ void PacketList::thaw()
     // We don't reapply the recent settings because the user could have
     // resized the columns manually since they were initially loaded.
     header()->restoreState(column_state_);
-
-    setColumnVisibility();
 }
 
 void PacketList::clear() {
@@ -931,8 +925,6 @@ void PacketList::clear() {
     overlay_sb_->setMarkedPacketImage(overlay);
     create_near_overlay_ = true;
     create_far_overlay_ = true;
-
-    setColumnVisibility();
 }
 
 void PacketList::writeRecent(FILE *rf) {

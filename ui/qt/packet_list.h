@@ -77,7 +77,6 @@ public:
     void resetColumns();
 
 protected:
-    void showEvent(QShowEvent *);
     void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
     void contextMenuEvent(QContextMenuEvent *event);
     void timerEvent(QTimerEvent *event);
