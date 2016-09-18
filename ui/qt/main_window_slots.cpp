@@ -625,6 +625,7 @@ void MainWindow::captureCaptureUpdateFinished(capture_session *) {
     /* Enable menu items that make sense if you're not currently running
      a capture. */
     setForCaptureInProgress(false);
+    setMenusForCaptureFile();
 
     setWindowIcon(wsApp->normalIcon());
 
@@ -648,6 +649,7 @@ void MainWindow::captureCaptureFixedFinished(capture_session *) {
     /* Enable menu items that make sense if you're not currently running
      a capture. */
     setForCaptureInProgress(false);
+    setMenusForCaptureFile();
 
     setWindowIcon(wsApp->normalIcon());
 
