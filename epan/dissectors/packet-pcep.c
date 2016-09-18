@@ -51,6 +51,10 @@
  * Added support of "PCEP Extensions for Establishing Relationships
  * Between Sets of LSPs" (draft-ietf-pce-association-group-00)
  * (c) Copyright 2015 Francesco Fondelli <francesco.fondelli[AT]gmail.com>
+ *
+ * Added support of "Conveying Vendor-Specific Constraints in the
+ *  Path Computation Element Communication Protocol (RFC 7470)"
+ * (c) Copyright 2016 Simon Zhong <szhong[AT]juniper.net>
  */
 
 #include "config.h"
@@ -58,6 +62,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
+#include <epan/sminmpec.h>
 #include "packet-tcp.h"
 
 void proto_register_pcep(void);
@@ -91,6 +96,7 @@ void proto_reg_handoff_pcep(void);
 #define PCEP_SRRO_OBJ                   30
 #define PCEP_OBJ_LSP                    32
 #define PCEP_OBJ_SRP                    33
+#define PCEP_OBJ_VENDOR_INFORMATION     34 /* RFC 7470 */
 #define PCEP_ASSOCIATION_OBJ           255 /* TODO temp to be adjusted */
 
 /*Subobjects of EXPLICIT ROUTE Object*/
@@ -371,6 +377,7 @@ static gint hf_PCEPF_OBJ_OVERLOAD = -1;
 static gint hf_PCEPF_OBJ_LSP = -1;
 static gint hf_PCEPF_OBJ_SRP = -1;
 static gint hf_PCEPF_OBJ_ASSOCIATION = -1;
+static gint hf_PCEPF_OBJ_VENDOR_INFORMATION = -1;
 static gint hf_PCEPF_SUBOBJ = -1;
 static gint hf_PCEPF_SUBOBJ_7F = -1;
 static gint hf_PCEPF_SUBOBJ_IPv4 = -1;
@@ -573,6 +580,11 @@ static int hf_pcep_association_source_ipv6 = -1;
 static int hf_pcep_association_source_global = -1;
 static int hf_pcep_association_id_extended = -1;
 
+static int hf_pcep_enterprise_number = -1;
+static int hf_pcep_enterprise_specific_info = -1;
+static int hf_pcep_tlv_enterprise_number = -1;
+static int hf_pcep_tlv_enterprise_specific_info = -1;
+
 static gint ett_pcep = -1;
 static gint ett_pcep_hdr = -1;
 static gint ett_pcep_obj_open = -1;
@@ -600,6 +612,7 @@ static gint ett_pcep_obj_proc_time = -1;
 static gint ett_pcep_obj_overload = -1;
 static gint ett_pcep_obj_lsp = -1;
 static gint ett_pcep_obj_srp = -1;
+static gint ett_pcep_obj_vendor_information = -1;
 static gint ett_pcep_obj_unknown = -1;
 static gint ett_pcep_obj_sero = -1;
 static gint ett_pcep_obj_srro = -1;
@@ -674,6 +687,7 @@ static const value_string pcep_class_vals[] = {
     {PCEP_SRRO_OBJ,                   "SECONDARY RECORD ROUTE OBJECT (SRRO)"   },
     {PCEP_OBJ_LSP,                    "LSP OBJECT"                             },
     {PCEP_OBJ_SRP,                    "SRP OBJECT"                             },
+    {PCEP_OBJ_VENDOR_INFORMATION,     "VENDOR-INFORMATION OBJECT"              },
     {PCEP_ASSOCIATION_OBJ,            "ASSOCIATION OBJECT"                     },
     {0, NULL }
 };
@@ -1083,6 +1097,11 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
                     proto_tree_add_uint_format(tlv, hf_pcep_of_code, tvb, offset+4+j+i*2, 2, of_code, "OF-Code #%d: %s (%u)",
                                                i+1, val_to_str_const(of_code, pcep_of_vals, "Unknown"), of_code);
                 }
+                break;
+
+            case 7:   /* VENDOR-INFORMATION-TLV (RFC7470)*/
+                proto_tree_add_item(tlv, hf_pcep_tlv_enterprise_number, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_tlv_enterprise_specific_info, tvb, offset+4+j + 4, tlv_length - 4, ENC_STR_HEX);
                 break;
 
             case 16:    /* STATEFUL-PCE-CAPABILITY TLV */
@@ -2802,6 +2821,28 @@ dissect_pcep_obj_srp(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t 
     dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_srp);
 }
 
+/*------------------------------------------------------------------------------
+ * VENDOR-INFORMATION OBJECT
+ *------------------------------------------------------------------------------*/
+#define OBJ_VENDOR_INFORMATION_MIN_LEN 4
+
+static void
+dissect_pcep_obj_vendor_information(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2,
+                                    int obj_length) {
+
+    if (obj_length < OBJ_HDR_LEN + OBJ_VENDOR_INFORMATION_MIN_LEN) {
+        proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_subobject_bad_length,
+                                     tvb, offset2, obj_length,
+                                     "Bad VENDOR-INFORMATION object length %u, should >= %u",
+                                     obj_length, OBJ_HDR_LEN + OBJ_VENDOR_INFORMATION_MIN_LEN);
+        return;
+    }
+
+    proto_tree_add_item(pcep_object_tree, hf_pcep_enterprise_number, tvb, offset2, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pcep_object_tree, hf_pcep_enterprise_specific_info, tvb, offset2 + 4,
+                        obj_length - OBJ_HDR_LEN - 4, ENC_STR_HEX);
+}
+
 /*----------------------------------------------------------------------------
  * ASSOCIATION OBJECT
  *----------------------------------------------------------------------------*/
@@ -3025,6 +3066,11 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
                 pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_srp);
                 break;
 
+            case PCEP_OBJ_VENDOR_INFORMATION:
+                pcep_object_item = proto_tree_add_item(pcep_tree, hf_PCEPF_OBJ_VENDOR_INFORMATION, tvb, offset, -1, ENC_NA);
+                pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_vendor_information);
+                break;
+
             case PCEP_SERO_OBJ:
                 pcep_object_item = proto_tree_add_item(pcep_tree, hf_PCEPF_OBJ_SERO, tvb, offset, -1, ENC_NA);
                 pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_sero);
@@ -3169,6 +3215,10 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
 
             case PCEP_OBJ_SRP:
                 dissect_pcep_obj_srp(pcep_object_tree, pinfo, tvb, offset+4, obj_length);
+                break;
+
+            case PCEP_OBJ_VENDOR_INFORMATION:
+                dissect_pcep_obj_vendor_information(pcep_object_tree, pinfo, tvb, offset+4, obj_length);
                 break;
 
             case PCEP_SERO_OBJ:
@@ -3686,6 +3736,12 @@ proto_register_pcep(void)
 
         { &hf_PCEPF_OBJ_SRP,
           { "SRP object", "pcep.obj.srp",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_PCEPF_OBJ_VENDOR_INFORMATION,
+          { "VENDOR-INFORMATION object", "pcep.obj.vendor-information",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -4724,6 +4780,26 @@ proto_register_pcep(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_pcep_enterprise_number,
+          { "Enterprise Number", "pcep.vendor-information.enterprise-number",
+           FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0,
+           "IANA Private Enterprise Number", HFILL }
+        },
+        { &hf_pcep_enterprise_specific_info,
+          { "Enterprise-Specific Information", "pcep.vendor-information.enterprise-specific-info",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_tlv_enterprise_number,
+          { "Enterprise Number", "pcep.tlv.enterprise-number",
+           FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0,
+           "IANA Private Enterprise Number", HFILL }
+        },
+        { &hf_pcep_tlv_enterprise_specific_info,
+          { "Enterprise-Specific Information", "pcep.tlv.enterprise-specific-info",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     static gint *ett[] = {
@@ -4756,6 +4832,7 @@ proto_register_pcep(void)
         &ett_pcep_obj_overload,
         &ett_pcep_obj_lsp,
         &ett_pcep_obj_srp,
+        &ett_pcep_obj_vendor_information,
         &ett_pcep_obj_association,
         &ett_pcep_obj_unknown
     };
