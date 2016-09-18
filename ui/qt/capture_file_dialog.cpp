@@ -660,6 +660,7 @@ QStringList CaptureFileDialog::buildFileSaveAsTypeList(bool must_support_all_com
 
     if (savable_file_types_subtypes != NULL) {
         QString file_type;
+        QString hash_file_type;
         int ft;
         /* OK, we have at least one file type we can save this file as.
            (If we didn't, we shouldn't have gotten here in the first
@@ -669,8 +670,9 @@ QStringList CaptureFileDialog::buildFileSaveAsTypeList(bool must_support_all_com
             if (default_ft_ < 1)
                 default_ft_ = ft; /* first file type is the default */
             file_type = fileType(ft);
+            hash_file_type = fileType(ft, false);
             filters << file_type;
-            type_hash_[file_type] = ft;
+            type_hash_[hash_file_type] = ft;
         }
         g_array_free(savable_file_types_subtypes, TRUE);
     }
