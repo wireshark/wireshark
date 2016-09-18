@@ -618,7 +618,7 @@ static gboolean search_cb(const gchar *extcap _U_, const gchar *ifname _U_, gcha
                                 pref_title, pref_title, (const char **)arg->pref_valptr);
                     } else {
                         /* Been here before, restore stored value */
-                        if (! arg->pref_valptr && pref->varp.string)
+                        if (! arg->pref_valptr && pref->varp.string && strlen(*pref->varp.string))
                         {
                             arg->pref_valptr = pref->varp.string;
                         }
@@ -1010,9 +1010,8 @@ GPtrArray * extcap_prepare_arguments(interface_options interface_opts)
                             if ( g_strcmp0(stored, "true") == 0 )
                                 add_arg(arg_iter->call);
                         } else {
-                            gchar * call = g_strconcat(arg_iter->call, " ", stored, NULL);
-                            add_arg(call);
-                            g_free(call);
+                            add_arg(arg_iter->call);
+                            add_arg(stored);
                         }
                     } else if  (arg_iter->arg_type == EXTCAP_ARG_BOOLFLAG) {
                         if (extcap_complex_get_bool(arg_iter->default_complex))
