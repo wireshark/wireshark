@@ -404,6 +404,7 @@ static int hf_bootp_option82_vi_cl_docsis_version = -1;
 									/* 82:9 suboptions end */
 static int hf_bootp_option82_flags = -1;				/* 82:10 */
 static int hf_bootp_option82_server_id_override = -1;			/* 82:11 */
+static int hf_bootp_option82_relay_agent_id = -1;			/* 82:12 */
 static int hf_bootp_option82_link_selection_cisco = -1;			/* 82:150 */
 static int hf_bootp_option82_vrf_name_vpn_id = -1;			/* 82:151 */
 									/* 82:151 suboptions */
@@ -3020,6 +3021,7 @@ static const value_string option82_suboption_vals[] = {
 	{  9, "Vendor-Specific Information" },
 	{ 10, "Flags" },
 	{ 11, "Server ID Override" },
+	{ 12, "Relay Agent Identifier" },
 	{ 150, "Link selection (Cisco proprietary)" },
 	{ 151, "VRF name/VPN ID" },
 	{ 152, "Server ID Override (Cisco proprietary)" },
@@ -3069,6 +3071,7 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 		{9, {"Vendor-Specific Information", special, &hf_bootp_option82_vi}}, /* [RFC 4243] */
 		{10, {"Flags", val_u_byte, &hf_bootp_option82_flags}}, /* [RFC5010] */
 		{11, {"Server ID Override", ipv4, &hf_bootp_option82_server_id_override}}, /* [RFC 5107] */
+		{12, {"Relay Agent Identifier", bytes, &hf_bootp_option82_relay_agent_id}}, /* [RFC 6925] */
 		{150, {"Link selection (Cisco proprietary)", ipv4, &hf_bootp_option82_link_selection_cisco}}, /* [RFC3527] */
 		{151, {"VRF name/VPN ID", special, &hf_bootp_option82_vrf_name_vpn_id}}, /* [RFC2685] */
 		{152, {"Server ID Override (Cisco proprietary)", ipv4, &hf_bootp_option82_server_id_override_cisco}} /* [RFC 5107] */
@@ -7726,6 +7729,11 @@ proto_register_bootp(void)
 		  { "Server ID Override", "bootp.option.agent_information_option.server_id_override",
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
 		    "Option 82:11 Server ID Override", HFILL }},
+
+		{ &hf_bootp_option82_relay_agent_id,
+		  { "Relay Agent Identifier", "bootp.option.agent_information_option.relay_agent_id",
+		    FT_BYTES, BASE_NONE, NULL, 0x00,
+		    "Option 82:12 Relay Agent Identifier", HFILL }},
 
 		{ &hf_bootp_option82_link_selection_cisco,
 		  { "Link selection (Cisco proprietary)", "bootp.option.agent_information_option.link_selection_cisco",
