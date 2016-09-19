@@ -1564,7 +1564,7 @@ handle_message_header_body(tvbuff_t    *tvb,
     header_item = proto_tree_add_item(message_tree, hf_alljoyn_mess_header, tvb, offset, MESSAGE_HEADER_LENGTH, ENC_NA);
     header_tree = proto_item_add_subtree(header_item, ett_alljoyn_header);
 
-    proto_tree_add_item(header_tree, hf_alljoyn_mess_header_endian, tvb, offset + ENDIANNESS_OFFSET, 1, ENC_NA);
+    proto_tree_add_item(header_tree, hf_alljoyn_mess_header_endian, tvb, offset + ENDIANNESS_OFFSET, 1, ENC_ASCII|ENC_NA);
     proto_tree_add_item(header_tree, hf_alljoyn_mess_header_type, tvb, offset + TYPE_OFFSET, 1, ENC_NA);
 
     /* The flags byte. */
@@ -2674,7 +2674,7 @@ proto_register_AllJoyn(void)
         },
         {&hf_alljoyn_mess_header_endian,
          {"Endianness", "alljoyn.mess_header.endianess",
-          FT_UINT8, BASE_DEC, VALS(endian_encoding_vals), 0x0,
+          FT_CHAR, BASE_HEX, VALS(endian_encoding_vals), 0x0,
           NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_type,

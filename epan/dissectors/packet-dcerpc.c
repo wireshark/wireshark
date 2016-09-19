@@ -2042,6 +2042,26 @@ dcerpcstat_param(register_srt_t* srt, const char* opt_arg, char** err)
  */
 
 int
+dissect_dcerpc_char(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+                     proto_tree *tree, guint8 *drep,
+                     int hfindex, guint8 *pdata)
+{
+    guint8 data;
+
+    /*
+     * XXX - fix to handle EBCDIC if we ever support EBCDIC FT_CHAR.
+     */
+    data = tvb_get_guint8(tvb, offset);
+    if (hfindex != -1) {
+        proto_tree_add_item(tree, hfindex, tvb, offset, 1, ENC_ASCII|DREP_ENC_INTEGER(drep));
+    }
+    if (pdata)
+        *pdata = data;
+    tvb_ensure_bytes_exist(tvb, offset, 1);
+    return offset + 1;
+}
+
+int
 dissect_dcerpc_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                      proto_tree *tree, guint8 *drep,
                      int hfindex, guint8 *pdata)

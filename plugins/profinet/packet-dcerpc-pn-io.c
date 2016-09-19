@@ -3413,7 +3413,7 @@ dissect_IandM0_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                     hf_pn_io_im_hardware_revision, &u16IMHardwareRevision);
     /* c8 SWRevisionPrefix */
-    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcerpc_char(tvb, offset, pinfo, tree, drep,
                     hf_pn_io_im_revision_prefix, &u8SWRevisionPrefix);
     /* x8 IM_SWRevision_Functional_Enhancement */
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
@@ -12335,7 +12335,7 @@ proto_register_pn_io (void)
       /* XXX - better use a simple char here -> vals */
     { &hf_pn_io_im_revision_prefix,
       { "IMRevisionPrefix", "pn_io.im_revision_prefix",
-        FT_UINT8, BASE_HEX, VALS(pn_io_im_revision_prefix_vals), 0x0,
+        FT_CHAR, BASE_HEX, VALS(pn_io_im_revision_prefix_vals), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_im_sw_revision_functional_enhancement,

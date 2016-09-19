@@ -2706,8 +2706,8 @@ de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 
     proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 1, ENC_BIG_ENDIAN);
 
-    item = proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_keypad_information, tvb, curr_offset, 1,
-        keypad_char, "%c", keypad_char);
+    item = proto_tree_add_uint(tree, hf_gsm_a_dtap_keypad_information, tvb, curr_offset, 1,
+        keypad_char);
 
     if (((keypad_char < '0') || (keypad_char > '9')) &&
         ((keypad_char < 'A') || (keypad_char > 'D')) &&
@@ -8026,7 +8026,7 @@ proto_register_gsm_a_dtap(void)
         },
         { &hf_gsm_a_dtap_keypad_information,
           { "Keypad information", "gsm_a.dtap.keypad_information",
-            FT_UINT8, BASE_DEC, NULL, 0x7f,
+            FT_CHAR, BASE_HEX, NULL, 0x7f,
             NULL, HFILL }
         },
         { &hf_gsm_a_dtap_repeat_indicator,

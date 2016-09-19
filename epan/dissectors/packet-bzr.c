@@ -176,7 +176,7 @@ dissect_body(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         cmd = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_bzr_packet_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_bzr_packet_kind, tvb, offset, 1, ENC_ASCII|ENC_NA);
         offset += 1;
 
         switch (cmd) {
@@ -188,7 +188,7 @@ dissect_body(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
             break;
         case 'o':
             proto_tree_add_item(tree, hf_bzr_result, tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
             break;
         case 'e':
@@ -258,7 +258,7 @@ proto_register_bzr(void)
 {
     static hf_register_info hf[] = {
         { &hf_bzr_packet_kind,
-          { "Packet kind", "bzr.kind", FT_UINT8, BASE_DEC,
+          { "Packet kind", "bzr.kind", FT_CHAR, BASE_HEX,
             VALS(message_part_kind), 0x0, NULL, HFILL },
         },
         { &hf_bzr_packet_protocol_version,
@@ -287,7 +287,7 @@ proto_register_bzr(void)
             NULL, 0x0, NULL, HFILL },
         },
         { &hf_bzr_result,
-          { "Result", "bzr.result", FT_UINT8, BASE_HEX,
+          { "Result", "bzr.result", FT_CHAR, BASE_HEX,
             VALS(message_results), 0x0,
             "Command result (success or failure with error message)", HFILL
           },

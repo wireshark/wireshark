@@ -205,6 +205,10 @@ guint16 dcerpc_tvb_get_ntohs (tvbuff_t *tvb, gint offset, guint8 *drep);
 guint32 dcerpc_tvb_get_ntohl (tvbuff_t *tvb, gint offset, guint8 *drep);
 void dcerpc_tvb_get_uuid (tvbuff_t *tvb, gint offset, guint8 *drep, e_guid_t *uuid);
 WS_DLL_PUBLIC
+int dissect_dcerpc_char (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                         proto_tree *tree, guint8 *drep,
+                         int hfindex, guint8 *pdata);
+WS_DLL_PUBLIC
 int dissect_dcerpc_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                           proto_tree *tree, guint8 *drep,
                           int hfindex, guint8 *pdata);

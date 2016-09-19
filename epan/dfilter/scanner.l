@@ -117,6 +117,7 @@ static void mark_lval_deprecated(const char *s);
 %x RANGE_INT
 %x RANGE_PUNCT
 %x DQUOTE
+%x SQUOTE
 
 %%
 
@@ -214,7 +215,7 @@ static void mark_lval_deprecated(const char *s);
 }
 
 \042				{
-	/* start quote */
+	/* start quote of a quoted string */
 	/* The example of how to scan for strings was taken from
 	the flex 2.5.4 manual, from the section "Start Conditions".
 	See:
@@ -282,6 +283,60 @@ static void mark_lval_deprecated(const char *s);
 }
 
 <DQUOTE>[^\\\042]+			{
+	/* non-escaped string */
+	g_string_append(yyextra->quoted_string, yytext);
+}
+
+
+\047				{
+	/* start quote of a quoted character value */
+	/* The example of how to scan for strings was taken from
+	the Flex manual, from the section "Start Conditions".
+	See:
+	http://flex.sourceforge.net/manual/Start-Conditions.html#Start-Conditions */
+
+	BEGIN(SQUOTE);
+	/* A previous filter that failed to compile due to
+	a missing end quote will have left quoted_string set
+	to something. Clear it now that we are starting
+	a new quoted string. */
+	if (yyextra->quoted_string) {
+		g_string_free(yyextra->quoted_string, TRUE);
+		/* Don't set quoted_string to NULL, as we
+		do in other quoted_string-cleanup code, as we're
+		about to set it in the next line. */
+	}
+	yyextra->quoted_string = g_string_new("'");
+}
+
+<SQUOTE><<EOF>>				{
+	/* unterminated character value */
+	/* The example of how to handle unclosed strings was taken from
+	the Flex manual, from the section "End-of-file rules".
+	See:
+	http://flex.sourceforge.net/manual/EOF.html#EOF.html */
+
+	dfilter_fail(yyextra->dfw, "The final quote was missing from a character constant.");
+	return SCAN_FAILED;
+}
+
+<SQUOTE>\047			{
+	/* end quote */
+	int token;
+	BEGIN(INITIAL);
+	g_string_append_c(yyextra->quoted_string, '\'');
+	token = set_lval(TOKEN_CHARCONST, yyextra->quoted_string->str);
+	g_string_free(yyextra->quoted_string, TRUE);
+	yyextra->quoted_string = NULL;
+	return token;
+}
+
+<SQUOTE>\\.				{
+	/* escaped character */
+	g_string_append(yyextra->quoted_string, yytext);
+}
+
+<SQUOTE>[^\\\047]+			{
 	/* non-escaped string */
 	g_string_append(yyextra->quoted_string, yytext);
 }
@@ -366,6 +421,9 @@ set_lval(int token, gpointer data)
 	switch (token) {
 		case TOKEN_STRING:
 			type_id = STTYPE_STRING;
+			break;
+		case TOKEN_CHARCONST:
+			type_id = STTYPE_CHARCONST;
 			break;
 		case TOKEN_FIELD:
 			type_id = STTYPE_FIELD;

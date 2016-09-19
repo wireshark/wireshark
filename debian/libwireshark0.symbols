@@ -287,6 +287,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_ber_set_of@Base 1.9.1
  dissect_ber_tagged_type@Base 1.9.1
  dissect_dap_SecurityParameters@Base 1.9.1
+ dissect_dcerpc_char@Base 2.3.0
  dissect_dcerpc_uint16@Base 1.9.1
  dissect_dcerpc_uint32@Base 1.9.1
  dissect_dcerpc_uint64@Base 1.9.1
@@ -783,6 +784,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  guids_get_guid_name@Base 1.9.1
  guids_init@Base 1.9.1
  guids_resolve_guid_to_str@Base 1.9.1
+ guint8_to_hex@Base 2.3.0
  h225_RasMessage_vals@Base 1.9.1
  h225_ReleaseCompleteReason_vals@Base 1.9.1
  h245_set_h223_add_lc_handle@Base 1.9.1

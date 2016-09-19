@@ -175,7 +175,7 @@ dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 ti = proto_tree_add_string(gopher_tree, hf_gopher_dir_item, tvb,
                                 offset, line_len + 1, name);
                 dir_tree = proto_item_add_subtree(ti, ett_dir_item);
-                proto_tree_add_item(dir_tree, hf_gopher_di_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(dir_tree, hf_gopher_di_type, tvb, offset, 1, ENC_ASCII|ENC_NA);
                 proto_tree_add_item(dir_tree, hf_gopher_di_name, tvb, offset + 1,
                                     sel_start - offset - 2, ENC_ASCII|ENC_NA);
                 proto_tree_add_item(dir_tree, hf_gopher_di_selector, tvb, sel_start,
@@ -238,7 +238,7 @@ proto_register_gopher(void)
         },
         { &hf_gopher_di_type,
             { "Type", "gopher.directory.type",
-                FT_UINT8, BASE_HEX, VALS(item_types), 0,
+                FT_CHAR, BASE_HEX, VALS(item_types), 0,
                 NULL, HFILL }
         },
         { &hf_gopher_di_name,

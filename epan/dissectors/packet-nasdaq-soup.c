@@ -84,7 +84,7 @@ dissect_nasdaq_soup_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
     tvbuff_t *new_tvb = NULL;
 
     nasdaq_soup_type = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_nasdaq_soup_packet_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nasdaq_soup_packet_type, tvb, offset, 1, ENC_ASCII|ENC_NA);
     offset++;
 
     switch (nasdaq_soup_type) {
@@ -100,7 +100,7 @@ dissect_nasdaq_soup_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
         offset += 10;
         break;
     case 'J': /* login reject */
-        proto_tree_add_item(tree, hf_nasdaq_soup_reject_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_nasdaq_soup_reject_code, tvb, offset, 1, ENC_ASCII|ENC_NA);
         offset++;
         break;
 
@@ -214,12 +214,12 @@ proto_register_nasdaq_soup(void)
 
     { &hf_nasdaq_soup_packet_type,
       { "Packet Type",       "nasdaq-soup.packet_type",
-        FT_UINT8, BASE_DEC, VALS(message_types_val), 0x0,
+        FT_CHAR, BASE_HEX, VALS(message_types_val), 0x0,
         NULL, HFILL }},
 
     { &hf_nasdaq_soup_reject_code,
       { "Login Reject Code", "nasdaq-soup.reject_code",
-        FT_UINT8, BASE_DEC, VALS(reject_code_val), 0x0,
+        FT_CHAR, BASE_HEX, VALS(reject_code_val), 0x0,
         NULL, HFILL }},
 
     { &hf_nasdaq_soup_message,

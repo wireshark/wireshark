@@ -133,45 +133,6 @@ static int hf_soupbintcp_req_seq_num = -1;
 static int hf_soupbintcp_reject_code = -1;
 
 
-/** Format the display of the packet type code
- *
- * This function is called via BASE_CUSTOM, and displays the packet
- * type code as a character like it is in the specification, rather
- * than using BASE_DEC which shows it as an integer value. */
-static void
-format_packet_type(
-    gchar   *buf,
-    guint32  value)
-{
-    gchar* tmp_str;
-
-    tmp_str = val_to_str_wmem(NULL, value, pkt_type_val, "Unknown packet");
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)", tmp_str, (char)(value & 0xff));
-    wmem_free(NULL, tmp_str);
-}
-
-
-/** Format the display of the login rejection reason code
- *
- * This function is called via BASE_CUSTOM, and displays the login
- * rejection reason code as a character like it is in the
- * specification, rather than using BASE_DEC which show it as an
- * integer value. */
-static void
-format_reject_code(
-    gchar   *buf,
-    guint32  value)
-{
-    gchar* tmp_str;
-
-    tmp_str = val_to_str_wmem(NULL, value, reject_code_val, "Unknown reject code");
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)", tmp_str, (char)(value & 0xff));
-    wmem_free(NULL, tmp_str);
-}
-
-
 /** Dissector for SoupBinTCP messages */
 static void
 dissect_soupbintcp_common(
@@ -317,7 +278,7 @@ dissect_soupbintcp_common(
         /* Type */
         proto_tree_add_item(soupbintcp_tree,
                             hf_soupbintcp_packet_type,
-                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                            tvb, offset, 1, ENC_ASCII|ENC_NA);
         offset += 1;
 
         switch (pkt_type) {
@@ -343,7 +304,7 @@ dissect_soupbintcp_common(
         case 'J': /* Login Reject */
             proto_tree_add_item(soupbintcp_tree,
                                 hf_soupbintcp_reject_code,
-                                tvb, offset, 1, ENC_BIG_ENDIAN);
+                                tvb, offset, 1, ENC_ASCII|ENC_NA);
             break;
 
         case 'U': /* Unsequenced Data */
@@ -518,13 +479,13 @@ proto_register_soupbintcp(void)
 
         { &hf_soupbintcp_packet_type,
           { "Packet Type", "soupbintcp.packet_type",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_packet_type), 0x0,
+            FT_CHAR, BASE_HEX, VALS(pkt_type_val), 0x0,
             "Message type code",
             HFILL }},
 
         { &hf_soupbintcp_reject_code,
           { "Login Reject Code", "soupbintcp.reject_code",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_reject_code), 0x0,
+            FT_CHAR, BASE_HEX, VALS(reject_code_val), 0x0,
             "Login reject reason code",
             HFILL }},
 

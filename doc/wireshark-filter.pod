@@ -61,7 +61,8 @@ Additional operators exist expressed only in English, not C-like syntax:
 
 The "contains" operator allows a filter to search for a sequence of
 characters, expressed as a string (quoted or unquoted), or bytes,
-expressed as a byte array.  For example, to search for a given HTTP
+expressed as a byte array, or for a single character, expressed as a
+C-style character constant.  For example, to search for a given HTTP
 URL in a capture, the following filter can be used:
 
     http contains "https://www.wireshark.org"
@@ -120,13 +121,18 @@ Each protocol field is typed. The types are:
     Signed integer, 1, 2, 3, 4, or 8 bytes
     Time offset
     Unsigned integer, 1, 2, 3, 4, or 8 bytes
+    1-byte ASCII character
 
-An integer may be expressed in decimal, octal, or hexadecimal notation.
-The following three display filters are equivalent:
+An integer may be expressed in decimal, octal, or hexadecimal notation,
+or as a C-style character constant.  The following six display filters
+are equivalent:
 
     frame.pkt_len > 10
     frame.pkt_len > 012
     frame.pkt_len > 0xa
+    frame.pkt_len > '\n'
+    frame.pkt_len > '\xa'
+    frame.pkt_len > '\012'
 
 Boolean values are either true or false.  In a display filter expression
 testing the value of a Boolean field, "true" is expressed as 1 or any

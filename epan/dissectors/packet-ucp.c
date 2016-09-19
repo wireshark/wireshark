@@ -2020,7 +2020,7 @@ proto_register_ucp(void)
         },
         { &hf_ucp_hdr_O_R,
           { "Type", "ucp.hdr.O_R",
-            FT_UINT8, BASE_DEC, VALS(vals_hdr_O_R), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_hdr_O_R), 0x00,
             "Your basic 'is a request or response'.",
             HFILL
           }
@@ -2083,14 +2083,14 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_BAS,
           { "BAS", "ucp.parm.BAS",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_BAS), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_BAS), 0x00,
             "Barring status flag.",
             HFILL
           }
         },
         { &hf_ucp_parm_LAR,
           { "LAR", "ucp.parm.LAR",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_LAR), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_LAR), 0x00,
             "Leg. code for all calls flag.",
             HFILL
           }
@@ -2104,7 +2104,7 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_L1R,
           { "L1R", "ucp.parm.L1R",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_L1R), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_L1R), 0x00,
             "Leg. code for priority 1 flag.",
             HFILL
           }
@@ -2118,7 +2118,7 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_L3R,
           { "L3R", "ucp.parm.L3R",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_L3R), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_L3R), 0x00,
             "Leg. code for priority 3 flag.",
             HFILL
           }
@@ -2132,28 +2132,28 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_LCR,
           { "LCR", "ucp.parm.LCR",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_LCR), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_LCR), 0x00,
             "Leg. code for reverse charging flag.",
             HFILL
           }
         },
         { &hf_ucp_parm_LUR,
           { "LUR", "ucp.parm.LUR",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_LUR), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_LUR), 0x00,
             "Leg. code for urgent message flag.",
             HFILL
           }
         },
         { &hf_ucp_parm_LRR,
           { "LRR", "ucp.parm.LRR",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_LRR), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_LRR), 0x00,
             "Leg. code for repetition flag.",
             HFILL
           }
         },
         { &hf_ucp_parm_RT,
           { "RT", "ucp.parm.RT",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_RT), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_RT), 0x00,
             "Receiver type.",
             HFILL
           }
@@ -2181,7 +2181,7 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_PNC,
           { "PNC", "ucp.parm.PNC",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_PNC), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_PNC), 0x00,
             "Paging network controller.",
             HFILL
           }
@@ -2244,7 +2244,7 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_RP,
           { "RP", "ucp.parm.RP",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_RP), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_RP), 0x00,
             "Repetition requested.",
             HFILL
           }
@@ -2272,7 +2272,7 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_UM,
           { "UM", "ucp.parm.UM",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_UM), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_UM), 0x00,
             "Urgent message indicator.",
             HFILL
           }
@@ -2286,7 +2286,7 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_RC,
           { "RC", "ucp.parm.RC",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_RC), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_RC), 0x00,
             "Reverse charging request.",
             HFILL
           }
@@ -2300,7 +2300,7 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_NRq,
           { "NRq", "ucp.parm.NRq",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_NRq), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_NRq), 0x00,
             "Notification request.",
             HFILL
           }
@@ -2314,7 +2314,7 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_A_D,
           { "A_D", "ucp.parm.A_D",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_A_D), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_A_D), 0x00,
             "Add to/delete from fixed subscriber address list record.",
             HFILL
           }
@@ -2342,7 +2342,7 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_R_T,
           { "R_T", "ucp.parm.R_T",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_R_T), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_R_T), 0x00,
             "Message number.",
             HFILL
           }
@@ -2356,7 +2356,7 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_NT,
           { "NT", "ucp.parm.NT",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_NT), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_NT), 0x00,
             "Notification type.",
             HFILL
           }
@@ -2370,14 +2370,14 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_REQ_OT,
           { "REQ_OT", "ucp.parm.REQ_OT",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_REQ_OT), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_REQ_OT), 0x00,
             "UCP release number supported/accepted.",
             HFILL
           }
         },
         { &hf_ucp_parm_SSTAT,
           { "SSTAT", "ucp.parm.SSTAT",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_SSTAT), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_SSTAT), 0x00,
             "Supplementary services for which status is requested.",
             HFILL
           }
@@ -2405,7 +2405,7 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_LRq,
           { "LRq", "ucp.parm.LRq",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_LRq), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_LRq), 0x00,
             "Last resort address request.",
             HFILL
           }
@@ -2426,7 +2426,7 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_DD,
           { "DD", "ucp.parm.DD",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_DD), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_DD), 0x00,
             "Deferred delivery requested.",
             HFILL
           }
@@ -2482,7 +2482,7 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_Dst,
           { "Dst", "ucp.parm.Dst",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_Dst), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_Dst), 0x00,
             "Delivery status.",
             HFILL
           }
@@ -2503,7 +2503,7 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_MT,
           { "MT", "ucp.parm.MT",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_MT), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_MT), 0x00,
             "Message type.",
             HFILL
           }
@@ -2531,21 +2531,21 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_DCs,
           { "DCs", "ucp.parm.DCs",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_DCs), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_DCs), 0x00,
             "Data coding scheme (deprecated).",
             HFILL
           }
         },
         { &hf_ucp_parm_MCLs,
           { "MCLs", "ucp.parm.MCLs",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_MCLs), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_MCLs), 0x00,
             "Message class.",
             HFILL
           }
         },
         { &hf_ucp_parm_RPI,
           { "RPI", "ucp.parm.RPI",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_RPI), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_RPI), 0x00,
             "Reply path.",
             HFILL
           }
@@ -2601,28 +2601,28 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_OTON,
           { "OTON", "ucp.parm.OTON",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_OTON), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_OTON), 0x00,
             "Originator type of number.",
             HFILL
           }
         },
         { &hf_ucp_parm_ONPI,
           { "ONPI", "ucp.parm.ONPI",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_ONPI), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_ONPI), 0x00,
             "Originator numbering plan id.",
             HFILL
           }
         },
         { &hf_ucp_parm_STYP0,
           { "STYP0", "ucp.parm.STYP0",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_STYP0), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_STYP0), 0x00,
             "Subtype of operation.",
             HFILL
           }
         },
         { &hf_ucp_parm_STYP1,
           { "STYP1", "ucp.parm.STYP1",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_STYP1), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_STYP1), 0x00,
             "Subtype of operation.",
             HFILL
           }
@@ -2692,7 +2692,7 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_ACK,
           { "(N)Ack", "ucp.parm.ACK",
-            FT_UINT8, BASE_DEC, VALS(vals_parm_ACK), 0x00,
+            FT_CHAR, BASE_HEX, VALS(vals_parm_ACK), 0x00,
             "Positive or negative acknowledge of the operation.",
             HFILL
           }

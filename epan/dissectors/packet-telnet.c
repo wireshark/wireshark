@@ -488,13 +488,13 @@ dissect_starttls_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_
 }
 
 static const value_string telnet_outmark_subopt_cmd_vals[] = {
-  { 6,   "ACK" },
-  { 21,  "NAK" },
-  { 'D', "Default" },
-  { 'T', "Top" },
-  { 'B', "Bottom" },
-  { 'L', "Left" },
-  { 'R', "Right" },
+  { '\x06', "ACK" },
+  { '\x15', "NAK" },
+  { 'D',    "Default" },
+  { 'T',    "Top" },
+  { 'B',    "Bottom" },
+  { 'L',    "Left" },
+  { 'R',    "Right" },
   { 0, NULL }
 };
 
@@ -505,7 +505,7 @@ dissect_outmark_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
   int    gs_offset, datalen;
 
   while (len > 0) {
-    proto_tree_add_item(tree, hf_telnet_outmark_subopt_cmd, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_telnet_outmark_subopt_cmd, tvb, offset, 1, ENC_ASCII | ENC_NA);
 
     offset++;
     len--;
@@ -1985,7 +1985,7 @@ proto_register_telnet(void)
         NULL, 0, NULL, HFILL }
     },
     { &hf_telnet_outmark_subopt_cmd,
-      { "Command", "telnet.outmark_subopt.cmd", FT_UINT8, BASE_DEC,
+      { "Command", "telnet.outmark_subopt.cmd", FT_CHAR, BASE_HEX,
         VALS(telnet_outmark_subopt_cmd_vals), 0, NULL, HFILL }
     },
     { &hf_telnet_outmark_subopt_banner,

@@ -1520,7 +1520,7 @@ proto_register_ipx(void)
 
 		{ &hf_msg_sigchar,
 		{ "Signature Char",			"ipxmsg.sigchar",
-		  FT_UINT8,	BASE_DEC,	VALS(ipxmsg_sigchar_vals),	0x0,
+		  FT_CHAR,	BASE_HEX,	VALS(ipxmsg_sigchar_vals),	0x0,
 		  NULL, HFILL }}
 	};
 

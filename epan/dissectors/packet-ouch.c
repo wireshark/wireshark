@@ -350,201 +350,6 @@ ouch_tree_add_timestamp(
     proto_tree_add_string(tree, hf, tvb, offset, 8, buf);
 }
 
-static void
-packet_type_format(
-    gchar *buf,
-    guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value, pkt_type_val, "Unknown"),
-               value);
-}
-
-/** BASE_CUSTOM formatter for BBO weight indicator code
- *
- * Displays the code value as a character, not its ASCII value, as
- * would be done by BASE_DEC and friends. */
-static void
-format_bbo_weight_indicator(
-    gchar *buf,
-    guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value,
-                                ouch_bbo_weight_indicator_val,
-                                "Unknown"),
-               value);
-}
-
-/** BASE_CUSTOM formatter for broken trade reason code
- *
- * Displays the code value as a character, not its ASCII value, as
- * would be done by BASE_DEC and friends. */
-static void
-format_broken_trade_reason(
-    gchar *buf,
-    guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value,
-                                ouch_broken_trade_reason_val,
-                                "Unknown"),
-               value);
-}
-
-/** BASE_CUSTOM formatter for buy/sell indicator code
- *
- * Displays the code value as a character, not its ASCII value, as
- * would be done by BASE_DEC and friends. */
-static void
-format_buy_sell_indicator(
-    gchar *buf,
-    guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value, ouch_buy_sell_indicator_val, "Unknown"),
-               value);
-}
-
-/** BASE_CUSTOM formatter for cancel reason code
- *
- * Displays the code value as a character, not its ASCII value, as
- * would be done by BASE_DEC and friends. */
-static void
-format_cancel_reason(
-    gchar *buf,
-    guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value, ouch_cancel_reason_val, "Unknown"),
-               value);
-}
-
-/** BASE_CUSTOM formatter for the capacity code
- *
- * Displays the code value as a character, not its ASCII value, as
- * would be done by BASE_DEC and friends. */
-static void
-format_capacity(
-    char *buf,
-    guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value, ouch_capacity_val, "Unknown"),
-               value);
-}
-
-/** BASE_CUSTOM formatter for the cross type code
- *
- * Displays the code value as a character, not its ASCII value, as
- * would be done by BASE_DEC and friends. */
-static void
-format_cross_type(
-    char *buf,
-    guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value, ouch_cross_type_val, "Unknown"),
-               value);
-}
-
-/** BASE_CUSTOM formatter for the customer type code
- *
- * Displays the code value as a character, not its ASCII value, as
- * would be done by BASE_DEC and friends. */
-static void
-format_customer_type(
-    char *buf,
-    guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value, ouch_customer_type_val, "Unknown"),
-               value);
-}
-
-/** BASE_CUSTOM formatter for the display code
- *
- * Displays the code value as a character, not its ASCII value, as
- * would be done by BASE_DEC and friends. */
-static void
-format_display(
-    char *buf,
-    guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value, ouch_display_val, "Unknown"),
-               value);
-}
-
-/** BASE_CUSTOM formatter for the system event code
- *
- * Displays the code value as a character, not its ASCII value, as
- * would be done by BASE_DEC and friends. */
-static void
-format_event_code(
-    char *buf,
-    guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value, ouch_event_code_val, "Unknown"),
-               value);
-}
-
-/** BASE_CUSTOM formatter for the ISO eligibility code
- *
- * Displays the code value as a character, not its ASCII value, as
- * would be done by BASE_DEC and friends. */
-static void
-format_iso_eligibility(
-    char *buf,
-    guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value, ouch_iso_eligibility_val, "Unknown"),
-               value);
-}
-
-/** BASE_CUSTOM formatter for the liquidity flag code
- *
- * Displays the code value as a character, not its ASCII value, as
- * would be done by BASE_DEC and friends. */
-static void
-format_liquidity_flag(
-    char *buf,
-    guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value, ouch_liquidity_flag_val, "Unknown"),
-               value);
-}
-
-/** BASE_CUSTOM formatter for order state code
- *
- * Displays the code value as a character, not its ASCII value, as
- * would be done by BASE_DEC and friends. */
-static void
-format_order_state(
-    char *buf,
-    guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value, ouch_order_state_val, "Unknown"),
-               value);
-}
-
 /** BASE_CUSTOM formatter for prices
  *
  * OUCH prices are integers, with four implicit decimal places.  So we
@@ -563,23 +368,6 @@ format_price(
     }
 }
 
-/** BASE_CUSTOM formatter for price correction reason code
- *
- * Displays the code value as a character, not its ASCII value, as
- * would be done by BASE_DEC and friends. */
-static void
-format_price_correction_reason(
-    char *buf,
-    guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value,
-                                ouch_price_correction_reason_val,
-                                "Unknown"),
-               value);
-}
-
 /** BASE_CUSTOM formatter for reference price type code
  *
  * Displays the code value as a character, not its ASCII value, as
@@ -594,21 +382,6 @@ format_reference_price_type(
                val_to_str_const(value,
                                 ouch_reference_price_type_val,
                                 "Unknown"),
-               value);
-}
-
-/** BASE_CUSTOM formatter for the reject reason code
- *
- * Displays the code value as a character, not its ASCII value, as
- * would be done by BASE_DEC and friends. */
-static void
-format_reject_reason(
-    char *buf,
-    guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value, ouch_reject_reason_val, "Unknown"),
                value);
 }
 
@@ -651,23 +424,6 @@ format_tif(
                    value);
         break;
     }
-}
-
-/** BASE_CUSTOM formatter for the trade correction reason code
- *
- * Displays the code value as a character, not its ASCII value, as
- * would be done by BASE_DEC and friends. */
-static void
-format_trade_correction_reason(
-    char *buf,
-    guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value,
-                                ouch_trade_correction_reason_val,
-                                "Unknown"),
-               value);
 }
 
 
@@ -729,7 +485,7 @@ dissect_ouch(
 
         /* Packet type (using the cooked value). */
         proto_tree_add_item(ouch_tree, hf_ouch_packet_type,
-                                  tvb, offset, 1, ENC_NA);
+                                  tvb, offset, 1, ENC_ASCII|ENC_NA);
         offset += 1;
 
         switch (pkt_type) {
@@ -743,7 +499,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_buy_sell_indicator,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
@@ -779,19 +535,19 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_display,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_capacity,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_iso_eligible,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
@@ -803,14 +559,14 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_cross_type,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             if (reported_len >= 49) { /* Added in 4.1 */
                 proto_tree_add_item(ouch_tree,
                                     hf_ouch_customer_type,
                                     tvb, offset, 1,
-                                    ENC_BIG_ENDIAN);
+                                    ENC_ASCII|ENC_NA);
                 offset += 1;
             }
             break;
@@ -866,7 +622,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_display,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
@@ -878,13 +634,13 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_capacity,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_iso_eligible,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
@@ -896,20 +652,20 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_cross_type,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_state,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             if (reported_len >= 66) { /* Added in 4.2 */
                 proto_tree_add_item(ouch_tree,
                                     hf_ouch_bbo_weight_indicator,
                                     tvb, offset, 1,
-                                    ENC_BIG_ENDIAN);
+                                    ENC_ASCII|ENC_NA);
                 offset += 1;
             }
             break;
@@ -948,13 +704,13 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_display,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_iso_eligible,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
@@ -1007,7 +763,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_event_code,
                                 tvb, offset, 1,
-                                ENC_ASCII);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
             break;
 
@@ -1062,7 +818,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_display,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
@@ -1074,13 +830,13 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_capacity,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_iso_eligible,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
@@ -1092,13 +848,13 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_cross_type,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_state,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
@@ -1137,7 +893,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_cancel_reason,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
             break;
 
@@ -1162,7 +918,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_cancel_reason,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
@@ -1180,7 +936,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_liquidity_flag,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
             break;
 
@@ -1211,7 +967,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_liquidity_flag,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
@@ -1242,7 +998,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_broken_trade_reason,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
             break;
 
@@ -1273,7 +1029,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_liquidity_flag,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
@@ -1285,7 +1041,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_trade_correction_reason,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
             break;
 
@@ -1316,7 +1072,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_liquidity_flag,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
@@ -1365,7 +1121,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_price_correction_reason,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
             break;
 
@@ -1384,7 +1140,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_reject_reason,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
             break;
 
@@ -1435,7 +1191,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_display,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
@@ -1638,37 +1394,37 @@ proto_register_ouch(void)
 
         { &hf_ouch_bbo_weight_indicator,
           { "BBO Weight Indicator", "ouch.bbo_weight_indicator",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_bbo_weight_indicator), 0x0,
+            FT_CHAR, BASE_HEX, VALS(ouch_bbo_weight_indicator_val), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_broken_trade_reason,
           { "Broken Trade Reason", "ouch.broken_trade_reason",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_broken_trade_reason), 0x0,
+            FT_CHAR, BASE_HEX, VALS(ouch_broken_trade_reason_val), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_buy_sell_indicator,
           { "Buy/Sell Indicator", "ouch.buy_sell_indicator",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_buy_sell_indicator), 0x0,
+            FT_CHAR, BASE_HEX, VALS(ouch_buy_sell_indicator_val), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_cancel_reason,
           { "Cancel Reason", "ouch.cancel_reason",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_cancel_reason), 0x0,
+            FT_CHAR, BASE_HEX, VALS(ouch_cancel_reason_val), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_capacity,
           { "Capacity", "ouch.capacity",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_capacity), 0x0,
+            FT_CHAR, BASE_HEX, VALS(ouch_capacity_val), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_cross_type,
           { "Cross Type", "ouch.cross_type",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_cross_type), 0x0,
+            FT_CHAR, BASE_HEX, VALS(ouch_cross_type_val), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_customer_type,
           { "Customer Type", "ouch.customer_type",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_customer_type), 0x0,
+            FT_CHAR, BASE_HEX, VALS(ouch_customer_type_val), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_decrement_shares,
@@ -1678,12 +1434,12 @@ proto_register_ouch(void)
 
         { &hf_ouch_display,
           { "Display", "ouch.display",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_display), 0x0,
+            FT_CHAR, BASE_HEX, VALS(ouch_display_val), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_event_code,
           { "Event Code", "ouch.event_code",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_event_code), 0x0,
+            FT_CHAR, BASE_HEX, VALS(ouch_event_code_val), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_executed_shares,
@@ -1708,12 +1464,12 @@ proto_register_ouch(void)
 
         { &hf_ouch_iso_eligible,
           { "Intermarket Sweep Eligibility", "ouch.iso_eligible",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_iso_eligibility), 0x0,
+            FT_CHAR, BASE_HEX, VALS(ouch_iso_eligibility_val), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_liquidity_flag,
           { "Liquidity Flag", "ouch.liquidity_flag",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_liquidity_flag), 0x0,
+            FT_CHAR, BASE_HEX, VALS(ouch_liquidity_flag_val), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_match_number,
@@ -1743,7 +1499,7 @@ proto_register_ouch(void)
 
         { &hf_ouch_order_state,
           { "Order State", "ouch.order_state",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_order_state), 0x0,
+            FT_CHAR, BASE_HEX, VALS(ouch_order_state_val), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_order_token,
@@ -1753,7 +1509,7 @@ proto_register_ouch(void)
 
         { &hf_ouch_packet_type,
           { "Packet Type", "ouch.packet_type",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(packet_type_format), 0x0,
+            FT_CHAR, BASE_HEX, VALS(pkt_type_val), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_previous_order_token,
@@ -1768,7 +1524,7 @@ proto_register_ouch(void)
 
         { &hf_ouch_price_correction_reason,
           { "Price Correction Reason", "ouch.price_correction_reason",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_price_correction_reason), 0x0,
+            FT_CHAR, BASE_HEX, VALS(ouch_price_correction_reason_val), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_quantity_prevented_from_trading,
@@ -1789,7 +1545,7 @@ proto_register_ouch(void)
 
         { &hf_ouch_reject_reason,
           { "Reject Reason", "ouch.reject_reason",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_reject_reason), 0x0,
+            FT_CHAR, BASE_HEX, VALS(ouch_reject_reason_val), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_replacement_order_token,
@@ -1819,7 +1575,7 @@ proto_register_ouch(void)
 
         { &hf_ouch_trade_correction_reason,
           { "Trade Correction Reason", "ouch.trade_correction_reason",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_trade_correction_reason), 0x0,
+            FT_CHAR, BASE_HEX, VALS(ouch_trade_correction_reason_val), 0x0,
             NULL, HFILL }}
     };
 

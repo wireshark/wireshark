@@ -222,7 +222,7 @@ dissect_beep_more(tvbuff_t *tvb, packet_info *pinfo, int offset,
   int ret = 0;
   guint8 more = tvb_get_guint8(tvb, offset);
 
-  hidden_item = proto_tree_add_item(tree, hf_beep_more, tvb, offset, 1, ENC_BIG_ENDIAN);
+  hidden_item = proto_tree_add_item(tree, hf_beep_more, tvb, offset, 1, ENC_ASCII|ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
 
   switch(more) {
@@ -916,7 +916,7 @@ proto_register_beep(void)
       { "Sequence Channel Number", "beep.seq.channel", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_more,
-      { "More", "beep.more", FT_UINT8, BASE_HEX, VALS(beep_more_vals), 0x0, NULL, HFILL }},
+      { "More", "beep.more", FT_CHAR, BASE_HEX, VALS(beep_more_vals), 0x0, NULL, HFILL }},
 
     { &hf_beep_msgno,
       { "Msgno", "beep.msgno", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},

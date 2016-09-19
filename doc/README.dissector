@@ -103,7 +103,7 @@ PROTOABBREV     A name for the protocol for use in filter expressions;
 FIELDNAME       The displayed name for the header field.
 FIELDABBREV     The abbreviated name for the header field; it may contain
                 only letters, digits, hyphens, underscores, and periods.
-FIELDTYPE       FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
+FIELDTYPE       FT_NONE, FT_BOOLEAN, FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24,
                 FT_UINT32, FT_UINT40, FT_UINT48, FT_UINT56, FT_UINT64,
                 FT_INT8, FT_INT16, FT_INT24, FT_INT32, FT_INT40, FT_INT48,
                 FT_INT56, FT_INT64, FT_FLOAT, FT_DOUBLE, FT_ABSOLUTE_TIME,
@@ -128,6 +128,13 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
                 --For FT_UINT16:
 
                   BASE_PT_UDP, BASE_PT_TCP, BASE_PT_DCCP or BASE_PT_SCTP
+
+                --For FT_CHAR:
+                  BASE_HEX, BASE_OCT, BASE_CUSTOM, or BASE_NONE, possibly
+                  ORed with BASE_RANGE_STRING, BASE_EXT_STRING or
+                  BASE_VAL64_STRING.
+
+                  BASE_NONE can be used in the same way as with FT_UINT8.
 
                 --For FT_ABSOLUTE_TIME:
 
@@ -747,6 +754,9 @@ The type of value this field holds. The current field types are:
     FT_FRAMENUM A frame number; if this is used, the "Go
                 To Corresponding Frame" menu item can
                 work on that field.
+    FT_CHAR     An 8-bit ASCII character.  It's treated similarly to an
+                FT_UINT8, but is displayed as a C-style character
+                constant.
     FT_UINT8    An 8-bit unsigned integer.
     FT_UINT16   A 16-bit unsigned integer.
     FT_UINT24   A 24-bit unsigned integer.
@@ -880,9 +890,11 @@ For FT_BOOLEAN fields that are also bitfields (i.e., 'bitmask' is non-zero),
 wide the parent bitfield is). (If the FT_BOOLEAN 'bitmask' is zero, then
 'display' must be BASE_NONE).
 
-For integer fields a "field-width" is not needed since the type of integer itself
-(FT_UINT8, FT_UINT16, FT_UINT24, FT_UINT32, FT_UINT40, FT_UINT48, FT_UINT56,
-FT_UINT64, etc) tells the proto_tree how wide the parent bitfield is.
+For integer fields a "field-width" is not needed since the type of
+integer itself (FT_UINT8, FT_UINT16, FT_UINT24, FT_UINT32, FT_UINT40,
+FT_UINT48, FT_UINT56, FT_UINT64, etc) tells the proto_tree how wide the
+parent bitfield is.  The same is true of FT_CHAR, as it's an 8-bit
+character.
 
 For FT_ABSOLUTE_TIME fields, 'display' is used to indicate whether the
 time is to be displayed as a time in the time zone for the machine on
@@ -1125,7 +1137,7 @@ for protocols with variable-width header fields.
 
 Note that the formats used must all belong to the same group as defined below:
 - FT_INT8, FT_INT16, FT_INT24 and FT_INT32
-- FT_UINT8, FT_UINT16, FT_UINT24, FT_UINT32, FT_IPXNET and FT_FRAMENUM
+- FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24, FT_UINT32, FT_IPXNET and FT_FRAMENUM
 - FT_INT40, FT_INT48, FT_INT56 and FT_INT64
 - FT_UINT40, FT_UINT48, FT_UINT56, FT_UINT64 and FT_EUI64
 - FT_ABSOLUTE_TIME and FT_RELATIVE_TIME

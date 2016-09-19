@@ -660,9 +660,8 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
           /*
            * XXX - see previous comment.
            */
-          proto_tree_add_uint_format_value(attr_tree, hf_eap_identity_prefix,
-              tvb, aoffset+2, 1, eap_identity_prefix, "%s ('%c')",
-              eap_identity_prefix_str, eap_identity_prefix);
+          proto_tree_add_uint(attr_tree, hf_eap_identity_prefix,
+              tvb, aoffset+2, 1, eap_identity_prefix);
       }
       proto_tree_add_item(attr_tree, hf_eap_identity, tvb, aoffset + 2, aleft - 2, ENC_ASCII|ENC_NA);
     }
@@ -854,9 +853,8 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
              * of the identity is a value that happens to be a valid
              * prefix, that doesn't *ipso facto* mean it *is* a prefix.
              */
-            proto_tree_add_uint_format_value(eap_identity_tree, hf_eap_identity_prefix,
-                tvb, offset, 1, eap_identity_prefix, "%s ('%c')",
-                eap_identity_prefix_str, eap_identity_prefix);
+            proto_tree_add_uint(eap_identity_tree, hf_eap_identity_prefix,
+                tvb, offset, 1, eap_identity_prefix);
           }
         }
         if(!pinfo->fd->flags.visited) {
@@ -1313,7 +1311,7 @@ proto_register_eap(void)
 
     { &hf_eap_identity_prefix, {
       "Identity Prefix", "eap.identity.prefix",
-      FT_UINT8, BASE_HEX, VALS(eap_identity_prefix_vals), 0x0, NULL, HFILL }},
+      FT_CHAR, BASE_HEX, VALS(eap_identity_prefix_vals), 0x0, NULL, HFILL }},
 
     { &hf_eap_identity_actual_len, {
       "Identity Actual Length", "eap.identity.actual_len",

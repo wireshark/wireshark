@@ -3396,9 +3396,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     /* show the urb type of this URB as string and as a character */
     urb_type = tvb_get_guint8(tvb, 8);
     usb_conv_info->is_request = (urb_type==URB_SUBMIT);
-    proto_tree_add_uint_format_value(tree, hf_usb_linux_urb_type, tvb, 8, 1,
-        urb_type, "%s ('%c')", val_to_str(urb_type, usb_linux_urb_type_vals, "Unknown %d"),
-        g_ascii_isprint(urb_type) ? urb_type : '.');
+    proto_tree_add_uint(tree, hf_usb_linux_urb_type, tvb, 8, 1, urb_type);
     proto_tree_add_item(tree, hf_usb_linux_transfer_type, tvb, 9, 1, ENC_LITTLE_ENDIAN);
 
     transfer_type = tvb_get_guint8(tvb, 9);
@@ -4593,7 +4591,7 @@ proto_register_usb(void)
 
         { &hf_usb_linux_urb_type,
           { "URB type", "usb.urb_type",
-            FT_UINT8, BASE_DEC, VALS(usb_linux_urb_type_vals), 0x0,
+            FT_CHAR, BASE_HEX, VALS(usb_linux_urb_type_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_usb_linux_transfer_type,

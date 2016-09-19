@@ -342,7 +342,7 @@ rtpproxy_add_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_t
     rawstr = tvb_get_string_enc(wmem_packet_scope(), tvb, begin, realsize, ENC_ASCII);
 
     while(offset < realsize){
-        ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_command_parameter, tvb, begin + offset, 1, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_command_parameter, tvb, begin + offset, 1, ENC_ASCII | ENC_NA);
         offset++; /* Skip 1-byte parameter's type */
         switch (g_ascii_tolower(tvb_get_guint8(tvb, begin+offset-1)))
         {
@@ -414,7 +414,7 @@ rtpproxy_add_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_t
                 break;
             case 'p':
                 another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_proto);
-                proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_proto, tvb, begin+offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_proto, tvb, begin+offset, 1, ENC_ASCII | ENC_NA);
                 offset++;
                 break;
             case 't':
@@ -427,7 +427,7 @@ rtpproxy_add_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_t
                 break;
             case 'u':
                 another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_acc);
-                proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_acc, tvb, begin+offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_acc, tvb, begin+offset, 1, ENC_ASCII | ENC_NA);
                 offset++;
                 break;
             default:
@@ -655,7 +655,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             }
 
             /* All other commands */
-            ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_command, tvb, offset, 1, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_command, tvb, offset, 1, ENC_ASCII | ENC_NA);
 
             /* A specific case - handshake/ping */
             if (tmp == 'v')
@@ -964,8 +964,8 @@ proto_register_rtpproxy(void)
             {
                 "Ok",
                 "rtpproxy.ok",
-                FT_UINT8,
-                BASE_DEC,
+                FT_CHAR,
+                BASE_HEX,
                 VALS(oktypenames),
                 0x0,
                 NULL,
@@ -1042,8 +1042,8 @@ proto_register_rtpproxy(void)
             {
                 "Command",
                 "rtpproxy.command",
-                FT_UINT8,
-                BASE_DEC,
+                FT_CHAR,
+                BASE_HEX,
                 VALS(commandtypenames),
                 0x0,
                 NULL,
@@ -1068,8 +1068,8 @@ proto_register_rtpproxy(void)
             {
                 "Parameter",
                 "rtpproxy.command_parameter",
-                FT_UINT8,
-                BASE_DEC,
+                FT_CHAR,
+                BASE_HEX,
                 VALS(paramtypenames),
                 0x0,
                 NULL,
@@ -1146,8 +1146,8 @@ proto_register_rtpproxy(void)
             {
                 "RTP tramsission protocol",
                 "rtpproxy.command_parameter_proto",
-                FT_UINT8,
-                BASE_DEC,
+                FT_CHAR,
+                BASE_HEX,
                 VALS(prototypenames),
                 0x0,
                 NULL,
@@ -1172,8 +1172,8 @@ proto_register_rtpproxy(void)
             {
                 "Accounting",
                 "rtpproxy.command_parameter_acc",
-                FT_UINT8,
-                BASE_DEC,
+                FT_CHAR,
+                BASE_HEX,
                 VALS(acctypenames),
                 0x0,
                 NULL,

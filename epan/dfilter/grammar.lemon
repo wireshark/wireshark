@@ -88,6 +88,10 @@ any "error" symbols are shifted, if possible. */
 			dfilter_fail(dfw, "The string \"%s\" was unexpected in this context.",
 				(char *)stnode_data(TOKEN));
 			break;
+		case STTYPE_CHARCONST:
+			dfilter_fail(dfw, "The character constant \"%s\" was unexpected in this context.",
+				(char *)stnode_data(TOKEN));
+			break;
 		case STTYPE_UNPARSED:
 			dfilter_fail(dfw, "\"%s\" was unexpected in this context.",
 				(char *)stnode_data(TOKEN));
@@ -173,6 +177,7 @@ logical_test(T) ::= entity(E).
 /* Entities, or things that can be compared/tested/checked */
 entity(E) ::= FIELD(F).		{ E = F; }
 entity(E) ::= STRING(S).	{ E = S; }
+entity(E) ::= CHARCONST(C).	{ E = C; }
 entity(E) ::= UNPARSED(U).	{ E = U; }
 entity(E) ::= range(R).		{ E = R; }
 

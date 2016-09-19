@@ -590,7 +590,7 @@ Media_Specifier_dissect(tvbuff_t* tvb, proto_tree* tree, gint* offset, guint32 l
 	guint8 media_protocol;
 
 	media_protocol = tvb_get_guint8(tvb, *offset);
-	proto_tree_add_item(tree, hf_ged125_floating_media_protocol, tvb, *offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_ged125_floating_media_protocol, tvb, *offset, 1, ENC_NA|ENC_ASCII);
 	*offset += 1;
 
 	switch (media_protocol)
@@ -599,7 +599,7 @@ Media_Specifier_dissect(tvbuff_t* tvb, proto_tree* tree, gint* offset, guint32 l
 	case 'S':
 	case 'O':
 	case 'F':
-		proto_tree_add_item(tree, hf_ged125_floating_library_designator, tvb, *offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_ged125_floating_library_designator, tvb, *offset, 1, ENC_NA|ENC_ASCII);
 		*offset += 1;
 		proto_tree_add_item(tree, hf_ged125_floating_payload_strg, tvb, *offset, length - 2, ENC_NA|ENC_ASCII);
 		break;
@@ -1696,12 +1696,12 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_floating_media_protocol,
 		  { "Media Protocol", "ged125.media_protocol",
-			FT_UINT8, BASE_DEC, VALS(floating_media_protocol_vals), 0x0,
+			FT_CHAR, BASE_HEX, VALS(floating_media_protocol_vals), 0x0,
 			"Type of media", HFILL }},
 
 		{ &hf_ged125_floating_library_designator,
 		  { "Library Designator", "ged125.library_designator",
-			FT_UINT8, BASE_DEC, VALS(floating_media_library_designator_vals), 0x0,
+			FT_CHAR, BASE_HEX, VALS(floating_media_library_designator_vals), 0x0,
 			"System or Application", HFILL }},
 
 		{ &hf_ged125_Data_Playback_Type,

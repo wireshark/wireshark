@@ -74,7 +74,7 @@ border-pixel	UINT32	HEX
 border-pixmap	UINT32	HEX	VALS
 border-width	UINT16	DEC
 button		UINT8	DEC	VALS
-byte-order	UINT8	HEX	VALS
+byte-order	CHAR	HEX	VALS
 
 childwindow	UINT32	HEX
 cap-style	UINT8	DEC	VALS
@@ -263,7 +263,7 @@ grab-status	UINT8	DEC	VALS
 grab-window	UINT32	HEX
 graphics-exposures	BOOLEAN	NONE
 height		UINT16	DEC
-image-byte-order	UINT8	HEX	VALS
+image-byte-order	CHAR	HEX	VALS
 initial-connection	NONE	NONE	undecoded
 image-format	UINT8	DEC	VALS
 image-pixmap-format	UINT8	DEC	VALS

@@ -67,6 +67,12 @@ byte_to_hex(char *out, guint32 dword)
 }
 
 char *
+guint8_to_hex(char *out, guint8 val)
+{
+	return byte_to_hex(out, val);
+}
+
+char *
 word_to_hex(char *out, guint16 word)
 {
 	out = byte_to_hex(out, word >> 8);
