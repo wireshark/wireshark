@@ -175,6 +175,10 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_buffer_free@Base 1.99.0
  ws_buffer_init@Base 1.99.0
  ws_buffer_remove_start@Base 1.99.0
+ ws_hexstrtou16@Base 2.3.0
+ ws_hexstrtou32@Base 2.3.0
+ ws_hexstrtou64@Base 2.3.0
+ ws_hexstrtou8@Base 2.3.0
  ws_inet_ntop4@Base 2.1.2
  ws_inet_ntop6@Base 2.1.2
  ws_inet_pton4@Base 2.1.2
