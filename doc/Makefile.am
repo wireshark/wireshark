@@ -301,7 +301,6 @@ EXTRA_DIST =				\
 	README.idl2wrs			\
 	README.packaging		\
 	README.plugins			\
-	README.qt			\
 	README.regression   		\
 	README.request_response_tracking\
 	README.stats_tree		\

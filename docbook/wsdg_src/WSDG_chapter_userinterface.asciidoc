@@ -16,22 +16,22 @@ file loading and saving, capturing, etc.) and the frontend (the user interface).
 The following frontends are currently maintained by the Wireshark
 development team:
 
-* Wireshark, Qt based (Wireshark 1.11 and newer)
+* Wireshark, Qt based
 
-* Wireshark, GTK 2.x based
+* Wireshark, GTK{plus} 2.x based
 
-* Wireshark, GTK 3.x based (Wireshark 1.10 and newer)
+* Wireshark, GTK{plus} 3.x based
 
 * TShark, console based
 
 There are other Wireshark frontends which are not developed nor maintained by
 the Wireshark development team:
 
-* Packetyzer (Win32 native interface, written in Delphi and released
-under the GPL, see: http://www.paglo.com/opensource/packetyzer[])
+* Packetyzer. Native Windows interface, written in Delphi and released
+under the GPL. Not actively maintained. https://sourceforge.net/projects/packetyzer/[]
 
-* hethereal (web based frontend, not actively maintained and not
-finished)
+* hethereal Web interface. Not actively maintained and not
+finished.
 
 This chapter is focused on the Wireshark frontend, and especially on
 the Qt interface.
@@ -45,9 +45,52 @@ the core (QtCore) and user interface (QtWidgets) modules, it also supports a
 number of other modules for specialized application development, such as
 networking (QtNetwork) and web browsing (QtWebKit).
 
-At the time of this writing (February 2015) we are in the process of porting the
-main Wireshark application to Qt. The sections below provide an overview of the
-application and tips for Qt development in our environment.
+At the time of this writing (September 2016) most of the main Wireshark
+application has been ported to Qt. The sections below provide an
+overview of the application and tips for Qt development in our
+environment.
+
+==== User Experience Considerations
+
+When creating or modifying Wireshark try to make sure that it will work
+well on Windows, macOS, and Linux. See <<ChUIGUIDocs>> for details.
+Additionally, try to keep the following in mind:
+
+*Workflow*. Excessive navigation and gratuitous dialogs should be
+avoided or reduced. For example, the two GTK+ flow graph dialogs have
+been combined into one in Qt. Many alert dialogs have been replaced with
+status bar messages. Statistics dialogs are displayed immediately
+instead of requiring that options be specified.
+
+*Discoverability and feedback*. Most users don't like to read
+documentation and instead prefer to learn an application as they use it.
+Providing feedback increases your sense of control and awareness, and
+makes the application more enjoyable to use. Most of the Qt dialogs
+provide a ``hint'' area near the bottom which shows useful information.
+For example, the ``Follow Stream'' dialog shows the packet corresponding
+to the text under the mouse. The profile management dialog shows a
+clickable path to the current profile. The main welcome screen shows
+live interface traffic. Most dialogs have a context menu that shows
+keyboard shortcuts.
+
+==== Qt Creator
+
+Qt Creator is a full-featured IDE and user interface editor. It makes
+adding new UI features much easier. It doesn't work well on Windows at
+the present time, so it's recommended that you use it on macOS or Linux.
+
+To edit and build Wireshark using Qt Cretor, open the top-level
+'CMakeLists.txt' within Qt Creator. It should ask you to choose a build
+location. Do so. It should then ask you to run CMake. Fill in any
+desired build arguments (e.g. "-D CMAKE_BUILD_TYPE=Debug" or "-D
+ENABLE_GTK3=OFF") and click the ``Run CMake'' button. When that
+completes select ``Build → Open Build and Run Kit Selector...'' and make
+sure 'wireshark' is selected.
+
+Note that Qt Creator uses output created by CMake's *CodeBlocks*
+generator. If you run CMake outside of Qt Creator you should use the
+``CodeBlocks - Unix Makefiles'' generator, otherwise Qt Creator will
+prompt you to re-run CMake.
 
 ==== Source Code Overview
 
@@ -159,29 +202,60 @@ dynamically then it is ok to use `tr()`.
 In most cases you should handle the changeEvent in order to catch
 `QEvent::LanguageChange`.
 
-==== Other Issues
+Qt makes translating the Wireshark UI into different languages easy. To add a new
+translation, do the following:
+
+- Add your translation ('ui/qt/wireshark_XX.ts') to 'ui/qt/Makefile.am' and 'ui/qt/CMakeLists.txt'
+- (Recommended) Add a flag image for your language in 'images/languages/XX.svg'. Update 'image/languages/languages.qrc' accordingly.
+- Run `lupdate ui/qt -ts ui/qt/wireshark_XX.ts` to generate/update your translation file.
+- Translate with Qt Linguist: `linguist ui/qt/wireshark_XX.ts`.
+- Do a test build and make sure the generated 'wireshark_XX.qm' binary file is included.
+- Push your translation to Gerrit for review. See <<ChSrcContribute>> for details.
+
+Alternatively you can put your QM and flag files in the 'languages'
+directory in the Wireshark user configuration directory
+('~/.wireshark/languages/' on UNIX).
+
+For more information about Qt Linguist see
+http://qt-project.org/doc/qt-4.8/linguist-manual.html[its manual].
+
+You can also manage translations online with
+https://www.transifex.com/projects/p/wireshark/[Transifex].
+
+Each week translations are automatically synchronized with the source code through the following steps:
+* pull ts from Transifex
+* lupdate ts file
+* push and commit on Gerrit
+* push ts on Transifex
+
+
+==== Other Issues and Information
 
 The main window has many QActions which are shared with child widgets. See
 'ui/qt/proto_tree.cpp' for an example of this.
+
+http://www.kdab.com/kdab-products/gammaray/[GammaRay] lets you inspect
+the internals of a running Qt application similar to Spy{plus}{plus} on Windows.
 
 [[ChUIGTK]]
 
 === The GTK library
 
-.We're switching to Qt
+.We have switched to Qt
 [NOTE]
 ====
-This chapter describes the state of our stable release, which is based on GTK+.
-A major effort is underway to migrate Wireshark to Qt. If you would like to add
-a new interface feature you should use it and not GTK+.
+Wireshark's default interface uses Qt. If you would like to add a new
+interface feature you should use it and not GTK{plus}.
+The documentation below is primarily historical.
 ====
 
-Wireshark was initially based on the GTK toolkit. See http://www.gtk.org[] for
-details. GTK is designed to hide the details of the underlying GUI in a platform
-independent way. As GTK is intended to be a multiplatform tool, there are some
-drawbacks, as the result is a somewhat "non native" look and feel.
+Wireshark was initially based on the GTK{plus} toolkit. See
+http://www.gtk.org[] for details. GTK{plus} is designed to hide the
+details of the underlying GUI in a platform independent way. As GTK is
+intended to be a multiplatform tool, there are some drawbacks, as the
+result is a somewhat "non native" look and feel.
 
-GTK is available for many different platforms including, but not limited to:
+GTK{plus} is available for many different platforms including, but not limited to:
 Unix/Linux, OS X and Win32. It's the foundation of the famous GNOME desktop,
 so the future development of GTK should be certain. GTK is implemented in plain
 C (as is Wireshark itself), and available under the LGPL (Lesser General Public
@@ -191,7 +265,7 @@ There are other similar toolkits like wxWidgets which could also be used for
 Wireshark. There's no "one and only" reason for or against any of these
 toolkits. However, the decision towards GTK was made a long time ago :-)
 
-As of 2013 there are two major GTK versions available:
+There are two major GTK versions available:
 
 [[ChUIGTK2x]]
 
@@ -265,19 +339,23 @@ for a better way.
 
 [[ChUIGUIDocs]]
 
-=== GUI Reference documents
+=== Human Interface Reference Documents
 
-Although the GUI development of Wireshark is platform independent, the
-Wireshark development team tries to
-follow the GNOME Human Interface Guidelines (HIG) where appropriate.
-This is the case, because both GNOME and Wireshark are based on the GTK+
-toolkit and the GNOME HIG is excellently written and easy to understand.
+Wireshark runs on a number of platforms, primarily Windows, macOS, and
+Linux. It should conform to the Windows, macOS, GNOME, and KDE human
+interface guidelines as much as possible. Unfortunately, creating a
+feature that works well across these platforms can sometimes be a
+juggling act since the human interface guidelines for each platform
+often contradict one another. If you run into trouble you can ask the
+_wireshark-dev_ mailing list as well as the User Experience Stack
+Exchange listed below.
 
-For further reference, see the following documents:
+For further reference, see the following:
 
 * Android Design:
-http://developer.android.com/design/index.html[] (Wireshark doesn't have a
-mobile frontend but there is still useful information here)
+http://developer.android.com/design/index.html[]. Wireshark doesn't have
+a mobile frontend (not yet, at least) but there is still useful
+information here.
 
 * GNOME Human Interface Guidelines:
 http://library.gnome.org/devel/hig-book/stable/[]
@@ -290,6 +368,9 @@ https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/
 
 * Design apps for the Windows desktop:
 http://msdn.microsoft.com/en-us/library/Aa511258.aspx[]
+
+* User Experience Stack Exchange:
+https://ux.stackexchange.com/[]
 
 [[ChUIGTKDialogs]]
 
