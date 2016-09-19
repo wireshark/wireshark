@@ -23,6 +23,8 @@
 
 #include "config.h"
 
+#include <stdio.h>
+
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/ppptypes.h>
@@ -32,6 +34,7 @@
 #include <epan/proto_data.h>
 
 #include "packet-wps.h"
+#include "packet-e212.h"
 
 void proto_register_eap(void);
 void proto_reg_handoff_eap(void);
@@ -44,8 +47,10 @@ static int hf_eap_type = -1;
 static int hf_eap_type_nak = -1;
 
 static int hf_eap_identity = -1;
-static int hf_eap_identity_prefix = -1;
 static int hf_eap_identity_actual_len = -1;
+static int hf_eap_identity_wlan_prefix = -1;
+static int hf_eap_identity_wlan_mcc = -1;
+static int hf_eap_identity_wlan_mcc_mnc = -1;
 
 static int hf_eap_notification = -1;
 
@@ -184,7 +189,7 @@ static const value_string eap_type_vals[] = {
 };
 value_string_ext eap_type_vals_ext = VALUE_STRING_EXT_INIT(eap_type_vals);
 
-const value_string eap_identity_prefix_vals[] = {
+const value_string eap_identity_wlan_prefix_vals[] = {
   { '0', "EAP-AKA Permanent" },
   { '1', "EAP-SIM Permanent" },
   { '2', "EAP-AKA Pseudonym" },
@@ -547,6 +552,77 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, in
   }
 }
 
+/* Dissect the WLAN identity */
+static gboolean
+dissect_eap_identity_wlan(tvbuff_t *tvb, proto_tree* tree, int offset, gint size)
+{
+  guint       mnc = 0;
+  guint       mcc = 0;
+  guint       mcc_mnc = 0;
+  proto_tree* eap_identity_tree = NULL;
+  guint8      eap_identity_prefix = 0;
+  guint8*     identity = NULL;
+  gchar**     tokens = NULL;
+  guint       ntokens = 0;
+  gboolean    ret = TRUE;
+
+  identity = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
+
+  tokens = g_strsplit_set(identity, "@.", -1);
+
+  while(tokens[ntokens])
+    ntokens++;
+
+  /* The WLAN identity must have the form of
+     <imsi>@wlan.mnc<mnc>.mcc<mcc>.3gppnetwork.org
+     If not, we don't have a wlan identity
+  */
+  if (ntokens != 6 || g_ascii_strncasecmp(tokens[1], "wlan", 4) ||
+      g_ascii_strncasecmp(tokens[4], "3gppnetwork", 11) ||
+      g_ascii_strncasecmp(tokens[5], "org", 3)) {
+    ret = FALSE;
+    goto end;
+  }
+
+  /* It is very likely that we have a WLAN identity (EAP-AKA/EAP-SIM) */
+  /* Go on with the dissection */
+  eap_identity_tree = proto_item_add_subtree(tree, ett_identity);
+  eap_identity_prefix = tokens[0][0];
+  proto_tree_add_uint(eap_identity_tree, hf_eap_identity_wlan_prefix,
+    tvb, offset, 1, eap_identity_prefix);
+
+  /* guess if we have a 3 bytes mnc by comparing the first bytes with the imsi */
+  sscanf(tokens[2] + 3, "%u", &mnc);
+  sscanf(tokens[3] + 3, "%u", &mcc);
+
+  if (!g_ascii_strncasecmp(tokens[0], tokens[2] + 3, 3)) {
+    mcc_mnc = 1000 * mcc + mnc;
+  } else {
+    mcc_mnc = 1000 * mcc + 10 * mnc;
+  }
+
+  proto_tree_add_uint(eap_identity_tree, hf_eap_identity_wlan_mcc_mnc,
+    tvb, offset + (guint)strlen(tokens[0]) + (guint)strlen("@wlan.") +
+    (guint)strlen("mnc"), (guint)strlen(tokens[2]) - (guint)strlen("mnc"),
+    mcc_mnc);
+
+  proto_tree_add_uint(eap_identity_tree, hf_eap_identity_wlan_mcc,
+    tvb, offset + (guint)strlen(tokens[0]) + (guint)strlen("@wlan.") +
+    (guint)strlen(tokens[2]) + 1 + strlen("mcc"), (guint)strlen(tokens[3]) -
+    (guint)strlen("mcc"), mcc);
+end:
+  g_strfreev(tokens);
+  return ret;
+}
+
+static void
+dissect_eap_identity(tvbuff_t *tvb, proto_tree* tree, int offset, gint size)
+{
+  /* Try to dissect as WLAN identity */
+  if (dissect_eap_identity_wlan(tvb, tree, offset, size))
+    return;
+}
+
 static void
 dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 {
@@ -592,7 +668,13 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
     proto_tree_add_item(attr_tree, hf_eap_sim_subtype_length, tvb, aoffset, 1, ENC_BIG_ENDIAN);
     aoffset += 1;
     aleft   -= 1;
-    proto_tree_add_item(attr_tree, hf_eap_sim_subtype_value, tvb, aoffset, aleft, ENC_NA);
+
+    if (type == AT_IDENTITY) {
+      proto_tree_add_item(attr_tree, hf_eap_identity_actual_len, tvb, aoffset, 2, ENC_BIG_ENDIAN);
+      dissect_eap_identity(tvb, attr_tree, aoffset + 2, tvb_get_ntohs(tvb, aoffset));
+    }
+    else
+      proto_tree_add_item(attr_tree, hf_eap_sim_subtype_value, tvb, aoffset, aleft, ENC_NA);
 
     offset += 4 * length;
     left   -= 4 * length;
@@ -645,25 +727,8 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
     aleft   -= 1;
 
     if (type == AT_IDENTITY) {
-      guint8 eap_identity_prefix;
-      const char *eap_identity_prefix_str;
-
       proto_tree_add_item(attr_tree, hf_eap_identity_actual_len, tvb, aoffset, 2, ENC_BIG_ENDIAN);
-
-      /*
-       * XXX - is the first octet of the identity guaranteed to be a prefix
-       * in EAP-AKA?
-       */
-      eap_identity_prefix = tvb_get_guint8(tvb, aoffset + 2);
-      eap_identity_prefix_str = try_val_to_str(eap_identity_prefix, eap_identity_prefix_vals);
-      if (eap_identity_prefix_str != NULL) {
-          /*
-           * XXX - see previous comment.
-           */
-          proto_tree_add_uint(attr_tree, hf_eap_identity_prefix,
-              tvb, aoffset+2, 1, eap_identity_prefix);
-      }
-      proto_tree_add_item(attr_tree, hf_eap_identity, tvb, aoffset + 2, aleft - 2, ENC_ASCII|ENC_NA);
+      dissect_eap_identity(tvb, attr_tree, aoffset + 2, tvb_get_ntohs(tvb, aoffset));
     }
     else
       proto_tree_add_item(attr_tree, hf_eap_aka_subtype_value, tvb, aoffset, aleft, ENC_NA);
@@ -708,8 +773,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   guint8          eap_code;
   guint16         eap_len;
   guint8          eap_type;
-  guint8          eap_identity_prefix;
-  const char     *eap_identity_prefix_str;
   gint            len;
   conversation_t *conversation       = NULL;
   conv_state_t   *conversation_state;
@@ -717,7 +780,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   int             leap_state;
   proto_tree     *ti;
   proto_tree     *eap_tree;
-  proto_tree     *eap_identity_tree;
   proto_tree     *eap_tls_flags_tree;
   proto_item     *eap_type_item;
   proto_item     *eap_identity_item;
@@ -839,23 +901,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       case EAP_TYPE_ID:
         if (size > 0) {
           eap_identity_item = proto_tree_add_item(eap_tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
-          eap_identity_tree = proto_item_add_subtree(eap_identity_item, ett_identity);
-          /*
-           * XXX - is there a better way to determine whether the identity
-           * is something that would actually *have* a prefix?  Not all EAP
-           * is EAP-AKA or EAP-SIM.
-           */
-          eap_identity_prefix = tvb_get_guint8(tvb, offset);
-          eap_identity_prefix_str = try_val_to_str(eap_identity_prefix, eap_identity_prefix_vals);
-          if (eap_identity_prefix_str != NULL) {
-            /*
-             * XXX - see previous comment; just because the first byte
-             * of the identity is a value that happens to be a valid
-             * prefix, that doesn't *ipso facto* mean it *is* a prefix.
-             */
-            proto_tree_add_uint(eap_identity_tree, hf_eap_identity_prefix,
-                tvb, offset, 1, eap_identity_prefix);
-          }
+          dissect_eap_identity(tvb, eap_identity_item, offset, size);
         }
         if(!pinfo->fd->flags.visited) {
           conversation_state->leap_state  =  0;
@@ -1309,9 +1355,18 @@ proto_register_eap(void)
       FT_STRING, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
-    { &hf_eap_identity_prefix, {
-      "Identity Prefix", "eap.identity.prefix",
-      FT_CHAR, BASE_HEX, VALS(eap_identity_prefix_vals), 0x0, NULL, HFILL }},
+    { &hf_eap_identity_wlan_prefix, {
+      "WLAN Identity Prefix", "eap.identity.wlan.prefix",
+      FT_CHAR, BASE_HEX, VALS(eap_identity_wlan_prefix_vals), 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_identity_wlan_mcc, {
+      "WLAN Identity Mobile Country Code", "eap.identity.wlan.mcc",
+      FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0, NULL, HFILL }},
+
+    { &hf_eap_identity_wlan_mcc_mnc, {
+      "WLAN Identity Mobile Network Code", "eap.identity.wlan.mnc",
+      FT_UINT16, BASE_DEC|BASE_EXT_STRING, &mcc_mnc_codes_ext, 0x0, NULL, HFILL }},
 
     { &hf_eap_identity_actual_len, {
       "Identity Actual Length", "eap.identity.actual_len",

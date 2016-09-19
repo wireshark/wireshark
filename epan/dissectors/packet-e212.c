@@ -2705,7 +2705,7 @@ static const value_string mcc_mnc_codes[] = {
     {  0, NULL }
 };
 
-static value_string_ext mcc_mnc_codes_ext = VALUE_STRING_EXT_INIT(mcc_mnc_codes);
+value_string_ext mcc_mnc_codes_ext = VALUE_STRING_EXT_INIT(mcc_mnc_codes);
 
 
 static int proto_e212   = -1;

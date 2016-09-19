@@ -29,6 +29,8 @@
 
 extern value_string_ext E212_codes_ext;
 
+extern value_string_ext mcc_mnc_codes_ext;
+
 typedef enum {
     E212_NONE,
     E212_LAI,
