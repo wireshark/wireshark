@@ -100,12 +100,18 @@ typedef struct _e_dce_dg_common_hdr_t {
     guint8 serial_lo;
 } e_dce_dg_common_hdr_t;
 
+struct _dcerpc_auth_subdissector_fns;
+
 typedef struct _dcerpc_auth_info {
-  guint8 auth_pad_len;
-  guint8 auth_level;
   guint8 auth_type;
+  guint8 auth_level;
+  guint32 auth_context_id;
+  guint8 auth_pad_len;
   guint32 auth_size;
-  tvbuff_t *auth_data;
+  struct _dcerpc_auth_subdissector_fns *auth_fns;
+  tvbuff_t *auth_tvb;
+  proto_item *auth_item;
+  proto_tree *auth_tree;
 } dcerpc_auth_info;
 
 typedef struct dcerpcstat_tap_data
