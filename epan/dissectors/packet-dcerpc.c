@@ -3767,6 +3767,19 @@ dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
 }
 
 static void
+dissect_dcerpc_cn_auth_move(dcerpc_auth_info *auth_info, proto_tree *dcerpc_tree)
+{
+    if (auth_info->auth_item != NULL) {
+        proto_item *last_item = proto_tree_add_item(dcerpc_tree, hf_dcerpc_auth_info,
+                                                    auth_info->auth_tvb, 0, 0, ENC_NA);
+        if (last_item != NULL) {
+            PROTO_ITEM_SET_HIDDEN(last_item);
+            proto_tree_move_item(dcerpc_tree, last_item, auth_info->auth_item);
+        }
+    }
+}
+
+static void
 dissect_dcerpc_cn_auth(tvbuff_t *tvb, int stub_offset, packet_info *pinfo,
                        proto_tree *dcerpc_tree, e_dce_cn_common_hdr_t *hdr,
                        dcerpc_auth_info *auth_info)
@@ -4648,6 +4661,12 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             show_stub_data(pinfo, tvb, offset, dcerpc_tree, &auth_info, TRUE);
         }
     }
+
+    /*
+     * Move the auth_info subtree to the end,
+     * as it's also at the end of the pdu on the wire.
+     */
+    dissect_dcerpc_cn_auth_move(&auth_info, dcerpc_tree);
 }
 
 static void
@@ -4779,6 +4798,12 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             show_stub_data(pinfo, tvb, offset, dcerpc_tree, &auth_info, TRUE);
         }
     }
+
+    /*
+     * Move the auth_info subtree to the end,
+     * as it's also at the end of the pdu on the wire.
+     */
+    dissect_dcerpc_cn_auth_move(&auth_info, dcerpc_tree);
 }
 
 static void
@@ -5033,6 +5058,12 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             }
         }
     }
+
+    /*
+     * Move the auth_info subtree to the end,
+     * as it's also at the end of the pdu on the wire.
+     */
+    dissect_dcerpc_cn_auth_move(&auth_info, dcerpc_tree);
 }
 
 static void
