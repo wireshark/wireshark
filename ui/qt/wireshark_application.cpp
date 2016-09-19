@@ -1052,6 +1052,33 @@ void WiresharkApplication::addRecentItem(const QString filename, qint64 size, bo
     itemStatusFinished(filename, size, accessible);
 }
 
+void WiresharkApplication::removeRecentItem(const QString &filename)
+{
+    QMutableListIterator<recent_item_status *> rii(recent_items_);
+
+    while (rii.hasNext()) {
+        recent_item_status *ri = rii.next();
+#ifdef _WIN32
+        /* Do a case insensitive compare on win32 */
+        if (ri->filename.compare(filename, Qt::CaseInsensitive) == 0) {
+#else
+        /* Do a case sensitive compare on UN*Xes.
+         *
+         * XXX - on UN*Xes such as macOS, where you can use pathconf()
+         * to check whether a given file system is case-sensitive or
+         * not, we should check whether this particular file system
+         * is case-sensitive and do the appropriate comparison.
+         */
+        if (ri->filename.compare(filename) == 0) {
+#endif
+            rii.remove();
+            delete(ri);
+        }
+    }
+
+    emit updateRecentItemStatus(NULL, 0, false);
+}
+
 static void switchTranslator(QTranslator& myTranslator, const QString& filename,
     const QString& searchPath)
 {

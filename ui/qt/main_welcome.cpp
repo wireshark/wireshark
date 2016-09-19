@@ -404,7 +404,7 @@ void MainWelcome::updateRecentFiles() {
     }
 
     int row = recent_files_->count();
-    while (row > 0 && row > (int) prefs.gui_recent_files_count_max) {
+    while (row > 0 && (row > (int) prefs.gui_recent_files_count_max || row > rfRow)) {
         row--;
         delete recent_files_->item(row);
     }
@@ -464,14 +464,20 @@ void MainWelcome::showRecentContextMenu(QPoint pos)
     recent_ctx_menu_->clear();
 
     QString cf_path = li->data(Qt::UserRole).toString();
-    QAction *show_action = recent_ctx_menu_->addAction(show_in_str_);
 
+    QAction *show_action = recent_ctx_menu_->addAction(show_in_str_);
     show_action->setData(cf_path);
     connect(show_action, SIGNAL(triggered(bool)), this, SLOT(showRecentFolder()));
 
     QAction *copy_action = recent_ctx_menu_->addAction(tr("Copy file path"));
     copy_action->setData(cf_path);
     connect(copy_action, SIGNAL(triggered(bool)), this, SLOT(copyRecentPath()));
+
+    recent_ctx_menu_->addSeparator();
+
+    QAction *remove_action = recent_ctx_menu_->addAction(tr("Remove"));
+    remove_action->setData(cf_path);
+    connect(remove_action, SIGNAL(triggered(bool)), this, SLOT(removeRecentPath()));
 
     recent_ctx_menu_->exec(recent_files_->mapToGlobal(pos));
 }
@@ -494,6 +500,17 @@ void MainWelcome::copyRecentPath()
     if (cf_path.isEmpty()) return;
 
     wsApp->clipboard()->setText(cf_path);
+}
+
+void MainWelcome::removeRecentPath()
+{
+    QAction *ria = qobject_cast<QAction*>(sender());
+    if (!ria) return;
+
+    QString cf_path = ria->data().toString();
+    if (cf_path.isEmpty()) return;
+
+    wsApp->removeRecentItem(cf_path);
 }
 
 /*

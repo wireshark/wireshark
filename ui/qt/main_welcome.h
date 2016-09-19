@@ -88,6 +88,7 @@ private slots:
     void showRecentContextMenu(QPoint pos);
     void showRecentFolder();
     void copyRecentPath();
+    void removeRecentPath();
 };
 
 #endif // MAIN_WELCOME_H
