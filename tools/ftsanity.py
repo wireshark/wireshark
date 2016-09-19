@@ -81,7 +81,8 @@ def check_fields(fields):
         if field.bitmask != 0:
             if field.ftype.find("FT_UINT") != 0 and \
                     field.ftype.find("FT_INT") != 0 and \
-                    field.ftype != "FT_BOOLEAN":
+                    field.ftype != "FT_BOOLEAN" and \
+                    field.ftype != "FT_CHAR":
                 print("%s has a bitmask 0x%x but is type %s" % \
                         (field.abbrev, field.bitmask, field.ftype))
                 errors += 1
