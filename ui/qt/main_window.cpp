@@ -2024,7 +2024,7 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
     main_ui_->actionFileOpen->setEnabled(!capture_in_progress);
     main_ui_->menuOpenRecentCaptureFile->setEnabled(!capture_in_progress);
     main_ui_->menuFileExportPacketDissections->setEnabled(capture_in_progress);
-    main_ui_->actionFileExportPacketBytes->setEnabled(!capture_in_progress);
+    main_ui_->actionFileExportPacketBytes->setEnabled(capture_in_progress);
     main_ui_->actionFileExportPDU->setEnabled(!capture_in_progress);
     main_ui_->actionFileExportSSLSessionKeys->setEnabled(capture_in_progress);
     main_ui_->menuFileExportObjects->setEnabled(capture_in_progress);
