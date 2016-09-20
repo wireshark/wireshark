@@ -125,6 +125,7 @@
 #include <epan/uat.h>
 #include <epan/oui.h>
 #include <wsutil/str_util.h>
+#include <wsutil/strtoi.h>
 void proto_register_bootp(void);
 void proto_reg_handoff_bootp(void);
 
@@ -620,6 +621,8 @@ static expert_field ei_bootp_client_address_not_given = EI_INIT;
 static expert_field ei_bootp_server_name_overloaded_by_dhcp = EI_INIT;
 static expert_field ei_bootp_boot_filename_overloaded_by_dhcp = EI_INIT;
 static expert_field ei_bootp_option_isns_ignored_bitfield = EI_INIT;
+static expert_field ei_bootp_option242_avaya_l2qvlan_invalid = EI_INIT;
+static expert_field ei_bootp_option242_avaya_vlantest_invalid = EI_INIT;
 
 static dissector_handle_t bootp_handle;
 
@@ -3360,7 +3363,14 @@ dissect_vendor_avaya_param(proto_tree *tree, packet_info *pinfo, proto_item *vti
 		proto_tree_add_string_format_value(tree, hf_bootp_option242_avaya_l2q, tvb, optoff, len, field + 4, "%s (%s)", field + 4, str_to_str(field + 4, option242_avaya_l2q_vals, "Unknown (%s)"));
 	}
 	else if((strncmp(field, "L2QVLAN=", 8) == 0) && ( len > 8)) {
-		proto_tree_add_int(tree, hf_bootp_option242_avaya_l2qvlan, tvb, optoff, len, atoi(field +8));
+		gint32 val = -1;
+		gboolean val_valid;
+		proto_item* pi;
+
+		val_valid = ws_strtoi32(field + 8, NULL, &val);
+		pi = proto_tree_add_int(tree, hf_bootp_option242_avaya_l2qvlan, tvb, optoff, len, val);
+		if (val_valid)
+			expert_add_info(pinfo, pi, &ei_bootp_option242_avaya_l2qvlan_invalid);
 	}
 	else if((strncmp(field, "LOGLOCAL=", 9) == 0) && ( len > 9)) {
 		proto_tree_add_string_format_value(tree, hf_bootp_option242_avaya_loglocal, tvb, optoff, len, field + 9, "%s (%s)", field + 9, str_to_str(field + 9, option242_avaya_loglocal_vals, "Unknown (%s)"));
@@ -3384,7 +3394,14 @@ dissect_vendor_avaya_param(proto_tree *tree, packet_info *pinfo, proto_item *vti
 		proto_tree_add_string(tree, hf_bootp_option242_avaya_snmpstring, tvb, optoff, len, field + 11);
 	}
 	else if((strncmp(field, "VLANTEST=", 9) == 0) && ( len > 9)) {
-		proto_tree_add_int(tree, hf_bootp_option242_avaya_vlantest, tvb, optoff, len, atoi(field + 9));
+		gint32 val = -1;
+		gboolean val_valid;
+		proto_item* pi;
+
+		val_valid = ws_strtoi32(field + 9, NULL, &val);
+		pi = proto_tree_add_int(tree, hf_bootp_option242_avaya_vlantest, tvb, optoff, len, val);
+		if (!val_valid)
+			expert_add_info(pinfo, pi, &ei_bootp_option242_avaya_vlantest_invalid);
 	}
 	else {
 		expert_add_info_format(pinfo, vti, &hf_bootp_subopt_unknown_type, "ERROR, Unknown Avaya IP Telephone parameter %s", field);
@@ -8569,6 +8586,8 @@ proto_register_bootp(void)
 		{ &ei_bootp_server_name_overloaded_by_dhcp, { "bootp.server_name_overloaded_by_dhcp", PI_PROTOCOL, PI_NOTE, "Server name option overloaded by DHCP", EXPFILL }},
 		{ &ei_bootp_boot_filename_overloaded_by_dhcp, { "bootp.boot_filename_overloaded_by_dhcp", PI_PROTOCOL, PI_NOTE, "Boot file name option overloaded by DHCP", EXPFILL }},
 		{ &ei_bootp_option_isns_ignored_bitfield, { "bootp.option.isns.ignored_bitfield", PI_PROTOCOL, PI_NOTE, "Enabled field is not set - non-zero bitmask ignored", EXPFILL }},
+		{ &ei_bootp_option242_avaya_l2qvlan_invalid, { "bootp.option.vendor.avaya.l2qvlan.invalid", PI_PROTOCOL, PI_ERROR, "Option 242 (L2QVLAN) invalid", EXPFILL }},
+		{ &ei_bootp_option242_avaya_vlantest_invalid, { "bootp.option.vendor.avaya.vlantest.invalid", PI_PROTOCOL, PI_ERROR, "Option 242 (avaya vlantest) invalid", EXPFILL }}
 	};
 
 	static tap_param bootp_stat_params[] = {
