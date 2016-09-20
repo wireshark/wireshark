@@ -619,6 +619,7 @@ static const value_string rtps_locator_kind_vals[] = {
   { LOCATOR_KIND_UDPV4,        "LOCATOR_KIND_UDPV4" },
   { LOCATOR_KIND_UDPV6,        "LOCATOR_KIND_UDPV6" },
   { LOCATOR_KIND_INVALID,      "LOCATOR_KIND_INVALID" },
+  { LOCATOR_KIND_DTLS,         "LOCATOR_KIND_DTLS" },
   { LOCATOR_KIND_TCPV4_LAN,    "LOCATOR_KIND_TCPV4_LAN" },
   { LOCATOR_KIND_TCPV4_WAN,    "LOCATOR_KIND_TCPV4_WAN" },
   { LOCATOR_KIND_TLSV4_LAN,    "LOCATOR_KIND_TLSV4_LAN" },
@@ -1724,6 +1725,14 @@ void rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
       proto_item_append_text(tree, " (%s, %s)",
               val_to_str(kind, rtps_locator_kind_vals, "%02x"),
               tvb_ip6_to_str(tvb, offset + 8));
+      break;
+    }
+    case LOCATOR_KIND_DTLS: {
+      proto_tree_add_int(locator_tree, hf_rtps_locator_port, tvb, offset+4, 4, port);
+      proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset+8, 16, ENC_NA);
+      proto_item_append_text(tree, " (%s, %s:%d)",
+              val_to_str(kind, rtps_locator_kind_vals, "%02x"),
+              tvb_ip6_to_str(tvb, offset + 8), port);
       break;
     }
     /* Default case, we already have the locator kind so don't do anything */

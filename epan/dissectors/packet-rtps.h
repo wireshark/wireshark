@@ -497,6 +497,7 @@ typedef struct _rtps_dissector_data {
 #define LOCATOR_KIND_UDPV4              (1)
 #define LOCATOR_KIND_UDPV6              (2)
 /* Vendor specific - rti */
+#define LOCATOR_KIND_DTLS               (6)
 #define LOCATOR_KIND_TCPV4_LAN          (8)
 #define LOCATOR_KIND_TCPV4_WAN          (9)
 #define LOCATOR_KIND_TLSV4_LAN          (10)
