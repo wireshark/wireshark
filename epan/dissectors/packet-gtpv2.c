@@ -2212,7 +2212,7 @@ dissect_gtpv2_tad(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
  * It can be found in 3GPP TS 36.413 v8.3.0, but it is expected that it will be moved
  * to 23.003 in a future version.
  */
-static gchar*
+gchar*
 dissect_gtpv2_tai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
 {
     gchar      *str = NULL;
