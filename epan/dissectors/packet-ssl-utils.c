@@ -2686,12 +2686,12 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server)
 }
 
 int
-ssl_decrypt_record(SslDecryptSession*ssl, SslDecoder* decoder, gint ct,
-        const guchar* in, guint inl, StringInfo* comp_str _U_, StringInfo* out, guint* outl)
+ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint16 record_version,
+        const guchar *in, guint16 inl, StringInfo *comp_str _U_, StringInfo *out_str, guint *outl)
 {
     ssl_debug_printf("ssl_decrypt_record: impossible without gnutls. ssl %p"
-        "decoder %p ct %d, in %p inl %d out %p outl %p\n", ssl, decoder, ct,
-        in, inl, out, outl);
+        "decoder %p ct %d version %d in %p inl %d out %p outl %p\n", ssl, decoder, ct,
+        record_version, in, inl, out_str, outl);
     return 0;
 }
 /* }}} */
@@ -3558,12 +3558,102 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
 }
 /* Decryption integrity check }}} */
 
+
+static gboolean
+tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
+        guint8 ct _U_, guint16 record_version _U_,
+        const guchar *in, guint16 inl, StringInfo *out_str, guint *outl)
+{
+    /* RFC 5246 (TLS 1.2) 6.2.3.3 defines the TLSCipherText.fragment as:
+     * GenericAEADCipher: { nonce_explicit, [content] }
+     * In TLS 1.3 this explicit nonce is gone.
+     * With AES GCM/CCM, "[content]" is actually the concatenation of the
+     * ciphertext and authentication tag.
+     */
+    const guint16   version = ssl->session.version;
+    const gboolean  is_v12 = version == TLSV1DOT2_VERSION || version == DTLSV1DOT2_VERSION;
+    gcry_error_t    err;
+    const guchar   *explicit_nonce = NULL, *ciphertext;
+    guint           ciphertext_len, auth_tag_len;
+    guchar          nonce[12];
+    guchar          nonce_with_counter[16] = { 0 };
+
+    switch (decoder->cipher_suite->mode) {
+    case MODE_GCM:
+    case MODE_CCM:
+        auth_tag_len = 16;
+        break;
+    case MODE_CCM_8:
+        auth_tag_len = 8;
+        break;
+    default:
+        ssl_debug_printf("%s unsupported cipher!\n", G_STRFUNC);
+        return FALSE;
+    }
+
+    /* Parse input into explicit nonce (TLS 1.2 only), ciphertext and tag. */
+    if (is_v12) {
+        if (inl < EXPLICIT_NONCE_LEN + auth_tag_len) {
+            ssl_debug_printf("%s input %d is too small for explicit nonce %d and auth tag %d\n",
+                    G_STRFUNC, inl, EXPLICIT_NONCE_LEN, auth_tag_len);
+            return FALSE;
+        }
+        explicit_nonce = in;
+        ciphertext = explicit_nonce + EXPLICIT_NONCE_LEN;
+        ciphertext_len = inl - EXPLICIT_NONCE_LEN - auth_tag_len;
+    } else {
+        ssl_debug_printf("%s Unexpected TLS version %#x\n", G_STRFUNC, version);
+        return FALSE;
+    }
+
+    /* Nonce construction is version-specific. */
+    if (is_v12) {
+        DISSECTOR_ASSERT(decoder->write_iv.data_len == IMPLICIT_NONCE_LEN);
+        /* Implicit (4) and explicit (8) part of nonce. */
+        memcpy(nonce, decoder->write_iv.data, IMPLICIT_NONCE_LEN);
+        memcpy(nonce + IMPLICIT_NONCE_LEN, explicit_nonce, EXPLICIT_NONCE_LEN);
+
+        if (decoder->cipher_suite->mode == MODE_GCM) {
+            /* NIST SP 800-38D, sect. 7.2 says that the 32-bit counter part starts
+             * at 1, and gets incremented before passing to the block cipher. */
+            memcpy(nonce_with_counter, nonce, IMPLICIT_NONCE_LEN + EXPLICIT_NONCE_LEN);
+            nonce_with_counter[IMPLICIT_NONCE_LEN + EXPLICIT_NONCE_LEN + 3] = 2;
+        } else { /* MODE_CCM and MODE_CCM_8 */
+            /* The nonce for CCM and GCM are the same, but the nonce is used as input
+             * in the CCM algorithm described in RFC 3610. The nonce generated here is
+             * the one from RFC 3610 sect 2.3. Encryption. */
+            /* Flags: (L-1) ; L = 16 - 1 - nonceSize */
+            nonce_with_counter[0] = 3 - 1;
+            memcpy(nonce_with_counter + 1, nonce, IMPLICIT_NONCE_LEN + EXPLICIT_NONCE_LEN);
+            /* struct { opaque salt[4]; opaque nonce_explicit[8] } CCMNonce (RFC 6655) */
+            nonce_with_counter[IMPLICIT_NONCE_LEN + EXPLICIT_NONCE_LEN + 3] = 1;
+        }
+    }
+
+    err = gcry_cipher_setctr(decoder->evp, nonce_with_counter, 16);
+    if (err) {
+        ssl_debug_printf("%s failed: failed to set CTR: %s\n", G_STRFUNC, gcry_strerror(err));
+        return FALSE;
+    }
+
+    /* Decrypt now that nonce and AAD are set. */
+    err = gcry_cipher_decrypt(decoder->evp, out_str->data, out_str->data_len, ciphertext, ciphertext_len);
+    if (err) {
+        ssl_debug_printf("%s decrypt failed: %s\n", G_STRFUNC, gcry_strerror(err));
+        return FALSE;
+    }
+
+    ssl_print_data("Plaintext", out_str->data, ciphertext_len);
+    *outl = ciphertext_len;
+    return TRUE;
+}
+
 /* Record decryption glue based on security parameters {{{ */
 /* Assume that we are called only for a non-NULL decoder which also means that
  * we have a non-NULL decoder->cipher_suite. */
 int
-ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
-        const guchar* in, guint inl, StringInfo* comp_str, StringInfo* out_str, guint* outl)
+ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint16 record_version,
+        const guchar *in, guint16 inl, StringInfo *comp_str, StringInfo *out_str, guint *outl)
 {
     guint   pad, worklen, uncomplen;
     guint8 *mac;
@@ -3577,6 +3667,21 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
         ssl_debug_printf("ssl_decrypt_record: allocating %d bytes for decrypt data (old len %d)\n",
                 inl + 32, out_str->data_len);
         ssl_data_realloc(out_str, inl + 32);
+    }
+
+    /* AEAD ciphers (GenericAEADCipher in TLS 1.2; TLS 1.3) have no padding nor
+     * a separate MAC, so use a different routine for simplicity. */
+    if (decoder->cipher_suite->mode == MODE_GCM ||
+        decoder->cipher_suite->mode == MODE_CCM ||
+        decoder->cipher_suite->mode == MODE_CCM_8 ||
+        ssl->session.version == TLSV1DOT3_VERSION) {
+
+        if (!tls_decrypt_aead_record(ssl, decoder, ct, record_version, in, inl, out_str, &worklen)) {
+            /* decryption failed */
+            return -1;
+        }
+
+        goto skip_mac;
     }
 
     /* RFC 6101/2246: SSLCipherText/TLSCipherText has two structures for types:
@@ -3617,50 +3722,8 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
         }
     }
 
-    /* Nonce for GenericAEADCipher */
-    if (decoder->cipher_suite->mode == MODE_GCM ||
-        decoder->cipher_suite->mode == MODE_CCM ||
-        decoder->cipher_suite->mode == MODE_CCM_8) {
-        /* 4 bytes write_iv, 8 bytes explicit_nonce, 4 bytes counter */
-        guchar gcm_nonce[16] = { 0 };
-
-        if ((gint)inl < SSL_EX_NONCE_LEN_GCM) {
-            ssl_debug_printf("ssl_decrypt_record failed: input %d has no space for nonce %d\n",
-                inl, SSL_EX_NONCE_LEN_GCM);
-            return -1;
-        }
-
-        if (decoder->cipher_suite->mode == MODE_GCM) {
-            memcpy(gcm_nonce, decoder->write_iv.data, decoder->write_iv.data_len); /* salt */
-            memcpy(gcm_nonce + decoder->write_iv.data_len, in, SSL_EX_NONCE_LEN_GCM);
-            /* NIST SP 800-38D, sect. 7.2 says that the 32-bit counter part starts
-             * at 1, and gets incremented before passing to the block cipher. */
-            gcm_nonce[4 + SSL_EX_NONCE_LEN_GCM + 3] = 2;
-        } else { /* MODE_CCM and MODE_CCM_8 */
-            /* The nonce for CCM and GCM are the same, but the nonce is used as input
-             * in the CCM algorithm described in RFC 3610. The nonce generated here is
-             * the one from RFC 3610 sect 2.3. Encryption. */
-            /* Flags: (L-1) ; L = 16 - 1 - nonceSize */
-            gcm_nonce[0] = 3 - 1;
-
-            /* struct { opaque salt[4]; opaque nonce_explicit[8] } CCMNonce (RFC 6655) */
-            memcpy(gcm_nonce + 1, decoder->write_iv.data, decoder->write_iv.data_len); /* salt */
-            memcpy(gcm_nonce + 1 + decoder->write_iv.data_len, in, SSL_EX_NONCE_LEN_GCM);
-            gcm_nonce[4 + SSL_EX_NONCE_LEN_GCM + 3] = 1;
-        }
-
-        pad = gcry_cipher_setctr (decoder->evp, gcm_nonce, sizeof (gcm_nonce));
-        if (pad != 0) {
-            ssl_debug_printf("ssl_decrypt_record failed: failed to set CTR: %s %s\n",
-                    gcry_strsource (pad), gcry_strerror (pad));
-            return -1;
-        }
-        inl -= SSL_EX_NONCE_LEN_GCM;
-        in += SSL_EX_NONCE_LEN_GCM;
-    }
-
     /* First decrypt*/
-    if ((pad = ssl_cipher_decrypt(&decoder->evp, out_str->data, out_str->data_len, in, inl))!= 0) {
+    if ((pad = ssl_cipher_decrypt(&decoder->evp, out_str->data, out_str->data_len, in, inl)) != 0) {
         ssl_debug_printf("ssl_decrypt_record failed: ssl_cipher_decrypt: %s %s\n", gcry_strsource (pad),
                     gcry_strerror (pad));
         return -1;
@@ -3669,26 +3732,6 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
     ssl_print_data("Plaintext", out_str->data, inl);
     worklen=inl;
 
-    /* RFC 5116 sect 5.1/5.3: AES128/256 GCM/CCM uses 16 bytes for auth tag
-     * RFC 6655 sect 6.1: AEAD_AES_128_CCM uses 16 bytes for auth tag */
-    if (decoder->cipher_suite->mode == MODE_GCM ||
-        decoder->cipher_suite->mode == MODE_CCM) {
-        if (worklen < 16) {
-            ssl_debug_printf("ssl_decrypt_record failed: missing tag, work %d\n", worklen);
-            return -1;
-        }
-        /* XXX - validate auth tag */
-        worklen -= 16;
-    }
-    /* RFC 6655 sect 6.1: AEAD_AES_128_CCM_8 uses 8 bytes for auth tag */
-    if (decoder->cipher_suite->mode == MODE_CCM_8) {
-        if (worklen < 8) {
-            ssl_debug_printf("ssl_decrypt_record failed: missing tag, work %d\n", worklen);
-            return -1;
-        }
-        /* XXX - validate auth tag */
-        worklen -= 8;
-    }
 
     /* strip padding for GenericBlockCipher */
     if (decoder->cipher_suite->mode == MODE_CBC) {
@@ -3708,18 +3751,12 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
     }
 
     /* MAC for GenericStreamCipher and GenericBlockCipher */
-    if (decoder->cipher_suite->mode == MODE_STREAM ||
-        decoder->cipher_suite->mode == MODE_CBC) {
-        if (ssl_cipher_suite_dig(decoder->cipher_suite)->len > (gint)worklen) {
-            ssl_debug_printf("ssl_decrypt_record wrong record len/padding outlen %d\n work %d\n",*outl, worklen);
-            return -1;
-        }
-        worklen-=ssl_cipher_suite_dig(decoder->cipher_suite)->len;
-        mac = out_str->data + worklen;
-    } else /* if (decoder->cipher_suite->mode == MODE_GCM) */ {
-        /* GenericAEADCipher has no MAC */
-        goto skip_mac;
+    if (ssl_cipher_suite_dig(decoder->cipher_suite)->len > (gint)worklen) {
+        ssl_debug_printf("ssl_decrypt_record wrong record len/padding outlen %d\n work %d\n",*outl, worklen);
+        return -1;
     }
+    worklen -= ssl_cipher_suite_dig(decoder->cipher_suite)->len;
+    mac = out_str->data + worklen;
 
     /* If NULL encryption active and no keys are available, do not bother
      * checking the MAC. We do not have keys for that. */

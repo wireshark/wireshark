@@ -268,8 +268,9 @@ typedef enum {
     MODE_CCM_8      /* AEAD_AES_{128,256}_CCM with 8 byte auth tag */
 } ssl_cipher_mode_t;
 
-/* Explicit nonce length */
-#define SSL_EX_NONCE_LEN_GCM    8 /* RFC 5288 - section 3 */
+/* Explicit and implicit nonce length (RFC 5116 - Section 3.2.1) */
+#define IMPLICIT_NONCE_LEN  4
+#define EXPLICIT_NONCE_LEN  8
 
 #define SSL_DEBUG_USE_STDERR "-"
 
@@ -544,6 +545,7 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
  @param ssl ssl_session the store all the session data
  @param decoder the stream decoder to be used
  @param ct the content type of this ssl record
+ @param record_version the version as contained in the record
  @param in a pointer to the ssl record to be decrypted
  @param inl the record length
  @param comp_str a pointer to the store the compression data
@@ -551,8 +553,8 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
  @param outl the decrypted data len
  @return 0 on success */
 extern gint
-ssl_decrypt_record(SslDecryptSession* ssl,SslDecoder* decoder, gint ct,
-        const guchar* in, guint inl, StringInfo* comp_str, StringInfo* out_str, guint* outl);
+ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint16 record_version,
+        const guchar *in, guint16 inl, StringInfo *comp_str, StringInfo *out_str, guint *outl);
 
 
 /* Common part bitween SSL and DTLS dissectors */

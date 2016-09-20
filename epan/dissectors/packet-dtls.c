@@ -566,8 +566,8 @@ dtls_is_null_cipher(guint cipher )
 }
 
 static gboolean
-decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
-                    guint32 record_length, guint8 content_type, SslDecryptSession* ssl,
+decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, SslDecryptSession *ssl,
+                    guint8 content_type, guint16 record_version, guint16 record_length,
                     gboolean allow_fragments)
 {
   gboolean    success;
@@ -616,7 +616,8 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
       ssl_debug_printf("decrypt_dtls_record: no decoder available\n");
       return FALSE;
     }
-    success = ssl_decrypt_record(ssl, decoder, content_type, tvb_get_ptr(tvb, offset, record_length), record_length,
+    success = ssl_decrypt_record(ssl, decoder, content_type, record_version,
+                           tvb_get_ptr(tvb, offset, record_length), record_length,
                            &dtls_compressed_data, &dtls_decrypted_data, &dtls_decrypted_data_avail) == 0;
   }
   else if (dtls_is_null_cipher(ssl->session.cipher)) {
@@ -792,7 +793,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   /* try to decrypt record on the first pass, if possible. Store decrypted
    * record for later usage (without having to decrypt again). */
   if (ssl) {
-    decrypt_dtls_record(tvb, pinfo, offset, record_length, content_type, ssl,
+    decrypt_dtls_record(tvb, pinfo, offset, ssl, content_type, version, record_length,
         content_type == SSL_ID_APP_DATA || content_type == SSL_ID_HANDSHAKE);
   }
   decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, tvb_raw_offset(tvb)+offset, &record);

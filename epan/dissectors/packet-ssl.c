@@ -881,8 +881,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
  * length "ssl_decrypted_data_avail".
  */
 static gboolean
-decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
-        guint32 record_length, guint8 content_type, SslDecryptSession *ssl,
+decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, SslDecryptSession *ssl,
+        guint8 content_type, guint16 record_version, guint16 record_length,
         gboolean allow_fragments)
 {
     gboolean    success;
@@ -920,9 +920,9 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
     /* run decryption and add decrypted payload to protocol data, if decryption
      * is successful*/
     ssl_decrypted_data_avail = ssl_decrypted_data.data_len;
-    success = ssl_decrypt_record(ssl, decoder,
-                           content_type, tvb_get_ptr(tvb, offset, record_length),
-                           record_length, &ssl_compressed_data, &ssl_decrypted_data, &ssl_decrypted_data_avail) == 0;
+    success = ssl_decrypt_record(ssl, decoder, content_type, record_version,
+                           tvb_get_ptr(tvb, offset, record_length), record_length,
+                           &ssl_compressed_data, &ssl_decrypted_data, &ssl_decrypted_data_avail) == 0;
     /*  */
     if (!success) {
         /* save data to update IV if valid session key is obtained later */
@@ -1523,7 +1523,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
      *    } TLSPlaintext;
      */
     guint32         record_length;
-    guint16         version;
+    guint16         record_version, version;
     guint8          content_type;
     guint8          next_byte;
     proto_tree     *ti;
@@ -1585,6 +1585,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
      */
     content_type  = tvb_get_guint8(tvb, offset);
     version       = tvb_get_ntohs(tvb, offset + 1);
+    record_version = version;
     record_length = tvb_get_ntohs(tvb, offset + 3);
 
     if (ssl_is_valid_content_type(content_type)) {
@@ -1695,7 +1696,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
      * used as 'key' to identify this record in the packet (we can have multiple
      * handshake records in the same frame). */
     if (ssl) {
-        decrypt_ssl3_record(tvb, pinfo, offset, record_length, content_type, ssl,
+        decrypt_ssl3_record(tvb, pinfo, offset, ssl,
+                content_type, record_version, record_length,
                 content_type == SSL_ID_APP_DATA ||
                 content_type == SSL_ID_HANDSHAKE);
     }
