@@ -491,6 +491,8 @@ static int hf_dcerpc_cn_num_protocols = -1;
 static int hf_dcerpc_cn_protocol_ver_major = -1;
 static int hf_dcerpc_cn_protocol_ver_minor = -1;
 static int hf_dcerpc_cn_cancel_count = -1;
+static int hf_dcerpc_cn_fault_flags = -1;
+static int hf_dcerpc_cn_fault_flags_extended_error_info = -1;
 static int hf_dcerpc_cn_status = -1;
 static int hf_dcerpc_cn_deseg_req = -1;
 static int hf_dcerpc_cn_rts_flags = -1;
@@ -634,6 +636,11 @@ static const int *sec_vt_bitmask_fields[] = {
     NULL
 };
 
+static const int *dcerpc_cn_fault_flags_fields[] = {
+        &hf_dcerpc_cn_fault_flags_extended_error_info,
+        NULL
+};
+
 static const value_string sec_vt_command_cmd_vals[] = {
     {1, "BITMASK_1"},
     {2, "PCONTEXT"},
@@ -666,13 +673,15 @@ static gint ett_dcerpc_sec_vt_bitmask = -1;
 static gint ett_dcerpc_sec_vt_pcontext = -1;
 static gint ett_dcerpc_sec_vt_header = -1;
 static gint ett_dcerpc_complete_stub_data = -1;
+static gint ett_dcerpc_fault_flags = -1;
+static gint ett_dcerpc_fault_stub_data = -1;
 
 static expert_field ei_dcerpc_fragment_multiple = EI_INIT;
 static expert_field ei_dcerpc_cn_status = EI_INIT;
 static expert_field ei_dcerpc_fragment_reassembled = EI_INIT;
 static expert_field ei_dcerpc_fragment = EI_INIT;
 static expert_field ei_dcerpc_no_request_found = EI_INIT;
-/* static expert_field ei_dcerpc_context_change = EI_INIT */;
+/* static expert_field ei_dcerpc_context_change = EI_INIT; */
 static expert_field ei_dcerpc_cn_ctx_id_no_bind = EI_INIT;
 static expert_field ei_dcerpc_bind_not_acknowledged = EI_INIT;
 static expert_field ei_dcerpc_verifier_unavailable = EI_INIT;
@@ -4782,6 +4791,8 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint32            status;
     guint32            alloc_hint;
     dcerpc_auth_info   auth_info;
+    gint               length, reported_length;
+    tvbuff_t          *stub_tvb = NULL;
     proto_item        *pi    = NULL;
     dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
 
@@ -4793,8 +4804,12 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                   hf_dcerpc_cn_cancel_count, NULL);
-    /* padding */
-    offset++;
+    proto_tree_add_bitmask(dcerpc_tree, tvb, offset,
+                           hf_dcerpc_cn_fault_flags,
+                           ett_dcerpc_fault_flags,
+                           dcerpc_cn_fault_flags_fields,
+                           DREP_ENC_INTEGER(hdr->drep));
+    offset += 1;
 
 #if 0
     offset = dissect_dcerpc_uint32(tvb, offset, pinfo, dcerpc_tree, hdr->drep,
@@ -4818,6 +4833,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                "Unknown (0x%08x)"));
 
     /* padding */
+    proto_tree_add_item(dcerpc_tree, hf_dcerpc_reserved, tvb, offset, 4, ENC_NA);
     offset += 4;
 
     /*
@@ -4825,6 +4841,19 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
      * and we just have a security context?
      */
     dissect_dcerpc_cn_auth(tvb, offset, pinfo, dcerpc_tree, hdr, &auth_info);
+
+    length = tvb_captured_length_remaining(tvb, offset);
+    reported_length = tvb_reported_length_remaining(tvb, offset);
+    if (reported_length < 0 ||
+        (guint32)reported_length < auth_info.auth_size) {
+        /* We don't even have enough bytes for the authentication
+           stuff. */
+        return;
+    }
+    reported_length -= auth_info.auth_size;
+    if (length > reported_length)
+        length = reported_length;
+    stub_tvb = tvb_new_subset_length_caplen(tvb, offset, length, reported_length);
 
     conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                              pinfo->srcport, pinfo->destport, 0);
@@ -4863,7 +4892,8 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         }
 
         if (value) {
-            int length, stub_length;
+            proto_tree *stub_tree = NULL;
+            gint stub_length;
             dcerpc_info *di;
             proto_item *parent_pi;
 
@@ -4894,7 +4924,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 proto_tree_add_expert(dcerpc_tree, pinfo, &ei_dcerpc_no_request_found, tvb, 0, 0);
             }
 
-            length = tvb_reported_length_remaining(tvb, offset);
+            length = tvb_reported_length_remaining(stub_tvb, 0);
             /* as we now create a tvb in dissect_dcerpc_cn() containing only the
              * stub_data, the following calculation is no longer valid:
              * stub_length = hdr->frag_len - offset - auth_info.auth_size;
@@ -4902,15 +4932,19 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
              * XXX - or better use the reported_length?!?
              */
             stub_length = length;
-            if (length > stub_length)
-                length = stub_length;
+
+            stub_tree = proto_tree_add_subtree_format(dcerpc_tree,
+                                stub_tvb, 0, stub_length,
+                                ett_dcerpc_fault_stub_data, NULL,
+                                "Fault stub data (%d byte%s)", stub_length,
+                                plurality(stub_length, "", "s"));
 
             /* If we don't have reassembly enabled, or this packet contains
                the entire PDU, or if we don't have all the data in this
                fragment, just call the handoff directly if this is the
                first fragment or the PDU isn't fragmented. */
             if ( (!dcerpc_reassemble) || PFC_NOT_FRAGMENTED(hdr) ||
-                !tvb_bytes_exist(tvb, offset, stub_length) ) {
+                !tvb_bytes_exist(stub_tvb, 0, stub_length) ) {
                 if (hdr->flags&PFC_FIRST_FRAG) {
                     /* First fragment, possibly the only fragment */
                     /*
@@ -4924,12 +4958,12 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                      * as well, as that might be protocol-specific.
                      */
                     if (stub_length > 0) {
-                        proto_tree_add_item(dcerpc_tree, hf_dcerpc_fault_stub_data, tvb, offset, stub_length, ENC_NA);
+                        proto_tree_add_item(stub_tree, hf_dcerpc_fault_stub_data, stub_tvb, 0, stub_length, ENC_NA);
                     }
                 } else {
                     /* PDU is fragmented and this isn't the first fragment */
                     if (stub_length > 0) {
-                        proto_tree_add_item(dcerpc_tree, hf_dcerpc_fragment_data, tvb, offset, stub_length, ENC_NA);
+                        proto_tree_add_item(stub_tree, hf_dcerpc_fragment_data, stub_tvb, 0, stub_length, ENC_NA);
                     }
                 }
             } else {
@@ -4939,13 +4973,13 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                    third means we can attempt reassembly. */
                 if (dcerpc_tree) {
                     if (length > 0) {
-                        proto_tree_add_item(dcerpc_tree, hf_dcerpc_fragment_data, tvb, offset, stub_length, ENC_NA);
+                        proto_tree_add_item(stub_tree, hf_dcerpc_fragment_data, stub_tvb, 0, stub_length, ENC_NA);
                     }
                 }
                 if (hdr->flags&PFC_FIRST_FRAG) {  /* FIRST fragment */
                     if ( (!pinfo->fd->flags.visited) && value->rep_frame ) {
                         fragment_add_seq_next(&dcerpc_co_reassembly_table,
-                                              tvb, offset,
+                                              stub_tvb, 0,
                                               pinfo, value->rep_frame, NULL,
                                               stub_length,
                                               TRUE);
@@ -4955,7 +4989,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         fragment_head *fd_head;
 
                         fd_head = fragment_add_seq_next(&dcerpc_co_reassembly_table,
-                                                        tvb, offset,
+                                                        stub_tvb, 0,
                                                         pinfo, value->rep_frame, NULL,
                                                         stub_length,
                                                         TRUE);
@@ -4965,7 +4999,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                             tvbuff_t *next_tvb;
                             proto_item *frag_tree_item;
 
-                            next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
+                            next_tvb = tvb_new_chain(stub_tvb, fd_head->tvb_data);
                             add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
                             show_fragment_tree(fd_head, &dcerpc_frag_items,
                                                dcerpc_tree, pinfo, next_tvb, &frag_tree_item);
@@ -4982,7 +5016,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                              */
                             if (dcerpc_tree) {
                                 if (length > 0) {
-                                    proto_tree_add_item(dcerpc_tree, hf_dcerpc_stub_data, tvb, offset, stub_length, ENC_NA);
+                                    proto_tree_add_item(dcerpc_tree, hf_dcerpc_stub_data, stub_tvb, 0, stub_length, ENC_NA);
                                 }
                             }
                         }
@@ -4990,7 +5024,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 } else {  /* MIDDLE fragment(s) */
                     if ( (!pinfo->fd->flags.visited) && value->rep_frame ) {
                         fragment_add_seq_next(&dcerpc_co_reassembly_table,
-                                              tvb, offset,
+                                              stub_tvb, 0,
                                               pinfo, value->rep_frame, NULL,
                                               stub_length,
                                               TRUE);
@@ -6690,6 +6724,10 @@ proto_register_dcerpc(void)
           { "Protocol minor version", "dcerpc.cn_protocol_ver_minor", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_cn_cancel_count,
           { "Cancel count", "dcerpc.cn_cancel_count", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_fault_flags,
+          { "Fault flags", "dcerpc.cn_fault_flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_fault_flags_extended_error_info,
+          { "Extended error information present", "dcerpc.cn_fault_flags.extended_error", FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL }},
         { &hf_dcerpc_cn_status,
           { "Status", "dcerpc.cn_status", FT_UINT32, BASE_HEX, VALS(reject_status_vals), 0x0, NULL, HFILL }},
         { &hf_dcerpc_cn_deseg_req,
@@ -6986,6 +7024,8 @@ proto_register_dcerpc(void)
         &ett_dcerpc_sec_vt_pcontext,
         &ett_dcerpc_sec_vt_header,
         &ett_dcerpc_complete_stub_data,
+        &ett_dcerpc_fault_flags,
+        &ett_dcerpc_fault_stub_data,
     };
 
     static ei_register_info ei[] = {
