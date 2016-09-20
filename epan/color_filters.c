@@ -386,6 +386,10 @@ color_filter_compile_cb(gpointer filter_arg, gpointer err)
     gchar *local_err_msg = NULL;
 
     g_assert(colorf->c_colorfilter == NULL);
+
+    /* If the filter is disabled it doesn't matter if it compiles or not. */
+    if (colorf->disabled) return;
+
     if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &local_err_msg)) {
         *err_msg = g_strdup_printf("Could not compile color filter name: \"%s\" text: \"%s\".\n%s",
                       colorf->filter_name, colorf->filter_text, local_err_msg);
@@ -404,6 +408,10 @@ color_filter_validate_cb(gpointer filter_arg, gpointer err)
     gchar *local_err_msg;
 
     g_assert(colorf->c_colorfilter == NULL);
+
+    /* If the filter is disabled it doesn't matter if it compiles or not. */
+    if (colorf->disabled) return;
+
     if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &local_err_msg)) {
         *err_msg = g_strdup_printf("Removing color filter name: \"%s\" text: \"%s\".\n%s",
                       colorf->filter_name, colorf->filter_text, local_err_msg);
@@ -621,7 +629,7 @@ read_filters_file(const gchar *path, FILE *f, gpointer user_data, color_filter_a
             dfilter_t *temp_dfilter;
             gchar *local_err_msg = NULL;
 
-            if (!dfilter_compile(filter_exp, &temp_dfilter, &local_err_msg)) {
+            if (!disabled && !dfilter_compile(filter_exp, &temp_dfilter, &local_err_msg)) {
                 ws_g_warning("Could not compile \"%s\" in colorfilters file \"%s\".\n%s",
                           name, path, local_err_msg);
                 g_free(local_err_msg);

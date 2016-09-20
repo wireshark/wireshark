@@ -175,8 +175,9 @@ void ColoringRulesDialog::updateWidgets()
             error_text = tr("the \"@\" symbol will be ignored.");
         }
 
+        // Check the rule's display filter syntax only if it's checked.
         QString display_filter = item->text(filter_col_);
-        if (!display_filter.isEmpty()) {
+        if (!display_filter.isEmpty() && item->checkState(name_col_) == Qt::Checked) {
             dfilter_t *dfilter;
             bool status;
             gchar *err_msg;
@@ -306,6 +307,7 @@ void ColoringRulesDialog::on_deleteToolButton_clicked()
     foreach (QTreeWidgetItem *ti, selected) {
         delete ti;
     }
+    updateWidgets();
 }
 
 void ColoringRulesDialog::on_copyToolButton_clicked()
@@ -360,9 +362,8 @@ void ColoringRulesDialog::on_buttonBox_accepted()
         QMessageBox mb;
         mb.setText(tr("Your coloring rules file contains unknown rules"));
         mb.setInformativeText(tr("Wireshark doesn't recognize one or more of your coloring rules. "
-                                 "Saving will disable them."));
-        mb.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
-        mb.setDefaultButton(QMessageBox::Save);
+                                 "They have been disabled."));
+        mb.setStandardButtons(QMessageBox::Ok);
 
         int result = mb.exec();
         if (result != QMessageBox::Save) return;
@@ -382,7 +383,6 @@ void ColoringRulesDialog::on_buttonBox_helpRequested()
 {
     wsApp->helpTopicAction(HELP_COLORING_RULES_DIALOG);
 }
-
 
 //
 // ColoringRulesTreeDelegate
@@ -409,6 +409,8 @@ QWidget *ColoringRulesTreeDelegate::createEditor(QWidget *parent, const QStyleOp
     case filter_col_:
     {
         DisplayFilterEdit *dfe = new DisplayFilterEdit(parent);
+        // It's possible to have an invalid filter and an enabled OK button at this point.
+        // We might want to add a local slot for checking the filter status.
         connect(dfe, SIGNAL(textChanged(QString)), dfe, SLOT(checkDisplayFilter(QString)));
         dfe->setText(ti->text(filter_col_));
         w = (QWidget*) dfe;
