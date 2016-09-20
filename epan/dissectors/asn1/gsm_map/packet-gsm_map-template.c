@@ -53,6 +53,7 @@
 #include <epan/oids.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <wsutil/strtoi.h>
 
 #include <epan/asn1.h>
 #include "packet-ber.h"
@@ -2100,7 +2101,7 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
       if (p_private_tcap->acv==TRUE ){
         version_ptr = strrchr((const char*)p_private_tcap->oid,'.');
         if (version_ptr){
-          application_context_version = atoi(version_ptr+1);
+          ws_strtoi32(version_ptr + 1, NULL, &application_context_version);
         }
       }
     }
