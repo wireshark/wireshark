@@ -2295,7 +2295,7 @@ proto_register_diameter_3gpp(void)
         },
         { &hf_diameter_3gpp_feature_list1_sh_flags_spare_bits,
         { "Spare", "diameter.3gpp.feature_list1_sh_flags_spare",
-        FT_UINT32, BASE_HEX, NULL, 0x0,
+        FT_UINT32, BASE_HEX, NULL, 0xfffffff0,
         NULL, HFILL }
         },
         { &hf_diameter_3gpp_feature_list1_s6a_flags_bit0,
