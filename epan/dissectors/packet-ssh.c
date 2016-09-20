@@ -54,6 +54,7 @@
 #include <epan/sctpppids.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <wsutil/strtoi.h>
 
 #include "packet-tcp.h"
 
@@ -984,7 +985,7 @@ static void
 ssh_set_mac_length(struct ssh_peer_data *peer_data)
 {
     char *size_str;
-    guint size = 0;
+    guint32 size = 0;
     char *mac_name = peer_data->mac;
     char *strip;
 
@@ -1005,7 +1006,9 @@ ssh_set_mac_length(struct ssh_peer_data *peer_data)
         if (strip) *strip = '\0';
     }
 
-    if ((size_str=g_strrstr(mac_name, "-")) && ((size=atoi(size_str+1)))) {
+    size_str = g_strrstr(mac_name, "-");
+    ws_strtoi32(size_str, NULL, &size);
+    if (size_str && size > 0) {
         peer_data->mac_length = size / 8;
     }
     else if (strcmp(mac_name, "hmac-sha1") == 0) {
