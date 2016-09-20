@@ -43,6 +43,7 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <wsutil/strtoi.h>
 
 #include "packet-ber.h"
 #include "packet-camel.h"
@@ -1079,7 +1080,7 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn
         if (p_private_tcap->acv==TRUE ){
             version_ptr = strrchr((const char *)p_private_tcap->oid,'.');
             if (version_ptr)
-                application_context_version = atoi(version_ptr+1);
+              ws_strtoi32(version_ptr + 1, NULL, &application_context_version);
         }
         gp_camelsrt_info->tcap_context=p_private_tcap->context;
         if (p_private_tcap->context)

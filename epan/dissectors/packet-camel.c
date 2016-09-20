@@ -51,6 +51,7 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <wsutil/strtoi.h>
 
 #include "packet-ber.h"
 #include "packet-camel.h"
@@ -609,7 +610,7 @@ static int hf_camel_present = -1;                 /* INTEGER */
 static int hf_camel_InvokeId_present = -1;        /* InvokeId_present */
 
 /*--- End of included file: packet-camel-hf.c ---*/
-#line 114 "./asn1/camel/packet-camel-template.c"
+#line 115 "./asn1/camel/packet-camel-template.c"
 
 static struct camelsrt_info_t * gp_camelsrt_info;
 
@@ -842,7 +843,7 @@ static gint ett_camel_T_problem = -1;
 static gint ett_camel_InvokeId = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 146 "./asn1/camel/packet-camel-template.c"
+#line 147 "./asn1/camel/packet-camel-template.c"
 
 static expert_field ei_camel_unknown_invokeData = EI_INIT;
 static expert_field ei_camel_unknown_returnResultData = EI_INIT;
@@ -1189,7 +1190,7 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-camel-val.h ---*/
-#line 308 "./asn1/camel/packet-camel-template.c"
+#line 309 "./asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table.c ---*/
@@ -1279,7 +1280,7 @@ static const value_string camel_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-camel-table.c ---*/
-#line 310 "./asn1/camel/packet-camel-template.c"
+#line 311 "./asn1/camel/packet-camel-template.c"
 
 /*
  * DEBUG fonctions
@@ -7163,7 +7164,7 @@ static int dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 411 "./asn1/camel/packet-camel-template.c"
+#line 412 "./asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table2.c ---*/
@@ -7370,7 +7371,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-camel-table2.c ---*/
-#line 413 "./asn1/camel/packet-camel-template.c"
+#line 414 "./asn1/camel/packet-camel-template.c"
 
 /*
  * Functions needed for Hash-Table
@@ -8040,7 +8041,7 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn
         if (p_private_tcap->acv==TRUE ){
             version_ptr = strrchr((const char *)p_private_tcap->oid,'.');
             if (version_ptr)
-                application_context_version = atoi(version_ptr+1);
+              ws_strtoi32(version_ptr + 1, NULL, &application_context_version);
         }
         gp_camelsrt_info->tcap_context=p_private_tcap->context;
         if (p_private_tcap->context)
@@ -8292,7 +8293,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 1327 "./asn1/camel/packet-camel-template.c"
+#line 1328 "./asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
     g_free(ssn_range);
@@ -10414,7 +10415,7 @@ void proto_register_camel(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 1500 "./asn1/camel/packet-camel-template.c"
+#line 1501 "./asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10632,7 +10633,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 1517 "./asn1/camel/packet-camel-template.c"
+#line 1518 "./asn1/camel/packet-camel-template.c"
   };
 
   static ei_register_info ei[] = {
