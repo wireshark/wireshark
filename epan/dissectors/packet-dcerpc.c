@@ -264,6 +264,7 @@ static const value_string reject_status_vals[] = {
     { 0x00000005, "nca_s_fault_access_denied" },
     { 0x000006f7, "nca_s_fault_ndr" },
     { 0x000006d8, "nca_s_fault_cant_perform" },
+    { 0x00000721, "nca_s_fault_sec_pkg_error" },
     { 0x1c000001, "nca_s_fault_int_div_by_zero" },
     { 0x1c000002, "nca_s_fault_addr_error" },
     { 0x1c000003, "nca_s_fault_fp_div_zero" },
