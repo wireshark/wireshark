@@ -37,6 +37,8 @@ The following bugs have been fixed:
 
 * Qt: Hidden columns displayed during live capture. (ws-buglink:12377[])
 
+* Unable to save changes to coloring rules. (ws-buglink:12814[])
+
 * Bad description for NBSS error code 0x81. (ws-buglink:12835[])
 
 * Live capture from USBPcap fails immediately. (ws-buglink:12846[])
