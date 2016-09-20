@@ -5643,32 +5643,6 @@ ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 static gint
-ssl_dissect_hnd_hello_ext_padding(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                                     proto_tree *tree, guint32 offset, guint32 ext_len)
-{
-    guint8      padding_length;
-    proto_tree *padding_tree;
-    proto_item *ti;
-
-    if (ext_len == 0) {
-        return offset;
-    }
-
-    ti = proto_tree_add_item(tree, hf->hf.hs_ext_padding_data, tvb, offset, ext_len, ENC_NA);
-    padding_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_padding);
-
-
-    proto_tree_add_item(padding_tree, hf->hf.hs_ext_padding_len, tvb, offset, 2, ENC_NA);
-    padding_length = tvb_get_guint8(tvb, offset);
-    offset += 2;
-
-    proto_tree_add_item(padding_tree, hf->hf.hs_ext_padding_data, tvb, offset, padding_length, ENC_NA);
-    offset += padding_length;
-
-    return offset;
-}
-
-static gint
 ssl_dissect_hnd_hello_ext_session_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                       proto_tree *tree, guint32 offset, guint32 ext_len, guint8 hnd_type, SslDecryptSession *ssl)
 {
@@ -6760,7 +6734,8 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset += ext_len;
             break;
         case SSL_HND_HELLO_EXT_PADDING:
-            offset = ssl_dissect_hnd_hello_ext_padding(hf, tvb, ext_tree, offset, ext_len);
+            proto_tree_add_item(ext_tree, hf->hf.hs_ext_padding_data, tvb, offset, ext_len, ENC_NA);
+            offset += ext_len;
             break;
         case SSL_HND_HELLO_EXT_SESSION_TICKET:
             offset = ssl_dissect_hnd_hello_ext_session_ticket(hf, tvb, ext_tree, offset, ext_len, hnd_type, ssl);

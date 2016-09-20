@@ -668,8 +668,6 @@ typedef struct ssl_common_dissect {
         gint hs_ext_server_name_len;
         gint hs_ext_server_name_list_len;
         gint hs_ext_server_name_type;
-        gint hs_ext_padding;
-        gint hs_ext_padding_len;
         gint hs_ext_padding_data;
         gint hs_ext_type;
         gint hs_sig_hash_alg;
@@ -752,7 +750,6 @@ typedef struct ssl_common_dissect {
         gint hs_ext_pre_shared_key;
         gint hs_ext_psk_identity;
         gint hs_ext_server_name;
-        gint hs_ext_padding;
         gint hs_sig_hash_alg;
         gint hs_sig_hash_algs;
         gint urlhash;
@@ -865,11 +862,10 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1,                                                         \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1,                                 \
+        -1, -1, -1, -1, -1, -1, -1,                                     \
     },                                                                  \
     /* ei */ {                                                          \
         EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,                    \
@@ -1048,16 +1044,6 @@ ssl_common_dissect_t name = {   \
       { "Server Name", prefix ".handshake.extensions_server_name",      \
         FT_STRING, BASE_NONE, NULL, 0x0,                                \
         NULL, HFILL }                                                   \
-    },                                                                  \
-    { & name .hf.hs_ext_padding,                                        \
-      { "Padding", prefix ".handshake.extensions_padding",              \
-        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
-        NULL, HFILL }                                                   \
-    },                                                                  \
-    { & name .hf.hs_ext_padding_len,                                    \
-      { "Padding length", prefix ".handshake.extensions_padding_len",   \
-        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
-        "Length of Padding", HFILL }                                    \
     },                                                                  \
     { & name .hf.hs_ext_padding_data,                                   \
       { "Padding Data", prefix ".handshake.extensions_padding_data",    \
@@ -1466,7 +1452,6 @@ ssl_common_dissect_t name = {   \
         & name .ett.hs_ext_pre_shared_key,          \
         & name .ett.hs_ext_psk_identity,            \
         & name .ett.hs_ext_server_name,             \
-        & name .ett.hs_ext_padding,                 \
         & name .ett.hs_sig_hash_alg,                \
         & name .ett.hs_sig_hash_algs,               \
         & name .ett.urlhash,                        \
