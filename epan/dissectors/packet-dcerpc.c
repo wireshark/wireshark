@@ -1230,9 +1230,12 @@ static void dissect_auth_verf(tvbuff_t *auth_tvb, packet_info *pinfo,
         fn = auth_fns->auth3_fn;
         break;
     case PDU_REQ:
+    case PDU_CO_CANCEL:
+    case PDU_ORPHANED:
         fn = auth_fns->req_verf_fn;
         break;
     case PDU_RESP:
+    case PDU_FAULT:
         fn = auth_fns->resp_verf_fn;
         break;
 
