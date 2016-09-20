@@ -1489,8 +1489,7 @@ proto_register_rtsp(void)
         " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
         &rtsp_desegment_headers);
     prefs_register_bool_preference(rtsp_module, "desegment_body",
-        "Trust the \"Content-length:\" header and\ndesegment RTSP "
-        "bodies\nspanning multiple TCP segments",
+        "Trust the \"Content-length:\" header when desegmenting",
         "Whether the RTSP dissector should use the "
         "\"Content-length:\" value to desegment the body "
         "of a request spanning multiple TCP segments",

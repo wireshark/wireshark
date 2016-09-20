@@ -1292,7 +1292,7 @@ proto_register_smtp(void)
   /* Preferences */
   smtp_module = prefs_register_protocol(proto_smtp, NULL);
   prefs_register_bool_preference(smtp_module, "desegment_lines",
-                                 "Reassemble SMTP command and response lines\nspanning multiple TCP segments",
+                                 "Reassemble SMTP command and response lines spanning multiple TCP segments",
                                  "Whether the SMTP dissector should reassemble command and response lines"
                                  " spanning multiple TCP segments. To use this option, you must also enable "
                                  "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",

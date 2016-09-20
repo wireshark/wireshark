@@ -3501,8 +3501,8 @@ proto_register_ipv6(void)
 
     /* RPL Strict Header Checking */
     prefs_register_bool_preference(ipv6_module, "perform_strict_rpl_srh_rfc_checking",
-                                   "Perform strict checking for adherence to the RFC for RPL Source Routing Headers (RFC 6554)",
-                                   "Whether to check that all RPL Source Routed packets do not visit a node more than once",
+                                   "Perform strict checking for RPL Source Routing Headers (RFC 6554)",
+                                   "Check that all RPL Source Routed packets conform to RFC 6554 and do not visit a node more than once",
                                    &g_ipv6_rpl_srh_strict_rfc_checking);
 
     prefs_register_bool_preference(ipv6_module, "try_heuristic_first",

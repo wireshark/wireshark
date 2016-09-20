@@ -421,8 +421,16 @@ WS_DLL_PUBLIC void prefs_register_uint_preference(module_t *module, const char *
     const char *title, const char *description, guint base, guint *var);
 
 /*
+ * prefs_register_ callers must conform to the following:
+ *
+ * Names must be in lowercase letters only (underscore allowed).
+ * Titles and descriptions must be valid UTF-8 or NULL.
+ * Titles must be short (less than 80 characters)
+ * Titles must not contain newlines.
+ */
+
+/*
  * Register a preference with an Boolean value.
- * Note that the name must be in lowercase letters only (underscore allowed).
  */
 WS_DLL_PUBLIC void prefs_register_bool_preference(module_t *module, const char *name,
     const char *title, const char *description, gboolean *var);

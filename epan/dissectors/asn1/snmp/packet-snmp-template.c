@@ -2540,7 +2540,7 @@ void proto_register_snmp(void) {
 	prefs_register_obsolete_preference(snmp_module, "users_file");
 
 	prefs_register_bool_preference(snmp_module, "desegment",
-			"Reassemble SNMP-over-TCP messages\nspanning multiple TCP segments",
+			"Reassemble SNMP-over-TCP messages spanning multiple TCP segments",
 			"Whether the SNMP dissector should reassemble messages spanning multiple TCP segments."
 			" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 			&snmp_desegment);

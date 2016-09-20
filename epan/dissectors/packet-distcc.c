@@ -367,7 +367,7 @@ proto_register_distcc(void)
     distcc_module = prefs_register_protocol(proto_distcc, NULL);
 
     prefs_register_bool_preference(distcc_module, "desegment_distcc_over_tcp",
-        "Reassemble DISTCC-over-TCP messages\nspanning multiple TCP segments",
+        "Reassemble DISTCC-over-TCP messages spanning multiple TCP segments",
         "Whether the DISTCC dissector should reassemble messages spanning multiple TCP segments."
         " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
         &distcc_desegment);

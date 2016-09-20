@@ -4375,7 +4375,7 @@ proto_register_rpc(void)
 
 	rpc_module = prefs_register_protocol(proto_rpc, NULL);
 	prefs_register_bool_preference(rpc_module, "desegment_rpc_over_tcp",
-	    "Reassemble RPC over TCP messages\nspanning multiple TCP segments",
+	    "Reassemble RPC over TCP messages spanning multiple TCP segments",
 	    "Whether the RPC dissector should reassemble messages spanning multiple TCP segments."
 	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&rpc_desegment);

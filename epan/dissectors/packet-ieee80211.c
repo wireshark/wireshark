@@ -27420,14 +27420,6 @@ proto_register_ieee80211(void)
     "Enable decryption", "Enable WEP and WPA/WPA2 decryption",
     &enable_decryption);
 
-  prefs_register_static_text_preference(wlan_module, "info_decryption_key",
-    "Key examples: 01:02:03:04:05 (40/64-bit WEP),\n"
-    "010203040506070809101111213 (104/128-bit WEP),\n"
-    "MyPassword[:MyAP] (WPA + plaintext password [+ SSID]),\n"
-    "0102030405...6061626364 (WPA + 256-bit key).  "
-    "Invalid keys will be ignored.",
-    "Valid key formats");
-
   wep_uat = uat_new("WEP and WPA Decryption Keys",
             sizeof(uat_wep_key_record_t), /* record size */
             "80211_keys",                 /* filename */
@@ -27435,7 +27427,7 @@ proto_register_ieee80211(void)
             &uat_wep_key_records,         /* data_ptr */
             &num_wepkeys_uat,             /* numitems_ptr */
             UAT_AFFECTS_DISSECTION,       /* affects dissection of packets, but not set of named fields */
-            NULL,                         /* help */
+            NULL,                         /* help. XXX Needs chapter in WSUG */
             uat_wep_key_record_copy_cb,   /* copy callback */
             uat_wep_key_record_update_cb, /* update callback */
             uat_wep_key_record_free_cb,   /* free callback */
@@ -27444,8 +27436,13 @@ proto_register_ieee80211(void)
 
   prefs_register_uat_preference(wlan_module,
                                 "wep_key_table",
-                                "Decryption Keys",
-                                "WEP and pre-shared WPA keys",
+                                "Decryption keys",
+                                "WEP and pre-shared WPA keys\n"
+                                "Key examples: 01:02:03:04:05 (40/64-bit WEP),\n"
+                                "010203040506070809101111213 (104/128-bit WEP),\n"
+                                "MyPassword[:MyAP] (WPA + plaintext password [+ SSID]),\n"
+                                "0102030405...6061626364 (WPA + 256-bit key)."
+                                "Invalid keys will be ignored.",
                                 wep_uat);
 }
 

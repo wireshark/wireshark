@@ -787,6 +787,7 @@ register_preference(module_t *module, const char *name, const char *title,
 {
     pref_t *preference;
     const gchar *p;
+    const char *name_prefix = (module->name != NULL) ? module->name : module->parent->name;
 
     preference = g_new(pref_t,1);
     preference->name = name;
@@ -834,9 +835,32 @@ register_preference(module_t *module, const char *name, const char *title,
             g_error("Preference %s begins with the module name", name);
     }
 
+    /* The title shows up in the preferences dialog. Make sure it's UI-friendly. */
+    if (preference->title) {
+        const char *cur_char;
+        if (preference->type != PREF_STATIC_TEXT && strlen(preference->title) > 80) { // Arbitrary.
+            g_error("Title for preference %s.%s is too long: %s", name_prefix, preference->name, preference->title);
+        }
+
+        if (!g_utf8_validate(preference->title, -1, NULL)) {
+            g_error("Title for preference %s.%s isn't valid UTF-8.", name_prefix, preference->name);
+        }
+
+        for (cur_char = preference->title; *cur_char; cur_char = g_utf8_next_char(cur_char)) {
+            if (!g_unichar_isprint(g_utf8_get_char(cur_char))) {
+                g_error("Title for preference %s.%s isn't printable UTF-8.", name_prefix, preference->name);
+            }
+        }
+    }
+
+    if (preference->description) {
+        if (!g_utf8_validate(preference->description, -1, NULL)) {
+            g_error("Description for preference %s.%s isn't valid UTF-8.", name_prefix, preference->name);
+        }
+    }
+
     /*
-     * There isn't already one with that name, so add the
-     * preference.
+     * We passed all of our checks. Add the preference.
      */
     module->prefs = g_list_append(module->prefs, preference);
     if (title != NULL)
@@ -2436,13 +2460,15 @@ prefs_register_modules(void)
                        (gint*)(void*)(&prefs.gui_version_placement), gui_version_placement_type, FALSE);
 
     prefs_register_bool_preference(gui_module, "auto_scroll_on_expand",
-                                   "Automatically scroll the recently expanded item",
-                                   "Automatically scroll the recently expanded item",
+                                   "Automatically scroll packet details",
+                                   "When selecting a new packet, automatically scroll"
+                                   "to the packet detail item that matches the most"
+                                   "recently selected item",
                                    &prefs.gui_auto_scroll_on_expand);
 
     prefs_register_uint_preference(gui_module, "auto_scroll_percentage",
-                                   "The percentage down the view the recently expanded item should be scrolled",
-                                   "The percentage down the view the recently expanded item should be scrolled",
+                                   "Packet detail scroll percentage",
+                                   "The percentage down the view the recently expanded detail item should be scrolled",
                                    10,
                                    &prefs.gui_auto_scroll_percentage);
 
@@ -5357,6 +5383,7 @@ write_pref(gpointer data, gpointer user_data)
     int type;
 
     type = pref->type;
+
     if (IS_PREF_OBSOLETE(type)) {
         /*
          * This preference is no longer supported; it's not a

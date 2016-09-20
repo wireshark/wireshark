@@ -2345,7 +2345,7 @@ proto_register_diameter(void)
 
 	/* Desegmentation */
 	prefs_register_bool_preference(diameter_module, "desegment",
-				       "Reassemble Diameter messages\nspanning multiple TCP segments",
+				       "Reassemble Diameter messages spanning multiple TCP segments",
 				       "Whether the Diameter dissector should reassemble messages spanning multiple TCP segments."
 				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 				       &gbl_diameter_desegment);

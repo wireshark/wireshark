@@ -965,11 +965,11 @@ proto_register_eth(void)
                                  &eth_interpret_as_fw1_monitor);
 
   prefs_register_static_text_preference(eth_module, "ccsds_heuristic",
+                                        "Dissect as CCSDS if",
                                         "These are the conditions to match a payload against in order to determine if this\n"
                                         "is a CCSDS (Consultative Committee for Space Data Systems) packet within\n"
                                         "an 802.3 packet. A packet is considered as a possible CCSDS packet only if\n"
-                                        "one or more of the conditions are checked.",
-                                        "Describe the conditions that must be true for the CCSDS dissector to be called");
+                                        "one or more of the conditions are checked.");
 
   prefs_register_bool_preference(eth_module, "ccsds_heuristic_length",
                                  "CCSDS Length in header matches payload size",

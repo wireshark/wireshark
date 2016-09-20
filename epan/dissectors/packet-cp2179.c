@@ -1363,7 +1363,7 @@ proto_register_cp2179(void)
 
     /* Telnet protocol IAC (0xFF) processing; defaults to TRUE to allow Telnet Encapsulated Data */
     prefs_register_bool_preference(cp2179_module, "telnetclean",
-                                  "Enable Automatic pre-processing of Telnet-encapsulated data to remove extra 0xFF (IAC) bytes",
+                                  "Remove extra 0xFF (IAC) bytes from Telnet-encapsulated data",
                                   "Whether the SEL Protocol dissector should automatically pre-process Telnet data to remove IAC bytes",
                                   &cp2179_telnet_clean);
 

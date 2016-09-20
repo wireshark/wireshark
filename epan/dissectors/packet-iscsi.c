@@ -3107,7 +3107,7 @@ proto_register_iscsi(void)
 
     prefs_register_bool_preference(iscsi_module,
                                    "desegment_iscsi_messages",
-                                   "Reassemble iSCSI messages\nspanning multiple TCP segments",
+                                   "Reassemble iSCSI messages spanning multiple TCP segments",
                                    "Whether the iSCSI dissector should reassemble messages spanning multiple TCP segments."
                                    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                                    &iscsi_desegment);
