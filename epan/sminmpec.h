@@ -84,6 +84,7 @@
 #define VENDOR_COLUMBIA_UNIVERSITY  11862
 #define VENDOR_THE3GPP              10415
 #define VENDOR_GEMTEK_SYSTEMS       10529
+#define VENDOR_DACOM                11665
 #define VENDOR_FORTINET             12356
 #define VENDOR_VERIZON              12951
 #define VENDOR_PLIXER               13745
