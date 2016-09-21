@@ -71,6 +71,8 @@ static int hf_provider = -1;
 static int hf_start_time = -1;
 static int hf_end_time = -1;
 static int hf_elapsed_time = -1;
+static int hf_device_not_selected_timeout = -1;
+static int hf_transmission_retry_timeout = -1;
 
 /****************************************************************************/
 
@@ -2272,6 +2274,39 @@ dissect_PRINTER_INFO_3(tvbuff_t *tvb, int offset,
 }
 
 /*
+ * PRINTER_INFO_5
+ */
+
+static gint ett_PRINTER_INFO_5 = -1;
+
+static int
+dissect_PRINTER_INFO_5(tvbuff_t *tvb, int offset,
+				  packet_info *pinfo, proto_tree *tree,
+				  dcerpc_info *di, guint8 *drep)
+{
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, tree, di, drep, hf_printername,
+		0, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, tree, di, drep, hf_portname,
+		0, NULL);
+
+	offset = dissect_printer_attributes(tvb, offset, pinfo, tree, di, drep);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, di, drep,
+		hf_device_not_selected_timeout, NULL);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, di, drep,
+		hf_transmission_retry_timeout, NULL);
+
+	return offset;
+}
+
+
+/*
  * PRINTER_INFO_7
  */
 
@@ -3142,6 +3177,10 @@ SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			dissect_PRINTER_INFO_3(
 				buffer.tvb, 0, pinfo, subtree, di, drep);
 			break;
+		case 5:
+			dissect_PRINTER_INFO_5(
+				buffer.tvb, 0, pinfo, subtree, di, drep);
+			break;
 		case 7:
 			dissect_PRINTER_INFO_7(
 				buffer.tvb, 0, pinfo, subtree, di, drep);
@@ -3757,6 +3796,10 @@ SpoolssEnumPrinters_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 		case 3:
 			dissect_PRINTER_INFO_3(
+				buffer.tvb, 0, pinfo, subtree, di, drep);
+			break;
+		case 5:
+			dissect_PRINTER_INFO_5(
 				buffer.tvb, 0, pinfo, subtree, di, drep);
 			break;
 		case 7:
@@ -6811,6 +6854,14 @@ proto_register_dcerpc_spoolss(void)
 		  { "Elapsed time", "spoolss.elapsed_time",
 		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
+		{ &hf_device_not_selected_timeout,
+		  { "Device Not Selected Timeout", "spoolss.device_not_selected_timeout",
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_transmission_retry_timeout,
+		  { "Transmission Retry Timeout", "spoolss.transmission_retry_timeout",
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
 		/*
 		 * New hf index values
 		 */
@@ -8234,6 +8285,7 @@ proto_register_dcerpc_spoolss(void)
 		&ett_PRINTER_INFO_1,
 		&ett_PRINTER_INFO_2,
 		&ett_PRINTER_INFO_3,
+		&ett_PRINTER_INFO_5,
 		&ett_PRINTER_INFO_7,
 		&ett_RELSTR,
 		&ett_RELSTR_ARRAY,
