@@ -371,8 +371,6 @@ write_ek_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **p
     char ts[30];
     time_t t = time(NULL);
     struct tm  *timeinfo;
-    nstime_t   *timestamp;
-    GPtrArray  *finfo_array;
 
     g_assert(edt);
     g_assert(fh);
@@ -381,22 +379,9 @@ write_ek_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **p
     timeinfo = localtime(&t);
     strftime(ts, 30, "%Y-%m-%d", timeinfo);
 
-    /* Get frame protocol's finfo. */
-    finfo_array = proto_find_finfo(edt->tree, proto_frame);
-    if (g_ptr_array_len(finfo_array) < 1) {
-        return;
-    }
-    /* frame.time --> geninfo.timestamp */
-    finfo_array = proto_find_finfo(edt->tree, hf_frame_arrival_time);
-    if (g_ptr_array_len(finfo_array) < 1) {
-        return;
-    }
-    timestamp = (nstime_t *)fvalue_get(&((field_info*)finfo_array->pdata[0])->value);
-    g_ptr_array_free(finfo_array, TRUE);
-
     fprintf(fh, "{\"index\" : {\"_index\": \"packets-%s\", \"_type\": \"pcap_file\", \"_score\": null}}\n", ts);
     /* Timestamp added for time indexing in Elasticsearch */
-    fprintf(fh, "{\"timestamp\" : \"%" G_GUINT64_FORMAT "%03d\", \"layers\" : {", (guint64)timestamp->secs, timestamp->nsecs/1000000);
+    fprintf(fh, "{\"timestamp\" : \"%" G_GUINT64_FORMAT "%03d\", \"layers\" : {", (guint64)edt->pi.abs_ts.secs, edt->pi.abs_ts.nsecs/1000000);
 
     if (fields == NULL || fields->fields == NULL) {
         /* Write out all fields */
