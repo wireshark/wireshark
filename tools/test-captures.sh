@@ -31,9 +31,9 @@ TEST_TYPE="manual"
 . `dirname $0`/test-common.sh || exit 1
 
 # Run under AddressSanitizer ?
-ASAN=0
+ASAN=$CONFIGURED_WITH_ASAN
 
-while getopts "a:b:" OPTCHAR ; do
+while getopts "ab:" OPTCHAR ; do
     case $OPTCHAR in
         a) ASAN=1 ;;
         b) WIRESHARK_BIN_DIR=$OPTARG ;;
