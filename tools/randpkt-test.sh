@@ -10,7 +10,7 @@ TEST_TYPE="randpkt"
 . `dirname $0`/test-common.sh || exit 1
 
 # Run under AddressSanitizer ?
-ASAN=0
+ASAN=$CONFIGURED_WITH_ASAN
 
 # Trigger an abort if a dissector finds a bug.
 # Uncomment to disable

@@ -123,6 +123,15 @@ export MallocBadFreeAbort=1
 # Address Sanitizer options
 export ASAN_OPTIONS=detect_leaks=0
 
+# See if we were configured with gcc or clang's AddressSanitizer.
+CONFIGURED_WITH_ASAN=0
+if [ -r "$WIRESHARK_BIN_DIR/Makefile" ] ; then
+    grep -- "-fsanitize=address" "$WIRESHARK_BIN_DIR/Makefile" > /dev/null 2>&1 && CONFIGURED_WITH_ASAN=1
+elif [ -r "$WIRESHARK_BIN_DIR/../CMakeFiles/tshark.dir/flags.make" ] ; then
+    grep -- "-fsanitize=address" "$WIRESHARK_BIN_DIR/../CMakeFiles/tshark.dir/flags.make" > /dev/null 2>&1 && CONFIGURED_WITH_ASAN=1
+fi
+export CONFIGURED_WITH_ASAN
+
 # Create an error report
 function ws_exit_error() {
     echo -e "\n ERROR"
