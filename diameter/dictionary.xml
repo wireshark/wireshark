@@ -5352,7 +5352,7 @@
 			<enum name="24000 ms" code="11"/>
 			<enum name="28000 ms" code="12"/>
 			<enum name="32000 ms" code="13"/>
-			<enum name="32000 ms" code="14"/>
+			<enum name="64000 ms" code="14"/>
 		</avp>
 		<avp name="Collection-Period-RRM-LTE" code="1657" vendor-bit="must" vendor-id="TGPP">
 			<!-- The possible values are those defined in 3GPP TS 32.422 -->
