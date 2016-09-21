@@ -4003,6 +4003,7 @@ static int dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
   if (dmp.checksum) {
     length = tvb_captured_length (tvb);
     checksum1 = crc16_x25_ccitt_tvb (tvb, length - 2);
+    checksum2 = tvb_get_ntohs (tvb, offset);
 
     proto_tree_add_checksum(dmp_tree, tvb, offset, hf_checksum, hf_checksum_status, &ei_checksum_bad, pinfo, checksum1, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
     offset += 2;
