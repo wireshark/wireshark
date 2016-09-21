@@ -5324,13 +5324,35 @@
 		<avp name="Subscription-Data-Flags" code="1654" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Measurement-Period-UMTS" code="1655" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Measurement-Period-LTE" code="1655" vendor-bit="must" vendor-id="TGPP">
 			<!-- The possible values are those defined in 3GPP TS 32.422 -->
 			<type type-name="Enumerated"/>
+			<enum name="1024 ms" code="0"/>
+			<enum name="1280 ms" code="1"/>
+			<enum name="2048 ms" code="2"/>
+			<enum name="2560 ms" code="3"/>
+			<enum name="5120 ms" code="4"/>
+			<enum name="10240 ms" code="5"/>
+			<enum name="1 min" code="6"/>
 		</avp>
-		<avp name="Measurement-Period-LTE" code="1656" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Measurement-Period-UMTS" code="1656" vendor-bit="must" vendor-id="TGPP">
 			<!-- The possible values are those defined in 3GPP TS 32.422 -->
 			<type type-name="Enumerated"/>
+			<enum name="250 ms" code="0"/>
+			<enum name="500 ms" code="1"/>
+			<enum name="1000 ms" code="2"/>
+			<enum name="2000 ms" code="3"/>
+			<enum name="3000 ms" code="4"/>
+			<enum name="4000 ms" code="5"/>
+			<enum name="6000 ms" code="6"/>
+			<enum name="8000 ms" code="7"/>
+			<enum name="12000 ms" code="8"/>
+			<enum name="16000 ms" code="9"/>
+			<enum name="20000 ms" code="10"/>
+			<enum name="24000 ms" code="11"/>
+			<enum name="28000 ms" code="12"/>
+			<enum name="32000 ms" code="13"/>
+			<enum name="32000 ms" code="14"/>
 		</avp>
 		<avp name="Collection-Period-RRM-LTE" code="1657" vendor-bit="must" vendor-id="TGPP">
 			<!-- The possible values are those defined in 3GPP TS 32.422 -->
