@@ -44,7 +44,7 @@ endif()
 add_executable(idl2wrs ${IDL2WRS_FILES})
 set_target_properties(idl2wrs PROPERTIES FOLDER "Executables")
 
-target_link_libraries(idl2wrs ${GLIB2_LIBRARIES})
+target_link_libraries(idl2wrs ${GLIB2_LIBRARIES} wsutil)
 
 foreach(PROTOCOL_NAME IN LISTS PIDL_DISSECTOR_NAMES)
 	# Use a stamp file instead of OUTPUT to packet-dcerpc-X.c to

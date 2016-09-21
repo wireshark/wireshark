@@ -49,7 +49,7 @@ bin_PROGRAMS = idl2wrs
 
 idl2wrs_SOURCES = idl2wrs.c
 
-idl2wrs_LDADD = $(GLIB_LIBS)
+idl2wrs_LDADD = $(GLIB_LIBS) ../../../wsutil/libwsutil.la
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html

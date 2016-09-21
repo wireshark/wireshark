@@ -92,6 +92,7 @@ TODO
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <wsutil/strtoi.h>
 
 #undef IDL2WRS_DEBUG
 
@@ -1489,7 +1490,7 @@ static void parsetypedefstruct(int pass)
 	pointer_item_t *pi;
 	const char *pointer_type;
 	char *field_name;
-	int fixed_array_size;
+	guint32 fixed_array_size;
 	int is_array_of_pointers;
 	int empty_struct = 0;
 
@@ -1675,7 +1676,10 @@ static void parsetypedefstruct(int pass)
 			/* this might be a fixed array */
 			ti=ti->next;
 
-			fixed_array_size=atoi(ti->str);
+			if (!ws_strtou32(ti->str, NULL, &fixed_array_size)) {
+				FPRINTF(stderr, "ERROR: invalid integer: %s\n", ti->str);
+				Exit(10);
+			}
 			g_snprintf(fss, BASE_BUFFER_SIZE, "%d", fixed_array_size);
 
 			if(!g_strcmp0("]", ti->str)){
