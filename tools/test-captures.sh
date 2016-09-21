@@ -30,8 +30,12 @@
 TEST_TYPE="manual"
 . `dirname $0`/test-common.sh || exit 1
 
-while getopts ":b:" OPTCHAR ; do
+# Run under AddressSanitizer ?
+ASAN=0
+
+while getopts "a:b:" OPTCHAR ; do
     case $OPTCHAR in
+        a) ASAN=1 ;;
         b) WIRESHARK_BIN_DIR=$OPTARG ;;
     esac
 done
@@ -46,11 +50,20 @@ fi
 ws_bind_exec_paths
 ws_check_exec "$TSHARK"
 
-# set some limits to the child processes, e.g. stop it if it's running longer then MAX_CPU_TIME seconds
-# (ulimit is not supported well on cygwin and probably other platforms, e.g. cygwin shows some warnings)
-ulimit -S -t $MAX_CPU_TIME -v $MAX_VMEM
+# Set some limits to the child processes, e.g. stop it if it's running
+# longer than MAX_CPU_TIME seconds. (ulimit is not supported well on
+# cygwin - it shows some warnings - and the features we use may not all
+# be supported on some UN*X platforms.)
+ulimit -S -t $MAX_CPU_TIME
+
 # Allow core files to be generated
 ulimit -c unlimited
+
+# Don't enable ulimit -v when using ASAN. See
+# https://github.com/google/sanitizers/wiki/AddressSanitizer#ulimit--v
+if [ $ASAN -eq 0 ]; then
+	ulimit -S -v $MAX_VMEM
+fi
 
 for file in "$@"
 do
