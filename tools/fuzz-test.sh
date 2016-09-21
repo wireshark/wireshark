@@ -197,18 +197,25 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
             echo -n "($ARGS) "
             echo -e "Command and args: $RUNNER $ARGS\n" > $TMP_DIR/$ERR_FILE
 
-            # Run in a child process with limits, e.g. stop it if it's running
-            # longer then MAX_CPU_TIME seconds. (ulimit may not be supported
-            # well on some platforms, particularly cygwin.)
+            # Run in a child process with limits.
             (
+                # Set some limits to the child processes, e.g. stop it if
+                # it's running longer than MAX_CPU_TIME seconds. (ulimit
+                # is not supported well on cygwin - it shows some warnings -
+                # and the features we use may not all be supported on some
+                # UN*X platforms.)
                 ulimit -S -t $MAX_CPU_TIME -s $MAX_STACK
+
+                # Allow core files to be generated
                 ulimit -c unlimited
 
                 # Don't enable ulimit -v when use ASAN see
                 # https://code.google.com/p/address-sanitizer/wiki/AddressSanitizer#ulimit_-v
                 if [ $ASAN -eq 0 ]; then
-                    ulimit -v $MAX_VMEM
+                    ulimit -S -v $MAX_VMEM
                 fi
+
+                SUBSHELL_PID=$($SHELL -c 'echo $PPID')
 
                 "$RUNNER" $COMMON_ARGS $ARGS $TMP_DIR/$TMP_FILE \
                     > /dev/null 2>> $TMP_DIR/$ERR_FILE
