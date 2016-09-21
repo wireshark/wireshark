@@ -46,7 +46,7 @@ CONFIG_PROFILE=
 VALGRIND=0
 
 # Run under AddressSanitizer ?
-ASAN=0
+ASAN=$CONFIGURED_WITH_ASAN
 
 # Don't skip any byte from being changed
 CHANGE_OFFSET=0
