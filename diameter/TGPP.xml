@@ -549,10 +549,10 @@
 		</grouped>
 	</avp>
 	<avp name="Sponsor-Identity" code="531" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-		<type type-name="OctetString" />
+		<type type-name="UTF8String" />
 	</avp>
 	<avp name="Application-Service-Provider-Identity" code="532" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-		<type type-name="OctetString" />
+		<type type-name="UTF8String" />
 	</avp>
 	<avp name="Rx-Request-Type" code="533" mandatory="may"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="Enumerated"/>
