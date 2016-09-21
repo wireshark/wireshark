@@ -105,7 +105,7 @@ static void print_escaped_xml(FILE *fh, const char *unescaped_string);
 static void print_escaped_json(FILE *fh, const char *unescaped_string);
 static void print_escaped_ek(FILE *fh, const char *unescaped_string);
 
-static void print_pdml_geninfo(proto_tree *tree, FILE *fh);
+static void print_pdml_geninfo(epan_dissect_t *edt, FILE *fh);
 
 static void proto_tree_get_node_field_values(proto_node *node, gpointer data);
 
@@ -296,7 +296,7 @@ write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, epan_diss
     fprintf(fh, "<packet>\n");
 
     /* Print a "geninfo" protocol as required by PDML */
-    print_pdml_geninfo(edt->tree, fh);
+    print_pdml_geninfo(edt, fh);
 
     if (fields == NULL || fields->fields == NULL) {
         /* Write out all fields */
@@ -1100,53 +1100,29 @@ proto_tree_write_node_ek(proto_node *node, gpointer data)
  * but we produce a 'geninfo' protocol in the PDML to conform to spec.
  * The 'frame' protocol follows the 'geninfo' protocol in the PDML. */
 static void
-print_pdml_geninfo(proto_tree *tree, FILE *fh)
+print_pdml_geninfo(epan_dissect_t *edt, FILE *fh)
 {
     guint32     num, len, caplen;
-    nstime_t   *timestamp;
     GPtrArray  *finfo_array;
     field_info *frame_finfo;
     gchar      *tmp;
 
     /* Get frame protocol's finfo. */
-    finfo_array = proto_find_finfo(tree, proto_frame);
+    finfo_array = proto_find_finfo(edt->tree, proto_frame);
     if (g_ptr_array_len(finfo_array) < 1) {
         return;
     }
     frame_finfo = (field_info *)finfo_array->pdata[0];
     g_ptr_array_free(finfo_array, TRUE);
 
-    /* frame.number --> geninfo.num */
-    finfo_array = proto_find_finfo(tree, hf_frame_number);
-    if (g_ptr_array_len(finfo_array) < 1) {
-        return;
-    }
-    num = fvalue_get_uinteger(&((field_info*)finfo_array->pdata[0])->value);
-    g_ptr_array_free(finfo_array, TRUE);
+    /* frame.number, packet_info.num */
+    num = edt->pi.num;
 
-    /* frame.frame_len --> geninfo.len */
-    finfo_array = proto_find_finfo(tree, hf_frame_len);
-    if (g_ptr_array_len(finfo_array) < 1) {
-        return;
-    }
-    len = fvalue_get_uinteger(&((field_info*)finfo_array->pdata[0])->value);
-    g_ptr_array_free(finfo_array, TRUE);
+    /* frame.frame_len, packet_info.frame_data->pkt_len */
+    len = edt->pi.fd->pkt_len;
 
-    /* frame.cap_len --> geninfo.caplen */
-    finfo_array = proto_find_finfo(tree, hf_frame_capture_len);
-    if (g_ptr_array_len(finfo_array) < 1) {
-        return;
-    }
-    caplen = fvalue_get_uinteger(&((field_info*)finfo_array->pdata[0])->value);
-    g_ptr_array_free(finfo_array, TRUE);
-
-    /* frame.time --> geninfo.timestamp */
-    finfo_array = proto_find_finfo(tree, hf_frame_arrival_time);
-    if (g_ptr_array_len(finfo_array) < 1) {
-        return;
-    }
-    timestamp = (nstime_t *)fvalue_get(&((field_info*)finfo_array->pdata[0])->value);
-    g_ptr_array_free(finfo_array, TRUE);
+    /* frame.cap_len --> packet_info.frame_data->cap_len */
+    caplen = edt->pi.fd->cap_len;
 
     /* Print geninfo start */
     fprintf(fh,
@@ -1168,12 +1144,12 @@ print_pdml_geninfo(proto_tree *tree, FILE *fh)
             "    <field name=\"caplen\" pos=\"0\" show=\"%u\" showname=\"Captured Length\" value=\"%x\" size=\"%d\"/>\n",
             caplen, caplen, frame_finfo->length);
 
-    tmp = abs_time_to_str(NULL, timestamp, ABSOLUTE_TIME_LOCAL, TRUE);
+    tmp = abs_time_to_str(NULL, &edt->pi.abs_ts, ABSOLUTE_TIME_LOCAL, TRUE);
 
     /* Print geninfo.timestamp */
     fprintf(fh,
             "    <field name=\"timestamp\" pos=\"0\" show=\"%s\" showname=\"Captured Time\" value=\"%d.%09d\" size=\"%d\"/>\n",
-            tmp, (int) timestamp->secs, timestamp->nsecs, frame_finfo->length);
+            tmp, (int)edt->pi.abs_ts.secs, edt->pi.abs_ts.nsecs, frame_finfo->length);
 
     wmem_free(NULL, tmp);
 
