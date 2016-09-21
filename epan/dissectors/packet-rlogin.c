@@ -27,6 +27,8 @@
 
 #include <stdlib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
+#include <wsutil/strtoi.h>
 #include "packet-tcp.h"
 
 #define RLOGIN_PORT 513
@@ -60,6 +62,8 @@ static int hf_window_info_cols = -1;
 static int hf_window_info_x_pixels = -1;
 static int hf_window_info_y_pixels = -1;
 static int hf_data = -1;
+
+static expert_field ei_rlogin_termlen_invalid = EI_INIT;
 
 static const value_string control_message_vals[] =
 {
@@ -284,6 +288,11 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		slash_offset = tvb_find_guint8(tvb, offset, -1, '/');
 		if (slash_offset != -1)
 		{
+			guint8* str = NULL;
+			guint32 term_len = 0;
+			gboolean term_len_valid;
+			proto_item* pi = NULL;
+
 			/* Terminal type */
 			proto_tree_add_item(user_info_tree, hf_user_info_terminal_type,
 			                    tvb, offset, slash_offset-offset, ENC_ASCII|ENC_NA);
@@ -291,9 +300,15 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 
 			/* Terminal speed */
 			str_len = tvb_strsize(tvb, offset);
-			proto_tree_add_uint(user_info_tree, hf_user_info_terminal_speed,
-			                    tvb, offset, str_len,
-			                    atoi(tvb_format_text(tvb, offset, str_len)));
+			str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, str_len,
+				ENC_NA|ENC_ASCII);
+			term_len_valid = ws_strtou32(str, NULL, &term_len);
+			pi = proto_tree_add_uint(user_info_tree,
+				hf_user_info_terminal_speed,
+				tvb, offset, str_len, term_len);
+			if (!term_len_valid)
+				expert_add_info(pinfo, pi, &ei_rlogin_termlen_invalid);
+
 			offset += str_len;
 		}
 	}
@@ -474,6 +489,8 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 void proto_register_rlogin(void)
 {
+	expert_module_t* expert_rlogin;
+
 	static gint *ett[] = {
 		&ett_rlogin,
 		&ett_rlogin_window,
@@ -568,10 +585,18 @@ void proto_register_rlogin(void)
 		}
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_rlogin_termlen_invalid, { "rlogin.terminal_speed.invalid", PI_MALFORMED, PI_ERROR,
+			"Terminal length must be a string containing an integer", EXPFILL }}
+	};
+
 	proto_rlogin = proto_register_protocol("Rlogin Protocol", "Rlogin", "rlogin");
 
 	proto_register_field_array(proto_rlogin, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	expert_rlogin = expert_register_protocol(proto_rlogin);
+	expert_register_field_array(expert_rlogin, ei, array_length(ei));
 }
 
 void proto_reg_handoff_rlogin(void)
