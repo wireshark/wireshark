@@ -640,6 +640,8 @@ static int hf_nfs4_io_count = -1;
 static int hf_nfs4_layoutstats = -1;
 static int hf_nfs4_callback_stateids = -1;
 static int hf_nfs4_callback_stateids_index = -1;
+static int hf_nfs4_num_offload_status = -1;
+static int hf_nfs4_offload_status_index = -1;
 static int hf_nfs4_consecutive = -1;
 static int hf_nfs4_netloc = -1;
 static int hf_nfs4_netloc_type = -1;
@@ -872,6 +874,7 @@ static gint ett_nfs4_ff_iostats_sub = -1;
 static gint ett_nfs4_clone = -1;
 static gint ett_nfs4_offload_cancel = -1;
 static gint ett_nfs4_offload_status = -1;
+static gint ett_nfs4_osr_complete_sub = -1;
 static gint ett_nfs4_io_advise = -1;
 static gint ett_nfs4_read_plus = -1;
 static gint ett_nfs4_read_plus_content_sub = -1;
@@ -10297,6 +10300,37 @@ dissect_nfs4_secinfo_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 
 static int
+dissect_nfs4_offload_status_res(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	proto_item *sub_fitem;
+	proto_tree *ss_tree;
+	proto_tree *subtree;
+	proto_item *ss_fitem;
+	guint       i;
+	guint32	    count;
+
+	/* Number of osr_complete status */
+	sub_fitem = proto_tree_add_item_ret_uint(tree,
+			hf_nfs4_num_offload_status, tvb, offset, 4,
+			ENC_BIG_ENDIAN, &count);
+	offset += 4;
+
+	subtree = proto_item_add_subtree(sub_fitem, ett_nfs4_osr_complete_sub);
+	for (i = 0; i < count; i++) {
+		ss_fitem = proto_tree_add_item(subtree,
+				hf_nfs4_offload_status_index,
+				tvb, offset, 4, i);
+
+		ss_tree = proto_item_add_subtree(ss_fitem,
+				ett_nfs4_osr_complete_sub);
+
+		offset = dissect_rpc_uint32(tvb, ss_tree, hf_nfs4_status, offset);
+	}
+
+	return offset;
+}
+
+static int
 dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rpc_call_info_value *civ)
 {
 	guint	    highest_tier    = 5;
@@ -10635,7 +10669,8 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 			break;
 
 		case NFS4_OP_OFFLOAD_STATUS:
-			offset = dissect_nfs4_stateid(tvb, offset, newftree, NULL);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_length, offset);
+			offset = dissect_nfs4_offload_status_res(tvb, offset, newftree);
 			break;
 
 		case NFS4_OP_READ_PLUS:
@@ -13579,6 +13614,14 @@ proto_register_nfs(void)
 			"Callback Id", "nfs.ff.callback_id_index", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_nfs4_num_offload_status, {
+			"Number of offload status", "nfs.num_offload_status", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_offload_status_index, {
+			"nfsstat4", "nfs.offload_status", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
 		{ &hf_nfs4_consecutive, {
 			"copy consecutively?", "nfs.consecutive", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
@@ -13959,6 +14002,7 @@ proto_register_nfs(void)
 		&ett_nfs4_clone,
 		&ett_nfs4_offload_cancel,
 		&ett_nfs4_offload_status,
+		&ett_nfs4_osr_complete_sub,
 		&ett_nfs4_io_advise,
 		&ett_nfs4_read_plus,
 		&ett_nfs4_read_plus_content_sub,
