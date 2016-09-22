@@ -126,6 +126,7 @@ const value_string gre_typevals[] = {
     { ETHERTYPE_ARP,       "ARP" },
     { SAP_OSINL5,          "OSI"},
     { GRE_WCCP,            "WCCP"},
+    { GRE_CISCO_CDP,       "CDP (Cisco)"},
     { GRE_NHRP,            "NHRP"},
     { GRE_ERSPAN_88BE,     "ERSPAN"},
     { GRE_ERSPAN_22EB,     "ERSPAN"},
