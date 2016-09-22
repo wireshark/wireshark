@@ -106,6 +106,7 @@
 #include "wsutil/tempfile.h"
 #include "log.h"
 #include "wsutil/file_util.h"
+#include "wsutil/cpu_info.h"
 #include "wsutil/os_version_info.h"
 #include "wsutil/str_util.h"
 #include "wsutil/inet_addr.h"
@@ -2412,16 +2413,19 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
     if (ld->pdh) {
         if (capture_opts->use_pcapng) {
             char    *appname;
+            GString *cpu_info_str;
             GString *os_info_str;
 
+            cpu_info_str = g_string_new("");
             os_info_str = g_string_new("");
+            get_cpu_info(cpu_info_str);
             get_os_version_info(os_info_str);
 
             appname = g_strdup_printf("Dumpcap (Wireshark) %s", get_ws_vcs_version_info());
             successful = pcapng_write_session_header_block(ld->pdh,
-                                (const char *)capture_opts->capture_comment,   /* Comment*/
-                                NULL,                        /* HW*/
-                                os_info_str->str,            /* OS*/
+                                (const char *)capture_opts->capture_comment,   /* Comment */
+                                cpu_info_str->str,           /* HW */
+                                os_info_str->str,            /* OS */
                                 appname,
                                 -1,                          /* section_length */
                                 &ld->bytes_written,
@@ -2911,18 +2915,21 @@ do_file_switch_or_stop(capture_options *capture_opts,
             global_ld.bytes_written = 0;
             if (capture_opts->use_pcapng) {
                 char    *appname;
+                GString *cpu_info_str;
                 GString *os_info_str;
 
+                cpu_info_str = g_string_new("");
                 os_info_str = g_string_new("");
+                get_cpu_info(cpu_info_str);
                 get_os_version_info(os_info_str);
 
                 appname = g_strdup_printf("Dumpcap (Wireshark) %s", get_ws_vcs_version_info());
                 successful = pcapng_write_session_header_block(global_ld.pdh,
-                                NULL,                        /* Comment */
-                                NULL,                        /* HW */
+                                (const char *)capture_opts->capture_comment,   /* Comment */
+                                cpu_info_str->str,           /* HW */
                                 os_info_str->str,            /* OS */
                                 appname,
-                                                                -1,                          /* section_length */
+                                -1,                          /* section_length */
                                 &(global_ld.bytes_written),
                                 &global_ld.err);
                 g_free(appname);

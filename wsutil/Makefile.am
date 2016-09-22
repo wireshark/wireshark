@@ -47,6 +47,7 @@ libwsutil_nonrepl_INCLUDES = \
 	clopts_common.h		\
 	cmdarg_err.h		\
 	copyright_info.h	\
+	cpu_info.h		\
 	crash_info.h		\
 	crc6.h			\
 	crc7.h			\
@@ -121,6 +122,7 @@ libwsutil_la_SOURCES = \
 	clopts_common.c		\
 	cmdarg_err.c		\
 	copyright_info.c	\
+	cpu_info.c		\
 	crash_info.c		\
 	crc6.c			\
 	crc7.c			\

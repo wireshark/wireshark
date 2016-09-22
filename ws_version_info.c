@@ -41,7 +41,7 @@
 
 #include "ws_version_info.h"
 
-#include <wsutil/ws_cpuid.h>
+#include <wsutil/cpu_info.h>
 #include <wsutil/copyright_info.h>
 #include <wsutil/os_version_info.h>
 #include <wsutil/ws_printf.h> /* ws_debug_printf */
@@ -141,42 +141,6 @@ get_compiled_version_info(void (*prepend_info)(GString *),
 	end_string(str);
 
 	return str;
-}
-
-/*
- * Get the CPU info, and append it to the GString
- */
-static void
-get_cpu_info(GString *str)
-{
-	guint32 CPUInfo[4];
-	char CPUBrandString[0x40];
-	unsigned nExIds;
-
-	/* http://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx */
-
-	/* Calling __cpuid with 0x80000000 as the InfoType argument*/
-	/* gets the number of valid extended IDs.*/
-	if (!ws_cpuid(CPUInfo, 0x80000000))
-		return;
-	nExIds = CPUInfo[0];
-
-	if( nExIds<0x80000005)
-		return;
-	memset(CPUBrandString, 0, sizeof(CPUBrandString));
-
-	/* Interpret CPU brand string.*/
-	ws_cpuid(CPUInfo, 0x80000002);
-	memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
-	ws_cpuid(CPUInfo, 0x80000003);
-	memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
-	ws_cpuid(CPUInfo, 0x80000004);
-	memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
-
-	g_string_append_printf(str, "\n%s", CPUBrandString);
-
-	if (ws_cpuid_sse42())
-		g_string_append(str, " (with SSE4.2)");
 }
 
 static void
@@ -356,7 +320,7 @@ get_runtime_version_info(void (*additional_info)(GString *))
 	g_string_append_printf(str, ", with zlib %s", zlibVersion());
 #endif
 
-	g_string_append(str, ".");
+	g_string_append(str, ".\n");
 
 	/* CPU Info */
 	get_cpu_info(str);

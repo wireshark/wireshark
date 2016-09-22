@@ -52,6 +52,7 @@ set(WSUTIL_COMMON_FILES
 	md5.c
 	mpeg-audio.c
 	nstime.c
+	cpu_info.c
 	os_version_info.c
 	plugins.c
 	privileges.c
