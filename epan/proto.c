@@ -5766,7 +5766,9 @@ proto_register_protocol(const char *name, const char *short_name,
 	protocol->name = name;
 	protocol->short_name = short_name;
 	protocol->filter_name = filter_name;
-	protocol->fields = g_ptr_array_new();
+	/*protocol->fields = g_ptr_array_new();*/
+	/* Delegate until actually needed and use g_ptr_array_new_seized*/
+	protocol->fields = NULL;
 	protocol->is_enabled = TRUE; /* protocol is enabled by default */
 	protocol->enabled_by_default = TRUE; /* see previous comment */
 	protocol->can_toggle = TRUE;
@@ -6180,6 +6182,11 @@ proto_register_field_array(const int parent, hf_register_info *hf, const int num
 	int		  i;
 
 	proto = find_protocol_by_id(parent);
+
+	if (proto->fields == NULL) {
+		proto->fields = g_ptr_array_sized_new(num_records);
+	}
+
 	for (i = 0; i < num_records; i++, ptr++) {
 		/*
 		 * Make sure we haven't registered this yet.
@@ -6207,7 +6214,12 @@ proto_register_fields_section(const int parent, header_field_info *hfi, const in
 	protocol_t	 *proto;
 
 	proto = find_protocol_by_id(parent);
-	for (i = 0; i < num_records; i++) {
+
+	if (proto->fields == NULL) {
+		proto->fields = g_ptr_array_sized_new(num_records);
+	}
+
+    for (i = 0; i < num_records; i++) {
 		/*
 		 * Make sure we haven't registered this yet.
 		 */
@@ -6229,6 +6241,12 @@ proto_register_fields_manual(const int parent, header_field_info **hfi, const in
 	protocol_t	 *proto;
 
 	proto = find_protocol_by_id(parent);
+
+	if (proto->fields == NULL) {
+		proto->fields = g_ptr_array_sized_new(num_records);
+	}
+
+
 	for (i = 0; i < num_records; i++) {
 		/*
 		 * Make sure we haven't registered this yet.
