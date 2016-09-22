@@ -771,6 +771,7 @@ lowpan_dlsrc_to_ifcid(packet_info *pinfo, guint8 *ifcid)
         return TRUE;
     } else {
         /* Failed to find a link-layer source address. */
+        memset(ifcid, 0, LOWPAN_IFC_ID_LEN);
         return FALSE;
     }
 } /* lowpan_dlsrc_to_ifcid */
@@ -817,6 +818,7 @@ lowpan_dldst_to_ifcid(packet_info *pinfo, guint8 *ifcid)
         return TRUE;
     } else {
         /* Failed to find a link-layer destination address. */
+        memset(ifcid, 0, LOWPAN_IFC_ID_LEN);
         return FALSE;
     }
 } /* lowpan_dldst_to_ifcid */
