@@ -106,11 +106,6 @@ if [ "$QT_VERSION" ]; then
     QT_MAJOR_MINOR_DOTDOT_VERSION=$QT_MAJOR_VERSION.$QT_MINOR_VERSION.$QT_DOTDOT_VERSION
 fi
 
-# In case we want to build GTK *and* we don't have Apple's X11 SDK installed
-# we may want to install XQuartz. The version will only be used in the printing
-# of a URL, the package will not be installed.
-#
-XQUARTZ_VERSION=2.7.5
 #
 # The following libraries are optional.
 # Comment them out if you don't want them, but note that some of
@@ -2302,9 +2297,9 @@ if [ "$GTK_VERSION" ]; then
     #
     if [ ! -d /usr/X11/include ]; then
         echo "Please install X11 and the X11 SDK first."
-        echo "  You can either use http://xquartz.macosforge.org/, e.g."
-        echo "  http://xquartz-dl.macosforge.org/SL/XQuartz-$XQUARTZ_VERSION.dmg"
-        echo "  or the native Apple packages if you are on Lion or below."
+        echo "  You can either download the latest package from"
+        echo "  http://www.xquartz.org/ and install it or install"
+        echo "  the native Apple package if you are on Lion or below."
         exit 1
     fi
 fi
