@@ -253,16 +253,15 @@ void WiresharkApplication::setMonospaceFont(const char *font_string) {
 
     if (font_string && strlen(font_string) > 0) {
         mono_font_.fromString(font_string);
-//        mono_bold_font_ = QFont(mono_regular_font_);
-//        mono_bold_font_.setBold(true);
         return;
     }
 
     // http://en.wikipedia.org/wiki/Category:Monospaced_typefaces
+    // XXX Add "Ubuntu Mono Regular" http://font.ubuntu.com/
     const char *win_default_font = "Consolas";
     const char *win_alt_font = "Lucida Console";
-    const char *osx_default_font = "Menlo";
-    const char *osx_alt_font = "Monaco";
+    const char *osx_default_font = "San Francisco Mono";
+    const QStringList osx_alt_fonts = QStringList() << "Menlo" << "Monaco";
     const char *x11_default_font = "Liberation Mono";
     const QStringList x11_alt_fonts = QStringList() << "DejaVu Sans Mono" << "Bitstream Vera Sans Mono";
     const QStringList fallback_fonts = QStringList() << "Lucida Sans Typewriter" << "Inconsolata" << "Droid Sans Mono" << "Andale Mono" << "Courier New" << "monospace";
@@ -272,23 +271,20 @@ void WiresharkApplication::setMonospaceFont(const char *font_string) {
     // Try to pick the latest, shiniest fixed-width font for our OS.
 #if defined(Q_OS_WIN)
     const char *default_font = win_default_font;
-    substitutes << win_alt_font << osx_default_font << osx_alt_font << x11_default_font << x11_alt_fonts << fallback_fonts;
+    substitutes << win_alt_font << osx_default_font << osx_alt_fonts << x11_default_font << x11_alt_fonts << fallback_fonts;
     font_size_adjust = 2;
 #elif defined(Q_OS_MAC)
     const char *default_font = osx_default_font;
-    substitutes << osx_alt_font << win_default_font << win_alt_font << x11_default_font << x11_alt_fonts << fallback_fonts;
+    substitutes << osx_alt_fonts << win_default_font << win_alt_font << x11_default_font << x11_alt_fonts << fallback_fonts;
 #else
     const char *default_font = x11_default_font;
-    substitutes << x11_alt_fonts << win_default_font << win_alt_font << osx_default_font << osx_alt_font << fallback_fonts;
+    substitutes << x11_alt_fonts << win_default_font << win_alt_font << osx_default_font << osx_alt_fonts << fallback_fonts;
 #endif
 
     mono_font_.setFamily(default_font);
     mono_font_.insertSubstitutions(default_font, substitutes);
     mono_font_.setPointSize(wsApp->font().pointSize() + font_size_adjust);
     mono_font_.setBold(false);
-
-//    mono_bold_font_ = QFont(mono_font_);
-//    mono_bold_font_.setBold(true);
 
     g_free(prefs.gui_qt_font_name);
     prefs.gui_qt_font_name = qstring_strdup(mono_font_.toString());
