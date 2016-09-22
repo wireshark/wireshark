@@ -205,6 +205,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     acl_data->adapter_id                  = adapter_id;
     acl_data->adapter_disconnect_in_frame = bluetooth_data->adapter_disconnect_in_frame;
     acl_data->chandle                     = connection_handle;
+    acl_data->is_btle                     = FALSE;
 
     key[0].length = 1;
     key[0].key    = &interface_id;
