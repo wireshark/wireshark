@@ -2276,9 +2276,11 @@ if [ "$QT_VERSION" ]; then
     #
     # At least with Xcode 8, /usr/bin/xcodebuild --help fails if only
     # the command-line tools are installed and succeeds if Xcode is
-    # installed.
+    # installed.  Unfortunately, it fails *with* Xcode 3, but
+    # /usr/bin/xcodebuild -version works with that and with Xcode 8.
+    # Hopefully it fails with only the command-line tools installed.
     #
-    if /usr/bin/xcodebuild -help >/dev/null 2>&1; then
+    if /usr/bin/xcodebuild -version >/dev/null 2>&1; then
         :
     else
         echo "Please install Xcode first (should be available on DVD or from the Mac App Store)."
