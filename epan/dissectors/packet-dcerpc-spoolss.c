@@ -108,6 +108,8 @@ static int hf_core_driver_size = -1;
 static int hf_driver_version = -1;
 static int hf_core_printer_driver_count = -1;
 static int hf_package_id = -1;
+static int hf_language = -1;
+static int hf_driver_package_cab_size = -1;
 
 /* Printer information */
 
@@ -6640,6 +6642,58 @@ SpoolssGetCorePrinterDrivers_r(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+SpoolssGetPrinterDriverPackagePath_q(tvbuff_t *tvb, int offset,
+				     packet_info *pinfo, proto_tree *tree,
+				     dcerpc_info *di, guint8 *drep)
+{
+	/* Parse packet */
+
+	offset = dissect_ndr_str_pointer_item(
+		tvb, offset, pinfo, tree, di, drep, NDR_POINTER_UNIQUE,
+		"Name", hf_servername, 0);
+
+	offset = dissect_ndr_str_pointer_item(
+		tvb, offset, pinfo, tree, di, drep, NDR_POINTER_REF,
+		"Environment", hf_environment, 0);
+
+	offset = dissect_ndr_str_pointer_item(
+		tvb, offset, pinfo, tree, di, drep, NDR_POINTER_UNIQUE,
+		"Language", hf_language, 0);
+
+	offset = dissect_ndr_str_pointer_item(
+		tvb, offset, pinfo, tree, di, drep, NDR_POINTER_REF,
+		"PackageId", hf_package_id, 0);
+
+	offset = dissect_spoolss_buffer(
+		tvb, offset, pinfo, tree, di, drep, NULL);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, di, drep,
+		hf_driver_package_cab_size, NULL);
+
+	return offset;
+}
+
+static int
+SpoolssGetPrinterDriverPackagePath_r(tvbuff_t *tvb, int offset,
+				     packet_info *pinfo, proto_tree *tree,
+				     dcerpc_info *di, guint8 *drep)
+{
+	/* Parse packet */
+
+	offset = dissect_spoolss_string_parm(
+		tvb, offset, pinfo, tree, di, drep, "DriverPackageCab");
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, di, drep, hf_needed, NULL);
+
+	offset = dissect_hresult(
+		tvb, offset, pinfo, tree, di, drep, hf_hresult, NULL);
+
+	return offset;
+}
+
 /*
  * List of subdissectors for this pipe.
  */
@@ -6809,6 +6863,8 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	  NULL, SpoolssGeneric_r },
 	{ SPOOLSS_GETCOREPRINTERDRIVERS, "GetCorePrinterDrivers",
 	  SpoolssGetCorePrinterDrivers_q, SpoolssGetCorePrinterDrivers_r },
+	{ SPOOLSS_GETPRINTERDRIVERPACKAGEPATH, "GetPrinterDriverPackagePath",
+	  SpoolssGetPrinterDriverPackagePath_q, SpoolssGetPrinterDriverPackagePath_r },
 
 	{ 0, NULL, NULL, NULL },
 };
@@ -7132,6 +7188,14 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_package_id,
 		  { "PackageId", "spoolss.package_id", FT_STRING,
 		    BASE_NONE, NULL, 0, NULL, HFILL }},
+
+		{ &hf_language,
+		  { "Language name", "spoolss.language", FT_STRING,
+		    BASE_NONE, NULL, 0, NULL, HFILL }},
+
+		{ &hf_driver_package_cab_size,
+		  { "Driver Package Cabinet Size", "spoolss.driver_package_cab_size", FT_UINT32,
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		/* Printer data */
 
