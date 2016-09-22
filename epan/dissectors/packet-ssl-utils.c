@@ -5605,6 +5605,26 @@ ssl_dissect_hnd_hello_ext_pre_shared_key(ssl_common_dissect_t *hf, tvbuff_t *tvb
 }
 
 static gint
+ssl_dissect_hnd_hello_ext_early_data(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                         proto_tree *tree, guint32 offset, guint32 ext_len _U_,
+                                         guint8 hnd_type)
+{
+
+    switch (hnd_type){
+        case SSL_HND_CLIENT_HELLO:
+            proto_tree_add_item(tree, hf->hf.hs_ext_early_data_obfuscated_ticket_age, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            break;
+        case SSL_HND_SERVER_HELLO: /* empty extension_data */
+            break;
+        default: /* no default */
+        break;
+    }
+
+    return offset;
+}
+
+static gint
 ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                       proto_tree *tree, guint32 offset, guint32 ext_len)
 {
@@ -6722,6 +6742,9 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_PRE_SHARED_KEY:
             offset = ssl_dissect_hnd_hello_ext_pre_shared_key(hf, tvb, ext_tree, offset, ext_len, hnd_type);
+            break;
+        case SSL_HND_HELLO_EXT_EARLY_DATA:
+            offset = ssl_dissect_hnd_hello_ext_early_data(hf, tvb, ext_tree, offset, ext_len, hnd_type);
             break;
         case SSL_HND_HELLO_EXT_DRAFT_VERSION_TLS13:
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_draft_version_tls13,
