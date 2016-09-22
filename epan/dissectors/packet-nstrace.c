@@ -423,6 +423,7 @@ void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tre
 static int
 dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+	int error_code = 0;
 	proto_tree	*ns_tree;
 	proto_item	*ti;
 	struct nstr_phdr *pnstr = &(pinfo->pseudo_header->nstr);
@@ -534,6 +535,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			proto_tree_add_bitmask(ns_tree, tvb, pnstr->ns_activity_offset, hf_ns_capflags, ett_ns_capflags, cap_flags, ENC_LITTLE_ENDIAN);
 
 			proto_tree_add_item(ns_tree, hf_ns_errorcode, tvb, NSPR_V35_ERROR_CODE_OFFSET, 1, ENC_LITTLE_ENDIAN);
+			error_code = tvb_get_guint8(tvb, NSPR_V35_ERROR_CODE_OFFSET);
 			proto_tree_add_item(ns_tree, hf_ns_app, tvb, NSPR_V35_APP_OFFSET, 1, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(ns_tree, hf_ns_coreid, tvb, pnstr->coreid_offset, 2, ENC_LITTLE_ENDIAN);
 
@@ -551,6 +553,10 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			PROTO_ITEM_SET_HIDDEN(ti);
 
 			add35records(tvb, pinfo, tree, ns_tree);
+			if (error_code)
+			{
+				col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "NS DROPPED | ");
+			}
 		}
 		break; /* we can return here. break;ing in case some compilers are unhappy */
 
