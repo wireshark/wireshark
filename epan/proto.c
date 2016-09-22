@@ -583,7 +583,9 @@ proto_cleanup(void)
 		DISSECTOR_ASSERT(protocol->proto_id == hfinfo->id);
 
 		g_slice_free(header_field_info, hfinfo);
-		g_ptr_array_free(protocol->fields, TRUE);
+		if (protocol->fields) {
+			g_ptr_array_free(protocol->fields, TRUE);
+		}
 		g_list_free(protocol->heur_list);
 		protocols = g_list_remove(protocols, protocol);
 		g_free(protocol);
@@ -5767,7 +5769,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	protocol->short_name = short_name;
 	protocol->filter_name = filter_name;
 	/*protocol->fields = g_ptr_array_new();*/
-	/* Delegate until actually needed and use g_ptr_array_new_seized*/
+	/* Delegate until actually needed and use g_ptr_array_sized_new*/
 	protocol->fields = NULL;
 	protocol->is_enabled = TRUE; /* protocol is enabled by default */
 	protocol->enabled_by_default = TRUE; /* see previous comment */
@@ -5815,14 +5817,16 @@ proto_deregister_protocol(const char *short_name)
 	g_hash_table_remove(proto_short_names, (gpointer)short_name);
 	g_hash_table_remove(proto_filter_names, (gpointer)protocol->filter_name);
 
-	for (i = 0; i < protocol->fields->len; i++) {
-		hfinfo = (header_field_info *)g_ptr_array_index(protocol->fields, i);
-		hfinfo_remove_from_gpa_name_map(hfinfo);
-		expert_deregister_expertinfo(hfinfo->abbrev);
-		g_ptr_array_add(deregistered_fields, gpa_hfinfo.hfi[hfinfo->id]);
+	if (protocol->fields) {
+		for (i = 0; i < protocol->fields->len; i++) {
+			hfinfo = (header_field_info *)g_ptr_array_index(protocol->fields, i);
+			hfinfo_remove_from_gpa_name_map(hfinfo);
+			expert_deregister_expertinfo(hfinfo->abbrev);
+			g_ptr_array_add(deregistered_fields, gpa_hfinfo.hfi[hfinfo->id]);
+		}
+		g_ptr_array_free(protocol->fields, TRUE);
+		protocol->fields = NULL;
 	}
-	g_ptr_array_free(protocol->fields, TRUE);
-	protocol->fields = NULL;
 
 	/* Remove this protocol from the list of known protocols */
 	protocols = g_list_remove(protocols, protocol);
@@ -5890,7 +5894,7 @@ proto_get_first_protocol_field(const int proto_id, void **cookie)
 {
 	protocol_t *protocol = find_protocol_by_id(proto_id);
 
-	if ((protocol == NULL) || (protocol->fields->len == 0))
+	if ((protocol == NULL) || (protocol->fields == NULL))
 		return NULL;
 
 	*cookie = GUINT_TO_POINTER(0 + 1);
@@ -5905,7 +5909,7 @@ proto_get_next_protocol_field(const int proto_id, void **cookie)
 
 	i++;
 
-	if (i >= protocol->fields->len)
+	if ((protocol->fields == NULL) || (i >= protocol->fields->len))
 		return NULL;
 
 	*cookie = GUINT_TO_POINTER(i + 1);
@@ -6277,7 +6281,7 @@ proto_deregister_field (const int parent, gint hf_id)
 		return;
 
 	proto = find_protocol_by_id (parent);
-	if (!proto || proto->fields->len == 0) {
+	if (!proto || proto->fields == NULL) {
 		return;
 	}
 
