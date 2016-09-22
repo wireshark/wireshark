@@ -1378,12 +1378,13 @@ proto_register_xtp(void)
 
 	expert_module_t* expert_xtp;
 
-	expert_xtp = expert_register_protocol(proto_xtp);
-	expert_register_field_array(expert_xtp, ei, array_length(ei));
-
 	proto_xtp = proto_register_protocol("Xpress Transport Protocol", "XTP", "xtp");
 	proto_register_field_array(proto_xtp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	expert_xtp = expert_register_protocol(proto_xtp);
+	expert_register_field_array(expert_xtp, ei, array_length(ei));
+
 }
 
 void

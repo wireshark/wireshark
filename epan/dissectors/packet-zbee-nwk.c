@@ -2194,9 +2194,6 @@ void proto_register_zbee_nwk(void)
 
     expert_module_t* expert_zbee_nwk;
 
-    expert_zbee_nwk = expert_register_protocol(proto_zbee_nwk);
-    expert_register_field_array(expert_zbee_nwk, ei, array_length(ei));
-
     register_init_routine(proto_init_zbee_nwk);
     register_cleanup_routine(proto_cleanup_zbee_nwk);
 
@@ -2207,6 +2204,9 @@ void proto_register_zbee_nwk(void)
     proto_zbee_ie = proto_register_protocol("ZigBee IE", "ZigBee IE", "zbee_ie");
     proto_register_field_array(proto_zbee_nwk, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_zbee_nwk = expert_register_protocol(proto_zbee_nwk);
+    expert_register_field_array(expert_zbee_nwk, ei, array_length(ei));
 
     /* Register the dissectors with Wireshark. */
     register_dissector(ZBEE_PROTOABBREV_NWK, dissect_zbee_nwk, proto_zbee_nwk);

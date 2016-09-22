@@ -10570,7 +10570,7 @@ static void dof_tun_register(void)
     };
 
     proto_2012_1_tunnel = proto_register_protocol(TUNNEL_PROTOCOL_STACK, "DTPS", "dtps");
-    proto_register_field_array(proto_2008_1_app, hf, array_length(hf));
+    proto_register_field_array(proto_2012_1_tunnel, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     register_dissector(TUNNEL_PROTOCOL_STACK, dissect_tunnel_common, proto_2012_1_tunnel);

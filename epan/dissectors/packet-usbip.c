@@ -1063,11 +1063,14 @@ proto_register_usbip(void)
 
     expert_module_t *expert_usbip;
 
-    expert_usbip = expert_register_protocol(proto_usbip);
-    expert_register_field_array(expert_usbip, ei, array_length(ei));
     proto_usbip = proto_register_protocol("USBIP Protocol", "USBIP", "usbip");
+
     proto_register_field_array(proto_usbip, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_usbip = expert_register_protocol(proto_usbip);
+    expert_register_field_array(expert_usbip, ei, array_length(ei));
+
 }
 
 void

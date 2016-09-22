@@ -709,10 +709,10 @@ void proto_register_elasticsearch(void) {
 
     expert_module_t*expert_elasticsearch;
 
+    proto_elasticsearch = proto_register_protocol("Elasticsearch", "Elasticsearch", "elasticsearch");
+
     expert_elasticsearch = expert_register_protocol(proto_elasticsearch);
     expert_register_field_array(expert_elasticsearch, ei, array_length(ei));
-
-    proto_elasticsearch = proto_register_protocol("Elasticsearch", "Elasticsearch", "elasticsearch");
 
     proto_register_field_array(proto_elasticsearch, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

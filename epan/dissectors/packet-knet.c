@@ -741,12 +741,12 @@ proto_register_knet(void)
         &ett_knet_payload
     };
 
+    /* Register protocols */
+    proto_knet = proto_register_protocol ("kNet Protocol", "KNET", "knet");
+
     /* Register header field & subtree arrays */
     proto_register_field_array(proto_knet, hf_knet, array_length(hf_knet));
     proto_register_subtree_array(ett_knet, array_length(ett_knet));
-
-    /* Register protocols */
-    proto_knet = proto_register_protocol ("kNet Protocol", "KNET", "knet");
 
     knet_handle_sctp = register_dissector("knetsctp", dissect_knet_sctp, proto_knet);
     knet_handle_tcp = register_dissector("knettcp",  dissect_knet_tcp, proto_knet);

@@ -1419,10 +1419,12 @@ proto_register_smcr(void)
 		&ett_rmbe_ctrl_peer_conn_state_flag
 	};
 
-	proto_register_field_array(proto_smcr, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
 	proto_smcr = proto_register_protocol("Shared Memory Communications - RDMA",
 	    "SMCR", "smcr");
+
+	proto_register_field_array(proto_smcr, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
 	smcr_tcp_handle = register_dissector("smcr", dissect_smcr_tcp, proto_smcr);
 }
 

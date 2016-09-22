@@ -2930,7 +2930,7 @@ proto_register_aptx(void)
     };
 
     proto_aptx = proto_register_protocol("APT-X Codec", "APT-X", "aptx");
-    proto_register_field_array(proto_bta2dp, hf, array_length(hf));
+    proto_register_field_array(proto_aptx, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     aptx_handle = register_dissector("aptx", dissect_aptx, proto_aptx);
@@ -3388,7 +3388,7 @@ proto_register_btvdp(void)
 
     proto_btvdp = proto_register_protocol("Bluetooth VDP Profile", "BT VDP", "btvdp");
     btvdp_handle = register_dissector("btvdp", dissect_btvdp, proto_btvdp);
-    proto_register_field_array(proto_bta2dp, hf, array_length(hf));
+    proto_register_field_array(proto_btvdp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_btavdtp = expert_register_protocol(proto_btvdp);
     expert_register_field_array(expert_btavdtp, ei, array_length(ei));

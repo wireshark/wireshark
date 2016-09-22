@@ -2548,10 +2548,10 @@ void proto_register_pcp(void)
 
     expert_module_t* expert_pcp;
 
+    proto_pcp = proto_register_protocol("Performance Co-Pilot", "PCP", "pcp");
+
     expert_pcp = expert_register_protocol(proto_pcp);
     expert_register_field_array(expert_pcp, ei, array_length(ei));
-
-    proto_pcp = proto_register_protocol("Performance Co-Pilot", "PCP", "pcp");
 
     proto_register_field_array(proto_pcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

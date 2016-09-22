@@ -2634,11 +2634,13 @@ proto_register_lmp(void)
         ett[i] = &lmp_subtree[i];
     }
 
-    expert_lmp = expert_register_protocol(proto_lmp);
-    expert_register_field_array(expert_lmp, ei, array_length(ei));
 
     proto_lmp = proto_register_protocol("Link Management Protocol (LMP)",
                                         "LMP", "lmp");
+
+    expert_lmp = expert_register_protocol(proto_lmp);
+    expert_register_field_array(expert_lmp, ei, array_length(ei));
+
     proto_register_field_array(proto_lmp, lmpf_info, array_length(lmpf_info));
     proto_register_subtree_array(ett, array_length(ett));
 

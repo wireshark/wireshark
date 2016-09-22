@@ -622,11 +622,6 @@ proto_register_raknet(void)
      */
     raknet_init_packet_names();
 
-    /*
-     * Register expert support.
-     */
-    expert_raknet = expert_register_protocol(proto_raknet);
-    expert_register_field_array(expert_raknet, ei, array_length(ei));
 
     /*
      * Register the protocol with wireshark.
@@ -636,6 +631,12 @@ proto_register_raknet(void)
             "RAKNET",           /* short name */
             "raknet"            /* abbrev */
             );
+
+    /*
+    * Register expert support.
+    */
+    expert_raknet = expert_register_protocol(proto_raknet);
+    expert_register_field_array(expert_raknet, ei, array_length(ei));
 
     /*
      * Register detailed dissection arrays.
