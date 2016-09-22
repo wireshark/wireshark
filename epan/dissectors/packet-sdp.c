@@ -2209,7 +2209,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
     int         hf     = -1;
     gint        start_transport_info_count = 0;
     transport_info_t* transport_info = NULL;
-    media_description_t *media_desc;
+    media_description_t *media_desc = NULL;
     session_info_t session_info;
 
     DPRINT2(("-------------------- setup_sdp_transport -------------------"));
@@ -2322,7 +2322,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
                                     hf, NULL, linelen-tokenoffset,
                                     transport_info,
                                     in_media_description ? NULL : &session_info,
-                                    in_media_description ? media_desc : NULL);
+                                    media_desc);
             DENDENT();
         }
 
