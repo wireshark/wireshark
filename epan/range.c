@@ -280,6 +280,99 @@ value_is_in_range(range_t *range, guint32 val)
    return(FALSE);
 }
 
+/* This function returns TRUE if val has successfully been added to
+ * a range.  This may extend an existing range or create a new one
+ */
+gboolean
+range_add_value(range_t **range, guint32 val)
+{
+   guint i;
+
+   if ((range) && (*range)) {
+      for (i=0; i < (*range)->nranges; i++) {
+         if (val >= (*range)->ranges[i].low && val <= (*range)->ranges[i].high)
+            return TRUE;
+
+         if (val == (*range)->ranges[i].low-1)
+         {
+             /* Sink to a new low */
+             (*range)->ranges[i].low = val;
+             return TRUE;
+         }
+
+         if (val == (*range)->ranges[i].high+1)
+         {
+             /* Reach a new high */
+             (*range)->ranges[i].high = val;
+             return TRUE;
+         }
+      }
+
+      (*range) = (range_t *)g_realloc((*range), RANGE_HDR_SIZE +
+                                ((*range)->nranges+1)*sizeof (range_admin_t));
+      (*range)->nranges++;
+      (*range)->ranges[i].low = (*range)->ranges[i].high = val;
+      return TRUE;
+   }
+   return(FALSE);
+}
+
+/* This function returns TRUE if val has successfully been removed from
+ * a range.  This may delete an existing range
+ */
+gboolean
+range_remove_value(range_t **range, guint32 val)
+{
+   guint i, j, new_j;
+   range_t *new_range;
+
+   if ((range) && (*range)) {
+      for (i=0; i < (*range)->nranges; i++) {
+
+          /* value is in the middle of the range, so it can't really be removed */
+         if (val > (*range)->ranges[i].low && val < (*range)->ranges[i].high)
+            return TRUE;
+
+         if ((val ==  (*range)->ranges[i].low) && (val == (*range)->ranges[i].high))
+         {
+             /* Remove the range item entirely */
+             new_range = (range_t*)g_malloc(RANGE_HDR_SIZE + ((*range)->nranges-1)*sizeof (range_admin_t));
+             new_range->nranges = (*range)->nranges-1;
+             for (j=0, new_j = 0; j < (*range)->nranges; j++) {
+
+                 /* Skip the current range */
+                 if (j == i)
+                     continue;
+
+                 new_range->ranges[new_j].low = (*range)->ranges[j].low;
+                 new_range->ranges[new_j].high = (*range)->ranges[j].high;
+                 new_j++;
+             }
+
+             g_free(*range);
+             *range = new_range;
+             return TRUE;
+         }
+
+         if (val == (*range)->ranges[i].low)
+         {
+             /* Raise low */
+             (*range)->ranges[i].low++;
+             return TRUE;
+         }
+
+         if (val == (*range)->ranges[i].high)
+         {
+             /* Reach a new high */
+             (*range)->ranges[i].high--;
+             return TRUE;
+         }
+      }
+      return TRUE;
+   }
+   return(FALSE);
+}
+
 /* This function returns TRUE if the two given range_t's are equal.
  */
 gboolean
