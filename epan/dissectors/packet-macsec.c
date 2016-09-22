@@ -1,5 +1,5 @@
 /* packet-macsec.c
- * Routines for MACSEC dissection
+ * Routines for MACsec dissection
  * Copyright 2013, Allan W. Nielsen <anielsen@vitesse.com>
  *
  * Wireshark - Network traffic analyzer
@@ -179,7 +179,7 @@ proto_register_macsec(void)
     };
 
     /* Register the protocol name and description */
-    proto_macsec = proto_register_protocol("802.1AE Secure tag", "macsec", "macsec");
+    proto_macsec = proto_register_protocol("802.1AE Secure tag", "MACsec", "macsec");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_macsec, hf, array_length(hf));
