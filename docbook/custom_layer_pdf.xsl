@@ -53,8 +53,12 @@
 </xsl:attribute-set>
 
 <!-- reduce the size of programlisting to make them fit the page -->
+<!-- We might want to set the hyphenation character to "\":
+     http://www.sagehill.net/docbookxsl/FittingText.html
+-->
 <xsl:attribute-set name="monospace.verbatim.properties">
   <xsl:attribute name="font-size">80%</xsl:attribute>
+  <xsl:attribute name="wrap-option">wrap</xsl:attribute>
 </xsl:attribute-set>
 
 </xsl:stylesheet>

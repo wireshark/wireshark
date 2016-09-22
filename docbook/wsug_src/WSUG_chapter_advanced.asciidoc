@@ -128,34 +128,35 @@ You can choose to decode the data from one of the following formats:
 
 You can choose to view the data in one of the following formats:
 
-. __ASCII__: In this view you see the bytes as ASCII.
+[horizontal]
+*ASCII*:: In this view you see the bytes as ASCII.
   All control characters and non-ASCII bytes are replaced by dot.
 
-. __ASCII & Control__: In this view all control characters are shown using a
+*ASCII & Control*:: In this view all control characters are shown using a
   UTF-8 symbol and all non-ASCII bytes are replaced by dot.
 
-. __C Array__: This allows you to import the field data into your own C program.
+*C Array*:: This allows you to import the field data into your own C program.
 
-. __EBCDIC__: For the big-iron freaks out there.
+*EBCDIC*:: For the big-iron freaks out there.
 
-. __HEX Dump__: This allows you to see all the data. This will require a lot of
+*HEX Dump*:: This allows you to see all the data. This will require a lot of
   screen space and is best used with binary protocols.
 
-. __HTML__: This allows you to see all the data formatted as a HTML document.
+*HTML*:: This allows you to see all the data formatted as a HTML document.
   The HTML supported is what's supported by the Qt QTextEdit class.
 
-. __Image__: This will try to convert the bytes into an image.
+*Image*:: This will try to convert the bytes into an image.
   Images supported are what's supported by the Qt QImage class.
 
-. __ISO 8859-1__: In this view you see the bytes as ISO 8859-1.
+*ISO 8859-1*:: In this view you see the bytes as ISO 8859-1.
 
-. __Raw__: This allows you to load the unaltered stream data into a different
+*Raw*:: This allows you to load the unaltered stream data into a different
   program for further examination. The display will show HEX data, but
   ``Save As'' will result in a binary file.
 
-. __UTF8__: In this view you see the bytes as UTF-8.
+*UTF8*:: In this view you see the bytes as UTF-8.
 
-. __YAML__: This will show the bytes as a YAML binary dump.
+*YAML*:: This will show the bytes as a YAML binary dump.
 
 [[ChAdvExpert]]
 

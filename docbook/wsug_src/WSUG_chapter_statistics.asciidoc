@@ -132,7 +132,7 @@ protocols will carry more than one IP header.
 A network conversation is the traffic between two specific endpoints. For
 example, an IP conversation is all the traffic between two IP addresses. The
 description of the known endpoint types can be found in
-<<ChStatEndpointDefinition>>.
+<<ChStatEndpoints>>.
 
 [[ChStatConversationsWindow]]
 
@@ -165,7 +165,7 @@ will show the stream contents as described in <<ChAdvFollowStream>> dialog. The
 button:[Graph...] button will show a graph as described in <<ChStatIOGraphs>>.
 
 button:[Conversation Types] lets you choose which traffic type tabs are shown.
-See <<ChStatEndpointDefinition>> for a list of endpoint types. The enabled types
+See <<ChStatEndpoints>> for a list of endpoint types. The enabled types
 are saved in your profile settings.
 
 [TIP]
@@ -180,8 +180,6 @@ it before (or while) you are doing a live capture.
 [[ChStatEndpoints]]
 
 === Endpoints
-
-[[ChStatEndpointDefinition]]
 
 A network endpoint is the logical endpoint of separate protocol traffic of a
 specific protocol layer. The endpoint statistics of Wireshark will take the
@@ -270,7 +268,7 @@ The button:[Copy] button will copy the list values to the clipboard in CSV
 endpoints mapped in your web browser.
 
 button:[Endpoint Types] lets you choose which traffic type tabs are shown. See
-<<ChStatEndpointDefinition>> above for a list of endpoint types. The enabled
+<<ChStatEndpoints>> above for a list of endpoint types. The enabled
 types are saved in your profile settings.
 
 [TIP]
