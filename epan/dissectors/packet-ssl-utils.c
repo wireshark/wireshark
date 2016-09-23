@@ -1124,45 +1124,44 @@ const value_string pct_error_code[] = {
 
 /* http://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml#tls-extensiontype-values-1 */
 const value_string tls_hello_extension_types[] = {
-    { SSL_HND_HELLO_EXT_SERVER_NAME, "server_name" }, /* RFC 3546 */
-    { 1, "max_fragment_length" },
-    { 2, "client_certificate_url" },
-    { 3, "trusted_ca_keys" },
-    { 4, "truncated_hmac" },
+    { SSL_HND_HELLO_EXT_SERVER_NAME, "server_name" }, /* RFC 6066 */
+    { SSL_HND_HELLO_EXT_MAX_FRAGMENT_LENGTH, "max_fragment_length" },/* RFC 6066 */
+    { SSL_HND_HELLO_EXT_CLIENT_CERTIFICATE_URL, "client_certificate_url" }, /* RFC 6066 */
+    { SSL_HND_HELLO_EXT_TRUSTED_CA_KEYS, "trusted_ca_keys" }, /* RFC 6066 */
+    { SSL_HND_HELLO_EXT_TRUNCATED_HMAC, "truncated_hmac" }, /* RFC 6066 */
     { SSL_HND_HELLO_EXT_STATUS_REQUEST, "status_request" }, /* RFC 6066 */
-    { 6, "user_mapping" },  /* RFC 4681 */
-    { 7, "client_authz" },
-    { 8, "server_authz" },
-    { SSL_HND_HELLO_EXT_CERT_TYPE, "cert_type" },  /* RFC 5081 */
-    { SSL_HND_HELLO_EXT_ELLIPTIC_CURVES, "elliptic_curves" },  /* RFC 4492 */
-    { SSL_HND_HELLO_EXT_EC_POINT_FORMATS, "ec_point_formats" },  /* RFC 4492 */
-    { 12, "srp" },  /* RFC 5054 */
-    { 13, "signature_algorithms" },  /* RFC 5246 */
-    { 14, "use_srtp" },
-    { SSL_HND_HELLO_EXT_HEARTBEAT, "Heartbeat" },  /* RFC 6520 */
-    { SSL_HND_HELLO_EXT_ALPN, "Application Layer Protocol Negotiation" }, /* RFC 7301 */
+    { SSL_HND_HELLO_EXT_USER_MAPPING, "user_mapping" }, /* RFC 4681 */
+    { SSL_HND_HELLO_EXT_CLIENT_AUTHZ, "client_authz" }, /* RFC 5878 */
+    { SSL_HND_HELLO_EXT_SERVER_AUTHZ, "server_authz" }, /* RFC 5878 */
+    { SSL_HND_HELLO_EXT_CERT_TYPE, "cert_type" }, /* RFC 6091 */
+    { SSL_HND_HELLO_EXT_SUPPORTED_GROUPS, "elliptic_curves" }, /* RFC 4492 */
+    { SSL_HND_HELLO_EXT_EC_POINT_FORMATS, "ec_point_formats" }, /* RFC 4492 */
+    { SSL_HND_HELLO_EXT_SRP, "srp" }, /* RFC 5054 */
+    { SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS, "signature_algorithms" }, /* RFC 5246 */
+    { SSL_HND_HELLO_EXT_USE_SRTP, "use_srtp" }, /* RFC 5764 */
+    { SSL_HND_HELLO_EXT_HEARTBEAT, "heartbeat" }, /* RFC 6520 */
+    { SSL_HND_HELLO_EXT_ALPN, "application_layer_protocol_negotiation" }, /* RFC 7301 */
     { SSL_HND_HELLO_EXT_STATUS_REQUEST_V2, "status_request_v2" }, /* RFC 6961 */
-    { 18, "signed_certificate_timestamp" }, /* RFC 6962 */
+    { SSL_HND_HELLO_EXT_STATUS_REQUEST_V2, "signed_certificate_timestamp" }, /* RFC 6962 */
     { SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE, "client_certificate_type" }, /* RFC 7250 */
     { SSL_HND_HELLO_EXT_SERVER_CERT_TYPE, "server_certificate_type" }, /* RFC 7250 */
-    { SSL_HND_HELLO_EXT_PADDING, "Padding" }, /* RFC7685 */
-    { 22, "encrypt then mac" }, /* RFC7366 */
-    { SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET_TYPE, "Extended Master Secret" }, /* RFC7627 */
-    { 24, "token binding" }, /* https://tools.ietf.org/html/draft-ietf-tokbind-negotiation */
-    { SSL_HND_HELLO_EXT_SESSION_TICKET, "SessionTicket TLS" },  /* RFC 4507 */
-    { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* http://technotes.googlecode.com/git/nextprotoneg.html */
-    { SSL_HND_HELLO_EXT_RENEG_INFO, "renegotiation_info" }, /* RFC 5746 */
+    { SSL_HND_HELLO_EXT_PADDING, "padding" }, /* RFC 7685 */
+    { SSL_HND_HELLO_EXT_ENCRYPT_THEN_MAC, "encrypt_then_mac" }, /* RFC 7366 */
+    { SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET, "extended_master_secret" }, /* RFC 7627 */
+    { SSL_HND_HELLO_EXT_TOKEN_BINDING, "token_binding" }, /* https://tools.ietf.org/html/draft-ietf-tokbind-negotiation */
+    { SSL_HND_HELLO_EXT_CACHED_INFO, "cached_info" }, /* RFC 7924 */
+    { SSL_HND_HELLO_EXT_SESSION_TICKET_TLS, "SessionTicket TLS" }, /* RFC 4507 */
     { SSL_HND_HELLO_EXT_KEY_SHARE, "key_share" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { SSL_HND_HELLO_EXT_PRE_SHARED_KEY, "pre_shared_key" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { SSL_HND_HELLO_EXT_EARLY_DATA, "early_data" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { SSL_HND_HELLO_EXT_COOKIE, "cookie" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
-    { SSL_HND_HELLO_EXT_DRAFT_VERSION_TLS13, "Draft version of TLS 1.3" }, /* for experimentation only  https://www.ietf.org/mail-archive/web/tls/current/msg20853.html */
-    /* http://tools.ietf.org/html/draft-balfanz-tls-channelid-00
+    { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* http://technotes.googlecode.com/git/nextprotoneg.html */
+    { SSL_HND_HELLO_EXT_CHANNEL_ID_OLD, "channel_id_old" }, /* http://tools.ietf.org/html/draft-balfanz-tls-channelid-00
        https://twitter.com/ericlaw/status/274237352531083264 */
-    { SSL_HND_HELLO_EXT_CHANNEL_ID_OLD, "channel_id_old" },
-    /* http://tools.ietf.org/html/draft-balfanz-tls-channelid-01
+    { SSL_HND_HELLO_EXT_CHANNEL_ID, "channel_id" }, /* http://tools.ietf.org/html/draft-balfanz-tls-channelid-01
        https://code.google.com/p/chromium/codesearch#chromium/src/net/third_party/nss/ssl/sslt.h&l=209 */
-    { SSL_HND_HELLO_EXT_CHANNEL_ID, "channel_id" },
+    { SSL_HND_HELLO_EXT_RENEGOTIATION_INFO, "renegotiation_info" }, /* RFC 5746 */
+    { SSL_HND_HELLO_EXT_DRAFT_VERSION_TLS13, "Draft version of TLS 1.3" }, /* for experimentation only  https://www.ietf.org/mail-archive/web/tls/current/msg20853.html */
     { 0, NULL }
 };
 
@@ -6696,13 +6695,13 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             else
                 offset += ext_len; /* server must return empty extension_data */
             break;
-        case SSL_HND_HELLO_EXT_ELLIPTIC_CURVES:
+        case SSL_HND_HELLO_EXT_SUPPORTED_GROUPS:
             offset = ssl_dissect_hnd_hello_ext_elliptic_curves(hf, tvb, ext_tree, offset);
             break;
         case SSL_HND_HELLO_EXT_EC_POINT_FORMATS:
             offset = ssl_dissect_hnd_hello_ext_ec_point_formats(hf, tvb, ext_tree, offset);
             break;
-        case SSL_HND_HELLO_EXT_SIG_HASH_ALGS:
+        case SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS:
             offset = ssl_dissect_hnd_hello_ext_sig_hash_algs(hf, tvb, ext_tree, pinfo, offset, ext_len);
             break;
         case SSL_HND_HELLO_EXT_ALPN:
@@ -6711,7 +6710,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         case SSL_HND_HELLO_EXT_NPN:
             offset = ssl_dissect_hnd_hello_ext_npn(hf, tvb, ext_tree, offset, ext_len);
             break;
-        case SSL_HND_HELLO_EXT_RENEG_INFO:
+        case SSL_HND_HELLO_EXT_RENEGOTIATION_INFO:
             offset = ssl_dissect_hnd_hello_ext_reneg_info(hf, tvb, ext_tree, offset, ext_len);
             break;
         case SSL_HND_HELLO_EXT_KEY_SHARE:
@@ -6737,7 +6736,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_padding_data, tvb, offset, ext_len, ENC_NA);
             offset += ext_len;
             break;
-        case SSL_HND_HELLO_EXT_SESSION_TICKET:
+        case SSL_HND_HELLO_EXT_SESSION_TICKET_TLS:
             offset = ssl_dissect_hnd_hello_ext_session_ticket(hf, tvb, ext_tree, offset, ext_len, hnd_type, ssl);
             break;
         case SSL_HND_HELLO_EXT_CERT_TYPE:
@@ -6748,7 +6747,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
                                                          hnd_type, ext_type,
                                                          session);
             break;
-        case SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET_TYPE:
+        case SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET:
             if (ssl){
                 switch(hnd_type){
                     case SSL_HND_CLIENT_HELLO:

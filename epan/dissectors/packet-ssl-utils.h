@@ -136,29 +136,45 @@ typedef enum {
 #define PCT_ERR_SERVER_AUTH_FAILED     0x05
 #define PCT_ERR_SPECS_MISMATCH         0x06
 
-#define SSL_HND_HELLO_EXT_SERVER_NAME        0x0
-#define SSL_HND_HELLO_EXT_STATUS_REQUEST     0x0005
-#define SSL_HND_HELLO_EXT_CERT_TYPE          0x0009
-#define SSL_HND_HELLO_EXT_ELLIPTIC_CURVES    0x000a
-#define SSL_HND_HELLO_EXT_EC_POINT_FORMATS   0x000b
-#define SSL_HND_HELLO_EXT_SIG_HASH_ALGS      0x000d
-#define SSL_HND_HELLO_EXT_HEARTBEAT          0x000f
-#define SSL_HND_HELLO_EXT_ALPN               0x0010
-#define SSL_HND_HELLO_EXT_STATUS_REQUEST_V2  0x0011
-#define SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE   0x0013
-#define SSL_HND_HELLO_EXT_SERVER_CERT_TYPE   0x0014
-#define SSL_HND_HELLO_EXT_PADDING            0x0015
-#define SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET_TYPE 0x0017
-#define SSL_HND_HELLO_EXT_SESSION_TICKET     0x0023
-#define SSL_HND_HELLO_EXT_KEY_SHARE          0x0028
-#define SSL_HND_HELLO_EXT_PRE_SHARED_KEY     0x0029
-#define SSL_HND_HELLO_EXT_EARLY_DATA         0x002A
-#define SSL_HND_HELLO_EXT_COOKIE             0x002C
-#define SSL_HND_HELLO_EXT_RENEG_INFO         0xff01
-#define SSL_HND_HELLO_EXT_DRAFT_VERSION_TLS13 0xff02
-#define SSL_HND_HELLO_EXT_NPN                0x3374
-#define SSL_HND_HELLO_EXT_CHANNEL_ID_OLD     0x754f
-#define SSL_HND_HELLO_EXT_CHANNEL_ID         0x7550
+#define SSL_HND_HELLO_EXT_SERVER_NAME                   0
+#define SSL_HND_HELLO_EXT_MAX_FRAGMENT_LENGTH           1
+#define SSL_HND_HELLO_EXT_CLIENT_CERTIFICATE_URL        2
+#define SSL_HND_HELLO_EXT_TRUSTED_CA_KEYS               3
+#define SSL_HND_HELLO_EXT_TRUNCATED_HMAC                4
+#define SSL_HND_HELLO_EXT_STATUS_REQUEST                5
+#define SSL_HND_HELLO_EXT_USER_MAPPING                  6
+#define SSL_HND_HELLO_EXT_CLIENT_AUTHZ                  7
+#define SSL_HND_HELLO_EXT_SERVER_AUTHZ                  8
+#define SSL_HND_HELLO_EXT_CERT_TYPE                     9
+#define SSL_HND_HELLO_EXT_SUPPORTED_GROUPS               10 /* renamed from "elliptic_curves (RFC7919)*/
+#define SSL_HND_HELLO_EXT_EC_POINT_FORMATS              11
+#define SSL_HND_HELLO_EXT_SRP                           12
+#define SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS          13
+#define SSL_HND_HELLO_EXT_USE_SRTP                      14
+#define SSL_HND_HELLO_EXT_HEARTBEAT                     15
+#define SSL_HND_HELLO_EXT_ALPN                          16
+#define SSL_HND_HELLO_EXT_STATUS_REQUEST_V2             17
+#define SSL_HND_HELLO_EXT_SIGNED_CERTIFICATE_TIMESTAMP  18
+#define SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE              19
+#define SSL_HND_HELLO_EXT_SERVER_CERT_TYPE              20
+#define SSL_HND_HELLO_EXT_PADDING                       21
+#define SSL_HND_HELLO_EXT_ENCRYPT_THEN_MAC              22
+#define SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET        23
+#define SSL_HND_HELLO_EXT_TOKEN_BINDING                 24
+#define SSL_HND_HELLO_EXT_CACHED_INFO                   25
+/* 26-34  Unassigned*/
+#define SSL_HND_HELLO_EXT_SESSION_TICKET_TLS            35
+/* TLS 1.3 draft */
+#define SSL_HND_HELLO_EXT_KEY_SHARE                     40
+#define SSL_HND_HELLO_EXT_PRE_SHARED_KEY                41
+#define SSL_HND_HELLO_EXT_EARLY_DATA                    42
+#define SSL_HND_HELLO_EXT_COOKIE                        44
+#define SSL_HND_HELLO_EXT_NPN                           13712 /* 0x3374 */
+#define SSL_HND_HELLO_EXT_CHANNEL_ID_OLD                30031 /* 0x754f */
+#define SSL_HND_HELLO_EXT_CHANNEL_ID                    30032 /* 0x7550 */
+#define SSL_HND_HELLO_EXT_RENEGOTIATION_INFO            65281 /* 0xFF01 */
+#define SSL_HND_HELLO_EXT_DRAFT_VERSION_TLS13           65282 /* 0xFF02 */
+
 #define SSL_HND_CERT_URL_TYPE_INDIVIDUAL_CERT       1
 #define SSL_HND_CERT_URL_TYPE_PKIPATH               2
 #define SSL_HND_CERT_STATUS_TYPE_OCSP        1
