@@ -29,6 +29,11 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#elif __APPLE__
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#elif __linux__
+#include <sys/sysinfo.h>
 #endif
 
 #include <glib.h>
@@ -144,16 +149,28 @@ get_compiled_version_info(void (*prepend_info)(GString *),
 }
 
 static void
-get_mem_info(GString *str _U_)
+get_mem_info(GString *str)
 {
+	gint64 memsize = 0;
+
 #ifdef _WIN32
 	MEMORYSTATUSEX statex;
 
 	statex.dwLength = sizeof (statex);
 
 	if (GlobalMemoryStatusEx(&statex))
-		g_string_append_printf(str, ", with ""%" G_GINT64_MODIFIER "d" "MB of physical memory.\n", statex.ullTotalPhys/(1024*1024));
+		memsize = statex.ullTotalPhys;
+#elif __APPLE__
+	size_t len = sizeof(memsize);
+	sysctlbyname("hw.memsize", &memsize, &len, NULL, 0);
+#elif __linux__
+	struct sysinfo info;
+        if (sysinfo(&info) == 0)
+		memsize = info.totalram * info.mem_unit;
 #endif
+
+	if (memsize > 0)
+		g_string_append_printf(str, ", with ""%" G_GINT64_MODIFIER "d" " MB of physical memory", memsize/(1024*1024));
 }
 
 /*
@@ -290,6 +307,12 @@ get_runtime_version_info(void (*additional_info)(GString *))
 
 	get_os_version_info(str);
 
+	/* CPU Info */
+	get_cpu_info(str);
+
+	/* Get info about installed memory */
+	get_mem_info(str);
+
 	/*
 	 * Locale.
 	 *
@@ -320,13 +343,7 @@ get_runtime_version_info(void (*additional_info)(GString *))
 	g_string_append_printf(str, ", with zlib %s", zlibVersion());
 #endif
 
-	g_string_append(str, ".\n");
-
-	/* CPU Info */
-	get_cpu_info(str);
-
-	/* Get info about installed memory Windows only */
-	get_mem_info(str);
+	g_string_append(str, ".");
 
 	/* Compiler info */
 	get_compiler_info(str);
