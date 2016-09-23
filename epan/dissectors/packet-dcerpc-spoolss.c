@@ -71,6 +71,7 @@ static int hf_transmission_retry_timeout = -1;
 static int hf_opnum = -1;
 static int hf_hnd = -1;
 static int hf_rc = -1;
+static int hf_hresult = -1;
 static int hf_offered = -1;
 static int hf_needed = -1;
 static int hf_returned = -1;
@@ -101,6 +102,12 @@ static int hf_textstatus = -1;
 static int hf_sepfile = -1;
 static int hf_printprocessor = -1;
 static int hf_parameters = -1;
+static int hf_core_printer_driver_ids = -1;
+static int hf_core_driver_guid = -1;
+static int hf_core_driver_size = -1;
+static int hf_driver_version = -1;
+static int hf_core_printer_driver_count = -1;
+static int hf_package_id = -1;
 
 /* Printer information */
 
@@ -5253,6 +5260,49 @@ dissect_DRIVER_INFO_101(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
+
+/*
+	CORE_PRINTER_DRIVER
+*/
+
+static gint ett_CORE_PRINTER_DRIVER = -1;
+
+static int
+dissect_CORE_PRINTER_DRIVER(tvbuff_t *tvb, int offset,
+				 packet_info *pinfo, proto_tree *tree,
+				 dcerpc_info *di, guint8 *drep)
+{
+	proto_tree *subtree;
+
+	ALIGN_TO_5_BYTES;
+
+	subtree = proto_tree_add_subtree(
+		tree, tvb, offset, 0, ett_CORE_PRINTER_DRIVER, NULL, "Core Printer Driver");
+
+	offset = dissect_ndr_uuid_t(tvb, offset, pinfo, subtree, di, drep,
+		hf_core_driver_guid, NULL);
+
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, subtree, di, drep,
+		hf_driverdate);
+
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, subtree, di, drep,
+		hf_driver_version, NULL);
+
+	/* The package id is stored in a 260-wchar buffer */
+
+	dissect_spoolss_uint16uni(tvb, offset, pinfo, subtree, drep, NULL,
+		hf_package_id);
+
+	offset += 520;
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
+
+	return offset;
+}
+
+
 /*
  * EnumPrinterDrivers
  */
@@ -6523,6 +6573,73 @@ SpoolssGetPrinterDriverDirectory_r(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+SpoolssGetCorePrinterDrivers_q(tvbuff_t *tvb, int offset,
+			       packet_info *pinfo, proto_tree *tree,
+			       dcerpc_info *di, guint8 *drep)
+{
+	/* Parse packet */
+
+	offset = dissect_ndr_str_pointer_item(
+		tvb, offset, pinfo, tree, di, drep, NDR_POINTER_UNIQUE,
+		"Name", hf_servername, 0);
+
+	offset = dissect_ndr_str_pointer_item(
+		tvb, offset, pinfo, tree, di, drep, NDR_POINTER_REF,
+		"Environment", hf_environment, 0);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, di, drep,
+		hf_offered, NULL);
+#if 1
+	offset = dissect_spoolss_keybuffer(
+		tvb, offset, pinfo, tree, di, drep);
+#else
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, di, drep,
+		hf_core_driver_size, NULL);
+
+	offset = dissect_spoolss_uint16uni(
+		tvb, offset, pinfo, tree, drep,
+		NULL, hf_core_printer_driver_ids);
+#endif
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, di, drep,
+		hf_core_printer_driver_count, NULL);
+
+	return offset;
+}
+
+static int
+SpoolssGetCorePrinterDrivers_r(tvbuff_t *tvb, int offset,
+			       packet_info *pinfo, proto_tree *tree,
+			       dcerpc_info *di, guint8 *drep)
+{
+	guint32 num_drivers, i;
+
+	/* Parse packet */
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, di, drep,
+		hf_core_printer_driver_count,
+		&num_drivers);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, di, drep, hf_core_printer_driver_ids,
+		NULL);
+
+	for (i = 0; i < num_drivers; i++) {
+		offset = dissect_CORE_PRINTER_DRIVER(
+			tvb, offset, pinfo,
+			tree, di, drep);
+	}
+
+	offset = dissect_hresult(
+		tvb, offset, pinfo, tree, di, drep, hf_hresult, NULL);
+
+	return offset;
+}
+
 /*
  * List of subdissectors for this pipe.
  */
@@ -6690,6 +6807,8 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	  NULL, SpoolssGeneric_r },
 	{ SPOOLSS_ADDPRINTERDRIVEREX, "AddPrinterDriverEx",
 	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_GETCOREPRINTERDRIVERS, "GetCorePrinterDrivers",
+	  SpoolssGetCorePrinterDrivers_q, SpoolssGetCorePrinterDrivers_r },
 
 	{ 0, NULL, NULL, NULL },
 };
@@ -6762,6 +6881,10 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_padding,
 		  { "Padding", "spoolss.padding", FT_UINT32, BASE_HEX,
 		    NULL, 0, "Some padding - conveys no semantic information", HFILL }},
+
+		{ &hf_driver_version,
+		  { "Driver Version", "spoolss.driverversion", FT_UINT64, BASE_HEX,
+		    NULL, 0, "Driver Version ID", HFILL }},
 
 		{ &hf_driver_version_low,
 		  { "Minor Driver Version", "spoolss.minordriverversion", FT_UINT32, BASE_DEC,
@@ -6871,6 +6994,10 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_rc,
 		  { "Return code", "spoolss.rc", FT_UINT32, BASE_HEX | BASE_EXT_STRING,
 		    &DOS_errors_ext, 0x0, "SPOOLSS return code", HFILL }},
+
+		{ &hf_hresult,
+		  { "HRESULT return code", "spoolss.hresult", FT_UINT32, BASE_HEX | BASE_EXT_STRING,
+		    &HRES_errors_ext, 0x0, "SPOOLSS HRESULT return code", HFILL }},
 
 		{ &hf_offered,
 		  { "Offered", "spoolss.offered", FT_UINT32, BASE_DEC,
@@ -6984,6 +7111,26 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_printprocessor,
 		  { "Print processor", "spoolss.printprocessor", FT_STRING,
+		    BASE_NONE, NULL, 0, NULL, HFILL }},
+
+		{ &hf_core_printer_driver_ids,
+		  { "Core Printer Driver IDs", "spoolss.core_printer_driver_ids", FT_STRING,
+		    BASE_NONE, NULL, 0, NULL, HFILL }},
+
+		{ &hf_core_driver_guid,
+		  { "Core Printer Driver GUID", "spoolss.core_driver_guid", FT_GUID,
+		    BASE_NONE, NULL, 0,	NULL, HFILL }},
+
+		{ &hf_core_driver_size,
+		  { "Core Printer Driver Size", "spoolss.core_driver_size", FT_UINT32,
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_core_printer_driver_count,
+		  { "Core Printer Driver Count", "spoolss.core_printer_driver_count", FT_UINT32,
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_package_id,
+		  { "PackageId", "spoolss.package_id", FT_STRING,
 		    BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		/* Printer data */
@@ -8301,6 +8448,7 @@ proto_register_dcerpc_spoolss(void)
 		&ett_DRIVER_INFO_3,
 		&ett_DRIVER_INFO_6,
 		&ett_DRIVER_INFO_101,
+		&ett_CORE_PRINTER_DRIVER,
 		&ett_rffpcnex_flags,
 		&ett_notify_options_flags,
 		&ett_NOTIFY_INFO_DATA,
