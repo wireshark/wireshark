@@ -250,11 +250,15 @@ write_pdml_preamble(FILE *fh, const gchar *filename)
 
     ts[strlen(ts)-1] = 0; /* overwrite \n */
 
-    fputs("<?xml version=\"1.0\"?>\n", fh);
-    fputs("<?xml-stylesheet type=\"text/xsl\" href=\"" PDML2HTML_XSL "\"?>\n", fh);
+    fprintf(fh, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+    fprintf(fh, "<?xml-stylesheet type=\"text/xsl\" href=\"" PDML2HTML_XSL "\"?>\n");
     fprintf(fh, "<!-- You can find " PDML2HTML_XSL " in %s or at https://code.wireshark.org/review/gitweb?p=wireshark.git;a=blob_plain;f=" PDML2HTML_XSL ". -->\n", get_datafile_dir());
-    fputs("<pdml version=\"" PDML_VERSION "\" ", fh);
-    fprintf(fh, "creator=\"%s/%s\" time=\"%s\" capture_file=\"%s\">\n", PACKAGE, VERSION, ts, filename ? filename : "");
+    fprintf(fh, "<pdml version=\"" PDML_VERSION "\" creator=\"%s/%s\" time=\"%s\" capture_file=\"", PACKAGE, VERSION, ts);
+    if (filename) {
+        /* \todo filename should be converted to UTF-8. */
+        print_escaped_xml(fh, filename);
+    }
+    fprintf(fh, "\">\n");
 }
 
 void
@@ -1175,9 +1179,8 @@ write_psml_preamble(column_info *cinfo, FILE *fh)
 {
     gint i;
 
-    fputs("<?xml version=\"1.0\"?>\n", fh);
-    fputs("<psml version=\"" PSML_VERSION "\" ", fh);
-    fprintf(fh, "creator=\"%s/%s\">\n", PACKAGE, VERSION);
+    fprintf(fh, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+    fprintf(fh, "<psml version=\"" PSML_VERSION "\" creator=\"%s/%s\">\n", PACKAGE, VERSION);
     fprintf(fh, "<structure>\n");
 
     for (i = 0; i < cinfo->num_cols; i++) {
