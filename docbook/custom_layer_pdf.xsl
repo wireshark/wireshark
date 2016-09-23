@@ -64,4 +64,18 @@
 <!-- Render AsciiDoc's labeled lists as blocks -->
 <xsl:param name="variablelist.as.blocks" select="1"></xsl:param>
 
+<!-- Increase the ordered list label width, otherwise we overflow
+     in some places.
+-->
+<xsl:param name="orderedlist.label.width">1.8em</xsl:param>
+
+<!-- Right align ordered list labels. -->
+<!-- Doesn't look right, disabled for now.
+<xsl:attribute-set name="orderedlist.label.properties">
+  <xsl:attribute name="text-align">right</xsl:attribute>
+</xsl:attribute-set>
+-->
+
+
+
 </xsl:stylesheet>
