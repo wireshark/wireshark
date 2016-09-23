@@ -607,9 +607,9 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, proto_tree* tree, int offset, gint size
     mcc_mnc);
 
   proto_tree_add_uint(eap_identity_tree, hf_eap_identity_wlan_mcc,
-    tvb, offset + (guint)strlen(tokens[0]) + (guint)strlen("@wlan.") +
-    (guint)strlen(tokens[2]) + 1 + strlen("mcc"), (guint)strlen(tokens[3]) -
-    (guint)strlen("mcc"), mcc);
+    tvb, offset + (guint)(strlen(tokens[0]) + strlen("@wlan.") +
+    strlen(tokens[2]) + 1 + strlen("mcc")),
+    (guint)(strlen(tokens[3]) - strlen("mcc")), mcc);
 end:
   g_strfreev(tokens);
   return ret;
