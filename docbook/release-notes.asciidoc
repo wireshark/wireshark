@@ -53,6 +53,7 @@ RFTap Protocol
 M2 Application Protocol
 CAN FD
 Bluetooth HCI Vendor Intel
+High-speed SECS message service (HSMS)
 --sort-and-group--
 
 === Updated Protocol Support

@@ -704,6 +704,7 @@ set(DISSECTOR_SRC
 	packet-hpfeeds.c
 	packet-hpsw.c
 	packet-hpteam.c
+	packet-hsms.c
 	packet-hsr-prp-supervision.c
 	packet-hsr.c
 	packet-hsrp.c
