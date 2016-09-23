@@ -347,7 +347,7 @@ package is to be used. See
 However, you might already have a different Microsoft $$C++$$ compiler
 installed. It should be possible to use any of the following with the considerations listed:
 
-.Visual C++ 2013 Community Edition
+.Visual $$C++$$ 2013 Community Edition
 
 IDE + Debugger?:: Yes
 
@@ -357,7 +357,7 @@ SDK required for 64-bit builds?:: No
 
 CMake Generator: `Visual Studio 12`
 
-.Visual C++ 2010 Express Edition
+.Visual $$C++$$ 2010 Express Edition
 
 IDE + Debugger?:: Yes
 
@@ -419,7 +419,7 @@ at the Visual Studio Command line prompt (cmd.exe):
 should result in something like:
 
 ----
-Microsoft (R) C/C++ Optimizing Compiler Version 18.00.31101 for x86
+Microsoft (R) C/$$C++$$ Optimizing Compiler Version 18.00.31101 for x86
 Copyright (C) Microsoft Corporation.  All rights reserved.
 
 usage: cl [ option... ] filename... [ /link linkoption...

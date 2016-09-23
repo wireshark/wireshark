@@ -156,7 +156,6 @@ it's not strictly required:
   button box.
 - If the dialog box contains a `QTreeWidget` you might want to add your own
   `QTreeWidgetItem` subclass with the following methods:
-[horizontal]
   `drawData()`:: Draws column data with any needed formatting.
   `colData()`:: Returns the data for each column as a `QVariant`. Used for
     copying as CSV, YAML, etc.
@@ -175,11 +174,12 @@ If you're calling a function that returns wmem-allocated memory it might make
 more sense to add a wrapper function to 'qt_ui_utils' than to call wmem_free in
 your code.
 
-===== Mixing C and C++
+===== Mixing C and $$C++$$
 
-Sometimes we have to call C++ functions from one of Wireshark's C callbacks and
-pass C++ objects to or from C. Tap listeners are a common example. The C++ FAQ
-link:$$http://www.parashift.com/c++-faq/mixing-c-and-cpp.html$$:[describes how to do this
+Sometimes we have to call $$C++$$ functions from one of
+Wireshark's C callbacks and pass $$C++$$ objects to or from C. Tap
+listeners are a common example. The $$C++$$ FAQ link:$$http://www.
+parashift.com/c++-faq/mixing-c-and-cpp.html$$:[describes how to do this
 safely].
 
 Tapping usually involves declaring static methods for callbacks, passing `this`
@@ -235,7 +235,7 @@ The main window has many QActions which are shared with child widgets. See
 'ui/qt/proto_tree.cpp' for an example of this.
 
 http://www.kdab.com/kdab-products/gammaray/[GammaRay] lets you inspect
-the internals of a running Qt application similar to Spy{plus}{plus} on Windows.
+the internals of a running Qt application similar to $$Spy++$$ on Windows.
 
 [[ChUIGTK]]
 
