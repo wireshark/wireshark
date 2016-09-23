@@ -61,4 +61,7 @@
   <xsl:attribute name="wrap-option">wrap</xsl:attribute>
 </xsl:attribute-set>
 
+<!-- Render AsciiDoc's labeled lists as blocks -->
+<xsl:param name="variablelist.as.blocks" select="1"></xsl:param>
+
 </xsl:stylesheet>

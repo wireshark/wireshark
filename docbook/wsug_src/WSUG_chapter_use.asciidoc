@@ -87,7 +87,7 @@ a capture file. See <<ChUseTabGo>> for additional navigation keystrokes.
 
 [[ChUseTabNav]]
 .Keyboard Navigation
-[options="header"]
+[options="header",cols="1,3"]
 |===============
 |Accelerator               |Description
 |kbd:[Tab], kbd:[Shift+Tab]|Move between screen elements, e.g. from the toolbars to the packet list to the packet detail.
@@ -202,7 +202,7 @@ image::wsug_graphics/ws-file-menu.png[{screenshot-attrs}]
 
 [[ChUseTabFile]]
 .File menu items
-[options="header"]
+[options="header",cols="3,2,5"]
 |===============
 |Menu Item                            |Accelerator |Description
 
@@ -298,7 +298,7 @@ image::wsug_graphics/ws-edit-menu.png[{screenshot-attrs}]
 
 [[ChUseTabEdit]]
 .Edit menu items
-[options="header"]
+[options="header",cols="3,2,5"]
 |===============
 |Menu Item                                    |Accelerator       |Description
 |menu:Copy[]                                  ||
@@ -396,7 +396,7 @@ image::wsug_graphics/ws-view-menu.png[{screenshot-attrs}]
 
 [[ChUseTabView]]
 .View menu items
-[options="header"]
+[options="header",cols="3,2,5"]
 |===============
 |Menu Item              |Accelerator|Description
 |menu:Main Toolbar[]    ||This menu item hides or shows the main toolbar, see <<ChUseMainToolbarSection>>.
@@ -466,7 +466,7 @@ image::wsug_graphics/ws-go-menu.png[{screenshot-attrs}]
 
 [[ChUseTabGo]]
 .Go menu items
-[options="header"]
+[options="header",cols="3,2,5"]
 |===============
 |Menu Item                              |Accelerator        |Description
 |menu:Back[]                            |kbd:[Alt+&#x2190;] |Jump to the recently visited packet in the packet history, much like the page history in a web browser.
@@ -493,7 +493,7 @@ image::wsug_graphics/ws-capture-menu.png[{screenshot-attrs}]
 
 [[ChUseTabCap]]
 .Capture menu items
-[options="header"]
+[options="header",cols="3,2,5"]
 |===============
 |Menu Item                  |Accelerator    |Description
 |menu:Interfaces...[]       |kbd:[Ctrl+I]   |This menu item brings up a dialog box that shows what's going on at the network interfaces Wireshark knows of, see <<ChCapInterfaceSection>>) .
@@ -516,7 +516,7 @@ image::wsug_graphics/ws-analyze-menu.png[{screenshot-attrs}]
 
 [[ChUseAnalyze]]
 .Analyze menu items
-[options="header"]
+[options="header",cols="3,2,5"]
 |===============
 |Menu Item|Accelerator|Description
 |menu:Display Filters...[]          ||This menu item brings up a dialog box that allows you to create and edit display filters. You can name filters, and you can save them for future use. More detail on this subject is provided in <<ChWorkDefineFilterSection>>
@@ -548,7 +548,7 @@ All menu items will bring up a new window showing specific statistical informati
 
 [[ChUseStatistics]]
 .Statistics menu items
-[options="header"]
+[options="header",cols="3,2,5"]
 |===============
 |Menu Item|Accelerator|Description
 |menu:Summary[]|| Show information about the data captured, see <<ChStatSummary>>.
@@ -589,7 +589,7 @@ All menu items will bring up a new window showing specific telephony related sta
 
 [[ChUseTelephony]]
 .Telephony menu items
-[options="header"]
+[options="header",cols="3,2,5"]
 |===============
 |Menu Item|Accelerator|Description
 |menu:IAX2[]||See <<ChTelXXX>>
@@ -621,7 +621,7 @@ image::wsug_graphics/ws-tools-menu.png[{screenshot-attrs}]
 
 [[ChUseTools]]
 .Tools menu items
-[options="header"]
+[options="header",cols="3,2,5"]
 |===============
 |Menu Item|Accelerator|Description
 |menu:Firewall ACL Rules[]|| This allows you to create command-line ACL rules for many different firewall products, including Cisco IOS, Linux Netfilter (iptables), OpenBSD pf and Windows Firewall (via netsh).  Rules for MAC addresses, IPv4 addresses, TCP and UDP ports, and IPv4+port combinations are supported.
@@ -642,8 +642,8 @@ The Wireshark Internals menu contains the fields shown in <<ChUseInternals>>.
 image::wsug_graphics/ws-internals-menu.png[{screenshot-attrs}]
 
 [[ChUseInternals]]
-.Help menu items
-[options="header"]
+.Internals menu items
+[options="header",cols="3,2,5"]
 |===============
 |Menu Item|Accelerator|Description
 |menu:Dissector tables[]|| This menu item brings up a dialog box showing the tables with subdissector relationships.
@@ -662,7 +662,7 @@ image::wsug_graphics/ws-help-menu.png[{screenshot-attrs}]
 
 [[ChUseHelp]]
 .Help menu items
-[options="header"]
+[options="header",cols="3,2,5"]
 |===============
 |Menu Item|Accelerator|Description
 |menu:Contents[]|F1| This menu item brings up a basic help system.
@@ -705,9 +705,9 @@ image::wsug_graphics/ws-main-toolbar.png[{screenshot-attrs}]
 
 [[ChUseMainToolbar]]
 .Main toolbar items
-[options="header"]
+[options="header",cols="1,2,2,4"]
 |===============
-|Toolbar Icon|Toolbar Item|Corresponding Menu Item|Description
+|Toolbar Icon|Toolbar Item|Menu Item|Description
 |image:wsug_graphics/toolbar/capture_interfaces_24.png[{toolbar-icon-attrs}] |button:[Interfaces...]|menu:Capture[Interfaces...]| This item brings up the Capture Interfaces List dialog box (discussed further in <<ChCapCapturingSection>>).
 |image:wsug_graphics/toolbar/capture_options_24.png[{toolbar-icon-attrs}]    |button:[Options...]|menu:Capture[Options...]| This item brings up the Capture Options dialog box (discussed further in <<ChCapCapturingSection>>) and allows you to start capturing packets.
 |image:wsug_graphics/toolbar/capture_start_24.png[{toolbar-icon-attrs}]      |button:[Start]|menu:Capture[Start]| This item starts capturing packets with the options form the last time.
@@ -754,7 +754,7 @@ image::wsug_graphics/ws-filter-toolbar.png[{screenshot-attrs}]
 
 [[ChUseFilterToolbar]]
 .Filter toolbar items
-[options="header"]
+[options="header",cols="1,2,4"]
 |===============
 |Toolbar Icon|Toolbar Item|Description
 |image:wsug_graphics/toolbar/display_filter_24.png[{toolbar-icon-attrs}]|button:[Filter:]|Brings up the filter construction dialog, described in <<FiltersDialog>>.
