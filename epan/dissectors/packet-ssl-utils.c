@@ -72,6 +72,19 @@ const value_string ssl_version_short_names[] = {
     { 0x00, NULL }
 };
 
+const value_string ssl_versions[] = {
+    { SSLV2_VERSION,        "SSL 2.0" },
+    { SSLV3_VERSION,        "SSL 3.0" },
+    { TLSV1_VERSION,        "TLS 1.0" },
+    { TLSV1DOT1_VERSION,    "TLS 1.1" },
+    { TLSV1DOT2_VERSION,    "TLS 1.2" },
+    { TLSV1DOT3_VERSION,    "TLS 1.3" },
+    { DTLSV1DOT0_OPENSSL_VERSION, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
+    { DTLSV1DOT0_VERSION,   "DTLS 1.0" },
+    { DTLSV1DOT2_VERSION,   "DTLS 1.2" },
+    { 0x00, NULL }
+};
+
 const value_string ssl_20_msg_types[] = {
     { SSL2_HND_ERROR,               "Error" },
     { SSL2_HND_CLIENT_HELLO,        "Client Hello" },
@@ -466,19 +479,6 @@ const value_string ssl_31_content_type[] = {
     { 22, "Handshake" },
     { 23, "Application Data" },
     { 24, "Heartbeat" },
-    { 0x00, NULL }
-};
-
-const value_string ssl_versions[] = {
-    { 0xfefd, "DTLS 1.2" },
-    { 0xfeff, "DTLS 1.0" },
-    { 0x0100, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
-    { 0x0304, "TLS 1.3" },
-    { 0x0303, "TLS 1.2" },
-    { 0x0302, "TLS 1.1" },
-    { 0x0301, "TLS 1.0" },
-    { 0x0300, "SSL 3.0" },
-    { 0x0002, "SSL 2.0" },
     { 0x00, NULL }
 };
 
