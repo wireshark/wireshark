@@ -71,7 +71,7 @@ description of each item.
 
 [[ColumnHeaderPopupMenuTable]]
 .The menu items of the ``Packet List'' column header pop-up menu
-[options="header"]
+[options="header",cols="3,2,5"]
 |===============
 |Item|Identical to main menu's item:|Description
 |menu:Sort Ascending[]|| Sort the packet list in ascending order based on this column.
@@ -101,7 +101,7 @@ The following table gives an overview of which functions are available  in this 
 
 [[PacketListPopupMenuTable]]
 .The menu items of the ``Packet List'' pop-up menu
-[options="header"]
+[options="header",cols="3,2,5"]
 |===============
 |Item|Identical to main menu's item:|Description
 |menu:Mark Packet (toggle)[]|menu:Edit[]| Mark/unmark a packet.
@@ -146,7 +146,7 @@ description of each item.
 [[PacketDetailsPopupMenuTable]]
 
 .The menu items of the ``Packet Details'' pop-up menu
-[options="header"]
+[options="header",cols="3,2,5"]
 |===============
 |Item|Identical to main menu's item:|Description
 |menu:Expand Subtrees[]|menu:View[]| Expand the currently selected subtree.
@@ -283,7 +283,7 @@ You can use English and C-like terms in the same way, they can even be  mixed in
 [[DispCompOps]]
 
 .Display Filter comparison operators
-[options="header"]
+[options="header",cols="1,1,4"]
 |===============
 |English|C-like|Description and example
 |eq |== |Equal. `ip.src==10.0.0.5`
@@ -300,37 +300,55 @@ of the types and example of how to express them.
 [[ChWorkFieldTypes]]
 
 .Display Filter Field Types
-[options="header"]
-|===============
-|Type|Example
-|Unsigned integer (8-bit, 16-bit, 24-bit, 32-bit) |
-You can express integers in decimal, octal, or  hexadecimal. The following display filters are  equivalent:
-----
-ip.len le 1500
-ip.len le 02734
-ip.len le 0x436
-----
-|Signed integer (8-bit, 16-bit, 24-bit, 32-bit) |
-|Boolean|
-A boolean field is present in the protocol decode only if its value is true. For
-example, _tcp.flags.syn_ is present, and thus true, only if the SYN flag is
-present in a TCP segment header.
+Unsigned integer::
+  Can be 8, 16, 24, 32, or 64 bits. You can express integers in decimal, octal,
+  or  hexadecimal. The following display filters are  equivalent:
 
-Thus the filter expression  _tcp.flags.syn_ will select only  those packets for which this flag exists, that is,  TCP segments where the segment header contains the  SYN flag. Similarly, to find source-routed token  ring packets, use a filter expression of  _tr.sr_.
-|Ethernet address (6 bytes)|Separators can be a colon (:), dot (.) or dash (-) and can have one or two bytes between separators:
-----
-eth.dst == ff:ff:ff:ff:ff:ff
-eth.dst == ff-ff-ff-ff-ff-ff
-eth.dst == ffff.ffff.ffff
-----
-|IPv4 address|ip.addr == 192.168.0.1
+  ip.len le 1500
 
-Classless InterDomain Routing (CIDR) notation can be used to test if an IPv4 address is in a certain subnet. For example, this display filter will find all packets in the 129.111 Class-B network:
+  ip.len le 02734
 
-ip.addr == 129.111.0.0/16
-|IPv6 address|ipv6.addr == ::1
-|String (text)|http.request.uri == "https://www.wireshark.org/"
-|===============
+  ip.len le 0x436
+
+Signed integer::
+  Can be 8, 16, 24, 32, or 64 bits. As with unsigned integers you can use
+  decimal, octal, or  hexadecimal.
+
+Boolean::
+  A boolean field is present in the protocol decode only if its value is true. For
+  example, +tcp.flags.syn+ is present, and thus true, only if the SYN flag is
+  present in a TCP segment header.
+
+  The filter expression  +tcp.flags.syn+ will select only  those packets for which
+  this flag exists, that is,  TCP segments where the segment header contains the
+  SYN flag. Similarly, to find source-routed token ring packets, use a filter
+  expression of  +tr.sr+.
+
+Ethernet address::
+  6 bytes separated by a colon (:), dot (.) or dash (-) with one or two bytes between separators:
+
+  eth.dst == ff:ff:ff:ff:ff:ff
+
+  eth.dst == ff-ff-ff-ff-ff-ff
+
+  eth.dst == ffff.ffff.ffff
+
+IPv4 address::
+  ip.addr == 192.168.0.1
+
+  Classless InterDomain Routing (CIDR) notation can be used to test if
+  an IPv4 address is in a certain subnet. For example, this display
+  filter will find all packets in the 129.111 Class-B network:
+
+  ip.addr == 129.111.0.0/16
+
+IPv6 address::
+  +ipv6.addr == ::1+
+
+  As with IPv4 addresses, IPv6 addresses can match a subnet.
+
+Text string::
+  +http.request.uri == "https://www.wireshark.org/"+
 
 ==== Combining expressions
 
@@ -339,16 +357,18 @@ You can combine filter expressions in Wireshark using the  logical operators sho
 [[FiltLogOps]]
 
 .Display Filter Logical Operations
-[options="header"]
+[options="header",cols="1,1,4"]
 |===============
 |English|C-like|Description and example
 |and     |&amp;&amp;| Logical AND. `ip.src==10.0.0.5 and tcp.flags.fin`
 |or      |\|\|      | Logical OR. `ip.scr==10.0.0.5 or ip.src==192.1.1.1`
 |xor     |^^        | Logical XOR. `tr.dst[0:3] == 0.6.29 xor tr.src[0:3] == 0.6.29`
 |not     |!         | Logical NOT. `not llc`
-|[...]   |          |
+|[...]   |          | See ``Substring Operator'' below.
+|in      |          | See ``Membership Operator'' below.
+|===============
 
-Substring Operator.
+==== Substring Operator
 Wireshark allows you to select subsequences of a sequence in rather elaborate
 ways. After a label you can place a pair of brackets [] containing a comma
 separated list of range specifiers.
@@ -383,7 +403,6 @@ eth.src[0:3,1-2,:4,4:,2] ==
 ----
 Wireshark allows you to string together single ranges in a comma separated list
 to form compound ranges as shown above.
-|===============
 
 ==== Membership Operator.
 Wireshark allows you to test a field for membership in a set of values or
@@ -400,7 +419,7 @@ tcp.port == 80 || tcp.port == 443 || tcp.port == 8080
 
 [[ChWorkBuildDisplayFilterMistake]]
 
-==== A common mistake
+==== A Common Mistake
 
 Using the != operator on combined expressions like eth.addr, ip.addr, tcp.port,
 and udp.port will probably not work as expected.

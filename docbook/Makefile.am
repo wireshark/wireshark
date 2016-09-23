@@ -60,6 +60,7 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-capture-menu.png		\
 	wsug_graphics/ws-capture-options.png		\
 	wsug_graphics/ws-capture-options-compile-selected-bpfs.png	\
+	wsug_graphics/ws-capture-options-output.png			\
 	wsug_graphics/ws-capture-options-manage-interfaces-local.png	\
 	wsug_graphics/ws-capture-options-manage-interfaces-pipes.png	\
 	wsug_graphics/ws-capture-options-manage-interfaces-remote-plus.png	\

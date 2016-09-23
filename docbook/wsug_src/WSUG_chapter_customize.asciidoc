@@ -507,7 +507,7 @@ background colors respectively.
 
 [[ChCustChooseColorDialog]]
 .A color chooser
-image::wsug_graphics/ws-choose-color-rule.png[{screenshot-attrs}]
+image::wsug_graphics/ws-choose-color-rule.png[{small-screenshot-attrs}]
 
 The color chooser appearance depends on your operating system. The OS X color
 picker is shown. Select the color you desire for the selected packets and click
