@@ -409,6 +409,47 @@ static int hf_icmpv6_rpl_opt_type = -1;
 static int hf_icmpv6_rpl_opt_length = -1;
 static int hf_icmpv6_rpl_opt_reserved = -1;
 static int hf_icmpv6_rpl_opt_padn = -1;
+static int hf_icmpv6_rpl_opt_metric_type = -1;
+static int hf_icmpv6_rpl_opt_metric_flags = -1;
+static int hf_icmpv6_rpl_opt_metric_reserved = -1;
+static int hf_icmpv6_rpl_opt_metric_flag_p = -1;
+static int hf_icmpv6_rpl_opt_metric_flag_c = -1;
+static int hf_icmpv6_rpl_opt_metric_flag_o = -1;
+static int hf_icmpv6_rpl_opt_metric_flag_r = -1;
+static int hf_icmpv6_rpl_opt_metric_a = -1;
+static int hf_icmpv6_rpl_opt_metric_prec = -1;
+static int hf_icmpv6_rpl_opt_metric_len = -1;
+static int hf_icmpv6_rpl_opt_metric_nsa_object = -1;
+static int hf_icmpv6_rpl_opt_metric_nsa_object_reserved = -1;
+static int hf_icmpv6_rpl_opt_metric_nsa_object_flags = -1;
+static int hf_icmpv6_rpl_opt_metric_nsa_object_flag_a = -1;
+static int hf_icmpv6_rpl_opt_metric_nsa_object_flag_o = -1;
+static int hf_icmpv6_rpl_opt_metric_ne_object = -1;
+static int hf_icmpv6_rpl_opt_metric_ne_object_flags = -1;
+static int hf_icmpv6_rpl_opt_metric_ne_object_flag_i = -1;
+static int hf_icmpv6_rpl_opt_metric_ne_object_type = -1;
+static int hf_icmpv6_rpl_opt_metric_ne_object_flag_e = -1;
+static int hf_icmpv6_rpl_opt_metric_ne_object_energy = -1;
+static int hf_icmpv6_rpl_opt_metric_hp_object = -1;
+static int hf_icmpv6_rpl_opt_metric_hp_object_reserved = -1;
+static int hf_icmpv6_rpl_opt_metric_hp_object_flags = -1;
+static int hf_icmpv6_rpl_opt_metric_hp_object_hp = -1;
+static int hf_icmpv6_rpl_opt_metric_lt_object = -1;
+static int hf_icmpv6_rpl_opt_metric_lt_object_lt = -1;
+static int hf_icmpv6_rpl_opt_metric_ll_object = -1;
+static int hf_icmpv6_rpl_opt_metric_ll_object_ll = -1;
+static int hf_icmpv6_rpl_opt_metric_lql_object = -1;
+static int hf_icmpv6_rpl_opt_metric_lql_object_res = -1;
+static int hf_icmpv6_rpl_opt_metric_lql_object_val = -1;
+static int hf_icmpv6_rpl_opt_metric_lql_object_counter = -1;
+static int hf_icmpv6_rpl_opt_metric_etx_object = -1;
+static int hf_icmpv6_rpl_opt_metric_etx_object_etx = -1;
+static int hf_icmpv6_rpl_opt_metric_lc_object = -1;
+static int hf_icmpv6_rpl_opt_metric_lc_object_res = -1;
+static int hf_icmpv6_rpl_opt_metric_lc_object_lc = -1;
+static int hf_icmpv6_rpl_opt_metric_lc_object_counter = -1;
+static int hf_icmpv6_rpl_opt_metric_lc_object_reserved = -1;
+static int hf_icmpv6_rpl_opt_metric_lc_object_flag_i = -1;
 static int hf_icmpv6_rpl_opt_route_prefix_length = -1;
 static int hf_icmpv6_rpl_opt_route_flag = -1;
 static int hf_icmpv6_rpl_opt_route_pref = -1;
@@ -523,6 +564,16 @@ static gint ett_icmpv6_flag_route_info = -1;
 static gint ett_icmpv6_flag_6lowpan = -1;
 static gint ett_icmpv6_flag_efo = -1;
 static gint ett_icmpv6_rpl_opt = -1;
+static gint ett_icmpv6_rpl_metric_type = -1;
+static gint ett_icmpv6_rpl_metric_flags = -1;
+static gint ett_icmpv6_rpl_metric_nsa_object = -1;
+static gint ett_icmpv6_rpl_metric_ne_object = -1;
+static gint ett_icmpv6_rpl_metric_hp_object = -1;
+static gint ett_icmpv6_rpl_metric_lt_object = -1;
+static gint ett_icmpv6_rpl_metric_ll_object = -1;
+static gint ett_icmpv6_rpl_metric_lql_object = -1;
+static gint ett_icmpv6_rpl_metric_etx_object = -1;
+static gint ett_icmpv6_rpl_metric_lc_object = -1;
 static gint ett_icmpv6_rpl_flag_routing = -1;
 static gint ett_icmpv6_rpl_flag_config = -1;
 static gint ett_icmpv6_rpl_flag_transit = -1;
@@ -565,6 +616,7 @@ static expert_field ei_icmpv6_rr_pco_mp_matchlen = EI_INIT;
 static expert_field ei_icmpv6_rr_pco_mp_matchedlen = EI_INIT;
 static expert_field ei_icmpv6_checksum = EI_INIT;
 static expert_field ei_icmpv6_resp_not_found = EI_INIT;
+static expert_field ei_icmpv6_rpl_unknown_metric = EI_INIT;
 static expert_field ei_icmpv6_rpl_p2p_hop_by_hop = EI_INIT;
 static expert_field ei_icmpv6_rpl_p2p_num_of_routes = EI_INIT;
 static expert_field ei_icmpv6_rpl_p2p_dro_rdo_zero = EI_INIT;
@@ -1110,6 +1162,35 @@ static const value_string icmpv6_option_cert_type_vals[] = {
 #define RPL_OPT_ROUTE_DISCOVERY_L       0xC0
 #define RPL_OPT_ROUTE_DISCOVERY_MR_NH   0x3F
 
+/* RPL Metric Bitfields */
+#define RPL_METRIC_RESERVED              0xF800
+#define RPL_METRIC_FLAG_P                0x0400
+#define RPL_METRIC_FLAG_C                0x0200
+#define RPL_METRIC_FLAG_O                0x0100
+#define RPL_METRIC_FLAG_R                0x0080
+#define RPL_METRIC_A                     0x0070
+#define RPL_METRIC_PREC                  0x000F
+#define RPL_METRIC_NSA_OBJECT_RESERVED   0xFF00
+#define RPL_METRIC_NSA_OBJECT_FLAGS      0x00FC
+#define RPL_METRIC_NSA_OBJECT_FLAG_A     0x0002
+#define RPL_METRIC_NSA_OBJECT_FLAG_O     0x0001
+#define RPL_METRIC_NE_OBJECT_FLAGS       0xF000
+#define RPL_METRIC_NE_OBJECT_FLAG_I      0x0800
+#define RPL_METRIC_NE_OBJECT_TYPE        0x0600
+#define RPL_METRIC_NE_OBJECT_FLAG_E      0x0100
+#define RPL_METRIC_NE_OBJECT_ENERGY      0x00FF
+#define RPL_METRIC_HP_OBJECT_RESERVED    0xF000
+#define RPL_METRIC_HP_OBJECT_FLAGS       0x0F00
+#define RPL_METRIC_HP_OBJECT_HP          0x00FF
+#define RPL_METRIC_LQL_OBJECT_RES        0xFF
+#define RPL_METRIC_LQL_OBJECT_VAL        0xE0
+#define RPL_METRIC_LQL_OBJECT_COUNTER    0x1F
+#define RPL_METRIC_LC_OBJECT_RES         0xFF
+#define RPL_METRIC_LC_OBJECT_LC          0xFFC0
+#define RPL_METRIC_LC_OBJECT_COUNTER     0x003F
+#define RPL_METRIC_LC_OBJECT_RESERVED    0x003E
+#define RPL_METRIC_LC_OBJECT_FLAG_I      0x0001
+
 static const value_string rpl_dio_map_val[] = {
     { 0, "No Downward routes maintained by RPL" },
     { 1, "Non-Storing Mode of Operation" },
@@ -1171,6 +1252,29 @@ static const value_string rpl_option_vals[] = {
     { RPL_OPT_TARGETDESC,       "RPL Target Descriptor"},
     { RPL_OPT_ROUTE_DISCOVERY,  "P2P Route Discovery"},
     { 0, NULL }
+};
+
+/* RPL Metric Types */
+/* RFC 6551 */
+#define RPL_METRIC_NSA 1  /* Node State and Attribute */
+#define RPL_METRIC_NE  2  /* Node Energy */
+#define RPL_METRIC_HP  3  /* Hop Count */
+#define RPL_METRIC_LT  4  /* Link Throughput */
+#define RPL_METRIC_LL  5  /* Link Latency */
+#define RPL_METRIC_LQL 6  /* Link Quality Level */
+#define RPL_METRIC_ETX 7  /* Link ETX */
+#define RPL_METRIC_LC  8  /* Link Color */
+
+static const value_string rpl_metric_vals[] = {
+  { RPL_METRIC_NSA,  "Node State and Attribute" },
+  { RPL_METRIC_NE,   "Node Energy" },
+  { RPL_METRIC_HP,   "Hop Count" },
+  { RPL_METRIC_LT,   "Link Throughput" },
+  { RPL_METRIC_LL,   "Link Latency" },
+  { RPL_METRIC_LQL,  "Link Quality Level" },
+  { RPL_METRIC_ETX,  "Link ETX" },
+  { RPL_METRIC_LC,   "Link Color" },
+  { 0, NULL }
 };
 
 /* RFC 7400 */
@@ -2413,11 +2517,137 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 proto_item_append_text(ti_opt, " (Length : %i bytes)", opt_len);
                 opt_offset += opt_len;
                 break;
-
-            case RPL_OPT_METRIC:
+            case RPL_OPT_METRIC: {
                 /* DAG metric container */
-                /* See draft-ietf-roll-routing-metrics for formatting. */
+                /* See RFC 6551 for formatting. */
+
+                proto_tree *metric_constraint_tree;
+                proto_item *ti_metric_constraint;
+                guint8 metric_constraint_type;
+                gint metric_len;
+
+                while (opt_offset < offset + opt_len) {
+
+                    /* Metric/Constraint type */
+                    metric_constraint_type = tvb_get_guint8(tvb, opt_offset);
+                    ti_metric_constraint = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_metric_type, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                    metric_constraint_tree = proto_item_add_subtree(ti_metric_constraint, ett_icmpv6_rpl_metric_type);
+                    opt_offset += 1;
+
+                    /* Flags */
+                    guint16 metric_constraint_flags;
+
+                    ti_opt = proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_flags, tvb, opt_offset, 2, ENC_NA);
+                    flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_metric_flags);
+
+                    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_reserved, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_flag_p, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_flag_c, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_flag_o, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_flag_r, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_a, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_prec, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                    metric_constraint_flags = tvb_get_guint16(tvb, opt_offset, ENC_BIG_ENDIAN);
+                    opt_offset += 2;
+
+                    /* Metric length */
+                    metric_len = tvb_get_guint8(tvb, opt_offset);
+                    proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_len, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                    opt_offset += 1;
+
+                    /* Metric/Constraint Type */
+                    switch(metric_constraint_type) {
+                        case RPL_METRIC_NSA: /* Node State and Attribute Object */
+                            ti_opt = proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_nsa_object, tvb, opt_offset, 2, ENC_NA);
+                            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_metric_nsa_object);
+                            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_nsa_object_reserved, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_nsa_object_flags, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_nsa_object_flag_a, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_nsa_object_flag_o, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                            opt_offset += 2;
+                            break;
+                        case RPL_METRIC_NE: /* Node Energy */
+                            for (; metric_len > 0; metric_len -= 2) {
+                                ti_opt = proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_ne_object, tvb, opt_offset, 2, ENC_NA);
+                                flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_metric_ne_object);
+                                proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_ne_object_flags, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_ne_object_flag_i, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_ne_object_type, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_ne_object_flag_e, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_ne_object_energy, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                                opt_offset += 2;
+                            }
+                            break;
+                        case RPL_METRIC_HP: /* Hop Count Object */
+                            ti_opt = proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_hp_object, tvb, opt_offset, 2, ENC_NA);
+                            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_metric_hp_object);
+                            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_hp_object_reserved, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_hp_object_flags, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_hp_object_hp, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                            opt_offset += 2;
+                            break;
+                        case RPL_METRIC_LT: /* Link Throughput Object */
+                            for (; metric_len > 0; metric_len -= 4) {
+                                ti_opt = proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_lt_object, tvb, opt_offset, 4, ENC_NA);
+                                flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_metric_lt_object);
+                                proto_tree_add_item(ti_opt, hf_icmpv6_rpl_opt_metric_lt_object_lt, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                                opt_offset += 4;
+                            }
+                            break;
+                        case RPL_METRIC_LL: /* Link Latency Object */
+                            for (; metric_len > 0; metric_len -= 4) {
+                                ti_opt = proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_ll_object, tvb, opt_offset, 4, ENC_NA);
+                                flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_metric_ll_object);
+                                proto_tree_add_item(ti_opt, hf_icmpv6_rpl_opt_metric_ll_object_ll, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                                opt_offset += 4;
+                            }
+                            break;
+                        case RPL_METRIC_LQL: /* Link Quality Level Object */
+                            proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_lql_object_res, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                            opt_offset += 1;
+                            metric_len -= 1;
+                            for (; metric_len > 0; metric_len -= 1) {
+                                ti_opt = proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_lql_object, tvb, opt_offset, 1, ENC_NA);
+                                flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_metric_lql_object);
+                                proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_lql_object_val, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_lql_object_counter, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                                opt_offset += 1;
+                            }
+                            break;
+                        case RPL_METRIC_ETX: /* ETX Object */
+                            for (; metric_len > 0; metric_len -= 2) {
+                                ti_opt = proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_etx_object, tvb, opt_offset, 2, ENC_NA);
+                                flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_metric_etx_object);
+                                proto_tree_add_item(ti_opt, hf_icmpv6_rpl_opt_metric_etx_object_etx, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                                opt_offset += 2;
+                            }
+                            break;
+                        case RPL_METRIC_LC: /* Link Color Object */
+                            proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_lc_object_res, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                            opt_offset += 1;
+                            metric_len -= 1;
+                            for (; metric_len > 0; metric_len -= 2) {
+                                ti_opt = proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_lc_object, tvb, opt_offset, 2, ENC_NA);
+                                flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_metric_lc_object);
+                                proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_lc_object_lc, tvb, opt_offset, 2, ENC_NA);
+                                if (metric_constraint_flags & RPL_METRIC_FLAG_C) {
+                                    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_lc_object_reserved, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                                    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_lc_object_flag_i, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                                } else if (metric_constraint_flags & RPL_METRIC_FLAG_R) {
+                                    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_lc_object_counter, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                                } else {
+                                    expert_add_info(pinfo, ti_opt_len, &ei_icmpv6_rpl_unknown_metric);
+                                }
+                                opt_offset += 2;
+                            }
+                            break;
+                        default:
+                            expert_add_info(pinfo, ti_opt_len, &ei_icmpv6_rpl_unknown_metric);
+                            break;
+                    }
+                }
                 break;
+            }
             case RPL_OPT_ROUTING: {
                 guint8 prefix_len;
                 struct e_in6_addr prefix;
@@ -5166,6 +5396,129 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_rpl_opt_padn,
           { "Paddn", "icmpv6.rpl.opt.padn", FT_NONE, BASE_NONE, NULL, 0x0,
             "Padding (Must be 0)", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_type,
+          { "Routing Metric/Constraint Type", "icmpv6.rpl.opt.metric.type", FT_UINT8, BASE_DEC, VALS(rpl_metric_vals), 0x0,
+            "The Routing Metric/Constraint Type field uniquely identifies each Routing Metric/Constraint object. RFC 6551", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_flags,
+          { "Flags","icmpv6.rpl.opt.metric.flags", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_reserved,
+          { "Reserved Flags","icmpv6.rpl.opt.metric.reserved", FT_UINT16, BASE_HEX, NULL, RPL_METRIC_RESERVED,
+            "Reserved (Must be Zero)", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_flag_p,
+          { "Flag P","icmpv6.rpl.opt.metric.flag.p", FT_BOOLEAN, 16, TFS(&tfs_set_notset), RPL_METRIC_FLAG_P,
+            "Only used for recorded metrics.  When cleared, all nodes along the path successfully recorded the corresponding metric. When set, this indicates that one or several nodes along the path could not record the metric", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_flag_c,
+          { "Flag C","icmpv6.rpl.opt.metric.flag.c", FT_BOOLEAN, 16, TFS(&tfs_set_notset), RPL_METRIC_FLAG_C,
+            "When set, this indicates that the object refers to a routing constraint. When cleared, the object refers to a routing metric.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_flag_o,
+          { "Flag O","icmpv6.rpl.opt.metric.flag.o", FT_BOOLEAN, 16, TFS(&tfs_set_notset), RPL_METRIC_FLAG_O,
+            "Used exclusively for routing constraints. When set, this indicates that the constraint is optional. When cleared, the constraint is mandatory.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_flag_r,
+          { "Flag R","icmpv6.rpl.opt.metric.flag.r", FT_BOOLEAN, 16, TFS(&tfs_set_notset), RPL_METRIC_FLAG_R,
+            "Only relevant for a routing metric. When set, this indicates that the routing metric is recorded along the path. When cleared, the routing metric is aggregated", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_a,
+          { "A Field","icmpv6.rpl.opt.metric.flag.a", FT_UINT16, BASE_HEX, NULL, RPL_METRIC_A,
+            "Only relevant for metrics, it indicates whether the aggregated routing metric is additive, is multiplicative, reports a maximum, or reports a minimum", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_prec,
+          { "Precedence field","icmpv6.rpl.opt.metric.prec", FT_UINT16, BASE_HEX, NULL, RPL_METRIC_PREC,
+            "It indicates the precedence of this Routing Metric/Constraint object relative to other objects in the container", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_len,
+          { "Metric Length", "icmpv6.rpl.opt.metric.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "The length of the object body, expressed in bytes.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_nsa_object,
+          { "Node Sate and Attribute Object","icmpv6.rpl.opt.metric.nsa.object", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_nsa_object_reserved,
+          { "Reserved field","icmpv6.rpl.opt.metric.nsa.object.reserved", FT_UINT16, BASE_HEX, NULL, RPL_METRIC_NSA_OBJECT_RESERVED,
+            "Reserved (Must be Zero)", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_nsa_object_flags,
+          { "Flags","icmpv6.rpl.opt.metric.nsa.object.flags", FT_UINT16, BASE_HEX, NULL, RPL_METRIC_NSA_OBJECT_FLAGS,
+            "Unspecified flags (Must be Zero)", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_nsa_object_flag_a,
+          { "Flag A", "icmpv6.rpl.opt.metric.nsa.object.flag.a", FT_BOOLEAN, 16, TFS(&tfs_set_notset), RPL_METRIC_NSA_OBJECT_FLAG_A,
+            "When set, this indicates that the node can act as a traffic aggregator.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_nsa_object_flag_o,
+          { "Flag O", "icmpv6.rpl.opt.metric.nsa.object.flag.o", FT_BOOLEAN, 16, TFS(&tfs_set_notset), RPL_METRIC_NSA_OBJECT_FLAG_O,
+            "When set, this indicates that the node is overloaded and may not be able to process traffic.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_ne_object,
+          { "Node Energy Object","icmpv6.rpl.opt.metric.ne.object", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_ne_object_flags,
+          { "Flags field","icmpv6.rpl.opt.metric.ne.object.flags", FT_UINT16, BASE_HEX, NULL, RPL_METRIC_NE_OBJECT_FLAGS,
+            "Unspecified flags (Must be Zero)", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_ne_object_flag_i,
+          { "Flag I","icmpv6.rpl.opt.metric.ne.object.flag.i", FT_BOOLEAN, 16, TFS(&tfs_set_notset), RPL_METRIC_NE_OBJECT_FLAG_I,
+            "Only relevant when the node type is used as a constraint. When set, this indicates that nodes of the type specified in the node type field MUST be included", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_ne_object_type,
+          { "Type", "icmpv6.rpl.opt.metric.ne.object.type", FT_UINT16, BASE_HEX, NULL, RPL_METRIC_NE_OBJECT_TYPE,
+            "T=0 designates a mains-powered node, T=1 a battery-powered node, and T=2 a node powered by an energy scavenger.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_ne_object_flag_e,
+          { "Flag E", "icmpv6.rpl.opt.metric.ne.object.flag.e", FT_BOOLEAN, 16, TFS(&tfs_set_notset), RPL_METRIC_NE_OBJECT_FLAG_E,
+            "When the 'E' bit is set for a metric, the estimated percentage of remaining energy on the node is indicated in the Energy 8-bit field. When cleared, the estimated percentage of remaining energy is not provided. When the 'E' bit is set for a constraint, the E_E field defines a threshold for the inclusion/exclusion: if an inclusion, nodes with values higher than the threshold are to be included; if an exclusion, nodes with values lower than the threshold are to be excluded.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_ne_object_energy,
+          { "Energy", "icmpv6.rpl.opt.metric.ne.object.energy", FT_UINT16, BASE_HEX, NULL, RPL_METRIC_NE_OBJECT_ENERGY,
+            "8-bit unsigned integer field indicating an estimated percentage of remaining energy. The Energy field is only relevant when the 'E' flag is set, and it MUST be set to 0 when the 'E' flag is cleared.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_hp_object,
+          { "Hop Count Object","icmpv6.rpl.opt.metric.hp.object", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_hp_object_reserved,
+          { "Reserved field","icmpv6.rpl.opt.metric.hp.object.reserved", FT_UINT16, BASE_HEX, NULL, RPL_METRIC_HP_OBJECT_RESERVED,
+            "Reserved (Must be Zero)", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_hp_object_flags,
+          { "Flags","icmpv6.rpl.opt.metric.hp.object.flags", FT_UINT16, BASE_HEX, NULL, RPL_METRIC_HP_OBJECT_FLAGS,
+            "Reserved (Must be Zero)", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_hp_object_hp,
+          { "Hop Count", "icmpv6.rpl.opt.metric.hp.object.hp", FT_UINT16, BASE_DEC, NULL, RPL_METRIC_HP_OBJECT_HP,
+            "When used as a constraint, the DAG root indicates the maximum number of hops that a path may traverse. When used as a metric, each visited node simply increments the Hop Count field.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_lt_object,
+          { "Link Throughput Object", "icmpv6.rpl.opt.metric.lt.object", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_lt_object_lt,
+          { "Link Throughput", "icmpv6.rpl.opt.metric.lt", FT_UINT32, BASE_HEX, NULL, 0x0,
+            "The Throughput metric is the effective bit rate of a link.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_ll_object,
+          { "Link Latency Object", "icmpv6.rpl.opt.metric.ll.object", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_ll_object_ll,
+          { "Link Latency", "icmpv6.rpl.opt.metric.ll", FT_UINT32, BASE_HEX, NULL, 0x0,
+            "The Latency is encoded in 32 bits in unsigned integer format, expressed in microseconds.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_lql_object,
+          { "Link Quality Level Object","icmpv6.rpl.opt.metric.lql.object", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_lql_object_res,
+          { "Reserved field","icmpv6.rpl.opt.metric.lql.object.res", FT_UINT8, BASE_HEX, NULL, RPL_METRIC_LQL_OBJECT_RES,
+            "Reserved (Must be Zero)", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_lql_object_val,
+          { "Val(ue)","icmpv6.rpl.opt.metric.lql.object.val", FT_UINT8, BASE_HEX, NULL, RPL_METRIC_LQL_OBJECT_VAL,
+            "LQL value from 0 to 7 where 0 means undetermined and 1 indicates the highest link quality.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_lql_object_counter,
+          { "Counter", "icmpv6.rpl.opt.metric.lql.object.counter", FT_UINT8, BASE_DEC, NULL, RPL_METRIC_LQL_OBJECT_COUNTER,
+            "The Counter represents the number of links with that value.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_etx_object,
+          { "ETX Object", "icmpv6.rpl.opt.metric.etx.object", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_etx_object_etx,
+          { "ETX", "icmpv6.rpl.opt.metric.etx", FT_UINT16, BASE_HEX, NULL, 0x0,
+            "The ETX metric is the number of transmissions a node expects to make to a destination in order to successfully deliver a packet.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_lc_object,
+          { "Link Color Object","icmpv6.rpl.opt.metric.lc.object", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_lc_object_res,
+          { "Reserved field","icmpv6.rpl.opt.metric.lc.object.res", FT_UINT8, BASE_HEX, NULL, RPL_METRIC_LC_OBJECT_RES,
+            "Reserved (Must be Zero)", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_lc_object_lc,
+          { "Link Color","icmpv6.rpl.opt.metric.lc.object.lc", FT_UINT16, BASE_HEX, NULL, RPL_METRIC_LC_OBJECT_LC,
+            "The Link Color (LC) object is an administrative 10-bit link constraint used to avoid or attract specific links for specific traffic types.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_lc_object_counter,
+          { "Counter", "icmpv6.rpl.opt.metric.lc.object.counter", FT_UINT16, BASE_DEC, NULL, RPL_METRIC_LC_OBJECT_COUNTER,
+            "The Counter is used to compress the information where the number of links for each Link Color is reported.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_lc_object_reserved,
+          { "Reserved", "icmpv6.rpl.opt.metric.lc.object.reserved", FT_UINT16, BASE_DEC, NULL, RPL_METRIC_LC_OBJECT_RESERVED,
+            "Reserved (Must be Zero).", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_lc_object_flag_i,
+          { "Flag I", "icmpv6.rpl.opt.metric.lc.object.flag.i", FT_UINT16, BASE_DEC, NULL, RPL_METRIC_LC_OBJECT_FLAG_I,
+            "The 'I' bit is only relevant when the Link Color is used as a constraint. When set, this indicates that links with the specified color must be included.", HFILL }},
         { &hf_icmpv6_rpl_opt_route_prefix_length,
            { "Prefix Length", "icmpv6.rpl.opt.route.prefix_length", FT_UINT8, BASE_DEC, NULL, 0x0,
              "The number of leading bits in the Prefix that are valid", HFILL }},
@@ -5451,6 +5804,16 @@ proto_register_icmpv6(void)
         &ett_icmpv6_flag_6lowpan,
         &ett_icmpv6_flag_efo,
         &ett_icmpv6_rpl_opt,
+        &ett_icmpv6_rpl_metric_type,
+        &ett_icmpv6_rpl_metric_flags,
+        &ett_icmpv6_rpl_metric_nsa_object,
+        &ett_icmpv6_rpl_metric_ne_object,
+        &ett_icmpv6_rpl_metric_hp_object,
+        &ett_icmpv6_rpl_metric_lt_object,
+        &ett_icmpv6_rpl_metric_ll_object,
+        &ett_icmpv6_rpl_metric_lql_object,
+        &ett_icmpv6_rpl_metric_etx_object,
+        &ett_icmpv6_rpl_metric_lc_object,
         &ett_icmpv6_rpl_flag_routing,
         &ett_icmpv6_rpl_flag_config,
         &ett_icmpv6_rpl_flag_transit,
@@ -5495,6 +5858,7 @@ proto_register_icmpv6(void)
         { &ei_icmpv6_rr_pco_mp_matchedlen, { "icmpv6.rr.pco.mp.matchedlen.gt128", PI_PROTOCOL, PI_WARN, "MatchedLen is greater than 128", EXPFILL }},
         { &ei_icmpv6_checksum, { "icmpv6.checksum_bad.expert", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
         { &ei_icmpv6_resp_not_found, { "icmpv6.resp_not_found", PI_SEQUENCE, PI_WARN, "Response not found", EXPFILL }},
+        { &ei_icmpv6_rpl_unknown_metric, { "icmpv6.rpl.unknown.metric", PI_UNDECODED, PI_NOTE, "Unknown RPL metric/constraint type", EXPFILL }},
         { &ei_icmpv6_rpl_p2p_hop_by_hop, { "icmpv6.rpl.p2p.hop_by_hop", PI_PROTOCOL, PI_WARN, "Reply MUST be set to one in order to establish a Hop-by-Hop Route", EXPFILL }},
         { &ei_icmpv6_rpl_p2p_num_of_routes, { "icmpv6.rpl.p2p.num_of_routes", PI_PROTOCOL, PI_WARN, "This field MUST be set to zero when Hop-by-Hop Routes are being discovered", EXPFILL }},
         { &ei_icmpv6_rpl_p2p_dro_rdo_zero, { "icmpv6.rpl.p2p.dro.rdo.zero", PI_PROTOCOL, PI_WARN, "This field MUST be set to zero when the P2P-RDO is included in a P2P-DRO", EXPFILL }},
