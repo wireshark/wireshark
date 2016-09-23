@@ -554,7 +554,7 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, in
 
 /* Dissect the WLAN identity */
 static gboolean
-dissect_eap_identity_wlan(tvbuff_t *tvb, proto_tree* tree, int offset, gint size)
+dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, int offset, gint size)
 {
   guint       mnc = 0;
   guint       mcc = 0;
@@ -591,6 +591,8 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, proto_tree* tree, int offset, gint size
   proto_tree_add_uint(eap_identity_tree, hf_eap_identity_wlan_prefix,
     tvb, offset, 1, eap_identity_prefix);
 
+  dissect_e212_utf8_imsi(tvb, pinfo, eap_identity_tree, offset + 1, (guint)strlen(tokens[0]) - 1);
+
   /* guess if we have a 3 bytes mnc by comparing the first bytes with the imsi */
   sscanf(tokens[2] + 3, "%u", &mnc);
   sscanf(tokens[3] + 3, "%u", &mcc);
@@ -616,15 +618,15 @@ end:
 }
 
 static void
-dissect_eap_identity(tvbuff_t *tvb, proto_tree* tree, int offset, gint size)
+dissect_eap_identity(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, int offset, gint size)
 {
   /* Try to dissect as WLAN identity */
-  if (dissect_eap_identity_wlan(tvb, tree, offset, size))
+  if (dissect_eap_identity_wlan(tvb, pinfo, tree, offset, size))
     return;
 }
 
 static void
-dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
+dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int offset, gint size)
 {
   gint left = size;
 
@@ -671,7 +673,7 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 
     if (type == AT_IDENTITY) {
       proto_tree_add_item(attr_tree, hf_eap_identity_actual_len, tvb, aoffset, 2, ENC_BIG_ENDIAN);
-      dissect_eap_identity(tvb, attr_tree, aoffset + 2, tvb_get_ntohs(tvb, aoffset));
+      dissect_eap_identity(tvb, pinfo, attr_tree, aoffset + 2, tvb_get_ntohs(tvb, aoffset));
     }
     else
       proto_tree_add_item(attr_tree, hf_eap_sim_subtype_value, tvb, aoffset, aleft, ENC_NA);
@@ -682,7 +684,7 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 }
 
 static void
-dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
+dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int offset, gint size)
 {
   gint left = size;
   proto_tree_add_item(eap_tree, hf_eap_aka_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -728,7 +730,7 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 
     if (type == AT_IDENTITY) {
       proto_tree_add_item(attr_tree, hf_eap_identity_actual_len, tvb, aoffset, 2, ENC_BIG_ENDIAN);
-      dissect_eap_identity(tvb, attr_tree, aoffset + 2, tvb_get_ntohs(tvb, aoffset));
+      dissect_eap_identity(tvb, pinfo, attr_tree, aoffset + 2, tvb_get_ntohs(tvb, aoffset));
     }
     else
       proto_tree_add_item(attr_tree, hf_eap_aka_subtype_value, tvb, aoffset, aleft, ENC_NA);
@@ -901,7 +903,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       case EAP_TYPE_ID:
         if (size > 0) {
           eap_identity_item = proto_tree_add_item(eap_tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
-          dissect_eap_identity(tvb, eap_identity_item, offset, size);
+          dissect_eap_identity(tvb, pinfo, eap_identity_item, offset, size);
         }
         if(!pinfo->fd->flags.visited) {
           conversation_state->leap_state  =  0;
@@ -1282,7 +1284,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
            EAP-SIM - draft-haverinen-pppext-eap-sim-13.txt
         **********************************************************************/
       case EAP_TYPE_SIM:
-        dissect_eap_sim(eap_tree, tvb, offset, size);
+        dissect_eap_sim(eap_tree, tvb, pinfo, offset, size);
         break; /* EAP_TYPE_SIM */
 
         /*********************************************************************
@@ -1290,7 +1292,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         **********************************************************************/
       case EAP_TYPE_AKA:
       case EAP_TYPE_AKA_PRIME:
-        dissect_eap_aka(eap_tree, tvb, offset, size);
+        dissect_eap_aka(eap_tree, tvb, pinfo, offset, size);
         break; /* EAP_TYPE_AKA */
 
         /*********************************************************************
