@@ -1399,8 +1399,8 @@ main(int argc, char *argv[])
                     block_start = phdr->ts;
                 }
                 if (secs_per_block != 0) {
-                    while ((phdr->ts.secs - block_start.secs >  secs_per_block)
-                           || (phdr->ts.secs - block_start.secs == secs_per_block
+                    while (((guint32)(phdr->ts.secs - block_start.secs) >  secs_per_block)
+                           || ((guint32)(phdr->ts.secs - block_start.secs) == secs_per_block
                                && phdr->ts.nsecs >= block_start.nsecs )) { /* time for the next file */
 
                         if (!wtap_dump_close(pdh, &write_err)) {
