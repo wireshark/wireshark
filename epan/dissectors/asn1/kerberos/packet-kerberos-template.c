@@ -98,6 +98,7 @@ typedef struct kerberos_key {
 } kerberos_key_t;
 
 typedef struct {
+	gboolean is_request;
 	guint32 etype;
 	guint32 padata_type;
 	guint32 enctype;
@@ -117,7 +118,10 @@ static int dissect_kerberos_PA_S4U2Self(gboolean implicit_tag _U_, tvbuff_t *tvb
 static int dissect_kerberos_ETYPE_INFO(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_ETYPE_INFO2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_AD_IF_RELEVANT(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
-
+static int dissect_kerberos_PA_AUTHENTICATION_SET(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_PA_FX_FAST_REQUEST(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_PA_FX_FAST_REPLY(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /* Desegment Kerberos over TCP messages */
 static gboolean krb_desegment = TRUE;
@@ -834,6 +838,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 #define KRB5_PA_PK_AS_REQ		14
 #define KRB5_PA_PK_AS_REP		15
 #define KRB5_PA_DASS			16
+#define KRB5_PA_PK_AS_REP_17		17
 #define KRB5_PA_ENCTYPE_INFO2		19
 #define KRB5_PA_USE_SPECIFIED_KVNO	20
 #define KRB5_PA_SAM_REDIRECT		21
@@ -857,6 +862,15 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 #define KRB5_PA_PAC_REQUEST		128    /* (Microsoft extension) */
 #define KRB5_PA_FOR_USER		129    /* Impersonation (Microsoft extension) See [MS-SFU]. XXX - replaced by KRB5_PA_S4U2SELF */
 #define KRB5_PA_S4U2SELF		129
+#define KRB5_PADATA_S4U_X509_USER	130 /* certificate protocol transition request */
+#define KRB5_PADATA_FX_COOKIE	133
+#define KRB5_PA_AUTHENTICATION_SET 134
+#define KRB5_PADATA_FX_FAST		136
+#define KRB5_PADATA_FX_ERROR	137
+#define KRB5_PADATA_ENCRYPTED_CHALLENGE	138
+#define KRB5_PADATA_PKINIT_KX	147
+#define KRB5_ENCPADATA_REQ_ENC_PA_REP	149
+
 
 #define KRB5_PA_PROV_SRV_LOCATION 0xffffffff    /* (gint32)0xFF) packetcable stuff */
 /* Principal name-type */
@@ -1083,6 +1097,7 @@ static const value_string krb5_preauthentication_types[] = {
 	{ KRB5_PA_PK_AS_REQ            , "PA-PK-AS-REQ" },
 	{ KRB5_PA_PK_AS_REP            , "PA-PK-AS-REP" },
 	{ KRB5_PA_DASS                 , "PA-DASS" },
+	{ KRB5_PA_PK_AS_REP_17         , "PA-PK-AS-REP-17" },
 	{ KRB5_PA_USE_SPECIFIED_KVNO   , "PA-USE-SPECIFIED-KVNO" },
 	{ KRB5_PA_SAM_REDIRECT         , "PA-SAM-REDIRECT" },
 	{ KRB5_PA_GET_FROM_TYPED_DATA  , "PA-GET-FROM-TYPED-DATA" },
@@ -1100,6 +1115,15 @@ static const value_string krb5_preauthentication_types[] = {
 	{ KRB5_TD_REQ_SEQ              , "TD-REQ-SEQ" },
 	{ KRB5_PA_PAC_REQUEST          , "PA-PAC-REQUEST" },
 	{ KRB5_PA_FOR_USER             , "PA-FOR-USER" },
+	{ KRB5_PADATA_S4U_X509_USER    , "PA-S4U-X509-USER" },
+	{ KRB5_PADATA_FX_COOKIE        , "PA-FX-COOKIE" },
+	{ KRB5_PA_AUTHENTICATION_SET   , "KRB5-PA-AUTHENTICATION-SET" },
+
+	{ KRB5_PADATA_FX_FAST          , "PA-FX-FAST" },
+	{ KRB5_PADATA_FX_ERROR         , "PA-FX-ERROR" },
+	{ KRB5_PADATA_ENCRYPTED_CHALLENGE , "PA-ENCRYPTED-CHALLENGE" },
+	{ KRB5_PADATA_PKINIT_KX        , "PA-PKINIT-KX" },
+	{ KRB5_ENCPADATA_REQ_ENC_PA_REP , "PA-REQ-ENC-PA-REP" },
 	{ KRB5_PA_PROV_SRV_LOCATION    , "PA-PROV-SRV-LOCATION" },
 	{ 0                            , NULL },
 };

@@ -28,7 +28,8 @@ EXT_ASN_FILE_LIST =
 ASN_FILE_LIST = \
 	KerberosV5Spec2.asn \
 	k5.asn \
-	RFC3244.asn
+	RFC3244.asn \
+	RFC6113.asn
 
 EXTRA_DIST = \
 	$(EXTRA_DIST_COMMON) \

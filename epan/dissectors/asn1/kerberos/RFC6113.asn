@@ -1,0 +1,124 @@
+-- Extracted from RFC 6113
+
+KerberosPreauthFramework {
+	iso(1) identified-organization(3) dod(6) internet(1)
+	security(5) kerberosV5(2) modules(4) preauth-framework(3)
+} DEFINITIONS EXPLICIT TAGS ::= BEGIN
+
+IMPORTS
+	KerberosTime, PrincipalName, Realm, EncryptionKey, Checksum,
+	Int32, EncryptedData, PA-ENC-TS-ENC, PA-DATA, KDC-REQ-BODY,
+	Microseconds, KerberosFlags, UInt32
+		FROM KerberosV5Spec2 { iso(1) identified-organization(3)
+			dod(6) internet(1) security(5) kerberosV5(2)
+			modules(4) krb5spec2(2) };
+			-- as defined in RFC 4120.
+
+PA-AUTHENTICATION-SET ::= SEQUENCE OF PA-AUTHENTICATION-SET-ELEM
+
+PA-AUTHENTICATION-SET-ELEM ::= SEQUENCE {
+	pa-type      [0] Int32,
+		-- same as padata-type.
+	pa-hint      [1] OCTET STRING OPTIONAL,
+	pa-value     [2] OCTET STRING OPTIONAL,
+	...
+}
+
+KrbFastArmor ::= SEQUENCE {
+	armor-type   [0] Int32,
+		-- Type of the armor.
+	armor-value  [1] OCTET STRING,
+		-- Value of the armor.
+	...
+}
+
+PA-FX-FAST-REQUEST ::= CHOICE {
+	armored-data [0] KrbFastArmoredReq,
+	...
+}
+
+KrbFastArmoredReq ::= SEQUENCE {
+	armor        [0] KrbFastArmor OPTIONAL,
+		-- Contains the armor that identifies the armor key.
+		-- MUST be present in AS-REQ.
+	req-checksum [1] Checksum,
+		-- For AS, contains the checksum performed over the type
+		-- KDC-REQ-BODY for the req-body field of the KDC-REQ
+		-- structure;
+		-- For TGS, contains the checksum performed over the type
+		-- AP-REQ in the PA-TGS-REQ padata.
+		-- The checksum key is the armor key, the checksum
+		-- type is the required checksum type for the enctype of
+		-- the armor key, and the key usage number is
+		-- KEY_USAGE_FAST_REQ_CHKSUM.
+	enc-fast-req [2] EncryptedData, -- KrbFastReq --
+		-- The encryption key is the armor key, and the key usage
+		-- number is KEY_USAGE_FAST_ENC.
+	...
+}
+
+KrbFastReq ::= SEQUENCE {
+	fast-options [0] FastOptions,
+		-- Additional options.
+	padata       [1] SEQUENCE OF PA-DATA,
+		-- padata typed holes.
+	req-body     [2] KDC-REQ-BODY,
+		-- Contains the KDC request body as defined in Section
+		-- 5.4.1 of [RFC4120].
+		-- This req-body field is preferred over the outer field
+		-- in the KDC request.
+		...
+}
+
+FastOptions ::= KerberosFlags
+	-- reserved(0),
+	-- hide-client-names(1),
+	-- kdc-follow-referrals(16)
+
+PA-FX-FAST-REPLY ::= CHOICE {
+	armored-data [0] KrbFastArmoredRep,
+	...
+}
+
+KrbFastArmoredRep ::= SEQUENCE {
+	enc-fast-rep      [0] EncryptedData, -- KrbFastResponse --
+		-- The encryption key is the armor key in the request, and
+		-- the key usage number is KEY_USAGE_FAST_REP.
+	...
+}
+
+KrbFastResponse ::= SEQUENCE {
+	padata         [0] SEQUENCE OF PA-DATA,
+		-- padata typed holes.
+	strengthen-key [1] EncryptionKey OPTIONAL,
+		-- This, if present, strengthens the reply key for AS and
+		-- TGS.  MUST be present for TGS
+		-- MUST be absent in KRB-ERROR.
+	finished       [2] KrbFastFinished OPTIONAL,
+		-- Present in AS or TGS reply; absent otherwise.
+	nonce          [3] UInt32,
+		-- Nonce from the client request.
+	...
+}
+
+KrbFastFinished ::= SEQUENCE {
+	timestamp       [0] KerberosTime,
+	usec            [1] Microseconds,
+		-- timestamp and usec represent the time on the KDC when
+		-- the reply was generated.
+	crealm          [2] Realm,
+	cname           [3] PrincipalName,
+		-- Contains the client realm and the client name.
+	ticket-checksum [4] Checksum,
+		-- checksum of the ticket in the KDC-REP  using the armor
+		-- and the key usage is KEY_USAGE_FAST_FINISH.
+		-- The checksum type is the required checksum type
+		-- of the armor key.
+	...
+}
+
+EncryptedChallenge ::= EncryptedData
+		-- Encrypted PA-ENC-TS-ENC, encrypted in the challenge key
+		-- using key usage KEY_USAGE_ENC_CHALLENGE_CLIENT for the
+		-- client and KEY_USAGE_ENC_CHALLENGE_KDC for the KDC.
+END
