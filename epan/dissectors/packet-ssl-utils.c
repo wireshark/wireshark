@@ -1239,20 +1239,20 @@ const value_string tls_cert_status_type[] = {
  * "byte strings MUST NOT be truncated" (RFC 7301) */
 typedef struct ssl_alpn_protocol {
     const char      *proto_name;
-    size_t           proto_name_len;
+    gboolean         match_exact;
     const char      *dissector_name;
 } ssl_alpn_protocol_t;
 /* http://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml#alpn-protocol-ids */
 static const ssl_alpn_protocol_t ssl_alpn_protocols[] = {
-    { "http/1.1",   sizeof("http/1.1"),     "http" },
+    { "http/1.1",           TRUE,   "http" },
     /* SPDY moves so fast, just 1, 2 and 3 are registered with IANA but there
      * already exists 3.1 as of this writing... match the prefix. */
-    { "spdy/",      sizeof("spdy/") - 1,    "spdy" },
-    { "stun.turn",  sizeof("stun.turn"),    "turnchannel" },
-    { "stun.nat-discovery", sizeof("stun.nat-discovery"), "stun" },
+    { "spdy/",              FALSE,  "spdy" },
+    { "stun.turn",          TRUE,   "turnchannel" },
+    { "stun.nat-discovery", TRUE,   "stun" },
     /* draft-ietf-httpbis-http2-16 */
-    { "h2-",         sizeof("h2-") - 1,     "http2" }, /* draft versions */
-    { "h2",          sizeof("h2"),          "http2" }, /* final version */
+    { "h2-",                FALSE,  "http2" }, /* draft versions */
+    { "h2",                 TRUE,   "http2" }, /* final version */
 };
 
 /* Lookup tables }}} */
@@ -5364,9 +5364,10 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         for (i = 0; i < G_N_ELEMENTS(ssl_alpn_protocols); i++) {
             const ssl_alpn_protocol_t *alpn_proto = &ssl_alpn_protocols[i];
 
-            if (name_length >= alpn_proto->proto_name_len &&
-                (memcmp(proto_name, alpn_proto->proto_name,
-                        alpn_proto->proto_name_len) == 0)) {
+            if ((alpn_proto->match_exact &&
+                        name_length == strlen(alpn_proto->proto_name) &&
+                        !strcmp(proto_name, alpn_proto->proto_name)) ||
+                (!alpn_proto->match_exact && g_str_has_prefix(proto_name, alpn_proto->proto_name))) {
 
                 dissector_handle_t handle;
                 /* ProtocolName match, so set the App data dissector handle.
