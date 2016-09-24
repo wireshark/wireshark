@@ -201,7 +201,7 @@ static int dump_packet(const char* proto_name, const guint16 listenport, const c
 		NULL
 	};
 
-	g_debug("Incoming packet from %s:%u, size: %lu", ws_inet_ntop4(&clientaddr.sin_addr.s_addr,
+	g_debug("Incoming packet from %s:%u, size: %zd", ws_inet_ntop4(&clientaddr.sin_addr.s_addr,
 		srcaddr, INET_ADDRSTRLEN), ntohs(clientaddr.sin_port), buflen);
 
 	pinfo.net_src.type = AT_IPv4;
