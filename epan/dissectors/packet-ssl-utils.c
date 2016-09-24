@@ -4643,13 +4643,13 @@ ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, const c
     key_id = NULL; /* used in key_hash, do not free. */
     ssl_debug_printf("ssl_init private key file %s successfully loaded.\n", uats->keyfile);
 
-    {
+    handle = ssl_find_appdata_dissector(uats->protocol);
+    if (handle) {
         /* Port to subprotocol mapping */
         int port = atoi(uats->port); /* Also maps "start_tls" -> 0 (wildcard) */
         ssl_debug_printf("ssl_init port '%d' filename '%s' password(only for p12 file) '%s'\n",
             port, uats->keyfile, uats->password);
 
-        handle = ssl_find_appdata_dissector(uats->protocol);
         ssl_association_add(dissector_table_name, main_handle, handle, port, tcp);
     }
 
