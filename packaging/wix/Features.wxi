@@ -28,7 +28,7 @@
       <ComponentGroupRef Id="CG.TShark" />
     </Feature>
     <?ifdef GTK_DIR?>
-      <Feature Id="Fe.WiresharkGTK" Title="Wireshark 1" Level="1" AllowAdvertise="yes" Display="expand" Description="The classic user interface.">
+      <Feature Id="Fe.WiresharkGTK" Title="Wireshark 1" Level="2" AllowAdvertise="yes" Display="expand" Description="The classic user interface.">
         <ComponentGroupRef Id="CG.WiresharkGTK" />
         <ComponentGroupRef Id="CG.GTKRequiredDependencies" />
         <ComponentGroupRef Id="CG.GTKSubdirectory" />
