@@ -3691,8 +3691,8 @@ ias-reg          2140/tcp # IAS-REG
 ias-reg          2140/udp # IAS-REG
 ias-admind       2141/tcp # IAS-ADMIND [Baiju_V_Patel] [Baiju_V_Patel]
 ias-admind       2141/udp # IAS-ADMIND [Baiju_V_Patel] [Baiju_V_Patel]
-tdmoip           2142/tcp # TDM OVER IP [RFC5087]
-tdmoip           2142/udp # TDM OVER IP [RFC5087]
+tdmoip           2142/tcp # TDM OVER IP [Yaakov_Stein] [Yaakov_Stein] 2016-09-21 [RFC5087]
+tdmoip           2142/udp # TDM OVER IP [Yaakov_Stein] [Yaakov_Stein] 2016-09-21 [RFC5087]
 lv-jc            2143/tcp # Live Vault Job Control
 lv-jc            2143/udp # Live Vault Job Control
 lv-ffx           2144/tcp # Live Vault Fast Object Transfer
