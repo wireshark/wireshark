@@ -736,9 +736,12 @@ print_stats(const gchar *filename, capture_info *cf_info)
       printf     ("Number of interfaces in file: %u\n", cf_info->num_interfaces);
       for (i = 0; i < cf_info->idb_info_strings->len; i++) {
         gchar *s = g_array_index(cf_info->idb_info_strings, gchar*, i);
+        guint32 packet_count = 0;
+        if (i < cf_info->interface_packet_counts->len)
+          packet_count = g_array_index(cf_info->interface_packet_counts, guint32, i);
         printf   ("Interface #%u info:\n", i);
         printf   ("%s", s);
-        printf   ("                     Number of packets = %u\n", g_array_index(cf_info->interface_packet_counts, guint32, i));
+        printf   ("                     Number of packets = %u\n", packet_count);
       }
     }
   }
