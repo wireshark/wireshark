@@ -16,7 +16,6 @@ S<[ B<-b> E<lt>capture ring buffer optionE<gt> ] ...>
 S<[ B<-B> E<lt>capture buffer sizeE<gt> ] >
 S<[ B<-c> E<lt>capture packet countE<gt> ]>
 S<[ B<-C> E<lt>configuration profileE<gt> ]>
-S<[ B<-d> E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt> ]>
 S<[ B<-D> ]>
 S<[ B<--display=>E<lt>X display to useE<gt> ] >
 S<[ B<-f> E<lt>capture filterE<gt> ]>
@@ -311,18 +310,6 @@ data.
 =item -C  E<lt>configuration profileE<gt>
 
 Start with the given configuration profile.
-
-=item -d  E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt>
-
-Like Wireshark's B<Decode As...> feature, this lets you specify how a
-layer type should be dissected.  If the layer type in question (for example,
-B<tcp.port> or B<udp.port> for a TCP or UDP port number) has the specified
-selector value, packets should be dissected as the specified protocol.
-
-Example: B<-d tcp.port==8888,http> will decode any traffic running over
-TCP port 8888 as HTTP.
-
-See the tshark(1) manual page for more examples.
 
 =item -D
 
