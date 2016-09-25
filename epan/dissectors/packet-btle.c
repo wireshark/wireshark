@@ -1421,7 +1421,7 @@ proto_register_btle(void)
         },
         { &hf_control_subversion_number,
             { "Subversion Number",               "btle.control.subversion_number",
-            FT_UINT16, BASE_HEX, NULL, 0x1F,
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_control_feature_set,
