@@ -18,3 +18,10 @@ for plugin in $PLUGINS
 do
 	rm -f "$PLUGINS_PATH"/$plugin.so "$PLUGINS_PATH"/$plugin.la
 done
+
+# Setting MANPATH
+# if /etc/manpaths.d/Wireshark already exists we overwrite it.
+#
+WSMANPATH="$2/Wireshark.app/Contents/Resources/share/man"
+
+echo $WSMANPATH > /etc/manpaths.d/Wireshark
