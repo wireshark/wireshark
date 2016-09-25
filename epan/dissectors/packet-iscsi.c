@@ -622,7 +622,7 @@ addTextKeys(packet_info *pinfo, proto_tree *tt, tvbuff_t *tvb, gint offset, guin
 
         proto_tree_add_item(tt, hf_iscsi_KeyValue, tvb, offset, len, ENC_ASCII|ENC_NA);
         if (!strcmp(key, "TargetAddress")) {
-            iscsi_dissect_TargetAddress(pinfo, tvb, tt, value, offset + strlen("TargetAddress") + 2);
+            iscsi_dissect_TargetAddress(pinfo, tvb, tt, value, offset + (guint)strlen("TargetAddress") + 2);
         }
 
         offset += len;
