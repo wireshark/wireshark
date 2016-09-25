@@ -8732,108 +8732,108 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="708"/>
+        <location filename="main_window_slots.cpp" line="710"/>
         <source>%1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="797"/>
+        <location filename="main_window_slots.cpp" line="799"/>
         <source>Saving %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="837"/>
+        <location filename="main_window_slots.cpp" line="839"/>
         <source>No interface selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="847"/>
+        <location filename="main_window_slots.cpp" line="849"/>
         <source>Invalid capture filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1061"/>
+        <location filename="main_window_slots.cpp" line="1063"/>
         <source>Clear Menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1480"/>
+        <location filename="main_window_slots.cpp" line="1482"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1637"/>
+        <location filename="main_window_slots.cpp" line="1639"/>
         <source>Export Selected Packet Bytes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1696"/>
+        <location filename="main_window_slots.cpp" line="1698"/>
         <source>No Keys</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1697"/>
+        <location filename="main_window_slots.cpp" line="1699"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1703"/>
+        <location filename="main_window_slots.cpp" line="1705"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1639"/>
+        <location filename="main_window_slots.cpp" line="1641"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1708"/>
+        <location filename="main_window_slots.cpp" line="1710"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1846"/>
+        <location filename="main_window_slots.cpp" line="1848"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2255"/>
-        <location filename="main_window_slots.cpp" line="3310"/>
+        <location filename="main_window_slots.cpp" line="2257"/>
+        <location filename="main_window_slots.cpp" line="3312"/>
         <source>Unable to build conversation filter.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2413"/>
+        <location filename="main_window_slots.cpp" line="2415"/>
         <source>No filter available. Try another </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3317"/>
+        <location filename="main_window_slots.cpp" line="3319"/>
         <source>Error compiling filter for this conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3326"/>
+        <location filename="main_window_slots.cpp" line="3328"/>
         <source>No previous/next packet in conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3403"/>
+        <location filename="main_window_slots.cpp" line="3405"/>
         <source>No Interface Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3410"/>
+        <location filename="main_window_slots.cpp" line="3412"/>
         <source> before starting a new capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3616"/>
+        <location filename="main_window_slots.cpp" line="3618"/>
         <source>Wiki Page for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3617"/>
+        <location filename="main_window_slots.cpp" line="3619"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>

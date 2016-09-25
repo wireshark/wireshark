@@ -8850,108 +8850,108 @@ text-decoration: underline;
         <translation>Przechwytywanie z %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="708"/>
+        <location filename="main_window_slots.cpp" line="710"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="797"/>
+        <location filename="main_window_slots.cpp" line="799"/>
         <source>Saving %1</source>
         <translation>Zapisywanie %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="837"/>
+        <location filename="main_window_slots.cpp" line="839"/>
         <source>No interface selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="847"/>
+        <location filename="main_window_slots.cpp" line="849"/>
         <source>Invalid capture filter</source>
         <translation>Niepoprawny filtr przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1061"/>
+        <location filename="main_window_slots.cpp" line="1063"/>
         <source>Clear Menu</source>
         <translation>Wyczyść Menu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1480"/>
+        <location filename="main_window_slots.cpp" line="1482"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Proszę czekać, trwa uruchamianie Wiresharka</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1637"/>
+        <location filename="main_window_slots.cpp" line="1639"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Eksportuj zaznaczony bajty pakietu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1696"/>
+        <location filename="main_window_slots.cpp" line="1698"/>
         <source>No Keys</source>
         <translation>Brak kluczy</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1697"/>
+        <location filename="main_window_slots.cpp" line="1699"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Nie ma żadnych kluczy sesji SSL do zapisu.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1703"/>
+        <location filename="main_window_slots.cpp" line="1705"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>Eksportuj klucze sesji SSL (%1 klucz%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1639"/>
+        <location filename="main_window_slots.cpp" line="1641"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Surowe dane (*.bin *.dat *.raw);;Dowolny plik (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1708"/>
+        <location filename="main_window_slots.cpp" line="1710"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Klucze sesji SSL (*.keys *.txt);; Dowolny plik (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1846"/>
+        <location filename="main_window_slots.cpp" line="1848"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Nie można skopiować tekstu. Spróbuj inną pozycję.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2255"/>
-        <location filename="main_window_slots.cpp" line="3310"/>
+        <location filename="main_window_slots.cpp" line="2257"/>
+        <location filename="main_window_slots.cpp" line="3312"/>
         <source>Unable to build conversation filter.</source>
         <translation>Nie można stworzyć filtru konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2413"/>
+        <location filename="main_window_slots.cpp" line="2415"/>
         <source>No filter available. Try another </source>
         <translation>Brak dostępnych filtrów. Spróbuj ponownie</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3317"/>
+        <location filename="main_window_slots.cpp" line="3319"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Błąd kompilacji filtru dla tej konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3326"/>
+        <location filename="main_window_slots.cpp" line="3328"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Brak poprzedniego i następnego pakietu w konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3403"/>
+        <location filename="main_window_slots.cpp" line="3405"/>
         <source>No Interface Selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3410"/>
+        <location filename="main_window_slots.cpp" line="3412"/>
         <source> before starting a new capture</source>
         <translation>przed wystartowaniem nowego przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3616"/>
+        <location filename="main_window_slots.cpp" line="3618"/>
         <source>Wiki Page for %1</source>
         <translation>Strona Wiki dla %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3617"/>
+        <location filename="main_window_slots.cpp" line="3619"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Strona Wiki Wiresharka jest zarządzania przez społeczność.&lt;/p&gt;&lt;p&gt;Strona którą chcesz wczytać może być wspaniała, niekompletna, błędna lub nie istnieć.&lt;/p&gt;&lt;p&gt;Kontynuować wczytywanie strony Wiki?&lt;/p&gt;</translation>
     </message>
