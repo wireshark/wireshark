@@ -7016,7 +7016,7 @@ ncp2222_compile_dfilters(void)
     for (i = 0; i < NUM_REQ_CONDS; i++) {
         if (!dfilter_compile((const gchar*)req_conds[i].dfilter_text,
                              &req_conds[i].dfilter, &err_msg)) {
-            g_message("NCP dissector failed to compile dfilter \"%s\": %s\n",
+            g_error("NCP dissector failed to compile dfilter \"%s\": %s\n",
                       req_conds[i].dfilter_text, err_msg);
             g_free(err_msg);
             g_assert_not_reached();
