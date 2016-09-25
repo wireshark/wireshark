@@ -62,7 +62,7 @@ private:
     double seq_offset_;
     bool seq_origin_zero_;
     struct tcp_graph graph_;
-    QCPPlotTitle *title_;
+    QCPTextElement *title_;
     QString stream_desc_;
     QCPGraph *base_graph_; // Clickable packets
     QCPGraph *tput_graph_;

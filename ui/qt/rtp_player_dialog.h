@@ -28,6 +28,8 @@ class QCPItemStraightLine;
 class QDialogButtonBox;
 class QMenu;
 class RtpAudioStream;
+class QCPAxisTicker;
+class QCPAxisTickerDateTime;
 
 class RtpPlayerDialog : public WiresharkDialog
 {
@@ -112,6 +114,8 @@ private:
     double start_rel_time_;
     QCPItemStraightLine *cur_play_pos_;
     QString playback_error_;
+    QSharedPointer<QCPAxisTicker> number_ticker_;
+    QSharedPointer<QCPAxisTickerDateTime> datetime_ticker_;
 
 //    const QString streamKey(const rtpstream_info_t *rtpstream);
 //    const QString streamKey(const packet_info *pinfo, const struct _rtp_info *rtpinfo);

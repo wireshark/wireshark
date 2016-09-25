@@ -34,6 +34,8 @@ class QCPBars;
 class QCPGraph;
 class QCPItemTracer;
 class QCustomPlot;
+class QCPAxisTicker;
+class QCPAxisTickerDateTime;
 
 // GTK+ sets this to 100000 (NUM_IO_ITEMS)
 const int max_io_items_ = 250000;
@@ -181,6 +183,9 @@ private:
     bool need_recalc_; // Medium weight: recalculate values, then replot
     bool need_retap_; // Heavy weight: re-read packet data
     bool auto_axes_;
+
+    QSharedPointer<QCPAxisTicker> number_ticker_;
+    QSharedPointer<QCPAxisTickerDateTime> datetime_ticker_;
 
 
 //    void fillGraph();

@@ -94,6 +94,8 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     , ui(new Ui::RtpPlayerDialog)
     , start_rel_time_(0.0)
 #endif // QT_MULTIMEDIA_LIB
+    , number_ticker_(new QCPAxisTicker)
+    , datetime_ticker_(new QCPAxisTickerDateTime)
 {
     ui->setupUi(this);
     setWindowTitle(wsApp->windowTitleString(tr("RTP Player")));
@@ -126,12 +128,13 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
             this, SLOT(graphClicked(QMouseEvent*)));
 
     cur_play_pos_ = new QCPItemStraightLine(ui->audioPlot);
-    ui->audioPlot->addItem(cur_play_pos_);
     cur_play_pos_->setVisible(false);
+
+    datetime_ticker_->setDateTimeFormat("yyyy-MM-dd\nhh:mm:ss.zzz");
 
     ui->audioPlot->xAxis->setNumberFormat("gb");
     ui->audioPlot->xAxis->setNumberPrecision(3);
-    ui->audioPlot->xAxis->setDateTimeFormat("yyyy-MM-dd\nhh:mm:ss.zzz");
+    ui->audioPlot->xAxis->setTicker(datetime_ticker_);
     ui->audioPlot->yAxis->setVisible(false);
 
     ui->playButton->setIcon(StockIcon("media-playback-start"));
@@ -236,7 +239,11 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
     bool show_legend = false;
     bool relative_timestamps = !ui->todCheckBox->isChecked();
 
-    ui->audioPlot->xAxis->setTickLabelType(relative_timestamps ? QCPAxis::ltNumber : QCPAxis::ltDateTime);
+    if (relative_timestamps) {
+        ui->audioPlot->xAxis->setTicker(number_ticker_);
+    } else {
+        ui->audioPlot->xAxis->setTicker(datetime_ticker_);
+    }
 
     for (int row = 0; row < row_count; row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
@@ -265,9 +272,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
         QPen wf_pen(audio_stream->color());
         wf_pen.setWidthF(wf_graph_normal_width_);
         audio_graph->setPen(wf_pen);
-        wf_pen.setWidthF(wf_graph_selected_width_);
-        audio_graph->setSelectedPen(wf_pen);
-        audio_graph->setSelectable(false);
+        audio_graph->setSelectable(QCP::stNone);
         audio_graph->setData(audio_stream->visualTimestamps(relative_timestamps), audio_stream->visualSamples(y_offset));
         audio_graph->removeFromLegend();
         ti->setData(graph_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(audio_graph));
@@ -286,7 +291,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
             QCPGraph *seq_graph = ui->audioPlot->addGraph();
             seq_graph->setLineStyle(QCPGraph::lsNone);
             seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssSquare, tango_aluminium_6, Qt::white, 4)); // Arbitrary
-            seq_graph->setSelectable(false);
+            seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->outOfSequenceTimestamps(relative_timestamps), audio_stream->outOfSequenceSamples(y_offset));
             if (row < 1) {
                 seq_graph->setName(tr("Out of Sequence"));
@@ -301,7 +306,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
             QCPGraph *seq_graph = ui->audioPlot->addGraph();
             seq_graph->setLineStyle(QCPGraph::lsNone);
             seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, tango_scarlet_red_5, Qt::white, 4)); // Arbitrary
-            seq_graph->setSelectable(false);
+            seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->jitterDroppedTimestamps(relative_timestamps), audio_stream->jitterDroppedSamples(y_offset));
             if (row < 1) {
                 seq_graph->setName(tr("Jitter Drops"));
@@ -316,7 +321,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
             QCPGraph *seq_graph = ui->audioPlot->addGraph();
             seq_graph->setLineStyle(QCPGraph::lsNone);
             seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDiamond, tango_sky_blue_5, Qt::white, 4)); // Arbitrary
-            seq_graph->setSelectable(false);
+            seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->wrongTimestampTimestamps(relative_timestamps), audio_stream->wrongTimestampSamples(y_offset));
             if (row < 1) {
                 seq_graph->setName(tr("Wrong Timestamps"));
@@ -331,7 +336,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
             QCPGraph *seq_graph = ui->audioPlot->addGraph();
             seq_graph->setLineStyle(QCPGraph::lsNone);
             seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssTriangle, tango_butter_5, Qt::white, 4)); // Arbitrary
-            seq_graph->setSelectable(false);
+            seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->insertedSilenceTimestamps(relative_timestamps), audio_stream->insertedSilenceSamples(y_offset));
             if (row < 1) {
                 seq_graph->setName(tr("Inserted Silence"));
@@ -683,7 +688,7 @@ void RtpPlayerDialog::on_streamTreeWidget_itemSelectionChanged()
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
         QCPGraph *audio_graph = ti->data(graph_data_col_, Qt::UserRole).value<QCPGraph*>();
         if (audio_graph) {
-            audio_graph->setSelected(ti->isSelected());
+            audio_graph->setSelection(ti->isSelected() ? QCPDataSelection(QCPDataRange()) : QCPDataSelection());
         }
     }
     ui->audioPlot->replot();
@@ -696,9 +701,12 @@ double RtpPlayerDialog::getLowestTimestamp()
     for (int i = 0; i < ui->audioPlot->graphCount(); i++) {
         QCPGraph *graph = ui->audioPlot->graph(i);
         if (!graph->visible()) continue;
-        QCPDataMap *dm = graph->data();
-        if (dm->keys().length() < 1) continue;
-        lowest = qMin(lowest, dm->keys().first());
+        QSharedPointer<QCPGraphDataContainer> dm = graph->data();
+        bool foundRange = false;
+        QCPRange range = dm->keyRange(foundRange);
+        if (foundRange) {
+            lowest = qMin(lowest, range.lower);
+        }
     }
     return lowest;
 }

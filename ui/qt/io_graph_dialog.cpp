@@ -299,7 +299,9 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     stat_timer_(NULL),
     need_replot_(false),
     need_retap_(false),
-    auto_axes_(true)
+    auto_axes_(true),
+    number_ticker_(new QCPAxisTicker),
+    datetime_ticker_(new QCPAxisTickerDateTime)
 {
     ui->setupUi(this);
     loadGeometry();
@@ -351,6 +353,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     ui->intervalComboBox->setCurrentIndex(4);
 
     ui->todCheckBox->setChecked(false);
+    iop->xAxis->setTicker(number_ticker_);
 
     ui->dragRadioButton->setChecked(mouse_drags_);
 
@@ -382,13 +385,12 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     iop->setMouseTracking(true);
     iop->setEnabled(true);
 
-    QCPPlotTitle *title = new QCPPlotTitle(iop);
+    QCPTextElement *title = new QCPTextElement(iop);
     iop->plotLayout()->insertRow(0);
     iop->plotLayout()->addElement(0, 0, title);
     title->setText(tr("Wireshark I/O Graphs: %1").arg(cap_file_.fileDisplayName()));
 
     tracer_ = new QCPItemTracer(iop);
-    iop->addItem(tracer_);
 
     loadProfileGraphs();
     if (num_io_graphs_ > 0) {
@@ -908,9 +910,9 @@ void IOGraphDialog::updateLegend()
 
     // Differing labels. Create a legend with a Title label at top.
     // Legend Title thanks to: https://www.qcustomplot.com/index.php/support/forum/443
-    QCPStringLegendItem* legendTitle = qobject_cast<QCPStringLegendItem*>(iop->legend->elementAt(0));
+    QCPTextElement* legendTitle = qobject_cast<QCPTextElement*>(iop->legend->elementAt(0));
     if (legendTitle == NULL) {
-        legendTitle = new QCPStringLegendItem(iop->legend, QString(""));
+        legendTitle = new QCPTextElement(iop, QString(""));
         iop->legend->insertRow(0);
         iop->legend->addElement(0, 0, legendTitle);
     }
@@ -1213,7 +1215,11 @@ void IOGraphDialog::on_todCheckBox_toggled(bool checked)
     double orig_start = start_time_;
     bool orig_auto = auto_axes_;
 
-    ui->ioPlot->xAxis->setTickLabelType(checked ? QCPAxis::ltDateTime : QCPAxis::ltNumber);
+    if (checked) {
+        ui->ioPlot->xAxis->setTicker(datetime_ticker_);
+    } else {
+        ui->ioPlot->xAxis->setTicker(number_ticker_);
+    }
     auto_axes_ = false;
     scheduleRecalc(true);
     auto_axes_ = orig_auto;
@@ -1691,7 +1697,6 @@ void IOGraph::setPlotStyle(int style)
     case psStackedBar:
         if (graph_) {
             bars_ = new QCPBars(parent_->xAxis, parent_->yAxis);
-            parent_->addPlottable(bars_);
             parent_->removeGraph(graph_);
             graph_ = NULL;
         }
@@ -1808,11 +1813,11 @@ bool IOGraph::removeFromLegend()
 
 double IOGraph::startOffset()
 {
-    if (graph_ && graph_->keyAxis()->tickLabelType() == QCPAxis::ltDateTime && graph_->data()->size() > 0) {
-        return graph_->data()->keys()[0];
+    if (graph_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(graph_->keyAxis()->ticker()) && graph_->data()->size() > 0) {
+        return graph_->data()->at(0)->key;
     }
-    if (bars_ && bars_->keyAxis()->tickLabelType() == QCPAxis::ltDateTime && bars_->data()->size() > 0) {
-        return bars_->data()->keys()[0];
+    if (bars_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(bars_->keyAxis()->ticker()) && bars_->data()->size() > 0) {
+        return bars_->data()->at(0)->key;
     }
     return 0.0;
 }
@@ -1837,10 +1842,10 @@ void IOGraph::clearAllData()
     cur_idx_ = -1;
     reset_io_graph_items(items_, max_io_items_);
     if (graph_) {
-        graph_->clearData();
+        graph_->data()->clear();
     }
     if (bars_) {
-        bars_->clearData();
+        bars_->data()->clear();
     }
     start_time_ = 0.0;
 }
@@ -1854,11 +1859,11 @@ void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
     QCPAxis *x_axis = NULL;
 
     if (graph_) {
-        graph_->clearData();
+        graph_->data()->clear();
         x_axis = graph_->keyAxis();
     }
     if (bars_) {
-        bars_->clearData();
+        bars_->data()->clear();
         x_axis = bars_->keyAxis();
     }
 
@@ -1890,7 +1895,7 @@ void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
 
     for (int i = 0; i <= cur_idx_; i++) {
         double ts = (double) i * interval_ / 1000;
-        if (x_axis && x_axis->tickLabelType() == QCPAxis::ltDateTime) {
+        if (x_axis && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(x_axis->ticker())) {
             ts += start_time_;
         }
         double val = getItemValue(i, cap_file);

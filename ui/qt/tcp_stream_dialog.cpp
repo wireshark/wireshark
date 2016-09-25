@@ -216,9 +216,9 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     ui->showBytesOutCheckBox->blockSignals(false);
 
     QCustomPlot *sp = ui->streamPlot;
-    QCPPlotTitle *file_title = new QCPPlotTitle(sp, gchar_free_to_qstring(cf_get_display_name(cap_file_)));
+    QCPTextElement *file_title = new QCPTextElement(sp, gchar_free_to_qstring(cf_get_display_name(cap_file_)));
     file_title->setFont(sp->xAxis->labelFont());
-    title_ = new QCPPlotTitle(sp);
+    title_ = new QCPTextElement(sp);
     sp->plotLayout()->insertRow(0);
     sp->plotLayout()->addElement(0, 0, file_title);
     sp->plotLayout()->insertRow(0);
@@ -238,33 +238,39 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     goodput_graph_->setLineStyle(QCPGraph::lsStepLeft);
     // Seg Graph - displays forward data segments on tcptrace graph
     seg_graph_ = sp->addGraph();
-    seg_graph_->setErrorType(QCPGraph::etValue);
     seg_graph_->setLineStyle(QCPGraph::lsNone);
     seg_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot, Qt::transparent, 0));
+#if 0 // Deactivated due to function not implemented in v2
+    seg_graph_->setErrorType(QCPGraph::etValue);
     seg_graph_->setErrorPen(QPen(QBrush(graph_color_1), pen_width));
     seg_graph_->setErrorBarSkipSymbol(false); // draw error spine as single line
     seg_graph_->setErrorBarSize(pkt_point_size_);
+#endif
     // Ack Graph - displays ack numbers from reverse packets
     ack_graph_ = sp->addGraph();
     ack_graph_->setPen(QPen(QBrush(graph_color_2), pen_width));
     ack_graph_->setLineStyle(QCPGraph::lsStepLeft);
     // Sack Graph - displays highest number (most recent) SACK block
     sack_graph_ = sp->addGraph();
+    sack_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot, Qt::transparent, 0));
+#if 0 // Deactivated due to function not implemented in v2
     sack_graph_->setErrorType(QCPGraph::etValue);
     sack_graph_->setLineStyle(QCPGraph::lsNone);
-    sack_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot, Qt::transparent, 0));
     sack_graph_->setErrorPen(QPen(QBrush(graph_color_4), pen_width));
     sack_graph_->setErrorBarSkipSymbol(false);
     sack_graph_->setErrorBarSize(0.0);
+#endif
+    // RWin graph - displays upper extent of RWIN advertised on reverse packets
     // Sack Graph 2 - displays subsequent SACK blocks
     sack2_graph_ = sp->addGraph();
-    sack2_graph_->setErrorType(QCPGraph::etValue);
     sack2_graph_->setLineStyle(QCPGraph::lsNone);
     sack2_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot, Qt::transparent, 0));
+#if 0 // Deactivated due to function not implemented in v2
+    sack2_graph_->setErrorType(QCPGraph::etValue);
     sack2_graph_->setErrorPen(QPen(QBrush(graph_color_5), pen_width));
     sack2_graph_->setErrorBarSkipSymbol(false);
     sack2_graph_->setErrorBarSize(0.0);
-    // RWin graph - displays upper extent of RWIN advertised on reverse packets
+#endif
     rwin_graph_ = sp->addGraph();
     rwin_graph_->setPen(QPen(QBrush(graph_color_3), pen_width));
     rwin_graph_->setLineStyle(QCPGraph::lsStepLeft);
@@ -291,7 +297,6 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     zero_win_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross, graph_color_1, 5));
 
     tracer_ = new QCPItemTracer(sp);
-    sp->addItem(tracer_);
 
     // Triggers fillGraph() [ UNLESS the index is already graph_idx!! ]
     if (graph_idx != ui->graphTypeComboBox->currentIndex())
@@ -499,7 +504,7 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
 
     // base_graph_ is always visible.
     for (int i = 0; i < sp->graphCount(); i++) {
-        sp->graph(i)->clearData();
+        sp->graph(i)->data()->clear();
         sp->graph(i)->setVisible(i == 0 ? true : false);
     }
 
@@ -854,10 +859,12 @@ void TCPStreamDialog::fillTcptrace()
         }
     }
     base_graph_->setData(pkt_time, pkt_seqnums);
-    seg_graph_->setDataValueError(sb_time, sb_center, sb_span);
     ack_graph_->setData(ackrwin_time, ack);
+#if 0 // Deactivated due to function not implemented in v2
+    seg_graph_->setDataValueError(sb_time, sb_center, sb_span);
     sack_graph_->setDataValueError(sack_time, sack_center, sack_span);
     sack2_graph_->setDataValueError(sack2_time, sack2_center, sack2_span);
+#endif
     rwin_graph_->setData(ackrwin_time, rwin);
     dup_ack_graph_->setData(dup_ack_time, dup_ack);
     zero_win_graph_->setData(zero_win_time, zero_win);

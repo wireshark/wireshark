@@ -670,7 +670,7 @@ void Iax2AnalysisDialog::resetStatistics()
     ui->reverseTreeWidget->clear();
 
     for (int i = 0; i < ui->streamGraph->graphCount(); i++) {
-        ui->streamGraph->graph(i)->clearData();
+        ui->streamGraph->graph(i)->data()->clear();
     }
 
     fwd_time_vals_.clear();
