@@ -56,7 +56,7 @@ add_custom_target(x11-dissector
 
 set_target_properties(x11-dissector PROPERTIES FOLDER "Generated Dissectors/X11")
 
-set(ASN1_DISSECTOR_SRC
+set(CLEAN_ASN1_DISSECTOR_SRC
 	packet-ansi_map.c
 	packet-acp133.c
 	packet-acse.c
@@ -165,6 +165,11 @@ set(ASN1_DISSECTOR_SRC
 set(DIRTY_ASN1_DISSECTOR_SRC
 )
 
+set(ASN1_DISSECTOR_SRC
+	${CLEAN_ASN1_DISSECTOR_SRC}
+	${DIRTY_ASN1_DISSECTOR_SRC}
+)
+
 set(DIRTY_CORBA_IDL_DISSECTOR_SRC
 	packet-cosnaming.c
 	packet-gias.c
@@ -172,19 +177,19 @@ set(DIRTY_CORBA_IDL_DISSECTOR_SRC
 	packet-tango.c
 )
 
-set(CORBA_IDL_DISSECTOR_SRC
+set(CLEAN_CORBA_IDL_DISSECTOR_SRC
 	packet-coseventcomm.c
 )
 
-set(CORBA_IDL_DISSECTOR_FILES
-	${CORBA_IDL_DISSECTOR_SRC}
+set(CORBA_IDL_DISSECTOR_SRC
+	${CLEAN_CORBA_IDL_DISSECTOR_SRC}
 	${DIRTY_CORBA_IDL_DISSECTOR_SRC}
 )
 
-source_group(dissectors-corba FILES ${CORBA_IDL_DISSECTOR_FILES})
+source_group(dissectors-corba FILES ${CORBA_IDL_DISSECTOR_SRC})
 
 add_library(dissectors-corba OBJECT
-	${CORBA_IDL_DISSECTOR_FILES}
+	${CORBA_IDL_DISSECTOR_SRC}
 )
 
 set_target_properties(dissectors-corba PROPERTIES
@@ -197,6 +202,12 @@ if(WIN32 AND "${CMAKE_GENERATOR}" STREQUAL "Visual Studio 12 2013 Win64")
 	# CORBA IDL dissectors are triggering a MSVC 2013 x64 /O2 bug leading to a NULL pointer dereference (see bug 12495)
 	target_compile_options(dissectors-corba PRIVATE $<$<CONFIG:Release>:/Ox> $<$<CONFIG:RelWithDebInfo>:/Ox>)
 endif()
+
+set(NCP2222_DISSECTOR_SRC
+	packet-ncp2222.c
+)
+
+source_group(dissectors-ncp2222 FILES ${NCP2222_DISSECTOR_SRC})
 
 set(DISSECTOR_SRC
 	file-btsnoop.c
@@ -1405,40 +1416,38 @@ set(DISSECTOR_SRC
 set(DISSECTOR_SUPPORT_SRC
 	packet-dcerpc-nt.c
 	usb.c
-)
-source_group(dissector-support FILES ${DISSECTOR_SUPPORT_SRC})
-
-set(DISSECTOR_GENERATED_FILES
-	packet-ncp2222.c
 	register.c
 )
-source_group(dissector-generated FILES ${DISSECTOR_GENERATED_FILES})
+source_group(dissector-support FILES ${DISSECTOR_SUPPORT_SRC})
 
 set(DISSECTOR_FILES
 	${DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
 	${PIDL_DISSECTOR_AUTOGEN_SRC}
 	${ASN1_DISSECTOR_SRC}
-	${DIRTY_ASN1_DISSECTOR_SRC}
+	${NCP2222_DISSECTOR_SRC}
 	${CUSTOM_DISSECTOR_SRC}
 	${CUSTOM_DIRTY_ASN1_DISSECTOR_SRC}
 )
 source_group(dissectors FILES ${DISSECTOR_FILES})
 
+set(ALL_DISSECTOR_SRC
+	${DISSECTOR_FILES}
+	${CORBA_IDL_DISSECTOR_SRC}
+)
+
 register_dissector_files(register.c
 	dissectors
-	${DISSECTOR_FILES}
-	${CORBA_IDL_DISSECTOR_FILES}
-	packet-ncp2222.c
+	${ALL_DISSECTOR_SRC}
 )
 
 set(CLEAN_FILES
 	${DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
-	${ASN1_DISSECTOR_SRC}
-	${CORBA_IDL_DISSECTOR_SRC}
+	${CLEAN_ASN1_DISSECTOR_SRC}
+	${CLEAN_CORBA_IDL_DISSECTOR_SRC}
+	${NCP2222_DISSECTOR_SRC}
 	${DISSECTOR_SUPPORT_SRC}
-	${DISSECTOR_GENERATED_FILES}
 )
 
 if(WERROR_COMMON_FLAGS)
@@ -1452,7 +1461,6 @@ endif()
 add_library(dissectors OBJECT
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
-	${DISSECTOR_GENERATED_FILES}
 )
 
 set_target_properties(dissectors PROPERTIES
@@ -1463,7 +1471,7 @@ set_target_properties(dissectors PROPERTIES
 
 set(CHECKAPI_FILE_LIST "${CMAKE_CURRENT_BINARY_DIR}/files.txt")
 file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
-file(WRITE "${CHECKAPI_FILE_LIST}" "${DISSECTOR_FILES}" "${CORBA_IDL_DISSECTOR_FILES}")
+file(WRITE "${CHECKAPI_FILE_LIST}" "${DISSECTOR_FILES}" "${CORBA_IDL_DISSECTOR_SRC}")
 CHECKAPI(
 	NAME
 	  dissectors
