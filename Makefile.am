@@ -1181,6 +1181,22 @@ checkapi: checkapi_local
 	cd writecap && $(MAKE) checkapi
 	cd wsutil && $(MAKE) checkapi
 
+if HAVE_SHELLCHECK
+# --external-sources requires 0.4.0 or later.
+shellcheck:
+	cd $(top_srcdir) && \
+	shellcheck --external-sources \
+	  tools/fuzz-test.sh \
+	  tools/randpkt-test.sh \
+	  tools/runa2x.sh \
+	  tools/test-captures.sh \
+	  tools/valgrind-wireshark.sh
+else
+shellcheck:
+	@echo "Shellcheck not available." ; \
+	  false
+endif
+
 wsar_html: doxygen.cfg doxygen_global.cfg FORCE
 if HAVE_DOXYGEN
 	rm -rf wsar_html

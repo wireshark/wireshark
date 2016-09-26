@@ -2769,6 +2769,25 @@ CHECKAPI(
 	  ${TSHARK_TAP_SRC}
 )
 
+find_program(SHELLCHECK_EXECUTABLE shellcheck
+	DOC "Path to the shellcheck utility."
+)
+if (NOT "${SHELLCHECK_EXECUTABLE}" STREQUAL "SHELLCHECK_EXECUTABLE-NOTFOUND")
+	add_custom_target(shellcheck)
+	set_target_properties(shellcheck PROPERTIES FOLDER "Tests")
+	# --external-sources requires 0.4.0 or later.
+	add_custom_command(TARGET shellcheck POST_BUILD
+		COMMAND shellcheck --external-sources
+			tools/fuzz-test.sh
+			tools/randpkt-test.sh
+			tools/runa2x.sh
+			tools/test-captures.sh
+			tools/valgrind-wireshark.sh
+		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+	)
+endif()
+
+
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 #

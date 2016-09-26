@@ -28,6 +28,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 TEST_TYPE="fuzz"
+# shellcheck source=tools/test-common.sh
 . `dirname $0`/test-common.sh || exit 1
 
 # Sanity check to make sure we can find our plugins. Zero or less disables.

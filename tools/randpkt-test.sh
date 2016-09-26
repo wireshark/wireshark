@@ -7,6 +7,7 @@
 # The files are processed repeatedly until an error is found.
 
 TEST_TYPE="randpkt"
+# shellcheck source=tools/test-common.sh
 . `dirname $0`/test-common.sh || exit 1
 
 # Run under AddressSanitizer ?

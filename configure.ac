@@ -544,6 +544,10 @@ AC_SUBST(HAVE_OSX_PACKAGING)
 AC_CHECK_PROG(have_sw_vers, sw_vers, "yes", "no")
 AM_CONDITIONAL(NOT_OS_X, test "x$have_sw_vers" = "xno")
 
+# Shellcheck
+AC_CHECK_PROG(HAVE_SHELLCHECK, shellcheck, "yes", "no")
+AM_CONDITIONAL(HAVE_SHELLCHECK, test x$HAVE_SHELLCHECK = xyes)
+
 #
 # Check compiler vendor. For GCC this will be 'gnu' and for Clang 'clang'.
 #

@@ -28,6 +28,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 TEST_TYPE="manual"
+# shellcheck source=tools/test-common.sh
 . `dirname $0`/test-common.sh || exit 1
 
 # Run under AddressSanitizer ?
