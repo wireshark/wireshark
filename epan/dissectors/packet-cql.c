@@ -31,10 +31,17 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
-
+#ifdef HAVE_LZ4
+#include <lz4.h>
+#endif
+#ifdef HAVE_SNAPPY
+#include <snappy-c.h>
+#endif
 
 #define CQL_DEFAULT_PORT 9042 /* Not IANA registered */
 
+/* the code can reasonably attempt to decompress buffer up to 10MB */
+#define MAX_UNCOMPRESSED_SIZE (10 * 1024 * 1024)
 
 void proto_reg_handoff_cql(void);
 void proto_register_cql(void);
@@ -71,6 +78,7 @@ static int hf_cql_value_count = -1;
 static int hf_cql_short_bytes_length = -1;
 static int hf_cql_bytes_length = -1;
 static int hf_cql_bytes = -1;
+static int hf_cql_raw_compressed_bytes = -1;
 static int hf_cql_paging_state = -1;
 static int hf_cql_page_size = -1;
 static int hf_cql_timestamp = -1;
@@ -515,10 +523,18 @@ cql_transaction_lookup(cql_conversation_type* conv,
 	return NULL;
 }
 
+typedef enum {
+	CQL_COMPRESSION_NONE = 0,
+	CQL_COMPRESSION_LZ4 = 1,
+	CQL_COMPRESSION_SNAPPY = 2,
+	CQL_DECOMPRESSION_ATTEMPTED = 3,
+} cql_compression_level;
+
 static int
-dissect_cql_tcp_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
 	proto_item* ti;
+	tvbuff_t* tvb = NULL;
 	proto_tree* cql_tree;
 	proto_tree* version_tree;
 	proto_tree* cql_subtree = NULL;
@@ -526,6 +542,7 @@ dissect_cql_tcp_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
 	proto_tree* metadata_subtree = NULL;
 
 	gint offset = 0;
+	guint8 flags = 0;
 	guint8 first_byte = 0;
 	guint8 cql_version = 0;
 	guint8 server_to_client = 0;
@@ -548,6 +565,7 @@ dissect_cql_tcp_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
 	conversation_t* conversation;
 	cql_conversation_type* cql_conv;
 	cql_transaction_type* cql_trans = NULL;
+	cql_compression_level compression_level = CQL_COMPRESSION_NONE;
 
 	static const int * cql_header_bitmaps_v3[] = {
 		&hf_cql_flag_compression,
@@ -568,10 +586,10 @@ dissect_cql_tcp_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CQL");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	first_byte = tvb_get_guint8(tvb, 0);
+	first_byte = tvb_get_guint8(raw_tvb, 0);
 	cql_version = first_byte & (guint8)0x7F;
 	server_to_client = first_byte & (guint8)0x80;
-	opcode = tvb_get_guint8(tvb, 4);
+	opcode = tvb_get_guint8(raw_tvb, 4);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "v%d %s Type %s",
 		cql_version,
@@ -587,33 +605,33 @@ dissect_cql_tcp_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
 		conversation_add_proto_data(conversation, proto_cql, cql_conv);
 	}
 
-	ti = proto_tree_add_item(tree, proto_cql, tvb, 0, -1, ENC_NA);
+	ti = proto_tree_add_item(tree, proto_cql, raw_tvb, 0, -1, ENC_NA);
 	cql_tree = proto_item_add_subtree(ti, ett_cql_protocol);
 
-	ti = proto_tree_add_item(cql_tree, hf_cql_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(cql_tree, hf_cql_version, raw_tvb, offset, 1, ENC_BIG_ENDIAN);
 	version_tree = proto_item_add_subtree(ti, ett_cql_version);
-	proto_tree_add_item(version_tree, hf_cql_protocol_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(version_tree, hf_cql_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(version_tree, hf_cql_protocol_version, raw_tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(version_tree, hf_cql_direction, raw_tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	switch(cql_version){
 		case 3:
-		proto_tree_add_bitmask(cql_tree, tvb, offset, hf_cql_flags_bitmap, ett_cql_header_flags_bitmap, cql_header_bitmaps_v3, ENC_BIG_ENDIAN);
+		proto_tree_add_bitmask(cql_tree, raw_tvb, offset, hf_cql_flags_bitmap, ett_cql_header_flags_bitmap, cql_header_bitmaps_v3, ENC_BIG_ENDIAN);
 		break;
 		case 4:
-		proto_tree_add_bitmask(cql_tree, tvb, offset, hf_cql_flags_bitmap, ett_cql_header_flags_bitmap, cql_header_bitmaps_v4, ENC_BIG_ENDIAN);
+		proto_tree_add_bitmask(cql_tree, raw_tvb, offset, hf_cql_flags_bitmap, ett_cql_header_flags_bitmap, cql_header_bitmaps_v4, ENC_BIG_ENDIAN);
 		break;
 		default:
-		proto_tree_add_item(cql_tree, hf_cql_flags_bitmap, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(cql_tree, hf_cql_flags_bitmap, raw_tvb, offset, 1, ENC_BIG_ENDIAN);
 		break;
 	}
+	flags = tvb_get_guint8(raw_tvb, offset);
 	offset += 1;
-	proto_tree_add_item_ret_int(cql_tree, hf_cql_stream, tvb, offset, 2, ENC_BIG_ENDIAN, &stream);
+	proto_tree_add_item_ret_int(cql_tree, hf_cql_stream, raw_tvb, offset, 2, ENC_BIG_ENDIAN, &stream);
 	offset += 2;
-	proto_tree_add_item(cql_tree, hf_cql_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(cql_tree, hf_cql_opcode, raw_tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item_ret_uint(cql_tree, hf_cql_length, tvb, offset, 4, ENC_BIG_ENDIAN, &message_length);
+	proto_tree_add_item_ret_uint(cql_tree, hf_cql_length, raw_tvb, offset, 4, ENC_BIG_ENDIAN, &message_length);
 	offset += 4;
-
 
 	/* Track the request/response. */
 	if (!pinfo->fd->flags.visited) {
@@ -637,19 +655,103 @@ dissect_cql_tcp_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
 	/* Add state tracking to tree */
 	if (server_to_client == 0 && cql_trans->rep_frame) {
 		/* request */
-		ti = proto_tree_add_uint(cql_tree, hf_cql_response_in, tvb, 0, 0, cql_trans->rep_frame);
+		ti = proto_tree_add_uint(cql_tree, hf_cql_response_in, raw_tvb, 0, 0, cql_trans->rep_frame);
 		PROTO_ITEM_SET_GENERATED(ti);
 	}
 	if (server_to_client && cql_trans->req_frame) {
 		/* reply */
 		nstime_t ns;
 
-		ti = proto_tree_add_uint(cql_tree, hf_cql_response_to, tvb, 0, 0, cql_trans->req_frame);
+		ti = proto_tree_add_uint(cql_tree, hf_cql_response_to, raw_tvb, 0, 0, cql_trans->req_frame);
 		PROTO_ITEM_SET_GENERATED(ti);
 		nstime_delta(&ns, &pinfo->fd->abs_ts, &cql_trans->req_time);
-		ti = proto_tree_add_time(cql_tree, hf_cql_response_time, tvb, 0, 0, &ns);
+		ti = proto_tree_add_time(cql_tree, hf_cql_response_time, raw_tvb, 0, 0, &ns);
 		PROTO_ITEM_SET_GENERATED(ti);
 	}
+
+	/* We cannot rely on compression negociation in the STARTUP message because the
+	 * capture can be done at a random time hence missing the negociation.
+	 * So we will first try to decompress LZ4 then snappy
+	 */
+	if (flags & CQL_HEADER_FLAG_COMPRESSION) {
+		compression_level = CQL_DECOMPRESSION_ATTEMPTED;
+#ifdef HAVE_LZ4
+		if (tvb_captured_length_remaining(raw_tvb, offset) > 4) {
+			/* Set ret == 0 to make it fail in case decompression is skipped
+			 * due to orig_size being too big
+			 */
+			guint32 ret = 0, orig_size = tvb_get_ntohl(raw_tvb, offset);
+			guchar *decompressed_buffer = NULL;
+			offset += 4;
+
+			/* if the decompressed size is reasonably small try to decompress data */
+			if (orig_size <= MAX_UNCOMPRESSED_SIZE) {
+				decompressed_buffer = (guchar*)wmem_alloc(pinfo->pool, orig_size);
+				ret = LZ4_decompress_safe(tvb_get_ptr(raw_tvb, offset, -1),
+							  decompressed_buffer,
+							  tvb_captured_length_remaining(raw_tvb, offset),
+							  orig_size);
+			}
+			/* Decompression attempt failed: rewind offset */
+			if (ret != orig_size) {
+				wmem_free(pinfo->pool, decompressed_buffer);
+				offset -= 4;
+			} else {
+				/* Now re-setup the tvb buffer to have the new data */
+				tvb = tvb_new_child_real_data(raw_tvb, decompressed_buffer, orig_size, orig_size);
+				add_new_data_source(pinfo, tvb, "Decompressed Data");
+				/* mark the decompression as successfull */
+				compression_level = CQL_COMPRESSION_LZ4;
+				message_length= orig_size;
+			}
+		}
+#endif
+#ifdef HAVE_SNAPPY
+		if (compression_level == CQL_DECOMPRESSION_ATTEMPTED) {
+			guchar *decompressed_buffer = NULL;
+			size_t orig_size = 0;
+			snappy_status ret;
+
+			/* get the raw data length */
+			ret = snappy_uncompressed_length(tvb_get_ptr(raw_tvb, offset, -1),
+							 tvb_captured_length_remaining(raw_tvb, offset),
+							 &orig_size);
+			/* if we get the length and it's reasonably short to allocate a buffer for it
+			 * proceed to try decompressing the data
+			 */
+			if (ret == SNAPPY_OK && orig_size <= MAX_UNCOMPRESSED_SIZE) {
+				decompressed_buffer = (guchar*)wmem_alloc(pinfo->pool, orig_size);
+
+				ret = snappy_uncompress(tvb_get_ptr(raw_tvb, offset, -1),
+							tvb_captured_length_remaining(raw_tvb, offset),
+							decompressed_buffer,
+							&orig_size);
+			} else {
+				/* else mark the input as invalid in order to skip the rest of the
+				 * procedure
+				 */
+				ret = SNAPPY_INVALID_INPUT;
+			}
+			/* if the decompression succeeded build the new tvb */
+			if (ret == SNAPPY_OK) {
+				tvb = tvb_new_child_real_data(raw_tvb, decompressed_buffer, orig_size, orig_size);
+				add_new_data_source(pinfo, tvb, "Decompressed Data");
+				compression_level = CQL_COMPRESSION_SNAPPY;
+				message_length= orig_size;
+			}
+		}
+#endif
+	}
+	if (compression_level == CQL_COMPRESSION_NONE) {
+		/* In case of decompression failure or uncompressed packet */
+		tvb = tvb_new_subset_remaining(raw_tvb, offset);
+	} else if (compression_level == CQL_DECOMPRESSION_ATTEMPTED) {
+		proto_tree_add_item(cql_tree, hf_cql_raw_compressed_bytes, raw_tvb, offset,
+				    tvb_captured_length_remaining(raw_tvb, offset), ENC_NA);
+		return tvb_captured_length(raw_tvb);
+	}
+	offset = 0;
+
 
 	/* Dissect the operation. */
 	if (server_to_client == 0) {
@@ -1374,6 +1476,16 @@ proto_register_cql(void)
 				"Raw byte array", HFILL
 			}
 		},
+		{
+			&hf_cql_raw_compressed_bytes,
+			{
+				"Raw compressed bytes", "cql.raw_compressed_bytes",
+				FT_BYTES, BASE_NONE,
+				NULL, 0x0,
+				"Raw byte that failed to be decompressed", HFILL
+			}
+		},
+
 		{
 			&hf_cql_paging_state,
 			{

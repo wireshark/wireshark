@@ -574,6 +574,23 @@ epan_get_compiled_version_info(GString *str)
 #else
 	g_string_append(str, "without nghttp2");
 #endif /* HAVE_NGHTTP2 */
+
+	/* LZ4 */
+	g_string_append(str, ", ");
+#ifdef HAVE_LZ4
+	g_string_append(str, "with LZ4");
+#else
+	g_string_append(str, "without LZ4");
+#endif /* HAVE_LZ4 */
+
+	/* Snappy */
+	g_string_append(str, ", ");
+#ifdef HAVE_SNAPPY
+	g_string_append(str, "with Snappy");
+#else
+	g_string_append(str, "without Snappy");
+#endif /* HAVE_SNAPPY */
+
 }
 
 /*

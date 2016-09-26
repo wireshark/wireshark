@@ -1995,6 +1995,92 @@ else
 	fi
 fi
 
+dnl lz4 check
+LZ4_LIBS=''
+AC_MSG_CHECKING(whether to use lz4 compression and decompression)
+
+AC_ARG_WITH(lz4,
+  AC_HELP_STRING([--with-lz4@<:@=DIR@:>@],
+		 [use lz4 (located in directory DIR, if supplied) for lz4 compression and decompression @<:@default=yes, if available@:>@]),
+[
+	if test "x$withval" = "xno"
+	then
+		want_lz4=no
+	elif test "x$withval" = "xyes"
+	then
+		want_lz4=yes
+	else
+		want_lz4=yes
+		lz4_dir="$withval"
+	fi
+],[
+	#
+	# Use lz4 if it's present, otherwise don't.
+	#
+	want_lz4=ifavailable
+	lz4_dir=
+])
+have_lz4=no
+if test "x$want_lz4" = "xno" ; then
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	AC_WIRESHARK_LZ4_CHECK
+	if test "x$want_lz4" = "xno" ; then
+		AC_MSG_RESULT(lz4 not found - disabling lz4 compression and decompression)
+	else
+		if test "x$ac_cv_func_LZ4_decompress_safe" = "xno" ; then
+			AC_MSG_RESULT(LZ4_decompress_safe not found in lz4 - disabling cql lz4 decompression)
+		else
+			have_lz4=yes
+		fi
+	fi
+fi
+AC_SUBST(LZ4_LIBS)
+
+dnl snappy check
+SNAPPY_LIBS=''
+AC_MSG_CHECKING(whether to use snappy compression and decompression)
+
+AC_ARG_WITH(snappy,
+  AC_HELP_STRING([--with-snappy@<:@=DIR@:>@],
+		 [use snappy (located in directory DIR, if supplied) for snappy compression and decompression @<:@default=yes, if available@:>@]),
+[
+	if test "x$withval" = "xno"
+	then
+		want_snappy=no
+	elif test "x$withval" = "xyes"
+	then
+		want_snappy=yes
+	else
+		want_snappy=yes
+		snappy_dir="$withval"
+	fi
+],[
+	#
+	# Use snappy if it's present, otherwise don't.
+	#
+	want_snappy=ifavailable
+	snappy_dir=
+])
+have_snappy=no
+if test "x$want_snappy" = "xno" ; then
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	AC_WIRESHARK_SNAPPY_CHECK
+	if test "x$want_snappy" = "xno" ; then
+		AC_MSG_RESULT(snappy not found - disabling snappy compression and decompression)
+	else
+		if test "x$ac_cv_func_snappy_uncompress" = "xno" ; then
+			AC_MSG_RESULT(snappy_uncompress not found in snappy - disabling cql snappy decompression)
+		else
+			have_snappy=yes
+		fi
+	fi
+fi
+AC_SUBST(SNAPPY_LIBS)
+
 dnl Lua check
 AC_ARG_WITH(lua,
   AC_HELP_STRING( [--with-lua@<:@=DIR@:>@],
@@ -3083,4 +3169,6 @@ echo "            Have ssh_userauth_agent : $ssh_userauth_agent_message"
 echo "                     Use nl library : $libnl_message"
 echo "              Use SBC codec library : $have_sbc"
 echo "                Use nghttp2 library : $nghttp2_message"
+echo "                    Use LZ4 library : $have_lz4"
+echo "                 Use Snappy library : $have_snappy"
 #echo "       Use GDK-Pixbuf with GResource: $have_gresource_pixbuf"

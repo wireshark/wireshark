@@ -830,6 +830,16 @@ if(ENABLE_ZLIB)
 	set(PACKAGELIST ${PACKAGELIST} ZLIB)
 endif()
 
+# LZ4 compression
+if(ENABLE_LZ4)
+	set(PACKAGELIST ${PACKAGELIST} LZ4)
+endif()
+
+# Snappy compression
+if(ENABLE_SNAPPY)
+	set(PACKAGELIST ${PACKAGELIST} SNAPPY)
+endif()
+
 # Embedded Lua interpreter
 if(ENABLE_LUA)
 	set(PACKAGELIST ${PACKAGELIST} LUA)
@@ -974,6 +984,12 @@ if(HAVE_LIBZLIB)
 	# Always include the "true" zlib includes first. This works around a
 	# bug in the Windows setup of GTK[23] which has a faulty zconf.h.
 	include_directories(BEFORE ${ZLIB_INCLUDE_DIRS})
+endif()
+if(HAVE_LIBLZ4)
+	set(HAVE_LZ4 1)
+endif()
+if(SNAPPY_FOUND)
+	set(HAVE_SNAPPY 1)
 endif()
 if (Qt5Widgets_FOUND)
 	#
@@ -1452,6 +1468,8 @@ set(LIBEPAN_LIBS
 		${GNUTLS_LIBRARIES}
 		${SMI_LIBRARIES}
 		${ZLIB_LIBRARIES}
+		${LZ4_LIBRARIES}
+		${SNAPPY_LIBRARIES}
 		${M_LIBRARIES}
 		${WINSPARKLE_LIBRARIES}
 )
