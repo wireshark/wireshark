@@ -982,6 +982,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_field_display_to_string@Base 2.1.0
  proto_find_field_from_offset@Base 1.9.1
  proto_find_finfo@Base 1.9.1
+ proto_find_first_finfo@Base 2.3.0
  proto_find_undecoded_data@Base 1.99.3
  proto_free_deregistered_fields@Base 1.12.2
  proto_get_data_protocol@Base 1.9.1

@@ -8377,6 +8377,21 @@ find_finfo(proto_node *node, gpointer data)
 	return FALSE;
 }
 
+/* Helper function for proto_find_first_info() */
+static gboolean
+find_first_finfo(proto_node *node, gpointer data)
+{
+	field_info *fi = PNODE_FINFO(node);
+	if (fi && fi->hfinfo) {
+		if (fi->hfinfo->id == ((ffdata_t*)data)->id) {
+			g_ptr_array_add(((ffdata_t*)data)->array, fi);
+		}
+	}
+
+	/* Stop traversing. */
+	return TRUE;
+}
+
 /* Return GPtrArray* of field_info pointers for all hfindex that appear in a tree.
 * This works on any proto_tree, primed or unprimed, but actually searches
 * the tree, so it is slower than using proto_get_finfo_ptr_array on a primed tree.
@@ -8392,6 +8407,25 @@ proto_find_finfo(proto_tree *tree, const int id)
 	ffdata.id = id;
 
 	proto_tree_traverse_pre_order(tree, find_finfo, &ffdata);
+
+	return ffdata.array;
+}
+
+/* Return GPtrArray* of first field_info pointers for the searched hfindex that appear in a tree.
+* This works on any proto_tree, primed or unprimed, but actually searches
+* the tree, so it is slower than using proto_get_finfo_ptr_array on a primed tree.
+* The caller does need to free the returned GPtrArray with
+* g_ptr_array_free(<array>, TRUE).
+*/
+GPtrArray *
+proto_find_first_finfo(proto_tree *tree, const int id)
+{
+	ffdata_t ffdata;
+
+	ffdata.array = g_ptr_array_new();
+	ffdata.id = id;
+
+	proto_tree_traverse_pre_order(tree, find_first_finfo, &ffdata);
 
 	return ffdata.array;
 }

@@ -1108,7 +1108,7 @@ print_pdml_geninfo(epan_dissect_t *edt, FILE *fh)
     gchar      *tmp;
 
     /* Get frame protocol's finfo. */
-    finfo_array = proto_find_finfo(edt->tree, proto_frame);
+    finfo_array = proto_find_first_finfo(edt->tree, proto_frame);
     if (g_ptr_array_len(finfo_array) < 1) {
         return;
     }
