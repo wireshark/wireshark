@@ -24,7 +24,17 @@
     <Property Id="WIRESHARK_LEGACY_QUICK_LAUNCH_ICON" Value="1" Secure="yes" />
     <Property Id="WIRESHARK_FILE_EXTENSIONS" Value="0"/>
 
-    <MajorUpgrade DowngradeErrorMessage="A newer version of $(var.WiresharkName) is already installed." />
+    <!-- We set AllowSameVersionUpgrade so that automated builds (which
+         only differ by micro version numbers) won't get installed side
+         by side. The WiX documentation seems to warn against this, so we
+         might want to find a better fix.
+    -->
+    <MajorUpgrade
+      DowngradeErrorMessage="A newer version of $(var.WiresharkName) is already installed."
+      AllowSameVersionUpgrades="yes"
+    />
+
+
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
 
     <!-- Include the prerequisites, by referencing the placeholder property -->
