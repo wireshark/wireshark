@@ -1429,6 +1429,7 @@ register_dissector_files(register.c
 	dissectors
 	${DISSECTOR_FILES}
 	${CORBA_IDL_DISSECTOR_FILES}
+	packet-ncp2222.c
 )
 
 set(CLEAN_FILES
