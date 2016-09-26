@@ -28,6 +28,8 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
+#include <wsutil/strtoi.h>
 
 #include "packet-ber.h"
 #include "packet-isup.h"
@@ -184,7 +186,7 @@ static int hf_h248_pkg_annexc_olcrej = -1;
 static int hf_h248_pkg_annexc_clc = -1;
 static int hf_h248_pkg_annexc_clcack = -1;
 
-
+static expert_field ei_h248_sdp_media_port_invalid = EI_INIT;
 
 static gint ett_annexc = -1;
 static gint ett_vpvc = -1;
@@ -862,8 +864,14 @@ static void dissect_h248_annexc_SDP_M(proto_tree* tree, tvbuff_t* tvb, packet_in
 				tokenlen = next_offset - offset;
 				port_str = tvb_get_string_enc(wmem_packet_scope(), param_tvb, offset, tokenlen, ENC_UTF_8 | ENC_NA);
 				if (g_ascii_isdigit(port_str[0])) {
-					ti = proto_tree_add_uint(tree, hf_h248_sdp_media_port, param_tvb, offset, tokenlen, atoi(port_str));
+					gint32 port = -1;
+					gboolean port_valid;
+					port_valid = ws_strtoi32(port_str, NULL, &port);
+					ti = proto_tree_add_int(tree, hf_h248_sdp_media_port, param_tvb, offset, tokenlen, port);
 					PROTO_ITEM_SET_GENERATED(ti);
+					if (!port_valid)
+						proto_tree_add_expert(tree, pinfo, &ei_h248_sdp_media_port_invalid, param_tvb, offset,
+							tokenlen);
 				}
 			}
 		}
@@ -1032,6 +1040,8 @@ static h248_package_t h248_annexc_package = {
 
 
 void proto_register_h248_annex_c(void) {
+	expert_module_t* expert_h248_pkg_annexc;
+
 	static hf_register_info hf[] = {
 		{ &hf_h248_pkg_annexc_media,
 		  { "Media", "h248.annexc.media",
@@ -1570,7 +1580,13 @@ void proto_register_h248_annex_c(void) {
 
 	h248_register_package(&h248_annexc_package,MERGE_PKG_HIGH);
 
+	static ei_register_info ei[] = {
+		{ &ei_h248_sdp_media_port_invalid, { "sdp.media.port.invalid", PI_MALFORMED, PI_ERROR,
+			"Invalid SDP media port", EXPFILL }}
+	};
 
+	expert_h248_pkg_annexc = expert_register_protocol(proto_h248_pkg_annexc);
+	expert_register_field_array(expert_h248_pkg_annexc, ei, array_length(ei));
 }
 
 void
