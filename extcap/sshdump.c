@@ -166,7 +166,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, co
 		count_str = g_strdup_printf("-c %u", count);
 
 	if (quoted_bin == "tcpdump") {
-	cmdline = g_strdup_printf("%s -i %s -w - '%s %s'", quoted_bin, quoted_iface, quoted_filter,
+	cmdline = g_strdup_printf("%s -i %s -U -w - '%s %s'", quoted_bin, quoted_iface, quoted_filter,
 		count_str ? count_str : "");
 	} else {
 	cmdline = g_strdup_printf("%s -i %s -P -w - -f %s %s", quoted_bin, quoted_iface, quoted_filter,
