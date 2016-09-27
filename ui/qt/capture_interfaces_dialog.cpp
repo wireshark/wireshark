@@ -1297,6 +1297,8 @@ void InterfaceTreeDelegate::bufferSizeChanged(int value)
         return;
     }
     device->buffer = value;
+#else
+    Q_UNUSED(value);
 #endif
 }
 
