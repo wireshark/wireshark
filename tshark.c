@@ -815,7 +815,7 @@ main(int argc, char *argv[])
   register_all_plugin_tap_listeners();
 #endif
 #ifdef HAVE_EXTCAP
-    extcap_register_preferences();
+  extcap_register_preferences();
 #endif
   register_all_tap_listeners();
   conversation_table_set_gui_info(init_iousers);
