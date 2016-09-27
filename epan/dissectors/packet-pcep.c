@@ -53,7 +53,11 @@
  * (c) Copyright 2015 Francesco Fondelli <francesco.fondelli[AT]gmail.com>
  *
  * Added support of "Conveying Vendor-Specific Constraints in the
- *  Path Computation Element Communication Protocol (RFC 7470)"
+ *  Path Computation Element Communication Protocol" (RFC 7470)
+ * Completed support of RFC 6006
+ * Added support of "PCE-Based Computation Procedure to Compute Shortest
+    Constrained Point-to-Multipoint (P2MP) Inter-Domain Traffic Engineering
+    Label Switched Paths" (RFC 7334)
  * (c) Copyright 2016 Simon Zhong <szhong[AT]juniper.net>
  */
 
@@ -199,7 +203,8 @@ void proto_reg_handoff_pcep(void);
 #define  PCEP_RP_E                      0x000800
 #define  PCEP_RP_N                      0x001000
 #define  PCEP_RP_F                      0x002000
-#define  PCEP_RP_RESERVED               0xFFC000
+#define  PCEP_RP_C                      0x004000    /* RFC 7334 */
+#define  PCEP_RP_RESERVED               0xFF8000
 
 /*Mask for the flags of NO PATH Object*/
 #define  PCEP_NO_PATH_C                 0x8000
@@ -311,6 +316,7 @@ static gint hf_pcep_rp_flags_m = -1;
 static gint hf_pcep_rp_flags_e = -1;
 static gint hf_pcep_rp_flags_n = -1;
 static gint hf_pcep_rp_flags_f = -1;
+static gint hf_pcep_rp_flags_c = -1;
 static gint hf_pcep_rp_flags_reserved = -1;
 static gint hf_pcep_no_path_flags_c = -1;
 static gint hf_pcep_metric_flags_c = -1;
@@ -1115,7 +1121,17 @@ static const value_string pcep_error_value_6_vals[] = {
 
 /*Error values for error type 10*/
 static const value_string pcep_error_value_10_vals[] = {
-    {1, "Reception of an object with P flag not set although the P-flag must be set"},
+    {1,  "Reception of an object with P flag not set although the P-flag must be set"},
+    {2,  "Bad label value"},                                /* draft-ietf-pce-segment-routing */
+    {3,  "Unsupported number of Segment ERO subobjects"},   /* draft-ietf-pce-segment-routing */
+    {4,  "Bad label format"},                               /* draft-ietf-pce-segment-routing */
+    {5,  "Non-identical ERO subobjects"},                   /* draft-ietf-pce-segment-routing */
+    {6,  "Both SID and NAI are absent in ERO subobject"},   /* draft-ietf-pce-segment-routing */
+    {7,  "Both SID and NAI are absent in RRO subobject"},   /* draft-ietf-pce-segment-routing */
+    {8,  "SYMBOLIC-PATH-NAME TLV missing"},                 /* draft-ietf-pce-segment-routing */
+    {9,  "Default MSD is specified for the PCEP session"},  /* draft-ietf-pce-segment-routing */
+    {10, "Non-identical RRO subjects"},                     /* draft-ietf-pce-segment-routing */
+    {11, "Malformed object"},                               /* draft-ietf-pce-segment-routing */
     {0, NULL}
 };
 
@@ -1164,20 +1180,22 @@ static const value_string pcep_error_value_18_vals[] = {
 
 /*Error values for error type 19*/
 static const value_string pcep_error_value_19_vals[] = {
-    {1, "Attempted LSP Update Request for a non-delegated LSP.  The PCEP-ERROR Object is followed by the LSP Object that identifies the LSP"},
-    {2, "Attempted LSP Update Request if active stateful PCE capability was not advertised"},
-    {3, "Attempted LSP Update Request for an LSP identified by an unknown PLSP-ID"},
-    {4, "A PCE indicates to a PCC that it has exceeded the resource limit allocated for its state, and thus it cannot accept and process its LSP State Report message"},
-    {5, "Attempted LSP State Report if active stateful PCE capability was not advertised"},
-    {6, "PCE-initiated LSP limit reached"},
-    {7, "Delegation for PCE-initiated LSP cannot be revoked"},
-    {8, "Non-zero PLSP-ID in LSP initiation request"},
+    {1,  "Attempted LSP Update Request for a non-delegated LSP. The PCEP-ERROR Object is followed by the LSP Object that identifies the LSP"},
+    {2,  "Attempted LSP Update Request if active stateful PCE capability was not advertised"},
+    {3,  "Attempted LSP Update Request for an LSP identified by an unknown PLSP-ID"},
+    {4,  "A PCE indicates to a PCC that it has exceeded the resource limit allocated for its state, and thus it cannot accept and process its LSP State Report message"},
+    {5,  "Attempted LSP State Report if active stateful PCE capability was not advertised"},
+    {6,  "PCE-initiated LSP limit reached"},                    /* draft-ietf-pce-pce-initiated-lsp */
+    {7,  "Delegation for PCE-initiated LSP cannot be revoked"}, /* draft-ietf-pce-pce-initiated-lsp */
+    {8,  "Non-zero PLSP-ID in LSP initiation request"},         /* draft-ietf-pce-pce-initiated-lsp */
+    {9,  "LSP is not PCE-initiated"},                           /* draft-ietf-pce-pce-initiated-lsp */
+    {10, "PCE-initiated operation-frequency limit reached"},    /* draft-ietf-pce-pce-initiated-lsp */
     {0, NULL}
 };
 
 /*Error values for error type 20*/
 static const value_string pcep_error_value_20_vals[] = {
-    {1, "A PCE indicates to a PCC that it cannot process (an otherwise valid) LSP State Report.  The PCEP-ERROR Object is followed by the LSP Object that identifies the LSP"},
+    {1, "A PCE indicates to a PCC that it cannot process (an otherwise valid) LSP State Report. The PCEP-ERROR Object is followed by the LSP Object that identifies the LSP"},
     {2, "LSP Database version mismatch."},
     {3, "The LSP-DB-VERSION TLV Missing when state synchronization avoidance is enabled."},
     {4, "Attempt to trigger a synchronization when the TRIGGERED-SYNC capability has not been advertised."},
@@ -1196,15 +1214,16 @@ static const value_string pcep_error_value_21_vals[] = {
 
 /*Error values for error type 23*/
 static const value_string pcep_error_value_23_vals[] = {
-    {1, "SYMBOLIC-PATH-NAME in use"},
+    {1, "SYMBOLIC-PATH-NAME in use"},                                       /* draft-ietf-pce-pce-initiated-lsp */
+    {2, "Speaker identity included for an LSP that is not PCE-initiated"},  /* draft-ietf-pce-pce-initiated-lsp */
     {0, NULL}
 };
 
 /*Error values for error type 24*/
 static const value_string pcep_error_value_24_vals[] = {
-    {1, "Unacceptable instantiation parameters"},
-    {2, "Internal error"},
-    {3, "RSVP signaling error"},
+    {1, "Unacceptable instantiation parameters"},   /* draft-ietf-pce-pce-initiated-lsp */
+    {2, "Internal error"},                          /* draft-ietf-pce-pce-initiated-lsp */
+    {3, "Signaling error"},                         /* draft-ietf-pce-pce-initiated-lsp */
     {0, NULL}
 };
 
@@ -1982,6 +2001,7 @@ dissect_pcep_rp_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
     pcep_rp_obj_flags = proto_item_add_subtree(ti, ett_pcep_obj_request_parameters);
 
     proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_reserved, tvb, offset2+1, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_c,        tvb, offset2+1, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_f,        tvb, offset2+1, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_n,        tvb, offset2+1, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_e,        tvb, offset2+1, 3, ENC_BIG_ENDIAN);
@@ -3921,6 +3941,11 @@ proto_register_pcep(void)
         { &hf_pcep_rp_flags_f,
           { "(F) Fragmentation", "pcep.rp.flags.f",
             FT_BOOLEAN, 24, TFS(&tfs_set_notset), PCEP_RP_F,
+            NULL, HFILL }
+        },
+        { &hf_pcep_rp_flags_c,
+          { "(C) Core-tree computation", "pcep.rp.flags.c",
+            FT_BOOLEAN, 24, TFS(&tfs_set_notset), PCEP_RP_C,
             NULL, HFILL }
         },
         { &hf_PCEPF_OBJ_NO_PATH,
