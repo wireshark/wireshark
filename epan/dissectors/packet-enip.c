@@ -2270,7 +2270,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                     * it to the list of information structures later before dissection.
                     */
                    request_key = wmem_new0(wmem_packet_scope(), enip_request_key_t);
-                   request_key->requesttype    = (ucmm_request & 0x8000) ? ENIP_RESPONSE_PACKET : ENIP_REQUEST_PACKET;
+                   request_key->requesttype    = ucmm_request ? ENIP_RESPONSE_PACKET : ENIP_REQUEST_PACKET;
                    request_key->type           = EPDT_UNKNOWN;
 
                    /* UCMM over UDP doesn't have a session handle, so use conversation

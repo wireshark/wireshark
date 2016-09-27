@@ -96,7 +96,7 @@ dissect_abis_tfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	proto_item *ti;
 	proto_tree *tfp_tree;
 	int offset = 0;
-	guint32 slot_rate, frame_bits, hdr2, atsr, seq_nr;
+	guint32 slot_rate, frame_bits, atsr, seq_nr;
 	guint8 ftype;
 	tvbuff_t *next_tvb;
 
@@ -105,12 +105,9 @@ dissect_abis_tfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	ti = proto_tree_add_item(tree, proto_abis_tfp, tvb, 0, -1, ENC_NA);
 	tfp_tree = proto_item_add_subtree(ti, ett_tfp);
 
-	proto_tree_add_item_ret_uint(tfp_tree, hf_tfp_hdr_atsr, tvb, offset, 2, ENC_BIG_ENDIAN, &hdr2);
-	proto_tree_add_item(tfp_tree, hf_tfp_hdr_slot_rate, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tfp_tree, hf_tfp_hdr_seq_nr, tvb, offset, 2, ENC_BIG_ENDIAN);
-	atsr = hdr2 >> 13;
-	slot_rate = (hdr2 >> 11) & 3;
-	seq_nr = (hdr2 >> 6) & 0x1f;
+	proto_tree_add_item_ret_uint(tfp_tree, hf_tfp_hdr_atsr, tvb, offset, 2, ENC_BIG_ENDIAN, &atsr);
+	proto_tree_add_item_ret_uint(tfp_tree, hf_tfp_hdr_slot_rate, tvb, offset, 2, ENC_BIG_ENDIAN, &slot_rate);
+	proto_tree_add_item_ret_uint(tfp_tree, hf_tfp_hdr_seq_nr, tvb, offset, 2, ENC_BIG_ENDIAN, &seq_nr);
 	proto_tree_add_item(tfp_tree, hf_tfp_hdr_delay_info, tvb, offset+1, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tfp_tree, hf_tfp_hdr_p, tvb, offset+1, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tfp_tree, hf_tfp_hdr_s, tvb, offset+2, 1, ENC_NA);

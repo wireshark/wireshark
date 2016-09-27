@@ -3125,7 +3125,6 @@ dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
         case RSL_IE_IPAC_SPEECH_MODE:
             proto_tree_add_item_ret_uint(ie_tree, hf_rsl_speech_mode_s, tvb,
                                 offset, len, ENC_BIG_ENDIAN, &rtp_codec);
-            rtp_codec &= 0x0f;
             conv = find_or_create_conversation(pinfo);
             dyn_pl_info = (struct dyn_pl_info_t *)conversation_get_proto_data(conv, proto_rsl);
             if (!dyn_pl_info) {

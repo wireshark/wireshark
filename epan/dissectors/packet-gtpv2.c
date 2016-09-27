@@ -3972,7 +3972,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         proto_tree_add_item(tree, hf_gtpv2_mm_context_old_kasme, tvb, offset, 32, ENC_NA);
         offset += 32;
         /* (s+33) to (s+64) old NH */
-        if ((dword & 1) == 1) {
+        if (dword) {
             proto_tree_add_item(tree, hf_gtpv2_mm_context_old_nh, tvb, offset, 32, ENC_NA);
             offset += 32;
         }

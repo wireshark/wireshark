@@ -4823,7 +4823,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                                 it = proto_tree_add_item_ret_uint(slbsr_tree, hf_mac_lte_control_sidelink_reserved,
                                                                   tvb, curr_offset, 1, ENC_BIG_ENDIAN, &reserved);
-                                if (reserved & 0x0f) {
+                                if (reserved) {
                                     if (lcids[n] == SIDELINK_BSR) {
                                         expert_add_info_format(pinfo, it, &ei_mac_lte_reserved_not_zero,
                                                                "Sidelink BSR Reserved bits not zero");
@@ -5517,7 +5517,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             dpr_tree = proto_item_add_subtree(dpr_ti, ett_mac_lte_data_vol_power_headroom);
             dpr_ti = proto_tree_add_item_ret_uint(dpr_tree, hf_mac_lte_data_vol_power_headroom_reserved,
                                                   tvb, offset, 1, ENC_BIG_ENDIAN, &reserved);
-            if (reserved & 0xc0) {
+            if (reserved) {
                 expert_add_info_format(pinfo, dpr_ti, &ei_mac_lte_reserved_not_zero,
                                        "Data Volume and Power Headroom Report Reserved bits not zero");
             }
@@ -6245,7 +6245,7 @@ static void dissect_slsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_item_ret_uint(pdu_subheader_tree, hf_mac_lte_slsch_reserved,
                                       tvb, offset, 1, ENC_BIG_ENDIAN, &reserved);
     offset++;
-    if (reserved & 0x0f) {
+    if (reserved) {
         expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
                                "SL-SCH header Reserved bits not zero");
     }
@@ -6274,8 +6274,9 @@ static void dissect_slsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                     ett_mac_lte_slsch_subheader);
 
         /* Check 1st 2 reserved bits */
-        ti = proto_tree_add_item_ret_uint(pdu_subheader_tree, hf_mac_lte_slsch_reserved2,
-                                          tvb, offset, 1, ENC_BIG_ENDIAN, &first_byte);
+        ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_slsch_reserved2,
+                                 tvb, offset, 1, ENC_BIG_ENDIAN);
+        first_byte = tvb_get_guint8(tvb, offset);
         if ((first_byte & 0xc0) != 0) {
             expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
                                    "SL-SCH header Reserved bits not zero");
@@ -6333,7 +6334,7 @@ static void dissect_slsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                              tvb, offset, 1, ENC_BIG_ENDIAN, &format);
 
                 /* Now read length field itself */
-                if (format & 0x80) {
+                if (format) {
                     /* >= 128 - use 15 bits */
                     proto_tree_add_bits_ret_val(pdu_subheader_tree, hf_mac_lte_slsch_length,
                                                 tvb, offset*8 + 1, 15, &length, ENC_BIG_ENDIAN);

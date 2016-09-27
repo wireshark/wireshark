@@ -2324,8 +2324,18 @@ proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	/* I believe it's ok if this is called with a NULL tree */
 	value = get_int_value(tree, tvb, start, length, encoding);
 
-	if (retval)
+	if (retval) {
+		gint no_of_bits;
 		*retval = value;
+		if (hfinfo->bitmask) {
+			/* Mask out irrelevant portions */
+			*retval &= (guint32)(hfinfo->bitmask);
+			/* Shift bits */
+			*retval >>= hfinfo_bitshift(hfinfo);
+		}
+		no_of_bits = ws_count_ones(hfinfo->bitmask);
+		*retval = ws_sign_ext32(*retval, no_of_bits);
+	}
 
 	CHECK_FOR_NULL_TREE(tree);
 
@@ -2376,8 +2386,15 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	/* XXX - modify if we ever support EBCDIC FT_CHAR */
 	value = get_uint_value(tree, tvb, start, length, encoding);
 
-	if (retval)
+	if (retval) {
 		*retval = value;
+		if (hfinfo->bitmask) {
+			/* Mask out irrelevant portions */
+			*retval &= (guint32)(hfinfo->bitmask);
+			/* Shift bits */
+			*retval >>= hfinfo_bitshift(hfinfo);
+		}
+	}
 
 	CHECK_FOR_NULL_TREE(tree);
 
@@ -9531,6 +9548,13 @@ proto_tree_add_bitmask_with_flags_ret_uint64(proto_tree *parent_tree, tvbuff_t *
 	}
 
 	*retval = value;
+	if (hf->bitmask) {
+		/* Mask out irrelevant portions */
+		*retval &= hf->bitmask;
+		/* Shift bits */
+		*retval >>= hfinfo_bitshift(hf);
+	}
+
 	return item;
 }
 

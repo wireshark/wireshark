@@ -1064,7 +1064,6 @@ static int dissect_1722_aaf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     {
         proto_tree_add_item(ti_aaf_tree, hf_1722_aaf_nominal_sample_rate, tvb, offset, 2, ENC_BIG_ENDIAN);
         ti_channels_per_frame = proto_tree_add_item_ret_uint(ti_aaf_tree, hf_1722_aaf_channels_per_frame, tvb, offset, 2, ENC_BIG_ENDIAN, &channels_per_frame);
-        channels_per_frame &= IEEE_1722_CHANNEL_PER_FRAME_MASK;
         if (channels_per_frame == 0)
         {
             expert_add_info(pinfo, ti_channels_per_frame, &ei_aaf_channels_per_frame);

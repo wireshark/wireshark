@@ -137,7 +137,6 @@ dissect_abis_pgsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 	proto_tree_add_item(pgsl_tree, hf_pgsl_version, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item_ret_uint(pgsl_tree, hf_pgsl_msg_disc, tvb, offset, 1, ENC_NA, &msg_disc);
-	msg_disc &= 0xF;
 	offset++;
 
 	col_append_str(pinfo->cinfo, COL_INFO, val_to_str(msg_disc, pgsl_msg_disc_vals, "Unknown (%u)"));
@@ -187,7 +186,6 @@ dissect_abis_pgsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		/* Codec Status */
 		proto_tree_add_item(pgsl_tree, hf_pgsl_codec_delay, tvb, offset, 1, ENC_NA);
 		proto_tree_add_item_ret_uint(pgsl_tree, hf_pgsl_codec_cs, tvb, offset, 1, ENC_NA, &cs);
-		cs &= 0x1f;
 		proto_tree_add_item(pgsl_tree, hf_pgsl_codec_rxlev, tvb, offset+1, 1, ENC_NA);
 		if (cs <= 4) {
 			/* GPRS */

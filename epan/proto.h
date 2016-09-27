@@ -1055,7 +1055,7 @@ Integers of 8, 16, 24 and 32 bits can be retrieved with these functions.
 @param length length of data in tvb (for strings can be -1 for remaining)
 @param encoding data encoding (e.g, ENC_LITTLE_ENDIAN, ENC_BIG_ENDIAN, ENC_ASCII|ENC_STRING, etc.)
 @param[out] retval points to a gint32 or guint32 which will be set to the value
-@return the newly created item, and *retval is set to the decoded value
+@return the newly created item, and *retval is set to the decoded value masked/shifted according to bitmask
 */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
@@ -2461,7 +2461,7 @@ proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, const guint offset,
         matched string displayed on the expansion line.
  @param encoding big or little endian byte representation (ENC_BIG_ENDIAN/ENC_LITTLE_ENDIAN/ENC_HOST_ENDIAN)
  @param[out] retval points to a guint64 which will be set
- @return the newly created item, and *retval is set to the decoded value
+ @return the newly created item, and *retval is set to the decoded value masked/shifted according to bitmask
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_ret_uint64(proto_tree *tree, tvbuff_t *tvb, const guint offset,
@@ -2520,7 +2520,7 @@ proto_tree_add_bitmask_with_flags(proto_tree *tree, tvbuff_t *tvb, const guint o
  @param encoding big or little endian byte representation (ENC_BIG_ENDIAN/ENC_LITTLE_ENDIAN/ENC_HOST_ENDIAN)
  @param flags bitmask field using BMT_NO_* flags to determine behavior
  @param[out] retval points to a guint64 which will be set
- @return the newly created item, and *retval is set to the decoded value
+ @return the newly created item, and *retval is set to the decoded value masked/shifted according to bitmask
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_with_flags_ret_uint64(proto_tree *tree, tvbuff_t *tvb, const guint offset,

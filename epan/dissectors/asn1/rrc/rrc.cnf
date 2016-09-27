@@ -669,7 +669,7 @@ fp_info       *fpinf ;
     subtree = proto_item_add_subtree(actx->created_item, ett_rrc_ims_info);
     proto_tree_add_item_ret_uint(subtree, hf_rrc_ims_info_atgw_trans_det_cont_type, imsInformation_tvb, curr_offset, 1, ENC_BIG_ENDIAN, &atgw_trans_det_cont);
     curr_offset++;
-    switch (atgw_trans_det_cont & 0x03) {
+    switch (atgw_trans_det_cont) {
       case 0:
         proto_tree_add_item(subtree, hf_rrc_ims_info_atgw_udp_port, imsInformation_tvb, curr_offset, 2, ENC_BIG_ENDIAN);
         curr_offset+=2;
