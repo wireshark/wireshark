@@ -51,7 +51,7 @@ public:
     InterfaceTreeDelegate(QObject *parent = 0);
     ~InterfaceTreeDelegate();
 
-    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &idx) const;
     void setTree(QTreeWidget* tree) { tree_ = tree; }
     bool eventFilter(QObject *object, QEvent *event);
 
@@ -72,7 +72,7 @@ public:
     explicit CaptureInterfacesDialog(QWidget *parent = 0);
     ~CaptureInterfacesDialog();
 
-    void setTab(int index);
+    void setTab(int idx);
     void updateInterfaces();
 
 protected:

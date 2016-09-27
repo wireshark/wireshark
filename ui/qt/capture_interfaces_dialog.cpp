@@ -282,9 +282,9 @@ CaptureInterfacesDialog::~CaptureInterfacesDialog()
     delete ui;
 }
 
-void CaptureInterfacesDialog::setTab(int index)
+void CaptureInterfacesDialog::setTab(int idx)
 {
-    ui->tabWidget->setCurrentIndex(index);
+    ui->tabWidget->setCurrentIndex(idx);
 }
 
 void CaptureInterfacesDialog::on_capturePromModeCheckBox_toggled(bool checked)
@@ -1097,7 +1097,7 @@ InterfaceTreeDelegate::~InterfaceTreeDelegate()
 }
 
 
-QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &index) const
+QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &idx) const
 {
     QWidget *w = NULL;
 #ifdef SHOW_BUFFER_COLUMN
@@ -1106,8 +1106,8 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
     guint snap = WTAP_MAX_PACKET_SIZE;
     GList *links = NULL;
 
-    if (index.column() > 1 && index.data().toString().compare(UTF8_EM_DASH)) {
-        QTreeWidgetItem *ti = tree_->topLevelItem(index.row());
+    if (idx.column() > 1 && idx.data().toString().compare(UTF8_EM_DASH)) {
+        QTreeWidgetItem *ti = tree_->topLevelItem(idx.row());
         QString interface_name = ti->text(col_interface_);
         interface_t *device = find_device_by_if_name(interface_name);
 
@@ -1118,7 +1118,7 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
             snap = device->snaplen;
             links = device->links;
         }
-        switch (index.column()) {
+        switch (idx.column()) {
         case col_interface_:
         case col_traffic_:
             break;
