@@ -423,7 +423,7 @@ if_info_add_address(if_info_t *if_info, struct sockaddr *addr)
 		if_addr->ifat_type = IF_AT_IPv4;
 		if_addr->addr.ip4_addr =
 		    *((guint32 *)&(ai->sin_addr.s_addr));
-		if_info->addrs = g_slist_append(if_info->addrs, if_addr);
+		if_info->addrs = g_slist_prepend(if_info->addrs, if_addr);
 		break;
 
 	case AF_INET6:
@@ -433,7 +433,7 @@ if_info_add_address(if_info_t *if_info, struct sockaddr *addr)
 		memcpy((void *)&if_addr->addr.ip6_addr,
 		    (void *)&ai6->sin6_addr.s6_addr,
 		    sizeof if_addr->addr.ip6_addr);
-		if_info->addrs = g_slist_append(if_info->addrs, if_addr);
+		if_info->addrs = g_slist_prepend(if_info->addrs, if_addr);
 		break;
 	}
 }
@@ -451,6 +451,10 @@ if_info_ip(if_info_t *if_info, pcap_if_t *d)
 	for (a = d->addresses; a != NULL; a = a->next) {
 		if (a->addr != NULL)
 			if_info_add_address(if_info, a->addr);
+	}
+
+	if(if_info->addrs){
+		if_info->addrs = g_slist_reverse(if_info->addrs);
 	}
 }
 
