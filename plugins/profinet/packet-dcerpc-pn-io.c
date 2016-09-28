@@ -9754,7 +9754,7 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
     guint16     dst_addr;
     guint16     wd_time;
     guint16     par_crc;
-    guint32     ipar_crc;
+    guint32     ipar_crc = 0;
     guint8      prm_flag1;
     guint8      prm_flag1_chck_seq;
     guint8      prm_flag1_chck_ipar;

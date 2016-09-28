@@ -494,8 +494,8 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
     char     *typeofstation;
     char     *nameofstation;
     char     *aliasname;
-    guint16   block_info;
-    guint16   block_qualifier;
+    guint16   block_info = 0;
+    guint16   block_qualifier = 0;
     gboolean  have_block_info      = FALSE;
     gboolean  have_block_qualifier = FALSE;
     guint8    device_instance_high;
@@ -741,8 +741,8 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     guint8   suboption;
     guint16  block_length;
-    guint16  block_info;
-    guint16  block_qualifier;
+    guint16  block_info = 0;
+    guint16  block_qualifier = 0;
     gboolean have_block_info      = FALSE;
     gboolean have_block_qualifier = FALSE;
 
