@@ -1435,7 +1435,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item(tree, hf_observe_last_received_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
         }
       }
-    } else if (!request && opcode == PROTOCOL_BINARY_DCP_STREAM_REQUEST) {
+    } else if (!request && (opcode == PROTOCOL_BINARY_DCP_STREAM_REQUEST || opcode == PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST)) {
       if (value_len % 16 != 0) {
         expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Response with bad failover log length");
       } else {
