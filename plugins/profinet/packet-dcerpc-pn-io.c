@@ -8353,7 +8353,10 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
             if (diropen != NULL) {
                 fp = ws_fopen(diropen, "r");
             }
-            if(gsdmlFoundFlag && fp != NULL) {
+            else {
+                fp = NULL;
+            }
+            if(fp != NULL && gsdmlFoundFlag) {
                 fseek(fp, 0, SEEK_SET);
 
                 /* Find Indexnumber for fParameter */
