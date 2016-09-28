@@ -1958,7 +1958,28 @@
 				<gavp name="Session-Id"/>
 			</grouped>
 		</avp>
-		<!-- 301-317    Unallocated -->
+		<!-- RFC7944 AVP -->
+		<avp name="DRMP" code="301" vendor-bit="mustnot">
+		        <type type-name="Enumerated"/>
+		                <enum name="PRIORITY_0" code="0"/>
+		                <enum name="PRIORITY_1" code="1"/>
+		                <enum name="PRIORITY_2" code="2"/>
+		                <enum name="PRIORITY_3" code="3"/>
+		                <enum name="PRIORITY_4" code="4"/>
+		                <enum name="PRIORITY_5" code="5"/>
+		                <enum name="PRIORITY_6" code="6"/>
+		                <enum name="PRIORITY_7" code="7"/>
+		                <enum name="PRIORITY_8" code="8"/>
+		                <enum name="PRIORITY_9" code="9"/>
+		                <enum name="PRIORITY_10" code="10"/>
+		                <enum name="PRIORITY_11" code="11"/>
+		                <enum name="PRIORITY_12" code="12"/>
+		                <enum name="PRIORITY_13" code="13"/>
+		                <enum name="PRIORITY_14" code="14"/>
+		                <enum name="PRIORITY_15" code="15"/>
+		</avp>
+
+		<!-- 302-317    Unallocated -->
 
 		<!-- AVPs 318 - 348 belong to Diameter Mobile IPv4 Application and are defined in mobileipv4.xml
 		318 MIP-FA-to-HA-SPI [RFC4004]
