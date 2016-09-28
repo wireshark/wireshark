@@ -25,6 +25,7 @@ AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) -DWS_BUILD_DLL \
 	-DDATAFILE_DIR=\"$(pkgdatadir)\" 	\
 	-DEXTCAP_DIR=\"$(extcapdir)\" 		\
 	-DPLUGIN_INSTALL_DIR=\"$(plugindir)\"	\
+	-DJSMN_STRICT				\
 	$(GLIB_CFLAGS) $(LIBGCRYPT_CFLAGS)
 
 # Optional headers for ABI checking
@@ -92,7 +93,8 @@ libwsutil_nonrepl_INCLUDES = \
 	ws_cpuid.h		\
 	ws_mempbrk.h		\
 	ws_mempbrk_int.h	\
-	ws_printf.h
+	ws_printf.h		\
+	wsjsmn.h
 
 # Header files for functions in libwsutil's ABI on this platform.
 libwsutil_abi_INCLUDES = \
@@ -159,7 +161,8 @@ libwsutil_la_SOURCES = \
 	time_util.c		\
 	type_util.c		\
 	unicode-utils.c		\
-	ws_mempbrk.c
+	ws_mempbrk.c		\
+	wsjsmn.c
 
 if HAVE_OS_X_FRAMEWORKS
 libwsutil_la_SOURCES += cfutils.c cfutils.h

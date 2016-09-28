@@ -31,7 +31,7 @@
 
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
-#include <wsutil/jsmn.h>
+#include <wsutil/wsjsmn.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/unicode-utils.h>

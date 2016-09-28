@@ -69,6 +69,7 @@ set(WSUTIL_COMMON_FILES
 	type_util.c
 	unicode-utils.c
 	ws_mempbrk.c
+	wsjsmn.c
 )
 
 set(WSUTIL_FILES ${WSUTIL_COMMON_FILES})
@@ -257,6 +258,8 @@ CHECKAPI(
 	SOURCES
 	  ${WSUTIL_COMMON_FILES}
 )
+
+set_source_files_properties(jsmn.c PROPERTIES COMPILE_DEFINITIONS "JSMN_STRICT")
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html

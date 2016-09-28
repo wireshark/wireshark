@@ -89,7 +89,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  is_default_profile@Base 1.12.0~rc1
  isdigit_string@Base 1.10.0
  isprint_string@Base 1.10.0
- jsmn_init@Base 1.99.4
  jsmn_is_json@Base 1.99.4
  linear2alaw@Base 1.12.0~rc1
  linear2ulaw@Base 1.12.0~rc1
