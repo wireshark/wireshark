@@ -5632,37 +5632,37 @@ ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     proto_tree *server_name_tree;
 
 
-   if (ext_len == 0) {
-       return offset;
-   }
+    if (ext_len == 0) {
+        return offset;
+    }
 
-   server_name_tree = proto_tree_add_subtree(tree, tvb, offset, ext_len, hf->ett.hs_ext_server_name, NULL, "Server Name Indication extension");
+    server_name_tree = proto_tree_add_subtree(tree, tvb, offset, ext_len, hf->ett.hs_ext_server_name, NULL, "Server Name Indication extension");
 
-   proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name_list_len,
-                       tvb, offset, 2, ENC_BIG_ENDIAN);
-   offset += 2;
-   ext_len -= 2;
+    proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name_list_len,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    ext_len -= 2;
 
-   while (ext_len > 0) {
-       proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name_type,
-                           tvb, offset, 1, ENC_NA);
-       offset += 1;
-       ext_len -= 1;
+    while (ext_len > 0) {
+        proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name_type,
+                            tvb, offset, 1, ENC_NA);
+        offset += 1;
+        ext_len -= 1;
 
-       server_name_length = tvb_get_ntohs(tvb, offset);
-       proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name_len,
-                           tvb, offset, 2, ENC_BIG_ENDIAN);
-       offset += 2;
-       ext_len -= 2;
+        server_name_length = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name_len,
+                            tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        ext_len -= 2;
 
-       if (server_name_length > 0) {
-           proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name,
-                               tvb, offset, server_name_length, ENC_ASCII|ENC_NA);
-           offset += server_name_length;
-           ext_len -= server_name_length;
-       }
-   }
-   return offset;
+        if (server_name_length > 0) {
+            proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name,
+                                tvb, offset, server_name_length, ENC_ASCII|ENC_NA);
+            offset += server_name_length;
+            ext_len -= server_name_length;
+        }
+    }
+    return offset;
 }
 
 static gint
