@@ -214,13 +214,19 @@ tap_init(void)
 int
 register_tap(const char *name)
 {
-	tap_dissector_t *td, *tdl;
-	int i, tap_id;
+	tap_dissector_t *td, *tdl = NULL, *tdl_prev;
+	int i=0;
 
 	if(tap_dissector_list){
-		tap_id=find_tap_id(name);
-		if (tap_id)
-			return tap_id;
+		/* Check if we allready have the name registered, if it is return the tap_id of that tap.
+		 * After the for loop tdl_prev will point to the last element of the list, add the new one there.
+		 */
+		for (i = 1, tdl = tap_dissector_list; tdl; i++, tdl_prev = tdl, tdl = tdl->next) {
+			if (!strcmp(tdl->name, name)) {
+				return i;
+			}
+		}
+		tdl = tdl_prev;
 	}
 
 	td=(tap_dissector_t *)g_malloc(sizeof(tap_dissector_t));
@@ -231,8 +237,6 @@ register_tap(const char *name)
 		tap_dissector_list=td;
 		i=1;
 	} else {
-		for(i=2,tdl=tap_dissector_list;tdl->next;i++,tdl=tdl->next)
-			;
 		tdl->next=td;
 	}
 	return i;
