@@ -39,7 +39,7 @@ void proto_register_infiniband(void);
 void proto_reg_handoff_infiniband(void);
 
 /*Default RRoce UDP port*/
-#define DEFAULT_RROCE_UDP_PORT    0
+#define DEFAULT_RROCE_UDP_PORT    4791
 
 /* Wireshark ID */
 static int proto_infiniband = -1;
