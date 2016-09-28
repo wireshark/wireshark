@@ -852,7 +852,7 @@ static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
 
     if (skip_len != 0) {
         /* Skip extra junk at the end of the packet data. */
-        if (!file_skip(wth->fh, skip_len, err))
+        if (!wtap_read_bytes(wth->fh, NULL, skip_len, err, err_info))
             return FALSE;
     }
 

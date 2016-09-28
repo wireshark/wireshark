@@ -720,7 +720,7 @@ static gboolean vwr_read_rec_header(FILE_T fh, int *rec_size, int *IS_TX, int *e
                 return FALSE;
             }
             else if (v_type != VT_FRAME) {
-                if (!file_skip(fh, f_len, err))
+                if (!wtap_read_bytes(fh, NULL, f_len, err, err_info))
                     return FALSE;
             }
             else {

@@ -101,7 +101,7 @@ mpeg_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		gint64 offset = file_tell(fh);
 		guint8 stream;
 
-		if (!file_skip(fh, 3, err))
+		if (!wtap_read_bytes(fh, NULL, 3, err, err_info))
 			return FALSE;
 
 		if (!wtap_read_bytes(fh, &stream, sizeof stream, err, err_info))
@@ -121,7 +121,8 @@ mpeg_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 
 			switch (pack >> 62) {
 				case 1:
-					if (!file_skip(fh, 1, err))
+					if (!wtap_read_bytes(fh, NULL, 1, err,
+					    err_info))
 						return FALSE;
 					if (!wtap_read_bytes(fh, &stuffing,
 					    sizeof stuffing, err, err_info))

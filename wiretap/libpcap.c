@@ -686,7 +686,7 @@ libpcap_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		/*
 		 * Skip the padding.
 		 */
-		if (!file_skip(fh, 3, err))
+		if (!wtap_read_bytes(fh, NULL, 3, err, err_info))
 			return FALSE;
 	}
 

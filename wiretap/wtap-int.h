@@ -256,7 +256,8 @@ extern gint wtap_num_file_types;
 extern const char *compressed_file_extension_table[];
 
 /*
- * Read a given number of bytes from a file.
+ * Read a given number of bytes from a file into a buffer or, if
+ * buf is NULL, just discard them.
  *
  * If we succeed, return TRUE.
  *
@@ -276,7 +277,8 @@ wtap_read_bytes_or_eof(FILE_T fh, void *buf, unsigned int count, int *err,
     gchar **err_info);
 
 /*
- * Read a given number of bytes from a file.
+ * Read a given number of bytes from a file into a buffer or, if
+ * buf is NULL, just discard them.
  *
  * If we succeed, return TRUE.
  *

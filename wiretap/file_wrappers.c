@@ -1145,21 +1145,6 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
     return file->pos + offset;
 }
 
-/*
- * Skip forward the specified number of bytes in the file.
- * Currently implemented as a wrapper around file_seek(),
- * but if, for example, we ever add support for reading
- * sequentially from a pipe, this could instead just skip
- * forward by reading the bytes in question.
- */
-gboolean
-file_skip(FILE_T file, gint64 delta, int *err)
-{
-    if (file_seek(file, delta, SEEK_CUR, err) == -1)
-        return FALSE;
-    return TRUE;
-}
-
 gint64
 file_tell(FILE_T stream)
 {
@@ -1206,16 +1191,25 @@ file_read(void *buf, unsigned int len, FILE_T file)
             return -1;
     }
 
-    /* get len bytes to buf, or less than len if at the end */
+    /*
+     * Get len bytes to buf, or less than len if at the end;
+     * if buf is null, just throw the bytes away.
+     */
     got = 0;
     do {
         if (file->have) {
             /* We have stuff in the output buffer; copy
                what we have. */
             n = file->have > len ? len : file->have;
-            memcpy(buf, file->next, n);
+            if (buf != NULL) {
+                memcpy(buf, file->next, n);
+                buf = (char *)buf + n;
+            }
             file->next += n;
             file->have -= n;
+            len -= n;
+            got += n;
+            file->pos += n;
         } else if (file->err) {
             /* We have nothing in the output buffer, and
                we have an error that may not have been
@@ -1236,13 +1230,7 @@ file_read(void *buf, unsigned int len, FILE_T file)
                in the output buffer. */
             if (fill_out_buffer(file) == -1)
                 return -1;
-            continue;       /* no progress yet -- go back to memcpy() above */
         }
-        /* update progress */
-        len -= n;
-        buf = (char *)buf + n;
-        got += n;
-        file->pos += n;
     } while (len);
 
     return (int)got;

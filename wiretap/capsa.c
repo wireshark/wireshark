@@ -173,7 +173,7 @@ wtap_open_return_val capsa_open(wtap *wth, int *err, gchar **err_info)
 	/*
 	 * Link speed, in megabytes/second?
 	 */
-	if (!file_skip(wth->fh, 2, err))
+	if (!wtap_read_bytes(wth->fh, NULL, 2, err, err_info))
 		return WTAP_OPEN_ERROR;
 
 	/*
@@ -181,19 +181,19 @@ wtap_open_return_val capsa_open(wtap *wth, int *err, gchar **err_info)
 	 * and two of which are zero?  Two 2-byte numbers or flag fields,
 	 * both of which are 1?
 	 */
-	if (!file_skip(wth->fh, 4, err))
+	if (!wtap_read_bytes(wth->fh, NULL, 4, err, err_info))
 		return WTAP_OPEN_ERROR;
 
 	/*
 	 * File size, in bytes.
 	 */
-	if (!file_skip(wth->fh, 4, err))
+	if (!wtap_read_bytes(wth->fh, NULL, 4, err, err_info))
 		return WTAP_OPEN_ERROR;
 
 	/*
 	 * Zeroes?  Or upper 4 bytes of file size?
 	 */
-	if (!file_skip(wth->fh, 4, err))
+	if (!wtap_read_bytes(wth->fh, NULL, 4, err, err_info))
 		return WTAP_OPEN_ERROR;
 
 	/*
@@ -251,7 +251,7 @@ static gboolean capsa_read(wtap *wth, int *err, gchar **err_info,
 		 * first byte.
 		 */
 		capsa->base_offset = file_tell(wth->fh);
-		if (!file_skip(wth->fh, 1, err))
+		if (!wtap_read_bytes(wth->fh, NULL, 1, err, err_info))
 			return FALSE;
 
 		/*
@@ -265,7 +265,7 @@ static gboolean capsa_read(wtap *wth, int *err, gchar **err_info,
 		 * And finish processing all 805 bytes by skipping
 		 * the last 4 bytes.
 		 */
-		if (!file_skip(wth->fh, 4, err))
+		if (!wtap_read_bytes(wth->fh, NULL, 4, err, err_info))
 			return FALSE;
 	}
 
@@ -283,7 +283,7 @@ static gboolean capsa_read(wtap *wth, int *err, gchar **err_info,
 	 * Skip over the padding, if any.
 	 */
 	if (padbytes != 0) {
-		if (!file_skip(wth->fh, padbytes, err))
+		if (!wtap_read_bytes(wth->fh, NULL, padbytes, err, err_info))
 			return FALSE;
 	}
 
@@ -339,8 +339,9 @@ capsa_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		 * XXX - what is that?  Measured statistics?
 		 * Calculated statistics?
 		 */
-		if (!file_skip(fh, (capsarec_hdr.count1 + capsarec_hdr.count2)*4,
-		    err))
+		if (!wtap_read_bytes(fh, NULL,
+		    (capsarec_hdr.count1 + capsarec_hdr.count2)*4,
+		    err, err_info))
 			return -1;
 		header_size += (capsarec_hdr.count1 + capsarec_hdr.count2)*4;
 		break;

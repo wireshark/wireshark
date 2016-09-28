@@ -462,7 +462,7 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
          * length?  If the record length is always a multiple of
          * 4 bytes, that won't happen.
          */
-        if ( ! file_skip( fh, K12_FILE_BLOB_LEN, err ) )
+        if ( ! wtap_read_bytes( fh, NULL, K12_FILE_BLOB_LEN, err, err_info ) )
             return -1;
         total_read += K12_FILE_BLOB_LEN;
     }
@@ -545,7 +545,7 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
             /*
              * Skip the blob.
              */
-            if ( !file_skip( fh, K12_FILE_BLOB_LEN, err ) )
+            if ( !wtap_read_bytes( fh, NULL, K12_FILE_BLOB_LEN, err, err_info ) )
                 return -1;
             total_read += K12_FILE_BLOB_LEN;
 

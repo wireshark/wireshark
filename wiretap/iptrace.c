@@ -178,7 +178,7 @@ iptrace_read_rec_1_0(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		/*
 		 * Skip the padding.
 		 */
-		if (!file_skip(fh, 3, err))
+		if (!wtap_read_bytes(fh, NULL, 3, err, err_info))
 			return FALSE;
 	}
 	if (packet_size > WTAP_MAX_PACKET_SIZE) {
@@ -371,7 +371,7 @@ iptrace_read_rec_2_0(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		/*
 		 * Skip the padding.
 		 */
-		if (!file_skip(fh, 3, err))
+		if (!wtap_read_bytes(fh, NULL, 3, err, err_info))
 			return FALSE;
 	}
 	if (packet_size > WTAP_MAX_PACKET_SIZE) {

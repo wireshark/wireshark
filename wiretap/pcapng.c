@@ -447,7 +447,7 @@ pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
 
     /* jump over potential padding bytes at end of option */
     if ( (oh->option_length % 4) != 0) {
-        if (!file_skip(fh, 4 - (oh->option_length % 4), err))
+        if (!wtap_read_bytes(fh, NULL, 4 - (oh->option_length % 4), err, err_info))
             return -1;
         block_read += 4 - (oh->option_length % 4);
     }
@@ -1227,7 +1227,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
     /* jump over potential padding bytes at end of the packet data */
     if (padding != 0) {
-        if (!file_skip(fh, padding, err))
+        if (!wtap_read_bytes(fh, NULL, padding, err, err_info))
             return FALSE;
         block_read += padding;
     }
@@ -1518,7 +1518,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 
     /* jump over potential padding bytes at end of the packet data */
     if ((simple_packet.cap_len % 4) != 0) {
-        if (!file_skip(fh, 4 - (simple_packet.cap_len % 4), err))
+        if (!wtap_read_bytes(fh, NULL, 4 - (simple_packet.cap_len % 4), err, err_info))
             return FALSE;
     }
 
@@ -1728,7 +1728,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
                     }
                 }
 
-                if (!file_skip(fh, PADDING4(nrb.record_len), err)) {
+                if (!wtap_read_bytes(fh, NULL, PADDING4(nrb.record_len), err, err_info)) {
                     ws_buffer_free(&nrb_rec);
                     return FALSE;
                 }
@@ -1789,7 +1789,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
                     }
                 }
 
-                if (!file_skip(fh, PADDING4(nrb.record_len), err)) {
+                if (!wtap_read_bytes(fh, NULL, PADDING4(nrb.record_len), err, err_info)) {
                     ws_buffer_free(&nrb_rec);
                     return FALSE;
                 }
@@ -1797,7 +1797,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
                 break;
             default:
                 pcapng_debug("pcapng_read_name_resolution_block: unknown record type 0x%x", nrb.record_type);
-                if (!file_skip(fh, nrb.record_len + PADDING4(nrb.record_len), err)) {
+                if (!wtap_read_bytes(fh, NULL, nrb.record_len + PADDING4(nrb.record_len), err, err_info)) {
                     ws_buffer_free(&nrb_rec);
                     return FALSE;
                 }
@@ -2281,7 +2281,7 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh,
 #endif
     {
         /* No.  Skip over this unknown block. */
-        if (!file_skip(fh, block_read, err)) {
+        if (!wtap_read_bytes(fh, NULL, block_read, err, err_info)) {
             return FALSE;
         }
     }

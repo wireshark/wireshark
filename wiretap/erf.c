@@ -231,8 +231,6 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
   guint16          rlen;
   guint64          erf_ext_header;
   guint8           type;
-  gboolean         r;
-  gchar *          buffer;
 
   memset(&prevts, 0, sizeof(prevts));
 
@@ -290,8 +288,16 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
 
     /* Skip PAD records, timestamps may not be set */
     if ((header.type & 0x7F) == ERF_TYPE_PAD) {
-      if (file_seek(wth->fh, packet_size, SEEK_CUR, err) == -1) {
-        return WTAP_OPEN_ERROR;
+      if (!wtap_read_bytes(wth->fh, NULL, packet_size, err, err_info)) {
+        if (*err != WTAP_ERR_SHORT_READ) {
+          /* A real error */
+          return WTAP_OPEN_ERROR;
+        }
+        /* ERF record too short, accept the file,
+           only if the very first records have been successfully checked */
+        if (i < MIN_RECORDS_FOR_ERF_CHECK) {
+          return WTAP_OPEN_NOT_MINE;
+        }
       }
       continue;
     }
@@ -367,8 +373,6 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
         break;
     }
 
-    /* The file_seek function do not return an error if the end of file
-       is reached whereas the record is truncated */
     if (packet_size > WTAP_MAX_PACKET_SIZE) {
       /*
        * Probably a corrupt capture file or a file that's not an ERF file
@@ -376,11 +380,7 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
        */
       return WTAP_OPEN_NOT_MINE;
     }
-    buffer=(gchar *)g_malloc(packet_size);
-    r = wtap_read_bytes(wth->fh, buffer, packet_size, err, err_info);
-    g_free(buffer);
-
-    if (!r) {
+    if (!wtap_read_bytes(wth->fh, NULL, packet_size, err, err_info)) {
       if (*err != WTAP_ERR_SHORT_READ) {
         /* A real error */
         return WTAP_OPEN_ERROR;

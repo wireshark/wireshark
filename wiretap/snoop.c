@@ -445,7 +445,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 	 * Skip over the padding, if any.
 	 */
 	if (padbytes != 0) {
-		if (!file_skip(wth->fh, padbytes, err))
+		if (!wtap_read_bytes(wth->fh, NULL, padbytes, err, err_info))
 			return FALSE;
 	}
 

@@ -600,7 +600,7 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
             bytes_to_read = 3;
             if (bytes_to_read > datalen)
                 bytes_to_read = datalen;
-            if (!file_skip(fh, bytes_to_read, err))
+            if (!wtap_read_bytes(fh, NULL, bytes_to_read, err, err_info))
                 return FALSE;
             datalen -= bytes_to_read;
             if (datalen == 0) {
