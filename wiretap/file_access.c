@@ -98,7 +98,7 @@ add_extensions(GSList *extensions, const gchar *extension,
 	/*
 	 * Add the specified extension.
 	 */
-	extensions = g_slist_append(extensions, g_strdup(extension));
+	extensions = g_slist_prepend(extensions, g_strdup(extension));
 
 	/*
 	 * Now add the extensions for compressed-file versions of
@@ -107,7 +107,7 @@ add_extensions(GSList *extensions, const gchar *extension,
 	for (compressed_file_extensionp = compressed_file_extensions;
 	    *compressed_file_extensionp != NULL;
 	    compressed_file_extensionp++) {
-		extensions = g_slist_append(extensions,
+		extensions = g_slist_prepend(extensions,
 		    g_strdup_printf("%s.%s", extension,
 		      *compressed_file_extensionp));
 	}
