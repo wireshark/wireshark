@@ -594,8 +594,10 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
   dissect_e212_utf8_imsi(tvb, pinfo, eap_identity_tree, offset + 1, (guint)strlen(tokens[0]) - 1);
 
   /* guess if we have a 3 bytes mnc by comparing the first bytes with the imsi */
-  sscanf(tokens[2] + 3, "%u", &mnc);
-  sscanf(tokens[3] + 3, "%u", &mcc);
+  if (!sscanf(tokens[2] + 3, "%u", &mnc) || !sscanf(tokens[3] + 3, "%u", &mcc)) {
+    ret = FALSE;
+    goto end;
+  }
 
   if (!g_ascii_strncasecmp(tokens[0], tokens[2] + 3, 3)) {
     mcc_mnc = 1000 * mcc + mnc;
