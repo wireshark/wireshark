@@ -8464,6 +8464,8 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                 offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep, io_data_object);
                 offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep, io_data_object);
                 break;
+            default: /* will not execute because of the line preceding the switch */
+                break;
             }
 
             proto_item_append_text(sub_item, ": Subslot:0x%x, Ident:0x%x Properties:0x%x",
@@ -10033,6 +10035,8 @@ dissect_IODWriteReq(tvbuff_t *tvb, int offset,
             break;
         case(1):
             offset += 3;
+            break;
+        default: /* will not execute because of the line preceding the switch */
             break;
         }
     }
