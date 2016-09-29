@@ -459,7 +459,7 @@ DIAG_ON(pedantic)
 	plugin = (dissector_plugin *)g_malloc(sizeof (dissector_plugin));
 	plugin->register_protoinfo = register_protoinfo;
 	plugin->reg_handoff = reg_handoff;
-	dissector_plugins = g_slist_append(dissector_plugins, plugin);
+	dissector_plugins = g_slist_prepend(dissector_plugins, plugin);
 	return TRUE;
 }
 
@@ -6042,7 +6042,7 @@ void proto_add_heuristic_dissector(protocol_t *protocol, const char *short_name)
 	heuristic_dissector = find_heur_dissector_by_unique_short_name(short_name);
 	if (heuristic_dissector != NULL)
 	{
-		protocol->heur_list = g_list_append (protocol->heur_list, heuristic_dissector);
+		protocol->heur_list = g_list_prepend (protocol->heur_list, heuristic_dissector);
 	}
 }
 
