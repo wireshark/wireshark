@@ -5633,6 +5633,26 @@ ssl_dissect_hnd_hello_ext_early_data(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 static gint
+ssl_dissect_hnd_hello_ext_cookie(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                 proto_tree *tree, guint32 offset, guint32 ext_len)
+{
+
+    if (ext_len < 2) {
+        return offset;
+    }
+
+    proto_tree_add_item(tree, hf->hf.hs_ext_cookie_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    ext_len -= 2;
+
+    proto_tree_add_item(tree, hf->hf.hs_ext_cookie, tvb, offset, ext_len, ENC_NA);
+    offset += ext_len;
+
+    return offset;
+}
+
+
+static gint
 ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                       proto_tree *tree, guint32 offset, guint32 ext_len)
 {
@@ -6753,6 +6773,9 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_EARLY_DATA:
             offset = ssl_dissect_hnd_hello_ext_early_data(hf, tvb, ext_tree, offset, ext_len, hnd_type);
+            break;
+        case SSL_HND_HELLO_EXT_COOKIE:
+            offset = ssl_dissect_hnd_hello_ext_cookie(hf, tvb, ext_tree, offset, ext_len);
             break;
         case SSL_HND_HELLO_EXT_DRAFT_VERSION_TLS13:
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_draft_version_tls13,

@@ -681,6 +681,8 @@ typedef struct ssl_common_dissect {
         gint hs_ext_psk_identity;
         gint hs_ext_psk_identity_selected;
         gint hs_ext_early_data_obfuscated_ticket_age;
+        gint hs_ext_cookie_len;
+        gint hs_ext_cookie;
         gint hs_ext_server_name;
         gint hs_ext_server_name_len;
         gint hs_ext_server_name_list_len;
@@ -879,7 +881,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1,                                                             \
+        -1, -1, -1,                                                     \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1047,6 +1049,16 @@ ssl_common_dissect_t name = {   \
       { "Obfuscated ticket age", prefix ".handshake.extensions.early_data.obfuscated_ticket_age",    \
         FT_UINT32, BASE_DEC, NULL, 0x0,                                 \
         "The time since the client learned about the server configuration that it is using, in milliseconds", HFILL }   \
+    },                                                                  \
+    { & name .hf.hs_ext_cookie_len,                                     \
+      { "Cookie length", prefix ".handshake.extensions.cookie_len",     \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_cookie,                                         \
+      { "Cookie", prefix ".handshake.extensions.cookie",                \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_server_name_list_len,                           \
       { "Server Name list length", prefix ".handshake.extensions_server_name_list_len",    \
