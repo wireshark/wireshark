@@ -120,7 +120,7 @@ mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
     /* if there's a trailer, skip it and go to the start of the next packet */
     if (mp2t->trailer_len!=0) {
-        if (-1 == file_seek(wth->fh, mp2t->trailer_len, SEEK_CUR, err)) {
+        if (!wtap_read_bytes(wth->fh, NULL, mp2t->trailer_len, err, err_info)) {
             return FALSE;
         }
     }

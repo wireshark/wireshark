@@ -211,7 +211,7 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		/*
 		 * Not a packet - skip to the next record.
 		 */
-		if (file_seek(wth->fh, TimeStamped_Header.RecSize, SEEK_CUR, err) == -1)
+		if (!wtap_read_bytes(wth->fh, NULL, TimeStamped_Header.RecSize, err, err_info))
 			return FALSE;
 	} while (1);
 

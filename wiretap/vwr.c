@@ -779,7 +779,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                 return UNKNOWN_FPGA;
             }
             else if (v_type != VT_FRAME) {
-                if (file_seek(wth->fh, f_len, SEEK_CUR, err) < 0) {
+                if (!wtap_read_bytes(wth->fh, NULL, f_len, err, err_info)) {
                     g_free(rec);
                     return -1;
                 }

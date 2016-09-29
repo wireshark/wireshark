@@ -735,7 +735,7 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 	}
 	/* Skip the header. */
 	rsize = ((int) whdr.pad[3]) - 8;
-	if (file_seek(fh, rsize, SEEK_CUR, err) == -1)
+	if (!wtap_read_bytes(fh, NULL, rsize, err, err_info))
 		return FALSE;
 
 	memset(&pseudo_header->ieee_802_11, 0, sizeof(pseudo_header->ieee_802_11));

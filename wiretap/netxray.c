@@ -1061,7 +1061,7 @@ reread:
 	/*
 	 * If there's extra stuff at the end of the record, skip it.
 	 */
-	if (file_seek(wth->fh, padding, SEEK_CUR, err) == -1)
+	if (!wtap_read_bytes(wth->fh, NULL, padding, err, err_info))
 		return FALSE;
 
 	/*

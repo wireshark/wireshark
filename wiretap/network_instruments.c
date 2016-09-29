@@ -170,6 +170,7 @@ wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_i
         /* process (or skip over) the current TLV */
         switch (tlvh.type) {
         case INFORMATION_TYPE_TIME_INFO:
+            /* XXX - what if tlvh.length != sizeof sizeof private_state->time_format? */
             if (!wtap_read_bytes(wth->fh, &private_state->time_format,
                                  sizeof private_state->time_format,
                                  err, err_info))
@@ -180,7 +181,7 @@ wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_i
         default:
             seek_increment = tlvh.length - (int)sizeof tlvh;
             if (seek_increment > 0) {
-                if (file_seek(wth->fh, seek_increment, SEEK_CUR, err) == -1)
+                if (!wtap_read_bytes(wth->fh, NULL, seek_increment, err, err_info))
                     return WTAP_OPEN_ERROR;
             }
             offset += seek_increment;
@@ -196,7 +197,7 @@ wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_i
     }
     seek_increment = header_offset - offset;
     if (seek_increment > 0) {
-        if (file_seek(wth->fh, seek_increment, SEEK_CUR, err) == -1)
+        if (!wtap_read_bytes(wth->fh, NULL, seek_increment, err, err_info))
             return WTAP_OPEN_ERROR;
     }
 
@@ -401,6 +402,7 @@ read_packet_header(wtap *wth, FILE_T fh, union wtap_pseudo_header *pseudo_header
         /* process (or skip over) the current TLV */
         switch (tlvh.type) {
         case INFORMATION_TYPE_WIRELESS:
+            /* XXX - what if tlvh.length != sizeof wireless_header? */
             if (!wtap_read_bytes(fh, &wireless_header, sizeof wireless_header,
                                  err, err_info))
                 return -1;
@@ -419,7 +421,7 @@ read_packet_header(wtap *wth, FILE_T fh, union wtap_pseudo_header *pseudo_header
             /* skip the TLV data */
             seek_increment = tlvh.length - (int)sizeof tlvh;
             if (seek_increment > 0) {
-                if (file_seek(fh, seek_increment, SEEK_CUR, err) == -1)
+                if (!wtap_read_bytes(fh, NULL, seek_increment, err, err_info))
                     return -1;
             }
             offset += seek_increment;
@@ -524,7 +526,7 @@ read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_
     /* skip to the packet data */
     seek_increment = offset_to_frame - current_offset_from_packet_header;
     if (seek_increment > 0) {
-        if (file_seek(fh, seek_increment, SEEK_CUR, err) == -1) {
+        if (!wtap_read_bytes(fh, NULL, seek_increment, err, err_info)) {
             return -1;
         }
         bytes_consumed += seek_increment;
@@ -558,7 +560,7 @@ skip_to_next_packet(wtap *wth, int offset_to_next_packet, int current_offset_fro
     /* skip to the next packet header */
     seek_increment = offset_to_next_packet - current_offset_from_packet_header;
     if (seek_increment > 0) {
-        if (file_seek(wth->fh, seek_increment, SEEK_CUR, err) == -1)
+        if (!wtap_read_bytes(wth->fh, NULL, seek_increment, err, err_info))
             return FALSE;
     }
 

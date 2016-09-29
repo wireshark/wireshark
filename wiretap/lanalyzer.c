@@ -424,7 +424,8 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
                   return WTAP_OPEN_MINE;
 
             default:
-                  if (file_seek(wth->fh, record_length, SEEK_CUR, err) == -1) {
+                  /* Unknown record type - skip it */
+                  if (!wtap_read_bytes(wth->fh, NULL, record_length, err, err_info)) {
                         return WTAP_OPEN_ERROR;
                   }
                   break;

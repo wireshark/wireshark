@@ -354,7 +354,8 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
         return FALSE;
     subsys = g_ntohs(rec_hdr.subsys);
     hdr_len -= NETTL_REC_HDR_LEN;
-    if (file_seek(fh, hdr_len, SEEK_CUR, err) == -1)
+    /* Skip the rest of the header. */
+    if (!wtap_read_bytes(fh, NULL, hdr_len, err, err_info))
         return FALSE;
 
     if ( (pntoh32(&rec_hdr.kind) & NETTL_HDR_PDU_MASK) == 0 ) {
@@ -443,7 +444,7 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
                         return FALSE;
                     /* padding is usually either a total 11 or 16 bytes??? */
                     padlen = (int)dummyc[8];
-                    if (file_seek(fh, padlen, SEEK_CUR, err) == -1)
+                    if (!wtap_read_bytes(fh, NULL, padlen, err, err_info))
                         return FALSE;
                     padlen += 9;
                 }
@@ -451,12 +452,12 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
                      || (subsys == NETTL_SUBSYS_EISA_FDDI)
                      || (subsys == NETTL_SUBSYS_HSC_FDDI) ) {
                 /* other flavor FDDI cards have an extra 3 bytes of padding */
-                if (file_seek(fh, 3, SEEK_CUR, err) == -1)
+                if (!wtap_read_bytes(fh, NULL, 3, err, err_info))
                     return FALSE;
                 padlen = 3;
             } else if (subsys == NETTL_SUBSYS_NS_LS_LOOPBACK) {
                 /* LOOPBACK has an extra 26 bytes of padding */
-                if (file_seek(fh, 26, SEEK_CUR, err) == -1)
+                if (!wtap_read_bytes(fh, NULL, 26, err, err_info))
                     return FALSE;
                 padlen = 26;
             } else if (subsys == NETTL_SUBSYS_NS_LS_SCTP) {
@@ -470,7 +471,7 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
                  *   1 = Inbound
                  *   2 = Outbound
                  */
-                if (file_seek(fh, 8, SEEK_CUR, err) == -1)
+                if (!wtap_read_bytes(fh, NULL, 8, err, err_info))
                     return FALSE;
                 padlen = 8;
             } else {
@@ -497,7 +498,8 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
              * And what are the extra two bytes?
              */
             if (nettl->is_hpux_11) {
-                if (file_seek(fh, 2, SEEK_CUR, err) == -1) return FALSE;
+                if (!wtap_read_bytes(fh, NULL, 2, err, err_info))
+                    return FALSE;
             }
             padlen = 0;
             break;
@@ -526,7 +528,7 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
             length = pntoh32(&rec_hdr.length);
             caplen = pntoh32(&rec_hdr.caplen);
             padlen = 24;        /* sizeof (struct nettlrec_sx25l2_hdr) - NETTL_REC_HDR_LEN + 4 */
-            if (file_seek(fh, padlen, SEEK_CUR, err) == -1)
+            if (!wtap_read_bytes(fh, NULL, padlen, err, err_info))
                 return FALSE;
             break;
 

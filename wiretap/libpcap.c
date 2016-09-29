@@ -494,7 +494,7 @@ static int libpcap_try(wtap *wth, int *err, gchar **err_info)
 	 * Now skip over the first record's data, under the assumption
 	 * that the header is sane.
 	 */
-	if (file_seek(wth->fh, first_rec_hdr.hdr.incl_len, SEEK_CUR, err) == -1)
+	if (!wtap_read_bytes(wth->fh, NULL, first_rec_hdr.hdr.incl_len, err, err_info))
 		return -1;
 
 	/*

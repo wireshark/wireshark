@@ -144,8 +144,13 @@ wtap_open_return_val radcom_open(wtap *wth, int *err, gchar **err_info)
 		return WTAP_OPEN_NOT_MINE;
 	}
 
-	if (file_seek(wth->fh, sizeof(struct frame_date), SEEK_CUR, err) == -1)
-		return WTAP_OPEN_ERROR;
+	/* So what time is this? */
+	if (!wtap_read_bytes(wth->fh, NULL, sizeof(struct frame_date),
+	    err, err_info)) {
+		if (*err != WTAP_ERR_SHORT_READ)
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
+	}
 
 	for (;;) {
 		if (!wtap_read_bytes(wth->fh, search_encap, 4,
@@ -167,8 +172,11 @@ wtap_open_return_val radcom_open(wtap *wth, int *err, gchar **err_info)
 		if (file_seek(wth->fh, -3, SEEK_CUR, err) == -1)
 			return WTAP_OPEN_ERROR;
 	}
-	if (file_seek(wth->fh, 12, SEEK_CUR, err) == -1)
-		return WTAP_OPEN_ERROR;
+	if (!wtap_read_bytes(wth->fh, NULL, 12, err, err_info)) {
+		if (*err != WTAP_ERR_SHORT_READ)
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
+	}
 	if (!wtap_read_bytes(wth->fh, search_encap, 4, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
 			return WTAP_OPEN_ERROR;
@@ -220,13 +228,13 @@ wtap_open_return_val radcom_open(wtap *wth, int *err, gchar **err_info)
 #endif
 
 	if (wth->file_encap == WTAP_ENCAP_ETHERNET) {
-		if (file_seek(wth->fh, 294, SEEK_CUR, err) == -1)
+		if (!wtap_read_bytes(wth->fh, NULL, 294, err, err_info))
 			return WTAP_OPEN_ERROR;
 	} else if (wth->file_encap == WTAP_ENCAP_LAPB) {
-		if (file_seek(wth->fh, 297, SEEK_CUR, err) == -1)
+		if (!wtap_read_bytes(wth->fh, NULL, 297, err, err_info))
 			return WTAP_OPEN_ERROR;
 	} else if (wth->file_encap == WTAP_ENCAP_ATM_RFC1483) {
-		if (file_seek(wth->fh, 504, SEEK_CUR, err) == -1)
+		if (!wtap_read_bytes(wth->fh, NULL, 504, err, err_info))
 			return WTAP_OPEN_ERROR;
 	}
 
