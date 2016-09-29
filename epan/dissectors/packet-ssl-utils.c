@@ -47,6 +47,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/report_err.h>
 #include <wsutil/pint.h>
+#include <wsutil/strtoi.h>
 #include <ws_version_info.h>
 #include "packet-x509af.h"
 #include "packet-x509if.h"
@@ -4646,11 +4647,18 @@ ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, const c
     handle = ssl_find_appdata_dissector(uats->protocol);
     if (handle) {
         /* Port to subprotocol mapping */
-        int port = atoi(uats->port); /* Also maps "start_tls" -> 0 (wildcard) */
-        ssl_debug_printf("ssl_init port '%d' filename '%s' password(only for p12 file) '%s'\n",
-            port, uats->keyfile, uats->password);
+        guint16 port = 0;
+        if (ws_strtou16(uats->port, NULL, &port)) {
+            if (port > 0) {
+                ssl_debug_printf("ssl_init port '%d' filename '%s' password(only for p12 file) '%s'\n",
+                    port, uats->keyfile, uats->password);
 
-        ssl_association_add(dissector_table_name, main_handle, handle, port, tcp);
+                ssl_association_add(dissector_table_name, main_handle, handle, port, tcp);
+            }
+        } else {
+            if (strcmp(uats->port, "start_tls"))
+                ssl_debug_printf("invalid ssl_init_port: %s\n", uats->port);
+        }
     }
 
 end:
@@ -5110,8 +5118,8 @@ ssldecrypt_uat_fld_port_chk_cb(void* r _U_, const char* p, guint len _U_, const 
     }
 
     if (strcmp(p, "start_tls") != 0){
-        const gint i = atoi(p);
-        if (i < 0 || i > 65535) {
+        guint16 port;
+        if (!ws_strtou16(p, NULL, &port)) {
             *err = g_strdup("Invalid port given.");
             return FALSE;
         }

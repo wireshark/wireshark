@@ -96,6 +96,7 @@
 
 #include <wsutil/utf8_entities.h>
 #include <wsutil/str_util.h>
+#include <wsutil/strtoi.h>
 #include "packet-tcp.h"
 #include "packet-x509af.h"
 #include "packet-ocsp.h"
@@ -388,7 +389,8 @@ ssl_cleanup(void)
 static void
 ssl_parse_uat(void)
 {
-    guint            i, port;
+    guint              i;
+    guint16            port;
     dissector_handle_t handle;
 
     ssl_set_debug(ssl_debug_file_name);
@@ -418,8 +420,8 @@ ssl_parse_uat(void)
         for (i = 0; i < nssldecrypt; i++) {
             ssldecrypt_assoc_t *ssl_uat = &(sslkeylist_uats[i]);
             ssl_parse_key_list(ssl_uat, ssl_key_hash, "ssl.port", ssl_handle, TRUE);
-            if (key_list_stack)
-                wmem_stack_push(key_list_stack, GUINT_TO_POINTER(atoi(ssl_uat->port)));
+            if (key_list_stack && ws_strtou16(ssl_uat->port, NULL, &port) && port > 0)
+                wmem_stack_push(key_list_stack, GUINT_TO_POINTER(port));
         }
     }
 
