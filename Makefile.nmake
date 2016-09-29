@@ -1134,7 +1134,7 @@ clean_setup:
 	rm -r -f c-ares-1.7.0-win??ws
 	rm -r -f c-ares-1.7.1-win??ws
 	rm -r -f c-ares-1.9.1-1-win??ws
-	rm -r -f c-ares-1.11.0-win??ws
+	rm -r -f c-ares-1.1?.0-win??ws
 	rm -r -f gettext-0.14.5
 	rm -r -f gettext-runtime-0.17
 	rm -r -f gettext-runtime-0.17-1
