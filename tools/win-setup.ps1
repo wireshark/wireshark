@@ -101,13 +101,13 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2016-08-09"
-$Win32CurrentTag = "2016-08-09"
+$Win64CurrentTag = "2016-09-29"
+$Win32CurrentTag = "2016-09-29"
 
 # Archive file / subdir.
 $Win64Archives = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "AirPcap_Devpack_4_1_0_1622";
-    "c-ares-1.11.0-win64ws.zip" = "";
+    "c-ares-1.12.0-win64ws.zip" = "";
     "GeoIP-1.6.6-win64ws.zip" = "GeoIP-1.6.6-win64ws";
     "gnutls-3.2.15-2.9-win64ws.zip" = "";
     "gtk+-bundle_2.24.23-3.39-2_win64ws.zip" = "gtk2";
@@ -124,7 +124,7 @@ $Win64Archives = @{
 
 $Win32Archives = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "AirPcap_Devpack_4_1_0_1622";
-    "c-ares-1.11.0-win32ws.zip" = "";
+    "c-ares-1.12.0-win32ws.zip" = "";
     "GeoIP-1.6.6-win32ws.zip" = "GeoIP-1.6.6-win32ws";
     "gnutls-3.2.15-2.7-win32ws.zip" = "";
     "gtk+-bundle_2.24.23-1.1-1_win32ws.zip" = "gtk2";
@@ -171,7 +171,7 @@ if ($Platform -eq "win32") {
 
 $CleanupItems = @(
     "c-ares-1.9.1-1-win??ws"
-    "c-ares-1.11.0-win??ws"
+    "c-ares-1.1?.0-win??ws"
     "gnutls-3.1.22-*-win??ws"
     "gnutls-3.2.15-*-win??ws"
     "gtk2"
