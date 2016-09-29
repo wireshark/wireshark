@@ -29,6 +29,7 @@
 
 #include "color_utils.h"
 #include "progress_frame.h"
+#include "qt_ui_utils.h"
 #include "sequence_diagram.h"
 #include "wireshark_application.h"
 
@@ -36,10 +37,6 @@
 #include <QFileDialog>
 #include <QFontMetrics>
 #include <QPoint>
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-// Qt::escape
-#include <QTextDocument>
-#endif
 
 // To do:
 // - Resize or show + hide the Time and Comment axes, possibly via one of
@@ -324,11 +321,7 @@ void SequenceDialog::mouseMoved(QMouseEvent *event)
         seq_analysis_item_t *sai = seq_diagram_->itemForPosY(event->pos().y());
         if (sai) {
             packet_num_ = sai->frame_number;
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-            QString raw_comment = Qt::escape(sai->comment);
-#else
-            QString raw_comment = QString(sai->comment).toHtmlEscaped();
-#endif
+            QString raw_comment = html_escape(sai->comment);
             hint = QString("Packet %1: %2").arg(packet_num_).arg(raw_comment);
         }
     }

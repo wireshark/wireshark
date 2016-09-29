@@ -38,11 +38,6 @@
 
 #include <QPushButton>
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-// Qt::escape
-#include <QTextDocument>
-#endif
-
 // To do:
 // - Handle PREF_FILENAME and PREF_DIRNAME.
 
@@ -85,12 +80,7 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
     ui->preferenceTitleLabel->setText(QString("%1:").arg(pref->title));
 
     // Convert the pref description from plain text to rich text.
-    QString description;
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    description = Qt::escape(pref->description);
-#else
-    description = QString(pref->description).toHtmlEscaped();
-#endif
+    QString description = html_escape(pref->description);
     description.replace('\n', "<br>");
     QString tooltip = QString("<span>%1</span>").arg(description);
     ui->preferenceTitleLabel->setToolTip(tooltip);

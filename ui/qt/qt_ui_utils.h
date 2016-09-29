@@ -171,6 +171,14 @@ const QString file_size_to_qstring(const gint64 size);
  */
 const QString time_t_to_qstring(time_t ti_time);
 
+/** Escape HTML metacharacters in a string.
+ *
+ * @param plain_string String to convert.
+ *
+ * @return A QString with escaped metacharacters.
+ */
+QString html_escape(const QString plain_string);
+
 /**
  * Round the current size of a font up to its next "smooth" size.
  * If a smooth size can't be found the font is left unchanged.
@@ -211,6 +219,7 @@ void desktop_show_in_folder(const QString file_path);
  * screens, false otherwise.
  */
 bool rect_on_screen(const QRect &rect);
+
 #endif /* __QT_UI_UTILS__H__ */
 
 // XXX Add a routine to fetch the HWND corresponding to a widget using QPlatformIntegration

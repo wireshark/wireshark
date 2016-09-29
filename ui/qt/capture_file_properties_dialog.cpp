@@ -516,12 +516,7 @@ void CaptureFilePropertiesDialog::fillDetails()
     if (!file_comments.isEmpty()) {
         QString file_comments_html;
 
-        QString comment_escaped;
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-            comment_escaped = Qt::escape(file_comments);
-#else
-            comment_escaped = file_comments.toHtmlEscaped();
-#endif
+        QString comment_escaped = html_escape(file_comments);
         file_comments_html = section_tmpl_.arg(tr("File Comment"));
         file_comments_html += para_tmpl_.arg(comment_escaped);
 
@@ -541,11 +536,7 @@ void CaptureFilePropertiesDialog::fillDetails()
                 QString frame_comment_html = tr("<p>Frame %1: ").arg(framenum);
                 QString raw_comment = pkt_comment;
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                frame_comment_html += Qt::escape(raw_comment);
-#else
-                frame_comment_html += raw_comment.toHtmlEscaped();
-#endif
+                frame_comment_html += html_escape(raw_comment);
                 frame_comment_html += "</p>\n";
                 cursor.insertBlock();
                 cursor.insertHtml(frame_comment_html);

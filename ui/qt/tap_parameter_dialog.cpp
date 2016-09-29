@@ -46,16 +46,13 @@
 #include "wsutil/file_util.h"
 
 #include "progress_frame.h"
+#include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
 #include <QClipboard>
 #include <QContextMenuEvent>
 #include <QMessageBox>
 #include <QFileDialog>
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-// Qt::escape
-#include <QTextDocument>
-#endif
 
 // The GTK+ counterpart uses tap_param_dlg, which we don't use. If we
 // need tap parameters we should probably create a TapParameterDialog
@@ -306,22 +303,12 @@ QByteArray TapParameterDialog::getTreeAsString(st_format_type format)
     {
         // XXX What's a useful format? This mostly conforms to DocBook.
         ba.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-        QString title;
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-        title = Qt::escape(windowSubtitle());
-#else
-        title = QString(windowSubtitle()).toHtmlEscaped();
-#endif
+        QString title = html_escape(windowSubtitle());
         QString xml_header = QString("<table>\n<title>%1</title>\n").arg(title);
         ba.append(xml_header.toUtf8());
         ba.append("<thead>\n<row>\n");
         for (int col = 0; col < ui->statsTreeWidget->columnCount(); col++) {
-            title = ui->statsTreeWidget->headerItem()->text(col);
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-            title = Qt::escape(title);
-#else
-            title = title.toHtmlEscaped();
-#endif
+            title = html_escape(ui->statsTreeWidget->headerItem()->text(col));
             title = QString("  <entry>%1</entry>\n").arg(title);
             ba.append(title.toUtf8());
         }
@@ -385,12 +372,7 @@ QByteArray TapParameterDialog::getTreeAsString(st_format_type format)
         {
             line = "<row>\n";
             foreach (QVariant var, tid) {
-                QString entry;
-    #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                entry = Qt::escape(var.toString());
-    #else
-                entry = var.toString().toHtmlEscaped();
-    #endif
+                QString entry = html_escape(var.toString());
                 line.append(QString("  <entry>%1</entry>\n").arg(entry));
             }
             line.append("</row>\n");

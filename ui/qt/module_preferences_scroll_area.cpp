@@ -42,10 +42,6 @@
 #include <QRadioButton>
 #include <QScrollBar>
 #include <QSpacerItem>
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-// Qt::escape
-#include <QTextDocument>
-#endif
 
 Q_DECLARE_METATYPE(pref_t *)
 
@@ -63,7 +59,7 @@ static const QString title_to_shortcut(const char *title) {
 extern "C" {
 // Callbacks prefs routines
 
-/* show a single preference on the GtkGrid of a preference page */
+/* Add a single preference to the QVBoxLayout of a preference page */
 static guint
 pref_show(pref_t *pref, gpointer layout_ptr)
 {
@@ -72,12 +68,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
     if (!pref || !vb) return 0;
 
     // Convert the pref description from plain text to rich text.
-    QString description;
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    description = Qt::escape(pref->description);
-#else
-    description = QString(pref->description).toHtmlEscaped();
-#endif
+    QString description = html_escape(pref->description);
     description.replace('\n', "<br>");
     QString tooltip = QString("<span>%1</span>").arg(description);
 
