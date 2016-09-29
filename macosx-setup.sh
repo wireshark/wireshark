@@ -134,7 +134,7 @@ PORTAUDIO_VERSION=pa_stable_v19_20111121
 #
 GEOIP_VERSION=1.4.8
 
-CARES_VERSION=1.10.0
+CARES_VERSION=1.12.0
 
 LIBSSH_VERSION=0.7.2
 
@@ -1400,7 +1400,7 @@ uninstall_geoip() {
 install_c_ares() {
     if [ "$CARES_VERSION" -a ! -f c-ares-$CARES_VERSION-done ] ; then
         echo "Downloading, building, and installing C-Ares API:"
-        [ -f c-ares-$CARES_VERSION.tar.gz ] || curl -L -O http://c-ares.haxx.se/download/c-ares-$CARES_VERSION.tar.gz || exit 1
+        [ -f c-ares-$CARES_VERSION.tar.gz ] || curl -L -O https://c-ares.haxx.se/download/c-ares-$CARES_VERSION.tar.gz || exit 1
         gzcat c-ares-$CARES_VERSION.tar.gz | tar xf - || exit 1
         cd c-ares-$CARES_VERSION
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS"  LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
