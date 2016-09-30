@@ -1810,6 +1810,7 @@ static expert_field ei_btatt_opcode_invalid_response = EI_INIT;
 static expert_field ei_btatt_bad_data = EI_INIT;
 static expert_field ei_btatt_unexpected_data = EI_INIT;
 static expert_field ei_btatt_undecoded = EI_INIT;
+static expert_field ei_btatt_invalid_length = EI_INIT;
 
 static wmem_tree_t *mtus = NULL;
 static wmem_tree_t *requests = NULL;
@@ -5343,6 +5344,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         break;
     case 0x2A2A: /* IEEE 11073-20601 Regulatory Certification Data List */ {
         guint16  count;
+        guint16  list_length = 0;
 
         if (service_uuid.bt_uuid == GATT_SERVICE_DEVICE_INFORMATION) {
             if (is_readable_request(att_data->opcode))
@@ -5357,9 +5359,11 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         proto_tree_add_item(tree, hf_btatt_regulatory_certification_data_list_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         count = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        list_length += 2;
         offset += 2;
 
         proto_tree_add_item(tree, hf_btatt_regulatory_certification_data_list_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        list_length += 2;
         offset += 2;
 
         while (count--) {
@@ -5369,19 +5373,23 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             guint16      item_length;
             guint16      certification_data_list_count = 0;
             guint16      certification_data_list_length = 0;
+            proto_item  *list_length_item;
 
             sub_item = proto_tree_add_item(tree, hf_btatt_regulatory_certification_data_list_item, tvb, offset, 0, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
 
             proto_tree_add_item(sub_tree, hf_btatt_regulatory_certification_data_list_item_body, tvb, offset, 1, ENC_NA);
+            list_length += 1;
             offset += 1;
 
             proto_tree_add_item(sub_tree, hf_btatt_regulatory_certification_data_list_item_body_structure_type, tvb, offset, 1, ENC_NA);
             item_type = tvb_get_guint8(tvb, offset);
+            list_length += 1;
             offset += 1;
 
-            proto_tree_add_item(sub_tree, hf_btatt_regulatory_certification_data_list_item_body_structure_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            list_length_item = proto_tree_add_item(sub_tree, hf_btatt_regulatory_certification_data_list_item_body_structure_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             item_length = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            list_length += 2 + item_length;
             offset += 2;
 
             if (item_type == 0x01) {
@@ -5422,8 +5430,6 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
                         offset += 2;
                     }
                 }
-
-                proto_item_set_len(sub_item, 1 + 1 + 2 + item_length);
             } else if (item_type == 0x02) {
                 proto_tree_add_item(sub_tree, hf_btatt_regulatory_certification_data_list_item_regulation_bit_field_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
@@ -5431,8 +5437,14 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
                 proto_tree_add_item(sub_tree, hf_btatt_regulatory_certification_data_list_item_data, tvb, offset, item_length, ENC_NA);
                 offset += item_length;
             }
+
+            proto_item_set_len(sub_item, 1 + 1 + 2 + item_length);
+
+            if (list_length != length)
+                expert_add_info(pinfo, list_length_item, &ei_btatt_invalid_length);
+            }
         }
-        }
+
         break;
     case 0x2A2C: /* Magnetic Declination */
         if (service_uuid.bt_uuid == GATT_SERVICE_ENVIRONMENTAL_SENSING) {
@@ -15093,6 +15105,7 @@ proto_register_btatt(void)
         { &ei_btatt_opcode_invalid_request, { "btatt.opcode.invalid_request" ,        PI_PROTOCOL,  PI_WARN, "Invalid request", EXPFILL }},
         { &ei_btatt_opcode_invalid_response,{ "btatt.opcode.invalid_response",        PI_PROTOCOL,  PI_WARN, "Invalid response", EXPFILL }},
         { &ei_btatt_invalid_usage,          { "btatt.invalid_usage",                  PI_PROTOCOL,  PI_WARN, "Invalid usage of this characteristic with this opcode", EXPFILL }},
+        { &ei_btatt_invalid_length,         { "btatt.invalid_length",                 PI_PROTOCOL,  PI_WARN, "Invalid length", EXPFILL }},
         { &ei_btatt_bad_data,               { "btatt.bad_data",                       PI_PROTOCOL,  PI_WARN, "Bad Data", EXPFILL }},
         { &ei_btatt_unexpected_data,        { "btatt.unexpected_data",                PI_PROTOCOL,  PI_WARN, "Unexpected Data", EXPFILL }},
         { &ei_btatt_undecoded,              { "btatt.undecoded",                      PI_UNDECODED, PI_NOTE, "Undecoded", EXPFILL }},
