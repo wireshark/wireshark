@@ -51,12 +51,12 @@
 
 /* Structure for general station information */
 typedef struct _profinet_lldp_column_info {
-    /* general information */
-    gchar    *chassis_id_mac;
-    gchar    *chassis_id_locally_assigned;
-    gchar    *port_id_locally_assigned;
-    gboolean is_nos_assigned;
-    gboolean is_port_id_assigned;
+	/* general information */
+	gchar    *chassis_id_mac;
+	gchar    *chassis_id_locally_assigned;
+	gchar    *port_id_locally_assigned;
+	gboolean is_nos_assigned;
+	gboolean is_port_id_assigned;
 }profinet_lldp_column_info;
 
 static gint column_info_selection = DEFAULT_COLUMN_INFO;
@@ -593,9 +593,9 @@ static const value_string dcbx_ieee_8021az_sf[] = {
 	{ 2,	"Port over TCP/SCTP" },
 	{ 3,	"Port over UDP/DCCP" },
 	{ 4,	"Port over TCP/SCTP/UDP/DCCP" },
-	{ 5,    "Reserved" },
-	{ 6,    "Reserved" },
-	{ 7,    "Reserved" },
+	{ 5,	"Reserved" },
+	{ 6,	"Reserved" },
+	{ 7,	"Reserved" },
 	{ 0, NULL }
 };
 
@@ -604,8 +604,8 @@ static const value_string ieee_802_3_subtypes[] = {
 	{ 0x01,	"MAC/PHY Configuration/Status" },
 	{ 0x02,	"Power Via MDI" },
 	{ 0x03,	"Link Aggregation" },
-	{ 0x04, "Maximum Frame Size" },
-	{ 0x05, "EEE (Energy-Efficient Ethernet)" },
+	{ 0x04,	"Maximum Frame Size" },
+	{ 0x05,	"EEE (Energy-Efficient Ethernet)" },
 	{ 0, NULL }
 };
 
