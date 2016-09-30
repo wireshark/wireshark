@@ -2595,7 +2595,7 @@ proto_register_bthfp(void)
            NULL, HFILL}
         },
         { &hf_at_type,
-           { "Number",                           "bthfp.at.type",
+           { "Type",                             "bthfp.at.type",
            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(at_type_vals), 0,
            NULL, HFILL}
         },
