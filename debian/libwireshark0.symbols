@@ -1609,6 +1609,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  uat_foreach_table@Base 1.9.1
  uat_get_actual_filename@Base 1.12.0~rc1
  uat_get_table_by_name@Base 1.9.1
+ uat_insert_record_idx@Base 2.3.0
  uat_load@Base 1.9.1
  uat_new@Base 1.9.1
  uat_remove_record_idx@Base 1.9.1

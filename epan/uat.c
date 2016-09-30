@@ -131,14 +131,7 @@ void* uat_add_record(uat_t* uat, const void* data, gboolean valid_rec) {
     void* rec;
     gboolean* valid;
 
-    /* Save a copy of the raw (possibly that may contain invalid field values) data */
-    g_array_append_vals (uat->raw_data, data, 1);
-
-    rec = UAT_INDEX_PTR(uat, uat->raw_data->len - 1);
-
-    if (uat->copy_cb) {
-        uat->copy_cb(rec, data, (unsigned int) uat->record_size);
-    }
+    uat_insert_record_idx(uat, uat->raw_data->len, data);
 
     if (valid_rec) {
         /* Add a "known good" record to the list to be used by the dissector */
@@ -151,13 +144,12 @@ void* uat_add_record(uat_t* uat, const void* data, gboolean valid_rec) {
         }
 
         UAT_UPDATE(uat);
+
+        valid = &g_array_index(uat->valid_data, gboolean, uat->valid_data->len-1);
+        *valid = valid_rec;
     } else {
         rec = NULL;
     }
-
-    g_array_append_vals (uat->valid_data, &valid_rec, 1);
-    valid = &g_array_index(uat->valid_data, gboolean, uat->valid_data->len-1);
-    *valid = valid_rec;
 
     return rec;
 }
@@ -202,6 +194,25 @@ void uat_swap(uat_t* uat, guint a, guint b) {
     *(gboolean*)(uat->valid_data->data + (sizeof(gboolean) * (b))) = tmp_bool;
 
 
+}
+
+void uat_insert_record_idx(uat_t* uat, guint idx, const void *src_record) {
+    /* Allow insert before an existing item or append after the last item. */
+    g_assert( idx <= uat->raw_data->len );
+
+    /* Store a copy of the record and invoke copy_cb to clone pointers too. */
+    g_array_insert_vals(uat->raw_data, idx, src_record, 1);
+    void *rec = UAT_INDEX_PTR(uat, idx);
+    if (uat->copy_cb) {
+        uat->copy_cb(rec, src_record, (unsigned int) uat->record_size);
+    } else {
+        memcpy(rec, src_record, (unsigned int) uat->record_size);
+    }
+
+    /* Initially assume that the record is invalid, it is not copied to the
+     * user-visible records list. */
+    gboolean valid_rec = FALSE;
+    g_array_insert_val(uat->valid_data, idx, valid_rec);
 }
 
 void uat_remove_record_idx(uat_t* uat, guint idx) {
@@ -342,8 +353,8 @@ gboolean uat_save(uat_t* uat, char** error) {
     /* Now copy "good" raw_data entries to user_data */
     for ( i = 0 ; i < uat->raw_data->len ; i++ ) {
         void *rec = UAT_INDEX_PTR(uat, i);
-        gboolean* valid = (gboolean*)(uat->valid_data->data + sizeof(gboolean)*i);
-        if (*valid) {
+        gboolean valid = g_array_index(uat->valid_data, gboolean, i);
+        if (valid) {
             g_array_append_vals(uat->user_data, rec, 1);
             if (uat->copy_cb) {
                 uat->copy_cb(UAT_USER_INDEX_PTR(uat, uat->user_data->len - 1),

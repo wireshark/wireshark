@@ -103,6 +103,12 @@ WS_DLL_PUBLIC
 void uat_swap(uat_t *uat, guint idx_a, guint idx_b);
 
 /**
+ * Inserts the record at the given index in the internal record list.
+ */
+WS_DLL_PUBLIC
+void uat_insert_record_idx(uat_t *uat, guint rec_idx, const void *src_record);
+
+/**
  * Removes the record with the given index from the internal record list.
  */
 WS_DLL_PUBLIC
