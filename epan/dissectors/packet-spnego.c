@@ -775,6 +775,9 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 #ifndef KEYTYPE_ARCFOUR_56
 # define KEYTYPE_ARCFOUR_56 24
 #endif
+#ifndef KEYTYPE_ARCFOUR_HMAC
+# define KEYTYPE_ARCFOUR_HMAC 23
+#endif
 /* XXX - We should probably do a configure-time check for this instead */
 #ifndef KRB5_KU_USAGE_SEAL
 # define KRB5_KU_USAGE_SEAL 22
@@ -1297,7 +1300,7 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 			decrypt_gssapi_krb_arcfour_wrap(tree,
 				pinfo,
 				tvb,
-				KERB_ENCTYPE_RC4_HMAC,
+				KEYTYPE_ARCFOUR_HMAC,
 				gssapi_encrypt);
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 		}
@@ -1964,7 +1967,7 @@ void proto_register_spnego(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1419 "./asn1/spnego/packet-spnego-template.c"
+#line 1422 "./asn1/spnego/packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1987,7 +1990,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1429 "./asn1/spnego/packet-spnego-template.c"
+#line 1432 "./asn1/spnego/packet-spnego-template.c"
 	};
 
 	static ei_register_info ei[] = {
