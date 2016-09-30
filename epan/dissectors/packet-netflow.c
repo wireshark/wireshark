@@ -764,6 +764,7 @@ static const value_string v9_v10_template_types[] = {
     { 37084, "TRANSPORT_TCP_WINDOWS_SIZE_MAX" },
     { 37085, "TRANSPORT_TCP_WINDOWS_SIZE_MEAN" },
     { 37086, "TRANSPORT_TCP_MAXIMUM_SEGMENT_SIZE" },
+    /* Cisco ASA 5500 */
     { 40000, "AAA_USERNAME" },
     { 40001, "XLATE_SRC_ADDR_IPV4" },
     { 40002, "XLATE_DST_ADDR_IPV4" },
@@ -11530,7 +11531,7 @@ proto_register_netflow(void)
                                    "Maximum number of fields allowed in a template",
                                    "Set the number of fields allowed in a template.  "
                                    "Use 0 (zero) for unlimited.  "
-                                   " (default: " G_STRINGIFY(V9TEMPLATE_MAX_FIELDS_DEF) ")",
+                                   " (default: " G_STRINGIFY(V9_TMPLT_MAX_FIELDS_DEF) ")",
                                    10, &v9_tmplt_max_fields);
 
     register_init_routine(&netflow_init);
