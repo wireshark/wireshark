@@ -1292,20 +1292,23 @@ dissect_cntr_service(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 si
    proto_tree_add_item(header_tree, hf_cip_svc_code, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
 
    /* If the service is a set axis, get axis attribute or group sync request dissect it as well */
-   switch(service)
+   if (size > 4)
    {
-   case SC_GET_AXIS_ATTRIBUTE_LIST:
-      dissect_get_axis_attr_list_request(tvb, header_tree, offset + 4, size);
-      break;
-   case SC_SET_AXIS_ATTRIBUTE_LIST:
-      dissect_set_axis_attr_list_request(tvb, header_tree, offset + 4, size);
-      break;
-   case SC_GROUP_SYNC:
-      dissect_group_sync_request(tvb, header_tree, offset + 4, size);
-      break;
-   default:
-      /* Display the remainder of the service channel data */
-      proto_tree_add_item(header_tree, hf_cip_svc_data, tvb, offset + 4, size - 4, ENC_NA);
+       switch (service)
+       {
+       case SC_GET_AXIS_ATTRIBUTE_LIST:
+           dissect_get_axis_attr_list_request(tvb, header_tree, offset + 4, size - 4);
+           break;
+       case SC_SET_AXIS_ATTRIBUTE_LIST:
+           dissect_set_axis_attr_list_request(tvb, header_tree, offset + 4, size - 4);
+           break;
+       case SC_GROUP_SYNC:
+           dissect_group_sync_request(tvb, header_tree, offset + 4, size - 4);
+           break;
+       default:
+           /* Display the remainder of the service channel data */
+           proto_tree_add_item(header_tree, hf_cip_svc_data, tvb, offset + 4, size - 4, ENC_NA);
+       }
    }
 
    return offset + size;
@@ -1483,20 +1486,23 @@ dissect_devce_service(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 s
    proto_tree_add_item(header_tree, hf_cip_svc_ext_status, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
 
    /* If the service is a set axis, get axis attribute response or group sync dissect it as well */
-   switch(tvb_get_guint8(tvb, offset + 1))
+   if (size > 4)
    {
-   case SC_GET_AXIS_ATTRIBUTE_LIST:
-      dissect_get_axis_attr_list_response(tvb, header_tree, offset + 4, size);
-      break;
-   case SC_SET_AXIS_ATTRIBUTE_LIST:
-      dissect_set_axis_attr_list_response(tvb, header_tree, offset + 4, size);
-      break;
-   case SC_GROUP_SYNC:
-      dissect_group_sync_response(tvb, header_tree, offset + 4, size);
-      break;
-   default:
-      /* Display the remainder of the service channel data */
-      proto_tree_add_item(header_tree, hf_cip_svc_data, tvb, offset + 4, size - 4, ENC_NA);
+       switch (tvb_get_guint8(tvb, offset + 1))
+       {
+       case SC_GET_AXIS_ATTRIBUTE_LIST:
+           dissect_get_axis_attr_list_response(tvb, header_tree, offset + 4, size - 4);
+           break;
+       case SC_SET_AXIS_ATTRIBUTE_LIST:
+           dissect_set_axis_attr_list_response(tvb, header_tree, offset + 4, size - 4);
+           break;
+       case SC_GROUP_SYNC:
+           dissect_group_sync_response(tvb, header_tree, offset + 4, size - 4);
+           break;
+       default:
+           /* Display the remainder of the service channel data */
+           proto_tree_add_item(header_tree, hf_cip_svc_data, tvb, offset + 4, size - 4, ENC_NA);
+       }
    }
 
    return offset + size;

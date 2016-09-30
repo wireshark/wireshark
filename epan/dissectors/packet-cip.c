@@ -5138,7 +5138,7 @@ dissect_cip_set_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    proto_tree_add_item(tree, hf_cip_sc_set_attr_list_attr_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
    /* Add Attribute List */
-   att_list_tree = proto_tree_add_subtree(tree, tvb, offset+2, att_count*4, ett_cip_set_attribute_list, &att_list, "Attribute List" );
+   att_list_tree = proto_tree_add_subtree(tree, tvb, offset+2, att_count*2, ett_cip_set_attribute_list, &att_list, "Attribute List" );
    offset += 2;
    start_offset = offset;
 
@@ -5533,7 +5533,7 @@ dissect_cip_get_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    proto_item *att_list, *att_item;
    proto_tree *att_tree, *att_list_tree;
 
-   /* Get attribute list request */
+   /* Get attribute list response */
    if (tvb_reported_length_remaining(tvb, offset) < 2)
    {
       expert_add_info(pinfo, item, &ei_mal_serv_gal);
@@ -6733,10 +6733,10 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
    confgi = proto_tree_add_item(cmd_tree, hf_cip_cco_con_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN );
    confg_tree = proto_item_add_subtree(confgi, ett_cco_con_flag);
 
-      /* Add the data to the tree */
-      proto_tree_add_item(confg_tree, hf_cip_cco_con_type, tvb, offset, 2, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item(confg_tree, hf_cip_cco_ot_rtf, tvb, offset, 2, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item(confg_tree, hf_cip_cco_to_rtf, tvb, offset, 2, ENC_LITTLE_ENDIAN );
+   /* Add the data to the tree */
+   proto_tree_add_item(confg_tree, hf_cip_cco_con_type, tvb, offset, 2, ENC_LITTLE_ENDIAN );
+   proto_tree_add_item(confg_tree, hf_cip_cco_ot_rtf, tvb, offset, 2, ENC_LITTLE_ENDIAN );
+   proto_tree_add_item(confg_tree, hf_cip_cco_to_rtf, tvb, offset, 2, ENC_LITTLE_ENDIAN );
 
    /* Target device id */
    tdi_tree = proto_tree_add_subtree( cmd_tree, tvb, offset+2, 10, ett_cco_tdi, NULL, "Target Device ID");
@@ -6751,27 +6751,27 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
    /* Net Connection Parameters */
    ncp_tree = proto_tree_add_subtree( cmd_tree, tvb, offset+14, 14, ett_cco_ncp, NULL, "Net Connection Parameters");
 
-      /* Timeout multiplier */
-      proto_tree_add_item(ncp_tree, hf_cip_cco_timeout_multiplier, tvb, offset+14, 1, ENC_LITTLE_ENDIAN );
+   /* Timeout multiplier */
+   proto_tree_add_item(ncp_tree, hf_cip_cco_timeout_multiplier, tvb, offset+14, 1, ENC_LITTLE_ENDIAN );
 
-      dissect_transport_type_trigger(tvb, offset+15, ncp_tree, hf_cip_cco_transport_type_trigger,
+   dissect_transport_type_trigger(tvb, offset+15, ncp_tree, hf_cip_cco_transport_type_trigger,
                                   hf_cip_cco_fwo_dir, hf_cip_cco_fwo_trigger, hf_cip_cco_fwo_class, ett_cco_ttt);
 
-      temp_data = tvb_get_letohl( tvb, offset+16);
-      proto_tree_add_uint_format_value(ncp_tree, hf_cip_cco_ot_rpi, tvb, offset+16, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
+   temp_data = tvb_get_letohl( tvb, offset+16);
+   proto_tree_add_uint_format_value(ncp_tree, hf_cip_cco_ot_rpi, tvb, offset+16, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
 
-      /* Display O->T network connection parameters */
-      dissect_net_param16(tvb, offset+20, ncp_tree,
-                 hf_cip_cco_ot_net_param16, hf_cip_cco_fwo_own, hf_cip_cco_fwo_typ,
-                 hf_cip_cco_fwo_prio, hf_cip_cco_fwo_fixed_var, hf_cip_cco_fwo_con_size, ett_cco_ncp);
+   /* Display O->T network connection parameters */
+   dissect_net_param16(tvb, offset+20, ncp_tree,
+              hf_cip_cco_ot_net_param16, hf_cip_cco_fwo_own, hf_cip_cco_fwo_typ,
+              hf_cip_cco_fwo_prio, hf_cip_cco_fwo_fixed_var, hf_cip_cco_fwo_con_size, ett_cco_ncp);
 
-      temp_data = tvb_get_letohl( tvb, offset+22);
-      proto_tree_add_uint_format_value(ncp_tree, hf_cip_cco_to_rpi, tvb, offset+16, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
+   temp_data = tvb_get_letohl( tvb, offset+22);
+   proto_tree_add_uint_format_value(ncp_tree, hf_cip_cco_to_rpi, tvb, offset+16, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
 
-      /* Display T->O network connection parameters */
-      dissect_net_param16(tvb, offset+26, ncp_tree,
-                 hf_cip_cco_to_net_param16, hf_cip_cco_fwo_own, hf_cip_cco_fwo_typ,
-                 hf_cip_cco_fwo_prio, hf_cip_cco_fwo_fixed_var, hf_cip_cco_fwo_con_size, ett_cco_ncp);
+   /* Display T->O network connection parameters */
+   dissect_net_param16(tvb, offset+26, ncp_tree,
+              hf_cip_cco_to_net_param16, hf_cip_cco_fwo_own, hf_cip_cco_fwo_typ,
+              hf_cip_cco_fwo_prio, hf_cip_cco_fwo_fixed_var, hf_cip_cco_fwo_con_size, ett_cco_ncp);
 
    /* Connection Path */
    conn_path_size = tvb_get_guint8( tvb, offset+28 )*2;
@@ -6814,17 +6814,17 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
 
    iomap_tree = proto_tree_add_subtree( cmd_tree, tvb, offset+variable_data_size, iomap_size+2, ett_cco_iomap, NULL, "I/O Mapping");
 
-      proto_tree_add_item(iomap_tree, hf_cip_cco_iomap_format_number, tvb, offset+variable_data_size, 2, ENC_LITTLE_ENDIAN );
-      proto_tree_add_uint_format_value(iomap_tree, hf_cip_cco_iomap_size, tvb, offset+variable_data_size+2, 2, iomap_size, "%d (bytes)", iomap_size);
+   proto_tree_add_item(iomap_tree, hf_cip_cco_iomap_format_number, tvb, offset+variable_data_size, 2, ENC_LITTLE_ENDIAN );
+   proto_tree_add_uint_format_value(iomap_tree, hf_cip_cco_iomap_size, tvb, offset+variable_data_size+2, 2, iomap_size, "%d (bytes)", iomap_size);
 
-      /* Attribute data */
-      if (iomap_size > 0)
-         proto_tree_add_item(iomap_tree, hf_cip_cco_iomap_attribute, tvb, offset+variable_data_size+4, iomap_size, ENC_NA);
+   /* Attribute data */
+   if (iomap_size > 0)
+      proto_tree_add_item(iomap_tree, hf_cip_cco_iomap_attribute, tvb, offset+variable_data_size+4, iomap_size, ENC_NA);
 
    variable_data_size += (iomap_size+4);
 
    /* Proxy device id */
-   tdi_tree = proto_tree_add_subtree( cmd_tree, tvb, offset+variable_data_size, 10, ett_cco_pdi, NULL, "Proxy Device ID");
+   tdi_tree = proto_tree_add_subtree( cmd_tree, tvb, offset+variable_data_size, 8, ett_cco_pdi, NULL, "Proxy Device ID");
 
    dissect_deviceid(tvb, offset+variable_data_size, tdi_tree,
       hf_cip_cco_pdi_vendor, hf_cip_cco_pdi_devtype, hf_cip_cco_pdi_prodcode,
@@ -6871,7 +6871,7 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
                  hf_cip_cco_lfwo_prio, hf_cip_cco_lfwo_fixed_var, hf_cip_cco_lfwo_con_size, ett_cco_ncp);
 
       temp_data = tvb_get_letohl( tvb, offset+variable_data_size+10);
-      proto_tree_add_uint_format_value(ncp_tree, hf_cip_cco_to_rpi, tvb, offset+variable_data_size+2, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
+      proto_tree_add_uint_format_value(ncp_tree, hf_cip_cco_to_rpi, tvb, offset+variable_data_size+10, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
 
       /* Display T->O network connection parameters */
       dissect_net_param32(tvb, offset+variable_data_size+14, ncp_tree,
@@ -6880,7 +6880,8 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
 
       variable_data_size += 18;
    }
-return variable_data_size;
+
+   return variable_data_size;
 }
 
 static void
