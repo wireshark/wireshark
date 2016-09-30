@@ -239,7 +239,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 						tokenlen = get_token_len(line, line + linelen, &next_token);
 
 						/* Convert form ascii to nstime */
-						if (ws_strtou64(format_text(line, tokenlen), NULL, &t.secs)) {
+						if (ws_strtou64(format_text(line, tokenlen), NULL, (guint64*)&t.secs)) {
 
 							/*
 							 * Format ascii representation of time
