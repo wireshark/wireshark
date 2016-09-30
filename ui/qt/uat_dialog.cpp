@@ -118,6 +118,8 @@ void UatDialog::setUat(epan_uat *uat)
         if (uat_->help && strlen(uat_->help) > 0) {
             help_button_->setEnabled(true);
         }
+        connect(this, SIGNAL(rejected()), this, SLOT(rejectChanges()));
+        connect(this, SIGNAL(accepted()), this, SLOT(acceptChanges()));
     }
 
     setWindowTitle(title);
@@ -580,7 +582,7 @@ void UatDialog::applyChanges()
 }
 
 
-void UatDialog::on_buttonBox_accepted()
+void UatDialog::acceptChanges()
 {
     if (!uat_) return;
 
@@ -599,7 +601,7 @@ void UatDialog::on_buttonBox_accepted()
     }
 }
 
-void UatDialog::on_buttonBox_rejected()
+void UatDialog::rejectChanges()
 {
     if (!uat_) return;
 

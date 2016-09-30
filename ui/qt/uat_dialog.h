@@ -61,11 +61,11 @@ private slots:
     void enumPrefCurrentIndexChanged(int index);
     void stringPrefTextChanged(const QString & text);
     void stringPrefEditingFinished();
+    void acceptChanges();
+    void rejectChanges();
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();
     void on_copyToolButton_clicked();
-    void on_buttonBox_accepted();
-    void on_buttonBox_rejected();
     void on_buttonBox_helpRequested();
 
 private:
