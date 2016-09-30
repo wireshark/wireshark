@@ -51,12 +51,12 @@
 
 /* Structure for general station information */
 typedef struct _profinet_lldp_column_info {
-	/* general information */
-	gchar    *chassis_id_mac;
-	gchar    *chassis_id_locally_assigned;
-	gchar    *port_id_locally_assigned;
-	gboolean is_nos_assigned;
-	gboolean is_port_id_assigned;
+    /* general information */
+    gchar    *chassis_id_mac;
+    gchar    *chassis_id_locally_assigned;
+    gchar    *port_id_locally_assigned;
+    gboolean is_nos_assigned;
+    gboolean is_port_id_assigned;
 }profinet_lldp_column_info;
 
 static gint column_info_selection = DEFAULT_COLUMN_INFO;
@@ -554,7 +554,7 @@ static const value_string dcbx_app_selector[] = {
 static const value_string dcbx_app_types[] = {
 	{ 0xcbc,	"iSCSI" },
 	{ 0x8906,	"FCoE" },
-	{ 0x8914,	"FiP" }, c
+	{ 0x8914,	"FiP" },
 	{ 0, NULL }
 };
 
