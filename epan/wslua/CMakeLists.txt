@@ -65,13 +65,11 @@ set(WSLUA_FILES
 )
 source_group(wslua FILES ${WSLUA_FILES})
 
-if(WERROR_COMMON_FLAGS)
-	set_source_files_properties(
-		${WSLUA_FILES}
-		PROPERTIES
-		COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
-	)
-endif()
+set_source_files_properties(
+	${WSLUA_FILES}
+	PROPERTIES
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
 
 # make-taps.pl depends on the current working directory
 # to find the dissector files (contents of taps file

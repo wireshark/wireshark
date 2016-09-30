@@ -189,33 +189,18 @@ set(CLEAN_FILES
 	${WSUTIL_FILES}
 )
 
-if (WERROR_COMMON_FLAGS)
-	set_source_files_properties(
-		${CLEAN_FILES}
-		PROPERTIES
-		COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
-	)
-else()
-	#
-	# Set the property to an empty string, so that if we try
-	# to get it below, it succeeds.
-	#
-	set_source_files_properties(
-		${CLEAN_FILES}
-		PROPERTIES
-		COMPILE_FLAGS ""
-	)
-endif()
+set_source_files_properties(
+	${CLEAN_FILES}
+	PROPERTIES
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
 if (HAVE_SSE4_2)
-	get_source_file_property(
-		WS_MEMPBRK_SSE42_COMPILE_FLAGS
-		ws_mempbrk_sse42.c
-		COMPILE_FLAGS
-	)
+	# TODO with CMake 2.8.12, we could use COMPILE_OPTIONS and just append
+	# instead of this COMPILE_FLAGS duplication...
 	set_source_files_properties(
 		ws_mempbrk_sse42.c
 		PROPERTIES
-		COMPILE_FLAGS "${WS_MEMPBRK_SSE42_COMPILE_FLAGS} ${SSE4_2_FLAG}"
+		COMPILE_FLAGS "${WERROR_COMMON_FLAGS} ${SSE4_2_FLAG}"
 	)
 endif()
 

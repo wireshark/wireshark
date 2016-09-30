@@ -43,13 +43,11 @@ set(DFILTER_FILES
 )
 source_group(dfilter FILES ${DFILTER_FILES})
 
-if(WERROR_COMMON_FLAGS)
-	set_source_files_properties(
-		${DFILTER_FILES}
-		PROPERTIES
-		COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
-	)
-endif()
+set_source_files_properties(
+	${DFILTER_FILES}
+	PROPERTIES
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
 
 add_lex_files(LEX_FILES GENERATED_FILES
 	scanner.l

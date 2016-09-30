@@ -41,13 +41,11 @@ set(FTYPE_FILES
 )
 source_group(ftype FILES ${FTYPE_FILES})
 
-if(WERROR_COMMON_FLAGS)
-	set_source_files_properties(
-		${FTYPE_FILES}
-		PROPERTIES
-		COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
-	)
-endif()
+set_source_files_properties(
+	${FTYPE_FILES}
+	PROPERTIES
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
 
 add_library(ftypes OBJECT
 	${FTYPE_FILES}

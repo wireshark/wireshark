@@ -84,13 +84,11 @@ set(WIRETAP_FILES
 	${CMAKE_SOURCE_DIR}/ws_version_info.c
 )
 
-if (WERROR_COMMON_FLAGS)
-	set_source_files_properties(
-		${WIRETAP_FILES}
-		PROPERTIES
-		COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
-	)
-endif()
+set_source_files_properties(
+	${WIRETAP_FILES}
+	PROPERTIES
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
 
 add_lex_files(LEX_FILES GENERATED_FILES
 	ascend_scanner.l
@@ -168,3 +166,16 @@ CHECKAPI(
 #	  ${LEX_FILES}
 	  ${YACC_FILES}
 )
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#

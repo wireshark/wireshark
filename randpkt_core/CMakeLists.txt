@@ -28,13 +28,11 @@ set(CLEAN_FILES
 	${RANDPKT_CORE_SRC}
 )
 
-if (WERROR_COMMON_FLAGS)
-	set_source_files_properties(
-		${CLEAN_FILES}
-		PROPERTIES
-		COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
-	)
-endif()
+set_source_files_properties(
+	${CLEAN_FILES}
+	PROPERTIES
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
 
 file(GLOB RANDPKT_CORE_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" randpkt_core.h)
 
@@ -65,3 +63,16 @@ CHECKAPI(
 	  ${RANDPKT_CORE_SRC}
 	  ${RANDPKT_CORE_HEADERS}
 )
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#

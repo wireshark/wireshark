@@ -1452,13 +1452,11 @@ set(CLEAN_FILES
 	${DISSECTOR_SUPPORT_SRC}
 )
 
-if(WERROR_COMMON_FLAGS)
-	set_source_files_properties(
-		${CLEAN_FILES}
-		PROPERTIES
-		COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
-	)
-endif()
+set_source_files_properties(
+	${CLEAN_FILES}
+	PROPERTIES
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
 
 add_library(dissectors OBJECT
 	${DISSECTOR_FILES}

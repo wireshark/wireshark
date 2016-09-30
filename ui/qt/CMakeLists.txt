@@ -508,13 +508,11 @@ add_custom_target(
 )
 set_target_properties(translations PROPERTIES FOLDER "UI")
 
-if (WERROR_COMMON_FLAGS)
-	set_source_files_properties(
-		${WIRESHARK_QT_FILES}
-		PROPERTIES
-		COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
-	)
-endif()
+set_source_files_properties(
+	${WIRESHARK_QT_FILES}
+	PROPERTIES
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
 
 add_definitions(${QT_DEFINITIONS})
 

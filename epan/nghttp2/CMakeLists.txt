@@ -35,13 +35,11 @@ set(NGHTTP2_FILES
 )
 source_group(nghttp2 FILES ${NGHTTP2_FILES})
 
-if(WERROR_COMMON_FLAGS)
-	set_source_files_properties(
-		${NGHTTP2_FILES}
-		PROPERTIES
-		COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
-	)
-endif()
+set_source_files_properties(
+	${NGHTTP2_FILES}
+	PROPERTIES
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
 
 add_library(nghttp2 OBJECT
 	${NGHTTP2_FILES}

@@ -44,13 +44,11 @@ set(WMEM_FILES
 )
 source_group(wmem FILES ${WMEM_FILES})
 
-if(WERROR_COMMON_FLAGS)
-	set_source_files_properties(
-		${WMEM_FILES}
-		PROPERTIES
-		COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
-	)
-endif()
+set_source_files_properties(
+	${WMEM_FILES}
+	PROPERTIES
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
 
 add_library(wmem OBJECT
 	${WMEM_FILES}
