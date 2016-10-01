@@ -45,7 +45,7 @@ enum InterfaceTreeColumns
 #endif
     IFTREE_COL_NAME,
     IFTREE_COL_STATS,
-    IFTREE_COL_MAX /*< is not being displayed, it is the definition for the maximum numbers of columns */
+    IFTREE_COL_MAX /* is not being displayed, it is the definition for the maximum numbers of columns */
 };
 
 class InterfaceTreeModel : public QAbstractTableModel
