@@ -39,7 +39,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 13.6.0 Release 13)
+ *   (3GPP TS 24.008 version 13.7.0 Release 13)
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
@@ -1125,7 +1125,7 @@ typedef enum
     DE_ATTACH_RES,                  /* [7] 10.5.5.1 Attach Result*/
     DE_ATTACH_TYPE,                 /* [7] 10.5.5.2 Attach Type */
     DE_CIPH_ALG,                    /* [7] 10.5.5.3 Ciphering Algorithm */
-    DE_INTEG_PROT_ALG,              /* [11] 10.5.5.3a Integrity Protection Algorithm */
+    DE_INTEG_ALG,                   /* [11] 10.5.5.3a Integrity Algorithm */
     DE_TMSI_STAT,                   /* [7] 10.5.5.4 TMSI Status */
     DE_DETACH_TYPE,                 /* [7] 10.5.5.5 Detach Type */
     DE_DRX_PARAM,                   /* [7] 10.5.5.6 DRX Parameter */
@@ -1160,6 +1160,7 @@ typedef enum
     DE_NET_RES_ID_CONT,             /* [11] 10.5.5.31 Network resource identifier container */
     DE_EXT_DRX_PARAMS,              /* [11] 10.5.5.32 Extended DRX parameters */
     DE_MAC,                         /* [11] 10.5.5.33 Message Authentication Code */
+    DE_UP_INTEG_IND,                /* [11] 10.5.5.34 User Plane integrity indicator */
     /* Session Management Information Elements [3] 10.5.6 */
     DE_ACC_POINT_NAME,              /* Access Point Name */
     DE_NET_SAPI,                    /* Network Service Access Point Identifier */

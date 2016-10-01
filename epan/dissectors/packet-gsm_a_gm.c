@@ -57,7 +57,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 13.6.0 Release 13)
+ *   (3GPP TS 24.008 version 13.7.0 Release 13)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -165,7 +165,7 @@ static const value_string gsm_gm_elem_strings[] = {
 	{ DE_ATTACH_RES,		 "Attach Result" },
 	{ DE_ATTACH_TYPE,		 "Attach Type" },
 	{ DE_CIPH_ALG,			 "Ciphering Algorithm" },
-	{ DE_INTEG_PROT_ALG, 		 "Integrity Protection Algorithm" },
+	{ DE_INTEG_ALG, 		 "Integrity Algorithm" },
 	{ DE_TMSI_STAT,			 "TMSI Status" },
 	{ DE_DETACH_TYPE,		 "Detach Type" },
 	{ DE_DRX_PARAM,			 "DRX Parameter" },
@@ -200,6 +200,7 @@ static const value_string gsm_gm_elem_strings[] = {
 	{ DE_NET_RES_ID_CONT,		 "Network Resource Identifier Container" },
 	{ DE_EXT_DRX_PARAMS,		 "Extended DRX Parameters" },
 	{ DE_MAC,			 "Message Authentication Code" },
+	{ DE_UP_INTEG_IND,		 "User Plane Integrity Indicator" },
 	/* Session Management Information Elements 10.5.6 */
 	{ DE_ACC_POINT_NAME,		 "Access Point Name" },
 	{ DE_NET_SAPI,			 "Network Service Access Point Identifier" },
@@ -302,7 +303,7 @@ static int hf_gsm_a_gm_add_upd_type = -1;
 static int hf_gsm_a_gm_fop = -1;
 static int hf_gsm_a_gm_res_of_attach = -1;
 static int hf_gsm_a_gm_type_of_ciph_alg = -1;
-static int hf_gsm_a_gm_type_of_integ_prot_alg = -1;
+static int hf_gsm_a_gm_type_of_integ_alg = -1;
 static int hf_gsm_a_gm_imeisv_req = -1;
 static int hf_gsm_a_gm_nsapi = -1;
 static int hf_gsm_a_gm_ac_ref_nr = -1;
@@ -361,6 +362,7 @@ static int hf_gsm_a_gm_nri_cont = -1;
 static int hf_gsm_a_gm_paging_time_window = -1;
 static int hf_gsm_a_gm_edrx_value = -1;
 static int hf_gsm_a_gm_mac = -1;
+static int hf_gsm_a_gm_up_integ_ind = -1;
 static int hf_gsm_a_sm_pdp_type_org = -1;
 static int hf_gsm_a_sm_qos_mean_thr = -1;
 static int hf_gsm_a_sm_qos_peak_thr = -1;
@@ -466,6 +468,7 @@ static int hf_gsm_a_gm_rac_dlmc_max_nb_dl_ts = -1;
 static int hf_gsm_a_gm_rac_dlmc_max_nb_dl_carriers = -1;
 static int hf_gsm_a_gm_rac_ext_tsc_set_cap_support = -1;
 static int hf_gsm_a_gm_rac_ext_earfcn_value_range = -1;
+static int hf_gsm_a_gm_rac_ext_ec_pch_mon_support = -1;
 static int hf_gsm_a_sm_ti_flag = -1;
 static int hf_gsm_a_sm_ext = -1;
 
@@ -525,7 +528,6 @@ static int hf_gsm_a_gm_sm_pco_non_ip_link_mtu_size = -1;
 static int hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_aer = -1;
 static int hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_ul_time_unit = -1;
 static int hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_max_ul_rate = -1;
-static int hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_max_ul_msg_size = -1;
 static int hf_gsm_a_gm_sm_pco_sel_bearer_ctrl_mode = -1;
 static int hf_gsm_a_sm_pdp_type_number = -1;
 static int hf_gsm_a_sm_pdp_address = -1;
@@ -646,7 +648,7 @@ de_gmm_ciph_alg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 /*
  * [13] 10.5.5.3a Integrity protection algorithm
  */
-const value_string gsm_a_gm_type_of_integ_prot_alg_vals[] = {
+const value_string gsm_a_gm_type_of_integ_alg_vals[] = {
 	{ 0x00, "GPRS Integrity Algorithm GIA/4" },
 	{ 0x01, "GPRS Integrity Algorithm GIA/5" },
 	{ 0x02, "GPRS Integrity Algorithm GIA/6" },
@@ -655,10 +657,10 @@ const value_string gsm_a_gm_type_of_integ_prot_alg_vals[] = {
 };
 
 static guint16
-de_gmm_integ_prot_alg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_integ_alg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_gm_type_of_integ_prot_alg, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_type_of_integ_alg, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return (1);
@@ -1565,6 +1567,14 @@ static const value_string gsm_a_gm_8psk_multislot_power_profile_vals[] = {
 	{0x01,  "8-PSK_MULTISLOT_POWER_PROFILE 1"},
 	{0x02,  "8-PSK_MULTISLOT_POWER_PROFILE 2"},
 	{0x03,  "8-PSK_MULTISLOT_POWER_PROFILE 3"},
+	{0, NULL}
+};
+
+static const value_string gsm_a_gm_ec_pch_mon_support_vals[] = {
+	{0x00, "PCH supported"},
+	{0x01, "EC-PCH supported"},
+	{0x02, "PCH and EC-PCH supported"},
+	{0x03, "Reserved"},
 	{0, NULL}
 };
 
@@ -3171,7 +3181,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 			bits_in_oct -= bits_needed;
 		}
 
-		 /*
+		/*
 		 * Extended TSC Set Capability support
 		 */
 		bits_needed = 1;
@@ -3182,12 +3192,27 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		oct <<= bits_needed;
 		bits_in_oct -= bits_needed;
 
-		 /*
+		/*
 		 * Extended EARFCN value range
 		 */
 		bits_needed = 1;
 		GET_DATA;
 		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ext_earfcn_value_range, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset += bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		/*
+		 * Release 13
+		 */
+
+		/*
+		 * (EC-)PCH monitoring support
+		 */
+		bits_needed = 2;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ext_ec_pch_mon_support, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 		bit_offset += bits_needed;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -3759,12 +3784,12 @@ static const value_string gsm_a_gm_edrx_vals[] = {
 	{0x7,	"GERAN: 195.84 s / UTRAN: 1310.72 s / E-UTRAN: 122.88 s"},
 	{0x8,	"GERAN: 391.68 s / UTRAN: 1966.08 s / E-UTRAN: 143.36 s"},
 	{0x9,	"GERAN: 783.36 s / UTRAN: 2621.44 s / E-UTRAN: 163.84 s"},
-	{0xa,	"GERAN: reserved / UTRAN: reserved / E-UTRAN: 327.68 s"},
-	{0xb,	"GERAN: reserved / UTRAN: reserved / E-UTRAN: 655.36 s"},
-	{0xc,	"GERAN: reserved / UTRAN: reserved / E-UTRAN: 1310.72 s"},
-	{0xd,	"GERAN: reserved / UTRAN: reserved / E-UTRAN: 2621.44 s"},
-	{0xe,	"GERAN: reserved / UTRAN: reserved / E-UTRAN: 5242.88 s"},
-	{0xf,	"GERAN: reserved / UTRAN: reserved / E-UTRAN: 10485.76 s"},
+	{0xa,	"GERAN: 1566.72 s / UTRAN: 10.24 s / E-UTRAN: 327.68 s"},
+	{0xb,	"GERAN: 3133.44 s / UTRAN: 10.24 s / E-UTRAN: 655.36 s"},
+	{0xc,	"GERAN: 1.88 s / UTRAN: 10.24 s / E-UTRAN: 1310.72 s"},
+	{0xd,	"GERAN: 1.88 s / UTRAN: 10.24 s / E-UTRAN: 2621.44 s"},
+	{0xe,	"GERAN: 1.88 s / UTRAN: 10.24 s / E-UTRAN: 5242.88 s"},
+	{0xf,	"GERAN: 1.88 s / UTRAN: 10.24 s / E-UTRAN: 10485.76 s"},
 	{  0,	NULL }
 };
 
@@ -3788,6 +3813,22 @@ de_gmm_mac(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 	proto_tree_add_item(tree, hf_gsm_a_gm_mac, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 	return len;
+}
+
+/* [13] 10.5.5.34 User Plane integrity indicator */
+const true_false_string gsm_a_gm_up_integ_ind_value = {
+	"MS shall enable integrity protection of user plane data in LLC layer",
+	"MS shall disable integrity protection of user plane data in LLC layer"
+};
+
+static guint16
+de_gmm_up_integ_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 3, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_up_integ_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+	/* no length check possible */
+	return (1);
 }
 
 /*
@@ -4399,13 +4440,9 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 					proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 4, ENC_BIG_ENDIAN);
 					proto_tree_add_item(tree, hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_aer, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 					proto_tree_add_item(tree, hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_ul_time_unit, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-					if (e_len >= 5) {
-						pco_item = proto_tree_add_item(tree, hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_max_ul_rate, tvb, curr_offset+1, 4, ENC_BIG_ENDIAN);
+					if (e_len >= 4) {
+						pco_item = proto_tree_add_item(tree, hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_max_ul_rate, tvb, curr_offset+1, 3, ENC_BIG_ENDIAN);
 						proto_item_append_text(pco_item, " messages");
-					}
-					if (e_len >= 7) {
-						pco_item = proto_tree_add_item(tree, hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_max_ul_msg_size, tvb, curr_offset+5, 2, ENC_BIG_ENDIAN);
-						proto_item_append_text(pco_item, " octets");
 					}
 				}
 				break;
@@ -5852,7 +5889,7 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 	de_gmm_attach_res,                 /* Attach Result */
 	de_gmm_attach_type,                /* Attach Type */
 	de_gmm_ciph_alg,                   /* Ciphering Algorithm */
-	de_gmm_integ_prot_alg,             /* Integrity Protection Algorithm */
+	de_gmm_integ_alg,                  /* Integrity Algorithm */
 	de_gmm_tmsi_stat,                  /* TMSI Status */
 	de_gmm_detach_type,                /* Detach Type */
 	de_gmm_drx_param,                  /* DRX Parameter */
@@ -5887,6 +5924,7 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 	de_gmm_net_res_id_cont,            /* Network resource identifier container */
 	de_gmm_ext_drx_params,             /* Extended DRX parameters */
 	de_gmm_mac,                        /* Message authentication code */
+	de_gmm_up_integ_ind,               /* User Plane integrity indicator */
 	/* Session Management Information Elements 10.5.6 */
 	de_sm_apn,                         /* Access Point Name */
 	de_sm_nsapi,                       /* Network Service Access Point Identifier */
@@ -6055,6 +6093,12 @@ dtap_gmm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
 
 	ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
+
+	ELEM_OPT_TV_SHORT(0xC0, GSM_A_PDU_TYPE_GM, DE_UP_INTEG_IND, NULL);
+
+	ELEM_OPT_TLV(0x31, GSM_A_PDU_TYPE_GM, DE_MS_NET_CAP, " - Replayed MS network capability");
+
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP, " - Replayed MS Radio Access capability");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6262,9 +6306,11 @@ dtap_gmm_auth_ciph_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
 
 	ELEM_OPT_TLV(0x31, GSM_A_PDU_TYPE_GM, DE_MS_NET_CAP, " - Replayed MS network capability");
 
-	ELEM_OPT_TLV(0x42, GSM_A_PDU_TYPE_GM, DE_INTEG_PROT_ALG, NULL);
+	ELEM_OPT_TLV(0x42, GSM_A_PDU_TYPE_GM, DE_INTEG_ALG, NULL);
 
 	ELEM_OPT_TLV(0x43, GSM_A_PDU_TYPE_GM, DE_MAC, NULL);
+
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP, " - Replayed MS Radio Access capability");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6509,6 +6555,12 @@ dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 	ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
 
 	ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
+
+	ELEM_OPT_TV_SHORT(0xC0, GSM_A_PDU_TYPE_GM, DE_UP_INTEG_IND, NULL);
+
+	ELEM_OPT_TLV(0x31, GSM_A_PDU_TYPE_GM, DE_MS_NET_CAP, " - Replayed MS network capability");
+
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP, " - Replayed MS Radio Access capability");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -7785,9 +7837,9 @@ proto_register_gsm_a_gm(void)
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_type_of_ciph_alg_vals), 0x07,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_gm_type_of_integ_prot_alg,
-		  { "Type of integrity protection algorithm", "gsm_a.gm.gmm.type_of_integ_prot_alg",
-		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_type_of_integ_prot_alg_vals), 0x07,
+		{ &hf_gsm_a_gm_type_of_integ_alg,
+		  { "Type of integrity algorithm", "gsm_a.gm.gmm.type_of_integ_alg",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_type_of_integ_alg_vals), 0x07,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_imeisv_req,
@@ -8078,6 +8130,11 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_mac,
 		  { "Message authentication code value", "gsm_a.gm.gmm.mac",
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_up_integ_ind,
+		  { "Integrity indicator", "gsm_a.gm.gmm.up_integ_ind",
+		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_up_integ_ind_value), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_pdp_type_org,
@@ -8745,6 +8802,11 @@ proto_register_gsm_a_gm(void)
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
+		{ &hf_gsm_a_gm_rac_ext_ec_pch_mon_support,
+		  { "(EC-)PCH monitoring support", "gsm_a.gm.gmm.rac.ec_pch_mon_support",
+		    FT_UINT8, BASE_NONE, VALS(gsm_a_gm_ec_pch_mon_support_vals), 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_gsm_a_sm_ti_flag,
 		  { "TI Flag", "gsm_a.gm.sm.ti_flag",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_sm_ti_flag_vals), 0x80,
@@ -8767,12 +8829,7 @@ proto_register_gsm_a_gm(void)
 		},
 		{ &hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_max_ul_rate,
 		  { "Maximum uplink rate", "gsm_a.gm.sm.pco.apn_rate_ctrl_params.max_ul_rate",
-		    FT_UINT32, BASE_DEC, NULL, 0x0,
-		    NULL, HFILL }
-		},
-		{ &hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_max_ul_msg_size,
-		  { "Maximum uplink message size", "gsm_a.gm.sm.pco.apn_rate_ctrl_params.max_ul_msg_size",
-		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    FT_UINT24, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		/* Generated from convert_proto_tree_add_text.pl */
