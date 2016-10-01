@@ -21,7 +21,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * References: 3GPP TS 24.301 V13.5.0 (2016-03)
+ * References: 3GPP TS 24.301 V13.7.0 (2016-09)
  */
 
 #include "config.h"
@@ -88,7 +88,8 @@ static int hf_nas_eps_emm_dl_nas_cnt = -1;
 static int hf_nas_eps_emm_nonce_mme = -1;
 static int hf_nas_eps_emm_nonce = -1;
 static int hf_nas_eps_emm_paging_id = -1;
-static int hf_nas_eps_emm_ext_emm_cause = -1;
+static int hf_nas_eps_emm_eps_optim_info = -1;
+static int hf_nas_eps_emm_eutran_allowed_value = -1;
 static int hf_nas_eps_emm_eps_att_type = -1;
 static int hf_nas_eps_emm_cp_ciot = -1;
 static int hf_nas_eps_emm_er_wo_pdn = -1;
@@ -184,6 +185,7 @@ static int hf_nas_eps_emm_up_ciot_cap = -1;
 static int hf_nas_eps_emm_cp_ciot_cap = -1;
 static int hf_nas_eps_emm_prose_relay_cap = -1;
 static int hf_nas_eps_emm_prose_dc_cap = -1;
+static int hf_nas_eps_multiple_drb_cap = -1;
 static int hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg = -1;
 static int hf_nas_eps_emm_ss_code = -1;
 static int hf_nas_eps_emm_lcs_ind = -1;
@@ -249,6 +251,8 @@ static int hf_nas_eps_esm_hdr_comp_config_prof_0004 = -1;
 static int hf_nas_eps_esm_hdr_comp_config_prof_0003 = -1;
 static int hf_nas_eps_esm_hdr_comp_config_prof_0002 = -1;
 static int hf_nas_eps_esm_hdr_compr_config_max_cid = -1;
+static int hf_nas_eps_esm_hdr_compr_config_add_hdr_compr_cxt_setup_params_type = -1;
+static int hf_nas_eps_esm_hdr_compr_config_add_hdr_compr_cxt_setup_params_cont = -1;
 static int hf_nas_eps_esm_ctrl_plane_only_ind_cpoi = -1;
 static int hf_nas_eps_esm_user_data_cont = -1;
 static int hf_nas_eps_esm_rel_assist_ind_ddx = -1;
@@ -267,7 +271,7 @@ static int hf_nas_eps_esm_hdr_compr_config_status_ebi8 = -1;
 static int hf_nas_eps_esm_serv_plmn_rate_ctrl_val = -1;
 
 static int hf_nas_eps_active_flg = -1;
-static int hf_nas_eps_data_serv_type = -1;
+static int hf_nas_eps_ctrl_plane_serv_type = -1;
 static int hf_nas_eps_eps_update_result_value = -1;
 static int hf_nas_eps_eps_update_type_value = -1;
 static int hf_nas_eps_service_type = -1;
@@ -1619,9 +1623,9 @@ de_emm_paging_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  /*
  * 9.9.3.26A Extended EMM cause
  */
-static const true_false_string nas_eps_ext_emm_cause = {
-    "E-UTRAN not allowed",
-    "E-UTRAN allowed"
+static const true_false_string nas_eps_emm_eps_optim_info = {
+    "Requested EPS optimization not supported",
+    "No EPS optimization information"
 };
 
 static guint16
@@ -1634,9 +1638,11 @@ de_emm_ext_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     curr_offset = offset;
     bit_offset  = (curr_offset<<3)+4;
 
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
-    bit_offset += 3;
-    proto_tree_add_bits_item(tree, hf_nas_eps_emm_ext_emm_cause, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+    bit_offset += 2;
+    proto_tree_add_bits_item(tree, hf_nas_eps_emm_eps_optim_info, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    proto_tree_add_bits_item(tree, hf_nas_eps_emm_eutran_allowed_value, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
     return (curr_offset - offset);
@@ -1960,6 +1966,14 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_nas_eps_emm_prose_relay_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     /* ProSe-dc capability (octet 8, bit 1) */
     proto_tree_add_item(tree, hf_nas_eps_emm_prose_dc_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    if ((curr_offset - offset) >= len)
+        return (len);
+
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 7, ENC_BIG_ENDIAN);
+    /* multipleDRB capability (octet 9, bit 1) */
+    proto_tree_add_item(tree, hf_nas_eps_multiple_drb_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
     while ((curr_offset - offset) < len) {
@@ -2821,6 +2835,9 @@ de_esm_pdn_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
             proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
             curr_offset+=4;
             break;
+        case 5:
+            curr_offset+=4;
+            break;
         default:
             break;
     }
@@ -2837,7 +2854,7 @@ static const value_string nas_eps_esm_pdn_type_values[] = {
     { 0x2,  "IPv6" },
     { 0x3,  "IPv4v6" },
     { 0x4,  "Unused; shall be interpreted as IPv6 if received by the network" },
-    { 0x4,  "Non IP" },
+    { 0x5,  "Non IP" },
     { 0, NULL }
 };
 
@@ -3072,6 +3089,19 @@ de_esm_pkmf_address(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 /*
  * 9.9.4.22 Header compression configuration
  */
+static const value_string nas_eps_esm_add_hdr_compr_cxt_setup_params_type_vals[] = {
+    { 0x00, "0x0000 (No Compression)" },
+    { 0x01, "0x0002 (UDP/IP)" },
+    { 0x02, "0x0003 (ESP/IP)" },
+    { 0x03, "0x0004 (IP)" },
+    { 0x04, "0x0006 (TCP/IP)" },
+    { 0x05, "0x0102 (UDP/IP)" },
+    { 0x06, "0x0103 (ESP/IP)" },
+    { 0x07, "0x0104 (IP)" },
+    { 0x08, "Other" },
+    { 0x0, NULL }
+};
+
 static guint16
 de_esm_hdr_compr_config(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                         guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -3092,6 +3122,15 @@ de_esm_hdr_compr_config(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags, ENC_NA);
     curr_offset++;
     proto_tree_add_item(tree, hf_nas_eps_esm_hdr_compr_config_max_cid, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+    curr_offset += 2;
+
+    if ((curr_offset - offset) >= len) {
+        return len;
+    }
+
+    proto_tree_add_item(tree, hf_nas_eps_esm_hdr_compr_config_add_hdr_compr_cxt_setup_params_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    curr_offset++;
+    proto_tree_add_item(tree, hf_nas_eps_esm_hdr_compr_config_add_hdr_compr_cxt_setup_params_cont, tvb, curr_offset, len - (curr_offset - offset), ENC_NA);
 
     return len;
 }
@@ -3156,8 +3195,8 @@ de_esm_user_data_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  */
 static const value_string nas_eps_esm_rel_assist_ind_ddx_vals[] = {
     { 0x00, "No information available" },
-    { 0x01, "Downlink data transmission subsequent to the uplink data transmission is not expected" },
-    { 0x02, "Downlink data transmission subsequent to the uplink data transmission is expected" },
+    { 0x01, "No further uplink or downlink data transmission subsequent to the uplink data transmission is expected" },
+    { 0x02, "Only a single downlink data transmission and no further uplink data transmission subsequent to the uplink data transmission is expected" },
     { 0x03, "Reserved" },
     { 0, NULL}
 };
@@ -4440,10 +4479,10 @@ nas_emm_ctrl_plane_serv_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     /* NAS key set identifier  NAS key set identifier 9.9.3.21 M V 1/2 */
     de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, NULL);
     bit_offset+=4;
-    /* Data service type  Data service type 9.9.3.47 M V 1/2 */
+    /* Control Plane service type  Control Plane service type 9.9.3.47 M V 1/2 */
     proto_tree_add_bits_item(tree, hf_nas_eps_active_flg, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset += 1;
-    proto_tree_add_bits_item(tree, hf_nas_eps_data_serv_type, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_nas_eps_ctrl_plane_serv_type, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 
     /* Fix the lengths */
     curr_len--;
@@ -4972,8 +5011,6 @@ nas_esm_inf_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
     ELEM_OPT_TLV( 0x28 , GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME , NULL );
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
-    /* 7B   Extended protocol configuration options Extended protocol configuration options 9.9.4.26 O  TLV-E  4-65538 */
-    ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5192,8 +5229,6 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     ELEM_OPT_TLV(0x33, NAS_PDU_TYPE_ESM, DE_ESM_NBIFOM_CONT, NULL);
     /* 66   Header compression configuration  Header compression configuration 9.9.4.22 O   TLV 3-TBD */
     ELEM_OPT_TLV(0x66, NAS_PDU_TYPE_ESM, DE_ESM_HDR_COMPR_CONFIG, NULL);
-    /* 7B   Extended protocol configuration options Extended protocol configuration options 9.9.4.26 O  TLV-E  4-65538 */
-    ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5966,9 +6001,14 @@ proto_register_nas_eps(void)
         FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_emm_paging_id_vals), 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_emm_ext_emm_cause,
-        { "Extended EMM cause","nas_eps.emm.ext_emm_cause",
-        FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_ext_emm_cause), 0x0,
+    { &hf_nas_eps_emm_eps_optim_info,
+        { "EPS optimization info","nas_eps.emm.eps_optim_info",
+        FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_emm_eps_optim_info), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_eutran_allowed_value,
+        { "E-UTRAN allowed value","nas_eps.emm.eutran_allowed_value",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_not_allowed_allowed), 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_eps_att_type,
@@ -6448,6 +6488,11 @@ proto_register_nas_eps(void)
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
         NULL, HFILL }
     },
+    { &hf_nas_eps_multiple_drb_cap,
+        { "Multiple DRB","nas_eps.emm.multiple_drb_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+        NULL, HFILL }
+    },
     { &hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg,
         { "URC upd","nas_eps.emm.ue_ra_cap_inf_upd_need_flg",
         FT_BOOLEAN, 8, TFS(&nas_eps_emm_ue_ra_cap_inf_upd_need_flg), 0x01,
@@ -6758,6 +6803,16 @@ proto_register_nas_eps(void)
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_nas_eps_esm_hdr_compr_config_add_hdr_compr_cxt_setup_params_type,
+        { "Additional header compression context setup parameters type", "nas_eps.esm.hdr_comp_config.add_hdr_compr_cxt_setup_params_type",
+        FT_UINT8, BASE_HEX, VALS(nas_eps_esm_add_hdr_compr_cxt_setup_params_type_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_esm_hdr_compr_config_add_hdr_compr_cxt_setup_params_cont,
+        { "Additional header compression context setup parameters container", "nas_eps.esm.hdr_comp_config.add_hdr_compr_cxt_setup_params_cont",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_nas_eps_esm_ctrl_plane_only_ind_cpoi,
         { "CPOI", "nas_eps.esm.ctrl_plane_only_ind.cpoi",
         FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_ctrl_plane_only_ind_cpoi_value), 0x0,
@@ -6843,8 +6898,8 @@ proto_register_nas_eps(void)
         FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_emm_active_flg_value), 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_data_serv_type,
-        { "Data service type", "nas_eps.emm.data_serv_type",
+    { &hf_nas_eps_ctrl_plane_serv_type,
+        { "Control plane service type", "nas_eps.emm.ctrl_plane_serv_type",
         FT_UINT8, BASE_DEC, VALS(nas_eps_emm_data_serv_type_vals), 0x0,
         NULL, HFILL }
     },
