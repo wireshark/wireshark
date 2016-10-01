@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V13.3.0 (2016-07-01)
+-- 3GPP TS 36.413 V13.4.0 (2016-09)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -6,12 +6,11 @@
 --
 -- **************************************************************
 
+S1AP-Constants {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+eps-Access (21) modules (3) s1ap (1) version1 (1) s1ap-Constants (4) }
 
-S1AP-Constants { 
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
-eps-Access (21) modules (3) s1ap (1) version1 (1) s1ap-Constants (4) } 
-
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -121,11 +120,11 @@ maxnoofForbTACs							INTEGER ::= 4096
 maxnoofIndividualS1ConnectionsToReset	INTEGER ::= 256
 maxnoofCells							INTEGER ::= 16
 maxnoofCellsineNB						INTEGER ::= 256
-maxnoofTAIforWarning					INTEGER ::= 65535 
-maxnoofCellID							INTEGER ::= 65535 
-maxnoofEmergencyAreaID					INTEGER ::= 65535 
-maxnoofCellinTAI						INTEGER ::= 65535 
-maxnoofCellinEAI						INTEGER ::= 65535 
+maxnoofTAIforWarning					INTEGER ::= 65535
+maxnoofCellID							INTEGER ::= 65535
+maxnoofEmergencyAreaID					INTEGER ::= 65535
+maxnoofCellinTAI						INTEGER ::= 65535
+maxnoofCellinEAI						INTEGER ::= 65535
 maxnoofeNBX2TLAs						INTEGER ::= 2
 maxnoofeNBX2ExtTLAs						INTEGER ::= 16
 maxnoofeNBX2GTPTLAs						INTEGER ::= 16
@@ -400,5 +399,8 @@ id-NB-IoT-Paging-eDRXInformation					ProtocolIE-ID ::= 239
 --WS extension
 id-Unknown-240										ProtocolIE-ID ::= 240
 id-UEUserPlaneCIoTSupportIndicator 					ProtocolIE-ID ::= 241
-END
+id-CE-mode-B-SupportIndicator 						ProtocolIE-ID ::= 242
+id-SRVCCOperationNotPossible						ProtocolIE-ID ::= 243
+id-NB-IoT-UEIdentityIndexValue 						ProtocolIE-ID ::= 244
 
+END

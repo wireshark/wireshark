@@ -7,9 +7,6 @@
 -- using the same rules as applicable for the S1AP-IEs module.
 --
 -- **************************************************************
-
-
-
 SonTransfer-IEs
 
 DEFINITIONS AUTOMATIC TAGS ::=

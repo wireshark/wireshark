@@ -1370,6 +1370,9 @@ id-E-RABFailedToResumeListResumeRes                 ProtocolIE-ID
 id-E-RABFailedToResumeItemResumeRes                 ProtocolIE-ID
 id-NB-IoT-Paging-eDRXInformation                    ProtocolIE-ID
 id-UEUserPlaneCIoTSupportIndicator                  ProtocolIE-ID
+id-CE-mode-B-SupportIndicator                       ProtocolIE-ID
+id-SRVCCOperationNotPossible                        ProtocolIE-ID
+id-NB-IoT-UEIdentityIndexValue                      ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -1554,8 +1557,6 @@ Paging-eDRXInformation                          N s1ap.ies id-Paging-eDRXInforma
 UE-RetentionInformation                         N s1ap.ies id-UE-RetentionInformation
 UE-Usage-Type                                   N s1ap.ies id-UE-Usage-Type
 Extended-UEIdentityIndexValue                   N s1ap.ies id-extended-UEIdentityIndexValue
-RAT-Type                                        N s1ap.extension id-RAT-Type
-BearerType                                      N s1ap.extension id-BearerType
 NB-IoT-DefaultPagingDRX                         N s1ap.ies id-NB-IoT-DefaultPagingDRX
 E-RABFailedToResumeListResumeReq                N s1ap.ies id-E-RABFailedToResumeListResumeReq
 E-RABFailedToResumeItemResumeReq                N s1ap.ies id-E-RABFailedToResumeItemResumeReq
@@ -1563,7 +1564,10 @@ E-RABFailedToResumeListResumeRes                N s1ap.ies id-E-RABFailedToResum
 E-RABFailedToResumeItemResumeRes                N s1ap.ies id-E-RABFailedToResumeItemResumeRes
 NB-IoT-Paging-eDRXInformation                   N s1ap.ies id-NB-IoT-Paging-eDRXInformation
 UEUserPlaneCIoTSupportIndicator                 N s1ap.ies id-UEUserPlaneCIoTSupportIndicator
-
+CE-mode-B-SupportIndicator                      N s1ap.ies id-CE-mode-B-SupportIndicator
+NB-IoT-UEIdentityIndexValue                     N s1ap.ies id-NB-IoT-UEIdentityIndexValue
+SRVCCOperationPossible                          N s1ap.ies id-SRVCCOperationPossible
+SRVCCOperationNotPossible                       N s1ap.ies id-SRVCCOperationNotPossible
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst             N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -1604,6 +1608,8 @@ COUNTvaluePDCP-SNlength18               N s1ap.extension id-DLCOUNTValuePDCP-SNl
 ReceiveStatusOfULPDCPSDUsPDCP-SNlength18 N s1ap.extension id-ReceiveStatusOfULPDCPSDUsPDCP-SNlength18
 M6Configuration                         N s1ap.extension id-M6Configuration
 M7Configuration                         N s1ap.extension id-M7Configuration
+RAT-Type                                N s1ap.extension id-RAT-Type
+BearerType                              N s1ap.extension id-BearerType
 
 #S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired                        N s1ap.proc.imsg id-HandoverPreparation
