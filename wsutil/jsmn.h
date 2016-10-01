@@ -55,9 +55,9 @@ enum jsmnerr {
 
 /**
  * JSON token description.
- * @param		type	type (object, array, string etc.)
- * @param		start	start position in JSON data string
- * @param		end		end position in JSON data string
+ * 	type	type (object, array, string etc.)
+ * 	start	start position in JSON data string
+ * 	end		end position in JSON data string
  */
 typedef struct {
 	jsmntype_t type;
