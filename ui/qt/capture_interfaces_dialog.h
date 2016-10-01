@@ -27,12 +27,14 @@
 
 #ifdef HAVE_LIBPCAP
 
+#include "ui/qt/interface_tree_model.h"
+
 #include "geometry_state_dialog.h"
 #include <QPushButton>
+#include <QTreeWidget>
 
 typedef struct if_stat_cache_s if_stat_cache_t;
 
-#include "interface_tree.h"
 #include "preferences_dialog.h"
 
 namespace Ui {
@@ -124,6 +126,8 @@ private:
     interface_t *getDeviceByName(const QString device_name);
     bool saveOptionsToPreferences();
     void updateSelectedFilter();
+
+    void updateGlobalDeviceSelections();
 };
 
 #endif /* HAVE_LIBPCAP */

@@ -35,7 +35,6 @@
 
 #include "qt_ui_utils.h"
 #include "wireshark_application.h"
-#include "interface_tree.h"
 
 #include <QClipboard>
 #include <QDir>
@@ -66,8 +65,6 @@ MainWelcome::MainWelcome(QWidget *parent) :
     welcome_ui_->setupUi(this);
 
     recent_files_ = welcome_ui_->recentList;
-
-    welcome_ui_->interfaceTree->resetColumnCount();
 
     welcome_ui_->captureFilterComboBox->setEnabled(false);
 
@@ -140,7 +137,6 @@ MainWelcome::MainWelcome(QWidget *parent) :
 
 #ifdef Q_OS_MAC
     recent_files_->setAttribute(Qt::WA_MacShowFocusRect, false);
-    welcome_ui_->interfaceTree->setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
 
     welcome_ui_->openFrame->hide();
@@ -165,15 +161,9 @@ MainWelcome::MainWelcome(QWidget *parent) :
 
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
-    connect(welcome_ui_->interfaceTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
-            this, SLOT(interfaceDoubleClicked(QTreeWidgetItem*,int)));
-#ifdef HAVE_EXTCAP
-    connect(welcome_ui_->interfaceTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
-            this, SLOT(interfaceClicked(QTreeWidgetItem*,int)));
-#endif
-    connect(welcome_ui_->interfaceTree, SIGNAL(itemSelectionChanged()),
+    connect(welcome_ui_->interfaceFrame, SIGNAL(itemSelectionChanged()),
             welcome_ui_->captureFilterComboBox, SIGNAL(interfacesChanged()));
-    connect(welcome_ui_->interfaceTree, SIGNAL(itemSelectionChanged()), this, SLOT(interfaceSelected()));
+    connect(welcome_ui_->interfaceFrame, SIGNAL(itemSelectionChanged()), this, SLOT(interfaceSelected()));
     connect(welcome_ui_->captureFilterComboBox->lineEdit(), SIGNAL(textEdited(QString)),
             this, SLOT(captureFilterTextEdited(QString)));
     connect(welcome_ui_->captureFilterComboBox, SIGNAL(pushFilterSyntaxStatus(const QString&)),
@@ -202,9 +192,9 @@ MainWelcome::~MainWelcome()
     delete welcome_ui_;
 }
 
-InterfaceTree *MainWelcome::getInterfaceTree()
+InterfaceFrame *MainWelcome::getInterfaceFrame()
 {
-    return welcome_ui_->interfaceTree;
+    return welcome_ui_->interfaceFrame;
 }
 
 const QString MainWelcome::captureFilter()
@@ -247,9 +237,6 @@ void MainWelcome::appInitialized()
     welcome_ui_->captureFilterComboBox->lineEdit()->setText(global_capture_opts.default_options.cfilter);
 #endif // HAVE_LIBPCAP
 
-    // Trigger interfacesUpdated.
-    welcome_ui_->interfaceTree->selectedInterfaceChanged();
-
     welcome_ui_->captureFilterComboBox->setEnabled(true);
 
     delete splash_overlay_;
@@ -286,7 +273,6 @@ void MainWelcome::captureFilterTextEdited(const QString capture_filter)
             //                update_filter_string(device.name, filter_text);
         }
     }
-    welcome_ui_->interfaceTree->updateToolTips();
 }
 #else
 // No-op if we don't have capturing.
@@ -314,40 +300,17 @@ void MainWelcome::interfaceSelected()
     }
 }
 
-void MainWelcome::interfaceDoubleClicked(QTreeWidgetItem *item, int)
-{
-    if (item) {
 #ifdef HAVE_EXTCAP
-        QString extcap_string = QVariant(item->data(IFTREE_COL_EXTCAP, Qt::UserRole)).toString();
-        /* We trust the string here. If this interface is really extcap, the string is
-         * being checked immediatly before the dialog is being generated */
-        if (extcap_string.length() > 0) {
-            QString device_name = QVariant(item->data(IFTREE_COL_NAME, Qt::UserRole)).toString();
-            /* this checks if configuration is required and not yet provided or saved via prefs */
-            if (extcap_has_configuration((const char *)(device_name.toStdString().c_str()), TRUE)) {
-                emit showExtcapOptions(device_name);
-                return;
-            }
-        }
-#endif
-        emit startCapture();
-    }
+void MainWelcome::on_interfaceFrame_showExtcapOptions(QString device_name)
+{
+    emit showExtcapOptions(device_name);
 }
+#endif
 
-#ifdef HAVE_EXTCAP
-void MainWelcome::interfaceClicked(QTreeWidgetItem *item, int column)
+void MainWelcome::on_interfaceFrame_startCapture()
 {
-    if (column == IFTREE_COL_EXTCAP) {
-        QString extcap_string = QVariant(item->data(IFTREE_COL_EXTCAP, Qt::UserRole)).toString();
-        /* We trust the string here. If this interface is really extcap, the string is
-         * being checked immediatly before the dialog is being generated */
-        if (extcap_string.length() > 0) {
-            QString device_name = QVariant(item->data(IFTREE_COL_NAME, Qt::UserRole)).toString();
-            emit showExtcapOptions(device_name);
-        }
-    }
+    emit startCapture();
 }
-#endif
 
 void MainWelcome::updateRecentFiles() {
     QString itemLabel;

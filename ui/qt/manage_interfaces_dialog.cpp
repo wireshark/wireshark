@@ -44,6 +44,9 @@
 #include <QDebug>
 
 #ifdef HAVE_LIBPCAP
+
+#include "ui/capture_ui_utils.h"
+
 #include <QCheckBox>
 #include <QFileDialog>
 #include <QHBoxLayout>

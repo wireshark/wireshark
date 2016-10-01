@@ -29,6 +29,12 @@
    </item>
    <item>
     <widget class="QWidget" name="childContainer" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <widget class="QWidget" name="bannerLayout" native="true">
@@ -186,9 +192,9 @@
        </widget>
       </item>
       <item>
-       <widget class="InterfaceTree" name="interfaceTree">
+       <widget class="InterfaceFrame" name="interfaceFrame">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>1</verstretch>
          </sizepolicy>
@@ -199,25 +205,12 @@
         <property name="accessibleDescription">
          <string>List of available capture interfaces</string>
         </property>
-        <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
         </property>
-        <property name="uniformRowHeights">
-         <bool>true</bool>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
         </property>
-        <attribute name="headerVisible">
-         <bool>false</bool>
-        </attribute>
-        <column>
-         <property name="text">
-          <string notr="true">1</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string notr="true">2</string>
-         </property>
-        </column>
        </widget>
       </item>
       <item>
@@ -300,9 +293,10 @@ a:hover {
  </widget>
  <customwidgets>
   <customwidget>
-   <class>InterfaceTree</class>
-   <extends>QTreeWidget</extends>
-   <header>interface_tree.h</header>
+   <class>InterfaceFrame</class>
+   <extends>QFrame</extends>
+   <header>interface_frame.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>CaptureFilterCombo</class>

@@ -32,8 +32,6 @@
 #include <QPushButton>
 #include <QList>
 
-#include "interface_tree.h"
-
 #include "ui/qt/extcap_argument.h"
 
 #include <extcap.h>

@@ -233,9 +233,45 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     connect(ui->browseButton, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
 }
 
+/* Update global device selections based on the TreeWidget selection. */
+void CaptureInterfacesDialog::updateGlobalDeviceSelections()
+{
+#ifdef HAVE_LIBPCAP
+    QTreeWidgetItemIterator iter(ui->interfaceTree);
+
+    global_capture_opts.num_selected = 0;
+
+    while (*iter) {
+        QString device_name = (*iter)->data(col_interface_, Qt::UserRole).value<QString>();
+        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+            interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (device_name.compare(QString().fromUtf8(device.name)) == 0) {
+                if (!device.locked) {
+                    if ((*iter)->isSelected()) {
+                        device.selected = TRUE;
+                        global_capture_opts.num_selected++;
+                    } else {
+                        device.selected = FALSE;
+                    }
+                    device.locked = TRUE;
+                    global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+                    g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+
+                    device.locked = FALSE;
+                    global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+                    g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+                }
+                break;
+            }
+        }
+        ++iter;
+    }
+#endif
+}
+
 void CaptureInterfacesDialog::interfaceSelected()
 {
-    InterfaceTree::updateGlobalDeviceSelections(ui->interfaceTree, col_interface_);
+    updateGlobalDeviceSelections();
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled((global_capture_opts.num_selected > 0) ? true: false);
 

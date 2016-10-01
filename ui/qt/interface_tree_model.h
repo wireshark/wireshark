@@ -1,6 +1,5 @@
-/* interface_tree.h
- * Display of interface names, traffic sparklines, and, if available,
- * extcap options
+/* interface_tree_model.h
+ * Model for the interface data for display in the interface frame
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,21 +20,21 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef INTERFACE_TREE_H
-#define INTERFACE_TREE_H
+#ifndef INTERFACE_TREE_MODEL_H
+#define INTERFACE_TREE_MODEL_H
 
 #include <config.h>
 
-#include <glib.h>
-
 #ifdef HAVE_LIBPCAP
 #include "ui/capture.h"
-#include "caputils/capture-pcap-util.h"
-#include "capture_opts.h"
-#include "ui/capture_ui_utils.h"
+#include "ui/capture_globals.h"
 #endif
 
-#include <QTreeWidget>
+#include <glib.h>
+
+#include <QAbstractTableModel>
+#include <QList>
+#include <QMap>
 
 typedef QList<int> PointList;
 
@@ -46,55 +45,41 @@ enum InterfaceTreeColumns
 #endif
     IFTREE_COL_NAME,
     IFTREE_COL_STATS,
-    IFTREE_COL_MAX
+    IFTREE_COL_MAX /*< is not being displayed, it is the definition for the maximum numbers of columns */
 };
 
-class InterfaceTree : public QTreeWidget
+class InterfaceTreeModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit InterfaceTree(QWidget *parent = 0);
-    ~InterfaceTree();
+    InterfaceTreeModel(QObject *parent);
+    ~InterfaceTreeModel();
 
-    void resetColumnCount();
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data (const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    // Used by CaptureInterfacesDialog.
-    static void updateGlobalDeviceSelections(QTreeWidget *if_tree, int name_col);
-
-protected:
-    void hideEvent(QHideEvent *evt);
-    void showEvent(QShowEvent *evt);
-    void resizeEvent(QResizeEvent *evt);
-    void display();
-
-private:
+    void updateStatistic(unsigned int row);
 #ifdef HAVE_LIBPCAP
-    if_stat_cache_t *stat_cache_;
-    QTimer *stat_timer_;
-#endif // HAVE_LIBPCAP
-
-signals:
+    void stopStatistic();
+#endif
 
 public slots:
-    // add_interface_to_list
-    // change_interface_selection
-    // change_interface_selection_for_all
-    //void getPoints(int row, QList<int> *pts);
-    void getPoints(int row, PointList *pts);
-    void interfaceListChanged();
-    void selectedInterfaceChanged() { updateGlobalDeviceSelections(this, IFTREE_COL_NAME); }
-    void updateSelectedInterfaces();
-    void updateToolTips();
+    void getPoints(int idx, PointList *pts);
 
-private slots:
-    void getInterfaceList();
-    void updateStatistics(void);
+protected slots:
+    void interfaceListChanged();
+
+private:
+    QVariant toolTipForInterface(int idx) const;
+    QMap<QString, PointList *> points;
+
+#ifdef HAVE_LIBPCAP
+    if_stat_cache_t *stat_cache_;
+#endif // HAVE_LIBPCAP
 };
 
-
-//Q_DECLARE_METATYPE(QList<int>)
-
-#endif // INTERFACE_TREE_H
+#endif // INTERFACE_TREE_MODEL_H
 
 /*
  * Editor modelines

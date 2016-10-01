@@ -69,6 +69,7 @@ NODIST_GENERATED_HEADER_FILES = \
 	ui_gsm_map_summary_dialog.h			\
 	ui_iax2_analysis_dialog.h			\
 	ui_import_text_dialog.h				\
+	ui_interface_frame.h				\
 	ui_io_graph_dialog.h				\
 	ui_layout_preferences_frame.h			\
 	ui_lbm_lbtrm_transport_dialog.h			\
@@ -208,7 +209,9 @@ MOC_HDRS = \
 	gsm_map_summary_dialog.h			\
 	iax2_analysis_dialog.h				\
 	import_text_dialog.h				\
-	interface_tree.h				\
+	interface_frame.h				\
+	interface_tree_model.h				\
+	interface_sort_filter_model.h			\
 	io_graph_dialog.h				\
 	label_stack.h					\
 	layout_preferences_frame.h			\
@@ -324,6 +327,7 @@ UI_FILES = \
 	gsm_map_summary_dialog.ui			\
 	iax2_analysis_dialog.ui				\
 	import_text_dialog.ui				\
+	interface_frame.ui				\
 	io_graph_dialog.ui				\
 	layout_preferences_frame.ui			\
 	lbm_lbtrm_transport_dialog.ui			\
@@ -477,7 +481,9 @@ WIRESHARK_QT_SRC = \
 	geometry_state_dialog.cpp			\
 	iax2_analysis_dialog.cpp			\
 	import_text_dialog.cpp				\
-	interface_tree.cpp				\
+	interface_frame.cpp				\
+	interface_tree_model.cpp			\
+	interface_sort_filter_model.cpp			\
 	label_stack.cpp					\
 	layout_preferences_frame.cpp			\
 	lbm_lbtrm_transport_dialog.cpp			\
@@ -788,6 +794,8 @@ iax2_analysis_dialog.$(OBJEXT): ui_iax2_analysis_dialog.h
 import_text_dialog.$(OBJEXT): ui_import_text_dialog.h
 
 io_graph_dialog.$(OBJEXT): ui_io_graph_dialog.h
+
+interface_frame.$(OBJEXT): ui_interface_frame.h
 
 layout_preferences_frame.$(OBJEXT): ui_layout_preferences_frame.h
 

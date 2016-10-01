@@ -3642,18 +3642,13 @@ void MainWindow::on_actionCaptureOptions_triggered()
         connect(capture_interfaces_dialog_, SIGNAL(stopCapture()), this, SLOT(stopCapture()));
 
         connect(capture_interfaces_dialog_, SIGNAL(getPoints(int,PointList*)),
-                this->main_welcome_->getInterfaceTree(), SLOT(getPoints(int,PointList*)));
-        // Changes in interface selections or capture filters should be propagated
-        // to the main welcome screen where they will be applied to the global
-        // capture options.
-        connect(capture_interfaces_dialog_, SIGNAL(interfaceListChanged()),
-                this->main_welcome_->getInterfaceTree(), SLOT(interfaceListChanged()));
+                this->main_welcome_->getInterfaceFrame(), SLOT(getPoints(int,PointList*)));
         connect(capture_interfaces_dialog_, SIGNAL(interfacesChanged()),
                 this->main_welcome_, SLOT(interfaceSelected()));
         connect(capture_interfaces_dialog_, SIGNAL(interfacesChanged()),
-                this->main_welcome_->getInterfaceTree(), SLOT(updateSelectedInterfaces()));
-        connect(capture_interfaces_dialog_, SIGNAL(interfacesChanged()),
-                this->main_welcome_->getInterfaceTree(), SLOT(updateToolTips()));
+                this->main_welcome_->getInterfaceFrame(), SLOT(updateSelectedInterfaces()));
+        connect(capture_interfaces_dialog_, SIGNAL(interfaceListChanged()),
+                this->main_welcome_->getInterfaceFrame(), SLOT(interfaceListChanged()));
         connect(capture_interfaces_dialog_, SIGNAL(captureFilterTextEdited(QString)),
                 this->main_welcome_, SLOT(setCaptureFilterText(QString)));
 
@@ -3716,7 +3711,7 @@ void MainWindow::extcap_options_finished(int result)
     if (result == QDialog::Accepted) {
         startCapture();
     }
-    this->main_welcome_->getInterfaceTree()->interfaceListChanged();
+    this->main_welcome_->getInterfaceFrame()->interfaceListChanged();
 }
 
 void MainWindow::showExtcapOptionsDialog(QString &device_name)
