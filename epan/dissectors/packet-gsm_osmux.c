@@ -135,8 +135,8 @@ dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_tree_add_bitmask_ret_uint64(osmux_tree, tvb, offset, hf_osmux_amr_ft_cmr,
             ett_osmux_amr_ft_cmr, amr_ft_cmr_fields, ENC_BIG_ENDIAN, &amr_ft_cmr);
     offset++;
-    osmuxh->amr_ft = (amr_ft_cmr & 0xf0) >> 4;
-    osmuxh->amr_cmr = amr_ft_cmr & 0x0f;
+    osmuxh->amr_ft = (guint32)(amr_ft_cmr & 0xf0) >> 4;
+    osmuxh->amr_cmr = (guint32)amr_ft_cmr & 0x0f;
 
 
     proto_tree_add_item(osmux_tree, hf_osmux_amr_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
