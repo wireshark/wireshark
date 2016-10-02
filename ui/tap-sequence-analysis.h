@@ -61,6 +61,7 @@ typedef struct _seq_analysis_item {
     guint16 conv_num;                   /**< The conversation number. Used for coloring VoIP calls. */
     unsigned fg_color;                  /**< Foreground color, 0xRRGGBB. Qt only. */
     unsigned bg_color;                  /**< Background color, 0xRRGGBB. Qt only. */
+    gboolean has_color_filter;          /**< Set if packet has color filter. Qt only. */
     gboolean display;                   /**< indicate if the packet is displayed or not in the graph */
     guint src_node;                     /**< this is used by graph_analysis.c to identify the node */
     guint dst_node;                     /**< a node is an IP address that will be displayed in columns */

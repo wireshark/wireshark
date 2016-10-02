@@ -265,8 +265,10 @@ void SequenceDiagram::draw(QCPPainter *painter)
             bg_color = sel_pal.color(QPalette::Highlight);
             selected_key_ = cur_key;
         } else if (sainfo_->type == SEQ_ANALYSIS_ANY) {
-            fg_pen.setColor(QColor().fromRgb(sai->fg_color));
-            bg_color = QColor().fromRgb(sai->bg_color);
+            if (sai->has_color_filter) {
+                fg_pen.setColor(QColor().fromRgb(sai->fg_color));
+                bg_color = QColor().fromRgb(sai->bg_color);
+            }
         } else { // SEQ_ANALYSIS_VOIP, SEQ_ANALYSIS_TCP
             fg_pen.setColor(Qt::black);
             bg_color = ColorUtils::sequenceColor(sai->conv_num);
@@ -277,7 +279,9 @@ void SequenceDiagram::draw(QCPPainter *painter)
         QRect bg_rect(
                     QPoint(coordsToPixels(cur_key - 0.5, value_axis_->range().lower).toPoint()),
                     QPoint(coordsToPixels(cur_key + 0.5, value_axis_->range().upper).toPoint()));
-        painter->fillRect(bg_rect, bg_color);
+        if (bg_color.isValid()) {
+            painter->fillRect(bg_rect, bg_color);
+        }
 //        painter->restore();
 
         // Highlighted lifelines
