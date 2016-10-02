@@ -112,6 +112,7 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
         if (pinfo->fd->color_filter) {
             sai->bg_color = color_t_to_rgb(&pinfo->fd->color_filter->bg_color);
             sai->fg_color = color_t_to_rgb(&pinfo->fd->color_filter->fg_color);
+            sai->has_color_filter = TRUE;
         }
 
         sai->port_src=pinfo->srcport;
