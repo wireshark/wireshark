@@ -17,6 +17,11 @@
 # of the entries feature sequences listed at
 # http://www.i18nqa.com/debug/utf8-debug.html
 
+# As of October 2016 the download links at
+# http://standards.ieee.org/develop/regauth/
+# point to CSV files. We might want to download and parse those in favor
+# of our current text munging.
+
 use Encode;
 use open ':encoding(utf8)';
 
@@ -43,7 +48,8 @@ $hp       = "[0-9a-fA-F]{2}";
 $oui_re   = "$hp:$hp:$hp";
 $ieee_re  = "$hp-$hp-$hp";
 
-$min_entries = 100;
+$min_entries = 1000;
+$min_total   = 27000; # 27196 as of 2016-10-02
 
 $tmpl_added    = 0;
 $oui_added     = 0;
@@ -62,6 +68,8 @@ $oui36_total   = 0;
 sub shorten
 {
   my $origmanuf = shift;
+  # Trim leading (probably not needed) & trailing (absolutely needed) space.
+  $origmanuf =~ s/^\s+|\s+$//g;
   my $manuf = " " . $origmanuf . " ";
   # Remove any punctuation
   $manuf =~ tr/',.()/    /;
@@ -224,6 +232,9 @@ foreach $line (split(/[\r\n]+/, $ieee_list)) {
 
 if ($oui_total < $min_entries) { die "Too few OUI entries ($oui_total)\n"; }
 
+$total_added = $tmpl_added + $oui_added + $iab_added;
+if ($total_added < $min_total) { die "Too few total entries ($total_added)\n"; }
+
 # Write output file
 
 open (OUT, "> $outfile") ||
@@ -253,17 +264,21 @@ while ($line = <WKATMPL>) {
   print(OUT "$line\n");
 }
 
-$total_added = $tmpl_added + $oui_added + $iab_added;
 print <<"Fin"
-Original entries : $tmpl_added
-IEEE OUI added   : $oui_added
-IEEE IAB added   : $iab_added
-IEEE OUI28 added : $oui28_added
-IEEE OUI36 added : $oui36_added
-Total            : $total_added
+Original entries   : $tmpl_added
+IEEE OUI added     : $oui_added
+IEEE IAB added     : $iab_added
+IEEE OUI28 added   : $oui28_added
+IEEE OUI36 added   : $oui36_added
+Total added        : $total_added
 
-IEEE OUI skipped : $oui_skipped
-IEEE IAB skipped : $iab_skipped
-IEEE OUI28 skipd : $oui28_skipped
-IEEE OUI36 skipd : $oui36_skipped
+IEEE OUI total     : $oui_total
+IEEE IAB total     : $iab_total
+IEEE OUI28 total   : $oui28_total
+IEEE OUI36 total   : $oui36_added
+
+IEEE OUI skipped   : $oui_skipped
+IEEE IAB skipped   : $iab_skipped
+IEEE OUI28 skipd   : $oui28_skipped
+IEEE OUI36 skipped : $oui36_skipped
 Fin
