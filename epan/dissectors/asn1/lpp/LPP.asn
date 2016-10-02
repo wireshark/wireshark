@@ -1,4 +1,4 @@
--- 3GPP TS 36.355 V13.1.0 (2016-03)
+-- 3GPP TS 36.355 V13.2.0 (2016-09)
 --
 
 LPP-PDU-Definitions {
@@ -2215,7 +2215,9 @@ ECID-ProvideCapabilities ::= SEQUENCE {
 	ecid-MeasSupported	BIT STRING { 	rsrpSup		(0),
 										rsrqSup		(1),
 										ueRxTxSup	(2)	} (SIZE(1..8)),
-	...
+	...,
+	[[	ueRxTxSupTDD-r13		ENUMERATED { true }				OPTIONAL
+	]]
 }
 
 

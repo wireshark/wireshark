@@ -28,7 +28,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref 3GPP TS 36.355 version 13.1.0 Release 13
+ * Ref 3GPP TS 36.355 version 13.2.0 Release 13
  * http://www.3gpp.org
  */
 
@@ -944,6 +944,7 @@ static int hf_lpp_ue_RxTxTimeDiff = -1;           /* INTEGER_0_4095 */
 static int hf_lpp_arfcnEUTRA_v9a0 = -1;           /* ARFCN_ValueEUTRA_v9a0 */
 static int hf_lpp_requestedMeasurements = -1;     /* T_requestedMeasurements */
 static int hf_lpp_ecid_MeasSupported = -1;        /* T_ecid_MeasSupported */
+static int hf_lpp_ueRxTxSupTDD_r13 = -1;          /* T_ueRxTxSupTDD_r13 */
 static int hf_lpp_locationServerErrorCauses_02 = -1;  /* ECID_LocationServerErrorCauses */
 static int hf_lpp_targetDeviceErrorCauses_02 = -1;  /* ECID_TargetDeviceErrorCauses */
 static int hf_lpp_cause_04 = -1;                  /* T_cause_04 */
@@ -4557,8 +4558,37 @@ dissect_lpp_T_ecid_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
+static const value_string lpp_T_ueRxTxSupTDD_r13_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_ueRxTxSupTDD_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t ECID_ProvideCapabilities_eag_1_sequence[] = {
+  { &hf_lpp_ueRxTxSupTDD_r13, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_ueRxTxSupTDD_r13 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_ECID_ProvideCapabilities_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, ECID_ProvideCapabilities_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t ECID_ProvideCapabilities_sequence[] = {
   { &hf_lpp_ecid_MeasSupported, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_ecid_MeasSupported },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_ECID_ProvideCapabilities_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -16607,6 +16637,10 @@ void proto_register_lpp(void) {
     { &hf_lpp_ecid_MeasSupported,
       { "ecid-MeasSupported", "lpp.ecid_MeasSupported",
         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lpp_ueRxTxSupTDD_r13,
+      { "ueRxTxSupTDD-r13", "lpp.ueRxTxSupTDD_r13",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_ueRxTxSupTDD_r13_vals), 0,
         NULL, HFILL }},
     { &hf_lpp_locationServerErrorCauses_02,
       { "locationServerErrorCauses", "lpp.locationServerErrorCauses_element",
