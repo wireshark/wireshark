@@ -44,6 +44,6 @@ MAINTAINERCLEANFILES = \
 
 # Convert the FAQ to text.
 faq.txt: $(srcdir)/faq.py
-	$(AM_V_GEN)$(srcdir)/faq.py -b >$@.tmp && \
-	$(srcdir)/../tools/html2text.py $@.tmp > $@ && \
+	$(AM_V_GEN)$(PYTHON) $(srcdir)/faq.py -b >$@.tmp && \
+	$(PYTHON) $(srcdir)/../tools/html2text.py $@.tmp > $@ && \
 	rm -f $@.tmp
