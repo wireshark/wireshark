@@ -35,21 +35,24 @@ static const guchar aethra_magic[MAGIC_SIZE] = {
 /* Aethra file header. */
 struct aethra_hdr {
 	guchar	magic[MAGIC_SIZE];
-	guint8	unknown1[39];
-	guchar	sw_vers[60];	/* software version string, not null-terminated */
-	guint8	unknown2[118];
-	guint8	start_sec;	/* seconds of capture start time */
-	guint8	start_min;	/* minutes of capture start time */
-	guint8	start_hour;	/* hour of capture start time */
-	guint8	unknown3[5007];
-	guint8	start_year[2];	/* year of capture start date */
-	guint8	start_month[2];	/* month of capture start date */
-	guint8	unknown4[2];
-	guint8	start_day[2];	/* day of capture start date */
-	guint8	unknown5[8];
-	guchar	com_info[16];	/* COM port and speed, null-padded(?) */
-	guint8	unknown6[107];
-	guchar	xxx_vers[41];	/* unknown version string (longer, null-padded?) */
+	guint8	unknown1[39];	/* 5-43 */
+	guchar	sw_vers[60];	/* 44-103 - software version string, not null-terminated */
+	guint8	unknown2[118];	/* 104-221 */
+	guint8	start_sec;	/* 222 - seconds of capture start time */
+	guint8	start_min;	/* 223 - minutes of capture start time */
+	guint8	start_hour;	/* 224 - hour of capture start time */
+	guint8	unknown3[462];	/* 225-686 */
+	guchar	xxx_string[37];	/* 687-723 - null-terminated short comment string? */
+	guint8	unknown3_5[4];	/* 724-727 */
+	guchar	yyy_string[4504];/* 728-5231 - null-terminated long comment string? */
+	guint8	start_year[2];	/* 5232-5233 - year of capture start date */
+	guint8	start_month[2];	/* 5234-5235 - month of capture start date */
+	guint8	unknown4[2];	/* 5236-5237 */
+	guint8	start_day[2];	/* 5238-5239 - day of capture start date */
+	guint8	unknown5[8];	/* 5240-5247 */
+	guchar	com_info[16];	/* 5248-5263 - COM port and speed, null-padded(?) */
+	guint8	unknown6[107];	/* 5264-5370 */
+	guchar	xxx_vers[41];	/* 5371-5411 - unknown version string (longer, null-padded?) */
 };
 
 /* Aethra record header.  Yes, the alignment is weird.
