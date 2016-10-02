@@ -47,10 +47,12 @@ ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
 #.END
 
-#.FN_PARS ProtocolIE-ID  VAL_PTR = &ProtocolIE_ID
+#.FN_BODY ProtocolIE-ID  VAL_PTR = &x2ap_data->protocol_ie_id
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
 #.FN_FTR ProtocolIE-ID
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str_ext(ProtocolIE_ID, &x2ap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str_ext(x2ap_data->protocol_ie_id, &x2ap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
   }
 #.END
 
@@ -58,13 +60,10 @@ ProtocolIE-ContainerPairList
 
 #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
-#.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
+#.FN_BODY  ProcedureCode  VAL_PTR = &x2ap_data->procedure_code
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
 #.END
-
-#.FN_HDR ProcedureCode
-  ProcedureCode = 0xFFFF;
-#.END
-
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
 
@@ -136,7 +135,11 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
     return offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_RRC_Context);
-  dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  if (g_x2ap_dissect_rrc_context_as == X2AP_RRC_CONTEXT_NBIOT) {
+    dissect_lte_rrc_HandoverPreparationInformation_NB_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  } else {
+    dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
 
 #.FN_BODY UE-HistoryInformationFromTheUE VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;

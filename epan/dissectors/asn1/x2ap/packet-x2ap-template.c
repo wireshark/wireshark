@@ -24,7 +24,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Ref:
- * 3GPP TS 36.423 V13.4.0 (2016-06)
+ * 3GPP TS 36.423 V13.5.0 (2016-09)
  */
 
 #include "config.h"
@@ -34,6 +34,7 @@
 #include <epan/asn1.h>
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
+#include <epan/proto_data.h>
 
 #include "packet-per.h"
 #include "packet-e212.h"
@@ -136,10 +137,25 @@ static int ett_x2ap_transmissionModes = -1;
 static int ett_x2ap_X2AP_Message = -1;
 #include "packet-x2ap-ett.c"
 
+struct x2ap_private_data {
+  guint32 procedure_code;
+  guint32 protocol_ie_id;
+};
+
+enum {
+  X2AP_RRC_CONTEXT_LTE,
+  X2AP_RRC_CONTEXT_NBIOT
+};
+
+static const enum_val_t x2ap_rrc_context_vals[] = {
+  {"lte", "LTE", X2AP_RRC_CONTEXT_LTE},
+  {"nb-iot","NB-IoT", X2AP_RRC_CONTEXT_NBIOT},
+  {NULL, NULL, -1}
+};
+
 /* Global variables */
-static guint32 ProcedureCode;
-static guint32 ProtocolIE_ID;
 static guint gbl_x2apSctpPort=SCTP_PORT_X2AP;
+static gint g_x2ap_dissect_rrc_context_as = X2AP_RRC_CONTEXT_LTE;
 
 /* Dissector tables */
 static dissector_table_t x2ap_ies_dissector_table;
@@ -197,31 +213,52 @@ x2ap_Threshold_RSRQ_fmt(gchar *s, guint32 v)
   g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-20, v);
 }
 
+static struct x2ap_private_data*
+x2ap_get_private_data(packet_info *pinfo)
+{
+  struct x2ap_private_data *x2ap_data = (struct x2ap_private_data*)p_get_proto_data(pinfo->pool, pinfo, proto_x2ap, 0);
+  if (!x2ap_data) {
+    x2ap_data = wmem_new0(pinfo->pool, struct x2ap_private_data);
+    p_add_proto_data(pinfo->pool, pinfo, proto_x2ap, 0, x2ap_data);
+  }
+  return x2ap_data;
+}
+
 #include "packet-x2ap-fn.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (dissector_try_uint(x2ap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
+
+  return (dissector_try_uint(x2ap_ies_dissector_table, x2ap_data->protocol_ie_id, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (dissector_try_uint(x2ap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
+
+  return (dissector_try_uint(x2ap_extension_dissector_table, x2ap_data->protocol_ie_id, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (dissector_try_uint(x2ap_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
+
+  return (dissector_try_uint(x2ap_proc_imsg_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (dissector_try_uint(x2ap_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
+
+  return (dissector_try_uint(x2ap_proc_sout_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (dissector_try_uint(x2ap_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
+
+  return (dissector_try_uint(x2ap_proc_uout_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int
@@ -515,7 +552,9 @@ void proto_register_x2ap(void) {
                                  "Set the SCTP port for X2AP messages",
                                  10,
                                  &gbl_x2apSctpPort);
-
+  prefs_register_enum_preference(x2ap_module, "dissect_rrc_context_as", "Dissect RRC Context as",
+                                 "Select whether RRC Context should be dissected as legacy LTE or NB-IOT",
+                                 &g_x2ap_dissect_rrc_context_as, x2ap_rrc_context_vals, FALSE);
 }
 
 
@@ -523,25 +562,24 @@ void proto_register_x2ap(void) {
 void
 proto_reg_handoff_x2ap(void)
 {
-	static gboolean Initialized=FALSE;
-	static guint SctpPort;
+  static gboolean Initialized=FALSE;
+  static guint SctpPort;
 
-	if (!Initialized) {
-		dissector_add_for_decode_as("sctp.port", x2ap_handle);
-		dissector_add_uint("sctp.ppi", X2AP_PAYLOAD_PROTOCOL_ID, x2ap_handle);
-		Initialized=TRUE;
+  if (!Initialized) {
+    dissector_add_for_decode_as("sctp.port", x2ap_handle);
+    dissector_add_uint("sctp.ppi", X2AP_PAYLOAD_PROTOCOL_ID, x2ap_handle);
+    Initialized=TRUE;
 #include "packet-x2ap-dis-tab.c"
-	} else {
-		if (SctpPort != 0) {
-			dissector_delete_uint("sctp.port", SctpPort, x2ap_handle);
-		}
-	}
+  } else {
+    if (SctpPort != 0) {
+      dissector_delete_uint("sctp.port", SctpPort, x2ap_handle);
+    }
+  }
 
-	SctpPort=gbl_x2apSctpPort;
-	if (SctpPort != 0) {
-		dissector_add_uint("sctp.port", SctpPort, x2ap_handle);
-	}
-
+  SctpPort=gbl_x2apSctpPort;
+  if (SctpPort != 0) {
+    dissector_add_uint("sctp.port", SctpPort, x2ap_handle);
+  }
 }
 
 
