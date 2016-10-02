@@ -75,8 +75,10 @@ bool InterfaceSortFilterModel::filterHidden() const
 
 int InterfaceSortFilterModel::interfacesHidden()
 {
+#ifdef HAVE_LIBPCAP
     if ( ! global_capture_opts.all_ifaces )
         return 0;
+#endif
 
     return sourceModel()->rowCount() - rowCount();
 }
@@ -84,7 +86,7 @@ int InterfaceSortFilterModel::interfacesHidden()
 QList<int> InterfaceSortFilterModel::typesDisplayed()
 {
     QList<int> shownTypes;
-
+#ifdef HAVE_LIBPCAP
     if ( ! global_capture_opts.all_ifaces )
         return shownTypes;
 
@@ -97,7 +99,7 @@ QList<int> InterfaceSortFilterModel::typesDisplayed()
                 shownTypes.append(device.if_info.type);
         }
     }
-
+#endif
     return shownTypes;
 }
 
@@ -137,6 +139,11 @@ bool InterfaceSortFilterModel::isInterfaceTypeShown(int ifType) const
 bool InterfaceSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const
 {
     QModelIndex realIndex = sourceModel()->index(sourceRow, 0, sourceParent);
+
+    if ( ! realIndex.isValid() )
+        return false;
+
+#ifdef HAVE_LIBPCAP
     int idx = realIndex.row();
 
     /* No data loaded, we do not display anything */
@@ -150,6 +157,7 @@ bool InterfaceSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex
 
     if ( ! isInterfaceTypeShown(device.if_info.type) )
         return false;
+#endif
 
     return true;
 }

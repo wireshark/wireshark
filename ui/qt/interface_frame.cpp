@@ -152,11 +152,13 @@ void InterfaceFrame::interfaceListChanged()
         ui->interfaceTree->setHidden(true);
         ui->lblNoInterfaces->setHidden(false);
 
+#ifdef HAVE_LIBPCAP
         if ( global_capture_opts.ifaces_err != 0 )
         {
             ui->lblNoInterfaces->setText(tr(global_capture_opts.ifaces_err_info));
         }
         else
+#endif
         {
             ui->lblNoInterfaces->setText(tr("No interfaces found"));
         }
@@ -217,7 +219,7 @@ void InterfaceFrame::updateSelectedInterfaces()
 {
     if ( sourceModel->rowCount() == 0 )
         return;
-
+#ifdef HAVE_LIBPCAP
     QItemSelection mySelection;
 
     for( int idx = 0; idx < sourceModel->rowCount(); idx++ )
@@ -240,6 +242,7 @@ void InterfaceFrame::updateSelectedInterfaces()
 
     ui->interfaceTree->selectionModel()->clearSelection();
     ui->interfaceTree->selectionModel()->select(mySelection, QItemSelectionModel::SelectCurrent );
+#endif
 }
 
 void InterfaceFrame::interfaceTreeSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
@@ -248,7 +251,7 @@ void InterfaceFrame::interfaceTreeSelectionChanged(const QItemSelection & select
         return;
     if ( sourceModel->rowCount() == 0 )
         return;
-
+#ifdef HAVE_LIBPCAP
     QList<int> selectedIndices;
 
     /* Take all selected interfaces, not just the newly ones */
@@ -297,6 +300,7 @@ void InterfaceFrame::interfaceTreeSelectionChanged(const QItemSelection & select
 
     if ( selectionHasChanged )
         emit itemSelectionChanged();
+#endif
 }
 
 void InterfaceFrame::on_interfaceTree_doubleClicked(const QModelIndex &index)
@@ -306,7 +310,7 @@ void InterfaceFrame::on_interfaceTree_doubleClicked(const QModelIndex &index)
     if ( ! realIndex.isValid() )
         return;
 
-#ifdef HAVE_EXTCAP
+#if defined(HAVE_EXTCAP) && defined(HAVE_LIBPCAP)
     interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, realIndex.row());
 
     QString extcap_string = device.if_info.extcap;
@@ -327,7 +331,7 @@ void InterfaceFrame::on_interfaceTree_doubleClicked(const QModelIndex &index)
     emit startCapture();
 }
 
-#ifdef HAVE_EXTCAP
+#if defined(HAVE_EXTCAP) && defined(HAVE_LIBPCAP)
 void InterfaceFrame::on_interfaceTree_clicked(const QModelIndex &index)
 {
     if ( index.column() == 0 )

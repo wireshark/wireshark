@@ -71,19 +71,29 @@ InterfaceTreeModel::~InterfaceTreeModel(void)
 #endif // HAVE_LIBPCAP
 }
 
-int InterfaceTreeModel::rowCount(const QModelIndex & parent _U_) const
+int InterfaceTreeModel::rowCount(const QModelIndex & parent) const
 {
+    Q_UNUSED(parent);
+
+#ifdef HAVE_LIBPCAP
     return (global_capture_opts.all_ifaces ? global_capture_opts.all_ifaces->len : 0);
+#else
+    /* Currently no interfaces available for libpcap-less builds */
+    return 0;
+#endif
 }
 
-int InterfaceTreeModel::columnCount(const QModelIndex & parent _U_) const
+int InterfaceTreeModel::columnCount(const QModelIndex & parent) const
 {
+    Q_UNUSED(parent);
+
     /* IFTREE_COL_MAX is not being displayed, it is the definition for the maximum numbers of columns */
     return ((int) IFTREE_COL_MAX);
 }
 
 QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
 {
+#ifdef HAVE_LIBPCAP
     bool interfacesLoaded = true;
     if ( ! global_capture_opts.all_ifaces || global_capture_opts.all_ifaces->len == 0 )
         interfacesLoaded = false;
@@ -143,6 +153,9 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
     {
         return toolTipForInterface(row);
     }
+#endif
+    Q_UNUSED(index);
+    Q_UNUSED(role);
 
     return QVariant();
 }
@@ -168,6 +181,7 @@ void InterfaceTreeModel::interfaceListChanged()
  */
 QVariant InterfaceTreeModel::toolTipForInterface(int idx) const
 {
+#ifdef HAVE_LIBPCAP
     if ( ! global_capture_opts.all_ifaces || global_capture_opts.all_ifaces->len <= (guint) idx)
         return QVariant();
 
@@ -207,6 +221,11 @@ QVariant InterfaceTreeModel::toolTipForInterface(int idx) const
     tt_str += "</p>";
 
     return tt_str;
+#else
+    Q_UNUSED(idx);
+
+    return QVariant();
+#endif
 }
 
 #ifdef HAVE_LIBPCAP
@@ -222,8 +241,8 @@ void InterfaceTreeModel::stopStatistic()
 
 void InterfaceTreeModel::updateStatistic(unsigned int idx)
 {
+#ifdef HAVE_LIBPCAP
     guint diff;
-
     if ( ! global_capture_opts.all_ifaces || global_capture_opts.all_ifaces->len <= (guint) idx )
         return;
 
@@ -232,7 +251,6 @@ void InterfaceTreeModel::updateStatistic(unsigned int idx)
     if ( device.if_info.type == IF_PIPE )
         return;
 
-#ifdef HAVE_LIBPCAP
     if ( !stat_cache_ )
     {
         // Start gathering statistics using dumpcap
@@ -241,7 +259,6 @@ void InterfaceTreeModel::updateStatistic(unsigned int idx)
     }
     if ( !stat_cache_ )
         return;
-#endif
 
     struct pcap_stat stats;
 
@@ -264,14 +281,22 @@ void InterfaceTreeModel::updateStatistic(unsigned int idx)
 
     points[device.name]->append(diff);
     emit dataChanged(index(idx, IFTREE_COL_STATS), index(idx, IFTREE_COL_STATS));
+#else
+    Q_UNUSED(idx);
+#endif
 }
 
 void InterfaceTreeModel::getPoints(int idx, PointList *pts)
 {
+#ifdef HAVE_LIBPCAP
     if ( ! global_capture_opts.all_ifaces || global_capture_opts.all_ifaces->len <= (guint) idx )
         return;
 
     interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
     if ( points.contains(device.name) )
         pts->append(*points[device.name]);
+#else
+    Q_UNUSED(idx);
+    Q_UNUSED(pts);
+#endif
 }
