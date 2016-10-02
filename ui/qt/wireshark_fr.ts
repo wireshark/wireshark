@@ -1163,22 +1163,22 @@
         <translation>Débit moyen (bits/s)</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="525"/>
+        <location filename="capture_file_properties_dialog.cpp" line="520"/>
         <source>File Comment</source>
         <translation>Commentaire du Fichier</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="534"/>
+        <location filename="capture_file_properties_dialog.cpp" line="529"/>
         <source>Packet Comments</source>
         <translation>Commentaires du Paquet</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="541"/>
+        <location filename="capture_file_properties_dialog.cpp" line="536"/>
         <source>&lt;p&gt;Frame %1: </source>
         <translation>&lt;p&gt;Trame %1:</translation>
     </message>
     <message>
-        <location filename="capture_file_properties_dialog.cpp" line="599"/>
+        <location filename="capture_file_properties_dialog.cpp" line="590"/>
         <source>Created by Wireshark %1
 
 </source>
@@ -1593,55 +1593,55 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation>Laisser vide pour utiliser un fichier temporaire</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="321"/>
+        <location filename="capture_interfaces_dialog.cpp" line="357"/>
         <source>Specify a Capture File</source>
         <translation>Préciser un fichier de capture</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="619"/>
+        <location filename="capture_interfaces_dialog.cpp" line="655"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="619"/>
+        <location filename="capture_interfaces_dialog.cpp" line="655"/>
         <source>Addresses</source>
         <translation>Adresses</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="619"/>
+        <location filename="capture_interfaces_dialog.cpp" line="655"/>
         <source>Address</source>
         <translation>Adresse</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="629"/>
+        <location filename="capture_interfaces_dialog.cpp" line="665"/>
         <source>no addresses</source>
         <translation>pas d&apos;adresse</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="807"/>
-        <location filename="capture_interfaces_dialog.cpp" line="815"/>
-        <location filename="capture_interfaces_dialog.cpp" line="826"/>
-        <location filename="capture_interfaces_dialog.cpp" line="830"/>
         <location filename="capture_interfaces_dialog.cpp" line="843"/>
         <location filename="capture_interfaces_dialog.cpp" line="851"/>
+        <location filename="capture_interfaces_dialog.cpp" line="862"/>
+        <location filename="capture_interfaces_dialog.cpp" line="866"/>
+        <location filename="capture_interfaces_dialog.cpp" line="879"/>
+        <location filename="capture_interfaces_dialog.cpp" line="887"/>
         <source>Error</source>
         <translation>Erreur</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="808"/>
-        <location filename="capture_interfaces_dialog.cpp" line="816"/>
         <location filename="capture_interfaces_dialog.cpp" line="844"/>
         <location filename="capture_interfaces_dialog.cpp" line="852"/>
+        <location filename="capture_interfaces_dialog.cpp" line="880"/>
+        <location filename="capture_interfaces_dialog.cpp" line="888"/>
         <source>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</source>
         <translation>Fichier multiples : la taille demandée est trop élevée, elle ne doit pas être supérieure à 2 Go.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="827"/>
+        <location filename="capture_interfaces_dialog.cpp" line="863"/>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
         <translation>Fichier multiples : pas de nom de fichier précisé.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="831"/>
+        <location filename="capture_interfaces_dialog.cpp" line="867"/>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <translation>Fichiers multiples: Aucune limite de fichier donnée! Vous devez spécifier une taille de fichier ou une durée où se produit le basculement au fichier de capture suivant 
@@ -4641,46 +4641,140 @@ pour fichiers de filtre : %2.</translation>
     </message>
 </context>
 <context>
+    <name>InterfaceFrame</name>
+    <message>
+        <location filename="interface_frame.ui" line="20"/>
+        <source>Frame</source>
+        <translation type="unfinished">Trame</translation>
+    </message>
+    <message>
+        <location filename="interface_frame.ui" line="44"/>
+        <location filename="interface_frame.cpp" line="161"/>
+        <source>No interfaces found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_frame.ui" line="66"/>
+        <source>Show Interfaces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_frame.cpp" line="71"/>
+        <source>Physical</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_frame.cpp" line="72"/>
+        <source>AirPCAP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_frame.cpp" line="73"/>
+        <source>Pipe</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_frame.cpp" line="74"/>
+        <source>STDIN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_frame.cpp" line="75"/>
+        <source>Bluetooth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_frame.cpp" line="76"/>
+        <source>Wireless</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_frame.cpp" line="77"/>
+        <source>Dial-Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_frame.cpp" line="78"/>
+        <source>USB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_frame.cpp" line="80"/>
+        <source>External Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_frame.cpp" line="82"/>
+        <source>Virtual</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>InterfaceTree</name>
     <message>
-        <location filename="interface_tree.cpp" line="86"/>
         <source>Welcome screen list</source>
-        <translation>Page de bienvenue</translation>
+        <translation type="vanished">Page de bienvenue</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="92"/>
         <source>Waiting for startup%1</source>
-        <translation>Attend démarrage%1</translation>
+        <translation type="vanished">Attend démarrage%1</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="263"/>
         <source>Interface information not available</source>
-        <translation>Information concernant l&apos;interface n&apos;est pas disponible</translation>
+        <translation type="vanished">Information concernant l&apos;interface n&apos;est pas disponible</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="439"/>
         <source>Addresses</source>
-        <translation>Adresses</translation>
+        <translation type="vanished">Adresses</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="439"/>
         <source>Address</source>
-        <translation>Adresse</translation>
+        <translation type="vanished">Adresse</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="442"/>
         <source>No addresses</source>
-        <translation>Pas d&apos;adresse</translation>
+        <translation type="vanished">Pas d&apos;adresse</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="447"/>
         <source>No capture filter</source>
-        <translation>Pas de filtre de capture</translation>
+        <translation type="vanished">Pas de filtre de capture</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="450"/>
         <source>Capture filter</source>
-        <translation>Filtre de capture</translation>
+        <translation type="vanished">Filtre de capture</translation>
+    </message>
+</context>
+<context>
+    <name>InterfaceTreeModel</name>
+    <message>
+        <location filename="interface_tree_model.cpp" line="180"/>
+        <source>Addresses</source>
+        <translation type="unfinished">Adresses</translation>
+    </message>
+    <message>
+        <location filename="interface_tree_model.cpp" line="180"/>
+        <source>Address</source>
+        <translation type="unfinished">Adresse</translation>
+    </message>
+    <message>
+        <location filename="interface_tree_model.cpp" line="187"/>
+        <source>Extcap interface: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_tree_model.cpp" line="192"/>
+        <source>No addresses</source>
+        <translation type="unfinished">Pas d&apos;adresse</translation>
+    </message>
+    <message>
+        <location filename="interface_tree_model.cpp" line="199"/>
+        <source>No capture filter</source>
+        <translation type="unfinished">Pas de filtre de capture</translation>
+    </message>
+    <message>
+        <location filename="interface_tree_model.cpp" line="204"/>
+        <source>Capture filter</source>
+        <translation type="unfinished">Filtre de capture</translation>
     </message>
 </context>
 <context>
@@ -6732,57 +6826,57 @@ pour fichiers de filtre : %2.</translation>
         <translation>Formulaire</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="57"/>
+        <location filename="main_welcome.ui" line="63"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Welcome to Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Bienvenue dans Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="117"/>
+        <location filename="main_welcome.ui" line="123"/>
         <source>&lt;h2&gt;Open&lt;/h2&gt;</source>
         <translation>&lt;h2&gt;Ouvrir&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="130"/>
+        <location filename="main_welcome.ui" line="136"/>
         <source>Recent capture files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="133"/>
+        <location filename="main_welcome.ui" line="139"/>
         <source>Capture files that have been opened previously</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="146"/>
+        <location filename="main_welcome.ui" line="152"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capturer des paquets live de votre réseau.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="149"/>
+        <location filename="main_welcome.ui" line="155"/>
         <source>&lt;h2&gt;Capture&lt;/h2&gt;</source>
         <translation>&lt;h2&gt;Capture&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="168"/>
+        <location filename="main_welcome.ui" line="174"/>
         <source>…using this filter:</source>
         <translation>...en utilisant ce filtre</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="197"/>
+        <location filename="main_welcome.ui" line="203"/>
         <source>Interface list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="200"/>
+        <location filename="main_welcome.ui" line="206"/>
         <source>List of available capture interfaces</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="226"/>
+        <location filename="main_welcome.ui" line="219"/>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
         <translation>&lt;h2&gt;Découvrir&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="233"/>
+        <location filename="main_welcome.ui" line="226"/>
         <source>&lt;html&gt;&lt;head&gt;
 &lt;style&gt;
 a:link {
@@ -6848,37 +6942,37 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="226"/>
+        <location filename="main_welcome.cpp" line="216"/>
         <source>You are running Wireshark </source>
         <translation>Vous exécutez Wireshark</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="228"/>
+        <location filename="main_welcome.cpp" line="218"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="231"/>
+        <location filename="main_welcome.cpp" line="221"/>
         <source> You receive automatic updates.</source>
         <translation>Vous recevez les mises à jour automatiques.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="233"/>
+        <location filename="main_welcome.cpp" line="223"/>
         <source> You have disabled automatic updates.</source>
         <translation>Vous avez désactivé les mises à jour automatiques.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="390"/>
+        <location filename="main_welcome.cpp" line="353"/>
         <source>not found</source>
         <translation>Non trouvé</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="472"/>
+        <location filename="main_welcome.cpp" line="435"/>
         <source>Copy file path</source>
         <translation>Copier le chemin du fichier</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="478"/>
+        <location filename="main_welcome.cpp" line="441"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9376,12 +9470,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3807"/>
+        <location filename="main_window_slots.cpp" line="3802"/>
         <source>Wiki Page for %1</source>
         <translation>Page Wiki pour %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3808"/>
+        <location filename="main_window_slots.cpp" line="3803"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Le Wiki Wireshark est maintenu par la communauté&lt;/p&gt;
 &lt;p&gt;La page que vous vous apprêtez à charger peut être magnifique, incomplète, fausse ou inexistante&lt;/p&gt;
@@ -9612,27 +9706,27 @@ a:hover {
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="172"/>
+        <location filename="manage_interfaces_dialog.cpp" line="175"/>
         <source>This version of Wireshark does not save pipe settings.</source>
         <translation>Cette version de Wireshark ne sauvegarde pas les paramètres de pipe.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="176"/>
+        <location filename="manage_interfaces_dialog.cpp" line="179"/>
         <source>This version of Wireshark does not save remote settings.</source>
         <translation>Cette version de Wireshark ne sauvegarde pas les paramètres distants.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="178"/>
+        <location filename="manage_interfaces_dialog.cpp" line="181"/>
         <source>This version of Wireshark does not support remote interfaces.</source>
         <translation>Cette version de Wireshark ne supporte pas les interfaces distantes.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="425"/>
+        <location filename="manage_interfaces_dialog.cpp" line="428"/>
         <source>Error</source>
         <translation>Erreur</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="426"/>
+        <location filename="manage_interfaces_dialog.cpp" line="429"/>
         <source>Default interface cannot be hidden.</source>
         <translation>L&apos;interface par défaut ne peut pas être masquée.</translation>
     </message>
@@ -10155,12 +10249,12 @@ a:hover {
 <context>
     <name>PathChooserDelegate</name>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="814"/>
+        <location filename="manage_interfaces_dialog.cpp" line="817"/>
         <source>Browse</source>
         <translation>Parcourir</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="867"/>
+        <location filename="manage_interfaces_dialog.cpp" line="870"/>
         <source>Open Pipe</source>
         <translation>Ouvrir Pipe</translation>
     </message>
@@ -10183,7 +10277,7 @@ a:hover {
         <translation>une préférence</translation>
     </message>
     <message>
-        <location filename="preference_editor_frame.cpp" line="82"/>
+        <location filename="preference_editor_frame.cpp" line="77"/>
         <source>Open %1 preferences</source>
         <translation>Ouvrir les préférences %1</translation>
     </message>
@@ -10817,7 +10911,7 @@ a:hover {
         <translation>Ne plus afficher ce message.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="222"/>
+        <location filename="manage_interfaces_dialog.cpp" line="225"/>
         <source>New Pipe</source>
         <translation>Nouvelle Pipe</translation>
     </message>
@@ -10857,12 +10951,12 @@ a:hover {
         <translation>%1 entrées.</translation>
     </message>
     <message>
-        <location filename="module_preferences_scroll_area.cpp" line="191"/>
+        <location filename="module_preferences_scroll_area.cpp" line="182"/>
         <source>Edit</source>
         <translation>Editer</translation>
     </message>
     <message>
-        <location filename="module_preferences_scroll_area.cpp" line="218"/>
+        <location filename="module_preferences_scroll_area.cpp" line="209"/>
         <source>Browse</source>
         <translation>Parcourir</translation>
     </message>
@@ -11138,12 +11232,12 @@ a:hover {
         <translation>Priorité</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="455"/>
+        <location filename="main_welcome.cpp" line="418"/>
         <source>Show in Finder</source>
         <translation>Voir dans Finder</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="457"/>
+        <location filename="main_welcome.cpp" line="420"/>
         <source>Show in Folder</source>
         <translation>Voir dans le Dossier</translation>
     </message>
@@ -13620,33 +13714,33 @@ a:hover {
 <context>
     <name>SequenceDialog</name>
     <message>
-        <location filename="sequence_dialog.cpp" line="82"/>
+        <location filename="sequence_dialog.cpp" line="79"/>
         <source>Call Flow</source>
         <translation>Flux d&apos;Appel</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="116"/>
+        <location filename="sequence_dialog.cpp" line="113"/>
         <source>Time</source>
         <translation type="unfinished">Temps</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="124"/>
+        <location filename="sequence_dialog.cpp" line="121"/>
         <source>Comment</source>
         <translation type="unfinished">Commentaire</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="170"/>
+        <location filename="sequence_dialog.cpp" line="167"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation>Enregistrer sous</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="338"/>
+        <location filename="sequence_dialog.cpp" line="331"/>
         <source>No data</source>
         <translation>Pas de données</translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="340"/>
+        <location filename="sequence_dialog.cpp" line="333"/>
         <source>%Ln node(s)</source>
         <translation>
             <numerusform>%n noeud</numerusform>
@@ -13654,7 +13748,7 @@ a:hover {
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="341"/>
+        <location filename="sequence_dialog.cpp" line="334"/>
         <source>%Ln item(s)</source>
         <translation>
             <numerusform>%n item</numerusform>
@@ -13662,38 +13756,38 @@ a:hover {
         </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="367"/>
+        <location filename="sequence_dialog.cpp" line="360"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="368"/>
+        <location filename="sequence_dialog.cpp" line="361"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="369"/>
+        <location filename="sequence_dialog.cpp" line="362"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="371"/>
+        <location filename="sequence_dialog.cpp" line="364"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>Format d&apos;2change de Fichier JPEG </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="372"/>
+        <location filename="sequence_dialog.cpp" line="365"/>
         <source>ASCII (*.txt)</source>
         <translation>ASCII (*.txt)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="383"/>
+        <location filename="sequence_dialog.cpp" line="376"/>
         <source>Save Graph As</source>
         <oldsource>Wireshark: Save Graph As...</oldsource>
         <translation>Sauvegarder le Graphique Sous</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="82"/>
+        <location filename="sequence_dialog.cpp" line="79"/>
         <source>Flow</source>
         <translation>Flux</translation>
     </message>
@@ -14998,7 +15092,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <location filename="tap_parameter_dialog.ui" line="76"/>
-        <location filename="tap_parameter_dialog.cpp" line="90"/>
+        <location filename="tap_parameter_dialog.cpp" line="87"/>
         <source>Copy</source>
         <translation>Copier</translation>
     </message>
@@ -15019,27 +15113,27 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Sauvegarde l&apos;information affichée sous divers formats</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.cpp" line="93"/>
+        <location filename="tap_parameter_dialog.cpp" line="90"/>
         <source>Save as</source>
         <translation>Enregistrer sous</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.cpp" line="552"/>
+        <location filename="tap_parameter_dialog.cpp" line="534"/>
         <source>Save Statistics As</source>
         <translation>Sauvegarde Statistiques Sous</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.cpp" line="554"/>
+        <location filename="tap_parameter_dialog.cpp" line="536"/>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
         <translation>Fichier plat (*.txt);;Valeurs séparées par des virgules (*.csv);;Document XML (*.xml);; Document YAML (*.yaml)</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.cpp" line="558"/>
+        <location filename="tap_parameter_dialog.cpp" line="540"/>
         <source>Plain text file (*.txt)</source>
         <translation>Fichier plat (*.txt)</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.cpp" line="600"/>
+        <location filename="tap_parameter_dialog.cpp" line="582"/>
         <source>Error saving file %1</source>
         <translation>Erreur en sauvegardant le fichier %1</translation>
     </message>
