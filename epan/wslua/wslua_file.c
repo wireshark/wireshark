@@ -170,6 +170,10 @@ static int File_read_number (lua_State *L, FILE_T ft) {
     }
 }
 
+/**
+ * Attempts to read one line from the file. The actual data read is pushed on
+ * the stack (or nil on EOF).
+ */
 static int File_read_line(lua_State *L, FILE_T ft) {
     static gchar linebuff[MAX_LINE_LENGTH];
     gint64 pos_before = file_tell(ft);
@@ -178,6 +182,8 @@ static int File_read_line(lua_State *L, FILE_T ft) {
     if (file_gets(linebuff, MAX_LINE_LENGTH, ft) == NULL) {
         /* No characters found, or error */
         /* *err = file_error(ft, err_info); */
+        /* io.lines() and file:read() requires nil on EOF */
+        lua_pushnil(L);
         return 0;
     }
 
@@ -211,6 +217,10 @@ static int File_read_line(lua_State *L, FILE_T ft) {
 #define lua_rawlen lua_objlen
 #endif
 
+/**
+ * Reads some data and returns the number of bytes read.
+ * The actual data (possibly an empty string) is pushed on the Lua stack.
+ */
 static int File_read_chars(lua_State *L, FILE_T ft, size_t n) {
     size_t rlen;  /* how much to read */
     size_t nr;  /* number of chars actually read */
