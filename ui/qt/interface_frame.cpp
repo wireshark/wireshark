@@ -147,7 +147,7 @@ QAbstractButton * InterfaceFrame::createButton(QString text, QString prop, QVari
 
 void InterfaceFrame::interfaceListChanged()
 {
-    if (sourceModel->rowCount() == 0)
+    if ( sourceModel->rowCount() == 0 )
     {
         ui->interfaceTree->setHidden(true);
         ui->lblNoInterfaces->setHidden(false);
@@ -174,7 +174,9 @@ void InterfaceFrame::resetInterfaceButtons()
 {
     QAbstractButton * button = 0;
 
-    if ( ! global_capture_opts.all_ifaces )
+    ui->wdgTypeSelector->setVisible( proxyModel->typesDisplayed().count() > 1 );
+
+    if ( sourceModel->rowCount() == 0 )
         return;
 
     foreach (QWidget * w, ui->wdgButtons->findChildren<QWidget *>())
@@ -213,12 +215,12 @@ void InterfaceFrame::resetInterfaceButtons()
 
 void InterfaceFrame::updateSelectedInterfaces()
 {
-    if ( ! global_capture_opts.all_ifaces )
+    if ( sourceModel->rowCount() == 0 )
         return;
 
     QItemSelection mySelection;
 
-    for(unsigned int idx = 0; idx < global_capture_opts.all_ifaces->len; idx++)
+    for( int idx = 0; idx < sourceModel->rowCount(); idx++ )
     {
         interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
 
@@ -244,7 +246,7 @@ void InterfaceFrame::interfaceTreeSelectionChanged(const QItemSelection & select
 {
     if (selected.count() == 0 && deselected.count() == 0)
         return;
-    if ( ! global_capture_opts.all_ifaces )
+    if ( sourceModel->rowCount() == 0 )
         return;
 
     QList<int> selectedIndices;
@@ -301,7 +303,7 @@ void InterfaceFrame::on_interfaceTree_doubleClicked(const QModelIndex &index)
 {
     QModelIndex realIndex = proxyModel->mapToSource(index);
 
-    if ( ! global_capture_opts.all_ifaces || global_capture_opts.all_ifaces->len <= (guint) realIndex.row() )
+    if ( ! realIndex.isValid() )
         return;
 
 #ifdef HAVE_EXTCAP
@@ -332,7 +334,7 @@ void InterfaceFrame::on_interfaceTree_clicked(const QModelIndex &index)
     {
         QModelIndex realIndex = proxyModel->mapToSource(index);
 
-        if ( ! global_capture_opts.all_ifaces || global_capture_opts.all_ifaces->len <= (guint) realIndex.row() )
+        if ( ! realIndex.isValid() )
             return;
 
         interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, realIndex.row());
@@ -358,12 +360,12 @@ void InterfaceFrame::on_interfaceTree_clicked(const QModelIndex &index)
 
 void InterfaceFrame::updateStatistics(void)
 {
-    if ( ! global_capture_opts.all_ifaces )
+    if ( sourceModel->rowCount() == 0 )
         return;
 
 #ifdef HAVE_LIBPCAP
 
-    for( unsigned int idx = 0; idx < global_capture_opts.all_ifaces->len; idx++ )
+    for( int idx = 0; idx < proxyModel->rowCount(); idx++ )
     {
         QModelIndex selectIndex = proxyModel->mapFromSource(sourceModel->index(idx, 0));
 
