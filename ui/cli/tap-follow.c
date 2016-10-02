@@ -195,7 +195,7 @@ static void follow_draw(void *contextp)
   else
     printf("Node 1: %s:%u\n", buf, follow_info->server_port);
 
-  for (cur = follow_info->payload, chunk = 0;
+  for (cur = follow_info->payload, chunk = 1;
        cur != NULL;
        cur = g_list_next(cur), chunk++)
   {
