@@ -6,7 +6,6 @@
         ["ipv4"] = '<function 1>',
         ['<metatable>'] = {
             ["__eq"] = '<function 2>',
-            ["__gc"] = '<function 3>',
             ["__index"] = '<filtered>',
             ["__le"] = '<function 4>',
             ["__lt"] = '<function 5>',
@@ -33,7 +32,6 @@
             ["__call"] = '<function 16>',
             ["__concat"] = '<function 19>',
             ["__eq"] = '<function 20>',
-            ["__gc"] = '<function 21>',
             ["__index"] = '<filtered>',
             ["__methods"] = '<table 3>',
             ["__tostring"] = '<function 22>',
@@ -50,7 +48,6 @@
         ["preppend"] = '<function 27>',
         ["set"] = '<function 28>',
         ['<metatable>'] = {
-            ["__gc"] = '<function 29>',
             ["__index"] = '<filtered>',
             ["__methods"] = '<table 4>',
             ["__tostring"] = '<function 30>',
@@ -73,7 +70,6 @@
         ["remove_all"] = '<function 40>',
         ['<metatable>'] = {
             ["__call"] = '<function 41>',
-            ["__gc"] = '<function 42>',
             ["__index"] = '<filtered>',
             ["__methods"] = '<table 5>',
             ["__typeof"] = "Dir"
@@ -86,7 +82,6 @@
         ["list"] = '<function 45>',
         ['<metatable>'] = {
             ["__call"] = '<function 46>',
-            ["__gc"] = '<function 47>',
             ["__index"] = '<filtered>',
             ["__methods"] = '<table 6>',
             ["__tostring"] = '<function 48>',
@@ -106,7 +101,6 @@
         ["set"] = '<function 57>',
         ["try"] = '<function 58>',
         ['<metatable>'] = {
-            ["__gc"] = '<function 59>',
             ["__index"] = '<filtered>',
             ["__methods"] = '<table 7>',
             ["__tostring"] = '<function 60>',
@@ -122,7 +116,6 @@
         ["new"] = '<function 65>',
         ["new_for_current"] = '<function 66>',
         ['<metatable>'] = {
-            ["__gc"] = '<function 67>',
             ["__index"] = '<filtered>',
             ["__methods"] = '<table 8>',
             ["__typeof"] = "Dumper"
@@ -184,7 +177,6 @@
         ["new"] = '<function 69>',
         ['<metatable>'] = {
             ["__call"] = '<function 70>',
-            ["__gc"] = '<function 71>',
             ["__index"] = '<filtered>',
             ["__methods"] = '<table 9>',
             ["__tostring"] = '<function 72>',
@@ -198,7 +190,6 @@
         ["seek"] = '<function 75>',
         ["write"] = '<function 76>',
         ['<metatable>'] = {
-            ["__gc"] = '<function 77>',
             ["__getters"] = {
                 ["__typeof"] = "getter",
                 ["compressed"] = '<function 78>'
@@ -217,7 +208,6 @@
         ["__typeof"] = "FileHandler",
         ["new"] = '<function 81>',
         ['<metatable>'] = {
-            ["__gc"] = '<function 82>',
             ["__getters"] = {
                 ["__typeof"] = "getter",
                 ["extensions"] = '<function 83>',
@@ -253,7 +243,6 @@
         ["__typeof"] = "FrameInfo",
         ["read_data"] = '<function 103>',
         ['<metatable>'] = {
-            ["__gc"] = '<function 104>',
             ["__getters"] = {
                 ["__typeof"] = "getter",
                 ["captured_length"] = '<function 105>',
@@ -287,7 +276,6 @@
         ["__typeof"] = "FrameInfoConst",
         ["write_data"] = '<function 123>',
         ['<metatable>'] = {
-            ["__gc"] = '<function 124>',
             ["__getters"] = {
                 ["__typeof"] = "getter",
                 ["captured_length"] = '<function 125>',
@@ -369,7 +357,6 @@
             ["__concat"] = '<function 167>',
             ["__div"] = '<function 168>',
             ["__eq"] = '<function 169>',
-            ["__gc"] = '<function 170>',
             ["__index"] = '<filtered>',
             ["__le"] = '<function 171>',
             ["__lt"] = '<function 172>',
@@ -389,7 +376,6 @@
         ["new"] = '<function 180>',
         ["remove"] = '<function 181>',
         ['<metatable>'] = {
-            ["__gc"] = '<function 182>',
             ["__getters"] = {
                 ["__typeof"] = "getter"
             },
@@ -446,7 +432,6 @@
         ["string"] = '<function 192>',
         ["uint"] = '<function 193>',
         ['<metatable>'] = {
-            ["__gc"] = '<function 194>',
             ["__index"] = '<filtered>',
             ["__methods"] = '<table 16>',
             ["__typeof"] = "Pref"
@@ -459,7 +444,6 @@
         ["stopped"] = '<function 197>',
         ["update"] = '<function 198>',
         ['<metatable>'] = {
-            ["__gc"] = '<function 199>',
             ["__index"] = '<filtered>',
             ["__methods"] = '<table 17>',
             ["__tostring"] = '<function 200>',
@@ -471,7 +455,6 @@
         ["__typeof"] = "ProtoExpert",
         ["new"] = '<function 201>',
         ['<metatable>'] = {
-            ["__gc"] = '<function 202>',
             ["__index"] = '<filtered>',
             ["__methods"] = '<table 18>',
             ["__tostring"] = '<function 203>',
@@ -510,7 +493,6 @@
         ["uint64"] = '<function 231>',
         ["uint8"] = '<function 232>',
         ['<metatable>'] = {
-            ["__gc"] = '<function 233>',
             ["__index"] = '<filtered>',
             ["__methods"] = '<table 19>',
             ["__tostring"] = '<function 234>',
@@ -524,7 +506,6 @@
         ["mtp2"] = '<function 237>',
         ["none"] = '<function 238>',
         ['<metatable>'] = {
-            ["__gc"] = '<function 239>',
             ["__index"] = '<filtered>',
             ["__methods"] = '<table 20>',
             ["__typeof"] = "PseudoHeader"
@@ -539,7 +520,6 @@
         ["unpack"] = '<function 244>',
         ["values"] = '<function 245>',
         ['<metatable>'] = {
-            ["__gc"] = '<function 246>',
             ["__index"] = '<filtered>',
             ["__methods"] = '<table 21>',
             ["__typeof"] = "Struct"
@@ -557,7 +537,6 @@
         ["set_atclose"] = '<function 254>',
         ["set_editable"] = '<function 255>',
         ['<metatable>'] = {
-            ["__gc"] = '<function 256>',
             ["__index"] = '<filtered>',
             ["__methods"] = '<table 22>',
             ["__tostring"] = '<function 250>',
@@ -579,7 +558,6 @@
         ["set_len"] = '<function 267>',
         ["set_text"] = '<function 268>',
         ['<metatable>'] = {
-            ["__gc"] = '<function 269>',
             ["__index"] = '<filtered>',
             ["__methods"] = '<table 23>',
             ["__typeof"] = "TreeItem"
@@ -595,7 +573,6 @@
         ["reported_length_remaining"] = '<function 275>',
         ['<metatable>'] = {
             ["__call"] = '<function 272>',
-            ["__gc"] = '<function 276>',
             ["__index"] = '<filtered>',
             ["__methods"] = '<table 24>',
             ["__tostring"] = '<function 277>',
@@ -637,7 +614,6 @@
         ['<metatable>'] = {
             ["__call"] = '<function 297>',
             ["__concat"] = '<function 167>',
-            ["__gc"] = '<function 308>',
             ["__index"] = '<filtered>',
             ["__methods"] = '<table 25>',
             ["__tostring"] = '<function 309>',
@@ -672,7 +648,6 @@
             ["__concat"] = '<function 167>',
             ["__div"] = '<function 332>',
             ["__eq"] = '<function 333>',
-            ["__gc"] = '<function 334>',
             ["__index"] = '<filtered>',
             ["__le"] = '<function 335>',
             ["__lt"] = '<function 336>',

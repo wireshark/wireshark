@@ -467,7 +467,6 @@ WSLUA_ATTRIBUTES Pinfo_attributes[] = {
     WSLUA_ATTRIBUTE_ROREG(Pinfo,private),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,fragmented),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,in_error_pkt),
-    WSLUA_ATTRIBUTE_ROREG(Pinfo,fragmented),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,match_uint),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,match_string),
     WSLUA_ATTRIBUTE_WOREG(Pinfo,conversation),

@@ -30,6 +30,11 @@
 #include "wslua.h"
 #include <wsutil/ws_printf.h> /* ws_debug_printf */
 
+/* Several implementation details (__getters, __setters, __methods) were exposed
+ * to Lua code. These are normally not used by dissectors, just for debugging
+ * (and the "wslua global" test). Enable by setting WSLUA_WITH_INTROSPECTION */
+#define WSLUA_WITH_INTROSPECTION
+
 #if LUA_VERSION_NUM == 501
 /* Compatibility with Lua 5.1, function was added in 5.2 */
 static
@@ -146,17 +151,6 @@ WSLUA_API const char* wslua_checkstring_only(lua_State* L, int n) {
     return wslua_checklstring_only(L, n, NULL);
 }
 
-WSLUA_API const gchar* lua_shiftstring(lua_State* L, int i) {
-    const gchar* p = luaL_checkstring(L, i);
-
-    if (p) {
-        lua_remove(L,i);
-        return p;
-    } else {
-        return NULL;
-    }
-}
-
 /* following is based on the luaL_setfuncs() from Lua 5.2, so we can use it in pre-5.2 */
 WSLUA_API void wslua_setfuncs(lua_State *L, const luaL_Reg *l, int nup) {
   luaL_checkstack(L, nup, "too many upvalues");
@@ -247,230 +241,120 @@ gboolean wslua_get_field(lua_State *L, int idx, const gchar *name) {
     return result;
 }
 
-/* This verifies/asserts that field 'name' doesn't already exist in table at location idx.
- * If it does, this EXITS wireshark, because this is a fundamental programming error.
- * As such, this function is only useful for special circumstances, notably
- * those that will happen on application start every time, as opposed to
- * something that could happen only if a Lua script makes it happen.
- */
-void wslua_assert_table_field_new(lua_State *L, int idx, const gchar *name) {
-    lua_rawgetfield(L, idx, name);
-    if (!lua_isnil (L, -1)) {
-        fprintf(stderr, "ERROR: Field %s already exists!\n", name);
-        exit(1);
-    }
-    lua_pop (L, 1); /* pop the nil */ \
-}
 
-/* This function is an attribute field __index/__newindex (ie, getter/setter) dispatcher.
- * What the heck does that mean?  Well, when a Lua script tries to retrieve a
- * table/userdata field by doing this:
- *     local foo = myobj.fieldname
- * if 'fieldname' does not exist in the 'myobj' table/userdata, then Lua calls
- * the '__index' metamethod of the table/userdata, and puts onto the Lua
- * stack the table and fieldname string.  So this function here handles that,
- * by dispatching that request to the appropriate getter function in the
- * __getters table within the metatable of the userdata.  That table and
- * its functions were populated by the WSLUA_REGISTER_ATTRIBUTES() macro, and
- * really by wslua_reg_attributes().
- */
-static int wslua_attribute_dispatcher (lua_State *L) {
-    lua_CFunction cfunc = NULL;
-    const gchar *fieldname = lua_shiftstring(L,2); /* remove the field name */
-    const gchar *classname = NULL;
-    const gchar *type = NULL;
-
-    /* the userdata object is at index 1, fieldname was at 2 but no longer,
-       now we get the getter/setter table at upvalue 1  */
-    if (!lua_istable(L, lua_upvalueindex(1)))
-        return luaL_error(L, "Accessor dispatcher cannot retrieve the getter/setter table");
-
-    lua_rawgetfield(L, lua_upvalueindex(1), fieldname); /* field's cfunction is now at -1 */
-
-    if (!lua_iscfunction(L, -1)) {
-        lua_pop(L,1); /* pop whatever we got before */
-        /* check if there's a methods table */
-        if (lua_istable(L, lua_upvalueindex(2))) {
-            lua_rawgetfield(L, lua_upvalueindex(2), fieldname);
-            if (lua_iscfunction(L,-1)) {
-                /* we found a method for Lua to call, so give it back to Lua */
-                return 1;
-            }
-            lua_pop(L,1); /* pop whatever we got before */
-        }
-        classname = wslua_typeof(L, 1);
-        type = wslua_typeof(L, lua_upvalueindex(1));
-        lua_pop(L, 1); /* pop the nil/invalid getfield result */
-        return luaL_error(L, "No such '%s' %s attribute/field for object type '%s'", fieldname, type, classname);
-    }
-
-    cfunc = lua_tocfunction(L, -1);
-    lua_pop(L, 1); /* pop the cfunction */
-
-    /* the stack is now as if it had been calling the getter/setter c-function directly, so do it */
-    return (*cfunc)(L);
-}
-
-
-/* This function "registers" attribute functions - i.e., getters/setters for Lua objects.
- * This way we don't have to write the __index/__newindex function dispatcher for every
- * wslua class.  Instead, your class should use WSLUA_REGISTER_ATTRIBUTES(classname), which
- * ultimately calls this one - it calls it twice: once to register getters, once to register
- * setters.
- *
- * The way this all works is every wslua class has a metatable.  One of the fields of that
- * metatable is a __index field, used for "getter" access, and a __newindex field used for
- * "setter" access.  If the __index field's _value_ is a Lua table, then Lua looks
- * up that table, as it does for class methods for example; but if the __index field's
- * value is a function/cfunction, Lua calls it instead to get/set the field.  So
- * we use that behavior to access our getters/setters, by creating a table of getter
- * cfunctions, saving that as an upvalue of a dispatcher cfunction, and using that
- * dispatcher cfunction as the value of the __index field of the metatable of the wslua object.
- *
- * In some cases, the metatable _index/__newindex will already be a function; for example if
- * class methods were registered, then __index will already be a function  In that case, we
- * move the __methods table to be an upvalue of the attribute dispatcher function.  The attribute
- * dispatcher will look for it and return the method, if it doesn't find an attribute field.
- * The code below makes sure the attribute names don't overlap with method names.
- *
- * This function assumes there's a class metatable on top of the stack when it's initially called,
- * and leaves it on top when done.
+/**
+ * This is a transition function that sets attributes on classes. It must be
+ * replaced by setting the attributes in the wslua_class structure such that
+ * WSLUA_REGISTER_ATTRIBUTES can be nuked.
  */
 int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gboolean is_getter) {
-    int midx = lua_gettop(L);
     const gchar *metafield = is_getter ? "__index" : "__newindex";
-    int idx;
-    int nup = 1; /* number of upvalues */
 
-    if (!lua_istable(L, midx)) {
-        fprintf(stderr, "No metatable in the Lua stack when registering attributes!\n");
-        exit(1);
-    }
-
-    /* check if there's a __index/__newindex table already - could be if this class has methods */
-    lua_rawgetfield(L, midx, metafield);
+    /* assume __index/__newindex exists and index 1 is a metatable */
+    lua_rawgetfield(L, -1, metafield);
     if (lua_isnil(L, -1)) {
-        /* there isn't one, pop the nil */
-        lua_pop(L,1);
+        g_error("%s expected in metatable, found none!\n", metafield);
     }
-    else if (lua_istable(L, -1)) {
-        /* there is one, so make it be the attribute dispatchers upvalue #2 table */
-        nup = 2;
-    }
-    else if (lua_iscfunction(L, -1)) {
-        /* there's a methods __index dispatcher, copy the __methods table */
-        lua_pop(L,1); /* pop the cfunction */
-        lua_rawgetfield(L, midx, "__methods");
-        if (!lua_istable(L, -1)) {
-            /* oh oh, something's wrong */
-            fprintf(stderr, "got a __index cfunction but no __methods table when registering attributes!\n");
-            exit(1);
-        }
-        nup = 2;
-    }
-    else {
-        fprintf(stderr, "'%s' field is not a table in the Lua stack when registering attributes!\n", metafield);
-        exit(1);
+    lua_pop(L, 1);
+
+    /* Find table to add properties. */
+    metafield = is_getter ? "__getters" : "__setters";
+    lua_rawgetfield(L, -1, metafield);
+    if (!lua_istable(L, -1)) {
+        g_error("Property %s is not found in metatable!\n", metafield);
     }
 
-    /* make our new getter/setter table - we don't need to pop it later */
-    lua_newtable(L);
-    idx = lua_gettop(L);
-
-    /* fill the getter/setter table with given functions */
+    /* Fill the getter/setter table with given functions. Being a transition
+     * function that will be removed later, this does not perform duplicate
+     * keys detection. */
     for (; t->fieldname != NULL; t++) {
         lua_CFunction cfunc = is_getter ? t->getfunc : t->setfunc;
         if (cfunc) {
-            /* if there's a previous methods table, make sure this attribute name doesn't collide */
-            if (nup > 1) {
-                lua_rawgetfield(L, -1, t->fieldname);
-                if (!lua_isnil(L,-1)) {
-                    fprintf(stderr, "'%s' attribute name already exists as method name for the class\n", t->fieldname);
-                    exit(1);
-                }
-                lua_pop(L,1);  /* pop the nil */
-            }
             lua_pushcfunction(L, cfunc);
-            lua_rawsetfield(L, idx, t->fieldname);
+            lua_rawsetfield(L, -2, t->fieldname);
         }
     }
 
-    /* push the getter/setter table name into its table, for error reporting purposes */
-    lua_pushstring(L, (is_getter ? "getter" : "setter"));
-    lua_rawsetfield(L, idx, WSLUA_TYPEOF_FIELD);
-
-    /* copy table into the class's metatable, for introspection */
-    lua_pushvalue(L, idx);
-    lua_rawsetfield(L, midx, (is_getter ? "__getters" : "__setters"));
-
-    if (nup > 1) {
-        /* we've got more than one upvalue, so move the new getter/setter to the bottom-most of those */
-        lua_insert(L,-nup);
-    }
-
-    /* we should now be back to having gettter/setter table at -1 (or -2 if there was a previous methods table) */
-    /* create upvalue of getter/setter table for wslua_attribute_dispatcher function */
-    lua_pushcclosure(L, wslua_attribute_dispatcher, nup); /* pushes cfunc with upvalue, removes getter/setter table */
-    lua_rawsetfield(L, midx, metafield); /* sets this dispatch function as __index/__newindex field of metatable */
-
-    /* we should now be back to real metatable being on top */
+    /* Drop __getters/__setters table */
+    lua_pop(L, 1);
     return 0;
 }
 
-/* similar to __index metamethod but without triggering more metamethods */
-static int wslua__index(lua_State *L) {
-    const gchar *fieldname = lua_shiftstring(L,2); /* remove the field name */
-
-    /* the userdata object or table is at index 1, fieldname was at 2 but no longer,
-       now we get the metatable, so we can get the methods table */
-    if (!lua_getmetatable(L,1)) {
-        /* this should be impossible */
-        return luaL_error(L, "No such '%s' field", fieldname);
-    }
-
-    lua_rawgetfield(L, 2, "__methods"); /* method table is now at 3 */
-    lua_remove(L,2); /* remove metatable, methods table is at 2 */
-
-    if (!lua_istable(L, -1)) {
-        const gchar *classname = wslua_typeof(L, 1);
-        lua_pop(L, 1); /* pop the nil getfield result */
-        return luaL_error(L, "No such '%s' field for object type '%s'", fieldname, classname);
-    }
-
-    lua_rawgetfield(L, 2, fieldname); /* field's value/function is now at 3 */
-    lua_remove(L,2); /* remove methods table, field value si at 2 */
-
-    if (lua_isnil(L, -1)) {
-        const gchar *classname = wslua_typeof(L, 1);
-        lua_pop(L, 1); /* pop the nil getfield result */
-        return luaL_error(L, "No such '%s' function/method/field for object type '%s'", fieldname, classname);
-    }
-
-    /* we found a method for Lua to call, or a value of some type, so give it back to Lua */
-    return 1;
-}
-
-/*
- * This function assumes there's a class methods table at index 1, and its metatable at 2,
- * when it's initially called, and leaves them that way when done.
+/**
+ * The __index metamethod for classes. Expected upvalues: class name.
  */
-int wslua_set__index(lua_State *L) {
+static int wslua_classmeta_index(lua_State *L) {
+    const char *fieldname = luaL_checkstring(L, 2);
+    const char *classname = luaL_checkstring(L, lua_upvalueindex(1));
 
-    if (!lua_istable(L, 2) || !lua_istable(L, 1)) {
-        fprintf(stderr, "No metatable or class table in the Lua stack when registering __index!\n");
-        exit(1);
+    return luaL_error(L, "No such '%s' function/property for object type '%s'", fieldname, classname);
+}
+
+/**
+ * The __index/__newindex metamethod for class instances. Expected upvalues:
+ * class name, getters/getters, __index/__newindex class instance metamethod,
+ * class methods (getters only). See wslua_register_classinstance_meta.
+ *
+ * It first tries to find an attribute getter/setter, then an instance method
+ * (getters only), then the __index/__newindex metamethod of the class instance
+ * metatable and finally it gives up with an error.
+ *
+ * Getters are invoked with the table as parameter. Setters are invoked with the
+ * table and the value as parameter.
+ */
+static int wslua_instancemeta_index_impl(lua_State *L, gboolean is_getter)
+{
+    const char *fieldname = luaL_checkstring(L, 2);
+    const int attr_idx = lua_upvalueindex(2);
+    const int fallback_idx = lua_upvalueindex(3);
+    const int methods_idx = lua_upvalueindex(4);
+
+    /* Check for getter/setter */
+    if (lua_istable(L, attr_idx)) {
+        lua_rawgetfield(L, attr_idx, fieldname);
+        if (lua_iscfunction(L, -1)) {
+            lua_CFunction cfunc = lua_tocfunction(L, -1);
+            lua_pop(L, 1);      /* Remove cfunction from stack */
+            lua_remove(L, 2);   /* Remove key from stack */
+            /*
+             * Note: this re-uses the current closure as optimization, exposing
+             * its upvalues via pseudo-indices. The alternative is to create a
+             * new C closure (via lua_call), but this is more expensive.
+             * Callees should not rely on the availability of the upvalues.
+             */
+            return (*cfunc)(L);
+        }
     }
 
-    /* push a copy of the class methods table, and set it to be the metatable's __methods field */
-    lua_pushvalue (L, 1);
-    lua_rawsetfield(L, 2, "__methods");
+    /* If this is a getter, and the getter has methods, try them. */
+    if (is_getter && lua_istable(L, methods_idx)) {
+        lua_rawgetfield(L, methods_idx, fieldname);
+        if (!lua_isnil(L, -1)) {
+            /* Return method from methods table. */
+            return 1;
+        }
+        lua_pop(L, 1); /* Remove nil from stack. */
+    }
 
-    /* set the wslua__index to be the __index metamethod */
-    lua_pushcfunction(L, wslua__index);
-    lua_rawsetfield(L, 2, "__index");
+    /* Use function from the class instance metatable (if any). */
+    if (lua_iscfunction(L, fallback_idx)) {
+        lua_CFunction cfunc = lua_tocfunction(L, fallback_idx);
+        /* Note, unlike getters/setters functions, the key must be preserved! */
+        return (*cfunc)(L);
+    }
 
-    /* we should now be back to real metatable being on top */
-    return 0;
+    const char *classname = luaL_checkstring(L, lua_upvalueindex(1));
+    return luaL_error(L, "No such '%s' method/field for object type '%s'", fieldname, classname);
+}
+
+static int wslua_instancemeta_index(lua_State *L)
+{
+    return wslua_instancemeta_index_impl(L, TRUE);
+}
+
+static int wslua_instancemeta_newindex(lua_State *L)
+{
+    return wslua_instancemeta_index_impl(L, FALSE);
 }
 
 /* Pushes a hex string of the binary data argument. */
@@ -579,6 +463,205 @@ int wslua_hex2bin(lua_State* L, const char* data, const guint len, const gchar* 
     luaL_pushresult(&b);
 
     return 1;
+}
+
+/**
+ * Creates a table of getters/setters and pushes it on the Lua stack.
+ *
+ * Additionally, a sanity check is performed to detect colliding getters/setters
+ * and method names.
+ */
+static void wslua_push_attributes(lua_State *L, const wslua_attribute_table *t, gboolean is_getter, int methods_idx)
+{
+    if (!t) {
+        /* No property accessors? Nothing to do. */
+        //lua_pushnil(L);
+        lua_newtable(L);  /* wslua_reg_attributes requires a table for the moment. */
+        return;
+    }
+
+    /* If there is a methods table, prepare for a collission check. */
+    if (lua_istable(L, methods_idx)) {
+        methods_idx = lua_absindex(L, methods_idx);
+    } else {
+        methods_idx = 0;
+    }
+
+    lua_newtable(L);
+    /* Fill the getter/setter table with given functions. */
+    for (; t->fieldname != NULL; t++) {
+        lua_CFunction cfunc = is_getter ? t->getfunc : t->setfunc;
+        if (cfunc) {
+            /* if there's a previous methods table, make sure this attribute name doesn't collide */
+            if (methods_idx) {
+                lua_rawgetfield(L, methods_idx, t->fieldname);
+                if (!lua_isnil(L, -1)) {
+                    g_error("'%s' attribute name already exists as method name for class\n", t->fieldname);
+                }
+                lua_pop(L,1);  /* pop the nil */
+            }
+            lua_pushcfunction(L, cfunc);
+            lua_rawsetfield(L, -2, t->fieldname);
+        }
+    }
+}
+
+/**
+ * Registers the metatable for class instances. See the documentation of
+ * wslua_register_class for the exact metatable.
+ */
+void wslua_register_classinstance_meta(lua_State *L, const wslua_class *cls_def)
+{
+    /* Register metatable for use by class instances. STACK = { MT } */
+    /* NOTE: the name can be changed as long as luaL_checkudata is also adapted */
+    luaL_newmetatable(L, cls_def->name);
+    if (cls_def->instance_meta) {
+        wslua_setfuncs(L, cls_def->instance_meta, 0);
+    }
+
+    /* Set the __typeof attribute to the class name (for use by "typeof" in Lua code). */
+    lua_pushstring(L, cls_def->name);
+    lua_rawsetfield(L, -2, WSLUA_TYPEOF_FIELD);
+
+    /* Create table to store method names. STACK = { MT, methods } */
+    if (cls_def->instance_methods) {
+        lua_newtable(L);
+        wslua_setfuncs(L, cls_def->instance_methods, 0);
+    } else {
+        lua_pushnil(L);
+    }
+
+    /* Prepare __index method on metatable. */
+    lua_pushstring(L, cls_def->name);                       /* upval 1: class name */
+    wslua_push_attributes(L, cls_def->attrs, TRUE, -2);     /* upval 2: getters table */
+#ifdef WSLUA_WITH_INTROSPECTION
+    lua_pushvalue(L, -1), lua_rawsetfield(L, -5, "__getters"); /* set (transition) property on mt, remove later! */
+#endif
+    lua_rawgetfield(L, -4, "__index");                      /* upval 3: fallback __index method from metatable */
+    lua_pushvalue(L, -4);                                   /* upval 4: class methods table */
+    lua_pushcclosure(L, wslua_instancemeta_index, 4);
+    lua_rawsetfield(L, -3, "__index");
+
+    /* Prepare __newindex method on metatable. */
+    lua_pushstring(L, cls_def->name);                       /* upval 1: class name */
+    wslua_push_attributes(L, cls_def->attrs, FALSE, -2);    /* upval 2: setters table */
+#ifdef WSLUA_WITH_INTROSPECTION
+    lua_pushvalue(L, -1), lua_rawsetfield(L, -5, "__setters"); /* set (transition) property on mt, remove later! */
+#endif
+    lua_rawgetfield(L, -4, "__newindex");                   /* upval 3: fallback __newindex method from metatable */
+    lua_pushcclosure(L, wslua_instancemeta_newindex, 3);
+    lua_rawsetfield(L, -3, "__newindex");
+
+    /* Pop metatable + methods table. STACK = { } */
+    lua_pop(L, 2);
+}
+
+/**
+ * Registers a new class for use in Lua with the specified properties. The
+ * metatable for the class instance is internally registered with the given
+ * name.
+ *
+ * This functions basically creates a class (type table) with this structure:
+ *
+ *  Class = { class_methods }
+ *  Class.__typeof = "Class"                -- NOTE: might be removed in future
+ *  Class.__metatable = { class_meta }
+ *  Class.__metatable.__typeof = "Class"    -- NOTE: might be removed in future
+ *  Class.__metatable.__index = function_that_errors_out
+ *  Class.__metatable.__newindex = function_that_errors_out
+ *
+ * It also registers another metatable for class instances (type userdata):
+ *
+ *  mt = { instance_meta }
+ *  mt.__typeof = "Class"
+ *  -- will be passed upvalues (see wslua_instancemeta_index_impl).
+ *  mt.__index = function_that_finds_right_property_or_method_getter
+ *  mt.__newindex = function_thaon_that_finds_right_property_or_method_setter
+ *
+ * For backwards compatibility, introspection is still possible (this detail
+ * might be removed in the future though, do not rely on this!):
+ *
+ *  Class.__metatable.__methods = Class
+ *  Class.__metatable.__getters = { __typeof = "getter", getter_attrs }
+ *  Class.__metatable.__setters = { __typeof = "setter", setter_attrs }
+ */
+void wslua_register_class(lua_State *L, const wslua_class *cls_def)
+{
+    /* Check for existing global variables/classes with the same name. */
+    lua_getglobal(L, cls_def->name);
+    if (!lua_isnil (L, -1)) {
+        g_error("Attempt to register class '%s' which already exists in global Lua table\n", cls_def->name);
+    }
+    lua_pop(L, 1);
+
+    /* Create new table for class. STACK = { table } */
+    lua_newtable(L);
+    if (cls_def->class_methods) {
+        wslua_setfuncs(L, cls_def->class_methods, 0);
+    }
+
+#ifdef WSLUA_WITH_INTROSPECTION
+    /* Set __typeof to the class name, used by wslua_typeof. Might be removed in
+     * the future as the type can already be determined from the metatable. */
+    lua_pushstring(L, cls_def->name);
+    lua_rawsetfield(L, -2, WSLUA_TYPEOF_FIELD);
+#endif
+
+    /* Create new metatable for class. STACK = { table, CLASSMT } */
+    lua_newtable(L);
+    if (cls_def->class_meta) {
+        /* Set metamethods on metatable for class. */
+        wslua_setfuncs(L, cls_def->class_meta, 0);
+    }
+#ifdef WSLUA_WITH_INTROSPECTION
+    /* Set __typeof to the class name. Might be removed in the future, a "class"
+     * is not of the type "(name of class)", instead it is of type "class".
+     * Instances of this class should be of type "(name of class)". */
+    lua_pushstring(L, cls_def->name);
+    lua_rawsetfield(L, -2, WSLUA_TYPEOF_FIELD);
+#endif
+
+    /* For backwards compatibility, error out when a non-existing property is being accessed. */
+    lua_pushstring(L, cls_def->name);
+    lua_pushcclosure(L, wslua_classmeta_index, 1);
+    lua_rawsetfield(L, -2, "__index");
+
+    /* Prevent properties from being set on classes. Previously this was always
+     * forbidden for classes with attributes (such as Listener), this extends
+     * the restriction to all classes. */
+    lua_pushstring(L, cls_def->name);
+    lua_pushcclosure(L, wslua_classmeta_index, 1);
+    lua_rawsetfield(L, -2, "__newindex");
+
+    /* Set metatable on class. STACK = { table } */
+    lua_setmetatable(L, -2);
+
+    wslua_register_classinstance_meta(L, cls_def);
+
+#ifdef WSLUA_WITH_INTROSPECTION
+    /* XXX remove these? It looks like an internal implementation detail that is
+     * no longer needed but is added here to pass the wslua tests (API check) */
+    lua_getmetatable(L, -1);                /* Stack = { table, CLASSMT } */
+    luaL_getmetatable(L, cls_def->name);    /* Stack = { table, CLASSMT, MT } */
+
+    lua_rawgetfield(L, -1, "__getters");    /* __getters from instance MT */
+    lua_pushstring(L, "getter");
+    lua_rawsetfield(L, -2, WSLUA_TYPEOF_FIELD);
+    lua_rawsetfield(L, -3, "__getters");    /* Set property on class MT */
+
+    lua_rawgetfield(L, -1, "__setters");    /* setters from instance MT */
+    lua_pushstring(L, "setter");
+    lua_rawsetfield(L, -2, WSLUA_TYPEOF_FIELD);
+    lua_rawsetfield(L, -3, "__setters");    /* Set property on class MT */
+    lua_pop(L, 1);                          /* Stack = { table, CLASSMT } */
+
+    lua_pushvalue(L, -2);
+    lua_rawsetfield(L, -2, "__methods");    /* CLASSMT.__methods = Class */
+    lua_pop(L, 1);                          /* Stack = { table } */
+#endif
+
+    /* Set the class methods table as global name. STACK = { } */
+    lua_setglobal(L, cls_def->name);
 }
 
 /*

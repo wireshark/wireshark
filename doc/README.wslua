@@ -150,19 +150,21 @@ explicitly using strings and function names, you should use the WSLUA_METHODS
 macro name for the array, and use WSLUA_CLASS_FNREG macro for each entry.
 The WSLUA_META table follows the same behavior, with the WSLUA_CLASS_MTREG
 macro for each entry. Make sure your C-function names use two underscores
-instead of one.
+instead of one (for instance, ClassName__tostring).
 
 Once you've created the appropriate array tables, define a registration
 function named 'ClassName_register', where 'ClassName'is your class name, the
 same one used in WSLUA_CLASS_DEFINE.  The make-reg.pl Perl script will search
 your file for WSLUA_CLASS_DEFINE, and it generates a register_wslua.c which
 will call your ClassName_register function during Wireshark initialization.
-Inside your ClassName_register function, use either the WSLUA_REGISTER_CLASS
-or the WSLUA_REGISTER_META macros with the class name as the argument.  That
-will automatically register the methods/meta tables into Lua.  Use
-WSLUA_REGISTER_CLASS if your class has methods and optionally metamethods, or
-use WSLUA_REGISTER_META if it only has metamethods - do *not* use both.  Note
-that your class does not need to have a WSLUA_METHODS nor WSLUA_META table.
+Define a wslua_class structure which describes the class and register this in
+your ClassName_register function using one of:
+ - wslua_register_classinstance_meta to create a metatable which allows
+   instances of a class to have methods and attributes. C code can create such
+   instances by setting the metatable on userdata, the class itself is not
+   directly visible in the Lua scope.
+ - wslua_register_class to additionally expose a class with static functions
+   that is also directly visible in the Lua global scope.
 Also, you should read the 'Memory management model' section later in this
 document.
 
@@ -196,11 +198,30 @@ type each provide a __call metamethod as an accessor - I strongly suggest you
 do NOT do that, as it's not a common model and will confuse people since it
 doesn't follow the model of the other classes in Wireshark.
 
-The way attribute accessing is handled is a bit too complicated to discuss
-here, but is documented in wslua_internals.c above the wslua_reg_attributes
-function definition. All you need to know is how to write the C-code to
-register attributes, and the code to provide getter/setters for them. To
-create them, you create an array table similar to the WSLUA_METHODS and
+Attributes are handled internally like this:
+
+    -- invoked on myObj.myAttribute
+    function myObj.__metatable:__index(key)
+        if "getter for key exists" then
+            return getter(self)
+        elseif "method for key exists" then
+            -- ensures that myObj.myMethod() works
+            return method
+        else
+            error("no such property error message")
+        end
+    end
+    -- invoked on myObj.myAttribute = 1
+    function myObj.__metatable:__newindex(key, value)
+        if "setter for key exists" then
+            return setter(self, value)
+        else
+            error("no such property error message")
+        end
+    end
+
+To add getters/setters in C, initialize the "attrs" member of the wslua_class
+structure. This should contain an array table similar to the WSLUA_METHODS and
 WSLUA_META tables, except using the macro name WSLUA_ATTRIBUTES. Inside this
 array, each entry should use one of the following macros: WSLUA_ATTRIBUTE_ROREG,
 WSLUA_ATTRIBUTE_WOREG, or WSLUA_ATTRIBUTE_RWREG. Those provide the hooks for
@@ -212,11 +233,6 @@ such as getting numbers, strings, etc. The macros are in wslua.h. For example,
 the WSLUA_ATTRIBUTE_NAMED_BOOLEAN_GETTER(Foo,bar,choo) macro creates a getter
 function to get the boolean value of the Class Foo's choo member variable, as
 the Lua attribute named 'bar'.
-
-To register the attributes, your Class registration function must call the
-WSLUA_REGISTER_ATTRIBUTES(ClassName) macro, after it calls either the
-WSLUA_REGISTER_META(ClassName) macro or the WSLUA_REGISTER_CLASS(ClassName)
-one.
 
 Callback function registration:
 
