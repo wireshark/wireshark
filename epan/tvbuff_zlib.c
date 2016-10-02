@@ -71,11 +71,10 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 		return NULL;
 	}
 
-	compr = (guint8 *)g_malloc(comprlen);
-	tvb_memcpy(tvb, compr, offset, comprlen);
-
-	if (!compr)
+	compr = (guint8 *)tvb_memdup(NULL, tvb, offset, comprlen);
+	if (compr == NULL) {
 		return NULL;
+	}
 
 	/*
 	 * Assume that the uncompressed data is at least twice as big as
@@ -103,7 +102,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 	if (err != Z_OK) {
 		inflateEnd(strm);
 		g_free(strm);
-		g_free(compr);
+		wmem_free(NULL, compr);
 		g_free(strmbuf);
 		return NULL;
 	}
@@ -165,7 +164,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 			if (uncompr != NULL) {
 				break;
 			} else {
-				g_free(compr);
+				wmem_free(NULL, compr);
 				return NULL;
 			}
 
@@ -195,7 +194,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 			if (comprlen < 10 || *c != Z_DEFLATED) {
 				inflateEnd(strm);
 				g_free(strm);
-				g_free(compr);
+				wmem_free(NULL, compr);
 				g_free(strmbuf);
 				return NULL;
 			}
@@ -254,7 +253,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 			if (c - compr > comprlen) {
 				inflateEnd(strm);
 				g_free(strm);
-				g_free(compr);
+				wmem_free(NULL, compr);
 				g_free(strmbuf);
 				return NULL;
 			}
@@ -298,7 +297,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 			if (err != Z_OK) {
 				g_free(strm);
 				g_free(strmbuf);
-				g_free(compr);
+				wmem_free(NULL, compr);
 				g_free(uncompr);
 
 				return NULL;
@@ -309,7 +308,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 			g_free(strmbuf);
 
 			if (uncompr == NULL) {
-				g_free(compr);
+				wmem_free(NULL, compr);
 				return NULL;
 			}
 
@@ -326,7 +325,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 		uncompr_tvb =  tvb_new_real_data((guint8*) uncompr, bytes_out, bytes_out);
 		tvb_set_free_cb(uncompr_tvb, g_free);
 	}
-	g_free(compr);
+	wmem_free(NULL, compr);
 	return uncompr_tvb;
 }
 #else
