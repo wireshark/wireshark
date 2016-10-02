@@ -30,6 +30,16 @@
 #include "wslua.h"
 #include <wsutil/ws_printf.h> /* ws_debug_printf */
 
+#if LUA_VERSION_NUM == 501
+/* Compatibility with Lua 5.1, function was added in 5.2 */
+static
+int lua_absindex(lua_State *L, int idx) {
+  return (idx > 0 || idx <= LUA_REGISTRYINDEX)
+         ? idx
+         : lua_gettop(L) + 1 + idx;
+}
+#endif
+
 WSLUA_API int wslua__concat(lua_State* L) {
     /* Concatenate two objects to a string */
     if (!luaL_callmeta(L,1,"__tostring"))
@@ -160,18 +170,22 @@ WSLUA_API void wslua_setfuncs(lua_State *L, const luaL_Reg *l, int nup) {
   lua_pop(L, nup);  /* remove upvalues */
 }
 
-/* identical to lua_getfield but without triggering metamethods
-   warning: cannot be used directly with negative index (and shouldn't be changed to)
-   decrement your negative index if you want to use this */
+/**
+ * Identical to lua_getfield, but without triggering the __newindex metamethod.
+ * The resulting value is returned on the Lua stack.
+ */
 static void lua_rawgetfield(lua_State *L, int idx, const char *k) {
+    idx = lua_absindex(L, idx);
     lua_pushstring(L, k);
     lua_rawget(L, idx);
 }
 
-/* identical to lua_setfield but without triggering metamethods
-   warning: cannot be used with negative index (and shouldn't be changed to)
-   decrement your negative index if you want to use this */
+/**
+ * Identical to lua_setfield, but without triggering the __newindex metamethod.
+ * The value to be set is taken from the Lua stack.
+ */
 static void lua_rawsetfield (lua_State *L, int idx, const char *k) {
+    idx = lua_absindex(L, idx);
     lua_pushstring(L, k);
     lua_insert(L, -2);
     lua_rawset(L, idx);
@@ -208,11 +222,9 @@ const gchar* wslua_typeof(lua_State *L, int idx) {
 /* this gets a Lua table of the given name, from the table at the given
  * location idx. If it does not get a table, it pops whatever it got
  * and returns false.
- * warning: cannot be used with pseudo-indeces like LUA_REGISTRYINDEX
  */
 gboolean wslua_get_table(lua_State *L, int idx, const gchar *name) {
     gboolean result = TRUE;
-    if (idx < 0) idx--;
     lua_rawgetfield(L, idx, name);
     if (!lua_istable(L,-1)) {
         lua_pop(L,1);
@@ -224,11 +236,9 @@ gboolean wslua_get_table(lua_State *L, int idx, const gchar *name) {
 /* this gets a table field of the given name, from the table at the given
  * location idx. If it does not get a field, it pops whatever it got
  * and returns false.
- * warning: cannot be used with pseudo-indeces like LUA_REGISTRYINDEX
  */
 gboolean wslua_get_field(lua_State *L, int idx, const gchar *name) {
     gboolean result = TRUE;
-    if (idx < 0) idx--;
     lua_rawgetfield(L, idx, name);
     if (lua_isnil(L,-1)) {
         lua_pop(L,1);
@@ -373,7 +383,7 @@ int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gboolean 
         if (cfunc) {
             /* if there's a previous methods table, make sure this attribute name doesn't collide */
             if (nup > 1) {
-                lua_rawgetfield(L, -2, t->fieldname);
+                lua_rawgetfield(L, -1, t->fieldname);
                 if (!lua_isnil(L,-1)) {
                     fprintf(stderr, "'%s' attribute name already exists as method name for the class\n", t->fieldname);
                     exit(1);
