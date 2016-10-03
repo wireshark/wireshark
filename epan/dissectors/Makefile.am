@@ -1691,6 +1691,7 @@ DISSECTOR_INCLUDES = \
 	packet-q932.h		\
 	packet-qsig.h		\
 	packet-radius.h		\
+	packet-raknet.h		\
 	packet-ranap.h		\
 	packet-rdm.h		\
 	packet-rdt.h		\
