@@ -3248,9 +3248,9 @@ dissect_p1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 	/* we can do this now constructed octet strings are supported */
 	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &next_tvb);
-	proto_item_set_text(actx->created_item, "content (%u bytes)", tvb_reported_length (next_tvb));
 
 	if (next_tvb) {
+		proto_item_set_text(actx->created_item, "content (%u bytes)", tvb_reported_length (next_tvb));
 		if (ctx && ctx->content_type_id) {
 			(void) call_ber_oid_callback(ctx->content_type_id, next_tvb, 0, actx->pinfo, actx->subtree.top_tree ? actx->subtree.top_tree : tree, actx->private_data);
 		} else if (ctx && ctx->report_unknown_content_type) {
