@@ -1880,8 +1880,9 @@ dictionary_load(void)
 	diam_vnd_t *vnd;
 	GArray *vnd_shrt_arr = g_array_new(TRUE,TRUE,sizeof(value_string));
 
-	build_dict.hf = wmem_array_new(wmem_epan_scope(),sizeof(hf_register_info));
-	build_dict.ett = g_ptr_array_new();
+	/* Pre allocate the arrays big enough to hold the hf:s and etts:s*/
+	build_dict.hf = wmem_array_sized_new(wmem_epan_scope(), sizeof(hf_register_info), 4096);
+	build_dict.ett = g_ptr_array_sized_new(4096);
 	build_dict.types = g_hash_table_new(strcase_hash,strcase_equal);
 	build_dict.avps = g_hash_table_new(strcase_hash,strcase_equal);
 
