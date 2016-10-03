@@ -673,12 +673,11 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 		break;
 	}
 
-#.FN_BODY Content
+#.FN_BODY Content VAL_PTR = &next_tvb
 	tvbuff_t *next_tvb;
 	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
-	/* we can do this now constructed octet strings are supported */
-	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &next_tvb);
+	%(DEFAULT_BODY)s
 
 	if (next_tvb) {
 		proto_item_set_text(actx->created_item, "content (%%u bytes)", tvb_reported_length (next_tvb));
