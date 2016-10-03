@@ -83,10 +83,19 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
 
     proxyModel = new InterfaceSortFilterModel(this);
     sourceModel = new InterfaceTreeModel(this);
+
+    QList<InterfaceTreeColumns> columns;
+#ifdef HAVE_EXTCAP
+    columns.append(IFTREE_COL_EXTCAP);
+#endif
+    columns.append(IFTREE_COL_NAME);
+    columns.append(IFTREE_COL_STATS);
+    proxyModel->setColumns(columns);
+
     proxyModel->setSourceModel(sourceModel);
     ui->interfaceTree->setModel(proxyModel);
 
-    ui->interfaceTree->setItemDelegateForColumn(IFTREE_COL_STATS, new SparkLineDelegate(this));
+    ui->interfaceTree->setItemDelegateForColumn(proxyModel->mapSourceToColumn(IFTREE_COL_STATS), new SparkLineDelegate(this));
 
     buttonLayout = new QHBoxLayout(ui->wdgButtons);
 
@@ -147,21 +156,12 @@ QAbstractButton * InterfaceFrame::createButton(QString text, QString prop, QVari
 
 void InterfaceFrame::interfaceListChanged()
 {
-    if ( sourceModel->rowCount() == 0 )
+    if ( proxyModel->rowCount() == 0 )
     {
         ui->interfaceTree->setHidden(true);
         ui->lblNoInterfaces->setHidden(false);
 
-#ifdef HAVE_LIBPCAP
-        if ( global_capture_opts.ifaces_err != 0 )
-        {
-            ui->lblNoInterfaces->setText(tr(global_capture_opts.ifaces_err_info));
-        }
-        else
-#endif
-        {
-            ui->lblNoInterfaces->setText(tr("No interfaces found"));
-        }
+        ui->lblNoInterfaces->setText( sourceModel->interfaceError() );
     }
     else
     {
@@ -220,25 +220,8 @@ void InterfaceFrame::updateSelectedInterfaces()
     if ( sourceModel->rowCount() == 0 )
         return;
 #ifdef HAVE_LIBPCAP
-    QItemSelection mySelection;
-
-    for( int idx = 0; idx < sourceModel->rowCount(); idx++ )
-    {
-        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
-
-        if ( device.selected )
-        {
-            QModelIndex selectIndex = proxyModel->mapFromSource(sourceModel->index(idx, 0));
-            /* Proxy model has masked out the interface */
-            if ( !selectIndex.isValid() )
-                continue;
-
-            mySelection.merge(
-                    QItemSelection( selectIndex, proxyModel->index(selectIndex.row(), sourceModel->columnCount() - 1) ),
-                    QItemSelectionModel::SelectCurrent
-                    );
-        }
-    }
+    QItemSelection sourceSelection = sourceModel->selectedDevices();
+    QItemSelection mySelection = proxyModel->mapSelectionFromSource(sourceSelection);
 
     ui->interfaceTree->selectionModel()->clearSelection();
     ui->interfaceTree->selectionModel()->select(mySelection, QItemSelectionModel::SelectCurrent );
@@ -251,54 +234,13 @@ void InterfaceFrame::interfaceTreeSelectionChanged(const QItemSelection & select
         return;
     if ( sourceModel->rowCount() == 0 )
         return;
-#ifdef HAVE_LIBPCAP
-    QList<int> selectedIndices;
 
+#ifdef HAVE_LIBPCAP
     /* Take all selected interfaces, not just the newly ones */
     QItemSelection allSelected = ui->interfaceTree->selectionModel()->selection();
     QItemSelection sourceSelection = proxyModel->mapSelectionToSource(allSelected);
 
-    foreach(QItemSelectionRange selection, sourceSelection)
-    {
-        foreach(QModelIndex index, selection.indexes())
-        {
-            if ( ! selectedIndices.contains(index.row()) )
-            {
-                selectedIndices.append(index.row());
-            }
-        }
-    }
-
-    global_capture_opts.num_selected = 0;
-    bool selectionHasChanged = false;
-
-    for ( unsigned int idx = 0; idx < global_capture_opts.all_ifaces->len; idx++ )
-    {
-        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
-        if ( !device.locked )
-        {
-            if ( selectedIndices.contains(idx) )
-            {
-                if (! device.selected )
-                    selectionHasChanged = true;
-                device.selected = TRUE;
-                global_capture_opts.num_selected++;
-            } else {
-                if ( device.selected )
-                    selectionHasChanged = true;
-                device.selected = FALSE;
-            }
-            device.locked = TRUE;
-            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, idx);
-            g_array_insert_val(global_capture_opts.all_ifaces, idx, device);
-
-            device.locked = FALSE;
-            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, idx);
-            g_array_insert_val(global_capture_opts.all_ifaces, idx, device);
-        }
-    }
-
-    if ( selectionHasChanged )
+    if ( sourceModel->updateSelectedDevices(sourceSelection) )
         emit itemSelectionChanged();
 #endif
 }
@@ -311,15 +253,14 @@ void InterfaceFrame::on_interfaceTree_doubleClicked(const QModelIndex &index)
         return;
 
 #if defined(HAVE_EXTCAP) && defined(HAVE_LIBPCAP)
-    interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, realIndex.row());
 
-    QString extcap_string = device.if_info.extcap;
+    QString device_name = sourceModel->getColumnContent(realIndex.row(), IFTREE_COL_INTERFACE_NAME).toString();
+    QString extcap_string = sourceModel->getColumnContent(realIndex.row(), IFTREE_COL_EXTCAP_PATH).toString();
 
     /* We trust the string here. If this interface is really extcap, the string is
      * being checked immediatly before the dialog is being generated */
     if ( extcap_string.length() > 0 )
     {
-        QString device_name = device.name;
         /* this checks if configuration is required and not yet provided or saved via prefs */
         if ( extcap_has_configuration((const char *)(device_name.toStdString().c_str()), TRUE) )
         {
@@ -341,16 +282,13 @@ void InterfaceFrame::on_interfaceTree_clicked(const QModelIndex &index)
         if ( ! realIndex.isValid() )
             return;
 
-        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, realIndex.row());
-
-        QString extcap_string = device.if_info.extcap;
+        QString device_name = sourceModel->getColumnContent(realIndex.row(), IFTREE_COL_INTERFACE_NAME).toString();
+        QString extcap_string = sourceModel->getColumnContent(realIndex.row(), IFTREE_COL_EXTCAP_PATH).toString();
 
         /* We trust the string here. If this interface is really extcap, the string is
          * being checked immediatly before the dialog is being generated */
         if ( extcap_string.length() > 0 )
         {
-            QString device_name = device.name;
-
             /* this checks if configuration is required and not yet provided or saved via prefs */
             if ( extcap_has_configuration((const char *)(device_name.toStdString().c_str()), FALSE) )
             {

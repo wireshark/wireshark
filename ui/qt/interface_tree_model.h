@@ -35,6 +35,7 @@
 #include <QAbstractTableModel>
 #include <QList>
 #include <QMap>
+#include <QItemSelection>
 
 typedef QList<int> PointList;
 
@@ -42,8 +43,12 @@ enum InterfaceTreeColumns
 {
 #ifdef HAVE_EXTCAP
     IFTREE_COL_EXTCAP,
+    IFTREE_COL_EXTCAP_PATH,
 #endif
     IFTREE_COL_NAME,
+    IFTREE_COL_INTERFACE_NAME,
+    IFTREE_COL_HIDDEN,
+    IFTREE_COL_TYPE,
     IFTREE_COL_STATS,
     IFTREE_COL_MAX /* is not being displayed, it is the definition for the maximum numbers of columns */
 };
@@ -63,6 +68,12 @@ public:
 #ifdef HAVE_LIBPCAP
     void stopStatistic();
 #endif
+
+    QString interfaceError();
+    QItemSelection selectedDevices();
+    bool updateSelectedDevices(QItemSelection sourceSelection);
+
+    QVariant getColumnContent(int idx, int col);
 
 public slots:
     void getPoints(int idx, PointList *pts);

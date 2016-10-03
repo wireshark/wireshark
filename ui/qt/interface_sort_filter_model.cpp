@@ -20,8 +20,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "interface_tree_model.h"
-#include "interface_sort_filter_model.h"
+#include "ui/qt/interface_tree_model.h"
+#include "ui/qt/interface_sort_filter_model.h"
 
 #include <glib.h>
 
@@ -37,6 +37,10 @@ InterfaceSortFilterModel::InterfaceSortFilterModel(QObject *parent) :
         QSortFilterProxyModel(parent)
 {
     _filterHidden = true;
+
+    /* Adding all columns, to have a default setting */
+    for ( int col = 0; col < IFTREE_COL_MAX; col++ )
+        _columns.append((InterfaceTreeColumns)col);
 
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(resetPreferenceData()));
 
@@ -86,20 +90,22 @@ int InterfaceSortFilterModel::interfacesHidden()
 QList<int> InterfaceSortFilterModel::typesDisplayed()
 {
     QList<int> shownTypes;
-#ifdef HAVE_LIBPCAP
-    if ( ! global_capture_opts.all_ifaces )
+
+    if ( sourceModel()->rowCount() == 0 )
         return shownTypes;
 
-    for(unsigned int idx = 0; idx < global_capture_opts.all_ifaces->len; idx++)
+    for (int idx = 0; idx < sourceModel()->rowCount(); idx++)
     {
-        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
-        if ( ! device.hidden )
+        int type = ((InterfaceTreeModel *)sourceModel())->getColumnContent(idx, IFTREE_COL_TYPE).toInt();
+        bool hidden = ((InterfaceTreeModel *)sourceModel())->getColumnContent(idx, IFTREE_COL_HIDDEN).toBool();
+
+        if ( ! hidden )
         {
-            if ( ! shownTypes.contains(device.if_info.type) )
-                shownTypes.append(device.if_info.type);
+            if ( ! shownTypes.contains(type) )
+                shownTypes.append(type);
         }
     }
-#endif
+
     return shownTypes;
 }
 
@@ -147,19 +153,47 @@ bool InterfaceSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex
     int idx = realIndex.row();
 
     /* No data loaded, we do not display anything */
-    if ( ! global_capture_opts.all_ifaces || global_capture_opts.all_ifaces->len <= (guint) idx )
+    if ( sourceModel()->rowCount() == 0 )
         return false;
 
-    interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
+    int type = ((InterfaceTreeModel *)sourceModel())->getColumnContent(idx, IFTREE_COL_TYPE).toInt();
+    bool hidden = ((InterfaceTreeModel *)sourceModel())->getColumnContent(idx, IFTREE_COL_HIDDEN).toBool();
 
-    if ( device.hidden && _filterHidden )
+    if ( hidden && _filterHidden )
         return false;
 
-    if ( ! isInterfaceTypeShown(device.if_info.type) )
+    if ( ! isInterfaceTypeShown(type) )
         return false;
 #endif
 
     return true;
+}
+
+bool InterfaceSortFilterModel::filterAcceptsColumn(int sourceColumn, const QModelIndex & sourceParent) const
+{
+    QModelIndex realIndex = sourceModel()->index(0, sourceColumn, sourceParent);
+
+    if ( ! realIndex.isValid() )
+        return false;
+
+    if ( ! _columns.contains((InterfaceTreeColumns)sourceColumn) )
+        return false;
+
+    return true;
+}
+
+void InterfaceSortFilterModel::setColumns(QList<InterfaceTreeColumns> columns)
+{
+    _columns.clear();
+    _columns.append(columns);
+}
+
+int InterfaceSortFilterModel::mapSourceToColumn(InterfaceTreeColumns mdlIndex)
+{
+    if ( ! _columns.contains(mdlIndex) )
+        return -1;
+
+    return _columns.indexOf(mdlIndex, 0);
 }
 
 /*

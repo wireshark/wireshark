@@ -25,9 +25,7 @@
 
 #include <config.h>
 
-#ifdef HAVE_LIBPCAP
-#include "ui/capture_globals.h"
-#endif
+#include "ui/qt/interface_tree_model.h"
 
 #include <glib.h>
 
@@ -48,13 +46,19 @@ public:
 
     QList<int> typesDisplayed();
 
+    void setColumns(QList<InterfaceTreeColumns> columns);
+    int mapSourceToColumn(InterfaceTreeColumns mdlIndex);
+
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const;
+    bool filterAcceptsColumn(int source_column, const QModelIndex & source_parent) const;
 
 private:
     bool _filterHidden;
 
     QList<int> displayHiddenTypes;
+
+    QList<InterfaceTreeColumns> _columns;
 
 private slots:
     void resetPreferenceData();

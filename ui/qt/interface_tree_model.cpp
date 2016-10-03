@@ -71,6 +71,23 @@ InterfaceTreeModel::~InterfaceTreeModel(void)
 #endif // HAVE_LIBPCAP
 }
 
+QString InterfaceTreeModel::interfaceError()
+{
+    QString errorText;
+    if ( rowCount() == 0 )
+    {
+        errorText = tr("No Interfaces found!");
+    }
+#ifdef HAVE_LIBPCAP
+    else if ( global_capture_opts.ifaces_err != 0 )
+    {
+        errorText = tr(global_capture_opts.ifaces_err_info);
+    }
+#endif
+
+    return errorText;
+}
+
 int InterfaceTreeModel::rowCount(const QModelIndex & parent) const
 {
     Q_UNUSED(parent);
@@ -115,7 +132,22 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
             {
                 return QString(device.display_name);
             }
-
+            else if ( col == IFTREE_COL_INTERFACE_NAME )
+            {
+                return QString(device.name);
+            }
+            else if ( col == IFTREE_COL_EXTCAP_PATH )
+            {
+                return QString(device.if_info.extcap);
+            }
+            else if ( col == IFTREE_COL_HIDDEN )
+            {
+                return QVariant::fromValue((bool)device.hidden);
+            }
+            else if ( col == IFTREE_COL_TYPE )
+            {
+                return QVariant::fromValue((int)device.if_info.type);
+            }
         }
 
         /* Return empty string for every other DisplayRole */
@@ -158,6 +190,11 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
     Q_UNUSED(role);
 
     return QVariant();
+}
+
+QVariant InterfaceTreeModel::getColumnContent(int idx, int col)
+{
+    return InterfaceTreeModel::data(index(idx, col), Qt::DisplayRole);
 }
 
 /**
@@ -300,3 +337,89 @@ void InterfaceTreeModel::getPoints(int idx, PointList *pts)
     Q_UNUSED(pts);
 #endif
 }
+
+QItemSelection InterfaceTreeModel::selectedDevices()
+{
+    QItemSelection mySelection;
+
+    for( int idx = 0; idx < rowCount(); idx++ )
+    {
+        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
+
+        if ( device.selected )
+        {
+            QModelIndex selectIndex = index(idx, 0);
+            /* Proxy model has masked out the interface */
+            if ( !selectIndex.isValid() )
+                continue;
+
+            mySelection.merge(
+                    QItemSelection( selectIndex, index(selectIndex.row(), columnCount() - 1) ),
+                    QItemSelectionModel::SelectCurrent
+                    );
+        }
+    }
+
+    return mySelection;
+}
+
+bool InterfaceTreeModel::updateSelectedDevices(QItemSelection sourceSelection)
+{
+    bool selectionHasChanged = false;
+    QList<int> selectedIndices;
+
+    foreach(QItemSelectionRange selection, sourceSelection)
+    {
+        foreach(QModelIndex index, selection.indexes())
+        {
+            if ( ! selectedIndices.contains(index.row()) )
+            {
+                selectedIndices.append(index.row());
+            }
+        }
+    }
+
+    global_capture_opts.num_selected = 0;
+
+    for ( unsigned int idx = 0; idx < global_capture_opts.all_ifaces->len; idx++ )
+    {
+        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
+        if ( !device.locked )
+        {
+            if ( selectedIndices.contains(idx) )
+            {
+                if (! device.selected )
+                    selectionHasChanged = true;
+                device.selected = TRUE;
+                global_capture_opts.num_selected++;
+            } else {
+                if ( device.selected )
+                    selectionHasChanged = true;
+                device.selected = FALSE;
+            }
+            device.locked = TRUE;
+            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, idx);
+            g_array_insert_val(global_capture_opts.all_ifaces, idx, device);
+
+            device.locked = FALSE;
+            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, idx);
+            g_array_insert_val(global_capture_opts.all_ifaces, idx, device);
+        }
+    }
+
+    return selectionHasChanged;
+}
+
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
