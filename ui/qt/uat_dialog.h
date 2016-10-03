@@ -26,12 +26,12 @@
 
 #include <glib.h>
 
-#include "syntax_line_edit.h"
 #include "geometry_state_dialog.h"
+#include "uat_model.h"
+#include "uat_delegate.h"
 
 class QComboBox;
 class QPushButton;
-class QTreeWidgetItem;
 
 struct epan_uat;
 
@@ -49,18 +49,9 @@ public:
 
     void setUat(struct epan_uat *uat = NULL);
 
-protected:
-    void keyPressEvent(QKeyEvent *evt);
-
 private slots:
-    void on_uatTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
-    void on_uatTreeWidget_itemActivated(QTreeWidgetItem *item, int column);
-    void on_uatTreeWidget_itemSelectionChanged();
-    void lineEditPrefDestroyed();
-    void enumPrefDestroyed();
-    void enumPrefCurrentIndexChanged(int index);
-    void stringPrefTextChanged(const QString & text);
-    void stringPrefEditingFinished();
+    void modelDataChanged(const QModelIndex &topLeft);
+    void viewCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
     void acceptChanges();
     void rejectChanges();
     void on_newToolButton_clicked();
@@ -70,22 +61,16 @@ private slots:
 
 private:
     Ui::UatDialog *ui;
+    UatModel *uat_model_;
+    UatDelegate *uat_delegate_;
     QPushButton *ok_button_;
     QPushButton *help_button_;
     struct epan_uat *uat_;
-    int cur_column_;
-    SyntaxLineEdit *cur_line_edit_;
-    QString saved_string_pref_;
-    QComboBox *cur_combo_box_;
-    int saved_combo_idx_;
 
-    QString fieldString(guint row, guint column);
-    void updateItem(QTreeWidgetItem &item);
-    void updateItems();
-    void activateLastItem();
+    void checkForErrorHint(const QModelIndex &current, const QModelIndex &previous);
+    bool trySetErrorHintFromField(const QModelIndex &index);
     void applyChanges();
     void addRecord(bool copy_from_current = false);
-    const QByteArray unhexbytes(const QString input, QString &err);
 };
 
 #endif // UAT_DIALOG_H

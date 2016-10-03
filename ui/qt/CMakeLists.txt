@@ -150,7 +150,10 @@ set(WIRESHARK_QT_HEADERS
 	time_shift_dialog.h
 	timeline_delegate.h
 	traffic_table_dialog.h
+	uat_delegate.h
 	uat_dialog.h
+	uat_model.h
+	uat_tree_view.h
 	voip_calls_dialog.h
 	wireless_frame.h
 	wireshark_application.h
@@ -308,7 +311,10 @@ set(WIRESHARK_QT_SRC
 	time_shift_dialog.cpp
 	timeline_delegate.cpp
 	traffic_table_dialog.cpp
+	uat_delegate.cpp
 	uat_dialog.cpp
+	uat_model.cpp
+	uat_tree_view.cpp
 	voip_calls_dialog.cpp
 	wireless_frame.cpp
 	wireshark_application.cpp

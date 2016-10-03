@@ -12,7 +12,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTreeWidget" name="uatTreeWidget">
+    <widget class="UatTreeView" name="uatTreeView">
      <column>
       <property name="text">
        <string notr="true">1</string>
@@ -97,8 +97,14 @@
    </item>
    <item>
     <widget class="QLabel" name="hintLabel">
+     <property name="styleSheet">
+       <string notr="true">QLabel { color: red; }</string>
+     </property>
      <property name="text">
       <string/>
+     </property>
+     <property name="textFormat">
+       <set>Qt::RichText</set>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -122,6 +128,11 @@
    <class>ElidedLabel</class>
    <extends>QLabel</extends>
    <header>elided_label.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UatTreeView</class>
+   <extends>QTreeView</extends>
+   <header>uat_tree_view.h</header>
   </customwidget>
  </customwidgets>
  <resources>
