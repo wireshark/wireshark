@@ -21,6 +21,7 @@ S<[ B<--remote-username>=E<lt>usernameE<gt> ]>
 S<[ B<--remote-password>=E<lt>passwordE<gt> ]>
 S<[ B<--sshkey>=E<lt>public key path<gt> ]>
 S<[ B<--remote-interface>=E<lt>interfaceE<gt> ]>
+S<[ B<--remote-capture-command>=E<lt>capture commandE<gt> ]>
 
 B<sshdump>
 S<B<--extcap-interfaces>>
@@ -41,6 +42,7 @@ S<B<--remote-host=myremotehost>>
 S<B<--remote-port=22>>
 S<B<--remote-username=user>>
 S<B<--remote-interface=eth2>>
+S<B<--remote-capture-command='tcpdump -U -i eth0 -w-'>>
 
 =head1 DESCRIPTION
 
@@ -127,6 +129,12 @@ The path to a private key for authentication.
 
 The remote network interface to capture from.
 
+=item --remote-capture-command=E<lt>capture commandE<gt>
+
+A custom remote capture command that produces the remote stream that is shown in Wireshark.
+The command must be able to produce a PCAP stream written to STDOUT. See below for more
+examples.
+
 =item --extcap-capture-filter=E<lt>capture filterE<gt>
 
 The capture filter
@@ -179,6 +187,8 @@ To see interface configuration options:
         {type=string}{tooltip=Passphrase to unlock the SSH private key}
     arg {number=6}{call=--remote-interface}{display=Remote interface}{type=string}{default=eth0}
         {tooltip=The remote network interface used for capture}
+    arg {number=7}{call=--remote-capture-command}{display=Remote capture command}{type=string}
+        {tooltip=The remote command used to capture.}
     arg {number=8}{call=--remote-filter}{display=Remote capture filter}{type=string}
         {default=not ((host myip) and port 22)}{tooltip=The remote capture filter}
     arg {number=9}{call=--remote-count}{display=Packets to capture}{type=unsigned}{default=0}
@@ -186,8 +196,16 @@ To see interface configuration options:
 
 To capture:
 
-    sshdump --extcap-interface=ssh --fifo=/tmp/ssh.pcapng --capture --remote-host 192.168.1.10
+    sshdump --extcap-interface=ssh --fifo=/tmp/ssh.pcap --capture --remote-host 192.168.1.10
     --remote-username user --remote-filter "not port 22"
+
+To use different capture binaries:
+
+    sshdump --extcap-interface=ssh --fifo=/tmp/ssh.pcap --capture --remote-host 192.168.1.10
+    --remote-capture-command='dumpcap -i eth0 -P -w -'
+
+    sshdump --extcap-interface=ssh --fifo=/tmp/ssh.pcap --capture --remote-host 192.168.1.10
+    --remote-capture-command='sudo tcpdump -i eth0 -U -w -'
 
 NOTE: To stop capturing CTRL+C/kill/terminate application.
 
