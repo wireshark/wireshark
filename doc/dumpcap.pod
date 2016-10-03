@@ -160,9 +160,9 @@ interface, is printed.  The interface name or the number can be supplied
 to the B<-i> option to specify an interface on which to capture.
 
 This can be useful on systems that don't have a command to list them
-(e.g., Windows systems, or UNIX systems lacking B<ifconfig -a>);
-the number can be useful on Windows 2000 and later systems, where the
-interface name is a somewhat complex string.
+(UNIX systems lacking B<ifconfig -a> or Linux systems lacking
+B<ip link show>). The number can be useful on Windows systems, where
+the interface name might be a long name or a GUID.
 
 Note that "can capture" means that B<Dumpcap> was able to open
 that device to do a live capture. Depending on your system you may need to
