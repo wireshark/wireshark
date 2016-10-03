@@ -13,25 +13,7 @@ used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
-The following vulnerabilities have been fixed:
-
-* ws-salink:2016-57[]
-+
-The DCOM IRemUnknown dissector could crash.
-(ws-buglink:12841[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: f1a7497
-// Fixed in master-2.2: 602f7a3
-// Fixed in master-2.0: 3264cb5
-
-* ws-salink:2016-59[]
-+
-The 6LowPAN dissector could crash.
-(ws-buglink:12939[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: 0b1fd7e
-// Fixed in master-2.2: d22bad9
-// Fixed in master-2.0: b288ac8
+//The following vulnerabilities have been fixed:
 
 The following bugs have been fixed:
 
