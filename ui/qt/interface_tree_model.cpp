@@ -341,7 +341,7 @@ void InterfaceTreeModel::getPoints(int idx, PointList *pts)
 QItemSelection InterfaceTreeModel::selectedDevices()
 {
     QItemSelection mySelection;
-
+#ifdef HAVE_LIBPCAP
     for( int idx = 0; idx < rowCount(); idx++ )
     {
         interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
@@ -349,23 +349,20 @@ QItemSelection InterfaceTreeModel::selectedDevices()
         if ( device.selected )
         {
             QModelIndex selectIndex = index(idx, 0);
-            /* Proxy model has masked out the interface */
-            if ( !selectIndex.isValid() )
-                continue;
-
             mySelection.merge(
                     QItemSelection( selectIndex, index(selectIndex.row(), columnCount() - 1) ),
                     QItemSelectionModel::SelectCurrent
                     );
         }
     }
-
+#endif
     return mySelection;
 }
 
 bool InterfaceTreeModel::updateSelectedDevices(QItemSelection sourceSelection)
 {
     bool selectionHasChanged = false;
+#ifdef HAVE_LIBPCAP
     QList<int> selectedIndices;
 
     foreach(QItemSelectionRange selection, sourceSelection)
@@ -406,7 +403,9 @@ bool InterfaceTreeModel::updateSelectedDevices(QItemSelection sourceSelection)
             g_array_insert_val(global_capture_opts.all_ifaces, idx, device);
         }
     }
-
+#else
+    Q_UNUSED(sourceSelection);
+#endif
     return selectionHasChanged;
 }
 
