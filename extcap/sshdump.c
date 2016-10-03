@@ -41,8 +41,6 @@
 #define SSH_EXTCAP_INTERFACE "ssh"
 #define SSH_READ_BLOCK_SIZE 256
 
-#define DEFAULT_CAPTURE_BIN "dumpcap"
-
 enum {
 	EXTCAP_BASE_OPTIONS_ENUM,
 	OPT_HELP,
@@ -52,7 +50,6 @@ enum {
 	OPT_REMOTE_USERNAME,
 	OPT_REMOTE_PASSWORD,
 	OPT_REMOTE_INTERFACE,
-	OPT_REMOTE_CAPTURE_BIN,
 	OPT_REMOTE_FILTER,
 	OPT_SSHKEY,
 	OPT_SSHKEY_PASSPHRASE,
@@ -64,7 +61,6 @@ static struct option longopts[] = {
 	{ "help", no_argument, NULL, OPT_HELP},
 	{ "version", no_argument, NULL, OPT_VERSION},
 	SSH_BASE_OPTIONS,
-	{ "remote-capture-bin", required_argument, NULL, OPT_REMOTE_CAPTURE_BIN},
 	{ 0, 0, 0, 0}
 };
 
@@ -123,20 +119,16 @@ static char* local_interfaces_to_filter(const guint16 remote_port)
 	return filter;
 }
 
-static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, const char* iface, const char* cfilter,
+static ssh_channel run_ssh_command(ssh_session sshs, const char* iface, const char* cfilter,
 		const guint32 count)
 {
 	gchar* cmdline;
 	ssh_channel channel;
-	char* quoted_bin;
 	char* quoted_iface;
 	char* default_filter;
 	char* quoted_filter;
 	char* count_str = NULL;
 	unsigned int remote_port = 22;
-
-	if (!capture_bin)
-		capture_bin = DEFAULT_CAPTURE_BIN;
 
 	if (!iface)
 		iface = "eth0";
@@ -156,7 +148,6 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, co
 	ssh_options_get_port(sshs, &remote_port);
 
 	/* escape parameters to go save with the shell */
-	quoted_bin = g_shell_quote(capture_bin);
 	quoted_iface = g_shell_quote(iface);
 	default_filter = local_interfaces_to_filter(remote_port);
 	if (!cfilter)
@@ -165,8 +156,8 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, co
 	if (count > 0)
 		count_str = g_strdup_printf("-c %u", count);
 
-	cmdline = g_strdup_printf("%s -i %s -P -w - -f %s %s", quoted_bin, quoted_iface, quoted_filter,
-		count_str ? count_str : "");
+	cmdline = g_strdup_printf("tcpdump -U -i %s -w - %s %s", quoted_iface, count_str ? count_str : "",
+		quoted_filter);
 
 	g_debug("Running: %s", cmdline);
 	if (ssh_channel_request_exec(channel, cmdline) != SSH_OK) {
@@ -176,7 +167,6 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, co
 		channel = NULL;
 	}
 
-	g_free(quoted_bin);
 	g_free(quoted_iface);
 	g_free(default_filter);
 	g_free(quoted_filter);
@@ -188,8 +178,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, co
 }
 
 static int ssh_open_remote_connection(const char* hostname, const unsigned int port, const char* username, const char* password,
-	const char* sshkey, const char* sshkey_passphrase, const char* iface, const char* cfilter, const char* capture_bin,
-	const guint32 count, const char* fifo)
+	const char* sshkey, const char* sshkey_passphrase, const char* iface, const char* cfilter, const guint32 count, const char* fifo)
 {
 	ssh_session sshs = NULL;
 	ssh_channel channel = NULL;
@@ -213,7 +202,7 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 		goto cleanup;
 	}
 
-	channel = run_ssh_command(sshs, capture_bin, iface, cfilter, count);
+	channel = run_ssh_command(sshs, iface, cfilter, count);
 	if (!channel) {
 		g_warning("Can't run ssh command");
 		goto cleanup;
@@ -297,9 +286,6 @@ static int list_config(char *interface, unsigned int remote_port)
 	printf("arg {number=%u}{call=--remote-interface}{display=Remote interface}"
 		"{type=string}{default=eth0}{tooltip=The remote network interface used for capture"
 		"}\n", inc++);
-	printf("arg {number=%u}{call=--remote-capture-bin}{display=Remote capture binary}"
-		"{type=string}{default=%s}{tooltip=The remote dumpcap binary used "
-		"for capture.}\n", inc++, DEFAULT_CAPTURE_BIN);
 	printf("arg {number=%u}{call=--remote-filter}{display=Remote capture filter}"
 		"{type=string}{tooltip=The remote capture filter}", inc++);
 	if (ipfilter)
@@ -338,7 +324,6 @@ int main(int argc, char **argv)
 	char* remote_username = NULL;
 	char* remote_password = NULL;
 	char* remote_interface = NULL;
-	char* remote_capture_bin = NULL;
 	char* sshkey = NULL;
 	char* sshkey_passphrase = NULL;
 	char* remote_filter = NULL;
@@ -377,7 +362,6 @@ int main(int argc, char **argv)
 	extcap_help_add_option(extcap_conf, "--sshkey <public key path>", "the path of the ssh key");
 	extcap_help_add_option(extcap_conf, "--sshkey-passphrase <public key passphrase>", "the passphrase to unlock public ssh");
 	extcap_help_add_option(extcap_conf, "--remote-interface <iface>", "the remote capture interface (default: eth0)");
-	extcap_help_add_option(extcap_conf, "--remote-capture-bin <capture bin>", "the remote dumcap binary (default: " DEFAULT_CAPTURE_BIN ")");
 	extcap_help_add_option(extcap_conf, "--remote-filter <filter>", "a filter for remote capture (default: don't "
 		"listen on local interfaces IPs)");
 	extcap_help_add_option(extcap_conf, "--remote-count <count>", "the number of packets to capture");
@@ -443,11 +427,6 @@ int main(int argc, char **argv)
 			remote_interface = g_strdup(optarg);
 			break;
 
-		case OPT_REMOTE_CAPTURE_BIN:
-			g_free(remote_capture_bin);
-			remote_capture_bin = g_strdup(optarg);
-			break;
-
 		case OPT_REMOTE_FILTER:
 			g_free(remote_filter);
 			remote_filter = g_strdup(optarg);
@@ -509,7 +488,7 @@ int main(int argc, char **argv)
 		filter = concat_filters(extcap_conf->capture_filter, remote_filter);
 		ret = ssh_open_remote_connection(remote_host, remote_port, remote_username,
 			remote_password, sshkey, sshkey_passphrase, remote_interface,
-			filter, remote_capture_bin, count, extcap_conf->fifo);
+			filter, count, extcap_conf->fifo);
 		g_free(filter);
 	} else {
 		g_debug("You should not come here... maybe some parameter missing?");
@@ -522,7 +501,6 @@ end:
 	g_free(remote_username);
 	g_free(remote_password);
 	g_free(remote_interface);
-	g_free(remote_capture_bin);
 	g_free(sshkey);
 	g_free(sshkey_passphrase);
 	g_free(remote_filter);

@@ -21,7 +21,6 @@ S<[ B<--remote-username>=E<lt>usernameE<gt> ]>
 S<[ B<--remote-password>=E<lt>passwordE<gt> ]>
 S<[ B<--sshkey>=E<lt>public key path<gt> ]>
 S<[ B<--remote-interface>=E<lt>interfaceE<gt> ]>
-S<[ B<--remote-capture-bin>=E<lt>capture binaryE<gt> ]>
 
 B<sshdump>
 S<B<--extcap-interfaces>>
@@ -42,7 +41,6 @@ S<B<--remote-host=myremotehost>>
 S<B<--remote-port=22>>
 S<B<--remote-username=user>>
 S<B<--remote-interface=eth2>>
-S<B<--remote-capture-bin=/usr/sbin/dumpcap>>
 
 =head1 DESCRIPTION
 
@@ -53,7 +51,7 @@ interface.
 
 The feature is functionally equivalent to run commands like
 
-$ ssh remoteuser@remotehost -p 22222 'dumpcap -i IFACE -P -w -' > FILE &
+$ ssh remoteuser@remotehost -p 22222 'tcpdump -U -i IFACE -w -' > FILE &
 $ wireshark FILE
 
 $ ssh remoteuser@remotehost '/sbin/dumpcap -i IFACE -P -w - -f "not port 22"' > FILE &
@@ -129,10 +127,6 @@ The path to a private key for authentication.
 
 The remote network interface to capture from.
 
-=item --remote-capture-bin=E<lt>capture binaryE<gt>
-
-The remote capture binary.
-
 =item --extcap-capture-filter=E<lt>capture filterE<gt>
 
 The capture filter
@@ -185,8 +179,6 @@ To see interface configuration options:
         {type=string}{tooltip=Passphrase to unlock the SSH private key}
     arg {number=6}{call=--remote-interface}{display=Remote interface}{type=string}{default=eth0}
         {tooltip=The remote network interface used for capture}
-    arg {number=7}{call=--remote-capture-bin}{display=Remote capture binary}{type=string}
-        {default=dumpcap}{tooltip=The remote dumpcap binary used for capture.}
     arg {number=8}{call=--remote-filter}{display=Remote capture filter}{type=string}
         {default=not ((host myip) and port 22)}{tooltip=The remote capture filter}
     arg {number=9}{call=--remote-count}{display=Packets to capture}{type=unsigned}{default=0}
@@ -201,7 +193,7 @@ NOTE: To stop capturing CTRL+C/kill/terminate application.
 
 =head1 SEE ALSO
 
-wireshark(1), tshark(1), dumpcap(1), extcap(4)
+wireshark(1), tshark(1), dumpcap(1), extcap(4), tcpdump(1)
 
 =head1 NOTES
 
