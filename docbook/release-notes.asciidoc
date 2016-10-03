@@ -15,14 +15,23 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* ws-salink:2016-56[]
+* ws-salink:2016-57[]
 +
-A dissector went awry.
-(ws-buglink:xxxx[])
+The DCOM IRemUnknown dissector could crash.
+(ws-buglink:12841[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: xxxx
-// Fixed in master-2.2: xxxx
-// Fixed in master-2.0: xxxx
+// Fixed in master: f1a7497
+// Fixed in master-2.2: 602f7a3
+// Fixed in master-2.0: 3264cb5
+
+* ws-salink:2016-59[]
++
+The 6LowPAN dissector could crash.
+(ws-buglink:12939[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 0b1fd7e
+// Fixed in master-2.2: d22bad9
+// Fixed in master-2.0: b288ac8
 
 The following bugs have been fixed:
 
@@ -31,6 +40,18 @@ The following bugs have been fixed:
 //* cve-idlink:2016-7000[]
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.7rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Capture File Properties under Statistics Grayed Out after Stopping a Capture. (ws-buglink:12071[])
+
+* Qt: Hidden columns displayed during live capture. (ws-buglink:12377[])
+
+* Bad description for NBSS error code 0x81. (ws-buglink:12835[])
+
+* Export packet dissections Option disabled after capturing traffic. (ws-buglink:12898[])
+
+* TLS padding extension dissector length parsing bug. (ws-buglink:12922[])
+
+* Diameter dictionary bugs. (ws-buglink:12927[])
 
 * Multiple PortableApps instances can once again be run at the same time.
 
@@ -51,6 +72,13 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+6LowPAN
+DCOM IRemUnknown
+Diameter
+NBT
+NCP
+NetFlow
+SSL / TLS
 --sort-and-group--
 
 === New and Updated Capture File Support
