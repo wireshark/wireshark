@@ -1146,6 +1146,7 @@ dissect_openflow_oxm_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
     proto_tree *oxm_tree;
     guint16 oxm_class;
+    guint16 oxm_end;
     guint8  oxm_field_hm;
     guint8  oxm_hm;
     guint8  oxm_field;
@@ -1155,6 +1156,7 @@ dissect_openflow_oxm_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     oxm_class = tvb_get_ntohs(tvb, offset);
     oxm_field_hm = tvb_get_guint8(tvb, offset + 2);
     oxm_length = tvb_get_guint8(tvb, offset + 3);
+    oxm_end = offset + 4 + oxm_length;
 
     oxm_field = (oxm_field_hm & OXM_FIELD_MASK) >> OXM_FIELD_OFFSET;
     oxm_hm = oxm_field_hm & OXM_HM_MASK;
@@ -1258,6 +1260,12 @@ dissect_openflow_oxm_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 offset += field_length;
             }
             break;
+        }
+
+        if(oxm_end > offset){
+            proto_tree_add_expert_format(oxm_tree, pinfo, &ei_openflow_v5_oxm_undecoded,
+                                         tvb, offset, oxm_end-offset, "Undecoded Data");
+            offset = oxm_end;
         }
 
     } else {
