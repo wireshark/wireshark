@@ -8,29 +8,18 @@ used for troubleshooting, analysis, development and education.
 
 == What's New
 
-* The Windows installers now ship with Qt 5.6. Previously they shipped with Qt 5.3.
-
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
 
-* ws-salink:2016-56[]
+* ws-salink:2016-58[]
 +
-The Bluetooth L2CAP dissector could crash.
-(ws-buglink:12825[])
+A dissector went awry.
+(ws-buglink:XXXX[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: 7be7320
-// Fixed in master-2.2: 355b56b
-// Fixed in master-2.0: N/A
-
-* ws-salink:2016-57[]
-+
-The NCP dissector could crash.
-(ws-buglink:12945[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: 7b279d2
-// Fixed in master-2.2: 67597cb
-// Fixed in master-2.0: N/A
+// Fixed in master: XXXX
+// Fixed in master-2.2: XXXX
+// Fixed in master-2.0: XXXX
 
 The following bugs have been fixed:
 
@@ -38,43 +27,7 @@ The following bugs have been fixed:
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2014-2486[]
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.1rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* Flow Graph colored data arrows. (ws-buglink:12065[])
-
-* Capture File Properties under Statistics Grayed Out after Stopping a Capture. (ws-buglink:12071[])
-
-* Qt: Hidden columns displayed during live capture. (ws-buglink:12377[])
-
-* Unable to save changes to coloring rules. (ws-buglink:12814[])
-
-* Bad description for NBSS error code 0x81. (ws-buglink:12835[])
-
-* Live capture from USBPcap fails immediately. (ws-buglink:12846[])
-
-* Cannot decrypt EAP-TTLS traffic (not recognized as conversation). (ws-buglink:12879[])
-
-* Export packet dissections Option disabled after capturing traffic. (ws-buglink:12898[])
-
-* Failure to open file named with Chinese or other multibyte characters. (ws-buglink:12900[])
-
-* k12 text file format causes errors. (ws-buglink:12903[])
-
-* File | File Set | List Files dialog is blank. (ws-buglink:12904[])
-
-* Decoding/Display of an INAP CONNECT message goes wrong for the Destination Routing Address part. (ws-buglink:12911[])
-
-* TLS padding extension dissector length parsing bug. (ws-buglink:12922[])
-
-* Diameter dictionary bugs. (ws-buglink:12927[])
-
-* File open from menu bar with filter in place causes Wireshark to crash. (ws-buglink:12929[])
-
-* Unable to capture USBPcap trace using tshark with extcap built. (ws-buglink:12949[])
-
-* P1 dissector fails a TVB assertion. (ws-buglink:12976[])
-
-* Multiple PortableApps instances can once again be run at the same time.
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.2rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 === New and Updated Features
 
@@ -93,27 +46,12 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-6LowPAN
-BT L2CAP
-CIP
-DCOM IRemUnknown
-Diameter
-DMP
-EAP
-ISUP
-NBT
-NCP
-NetFlow
-SSL / TLS
-U3V
 --sort-and-group--
 
 === New and Updated Capture File Support
 
 //There is no new or updated capture file support in this release.
 --sort-and-group--
-Ascend
-K12
 --sort-and-group--
 
 === New and Updated Capture Interfaces support
