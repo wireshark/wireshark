@@ -23,6 +23,15 @@ The Bluetooth L2CAP dissector could crash.
 // Fixed in master-2.2: 355b56b
 // Fixed in master-2.0: N/A
 
+* ws-salink:2016-57[]
++
+The NCP dissector could crash.
+(ws-buglink:12945[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 7b279d2
+// Fixed in master-2.2: 67597cb
+// Fixed in master-2.0: N/A
+
 The following bugs have been fixed:
 
 //* ws-buglink:5000[]
@@ -61,9 +70,9 @@ The following bugs have been fixed:
 
 * File open from menu bar with filter in place causes Wireshark to crash. (ws-buglink:12929[])
 
-* CMake builds don't register the NCP dissector, so the resulting Wireshark/TShark crashes with NCP packets. (ws-buglink:12945[])
-
 * Unable to capture USBPcap trace using tshark with extcap built. (ws-buglink:12949[])
+
+* P1 dissector fails a TVB assertion. (ws-buglink:12976[])
 
 * Multiple PortableApps instances can once again be run at the same time.
 
