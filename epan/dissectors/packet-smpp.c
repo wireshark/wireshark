@@ -2972,7 +2972,7 @@ proto_register_smpp(void)
         },
         {   &hf_smpp_short_message,
             {   "Message", "smpp.message",
-                FT_NONE, BASE_NONE, NULL, 0x00,
+                FT_BYTES, BASE_NONE, NULL, 0x00,
                 "The actual message or data.",
                 HFILL
             }
