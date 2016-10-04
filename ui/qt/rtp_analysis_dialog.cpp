@@ -900,7 +900,7 @@ void RtpAnalysisDialog::updateStatistics()
         r_clock_drift = (r_total_nr * r_sumtTS - r_sumt * r_sumTS) / (r_total_nr * r_sumt2 - r_sumt * r_sumt);
     }
 
-    QString stats_tables = "<html><head></head><body>\n";
+    QString stats_tables = "<html><head><style>td{vertical-align:bottom;}</style></head><body>\n";
     stats_tables += QString("<p>%1:%2 " UTF8_LEFT_RIGHT_ARROW)
             .arg(address_to_qstring(&src_fwd_, true))
             .arg(port_src_fwd_);
@@ -909,61 +909,61 @@ void RtpAnalysisDialog::updateStatistics()
             .arg(port_dst_fwd_);
     stats_tables += "<h4>Forward</h4>\n";
     stats_tables += "<p><table>\n";
-    stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</tr>")
+    stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</td></tr>")
             .arg(int_to_qstring(ssrc_fwd_, 8, 16));
     stats_tables += QString("<tr><th align=\"left\">Max Delta</th><td>%1 ms @ %2</td></tr>")
             .arg(fwd_statinfo_.max_delta, 0, 'f', 2)
             .arg(fwd_statinfo_.max_nr);
-    stats_tables += QString("<tr><th align=\"left\">Max Jitter</th><td>%1 ms</tr>")
+    stats_tables += QString("<tr><th align=\"left\">Max Jitter</th><td>%1 ms</td></tr>")
             .arg(fwd_statinfo_.max_jitter, 0, 'f', 2);
-    stats_tables += QString("<tr><th align=\"left\">Mean Jitter</th><td>%1 ms</tr>")
+    stats_tables += QString("<tr><th align=\"left\">Mean Jitter</th><td>%1 ms</td></tr>")
             .arg(fwd_statinfo_.mean_jitter, 0, 'f', 2);
-    stats_tables += QString("<tr><th align=\"left\">Max Skew</th><td>%1 ms</tr>")
+    stats_tables += QString("<tr><th align=\"left\">Max Skew</th><td>%1 ms</td></tr>")
             .arg(fwd_statinfo_.max_skew, 0, 'f', 2);
-    stats_tables += QString("<tr><th align=\"left\">RTP Packets</th><td>%1</tr>")
+    stats_tables += QString("<tr><th align=\"left\">RTP Packets</th><td>%1</td></tr>")
             .arg(f_total_nr);
-    stats_tables += QString("<tr><th align=\"left\">Expected</th><td>%1</tr>")
+    stats_tables += QString("<tr><th align=\"left\">Expected</th><td>%1</td></tr>")
             .arg(f_expected);
-    stats_tables += QString("<tr><th align=\"left\">Lost</th><td>%1 (%2 %)</tr>")
+    stats_tables += QString("<tr><th align=\"left\">Lost</th><td>%1 (%2 %)</td></tr>")
             .arg(f_lost).arg(f_perc, 0, 'f', 2);
-    stats_tables += QString("<tr><th align=\"left\">Seq Errs</th><td>%1</tr>")
+    stats_tables += QString("<tr><th align=\"left\">Seq Errs</th><td>%1</td></tr>")
             .arg(fwd_statinfo_.sequence);
-    stats_tables += QString("<tr><th align=\"left\">Duration</th><td>%1 s</tr>")
+    stats_tables += QString("<tr><th align=\"left\">Duration</th><td>%1 s</td></tr>")
             .arg(f_duration / 1000.0, 0, 'f', 2);
-    stats_tables += QString("<tr><th align=\"left\">Clock Drift</th><td>%1 ms</tr>")
+    stats_tables += QString("<tr><th align=\"left\">Clock Drift</th><td>%1 ms</td></tr>")
             .arg(f_duration * (f_clock_drift - 1.0), 0, 'f', 0);
-    stats_tables += QString("<tr><th align=\"left\">Freq Drift</th><td>%1 Hz (%2 %)</tr>") // XXX Terminology?
+    stats_tables += QString("<tr><th align=\"left\">Freq Drift</th><td>%1 Hz (%2 %)</td></tr>") // XXX Terminology?
             .arg(f_clock_drift * f_clock_rate, 0, 'f', 0).arg(100.0 * (f_clock_drift - 1.0), 0, 'f', 2);
     stats_tables += "</table></p>\n";
 
     stats_tables += "<h4>Reverse</h4>\n";
     stats_tables += "<p><table>\n";
-    stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</tr>")
+    stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</td></tr>")
             .arg(int_to_qstring(ssrc_fwd_, 8, 16));
     stats_tables += QString("<tr><th align=\"left\">Max Delta</th><td>%1 ms @ %2</td></tr>")
             .arg(rev_statinfo_.max_delta, 0, 'f', 2)
             .arg(rev_statinfo_.max_nr);
-    stats_tables += QString("<tr><th align=\"left\">Max Jitter</th><td>%1 ms</tr>")
+    stats_tables += QString("<tr><th align=\"left\">Max Jitter</th><td>%1 ms</td></tr>")
             .arg(rev_statinfo_.max_jitter, 0, 'f', 2);
-    stats_tables += QString("<tr><th align=\"left\">Mean Jitter</th><td>%1 ms</tr>")
+    stats_tables += QString("<tr><th align=\"left\">Mean Jitter</th><td>%1 ms</td></tr>")
             .arg(rev_statinfo_.mean_jitter, 0, 'f', 2);
-    stats_tables += QString("<tr><th align=\"left\">Max Skew</th><td>%1 ms</tr>")
+    stats_tables += QString("<tr><th align=\"left\">Max Skew</th><td>%1 ms</td></tr>")
             .arg(rev_statinfo_.max_skew, 0, 'f', 2);
-    stats_tables += QString("<tr><th align=\"left\">RTP Packets</th><td>%1</tr>")
+    stats_tables += QString("<tr><th align=\"left\">RTP Packets</th><td>%1</td></tr>")
             .arg(r_total_nr);
-    stats_tables += QString("<tr><th align=\"left\">Expected</th><td>%1</tr>")
+    stats_tables += QString("<tr><th align=\"left\">Expected</th><td>%1</td></tr>")
             .arg(r_expected);
-    stats_tables += QString("<tr><th align=\"left\">Lost</th><td>%1 (%2 %)</tr>")
+    stats_tables += QString("<tr><th align=\"left\">Lost</th><td>%1 (%2 %)</td></tr>")
             .arg(r_lost).arg(r_perc, 0, 'f', 2);
-    stats_tables += QString("<tr><th align=\"left\">Seq Errs</th><td>%1</tr>")
+    stats_tables += QString("<tr><th align=\"left\">Seq Errs</th><td>%1</td></tr>")
             .arg(rev_statinfo_.sequence);
-    stats_tables += QString("<tr><th align=\"left\">Duration</th><td>%1 s</tr>")
+    stats_tables += QString("<tr><th align=\"left\">Duration</th><td>%1 s</td></tr>")
             .arg(r_duration / 1000.0, 0, 'f', 2);
-    stats_tables += QString("<tr><th align=\"left\">Clock Drift</th><td>%1 ms</tr>")
+    stats_tables += QString("<tr><th align=\"left\">Clock Drift</th><td>%1 ms</td></tr>")
             .arg(r_duration * (r_clock_drift - 1.0), 0, 'f', 0);
-    stats_tables += QString("<tr><th align=\"left\">Freq Drift</th><td>%1 Hz (%2 %)</tr>") // XXX Terminology?
+    stats_tables += QString("<tr><th align=\"left\">Freq Drift</th><td>%1 Hz (%2 %)</td></tr>") // XXX Terminology?
             .arg(r_clock_drift * r_clock_rate, 0, 'f', 0).arg(100.0 * (r_clock_drift - 1.0), 0, 'f', 2);
-    stats_tables += "</table></p></body>\n";
+    stats_tables += "</table></p></body></html>\n";
 
     ui->statisticsLabel->setText(stats_tables);
 
