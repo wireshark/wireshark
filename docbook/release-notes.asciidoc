@@ -13,7 +13,16 @@ used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
-//The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
+
+* ws-salink:2016-58[]
++
+A dissector went awry.
+(ws-buglink:XXXX[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: XXXX
+// Fixed in master-2.2: XXXX
+// Fixed in master-2.0: XXXX
 
 The following bugs have been fixed:
 
@@ -21,21 +30,7 @@ The following bugs have been fixed:
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2016-7000[]
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.7rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* Capture File Properties under Statistics Grayed Out after Stopping a Capture. (ws-buglink:12071[])
-
-* Qt: Hidden columns displayed during live capture. (ws-buglink:12377[])
-
-* Bad description for NBSS error code 0x81. (ws-buglink:12835[])
-
-* Export packet dissections Option disabled after capturing traffic. (ws-buglink:12898[])
-
-* TLS padding extension dissector length parsing bug. (ws-buglink:12922[])
-
-* Diameter dictionary bugs. (ws-buglink:12927[])
-
-* Multiple PortableApps instances can once again be run at the same time.
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.8rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 === New and Updated Features
 
@@ -54,13 +49,6 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-6LowPAN
-DCOM IRemUnknown
-Diameter
-NBT
-NCP
-NetFlow
-SSL / TLS
 --sort-and-group--
 
 === New and Updated Capture File Support
