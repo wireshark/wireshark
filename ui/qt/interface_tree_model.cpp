@@ -136,10 +136,12 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
             {
                 return QString(device.name);
             }
+#ifdef HAVE_EXTCAP
             else if ( col == IFTREE_COL_EXTCAP_PATH )
             {
                 return QString(device.if_info.extcap);
             }
+#endif
             else if ( col == IFTREE_COL_HIDDEN )
             {
                 return QVariant::fromValue((bool)device.hidden);
