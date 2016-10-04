@@ -176,7 +176,7 @@ typedef enum _uat_text_mode_t {
 	/*
 	 file:
 		 reads:
-			 ,"\x20\x00\x30", as " \00",3
+			 ,"\x20\x00\x30", as " \00",3 ("space nil zero" of length 3)
 			 ,"", as "",0
 			 ,, as NULL,0
 		 writes:
@@ -191,19 +191,21 @@ typedef enum _uat_text_mode_t {
 	/*
 	 file:
 		 reads:
-			 ,A1b2C3d4, as "\001\002\003\004",4
+			 ,A1b2C3d4, as "\xa1\xb2\xc3\xd4",4
 			 ,, as NULL,0
 		 writes:
 			 ,, on NULL, *
-			 ,a1b2c3d4, on "\001\002\003\004",4
+			 ,a1b2c3d4, on "\xa1\xb2\xc3\xd4",4
 	 dialog:
-		 "a1b2c3d4" as "\001\002\003\004",4
-		 "a1 b2:c3d4" as "\001\002\003\004",4
+		 interprets the following input ... as ...:
+		 "a1b2c3d4" as "\xa1\xb2\xc3\xd4",4
+		 "a1 b2:c3d4" as "\xa1\xb2\xc3\xd4",4
 		 "" as NULL,0
 		 "invalid" as NULL,3
 		 "a1b" as NULL, 1
 	 */
 	PT_TXTMOD_ENUM,
+	/* Read/Writes/displays the string value (not number!) */
 
 	PT_TXTMOD_FILENAME,
 	/* processed like a PT_TXTMOD_STRING, but shows a filename dialog */
@@ -454,7 +456,6 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
  * BUFFER macros,
  *    a buffer_ptr contained in (((rec_t*)rec)->(field_name))
  *    and its len in (((rec_t*)rec)->(len_name))
- *  XXX: UNTESTED and probably BROKEN
  */
 #define UAT_BUFFER_CB_DEF(basename,field_name,rec_t,ptr_element,len_element) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
