@@ -2825,7 +2825,7 @@ static const value_string nas_eps_esm_pdn_type_values[] = {
     { 0x2,  "IPv6" },
     { 0x3,  "IPv4v6" },
     { 0x4,  "Unused; shall be interpreted as IPv6 if received by the network" },
-    { 0x4,  "Non IP" },
+    { 0x5,  "Non IP" },
     { 0, NULL }
 };
 
