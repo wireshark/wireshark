@@ -35,8 +35,8 @@ QUIC source code in Chromium : https://code.google.com/p/chromium/codesearch#chr
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
-#include <stdlib.h> /* for atoi() */
 #include <epan/dissectors/packet-http2.h>
+#include <wsutil/strtoi.h>
 
 void proto_register_quic(void);
 void proto_reg_handoff_quic(void);
@@ -191,9 +191,11 @@ static gint ett_quic_tag_value = -1;
 static expert_field ei_quic_tag_undecoded = EI_INIT;
 static expert_field ei_quic_tag_length = EI_INIT;
 static expert_field ei_quic_tag_unknown = EI_INIT;
+static expert_field ei_quic_version_invalid = EI_INIT;
 
 typedef struct quic_info_data {
     guint8 version;
+    gboolean version_valid;
     guint16 server_port;
 } quic_info_data_t;
 
@@ -1058,7 +1060,7 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offse
     /* Message Authentication Hash */
     offset += 12;
 
-    if(quic_info->version < 34){ /* No longer Private Flags after Q034 */
+    if(quic_info->version_valid && quic_info->version < 34){ /* No longer Private Flags after Q034 */
         /* Private Flags */
         offset += 1;
     }
@@ -1130,7 +1132,7 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offse
                     offset += 4;
                 break;
                 case FT_STOP_WAITING:
-                    if(quic_info->version < 34){ /* No longer Entropy after Q034 */
+                    if(quic_info->version_valid && quic_info->version < 34){ /* No longer Entropy after Q034 */
                         /* Send Entropy */
                         offset += 1;
                     }
@@ -1187,7 +1189,7 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offse
                 /* Frame Type */
                 offset += 1;
 
-                if(quic_info->version < 34){ /* No longer Entropy after Q034 */
+                if(quic_info->version_valid && quic_info->version < 34){ /* No longer Entropy after Q034 */
                     /* Received Entropy */
                     offset += 1;
 
@@ -1715,7 +1717,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             break;
             case FT_STOP_WAITING:{
                 guint8 send_entropy;
-                if(quic_info->version < 34){ /* No longer Entropy after Q034 */
+                if(quic_info->version_valid && quic_info->version < 34){ /* No longer Entropy after Q034 */
                     proto_tree_add_item(ft_tree, hf_quic_frame_type_sw_send_entropy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     send_entropy = tvb_get_guint8(tvb, offset);
                     proto_item_append_text(ti_ft, " Send Entropy: %u", send_entropy);
@@ -1819,7 +1821,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack_n, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-            if(quic_info->version < 34){ /* No longer NACK after Q034 */
+            if(quic_info->version_valid && quic_info->version < 34){ /* No longer NACK after Q034 */
                 proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack_t, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             } else {
                 proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack_u, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1832,7 +1834,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             len_missing_packet = get_len_missing_packet(frame_type);
             offset += 1;
 
-            if(quic_info->version < 34){ /* Big change after Q034 */
+            if(quic_info->version_valid && quic_info->version < 34){ /* Big change after Q034 */
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_received_entropy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
@@ -1980,7 +1982,7 @@ dissect_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
     proto_tree_add_item(quic_tree, hf_quic_message_authentication_hash, tvb, offset, 12, ENC_NA);
     offset += 12;
 
-    if(quic_info->version < 34){ /* No longer Private Flags after Q034 */
+    if(quic_info->version_valid && quic_info->version < 34){ /* No longer Private Flags after Q034 */
         /* Private Flags */
         ti_prflags = proto_tree_add_item(quic_tree, hf_quic_prflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         prflags_tree = proto_item_add_subtree(ti_prflags, ett_quic_prflags);
@@ -2024,6 +2026,7 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!quic_info) {
         quic_info = wmem_new(wmem_file_scope(), quic_info_data_t);
         quic_info->version = 0;
+        quic_info->version_valid = TRUE;
         quic_info->server_port = 443;
         conversation_add_proto_data(conv, proto_quic, quic_info);
     }
@@ -2042,18 +2045,23 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     /* check and get (and store) version */
     if(puflags & PUFLAGS_VRSN){
-        quic_info->version = atoi(tvb_get_string_enc(wmem_packet_scope(), tvb,offset + 1 + len_cid + 1, 3, ENC_ASCII));
+        quic_info->version_valid = ws_strtou8(tvb_get_string_enc(wmem_packet_scope(), tvb,
+            offset + 1 + len_cid + 1, 3, ENC_ASCII), NULL, &quic_info->version);
+        if (!quic_info->version_valid)
+            expert_add_info(pinfo, quic_tree, &ei_quic_version_invalid);
     }
 
     ti_puflags = proto_tree_add_item(quic_tree, hf_quic_puflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     puflags_tree = proto_item_add_subtree(ti_puflags, ett_quic_puflags);
     proto_tree_add_item(puflags_tree, hf_quic_puflags_vrsn, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(puflags_tree, hf_quic_puflags_rst, tvb, offset, 1, ENC_NA);
-    if(quic_info->version < 33){
-        proto_tree_add_item(puflags_tree, hf_quic_puflags_cid_old, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    } else {
-        proto_tree_add_item(puflags_tree, hf_quic_puflags_dnonce, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(puflags_tree, hf_quic_puflags_cid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    if (quic_info->version_valid) {
+        if(quic_info->version < 33){
+            proto_tree_add_item(puflags_tree, hf_quic_puflags_cid_old, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        } else {
+            proto_tree_add_item(puflags_tree, hf_quic_puflags_dnonce, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(puflags_tree, hf_quic_puflags_cid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        }
     }
     proto_tree_add_item(puflags_tree, hf_quic_puflags_pkn, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(puflags_tree, hf_quic_puflags_mpth, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2107,7 +2115,7 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     /* Diversification Nonce */
-    if(puflags & PUFLAGS_DNONCE && quic_info->version >= 33){
+    if(quic_info->version_valid && (puflags & PUFLAGS_DNONCE) && (quic_info->version >= 33)){
         if(pinfo->srcport == quic_info->server_port){ /* Diversification nonce is only present from server to client */
             proto_tree_add_item(quic_tree, hf_quic_diversification_nonce, tvb, offset, 32, ENC_NA);
             offset += 32;
@@ -2833,8 +2841,8 @@ proto_register_quic(void)
     static ei_register_info ei[] = {
         { &ei_quic_tag_undecoded, { "quic.tag.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for QUIC Tag code not implemented, Contact Wireshark developers if you want this supported", EXPFILL }},
         { &ei_quic_tag_length, { "quic.tag.length.truncated", PI_MALFORMED, PI_NOTE, "Truncated Tag Length...", EXPFILL }},
-        { &ei_quic_tag_unknown, { "quic.tag.unknown.data", PI_UNDECODED, PI_NOTE, "Unknown Data", EXPFILL }}
-
+        { &ei_quic_tag_unknown, { "quic.tag.unknown.data", PI_UNDECODED, PI_NOTE, "Unknown Data", EXPFILL }},
+        { &ei_quic_version_invalid, { "quic.version.invalid", PI_MALFORMED, PI_ERROR, "Invalid Version", EXPFILL }}
     };
 
     expert_module_t *expert_quic;
