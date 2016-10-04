@@ -32,7 +32,8 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
-
+#include <epan/expert.h>
+#include <wsutil/strtoi.h>
 #include <wsutil/str_util.h>
 
 #include "packet-msrp.h"
@@ -69,6 +70,8 @@ static int hf_msrp_end_line         = -1;
 static int hf_msrp_cnt_flg          = -1;
 
 static int hf_msrp_data             = -1;
+
+static expert_field ei_msrp_status_code_invalid = EI_INIT;
 
 /* MSRP setup fields */
 static int hf_msrp_setup        = -1;
@@ -559,12 +562,18 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         msrp_tree = proto_item_add_subtree(ti, ett_msrp);
 
         if (is_msrp_response){
+            guint32 msrp_status_code = -1;
+            gboolean msrp_status_code_valid;
+            proto_item* pi;
             th = proto_tree_add_item(msrp_tree,hf_msrp_response_line,tvb,0,linelen,ENC_UTF_8|ENC_NA);
             reqresp_tree = proto_item_add_subtree(th, ett_msrp_reqresp);
             proto_tree_add_item(reqresp_tree,hf_msrp_transactionID,tvb,token_2_start,token_2_len,ENC_UTF_8|ENC_NA);
-            proto_tree_add_uint(reqresp_tree,hf_msrp_status_code,tvb,token_3_start,token_3_len,
-                                atoi(tvb_get_string_enc(wmem_packet_scope(), tvb, token_3_start, token_3_len, ENC_UTF_8|ENC_NA)));
-
+            msrp_status_code_valid = ws_strtou32(
+                tvb_get_string_enc(wmem_packet_scope(), tvb, token_3_start, token_3_len, ENC_UTF_8|ENC_NA),
+                NULL, & msrp_status_code);
+            pi = proto_tree_add_uint(reqresp_tree,hf_msrp_status_code,tvb,token_3_start,token_3_len,msrp_status_code);
+            if (!msrp_status_code_valid)
+                expert_add_info(pinfo, pi, &ei_msrp_status_code_invalid);
         }else{
             th = proto_tree_add_item(msrp_tree,hf_msrp_request_line,tvb,0,linelen,ENC_UTF_8|ENC_NA);
             reqresp_tree = proto_item_add_subtree(th, ett_msrp_reqresp);
@@ -732,7 +741,9 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 void
 proto_register_msrp(void)
 {
-/* Setup protocol subtree array */
+    expert_module_t* expert_msrp;
+
+    /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_msrp,
         &ett_raw_text,
@@ -743,7 +754,7 @@ proto_register_msrp(void)
         &ett_msrp_setup
     };
 
-        /* Setup list of header fields */
+    /* Setup list of header fields */
     static hf_register_info hf[] = {
         { &hf_msrp_request_line,
             { "Request Line",       "msrp.request.line",
@@ -887,6 +898,11 @@ proto_register_msrp(void)
         },
     };
 
+    static ei_register_info ei[] = {
+        { &ei_msrp_status_code_invalid, { "msrp.status.code.invalid", PI_MALFORMED, PI_ERROR,
+            "Invalid status code", EXPFILL }}
+    };
+
     module_t *msrp_module;
     /* Register the protocol name and description */
     proto_msrp = proto_register_protocol("Message Session Relay Protocol","MSRP", "msrp");
@@ -916,6 +932,9 @@ proto_register_msrp(void)
      * grab it by name rather than just referring to it directly.
      */
     register_dissector("msrp", dissect_msrp, proto_msrp);
+
+    expert_msrp = expert_register_protocol(proto_msrp);
+    expert_register_field_array(expert_msrp, ei, array_length(ei));
 }
 
 
