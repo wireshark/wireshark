@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V13.2.0 (2016-06)
+-- 3GPP TS 36.331 V13.3.0 (2016-09)
 --
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -46,7 +46,7 @@ IMPORTS
 	ShortMAC-I,
 	S-TMSI,
 	SystemInformationBlockType16-r11,
-    SystemInfoValueTagSI-r13,
+	SystemInfoValueTagSI-r13,
 	TimeAlignmentTimer,
 	TrackingAreaCode
 FROM EUTRA-RRC-Definitions;
@@ -406,8 +406,8 @@ RRCConnectionResumeComplete-NB ::= SEQUENCE {
 }
 
 RRCConnectionResumeComplete-NB-r13-IEs ::= SEQUENCE {
-	selectedPLMN-Identity-r13					INTEGER (1..maxPLMN-r11) OPTIONAL,
-	dedicatedInfoNAS-r13						DedicatedInfoNAS   OPTIONAL,
+	selectedPLMN-Identity-r13					INTEGER (1..maxPLMN-r11)	OPTIONAL,
+	dedicatedInfoNAS-r13						DedicatedInfoNAS	OPTIONAL,
 	lateNonCriticalExtension					OCTET STRING					OPTIONAL,
 	nonCriticalExtension						SEQUENCE {}						OPTIONAL
 }
@@ -730,7 +730,11 @@ DL-CarrierConfigDedicated-NB-r13 ::=	SEQUENCE {
 		} 							OPTIONAL,		-- Cond anchor-guardband
 		eutraControlRegionSize-r13			ENUMERATED {n1, n2, n3}
 	}								OPTIONAL,		-- Cond non-anchor-inband
-	...
+	...,
+	[[	nrs-PowerOffsetNonAnchor-v1330		ENUMERATED {dB-12, dB-10, dB-8, dB-6,
+														dB-4, dB-2, dB0, dB3}
+									OPTIONAL 	-- Need ON
+	]]
 }
 
 UL-CarrierConfigDedicated-NB-r13 ::=	SEQUENCE {
@@ -742,15 +746,15 @@ UL-CarrierConfigDedicated-NB-r13 ::=	SEQUENCE {
 CarrierFreq-NB-r13 ::=		SEQUENCE {
 	carrierFreq-r13				ARFCN-ValueEUTRA-r9,
 	carrierFreqOffset-r13		ENUMERATED {
-									v-10, v-9, v-8, v-7, v-6, v-5, v-4, v-3, v-2, v-1, v-0dot5,
-									v0, v1, v2, v3, v4, v5, v6, v7, v8, v9
+									v-10, v-9, v-8,	v-7, v-6, v-5, v-4, v-3, v-2, v-1, v-0dot5,
+									v0,  v1,	v2,	 v3,  v4,  v5, 	v6,  v7,  v8,  v9
 									}	OPTIONAL	-- Need ON
 }
 
 
 DL-Bitmap-NB-r13 ::= 			CHOICE {
 	subframePattern10-r13			BIT STRING (SIZE (10)),
-	subframePattern40-r13  			BIT STRING (SIZE (40))
+	subframePattern40-r13			BIT STRING (SIZE (40))
 }
 
 
@@ -836,12 +840,18 @@ NPDSCH-ConfigCommon-NB-r13 ::=	SEQUENCE {
 NPRACH-ConfigSIB-NB-r13 ::=			SEQUENCE {
 	nprach-CP-Length-r13				ENUMERATED {us66dot7, us266dot7},
 	rsrp-ThresholdsPrachInfoList-r13	RSRP-ThresholdsNPRACH-InfoList-NB-r13 	OPTIONAL,	-- need OR
-	nprach-ParametersList-r13   		NPRACH-ParametersList-NB-r13
+	nprach-ParametersList-r13		NPRACH-ParametersList-NB-r13
+}
+
+NPRACH-ConfigSIB-NB-v1330 ::=		SEQUENCE {
+	nprach-ParametersList-v1330			NPRACH-ParametersList-NB-v1330
 }
 
 NPRACH-ParametersList-NB-r13 ::=	SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)) OF NPRACH-Parameters-NB-r13
 
-NPRACH-Parameters-NB-r13::=  		SEQUENCE {
+NPRACH-ParametersList-NB-v1330 ::=	SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)) OF NPRACH-Parameters-NB-v1330
+
+NPRACH-Parameters-NB-r13::=		SEQUENCE {
 	nprach-Periodicity-r13 					ENUMERATED {ms40, ms80, ms160, ms240,
 														ms320, ms640, ms1280, ms2560},
 	nprach-StartTime-r13					ENUMERATED {ms8, ms16, ms32, ms64,
@@ -856,6 +866,11 @@ NPRACH-Parameters-NB-r13::=  		SEQUENCE {
 														spare4, spare3, spare2, spare1},
 	npdcch-StartSF-CSS-RA-r13				ENUMERATED {v1dot5, v2, v4, v8, v16, v32, v48, v64},
 	npdcch-Offset-RA-r13					ENUMERATED {zero, oneEighth, oneFourth, threeEighth}
+}
+
+NPRACH-Parameters-NB-v1330 ::=		SEQUENCE {
+	nprach-NumCBRA-StartSubcarriers-r13		ENUMERATED {n8, n10, n11, n12, n20, n22, n23, n24,
+														n32, n34, n35, n36, n40, n44, n46, n48}
 }
 
 RSRP-ThresholdsNPRACH-InfoList-NB-r13 ::= SEQUENCE (SIZE(1..2)) OF RSRP-Range
@@ -886,7 +901,7 @@ UL-ReferenceSignalsNPUSCH-NB-r13 ::=	 SEQUENCE {
 NPUSCH-ConfigDedicated-NB-r13 ::=	SEQUENCE {
 	ack-NACK-NumRepetitions-r13			ACK-NACK-NumRepetitions-NB-r13	OPTIONAL,	-- Need ON
 	npusch-AllSymbols-r13				BOOLEAN							OPTIONAL,	-- Cond SRS
-	groupHoppingDisabled-r13			ENUMERATED {true}				OPTIONAL    -- Need OR
+	groupHoppingDisabled-r13			ENUMERATED {true}				OPTIONAL	-- Need OR
 }
 
 ACK-NACK-NumRepetitions-NB-r13	::=	ENUMERATED {r1, r2, r4, r8, r16, r32, r64, r128}
@@ -955,7 +970,9 @@ RadioResourceConfigCommonSIB-NB-r13 ::=	SEQUENCE {
 	npusch-ConfigCommon-r13					NPUSCH-ConfigCommon-NB-r13,
 	dl-Gap-r13								DL-GapConfig-NB-r13			OPTIONAL,		-- Need OP
 	uplinkPowerControlCommon-r13			UplinkPowerControlCommon-NB-r13,
-	...
+	...,
+	[[	nprach-Config-v1330					NPRACH-ConfigSIB-NB-v1330	OPTIONAL		-- Need OR
+	]]
 }
 
 BCCH-Config-NB-r13 ::=					SEQUENCE {
@@ -1101,7 +1118,7 @@ T-Reselection-NB-r13 ::=		ENUMERATED {s0, s3, s6, s9, s12, s15, s18, s21}
 
 EstablishmentCause-NB-r13 ::=			ENUMERATED {
 											mt-Access, mo-Signalling, mo-Data, mo-ExceptionData,
-											spare4, spare3, spare2, spare1}
+											delayTolerantAccess-v1330, spare3, spare2, spare1}
 
 
 UE-Capability-NB-r13 ::=		SEQUENCE {

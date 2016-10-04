@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V13.2.0 (2016-06)
+-- 3GPP TS 36.331 V13.3.0 (2016-09)
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -28,6 +28,7 @@ IMPORTS
 	MBMSInterestIndication-r11,
 	MeasConfig,
 	MeasGapConfig,
+	MeasResultForRSSI-r13,
 	OtherConfig-r9,
 	PhysCellId,
 	P-Max,
@@ -206,6 +207,11 @@ SCG-ConfigInfo-v1310-IEs ::=		SEQUENCE {
 	measResultServCellListSCG-Ext-r13	MeasResultServCellListSCG-Ext-r13	OPTIONAL,
 	sCellToAddModListSCG-Ext-r13		SCellToAddModListSCG-Ext-r13			OPTIONAL,
 	sCellToReleaseListSCG-Ext-r13	SCellToReleaseListExt-r13			OPTIONAL,
+	nonCriticalExtension			SCG-ConfigInfo-v1330-IEs 			OPTIONAL
+}
+
+SCG-ConfigInfo-v1330-IEs ::=		SEQUENCE {
+	measResultListRSSI-SCG-r13		MeasResultListRSSI-SCG-r13			OPTIONAL,
 	nonCriticalExtension			SEQUENCE {}							OPTIONAL
 }
 
@@ -256,6 +262,13 @@ MeasResultServCellSCG-r12 ::=			SEQUENCE {
 			rs-sinr-ResultSCell-r13				RS-SINR-Range-r13
 		}															OPTIONAL
 	]]
+}
+
+MeasResultListRSSI-SCG-r13 ::=	SEQUENCE (SIZE (1..maxServCell-r13)) OF MeasResultRSSI-SCG-r13
+
+MeasResultRSSI-SCG-r13 ::=			SEQUENCE {
+	servCellId-r13						ServCellIndex-r13,
+	measResultForRSSI-r13				MeasResultForRSSI-r13
 }
 
 SCG-ConfigRestrictInfo-r12 ::=		SEQUENCE {
