@@ -625,7 +625,7 @@ read_filters_file(const gchar *path, FILE *f, gpointer user_data, color_filter_a
 
             color_t bg_color, fg_color;
             color_filter_t *colorf;
-            dfilter_t *temp_dfilter;
+            dfilter_t *temp_dfilter = NULL;
             gchar *local_err_msg = NULL;
 
             if (!disabled && !dfilter_compile(filter_exp, &temp_dfilter, &local_err_msg)) {
