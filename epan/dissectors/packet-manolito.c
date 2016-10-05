@@ -31,6 +31,8 @@
 void proto_register_manolito(void);
 void proto_reg_handoff_manolito(void);
 
+#define MANOLITO_PORT   41170 /* Not IANA registered */
+
 static int proto_manolito = -1;
 
 static int hf_manolito_checksum = -1;
@@ -294,9 +296,8 @@ proto_reg_handoff_manolito(void)
 {
 	dissector_handle_t manolito_handle;
 
-	manolito_handle = create_dissector_handle(dissect_manolito,
-	    proto_manolito);
-	dissector_add_uint("udp.port", 41170, manolito_handle);
+	manolito_handle = create_dissector_handle(dissect_manolito, proto_manolito);
+	dissector_add_uint_with_preference("udp.port", MANOLITO_PORT, manolito_handle);
 }
 
 /*

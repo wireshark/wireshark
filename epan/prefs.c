@@ -4081,9 +4081,10 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         const char* pref_name;
     };
 
-    /* For now this is only supporting TCP port dissector preferences
+    /* For now this is only supporting TCP/UDP port dissector preferences
        which are assumed to be decimal */
     struct port_pref_name port_prefs[] = {
+        /* TCP */
         {"cmp.tcp_alternate_port", "CMP", "tcp.port", 10},
         {"h248.tcp_port", "H248", "tcp.port", 10},
         {"cops.tcp.cops_port", "COPS", "tcp.port", 10},
@@ -4102,9 +4103,45 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"synphasor.tcp_port", "SYNCHROPHASOR", "tcp.port", 10},
         {"tipc.alternate_port", "TIPC", "tcp.port", 10},
         {"vnc.alternate_port", "VNC", "tcp.port", 10},
+        {"scop.port", "SCoP", "tcp.port", 10},
+        {"scop.port_secure", "SCoP", "tcp.port", 10},
+        /* UDP */
+        {"h248.udp_port", "H248", "udp.port", 10},
+        {"actrace.udp_port", "ACtrace", "udp.port", 10},
+        {"brp.port", "BRP", "udp.port", 10},
+        {"bvlc.additional_udp_port", "BVLC", "udp.port", 10},
+        {"capwap.udp.port.control", "CAPWAP-CONTROL", "udp.port", 10},
+        {"capwap.udp.port.data", "CAPWAP-CONTROL", "udp.port", 10},
+        {"coap.udp_port", "CoAP", "udp.port", 10},
+        {"enttec.udp_port", "ENTTEC", "udp.port", 10},
+        {"forces.udp_alternate_port", "ForCES", "udp.port", 10},
+        {"ldss.udp_port", "LDSS", "udp.port", 10},
+        {"lmp.udp_port", "LMP", "udp.port", 10},
+        {"ltp.port", "LTP", "udp.port", 10},
+        {"lwres.udp.lwres_port", "LWRES", "udp.port", 10},
+        {"megaco.udp.txt_port", "MEGACO", "udp.port", 10},
+        {"pgm.udp.encap_ucast_port", "PGM", "udp.port", 10},
+        {"pgm.udp.encap_mcast_port", "PGM", "udp.port", 10},
+        {"quic.udp.quic.port", "QUIC", "udp.port", 10},
+        {"quic.udp.quics.port", "QUIC", "udp.port", 10},
+        {"radius.alternate_port", "RADIUS", "udp.port", 10},
+        {"rdt.default_udp_port", "RDT", "udp.port", 10},
+        {"alc.default.udp_port", "ALC", "udp.port", 10},
+        {"sigcomp.udp.port2", "SIGCOMP", "udp.port", 10},
+        {"synphasor.udp_port", "SYNCHROPHASOR", "udp.port", 10},
+        {"tdmop.udpport", "TDMoP", "udp.port", 10},
+        {"uaudp.port1", "UAUDP", "udp.port", 10},
+        {"uaudp.port2", "UAUDP", "udp.port", 10},
+        {"uaudp.port3", "UAUDP", "udp.port", 10},
+        {"uaudp.port4", "UAUDP", "udp.port", 10},
+        {"uhd.dissector_port", "UHD", "udp.port", 10},
+        {"vrt.dissector_port", "VITA 49", "udp.port", 10},
+        {"vuze-dht.udp_port", "Vuze-DHT", "udp.port", 10},
+        {"wimaxasncp.udp.wimax_port", "WiMAX ASN CP", "udp.port", 10},
     };
 
     struct port_pref_name port_range_prefs[] = {
+        /* TCP */
         {"couchbase.tcp.ports", "Couchbase", "tcp.port", 10},
         {"gsm_ipa.tcp_ports", "GSM over IP", "tcp.port", 10},
         {"kafka.tcp.ports", "Kafka", "tcp.port", 10},
@@ -4115,6 +4152,22 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"sip.tcp.ports", "SIP", "tcp.port", 10},
         {"tds.tcp_ports", "TDS", "tcp.port", 10},
         {"uma.tcp.ports", "UMA", "tcp.port", 10},
+        /* UDP */
+        {"aruba_erm.udp.ports", "ARUBA_ERM", "udp.port", 10},
+        {"diameter.udp.ports", "DIAMETER", "udp.port", 10},
+        {"dmp.udp.ports", "DMP", "udp.port", 10},
+        {"dns.udp.ports", "DNS", "udp.port", 10},
+        {"gsm_ipa.udp_ports", "GSM over IP", "udp.port", 10},
+        {"hcrt.dissector_udp_port", "HCrt", "udp.port", 10},
+        {"memcache.udp.ports", "MEMCACHE", "udp.port", 10},
+        {"nb_rtpmux.udp_ports", "NB_RTPMUX", "udp.port", 10},
+        {"gprs-ns.udp.ports", "GPRS-NS", "udp.port", 10},
+        {"p_mul.udp_ports", "P_MUL", "udp.port", 10},
+        {"radius.ports", "RADIUS", "udp.port", 10},
+        {"sflow.ports", "sFlow", "udp.port", 10},
+        {"sscop.udp.ports", "SSCOP", "udp.port", 10},
+        {"tftp.udp_ports", "TFTP", "udp.port", 10},
+        {"tipc.udp.ports", "TIPC", "udp.port", 10},
     };
 
     /* These are subdissectors of TPKT/OSITP that used to have a

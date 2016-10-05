@@ -414,7 +414,7 @@ proto_reg_handoff_userlog(void)
 	dissector_handle_t userlog_handle;
 
 	userlog_handle = create_dissector_handle(dissect_userlog, proto_userlog);
-	dissector_add_for_decode_as("udp.port", userlog_handle);
+	dissector_add_for_decode_as_with_preference("udp.port", userlog_handle);
 
 }
 

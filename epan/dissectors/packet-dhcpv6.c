@@ -228,8 +228,8 @@ static expert_field ei_dhcpv6_bulk_leasequery_bad_msg_type = EI_INIT;
 
 static dissector_handle_t dhcpv6_handle;
 
-#define UDP_PORT_DHCPV6_DOWNSTREAM      546
-#define UDP_PORT_DHCPV6_UPSTREAM        547
+#define TCP_PORT_DHCPV6_UPSTREAM        547
+#define UDP_PORT_DHCPV6_RANGE      "546-547" /* Downstream + Upstream */
 
 #define DHCPV6_LEASEDURATION_INFINITY   0xffffffff
 #define HOP_COUNT_LIMIT                 32
@@ -2459,12 +2459,11 @@ proto_reg_handoff_dhcpv6(void)
 {
     dissector_handle_t dhcpv6_bulkquery_handle;
 
-    dissector_add_uint("udp.port", UDP_PORT_DHCPV6_DOWNSTREAM, dhcpv6_handle);
-    dissector_add_uint("udp.port", UDP_PORT_DHCPV6_UPSTREAM, dhcpv6_handle);
+    dissector_add_uint_range_with_preference("udp.port", UDP_PORT_DHCPV6_RANGE, dhcpv6_handle);
 
     dhcpv6_bulkquery_handle = create_dissector_handle(dissect_dhcpv6_bulk_leasequery,
                                             proto_dhcpv6_bulk_leasequery);
-    dissector_add_uint_with_preference("tcp.port", UDP_PORT_DHCPV6_UPSTREAM, dhcpv6_bulkquery_handle);
+    dissector_add_uint_with_preference("tcp.port", TCP_PORT_DHCPV6_UPSTREAM, dhcpv6_bulkquery_handle);
 }
 
 /*

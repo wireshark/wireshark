@@ -119,7 +119,6 @@ static dissector_handle_t knet_handle_udp;
 
 /* Ports used by the dissectors */
 static guint32 knet_sctp_port =   PORT; /*!< Port used by kNet SCTP */
-static guint32 knet_udp_port =    PORT; /*!< Port used by kNet UDP */
 
 static const value_string packettypenames[] = { /*!< Messageid List */
     { PINGREQUEST,          "Ping Request"        },
@@ -756,10 +755,6 @@ proto_register_knet(void)
     prefs_register_uint_preference(knet_module, "sctp.port", "kNet SCTP Port",
                                    "Set the SCTP port for kNet messages",
                                    10, &knet_sctp_port);
-
-    prefs_register_uint_preference(knet_module, "udp.port", "kNet UDP Port",
-                                   "Set the UDP port for kNet messages",
-                                   10, &knet_udp_port);
 }
 
 /**
@@ -772,24 +767,20 @@ proto_reg_handoff_knet(void)
     static gboolean initialized = FALSE;
 
     static guint current_sctp_port;
-    static guint current_udp_port;
 
     if(!initialized)
     {
         dissector_add_uint_with_preference("tcp.port", PORT, knet_handle_tcp);
+        dissector_add_uint_with_preference("udp.port", PORT, knet_handle_udp);
         initialized = TRUE;
     }
     else
     {
         dissector_delete_uint("sctp.port", current_sctp_port, knet_handle_sctp);
-        dissector_delete_uint("udp.port",  current_udp_port,  knet_handle_udp);
     }
 
     current_sctp_port = knet_sctp_port;
     dissector_add_uint("sctp.port", current_sctp_port, knet_handle_sctp);
-
-    current_udp_port = knet_udp_port;
-    dissector_add_uint("udp.port", current_udp_port, knet_handle_udp);
 }
 /*
 * Editor modelines - http://www.wireshark.org/tools/modelines.html

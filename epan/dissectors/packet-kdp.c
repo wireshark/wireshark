@@ -29,7 +29,7 @@
 void proto_register_kdp(void);
 void proto_reg_handoff_kdp(void);
 
-#define KDP_PORT 19948
+#define KDP_PORT 19948 /* Not IANA registered */
 #define BUFFER_SIZE 80
 static int proto_kdp = -1;
 static gint ett_kdp = -1;
@@ -406,7 +406,7 @@ void
 proto_reg_handoff_kdp(void) {
   dissector_handle_t kdp_handle;
   kdp_handle = create_dissector_handle(dissect_kdp, proto_kdp);
-  dissector_add_uint("udp.port", KDP_PORT, kdp_handle);
+  dissector_add_uint_with_preference("udp.port", KDP_PORT, kdp_handle);
 }
 
 /*

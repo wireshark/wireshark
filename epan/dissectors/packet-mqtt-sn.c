@@ -697,7 +697,7 @@ void proto_register_mqttsn(void)
 /* Dissector Handoff */
 void proto_reg_handoff_mqttsn(void)
 {
-    dissector_add_for_decode_as("udp.port", mqttsn_handle);
+    dissector_add_for_decode_as_with_preference("udp.port", mqttsn_handle);
 }
 
 /*

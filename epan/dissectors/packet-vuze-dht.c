@@ -24,10 +24,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/to_str.h>
 
-#define DEFAULT_UDP_PORT 11273
+#define DEFAULT_UDP_PORT 11273 /* Not IANA registered */
 
 void proto_register_vuze_dht(void);
 
@@ -306,9 +305,6 @@ static gint ett_vuze_dht_network_coordinates = -1;
 static gint ett_vuze_dht_network_coordinate = -1;
 
 static dissector_handle_t vuze_dht_handle;
-
-/* port use */
-static guint global_vuze_dht_udp_port = DEFAULT_UDP_PORT;
 
 void proto_reg_handoff_vuze_dht(void);
 
@@ -1532,47 +1528,19 @@ proto_register_vuze_dht(void)
       &ett_vuze_dht_network_coordinate
   };
 
-  module_t *vuze_dht_module;
-
   /* Register protocol */
-  proto_vuze_dht = proto_register_protocol (
-                        "Vuze DHT Protocol",  /* name */
-                        "Vuze-DHT",               /* short name */
-                        "vuze-dht"                /* abbrev */
-                        );
+  proto_vuze_dht = proto_register_protocol ( "Vuze DHT Protocol", "Vuze-DHT", "vuze-dht" );
 
   proto_register_field_array(proto_vuze_dht, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
   vuze_dht_handle = register_dissector("vuze-dht", dissect_vuze_dht, proto_vuze_dht);
-
-  /* Register our configuration options */
-  vuze_dht_module = prefs_register_protocol(proto_vuze_dht, proto_reg_handoff_vuze_dht);
-
-  prefs_register_uint_preference(vuze_dht_module, "udp_port",
-                                           "Vuze DHT Protocol UDP port",
-                                           "Set the UDP port for Vuze DHT Protocol.",
-                                           10, &global_vuze_dht_udp_port);
 }
 
 void
 proto_reg_handoff_vuze_dht(void)
 {
-  static gboolean vuze_dht_prefs_initialized = FALSE;
-  static guint vuze_dht_udp_port;
-
-  if (!vuze_dht_prefs_initialized)
-  {
-    vuze_dht_prefs_initialized = TRUE;
-  }
-  else
-  {
-    dissector_delete_uint("udp.port", vuze_dht_udp_port, vuze_dht_handle);
-  }
-
-  /* Set our port number for future use */
-  vuze_dht_udp_port = global_vuze_dht_udp_port;
-  dissector_add_uint("udp.port", global_vuze_dht_udp_port, vuze_dht_handle);
+  dissector_add_uint("udp.port", DEFAULT_UDP_PORT, vuze_dht_handle);
 }
 /*
  * Editor modelines

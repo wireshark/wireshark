@@ -75,7 +75,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
 
@@ -110,8 +109,6 @@ static int hf_riemann_state_ttl = -1;
 static int hf_riemann_state_time = -1;
 static int hf_riemann_state_state = -1;
 static int hf_riemann_state_once = -1;
-
-static guint udp_port_pref = 0;
 
 static gint ett_riemann = -1;
 static gint ett_query = -1;
@@ -672,7 +669,6 @@ dissect_riemann_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 void
 proto_register_riemann(void)
 {
-    module_t *riemann_module;
     expert_module_t *riemann_expert_module;
 
     static hf_register_info hf[] = {
@@ -812,31 +808,17 @@ proto_register_riemann(void)
 
     proto_register_field_array(proto_riemann, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    riemann_module = prefs_register_protocol(proto_riemann, proto_reg_handoff_riemann);
-
-    prefs_register_uint_preference(riemann_module, "udp.port", "Riemann UDP Port",
-            " riemann UDP port if other than the default",
-            10, &udp_port_pref);
 }
 
 void
 proto_reg_handoff_riemann(void)
 {
-    static gboolean initialized = FALSE;
-    static dissector_handle_t riemann_udp_handle, riemann_tcp_handle;
-    static int current_udp_port;
+    dissector_handle_t riemann_udp_handle, riemann_tcp_handle;
 
-    if (!initialized) {
-        riemann_udp_handle = create_dissector_handle(dissect_riemann_udp, proto_riemann);
-        riemann_tcp_handle = create_dissector_handle(dissect_riemann_tcp, proto_riemann);
-        dissector_add_for_decode_as_with_preference("tcp.port", riemann_tcp_handle);
-        initialized = TRUE;
-    } else {
-        dissector_delete_uint("udp.port", current_udp_port, riemann_udp_handle);
-    }
-    current_udp_port = udp_port_pref;
-    dissector_add_uint("udp.port", current_udp_port, riemann_udp_handle);
+    riemann_udp_handle = create_dissector_handle(dissect_riemann_udp, proto_riemann);
+    riemann_tcp_handle = create_dissector_handle(dissect_riemann_tcp, proto_riemann);
+    dissector_add_for_decode_as_with_preference("tcp.port", riemann_tcp_handle);
+    dissector_add_for_decode_as_with_preference("udp.port", riemann_udp_handle);
 }
 
 /*

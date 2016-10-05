@@ -33,6 +33,8 @@
 void proto_register_esio(void);
 void proto_reg_handoff_esio(void);
 
+#define ESIO_UDP_PORT       6060 /* Not IANA registered */
+
 /* Initialize the protocol and registered fields */
 static int proto_esio = -1;
 static int hf_esio_type = -1;
@@ -419,7 +421,7 @@ proto_reg_handoff_esio(void)
        dissector_handle_t esio_handle;
 
        esio_handle = create_dissector_handle(dissect_esio, proto_esio);
-       dissector_add_uint("udp.port", 6060, esio_handle);
+       dissector_add_uint_with_preference("udp.port", ESIO_UDP_PORT, esio_handle);
 }
 
 /*

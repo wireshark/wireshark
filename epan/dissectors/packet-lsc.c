@@ -24,7 +24,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 #include "packet-tcp.h"
 
@@ -122,9 +121,6 @@ static int hf_lsc_current_npt = -1;
 static int hf_lsc_scale_num = -1;
 static int hf_lsc_scale_denom = -1;
 static int hf_lsc_mode = -1;
-
-/* Preferences */
-static guint global_lsc_port = 0;
 
 /* Initialize the subtree pointers */
 static gint ett_lsc = -1;
@@ -340,8 +336,6 @@ dissect_lsc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 void
 proto_register_lsc(void)
 {
-  module_t *lsc_module;
-
   /* Setup list of header fields */
   static hf_register_info hf[] = {
     { &hf_lsc_version,
@@ -412,42 +406,18 @@ proto_register_lsc(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_lsc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-
-  /* Register preferences module */
-  lsc_module = prefs_register_protocol(proto_lsc, proto_reg_handoff_lsc);
-
-  /* Register preferences */
-  prefs_register_uint_preference(lsc_module, "port",
-                                 "LSC Port",
-                                 "Set the TCP or UDP port for Pegasus LSC messages",
-                                 10, &global_lsc_port);
 }
 
 void
 proto_reg_handoff_lsc(void)
 {
-  static gboolean initialized = FALSE;
-  static dissector_handle_t lsc_udp_handle;
-  static dissector_handle_t lsc_tcp_handle;
-  static guint saved_lsc_port;
+  dissector_handle_t lsc_udp_handle;
+  dissector_handle_t lsc_tcp_handle;
 
-  if (!initialized) {
-    lsc_udp_handle = create_dissector_handle(dissect_lsc_udp, proto_lsc);
-    lsc_tcp_handle = create_dissector_handle(dissect_lsc_tcp, proto_lsc);
-    dissector_add_for_decode_as("udp.port", lsc_udp_handle);
-    dissector_add_for_decode_as_with_preference("tcp.port", lsc_tcp_handle);
-    initialized = TRUE;
-  } else {
-    if (saved_lsc_port != 0) {
-      dissector_delete_uint("udp.port", saved_lsc_port, lsc_udp_handle);
-    }
-  }
-
-  /* Set the port number */
-  if (global_lsc_port != 0) {
-    dissector_add_uint("udp.port", global_lsc_port, lsc_udp_handle);
-  }
-  saved_lsc_port = global_lsc_port;
+  lsc_udp_handle = create_dissector_handle(dissect_lsc_udp, proto_lsc);
+  lsc_tcp_handle = create_dissector_handle(dissect_lsc_tcp, proto_lsc);
+  dissector_add_for_decode_as_with_preference("udp.port", lsc_udp_handle);
+  dissector_add_for_decode_as_with_preference("tcp.port", lsc_tcp_handle);
 }
 
 /*

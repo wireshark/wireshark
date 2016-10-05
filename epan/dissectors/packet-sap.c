@@ -383,7 +383,7 @@ proto_reg_handoff_sap(void)
     dissector_handle_t sap_handle;
 
     sap_handle = create_dissector_handle(dissect_sap, proto_sap);
-    dissector_add_uint("udp.port", UDP_PORT_SAP, sap_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_SAP, sap_handle);
 
     /*
      * Get a handle for the SDP dissector.

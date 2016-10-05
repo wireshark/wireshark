@@ -221,8 +221,6 @@ static dissector_handle_t eap_handle;
 static const gchar *shared_secret = "";
 static gboolean validate_authenticator = FALSE;
 static gboolean show_length = FALSE;
-static guint alt_port_pref = 0;
-static range_t *global_ports_range;
 
 static guint8 authenticator[AUTHENTICATOR_LENGTH];
 
@@ -2635,7 +2633,7 @@ proto_register_radius(void)
 	proto_radius = proto_register_protocol("RADIUS Protocol", "RADIUS", "radius");
 	register_dissector("radius", dissect_radius, proto_radius);
 	register_init_routine(&radius_init_protocol);
-	radius_module = prefs_register_protocol(proto_radius, proto_reg_handoff_radius);
+	radius_module = prefs_register_protocol(proto_radius, NULL);
 	prefs_register_string_preference(radius_module, "shared_secret", "Shared Secret",
 					 "Shared secret used to decode User Passwords and validate Response Authenticators",
 					 &shared_secret);
@@ -2645,12 +2643,6 @@ proto_register_radius(void)
 	prefs_register_bool_preference(radius_module, "show_length", "Show AVP Lengths",
 				       "Whether to add or not to the tree the AVP's payload length",
 				       &show_length);
-	prefs_register_uint_preference(radius_module, "alternate_port", "Alternate Port",
-				       "An alternate UDP port to decode as RADIUS", 10, &alt_port_pref);
-
-	range_convert_str(&global_ports_range, DEFAULT_RADIUS_PORT_RANGE, MAX_UDP_PORT);
-	prefs_register_range_preference(radius_module, "ports", "RADIUS ports",
-				       "A list of UDP ports to decode as RADIUS", &global_ports_range, MAX_UDP_PORT);
 	prefs_register_obsolete_preference(radius_module, "request_ttl");
 
 	radius_tap = register_tap("radius");
@@ -2669,34 +2661,11 @@ proto_register_radius(void)
 void
 proto_reg_handoff_radius(void)
 {
-	static gboolean initialized = FALSE;
-	static dissector_handle_t radius_handle;
-	static range_t *ports_range;
+	dissector_handle_t radius_handle;
 
-	if (!initialized) {
-		radius_handle = find_dissector("radius");
-		eap_handle = find_dissector_add_dependency("eap", proto_radius);
-
-		initialized = TRUE;
-	} else {
-		dissector_delete_uint_range("udp.port", ports_range, radius_handle);
-		g_free(ports_range);
-	}
-
-	if (alt_port_pref != 0) {
-		/* Append it to the range of ports but only if necessary */
-		if (!value_is_in_range(global_ports_range, alt_port_pref)) {
-			global_ports_range = (range_t *)g_realloc(global_ports_range,
-					/* see epan/range.c:range_copy function */
-					sizeof (range_t) - sizeof (range_admin_t) + (global_ports_range->nranges + 1) * sizeof (range_admin_t));
-			global_ports_range->ranges[global_ports_range->nranges].low = alt_port_pref;
-			global_ports_range->ranges[global_ports_range->nranges].high = alt_port_pref;
-			global_ports_range->nranges++;
-		}
-	}
-
-	ports_range = range_copy(global_ports_range);
-	dissector_add_uint_range("udp.port", ports_range, radius_handle);
+	radius_handle = find_dissector("radius");
+	eap_handle = find_dissector_add_dependency("eap", proto_radius);
+	dissector_add_uint_range_with_preference("udp.port", DEFAULT_RADIUS_PORT_RANGE, radius_handle);
 }
 
 /*

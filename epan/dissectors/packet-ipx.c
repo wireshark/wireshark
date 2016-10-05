@@ -1594,7 +1594,7 @@ proto_reg_handoff_ipx(void)
 	dissector_handle_t serialization_handle, ipxmsg_handle;
 
 	ipx_handle = find_dissector("ipx");
-	dissector_add_uint("udp.port", UDP_PORT_IPX, ipx_handle);
+	dissector_add_uint_with_preference("udp.port", UDP_PORT_IPX, ipx_handle);
 	dissector_add_uint("ethertype", ETHERTYPE_IPX, ipx_handle);
 	dissector_add_uint("chdlc.protocol", ETHERTYPE_IPX, ipx_handle);
 	dissector_add_uint("ppp.protocol", PPP_IPX, ipx_handle);

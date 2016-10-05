@@ -4562,7 +4562,7 @@ proto_reg_handoff_epl(void)
 	dissector_handle_t epl_udp_handle = create_dissector_handle( dissect_epludp, proto_epl );
 
 	dissector_add_uint("ethertype", ETHERTYPE_EPL_V2, epl_handle);
-	dissector_add_uint("udp.port", UDP_PORT_EPL, epl_udp_handle);
+	dissector_add_uint_with_preference("udp.port", UDP_PORT_EPL, epl_udp_handle);
 
 	/* register frame init routine */
 	register_init_routine( setup_dissector );

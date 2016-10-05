@@ -560,7 +560,7 @@ proto_register_cattp(void)
     expert_cattp = expert_register_protocol(proto_cattp);
     expert_register_field_array(expert_cattp, ei, array_length(ei));
 
-    cattp_module = prefs_register_protocol(proto_cattp, proto_reg_handoff_cattp);
+    cattp_module = prefs_register_protocol(proto_cattp, NULL);
     prefs_register_bool_preference(cattp_module, "checksum",
                                    "Validate checksum of all messages",
                                    "Whether the checksum of all messages should be validated or not",
@@ -573,18 +573,13 @@ proto_register_cattp(void)
 void
 proto_reg_handoff_cattp(void)
 {
-    static gboolean initialized = FALSE;
+    dissector_handle_t cattp_handle;
 
-    if (!initialized) {
-        dissector_handle_t cattp_handle;
+    /* Create dissector handle */
+    cattp_handle = create_dissector_handle(dissect_cattp, proto_cattp);
 
-        /* Create dissector handle */
-        cattp_handle = create_dissector_handle(dissect_cattp, proto_cattp);
-
-        heur_dissector_add("udp", dissect_cattp_heur, "CAT-TP over UDP", "cattp_udp", proto_cattp, HEURISTIC_ENABLE);
-        dissector_add_for_decode_as("udp.port", cattp_handle);
-        initialized = TRUE;
-    }
+    heur_dissector_add("udp", dissect_cattp_heur, "CAT-TP over UDP", "cattp_udp", proto_cattp, HEURISTIC_ENABLE);
+    dissector_add_for_decode_as_with_preference("udp.port", cattp_handle);
 }
 
 /*

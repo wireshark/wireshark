@@ -30,6 +30,8 @@
 void proto_register_sbus(void);
 void proto_reg_handoff_sbus(void);
 
+#define SBUS_UDP_PORT   5050 /* Not IANA registered */
+
 /* Attribute values*/
 #define SBUS_REQUEST                   0x00
 #define SBUS_RESPONSE                  0x01
@@ -2314,7 +2316,7 @@ proto_reg_handoff_sbus(void)
        dissector_handle_t sbus_handle;
 
        sbus_handle = create_dissector_handle(dissect_sbus, proto_sbus);
-       dissector_add_uint("udp.port", 5050, sbus_handle);
+       dissector_add_uint_with_preference("udp.port", SBUS_UDP_PORT, sbus_handle);
 }
 
 /*

@@ -5436,7 +5436,7 @@ proto_reg_handoff_mip6(void)
     dissector_add_uint("ip.proto", IP_PROTO_MIPV6, mip6_handle);
 
     /* Add support for PMIPv6 control messages over IPV4 */
-    dissector_add_uint("udp.port", UDP_PORT_PMIP6_CNTL, mip6_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_PMIP6_CNTL, mip6_handle);
     ip_dissector_table = find_dissector_table("ip.proto");
 
     dissector_add_uint("mip6.vsm", VENDOR_THE3GPP, create_dissector_handle(dissect_mip6_opt_vsm_3gpp, proto_mip6));

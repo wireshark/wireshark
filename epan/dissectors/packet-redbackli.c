@@ -276,8 +276,7 @@ void proto_register_redbackli(void) {
 		&ett_redbackli
 	};
 
-	proto_redbackli = proto_register_protocol("Redback Lawful Intercept",
-						  "RedbackLI", "redbackli");
+	proto_redbackli = proto_register_protocol("Redback Lawful Intercept", "RedbackLI", "redbackli");
 
 	proto_register_field_array(proto_redbackli, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -291,7 +290,7 @@ void proto_reg_handoff_redbackli(void) {
 	ip_handle = find_dissector_add_dependency("ip", proto_redbackli);
 
 	redbackli_handle = find_dissector("redbackli");
-	dissector_add_for_decode_as("udp.port", redbackli_handle);
+	dissector_add_for_decode_as_with_preference("udp.port", redbackli_handle);
 
 	heur_dissector_add("udp", redbackli_dissect_heur, "Redback Lawful Intercept over UDP", "redbackli_udp", proto_redbackli, HEURISTIC_ENABLE);
 }

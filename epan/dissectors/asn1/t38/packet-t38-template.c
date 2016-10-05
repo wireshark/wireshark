@@ -739,7 +739,6 @@ proto_register_t38(void)
 		"be dissected as RTP packet or T.38 packet. If enabled there is a risk that T.38 UDPTL "
 		"packets with sequence number higher than 32767 may be dissected as RTP.",
 	    &dissect_possible_rtpv2_packets_as_rtp);
-	prefs_register_obsolete_preference(t38_module, "udp.port");
 	prefs_register_bool_preference(t38_module, "reassembly",
 		"Reassemble T.38 PDUs over TPKT over TCP",
 		"Whether the dissector should reassemble T.38 PDUs spanning multiple TCP segments "

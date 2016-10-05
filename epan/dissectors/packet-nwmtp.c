@@ -163,7 +163,7 @@ void proto_register_mwmtp(void)
 
 void proto_reg_handoff_nwmtp(void)
 {
-	dissector_add_for_decode_as("udp.port", nwmtp_handle);
+	dissector_add_for_decode_as_with_preference("udp.port", nwmtp_handle);
 	mtp_handle = find_dissector_add_dependency("mtp3", proto_nwmtp);
 }
 

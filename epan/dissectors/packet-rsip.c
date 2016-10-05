@@ -1245,7 +1245,7 @@ proto_reg_handoff_rsip(void)
 	dissector_handle_t rsip_handle;
 
 	rsip_handle = create_dissector_handle(dissect_rsip, proto_rsip);
-	dissector_add_uint("udp.port", UDP_PORT_RSIP, rsip_handle);
+	dissector_add_uint_with_preference("udp.port", UDP_PORT_RSIP, rsip_handle);
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_RSIP, rsip_handle);
 }
 

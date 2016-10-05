@@ -211,7 +211,6 @@ static GHashTable *p_mul_id_hash_table = NULL;
 static GList *p_mul_package_data_list = NULL;
 
 /* User definable values to use for dissection */
-static range_t *global_p_mul_port_range;
 static gboolean p_mul_reassemble = TRUE;
 static gint decode_option = DECODE_NONE;
 static gboolean use_relative_msgid = TRUE;
@@ -1592,23 +1591,14 @@ void proto_register_p_mul (void)
   register_init_routine (&p_mul_init_routine);
   register_cleanup_routine (&p_mul_cleanup_routine);
 
-  /* Set default UDP ports */
-  range_convert_str (&global_p_mul_port_range, DEFAULT_P_MUL_PORT_RANGE,
-                     MAX_UDP_PORT);
-
   /* Register our configuration options */
-  p_mul_module = prefs_register_protocol (proto_p_mul,
-                                          proto_reg_handoff_p_mul);
+  p_mul_module = prefs_register_protocol (proto_p_mul, NULL);
 
   prefs_register_obsolete_preference (p_mul_module, "tport");
   prefs_register_obsolete_preference (p_mul_module, "rport");
   prefs_register_obsolete_preference (p_mul_module, "dport");
   prefs_register_obsolete_preference (p_mul_module, "aport");
 
-  prefs_register_range_preference (p_mul_module, "udp_ports",
-                                   "P_Mul port numbers",
-                                   "Port numbers used for P_Mul traffic",
-                                   &global_p_mul_port_range, MAX_UDP_PORT);
   prefs_register_bool_preference (p_mul_module, "reassemble",
                                   "Reassemble fragmented P_Mul packets",
                                   "Reassemble fragmented P_Mul packets",
@@ -1630,21 +1620,8 @@ void proto_register_p_mul (void)
 
 void proto_reg_handoff_p_mul (void)
 {
-  static gboolean  p_mul_prefs_initialized = FALSE;
-  static range_t  *p_mul_port_range;
-
-  if (!p_mul_prefs_initialized) {
-    p_mul_prefs_initialized = TRUE;
-    dissector_add_uint ("s5066sis.ctl.appid", S5066_CLIENT_S4406_ANNEX_E_TMI_1_P_MUL, p_mul_handle);
-  } else {
-    dissector_delete_uint_range ("udp.port", p_mul_port_range, p_mul_handle);
-    g_free (p_mul_port_range);
-  }
-
-  /* Save port number for later deletion */
-  p_mul_port_range = range_copy (global_p_mul_port_range);
-
-  dissector_add_uint_range ("udp.port", p_mul_port_range, p_mul_handle);
+  dissector_add_uint ("s5066sis.ctl.appid", S5066_CLIENT_S4406_ANNEX_E_TMI_1_P_MUL, p_mul_handle);
+  dissector_add_uint_range_with_preference("udp.port", DEFAULT_P_MUL_PORT_RANGE, p_mul_handle);
 }
 
 /*

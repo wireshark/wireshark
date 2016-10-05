@@ -60,7 +60,7 @@ static int ett_conn = -1;
 static int ett_flags = -1;
 
 #define IPVS_SYNCD_MC_GROUP "224.0.0.18"
-#define IPVS_SYNCD_PORT 8848
+#define IPVS_SYNCD_PORT 8848 /* Not IANA registered */
 
 static const value_string proto_strings[] = {
 	{0x06, "TCP"},
@@ -322,8 +322,7 @@ proto_register_ipvs_syncd(void)
 		&ett_flags,
 	};
 
-	proto_ipvs_syncd = proto_register_protocol("IP Virtual Services Sync Daemon",
-	    "IPVS", "ipvs");
+	proto_ipvs_syncd = proto_register_protocol("IP Virtual Services Sync Daemon", "IPVS", "ipvs");
 	proto_register_field_array(proto_ipvs_syncd, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -334,7 +333,7 @@ proto_reg_handoff_ipvs_syncd(void)
 	dissector_handle_t ipvs_syncd_handle;
 
 	ipvs_syncd_handle = create_dissector_handle(dissect_ipvs_syncd, proto_ipvs_syncd);
-	dissector_add_uint("udp.port", IPVS_SYNCD_PORT, ipvs_syncd_handle);
+	dissector_add_uint_with_preference("udp.port", IPVS_SYNCD_PORT, ipvs_syncd_handle);
 }
 
 /*

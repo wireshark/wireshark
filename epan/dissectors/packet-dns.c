@@ -421,8 +421,6 @@ static dissector_table_t dns_tsig_dissector_table=NULL;
 
 static dissector_handle_t dns_handle;
 
-static range_t *global_dns_udp_port_range;
-
 /* desegmentation of DNS over TCP */
 static gboolean dns_desegment = TRUE;
 
@@ -4078,18 +4076,13 @@ static int dns_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_di
 void
 proto_reg_handoff_dns(void)
 {
-  static range_t *dns_udp_port_range;
-
-  static gboolean Initialized = FALSE;
-
-  if (!Initialized) {
     dissector_handle_t mdns_udp_handle;
     dissector_handle_t llmnr_udp_handle;
 
     mdns_udp_handle  = create_dissector_handle(dissect_mdns_udp, proto_mdns);
     llmnr_udp_handle = create_dissector_handle(dissect_llmnr_udp, proto_llmnr);
-    dissector_add_uint("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
-    dissector_add_uint("udp.port", UDP_PORT_LLMNR, llmnr_udp_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_LLMNR, llmnr_udp_handle);
     dissector_add_uint("sctp.port", SCTP_PORT_DNS, dns_handle);
 #if 0
     dissector_add_uint("sctp.ppi",  DNS_PAYLOAD_PROTOCOL_ID, dns_handle);
@@ -4100,15 +4093,7 @@ proto_reg_handoff_dns(void)
     ssl_dissector_add(TCP_PORT_DNS_TLS, dns_handle);
     dtls_dissector_add(UDP_PORT_DNS_DTLS, dns_handle);
     dissector_add_uint_range_with_preference("tcp.port", DEFAULT_DNS_TCP_PORT_RANGE, dns_handle);
-    Initialized    = TRUE;
-
-  } else {
-    dissector_delete_uint_range("udp.port", dns_udp_port_range, dns_handle);
-    g_free(dns_udp_port_range);
-  }
-
-  dns_udp_port_range = range_copy(global_dns_udp_port_range);
-  dissector_add_uint_range("udp.port", dns_udp_port_range, dns_handle);
+    dissector_add_uint_range_with_preference("udp.port", DEFAULT_DNS_PORT_RANGE, dns_handle);
 }
 
 void
@@ -5571,15 +5556,7 @@ proto_register_dns(void)
   expert_dns = expert_register_protocol(proto_dns);
   expert_register_field_array(expert_dns, ei, array_length(ei));
 
-  /* Set default ports */
-  range_convert_str(&global_dns_udp_port_range, DEFAULT_DNS_PORT_RANGE, MAX_UDP_PORT);
-
-  dns_module = prefs_register_protocol(proto_dns, proto_reg_handoff_dns);
-
-  prefs_register_range_preference(dns_module, "udp.ports", "DNS UDP ports",
-                                  "UDP ports to be decoded as DNS (default: "
-                                  DEFAULT_DNS_PORT_RANGE ")",
-                                  &global_dns_udp_port_range, MAX_UDP_PORT);
+  dns_module = prefs_register_protocol(proto_dns, NULL);
 
   prefs_register_bool_preference(dns_module, "desegment_dns_messages",
     "Reassemble DNS messages spanning multiple TCP segments",

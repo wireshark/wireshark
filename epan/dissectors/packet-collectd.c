@@ -26,7 +26,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/stats_tree.h>
 #include <epan/to_str.h>
@@ -144,8 +143,7 @@ static const val64_string severity_names[] = {
 	{ 0, NULL }
 };
 
-#define UDP_PORT_COLLECTD 25826
-static guint collectd_udp_port = UDP_PORT_COLLECTD;
+#define UDP_PORT_COLLECTD 25826 /* Not IANA registered */
 
 static gint proto_collectd		= -1;
 static gint tap_collectd                = -1;
@@ -1348,7 +1346,6 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
 void proto_register_collectd(void)
 {
-	module_t *collectd_module;
 	expert_module_t* expert_collectd;
 
 	/* Setup list of header fields */
@@ -1484,43 +1481,16 @@ void proto_register_collectd(void)
 	expert_register_field_array(expert_collectd, ei, array_length(ei));
 
 	tap_collectd = register_tap ("collectd");
-
-	/*
-	 * Create an unsigned integer preference to allow the user to specify the
-	 * UDP port on which to capture DIS packets.
-	 */
-	collectd_module = prefs_register_protocol (proto_collectd,
-						   proto_reg_handoff_collectd);
-
-	prefs_register_uint_preference (collectd_module, "udp.port",
-					"collectd UDP port",
-					"Set the UDP port for collectd messages",
-					10, &collectd_udp_port);
-} /* void proto_register_collectd */
+}
 
 void proto_reg_handoff_collectd (void)
 {
-	static gboolean first_run = TRUE;
-	static gint registered_udp_port = -1;
-	static dissector_handle_t collectd_handle;
+	dissector_handle_t collectd_handle;
 
-	if (first_run)
-		collectd_handle = create_dissector_handle (dissect_collectd,
-							   proto_collectd);
+	collectd_handle = create_dissector_handle(dissect_collectd, proto_collectd);
+	dissector_add_uint_with_preference("udp.port", UDP_PORT_COLLECTD, collectd_handle);
 
-	/* Change the dissector registration if the preferences have been
-	 * changed. */
-	if (registered_udp_port != -1)
-		dissector_delete_uint ("udp.port", registered_udp_port,
-				  collectd_handle);
-
-	dissector_add_uint ("udp.port", collectd_udp_port, collectd_handle);
-	registered_udp_port = collectd_udp_port;
-
-	if (first_run)
-		collectd_stats_tree_register ();
-
-	first_run = FALSE;
+	collectd_stats_tree_register ();
 } /* void proto_reg_handoff_collectd */
 
 /*

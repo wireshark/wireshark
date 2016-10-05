@@ -389,9 +389,7 @@ proto_register_cups(void)
         &ett_cups_ptype
     };
 
-    proto_cups = proto_register_protocol(
-            "Common Unix Printing System (CUPS) Browsing Protocol",
-            "CUPS", "cups");
+    proto_cups = proto_register_protocol("Common Unix Printing System (CUPS) Browsing Protocol", "CUPS", "cups");
     proto_register_field_array(proto_cups, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -405,7 +403,7 @@ proto_reg_handoff_cups(void)
     dissector_handle_t cups_handle;
 
     cups_handle = create_dissector_handle(dissect_cups, proto_cups);
-    dissector_add_uint("udp.port", UDP_PORT_CUPS, cups_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_CUPS, cups_handle);
 }
 
 /*

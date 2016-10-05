@@ -2439,6 +2439,7 @@ apply_prefs ( void )
     opensafety_udp_siii_port_number = global_network_udp_port_sercosiii;
 
     /* Default UDP only based dissector, will hand traffic to SIII dissector if needed */
+    /* Preference names to specific to use "auto" preference */
     dissector_add_uint("udp.port", opensafety_udp_port_number, opensafety_udpdata_handle);
     dissector_add_uint("udp.port", opensafety_udp_siii_port_number, opensafety_udpdata_handle);
 

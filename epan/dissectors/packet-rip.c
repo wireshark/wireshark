@@ -393,7 +393,7 @@ proto_register_rip(void)
 void
 proto_reg_handoff_rip(void)
 {
-    dissector_add_uint("udp.port", UDP_PORT_RIP, rip_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_RIP, rip_handle);
 }
 
 /*

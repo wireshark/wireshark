@@ -27,13 +27,10 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 
 void proto_register_ar_drone(void);
 void proto_reg_handoff_ar_drone(void);
-
-static guint ar_drone_port = 0;
 
 /* ************************************************ */
 /* Begin static variable declaration/initialization */
@@ -761,59 +758,27 @@ proto_register_ar_drone(void)
         { &ei_NO_CR,    { "ar_drone.no_cr",    PI_MALFORMED, PI_ERROR, "Carriage return delimiter (0x0d) not found", EXPFILL }},
     };
 
-    module_t         *drone_module;
     expert_module_t*  expert_drone;
 
     /* Setup protocol info */
-    proto_ar_drone = proto_register_protocol (
-        "AR Drone Packet", /* name       */
-        "AR Drone",        /* short name */
-        "ar_drone"         /* abbrev     */
-    );
+    proto_ar_drone = proto_register_protocol("AR Drone Packet", "AR Drone", "ar_drone");
 
     proto_register_field_array(proto_ar_drone, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     expert_drone = expert_register_protocol(proto_ar_drone);
     expert_register_field_array(expert_drone, ei, array_length(ei));
-
-    drone_module = prefs_register_protocol(proto_ar_drone, NULL);
-
-    prefs_register_uint_preference(drone_module, "udp.port",
-                                   "AR Drone UDP Port",
-                                   "AR Drone UDP port",
-                                   10,
-                                   &ar_drone_port);
 }
 
 void
 proto_reg_handoff_ar_drone(void)
 {
-    static dissector_handle_t ar_drone_handle;
-    static guint old_port = 0;
-    static gboolean initialized = FALSE;
+    dissector_handle_t ar_drone_handle;
 
-    if (initialized == FALSE)
-    {
-        ar_drone_handle = create_dissector_handle(dissect_ar_drone, proto_ar_drone);
+    ar_drone_handle = create_dissector_handle(dissect_ar_drone, proto_ar_drone);
 
-        heur_dissector_add("udp", dissect_ar_drone, "AR Drone over UDP", "ar_drone_udp", proto_ar_drone, HEURISTIC_ENABLE);
-
-        initialized = TRUE;
-    }
-
-    /* Register UDP port for dissection */
-    if (old_port != 0 && old_port != ar_drone_port)
-    {
-        dissector_delete_uint("udp.port", old_port, ar_drone_handle);
-    }
-
-    if (ar_drone_port != 0 && old_port != ar_drone_port)
-    {
-        dissector_add_uint("udp.port", ar_drone_port, ar_drone_handle);
-    }
-
-    old_port = ar_drone_port;
+    heur_dissector_add("udp", dissect_ar_drone, "AR Drone over UDP", "ar_drone_udp", proto_ar_drone, HEURISTIC_ENABLE);
+    dissector_add_for_decode_as_with_preference("udp.port", ar_drone_handle);
 }
 
 /*

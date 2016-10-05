@@ -230,7 +230,7 @@ proto_reg_handoff_interlink(void)
 	interlink_handle = find_dissector("interlink");
 
 	/* Allow "Decode As" with any UDP packet. */
-	dissector_add_for_decode_as("udp.port", interlink_handle);
+	dissector_add_for_decode_as_with_preference("udp.port", interlink_handle);
 
 	/* Add our heuristic packet finder. */
 	heur_dissector_add("udp", dissect_interlink_heur, "Interlink over UDP", "interlink_udp", proto_interlink, HEURISTIC_ENABLE);

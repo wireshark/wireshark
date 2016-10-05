@@ -48,7 +48,7 @@ void proto_reg_handoff_oicq(void);
  */
 
 /* By default, but can be completely different */
-#define UDP_PORT_OICQ	8000
+#define UDP_PORT_OICQ	8000 /* Not IANA regisrered */
 
 static int proto_oicq = -1;
 
@@ -185,8 +185,7 @@ proto_register_oicq(void)
 		&ett_oicq,
 	};
 
-	proto_oicq = proto_register_protocol("OICQ - IM software, popular in China", "OICQ",
-	    "oicq");
+	proto_oicq = proto_register_protocol("OICQ - IM software, popular in China", "OICQ", "oicq");
 	proto_register_field_array(proto_oicq, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -197,7 +196,7 @@ proto_reg_handoff_oicq(void)
 	dissector_handle_t oicq_handle;
 
 	oicq_handle = create_dissector_handle(dissect_oicq, proto_oicq);
-	dissector_add_uint("udp.port", UDP_PORT_OICQ, oicq_handle);
+	dissector_add_uint_with_preference("udp.port", UDP_PORT_OICQ, oicq_handle);
 }
 
 /*

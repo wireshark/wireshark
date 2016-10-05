@@ -210,8 +210,7 @@ proto_register_ddtp(void)
 
     expert_module_t* expert_ddtp;
 
-    proto_ddtp = proto_register_protocol("Dynamic DNS Tools Protocol",
-                                         "DDTP", "ddtp");
+    proto_ddtp = proto_register_protocol("Dynamic DNS Tools Protocol", "DDTP", "ddtp");
     proto_register_field_array(proto_ddtp, hf_ddtp, array_length(hf_ddtp));
     proto_register_subtree_array(ett, array_length(ett));
     expert_ddtp = expert_register_protocol(proto_ddtp);
@@ -224,7 +223,7 @@ proto_reg_handoff_ddtp(void)
     dissector_handle_t ddtp_handle;
 
     ddtp_handle = create_dissector_handle(dissect_ddtp, proto_ddtp);
-    dissector_add_uint("udp.port", UDP_PORT_DDTP, ddtp_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_DDTP, ddtp_handle);
 }
 
 /*

@@ -61,8 +61,6 @@
 /* #define DEBUG_CONVERSATION */
 #include "conversation_debug.h"
 
-#define TCP_PORT_SIP 5060
-#define UDP_PORT_SIP 5060
 #define TLS_PORT_SIP 5061
 #define DEFAULT_SIP_PORT_RANGE "5060"
 
@@ -6794,7 +6792,7 @@ proto_reg_handoff_sip(void)
         /* SIP content type and internet media type used by other dissectors are the same */
         media_type_dissector_table = find_dissector_table("media_type");
 
-        dissector_add_uint("udp.port", UDP_PORT_SIP, sip_handle);
+        dissector_add_uint_range_with_preference("udp.port", DEFAULT_SIP_PORT_RANGE, sip_handle);
         dissector_add_string("media_type", "message/sip", sip_handle);
 
         dissector_add_uint_range_with_preference("tcp.port", DEFAULT_SIP_PORT_RANGE, sip_tcp_handle);

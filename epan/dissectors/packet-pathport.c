@@ -26,7 +26,7 @@
 #include <epan/to_str.h>
 
 
-#define PATHPORT_UDP_PORT  3792
+#define PATHPORT_UDP_PORT  3792 /* Not IANA registered */
 #define PATHPORT_MIN_LENGTH 24 /* HEADER + 1 PDU */
 #define PATHPORT_PROTO_MAGIC  0xed01
 
@@ -696,7 +696,7 @@ proto_reg_handoff_pathport(void)
 
     pathport_handle = create_dissector_handle(dissect_pathport, proto_pathport);
     heur_dissector_add("udp", dissect_pathport_heur, "Pathport over UDP", "pathport_udp", proto_pathport, HEURISTIC_ENABLE);
-    dissector_add_uint("udp.port", PATHPORT_UDP_PORT, pathport_handle);
+    dissector_add_uint_with_preference("udp.port", PATHPORT_UDP_PORT, pathport_handle);
 }
 
 /*

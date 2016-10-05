@@ -557,14 +557,12 @@ proto_register_quake3(void)
 	};
 	module_t *quake3_module;
 
-	proto_quake3 = proto_register_protocol("Quake III Arena Network Protocol",
-						"QUAKE3", "quake3");
+	proto_quake3 = proto_register_protocol("Quake III Arena Network Protocol", "QUAKE3", "quake3");
 	proto_register_field_array(proto_quake3, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register a configuration option for port */
-	quake3_module = prefs_register_protocol(proto_quake3,
-		proto_reg_handoff_quake3);
+	quake3_module = prefs_register_protocol(proto_quake3, proto_reg_handoff_quake3);
 	prefs_register_uint_preference(quake3_module, "udp.arena_port",
 					"Quake III Arena Server UDP Base Port",
 					"Set the UDP base port for the Quake III Arena Server",
@@ -600,7 +598,7 @@ proto_reg_handoff_quake3(void)
 	server_port = gbl_quake3_server_port;
 	master_port = gbl_quake3_master_port;
 
-	/* add dissectors */
+	/* add dissectors. Port preference names to specific to use "auto" */
 	for (i=0;i<4;i++)
 		dissector_add_uint("udp.port", gbl_quake3_server_port + i,
 			quake3_handle);

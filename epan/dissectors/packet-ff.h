@@ -42,16 +42,13 @@
 #ifndef __PACKET_FF_H__
 #define __PACKET_FF_H__
 
-#define UDP_PORT_FF_ANNUNC  1089
+#define UDP_PORT_FF_RANGE   "1089-1091,3622"
 #define TCP_PORT_FF_ANNUNC  1089
 
-#define UDP_PORT_FF_FMS     1090
 #define TCP_PORT_FF_FMS     1090
 
-#define UDP_PORT_FF_SM      1091
 #define TCP_PORT_FF_SM      1091
 
-#define UDP_PORT_FF_LR_PORT 3622
 #define TCP_PORT_FF_LR_PORT 3622
 
 

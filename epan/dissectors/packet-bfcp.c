@@ -713,7 +713,7 @@ void proto_reg_handoff_bfcp(void)
 	heur_dissector_add("tcp", dissect_bfcp_heur, "BFCP over TCP", "bfcp_tcp", proto_bfcp, HEURISTIC_DISABLE);
 	heur_dissector_add("udp", dissect_bfcp_heur, "BFCP over UDP", "bfcp_udp", proto_bfcp, HEURISTIC_DISABLE);
 	dissector_add_for_decode_as_with_preference("tcp.port", bfcp_handle);
-	dissector_add_for_decode_as("udp.port", bfcp_handle);
+	dissector_add_for_decode_as_with_preference("udp.port", bfcp_handle);
 }
 
 /*

@@ -29,6 +29,8 @@
 void proto_register_udpencap(void);
 void proto_reg_handoff_udpencap(void);
 
+#define UDPENCAP_PORT 4500
+
 static int proto_udpencap = -1;
 
 static int hf_nat_keepalive = -1;
@@ -93,8 +95,7 @@ proto_register_udpencap(void)
     &ett_udpencap,
   };
 
-  proto_udpencap = proto_register_protocol(
-        "UDP Encapsulation of IPsec Packets", "UDPENCAP", "udpencap");
+  proto_udpencap = proto_register_protocol("UDP Encapsulation of IPsec Packets", "UDPENCAP", "udpencap");
   proto_register_field_array(proto_udpencap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
@@ -108,7 +109,7 @@ proto_reg_handoff_udpencap(void)
   isakmp_handle = find_dissector_add_dependency("isakmp", proto_udpencap);
 
   udpencap_handle = create_dissector_handle(dissect_udpencap, proto_udpencap);
-  dissector_add_uint("udp.port", 4500, udpencap_handle);
+  dissector_add_uint_with_preference("udp.port", UDPENCAP_PORT, udpencap_handle);
 }
 
 /*

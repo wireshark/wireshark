@@ -121,7 +121,7 @@ proto_reg_handoff_time(void)
     dissector_handle_t time_handle;
 
     time_handle = create_dissector_handle(dissect_time, proto_time);
-    dissector_add_uint("udp.port", TIME_PORT, time_handle);
+    dissector_add_uint_with_preference("udp.port", TIME_PORT, time_handle);
     dissector_add_uint_with_preference("tcp.port", TIME_PORT, time_handle);
 }
 

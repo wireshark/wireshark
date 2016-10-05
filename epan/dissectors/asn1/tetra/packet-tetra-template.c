@@ -48,7 +48,7 @@ static int proto_tetra = -1;
 
 static dissector_handle_t tetra_handle;
 
-static int global_tetra_port = 7074;
+#define TETRA_UDP_PORT  7074 /* Not IANA assigned */
 
 /* Whether the capture data include carrier numbers */
 static gboolean include_carrier_number = TRUE;
@@ -546,13 +546,8 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 void proto_reg_handoff_tetra(void)
 {
-	static gboolean initialized=FALSE;
-
-	if (!initialized) {
-		tetra_handle = create_dissector_handle(dissect_tetra, proto_tetra);
-		dissector_add_uint("udp.port", global_tetra_port, tetra_handle);
-	}
-
+	tetra_handle = create_dissector_handle(dissect_tetra, proto_tetra);
+	dissector_add_uint_with_preference("udp.port", TETRA_UDP_PORT, tetra_handle);
 }
 
 

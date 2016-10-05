@@ -40,7 +40,6 @@
 #include <math.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
 #include "packet-tcp.h"
@@ -203,9 +202,6 @@ static expert_field ei_ldss_unrecognized_line = EI_INIT;
 
 static dissector_handle_t	ldss_udp_handle;
 static dissector_handle_t	ldss_tcp_handle;
-
-/* Global variables associated with the preferences for ldss */
-static guint	global_udp_port_ldss	= UDP_PORT_LDSS;
 
 /* Avoid creating conversations and data twice */
 static unsigned int highest_num_seen = 0;
@@ -957,7 +953,6 @@ proto_register_ldss (void) {
 		{ &ei_ldss_unrecognized_line, { "ldss.unrecognized_line", PI_PROTOCOL, PI_WARN, "Unrecognized line ignored", EXPFILL }},
 	};
 
-	module_t     *ldss_module;
 	expert_module_t* expert_ldss;
 
 	proto_ldss = proto_register_protocol("Local Download Sharing Service", "LDSS", "ldss");
@@ -965,14 +960,6 @@ proto_register_ldss (void) {
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_ldss = expert_register_protocol(proto_ldss);
 	expert_register_field_array(expert_ldss, ei, array_length(ei));
-
-	ldss_module = prefs_register_protocol(	proto_ldss, proto_reg_handoff_ldss);
-	prefs_register_uint_preference(		ldss_module, "udp_port",
-						"LDSS UDP Port",
-						"The UDP port on which "
-						"Local Download Sharing Service "
-						"broadcasts will be sent",
-						10, &global_udp_port_ldss);
 
 	register_init_routine(&ldss_init_protocol);
 }
@@ -982,19 +969,9 @@ proto_register_ldss (void) {
 void
 proto_reg_handoff_ldss (void)
 {
-	static guint	  saved_udp_port_ldss;
-	static gboolean	  ldss_initialized	= FALSE;
-
-	if (!ldss_initialized) {
-		ldss_udp_handle = create_dissector_handle(dissect_ldss, proto_ldss);
-		ldss_tcp_handle = create_dissector_handle(dissect_ldss_transfer, proto_ldss);
-		ldss_initialized = TRUE;
-	}
-	else {
-		dissector_delete_uint("udp.port", saved_udp_port_ldss, ldss_udp_handle);
-	}
-	dissector_add_uint("udp.port", global_udp_port_ldss, ldss_udp_handle);
-	saved_udp_port_ldss = global_udp_port_ldss;
+	ldss_udp_handle = create_dissector_handle(dissect_ldss, proto_ldss);
+	ldss_tcp_handle = create_dissector_handle(dissect_ldss_transfer, proto_ldss);
+	dissector_add_uint_with_preference("udp.port", UDP_PORT_LDSS, ldss_udp_handle);
 }
 
 /*

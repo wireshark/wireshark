@@ -46,15 +46,12 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 void proto_register_hp_erm(void);
 void proto_reg_handoff_hp_erm(void);
 
 #define PROTO_SHORT_NAME "HP_ERM"
 #define PROTO_LONG_NAME  "HP encapsulated remote mirroring"
-
-static guint global_hp_erm_udp_port = 0;
 
 static int  proto_hp_erm       = -1;
 static gint ett_hp_erm         = -1;
@@ -149,16 +146,7 @@ proto_register_hp_erm(void)
         &ett_hp_erm,
     };
 
-    module_t *hp_erm_module;
-
     proto_hp_erm = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "hp_erm");
-
-    hp_erm_module = prefs_register_protocol(proto_hp_erm, proto_reg_handoff_hp_erm);
-    prefs_register_uint_preference(hp_erm_module, "udp.port", "HP_ERM UDP Port",
-                                   "Set the UDP port (source or destination) used for HP"
-                                   " encapsulated remote mirroring frames;\n"
-                                   "0 (default) means that the HP_ERM dissector is not active",
-                                   10, &global_hp_erm_udp_port);
 
     proto_register_field_array(proto_hp_erm, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -167,23 +155,11 @@ proto_register_hp_erm(void)
 void
 proto_reg_handoff_hp_erm(void)
 {
-    static dissector_handle_t hp_erm_handle;
-    static guint hp_erm_udp_port;
-    static gboolean initialized = FALSE;
+    dissector_handle_t hp_erm_handle;
 
-    if (!initialized) {
-        eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_hp_erm);
-        hp_erm_handle = create_dissector_handle(dissect_hp_erm, proto_hp_erm);
-        initialized = TRUE;
-    } else {
-        if (hp_erm_udp_port != 0)
-            dissector_delete_uint("udp.port", hp_erm_udp_port, hp_erm_handle);
-    }
-
-    hp_erm_udp_port = global_hp_erm_udp_port;
-
-    if (hp_erm_udp_port != 0)
-        dissector_add_uint("udp.port", hp_erm_udp_port, hp_erm_handle);
+    eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_hp_erm);
+    hp_erm_handle = create_dissector_handle(dissect_hp_erm, proto_hp_erm);
+    dissector_add_for_decode_as_with_preference("udp.port", hp_erm_handle);
 }
 /*
  * Editor modelines

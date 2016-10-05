@@ -2274,19 +2274,14 @@ void proto_register_gvsp(void)
     proto_register_field_array(proto_gvsp, hfgvsp, array_length(hfgvsp));
     proto_register_subtree_array(ett, array_length(ett));
 
-    gvsp_module = prefs_register_protocol(proto_gvsp, proto_reg_handoff_gvsp);
+    gvsp_module = prefs_register_protocol(proto_gvsp, NULL);
     prefs_register_obsolete_preference(gvsp_module, "enable_heuristic");
 }
 
 void proto_reg_handoff_gvsp(void)
 {
-    static gboolean initialized = FALSE;
-
-    if (!initialized) {
-        dissector_add_for_decode_as("udp.port", gvsp_handle);
-        heur_dissector_add("udp", dissect_gvsp_heur, "GigE Vision over UDP", "gvsp_udp", proto_gvsp, HEURISTIC_ENABLE);
-        initialized = TRUE;
-    }
+    dissector_add_for_decode_as_with_preference("udp.port", gvsp_handle);
+    heur_dissector_add("udp", dissect_gvsp_heur, "GigE Vision over UDP", "gvsp_udp", proto_gvsp, HEURISTIC_ENABLE);
 }
 
 /*

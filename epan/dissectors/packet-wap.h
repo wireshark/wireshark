@@ -35,11 +35,13 @@
 /* Port Numbers as per IANA */
 /* < URL:http://www.iana.org/assignments/port-numbers/ > */
 #define UDP_PORT_WSP			9200		/* wap-wsp			*/
+#define UDP_PORT_WSP_RANGE		"2948,9200"		/* wap-wsp			*/
 #define UDP_PORT_WTP_WSP		9201		/* wap-wsp-wtp		*/
 #define UDP_PORT_WTLS_WSP		9202		/* wap-wsp-s		*/
 #define UDP_PORT_WTLS_WTP_WSP		9203		/* wap-wsp-wtp-s	*/
 #define UDP_PORT_WSP_PUSH		2948		/* wap-wsp		*/
 #define UDP_PORT_WTLS_WSP_PUSH		2949		/* wap-wsp-s		*/
+#define UDP_PORT_WTLS_RANGE		"2949,9202-9203"	/* wap-wsp			*/
 
 /*
  * Note:

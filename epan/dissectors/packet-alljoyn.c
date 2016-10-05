@@ -3027,23 +3027,19 @@ proto_register_AllJoyn(void)
 void
 proto_reg_handoff_AllJoyn(void)
 {
-    static gboolean initialized = FALSE;
-    static dissector_handle_t alljoyn_handle_ns;
-    static dissector_handle_t alljoyn_handle_ardp;
+    dissector_handle_t alljoyn_handle_ns;
+    dissector_handle_t alljoyn_handle_ardp;
 
-    if(!initialized) {
-        alljoyn_handle_ns = create_dissector_handle(dissect_AllJoyn_name_server, proto_AllJoyn_ns);
-        alljoyn_handle_ardp = create_dissector_handle(dissect_AllJoyn_ardp, proto_AllJoyn_ardp);
-        dissector_add_uint_with_preference("tcp.port", ALLJOYN_NAME_SERVER_PORT, alljoyn_handle_ns);
-        dissector_add_uint_with_preference("tcp.port", ALLJOYN_MESSAGE_PORT, alljoyn_handle_ardp);
-        initialized = TRUE;
-    }
+    alljoyn_handle_ns = create_dissector_handle(dissect_AllJoyn_name_server, proto_AllJoyn_ns);
+    alljoyn_handle_ardp = create_dissector_handle(dissect_AllJoyn_ardp, proto_AllJoyn_ardp);
+    dissector_add_uint_with_preference("tcp.port", ALLJOYN_NAME_SERVER_PORT, alljoyn_handle_ns);
+    dissector_add_uint_with_preference("tcp.port", ALLJOYN_MESSAGE_PORT, alljoyn_handle_ardp);
 
-    dissector_add_uint("udp.port", ALLJOYN_NAME_SERVER_PORT, alljoyn_handle_ns);
+    dissector_add_uint_with_preference("udp.port", ALLJOYN_NAME_SERVER_PORT, alljoyn_handle_ns);
 
     /* The ARDP dissector will directly call the AllJoyn message dissector if needed.
      * This includes the case where there is no ARDP data. */
-    dissector_add_uint("udp.port", ALLJOYN_MESSAGE_PORT, alljoyn_handle_ardp);
+    dissector_add_uint_with_preference("udp.port", ALLJOYN_MESSAGE_PORT, alljoyn_handle_ardp);
 }
 
 /*

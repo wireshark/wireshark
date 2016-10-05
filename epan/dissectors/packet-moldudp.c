@@ -26,7 +26,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 
 void proto_register_moldudp(void);
@@ -48,9 +47,6 @@ static int hf_moldudp_msgdata  = -1;
 #define MOLDUDP_MSGLEN_LEN    2
 
 #define MOLDUDP_HEARTBEAT 0x0000
-
-/* Global port pref */
-static guint pf_moldudp_port = 0;
 
 /* Initialize the subtree pointers */
 static gint ett_moldudp        = -1;
@@ -187,8 +183,6 @@ dissect_moldudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 void
 proto_register_moldudp(void)
 {
-    module_t *moldudp_module;
-
     /* Setup list of header fields */
     static hf_register_info hf[] = {
 
@@ -235,46 +229,23 @@ proto_register_moldudp(void)
     expert_module_t* expert_moldudp;
 
     /* Register the protocol name and description */
-    proto_moldudp = proto_register_protocol("MoldUDP",
-            "MoldUDP", "moldudp");
+    proto_moldudp = proto_register_protocol("MoldUDP", "MoldUDP", "moldudp");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_moldudp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_moldudp = expert_register_protocol(proto_moldudp);
     expert_register_field_array(expert_moldudp, ei, array_length(ei));
-
-    /* Register preferences module */
-    moldudp_module = prefs_register_protocol(proto_moldudp,
-            proto_reg_handoff_moldudp);
-
-    /* Register a port preference   */
-    prefs_register_uint_preference(moldudp_module, "udp.port", "MoldUDP UDP Port",
-            "MoldUDP UDP port to capture on.",
-            10, &pf_moldudp_port);
 }
 
 
 void
 proto_reg_handoff_moldudp(void)
 {
-    static gboolean           initialized = FALSE;
-    static dissector_handle_t moldudp_handle;
-    static int                currentPort;
+    dissector_handle_t moldudp_handle;
 
-    if (!initialized) {
-        moldudp_handle = create_dissector_handle(dissect_moldudp,
-                proto_moldudp);
-        initialized = TRUE;
-    } else {
-
-        dissector_delete_uint("udp.port", currentPort, moldudp_handle);
-    }
-
-    currentPort = pf_moldudp_port;
-
-    dissector_add_uint("udp.port", currentPort, moldudp_handle);
-
+    moldudp_handle = create_dissector_handle(dissect_moldudp, proto_moldudp);
+    dissector_add_for_decode_as_with_preference("udp.port", moldudp_handle);
 }
 
 /*

@@ -284,12 +284,9 @@ void proto_register_auto_rp(void)
                 &ett_auto_rp_group
         };
 
-        proto_auto_rp = proto_register_protocol("Cisco Auto-RP",
-                                                "Auto-RP", "auto_rp");
+        proto_auto_rp = proto_register_protocol("Cisco Auto-RP", "Auto-RP", "auto_rp");
         proto_register_field_array(proto_auto_rp, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
-
-        return;
 }
 
 void
@@ -297,9 +294,8 @@ proto_reg_handoff_auto_rp(void)
 {
         dissector_handle_t auto_rp_handle;
 
-        auto_rp_handle = create_dissector_handle(dissect_auto_rp,
-                                                 proto_auto_rp);
-        dissector_add_uint("udp.port", UDP_PORT_PIM_RP_DISC, auto_rp_handle);
+        auto_rp_handle = create_dissector_handle(dissect_auto_rp, proto_auto_rp);
+        dissector_add_uint_with_preference("udp.port", UDP_PORT_PIM_RP_DISC, auto_rp_handle);
 }
 
 /*

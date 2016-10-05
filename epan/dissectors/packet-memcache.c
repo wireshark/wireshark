@@ -104,7 +104,6 @@ void proto_reg_handoff_memcache(void);
 
 static int proto_memcache = -1;
 
-static range_t *memcache_udp_port_range = NULL;
 static dissector_handle_t memcache_tcp_handle;
 static dissector_handle_t memcache_udp_handle;
 
@@ -2121,7 +2120,7 @@ proto_register_memcache (void)
   expert_register_field_array(expert_memcache, ei, array_length(ei));
 
   /* Register our configuration options */
-  memcache_module = prefs_register_protocol (proto_memcache, proto_reg_handoff_memcache);
+  memcache_module = prefs_register_protocol (proto_memcache, NULL);
 
   prefs_register_bool_preference (memcache_module, "desegment_headers",
                                  "Reassemble MEMCACHE headers spanning multiple TCP segments",
@@ -2138,27 +2137,14 @@ proto_register_memcache (void)
                                   " To use this option, you must also enable \"Allow subdissectors"
                                   " to reassemble TCP streams\" in the TCP protocol settings.",
                                   &memcache_desegment_body);
-
-  range_convert_str(&memcache_udp_port_range, MEMCACHE_DEFAULT_RANGE, 65535);
-
-  prefs_register_range_preference(memcache_module, "udp.ports", \
-                                  "MEMCACHE UDP Port range", \
-                                  "MEMCACHE UDP Port range", \
-                                  &memcache_udp_port_range, \
-                                  65535);
 }
 
 /* Register the tcp and udp memcache dissectors. */
 void
 proto_reg_handoff_memcache (void)
 {
-  static range_t  *orig_memcache_udp_port_range = NULL;
-
-  g_free(orig_memcache_udp_port_range);
-
-  orig_memcache_udp_port_range = range_copy(memcache_udp_port_range);
   dissector_add_uint_range_with_preference("tcp.port", MEMCACHE_DEFAULT_RANGE, memcache_tcp_handle);
-  dissector_add_uint_range("udp.port", orig_memcache_udp_port_range, memcache_udp_handle);
+  dissector_add_uint_range_with_preference("udp.port", MEMCACHE_DEFAULT_RANGE, memcache_udp_handle);
 }
 
 /*

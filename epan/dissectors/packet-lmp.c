@@ -58,8 +58,6 @@ void proto_reg_handoff_lmp(void);
 static int proto_lmp = -1;
 
 #define UDP_PORT_LMP_DEFAULT 701
-static guint lmp_udp_port = UDP_PORT_LMP_DEFAULT;
-static guint lmp_udp_port_config = UDP_PORT_LMP_DEFAULT;
 
 static gboolean lmp_checksum_config = FALSE;
 
@@ -1875,30 +1873,16 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 }
 
 static void
-lmp_prefs_applied (void)
-{
-    if (lmp_udp_port != lmp_udp_port_config) {
-        dissector_delete_uint("udp.port", lmp_udp_port, lmp_handle);
-        lmp_udp_port = lmp_udp_port_config;
-        dissector_add_uint("udp.port", lmp_udp_port, lmp_handle);
-    }
-}
-
-static void
 register_lmp_prefs (void)
 {
     module_t *lmp_module;
 
-    lmp_module = prefs_register_protocol(proto_lmp, lmp_prefs_applied);
+    lmp_module = prefs_register_protocol(proto_lmp, NULL);
 
-    prefs_register_uint_preference(
-        lmp_module, "udp_port", "LMP UDP Port",
-        "UDP port number to use for LMP", 10, &lmp_udp_port_config);
     prefs_register_bool_preference(
         lmp_module, "checksum", "LMP checksum field",
         "Whether LMP contains a checksum which can be checked", &lmp_checksum_config);
-    prefs_register_obsolete_preference(
-        lmp_module, "version");
+    prefs_register_obsolete_preference(lmp_module, "version");
 }
 
 void
@@ -2635,8 +2619,7 @@ proto_register_lmp(void)
     }
 
 
-    proto_lmp = proto_register_protocol("Link Management Protocol (LMP)",
-                                        "LMP", "lmp");
+    proto_lmp = proto_register_protocol("Link Management Protocol (LMP)", "LMP", "lmp");
 
     expert_lmp = expert_register_protocol(proto_lmp);
     expert_register_field_array(expert_lmp, ei, array_length(ei));
@@ -2651,7 +2634,7 @@ void
 proto_reg_handoff_lmp(void)
 {
     lmp_handle = create_dissector_handle(dissect_lmp, proto_lmp);
-    dissector_add_uint("udp.port", lmp_udp_port, lmp_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_LMP_DEFAULT, lmp_handle);
 }
 
 /*

@@ -43,8 +43,7 @@
 void proto_register_bfd(void);
 void proto_reg_handoff_bfd(void);
 
-#define UDP_PORT_BFD_1HOP_CONTROL 3784 /* draft-katz-ward-bfd-v4v6-1hop-00.txt */
-#define UDP_PORT_BFD_MULTIHOP_CONTROL 4784 /* draft-ietf-bfd-multihop-05.txt */
+#define UDP_PORT_RANGE_BFD  "3784,4784" /* draft-katz-ward-bfd-v4v6-1hop-00.txt */ /* draft-ietf-bfd-multihop-05.txt */
 
 /* As per RFC 6428 : http://tools.ietf.org/html/rfc6428
    Section: 3.5 */
@@ -869,8 +868,7 @@ proto_reg_handoff_bfd(void)
     dissector_handle_t bfd_control_handle;
 
     bfd_control_handle = find_dissector("bfd");
-    dissector_add_uint("udp.port", UDP_PORT_BFD_1HOP_CONTROL,     bfd_control_handle);
-    dissector_add_uint("udp.port", UDP_PORT_BFD_MULTIHOP_CONTROL, bfd_control_handle);
+    dissector_add_uint_range_with_preference("udp.port", UDP_PORT_RANGE_BFD, bfd_control_handle);
 
     dissector_add_uint("pwach.channel_type", ACH_TYPE_BFD_CC, bfd_control_handle);
     dissector_add_uint("pwach.channel_type", ACH_TYPE_BFD_CV, bfd_control_handle);

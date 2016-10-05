@@ -2290,7 +2290,7 @@ void proto_register_sabp(void) {
 void
 proto_reg_handoff_sabp(void)
 {
-  dissector_add_uint("udp.port", SABP_PORT, sabp_handle);
+  dissector_add_uint_with_preference("udp.port", SABP_PORT, sabp_handle);
   dissector_add_uint_with_preference("tcp.port", SABP_PORT, sabp_tcp_handle);
   dissector_add_uint("sctp.ppi", SABP_PAYLOAD_PROTOCOL_ID, sabp_handle);
 

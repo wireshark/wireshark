@@ -28,7 +28,7 @@
 
 #include <epan/packet.h>
 
-#define EGD_PORT 18246 /* 0x4746 */
+#define EGD_PORT 18246 /* 0x4746 - Not IANA registered */
 
 #define EGD_ST_NONEW        0
 #define EGD_ST_NOERROR      1
@@ -226,11 +226,7 @@ void proto_register_egd(void)
       &ett_status_item
     };
 
-  proto_egd = proto_register_protocol (
-    "Ethernet Global Data",  /* name */
-    "EGD",                   /* short name */
-    "egd"                    /* abbrev */
-    );
+  proto_egd = proto_register_protocol ("Ethernet Global Data", "EGD", "egd");
   proto_register_field_array(proto_egd, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
@@ -240,7 +236,7 @@ void proto_reg_handoff_egd(void)
   dissector_handle_t egd_handle;
 
   egd_handle = create_dissector_handle(dissect_egd, proto_egd);
-  dissector_add_uint("udp.port", EGD_PORT, egd_handle);
+  dissector_add_uint_with_preference("udp.port", EGD_PORT, egd_handle);
 }
 
 /*

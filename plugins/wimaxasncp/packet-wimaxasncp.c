@@ -87,7 +87,6 @@ static gboolean debug_enabled                  = FALSE;
 
 /* Default WiMAX ASN control protocol port */
 #define WIMAXASNCP_DEF_UDP_PORT     2231
-static guint global_wimaxasncp_udp_port = WIMAXASNCP_DEF_UDP_PORT;
 
 
 /* Initialize the subtree pointers */
@@ -3396,20 +3395,12 @@ proto_register_wimaxasncp(void)
      */
 
         /* Register the protocol name and description */
-    proto_wimaxasncp = proto_register_protocol(
-            "WiMAX ASN Control Plane Protocol",
-            "WiMAX ASN CP",
-            "wimaxasncp");
-
+    proto_wimaxasncp = proto_register_protocol("WiMAX ASN Control Plane Protocol", "WiMAX ASN CP", "wimaxasncp");
 
         /* Register this dissector by name */
     wimaxasncp_handle = register_dissector("wimaxasncp", dissect_wimaxasncp, proto_wimaxasncp);
 
-        /* Register preferences module (See Section 2.6 for more on
-         * preferences) */
-    wimaxasncp_module = prefs_register_protocol(
-            proto_wimaxasncp,
-            proto_reg_handoff_wimaxasncp);
+    wimaxasncp_module = prefs_register_protocol(proto_wimaxasncp, NULL);
 
         /* Register preferences */
     prefs_register_bool_preference(
@@ -3426,13 +3417,6 @@ proto_register_wimaxasncp(void)
             "Enable debug output",
             "Print debug output to the console.",
             &debug_enabled);
-
-    prefs_register_uint_preference(
-        wimaxasncp_module,
-        "udp.wimax_port",
-        "UDP Port for WiMAX ASN Control Plane Protocol",
-        "Set UDP port for WiMAX ASN Control Plane Protocol",
-        10, &global_wimaxasncp_udp_port);
 
     prefs_register_enum_preference(
         wimaxasncp_module,
@@ -3458,27 +3442,10 @@ proto_register_wimaxasncp(void)
 void
 proto_reg_handoff_wimaxasncp(void)
 {
-    static gboolean           inited      = FALSE;
-    static int                currentPort = -1;
+    /* Find the EAP dissector */
+    eap_handle = find_dissector_add_dependency("eap", proto_wimaxasncp);
 
-    if (!inited)
-    {
-
-        /* Find the EAP dissector */
-        eap_handle = find_dissector_add_dependency("eap", proto_wimaxasncp);
-
-        inited = TRUE;
-    }
-
-    if (currentPort != -1)
-    {
-        /* Remove any previous registered port */
-        dissector_delete_uint("udp.port", currentPort, wimaxasncp_handle);
-    }
-
-    /* Add the new one from preferences */
-    currentPort = global_wimaxasncp_udp_port;
-    dissector_add_uint("udp.port", currentPort, wimaxasncp_handle);
+    dissector_add_uint_with_preference("udp.port", WIMAXASNCP_DEF_UDP_PORT, wimaxasncp_handle);
 }
 
 

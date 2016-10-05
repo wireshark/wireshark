@@ -1078,7 +1078,7 @@ proto_reg_handoff_wtp(void)
     wsp_handle = find_dissector_add_dependency("wsp-co", proto_wtp);
 
     wtp_fromudp_handle = find_dissector("wtp-udp");
-    dissector_add_uint("udp.port", UDP_PORT_WTP_WSP, wtp_fromudp_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_WTP_WSP, wtp_fromudp_handle);
     dissector_add_uint("gsm_sms_ud.udh.port", UDP_PORT_WTP_WSP, wtp_fromudp_handle);
     dissector_add_uint("gsm_sms.udh.port", UDP_PORT_WTP_WSP, wtp_fromudp_handle);
 }

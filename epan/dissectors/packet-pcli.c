@@ -259,7 +259,7 @@ proto_register_pcli(void)
     proto_register_field_array(proto_pcli,hf,array_length(hf));
     proto_register_subtree_array(ett,array_length(ett));
 
-    pcli_module = prefs_register_protocol(proto_pcli, proto_reg_handoff_pcli);
+    pcli_module = prefs_register_protocol(proto_pcli, NULL);
     prefs_register_obsolete_preference(pcli_module, "udp_port");
 
     prefs_register_bool_preference(pcli_module, "summary_in_tree",
@@ -279,21 +279,17 @@ proto_register_pcli(void)
 void
 proto_reg_handoff_pcli(void)
 {
-    static gboolean pcli_initialized = FALSE;
-    static dissector_handle_t pcli_handle, pcli_handle8, pcli_handle12, pcli_handle20;
+    dissector_handle_t pcli_handle, pcli_handle8, pcli_handle12, pcli_handle20;
 
-    if(!pcli_initialized) {
-        pcli_handle = create_dissector_handle(dissect_pcli, proto_pcli);
-        pcli_handle8 = create_dissector_handle(dissect_pcli8, proto_pcli8);
-        pcli_handle12 = create_dissector_handle(dissect_pcli12, proto_pcli12);
-        pcli_handle20 = create_dissector_handle(dissect_pcli20, proto_pcli20);
-        pcli_initialized = TRUE;
-    }
+    pcli_handle = create_dissector_handle(dissect_pcli, proto_pcli);
+    pcli_handle8 = create_dissector_handle(dissect_pcli8, proto_pcli8);
+    pcli_handle12 = create_dissector_handle(dissect_pcli12, proto_pcli12);
+    pcli_handle20 = create_dissector_handle(dissect_pcli20, proto_pcli20);
 
-    dissector_add_for_decode_as("udp.port", pcli_handle);
-    dissector_add_for_decode_as("udp.port", pcli_handle8);
-    dissector_add_for_decode_as("udp.port", pcli_handle12);
-    dissector_add_for_decode_as("udp.port", pcli_handle20);
+    dissector_add_for_decode_as_with_preference("udp.port", pcli_handle);
+    dissector_add_for_decode_as_with_preference("udp.port", pcli_handle8);
+    dissector_add_for_decode_as_with_preference("udp.port", pcli_handle12);
+    dissector_add_for_decode_as_with_preference("udp.port", pcli_handle20);
 }
 
 /*

@@ -191,7 +191,6 @@ static expert_field ei_c1222_epsem_field_length_error = EI_INIT;
 static expert_field ei_c1222_mac_missing = EI_INIT;
 
 /* Preferences */
-static int global_c1222_port = C1222_PORT;
 static gboolean c1222_desegment = TRUE;
 #ifdef HAVE_LIBGCRYPT
 static gboolean c1222_decrypt = TRUE;
@@ -1419,7 +1418,7 @@ proto_reg_handoff_c1222(void)
     c1222_handle = create_dissector_handle(dissect_c1222, proto_c1222);
     c1222_udp_handle = create_dissector_handle(dissect_c1222_common, proto_c1222);
     dissector_add_uint_with_preference("tcp.port", C1222_PORT, c1222_handle);
-    dissector_add_uint("udp.port", global_c1222_port, c1222_udp_handle);
+    dissector_add_uint_with_preference("udp.port", C1222_PORT, c1222_udp_handle);
     initialized = TRUE;
   }
   if (c1222_baseoid_str && (c1222_baseoid_str[0] != '\0') &&

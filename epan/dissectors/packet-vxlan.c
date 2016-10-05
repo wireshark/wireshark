@@ -306,8 +306,8 @@ proto_reg_handoff_vxlan(void)
 
     vxlan_handle = create_dissector_handle(dissect_vxlan, proto_vxlan);
     vxlan_gpe_handle = create_dissector_handle(dissect_vxlan_gpe, proto_vxlan_gpe);
-    dissector_add_uint("udp.port", UDP_PORT_VXLAN, vxlan_handle);
-    dissector_add_uint("udp.port", UDP_PORT_VXLAN_GPE, vxlan_gpe_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_VXLAN, vxlan_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_VXLAN_GPE, vxlan_gpe_handle);
 }
 
 /*

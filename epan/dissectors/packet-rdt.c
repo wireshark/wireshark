@@ -163,9 +163,7 @@ static gint    ett_rdt_bw_probing_flags         = -1;
 
 static expert_field ei_rdt_packet_length = EI_INIT;
 
-/* Port preference settings */
-static gboolean global_rdt_register_udp_port = FALSE;
-static guint    global_rdt_udp_port = 6970;
+#define RDT_UDP_PORT        6970
 
 void proto_register_rdt(void);
 void proto_reg_handoff_rdt(void);
@@ -2165,62 +2163,20 @@ void proto_register_rdt(void)
     register_dissector("rdt", dissect_rdt, proto_rdt);
 
     /* Preference settings */
-    rdt_module = prefs_register_protocol(proto_rdt, proto_reg_handoff_rdt);
+    rdt_module = prefs_register_protocol(proto_rdt, NULL);
     prefs_register_bool_preference(rdt_module, "show_setup_info",
                                    "Show stream setup information",
                                    "Where available, show which protocol and frame caused "
                                    "this RDT stream to be created",
                                    &global_rdt_show_setup_info);
 
-    prefs_register_bool_preference(rdt_module, "register_udp_port",
-                                   "Register default UDP client port",
-                                   "Register a client UDP port for RDT traffic",
-                                   &global_rdt_register_udp_port);
-
-    /* TODO: better to specify a range of ports instead? */
-    prefs_register_uint_preference(rdt_module, "default_udp_port",
-                                   "Default UDP client port",
-                                   "Set the UDP port for clients",
-                                   10, &global_rdt_udp_port);
-
+    prefs_register_obsolete_preference(rdt_module, "register_udp_port");
 }
 
 void proto_reg_handoff_rdt(void)
 {
-    static gboolean rdt_prefs_initialized = FALSE;
-    /* Also store this so can delete registered setting properly */
-    static gboolean  rdt_register_udp_port;
-    static guint     rdt_udp_port;
-
-    if (!rdt_prefs_initialized)
-    {
-        /* Register this dissector as one that can be selected by a
-           UDP port number. */
-        rdt_handle = find_dissector("rdt");
-        dissector_add_for_decode_as("udp.port", rdt_handle);
-        rdt_prefs_initialized = TRUE;
-    }
-    else
-    {
-        /* Undo any current port registrations */
-        if (rdt_register_udp_port)
-        {
-            dissector_delete_uint("udp.port", rdt_udp_port, rdt_handle);
-        }
-    }
-
-    /* Remember whether a port is set for next time */
-    rdt_register_udp_port = global_rdt_register_udp_port;
-
-    /* Add any new port registration */
-    if (global_rdt_register_udp_port)
-    {
-        /* Set our port number for future use */
-        rdt_udp_port = global_rdt_udp_port;
-
-        /* And register with this port */
-        dissector_add_uint("udp.port", global_rdt_udp_port, rdt_handle);
-    }
+    rdt_handle = find_dissector("rdt");
+    dissector_add_uint_with_preference("udp.port", RDT_UDP_PORT, rdt_handle);
 }
 
 /*

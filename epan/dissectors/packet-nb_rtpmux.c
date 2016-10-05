@@ -24,7 +24,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 void proto_register_nb_rtpmux(void);
 void proto_reg_handoff_nb_rtpmux(void);
@@ -46,13 +45,6 @@ static gint ett_nb_rtpmux = -1;
 static gint ett_nb_rtpmux_cmp_rtp_hdr = -1;
 
 static dissector_handle_t rtpdissector;
-
-/* There appears not to be a standard port or range of ports that can be used here. */
-/* For 3G, could potentially get it from HNB Register Accept... */
-#define UDP_PORT_NB_RTPMUX_RANGE    "0"
-
-/* Preference settings */
-static range_t *global_nb_rtpmux_port_range;
 
 static int
 dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -248,57 +240,22 @@ proto_register_nb_rtpmux(void)
         &ett_nb_rtpmux_cmp_rtp_hdr
     };
 
-    module_t *nb_rtpmux_module;
-
     /* Register the protocol name and description */
-    proto_nb_rtpmux = proto_register_protocol("3GPP Nb Interface RTP Multiplex",
-        "NB_RTPMUX", "nb_rtpmux");
+    proto_nb_rtpmux = proto_register_protocol("3GPP Nb Interface RTP Multiplex", "NB_RTPMUX", "nb_rtpmux");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_nb_rtpmux, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    /* Set default UDP ports */
-    range_convert_str(&global_nb_rtpmux_port_range, UDP_PORT_NB_RTPMUX_RANGE, MAX_UDP_PORT);
-
-    nb_rtpmux_module = prefs_register_protocol(proto_nb_rtpmux, proto_reg_handoff_nb_rtpmux);
-    prefs_register_range_preference(nb_rtpmux_module, "udp_ports",
-                                    "NB RTPMUX server port numbers",
-                                    "UDP port numbers used for NB RTPMUX traffic "
-                                    "(default " UDP_PORT_NB_RTPMUX_RANGE ")",
-                                    &global_nb_rtpmux_port_range, MAX_UDP_PORT);
 }
 
 void
 proto_reg_handoff_nb_rtpmux(void)
 {
-    static range_t *nb_rtpmux_port_range;
-    static gboolean nb_rtpmux_initialized = FALSE;
     dissector_handle_t nb_rtpmux_handle;
 
-    /*  Use create_dissector_handle() to indicate that dissect_nb_rtpmux()
-     *  returns the number of bytes it dissected (or 0 if it thinks the packet
-     *  does not belong to PROTONAME).
-     */
-    nb_rtpmux_handle = create_dissector_handle(dissect_nb_rtpmux,
-                                                   proto_nb_rtpmux);
+    nb_rtpmux_handle = create_dissector_handle(dissect_nb_rtpmux, proto_nb_rtpmux);
+    dissector_add_uint_range_with_preference("udp.port", "", nb_rtpmux_handle);
 
-    if (!nb_rtpmux_initialized)
-    {
-        nb_rtpmux_initialized = TRUE;
-    }
-    else {
-        /* Remove and delete previous UDP port range */
-        dissector_delete_uint_range("udp.port", nb_rtpmux_port_range, nb_rtpmux_handle);
-        g_free(nb_rtpmux_port_range);
-    }
-
-    /* Set range of ports from preference to use this dissector */
-    nb_rtpmux_port_range = range_copy(global_nb_rtpmux_port_range);
-    dissector_add_uint_range("udp.port", nb_rtpmux_port_range, nb_rtpmux_handle);
-
-    /* Allow 'decode-as' for UDP ports */
-    dissector_add_for_decode_as("udp.port", nb_rtpmux_handle);
     rtpdissector = find_dissector_add_dependency("rtp", proto_nb_rtpmux);
 }
 

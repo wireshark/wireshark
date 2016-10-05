@@ -26,7 +26,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 
 void proto_register_mojito(void);
@@ -119,9 +118,6 @@ static gint ett_mojito_kuids = -1;
 
 static expert_field ei_mojito_socketaddress_unknown = EI_INIT;
 static expert_field ei_mojito_bigint_unsupported = EI_INIT;
-
-/* Preferences */
-static int udp_mojito_port = 0;
 
 typedef struct mojito_header_data {
 	guint8 opcode;
@@ -713,7 +709,6 @@ static gboolean dissect_mojito_heuristic (tvbuff_t *tvb, packet_info *pinfo, pro
 void
 proto_register_mojito(void)
 {
-	module_t *mojito_module;
 	expert_module_t* expert_mojito;
 
 	static hf_register_info hf[] = {
@@ -1023,42 +1018,17 @@ proto_register_mojito(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_mojito = expert_register_protocol(proto_mojito);
 	expert_register_field_array(expert_mojito, ei, array_length(ei));
-
-	/* Set the Prefs */
-	mojito_module = prefs_register_protocol(proto_mojito, NULL);
-
-	prefs_register_uint_preference(mojito_module,
-				       "udp.port",
-				       "Mojito UDP Port",
-				       "Mojito UDP Port",
-				       10,
-				       &udp_mojito_port);
 }
 
 /* Control the handoff */
 void
 proto_reg_handoff_mojito(void)
 {
-	static gboolean           initialized         = FALSE;
-	static int                old_mojito_udp_port = 0;
-	static dissector_handle_t mojito_handle;
+	dissector_handle_t mojito_handle;
 
-	if (!initialized) {
-		mojito_handle = create_dissector_handle(dissect_mojito, proto_mojito);
-		heur_dissector_add("udp", dissect_mojito_heuristic, "Mojito over UDP", "mojito_udp", proto_mojito, HEURISTIC_ENABLE);
-		initialized = TRUE;
-	}
-
-	/* Register UDP port for dissection */
-	if(old_mojito_udp_port != 0 && old_mojito_udp_port != udp_mojito_port){
-		dissector_delete_uint("udp.port", old_mojito_udp_port, mojito_handle);
-	}
-
-	if(udp_mojito_port != 0 && old_mojito_udp_port != udp_mojito_port) {
-		dissector_add_uint("udp.port", udp_mojito_port, mojito_handle);
-	}
-
-	old_mojito_udp_port = udp_mojito_port;
+	mojito_handle = create_dissector_handle(dissect_mojito, proto_mojito);
+	heur_dissector_add("udp", dissect_mojito_heuristic, "Mojito over UDP", "mojito_udp", proto_mojito, HEURISTIC_ENABLE);
+	dissector_add_for_decode_as_with_preference("udp.port", mojito_handle);
 }
 
 /*

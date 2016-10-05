@@ -77,7 +77,7 @@
  */
 
 /* By default, but can be completely different */
-#define UDP_PORT_SEBEK	1101
+#define UDP_PORT_SEBEK	1101 /* Not IANA registered */
 
 void proto_register_sebek(void);
 void proto_reg_handoff_sebek(void);
@@ -342,7 +342,7 @@ proto_reg_handoff_sebek(void)
 	dissector_handle_t sebek_handle;
 
 	sebek_handle = create_dissector_handle(dissect_sebek, proto_sebek);
-	dissector_add_uint("udp.port", UDP_PORT_SEBEK, sebek_handle);
+	dissector_add_uint_with_preference("udp.port", UDP_PORT_SEBEK, sebek_handle);
 }
 
 /*

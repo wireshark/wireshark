@@ -59,8 +59,7 @@
 /**********************************************************/
 /* Port definition's for PTP                              */
 /**********************************************************/
-#define EVENT_PORT_PTP      319
-#define GENERAL_PORT_PTP    320
+#define PTP_PORT_RANGE      "319-320"
 
 /* END Port definition's for PTP */
 void proto_register_ptp(void);
@@ -6258,8 +6257,7 @@ proto_reg_handoff_ptp(void)
     ptp_handle   = create_dissector_handle(dissect_ptp, proto_ptp);
     ethertype_ptp_handle    = create_dissector_handle(dissect_ptp_oE, proto_ptp);
 
-    dissector_add_uint("udp.port",  EVENT_PORT_PTP, ptp_handle);
-    dissector_add_uint("udp.port",  GENERAL_PORT_PTP, ptp_handle);
+    dissector_add_uint_range_with_preference("udp.port",  PTP_PORT_RANGE, ptp_handle);
     dissector_add_uint("ethertype", ETHERTYPE_PTP, ethertype_ptp_handle);
 }
 

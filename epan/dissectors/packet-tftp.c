@@ -45,6 +45,7 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 #include <epan/tap.h>
 
 #include "packet-tftp.h"
@@ -602,6 +603,13 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 }
 
 
+static void
+apply_tftp_prefs(void) {
+  pref_t *tftp_ports = prefs_find_preference(prefs_find_module("tftp"), "udp.port");
+
+  global_tftp_port_range = range_copy(*tftp_ports->varp.range);
+}
+
 void
 proto_register_tftp(void)
 {
@@ -665,27 +673,17 @@ proto_register_tftp(void)
      { &ei_tftp_blocksize_range, { "tftp.blocksize_range", PI_RESPONSE_CODE, PI_WARN, "TFTP blocksize out of range", EXPFILL }},
   };
 
-  module_t *tftp_module;
   expert_module_t* expert_tftp;
 
-  proto_tftp = proto_register_protocol("Trivial File Transfer Protocol",
-                                       "TFTP", "tftp");
+  proto_tftp = proto_register_protocol("Trivial File Transfer Protocol", "TFTP", "tftp");
   proto_register_field_array(proto_tftp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_tftp = expert_register_protocol(proto_tftp);
   expert_register_field_array(expert_tftp, ei, array_length(ei));
 
-  register_dissector("tftp", dissect_tftp, proto_tftp);
+  tftp_handle = register_dissector("tftp", dissect_tftp, proto_tftp);
 
-  /* Set default UDP ports */
-  range_convert_str(&global_tftp_port_range, UDP_PORT_TFTP_RANGE, MAX_UDP_PORT);
-
-  tftp_module = prefs_register_protocol(proto_tftp, proto_reg_handoff_tftp);
-  prefs_register_range_preference(tftp_module, "udp_ports",
-                                  "TFTP port numbers",
-                                  "Port numbers used for TFTP traffic "
-                                  "(default " UDP_PORT_TFTP_RANGE ")",
-                                  &global_tftp_port_range, MAX_UDP_PORT);
+  prefs_register_protocol(proto_tftp, apply_tftp_prefs);
 
   /* Register the tap for the "Export Object" function */
   tftp_eo_tap = register_tap("tftp_eo"); /* TFTP Export Object tap */
@@ -694,20 +692,9 @@ proto_register_tftp(void)
 void
 proto_reg_handoff_tftp(void)
 {
-  static range_t *tftp_port_range;
-  static gboolean tftp_initialized = FALSE;
+  heur_dissector_add("stun", dissect_embeddedtftp_heur, "TFTP over TURN", "tftp_stun", proto_tftp, HEURISTIC_ENABLE);
 
-  if (!tftp_initialized) {
-    tftp_handle = find_dissector("tftp");
-    heur_dissector_add("stun", dissect_embeddedtftp_heur, "TFTP over TURN", "tftp_stun", proto_tftp, HEURISTIC_ENABLE);
-    tftp_initialized = TRUE;
-  } else {
-    dissector_delete_uint_range("udp.port", tftp_port_range, tftp_handle);
-    g_free(tftp_port_range);
-  }
-
-  tftp_port_range = range_copy(global_tftp_port_range);
-  dissector_add_uint_range("udp.port", tftp_port_range, tftp_handle);
+  dissector_add_uint_range_with_preference("udp.port", UDP_PORT_TFTP_RANGE, tftp_handle);
 }
 
 /*

@@ -48,7 +48,7 @@ void proto_reg_handoff_ath(void);
  *
  */
 
-#define ATH_PORT 45564
+#define ATH_PORT 45564 /* Not IANA registered */
 
 static int proto_ath = -1;
 
@@ -438,10 +438,10 @@ proto_register_ath(void)
 void
 proto_reg_handoff_ath(void)
 {
-  static dissector_handle_t ath_handle;
+  dissector_handle_t ath_handle;
 
   ath_handle = create_dissector_handle(dissect_ath, proto_ath);
-  dissector_add_uint("udp.port", ATH_PORT, ath_handle);
+  dissector_add_uint_with_preference("udp.port", ATH_PORT, ath_handle);
 }
 
 /*

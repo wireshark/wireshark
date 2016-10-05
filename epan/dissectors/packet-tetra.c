@@ -56,7 +56,7 @@ static int proto_tetra = -1;
 
 static dissector_handle_t tetra_handle;
 
-static int global_tetra_port = 7074;
+#define TETRA_UDP_PORT  7074 /* Not IANA assigned */
 
 /* Whether the capture data include carrier numbers */
 static gboolean include_carrier_number = TRUE;
@@ -9268,13 +9268,8 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 void proto_reg_handoff_tetra(void)
 {
-	static gboolean initialized=FALSE;
-
-	if (!initialized) {
-		tetra_handle = create_dissector_handle(dissect_tetra, proto_tetra);
-		dissector_add_uint("udp.port", global_tetra_port, tetra_handle);
-	}
-
+	tetra_handle = create_dissector_handle(dissect_tetra, proto_tetra);
+	dissector_add_uint_with_preference("udp.port", TETRA_UDP_PORT, tetra_handle);
 }
 
 
@@ -11713,7 +11708,7 @@ void proto_register_tetra (void)
         "T_simplex_duplex_selection_05", HFILL }},
 
 /*--- End of included file: packet-tetra-hfarr.c ---*/
-#line 622 "./asn1/tetra/packet-tetra-template.c"
+#line 617 "./asn1/tetra/packet-tetra-template.c"
  	};
 
 	/* List of subtrees */
@@ -11998,7 +11993,7 @@ void proto_register_tetra (void)
     &ett_tetra_Modify_type,
 
 /*--- End of included file: packet-tetra-ettarr.c ---*/
-#line 632 "./asn1/tetra/packet-tetra-template.c"
+#line 627 "./asn1/tetra/packet-tetra-template.c"
 	};
 
 	static ei_register_info ei[] = {

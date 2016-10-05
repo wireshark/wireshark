@@ -28,7 +28,6 @@
 
 #include <epan/packet.h>
 #include <epan/crc16-tvb.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include "packet-tcp.h"
@@ -49,7 +48,7 @@ static int proto_synphasor	 = -1;
 
 /* user preferences */
 #define SYNPHASOR_TCP_PORT  4712 /* Not IANA registered */
-static guint global_pref_udp_port = 4713;
+#define SYNPHASOR_UDP_PORT  4713 /* Not IANA registered */
 
 /* the ett... variables hold the state (open/close) of the treeview in the GUI */
 static gint ett_synphasor	   = -1; /* root element for this protocol */
@@ -1348,7 +1347,6 @@ void proto_register_synphasor(void)
 		{ &ei_synphasor_checksum, { "synphasor.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
 	};
 
-	module_t *synphasor_module;
 	expert_module_t* expert_synphasor;
 
 	/* register protocol */
@@ -1364,38 +1362,18 @@ void proto_register_synphasor(void)
 	expert_synphasor = expert_register_protocol(proto_synphasor);
 	expert_register_field_array(expert_synphasor, ei, array_length(ei));
 
-	/* register preferences */
-	synphasor_module = prefs_register_protocol(proto_synphasor, proto_reg_handoff_synphasor);
-
-	/* the port numbers of the lower level protocols */
-	prefs_register_uint_preference(synphasor_module, "udp_port", "Synchrophasor UDP port",
-				       "Set the port number for synchrophasor frames over UDP" \
-				       "(if other than the default of 4713)",
-				       10, &global_pref_udp_port);
-
 } /* proto_register_synphasor() */
 
 /* called at startup and when the preferences change */
 void proto_reg_handoff_synphasor(void)
 {
-	static gboolean		  initialized = FALSE;
-	static dissector_handle_t synphasor_tcp_handle;
-	static guint		  current_udp_port;
+	dissector_handle_t synphasor_tcp_handle;
 
-	if (!initialized) {
-		synphasor_tcp_handle = create_dissector_handle(dissect_tcp, proto_synphasor);
-		dissector_add_for_decode_as("rtacser.data", synphasor_udp_handle);
-		dissector_add_uint_with_preference("tcp.port", SYNPHASOR_TCP_PORT, synphasor_tcp_handle);
-		initialized = TRUE;
-	}
-	else {
-		/* update preferences */
-		dissector_delete_uint("udp.port", current_udp_port, synphasor_udp_handle);
-	}
+	synphasor_tcp_handle = create_dissector_handle(dissect_tcp, proto_synphasor);
+	dissector_add_for_decode_as("rtacser.data", synphasor_udp_handle);
+	dissector_add_uint_with_preference("udp.port", SYNPHASOR_UDP_PORT, synphasor_udp_handle);
+	dissector_add_uint_with_preference("tcp.port", SYNPHASOR_TCP_PORT, synphasor_tcp_handle);
 
-	current_udp_port = global_pref_udp_port;
-
-	dissector_add_uint("udp.port", current_udp_port, synphasor_udp_handle);
 } /* proto_reg_handoff_synphasor() */
 
 /*

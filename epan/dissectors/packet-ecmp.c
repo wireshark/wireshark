@@ -51,9 +51,6 @@ static int proto_modbus = -1;
 /* These are the handles of our subdissectors */
 static dissector_handle_t modbus_handle = NULL;
 
-/*stores the port number for our protocol (ECMP)*/
-static const guint16 global_ecmp_port = 6160;
-
 /*smallest size of a packet, number of bytes*/
 static const gint ecmp_min_packet_size  = 6;
 
@@ -3565,18 +3562,14 @@ void proto_register_ecmp (void)
 /* Wireshark literally scans this file (packet-ecmp.c) to find this function  */
 void proto_reg_handoff_ecmp(void)
 {
-	static gboolean initialized = FALSE;
-	static dissector_handle_t ecmp_tcp_handle, ecmp_udp_handle;
+	dissector_handle_t ecmp_tcp_handle, ecmp_udp_handle;
 
-	if (!initialized) {
-		ecmp_tcp_handle = create_dissector_handle(dissect_ecmp_tcp, proto_ecmp);
-		ecmp_udp_handle = create_dissector_handle(dissect_ecmp_udp, proto_ecmp);
+	ecmp_tcp_handle = create_dissector_handle(dissect_ecmp_tcp, proto_ecmp);
+	ecmp_udp_handle = create_dissector_handle(dissect_ecmp_udp, proto_ecmp);
 
-		/* Cyclic frames are over UDP and non-cyclic are over TCP */
-		dissector_add_uint("udp.port", global_ecmp_port, ecmp_udp_handle);
-		dissector_add_uint_with_preference("tcp.port", ECMP_TCP_PORT, ecmp_tcp_handle);
-	initialized = TRUE;
-	}
+	/* Cyclic frames are over UDP and non-cyclic are over TCP */
+	dissector_add_uint_with_preference("udp.port", ECMP_TCP_PORT, ecmp_udp_handle);
+	dissector_add_uint_with_preference("tcp.port", ECMP_TCP_PORT, ecmp_tcp_handle);
 
 	/* Modbus dissector hooks */
 	modbus_handle = find_dissector_add_dependency("modbus", proto_ecmp);

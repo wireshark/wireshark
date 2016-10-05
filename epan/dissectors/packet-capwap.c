@@ -25,6 +25,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 
@@ -37,7 +38,6 @@ void proto_reg_handoff_capwap(void);
 #define UDP_PORT_CAPWAP_CONTROL 5246
 #define UDP_PORT_CAPWAP_DATA 5247
 
-static guint global_capwap_control_udp_port = UDP_PORT_CAPWAP_CONTROL;
 static guint global_capwap_data_udp_port = UDP_PORT_CAPWAP_DATA;
 static gboolean global_capwap_draft_8_cisco = FALSE;
 static gboolean global_capwap_reassemble = TRUE;
@@ -3395,6 +3395,13 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     return tvb_captured_length(tvb);
 }
 
+static void
+apply_capwap_prefs(void)
+{
+  pref_t *control_port = prefs_find_preference(prefs_find_module("capwap.data"), "udp.port");
+  global_capwap_data_udp_port = *control_port->varp.uint;
+}
+
 void
 proto_register_capwap_control(void)
 {
@@ -5764,15 +5771,9 @@ proto_register_capwap_control(void)
     register_init_routine(&capwap_reassemble_init);
     register_cleanup_routine(&capwap_reassemble_cleanup);
 
-    capwap_module = prefs_register_protocol(proto_capwap_control, proto_reg_handoff_capwap);
-
-    prefs_register_uint_preference(capwap_module, "udp.port.control", "CAPWAP Control UDP Port",
-        "Set the port for CAPWAP Control messages (if other than the default of 5246)",
-        10, &global_capwap_control_udp_port);
-
-    prefs_register_uint_preference(capwap_module, "udp.port.data", "CAPWAP Data UDP Port",
-        "Set the port for CAPWAP Data messages (if other than the default of 5247)",
-        10, &global_capwap_data_udp_port);
+    capwap_module = prefs_register_protocol(proto_capwap_control, NULL);
+    /* Need to create a placeholder for "port" preferences so there is a callback */
+    prefs_register_protocol(proto_capwap_data, apply_capwap_prefs);
 
     prefs_register_bool_preference(capwap_module, "draft_8_cisco", "Cisco Wireless Controller Support",
         "Enable support of Cisco Wireless Controller (based on old 8 draft revision).",
@@ -5791,29 +5792,18 @@ proto_register_capwap_control(void)
 void
 proto_reg_handoff_capwap(void)
 {
-    static gboolean inited = FALSE;
-    static dissector_handle_t capwap_control_handle, capwap_data_handle;
-    static guint capwap_control_udp_port, capwap_data_udp_port;
+    dissector_handle_t capwap_control_handle, capwap_data_handle;
 
-    if (!inited) {
-        capwap_control_handle = create_dissector_handle(dissect_capwap_control, proto_capwap_control);
-        capwap_data_handle    = create_dissector_handle(dissect_capwap_data, proto_capwap_data);
-        dtls_handle           = find_dissector_add_dependency("dtls", proto_capwap_control);
-        find_dissector_add_dependency("dtls", proto_capwap_data);
-        ieee8023_handle       = find_dissector_add_dependency("eth_withoutfcs", proto_capwap_data);
-        ieee80211_handle      = find_dissector_add_dependency("wlan_withoutfcs", proto_capwap_data);
-        ieee80211_bsfc_handle = find_dissector_add_dependency("wlan_bsfc", proto_capwap_data);
+    capwap_control_handle = create_dissector_handle(dissect_capwap_control, proto_capwap_control);
+    capwap_data_handle    = create_dissector_handle(dissect_capwap_data, proto_capwap_data);
+    dtls_handle           = find_dissector_add_dependency("dtls", proto_capwap_control);
+    find_dissector_add_dependency("dtls", proto_capwap_data);
+    ieee8023_handle       = find_dissector_add_dependency("eth_withoutfcs", proto_capwap_data);
+    ieee80211_handle      = find_dissector_add_dependency("wlan_withoutfcs", proto_capwap_data);
+    ieee80211_bsfc_handle = find_dissector_add_dependency("wlan_bsfc", proto_capwap_data);
 
-        inited = TRUE;
-    } else {
-        dissector_delete_uint("udp.port", capwap_control_udp_port, capwap_control_handle);
-        dissector_delete_uint("udp.port", capwap_data_udp_port, capwap_data_handle);
-    }
-    dissector_add_uint("udp.port", global_capwap_control_udp_port, capwap_control_handle);
-    dissector_add_uint("udp.port", global_capwap_data_udp_port, capwap_data_handle);
-
-    capwap_control_udp_port = global_capwap_control_udp_port;
-    capwap_data_udp_port    = global_capwap_data_udp_port;
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_CAPWAP_CONTROL, capwap_control_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_CAPWAP_DATA, capwap_data_handle);
 }
 /*
  * Editor modelines

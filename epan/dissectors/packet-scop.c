@@ -23,12 +23,10 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include "packet-tcp.h"
 
 /* Default SCOP Port numbers. */
-#define SCOP_DEFAULT_PORT           17755
-#define SCOP_DEFAULT_PORT_SECURED   17756
+#define SCOP_DEFAULT_PORT_RANGE     "17755-17756"
 
 void proto_register_scop(void);
 
@@ -116,9 +114,6 @@ static const value_string scop_services [] = {
     { SCOP_SERVICE_GATEWAY, "Gateway" },
     { 0, NULL }
 };
-
-static guint32  gPREF_scop_port         = SCOP_DEFAULT_PORT;
-static guint32  gPREF_scop_port_secured = SCOP_DEFAULT_PORT_SECURED;
 
 /*  Dissector handle */
 static dissector_handle_t ieee802154_handle;
@@ -323,8 +318,6 @@ dissect_scop_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  */
 void proto_register_scop(void)
 {
-    module_t *scop_module;
-
     static hf_register_info hf[] = {
         { &hf_scop_transport,
         { "Transport Type",         "scop.transport", FT_UINT8, BASE_DEC, VALS(scop_transports), 0x0,
@@ -362,17 +355,6 @@ void proto_register_scop(void)
     proto_register_field_array(proto_scop, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    /*  Register preferences module */
-    scop_module = prefs_register_protocol(proto_scop, proto_reg_handoff_scop);
-
-    /*  Register preferences */
-    prefs_register_uint_preference(scop_module, "port", "SCoP Port",
-                 "Set the port for SCoP\n",
-                 10, &gPREF_scop_port);
-    prefs_register_uint_preference(scop_module, "port_secure", "SCoP Secured Port",
-                 "Set the port for secured SCoP\n",
-                 10, &gPREF_scop_port_secured);
-
     /*  Register dissector with Wireshark. */
     register_dissector("scop.udp", dissect_scop, proto_scop);
     register_dissector("scop.tcp", dissect_scop_tcp, proto_scop);
@@ -392,33 +374,16 @@ void proto_register_scop(void)
  */
 void proto_reg_handoff_scop(void)
 {
-    static gboolean inited = FALSE;
-    static guint32  lastPort;
-    static guint32  lastPort_secured;
+    dissector_handle_t  scop_udp_handle;
+    dissector_handle_t  scop_tcp_handle;
 
-    static dissector_handle_t  scop_udp_handle;
-    static dissector_handle_t  scop_tcp_handle;
+    scop_udp_handle     = find_dissector("scop.udp");
+    scop_tcp_handle     = find_dissector("scop.tcp");
+    ieee802154_handle   = find_dissector_add_dependency("wpan_nofcs", proto_scop);
 
-    if (!inited){
-        scop_udp_handle     = find_dissector("scop.udp");
-        scop_tcp_handle     = find_dissector("scop.tcp");
-        ieee802154_handle   = find_dissector_add_dependency("wpan_nofcs", proto_scop);
-        inited = TRUE;
-    } else {
-        dissector_delete_uint("udp.port", lastPort, scop_udp_handle);
-        dissector_delete_uint("tcp.port", lastPort, scop_tcp_handle);
-        dissector_delete_uint("udp.port", lastPort_secured, scop_udp_handle);
-        dissector_delete_uint("tcp.port", lastPort_secured, scop_tcp_handle);
-    }
-    /* XXX - Should this be a range with "auto" preference? */
-    dissector_add_uint("udp.port", gPREF_scop_port, scop_udp_handle);
-    dissector_add_uint("tcp.port", gPREF_scop_port, scop_tcp_handle);
-    dissector_add_uint("udp.port", gPREF_scop_port_secured, scop_udp_handle);
-    dissector_add_uint("tcp.port", gPREF_scop_port_secured, scop_tcp_handle);
-
-    lastPort         = gPREF_scop_port;
-    lastPort_secured = gPREF_scop_port_secured;
-} /* proto_reg_handoff_scop */
+    dissector_add_uint_range_with_preference("udp.port", SCOP_DEFAULT_PORT_RANGE, scop_udp_handle);
+    dissector_add_uint_range_with_preference("tcp.port", SCOP_DEFAULT_PORT_RANGE, scop_tcp_handle);
+}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

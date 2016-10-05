@@ -39,6 +39,8 @@
 void proto_register_pn_rt(void);
 void proto_reg_handoff_pn_rt(void);
 
+#define PROFINET_UDP_PORT 0x8892
+
 /* Define the pn-rt proto */
 static int proto_pn_rt     = -1;
 static gboolean pnio_desegment = TRUE;
@@ -1001,7 +1003,7 @@ proto_reg_handoff_pn_rt(void)
     pn_rt_handle = create_dissector_handle(dissect_pn_rt, proto_pn_rt);
 
     dissector_add_uint("ethertype", ETHERTYPE_PROFINET, pn_rt_handle);
-    dissector_add_uint("udp.port", 0x8892, pn_rt_handle);
+    dissector_add_uint_with_preference("udp.port", PROFINET_UDP_PORT, pn_rt_handle);
 
     heur_dissector_add("pn_rt", dissect_CSF_SDU_heur, "PROFINET CSF_SDU IO", "pn_csf_sdu_pn_rt", proto_pn_rt, HEURISTIC_ENABLE);
     heur_dissector_add("pn_rt", dissect_FRAG_PDU_heur, "PROFINET Frag PDU IO", "pn_frag_pn_rt", proto_pn_rt, HEURISTIC_ENABLE);

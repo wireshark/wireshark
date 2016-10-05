@@ -835,9 +835,8 @@ void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb
 
 /* END Gateway Control Protocol -- Context Tracking */
 
+#define H248_PORT 2945
 static gboolean keep_persistent_data = FALSE;
-static guint    global_udp_port = 2945;
-#define H248_TCP_PORT 2945
 static gboolean h248_desegment = TRUE;
 
 
@@ -2373,16 +2372,11 @@ void proto_register_h248(void) {
 
     subdissector_table = register_dissector_table("h248.magic_num", "H248 Magic Num", proto_h248, FT_UINT32, BASE_HEX);
 
-    h248_module = prefs_register_protocol(proto_h248, proto_reg_handoff_h248);
+    h248_module = prefs_register_protocol(proto_h248, NULL);
     prefs_register_bool_preference(h248_module, "ctx_info",
                                    "Track Context",
                                    "Maintain relationships between transactions and contexts and display an extra tree showing context data",
                                    &keep_persistent_data);
-    prefs_register_uint_preference(h248_module, "udp_port",
-                                   "UDP port",
-                                   "Port to be decoded as h248",
-                                   10,
-                                   &global_udp_port);
     prefs_register_bool_preference(h248_module, "desegment",
                                    "Desegment H.248 over TCP",
                                    "Desegment H.248 messages that span more TCP segments",
@@ -2399,24 +2393,10 @@ void proto_register_h248(void) {
 /*--- proto_reg_handoff_h248 -------------------------------------------*/
 void proto_reg_handoff_h248(void) {
 
-    static gboolean initialized = FALSE;
-    static guint32 udp_port;
-
-    if (!initialized) {
-        dissector_add_uint("mtp3.service_indicator", MTP_SI_GCP, h248_handle);
-        h248_term_handle = find_dissector_add_dependency("h248term", proto_h248);
-        dissector_add_uint_with_preference("tcp.port", H248_TCP_PORT, h248_tpkt_handle);
-        initialized = TRUE;
-    } else {
-        if (udp_port != 0)
-            dissector_delete_uint("udp.port", udp_port, h248_handle);
-    }
-
-    udp_port = global_udp_port;
-
-    if (udp_port != 0) {
-        dissector_add_uint("udp.port", udp_port, h248_handle);
-    }
+    dissector_add_uint("mtp3.service_indicator", MTP_SI_GCP, h248_handle);
+    h248_term_handle = find_dissector_add_dependency("h248term", proto_h248);
+    dissector_add_uint_with_preference("tcp.port", H248_PORT, h248_tpkt_handle);
+    dissector_add_uint_with_preference("udp.port", H248_PORT, h248_handle);
 
     ss7pc_address_type = address_type_get_by_name("AT_SS7PC");
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);

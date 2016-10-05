@@ -532,7 +532,6 @@ static struct dmp_data {
 } dmp;
 
 /* User definable values */
-static range_t *global_dmp_port_range;
 static gint     dmp_nat_decode = NAT_DECODE_DMP;
 static gint     dmp_local_nation = 0;
 static gboolean use_seq_ack_analysis = TRUE;
@@ -4922,23 +4921,15 @@ void proto_register_dmp (void)
   register_init_routine (&dmp_init_routine);
   register_cleanup_routine (&dmp_cleanup_routine);
 
-  /* Set default UDP ports */
-  range_convert_str (&global_dmp_port_range, DEFAULT_DMP_PORT_RANGE,
-                     MAX_UDP_PORT);
-
   /* Build national values */
   build_national_strings ();
 
   /* Register our configuration options */
-  dmp_module = prefs_register_protocol (proto_dmp, proto_reg_handoff_dmp);
+  dmp_module = prefs_register_protocol (proto_dmp, NULL);
 
   prefs_register_obsolete_preference (dmp_module, "udp_port");
   prefs_register_obsolete_preference (dmp_module, "udp_port_second");
 
-  prefs_register_range_preference (dmp_module, "udp_ports",
-                                  "DMP port numbers",
-                                  "Port numbers used for DMP traffic",
-                                   &global_dmp_port_range, MAX_UDP_PORT);
   prefs_register_enum_preference (dmp_module, "national_decode",
                                   "National decoding",
                                   "Select the type of decoding for nationally-defined values",
@@ -4975,21 +4966,8 @@ void proto_register_dmp (void)
 
 void proto_reg_handoff_dmp (void)
 {
-  static range_t *dmp_port_range;
-  static gboolean dmp_prefs_initialized = FALSE;
-
-  if (!dmp_prefs_initialized) {
-    dmp_prefs_initialized = TRUE;
-    dissector_add_uint ("s5066sis.ctl.appid", S5066_CLIENT_S4406_ANNEX_E_TMI_4_DMP, dmp_handle);
-  } else {
-    dissector_delete_uint_range ("udp.port", dmp_port_range, dmp_handle);
-    g_free (dmp_port_range);
-  }
-
-  /* Save port number for later deletion */
-  dmp_port_range = range_copy (global_dmp_port_range);
-
-  dissector_add_uint_range ("udp.port", dmp_port_range, dmp_handle);
+  dissector_add_uint ("s5066sis.ctl.appid", S5066_CLIENT_S4406_ANNEX_E_TMI_4_DMP, dmp_handle);
+  dissector_add_uint_range_with_preference("udp.port", DEFAULT_DMP_PORT_RANGE, dmp_handle);
 }
 
 /*

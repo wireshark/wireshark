@@ -593,7 +593,7 @@ proto_reg_handoff_reload_framing(void)
   reload_handle = find_dissector_add_dependency("reload", proto_reload_framing);
 
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_RELOAD, reload_framing_tcp_handle);
-  dissector_add_uint("udp.port", UDP_PORT_RELOAD, reload_framing_udp_handle);
+  dissector_add_uint_with_preference("udp.port", UDP_PORT_RELOAD, reload_framing_udp_handle);
 
   heur_dissector_add("udp",  dissect_reload_framing_heur, "RELOAD Framing over UDP", "reload_framing_udp", proto_reload_framing, HEURISTIC_ENABLE);
   heur_dissector_add("tcp",  dissect_reload_framing_heur, "RELOAD Framing over TCP", "reload_framing_tcp", proto_reload_framing, HEURISTIC_ENABLE);

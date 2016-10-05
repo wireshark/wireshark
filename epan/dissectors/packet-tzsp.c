@@ -37,7 +37,7 @@
  * for a description of the protocol.
  */
 
-#define UDP_PORT_TZSP   0x9090
+#define UDP_PORT_TZSP   0x9090 /* Not IANA registered */
 
 void proto_register_tzsp(void);
 void proto_reg_handoff_tzsp(void);
@@ -539,8 +539,7 @@ proto_register_tzsp(void)
         &ett_tag
     };
 
-    proto_tzsp = proto_register_protocol("Tazmen Sniffer Protocol", "TZSP",
-        "tzsp");
+    proto_tzsp = proto_register_protocol("Tazmen Sniffer Protocol", "TZSP", "tzsp");
     proto_register_field_array(proto_tzsp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -550,7 +549,7 @@ proto_register_tzsp(void)
 void
 proto_reg_handoff_tzsp(void)
 {
-    dissector_add_uint("udp.port", UDP_PORT_TZSP, tzsp_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_TZSP, tzsp_handle);
 
     /* Get the data dissector for handling various encapsulation types. */
     eth_maybefcs_handle = find_dissector_add_dependency("eth_maybefcs", proto_tzsp);

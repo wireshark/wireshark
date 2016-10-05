@@ -209,7 +209,7 @@ proto_register_erpsan_marker(void)
 void
 proto_reg_handoff_erspan_marker(void)
 {
-  dissector_add_for_decode_as("udp.port", marker_handle);
+  dissector_add_for_decode_as_with_preference("udp.port", marker_handle);
 }
 
 /*

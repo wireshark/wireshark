@@ -1959,7 +1959,7 @@ proto_register_ehs(void)
 void
 proto_reg_handoff_ehs(void)
 {
-  dissector_add_for_decode_as ( "udp.port", find_dissector("ehs") );
+  dissector_add_for_decode_as_with_preference( "udp.port", find_dissector("ehs") );
   ccsds_handle = find_dissector_add_dependency ( "ccsds", proto_ehs  );
 }
 

@@ -168,9 +168,6 @@ static expert_field ei_sigcomp_sigcomp_message_decompression_failure = EI_INIT;
 static expert_field ei_sigcomp_execution_of_this_instruction_is_not_implemented = EI_INIT;
 
 static dissector_handle_t sip_handle;
-/* set the udp ports */
-static guint SigCompUDPPort1 = 5555;
-static guint SigCompUDPPort2 = 6666;
 
 /* set the tcp ports */
 #define SIGCOMP_TCP_PORT_RANGE "5555,6666" /* Not IANA registered */
@@ -6704,20 +6701,7 @@ proto_register_sigcomp(void)
     expert_register_field_array(expert_sigcomp, ei, array_length(ei));
 
 /* Register a configuration option for port */
-    sigcomp_module = prefs_register_protocol(proto_sigcomp,
-                                              proto_reg_handoff_sigcomp);
-
-    prefs_register_uint_preference(sigcomp_module, "udp.port",
-                                   "Sigcomp UDP Port 1",
-                                   "Set UDP port 1 for SigComp messages",
-                                   10,
-                                   &SigCompUDPPort1);
-
-    prefs_register_uint_preference(sigcomp_module, "udp.port2",
-                                   "Sigcomp UDP Port 2",
-                                   "Set UDP port 2 for SigComp messages",
-                                   10,
-                                   &SigCompUDPPort2);
+    sigcomp_module = prefs_register_protocol(proto_sigcomp, NULL);
 
     prefs_register_bool_preference(sigcomp_module, "display.udvm.code",
                                    "Dissect the UDVM code",
@@ -6755,28 +6739,14 @@ proto_register_sigcomp(void)
 void
 proto_reg_handoff_sigcomp(void)
 {
-    static dissector_handle_t sigcomp_handle;
-    static dissector_handle_t sigcomp_tcp_handle;
-    static gboolean Initialized = FALSE;
-    static guint udp_port1;
-    static guint udp_port2;
+    dissector_handle_t sigcomp_handle;
+    dissector_handle_t sigcomp_tcp_handle;
 
-    if (!Initialized) {
-        sigcomp_handle = find_dissector("sigcomp");
-        sigcomp_tcp_handle = create_dissector_handle(dissect_sigcomp_tcp,proto_sigcomp);
-        sip_handle = find_dissector_add_dependency("sip",proto_sigcomp);
-        dissector_add_uint_range_with_preference("tcp.port", SIGCOMP_TCP_PORT_RANGE, sigcomp_tcp_handle);
-        Initialized=TRUE;
-    } else {
-        dissector_delete_uint("udp.port", udp_port1, sigcomp_handle);
-        dissector_delete_uint("udp.port", udp_port2, sigcomp_handle);
-    }
-
-    udp_port1 = SigCompUDPPort1;
-    udp_port2 = SigCompUDPPort2;
-
-    dissector_add_uint("udp.port", SigCompUDPPort1, sigcomp_handle);
-    dissector_add_uint("udp.port", SigCompUDPPort2, sigcomp_handle);
+    sigcomp_handle = find_dissector("sigcomp");
+    sigcomp_tcp_handle = create_dissector_handle(dissect_sigcomp_tcp,proto_sigcomp);
+    sip_handle = find_dissector_add_dependency("sip",proto_sigcomp);
+    dissector_add_uint_range_with_preference("tcp.port", SIGCOMP_TCP_PORT_RANGE, sigcomp_tcp_handle);
+    dissector_add_uint_range_with_preference("udp.port", SIGCOMP_TCP_PORT_RANGE, sigcomp_handle);
 }
 
 /*

@@ -457,7 +457,7 @@ void proto_reg_handoff_pw_cesopsn(void)
 	pw_cesopsn_mpls_handle = create_dissector_handle( dissect_pw_cesopsn_mpls, proto );
 	dissector_add_for_decode_as("mpls.label", pw_cesopsn_mpls_handle);
 
-	dissector_add_for_decode_as("udp.port", find_dissector("pw_cesopsn_udp"));
+	dissector_add_for_decode_as_with_preference("udp.port", find_dissector("pw_cesopsn_udp"));
 	return;
 }
 

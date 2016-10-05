@@ -843,8 +843,7 @@ static const enum_val_t bootp_uuid_endian_vals[] = {
 	{ NULL, NULL, 0 }
 };
 
-#define UDP_PORT_BOOTPS	 67
-#define UDP_PORT_BOOTPC	 68
+#define BOOTP_UDP_PORT_RANGE  "67-68"
 
 #define BOOTP_BC	0x8000
 #define BOOTP_MBZ	0x7FFF
@@ -8683,8 +8682,7 @@ proto_register_bootp(void)
 void
 proto_reg_handoff_bootp(void)
 {
-	dissector_add_uint("udp.port", UDP_PORT_BOOTPS, bootp_handle);
-	dissector_add_uint("udp.port", UDP_PORT_BOOTPC, bootp_handle);
+	dissector_add_uint_range_with_preference("udp.port", BOOTP_UDP_PORT_RANGE, bootp_handle);
 }
 
 /*

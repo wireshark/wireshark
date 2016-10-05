@@ -43,6 +43,8 @@
 void proto_register_hip(void);
 void proto_reg_handoff_hip(void);
 
+#define HIP_UDP_PORT 10500
+
 #define HI_ALG_DSA 3
 #define HI_ALG_RSA 5
 
@@ -1607,7 +1609,7 @@ proto_reg_handoff_hip(void)
         dissector_add_uint("ip.proto", IP_PROTO_HIP, hip_handle);
 
         hip_handle2 = create_dissector_handle(dissect_hip_in_udp, proto_hip);
-        dissector_add_uint("udp.port", 10500, hip_handle2);
+        dissector_add_uint_with_preference("udp.port", HIP_UDP_PORT, hip_handle2);
 }
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

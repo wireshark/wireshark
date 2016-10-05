@@ -56,10 +56,6 @@ static dissector_handle_t sscf_nni_handle;
 static dissector_handle_t alcap_handle;
 static dissector_handle_t nbap_handle;
 
-static module_t *sscop_module;
-
-static range_t *global_udp_port_range;
-
 static dissector_handle_t sscop_handle;
 
 
@@ -387,21 +383,12 @@ void
 proto_reg_handoff_sscop(void)
 {
   static gboolean prefs_initialized = FALSE;
-  static range_t *udp_port_range;
 
   if (!prefs_initialized) {
     initialize_handles_once();
+    dissector_add_uint_range_with_preference("udp.port", "", sscop_handle);
     prefs_initialized = TRUE;
-
-  } else {
-
-    dissector_delete_uint_range("udp.port", udp_port_range, sscop_handle);
-    g_free(udp_port_range);
-
   }
-
-  udp_port_range = range_copy(global_udp_port_range);
-  dissector_add_uint_range("udp.port", udp_port_range, sscop_handle);
 
   dissector_add_uint("atm.aal5.type", TRAF_SSCOP, sscop_handle);
 
@@ -438,6 +425,8 @@ proto_register_sscop(void)
     &ett_stat
   };
 
+  module_t *sscop_module;
+
   proto_sscop = proto_register_protocol("SSCOP", "SSCOP", "sscop");
   proto_register_field_array(proto_sscop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -445,13 +434,6 @@ proto_register_sscop(void)
   sscop_handle = register_dissector("sscop", dissect_sscop, proto_sscop);
 
   sscop_module = prefs_register_protocol(proto_sscop, proto_reg_handoff_sscop);
-
-  global_udp_port_range = range_empty();
-
-  prefs_register_range_preference(sscop_module, "udp.ports",
-                                  "SSCOP UDP port range",
-                                  "Set the UDP port for SSCOP messages encapsulated in UDP (0 to disable)",
-                                  &global_udp_port_range, MAX_UDP_PORT);
 
   prefs_register_enum_preference(sscop_module, "payload",
                                  "SSCOP payload protocol",

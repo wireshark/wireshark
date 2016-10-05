@@ -35,7 +35,7 @@
 void proto_register_kink(void);
 void proto_reg_handoff_kink(void);
 
-#define KINK_PORT       57203
+#define KINK_PORT       57203 /* Not IANA registered */
 
 #define KINK_ISAKMP_PAYLOAD_BASE 14
 
@@ -990,11 +990,11 @@ proto_register_kink(void) {
 
 void proto_reg_handoff_kink(void) {
 
-  dissector_handle_t kink_handle = NULL;
+  dissector_handle_t kink_handle;
 
   kink_handle = create_dissector_handle(dissect_kink, proto_kink);
 
-  dissector_add_uint("udp.port", KINK_PORT, kink_handle);
+  dissector_add_uint_with_preference("udp.port", KINK_PORT, kink_handle);
 
 }
 

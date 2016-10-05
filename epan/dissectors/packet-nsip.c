@@ -37,8 +37,7 @@ void proto_reg_handoff_nsip(void);
 #define NSIP_DEBUG 0
 #define NSIP_SEP ", " /* Separator string */
 
-static range_t *global_nsip_udp_port_range;
-#define DEFAULT_NSIP_PORT_RANGE "2157,19999"
+#define DEFAULT_NSIP_PORT_RANGE "2157,19999" /* Not IANA registered */
 
 /* Initialize the protocol and registered fields */
 static int proto_nsip = -1;
@@ -1140,8 +1139,7 @@ proto_register_nsip(void)
   module_t *nsip_module;
 
   /* Register the protocol name and description */
-  proto_nsip = proto_register_protocol("GPRS Network Service",
-                                       "GPRS-NS", "gprs-ns");
+  proto_nsip = proto_register_protocol("GPRS Network Service", "GPRS-NS", "gprs-ns");
 
   /* Required function calls to register the header fields and
      subtrees used */
@@ -1150,36 +1148,19 @@ proto_register_nsip(void)
 
   register_dissector("gprs_ns", dissect_nsip, proto_nsip);
 
-  /* Set default UDP ports */
-  range_convert_str(&global_nsip_udp_port_range, DEFAULT_NSIP_PORT_RANGE, MAX_UDP_PORT);
-
   /* Register configuration options */
-  nsip_module = prefs_register_protocol(proto_nsip, proto_reg_handoff_nsip);
+  nsip_module = prefs_register_protocol(proto_nsip, NULL);
   prefs_register_obsolete_preference(nsip_module, "udp.port1");
   prefs_register_obsolete_preference(nsip_module, "udp.port2");
-  prefs_register_range_preference(nsip_module, "udp.ports", "GPRS-NS UDP ports",
-                                  "UDP ports to be decoded as GPRS-NS (default: "
-                                  DEFAULT_NSIP_PORT_RANGE ")",
-                                  &global_nsip_udp_port_range, MAX_UDP_PORT);
 }
 
 void
 proto_reg_handoff_nsip(void) {
-  static gboolean nsip_prefs_initialized = FALSE;
-  static range_t *nsip_udp_port_range;
 
-  if (!nsip_prefs_initialized) {
-    nsip_handle = find_dissector_add_dependency("gprs_ns", proto_nsip);
-    bssgp_handle = find_dissector_add_dependency("bssgp", proto_nsip);
-    nsip_prefs_initialized = TRUE;
-  } else {
-    dissector_delete_uint_range("udp.port", nsip_udp_port_range, nsip_handle);
-    g_free(nsip_udp_port_range);
-  }
+  nsip_handle = find_dissector_add_dependency("gprs_ns", proto_nsip);
+  bssgp_handle = find_dissector_add_dependency("bssgp", proto_nsip);
 
-  nsip_udp_port_range = range_copy(global_nsip_udp_port_range);
-
-  dissector_add_uint_range("udp.port", nsip_udp_port_range, nsip_handle);
+  dissector_add_uint_range_with_preference("udp.port", DEFAULT_NSIP_PORT_RANGE, nsip_handle);
   dissector_add_uint("atm.aal5.type", TRAF_GPRS_NS, nsip_handle);
 
 }

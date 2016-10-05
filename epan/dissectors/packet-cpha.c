@@ -522,8 +522,7 @@ proto_register_cpha(void)
     &ett_cphap,
   };
 
-  proto_cphap = proto_register_protocol("Check Point High Availability Protocol",
-                                              "CPHA", "cpha");
+  proto_cphap = proto_register_protocol("Check Point High Availability Protocol", "CPHA", "cpha");
   proto_register_field_array(proto_cphap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
@@ -534,7 +533,7 @@ proto_reg_handoff_cpha(void)
   dissector_handle_t cpha_handle;
 
   cpha_handle = create_dissector_handle(dissect_cpha, proto_cphap);
-  dissector_add_uint("udp.port", UDP_PORT_CPHA, cpha_handle);
+  dissector_add_uint_with_preference("udp.port", UDP_PORT_CPHA, cpha_handle);
 }
 /*
  * Editor modelines

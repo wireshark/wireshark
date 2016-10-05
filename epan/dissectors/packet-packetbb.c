@@ -27,7 +27,6 @@
 
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 
 void proto_reg_handoff_packetbb(void);
@@ -100,7 +99,8 @@ const value_string addrtlv_type_vals[] = {
   {  0, NULL                            }};
 
 static int proto_packetbb = -1;
-static guint global_packetbb_port = 269;
+
+#define PACKETBB_PORT 269 /* Not IANA registered */
 
 static int hf_packetbb_header = -1;
 static int hf_packetbb_version = -1;
@@ -789,20 +789,10 @@ static int dissect_packetbb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 void proto_reg_handoff_packetbb(void) {
-  static gboolean packetbb_prefs_initialized = FALSE;
-  static dissector_handle_t packetbb_handle;
-  static guint packetbb_udp_port;
+  dissector_handle_t packetbb_handle;
 
-  if (!packetbb_prefs_initialized) {
-    packetbb_handle = create_dissector_handle(dissect_packetbb, proto_packetbb);
-    packetbb_prefs_initialized = TRUE;
-  }
-  else {
-    dissector_delete_uint("udp.port", global_packetbb_port, packetbb_handle);
-  }
-
-  packetbb_udp_port = global_packetbb_port;
-  dissector_add_uint("udp.port", packetbb_udp_port, packetbb_handle);
+  packetbb_handle = create_dissector_handle(dissect_packetbb, proto_packetbb);
+  dissector_add_uint_with_preference("udp.port", PACKETBB_PORT, packetbb_handle);
 }
 
 void proto_register_packetbb(void) {
@@ -1121,7 +1111,6 @@ void proto_register_packetbb(void) {
   };
 
   static gint *ett[array_length(ett_base) + 2*PACKETBB_MSG_TLV_LENGTH];
-  module_t *packetbb_module;
   expert_module_t* expert_packetbb;
   int i,j;
 
@@ -1136,20 +1125,13 @@ void proto_register_packetbb(void) {
   }
 
   /* name, short name, abbrev */
-  proto_packetbb = proto_register_protocol("PacketBB Protocol", "PacketBB",
-      "packetbb");
+  proto_packetbb = proto_register_protocol("PacketBB Protocol", "PacketBB", "packetbb");
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_packetbb, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_packetbb = expert_register_protocol(proto_packetbb);
   expert_register_field_array(expert_packetbb, ei, array_length(ei));
-
-  /* configurable packetbb port */
-  packetbb_module = prefs_register_protocol(proto_packetbb, proto_reg_handoff_packetbb);
-  prefs_register_uint_preference(packetbb_module, "communication_port",
-      "UDP port for packetbb", "UDP communication port for packetbb PDUs",
-      10, &global_packetbb_port);
 }
 
 /*

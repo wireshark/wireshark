@@ -25,7 +25,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 
 /* IF PROTO exposes code to other dissectors, then it must be exported
@@ -302,10 +301,6 @@ static gint ett_wimaxmacphy_ul_sub_burst_mimo_chase                  = -1;
 static gint ett_wimaxmacphy_ul_sub_burst_sub_allocation_specific     = -1;
 
 static expert_field ei_wimaxmacphy_unknown = EI_INIT;
-
-/* Preferences */
-static guint wimaxmacphy_udp_port = 0;
-
 
 /* PHY SAP message header size */
 #define WIMAXMACPHY_HEADER_SIZE 2
@@ -2459,8 +2454,6 @@ dissect_wimaxmacphy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 void
 proto_register_wimaxmacphy(void)
 {
-    module_t *wimaxmacphy_module;
-
     static hf_register_info hf[] = {
             {
                 &hf_wimaxmacphy_hdr_phy_entity_id,
@@ -5441,43 +5434,15 @@ proto_register_wimaxmacphy(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_wimaxmacphy = expert_register_protocol(proto_wimaxmacphy);
     expert_register_field_array(expert_wimaxmacphy, ei, array_length(ei));
-
-    /* Register preferences module (See Section 2.6 for more on
-     * preferences) */
-    wimaxmacphy_module = prefs_register_protocol(
-        proto_wimaxmacphy,
-        proto_reg_handoff_wimaxmacphy);
-
-    prefs_register_uint_preference(
-        wimaxmacphy_module, "udp.port",
-        "WiMAX MAX PHY UDP Port",
-        "WiMAX MAX PHY UDP port",
-        10,
-        &wimaxmacphy_udp_port);
-
 }
 
 void
 proto_reg_handoff_wimaxmacphy(void)
 {
-    static guint              old_wimaxmacphy_udp_port = 0;
-    static gboolean           inited                   = FALSE;
-    static dissector_handle_t wimaxmacphy_handle;
+    dissector_handle_t wimaxmacphy_handle;
 
-    if (!inited) {
-        wimaxmacphy_handle = create_dissector_handle(dissect_wimaxmacphy, proto_wimaxmacphy);
-        dissector_add_for_decode_as("udp.port", wimaxmacphy_handle);
-        inited = TRUE;
-    }
-
-    /* Register UDP port for dissection */
-    if (old_wimaxmacphy_udp_port != 0 && old_wimaxmacphy_udp_port != wimaxmacphy_udp_port) {
-        dissector_delete_uint("udp.port", old_wimaxmacphy_udp_port, wimaxmacphy_handle);
-    }
-
-    if (wimaxmacphy_udp_port != 0 && old_wimaxmacphy_udp_port != wimaxmacphy_udp_port) {
-        dissector_add_uint("udp.port", wimaxmacphy_udp_port, wimaxmacphy_handle);
-    }
+    wimaxmacphy_handle = create_dissector_handle(dissect_wimaxmacphy, proto_wimaxmacphy);
+    dissector_add_for_decode_as_with_preference("udp.port", wimaxmacphy_handle);
 }
 
 /*

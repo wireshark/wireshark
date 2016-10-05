@@ -2004,7 +2004,7 @@ void proto_reg_handoff_lbtru(void)
     if (!already_registered)
     {
         lbtru_dissector_handle = create_dissector_handle(dissect_lbtru, proto_lbtru);
-        dissector_add_for_decode_as("udp.port", lbtru_dissector_handle);
+        dissector_add_for_decode_as_with_preference("udp.port", lbtru_dissector_handle);
         heur_dissector_add("udp", test_lbtru_packet, "LBT Reliable Unicast over UDP", "lbtru_udp", proto_lbtru, HEURISTIC_ENABLE);
         lbtru_tap_handle = register_tap("lbm_lbtru");
     }

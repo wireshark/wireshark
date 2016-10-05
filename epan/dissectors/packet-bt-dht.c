@@ -567,13 +567,9 @@ proto_register_bt_dht(void)
 
   module_t *bt_dht_module;
 
-  proto_bt_dht = proto_register_protocol (
-    "BitTorrent DHT Protocol",  /* name */
-    "BT-DHT",                   /* short name */
-    "bt-dht"                    /* abbrev */
-  );
+  proto_bt_dht = proto_register_protocol ("BitTorrent DHT Protocol", "BT-DHT", "bt-dht");
 
-  bt_dht_module = prefs_register_protocol(proto_bt_dht, proto_reg_handoff_bt_dht);
+  bt_dht_module = prefs_register_protocol(proto_bt_dht, NULL);
   prefs_register_obsolete_preference(bt_dht_module, "enable");
 
   proto_register_field_array(proto_bt_dht, hf, array_length(hf));
@@ -583,20 +579,14 @@ proto_register_bt_dht(void)
 void
 proto_reg_handoff_bt_dht(void)
 {
-  static gboolean prefs_initialized = FALSE;
-
   /* "Decode As" is always available;
    *  Heuristic dissection in disabled by default since the heuristic is quite weak.
    *  XXX - Still too weak?
    */
-  if (!prefs_initialized) {
-    heur_dissector_add("udp", dissect_bt_dht_heur, "BitTorrent DHT over UDP", "bittorrent_dht_udp", proto_bt_dht, HEURISTIC_DISABLE);
+  heur_dissector_add("udp", dissect_bt_dht_heur, "BitTorrent DHT over UDP", "bittorrent_dht_udp", proto_bt_dht, HEURISTIC_DISABLE);
 
-    bt_dht_handle = create_dissector_handle(dissect_bt_dht, proto_bt_dht);
-    dissector_add_for_decode_as("udp.port", bt_dht_handle);
-
-    prefs_initialized = TRUE;
-  }
+  bt_dht_handle = create_dissector_handle(dissect_bt_dht, proto_bt_dht);
+  dissector_add_for_decode_as_with_preference("udp.port", bt_dht_handle);
 }
 
 /*

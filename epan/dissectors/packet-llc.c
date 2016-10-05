@@ -47,11 +47,7 @@ void proto_register_basicxid(void);
 void proto_register_llc(void);
 void proto_reg_handoff_llc(void);
 
-#define UDP_PORT_LLC1   12000
-#define UDP_PORT_LLC2   12001
-#define UDP_PORT_LLC3   12002
-#define UDP_PORT_LLC4   12003
-#define UDP_PORT_LLC5   12004
+#define UDP_PORT_LLC_RANGE   "12000-12004"
 
 static int proto_llc = -1;
 static int hf_llc_dsap = -1;
@@ -885,11 +881,7 @@ proto_reg_handoff_llc(void)
 	/* RFC 2043 */
 	dissector_add_uint("ppp.protocol", PPP_LLC, llc_handle);
 	/* RFC 2353 */
-	dissector_add_uint("udp.port", UDP_PORT_LLC1, llc_handle);
-	dissector_add_uint("udp.port", UDP_PORT_LLC2, llc_handle);
-	dissector_add_uint("udp.port", UDP_PORT_LLC3, llc_handle);
-	dissector_add_uint("udp.port", UDP_PORT_LLC4, llc_handle);
-	dissector_add_uint("udp.port", UDP_PORT_LLC5, llc_handle);
+	dissector_add_uint_range_with_preference("udp.port", UDP_PORT_LLC_RANGE, llc_handle);
 	/* IP-over-FC when we have the full FC frame */
 	dissector_add_uint("fc.ftype", FC_FTYPE_IP, llc_handle);
 

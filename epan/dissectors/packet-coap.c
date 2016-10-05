@@ -33,7 +33,6 @@
 
 #include <epan/conversation.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
 
@@ -96,8 +95,6 @@ static expert_field ei_coap_option_length_bad	  = EI_INIT;
 /* indicators whether those are to be showed or not */
 #define DEFAULT_COAP_CTYPE_VALUE	~0U
 #define DEFAULT_COAP_BLOCK_NUMBER	~0U
-
-static guint global_coap_port_number = DEFAULT_COAP_PORT;
 
 static const gchar *coap_ctype_str   = NULL;
 static guint coap_ctype_value	     = DEFAULT_COAP_CTYPE_VALUE;
@@ -1244,7 +1241,6 @@ proto_register_coap(void)
 		  { "coap.option_length_bad", PI_MALFORMED, PI_WARN, "Option length bad", EXPFILL }},
 	};
 
-	module_t	*coap_module;
 	expert_module_t *expert_coap;
 
 	proto_coap = proto_register_protocol("Constrained Application Protocol", "CoAP", "coap");
@@ -1254,34 +1250,17 @@ proto_register_coap(void)
 	expert_register_field_array(expert_coap, ei, array_length(ei));
 
 	register_dissector("coap", dissect_coap, proto_coap);
-
-	/* Register our configuration options */
-	coap_module = prefs_register_protocol (proto_coap, proto_reg_handoff_coap);
-
-	prefs_register_uint_preference (coap_module, "udp_port",
-					"CoAP port number",
-					"Port number used for CoAP traffic",
-					10, &global_coap_port_number);
 }
 
 void
 proto_reg_handoff_coap(void)
 {
-	static gboolean coap_prefs_initialized = FALSE;
-	static dissector_handle_t coap_handle;
-	static guint coap_port_number;
+	dissector_handle_t coap_handle;
 
-	if (!coap_prefs_initialized) {
-		coap_handle = find_dissector("coap");
-		media_type_dissector_table = find_dissector_table("media_type");
-		dissector_add_uint_with_preference("tcp.port", DEFAULT_COAP_PORT, coap_handle);
-		coap_prefs_initialized = TRUE;
-	} else {
-		dissector_delete_uint("udp.port", coap_port_number, coap_handle);
-	}
-
-	coap_port_number = global_coap_port_number;
-	dissector_add_uint("udp.port", coap_port_number, coap_handle);
+	coap_handle = find_dissector("coap");
+	media_type_dissector_table = find_dissector_table("media_type");
+	dissector_add_uint_with_preference("tcp.port", DEFAULT_COAP_PORT, coap_handle);
+	dissector_add_uint_with_preference("udp.port", DEFAULT_COAP_PORT, coap_handle);
 }
 
 /*

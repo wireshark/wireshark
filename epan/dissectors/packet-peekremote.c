@@ -61,6 +61,8 @@
 
 #define IS_ARUBA 0x01
 
+#define PEEKREMOTE_PORT 5000 /* Not IANA registered */
+
 void proto_register_peekremote(void);
 void proto_reg_handoff_peekremote(void);
 
@@ -688,7 +690,7 @@ proto_reg_handoff_peekremote(void)
 {
   wlan_radio_handle = find_dissector_add_dependency("wlan_radio", proto_peekremote);
 
-  dissector_add_uint("udp.port", 5000, peekremote_handle);
+  dissector_add_uint_with_preference("udp.port", PEEKREMOTE_PORT, peekremote_handle);
 
   heur_dissector_add("udp", dissect_peekremote_new, "OmniPeek Remote over UDP", "peekremote_udp", proto_peekremote, HEURISTIC_ENABLE);
 }

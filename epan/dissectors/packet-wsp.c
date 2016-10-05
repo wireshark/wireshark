@@ -7164,15 +7164,9 @@ proto_register_wsp(void)
     expert_module_t* expert_wsp;
 
 /* Register the protocol name and description */
-    proto_wsp = proto_register_protocol(
-        "Wireless Session Protocol",    /* protocol name for use by wireshark */
-        "WSP",                          /* short version of name */
-        "wsp"                           /* Abbreviated protocol name,
-                                           should Match IANA:
-                                           < URL:http://www.iana.org/assignments/port-numbers/ >
-                                        */
-        );
+    proto_wsp = proto_register_protocol( "Wireless Session Protocol", "WSP", "wsp");
     wsp_tap = register_tap("wsp");
+
     /* Init the hash table */
 /*  wsp_sessions = g_hash_table_new(
     (GHashFunc) wsp_session_hash,
@@ -7203,8 +7197,7 @@ proto_reg_handoff_wsp(void)
     wbxml_uaprof_handle = find_dissector_add_dependency("wbxml-uaprof", proto_wsp);
 
     /* Only connection-less WSP has no previous handler */
-    dissector_add_uint("udp.port", UDP_PORT_WSP, wsp_fromudp_handle);
-    dissector_add_uint("udp.port", UDP_PORT_WSP_PUSH, wsp_fromudp_handle);
+    dissector_add_uint_range_with_preference("udp.port", UDP_PORT_WSP_RANGE, wsp_fromudp_handle);
 
     /* GSM SMS UD dissector can also carry WSP */
     dissector_add_uint("gsm_sms_ud.udh.port", UDP_PORT_WSP, wsp_fromudp_handle);

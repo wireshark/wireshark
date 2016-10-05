@@ -1486,7 +1486,7 @@ void proto_reg_handoff_pnrp(void)
 {
     dissector_handle_t pnrp_handle;
     pnrp_handle = create_dissector_handle(dissect_pnrp, proto_pnrp);
-    dissector_add_uint("udp.port",PNRP_PORT,pnrp_handle);
+    dissector_add_uint_with_preference("udp.port",PNRP_PORT,pnrp_handle);
 }
 
 /*

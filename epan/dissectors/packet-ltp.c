@@ -43,7 +43,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 
@@ -187,8 +186,7 @@ static const value_string client_service_id_info[] = {
 	{0, NULL}
 };
 
-
-static guint ltp_port = 1113;
+#define LTP_PORT    1113
 
 /* Initialize the subtree pointers */
 static gint ett_ltp             = -1;
@@ -837,8 +835,6 @@ ltp_defragment_init(void) {
 void
 proto_register_ltp(void)
 {
-	module_t *ltp_module;
-
 	static hf_register_info hf[] = {
 	  {&hf_ltp_version,
 		  {"LTP Version","ltp.version",
@@ -1032,43 +1028,26 @@ proto_register_ltp(void)
 	expert_module_t* expert_ltp;
 
 	/* Register the protocol name and description */
-	proto_ltp = proto_register_protocol("Licklider Transmission Protocol",
-		"LTP", "ltp");
+	proto_ltp = proto_register_protocol("Licklider Transmission Protocol", "LTP", "ltp");
 
 	proto_register_field_array(proto_ltp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_ltp = expert_register_protocol(proto_ltp);
 	expert_register_field_array(expert_ltp, ei, array_length(ei));
 
-	ltp_module = prefs_register_protocol(proto_ltp, proto_reg_handoff_ltp);
-
-	prefs_register_obsolete_preference(ltp_module, "udp.port");
-	prefs_register_uint_preference(ltp_module, "port", "LTP Port",
-		"The UDP or DCCP port to accept LTP Connections",
-		10, &ltp_port);
 	register_init_routine(ltp_defragment_init);
 }
 
 void
 proto_reg_handoff_ltp(void)
 {
-	static gboolean initialized = FALSE;
-	static dissector_handle_t ltp_handle;
-	static int currentPort;
+	dissector_handle_t ltp_handle;
 
-	if (!initialized) {
-		ltp_handle = create_dissector_handle(dissect_ltp, proto_ltp);
-		bundle_handle = find_dissector_add_dependency("bundle", proto_ltp);
-		initialized = TRUE;
-	} else {
-		dissector_delete_uint("udp.port", currentPort, ltp_handle);
-		dissector_delete_uint("dccp.port", currentPort, ltp_handle);
-	}
+	ltp_handle = create_dissector_handle(dissect_ltp, proto_ltp);
+	bundle_handle = find_dissector_add_dependency("bundle", proto_ltp);
 
-	currentPort = ltp_port;
-
-	dissector_add_uint("udp.port", currentPort, ltp_handle);
-	dissector_add_uint("dccp.port", currentPort, ltp_handle);
+	dissector_add_uint_with_preference("udp.port", LTP_PORT, ltp_handle);
+	dissector_add_uint_with_preference("dccp.port", LTP_PORT, ltp_handle);
 }
 
 /*

@@ -32,8 +32,10 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 
 void proto_register_quake2(void);
+void proto_reg_handoff_quake2(void);
 
 static int proto_quake2 = -1;
 
@@ -79,7 +81,7 @@ static gint ett_quake2_game_clc_cmd_move_bitfield = -1;
 static gint ett_quake2_game_clc_cmd_move_moves = -1;
 
 
-#define PORT_MASTER 27910
+#define PORT_MASTER 27910 /* Not IANA registered */
 static guint gbl_quake2ServerPort=PORT_MASTER;
 
 
@@ -681,8 +683,13 @@ dissect_quake2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     return tvb_captured_length(tvb);
 }
 
-
-void proto_reg_handoff_quake2(void);
+static void
+apply_quake2_prefs(void)
+{
+    /* Port preference used to determine client/server */
+    pref_t *quake2_port = prefs_find_preference(prefs_find_module("quake2"), "udp.port");
+    gbl_quake2ServerPort = *quake2_port->varp.uint;
+}
 
 void
 proto_register_quake2(void)
@@ -822,42 +829,22 @@ proto_register_quake2(void)
         &ett_quake2_game_clc_cmd_move_moves,
         &ett_quake2_game_clc_cmd_move_bitfield
     };
-    module_t *quake2_module;
 
-    proto_quake2 = proto_register_protocol("Quake II Network Protocol",
-            "QUAKE2", "quake2");
+    proto_quake2 = proto_register_protocol("Quake II Network Protocol", "QUAKE2", "quake2");
     proto_register_field_array(proto_quake2, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register a configuration option for port */
-    quake2_module = prefs_register_protocol(proto_quake2,
-            proto_reg_handoff_quake2);
-    prefs_register_uint_preference(quake2_module, "udp.port",
-            "Quake II Server UDP Port",
-            "Set the UDP port for the Quake II Server",
-            10, &gbl_quake2ServerPort);
+    prefs_register_protocol(proto_quake2, apply_quake2_prefs);
 }
-
 
 void
 proto_reg_handoff_quake2(void)
 {
-    static gboolean Initialized=FALSE;
-    static dissector_handle_t quake2_handle;
-    static guint ServerPort;
+    dissector_handle_t quake2_handle;
+    quake2_handle = create_dissector_handle(dissect_quake2, proto_quake2);
 
-    if (!Initialized) {
-        quake2_handle = create_dissector_handle(dissect_quake2,
-                proto_quake2);
-        Initialized=TRUE;
-    } else {
-        dissector_delete_uint("udp.port", ServerPort, quake2_handle);
-    }
-
-    /* set port for future deletes */
-    ServerPort=gbl_quake2ServerPort;
-
-    dissector_add_uint("udp.port", gbl_quake2ServerPort, quake2_handle);
+    dissector_add_uint("udp.port", PORT_MASTER, quake2_handle);
 }
 
 /*

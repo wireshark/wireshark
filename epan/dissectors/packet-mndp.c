@@ -66,7 +66,7 @@ static int hf_mndp_interfacename = -1;
 #define PROTO_SHORT_NAME "MNDP"
 #define PROTO_LONG_NAME "Mikrotik Neighbor Discovery Protocol"
 
-#define PORT_MNDP	5678
+#define PORT_MNDP	5678 /* Not IANA registered */
 
 /* ============= copy/paste/modify from value_string.[hc] ============== */
 typedef struct _ext_value_string {
@@ -359,7 +359,7 @@ proto_reg_handoff_mndp(void)
 	dissector_handle_t mndp_handle;
 
 	mndp_handle = create_dissector_handle(dissect_mndp_static, proto_mndp);
-	dissector_add_uint("udp.port", PORT_MNDP, mndp_handle);
+	dissector_add_uint_with_preference("udp.port", PORT_MNDP, mndp_handle);
 	heur_dissector_add("udp", dissect_mndp_heur, "MNDP over UDP", "mndp_udp", proto_mndp, HEURISTIC_DISABLE);
 }
 

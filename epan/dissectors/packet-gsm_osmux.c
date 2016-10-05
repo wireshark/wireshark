@@ -282,17 +282,14 @@ void proto_register_osmux(void)
 
 void proto_reg_handoff_osmux(void)
 {
-    static gboolean osmux_initialized = FALSE;
+    osmux_handle = create_dissector_handle(dissect_osmux, proto_osmux);
+    dissector_add_for_decode_as_with_preference("udp.port", osmux_handle);
 
-    if (!osmux_initialized) {
-        osmux_handle = create_dissector_handle(dissect_osmux, proto_osmux);
-        dissector_add_for_decode_as("udp.port", osmux_handle);
-        osmux_tap = register_tap("osmux");
-        osmux_initialized = TRUE;
-        stats_tree_register("osmux", "osmux", "Osmux/Packets", 0,
-                osmux_stats_tree_packet, osmux_stats_tree_init,
-                NULL);
-    }
+    osmux_tap = register_tap("osmux");
+
+    stats_tree_register("osmux", "osmux", "Osmux/Packets", 0,
+            osmux_stats_tree_packet, osmux_stats_tree_init,
+            NULL);
 }
 
 /*

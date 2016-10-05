@@ -850,7 +850,7 @@ proto_reg_handoff_amr(void)
                              create_dissector_handle(ftr->content_pdu, proto_amr));
         }
         /*  Activate the next line for testing with the randpkt tool
-            dissector_add_uint("udp.port", 55555, amr_handle);
+            dissector_add_uint_with_preference("udp.port", 55555, amr_handle);
         */
         amr_prefs_initialized = TRUE;
     } else {

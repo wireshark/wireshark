@@ -27,7 +27,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
-#define TDMOP_PORT            0
 /*Using of ethertype 0x0808(assigned to Frame Realy ARP) was implemented in hardware, when ethertype was not assigned*/
 #define ETHERTYPE_TDMOP       0
 
@@ -61,7 +60,6 @@ static dissector_handle_t lapd_handle    = NULL;
 static gint pref_tdmop_d_channel      = 16;
 static guint32 pref_tdmop_mask        = 0xFFFFFFFFUL;
 static guint32 pref_tdmop_ethertype   = ETHERTYPE_TDMOP;
-static guint32 pref_tdmop_udpport     = TDMOP_PORT;
 
 #define TDMOP_FLAG_NO_DATA (1<<3)
 #define TDMOP_FLAG_REMOTE_NO_DATA (1<<2)
@@ -315,11 +313,7 @@ void proto_register_tdmop(void)
         &ett_tdmop,
         &ett_tdmop_channel
     };
-    proto_tdmop = proto_register_protocol (
-        "TDMoP protocol",
-        "TDMoP",
-        "tdmop"
-        );
+    proto_tdmop = proto_register_protocol ("TDMoP protocol", "TDMoP", "tdmop");
     proto_register_field_array(proto_tdmop, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     tdmop_module = prefs_register_protocol(proto_tdmop, proto_reg_handoff_tdmop);
@@ -335,10 +329,6 @@ void proto_register_tdmop(void)
                     "Ethertype for TDMoP stream(Usually 0808)",
                     "The ethertype assigned to TDMoP (without IP/UDP) stream",
                     16, &pref_tdmop_ethertype);
-    prefs_register_uint_preference(tdmop_module, "udpport",
-                    "UDP Port of TDMoP stream(Usually 41000)",
-                    "The udp port assigned to TDMoP stream",
-                    10, &pref_tdmop_udpport);
 }
 
 void proto_reg_handoff_tdmop(void)
@@ -346,19 +336,16 @@ void proto_reg_handoff_tdmop(void)
     static dissector_handle_t tdmop_handle;
     static gboolean init = FALSE;
     static guint32 current_tdmop_ethertype;
-    static guint32 current_tdmop_udpport;
     if (!init)
     {
         tdmop_handle = create_dissector_handle(dissect_tdmop, proto_tdmop);
-        if (pref_tdmop_udpport) {
-            dissector_add_uint("udp.port", pref_tdmop_udpport, tdmop_handle);
-        }
+        dissector_add_for_decode_as_with_preference("udp.port", tdmop_handle);
+
         if (pref_tdmop_ethertype) {
             dissector_add_uint("ethertype", pref_tdmop_ethertype, tdmop_handle);
         }
         lapd_handle = find_dissector_add_dependency("lapd-bitstream", proto_tdmop);
         current_tdmop_ethertype = pref_tdmop_ethertype;
-        current_tdmop_udpport = pref_tdmop_udpport;
         init = TRUE;
     }
     if (current_tdmop_ethertype != pref_tdmop_ethertype)
@@ -368,14 +355,6 @@ void proto_reg_handoff_tdmop(void)
             dissector_add_uint("ethertype", pref_tdmop_ethertype, tdmop_handle);
         }
         current_tdmop_ethertype = pref_tdmop_ethertype;
-    }
-    if (current_tdmop_udpport != pref_tdmop_udpport)
-    {
-        dissector_delete_uint("udp.port", current_tdmop_udpport, tdmop_handle);
-        if (pref_tdmop_udpport) {
-            dissector_add_uint("udp.port", pref_tdmop_udpport, tdmop_handle);
-        }
-        current_tdmop_udpport = pref_tdmop_udpport;
     }
 }
 

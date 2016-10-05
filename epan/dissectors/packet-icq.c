@@ -1398,7 +1398,7 @@ proto_reg_handoff_icq(void)
     dissector_handle_t icq_handle;
 
     icq_handle = create_dissector_handle(dissect_icq, proto_icq);
-    dissector_add_uint("udp.port", UDP_PORT_ICQ, icq_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_ICQ, icq_handle);
 }
 
 /*

@@ -473,7 +473,7 @@ void proto_reg_handoff_pw_satop(void)
 	pw_satop_mpls_handle = create_dissector_handle( dissect_pw_satop_mpls, proto );
 	dissector_add_for_decode_as("mpls.label", pw_satop_mpls_handle);
 
-	dissector_add_for_decode_as("udp.port", find_dissector("pw_satop_udp"));
+	dissector_add_for_decode_as_with_preference("udp.port", find_dissector("pw_satop_udp"));
 }
 
 /*

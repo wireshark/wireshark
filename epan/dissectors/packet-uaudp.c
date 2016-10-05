@@ -25,12 +25,14 @@
 
 #include "epan/packet.h"
 #include "epan/prefs.h"
+#include "epan/prefs-int.h"
 #include "wsutil/report_err.h"
 #include "wsutil/inet_addr.h"
 
 #include "packet-uaudp.h"
 
 void proto_register_uaudp(void);
+void proto_reg_handoff_uaudp(void);
 
 /* GLOBALS */
 
@@ -64,11 +66,12 @@ static int hf_uaudp_sntseq          = -1;
 static gint ett_uaudp               = -1;
 
 /* pref */
+#define UAUDP_PORT_RANGE "32000,32512" /* Not IANA registered */
+static range_t *ua_udp_range = NULL;
 static guint32 sys_ip;
 static const char* pref_sys_ip_s = "";
 
 static gboolean use_sys_ip = FALSE;
-static gboolean decode_ua  = TRUE;
 
 static const value_string uaudp_opcode_str[] =
 {
@@ -103,39 +106,6 @@ value_string_ext uaudp_connect_vals_ext = VALUE_STRING_EXT_INIT(uaudp_connect_va
 
 static dissector_handle_t ua_sys_to_term_handle;
 static dissector_handle_t ua_term_to_sys_handle;
-
-typedef struct
-{
-    const char *name;
-    const char *text;
-    guint port;
-    guint last_port;
-} prefs_uaudp_t;
-
-static prefs_uaudp_t ports[] =
-{
-    {"port1", "Terminal UDP port (setting 1)",  32000,  32000},
-    {"port2", "Terminal UDP port (setting 2)",  32512,  32512},
-    {"port3", "Terminal UDP port (setting 3)",  0,  0},
-    {"port4", "Terminal UDP port (setting 4)",  0,  0},
-#if 0
-    {"port5", "Terminal UDP port (setting 5)",  0,  0},
-    {"port6", "Terminal UDP port (setting 6)",  0,  0},
-    {"port7", "Terminal UDP port (setting 7)",  0,  0},
-    {"port8", "Terminal UDP port (setting 8)",  0,  0}
-#endif
-};
-#define MAX_TERMINAL_PORTS (signed)(array_length(ports))
-
-static gboolean find_terminal_port(guint port)
-{
-    int i;
-    for (i=0; i<MAX_TERMINAL_PORTS; i++)
-        if (ports[i].port == port)
-            return TRUE;
-    return FALSE;
-}
-
 
 static void rV(proto_tree *tree, int *V, tvbuff_t *tvb, gint offset, gint8 L)
 {
@@ -372,12 +342,12 @@ static int dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     }
 
     /* use ports to find direction */
-    if (find_terminal_port(pinfo->srcport))
+    if (value_is_in_range(ua_udp_range, pinfo->srcport))
     {
         _dissect_uaudp(tvb, pinfo, tree, TERM_TO_SYS);
         return tvb_captured_length(tvb);
     }
-    else if (find_terminal_port(pinfo->destport))
+    else if (value_is_in_range(ua_udp_range, pinfo->destport))
     {
         _dissect_uaudp(tvb, pinfo, tree, SYS_TO_TERM);
         return tvb_captured_length(tvb);
@@ -387,14 +357,24 @@ static int dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     return tvb_captured_length(tvb);
 }
 
+static void
+apply_uaudp_prefs(void) {
+    pref_t *ua_ports = prefs_find_preference(prefs_find_module("uaudp"), "udp.port");
 
-/* Register the protocol with Wireshark */
-void proto_reg_handoff_uaudp(void);
+    ua_udp_range = range_copy(*ua_ports->varp.range);
+
+    if (*pref_sys_ip_s) {
+        use_sys_ip = ws_inet_pton4(pref_sys_ip_s, &sys_ip);
+        if (!use_sys_ip) {
+            report_failure("Invalid value for pref uaudp.system_ip: %s",
+                    pref_sys_ip_s);
+        }
+    }
+}
 
 void proto_register_uaudp(void)
 {
     module_t *uaudp_module;
-    int       i;
 
     /* Setup list of header fields. See Section 1.6.1 for details */
     static hf_register_info hf_uaudp[] = {
@@ -561,9 +541,7 @@ void proto_register_uaudp(void)
         };
 
     /* Register the protocol name and description */
-    proto_uaudp = proto_register_protocol("UA/UDP Encapsulation Protocol",
-                          "UAUDP",
-                          "uaudp");
+    proto_uaudp = proto_register_protocol("UA/UDP Encapsulation Protocol", "UAUDP", "uaudp");
 
     uaudp_handle = register_dissector("uaudp", dissect_uaudp, proto_uaudp);
 #if 0 /* XXX: Not used ?? */
@@ -575,23 +553,17 @@ void proto_register_uaudp(void)
     proto_register_field_array(proto_uaudp, hf_uaudp, array_length(hf_uaudp));
     proto_register_subtree_array(ett, array_length(ett));
 
-    /* Register preferences */
-    uaudp_module = prefs_register_protocol(proto_uaudp, proto_reg_handoff_uaudp);
-
 #if 0
-    prefs_register_bool_preference(uaudp_module, "enable",
-                       "Enable UA/UDP decoding based on preferences",
-                       "Enable UA/UDP decoding based on preferences",
-                       &decode_ua);
+    uaudp_opcode_dissector_table =
+            register_dissector_table("uaudp.opcode",
+                                     "UAUDP opcode",
+                                     FT_UINT8,
+                                     BASE_DEC);
 #endif
-    for (i=0; i<MAX_TERMINAL_PORTS; i++) {
-        prefs_register_uint_preference(uaudp_module,
-                           ports[i].name,
-                           ports[i].text,
-                           ports[i].text,
-                           10,
-                           &ports[i].port);
-    }
+
+    /* Register preferences */
+    uaudp_module = prefs_register_protocol(proto_uaudp, apply_uaudp_prefs);
+
     prefs_register_string_preference(uaudp_module, "system_ip",
                      "System IP Address (optional)",
                      "IPv4 address of the DHS3 system."
@@ -604,62 +576,12 @@ void proto_register_uaudp(void)
 #endif
 }
 
-
 void proto_reg_handoff_uaudp(void)
 {
-    static gboolean           prefs_initialized = FALSE;
-    int i;
+    ua_sys_to_term_handle = find_dissector_add_dependency("ua_sys_to_term", proto_uaudp);
+    ua_term_to_sys_handle = find_dissector_add_dependency("ua_term_to_sys", proto_uaudp);
 
-    if (!prefs_initialized)
-    {
-        ua_sys_to_term_handle = find_dissector_add_dependency("ua_sys_to_term", proto_uaudp);
-        ua_term_to_sys_handle = find_dissector_add_dependency("ua_term_to_sys", proto_uaudp);
-#if 0
-        uaudp_opcode_dissector_table =
-            register_dissector_table("uaudp.opcode",
-                                     "UAUDP opcode",
-                                     FT_UINT8,
-                                     BASE_DEC);
-#endif
-        prefs_initialized     = TRUE;
-    }
-    else
-    {
-        for (i=0; i<MAX_TERMINAL_PORTS; i++)
-        {
-            if (ports[i].last_port)
-                dissector_delete_uint("udp.port", ports[i].last_port, uaudp_handle);
-        }
-        if (*pref_sys_ip_s) {
-            use_sys_ip = ws_inet_pton4(pref_sys_ip_s, &sys_ip);
-            if (!use_sys_ip) {
-                report_failure("Invalid value for pref uaudp.system_ip: %s",
-                        pref_sys_ip_s);
-            }
-        }
-    }
-
-    if (decode_ua)
-    {
-        int no_ports_registered = TRUE;
-
-        for (i=0; i < MAX_TERMINAL_PORTS; i++)
-        {
-            if (ports[i].port)
-            {
-                dissector_add_uint("udp.port", ports[i].port, uaudp_handle);
-                no_ports_registered = FALSE;
-            }
-            ports[i].last_port = ports[i].port;
-        }
-
-        if (no_ports_registered)
-        {
-            /* If all ports are set to 0, then just register the handle so
-             * at least "Decode As..." will work. */
-            dissector_add_for_decode_as("udp.port", uaudp_handle);
-        }
-    }
+    dissector_add_uint_range_with_preference("udp.port", UAUDP_PORT_RANGE, uaudp_handle);
 }
 
 /*

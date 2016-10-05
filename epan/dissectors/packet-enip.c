@@ -4427,11 +4427,11 @@ proto_reg_handoff_enip(void)
 
    /* Register for EtherNet/IP, using UDP */
    enip_udp_handle = create_dissector_handle(dissect_enip_udp, proto_enip);
-   dissector_add_uint("udp.port", ENIP_ENCAP_PORT, enip_udp_handle);
+   dissector_add_uint_with_preference("udp.port", ENIP_ENCAP_PORT, enip_udp_handle);
 
    /* Register for EtherNet/IP IO data (UDP) */
    enipio_handle = find_dissector("enip_io");
-   dissector_add_uint("udp.port", ENIP_IO_PORT, enipio_handle);
+   dissector_add_uint_with_preference("udp.port", ENIP_IO_PORT, enipio_handle);
 
    /* Register for EtherNet/IP TLS */
    ssl_dissector_add(ENIP_SECURE_PORT, enip_tcp_handle);

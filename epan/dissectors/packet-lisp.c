@@ -3623,7 +3623,7 @@ proto_register_lisp(void)
 void
 proto_reg_handoff_lisp(void)
 {
-    dissector_add_uint("udp.port", LISP_CONTROL_PORT, lisp_handle);
+    dissector_add_uint_with_preference("udp.port", LISP_CONTROL_PORT, lisp_handle);
     ipv4_handle = find_dissector_add_dependency("ip", proto_lisp);
     ipv6_handle = find_dissector_add_dependency("ipv6", proto_lisp);
 }

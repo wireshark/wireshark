@@ -42,9 +42,7 @@
 void proto_register_rx(void);
 void proto_reg_handoff_rx(void);
 
-#define UDP_PORT_RX_LOW		7000
-#define UDP_PORT_RX_HIGH	7009
-#define UDP_PORT_RX_AFS_BACKUPS	7021
+#define UDP_PORT_RX_RANGE	"7000-7009,7021"
 
 static const value_string rx_types[] = {
 	{ RX_PACKET_TYPE_DATA,		"data" },
@@ -755,19 +753,13 @@ proto_reg_handoff_rx(void)
 {
 	dissector_handle_t rx_handle;
 
-	int port;
-
 	/*
 	 * Get handle for the AFS dissector.
 	 */
 	afs_handle = find_dissector_add_dependency("afs", proto_rx);
 
-	/* Ports in the range UDP_PORT_RX_LOW to UDP_PORT_RX_HIGH
-	   are all used for various AFS services. */
 	rx_handle = create_dissector_handle(dissect_rx, proto_rx);
-	for (port = UDP_PORT_RX_LOW; port <= UDP_PORT_RX_HIGH; port++)
-		dissector_add_uint("udp.port", port, rx_handle);
-	dissector_add_uint("udp.port", UDP_PORT_RX_AFS_BACKUPS, rx_handle);
+	dissector_add_uint_range_with_preference("udp.port", UDP_PORT_RX_RANGE, rx_handle);
 }
 
 /*

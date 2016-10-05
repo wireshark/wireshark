@@ -2058,7 +2058,7 @@ proto_reg_handoff_atalk(void)
 
   nbp_handle = create_dissector_handle(dissect_nbp, proto_nbp);
   dissector_add_uint("ddp.type", DDP_NBP, nbp_handle);
-  dissector_add_for_decode_as("udp.port", nbp_handle);
+  dissector_add_for_decode_as_with_preference("udp.port", nbp_handle);
 
   atp_handle = create_dissector_handle(dissect_atp, proto_atp);
   dissector_add_uint("ddp.type", DDP_ATP, atp_handle);

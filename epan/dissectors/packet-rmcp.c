@@ -255,7 +255,7 @@ proto_reg_handoff_rmcp(void)
 	dissector_handle_t rmcp_handle;
 
 	rmcp_handle = create_dissector_handle(dissect_rmcp, proto_rmcp);
-	dissector_add_uint("udp.port", UDP_PORT_RMCP, rmcp_handle);
+	dissector_add_uint_with_preference("udp.port", UDP_PORT_RMCP, rmcp_handle);
 }
 
 void
@@ -264,7 +264,7 @@ proto_reg_handoff_rsp(void)
 	dissector_handle_t rsp_handle;
 
 	rsp_handle = create_dissector_handle(dissect_rsp, proto_rsp);
-	dissector_add_uint("udp.port", UDP_PORT_RMCP_SECURE, rsp_handle);
+	dissector_add_uint_with_preference("udp.port", UDP_PORT_RMCP_SECURE, rsp_handle);
 }
 
 /*

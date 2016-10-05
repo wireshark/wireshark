@@ -124,7 +124,6 @@ static expert_field ei_icep_context_too_long = EI_INIT;
 static guint icep_max_batch_requests    = 64;
 static guint icep_max_ice_string_len    = 512;
 static guint icep_max_ice_context_pairs = 64;
-static guint icep_udp_port              = 0;
 
 
 static const value_string icep_msgtype_vals[] = {
@@ -1294,12 +1293,6 @@ void proto_register_icep(void)
     expert_register_field_array(expert_icep, ei, array_length(ei));
 
     icep_module = prefs_register_protocol(proto_icep, NULL);
-    prefs_register_uint_preference(icep_module, "udp.port",
-                                 "ICEP UDP Port",
-                                 "ICEP UDP port",
-                                 10,
-                                 &icep_udp_port);
-
     prefs_register_uint_preference(icep_module, "max_batch_requests",
                                   "Maximum batch requests",
                                   "Maximum number of batch requests allowed",
@@ -1319,34 +1312,19 @@ void proto_register_icep(void)
 
 void proto_reg_handoff_icep(void)
 {
-    static gboolean icep_prefs_initialized = FALSE;
-    static dissector_handle_t icep_tcp_handle, icep_udp_handle;
-    static guint old_icep_udp_port = 0;
+    dissector_handle_t icep_tcp_handle, icep_udp_handle;
 
     /* Register as a heuristic TCP/UDP dissector */
-    if (icep_prefs_initialized == FALSE) {
-        icep_tcp_handle = create_dissector_handle(dissect_icep_tcp, proto_icep);
-        icep_udp_handle = create_dissector_handle(dissect_icep_udp, proto_icep);
+    icep_tcp_handle = create_dissector_handle(dissect_icep_tcp, proto_icep);
+    icep_udp_handle = create_dissector_handle(dissect_icep_udp, proto_icep);
 
-        heur_dissector_add("tcp", dissect_icep_tcp, "ICEP over TCP", "icep_tcp", proto_icep, HEURISTIC_ENABLE);
-        heur_dissector_add("udp", dissect_icep_udp, "ICEP over UDP", "icep_udp", proto_icep, HEURISTIC_ENABLE);
+    heur_dissector_add("tcp", dissect_icep_tcp, "ICEP over TCP", "icep_tcp", proto_icep, HEURISTIC_ENABLE);
+    heur_dissector_add("udp", dissect_icep_udp, "ICEP over UDP", "icep_udp", proto_icep, HEURISTIC_ENABLE);
 
-        /* Register TCP port for dissection */
-        dissector_add_for_decode_as_with_preference("tcp.port", icep_tcp_handle);
-
-        icep_prefs_initialized = TRUE;
-    }
-
+    /* Register TCP port for dissection */
+    dissector_add_for_decode_as_with_preference("tcp.port", icep_tcp_handle);
     /* Register UDP port for dissection */
-    if(old_icep_udp_port != 0 && old_icep_udp_port != icep_udp_port){
-        dissector_delete_uint("udp.port", old_icep_udp_port, icep_udp_handle);
-    }
-
-    if(icep_udp_port != 0 && old_icep_udp_port != icep_udp_port) {
-        dissector_add_uint("udp.port", icep_udp_port, icep_udp_handle);
-    }
-
-    old_icep_udp_port = icep_udp_port;
+    dissector_add_for_decode_as_with_preference("udp.port", icep_udp_handle);
 }
 
 /*

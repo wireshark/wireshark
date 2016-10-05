@@ -54,6 +54,7 @@ void proto_reg_handoff_mint(void);
 #define PORT_MINT_CONTROL_TUNNEL	24576
 /* 0x6001 */
 #define PORT_MINT_DATA_TUNNEL		24577
+#define PORT_MINT_RANGE				"24576-24577"
 
 static dissector_handle_t eth_handle;
 
@@ -736,8 +737,7 @@ proto_register_mint(void)
 void
 proto_reg_handoff_mint(void)
 {
-	dissector_add_uint("udp.port", PORT_MINT_CONTROL_TUNNEL, mint_control_handle);
-	dissector_add_uint("udp.port", PORT_MINT_DATA_TUNNEL, mint_data_handle);
+	dissector_add_uint_range_with_preference("udp.port", PORT_MINT_RANGE, mint_control_handle);
 	dissector_add_uint("ethertype", ETHERTYPE_MINT, mint_eth_handle);
 
 	eth_handle = find_dissector_add_dependency("eth_withoutfcs", hfi_mint->id);

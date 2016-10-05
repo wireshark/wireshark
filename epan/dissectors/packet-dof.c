@@ -877,11 +877,10 @@ static void dof_packet_delete_proto_data(dof_packet_data *packet, int proto);
  * source address, and the DPS dissector is associated with that port. In this
  * way, servers on non-standard ports will automatically be decoded using DPS.
  */
-#define DOF_P2P_NEG_SEC_UDP_PORT    3567
+#define DOF_NEG_SEC_UDP_PORT_RANGE  "3567,5567" /* P2P + Multicast */
 #define DOF_P2P_NEG_SEC_TCP_PORT    3567
 /* Reserved UDP port                3568*/
 #define DOF_TUN_SEC_TCP_PORT        3568
-#define DOF_MCAST_NEG_SEC_UDP_PORT  5567
 #define DOF_P2P_SEC_TCP_PORT        5567
 /* Reserved UDP port                8567*/
 #define DOF_TUN_NON_SEC_TCP_PORT    8567
@@ -11051,8 +11050,7 @@ static void dof_handoff(void)
     undissected_data_handle = find_dissector("data");
 
     dissector_add_uint_with_preference("tcp.port", DOF_P2P_NEG_SEC_TCP_PORT, tcp_handle);
-    dissector_add_uint("udp.port", DOF_P2P_NEG_SEC_UDP_PORT, dof_udp_handle);
-    dissector_add_uint("udp.port", DOF_MCAST_NEG_SEC_UDP_PORT, dof_udp_handle);
+    dissector_add_uint_range_with_preference("udp.port", DOF_NEG_SEC_UDP_PORT_RANGE, dof_udp_handle);
 }
 
 /* OID Registration Support */

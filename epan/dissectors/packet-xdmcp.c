@@ -610,8 +610,7 @@ void proto_register_xdmcp(void)
   expert_module_t* expert_xdmcp;
 
   /* Register the protocol name and description */
-  proto_xdmcp = proto_register_protocol("X Display Manager Control Protocol",
-                                        "XDMCP", "xdmcp");
+  proto_xdmcp = proto_register_protocol("X Display Manager Control Protocol", "XDMCP", "xdmcp");
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_xdmcp, hf, array_length(hf));
@@ -626,7 +625,7 @@ proto_reg_handoff_xdmcp(void)
   dissector_handle_t xdmcp_handle;
 
   xdmcp_handle = create_dissector_handle(dissect_xdmcp, proto_xdmcp);
-  dissector_add_uint("udp.port", UDP_PORT_XDMCP, xdmcp_handle);
+  dissector_add_uint_with_preference("udp.port", UDP_PORT_XDMCP, xdmcp_handle);
 }
 /*
  * Editor modelines

@@ -75,7 +75,7 @@ static gint ett_message_flags           = -1;
 static gint ett_association             = -1;
 
 
-#define COMPONENTSTATUSPROTOCOL_PORT    2960
+#define COMPONENTSTATUSPROTOCOL_PORT    2960   /* Not IANA registered */
 #define COMPONENTSTATUSPROTOCOL_VERSION 0x0200
 
 
@@ -292,7 +292,7 @@ proto_reg_handoff_componentstatusprotocol(void)
   dissector_handle_t componentstatusprotocol_handle;
 
   componentstatusprotocol_handle = create_dissector_handle(dissect_componentstatusprotocol, proto_componentstatusprotocol);
-  dissector_add_uint("udp.port", COMPONENTSTATUSPROTOCOL_PORT, componentstatusprotocol_handle);
+  dissector_add_uint_with_preference("udp.port", COMPONENTSTATUSPROTOCOL_PORT, componentstatusprotocol_handle);
 }
 
 /*

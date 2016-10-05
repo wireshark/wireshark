@@ -29,6 +29,8 @@
 
 #define DATA_PACKET 0x01
 
+#define CNIP_UDP_PORT_RANGE "1628-1629" /* Not IANA registered */
+
 static const value_string type_tuple[]=
 {
    {0x01, "Data Packet"},
@@ -243,8 +245,7 @@ void proto_reg_handoff_cnip(void)
 
    cnip_handle = create_dissector_handle(dissect_cnip, proto_cnip);
 
-   dissector_add_uint ("udp.port", 1628, cnip_handle);
-   dissector_add_uint ("udp.port", 1629, cnip_handle);
+   dissector_add_uint_range_with_preference("udp.port", CNIP_UDP_PORT_RANGE, cnip_handle);
 }
 
 /*

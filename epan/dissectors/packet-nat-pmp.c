@@ -44,8 +44,7 @@
 void proto_register_nat_pmp(void);
 void proto_reg_handoff_nat_pmp(void);
 
-#define PCP_STATUS_PORT  5350
-#define PCP_PORT         5351
+#define PCP_PORT_RANGE  "5350-5351"
 
 /* NAT Port opcodes */
 #define EXTERNAL_ADDRESS_REQUEST      0
@@ -825,17 +824,15 @@ void proto_reg_handoff_nat_pmp(void)
   dissector_handle_t nat_pmp_handle;
   dissector_handle_t pcp_handle;
 
-
   pcp_handle = create_dissector_handle(dissect_portcontrol, proto_pcp);
-  dissector_add_uint("udp.port", PCP_STATUS_PORT, pcp_handle);
-  dissector_add_uint("udp.port", PCP_PORT, pcp_handle);
+  dissector_add_uint_range_with_preference("udp.port", PCP_PORT_RANGE, pcp_handle);
 
   nat_pmp_handle = create_dissector_handle(dissect_nat_pmp, proto_nat_pmp);
   /* Port Control Protocol (packet-portcontrol.c) shares the same UDP ports as
      NAT-PMP, but it backwards compatible.  However, still let NAT-PMP
      use Decode As
    */
-  dissector_add_for_decode_as("udp.port", nat_pmp_handle);
+  dissector_add_for_decode_as_with_preference("udp.port", nat_pmp_handle);
 }
 
 /*

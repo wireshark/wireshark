@@ -64,11 +64,6 @@ void proto_register_sflow(void);
 static dissector_handle_t sflow_handle;
 
 /*
- *  global_sflow_ports : holds the configured range of ports for sflow
- */
-static range_t *global_sflow_ports = NULL;
-
-/*
  *  sflow_245_ports : holds the currently used range of ports for sflow
  */
 static gboolean global_dissect_samp_headers = TRUE;
@@ -3621,11 +3616,7 @@ proto_register_sflow(void) {
     expert_module_t* expert_sflow;
 
     /* Register the protocol name and description */
-    proto_sflow = proto_register_protocol(
-            "InMon sFlow", /* name       */
-            "sFlow", /* short name */
-            "sflow" /* abbrev     */
-            );
+    proto_sflow = proto_register_protocol("InMon sFlow", "sFlow", "sflow");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_sflow, hf, array_length(hf));
@@ -3636,18 +3627,7 @@ proto_register_sflow(void) {
     header_subdissector_table  = register_dissector_table("sflow_245.header_protocol", "SFLOW header protocol", proto_sflow, FT_UINT32, BASE_DEC);
 
     /* Register our configuration options for sFlow */
-    sflow_245_module = prefs_register_protocol(proto_sflow, proto_reg_handoff_sflow_245);
-
-    /* Set default Neflow port(s) */
-    range_convert_str(&global_sflow_ports, SFLOW_UDP_PORTS, MAX_UDP_PORT);
-
-    prefs_register_obsolete_preference(sflow_245_module, "udp.port");
-
-    prefs_register_range_preference(sflow_245_module, "ports",
-            "sFlow UDP Port(s)",
-            "Set the port(s) for sFlow messages"
-            " (default: " SFLOW_UDP_PORTS ")",
-            &global_sflow_ports, MAX_UDP_PORT);
+    sflow_245_module = prefs_register_protocol(proto_sflow, NULL);
 
     /*
        If I use a filter like "ip.src == 10.1.1.1" this will, in
@@ -3679,19 +3659,9 @@ proto_register_sflow(void) {
 
 void
 proto_reg_handoff_sflow_245(void) {
-    static range_t  *sflow_ports;
-    static gboolean  sflow_245_prefs_initialized = FALSE;
 
-    if (!sflow_245_prefs_initialized) {
-        sflow_handle = create_dissector_handle(dissect_sflow_245, proto_sflow);
-        sflow_245_prefs_initialized = TRUE;
-    } else {
-        dissector_delete_uint_range("udp.port", sflow_ports, sflow_handle);
-        g_free(sflow_ports);
-    }
-
-    sflow_ports = range_copy(global_sflow_ports);
-    dissector_add_uint_range("udp.port", sflow_ports, sflow_handle);
+    sflow_handle = create_dissector_handle(dissect_sflow_245, proto_sflow);
+    dissector_add_uint_range_with_preference("udp.port", SFLOW_UDP_PORTS, sflow_handle);
 }
 
 /*

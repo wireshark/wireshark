@@ -57,8 +57,7 @@
 #define PSNAME "H.225.0"
 #define PFNAME "h225"
 
-#define UDP_PORT_RAS1 1718
-#define UDP_PORT_RAS2 1719
+#define UDP_PORT_RAS_RANGE "1718-1719"
 #define TCP_PORT_CS   1720
 #define TLS_PORT_CS   1300
 
@@ -936,8 +935,7 @@ proto_reg_handoff_h225(void)
   static guint saved_h225_tls_port;
 
   if (!h225_prefs_initialized) {
-    dissector_add_uint("udp.port", UDP_PORT_RAS1, h225ras_handle);
-    dissector_add_uint("udp.port", UDP_PORT_RAS2, h225ras_handle);
+    dissector_add_uint_range_with_preference("udp.port", UDP_PORT_RAS_RANGE, h225ras_handle);
 
     h245_handle = find_dissector("h245");
     h245dg_handle = find_dissector("h245dg");

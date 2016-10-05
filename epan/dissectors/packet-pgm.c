@@ -109,15 +109,6 @@ static gboolean pgm_check_checksum = TRUE;
 #define PGM_OPT_REDIRECT_SIZE 12
 #define PGM_OPT_FRAGMENT_SIZE 16
 
-/*
- * Udp port for UDP encapsulation
- */
-#define DEFAULT_UDP_ENCAP_UCAST_PORT 3055
-#define DEFAULT_UDP_ENCAP_MCAST_PORT 3056
-
-static guint udp_encap_ucast_port = 0;
-static guint udp_encap_mcast_port = 0;
-
 static int proto_pgm = -1;
 static int ett_pgm = -1;
 static int ett_pgm_optbits = -1;
@@ -1383,8 +1374,7 @@ proto_register_pgm(void)
 	module_t *pgm_module;
 	expert_module_t* expert_pgm;
 
-	proto_pgm = proto_register_protocol("Pragmatic General Multicast",
-					    "PGM", "pgm");
+	proto_pgm = proto_register_protocol("Pragmatic General Multicast", "PGM", "pgm");
 
 	proto_register_field_array(proto_pgm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -1404,25 +1394,12 @@ proto_register_pgm(void)
 	 *        dissector_add_for_decode_as is called so that pgm
 	 *        is available for 'decode-as'
 	 */
-	pgm_module = prefs_register_protocol(proto_pgm, proto_reg_handoff_pgm);
+	pgm_module = prefs_register_protocol(proto_pgm, NULL);
 
 	prefs_register_bool_preference(pgm_module, "check_checksum",
 				       "Check the validity of the PGM checksum when possible",
 				       "Whether to check the validity of the PGM checksum",
 				       &pgm_check_checksum);
-
-	prefs_register_uint_preference(pgm_module, "udp.encap_ucast_port",
-				       "PGM Encap Unicast Port (standard is 3055)",
-				       "PGM Encap is PGM packets encapsulated in UDP packets"
-				       " (Note: This option is off, i.e. port is 0, by default)",
-				       10, &udp_encap_ucast_port);
-
-	prefs_register_uint_preference(pgm_module, "udp.encap_mcast_port",
-				       "PGM Encap Multicast Port (standard is 3056)",
-				       "PGM Encap is PGM packets encapsulated in UDP packets"
-				       " (Note: This option is off, i.e. port is 0, by default)",
-				       10, &udp_encap_mcast_port);
-
 }
 
 /* The registration hand-off routine */
@@ -1433,33 +1410,11 @@ proto_register_pgm(void)
 void
 proto_reg_handoff_pgm(void)
 {
-	static gboolean initialized = FALSE;
-	static dissector_handle_t pgm_handle;
-	static guint old_udp_encap_ucast_port;
-	static guint old_udp_encap_mcast_port;
+	dissector_handle_t pgm_handle;
 
-	if (! initialized) {
-		pgm_handle = create_dissector_handle(dissect_pgm, proto_pgm);
-		dissector_add_for_decode_as("udp.port", pgm_handle);
-		dissector_add_uint("ip.proto", IP_PROTO_PGM, pgm_handle);
-		initialized = TRUE;
-	} else {
-		if (old_udp_encap_ucast_port != 0) {
-			dissector_delete_uint("udp.port", old_udp_encap_ucast_port, pgm_handle);
-		}
-		if (old_udp_encap_mcast_port != 0) {
-			dissector_delete_uint("udp.port", old_udp_encap_mcast_port, pgm_handle);
-		}
-	}
-
-	if (udp_encap_ucast_port != 0) {
-		dissector_add_uint("udp.port", udp_encap_ucast_port, pgm_handle);
-	}
-	if (udp_encap_mcast_port != 0) {
-		dissector_add_uint("udp.port", udp_encap_mcast_port, pgm_handle);
-	}
-	old_udp_encap_ucast_port = udp_encap_ucast_port;
-	old_udp_encap_mcast_port = udp_encap_mcast_port;
+	pgm_handle = create_dissector_handle(dissect_pgm, proto_pgm);
+	dissector_add_uint_range_with_preference("udp.port", "", pgm_handle);
+	dissector_add_uint("ip.proto", IP_PROTO_PGM, pgm_handle);
 }
 
 /*

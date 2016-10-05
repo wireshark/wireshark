@@ -662,7 +662,7 @@ proto_reg_handoff_papi(void)
     dissector_handle_t papi_handle;
 
     papi_handle = create_dissector_handle(dissect_papi, proto_papi);
-    dissector_add_uint("udp.port", UDP_PORT_PAPI, papi_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_PAPI, papi_handle);
 }
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

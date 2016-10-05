@@ -303,7 +303,6 @@ static dissector_handle_t diameter_udp_handle;
 static dissector_handle_t diameter_tcp_handle;
 static dissector_handle_t diameter_sctp_handle;
 static range_t *global_diameter_sctp_port_range;
-static range_t *global_diameter_udp_port_range;
 /* This is used for TCP and SCTP */
 #define DEFAULT_DIAMETER_PORT_RANGE "3868"
 
@@ -2334,11 +2333,9 @@ proto_register_diameter(void)
 
 	/* Set default TCP ports */
 	range_convert_str(&global_diameter_sctp_port_range, DEFAULT_DIAMETER_PORT_RANGE, MAX_SCTP_PORT);
-	range_convert_str(&global_diameter_udp_port_range, "", MAX_UDP_PORT);
 
 	/* Register configuration options for ports */
-	diameter_module = prefs_register_protocol(proto_diameter,
-						  proto_reg_handoff_diameter);
+	diameter_module = prefs_register_protocol(proto_diameter, proto_reg_handoff_diameter);
 
 	prefs_register_range_preference(diameter_module, "sctp.ports",
 					"Diameter SCTP Ports",
@@ -2352,11 +2349,6 @@ proto_register_diameter(void)
 				       "Whether the Diameter dissector should reassemble messages spanning multiple TCP segments."
 				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 				       &gbl_diameter_desegment);
-
-	prefs_register_range_preference(diameter_module, "udp.ports", "Diameter UDP ports",
-					"UDP ports to be decoded as Diameter (default: 0 as Diameter over UDP is nonstandard)",
-					&global_diameter_udp_port_range, MAX_UDP_PORT);
-
 
 	/*  Register some preferences we no longer support, so we can report
 	 *  them as obsolete rather than just illegal.
@@ -2381,7 +2373,6 @@ proto_reg_handoff_diameter(void)
 {
 	static gboolean Initialized=FALSE;
 	static range_t *diameter_sctp_port_range;
-	static range_t *diameter_udp_port_range;
 
 	if (!Initialized) {
 		diameter_sctp_handle = find_dissector("diameter");
@@ -2424,20 +2415,18 @@ proto_reg_handoff_diameter(void)
 		/* Register dissector for Experimental result code, with 3GPP2's vendor Id */
 		dissector_add_uint("diameter.vnd_exp_res", VENDOR_THE3GPP2, create_dissector_handle(dissect_diameter_3gpp2_exp_res, proto_diameter));
 
+		dissector_add_uint_range_with_preference("tcp.port", DEFAULT_DIAMETER_PORT_RANGE, diameter_tcp_handle);
+		dissector_add_uint_range_with_preference("udp.port", "", diameter_udp_handle);
+
 		Initialized=TRUE;
 	} else {
 		dissector_delete_uint_range("sctp.port", diameter_sctp_port_range, diameter_sctp_handle);
-		dissector_delete_uint_range("udp.port", diameter_udp_port_range, diameter_udp_handle);
 		g_free(diameter_sctp_port_range);
-		g_free(diameter_udp_port_range);
 	}
 
 	/* set port for future deletes */
 	diameter_sctp_port_range = range_copy(global_diameter_sctp_port_range);
-	diameter_udp_port_range = range_copy(global_diameter_udp_port_range);
-	dissector_add_uint_range_with_preference("tcp.port", DEFAULT_DIAMETER_PORT_RANGE, diameter_tcp_handle);
 	dissector_add_uint_range("sctp.port", diameter_sctp_port_range, diameter_sctp_handle);
-	dissector_add_uint_range("udp.port", diameter_udp_port_range, diameter_udp_handle);
 
 	exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 

@@ -24,13 +24,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 void proto_register_newmail(void);
 void proto_reg_handoff_newmail(void);
-
-/* Variables for preferences */
-static guint preference_default_port = 0;
 
 /* Initialize the protocol and registered fields */
 static int proto_newmail = -1;
@@ -83,50 +79,21 @@ proto_register_newmail(void)
 		&ett_newmail,
 	};
 
-	module_t *newmail_module;
-
-	proto_newmail = proto_register_protocol("Microsoft Exchange New Mail Notification",
-						"NEWMAIL", "newmail");
+	proto_newmail = proto_register_protocol("Microsoft Exchange New Mail Notification", "NEWMAIL", "newmail");
 
 	proto_register_field_array(proto_newmail, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("newmail", dissect_newmail, proto_newmail);
-
-	newmail_module = prefs_register_protocol(proto_newmail,
-						 proto_reg_handoff_newmail);
-
-	prefs_register_uint_preference(newmail_module,
-				       "default_port",
-				       "Default UDP port (optional)",
-				       "Always dissect this port's traffic as newmail notifications."
-				       " Additional ports will be dynamically registered as they"
-				       " are seen in MAPI register push notification packets.",
-				       10, &preference_default_port);
-
 }
 
 void
 proto_reg_handoff_newmail(void)
 {
-	static gboolean inited = FALSE;
-	static dissector_handle_t newmail_handle;
-	static guint preference_default_port_last;
+	dissector_handle_t newmail_handle;
 
-	if(!inited) {
-		newmail_handle = find_dissector("newmail");
-		dissector_add_for_decode_as("udp.port", newmail_handle);
-		inited = TRUE;
-	} else {
-		if (preference_default_port_last != 0) {
-			dissector_delete_uint("udp.port", preference_default_port_last, newmail_handle);
-		}
-	}
-
-	if(preference_default_port != 0) {
-		dissector_add_uint("udp.port", preference_default_port, newmail_handle);
-	}
-	preference_default_port_last = preference_default_port;
+	newmail_handle = find_dissector("newmail");
+	dissector_add_for_decode_as_with_preference("udp.port", newmail_handle);
 }
 
 /*

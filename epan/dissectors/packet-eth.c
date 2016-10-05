@@ -1034,7 +1034,7 @@ proto_reg_handoff_eth(void)
    * command - it encapsulates Ethernet frames in UDP packets, but
    * the UDP port is user-defined.
    */
-  dissector_add_for_decode_as("udp.port", eth_withoutfcs_handle);
+  dissector_add_for_decode_as_with_preference("udp.port", eth_withoutfcs_handle);
 
   dissector_add_for_decode_as("pcli.payload", eth_withoutfcs_handle);
 

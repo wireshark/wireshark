@@ -1569,13 +1569,7 @@ proto_register_wtls(void)
 	};
 
 /* Register the protocol name and description */
-	proto_wtls = proto_register_protocol(
-		"Wireless Transport Layer Security",   	/* protocol name for use by wireshark */
-		"WTLS",                          /* short version of name */
-		"wtls"                    	/* Abbreviated protocol name, should Match IANA
-						    < URL:http://www.iana.org/assignments/port-numbers/ >
-						  */
-	);
+	proto_wtls = proto_register_protocol("Wireless Transport Layer Security", "WTLS", "wtls" );
 
 /* Required function calls to register the header fields and subtrees used  */
 	proto_register_field_array(proto_wtls, hf, array_length(hf));
@@ -1588,9 +1582,7 @@ proto_reg_handoff_wtls(void)
 	dissector_handle_t wtls_handle;
 
 	wtls_handle = create_dissector_handle(dissect_wtls, proto_wtls);
-	dissector_add_uint("udp.port", UDP_PORT_WTLS_WSP,     wtls_handle);
-	dissector_add_uint("udp.port", UDP_PORT_WTLS_WTP_WSP, wtls_handle);
-	dissector_add_uint("udp.port", UDP_PORT_WTLS_WSP_PUSH,wtls_handle);
+	dissector_add_uint_range_with_preference("udp.port", UDP_PORT_WTLS_RANGE, wtls_handle);
 }
 
 /*

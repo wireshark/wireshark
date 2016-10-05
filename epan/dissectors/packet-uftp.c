@@ -138,7 +138,7 @@ void proto_register_uftp(void);
 void proto_reg_handoff_uftp(void);
 
 static int proto_uftp = -1;
-static int uftp_port = 1044;
+#define UTFP_PORT   1044 /* Not IANA registered */
 
 /* main header and common fields */
 static int hf_uftp_version = -1;
@@ -2212,8 +2212,8 @@ void proto_register_uftp(void)
 
     expert_module_t* expert_uftp;
 
-    proto_uftp = proto_register_protocol("UDP based FTP w/ multicast",
-        "UFTP", "uftp");
+    proto_uftp = proto_register_protocol("UDP based FTP w/ multicast", "UFTP", "uftp");
+
     proto_register_field_array(proto_uftp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_uftp = expert_register_protocol(proto_uftp);
@@ -2226,7 +2226,7 @@ void proto_reg_handoff_uftp(void)
 
     uftp4_handle = find_dissector("uftp4");
     uftp_handle = create_dissector_handle(dissect_uftp, proto_uftp);
-    dissector_add_uint("udp.port", uftp_port, uftp_handle);
+    dissector_add_uint_with_preference("udp.port", UTFP_PORT, uftp_handle);
 }
 
 /*

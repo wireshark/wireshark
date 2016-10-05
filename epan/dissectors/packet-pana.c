@@ -888,7 +888,7 @@ proto_reg_handoff_pana(void)
         heur_dissector_add("udp", dissect_pana, "PANA over UDP", "pana_udp", proto_pana, HEURISTIC_ENABLE);
 
         pana_handle = create_dissector_handle(dissect_pana, proto_pana);
-        dissector_add_for_decode_as("udp.port", pana_handle);
+        dissector_add_for_decode_as_with_preference("udp.port", pana_handle);
 
         eap_handle = find_dissector_add_dependency("eap", proto_pana);
 

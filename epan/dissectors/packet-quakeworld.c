@@ -30,7 +30,10 @@
 #include <stdlib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
+
 void proto_register_quakeworld(void);
+void proto_reg_handoff_quakeworld(void);
 
 static int proto_quakeworld = -1;
 
@@ -313,7 +316,7 @@ static const value_string names_direction[] = {
 
 
 /* I took this name and value directly out of the QW source. */
-#define PORT_MASTER 27500
+#define PORT_MASTER 27500 /* Not IANA registered */
 static guint gbl_quakeworldServerPort=PORT_MASTER;
 
 
@@ -685,8 +688,13 @@ dissect_quakeworld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	return tvb_captured_length(tvb);
 }
 
-
-void proto_reg_handoff_quakeworld(void);
+static void
+apply_quakeworld_prefs(void)
+{
+    /* Port preference used to determine client/server */
+    pref_t *quakeworld_port = prefs_find_preference(prefs_find_module("quakeworld"), "udp.port");
+    gbl_quakeworldServerPort = *quakeworld_port->varp.uint;
+}
 
 void
 proto_register_quakeworld(void)
@@ -794,42 +802,23 @@ proto_register_quakeworld(void)
 		&ett_quakeworld_game_clc,
 		&ett_quakeworld_game_svc
 	};
-	module_t *quakeworld_module;
 
-	proto_quakeworld = proto_register_protocol("QuakeWorld Network Protocol",
-						"QUAKEWORLD", "quakeworld");
+	proto_quakeworld = proto_register_protocol("QuakeWorld Network Protocol", "QUAKEWORLD", "quakeworld");
 	proto_register_field_array(proto_quakeworld, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register a configuration option for port */
-	quakeworld_module = prefs_register_protocol(proto_quakeworld,
-		proto_reg_handoff_quakeworld);
-	prefs_register_uint_preference(quakeworld_module, "udp.port",
-					"QuakeWorld Server UDP Port",
-					"Set the UDP port for the QuakeWorld Server",
-					10, &gbl_quakeworldServerPort);
+	prefs_register_protocol(proto_quakeworld, apply_quakeworld_prefs);
 }
 
 
 void
 proto_reg_handoff_quakeworld(void)
 {
-	static gboolean Initialized=FALSE;
-	static dissector_handle_t quakeworld_handle;
-	static guint ServerPort;
+	dissector_handle_t quakeworld_handle;
 
-	if (!Initialized) {
-		quakeworld_handle = create_dissector_handle(dissect_quakeworld,
-				proto_quakeworld);
-		Initialized=TRUE;
-	} else {
-		dissector_delete_uint("udp.port", ServerPort, quakeworld_handle);
-	}
-
-	/* set port for future deletes */
-	ServerPort=gbl_quakeworldServerPort;
-
-	dissector_add_uint("udp.port", gbl_quakeworldServerPort, quakeworld_handle);
+	quakeworld_handle = create_dissector_handle(dissect_quakeworld, proto_quakeworld);
+	dissector_add_uint("udp.port", PORT_MASTER, quakeworld_handle);
 }
 
 /*

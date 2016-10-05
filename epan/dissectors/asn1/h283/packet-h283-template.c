@@ -99,7 +99,7 @@ void proto_register_h283(void) {
 /*--- proto_reg_handoff_h283 -------------------------------------------*/
 void proto_reg_handoff_h283(void)
 {
-  dissector_add_for_decode_as("udp.port", h283_udp_handle);
+  dissector_add_for_decode_as_with_preference("udp.port", h283_udp_handle);
 
   rdc_pdu_handle = find_dissector_add_dependency("rdc", proto_h283);
   rdc_device_list_handle = find_dissector_add_dependency("rdc.device_list", proto_h283);

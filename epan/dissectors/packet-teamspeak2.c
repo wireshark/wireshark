@@ -224,7 +224,7 @@ static const value_string codecnames[] =
     { 0, NULL }
 };
 
-#define TS2_PORT 8767
+#define TS2_PORT 8767 /* Not IANA registered */
 
 static int proto_ts2 = -1;
 
@@ -1238,7 +1238,7 @@ void proto_reg_handoff_ts2(void)
 {
     dissector_handle_t ts2_handle;
     ts2_handle = create_dissector_handle(dissect_ts2, proto_ts2);
-    dissector_add_uint("udp.port", TS2_PORT, ts2_handle);
+    dissector_add_uint_with_preference("udp.port", TS2_PORT, ts2_handle);
 }
 
 /*

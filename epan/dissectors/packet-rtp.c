@@ -267,9 +267,6 @@ static gint ett_pkt_ccc = -1;
 static expert_field ei_rtp_fragment_unfinished = EI_INIT;
 static expert_field ei_rtp_padding_missing = EI_INIT;
 
-/* PacketCable CCC port preference */
-static guint global_pkt_ccc_udp_port = 0;
-
 /* RFC 5285 Header extensions */
 static int hf_rtp_ext_rfc5285_id = -1;
 static int hf_rtp_ext_rfc5285_length = -1;
@@ -2760,21 +2757,11 @@ proto_register_pkt_ccc(void)
         &ett_pkt_ccc,
     };
 
-    module_t *pkt_ccc_module;
-
-    proto_pkt_ccc = proto_register_protocol("PacketCable Call Content Connection",
-        "PKT CCC", "pkt_ccc");
+    proto_pkt_ccc = proto_register_protocol("PacketCable Call Content Connection", "PKT CCC", "pkt_ccc");
     proto_register_field_array(proto_pkt_ccc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     register_dissector("pkt_ccc", dissect_pkt_ccc, proto_pkt_ccc);
-
-    pkt_ccc_module = prefs_register_protocol(proto_pkt_ccc, proto_reg_handoff_pkt_ccc);
-
-    prefs_register_uint_preference(pkt_ccc_module, "udp_port",
-                                   "UDP port",
-                                   "Decode packets on this UDP port as PacketCable CCC",
-                                   10, &global_pkt_ccc_udp_port);
 }
 
 void
@@ -2784,24 +2771,10 @@ proto_reg_handoff_pkt_ccc(void)
      * Register this dissector as one that can be selected by a
      * UDP port number.
      */
-    static gboolean initialized = FALSE;
-    static dissector_handle_t pkt_ccc_handle;
-    static guint saved_pkt_ccc_udp_port;
+    dissector_handle_t pkt_ccc_handle;
 
-    if (!initialized) {
-        pkt_ccc_handle = find_dissector("pkt_ccc");
-        dissector_add_for_decode_as("udp.port", pkt_ccc_handle);
-        initialized = TRUE;
-    } else {
-        if (saved_pkt_ccc_udp_port != 0) {
-            dissector_delete_uint("udp.port", saved_pkt_ccc_udp_port, pkt_ccc_handle);
-        }
-    }
-
-    if (global_pkt_ccc_udp_port != 0) {
-        dissector_add_uint("udp.port", global_pkt_ccc_udp_port, pkt_ccc_handle);
-    }
-    saved_pkt_ccc_udp_port = global_pkt_ccc_udp_port;
+    pkt_ccc_handle = find_dissector("pkt_ccc");
+    dissector_add_for_decode_as_with_preference("udp.port", pkt_ccc_handle);
 }
 
 /* Register RTP */

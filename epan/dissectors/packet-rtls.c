@@ -787,7 +787,7 @@ proto_reg_handoff_rtls(void)
     dissector_handle_t rtls_handle;
 
     rtls_handle = create_dissector_handle(dissect_rtls, proto_rtls);
-    dissector_add_for_decode_as("udp.port", rtls_handle);
+    dissector_add_for_decode_as_with_preference("udp.port", rtls_handle);
 }
 
 /*

@@ -54,8 +54,7 @@ static int hf_babel_message_hopcount = -1;
 
 static gint ett_subtree = -1;
 
-#define UDP_PORT_BABEL 6696
-#define UDP_PORT_BABEL_OLD 6697
+#define UDP_PORT_RANGE_BABEL "6696-6697" /* 6697 Not IANA registered, 6696 is */
 
 #define MESSAGE_PAD1        0
 #define MESSAGE_PADN        1
@@ -527,8 +526,7 @@ proto_reg_handoff_babel(void)
     dissector_handle_t babel_handle;
 
     babel_handle = create_dissector_handle(dissect_babel, proto_babel);
-    dissector_add_uint("udp.port", UDP_PORT_BABEL, babel_handle);
-    dissector_add_uint("udp.port", UDP_PORT_BABEL_OLD, babel_handle);
+    dissector_add_uint_range_with_preference("udp.port", UDP_PORT_RANGE_BABEL, babel_handle);
 }
 
 /*

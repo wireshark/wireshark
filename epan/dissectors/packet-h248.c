@@ -1310,9 +1310,8 @@ void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb
 
 /* END Gateway Control Protocol -- Context Tracking */
 
+#define H248_PORT 2945
 static gboolean keep_persistent_data = FALSE;
-static guint    global_udp_port = 2945;
-#define H248_TCP_PORT 2945
 static gboolean h248_desegment = TRUE;
 
 
@@ -6087,7 +6086,7 @@ dissect_h248_SigParameterV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 2165 "./asn1/h248/packet-h248-template.c"
+#line 2164 "./asn1/h248/packet-h248-template.c"
 
 static int dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -7512,7 +7511,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 2333 "./asn1/h248/packet-h248-template.c"
+#line 2332 "./asn1/h248/packet-h248-template.c"
 
         GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -7678,7 +7677,7 @@ void proto_register_h248(void) {
     &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 2351 "./asn1/h248/packet-h248-template.c"
+#line 2350 "./asn1/h248/packet-h248-template.c"
     };
 
     static ei_register_info ei[] = {
@@ -7704,16 +7703,11 @@ void proto_register_h248(void) {
 
     subdissector_table = register_dissector_table("h248.magic_num", "H248 Magic Num", proto_h248, FT_UINT32, BASE_HEX);
 
-    h248_module = prefs_register_protocol(proto_h248, proto_reg_handoff_h248);
+    h248_module = prefs_register_protocol(proto_h248, NULL);
     prefs_register_bool_preference(h248_module, "ctx_info",
                                    "Track Context",
                                    "Maintain relationships between transactions and contexts and display an extra tree showing context data",
                                    &keep_persistent_data);
-    prefs_register_uint_preference(h248_module, "udp_port",
-                                   "UDP port",
-                                   "Port to be decoded as h248",
-                                   10,
-                                   &global_udp_port);
     prefs_register_bool_preference(h248_module, "desegment",
                                    "Desegment H.248 over TCP",
                                    "Desegment H.248 messages that span more TCP segments",
@@ -7730,24 +7724,10 @@ void proto_register_h248(void) {
 /*--- proto_reg_handoff_h248 -------------------------------------------*/
 void proto_reg_handoff_h248(void) {
 
-    static gboolean initialized = FALSE;
-    static guint32 udp_port;
-
-    if (!initialized) {
-        dissector_add_uint("mtp3.service_indicator", MTP_SI_GCP, h248_handle);
-        h248_term_handle = find_dissector_add_dependency("h248term", proto_h248);
-        dissector_add_uint_with_preference("tcp.port", H248_TCP_PORT, h248_tpkt_handle);
-        initialized = TRUE;
-    } else {
-        if (udp_port != 0)
-            dissector_delete_uint("udp.port", udp_port, h248_handle);
-    }
-
-    udp_port = global_udp_port;
-
-    if (udp_port != 0) {
-        dissector_add_uint("udp.port", udp_port, h248_handle);
-    }
+    dissector_add_uint("mtp3.service_indicator", MTP_SI_GCP, h248_handle);
+    h248_term_handle = find_dissector_add_dependency("h248term", proto_h248);
+    dissector_add_uint_with_preference("tcp.port", H248_PORT, h248_tpkt_handle);
+    dissector_add_uint_with_preference("udp.port", H248_PORT, h248_handle);
 
     ss7pc_address_type = address_type_get_by_name("AT_SS7PC");
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);

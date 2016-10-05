@@ -25,7 +25,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 void proto_register_netdump(void);
 void proto_reg_handoff_netdump(void);
@@ -41,9 +40,6 @@ static int hf_netdump_payload = -1;
 static int hf_netdump_code = -1;
 static int hf_netdump_info = -1;
 static int hf_netdump_version = -1;
-
-/* Global sample port pref */
-static guint gPORT_PREF = 0;
 
 /* Initialize the subtree pointers */
 static gint ett_netdump = -1;
@@ -114,8 +110,6 @@ dissect_netdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 void proto_register_netdump(void)
 {
-	module_t *netdump_module;
-
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_netdump
@@ -178,45 +172,18 @@ void proto_register_netdump(void)
 		}
 	};
 
-	proto_netdump = proto_register_protocol (
-		"Netdump Protocol",	/* name */
-		"Netdump",		/* short name */
-		"netdump"		/* abbrev */
-		);
+	proto_netdump = proto_register_protocol ("Netdump Protocol", "Netdump", "netdump" );
 	proto_register_field_array(proto_netdump, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	netdump_module = prefs_register_protocol(proto_netdump,
-		proto_reg_handoff_netdump);
-
-	/* Register a sample port preference   */
-	prefs_register_uint_preference(netdump_module, "udp.port",
-		"Netdump UDP port",
-		"port if other than the default",
-		10, &gPORT_PREF);
 }
 
 void proto_reg_handoff_netdump(void)
 {
-	static gboolean initalized = FALSE;
-	static dissector_handle_t netdump_handle;
-	static int CurrentPort;
+	dissector_handle_t netdump_handle;
 
-	if (!initalized) {
-		netdump_handle = create_dissector_handle(dissect_netdump,
-				proto_netdump);
+	netdump_handle = create_dissector_handle(dissect_netdump, proto_netdump);
 
-		dissector_add_for_decode_as("udp.port", netdump_handle);
-		initalized = TRUE;
-	} else {
-		if (CurrentPort != 0)
-			dissector_delete_uint("udp.port", CurrentPort, netdump_handle);
-	}
-
-	CurrentPort = gPORT_PREF;
-
-	if (CurrentPort != 0)
-		dissector_add_uint("udp.port", CurrentPort, netdump_handle);
+	dissector_add_for_decode_as_with_preference("udp.port", netdump_handle);
 }
 
 /*

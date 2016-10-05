@@ -40,7 +40,7 @@ static dissector_handle_t corosync_totemsrp_handle;
  * Dissector body
  */
 
-#define PORT_COROSYNC_TOTEMNET 5405
+#define PORT_COROSYNC_TOTEMNET_RANGE "5404-5405" /* Not IANA registered */
 
 /* Forward declaration we need below */
 void proto_register_corosync_totemnet(void);
@@ -56,7 +56,6 @@ static int hf_corosync_totemnet_security_crypto_type           = -1;
 static int hf_corosync_totemnet_security_crypto_key            = -1;
 
 /* configurable parameters */
-static guint   corosync_totemnet_port              = PORT_COROSYNC_TOTEMNET;
 static gchar*  corosync_totemnet_private_keys      = NULL;
 static gchar** corosync_totemnet_private_keys_list = NULL;
 
@@ -455,11 +454,6 @@ proto_register_corosync_totemnet(void)
   corosync_totemnet_module = prefs_register_protocol(proto_corosync_totemnet,
                                                      proto_reg_handoff_corosync_totemnet);
 
-  prefs_register_uint_preference(corosync_totemnet_module, "udp.port",
-                                 "UDP Port",
-                                 "Set the UDP port for totem ring protocol implemented in corosync cluster engine",
-                                 10,
-                                 &corosync_totemnet_port);
   prefs_register_string_preference(corosync_totemnet_module, "private_keys", "Private keys",
                                    "Semicolon-separated  list of keys for decryption(e.g. key1;key2;..." ,
                                    (const gchar **)&corosync_totemnet_private_keys);
@@ -470,33 +464,22 @@ proto_reg_handoff_corosync_totemnet(void)
 {
   static gboolean initialized = FALSE;
   static dissector_handle_t corosync_totemnet_handle;
-  static int port = 0;
 
 
-  if (initialized)
-    {
-      dissector_delete_uint("udp.port", port, corosync_totemnet_handle);
-      dissector_delete_uint("udp.port", port - 1, corosync_totemnet_handle);
-    }
-  else
-    {
-      corosync_totemnet_handle = create_dissector_handle(dissect_corosynec_totemnet,
-                                                             proto_corosync_totemnet);
-      corosync_totemsrp_handle = find_dissector_add_dependency("corosync_totemsrp", proto_corosync_totemnet);
+  if (!initialized)
+  {
+    corosync_totemnet_handle = create_dissector_handle(dissect_corosynec_totemnet, proto_corosync_totemnet);
+    corosync_totemsrp_handle = find_dissector_add_dependency("corosync_totemsrp", proto_corosync_totemnet);
 
-      initialized = TRUE;
-    }
+    dissector_add_uint_range_with_preference("udp.port", PORT_COROSYNC_TOTEMNET_RANGE, corosync_totemnet_handle);
+    initialized = TRUE;
+  }
 
   if (corosync_totemnet_private_keys_list) {
     g_strfreev(corosync_totemnet_private_keys_list);
     corosync_totemnet_private_keys_list = NULL;
   }
-  corosync_totemnet_private_keys_list = g_strsplit(corosync_totemnet_private_keys,
-                                                   ";",
-                                                   0);
-  port  = corosync_totemnet_port;
-  dissector_add_uint("udp.port", port,     corosync_totemnet_handle);
-  dissector_add_uint("udp.port", port - 1, corosync_totemnet_handle);
+  corosync_totemnet_private_keys_list = g_strsplit(corosync_totemnet_private_keys, ";", 0);
 }
 
 /*

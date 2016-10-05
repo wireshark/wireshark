@@ -27,7 +27,7 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 
-#define UDP_PORT_ADP 8200
+#define UDP_PORT_ADP 8200 /* Not IANA registered */
 #define ADP_REQUEST 1
 #define ADP_RESPONSE 2
 
@@ -148,7 +148,7 @@ proto_reg_handoff_aruba_adp(void)
     dissector_handle_t adp_handle;
 
     adp_handle = create_dissector_handle(dissect_aruba_adp, proto_aruba_adp);
-    dissector_add_uint("udp.port", UDP_PORT_ADP, adp_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_ADP, adp_handle);
 }
 
 /*

@@ -15289,32 +15289,14 @@ proto_reg_handoff_ff(void)
      * 4.8.4.2. Use
      *
      * - Device Annunciation
-     */
-    dissector_add_uint("udp.port", UDP_PORT_FF_ANNUNC, ff_udp_handle);
-
-    /*
-     * 4.8.4.2. Use
-     *
      * - Client / Server
-     */
-    dissector_add_uint("udp.port", UDP_PORT_FF_FMS, ff_udp_handle);
-    dissector_add_uint_with_preference("tcp.port", TCP_PORT_FF_FMS, ff_tcp_handle);
-
-    /*
-     * 4.8.4.2. Use
-     *
      * - Set/Clear Assignment Info and Clear Address
      * - SM Identify
      * - SM Find Tag
-     */
-    dissector_add_uint("udp.port", UDP_PORT_FF_SM, ff_udp_handle);
-
-    /*
-     * 4.8.4.2. Use
-     *
      * - LAN Redundancy Get and Put Information
      */
-    dissector_add_uint("udp.port", UDP_PORT_FF_LR_PORT, ff_udp_handle);
+    dissector_add_uint_range_with_preference("udp.port", UDP_PORT_FF_RANGE, ff_udp_handle);
+    dissector_add_uint_with_preference("tcp.port", TCP_PORT_FF_FMS, ff_tcp_handle);
 }
 
 /*

@@ -29,10 +29,7 @@
 #define PSNAME "BJNP"
 #define PFNAME "bjnp"
 
-#define BJNP_PORT1         8611
-#define BJNP_PORT2         8612
-#define BJNP_PORT3         8613
-#define BJNP_PORT4         8614
+#define BJNP_PORT_RANGE    "8611-8614"
 
 /* dev_type */
 #define PRINTER_COMMAND    0x01
@@ -180,10 +177,7 @@ void proto_register_bjnp (void)
 
 void proto_reg_handoff_bjnp (void)
 {
-  dissector_add_uint ("udp.port", BJNP_PORT1, bjnp_handle);
-  dissector_add_uint ("udp.port", BJNP_PORT2, bjnp_handle);
-  dissector_add_uint ("udp.port", BJNP_PORT3, bjnp_handle);
-  dissector_add_uint ("udp.port", BJNP_PORT4, bjnp_handle);
+  dissector_add_uint_range_with_preference("udp.port", BJNP_PORT_RANGE, bjnp_handle);
 }
 
 /*

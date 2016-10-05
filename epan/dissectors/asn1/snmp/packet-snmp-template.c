@@ -2579,9 +2579,7 @@ void proto_register_snmp(void) {
 void proto_reg_handoff_snmp(void) {
 	dissector_handle_t snmp_tcp_handle;
 
-	dissector_add_uint("udp.port", UDP_PORT_SNMP, snmp_handle);
-	dissector_add_uint("udp.port", UDP_PORT_SNMP_TRAP, snmp_handle);
-	dissector_add_uint("udp.port", UDP_PORT_SNMP_PATROL, snmp_handle);
+	dissector_add_uint_with_preference("udp.port", UDP_PORT_SNMP, snmp_handle);
 	dissector_add_uint("ethertype", ETHERTYPE_SNMP, snmp_handle);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_SNMP_AGENT, snmp_handle);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_SNMP_SINK, snmp_handle);
@@ -2593,6 +2591,8 @@ void proto_reg_handoff_snmp(void) {
 	   the "trap" port doesn't really need a separate preference.  Just register
 	   normally */
 	dissector_add_uint("tcp.port", TCP_PORT_SNMP_TRAP, snmp_tcp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_SNMP_TRAP, snmp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_SNMP_PATROL, snmp_handle);
 
 	data_handle = find_dissector("data");
 

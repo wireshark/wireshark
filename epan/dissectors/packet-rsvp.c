@@ -9574,7 +9574,7 @@ proto_reg_handoff_rsvp(void)
     rsvpe2ei_handle = create_dissector_handle(dissect_rsvp_e2ei, proto_rsvp_e2e1);
     dissector_add_uint("ip.proto", IP_PROTO_RSVP, rsvp_handle);
     dissector_add_uint("ip.proto", IP_PROTO_RSVPE2EI, rsvpe2ei_handle);
-    dissector_add_uint("udp.port", UDP_PORT_PRSVP, rsvp_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_PRSVP, rsvp_handle);
     rsvp_tap = register_tap("rsvp");
 }
 

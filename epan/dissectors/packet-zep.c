@@ -45,7 +45,6 @@
 
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include "packet-ntp.h"
 
 #include "packet-zep.h"
@@ -70,9 +69,6 @@ static int hf_zep_reserved_field = -1;
 
 /* Initialize protocol subtrees. */
 static gint ett_zep = -1;
-
-/* Initialize preferences. */
-static guint32  gPREF_zep_udp_port = ZEP_DEFAULT_PORT;
 
 /*  Dissector handle */
 static dissector_handle_t zep_handle;
@@ -252,8 +248,6 @@ static int dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
  */
 void proto_register_zep(void)
 {
-    module_t *zep_module;
-
     static hf_register_info hf[] = {
         { &hf_zep_version,
         { "Protocol Version",           "zep.version", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -311,15 +305,6 @@ void proto_register_zep(void)
     proto_register_field_array(proto_zep, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    /*  Register preferences module */
-    zep_module = prefs_register_protocol(proto_zep, proto_reg_handoff_zep);
-
-    /*  Register preferences */
-    prefs_register_uint_preference(zep_module, "udp.port", "ZEP UDP port",
-                 "Set the port for ZEP Protocol\n"
-                 "Default port is 17754",
-                 10, &gPREF_zep_udp_port);
-
     /*  Register dissector with Wireshark. */
     zep_handle = register_dissector("zep", dissect_zep, proto_zep);
 } /* proto_register_zep */
@@ -338,31 +323,20 @@ void proto_register_zep(void)
  */
 void proto_reg_handoff_zep(void)
 {
-    static int                 lastPort;
-    static gboolean            inited = FALSE;
+    dissector_handle_t h;
 
-    if ( !inited) {
-        dissector_handle_t h;
-        /* Get dissector handles. */
-        if ( !(h = find_dissector("wpan")) ) { /* Try use built-in 802.15.4 dissector */
-            h = find_dissector("ieee802154");  /* otherwise use older 802.15.4 plugin dissector */
-        }
-        ieee802154_handle = h;
-        if ( !(h = find_dissector("wpan_cc24xx")) ) { /* Try use built-in 802.15.4 (Chipcon) dissector */
-            h = find_dissector("ieee802154_ccfcs");   /* otherwise use older 802.15.4 (Chipcon) plugin dissector */
-        }
-        ieee802154_ccfcs_handle = h;
-        data_handle = find_dissector("data");
-        inited = TRUE;
-    } else {
-        /* If we were already registered, de-register our dissector
-         * to free the port. */
-        dissector_delete_uint("udp.port", lastPort, zep_handle);
+    /* Get dissector handles. */
+    if ( !(h = find_dissector("wpan")) ) { /* Try use built-in 802.15.4 dissector */
+        h = find_dissector("ieee802154");  /* otherwise use older 802.15.4 plugin dissector */
     }
+    ieee802154_handle = h;
+    if ( !(h = find_dissector("wpan_cc24xx")) ) { /* Try use built-in 802.15.4 (Chipcon) dissector */
+        h = find_dissector("ieee802154_ccfcs");   /* otherwise use older 802.15.4 (Chipcon) plugin dissector */
+    }
+    ieee802154_ccfcs_handle = h;
 
-    /* Register our dissector. */
-    dissector_add_uint("udp.port", gPREF_zep_udp_port, zep_handle);
-    lastPort = gPREF_zep_udp_port;
+    data_handle = find_dissector("data");
+    dissector_add_uint("udp.port", ZEP_DEFAULT_PORT, zep_handle);
 } /* proto_reg_handoff_zep */
 
 /*

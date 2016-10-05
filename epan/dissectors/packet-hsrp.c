@@ -200,6 +200,7 @@ static expert_field ei_hsrp_unknown_tlv = EI_INIT;
 
 #define UDP_PORT_HSRP   1985
 #define UDP_PORT_HSRP2_V6   2029
+#define UDP_PORT_HSRP_RANGE   "1985,2009"
 #define HSRP_DST_IP_ADDR 0xE0000002
 #define HSRP2_DST_IP_ADDR 0xE0000066
 
@@ -835,14 +836,12 @@ void proto_register_hsrp(void)
                 { &ei_hsrp_unknown_tlv, { "hsrp.unknown_tlv", PI_UNDECODED, PI_WARN, "Unknown TLV sequence (HSRPv1)", EXPFILL }},
         };
 
-        proto_hsrp = proto_register_protocol("Cisco Hot Standby Router Protocol",
-            "HSRP", "hsrp");
+        proto_hsrp = proto_register_protocol("Cisco Hot Standby Router Protocol", "HSRP", "hsrp");
+
         proto_register_field_array(proto_hsrp, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
         expert_hsrp = expert_register_protocol(proto_hsrp);
         expert_register_field_array(expert_hsrp, ei, array_length(ei));
-
-        return;
 }
 
 void
@@ -851,8 +850,7 @@ proto_reg_handoff_hsrp(void)
         dissector_handle_t hsrp_handle;
 
         hsrp_handle = create_dissector_handle(dissect_hsrp, proto_hsrp);
-        dissector_add_uint("udp.port", UDP_PORT_HSRP, hsrp_handle);
-        dissector_add_uint("udp.port", UDP_PORT_HSRP2_V6, hsrp_handle);
+        dissector_add_uint_range_with_preference("udp.port", UDP_PORT_HSRP_RANGE, hsrp_handle);
 }
 
 /*

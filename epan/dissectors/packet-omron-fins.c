@@ -35,7 +35,7 @@
 void proto_register_omron_fins(void);
 void proto_reg_handoff_omron_fins(void);
 
-#define OMRON_FINS_UDP_PORT 9600
+#define OMRON_FINS_UDP_PORT 9600 /* Not IANA registered */
 
 static int proto_omron_fins = -1;
 static gint ett_omron = -1;
@@ -3969,7 +3969,7 @@ proto_reg_handoff_omron_fins(void)
     dissector_handle_t omron_fins_handle;
 
     omron_fins_handle = create_dissector_handle(dissect_omron_fins, proto_omron_fins);
-    dissector_add_uint("udp.port", OMRON_FINS_UDP_PORT, omron_fins_handle);
+    dissector_add_uint_with_preference("udp.port", OMRON_FINS_UDP_PORT, omron_fins_handle);
 }
 
 /*

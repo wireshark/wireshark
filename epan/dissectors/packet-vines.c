@@ -429,7 +429,7 @@ proto_reg_handoff_vines_frp(void)
 
 	vines_frp_new_handle = create_dissector_handle(dissect_vines_frp_new,
 	    proto_vines_frp);
-	dissector_add_uint("udp.port", UDP_PORT_VINES, vines_frp_new_handle);
+	dissector_add_uint_with_preference("udp.port", UDP_PORT_VINES, vines_frp_new_handle);
 }
 
 static dissector_table_t vines_llc_dissector_table;

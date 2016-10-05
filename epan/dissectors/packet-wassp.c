@@ -341,8 +341,7 @@ static int hf_config_radio_tx_power_adj = -1;
 #define PROTO_SHORT_NAME "WASSP"
 #define PROTO_LONG_NAME "Wireless Access Station Session Protocol"
 
-#define PORT_WASSP_DISCOVER	13907
-#define PORT_WASSP_TUNNEL	13910
+#define PORT_WASSP_RANGE	"13907,13910" /* Not IANA registered */
 /* #define PORT_WASSP_PEER		13913?? */
 
 /* ============= copy/paste/modify from value_string.[hc] ============== */
@@ -2097,8 +2096,7 @@ proto_reg_handoff_wassp(void)
 
 
 	wassp_handle = create_dissector_handle(dissect_wassp_static, proto_wassp);
-	dissector_add_uint("udp.port", PORT_WASSP_DISCOVER, wassp_handle);
-	dissector_add_uint("udp.port", PORT_WASSP_TUNNEL, wassp_handle);
+	dissector_add_uint_range_with_preference("udp.port", PORT_WASSP_RANGE, wassp_handle);
 	/* dissector_add_uint("udp.port", PORT_WASSP_PEER, wassp_handle); */
 
 	heur_dissector_add("udp", dissect_wassp_heur, "WASSP over UDP", "wassp_udp", proto_wassp, HEURISTIC_DISABLE);

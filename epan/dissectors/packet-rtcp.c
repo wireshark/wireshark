@@ -6544,7 +6544,7 @@ proto_reg_handoff_rtcp(void)
      * UDP port number.
      */
     rtcp_handle = find_dissector("rtcp");
-    dissector_add_for_decode_as("udp.port", rtcp_handle);
+    dissector_add_for_decode_as_with_preference("udp.port", rtcp_handle);
     dissector_add_for_decode_as("flip.payload", rtcp_handle );
 
     heur_dissector_add( "udp", dissect_rtcp_heur_udp, "RTCP over UDP", "rtcp_udp", proto_rtcp, HEURISTIC_ENABLE);

@@ -33,7 +33,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
@@ -241,8 +240,6 @@ static expert_field ei_mpls_echo_tlv_ds_map_muti_len = EI_INIT;
 static expert_field ei_mpls_echo_unknown_address_type = EI_INIT;
 static expert_field ei_mpls_echo_incorrect_address_type = EI_INIT;
 static expert_field ei_mpls_echo_malformed = EI_INIT;
-
-static guint global_mpls_echo_udp_port = UDP_PORT_MPLS_ECHO;
 
 static const value_string mpls_echo_msgtype[] = {
     {1, "MPLS Echo Request"},
@@ -2542,42 +2539,24 @@ proto_register_mpls_echo(void)
         { &ei_mpls_echo_malformed, { "mpls_echo.malformed", PI_MALFORMED, PI_ERROR, "Malformed MPLS message", EXPFILL }},
     };
 
-    module_t *mpls_echo_module;
     expert_module_t* expert_mpls_echo;
 
-    proto_mpls_echo = proto_register_protocol("Multiprotocol Label Switching Echo",
-                                              "MPLS Echo", "mpls-echo");
+    proto_mpls_echo = proto_register_protocol("Multiprotocol Label Switching Echo", "MPLS Echo", "mpls-echo");
 
     proto_register_field_array(proto_mpls_echo, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_mpls_echo = expert_register_protocol(proto_mpls_echo);
     expert_register_field_array(expert_mpls_echo, ei, array_length(ei));
-
-    mpls_echo_module = prefs_register_protocol(proto_mpls_echo, proto_reg_handoff_mpls_echo);
-    prefs_register_uint_preference(mpls_echo_module, "udp.port", "MPLS Echo UDP Port",
-                                   "Set the UDP port for messages (if other"
-                                   " than the default of 3503)",
-                                   10, &global_mpls_echo_udp_port);
 }
 
 
 void
 proto_reg_handoff_mpls_echo(void)
 {
-    static gboolean           mpls_echo_prefs_initialized = FALSE;
-    static dissector_handle_t mpls_echo_handle;
-    static guint              mpls_echo_udp_port;
+    dissector_handle_t mpls_echo_handle;
 
-    if (!mpls_echo_prefs_initialized) {
-        mpls_echo_handle = create_dissector_handle(dissect_mpls_echo,
-                                                       proto_mpls_echo);
-        mpls_echo_prefs_initialized = TRUE;
-    } else {
-        dissector_delete_uint("udp.port", mpls_echo_udp_port, mpls_echo_handle);
-    }
-
-    mpls_echo_udp_port = global_mpls_echo_udp_port;
-    dissector_add_uint("udp.port", global_mpls_echo_udp_port, mpls_echo_handle);
+    mpls_echo_handle = create_dissector_handle(dissect_mpls_echo, proto_mpls_echo);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_MPLS_ECHO, mpls_echo_handle);
 
     dissector_add_uint("pwach.channel_type", ACH_TYPE_ONDEMAND_CV, mpls_echo_handle);
 }

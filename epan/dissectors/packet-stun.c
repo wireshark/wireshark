@@ -1729,7 +1729,7 @@ proto_reg_handoff_stun(void)
     stun_udp_handle = create_dissector_handle(dissect_stun_udp, proto_stun);
 
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_STUN, stun_tcp_handle);
-    dissector_add_uint("udp.port", UDP_PORT_STUN, stun_udp_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_STUN, stun_udp_handle);
 
     heur_dissector_add("udp", dissect_stun_heur, "STUN over UDP", "stun_udp", proto_stun, HEURISTIC_ENABLE);
 

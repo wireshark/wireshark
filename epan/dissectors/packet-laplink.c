@@ -239,7 +239,7 @@ proto_reg_handoff_laplink(void)
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_LAPLINK, laplink_tcp_handle);
 
 	laplink_udp_handle = create_dissector_handle(dissect_laplink_udp, proto_laplink);
-	dissector_add_uint("udp.port", UDP_PORT_LAPLINK, laplink_udp_handle);
+	dissector_add_uint_with_preference("udp.port", UDP_PORT_LAPLINK, laplink_udp_handle);
 }
 
 /*

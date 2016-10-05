@@ -4438,7 +4438,7 @@ proto_reg_handoff_rpc(void)
 	rpc_tcp_handle = find_dissector("rpc-tcp");
 	dissector_add_uint_with_preference("tcp.port", RPC_TCP_PORT, rpc_tcp_handle);
 	rpc_handle = find_dissector("rpc");
-	dissector_add_uint("udp.port", 111, rpc_handle);
+	dissector_add_uint_with_preference("udp.port", RPC_TCP_PORT, rpc_handle);
 
 	heur_dissector_add("tcp", dissect_rpc_tcp_heur, "RPC over TCP", "rpc_tcp", proto_rpc, HEURISTIC_ENABLE);
 	heur_dissector_add("udp", dissect_rpc_heur, "RPC over UDP", "rpc_udp", proto_rpc, HEURISTIC_ENABLE);

@@ -3750,7 +3750,7 @@ proto_reg_handoff_http(void)
 	 * request or reply?  I.e., should there be an SSDP dissector?
 	 */
 	ssdp_handle = create_dissector_handle(dissect_ssdp, proto_ssdp);
-	dissector_add_uint("udp.port", UDP_PORT_SSDP, ssdp_handle);
+	dissector_add_uint_with_preference("udp.port", UDP_PORT_SSDP, ssdp_handle);
 
 	ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_http);
 	gssapi_handle = find_dissector_add_dependency("gssapi", proto_http);

@@ -42,7 +42,7 @@
  * http://wiki.vg/Pocket_Edition_Protocol_Documentation
  */
 
-#define MCPE_UDP_PORT_DEFAULT 19132
+#define MCPE_UDP_PORT_DEFAULT 19132 /* Not IANA registered */
 static guint mcpe_udp_port_requested = MCPE_UDP_PORT_DEFAULT;
 
 static int proto_mcpe = -1;
@@ -673,11 +673,7 @@ proto_register_mcpe(void)
     /*
      * Register the protocol with wireshark.
      */
-    proto_mcpe = proto_register_protocol (
-            "Minecraft Pocket Edition", /* name */
-            "MCPE",                     /* short name */
-            "mcpe"                      /* abbrev */
-            );
+    proto_mcpe = proto_register_protocol ("Minecraft Pocket Edition", "MCPE", "mcpe");
 
     /*
      * Register expert support.

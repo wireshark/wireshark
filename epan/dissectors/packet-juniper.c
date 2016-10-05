@@ -1600,7 +1600,7 @@ proto_reg_handoff_juniper(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_VP,     juniper_vp_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_SVCS,   juniper_svcs_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_VN,     juniper_vn_handle);
-  dissector_add_for_decode_as("udp.port", juniper_vn_handle);
+  dissector_add_for_decode_as_with_preference("udp.port", juniper_vn_handle);
 }
 
 

@@ -65,8 +65,7 @@
 #define PSNAME "H.225.0"
 #define PFNAME "h225"
 
-#define UDP_PORT_RAS1 1718
-#define UDP_PORT_RAS2 1719
+#define UDP_PORT_RAS_RANGE "1718-1719"
 #define TCP_PORT_CS   1720
 #define TLS_PORT_CS   1300
 
@@ -910,7 +909,7 @@ static int hf_h225_stopped = -1;                  /* NULL */
 static int hf_h225_notAvailable = -1;             /* NULL */
 
 /*--- End of included file: packet-h225-hf.c ---*/
-#line 130 "./asn1/h225/packet-h225-template.c"
+#line 129 "./asn1/h225/packet-h225-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h225 = -1;
@@ -1158,7 +1157,7 @@ static gint ett_h225_ServiceControlResponse = -1;
 static gint ett_h225_T_result = -1;
 
 /*--- End of included file: packet-h225-ett.c ---*/
-#line 134 "./asn1/h225/packet-h225-template.c"
+#line 133 "./asn1/h225/packet-h225-template.c"
 
 /* Preferences */
 static guint h225_tls_port = TLS_PORT_CS;
@@ -7825,7 +7824,7 @@ static int dissect_RasMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-h225-fn.c ---*/
-#line 250 "./asn1/h225/packet-h225-template.c"
+#line 249 "./asn1/h225/packet-h225-template.c"
 
 /* Forward declaration we need below */
 void proto_reg_handoff_h225(void);
@@ -11507,7 +11506,7 @@ void proto_register_h225(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 843 "./asn1/h225/packet-h225-template.c"
+#line 842 "./asn1/h225/packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -11757,7 +11756,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 849 "./asn1/h225/packet-h225-template.c"
+#line 848 "./asn1/h225/packet-h225-template.c"
   };
 
   static tap_param h225_stat_params[] = {
@@ -11848,8 +11847,7 @@ proto_reg_handoff_h225(void)
   static guint saved_h225_tls_port;
 
   if (!h225_prefs_initialized) {
-    dissector_add_uint("udp.port", UDP_PORT_RAS1, h225ras_handle);
-    dissector_add_uint("udp.port", UDP_PORT_RAS2, h225ras_handle);
+    dissector_add_uint_range_with_preference("udp.port", UDP_PORT_RAS_RANGE, h225ras_handle);
 
     h245_handle = find_dissector("h245");
     h245dg_handle = find_dissector("h245dg");

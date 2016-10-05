@@ -11431,7 +11431,7 @@ void proto_register_asterix (void)
 
 void proto_reg_handoff_asterix (void)
 {
-    dissector_add_uint ("udp.port", ASTERIX_PORT, asterix_handle);
+    dissector_add_uint_with_preference("udp.port", ASTERIX_PORT, asterix_handle);
 }
 
 /*

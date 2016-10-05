@@ -29,7 +29,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/to_str.h>
 
 void proto_register_mactelnet(void);
@@ -57,8 +56,7 @@ static gint hf_mactelnet_control_terminal = -1;
 static gint hf_mactelnet_control_width = -1;
 static gint hf_mactelnet_control_height = -1;
 
-/* Global port preference */
-static guint global_mactelnet_port = 20561;
+#define MACTELNET_UDP_PORT      20561 /* Not IANA registered */
 
 /* Control packet definition */
 static const guint32 control_packet = 0x563412FF;
@@ -373,38 +371,21 @@ proto_register_mactelnet(void)
         &ett_mactelnet_control,
     };
 
-    module_t *mactelnet_module;
-
     /* Register the protocol name and description */
     proto_mactelnet = proto_register_protocol ("MikroTik MAC-Telnet Protocol", PROTO_TAG_MACTELNET, "mactelnet");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array (proto_mactelnet, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
-
-    mactelnet_module = prefs_register_protocol(proto_mactelnet, proto_reg_handoff_mactelnet);
-
-    prefs_register_uint_preference(mactelnet_module, "port", "UDP Port",
-                       "MAC-Telnet UDP port if other than the default",
-                       10, &global_mactelnet_port);
 }
 
 void
 proto_reg_handoff_mactelnet(void)
 {
-    static gboolean           initialized = FALSE;
-    static guint              current_port;
-    static dissector_handle_t mactelnet_handle;
+    dissector_handle_t mactelnet_handle;
 
-    if (!initialized) {
-        mactelnet_handle = create_dissector_handle(dissect_mactelnet, proto_mactelnet);
-        initialized = TRUE;
-    } else {
-        dissector_delete_uint("udp.port", current_port, mactelnet_handle);
-    }
-
-    current_port = global_mactelnet_port;
-    dissector_add_uint("udp.port", current_port, mactelnet_handle);
+    mactelnet_handle = create_dissector_handle(dissect_mactelnet, proto_mactelnet);
+    dissector_add_uint_with_preference("udp.port", MACTELNET_UDP_PORT, mactelnet_handle);
 }
 
 /*

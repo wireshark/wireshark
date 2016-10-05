@@ -33,10 +33,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include "packet-link16.h"
 
-#define DEFAULT_DIS_UDP_PORT 3000
+#define DEFAULT_DIS_UDP_PORT 3000 /* Not IANA registered */
 
 /* Encoding type the last 14 bits */
 #define DIS_ENCODING_TYPE(word) ((word) & 0x3FFF)
@@ -7009,8 +7008,6 @@ static const true_false_string dis_time_hopping_value = {
     "Time hopping modulation not used"
 };
 
-static guint dis_udp_port = DEFAULT_DIS_UDP_PORT;
-
 typedef struct dis_header
 {
     guint8 version;
@@ -9653,22 +9650,9 @@ void proto_register_dis(void)
         &ett_iff_parameter_6,
     };
 
-    module_t *dis_module;
-
     proto_dis = proto_register_protocol("Distributed Interactive Simulation", "DIS", "dis");
     proto_register_field_array(proto_dis, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    dis_module = prefs_register_protocol(proto_dis, proto_reg_handoff_dis);
-
-    /* Create an unsigned integer preference to allow the user to specify the
-     * UDP port on which to capture DIS packets.
-     */
-    prefs_register_uint_preference(dis_module, "udp.port",
-        "DIS UDP Port",
-        "Set the UDP port for DIS messages",
-        10, &dis_udp_port);
-
 }
 
 /* Register handoff routine for DIS dissector.  This will be invoked initially
@@ -9677,23 +9661,12 @@ void proto_register_dis(void)
  */
 void proto_reg_handoff_dis(void)
 {
-    static gboolean dis_prefs_initialized = FALSE;
-    static dissector_handle_t dis_dissector_handle;
-    static guint saved_dis_udp_port;
+    dissector_handle_t dis_dissector_handle;
 
-    if (!dis_prefs_initialized)
-    {
-        dis_dissector_handle = create_dissector_handle(dissect_dis, proto_dis);
-        link16_handle = find_dissector_add_dependency("link16", proto_dis);
-        dis_prefs_initialized = TRUE;
-    }
-    else
-    {
-        dissector_delete_uint("udp.port", saved_dis_udp_port, dis_dissector_handle);
-    }
+    dis_dissector_handle = create_dissector_handle(dissect_dis, proto_dis);
+    dissector_add_uint_with_preference("udp.port", DEFAULT_DIS_UDP_PORT, dis_dissector_handle);
 
-    dissector_add_uint("udp.port", dis_udp_port, dis_dissector_handle);
-    saved_dis_udp_port = dis_udp_port;
+    link16_handle = find_dissector_add_dependency("link16", proto_dis);
 }
 
 /*

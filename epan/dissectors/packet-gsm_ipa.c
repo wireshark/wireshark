@@ -72,12 +72,9 @@ void proto_reg_handoff_gsm_ipa(void);
  ************************************************************************
  */
 #define IPA_TCP_PORTS "3002,3003,3006,4249,4250,5000"
-#define IPA_UDP_PORTS "3006"
-#define IPA_UDP_PORTS_DEFAULT "0"
 
 static dissector_handle_t ipa_tcp_handle;
 static dissector_handle_t ipa_udp_handle;
-static range_t *global_ipa_udp_ports = NULL;
 static gboolean global_ipa_in_root = FALSE;
 static gboolean global_ipa_in_info = FALSE;
 
@@ -456,15 +453,7 @@ void proto_register_ipa(void)
 					"GSM over IP ip.access Protocol", proto_ipa,
 					FT_UINT8, BASE_DEC);
 
-
-	range_convert_str(&global_ipa_udp_ports, IPA_UDP_PORTS_DEFAULT, MAX_UDP_PORT);
-	ipa_module = prefs_register_protocol(proto_ipa, proto_reg_handoff_gsm_ipa);
-
-	prefs_register_range_preference(ipa_module, "udp_ports",
-					"GSM IPA UDP Port(s)",
-					"Set the port(s) for ip.access IPA"
-					" (usually: " IPA_UDP_PORTS ")",
-					&global_ipa_udp_ports, MAX_UDP_PORT);
+	ipa_module = prefs_register_protocol(proto_ipa, NULL);
 
 	prefs_register_bool_preference(ipa_module, "hsl_debug_in_root_tree",
 					"HSL Debug messages in root protocol tree",
@@ -476,28 +465,16 @@ void proto_register_ipa(void)
 
 void proto_reg_handoff_gsm_ipa(void)
 {
-	static gboolean ipa_initialized = FALSE;
-	static range_t *ipa_udp_ports;
+	sub_handles[SUB_RSL] = find_dissector_add_dependency("gsm_abis_rsl", proto_ipa);
+	sub_handles[SUB_OML] = find_dissector_add_dependency("gsm_abis_oml", proto_ipa);
+	sub_handles[SUB_SCCP] = find_dissector_add_dependency("sccp", proto_ipa);
+	sub_handles[SUB_MGCP] = find_dissector_add_dependency("mgcp", proto_ipa);
+	sub_handles[SUB_DATA] = find_dissector("data");
 
-	if (!ipa_initialized) {
-		sub_handles[SUB_RSL] = find_dissector_add_dependency("gsm_abis_rsl", proto_ipa);
-		sub_handles[SUB_OML] = find_dissector_add_dependency("gsm_abis_oml", proto_ipa);
-		sub_handles[SUB_SCCP] = find_dissector_add_dependency("sccp", proto_ipa);
-		sub_handles[SUB_MGCP] = find_dissector_add_dependency("mgcp", proto_ipa);
-		sub_handles[SUB_DATA] = find_dissector("data");
-
-		ipa_tcp_handle = create_dissector_handle(dissect_ipa_tcp, proto_ipa);
-		ipa_udp_handle = create_dissector_handle(dissect_ipa_udp, proto_ipa);
-		dissector_add_uint_range_with_preference("tcp.port", IPA_TCP_PORTS, ipa_tcp_handle);
-		ipa_initialized = TRUE;
-	} else {
-		dissector_delete_uint_range("udp.port", ipa_udp_ports, ipa_udp_handle);
-		g_free(ipa_udp_ports);
-	}
-
-	ipa_udp_ports = range_copy(global_ipa_udp_ports);
-
-	dissector_add_uint_range("udp.port", ipa_udp_ports, ipa_udp_handle);
+	ipa_tcp_handle = create_dissector_handle(dissect_ipa_tcp, proto_ipa);
+	ipa_udp_handle = create_dissector_handle(dissect_ipa_udp, proto_ipa);
+	dissector_add_uint_range_with_preference("tcp.port", IPA_TCP_PORTS, ipa_tcp_handle);
+	dissector_add_uint_range_with_preference("udp.port", "", ipa_udp_handle);
 }
 
 /*

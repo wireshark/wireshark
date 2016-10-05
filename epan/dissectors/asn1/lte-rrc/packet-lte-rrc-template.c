@@ -4023,7 +4023,7 @@ proto_reg_handoff_lte_rrc(void)
 	static dissector_handle_t lte_rrc_dl_ccch_handle;
 
 	lte_rrc_dl_ccch_handle = find_dissector("lte_rrc.dl_ccch");
-	dissector_add_for_decode_as("udp.port", lte_rrc_dl_ccch_handle);
+	dissector_add_for_decode_as_with_preference("udp.port", lte_rrc_dl_ccch_handle);
 	nas_eps_handle = find_dissector("nas-eps");
 	rrc_irat_ho_to_utran_cmd_handle = find_dissector("rrc.irat.ho_to_utran_cmd");
 	rrc_sys_info_cont_handle = find_dissector("rrc.sysinfo.cont");

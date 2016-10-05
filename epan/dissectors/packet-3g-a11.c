@@ -224,7 +224,7 @@ static expert_field ei_a11_entry_data_not_dissected = EI_INIT;
 static expert_field ei_a11_session_data_not_dissected = EI_INIT;
 
 /* Port used for Mobile IP based Tunneling Protocol (A11) */
-#define UDP_PORT_3GA11    699
+#define UDP_PORT_3GA11    699 /* Not IANA registered */
 
 typedef enum {
     REGISTRATION_REQUEST     = 1,
@@ -2739,7 +2739,7 @@ proto_reg_handoff_a11(void)
     dissector_handle_t a11_handle;
 
     a11_handle = find_dissector("a11");
-    dissector_add_uint("udp.port", UDP_PORT_3GA11, a11_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_3GA11, a11_handle);
 
     /* 3GPP2-Service-Option-Profile(74) */
     radius_register_avp_dissector(VENDOR_THE3GPP2, 74, dissect_3gpp2_service_option_profile);

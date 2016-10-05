@@ -27,7 +27,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 
 #include "packet-e212.h"
@@ -36,11 +35,7 @@
 void proto_register_a21(void);
 void proto_reg_handoff_a21(void);
 
-/* Preferences */
 #define A21_PORT 23272
-/* Default the port to zero */
-static guint a21_udp_port = 0;
-
 static dissector_handle_t gcsna_handle = NULL;
 
 static int proto_a21 = -1;
@@ -931,7 +926,6 @@ void proto_register_a21(void)
 		&ett_a21_record_content
 	};
 
-	module_t *a21_module;
 	expert_module_t *expert_a21;
 
 	static ei_register_info ei[] = {
@@ -945,37 +939,15 @@ void proto_register_a21(void)
 	proto_register_subtree_array(ett_a21_array, array_length(ett_a21_array));
 	expert_a21 = expert_register_protocol(proto_a21);
 	expert_register_field_array(expert_a21, ei, array_length(ei));
-
-	a21_module = prefs_register_protocol(proto_a21, proto_reg_handoff_a21);
-
-	prefs_register_uint_preference(a21_module, "udp.port",
-									"A21 UDP Port",
-									"UDP port used by A21, usually 23272",
-									10, &a21_udp_port);
-
 }
 
 void proto_reg_handoff_a21(void)
 {
-	static dissector_handle_t a21_handle;
-	static gboolean a21_prefs_initialized = FALSE;
-	static guint saved_a21_udp_port;
+	dissector_handle_t a21_handle;
 
-
-	if (!a21_prefs_initialized) {
-		a21_handle = create_dissector_handle(dissect_a21, proto_a21);
-		gcsna_handle = find_dissector_add_dependency("gcsna", proto_a21);
-		dissector_add_uint("udp.port", a21_udp_port, a21_handle);
-		a21_prefs_initialized = TRUE;
-	} else {
-		dissector_delete_uint("udp.port", saved_a21_udp_port, a21_handle);
-	}
-
-	saved_a21_udp_port = a21_udp_port;
-	if (a21_udp_port != 0) {
-		dissector_add_uint("udp.port", a21_udp_port, a21_handle);
-	}
-
+	a21_handle = create_dissector_handle(dissect_a21, proto_a21);
+	gcsna_handle = find_dissector_add_dependency("gcsna", proto_a21);
+	dissector_add_uint_with_preference("udp.port", A21_PORT, a21_handle);
 }
 
 /*

@@ -38,7 +38,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
 #include "packet-x509af.h"
@@ -47,7 +46,6 @@ void proto_register_mikey(void);
 void proto_reg_handoff_mikey(void);
 
 #define PORT_MIKEY 2269
-static guint global_mikey_udp_port = PORT_MIKEY;
 
 static const value_string on_off_vals[] = {
 	{ 0, "Off" },
@@ -1835,44 +1833,23 @@ proto_register_mikey(void)
 		&ett_mikey_enc_data
 	};
 
-	module_t *mikey_module;
-
 	/* Register the protocol name and description */
-	proto_mikey = proto_register_protocol("Multimedia Internet KEYing",
-		"MIKEY", "mikey");
+	proto_mikey = proto_register_protocol("Multimedia Internet KEYing", "MIKEY", "mikey");
 
 	mikey_handle = register_dissector("mikey", dissect_mikey, proto_mikey);
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_mikey, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	/* Register our configuration options */
-	mikey_module = prefs_register_protocol(proto_mikey, proto_reg_handoff_mikey);
-
-	prefs_register_uint_preference(mikey_module, "udp.port", "MIKEY UDP Port",
-		"Set the port for MIKEY messages (if other than the default of 2269)",
-		10, &global_mikey_udp_port);
 }
 
 
 void
 proto_reg_handoff_mikey(void)
 {
-	static guint		  mikey_udp_port;
-	static gboolean inited = FALSE;
-
-	if (!inited) {
-		dissector_add_string("key_mgmt", "mikey", mikey_handle);
-		dissector_add_uint_with_preference("tcp.port", PORT_MIKEY, mikey_handle);
-		inited = TRUE;
-	} else {
-		dissector_delete_uint("udp.port", mikey_udp_port, mikey_handle);
-	}
-
-	dissector_add_uint("udp.port", global_mikey_udp_port, mikey_handle);
-
-	mikey_udp_port = global_mikey_udp_port;
+	dissector_add_string("key_mgmt", "mikey", mikey_handle);
+	dissector_add_uint_with_preference("tcp.port", PORT_MIKEY, mikey_handle);
+	dissector_add_uint_with_preference("udp.port", PORT_MIKEY, mikey_handle);
 }
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

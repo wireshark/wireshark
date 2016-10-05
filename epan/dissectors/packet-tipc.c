@@ -212,9 +212,7 @@ static gboolean tipc_tcp_desegment = TRUE;
 static dissector_handle_t tipc_handle;
 
 /* IANA have assigned port 6118 port for TIPC UDP transport. */
-#define DEFAULT_TIPC_PORT_RANGE   "0"
-
-static range_t *global_tipc_udp_port_range;
+#define DEFAULT_TIPC_PORT_RANGE   "6118"
 
 /* this is used to find encapsulated protocols */
 static dissector_table_t tipc_user_dissector;
@@ -3041,19 +3039,10 @@ proto_register_tipc(void)
 	register_cleanup_routine(tipc_defragment_cleanup);
 
 	/* Register configuration options */
-	tipc_module = prefs_register_protocol(proto_tipc, proto_reg_handoff_tipc);
+	tipc_module = prefs_register_protocol(proto_tipc, NULL);
 
 	tipc_address_type = address_type_dissector_register("AT_TIPC", "TIPC Address Zone,Subnetwork,Processor",
 														tipc_addr_to_str_buf, tipc_addr_str_len, NULL, NULL, NULL, NULL, NULL);
-
-	/* Set default ports */
-	range_convert_str(&global_tipc_udp_port_range, DEFAULT_TIPC_PORT_RANGE, MAX_TCP_PORT);
-
-	prefs_register_range_preference(tipc_module, "udp.ports", "TIPC UDP ports",
-								  "UDP ports to be decoded as TIPC (default: "
-								  DEFAULT_TIPC_PORT_RANGE ")"
-								  "IANA have assigned port 6118 port for TIPC UDP transport.",
-								  &global_tipc_udp_port_range, MAX_UDP_PORT);
 
 	prefs_register_bool_preference(tipc_module, "defragment",
 			"Reassemble TIPCv1 SEGMENTATION_MANAGER datagrams",
@@ -3087,25 +3076,14 @@ proto_register_tipc(void)
 void
 proto_reg_handoff_tipc(void)
 {
-	static gboolean inited = FALSE;
-	static dissector_handle_t tipc_tcp_handle;
-	static range_t *tipc_udp_port_range;
+	dissector_handle_t tipc_tcp_handle;
 
-	if (!inited) {
-		tipc_tcp_handle = create_dissector_handle(dissect_tipc_tcp, proto_tipc);
-		ip_handle = find_dissector("ip");
+	tipc_tcp_handle = create_dissector_handle(dissect_tipc_tcp, proto_tipc);
+	ip_handle = find_dissector("ip");
 
-		dissector_add_uint("ethertype", ETHERTYPE_TIPC, tipc_handle);
-
-		dissector_add_for_decode_as_with_preference("tcp.port", tipc_tcp_handle);
-		inited = TRUE;
-	} else {
-		dissector_add_uint_range("udp.port", tipc_udp_port_range, tipc_handle);
-		g_free(tipc_udp_port_range);
-	}
-
-	tipc_udp_port_range = range_copy(global_tipc_udp_port_range);
-	dissector_add_uint_range("udp.port", tipc_udp_port_range, tipc_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_TIPC, tipc_handle);
+	dissector_add_for_decode_as_with_preference("tcp.port", tipc_tcp_handle);
+	dissector_add_uint_range_with_preference("udp.port", DEFAULT_TIPC_PORT_RANGE, tipc_handle);
 }
 
 /*

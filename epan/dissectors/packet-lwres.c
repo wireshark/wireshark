@@ -26,7 +26,6 @@
 
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/to_str.h>
 
 #include "packet-dns.h"
@@ -180,10 +179,7 @@ static int ett_ns_rec_item = -1;
 
 
 
-#define LWRES_UDP_PORT 921
-
-static guint global_lwres_port = LWRES_UDP_PORT;
-
+#define LWRES_UDP_PORT 921 /* Not IANA registered */
 
 /* Define the lwres proto */
 static int proto_lwres = -1;
@@ -1129,44 +1125,20 @@ proto_register_lwres(void)
         &ett_noop,
     };
 
-
-    module_t *lwres_module;
-
-    proto_lwres = proto_register_protocol("Light Weight DNS RESolver (BIND9)",
-                                          "LWRES", "lwres");
+    proto_lwres = proto_register_protocol("Light Weight DNS RESolver (BIND9)", "LWRES", "lwres");
 
     proto_register_field_array(proto_lwres, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    lwres_module = prefs_register_protocol(proto_lwres, proto_reg_handoff_lwres);
-
-    prefs_register_uint_preference(lwres_module, "udp.lwres_port",
-                                   "lwres listener UDP Port",
-                                   "Set the UDP port for lwres daemon"
-                                   "(if other than the default of 921)",
-                                   10, &global_lwres_port);
-
 }
 
 /* The registration hand-off routine */
 void
 proto_reg_handoff_lwres(void)
 {
-    static gboolean lwres_prefs_initialized = FALSE;
-    static dissector_handle_t lwres_handle;
-    static guint lwres_port;
+    dissector_handle_t lwres_handle;
 
-    if(!lwres_prefs_initialized) {
-        lwres_handle = create_dissector_handle(dissect_lwres, proto_lwres);
-        lwres_prefs_initialized = TRUE;
-    }
-    else {
-        dissector_delete_uint("udp.port", lwres_port, lwres_handle);
-    }
-
-    dissector_add_uint("udp.port", global_lwres_port, lwres_handle);
-    lwres_port = global_lwres_port;
-
+    lwres_handle = create_dissector_handle(dissect_lwres, proto_lwres);
+    dissector_add_uint_with_preference("udp.port", LWRES_UDP_PORT, lwres_handle);
 }
 
 /*

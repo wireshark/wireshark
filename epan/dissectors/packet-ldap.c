@@ -5795,7 +5795,7 @@ proto_reg_handoff_ldap(void)
   dissector_handle_t cldap_handle;
 
   cldap_handle = create_dissector_handle(dissect_mscldap, proto_cldap);
-  dissector_add_uint("udp.port", UDP_PORT_CLDAP, cldap_handle);
+  dissector_add_uint_with_preference("udp.port", UDP_PORT_CLDAP, cldap_handle);
 
   gssapi_handle = find_dissector_add_dependency("gssapi", proto_ldap);
   gssapi_wrap_handle = find_dissector_add_dependency("gssapi_verf", proto_ldap);

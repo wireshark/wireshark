@@ -206,7 +206,7 @@ proto_reg_handoff_turnchannel(void)
 
 	/* Register for "Decode As" in case STUN negotiation isn't captured */
 	dissector_add_for_decode_as_with_preference("tcp.port", turnchannel_tcp_handle);
-	dissector_add_for_decode_as("udp.port", turnchannel_udp_handle);
+	dissector_add_for_decode_as_with_preference("udp.port", turnchannel_udp_handle);
 
 	/* TURN negotiation is handled through STUN2 dissector (packet-stun.c),
 	   so only it should be able to determine if a packet is a TURN packet */

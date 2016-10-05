@@ -177,8 +177,7 @@ static int hf_quic_padding = -1;
 static int hf_quic_stream_data = -1;
 static int hf_quic_payload = -1;
 
-static guint g_quic_port = 80;
-static guint g_quics_port = 443;
+#define QUIC_PORT_RANGE "80,443"
 static gboolean g_quic_debug = FALSE;
 
 static gint ett_quic = -1;
@@ -2847,22 +2846,12 @@ proto_register_quic(void)
 
     expert_module_t *expert_quic;
 
-    proto_quic = proto_register_protocol("QUIC (Quick UDP Internet Connections)",
-            "QUIC", "quic");
+    proto_quic = proto_register_protocol("QUIC (Quick UDP Internet Connections)", "QUIC", "quic");
 
     proto_register_field_array(proto_quic, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    quic_module = prefs_register_protocol(proto_quic, proto_reg_handoff_quic);
-
-
-    prefs_register_uint_preference(quic_module, "udp.quic.port", "QUIC UDP Port",
-            "QUIC UDP port if other than the default",
-            10, &g_quic_port);
-
-    prefs_register_uint_preference(quic_module, "udp.quics.port", "QUICS UDP Port",
-            "QUICS (Secure) UDP port if other than the default",
-            10, &g_quics_port);
+    quic_module = prefs_register_protocol(proto_quic, NULL);
 
     prefs_register_bool_preference(quic_module, "debug.quic",
                        "Force decode of all QUIC Payload",
@@ -2876,27 +2865,10 @@ proto_register_quic(void)
 void
 proto_reg_handoff_quic(void)
 {
-    static gboolean initialized = FALSE;
-    static dissector_handle_t quic_handle;
-    static int current_quic_port;
-    static int current_quics_port;
+    dissector_handle_t quic_handle;
 
-    if (!initialized) {
-        quic_handle = create_dissector_handle(dissect_quic,
-                proto_quic);
-        initialized = TRUE;
-
-    } else {
-        dissector_delete_uint("udp.port", current_quic_port, quic_handle);
-        dissector_delete_uint("udp.port", current_quics_port, quic_handle);
-    }
-
-    current_quic_port = g_quic_port;
-    current_quics_port = g_quics_port;
-
-
-    dissector_add_uint("udp.port", current_quic_port, quic_handle);
-    dissector_add_uint("udp.port", current_quics_port, quic_handle);
+    quic_handle = create_dissector_handle(dissect_quic, proto_quic);
+    dissector_add_uint_range_with_preference("udp.port", QUIC_PORT_RANGE, quic_handle);
 }
 
 

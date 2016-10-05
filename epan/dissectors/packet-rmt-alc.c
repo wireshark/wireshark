@@ -63,7 +63,6 @@ static dissector_handle_t xml_handle;
 static dissector_handle_t rmt_lct_handle;
 static dissector_handle_t rmt_fec_handle;
 
-static guint    g_default_udp_port          = 0; /* 4001 */
 static gboolean g_codepoint_as_fec_encoding = TRUE;
 static gint     g_ext_192                   = LCT_PREFS_EXT_192_FLUTE;
 static gint     g_ext_193                   = LCT_PREFS_EXT_193_FLUTE;
@@ -193,15 +192,9 @@ void proto_register_alc(void)
     expert_register_field_array(expert_rmt_alc, ei, array_length(ei));
 
     /* Register preferences */
-    module = prefs_register_protocol(proto_rmt_alc, proto_reg_handoff_alc);
+    module = prefs_register_protocol(proto_rmt_alc, NULL);
 
     prefs_register_obsolete_preference(module, "default.udp_port.enabled");
-
-    prefs_register_uint_preference(module,
-                                   "default.udp_port",
-                                   "UDP destination port",
-                                   "Specifies the UDP destination port for automatic dissection of ALC packets",
-                                   10, &g_default_udp_port);
 
     prefs_register_bool_preference(module,
                                    "lct.codepoint_as_fec_id",
@@ -228,30 +221,13 @@ void proto_register_alc(void)
 
 void proto_reg_handoff_alc(void)
 {
-    static dissector_handle_t handle;
-    static gboolean           preferences_initialized = FALSE;
-    static guint              old_udp_port            = 0;
+    dissector_handle_t handle;
 
-    if (!preferences_initialized)
-    {
-        preferences_initialized = TRUE;
-        handle = create_dissector_handle(dissect_alc, proto_rmt_alc);
-        dissector_add_for_decode_as("udp.port", handle);
-        xml_handle = find_dissector_add_dependency("xml", proto_rmt_alc);
-        rmt_lct_handle = find_dissector_add_dependency("rmt-lct", proto_rmt_alc);
-        rmt_fec_handle = find_dissector_add_dependency("rmt-fec", proto_rmt_alc);
-    }
-
-    /* Register UDP port for dissection */
-    if(old_udp_port != 0 && old_udp_port != g_default_udp_port){
-        dissector_delete_uint("udp.port", old_udp_port, handle);
-    }
-
-    if(g_default_udp_port != 0 && old_udp_port != g_default_udp_port) {
-        dissector_add_uint("udp.port", g_default_udp_port, handle);
-    }
-
-    old_udp_port = g_default_udp_port;
+    handle = create_dissector_handle(dissect_alc, proto_rmt_alc);
+    dissector_add_for_decode_as_with_preference("udp.port", handle);
+    xml_handle = find_dissector_add_dependency("xml", proto_rmt_alc);
+    rmt_lct_handle = find_dissector_add_dependency("rmt-lct", proto_rmt_alc);
+    rmt_fec_handle = find_dissector_add_dependency("rmt-fec", proto_rmt_alc);
 }
 
 /*

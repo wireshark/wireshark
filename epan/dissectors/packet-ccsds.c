@@ -722,7 +722,7 @@ proto_register_ccsds(void)
 void
 proto_reg_handoff_ccsds(void)
 {
-    dissector_add_for_decode_as ( "udp.port", find_dissector("ccsds") );
+    dissector_add_for_decode_as_with_preference( "udp.port", find_dissector("ccsds") );
 }
 
 /*

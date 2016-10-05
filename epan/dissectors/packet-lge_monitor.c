@@ -26,7 +26,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 void proto_reg_handoff_lge_monitor(void);
 void proto_register_lge_monitor(void);
@@ -43,7 +42,6 @@ static int hf_lge_monitor_data = -1;
 static int ett_lge_monitor = -1;
 static int ett_lge_header = -1;
 
-static guint LGEMonitorUDPPort = 0;
 static dissector_handle_t mtp3_handle, m3ua_handle, sccp_handle, sctp_handle;
 
 static const value_string lge_monitor_dir_vals[] = {
@@ -116,36 +114,19 @@ dissect_lge_monitor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 void
 proto_reg_handoff_lge_monitor(void)
 {
-	static dissector_handle_t lge_monitor_handle;
-	static guint saved_udp_port;
-	static gboolean lge_monitor_prefs_initialized = FALSE;
+	dissector_handle_t lge_monitor_handle;
 
-	if (!lge_monitor_prefs_initialized) {
-		lge_monitor_handle = create_dissector_handle(dissect_lge_monitor, proto_lge_monitor);
-		dissector_add_for_decode_as("udp.port", lge_monitor_handle);
-		mtp3_handle  = find_dissector_add_dependency("mtp3", proto_lge_monitor);
-		m3ua_handle  = find_dissector_add_dependency("m3ua", proto_lge_monitor);
-		sccp_handle  = find_dissector_add_dependency("sccp", proto_lge_monitor);
-		sctp_handle  = find_dissector_add_dependency("sctp", proto_lge_monitor);
-		lge_monitor_prefs_initialized = TRUE;
-	  }
-	else {
-		if (saved_udp_port != 0) {
-			dissector_delete_uint("udp.port", saved_udp_port, lge_monitor_handle);
-		}
-	}
-
-	if (LGEMonitorUDPPort != 0) {
-		dissector_add_uint("udp.port", LGEMonitorUDPPort, lge_monitor_handle);
-	}
-	saved_udp_port = LGEMonitorUDPPort;
+	lge_monitor_handle = create_dissector_handle(dissect_lge_monitor, proto_lge_monitor);
+	dissector_add_for_decode_as_with_preference("udp.port", lge_monitor_handle);
+	mtp3_handle  = find_dissector_add_dependency("mtp3", proto_lge_monitor);
+	m3ua_handle  = find_dissector_add_dependency("m3ua", proto_lge_monitor);
+	sccp_handle  = find_dissector_add_dependency("sccp", proto_lge_monitor);
+	sctp_handle  = find_dissector_add_dependency("sctp", proto_lge_monitor);
 }
 
 void
 proto_register_lge_monitor(void)
 {
-
-	module_t *lge_monitor_module;
 
 /* Setup list of header fields  */
 	static hf_register_info hf[] = {
@@ -183,17 +164,6 @@ proto_register_lge_monitor(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_lge_monitor, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	/* Register a configuration option for port */
-
-
-	lge_monitor_module = prefs_register_protocol(proto_lge_monitor, proto_reg_handoff_lge_monitor);
-
-	prefs_register_uint_preference(lge_monitor_module, "udp.port",
-								   "LGE Monitor UDP Port",
-								   "Set UDP port for LGE Monitor messages",
-								   10,
-								   &LGEMonitorUDPPort);
-
 }
 
 /*

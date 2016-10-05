@@ -706,24 +706,19 @@ proto_register_nordic_ble(void)
 void
 proto_reg_handoff_nordic_ble(void)
 {
-    static gboolean initialized = FALSE;
-    static dissector_handle_t nordic_ble_handle;
+    dissector_handle_t nordic_ble_handle;
     /*static int currentPort;*/
 
-    if (!initialized) {
-        nordic_ble_handle = create_dissector_handle(dissect_nordic_ble, proto_nordic_ble);
+    nordic_ble_handle = create_dissector_handle(dissect_nordic_ble, proto_nordic_ble);
 
-        btle_dissector_handle = find_dissector("btle");
-        debug_handle = find_dissector("nordic_debug");
-        initialized = TRUE;
-    }
+    btle_dissector_handle = find_dissector("btle");
+    debug_handle = find_dissector("nordic_debug");
 
 #ifdef TRANSPARENT
-    dissector_add_uint("udp.port", udp_port, btle_dissector_handle);
+    dissector_add_uint_with_preference("udp.port", udp_port, btle_dissector_handle);
 #else
-    /*dissector_add_uint("udp.port", udp_port, nordic_ble_handle);*/
     /*dissector_add_uint("wtap_encap", user_dlt_num, nordic_ble_handle);*/
-    dissector_add_for_decode_as("udp.port", nordic_ble_handle);
+    dissector_add_for_decode_as_with_preference("udp.port", nordic_ble_handle);
 
 #endif
 }

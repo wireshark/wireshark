@@ -24,16 +24,14 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/addr_resolv.h>
 void proto_register_bat(void);
 void proto_reg_handoff_bat(void);
 
-/* Start content from packet-bat.h */
 #define BAT_BATMAN_PORT  4305
-#define BAT_GW_PORT  4306
-#define BAT_VIS_PORT  4307
+#define BAT_GW_PORT  4306 /* Not IANA registered */
+#define BAT_VIS_PORT  4307 /* Not IANA registered */
 
 #define UNIDIRECTIONAL 0x80
 #define DIRECTLINK 0x40
@@ -178,13 +176,6 @@ static int proto_bat_vis = -1;
 /* tap */
 static int bat_tap = -1;
 static int bat_follow_tap = -1;
-
-/* values changed by preferences */
-static guint global_bat_batman_udp_port = BAT_BATMAN_PORT;
-static guint global_bat_gw_udp_port	= BAT_GW_PORT;
-static guint global_bat_vis_udp_port	= BAT_VIS_PORT;
-
-
 
 static int dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -690,8 +681,6 @@ static void dissect_vis_entry_v23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 void proto_register_bat(void)
 {
-	module_t *bat_module;
-
 	static hf_register_info hf[] = {
 		{ &hf_bat_batman_version,
 		  { "Version", "bat.batman.version",
@@ -850,59 +839,28 @@ void proto_register_bat(void)
 	proto_bat_gw = proto_register_protocol("B.A.T.M.A.N. GW", "BAT GW", "bat.gw");
 	proto_bat_vis = proto_register_protocol("B.A.T.M.A.N. Vis", "BAT VIS", "bat.vis");
 
-	/* Register our configuration options for B.A.T.M.A.N. */
-	bat_module = prefs_register_protocol(proto_bat_plugin, proto_reg_handoff_bat);
-
 	proto_register_field_array(proto_bat_plugin, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	prefs_register_uint_preference(bat_module, "batman.bat.port", "BAT UDP Port",
-				       "Set the port for B.A.T.M.A.N. BAT "
-				       "messages (if other than the default of 4305)",
-				       10, &global_bat_batman_udp_port);
-	prefs_register_uint_preference(bat_module, "batman.gw.port", "GW UDP Port",
-				       "Set the port for B.A.T.M.A.N. Gateway "
-				       "messages (if other than the default of 4306)",
-				       10, &global_bat_gw_udp_port);
-	prefs_register_uint_preference(bat_module, "batman.vis.port", "VIS UDP Port",
-				       "Set the port for B.A.T.M.A.N. VIS "
-				       "messages (if other than the default of 4307)",
-				       10, &global_bat_vis_udp_port);
 }
 
 void proto_reg_handoff_bat(void)
 {
-	static gboolean inited = FALSE;
-	static dissector_handle_t batman_handle;
-	static dissector_handle_t gw_handle;
-	static dissector_handle_t vis_handle;
-	static guint batman_udp_port;
-	static guint gw_udp_port;
-	static guint vis_udp_port;
+	dissector_handle_t batman_handle;
+	dissector_handle_t gw_handle;
+	dissector_handle_t vis_handle;
 
-	if (!inited) {
-		bat_tap = register_tap("batman");
-		bat_follow_tap = register_tap("batman_follow");
+	bat_tap = register_tap("batman");
+	bat_follow_tap = register_tap("batman_follow");
 
-		batman_handle = create_dissector_handle(dissect_bat_batman, proto_bat_plugin);
-		gw_handle = create_dissector_handle(dissect_bat_gw, proto_bat_gw);
-		vis_handle = create_dissector_handle(dissect_bat_vis, proto_bat_vis);
+	batman_handle = create_dissector_handle(dissect_bat_batman, proto_bat_plugin);
+	gw_handle = create_dissector_handle(dissect_bat_gw, proto_bat_gw);
+	vis_handle = create_dissector_handle(dissect_bat_vis, proto_bat_vis);
 
-		ip_handle = find_dissector_add_dependency("ip", proto_bat_gw);
+	ip_handle = find_dissector_add_dependency("ip", proto_bat_gw);
 
-		inited = TRUE;
-	} else {
-		dissector_delete_uint("udp.port", batman_udp_port, batman_handle);
-		dissector_delete_uint("udp.port", gw_udp_port, gw_handle);
-		dissector_delete_uint("udp.port", vis_udp_port, vis_handle);
-	}
-
-	batman_udp_port = global_bat_batman_udp_port;
-	gw_udp_port = global_bat_gw_udp_port;
-	vis_udp_port = global_bat_vis_udp_port;
-	dissector_add_uint("udp.port", batman_udp_port, batman_handle);
-	dissector_add_uint("udp.port", gw_udp_port, gw_handle);
-	dissector_add_uint("udp.port", vis_udp_port, vis_handle);
+	dissector_add_uint_with_preference("udp.port", BAT_BATMAN_PORT, batman_handle);
+	dissector_add_uint_with_preference("udp.port", BAT_GW_PORT, gw_handle);
+	dissector_add_uint_with_preference("udp.port", BAT_VIS_PORT, vis_handle);
 }
 
 /*

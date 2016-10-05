@@ -28,7 +28,7 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include "packet-actrace.h"
-#define UDP_PORT_ACTRACE 2428
+#define UDP_PORT_ACTRACE 2428 /* Not IANA registered */
 
 #define NOT_ACTRACE  0
 #define ACTRACE_CAS  1
@@ -426,12 +426,6 @@ static int ett_actrace = -1;
 static int actrace_tap = -1;
 static actrace_info_t *actrace_pi;
 
-/*
- * Here are the global variables associated with
- * the user definable characteristics of the dissection
- */
-static guint global_actrace_udp_port = UDP_PORT_ACTRACE;
-
 /* Some basic utility functions that are specific to this dissector */
 static int is_actrace(tvbuff_t *tvb, gint offset);
 
@@ -794,13 +788,7 @@ void proto_register_actrace(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register our configuration options */
-	actrace_module = prefs_register_protocol(proto_actrace, proto_reg_handoff_actrace);
-
-	prefs_register_uint_preference(actrace_module, "udp_port",
-				       "AudioCodes Trunk Trace UDP port",
-				       "Set the UDP port for AudioCodes Trunk Traces."
-				       "Use http://x.x.x.x/TrunkTraces to enable the traces in the Blade",
-				       10, &global_actrace_udp_port);
+	actrace_module = prefs_register_protocol(proto_actrace, NULL);
 
 	prefs_register_obsolete_preference(actrace_module, "display_dissect_tree");
 
@@ -810,26 +798,13 @@ void proto_register_actrace(void)
 /* The registration hand-off routine */
 void proto_reg_handoff_actrace(void)
 {
-	static gboolean           actrace_prefs_initialized = FALSE;
-	static dissector_handle_t actrace_handle;
-	static guint              actrace_udp_port;
+	dissector_handle_t actrace_handle;
 
-	if (!actrace_prefs_initialized)
-	{
-		actrace_handle = create_dissector_handle(dissect_actrace, proto_actrace);
-		/* Get a handle for the lapd dissector. */
-		lapd_handle = find_dissector_add_dependency("lapd", proto_actrace);
-		actrace_prefs_initialized = TRUE;
-	}
-	else
-	{
-		dissector_delete_uint("udp.port", actrace_udp_port, actrace_handle);
-	}
+	/* Get a handle for the lapd dissector. */
+	lapd_handle = find_dissector_add_dependency("lapd", proto_actrace);
 
-	/* Set our port number for future use */
-	actrace_udp_port = global_actrace_udp_port;
-
-	dissector_add_uint("udp.port", global_actrace_udp_port, actrace_handle);
+	actrace_handle = create_dissector_handle(dissect_actrace, proto_actrace);
+	dissector_add_uint_with_preference("udp.port", UDP_PORT_ACTRACE, actrace_handle);
 }
 
 /*

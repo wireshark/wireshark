@@ -26,7 +26,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/decode_as.h>
 
@@ -50,9 +49,6 @@ static int hf_moldudp64_msgdata  = -1;
 
 #define MOLDUDP64_HEARTBEAT 0x0000
 #define MOLDUDP64_ENDOFSESS 0xFFFF
-
-/* Global port pref */
-static guint pf_moldudp64_port = 0;
 
 /* Initialize the subtree pointers */
 static gint ett_moldudp64        = -1;
@@ -220,8 +216,6 @@ dissect_moldudp64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 void
 proto_register_moldudp64(void)
 {
-    module_t *moldudp64_module;
-
     /* Setup list of header fields */
     static hf_register_info hf[] = {
 
@@ -287,15 +281,6 @@ proto_register_moldudp64(void)
     expert_moldudp64 = expert_register_protocol(proto_moldudp64);
     expert_register_field_array(expert_moldudp64, ei, array_length(ei));
 
-    /* Register preferences module */
-    moldudp64_module = prefs_register_protocol(proto_moldudp64,
-            proto_reg_handoff_moldudp64);
-
-    /* Register a sample port preference   */
-    prefs_register_uint_preference(moldudp64_module, "udp.port", "MoldUDP64 UDP Port",
-            "MoldUDP64 UDP port to dissect on.",
-            10, &pf_moldudp64_port);
-
     register_decode_as(&moldudp64_da);
 }
 
@@ -303,24 +288,10 @@ proto_register_moldudp64(void)
 void
 proto_reg_handoff_moldudp64(void)
 {
-    static gboolean           initialized = FALSE;
-    static dissector_handle_t moldudp64_handle;
-    static int                currentPort;
+    dissector_handle_t moldudp64_handle;
 
-    if (!initialized) {
-
-        moldudp64_handle = create_dissector_handle(dissect_moldudp64,
-                proto_moldudp64);
-        initialized = TRUE;
-    } else {
-
-        dissector_delete_uint("udp.port", currentPort, moldudp64_handle);
-    }
-
-    currentPort = pf_moldudp64_port;
-
-    dissector_add_uint("udp.port", currentPort, moldudp64_handle);
-
+    moldudp64_handle = create_dissector_handle(dissect_moldudp64, proto_moldudp64);
+    dissector_add_for_decode_as_with_preference("udp.port", moldudp64_handle);
 }
 
 /*

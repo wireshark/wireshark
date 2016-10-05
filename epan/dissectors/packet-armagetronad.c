@@ -40,8 +40,7 @@ static int hf_armagetronad_msg_subtree = -1;
 static gint ett_armagetronad = -1;
 static gint ett_message = -1;
 
-#define UDP_PORT_ARMAGETRONAD 4534
-#define UDP_PORT_MASTER 4533
+#define ARMAGETRONAD_UDP_PORT_RANGE "4533-4534" /* 4533 is not IANA registered, 4534 is */
 
 /*
  * The ACK packet is so common that we treat it
@@ -322,8 +321,7 @@ void proto_reg_handoff_armagetronad(void)
 
 	armagetronad_handle = find_dissector("armagetronad");
 
-	dissector_add_uint("udp.port", UDP_PORT_ARMAGETRONAD, armagetronad_handle);
-	dissector_add_uint("udp.port", UDP_PORT_MASTER, armagetronad_handle);
+	dissector_add_uint_range_with_preference("udp.port", ARMAGETRONAD_UDP_PORT_RANGE, armagetronad_handle);
 }
 
 /*

@@ -401,7 +401,7 @@ proto_reg_handoff_teredo(void)
 	data_handle   = find_dissector("ipv6");
 	teredo_tap    = register_tap("teredo");
 
-	dissector_add_uint("udp.port", UDP_PORT_TEREDO, teredo_handle);
+	dissector_add_uint_with_preference("udp.port", UDP_PORT_TEREDO, teredo_handle);
 	heur_dissector_add("udp", dissect_teredo_heur, "Teredo over UDP", "teredo_udp", proto_teredo, HEURISTIC_DISABLE);
 }
 

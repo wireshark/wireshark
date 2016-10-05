@@ -86,7 +86,7 @@ static int hf_tapa_tunnel_remaining = -1;
 #define PROTO_SHORT_NAME "TAPA"
 #define PROTO_LONG_NAME "Trapeze Access Point Access Protocol"
 
-#define PORT_TAPA	5000
+#define PORT_TAPA	5000 /* Not IANA registered */
 
 typedef enum {
 	TAPA_TYPE_REQUEST	= 0x01,
@@ -626,7 +626,7 @@ proto_reg_handoff_tapa(void)
 	dissector_handle_t tapa_handle;
 
 	tapa_handle = find_dissector("tapa");
-	dissector_add_uint("udp.port", PORT_TAPA, tapa_handle);
+	dissector_add_uint_with_preference("udp.port", PORT_TAPA, tapa_handle);
 	heur_dissector_add( "ip", dissect_tapa_heur, "TAPA over IP", "tapa_ip", proto_tapa, HEURISTIC_ENABLE);
 }
 

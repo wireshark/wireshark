@@ -43,20 +43,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 
 void proto_register_rudp(void);
-
-/* Disable rudp by default. The previously hardcoded value of
- * 7000 (used by Cisco) collides with afs and as the draft states:
- * "RUDP doesn't place any restrictions on which UDP port numbers are used.
- *  Valid port numbers are ports not defined in RFC 1700."
- */
-/* FIXME: The proper solution would be to convert this dissector into
- *        heuristic dissector, but it isn't complete anyway.
- */
-static guint udp_port = 0;
 
 void proto_reg_handoff_rudp(void);
 
@@ -213,50 +202,29 @@ proto_register_rudp(void)
 	};
 
 
-	proto_rudp = proto_register_protocol (
-		"Reliable UDP",		/* name */
-		"RUDP",		/* short name */
-		"rudp"		/* abbrev */
-		);
+	proto_rudp = proto_register_protocol ("Reliable UDP", "RUDP", "rudp");
 
 	proto_register_field_array(proto_rudp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	{
-		module_t *rudp_module;
-		rudp_module = prefs_register_protocol(proto_rudp, proto_reg_handoff_rudp);
-		prefs_register_uint_preference(rudp_module,
-			"udp.port",
-			"UDP port for RUDP",
-			"Set the UDP port for Reliable UDP traffic",
-			10,
-			&udp_port);
-	}
-
 }
 
 void
 proto_reg_handoff_rudp(void) {
 
-	static gboolean initialized = FALSE;
-	static dissector_handle_t rudp_handle;
-	static guint saved_udp_port;
+	dissector_handle_t rudp_handle;
 
-	if (!initialized) {
-		rudp_handle = create_dissector_handle(dissect_rudp, proto_rudp);
-		dissector_add_for_decode_as("udp.port", rudp_handle);
-		sm_handle = find_dissector_add_dependency("sm", proto_rudp);
-		initialized = TRUE;
-	} else {
-		if (saved_udp_port != 0) {
-			dissector_delete_uint("udp.port", saved_udp_port, rudp_handle);
-		}
-	}
+/* Disable rudp by default. The previously hardcoded value of
+ * 7000 (used by Cisco) collides with afs and as the draft states:
+ * "RUDP doesn't place any restrictions on which UDP port numbers are used.
+ *  Valid port numbers are ports not defined in RFC 1700."
+ */
+/* FIXME: The proper solution would be to convert this dissector into
+ *        heuristic dissector, but it isn't complete anyway.
+ */
 
-	if (udp_port != 0) {
-		dissector_add_uint("udp.port", udp_port, rudp_handle);
-	}
-	saved_udp_port = udp_port;
+	rudp_handle = create_dissector_handle(dissect_rudp, proto_rudp);
+	dissector_add_for_decode_as_with_preference("udp.port", rudp_handle);
+	sm_handle = find_dissector_add_dependency("sm", proto_rudp);
 }
 
 /*
