@@ -2466,7 +2466,7 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     size          = tvb_captured_length(tvb);
     proto_tree_add_checksum(eigrp_tree, tvb, 2, hf_eigrp_checksum, hf_eigrp_checksum_status, &ei_eigrp_checksum_bad,
-                            pinfo, ip_checksum_tvb(tvb, 0, size), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+                            pinfo, ip_checksum_tvb(tvb, 0, size), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 
     /* Decode the EIGRP Flags Field */
     proto_tree_add_bitmask(eigrp_tree, tvb, 4, hf_eigrp_flags, ett_eigrp_flags,
