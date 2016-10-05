@@ -18,7 +18,7 @@ ASAN=$CONFIGURED_WITH_ASAN
 WIRESHARK_ABORT_ON_DISSECTOR_BUG="True"
 
 # To do: add options for file names and limits
-while getopts "a:b:d:p:t:" OPTCHAR ; do
+while getopts "ab:d:p:t:" OPTCHAR ; do
     case $OPTCHAR in
         a) ASAN=1 ;;
         b) WIRESHARK_BIN_DIR=$OPTARG ;;
