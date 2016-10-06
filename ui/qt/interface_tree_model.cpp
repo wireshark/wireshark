@@ -194,9 +194,9 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-QVariant InterfaceTreeModel::getColumnContent(int idx, int col)
+QVariant InterfaceTreeModel::getColumnContent(int idx, int col, int role)
 {
-    return InterfaceTreeModel::data(index(idx, col), Qt::DisplayRole);
+    return InterfaceTreeModel::data(index(idx, col), role);
 }
 
 /**

@@ -37,6 +37,8 @@ InterfaceSortFilterModel::InterfaceSortFilterModel(QObject *parent) :
         QSortFilterProxyModel(parent)
 {
     _filterHidden = true;
+    _filterTypes = true;
+    _invertTypeFilter = false;
 
     /* Adding all columns, to have a default setting */
     for ( int col = 0; col < IFTREE_COL_MAX; col++ )
@@ -50,6 +52,14 @@ InterfaceSortFilterModel::InterfaceSortFilterModel(QObject *parent) :
 void InterfaceSortFilterModel::setFilterHidden(bool filter)
 {
     _filterHidden = filter;
+
+    invalidate();
+}
+
+void InterfaceSortFilterModel::setFilterByType(bool filter, bool invert)
+{
+    _filterTypes = filter;
+    _invertTypeFilter = invert;
 
     invalidate();
 }
@@ -75,6 +85,11 @@ void InterfaceSortFilterModel::resetPreferenceData()
 bool InterfaceSortFilterModel::filterHidden() const
 {
     return _filterHidden;
+}
+
+bool InterfaceSortFilterModel::filterByType() const
+{
+    return _filterTypes;
 }
 
 int InterfaceSortFilterModel::interfacesHidden()
@@ -136,10 +151,14 @@ void InterfaceSortFilterModel::setInterfaceTypeVisible(int ifType, bool visible)
 
 bool InterfaceSortFilterModel::isInterfaceTypeShown(int ifType) const
 {
-    if ( ! displayHiddenTypes.contains(ifType) )
-        return true;
+    bool result = false;
 
-    return false;
+    if ( displayHiddenTypes.size() == 0 )
+        result = true;
+    else if ( ! displayHiddenTypes.contains(ifType) )
+        result = true;
+
+    return ( ( _invertTypeFilter && ! result ) || ( ! _invertTypeFilter && result ) );
 }
 
 bool InterfaceSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const
@@ -157,12 +176,12 @@ bool InterfaceSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex
         return false;
 
     int type = ((InterfaceTreeModel *)sourceModel())->getColumnContent(idx, IFTREE_COL_TYPE).toInt();
-    bool hidden = ((InterfaceTreeModel *)sourceModel())->getColumnContent(idx, IFTREE_COL_HIDDEN).toBool();
+    bool hidden = ((InterfaceTreeModel *)sourceModel())->getColumnContent(idx, IFTREE_COL_HIDDEN, Qt::UserRole).toBool();
 
     if ( hidden && _filterHidden )
         return false;
 
-    if ( ! isInterfaceTypeShown(type) )
+    if ( _filterTypes && ! isInterfaceTypeShown(type) )
         return false;
 #endif
 
@@ -194,6 +213,29 @@ int InterfaceSortFilterModel::mapSourceToColumn(InterfaceTreeColumns mdlIndex)
         return -1;
 
     return _columns.indexOf(mdlIndex, 0);
+}
+
+QModelIndex InterfaceSortFilterModel::mapToSource(const QModelIndex &proxyIndex) const
+{
+    if ( ! proxyIndex.isValid() )
+        return QModelIndex();
+
+    QModelIndex baseIndex = QSortFilterProxyModel::mapToSource(proxyIndex);
+    QModelIndex newIndex = sourceModel()->index(baseIndex.row(), _columns.at(proxyIndex.column()));
+
+    return newIndex;
+}
+
+QModelIndex InterfaceSortFilterModel::mapFromSource(const QModelIndex &sourceIndex) const
+{
+    if ( ! sourceIndex.isValid() )
+        return QModelIndex();
+    else if ( ! _columns.contains( (InterfaceTreeColumns) sourceIndex.column() ) )
+        return QModelIndex();
+
+    QModelIndex newIndex = QSortFilterProxyModel::mapFromSource(sourceIndex);
+
+    return index(newIndex.row(), _columns.indexOf((InterfaceTreeColumns) sourceIndex.column()));
 }
 
 /*

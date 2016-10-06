@@ -136,6 +136,9 @@ void InterfaceFrame::actionButton_toggled(bool checked)
     if ( ifType.isValid() )
     {
         proxyModel->setInterfaceTypeVisible(ifType.toInt(), checked);
+#ifdef HAVE_EXTCAP
+        ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_EXTCAP));
+#endif
     }
 }
 
@@ -194,16 +197,10 @@ void InterfaceFrame::resetInterfaceButtons()
     }
 
 #ifdef HAVE_EXTCAP
-    /* This is a rude approach. Issue here is, that if WS starts with extcap interfaces disabled,
-     * the next command reduces the column to 0 size. If extcap interfaces get enabled afterwards,
-     * the icon for configuration is not shown. Doing this in the action for the buttons does not
-     * work, as it leads to a loop. Good approach would be to use hidden icon for all other types,
-     * or to determine size here and set it. 50 is bigger then the biggest icon, so for now, this
-     * is being set. */
-    ui->interfaceTree->setColumnWidth(IFTREE_COL_EXTCAP, 50);
+    ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_EXTCAP));
 #endif
-    ui->interfaceTree->resizeColumnToContents(IFTREE_COL_NAME);
-    ui->interfaceTree->resizeColumnToContents(IFTREE_COL_STATS);
+    ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_NAME));
+    ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_STATS));
 
 #ifdef HAVE_LIBPCAP
     if (!stat_timer_) {

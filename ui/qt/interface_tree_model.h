@@ -73,7 +73,7 @@ public:
     QItemSelection selectedDevices();
     bool updateSelectedDevices(QItemSelection sourceSelection);
 
-    QVariant getColumnContent(int idx, int col);
+    QVariant getColumnContent(int idx, int col, int role = Qt::DisplayRole);
 
 public slots:
     void getPoints(int idx, PointList *pts);

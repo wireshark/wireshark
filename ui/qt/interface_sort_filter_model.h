@@ -43,11 +43,16 @@ public:
 
     void setInterfaceTypeVisible(int ifType, bool visible);
     bool isInterfaceTypeShown(int ifType) const;
+    void setFilterByType(bool filter, bool invert = false);
+    bool filterByType() const;
 
     QList<int> typesDisplayed();
 
     void setColumns(QList<InterfaceTreeColumns> columns);
     int mapSourceToColumn(InterfaceTreeColumns mdlIndex);
+
+    QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
+    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
 
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const;
@@ -55,6 +60,8 @@ protected:
 
 private:
     bool _filterHidden;
+    bool _filterTypes;
+    bool _invertTypeFilter;
 
     QList<int> displayHiddenTypes;
 
