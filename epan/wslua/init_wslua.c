@@ -160,6 +160,9 @@ int get_hf_wslua_text(void) {
 
 int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
     int consumed_bytes = tvb_captured_length(tvb);
+    tvbuff_t *saved_lua_tvb = lua_tvb;
+    packet_info *saved_lua_pinfo = lua_pinfo;
+    struct _wslua_treeitem *saved_lua_tree = lua_tree;
     lua_pinfo = pinfo;
     lua_tvb = tvb;
 
@@ -204,9 +207,9 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 
     wmem_register_callback(pinfo->pool, lua_pinfo_end, NULL);
 
-    lua_pinfo = NULL;
-    lua_tree = NULL;
-    lua_tvb = NULL;
+    lua_pinfo = saved_lua_pinfo;
+    lua_tree = saved_lua_tree;
+    lua_tvb = saved_lua_tvb;
 
     return consumed_bytes;
 
@@ -221,6 +224,9 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
  */
 gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
     gboolean result = FALSE;
+    tvbuff_t *saved_lua_tvb = lua_tvb;
+    packet_info *saved_lua_pinfo = lua_pinfo;
+    struct _wslua_treeitem *saved_lua_tree = lua_tree;
     lua_tvb = tvb;
     lua_pinfo = pinfo;
 
@@ -299,9 +305,9 @@ gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
 
     wmem_register_callback(pinfo->pool, lua_pinfo_end, NULL);
 
-    lua_pinfo = NULL;
-    lua_tree = NULL;
-    lua_tvb = NULL;
+    lua_pinfo = saved_lua_pinfo;
+    lua_tree = saved_lua_tree;
+    lua_tvb = saved_lua_tvb;
 
     return result;
 }
