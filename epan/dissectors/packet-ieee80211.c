@@ -9007,10 +9007,10 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
 
   proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_ff_vht_mimo_cntrl,
                         ett_ff_vhtmimo_cntrl, hf_ieee80211_ff_vht_mimo_cntrl_fields, ENC_LITTLE_ENDIAN);
-  offset += 3;
 
   /* Extract values for beamforming use */
   vht_mimo = tvb_get_letoh24(tvb, offset);
+  offset += 3;
   nc = (vht_mimo & 0x7) + 1;
   nr = ((vht_mimo & 0x38) >> 3) + 1;
   chan_width = (vht_mimo & 0xC0) >> 6;
