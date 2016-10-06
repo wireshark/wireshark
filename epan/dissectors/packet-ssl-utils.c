@@ -5518,6 +5518,10 @@ ssl_dissect_hnd_hello_ext_key_share(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         case SSL_HND_SERVER_HELLO:
             offset = ssl_dissect_hnd_hello_ext_key_share_entry(hf, tvb, key_share_tree, offset, offset_end);
         break;
+        case SSL_HND_HELLO_RETRY_REQUEST:
+            proto_tree_add_item(key_share_tree, hf->hf.hs_ext_key_share_selected_group, tvb, offset, 2, ENC_BIG_ENDIAN );
+            offset += 2;
+        break;
         default: /* no default */
         break;
     }
@@ -6015,6 +6019,7 @@ ssl_is_valid_handshake_type(guint8 hs_type, gboolean is_dtls)
     case SSL_HND_CLIENT_HELLO:
     case SSL_HND_SERVER_HELLO:
     case SSL_HND_NEWSESSION_TICKET:
+    case SSL_HND_HELLO_RETRY_REQUEST:
     case SSL_HND_CERTIFICATE:
     case SSL_HND_SERVER_KEY_EXCHG:
     case SSL_HND_CERT_REQUEST:
@@ -6336,6 +6341,30 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     }
 #endif
 } /* }}} */
+
+void
+ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                    packet_info* pinfo, proto_tree *tree, guint32 offset, guint32 length,
+                                    SslSession *session, SslDecryptSession *ssl)
+{
+    /* struct {
+     *     ProtocolVersion server_version;
+     *     Extension extensions<2..2^16-1>;
+     * } HelloRetryRequest;
+     */
+    guint16 start_offset = offset;
+
+    proto_tree_add_item(tree, hf->hf.hs_server_version, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* remaining data are extensions */
+    if (length > offset - start_offset) {
+        ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
+                                  length - (offset - start_offset), SSL_HND_HELLO_RETRY_REQUEST,
+                                  session, ssl);
+    }
+}
 
 /* Certificate and Certificate Request dissections. {{{ */
 void

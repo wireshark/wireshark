@@ -62,6 +62,7 @@ typedef enum {
     SSL_HND_SERVER_HELLO           = 2,
     SSL_HND_HELLO_VERIFY_REQUEST   = 3,
     SSL_HND_NEWSESSION_TICKET      = 4,
+    SSL_HND_HELLO_RETRY_REQUEST    = 6,
     SSL_HND_CERTIFICATE            = 11,
     SSL_HND_SERVER_KEY_EXCHG       = 12,
     SSL_HND_CERT_REQUEST           = 13,
@@ -672,6 +673,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_key_share_group;
         gint hs_ext_key_share_key_exchange_length;
         gint hs_ext_key_share_key_exchange;
+        gint hs_ext_key_share_selected_group;
         gint hs_ext_psk_identities_length;
         gint hs_ext_psk_identity_ke_modes_length;
         gint hs_ext_psk_identity_ke_mode;
@@ -831,6 +833,11 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info* 
                           gboolean is_dtls);
 
 extern void
+ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info* pinfo,
+                                    proto_tree *tree, guint32 offset, guint32 length,
+                                    SslSession *session, SslDecryptSession *ssl);
+
+extern void
 ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                proto_tree *tree, guint32 offset,
                                SslDecryptSession *ssl,
@@ -881,7 +888,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1,                                                     \
+        -1, -1, -1, -1,                                                 \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1004,6 +1011,11 @@ ssl_common_dissect_t name = {   \
       { "Key Exchange", prefix ".handshake.extensions_key_share_key_exchange",  \
         FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
         NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_key_share_selected_group,                       \
+      { "Selected Group", prefix ".handshake.extensions_key_share_selected_group",  \
+         FT_UINT16, BASE_DEC, VALS(ssl_extension_curves), 0x00,         \
+         NULL, HFILL }                                                  \
     },                                                                  \
     { & name .hf.hs_ext_psk_identities_length,                          \
       { "Identities Length", prefix ".handshake.extensions.psk.identities.length",  \
