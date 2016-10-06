@@ -59,6 +59,10 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
+#include <epan/expert.h>
+
+#include <wsutil/strtoi.h>
+
 /* For tcp_dissect_pdus() */
 #include "packet-tcp.h"
 
@@ -132,6 +136,8 @@ static int hf_soupbintcp_next_seq_num = -1;
 static int hf_soupbintcp_req_seq_num = -1;
 static int hf_soupbintcp_reject_code = -1;
 
+static expert_field ei_soupbintcp_next_seq_num_invalid = EI_INIT;
+static expert_field ei_soupbintcp_req_seq_num_invalid = EI_INIT;
 
 /** Dissector for SoupBinTCP messages */
 static void
@@ -143,15 +149,17 @@ dissect_soupbintcp_common(
     struct conv_data *conv_data;
     struct pdu_data  *pdu_data;
     const char       *pkt_name;
-    const char       *tmp_buf;
+    gint32            seq_num;
+    gboolean          seq_num_valid;
     proto_item       *ti;
     proto_tree       *soupbintcp_tree = NULL;
     conversation_t   *conv            = NULL;
     guint16           expected_len;
     guint8            pkt_type;
     gint              offset          = 0;
-    guint             this_seq        = 0, next_seq, key;
+    guint             this_seq        = 0, next_seq = 0, key;
     heur_dtbl_entry_t *hdtbl_entry;
+    proto_item       *pi;
 
     /* Record the start of the packet to use as a sequence number key */
     key = (guint)tvb_raw_offset(tvb);
@@ -200,8 +208,8 @@ dissect_soupbintcp_common(
 
     /* If first dissection of Login Accept, save sequence number */
     if (pkt_type == 'A' && !PINFO_FD_VISITED(pinfo)) {
-        tmp_buf = tvb_get_string_enc(wmem_packet_scope(), tvb, 13, 20, ENC_ASCII);
-        next_seq = atoi(tmp_buf);
+        ws_strtou32(tvb_get_string_enc(wmem_packet_scope(), tvb, 13, 20, ENC_ASCII),
+            NULL, &next_seq);
 
         /* Create new conversation for this session */
         conv = conversation_new(pinfo->num,
@@ -294,11 +302,15 @@ dissect_soupbintcp_common(
                                 tvb, offset, 10, ENC_ASCII|ENC_NA);
             offset += 10;
 
-            tmp_buf = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 20, ENC_ASCII);
-            proto_tree_add_string_format_value(soupbintcp_tree,
+            seq_num_valid = ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(),
+                tvb, offset, 20, ENC_ASCII), NULL, &seq_num);
+            pi = proto_tree_add_string_format_value(soupbintcp_tree,
                                                hf_soupbintcp_next_seq_num,
                                                tvb, offset, 20,
-                                               "X", "%d", atoi(tmp_buf));
+                                               "X", "%d", seq_num);
+            if (!seq_num_valid)
+                expert_add_info(pinfo, pi, &ei_soupbintcp_next_seq_num_invalid);
+
             break;
 
         case 'J': /* Login Reject */
@@ -339,11 +351,15 @@ dissect_soupbintcp_common(
                                 tvb, offset, 10, ENC_ASCII|ENC_NA);
             offset += 10;
 
-            tmp_buf = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 20, ENC_ASCII);
-            proto_tree_add_string_format_value(soupbintcp_tree,
+            seq_num_valid = ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(),
+                tvb, offset, 20, ENC_ASCII), NULL, &seq_num);
+            pi = proto_tree_add_string_format_value(soupbintcp_tree,
                                                hf_soupbintcp_req_seq_num,
                                                tvb, offset, 20,
-                                               "X", "%d", atoi(tmp_buf));
+                                               "X", "%d", seq_num);
+            if (!seq_num_valid)
+                expert_add_info(pinfo, pi, &ei_soupbintcp_req_seq_num_invalid);
+
             break;
 
         case 'H': /* Server Heartbeat */
@@ -469,6 +485,8 @@ soupbintcp_prefs(void)
 void
 proto_register_soupbintcp(void)
 {
+    expert_module_t* expert_soupbinttcp;
+
     static hf_register_info hf[] = {
 
         { &hf_soupbintcp_packet_length,
@@ -545,6 +563,13 @@ proto_register_soupbintcp(void)
         &ett_soupbintcp
     };
 
+    static ei_register_info ei[] = {
+        { &ei_soupbintcp_req_seq_num_invalid, { "soupbintcp.req_seq_num.invalid", PI_MALFORMED, PI_ERROR,
+            "Sequence number of next Sequenced Data message to be delivered is an invalid string", EXPFILL }},
+        { &ei_soupbintcp_next_seq_num_invalid, { "soupbintcp.next_seq_num.invalid", PI_MALFORMED, PI_ERROR,
+            "Request to begin (re)transmission is an invalid string", EXPFILL }}
+        };
+
     module_t *soupbintcp_module;
 
     proto_soupbintcp
@@ -576,6 +601,9 @@ proto_register_soupbintcp(void)
     soupbintcp_range = range_empty();
 
     heur_subdissector_list = register_heur_dissector_list("soupbintcp", proto_soupbintcp);
+
+    expert_soupbinttcp = expert_register_protocol(proto_soupbintcp);
+    expert_register_field_array(expert_soupbinttcp, ei, array_length(ei));
 }
 
 
