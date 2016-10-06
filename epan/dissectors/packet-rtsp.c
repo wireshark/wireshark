@@ -30,7 +30,6 @@
 #include "config.h"
 
 #include <stdio.h>	/* for sscanf() */
-#include <stdlib.h>	/* for atoi() and strtoul() */
 
 #include <epan/packet.h>
 #include <epan/req_resp_hdrs.h>
@@ -41,6 +40,7 @@
 #include <epan/tap-voip.h>
 #include <epan/stats_tree.h>
 #include <wsutil/str_util.h>
+#include <wsutil/strtoi.h>
 
 #include "packet-rdt.h"
 #include "packet-rtp.h"
@@ -140,6 +140,8 @@ static expert_field ei_rtsp_unknown_transport_type = EI_INIT;
 static expert_field ei_rtsp_bad_server_port = EI_INIT;
 static expert_field ei_rtsp_bad_client_port = EI_INIT;
 static expert_field ei_rtsp_bad_interleaved_channel = EI_INIT;
+static expert_field ei_rtsp_content_length_invalid = EI_INIT;
+static expert_field ei_rtsp_rdtfeaturelevel_invalid = EI_INIT;
 
 static dissector_handle_t rtp_handle;
 static dissector_handle_t rtcp_handle;
@@ -463,7 +465,7 @@ is_rtsp_request_or_reply(const guchar *line, size_t linelen, rtsp_type_t *type)
             if (tokenlen >= 3) {
                 memcpy(response_chars, token, 3);
                 response_chars[3] = '\0';
-                rtsp_stat_info->response_code = (guint)strtoul(response_chars, NULL, 10);
+                ws_strtou32(response_chars, NULL, &rtsp_stat_info->response_code);
             }
         }
         return TRUE;
@@ -663,9 +665,9 @@ rtsp_get_content_length(const guchar *line_begin, size_t line_len)
 {
     guchar  buf[256];
     guchar *tmp;
-    long    content_length;
-    char   *p;
-    guchar *up;
+    guint32 content_length;
+    const char *p;
+    const guchar *up;
 
     if (line_len > sizeof(buf) - 1) {
         /*
@@ -679,7 +681,7 @@ rtsp_get_content_length(const guchar *line_begin, size_t line_len)
     tmp = buf + STRLEN_CONST(rtsp_content_length);
     while (*tmp && g_ascii_isspace(*tmp))
         tmp++;
-    content_length = strtol(tmp, &p, 10);
+    ws_strtoi32(tmp, &p, &content_length);
     up = p;
     if (up == tmp || (*up != '\0' && !g_ascii_isspace(*up)))
         return -1;  /* not a valid number */
@@ -1068,10 +1070,15 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
             } else if (HDR_MATCHES(rtsp_content_length))
             {
-                proto_tree_add_uint(rtsp_tree, hf_rtsp_content_length,
-                                    tvb, offset, linelen,
-                                    atoi(tvb_format_text(tvb, value_offset,
-                                                         value_len)));
+                guint32 clength;
+                gboolean clength_valid;
+                proto_item* pi;
+                clength_valid = ws_strtou32(tvb_format_text(tvb, value_offset, value_len),
+                    NULL, &clength);
+                pi = proto_tree_add_uint(rtsp_tree, hf_rtsp_content_length,
+                                    tvb, offset, linelen, clength);
+                if (!clength_valid)
+                    expert_add_info(pinfo, pi, &ei_rtsp_content_length_invalid);
 
                 /*
                  * Only the amount specified by the
@@ -1112,12 +1119,14 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 }
             } else if (HDR_MATCHES(rtsp_rdt_feature_level))
             {
-                rdt_feature_level = atoi(tvb_format_text(tvb, value_offset,
-                                                         value_len));
-                proto_tree_add_uint(rtsp_tree, hf_rtsp_rdtfeaturelevel,
-                                    tvb, offset, linelen,
-                                    atoi(tvb_format_text(tvb, value_offset,
-                                                         value_len)));
+                gboolean rdt_feature_level_valid;
+                proto_item* pi;
+                rdt_feature_level_valid = ws_strtou32(tvb_format_text(tvb, value_offset, value_len),
+                    NULL, &rdt_feature_level);
+                pi = proto_tree_add_uint(rtsp_tree, hf_rtsp_rdtfeaturelevel,
+                tvb, offset, linelen, rdt_feature_level);
+                if (!rdt_feature_level_valid)
+                    expert_add_info(pinfo, pi, &ei_rtsp_rdtfeaturelevel_invalid);
             }
             else
             {
@@ -1449,6 +1458,10 @@ proto_register_rtsp(void)
           { "rtsp.bad_client_port", PI_UNDECODED, PI_WARN, "Bad client port",  EXPFILL }},
         { &ei_rtsp_bad_interleaved_channel,
           { "rtsp.bad_interleaved_channel", PI_UNDECODED, PI_WARN, "Bad interleaved_channel",  EXPFILL }},
+        { &ei_rtsp_content_length_invalid,
+          { "rtsp.content-length.invalid", PI_MALFORMED, PI_ERROR, "Invalid content length", EXPFILL }},
+        { &ei_rtsp_rdtfeaturelevel_invalid,
+          { "rtsp.rdt-feature-level.invalid", PI_MALFORMED, PI_ERROR, "Invalid RDTFeatureLevel", EXPFILL }}
     };
 
     module_t *rtsp_module;
@@ -1539,7 +1552,7 @@ proto_reg_handoff_rtsp(void)
  * Local variables:
  * c-basic-offset: 4
  * tab-width: 8
- * indent-tabs-mode: nil
+ * indent-tabs-mode: space
  * End:
  *
  * vi: set shiftwidth=4 tabstop=8 expandtab:
