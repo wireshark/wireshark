@@ -92,11 +92,6 @@ void proto_reg_handoff_enip(void);
 #define SEQ_ADDRESS           0x8002
 #define UNCONNECTED_MSG_DTLS  0x8003
 
-/* Decoded I/O traffic enumeration */
-#define ENIP_IO_OFF           0
-#define ENIP_IO_SAFETY        1
-#define ENIP_IO_MOTION        2
-
 /* Initialize the protocol and registered fields */
 static int proto_enip = -1;
 static int proto_enipio = -1;
@@ -2191,7 +2186,8 @@ enip_cleanup_protocol(void)
 /* Dissect Common Packet Format */
 static void
 dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
-            packet_info *pinfo, proto_tree *tree, proto_tree *dissector_tree, int offset, guint32 ifacehndl)
+            packet_info *pinfo, proto_tree *tree, proto_tree *dissector_tree,
+            proto_item *enip_item, int offset, guint32 ifacehndl)
 {
    proto_item            *temp_item, *count_item, *type_item, *io_item;
    proto_tree            *temp_tree, *count_tree, *item_tree, *sockaddr_tree, *io_tree;
@@ -2243,8 +2239,14 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                   request_key->data.connected_transport.connid = (conn_info != NULL) ? conn_info->connid : 0;
                }
 
-               /* Add Connection ID to Info col */
+               /* Add Connection ID to Info col and tree */
                col_append_fstr(pinfo->cinfo, COL_INFO, ", CONID: 0x%08X", tvb_get_letohl( tvb, offset+6 ) );
+
+               if (enip_item)
+               {
+                   proto_item_append_text(enip_item, ", Connection ID: 0x%08X", tvb_get_letohl(tvb, offset + 6));
+               }
+
                break;
 
             case UNCONNECTED_MSG_DTLS:
@@ -2667,7 +2669,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
    conversation_t     *conversation;
 
    /* Set up structures needed to add the protocol subtree and manage it */
-   proto_item *ti;
+   proto_item *ti = NULL;
    proto_tree *enip_tree, *header_tree = NULL, *csftree;
 
    /* Make entries in Protocol column and Info column on summary display */
@@ -2779,15 +2781,15 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             break;
 
          case LIST_SERVICES:
-            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, 24, 0 );
+            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, NULL, 24, 0 );
             break;
 
          case LIST_IDENTITY:
-            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, 24, 0 );
+            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, NULL, 24, 0 );
             break;
 
          case LIST_INTERFACES:
-            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, 24, 0 );
+            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, NULL, 24, 0 );
             break;
 
          case REGISTER_SESSION:
@@ -2803,7 +2805,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             proto_tree_add_item( csftree, hf_enip_timeout,        tvb, 28, 2, ENC_LITTLE_ENDIAN );
 
             ifacehndl = tvb_get_letohl( tvb, 24 );
-            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, 30, ifacehndl );
+            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, NULL, 30, ifacehndl );
             break;
 
          case SEND_UNIT_DATA:
@@ -2811,7 +2813,8 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             proto_tree_add_item( csftree, hf_enip_timeout,        tvb, 28, 2, ENC_LITTLE_ENDIAN );
 
             ifacehndl = tvb_get_letohl( tvb, 24 );
-            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, 30, ifacehndl );
+            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, ti, 30, ifacehndl );
+
             break;
 
          case INDICATE_STATUS:
@@ -2868,7 +2871,7 @@ dissect_enipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
    enip_tree = proto_item_add_subtree(ti, ett_enip);
 
-   dissect_cpf( NULL, 0xFFFF, tvb, pinfo, enip_tree, tree, 0, 0 );
+   dissect_cpf( NULL, 0xFFFF, tvb, pinfo, enip_tree, tree, NULL, 0, 0 );
 
    return tvb_captured_length(tvb);
 } /* end of dissect_enipio() */
@@ -3867,7 +3870,7 @@ proto_register_enip(void)
           NULL, HFILL }},
 
       { &hf_dlr_capflags_redundant_gateway_capable,
-        { "Redundant Gatway Capable", "cip.dlr.capflags.redundant_gateway_capable",
+        { "Redundant Gateway Capable", "cip.dlr.capflags.redundant_gateway_capable",
           FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000040,
           NULL, HFILL }},
 
