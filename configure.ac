@@ -784,7 +784,21 @@ AC_ARG_ENABLE(asan,
 	# XXX shouldn't this also be added to LDFLAGS?
 	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fsanitize=address)
 
+	# Disable ASAN for build-time tools, e.g. lemon
+	WS_CFLAGS_saved="$WS_CFLAGS"
+	WS_LDFLAGS_saved="$WS_LDFLAGS"
+	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fno-sanitize=all, C)
+	if test "x$can_add_to_cflags" = "xyes"
+	then
+		NO_SANITIZE_CFLAGS="-fno-sanitize=all"
+		NO_SANITIZE_LDFLAGS="-fno-sanitize=all"
+	fi
+	WS_CFLAGS="$WS_CFLAGS_saved"
+	WS_LDFLAGS="$WS_LDFLAGS_saved"
+
 ])
+AC_SUBST(NO_SANITIZE_CFLAGS)
+AC_SUBST(NO_SANITIZE_LDFLAGS)
 
 # Add check hf conflict..
 #

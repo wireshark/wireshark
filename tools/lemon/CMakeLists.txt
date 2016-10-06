@@ -30,7 +30,7 @@ set(CLEAN_FILES
 set_source_files_properties(
 	${CLEAN_FILES}
 	PROPERTIES
-	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS} ${NO_SANITIZE_CFLAGS}"
 )
 
 set(lemon_LIBS
@@ -40,6 +40,7 @@ set(lemon_LIBS
 add_executable(lemon ${lemon_FILES})
 set_target_properties(lemon PROPERTIES FOLDER "tools")
 set_target_properties(lemon PROPERTIES COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}")
+set_target_properties(lemon PROPERTIES LINK_FLAGS "${NO_SANITIZE_LDFLAGS}")
 
 target_link_libraries(lemon ${lemon_LIBS})
 

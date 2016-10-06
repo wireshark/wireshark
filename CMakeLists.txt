@@ -593,6 +593,12 @@ if(ENABLE_ASAN)
 	endif()
 	set(CMAKE_C_FLAGS "-fsanitize=address ${CMAKE_C_FLAGS}")
 	set(CMAKE_CXX_FLAGS "-fsanitize=address ${CMAKE_CXX_FLAGS}")
+	# Disable ASAN for build-time tools, e.g. lemon
+	check_c_compiler_flag(-fno-sanitize=all C__fno_sanitize_all_VALID)
+	if(C__fno_sanitize_all_VALID)
+		set(NO_SANITIZE_CFLAGS "-fno-sanitize=all")
+		set(NO_SANITIZE_LDFLAGS "-fno-sanitize=all")
+	endif()
 endif()
 
 set(WERROR_COMMON_FLAGS "")
