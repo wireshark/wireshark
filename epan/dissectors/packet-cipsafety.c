@@ -158,18 +158,12 @@ static int hf_cip_ssupervisor_manufacture_serial_number = -1;
 static int hf_cip_ssupervisor_device_config = -1;
 static int hf_cip_ssupervisor_device_status = -1;
 static int hf_cip_ssupervisor_exception_status = -1;
-static int hf_cip_ssupervisor_exception_detail_alarm_ced_size = -1;
-static int hf_cip_ssupervisor_exception_detail_alarm_ced_detail = -1;
-static int hf_cip_ssupervisor_exception_detail_alarm_ded_size = -1;
-static int hf_cip_ssupervisor_exception_detail_alarm_ded_detail = -1;
-static int hf_cip_ssupervisor_exception_detail_alarm_med_size = -1;
-static int hf_cip_ssupervisor_exception_detail_alarm_med_detail = -1;
-static int hf_cip_ssupervisor_exception_detail_warning_ced_size = -1;
-static int hf_cip_ssupervisor_exception_detail_warning_ced_detail = -1;
-static int hf_cip_ssupervisor_exception_detail_warning_ded_size = -1;
-static int hf_cip_ssupervisor_exception_detail_warning_ded_detail = -1;
-static int hf_cip_ssupervisor_exception_detail_warning_med_size = -1;
-static int hf_cip_ssupervisor_exception_detail_warning_med_detail = -1;
+static int hf_cip_ssupervisor_exception_detail_ced_size = -1;
+static int hf_cip_ssupervisor_exception_detail_ced_detail = -1;
+static int hf_cip_ssupervisor_exception_detail_ded_size = -1;
+static int hf_cip_ssupervisor_exception_detail_ded_detail = -1;
+static int hf_cip_ssupervisor_exception_detail_med_size = -1;
+static int hf_cip_ssupervisor_exception_detail_med_detail = -1;
 static int hf_cip_ssupervisor_alarm_enable = -1;
 static int hf_cip_ssupervisor_warning_enable = -1;
 static int hf_cip_ssupervisor_time = -1;
@@ -261,12 +255,9 @@ static gint ett_ssupervisor_reset_tunid = -1;
 static gint ett_ssupervisor_reset_tunid_ssn = -1;
 static gint ett_ssupervisor_apply_tunid = -1;
 static gint ett_ssupervisor_apply_tunid_ssn = -1;
-static gint ett_exception_detail_alarm_common = -1;
-static gint ett_exception_detail_alarm_device = -1;
-static gint ett_exception_detail_alarm_manufacturer = -1;
-static gint ett_exception_detail_warning_common = -1;
-static gint ett_exception_detail_warning_device = -1;
-static gint ett_exception_detail_warning_manufacturer = -1;
+static gint ett_exception_detail_common = -1;
+static gint ett_exception_detail_device = -1;
+static gint ett_exception_detail_manufacturer = -1;
 static gint ett_ssupervisor_configuration_unid = -1;
 static gint ett_ssupervisor_configuration_unid_ssn = -1;
 static gint ett_ssupervisor_safety_configuration_id = -1;
@@ -291,12 +282,9 @@ static expert_field ei_cipsafety_run_idle_not_complemented = EI_INIT;
 static expert_field ei_mal_io = EI_INIT;
 static expert_field ei_mal_sercosiii_link_error_count_p1p2 = EI_INIT;
 
-static expert_field ei_mal_ssupervisor_exception_detail_alarm_ced = EI_INIT;
-static expert_field ei_mal_ssupervisor_exception_detail_alarm_ded = EI_INIT;
-static expert_field ei_mal_ssupervisor_exception_detail_alarm_med = EI_INIT;
-static expert_field ei_mal_ssupervisor_detail_warning_ced = EI_INIT;
-static expert_field ei_mal_ssupervisor_detail_warning_ded = EI_INIT;
-static expert_field ei_mal_ssupervisor_detail_warning_med = EI_INIT;
+static expert_field ei_mal_ssupervisor_exception_detail_ced = EI_INIT;
+static expert_field ei_mal_ssupervisor_exception_detail_ded = EI_INIT;
+static expert_field ei_mal_ssupervisor_exception_detail_med = EI_INIT;
 static expert_field ei_mal_ssupervisor_configuration_unid = EI_INIT;
 static expert_field ei_mal_ssupervisor_safety_configuration_id = EI_INIT;
 static expert_field ei_mal_ssupervisor_target_unid = EI_INIT;
@@ -749,85 +737,42 @@ static int dissect_s_supervisor_exception_detail(proto_tree *tree, proto_item *i
    return size+1;
 }
 
-static int dissect_s_supervisor_exception_detail_alarm(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+static int dissect_s_supervisor_exception_detail_common(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    proto_item *pi;
    proto_tree *item_tree;
    int total_size = 0, size;
 
-   item_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_exception_detail_alarm_common, &pi, "Common Exception Detail");
+   item_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_exception_detail_common, &pi, "Common Exception Detail");
    size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
-               hf_cip_ssupervisor_exception_detail_alarm_ced_size,
-               hf_cip_ssupervisor_exception_detail_alarm_ced_detail);
+               hf_cip_ssupervisor_exception_detail_ced_size,
+               hf_cip_ssupervisor_exception_detail_ced_detail);
    if (size == 0)
    {
-      expert_add_info(pinfo, item, &ei_mal_ssupervisor_exception_detail_alarm_ced);
+      expert_add_info(pinfo, item, &ei_mal_ssupervisor_exception_detail_ced);
       return total_len;
    }
    total_size += size;
 
-   item_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_exception_detail_alarm_device, &pi, "Device Exception Detail");
-   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
-               hf_cip_ssupervisor_exception_detail_alarm_ded_size,
-               hf_cip_ssupervisor_exception_detail_alarm_ded_detail);
+   item_tree = proto_tree_add_subtree(tree, tvb, offset + total_size, 1, ett_exception_detail_device, &pi, "Device Exception Detail");
+   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset + total_size,
+               hf_cip_ssupervisor_exception_detail_ded_size,
+               hf_cip_ssupervisor_exception_detail_ded_detail);
    if (size == 0)
    {
-      expert_add_info(pinfo, item, &ei_mal_ssupervisor_exception_detail_alarm_ded);
+      expert_add_info(pinfo, item, &ei_mal_ssupervisor_exception_detail_ded);
       return total_len;
    }
    total_size += size;
 
-   item_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_exception_detail_alarm_manufacturer, &pi, "Manufacturer Exception Detail");
-   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
-               hf_cip_ssupervisor_exception_detail_alarm_med_size,
-               hf_cip_ssupervisor_exception_detail_alarm_med_detail);
+   item_tree = proto_tree_add_subtree(tree, tvb, offset + total_size, 1, ett_exception_detail_manufacturer, &pi, "Manufacturer Exception Detail");
+   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset + total_size,
+               hf_cip_ssupervisor_exception_detail_med_size,
+               hf_cip_ssupervisor_exception_detail_med_detail);
    if (size == 0)
    {
-      expert_add_info(pinfo, item, &ei_mal_ssupervisor_exception_detail_alarm_med);
-      return total_len;
-   }
-   total_size += size;
-
-   return total_size;
-}
-
-static int dissect_s_supervisor_exception_detail_warning(packet_info *pinfo, proto_tree *tree, proto_item *item,
-                                                         tvbuff_t *tvb, int offset, int total_len)
-{
-   proto_item *pi;
-   proto_tree *item_tree;
-   int         total_size = 0, size;
-
-   item_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_exception_detail_warning_common, &pi, "Common Exception Detail");
-   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
-               hf_cip_ssupervisor_exception_detail_warning_ced_size,
-               hf_cip_ssupervisor_exception_detail_warning_ced_detail);
-   if (size == 0)
-   {
-      expert_add_info(pinfo, item, &ei_mal_ssupervisor_detail_warning_ced);
-      return total_len;
-   }
-   total_size += size;
-
-   item_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_exception_detail_warning_device, &pi, "Device Exception Detail");
-   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
-               hf_cip_ssupervisor_exception_detail_warning_ded_size,
-               hf_cip_ssupervisor_exception_detail_warning_ded_detail);
-   if (size == 0)
-   {
-      expert_add_info(pinfo, item, &ei_mal_ssupervisor_detail_warning_ded);
-      return total_len;
-   }
-   total_size += size;
-
-   item_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_exception_detail_warning_manufacturer, &pi, "Manufacturer Exception Detail");
-   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
-               hf_cip_ssupervisor_exception_detail_warning_med_size,
-               hf_cip_ssupervisor_exception_detail_warning_med_detail);
-   if (size == 0)
-   {
-      expert_add_info(pinfo, item, &ei_mal_ssupervisor_detail_warning_med);
+      expert_add_info(pinfo, item, &ei_mal_ssupervisor_exception_detail_med);
       return total_len;
    }
    total_size += size;
@@ -1096,7 +1041,7 @@ static int dissect_s_validator_app_data_path(packet_info *pinfo, proto_tree *tre
                                              proto_item *item _U_, tvbuff_t *tvb, int offset, int total_len)
 {
    proto_item* pi;
-   proto_tree* epath_tree = proto_tree_add_subtree(tree, NULL, 0, 0, ett_path, &pi, "Application Data Path: ");
+   proto_tree* epath_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_path, &pi, "Application Data Path: ");
    dissect_epath(tvb, pinfo, epath_tree, pi, offset, total_len, FALSE, FALSE, NULL, NULL, NO_DISPLAY, NULL, FALSE);
    return total_len;
 }
@@ -1598,8 +1543,8 @@ attribute_info_t cip_safety_attribute_vals[51] = {
    {0x39, FALSE, 10, -1, "Device Configuration", cip_short_string, &hf_cip_ssupervisor_device_config, NULL},
    {0x39, FALSE, 11, -1, "Device Status", cip_usint, &hf_cip_ssupervisor_device_status, NULL},
    {0x39, FALSE, 12, -1, "Exception Status", cip_byte, &hf_cip_ssupervisor_exception_status, NULL},
-   {0x39, FALSE, 13, -1, "Exception Detail Alarm", cip_dissector_func, NULL, dissect_s_supervisor_exception_detail_alarm},
-   {0x39, FALSE, 14, -1, "Exception Detail Warning", cip_dissector_func, NULL, dissect_s_supervisor_exception_detail_warning},
+   {0x39, FALSE, 13, -1, "Exception Detail Alarm", cip_dissector_func, NULL, dissect_s_supervisor_exception_detail_common},
+   {0x39, FALSE, 14, -1, "Exception Detail Warning", cip_dissector_func, NULL, dissect_s_supervisor_exception_detail_common},
    {0x39, FALSE, 15, -1, "Alarm Enable", cip_bool, &hf_cip_ssupervisor_alarm_enable, NULL},
    {0x39, FALSE, 16, -1, "Warning Enable", cip_bool, &hf_cip_ssupervisor_warning_enable, NULL},
    {0x39, FALSE, 17, -1, "Time", cip_date_and_time, &hf_cip_ssupervisor_time, NULL},
@@ -2115,52 +2060,28 @@ proto_register_cipsafety(void)
         { "Exception Status", "cipsafety.ssupervisor.exception_status",
           FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
       },
-      { &hf_cip_ssupervisor_exception_detail_alarm_ced_size,
-        { "Common Exeception Detail Size", "cipsafety.ssupervisor.exception_detail_alarm.ced.size",
+      { &hf_cip_ssupervisor_exception_detail_ced_size,
+        { "Common Exception Detail Size", "cipsafety.ssupervisor.exception_detail.ced.size",
           FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
       },
-      { &hf_cip_ssupervisor_exception_detail_alarm_ced_detail,
-        { "Common Exeception Detail Data", "cipsafety.ssupervisor.exception_detail_alarm.ced.detail",
+      { &hf_cip_ssupervisor_exception_detail_ced_detail,
+        { "Common Exception Detail Data", "cipsafety.ssupervisor.exception_detail.ced.detail",
           FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
       },
-      { &hf_cip_ssupervisor_exception_detail_alarm_ded_size,
-        { "Device Exeception Detail Size", "cipsafety.ssupervisor.exception_detail_alarm.ded.size",
+      { &hf_cip_ssupervisor_exception_detail_ded_size,
+        { "Device Exception Detail Size", "cipsafety.ssupervisor.exception_detail.ded.size",
           FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
       },
-      { &hf_cip_ssupervisor_exception_detail_alarm_ded_detail,
-        { "Device Exeception Detail Data", "cipsafety.ssupervisor.exception_detail_alarm.ded.detail",
+      { &hf_cip_ssupervisor_exception_detail_ded_detail,
+        { "Device Exception Detail Data", "cipsafety.ssupervisor.exception_detail.ded.detail",
           FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
       },
-      { &hf_cip_ssupervisor_exception_detail_alarm_med_size,
-        { "Manufacturer Exeception Detail Size", "cipsafety.ssupervisor.exception_detail_alarm.med.size",
+      { &hf_cip_ssupervisor_exception_detail_med_size,
+        { "Manufacturer Exception Detail Size", "cipsafety.ssupervisor.exception_detail.med.size",
           FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
       },
-      { &hf_cip_ssupervisor_exception_detail_alarm_med_detail,
-        { "Manufacturer Exeception Detail Data", "cipsafety.ssupervisor.exception_detail_alarm.med.detail",
-          FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
-      },
-      { &hf_cip_ssupervisor_exception_detail_warning_ced_size,
-        { "Common Exeception Detail Size", "cipsafety.ssupervisor.exception_detail_warning.ced.size",
-          FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
-      },
-      { &hf_cip_ssupervisor_exception_detail_warning_ced_detail,
-        { "Common Exeception Detail Data", "cipsafety.ssupervisor.exception_detail_warning.ced.detail",
-          FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
-      },
-      { &hf_cip_ssupervisor_exception_detail_warning_ded_size,
-        { "Device Exeception Detail Size", "cipsafety.ssupervisor.exception_detail_warning.ded.size",
-          FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
-      },
-      { &hf_cip_ssupervisor_exception_detail_warning_ded_detail,
-        { "Device Exeception Detail Data", "cipsafety.ssupervisor.exception_detail_warning.ded.detail",
-          FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
-      },
-      { &hf_cip_ssupervisor_exception_detail_warning_med_size,
-        { "Manufacturer Exeception Detail Size", "cipsafety.ssupervisor.exception_detail_warning.med.size",
-          FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
-      },
-      { &hf_cip_ssupervisor_exception_detail_warning_med_detail,
-        { "Manufacturer Exeception Detail Data", "cipsafety.ssupervisor.exception_detail_warning.med.detail",
+      { &hf_cip_ssupervisor_exception_detail_med_detail,
+        { "Manufacturer Exception Detail Data", "cipsafety.ssupervisor.exception_detail.med.detail",
           FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_ssupervisor_alarm_enable,
@@ -2324,7 +2245,7 @@ proto_register_cipsafety(void)
           FT_UINT8, BASE_DEC, VALS(cip_svalidator_type_conn_type_vals), 0x7F, NULL, HFILL }
       },
       { &hf_cip_svalidator_ping_eri,
-        { "Ping Interval EPI Multipler", "cipsafety.svalidator.ping_eri",
+        { "Ping Interval EPI Multiplier", "cipsafety.svalidator.ping_eri",
           FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_time_coord_msg_min_mult_size,
@@ -2336,11 +2257,11 @@ proto_register_cipsafety(void)
           FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_network_time_multiplier_size,
-        { "Network Time Expectation Multipler Size", "cipsafety.svalidator.network_time_multiplier.size",
+        { "Network Time Expectation Multiplier Size", "cipsafety.svalidator.network_time_multiplier.size",
           FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_network_time_multiplier_item,
-        { "Network Time Expectation Multipler Item", "cipsafety.svalidator.network_time_multiplier.item",
+        { "Network Time Expectation Multiplier Item", "cipsafety.svalidator.network_time_multiplier.item",
           FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_timeout_multiplier_size,
@@ -2417,12 +2338,9 @@ proto_register_cipsafety(void)
       &ett_ssupervisor_reset_tunid_ssn,
       &ett_ssupervisor_apply_tunid,
       &ett_ssupervisor_apply_tunid_ssn,
-      &ett_exception_detail_alarm_common,
-      &ett_exception_detail_alarm_device,
-      &ett_exception_detail_alarm_manufacturer,
-      &ett_exception_detail_warning_common,
-      &ett_exception_detail_warning_device,
-      &ett_exception_detail_warning_manufacturer,
+      &ett_exception_detail_common,
+      &ett_exception_detail_device,
+      &ett_exception_detail_manufacturer,
       &ett_ssupervisor_configuration_unid,
       &ett_ssupervisor_configuration_unid_ssn,
       &ett_ssupervisor_safety_configuration_id,
@@ -2453,18 +2371,12 @@ proto_register_cipsafety(void)
       };
 
    static ei_register_info ei_ssupervisor[] = {
-      { &ei_mal_ssupervisor_exception_detail_alarm_ced, { "cipsafety.ssupervisor.malformed.exception_detail_alarm.ced", PI_MALFORMED, PI_ERROR,
-                        "Malformed Safety Supervisor Exception Detail Alarm (Common Exception Detail)", EXPFILL }},
-      { &ei_mal_ssupervisor_exception_detail_alarm_ded, { "cipsafety.ssupervisor.malformed.exception_detail_alarm.ded", PI_MALFORMED, PI_ERROR,
-                        "Malformed Safety Supervisor Exception Detail Alarm (Device Exception Detail)", EXPFILL }},
-      { &ei_mal_ssupervisor_exception_detail_alarm_med, { "cipsafety.ssupervisor.malformed.exception_detail_alarm.med", PI_MALFORMED, PI_ERROR,
-                        "Malformed Safety Supervisor Exception Detail Alarm (Manufacturer Exception Detail)", EXPFILL }},
-      { &ei_mal_ssupervisor_detail_warning_ced, { "cipsafety.ssupervisor.malformed.detail_warning.ced", PI_MALFORMED, PI_ERROR,
-                        "Malformed Safety Supervisor Exception Detail Warning (Common Exception Detail)", EXPFILL }},
-      { &ei_mal_ssupervisor_detail_warning_ded, { "cipsafety.ssupervisor.malformed.detail_warning.ded", PI_MALFORMED, PI_ERROR,
-                        "Malformed Safety Supervisor Exception Detail Warning (Device Exception Detail)", EXPFILL }},
-      { &ei_mal_ssupervisor_detail_warning_med, { "cipsafety.ssupervisor.malformed.detail_warning.med", PI_MALFORMED, PI_ERROR,
-                        "Malformed Safety Supervisor Exception Detail Warning (Manufacturer Exception Detail)", EXPFILL }},
+      { &ei_mal_ssupervisor_exception_detail_ced, { "cipsafety.ssupervisor.malformed.exception_detail.ced", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Supervisor Exception Detail (Common Exception Detail)", EXPFILL }},
+      { &ei_mal_ssupervisor_exception_detail_ded, { "cipsafety.ssupervisor.malformed.exception_detail.ded", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Supervisor Exception Detail (Device Exception Detail)", EXPFILL }},
+      { &ei_mal_ssupervisor_exception_detail_med, { "cipsafety.ssupervisor.malformed.exception_detail.med", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Supervisor Exception Detail (Manufacturer Exception Detail)", EXPFILL }},
       { &ei_mal_ssupervisor_configuration_unid, { "cipsafety.ssupervisor.malformed.configuration_unid", PI_MALFORMED, PI_ERROR,
                         "Malformed Safety Supervisor Configuration UNID", EXPFILL }},
       { &ei_mal_ssupervisor_safety_configuration_id, { "cipsafety.ssupervisor.malformed.safety_configuration_id", PI_MALFORMED, PI_ERROR,
