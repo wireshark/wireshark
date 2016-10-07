@@ -1143,7 +1143,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_HEARTBEAT, "heartbeat" }, /* RFC 6520 */
     { SSL_HND_HELLO_EXT_ALPN, "application_layer_protocol_negotiation" }, /* RFC 7301 */
     { SSL_HND_HELLO_EXT_STATUS_REQUEST_V2, "status_request_v2" }, /* RFC 6961 */
-    { SSL_HND_HELLO_EXT_STATUS_REQUEST_V2, "signed_certificate_timestamp" }, /* RFC 6962 */
+    { SSL_HND_HELLO_EXT_SIGNED_CERTIFICATE_TIMESTAMP, "signed_certificate_timestamp" }, /* RFC 6962 */
     { SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE, "client_certificate_type" }, /* RFC 7250 */
     { SSL_HND_HELLO_EXT_SERVER_CERT_TYPE, "server_certificate_type" }, /* RFC 7250 */
     { SSL_HND_HELLO_EXT_PADDING, "padding" }, /* RFC 7685 */
