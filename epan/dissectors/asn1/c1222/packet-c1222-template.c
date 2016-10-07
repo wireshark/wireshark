@@ -1418,7 +1418,7 @@ proto_reg_handoff_c1222(void)
   if( !initialized ) {
     c1222_handle = create_dissector_handle(dissect_c1222, proto_c1222);
     c1222_udp_handle = create_dissector_handle(dissect_c1222_common, proto_c1222);
-    dissector_add_uint("tcp.port", global_c1222_port, c1222_handle);
+    dissector_add_uint_with_preference("tcp.port", C1222_PORT, c1222_handle);
     dissector_add_uint("udp.port", global_c1222_port, c1222_udp_handle);
     initialized = TRUE;
   }

@@ -41,11 +41,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 static int proto_dtcp_ip = -1;
-
-static guint pref_tcp_port = 0;
 
 void proto_register_dtcp_ip(void);
 void proto_reg_handoff_dtcp_ip(void);
@@ -285,38 +282,21 @@ proto_register_dtcp_ip(void)
         &ett_dtcp_ip_ake_procedure
     };
 
-    module_t *dtcp_ip_module;
-
     proto_dtcp_ip = proto_register_protocol(
             "Digital Transmission Content Protection over IP",
             "DTCP-IP", "dtcp-ip");
 
     proto_register_field_array(proto_dtcp_ip, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    dtcp_ip_module = prefs_register_protocol(
-            proto_dtcp_ip, proto_reg_handoff_dtcp_ip);
-    prefs_register_uint_preference(dtcp_ip_module, "tcp.port",
-            "TCP port", "TCP port number for DTCP-IP", 10, &pref_tcp_port);
 }
 
 void
 proto_reg_handoff_dtcp_ip(void)
 {
-    static gboolean initialized = FALSE;
-    static dissector_handle_t dtcp_ip_handle = NULL;
-    static guint current_tcp_port = 0;
+    dissector_handle_t dtcp_ip_handle;
 
-    if (!initialized) {
-        dtcp_ip_handle =
-            create_dissector_handle(dissect_dtcp_ip, proto_dtcp_ip);
-        initialized = TRUE;
-    }
-    else
-        dissector_delete_uint("tcp.port", current_tcp_port, dtcp_ip_handle);
-
-    current_tcp_port = pref_tcp_port;
-    dissector_add_uint("tcp.port", current_tcp_port, dtcp_ip_handle);
+    dtcp_ip_handle = create_dissector_handle(dissect_dtcp_ip, proto_dtcp_ip);
+    dissector_add_for_decode_as_with_preference("tcp.port", dtcp_ip_handle);
 }
 
 /*

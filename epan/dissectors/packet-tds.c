@@ -471,6 +471,8 @@ static const value_string tds_data_type_names[] = {
 void proto_reg_handoff_tds(void);
 void proto_register_tds(void);
 
+#define TDS_PORT_RANGE "1433,2433" /* Not IANA registered */
+
 /************************ Message definitions ***********************/
 
 /* Bulk Load BCP stream */
@@ -5637,9 +5639,7 @@ void
 proto_reg_handoff_tds(void)
 {
     /* Initial TDS ports: MS SQL default ports */
-    dissector_add_uint("tcp.port", 1433, tds_tcp_handle);
-    dissector_add_uint("tcp.port", 2433, tds_tcp_handle);
-
+    dissector_add_uint_range_with_preference("tcp.port", TDS_PORT_RANGE, tds_tcp_handle);
     heur_dissector_add("tcp", dissect_tds_tcp_heur, "Tabular Data Stream over TCP", "tds_tcp", proto_tds, HEURISTIC_ENABLE);
 
     ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_tds);

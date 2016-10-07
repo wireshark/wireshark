@@ -95,7 +95,7 @@ static gint ett_hazelcast_flags = -1;
 
 /* prefs */
 static gboolean hazelcast_desegment = TRUE;
-static guint gPORT_PREF = 5701;
+#define HAZELCAST_PORT  5701 /* Not IANA registered */
 
 static const value_string operationTypes[] = {
     {0,   "NONE"},
@@ -571,12 +571,6 @@ void proto_register_hazelcast(void) {
                                    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                                    &hazelcast_desegment);
 
-    prefs_register_uint_preference(hazelcast_module, "tcp.port",
-                                   "Hazelcast TCP Port",
-                                   " Hazelcast TCP port if other than the default",
-                                   10,
-                                   &gPORT_PREF);
-
     hazelcast_tap = register_tap("hzlcst");
 
 }
@@ -584,19 +578,12 @@ void proto_register_hazelcast(void) {
 
 void
 proto_reg_handoff_hazelcast(void) {
-    static gboolean initialized = FALSE;
-    static dissector_handle_t hazelcast_handle;
-    static int currentPort;
 
-    if (!initialized) {
-        hazelcast_handle = create_dissector_handle(dissect_hazelcast, proto_hazelcast);
-        initialized = TRUE;
-    } else {
-        dissector_delete_uint("tcp.port", currentPort, hazelcast_handle);
-    }
+    dissector_handle_t hazelcast_handle;
 
-    currentPort = gPORT_PREF;
-    dissector_add_uint("tcp.port", currentPort, hazelcast_handle);
+    hazelcast_handle = create_dissector_handle(dissect_hazelcast, proto_hazelcast);
+
+    dissector_add_uint_with_preference("tcp.port", HAZELCAST_PORT, hazelcast_handle);
 }
 
 /*

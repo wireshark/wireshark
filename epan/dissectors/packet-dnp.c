@@ -4599,7 +4599,7 @@ proto_reg_handoff_dnp3(void)
 
   dnp3_tcp_handle = create_dissector_handle(dissect_dnp3_tcp, proto_dnp3);
   dnp3_udp_handle = create_dissector_handle(dissect_dnp3_udp, proto_dnp3);
-  dissector_add_uint("tcp.port", TCP_PORT_DNP, dnp3_tcp_handle);
+  dissector_add_uint_with_preference("tcp.port", TCP_PORT_DNP, dnp3_tcp_handle);
   dissector_add_uint("udp.port", UDP_PORT_DNP, dnp3_udp_handle);
   dissector_add_for_decode_as("rtacser.data", dnp3_udp_handle);
 }

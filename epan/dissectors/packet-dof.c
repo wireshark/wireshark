@@ -10594,7 +10594,7 @@ static void dof_tun_handoff(void)
 
     tcp_handle = create_dissector_handle(dissect_tunnel_tcp, proto_2012_1_tunnel);
 
-    dissector_add_uint("tcp.port", DOF_TUN_NON_SEC_TCP_PORT, tcp_handle);
+    dissector_add_uint_with_preference("tcp.port", DOF_TUN_NON_SEC_TCP_PORT, tcp_handle);
 }
 
 /* Main DOF Registration Support */
@@ -11050,7 +11050,7 @@ static void dof_handoff(void)
 
     undissected_data_handle = find_dissector("data");
 
-    dissector_add_uint("tcp.port", DOF_P2P_NEG_SEC_TCP_PORT, tcp_handle);
+    dissector_add_uint_with_preference("tcp.port", DOF_P2P_NEG_SEC_TCP_PORT, tcp_handle);
     dissector_add_uint("udp.port", DOF_P2P_NEG_SEC_UDP_PORT, dof_udp_handle);
     dissector_add_uint("udp.port", DOF_MCAST_NEG_SEC_UDP_PORT, dof_udp_handle);
 }

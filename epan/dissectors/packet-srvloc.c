@@ -1893,7 +1893,7 @@ proto_reg_handoff_srvloc(void)
     dissector_add_uint("udp.port", UDP_PORT_SRVLOC, srvloc_handle);
     srvloc_tcp_handle = create_dissector_handle(dissect_srvloc_tcp,
                                                 proto_srvloc);
-    dissector_add_uint("tcp.port", TCP_PORT_SRVLOC, srvloc_tcp_handle);
+    dissector_add_uint_with_preference("tcp.port", TCP_PORT_SRVLOC, srvloc_tcp_handle);
 }
 
 /*

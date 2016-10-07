@@ -4782,7 +4782,7 @@ void proto_reg_handoff_mq(void)
 
     mq_spx_handle = create_dissector_handle(dissect_mq_spx, proto_mq);
 
-    dissector_add_for_decode_as("tcp.port", mq_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", mq_handle);
     ssl_dissector_add(0, mq_handle);
     heur_dissector_add("tcp",     dissect_mq_heur_tcp, "WebSphere MQ over TCP", "mq_tcp", proto_mq, HEURISTIC_ENABLE);
     heur_dissector_add("netbios", dissect_mq_heur_nontcp, "WebSphere MQ over Netbios", "mq_netbios", proto_mq, HEURISTIC_ENABLE);

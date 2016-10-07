@@ -31,8 +31,10 @@
 #endif /* HAVE_LIBPCAP */
 
 #include <epan/prefs-int.h>
+#include <epan/decode_as.h>
 #include <ui/language.h>
 #include <ui/preference_utils.h>
+#include <ui/simple_dialog.h>
 #include <main_window.h>
 
 #include "syntax_line_edit.h"
@@ -164,6 +166,10 @@ private:
 
         switch (pref_->type) {
 
+        case PREF_DECODE_AS_UINT:
+            if (pref_->default_val.uint == pref_->stashed_val.uint)
+                return true;
+            break;
         case PREF_UINT:
             if (pref_->default_val.uint == pref_->stashed_val.uint)
                 return true;
@@ -186,6 +192,7 @@ private:
                 return true;
             break;
 
+        case PREF_DECODE_AS_RANGE:
         case PREF_RANGE:
         {
             if ((ranges_are_equal(pref_->default_val.range, pref_->stashed_val.range)))
@@ -377,6 +384,9 @@ static guint
 module_prefs_unstash(module_t *module, gpointer data)
 {
     gboolean *must_redissect_p = (gboolean *)data;
+    pref_unstash_data_t unstashed_data;
+
+    unstashed_data.handle_decode_as = TRUE;
 
     module->prefs_changed = FALSE;        /* assume none of them changed */
     for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = g_list_next(pref_l)) {
@@ -384,7 +394,8 @@ module_prefs_unstash(module_t *module, gpointer data)
 
         if (pref->type == PREF_OBSOLETE || pref->type == PREF_STATIC_TEXT) continue;
 
-        pref_unstash(pref, &module->prefs_changed);
+        unstashed_data.module = module;
+        pref_unstash(pref, &unstashed_data);
     }
 
     /* If any of them changed, indicate that we must redissect and refilter
@@ -684,6 +695,15 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
         QWidget *editor = NULL;
 
         switch (pref->type) {
+        case PREF_DECODE_AS_UINT:
+        {
+            cur_line_edit_ = new QLineEdit();
+//            cur_line_edit_->setInputMask("0000000009;");
+            saved_string_pref_ = QString::number(pref->stashed_val.uint, pref->info.base);
+            connect(cur_line_edit_, SIGNAL(editingFinished()), this, SLOT(uintPrefEditingFinished()));
+            editor = cur_line_edit_;
+            break;
+        }
         case PREF_UINT:
         {
             cur_line_edit_ = new QLineEdit();
@@ -738,6 +758,7 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
             }
             break;
         }
+        case PREF_DECODE_AS_RANGE:
         case PREF_RANGE:
         {
             SyntaxLineEdit *syntax_edit = new SyntaxLineEdit();
@@ -907,6 +928,7 @@ void PreferencesDialog::rangePrefEditingFinished()
 
 void PreferencesDialog::on_buttonBox_accepted()
 {
+    gchar* err = NULL;
     gboolean must_redissect = FALSE;
 
     // XXX - We should validate preferences as the user changes them, not here.
@@ -919,6 +941,11 @@ void PreferencesDialog::on_buttonBox_accepted()
     pd_ui_->filterExpressonsFrame->unstash();
 
     prefs_main_write();
+    if (save_decode_as_entries(&err) < 0)
+    {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);
+        g_free(err);
+    }
 
     write_language_prefs();
     wsApp->loadLanguage(QString(language));

@@ -30,6 +30,7 @@
 #define TCP_PORT_ENS                    0x0bc8 /* NDPS Event Notification Service */
 #define TCP_PORT_RMS                    0x0bcb /* NDPS Remote Management Service */
 #define TCP_PORT_NOTIFY_LISTENER        0x0bc9 /* NDPS Notify Listener */
+#define TCP_PORT_RANGE        "3014,3016-3019,3369"
 
 
 /*

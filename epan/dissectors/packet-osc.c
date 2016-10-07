@@ -45,7 +45,6 @@
 
 #include <string.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/exceptions.h>
 #include "packet-tcp.h"
 
@@ -306,9 +305,6 @@ static value_string_ext MIDI_control_ext = VALUE_STRING_EXT_INIT(MIDI_control);
 static const char *immediate_fmt = "%s";
 static const char *immediate_str = "Immediate";
 static const char *bundle_str = "#bundle";
-
-/* Preference */
-static guint global_osc_tcp_port = 0;
 
 /* Initialize the protocol and registered fields */
 static dissector_handle_t osc_udp_handle = NULL;
@@ -1284,51 +1280,26 @@ proto_register_osc(void)
         &ett_osc_midi
     };
 
-    module_t *osc_module;
-
     proto_osc = proto_register_protocol("Open Sound Control Encoding", "OSC", "osc");
 
     proto_register_field_array(proto_osc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    osc_module = prefs_register_protocol(proto_osc, proto_reg_handoff_osc);
-
-    prefs_register_uint_preference(osc_module, "tcp.port",
-                                   "OSC TCP Port",
-                                   "Set the TCP port for OSC",
-                                   10, &global_osc_tcp_port);
 }
 
 void
 proto_reg_handoff_osc(void)
 {
-    static dissector_handle_t osc_tcp_handle;
-    static guint              osc_tcp_port;
-    static gboolean           initialized = FALSE;
+    dissector_handle_t osc_tcp_handle;
 
-    if(! initialized)
-    {
-        osc_tcp_handle = create_dissector_handle(dissect_osc_tcp, proto_osc);
-        /* register for "decode as" for TCP connections */
-        dissector_add_for_decode_as("tcp.port", osc_tcp_handle);
+    osc_tcp_handle = create_dissector_handle(dissect_osc_tcp, proto_osc);
 
-        /* XXX: Add port pref and  "decode as" for UDP ? */
-        /*      (The UDP heuristic is a bit expensive    */
-        osc_udp_handle = create_dissector_handle(dissect_osc_udp, proto_osc);
-        /* register as heuristic dissector for UDP connections */
-        heur_dissector_add("udp", dissect_osc_heur_udp, "Open Sound Control over UDP", "osc_udp", proto_osc, HEURISTIC_ENABLE);
+    /* XXX: Add port pref and  "decode as" for UDP ? */
+    /*      (The UDP heuristic is a bit expensive    */
+    osc_udp_handle = create_dissector_handle(dissect_osc_udp, proto_osc);
+    /* register as heuristic dissector for UDP connections */
+    heur_dissector_add("udp", dissect_osc_heur_udp, "Open Sound Control over UDP", "osc_udp", proto_osc, HEURISTIC_ENABLE);
 
-        initialized = TRUE;
-    }
-    else
-    {
-        if(osc_tcp_port != 0)
-            dissector_delete_uint("tcp.port", osc_tcp_port, osc_tcp_handle);
-    }
-
-    osc_tcp_port = global_osc_tcp_port;
-    if(osc_tcp_port != 0)
-        dissector_add_uint("tcp.port", osc_tcp_port, osc_tcp_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", osc_tcp_handle);
 }
 
 /*

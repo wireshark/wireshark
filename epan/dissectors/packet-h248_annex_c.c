@@ -1572,6 +1572,11 @@ void proto_register_h248_annex_c(void) {
 		&ett_codec
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_h248_sdp_media_port_invalid, { "sdp.media.port.invalid", PI_MALFORMED, PI_ERROR,
+			"Invalid SDP media port", EXPFILL }}
+	};
+
 	proto_h248_pkg_annexc = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
 	proto_register_field_array(proto_h248_pkg_annexc, hf, array_length(hf));
@@ -1579,11 +1584,6 @@ void proto_register_h248_annex_c(void) {
 	proto_register_subtree_array(ett, array_length(ett));
 
 	h248_register_package(&h248_annexc_package,MERGE_PKG_HIGH);
-
-	static ei_register_info ei[] = {
-		{ &ei_h248_sdp_media_port_invalid, { "sdp.media.port.invalid", PI_MALFORMED, PI_ERROR,
-			"Invalid SDP media port", EXPFILL }}
-	};
 
 	expert_h248_pkg_annexc = expert_register_protocol(proto_h248_pkg_annexc);
 	expert_register_field_array(expert_h248_pkg_annexc, ei, array_length(ei));

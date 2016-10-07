@@ -27,7 +27,7 @@
 #include "packet-tcp.h"
 
 #define ELASTICSEARCH_DISCOVERY_PORT 54328
-#define ELASTICSEARCH_BINARY_PORT 9300
+#define ELASTICSEARCH_BINARY_PORT 9300 /* Not IANA registered */
 
 #define IPv4_ADDRESS_LENGTH 4
 #define ELASTICSEARCH_STATUS_FLAG_RESPONSE 1   /* 001 */
@@ -728,7 +728,7 @@ void proto_reg_handoff_elasticsearch(void) {
     elasticsearch_zen_handle = create_dissector_handle(dissect_elasticsearch_zen_ping, proto_elasticsearch);
 
     dissector_add_uint("udp.port", ELASTICSEARCH_DISCOVERY_PORT, elasticsearch_zen_handle);
-    dissector_add_uint("tcp.port", ELASTICSEARCH_BINARY_PORT, elasticsearch_handle_binary);
+    dissector_add_uint_with_preference("tcp.port", ELASTICSEARCH_BINARY_PORT, elasticsearch_handle_binary);
 
 }
 

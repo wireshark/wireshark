@@ -504,6 +504,20 @@ void prefs_register_custom_preference(module_t *module, const char *name,
     void** custom_data);
 
 /*
+ * Register a (internal) "Decode As" preference with a ranged value.
+ */
+void prefs_register_decode_as_range_preference(module_t *module, const char *name,
+    const char *title, const char *description, range_t **var,
+    guint32 max_value);
+
+/*
+ * Register a (internal) "Decode As" preference with an unsigned integral value
+ * for a dissector table.
+ */
+void prefs_register_decode_as_preference(module_t *module, const char *name,
+    const char *title, const char *description, guint *var);
+
+/*
  * Register a preference that used to be supported but no longer is.
  */
 WS_DLL_PUBLIC void prefs_register_obsolete_preference(module_t *module,

@@ -55,13 +55,11 @@
 
 void proto_register_idmp(void);
 void proto_reg_handoff_idm(void);
-static void prefs_register_idmp(void); /* forward declaration for use in preferences registration */
 void register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name);
 
 static gboolean           idmp_desegment       = TRUE;
-static guint              global_idmp_tcp_port = 1102; /* made up for now */
+#define IDMP_TCP_PORT     1102 /* made up for now - not IANA registered */
 static gboolean           idmp_reassemble      = TRUE;
-static guint              tcp_port             = 0;
 static dissector_handle_t idmp_handle          = NULL;
 
 static proto_tree *top_tree         = NULL;
@@ -173,7 +171,7 @@ static int hf_idmp_present = -1;                  /* INTEGER */
 static int hf_idmp_absent = -1;                   /* NULL */
 
 /*--- End of included file: packet-idmp-hf.c ---*/
-#line 132 "./asn1/idmp/packet-idmp-template.c"
+#line 130 "./asn1/idmp/packet-idmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_idmp = -1;
@@ -192,7 +190,7 @@ static gint ett_idmp_Code = -1;
 static gint ett_idmp_InvokeId = -1;
 
 /*--- End of included file: packet-idmp-ett.c ---*/
-#line 136 "./asn1/idmp/packet-idmp-template.c"
+#line 134 "./asn1/idmp/packet-idmp-template.c"
 
 
 /*--- Included file: packet-idmp-fn.c ---*/
@@ -620,7 +618,7 @@ dissect_idmp_IDM_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 /*--- End of included file: packet-idmp-fn.c ---*/
-#line 138 "./asn1/idmp/packet-idmp-template.c"
+#line 136 "./asn1/idmp/packet-idmp-template.c"
 
 void
 register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name)
@@ -936,7 +934,7 @@ void proto_register_idmp(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-idmp-hfarr.c ---*/
-#line 321 "./asn1/idmp/packet-idmp-template.c"
+#line 319 "./asn1/idmp/packet-idmp-template.c"
     };
 
     /* List of subtrees */
@@ -959,7 +957,7 @@ void proto_register_idmp(void)
     &ett_idmp_InvokeId,
 
 /*--- End of included file: packet-idmp-ettarr.c ---*/
-#line 329 "./asn1/idmp/packet-idmp-template.c"
+#line 327 "./asn1/idmp/packet-idmp-template.c"
     };
     module_t *idmp_module;
 
@@ -977,7 +975,7 @@ void proto_register_idmp(void)
 
     /* Register our configuration options for IDMP, particularly our port */
 
-    idmp_module = prefs_register_protocol_subtree("OSI/X.500", proto_idmp, prefs_register_idmp);
+    idmp_module = prefs_register_protocol_subtree("OSI/X.500", proto_idmp, NULL);
 
     prefs_register_bool_preference(idmp_module, "desegment_idmp_messages",
                                    "Reassemble IDMP messages spanning multiple TCP segments",
@@ -991,33 +989,10 @@ void proto_register_idmp(void)
                                    " To use this option, you must also enable"
                                    " \"Allow subdissectors to reassemble TCP streams\""
                                    " in the TCP protocol settings.", &idmp_reassemble);
-
-    prefs_register_uint_preference(idmp_module, "tcp.port", "IDMP TCP Port",
-                                   "Set the port for Internet Directly Mapped Protocol requests/responses",
-                                   10, &global_idmp_tcp_port);
-
 }
 
 
 /*--- proto_reg_handoff_idm --- */
 void proto_reg_handoff_idm(void) {
-
-}
-
-
-static void
-prefs_register_idmp(void)
-{
-
-    /* de-register the old port */
-    /* port 102 is registered by TPKT - don't undo this! */
-    if(idmp_handle)
-        dissector_delete_uint("tcp.port", tcp_port, idmp_handle);
-
-    /* Set our port number for future use */
-    tcp_port = global_idmp_tcp_port;
-
-    if((tcp_port > 0) && idmp_handle)
-        dissector_add_uint("tcp.port", global_idmp_tcp_port, idmp_handle);
-
+    dissector_add_uint_with_preference("tcp.port", IDMP_TCP_PORT, idmp_handle);
 }

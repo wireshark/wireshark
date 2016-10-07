@@ -117,8 +117,6 @@ static heur_dissector_list_t heur_subdissector_list;
 
 /* Preferences */
 static gboolean soupbintcp_desegment = TRUE;
-static range_t *global_soupbintcp_range = NULL;
-static range_t *soupbintcp_range = NULL;
 
 /* Initialize the subtree pointers */
 static gint ett_soupbintcp = -1;
@@ -472,16 +470,6 @@ dissect_soupbintcp_tcp(
     return tvb_captured_length(tvb);
 }
 
-static void
-soupbintcp_prefs(void)
-{
-    dissector_delete_uint_range("tcp.port", soupbintcp_range, soupbintcp_handle);
-    g_free(soupbintcp_range);
-    soupbintcp_range = range_copy(global_soupbintcp_range);
-    dissector_add_uint_range("tcp.port", soupbintcp_range, soupbintcp_handle);
-}
-
-
 void
 proto_register_soupbintcp(void)
 {
@@ -572,15 +560,12 @@ proto_register_soupbintcp(void)
 
     module_t *soupbintcp_module;
 
-    proto_soupbintcp
-        = proto_register_protocol("SoupBinTCP", "SoupBinTCP", "soupbintcp");
+    proto_soupbintcp = proto_register_protocol("SoupBinTCP", "SoupBinTCP", "soupbintcp");
 
     proto_register_field_array(proto_soupbintcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    soupbintcp_module
-        = prefs_register_protocol(proto_soupbintcp,
-                                  soupbintcp_prefs);
+    soupbintcp_module = prefs_register_protocol(proto_soupbintcp, NULL);
 
     prefs_register_bool_preference(
         soupbintcp_module,
@@ -589,16 +574,6 @@ proto_register_soupbintcp(void)
         "Whether the SoupBinTCP dissector should reassemble messages "
         "spanning multiple TCP segments.",
         &soupbintcp_desegment);
-
-    prefs_register_range_preference(
-        soupbintcp_module,
-        "tcp.port",
-        "TCP Ports",
-        "TCP Ports range",
-        &global_soupbintcp_range,
-        65535);
-
-    soupbintcp_range = range_empty();
 
     heur_subdissector_list = register_heur_dissector_list("soupbintcp", proto_soupbintcp);
 
@@ -610,11 +585,8 @@ proto_register_soupbintcp(void)
 void
 proto_reg_handoff_soupbintcp(void)
 {
-    soupbintcp_handle = create_dissector_handle(dissect_soupbintcp_tcp,
-                                                proto_soupbintcp);
-
-    /* For "decode-as" */
-    dissector_add_for_decode_as("tcp.port", soupbintcp_handle);
+    soupbintcp_handle = create_dissector_handle(dissect_soupbintcp_tcp, proto_soupbintcp);
+    dissector_add_uint_range_with_preference("tcp.port", "", soupbintcp_handle);
 }
 
 

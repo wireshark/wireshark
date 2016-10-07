@@ -276,8 +276,8 @@ static gint ett_rtpproxy_reply = -1;
 static gint ett_rtpproxy_ng_bencode = -1;
 
 /* Default values */
-static guint rtpproxy_tcp_port = 22222;
-static guint rtpproxy_udp_port = 22222;
+#define RTPPROXY_PORT 22222  /* Not IANA registered */
+static guint rtpproxy_udp_port = RTPPROXY_PORT;
 static gboolean rtpproxy_establish_conversation = TRUE;
 /* See - https://www.opensips.org/html/docs/modules/1.10.x/rtpproxy.html#id293555 */
 /* See - http://www.kamailio.org/docs/modules/4.3.x/modules/rtpproxy.html#idp15794952 */
@@ -1454,12 +1454,6 @@ proto_register_rtpproxy(void)
 
     rtpproxy_module = prefs_register_protocol(proto_rtpproxy, proto_reg_handoff_rtpproxy);
 
-    prefs_register_uint_preference(rtpproxy_module, "tcp.port",
-                                 "RTPproxy TCP Port", /* Title */
-                                 "RTPproxy TCP Port", /* Descr */
-                                 10,
-                                 &rtpproxy_tcp_port);
-
     prefs_register_uint_preference(rtpproxy_module, "udp.port",
                                  "RTPproxy UDP Port", /* Title */
                                  "RTPproxy UDP Port", /* Descr */
@@ -1482,7 +1476,6 @@ proto_register_rtpproxy(void)
 void
 proto_reg_handoff_rtpproxy(void)
 {
-    static guint old_rtpproxy_tcp_port = 0;
     static guint old_rtpproxy_udp_port = 0;
 
     static gboolean rtpproxy_initialized = FALSE;
@@ -1492,15 +1485,11 @@ proto_reg_handoff_rtpproxy(void)
     if(!rtpproxy_initialized){
         rtpproxy_tcp_handle = create_dissector_handle(dissect_rtpproxy, proto_rtpproxy);
         rtpproxy_udp_handle = create_dissector_handle(dissect_rtpproxy, proto_rtpproxy);
+
+        /* Register TCP port for dissection */
+        dissector_add_uint_with_preference("tcp.port", RTPPROXY_PORT, rtpproxy_tcp_handle);
         rtpproxy_initialized = TRUE;
     }
-
-    /* Register TCP port for dissection */
-    if(old_rtpproxy_tcp_port != 0 && old_rtpproxy_tcp_port != rtpproxy_tcp_port)
-        dissector_delete_uint("tcp.port", old_rtpproxy_tcp_port, rtpproxy_tcp_handle);
-    if(rtpproxy_tcp_port != 0 && old_rtpproxy_tcp_port != rtpproxy_tcp_port)
-        dissector_add_uint("tcp.port", rtpproxy_tcp_port, rtpproxy_tcp_handle);
-    old_rtpproxy_tcp_port = rtpproxy_tcp_port;
 
     /* Register UDP port for dissection */
     if(old_rtpproxy_udp_port != 0 && old_rtpproxy_udp_port != rtpproxy_udp_port)

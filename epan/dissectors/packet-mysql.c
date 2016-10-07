@@ -3283,7 +3283,7 @@ void proto_register_mysql(void)
 void proto_reg_handoff_mysql(void)
 {
 	ssl_handle = find_dissector("ssl");
-	dissector_add_uint("tcp.port", TCP_PORT_MySQL, mysql_handle);
+	dissector_add_uint_with_preference("tcp.port", TCP_PORT_MySQL, mysql_handle);
 }
 
 /*

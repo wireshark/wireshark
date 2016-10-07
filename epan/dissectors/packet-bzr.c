@@ -324,7 +324,7 @@ proto_reg_handoff_bzr(void)
     bencode_handle = find_dissector_add_dependency("bencode", proto_bzr);
 
     bzr_handle = find_dissector("bzr");
-    dissector_add_uint("tcp.port", TCP_PORT_BZR, bzr_handle);
+    dissector_add_uint_with_preference("tcp.port", TCP_PORT_BZR, bzr_handle);
 }
 
 /*

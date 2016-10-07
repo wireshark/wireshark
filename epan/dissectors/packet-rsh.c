@@ -432,7 +432,7 @@ proto_reg_handoff_rsh(void)
     dissector_handle_t rsh_handle;
 
     rsh_handle = create_dissector_handle(dissect_rsh, proto_rsh);
-    dissector_add_uint("tcp.port", RSH_PORT, rsh_handle);
+    dissector_add_uint_with_preference("tcp.port", RSH_PORT, rsh_handle);
 }
 
 /*

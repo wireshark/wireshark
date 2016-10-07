@@ -48,7 +48,7 @@ void proto_reg_handoff_synphasor(void);
 static int proto_synphasor	 = -1;
 
 /* user preferences */
-static guint global_pref_tcp_port = 4712;
+#define SYNPHASOR_TCP_PORT  4712 /* Not IANA registered */
 static guint global_pref_udp_port = 4713;
 
 /* the ett... variables hold the state (open/close) of the treeview in the GUI */
@@ -1372,10 +1372,6 @@ void proto_register_synphasor(void)
 				       "Set the port number for synchrophasor frames over UDP" \
 				       "(if other than the default of 4713)",
 				       10, &global_pref_udp_port);
-	prefs_register_uint_preference(synphasor_module, "tcp_port", "Synchrophasor TCP port",
-				       "Set the port number for synchrophasor frames over TCP" \
-				       "(if other than the default of 4712)",
-				       10, &global_pref_tcp_port);
 
 } /* proto_register_synphasor() */
 
@@ -1385,24 +1381,21 @@ void proto_reg_handoff_synphasor(void)
 	static gboolean		  initialized = FALSE;
 	static dissector_handle_t synphasor_tcp_handle;
 	static guint		  current_udp_port;
-	static guint		  current_tcp_port;
 
 	if (!initialized) {
 		synphasor_tcp_handle = create_dissector_handle(dissect_tcp, proto_synphasor);
 		dissector_add_for_decode_as("rtacser.data", synphasor_udp_handle);
+		dissector_add_uint_with_preference("tcp.port", SYNPHASOR_TCP_PORT, synphasor_tcp_handle);
 		initialized = TRUE;
 	}
 	else {
 		/* update preferences */
 		dissector_delete_uint("udp.port", current_udp_port, synphasor_udp_handle);
-		dissector_delete_uint("tcp.port", current_tcp_port, synphasor_tcp_handle);
 	}
 
 	current_udp_port = global_pref_udp_port;
-	current_tcp_port = global_pref_tcp_port;
 
 	dissector_add_uint("udp.port", current_udp_port, synphasor_udp_handle);
-	dissector_add_uint("tcp.port", current_tcp_port, synphasor_tcp_handle);
 } /* proto_reg_handoff_synphasor() */
 
 /*

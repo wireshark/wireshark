@@ -44,7 +44,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 
@@ -179,10 +178,6 @@ static const bitmap_info_t bitmap_info[] = {
 
 void proto_register_zvt(void);
 void proto_reg_handoff_zvt(void);
-
-/* the specification mentions tcp port 20007
-   this port is not officially registered with IANA */
-static guint pref_zvt_tcp_port = 0;
 
 static int proto_zvt = -1;
 
@@ -842,7 +837,6 @@ void
 proto_register_zvt(void)
 {
     guint     i;
-    module_t *zvt_module;
     expert_module_t* expert_zvt;
 
     static gint *ett[] = {
@@ -939,44 +933,28 @@ proto_register_zvt(void)
                             (gpointer)(&bitmap_info[i]));
     }
 
-    proto_zvt = proto_register_protocol(
-            "ZVT Kassenschnittstelle", "ZVT", "zvt");
+    proto_zvt = proto_register_protocol("ZVT Kassenschnittstelle", "ZVT", "zvt");
+
     proto_register_field_array(proto_zvt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_zvt = expert_register_protocol(proto_zvt);
     expert_register_field_array(expert_zvt, ei, array_length(ei));
 
-    zvt_module = prefs_register_protocol(proto_zvt, proto_reg_handoff_zvt);
-    prefs_register_uint_preference(zvt_module, "tcp.port",
-                   "ZVT TCP Port",
-                   "Set the TCP port for ZVT messages (port 20007 according to the spec)",
-                   10,
-                   &pref_zvt_tcp_port);
-
     transactions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+
+    /* register by name to allow mapping to a user DLT */
+    register_dissector("zvt", dissect_zvt, proto_zvt);
 }
 
 
 void
 proto_reg_handoff_zvt(void)
 {
-    static gboolean            registered_dissector = FALSE;
-    static int                 zvt_tcp_port;
-    static dissector_handle_t  zvt_tcp_handle;
+    dissector_handle_t  zvt_tcp_handle;
 
-    if (!registered_dissector) {
-        /* register by name to allow mapping to a user DLT */
-        register_dissector("zvt", dissect_zvt, proto_zvt);
+    zvt_tcp_handle = create_dissector_handle(dissect_zvt_tcp, proto_zvt);
 
-        zvt_tcp_handle = create_dissector_handle(dissect_zvt_tcp, proto_zvt);
-
-        registered_dissector = TRUE;
-    }
-    else
-        dissector_delete_uint("tcp.port", zvt_tcp_port, zvt_tcp_handle);
-
-    zvt_tcp_port = pref_zvt_tcp_port;
-    dissector_add_uint("tcp.port", zvt_tcp_port, zvt_tcp_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", zvt_tcp_handle);
 }
 
 

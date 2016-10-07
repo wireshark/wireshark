@@ -33,7 +33,6 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
 
@@ -214,8 +213,6 @@ static int hf_mongo_commandargs = -1;
 static int hf_mongo_commandreply = -1;
 static int hf_mongo_outputdocs = -1;
 static int hf_mongo_unknown = -1;
-
-static guint global_mongo_tcp_port = TCP_PORT_MONGO;
 
 static gint ett_mongo = -1;
 static gint ett_mongo_doc = -1;
@@ -726,7 +723,6 @@ dissect_mongo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 void
 proto_register_mongo(void)
 {
-  module_t *mongo_module;
   expert_module_t* expert_mongo;
 
   static hf_register_info hf[] = {
@@ -1122,32 +1118,13 @@ proto_register_mongo(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_mongo = expert_register_protocol(proto_mongo);
   expert_register_field_array(expert_mongo, ei, array_length(ei));
-
-  mongo_module = prefs_register_protocol(proto_mongo,
-      proto_reg_handoff_mongo);
-
-  prefs_register_uint_preference(mongo_module, "tcp.port", "MONGO TCP Port",
-       "MONGO TCP port if other than the default",
-       10, &global_mongo_tcp_port);
 }
 
 
 void
 proto_reg_handoff_mongo(void)
 {
-  static gboolean initialized = FALSE;
-  static int currentPort;
-
-  if (!initialized) {
-    initialized = TRUE;
-  } else {
-    dissector_delete_uint("tcp.port", currentPort, mongo_handle);
-  }
-
-  currentPort = global_mongo_tcp_port;
-
-  dissector_add_uint("tcp.port", currentPort, mongo_handle);
-
+  dissector_add_uint_with_preference("tcp.port", TCP_PORT_MONGO, mongo_handle);
 }
 /*
  * Editor modelines

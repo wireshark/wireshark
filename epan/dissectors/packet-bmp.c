@@ -810,7 +810,7 @@ proto_reg_handoff_bmp(void)
     static dissector_handle_t bmp_handle;
 
     bmp_handle = create_dissector_handle(dissect_bmp, proto_bmp);
-    dissector_add_for_decode_as("tcp.port", bmp_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", bmp_handle);
     dissector_bgp = find_dissector_add_dependency("bgp", proto_bmp);
 }
 /*

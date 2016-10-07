@@ -216,16 +216,13 @@ static gchar    *attr_type = NULL;
 static gboolean is_binary_attr_type = FALSE;
 static gboolean ldap_found_in_frame = FALSE;
 
-#define TCP_PORT_LDAP                   389
+#define TCP_PORT_RANGE_LDAP             "389,3268" /* 3268 is Windows 2000 Global Catalog */
 #define TCP_PORT_LDAPS                  636
 #define UDP_PORT_CLDAP                  389
-#define TCP_PORT_GLOBALCAT_LDAP         3268 /* Windows 2000 Global Catalog */
 
 /* desegmentation of LDAP */
 static gboolean ldap_desegment = TRUE;
-static guint global_ldap_tcp_port = TCP_PORT_LDAP;
 static guint global_ldaps_tcp_port = TCP_PORT_LDAPS;
-static guint tcp_port = 0;
 static guint ssl_port = 0;
 
 static dissector_handle_t gssapi_handle;
@@ -2203,10 +2200,6 @@ void proto_register_ldap(void) {
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &ldap_desegment);
 
-  prefs_register_uint_preference(ldap_module, "tcp.port", "LDAP TCP Port",
-                                 "Set the port for LDAP operations",
-                                 10, &global_ldap_tcp_port);
-
   prefs_register_uint_preference(ldap_module, "ssl.port", "LDAPS TCP Port",
                                  "Set the port for LDAP operations over SSL",
                                  10, &global_ldaps_tcp_port);
@@ -2251,8 +2244,6 @@ void
 proto_reg_handoff_ldap(void)
 {
   dissector_handle_t cldap_handle;
-
-  dissector_add_uint("tcp.port", TCP_PORT_GLOBALCAT_LDAP, ldap_handle);
 
   cldap_handle = create_dissector_handle(dissect_mscldap, proto_cldap);
   dissector_add_uint("udp.port", UDP_PORT_CLDAP, cldap_handle);
@@ -2321,25 +2312,12 @@ proto_reg_handoff_ldap(void)
 
 #include "packet-ldap-dis-tab.c"
 
-
+ dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_RANGE_LDAP, ldap_handle);
 }
 
 static void
 prefs_register_ldap(void)
 {
-
-  if(tcp_port != global_ldap_tcp_port) {
-    if(tcp_port)
-      dissector_delete_uint("tcp.port", tcp_port, ldap_handle);
-
-    /* Set our port number for future use */
-    tcp_port = global_ldap_tcp_port;
-
-    if(tcp_port)
-      dissector_add_uint("tcp.port", tcp_port, ldap_handle);
-
-  }
-
   if(ssl_port != global_ldaps_tcp_port) {
     if(ssl_port)
       ssl_dissector_delete(ssl_port, ldap_handle);

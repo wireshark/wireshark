@@ -253,8 +253,6 @@ static gboolean rtsp_desegment_body = TRUE;
  */
 #define RTSP_TCP_PORT_RANGE           "554,8554,7236"
 
-static range_t *global_rtsp_tcp_port_range = NULL;
-
 /*
  * Takes an array of bytes, assumed to contain a null-terminated
  * string, as an argument, and returns the length of the string -
@@ -1467,8 +1465,7 @@ proto_register_rtsp(void)
     module_t *rtsp_module;
     expert_module_t *expert_rtsp;
 
-    proto_rtsp = proto_register_protocol("Real Time Streaming Protocol",
-        "RTSP", "rtsp");
+    proto_rtsp = proto_register_protocol("Real Time Streaming Protocol", "RTSP", "rtsp");
 
     proto_register_field_array(proto_rtsp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -1481,15 +1478,10 @@ proto_register_rtsp(void)
 
     /* Register our configuration options, particularly our ports */
 
-    rtsp_module = prefs_register_protocol(proto_rtsp, proto_reg_handoff_rtsp);
+    rtsp_module = prefs_register_protocol(proto_rtsp, NULL);
 
     prefs_register_obsolete_preference(rtsp_module, "tcp.alternate_port");
-    prefs_register_obsolete_preference(rtsp_module, "tcp.port");
 
-    range_convert_str(&global_rtsp_tcp_port_range, RTSP_TCP_PORT_RANGE, 65535);
-    prefs_register_range_preference(rtsp_module, "tcp.port_range", "RTSP TCP Ports",
-                                    "RTSP TCP Ports range",
-                                    &global_rtsp_tcp_port_range, 65535);
     prefs_register_bool_preference(rtsp_module, "desegment_headers",
         "Reassemble RTSP headers spanning multiple TCP segments",
         "Whether the RTSP dissector should reassemble headers "
@@ -1520,26 +1512,17 @@ proto_register_rtsp(void)
 void
 proto_reg_handoff_rtsp(void)
 {
-    static dissector_handle_t rtsp_handle;
-    static gboolean rtsp_prefs_initialized = FALSE;
-    static range_t *rtsp_tcp_port_range = NULL;
+    dissector_handle_t rtsp_handle;
 
-    if (!rtsp_prefs_initialized) {
-        rtsp_handle = find_dissector("rtsp");
-        rtp_handle = find_dissector("rtp");
-        rtcp_handle = find_dissector("rtcp");
-        rdt_handle = find_dissector("rdt");
-        media_type_dissector_table = find_dissector_table("media_type");
-        voip_tap = find_tap_id("voip");
-        rtsp_prefs_initialized = TRUE;
-    }
-    else {
-        dissector_delete_uint_range("tcp.port", rtsp_tcp_port_range, rtsp_handle);
-        g_free(rtsp_tcp_port_range);
-    }
+    rtsp_handle = find_dissector("rtsp");
+    rtp_handle = find_dissector_add_dependency("rtp", proto_rtsp);
+    rtcp_handle = find_dissector_add_dependency("rtcp", proto_rtsp);
+    rdt_handle = find_dissector_add_dependency("rdt", proto_rtsp);
+    media_type_dissector_table = find_dissector_table("media_type");
+    voip_tap = find_tap_id("voip");
+
     /* Set our port number for future use */
-    rtsp_tcp_port_range = range_copy(global_rtsp_tcp_port_range);
-    dissector_add_uint_range("tcp.port", rtsp_tcp_port_range, rtsp_handle);
+    dissector_add_uint_range_with_preference("tcp.port", RTSP_TCP_PORT_RANGE, rtsp_handle);
 
     /* XXX: Do the following only once ?? */
     stats_tree_register("rtsp","rtsp","RTSP/Packet Counter", 0, rtsp_stats_tree_packet, rtsp_stats_tree_init, NULL );

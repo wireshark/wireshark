@@ -1312,7 +1312,7 @@ void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb
 
 static gboolean keep_persistent_data = FALSE;
 static guint    global_udp_port = 2945;
-static guint    global_tcp_port = 2945;
+#define H248_TCP_PORT 2945
 static gboolean h248_desegment = TRUE;
 
 
@@ -7714,11 +7714,6 @@ void proto_register_h248(void) {
                                    "Port to be decoded as h248",
                                    10,
                                    &global_udp_port);
-    prefs_register_uint_preference(h248_module, "tcp_port",
-                                   "TCP port",
-                                   "Port to be decoded as h248",
-                                   10,
-                                   &global_tcp_port);
     prefs_register_bool_preference(h248_module, "desegment",
                                    "Desegment H.248 over TCP",
                                    "Desegment H.248 messages that span more TCP segments",
@@ -7737,29 +7732,21 @@ void proto_reg_handoff_h248(void) {
 
     static gboolean initialized = FALSE;
     static guint32 udp_port;
-    static guint32 tcp_port;
 
     if (!initialized) {
         dissector_add_uint("mtp3.service_indicator", MTP_SI_GCP, h248_handle);
         h248_term_handle = find_dissector_add_dependency("h248term", proto_h248);
+        dissector_add_uint_with_preference("tcp.port", H248_TCP_PORT, h248_tpkt_handle);
         initialized = TRUE;
     } else {
         if (udp_port != 0)
             dissector_delete_uint("udp.port", udp_port, h248_handle);
-
-        if (tcp_port != 0)
-            dissector_delete_uint("tcp.port", tcp_port, h248_tpkt_handle);
     }
 
     udp_port = global_udp_port;
-    tcp_port = global_tcp_port;
 
     if (udp_port != 0) {
         dissector_add_uint("udp.port", udp_port, h248_handle);
-    }
-
-    if (tcp_port != 0) {
-        dissector_add_uint("tcp.port", tcp_port, h248_tpkt_handle);
     }
 
     ss7pc_address_type = address_type_get_by_name("AT_SS7PC");

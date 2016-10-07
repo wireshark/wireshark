@@ -286,7 +286,6 @@ static gboolean http_decompress_body = FALSE;
 #define UPGRADE_SSTP 3
 #define UPGRADE_SPDY 4
 
-static range_t *global_http_tcp_range = NULL;
 static range_t *global_http_sctp_range = NULL;
 static range_t *global_http_ssl_range = NULL;
 
@@ -3267,11 +3266,6 @@ range_add_http_ssl_callback(guint32 port) {
 }
 
 static void reinit_http(void) {
-	dissector_delete_uint_range("tcp.port", http_tcp_range, http_tcp_handle);
-	g_free(http_tcp_range);
-	http_tcp_range = range_copy(global_http_tcp_range);
-	dissector_add_uint_range("tcp.port", http_tcp_range, http_tcp_handle);
-
 	dissector_delete_uint_range("sctp.port", http_sctp_range, http_sctp_handle);
 	g_free(http_sctp_range);
 	http_sctp_range = range_copy(global_http_sctp_range);
@@ -3626,12 +3620,6 @@ proto_register_http(void)
 #endif
 	prefs_register_obsolete_preference(http_module, "tcp_alternate_port");
 
-	range_convert_str(&global_http_tcp_range, TCP_DEFAULT_RANGE, 65535);
-	http_tcp_range = range_empty();
-	prefs_register_range_preference(http_module, "tcp.port", "TCP Ports",
-					"TCP Ports range",
-					&global_http_tcp_range, 65535);
-
 	range_convert_str(&global_http_sctp_range, SCTP_DEFAULT_RANGE, 65535);
 	http_sctp_range = range_empty();
 	prefs_register_range_preference(http_module, "sctp.port", "SCTP Ports",
@@ -3712,7 +3700,7 @@ http_tcp_dissector_add(guint32 port, dissector_handle_t handle)
 {
 	/*
 	 * Register ourselves as the handler for that port number
-	 * over TCP.
+	 * over TCP.  "Auto-preference" not needed
 	 */
 	dissector_add_uint("tcp.port", port, http_tcp_handle);
 
@@ -3722,6 +3710,21 @@ http_tcp_dissector_add(guint32 port, dissector_handle_t handle)
 	dissector_add_uint("http.port", port, handle);
 }
 
+WS_DLL_PUBLIC
+void http_tcp_dissector_delete(guint32 port)
+{
+	/*
+	 * Unregister ourselves as the handler for that port number
+	 * over TCP.  "Auto-preference" not needed
+	 */
+	dissector_delete_uint("tcp.port", port, NULL);
+
+	/*
+	 * And unregister them in *our* table for that port.
+	 */
+	dissector_delete_uint("http.port", port, NULL);
+}
+
 void
 http_tcp_port_add(guint32 port)
 {
@@ -3729,6 +3732,7 @@ http_tcp_port_add(guint32 port)
 	 * Register ourselves as the handler for that port number
 	 * over TCP.  We rely on our caller having registered
 	 * themselves for the appropriate media type.
+	 * No "auto-preference" used.
 	 */
 	dissector_add_uint("tcp.port", port, http_tcp_handle);
 }
@@ -3819,6 +3823,8 @@ proto_reg_handoff_message_http(void)
 	heur_dissector_add("tcp", dissect_http_heur_tcp, "HTTP over TCP", "http_tcp", proto_http, HEURISTIC_ENABLE);
 
 	proto_http2 = proto_get_id_by_filter_name("http2");
+
+	dissector_add_uint_range_with_preference("tcp.port", TCP_DEFAULT_RANGE, http_tcp_handle);
 
 	reinit_http();
 }

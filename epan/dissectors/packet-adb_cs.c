@@ -437,7 +437,7 @@ proto_reg_handoff_adb_cs(void)
 {
     adb_service_handle = find_dissector_add_dependency("adb_service", proto_adb_cs);
 
-    dissector_add_for_decode_as("tcp.port", adb_cs_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", adb_cs_handle);
 }
 
 /*

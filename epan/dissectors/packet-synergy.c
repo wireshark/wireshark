@@ -29,6 +29,8 @@
 void proto_register_synergy(void);
 void proto_reg_handoff_synergy(void);
 
+#define SYNERGY_PORT        24800 /* Not IANA registered */
+
 static int proto_synergy = -1;
 
 static int hf_synergy_unknown = -1;
@@ -556,8 +558,7 @@ proto_register_synergy(void)
     };
 
 /* Register the protocol name and description */
-    proto_synergy = proto_register_protocol("Synergy",
-        "Synergy", "synergy");
+    proto_synergy = proto_register_protocol("Synergy", "Synergy", "synergy");
 
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_synergy, hf, array_length(hf));
@@ -571,7 +572,7 @@ proto_reg_handoff_synergy(void)
 
     dissector_handle_t synergy_handle;
     synergy_handle = find_dissector("synergy");
-    dissector_add_uint("tcp.port",24800, synergy_handle);
+    dissector_add_uint_with_preference("tcp.port", SYNERGY_PORT, synergy_handle);
 }
 
 /*

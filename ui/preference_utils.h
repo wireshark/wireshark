@@ -40,16 +40,26 @@ extern "C" {
  */
 extern guint pref_stash(pref_t *pref, gpointer unused _U_);
 
-/** "Untash" a preference.
+typedef struct pref_unstash_data
+{
+    /* Used to set prefs_changed member to TRUE if the preference
+       differs from its stashed values. Also used by "decode as" types
+       to look up dissector short name */
+    module_t *module;
+    /* Qt uses stashed values to then "applies" them
+      during unstash.  Use this flag for that behavior */
+    gboolean handle_decode_as;
+} pref_unstash_data_t;
+
+/** "Unstash" a preference.
  * Set a preference to its stashed value. Can be called from prefs_pref_foreach().
  *
  * @param pref A preference.
- * @param changed_p A pointer to a gboolean. Set to TRUE if the preference differs
- * from its stashed value.
+ * @param unstash_data_p A pointer to a pref_unstash_data_t structure.
  *
  * @return Always returns 0.
  */
-extern guint pref_unstash(pref_t *pref, gpointer changed_p);
+extern guint pref_unstash(pref_t *pref, gpointer unstash_data_p);
 
 /** Clean up a stashed preference.
  * Can be called from prefs_pref_foreach().

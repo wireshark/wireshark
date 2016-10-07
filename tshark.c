@@ -75,6 +75,7 @@
 #include <epan/disabled_protos.h>
 #include <epan/prefs.h>
 #include <epan/column.h>
+#include <epan/decode_as.h>
 #include <epan/print.h>
 #include <epan/addr_resolv.h>
 #ifdef HAVE_LIBPCAP

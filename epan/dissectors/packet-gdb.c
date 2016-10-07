@@ -217,8 +217,7 @@ proto_register_gdb(void)
     };
 
 
-    proto_gdb = proto_register_protocol(
-            "GDB Remote Serial Protocol", "GDB remote", "gdb");
+    proto_gdb = proto_register_protocol("GDB Remote Serial Protocol", "GDB remote", "gdb");
 
     proto_register_field_array(proto_gdb, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -230,15 +229,11 @@ proto_register_gdb(void)
 void
 proto_reg_handoff_gdb(void)
 {
-    static gboolean            initialized = FALSE;
-    static dissector_handle_t  gdb_handle;
+    dissector_handle_t  gdb_handle;
 
-    if (!initialized) {
-        gdb_handle = create_dissector_handle(dissect_gdb_tcp, proto_gdb);
-        initialized = TRUE;
-    }
+    gdb_handle = create_dissector_handle(dissect_gdb_tcp, proto_gdb);
 
-    dissector_add_for_decode_as("tcp.port", gdb_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", gdb_handle);
 }
 
 /*

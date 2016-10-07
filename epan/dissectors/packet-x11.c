@@ -216,7 +216,6 @@ static expert_field ei_x11_keycode_value_out_of_range = EI_INIT;
 
 /* desegmentation of X11 messages */
 static gboolean x11_desegment = TRUE;
-static range_t *global_x11_tcp_port_range;
 
 #define DEFAULT_X11_PORT_RANGE "6000-6063"
 
@@ -5849,42 +5848,22 @@ void proto_register_x11(void)
       reply_table = g_hash_table_new(g_str_hash, g_str_equal);
       register_x11_extensions();
 
-      /* Set default TCP ports */
-      range_convert_str(&global_x11_tcp_port_range, DEFAULT_X11_PORT_RANGE, MAX_TCP_PORT);
-
       x11_module = prefs_register_protocol(proto_x11, NULL);
       prefs_register_bool_preference(x11_module, "desegment",
             "Reassemble X11 messages spanning multiple TCP segments",
             "Whether the X11 dissector should reassemble messages spanning multiple TCP segments. "
             "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
             &x11_desegment);
-
-      prefs_register_range_preference(x11_module, "tcp.ports", "X11 TCP ports",
-            "TCP ports to be decoded as X11 (default: "
-            DEFAULT_X11_PORT_RANGE ")",
-            &global_x11_tcp_port_range, MAX_TCP_PORT);
 }
 
 void
 proto_reg_handoff_x11(void)
 {
-      static gboolean initialized = FALSE;
-      static range_t *x11_tcp_port_range;
-      static dissector_handle_t x11_handle = NULL;
+      dissector_handle_t x11_handle = NULL;
 
-      if (!initialized)
-      {
-            x11_handle = create_dissector_handle(dissect_x11, proto_x11);
-            initialized = TRUE;
-      }
-      else
-      {
-            dissector_delete_uint_range("tcp.port", x11_tcp_port_range, x11_handle);
-            g_free(x11_tcp_port_range);
-      }
+      x11_handle = create_dissector_handle(dissect_x11, proto_x11);
 
-      x11_tcp_port_range = range_copy(global_x11_tcp_port_range);
-      dissector_add_uint_range("tcp.port",  x11_tcp_port_range,  x11_handle);
+      dissector_add_uint_range_with_preference("tcp.port",  DEFAULT_X11_PORT_RANGE, x11_handle);
 }
 
 /*

@@ -3959,7 +3959,7 @@ proto_reg_handoff_obex(void)
     dissector_add_for_decode_as("usb.product",  obex_handle);
     dissector_add_for_decode_as("usb.device",   obex_handle);
     dissector_add_for_decode_as("usb.protocol", obex_handle);
-    dissector_add_for_decode_as("tcp.port",     obex_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port",     obex_handle);
     dissector_add_for_decode_as("udp.port",     obex_handle);
 }
 

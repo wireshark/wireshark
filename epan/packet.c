@@ -47,6 +47,7 @@
 #include <epan/reassemble.h>
 #include <epan/stream.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 #include <epan/range.h>
 #include <epan/asm_utils.h>
 
@@ -987,12 +988,112 @@ void dissector_add_uint_range(const char *abbrev, range_t *range,
 	guint32 i, j;
 
 	if (range) {
-		for (i = 0; i < range->nranges; i++) {
-			for (j = range->ranges[i].low; j < range->ranges[i].high; j++)
-				dissector_add_uint(abbrev, j, handle);
-			dissector_add_uint(abbrev, range->ranges[i].high, handle);
+		if (range->nranges == 0) {
+			/* Even an empty range would want a chance for Decode As */
+			dissector_add_for_decode_as(abbrev, handle);
+		}
+		else {
+			for (i = 0; i < range->nranges; i++) {
+				for (j = range->ranges[i].low; j < range->ranges[i].high; j++)
+					dissector_add_uint(abbrev, j, handle);
+				dissector_add_uint(abbrev, range->ranges[i].high, handle);
+			}
 		}
 	}
+}
+
+static void
+dissector_add_preference(const char *name, dissector_handle_t handle, guint init_value)
+{
+	guint* uint_var;
+	module_t *module;
+	gchar *description, *title;
+	dissector_table_t  pref_dissector_table = find_dissector_table( name);
+	int proto_id = proto_get_id(handle->protocol);
+
+	uint_var = wmem_new(wmem_epan_scope(), guint);
+	*uint_var = init_value;
+
+	/* If the dissector already has a preference module, use it */
+	module = prefs_find_module(proto_get_protocol_filter_name(proto_id));
+	if (module == NULL)
+	{
+		/* Otherwise create a new one */
+		module = prefs_register_protocol(proto_id, NULL);
+	}
+
+	description = wmem_strdup_printf(wmem_epan_scope(), "Set the %s for %s (if other than the default of %u)",
+									pref_dissector_table->ui_name, proto_get_protocol_short_name(handle->protocol), *uint_var);
+	title = wmem_strdup_printf(wmem_epan_scope(), "%s %s", proto_get_protocol_short_name(handle->protocol),
+									pref_dissector_table->ui_name);
+
+	prefs_register_decode_as_preference(module, name, title, description, uint_var);
+}
+
+void dissector_add_uint_with_preference(const char *name, const guint32 pattern,
+    dissector_handle_t handle)
+{
+	dissector_add_preference(name, handle, pattern);
+	dissector_add_uint(name, pattern, handle);
+}
+
+void dissector_add_uint_range_with_preference(const char *abbrev, const char* range_str,
+    dissector_handle_t handle)
+{
+	range_t** range;
+	module_t *module;
+	gchar *description, *title;
+	dissector_table_t  pref_dissector_table = find_dissector_table( abbrev);
+	int proto_id = proto_get_id(handle->protocol);
+	guint32 max_value = 0;
+
+	/* If a dissector is added for Decode As only, it's dissector
+		table value would default to 0.
+		Set up a preference value with that information
+	 */
+	range = wmem_new(wmem_epan_scope(), range_t*);
+	*range = range_empty();
+
+	/* If the dissector already has a preference module, use it */
+	module = prefs_find_module(proto_get_protocol_filter_name(proto_id));
+	if (module == NULL) {
+		/* Otherwise create a new one */
+		module = prefs_register_protocol(proto_id, NULL);
+	}
+	/* Some preference callback functions use the proto_reg_handoff_
+		routine to apply preferences, which could duplicate the
+		registration of a preference.  Check for that here */
+	else if (prefs_find_preference(module, abbrev) == NULL) {
+		description = wmem_strdup_printf(wmem_epan_scope(), "%s %s(s)",
+									    proto_get_protocol_short_name(handle->protocol), pref_dissector_table->ui_name);
+		title = wmem_strdup_printf(wmem_epan_scope(), "%s(s)", pref_dissector_table->ui_name);
+
+		/* Max value is based on datatype of dissector table */
+		switch (pref_dissector_table->type) {
+
+		case FT_UINT8:
+			max_value = 0xFF;
+			break;
+		case FT_UINT16:
+			max_value = 0xFFFF;
+			break;
+		case FT_UINT24:
+			max_value = 0xFFFFFF;
+			break;
+		case FT_UINT32:
+			max_value = 0xFFFFFFFF;
+			break;
+
+		default:
+			g_error("The dissector table %s (%s) is not an integer type - are you using a buggy plugin?", abbrev, pref_dissector_table->ui_name);
+			g_assert_not_reached();
+		}
+
+		range_convert_str(range, range_str, max_value);
+		prefs_register_decode_as_range_preference(module, abbrev, title, description, range, max_value);
+	}
+
+	dissector_add_uint_range(abbrev, *range, handle);
 }
 
 /* Delete the entry for a dissector in a uint dissector table
@@ -1831,6 +1932,18 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 		g_slist_insert_sorted(sub_dissectors->dissector_handles, (gpointer)handle, (GCompareFunc)dissector_compare_filter_name);
 }
 
+void dissector_add_for_decode_as_with_preference(const char *name,
+    dissector_handle_t handle)
+{
+	/* If a dissector is added for Decode As only, it's dissector
+	   table value would default to 0.
+	   Set up a preference value with that information
+	 */
+	dissector_add_preference(name, handle, 0);
+
+	dissector_add_for_decode_as(name, handle);
+}
+
 dissector_handle_t
 dtbl_entry_get_initial_handle (dtbl_entry_t *dtbl_entry)
 {
@@ -1839,8 +1952,44 @@ dtbl_entry_get_initial_handle (dtbl_entry_t *dtbl_entry)
 
 GSList *
 dissector_table_get_dissector_handles(dissector_table_t dissector_table) {
-	if (!dissector_table) return NULL;
+	if (!dissector_table)
+		return NULL;
+
 	return dissector_table->dissector_handles;
+}
+
+/*
+ * Data structure used as user data when iterating dissector handles
+ */
+typedef struct lookup_entry {
+	gchar*             dissector_short_name;
+	dissector_handle_t handle;
+} lookup_entry_t;
+
+/*
+ * A callback function to changed a dissector_handle if matched
+ * This is used when iterating a dissector table
+ */
+static void
+find_dissector_in_table(gpointer item, gpointer user_data)
+{
+	dissector_handle_t handle = (dissector_handle_t)item;
+	lookup_entry_t * lookup = (lookup_entry_t *)user_data;
+	const gchar *proto_short_name = dissector_handle_get_short_name(handle);
+	if (proto_short_name && strcmp(lookup->dissector_short_name, proto_short_name) == 0) {
+		lookup->handle = handle;
+	}
+}
+
+dissector_handle_t dissector_table_get_dissector_handle(dissector_table_t dissector_table, gchar* short_name)
+{
+	lookup_entry_t lookup;
+
+	lookup.dissector_short_name = short_name;
+	lookup.handle = NULL;
+
+	g_slist_foreach(dissector_table->dissector_handles, find_dissector_in_table, &lookup);
+	return lookup.handle;
 }
 
 ftenum_t

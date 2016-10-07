@@ -2588,7 +2588,10 @@ void proto_reg_handoff_snmp(void) {
 	dissector_add_uint("hpext.dxsap", HPEXT_SNMP, snmp_handle);
 
 	snmp_tcp_handle = create_dissector_handle(dissect_snmp_tcp, proto_snmp);
-	dissector_add_uint("tcp.port", TCP_PORT_SNMP, snmp_tcp_handle);
+	dissector_add_uint_with_preference("tcp.port", TCP_PORT_SNMP, snmp_tcp_handle);
+	/* Since "regular" SNMP port and "trap" SNMP port use the same handler,
+	   the "trap" port doesn't really need a separate preference.  Just register
+	   normally */
 	dissector_add_uint("tcp.port", TCP_PORT_SNMP_TRAP, snmp_tcp_handle);
 
 	data_handle = find_dissector("data");
@@ -2631,7 +2634,7 @@ proto_reg_handoff_smux(void)
 	dissector_handle_t smux_handle;
 
 	smux_handle = create_dissector_handle(dissect_smux, proto_smux);
-	dissector_add_uint("tcp.port", TCP_PORT_SMUX, smux_handle);
+	dissector_add_uint_with_preference("tcp.port", TCP_PORT_SMUX, smux_handle);
 }
 
 /*

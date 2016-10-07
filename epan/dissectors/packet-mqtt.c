@@ -654,7 +654,7 @@ void proto_register_mqtt(void)
  */
 void proto_reg_handoff_mqtt(void)
 {
-  dissector_add_uint("tcp.port", MQTT_DEFAULT_PORT, mqtt_handle);
+  dissector_add_uint_with_preference("tcp.port", MQTT_DEFAULT_PORT, mqtt_handle);
   ssl_dissector_add(MQTT_SSL_DEFAULT_PORT, mqtt_handle);
 }
 

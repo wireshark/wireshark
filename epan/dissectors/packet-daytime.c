@@ -106,7 +106,7 @@ void
 proto_reg_handoff_daytime(void)
 {
   dissector_add_uint("udp.port", DAYTIME_PORT, daytime_handle);
-  dissector_add_uint("tcp.port", DAYTIME_PORT, daytime_handle);
+  dissector_add_uint_with_preference("tcp.port", DAYTIME_PORT, daytime_handle);
 }
 
 /*

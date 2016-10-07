@@ -396,10 +396,10 @@ void proto_register_aol(void) {
  * Initialize the dissector.
  */
 void proto_reg_handoff_aol(void) {
-	static dissector_handle_t aol_handle;
+	dissector_handle_t aol_handle;
 
 	aol_handle = create_dissector_handle(dissect_aol,proto_aol);
-	dissector_add_uint("tcp.port",AOL_PORT,aol_handle);
+	dissector_add_uint_with_preference("tcp.port",AOL_PORT,aol_handle);
 }
 
 /* vi:set ts=4: */

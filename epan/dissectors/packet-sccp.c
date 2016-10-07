@@ -46,6 +46,8 @@
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/to_str.h>
+#include <epan/decode_as.h>
+#include <epan/proto_data.h>
 #include <wiretap/wtap.h>
 #include <wsutil/str_util.h>
 #include "packet-mtp3.h"
@@ -825,6 +827,18 @@ static const value_string assoc_protos[] = {
     /*g_warning("Frame %d not protocol %d @ line %d", frame_num, my_mtp3_standard, __LINE__);*/ \
     return FALSE; \
   } while (0)
+
+
+static void sccp_prompt(packet_info *pinfo _U_, gchar* result)
+{
+  g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Dissect SSN %d as",
+     GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_sccp, 0)));
+}
+
+static gpointer sccp_value(packet_info *pinfo)
+{
+  return p_get_proto_data(pinfo->pool, pinfo, proto_sccp, 0);
+}
 
 static gboolean
 sccp_called_calling_looks_valid(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_standard, gboolean is_co)
@@ -2345,6 +2359,9 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, scc
     }
 
   }
+
+  /* Save SSN for Decode As */
+  p_add_proto_data(pinfo->pool, pinfo, proto_sccp, 0, GUINT_TO_POINTER((guint)ssn));
 
   if ((ssn != INVALID_SSN) && dissector_try_uint_new(sccp_ssn_dissector_table, ssn, tvb, pinfo, tree, TRUE, sccp_info)) {
     return;
@@ -4059,6 +4076,12 @@ proto_register_sccp(void)
      { &ei_sccp_gt_digits_missing, { "sccp.gt_digits_missing", PI_MALFORMED, PI_ERROR, "Address digits missing", EXPFILL }},
   };
 
+  /* Decode As handling */
+  static build_valid_func sccp_da_build_value[1] = {sccp_value};
+  static decode_as_value_t sccp_da_values = {sccp_prompt, 1, sccp_da_build_value};
+  static decode_as_t sccp_da = {"sccp", "SCCP SSN", "sccp.ssn", 1, 0, &sccp_da_values, NULL, NULL,
+                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
   module_t *sccp_module;
   expert_module_t* expert_sccp;
 
@@ -4079,8 +4102,7 @@ proto_register_sccp(void)
                              NULL, users_flds );
 
   /* Register the protocol name and description */
-  proto_sccp = proto_register_protocol("Signalling Connection Control Part",
-                                       "SCCP", "sccp");
+  proto_sccp = proto_register_protocol("Signalling Connection Control Part", "SCCP", "sccp");
 
   register_dissector("sccp", dissect_sccp, proto_sccp);
 
@@ -4142,6 +4164,7 @@ proto_register_sccp(void)
 
   sccp_tap = register_tap("sccp");
 
+  register_decode_as(&sccp_da);
 }
 
 void

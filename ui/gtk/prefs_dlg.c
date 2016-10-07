@@ -31,6 +31,7 @@
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/epan_dissect.h>
+#include <epan/decode_as.h>
 
 #include "ui/preference_utils.h"
 
@@ -158,6 +159,7 @@ pref_show(pref_t *pref, gpointer user_data)
   switch (pref->type) {
 
   case PREF_UINT:
+  case PREF_DECODE_AS_UINT:
     /* XXX - there are no uint spinbuttons, so we can't use a spinbutton.
        Even more annoyingly, even if there were, GLib doesn't define
        G_MAXUINT - but I think ANSI C may define UINT_MAX, so we could
@@ -224,6 +226,7 @@ pref_show(pref_t *pref, gpointer user_data)
     break;
 
   case PREF_RANGE:
+  case PREF_DECODE_AS_RANGE:
   {
     char *range_str_p;
 
@@ -951,6 +954,7 @@ pref_check(pref_t *pref, gpointer user_data)
   switch (pref->type) {
 
   case PREF_UINT:
+  case PREF_DECODE_AS_UINT:
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
     errno = 0;
 
@@ -989,6 +993,7 @@ pref_check(pref_t *pref, gpointer user_data)
     break;
 
   case PREF_RANGE:
+  case PREF_DECODE_AS_RANGE:
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
 
     if (strlen(str_val) != 0) {
@@ -1039,11 +1044,37 @@ pref_fetch(pref_t *pref, gpointer user_data)
   guint       uval;
   gboolean    bval;
   gint        enumval;
-  gboolean   *pref_changed_p = (gboolean *)user_data;
+  dissector_table_t sub_dissectors;
+  dissector_handle_t handle;
+  module_t *module = (module_t *)user_data;
 
   /* Fetch the value of the preference, and set the appropriate variable
      to it. */
   switch (pref->type) {
+
+  case PREF_DECODE_AS_UINT:
+    str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
+    uval = (guint)strtoul(str_val, &p, pref->info.base);
+#if 0
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;      /* number was bad */
+#endif
+    if (*pref->varp.uint != uval) {
+       module->prefs_changed = TRUE;
+       if (*pref->varp.uint != pref->default_val.uint) {
+          dissector_reset_uint(pref->name, *pref->varp.uint);
+       }
+       *pref->varp.uint = uval;
+
+       sub_dissectors = find_dissector_table(pref->name);
+       if (sub_dissectors != NULL) {
+           handle = dissector_table_get_dissector_handle(sub_dissectors, (gchar*)module->title);
+           if (handle != NULL) {
+              dissector_change_uint(pref->name, *pref->varp.uint, handle);
+           }
+       }
+    }
+    break;
 
   case PREF_UINT:
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
@@ -1053,7 +1084,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
       return PREFS_SET_SYNTAX_ERR;      /* number was bad */
 #endif
     if (*pref->varp.uint != uval) {
-      *pref_changed_p = TRUE;
+      module->prefs_changed = TRUE;
       *pref->varp.uint = uval;
     }
     break;
@@ -1061,7 +1092,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
   case PREF_BOOL:
     bval = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(pref->control));
     if (*pref->varp.boolp != bval) {
-      *pref_changed_p = TRUE;
+      module->prefs_changed = TRUE;
       *pref->varp.boolp = bval;
     }
     break;
@@ -1076,7 +1107,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
     }
 
     if (*pref->varp.enump != enumval) {
-      *pref_changed_p = TRUE;
+      module->prefs_changed = TRUE;
       *pref->varp.enump = enumval;
     }
     break;
@@ -1085,12 +1116,68 @@ pref_fetch(pref_t *pref, gpointer user_data)
   case PREF_FILENAME:
   case PREF_DIRNAME:
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
-    prefs_set_string_like_value(pref, str_val, pref_changed_p);
+    prefs_set_string_like_value(pref, str_val, &module->prefs_changed);
     break;
 
+  case PREF_DECODE_AS_RANGE:
+    {
+    range_t *newrange;
+
+    str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
+
+    if (range_convert_str_work(&newrange, str_val, pref->info.max_value, TRUE) != CVT_NO_ERROR) {
+#if 0
+      return PREFS_SET_SYNTAX_ERR;      /* range was bad */
+#else
+      return 0; /* XXX - should fail */
+#endif
+    }
+
+    if (!ranges_are_equal(*pref->varp.range, newrange)) {
+        guint32 i, j;
+
+        g_free(*pref->varp.range);
+        *pref->varp.range = newrange;
+        module->prefs_changed = TRUE;
+
+        /* Name of preference is the dissector table */
+        sub_dissectors = find_dissector_table(pref->name);
+        if (sub_dissectors != NULL) {
+            handle = dissector_table_get_dissector_handle(sub_dissectors, (gchar*)module->title);
+            if (handle != NULL) {
+                /* Delete all of the old values from the dissector table */
+                for (i = 0; i < (*pref->varp.range)->nranges; i++) {
+                    for (j = (*pref->varp.range)->ranges[i].low; j < (*pref->varp.range)->ranges[i].high; j++) {
+                        dissector_delete_uint(pref->name, j, handle);
+                        decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER(j), NULL, NULL);
+                    }
+
+                    dissector_delete_uint(pref->name, (*pref->varp.range)->ranges[i].high, handle);
+                    decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER((*pref->varp.range)->ranges[i].high), NULL, NULL);
+                }
+
+                /* Add new values to the dissector table */
+                for (i = 0; i < newrange->nranges; i++) {
+                    for (j = newrange->ranges[i].low; j < newrange->ranges[i].high; j++) {
+                        dissector_change_uint(pref->name, j, handle);
+                        decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER(j), NULL, NULL);
+                    }
+
+                    dissector_change_uint(pref->name, newrange->ranges[i].high, handle);
+                    decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER(newrange->ranges[i].high), NULL, NULL);
+                }
+            }
+        }
+
+    } else {
+        g_free(newrange);
+    }
+
+    break;
+    }
   case PREF_RANGE:
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
-    if (!prefs_set_range_value(pref, str_val, pref_changed_p))
+    if (!prefs_set_range_value(pref, str_val, &module->prefs_changed))
 #if 0
       return PREFS_SET_SYNTAX_ERR;      /* range was bad */
 #else
@@ -1127,7 +1214,7 @@ module_prefs_fetch(module_t *module, gpointer user_data)
   /* For all preferences in this module, fetch its value from this
      module's notebook page.  Find out whether any of them changed. */
   module->prefs_changed = FALSE;        /* assume none of them changed */
-  prefs_pref_foreach(module, pref_fetch, &module->prefs_changed);
+  prefs_pref_foreach(module, pref_fetch, module);
 
   /* If any of them changed, indicate that we must redissect and refilter
      the current capture (if we have one), as the preference change
@@ -1374,10 +1461,18 @@ static void prefs_copy(void) {
 static void
 overwrite_existing_prefs_cb(gpointer dialog _U_, gint btn, gpointer parent_w _U_)
 {
+  gchar* err = NULL;
+
   switch (btn) {
     case(ESD_BTN_SAVE):
       prefs_main_write();
       prefs.unknown_prefs = FALSE;
+
+      if (save_decode_as_entries(&err) < 0)
+      {
+          simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);
+          g_free(err);
+      }
       break;
     case(ESD_BTN_DONT_SAVE):
       break;
@@ -1388,6 +1483,8 @@ overwrite_existing_prefs_cb(gpointer dialog _U_, gint btn, gpointer parent_w _U_
 static void
 prefs_main_save(gpointer parent_w)
 {
+  gchar* err = NULL;
+
   if (prefs.unknown_prefs) {
     gpointer dialog;
     const gchar *msg =
@@ -1408,6 +1505,12 @@ prefs_main_save(gpointer parent_w)
     simple_dialog_set_cb(dialog, overwrite_existing_prefs_cb, parent_w);
   } else {
     prefs_main_write();
+
+    if (save_decode_as_entries(&err) < 0)
+    {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);
+        g_free(err);
+    }
   }
 }
 
@@ -1523,6 +1626,7 @@ static guint
 module_prefs_revert(module_t *module, gpointer user_data)
 {
   gboolean *must_redissect_p = (gboolean *)user_data;
+  pref_unstash_data_t unstashed_data;
 
   /* Ignore any preferences with their own interface */
   if (!module->use_gui) {
@@ -1533,7 +1637,9 @@ module_prefs_revert(module_t *module, gpointer user_data)
      it had when we popped up the Preferences dialog.  Find out whether
      this changes any of them. */
   module->prefs_changed = FALSE;        /* assume none of them changed */
-  prefs_pref_foreach(module, pref_unstash, &module->prefs_changed);
+  unstashed_data.module = module;
+  unstashed_data.handle_decode_as = FALSE;
+  prefs_pref_foreach(module, pref_unstash, &unstashed_data);
 
   /* If any of them changed, indicate that we must redissect and refilter
      the current capture (if we have one), as the preference change

@@ -257,8 +257,6 @@ static expert_field ei_selfm_crc16_incorrect = EI_INIT;
 
 static dissector_handle_t selfm_handle;
 
-#define PORT_SELFM    0
-
 #define CMD_FAST_MSG            0xA546
 #define CMD_CLEAR_STATBIT       0xA5B9
 #define CMD_RELAY_DEF           0xA5C0
@@ -347,7 +345,6 @@ static dissector_handle_t selfm_handle;
 /* Globals for SEL Protocol Preferences */
 static gboolean selfm_desegment = TRUE;
 static gboolean selfm_telnet_clean = TRUE;
-static guint global_selfm_tcp_port = PORT_SELFM; /* Port 0, by default */
 static gboolean selfm_crc16 = FALSE;             /* Default CRC16 valdiation to false */
 static const char *selfm_ser_list = NULL;
 
@@ -3092,7 +3089,7 @@ proto_register_selfm(void)
 
 
     /* Register required preferences for SEL Protocol register decoding */
-    selfm_module = prefs_register_protocol(proto_selfm, proto_reg_handoff_selfm);
+    selfm_module = prefs_register_protocol(proto_selfm, NULL);
 
     /*  SEL Protocol - Desegmentmentation; defaults to TRUE for TCP desegmentation*/
     prefs_register_bool_preference(selfm_module, "desegment",
@@ -3105,11 +3102,6 @@ proto_register_selfm(void)
                                   "Remove extra 0xFF (Telnet IAC) bytes",
                                   "Whether the SEL Protocol dissector should automatically pre-process Telnet data to remove duplicate 0xFF IAC bytes",
                                   &selfm_telnet_clean);
-
-    /* SEL Protocol Preference - Default TCP Port, allows for "user" port either than 0. */
-    prefs_register_uint_preference(selfm_module, "tcp.port", "SEL Protocol Port",
-                       "Set the TCP port for SEL FM Protocol packets (if other than the default of 0)",
-                       10, &global_selfm_tcp_port);
 
     /* SEL Protocol Preference - Disable/Enable CRC verification, */
     prefs_register_bool_preference(selfm_module, "crc_verification", "Validate Fast Message CRC16",
@@ -3131,20 +3123,7 @@ proto_register_selfm(void)
 void
 proto_reg_handoff_selfm(void)
 {
-    static int selfm_prefs_initialized = FALSE;
-    static unsigned int selfm_port;
-
-    /* Make sure to use SEL FM Protocol Preferences field to determine default TCP port */
-    if (! selfm_prefs_initialized) {
-        selfm_prefs_initialized = TRUE;
-    }
-    else {
-        dissector_delete_uint("tcp.port", selfm_port, selfm_handle);
-    }
-
-    selfm_port = global_selfm_tcp_port;
-
-    dissector_add_uint("tcp.port", selfm_port, selfm_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", selfm_handle);
     dissector_add_for_decode_as("rtacser.data", selfm_handle);
 }
 

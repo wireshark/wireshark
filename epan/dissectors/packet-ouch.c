@@ -48,7 +48,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 void proto_register_ouch(void);
 void proto_reg_handoff_ouch(void);
@@ -274,9 +273,6 @@ static const value_string ouch_trade_correction_reason_val[] = {
 /* Initialize the protocol and registered fields */
 static int proto_ouch = -1;
 static dissector_handle_t ouch_handle;
-
-static range_t *global_ouch_range = NULL;
-static range_t *ouch_range = NULL;
 
 /* Initialize the subtree pointers */
 static gint ett_ouch = -1;
@@ -1239,19 +1235,6 @@ dissect_ouch(
     return offset;
 }
 
-
-/* Register the protocol with Wireshark */
-
-static void
-ouch_prefs(void)
-{
-    dissector_delete_uint_range("tcp.port", ouch_range, ouch_handle);
-    g_free(ouch_range);
-    ouch_range = range_copy(global_ouch_range);
-    dissector_add_uint_range("tcp.port", ouch_range, ouch_handle);
-}
-
-
 /** Returns a guess if a packet is OUCH or not
  *
  * Since SOUP doesn't have a sub-protocol type flag, we have to use a
@@ -1387,8 +1370,6 @@ dissect_ouch_heur(
 void
 proto_register_ouch(void)
 {
-    module_t *ouch_module;
-
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
 
@@ -1591,16 +1572,6 @@ proto_register_ouch(void)
      * subtrees used */
     proto_register_field_array(proto_ouch, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    ouch_module = prefs_register_protocol(proto_ouch, ouch_prefs);
-
-    prefs_register_range_preference(ouch_module,
-                                    "tcp.port",
-                                    "TCP Ports",
-                                    "TCP Ports range",
-                                    &global_ouch_range,
-                                    65535);
-    ouch_range = range_empty();
 }
 
 
@@ -1613,6 +1584,7 @@ proto_reg_handoff_ouch(void)
 {
     ouch_handle = create_dissector_handle(dissect_ouch, proto_ouch);
     heur_dissector_add("soupbintcp", dissect_ouch_heur, "OUCH over SoupBinTCP", "ouch_soupbintcp", proto_ouch, HEURISTIC_ENABLE);
+    dissector_add_uint_range_with_preference("tcp.port", "", ouch_handle);
 }
 
 

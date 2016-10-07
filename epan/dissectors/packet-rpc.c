@@ -69,6 +69,8 @@
 void proto_register_rpc(void);
 void proto_reg_handoff_rpc(void);
 
+#define RPC_TCP_PORT 111
+
 /* desegmentation of RPC over TCP */
 static gboolean rpc_desegment = TRUE;
 
@@ -4434,7 +4436,7 @@ proto_reg_handoff_rpc(void)
 	   to match some port for which we have a dissector)
 	*/
 	rpc_tcp_handle = find_dissector("rpc-tcp");
-	dissector_add_uint("tcp.port", 111, rpc_tcp_handle);
+	dissector_add_uint_with_preference("tcp.port", RPC_TCP_PORT, rpc_tcp_handle);
 	rpc_handle = find_dissector("rpc");
 	dissector_add_uint("udp.port", 111, rpc_handle);
 

@@ -610,7 +610,7 @@ void proto_reg_handoff_h245(void) {
 	amr_handle = find_dissector("amr_if2_nb");
 
 
-	dissector_add_for_decode_as("tcp.port", h245_handle);
+	dissector_add_for_decode_as_with_preference("tcp.port", h245_handle);
 	dissector_add_for_decode_as("udp.port", MultimediaSystemControlMessage_handle);
 }
 

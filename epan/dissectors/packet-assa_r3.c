@@ -28,6 +28,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/range.h>
 #include <epan/crc16-tvb.h>
 #include "packet-tcp.h"
 
@@ -1029,6 +1030,8 @@ typedef enum
 }
 userType_e;
 
+
+#define ASSA_R3_PORT_RANGE "2571,8023" /* Neither are IANA registered */
 
 /*
  *  Wireshark ID of the R3 protocol
@@ -10103,8 +10106,8 @@ void proto_register_r3 (void)
 void proto_reg_handoff_r3 (void)
 {
   dissector_handle_t r3_handle = find_dissector ("r3");
-  dissector_add_uint ("tcp.port", 2571, r3_handle);
-  dissector_add_uint ("tcp.port", 8023, r3_handle);
+
+  dissector_add_uint_range_with_preference("tcp.port", ASSA_R3_PORT_RANGE, r3_handle);
 }
 
 /*

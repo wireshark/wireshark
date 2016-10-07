@@ -373,9 +373,6 @@ static expert_field ei_iso8583_MALFORMED = EI_INIT;
 
 static struct iso_type *data_array = NULL;
 
-/* Global port preference */
-#define iso8583_TCP_PORT 0
-
 /* Types definitions */
 #define ASCII_CHARSET 1
 #define NUM_NIBBLE_CHARSET 2
@@ -383,7 +380,6 @@ static struct iso_type *data_array = NULL;
 #define BIN_BIN_ENC 2
 
 /* Global preference */
-static guint tcp_port_pref = iso8583_TCP_PORT;
 static gint charset_pref = ASCII_CHARSET;
 static gint bin_encode_pref = BIN_ASCII_ENC;
 
@@ -1343,20 +1339,13 @@ proto_register_iso8583(void)
   expert_register_field_array(expert_iso8583, ei, array_length(ei));
 
   /* Register preferences module */
-  iso8583_module = prefs_register_protocol(proto_iso8583,
-      proto_reg_handoff_iso8583);
+  iso8583_module = prefs_register_protocol(proto_iso8583, NULL);
 
   prefs_register_enum_preference(iso8583_module, "len_endian",
       "Length field endian",
       "Endian of the length field. Big endian or Little endian",
       &len_byte_order,
       enumendians, TRUE);
-
-  /* Register port preference */
-  prefs_register_uint_preference(iso8583_module, "tcp.port",
-      "iso8583 TCP Port",
-      " iso8583 TCP port",
-      10, &tcp_port_pref);
 
   prefs_register_enum_preference(iso8583_module, "charset",
       "Charset for numbers",
@@ -1371,22 +1360,11 @@ proto_register_iso8583(void)
 
 void proto_reg_handoff_iso8583(void)
 {
-  static gboolean initialized = FALSE;
-  static dissector_handle_t iso8583_handle;
-  static int current_port;
+  dissector_handle_t iso8583_handle;
 
-  if (!initialized) {
-    iso8583_handle = create_dissector_handle(dissect_iso8583,
-        proto_iso8583);
-    initialized = TRUE;
+  iso8583_handle = create_dissector_handle(dissect_iso8583, proto_iso8583);
 
-  } else {
-    dissector_delete_uint("tcp.port", current_port, iso8583_handle);
-  }
-
-  current_port = tcp_port_pref;
-
-  dissector_add_uint("tcp.port", current_port, iso8583_handle);
+  dissector_add_for_decode_as_with_preference("tcp.port", iso8583_handle);
 }
 
 /*

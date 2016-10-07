@@ -3081,6 +3081,11 @@ proto_register_iscsi(void)
 /* #endif */
     };
 
+    static ei_register_info ei[] = {
+        { &ei_iscsi_keyvalue_invalid, { "iscsi.keyvalue.invalid", PI_MALFORMED, PI_ERROR,
+            "Invalid key/value pair", EXPFILL }}
+    };
+
     /* Register the protocol name and description */
     proto_iscsi = proto_register_protocol("iSCSI", "iSCSI", "iscsi");
     iscsi_handle = register_dissector("iscsi", dissect_iscsi_handle, proto_iscsi);
@@ -3160,11 +3165,6 @@ proto_register_iscsi(void)
     prefs_register_obsolete_preference(iscsi_module,
                                        "enable_data_digests");
 
-    static ei_register_info ei[] = {
-        { &ei_iscsi_keyvalue_invalid, { "iscsi.keyvalue.invalid", PI_MALFORMED, PI_ERROR,
-            "Invalid key/value pair", EXPFILL }}
-    };
-
     expert_iscsi = expert_register_protocol(proto_iscsi);
     expert_register_field_array(expert_iscsi, ei, array_length(ei));
 }
@@ -3184,7 +3184,7 @@ proto_reg_handoff_iscsi(void)
 {
     heur_dissector_add("tcp", dissect_iscsi_heur, "iSCSI over TCP", "iscsi_tcp", proto_iscsi, HEURISTIC_ENABLE);
 
-    dissector_add_for_decode_as("tcp.port", iscsi_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", iscsi_handle);
 }
 
 /*

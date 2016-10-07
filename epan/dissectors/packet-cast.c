@@ -29,7 +29,7 @@
 
 #include "packet-tcp.h"
 
-#define TCP_PORT_CAST 4224
+#define TCP_PORT_CAST 4224 /* Not IANA registered */
 
 void proto_register_cast(void);
 void proto_reg_handoff_cast(void);
@@ -1709,7 +1709,7 @@ proto_reg_handoff_cast(void)
   dissector_handle_t cast_handle;
 
   cast_handle = create_dissector_handle(dissect_cast, proto_cast);
-  dissector_add_uint("tcp.port", TCP_PORT_CAST, cast_handle);
+  dissector_add_uint_with_preference("tcp.port", TCP_PORT_CAST, cast_handle);
 }
 
 /*

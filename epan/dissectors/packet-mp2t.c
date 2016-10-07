@@ -1552,7 +1552,7 @@ proto_reg_handoff_mp2t(void)
     heur_dissector_add("udp", heur_dissect_mp2t, "MP2T over UDP", "mp2t_udp", proto_mp2t, HEURISTIC_ENABLE);
 
     dissector_add_uint("rtp.pt", PT_MP2T, mp2t_handle);
-    dissector_add_for_decode_as("tcp.port", mp2t_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", mp2t_handle);
     dissector_add_for_decode_as("udp.port", mp2t_handle);
     heur_dissector_add("usb.bulk", heur_dissect_mp2t, "MP2T USB bulk endpoint", "mp2t_usb_bulk", proto_mp2t, HEURISTIC_ENABLE);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_MPEG_2_TS, mp2t_handle);

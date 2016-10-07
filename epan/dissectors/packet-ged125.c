@@ -155,7 +155,6 @@ static expert_field ei_ged125_TrunkCount_invalid = EI_INIT;
 static dissector_handle_t ged125_handle;
 
 /* Preferences */
-static guint global_tcp_port_ged125 = 0;
 static gboolean ged125_desegment_body = TRUE;
 
 #define GED125_FAILURE_CONF_VALUE 1
@@ -1756,10 +1755,6 @@ proto_register_ged125 (void)
 
 	ged125_module = prefs_register_protocol(proto_ged125, NULL);
 
-	prefs_register_uint_preference(ged125_module, "tcp_port","GED125 TCP Port",
-							"Set up the TCP port for GED125",
-							10, &global_tcp_port_ged125);
-
 	prefs_register_bool_preference(ged125_module, "desegment_body",
 		 "Reassemble GED125 bodies spanning multiple TCP segments",
 		 "Whether the GED125 dissector should desegment all messages spanning multiple TCP segments",
@@ -1769,17 +1764,8 @@ proto_register_ged125 (void)
 void
 proto_reg_handoff_ged125(void)
 {
-	static guint old_ged125_tcp_port = 0;
-
 	/* Register TCP port for dissection */
-	if (old_ged125_tcp_port != 0 && old_ged125_tcp_port != global_tcp_port_ged125)
-		dissector_delete_uint("tcp.port", old_ged125_tcp_port, ged125_handle);
-
-
-	if (global_tcp_port_ged125 != 0 && old_ged125_tcp_port != global_tcp_port_ged125)
-		dissector_add_uint("tcp.port", global_tcp_port_ged125, ged125_handle);
-
-	old_ged125_tcp_port = global_tcp_port_ged125;
+	dissector_add_for_decode_as_with_preference("tcp.port", ged125_handle);
 }
 
 /*

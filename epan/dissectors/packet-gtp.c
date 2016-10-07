@@ -10106,6 +10106,8 @@ proto_reg_handoff_gtp(void)
     dissector_add_uint("udp.port", g_gtpv1u_port, gtp_handle);
 
     if (g_gtp_over_tcp) {
+        /* This doesn't use the "auto preference" API because the port
+           description is too specific */
         dissector_add_uint("tcp.port", g_gtpv0_port, gtp_prime_handle);
         dissector_add_uint("tcp.port", g_gtpv1c_port, gtp_handle);
         dissector_add_uint("tcp.port", g_gtpv1u_port, gtp_handle);

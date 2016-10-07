@@ -31,7 +31,7 @@
 void proto_register_ipsictl(void);
 void proto_reg_handoff_ipsictl(void);
 
-#define IPSICTL_PORT            5010
+#define IPSICTL_PORT            5010 /* Not IANA registered */
 #define IPSICTL_PDU_MAGIC       0x0300
 
 static int proto_ipsictl = -1;
@@ -237,7 +237,7 @@ void proto_reg_handoff_ipsictl(void)
 
   ipsictl_handle = create_dissector_handle(dissect_ipsictl, proto_ipsictl);
 
-  dissector_add_uint("tcp.port", IPSICTL_PORT, ipsictl_handle);
+  dissector_add_uint_with_preference("tcp.port", IPSICTL_PORT, ipsictl_handle);
 
 }
 

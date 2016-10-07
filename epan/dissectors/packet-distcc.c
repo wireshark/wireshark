@@ -53,8 +53,6 @@ static gboolean distcc_desegment = TRUE;
 
 #define TCP_PORT_DISTCC 3632
 
-static guint glb_distcc_tcp_port = TCP_PORT_DISTCC;
-
 void proto_register_distcc(void);
 extern void proto_reg_handoff_distcc(void);
 
@@ -366,13 +364,8 @@ proto_register_distcc(void)
     expert_distcc = expert_register_protocol(proto_distcc);
     expert_register_field_array(expert_distcc, ei, array_length(ei));
 
-    distcc_module = prefs_register_protocol(proto_distcc,
-        proto_reg_handoff_distcc);
-    prefs_register_uint_preference(distcc_module, "tcp.port",
-                   "DISTCC TCP Port",
-                   "Set the TCP port for DISTCC messages",
-                   10,
-                   &glb_distcc_tcp_port);
+    distcc_module = prefs_register_protocol(proto_distcc, NULL);
+
     prefs_register_bool_preference(distcc_module, "desegment_distcc_over_tcp",
         "Reassemble DISTCC-over-TCP messages\nspanning multiple TCP segments",
         "Whether the DISTCC dissector should reassemble messages spanning multiple TCP segments."
@@ -383,28 +376,10 @@ proto_register_distcc(void)
 void
 proto_reg_handoff_distcc(void)
 {
-    static gboolean registered_dissector = FALSE;
-    static int distcc_tcp_port;
-    static dissector_handle_t distcc_handle;
+    dissector_handle_t distcc_handle;
 
-    if (!registered_dissector) {
-        /*
-         * We haven't registered the dissector yet; get a handle
-         * for it.
-         */
-        distcc_handle = create_dissector_handle(dissect_distcc,
-            proto_distcc);
-        registered_dissector = TRUE;
-    } else {
-        /*
-         * We've registered the dissector with a TCP port number
-         * of "distcc_tcp_port"; we might be changing the TCP port
-         * number, so remove that registration.
-         */
-        dissector_delete_uint("tcp.port", distcc_tcp_port, distcc_handle);
-    }
-    distcc_tcp_port = glb_distcc_tcp_port;
-    dissector_add_uint("tcp.port", distcc_tcp_port, distcc_handle);
+    distcc_handle = create_dissector_handle(dissect_distcc, proto_distcc);
+    dissector_add_uint_with_preference("tcp.port", TCP_PORT_DISTCC, distcc_handle);
 }
 
 /*

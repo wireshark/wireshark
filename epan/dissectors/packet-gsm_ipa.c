@@ -77,7 +77,6 @@ void proto_reg_handoff_gsm_ipa(void);
 
 static dissector_handle_t ipa_tcp_handle;
 static dissector_handle_t ipa_udp_handle;
-static range_t *global_ipa_tcp_ports = NULL;
 static range_t *global_ipa_udp_ports = NULL;
 static gboolean global_ipa_in_root = FALSE;
 static gboolean global_ipa_in_info = FALSE;
@@ -458,16 +457,9 @@ void proto_register_ipa(void)
 					FT_UINT8, BASE_DEC);
 
 
-	range_convert_str(&global_ipa_tcp_ports, IPA_TCP_PORTS, MAX_TCP_PORT);
 	range_convert_str(&global_ipa_udp_ports, IPA_UDP_PORTS_DEFAULT, MAX_UDP_PORT);
-	ipa_module = prefs_register_protocol(proto_ipa,
-					     proto_reg_handoff_gsm_ipa);
+	ipa_module = prefs_register_protocol(proto_ipa, proto_reg_handoff_gsm_ipa);
 
-	prefs_register_range_preference(ipa_module, "tcp_ports",
-					"GSM IPA TCP Port(s)",
-					"Set the port(s) for ip.access IPA"
-					" (default: " IPA_TCP_PORTS ")",
-					&global_ipa_tcp_ports, MAX_TCP_PORT);
 	prefs_register_range_preference(ipa_module, "udp_ports",
 					"GSM IPA UDP Port(s)",
 					"Set the port(s) for ip.access IPA"
@@ -485,7 +477,7 @@ void proto_register_ipa(void)
 void proto_reg_handoff_gsm_ipa(void)
 {
 	static gboolean ipa_initialized = FALSE;
-	static range_t *ipa_tcp_ports, *ipa_udp_ports;
+	static range_t *ipa_udp_ports;
 
 	if (!ipa_initialized) {
 		sub_handles[SUB_RSL] = find_dissector_add_dependency("gsm_abis_rsl", proto_ipa);
@@ -496,19 +488,16 @@ void proto_reg_handoff_gsm_ipa(void)
 
 		ipa_tcp_handle = create_dissector_handle(dissect_ipa_tcp, proto_ipa);
 		ipa_udp_handle = create_dissector_handle(dissect_ipa_udp, proto_ipa);
+		dissector_add_uint_range_with_preference("tcp.port", IPA_TCP_PORTS, ipa_tcp_handle);
 		ipa_initialized = TRUE;
 	} else {
-		dissector_delete_uint_range("tcp.port", ipa_tcp_ports, ipa_tcp_handle);
-		g_free(ipa_tcp_ports);
 		dissector_delete_uint_range("udp.port", ipa_udp_ports, ipa_udp_handle);
 		g_free(ipa_udp_ports);
 	}
 
-	ipa_tcp_ports = range_copy(global_ipa_tcp_ports);
 	ipa_udp_ports = range_copy(global_ipa_udp_ports);
 
 	dissector_add_uint_range("udp.port", ipa_udp_ports, ipa_udp_handle);
-	dissector_add_uint_range("tcp.port", ipa_tcp_ports, ipa_tcp_handle);
 }
 
 /*

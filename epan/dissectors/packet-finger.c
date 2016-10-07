@@ -202,7 +202,7 @@ proto_reg_handoff_finger(void)
     static dissector_handle_t finger_handle;
 
     finger_handle = create_dissector_handle(dissect_finger, proto_finger);
-    dissector_add_uint("tcp.port", FINGER_PORT, finger_handle);
+    dissector_add_uint_with_preference("tcp.port", FINGER_PORT, finger_handle);
 }
 
 /*

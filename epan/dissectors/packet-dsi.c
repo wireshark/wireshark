@@ -117,7 +117,7 @@ static gboolean dsi_desegment = TRUE;
 static dissector_handle_t afp_handle;
 static dissector_handle_t afp_server_status_handle;
 
-#define TCP_PORT_DSI      548
+#define TCP_PORT_DSI      548 /* Not IANA registered */
 
 #define DSI_BLOCKSIZ       16
 
@@ -478,7 +478,7 @@ proto_reg_handoff_dsi(void)
 	dissector_handle_t dsi_handle;
 
 	dsi_handle = create_dissector_handle(dissect_dsi, proto_dsi);
-	dissector_add_uint("tcp.port", TCP_PORT_DSI, dsi_handle);
+	dissector_add_uint_with_preference("tcp.port", TCP_PORT_DSI, dsi_handle);
 
 	afp_handle = find_dissector_add_dependency("afp", proto_dsi);
 	afp_server_status_handle = find_dissector_add_dependency("afp_server_status", proto_dsi);

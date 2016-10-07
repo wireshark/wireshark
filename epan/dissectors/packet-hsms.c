@@ -1,4 +1,4 @@
-/* packet-HSMS.c
+/* packet-hsms.c
  * Routines for High-speed SECS message service dissection
  * Copyright 2016, Benjamin Parzella <bparzella@gmail.com>
  *
@@ -766,7 +766,7 @@ proto_reg_handoff_hsms(void)
 
     hsms_handle = create_dissector_handle(dissect_hsms, proto_hsms);
 
-    dissector_add_for_decode_as("tcp.port", hsms_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", hsms_handle);
 }
 
 /*

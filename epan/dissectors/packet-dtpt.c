@@ -136,7 +136,7 @@ static dissector_handle_t	dtpt_conversation_handle;
 
 
 /* Server port */
-static unsigned int gbl_dtptServerPort=5721;
+#define TCP_SERVER_PORT     5721
 
 static const value_string names_message_type[] = {
 #define LookupBeginRequest 9
@@ -1166,7 +1166,6 @@ proto_register_dtpt(void)
 		&ett_dtpt_blobraw,
 		&ett_dtpt_blob,
 	};
-	module_t *dtpt_module;
 	e_guid_t guid_svcid_inet_hostaddrbyname       = {0x0002A803, 0x0000, 0x0000, {0xC0,0,0,0,0,0,0,0x46}};
 	e_guid_t guid_svcid_inet_hostaddrbyinetstring = {0x0002A801, 0x0000, 0x0000, {0xC0,0,0,0,0,0,0,0x46}};
 	guids_add_guid(&guid_svcid_inet_hostaddrbyname,       "SVCID_INET_HOSTADDRBYNAME");
@@ -1176,38 +1175,19 @@ proto_register_dtpt(void)
 					     "DTPT", "dtpt");
 	proto_register_field_array(proto_dtpt, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	/* Register a configuration option for port */
-	dtpt_module = prefs_register_protocol(proto_dtpt,
-					      proto_reg_handoff_dtpt);
-	prefs_register_uint_preference(dtpt_module, "tcp.port",
-				       "DTPT Server TCP Port",
-				       "Set the TDP port for the DTPT Server",
-				       10, &gbl_dtptServerPort);
 }
 
 
 void
 proto_reg_handoff_dtpt(void)
 {
-	static dissector_handle_t	dtpt_handle;
-	static gboolean Initialized=FALSE;
-	static int ServerPort;
+	dissector_handle_t	dtpt_handle;
 
-	if (!Initialized) {
-		dtpt_handle = create_dissector_handle(dissect_dtpt, proto_dtpt);
-		dtpt_conversation_handle = create_dissector_handle(dissect_dtpt_conversation, proto_dtpt);
-/**		dtpt_data_handle = create_dissector_handle(dissect_dtpt_data, proto_dtpt); **/
+	dtpt_handle = create_dissector_handle(dissect_dtpt, proto_dtpt);
+	dtpt_conversation_handle = create_dissector_handle(dissect_dtpt_conversation, proto_dtpt);
+/**	dtpt_data_handle = create_dissector_handle(dissect_dtpt_data, proto_dtpt); **/
 
-		Initialized=TRUE;
-	} else {
-		dissector_delete_uint("tcp.port", ServerPort, dtpt_handle);
-	}
-
-	/* set port for future deletes */
-	ServerPort=gbl_dtptServerPort;
-
-	dissector_add_uint("tcp.port", gbl_dtptServerPort, dtpt_handle);
+	dissector_add_uint_with_preference("tcp.port", TCP_SERVER_PORT, dtpt_handle);
 }
 
 /*

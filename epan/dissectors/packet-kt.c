@@ -142,7 +142,6 @@ static const value_string kt_oper_vals[] = {
  * default configuration of the KT server all the same.
  */
 #define DEFAULT_KT_PORT_RANGE "1978-1979"
-static range_t *global_kt_tcp_port_range;
 static gboolean kt_present_key_val_as_ascii;
 
 /* Dissection routines */
@@ -780,18 +779,12 @@ proto_register_kt(void)
     };
 
     proto_kt = proto_register_protocol("Kyoto Tycoon Protocol", "Kyoto Tycoon", "kt");
-    register_dissector("kt", dissect_kt, proto_kt);
+    kt_handle = register_dissector("kt", dissect_kt, proto_kt);
     proto_register_field_array(proto_kt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Preferences */
-    kt_module = prefs_register_protocol(proto_kt, proto_reg_handoff_kt);
-
-    range_convert_str(&global_kt_tcp_port_range, DEFAULT_KT_PORT_RANGE, MAX_TCP_PORT);
-    prefs_register_range_preference(kt_module, "tcp.ports", "Kyoto Tycoon TCP ports",
-                                    "TCP ports to be decoded as Kyoto Tycoon (binary protocol) (default: "
-                                    DEFAULT_KT_PORT_RANGE ")",
-                                    &global_kt_tcp_port_range, MAX_TCP_PORT);
+    kt_module = prefs_register_protocol(proto_kt, NULL);
 
     prefs_register_bool_preference(kt_module, "present_key_val_as_ascii",
                                    "Attempt to also show ASCII string representation of keys and values",
@@ -802,20 +795,7 @@ proto_register_kt(void)
 void
 proto_reg_handoff_kt(void)
 {
-    static gboolean Initialized = FALSE;
-    static range_t *kt_tcp_port_range;
-
-    if (!Initialized) {
-        kt_handle = find_dissector("kt");
-        Initialized = TRUE;
-    }
-    else {
-        dissector_delete_uint_range("tcp.port", kt_tcp_port_range, kt_handle);
-        g_free(kt_tcp_port_range);
-    }
-
-    kt_tcp_port_range = range_copy(global_kt_tcp_port_range);
-    dissector_add_uint_range("tcp.port", kt_tcp_port_range, kt_handle);
+    dissector_add_uint_range_with_preference("tcp.port", DEFAULT_KT_PORT_RANGE, kt_handle);
 }
 
 /*

@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
@@ -39,7 +40,7 @@
 #include <wsutil/ws_printf.h> /* ws_debug_printf */
 #endif
 
-#define TCP_PORT_BEEP 10288
+#define TCP_PORT_BEEP 10288 /* Don't think this is IANA registered */
 
 void proto_register_beep(void);
 void proto_reg_handoff_beep(void);
@@ -889,6 +890,14 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   return tvb_captured_length(tvb);
 }
 
+static void
+apply_beep_prefs(void)
+{
+  /* Beep uses the port preference to determine client/server */
+  pref_t *beep_port = prefs_find_preference(prefs_find_module("beep"), "tcp.port");
+  global_beep_tcp_port = *beep_port->varp.uint;
+}
+
 /* Register all the bits needed with the filtering engine */
 
 void
@@ -987,12 +996,7 @@ proto_register_beep(void)
 
   /* Register our configuration options for BEEP, particularly our port */
 
-  beep_module = prefs_register_protocol(proto_beep, proto_reg_handoff_beep);
-
-  prefs_register_uint_preference(beep_module, "tcp.port", "BEEP TCP Port",
-                                 "Set the port for BEEP messages (if other"
-                                 " than the default of 10288)",
-                                 10, &global_beep_tcp_port);
+  beep_module = prefs_register_protocol(proto_beep, apply_beep_prefs);
 
   prefs_register_bool_preference(beep_module, "strict_header_terminator",
                                  "BEEP Header Requires CRLF",
@@ -1005,28 +1009,11 @@ proto_register_beep(void)
 void
 proto_reg_handoff_beep(void)
 {
-  static gboolean beep_prefs_initialized = FALSE;
-  static dissector_handle_t beep_handle;
-  static guint beep_tcp_port;
+  dissector_handle_t beep_handle;
 
-  if (!beep_prefs_initialized) {
+  beep_handle = create_dissector_handle(dissect_beep, proto_beep);
 
-    beep_handle = create_dissector_handle(dissect_beep, proto_beep);
-
-    beep_prefs_initialized = TRUE;
-
-  }
-  else {
-
-    dissector_delete_uint("tcp.port", beep_tcp_port, beep_handle);
-
-  }
-
-  /* Set our port number for future use */
-
-  beep_tcp_port = global_beep_tcp_port;
-
-  dissector_add_uint("tcp.port", global_beep_tcp_port, beep_handle);
+  dissector_add_uint_with_preference("tcp.port", TCP_PORT_BEEP, beep_handle);
 
 }
 

@@ -73,7 +73,6 @@ static void dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *sim
 static guint proto_simulcrypt = -1;
 
 /* Preferences (with default values) */
-static guint global_simulcrypt_tcp_port = 0;   /* Simulcrypt registered only if pref set to non-zero value */
 static guint global_simulcrypt_udp_port = 0;   /* Simulcrypt registered only if pref set to non-zero value */
 static int ca_system_id_mikey = CA_SYSTEM_ID_MIKEY; /* MIKEY ECM CA_system_ID */
 
@@ -1838,10 +1837,6 @@ proto_register_simulcrypt (void)
 	/*  called when preferences are applied.                                     */
 	simulcrypt_module = prefs_register_protocol(proto_simulcrypt, proto_reg_handoff_simulcrypt);
 
-	prefs_register_uint_preference(simulcrypt_module, "tcp.port", "Simulcrypt TCP Port",
-				 "Set the TCP port for Simulcrypt messages ('0' means no port is assigned)",
-				 10, &global_simulcrypt_tcp_port);
-
 	prefs_register_uint_preference(simulcrypt_module, "udp.port", "Simulcrypt UDP Port",
 				 "Set the UDP port for Simulcrypt messages ('0' means no port is assigned)",
 				 10, &global_simulcrypt_udp_port);
@@ -1856,7 +1851,7 @@ proto_reg_handoff_simulcrypt(void)
 {
 	static gboolean initialized=FALSE;
 	static dissector_handle_t simulcrypt_handle;
-	static guint tcp_port, udp_port;
+	static guint udp_port;
 	guint  i;
 
 	if (!initialized) {
@@ -1865,21 +1860,17 @@ proto_reg_handoff_simulcrypt(void)
 		{
 			tab_ecm_inter[i].protocol_handle = find_dissector(tab_ecm_inter[i].protocol_name);
 		}
-		dissector_add_for_decode_as("tcp.port", simulcrypt_handle);
 		dissector_add_for_decode_as("udp.port", simulcrypt_handle);
+		dissector_add_for_decode_as_with_preference("tcp.port", simulcrypt_handle);
 		initialized = TRUE;
 	}
 	else {
-		dissector_delete_uint("tcp.port", tcp_port, simulcrypt_handle);
 		dissector_delete_uint("udp.port", udp_port, simulcrypt_handle);
 	}
-	if (global_simulcrypt_tcp_port != 0) {
-		dissector_add_uint("tcp.port", global_simulcrypt_tcp_port, simulcrypt_handle);
-	}
+
 	if (global_simulcrypt_udp_port != 0) {
 		dissector_add_uint("udp.port", global_simulcrypt_udp_port, simulcrypt_handle);
 	}
-	tcp_port = global_simulcrypt_tcp_port;
 	udp_port = global_simulcrypt_udp_port;
 
 	/* update tab_ecm_inter table (always do this) */

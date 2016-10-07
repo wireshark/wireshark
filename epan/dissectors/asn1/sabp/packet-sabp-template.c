@@ -73,6 +73,8 @@ static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
 static guint8 sms_encoding;
 
+#define SABP_PORT 3452
+
 /* desegmentation of sabp over TCP */
 static gboolean gbl_sabp_desegment = TRUE;
 
@@ -286,8 +288,8 @@ void proto_register_sabp(void) {
 void
 proto_reg_handoff_sabp(void)
 {
-  dissector_add_uint("udp.port", 3452, sabp_handle);
-  dissector_add_uint("tcp.port", 3452, sabp_tcp_handle);
+  dissector_add_uint("udp.port", SABP_PORT, sabp_handle);
+  dissector_add_uint_with_preference("tcp.port", SABP_PORT, sabp_tcp_handle);
   dissector_add_uint("sctp.ppi", SABP_PAYLOAD_PROTOCOL_ID, sabp_handle);
 
 #include "packet-sabp-dis-tab.c"

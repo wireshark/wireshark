@@ -3801,7 +3801,7 @@ proto_reg_handoff_llrp(void)
     dissector_handle_t llrp_handle;
 
     llrp_handle = create_dissector_handle(dissect_llrp, proto_llrp);
-    dissector_add_uint("tcp.port", LLRP_PORT, llrp_handle);
+    dissector_add_uint_with_preference("tcp.port", LLRP_PORT, llrp_handle);
 }
 
 

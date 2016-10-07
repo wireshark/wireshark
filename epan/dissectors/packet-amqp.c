@@ -53,7 +53,7 @@ void proto_register_amqp(void);
 void proto_reg_handoff_amqp(void);
 /*  Generic data  */
 
-static guint amqp_port = 5672;
+#define AMQP_PORT   5672
 static guint amqps_port = 5671; /* AMQP over TLS/SSL */
 
 /*  Generic defines  */
@@ -13977,11 +13977,7 @@ proto_register_amqp(void)
     expert_register_field_array(expert_amqp, ei, array_length(ei));
 
     amqp_module = prefs_register_protocol(proto_amqp, proto_reg_handoff_amqp);
-    prefs_register_uint_preference(amqp_module, "tcp.port",
-                                   "AMQP listening TCP Port",
-                                   "Set the TCP port for AMQP"
-                                   "(if other than the default of 5672)",
-                                   10, &amqp_port);
+
     prefs_register_uint_preference(amqp_module, "ssl.port",
                                    "AMQPS listening TCP Port",
                                    "Set the TCP port for AMQP over TLS/SSL"
@@ -13993,29 +13989,20 @@ void
 proto_reg_handoff_amqp(void)
 {
     static dissector_handle_t amqp_tcp_handle;
-    static guint old_amqp_port = 0;
     static guint old_amqps_port = 0;
+    static gboolean initialize = FALSE;
 
     amqp_tcp_handle = find_dissector("amqp");
 
-    /* Register TCP port for dissection */
-    if (old_amqp_port != 0 && old_amqp_port != amqp_port){
-        dissector_delete_uint("tcp.port", old_amqp_port, amqp_tcp_handle);
-    }
-
-    if (amqp_port != 0 && old_amqp_port != amqp_port) {
-        old_amqp_port = amqp_port;
-        dissector_add_uint("tcp.port", amqp_port, amqp_tcp_handle);
+    if (!initialize) {
+        /* Register TCP port for dissection */
+        dissector_add_uint_with_preference("tcp.port", AMQP_PORT, amqp_tcp_handle);
+        initialize = TRUE;
     }
 
     /* Register for TLS/SSL payload dissection */
     if (old_amqps_port != 0 && old_amqps_port != amqps_port){
         ssl_dissector_delete(old_amqps_port, amqp_tcp_handle);
-    }
-
-    if (amqps_port != 0 && old_amqps_port != amqps_port) {
-        old_amqps_port = amqps_port;
-        ssl_dissector_add(amqps_port, amqp_tcp_handle);
     }
 }
 

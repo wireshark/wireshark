@@ -2082,7 +2082,7 @@ void proto_reg_handoff_vsip(void)
 
     vsip_handle = create_dissector_handle(dissect_vsip, proto_vsip);
     dissector_add_for_decode_as("udp.port", vsip_handle);
-    dissector_add_for_decode_as("tcp.port", vsip_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", vsip_handle);
 }
 
 /*

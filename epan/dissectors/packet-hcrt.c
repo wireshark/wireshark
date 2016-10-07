@@ -500,7 +500,7 @@ void proto_reg_handoff_hcrt(void)
         hcrt_handle = create_dissector_handle(dissect_hcrt, proto_hcrt);
         /* Also register as a dissector that can be selected by a TCP port number via
         "decode as" */
-        dissector_add_for_decode_as("tcp.port", hcrt_handle);
+        dissector_add_for_decode_as_with_preference("tcp.port", hcrt_handle);
         hcrt_prefs_initialized = TRUE;
     } else {
         dissector_delete_uint("ethertype", hcrt_ethertype, hcrt_handle);

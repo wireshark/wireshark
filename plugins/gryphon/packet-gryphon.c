@@ -38,6 +38,8 @@
 void proto_register_gryphon(void);
 void proto_reg_handoff_gryphon(void);
 
+#define GRYPHON_TCP_PORT 7000 /* Not IANA registed */
+
 static int proto_gryphon = -1;
 
 static int hf_gryphon_src = -1;
@@ -2847,7 +2849,7 @@ proto_reg_handoff_gryphon(void)
     dissector_handle_t gryphon_handle;
 
     gryphon_handle = create_dissector_handle(dissect_gryphon, proto_gryphon);
-    dissector_add_uint("tcp.port", 7000, gryphon_handle);
+    dissector_add_uint_with_preference("tcp.port", GRYPHON_TCP_PORT, gryphon_handle);
 }
 
 /*

@@ -31,7 +31,7 @@
 void proto_reg_handoff_opa_fe(void);
 void proto_register_opa_fe(void);
 
-#define OPA_FE_TCP_RANGE "3245-3248"
+#define OPA_FE_TCP_RANGE "3245-3248" /* Not IANA registered */
 #define OPA_FE_SSL_RANGE "3249-3252"
 
 /* Wireshark ID */
@@ -51,10 +51,8 @@ static gint hf_opa_fe_Reserved64 = -1;
 static dissector_handle_t opa_fe_handle;
 static dissector_handle_t opa_mad_handle;
 
-static range_t *global_fe_tcp_range = NULL;
 static range_t *global_fe_ssl_range = NULL;
 
-static range_t *fe_tcp_range = NULL;
 static range_t *fe_ssl_range = NULL;
 
 static int dissect_opa_fe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -142,26 +140,24 @@ void proto_register_opa_fe(void)
     prefs_register_range_preference(opa_fe_module, "ssl.port", "SSL/TLS Ports",
         "SSL/TLS Ports range",
         &global_fe_ssl_range, 65535);
-    range_convert_str(&global_fe_tcp_range, OPA_FE_TCP_RANGE, 65535);
-    fe_tcp_range = range_empty();
-    prefs_register_range_preference(opa_fe_module, "tcp.port", "TCP Ports",
-        "TCP Ports range",
-        &global_fe_tcp_range, 65535);
 }
 
 void proto_reg_handoff_opa_fe(void)
 {
-    opa_mad_handle = find_dissector("opa.mad");
+    static gboolean initialized = FALSE;
+
+    if (!initialized)
+    {
+        opa_mad_handle = find_dissector("opa.mad");
+        dissector_add_uint_range_with_preference("tcp.port", OPA_FE_TCP_RANGE, opa_fe_handle);
+        initialized = TRUE;
+    }
 
     range_foreach(fe_ssl_range, range_delete_fe_ssl_callback);
     g_free(fe_ssl_range);
     fe_ssl_range = range_copy(global_fe_ssl_range);
     range_foreach(fe_ssl_range, range_add_fe_ssl_callback);
 
-    dissector_delete_uint_range("tcp.port", fe_tcp_range, opa_fe_handle);
-    g_free(fe_tcp_range);
-    fe_tcp_range = range_copy(global_fe_tcp_range);
-    dissector_add_uint_range("tcp.port", fe_tcp_range, opa_fe_handle);
 }
 
 /*

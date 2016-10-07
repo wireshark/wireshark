@@ -92,7 +92,7 @@ WS_DLL_PUBLIC range_t *range_empty(void);
 WS_DLL_PUBLIC convert_ret_t range_convert_str(range_t **range, const gchar *es,
     guint32 max_value);
 
-convert_ret_t range_convert_str_work(range_t **range, const gchar *es,
+WS_DLL_PUBLIC convert_ret_t range_convert_str_work(range_t **range, const gchar *es,
     guint32 max_value, gboolean err_on_max);
 
 /** This function returns TRUE if a given value is within one of the ranges

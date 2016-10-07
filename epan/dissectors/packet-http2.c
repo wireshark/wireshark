@@ -1971,7 +1971,7 @@ static int http2_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_
 void
 proto_reg_handoff_http2(void)
 {
-    dissector_add_for_decode_as("tcp.port", http2_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", http2_handle);
 
     heur_dissector_add("ssl", dissect_http2_heur_ssl, "HTTP2 over SSL", "http2_ssl", proto_http2, HEURISTIC_ENABLE);
     heur_dissector_add("http", dissect_http2_heur, "HTTP2 over TCP", "http2_tcp", proto_http2, HEURISTIC_ENABLE);

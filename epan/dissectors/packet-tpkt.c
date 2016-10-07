@@ -53,6 +53,8 @@ static gint ett_tpkt           = -1;
 /* desegmentation of OSI over TPKT over TCP */
 static gboolean tpkt_desegment = TRUE;
 
+#define TCP_PORT_TPKT_RANGE       "102"
+
 /* find the dissector for OSI TP (aka COTP) */
 static dissector_handle_t osi_tp_handle;
 
@@ -669,19 +671,10 @@ proto_reg_handoff_tpkt(void)
 {
     static dissector_handle_t tpkt_handle;
     static range_t *port_range;
-    static gboolean initialized = FALSE;
 
-    if (!initialized)
-    {
-        osi_tp_handle = find_dissector("ositp");
-        tpkt_handle = find_dissector("tpkt");
-        initialized = TRUE;
-    }
-    else
-    {
-        dissector_delete_uint_range("tcp.port", port_range, tpkt_handle);
-        g_free(port_range);
-    }
+    osi_tp_handle = find_dissector("ositp");
+    tpkt_handle = find_dissector("tpkt");
+    dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_TPKT_RANGE, tpkt_handle);
 
     port_range = range_copy(tpkt_tcp_port_range);
     dissector_add_uint_range("tcp.port", port_range, tpkt_handle);

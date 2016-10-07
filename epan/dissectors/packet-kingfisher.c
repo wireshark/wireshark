@@ -34,11 +34,12 @@ void proto_reg_handoff_kingfisher(void);
 
 #define SUPPORT_KINGFISHER_SERIES_2
 
-#define TCP_PORT_KINGFISHER         4058
 #define UDP_PORT_KINGFISHER         4058
 #ifdef SUPPORT_KINGFISHER_SERIES_2
-#define TCP_PORT_KINGFISHER_OLD     473
+#define TCP_PORT_KINGFISHER_RANGE   "473,4058" /* 473 not IANA registered */
 #define UDP_PORT_KINGFISHER_OLD     473
+#else
+#define TCP_PORT_KINGFISHER_RANGE   "4058"
 #endif
 
 static int proto_kingfisher = -1;
@@ -384,11 +385,10 @@ proto_reg_handoff_kingfisher( void )
     dissector_handle_t kingfisher_handle=NULL;
 
     kingfisher_handle = create_dissector_handle(dissect_kingfisher_heur, proto_kingfisher);
-    dissector_add_uint("tcp.port", TCP_PORT_KINGFISHER, kingfisher_handle);
+    dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_KINGFISHER_RANGE, kingfisher_handle);
     dissector_add_uint("udp.port", UDP_PORT_KINGFISHER, kingfisher_handle);
 
 #ifdef SUPPORT_KINGFISHER_SERIES_2
-    dissector_add_uint("tcp.port", TCP_PORT_KINGFISHER_OLD, kingfisher_handle);
     dissector_add_uint("udp.port", UDP_PORT_KINGFISHER_OLD, kingfisher_handle);
 #endif
     kingfisher_conv_handle = create_dissector_handle(dissect_kingfisher_conv, proto_kingfisher);

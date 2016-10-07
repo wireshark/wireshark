@@ -345,7 +345,6 @@ static expert_field ei_ldp_tlv_fec = EI_INIT;
 /* desegmentation of LDP over TCP */
 static gboolean ldp_desegment = TRUE;
 
-static guint32 global_ldp_tcp_port = TCP_PORT_LDP;
 static guint32 global_ldp_udp_port = UDP_PORT_LDP;
 
 /*
@@ -4280,11 +4279,6 @@ proto_register_ldp(void)
 
     ldp_module = prefs_register_protocol(proto_ldp, proto_reg_handoff_ldp);
 
-    prefs_register_uint_preference(ldp_module, "tcp.port", "LDP TCP Port",
-                                   "Set the TCP port for messages (if other"
-                                   " than the default of 646)",
-                                   10, &global_ldp_tcp_port);
-
     prefs_register_uint_preference(ldp_module, "udp.port", "LDP UDP Port",
                                    "Set the UDP port for messages (if other"
                                    " than the default of 646)",
@@ -4304,31 +4298,26 @@ proto_reg_handoff_ldp(void)
 {
     static gboolean ldp_prefs_initialized = FALSE;
     static dissector_handle_t ldp_tcp_handle, ldp_handle;
-    static int tcp_port;
     static int udp_port;
-
 
     if (!ldp_prefs_initialized) {
 
         ldp_tcp_handle = create_dissector_handle(dissect_ldp_tcp, proto_ldp);
         ldp_handle = create_dissector_handle(dissect_ldp, proto_ldp);
+        dissector_add_uint_with_preference("tcp.port", TCP_PORT_LDP, ldp_tcp_handle);
 
         ldp_prefs_initialized = TRUE;
 
     }
     else {
 
-        dissector_delete_uint("tcp.port", tcp_port, ldp_tcp_handle);
         dissector_delete_uint("udp.port", udp_port, ldp_handle);
 
     }
 
     /* Set our port number for future use */
-
-    tcp_port = global_ldp_tcp_port;
     udp_port = global_ldp_udp_port;
 
-    dissector_add_uint("tcp.port", global_ldp_tcp_port, ldp_tcp_handle);
     dissector_add_uint("udp.port", global_ldp_udp_port, ldp_handle);
 
 }

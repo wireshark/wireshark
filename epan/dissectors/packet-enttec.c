@@ -37,7 +37,7 @@
 /* Define UDP/TCP ports for ENTTEC */
 
 #define UDP_PORT_ENTTEC 0x0D05
-#define TCP_PORT_ENTTEC 0x0D05
+#define TCP_PORT_ENTTEC 0x0D05 /* Not IANA registered */
 
 
 #define ENTTEC_HEAD_ESPR 0x45535052
@@ -108,7 +108,6 @@ static int ett_enttec = -1;
  */
 
 static guint global_udp_port_enttec = UDP_PORT_ENTTEC;
-static guint global_tcp_port_enttec = TCP_PORT_ENTTEC;
 
 static gint global_disp_chan_val_type = 0;
 static gint global_disp_col_count = 16;
@@ -552,11 +551,6 @@ proto_register_enttec(void)
 					"The UDP port on which ENTTEC packets will be sent",
 					10,&global_udp_port_enttec);
 
-	prefs_register_uint_preference(enttec_module, "tcp_port",
-					"ENTTEC TCP Port",
-					"The TCP port on which ENTTEC packets will be sent",
-					10,&global_tcp_port_enttec);
-
 	prefs_register_enum_preference(enttec_module, "dmx_disp_chan_val_type",
 				"DMX Display channel value type",
 				"The way DMX values are displayed",
@@ -582,22 +576,19 @@ proto_reg_handoff_enttec(void) {
 	static gboolean enttec_initialized = FALSE;
 	static dissector_handle_t enttec_udp_handle, enttec_tcp_handle;
 	static guint udp_port_enttec;
-	static guint tcp_port_enttec;
 
 	if(!enttec_initialized) {
 		enttec_udp_handle = create_dissector_handle(dissect_enttec_udp,proto_enttec);
 		enttec_tcp_handle = create_dissector_handle(dissect_enttec_tcp,proto_enttec);
+		dissector_add_uint_with_preference("tcp.port",TCP_PORT_ENTTEC,enttec_tcp_handle);
 		enttec_initialized = TRUE;
 	} else {
 		dissector_delete_uint("udp.port",udp_port_enttec,enttec_udp_handle);
-		dissector_delete_uint("tcp.port",tcp_port_enttec,enttec_tcp_handle);
 	}
 
 	udp_port_enttec = global_udp_port_enttec;
-	tcp_port_enttec = global_tcp_port_enttec;
 
 	dissector_add_uint("udp.port",global_udp_port_enttec,enttec_udp_handle);
-	dissector_add_uint("tcp.port",global_tcp_port_enttec,enttec_tcp_handle);
 }
 
 /*

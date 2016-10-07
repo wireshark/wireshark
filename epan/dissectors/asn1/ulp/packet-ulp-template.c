@@ -51,8 +51,8 @@ static dissector_handle_t lpp_handle;
  * oma-ulp         7275/tcp    OMA UserPlane Location
  * oma-ulp         7275/udp    OMA UserPlane Location
  */
-static guint gbl_ulp_tcp_port = 7275;
-static guint gbl_ulp_udp_port = 7275;
+#define ULP_PORT    7275
+static guint gbl_ulp_udp_port = ULP_PORT;
 
 /* Initialize the protocol and registered fields */
 static int proto_ulp = -1;
@@ -428,11 +428,6 @@ void proto_register_ulp(void) {
     &ulp_desegment);
 
   /* Register a configuration option for port */
-  prefs_register_uint_preference(ulp_module, "tcp.port",
-                                 "ULP TCP Port",
-                                 "Set the TCP port for ULP messages (IANA registered port is 7275)",
-                                 10,
-                                 &gbl_ulp_tcp_port);
   prefs_register_uint_preference(ulp_module, "udp.port",
                                  "ULP UDP Port",
                                  "Set the UDP port for ULP messages (IANA registered port is 7275)",
@@ -448,7 +443,7 @@ proto_reg_handoff_ulp(void)
 {
   static gboolean initialized = FALSE;
   static dissector_handle_t ulp_udp_handle;
-  static guint local_ulp_tcp_port, local_ulp_udp_port;
+  static guint local_ulp_udp_port;
 
   if (!initialized) {
     dissector_add_string("media_type","application/oma-supl-ulp", ulp_tcp_handle);
@@ -456,14 +451,12 @@ proto_reg_handoff_ulp(void)
     ulp_udp_handle = create_dissector_handle(dissect_ULP_PDU_PDU, proto_ulp);
     rrlp_handle = find_dissector_add_dependency("rrlp", proto_ulp);
     lpp_handle = find_dissector_add_dependency("lpp", proto_ulp);
+    dissector_add_uint_with_preference("tcp.port", ULP_PORT, ulp_tcp_handle);
     initialized = TRUE;
   } else {
-    dissector_delete_uint("tcp.port", local_ulp_tcp_port, ulp_tcp_handle);
     dissector_delete_uint("udp.port", local_ulp_udp_port, ulp_udp_handle);
   }
 
-  local_ulp_tcp_port = gbl_ulp_tcp_port;
-  dissector_add_uint("tcp.port", gbl_ulp_tcp_port, ulp_tcp_handle);
   local_ulp_udp_port = gbl_ulp_udp_port;
   dissector_add_uint("udp.port", gbl_ulp_udp_port, ulp_udp_handle);
 }

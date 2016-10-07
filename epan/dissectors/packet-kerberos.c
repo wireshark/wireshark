@@ -5434,7 +5434,7 @@ proto_reg_handoff_kerberos(void)
 	proto_kerberos);
 
 	dissector_add_uint("udp.port", UDP_PORT_KERBEROS, kerberos_handle_udp);
-	dissector_add_uint("tcp.port", TCP_PORT_KERBEROS, kerberos_handle_tcp);
+	dissector_add_uint_with_preference("tcp.port", TCP_PORT_KERBEROS, kerberos_handle_tcp);
 
 	register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_CONNECT,
 									  DCE_C_RPC_AUTHN_PROTOCOL_GSS_KERBEROS,

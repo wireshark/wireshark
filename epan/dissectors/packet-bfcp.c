@@ -692,8 +692,7 @@ void proto_register_bfcp(void)
 
 	bfcp_handle = register_dissector("bfcp", dissect_bfcp, proto_bfcp);
 
-	bfcp_module = prefs_register_protocol(proto_bfcp,
-				proto_reg_handoff_bfcp);
+	bfcp_module = prefs_register_protocol(proto_bfcp, NULL);
 
 	prefs_register_obsolete_preference(bfcp_module, "enable");
 
@@ -707,20 +706,14 @@ void proto_register_bfcp(void)
 
 void proto_reg_handoff_bfcp(void)
 {
-	static gboolean prefs_initialized = FALSE;
-
 	/* "Decode As" is always available;
 	 *  Heuristic dissection in disabled by default since
 	 *  the heuristic is quite weak.
 	 */
-	if (!prefs_initialized)
-	{
-		heur_dissector_add("tcp", dissect_bfcp_heur, "BFCP over TCP", "bfcp_tcp", proto_bfcp, HEURISTIC_DISABLE);
-		heur_dissector_add("udp", dissect_bfcp_heur, "BFCP over UDP", "bfcp_udp", proto_bfcp, HEURISTIC_DISABLE);
-		dissector_add_for_decode_as("tcp.port", bfcp_handle);
-		dissector_add_for_decode_as("udp.port", bfcp_handle);
-		prefs_initialized = TRUE;
-	}
+	heur_dissector_add("tcp", dissect_bfcp_heur, "BFCP over TCP", "bfcp_tcp", proto_bfcp, HEURISTIC_DISABLE);
+	heur_dissector_add("udp", dissect_bfcp_heur, "BFCP over UDP", "bfcp_udp", proto_bfcp, HEURISTIC_DISABLE);
+	dissector_add_for_decode_as_with_preference("tcp.port", bfcp_handle);
+	dissector_add_for_decode_as("udp.port", bfcp_handle);
 }
 
 /*

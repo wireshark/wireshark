@@ -289,8 +289,8 @@ static expert_field ei_tcp_convergence_ack_length = EI_INIT;
 
 static dissector_handle_t bundle_handle;
 
-static guint bundle_tcp_port = 4556;
-static guint bundle_udp_port = 4556;
+#define BUNDLE_PORT            4556
+static guint bundle_udp_port = BUNDLE_PORT;
 
 typedef struct dictionary_data {
     int bundle_header_dict_length;
@@ -3058,12 +3058,6 @@ proto_register_bundle(void)
 
     proto_tcp_conv = proto_register_protocol ("DTN TCP Convergence Layer Protocol", "TCPCL", "tcpcl");
 
-    prefs_register_uint_preference(bundle_module, "tcp.port",
-                                   "Bundle Protocol TCP Port",
-                                   "TCP Port to Accept Bundle Protocol Connections",
-                                   10,
-                                   &bundle_tcp_port);
-
     prefs_register_uint_preference(bundle_module, "udp.port",
                                    "Bundle Protocol UDP Port",
                                    "UDP Port to Accept Bundle Protocol Connections",
@@ -3088,22 +3082,19 @@ void
 proto_reg_handoff_bundle(void)
 {
     static dissector_handle_t tcpcl_handle;
-    static guint tcp_port;
     static guint udp_port;
 
     static int Initialized = FALSE;
 
     if (!Initialized) {
         tcpcl_handle = create_dissector_handle(dissect_tcpcl, proto_bundle);
+        dissector_add_uint_with_preference("tcp.port", BUNDLE_PORT, tcpcl_handle);
         Initialized  = TRUE;
     }
     else {
-        dissector_delete_uint("tcp.port", tcp_port, tcpcl_handle);
         dissector_delete_uint("udp.port", udp_port, bundle_handle);
     }
-    tcp_port = bundle_tcp_port;
     udp_port = bundle_udp_port;
-    dissector_add_uint("tcp.port", tcp_port, tcpcl_handle);
     dissector_add_uint("udp.port", udp_port, bundle_handle);
 }
 

@@ -398,7 +398,7 @@ proto_register_lisp_tcp(void)
 void
 proto_reg_handoff_lisp_tcp(void)
 {
-    dissector_add_uint("tcp.port", LISP_CONTROL_PORT, lisp_tcp_handle);
+    dissector_add_uint_with_preference("tcp.port", LISP_CONTROL_PORT, lisp_tcp_handle);
 }
 
 /*

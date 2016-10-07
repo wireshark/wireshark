@@ -35,44 +35,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/** Reset the "decode as" entries and reload ones of the current profile.
- */
-void load_decode_as_entries(void);
-
-/** Write out the "decode as" entries of the current profile.
- */
-int save_decode_as_entries(gchar** err);
-
-/** This routine creates one entry in the list of protocol dissector
- * that need to be reset. It is called by the g_hash_table_foreach
- * routine once for each changed entry in a dissector table.
- * Unfortunately it cannot delete the entry immediately as this screws
- * up the foreach function, so it builds a list of dissectors to be
- * reset once the foreach routine finishes.
- *
- * @param table_name The table name in which this dissector is found.
- *
- * @param key A pointer to the key for this entry in the dissector
- * hash table.  This is generally the numeric selector of the
- * protocol, i.e. the ethernet type code, IP port number, TCP port
- * number, etc.
- *
- * @param selector_type The type of the selector in that dissector table
- *
- * @param value A pointer to the value for this entry in the dissector
- * hash table.  This is an opaque pointer that can only be handed back
- * to routine in the file packet.c - but it's unused.
- *
- * @param user_data Unused.
- */
-void decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
-                         gpointer key, gpointer value _U_,
-                         gpointer user_data _U_);
-
-/** Clear all "decode as" settings.
- */
-void decode_clear_all(void);
-
 /*
 * This is the template for the decode as option; it is shared between the
 * various functions that output the usage for this parameter.

@@ -29,6 +29,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 
 #include "packet-tcp.h"
 
@@ -134,6 +135,14 @@ dissect_openflow_heur(tvbuff_t *tvb, packet_info *pinfo,
     return TRUE;
 }
 
+static void
+apply_openflow_prefs(void)
+{
+    /* Openflow uses the port preference for heuristics */
+    pref_t *openflow_port = prefs_find_preference(prefs_find_module("openflow"), "tcp.port");
+    g_openflow_port = *openflow_port->varp.uint;
+}
+
 /*
  * Register the protocol with Wireshark.
  */
@@ -166,12 +175,7 @@ proto_register_openflow(void)
     expert_openflow = expert_register_protocol(proto_openflow);
     expert_register_field_array(expert_openflow, ei, array_length(ei));
 
-    openflow_module = prefs_register_protocol(proto_openflow, proto_reg_handoff_openflow);
-
-    /* Register port preference */
-    prefs_register_uint_preference(openflow_module, "tcp.port", "OpenFlow TCP port",
-                                   "OpenFlow TCP port (6653 is the IANA assigned port)",
-                                   10, &g_openflow_port);
+    openflow_module = prefs_register_protocol(proto_openflow, apply_openflow_prefs);
 
     /* Register heuristic preference */
     prefs_register_obsolete_preference(openflow_module, "heuristic");
@@ -187,19 +191,9 @@ proto_register_openflow(void)
 void
 proto_reg_handoff_openflow(void)
 {
-    static gboolean initialized = FALSE;
-    static int currentPort;
+    heur_dissector_add("tcp", dissect_openflow_heur, "OpenFlow over TCP", "openflow_tcp", proto_openflow, HEURISTIC_ENABLE);
 
-    if (!initialized) {
-        heur_dissector_add("tcp", dissect_openflow_heur, "OpenFlow over TCP", "openflow_tcp", proto_openflow, HEURISTIC_ENABLE);
-        initialized = TRUE;
-    } else {
-        dissector_delete_uint("tcp.port", currentPort, openflow_handle);
-    }
-
-    currentPort = g_openflow_port;
-
-    dissector_add_uint("tcp.port", currentPort, openflow_handle);
+    dissector_add_uint_with_preference("tcp.port", OFP_IANA_PORT, openflow_handle);
 
     openflow_v1_handle = find_dissector_add_dependency("openflow_v1", proto_openflow);
     openflow_v4_handle = find_dissector_add_dependency("openflow_v4", proto_openflow);

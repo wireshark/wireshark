@@ -104,7 +104,6 @@ void proto_reg_handoff_memcache(void);
 
 static int proto_memcache = -1;
 
-static range_t *memcache_tcp_port_range = NULL;
 static range_t *memcache_udp_port_range = NULL;
 static dissector_handle_t memcache_tcp_handle;
 static dissector_handle_t memcache_udp_handle;
@@ -2140,14 +2139,8 @@ proto_register_memcache (void)
                                   " to reassemble TCP streams\" in the TCP protocol settings.",
                                   &memcache_desegment_body);
 
-  range_convert_str(&memcache_tcp_port_range, MEMCACHE_DEFAULT_RANGE, 65535);
   range_convert_str(&memcache_udp_port_range, MEMCACHE_DEFAULT_RANGE, 65535);
 
-  prefs_register_range_preference(memcache_module, "tcp.ports", \
-                                  "MEMCACHE TCP Port range", \
-                                  "MEMCACHE TCP Port range", \
-                                  &memcache_tcp_port_range, \
-                                  65535);
   prefs_register_range_preference(memcache_module, "udp.ports", \
                                   "MEMCACHE UDP Port range", \
                                   "MEMCACHE UDP Port range", \
@@ -2159,17 +2152,12 @@ proto_register_memcache (void)
 void
 proto_reg_handoff_memcache (void)
 {
-  static range_t  *orig_memcache_tcp_port_range = NULL;
   static range_t  *orig_memcache_udp_port_range = NULL;
 
-  dissector_delete_uint_range("tcp.port", orig_memcache_tcp_port_range, memcache_tcp_handle);
-  dissector_delete_uint_range("udp.port", orig_memcache_udp_port_range, memcache_udp_handle);
-  g_free(orig_memcache_tcp_port_range);
   g_free(orig_memcache_udp_port_range);
 
-  orig_memcache_tcp_port_range = range_copy(memcache_tcp_port_range);
   orig_memcache_udp_port_range = range_copy(memcache_udp_port_range);
-  dissector_add_uint_range("tcp.port", orig_memcache_tcp_port_range, memcache_tcp_handle);
+  dissector_add_uint_range_with_preference("tcp.port", MEMCACHE_DEFAULT_RANGE, memcache_tcp_handle);
   dissector_add_uint_range("udp.port", orig_memcache_udp_port_range, memcache_udp_handle);
 }
 

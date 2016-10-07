@@ -20,7 +20,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/dissectors/packet-tcp.h>
 #include "opcua_transport_layer.h"
@@ -44,9 +43,8 @@ typedef int (*FctParse)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gin
 
 static int proto_opcua = -1;
 static dissector_handle_t opcua_handle;
-static range_t *global_tcp_ports_opcua;
 /** Official IANA registered port for OPC UA Binary Protocol. */
-#define OPCUA_PORT 4840
+#define OPCUA_PORT_RANGE "4840"
 
 /** subtree types used in opcua_transport_layer.c */
 gint ett_opcua_extensionobject = -1;
@@ -357,18 +355,6 @@ static int dissect_opcua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     return tvb_reported_length(tvb);
 }
 
-static void register_tcp_port(guint32 port)
-{
-    if (port != 0)
-        dissector_add_uint("tcp.port", port, opcua_handle);
-}
-
-static void unregister_tcp_port(guint32 port)
-{
-    if (port != 0)
-        dissector_delete_uint("tcp.port", port, opcua_handle);
-}
-
 static void
 init_opcua(void)
 {
@@ -387,8 +373,6 @@ cleanup_opcua(void)
  */
 void proto_register_opcua(void)
 {
-    char *tmp;
-
     static hf_register_info hf[] =
         {
             /* id                                    full name                                              abbreviation                        type            display     strings bitmask blurb HFILL */
@@ -414,13 +398,7 @@ void proto_register_opcua(void)
             &ett_opcua_fragments
         };
 
-    module_t *opcua_module;
-
-    proto_opcua = proto_register_protocol(
-        "OpcUa Binary Protocol", /* name */
-        "OpcUa",                 /* short name */
-        "opcua"                  /* abbrev */
-        );
+    proto_opcua = proto_register_protocol("OpcUa Binary Protocol", "OpcUa", "opcua");
 
     registerTransportLayerTypes(proto_opcua);
     registerSecurityLayerTypes(proto_opcua);
@@ -432,48 +410,17 @@ void proto_register_opcua(void)
     registerFieldTypes(proto_opcua);
 
     proto_register_subtree_array(ett, array_length(ett));
-
-    tmp = g_strdup_printf("%d", OPCUA_PORT);
-    range_convert_str(&global_tcp_ports_opcua, tmp,  65535);
-    g_free(tmp);
-
     proto_register_field_array(proto_opcua, hf, array_length(hf));
 
     register_init_routine(&init_opcua);
     register_cleanup_routine(&cleanup_opcua);
-
-    /* register user preferences */
-    opcua_module = prefs_register_protocol(proto_opcua, proto_reg_handoff_opcua);
-    prefs_register_range_preference(opcua_module, "tcp_ports",
-                                    "OPC UA TCP Ports",
-                                    "The TCP ports for the OPC UA TCP Binary Protocol (comma separated list)",
-                                    &global_tcp_ports_opcua, 65535);
-
 }
 
 void proto_reg_handoff_opcua(void)
 {
-    static gboolean opcua_initialized = FALSE;
-    static range_t *tcp_ports_opcua  = NULL;
+    opcua_handle = create_dissector_handle(dissect_opcua, proto_opcua);
 
-    if(!opcua_initialized)
-    {
-        opcua_handle = create_dissector_handle(dissect_opcua, proto_opcua);
-        opcua_initialized = TRUE;
-    }
-    else
-    {
-        /* clean up ports and their lists */
-        if (tcp_ports_opcua != NULL)
-        {
-            range_foreach(tcp_ports_opcua, unregister_tcp_port);
-            g_free(tcp_ports_opcua);
-        }
-    }
-
-    /* If we now have a PDU tree, register for the port or ports we have */
-    tcp_ports_opcua = range_copy(global_tcp_ports_opcua);
-    range_foreach(tcp_ports_opcua, register_tcp_port);
+    dissector_add_uint_range_with_preference("tcp.port", OPCUA_PORT_RANGE, opcua_handle);
 }
 
 /*

@@ -2362,6 +2362,7 @@ void proto_reg_handoff_mgcp(void)
 	callagent_tcp_port = global_mgcp_callagent_tcp_port;
 	callagent_udp_port = global_mgcp_callagent_udp_port;
 
+    /* Names of port preferences too specific to add "auto" preference here */
 	dissector_add_uint("tcp.port", global_mgcp_gateway_tcp_port,   mgcp_tpkt_handle);
 	dissector_add_uint("udp.port", global_mgcp_gateway_udp_port,   mgcp_handle);
 	dissector_add_uint("tcp.port", global_mgcp_callagent_tcp_port, mgcp_tpkt_handle);

@@ -103,6 +103,8 @@ struct pref_custom_cbs {
 #define PREF_CUSTOM      (1u << 9) /* use and not as a generic protocol preference */
 #define PREF_OBSOLETE    (1u << 10)
 #define PREF_DIRNAME     (1u << 11)
+#define PREF_DECODE_AS_UINT  (1u << 12)     /* XXX - These are only supported for "internal" (non-protocol) */
+#define PREF_DECODE_AS_RANGE (1u << 13) /* use and not as a generic protocol preference */
 
 typedef enum {
 	GUI_ALL,

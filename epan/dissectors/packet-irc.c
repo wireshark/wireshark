@@ -79,9 +79,7 @@ static const guint8 TAG_DELIMITER[] = {0x01, 0x00};
 static ws_mempbrk_pattern pbrk_tag_delimiter;
 
 
-#define TCP_PORT_IRC            6667
-#define TCP_PORT_DIRCPROXY      57000
-    /* good candidate for dynamic port specification */
+#define TCP_PORT_RANGE          "6667,57000" /* Not IANA registered */
 
 static void
 dissect_irc_tag_data(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int datalen, packet_info *pinfo, const guint8* command)
@@ -571,8 +569,7 @@ proto_reg_handoff_irc(void)
     dissector_handle_t irc_handle;
 
     irc_handle = create_dissector_handle(dissect_irc, proto_irc);
-    dissector_add_uint("tcp.port", TCP_PORT_IRC, irc_handle);
-    dissector_add_uint("tcp.port", TCP_PORT_DIRCPROXY, irc_handle);
+    dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_RANGE, irc_handle);
 }
 
 /*

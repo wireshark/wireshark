@@ -418,7 +418,7 @@ proto_reg_handoff_epmd(void) {
     epmd_handle = find_dissector("epmd");
     edp_handle = find_dissector("erldp");
 
-    dissector_add_uint("tcp.port", EPMD_PORT, epmd_handle);
+    dissector_add_uint_with_preference("tcp.port", EPMD_PORT, epmd_handle);
 }
 
 /*

@@ -120,8 +120,6 @@ enum wrepl_mess_type {
 	WREPL_REPLICATION=3
 };
 
-static unsigned int glb_winsrepl_tcp_port = WINS_REPLICATION_PORT;
-
 static const value_string replication_cmd_vals[] = {
 	{WREPL_REPL_TABLE_QUERY,	"WREPL_REPL_TABLE_QUERY"},
 	{WREPL_REPL_TABLE_REPLY,	"WREPL_REPL_TABLE_REPLY"},
@@ -880,7 +878,7 @@ proto_reg_handoff_winsrepl(void)
 	dissector_handle_t winsrepl_handle;
 
 	winsrepl_handle = create_dissector_handle(dissect_winsrepl, proto_winsrepl);
-	dissector_add_uint("tcp.port", glb_winsrepl_tcp_port, winsrepl_handle);
+	dissector_add_uint_with_preference("tcp.port", WINS_REPLICATION_PORT, winsrepl_handle);
 }
 
 /*

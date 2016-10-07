@@ -410,6 +410,7 @@ void proto_reg_handoff_scop(void)
         dissector_delete_uint("udp.port", lastPort_secured, scop_udp_handle);
         dissector_delete_uint("tcp.port", lastPort_secured, scop_tcp_handle);
     }
+    /* XXX - Should this be a range with "auto" preference? */
     dissector_add_uint("udp.port", gPREF_scop_port, scop_udp_handle);
     dissector_add_uint("tcp.port", gPREF_scop_port, scop_tcp_handle);
     dissector_add_uint("udp.port", gPREF_scop_port_secured, scop_udp_handle);

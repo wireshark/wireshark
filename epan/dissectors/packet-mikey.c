@@ -47,8 +47,6 @@ void proto_register_mikey(void);
 void proto_reg_handoff_mikey(void);
 
 #define PORT_MIKEY 2269
-static guint global_mikey_tcp_port = PORT_MIKEY;
-
 static guint global_mikey_udp_port = PORT_MIKEY;
 
 static const value_string on_off_vals[] = {
@@ -1855,34 +1853,26 @@ proto_register_mikey(void)
 	prefs_register_uint_preference(mikey_module, "udp.port", "MIKEY UDP Port",
 		"Set the port for MIKEY messages (if other than the default of 2269)",
 		10, &global_mikey_udp_port);
-
-	prefs_register_uint_preference(mikey_module, "tcp.port", "MIKEY TCP Port",
-		"Set the port for MIKEY messages (if other than the default of 2269)",
-		10, &global_mikey_tcp_port);
-
 }
 
 
 void
 proto_reg_handoff_mikey(void)
 {
-	static guint		  mikey_tcp_port;
 	static guint		  mikey_udp_port;
 	static gboolean inited = FALSE;
 
 	if (!inited) {
 		dissector_add_string("key_mgmt", "mikey", mikey_handle);
+		dissector_add_uint_with_preference("tcp.port", PORT_MIKEY, mikey_handle);
 		inited = TRUE;
 	} else {
 		dissector_delete_uint("udp.port", mikey_udp_port, mikey_handle);
-		dissector_delete_uint("tcp.port", mikey_tcp_port, mikey_handle);
 	}
 
 	dissector_add_uint("udp.port", global_mikey_udp_port, mikey_handle);
-	dissector_add_uint("tcp.port", global_mikey_tcp_port, mikey_handle);
 
 	mikey_udp_port = global_mikey_udp_port;
-	mikey_tcp_port = global_mikey_tcp_port;
 }
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

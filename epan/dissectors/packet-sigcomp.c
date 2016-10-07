@@ -173,8 +173,7 @@ static guint SigCompUDPPort1 = 5555;
 static guint SigCompUDPPort2 = 6666;
 
 /* set the tcp ports */
-static guint SigCompTCPPort1 = 5555;
-static guint SigCompTCPPort2 = 6666;
+#define SIGCOMP_TCP_PORT_RANGE "5555,6666" /* Not IANA registered */
 
 /* Default preference whether to display the bytecode in UDVM operands or not */
 static gboolean display_udvm_bytecode = FALSE;
@@ -6692,10 +6691,8 @@ proto_register_sigcomp(void)
 
 
 /* Register the protocol name and description */
-    proto_sigcomp = proto_register_protocol("Signaling Compression",
-                                            "SIGCOMP", "sigcomp");
-    proto_raw_sigcomp = proto_register_protocol("Decompressed SigComp message as raw text",
-                                                "Raw_SigComp", "raw_sigcomp");
+    proto_sigcomp = proto_register_protocol("Signaling Compression", "SIGCOMP", "sigcomp");
+    proto_raw_sigcomp = proto_register_protocol("Decompressed SigComp message as raw text", "Raw_SigComp", "raw_sigcomp");
 
     register_dissector("sigcomp", dissect_sigcomp, proto_sigcomp);
 
@@ -6721,17 +6718,7 @@ proto_register_sigcomp(void)
                                    "Set UDP port 2 for SigComp messages",
                                    10,
                                    &SigCompUDPPort2);
-    prefs_register_uint_preference(sigcomp_module, "tcp.port",
-                                   "Sigcomp TCP Port 1",
-                                   "Set TCP port 1 for SigComp messages",
-                                   10,
-                                   &SigCompTCPPort1);
 
-    prefs_register_uint_preference(sigcomp_module, "tcp.port2",
-                                   "Sigcomp TCP Port 2",
-                                   "Set TCP port 2 for SigComp messages",
-                                   10,
-                                   &SigCompTCPPort2);
     prefs_register_bool_preference(sigcomp_module, "display.udvm.code",
                                    "Dissect the UDVM code",
                                    "Preference whether to Dissect the UDVM code or not",
@@ -6773,32 +6760,23 @@ proto_reg_handoff_sigcomp(void)
     static gboolean Initialized = FALSE;
     static guint udp_port1;
     static guint udp_port2;
-    static guint tcp_port1;
-    static guint tcp_port2;
 
     if (!Initialized) {
         sigcomp_handle = find_dissector("sigcomp");
         sigcomp_tcp_handle = create_dissector_handle(dissect_sigcomp_tcp,proto_sigcomp);
         sip_handle = find_dissector_add_dependency("sip",proto_sigcomp);
+        dissector_add_uint_range_with_preference("tcp.port", SIGCOMP_TCP_PORT_RANGE, sigcomp_tcp_handle);
         Initialized=TRUE;
     } else {
         dissector_delete_uint("udp.port", udp_port1, sigcomp_handle);
         dissector_delete_uint("udp.port", udp_port2, sigcomp_handle);
-        dissector_delete_uint("tcp.port", tcp_port1, sigcomp_tcp_handle);
-        dissector_delete_uint("tcp.port", tcp_port2, sigcomp_tcp_handle);
     }
 
     udp_port1 = SigCompUDPPort1;
     udp_port2 = SigCompUDPPort2;
-    tcp_port1 = SigCompTCPPort1;
-    tcp_port2 = SigCompTCPPort2;
-
 
     dissector_add_uint("udp.port", SigCompUDPPort1, sigcomp_handle);
     dissector_add_uint("udp.port", SigCompUDPPort2, sigcomp_handle);
-    dissector_add_uint("tcp.port", SigCompTCPPort1, sigcomp_tcp_handle);
-    dissector_add_uint("tcp.port", SigCompTCPPort2, sigcomp_tcp_handle);
-
 }
 
 /*

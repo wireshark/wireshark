@@ -71,7 +71,7 @@ void proto_register_skinny(void);
 void proto_reg_handoff_skinny(void);
 
 
-#define TCP_PORT_SKINNY 2000
+#define TCP_PORT_SKINNY 2000 /* Not IANA registered */
 #define SSL_PORT_SKINNY 2443 /* IANA assigned to PowerClient Central Storage Facility */
 
 #define BASIC_MSG_TYPE 0x00
@@ -540,7 +540,7 @@ proto_reg_handoff_skinny(void)
 {
   /* Skinny content type and internet media type used by other dissectors are the same */
   xml_handle = find_dissector("xml");
-  dissector_add_uint("tcp.port", TCP_PORT_SKINNY, skinny_handle);
+  dissector_add_uint_with_preference("tcp.port", TCP_PORT_SKINNY, skinny_handle);
   ssl_dissector_add(SSL_PORT_SKINNY, skinny_handle);
 }
 

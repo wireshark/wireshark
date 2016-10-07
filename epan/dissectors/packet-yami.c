@@ -37,7 +37,6 @@ void proto_reg_handoff_yami(void);
 void proto_register_yami(void);
 
 static gboolean yami_desegment = TRUE;
-static guint global_yami_config_tcp_port = 0;
 static guint global_yami_config_udp_port = 0;
 
 static dissector_handle_t yami_handle;
@@ -588,7 +587,6 @@ proto_register_yami(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	yami_module = prefs_register_protocol(proto_yami, proto_reg_handoff_yami);
-	prefs_register_uint_preference(yami_module, "tcp.port", "YAMI TCP Port", "The TCP port on which YAMI messages will be read(3000)", 10, &global_yami_config_tcp_port);
 	prefs_register_uint_preference(yami_module, "udp.port", "YAMI UDP Port", "The UDP port on which YAMI messages will be read(5000)", 10, &global_yami_config_udp_port);
 	prefs_register_bool_preference(yami_module, "desegment",
 			"Reassemble YAMI messages spanning multiple TCP segments",
@@ -603,21 +601,18 @@ void
 proto_reg_handoff_yami(void)
 {
 	static int yami_prefs_initialized = FALSE;
-	static guint yami_tcp_port, yami_udp_port;
+	static guint yami_udp_port;
 
 	if(yami_prefs_initialized == FALSE){
 		yami_prefs_initialized = TRUE;
-		yami_tcp_port = global_yami_config_tcp_port;
 		yami_udp_port = global_yami_config_udp_port;
+		dissector_add_for_decode_as_with_preference("tcp.port", yami_handle);
 	}else{
-		dissector_delete_uint("tcp.port", yami_tcp_port, yami_handle);
 		dissector_delete_uint("udp.port", yami_udp_port, yami_handle);
 	}
 
-	yami_tcp_port = global_yami_config_tcp_port;
 	yami_udp_port = global_yami_config_udp_port;
 
-	dissector_add_uint("tcp.port", yami_tcp_port, yami_handle);
 	dissector_add_uint("udp.port", yami_udp_port, yami_handle);
 }
 

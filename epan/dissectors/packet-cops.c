@@ -72,9 +72,6 @@
 
 void proto_register_cops(void);
 
-/* Preference: Variable to hold the tcp port preference */
-static guint global_cops_tcp_port = TCP_PORT_COPS;
-
 /* Preference: desegmentation of COPS */
 static gboolean cops_desegment = TRUE;
 
@@ -2814,8 +2811,7 @@ void proto_register_cops(void)
     expert_module_t* expert_cops;
 
     /* Register the protocol name and description */
-    proto_cops = proto_register_protocol("Common Open Policy Service",
-                                         "COPS", "cops");
+    proto_cops = proto_register_protocol("Common Open Policy Service", "COPS", "cops");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_cops, hf, array_length(hf));
@@ -2827,11 +2823,7 @@ void proto_register_cops(void)
     register_dissector("cops", dissect_cops, proto_cops);
 
     /* Register our configuration options for cops */
-    cops_module = prefs_register_protocol(proto_cops, proto_reg_handoff_cops);
-    prefs_register_uint_preference(cops_module,"tcp.cops_port",
-                                   "COPS TCP Port",
-                                   "Set the TCP port for COPS messages",
-                                   10,&global_cops_tcp_port);
+    cops_module = prefs_register_protocol(proto_cops, NULL);
     prefs_register_bool_preference(cops_module, "desegment",
                                    "Reassemble COPS messages spanning multiple TCP segments",
                                    "Whether the COPS dissector should reassemble messages spanning multiple TCP segments."
@@ -2853,21 +2845,15 @@ void proto_register_cops(void)
 
 void proto_reg_handoff_cops(void)
 {
-    static gboolean cops_prefs_initialized = FALSE;
-    static dissector_handle_t cops_handle;
-    static guint cops_tcp_port;
+    dissector_handle_t cops_handle;
 
-    if (!cops_prefs_initialized) {
-        cops_handle = find_dissector("cops");
-        dissector_add_uint("tcp.port", TCP_PORT_PKTCABLE_COPS, cops_handle);
-        dissector_add_uint("tcp.port", TCP_PORT_PKTCABLE_MM_COPS, cops_handle);
-        cops_prefs_initialized = TRUE;
-    } else {
-        dissector_delete_uint("tcp.port",cops_tcp_port,cops_handle);
-    }
-    cops_tcp_port = global_cops_tcp_port;
+    cops_handle = find_dissector("cops");
+    /* These could use a separate "preference name" (to avoid collision),
+        but they are IANA registered and users could still use Decode As */
+    dissector_add_uint("tcp.port", TCP_PORT_PKTCABLE_COPS, cops_handle);
+    dissector_add_uint("tcp.port", TCP_PORT_PKTCABLE_MM_COPS, cops_handle);
 
-    dissector_add_uint("tcp.port", cops_tcp_port, cops_handle);
+    dissector_add_uint_with_preference("tcp.port", TCP_PORT_COPS, cops_handle);
 }
 
 

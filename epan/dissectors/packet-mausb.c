@@ -674,7 +674,6 @@ static guint mausb_get_pkt_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 }
 
 /* Global Port Preference */
-static unsigned int mausb_tcp_port_pref = 0;
 static unsigned int mausb_udp_port_pref = 0;
 
 /* Initialize the subtree pointers */
@@ -2271,11 +2270,6 @@ proto_register_mausb(void)
     /* Register Protocol preferences */
     mausb_module = prefs_register_protocol(proto_mausb, proto_reg_handoff_mausb);
 
-    /* Register TCP port preference */
-    prefs_register_uint_preference(mausb_module, "tcp.port", "MAUSB TCP Port",
-                       "Set the port for Media Agnostic Packets",
-                       10, &mausb_tcp_port_pref);
-
     /* Register UDP port preference */
     prefs_register_uint_preference(mausb_module, "udp.port", "MAUSB UDP Port",
                        "Set the port for Media Agnostic Packets",
@@ -2290,7 +2284,6 @@ proto_reg_handoff_mausb(void)
     static gboolean initialized = FALSE;
     static dissector_handle_t mausb_tcp_handle;
     static dissector_handle_t mausb_pkt_handle;
-    static guint saved_mausb_tcp_port_pref;
     static guint saved_mausb_udp_port_pref;
 
     if (!initialized) {
@@ -2304,16 +2297,14 @@ proto_reg_handoff_mausb(void)
         dissector_add_uint("llc.wfa_pid", PID_MAUSB, mausb_pkt_handle);
         initialized = TRUE;
 
+        dissector_add_uint_range_with_preference("tcp.port", "", mausb_tcp_handle);
     } else {
         /* if we have already been initialized */
-        dissector_delete_uint("tcp.port", saved_mausb_tcp_port_pref, mausb_tcp_handle);
         dissector_delete_uint("udp.port", saved_mausb_udp_port_pref, mausb_pkt_handle);
     }
 
-    saved_mausb_tcp_port_pref = mausb_tcp_port_pref;
     saved_mausb_udp_port_pref = mausb_udp_port_pref;
 
-    dissector_add_uint("tcp.port", mausb_tcp_port_pref, mausb_tcp_handle);
     dissector_add_uint("udp.port", mausb_udp_port_pref, mausb_pkt_handle);
 }
 

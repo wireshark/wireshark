@@ -49,7 +49,7 @@
 void proto_register_ipdc(void);
 void proto_reg_handoff_ipdc(void);
 
-#define	TCP_PORT_IPDC	6668
+#define	TCP_PORT_IPDC	6668 /* Not IANA registered */
 #define	TRANS_ID_SIZE_IPDC	4
 
 #define	TEXT_UNDEFINED	"UNDEFINED"
@@ -708,7 +708,6 @@ static gint ett_ipdc_line_status = -1;
 static expert_field ei_ipdc_ipv4 = EI_INIT;
 
 static gboolean ipdc_desegment = TRUE;
-static guint ipdc_port_pref = TCP_PORT_IPDC;
 
 static dissector_handle_t q931_handle;
 
@@ -1079,29 +1078,18 @@ proto_register_ipdc(void)
 				       "Whether the IPDC dissector should reassemble messages spanning multiple TCP segments."
 				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 				       &ipdc_desegment);
-	prefs_register_uint_preference(ipdc_module, "tcp.port",
-				       "IPDC monitoring port",
-				       "Set the IPDC monitoring port", 10,
-				       &ipdc_port_pref);
 }
 
 void
 proto_reg_handoff_ipdc(void)
 {
-	static guint last_ipdc_port_pref = 0;
 	static dissector_handle_t ipdc_tcp_handle = NULL;
 
-	if (ipdc_tcp_handle) {
-		dissector_delete_uint("tcp.port", last_ipdc_port_pref,
-			ipdc_tcp_handle);
-	} else {
-		ipdc_tcp_handle =
-			create_dissector_handle(dissect_ipdc_tcp, proto_ipdc);
-		q931_handle = find_dissector_add_dependency("q931", proto_ipdc);
-	}
+	ipdc_tcp_handle =
+		create_dissector_handle(dissect_ipdc_tcp, proto_ipdc);
+	q931_handle = find_dissector_add_dependency("q931", proto_ipdc);
 
-	last_ipdc_port_pref = ipdc_port_pref;
-	dissector_add_uint("tcp.port", ipdc_port_pref, ipdc_tcp_handle);
+	dissector_add_uint_with_preference("tcp.port", TCP_PORT_IPDC, ipdc_tcp_handle);
 }
 
 /*

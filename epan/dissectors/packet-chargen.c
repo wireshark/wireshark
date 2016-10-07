@@ -94,7 +94,7 @@ proto_reg_handoff_chargen(void)
 
 	chargen_handle = create_dissector_handle(dissect_chargen, proto_chargen);
 	dissector_add_uint("udp.port", CHARGEN_PORT_UDP, chargen_handle);
-	dissector_add_uint("tcp.port", CHARGEN_PORT_TCP, chargen_handle);
+	dissector_add_uint_with_preference("tcp.port", CHARGEN_PORT_TCP, chargen_handle);
 }
 
 /*

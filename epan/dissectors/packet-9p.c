@@ -2735,7 +2735,7 @@ void proto_reg_handoff_9P(void)
 
 	ninep_handle = create_dissector_handle(dissect_9P, proto_9P);
 
-	dissector_add_uint("tcp.port", NINEPORT, ninep_handle);
+	dissector_add_uint_with_preference("tcp.port", NINEPORT, ninep_handle);
 }
 
 

@@ -24,7 +24,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include "packet-tcp.h"
 
 #define OPTO_FRAME_HEADER_LEN 8
@@ -59,9 +58,6 @@ static gint ett_optommp = -1;
 static gint ett_dest_id = -1;
 static gint ett_data_block_q = -1;
 static gint ett_data_block_b = -1;
-/* PORT_PREF */
-static guint gOPTOMMP_PORT_PREF = 0;
-
 
 static const value_string optommp_tcode_names[] = {
     { 0, "Write Quadlet Request" },
@@ -808,7 +804,6 @@ purpose:        create and register the protocol, trees, and fields
 ****************************************************************************/
 void proto_register_optommp(void)
 {
-    module_t *optommp_module;
     /* The fields */
     static hf_register_info hf[] =
     {
@@ -896,17 +891,9 @@ void proto_register_optommp(void)
         &ett_data_block_b
     };
     /* The protocol */
-    proto_optommp = proto_register_protocol(
-        "OptoMMP",
-        "OptoMMP",
-        "optommp");
+    proto_optommp = proto_register_protocol("OptoMMP", "OptoMMP", "optommp");
     proto_register_field_array(proto_optommp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    optommp_module = prefs_register_protocol(proto_optommp,
-        proto_reg_handoff_optommp);
-    prefs_register_uint_preference(optommp_module, "tcp.port",
-        "OptoMMP TCP or UDP Port", " OptoMMP TCP or UDP port if other than the default",
-        10, &gOPTOMMP_PORT_PREF);
 }
 
 /****************************************************************************
@@ -916,26 +903,11 @@ purpose:        plug into wireshark with a handle
 ****************************************************************************/
 void proto_reg_handoff_optommp(void)
 {
-    static gboolean initialized = FALSE;
-    static gint currentPort;
+    optommp_tcp_handle = create_dissector_handle(dissect_optommp_reassemble_tcp, proto_optommp);
+    optommp_udp_handle = create_dissector_handle(dissect_optommp_reassemble_udp, proto_optommp);
 
-    if( !initialized )
-    {
-        optommp_tcp_handle = create_dissector_handle(
-            dissect_optommp_reassemble_tcp, proto_optommp);
-        optommp_udp_handle = create_dissector_handle(
-            dissect_optommp_reassemble_udp, proto_optommp);
-        initialized = TRUE;
-    }
-    else
-    {
-        dissector_delete_uint("tcp.port", currentPort, optommp_tcp_handle);
-        dissector_delete_uint("udp.port", currentPort, optommp_udp_handle);
-    }
-
-    currentPort = gOPTOMMP_PORT_PREF;
-    dissector_add_uint("tcp.port", currentPort, optommp_tcp_handle);
-    dissector_add_uint("udp.port", currentPort, optommp_udp_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", optommp_tcp_handle);
+    dissector_add_for_decode_as_with_preference("udp.port", optommp_udp_handle);
 }
 
 /*

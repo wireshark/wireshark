@@ -41,7 +41,7 @@
 #define PSNAME "SMRSE"
 #define PFNAME "smrse"
 
-#define TCP_PORT_SMRSE 4321
+#define TCP_PORT_SMRSE 4321 /* Not IANA registered */
 
 void proto_register_smrse(void);
 void proto_reg_handoff_smrse(void);
@@ -731,6 +731,6 @@ void proto_reg_handoff_smrse(void) {
   dissector_handle_t smrse_handle;
 
   smrse_handle = create_dissector_handle(dissect_smrse, proto_smrse);
-  dissector_add_uint("tcp.port",TCP_PORT_SMRSE, smrse_handle);
+  dissector_add_uint_with_preference("tcp.port",TCP_PORT_SMRSE, smrse_handle);
 }
 

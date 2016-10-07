@@ -83,7 +83,6 @@ static xml_ns_t *root_ns;
 
 static gboolean pref_heuristic_unicode    = FALSE;
 
-static range_t *global_xml_tcp_range = NULL;
 static range_t *xml_tcp_range        = NULL;
 
 
@@ -1365,14 +1364,6 @@ static void init_xml_names(void)
     g_free(dummy);
 }
 
-static void apply_prefs(void)
-{
-    dissector_delete_uint_range("tcp.port", xml_tcp_range, xml_handle);
-    g_free(xml_tcp_range);
-    xml_tcp_range = range_copy(global_xml_tcp_range);
-    dissector_add_uint_range("tcp.port", xml_tcp_range, xml_handle);
-}
-
 void
 proto_register_xml(void)
 {
@@ -1455,12 +1446,9 @@ proto_register_xml(void)
     expert_xml = expert_register_protocol(xml_ns.hf_tag);
     expert_register_field_array(expert_xml, ei, array_length(ei));
 
-    xml_module = prefs_register_protocol(xml_ns.hf_tag, apply_prefs);
+    xml_module = prefs_register_protocol(xml_ns.hf_tag, NULL);
     prefs_register_obsolete_preference(xml_module, "heuristic");
     prefs_register_obsolete_preference(xml_module, "heuristic_tcp");
-    prefs_register_range_preference(xml_module, "tcp.port", "TCP Ports",
-                                    "TCP Ports range",
-                                    &global_xml_tcp_range, 65535);
     prefs_register_obsolete_preference(xml_module, "heuristic_udp");
     /* XXX - UCS-2, or UTF-16? */
     prefs_register_bool_preference(xml_module, "heuristic_unicode", "Use Unicode in heuristics",
@@ -1490,6 +1478,7 @@ proto_reg_handoff_xml(void)
     xml_handle = find_dissector("xml");
 
     g_hash_table_foreach(media_types, add_dissector_media, NULL);
+    dissector_add_uint_range_with_preference("tcp.port", "", xml_handle);
 
     heur_dissector_add("http",  dissect_xml_heur, "XML in HTTP", "xml_http", xml_ns.hf_tag, HEURISTIC_DISABLE);
     heur_dissector_add("sip",   dissect_xml_heur, "XML in SIP", "xml_sip", xml_ns.hf_tag, HEURISTIC_DISABLE);

@@ -28,7 +28,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include "packet-tcp.h"
 
 void proto_register_hdfsdata(void);
@@ -66,8 +65,6 @@ static const int RESPONSE_HEADER = 1;
 static const int RESPONSE_METADATA = 2;
 static const int RESPONSE_DATA = 3;
 #endif
-
-static guint tcp_port = 0;
 
 static int proto_hdfsdata = -1;
 static int hf_hdfsdata_version = -1;
@@ -772,25 +769,10 @@ proto_register_hdfsdata(void)
         &ett_hdfsdata
     };
 
-    module_t *hdfsdata_module;
-
-    proto_hdfsdata = proto_register_protocol (
-      "HDFSDATA Protocol", /* name       */
-      "HDFSDATA",      /* short name */
-      "hdfsdata"       /* abbrev     */
-      );
+    proto_hdfsdata = proto_register_protocol ("HDFSDATA Protocol", "HDFSDATA", "hdfsdata");
 
     proto_register_field_array(proto_hdfsdata, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    hdfsdata_module = prefs_register_protocol(proto_hdfsdata, proto_reg_handoff_hdfsdata);
-
-    prefs_register_uint_preference(hdfsdata_module,
-                                   "tcp.port",
-                                   "TCP port for HDFSDATA",
-                                   "Set the TCP port for HDFSDATA",
-                                   10,
-                                   &tcp_port);
 
     hdfsdata_handle = register_dissector("hdfsdata", dissect_hdfsdata, proto_hdfsdata);
 }
@@ -799,21 +781,7 @@ proto_register_hdfsdata(void)
 void
 proto_reg_handoff_hdfsdata(void)
 {
-  static gboolean initialized = FALSE;
-    static guint saved_tcp_port;
-
-    if (!initialized) {
-        dissector_add_for_decode_as("tcp.port", hdfsdata_handle);
-        initialized = TRUE;
-    } else if (saved_tcp_port != 0) {
-        dissector_delete_uint("tcp.port", saved_tcp_port, hdfsdata_handle);
-    }
-
-    if (tcp_port != 0) {
-        dissector_add_uint("tcp.port", tcp_port, hdfsdata_handle);
-    }
-
-    saved_tcp_port = tcp_port;
+    dissector_add_for_decode_as_with_preference("tcp.port", hdfsdata_handle);
 }
 /*
  * Editor modelines

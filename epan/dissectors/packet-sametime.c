@@ -28,13 +28,12 @@
 #include <epan/stats_tree.h>
 #include "packet-tcp.h"
 
-#define DEFAULT_SAMETIME_PORT 1533
+#define DEFAULT_SAMETIME_PORT 1533 /* Not IANA registered */
 
 void proto_register_sametime(void);
 void proto_reg_handoff_sametime(void);
 
 static int proto_sametime = -1;
-static guint global_sametime_port = DEFAULT_SAMETIME_PORT;
 static dissector_handle_t sametime_handle;
 
 /*preferences*/
@@ -886,11 +885,7 @@ proto_register_sametime(void)
 
    module_t *sametime_module;
 
-   proto_sametime = proto_register_protocol (
-         "Sametime Protocol", /* name */
-         "SAMETIME",          /* short name */
-         "sametime"           /* abbrev */
-         );
+   proto_sametime = proto_register_protocol ("Sametime Protocol", "SAMETIME", "sametime");
    proto_register_field_array(proto_sametime, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
@@ -905,10 +900,6 @@ proto_register_sametime(void)
    prefs_register_bool_preference(sametime_module, "reassemble",
          "Reassemble","reassemble packets",
          &global_sametime_reassemble_packets);
-   prefs_register_uint_preference(sametime_module, "tcp_port",
-         "SAMETIME port number",
-         "port number for sametime traffic",
-         10, &global_sametime_port);
 }
 
 
@@ -918,21 +909,13 @@ proto_register_sametime(void)
 void
 proto_reg_handoff_sametime(void)
 {
-   static gboolean initialized = FALSE;
-   static guint saved_sametime_tcp_port;
+   sametime_handle = create_dissector_handle(dissect_sametime, proto_sametime);
+   dissector_add_uint_with_preference("tcp.port", DEFAULT_SAMETIME_PORT, sametime_handle);
 
-   if (!initialized) {
-      sametime_handle = create_dissector_handle(dissect_sametime, proto_sametime);
-      stats_tree_register("sametime", "sametime", "Sametime/Messages", 0,
-            sametime_stats_tree_packet,
-            sametime_stats_tree_init, NULL );
-      initialized = TRUE;
-   } else {
-      dissector_delete_uint("tcp.port", saved_sametime_tcp_port, sametime_handle);
-   }
+   stats_tree_register("sametime", "sametime", "Sametime/Messages", 0,
+        sametime_stats_tree_packet,
+        sametime_stats_tree_init, NULL );
 
-   dissector_add_uint("tcp.port", global_sametime_port, sametime_handle);
-   saved_sametime_tcp_port = global_sametime_port;
 }
 
 

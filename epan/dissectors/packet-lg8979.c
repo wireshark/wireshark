@@ -152,11 +152,8 @@ static gint ett_lg8979_funccode          = -1;
 static gint ett_lg8979_point             = -1;
 static gint ett_lg8979_ts                = -1;
 
-#define PORT_LG8979    0
-
 /* Globals for L&G 8979 Protocol Preferences */
 static gboolean lg8979_desegment = TRUE;
-static guint global_lg8979_tcp_port = PORT_LG8979; /* Port 0, by default */
 
 #define LG8979_HEADER             0xFF
 
@@ -1543,46 +1540,25 @@ proto_register_lg8979(void)
 
 
     /* Register required preferences for L&G 8979 register decoding */
-    lg8979_module = prefs_register_protocol(proto_lg8979, proto_reg_handoff_lg8979);
+    lg8979_module = prefs_register_protocol(proto_lg8979, NULL);
 
     /*  L&G 8979 - Desegmentmentation; defaults to TRUE for TCP desegmentation*/
     prefs_register_bool_preference(lg8979_module, "desegment",
                                   "Desegment all L&G 8979 Protocol packets spanning multiple TCP segments",
                                   "Whether the L&G 8979 dissector should desegment all messages spanning multiple TCP segments",
                                   &lg8979_desegment);
-
-
-    /* L&G 8979 Preference - Default TCP Port, allows for "user" port either than 0. */
-    prefs_register_uint_preference(lg8979_module, "tcp.port",
-                                  "L&G 8979 Protocol Port",
-                                  "Set the TCP port for L&G 8979 Protocol packets (if other than the default of 0)",
-                                  10, &global_lg8979_tcp_port);
 }
 
 /******************************************************************************************************/
 void
 proto_reg_handoff_lg8979(void)
 {
-    static int lg8979_prefs_initialized = FALSE;
-    static dissector_handle_t lg8979_handle;
-    static unsigned int lg8979_port;
+    dissector_handle_t lg8979_handle;
 
     /* Make sure to use L&G 8979 Protocol Preferences field to determine default TCP port */
-    if (! lg8979_prefs_initialized) {
-        lg8979_handle = create_dissector_handle(dissect_lg8979_tcp, proto_lg8979);
-        lg8979_prefs_initialized = TRUE;
-    }
+    lg8979_handle = create_dissector_handle(dissect_lg8979_tcp, proto_lg8979);
 
-    if(lg8979_port != 0 && lg8979_port != global_lg8979_tcp_port){
-        dissector_delete_uint("tcp.port", lg8979_port, lg8979_handle);
-    }
-
-    if(global_lg8979_tcp_port != 0 && lg8979_port != global_lg8979_tcp_port) {
-        dissector_add_uint("tcp.port", global_lg8979_tcp_port, lg8979_handle);
-    }
-
-    lg8979_port = global_lg8979_tcp_port;
-
+    dissector_add_for_decode_as_with_preference("tcp.port", lg8979_handle);
     dissector_add_for_decode_as("rtacser.data", lg8979_handle);
 }
 

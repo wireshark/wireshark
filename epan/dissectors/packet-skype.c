@@ -444,7 +444,7 @@ proto_reg_handoff_skype(void)
 	dissector_handle_t skype_handle;
 
 	skype_handle = create_dissector_handle(dissect_skype_static, proto_skype);
-	dissector_add_for_decode_as("tcp.port", skype_handle);
+	dissector_add_for_decode_as_with_preference("tcp.port", skype_handle);
 	dissector_add_for_decode_as("udp.port", skype_handle);
 
 	heur_dissector_add("tcp", dissect_skype_heur, "Skype over TCP", "skype_tcp", proto_skype, HEURISTIC_DISABLE);

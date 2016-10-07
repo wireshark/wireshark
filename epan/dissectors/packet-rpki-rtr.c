@@ -29,6 +29,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include "packet-tcp.h"
+#include "packet-ssl.h"
 #include <epan/expert.h>
 #include <epan/asn1.h>
 #include "packet-x509af.h"
@@ -62,8 +63,9 @@ static int hf_rpkirtr_expire_interval = -1;
 static int hf_rpkirtr_subject_key_identifier = -1;
 static int hf_rpkirtr_subject_public_key_info = -1;
 
-static guint g_port_rpkirtr     = 323;
-static guint g_port_rpkirtr_tls = 324;
+#define RPKI_RTR_TCP_PORT 323
+#define RPKI_RTR_TLS_PORT 324
+static guint g_port_rpkirtr_tls = RPKI_RTR_TLS_PORT;
 
 static gint ett_rpkirtr = -1;
 static gint ett_flags   = -1;
@@ -466,15 +468,13 @@ proto_register_rpkirtr(void)
     rpkirtr_module = prefs_register_protocol(proto_rpkirtr,
         proto_reg_handoff_rpkirtr);
 
-    prefs_register_uint_preference(rpkirtr_module, "tcp.rpkirtr.port", "RPKI-RTR TCP Port",
-         "RPKI-Router Protocol TCP port if other than the default",
-         10, &g_port_rpkirtr);
     prefs_register_uint_preference(rpkirtr_module, "tcp.rpkirtr_tls.port", "RPKI-RTR TCP TLS Port",
          "RPKI-Router Protocol TCP TLS port if other than the default",
          10, &g_port_rpkirtr_tls);
 
     expert_rpkirtr = expert_register_protocol(proto_rpkirtr);
     expert_register_field_array(expert_rpkirtr, ei, array_length(ei));
+    register_dissector("rpkirtr", dissect_rpkirtr, proto_rpkirtr);
 }
 
 
@@ -483,26 +483,18 @@ proto_reg_handoff_rpkirtr(void)
 {
     static gboolean initialized = FALSE;
     static dissector_handle_t rpkirtr_handle;
-    static dissector_handle_t ssl_handle;
-    static int rpki_rtr_port, rpki_rtr_tls_port;
+    static int rpki_rtr_tls_port;
 
     if (!initialized) {
-
-        rpkirtr_handle = create_dissector_handle(dissect_rpkirtr,
-                                                        proto_rpkirtr);
-        ssl_handle           = find_dissector("ssl");
+        rpkirtr_handle = find_dissector("rpkirtr");
+        dissector_add_uint_with_preference("tcp.port", RPKI_RTR_TCP_PORT, rpkirtr_handle);
         initialized = TRUE;
     } else {
-
-        dissector_delete_uint("tcp.port", rpki_rtr_port, rpkirtr_handle);
-        dissector_delete_uint("tcp.port", rpki_rtr_tls_port, ssl_handle);
+        ssl_dissector_delete(rpki_rtr_tls_port, rpkirtr_handle);
     }
 
-    rpki_rtr_port = g_port_rpkirtr;
     rpki_rtr_tls_port = g_port_rpkirtr_tls;
-
-    dissector_add_uint("tcp.port", rpki_rtr_port, rpkirtr_handle);
-    dissector_add_uint("tcp.port", rpki_rtr_tls_port, ssl_handle);
+    ssl_dissector_add(rpki_rtr_tls_port, rpkirtr_handle);
 }
 
 

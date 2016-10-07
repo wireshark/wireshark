@@ -29,6 +29,8 @@
 #include <wsutil/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
+#include <epan/packet.h>
+#include <epan/decode_as.h>
 
 #ifdef HAVE_LIBPCAP
 #include "capture_opts.h"
@@ -42,6 +44,10 @@ guint
 pref_stash(pref_t *pref, gpointer unused _U_)
 {
   switch (pref->type) {
+
+  case PREF_DECODE_AS_UINT:
+    pref->stashed_val.uint = *pref->varp.uint;
+    break;
 
   case PREF_UINT:
     pref->stashed_val.uint = *pref->varp.uint;
@@ -62,6 +68,7 @@ pref_stash(pref_t *pref, gpointer unused _U_)
     pref->stashed_val.string = g_strdup(*pref->varp.string);
     break;
 
+  case PREF_DECODE_AS_RANGE:
   case PREF_RANGE:
     g_free(pref->stashed_val.range);
     pref->stashed_val.range = range_copy(*pref->varp.range);
@@ -84,30 +91,56 @@ pref_stash(pref_t *pref, gpointer unused _U_)
 }
 
 guint
-pref_unstash(pref_t *pref, gpointer changed_p)
+pref_unstash(pref_t *pref, gpointer unstash_data_p)
 {
-  gboolean *pref_changed_p = (gboolean *)changed_p;
+  pref_unstash_data_t *unstash_data = (pref_unstash_data_t *)unstash_data_p;
+  dissector_table_t sub_dissectors = NULL;
+  dissector_handle_t handle = NULL;
 
   /* Revert the preference to its saved value. */
   switch (pref->type) {
 
+  case PREF_DECODE_AS_UINT:
+    if (*pref->varp.uint != pref->stashed_val.uint) {
+      unstash_data->module->prefs_changed = TRUE;
+
+      if (unstash_data->handle_decode_as) {
+        if (*pref->varp.uint != pref->default_val.uint) {
+          dissector_reset_uint(pref->name, *pref->varp.uint);
+        }
+      }
+
+      *pref->varp.uint = pref->stashed_val.uint;
+
+      if (unstash_data->handle_decode_as) {
+        sub_dissectors = find_dissector_table(pref->name);
+        if (sub_dissectors != NULL) {
+           handle = dissector_table_get_dissector_handle(sub_dissectors, (gchar*)unstash_data->module->title);
+           if (handle != NULL) {
+              dissector_change_uint(pref->name, *pref->varp.uint, handle);
+           }
+        }
+      }
+    }
+    break;
+
   case PREF_UINT:
     if (*pref->varp.uint != pref->stashed_val.uint) {
-      *pref_changed_p = TRUE;
+      unstash_data->module->prefs_changed = TRUE;
       *pref->varp.uint = pref->stashed_val.uint;
     }
     break;
 
   case PREF_BOOL:
     if (*pref->varp.boolp != pref->stashed_val.boolval) {
-      *pref_changed_p = TRUE;
+      unstash_data->module->prefs_changed = TRUE;
       *pref->varp.boolp = pref->stashed_val.boolval;
     }
     break;
 
   case PREF_ENUM:
     if (*pref->varp.enump != pref->stashed_val.enumval) {
-      *pref_changed_p = TRUE;
+      unstash_data->module->prefs_changed = TRUE;
       *pref->varp.enump = pref->stashed_val.enumval;
     }
     break;
@@ -116,15 +149,61 @@ pref_unstash(pref_t *pref, gpointer changed_p)
   case PREF_FILENAME:
   case PREF_DIRNAME:
     if (strcmp(*pref->varp.string, pref->stashed_val.string) != 0) {
-      *pref_changed_p = TRUE;
+      unstash_data->module->prefs_changed = TRUE;
       g_free(*pref->varp.string);
       *pref->varp.string = g_strdup(pref->stashed_val.string);
     }
     break;
 
+  case PREF_DECODE_AS_RANGE:
+    if (!ranges_are_equal(*pref->varp.range, pref->stashed_val.range)) {
+      guint32 i, j;
+      unstash_data->module->prefs_changed = TRUE;
+
+      if (unstash_data->handle_decode_as) {
+        sub_dissectors = find_dissector_table(pref->name);
+        if (sub_dissectors != NULL) {
+          handle = dissector_table_get_dissector_handle(sub_dissectors, (gchar*)unstash_data->module->title);
+          if (handle != NULL) {
+            /* Delete all of the old values from the dissector table */
+            for (i = 0; i < (*pref->varp.range)->nranges; i++) {
+              for (j = (*pref->varp.range)->ranges[i].low; j < (*pref->varp.range)->ranges[i].high; j++) {
+                dissector_delete_uint(pref->name, j, handle);
+                decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER(j), NULL, NULL);
+              }
+
+              dissector_delete_uint(pref->name, (*pref->varp.range)->ranges[i].high, handle);
+              decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER((*pref->varp.range)->ranges[i].high), NULL, NULL);
+            }
+          }
+        }
+      }
+
+      g_free(*pref->varp.range);
+      *pref->varp.range = range_copy(pref->stashed_val.range);
+
+      if (unstash_data->handle_decode_as) {
+        if ((sub_dissectors != NULL) && (handle != NULL)) {
+
+          /* Add new values to the dissector table */
+          for (i = 0; i < (*pref->varp.range)->nranges; i++) {
+
+            for (j = (*pref->varp.range)->ranges[i].low; j < (*pref->varp.range)->ranges[i].high; j++) {
+              dissector_change_uint(pref->name, j, handle);
+              decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER(j), NULL, NULL);
+            }
+
+            dissector_change_uint(pref->name, (*pref->varp.range)->ranges[i].high, handle);
+            decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER((*pref->varp.range)->ranges[i].high), NULL, NULL);
+          }
+        }
+      }
+    }
+    break;
+
   case PREF_RANGE:
     if (!ranges_are_equal(*pref->varp.range, pref->stashed_val.range)) {
-      *pref_changed_p = TRUE;
+      unstash_data->module->prefs_changed = TRUE;
       g_free(*pref->varp.range);
       *pref->varp.range = range_copy(pref->stashed_val.range);
     }
@@ -150,6 +229,10 @@ void
 reset_stashed_pref(pref_t *pref) {
   switch (pref->type) {
 
+  case PREF_DECODE_AS_UINT:
+    pref->stashed_val.uint = pref->default_val.uint;
+    break;
+
   case PREF_UINT:
     pref->stashed_val.uint = pref->default_val.uint;
     break;
@@ -169,6 +252,7 @@ reset_stashed_pref(pref_t *pref) {
     pref->stashed_val.string = g_strdup(pref->default_val.string);
     break;
 
+  case PREF_DECODE_AS_RANGE:
   case PREF_RANGE:
     g_free(pref->stashed_val.range);
     pref->stashed_val.range = range_copy(pref->default_val.range);
@@ -195,6 +279,7 @@ pref_clean_stash(pref_t *pref, gpointer unused _U_)
   switch (pref->type) {
 
   case PREF_UINT:
+  case PREF_DECODE_AS_UINT:
     break;
 
   case PREF_BOOL:
@@ -212,6 +297,7 @@ pref_clean_stash(pref_t *pref, gpointer unused _U_)
     }
     break;
 
+  case PREF_DECODE_AS_RANGE:
   case PREF_RANGE:
     if (pref->stashed_val.range != NULL) {
       g_free(pref->stashed_val.range);

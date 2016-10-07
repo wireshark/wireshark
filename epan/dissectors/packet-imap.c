@@ -425,7 +425,7 @@ proto_register_imap(void)
 void
 proto_reg_handoff_imap(void)
 {
-  dissector_add_uint("tcp.port", TCP_PORT_IMAP, imap_handle);
+  dissector_add_uint_with_preference("tcp.port", TCP_PORT_IMAP, imap_handle);
   ssl_dissector_add(TCP_PORT_SSL_IMAP, imap_handle);
   ssl_handle = find_dissector("ssl");
 }

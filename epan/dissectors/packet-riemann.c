@@ -112,7 +112,6 @@ static int hf_riemann_state_state = -1;
 static int hf_riemann_state_once = -1;
 
 static guint udp_port_pref = 0;
-static guint tcp_port_pref = 0;
 
 static gint ett_riemann = -1;
 static gint ett_query = -1;
@@ -819,10 +818,6 @@ proto_register_riemann(void)
     prefs_register_uint_preference(riemann_module, "udp.port", "Riemann UDP Port",
             " riemann UDP port if other than the default",
             10, &udp_port_pref);
-
-    prefs_register_uint_preference(riemann_module, "tcp.port", "Riemann TCP Port",
-            " riemann TCP port if other than the default",
-            10, &tcp_port_pref);
 }
 
 void
@@ -830,20 +825,18 @@ proto_reg_handoff_riemann(void)
 {
     static gboolean initialized = FALSE;
     static dissector_handle_t riemann_udp_handle, riemann_tcp_handle;
-    static int current_udp_port, current_tcp_port;
+    static int current_udp_port;
 
     if (!initialized) {
         riemann_udp_handle = create_dissector_handle(dissect_riemann_udp, proto_riemann);
         riemann_tcp_handle = create_dissector_handle(dissect_riemann_tcp, proto_riemann);
+        dissector_add_for_decode_as_with_preference("tcp.port", riemann_tcp_handle);
         initialized = TRUE;
     } else {
         dissector_delete_uint("udp.port", current_udp_port, riemann_udp_handle);
-        dissector_delete_uint("tcp.port", current_tcp_port, riemann_tcp_handle);
     }
     current_udp_port = udp_port_pref;
     dissector_add_uint("udp.port", current_udp_port, riemann_udp_handle);
-    current_tcp_port = tcp_port_pref;
-    dissector_add_uint("tcp.port", current_tcp_port, riemann_tcp_handle);
 }
 
 /*

@@ -28,6 +28,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 #include <epan/proto_data.h>
 #include "packet-tcp.h"
 
@@ -183,7 +184,6 @@ static const value_string kafka_codecs[] = {
 };
 
 /* List/range of TCP ports to register */
-static range_t *new_kafka_tcp_range = NULL;
 static range_t *current_kafka_tcp_range = NULL;
 
 typedef struct _kafka_query_response_t {
@@ -1203,11 +1203,17 @@ dissect_kafka_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return tvb_captured_length(tvb);
 }
 
+
+static void
+apply_kafka_prefs(void) {
+    pref_t *kafka_ports = prefs_find_preference(prefs_find_module("kafka"), "tcp.port");
+
+    current_kafka_tcp_range = range_copy(*kafka_ports->varp.range);
+}
+
 void
 proto_register_kafka(void)
 {
-    module_t *kafka_module;
-
     static hf_register_info hf[] = {
         { &hf_kafka_len,
             { "Length", "kafka.len",
@@ -1439,44 +1445,25 @@ proto_register_kafka(void)
 
     expert_module_t* expert_kafka;
 
-    proto_kafka = proto_register_protocol("Kafka",
-            "Kafka", "kafka");
+    proto_kafka = proto_register_protocol("Kafka", "Kafka", "kafka");
 
     proto_register_field_array(proto_kafka, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_kafka = expert_register_protocol(proto_kafka);
     expert_register_field_array(expert_kafka, ei, array_length(ei));
 
-    kafka_module = prefs_register_protocol(proto_kafka,
-            proto_reg_handoff_kafka);
-
-    /* Preference for list/range of TCP server ports */
-    new_kafka_tcp_range = range_empty();
-    prefs_register_range_preference(kafka_module, "tcp.ports", "Broker TCP Ports",
-                                    "TCP Ports range",
-                                    &new_kafka_tcp_range, 65535);
-
-    /* Single-port preference no longer in use */
-    prefs_register_obsolete_preference(kafka_module, "tcp.port");
+    prefs_register_protocol(proto_kafka, apply_kafka_prefs);
 }
 
 void
 proto_reg_handoff_kafka(void)
 {
-    static gboolean initialized = FALSE;
-    static dissector_handle_t kafka_handle;
+    dissector_handle_t kafka_handle;
 
-    if (!initialized) {
-        kafka_handle = create_dissector_handle(dissect_kafka_tcp,
-                proto_kafka);
-        initialized = TRUE;
-    }
+    kafka_handle = create_dissector_handle(dissect_kafka_tcp, proto_kafka);
 
     /* Replace range of ports with current */
-    dissector_delete_uint_range("tcp.port", current_kafka_tcp_range, kafka_handle);
-    g_free(current_kafka_tcp_range);
-    current_kafka_tcp_range = range_copy(new_kafka_tcp_range);
-    dissector_add_uint_range("tcp.port", new_kafka_tcp_range, kafka_handle);
+    dissector_add_uint_range_with_preference("tcp.port", "", kafka_handle);
 }
 
 /*

@@ -29,7 +29,7 @@
 #include <epan/crc16-tvb.h>
 
 /** Serial infrared port. */
-#define TCP_PORT_SIR 6417
+#define TCP_PORT_SIR 6417 /* Not IANA registered */
 
 
 /** Beginning of frame. */
@@ -174,7 +174,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root, void* data _U_)
 void
 proto_reg_handoff_irsir(void)
 {
-	dissector_add_uint("tcp.port", TCP_PORT_SIR, find_dissector("sir"));
+	dissector_add_uint_with_preference("tcp.port", TCP_PORT_SIR, find_dissector("sir"));
 
 	irda_handle = find_dissector("irda");
 }

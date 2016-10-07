@@ -342,7 +342,7 @@ proto_reg_handoff_PROTOABBREV(void)
      */
     PROTOABBREV_handle = create_dissector_handle(dissect_PROTOABBREV,
             proto_PROTOABBREV);
-    dissector_add_uint("tcp.port", PROTOABBREV_TCP_PORT, PROTOABBREV_handle);
+    dissector_add_uint_with_preference("tcp.port", PROTOABBREV_TCP_PORT, PROTOABBREV_handle);
 }
 #endif
 

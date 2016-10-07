@@ -32,7 +32,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include "packet-ndmp.h"
 
 void proto_register_tcpencap(void);
@@ -67,11 +66,6 @@ static const value_string tcpencap_proto_vals[] = {
 
 #define TRAILERLENGTH 16
 #define TCP_CISCO_IPSEC 10000
-/* Another case of several companies creating protocols and
-   choosing an easy-to-remember port. Playing tonight: Cisco vs NDMP.
-   Since NDMP has officially registered port 10000 with IANA, it should be the default
-*/
-static guint global_tcpencap_tcp_port = 0;
 
 static dissector_handle_t esp_handle;
 static dissector_handle_t udp_handle;
@@ -224,43 +218,25 @@ proto_register_tcpencap(void)
 		&ett_tcpencap_unknown,
 	};
 
-	module_t *tcpencap_module;
+	proto_tcpencap = proto_register_protocol("TCP Encapsulation of IPsec Packets", "TCPENCAP", "tcpencap");
 
-	proto_tcpencap = proto_register_protocol(
-		"TCP Encapsulation of IPsec Packets", "TCPENCAP", "tcpencap");
 	proto_register_field_array(proto_tcpencap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	tcpencap_module = prefs_register_protocol(proto_tcpencap, proto_reg_handoff_tcpencap);
-	prefs_register_uint_preference(tcpencap_module, "tcp.port", "IPSEC TCP Port",
-		"Set the port for IPSEC/ISAKMP messages (typically 10000)",
-		10, &global_tcpencap_tcp_port);
 }
 
 void
 proto_reg_handoff_tcpencap(void)
 {
-	static dissector_handle_t tcpencap_handle;
-	static gboolean initialized = FALSE;
-	static guint tcpencap_tcp_port = 0;
+	dissector_handle_t tcpencap_handle;
 
-	if (!initialized) {
-		tcpencap_handle = create_dissector_handle(dissect_tcpencap, proto_tcpencap);
-		esp_handle = find_dissector_add_dependency("esp", proto_tcpencap);
-		udp_handle = find_dissector_add_dependency("udp", proto_tcpencap);
+	tcpencap_handle = create_dissector_handle(dissect_tcpencap, proto_tcpencap);
+	esp_handle = find_dissector_add_dependency("esp", proto_tcpencap);
+	udp_handle = find_dissector_add_dependency("udp", proto_tcpencap);
 
-		heur_dissector_add("tcp", dissect_tcpencap_heur, "TCP Encapsulation of IPsec Packets", "ipsec_tcp", proto_tcpencap, HEURISTIC_ENABLE);
-
-		initialized = TRUE;
-	}
+	heur_dissector_add("tcp", dissect_tcpencap_heur, "TCP Encapsulation of IPsec Packets", "ipsec_tcp", proto_tcpencap, HEURISTIC_ENABLE);
 
 	/* Register TCP port for dissection */
-	if(tcpencap_tcp_port != 0 && tcpencap_tcp_port != global_tcpencap_tcp_port){
-		dissector_delete_uint("tcp.port", tcpencap_tcp_port, tcpencap_handle);
-	}
-
-	if(global_tcpencap_tcp_port != 0 && tcpencap_tcp_port != global_tcpencap_tcp_port) {
-		dissector_add_uint("tcp.port", global_tcpencap_tcp_port, tcpencap_handle);
-	}
+	dissector_add_for_decode_as_with_preference("tcp.port", tcpencap_handle);
 }
 
 /*

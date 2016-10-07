@@ -74,6 +74,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
 
     switch (pref->type) {
     case PREF_UINT:
+    case PREF_DECODE_AS_UINT:
     {
         QHBoxLayout *hb = new QHBoxLayout();
         QLabel *label = new QLabel(pref->title);
@@ -150,6 +151,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
         vb->addLayout(hb);
         break;
     }
+    case PREF_DECODE_AS_RANGE:
     case PREF_RANGE:
     {
         QHBoxLayout *hb = new QHBoxLayout();
@@ -251,6 +253,9 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
         if (!pref) continue;
 
         switch (pref->type) {
+        case PREF_DECODE_AS_UINT:
+            connect(le, SIGNAL(textEdited(QString)), this, SLOT(uintLineEditTextEdited(QString)));
+            break;
         case PREF_UINT:
             connect(le, SIGNAL(textEdited(QString)), this, SLOT(uintLineEditTextEdited(QString)));
             break;
@@ -260,6 +265,7 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
             connect(le, SIGNAL(textEdited(QString)), this, SLOT(stringLineEditTextEdited(QString)));
             break;
         case PREF_RANGE:
+        case PREF_DECODE_AS_RANGE:
             connect(le, SIGNAL(textEdited(QString)), this, SLOT(rangeSyntaxLineEditTextEdited(QString)));
             break;
         default:

@@ -9537,7 +9537,7 @@ proto_register_bgp(void)
 void
 proto_reg_handoff_bgp(void)
 {
-    dissector_add_uint("tcp.port", BGP_TCP_PORT, bgp_handle);
+    dissector_add_uint_with_preference("tcp.port", BGP_TCP_PORT, bgp_handle);
 }
 /*
 * Editor modelines - http://www.wireshark.org/tools/modelines.html

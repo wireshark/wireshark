@@ -33,7 +33,6 @@
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
 
@@ -140,7 +139,6 @@ static expert_field ei_xmcp_attr_error_code_unusual = EI_INIT;
 #define XMCP_MAGIC_COOKIE 0x7f5a9bc7
 
 void proto_reg_handoff_xmcp(void);
-static guint global_xmcp_tcp_port = TCP_PORT_XMCP;
 
 #define XMCP_HDR_LEN      20
 #define XMCP_ATTR_HDR_LEN 4
@@ -1340,45 +1338,26 @@ proto_register_xmcp(void)
       { &ei_xmcp_session_termination, { "xmcp.session_termination", PI_SEQUENCE, PI_CHAT, "Session termination", EXPFILL }},
   };
 
-  module_t *xmcp_module;
   expert_module_t* expert_xmcp;
 
-  proto_xmcp = proto_register_protocol("eXtensible Messaging Client Protocol",
-                                       "XMCP", "xmcp");
+  proto_xmcp = proto_register_protocol("eXtensible Messaging Client Protocol", "XMCP", "xmcp");
 
   proto_register_field_array(proto_xmcp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_xmcp = expert_register_protocol(proto_xmcp);
   expert_register_field_array(expert_xmcp, ei, array_length(ei));
-
-  /* Register XMCP configuration options */
-  xmcp_module = prefs_register_protocol(proto_xmcp, proto_reg_handoff_xmcp);
-
-  prefs_register_uint_preference(xmcp_module, "tcp.port", "XMCP TCP Port",
-                                 "Set the port for XMCP messages (if other"
-                                 " than the default of 4788)",
-                                 10, &global_xmcp_tcp_port);
-
 }
 
 void
 proto_reg_handoff_xmcp(void)
 {
-  static gboolean xmcp_prefs_initialized = FALSE;
-  static dissector_handle_t xmcp_tcp_handle;
-  static guint xmcp_tcp_port;
+  dissector_handle_t xmcp_tcp_handle;
 
-  if (!xmcp_prefs_initialized) {
-    xmcp_tcp_handle = create_dissector_handle(dissect_xmcp_tcp, proto_xmcp);
-    heur_dissector_add("tcp", dissect_xmcp_heur, "XMCP over TCP", "xmcp_tcp", proto_xmcp, HEURISTIC_ENABLE);
-    media_type_dissector_table = find_dissector_table("media_type");
-    xmcp_prefs_initialized = TRUE;
-  } else {
-    dissector_delete_uint("tcp.port", xmcp_tcp_port, xmcp_tcp_handle);
-  }
+  xmcp_tcp_handle = create_dissector_handle(dissect_xmcp_tcp, proto_xmcp);
+  heur_dissector_add("tcp", dissect_xmcp_heur, "XMCP over TCP", "xmcp_tcp", proto_xmcp, HEURISTIC_ENABLE);
+  media_type_dissector_table = find_dissector_table("media_type");
 
-  xmcp_tcp_port = global_xmcp_tcp_port;
-  dissector_add_uint("tcp.port", global_xmcp_tcp_port, xmcp_tcp_handle);
+  dissector_add_uint_with_preference("tcp.port", TCP_PORT_XMCP, xmcp_tcp_handle);
 }
 
 /*

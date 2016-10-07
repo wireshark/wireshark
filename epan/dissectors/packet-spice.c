@@ -4563,7 +4563,7 @@ void
 proto_reg_handoff_spice(void)
 {
     spice_handle = create_dissector_handle(dissect_spice, proto_spice);
-    dissector_add_for_decode_as("tcp.port", spice_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", spice_handle);
     heur_dissector_add("tcp", test_spice_protocol, "Spice over TCP", "spice_tcp", proto_spice, HEURISTIC_ENABLE);
     jpeg_handle  = find_dissector_add_dependency("image-jfif", proto_spice);
 }

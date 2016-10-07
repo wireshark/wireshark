@@ -302,7 +302,6 @@ static int diameter_tap = -1;
 static dissector_handle_t diameter_udp_handle;
 static dissector_handle_t diameter_tcp_handle;
 static dissector_handle_t diameter_sctp_handle;
-static range_t *global_diameter_tcp_port_range;
 static range_t *global_diameter_sctp_port_range;
 static range_t *global_diameter_udp_port_range;
 /* This is used for TCP and SCTP */
@@ -2334,18 +2333,12 @@ proto_register_diameter(void)
 	diameter_expr_result_vnd_table = register_dissector_table("diameter.vnd_exp_res", "DIAMETER Experimental-Result-Code", proto_diameter, FT_UINT32, BASE_DEC);
 
 	/* Set default TCP ports */
-	range_convert_str(&global_diameter_tcp_port_range, DEFAULT_DIAMETER_PORT_RANGE, MAX_UDP_PORT);
 	range_convert_str(&global_diameter_sctp_port_range, DEFAULT_DIAMETER_PORT_RANGE, MAX_SCTP_PORT);
 	range_convert_str(&global_diameter_udp_port_range, "", MAX_UDP_PORT);
 
 	/* Register configuration options for ports */
 	diameter_module = prefs_register_protocol(proto_diameter,
 						  proto_reg_handoff_diameter);
-
-	prefs_register_range_preference(diameter_module, "tcp.ports", "Diameter TCP ports",
-					"TCP ports to be decoded as Diameter (default: "
-					DEFAULT_DIAMETER_PORT_RANGE ")",
-					&global_diameter_tcp_port_range, MAX_UDP_PORT);
 
 	prefs_register_range_preference(diameter_module, "sctp.ports",
 					"Diameter SCTP Ports",
@@ -2369,7 +2362,6 @@ proto_register_diameter(void)
 	 *  them as obsolete rather than just illegal.
 	 */
 	prefs_register_obsolete_preference(diameter_module, "version");
-	prefs_register_obsolete_preference(diameter_module, "tcp.port");
 	prefs_register_obsolete_preference(diameter_module, "sctp.port");
 	prefs_register_obsolete_preference(diameter_module, "command_in_header");
 	prefs_register_obsolete_preference(diameter_module, "dictionary.name");
@@ -2388,7 +2380,6 @@ void
 proto_reg_handoff_diameter(void)
 {
 	static gboolean Initialized=FALSE;
-	static range_t *diameter_tcp_port_range;
 	static range_t *diameter_sctp_port_range;
 	static range_t *diameter_udp_port_range;
 
@@ -2435,19 +2426,16 @@ proto_reg_handoff_diameter(void)
 
 		Initialized=TRUE;
 	} else {
-		dissector_delete_uint_range("tcp.port", diameter_tcp_port_range, diameter_tcp_handle);
 		dissector_delete_uint_range("sctp.port", diameter_sctp_port_range, diameter_sctp_handle);
 		dissector_delete_uint_range("udp.port", diameter_udp_port_range, diameter_udp_handle);
-		g_free(diameter_tcp_port_range);
 		g_free(diameter_sctp_port_range);
 		g_free(diameter_udp_port_range);
 	}
 
 	/* set port for future deletes */
-	diameter_tcp_port_range = range_copy(global_diameter_tcp_port_range);
 	diameter_sctp_port_range = range_copy(global_diameter_sctp_port_range);
 	diameter_udp_port_range = range_copy(global_diameter_udp_port_range);
-	dissector_add_uint_range("tcp.port",  diameter_tcp_port_range,  diameter_tcp_handle);
+	dissector_add_uint_range_with_preference("tcp.port", DEFAULT_DIAMETER_PORT_RANGE, diameter_tcp_handle);
 	dissector_add_uint_range("sctp.port", diameter_sctp_port_range, diameter_sctp_handle);
 	dissector_add_uint_range("udp.port", diameter_udp_port_range, diameter_udp_handle);
 

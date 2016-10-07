@@ -127,6 +127,7 @@ static const value_string sa_unspec_error_vals[] = {
         { 0, NULL },
 };
 
+#define MSDP_PORT  639
 
 /* Initialize the protocol and registered fields */
 static int proto_msdp = -1;
@@ -586,7 +587,7 @@ proto_reg_handoff_msdp(void)
         dissector_handle_t msdp_handle;
 
         msdp_handle = create_dissector_handle(dissect_msdp, proto_msdp);
-        dissector_add_uint("tcp.port", 639, msdp_handle);
+        dissector_add_uint_with_preference("tcp.port", MSDP_PORT, msdp_handle);
 
         ip_handle = find_dissector_add_dependency("ip", proto_msdp);
 }

@@ -369,7 +369,7 @@ proto_reg_handoff_ipdr(void)
     dissector_handle_t ipdr_handle;
 
     ipdr_handle = create_dissector_handle(dissect_ipdr, proto_ipdr);
-    dissector_add_uint("tcp.port", IPDR_PORT, ipdr_handle);
+    dissector_add_uint_with_preference("tcp.port", IPDR_PORT, ipdr_handle);
 }
 
 /*

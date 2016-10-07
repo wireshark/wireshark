@@ -255,6 +255,8 @@ static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
 static guint8 sms_encoding;
 
+#define SABP_PORT 3452
+
 /* desegmentation of sabp over TCP */
 static gboolean gbl_sabp_desegment = TRUE;
 
@@ -1730,7 +1732,7 @@ static int dissect_SABP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-sabp-fn.c ---*/
-#line 97 "./asn1/sabp/packet-sabp-template.c"
+#line 99 "./asn1/sabp/packet-sabp-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -2204,7 +2206,7 @@ void proto_register_sabp(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sabp-hfarr.c ---*/
-#line 250 "./asn1/sabp/packet-sabp-template.c"
+#line 252 "./asn1/sabp/packet-sabp-template.c"
   };
 
   /* List of subtrees */
@@ -2261,7 +2263,7 @@ void proto_register_sabp(void) {
     &ett_sabp_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sabp-ettarr.c ---*/
-#line 263 "./asn1/sabp/packet-sabp-template.c"
+#line 265 "./asn1/sabp/packet-sabp-template.c"
   };
 
 
@@ -2288,8 +2290,8 @@ void proto_register_sabp(void) {
 void
 proto_reg_handoff_sabp(void)
 {
-  dissector_add_uint("udp.port", 3452, sabp_handle);
-  dissector_add_uint("tcp.port", 3452, sabp_tcp_handle);
+  dissector_add_uint("udp.port", SABP_PORT, sabp_handle);
+  dissector_add_uint_with_preference("tcp.port", SABP_PORT, sabp_tcp_handle);
   dissector_add_uint("sctp.ppi", SABP_PAYLOAD_PROTOCOL_ID, sabp_handle);
 
 
@@ -2338,7 +2340,7 @@ proto_reg_handoff_sabp(void)
 
 
 /*--- End of included file: packet-sabp-dis-tab.c ---*/
-#line 294 "./asn1/sabp/packet-sabp-template.c"
+#line 296 "./asn1/sabp/packet-sabp-template.c"
 }
 
 

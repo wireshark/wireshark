@@ -1490,7 +1490,7 @@ void
 proto_reg_handoff_xmpp(void) {
     xml_handle  = find_dissector_add_dependency("xml", proto_xmpp);
 
-    dissector_add_uint("tcp.port", XMPP_PORT, xmpp_handle);
+    dissector_add_uint_with_preference("tcp.port", XMPP_PORT, xmpp_handle);
 
 }
 /*

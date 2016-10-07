@@ -551,7 +551,7 @@ proto_reg_handoff_gearman(void)
   dissector_handle_t gearman_handle;
 
   gearman_handle = create_dissector_handle(dissect_gearman, proto_gearman);
-  dissector_add_uint("tcp.port", GEARMAN_PORT, gearman_handle);
+  dissector_add_uint_with_preference("tcp.port", GEARMAN_PORT, gearman_handle);
 }
 
 /*

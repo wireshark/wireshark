@@ -228,7 +228,7 @@ proto_register_acap(void)
 void
 proto_reg_handoff_acap(void)
 {
-    dissector_add_uint("tcp.port", TCP_PORT_ACAP, acap_handle);
+    dissector_add_uint_with_preference("tcp.port", TCP_PORT_ACAP, acap_handle);
 }
 
 /*

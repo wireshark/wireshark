@@ -580,7 +580,7 @@ proto_register_tcpros(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 
-	tcpros_module = prefs_register_protocol(proto_tcpros, proto_reg_handoff_tcpros);
+	tcpros_module = prefs_register_protocol(proto_tcpros, NULL);
 
 	prefs_register_bool_preference(tcpros_module, "desegment_tcpros_messages",
 				       "Reassemble TCPROS messages spanning multiple TCP segments",
@@ -629,18 +629,12 @@ dissect_tcpros_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 void
 proto_reg_handoff_tcpros(void)
 {
-	static gboolean Initialized = FALSE;
+	tcpros_handle = create_dissector_handle(dissect_tcpros, proto_tcpros);
+	dissector_add_for_decode_as_with_preference("tcp.port", tcpros_handle);   /* for "decode-as" */
 
-	if (!Initialized) {
-		tcpros_handle = create_dissector_handle(dissect_tcpros, proto_tcpros);
-		dissector_add_for_decode_as("tcp.port", tcpros_handle);   /* for "decode-as" */
-
-		/* register as heuristic dissector */
-		heur_dissector_add("tcp", dissect_tcpros_heur_tcp, "TCPROS over TCP",
-				   "TCPROS_tcp", proto_tcpros, HEURISTIC_DISABLE);
-
-		Initialized    = TRUE;
-	}
+	/* register as heuristic dissector */
+	heur_dissector_add("tcp", dissect_tcpros_heur_tcp, "TCPROS over TCP",
+				"TCPROS_tcp", proto_tcpros, HEURISTIC_DISABLE);
 }
 
 

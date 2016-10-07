@@ -309,7 +309,7 @@ proto_reg_handoff_logcat(void)
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_LOGCAT, logcat_handle);
 
-    dissector_add_for_decode_as("tcp.port", logcat_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", logcat_handle);
 }
 
 /*

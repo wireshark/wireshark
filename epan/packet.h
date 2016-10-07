@@ -215,8 +215,16 @@ WS_DLL_PUBLIC void dissector_dump_dissector_tables(void);
 WS_DLL_PUBLIC void dissector_add_uint(const char *name, const guint32 pattern,
     dissector_handle_t handle);
 
+/* Add an entry to a uint dissector table with "preference" automatically added. */
+WS_DLL_PUBLIC void dissector_add_uint_with_preference(const char *name, const guint32 pattern,
+    dissector_handle_t handle);
+
 /* Add an range of entries to a uint dissector table. */
 WS_DLL_PUBLIC void dissector_add_uint_range(const char *abbrev, struct epan_range *range,
+    dissector_handle_t handle);
+
+/* Add an range of entries to a uint dissector table with "preference" automatically added. */
+WS_DLL_PUBLIC void dissector_add_uint_range_with_preference(const char *abbrev, const char* range_str,
     dissector_handle_t handle);
 
 /* Delete the entry for a dissector in a uint dissector table
@@ -366,9 +374,17 @@ WS_DLL_PUBLIC dissector_handle_t dissector_get_guid_handle(
 WS_DLL_PUBLIC void dissector_add_for_decode_as(const char *name,
     dissector_handle_t handle);
 
+/* Same as dissector_add_for_decode_as, but adds preference for dissector table value */
+WS_DLL_PUBLIC void dissector_add_for_decode_as_with_preference(const char *name,
+    dissector_handle_t handle);
+
 /** Get the list of handles for a dissector table
  */
 WS_DLL_PUBLIC GSList *dissector_table_get_dissector_handles(dissector_table_t dissector_table);
+
+/** Get a handle to dissector out of a dissector table
+ */
+WS_DLL_PUBLIC dissector_handle_t dissector_table_get_dissector_handle(dissector_table_t dissector_table, gchar* short_name);
 
 /** Get a dissector table's type
  */

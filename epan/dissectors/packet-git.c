@@ -162,7 +162,7 @@ proto_register_git(void)
 void
 proto_reg_handoff_git(void)
 {
-  dissector_add_uint("tcp.port", TCP_PORT_GIT, git_handle);
+  dissector_add_uint_with_preference("tcp.port", TCP_PORT_GIT, git_handle);
 }
 
 /*

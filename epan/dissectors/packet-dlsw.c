@@ -689,7 +689,7 @@ proto_reg_handoff_dlsw(void)
   dissector_add_uint("udp.port", UDP_PORT_DLSW, dlsw_udp_handle);
 
   dlsw_tcp_handle = create_dissector_handle(dissect_dlsw_tcp, proto_dlsw);
-  dissector_add_uint("tcp.port", TCP_PORT_DLSW, dlsw_tcp_handle);
+  dissector_add_uint_with_preference("tcp.port", TCP_PORT_DLSW, dlsw_tcp_handle);
 }
 
 /*

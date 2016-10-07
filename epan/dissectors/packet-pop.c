@@ -469,7 +469,7 @@ void
 proto_reg_handoff_pop(void)
 {
   pop_handle = find_dissector("pop");
-  dissector_add_uint("tcp.port", TCP_PORT_POP, pop_handle);
+  dissector_add_uint_with_preference("tcp.port", TCP_PORT_POP, pop_handle);
   ssl_dissector_add(TCP_PORT_SSL_POP, pop_handle);
 
   /* find the IMF dissector */

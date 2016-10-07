@@ -1545,7 +1545,7 @@ proto_reg_handoff_sasp(void)
     dissector_handle_t sasp_handle;
 
     sasp_handle = create_dissector_handle(dissect_sasp, proto_sasp);
-    dissector_add_uint("tcp.port", SASP_GLOBAL_PORT, sasp_handle);
+    dissector_add_uint_with_preference("tcp.port", SASP_GLOBAL_PORT, sasp_handle);
 }
 
 /*

@@ -9514,12 +9514,7 @@ proto_reg_handoff_ndps(void)
     dissector_add_uint("spx.socket", SPX_SOCKET_ENS, ndps_handle);
     dissector_add_uint("spx.socket", SPX_SOCKET_RMS, ndps_handle);
     dissector_add_uint("spx.socket", SPX_SOCKET_NOTIFY_LISTENER, ndps_handle);
-    dissector_add_uint("tcp.port", TCP_PORT_PA, ndps_tcp_handle);
-    dissector_add_uint("tcp.port", TCP_PORT_BROKER, ndps_tcp_handle);
-    dissector_add_uint("tcp.port", TCP_PORT_SRS, ndps_tcp_handle);
-    dissector_add_uint("tcp.port", TCP_PORT_ENS, ndps_tcp_handle);
-    dissector_add_uint("tcp.port", TCP_PORT_RMS, ndps_tcp_handle);
-    dissector_add_uint("tcp.port", TCP_PORT_NOTIFY_LISTENER, ndps_tcp_handle);
+    dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_RANGE, ndps_tcp_handle);
 }
 
 /*

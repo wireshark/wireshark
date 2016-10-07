@@ -1277,7 +1277,7 @@ proto_reg_handoff_tacplus(void)
 
 	tacplus_handle = create_dissector_handle(dissect_tacplus,
 	    proto_tacplus);
-	dissector_add_uint("tcp.port", TCP_PORT_TACACS, tacplus_handle);
+	dissector_add_uint_with_preference("tcp.port", TCP_PORT_TACACS, tacplus_handle);
 }
 
 

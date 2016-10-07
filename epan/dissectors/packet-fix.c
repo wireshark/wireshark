@@ -70,9 +70,6 @@ static int hf_fix_field_tag = -1;
 
 static dissector_handle_t fix_handle;
 
-static range_t *global_fix_tcp_range = NULL;
-static range_t *fix_tcp_range = NULL;
-
 /* 8=FIX */
 #define MARKER_TAG "8=FIX"
 #define MARKER_LEN 5
@@ -460,15 +457,6 @@ dissect_fix_heur_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     return TRUE;
 }
 
-/* Register the protocol with Wireshark */
-static void fix_prefs(void)
-{
-    dissector_delete_uint_range("tcp.port", fix_tcp_range, fix_handle);
-    g_free(fix_tcp_range);
-    fix_tcp_range = range_copy(global_fix_tcp_range);
-    dissector_add_uint_range("tcp.port", fix_tcp_range, fix_handle);
-}
-
 /* this format is require because a script is used to build the C function
    that calls all the protocol registration.
 */
@@ -519,8 +507,7 @@ proto_register_fix(void)
     register_init_routine(&dissect_fix_init);
 
     /* Register the protocol name and description */
-    proto_fix = proto_register_protocol("Financial Information eXchange Protocol",
-                                        "FIX", "fix");
+    proto_fix = proto_register_protocol("Financial Information eXchange Protocol", "FIX", "fix");
 
     /* Allow dissector to find be found by name. */
     fix_handle = register_dissector("fix", dissect_fix, proto_fix);
@@ -531,17 +518,13 @@ proto_register_fix(void)
     expert_fix = expert_register_protocol(proto_fix);
     expert_register_field_array(expert_fix, ei, array_length(ei));
 
-    fix_module = prefs_register_protocol(proto_fix, fix_prefs);
+    fix_module = prefs_register_protocol(proto_fix, NULL);
     prefs_register_bool_preference(fix_module, "desegment",
                                    "Reassemble FIX messages spanning multiple TCP segments",
                                    "Whether the FIX dissector should reassemble messages spanning multiple TCP segments."
                                    " To use this option, you must also enable"
                                    " \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                                    &fix_desegment);
-
-    prefs_register_range_preference(fix_module, "tcp.port", "TCP Ports", "TCP Ports range", &global_fix_tcp_range, 65535);
-
-    fix_tcp_range = range_empty();
 }
 
 
@@ -551,8 +534,7 @@ proto_reg_handoff_fix(void)
     /* Let the tcp dissector know that we're interested in traffic      */
     heur_dissector_add("tcp", dissect_fix_heur, "FIX over TCP", "fix_tcp", proto_fix, HEURISTIC_ENABLE);
     heur_dissector_add("ssl", dissect_fix_heur_ssl, "FIX over SSL", "fix_ssl", proto_fix, HEURISTIC_ENABLE);
-    /* Register a fix handle to "tcp.port" to be able to do 'decode-as' */
-    dissector_add_for_decode_as("tcp.port", fix_handle);
+    dissector_add_uint_range_with_preference("tcp.port", "", fix_handle);
 }
 
 /*

@@ -924,7 +924,7 @@ proto_reg_handoff_asap(void)
   asap_handle = create_dissector_handle(dissect_asap, proto_asap);
   dissector_add_uint("sctp.ppi",  ASAP_PAYLOAD_PROTOCOL_ID, asap_handle);
   dissector_add_uint("udp.port",  ASAP_UDP_PORT,  asap_handle);
-  dissector_add_uint("tcp.port",  ASAP_TCP_PORT,  asap_handle);
+  dissector_add_uint_with_preference("tcp.port",  ASAP_TCP_PORT,  asap_handle);
   dissector_add_uint("sctp.port", ASAP_SCTP_PORT, asap_handle);
 }
 

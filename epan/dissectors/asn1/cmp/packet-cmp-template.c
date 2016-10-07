@@ -50,7 +50,6 @@ void proto_register_cmp(void);
 /* desegmentation of CMP over TCP */
 static gboolean cmp_desegment = TRUE;
 
-static guint cmp_alternate_tcp_port = 0;
 static guint cmp_alternate_http_port = 0;
 static guint cmp_alternate_tcp_style_http_port = 0;
 
@@ -345,12 +344,6 @@ void proto_register_cmp(void) {
 			"To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 			&cmp_desegment);
 
-	prefs_register_uint_preference(cmp_module, "tcp_alternate_port",
-			"Alternate TCP port",
-			"Decode this TCP port\'s traffic as CMP. Set to \"0\" to disable.",
-			10,
-			&cmp_alternate_tcp_port);
-
 	prefs_register_uint_preference(cmp_module, "http_alternate_port",
 			"Alternate HTTP port",
 			"Decode this TCP port\'s traffic as CMP-over-HTTP. Set to \"0\" to disable. "
@@ -373,7 +366,6 @@ void proto_reg_handoff_cmp(void) {
 	static dissector_handle_t cmp_http_handle;
 	static dissector_handle_t cmp_tcp_style_http_handle;
 	static dissector_handle_t cmp_tcp_handle;
-	static guint cmp_alternate_tcp_port_prev = 0;
 	static guint cmp_alternate_http_port_prev = 0;
 	static guint cmp_alternate_tcp_style_http_port_prev = 0;
 
@@ -387,7 +379,7 @@ void proto_reg_handoff_cmp(void) {
 		dissector_add_string("media_type", "application/x-pkixcmp-poll", cmp_tcp_style_http_handle);
 
 		cmp_tcp_handle = create_dissector_handle(dissect_cmp_tcp, proto_cmp);
-		dissector_add_uint("tcp.port", TCP_PORT_CMP, cmp_tcp_handle);
+		dissector_add_uint_with_preference("tcp.port", TCP_PORT_CMP, cmp_tcp_handle);
 
 		oid_add_from_string("Cryptlib-presence-check","1.3.6.1.4.1.3029.3.1.1");
 		oid_add_from_string("Cryptlib-PKIBoot","1.3.6.1.4.1.3029.3.1.2");
@@ -401,20 +393,10 @@ void proto_reg_handoff_cmp(void) {
 		inited = TRUE;
 	}
 
-	/* change alternate TCP port if changed in the preferences */
-	if (cmp_alternate_tcp_port != cmp_alternate_tcp_port_prev) {
-		if (cmp_alternate_tcp_port_prev != 0)
-			dissector_delete_uint("tcp.port", cmp_alternate_tcp_port_prev, cmp_tcp_handle);
-		if (cmp_alternate_tcp_port != 0)
-			dissector_add_uint("tcp.port", cmp_alternate_tcp_port, cmp_tcp_handle);
-		cmp_alternate_tcp_port_prev = cmp_alternate_tcp_port;
-	}
-
 	/* change alternate HTTP port if changed in the preferences */
 	if (cmp_alternate_http_port != cmp_alternate_http_port_prev) {
 		if (cmp_alternate_http_port_prev != 0) {
-			dissector_delete_uint("tcp.port", cmp_alternate_http_port_prev, NULL);
-			dissector_delete_uint("http.port", cmp_alternate_http_port_prev, NULL);
+			http_tcp_dissector_delete(cmp_alternate_http_port_prev);
 		}
 		if (cmp_alternate_http_port != 0)
 			http_tcp_dissector_add( cmp_alternate_http_port, cmp_http_handle);
@@ -424,8 +406,7 @@ void proto_reg_handoff_cmp(void) {
 	/* change alternate TCP-style-HTTP port if changed in the preferences */
 	if (cmp_alternate_tcp_style_http_port != cmp_alternate_tcp_style_http_port_prev) {
 		if (cmp_alternate_tcp_style_http_port_prev != 0) {
-			dissector_delete_uint("tcp.port", cmp_alternate_tcp_style_http_port_prev, NULL);
-			dissector_delete_uint("http.port", cmp_alternate_tcp_style_http_port_prev, NULL);
+			http_tcp_dissector_delete(cmp_alternate_tcp_style_http_port_prev);
 		}
 		if (cmp_alternate_tcp_style_http_port != 0)
 			http_tcp_dissector_add( cmp_alternate_tcp_style_http_port, cmp_tcp_style_http_handle);

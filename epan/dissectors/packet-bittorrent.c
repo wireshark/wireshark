@@ -42,6 +42,8 @@ void proto_reg_handoff_bittorrent(void);
  * http://bitconjurer.org/BitTorrent/protocol.html
  */
 
+#define DEFAULT_TCP_PORT_RANGE  "6881-6889" /* Not IANA registered */
+
 #define BITTORRENT_MESSAGE_CHOKE            0
 #define BITTORRENT_MESSAGE_UNCHOKE          1
 #define BITTORRENT_MESSAGE_INTERESTED       2
@@ -697,17 +699,8 @@ proto_reg_handoff_bittorrent(void)
    bencode_handle = find_dissector_add_dependency("bencode", proto_bittorrent);
 
    dissector_handle = find_dissector("bittorrent.tcp");
-#if 0
-   dissector_add_uint("tcp.port", 6881, dissector_handle);
-   dissector_add_uint("tcp.port", 6882, dissector_handle);
-   dissector_add_uint("tcp.port", 6883, dissector_handle);
-   dissector_add_uint("tcp.port", 6884, dissector_handle);
-   dissector_add_uint("tcp.port", 6885, dissector_handle);
-   dissector_add_uint("tcp.port", 6886, dissector_handle);
-   dissector_add_uint("tcp.port", 6887, dissector_handle);
-   dissector_add_uint("tcp.port", 6888, dissector_handle);
-   dissector_add_uint("tcp.port", 6889, dissector_handle);
-#endif
+   dissector_add_uint_range_with_preference("tcp.port", DEFAULT_TCP_PORT_RANGE, dissector_handle);
+
    heur_dissector_add("tcp", test_bittorrent_packet, "BitTorrent over TCP", "bittorrent_tcp", proto_bittorrent, HEURISTIC_ENABLE);
 }
 

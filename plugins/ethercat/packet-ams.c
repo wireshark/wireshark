@@ -33,6 +33,8 @@
 void proto_register_ams(void);
 void proto_reg_handoff_ams(void);
 
+#define AMS_TCP_PORT 48898 /* Not IANA registered */
+
 /* Define the ams proto */
 int proto_ams = -1;
 
@@ -1236,7 +1238,7 @@ void proto_reg_handoff_ams(void)
 
    ams_handle = find_dissector("ams");
    amstcp_handle = create_dissector_handle( dissect_amstcp, proto_ams );
-   dissector_add_uint("tcp.port", 0xbf02, amstcp_handle);
+   dissector_add_uint_with_preference("tcp.port", AMS_TCP_PORT, amstcp_handle);
    dissector_add_uint("ecatf.type", 2, ams_handle);
 }
 

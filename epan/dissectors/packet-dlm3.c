@@ -50,7 +50,7 @@
 
 
 
-#define TCP_PORT_DLM3           21064
+#define TCP_PORT_DLM3           21064 /* Not IANA registered */
 #define SCTP_PORT_DLM3          TCP_PORT_DLM3
 
 #define DLM3_MAJOR_VERSION      0x00030000
@@ -351,7 +351,6 @@ static gint ett_dlm3_rl_name     = -1;
 
 
 /* configurable parameters */
-static guint dlm3_tcp_port  = TCP_PORT_DLM3;
 static guint dlm3_sctp_port = SCTP_PORT_DLM3;
 
 /*
@@ -1552,11 +1551,6 @@ proto_register_dlm3(void)
   dlm3_module = prefs_register_protocol(proto_dlm3,
                                         proto_reg_handoff_dlm3);
 
-  prefs_register_uint_preference(dlm3_module, "tcp.port",
-                                 "DLM3 TCP Port",
-                                 "Set the TCP port for Distributed Lock Manager",
-                                 10,
-                                 &dlm3_tcp_port);
   prefs_register_uint_preference(dlm3_module, "sctp.port",
                                  "DLM3 SCTP Port",
                                  "Set the SCTP port for Distributed Lock Manager",
@@ -1570,7 +1564,6 @@ proto_reg_handoff_dlm3(void)
 {
   static gboolean dissector_registered = FALSE;
 
-  static guint tcp_port;
   static guint sctp_port;
 
   static dissector_handle_t dlm3_tcp_handle;
@@ -1579,15 +1572,13 @@ proto_reg_handoff_dlm3(void)
   if (!dissector_registered) {
     dlm3_sctp_handle = create_dissector_handle(dissect_dlm3, proto_dlm3);
     dlm3_tcp_handle = create_dissector_handle(dissect_dlm3, proto_dlm3);
+    dissector_add_uint_with_preference("tcp.port", TCP_PORT_DLM3, dlm3_tcp_handle);
     dissector_registered = TRUE;
   } else {
-    dissector_delete_uint("tcp.port",  tcp_port,  dlm3_tcp_handle);
     dissector_delete_uint("sctp.port", sctp_port, dlm3_sctp_handle);
   }
 
-  tcp_port  = dlm3_tcp_port;
   sctp_port = dlm3_sctp_port;
-  dissector_add_uint("tcp.port",  tcp_port,  dlm3_tcp_handle);
   dissector_add_uint("sctp.port", sctp_port, dlm3_sctp_handle);
 }
 

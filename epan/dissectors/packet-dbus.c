@@ -716,7 +716,7 @@ void
 proto_reg_handoff_dbus(void)
 {
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_DBUS, dbus_handle);
-	dissector_add_for_decode_as("tcp.port", dbus_handle_tcp);
+	dissector_add_for_decode_as_with_preference("tcp.port", dbus_handle_tcp);
 }
 
 /*

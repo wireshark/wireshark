@@ -32,6 +32,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 
 void proto_register_gopher(void);
 void proto_reg_handoff_gopher(void);
@@ -77,7 +78,6 @@ static const value_string item_types[] = {
 
 #define TCP_DEFAULT_RANGE "70"
 
-static range_t *global_gopher_tcp_range = NULL;
 static range_t *gopher_tcp_range = NULL;
 
 /* Returns TRUE if the packet is from a client */
@@ -202,21 +202,10 @@ dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 /* Preference callbacks */
 static void
-range_delete_gopher_tcp_callback(guint32 port) {
-      dissector_delete_uint("tcp.port", port, gopher_handle);
-}
-
-static void
-range_add_gopher_tcp_callback(guint32 port) {
-    dissector_add_uint("tcp.port", port, gopher_handle);
-}
-
-static void
 gopher_prefs_apply(void) {
-    range_foreach(gopher_tcp_range, range_delete_gopher_tcp_callback);
-    g_free(gopher_tcp_range);
-    gopher_tcp_range = range_copy(global_gopher_tcp_range);
-    range_foreach(gopher_tcp_range, range_add_gopher_tcp_callback);
+    pref_t *gopher_ports = prefs_find_preference(prefs_find_module("gopher"), "tcp.port");
+
+    gopher_tcp_range = range_copy(*gopher_ports->varp.range);
 }
 
 /* Register the protocol with Wireshark */
@@ -269,8 +258,6 @@ proto_register_gopher(void)
         }
     };
 
-    module_t *gopher_module;
-
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_gopher,
@@ -278,28 +265,24 @@ proto_register_gopher(void)
     };
 
     /* Register the protocol name and description */
-    proto_gopher = proto_register_protocol("Gopher",
-        "Gopher", "gopher");
+    proto_gopher = proto_register_protocol("Gopher", "Gopher", "gopher");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_gopher, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    /* Initialize dissector preferences */
-    gopher_module = prefs_register_protocol(proto_gopher, gopher_prefs_apply);
-
-    range_convert_str(&global_gopher_tcp_range, TCP_DEFAULT_RANGE, 65535);
-    gopher_tcp_range = range_empty();
-    prefs_register_range_preference(gopher_module, "tcp.port", "TCP Ports",
-                                    "TCP Ports range",
-                                    &global_gopher_tcp_range, 65535);
+    /* Preferences for this module are generated when registering with
+       dissector tables and need the callback function to get the
+       port range values
+     */
+    prefs_register_protocol(proto_gopher, gopher_prefs_apply);
 }
 
 void
 proto_reg_handoff_gopher(void)
 {
     gopher_handle = create_dissector_handle(dissect_gopher, proto_gopher);
-    gopher_prefs_apply();
+    dissector_add_uint_range_with_preference("tcp.port", TCP_DEFAULT_RANGE, gopher_handle);
 }
 
 /*

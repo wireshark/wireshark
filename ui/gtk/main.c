@@ -62,6 +62,7 @@
 #include <epan/column.h>
 #include <epan/disabled_protos.h>
 #include <epan/epan.h>
+#include <epan/decode_as.h>
 #include <epan/proto.h>
 #include <epan/epan_dissect.h>
 #include <epan/dfilter/dfilter.h>

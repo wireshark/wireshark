@@ -30,7 +30,7 @@
 
 #include <epan/packet.h>
 
-#define TCP_PORT_ELCOM        5997
+#define TCP_PORT_ELCOM        5997 /* Not IANA registered */
 
 /* Application level: */
 #define A_CONRQ        0x04
@@ -761,7 +761,7 @@ proto_reg_handoff_elcom(void)
         dissector_handle_t elcom_handle;
 
         elcom_handle = create_dissector_handle(dissect_elcom, proto_elcom);
-        dissector_add_uint("tcp.port", TCP_PORT_ELCOM, elcom_handle);
+        dissector_add_uint_with_preference("tcp.port", TCP_PORT_ELCOM, elcom_handle);
 }
 
 /*

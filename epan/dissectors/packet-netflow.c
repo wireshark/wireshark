@@ -12012,7 +12012,6 @@ ipfix_delete_callback(guint32 port)
 {
     if ( port ) {
         dissector_delete_uint("udp.port",  port, netflow_handle);
-        dissector_delete_uint("tcp.port",  port, netflow_handle);
         dissector_delete_uint("sctp.port", port, netflow_handle);
     }
 }
@@ -12022,7 +12021,6 @@ ipfix_add_callback(guint32 port)
 {
     if ( port ) {
         dissector_add_uint("udp.port",  port, netflow_handle);
-        dissector_add_uint("tcp.port",  port, netflow_handle);
         dissector_add_uint("sctp.port", port, netflow_handle);
     }
 }
@@ -12038,6 +12036,7 @@ proto_reg_handoff_netflow(void)
         netflow_handle = create_dissector_handle(dissect_netflow, proto_netflow);
         netflow_prefs_initialized = TRUE;
         dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IPFIX, netflow_handle);
+        dissector_add_uint_range_with_preference("tcp.port", IPFIX_UDP_PORTS, netflow_handle);
     } else {
         dissector_delete_uint_range("udp.port", netflow_ports, netflow_handle);
         g_free(netflow_ports);

@@ -90,7 +90,7 @@ static expert_field ei_coap_invalid_option_number = EI_INIT;
 static expert_field ei_coap_invalid_option_range  = EI_INIT;
 static expert_field ei_coap_option_length_bad	  = EI_INIT;
 
-/* CoAP's IANA-assigned port number */
+/* CoAP's IANA-assigned port (UDP only) number */
 #define DEFAULT_COAP_PORT	5683
 
 /* indicators whether those are to be showed or not */
@@ -1274,15 +1274,14 @@ proto_reg_handoff_coap(void)
 	if (!coap_prefs_initialized) {
 		coap_handle = find_dissector("coap");
 		media_type_dissector_table = find_dissector_table("media_type");
+		dissector_add_uint_with_preference("tcp.port", DEFAULT_COAP_PORT, coap_handle);
 		coap_prefs_initialized = TRUE;
 	} else {
 		dissector_delete_uint("udp.port", coap_port_number, coap_handle);
-		dissector_delete_uint("tcp.port", coap_port_number, coap_handle);
 	}
 
 	coap_port_number = global_coap_port_number;
 	dissector_add_uint("udp.port", coap_port_number, coap_handle);
-	dissector_add_uint("tcp.port", coap_port_number, coap_handle);
 }
 
 /*

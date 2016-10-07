@@ -1476,7 +1476,7 @@ proto_register_ssh(void)
 void
 proto_reg_handoff_ssh(void)
 {
-    dissector_add_uint("tcp.port", TCP_PORT_SSH, ssh_handle);
+    dissector_add_uint_with_preference("tcp.port", TCP_PORT_SSH, ssh_handle);
     dissector_add_uint("sctp.port", SCTP_PORT_SSH, ssh_handle);
     dissector_add_uint("sctp.ppi", SSH_PAYLOAD_PROTOCOL_ID, ssh_handle);
 }

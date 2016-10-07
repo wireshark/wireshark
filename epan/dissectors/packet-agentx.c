@@ -26,12 +26,11 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/to_str.h>
 
 #include "packet-tcp.h"
 
-static guint global_agentx_tcp_port = 705;
+#define AGENTX_TCP_PORT     705
 
 void proto_register_agentx(void);
 void proto_reg_handoff_agentx(void);
@@ -1111,42 +1110,21 @@ proto_register_agentx(void)
 		&ett_flags,
 	};
 
-
-	module_t *agentx_module;
-
-	proto_agentx = proto_register_protocol("AgentX",
-					       "AgentX", "agentx");
+	proto_agentx = proto_register_protocol("AgentX", "AgentX", "agentx");
 
 	proto_register_field_array(proto_agentx, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	agentx_module = prefs_register_protocol(proto_agentx, proto_reg_handoff_agentx);
-
-	prefs_register_uint_preference(agentx_module, "tcp.agentx_port",
-				       "AgentX listener TCP Port",
-				       "Set the TCP port for AgentX"
-				       "(if other than the default of 705)",
-				       10, &global_agentx_tcp_port);
 }
 
 /* The registration hand-off routine */
 void
 proto_reg_handoff_agentx(void)
 {
-	static gboolean agentx_prefs_initialized = FALSE;
-	static dissector_handle_t agentx_handle;
-	static guint agentx_tcp_port;
+	dissector_handle_t agentx_handle;
 
-	if(!agentx_prefs_initialized) {
-		agentx_handle = create_dissector_handle(dissect_agentx, proto_agentx);
-		agentx_prefs_initialized = TRUE;
-	}
-	else {
-		dissector_delete_uint("tcp.port", agentx_tcp_port, agentx_handle);
-	}
+	agentx_handle = create_dissector_handle(dissect_agentx, proto_agentx);
 
-	agentx_tcp_port = global_agentx_tcp_port;
-	dissector_add_uint("tcp.port", agentx_tcp_port, agentx_handle);
+	dissector_add_uint_with_preference("tcp.port", AGENTX_TCP_PORT, agentx_handle);
 }
 
 /*

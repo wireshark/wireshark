@@ -98,7 +98,7 @@ proto_reg_handoff_aim_oft(void)
 
   /* FIXME
   aim_handle = create_dissector_handle(dissect_aim, proto_aim);
-  dissector_add_uint("tcp.port", TCP_PORT_AIM, aim_handle);*/
+  dissector_add_uint_with_preference("tcp.port", TCP_PORT_AIM, aim_handle);*/
 }
 
 /*

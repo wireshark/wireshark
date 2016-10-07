@@ -25,14 +25,13 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
 
 void proto_register_kdsp(void);
 void proto_reg_handoff_kdsp(void);
 
-#define KDSP_PORT 2502
+#define KDSP_PORT 2502 /* Not IANA registered */
 #define FRAME_HEADER_LEN 12
 
 #define HELLO      1
@@ -100,7 +99,6 @@ void proto_reg_handoff_kdsp(void);
 static int proto_kdsp = -1;
 
 static dissector_table_t  subdissector_dlt_table;
-static guint global_kdsp_tcp_port = KDSP_PORT;
 
 static const value_string packettypenames[] = {
   {0, "NULL"},
@@ -552,8 +550,6 @@ dissect_kdsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 void
 proto_register_kdsp(void)
 {
-  module_t *kdsp_module;
-
   static hf_register_info hf[] = {
     { &hf_kdsp_sentinel,
       { "Sentinel", "kdsp.sentinel",
@@ -1132,57 +1128,35 @@ proto_register_kdsp(void)
   };
   expert_module_t* expert_kdsp;
 
-  proto_kdsp = proto_register_protocol(
-                                       "Kismet Drone/Server Protocol",
-                                       "KDSP",
-                                       "kdsp"
-                                       );
+  proto_kdsp = proto_register_protocol("Kismet Drone/Server Protocol", "KDSP", "kdsp");
 
   proto_register_field_array(proto_kdsp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  kdsp_module = prefs_register_protocol(proto_kdsp, proto_reg_handoff_kdsp);
   expert_kdsp = expert_register_protocol(proto_kdsp);
   expert_register_field_array(expert_kdsp, ei, array_length(ei));
 
   subdissector_dlt_table = register_dissector_table("kdsp.cpt.dlt", "KDSP DLT Type", proto_kdsp, FT_UINT32, BASE_DEC);
-
-  prefs_register_uint_preference(kdsp_module, "tcp.port",
-                                 "Kismet Drone TCP Port",
-                                 "Set the port for Kismet Drone/Server messages (if other"
-                                 " than the default of 2502)", 10,
-                                 &global_kdsp_tcp_port);
-
 }
 
 
 void
 proto_reg_handoff_kdsp(void)
 {
-  static gboolean initialized = FALSE;
-  static guint tcp_port;
-  static dissector_handle_t kdsp_handle;
+  dissector_handle_t kdsp_handle;
   dissector_handle_t dlt_handle;
 
+  /* XXX - Should be done in respective dissectors? */
+  kdsp_handle = create_dissector_handle(dissect_kdsp, proto_kdsp);
+  dlt_handle = find_dissector("radiotap");
+  if (dlt_handle)
+      dissector_add_uint( "kdsp.cpt.dlt", DATALINK_RADIOTAP, dlt_handle);
 
-  if (!initialized) {
-    kdsp_handle = create_dissector_handle(dissect_kdsp, proto_kdsp);
-    dlt_handle = find_dissector("radiotap");
-    if (dlt_handle)
-        dissector_add_uint( "kdsp.cpt.dlt", DATALINK_RADIOTAP, dlt_handle);
+  dlt_handle = find_dissector("wlan");
+  if (dlt_handle)
+      dissector_add_uint( "kdsp.cpt.dlt", DATALINK_WLAN, dlt_handle);
 
-    dlt_handle = find_dissector("wlan");
-    if (dlt_handle)
-        dissector_add_uint( "kdsp.cpt.dlt", DATALINK_WLAN, dlt_handle);
-
-  } else {
-    dissector_delete_uint("tcp.port", tcp_port, kdsp_handle);
-  }
-
-  tcp_port = global_kdsp_tcp_port;
-
-  dissector_add_uint("tcp.port", global_kdsp_tcp_port, kdsp_handle);
-
+  dissector_add_uint_with_preference("tcp.port", KDSP_PORT, kdsp_handle);
 }
 
 /*

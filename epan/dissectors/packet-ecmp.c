@@ -37,6 +37,7 @@
 #include "packet-mbtcp.h"
 
 #define PROTO_TAG_ECMP	"ECMP"
+#define ECMP_TCP_PORT   6160
 
 void proto_reg_handoff_ecmp(void);
 void proto_register_ecmp (void);
@@ -3573,7 +3574,7 @@ void proto_reg_handoff_ecmp(void)
 
 		/* Cyclic frames are over UDP and non-cyclic are over TCP */
 		dissector_add_uint("udp.port", global_ecmp_port, ecmp_udp_handle);
-		dissector_add_uint("tcp.port", global_ecmp_port, ecmp_tcp_handle);
+		dissector_add_uint_with_preference("tcp.port", ECMP_TCP_PORT, ecmp_tcp_handle);
 	initialized = TRUE;
 	}
 

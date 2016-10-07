@@ -78,7 +78,7 @@ static int hf_omapi_no_value = -1;
 
 static gint ett_omapi = -1;
 
-#define OMAPI_PORT 7911
+#define OMAPI_PORT 7911 /* Not IANA registered */
 
 #define OP_OPEN             1
 #define OP_REFRESH          2
@@ -318,7 +318,7 @@ proto_reg_handoff_omapi(void)
   dissector_handle_t omapi_handle;
 
   omapi_handle = create_dissector_handle(dissect_omapi, proto_omapi);
-  dissector_add_uint("tcp.port", OMAPI_PORT, omapi_handle);
+  dissector_add_uint_with_preference("tcp.port", OMAPI_PORT, omapi_handle);
 }
 
 /*

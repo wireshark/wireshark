@@ -40,6 +40,8 @@
 void proto_reg_handoff_tivoconnect(void);
 void proto_register_tivoconnect(void);
 
+#define TIVOCONNECT_PORT 2190
+
 static int proto_tivoconnect = -1;
 static int hf_tivoconnect_flavor = -1;
 static int hf_tivoconnect_method = -1;
@@ -240,8 +242,8 @@ proto_reg_handoff_tivoconnect(void)
 
     tivoconnect_tcp_handle = create_dissector_handle(dissect_tivoconnect_tcp, proto_tivoconnect);
     tivoconnect_udp_handle = create_dissector_handle(dissect_tivoconnect_udp, proto_tivoconnect);
-    dissector_add_uint("udp.port", 2190, tivoconnect_udp_handle);
-    dissector_add_uint("tcp.port", 2190, tivoconnect_tcp_handle);
+    dissector_add_uint("udp.port", TIVOCONNECT_PORT, tivoconnect_udp_handle);
+    dissector_add_uint_with_preference("tcp.port", TIVOCONNECT_PORT, tivoconnect_tcp_handle);
 }
 
 /*

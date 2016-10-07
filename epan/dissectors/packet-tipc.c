@@ -207,7 +207,6 @@ static gboolean try_heuristic_first = FALSE;
 #define V2_AS_1_6  0x2
 #define V2_AS_1_7  0x4
 static gint     handle_v2_as = V2_AS_ALL;
-static guint tipc_alternate_tcp_port = 0;
 static gboolean tipc_tcp_desegment = TRUE;
 
 static dissector_handle_t tipc_handle;
@@ -3012,8 +3011,7 @@ proto_register_tipc(void)
 	};
 
 	/* Register the protocol name and description */
-	proto_tipc = proto_register_protocol("Transparent Inter Process Communication(TIPC)",
-			"TIPC", "tipc");
+	proto_tipc = proto_register_protocol("Transparent Inter Process Communication(TIPC)", "TIPC", "tipc");
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_tipc, hf, array_length(hf));
@@ -3079,10 +3077,6 @@ proto_register_tipc(void)
 			handle_v2_as_options,
 			TRUE);
 
-	prefs_register_uint_preference(tipc_module, "alternate_port",
-			"TIPC-over-TCP port", "Decode this TCP ports traffic as TIPC. Set to \"0\" to disable.", 10,
-			&tipc_alternate_tcp_port);
-
 	prefs_register_bool_preference(tipc_module, "desegment",
 			"Reassemble TIPC-over-TCP messages spanning multiple TCP segments",
 			"Whether the TIPC-over-TCP dissector should reassemble messages spanning multiple TCP segments. "
@@ -3095,7 +3089,6 @@ proto_reg_handoff_tipc(void)
 {
 	static gboolean inited = FALSE;
 	static dissector_handle_t tipc_tcp_handle;
-	static guint tipc_alternate_tcp_port_prev = 0;
 	static range_t *tipc_udp_port_range;
 
 	if (!inited) {
@@ -3104,16 +3097,9 @@ proto_reg_handoff_tipc(void)
 
 		dissector_add_uint("ethertype", ETHERTYPE_TIPC, tipc_handle);
 
+		dissector_add_for_decode_as_with_preference("tcp.port", tipc_tcp_handle);
 		inited = TRUE;
 	} else {
-		/* change TIPC-over-TCP port if changed in the preferences */
-		if (tipc_alternate_tcp_port != tipc_alternate_tcp_port_prev) {
-			if (tipc_alternate_tcp_port_prev != 0)
-				dissector_delete_uint("tcp.port", tipc_alternate_tcp_port_prev, tipc_tcp_handle);
-			if (tipc_alternate_tcp_port != 0)
-				dissector_add_uint("tcp.port", tipc_alternate_tcp_port, tipc_tcp_handle);
-			tipc_alternate_tcp_port_prev = tipc_alternate_tcp_port;
-		}
 		dissector_add_uint_range("udp.port", tipc_udp_port_range, tipc_handle);
 		g_free(tipc_udp_port_range);
 	}

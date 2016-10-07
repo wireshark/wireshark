@@ -32,7 +32,7 @@
 #include <epan/expert.h>
 
 
-#define CQL_DEFAULT_PORT 9042
+#define CQL_DEFAULT_PORT 9042 /* Not IANA registered */
 
 
 void proto_reg_handoff_cql(void);
@@ -931,7 +931,7 @@ proto_reg_handoff_cql(void)
 	static dissector_handle_t cql_handle;
 
 	cql_handle = create_dissector_handle(dissect_cql_tcp, proto_cql);
-	dissector_add_uint("tcp.port", CQL_DEFAULT_PORT, cql_handle);
+	dissector_add_uint_with_preference("tcp.port", CQL_DEFAULT_PORT, cql_handle);
 }
 
 

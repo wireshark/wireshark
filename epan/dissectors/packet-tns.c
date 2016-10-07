@@ -157,7 +157,7 @@ static gint ett_tns_ntp_flag = -1;
 static gint ett_tns_conn_flag = -1;
 static gint ett_sql = -1;
 
-#define TCP_PORT_TNS			1521
+#define TCP_PORT_TNS			1521 /* Not IANA registered */
 
 static const value_string tns_type_vals[] = {
 	{TNS_TYPE_CONNECT,   "Connect" },
@@ -1223,7 +1223,7 @@ proto_reg_handoff_tns(void)
 	dissector_handle_t tns_handle;
 
 	tns_handle = create_dissector_handle(dissect_tns, proto_tns);
-	dissector_add_uint("tcp.port", TCP_PORT_TNS, tns_handle);
+	dissector_add_uint_with_preference("tcp.port", TCP_PORT_TNS, tns_handle);
 }
 
 /*

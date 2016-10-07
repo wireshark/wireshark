@@ -82,6 +82,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include "packet-x11.h" /* This contains the extern for the X11 value_string_ext
@@ -562,16 +563,9 @@ static guint vnc_slrle_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 static guint vnc_h264_encoding(tvbuff_t *tvb, gint *offset, proto_tree *tree);
 
-#define DEST_PORT_VNC pinfo->destport == 5500 || pinfo->destport == 5501 || \
-		pinfo->destport == 5900 || pinfo->destport == 5901 ||	\
-		pinfo->destport == vnc_preference_alternate_port
-
 #define VNC_BYTES_NEEDED(a)					\
 	if((a) > (guint)tvb_reported_length_remaining(tvb, *offset))	\
 		return (a);
-
-/* Variables for our preferences */
-static guint vnc_preference_alternate_port = 0;
 
 /* Initialize the protocol and registered fields */
 static int proto_vnc = -1; /* Protocol subtree */
@@ -915,7 +909,9 @@ static expert_field ei_vnc_reassemble = EI_INIT;
 guint8 vnc_bytes_per_pixel;
 guint8 vnc_depth;
 
+#define VNC_PORT_RANGE "5500-5501,5900-5901" /* Not IANA registered */
 
+static range_t *vnc_tcp_range = NULL;
 static dissector_handle_t vnc_handle;
 
 /* Code to dissect the packets */
@@ -969,7 +965,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		return tvb_captured_length(tvb);  /* We're in a "startup" state; Cannot yet do "normal" processing */
 	}
 
-	if(DEST_PORT_VNC || per_conversation_info->server_port == pinfo->destport) {
+	if(value_is_in_range(vnc_tcp_range, pinfo->destport) || per_conversation_info->server_port == pinfo->destport) {
 		vnc_client_to_server(tvb, pinfo, &offset, vnc_tree);
 	}
 	else {
@@ -3462,6 +3458,13 @@ vnc_get_depth(packet_info *pinfo)
 	return per_packet_info->depth;
 }
 
+/* Preference callbacks */
+static void
+apply_vnc_prefs(void) {
+    pref_t *vnc_ports = prefs_find_preference(prefs_find_module("vnc"), "tcp.port");
+
+    vnc_tcp_range = range_copy(*vnc_ports->varp.range);
+}
 
 /* Register the protocol with Wireshark */
 void
@@ -4739,8 +4742,7 @@ proto_register_vnc(void)
 	};
 
 	/* Register the protocol name and description */
-	proto_vnc = proto_register_protocol("Virtual Network Computing",
-					    "VNC", "vnc");
+	proto_vnc = proto_register_protocol("Virtual Network Computing", "VNC", "vnc");
 
 	/* Required function calls to register the header fields and subtrees */
 	proto_register_field_array(proto_vnc, hf, array_length(hf));
@@ -4749,7 +4751,7 @@ proto_register_vnc(void)
 	expert_register_field_array(expert_vnc, ei, array_length(ei));
 
 	/* Register our preferences module */
-	vnc_module = prefs_register_protocol(proto_vnc, proto_reg_handoff_vnc);
+	vnc_module = prefs_register_protocol(proto_vnc, apply_vnc_prefs);
 
 	prefs_register_bool_preference(vnc_module, "desegment",
 				       "Reassemble VNC messages spanning multiple TCP segments.",
@@ -4757,62 +4759,19 @@ proto_register_vnc(void)
 				       "multiple TCP segments.  To use this option, you must also enable "
 				       "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 				       &vnc_preference_desegment);
-
-	prefs_register_uint_preference(vnc_module, "alternate_port", "Alternate TCP port",
-				       "Decode this port's traffic as VNC in addition to the default ports (5500, 5501, 5900, 5901)",
-				       10, &vnc_preference_alternate_port);
-
 }
 
 void
 proto_reg_handoff_vnc(void)
 {
-	static gboolean inited = FALSE;
+	vnc_handle = create_dissector_handle(dissect_vnc, proto_vnc);
 
-	/* This is a behind the scenes variable that is not changed by the user.
-	 * This stores last setting of the vnc_preference_alternate_port.  Used to keep
-	 * track of when the user has changed the setting so that we can delete
-	 * and re-register with the new port number. */
-	static guint vnc_preference_alternate_port_last = 0;
-
-	if(!inited) {
-		vnc_handle = create_dissector_handle(dissect_vnc, proto_vnc);
-
-		dissector_add_uint("tcp.port", 5500, vnc_handle);
-		dissector_add_uint("tcp.port", 5501, vnc_handle);
-		dissector_add_uint("tcp.port", 5900, vnc_handle);
-		dissector_add_uint("tcp.port", 5901, vnc_handle);
-
-		heur_dissector_add("tcp", test_vnc_protocol, "VNC over TCP", "vnc_tcp", proto_vnc, HEURISTIC_ENABLE);
-		/* We don't register a port for the VNC HTTP server because
-		 * that simply provides a java program for download via the
-		 * HTTP protocol.  The java program then connects to a standard
-		 * VNC port. */
-
-		inited = TRUE;
-	} else {  /* only after preferences have been read/changed */
-		if(vnc_preference_alternate_port != vnc_preference_alternate_port_last &&
-		   vnc_preference_alternate_port != 5500 &&
-		   vnc_preference_alternate_port != 5501 &&
-		   vnc_preference_alternate_port != 5900 &&
-		   vnc_preference_alternate_port != 5901) {
-			if (vnc_preference_alternate_port_last != 0) {
-				dissector_delete_uint("tcp.port",
-						 vnc_preference_alternate_port_last,
-						 vnc_handle);
-			}
-			/* Save this setting to see if has changed later */
-	      		vnc_preference_alternate_port_last =
-				vnc_preference_alternate_port;
-
-			/* Register the new port setting */
-			if (vnc_preference_alternate_port != 0) {
-				dissector_add_uint("tcp.port",
-					      vnc_preference_alternate_port,
-					      vnc_handle);
-			}
-		}
-	}
+	dissector_add_uint_range_with_preference("tcp.port", VNC_PORT_RANGE, vnc_handle);
+	heur_dissector_add("tcp", test_vnc_protocol, "VNC over TCP", "vnc_tcp", proto_vnc, HEURISTIC_ENABLE);
+	/* We don't register a port for the VNC HTTP server because
+	 * that simply provides a java program for download via the
+	 * HTTP protocol.  The java program then connects to a standard
+	 * VNC port. */
 }
 
 /*

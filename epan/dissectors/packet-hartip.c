@@ -2209,7 +2209,7 @@ proto_reg_handoff_hartip(void)
   hartip_tcp_handle = create_dissector_handle(dissect_hartip_tcp, proto_hartip);
   hartip_udp_handle = create_dissector_handle(dissect_hartip_udp, proto_hartip);
   dissector_add_uint("udp.port", HARTIP_PORT, hartip_udp_handle);
-  dissector_add_uint("tcp.port", HARTIP_PORT, hartip_tcp_handle);
+  dissector_add_uint_with_preference("tcp.port", HARTIP_PORT, hartip_tcp_handle);
 
   stats_tree_register("hart_ip", "hart_ip", "HART-IP", 0,
                       hartip_stats_tree_packet, hartip_stats_tree_init, NULL);

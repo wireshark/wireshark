@@ -156,7 +156,7 @@ static gboolean rtmpt_desegment = TRUE;
  */
 static guint rtmpt_max_packet_size = 32768;
 
-#define RTMP_PORT                     1935
+#define RTMP_PORT                     1935 /* Not IANA registered */
 
 #define RTMPT_MAGIC                   0x03
 #define RTMPT_HANDSHAKE_OFFSET_1         1
@@ -2927,8 +2927,7 @@ proto_reg_handoff_rtmpt(void)
 
         heur_dissector_add("tcp", dissect_rtmpt_heur, "RTMPT over TCP", "rtmpt_tcp", proto_rtmpt, HEURISTIC_DISABLE);
         rtmpt_tcp_handle = create_dissector_handle(dissect_rtmpt_tcp, proto_rtmpt);
-/*      dissector_add_for_decode_as("tcp.port", rtmpt_tcp_handle); */
-        dissector_add_uint("tcp.port", RTMP_PORT, rtmpt_tcp_handle);
+        dissector_add_uint_with_preference("tcp.port", RTMP_PORT, rtmpt_tcp_handle);
 
         rtmpt_http_handle = create_dissector_handle(dissect_rtmpt_http, proto_rtmpt);
         dissector_add_string("media_type", "application/x-fcs", rtmpt_http_handle);

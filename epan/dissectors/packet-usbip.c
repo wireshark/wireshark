@@ -1079,7 +1079,7 @@ proto_reg_handoff_usbip(void)
     dissector_handle_t usbip_handle;
 
     usbip_handle = create_dissector_handle(dissect_usbip, proto_usbip);
-    dissector_add_for_decode_as("tcp.port", usbip_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", usbip_handle);
 }
 
 /*

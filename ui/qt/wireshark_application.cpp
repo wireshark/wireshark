@@ -39,6 +39,7 @@
 #include "epan/proto.h"
 #include "epan/tap.h"
 #include "epan/timestamp.h"
+#include "epan/decode_as.h"
 
 #include "ui/decode_as_utils.h"
 #include "ui/preference_utils.h"

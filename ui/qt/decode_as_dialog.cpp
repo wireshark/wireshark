@@ -25,6 +25,8 @@
 #include "epan/decode_as.h"
 #include "epan/dissectors/packet-dcerpc.h"
 #include "epan/epan_dissect.h"
+#include "epan/prefs.h"
+#include "epan/prefs-int.h"
 
 #include "ui/decode_as_utils.h"
 #include "ui/simple_dialog.h"
@@ -601,6 +603,9 @@ void DecodeAsDialog::applyChanges()
             if (!g_strcmp0(decode_as_entry->table_name, ui_name_to_name_[item->text(table_col_)])) {
                 gpointer  selector_value;
                 QByteArray byteArray;
+                module_t *module;
+                pref_t* pref_value;
+                dissector_table_t sub_dissectors;
 
                 switch (selector_type) {
                 case FT_UINT8:
@@ -622,9 +627,56 @@ void DecodeAsDialog::applyChanges()
 
                 if (item->text(proto_col_) == DECODE_AS_NONE || !dissector_info->dissector_handle) {
                     decode_as_entry->reset_value(decode_as_entry->table_name, selector_value);
+                    sub_dissectors = find_dissector_table(decode_as_entry->table_name);
+
+                    /* For now, only numeric dissector tables can use preferences */
+                    if (IS_FT_UINT(dissector_table_get_type(sub_dissectors))) {
+                        if (dissector_info->dissector_handle != NULL) {
+                            module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(dissector_info->dissector_handle)));
+                            pref_value = prefs_find_preference(module, decode_as_entry->table_name);
+                            if (pref_value != NULL) {
+                                module->prefs_changed = TRUE;
+                                switch(pref_value->type)
+                                {
+                                case PREF_DECODE_AS_UINT:
+                                    *pref_value->varp.uint = pref_value->default_val.uint;
+                                    break;
+                                case PREF_DECODE_AS_RANGE:
+                                    range_remove_value(pref_value->varp.range, GPOINTER_TO_UINT(selector_value));
+                                    break;
+                                default:
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     break;
                 } else {
                     decode_as_entry->change_value(decode_as_entry->table_name, selector_value, &dissector_info->dissector_handle, (char *) item->text(proto_col_).toUtf8().constData());
+                    sub_dissectors = find_dissector_table(decode_as_entry->table_name);
+
+                    /* For now, only numeric dissector tables can use preferences */
+                    if (IS_FT_UINT(dissector_table_get_type(sub_dissectors))) {
+                        module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(dissector_info->dissector_handle)));
+                        pref_value = prefs_find_preference(module, decode_as_entry->table_name);
+                        if (pref_value != NULL) {
+                            module->prefs_changed = TRUE;
+                            switch(pref_value->type)
+                            {
+                            case PREF_DECODE_AS_UINT:
+                                /* This doesn't support multiple values for a dissector in Decode As because the
+                                    preference only supports a single value. This leads to a "last port for
+                                    dissector in Decode As wins" */
+                                *pref_value->varp.uint = GPOINTER_TO_UINT(selector_value);
+                                break;
+                            case PREF_DECODE_AS_RANGE:
+                                range_add_value(pref_value->varp.range, GPOINTER_TO_UINT(selector_value));
+                                break;
+                            default:
+                                break;
+                            }
+                        }
+                    }
                     break;
                 }
             }

@@ -29,7 +29,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 
 void proto_register_banana(void);
@@ -119,9 +118,6 @@ static const value_string pb_vals[] = {
 #define MAX_ELEMENT_VAL 2147483647 /* Max TE value */
 #define MAX_ELEMENT_INT_LEN 4
 #define MAX_ELEMENT_VAL_LEN 8
-
-static range_t *global_banana_tcp_range = NULL;
-static range_t *banana_tcp_range = NULL;
 
 /* Dissect the packets */
 
@@ -256,14 +252,6 @@ dissect_banana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     return tvb_reported_length(tvb);
 }
 
-static void
-banana_prefs(void) {
-    dissector_delete_uint_range("tcp.port", banana_tcp_range, banana_handle);
-    g_free(banana_tcp_range);
-    banana_tcp_range = range_copy(global_banana_tcp_range);
-    dissector_add_uint_range("tcp.port", banana_tcp_range, banana_handle);
-}
-
 /* Register the protocol with Wireshark */
 
 void
@@ -312,7 +300,6 @@ proto_register_banana(void)
         }
     };
 
-    module_t *banana_module;
     expert_module_t* expert_banana;
 
     /* Setup protocol subtree array */
@@ -337,17 +324,13 @@ proto_register_banana(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_banana = expert_register_protocol(proto_banana);
     expert_register_field_array(expert_banana, ei, array_length(ei));
-
-    /* Initialize dissector preferences */
-    banana_module = prefs_register_protocol(proto_banana, banana_prefs);
-    banana_tcp_range = range_empty();
-    prefs_register_range_preference(banana_module, "tcp.port", "TCP Ports", "Banana TCP Port range", &global_banana_tcp_range, 65535);
 }
 
 void
 proto_reg_handoff_banana(void)
 {
     banana_handle = create_dissector_handle(dissect_banana, proto_banana);
+    dissector_add_uint_range_with_preference("tcp.port", "", banana_handle);
 }
 
 /*

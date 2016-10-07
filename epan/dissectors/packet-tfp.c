@@ -28,7 +28,7 @@
 #include "packet-usb.h"
 
 /* defines */
-#define tfp_PORT 4223
+#define tfp_PORT 4223 /* Not IANA registered */
 
 #define tfp_USB_VENDOR_ID  0x16D0
 #define tfp_USB_PRODUCT_ID 0x063D
@@ -413,7 +413,7 @@ proto_reg_handoff_tfp(void) {
 
 	tfp_handle_tcp = create_dissector_handle(dissect_tfp_tcp, proto_tfp);
 
-	dissector_add_uint("tcp.port", tfp_PORT, tfp_handle_tcp);
+	dissector_add_uint_with_preference("tcp.port", tfp_PORT, tfp_handle_tcp);
 	heur_dissector_add("usb.bulk", dissect_tfp_bulk_heur, "Tinkerforge USB bulk endpoint", "tfp_usb_bulk", proto_tfp, HEURISTIC_ENABLE);
 }
 

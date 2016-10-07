@@ -88,7 +88,7 @@ static gint ett_zebra = -1;
 static gint ett_zebra_request = -1;
 static gint ett_message = -1;
 
-#define TCP_PORT_ZEBRA			2600
+#define TCP_PORT_ZEBRA			2600 /* Not IANA registered */
 
 /* Zebra message types. */
 #define ZEBRA_INTERFACE_ADD                1
@@ -879,7 +879,7 @@ proto_reg_handoff_zebra(void)
 	dissector_handle_t zebra_handle;
 
 	zebra_handle = create_dissector_handle(dissect_zebra, proto_zebra);
-	dissector_add_uint("tcp.port", TCP_PORT_ZEBRA, zebra_handle);
+	dissector_add_uint_with_preference("tcp.port", TCP_PORT_ZEBRA, zebra_handle);
 }
 
 /*

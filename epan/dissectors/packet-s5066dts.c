@@ -29,6 +29,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 #include <epan/expert.h>
 #include "packet-tcp.h" /* For tcp_dissect_pdus() */
 #include <epan/crc16-tvb.h>
@@ -950,6 +951,14 @@ static int dissect_s5066dts_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     return b_length;
 }
 
+static void
+apply_s5066dts_prefs(void)
+{
+    /* STANAG 5066 uses the port preference for some heuristics */
+    pref_t *s5066dts_port = prefs_find_preference(prefs_find_module("s5066dts"), "tcp.port");
+    config_s5066dts_port = *s5066dts_port->varp.uint;
+}
+
 void proto_register_s5066dts (void)
 {
     module_t *s5066dts_module;
@@ -1333,39 +1342,25 @@ void proto_register_s5066dts (void)
         register_dissector(DISSECTOR_NAME, dissect_s5066dts_tcp, proto_s5066dts);
     }
 
-    s5066dts_module = prefs_register_protocol(proto_s5066dts, proto_reg_handoff_s5066dts);
+    s5066dts_module = prefs_register_protocol(proto_s5066dts, apply_s5066dts_prefs);
 
     prefs_register_bool_preference(s5066dts_module, "proto_desegment",
         "Reassemble STANAG 5066 DPDUs spanning multiple TCP segments",
         "Whether the STANAG 5066 DTS Layer dissector should reassemble DPDUs spanning multiple TCP segments",
         &config_proto_desegment);
-
-    prefs_register_uint_preference(s5066dts_module, "tcp.port",
-        "STANAG 5066 DTS Layer TCP Port",
-        "Set the port for STANAG 5066 DTS Layer. (If other than the default 5067.)",
-        10, &config_s5066dts_port);
 }
 
 /* Routine that will be called when s5066dts is handing off to the next dissector */
 void proto_reg_handoff_s5066dts(void)
 {
-    static gint initialized = FALSE;
-    static dissector_handle_t s5066dts_handle;
-    static dissector_handle_t s5066dts_over_tcp_handle;
-    static int currentPort;
+    dissector_handle_t s5066dts_handle;
+    dissector_handle_t s5066dts_over_tcp_handle;
 
-    if (!initialized) {
-        s5066dts_handle = create_dissector_handle(dissect_s5066dts_raw, proto_s5066dts);
-        dissector_add_uint("wtap_encap", WTAP_ENCAP_STANAG_5066_D_PDU, s5066dts_handle);
-        s5066dts_over_tcp_handle = create_dissector_handle(dissect_s5066dts_tcp, proto_s5066dts);
-        initialized = TRUE;
-    }
-    else {
-        dissector_delete_uint("tcp.port", currentPort, s5066dts_over_tcp_handle);
-    }
+    s5066dts_handle = create_dissector_handle(dissect_s5066dts_raw, proto_s5066dts);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_STANAG_5066_D_PDU, s5066dts_handle);
+    s5066dts_over_tcp_handle = create_dissector_handle(dissect_s5066dts_tcp, proto_s5066dts);
 
-    currentPort = config_s5066dts_port;
-    dissector_add_uint("tcp.port", currentPort, s5066dts_over_tcp_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", s5066dts_over_tcp_handle);
 }
 
 /*

@@ -90,7 +90,7 @@ static int hf_djiuav_response_time = -1;
 #define PROTO_SHORT_NAME "DJIUAV"
 #define PROTO_LONG_NAME "DJI UAV Drone Control Protocol"
 
-#define PORT_DJIUAV	2001
+#define PORT_DJIUAV	2001 /* Not IANA registered */
 
 static const value_string djiuav_pdu_type[] = {
 	{ 0x20, "Set Time" },
@@ -386,9 +386,8 @@ proto_reg_handoff_djiuav(void)
 {
 	dissector_handle_t djiuav_handle;
 
-
 	djiuav_handle = create_dissector_handle(dissect_djiuav_static, proto_djiuav);
-	dissector_add_uint("tcp.port", PORT_DJIUAV, djiuav_handle);
+	dissector_add_uint_with_preference("tcp.port", PORT_DJIUAV, djiuav_handle);
 }
 
 /*

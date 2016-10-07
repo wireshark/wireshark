@@ -1878,7 +1878,7 @@ proto_reg_handoff_bitcoin(void)
 {
   dissector_handle_t command_handle;
 
-  dissector_add_for_decode_as("tcp.port", bitcoin_handle);
+  dissector_add_for_decode_as_with_preference("tcp.port", bitcoin_handle);
 
   heur_dissector_add( "tcp", dissect_bitcoin_heur, "Bitcoin over TCP", "bitcoin_tcp", hfi_bitcoin->id, HEURISTIC_ENABLE);
 

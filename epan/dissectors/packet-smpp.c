@@ -3796,7 +3796,7 @@ proto_reg_handoff_smpp(void)
      * however.
      */
     smpp_handle = find_dissector("smpp");
-    dissector_add_for_decode_as("tcp.port", smpp_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", smpp_handle);
     heur_dissector_add("tcp", dissect_smpp_heur, "SMPP over TCP", "smpp_tcp", proto_smpp, HEURISTIC_ENABLE);
     heur_dissector_add("x.25", dissect_smpp_heur, "SMPP over X.25", "smpp_x25", proto_smpp, HEURISTIC_ENABLE);
 

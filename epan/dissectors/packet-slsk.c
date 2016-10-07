@@ -114,9 +114,7 @@ static gint ett_slsk_compr_packet = -1;
 static expert_field ei_slsk_unknown_data = EI_INIT;
 static expert_field ei_slsk_zlib_decompression_failed = EI_INIT;
 
-#define TCP_PORT_SLSK_1       2234
-#define TCP_PORT_SLSK_2       5534
-#define TCP_PORT_SLSK_3       2240
+#define SLSK_TCP_PORT_RANGE   "2234,2240,5534"
 
 
 /* desegmentation of SoulSeek Message over TCP */
@@ -2632,9 +2630,7 @@ proto_reg_handoff_slsk(void)
   dissector_handle_t slsk_handle;
 
   slsk_handle = create_dissector_handle(dissect_slsk, proto_slsk);
-  dissector_add_uint("tcp.port", TCP_PORT_SLSK_1, slsk_handle);
-  dissector_add_uint("tcp.port", TCP_PORT_SLSK_2, slsk_handle);
-  dissector_add_uint("tcp.port", TCP_PORT_SLSK_3, slsk_handle);
+  dissector_add_uint_range_with_preference("tcp.port", SLSK_TCP_PORT_RANGE, slsk_handle);
 }
 
 /*

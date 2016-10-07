@@ -120,7 +120,6 @@ void proto_register_cp2179(void);
 #define SBO_OPERATE_REPLY_LEN              9
 #define SBO_SELECT_REPLY_LEN               10
 
-#define PORT_CP2179    0
 static gboolean cp2179_telnet_clean = TRUE;
 
 
@@ -205,8 +204,6 @@ typedef struct {
 
 
 static int proto_cp2179 = -1;
-
-static guint global_cp2179_tcp_port = PORT_CP2179; /* Port 0 (by default), adjustable by user prefs */
 
 /* Initialize the subtree pointers */
 static gint ett_cp2179 = -1;
@@ -1362,13 +1359,7 @@ proto_register_cp2179(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register required preferences for CP2179 Encapsulated-over-TCP decoding */
-    cp2179_module = prefs_register_protocol(proto_cp2179, proto_reg_handoff_cp2179);
-
-    /* Default TCP Port, allows for "user" port either than 0. */
-    prefs_register_uint_preference(cp2179_module, "tcp.port", "CP 2179 Protocol Port",
-                       "Set the TCP port for CP 2179 Protocol packets (if other"
-                       " than the default of 0)",
-                       10, &global_cp2179_tcp_port);
+    cp2179_module = prefs_register_protocol(proto_cp2179, NULL);
 
     /* Telnet protocol IAC (0xFF) processing; defaults to TRUE to allow Telnet Encapsulated Data */
     prefs_register_bool_preference(cp2179_module, "telnetclean",
@@ -1383,19 +1374,7 @@ proto_register_cp2179(void)
 void
 proto_reg_handoff_cp2179(void)
 {
-   static int cp2179_prefs_initialized = FALSE;
-   static unsigned int cp2179_port;
-
-    if (!cp2179_prefs_initialized){
-        cp2179_prefs_initialized = TRUE;
-    }
-     else {
-        dissector_delete_uint("tcp.port", cp2179_port, cp2179_handle);
-    }
-
-    cp2179_port = global_cp2179_tcp_port;
-
-    dissector_add_uint("tcp.port", cp2179_port, cp2179_handle);
+    dissector_add_for_decode_as_with_preference("tcp.port", cp2179_handle);
     dissector_add_for_decode_as("rtacser.data", cp2179_handle);
 }
 

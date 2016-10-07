@@ -151,6 +151,7 @@ static gboolean nbss_desegment = TRUE;
 #define UDP_PORT_NBDGM  138
 #define TCP_PORT_NBSS   139
 #define TCP_PORT_CIFS   445
+#define TCP_NBSS_PORT_RANGE  "139,445"
 
 /* Packet structure taken from RFC 1002. See also RFC 1001.
  * Opcode, flags, and rcode treated as "flags", similarly to DNS,
@@ -2091,8 +2092,7 @@ proto_reg_handoff_nbt(void)
     dissector_add_uint("udp.port", UDP_PORT_NBDGM, nbdgm_handle);
 
     nbss_handle  = create_dissector_handle(dissect_nbss, proto_nbss);
-    dissector_add_uint("tcp.port", TCP_PORT_NBSS, nbss_handle);
-    dissector_add_uint("tcp.port", TCP_PORT_CIFS, nbss_handle);
+    dissector_add_uint_range_with_preference("tcp.port", TCP_NBSS_PORT_RANGE, nbss_handle);
 
     netbios_heur_subdissector_list = find_heur_dissector_list("netbios");
 }

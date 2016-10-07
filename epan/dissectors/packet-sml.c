@@ -37,7 +37,6 @@ Short description of the SML protocol on the SML Wireshark Wiki page:  https://w
 
 #include <wsutil/str_util.h>
 
-#define TCP_PORT_SML		0
 #define UDP_PORT_SML		0
 
 #define ESC_SEQ_END		G_GUINT64_CONSTANT(0x1b1b1b1b1a)
@@ -74,7 +73,6 @@ Short description of the SML protocol on the SML Wireshark Wiki page:  https://w
 #define LIST_6_ELEMENTS		0x76
 #define MSB			0x80
 
-static guint tcp_port_pref = TCP_PORT_SML;
 static guint udp_port_pref = UDP_PORT_SML;
 
 /* Forward declaration we need below (if using proto_reg_handoff as a prefs callback)*/
@@ -2796,7 +2794,6 @@ void proto_register_sml (void) {
 
 	prefs_register_bool_preference (sml_module, "reassemble", "Enable reassemble", "Enable reassembling (default is enabled)", &sml_reassemble);
 	prefs_register_bool_preference (sml_module, "crc", "Enable crc calculation", "Enable crc (default is disabled)", &sml_crc_enabled);
-	prefs_register_uint_preference(sml_module, "tcp.port", "SML TCP Port", "Set the TCP port for SML (Default is 0), recommended port is 7259", 10, &tcp_port_pref);
 	prefs_register_uint_preference(sml_module, "udp.port", "SML UDP Port", "Set the UDP port for SML (Default is 0), recommended port is 7259", 10, &udp_port_pref);
 
 	proto_register_field_array(proto_sml, hf, array_length(hf));
@@ -2807,21 +2804,18 @@ void proto_register_sml (void) {
 
 void proto_reg_handoff_sml(void) {
 	static gboolean initialized = FALSE;
-	static int old_tcp_port;
 	static int old_udp_port;
 	static dissector_handle_t sml_handle;
 
 	if (!initialized) {
 		sml_handle = create_dissector_handle(dissect_sml, proto_sml);
+		dissector_add_for_decode_as_with_preference("tcp.port", sml_handle);
 		initialized = TRUE;
 	} else {
-		dissector_delete_uint("tcp.port", old_tcp_port, sml_handle);
 		dissector_delete_uint("udp.port", old_udp_port, sml_handle);
 	}
-	old_tcp_port = tcp_port_pref;
 	old_udp_port = udp_port_pref;
 
-	dissector_add_uint("tcp.port", tcp_port_pref, sml_handle);
 	dissector_add_uint("udp.port", udp_port_pref, sml_handle);
 }
 

@@ -104,8 +104,7 @@ typedef struct _hislipinfo
 void proto_register_hislip(void);
 void proto_reg_handoff_hislip(void);
 
-static gint global_hislip_port = 4880;
-
+#define HISLIP_PORT     4880
 
 /*Field indexs*/
 static gint hf_hislip_messagetype = -1;
@@ -1011,14 +1010,7 @@ proto_register_hislip(void)
     proto_register_field_array(proto_hislip, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    hislip_module = prefs_register_protocol(proto_hislip, proto_reg_handoff_hislip);
-
-    prefs_register_uint_preference(hislip_module,
-                                    "tcp.port",
-                                    "TCP port for HiSLIP",
-                                    "Set the TCP port for HiSLIP traffic if other than the default",
-                                    10,
-                                    &global_hislip_port);
+    hislip_module = prefs_register_protocol(proto_hislip, NULL);
     prefs_register_obsolete_preference(hislip_module, "enable_heuristic");
 
 }
@@ -1026,24 +1018,11 @@ proto_register_hislip(void)
 void
 proto_reg_handoff_hislip(void)
 {
-    static gboolean initialized = FALSE;
-    static int currentPort;
+    hislip_handle = create_dissector_handle(dissect_hislip, proto_hislip);
+    /* disabled by default since heuristic is weak */
+    heur_dissector_add("tcp", dissect_hislip_heur, "HiSLIP over TCP", "hislip_tcp", proto_hislip, HEURISTIC_DISABLE);
 
-    if (!initialized)
-    {
-        hislip_handle = create_dissector_handle(dissect_hislip, proto_hislip);
-        /* disabled by default since heuristic is weak */
-        heur_dissector_add("tcp", dissect_hislip_heur, "HiSLIP over TCP", "hislip_tcp", proto_hislip, HEURISTIC_DISABLE);
-        initialized = TRUE;
-    }
-    else
-    {
-        dissector_delete_uint("tcp.port", currentPort, hislip_handle);
-    }
-
-    currentPort = global_hislip_port;
-
-    dissector_add_uint("tcp.port", currentPort, hislip_handle);
+    dissector_add_uint_with_preference("tcp.port", HISLIP_PORT, hislip_handle);
 }
 
 /*

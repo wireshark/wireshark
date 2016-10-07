@@ -32,6 +32,7 @@
 void proto_register_ajp13(void);
 void proto_reg_handoff_ajp13(void);
 
+#define AJP13_TCP_PORT 8009 /* Not IANA registered */
 
 /* IMPORTANT IMPLEMENTATION NOTES
  *
@@ -1118,7 +1119,7 @@ proto_reg_handoff_ajp13(void)
 {
   dissector_handle_t ajp13_handle;
   ajp13_handle = create_dissector_handle(dissect_ajp13, proto_ajp13);
-  dissector_add_uint("tcp.port", 8009, ajp13_handle);
+  dissector_add_uint_with_preference("tcp.port", AJP13_TCP_PORT, ajp13_handle);
 }
 
 /*

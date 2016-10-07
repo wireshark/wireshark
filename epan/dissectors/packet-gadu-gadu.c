@@ -2112,7 +2112,7 @@ proto_register_gadu_gadu(void)
 void
 proto_reg_handoff_gadu_gadu(void)
 {
-	dissector_add_uint("tcp.port", TCP_PORT_GADU_GADU, gadu_gadu_handle);
+	dissector_add_uint_with_preference("tcp.port", TCP_PORT_GADU_GADU, gadu_gadu_handle);
 
 	xml_handle = find_dissector_add_dependency("xml", hfi_gadu_gadu->id);
 }

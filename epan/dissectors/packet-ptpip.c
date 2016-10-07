@@ -1124,7 +1124,7 @@ void proto_reg_handoff_ptpIP( void ) {
     */
 
     ptpIP_handle = create_dissector_handle(dissect_ptpIP, proto_ptpIP);
-    dissector_add_uint("tcp.port", PTPIP_PORT, ptpIP_handle);
+    dissector_add_uint_with_preference("tcp.port", PTPIP_PORT, ptpIP_handle);
 }
 
 /*

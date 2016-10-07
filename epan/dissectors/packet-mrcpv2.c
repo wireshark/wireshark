@@ -38,7 +38,6 @@
 #include <stdlib.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include "packet-tcp.h"
 
 #include <wsutil/str_util.h>
@@ -379,8 +378,7 @@ static int hf_mrcpv2_Waveform_URI = -1;
 static int hf_mrcpv2_Weight = -1;
 
 /* Global MRCPv2 port pref */
-#define TCP_DEFAULT_RANGE "6075, 30000-30200"
-static range_t *global_mrcpv2_tcp_range = NULL;
+#define TCP_DEFAULT_RANGE "6075, 30000-30200" /* Not IANA registered */
 
 /* Initialize the subtree pointers */
 static gint ett_mrcpv2 = -1;
@@ -1049,8 +1047,6 @@ dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 void
 proto_register_mrcpv2(void)
 {
-    module_t *mrcpv2_module;
-
     static hf_register_info hf[] = {
         { &hf_mrcpv2_Request_Line,
             { "Request-Line", "mrcpv2.Request-Line",
@@ -1498,41 +1494,20 @@ proto_register_mrcpv2(void)
         &ett_Status_Code
     };
 
-    range_convert_str(&global_mrcpv2_tcp_range, TCP_DEFAULT_RANGE, 65535);
-
-    proto_mrcpv2 = proto_register_protocol(
-        "Media Resource Control Protocol Version 2 (MRCPv2)",
-        "MRCPv2",
-        "mrcpv2");
+    proto_mrcpv2 = proto_register_protocol("Media Resource Control Protocol Version 2 (MRCPv2)", "MRCPv2", "mrcpv2");
 
     proto_register_field_array(proto_mrcpv2, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    mrcpv2_module = prefs_register_protocol(proto_mrcpv2, proto_reg_handoff_mrcpv2);
-
-    prefs_register_obsolete_preference(mrcpv2_module, "tcp.port");
-    prefs_register_range_preference(mrcpv2_module, "tcp.port_range", "MRCPv2 TCP Port",
-         "MRCPv2 TCP Ports Range",
-         &global_mrcpv2_tcp_range, 65535);
 }
 
 void
 proto_reg_handoff_mrcpv2(void)
 {
-    static gboolean initialized = FALSE;
-    static dissector_handle_t mrcpv2_handle;
-    static range_t *mrcpv2_tcp_range = NULL;
+    dissector_handle_t mrcpv2_handle;
 
-    if (!initialized) {
-        mrcpv2_handle = create_dissector_handle(dissect_mrcpv2_tcp, proto_mrcpv2);
-        initialized = TRUE;
-    } else {
-        dissector_delete_uint_range ("tcp.port", mrcpv2_tcp_range, mrcpv2_handle);
-        g_free (mrcpv2_tcp_range);
-    }
+    mrcpv2_handle = create_dissector_handle(dissect_mrcpv2_tcp, proto_mrcpv2);
 
-    mrcpv2_tcp_range = range_copy (global_mrcpv2_tcp_range);
-    dissector_add_uint_range ("tcp.port", mrcpv2_tcp_range, mrcpv2_handle);
+    dissector_add_uint_range_with_preference ("tcp.port", TCP_DEFAULT_RANGE, mrcpv2_handle);
 }
 /*
  * Editor modelines

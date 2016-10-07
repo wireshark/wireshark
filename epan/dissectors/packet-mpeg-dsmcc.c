@@ -1230,7 +1230,7 @@ proto_reg_handoff_dsmcc(void)
     dissector_add_uint("mpeg_sect.tid", DSMCC_TID_DESC_LIST, dsmcc_ts_handle);
     dissector_add_uint("mpeg_sect.tid", DSMCC_TID_PRIVATE, dsmcc_ts_handle);
 
-    dissector_add_uint("tcp.port", DSMCC_TCP_PORT, dsmcc_tcp_handle);
+    dissector_add_uint_with_preference("tcp.port", DSMCC_TCP_PORT, dsmcc_tcp_handle);
 }
 
 /*

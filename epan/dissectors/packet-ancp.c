@@ -929,7 +929,7 @@ proto_reg_handoff_ancp(void)
     dissector_handle_t ancp_handle;
 
     ancp_handle = create_dissector_handle(dissect_ancp, proto_ancp);
-    dissector_add_uint("tcp.port", ANCP_PORT, ancp_handle);
+    dissector_add_uint_with_preference("tcp.port", ANCP_PORT, ancp_handle);
     stats_tree_register("ancp", "ancp", "ANCP", 0,
             ancp_stats_tree_packet, ancp_stats_tree_init, NULL);
 }

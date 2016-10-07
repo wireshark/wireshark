@@ -30,6 +30,8 @@ extern const value_string vals_http_status_code[];
 WS_DLL_PUBLIC
 void http_tcp_dissector_add(guint32 port, dissector_handle_t handle);
 WS_DLL_PUBLIC
+void http_tcp_dissector_delete(guint32 port);
+WS_DLL_PUBLIC
 void http_tcp_port_add(guint32 port);
 
 /* Used for HTTP statistics */

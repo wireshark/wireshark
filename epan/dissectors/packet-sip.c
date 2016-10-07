@@ -857,7 +857,6 @@ typedef enum {
 
 /* Preferences */
 static guint sip_tls_port = TLS_PORT_SIP;
-static range_t *global_sip_tcp_port_range;
 
 /* global_sip_raw_text determines whether we are going to display       */
 /* the raw text of the SIP message, much like the MEGACO dissector does.    */
@@ -6654,8 +6653,7 @@ void proto_register_sip(void)
     };
 
         /* Register the protocol name and description */
-    proto_sip = proto_register_protocol("Session Initiation Protocol",
-                                        "SIP", "sip");
+    proto_sip = proto_register_protocol("Session Initiation Protocol", "SIP", "sip");
     proto_raw_sip = proto_register_protocol("Session Initiation Protocol (SIP as raw text)",
                                             "Raw_SIP", "raw_sip");
     register_dissector("sip", dissect_sip, proto_sip);
@@ -6672,13 +6670,6 @@ void proto_register_sip(void)
     proto_register_field_array(proto_raw_sip, raw_hf, array_length(raw_hf));
 
     sip_module = prefs_register_protocol(proto_sip, proto_reg_handoff_sip);
-    range_convert_str(&global_sip_tcp_port_range, DEFAULT_SIP_PORT_RANGE, MAX_UDP_PORT);
-
-
-    prefs_register_range_preference(sip_module, "tcp.ports", "SIP TCP ports",
-        "TCP ports to be decoded as SIP (default: "
-        DEFAULT_SIP_PORT_RANGE ")",
-        &global_sip_tcp_port_range, MAX_UDP_PORT);
 
     prefs_register_uint_preference(sip_module, "tls.port",
         "SIP TLS Port",
@@ -6759,8 +6750,6 @@ void proto_register_sip(void)
         "A table to define custom SIP header for which fields can be setup and used for filtering/data extraction etc.",
         sip_custom_headers_uat);
 
-    prefs_register_obsolete_preference(sip_module, "tcp.port");
-
     register_init_routine(&sip_init_protocol);
     register_cleanup_routine(&sip_cleanup_protocol);
     heur_subdissector_list = register_heur_dissector_list("sip", proto_sip);
@@ -6789,8 +6778,6 @@ void proto_register_sip(void)
 void
 proto_reg_handoff_sip(void)
 {
-    static range_t *sip_tcp_port_range;
-
     static guint saved_sip_tls_port;
     static gboolean sip_prefs_initialized = FALSE;
 
@@ -6810,20 +6797,17 @@ proto_reg_handoff_sip(void)
         dissector_add_uint("udp.port", UDP_PORT_SIP, sip_handle);
         dissector_add_string("media_type", "message/sip", sip_handle);
 
+        dissector_add_uint_range_with_preference("tcp.port", DEFAULT_SIP_PORT_RANGE, sip_tcp_handle);
+
         heur_dissector_add("udp", dissect_sip_heur, "SIP over UDP", "sip_udp", proto_sip, HEURISTIC_ENABLE);
         heur_dissector_add("tcp", dissect_sip_tcp_heur, "SIP over TCP", "sip_tcp", proto_sip, HEURISTIC_ENABLE);
         heur_dissector_add("sctp", dissect_sip_heur, "SIP over SCTP", "sip_sctp", proto_sip, HEURISTIC_ENABLE);
         heur_dissector_add("stun", dissect_sip_heur, "SIP over TURN", "sip_stun", proto_sip, HEURISTIC_ENABLE);
         sip_prefs_initialized = TRUE;
     } else {
-        dissector_delete_uint_range("tcp.port", sip_tcp_port_range, sip_tcp_handle);
-        g_free(sip_tcp_port_range);
         ssl_dissector_delete(saved_sip_tls_port, sip_tcp_handle);
     }
     /* Set our port number for future use */
-    sip_tcp_port_range = range_copy(global_sip_tcp_port_range);
-    dissector_add_uint_range("tcp.port", sip_tcp_port_range, sip_tcp_handle);
-    saved_sip_tls_port = sip_tls_port;
     ssl_dissector_add(saved_sip_tls_port, sip_tcp_handle);
 
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);

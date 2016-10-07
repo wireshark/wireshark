@@ -15298,7 +15298,7 @@ proto_reg_handoff_ff(void)
      * - Client / Server
      */
     dissector_add_uint("udp.port", UDP_PORT_FF_FMS, ff_udp_handle);
-    dissector_add_uint("tcp.port", TCP_PORT_FF_FMS, ff_tcp_handle);
+    dissector_add_uint_with_preference("tcp.port", TCP_PORT_FF_FMS, ff_tcp_handle);
 
     /*
      * 4.8.4.2. Use

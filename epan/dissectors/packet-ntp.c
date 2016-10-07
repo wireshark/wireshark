@@ -1705,7 +1705,7 @@ proto_reg_handoff_ntp(void)
 
 	ntp_handle = create_dissector_handle(dissect_ntp, proto_ntp);
 	dissector_add_uint("udp.port", UDP_PORT_NTP, ntp_handle);
-	dissector_add_uint("tcp.port", TCP_PORT_NTP, ntp_handle);
+	dissector_add_uint_with_preference("tcp.port", TCP_PORT_NTP, ntp_handle);
 }
 
 /*

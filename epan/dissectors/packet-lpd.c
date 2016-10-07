@@ -198,7 +198,7 @@ proto_reg_handoff_lpd(void)
 	dissector_handle_t lpd_handle;
 
 	lpd_handle = create_dissector_handle(dissect_lpd, proto_lpd);
-	dissector_add_uint("tcp.port", TCP_PORT_PRINTER, lpd_handle);
+	dissector_add_uint_with_preference("tcp.port", TCP_PORT_PRINTER, lpd_handle);
 }
 
 /*

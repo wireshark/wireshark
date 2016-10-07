@@ -90,7 +90,6 @@ static dissector_handle_t ssl_handle;
 static gboolean pref_long_format       = TRUE;
 static gboolean pref_tls_auth          = FALSE;
 static gboolean pref_tls_auth_override = FALSE;
-static guint    pref_tcp_port          = OPENVPN_PORT;
 static guint    pref_udp_port          = OPENVPN_PORT;
 static guint    tls_auth_hmac_size     = 20; /* Default SHA-1 160 Bits */
 
@@ -619,11 +618,6 @@ proto_register_openvpn(void)
   openvpn_module = prefs_register_protocol(proto_openvpn, proto_reg_handoff_openvpn);
 
   prefs_register_uint_preference(openvpn_module,
-                "tcp.port",
-                "OpenVPN TCP Port",
-                "TCP Port of the OpenVPN tunnel",
-                10, &pref_tcp_port);
-  prefs_register_uint_preference(openvpn_module,
                 "udp.port",
                 "OpenVPN UDP Port",
                 "UDP Port of the OpenVPN tunnel",
@@ -661,25 +655,20 @@ proto_register_openvpn(void)
 void
 proto_reg_handoff_openvpn(void)
 {
-  static guint    tcp_port;
   static guint    udp_port;
   static gboolean initialized = FALSE;
 
   if (! initialized) {
     ssl_handle     = find_dissector_add_dependency("ssl", proto_openvpn);
+    dissector_add_uint_with_preference("tcp.port", OPENVPN_PORT, openvpn_tcp_handle);
     initialized    = TRUE;
   } else {
-    if (tcp_port > 0)
-      dissector_delete_uint("tcp.port", tcp_port, openvpn_tcp_handle);
     if (udp_port > 0)
       dissector_delete_uint("udp.port", udp_port, openvpn_udp_handle);
   }
 
-  tcp_port = pref_tcp_port;
   udp_port = pref_udp_port;
 
-  if (tcp_port > 0)
-    dissector_add_uint("tcp.port", tcp_port, openvpn_tcp_handle);
   if (udp_port > 0)
     dissector_add_uint("udp.port", udp_port, openvpn_udp_handle);
 }

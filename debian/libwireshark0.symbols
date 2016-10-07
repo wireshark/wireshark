@@ -806,6 +806,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  host_name_lookup_process@Base 1.9.1
  hostlist_table_set_gui_info@Base 1.99.0
  http_tcp_dissector_add@Base 2.1.0
+ http_tcp_dissector_delete@Base 2.3.0
  http_tcp_port_add@Base 2.1.0
  ieee80211_ht_Dbps@Base 2.1.0
  ieee80211_supported_rates_vals_ext@Base 1.99.1

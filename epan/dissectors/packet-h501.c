@@ -418,8 +418,8 @@ static gint ett_h501_TerminationCause = -1;
 static dissector_handle_t h501_pdu_handle;
 
 /* Preferences */
+#define H501_TCP_PORT 2099
 static guint h501_udp_port = 2099;
-static guint h501_tcp_port = 2099;
 static gboolean h501_desegment_tcp = TRUE;
 
 void proto_reg_handoff_h501(void);
@@ -3682,10 +3682,6 @@ void proto_register_h501(void) {
                                  "UDP port",
                                  "Port to be decoded as h501",
                                  10, &h501_udp_port);
-  prefs_register_uint_preference(h501_module, "tcp.port",
-                                 "TCP port",
-                                 "Port to be decoded as h501",
-                                 10, &h501_tcp_port);
   prefs_register_bool_preference(h501_module, "desegment",
                                  "Desegment H.501 over TCP",
                                  "Desegment H.501 messages that span more TCP segments",
@@ -3700,22 +3696,19 @@ void proto_reg_handoff_h501(void)
   static dissector_handle_t h501_udp_handle;
   static dissector_handle_t h501_tcp_handle;
   static guint saved_h501_udp_port;
-  static guint saved_h501_tcp_port;
 
   if (!h501_prefs_initialized) {
     h501_udp_handle = create_dissector_handle(dissect_h501_udp, proto_h501);
     h501_tcp_handle = create_dissector_handle(dissect_h501_tcp, proto_h501);
+    dissector_add_uint_with_preference("tcp.port", H501_TCP_PORT, h501_tcp_handle);
     h501_prefs_initialized = TRUE;
   } else {
     dissector_delete_uint("udp.port", saved_h501_udp_port, h501_udp_handle);
-    dissector_delete_uint("tcp.port", saved_h501_tcp_port, h501_tcp_handle);
   }
 
   /* Set our port number for future use */
   saved_h501_udp_port = h501_udp_port;
   dissector_add_uint("udp.port", saved_h501_udp_port, h501_udp_handle);
-  saved_h501_tcp_port = h501_tcp_port;
-  dissector_add_uint("tcp.port", saved_h501_tcp_port, h501_tcp_handle);
 
 }
 

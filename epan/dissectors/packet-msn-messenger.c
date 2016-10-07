@@ -133,7 +133,7 @@ proto_reg_handoff_msnms(void)
     dissector_handle_t msnms_handle;
 
     msnms_handle = create_dissector_handle(dissect_msnms, proto_msnms);
-    dissector_add_uint("tcp.port", TCP_PORT_MSNMS, msnms_handle);
+    dissector_add_uint_with_preference("tcp.port", TCP_PORT_MSNMS, msnms_handle);
     /*
      * For MSN Messenger Protocol over HTTP
      */

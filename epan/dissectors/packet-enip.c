@@ -4411,7 +4411,7 @@ proto_reg_handoff_enip(void)
 
    /* Register for EtherNet/IP, using TCP */
    enip_tcp_handle = find_dissector("enip");
-   dissector_add_uint("tcp.port", ENIP_ENCAP_PORT, enip_tcp_handle);
+   dissector_add_uint_with_preference("tcp.port", ENIP_ENCAP_PORT, enip_tcp_handle);
 
    /* Register for EtherNet/IP, using UDP */
    enip_udp_handle = create_dissector_handle(dissect_enip_udp, proto_enip);

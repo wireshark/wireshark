@@ -203,7 +203,7 @@ proto_reg_handoff_whois(void)
     static dissector_handle_t whois_handle;
 
     whois_handle = create_dissector_handle(dissect_whois, proto_whois);
-    dissector_add_uint("tcp.port", WHOIS_PORT, whois_handle);
+    dissector_add_uint_with_preference("tcp.port", WHOIS_PORT, whois_handle);
 }
 
 /*

@@ -28,8 +28,8 @@
 void proto_register_AllJoyn(void);
 void proto_reg_handoff_AllJoyn(void);
 
-static const int name_server_port = 9956;
-static const int message_port     = 9955;
+#define ALLJOYN_NAME_SERVER_PORT      9956 /* IANA lists only UDP as being registered (dissector also uses TCP port) */
+#define ALLJOYN_MESSAGE_PORT      9955
 
 /* DBus limits array length to 2^26. AllJoyn limits it to 2^17 */
 #define MAX_ARRAY_LEN 131072
@@ -3034,21 +3034,16 @@ proto_reg_handoff_AllJoyn(void)
     if(!initialized) {
         alljoyn_handle_ns = create_dissector_handle(dissect_AllJoyn_name_server, proto_AllJoyn_ns);
         alljoyn_handle_ardp = create_dissector_handle(dissect_AllJoyn_ardp, proto_AllJoyn_ardp);
-    } else {
-        dissector_delete_uint("udp.port", name_server_port, alljoyn_handle_ns);
-        dissector_delete_uint("tcp.port", name_server_port, alljoyn_handle_ns);
-
-        dissector_delete_uint("udp.port", message_port, alljoyn_handle_ardp);
-        dissector_delete_uint("tcp.port", message_port, alljoyn_handle_ardp);
+        dissector_add_uint_with_preference("tcp.port", ALLJOYN_NAME_SERVER_PORT, alljoyn_handle_ns);
+        dissector_add_uint_with_preference("tcp.port", ALLJOYN_MESSAGE_PORT, alljoyn_handle_ardp);
+        initialized = TRUE;
     }
 
-    dissector_add_uint("udp.port", name_server_port, alljoyn_handle_ns);
-    dissector_add_uint("tcp.port", name_server_port, alljoyn_handle_ns);
+    dissector_add_uint("udp.port", ALLJOYN_NAME_SERVER_PORT, alljoyn_handle_ns);
 
     /* The ARDP dissector will directly call the AllJoyn message dissector if needed.
      * This includes the case where there is no ARDP data. */
-    dissector_add_uint("udp.port", message_port, alljoyn_handle_ardp);
-    dissector_add_uint("tcp.port", message_port, alljoyn_handle_ardp);
+    dissector_add_uint("udp.port", ALLJOYN_MESSAGE_PORT, alljoyn_handle_ardp);
 }
 
 /*

@@ -623,10 +623,6 @@ static const int * subdoc_flags[] = {
 static dissector_handle_t couchbase_tcp_handle;
 static dissector_handle_t json_handle;
 
-/* couchbase ports */
-static range_t *couchbase_tcp_port_range;
-
-
 /* desegmentation of COUCHBASE payload */
 static gboolean couchbase_desegment_body = TRUE;
 
@@ -1883,9 +1879,6 @@ proto_register_couchbase(void)
   expert_couchbase = expert_register_protocol(proto_couchbase);
   expert_register_field_array(expert_couchbase, ei, array_length(ei));
 
-  /* Set default port range */
-  range_convert_str(&couchbase_tcp_port_range, COUCHBASE_DEFAULT_PORT, MAX_TCP_PORT);
-
   /* Register our configuration options */
   couchbase_module = prefs_register_protocol(proto_couchbase, NULL);
 
@@ -1896,31 +1889,15 @@ proto_register_couchbase(void)
                                  " To use this option, you must also enable \"Allow subdissectors"
                                  " to reassemble TCP streams\" in the TCP protocol settings.",
                                  &couchbase_desegment_body);
-
-  prefs_register_range_preference(couchbase_module, "tcp.ports", "Couchbase TCP ports",
-                                  "TCP ports to be decoded as Couchbase (default is "
-                                  COUCHBASE_DEFAULT_PORT ")",
-                                  &couchbase_tcp_port_range, MAX_TCP_PORT);
 }
 
 /* Register the tcp couchbase dissector. */
 void
 proto_reg_handoff_couchbase(void)
 {
-  static range_t *tcp_port_range;
-  static gboolean initialized = FALSE;
+  couchbase_tcp_handle = create_dissector_handle(dissect_couchbase_tcp, proto_couchbase);
 
-  if (initialized == FALSE) {
-    couchbase_tcp_handle = create_dissector_handle(dissect_couchbase_tcp, proto_couchbase);
-    initialized = TRUE;
-  }
-  else {
-    dissector_delete_uint_range("tcp.port", tcp_port_range, couchbase_tcp_handle);
-    g_free(tcp_port_range);
-  }
-
-  tcp_port_range = range_copy(couchbase_tcp_port_range);
-  dissector_add_uint_range("tcp.port", tcp_port_range, couchbase_tcp_handle);
+  dissector_add_uint_range_with_preference("tcp.port", COUCHBASE_DEFAULT_PORT, couchbase_tcp_handle);
 
   json_handle = find_dissector_add_dependency("json", proto_couchbase);
 }

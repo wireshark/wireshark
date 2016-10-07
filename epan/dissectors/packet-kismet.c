@@ -29,7 +29,6 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/strutil.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 #include <wsutil/strtoi.h>
 
@@ -49,9 +48,7 @@ static gint ett_kismet_reqresp = -1;
 
 static expert_field ei_time_invalid = EI_INIT;
 
-#define TCP_PORT_KISMET	2501
-
-static guint global_kismet_tcp_port = TCP_PORT_KISMET;
+#define TCP_PORT_KISMET	2501 /* Not IANA registered */
 
 static gboolean response_is_continuation(const guchar * data);
 void proto_reg_handoff_kismet(void);
@@ -325,7 +322,6 @@ proto_register_kismet(void)
 		&ett_kismet,
 		&ett_kismet_reqresp,
 	};
-	module_t *kismet_module;
 	expert_module_t* expert_kismet;
 
 	proto_kismet = proto_register_protocol("Kismet Client/Server Protocol", "Kismet", "kismet");
@@ -333,36 +329,16 @@ proto_register_kismet(void)
 	proto_register_subtree_array(ett, array_length (ett));
 	expert_kismet = expert_register_protocol(proto_kismet);
 	expert_register_field_array(expert_kismet, ei, array_length(ei));
-
-	/* Register our configuration options for Kismet, particularly our port */
-
-	kismet_module = prefs_register_protocol(proto_kismet, proto_reg_handoff_kismet);
-
-	prefs_register_uint_preference(kismet_module, "tcp.port",
-			  "Kismet Server TCP Port",
-			  "Set the port for Kismet Client/Server messages (if other"
-			  " than the default of 2501)", 10,
-			  &global_kismet_tcp_port);
 }
 
 void
 proto_reg_handoff_kismet(void)
 {
-	static gboolean kismet_prefs_initialized = FALSE;
-	static dissector_handle_t kismet_handle;
-	static guint tcp_port;
+	dissector_handle_t kismet_handle;
 
-	if (!kismet_prefs_initialized) {
-		kismet_handle = create_dissector_handle(dissect_kismet, proto_kismet);
-		kismet_prefs_initialized = TRUE;
-	} else {
-		dissector_delete_uint("tcp.port", tcp_port, kismet_handle);
-	}
+	kismet_handle = create_dissector_handle(dissect_kismet, proto_kismet);
 
-	/* Set our port number for future use */
-	tcp_port = global_kismet_tcp_port;
-
-	dissector_add_uint("tcp.port", global_kismet_tcp_port, kismet_handle);
+	dissector_add_uint_with_preference("tcp.port", TCP_PORT_KISMET, kismet_handle);
 }
 
 /*

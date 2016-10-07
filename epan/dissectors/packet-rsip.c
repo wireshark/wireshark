@@ -1242,18 +1242,11 @@ proto_register_rsip(void)
 void
 proto_reg_handoff_rsip(void)
 {
-	static gboolean initialized = FALSE;
 	dissector_handle_t rsip_handle;
 
-	if (!initialized) {
-
-		rsip_handle = create_dissector_handle(dissect_rsip,
-		    proto_rsip);
-		dissector_add_uint("udp.port", UDP_PORT_RSIP, rsip_handle);
-		dissector_add_uint("tcp.port", TCP_PORT_RSIP, rsip_handle);
-
-		initialized = TRUE;
-	}
+	rsip_handle = create_dissector_handle(dissect_rsip, proto_rsip);
+	dissector_add_uint("udp.port", UDP_PORT_RSIP, rsip_handle);
+	dissector_add_uint_with_preference("tcp.port", TCP_PORT_RSIP, rsip_handle);
 }
 
 /*

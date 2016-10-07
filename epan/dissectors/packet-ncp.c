@@ -1578,7 +1578,7 @@ proto_reg_handoff_ncp(void)
 
     ncp_handle = create_dissector_handle(dissect_ncp, proto_ncp);
     ncp_tcp_handle = create_dissector_handle(dissect_ncp_tcp, proto_ncp);
-    dissector_add_uint("tcp.port", TCP_PORT_NCP, ncp_tcp_handle);
+    dissector_add_uint_with_preference("tcp.port", TCP_PORT_NCP, ncp_tcp_handle);
     dissector_add_uint("udp.port", UDP_PORT_NCP, ncp_handle);
     dissector_add_uint("ipx.packet_type", IPX_PACKET_TYPE_NCP, ncp_handle);
     dissector_add_uint("ipx.socket", IPX_SOCKET_NCP, ncp_handle);

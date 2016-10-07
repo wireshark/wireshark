@@ -727,7 +727,7 @@ proto_register_t38(void)
 
 	t38_tap = register_tap("t38");
 
-	t38_module = prefs_register_protocol(proto_t38, proto_reg_handoff_t38);
+	t38_module = prefs_register_protocol(proto_t38, NULL);
 	prefs_register_bool_preference(t38_module, "use_pre_corrigendum_asn1_specification",
 	    "Use the Pre-Corrigendum ASN.1 specification",
 	    "Whether the T.38 dissector should decode using the Pre-Corrigendum T.38 "
@@ -739,7 +739,6 @@ proto_register_t38(void)
 		"be dissected as RTP packet or T.38 packet. If enabled there is a risk that T.38 UDPTL "
 		"packets with sequence number higher than 32767 may be dissected as RTP.",
 	    &dissect_possible_rtpv2_packets_as_rtp);
-	prefs_register_obsolete_preference(t38_module, "tcp.port");
 	prefs_register_obsolete_preference(t38_module, "udp.port");
 	prefs_register_bool_preference(t38_module, "reassembly",
 		"Reassemble T.38 PDUs over TPKT over TCP",
@@ -764,16 +763,11 @@ proto_register_t38(void)
 void
 proto_reg_handoff_t38(void)
 {
-	static gboolean t38_prefs_initialized = FALSE;
-
-	if (!t38_prefs_initialized) {
-		t38_udp_handle=create_dissector_handle(dissect_t38_udp, proto_t38);
-		t38_tcp_handle=create_dissector_handle(dissect_t38_tcp, proto_t38);
-		t38_tcp_pdu_handle=create_dissector_handle(dissect_t38_tcp_pdu, proto_t38);
-		rtp_handle = find_dissector_add_dependency("rtp", proto_t38);
-		t30_hdlc_handle = find_dissector_add_dependency("t30.hdlc""rtp", proto_t38);
-		data_handle = find_dissector("data");
-		t38_prefs_initialized = TRUE;
-	}
+	t38_udp_handle=create_dissector_handle(dissect_t38_udp, proto_t38);
+	t38_tcp_handle=create_dissector_handle(dissect_t38_tcp, proto_t38);
+	t38_tcp_pdu_handle=create_dissector_handle(dissect_t38_tcp_pdu, proto_t38);
+	rtp_handle = find_dissector_add_dependency("rtp", proto_t38);
+	t30_hdlc_handle = find_dissector_add_dependency("t30.hdlc""rtp", proto_t38);
+	data_handle = find_dissector("data");
 }
 

@@ -58,7 +58,7 @@ static dissector_handle_t ilp_handle;
 /* IANA Registered Ports
  * oma-ilp         7276/tcp    OMA Internal Location
  */
-static guint gbl_ilp_port = 7276;
+#define ILP_TCP_PORT    7276
 
 /* Initialize the protocol and registered fields */
 static int proto_ilp = -1;
@@ -5863,21 +5863,13 @@ void proto_register_ilp(void) {
   proto_register_field_array(proto_ilp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  ilp_module = prefs_register_protocol(proto_ilp,proto_reg_handoff_ilp);
+  ilp_module = prefs_register_protocol(proto_ilp, NULL);
 
   prefs_register_bool_preference(ilp_module, "desegment_ilp_messages",
         "Reassemble ILP messages spanning multiple TCP segments",
         "Whether the ILP dissector should reassemble messages spanning multiple TCP segments."
         " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
         &ilp_desegment);
-
-  /* Register a configuration option for port */
-  prefs_register_uint_preference(ilp_module, "tcp.port",
-                                 "ILP TCP Port",
-                                 "Set the TCP port for ILP messages(IANA registered port is 7276)",
-                                 10,
-                                 &gbl_ilp_port);
-
 }
 
 
@@ -5885,18 +5877,9 @@ void proto_register_ilp(void) {
 void
 proto_reg_handoff_ilp(void)
 {
-  static gboolean initialized = FALSE;
-  static guint local_ilp_port;
+  dissector_add_string("media_type","application/oma-supl-ilp", ilp_handle);
+  rrlp_handle = find_dissector_add_dependency("rrlp", proto_ilp);
+  lpp_handle = find_dissector_add_dependency("lpp", proto_ilp);
 
-  if (!initialized) {
-    dissector_add_string("media_type","application/oma-supl-ilp", ilp_handle);
-    rrlp_handle = find_dissector_add_dependency("rrlp", proto_ilp);
-    lpp_handle = find_dissector_add_dependency("lpp", proto_ilp);
-    initialized = TRUE;
-  } else {
-    dissector_delete_uint("tcp.port", local_ilp_port, ilp_handle);
-  }
-
-  local_ilp_port = gbl_ilp_port;
-  dissector_add_uint("tcp.port", gbl_ilp_port, ilp_handle);
+  dissector_add_uint_with_preference("tcp.port", ILP_TCP_PORT, ilp_handle);
 }

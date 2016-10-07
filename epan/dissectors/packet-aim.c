@@ -1736,7 +1736,7 @@ proto_register_aim(void)
 void
 proto_reg_handoff_aim(void)
 {
-	dissector_add_uint("tcp.port", TCP_PORT_AIM, aim_handle);
+	dissector_add_uint_with_preference("tcp.port", TCP_PORT_AIM, aim_handle);
 	ssl_dissector_add(0, aim_handle);
 	/* Heuristics disabled by default, it is really weak... */
 	heur_dissector_add("ssl", dissect_aim_ssl_heur, "AIM over SSL", "aim_ssl", proto_aim, HEURISTIC_DISABLE);
