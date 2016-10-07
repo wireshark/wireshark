@@ -3161,10 +3161,10 @@ readcnffile(FILE *fh)
 			str=str_read_string(str, &mask);
 			str=str_read_string(str, &valsstring);
 			str_read_string(str, &al);
-			alignment=atoi(al);
-
-			FPRINTF(NULL, "TYPE : X%s,%sX\n", name, dissectorname);
-			register_new_type(name, dissectorname, ft_type, base_type, mask, valsstring, alignment);
+			if (ws_strtoi32(al, NULL, &alignment)) {
+				FPRINTF(NULL, "TYPE : X%s,%sX\n", name, dissectorname);
+				register_new_type(name, dissectorname, ft_type, base_type, mask, valsstring, alignment);
+			}
 		} else if(!strncmp(cnfline, "PARAM_VALUE", 11)){
 			char *dissectorname, *value;
 			char *str;
