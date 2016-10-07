@@ -1315,7 +1315,7 @@ static guint dissect_wlccp_ccm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 					    _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
-			/*kan - according to the patent applicatoin these fields vary based
+			/*kan - according to the patent application these fields vary based
 			on one another.
 			For now we decode what we know about and then we'll come back and add
 			the rest */
