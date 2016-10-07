@@ -80,6 +80,11 @@ const value_string ssl_versions[] = {
     { TLSV1DOT1_VERSION,    "TLS 1.1" },
     { TLSV1DOT2_VERSION,    "TLS 1.2" },
     { TLSV1DOT3_VERSION,    "TLS 1.3" },
+    { 0x7F0E,               "TLS 1.3 (draft 14)" },
+    { 0x7F0F,               "TLS 1.3 (draft 15)" },
+    { 0x7F10,               "TLS 1.3 (draft 16)" },
+    { 0x7F11,               "TLS 1.3 (draft 17)" },
+    { 0x7F12,               "TLS 1.3 (draft 18)" },
     { DTLSV1DOT0_OPENSSL_VERSION, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
     { DTLSV1DOT0_VERSION,   "DTLS 1.0" },
     { DTLSV1DOT2_VERSION,   "DTLS 1.2" },
@@ -1161,6 +1166,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_KEY_SHARE, "key_share" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { SSL_HND_HELLO_EXT_PRE_SHARED_KEY, "pre_shared_key" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { SSL_HND_HELLO_EXT_EARLY_DATA, "early_data" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
+    { SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS, "supported_versions" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { SSL_HND_HELLO_EXT_COOKIE, "cookie" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* http://technotes.googlecode.com/git/nextprotoneg.html */
     { SSL_HND_HELLO_EXT_CHANNEL_ID_OLD, "channel_id_old" }, /* http://tools.ietf.org/html/draft-balfanz-tls-channelid-00
@@ -5643,6 +5649,27 @@ ssl_dissect_hnd_hello_ext_early_data(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 static gint
+ssl_dissect_hnd_hello_ext_supported_versions(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                             proto_tree *tree, guint32 offset, guint32 ext_len)
+{
+    guint32 offset_end = offset + ext_len;
+
+    if (ext_len < 1) {
+        return offset;
+    }
+
+    proto_tree_add_item(tree, hf->hf.hs_ext_supported_versions_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    while(offset_end - offset >= 2){
+        proto_tree_add_item(tree, hf->hf.hs_ext_supported_versions, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+
+    return offset;
+}
+
+static gint
 ssl_dissect_hnd_hello_ext_cookie(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                  proto_tree *tree, guint32 offset, guint32 ext_len)
 {
@@ -6808,6 +6835,9 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_EARLY_DATA:
             offset = ssl_dissect_hnd_hello_ext_early_data(hf, tvb, ext_tree, offset, ext_len, hnd_type);
+            break;
+        case SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS:
+            offset = ssl_dissect_hnd_hello_ext_supported_versions(hf, tvb, ext_tree, offset, ext_len);
             break;
         case SSL_HND_HELLO_EXT_COOKIE:
             offset = ssl_dissect_hnd_hello_ext_cookie(hf, tvb, ext_tree, offset, ext_len);

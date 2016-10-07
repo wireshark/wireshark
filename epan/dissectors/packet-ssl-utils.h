@@ -169,6 +169,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_KEY_SHARE                     40
 #define SSL_HND_HELLO_EXT_PRE_SHARED_KEY                41
 #define SSL_HND_HELLO_EXT_EARLY_DATA                    42
+#define SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS            43
 #define SSL_HND_HELLO_EXT_COOKIE                        44
 #define SSL_HND_HELLO_EXT_NPN                           13712 /* 0x3374 */
 #define SSL_HND_HELLO_EXT_CHANNEL_ID_OLD                30031 /* 0x754f */
@@ -683,6 +684,8 @@ typedef struct ssl_common_dissect {
         gint hs_ext_psk_identity;
         gint hs_ext_psk_identity_selected;
         gint hs_ext_early_data_obfuscated_ticket_age;
+        gint hs_ext_supported_versions_len;
+        gint hs_ext_supported_versions;
         gint hs_ext_cookie_len;
         gint hs_ext_cookie;
         gint hs_ext_server_name;
@@ -888,7 +891,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1,                                                 \
+        -1, -1, -1, -1, -1, -1,                                         \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1061,6 +1064,16 @@ ssl_common_dissect_t name = {   \
       { "Obfuscated ticket age", prefix ".handshake.extensions.early_data.obfuscated_ticket_age",    \
         FT_UINT32, BASE_DEC, NULL, 0x0,                                 \
         "The time since the client learned about the server configuration that it is using, in milliseconds", HFILL }   \
+    },                                                                  \
+    { & name .hf.hs_ext_supported_versions_len,                         \
+      { "Supported Versions length", prefix ".handshake.extensions.supported_versions_len", \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_supported_versions,                             \
+      { "Supported Versions", prefix ".handshake.extensions.supported_versions",    \
+        FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,                   \
+        NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_cookie_len,                                     \
       { "Cookie length", prefix ".handshake.extensions.cookie_len",     \
