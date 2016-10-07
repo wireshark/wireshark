@@ -914,7 +914,7 @@ ssl_common_dissect_t name = {   \
     },                                                                  \
     { & name .hf.hs_ext_type,                                           \
       { "Type", prefix ".handshake.extension.type",                     \
-        FT_UINT16, BASE_HEX, VALS(tls_hello_extension_types), 0x0,      \
+        FT_UINT16, BASE_DEC, VALS(tls_hello_extension_types), 0x0,      \
         "Hello extension type", HFILL }                                 \
     },                                                                  \
     { & name .hf.hs_ext_len,                                            \
