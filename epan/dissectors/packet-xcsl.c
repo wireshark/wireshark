@@ -31,6 +31,8 @@
 
 #include <epan/packet.h>
 
+#include <wsutil/strtoi.h>
+
 /* string array size */
 #define MAXLEN 4096
 
@@ -238,7 +240,8 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     proto_item *xcsl_item;
 
                     request = FALSE;
-                    result = atoi(str);
+                    result = XCSL_UNDEFINED;
+                    ws_strtou8(str, NULL, &result);
                     if ( result >= XCSL_NONE ) {
                         result = XCSL_UNDEFINED;
                     }
