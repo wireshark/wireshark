@@ -575,6 +575,7 @@ set(DISSECTOR_SRC
 	packet-exec.c
 	packet-exported_pdu.c
 	packet-extreme.c
+	packet-fc00.c
 	packet-fc.c
 	packet-fcct.c
 	packet-fcdns.c

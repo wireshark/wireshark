@@ -57,6 +57,7 @@ High-speed SECS message service (HSMS)
 GSM Osmux
 Health Level 7 (HL7)
 Local Service Discovery (LSD)
+Fc00/cjdns Protocol
 --sort-and-group--
 
 === Updated Protocol Support
