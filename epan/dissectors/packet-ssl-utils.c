@@ -812,6 +812,12 @@ static const value_string ssl_31_ciphersuite[] = {
     /* 0x00,0xC6-FE Unassigned  */
     /* From RFC 5746 */
     { 0x00FF, "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" },
+    /* https://tools.ietf.org/html/draft-ietf-tls-tls13 */
+    { 0x1301, "TLS_AES_128_GCM_SHA256" },
+    { 0x1302, "TLS_AES_256_GCM_SHA384" },
+    { 0x1303, "TLS_CHACHA20_POLY1305_SHA256" },
+    { 0x1304, "TLS_AES_128_CCM_SHA256" },
+    { 0x1305, "TLS_AES_128_CCM_8_SHA256" },
     /* From RFC 7507 */
     { 0x5600, "TLS_FALLBACK_SCSV" },
     /* From RFC 4492 */
