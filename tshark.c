@@ -3599,8 +3599,8 @@ print_columns(capture_file *cf)
     switch (col_item->col_fmt) {
     case COL_NUMBER:
       column_len = col_len = strlen(col_item->col_data);
-      if (column_len < 3)
-        column_len = 3;
+      if (column_len < 5)
+        column_len = 5;
       line_bufp = get_line_buf(buf_offset + column_len);
       put_spaces_string(line_bufp + buf_offset, col_item->col_data, col_len, column_len);
       break;

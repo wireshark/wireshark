@@ -456,7 +456,7 @@ col_append_ports(column_info *cinfo, const gint col, port_type typ, guint16 src,
 
   col_snprint_port(buf_src, 32, typ, src);
   col_snprint_port(buf_dst, 32, typ, dst);
-  col_append_lstr(cinfo, col, buf_src, UTF8_RIGHTWARDS_ARROW, buf_dst, COL_ADD_LSTR_TERMINATOR);
+  col_append_lstr(cinfo, col, buf_src, " " UTF8_RIGHTWARDS_ARROW " ", buf_dst, COL_ADD_LSTR_TERMINATOR);
 }
 
 static void
