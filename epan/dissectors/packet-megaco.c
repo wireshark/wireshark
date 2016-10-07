@@ -113,6 +113,7 @@ static int hf_megaco_gm_spf                     = -1;
 static int hf_megaco_gm_spr                     = -1;
 static int hf_megaco_gm_esas                    = -1;
 static int hf_megaco_tman_pol                   = -1;
+static int hf_megaco_gm_rsb                     = -1;
 static int hf_megaco_tman_sdr                   = -1;
 static int hf_megaco_tman_mbs                   = -1;
 static int hf_megaco_tman_pdr                   = -1;
@@ -3268,6 +3269,12 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
                 tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(tvb, tvb_current_offset, tokenlen));
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
+        case MEGACO_GM_RSB:
+            proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_gm_rsb, tvb,
+                tvb_help_offset, tvb_offset - tvb_help_offset, tvb_format_text(tvb, tvb_current_offset, tokenlen));
+            tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset + 1);
+            break;
+            break;
         case MEGACO_TMAN_POL:
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_tman_pol, tvb,
                 tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(tvb, tvb_current_offset, tokenlen));
@@ -3648,6 +3655,9 @@ proto_register_megaco(void)
             NULL, HFILL }},
         { &hf_megaco_tman_pol,
           { "Policing", "megaco.tman_pol", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_megaco_gm_rsb,
+          { "RTCP Allocation Specific Behaviour", "megaco.gm_rsb", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_megaco_tman_sdr,
           { "Sustainable Data Rate", "megaco.tman_sdr", FT_STRING, BASE_NONE, NULL, 0x0,
