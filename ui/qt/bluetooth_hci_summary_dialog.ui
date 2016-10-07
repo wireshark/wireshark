@@ -536,7 +536,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0">
      <property name="spacing">
       <number>-1</number>
      </property>
@@ -546,6 +546,16 @@
      <property name="bottomMargin">
       <number>0</number>
      </property>
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Display filter:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="DisplayFilterEdit" name="displayFilterLineEdit"/>
+     </item>
      <item>
       <widget class="QComboBox" name="interfaceComboBox">
        <property name="sizePolicy">
@@ -639,6 +649,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DisplayFilterEdit</class>
+   <extends>QLineEdit</extends>
+   <header>display_filter_edit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

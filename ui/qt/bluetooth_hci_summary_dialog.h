@@ -109,6 +109,7 @@ private slots:
     void tableItemCollapsed(QTreeWidgetItem *item);
     void interfaceCurrentIndexChanged(int index);
     void adapterCurrentIndexChanged(int index);
+    void displayFilterLineEditAccepted();
 };
 
 #endif // BLUETOOTH_HCI_SUMMARY_DIALOG_H

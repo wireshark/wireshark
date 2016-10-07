@@ -112,6 +112,7 @@ BluetoothHciSummaryDialog::BluetoothHciSummaryDialog(QWidget &parent, CaptureFil
 
     connect(ui->interfaceComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(interfaceCurrentIndexChanged(int)));
     connect(ui->adapterComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(adapterCurrentIndexChanged(int)));
+    connect(ui->displayFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(displayFilterLineEditAccepted()));
 
     for (int i = 0; i < ui->tableTreeWidget->columnCount(); i++) {
         ui->tableTreeWidget->resizeColumnToContents(i);
@@ -780,6 +781,28 @@ void BluetoothHciSummaryDialog::on_actionSave_as_image_triggered()
 void BluetoothHciSummaryDialog::on_buttonBox_clicked(QAbstractButton *)
 {
 /*    if (button == foo_button_) */
+}
+
+void BluetoothHciSummaryDialog::displayFilterLineEditAccepted()
+{
+    GString *error_string;
+
+    remove_tap_listener(&tapinfo_);
+    error_string = register_tap_listener("bluetooth.hci_summary", &tapinfo_,
+            ui->displayFilterLineEdit->text().toUtf8().constData(),
+            0,
+            bluetooth_hci_summary_tap_reset,
+            bluetooth_hci_summary_tap_packet,
+            NULL
+            );
+
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
+
+    cap_file_.retapPackets();
 }
 
 /*
