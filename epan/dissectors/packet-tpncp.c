@@ -33,6 +33,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/report_err.h>
+#include <wsutil/strtoi.h>
 #include "packet-tcp.h"
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -617,21 +618,26 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
 
         if ((tmp = strtok(tpncp_db_entry, " ")) == NULL)
             continue; /* Badly formed data base entry - skip corresponding field's registration. */
-        data_id = atoi(tmp);
+        if (!ws_strtou32(tmp, NULL, &data_id))
+            continue;
         if ((tpncp_data_field_name = strtok(NULL, " ")) == NULL)
             continue; /* Badly formed data base entry - skip corresponding field's registration. */
         if ((tmp = strtok(NULL, " ")) == NULL)
             continue; /* Badly formed data base entry - skip corresponding field's registration. */
-        tpncp_data_field_sign = atoi(tmp);
+        if (!ws_strtou32(tmp, NULL, &tpncp_data_field_sign))
+            continue;
         if ((tmp = strtok(NULL, " ")) == NULL)
             continue; /* Badly formed data base entry - skip corresponding field's registration. */
-        tpncp_data_field_size = atoi(tmp);
+        if (!ws_strtou32(tmp, NULL, &tpncp_data_field_size))
+            continue;
         if ((tmp = strtok(NULL, " ")) == NULL)
             continue; /* Badly formed data base entry - skip corresponding field's registration. */
-        tpncp_data_field_array_dim = atoi(tmp);
+        if (!ws_strtou32(tmp, NULL, &tpncp_data_field_array_dim))
+            continue;
         if ((tmp = strtok(NULL, " ")) == NULL)
             continue; /* Badly formed data base entry - skip corresponding field's registration. */
-        tpncp_data_field_is_ip_addr = atoi(tmp);
+        if (!ws_strtou32(tmp, NULL, &tpncp_data_field_is_ip_addr))
+            continue;
         if ((tmp = strtok(NULL, "\n")) == NULL)
             continue; /* Badly formed data base entry - skip corresponding field's registration. */
 
