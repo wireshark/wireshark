@@ -38,6 +38,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/dissectors/packet-tcp.h>
 
+#include <wsutil/strtoi.h>
 
 /* bitmap length */
 #define BM_LEN 8
@@ -627,17 +628,13 @@ static gchar *get_bit(guint ind, tvbuff_t *tvb, gint *off_set, proto_tree *tree,
     {
       case ASCII_CHARSET:
       {
-        gchar* sizestr;
         checksize(len);
 
-        sizestr = (gchar *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset,
-              len , ENC_ASCII);
-        if(!isnum_str(sizestr,len))
-        {
+        if (!ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(), tvb, offset,
+              len , ENC_ASCII), NULL, &len))
           return NULL;
-        }
+
         offset+=len;
-        len = atoi(sizestr);
         break;
       }
       case NUM_NIBBLE_CHARSET:
