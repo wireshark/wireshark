@@ -33,6 +33,8 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 
+#include <wsutil/strtoi.h>
+
 #include "packet-tcp.h"
 #include "packet-ssl.h"
 
@@ -61,6 +63,8 @@ static gint ett_checksum = -1;
 
 static expert_field ei_fix_checksum_bad = EI_INIT;
 static expert_field ei_fix_missing_field = EI_INIT;
+static expert_field ei_fix_tag_invalid = EI_INIT;
+static expert_field ei_fix_field_invalid = EI_INIT;
 
 static int hf_fix_data = -1; /* continuation data */
 static int hf_fix_checksum_good = -1;
@@ -159,7 +163,7 @@ static fix_parameter *fix_param(tvbuff_t *tvb, int offset)
 static int fix_header_len(tvbuff_t *tvb, int offset)
 {
     int            base_offset, ctrla_offset;
-    char          *value;
+    gint32         value;
     int            size;
     fix_parameter *tag;
 
@@ -187,11 +191,13 @@ static int fix_header_len(tvbuff_t *tvb, int offset)
         return fix_next_header(tvb, offset);
     }
 
-    value = tvb_get_string_enc(wmem_packet_scope(), tvb, tag->value_offset, tag->value_len, ENC_ASCII);
+    if (!ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(), tvb, tag->value_offset,
+            tag->value_len, ENC_ASCII), NULL, &value))
+        return fix_next_header(tvb, base_offset +MARKER_LEN)  +MARKER_LEN;
     /* Fix version, msg type, length and checksum aren't in body length.
      * If the packet is big enough find the checksum
     */
-    size = atoi(value) +tag->ctrla_offset - base_offset +1;
+    size = value + tag->ctrla_offset - base_offset + 1;
     if (tvb_reported_length_remaining(tvb, base_offset) > size +4) {
         /* 10= should be there */
         offset = base_offset +size;
@@ -224,7 +230,9 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     int            field_offset, ctrla_offset;
     int            tag_value;
     char          *value;
-    char          *tag_str;
+    guint32        ivalue;
+    gboolean       ivalue_valid;
+    proto_item*    pi;
     fix_parameter *tag;
     const char *msg_type;
 
@@ -277,12 +285,15 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         int i, found;
 
         if (tag->tag_len < 1) {
-            field_offset =  tag->ctrla_offset + 1;
+            field_offset = tag->ctrla_offset + 1;
             continue;
         }
 
-        tag_str = tvb_get_string_enc(wmem_packet_scope(), tvb, field_offset, tag->tag_len, ENC_ASCII);
-        tag_value = atoi(tag_str);
+        if (!ws_strtou32(tvb_get_string_enc(wmem_packet_scope(), tvb, field_offset, tag->tag_len, ENC_ASCII),
+                NULL, &tag_value)) {
+            proto_tree_add_expert(fix_tree, pinfo, &ei_fix_tag_invalid, tvb, field_offset, tag->tag_len);
+            continue;
+        }
         if (tag->value_len < 1) {
             proto_tree *field_tree;
             /* XXX - put an error indication here.  It's too late
@@ -305,6 +316,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         }
 
         value = tvb_get_string_enc(wmem_packet_scope(), tvb, tag->value_offset, tag->value_len, ENC_ASCII);
+        ivalue_valid = ws_strtoi32(value, NULL, &ivalue);
         if (found) {
             if (fix_fields[i].table) {
                 if (tree) {
@@ -324,8 +336,13 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                             "%s (%s)", value, val_to_str(*value, (const value_string *)fix_fields[i].table, "unknown %d"));
                         break;
                     default:
-                        proto_tree_add_string_format_value(fix_tree, fix_fields[i].hf_id, tvb, field_offset, tag->field_len, value,
-                            "%s (%s)", value, val_to_str(atoi(value), (const value_string *)fix_fields[i].table, "unknown %d"));
+                        if (ivalue_valid)
+                            proto_tree_add_string_format_value(fix_tree, fix_fields[i].hf_id, tvb, field_offset, tag->field_len, value,
+                                "%s (%s)", value, val_to_str(ivalue, (const value_string *)fix_fields[i].table, "unknown %d"));
+                        else {
+                            pi = proto_tree_add_string(fix_tree, fix_fields[i].hf_id, tvb, field_offset, tag->field_len, value);
+                            expert_add_info_format(pinfo, pi, &ei_fix_field_invalid, "Invalid string %s for fix field %u", value, i);
+                        }
                         break;
                     }
                 }
@@ -346,7 +363,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                     for (j = 0; j < field_offset; j++, sum_data++) {
                          sum += *sum_data;
                     }
-                    sum_ok = (atoi(value) == sum);
+                    sum_ok = (ivalue == sum);
                     if (sum_ok) {
                         item = proto_tree_add_string_format_value(fix_tree, fix_fields[i].hf_id, tvb, field_offset, tag->field_len,
                                 value, "%s [correct]", value);
@@ -381,8 +398,6 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         }
 
         field_offset =  tag->ctrla_offset + 1;
-
-        tag_str = NULL;
     }
     return tvb_captured_length(tvb);
 }
@@ -498,6 +513,8 @@ proto_register_fix(void)
     static ei_register_info ei[] = {
         { &ei_fix_checksum_bad, { "fix.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
         { &ei_fix_missing_field, { "fix.missing_field", PI_MALFORMED, PI_ERROR, "Missing mandatory field", EXPFILL }},
+        { &ei_fix_tag_invalid, { "fix.tag.invalid", PI_MALFORMED, PI_ERROR, "Invalid Tag", EXPFILL }},
+        { &ei_fix_field_invalid, { "fix.invalid_integer_string", PI_MALFORMED, PI_ERROR, "Invalid integer string", EXPFILL }}
     };
 
     module_t *fix_module;
