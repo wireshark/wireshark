@@ -37,6 +37,8 @@
 
 #include <epan/packet.h>
 
+#include <wsutil/strtoi.h>
+
 #include "packet-e212.h"
 #include "expert.h"
 
@@ -3074,16 +3076,19 @@ dissect_e212_mcc_mnc_high_nibble(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 static int
 dissect_e212_mcc_mnc_in_utf8_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    guint16 mcc, mnc;
+    guint16 mcc = 0, mnc = 0;
     gboolean    long_mnc = FALSE;
 
-    mcc = atoi(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 3, ENC_UTF_8));
-    mnc = atoi(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 3, 2, ENC_UTF_8));
+    ws_strtou16(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 3, ENC_UTF_8),
+        NULL, &mcc);
+    ws_strtou16(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 3, 2, ENC_UTF_8),
+        NULL, &mnc);
 
     /* Try to match the MCC and 2 digits MNC with an entry in our list of operators */
     if (!try_val_to_str_ext(mcc * 1000 + 10 * mnc, &mcc_mnc_codes_ext)) {
-            mnc = atoi(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 3, 3, ENC_UTF_8));
-            long_mnc = TRUE;
+        ws_strtou16(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 3, 3, ENC_UTF_8),
+            NULL, &mnc);
+        long_mnc = TRUE;
     }
 
     proto_tree_add_uint(tree, hf_E212_mcc, tvb, offset, 3, mcc );
