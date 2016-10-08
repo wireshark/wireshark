@@ -96,122 +96,238 @@ void proto_reg_handoff_gvsp(void);
  */
 
 #define GVSP_PIX_MONO             (0x01000000)
-#define GVSP_PIX_RGB              (0x02000000)
 #define GVSP_PIX_COLOR            (0x02000000)
 #define GVSP_PIX_CUSTOM           (0x80000000)
-#define GVSP_PIX_COLOR_MASK       (0xFF000000)
-
-
-/*
-   Pixel type size
- */
-
-#define GVSP_PIX_OCCUPY1BIT       (0x00010000)
-#define GVSP_PIX_OCCUPY2BIT       (0x00020000)
-#define GVSP_PIX_OCCUPY4BIT       (0x00040000)
-#define GVSP_PIX_OCCUPY8BIT       (0x00080000)
-#define GVSP_PIX_OCCUPY12BIT      (0x000C0000)
-#define GVSP_PIX_OCCUPY16BIT      (0x00100000)
-#define GVSP_PIX_OCCUPY24BIT      (0x00180000)
-#define GVSP_PIX_OCCUPY32BIT      (0x00200000)
-#define GVSP_PIX_OCCUPY36BIT      (0x00240000)
-#define GVSP_PIX_OCCUPY48BIT      (0x00300000)
-
-
-/*
-   Pixel type masks, shifts
- */
-#define GVSP_PIX_EFFECTIVE_PIXEL_SIZE_MASK (0x00FF0000)
-#define GVSP_PIX_EFFECTIVE_PIXEL_SIZE_SHIFT (16)
-
-#define GVSP_PIX_ID_MASK (0x0000FFFF)
-
 
 /*
    Pixel types
  */
-
-#define GVSP_PIX_MONO1P                  (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY1BIT  | 0x0037)
-
-#define GVSP_PIX_MONO2P                  (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY2BIT  | 0x0038)
-
-#define GVSP_PIX_MONO4P                  (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY4BIT  | 0x0039)
-
-#define GVSP_PIX_MONO8                   (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY8BIT  | 0x0001)
-#define GVSP_PIX_MONO8S                  (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY8BIT  | 0x0002)
-#define GVSP_PIX_BAYGR8                  (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY8BIT  | 0x0008)
-#define GVSP_PIX_BAYRG8                  (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY8BIT  | 0x0009)
-#define GVSP_PIX_BAYGB8                  (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY8BIT  | 0x000A)
-#define GVSP_PIX_BAYBG8                  (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY8BIT  | 0x000B)
-
-#define GVSP_PIX_MONO10_PACKED           (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY12BIT | 0x0004)
-#define GVSP_PIX_MONO12_PACKED           (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY12BIT | 0x0006)
-#define GVSP_PIX_BAYGR10_PACKED          (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY12BIT | 0x0026)
-#define GVSP_PIX_BAYRG10_PACKED          (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY12BIT | 0x0027)
-#define GVSP_PIX_BAYGB10_PACKED          (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY12BIT | 0x0028)
-#define GVSP_PIX_BAYBG10_PACKED          (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY12BIT | 0x0029)
-#define GVSP_PIX_BAYGR12_PACKED          (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY12BIT | 0x002A)
-#define GVSP_PIX_BAYRG12_PACKED          (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY12BIT | 0x002B)
-#define GVSP_PIX_BAYGB12_PACKED          (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY12BIT | 0x002C)
-#define GVSP_PIX_BAYBG12_PACKED          (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY12BIT | 0x002D)
-
-#define GVSP_PIX_MONO10                  (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY16BIT | 0x0003)
-#define GVSP_PIX_MONO12                  (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY16BIT | 0x0005)
-#define GVSP_PIX_MONO16                  (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY16BIT | 0x0007)
-#define GVSP_PIX_BAYGR10                 (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY16BIT | 0x000C)
-#define GVSP_PIX_BAYRG10                 (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY16BIT | 0x000D)
-#define GVSP_PIX_BAYGB10                 (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY16BIT | 0x000E)
-#define GVSP_PIX_BAYBG10                 (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY16BIT | 0x000F)
-#define GVSP_PIX_BAYGR12                 (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY16BIT | 0x0010)
-#define GVSP_PIX_BAYRG12                 (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY16BIT | 0x0011)
-#define GVSP_PIX_BAYGB12                 (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY16BIT | 0x0012)
-#define GVSP_PIX_BAYBG12                 (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY16BIT | 0x0013)
-#define GVSP_PIX_MONO14                  (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY16BIT | 0x0025)
-#define GVSP_PIX_BAYGR16                 (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY16BIT | 0x002E)
-#define GVSP_PIX_BAYRG16                 (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY16BIT | 0x002F)
-#define GVSP_PIX_BAYGB16                 (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY16BIT | 0x0030)
-#define GVSP_PIX_BAYBG16                 (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY16BIT | 0x0031)
-
-#define GVSP_PIX_YUV411_8_UYYVYY         (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY12BIT | 0x001E)
-#define GVSP_PIX_YCBCR422_8_CBYYCRYY     (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY12BIT | 0x003C)
-#define GVSP_PIX_YCBCR601_411_8_CBYYCRYY (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY12BIT | 0x003F)
-#define GVSP_PIX_YCBCR709_411_8_CBYYCRYY (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY12BIT | 0x0042)
-
-#define GVSP_PIX_YUV422_8_UYVY           (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY16BIT | 0x001F)
-#define GVSP_PIX_YUV422_8                (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY16BIT | 0x0032)
-#define GVSP_PIX_RGB565P                 (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY16BIT | 0x0035)
-#define GVSP_PIX_BGR565P                 (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY16BIT | 0x0036)
-#define GVSP_PIX_YCBCR422_8              (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY16BIT | 0x003B)
-#define GVSP_PIX_YCBCR601_422_8          (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY16BIT | 0x003E)
-#define GVSP_PIX_YCBCR709_422_8          (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY16BIT | 0x0041)
-#define GVSP_PIX_YCBCR422_8_CBYCRY       (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY16BIT | 0x0043)
-#define GVSP_PIX_YCBCR601_422_8_CBYCRY   (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY16BIT | 0x0044)
-#define GVSP_PIX_YCBCR709_422_8_CBYCRY   (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY16BIT | 0x0045)
-
-#define GVSP_PIX_RGB8                    (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY24BIT | 0x0014)
-#define GVSP_PIX_BGR8                    (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY24BIT | 0x0015)
-#define GVSP_PIX_YUV8_UYV                (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY24BIT | 0x0020)
-#define GVSP_PIX_RGB8_PLANAR             (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY24BIT | 0x0021)
-#define GVSP_PIX_YCBCR8_CBYCR            (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY24BIT | 0x003A)
-#define GVSP_PIX_YCBCR601_8_CBYCR        (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY24BIT | 0x003D)
-#define GVSP_PIX_YCBCR709_411_8_CBYCR    (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY24BIT | 0x0040)
-
-#define GVSP_PIX_RGBA8                   (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY32BIT | 0x0016)
-#define GVSP_PIX_BGRA8                   (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY32BIT | 0x0017)
-#define GVSP_PIX_RGB10V1_PACKED          (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY32BIT | 0x001C)
-#define GVSP_PIX_RGB10P32                (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY32BIT | 0x001D)
-
-#define GVSP_PIX_RGB12V1_PACKED          (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY36BIT | 0x0034)
-
-#define GVSP_PIX_RGB10                   (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY48BIT | 0x0018)
-#define GVSP_PIX_BGR10                   (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY48BIT | 0x0019)
-#define GVSP_PIX_RGB12                   (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY48BIT | 0x001A)
-#define GVSP_PIX_BGR12                   (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY48BIT | 0x001B)
-#define GVSP_PIX_RGB10_PLANAR            (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY48BIT | 0x0022)
-#define GVSP_PIX_RGB12_PLANAR            (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY48BIT | 0x0023)
-#define GVSP_PIX_RGB16_PLANAR            (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY48BIT | 0x0024)
-#define GVSP_PIX_RGB16                   (GVSP_PIX_COLOR | GVSP_PIX_OCCUPY48BIT | 0x0033)
-
+#define GVSP_PIX_MONO1P 0x01010037
+#define GVSP_PIX_MONO2P 0x01020038
+#define GVSP_PIX_MONO4P 0x01040039
+#define GVSP_PIX_MONO8 0x01080001
+#define GVSP_PIX_MONO8S 0x01080002
+#define GVSP_PIX_MONO10 0x01100003
+#define GVSP_PIX_MONO10P 0x010A0046
+#define GVSP_PIX_MONO12 0x01100005
+#define GVSP_PIX_MONO12P 0x010C0047
+#define GVSP_PIX_MONO14 0x01100025
+#define GVSP_PIX_MONO16 0x01100007
+#define GVSP_PIX_BAYERBG8 0x0108000B
+#define GVSP_PIX_BAYERBG10 0x0110000F
+#define GVSP_PIX_BAYERBG10P 0x010A0052
+#define GVSP_PIX_BAYERBG12 0x01100013
+#define GVSP_PIX_BAYERBG12P 0x010C0053
+#define GVSP_PIX_BAYERBG16 0x01100031
+#define GVSP_PIX_BAYERGB8 0x0108000A
+#define GVSP_PIX_BAYERGB10 0x0110000E
+#define GVSP_PIX_BAYERGB10P 0x010A0054
+#define GVSP_PIX_BAYERGB12 0x01100012
+#define GVSP_PIX_BAYERGB12P 0x010C0055
+#define GVSP_PIX_BAYERGB16 0x01100030
+#define GVSP_PIX_BAYERGR8 0x01080008
+#define GVSP_PIX_BAYERGR10 0x0110000C
+#define GVSP_PIX_BAYERGR10P 0x010A0056
+#define GVSP_PIX_BAYERGR12 0x01100010
+#define GVSP_PIX_BAYERGR12P 0x010C0057
+#define GVSP_PIX_BAYERGR16 0x0110002E
+#define GVSP_PIX_BAYERRG8 0x01080009
+#define GVSP_PIX_BAYERRG10 0x0110000D
+#define GVSP_PIX_BAYERRG10P 0x010A0058
+#define GVSP_PIX_BAYERRG12 0x01100011
+#define GVSP_PIX_BAYERRG12P 0x010C0059
+#define GVSP_PIX_BAYERRG16 0x0110002F
+#define GVSP_PIX_RGBA8 0x02200016
+#define GVSP_PIX_RGBA10 0x0240005F
+#define GVSP_PIX_RGBA10P 0x02280060
+#define GVSP_PIX_RGBA12 0x02400061
+#define GVSP_PIX_RGBA12P 0x02300062
+#define GVSP_PIX_RGBA14 0x02400063
+#define GVSP_PIX_RGBA16 0x02400064
+#define GVSP_PIX_RGB8 0x02180014
+#define GVSP_PIX_RGB8_PLANAR 0x02180021
+#define GVSP_PIX_RGB10 0x02300018
+#define GVSP_PIX_RGB10_PLANAR 0x02300022
+#define GVSP_PIX_RGB10P 0x021E005C
+#define GVSP_PIX_RGB10P32 0x0220001D
+#define GVSP_PIX_RGB12 0x0230001A
+#define GVSP_PIX_RGB12_PLANAR 0x02300023
+#define GVSP_PIX_RGB12P 0x0224005D
+#define GVSP_PIX_RGB14 0x0230005E
+#define GVSP_PIX_RGB16 0x02300033
+#define GVSP_PIX_RGB16_PLANAR 0x02300024
+#define GVSP_PIX_RGB565P 0x02100035
+#define GVSP_PIX_BGRA8 0x02200017
+#define GVSP_PIX_BGRA10 0x0240004C
+#define GVSP_PIX_BGRA10P 0x0228004D
+#define GVSP_PIX_BGRA12 0x0240004E
+#define GVSP_PIX_BGRA12P 0x0230004F
+#define GVSP_PIX_BGRA14 0x02400050
+#define GVSP_PIX_BGRA16 0x02400051
+#define GVSP_PIX_BGR8 0x02180015
+#define GVSP_PIX_BGR10 0x02300019
+#define GVSP_PIX_BGR10P 0x021E0048
+#define GVSP_PIX_BGR12 0x0230001B
+#define GVSP_PIX_BGR12P 0x02240049
+#define GVSP_PIX_BGR14 0x0230004A
+#define GVSP_PIX_BGR16 0x0230004B
+#define GVSP_PIX_BGR565P 0x02100036
+#define GVSP_PIX_R8 0x010800C9
+#define GVSP_PIX_R10 0x010A00CA
+#define GVSP_PIX_R12 0x010C00CB
+#define GVSP_PIX_R16 0x011000CC
+#define GVSP_PIX_G8 0x010800CD
+#define GVSP_PIX_G10 0x010A00CE
+#define GVSP_PIX_G12 0x010C00CF
+#define GVSP_PIX_G16 0x011000D0
+#define GVSP_PIX_B8 0x010800D1
+#define GVSP_PIX_B10 0x010A00D2
+#define GVSP_PIX_B12 0x010C00D3
+#define GVSP_PIX_B16 0x011000D4
+#define GVSP_PIX_COORD3D_ABC8 0x021800B2
+#define GVSP_PIX_COORD3D_ABC8_PLANAR 0x021800B3
+#define GVSP_PIX_COORD3D_ABC10P 0x021E00DB
+#define GVSP_PIX_COORD3D_ABC10P_PLANAR 0x021E00DC
+#define GVSP_PIX_COORD3D_ABC12P 0x022400DE
+#define GVSP_PIX_COORD3D_ABC12P_PLANAR 0x022400DF
+#define GVSP_PIX_COORD3D_ABC16 0x023000B9
+#define GVSP_PIX_COORD3D_ABC16_PLANAR 0x023000BA
+#define GVSP_PIX_COORD3D_ABC32F 0x026000C0
+#define GVSP_PIX_COORD3D_ABC32F_PLANAR 0x026000C1
+#define GVSP_PIX_COORD3D_AC8 0x021000B4
+#define GVSP_PIX_COORD3D_AC8_PLANAR 0x021000B5
+#define GVSP_PIX_COORD3D_AC10P 0x021400F0
+#define GVSP_PIX_COORD3D_AC10P_PLANAR 0x021400F1
+#define GVSP_PIX_COORD3D_AC12P 0x021800F2
+#define GVSP_PIX_COORD3D_AC12P_PLANAR 0x021800F3
+#define GVSP_PIX_COORD3D_AC16 0x022000BB
+#define GVSP_PIX_COORD3D_AC16_PLANAR 0x022000BC
+#define GVSP_PIX_COORD3D_AC32F 0x024000C2
+#define GVSP_PIX_COORD3D_AC32F_PLANAR 0x024000C3
+#define GVSP_PIX_COORD3D_A8 0x010800AF
+#define GVSP_PIX_COORD3D_A10P 0x010A00D5
+#define GVSP_PIX_COORD3D_A12P 0x010C00D8
+#define GVSP_PIX_COORD3D_A16 0x011000B6
+#define GVSP_PIX_COORD3D_A32F 0x012000BD
+#define GVSP_PIX_COORD3D_B8 0x010800B0
+#define GVSP_PIX_COORD3D_B10P 0x010A00D6
+#define GVSP_PIX_COORD3D_B12P 0x010C00D9
+#define GVSP_PIX_COORD3D_B16 0x011000B7
+#define GVSP_PIX_COORD3D_B32F 0x012000BE
+#define GVSP_PIX_COORD3D_C8 0x010800B1
+#define GVSP_PIX_COORD3D_C10P 0x010A00D7
+#define GVSP_PIX_COORD3D_C12P 0x010C00DA
+#define GVSP_PIX_COORD3D_C16 0x011000B8
+#define GVSP_PIX_COORD3D_C32F 0x012000BF
+#define GVSP_PIX_CONFIDENCE1 0x010800C4
+#define GVSP_PIX_CONFIDENCE1P 0x010100C5
+#define GVSP_PIX_CONFIDENCE8 0x010800C6
+#define GVSP_PIX_CONFIDENCE16 0x011000C7
+#define GVSP_PIX_CONFIDENCE32F 0x012000C8
+#define GVSP_PIX_BICOLORBGRG8 0x021000A6
+#define GVSP_PIX_BICOLORBGRG10 0x022000A9
+#define GVSP_PIX_BICOLORBGRG10P 0x021400AA
+#define GVSP_PIX_BICOLORBGRG12 0x022000AD
+#define GVSP_PIX_BICOLORBGRG12P 0x021800AE
+#define GVSP_PIX_BICOLORRGBG8 0x021000A5
+#define GVSP_PIX_BICOLORRGBG10 0x022000A7
+#define GVSP_PIX_BICOLORRGBG10P 0x021400A8
+#define GVSP_PIX_BICOLORRGBG12 0x022000AB
+#define GVSP_PIX_BICOLORRGBG12P 0x021800AC
+#define GVSP_PIX_SCF1WBWG8 0x01080067
+#define GVSP_PIX_SCF1WBWG10 0x01100068
+#define GVSP_PIX_SCF1WBWG10P 0x010A0069
+#define GVSP_PIX_SCF1WBWG12 0x0110006A
+#define GVSP_PIX_SCF1WBWG12P 0x010C006B
+#define GVSP_PIX_SCF1WBWG14 0x0110006C
+#define GVSP_PIX_SCF1WBWG16 0x0110006D
+#define GVSP_PIX_SCF1WGWB8 0x0108006E
+#define GVSP_PIX_SCF1WGWB10 0x0110006F
+#define GVSP_PIX_SCF1WGWB10P 0x010A0070
+#define GVSP_PIX_SCF1WGWB12 0x01100071
+#define GVSP_PIX_SCF1WGWB12P 0x010C0072
+#define GVSP_PIX_SCF1WGWB14 0x01100073
+#define GVSP_PIX_SCF1WGWB16 0x01100074
+#define GVSP_PIX_SCF1WGWR8 0x01080075
+#define GVSP_PIX_SCF1WGWR10 0x01100076
+#define GVSP_PIX_SCF1WGWR10P 0x010A0077
+#define GVSP_PIX_SCF1WGWR12 0x01100078
+#define GVSP_PIX_SCF1WGWR12P 0x010C0079
+#define GVSP_PIX_SCF1WGWR14 0x0110007A
+#define GVSP_PIX_SCF1WGWR16 0x0110007B
+#define GVSP_PIX_SCF1WRWG8 0x0108007C
+#define GVSP_PIX_SCF1WRWG10 0x0110007D
+#define GVSP_PIX_SCF1WRWG10P 0x010A007E
+#define GVSP_PIX_SCF1WRWG12 0x0110007F
+#define GVSP_PIX_SCF1WRWG12P 0x010C0080
+#define GVSP_PIX_SCF1WRWG14 0x01100081
+#define GVSP_PIX_SCF1WRWG16 0x01100082
+#define GVSP_PIX_YCBCR8 0x0218005B
+#define GVSP_PIX_YCBCR8_CBYCR 0x0218003A
+#define GVSP_PIX_YCBCR10_CBYCR 0x02300083
+#define GVSP_PIX_YCBCR10P_CBYCR 0x021E0084
+#define GVSP_PIX_YCBCR12_CBYCR 0x02300085
+#define GVSP_PIX_YCBCR12P_CBYCR 0x02240086
+#define GVSP_PIX_YCBCR411_8 0x020C005A
+#define GVSP_PIX_YCBCR411_8_CBYYCRYY 0x020C003C
+#define GVSP_PIX_YCBCR422_8 0x0210003B
+#define GVSP_PIX_YCBCR422_8_CBYCRY 0x02100043
+#define GVSP_PIX_YCBCR422_10 0x02200065
+#define GVSP_PIX_YCBCR422_10_CBYCRY 0x02200099
+#define GVSP_PIX_YCBCR422_10P 0x02140087
+#define GVSP_PIX_YCBCR422_10P_CBYCRY 0x0214009A
+#define GVSP_PIX_YCBCR422_12 0x02200066
+#define GVSP_PIX_YCBCR422_12_CBYCRY 0x0220009B
+#define GVSP_PIX_YCBCR422_12P 0x02180088
+#define GVSP_PIX_YCBCR422_12P_CBYCRY 0x0218009C
+#define GVSP_PIX_YCBCR601_8_CBYCR 0x0218003D
+#define GVSP_PIX_YCBCR601_10_CBYCR 0x02300089
+#define GVSP_PIX_YCBCR601_10P_CBYCR 0x021E008A
+#define GVSP_PIX_YCBCR601_12_CBYCR 0x0230008B
+#define GVSP_PIX_YCBCR601_12P_CBYCR 0x0224008C
+#define GVSP_PIX_YCBCR601_411_8_CBYYCRYY 0x020C003F
+#define GVSP_PIX_YCBCR601_422_8 0x0210003E
+#define GVSP_PIX_YCBCR601_422_8_CBYCRY 0x02100044
+#define GVSP_PIX_YCBCR601_422_10 0x0220008D
+#define GVSP_PIX_YCBCR601_422_10_CBYCRY 0x0220009D
+#define GVSP_PIX_YCBCR601_422_10P 0x0214008E
+#define GVSP_PIX_YCBCR601_422_10P_CBYCRY 0x0214009E
+#define GVSP_PIX_YCBCR601_422_12 0x0220008F
+#define GVSP_PIX_YCBCR601_422_12_CBYCRY 0x0220009F
+#define GVSP_PIX_YCBCR601_422_12P 0x02180090
+#define GVSP_PIX_YCBCR601_422_12P_CBYCRY 0x021800A0
+#define GVSP_PIX_YCBCR709_8_CBYCR 0x02180040
+#define GVSP_PIX_YCBCR709_10_CBYCR 0x02300091
+#define GVSP_PIX_YCBCR709_10P_CBYCR 0x021E0092
+#define GVSP_PIX_YCBCR709_12_CBYCR 0x02300093
+#define GVSP_PIX_YCBCR709_12P_CBYCR 0x02240094
+#define GVSP_PIX_YCBCR709_411_8_CBYYCRYY 0x020C0042
+#define GVSP_PIX_YCBCR709_422_8 0x02100041
+#define GVSP_PIX_YCBCR709_422_8_CBYCRY 0x02100045
+#define GVSP_PIX_YCBCR709_422_10 0x02200095
+#define GVSP_PIX_YCBCR709_422_10_CBYCRY 0x022000A1
+#define GVSP_PIX_YCBCR709_422_10P 0x02140096
+#define GVSP_PIX_YCBCR709_422_10P_CBYCRY 0x021400A2
+#define GVSP_PIX_YCBCR709_422_12 0x02200097
+#define GVSP_PIX_YCBCR709_422_12_CBYCRY 0x022000A3
+#define GVSP_PIX_YCBCR709_422_12P 0x02180098
+#define GVSP_PIX_YCBCR709_422_12P_CBYCRY 0x021800A4
+#define GVSP_PIX_YUV8_UYV 0x02180020
+#define GVSP_PIX_YUV411_8_UYYVYY 0x020C001E
+#define GVSP_PIX_YUV422_8 0x02100032
+#define GVSP_PIX_YUV422_8_UYVY 0x0210001F
+#define GVSP_PIX_MONO10PACKED 0x010C0004
+#define GVSP_PIX_MONO12PACKED 0x010C0006
+#define GVSP_PIX_BAYERBG10PACKED 0x010C0029
+#define GVSP_PIX_BAYERBG12PACKED 0x010C002D
+#define GVSP_PIX_BAYERGB10PACKED 0x010C0028
+#define GVSP_PIX_BAYERGB12PACKED 0x010C002C
+#define GVSP_PIX_BAYERGR10PACKED 0x010C0026
+#define GVSP_PIX_BAYERGR12PACKED 0x010C002A
+#define GVSP_PIX_BAYERRG10PACKED 0x010C0027
+#define GVSP_PIX_BAYERRG12PACKED 0x010C002B
+#define GVSP_PIX_RGB10V1PACKED 0x0220001C
+#define GVSP_PIX_RGB12V1PACKED 0x02240034
 
 
 /* Structure to hold GVSP packet information */
@@ -317,88 +433,233 @@ static const value_string payloadtypenames[] = {
 static value_string_ext payloadtypenames_ext = VALUE_STRING_EXT_INIT(payloadtypenames);
 
 static const value_string pixeltypenames[] = {
-    { GVSP_PIX_MONO1P,                  "GVSP_PIX_MONO1P" },
-
-    { GVSP_PIX_MONO2P,                  "GVSP_PIX_MONO2P" },
-
-    { GVSP_PIX_MONO4P,                  "GVSP_PIX_MONO4P" },
-
-    { GVSP_PIX_MONO8,                   "GVSP_PIX_MONO8" },
-    { GVSP_PIX_MONO8S,                  "GVSP_PIX_MONO8S" },
-    { GVSP_PIX_BAYGR8,                  "GVSP_PIX_BAYGR8" },
-    { GVSP_PIX_BAYRG8,                  "GVSP_PIX_BAYRG8" },
-    { GVSP_PIX_BAYGB8,                  "GVSP_PIX_BAYGB8" },
-    { GVSP_PIX_BAYBG8,                  "GVSP_PIX_BAYBG8" },
-
-    { GVSP_PIX_MONO10_PACKED,           "GVSP_PIX_MONO10_PACKED" },
-    { GVSP_PIX_MONO12_PACKED,           "GVSP_PIX_MONO12_PACKED" },
-    { GVSP_PIX_BAYGR10_PACKED,          "GVSP_PIX_BAYGR10_PACKED" },
-    { GVSP_PIX_BAYRG10_PACKED,          "GVSP_PIX_BAYRG10_PACKED" },
-    { GVSP_PIX_BAYGB10_PACKED,          "GVSP_PIX_BAYGB10_PACKED" },
-    { GVSP_PIX_BAYBG10_PACKED,          "GVSP_PIX_BAYBG10_PACKED" },
-    { GVSP_PIX_BAYGR12_PACKED,          "GVSP_PIX_BAYGR12_PACKED" },
-    { GVSP_PIX_BAYRG12_PACKED,          "GVSP_PIX_BAYRG12_PACKED" },
-    { GVSP_PIX_BAYGB12_PACKED,          "GVSP_PIX_BAYGB12_PACKED" },
-    { GVSP_PIX_BAYBG12_PACKED,          "GVSP_PIX_BAYBG12_PACKED" },
-
-    { GVSP_PIX_MONO10,                  "GVSP_PIX_MONO10" },
-    { GVSP_PIX_MONO12,                  "GVSP_PIX_MONO12" },
-    { GVSP_PIX_MONO16,                  "GVSP_PIX_MONO16" },
-    { GVSP_PIX_BAYGR10,                 "GVSP_PIX_BAYGR10" },
-    { GVSP_PIX_BAYRG10,                 "GVSP_PIX_BAYRG10" },
-    { GVSP_PIX_BAYGB10,                 "GVSP_PIX_BAYGB10" },
-    { GVSP_PIX_BAYBG10,                 "GVSP_PIX_BAYBG10" },
-    { GVSP_PIX_BAYGR12,                 "GVSP_PIX_BAYGR12" },
-    { GVSP_PIX_BAYRG12,                 "GVSP_PIX_BAYRG12" },
-    { GVSP_PIX_BAYGB12,                 "GVSP_PIX_BAYGB12" },
-    { GVSP_PIX_BAYBG12,                 "GVSP_PIX_BAYBG12" },
-    { GVSP_PIX_MONO14,                  "GVSP_PIX_MONO14" },
-    { GVSP_PIX_BAYGR16,                 "GVSP_PIX_BAYGR16" },
-    { GVSP_PIX_BAYRG16,                 "GVSP_PIX_BAYRG16" },
-    { GVSP_PIX_BAYGB16,                 "GVSP_PIX_BAYGB16" },
-    { GVSP_PIX_BAYBG16,                 "GVSP_PIX_BAYBG16" },
-
-    { GVSP_PIX_YUV411_8_UYYVYY,         "GVSP_PIX_YUV411_8_UYYVYY" },
-    { GVSP_PIX_YCBCR422_8_CBYYCRYY,     "GVSP_PIX_YCBCR422_8_CBYYCRYY" },
-    { GVSP_PIX_YCBCR601_411_8_CBYYCRYY, "GVSP_PIX_YCBCR601_411_8_CBYYCRYY" },
-    { GVSP_PIX_YCBCR709_411_8_CBYYCRYY, "GVSP_PIX_YCBCR709_411_8_CBYYCRYY" },
-
-    { GVSP_PIX_YUV422_8_UYVY,           "GVSP_PIX_YUV422_8_UYVY" },
-    { GVSP_PIX_YUV422_8,                "GVSP_PIX_YUV422_8" },
-    { GVSP_PIX_RGB565P,                 "GVSP_PIX_RGB565P" },
-    { GVSP_PIX_BGR565P,                 "GVSP_PIX_BGR565P" },
-    { GVSP_PIX_YCBCR422_8,              "GVSP_PIX_YCBCR422_8" },
-    { GVSP_PIX_YCBCR601_422_8,          "GVSP_PIX_YCBCR601_422_8" },
-    { GVSP_PIX_YCBCR709_422_8,          "GVSP_PIX_YCBCR709_422_8" },
-    { GVSP_PIX_YCBCR422_8_CBYCRY,       "GVSP_PIX_YCBCR422_8_CBYCRY" },
-    { GVSP_PIX_YCBCR601_422_8_CBYCRY,   "GVSP_PIX_YCBCR601_422_8_CBYCRY" },
-    { GVSP_PIX_YCBCR709_422_8_CBYCRY,   "GVSP_PIX_YCBCR709_422_8_CBYCRY" },
-
-    { GVSP_PIX_RGB8,                    "GVSP_PIX_RGB8" },
-    { GVSP_PIX_BGR8,                    "GVSP_PIX_BGR8" },
-    { GVSP_PIX_YUV8_UYV,                "GVSP_PIX_YUV8_UYV" },
-    { GVSP_PIX_RGB8_PLANAR,             "GVSP_PIX_RGB8_PLANAR" },
-    { GVSP_PIX_YCBCR8_CBYCR,            "GVSP_PIX_YCBCR8_CBYCR" },
-    { GVSP_PIX_YCBCR601_8_CBYCR,        "GVSP_PIX_YCBCR601_8_CBYCR" },
-    { GVSP_PIX_YCBCR709_411_8_CBYCR,    "GVSP_PIX_YCBCR709_411_8_CBYCR" },
-
-    { GVSP_PIX_RGBA8,                   "GVSP_PIX_RGBA8" },
-    { GVSP_PIX_BGRA8,                   "GVSP_PIX_BGRA8" },
-    { GVSP_PIX_RGB10V1_PACKED,          "GVSP_PIX_RGB10V1_PACKED" },
-    { GVSP_PIX_RGB10P32,                "GVSP_PIX_RGB10P32" },
-
-    { GVSP_PIX_RGB12V1_PACKED,          "GVSP_PIX_RGB12V1_PACKED" },
-
-    { GVSP_PIX_RGB10,                   "GVSP_PIX_RGB10" },
-    { GVSP_PIX_BGR10,                   "GVSP_PIX_BGR10" },
-    { GVSP_PIX_RGB12,                   "GVSP_PIX_RGB12" },
-    { GVSP_PIX_BGR12,                   "GVSP_PIX_BGR12" },
-    { GVSP_PIX_RGB10_PLANAR,            "GVSP_PIX_RGB10_PLANAR" },
-    { GVSP_PIX_RGB12_PLANAR,            "GVSP_PIX_RGB12_PLANAR" },
-    { GVSP_PIX_RGB16_PLANAR,            "GVSP_PIX_RGB16_PLANAR" },
-    { GVSP_PIX_RGB16,                   "GVSP_PIX_RGB16" },
-
-    { 0, NULL },
+    { GVSP_PIX_MONO1P, "Monochrome 1-bit packed" },
+    { GVSP_PIX_CONFIDENCE1P, "Confidence 1-bit packed" },
+    { GVSP_PIX_MONO2P, "Monochrome 2-bit packed" },
+    { GVSP_PIX_MONO4P, "Monochrome 4-bit packed" },
+    { GVSP_PIX_MONO8, "Monochrome 8-bit" },
+    { GVSP_PIX_MONO8S, "Monochrome 8-bit signed" },
+    { GVSP_PIX_BAYERGR8, "Bayer Green-Red 8-bit" },
+    { GVSP_PIX_BAYERRG8, "Bayer Red-Green 8-bit" },
+    { GVSP_PIX_BAYERGB8, "Bayer Green-Blue 8-bit" },
+    { GVSP_PIX_BAYERBG8, "Bayer Blue-Green 8-bit" },
+    { GVSP_PIX_SCF1WBWG8, "Sparse Color Filter #1 White-Blue-White-Green 8-bit" },
+    { GVSP_PIX_SCF1WGWB8, "Sparse Color Filter #1 White-Green-White-Blue 8-bit" },
+    { GVSP_PIX_SCF1WGWR8, "Sparse Color Filter #1 White-Green-White-Red 8-bit" },
+    { GVSP_PIX_SCF1WRWG8, "Sparse Color Filter #1 White-Red-White-Green 8-bit" },
+    { GVSP_PIX_COORD3D_A8, "3D coordinate A 8-bit" },
+    { GVSP_PIX_COORD3D_B8, "3D coordinate B 8-bit" },
+    { GVSP_PIX_COORD3D_C8, "3D coordinate C 8-bit" },
+    { GVSP_PIX_CONFIDENCE1, "Confidence 1-bit unpacked" },
+    { GVSP_PIX_CONFIDENCE8, "Confidence 8-bit" },
+    { GVSP_PIX_R8, "Red 8-bit" },
+    { GVSP_PIX_G8, "Green 8-bit" },
+    { GVSP_PIX_B8, "Blue 8-bit" },
+    { GVSP_PIX_MONO10P, "Monochrome 10-bit packed" },
+    { GVSP_PIX_BAYERBG10P, "Bayer Blue-Green 10-bit packed" },
+    { GVSP_PIX_BAYERGB10P, "Bayer Green-Blue 10-bit packed" },
+    { GVSP_PIX_BAYERGR10P, "Bayer Green-Red 10-bit packed" },
+    { GVSP_PIX_BAYERRG10P, "Bayer Red-Green 10-bit packed" },
+    { GVSP_PIX_SCF1WBWG10P, "Sparse Color Filter #1 White-Blue-White-Green 10-bit packed" },
+    { GVSP_PIX_SCF1WGWB10P, "Sparse Color Filter #1 White-Green-White-Blue 10-bit packed" },
+    { GVSP_PIX_SCF1WGWR10P, "Sparse Color Filter #1 White-Green-White-Red 10-bit packed" },
+    { GVSP_PIX_SCF1WRWG10P, "Sparse Color Filter #1 White-Red-White-Green 10-bit packed" },
+    { GVSP_PIX_R10, "Red 10-bit" },
+    { GVSP_PIX_G10, "Green 10-bit" },
+    { GVSP_PIX_B10, "Blue 10-bit" },
+    { GVSP_PIX_COORD3D_A10P, "3D coordinate A 10-bit packed" },
+    { GVSP_PIX_COORD3D_B10P, "3D coordinate B 10-bit packed" },
+    { GVSP_PIX_COORD3D_C10P, "3D coordinate C 10-bit packed" },
+    { GVSP_PIX_MONO10PACKED, "GigE Vision specific format, Monochrome 10-bit packed" },
+    { GVSP_PIX_MONO12PACKED, "GigE Vision specific format, Monochrome 12-bit packed" },
+    { GVSP_PIX_BAYERGR10PACKED, "GigE Vision specific format, Bayer Green-Red 10-bit packed" },
+    { GVSP_PIX_BAYERRG10PACKED, "GigE Vision specific format, Bayer Red-Green 10-bit packed" },
+    { GVSP_PIX_BAYERGB10PACKED, "GigE Vision specific format, Bayer Green-Blue 10-bit packed" },
+    { GVSP_PIX_BAYERBG10PACKED, "GigE Vision specific format, Bayer Blue-Green 10-bit packed" },
+    { GVSP_PIX_BAYERGR12PACKED, "GigE Vision specific format, Bayer Green-Red 12-bit packed" },
+    { GVSP_PIX_BAYERRG12PACKED, "GigE Vision specific format, Bayer Red-Green 12-bit packed" },
+    { GVSP_PIX_BAYERGB12PACKED, "GigE Vision specific format, Bayer Green-Blue 12-bit packed" },
+    { GVSP_PIX_BAYERBG12PACKED, "GigE Vision specific format, Bayer Blue-Green 12-bit packed" },
+    { GVSP_PIX_MONO12P, "Monochrome 12-bit packed" },
+    { GVSP_PIX_BAYERBG12P, "Bayer Blue-Green 12-bit packed" },
+    { GVSP_PIX_BAYERGB12P, "Bayer Green-Blue 12-bit packed" },
+    { GVSP_PIX_BAYERGR12P, "Bayer Green-Red 12-bit packed" },
+    { GVSP_PIX_BAYERRG12P, "Bayer Red-Green 12-bit packed" },
+    { GVSP_PIX_SCF1WBWG12P, "Sparse Color Filter #1 White-Blue-White-Green 12-bit packed" },
+    { GVSP_PIX_SCF1WGWB12P, "Sparse Color Filter #1 White-Green-White-Blue 12-bit packed" },
+    { GVSP_PIX_SCF1WGWR12P, "Sparse Color Filter #1 White-Green-White-Red 12-bit packed" },
+    { GVSP_PIX_SCF1WRWG12P, "Sparse Color Filter #1 White-Red-White-Green 12-bit packed" },
+    { GVSP_PIX_R12, "Red 12-bit" },
+    { GVSP_PIX_G12, "Green 12-bit" },
+    { GVSP_PIX_B12, "Blue 12-bit" },
+    { GVSP_PIX_COORD3D_A12P, "3D coordinate A 12-bit packed" },
+    { GVSP_PIX_COORD3D_B12P, "3D coordinate B 12-bit packed" },
+    { GVSP_PIX_COORD3D_C12P, "3D coordinate C 12-bit packed" },
+    { GVSP_PIX_MONO10, "Monochrome 10-bit unpacked" },
+    { GVSP_PIX_MONO12, "Monochrome 12-bit unpacked" },
+    { GVSP_PIX_MONO16, "Monochrome 16-bit" },
+    { GVSP_PIX_BAYERGR10, "Bayer Green-Red 10-bit unpacked" },
+    { GVSP_PIX_BAYERRG10, "Bayer Red-Green 10-bit unpacked" },
+    { GVSP_PIX_BAYERGB10, "Bayer Green-Blue 10-bit unpacked" },
+    { GVSP_PIX_BAYERBG10, "Bayer Blue-Green 10-bit unpacked" },
+    { GVSP_PIX_BAYERGR12, "Bayer Green-Red 12-bit unpacked" },
+    { GVSP_PIX_BAYERRG12, "Bayer Red-Green 12-bit unpacked" },
+    { GVSP_PIX_BAYERGB12, "Bayer Green-Blue 12-bit unpacked" },
+    { GVSP_PIX_BAYERBG12, "Bayer Blue-Green 12-bit unpacked" },
+    { GVSP_PIX_MONO14, "Monochrome 14-bit unpacked" },
+    { GVSP_PIX_BAYERGR16, "Bayer Green-Red 16-bit" },
+    { GVSP_PIX_BAYERRG16, "Bayer Red-Green 16-bit" },
+    { GVSP_PIX_BAYERGB16, "Bayer Green-Blue 16-bit" },
+    { GVSP_PIX_BAYERBG16, "Bayer Blue-Green 16-bit" },
+    { GVSP_PIX_SCF1WBWG10, "Sparse Color Filter #1 White-Blue-White-Green 10-bit unpacked" },
+    { GVSP_PIX_SCF1WBWG12, "Sparse Color Filter #1 White-Blue-White-Green 12-bit unpacked" },
+    { GVSP_PIX_SCF1WBWG14, "Sparse Color Filter #1 White-Blue-White-Green 14-bit unpacked" },
+    { GVSP_PIX_SCF1WBWG16, "Sparse Color Filter #1 White-Blue-White-Green 16-bit unpacked" },
+    { GVSP_PIX_SCF1WGWB10, "Sparse Color Filter #1 White-Green-White-Blue 10-bit unpacked" },
+    { GVSP_PIX_SCF1WGWB12, "Sparse Color Filter #1 White-Green-White-Blue 12-bit unpacked" },
+    { GVSP_PIX_SCF1WGWB14, "Sparse Color Filter #1 White-Green-White-Blue 14-bit unpacked" },
+    { GVSP_PIX_SCF1WGWB16, "Sparse Color Filter #1 White-Green-White-Blue 16-bit" },
+    { GVSP_PIX_SCF1WGWR10, "Sparse Color Filter #1 White-Green-White-Red 10-bit unpacked" },
+    { GVSP_PIX_SCF1WGWR12, "Sparse Color Filter #1 White-Green-White-Red 12-bit unpacked" },
+    { GVSP_PIX_SCF1WGWR14, "Sparse Color Filter #1 White-Green-White-Red 14-bit unpacked" },
+    { GVSP_PIX_SCF1WGWR16, "Sparse Color Filter #1 White-Green-White-Red 16-bit" },
+    { GVSP_PIX_SCF1WRWG10, "Sparse Color Filter #1 White-Red-White-Green 10-bit unpacked" },
+    { GVSP_PIX_SCF1WRWG12, "Sparse Color Filter #1 White-Red-White-Green 12-bit unpacked" },
+    { GVSP_PIX_SCF1WRWG14, "Sparse Color Filter #1 White-Red-White-Green 14-bit unpacked" },
+    { GVSP_PIX_SCF1WRWG16, "Sparse Color Filter #1 White-Red-White-Green 16-bit" },
+    { GVSP_PIX_COORD3D_A16, "3D coordinate A 16-bit" },
+    { GVSP_PIX_COORD3D_B16, "3D coordinate B 16-bit" },
+    { GVSP_PIX_COORD3D_C16, "3D coordinate C 16-bit" },
+    { GVSP_PIX_CONFIDENCE16, "Confidence 16-bit" },
+    { GVSP_PIX_R16, "Red 16-bit" },
+    { GVSP_PIX_G16, "Green 16-bit" },
+    { GVSP_PIX_B16, "Blue 16-bit" },
+    { GVSP_PIX_COORD3D_A32F, "3D coordinate A 32-bit floating point" },
+    { GVSP_PIX_COORD3D_B32F, "3D coordinate B 32-bit floating point" },
+    { GVSP_PIX_COORD3D_C32F, "3D coordinate C 32-bit floating point" },
+    { GVSP_PIX_CONFIDENCE32F, "Confidence 32-bit floating point" },
+    { GVSP_PIX_YUV411_8_UYYVYY, "YUV 4:1:1 8-bit" },
+    { GVSP_PIX_YCBCR411_8_CBYYCRYY, "YCbCr 4:1:1 8-bit" },
+    { GVSP_PIX_YCBCR601_411_8_CBYYCRYY, "YCbCr 4:1:1 8-bit BT.601" },
+    { GVSP_PIX_YCBCR709_411_8_CBYYCRYY, "YCbCr 4:1:1 8-bit BT.709" },
+    { GVSP_PIX_YCBCR411_8, "YCbCr 4:1:1 8-bit" },
+    { GVSP_PIX_YUV422_8_UYVY, "YUV 4:2:2 8-bit" },
+    { GVSP_PIX_YUV422_8, "YUV 4:2:2 8-bit" },
+    { GVSP_PIX_RGB565P, "Red-Green-Blue 5/6/5-bit packed" },
+    { GVSP_PIX_BGR565P, "Blue-Green-Red 5/6/5-bit packed" },
+    { GVSP_PIX_YCBCR422_8, "YCbCr 4:2:2 8-bit" },
+    { GVSP_PIX_YCBCR601_422_8, "YCbCr 4:2:2 8-bit BT.601" },
+    { GVSP_PIX_YCBCR709_422_8, "YCbCr 4:2:2 8-bit BT.709" },
+    { GVSP_PIX_YCBCR422_8_CBYCRY, "YCbCr 4:2:2 8-bit" },
+    { GVSP_PIX_YCBCR601_422_8_CBYCRY, "YCbCr 4:2:2 8-bit BT.601" },
+    { GVSP_PIX_YCBCR709_422_8_CBYCRY, "YCbCr 4:2:2 8-bit BT.709" },
+    { GVSP_PIX_BICOLORRGBG8, "Bi-color Red/Green - Blue/Green 8-bit" },
+    { GVSP_PIX_BICOLORBGRG8, "Bi-color Blue/Green - Red/Green 8-bit" },
+    { GVSP_PIX_COORD3D_AC8, "3D coordinate A-C 8-bit" },
+    { GVSP_PIX_COORD3D_AC8_PLANAR, "3D coordinate A-C 8-bit planar" },
+    { GVSP_PIX_YCBCR422_10P, "YCbCr 4:2:2 10-bit packed" },
+    { GVSP_PIX_YCBCR601_422_10P, "YCbCr 4:2:2 10-bit packed BT.601" },
+    { GVSP_PIX_YCBCR709_422_10P, "YCbCr 4:2:2 10-bit packed BT.709" },
+    { GVSP_PIX_YCBCR422_10P_CBYCRY, "YCbCr 4:2:2 10-bit packed" },
+    { GVSP_PIX_YCBCR601_422_10P_CBYCRY, "YCbCr 4:2:2 10-bit packed BT.601" },
+    { GVSP_PIX_YCBCR709_422_10P_CBYCRY, "YCbCr 4:2:2 10-bit packed BT.709" },
+    { GVSP_PIX_BICOLORRGBG10P, "Bi-color Red/Green - Blue/Green 10-bit packed" },
+    { GVSP_PIX_BICOLORBGRG10P, "Bi-color Blue/Green - Red/Green 10-bit packed" },
+    { GVSP_PIX_COORD3D_AC10P, "3D coordinate A-C 10-bit packed" },
+    { GVSP_PIX_COORD3D_AC10P_PLANAR, "3D coordinate A-C 10-bit packed planar" },
+    { GVSP_PIX_RGB8, "Red-Green-Blue 8-bit" },
+    { GVSP_PIX_BGR8, "Blue-Green-Red 8-bit" },
+    { GVSP_PIX_YUV8_UYV, "YUV 4:4:4 8-bit" },
+    { GVSP_PIX_RGB8_PLANAR, "Red-Green-Blue 8-bit planar" },
+    { GVSP_PIX_YCBCR8_CBYCR, "YCbCr 4:4:4 8-bit" },
+    { GVSP_PIX_YCBCR601_8_CBYCR, "YCbCr 4:4:4 8-bit BT.601" },
+    { GVSP_PIX_YCBCR709_8_CBYCR, "YCbCr 4:4:4 8-bit BT.709" },
+    { GVSP_PIX_YCBCR8, "YCbCr 4:4:4 8-bit" },
+    { GVSP_PIX_YCBCR422_12P, "YCbCr 4:2:2 12-bit packed" },
+    { GVSP_PIX_YCBCR601_422_12P, "YCbCr 4:2:2 12-bit packed BT.601" },
+    { GVSP_PIX_YCBCR709_422_12P, "YCbCr 4:2:2 12-bit packed BT.709" },
+    { GVSP_PIX_YCBCR422_12P_CBYCRY, "YCbCr 4:2:2 12-bit packed" },
+    { GVSP_PIX_YCBCR601_422_12P_CBYCRY, "YCbCr 4:2:2 12-bit packed BT.601" },
+    { GVSP_PIX_YCBCR709_422_12P_CBYCRY, "YCbCr 4:2:2 12-bit packed BT.709" },
+    { GVSP_PIX_BICOLORRGBG12P, "Bi-color Red/Green - Blue/Green 12-bit packed" },
+    { GVSP_PIX_BICOLORBGRG12P, "Bi-color Blue/Green - Red/Green 12-bit packed" },
+    { GVSP_PIX_COORD3D_ABC8, "3D coordinate A-B-C 8-bit" },
+    { GVSP_PIX_COORD3D_ABC8_PLANAR, "3D coordinate A-B-C 8-bit planar" },
+    { GVSP_PIX_COORD3D_AC12P, "3D coordinate A-C 12-bit packed" },
+    { GVSP_PIX_COORD3D_AC12P_PLANAR, "3D coordinate A-C 12-bit packed planar" },
+    { GVSP_PIX_BGR10P, "Blue-Green-Red 10-bit packed" },
+    { GVSP_PIX_RGB10P, "Red-Green-Blue 10-bit packed" },
+    { GVSP_PIX_YCBCR10P_CBYCR, "YCbCr 4:4:4 10-bit packed" },
+    { GVSP_PIX_YCBCR601_10P_CBYCR, "YCbCr 4:4:4 10-bit packed BT.601" },
+    { GVSP_PIX_YCBCR709_10P_CBYCR, "YCbCr 4:4:4 10-bit packed BT.709" },
+    { GVSP_PIX_COORD3D_ABC10P, "3D coordinate A-B-C 10-bit packed" },
+    { GVSP_PIX_COORD3D_ABC10P_PLANAR, "3D coordinate A-B-C 10-bit packed planar" },
+    { GVSP_PIX_RGBA8, "Red-Green-Blue-alpha 8-bit" },
+    { GVSP_PIX_BGRA8, "Blue-Green-Red-alpha 8-bit" },
+    { GVSP_PIX_RGB10V1PACKED, "GigE Vision specific format, Red-Green-Blue 10-bit packed - variant 1" },
+    { GVSP_PIX_RGB10P32, "Red-Green-Blue 10-bit packed into 32-bit" },
+    { GVSP_PIX_YCBCR422_10, "YCbCr 4:2:2 10-bit unpacked" },
+    { GVSP_PIX_YCBCR422_12, "YCbCr 4:2:2 12-bit unpacked" },
+    { GVSP_PIX_YCBCR601_422_10, "YCbCr 4:2:2 10-bit unpacked BT.601" },
+    { GVSP_PIX_YCBCR601_422_12, "YCbCr 4:2:2 12-bit unpacked BT.601" },
+    { GVSP_PIX_YCBCR709_422_10, "YCbCr 4:2:2 10-bit unpacked BT.709" },
+    { GVSP_PIX_YCBCR709_422_12, "YCbCr 4:2:2 12-bit unpacked BT.709" },
+    { GVSP_PIX_YCBCR422_10_CBYCRY, "YCbCr 4:2:2 10-bit unpacked" },
+    { GVSP_PIX_YCBCR422_12_CBYCRY, "YCbCr 4:2:2 12-bit unpacked" },
+    { GVSP_PIX_YCBCR601_422_10_CBYCRY, "YCbCr 4:2:2 10-bit unpacked BT.601" },
+    { GVSP_PIX_YCBCR601_422_12_CBYCRY, "YCbCr 4:2:2 12-bit unpacked BT.601" },
+    { GVSP_PIX_YCBCR709_422_10_CBYCRY, "YCbCr 4:2:2 10-bit unpacked BT.709" },
+    { GVSP_PIX_YCBCR709_422_12_CBYCRY, "YCbCr 4:2:2 12-bit unpacked BT.709" },
+    { GVSP_PIX_BICOLORRGBG10, "Bi-color Red/Green - Blue/Green 10-bit unpacked" },
+    { GVSP_PIX_BICOLORBGRG10, "Bi-color Blue/Green - Red/Green 10-bit unpacked" },
+    { GVSP_PIX_BICOLORRGBG12, "Bi-color Red/Green - Blue/Green 12-bit unpacked" },
+    { GVSP_PIX_BICOLORBGRG12, "Bi-color Blue/Green - Red/Green 12-bit unpacked" },
+    { GVSP_PIX_COORD3D_AC16, "3D coordinate A-C 16-bit" },
+    { GVSP_PIX_COORD3D_AC16_PLANAR, "3D coordinate A-C 16-bit planar" },
+    { GVSP_PIX_RGB12V1PACKED, "GigE Vision specific format, Red-Green-Blue 12-bit packed - variant 1" },
+    { GVSP_PIX_BGR12P, "Blue-Green-Red 12-bit packed" },
+    { GVSP_PIX_RGB12P, "Red-Green-Blue 12-bit packed" },
+    { GVSP_PIX_YCBCR12P_CBYCR, "YCbCr 4:4:4 12-bit packed" },
+    { GVSP_PIX_YCBCR601_12P_CBYCR, "YCbCr 4:4:4 12-bit packed BT.601" },
+    { GVSP_PIX_YCBCR709_12P_CBYCR, "YCbCr 4:4:4 12-bit packed BT.709" },
+    { GVSP_PIX_COORD3D_ABC12P, "3D coordinate A-B-C 12-bit packed" },
+    { GVSP_PIX_COORD3D_ABC12P_PLANAR, "3D coordinate A-B-C 12-bit packed planar" },
+    { GVSP_PIX_BGRA10P, "Blue-Green-Red-alpha 10-bit packed" },
+    { GVSP_PIX_RGBA10P, "Red-Green-Blue-alpha 10-bit packed" },
+    { GVSP_PIX_RGB10, "Red-Green-Blue 10-bit unpacked" },
+    { GVSP_PIX_BGR10, "Blue-Green-Red 10-bit unpacked" },
+    { GVSP_PIX_RGB12, "Red-Green-Blue 12-bit unpacked" },
+    { GVSP_PIX_BGR12, "Blue-Green-Red 12-bit unpacked" },
+    { GVSP_PIX_RGB10_PLANAR, "Red-Green-Blue 10-bit unpacked planar" },
+    { GVSP_PIX_RGB12_PLANAR, "Red-Green-Blue 12-bit unpacked planar" },
+    { GVSP_PIX_RGB16_PLANAR, "Red-Green-Blue 16-bit planar" },
+    { GVSP_PIX_RGB16, "Red-Green-Blue 16-bit" },
+    { GVSP_PIX_BGR14, "Blue-Green-Red 14-bit unpacked" },
+    { GVSP_PIX_BGR16, "Blue-Green-Red 16-bit" },
+    { GVSP_PIX_BGRA12P, "Blue-Green-Red-alpha 12-bit packed" },
+    { GVSP_PIX_RGB14, "Red-Green-Blue 14-bit unpacked" },
+    { GVSP_PIX_RGBA12P, "Red-Green-Blue-alpha 12-bit packed" },
+    { GVSP_PIX_YCBCR10_CBYCR, "YCbCr 4:4:4 10-bit unpacked" },
+    { GVSP_PIX_YCBCR12_CBYCR, "YCbCr 4:4:4 12-bit unpacked" },
+    { GVSP_PIX_YCBCR601_10_CBYCR, "YCbCr 4:4:4 10-bit unpacked BT.601" },
+    { GVSP_PIX_YCBCR601_12_CBYCR, "YCbCr 4:4:4 12-bit unpacked BT.601" },
+    { GVSP_PIX_YCBCR709_10_CBYCR, "YCbCr 4:4:4 10-bit unpacked BT.709" },
+    { GVSP_PIX_YCBCR709_12_CBYCR, "YCbCr 4:4:4 12-bit unpacked BT.709" },
+    { GVSP_PIX_COORD3D_ABC16, "3D coordinate A-B-C 16-bit" },
+    { GVSP_PIX_COORD3D_ABC16_PLANAR, "3D coordinate A-B-C 16-bit planar" },
+    { GVSP_PIX_BGRA10, "Blue-Green-Red-alpha 10-bit unpacked" },
+    { GVSP_PIX_BGRA12, "Blue-Green-Red-alpha 12-bit unpacked" },
+    { GVSP_PIX_BGRA14, "Blue-Green-Red-alpha 14-bit unpacked" },
+    { GVSP_PIX_BGRA16, "Blue-Green-Red-alpha 16-bit" },
+    { GVSP_PIX_RGBA10, "Red-Green-Blue-alpha 10-bit unpacked" },
+    { GVSP_PIX_RGBA12, "Red-Green-Blue-alpha 12-bit unpacked" },
+    { GVSP_PIX_RGBA14, "Red-Green-Blue-alpha 14-bit unpacked" },
+    { GVSP_PIX_RGBA16, "Red-Green-Blue-alpha 16-bit" },
+    { GVSP_PIX_COORD3D_AC32F, "3D coordinate A-C 32-bit floating point" },
+    { GVSP_PIX_COORD3D_AC32F_PLANAR, "3D coordinate A-C 32-bit floating point planar" },
+    { GVSP_PIX_COORD3D_ABC32F, "3D coordinate A-B-C 32-bit floating point" },
+    { GVSP_PIX_COORD3D_ABC32F_PLANAR, "3D coordinate A-B-C 32-bit floating point planar" },
+    { 0, NULL }
 };
 
 static value_string_ext pixeltypenames_ext = VALUE_STRING_EXT_INIT(pixeltypenames);
