@@ -738,6 +738,7 @@ typedef struct _mq_parm_t
 #define MQ_MQOT_PROT_POLICY               1019
 #define MQ_MQOT_TT_CHANNEL                1020
 #define MQ_MQOT_AMQP_CHANNEL              1021
+#define MQ_MQOT_AUTH_REC                  1022
 
 /* Property Descriptor Options */
 #define MQ_MQPD_NONE                      0x00000000
@@ -1528,6 +1529,7 @@ typedef struct _mq_parm_t
 #define MQ_MQRC_CERT_LABEL_NOT_ALLOWED    2596
 #define MQ_MQRC_ADMIN_TOPIC_STRING_ERROR  2598
 #define MQ_MQRC_AMQP_NOT_AVAILABLE        2599
+#define MQ_MQRC_CCDT_URL_ERROR            2600
 #define MQ_MQRC_REOPEN_EXCL_INPUT_ERROR   6100
 #define MQ_MQRC_REOPEN_INQUIRE_ERROR      6101
 #define MQ_MQRC_REOPEN_SAVED_CONTEXT_ERR  6102
@@ -1719,6 +1721,7 @@ typedef struct _mq_parm_t
 #define MQ_MQADOPT_CHECK_ALL              1
 #define MQ_MQADOPT_CHECK_Q_MGR_NAME       2
 #define MQ_MQADOPT_CHECK_NET_ADDR         4
+#define MQ_MQADOPT_CHECK_CHANNEL_NAME     8
 
 /* Adopt New MCA Types */
 #define MQ_MQADOPT_TYPE_NO                0
@@ -1770,7 +1773,13 @@ typedef struct _mq_parm_t
 #define MQ_MQCMDL_LEVEL_800               800
 #define MQ_MQCMDL_LEVEL_801               801
 #define MQ_MQCMDL_LEVEL_802               802
-#define MQ_MQCMDL_CURRENT_LEVEL           802
+#define MQ_MQCMDL_LEVEL_900               900
+#define MQ_MQCMDL_CURRENT_LEVEL           900
+
+
+/* Key reuse count */
+#define MQ_MQKEY_REUSE_DISABLED           0
+#define MQ_MQKEY_REUSE_UNLIMITED          (-1)
 
 /* Command Server Options */
 #define MQ_MQCSRV_CONVERT_NO              0
@@ -2334,6 +2343,7 @@ typedef struct _mq_parm_t
 #define MQ_MQIA_INHIBIT_SUB               182
 #define MQ_MQIA_INTRA_GROUP_QUEUING       64
 #define MQ_MQIA_IP_ADDRESS_VERSION        93
+#define MQ_MQIA_KEY_REUSE_COUNT           267
 #define MQ_MQIA_LAST                      2000
 #define MQ_MQIA_LAST_USED                 266
 #define MQ_MQIA_LDAP_AUTHORMD             263
@@ -3735,7 +3745,11 @@ typedef struct _mq_parm_t
 #define MQ_MQIACF_LDAP_CONNECTION_STATUS  1409
 #define MQ_MQIACF_SYSP_MAX_ACE_POOL       1410
 #define MQ_MQIACF_PAGECLAS                1411
-#define MQ_MQIACF_LAST_USED               1411
+#define MQ_MQIACF_AUTH_REC_TYPE           1412 /*MQV8*/
+#define MQ_MQIACF_SYSP_MAX_CONC_OFFLOADS  1413 /*MQV9*/
+#define MQ_MQIACF_SYSP_ZHYPERWRITE        1414 /*MQV9*/
+
+#define MQ_MQIACF_LAST_USED               1414
 
 /* Access Options */
 #define MQ_MQCFACCESS_ENABLED             0

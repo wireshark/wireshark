@@ -646,6 +646,10 @@ static int hf_mq_pmo_putmsgrecofs = -1;
 static int hf_mq_pmo_resprecofs = -1;
 static int hf_mq_pmo_putmsgrecptr = -1;
 static int hf_mq_pmo_resprecptr = -1;
+static int hf_mq_pmo_originalmsghandle = -1;
+static int hf_mq_pmo_newmsghandle = -1;
+static int hf_mq_pmo_action = -1;
+static int hf_mq_pmo_publevel = -1;
 
 static int hf_mq_xa_length = -1;
 static int hf_mq_xa_returnvalue = -1;
@@ -2053,6 +2057,8 @@ static gint dissect_mq_gmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static gint dissect_mq_pmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, mq_parm_t *p_mq_parm, gint *iDistributionListSize)
 {
     gint iSize = 0;
+    gint iPosV2 = offset + 128;
+    gint offsetb = offset;
 
     p_mq_parm->mq_strucID = (tvb_reported_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
     if (p_mq_parm->mq_strucID == MQ_STRUCTID_PMO || p_mq_parm->mq_strucID == MQ_STRUCTID_PMO_EBCDIC)
@@ -2062,8 +2068,9 @@ static gint dissect_mq_pmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         /* Compute length according to version */
         switch (iVersion)
         {
-        case 1: iSize = 128; break;
-        case 2: iSize = 152;break;
+            case 1: iSize = 128; break;
+            case 2: iSize = 152; break;
+            case 3: iSize = 176; break;
         }
 
         if (iSize != 0 && tvb_reported_length_remaining(tvb, offset) >= iSize)
@@ -2093,15 +2100,24 @@ static gint dissect_mq_pmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 proto_tree_add_item(mq_tree, hf_mq_pmo_invaldstcnt, tvb, offset + 28, 4, p_mq_parm->mq_int_enc);
                 proto_tree_add_item(mq_tree, hf_mq_pmo_resolvqname, tvb, offset + 32, 48, p_mq_parm->mq_str_enc);
                 proto_tree_add_item(mq_tree, hf_mq_pmo_resolvqmgr , tvb, offset + 80, 48, p_mq_parm->mq_str_enc);
-
+                offset += 128;
                 if (iVersion >= 2)
                 {
-                    proto_tree_add_item(mq_tree, hf_mq_pmo_recspresent , tvb, offset + 128, 4, p_mq_parm->mq_int_enc);
-                    proto_tree_add_item(mq_tree, hf_mq_pmo_putmsgrecfld, tvb, offset + 132, 4, p_mq_parm->mq_int_enc);
-                    proto_tree_add_item(mq_tree, hf_mq_pmo_putmsgrecofs, tvb, offset + 136, 4, p_mq_parm->mq_int_enc);
-                    proto_tree_add_item(mq_tree, hf_mq_pmo_resprecofs  , tvb, offset + 140, 4, p_mq_parm->mq_int_enc);
-                    proto_tree_add_item(mq_tree, hf_mq_pmo_putmsgrecptr, tvb, offset + 144, 4, p_mq_parm->mq_int_enc);
-                    proto_tree_add_item(mq_tree, hf_mq_pmo_resprecptr  , tvb, offset + 148, 4, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_pmo_recspresent , tvb, offset, 4, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_pmo_putmsgrecfld, tvb, offset + 4, 4, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_pmo_putmsgrecofs, tvb, offset + 8, 4, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_pmo_resprecofs  , tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_pmo_putmsgrecptr, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_pmo_resprecptr  , tvb, offset + 20, 4, p_mq_parm->mq_int_enc);
+                    offset += 24;
+                }
+                if (iVersion >= 3)
+                {
+                    proto_tree_add_item(mq_tree, hf_mq_pmo_originalmsghandle, tvb, offset, 8, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_pmo_newmsghandle, tvb, offset + 8, 8, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_pmo_action, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_pmo_publevel, tvb, offset + 20, 4, p_mq_parm->mq_int_enc);
+                    offset += 24;
                 }
             }
             if (iVersion >= 2)
@@ -2109,8 +2125,8 @@ static gint dissect_mq_pmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 gint iNbrRecords = 0;
                 guint32 iRecFlags = 0;
 
-                iNbrRecords = tvb_get_guint32(tvb, offset + 128, p_mq_parm->mq_int_enc);
-                iRecFlags = tvb_get_guint32(tvb, offset + 132, p_mq_parm->mq_int_enc);
+                iNbrRecords = tvb_get_guint32(tvb, iPosV2, p_mq_parm->mq_int_enc);
+                iRecFlags = tvb_get_guint32(tvb, iPosV2 + 4, p_mq_parm->mq_int_enc);
 
                 if (iNbrRecords > 0)
                 {
@@ -2118,10 +2134,10 @@ static gint dissect_mq_pmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                     gint iOffsetRR = 0;
 
                     *iDistributionListSize = iNbrRecords;
-                    iOffsetPMR = tvb_get_guint32(tvb, offset + 136, p_mq_parm->mq_int_enc);
-                    iOffsetRR  = tvb_get_guint32(tvb, offset + 140, p_mq_parm->mq_int_enc);
-                    iSize += dissect_mq_pmr(tvb, tree, offset + iSize, iNbrRecords, iOffsetPMR, iRecFlags, p_mq_parm);
-                    iSize += dissect_mq_rr(tvb, tree, offset + iSize, iNbrRecords, iOffsetRR, p_mq_parm);
+                    iOffsetPMR = tvb_get_guint32(tvb, iPosV2 + 8, p_mq_parm->mq_int_enc);
+                    iOffsetRR  = tvb_get_guint32(tvb, iPosV2 + 12, p_mq_parm->mq_int_enc);
+                    iSize += dissect_mq_pmr(tvb, tree, offsetb + iSize, iNbrRecords, iOffsetPMR, iRecFlags, p_mq_parm);
+                    iSize += dissect_mq_rr(tvb, tree, offsetb + iSize, iNbrRecords, iOffsetRR, p_mq_parm);
                 }
             }
         }
@@ -4523,9 +4539,9 @@ void proto_register_mq(void)
         { &hf_mq_lpoo_unknown6      , {"Unknown6......", "mq.lpoo.unknown6", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO unknown6", HFILL }},
         { &hf_mq_lpoo_xtradata      , {"ExtraData.....", "mq.lpoo.extradata", FT_UINT32, BASE_DEC, NULL, 0x0, "LPOO Extra Data", HFILL }},
 
-        { &hf_mq_pmo_StructID    , {"StructID.", "mq.pmo.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_mq_pmo_version     , {"Version..", "mq.pmo.version", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO version", HFILL }},
-        { &hf_mq_pmo_options     , {"Options..", "mq.pmo.options", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO options", HFILL }},
+        { &hf_mq_pmo_StructID    , {"StructID...", "mq.pmo.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_mq_pmo_version     , {"Version....", "mq.pmo.version", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO version", HFILL }},
+        { &hf_mq_pmo_options     , {"Options....", "mq.pmo.options", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO options", HFILL }},
         { &hf_mq_pmo_options_NOT_OWN_SUBS            , {"NOT_OWN_SUBS", "mq.pmo.options.NOT_OWN_SUBS", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_NOT_OWN_SUBS , "PMO options NOT_OWN_SUBS", HFILL }},
         { &hf_mq_pmo_options_SUPPRESS_REPLYTO        , {"SUPPRESS_REPLYTO", "mq.pmo.options.SUPPRESS_REPLYTO", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_SUPPRESS_REPLYTO , "PMO options SUPPRESS_REPLYTO", HFILL }},
         { &hf_mq_pmo_options_SCOPE_QMGR              , {"SCOPE_QMGR", "mq.pmo.options.SCOPE_QMGR", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_SCOPE_QMGR , "PMO options SCOPE_QMGR", HFILL }},
@@ -4549,25 +4565,29 @@ void proto_register_mq(void)
         { &hf_mq_pmo_options_NO_SYNCPOINT            , {"NO_SYNCPOINT", "mq.pmo.options.NO_SYNCPOINT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_NO_SYNCPOINT , "PMO options NO_SYNCPOINT", HFILL }},
         { &hf_mq_pmo_options_SYNCPOINT               , {"SYNCPOINT", "mq.pmo.options.SYNCPOINT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_SYNCPOINT , "PMO options SYNCPOINT", HFILL }},
 
-        { &hf_mq_pmo_timeout     , {"Timeout..", "mq.pmo.timeout", FT_INT32, BASE_DEC, NULL, 0x0, "PMO time out", HFILL }},
-        { &hf_mq_pmo_context     , {"Context..", "mq.pmo.context", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO context", HFILL }},
-        { &hf_mq_pmo_knowndstcnt , {"KnDstCnt.", "mq.pmo.kdstcount", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO known destination count", HFILL }},
-        { &hf_mq_pmo_unkndstcnt  , {"UkDstCnt.", "mq.pmo.udestcount", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO unknown destination count", HFILL }},
-        { &hf_mq_pmo_invaldstcnt , {"InDstCnt.", "mq.pmo.idestcount", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO invalid destination count", HFILL }},
-        { &hf_mq_pmo_resolvqname , {"ResQName.", "mq.pmo.resolvq", FT_STRINGZ, BASE_NONE, NULL, 0x0, "PMO resolved queue name", HFILL }},
-        { &hf_mq_pmo_resolvqmgr  , {"ResQMgr..", "mq.pmo.resolvqmgr", FT_STRINGZ, BASE_NONE, NULL, 0x0, "PMO resolved queue manager name", HFILL }},
-        { &hf_mq_pmo_recspresent , {"NumRecs..", "mq.pmo.nbrrec", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO number of records", HFILL }},
-        { &hf_mq_pmo_putmsgrecfld, {"PMR Flag.", "mq.pmo.flagspmr", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO flags PMR fields", HFILL }},
-        { &hf_mq_pmo_putmsgrecofs, {"Ofs1stPMR", "mq.pmo.offsetpmr", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO offset of first PMR", HFILL }},
-        { &hf_mq_pmo_resprecofs  , {"Off1stRR.", "mq.pmo.offsetrr", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO offset of first RR", HFILL }},
-        { &hf_mq_pmo_putmsgrecptr, {"Adr1stPMR", "mq.pmo.addrrec", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO address of first record", HFILL }},
-        { &hf_mq_pmo_resprecptr  , {"Adr1stRR.", "mq.pmo.addrres", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO address of first response record", HFILL }},
+        { &hf_mq_pmo_timeout     , {"Timeout....", "mq.pmo.timeout", FT_INT32, BASE_DEC, NULL, 0x0, "PMO time out", HFILL }},
+        { &hf_mq_pmo_context     , {"Context....", "mq.pmo.context", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO context", HFILL }},
+        { &hf_mq_pmo_knowndstcnt , {"KnDstCnt...", "mq.pmo.kdstcount", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO known destination count", HFILL }},
+        { &hf_mq_pmo_unkndstcnt  , {"UkDstCnt...", "mq.pmo.udestcount", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO unknown destination count", HFILL }},
+        { &hf_mq_pmo_invaldstcnt , {"InDstCnt...", "mq.pmo.idestcount", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO invalid destination count", HFILL }},
+        { &hf_mq_pmo_resolvqname , {"ResQName...", "mq.pmo.resolvq", FT_STRINGZ, BASE_NONE, NULL, 0x0, "PMO resolved queue name", HFILL }},
+        { &hf_mq_pmo_resolvqmgr  , {"ResQMgr....", "mq.pmo.resolvqmgr", FT_STRINGZ, BASE_NONE, NULL, 0x0, "PMO resolved queue manager name", HFILL }},
+        { &hf_mq_pmo_recspresent , {"NumRecs....", "mq.pmo.nbrrec", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO number of records", HFILL }},
+        { &hf_mq_pmo_putmsgrecfld, {"PMR Flag...", "mq.pmo.flagspmr", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO flags PMR fields", HFILL }},
+        { &hf_mq_pmo_putmsgrecofs, {"Ofs1stPMR..", "mq.pmo.offsetpmr", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO offset of first PMR", HFILL }},
+        { &hf_mq_pmo_resprecofs  , {"Off1stRR...", "mq.pmo.offsetrr", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO offset of first RR", HFILL }},
+        { &hf_mq_pmo_putmsgrecptr, {"Adr1stPMR..", "mq.pmo.addrrec", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO address of first record", HFILL }},
+        { &hf_mq_pmo_resprecptr  , {"Adr1stRR...", "mq.pmo.addrres", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO address of first response record", HFILL }},
+        { &hf_mq_pmo_originalmsghandle ,{"OrigMsgHdl.", "mq.pmo.originalmsghandle", FT_UINT64, BASE_HEX, NULL, 0x0, "PMO original message handle", HFILL}},
+        { &hf_mq_pmo_newmsghandle, {"NewMsgHdl..", "mq.pmo.newmsghandle", FT_UINT64, BASE_HEX, NULL, 0x0, "PMO new message handle", HFILL}},
+        { &hf_mq_pmo_action      , {"Action.....", "mq.pmo.action", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO action", HFILL}},
+        { &hf_mq_pmo_publevel    , {"PubLevel...", "mq.pmo.publevel", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO pub level", HFILL}},
 
-        { &hf_mq_xa_length        , {"Length.......", "mq.xa.length", FT_UINT32, BASE_DEC, NULL, 0x0, "XA Length", HFILL }},
-        { &hf_mq_xa_returnvalue   , {"Return value.", "mq.xa.returnvalue", FT_INT32, BASE_DEC, VALS(mq_xaer_vals), 0x0, "XA Return Value", HFILL }},
-        { &hf_mq_xa_tmflags       , {"TransMgrFlags", "mq.xa.tmflags", FT_UINT32, BASE_HEX, NULL, 0x0, "XA Transaction Manager Flags", HFILL }},
-        { &hf_mq_xa_rmid          , {"ResourceMgrID", "mq.xa.rmid", FT_UINT32, BASE_DEC, NULL, 0x0, "XA Resource Manager ID", HFILL }},
-        { &hf_mq_xa_count         , {"Number of Xid", "mq.xa.nbxid", FT_UINT32, BASE_DEC, NULL, 0x0, "XA Number of Xid", HFILL }},
+        { &hf_mq_xa_length       , {"Length.......", "mq.xa.length", FT_UINT32, BASE_DEC, NULL, 0x0, "XA Length", HFILL }},
+        { &hf_mq_xa_returnvalue  , {"Return value.", "mq.xa.returnvalue", FT_INT32, BASE_DEC, VALS(mq_xaer_vals), 0x0, "XA Return Value", HFILL }},
+        { &hf_mq_xa_tmflags      , {"TransMgrFlags", "mq.xa.tmflags", FT_UINT32, BASE_HEX, NULL, 0x0, "XA Transaction Manager Flags", HFILL }},
+        { &hf_mq_xa_rmid         , {"ResourceMgrID", "mq.xa.rmid", FT_UINT32, BASE_DEC, NULL, 0x0, "XA Resource Manager ID", HFILL }},
+        { &hf_mq_xa_count        , {"Number of Xid", "mq.xa.nbxid", FT_UINT32, BASE_DEC, NULL, 0x0, "XA Number of Xid", HFILL }},
         { &hf_mq_xa_tmflags_join      , {"JOIN", "mq.xa.tmflags.join", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMJOIN, "XA TM Flags JOIN", HFILL }},
         { &hf_mq_xa_tmflags_endrscan  , {"ENDRSCAN", "mq.xa.tmflags.endrscan", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMENDRSCAN, "XA TM Flags ENDRSCAN", HFILL }},
         { &hf_mq_xa_tmflags_startrscan, {"STARTRSCAN", "mq.xa.tmflags.startrscan", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMSTARTRSCAN, "XA TM Flags STARTRSCAN", HFILL }},
