@@ -1116,6 +1116,13 @@ static const value_string bgp_ssa_type[] = {
     { 0, NULL }
 };
 
+/*
+ * BGP Layer 2 Encapsulation Types
+ *
+ * RFC 6624
+ *
+ * http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-l2-encapsulation-types-registry
+ */
 static const value_string bgp_l2vpn_encaps[] = {
     { 0,  "Reserved"},
     { 1,  "Frame Relay"},
