@@ -8203,6 +8203,8 @@ snap             4752/tcp # Simple Network Audio Protocol [Dameon_Wagner] [Dameo
 snap             4752/udp # Simple Network Audio Protocol [Dameon_Wagner] [Dameon_Wagner] 2002-02
 simon            4753/tcp # Simple Invocation of Methods Over Network (SIMON) [Alexander_Christian] [Alexander_Christian] 2012-04-19
 simon-disc       4753/udp # Simple Invocation of Methods Over Network (SIMON) Discovery [Alexander_Christian] [Alexander_Christian] 2012-04-19
+gre-in-udp       4754/udp # GRE-in-UDP Encapsulation [IESG] [IETF_Chair] 2016-10-05 [RFC-ietf-tsvwg-gre-in-udp-encap-19]
+gre-udp-dtls     4755/udp # GRE-in-UDP Encapsulation with DTLS [IESG] [IETF_Chair] 2016-10-05 [RFC-ietf-tsvwg-gre-in-udp-encap-19]
 converge         4774/tcp # Converge RPC [Asteris_LLC] [Steven_Borrelli] 2016-09-16
 bfd-multi-ctl    4784/tcp # BFD Multihop Control [Dave_Katz][Dave_Ward] [Dave_Katz][Dave_Ward] 2006-02
 bfd-multi-ctl    4784/udp # BFD Multihop Control [Dave_Katz][Dave_Ward] [Dave_Katz][Dave_Ward] 2006-02
@@ -10242,6 +10244,8 @@ swa-4            9026/tcp # Secure Web Access - 4 [Tim_McGranaghan] [Tim_McGrana
 swa-4            9026/udp # Secure Web Access - 4 [Tim_McGranaghan] [Tim_McGranaghan]
 versiera         9050/tcp # Versiera Agent Listener [Frank_Pikelner] [Frank_Pikelner] 2010-01-15
 fio-cmgmt        9051/tcp # Fusion-io Central Manager Service [Jim_Sermersheim] [Jim_Sermersheim] 2010-01-15
+CardWeb-IO       9060/tcp # CardWeb request-response I/O exchange [Virtual_Electric_Inc] [David_Wyatt] 2016-10-07
+CardWeb-RT       9060/udp # CardWeb realtime device data [Virtual_Electric_Inc] [David_Wyatt] 2016-10-07
 glrpc            9080/tcp # Groove GLRPC [Adrian_Popescu] [Adrian_Popescu] 2002-09
 glrpc            9080/udp # Groove GLRPC [Adrian_Popescu] [Adrian_Popescu] 2002-09
 lcs-ap           9082/sctp # LCS Application Protocol [Kimmo_Kymalainen] [Kimmo_Kymalainen] 2010-06-04
@@ -10833,6 +10837,7 @@ cps             14250/tcp # Fencing Server [Mayank_Vasa] [Mayank_Vasa] 2008-04-0
 cps             14250/udp # Fencing Server [Mayank_Vasa] [Mayank_Vasa] 2008-04-03
 ca-web-update   14414/tcp # CA eTrust Web Update Service [Robert_Ciochon] [Robert_Ciochon] 2006-08
 ca-web-update   14414/udp # CA eTrust Web Update Service [Robert_Ciochon] [Robert_Ciochon] 2006-08
+xpra            14500/tcp # xpra network protocol [Xpra] [Antoine_Martin] 2016-10-05
 hde-lcesrvr-1   14936/tcp # hde-lcesrvr-1 [Horizon_Digital_Ente] [Horizon_Digital_Ente]
 hde-lcesrvr-1   14936/udp # hde-lcesrvr-1 [Horizon_Digital_Ente] [Horizon_Digital_Ente]
 hde-lcesrvr-2   14937/tcp # hde-lcesrvr-2 [Horizon_Digital_Ente] [Horizon_Digital_Ente]
