@@ -19,7 +19,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Reference: 3GPP TS 36.444 v11.0.0
+ * Reference: 3GPP TS 36.444 v13.2.0
  */
 
 #include "config.h"

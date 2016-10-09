@@ -1,7 +1,7 @@
 -- M3AP-Constants.asn
 --
--- 3GPP TS 36.444 V11.1.0 (2012-03)
--- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-b10.zip 
+-- 3GPP TS 36.444 V13.2.0 (2016-03)
+-- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-d20.zip
 --
 -- 9.3.7	Constant Definitions
 --
@@ -13,10 +13,10 @@
 -- **************************************************************
 
 M3AP-Constants {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 eps-Access (21) modules (3) m3ap (5) version1 (1) m3ap-Constants (4) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -51,6 +51,7 @@ id-m3Setup														ProcedureCode ::= 7
 maxnoofMBMSServiceAreaIdentitiesPerMCE		INTEGER ::= 65536
 maxnooferrors								INTEGER ::= 256
 maxNrOfIndividualM3ConnectionsToReset		INTEGER ::= 256
+maxnoofCellsforMBMS							INTEGER ::= 4096
 
 -- **************************************************************
 --
@@ -81,5 +82,7 @@ id-MCEname																	ProtocolIE-ID ::= 19
 id-MBMSServiceAreaList														ProtocolIE-ID ::= 20
 id-Time-ofMBMS-DataTransfer													ProtocolIE-ID ::= 21
 id-Time-ofMBMS-DataStop														ProtocolIE-ID ::= 22
+id-Reestablishment															ProtocolIE-ID ::= 23
+id-Alternative-TNL-Information												ProtocolIE-ID ::= 24
+id-MBMS-Cell-List															ProtocolIE-ID ::= 25
 END
-

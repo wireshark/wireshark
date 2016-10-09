@@ -162,6 +162,9 @@ ProtocolIE-Field/value ie_field_value
   proto_tree_add_string(tree, hf_m3ap_Absolute_Time_ofMBMS_Data_value, parameter_tvb, 0, tvb_len, time_str);
 #.END
 
+#.FN_FTR BitRate
+  proto_item_append_text(actx->created_item, "bit/s");
+
 #.FN_BODY MBMS-Service-Area VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
   guint16 tvb_len;
@@ -279,6 +282,9 @@ id-MCEname													ProtocolIE-ID
 id-MBMSServiceAreaList										ProtocolIE-ID
 id-Time-ofMBMS-DataTransfer									ProtocolIE-ID
 id-Time-ofMBMS-DataStop										ProtocolIE-ID
+id-Reestablishment										ProtocolIE-ID
+id-Alternative-TNL-Information									ProtocolIE-ID
+id-MBMS-Cell-List										ProtocolIE-ID
 
 #.REGISTER
 
@@ -306,6 +312,9 @@ MCEname														N m3ap.ies id-MCEname
 MBMSServiceAreaListItem										N m3ap.ies id-MBMSServiceAreaList
 Absolute-Time-ofMBMS-Data									N m3ap.ies id-Time-ofMBMS-DataTransfer
 Absolute-Time-ofMBMS-Data									N m3ap.ies id-Time-ofMBMS-DataStop
+Reestablishment											N m3ap.ies id-Reestablishment
+TNL-Information											N m3ap.ies id-Alternative-TNL-Information
+MBMS-Cell-List											N m3ap.ies id-MBMS-Cell-List
 
 #M3AP-ELEMENTARY-PROCEDURE
 MBMSSessionStartRequest										N m3ap.proc.imsg id-mBMSsessionStart

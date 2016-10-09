@@ -1,7 +1,7 @@
 -- M3AP-PDU-Contents.asn
 --
--- 3GPP TS 36.444 V11.1.0 (2012-03)
--- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-b10.zip 
+-- 3GPP TS 36.444 V13.2.0 (2016-03)
+-- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-d20.zip
 --
 -- 9.3.4	PDU Definitions
 --
@@ -13,9 +13,9 @@
 -- **************************************************************
 
 M3AP-PDU-Contents {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 eps-Access (21) modules (3) m3ap (5) version1 (1) m3ap-PDU-Contents (1) }
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -26,7 +26,7 @@ BEGIN
 -- **************************************************************
 
 IMPORTS
-	
+
 	Absolute-Time-ofMBMS-Data,
 	Cause,
 	CriticalityDiagnostics,
@@ -43,7 +43,9 @@ IMPORTS
 	MME-MBMS-M3AP-ID,
 	TimeToWait,
 	TMGI,
-	TNL-Information
+	TNL-Information,
+	Reestablishment,
+	MBMS-Cell-List
 
 FROM M3AP-IEs
 
@@ -69,6 +71,7 @@ FROM M3AP-Containers
 	id-MBMS-Session-Duration,
 	id-MBMS-Service-Area,
 	id-TNL-Information,
+	id-Alternative-TNL-Information,
 	id-CriticalityDiagnostics,
 	id-Cause,
 	id-MBMS-Service-Area-List,
@@ -83,6 +86,8 @@ FROM M3AP-Containers
 	id-Time-ofMBMS-DataTransfer,
 	id-Global-MCE-ID,
 	id-MCEname,
+	id-Reestablishment,
+	id-MBMS-Cell-List,
 	maxnoofMBMSServiceAreaIdentitiesPerMCE,
 	maxnooferrors,
 	maxNrOfIndividualM3ConnectionsToReset
@@ -109,7 +114,10 @@ MBMSSessionStartRequest-IEs M3AP-PROTOCOL-IES ::= {
 	{ ID id-MBMS-Service-Area					CRITICALITY reject	TYPE MBMS-Service-Area						PRESENCE mandatory}|
 	{ ID id-MinimumTimeToMBMSDataTransfer		CRITICALITY reject	TYPE MinimumTimeToMBMSDataTransfer		PRESENCE mandatory}|
 	{ ID id-TNL-Information						CRITICALITY reject	TYPE TNL-Information						PRESENCE mandatory}|
-	{ ID id-Time-ofMBMS-DataTransfer			CRITICALITY ignore	TYPE Absolute-Time-ofMBMS-Data			PRESENCE optional},
+	{ ID id-Time-ofMBMS-DataTransfer			CRITICALITY ignore	TYPE Absolute-Time-ofMBMS-Data			PRESENCE optional}|
+	{ ID id-Reestablishment						CRITICALITY ignore	TYPE Reestablishment						PRESENCE optional}|
+	{ ID id-Alternative-TNL-Information			CRITICALITY ignore	TYPE TNL-Information						PRESENCE optional}|
+	{ ID id-MBMS-Cell-List						CRITICALITY reject	TYPE MBMS-Cell-List							PRESENCE optional},
 	...
 }
 
@@ -208,7 +216,8 @@ MBMSSessionUpdateRequest-IEs M3AP-PROTOCOL-IES ::= {
 	{ ID id-MBMS-Service-Area					CRITICALITY ignore	TYPE MBMS-Service-Area					PRESENCE optional}|
 	{ ID id-MinimumTimeToMBMSDataTransfer		CRITICALITY reject	TYPE MinimumTimeToMBMSDataTransfer	PRESENCE mandatory}|
 	{ ID id-TNL-Information						CRITICALITY ignore	TYPE TNL-Information					PRESENCE optional}|
-	{ ID id-Time-ofMBMS-DataTransfer			CRITICALITY ignore	TYPE Absolute-Time-ofMBMS-Data		PRESENCE optional},
+	{ ID id-Time-ofMBMS-DataTransfer			CRITICALITY ignore	TYPE Absolute-Time-ofMBMS-Data		PRESENCE optional}|
+	{ ID id-MBMS-Cell-List						CRITICALITY reject	TYPE MBMS-Cell-List						PRESENCE optional},
 	...
 }
 
@@ -418,7 +427,7 @@ M3SetupFailureIEs M3AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- MCE Configuration Update 
+-- MCE Configuration Update
 --
 -- **************************************************************
 
