@@ -239,36 +239,36 @@ static void raz_tcap_private(struct tcap_private_t * p_tcap_private);
 static int dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
 
-static GHashTable* ansi_sub_dissectors = NULL;
-static GHashTable* itu_sub_dissectors = NULL;
+static dissector_table_t ansi_sub_dissectors = NULL;
+static dissector_table_t itu_sub_dissectors = NULL;
 
 extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
-  g_hash_table_insert(ansi_sub_dissectors,GUINT_TO_POINTER(ssn),dissector);
+  dissector_add_uint("ansi_tcap.ssn",ssn,dissector);
   dissector_add_uint("sccp.ssn",ssn,tcap_handle);
 }
 
 extern void add_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
-  g_hash_table_insert(itu_sub_dissectors,GUINT_TO_POINTER(ssn),dissector);
+  dissector_add_uint("itu_tcap.ssn",ssn,dissector);
   dissector_add_uint("sccp.ssn",ssn,tcap_handle);
 }
 
-extern void delete_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector _U_) {
-  g_hash_table_remove(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
+extern void delete_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
+  dissector_delete_uint("ansi_tcap.ssn",ssn,dissector);
   if (!get_itu_tcap_subdissector(ssn))
       dissector_delete_uint("sccp.ssn",ssn,tcap_handle);
 }
 extern void delete_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector _U_) {
-  g_hash_table_remove(itu_sub_dissectors,GUINT_TO_POINTER(ssn));
+  dissector_delete_uint("itu_tcap.ssn",ssn,dissector);
   if (!get_ansi_tcap_subdissector(ssn))
     dissector_delete_uint("sccp.ssn", ssn,tcap_handle);
 }
 
 dissector_handle_t get_ansi_tcap_subdissector(guint32 ssn) {
-  return (dissector_handle_t)g_hash_table_lookup(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
+  return dissector_get_uint_handle(ansi_sub_dissectors, ssn);
 }
 
 dissector_handle_t get_itu_tcap_subdissector(guint32 ssn) {
-  return (dissector_handle_t)g_hash_table_lookup(itu_sub_dissectors,GUINT_TO_POINTER(ssn));
+  return dissector_get_uint_handle(itu_sub_dissectors, ssn);
 }
 
 
@@ -3664,6 +3664,9 @@ proto_register_tcap(void)
   proto_register_field_array(proto_tcap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  ansi_sub_dissectors = register_dissector_table("ansi_tcap.ssn", "ANSI SSN", proto_tcap, FT_UINT8, BASE_DEC);
+  itu_sub_dissectors = register_dissector_table("itu_tcap.ssn", "ITU SSN", proto_tcap, FT_UINT8, BASE_DEC);
+
   tcap_module = prefs_register_protocol(proto_tcap, NULL);
 
 #if 0
@@ -3708,9 +3711,6 @@ proto_register_tcap(void)
                                  "lost timeout",
                                  "Maximal delay for message lost",
                                  10, &gtcap_LostTimeout);
-
-  ansi_sub_dissectors = g_hash_table_new(g_direct_hash,g_direct_equal);
-  itu_sub_dissectors = g_hash_table_new(g_direct_hash,g_direct_equal);
 
   /* 'globally' register dissector */
   register_dissector("tcap", dissect_tcap, proto_tcap);

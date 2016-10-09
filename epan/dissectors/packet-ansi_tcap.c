@@ -225,28 +225,6 @@ static const value_string ansi_tcap_national_op_code_family_vals[] = {
   { 0, NULL }
 };
 
-/*
-static dissector_handle_t tcap_handle = NULL;
-static dissector_table_t sccp_ssn_table;
-
-static GHashTable* ansi_sub_dissectors = NULL;
-static GHashTable* itu_sub_dissectors = NULL;
-
-  extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
-    g_hash_table_insert(ansi_sub_dissectors,GUINT_TO_POINTER(ssn),dissector);
-    dissector_add_uint("sccp.ssn",ssn,tcap_handle);
-}
-
-extern void delete_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector _U_) {
-    g_hash_table_remove(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
-    dissector_delete_uint("sccp.ssn",ssn,tcap_handle);
-}
-
-dissector_handle_t get_ansi_tcap_subdissector(guint32 ssn) {
-    return g_hash_table_lookup(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
-}
-*/
-
 /* Transaction tracking */
 /* Transaction table */
 struct ansi_tcap_invokedata_t {
@@ -1410,7 +1388,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 353 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 331 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
 
 
 
@@ -1754,7 +1732,7 @@ proto_register_ansi_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 488 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 466 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1792,7 +1770,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 499 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 477 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
     static ei_register_info ei[] = {

@@ -134,28 +134,6 @@ static const value_string ansi_tcap_national_op_code_family_vals[] = {
   { 0, NULL }
 };
 
-/*
-static dissector_handle_t tcap_handle = NULL;
-static dissector_table_t sccp_ssn_table;
-
-static GHashTable* ansi_sub_dissectors = NULL;
-static GHashTable* itu_sub_dissectors = NULL;
-
-  extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
-    g_hash_table_insert(ansi_sub_dissectors,GUINT_TO_POINTER(ssn),dissector);
-    dissector_add_uint("sccp.ssn",ssn,tcap_handle);
-}
-
-extern void delete_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector _U_) {
-    g_hash_table_remove(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
-    dissector_delete_uint("sccp.ssn",ssn,tcap_handle);
-}
-
-dissector_handle_t get_ansi_tcap_subdissector(guint32 ssn) {
-    return g_hash_table_lookup(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
-}
-*/
-
 /* Transaction tracking */
 /* Transaction table */
 struct ansi_tcap_invokedata_t {
