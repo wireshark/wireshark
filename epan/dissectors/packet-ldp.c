@@ -591,8 +591,15 @@ const value_string fec_types_vals[] = {
 };
 
 
+/*
+ * MPLS Pseudowire Types
+ *
+ * RFC 4446
+ *
+ * http://www.iana.org/assignments/pwe3-parameters/pwe3-parameters.xhtml#pwe3-parameters-2
+ */
 const value_string fec_vc_types_vals[] = {
-    {0x0001, "Frame Relay DLCI"},
+    {0x0001, "Frame Relay DLCI (Martini Mode)"},
     {0x0002, "ATM AAL5 SDU VCC transport"},
     {0x0003, "ATM transparent cell transport"},
     {0x0004, "Ethernet VLAN"},
@@ -616,6 +623,7 @@ const value_string fec_vc_types_vals[] = {
     {0x0016, "TDMoIP basic mode"},
     {0x0017, "CESoPSN TDM with CAS"},
     {0x0018, "TDMoIP TDM with CAS"},
+    {0x0019, "Frame Relay DLCI"},
     {0, NULL}
 };
 
