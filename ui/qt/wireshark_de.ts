@@ -23,32 +23,32 @@
         <translation>Wireshark</translation>
     </message>
     <message>
-        <location filename="about_dialog.ui" line="72"/>
+        <location filename="about_dialog.ui" line="75"/>
         <source>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Network Protocol Analyzer&lt;/span&gt;</source>
         <translation>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Programm zur Netzwerkprotokollanalyse&lt;/span&gt;</translation>
     </message>
     <message>
-        <location filename="about_dialog.ui" line="153"/>
+        <location filename="about_dialog.ui" line="156"/>
         <source>Authors</source>
         <translation>Autoren</translation>
     </message>
     <message>
-        <location filename="about_dialog.ui" line="167"/>
+        <location filename="about_dialog.ui" line="170"/>
         <source>Folders</source>
         <translation>Ordner</translation>
     </message>
     <message>
-        <location filename="about_dialog.ui" line="193"/>
+        <location filename="about_dialog.ui" line="196"/>
         <source>Plugins</source>
         <translation>Plugins</translation>
     </message>
     <message>
-        <location filename="about_dialog.ui" line="210"/>
+        <location filename="about_dialog.ui" line="213"/>
         <source>Keyboard Shortcuts</source>
         <translation>Tastaturkürzel</translation>
     </message>
     <message>
-        <location filename="about_dialog.ui" line="227"/>
+        <location filename="about_dialog.ui" line="230"/>
         <source>License</source>
         <translation>Lizenzen</translation>
     </message>
@@ -1788,33 +1788,37 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>das &quot;@&quot; Symbol wird ignoriert.</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="201"/>
+        <location filename="coloring_rules_dialog.cpp" line="202"/>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
         <translation>Doppelklicken zum Editieren. Ziehen zum Verschieben. Die Regeln werden der Reihe nach abgearbeitet bis zum ersten Treffer.</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="324"/>
+        <location filename="coloring_rules_dialog.cpp" line="326"/>
         <source>Import Coloring Rules</source>
         <translation>Einfärbungsregeln importieren</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="340"/>
+        <location filename="coloring_rules_dialog.cpp" line="342"/>
         <source>Export %1 Coloring Rules</source>
         <translation>%1 Einfärbungsregeln exportieren</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="361"/>
+        <location filename="coloring_rules_dialog.cpp" line="363"/>
         <source>Your coloring rules file contains unknown rules</source>
         <translation>Die Einfärbungsregelndatei enthält unbekannte Regeln</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="362"/>
-        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
-        <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
-        <translation type="unfinished">Wireshark erkennt eine oder mehrere der Einfärbungsregeln nicht. Speichern verwirft diese.</translation>
+        <location filename="coloring_rules_dialog.cpp" line="364"/>
+        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="375"/>
+        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
+        <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
+        <translation type="obsolete">Wireshark erkennt eine oder mehrere der Einfärbungsregeln nicht. Speichern verwirft diese.</translation>
+    </message>
+    <message>
+        <location filename="coloring_rules_dialog.cpp" line="376"/>
         <source>Unable to save coloring rules: %s</source>
         <translation>Einfärbungsregeln können nicht gespeichert werden: %s</translation>
     </message>
@@ -2005,22 +2009,22 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Dieses Dissektionsverhalten kopieren.</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="84"/>
+        <location filename="decode_as_dialog.cpp" line="86"/>
         <source>Decode As</source>
         <translation>Dekodieren als</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="383"/>
+        <location filename="decode_as_dialog.cpp" line="385"/>
         <source>String</source>
         <translation>Zeichenkette</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="385"/>
+        <location filename="decode_as_dialog.cpp" line="387"/>
         <source>Integer, base </source>
         <translation>Integer, base</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="397"/>
+        <location filename="decode_as_dialog.cpp" line="399"/>
         <source>unknown</source>
         <translation>unbekannt</translation>
     </message>
@@ -4646,12 +4650,11 @@ für die Filterdateien kann nicht erstellt werden:
     </message>
     <message>
         <location filename="interface_frame.ui" line="44"/>
-        <location filename="interface_frame.cpp" line="161"/>
         <source>No interfaces found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_frame.ui" line="66"/>
+        <location filename="interface_frame.ui" line="79"/>
         <source>Show Interfaces</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4744,32 +4747,37 @@ für die Filterdateien kann nicht erstellt werden:
 <context>
     <name>InterfaceTreeModel</name>
     <message>
-        <location filename="interface_tree_model.cpp" line="180"/>
+        <location filename="interface_tree_model.cpp" line="79"/>
+        <source>No Interfaces found!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_tree_model.cpp" line="233"/>
         <source>Addresses</source>
         <translation type="unfinished">Adressen</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="180"/>
+        <location filename="interface_tree_model.cpp" line="233"/>
         <source>Address</source>
         <translation type="unfinished">Adresse</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="187"/>
+        <location filename="interface_tree_model.cpp" line="240"/>
         <source>Extcap interface: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="192"/>
+        <location filename="interface_tree_model.cpp" line="245"/>
         <source>No addresses</source>
         <translation type="unfinished">Keine Adressen</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="199"/>
+        <location filename="interface_tree_model.cpp" line="252"/>
         <source>No capture filter</source>
         <translation type="unfinished">Kein Mitschnittfilter</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="204"/>
+        <location filename="interface_tree_model.cpp" line="257"/>
         <source>Capture filter</source>
         <translation type="unfinished">Mitschnittfilter</translation>
     </message>
@@ -10303,7 +10311,7 @@ text-decoration: underline;
         <translation>eine Einstellung</translation>
     </message>
     <message>
-        <location filename="preference_editor_frame.cpp" line="77"/>
+        <location filename="preference_editor_frame.cpp" line="79"/>
         <source>Open %1 preferences</source>
         <translation>%1 Einstellungen öffnen</translation>
     </message>
@@ -10372,7 +10380,7 @@ text-decoration: underline;
         <translation>Wert</translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="441"/>
+        <location filename="preferences_dialog.cpp" line="452"/>
         <source>Preferences</source>
         <translation>Einstellungen</translation>
     </message>
@@ -10685,22 +10693,22 @@ text-decoration: underline;
 <context>
     <name>QObject</name>
     <message>
-        <location filename="preferences_dialog.cpp" line="109"/>
+        <location filename="preferences_dialog.cpp" line="111"/>
         <source>Default</source>
         <translation type="unfinished">Standard</translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="111"/>
+        <location filename="preferences_dialog.cpp" line="113"/>
         <source>Changed</source>
         <translation type="unfinished">Geändert</translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="129"/>
+        <location filename="preferences_dialog.cpp" line="131"/>
         <source>Has this preference been changed?</source>
         <translation>Wurde diese Einstellung geändert?</translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="139"/>
+        <location filename="preferences_dialog.cpp" line="141"/>
         <source>Default value is empty</source>
         <translation>Standardwert ist leer</translation>
     </message>
@@ -10977,12 +10985,12 @@ text-decoration: underline;
         <translation>%1 Einträge.</translation>
     </message>
     <message>
-        <location filename="module_preferences_scroll_area.cpp" line="182"/>
+        <location filename="module_preferences_scroll_area.cpp" line="184"/>
         <source>Edit</source>
         <translation>Editieren</translation>
     </message>
     <message>
-        <location filename="module_preferences_scroll_area.cpp" line="209"/>
+        <location filename="module_preferences_scroll_area.cpp" line="211"/>
         <source>Browse</source>
         <translation>Öffnen</translation>
     </message>
@@ -11233,7 +11241,7 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="176"/>
-        <location filename="preferences_dialog.cpp" line="107"/>
+        <location filename="preferences_dialog.cpp" line="109"/>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
     </message>
@@ -15360,12 +15368,12 @@ text-decoration: underline;
         <translation>Öffnen</translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="417"/>
+        <location filename="uat_dialog.cpp" line="419"/>
         <source>Uneven number of chars hex string (%1)</source>
         <translation>Ungerade Anzahl an Hexzeichen (%1)</translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="424"/>
+        <location filename="uat_dialog.cpp" line="426"/>
         <source>Error parsing hex string</source>
         <translation>Fehler beim Parsen der Hex Zeichenkette</translation>
     </message>

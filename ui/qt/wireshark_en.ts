@@ -23,32 +23,32 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="about_dialog.ui" line="72"/>
+        <location filename="about_dialog.ui" line="75"/>
         <source>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Network Protocol Analyzer&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="about_dialog.ui" line="153"/>
+        <location filename="about_dialog.ui" line="156"/>
         <source>Authors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="about_dialog.ui" line="167"/>
+        <location filename="about_dialog.ui" line="170"/>
         <source>Folders</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="about_dialog.ui" line="193"/>
+        <location filename="about_dialog.ui" line="196"/>
         <source>Plugins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="about_dialog.ui" line="210"/>
+        <location filename="about_dialog.ui" line="213"/>
         <source>Keyboard Shortcuts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="about_dialog.ui" line="227"/>
+        <location filename="about_dialog.ui" line="230"/>
         <source>License</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1728,33 +1728,32 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="201"/>
+        <location filename="coloring_rules_dialog.cpp" line="202"/>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="324"/>
+        <location filename="coloring_rules_dialog.cpp" line="326"/>
         <source>Import Coloring Rules</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="340"/>
+        <location filename="coloring_rules_dialog.cpp" line="342"/>
         <source>Export %1 Coloring Rules</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="361"/>
+        <location filename="coloring_rules_dialog.cpp" line="363"/>
         <source>Your coloring rules file contains unknown rules</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="362"/>
-        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
-        <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
+        <location filename="coloring_rules_dialog.cpp" line="364"/>
+        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="375"/>
+        <location filename="coloring_rules_dialog.cpp" line="376"/>
         <source>Unable to save coloring rules: %s</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1945,22 +1944,22 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="84"/>
+        <location filename="decode_as_dialog.cpp" line="86"/>
         <source>Decode As</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="383"/>
+        <location filename="decode_as_dialog.cpp" line="385"/>
         <source>String</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="385"/>
+        <location filename="decode_as_dialog.cpp" line="387"/>
         <source>Integer, base </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="397"/>
+        <location filename="decode_as_dialog.cpp" line="399"/>
         <source>unknown</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4540,12 +4539,11 @@ for filter files: %2.</source>
     </message>
     <message>
         <location filename="interface_frame.ui" line="44"/>
-        <location filename="interface_frame.cpp" line="161"/>
         <source>No interfaces found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_frame.ui" line="66"/>
+        <location filename="interface_frame.ui" line="79"/>
         <source>Show Interfaces</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4603,32 +4601,37 @@ for filter files: %2.</source>
 <context>
     <name>InterfaceTreeModel</name>
     <message>
-        <location filename="interface_tree_model.cpp" line="180"/>
+        <location filename="interface_tree_model.cpp" line="79"/>
+        <source>No Interfaces found!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_tree_model.cpp" line="233"/>
         <source>Addresses</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="180"/>
+        <location filename="interface_tree_model.cpp" line="233"/>
         <source>Address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="187"/>
+        <location filename="interface_tree_model.cpp" line="240"/>
         <source>Extcap interface: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="192"/>
+        <location filename="interface_tree_model.cpp" line="245"/>
         <source>No addresses</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="199"/>
+        <location filename="interface_tree_model.cpp" line="252"/>
         <source>No capture filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="204"/>
+        <location filename="interface_tree_model.cpp" line="257"/>
         <source>Capture filter</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10086,7 +10089,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="preference_editor_frame.cpp" line="77"/>
+        <location filename="preference_editor_frame.cpp" line="79"/>
         <source>Open %1 preferences</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10155,7 +10158,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="441"/>
+        <location filename="preferences_dialog.cpp" line="452"/>
         <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10456,22 +10459,22 @@ a:hover {
 <context>
     <name>QObject</name>
     <message>
-        <location filename="preferences_dialog.cpp" line="109"/>
+        <location filename="preferences_dialog.cpp" line="111"/>
         <source>Default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="111"/>
+        <location filename="preferences_dialog.cpp" line="113"/>
         <source>Changed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="129"/>
+        <location filename="preferences_dialog.cpp" line="131"/>
         <source>Has this preference been changed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="139"/>
+        <location filename="preferences_dialog.cpp" line="141"/>
         <source>Default value is empty</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10740,12 +10743,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="module_preferences_scroll_area.cpp" line="182"/>
+        <location filename="module_preferences_scroll_area.cpp" line="184"/>
         <source>Edit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="module_preferences_scroll_area.cpp" line="209"/>
+        <location filename="module_preferences_scroll_area.cpp" line="211"/>
         <source>Browse</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10996,7 +10999,7 @@ a:hover {
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="176"/>
-        <location filename="preferences_dialog.cpp" line="107"/>
+        <location filename="preferences_dialog.cpp" line="109"/>
         <source>Unknown</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15018,12 +15021,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="417"/>
+        <location filename="uat_dialog.cpp" line="419"/>
         <source>Uneven number of chars hex string (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="424"/>
+        <location filename="uat_dialog.cpp" line="426"/>
         <source>Error parsing hex string</source>
         <translation type="unfinished"></translation>
     </message>
