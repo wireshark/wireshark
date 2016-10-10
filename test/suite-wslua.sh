@@ -486,7 +486,8 @@ wslua_suite() {
 	test_step_add "wslua field/fieldinfo" wslua_step_field_test
 	test_step_add "wslua file" wslua_step_file_test
 	test_step_add "wslua globals" wslua_step_globals_test
-	test_step_add "wslua gregex" wslua_step_gregex_test
+	# GRegex tests are broken since PCRE 8.34, see bug 12997.
+	#test_step_add "wslua gregex" wslua_step_gregex_test
 	test_step_add "wslua int64" wslua_step_int64_test
 	test_step_add "wslua listener" wslua_step_listener_test
 	test_step_add "wslua nstime" wslua_step_nstime_test
