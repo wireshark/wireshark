@@ -1,4 +1,4 @@
--- 3GPP TS 36.455 V11.3.0 (2013-06)
+-- 3GPP TS 36.455 V13.1.0 (2016-03)
 --
 
 -- **************************************************************
@@ -8,10 +8,10 @@
 -- **************************************************************
 
 LPPA-PDU-Contents {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 eps-Access (21) modules (3) lppa (6) version1 (1) lppa-PDU-Contents (1) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -21,8 +21,8 @@ BEGIN
 --
 -- **************************************************************
 
-IMPORTS		
-	
+IMPORTS
+
 	Cause,
 	CriticalityDiagnostics,
 	E-CID-MeasurementResult,
@@ -33,8 +33,11 @@ IMPORTS
 	MeasurementQuantities,
 	ReportCharacteristics,
 	RequestedSRSTransmissionCharacteristics,
-	ULConfiguration
-	
+	ULConfiguration,
+	Cell-Portion-ID,
+	InterRATMeasurementQuantities,
+	InterRATMeasurementResult
+
 FROM LPPA-IEs
 
 	PrivateIE-Container{},
@@ -50,7 +53,7 @@ FROM LPPA-IEs
 	LPPA-PROTOCOL-IES-PAIR
 FROM LPPA-Containers
 
-	
+
 	maxnoOTDOAtypes,
 	id-Cause,
 	id-CriticalityDiagnostics,
@@ -64,9 +67,12 @@ FROM LPPA-Containers
 	id-eNB-UE-Measurement-ID,
 	id-E-CID-MeasurementResult,
 	id-RequestedSRSTransmissionCharacteristics,
-	id-ULConfiguration
-	
-	
+	id-ULConfiguration,
+	id-Cell-Portion-ID,
+	id-InterRATMeasurementQuantities,
+	id-InterRATMeasurementResult
+
+
 FROM LPPA-Constants;
 
 -- **************************************************************
@@ -76,16 +82,17 @@ FROM LPPA-Constants;
 -- **************************************************************
 
 E-CIDMeasurementInitiationRequest ::= SEQUENCE {
-	protocolIEs                     ProtocolIE-Container       {{E-CIDMeasurementInitiationRequest-IEs}},
+	protocolIEs		ProtocolIE-Container	{{E-CIDMeasurementInitiationRequest-IEs}},
 	...
 }
 
 E-CIDMeasurementInitiationRequest-IEs LPPA-PROTOCOL-IES ::= {
-	{ ID id-E-SMLC-UE-Measurement-ID	CRITICALITY reject	TYPE Measurement-ID					PRESENCE mandatory}|
-	{ ID id-ReportCharacteristics		CRITICALITY reject	TYPE ReportCharacteristics			PRESENCE mandatory}|
-	{ ID id-MeasurementPeriodicity		CRITICALITY reject	TYPE MeasurementPeriodicity			PRESENCE conditional}|
+	{ ID id-E-SMLC-UE-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID						PRESENCE mandatory}|
+	{ ID id-ReportCharacteristics			CRITICALITY reject	TYPE ReportCharacteristics				PRESENCE mandatory}|
+	{ ID id-MeasurementPeriodicity			CRITICALITY reject	TYPE MeasurementPeriodicity				PRESENCE conditional}|
 -- The IE shall be present if the Report Characteritics IE is set to “periodic” --
-	{ ID id-MeasurementQuantities		CRITICALITY reject	TYPE MeasurementQuantities			PRESENCE mandatory},
+	{ ID id-MeasurementQuantities			CRITICALITY reject	TYPE MeasurementQuantities				PRESENCE mandatory}|
+	{ ID id-InterRATMeasurementQuantities	CRITICALITY ignore	TYPE InterRATMeasurementQuantities	PRESENCE optional},
 	...
 }
 
@@ -97,7 +104,7 @@ E-CIDMeasurementInitiationRequest-IEs LPPA-PROTOCOL-IES ::= {
 -- **************************************************************
 
 E-CIDMeasurementInitiationResponse ::= SEQUENCE {
-	protocolIEs                     ProtocolIE-Container       {{E-CIDMeasurementInitiationResponse-IEs}},
+	protocolIEs		ProtocolIE-Container	{{E-CIDMeasurementInitiationResponse-IEs}},
 	...
 }
 
@@ -105,7 +112,9 @@ E-CIDMeasurementInitiationResponse-IEs LPPA-PROTOCOL-IES ::= {
 	{ ID id-E-SMLC-UE-Measurement-ID	CRITICALITY reject	TYPE Measurement-ID					PRESENCE mandatory}|
 	{ ID id-eNB-UE-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID					PRESENCE mandatory}|
 	{ ID id-E-CID-MeasurementResult		CRITICALITY ignore	TYPE E-CID-MeasurementResult		PRESENCE optional}|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional},
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional}|
+	{ ID id-Cell-Portion-ID				CRITICALITY ignore	TYPE Cell-Portion-ID				PRESENCE optional}|
+	{ ID id-InterRATMeasurementResult	CRITICALITY ignore	TYPE InterRATMeasurementResult		PRESENCE optional},
 	...
 }
 
@@ -165,13 +174,14 @@ E-CIDMeasurementReport ::= SEQUENCE {
 E-CIDMeasurementReport-IEs LPPA-PROTOCOL-IES ::= {
 	{ ID id-E-SMLC-UE-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
 	{ ID id-eNB-UE-Measurement-ID			CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
-	{ ID id-E-CID-MeasurementResult			CRITICALITY ignore	TYPE E-CID-MeasurementResult	PRESENCE mandatory},
+	{ ID id-E-CID-MeasurementResult			CRITICALITY ignore	TYPE E-CID-MeasurementResult	PRESENCE mandatory}|
+	{ ID id-Cell-Portion-ID					CRITICALITY ignore	TYPE Cell-Portion-ID			PRESENCE optional},
 	...
 }
 
 -- **************************************************************
 --
--- E-CID MEASUREMENT TERMINATION 
+-- E-CID MEASUREMENT TERMINATION
 --
 -- **************************************************************
 
@@ -195,7 +205,7 @@ E-CIDMeasurementTerminationCommand-IEs LPPA-PROTOCOL-IES ::= {
 -- **************************************************************
 
 OTDOAInformationRequest ::= SEQUENCE {
-	protocolIEs                     ProtocolIE-Container       {{OTDOAInformationRequest-IEs}},
+	protocolIEs		ProtocolIE-Container	{{OTDOAInformationRequest-IEs}},
 	...
 }
 
@@ -228,7 +238,7 @@ OTDOA-Information-Type-ItemExtIEs LPPA-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 OTDOAInformationResponse ::= SEQUENCE {
-	protocolIEs                     ProtocolIE-Container       {{OTDOAInformationResponse-IEs}},
+	protocolIEs		ProtocolIE-Container	{{OTDOAInformationResponse-IEs}},
 	...
 }
 
@@ -268,7 +278,7 @@ UTDOAInformationRequest ::= SEQUENCE {
 }
 
 UTDOAInformationRequest-IEs LPPA-PROTOCOL-IES ::= {
-	{ ID id-RequestedSRSTransmissionCharacteristics		CRITICALITY ignore	TYPE RequestedSRSTransmissionCharacteristics	PRESENCE optional },
+	{ ID id-RequestedSRSTransmissionCharacteristics		CRITICALITY ignore	TYPE RequestedSRSTransmissionCharacteristics	PRESENCE optional},
 	...
 }
 
@@ -330,12 +340,12 @@ UTDOAInformationUpdate-IEs LPPA-PROTOCOL-IES ::= {
 -- **************************************************************
 
 ErrorIndication ::= SEQUENCE {
-	protocolIEs                     ProtocolIE-Container       {{ErrorIndication-IEs}},
+	protocolIEs		ProtocolIE-Container	{{ErrorIndication-IEs}},
 	...
 }
 
 ErrorIndication-IEs LPPA-PROTOCOL-IES ::= {
-	
+
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE optional}|
 	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
 	...

@@ -1,4 +1,4 @@
--- 3GPP TS 36.455 V11.3.0 (2013-06)
+-- 3GPP TS 36.455 V13.1.0 (2016-03)
 --
 
 -- **************************************************************
@@ -8,22 +8,25 @@
 -- **************************************************************
 
 LPPA-IEs {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 eps-Access (21) modules (3) lppa (6) version1 (1) lppa-IEs (2) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
-IMPORTS	
-	
+IMPORTS
+
 	id-MeasurementQuantities-Item,
 	maxCellineNB,
 	maxCellReport,
 	maxNrOfErrors,
 	maxNoMeas,
 	maxnoOTDOAtypes,
-	maxServCell
+	maxServCell,
+	id-InterRATMeasurementQuantities-Item,
+	maxGERANMeas,
+	maxUTRANMeas
 
 FROM LPPA-Constants
 
@@ -37,13 +40,15 @@ FROM LPPA-CommonDataTypes
 
 	ProtocolExtensionContainer{},
 	ProtocolIE-Single-Container{},
-	
+
 	LPPA-PROTOCOL-EXTENSION,
 	LPPA-PROTOCOL-IES
 FROM LPPA-Containers;
 
 -- A
 -- B
+
+BCCH ::= INTEGER (0..1023, ...)
 
 -- C
 
@@ -71,12 +76,14 @@ CauseProtocol ::= ENUMERATED {
 }
 
 CauseRadioNetwork ::= ENUMERATED {
-	unspecified, 
+	unspecified,
 	requested-item-not-supported,
 	requested-item-temporarily-not-available,
 	...
 
 }
+
+Cell-Portion-ID ::= INTEGER (0..255,...)
 
 CPLength ::= ENUMERATED {
 	normal,
@@ -156,6 +163,36 @@ E-UTRANAccessPointPosition ::= SEQUENCE {
 -- G
 -- H
 -- I
+
+InterRATMeasurementQuantities ::= SEQUENCE (SIZE (0.. maxNoMeas)) OF ProtocolIE-Single-Container { {InterRATMeasurementQuantities-ItemIEs} }
+
+InterRATMeasurementQuantities-ItemIEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-InterRATMeasurementQuantities-Item	CRITICALITY reject	TYPE InterRATMeasurementQuantities-Item PRESENCE mandatory}}
+
+InterRATMeasurementQuantities-Item ::= SEQUENCE {
+	interRATMeasurementQuantitiesValue			InterRATMeasurementQuantitiesValue,
+	iE-Extensions								ProtocolExtensionContainer { { InterRATMeasurementQuantitiesValue-ExtIEs} } OPTIONAL,
+	...
+}
+
+InterRATMeasurementQuantitiesValue-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+InterRATMeasurementQuantitiesValue ::= ENUMERATED {
+	geran,
+	utran,
+	...
+}
+
+InterRATMeasurementResult ::= SEQUENCE (SIZE (1.. maxNoMeas)) OF InterRATMeasuredResultsValue
+
+InterRATMeasuredResultsValue ::= CHOICE {
+	resultGERAN			ResultGERAN,
+	resultUTRAN			ResultUTRAN,
+	...
+}
+
 -- J
 -- K
 -- L
@@ -209,7 +246,7 @@ MeasurementQuantitiesValue ::= ENUMERATED {
 MeasuredResults ::= SEQUENCE (SIZE (1.. maxNoMeas)) OF MeasuredResultsValue
 
 
-MeasuredResultsValue ::= CHOICE { 
+MeasuredResultsValue ::= CHOICE {
 	valueAngleOfArrival				INTEGER (0..719),
 	valueTimingAdvanceType1			INTEGER (0..7690),
 	valueTimingAdvanceType2			INTEGER (0..7690),
@@ -254,7 +291,7 @@ OTDOACell-Information-Item ::= CHOICE {
 	tAC							TAC,
 	eARFCN						EARFCN,
 	pRS-Bandwidth				PRS-Bandwidth,
-	pRS-ConfigurationIndex		PRS-Configuration-Index, 
+	pRS-ConfigurationIndex		PRS-Configuration-Index,
 	cPLength					CPLength,
 	numberOfDlFrames			NumberOfDlFrames,
 	numberOfAntennaPorts		NumberOfAntennaPorts,
@@ -283,6 +320,12 @@ OTDOA-Information-Item ::= ENUMERATED {
 -- P
 
 PCI ::= INTEGER (0..503, ...)
+
+PhysCellIDGERAN ::= INTEGER (0..63, ...)
+
+PhysCellIDUTRA-FDD ::= INTEGER (0..511, ...)
+
+PhysCellIDUTRA-TDD ::= INTEGER (0..127, ...)
 
 PLMN-Identity ::= OCTET STRING (SIZE(3))
 
@@ -352,6 +395,40 @@ ResultRSRQ-Item-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+ResultGERAN ::= SEQUENCE (SIZE (1.. maxGERANMeas)) OF ResultGERAN-Item
+
+ResultGERAN-Item ::= SEQUENCE {
+	bCCH				BCCH,
+	physCellIDGERAN		PhysCellIDGERAN,
+	rSSI				RSSI,
+	iE-Extensions		ProtocolExtensionContainer { { ResultGERAN-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ResultGERAN-Item-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ResultUTRAN ::= SEQUENCE (SIZE (1.. maxUTRANMeas)) OF ResultUTRAN-Item
+
+ResultUTRAN-Item ::= SEQUENCE {
+	uARFCN				UARFCN,
+	physCellIDUTRAN		CHOICE {
+		physCellIDUTRA-FDD		PhysCellIDUTRA-FDD,
+		physCellIDUTRA-TDD		PhysCellIDUTRA-TDD
+	},
+	uTRA-RSCP			UTRA-RSCP OPTIONAL,
+	uTRA-EcN0			UTRA-EcN0 OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { ResultUTRAN-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ResultUTRAN-Item-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+RSSI ::= INTEGER (0..63, ...)
+
 -- S
 
 SFNInitialisationTime ::= BIT STRING (SIZE (64))
@@ -402,6 +479,12 @@ ULConfiguration ::= SEQUENCE {
 	srsConfiguration			SRSConfigurationForAllCells,
 	...
 }
+
+UARFCN ::= INTEGER (0..16383, ...)
+
+UTRA-EcN0 ::= INTEGER (0..49, ...)
+
+UTRA-RSCP ::= INTEGER (-5..91, ...)
 
 -- V
 

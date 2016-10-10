@@ -8,7 +8,7 @@
 #line 1 "./asn1/lppa/packet-lppa-template.c"
 /* packet-lppa.c
  * Routines for 3GPP LTE Positioning Protocol A (LLPa) packet dissection
- * Copyright 2011, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2011-2016, Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -28,7 +28,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref 3GPP TS 36.455 version 11.3.0 Release 11
+ * Ref 3GPP TS 36.455 version 13.1.0 Release 13
  * http://www.3gpp.org
  */
 
@@ -54,8 +54,12 @@ static int proto_lppa = -1;
 #line 1 "./asn1/lppa/packet-lppa-hf.c"
 static int hf_lppa_LPPA_PDU_PDU = -1;             /* LPPA_PDU */
 static int hf_lppa_Cause_PDU = -1;                /* Cause */
+static int hf_lppa_Cell_Portion_ID_PDU = -1;      /* Cell_Portion_ID */
 static int hf_lppa_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
 static int hf_lppa_E_CID_MeasurementResult_PDU = -1;  /* E_CID_MeasurementResult */
+static int hf_lppa_InterRATMeasurementQuantities_PDU = -1;  /* InterRATMeasurementQuantities */
+static int hf_lppa_InterRATMeasurementQuantities_Item_PDU = -1;  /* InterRATMeasurementQuantities_Item */
+static int hf_lppa_InterRATMeasurementResult_PDU = -1;  /* InterRATMeasurementResult */
 static int hf_lppa_Measurement_ID_PDU = -1;       /* Measurement_ID */
 static int hf_lppa_MeasurementPeriodicity_PDU = -1;  /* MeasurementPeriodicity */
 static int hf_lppa_MeasurementQuantities_PDU = -1;  /* MeasurementQuantities */
@@ -127,6 +131,11 @@ static int hf_lppa_uncertaintySemi_minor = -1;    /* INTEGER_0_127 */
 static int hf_lppa_orientationOfMajorAxis = -1;   /* INTEGER_0_179 */
 static int hf_lppa_uncertaintyAltitude = -1;      /* INTEGER_0_127 */
 static int hf_lppa_confidence = -1;               /* INTEGER_0_100 */
+static int hf_lppa_InterRATMeasurementQuantities_item = -1;  /* ProtocolIE_Single_Container */
+static int hf_lppa_interRATMeasurementQuantitiesValue = -1;  /* InterRATMeasurementQuantitiesValue */
+static int hf_lppa_InterRATMeasurementResult_item = -1;  /* InterRATMeasuredResultsValue */
+static int hf_lppa_resultGERAN = -1;              /* ResultGERAN */
+static int hf_lppa_resultUTRAN = -1;              /* ResultUTRAN */
 static int hf_lppa_MeasurementQuantities_item = -1;  /* ProtocolIE_Single_Container */
 static int hf_lppa_measurementQuantitiesValue = -1;  /* MeasurementQuantitiesValue */
 static int hf_lppa_MeasuredResults_item = -1;     /* MeasuredResultsValue */
@@ -160,6 +169,17 @@ static int hf_lppa_eCGI = -1;                     /* ECGI */
 static int hf_lppa_valueRSRP = -1;                /* ValueRSRP */
 static int hf_lppa_ResultRSRQ_item = -1;          /* ResultRSRQ_Item */
 static int hf_lppa_valueRSRQ = -1;                /* ValueRSRQ */
+static int hf_lppa_ResultGERAN_item = -1;         /* ResultGERAN_Item */
+static int hf_lppa_bCCH = -1;                     /* BCCH */
+static int hf_lppa_physCellIDGERAN = -1;          /* PhysCellIDGERAN */
+static int hf_lppa_rSSI = -1;                     /* RSSI */
+static int hf_lppa_ResultUTRAN_item = -1;         /* ResultUTRAN_Item */
+static int hf_lppa_uARFCN = -1;                   /* UARFCN */
+static int hf_lppa_physCellIDUTRAN = -1;          /* T_physCellIDUTRAN */
+static int hf_lppa_physCellIDUTRA_FDD = -1;       /* PhysCellIDUTRA_FDD */
+static int hf_lppa_physCellIDUTRA_TDD = -1;       /* PhysCellIDUTRA_TDD */
+static int hf_lppa_uTRA_RSCP = -1;                /* UTRA_RSCP */
+static int hf_lppa_uTRA_EcN0 = -1;                /* UTRA_EcN0 */
 static int hf_lppa_SRSConfigurationForAllCells_item = -1;  /* SRSConfigurationForOneCell */
 static int hf_lppa_pci = -1;                      /* PCI */
 static int hf_lppa_ul_earfcn = -1;                /* EARFCN */
@@ -211,6 +231,10 @@ static gint ett_lppa_CriticalityDiagnostics_IE_List_item = -1;
 static gint ett_lppa_E_CID_MeasurementResult = -1;
 static gint ett_lppa_ECGI = -1;
 static gint ett_lppa_E_UTRANAccessPointPosition = -1;
+static gint ett_lppa_InterRATMeasurementQuantities = -1;
+static gint ett_lppa_InterRATMeasurementQuantities_Item = -1;
+static gint ett_lppa_InterRATMeasurementResult = -1;
+static gint ett_lppa_InterRATMeasuredResultsValue = -1;
 static gint ett_lppa_MeasurementQuantities = -1;
 static gint ett_lppa_MeasurementQuantities_Item = -1;
 static gint ett_lppa_MeasuredResults = -1;
@@ -225,6 +249,11 @@ static gint ett_lppa_ResultRSRP = -1;
 static gint ett_lppa_ResultRSRP_Item = -1;
 static gint ett_lppa_ResultRSRQ = -1;
 static gint ett_lppa_ResultRSRQ_Item = -1;
+static gint ett_lppa_ResultGERAN = -1;
+static gint ett_lppa_ResultGERAN_Item = -1;
+static gint ett_lppa_ResultUTRAN = -1;
+static gint ett_lppa_ResultUTRAN_Item = -1;
+static gint ett_lppa_T_physCellIDUTRAN = -1;
 static gint ett_lppa_SRSConfigurationForAllCells = -1;
 static gint ett_lppa_SRSConfigurationForOneCell = -1;
 static gint ett_lppa_ULConfiguration = -1;
@@ -272,6 +301,8 @@ static dissector_table_t lppa_proc_uout_dissector_table;
 #define maxCellReport                  9
 #define maxnoOTDOAtypes                63
 #define maxServCell                    5
+#define maxGERANMeas                   8
+#define maxUTRANMeas                   8
 
 typedef enum _ProcedureCode_enum {
   id_errorIndication =   0,
@@ -299,7 +330,11 @@ typedef enum _ProtocolIE_ID_enum {
   id_OTDOA_Information_Type_Item =  10,
   id_MeasurementQuantities_Item =  11,
   id_RequestedSRSTransmissionCharacteristics =  12,
-  id_ULConfiguration =  13
+  id_ULConfiguration =  13,
+  id_Cell_Portion_ID =  14,
+  id_InterRATMeasurementQuantities =  15,
+  id_InterRATMeasurementQuantities_Item =  16,
+  id_InterRATMeasurementResult =  17
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-lppa-val.h ---*/
@@ -425,6 +460,10 @@ static const value_string lppa_ProtocolIE_ID_vals[] = {
   { id_MeasurementQuantities_Item, "id-MeasurementQuantities-Item" },
   { id_RequestedSRSTransmissionCharacteristics, "id-RequestedSRSTransmissionCharacteristics" },
   { id_ULConfiguration, "id-ULConfiguration" },
+  { id_Cell_Portion_ID, "id-Cell-Portion-ID" },
+  { id_InterRATMeasurementQuantities, "id-InterRATMeasurementQuantities" },
+  { id_InterRATMeasurementQuantities_Item, "id-InterRATMeasurementQuantities-Item" },
+  { id_InterRATMeasurementResult, "id-InterRATMeasurementResult" },
   { 0, NULL }
 };
 
@@ -694,6 +733,16 @@ dissect_lppa_LPPA_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 }
 
 
+
+static int
+dissect_lppa_BCCH(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 1023U, NULL, TRUE);
+
+  return offset;
+}
+
+
 static const value_string lppa_CauseRadioNetwork_vals[] = {
   {   0, "unspecified" },
   {   1, "requested-item-not-supported" },
@@ -766,6 +815,16 @@ dissect_lppa_Cause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_lppa_Cause, Cause_choice,
                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_Cell_Portion_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, TRUE);
 
   return offset;
 }
@@ -1192,6 +1251,242 @@ static int
 dissect_lppa_E_CID_MeasurementResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lppa_E_CID_MeasurementResult, E_CID_MeasurementResult_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t InterRATMeasurementQuantities_sequence_of[1] = {
+  { &hf_lppa_InterRATMeasurementQuantities_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lppa_ProtocolIE_Single_Container },
+};
+
+static int
+dissect_lppa_InterRATMeasurementQuantities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lppa_InterRATMeasurementQuantities, InterRATMeasurementQuantities_sequence_of,
+                                                  0, maxNoMeas, FALSE);
+
+  return offset;
+}
+
+
+static const value_string lppa_InterRATMeasurementQuantitiesValue_vals[] = {
+  {   0, "geran" },
+  {   1, "utran" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_InterRATMeasurementQuantitiesValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t InterRATMeasurementQuantities_Item_sequence[] = {
+  { &hf_lppa_interRATMeasurementQuantitiesValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_InterRATMeasurementQuantitiesValue },
+  { &hf_lppa_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lppa_InterRATMeasurementQuantities_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lppa_InterRATMeasurementQuantities_Item, InterRATMeasurementQuantities_Item_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_PhysCellIDGERAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 63U, NULL, TRUE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_RSSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 63U, NULL, TRUE);
+
+  return offset;
+}
+
+
+static const per_sequence_t ResultGERAN_Item_sequence[] = {
+  { &hf_lppa_bCCH           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_BCCH },
+  { &hf_lppa_physCellIDGERAN, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_PhysCellIDGERAN },
+  { &hf_lppa_rSSI           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_RSSI },
+  { &hf_lppa_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lppa_ResultGERAN_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lppa_ResultGERAN_Item, ResultGERAN_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t ResultGERAN_sequence_of[1] = {
+  { &hf_lppa_ResultGERAN_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lppa_ResultGERAN_Item },
+};
+
+static int
+dissect_lppa_ResultGERAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lppa_ResultGERAN, ResultGERAN_sequence_of,
+                                                  1, maxGERANMeas, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_UARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 16383U, NULL, TRUE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_PhysCellIDUTRA_FDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 511U, NULL, TRUE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_PhysCellIDUTRA_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 127U, NULL, TRUE);
+
+  return offset;
+}
+
+
+static const value_string lppa_T_physCellIDUTRAN_vals[] = {
+  {   0, "physCellIDUTRA-FDD" },
+  {   1, "physCellIDUTRA-TDD" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_physCellIDUTRAN_choice[] = {
+  {   0, &hf_lppa_physCellIDUTRA_FDD, ASN1_NO_EXTENSIONS     , dissect_lppa_PhysCellIDUTRA_FDD },
+  {   1, &hf_lppa_physCellIDUTRA_TDD, ASN1_NO_EXTENSIONS     , dissect_lppa_PhysCellIDUTRA_TDD },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lppa_T_physCellIDUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lppa_T_physCellIDUTRAN, T_physCellIDUTRAN_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_UTRA_RSCP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -5, 91U, NULL, TRUE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_UTRA_EcN0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 49U, NULL, TRUE);
+
+  return offset;
+}
+
+
+static const per_sequence_t ResultUTRAN_Item_sequence[] = {
+  { &hf_lppa_uARFCN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_UARFCN },
+  { &hf_lppa_physCellIDUTRAN, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_T_physCellIDUTRAN },
+  { &hf_lppa_uTRA_RSCP      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_UTRA_RSCP },
+  { &hf_lppa_uTRA_EcN0      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_UTRA_EcN0 },
+  { &hf_lppa_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lppa_ResultUTRAN_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lppa_ResultUTRAN_Item, ResultUTRAN_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t ResultUTRAN_sequence_of[1] = {
+  { &hf_lppa_ResultUTRAN_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lppa_ResultUTRAN_Item },
+};
+
+static int
+dissect_lppa_ResultUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lppa_ResultUTRAN, ResultUTRAN_sequence_of,
+                                                  1, maxUTRANMeas, FALSE);
+
+  return offset;
+}
+
+
+static const value_string lppa_InterRATMeasuredResultsValue_vals[] = {
+  {   0, "resultGERAN" },
+  {   1, "resultUTRAN" },
+  { 0, NULL }
+};
+
+static const per_choice_t InterRATMeasuredResultsValue_choice[] = {
+  {   0, &hf_lppa_resultGERAN    , ASN1_EXTENSION_ROOT    , dissect_lppa_ResultGERAN },
+  {   1, &hf_lppa_resultUTRAN    , ASN1_EXTENSION_ROOT    , dissect_lppa_ResultUTRAN },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lppa_InterRATMeasuredResultsValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lppa_InterRATMeasuredResultsValue, InterRATMeasuredResultsValue_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t InterRATMeasurementResult_sequence_of[1] = {
+  { &hf_lppa_InterRATMeasurementResult_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lppa_InterRATMeasuredResultsValue },
+};
+
+static int
+dissect_lppa_InterRATMeasurementResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lppa_InterRATMeasurementResult, InterRATMeasurementResult_sequence_of,
+                                                  1, maxNoMeas, FALSE);
 
   return offset;
 }
@@ -2084,6 +2379,14 @@ static int dissect_Cause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Cell_Portion_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lppa_Cell_Portion_ID(tvb, offset, &asn1_ctx, tree, hf_lppa_Cell_Portion_ID_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_CriticalityDiagnostics_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -2097,6 +2400,30 @@ static int dissect_E_CID_MeasurementResult_PDU(tvbuff_t *tvb _U_, packet_info *p
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_lppa_E_CID_MeasurementResult(tvb, offset, &asn1_ctx, tree, hf_lppa_E_CID_MeasurementResult_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_InterRATMeasurementQuantities_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lppa_InterRATMeasurementQuantities(tvb, offset, &asn1_ctx, tree, hf_lppa_InterRATMeasurementQuantities_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_InterRATMeasurementQuantities_Item_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lppa_InterRATMeasurementQuantities_Item(tvb, offset, &asn1_ctx, tree, hf_lppa_InterRATMeasurementQuantities_Item_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_InterRATMeasurementResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lppa_InterRATMeasurementResult(tvb, offset, &asn1_ctx, tree, hf_lppa_InterRATMeasurementResult_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -2342,6 +2669,10 @@ void proto_register_lppa(void) {
       { "Cause", "lppa.Cause",
         FT_UINT32, BASE_DEC, VALS(lppa_Cause_vals), 0,
         NULL, HFILL }},
+    { &hf_lppa_Cell_Portion_ID_PDU,
+      { "Cell-Portion-ID", "lppa.Cell_Portion_ID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_lppa_CriticalityDiagnostics_PDU,
       { "CriticalityDiagnostics", "lppa.CriticalityDiagnostics_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2349,6 +2680,18 @@ void proto_register_lppa(void) {
     { &hf_lppa_E_CID_MeasurementResult_PDU,
       { "E-CID-MeasurementResult", "lppa.E_CID_MeasurementResult_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_InterRATMeasurementQuantities_PDU,
+      { "InterRATMeasurementQuantities", "lppa.InterRATMeasurementQuantities",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_InterRATMeasurementQuantities_Item_PDU,
+      { "InterRATMeasurementQuantities-Item", "lppa.InterRATMeasurementQuantities_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_InterRATMeasurementResult_PDU,
+      { "InterRATMeasurementResult", "lppa.InterRATMeasurementResult",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lppa_Measurement_ID_PDU,
       { "Measurement-ID", "lppa.Measurement_ID",
@@ -2634,6 +2977,26 @@ void proto_register_lppa(void) {
       { "confidence", "lppa.confidence",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_100", HFILL }},
+    { &hf_lppa_InterRATMeasurementQuantities_item,
+      { "ProtocolIE-Single-Container", "lppa.ProtocolIE_Single_Container_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_interRATMeasurementQuantitiesValue,
+      { "interRATMeasurementQuantitiesValue", "lppa.interRATMeasurementQuantitiesValue",
+        FT_UINT32, BASE_DEC, VALS(lppa_InterRATMeasurementQuantitiesValue_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_InterRATMeasurementResult_item,
+      { "InterRATMeasuredResultsValue", "lppa.InterRATMeasuredResultsValue",
+        FT_UINT32, BASE_DEC, VALS(lppa_InterRATMeasuredResultsValue_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_resultGERAN,
+      { "resultGERAN", "lppa.resultGERAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_resultUTRAN,
+      { "resultUTRAN", "lppa.resultUTRAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_lppa_MeasurementQuantities_item,
       { "ProtocolIE-Single-Container", "lppa.ProtocolIE_Single_Container_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2766,6 +3129,50 @@ void proto_register_lppa(void) {
       { "valueRSRQ", "lppa.valueRSRQ",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_lppa_ResultGERAN_item,
+      { "ResultGERAN-Item", "lppa.ResultGERAN_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_bCCH,
+      { "bCCH", "lppa.bCCH",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_physCellIDGERAN,
+      { "physCellIDGERAN", "lppa.physCellIDGERAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_rSSI,
+      { "rSSI", "lppa.rSSI",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_ResultUTRAN_item,
+      { "ResultUTRAN-Item", "lppa.ResultUTRAN_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_uARFCN,
+      { "uARFCN", "lppa.uARFCN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_physCellIDUTRAN,
+      { "physCellIDUTRAN", "lppa.physCellIDUTRAN",
+        FT_UINT32, BASE_DEC, VALS(lppa_T_physCellIDUTRAN_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_physCellIDUTRA_FDD,
+      { "physCellIDUTRA-FDD", "lppa.physCellIDUTRA_FDD",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_physCellIDUTRA_TDD,
+      { "physCellIDUTRA-TDD", "lppa.physCellIDUTRA_TDD",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_uTRA_RSCP,
+      { "uTRA-RSCP", "lppa.uTRA_RSCP",
+        FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_uTRA_EcN0,
+      { "uTRA-EcN0", "lppa.uTRA_EcN0",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_lppa_SRSConfigurationForAllCells_item,
       { "SRSConfigurationForOneCell", "lppa.SRSConfigurationForOneCell_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2891,6 +3298,10 @@ void proto_register_lppa(void) {
     &ett_lppa_E_CID_MeasurementResult,
     &ett_lppa_ECGI,
     &ett_lppa_E_UTRANAccessPointPosition,
+    &ett_lppa_InterRATMeasurementQuantities,
+    &ett_lppa_InterRATMeasurementQuantities_Item,
+    &ett_lppa_InterRATMeasurementResult,
+    &ett_lppa_InterRATMeasuredResultsValue,
     &ett_lppa_MeasurementQuantities,
     &ett_lppa_MeasurementQuantities_Item,
     &ett_lppa_MeasuredResults,
@@ -2905,6 +3316,11 @@ void proto_register_lppa(void) {
     &ett_lppa_ResultRSRP_Item,
     &ett_lppa_ResultRSRQ,
     &ett_lppa_ResultRSRQ_Item,
+    &ett_lppa_ResultGERAN,
+    &ett_lppa_ResultGERAN_Item,
+    &ett_lppa_ResultUTRAN,
+    &ett_lppa_ResultUTRAN_Item,
+    &ett_lppa_T_physCellIDUTRAN,
     &ett_lppa_SRSConfigurationForAllCells,
     &ett_lppa_SRSConfigurationForOneCell,
     &ett_lppa_ULConfiguration,
@@ -2966,6 +3382,10 @@ proto_reg_handoff_lppa(void)
   dissector_add_uint("lppa.ies", id_eNB_UE_Measurement_ID, create_dissector_handle(dissect_Measurement_ID_PDU, proto_lppa));
   dissector_add_uint("lppa.ies", id_RequestedSRSTransmissionCharacteristics, create_dissector_handle(dissect_RequestedSRSTransmissionCharacteristics_PDU, proto_lppa));
   dissector_add_uint("lppa.ies", id_ULConfiguration, create_dissector_handle(dissect_ULConfiguration_PDU, proto_lppa));
+  dissector_add_uint("lppa.ies", id_InterRATMeasurementQuantities, create_dissector_handle(dissect_InterRATMeasurementQuantities_PDU, proto_lppa));
+  dissector_add_uint("lppa.ies", id_Cell_Portion_ID, create_dissector_handle(dissect_Cell_Portion_ID_PDU, proto_lppa));
+  dissector_add_uint("lppa.ies", id_InterRATMeasurementResult, create_dissector_handle(dissect_InterRATMeasurementResult_PDU, proto_lppa));
+  dissector_add_uint("lppa.ies", id_InterRATMeasurementQuantities_Item, create_dissector_handle(dissect_InterRATMeasurementQuantities_Item_PDU, proto_lppa));
   dissector_add_uint("lppa.proc.imsg", id_e_CIDMeasurementInitiation, create_dissector_handle(dissect_E_CIDMeasurementInitiationRequest_PDU, proto_lppa));
   dissector_add_uint("lppa.proc.sout", id_e_CIDMeasurementInitiation, create_dissector_handle(dissect_E_CIDMeasurementInitiationResponse_PDU, proto_lppa));
   dissector_add_uint("lppa.proc.uout", id_e_CIDMeasurementInitiation, create_dissector_handle(dissect_E_CIDMeasurementInitiationFailure_PDU, proto_lppa));

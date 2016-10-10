@@ -1,6 +1,6 @@
 # lppa.cnf
 # llpa conformation file
-# Copyright 2011 Pascal Quantin
+# Copyright 2011-2016 Pascal Quantin
 
 #.OPT
 PER
@@ -88,6 +88,10 @@ id-OTDOA-Information-Type-Item             ProtocolIE-ID
 id-MeasurementQuantities-Item              ProtocolIE-ID
 id-RequestedSRSTransmissionCharacteristics ProtocolIE-ID
 id-ULConfiguration                         ProtocolIE-ID
+id-Cell-Portion-ID                         ProtocolIE-ID
+id-InterRATMeasurementQuantities           ProtocolIE-ID
+id-InterRATMeasurementQuantities-Item      ProtocolIE-ID
+id-InterRATMeasurementResult               ProtocolIE-ID
 #.REGISTER
 
 #LPPA-PROTOCOL-IES
@@ -105,6 +109,10 @@ Measurement-ID                          N lppa.ies id-E-SMLC-UE-Measurement-ID
 Measurement-ID                          N lppa.ies id-eNB-UE-Measurement-ID
 RequestedSRSTransmissionCharacteristics N lppa.ies id-RequestedSRSTransmissionCharacteristics
 ULConfiguration                         N lppa.ies id-ULConfiguration
+InterRATMeasurementQuantities           N lppa.ies id-InterRATMeasurementQuantities
+Cell-Portion-ID                         N lppa.ies id-Cell-Portion-ID
+InterRATMeasurementResult               N lppa.ies id-InterRATMeasurementResult
+InterRATMeasurementQuantities-Item      N lppa.ies id-InterRATMeasurementQuantities-Item
 
 #LPPA-ELEMENTARY-PROCEDURE
 E-CIDMeasurementInitiationRequest  N lppa.proc.imsg id-e-CIDMeasurementInitiation
