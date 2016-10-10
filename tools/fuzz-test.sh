@@ -237,7 +237,7 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
 
         for RUNNER_PID in $RUNNER_PIDS ; do
             wait $RUNNER_PID
-            RETVAL=$?
+            RUNNER_RETVAL=$?
             mv $TMP_DIR/$ERR_FILE.$RUNNER_PID $TMP_DIR/$ERR_FILE
 
             # Uncomment the next two lines to enable dissector bug
@@ -250,7 +250,7 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
                 VG_DEF_LEAKED=`grep "definitely lost:" $TMP_DIR/$ERR_FILE | cut -f7 -d' ' | tr -d ,`
                 VG_IND_LEAKED=`grep "indirectly lost:" $TMP_DIR/$ERR_FILE | cut -f7 -d' ' | tr -d ,`
                 VG_TOTAL_LEAKED=`expr $VG_DEF_LEAKED + $VG_IND_LEAKED`
-                if [ $? -ne 0 ] ; then
+                if [ $RUNNER_RETVAL -ne 0 ] ; then
                     echo "General Valgrind failure."
                     VG_ERR_CNT=1
                 elif [ "$VG_TOTAL_LEAKED" -gt "$MAX_LEAK" ] ; then
@@ -263,7 +263,7 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
                 fi
             fi
 
-            if [ $DONE -ne 1 -a \( $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 -o $VG_ERR_CNT -ne 0 \) ] ; then
+            if [ $DONE -ne 1 -a \( $RUNNER_RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 -o $VG_ERR_CNT -ne 0 \) ] ; then
                 rm -f $RUNNER_ERR_FILES
                 ws_exit_error
             fi
