@@ -867,6 +867,7 @@ set(DISSECTOR_SRC
 	packet-loop.c
 	packet-lpd.c
 	packet-lsc.c
+	packet-lsd.c
 	packet-ltp.c
 	packet-lwapp.c
 	packet-lwm.c

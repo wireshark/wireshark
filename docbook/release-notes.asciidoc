@@ -56,6 +56,7 @@ Bluetooth HCI Vendor Intel
 High-speed SECS message service (HSMS)
 GSM Osmux
 Health Level 7 (HL7)
+Local Service Discovery (LSD)
 --sort-and-group--
 
 === Updated Protocol Support
