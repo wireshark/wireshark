@@ -71,6 +71,7 @@
 #include <epan/packet.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/proto.h>
+#include <epan/expert.h>
 
 #include "packet-pn.h"
 
@@ -137,6 +138,7 @@ static gint ett_pn_io_rtc = -1;
 static gint ett_pn_io_ioxs = -1;
 static gint ett_pn_io_io_data_object = -1;
 
+static expert_field ei_pn_io_too_many_data_objects = EI_INIT;
 
 static const value_string pn_io_ioxs_extension[] = {
     { 0x00 /*  0*/, "No IOxS octet follows" },
@@ -377,6 +379,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
     gboolean    outputFlag;
     gboolean    psInfoText;     /* Used to display only once per frame the info text "PROFIsafe Device" */
 
+    proto_item *data_item;
     proto_item *IODataObject_item;
     proto_item *IODataObject_item_info;
     proto_tree *IODataObject_tree;
@@ -418,12 +421,9 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO");            /* set protocol name */
 
-    if (tree) {
-        proto_item *data_item;
-        data_item = proto_tree_add_protocol_format(tree, proto_pn_io_rtc1, tvb, offset, tvb_captured_length(tvb),
+    data_item = proto_tree_add_protocol_format(tree, proto_pn_io_rtc1, tvb, offset, tvb_captured_length(tvb),
             "PROFINET IO Cyclic Service Data Unit: %u bytes", tvb_captured_length(tvb));
-        data_tree = proto_item_add_subtree(data_item, ett_pn_io_rtc);
-    }
+    data_tree = proto_item_add_subtree(data_item, ett_pn_io_rtc);
 
     /* dissect_dcerpc_uint16(tvb, offset, pinfo, data_tree, drep, hf_pn_io_packedframe_SFCRC, &u16SFCRC); */
     if (!(dissect_CSF_SDU_heur(tvb, pinfo, data_tree, NULL) == FALSE))
@@ -499,6 +499,11 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
 
         /* ---- Input IOData-/IOCS-Object Handling ---- */
         objectCounter = number_io_data_objects_input_cr + number_iocs_input_cr;
+        if (objectCounter > (guint)tvb_reported_length_remaining(tvb, offset)) {
+            expert_add_info_format(pinfo, data_item, &ei_pn_io_too_many_data_objects, "Too many data objects: %d", objectCounter);
+            return(tvb_captured_length(tvb));
+        }
+
         while (objectCounter--) {
             /* ---- Input IO Data Object Handling ---- */
             if (station_info != NULL) {
@@ -694,6 +699,10 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
 
         /* ---- Output IOData-/IOCS-Object Handling ---- */
         objectCounter = number_io_data_objects_output_cr + number_iocs_output_cr;
+        if (objectCounter > (guint)tvb_reported_length_remaining(tvb, offset)) {
+            expert_add_info_format(pinfo, data_item, &ei_pn_io_too_many_data_objects, "Too many data objects: %d", objectCounter);
+            return(tvb_captured_length(tvb));
+        }
         while (objectCounter--) {
             /* ---- Output IO Data Object Handling ---- */
             if (station_info != NULL) {
@@ -1073,9 +1082,17 @@ init_pn_io_rtc1(int proto)
         &ett_pn_io_io_data_object
     };
 
+    static ei_register_info ei[] = {
+        { &ei_pn_io_too_many_data_objects, { "pn_io.too_many_data_objects", PI_MALFORMED, PI_ERROR, "Too many data objects", EXPFILL }},
+    };
+
+    expert_module_t* expert_pn_io;
+
     proto_pn_io_rtc1 = proto;
     proto_register_field_array(proto, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_pn_io = expert_register_protocol(proto_pn_io_rtc1);
+    expert_register_field_array(expert_pn_io, ei, array_length(ei));
 }
 
 
