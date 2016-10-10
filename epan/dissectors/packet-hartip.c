@@ -956,6 +956,8 @@ dissect_cmd178(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
            offset += cmd_byte_count;
            length -= cmd_byte_count;
          }
+       } else {
+         return bodylen;
        }
      }
 
