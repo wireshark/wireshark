@@ -292,7 +292,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         if (!ws_strtou32(tvb_get_string_enc(wmem_packet_scope(), tvb, field_offset, tag->tag_len, ENC_ASCII),
                 NULL, &tag_value)) {
             proto_tree_add_expert(fix_tree, pinfo, &ei_fix_tag_invalid, tvb, field_offset, tag->tag_len);
-            continue;
+            break;
         }
         if (tag->value_len < 1) {
             proto_tree *field_tree;
