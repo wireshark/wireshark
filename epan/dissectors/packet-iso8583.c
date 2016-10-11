@@ -383,7 +383,7 @@ static struct iso_type *data_array = NULL;
 static gint charset_pref = ASCII_CHARSET;
 static gint bin_encode_pref = BIN_ASCII_ENC;
 
-static gint iso8583_len=-1; /* # of bytes captured by the dissector */
+static guint32 iso8583_len = 0; /* # of bytes captured by the dissector */
 static gint len_byte_order = LITEND;
 
 /*
@@ -602,12 +602,12 @@ static guint64 hex2bin(const char* hexstr, int len)
       if((offset -2 + len) > iso8583_len)\
         return NULL
 
-static gchar *get_bit(guint ind, tvbuff_t *tvb, gint *off_set, proto_tree *tree, proto_item **exp, gint *length )
+static gchar *get_bit(guint ind, tvbuff_t *tvb, guint *off_set, proto_tree *tree, proto_item **exp, gint *length )
 {
   gchar aux[1024];
   gchar* ret=NULL;
-  gint len;
-  gint offset = *off_set;
+  guint32 len;
+  guint offset = *off_set;
   gboolean str_input = FALSE;
 
   /* Check if it is a fixed or variable length
@@ -624,13 +624,13 @@ static gchar *get_bit(guint ind, tvbuff_t *tvb, gint *off_set, proto_tree *tree,
     {
       case ASCII_CHARSET:
       {
+        guint8* sizestr;
         checksize(len);
 
-        if (!ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(), tvb, offset,
-              len , ENC_ASCII), NULL, &len))
+        sizestr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len , ENC_ASCII);
+        offset += len;
+        if (!ws_strtou32(sizestr, NULL, &len))
           return NULL;
-
-        offset+=len;
         break;
       }
       case NUM_NIBBLE_CHARSET:
@@ -736,7 +736,7 @@ static gchar *get_bit(guint ind, tvbuff_t *tvb, gint *off_set, proto_tree *tree,
 }
 
 
-static int get_bitmap(tvbuff_t *tvb, guint64* bitmap, gint offset, gint* nbitmaps)
+static int get_bitmap(tvbuff_t *tvb, guint64* bitmap, guint offset, gint* nbitmaps)
 {
   gchar* hexbit;
   gint i;
