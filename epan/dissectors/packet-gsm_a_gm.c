@@ -518,10 +518,15 @@ static int hf_gsm_a_gm_radio_priority_pdp = -1;
 static int hf_gsm_a_gm_radio_priority_tom8 = -1;
 static int hf_gsm_a_gm_configuration_protocol = -1;
 static int hf_gsm_a_gm_sm_pco_length = -1;
-static int hf_gsm_a_gm_sm_pco_ipv6 = -1;
+static int hf_gsm_a_gm_sm_pco_pcscf_ipv6 = -1;
+static int hf_gsm_a_gm_sm_pco_dns_ipv6 = -1;
+static int hf_gsm_a_gm_sm_pco_dsmipv6_home_agent_ipv6 = -1;
+static int hf_gsm_a_gm_sm_pco_dsmipv6_home_network_ipv6 = -1;
 static int hf_gsm_a_gm_sm_pco_reject_code = -1;
-static int hf_gsm_a_gm_sm_pco_prefix_length = -1;
-static int hf_gsm_a_gm_sm_pco_ipv4 = -1;
+static int hf_gsm_a_gm_sm_pco_dsmipv6_home_network_prefix_length = -1;
+static int hf_gsm_a_gm_sm_pco_dsmipv6_home_agent_ipv4 = -1;
+static int hf_gsm_a_gm_sm_pco_pcscf_ipv4 = -1;
+static int hf_gsm_a_gm_sm_pco_dns_ipv4 = -1;
 static int hf_gsm_a_gm_sm_pco_ipv4_link_mtu_size = -1;
 static int hf_gsm_a_gm_sm_pco_nbifom_mode = -1;
 static int hf_gsm_a_gm_sm_pco_non_ip_link_mtu_size = -1;
@@ -4374,10 +4379,18 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 		switch (prot)
 		{
 			case 0x0001:
+				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_pcscf_ipv6, tvb, curr_offset, 16, ENC_NA);
+				}
+				break;
 			case 0x0003:
+				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_dns_ipv6, tvb, curr_offset, 16, ENC_NA);
+				}
+				break;
 			case 0x0007:
 				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
-					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_ipv6, tvb, curr_offset, 16, ENC_NA);
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_dsmipv6_home_agent_ipv6, tvb, curr_offset, 16, ENC_NA);
 				}
 				break;
 			case 0x0002:
@@ -4401,15 +4414,23 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				break;
 			case 0x0008:
 				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
-					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_ipv6, tvb, curr_offset, 16, ENC_NA);
-					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_prefix_length, tvb, curr_offset+16, 1, ENC_NA);
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_dsmipv6_home_network_ipv6, tvb, curr_offset, 16, ENC_NA);
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_dsmipv6_home_network_prefix_length, tvb, curr_offset+16, 1, ENC_NA);
 				}
 				break;
 			case 0x0009:
+				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_dsmipv6_home_agent_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+				}
+				break;
 			case 0x000C:
+				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_pcscf_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+				}
+				break;
 			case 0x000D:
 				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
-					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_dns_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
 				}
 				break;
 			case 0x000E:
@@ -8848,10 +8869,15 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_radio_priority_tom8, { "Radio Priority (TOM8)", "gsm_a.gm.radio_priority_tom8", FT_UINT8, BASE_DEC, VALS(gsm_a_gm_radio_prio_vals), 0x70, NULL, HFILL }},
 		{ &hf_gsm_a_gm_configuration_protocol, { "Configuration Protocol", "gsm_a.gm.configuration_protocol", FT_UINT8, BASE_DEC, NULL, 0x7, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_length, { "Length", "gsm_a.gm.sm.pco.length", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
-		{ &hf_gsm_a_gm_sm_pco_ipv6, { "IPv6", "gsm_a.gm.sm.pco.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_gsm_a_gm_sm_pco_pcscf_ipv6, { "IPv6", "gsm_a.gm.sm.pco.pcscf.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_gsm_a_gm_sm_pco_dns_ipv6, { "IPv6", "gsm_a.gm.sm.pco.dns.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_gsm_a_gm_sm_pco_dsmipv6_home_agent_ipv6, { "IPv6", "gsm_a.gm.sm.pco.dsmipv6_home_agent.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_gsm_a_gm_sm_pco_dsmipv6_home_network_ipv6, { "IPv6", "gsm_a.gm.sm.pco.dsmipv6_home_network.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_gsm_a_gm_sm_pco_dsmipv6_home_network_prefix_length, { "Prefix length", "gsm_a.gm.sm.pco.dsmipv6_home_network.ipv6_prefix_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_reject_code, { "Reject Code", "gsm_a.gm.sm.pco.reject_code", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
-		{ &hf_gsm_a_gm_sm_pco_prefix_length, { "Prefix length", "gsm_a.gm.sm.pco.ipv6_prefix_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		{ &hf_gsm_a_gm_sm_pco_ipv4, { "IPv4", "gsm_a.gm.sm.pco.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_gsm_a_gm_sm_pco_dsmipv6_home_agent_ipv4, { "IPv4", "gsm_a.gm.sm.pco.dsmipv6_home_agent.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_gsm_a_gm_sm_pco_pcscf_ipv4, { "IPv4", "gsm_a.gm.sm.pco.pcscf.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_gsm_a_gm_sm_pco_dns_ipv4, { "IPv4", "gsm_a.gm.sm.pco.dns.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_ipv4_link_mtu_size, { "IPv4 link MTU size", "gsm_a.gm.sm.pco.ipv4_link_mtu_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_nbifom_mode, { "NBIFOM mode", "gsm_a.gm.sm.pco.nbifom_mode", FT_UINT8, BASE_HEX, VALS(gsm_a_gm_nbifom_mode_vals), 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_non_ip_link_mtu_size, { "Non-IP link MTU size", "gsm_a.gm.sm.pco.non_ip_link_mtu_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
