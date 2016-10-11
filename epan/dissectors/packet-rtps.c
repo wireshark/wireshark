@@ -9403,7 +9403,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                               tvb, offset + 1, 1, flags);
         proto_tree_add_uint(rtps_submessage_tree,
                                 hf_rtps_sm_octets_to_next_header,
-                                tvb, offset + 2, 2, next_submsg);
+                                tvb, offset + 2, 2, octets_to_next_header);
       }
     }
 
