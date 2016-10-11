@@ -179,6 +179,7 @@ static void dissect_802154_h_ie_time_correction (tvbuff_t *, proto_tree *, guint
 static void dissect_802154_p_ie_sh_mlme_tsch_sync (tvbuff_t *, proto_tree *, guint, guint *);
 static void dissect_802154_p_ie_sh_mlme_tsch_slotframe_link (tvbuff_t *, proto_tree *, guint16, guint *);
 static void dissect_802154_p_ie_lg_mlme_channel_hopping(tvbuff_t *, proto_tree *, guint16, guint *);
+static int  dissect_ieee802154_6top      (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_inf_elem_tree, guint offset, gint pie_length);
 /* Sub-dissector helpers. */
 static void dissect_ieee802154_fcf             (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *, guint *);
 static void dissect_ieee802154_command         (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *);
@@ -268,6 +269,16 @@ static int hf_ieee802154_psie_eb_filter_percent = -1;
 static int hf_ieee802154_psie_eb_filter_percent_prob = -1;
 static int hf_ieee802154_psie_eb_filter_attr_id = -1;
 static int hf_ieee802154_psie_eb_filter_attr_id_bitmap = -1;
+/* Sixtop values */
+static int hf_ieee802154_p_ie_sixp_version = -1;
+static int hf_ieee802154_p_ie_sixp_code = -1;
+static int hf_ieee802154_p_ie_sixp_sfid = -1;
+static int hf_ieee802154_p_ie_sixp_subid = -1;
+static int hf_ieee802154_p_ie_sixp_ncells = -1;
+static int hf_ieee802154_p_ie_sixp_container = -1;
+static int hf_ieee802154_p_ie_sixp_slotoffset = -1;
+static int hf_ieee802154_p_ie_sixp_choffset = -1;
+static int hf_ieee802154_p_ie_sixp_cells_sched = -1;
 
 static int proto_zboss = -1;
 static int zboss_direction = -1;
@@ -364,6 +375,7 @@ static gint ett_ieee802154_psie_enh_beacon_flt = -1;
 static gint ett_ieee802154_psie_enh_beacon_flt_bitmap = -1;
 static gint ett_ieee802154_zigbee = -1;
 static gint ett_ieee802154_zboss = -1;
+static gint ett_ieee802154_p_ie_sixtop = -1;
 
 static expert_field ei_ieee802154_invalid_addressing = EI_INIT;
 /* static expert_field ei_ieee802154_invalid_panid_compression = EI_INIT; */
@@ -395,7 +407,7 @@ static dissector_handle_t  zigbee_nwk_handle;
 static const value_string ieee802154_frame_versions[] = {
     { IEEE802154_VERSION_2003,     "IEEE Std 802.15.4-2003" },
     { IEEE802154_VERSION_2006,     "IEEE Std 802.15.4-2006" },
-    { IEEE802154_VERSION_2012e,    "IEEE Std 802.15.4-2012e" },
+    { IEEE802154_VERSION_2015,     "IEEE Std 802.15.4-2015" },
     { IEEE802154_VERSION_RESERVED, "Reserved" },
     { 0, NULL }
 };
@@ -521,6 +533,7 @@ static const value_string ieee802154_payload_ie_names[] = {
     { IEEE802154_PAYLOAD_IE_ESDU,                     "ESDU IE" },
     { IEEE802154_PAYLOAD_IE_MLME,                     "MLME IE" },
     { IEEE802154_PAYLOAD_IE_VENDOR,                   "Vendor Specific IE" },
+    { IEEE802154_PAYLOAD_IE_IANA_6TOPGROUPID,         "6TOP Group ID" },
     { IEEE802154_PAYLOAD_IE_GID_TERM,                 "Payload Termination IE" },
     { 0, NULL }
 };
@@ -566,6 +579,21 @@ static const value_string ieee802154_psie_names[] = {
 static const value_string zboss_direction_names[] = {
     { 0, "IN" },
     { 1, "OUT" },
+    { 0, NULL }
+};
+
+static const value_string ieee802154_sixtop_commands_responses[] = {
+    { SIXTOP_CMD_ADD, "Add Command" },
+    { SIXTOP_CMD_DELETE, "Delete Command" },
+    { SIXTOP_CMD_COUNT, "Count Command" },
+    { SIXTOP_CMD_LIST, "List Command" },
+    { SIXTOP_CMD_CLEAR, "Clear Command" },
+    { SIXTOP_RC_SUCCESS, "Success Response" },
+    { SIXTOP_RC_VER_ERR, "Version Error Response" },
+    { SIXTOP_RC_SFID_ERR, "SFID Error Response" },
+    { SIXTOP_RC_BUSY, "Busy Response" },
+    { SIXTOP_RC_RESET, "Reset Response" },
+    { SIXTOP_RC_ERR, "Error Response" },
     { 0, NULL }
 };
 
@@ -661,7 +689,7 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
     packet->version             = (fcf & IEEE802154_FCF_VERSION) >> 12;
     packet->src_addr_mode       = (fcf & IEEE802154_FCF_SADDR_MASK) >> 14;
 
-    if ((packet->version == IEEE802154_VERSION_2012e) && (packet->frame_type == IEEE802154_FCF_BEACON)) {
+    if ((packet->version == IEEE802154_VERSION_2015) && (packet->frame_type == IEEE802154_FCF_BEACON)) {
         proto_item_append_text(tree, " Enhanced Beacon");
         col_set_str(pinfo->cinfo, COL_INFO, "Enhanced Beacon");
     }
@@ -913,7 +941,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* Sequence Number */
     if (packet->seqno_suppression) {
-        if (packet->version != IEEE802154_VERSION_2012e) {
+        if (packet->version != IEEE802154_VERSION_2015) {
             expert_add_info(pinfo, proto_root, &ei_ieee802154_seqno_suppression);
         }
     } else { /* IEEE 802.15.4 Sequence Number Suppression */
@@ -999,7 +1027,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             }
         }
     }
-    else if (packet->version == IEEE802154_VERSION_2012e) {
+    else if (packet->version == IEEE802154_VERSION_2015) {
         /* for Frame Version 0b10 PAN Id Compression only applies to these frame types */
         if ((packet->frame_type == IEEE802154_FCF_BEACON) ||
             (packet->frame_type == IEEE802154_FCF_DATA)   ||
@@ -1497,7 +1525,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         offset += dissect_ieee802154_payload_ie(tvb, pinfo, ieee802154_tree, offset);
     }
 
-    if ((packet->version == IEEE802154_VERSION_2012e) && (packet->frame_type == IEEE802154_FCF_CMD)) {
+    if ((packet->version == IEEE802154_VERSION_2015) && (packet->frame_type == IEEE802154_FCF_CMD)) {
         /* In 802.15.4e and later the Command Id follows the Payload IEs. */
         packet->command_id = tvb_get_guint8(tvb, offset);
         if (tree) {
@@ -1506,7 +1534,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         offset++;
 
         /* Display the command identifier in the info column. */
-        if ((packet->version == IEEE802154_VERSION_2012e) && (packet->command_id == IEEE802154_CMD_BEACON_REQ)) {
+        if ((packet->version == IEEE802154_VERSION_2015) && (packet->command_id == IEEE802154_CMD_BEACON_REQ)) {
             col_set_str(pinfo->cinfo, COL_INFO, "Enhanced Beacon Request");
         }
         else {
@@ -1763,6 +1791,100 @@ dissect_802154_p_ie_sh_mlme_tsch_slotframe_link(tvbuff_t *tvb, proto_tree *p_inf
         }
     }
 }/* dissect_802154_p_ie_sh_mlme_tsch_slotframe_link */
+
+/**
+ *Subdissector command for the 6TOP Protocol contained within the Payload Information Elements.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields.
+ *@param p_inf_elem_tree pointer to data tree wireshark uses to display packet.
+ *@param offset offset into the tvbuff to begin dissection.
+ *@param pie_length size of the 6TOP message
+ */
+static int
+dissect_ieee802154_6top(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_inf_elem_tree, guint offset, gint pie_length)
+{
+    guint8               sixp_code;
+    guint8               ie_length;
+    tvbuff_t             *payload_tvb;
+    int                  orig_offset = offset;
+    proto_tree *p_inf_elem_tree_sixtop = NULL;
+
+    sixp_code     = (tvb_get_guint8(tvb, offset + 1) & SIXP_CODE) >> 4;
+    ie_length     = pie_length;
+
+    p_inf_elem_tree_sixtop = proto_tree_add_subtree_format(p_inf_elem_tree, tvb, offset, pie_length, ett_ieee802154_p_ie_sixtop, NULL,
+                "6TOP Message: ");
+
+    proto_item_append_text(p_inf_elem_tree_sixtop, " %s", val_to_str_const(sixp_code, ieee802154_sixtop_commands_responses, "Unknown"));
+
+
+    proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_subid, tvb, (offset), 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_version, tvb, (offset) + 1, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_code, tvb, (offset) + 1, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_sfid, tvb, (offset) + 2, 1, ENC_LITTLE_ENDIAN);
+    offset += 3;
+    ie_length -= 3;
+
+    switch (sixp_code){
+        case SIXTOP_CMD_ADD:
+            proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_ncells, tvb, (offset), 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_container, tvb, (offset) + 1, 1, ENC_LITTLE_ENDIAN);
+            ie_length -= 2;
+            offset += 2;
+            while (ie_length > 0){
+                proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_slotoffset, tvb, (offset), 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_choffset, tvb, (offset) + 2, 2, ENC_LITTLE_ENDIAN);
+                ie_length -= 4;
+                offset += 4;
+            }
+            break;
+        case SIXTOP_CMD_DELETE:
+            proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_ncells, tvb, (offset), 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_container, tvb, (offset) + 1, 1, ENC_LITTLE_ENDIAN);
+            ie_length -= 2;
+            offset += 2;
+            while (ie_length > 0){
+                proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_slotoffset, tvb, (offset), 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_choffset, tvb, (offset) + 2, 2, ENC_LITTLE_ENDIAN);
+                ie_length -= 4;
+                offset += 4;
+            }
+            break;
+        case SIXTOP_CMD_COUNT:
+            proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_container, tvb, (offset), 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            break;
+        case SIXTOP_CMD_LIST:
+            proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_container, tvb, (offset), 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            break;
+        case SIXTOP_CMD_CLEAR:
+            proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_container, tvb, (offset), 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            break;
+        case SIXTOP_RC_SUCCESS:
+            if ((ie_length == 0) || (ie_length >= 4)){
+                while (ie_length > 0){
+                    proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_slotoffset, tvb, (offset), 2, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_choffset, tvb, (offset) + 2, 2, ENC_LITTLE_ENDIAN);
+                    ie_length -= 4;
+                    offset += 4;
+                }
+            }
+            else {
+                proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_cells_sched, tvb, (offset), 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+            }
+            break;
+        default:
+            payload_tvb = tvb_new_subset(tvb, (offset) + 3, pie_length - 3, pie_length - 3);
+            call_data_dissector(payload_tvb, pinfo, p_inf_elem_tree_sixtop);
+    }
+    return (offset - orig_offset);
+}
+
+/* dissect_ieee802154_6top */
 
 /**
  *Subdissector command for the Superframe specification sub-field within the beacon frame.
@@ -2230,6 +2352,10 @@ dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
             case IEEE802154_PAYLOAD_IE_VENDOR:
                 offset += dissect_ieee802154_vendor_ie(tvb, pinfo, subtree, offset, pie_length);
+                break;
+
+            case IEEE802154_PAYLOAD_IE_IANA_6TOPGROUPID:
+                offset += dissect_ieee802154_6top(tvb, pinfo, subtree, offset, pie_length);
                 break;
 
             default: /* just use the data dissector */
@@ -3513,6 +3639,37 @@ void proto_register_ieee802154(void)
         { &hf_ieee802154_mlme_ie_data,
         { "Data",                            "wpan.mlme_sub_ie.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+        /* 6TOP header fields*/
+        { &hf_ieee802154_p_ie_sixp_cells_sched,
+        { "Number of scheduled cells",                   "wpan.sixp_sched_cells", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_ieee802154_p_ie_sixp_choffset,
+        { "Channel Offset",                   "wpan.sixp_ch_offset", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_ieee802154_p_ie_sixp_slotoffset,
+        { "Slot Offset",                   "wpan.sixp_slotoffset", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_ieee802154_p_ie_sixp_container,
+        { "Container",                   "wpan.sixp_container", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_ieee802154_p_ie_sixp_ncells,
+        { "Number of desired cells",                   "wpan.sixpdes_cells", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_ieee802154_p_ie_sixp_subid,
+        { "6TOP Sub IE ID",                   "wpan.sixpsubieid", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_ieee802154_p_ie_sixp_version,
+        { "6TOP Version",                   "wpan.sixpversion", FT_UINT8, BASE_HEX, NULL, SIXP_VERSION,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_sixp_code,
+        { "6TOP Code",                   "wpan.sixpcode", FT_UINT8, BASE_HEX, NULL, SIXP_CODE,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_sixp_sfid,
+        { "6TOP Scheduling Fnction ID",                   "wpan.sixpsfid", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
         /*
          * Command Frame Specific Fields
          */
@@ -3731,6 +3888,7 @@ void proto_register_ieee802154(void)
         &ett_ieee802154_psie_enh_beacon_flt_bitmap,
         &ett_ieee802154_zigbee,
         &ett_ieee802154_zboss,
+        &ett_ieee802154_p_ie_sixtop,
     };
 
     static ei_register_info ei[] = {

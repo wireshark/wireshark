@@ -140,7 +140,7 @@
 /* Frame version definitions. */
 #define IEEE802154_VERSION_2003                0x0
 #define IEEE802154_VERSION_2006                0x1
-#define IEEE802154_VERSION_2012e               0x2
+#define IEEE802154_VERSION_2015                0x2
 #define IEEE802154_VERSION_RESERVED            0x3
 
 /* Address Mode Definitions */
@@ -186,7 +186,7 @@
 #define IEEE802154_BCAST_PAN                0xFFFF
 
 /*  Bit mask for PHY length field */
-#define IEEE802154_PHY_LENGTH_MASK          0x7f
+#define IEEE802154_PHY_LENGTH_MASK          0x7F
 
 /* Auxiliary Security Header */
 #define IEEE802154_AUX_SEC_LEVEL_MASK       0x07  /* Security Level */
@@ -241,6 +241,8 @@ typedef enum {
 #define IEEE802154_PAYLOAD_IE_ESDU           0x0 /* Encapsulated Service Data Unit */
 #define IEEE802154_PAYLOAD_IE_MLME           0x1 /* Media Access Control (MAC) subLayer Management Entity */
 #define IEEE802154_PAYLOAD_IE_VENDOR         0x2 /* Vendor Specific */
+ /*For the Plugtest - Paris 2016, 6top group ID took the reserved value 0x3*/
+#define IEEE802154_PAYLOAD_IE_IANA_6TOPGROUPID    0x3
 /* Reserved 0x3-0xe */
 #define IEEE802154_PAYLOAD_IE_GID_TERM       0xf
 
@@ -288,6 +290,24 @@ typedef enum {
 #define IEEE802154_MIC_LENGTH(_level_) ((0x2 << ((_level_) & 0x3)) & ~0x3)
 /* Macro to check for payload encryption. */
 #define IEEE802154_IS_ENCRYPTED(_level_) ((_level_) & 0x4)
+
+/*SIXTOP Bit-mask*/
+#define SIXP_VERSION                0x0F
+#define SIXP_CODE                   0xF0
+#define SIXP_SFID                   0xFF
+
+/* SIXTOP CMD and RC identifiers */
+#define SIXTOP_CMD_ADD              0x01
+#define SIXTOP_CMD_DELETE           0x02
+#define SIXTOP_CMD_COUNT            0x03
+#define SIXTOP_CMD_LIST             0x04
+#define SIXTOP_CMD_CLEAR            0x05
+#define SIXTOP_RC_SUCCESS           0x06
+#define SIXTOP_RC_VER_ERR           0x07
+#define SIXTOP_RC_SFID_ERR          0x08
+#define SIXTOP_RC_BUSY              0x09
+#define SIXTOP_RC_RESET             0x0A
+#define SIXTOP_RC_ERR               0x0B
 
 /*  Structure containing information regarding all necessary packet fields. */
 typedef struct {
