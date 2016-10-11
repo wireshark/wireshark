@@ -6704,6 +6704,11 @@ UTRAN-Additional-Positioning-Data 2558 7.4.63 OctetString V M No
 		<avp name="ePDG-Address" code="3425" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="IPAddress"/>
 		</avp>
+		<avp name="Enhanced-Diagnostics" code="3901" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="RAN-NAS-Release-Cause"/>
+			</grouped>
+		</avp>
 
 	</base>
 
