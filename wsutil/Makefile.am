@@ -227,7 +227,7 @@ dumpabi-libwsutil: all abi-descriptor.xml
 	cp ../config.h ../ws_symbol_export.h $(libwsutil_abi_INCLUDES) abi-check-headers/
 	abi-compliance-checker -log-path abi_logs/log.txt -l libwsutil -v1 `readlink .libs/libwsutil.so | sed 's/.*\.so\.//'` \
 		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml || \
-		cat logs/libwsutil/[0-9]*/log.txt
+		cat abi_logs/log.txt
 	cp -f abi_dumps/libwsutil/libwsutil_* .libs/
 	cd .libs && ln -sf libwsutil_*.abi.tar.gz libwsutil.abi.tar.gz
 

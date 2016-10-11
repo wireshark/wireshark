@@ -582,7 +582,7 @@ dumpabi-libwireshark: all abi-descriptor.xml
 	cp wmem/*.h abi-check-headers/wmem
 	abi-compliance-checker -log-path abi_logs/log.txt -l libwireshark -v1 `readlink .libs/libwireshark.so | sed 's/.*\.so\.//'` \
 		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml || \
-		cat abi_logs/log.txt logs/libwireshark/[0-9]*/log.txt
+		cat abi_logs/log.txt
 	cp -f abi_dumps/libwireshark/libwireshark_* .libs/
 	cd .libs && ln -sf libwireshark_*.abi.tar.gz libwireshark.abi.tar.gz
 

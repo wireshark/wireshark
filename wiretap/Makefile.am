@@ -249,7 +249,7 @@ dumpabi-libwiretap: all abi-descriptor.xml
 	cp *.h ../ws_symbol_export.h abi-check-headers/
 	abi-compliance-checker -log-path abi_logs/log.txt -l libwiretap -v1 `readlink .libs/libwiretap.so | sed 's/.*\.so\.//'` \
 		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml || \
-		cat logs/libwiretap/[0-9]*/log.txt
+		cat abi_logs/log.txt
 	cp -f abi_dumps/libwiretap/libwiretap_* .libs/
 	cd .libs && ln -sf libwiretap_*.abi.tar.gz libwiretap.abi.tar.gz
 
