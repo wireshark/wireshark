@@ -3209,7 +3209,10 @@ readcnffile(FILE *fh)
 			str=cnfline+14;
 			str=str_read_string(str, &union_name);
 			str_read_string(str, &union_tag);
-			union_tag_size=atoi(union_tag);
+			if (!ws_strtoi32(union_tag, NULL, union_tag_size)) {
+				FPRINTF(NULL, "UNION_TAG_SIZE: invalid string: %s\n", union_tag);
+				exit(10);
+			}
 			FPRINTF(NULL, "UNION_TAG_SIZE: %s == %d\n", union_name, union_tag_size);
 			utsi=g_new0(union_tag_size_item_t, 1);
 			if (!utsi) {
