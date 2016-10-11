@@ -151,6 +151,7 @@
 #include <epan/show_exception.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
 
@@ -4222,6 +4223,13 @@ version_convert( gchar *result, guint32 hexver )
         (hexver >> 24) & 0xFF, (hexver >> 16) & 0xFF, (hexver >> 8) & 0xFF, hexver & 0xFF);
 }
 
+static void
+apply_tds_prefs(void) {
+    pref_t *tds_ports = prefs_find_preference(prefs_find_module("tds"), "tcp.port");
+
+    tds_tcp_ports = range_copy(*tds_ports->varp.range);
+}
+
 /* Register the protocol with Wireshark */
 
 /* this format is required because a script is used to build the C function
@@ -5604,7 +5612,7 @@ proto_register_tds(void)
 /* Allow dissector to be found by name. */
     tds_tcp_handle = register_dissector("tds", dissect_tds_message, proto_tds);
 
-    tds_module = prefs_register_protocol(proto_tds, NULL);
+    tds_module = prefs_register_protocol(proto_tds, apply_tds_prefs);
     prefs_register_bool_preference(tds_module, "desegment_buffers",
                                    "Reassemble TDS buffers spanning multiple TCP segments",
                                    "Whether the TDS dissector should reassemble TDS buffers spanning multiple TCP segments. "
@@ -5622,10 +5630,6 @@ proto_register_tds(void)
                                    "TDS decode as",
                                    "Hint as to whether to decode TDS protocol as little-endian or big-endian. (TDS7/8 always decoded as little-endian)",
                                    &tds_little_endian, tds_endian_type_options, FALSE);
-    prefs_register_range_preference(tds_module, "tcp_ports",
-                                    "TDS TCP ports",
-                                    "Additional TCP ports to decode as TDS",
-                                    &tds_tcp_ports, 0xFFFF);
 
     register_init_routine(tds_init);
     register_cleanup_routine(tds_cleanup);

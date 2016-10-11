@@ -4113,6 +4113,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"mrcpv2.tcp.port_range", "MRCPv2", "tcp.port", 10},
         {"rtsp.tcp.port_range", "RTSP", "tcp.port", 10},
         {"sip.tcp.ports", "SIP", "tcp.port", 10},
+        {"tds.tcp_ports", "TDS", "tcp.port", 10},
         {"uma.tcp.ports", "UMA", "tcp.port", 10},
     };
 

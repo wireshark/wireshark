@@ -1063,7 +1063,7 @@ void dissector_add_uint_range_with_preference(const char *abbrev, const char* ra
 	/* Some preference callback functions use the proto_reg_handoff_
 		routine to apply preferences, which could duplicate the
 		registration of a preference.  Check for that here */
-	else if (prefs_find_preference(module, abbrev) == NULL) {
+	if (prefs_find_preference(module, abbrev) == NULL) {
 		description = wmem_strdup_printf(wmem_epan_scope(), "%s %s(s)",
 									    proto_get_protocol_short_name(handle->protocol), pref_dissector_table->ui_name);
 		title = wmem_strdup_printf(wmem_epan_scope(), "%s(s)", pref_dissector_table->ui_name);
