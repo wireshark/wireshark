@@ -27,7 +27,7 @@
 #include "config.h"
 
 #include <stdio.h>
-#include <stdlib.h>	/* for atoi() and strtoul() */
+#include <wsutil/strtoi.h>
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
@@ -65,6 +65,7 @@ static gint ett_ftp_reqresp = -1;
 
 static expert_field ei_ftp_eprt_args_invalid = EI_INIT;
 static expert_field ei_ftp_epsv_args_invalid = EI_INIT;
+static expert_field ei_ftp_response_code_invalid = EI_INIT;
 
 static dissector_handle_t ftpdata_handle;
 
@@ -375,7 +376,8 @@ parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
         if (delimiters_seen == 2) {     /* end of address family field */
             gchar *af_str;
             af_str = wmem_strndup(wmem_packet_scope(), field, fieldlen);
-            *eprt_af = atoi(af_str);
+            if (!ws_strtou32(af_str, NULL, eprt_af))
+                return FALSE;
         }
         else if (delimiters_seen == 3) {/* end of IP address field */
             gchar *ip_str;
@@ -402,7 +404,8 @@ parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
             gchar *pt_str;
             pt_str = wmem_strndup(wmem_packet_scope(), field, fieldlen);
 
-            *ftp_port = atoi(pt_str);
+            if (!ws_strtou16(pt_str, NULL, ftp_port))
+                return FALSE;
             *ftp_port_len = fieldlen;
         }
 
@@ -490,20 +493,28 @@ parse_extended_pasv_response(const guchar *line, gint linelen, guint16 *ftp_port
      * Should now be at digits.
      */
     if (*p != '\0') {
+        const gchar* endptr;
+        gboolean port_valid;
         /*
          * We didn't run out of text without finding anything.
          */
-        *ftp_port = atoi(p);
-        *pasv_offset = (guint32)(p - args);
+        port_valid = ws_strtou16(p, &endptr, ftp_port);
+        /* the conversion returned false, but the converted value could
+           be valid instead, check it out */
+        if (!port_valid && *endptr == '|')
+            port_valid = TRUE;
+        if (port_valid) {
+            *pasv_offset = (guint32)(p - args);
 
-        ret = TRUE;
+            ret = TRUE;
 
-        /* get port string length */
-        if ((e=strchr(p,')')) == NULL) {
-            ret = FALSE;
-        }
-        else {
-            *ftp_port_len = (guint)(--e - p);
+            /* get port string length */
+            if ((e=strchr(p,')')) == NULL) {
+                ret = FALSE;
+            }
+            else {
+                *ftp_port_len = (guint)(--e - p);
+            }
         }
     }
 
@@ -618,15 +629,20 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
          */
         if (linelen >= 3 && g_ascii_isdigit(line[0]) && g_ascii_isdigit(line[1])
             && g_ascii_isdigit(line[2])) {
+            gboolean code_valid;
+            proto_item* pi;
             /*
              * One-line reply, or first or last line
              * of a multi-line reply.
              */
             tvb_get_nstringz0(tvb, 0, sizeof(code_str), code_str);
-            code = (guint32)strtoul(code_str, NULL, 10);
+            code_valid = ws_strtou32(code_str, NULL, &code);
 
-            proto_tree_add_uint(reqresp_tree,
+            pi = proto_tree_add_uint(reqresp_tree,
                     hf_ftp_response_code, tvb, 0, 3, code);
+
+            if (!code_valid)
+                expert_add_info(pinfo, pi, &ei_ftp_response_code_invalid);
 
             /*
              * See if it's a passive-mode response.
@@ -1026,6 +1042,7 @@ proto_register_ftp(void)
     static ei_register_info ei[] = {
         { &ei_ftp_eprt_args_invalid, { "ftp.eprt.args_invalid", PI_MALFORMED, PI_WARN, "EPRT arguments must have the form: |<family>|<addr>|<port>|", EXPFILL }},
         { &ei_ftp_epsv_args_invalid, { "ftp.epsv.args_invalid", PI_MALFORMED, PI_WARN, "EPSV arguments must have the form (|||<port>|)", EXPFILL }},
+        { &ei_ftp_response_code_invalid, { "ftp.response.code.invalid", PI_MALFORMED, PI_ERROR, "Invalid response code", EXPFILL }}
     };
 
     expert_module_t* expert_ftp;
