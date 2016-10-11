@@ -54,8 +54,8 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/stats_tree.h>
-
 #include <epan/prefs.h>
+#include <wsutil/time_util.h>
 #include "packet-tcp.h"
 #include "packet-smpp.h"
 
@@ -1174,10 +1174,7 @@ smpp_mktime(const char *datestr, time_t *secs, int *nsecs)
     r_time.tm_isdst = -1;
 
     if (relative == FALSE) {
-        struct tm *gm, *local_time;
-        int gm_hour, gm_min;
-
-        *secs = mktime(&r_time);
+        *secs = mktime_utc(&r_time);
         *nsecs = 0;
         if (*secs == (time_t)(-1)) {
             return relative;
@@ -1191,27 +1188,6 @@ smpp_mktime(const char *datestr, time_t *secs, int *nsecs)
         else if (datestr[15] == '+')
             /* Represented time is ahead of UTC, shift it backward to UTC */
             *secs -= t_diff;
-
-        /* Subtract out the timezone information since we adjusted for
-         * the presented time's timezone above and will display in UTC.
-         *
-         * To do that, first determine how the time is represented in the
-         * local time zone and in UTC.
-         */
-        if (((gm = gmtime(secs)) == NULL) || ((local_time = localtime(secs)) == NULL)) {
-            *secs = (time_t)(-1);
-            *nsecs = 0;
-            return relative;
-        }
-
-        gm_hour = gm->tm_hour;
-        gm_min  = gm->tm_min;
-        /* Then subtract out the difference between those times (whether the
-         * difference is measured in hours, minutes, or both).
-         */
-        *secs -= 3600*(gm_hour - local_time->tm_hour);
-        *secs -= 60*(gm_min - local_time->tm_min);
-
     } else {
         *secs = r_time.tm_sec + 60 *
             (r_time.tm_min + 60 *
