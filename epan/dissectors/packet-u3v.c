@@ -2612,7 +2612,7 @@ static hf_register_info hf[] =
     NULL, HFILL } },
 
     { &hf_u3v_device_info_descriptor_iUserDefinedName,
-    { "iVendorName", "u3v.device_info.iUserDefinedName",
+    { "iUserDefinedName", "u3v.device_info.iUserDefinedName",
     FT_UINT8, BASE_DEC, NULL, 0x0,
     NULL, HFILL } },
 
