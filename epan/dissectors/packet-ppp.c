@@ -3896,7 +3896,7 @@ dissect_vsncp_pdntype_opt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 }
 
 static const value_string vsncp_errorcode_vals[] = {
-    {0,  "General Eror"},
+    {0,  "General Error"},
     {1,  "Unauthorized APN"},
     {2,  "PDN Limit Exceeded"},
     {3,  "NO PG-W Available"},
