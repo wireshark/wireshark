@@ -429,6 +429,7 @@ enum{
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 message_type;
+static dissector_handle_t m2ap_handle;
 
 /* Dissector tables */
 static dissector_table_t m2ap_ies_dissector_table;
@@ -3345,7 +3346,7 @@ static int dissect_M2AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-m2ap-fn.c ---*/
-#line 88 "./asn1/m2ap/packet-m2ap-template.c"
+#line 89 "./asn1/m2ap/packet-m2ap-template.c"
 
 static int
 dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -4117,7 +4118,7 @@ proto_register_m2ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-m2ap-hfarr.c ---*/
-#line 155 "./asn1/m2ap/packet-m2ap-template.c"
+#line 156 "./asn1/m2ap/packet-m2ap-template.c"
   };
 
   /* List of subtrees */
@@ -4216,7 +4217,7 @@ proto_register_m2ap(void) {
     &ett_m2ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-m2ap-ettarr.c ---*/
-#line 163 "./asn1/m2ap/packet-m2ap-template.c"
+#line 164 "./asn1/m2ap/packet-m2ap-template.c"
   };
 
   expert_module_t* expert_m2ap;
@@ -4232,6 +4233,8 @@ proto_register_m2ap(void) {
   proto_register_subtree_array(ett, array_length(ett));
   expert_m2ap = expert_register_protocol(proto_m2ap);
   expert_register_field_array(expert_m2ap, ei, array_length(ei));
+  /* Register dissector */
+  m2ap_handle = register_dissector(PFNAME, dissect_m2ap, proto_m2ap);
 
   /* Register dissector tables */
   m2ap_ies_dissector_table = register_dissector_table("m2ap.ies", "M2AP-PROTOCOL-IES", proto_m2ap, FT_UINT32, BASE_DEC);
@@ -4244,7 +4247,6 @@ proto_register_m2ap(void) {
 void
 proto_reg_handoff_m2ap(void)
 {
-  dissector_handle_t m2ap_handle = create_dissector_handle(dissect_m2ap, proto_m2ap);
   dissector_add_uint("sctp.ppi", PROTO_3GPP_M2AP_PROTOCOL_ID, m2ap_handle);
   dissector_add_uint("sctp.port", M2AP_PORT, m2ap_handle);
 
@@ -4324,5 +4326,5 @@ proto_reg_handoff_m2ap(void)
 
 
 /*--- End of included file: packet-m2ap-dis-tab.c ---*/
-#line 194 "./asn1/m2ap/packet-m2ap-template.c"
+#line 196 "./asn1/m2ap/packet-m2ap-template.c"
 }

@@ -70,6 +70,7 @@ enum{
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 message_type;
+static dissector_handle_t m2ap_handle;
 
 /* Dissector tables */
 static dissector_table_t m2ap_ies_dissector_table;
@@ -175,6 +176,8 @@ proto_register_m2ap(void) {
   proto_register_subtree_array(ett, array_length(ett));
   expert_m2ap = expert_register_protocol(proto_m2ap);
   expert_register_field_array(expert_m2ap, ei, array_length(ei));
+  /* Register dissector */
+  m2ap_handle = register_dissector(PFNAME, dissect_m2ap, proto_m2ap);
 
   /* Register dissector tables */
   m2ap_ies_dissector_table = register_dissector_table("m2ap.ies", "M2AP-PROTOCOL-IES", proto_m2ap, FT_UINT32, BASE_DEC);
@@ -187,7 +190,6 @@ proto_register_m2ap(void) {
 void
 proto_reg_handoff_m2ap(void)
 {
-  dissector_handle_t m2ap_handle = create_dissector_handle(dissect_m2ap, proto_m2ap);
   dissector_add_uint("sctp.ppi", PROTO_3GPP_M2AP_PROTOCOL_ID, m2ap_handle);
   dissector_add_uint("sctp.port", M2AP_PORT, m2ap_handle);
 #include "packet-m2ap-dis-tab.c"
