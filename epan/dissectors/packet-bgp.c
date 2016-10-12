@@ -211,6 +211,7 @@ static dissector_handle_t bgp_handle;
 #define BGPTYPE_TUNNEL_ENCAPS_ATTR  23 /* RFC5512 */
 #define BGPTYPE_AIGP                26 /* draft-ietf-idr-aigp-18 */
 #define BGPTYPE_LINK_STATE_ATTR     29 /* draft-ietf-idr-ls-distribution */
+#define BGPTYPE_LARGE_COMMUNITY     32 /* draft-ietf-idr-large-community  */
 #define BGPTYPE_LINK_STATE_OLD_ATTR 99 /* squatted value used by at least 2
                                           implementations before IANA assignment */
 #define BGPTYPE_ATTR_SET           128 /* RFC6368           */
@@ -879,6 +880,7 @@ static const value_string bgpattr_type[] = {
     { BGPTYPE_AIGP,                "AIGP"},
     { BGPTYPE_LINK_STATE_ATTR,     "LINK_STATE" },
     { BGPTYPE_LINK_STATE_OLD_ATTR, "LINK_STATE (unofficial code point)" },
+    { BGPTYPE_LARGE_COMMUNITY,     "LARGE_COMMUNITY" },
     { BGPTYPE_ATTR_SET,            "ATTR_SET" },
     { 0, NULL }
 };
@@ -1366,6 +1368,10 @@ static int hf_bgp_community_prefix = -1;
 static int hf_bgp_endpoint_address = -1;
 static int hf_bgp_endpoint_address_ipv6 = -1;
 static int hf_bgp_label_stack = -1;
+static int hf_bgp_large_communities = -1;
+static int hf_bgp_large_communities_ga = -1;
+static int hf_bgp_large_communities_ldp1 = -1;
+static int hf_bgp_large_communities_ldp2 = -1;
 static int hf_bgp_vplsad_length = -1;
 static int hf_bgp_vplsad_rd = -1;
 static int hf_bgp_bgpad_pe_addr = -1;
@@ -1997,6 +2003,7 @@ static gint ett_bgp_evpn_nlri_esi = -1;
 static gint ett_bgp_mpls_labels = -1;
 static gint ett_bgp_pmsi_tunnel_id = -1;
 static gint ett_bgp_aigp_attr = -1;
+static gint ett_bgp_large_communities = -1;
 
 static expert_field ei_bgp_cap_len_bad = EI_INIT;
 static expert_field ei_bgp_cap_gr_helper_mode_only = EI_INIT;
@@ -7254,6 +7261,34 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                 save_link_state_attr_position(pinfo, q, end, tlen, subtree2);
                 break;
 
+            case BGPTYPE_LARGE_COMMUNITY:
+                if(tlen == 0 || tlen % 12){
+                    break;
+                }
+                q = o + i + aoff;
+                end = q + tlen;
+                wmem_strbuf_t *comm_strbuf;
+                comm_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+                while (q < end) {
+                    guint32 ga, ldp1, ldp2;
+                    ga = tvb_get_ntohl(tvb, q);
+                    ldp1 = tvb_get_ntohl(tvb, q+4);
+                    ldp2 = tvb_get_ntohl(tvb, q+8);
+                    ti = proto_tree_add_string_format(subtree2, hf_bgp_large_communities, tvb, q, 12, NULL, "Large communities: %u:%u:%u", ga, ldp1, ldp2);
+                    subtree3 = proto_item_add_subtree(ti, ett_bgp_large_communities);
+                    proto_tree_add_item(subtree3, hf_bgp_large_communities_ga, tvb,
+                                            q, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(subtree3, hf_bgp_large_communities_ldp1, tvb,
+                                            q + 4, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(subtree3, hf_bgp_large_communities_ldp2, tvb,
+                                            q + 8, 4, ENC_BIG_ENDIAN);
+                    wmem_strbuf_append_printf(comm_strbuf, " %u:%u:%u", ga, ldp1, ldp2);
+                    q += 12;
+                }
+
+                proto_item_append_text(ti_pa, ":%s", wmem_strbuf_get_str(comm_strbuf));
+
+                break;
             case BGPTYPE_PMSI_TUNNEL_ATTR:
                 dissect_bgp_update_pmsi_attr(pinfo, subtree2, tvb, tlen, o+i+aoff);
                 break;
@@ -8350,6 +8385,19 @@ proto_register_bgp(void)
         {"AIGP Accumulated IGP Metric", "bgp.update.attribute.aigp.accu_igp_metric", FT_UINT64, BASE_DEC,
         NULL, 0x0, NULL, HFILL}},
 
+        /* draft-ietf-idr-large-community */
+      { &hf_bgp_large_communities,
+        { "Large Communities", "bgp.large_communities", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_large_communities_ga,
+        { "Global Administrator", "bgp.large_communities.ga", FT_UINT32, BASE_DEC,
+          NULL, 0x0, "A four-octet namespace identifier. This SHOULD be an Autonomous System Number", HFILL }},
+      { &hf_bgp_large_communities_ldp1,
+        { "Local Data Part 1", "bgp.large_communities.ldp1", FT_UINT32, BASE_DEC,
+          NULL, 0x0, "A four-octet operator-defined value", HFILL }},
+      { &hf_bgp_large_communities_ldp2,
+        { "Local Data Part 2", "bgp.large_communities.ldp2", FT_UINT32, BASE_DEC,
+          NULL, 0x0, "A four-octet operator-defined value", HFILL }},
         /* RFC4456 */
        { &hf_bgp_update_path_attribute_originator_id,
         { "Originator identifier", "bgp.update.path_attribute.originator_id", FT_IPv4, BASE_NONE,
@@ -9484,6 +9532,7 @@ proto_register_bgp(void)
       &ett_bgp_mpls_labels,
       &ett_bgp_pmsi_tunnel_id,
       &ett_bgp_aigp_attr,
+      &ett_bgp_large_communities,
     };
     static ei_register_info ei[] = {
         { &ei_bgp_cap_len_bad, { "bgp.cap.length.bad", PI_MALFORMED, PI_ERROR, "Capability length is wrong", EXPFILL }},
