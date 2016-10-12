@@ -41,7 +41,7 @@
 /*
  * RakNet Protocol Constants.
  */
-#define RAKNET_OFFLINE_MESSAGE_DATA_ID "\x00\xff\xff\x00\xfe\xfe\xfe\xfe\xfd\xfd\xfd\xfd\x12\x34\x56\x78"
+guint8 RAKNET_OFFLINE_MESSAGE_DATA_ID[16] = {0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78};
 #define RAKNET_CHALLENGE_LENGTH 64
 #define RAKNET_ANSWER_LENGTH 128
 #define RAKNET_PROOF_LENGTH 32
@@ -1540,15 +1540,15 @@ dissect_raknet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 static gboolean
 test_raknet_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
-    if (tvb_strneql(tvb, 1 + 8, RAKNET_OFFLINE_MESSAGE_DATA_ID, strlen(RAKNET_OFFLINE_MESSAGE_DATA_ID)) == 0) {
+    if (tvb_memeql(tvb, 1 + 8, RAKNET_OFFLINE_MESSAGE_DATA_ID, sizeof(RAKNET_OFFLINE_MESSAGE_DATA_ID)) == 0) {
         /* ID_UNCONNECTED_PING */
         return TRUE;
     }
-    else if (tvb_strneql(tvb, 1, RAKNET_OFFLINE_MESSAGE_DATA_ID, strlen(RAKNET_OFFLINE_MESSAGE_DATA_ID)) == 0) {
+    else if (tvb_memeql(tvb, 1, RAKNET_OFFLINE_MESSAGE_DATA_ID, sizeof(RAKNET_OFFLINE_MESSAGE_DATA_ID)) == 0) {
         /* ID_OPEN_CONNECTION_REQUEST_1 */
         return TRUE;
     }
-    else if (tvb_strneql(tvb, 1 + 8 + 8, RAKNET_OFFLINE_MESSAGE_DATA_ID, strlen(RAKNET_OFFLINE_MESSAGE_DATA_ID)) == 0) {
+    else if (tvb_memeql(tvb, 1 + 8 + 8, RAKNET_OFFLINE_MESSAGE_DATA_ID, sizeof(RAKNET_OFFLINE_MESSAGE_DATA_ID)) == 0) {
         /* ID_UNCONNECTED_PONG */
         return TRUE;
     }
