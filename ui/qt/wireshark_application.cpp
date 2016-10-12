@@ -258,11 +258,17 @@ void WiresharkApplication::setMonospaceFont(const char *font_string) {
     }
 
     // http://en.wikipedia.org/wiki/Category:Monospaced_typefaces
-    // XXX Add "Ubuntu Mono Regular" http://font.ubuntu.com/
     const char *win_default_font = "Consolas";
     const char *win_alt_font = "Lucida Console";
-    const char *osx_default_font = "San Francisco Mono";
+    // SF Mono might be a system font someday. Right now (Oct 2016) it appears
+    // to be limited to Xcode and Terminal.
+    // http://www.openradar.me/26790072
+    // http://www.openradar.me/26862220
+    const char *osx_default_font = "SF Mono";
     const QStringList osx_alt_fonts = QStringList() << "Menlo" << "Monaco";
+    // XXX Detect Ubuntu systems (e.g. via /etc/os-release and/or
+    // /etc/lsb_release) and add "Ubuntu Mono Regular" there.
+    // http://font.ubuntu.com/
     const char *x11_default_font = "Liberation Mono";
     const QStringList x11_alt_fonts = QStringList() << "DejaVu Sans Mono" << "Bitstream Vera Sans Mono";
     const QStringList fallback_fonts = QStringList() << "Lucida Sans Typewriter" << "Inconsolata" << "Droid Sans Mono" << "Andale Mono" << "Courier New" << "monospace";
