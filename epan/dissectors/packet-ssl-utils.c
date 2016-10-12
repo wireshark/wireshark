@@ -6264,6 +6264,9 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     /* This version is always better than the guess at the Record Layer */
     server_version = tvb_get_ntohs(tvb, offset);
+    if((server_version & 0xFF00) == 0x7f00) { /* if server_version start with 0x7f, it is (and force) TLS 1.3 */
+        server_version = TLSV1DOT3_VERSION;
+    }
     ssl_try_set_version(session, ssl, SSL_ID_HANDSHAKE, SSL_HND_SERVER_HELLO,
             is_dtls, server_version);
     col_set_str(pinfo->cinfo, COL_PROTOCOL,
