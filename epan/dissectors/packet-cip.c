@@ -405,6 +405,12 @@ static int hf_conn_mgr_conn_open_bits = -1;
 static int hf_conn_mgr_cpu_utilization = -1;
 static int hf_conn_mgr_max_buff_size = -1;
 static int hf_conn_mgr_buff_size_remaining = -1;
+static int hf_stringi_number_char = -1;
+static int hf_stringi_language_char = -1;
+static int hf_stringi_char_string_struct = -1;
+static int hf_stringi_char_set = -1;
+static int hf_stringi_international_string = -1;
+static int hf_file_filename = -1;
 static int hf_time_sync_ptp_enable = -1;
 static int hf_time_sync_is_synchronized = -1;
 static int hf_time_sync_sys_time_micro = -1;
@@ -3443,6 +3449,8 @@ static attribute_info_t cip_attribute_vals[] = {
    {0x06, FALSE, 12, 10, "Max Buff Size", cip_udint, &hf_conn_mgr_max_buff_size, NULL },
    {0x06, FALSE, 13, 11, "Buff Size Remaining", cip_udint, &hf_conn_mgr_buff_size_remaining, NULL },
 
+    /* File Object (instance attributes) */
+   {0x37, FALSE, 4, -1, "File Name", cip_stringi, &hf_file_filename, NULL },
 
     /* Time Sync Object (class attributes) */
    {0x43, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
@@ -4903,8 +4911,87 @@ void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offset, int 
    proto_tree_add_time(tree, hf_datetime, tvb, offset, 6, &computed_time);
 }
 
-static int
-dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+int dissect_cip_string_type(packet_info *pinfo, proto_tree *tree, proto_item *item,
+    tvbuff_t *tvb, int offset, int hf_type, int string_type)
+{
+    guint32 string_size_field_len;
+    guint32 string_size;
+    guint string_encoding;
+    int parsed_len;
+    int total_len;
+
+    total_len = tvb_reported_length_remaining(tvb, offset);
+
+    switch (string_type)
+    {
+    case CIP_SHORT_STRING_TYPE:
+        string_size = tvb_get_guint8(tvb, offset);
+        string_encoding = ENC_ASCII | ENC_NA;
+        string_size_field_len = 1;
+        break;
+
+    case CIP_STRING_TYPE:
+        string_size = tvb_get_letohs(tvb, offset);
+        string_encoding = ENC_ASCII | ENC_NA;
+        string_size_field_len = 2;
+        break;
+
+    case CIP_STRING2_TYPE:
+        string_size = tvb_get_letohs(tvb, offset) * 2;
+        string_encoding = ENC_UCS_2 | ENC_LITTLE_ENDIAN;
+        string_size_field_len = 2;
+        break;
+
+    default:
+        // Unsupported.
+        return total_len;
+        break;
+    }
+
+    if (total_len < (int)(string_size + string_size_field_len))
+    {
+        expert_add_info(pinfo, item, &ei_mal_missing_string_data);
+        parsed_len = total_len;
+    }
+    else
+    {
+        proto_tree_add_item(tree, hf_type, tvb, offset + string_size_field_len, string_size, string_encoding);
+        parsed_len = string_size + string_size_field_len;
+    }
+
+    return parsed_len;
+}
+
+static int dissect_cip_stringi(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset)
+{
+    int parsed_len = 1;
+    guint32 num_char = 0;
+    proto_tree_add_item_ret_uint(tree, hf_stringi_number_char, tvb, offset, 1, ENC_LITTLE_ENDIAN, &num_char);
+
+    for (guint32 i = 0; i < num_char; ++i)
+    {
+        proto_tree_add_item(tree, hf_stringi_language_char, tvb, offset + 1, 3, ENC_ASCII | ENC_NA);
+
+        guint32 char_string_type = 0;
+        proto_tree_add_item_ret_uint(tree, hf_stringi_char_string_struct, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN, &char_string_type);
+        proto_tree_add_item(tree, hf_stringi_char_set, tvb, offset + 5, 2, ENC_LITTLE_ENDIAN);
+        parsed_len += 6;
+
+        if (char_string_type != CIP_STRING_TYPE
+            && char_string_type != CIP_SHORT_STRING_TYPE
+            && char_string_type != CIP_STRING2_TYPE)
+        {
+            // Unsupported type.
+            break;
+        }
+
+        parsed_len += dissect_cip_string_type(pinfo, tree, item, tvb, offset + parsed_len, hf_stringi_international_string, char_string_type);
+    }
+
+    return parsed_len;
+}
+
+int dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                          attribute_info_t* attr, int offset, int total_len)
 {
    int i, temp_data, temp_time, hour, min, sec, ms,
@@ -4969,31 +5056,10 @@ dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tv
       consumed = 8;
       break;
    case cip_short_string:
-      temp_data = tvb_get_guint8( tvb, offset );
-      if (total_len < temp_data + 1)
-      {
-         expert_add_info(pinfo, item, &ei_mal_missing_string_data);
-         consumed = total_len;
-      }
-      else
-      {
-         proto_tree_add_item(tree, *(attr->phf), tvb, offset+1, temp_data, ENC_ASCII|ENC_NA);
-         consumed = 1+temp_data;
-      }
+      consumed = dissect_cip_string_type(pinfo, tree, item, tvb, offset, *(attr->phf), CIP_SHORT_STRING_TYPE);
       break;
    case cip_string:
-      temp_data = tvb_get_letohs( tvb, offset );
-      if (total_len < temp_data + 2)
-      {
-         expert_add_info(pinfo, item, &ei_mal_missing_string_data);
-         consumed = total_len;
-      }
-      else
-      {
-         proto_tree_add_item(tree, *(attr->phf), tvb, offset+2, temp_data, ENC_ASCII|ENC_NA);
-         consumed = 2+temp_data;
-      }
-
+      consumed = dissect_cip_string_type(pinfo, tree, item, tvb, offset, *(attr->phf), CIP_STRING_TYPE);
       break;
    case cip_dissector_func:
       consumed = attr->pdissect(pinfo, tree, item, tvb, offset, total_len);
@@ -5023,22 +5089,12 @@ dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tv
       consumed = 4;
       break;
    case cip_string2:
-      temp_data = tvb_get_letohs(tvb, offset) * 2;
-      if (total_len < temp_data + 2)
-      {
-         expert_add_info(pinfo, item, &ei_mal_missing_string_data);
-         consumed = total_len;
-      }
-      else
-      {
-         const char* string_text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, temp_data, ENC_UCS_2 | ENC_LITTLE_ENDIAN);
-         proto_tree_add_string(tree, *(attr->phf), tvb, offset, temp_data + 2, string_text);
-
-         consumed = 2 + temp_data;
-      }
+      consumed = dissect_cip_string_type(pinfo, tree, item, tvb, offset, *(attr->phf), CIP_STRING2_TYPE);
+      break;
+   case cip_stringi:
+      consumed = dissect_cip_stringi(pinfo, tree, item, tvb, offset);
       break;
    case cip_stringN:
-   case cip_stringi:
       /* CURRENTLY NOT SUPPORTED */
       expert_add_info(pinfo, item, &ei_proto_unsupported_datatype);
       consumed = total_len;
@@ -5563,6 +5619,8 @@ void dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_
       att_tree = proto_item_add_subtree(att_item, ett_cip_get_attributes_all_item);
 
       att_size = dissect_cip_attribute(pinfo, att_tree, att_item, tvb, attr, offset, len_remain);
+      proto_item_set_len(att_item, att_size);
+
       offset += att_size;
    }
 
@@ -6772,15 +6830,15 @@ dissect_cip_class_mb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
  *
  ************************************************/
 static int
-dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int offset, int item_length, packet_info *pinfo)
+dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, proto_item *ti,
+    tvbuff_t *tvb, int offset, int item_length, packet_info *pinfo)
 {
    proto_item *pi, *confgi;
    proto_tree *tdi_tree, *iomap_tree, *epath_tree;
    proto_tree *ncp_tree, *confg_tree;
    int conn_path_size, variable_data_size = 0, config_data_size;
-   int connection_name_size, iomap_size, ot_rtf, to_rtf;
+   int iomap_size, ot_rtf, to_rtf;
    int temp_data;
-   char* str_connection_name;
 
    /* Connection flags */
    temp_data = tvb_get_letohs( tvb, offset);
@@ -6859,16 +6917,12 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
    variable_data_size += (config_data_size+2);
 
    /* Connection Name */
-   connection_name_size = tvb_get_guint8( tvb, offset+variable_data_size);
-   str_connection_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+variable_data_size+2, connection_name_size, ENC_ASCII);
-   proto_tree_add_string(cmd_tree, hf_cip_cco_connection_name, tvb, offset+variable_data_size, connection_name_size+2, str_connection_name);
-
-   variable_data_size += ((connection_name_size*2)+2);
+   variable_data_size += dissect_cip_string_type(pinfo, cmd_tree, ti, tvb, offset + variable_data_size, hf_cip_cco_connection_name, CIP_STRING2_TYPE);
 
    /* I/O Mapping */
    iomap_size = tvb_get_letohs( tvb, offset+variable_data_size+2);
 
-   iomap_tree = proto_tree_add_subtree( cmd_tree, tvb, offset+variable_data_size, iomap_size+2, ett_cco_iomap, NULL, "I/O Mapping");
+   iomap_tree = proto_tree_add_subtree( cmd_tree, tvb, offset+variable_data_size, iomap_size+4, ett_cco_iomap, NULL, "I/O Mapping");
 
    proto_tree_add_item(iomap_tree, hf_cip_cco_iomap_format_number, tvb, offset+variable_data_size, 2, ENC_LITTLE_ENDIAN );
    proto_tree_add_uint_format_value(iomap_tree, hf_cip_cco_iomap_size, tvb, offset+variable_data_size+2, 2, iomap_size, "%d (bytes)", iomap_size);
@@ -6941,7 +6995,7 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
 }
 
 static void
-dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length, packet_info *pinfo )
+dissect_cip_cco_data( proto_tree *item_tree, proto_item *ti, tvbuff_t *tvb, int offset, int item_length, packet_info *pinfo )
 {
    proto_item *rrsc_item;
    proto_tree *rrsc_tree, *cmd_data_tree, *con_st_tree;
@@ -7020,7 +7074,7 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
                   /* Extended Status */
                   proto_tree_add_item(con_st_tree, hf_cip_cco_ext_status, tvb, offset+4+add_stat_size+2, 2, ENC_LITTLE_ENDIAN);
 
-                  dissect_cip_cco_all_attribute_common( cmd_data_tree, tvb, offset+4+add_stat_size+4, item_length, pinfo);
+                  dissect_cip_cco_all_attribute_common(cmd_data_tree, ti, tvb, offset+4+add_stat_size+4, item_length, pinfo);
                }
             }
             else
@@ -7072,7 +7126,7 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
             }
 
             /* Set Attribute All (instance) request */
-            dissect_cip_cco_all_attribute_common(cmd_data_tree, tvb, offset+2+req_path_size, item_length, pinfo);
+            dissect_cip_cco_all_attribute_common(cmd_data_tree, ti, tvb, offset+2+req_path_size, item_length, pinfo);
             break;
          default:
 
@@ -7097,7 +7151,7 @@ dissect_cip_class_cco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
    ti = proto_tree_add_item(tree, proto_cip_class_cco, tvb, 0, -1, ENC_NA);
    class_tree = proto_item_add_subtree( ti, ett_cip_class_cco );
 
-   dissect_cip_cco_data( class_tree, tvb, 0, tvb_reported_length(tvb), pinfo );
+   dissect_cip_cco_data( class_tree, ti, tvb, 0, tvb_reported_length(tvb), pinfo );
 
    return tvb_reported_length(tvb);
 }
@@ -7644,6 +7698,13 @@ proto_register_cip(void)
       { &hf_conn_mgr_max_buff_size, { "Max Buff Size", "cip.cm.max_buff_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_conn_mgr_buff_size_remaining, { "Buff Size Remaining", "cip.cm.buff_remain", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
 
+      { &hf_stringi_number_char, { "Number of Characters", "cip.stringi.num", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_stringi_language_char, { "Language Chars", "cip.stringi.language_char", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_stringi_char_string_struct, { "Char String Struct", "cip.stringi.char_string_struct", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+      { &hf_stringi_char_set, { "Char Set", "cip.stringi.char_set", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_stringi_international_string, { "International String", "cip.stringi.int_string", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+
+      { &hf_file_filename, { "File Name", "cip.file.file_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
 
       { &hf_time_sync_ptp_enable, { "PTP Enable", "cip.time_sync.ptp_enable", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0, NULL, HFILL }},
       { &hf_time_sync_is_synchronized, { "Is Synchronized", "cip.time_sync.is_synchronized", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0, NULL, HFILL }},

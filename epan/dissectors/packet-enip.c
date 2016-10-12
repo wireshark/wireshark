@@ -1455,6 +1455,18 @@ dissect_tcpip_interface_config(packet_info *pinfo, proto_tree *tree, proto_item 
    return (22+domain_length);
 }
 
+static int dissect_tcpip_hostname(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+    int offset, int total_len _U_)
+{
+    int parsed_len;
+    parsed_len = dissect_cip_string_type(pinfo, tree, item, tvb, offset, hf_tcpip_hostname, CIP_STRING_TYPE);
+
+    /* Add padding. */
+    parsed_len += parsed_len % 2;
+
+    return parsed_len;
+}
+
 static int dissect_tcpip_ssn(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
@@ -2057,7 +2069,7 @@ attribute_info_t enip_attribute_vals[99] = {
    {0xF5, FALSE,  3, 2, "Configuration Control",     cip_dissector_func,   NULL, dissect_tcpip_config_control},
    {0xF5, FALSE,  4, 3, "Physical Link Object",      cip_dissector_func,   NULL, dissect_tcpip_physical_link},
    {0xF5, FALSE,  5, 4, "Interface Configuration",   cip_dissector_func,   NULL, dissect_tcpip_interface_config},
-   {0xF5, FALSE,  6, 5, "Host Name", cip_string,     &hf_tcpip_hostname,   NULL},
+   {0xF5, FALSE,  6, 5, "Host Name",                 cip_dissector_func,   NULL, dissect_tcpip_hostname},
    {0xF5, FALSE,  7, 6, "Safety Network Number", cip_dissector_func,   NULL, dissect_tcpip_ssn},
    {0xF5, FALSE,  8, 7, "TTL Value", cip_usint,      &hf_tcpip_ttl_value,  NULL},
    {0xF5, FALSE,  9, 8, "Multicast Configuration",   cip_dissector_func,   NULL, dissect_tcpip_mcast_config},
