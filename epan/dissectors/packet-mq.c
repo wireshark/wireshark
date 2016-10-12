@@ -4208,7 +4208,7 @@ void proto_register_mq(void)
         { &hf_mq_id_icf2_CanTrcRte, {"Trace Rte Capab", "mq.id.icf2.cantraceroute" , FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF2_TRACE_ROUTE_CAPABLE, "ID ICF2 Trace Route Capable", HFILL }},
 
         { &hf_mq_id_icf3_CanMsgPrp, {"Msg Property Cap", "mq.id.icf.msgprpcap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF3_MSG_PROP_CAPABLE, "ID ICF3 Message PropertyCapable", HFILL }},
-        { &hf_mq_id_icf3_Unknown02, {"Unknownx02", "mq.id.icf.unknown02", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF3_UNKNOWNX02, "ID ICF3 Unknown Falg x02", HFILL }},
+        { &hf_mq_id_icf3_Unknown02, {"Unknownx02", "mq.id.icf.unknown02", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF3_UNKNOWNX02, "ID ICF3 Unknown Flag x02", HFILL }},
 
         { &hf_mq_id_ief1_ccsid  , {"Invalid CCSID", "mq.id.ief1.ccsid", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF1_CCSID, "ID invalid CCSID", HFILL }},
         { &hf_mq_id_ief1_enc    , {"Invalid encoding", "mq.id.ief1.enc", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF1_ENCODING, "ID invalid encoding", HFILL }},
