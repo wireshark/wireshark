@@ -3562,7 +3562,7 @@ static gint parse_PortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, 
         proto_tree_add_item(PortInfo_header_tree, hf_opa_reserved32, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
 
-        /*PortErorrAction*/
+        /*PortErrorAction*/
         proto_tree_add_bitmask(PortInfo_header_tree, tvb, local_offset, hf_opa_PortInfo_PortErrorAction,
             ett_portinfo_porterroraction, _PortInfo_PortErrorAction, ENC_BIG_ENDIAN);
         local_offset += 4;
