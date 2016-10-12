@@ -8981,8 +8981,7 @@ dissect_nfs4_write_response(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 		ss_tree = proto_item_add_subtree(ss_fitem,
 				ett_nfs4_callback_stateids_sub);
-
-		offset = dissect_nfs4_netloc(tvb, offset, ss_tree);
+		offset = dissect_nfs4_stateid(tvb, offset, ss_tree, NULL);
 	}
 
 	offset = dissect_rpc_uint64(tvb, tree, hf_nfs4_length, offset);
