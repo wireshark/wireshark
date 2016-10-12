@@ -703,9 +703,13 @@ parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
     gint field_separator_offset = -1;
     gint field_number = 0;
 
+    /* initialize msh */
+    msh->trigger_event[0] ='\0';
+    msh->message_type[0] = '\0';
+
     /* e.g. MSH|^~\&|||||||XZY^IJK|||||||\r */
     field_number = 1;
-    offset += 3; // skip MSH
+    offset += 3; // skip 'MSH'
     msh->field_separator = tvb_get_guint8(tvb, offset);
     offset += 1;
     msh->component_separator = tvb_get_guint8(tvb, offset);
@@ -771,8 +775,6 @@ parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
                                                       ENC_ASCII|ENC_NA);
                     PROTO_ITEM_SET_HIDDEN(hidden_item);
                 }
-            } else {
-                msh->trigger_event[0] ='\0';
             }
         }
     }
