@@ -3222,10 +3222,11 @@
 				<gavp name="Charging-Rule-Name"/>
 				<gavp name="Service-Identifier"/>
 				<gavp name="Rating-Group"/>
-				<gavp name="Flow-Description"/>
 				<gavp name="Flow-Information"/>
+				<gavp name="TDF-Application-Identifier"/>
 				<gavp name="Flow-Status"/>
 				<gavp name="QoS-Information"/>
+				<gavp name="PS-to-CS-Session-Continuity"/>
 				<gavp name="Reporting-Level"/>
 				<gavp name="Online"/>
 				<gavp name="Offline"/>
@@ -3234,7 +3235,16 @@
 				<gavp name="AF-Charging-Identifier"/>
 				<gavp name="Flows"/>
 				<gavp name="Monitoring-Key"/>
+				<gavp name="Redirect-Information"/>
+				<gavp name="Mute-Notification"/>
 				<gavp name="AF-Signalling-Protocol"/>
+				<gavp name="Sponsor-Identity"/>
+				<gavp name="Application-Service-Provider-Identity"/>
+				<gavp name="Required-Access-Info"/>
+				<gavp name="Sharing-Key-DL">
+				<gavp name="Sharing-Key-UL">
+				<gavp name="Traffic-Steering-Policy-Identifier-DL"/>
+				<gavp name="Traffic-Steering-Policy-Identifier-UL"/>
 			</grouped>
 		</avp>
 		<avp name="Charging-Rule-Base-Name" code="1004" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
@@ -3779,6 +3789,7 @@
 			<grouped>
 				<gavp name="ADC-Rule-Name"/>
 				<gavp name="TDF-Application-Identifier"/>
+				<gavp name="Flow-Information"/>
 				<gavp name="Service-Identifier"/>
 				<gavp name="Rating-Group"/>
 				<gavp name="Reporting-Level"/>
@@ -3791,6 +3802,9 @@
 				<gavp name="Monitoring-Key"/>
 				<gavp name="Redirect-Information"/>
 				<gavp name="Mute-Notification"/>
+				<gavp name="Traffic-Steering-Policy-Identifier-DL"/>
+				<gavp name="Traffic-Steering-Policy-Identifier-UL"/>
+				<gavp name="ToS-Traffic-Class">
 			</grouped>
 		</avp>
 		<avp name="ADC-Rule-Base-Name" code="1095" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
@@ -3815,9 +3829,10 @@
 				<gavp name="Flow-Information"/>
 			</grouped>
 		</avp>
-		<!--
-		1099 PS-to-CS-Session-Continuity Enumerated
-		-->
+		<avp name="PS-to-CS-Session-Continuity" code="1099" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="VIDEO_PS2CS_CONT_CANDIDATE" code="0"/>
+		</avp>
 		<!-- Note: The AVP codes from 1085 to 1099 are reserved for TS 29.212 -->
 
 		<!-- ETSI TS 129 140 V6.3.0 (2005-12) -->
