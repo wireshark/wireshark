@@ -88,25 +88,33 @@ must be set appropriately.
 === Qt
 
 The Qt library is used to build the UI for Wireshark and is used to provide a
-platform independent UI.
+platform independent UI. Wireshark can be built with Qt 4.7.0 or later, but we
+recommend using Qt5.
+
 For more information on the Qt libraries, see <<ChUIQt>>.
 
 [[ChLibsUnixQt]]
 
 ==== Unix
 
-TBD.
+Most Linux distributions provide Qt and its development libraries as standard packages.
+The required libraries and tools will likely be split across several packages. For example,
+building on Ubuntu requires 'qttools5-dev', 'qttools5-dev-tools', 'libqt5svg5-dev,
+'qtmultimedia5-dev', and possibly others.
+
+The Qt Project provides an installation tool for macOS, similar to Windows.
+It is available at https://www.qt.io/download-open-source/#section-2[].
 
 [[ChLibsWin32Qt]]
 
 ==== Win32 MSVC
 
 Qt5 must be installed manually, from the Qt installers page
-http://www.qt.io/download-open-source/#section-2[], using the version of Qt
+https://www.qt.io/download-open-source/#section-2[], using the version of Qt
 appropriate for your compiler.  Note that separate installations (into different directories) of Qt
 are required for 32 bit and 64 bit builds.  The environment variable QT5_BASE_DIR should be
 set as appropriate for your environment and should point to the Qt directory that contains the
-bin directory, e.g. C:\Qt\Qt5.5.0\5.5\msvc2013
+bin directory, e.g. C:\Qt\Qt5.6.2\5.6\msvc2013
 
 [[ChLibsGtk]]
 
