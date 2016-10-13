@@ -32,6 +32,9 @@ The following bugs have been fixed:
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.8rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+The Windows PortableApps packages were susceptible to a
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12724[DLL hijacking flaw].
+
 === New and Updated Features
 
 There are no new features in this release.
