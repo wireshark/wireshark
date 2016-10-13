@@ -457,15 +457,6 @@ B<-S> flag).
 
 List the data link types supported by the interface and exit.
 
-=item -m  E<lt>fontE<gt>
-
-GTK+ only. Deprecated.
-
-Set the name of the monospace font used in the packet list, packet detail,
-packet bytes, and other views. This option is deprecated and will be removed
-in a future version of Wireshark. Use B<-o gui.qt.font_name> or
-B<-o gui.gtk2.font_name> instead.
-
 =item -n
 
 Disable network object name resolution (such as hostname, TCP and UDP port

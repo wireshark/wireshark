@@ -472,10 +472,6 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                 arg_error = TRUE;
 #endif
                 break;
-            case 'm':        /* Fixed-width font for the display. GTK+ only. */
-                g_free(global_commandline_info.prefs_p->gui_gtk2_font_name);
-                global_commandline_info.prefs_p->gui_gtk2_font_name = g_strdup(optarg);
-                break;
             case 'n':        /* No name resolution */
                 disable_name_resolution();
                 break;
