@@ -898,7 +898,7 @@ indexing_done:
 						int_val_offset++;
 					}
 				}
-				proto_tree_add_int64(pt_varbind, hf_snmp_integer32_value, tvb,value_offset,value_len, val);
+				pi_value = proto_tree_add_int64(pt_varbind, hf_snmp_integer32_value, tvb,value_offset,value_len, val);
 
 				goto already_added;
 			}
