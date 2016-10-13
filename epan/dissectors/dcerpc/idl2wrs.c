@@ -3202,14 +3202,14 @@ readcnffile(FILE *fh)
 			register_hf_rename(old_name, new_name);
 		} else if(!strncmp(cnfline, "UNION_TAG_SIZE", 14)){
 			char *union_name, *union_tag;
-			int union_tag_size;
+			gint32 union_tag_size;
 			union_tag_size_item_t *utsi;
 			char *str;
 
 			str=cnfline+14;
 			str=str_read_string(str, &union_name);
 			str_read_string(str, &union_tag);
-			if (!ws_strtoi32(union_tag, NULL, union_tag_size)) {
+			if (!ws_strtoi32(union_tag, NULL, &union_tag_size)) {
 				FPRINTF(NULL, "UNION_TAG_SIZE: invalid string: %s\n", union_tag);
 				exit(10);
 			}
