@@ -731,7 +731,7 @@ static const erf_meta_hf_template_t erf_meta_tags[] = {
   { ERF_META_TAG_cpu_phys_cores,    { "CPU Physical Cores",                 "cpu_phys_cores",    FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_cpu_numa_nodes,    { "CPU NUMA Nodes",                     "cpu_numa_nodes",    FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_dag_attribute,     { "DAG Attribute",                      "dag_attribute",     FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
-  { ERF_META_TAG_dag_version,       { "DAG Software Version",               "dag_attribute",     FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_dag_version,       { "DAG Software Version",               "dag_version",       FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
 
   { ERF_META_TAG_if_num,            { "Interface Number",                   "if_num",            FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_if_vc,             { "Interface Virtual Circuit",          "if_vc",             FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
@@ -1533,15 +1533,6 @@ dissect_flow_id_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
   }
 }
 
-static guint64
-find_host_id(packet_info *pinfo) {
-  guint64 *hdr = NULL;
-
-  hdr = erf_get_ehdr(pinfo, ERF_EXT_HDR_TYPE_HOST_ID, NULL);
-
-  return hdr ? (*hdr & ERF_EHDR_HOST_ID_MASK) : 0;
-}
-
 static void
 dissect_host_id_source_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint64 host_id, guint8 source_id)
 {
@@ -1884,26 +1875,8 @@ dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   int         i        = 0;
   int         max      = sizeof(pinfo->pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
 
-  guint64     host_id        = 0;
+  guint64     host_id        = ERF_META_HOST_ID_IMPLICIT;
   guint8      source_id      = 0;
-  guint64     host_id_last   = 0;
-  guint8      source_id_last = 0;
-
-  /*
-   * Get the first Host ID of the record (which may not be the first extension
-   * header).
-   */
-  host_id = find_host_id(pinfo);
-  if (host_id == 0) {
-    /*
-     * XXX: We are relying here on the Wireshark doing a second parse any
-     * time it does anything with tree items (including filtering) to associate
-     * the records before the first ERF_TYPE_META record. This does not work
-     * with TShark in one-pass mode, in which case the first few records get
-     * Host ID 0 (unset).
-     */
-    host_id = erf_state.implicit_host_id;
-  }
 
   while(has_more && (i < max)) {
     hdr = pinfo->pseudo_header->erf.ehdr_list[i].ehdr;
@@ -1932,25 +1905,17 @@ dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
       dissect_signature_ex_header(tvb, pinfo, ehdr_tree, i);
       break;
     case ERF_EXT_HDR_TYPE_FLOW_ID:
-      source_id = (guint8)((hdr >> 48) & 0xFF);
+      if (source_id == 0) {
+        source_id = (guint8)((hdr >> 48) & 0xFF);
+      }
       dissect_flow_id_ex_header(tvb, pinfo, ehdr_tree, i);
       break;
     case ERF_EXT_HDR_TYPE_HOST_ID:
       host_id = hdr & ERF_EHDR_HOST_ID_MASK;
       source_id = (guint8)((hdr >> 48) & 0xFF);
       dissect_host_id_ex_header(tvb, pinfo, ehdr_tree, i);
-      break;
-    default:
-      dissect_unknown_ex_header(tvb, pinfo, ehdr_tree, i);
-      break;
-    }
 
-    /* Track and dissect combined Host ID and Source ID(s) */
-    if (source_id != source_id_last || host_id != host_id_last) {
-      /*
-       * TODO: Do we also want to track Host ID 0 Source ID 0 records? These
-       * are technically unassociated.
-       */
+      /* Track and dissect combined Host ID and Source ID(s) */
       if (!PINFO_FD_VISITED(pinfo)) {
         if ((pinfo->pseudo_header->erf.phdr.type & 0x7f) == ERF_TYPE_META) {
           /* Update the implicit Host ID when ERF_TYPE_META */
@@ -1963,12 +1928,12 @@ dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
           erf_source_append(host_id, source_id, pinfo->num);
         }
       }
-
       dissect_host_id_source_id(tvb, pinfo, tree, host_id, source_id);
+      break;
+    default:
+      dissect_unknown_ex_header(tvb, pinfo, ehdr_tree, i);
+      break;
     }
-
-    host_id_last = host_id;
-    source_id_last = source_id;
 
     has_more = type & 0x80;
     i += 1;
@@ -1977,6 +1942,33 @@ dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     proto_tree_add_expert(tree, pinfo, &ei_erf_extension_headers_not_shown, tvb, 0, 0);
   }
 
+  /* If we have no explicit Host ID association, associate with the first Source ID (or 0) and implicit Host ID */
+  /* XXX: We are allowed to assume there is only one Source ID unless we have
+   * a Host ID extension header */
+  if (host_id == ERF_META_HOST_ID_IMPLICIT) {
+    /*
+     * XXX: We are relying here on the Wireshark doing a second parse any
+     * time it does anything with tree items (including filtering) to associate
+     * the records before the first ERF_TYPE_META record. This does not work
+     * with TShark in one-pass mode, in which case the first few records get
+     * Host ID 0 (unset).
+     */
+    host_id = erf_state.implicit_host_id;
+
+    /*
+     * TODO: Do we also want to track Host ID 0 Source ID 0 records?
+     * Don't for now to preserve feel of legacy files.
+     */
+    if (host_id != 0 || source_id != 0) {
+      if (!PINFO_FD_VISITED(pinfo)) {
+        if ((pinfo->pseudo_header->erf.phdr.type & 0x7f) == ERF_TYPE_META) {
+          /* Add to the sequence of ERF_TYPE_META records */
+          erf_source_append(host_id, source_id, pinfo->num);
+        }
+      }
+      dissect_host_id_source_id(tvb, pinfo, tree, host_id, source_id);
+    }
+  }
 }
 
 guint64* erf_get_ehdr(packet_info *pinfo, guint8 hdrtype, gint* afterindex) {

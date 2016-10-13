@@ -193,7 +193,7 @@ erf_t *erf_priv_create(void)
 
   erf_priv = (erf_t*) g_malloc(sizeof(erf_t));
   erf_priv->if_map = g_hash_table_new_full(erf_if_mapping_hash, erf_if_mapping_equal, erf_if_mapping_destroy, NULL);
-  erf_priv->implicit_host_id = 0;
+  erf_priv->implicit_host_id = ERF_META_HOST_ID_IMPLICIT;
   erf_priv->capture_metadata = FALSE;
   erf_priv->host_metadata = FALSE;
 
@@ -492,7 +492,7 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
   int     i       = 0;
   int     max     = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
 
-  guint64 host_id  = 0;
+  guint64 host_id  = ERF_META_HOST_ID_IMPLICIT;
   guint8 source_id = 0;
   guint8 if_num    = 0;
   gboolean host_id_found = FALSE;
@@ -1001,7 +1001,7 @@ int erf_get_source_from_header(union wtap_pseudo_header *pseudo_header, guint64 
   if (!pseudo_header || !host_id || !source_id)
       return -1;
 
-  *host_id = 0;
+  *host_id = ERF_META_HOST_ID_IMPLICIT;
   *source_id = 0;
 
   has_more = pseudo_header->erf.phdr.type & 0x80;
@@ -1076,6 +1076,11 @@ static void erf_set_interface_descr(wtap_block_t block, guint option_id, guint64
   sourceid_buf[0] = '\0';
   hostid_buf[0] = '\0';
 
+  /* Implicit Host ID defaults to 0 */
+  if (host_id == ERF_META_HOST_ID_IMPLICIT) {
+    host_id = 0;
+  }
+
   if (host_id > 0) {
     g_snprintf(hostid_buf, sizeof(hostid_buf), " Host %012" G_GINT64_MODIFIER "x,", host_id);
   }
@@ -1099,6 +1104,10 @@ static int erf_update_implicit_host_id(erf_t *erf_priv, wtap *wth, guint64 impli
   GList* item = NULL;
   wtap_block_t int_data;
   struct erf_if_mapping* if_map = NULL;
+  struct erf_if_mapping* if_map_other = NULL;
+  struct erf_if_info* if_info = NULL;
+  gchar *oldstr = NULL;
+  char portstr_buf[16];
   int i;
 
   if (!erf_priv)
@@ -1115,26 +1124,79 @@ static int erf_update_implicit_host_id(erf_t *erf_priv, wtap *wth, guint64 impli
   /* Remove the implicit mappings from the mapping table */
   while (g_hash_table_iter_next(&iter, &iter_value, NULL)) {
     if_map = (struct erf_if_mapping*) iter_value;
-    if (if_map->host_id == 0) {
-      /* XXX: Can't add while iterating hash table so use list instead */
-      g_hash_table_iter_steal(&iter);
-      implicit_list = g_list_append(implicit_list, if_map);
+
+    if (if_map->host_id == ERF_META_HOST_ID_IMPLICIT) {
+      /* Check we don't have an existing interface that matches */
+      if_map_other = erf_find_interface_mapping(erf_priv, implicit_host_id, if_map->source_id);
+
+      if (!if_map_other) {
+        /* Pull mapping for update */
+        /* XXX: Can't add while iterating hash table so use list instead */
+        g_hash_table_iter_steal(&iter);
+        implicit_list = g_list_append(implicit_list, if_map);
+      } else {
+        /*
+         * XXX: We have duplicate interfaces in this case, but not much else we
+         * can do since we have already dissected the earlier packets. Expected
+         * to be unusual as it reqires a mix of explicit and implicit Host ID
+         * (e.g. FlowID extension header only) packets with the same effective
+         * Host ID before the first ERF_TYPE_META record.
+         */
+
+        /*
+         * Update the description of the ERF_META_HOST_ID_IMPLICIT interface(s)
+         * for the first records in one pass mode. In 2 pass mode (Wireshark
+         * initial open, TShark in 2 pass mode) we will update the interface
+         * mapping for the frames on the second pass. Relatively consistent
+         * with the dissector behaviour.
+         *
+         * TODO: Can we delete this interface on the second (or even first)
+         * pass? Should we try to merge in other metadata?
+         * Needs a wtap_block_copy() that supports overwriting and/or expose
+         * custom option copy and do with wtap_block_foreach_option().
+         */
+        for (i = 0; i < 4; i++) {
+          if_info = &if_map->interfaces[i];
+
+          if (if_info->if_index >= 0) {
+            /* XXX: this is a pointer! */
+            int_data = g_array_index(wth->interface_data, wtap_block_t, if_info->if_index);
+
+            g_snprintf(portstr_buf, sizeof(portstr_buf), "Port %c", 'A'+i);
+
+            oldstr = if_info->name;
+            if_info->name = g_strconcat(oldstr ? oldstr : portstr_buf, " [unmatched implicit]", NULL);
+            g_free(oldstr); /* probably null, but g_free doesn't care */
+
+            oldstr = if_info->descr;
+            if_info->descr = g_strconcat(oldstr ? oldstr : portstr_buf, " [unmatched implicit]", NULL);
+            g_free(oldstr);
+
+            erf_set_interface_descr(int_data, OPT_IDB_NAME, implicit_host_id, if_map->source_id, (guint8) i, if_info->name);
+            erf_set_interface_descr(int_data, OPT_IDB_DESCR, implicit_host_id, if_map->source_id, (guint8) i, if_info->descr);
+          }
+        }
+      }
     }
   }
 
+  /* Re-add the non-clashing items under the real implicit Host ID */
   if (implicit_list) {
     item = implicit_list;
     do {
       if_map = (struct erf_if_mapping*) item->data;
+
       for (i = 0; i < 4; i++) {
-        if (if_map->interfaces[i].if_index >= 0) {
+        if_info = &if_map->interfaces[i];
+
+        if (if_info->if_index >= 0) {
           /* XXX: this is a pointer! */
-          int_data = g_array_index(wth->interface_data, wtap_block_t, if_map->interfaces[i].if_index);
-          erf_set_interface_descr(int_data, OPT_IDB_NAME, implicit_host_id, if_map->source_id, (guint8) i, if_map->interfaces[i].name);
-          erf_set_interface_descr(int_data, OPT_IDB_DESCR, implicit_host_id, if_map->source_id, (guint8) i, if_map->interfaces[i].descr);
+          int_data = g_array_index(wth->interface_data, wtap_block_t, if_info->if_index);
+          erf_set_interface_descr(int_data, OPT_IDB_NAME, implicit_host_id, if_map->source_id, (guint8) i, if_info->name);
+          erf_set_interface_descr(int_data, OPT_IDB_DESCR, implicit_host_id, if_map->source_id, (guint8) i, if_info->descr);
         }
       }
-      /* Re-add the item under the implicit Host ID */
+
       if_map->host_id = implicit_host_id;
       /* g_hash_table_add() only exists since 2.32. */
       g_hash_table_replace(erf_priv->if_map, if_map, if_map);
@@ -1155,20 +1217,19 @@ int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header 
   if (!wth || !pseudo_header || !erf_priv || if_num > 3)
     return -1;
 
-  if ((pseudo_header->erf.phdr.type & 0x7f) == ERF_TYPE_META) {
+  if (host_id == ERF_META_HOST_ID_IMPLICIT) {
+    /* Defaults to ERF_META_HOST_ID_IMPLICIT so we can update mapping later */
+    host_id = erf_priv->implicit_host_id;
+  } else if ((pseudo_header->erf.phdr.type & 0x7f) == ERF_TYPE_META) {
     /*
      * XXX: We assume there is only one Implicit Host ID. As a special case a first
      * Host ID extension header with Source ID 0 on a record does not change
      * the implicit Host ID. We respect this even though we support only one
      * Implicit Host ID.
      */
-    if (erf_priv->implicit_host_id == 0 && source_id > 0 && host_id != 0) {
+    if (erf_priv->implicit_host_id == ERF_META_HOST_ID_IMPLICIT && source_id > 0) {
       erf_update_implicit_host_id(erf_priv, wth, host_id);
     }
-  }
-
-  if (host_id == 0) {
-    host_id = erf_priv->implicit_host_id;
   }
 
   if_map = erf_find_interface_mapping(erf_priv, host_id, source_id);
