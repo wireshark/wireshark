@@ -21,6 +21,9 @@ A dissector went awry.
 // Fixed in master-2.2: XXXX
 // Fixed in master-2.0: XXXX
 
+The Windows PortableApps packages were susceptible to a
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12724[DLL hijacking flaw].
+
 The following bugs have been fixed:
 
 //* ws-buglink:5000[]
