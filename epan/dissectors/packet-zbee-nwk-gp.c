@@ -103,6 +103,9 @@ typedef struct {
     /* Src ID. */
     guint32 source_id;
 
+    /* GPD Endpoint */
+    guint8 endpoint;
+
     /* Security Frame Counter. */
     guint32 security_frame_counter;
 
@@ -212,6 +215,9 @@ static int hf_zbee_nwk_gp_fc_ext_sec_level = -1;
 
 /* ZGPD Src ID. */
 static int hf_zbee_nwk_gp_zgpd_src_id = -1;
+
+/* ZGPD Endpoint */
+static int hf_zbee_nwk_gp_zgpd_endpoint = -1;
 
 /* Security frame counter. */
 static int hf_zbee_nwk_gp_security_frame_counter = -1;
@@ -1245,18 +1251,29 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         col_append_fstr(pinfo->cinfo, COL_INFO, ", GPD Src ID: 0x%04x", packet.source_id);
         offset += 4;
     }
+    if (packet.application_id == ZBEE_NWK_GP_APP_ID_ZGP) {
+        /* Display GPD endpoint */
+        packet.endpoint = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(nwk_tree, hf_zbee_nwk_gp_zgpd_endpoint, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_item_append_text(proto_root, ", Endpoint: %d", packet.endpoint);
+
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Endpoint: %d", packet.endpoint);
+        offset += 1;
+    }
     /* Display Security Frame Counter. */
     packet.mic_size = 0;
     if (packet.nwk_frame_control_extension) {
-        if (packet.application_id == ZBEE_NWK_GP_APP_ID_DEFAULT || packet.application_id == ZBEE_NWK_GP_APP_ID_ZGP) {
-            if (packet.security_level == ZBEE_NWK_GP_SECURITY_LEVEL_1LSB) {
+        if (packet.application_id == ZBEE_NWK_GP_APP_ID_DEFAULT || packet.application_id == ZBEE_NWK_GP_APP_ID_ZGP
+            || packet.application_id == ZBEE_NWK_GP_APP_ID_LPED) {
+            if (packet.security_level == ZBEE_NWK_GP_SECURITY_LEVEL_1LSB
+                && packet.application_id != ZBEE_NWK_GP_APP_ID_LPED) {
                 packet.mic_size = 2;
             } else if (packet.security_level == ZBEE_NWK_GP_SECURITY_LEVEL_FULL || packet.security_level ==
                 ZBEE_NWK_GP_SECURITY_LEVEL_FULLENCR) {
                 /* Get Security Frame Counter and display it. */
                 packet.mic_size = 4;
                 packet.security_frame_counter = tvb_get_letohl(tvb, offset);
-                    proto_tree_add_item(nwk_tree, hf_zbee_nwk_gp_security_frame_counter, tvb, offset, 4,
+                proto_tree_add_item(nwk_tree, hf_zbee_nwk_gp_security_frame_counter, tvb, offset, 4,
                     ENC_LITTLE_ENDIAN);
                 offset += 4;
             }
@@ -1455,6 +1472,9 @@ proto_register_zbee_nwk_gp(void)
         { &hf_zbee_nwk_gp_zgpd_src_id,
             { "Src ID", "zbee_nwk_gp.source_id", FT_UINT32, BASE_HEX, VALS(zbee_nwk_gp_src_id_names), 0x0, NULL,
                 HFILL }},
+
+        { &hf_zbee_nwk_gp_zgpd_endpoint,
+            { "Endpoint", "zbee_nwk_gp.endpoint", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_zbee_nwk_gp_security_frame_counter,
             { "Security Frame Counter", "zbee_nwk_gp.security_frame_counter", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
