@@ -4296,14 +4296,13 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             have_seen_data_header = TRUE;
             expecting_body_data = TRUE;
         }
-        if (lcids[number_of_headers] == SC_MCCH_SC_MTCH_LCID) {
+        if ((p_mac_lte_info->direction == DIRECTION_DOWNLINK) && (lcids[number_of_headers] == SC_MCCH_SC_MTCH_LCID)) {
             have_seen_sc_mcch_sc_mtch_header = TRUE;
         }
 
         /* Show an expert item if a control subheader (except Padding) appears
            *after* a data PDU */
-        if (have_seen_data_header && (lcids[number_of_headers] > 10) &&
-            (lcids[number_of_headers] != PADDING_LCID) && (lcids[number_of_headers] != SC_MCCH_SC_MTCH_LCID)) {
+        if (have_seen_data_header && (lcids[number_of_headers] > 10) && (lcids[number_of_headers] != PADDING_LCID)) {
             expert_add_info_format(pinfo, lcid_ti, &ei_mac_lte_control_subheader_after_data_subheader,
                                    "%cL-SCH control subheaders should not appear after data subheaders",
                                    (p_mac_lte_info->direction == DIRECTION_UPLINK) ? 'U' : 'D');
@@ -4512,7 +4511,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     for (n=0; n < number_of_headers; n++) {
         /* Get out of loop once see any data SDU subheaders */
-        if ((lcids[n] <= 10) || (lcids[n] == SC_MCCH_SC_MTCH_LCID)) {
+        if ((lcids[n] <= 10) ||
+            ((p_mac_lte_info->direction == DIRECTION_DOWNLINK) && (lcids[n] == SC_MCCH_SC_MTCH_LCID))) {
             break;
         }
 
