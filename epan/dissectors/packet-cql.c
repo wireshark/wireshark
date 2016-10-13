@@ -45,6 +45,7 @@ static int hf_cql_version = -1;
 static int hf_cql_flags_bitmap = -1;
 static int hf_cql_flag_compression = -1;
 static int hf_cql_flag_tracing = -1;
+static int hf_cql_flag_reserved3 = -1;
 static int hf_cql_stream = -1;
 static int hf_cql_opcode = -1;
 static int hf_cql_length = -1;
@@ -76,6 +77,7 @@ static int hf_cql_error_code = -1;
 static int hf_cql_result_kind = -1;
 static int hf_cql_result_rows_data_type = -1;
 
+static int hf_cql_query_flags_bitmap = -1;
 static int hf_cql_query_flags_values = -1;
 static int hf_cql_query_flags_skip_metadata = -1;
 static int hf_cql_query_flags_page_size = -1;
@@ -83,7 +85,7 @@ static int hf_cql_query_flags_paging_state = -1;
 static int hf_cql_query_flags_serial_consistency = -1;
 static int hf_cql_query_flags_default_timestamp = -1;
 static int hf_cql_query_flags_names_for_values = -1;
-
+static int hf_cql_query_flags_reserved3 = -1;
 
 static int hf_cql_result_rows_flags_values = -1;
 static int hf_cql_result_rows_flag_global_tables_spec = -1;
@@ -103,7 +105,8 @@ static int ett_cql_message = -1;
 static int ett_cql_result_columns = -1;
 static int ett_cql_result_metadata = -1;
 static int ett_cql_result_rows = -1;
-
+static int ett_cql_header_flags_bitmap = -1;
+static int ett_cql_query_flags_bitmap = -1;
 
 static int hf_cql_response_in = -1;
 static int hf_cql_response_to = -1;
@@ -167,8 +170,9 @@ static const value_string cql_opcode_names[] = {
 
 
 typedef enum {
-	CQL_FLAG_COMPRESSION = 0x01,
-	CQL_FLAG_TRACING = 0x02
+	CQL_HEADER_FLAG_COMPRESSION = 0x01,
+	CQL_HEADER_FLAG_TRACING = 0x02,
+	CQL_HEADER_FLAG_V3_RESERVED = 0xFC
 } cql_flags;
 
 typedef enum {
@@ -178,7 +182,8 @@ typedef enum {
 	CQL_QUERY_FLAG_PAGING_STATE = 0x08,
 	CQL_QUERY_FLAG_SERIAL_CONSISTENCY = 0x10,
 	CQL_QUERY_FLAG_DEFAULT_TIMESTAMP = 0x20,
-	CQL_QUERY_FLAG_VALUE_NAMES = 0x40
+	CQL_QUERY_FLAG_VALUE_NAMES = 0x40,
+	CQL_QUERY_FLAG_V3_RESERVED = 0x80
 } cql_query_flags;
 
 
@@ -319,7 +324,7 @@ dissect_cql_query_parameters(proto_tree* cql_subtree, tvbuff_t* tvb, gint offset
 	guint32 string_length = 0;
 	guint32 value_count = 0;
 
-	static const int * bitmaps[] = {
+	static const int * cql_query_bitmaps[] = {
 		&hf_cql_query_flags_values,
 		&hf_cql_query_flags_skip_metadata,
 		&hf_cql_query_flags_page_size,
@@ -327,6 +332,7 @@ dissect_cql_query_parameters(proto_tree* cql_subtree, tvbuff_t* tvb, gint offset
 		&hf_cql_query_flags_serial_consistency,
 		&hf_cql_query_flags_default_timestamp,
 		&hf_cql_query_flags_names_for_values,
+		&hf_cql_query_flags_reserved3,
 		NULL
 	};
 
@@ -335,7 +341,7 @@ dissect_cql_query_parameters(proto_tree* cql_subtree, tvbuff_t* tvb, gint offset
 	offset += 2;
 
 	/* flags */
-	proto_tree_add_bitmask(cql_subtree, tvb, offset, hf_cql_flags_bitmap, hf_cql_flags_bitmap, bitmaps, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(cql_subtree, tvb, offset, hf_cql_query_flags_bitmap, ett_cql_query_flags_bitmap, cql_query_bitmaps, ENC_BIG_ENDIAN);
 	flags = tvb_get_guint8(tvb, offset);
 	offset += 1;
 
@@ -517,9 +523,10 @@ dissect_cql_tcp_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
 	cql_conversation_type* cql_conv;
 	cql_transaction_type* cql_trans = NULL;
 
-	static const int * bitmaps[] = {
+	static const int * cql_header_bitmaps_v3[] = {
 		&hf_cql_flag_compression,
 		&hf_cql_flag_tracing,
+		&hf_cql_flag_reserved3,
 		NULL
 	};
 
@@ -550,7 +557,7 @@ dissect_cql_tcp_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
 
 	proto_tree_add_item(cql_tree, hf_cql_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_bitmask(cql_tree, tvb, offset, hf_cql_flags_bitmap, hf_cql_flags_bitmap, bitmaps, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(cql_tree, tvb, offset, hf_cql_flags_bitmap, ett_cql_header_flags_bitmap, cql_header_bitmaps_v3, ENC_BIG_ENDIAN);
 	offset += 1;
 	proto_tree_add_item_ret_int(cql_tree, hf_cql_stream, tvb, offset, 2, ENC_BIG_ENDIAN, &stream);
 	offset += 2;
@@ -999,7 +1006,7 @@ proto_register_cql(void)
 			{
 				"Compression", "cql.flags.compression",
 				FT_BOOLEAN, 8,
-				NULL, CQL_FLAG_COMPRESSION,
+				NULL, CQL_HEADER_FLAG_COMPRESSION,
 				NULL, HFILL
 			}
 		},
@@ -1008,7 +1015,25 @@ proto_register_cql(void)
 			{
 				"Tracing", "cql.flags.tracing",
 				FT_BOOLEAN, 8,
-				NULL, CQL_FLAG_TRACING,
+				NULL, CQL_HEADER_FLAG_TRACING,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_flag_reserved3,
+			{
+				"Reserved", "cql.flags.reserved",
+				FT_UINT8, BASE_HEX,
+				NULL, CQL_HEADER_FLAG_V3_RESERVED,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_query_flags_bitmap,
+			{
+				"Flags", "cql.query.flags",
+				FT_UINT8, BASE_HEX,
+				NULL, 0x0,
 				NULL, HFILL
 			}
 		},
@@ -1072,6 +1097,15 @@ proto_register_cql(void)
 				"Serial Consistency", "cql.query.flags.serial_consistency",
 				FT_BOOLEAN, 8,
 				NULL, CQL_QUERY_FLAG_SERIAL_CONSISTENCY,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_query_flags_reserved3,
+			{
+				"Reserved", "cql.query_flags.reserved",
+				FT_UINT8, BASE_HEX,
+				NULL, CQL_QUERY_FLAG_V3_RESERVED,
 				NULL, HFILL
 			}
 		},
@@ -1375,7 +1409,9 @@ proto_register_cql(void)
 		&ett_cql_message,
 		&ett_cql_result_columns,
 		&ett_cql_result_metadata,
-		&ett_cql_result_rows
+		&ett_cql_result_rows,
+		&ett_cql_header_flags_bitmap,
+		&ett_cql_query_flags_bitmap,
 	};
 
 	proto_cql = proto_register_protocol("Cassandra CQL Protocol", "CQL", "cql" );
