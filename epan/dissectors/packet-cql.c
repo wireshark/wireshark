@@ -42,6 +42,8 @@ void proto_register_cql(void);
 static int proto_cql = -1;
 /* CQL header frame fields */
 static int hf_cql_version = -1;
+static int hf_cql_protocol_version = -1;
+static int hf_cql_direction = -1;
 /* CQL header frame fields */
 static int hf_cql_flags_bitmap = -1;
 static int hf_cql_flag_compression = -1;
@@ -105,6 +107,7 @@ static int hf_cql_string_result_rows_column_name = -1;
 static int hf_cql_result_rows_row_count = -1;
 
 static int ett_cql_protocol = -1;
+static int ett_cql_version = -1;
 static int ett_cql_message = -1;
 static int ett_cql_result_columns = -1;
 static int ett_cql_result_metadata = -1;
@@ -131,6 +134,13 @@ typedef struct _cql_transaction_type {
 typedef struct _cql_conversation_info_type {
 	wmem_map_t* streams;
 } cql_conversation_type;
+
+static const value_string cql_direction_names[] = {
+	{ 0x0, "Request" },
+	{ 0x8, "Response" },
+	{ 0x0, NULL }
+};
+
 
 typedef enum {
 	CQL_OPCODE_ERROR = 0x00,
@@ -510,6 +520,7 @@ dissect_cql_tcp_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
 {
 	proto_item* ti;
 	proto_tree* cql_tree;
+	proto_tree* version_tree;
 	proto_tree* cql_subtree = NULL;
 	proto_tree* rows_subtree = NULL;
 	proto_tree* metadata_subtree = NULL;
@@ -579,7 +590,10 @@ dissect_cql_tcp_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
 	ti = proto_tree_add_item(tree, proto_cql, tvb, 0, -1, ENC_NA);
 	cql_tree = proto_item_add_subtree(ti, ett_cql_protocol);
 
-	proto_tree_add_item(cql_tree, hf_cql_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(cql_tree, hf_cql_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+	version_tree = proto_item_add_subtree(ti, ett_cql_version);
+	proto_tree_add_item(version_tree, hf_cql_protocol_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(version_tree, hf_cql_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	switch(cql_version){
 		case 3:
@@ -987,9 +1001,27 @@ proto_register_cql(void)
 			&hf_cql_version,
 			{
 				"Version", "cql.version",
-				FT_UINT8, BASE_DEC,
+				FT_UINT8, BASE_HEX,
 				NULL, 0x0,
 				"CQL protocol version (not language version)", HFILL
+			}
+		},
+		{
+			&hf_cql_protocol_version,
+			{
+				"Protocol version", "cql.protocol_version",
+				FT_UINT8, BASE_DEC,
+				NULL, 0x0F,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_direction,
+			{
+				"Direction", "cql.direction",
+				FT_UINT8, BASE_HEX,
+				VALS(cql_direction_names), 0xF0,
+				NULL, HFILL
 			}
 		},
 		{
@@ -1469,6 +1501,7 @@ proto_register_cql(void)
 
 	static gint* ett[] = {
 		&ett_cql_protocol,
+		&ett_cql_version,
 		&ett_cql_message,
 		&ett_cql_result_columns,
 		&ett_cql_result_metadata,
