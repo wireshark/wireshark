@@ -70,6 +70,7 @@ private:
 
     QAbstractButton * createButton(QString text, QString property = QString(), QVariant content = QVariant());
     void resetInterfaceButtons();
+    void resetInterfaceTreeDisplay();
 
     Ui::InterfaceFrame *ui;
 

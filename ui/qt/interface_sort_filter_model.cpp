@@ -146,6 +146,7 @@ void InterfaceSortFilterModel::setInterfaceTypeVisible(int ifType, bool visible)
 
     prefs_main_write();
 
+    invalidateFilter();
     invalidate();
 }
 
@@ -236,6 +237,20 @@ QModelIndex InterfaceSortFilterModel::mapFromSource(const QModelIndex &sourceInd
     QModelIndex newIndex = QSortFilterProxyModel::mapFromSource(sourceIndex);
 
     return index(newIndex.row(), _columns.indexOf((InterfaceTreeColumns) sourceIndex.column()));
+}
+
+QString InterfaceSortFilterModel::interfaceError()
+{
+    QString result;
+
+    InterfaceTreeModel * sourceModel = dynamic_cast<InterfaceTreeModel *>(this->sourceModel());
+    if ( sourceModel != NULL )
+        result = sourceModel->interfaceError();
+
+    if ( result.size() == 0 && rowCount() == 0 )
+        result = QString(tr("No interfaces to be displayed. %1 interfaces filtered.")).arg(interfacesHidden());
+
+    return result;
 }
 
 /*

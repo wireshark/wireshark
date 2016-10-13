@@ -54,6 +54,8 @@ public:
     QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
     QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
 
+    QString interfaceError();
+
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const;
     bool filterAcceptsColumn(int source_column, const QModelIndex & source_parent) const;

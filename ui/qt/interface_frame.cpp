@@ -124,6 +124,7 @@ void InterfaceFrame::hideEvent(QHideEvent *) {
 }
 
 void InterfaceFrame::showEvent(QShowEvent *) {
+
 #ifdef HAVE_LIBPCAP
     if (stat_timer_)
         stat_timer_->start(stat_update_interval_);
@@ -136,10 +137,9 @@ void InterfaceFrame::actionButton_toggled(bool checked)
     if ( ifType.isValid() )
     {
         proxyModel->setInterfaceTypeVisible(ifType.toInt(), checked);
-#ifdef HAVE_EXTCAP
-        ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_EXTCAP));
-#endif
     }
+
+    resetInterfaceTreeDisplay();
 }
 
 QAbstractButton * InterfaceFrame::createButton(QString text, QString prop, QVariant content )
@@ -159,20 +159,29 @@ QAbstractButton * InterfaceFrame::createButton(QString text, QString prop, QVari
 
 void InterfaceFrame::interfaceListChanged()
 {
+    resetInterfaceTreeDisplay();
+    resetInterfaceButtons();
+}
+
+void InterfaceFrame::resetInterfaceTreeDisplay()
+{
     if ( proxyModel->rowCount() == 0 )
     {
         ui->interfaceTree->setHidden(true);
         ui->lblNoInterfaces->setHidden(false);
 
-        ui->lblNoInterfaces->setText( sourceModel->interfaceError() );
+        ui->lblNoInterfaces->setText( proxyModel->interfaceError() );
     }
     else
     {
         ui->interfaceTree->setHidden(false);
         ui->lblNoInterfaces->setHidden(true);
+#ifdef HAVE_EXTCAP
+        ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_EXTCAP));
+#endif
+        ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_NAME));
+        ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_STATS));
     }
-
-    resetInterfaceButtons();
 }
 
 void InterfaceFrame::resetInterfaceButtons()
@@ -195,12 +204,6 @@ void InterfaceFrame::resetInterfaceButtons()
 
         buttonLayout->addWidget(button);
     }
-
-#ifdef HAVE_EXTCAP
-    ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_EXTCAP));
-#endif
-    ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_NAME));
-    ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_STATS));
 
 #ifdef HAVE_LIBPCAP
     if (!stat_timer_) {
