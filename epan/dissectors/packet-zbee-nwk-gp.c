@@ -32,6 +32,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
+#include <wsutil/bits_ctz.h>
 #include "packet-zbee.h"
 #include "packet-zbee-nwk.h"
 #include "packet-zbee-security.h"
@@ -265,6 +266,7 @@ static int hf_zbee_nwk_gp_cmd_comm_rep_opt_sec_key_present = -1;
 static int hf_zbee_nwk_gp_cmd_comm_rep_opt_sec_level = -1;
 static int hf_zbee_nwk_gp_cmd_comm_rep_opt_sec_type = -1;
 static int hf_zbee_nwk_gp_cmd_comm_rep_pan_id = -1;
+static int hf_zbee_nwk_gp_cmd_comm_rep_frame_counter = -1;
 
 /* Attribute reporting. */
 static int hf_zbee_nwk_gp_cmd_attr_report_cluster_id = -1;
@@ -839,6 +841,7 @@ dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo _U
     zbee_nwk_green_power_packet *packet _U_, guint offset)
 {
     guint8 cr_options;
+    guint8 cr_sec_level;
 
     static const int * options[] = {
         &hf_zbee_nwk_gp_cmd_comm_rep_opt_panid_present,
@@ -868,6 +871,16 @@ dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo _U
     if ((cr_options & ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_KEY_ENCR) && (cr_options &
         ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_SEC_KEY_PRESENT)) {
         proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_gpd_sec_key_mic, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    }
+    /* Parse and display Frame Counter */
+    cr_sec_level = (cr_options & ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_SEC_LEVEL) >>
+        ws_ctz(ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_SEC_LEVEL);
+    if ((cr_options & ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_KEY_ENCR) &&
+        (cr_options & ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_SEC_KEY_PRESENT) &&
+        ((cr_sec_level == ZBEE_NWK_GP_SECURITY_LEVEL_FULL) ||
+        (cr_sec_level == ZBEE_NWK_GP_SECURITY_LEVEL_FULLENCR))) {
+        proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_rep_frame_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
     }
     return offset;
@@ -1618,7 +1631,10 @@ proto_register_zbee_nwk_gp(void)
                 ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_KEY_TYPE, NULL, HFILL }},
 
         { &hf_zbee_nwk_gp_cmd_comm_rep_pan_id,
-            { "Manufacturer ID", "zbee_nwk_gp.cmd.comm_reply.pan_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            { "PAN ID", "zbee_nwk_gp.cmd.comm_reply.pan_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_nwk_gp_cmd_comm_rep_frame_counter,
+            { "Frame Counter", "zbee_nwk_gp.cmd.comm_reply.frame_counter", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_zbee_nwk_gp_cmd_attr_report_cluster_id,
             { "ZigBee Cluster ID", "zbee_nwk_gp.cmd.comm.attr_report", FT_UINT16, BASE_HEX, VALS(zbee_aps_cid_names),
