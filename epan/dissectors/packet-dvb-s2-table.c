@@ -29,6 +29,7 @@
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <stdio.h>
+#include "packet-snmp.h"
 
 void proto_register_dvb_s2_table(void);
 void proto_reg_handoff_dvb_s2_table(void);
@@ -103,7 +104,6 @@ static int hf_dvb_s2_table_sf_frame_centre_frequency_offset = -1;
 static int hf_dvb_s2_table_rcst_status = -1;
 static int hf_dvb_s2_table_network_status = -1;
 static int hf_dvb_s2_table_desc_loop_count = -1;
-static int hf_dvb_s2_table_pad_bytes = -1;
 /* TBTP */
 static int hf_dvb_s2_tbtp_group_id = -1;
 static int hf_dvb_s2_tbtp_superframe_count = -1;
@@ -277,10 +277,98 @@ static int hf_dvb_s2_table_pt_ms_exclusion_end = -1;
 static int hf_dvb_s2_table_pt_ms_mac24_base = -1;
 static int hf_dvb_s2_table_pt_ms_mcast_prefix_size = -1;
 
-/* descriptors */
+/* Descriptors */
 static int hf_dvb_s2_table_descriptor = -1;
 static int hf_dvb_s2_table_desc_tag = -1;
 static int hf_dvb_s2_table_desc_length = -1;
+static int hf_dvb_s2_table_nnd_char = -1;
+/* Linkage Descriptor */
+static int hf_dvb_s2_table_ld_fm_id = -1;
+static int hf_dvb_s2_table_ld_on_id = -1;
+static int hf_dvb_s2_table_ld_rm_id = -1;
+static int hf_dvb_s2_table_ld_service_id = -1;
+static int hf_dvb_s2_table_ld_linkage_type = -1;
+static int hf_dvb_s2_table_ld_ho_type = -1;
+static int hf_dvb_s2_table_ld_reserved_future_use = -1;
+static int hf_dvb_s2_table_ld_origin_type = -1;
+static int hf_dvb_s2_table_ld_network_id = -1;
+static int hf_dvb_s2_table_ld_initial_service_id = -1;
+static int hf_dvb_s2_table_ld_target_event_id = -1;
+static int hf_dvb_s2_table_ld_target_listed = -1;
+static int hf_dvb_s2_table_ld_event_simulcast = -1;
+static int hf_dvb_s2_table_ld_reserved = -1;
+static int hf_dvb_s2_table_ld_private_data = -1;
+static int hf_dvb_s2_table_ld_population_id_loop_count = -1;
+static int hf_dvb_s2_table_ld_population_id_base = -1;
+static int hf_dvb_s2_table_ld_population_id_mask = -1;
+
+/* Satellite Return Link Descriptor */
+static int hf_dvb_s2_table_srld_satellite_id = -1;
+static int hf_dvb_s2_table_srld_beam_id = -1;
+static int hf_dvb_s2_table_srld_gateway_id = -1;
+static int hf_dvb_s2_table_srld_reserved = -1;
+static int hf_dvb_s2_table_srld_orbital_position = -1;
+static int hf_dvb_s2_table_srld_west_east_flag = -1;
+static int hf_dvb_s2_table_srld_superframe_sequence = -1;
+static int hf_dvb_s2_table_srld_tx_frequency_offset = -1;
+static int hf_dvb_s2_table_srld_zero_frequency_offset = -1;
+static int hf_dvb_s2_table_srld_private_data = -1;
+/* Logon Initialize Descriptor */
+static int hf_dvb_s2_table_lid_group_id = -1;
+static int hf_dvb_s2_table_lid_logon_id = -1;
+static int hf_dvb_s2_table_lid_continuous_carrier = -1;
+static int hf_dvb_s2_table_lid_security_handshake = -1;
+static int hf_dvb_s2_table_lid_prefix_flag = -1;
+static int hf_dvb_s2_table_lid_data_unit_label_flag = -1;
+static int hf_dvb_s2_table_lid_mini_slot_flag = -1;
+static int hf_dvb_s2_table_lid_contention_based_mini_slot_flag = -1;
+static int hf_dvb_s2_table_lid_capacity_type_flag = -1;
+static int hf_dvb_s2_table_lid_traffic_burst_type = -1;
+static int hf_dvb_s2_table_lid_connectivity = -1;
+static int hf_dvb_s2_table_lid_return_vpi = -1;
+static int hf_dvb_s2_table_lid_return_vci = -1;
+static int hf_dvb_s2_table_lid_return_signalling_vpi = -1;
+static int hf_dvb_s2_table_lid_return_signalling_vci = -1;
+static int hf_dvb_s2_table_lid_forward_signalling_vpi = -1;
+static int hf_dvb_s2_table_lid_forward_signalling_vci = -1;
+static int hf_dvb_s2_table_lid_return_trf_pid = -1;
+static int hf_dvb_s2_table_lid_return_ctrl_mngm_pid = -1;
+static int hf_dvb_s2_table_lid_cra_level = -1;
+static int hf_dvb_s2_table_lid_vbdc_max = -1;
+static int hf_dvb_s2_table_lid_rbdc_max = -1;
+static int hf_dvb_s2_table_lid_rbdc_timeout = -1;
+/* Forward Interaction Path Descriptor */
+static int hf_dvb_s2_table_fipd_original_network_id = -1;
+static int hf_dvb_s2_table_fipd_transport_stream_id = -1;
+static int hf_dvb_s2_table_fipd_pid_loop_count = -1;
+static int hf_dvb_s2_table_fipd_pid = -1;
+/* Return Interaction Path Descriptor */
+static int hf_dvb_s2_table_ripd_continuous_carrier = -1;
+static int hf_dvb_s2_table_ripd_network_routing_label_loop_count = -1;
+static int hf_dvb_s2_table_ripd_allocation_desallocation_flag = -1;
+static int hf_dvb_s2_table_ripd_pid_flag = -1;
+static int hf_dvb_s2_table_ripd_pid_loop_count = -1;
+static int hf_dvb_s2_table_ripd_pid = -1;
+static int hf_dvb_s2_table_ripd_vpi_vci_flag = -1;
+static int hf_dvb_s2_table_ripd_vpi_vci_loop_count = -1;
+static int hf_dvb_s2_table_ripd_vpi = -1;
+static int hf_dvb_s2_table_ripd_vci = -1;
+static int hf_dvb_s2_table_ripd_route_id_flag = -1;
+static int hf_dvb_s2_table_ripd_route_id_loop_count = -1;
+static int hf_dvb_s2_table_ripd_route_id = -1;
+static int hf_dvb_s2_table_ripd_channel_id = -1;
+static int hf_dvb_s2_desc_network_routing = -1;
+/* Correction Control Descriptor */
+static int hf_dvb_s2_table_corcd_acq_response_timeout = -1;
+static int hf_dvb_s2_table_corcd_sync_response_timeout = -1;
+static int hf_dvb_s2_table_corcd_acq_max_losses = -1;
+static int hf_dvb_s2_table_corcd_sync_max_losses = -1;
+/* Contention Control Descriptor */
+static int hf_dvb_s2_table_concd_superframe_id = -1;
+static int hf_dvb_s2_table_concd_csc_response_timeout = -1;
+static int hf_dvb_s2_table_concd_csc_max_losses = -1;
+static int hf_dvb_s2_table_concd_max_time_before_retry = -1;
+
 /* Control assign descriptor */
 static int hf_dvb_s2_table_desc_sync_achieved_time_threshold = -1;
 static int hf_dvb_s2_table_desc_max_sync_tries = -1;
@@ -316,6 +404,28 @@ static int hf_dvb_s2_table_desc_logon_id = -1;
 static int hf_dvb_s2_table_desc_lowest_assign_id = -1;
 static int hf_dvb_s2_table_desc_assign_id_count = -1;
 static int hf_dvb_s2_table_desc_unicast_mac24_count = -1;
+/* Satellite Forward Link Descriptor */
+static int hf_dvb_s2_table_sfld_satellite_id = -1;
+static int hf_dvb_s2_table_sfld_beam_id = -1;
+static int hf_dvb_s2_table_sfld_ncc_id = -1;
+static int hf_dvb_s2_table_sfld_multiplex_usage = -1;
+static int hf_dvb_s2_table_sfld_local_multiplex_id = -1;
+static int hf_dvb_s2_table_sfld_frequency = -1;
+static int hf_dvb_s2_table_sfld_orbital_position = -1;
+static int hf_dvb_s2_table_sfld_west_east_flag = -1;
+static int hf_dvb_s2_table_sfld_polarization = -1;
+static int hf_dvb_s2_table_sfld_transmission_standard = -1;
+static int hf_dvb_s2_table_sfld_scrambling_sequence_selector = -1;
+static int hf_dvb_s2_table_sfld_roll_off = -1;
+static int hf_dvb_s2_table_sfld_symbol_rate = -1;
+static int hf_dvb_s2_table_sfld_fec_inner = -1;
+static int hf_dvb_s2_table_sfld_input_stream_identifier = -1;
+static int hf_dvb_s2_table_sfld_reserved_for_forward_spreading = -1;
+static int hf_dvb_s2_table_sfld_scrambling_sequence_index = -1;
+static int hf_dvb_s2_table_sfld_private_data = -1;
+static int hf_dvb_s2_table_sfld_ncr_private_data = -1;
+static int hf_dvb_s2_table_sfld_ncr_base_private_data = -1;
+static int hf_dvb_s2_table_sfld_ncr_ext_private_data = -1;
 
 static int hf_dvb_s2_table_mac24 = -1;
 static int hf_dvb_s2_table_mac24_prefix_size = -1;
@@ -344,6 +454,17 @@ static int hf_dvb_s2_table_lls_conditional_scheduler_da_ac_map = -1;
 static int hf_dvb_s2_table_lls_nominal_ra_ac_index = -1;
 static int hf_dvb_s2_table_lls_conditional_scheduler_ra_ac_map = -1;
 
+/* Mobility Control descriptor */
+static int hf_dvb_s2_table_mc_command_value = -1;
+static int hf_dvb_s2_table_mc_command_parameter = -1;
+
+static int hf_dvb_s2_table_lsvd_group_count = -1;
+static int hf_dvb_s2_table_lsvd_oui = -1;
+static int hf_dvb_s2_table_lsvd_mcast_address = -1;
+static int hf_dvb_s2_table_lsvd_mcast_port = -1;
+static int hf_dvb_s2_table_lsvd_version_field_length = -1;
+static int hf_dvb_s2_table_lsvd_version_bytes = -1;
+
 static int hf_dvb_s2_table_rc = -1;
 static int hf_dvb_s2_table_rc_index = -1;
 static int hf_dvb_s2_table_rc_constant_assignment_provided = -1;
@@ -365,6 +486,7 @@ static int hf_dvb_s2_table_ra_ac_defaults_for_ra_load_control = -1;
 static int hf_dvb_s2_table_crc32 = -1;
 
 /* Initialize the subtree pointers */
+static gint ett_dvb_s2_hdr_table_network_routing = -1;
 static gint ett_dvb_s2_hdr_table = -1;
 static gint ett_dvb_s2_hdr_table_sf = -1;
 static gint ett_dvb_s2_hdr_table_sf_frame = -1;
@@ -510,6 +632,21 @@ static const value_string table_modcods[] = {
 #define DVB_S2_TABLE_DESC_RA_AC_COUNT_MASK 0x0F
 #define DVB_S2_TABLE_DESC_CTRL_TIMESLOT_NBR_MASK 0x07FF
 #define DVB_S2_TABLE_DESC_SYNC_FRAME_NBR_MASK 0x07FF
+#define DVB_S2_TABLE_DESC_PID_LOOP_COUNT 0x0F
+
+#define DVB_S2_TABLE_DESC_HAND_OVER_TYPE_MASK 0xF0
+#define DVB_S2_TABLE_DESC_ORIGIN_TYPE_MASK 0x01
+#define DVB_S2_TABLE_DESC_RESERVED_FOR_FUTURE_USE_MASK 0x0E
+#define DVB_S2_TABLE_DESC_CAPCITY_TYPE_FLAG_MASK 0x40
+#define DVB_S2_TABLE_DESC_TRAFFIC_BURST_TYPE_MASK 0x20
+#define DVB_S2_TABLE_DESC_CONNECTIVITY_MASK 0x10
+#define DVB_S2_TABLE_DESC_TRANSMISSION_STANDARD_MASK 0x18
+#define DVB_S2_TABLE_DESC_SCRAMBLING_SEQUENCE_SELECTOR_MASK 0x04
+
+#define DVB_S2_TABLE_DESC_NETWORK_ROUTING_LABEL 0x0F
+#define DVB_S2_TABLE_DESC_PID_FLAG_MASK 0x01
+#define DVB_S2_TABLE_DESC_VPI_VCI_FLAG_MASK 0x01
+#define DVB_S2_TABLE_DESC_ROUTE_ID_FLAG_MASK 0x01
 
 #define DVB_S2_TABLE_RA_AC_INDEX_MASK 0x0F
 #define DVB_S2_TABLE_RC_RBDC_ALLOWED_MASK 0x01
@@ -563,6 +700,9 @@ static const value_string table_modcods[] = {
 #define DVB_S2_TABLE_MMT 0xC0
 #define DVB_S2_TABLE_SMT 0x80
 #define DVB_S2_TABLE_TIMB 0xFE
+
+#define DVB_S2_NCR_SIZE 6
+
 static const value_string tabletype[] = {
     {DVB_S2_TABLE_PAT, "PAT"}, /**< Program Association Table */
     {DVB_S2_TABLE_CAT, "CAT"}, /**< Conditional Access Table */
@@ -599,17 +739,33 @@ static const value_string tabletype[] = {
 #define DVB_S2_TABLE_DESC_LOGON_RESPONSE 0xB9
 #define DVB_S2_TABLE_DESC_LOWER_LAYER_SERVICE 0xBB
 
+#define DVB_S2_TABLE_DESC_NETWORK_NAME 0x40
+#define DVB_S2_TABLE_DESC_LINKAGE 0x4A
+#define DVB_S2_TABLE_DESC_SATELLITE_RETURN_LINK 0xA9
+#define DVB_S2_TABLE_DESC_LOGON_INITIALIZE 0xA2
+#define DVB_S2_TABLE_DESC_FORWARD_INTERACTION_PATH 0xAD
+#define DVB_S2_TABLE_DESC_RETURN_INTERACTION_PATH 0xAE
+#define DVB_S2_TABLE_DESC_NETWORK_LAYER_INFO 0xA0
+#define DVB_S2_TABLE_DESC_CORRECTION_CONTROL 0xAC
+#define DVB_S2_TABLE_DESC_CONTENTION_CONTROL 0xAB
+#define DVB_S2_TABLE_DESC_SATELLITE_FORWARD_LINK 0xA8
+#define DVB_S2_TABLE_DESC_MOBILITY_CONTROL 0xB0
+#define DVB_S2_TABLE_DESC_LOWEST_SOFTWARE_VERSION 0xC5
+
 static const value_string table_desc_type[] = {
-    {0x4A, "Linkage_descriptor"},
-    {0xA0, "Network_layer_info_descriptor"},
+    {DVB_S2_TABLE_DESC_LINKAGE, "Linkage_descriptor"},
+    {DVB_S2_TABLE_DESC_LOGON_INITIALIZE, "Logon Initialize Descriptor"},
+    {DVB_S2_TABLE_DESC_NETWORK_LAYER_INFO, "Network_layer_info_descriptor"},
     {DVB_S2_TABLE_DESC_CORRECTION_MSG, "Correction_message_descriptor"},
     {DVB_S2_TABLE_DESC_CTRL_ASSIGN, "SYNC_assign_descriptor (RCS) - control_assign_descriptor (RCS2)"},
     {0xA6, "Echo_value_descriptor"},
     {0xA7, "RCS_content_descriptor"},
-    {0xA8, "Satellite_forward_link_descriptor"},
-    {0xA9, "Satellite_return_link_descriptor"},
-    {0xAB, "Logon_Contention_descriptor"},
-    {0xAC, "Correction_control_descriptor"},
+    {DVB_S2_TABLE_DESC_SATELLITE_FORWARD_LINK, "Satellite_forward_link_descriptor"},
+    {DVB_S2_TABLE_DESC_SATELLITE_RETURN_LINK, "Satellite_return_link_descriptor"},
+    {DVB_S2_TABLE_DESC_CONTENTION_CONTROL, "Contention_Control_descriptor (RCS) - logon_contention_descriptor (RCS2)"},
+    {DVB_S2_TABLE_DESC_CORRECTION_CONTROL, "Correction_Control_descriptor"},
+    {DVB_S2_TABLE_DESC_FORWARD_INTERACTION_PATH, "Forward Interaction Path Descriptor"},
+    {DVB_S2_TABLE_DESC_RETURN_INTERACTION_PATH, "Return Interaction Path Descriptor"},
     {0xB0, "Mobility_control_descriptor"},
     {DVB_S2_TABLE_DESC_CORRECTION_MSG_EXT, "Correction_message_extension_descriptor"},
     {0xB2, "Return_Transmission_Modes_descriptor"},
@@ -632,6 +788,7 @@ static const value_string table_desc_type[] = {
     {0xC6, "Mesh_system_descriptor"},
     {0xC7, "Extension_protocol_descriptor"},
     {0xC8, "Continuous_carrier_control_descriptor"},
+    {DVB_S2_TABLE_DESC_NETWORK_NAME, "Network Name Descriptor"},
     {0, NULL}
 };
 
@@ -718,6 +875,17 @@ static const value_string table_txType_constraintLengthK[] = {
     {0, NULL}
 };
 
+static const value_string table_mobility_command_value[] = {
+    {0x0000, "No Command"},
+    {0x0001, "Execute Forward And Return Link Handover"},
+    {0x0002, "Execute Forward Link Handover"},
+    {0x0003, "Execute Return Link Handover"},
+    {0x0005, "Send Transmitter Status Report"},
+    {0x0006, "Send Position Report"},
+    {0x0007, "Maximum NCR Time"},
+    {0, NULL}
+};
+
 #define DVB_S2_TABLE_HEADER_LEN     8
 #define DVB_S2_TABLE_HEADER_RCS2_LEN 4
 #define DVB_S2_TABLE_CRC32_LEN 4
@@ -763,12 +931,38 @@ static int dissect_dvb_s2_table_correct_msg(tvbuff_t *tvb, int cur_off, proto_tr
 }
 
 
-static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree, int desc_loop_count)
+static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree, int desc_loop_count, int table_id, packet_info *pinfo)
 {
+
     int cur_desc, lls_size, rc_size, raac_size, new_off = 0;
+    int start_off = 0;
+    int linkage_type = 0;
+    int hand_over_type = 0;
+    int origin_type = 0;
+    int remaning_data = 0;
+    int capacity_type_flag = 0;
+    int traffic_burst_type = 0;
+    int connectivity = 0;
+    int pid_loop_count = 0;
+    int k = 0;
+    int network_routing_label_loop_count = 0;
+    int pid_flag = 0;
+    int j = 0;
+    int vpi_vci_flag = 0;
+    int vpi_vci_loop_count = 0;
+    int i = 0;
+    int l = 0;
+    int route_id_flag = 0;
+    int route_id_loop_count = 0;
+    int population_id_loop_count = 0;
+    int transmission_standard = 0;
+    int scrambling_sequence_selector = 0;
+    int group_count = 0;
+    int version_length = 0;
+
     guint8 desc_tag, desc_length;
     proto_tree *dvb_s2_hdr_table_desc_tree, *dvb_s2_hdr_table_mac24_tree, *dvb_s2_hdr_table_lls_tree,
-               *dvb_s2_hdr_table_rc_tree, *dvb_s2_hdr_table_raac_tree;
+               *dvb_s2_hdr_table_rc_tree, *dvb_s2_hdr_table_raac_tree, *dvb_s2_hdr_table_network_routing_tree;
     proto_item *ti;
 
     guint8 mac24_count, cur_mac24, lls_count, cur_lls, rc_count, cur_rc, raac_count, cur_raac;
@@ -958,6 +1152,329 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                     new_off += defaults_field_size;
                 }
                 break;
+            case (DVB_S2_TABLE_DESC_NETWORK_NAME):
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_nnd_char, tvb, cur_off + new_off, desc_length, ENC_NA);
+                new_off += desc_length;
+                break;
+            case (DVB_S2_TABLE_DESC_LINKAGE):
+                start_off = new_off;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_fm_id, tvb, cur_off + new_off, 2, ENC_NA);
+                new_off += 2;
+                linkage_type = tvb_get_guint8(tvb, cur_off + new_off + 4);
+                if (linkage_type == 0x82 || linkage_type == 0x81) {
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_rm_id, tvb, cur_off + new_off, 2, ENC_NA);
+                } else {
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_on_id, tvb, cur_off + new_off, 2, ENC_NA);
+                }
+                new_off += 2;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_service_id, tvb, cur_off + new_off, 2, ENC_NA);
+                new_off += 2;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_linkage_type, tvb, cur_off + new_off, 1, ENC_NA);
+                new_off += 1;
+                if (linkage_type == 0x08) {
+                    hand_over_type = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_HAND_OVER_TYPE_MASK;
+                    origin_type = tvb_get_guint8(tvb, cur_off + new_off) && DVB_S2_TABLE_DESC_ORIGIN_TYPE_MASK;
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_ho_type, tvb, cur_off + new_off, 1, ENC_NA);
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_reserved_future_use, tvb, cur_off + new_off, 1, ENC_NA);
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_origin_type, tvb, cur_off + new_off, 1, ENC_NA);
+                    new_off += 1;
+                    if ((hand_over_type == 0x01) || (hand_over_type == 0x02) || (hand_over_type == 0x03)) {
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_network_id, tvb, cur_off + new_off, 2, ENC_NA);
+                        new_off += 2;
+                    }
+
+                    if (origin_type == 0x00) {
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_initial_service_id, tvb, cur_off + new_off, 2, ENC_NA);
+                        new_off += 2;
+                    }
+                }
+
+                if (linkage_type == 0x0D) {
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_target_event_id, tvb, cur_off + new_off, 2, ENC_NA);
+                    new_off += 2;
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_target_listed, tvb, cur_off + new_off, 1, ENC_NA);
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_event_simulcast, tvb, cur_off + new_off, 1, ENC_NA);
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_reserved, tvb, cur_off + new_off, 1, ENC_NA);
+                    new_off += 1;
+                }
+
+                if (linkage_type == 0x82 || linkage_type == 0x81) {
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_network_id, tvb, cur_off + new_off, 2, ENC_NA);
+                    new_off += 2;
+                    population_id_loop_count = tvb_get_guint8(tvb, cur_off + new_off);
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_population_id_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
+                    new_off += 1;
+                    for (i = 0 ; i <= population_id_loop_count ; i++) {
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_population_id_base, tvb, cur_off + new_off, 2, ENC_NA);
+                        new_off += 2;
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_population_id_mask, tvb, cur_off + new_off, 2, ENC_NA);
+                        new_off += 2;
+                    }
+                }
+
+                remaning_data = desc_length - (new_off - start_off);
+                if (remaning_data > 0 ) {
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_private_data, tvb, cur_off + new_off, remaning_data, ENC_NA);
+                    new_off += remaning_data;
+                }
+
+                break;
+            case (DVB_S2_TABLE_DESC_SATELLITE_RETURN_LINK):
+                start_off = new_off;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_srld_satellite_id, tvb, cur_off + new_off, 1, ENC_NA);
+                new_off += 1;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_srld_beam_id, tvb, cur_off + new_off, 2, ENC_NA);
+                new_off += 2;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_srld_gateway_id, tvb, cur_off + new_off, 1, ENC_NA);
+                new_off += 1;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_srld_reserved, tvb, cur_off + new_off, 1, ENC_NA);
+                new_off += 1;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_srld_orbital_position, tvb, cur_off + new_off, 2, ENC_NA);
+                new_off += 2;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_srld_west_east_flag, tvb, cur_off + new_off, 1, ENC_NA);
+                new_off += 1;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_srld_superframe_sequence, tvb, cur_off + new_off, 1, ENC_NA);
+                new_off += 1;
+                if (table_id == DVB_S2_TABLE_TIM) {
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_srld_tx_frequency_offset, tvb, cur_off + new_off, 3, ENC_NA);
+                } else {
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_srld_zero_frequency_offset, tvb, cur_off + new_off, 3, ENC_NA);
+                }
+                new_off += 3;
+                remaning_data = desc_length - (new_off - start_off);
+                if (remaning_data > 0 ) {
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_srld_private_data, tvb, cur_off + new_off, remaning_data, ENC_NA);
+                    new_off += remaning_data;
+                }
+                break;
+            case (DVB_S2_TABLE_DESC_LOGON_INITIALIZE):
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_group_id, tvb, cur_off + new_off, 1, ENC_NA);
+                new_off += 1;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_logon_id, tvb, cur_off + new_off, 2, ENC_NA);
+                new_off += 2;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_continuous_carrier, tvb, cur_off + new_off, 1, ENC_NA);
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_security_handshake, tvb, cur_off + new_off, 1, ENC_NA);
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_prefix_flag, tvb, cur_off + new_off, 1, ENC_NA);
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_data_unit_label_flag, tvb, cur_off + new_off, 1, ENC_NA);
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_mini_slot_flag, tvb, cur_off + new_off, 1, ENC_NA);
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_contention_based_mini_slot_flag, tvb, cur_off + new_off, 1, ENC_NA);
+                new_off += 1;
+                capacity_type_flag = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_CAPCITY_TYPE_FLAG_MASK;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_capacity_type_flag, tvb, cur_off + new_off, 1, ENC_NA);
+                traffic_burst_type = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_TRAFFIC_BURST_TYPE_MASK;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_traffic_burst_type, tvb, cur_off + new_off, 1, ENC_NA);
+                if (traffic_burst_type == 0) {
+                    connectivity = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_CONNECTIVITY_MASK;
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_connectivity, tvb, cur_off + new_off, 1, ENC_NA);
+                    if (connectivity == 0) {
+                        new_off += 1;
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_return_vpi, tvb, cur_off + new_off, 1, ENC_NA);
+                        new_off += 1;
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_return_vci, tvb, cur_off + new_off, 2, ENC_NA);
+                        new_off += 2;
+                    } else {
+                        new_off += 1;
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_return_signalling_vpi, tvb, cur_off + new_off, 1, ENC_NA);
+                        new_off += 1;
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_return_signalling_vci, tvb, cur_off + new_off, 2, ENC_NA);
+                        new_off += 3;
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_forward_signalling_vpi, tvb, cur_off + new_off, 1, ENC_NA);
+                        new_off += 1;
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_forward_signalling_vci, tvb, cur_off + new_off, 2, ENC_NA);
+                        new_off += 2;
+                    }
+                } else {
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_return_trf_pid, tvb, cur_off + new_off, 2, ENC_NA);
+                    new_off += 2;
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_return_ctrl_mngm_pid, tvb, cur_off + new_off, 2, ENC_NA);
+                    new_off += 2;
+                }
+                if (capacity_type_flag == 0) {
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_cra_level, tvb, cur_off + new_off, 3, ENC_NA);
+                    new_off += 3;
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_vbdc_max, tvb, cur_off + new_off, 2, ENC_NA);
+                    new_off += 2;
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_rbdc_max, tvb, cur_off + new_off, 3, ENC_NA);
+                    new_off += 3;
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_rbdc_timeout, tvb, cur_off + new_off, 2, ENC_NA);
+                    new_off += 2;
+                }
+                break;
+            case (DVB_S2_TABLE_DESC_FORWARD_INTERACTION_PATH):
+                start_off = new_off;
+                remaning_data = desc_length - (new_off - start_off);
+                while (remaning_data > 0) {
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_fipd_original_network_id, tvb, cur_off + new_off, 2, ENC_NA);
+                    new_off += 2;
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_fipd_transport_stream_id, tvb, cur_off + new_off, 2, ENC_NA);
+                    new_off += 2;
+                    pid_loop_count = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_PID_LOOP_COUNT;
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_fipd_pid_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
+                    new_off += 1;
+                    for (k = 0 ; k <= pid_loop_count ; k++) {
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_fipd_pid, tvb, cur_off + new_off, 2, ENC_NA);
+                        new_off += 2;
+                    }
+                    remaning_data = desc_length - (new_off - start_off);
+                }
+                break;
+            case (DVB_S2_TABLE_DESC_RETURN_INTERACTION_PATH):
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ripd_continuous_carrier, tvb, cur_off + new_off, 1, ENC_NA);
+                network_routing_label_loop_count = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_NETWORK_ROUTING_LABEL;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ripd_network_routing_label_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
+                new_off += 1;
+                for (k = 0 ; k <= network_routing_label_loop_count ; k++) {
+                    ti = proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_desc_network_routing, tvb, cur_off + new_off, -1, ENC_NA);
+                    dvb_s2_hdr_table_network_routing_tree = proto_item_add_subtree(ti, ett_dvb_s2_hdr_table_network_routing);
+                    proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_allocation_desallocation_flag, tvb, cur_off + new_off, 1, ENC_NA);
+                    pid_flag = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_PID_FLAG_MASK;
+                    proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_pid_flag, tvb, cur_off + new_off, 1, ENC_NA);
+                    new_off += 1;
+                    if (pid_flag == 1) {
+                        pid_loop_count = tvb_get_guint8(tvb, cur_off + new_off);
+                        proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_pid_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
+                        new_off += 1;
+                        for (j = 0 ; j <= pid_loop_count ; j++) {
+                            proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_pid, tvb, cur_off + new_off, 2, ENC_NA);
+                            new_off += 2;
+                        }
+                    }
+                    vpi_vci_flag = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_VPI_VCI_FLAG_MASK;
+                    proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_vpi_vci_flag, tvb, cur_off + new_off, 1, ENC_NA);
+                    new_off += 1;
+                    if (vpi_vci_flag == 1) {
+                        vpi_vci_loop_count = tvb_get_guint8(tvb, cur_off + new_off);
+                        proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_vpi_vci_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
+                        new_off += 1;
+                        for (i = 0 ; i <= vpi_vci_loop_count ; i++) {
+                            proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_vpi, tvb, cur_off + new_off, 1, ENC_NA);
+                            new_off += 1;
+                            proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_vci, tvb, cur_off + new_off, 2, ENC_NA);
+                            new_off += 2;
+                        }
+                    }
+                    route_id_flag = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_ROUTE_ID_FLAG_MASK;
+                    proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_route_id_flag, tvb, cur_off + new_off, 1, ENC_NA);
+                    new_off += 1;
+                    if (route_id_flag == 1) {
+                        route_id_loop_count = tvb_get_guint8(tvb, cur_off + new_off);
+                        proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_route_id_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
+                        new_off += 1;
+                        for (l = 0 ; l <= route_id_loop_count ; l ++) {
+                            proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_route_id, tvb, cur_off + new_off, 2, ENC_NA);
+                            new_off += 2;
+                        }
+                    }
+                    proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_channel_id, tvb, cur_off + new_off, 1, ENC_NA);
+                    new_off += 1;
+                }
+                break;
+            case (DVB_S2_TABLE_DESC_NETWORK_LAYER_INFO):
+                dissect_snmp_pdu(tvb, cur_off + new_off, pinfo, dvb_s2_hdr_table_desc_tree, 1, ett_dvb_s2_hdr_table_desc, FALSE);
+                new_off += desc_length;
+                break;
+            case (DVB_S2_TABLE_DESC_CORRECTION_CONTROL):
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_corcd_acq_response_timeout, tvb, cur_off + new_off, 4, ENC_NA);
+                new_off += 4;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_corcd_sync_response_timeout, tvb, cur_off + new_off, 4, ENC_NA);
+                new_off += 4;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_corcd_acq_max_losses, tvb, cur_off + new_off, 1, ENC_NA);
+                new_off += 1;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_corcd_sync_max_losses, tvb, cur_off + new_off, 1, ENC_NA);
+                new_off += 1;
+                break;
+            case (DVB_S2_TABLE_DESC_CONTENTION_CONTROL):
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_concd_superframe_id, tvb, cur_off + new_off, 1, ENC_NA);
+                new_off += 1;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_concd_csc_response_timeout, tvb, cur_off + new_off, 4, ENC_NA);
+                new_off += 4;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_concd_csc_max_losses, tvb, cur_off + new_off, 1, ENC_NA);
+                new_off += 1;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_concd_max_time_before_retry, tvb, cur_off + new_off, 4, ENC_NA);
+                new_off += 4;
+                break;
+            case (DVB_S2_TABLE_DESC_SATELLITE_FORWARD_LINK):
+                start_off = new_off;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_satellite_id, tvb, cur_off + new_off, 1, ENC_NA);
+                new_off += 1;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_beam_id, tvb, cur_off + new_off, 2, ENC_NA);
+                new_off += 2;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_ncc_id, tvb, cur_off + new_off, 1, ENC_NA);
+                new_off += 1;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_multiplex_usage, tvb, cur_off + new_off, 1, ENC_NA);
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_local_multiplex_id, tvb, cur_off + new_off, 1, ENC_NA);
+                new_off += 1;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_frequency, tvb, cur_off + new_off, 4, ENC_NA);
+                new_off += 4;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_orbital_position, tvb, cur_off + new_off, 2, ENC_NA);
+                new_off += 2;
+                transmission_standard = (tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_TRANSMISSION_STANDARD_MASK) /8;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_west_east_flag, tvb, cur_off + new_off, 1, ENC_NA);
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_polarization, tvb, cur_off + new_off, 1, ENC_NA);
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_transmission_standard, tvb, cur_off + new_off, 1, ENC_NA);
+                if (transmission_standard == 0) {
+                    new_off += 1;
+                } else if (transmission_standard == 1 || transmission_standard == 2) {
+                    scrambling_sequence_selector = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_SCRAMBLING_SEQUENCE_SELECTOR_MASK;
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_scrambling_sequence_selector, tvb, cur_off + new_off, 1, ENC_NA);
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_roll_off, tvb, cur_off + new_off, 1, ENC_NA);
+                    new_off += 1;
+                }
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_symbol_rate, tvb, cur_off + new_off, 3, ENC_NA);
+                new_off += 3;
+                if (transmission_standard == 0) {
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_fec_inner, tvb, cur_off + new_off, 1, ENC_NA);
+                    new_off += 1;
+                } else if (transmission_standard == 1 || transmission_standard == 2) {
+                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_input_stream_identifier, tvb, cur_off + new_off, 1, ENC_NA);
+                    new_off += 1;
+                    if (scrambling_sequence_selector == 0) {
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_reserved_for_forward_spreading, tvb, cur_off + new_off, 1, ENC_NA);
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_scrambling_sequence_index, tvb, cur_off + new_off, 3, ENC_NA);
+                        new_off += 3;
+                    }
+                }
+                remaning_data = desc_length - (new_off - start_off);
+                if (remaning_data > 0 ) {
+                    if (table_id == DVB_S2_TABLE_TIMB && remaning_data == DVB_S2_NCR_SIZE) {
+                        proto_tree *dvb_s2_hdr_table_ncr_subtree;
+                        proto_item *ti_ncr;
+                        ti_ncr = proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_ncr_private_data, tvb, cur_off + new_off, 6, ENC_NA);
+                        dvb_s2_hdr_table_ncr_subtree = proto_item_add_subtree(ti_ncr, ett_dvb_s2_hdr_table_desc);
+
+                        proto_tree_add_bits_item(dvb_s2_hdr_table_ncr_subtree, hf_dvb_s2_table_sfld_ncr_base_private_data, tvb, (cur_off + new_off) * 8, 33, ENC_NA);
+                        proto_tree_add_item(dvb_s2_hdr_table_ncr_subtree, hf_dvb_s2_table_sfld_ncr_ext_private_data, tvb, cur_off + new_off + 4, 2, ENC_NA);
+                    } else {
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_private_data, tvb, cur_off + new_off, remaning_data, ENC_NA);
+                    }
+                    new_off += remaning_data;
+                }
+
+                break;
+            case (DVB_S2_TABLE_DESC_MOBILITY_CONTROL):
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_mc_command_value, tvb, cur_off + new_off, 2, ENC_NA);
+                new_off += 2;
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_mc_command_parameter, tvb, cur_off + new_off, 2, ENC_NA);
+                new_off += 2;
+                break;
+            case (DVB_S2_TABLE_DESC_LOWEST_SOFTWARE_VERSION):
+                group_count = tvb_get_guint8(tvb, cur_off + new_off);
+                proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lsvd_group_count, tvb, cur_off + new_off, 1, ENC_NA);
+                new_off += 1;
+                for (k = 0 ; k < group_count ; k++) {
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lsvd_oui, tvb, cur_off + new_off, 3, ENC_NA);
+                        new_off += 3;
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lsvd_mcast_address, tvb, cur_off + new_off, 4, ENC_NA);
+                        new_off += 4;
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lsvd_mcast_port, tvb, cur_off + new_off, 2, ENC_NA);
+                        new_off += 2;
+                        version_length = tvb_get_guint8(tvb, cur_off + new_off);
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lsvd_version_field_length, tvb, cur_off + new_off, 1, ENC_NA);
+                        new_off += 1;
+                        proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lsvd_version_bytes, tvb, cur_off + new_off, version_length, ENC_NA);
+                        new_off += version_length;
+                }
+                break;
             default:
                 new_off += desc_length;
                 break;
@@ -1031,34 +1548,24 @@ static int dissect_dvb_s2_table_sct(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
     return new_off;
 }
 
-static int dissect_dvb_s2_table_tim(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree, guint16 table_len, gboolean isUnicast)
+static int dissect_dvb_s2_table_tim(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree, gboolean isUnicast, packet_info *pinfo)
 {
     int desc_loop_count, new_off = 0;
-    int pad_bytes_length = 0;
+    int table_id = 0;
 
-    if(isUnicast)
+    if(isUnicast) {
+        table_id = DVB_S2_TABLE_TIM;
         proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_rcst_status, tvb, cur_off + new_off, 1, ENC_NA);
-    else
+    } else {
+        table_id = DVB_S2_TABLE_TIMB;
         proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_network_status, tvb, cur_off + new_off, 1, ENC_NA);
+    }
     new_off += 1;
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_desc_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
     desc_loop_count = tvb_get_guint8(tvb, cur_off + new_off);
     new_off += 1;
 
-    new_off += dissect_dvb_s2_table_desc(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, desc_loop_count);
-
-    if (dvb_s2_rcs_version == DVB_S2_RCS_TABLE_DECODING)
-        if(new_off != (table_len - DVB_S2_TABLE_HEADER_LEN - DVB_S2_TABLE_CRC32_LEN))
-            pad_bytes_length = table_len - DVB_S2_TABLE_HEADER_LEN - DVB_S2_TABLE_CRC32_LEN - new_off;
-    if (dvb_s2_rcs_version == DVB_S2_RCS2_TABLE_DECODING)
-        if(new_off != (table_len - DVB_S2_TABLE_HEADER_RCS2_LEN))
-            pad_bytes_length = table_len - DVB_S2_TABLE_HEADER_RCS2_LEN - new_off;
-
-    if(pad_bytes_length > 0 && isUnicast)
-    {
-        proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_pad_bytes, tvb, cur_off + new_off, pad_bytes_length, ENC_NA);
-        new_off += pad_bytes_length;
-    }
+    new_off += dissect_dvb_s2_table_desc(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, desc_loop_count, table_id, pinfo);
 
     if (dvb_s2_rcs_version == DVB_S2_RCS_TABLE_DECODING)
     {
@@ -1501,7 +2008,7 @@ static int dissect_dvb_s2_table_bct(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
     return new_off;
 }
 
-static int dissect_dvb_s2_table_fat(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree)
+static int dissect_dvb_s2_table_fat(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree, packet_info *pinfo)
 {
     int desc_loop_count, new_off = 0;
 
@@ -1509,7 +2016,7 @@ static int dissect_dvb_s2_table_fat(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
     desc_loop_count = tvb_get_guint8(tvb, cur_off + new_off);
     new_off += 1;
 
-    new_off += dissect_dvb_s2_table_desc(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, desc_loop_count);
+    new_off += dissect_dvb_s2_table_desc(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, desc_loop_count, DVB_S2_TABLE_FAT, pinfo);
 
     return new_off;
 }
@@ -1671,7 +2178,7 @@ static int dissect_dvb_s2_table_smt(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
     return new_off;
 }
 
-static int dissect_dvb_s2_table_nit_rmt(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree, guint8 table_id)
+static int dissect_dvb_s2_table_nit_rmt(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree, guint8 table_id, packet_info *pinfo)
 {
     int desc_off, desc_count, max_multiplex_off, mux_start_off, new_off = 0;
     guint16 network_descriptors_length, multiplex_streams_spec_length, transport_descriptors_length;
@@ -1690,7 +2197,7 @@ static int dissect_dvb_s2_table_nit_rmt(tvbuff_t *tvb, int cur_off, proto_tree *
         desc_off += tvb_get_guint8(tvb, cur_off + new_off + desc_off + 1) + 2;
     }
 
-    new_off += dissect_dvb_s2_table_desc(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, desc_count - 1);
+    new_off += dissect_dvb_s2_table_desc(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, desc_count - 1, table_id, pinfo);
 
     multiplex_streams_spec_length = tvb_get_ntohs(tvb, cur_off + new_off) & DVB_S2_TABLE_MULTIPLEX_STREAMS_LENGTH_MASK;
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_multiplex_streams_spec_length, tvb, cur_off + new_off, 2, ENC_NA);
@@ -1723,8 +2230,14 @@ static int dissect_dvb_s2_table_nit_rmt(tvbuff_t *tvb, int cur_off, proto_tree *
         desc_off=0;
         for(desc_count=0 ; desc_off<transport_descriptors_length ; desc_count++)
             desc_off += tvb_get_guint8(tvb, cur_off + new_off + desc_off + 1) + 2;
-        new_off += dissect_dvb_s2_table_desc(tvb, cur_off + new_off, dvb_s2_hdr_table_multiplex_tree, desc_count - 1);
+        new_off += dissect_dvb_s2_table_desc(tvb, cur_off + new_off, dvb_s2_hdr_table_multiplex_tree, desc_count - 1, table_id, pinfo);
         proto_item_set_len(ti, new_off - mux_start_off);
+    }
+
+    if (dvb_s2_rcs_version == DVB_S2_RCS_TABLE_DECODING)
+    {
+        proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_crc32, tvb, cur_off + new_off, 4, ENC_NA);
+        new_off += 4;
     }
 
     return new_off;
@@ -1921,10 +2434,10 @@ static int dissect_dvb_s2_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             dissect_dvb_s2_table_sct(tvb, cur_off + new_off, dvb_s2_hdr_table_tree);
             break;
         case DVB_S2_TABLE_TIMB:
-            dissect_dvb_s2_table_tim(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, data_len, !dvb_s2_isUnicast);
+            dissect_dvb_s2_table_tim(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, !dvb_s2_isUnicast, pinfo);
             break;
         case DVB_S2_TABLE_TIM:
-            dissect_dvb_s2_table_tim(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, data_len, dvb_s2_isUnicast);
+            dissect_dvb_s2_table_tim(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, dvb_s2_isUnicast, pinfo);
             break;
         case DVB_S2_TABLE_TBTP2:
             dissect_dvb_s2_table_tbtp2(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, data_len);
@@ -1936,7 +2449,7 @@ static int dissect_dvb_s2_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             dissect_dvb_s2_table_cmt(tvb, cur_off + new_off, dvb_s2_hdr_table_tree);
             break;
         case DVB_S2_TABLE_FAT:
-            dissect_dvb_s2_table_fat(tvb, cur_off + new_off, dvb_s2_hdr_table_tree);
+            dissect_dvb_s2_table_fat(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, pinfo);
             break;
         case DVB_S2_TABLE_FCT:
             dissect_dvb_s2_table_fct(tvb, cur_off + new_off, dvb_s2_hdr_table_tree);
@@ -1961,7 +2474,7 @@ static int dissect_dvb_s2_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             break;
         case DVB_S2_TABLE_NIT:
         case DVB_S2_TABLE_RMT:
-            dissect_dvb_s2_table_nit_rmt(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, table_id);
+            dissect_dvb_s2_table_nit_rmt(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, table_id, pinfo);
             break;
         case DVB_S2_TABLE_MMT2:
             dissect_dvb_s2_table_mmt2(tvb, cur_off + new_off, dvb_s2_hdr_table_tree);
@@ -2266,11 +2779,6 @@ void proto_register_dvb_s2_table(void)
         {&hf_dvb_s2_table_network_status, {
                 "Table network status", "dvb-s2_table.network_status",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
-                NULL, HFILL}
-        },
-        {&hf_dvb_s2_table_pad_bytes, {
-                "Table PAD bytes", "dvb-s2_table.pad_bytes",
-                FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_dvb_s2_table_desc_loop_count, {
@@ -2936,12 +3444,12 @@ void proto_register_dvb_s2_table(void)
         },
 /* NIT - RMT */
         {&hf_dvb_s2_table_network_descriptors_length, {
-                "Table network descriptors length", "dvb-s2_table.network_descriptors_length",
+                "Network descriptors length", "dvb-s2_table.network_descriptors_length",
                 FT_UINT16, BASE_DEC, NULL, DVB_S2_TABLE_NETWORK_DESC_LENGTH_MASK,
                 NULL, HFILL}
         },
         {&hf_dvb_s2_table_multiplex_streams_spec_length, {
-                "Table multiplex streams spec length", "dvb-s2_table.multiplex_streams_spec_length",
+                "Multiplex streams spec loop length", "dvb-s2_table.multiplex_streams_spec_length",
                 FT_UINT16, BASE_DEC, NULL, DVB_S2_TABLE_MULTIPLEX_STREAMS_LENGTH_MASK,
                 NULL, HFILL}
         },
@@ -2951,12 +3459,12 @@ void proto_register_dvb_s2_table(void)
                 NULL, HFILL}
         },
         {&hf_dvb_s2_table_multiplex_forward_multiplex, {
-                "Multiplex stream forward multiplex", "dvb-s2_table.multiplex.forward_multiplex",
+                "Forward multiplex", "dvb-s2_table.multiplex.forward_multiplex",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_dvb_s2_table_multiplex_reward_multiplex, {
-                "Multiplex stream reward multiplex", "dvb-s2_table.multiplex.reward_multiplex",
+                "Return Multiplex", "dvb-s2_table.multiplex.reward_multiplex",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL}
         },
@@ -3097,6 +3605,513 @@ void proto_register_dvb_s2_table(void)
         {&hf_dvb_s2_table_desc_length, {
                 "Descriptor length", "dvb-s2_table.desc.length",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_nnd_char, {
+                "Name", "dvb-s2_table.desc.nnd_name",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_fm_id, {
+                "Forward Multiplex", "dvb-s2_table.desc.ld_fm_id",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_on_id, {
+                "Original network id", "dvb-s2_table.desc.ld_on_id",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_rm_id, {
+                "Return Multiplex", "dvb-s2_table.desc.ld_rm_id",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_service_id, {
+                "Service id", "dvb-s2_table.desc.ld_service_id",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_linkage_type, {
+                "Linkage type", "dvb-s2_table.desc.ld_linkage_type",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_ho_type, {
+                "Hand-over type", "dvb-s2_table.desc.ld_hand_over_type",
+                FT_UINT8, BASE_HEX, NULL, DVB_S2_TABLE_DESC_HAND_OVER_TYPE_MASK,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_reserved_future_use, {
+                "Reserved for future use", "dvb-s2_table.desc.ld_reserved_future_use",
+                FT_UINT8, BASE_HEX, NULL, DVB_S2_TABLE_DESC_RESERVED_FOR_FUTURE_USE_MASK,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_origin_type, {
+                "Origin type", "dvb-s2_table.desc.ld_origin_type",
+                FT_UINT8, BASE_HEX, NULL, DVB_S2_TABLE_DESC_ORIGIN_TYPE_MASK,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_network_id, {
+                "Network Id", "dvb-s2_table.desc.ld_network_id",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_initial_service_id, {
+                "Initial service Id", "dvb-s2_table.desc.ld_initial_service_id",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_target_event_id, {
+                "Target event id", "dvb-s2_table.desc.ld_target_event_id",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_target_listed, {
+                "Target listed", "dvb-s2_table.desc.ld_target_listed",
+                FT_UINT8, BASE_HEX, NULL, 0x80,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_event_simulcast, {
+                "Event simulcast", "dvb-s2_table.desc.ld_event_simulcast",
+                FT_UINT8, BASE_HEX, NULL, 0x40,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_reserved, {
+                "Reserved", "dvb-s2_table.desc.ld_reserved",
+                FT_UINT8, BASE_HEX, NULL, 0x3F,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_private_data, {
+                "Private data", "dvb-s2_table.desc.ld_private_data",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_population_id_loop_count, {
+                "Population id loop count", "dvb-s2_table.desc.ld_population_id_loop_count",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_population_id_base, {
+                "Population id base", "dvb-s2_table.desc.ld_population_id_base",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ld_population_id_mask, {
+                "Population id mask", "dvb-s2_table.desc.ld_population_id_mask",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+/* Satellite Return Link Descriptor */
+        {&hf_dvb_s2_table_srld_satellite_id, {
+                "Satellite Id", "dvb-s2_table.desc.srld_satellite_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_srld_beam_id, {
+                "Beam Id", "dvb-s2_table.desc.srld_beam_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_srld_gateway_id, {
+                "Gateway Id", "dvb-s2_table.desc.srld_gateway_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_srld_reserved, {
+                "Reserved data", "dvb-s2_table.desc.srld_reserved",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_srld_orbital_position, {
+                "Orbital position", "dvb-s2_table.desc.srld_orbital_position",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_srld_west_east_flag, {
+                "West east flag", "dvb-s2_table.desc.srld_west_east_flag",
+                FT_UINT8, BASE_DEC, NULL, 0x01,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_srld_superframe_sequence, {
+                "Superframe sequence", "dvb-s2_table.desc.srld_superframe_sequence",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_srld_tx_frequency_offset, {
+                "Tx frequency offset", "dvb-s2_table.desc.srld_tx_frequency_offset",
+                FT_UINT24, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_srld_zero_frequency_offset, {
+                "Zero frequency offset", "dvb-s2_table.desc.srld_zero_frequency_offset",
+                FT_UINT24, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_srld_private_data, {
+                "Private data", "dvb-s2_table.desc.srld_private_data",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
+        },
+/* Logon Initialize Descriptor */
+        {&hf_dvb_s2_table_lid_group_id, {
+                "Group Id", "dvb-s2_table.desc.lid_group_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_logon_id, {
+                "Logon Id", "dvb-s2_table.desc.lid_logon_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_continuous_carrier, {
+                "Continuous carrier", "dvb-s2_table.desc.lid_continuous_carrier",
+                FT_UINT8, BASE_HEX, NULL, 0x20,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_security_handshake, {
+                "Security handsake required", "dvb-s2_table.desc.lid_security_handshake",
+                FT_UINT8, BASE_HEX, NULL, 0x10,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_prefix_flag, {
+                "Prefix flag", "dvb-s2_table.desc.lid_prefix_flag",
+                FT_UINT8, BASE_HEX, NULL, 0x08,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_data_unit_label_flag, {
+                "Data unit label flag", "dvb-s2_table.desc.lid_data_unit_label_flag",
+                FT_UINT8, BASE_HEX, NULL, 0x04,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_mini_slot_flag, {
+                "Mini slot flag", "dvb-s2_table.desc.lid_mini_slot_flag",
+                FT_UINT8, BASE_HEX, NULL, 0x02,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_contention_based_mini_slot_flag, {
+                "Contention based mini slot flag", "dvb-s2_table.desc.lid_contention_based_mini_slot_flag",
+                FT_UINT8, BASE_HEX, NULL, 0x01,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_capacity_type_flag, {
+                "Capacity type flag", "dvb-s2_table.desc.lid_capacity_type_flag",
+                FT_UINT8, BASE_HEX, NULL, 0x40,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_traffic_burst_type, {
+                "Traffic burst type", "dvb-s2_table.desc.lid_traffic_burst_type",
+                FT_UINT8, BASE_HEX, NULL, 0x20,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_connectivity, {
+                "Connectivity", "dvb-s2_table.desc.lid_connectivity",
+                FT_UINT8, BASE_HEX, NULL, 0x10,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_return_vpi, {
+                "Return vpi", "dvb-s2_table.desc.lid_return_vpi",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_return_vci, {
+                "Return vci", "dvb-s2_table.desc.lid_return_vci",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_return_signalling_vpi, {
+                "Return signalling vpi", "dvb-s2_table.desc.lid_return_signalling_vpi",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_return_signalling_vci, {
+                "Return signalling vci", "dvb-s2_table.desc.lid_return_signalling_vci",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_forward_signalling_vpi, {
+                "Forward signalling vpi", "dvb-s2_table.desc.lid_forward_signalling_vpi",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_forward_signalling_vci, {
+                "Forward signalling vci", "dvb-s2_table.desc.lid_forward_signalling_vci",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_return_trf_pid, {
+                "Return trf pid", "dvb-s2_table.desc.lid_return_trf_pid",
+                FT_UINT16, BASE_DEC, NULL, 0x1FFF,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_return_ctrl_mngm_pid, {
+                "Return ctrl mngm pid", "dvb-s2_table.desc.lid_return_ctrl_mngm_pid",
+                FT_UINT16, BASE_DEC, NULL, 0x1FFF,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_cra_level, {
+                "Cra level", "dvb-s2_table.desc.lid_cra_level",
+                FT_UINT24, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_vbdc_max, {
+                "VBDC max", "dvb-s2_table.desc.lid_vbdc_max",
+                FT_UINT16, BASE_DEC, NULL, 0x07FF,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_rbdc_max, {
+                "RBDC max", "dvb-s2_table.desc.lid_rbdc_max",
+                FT_UINT24, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lid_rbdc_timeout, {
+                "RBDC timeout", "dvb-s2_table.desc.lid_rbdc_timeout",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+/* Forward Interaction Path Descriptor */
+        {&hf_dvb_s2_table_fipd_original_network_id, {
+                "Original network id", "dvb-s2_table.desc.fipd_original_network_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_fipd_transport_stream_id, {
+                "Transport stream id", "dvb-s2_table.desc.fipd_transport_stream_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_fipd_pid_loop_count, {
+                "PID loop count", "dvb-s2_table.desc.fipd_pid_loop_count",
+                FT_UINT8, BASE_DEC, NULL, 0x0F,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_fipd_pid, {
+                "PID", "dvb-s2_table.desc.fipd_pid",
+                FT_UINT16, BASE_DEC, NULL, 0x1FFF,
+                NULL, HFILL}
+        },
+ /* Return Interaction Path Descriptor */
+        {&hf_dvb_s2_table_ripd_continuous_carrier, {
+                "Continuous carrier", "dvb-s2_table.desc.ripd_continuous_carrier",
+                FT_UINT8, BASE_DEC, NULL, 0x10,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_desc_network_routing, {
+                "Network routing", "dvb-s2_table.desc.ripd_network_routing",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ripd_network_routing_label_loop_count, {
+                "Network routing label loop count", "dvb-s2_table.desc.ripd_network_routing_label_loop_count",
+                FT_UINT8, BASE_DEC, NULL, 0x0F,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ripd_allocation_desallocation_flag, {
+                "Allocation desallocation flag", "dvb-s2_table.desc.network_touing.ripd_allocation_desallocation_flag",
+                FT_UINT8, BASE_DEC, NULL, 0x02,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ripd_pid_flag, {
+                "PID flag", "dvb-s2_table.desc.network_touing.ripd_pid_flag",
+                FT_UINT8, BASE_DEC, NULL, 0x01,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ripd_pid_loop_count, {
+                "PID loop count", "dvb-s2_table.desc.network_touing.ripd_pid_loop_count",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ripd_pid, {
+                "PID", "dvb-s2_table.desc.network_touing.ripd_pid",
+                FT_UINT16, BASE_DEC, NULL, 0x1FFF,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ripd_vpi_vci_flag, {
+                "VPI VCI flag", "dvb-s2_table.desc.network_touing.ripd_vpi_vci_flag",
+                FT_UINT8, BASE_DEC, NULL, 0x01,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ripd_vpi_vci_loop_count, {
+                "VPI VCI loop count", "dvb-s2_table.desc.network_touing.ripd_vpi_vci_loop_count",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ripd_vpi, {
+                "VPI", "dvb-s2_table.desc.network_touing.ripd_vpi",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ripd_vci, {
+                "VCI", "dvb-s2_table.desc.network_touing.ripd_vci",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ripd_route_id_flag, {
+                "Route id flag", "dvb-s2_table.desc.network_touing.ripd_route_id_flag",
+                FT_UINT8, BASE_DEC, NULL, 0x01,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ripd_route_id_loop_count, {
+                "Route id loop count", "dvb-s2_table.desc.network_touing.ripd_route_id_loop_count",
+                FT_UINT8, BASE_DEC, NULL, 0x01,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ripd_route_id, {
+                "Route id", "dvb-s2_table.desc.network_touing.ripd_route_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_ripd_channel_id, {
+                "Channel id", "dvb-s2_table.desc.network_touing.ripd_channel_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+/* Correction Control Descriptor */
+        {&hf_dvb_s2_table_corcd_acq_response_timeout, {
+                "ACQ response timeout", "dvb-s2_table.desc.corcd_acq_response_timeout",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_corcd_sync_response_timeout, {
+                "SYNC response timeout", "dvb-s2_table.desc.corcd_sync_response_timeout",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_corcd_acq_max_losses, {
+                "ACQ max losses", "dvb-s2_table.desc.corcd_acq_max_losses",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_corcd_sync_max_losses, {
+                "SYNC max losses", "dvb-s2_table.desc.corcd_sync_max_losses",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+/* Contention Control Descriptor */
+        {&hf_dvb_s2_table_concd_superframe_id, {
+                "Superframe id/sequence", "dvb-s2_table.desc.concd_superframe_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_concd_csc_response_timeout, {
+                "CSC/Logon response timeout", "dvb-s2_table.desc.concd_csc_response_timeout",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_concd_csc_max_losses, {
+                "CSC/Logon max losses", "dvb-s2_table.desc.concd_csc_max_losses",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_concd_max_time_before_retry, {
+                "Max time before retry", "dvb-s2_table.desc.concd_max_time_before_retry",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+/* Satellite Forward Link Descriptor */
+        {&hf_dvb_s2_table_sfld_satellite_id, {
+                "Satellite ID", "dvb-s2_table.desc.sfld_satellite_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_beam_id, {
+                "Beam ID", "dvb-s2_table.desc.sfld_beam_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_ncc_id, {
+                "NCC ID", "dvb-s2_table.desc.sfld_ncc_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_multiplex_usage, {
+                "Multiplex usage", "dvb-s2_table.desc.sfld_multiplex_usage",
+                FT_UINT8, BASE_DEC, NULL, 0xE0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_local_multiplex_id, {
+                "Local multiplex id", "dvb-s2_table.desc.sfld_local_multiplex_id",
+                FT_UINT8, BASE_DEC, NULL, 0x1F,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_frequency, {
+                "Frequency", "dvb-s2_table.desc.sfld_frequency",
+                FT_INT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_orbital_position, {
+                "Orbital position", "dvb-s2_table.desc.sfld_orbital_position",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_west_east_flag, {
+                "West east flag", "dvb-s2_table.desc.sfld_west_east_flag",
+                FT_UINT8, BASE_DEC, NULL, 0x80,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_polarization, {
+                "Polarization", "dvb-s2_table.desc.sfld_polarization",
+                FT_UINT8, BASE_DEC, NULL, 0x60,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_transmission_standard, {
+                "Transmission standard", "dvb-s2_table.desc.sfld_transmission_standard",
+                FT_UINT8, BASE_DEC, NULL, 0x18,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_scrambling_sequence_selector, {
+                "Scrambling sequence selector", "dvb-s2_table.desc.sfld_scrambling_sequence_selector",
+                FT_UINT8, BASE_DEC, NULL, 0x04,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_roll_off, {
+                "Roll-off", "dvb-s2_table.desc.sfld_roll_off",
+                FT_UINT8, BASE_DEC, NULL, 0x03,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_symbol_rate, {
+                "Symbol rate", "dvb-s2_table.desc.sfld_symbol_rate",
+                FT_UINT24, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_fec_inner, {
+                "FEC Inner", "dvb-s2_table.desc.sfld_fec_inner",
+                FT_UINT8, BASE_DEC, NULL, 0xF0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_input_stream_identifier, {
+                "Input stream identifier", "dvb-s2_table.desc.sfld_input_stream_identifier",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_reserved_for_forward_spreading, {
+                "Reserved for forward link spreading", "dvb-s2_table.desc.sfld_reserved_for_forward_spreading",
+                FT_UINT8, BASE_DEC, NULL, 0xE0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_scrambling_sequence_index, {
+                "Scrambling sequence index", "dvb-s2_table.desc.sfld_scrambling_sequence_index",
+                FT_UINT24, BASE_DEC, NULL, 0x03FFFF,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_private_data, {
+                "Private data", "dvb-s2_table.desc.sfld_private_data",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_ncr_private_data, {
+                "NCR (Private data)", "dvb-s2_table.desc.sfld_ncr_private_data",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_ncr_base_private_data, {
+                "NCR BASE", "dvb-s2_table.desc.sfld_ncr_base_private_data",
+                FT_UINT64, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_sfld_ncr_ext_private_data, {
+                "NCR EXT", "dvb-s2_table.desc.sfld_ncr_ext_private_data",
+                FT_UINT16, BASE_DEC, NULL, 0x01FF,
                 NULL, HFILL}
         },
 /* Control assign descriptor */
@@ -3298,6 +4313,48 @@ void proto_register_dvb_s2_table(void)
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL}
         },
+/* Mobility Control descriptor */
+        {&hf_dvb_s2_table_mc_command_value, {
+                "Descriptor command value", "dvb-s2_table.desc.mc_command_value",
+                FT_UINT16, BASE_HEX, VALS(table_mobility_command_value), 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_mc_command_parameter, {
+                "Descriptor command parameter", "dvb-s2_table.desc.mc_command_parameter",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL}
+        },
+/* Lowest Software Version Descriptor */
+        {&hf_dvb_s2_table_lsvd_group_count, {
+                "Descriptor Group count", "dvb-s2_table.desc.lsvd_group_count",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lsvd_oui, {
+                "Descriptor modem OUI", "dvb-s2_table.desc.lsvd_oui",
+                FT_UINT32, BASE_DEC, NULL, 0x00FFFFFF,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lsvd_mcast_address, {
+                "Descriptor multicast service address", "dvb-s2_table.desc.lsvd_mcast_address",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lsvd_mcast_port, {
+                "Descriptor multicast service port", "dvb-s2_table.desc.lsvd_mcast_port",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lsvd_version_field_length, {
+                "Descriptor version field length", "dvb-s2_table.desc.lsvd_version_field_length",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_dvb_s2_table_lsvd_version_bytes, {
+                "Descriptor version bytes", "dvb-s2_table.desc.lsvd_version_bytes",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
+        },
 /* Lower layer service descriptor */
         {&hf_dvb_s2_table_desc_default_ctrl_random_interval, {
                 "Descriptor default control randomization interval", "dvb-s2_table.desc.default_ctrl_random_interval",
@@ -3469,6 +4526,7 @@ void proto_register_dvb_s2_table(void)
     static gint *ett_table[] = {
         &ett_dvb_s2_hdr_table,
         &ett_dvb_s2_hdr_table_sf,
+        &ett_dvb_s2_hdr_table_network_routing,
         &ett_dvb_s2_hdr_table_sf_frame,
         &ett_dvb_s2_hdr_table_desc,
         &ett_dvb_s2_hdr_tbtp_frame,
