@@ -168,7 +168,7 @@ static int setup_dumpfile(const char* fifo, FILE** fp)
 	}
 
 	*fp = fopen(fifo, "w");
-	if (!fp) {
+	if (!(*fp)) {
 		g_warning("Error creating output file: %s", g_strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -233,19 +233,22 @@ static int dump_packet(const char* proto_name, const guint16 listenport, const c
 static void run_listener(const char* fifo, const guint16 port, const char* proto_name)
 {
 	struct sockaddr_in clientaddr;
-	int clientlen;
+	int clientlen = 0;
 	socket_handle_t sock;
 	char buf[PKT_BUF_SIZE];
 	ssize_t buflen;
-	FILE* fp;
+	FILE* fp = NULL;
 
 	if (signal(SIGINT, exit_from_loop) == SIG_ERR) {
 		g_warning("Can't set signal handler");
 		return;
 	}
 
-	if (setup_dumpfile(fifo, &fp) == EXIT_FAILURE)
+	if (setup_dumpfile(fifo, &fp) == EXIT_FAILURE) {
+		if (fp)
+			fclose(fp);
 		return;
+	}
 
 	if (setup_listener(port, &sock) == EXIT_FAILURE)
 		return;
