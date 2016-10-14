@@ -367,33 +367,33 @@ dissect_option_rfd(const guchar error, const guchar field, int offset,
 {
   proto_item *ti;
 
-  ti = proto_tree_add_item(tree, hf_osi_options_rfd_error_class, tvb, offset + field, 1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item(tree, hf_osi_options_rfd_error_class, tvb, offset, 1, ENC_BIG_ENDIAN);
 
   switch ((error & OSI_OPT_RFD_MASK) >> 4)
   {
   case OSI_OPT_RFD_GENERAL:
-    proto_tree_add_item(tree, hf_osi_options_rtd_general, tvb, offset + field, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_osi_options_rtd_general, tvb, offset, 1, ENC_BIG_ENDIAN);
   break;
   case OSI_OPT_RFD_ADDRESS:
-    proto_tree_add_item(tree, hf_osi_options_rtd_address, tvb, offset + field, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_osi_options_rtd_address, tvb, offset, 1, ENC_BIG_ENDIAN);
   break;
   case OSI_OPT_RFD_SOURCE_ROUTING:
-    proto_tree_add_item(tree, hf_osi_options_rtd_source_routing, tvb, offset + field, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_osi_options_rtd_source_routing, tvb, offset, 1, ENC_BIG_ENDIAN);
   break;
   case OSI_OPT_RFD_LIFETIME:
-    proto_tree_add_item(tree, hf_osi_options_rtd_lifetime, tvb, offset + field, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_osi_options_rtd_lifetime, tvb, offset, 1, ENC_BIG_ENDIAN);
   break;
   case OSI_OPT_RFD_PDU_DISCARDED:
-    proto_tree_add_item(tree, hf_osi_options_rtd_pdu_discarded, tvb, offset + field, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_osi_options_rtd_pdu_discarded, tvb, offset, 1, ENC_BIG_ENDIAN);
   break;
   case OSI_OPT_RFD_REASSEMBLY:
-    proto_tree_add_item(tree, hf_osi_options_rtd_reassembly, tvb, offset + field, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_osi_options_rtd_reassembly, tvb, offset, 1, ENC_BIG_ENDIAN);
   break;
   default:
     expert_add_info(pinfo, ti, &ei_osi_options_rfd_error_class);
   }
 
-  proto_tree_add_item(tree, hf_osi_options_rfd_field, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_uint(tree, hf_osi_options_rfd_field, tvb, offset + field, 1, field);
 }
 
 /* dissect ATN security label used for policy based interdomain routing.*/
