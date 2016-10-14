@@ -12501,6 +12501,12 @@ static const value_string zbee_gp_pc_actions[] = {
     { 0, NULL }
 };
 
+static const value_string zbee_zcl_gp_proxy_sink_tbl_req_type[] = {
+    { 0, "Request table entries by GPD ID" },
+    { 1, "Request table entries by Index" },
+    { 0, NULL }
+};
+
 #define ZBEE_ZCL_GP_PROXY_COMMISSIONING_MODE_OPTION_ACTION                             1
 #define ZBEE_ZCL_GP_PROXY_COMMISSIONING_MODE_OPTION_EXIT_MODE                          (7<<1)
 #define ZBEE_ZCL_GP_PROXY_COMMISSIONING_MODE_OPTION_ON_COMMISSIONING_WINDOW_EXPIRATION ((1<<0)<<1)
@@ -12572,6 +12578,20 @@ static const value_string zbee_gp_pc_actions[] = {
 #define ZBEE_ZCL_GP_CLUSTER_LIST_LEN_SRV                                               (0xf<<0)
 #define ZBEE_ZCL_GP_CLUSTER_LIST_LEN_CLI                                               (0xf<<4)
 #define ZBEE_ZCL_GP_CLUSTER_LIST_LEN_CLI_SHIFT                                         4
+
+#define ZBEE_ZCL_GP_PROXY_SINK_TBL_REQ_CMD_APP_ID                                      (0x07<<0)
+#define ZBEE_ZCL_GP_PROXY_SINK_TBL_REQ_CMD_REQ_TYPE                                    (0x03<<3)
+#define ZBEE_ZCL_GP_PROXY_SINK_TBL_REQ_CMD_REQ_TYPE_SHIFT                              3
+
+/* Definitions for application IDs. */
+#define ZBEE_ZCL_GP_APP_ID_DEFAULT                                                     0x00
+#define ZBEE_ZCL_GP_APP_ID_ZGP                                                         0x02
+
+/** Definitions for Request type sub-field of the Options field of the
+ *  GP Sink Table Request and GP Proxy Table request commands
+ */
+#define ZBEE_ZCL_GP_PROXY_SINK_TABLE_REQ_CMD_REQUSET_BY_GPD_ID                          0
+#define ZBEE_ZCL_GP_PROXY_SINK_TABLE_REQ_CMD_REQUSET_BY_INDEX                           1
 
 /*************************/
 /* Global Variables      */
@@ -12715,6 +12735,14 @@ static guint ett_zbee_zcl_gp_clusters = -1;
 static guint ett_zbee_zcl_gp_srv_clusters = -1;
 static guint ett_zbee_zcl_gp_cli_clusters = -1;
 
+/* GP_SINK_TABLE_REQUEST and GP_PROXY_TABLE_REQUEST */
+static guint ett_zbee_zcl_proxy_sink_tbl_req_options = -1;
+static guint hf_zbee_zcl_proxy_sink_tbl_req_options = -1;
+static guint hf_zbee_zcl_proxy_sink_tbl_req_fld_app_id = -1;
+static guint hf_zbee_zcl_proxy_sink_tbl_req_fld_req_type = -1;
+static guint hf_zbee_zcl_proxy_sink_tbl_req_index = -1;
+
+
 /* reuse ZGPD command names */
 extern value_string_ext zbee_nwk_gp_cmd_names_ext;
 /* reuse devices table from ZGPD parser */
@@ -12771,6 +12799,56 @@ dissect_zbee_zcl_gp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     return offset;
 }
+
+/**
+ *      dissect_zcl_gp_proxy_sink_table_request
+ *
+ *      ZigBee ZCL Green Power cluster dissector for Proxy Table Request
+ *      and Sink Table Request commands
+ *
+ *      @param tree      - pointer to data tree Wireshark uses to display packet.
+ *      @param tvb       - pointer to buffer containing raw packet.
+ *      @param offset    - pointer to buffer offset
+ */
+static void
+dissect_zcl_gp_proxy_sink_table_request(proto_tree *tree, tvbuff_t *tvb, volatile guint *offset)
+{
+    /* get Options field */
+    guint8 options = tvb_get_guint8(tvb, *offset);
+    guint8 app_id, req_type;
+    static const int * n_options[] = {
+        &hf_zbee_zcl_proxy_sink_tbl_req_fld_app_id,
+        &hf_zbee_zcl_proxy_sink_tbl_req_fld_req_type,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_proxy_sink_tbl_req_options,
+                           ett_zbee_zcl_proxy_sink_tbl_req_options, n_options, ENC_NA);
+    *offset += 1;
+    app_id = options & ZBEE_ZCL_GP_PROXY_SINK_TBL_REQ_CMD_APP_ID;
+    req_type = (options & ZBEE_ZCL_GP_PROXY_SINK_TBL_REQ_CMD_REQ_TYPE) >>
+        ZBEE_ZCL_GP_PROXY_SINK_TBL_REQ_CMD_REQ_TYPE_SHIFT;
+    if (req_type == ZBEE_ZCL_GP_PROXY_SINK_TABLE_REQ_CMD_REQUSET_BY_GPD_ID) {
+        /* Include GPD ID and/or Endpoint */
+        if (app_id == ZBEE_ZCL_GP_APP_ID_DEFAULT) {
+            /* App_id = 000: GPD SRC ID only */
+            proto_tree_add_item(tree, hf_zbee_gp_src_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+            *offset += 4;
+        }
+        else if (app_id == ZBEE_ZCL_GP_APP_ID_ZGP) {
+            /* App_id = 010: MAC address + Endoint */
+            proto_tree_add_item(tree, hf_zbee_gp_ieee, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+            *offset += 8;
+            proto_tree_add_item(tree, hf_zbee_gp_endpoint, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+        }
+    }
+    else if (req_type == ZBEE_ZCL_GP_PROXY_SINK_TABLE_REQ_CMD_REQUSET_BY_INDEX) {
+        /* Include index only */
+        proto_tree_add_item(tree, hf_zbee_zcl_proxy_sink_tbl_req_index, tvb, *offset, 1, ENC_NA);
+        *offset += 1;
+    }
+} /*dissect_zcl_gp_proxy_sink_table_request*/
 
 /**
  *      dissect_zbee_zcl_gp
@@ -13081,9 +13159,13 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             case ZBEE_CMD_ID_GP_SINK_COMMISSIONING_MODE:
             case ZBEE_CMD_ID_GP_TRANSLATION_TABLE_UPDATE_COMMAND:
             case ZBEE_CMD_ID_GP_TRANSLATION_TABLE_REQUEST:
-            case ZBEE_CMD_ID_GP_SINK_TABLE_REQUEST:
-            case ZBEE_CMD_ID_GP_PROXY_TABLE_RESPONSE:
                 /* TODO: add commands parse */
+                break;
+            case ZBEE_CMD_ID_GP_SINK_TABLE_REQUEST:
+                dissect_zcl_gp_proxy_sink_table_request(tree, tvb, &offset);
+                break;
+            case ZBEE_CMD_ID_GP_PROXY_TABLE_RESPONSE:
+                /* TODO: add command parse */
                 break;
 
             default:
@@ -13246,8 +13328,10 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             }
             case ZBEE_ZCL_CMD_ID_GP_TRANS_TBL_RESPONSE:
             case ZBEE_ZCL_CMD_ID_GP_SINK_TABLE_RESPONSE:
-            case ZBEE_ZCL_CMD_ID_GP_PROXY_TABLE_REQUEST:
                 /* TODO: add commands parse */
+                break;
+            case ZBEE_ZCL_CMD_ID_GP_PROXY_TABLE_REQUEST:
+                dissect_zcl_gp_proxy_sink_table_request(tree, tvb, &offset);
                 break;
             default:
                 break;
@@ -13615,6 +13699,20 @@ proto_register_zbee_zcl_gp(void)
         { &hf_zbee_gp_gpd_cluster_id,
           { "Cluster ID", "zbee_zcl_general.gp.pc.cluster", FT_UINT8, BASE_HEX, VALS(zbee_aps_cid_names),
             0x0, NULL, HFILL }},
+
+        /* GP Sink Table Request and  GP Proxy Table Request commands */
+        { &hf_zbee_zcl_proxy_sink_tbl_req_options,
+          { "Options", "zbee_zcl_general.gp.proxy_sink_tbl_req.options", FT_UINT8, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+        { &hf_zbee_zcl_proxy_sink_tbl_req_fld_app_id,
+          { "Application ID", "zbee_zcl_general.gp.proxy_sink_tbl_req.options.app_id", FT_UINT8, BASE_HEX,
+            NULL, ZBEE_ZCL_GP_PROXY_SINK_TBL_REQ_CMD_APP_ID, NULL, HFILL }},
+        { &hf_zbee_zcl_proxy_sink_tbl_req_fld_req_type,
+          { "Request type", "zbee_zcl_general.gp.proxy_sink_tbl_req.options.req_type", FT_UINT8, BASE_HEX,
+            VALS(zbee_zcl_gp_proxy_sink_tbl_req_type), ZBEE_ZCL_GP_PROXY_SINK_TBL_REQ_CMD_REQ_TYPE, NULL, HFILL }},
+        { &hf_zbee_zcl_proxy_sink_tbl_req_index,
+          { "Index", "zbee_zcl_general.gp.proxy_sink_tbl_req.index", FT_UINT8, BASE_DEC,
+            NULL, 0, NULL, HFILL }},
     };
 
     /* ZCL Green Power subtrees */
@@ -13637,7 +13735,8 @@ proto_register_zbee_zcl_gp(void)
         &ett_zbee_zcl_gp_cmds,
         &ett_zbee_zcl_gp_clusters,
         &ett_zbee_zcl_gp_srv_clusters,
-        &ett_zbee_zcl_gp_cli_clusters
+        &ett_zbee_zcl_gp_cli_clusters,
+        &ett_zbee_zcl_proxy_sink_tbl_req_options
     };
 
 
