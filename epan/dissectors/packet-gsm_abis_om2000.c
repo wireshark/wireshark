@@ -503,10 +503,12 @@ static const value_string filerel_state_vals[] = {
 
 static const value_string om2k_mo_class_short_vals[] = {
 	{ 0x01, "TRXC" },
+	{ 0x02, "TG" },
 	{ 0x03, "TS" },
 	{ 0x04, "TF" },
 	{ 0x05, "IS" },
 	{ 0x06, "CON" },
+	{ 0x07, "DP" },
 	{ 0x0a, "CF" },
 	{ 0x0b, "TX" },
 	{ 0x0c, "RX" },
@@ -515,10 +517,12 @@ static const value_string om2k_mo_class_short_vals[] = {
 
 static const value_string om2k_mo_class_vals[] = {
 	{ 0x01, "TRXC (TRX Controller)" },
+	{ 0x02, "TG (TRX Group)" },
 	{ 0x03, "TS (Timeslot)" },
 	{ 0x04, "TF (Timing Function)" },
 	{ 0x05, "IS (Interface Switch)" },
 	{ 0x06, "CON (Concentrator)" },
+	{ 0x07, "DP (Data Path)" },
 	{ 0x0a, "CF (Central Function)" },
 	{ 0x0b, "TX (Transmitter)" },
 	{ 0x0c, "RX (Receiver)" },
