@@ -1888,6 +1888,19 @@ fi
 AC_SUBST(rawshark_bin)
 AC_SUBST(rawshark_man)
 
+# Enable/disable sharkd
+AC_ARG_ENABLE(sharkd,
+  AC_HELP_STRING( [--enable-sharkd],
+		  [build sharkd @<:@default=yes@:>@]),
+    sharkd=$enableval,enable_sharkd=yes)
+
+if test "x$enable_sharkd" = "xyes" ; then
+	sharkd_bin="sharkd\$(EXEEXT)"
+else
+	sharkd_bin=""
+fi
+AC_SUBST(sharkd_bin)
+
 # Enable/disable echld
 AC_ARG_ENABLE(echld,
   AC_HELP_STRING( [--enable-echld],
@@ -3167,6 +3180,7 @@ echo "                    Build text2pcap : $enable_text2pcap"
 echo "                      Build randpkt : $enable_randpkt"
 echo "                       Build dftest : $enable_dftest"
 echo "                     Build rawshark : $enable_rawshark"
+echo "                       Build sharkd : $enable_sharkd"
 echo "                  Build androiddump : $enable_androiddump"
 echo "                      Build sshdump : $enable_sshdump"
 echo "                    Build ciscodump : $enable_ciscodump"

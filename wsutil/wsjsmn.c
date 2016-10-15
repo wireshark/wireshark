@@ -23,6 +23,8 @@
  */
 
 #include "wsjsmn.h"
+
+#include <string.h>
 #include <wsutil/jsmn.h>
 #include "log.h"
 
@@ -64,6 +66,14 @@ gboolean jsmn_is_json(const guint8* buf, const size_t len)
         g_free(t);
 
         return ret;
+}
+
+int wsjsmn_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens)
+{
+        jsmn_parser p;
+
+        jsmn_init(&p);
+        return jsmn_parse(&p, buf, strlen(buf), tokens, max_tokens);
 }
 
 /*
