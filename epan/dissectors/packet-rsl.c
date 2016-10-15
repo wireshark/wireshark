@@ -660,6 +660,8 @@ static const value_string rsl_ch_no_Cbits_vals[] = {
     {  0x10,    "BCCH" },
     {  0x11,    "Uplink CCCH (RACH)" },
     {  0x12,    "Downlink CCCH (PCH + AGCH)" },
+    /* used by Osmocom and Ericsson */
+    {  0x18,    "PDCH" },
     { 0,            NULL }
 };
 static value_string_ext rsl_ch_no_Cbits_vals_ext = VALUE_STRING_EXT_INIT(rsl_ch_no_Cbits_vals);
@@ -784,6 +786,8 @@ static const value_string rsl_a3a2_vals[] = {
     {  0x00,    "Activation related to intra-cell channel change" },
     {  0x01,    "Activation related to inter-cell channel change (handover)" },
     {  0x02,    "Activation related to secondary channels" },
+    /* non-standard value used by Ericsson */
+    {  0x03,    "Activation related to packet data channel" },
     { 0,            NULL }
 };
 
@@ -3464,7 +3468,9 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Activation Type          9.3.3   M TV 2          */
         offset = dissect_rsl_ie_act_type(tvb, pinfo, tree, offset, TRUE);
         /* Channel Mode             9.3.6   M TLV 8-9       */
-        offset = dissect_rsl_ie_ch_mode(tvb, pinfo, tree, offset, TRUE);
+        if (tvb_reported_length_remaining(tvb, offset) > 0)
+            /* mandatory in 48.008, but not in Ericsson + Osmocom */
+            offset = dissect_rsl_ie_ch_mode(tvb, pinfo, tree, offset, TRUE);
         /* Channel Identification   9.3.5   O 7) TLV 8      */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
             offset = dissect_rsl_ie_ch_id(tvb, pinfo, tree, offset, FALSE);
