@@ -563,7 +563,7 @@ static gchar* bin2hex(const guint8 *bin, enum bin2hex_enum type, guint32 len)
     if(size % 2) /* odd */
     {
       ch = *str & 0x0f;
-      *buff = NIBBLE_2_ASCHEX(ch);
+      *buff++ = NIBBLE_2_ASCHEX(ch);
       str++;
       size--;
     }
@@ -573,9 +573,9 @@ static gchar* bin2hex(const guint8 *bin, enum bin2hex_enum type, guint32 len)
   while(size-- > 0)
   {
     ch = (*str >> 4) & 0x0f;
-    *buff = NIBBLE_2_ASCHEX(ch);
+    *buff++ = NIBBLE_2_ASCHEX(ch);
     ch = *str & 0x0f;
-    *buff = NIBBLE_2_ASCHEX(ch);
+    *buff++ = NIBBLE_2_ASCHEX(ch);
     str++;
   }
   *buff = '\0';
