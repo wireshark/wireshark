@@ -383,7 +383,6 @@ static struct iso_type *data_array = NULL;
 static gint charset_pref = ASCII_CHARSET;
 static gint bin_encode_pref = BIN_ASCII_ENC;
 
-static guint32 iso8583_len = 0; /* # of bytes captured by the dissector */
 static gint len_byte_order = LITEND;
 
 /*
@@ -533,8 +532,7 @@ static guint get_iso8583_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offs
 {
   const guint enc = (len_byte_order == BIGEND)?ENC_BIG_ENDIAN:ENC_LITTLE_ENDIAN;
 
-  iso8583_len = tvb_get_guint16(tvb, offset, enc) + 2;
-  return iso8583_len;
+  return tvb_get_guint16(tvb, offset, enc) + 2;
 }
 
 #define NIBBLE_2_ASCHEX(nibble)\
@@ -602,7 +600,7 @@ static guint64 hex2bin(const char* hexstr, int len)
       if((offset -2 + len) > iso8583_len)\
         return NULL
 
-static gchar *get_bit(guint ind, tvbuff_t *tvb, guint *off_set, proto_tree *tree, proto_item **exp, gint *length )
+static gchar *get_bit(guint ind, tvbuff_t *tvb, guint *off_set, proto_tree *tree, proto_item **exp, gint *length, guint32 iso8583_len)
 {
   gchar aux[1024];
   gchar* ret=NULL;
@@ -736,7 +734,7 @@ static gchar *get_bit(guint ind, tvbuff_t *tvb, guint *off_set, proto_tree *tree
 }
 
 
-static int get_bitmap(tvbuff_t *tvb, guint64* bitmap, guint offset, gint* nbitmaps)
+static int get_bitmap(tvbuff_t *tvb, guint64* bitmap, guint offset, gint* nbitmaps, guint32 iso8583_len)
 {
   gchar* hexbit;
   gint i;
@@ -783,7 +781,7 @@ static int get_bitmap(tvbuff_t *tvb, guint64* bitmap, guint offset, gint* nbitma
 }
 
 static int dissect_databits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, int nofbitmaps, guint64 *bitmap)
+    int offset, int nofbitmaps, guint64 *bitmap, guint32 iso8583_len)
 {
   proto_item *exp;
   gint nofbits = nofbitmaps*64, i;
@@ -803,7 +801,7 @@ static int dissect_databits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if(bitmap[i/64] & (((guint64)1)<< (63 -bit)))
     {
-      cod = get_bit(i, tvb, &offset, tree, &exp, &len);
+      cod = get_bit(i, tvb, &offset, tree, &exp, &len, iso8583_len);
       if(cod == NULL || ! isstrtype_ok(data_array[i].type, cod, len ))
       {
         if(!exp)
@@ -839,6 +837,7 @@ static int dissect_iso8583_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   guint64 bitmap[3]= {0,0,0};
   int nofbitmaps=0;
   guint ret;
+  guint32 iso8583_len;
 
 
   /* Check that the packet is long enough for it to belong to ISO 8583-1. */
@@ -913,9 +912,12 @@ static int dissect_iso8583_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
   /*Length of the package*/
   len=2;
-  proto_tree_add_item(iso8583_tree, hf_iso8583_len, tvb,
-      offset, len, (len_byte_order == BIGEND)?ENC_BIG_ENDIAN:ENC_LITTLE_ENDIAN);
+  proto_tree_add_item_ret_uint(iso8583_tree, hf_iso8583_len, tvb,
+      offset, len, (len_byte_order == BIGEND)?ENC_BIG_ENDIAN:ENC_LITTLE_ENDIAN,
+      &iso8583_len);
   offset += len;
+
+  iso8583_len += 2;
 
   /*MTI*/
   /* TODO: check BCD or ASCII */
@@ -934,7 +936,7 @@ static int dissect_iso8583_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   /*BITMAPS*/
   offset+=len;
 
-  get_bitmap(tvb, bitmap, offset, &nofbitmaps);
+  get_bitmap(tvb, bitmap, offset, &nofbitmaps, iso8583_len);
 
   if(nofbitmaps == 0)
   {
@@ -992,7 +994,8 @@ static int dissect_iso8583_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   }
 
   /*DISSECT BITS*/
-  ret = dissect_databits(tvb, pinfo, iso8583_tree, offset, nofbitmaps, bitmap);
+  ret = dissect_databits(tvb, pinfo, iso8583_tree, offset, nofbitmaps, bitmap,
+    iso8583_len);
 
   return ret;
 }
