@@ -126,6 +126,7 @@ static int ett_om2k_iwd = -1;
 static expert_field ei_om2k_not_performed = EI_INIT;
 static expert_field ei_om2k_reject = EI_INIT;
 static expert_field ei_om2k_nack = EI_INIT;
+static expert_field ei_om2k_ena_res_disabled = EI_INIT;
 
 static const value_string om2k_msgcode_vals[] = {
 	{ 0x0000, "Abort SP Command" },
@@ -795,7 +796,7 @@ dissect_om2k_negotiation_record2(tvbuff_t *tvb, gint base_offset, proto_tree *tr
 
 
 static gint
-dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tree)
+dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tree, guint16 msg_code)
 {
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		guint8 iei = tvb_get_guint8(tvb, offset++);
@@ -932,8 +933,11 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 					    offset++, 1, ENC_BIG_ENDIAN);
 			break;
 		case 0x2c: /* MO State */
-			proto_tree_add_item(tree, hf_om2k_mo_state, tvb,
-					    offset++, 1, ENC_BIG_ENDIAN);
+			tmp = tvb_get_guint8(tvb, offset);
+			ti = proto_tree_add_item(tree, hf_om2k_mo_state, tvb,
+						 offset++, 1, ENC_BIG_ENDIAN);
+			if (msg_code == 0x3a && tmp != 0x02)
+				expert_add_info(pinfo, ti, &ei_om2k_ena_res_disabled);
 			break;
 		case 0x2d: /* Ny1 */
 			proto_tree_add_item(tree, hf_om2k_ny1, tvb,
@@ -1218,7 +1222,7 @@ dissect_abis_om2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	if (strstr(msgt_str, "NACK"))
 		expert_add_info(pinfo, ti, &ei_om2k_nack);
 
-	dissect_om2k_attrs(tvb, pinfo, offset, om2k_tree);
+	dissect_om2k_attrs(tvb, pinfo, offset, om2k_tree, msg_code);
 	return tvb_captured_length(tvb);
 }
 
@@ -1639,6 +1643,11 @@ proto_register_abis_om2000(void)
 		  { "gsm_abis_om2000.nack", PI_RESPONSE_CODE, PI_ERROR,
 		    "Operation NACKed by peer", EXPFILL }
 		},
+		{ &ei_om2k_ena_res_disabled,
+		  { "gsm_abis_om2000.ena_res_disabled", PI_RESPONSE_CODE, PI_WARN,
+		    "Enable Result != Enabled", EXPFILL }
+		},
+
 	};
 	expert_module_t *expert_om2000;
 
