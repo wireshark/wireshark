@@ -747,6 +747,26 @@ dissect_om2k_negotiation_record1(tvbuff_t *tvb, gint base_offset, proto_tree *tr
 }
 
 static gint
+dissect_om2k_mo_record(tvbuff_t *tvb, gint base_offset, gint len, proto_tree *tree)
+{
+	gint offset = base_offset;
+	proto_tree_add_item(tree, hf_om2k_mo_class, tvb, offset++, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_om2k_mo_instance, tvb, offset++, 1, ENC_NA);
+
+	while (offset < len) {
+		guint16 attr_id;
+		guint8 attr_len;
+
+		attr_id = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+		offset += 2;
+		attr_len = tvb_get_guint8(tvb, offset++);
+		offset += dissect_om2k_attr_unkn(tvb, offset, attr_len, attr_id, tree);
+	}
+
+	return offset - base_offset;
+}
+
+static gint
 dissect_om2k_negotiation_record2(tvbuff_t *tvb, gint base_offset, proto_tree *tree)
 {
 	gint offset = base_offset;
@@ -1023,6 +1043,9 @@ dissect_om2k_attrs(tvbuff_t *tvb, gint offset, proto_tree *tree)
 			proto_tree_add_item(tree, hf_om2k_hwinfo_sig, tvb,
 					    offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
+			break;
+		case 0x85: /* MO Record */
+			offset += dissect_om2k_mo_record(tvb, offset, tvb_reported_length_remaining(tvb, offset), tree);
 			break;
 		case 0x87: /* TTA */
 			proto_tree_add_item(tree, hf_om2k_tta, tvb,
