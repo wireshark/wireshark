@@ -29,6 +29,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 void proto_register_abis_om2000(void);
 
@@ -121,6 +122,10 @@ static int ett_om2k_mo = -1;
 static int ett_om2k_isl = -1;
 static int ett_om2k_conl = -1;
 static int ett_om2k_iwd = -1;
+
+static expert_field ei_om2k_not_performed = EI_INIT;
+static expert_field ei_om2k_reject = EI_INIT;
+static expert_field ei_om2k_nack = EI_INIT;
 
 static const value_string om2k_msgcode_vals[] = {
 	{ 0x0000, "Abort SP Command" },
@@ -790,16 +795,20 @@ dissect_om2k_negotiation_record2(tvbuff_t *tvb, gint base_offset, proto_tree *tr
 
 
 static gint
-dissect_om2k_attrs(tvbuff_t *tvb, gint offset, proto_tree *tree)
+dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tree)
 {
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		guint8 iei = tvb_get_guint8(tvb, offset++);
 		guint8 len, tmp;
+		proto_item *ti;
 
 		switch (iei) {
 		case 0x00: /* Accordance Information */
-			proto_tree_add_item(tree, hf_om2k_aip, tvb,
-					    offset++, 1, ENC_BIG_ENDIAN);
+			tmp = tvb_get_guint8(tvb, offset);
+			ti = proto_tree_add_item(tree, hf_om2k_aip, tvb,
+						 offset++, 1, ENC_BIG_ENDIAN);
+			if (tmp != 0x00)
+				expert_add_info(pinfo, ti, &ei_om2k_not_performed);
 			break;
 		case 0x06: /* BCC */
 			proto_tree_add_item(tree, hf_om2k_bcc, tvb,
@@ -1150,6 +1159,7 @@ dissect_abis_om2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	proto_tree *om2k_tree;
 	guint16     msg_code;
 	guint8      tmp;
+	const gchar *msgt_str;
 
 	int offset;
 
@@ -1176,9 +1186,8 @@ dissect_abis_om2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	if (tree == NULL)
 		return tvb_captured_length(tvb);   /* No refs to COL_...  beyond this point */
 
-	proto_item_append_text(ti, " %s ",
-			       val_to_str_ext(msg_code, &om2k_msgcode_vals_ext,
-					  "unknown 0x%04x"));
+	msgt_str = val_to_str_ext(msg_code, &om2k_msgcode_vals_ext, "unknown 0x%04x");
+	proto_item_append_text(ti, " %s ", msgt_str);
 
 	switch (msg_code) {
 	case 0x74: /* Operational Info */
@@ -1203,7 +1212,13 @@ dissect_abis_om2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	default:
 		break;
 	}
-	dissect_om2k_attrs(tvb, offset, om2k_tree);
+
+	if (strstr(msgt_str, "Reject"))
+		expert_add_info(pinfo, ti, &ei_om2k_reject);
+	if (strstr(msgt_str, "NACK"))
+		expert_add_info(pinfo, ti, &ei_om2k_nack);
+
+	dissect_om2k_attrs(tvb, pinfo, offset, om2k_tree);
 	return tvb_captured_length(tvb);
 }
 
@@ -1611,11 +1626,28 @@ proto_register_abis_om2000(void)
 		&ett_om2k_conl,
 		&ett_om2k_iwd,
 	};
+	static ei_register_info ei[] = {
+		{ &ei_om2k_not_performed,
+		  { "gsm_abis_om2000.not_performed", PI_RESPONSE_CODE, PI_WARN,
+		    "Operation not performed as per request", EXPFILL }
+		},
+		{ &ei_om2k_reject,
+		  { "gsm_abis_om2000.reject", PI_RESPONSE_CODE, PI_WARN,
+		    "Operation Rejected by RBS", EXPFILL }
+		},
+		{ &ei_om2k_nack,
+		  { "gsm_abis_om2000.nack", PI_RESPONSE_CODE, PI_ERROR,
+		    "Operation NACKed by peer", EXPFILL }
+		},
+	};
+	expert_module_t *expert_om2000;
 
 	proto_abis_om2000 = proto_register_protocol("Ericsson A-bis OML",
 						    "Ericsson OML",
 						    "gsm_abis_om2000");
 
+	expert_om2000 = expert_register_protocol(proto_abis_om2000);
+	expert_register_field_array(expert_om2000, ei, array_length(ei));
 	proto_register_field_array(proto_abis_om2000, hf, array_length(hf));
 
 	proto_register_subtree_array(ett, array_length(ett));
