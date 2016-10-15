@@ -112,12 +112,15 @@ static int hf_om2k_attr_id = -1;
 static int hf_om2k_attr_index = -1;
 static int hf_om2k_result_code = -1;
 static int hf_om2k_reason_code = -1;
+static int hf_om2k_iwd_type = -1;
+static int hf_om2k_iwd_gen_rev = -1;
 
 /* initialize the subtree pointers */
 static int ett_om2000 = -1;
 static int ett_om2k_mo = -1;
 static int ett_om2k_isl = -1;
 static int ett_om2k_conl = -1;
+static int ett_om2k_iwd = -1;
 
 static const value_string om2k_msgcode_vals[] = {
 	{ 0x0000, "Abort SP Command" },
@@ -597,6 +600,14 @@ static const value_string om2k_res_code_vals[] = {
 	{ 0, NULL }
 };
 
+static const value_string om2k_iwd_type_vals[] = {
+	{ 0x00, "OML" },
+	{ 0x01, "RSL" },
+	{ 0x02, "GSL" },
+	{ 0x03, "TRA" },
+	{ 0, NULL }
+};
+
 static gint
 dissect_tss_mo_state(tvbuff_t *tvb, gint offset, proto_tree *tree)
 {
@@ -709,6 +720,53 @@ dissect_om2k_con_list(tvbuff_t *tvb, gint base_offset, proto_tree *tree)
 	}
 	return offset - base_offset;
 }
+
+static gint
+dissect_om2k_negotiation_record1(tvbuff_t *tvb, gint base_offset, proto_tree *tree)
+{
+	gint offset = base_offset;
+	guint8 i;
+	guint8 num_iwd = tvb_get_guint8(tvb, offset++);
+
+	for (i = 0; i < num_iwd; i++) {
+		guint8 j;
+		proto_item *ti;
+		proto_tree *iwd_tree;
+		guint8 num_vers = tvb_get_guint8(tvb, offset++);
+
+		ti = proto_tree_add_item(tree, hf_om2k_iwd_type, tvb, offset++, 1, ENC_NA);
+		iwd_tree = proto_item_add_subtree(ti, ett_om2k_iwd);
+
+		for (j = 0; j < num_vers; j++) {
+			proto_tree_add_item(iwd_tree, hf_om2k_iwd_gen_rev, tvb,
+					    offset, 6, ENC_ASCII|ENC_NA);
+			offset += 6;
+		}
+	}
+	return offset - base_offset;
+}
+
+static gint
+dissect_om2k_negotiation_record2(tvbuff_t *tvb, gint base_offset, proto_tree *tree)
+{
+	gint offset = base_offset;
+	guint8 i;
+	guint8 num_iwd = tvb_get_guint8(tvb, offset++);
+
+	for (i = 0; i < num_iwd; i++) {
+		proto_item *ti;
+		proto_tree *iwd_tree;
+
+		ti = proto_tree_add_item(tree, hf_om2k_iwd_type, tvb, offset++, 1, ENC_NA);
+		iwd_tree = proto_item_add_subtree(ti, ett_om2k_iwd);
+
+		proto_tree_add_item(iwd_tree, hf_om2k_iwd_gen_rev, tvb,
+				    offset, 6, ENC_ASCII|ENC_NA);
+		offset += 6;
+	}
+	return offset - base_offset;
+}
+
 
 
 static gint
@@ -976,10 +1034,12 @@ dissect_om2k_attrs(tvbuff_t *tvb, gint offset, proto_tree *tree)
 			offset += 2;
 			break;
 		case 0x90: /* Negotiation Record I */
+			len = tvb_get_guint8(tvb, offset++);
+			offset += dissect_om2k_negotiation_record1(tvb, offset, tree);
+			break;
 		case 0x91: /* Negotiation Record II */
 			len = tvb_get_guint8(tvb, offset++);
-			/* FIXME */
-			offset += dissect_om2k_attr_unkn(tvb, offset, len, iei, tree);
+			offset += dissect_om2k_negotiation_record2(tvb, offset, tree);
 			break;
 		case 0x92: /* Encryption Algorithm */
 			proto_tree_add_item(tree, hf_om2k_ea, tvb,
@@ -1512,12 +1572,23 @@ proto_register_abis_om2000(void)
 		    FT_UINT8, BASE_HEX, VALS(om2k_res_code_vals), 0,
 		    NULL, HFILL }
 		},
+		{ &hf_om2k_iwd_type,
+		  { "IWD", "gsm_abis_om2000.iwd_type",
+		    FT_UINT8, BASE_HEX, VALS(om2k_iwd_type_vals), 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_iwd_gen_rev,
+		  { "IWD Generation/Revision", "gsm_abis_om2000.iwd_gen_rev",
+		    FT_STRING, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
+		},
 	};
 	static gint *ett[] = {
 		&ett_om2000,
 		&ett_om2k_mo,
 		&ett_om2k_isl,
 		&ett_om2k_conl,
+		&ett_om2k_iwd,
 	};
 
 	proto_abis_om2000 = proto_register_protocol("Ericsson A-bis OML",
