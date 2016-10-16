@@ -57,7 +57,6 @@ ERROR_INTERFACE	= 2
 ERROR_FIFO 		= 3
 ERROR_DELAY		= 4
 
-doExit = False
 globalinterface = 0
 
 """
@@ -86,10 +85,6 @@ class ArgumentParser(argparse.ArgumentParser):
 			exc.argument = self._get_action_from_name(exc.argument_name)
 			raise exc
 		super(ArgumentParser, self).error(message)
-
-def signalHandler(signal, frame):
-	global doExit
-	doExit = True
 
 #### EXTCAP FUNCTIONALITY
 
@@ -212,47 +207,28 @@ def pcap_fake_package ( message, fake_ip ):
 	return pcap
 
 def extcap_capture(interface, fifo, delay, verify, message, remote, fake_ip):
-	global doExit
-
-	signal.signal(signal.SIGINT, signalHandler)
-	signal.signal(signal.SIGTERM , signalHandler)
-
 	tdelay = delay if delay != 0 else 5
 
-	try:
-		os.stat(fifo)
-	except OSError:
-		doExit = True
-		print ( "Fifo does not exist, exiting!" )
+	if not os.path.exists(fifo):
+		print ( "Fifo does not exist, exiting!", file=sys.stderr )
+		sys.exit(1)
 
-	fh = open(fifo, 'w+b', 0 )
-	fh.write (pcap_fake_header())
+	with open(fifo, 'wb', 0 ) as fh:
+		fh.write (pcap_fake_header())
 
-	while doExit == False:
-		out = ("%s|%04X%s|%s" % ( remote.strip(), len(message), message, verify )).encode("utf8")
-		try:
+		while True:
+			out = ("%s|%04X%s|%s" % ( remote.strip(), len(message), message, verify )).encode("utf8")
 			fh.write (pcap_fake_package(out, fake_ip))
 			time.sleep(tdelay)
-		except IOError:
-			doExit = True
 
-	fh.close()
+def extcap_close_fifo(fifo):
+	if not os.path.exists(fifo):
+		print ( "Fifo does not exist!", file=sys.stderr )
+		return
 
-def extcap_close_fifo(interface, fifo):
-	global doExit
-
-	signal.signal(signal.SIGINT, signalHandler)
-	signal.signal(signal.SIGTERM , signalHandler)
-
-	tdelay = delay if delay != 0 else 5
-
-	try:
-		os.stat(fifo)
-	except OSError:
-		doExit = True
-		print ( "Fifo does not exist!" )
-
-	fh = open(fifo, 'w+b', 0 )
+	# This is apparently needed to workaround an issue on Windows/macOS
+	# where the message cannot be read. (really?)
+	fh = open(fifo, 'wb', 0 )
 	fh.close()
 
 ####
@@ -301,7 +277,7 @@ if __name__ == '__main__':
 			elif ( fifo_found == 1 ):
 				fifo = arg
 				break
-		extcap_close_fifo("", fifo)
+		extcap_close_fifo(fifo)
 		sys.exit(ERROR_ARG)
 
 	if ( len(sys.argv) <= 1 ):
@@ -340,10 +316,13 @@ if __name__ == '__main__':
 		# The following code demonstrates error management with extcap
 		if args.delay > 5:
 			print("Value for delay [%d] too high" % args.delay, file=sys.stderr)
-			extcap_close_fifo(interface, args.fifo)
+			extcap_close_fifo(args.fifo)
 			sys.exit(ERROR_DELAY)
 
-		extcap_capture(interface, args.fifo, args.delay, args.verify, message, args.remote, fake_ip)
+		try:
+			extcap_capture(interface, args.fifo, args.delay, args.verify, message, args.remote, fake_ip)
+		except KeyboardInterrupt:
+			pass
 	else:
 		usage()
 		sys.exit(ERROR_USAGE)
