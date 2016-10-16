@@ -113,7 +113,7 @@ dissect_abis_tfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	proto_tree_add_item(tfp_tree, hf_tfp_hdr_s, tvb, offset+2, 1, ENC_NA);
 	proto_tree_add_item(tfp_tree, hf_tfp_hdr_m, tvb, offset+2, 1, ENC_NA);
 	/* Frame Type depends on Slot Rate */
-	ftype = tvb_get_guint8(tvb, offset+2);
+	ftype = tvb_get_guint8(tvb, offset+2) & 0x1E;
 	if (slot_rate == 0)
 		ftype |= 0x80;
 	proto_tree_add_uint_format_value(tfp_tree, hf_tfp_hdr_frame_type, tvb, offset+2, 1, ftype, "%s",
@@ -181,7 +181,7 @@ proto_register_abis_tfp(void)
 		},
 		{ &hf_tfp_hdr_frame_type,
 			{ "Frame Type", "gsm_abis_tfp.frame_type",
-			  FT_UINT8, BASE_DEC, VALS(tfp_frame_type_vals), 0,
+			  FT_UINT8, BASE_DEC, VALS(tfp_frame_type_vals), 0x1e,
 			  NULL, HFILL }
 		},
 	};
