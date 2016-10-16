@@ -113,7 +113,7 @@ decryption_step_80211_wpa_psk_mfp() {
 	out=$($TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
 		-o "wlan.enable_decryption: TRUE" \
 		-r "$CAPTURE_DIR/wpa-test-decode-mgmt.pcap.gz" \
-		-Y "wlan_mgt.fixed.reason_code == 2 || wlan_mgt.fixed.category_code == 3" \
+		-Y "wlan.fixed.reason_code == 2 || wlan.fixed.category_code == 3" \
 		2>&1)
 	RETURNVALUE=$?
 	frames=$(echo "$out" | wc -l)
