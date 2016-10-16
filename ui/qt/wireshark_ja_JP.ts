@@ -4632,12 +4632,12 @@ for filter files: %2.</source>
         <translation type="unfinished">フレーム</translation>
     </message>
     <message>
-        <location filename="interface_frame.ui" line="44"/>
+        <location filename="interface_frame.ui" line="50"/>
         <source>No interfaces found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_frame.ui" line="79"/>
+        <location filename="interface_frame.ui" line="88"/>
         <source>Show Interfaces</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4689,6 +4689,14 @@ for filter files: %2.</source>
     <message>
         <location filename="interface_frame.cpp" line="82"/>
         <source>Virtual</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>InterfaceSortFilterModel</name>
+    <message>
+        <location filename="interface_sort_filter_model.cpp" line="251"/>
+        <source>No interfaces to be displayed. %1 interfaces filtered.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -15285,24 +15293,22 @@ a:hover {
         <translation>このエントリをコピーします</translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="89"/>
+        <location filename="uat_dialog.cpp" line="90"/>
         <source>Unknown User Accessible Table</source>
         <translation>ユーザがアクセスできる表が不明</translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="107"/>
+        <location filename="uat_dialog.cpp" line="106"/>
         <source>Open </source>
         <translation>開く </translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="419"/>
         <source>Uneven number of chars hex string (%1)</source>
-        <translation>奇数番号の16進数文字(%1)</translation>
+        <translation type="vanished">奇数番号の16進数文字(%1)</translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="426"/>
         <source>Error parsing hex string</source>
-        <translation>16進数文字列の解釈エラー</translation>
+        <translation type="vanished">16進数文字列の解釈エラー</translation>
     </message>
 </context>
 <context>

@@ -2374,6 +2374,7 @@ Francesco Fondelli	<francesco.fondelli[AT]gmail.com> {
 	PCEP Extensions for Segment Routing, draft-ietf-pce-segment-routing-01
 	PCEP Extensions for Association, draft-ietf-pce-association-group-00
 	BGP-LS extensions for Segment Routing, draft-gredler-idr-bgp-ls-segment-routing-ext-01
+	HL7 protocol support
 }
 
 Artem Tamazov           <artem.tamazov[AT]tellabs.com> {
@@ -4090,6 +4091,7 @@ James Coleman		<jamesc[AT]dspsrv.com>
 Jamil Nimeh		<jnimeh[AT]gmail.com>
 Jan Kaisrlik		<j.kaisrlik[AT]seznam.cz>
 Jan Seda		<hodor[AT]hodor.cz>
+Jan Spevak		<jan.spevak[AT]nokia.com>
 Jan-Hendrik Bolte	<jabolte[AT]uos.de>
 Jason Heimann		<jheimann[AT]pertino.com>
 Jean Thomas		<jeanthomas[AT]sierrawireless.com>
@@ -4293,6 +4295,7 @@ Ville Skyttä		<ville.skytta[AT]iki.fi>
 Vincent Helfre		<vincent.helfre[AT]gmx.net>
 Vincenzo Reale		<smart2128[AT]baslug.org>
 Vladimir Kondratiev	<qca_vkondrat[AT]qca.qualcomm.com>
+Vladlen Popov		<vladlen.popov[AT]yahoo.com>
 Volker Lendecke		<vl[AT]samba.org>
 Warren Moxam		<warrenmptgrey[AT]gmail.com>
 Wasim Abu Moch		<wasim[AT]mellanox.com>

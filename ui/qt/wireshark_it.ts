@@ -4647,12 +4647,12 @@ per i file di filtro: %2.</translation>
         <translation type="unfinished">Frame</translation>
     </message>
     <message>
-        <location filename="interface_frame.ui" line="44"/>
+        <location filename="interface_frame.ui" line="50"/>
         <source>No interfaces found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_frame.ui" line="79"/>
+        <location filename="interface_frame.ui" line="88"/>
         <source>Show Interfaces</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4704,6 +4704,14 @@ per i file di filtro: %2.</translation>
     <message>
         <location filename="interface_frame.cpp" line="82"/>
         <source>Virtual</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>InterfaceSortFilterModel</name>
+    <message>
+        <location filename="interface_sort_filter_model.cpp" line="251"/>
+        <source>No interfaces to be displayed. %1 interfaces filtered.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -15351,24 +15359,22 @@ a:hover {
         <translation>Copia questa voce.</translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="89"/>
+        <location filename="uat_dialog.cpp" line="90"/>
         <source>Unknown User Accessible Table</source>
         <translation>Tabella accessibile dall&apos;utente sconosciuta</translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="107"/>
+        <location filename="uat_dialog.cpp" line="106"/>
         <source>Open </source>
         <translation>Apri </translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="419"/>
         <source>Uneven number of chars hex string (%1)</source>
-        <translation>Numero irregolare di caratteri della stringa esadecimale (%1)</translation>
+        <translation type="vanished">Numero irregolare di caratteri della stringa esadecimale (%1)</translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="426"/>
         <source>Error parsing hex string</source>
-        <translation>Errore di elaborazione della stringa esadecimale</translation>
+        <translation type="vanished">Errore di elaborazione della stringa esadecimale</translation>
     </message>
 </context>
 <context>

@@ -4649,12 +4649,12 @@ für die Filterdateien kann nicht erstellt werden:
         <translation type="unfinished">Frame</translation>
     </message>
     <message>
-        <location filename="interface_frame.ui" line="44"/>
+        <location filename="interface_frame.ui" line="50"/>
         <source>No interfaces found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_frame.ui" line="79"/>
+        <location filename="interface_frame.ui" line="88"/>
         <source>Show Interfaces</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4706,6 +4706,14 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="interface_frame.cpp" line="82"/>
         <source>Virtual</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>InterfaceSortFilterModel</name>
+    <message>
+        <location filename="interface_sort_filter_model.cpp" line="251"/>
+        <source>No interfaces to be displayed. %1 interfaces filtered.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -15358,24 +15366,22 @@ text-decoration: underline;
         <translation>Diesen Eintrag kopieren.</translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="89"/>
+        <location filename="uat_dialog.cpp" line="90"/>
         <source>Unknown User Accessible Table</source>
         <translation>Unbekannte User Accessible Table </translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="107"/>
+        <location filename="uat_dialog.cpp" line="106"/>
         <source>Open </source>
         <translation>Öffnen</translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="419"/>
         <source>Uneven number of chars hex string (%1)</source>
-        <translation>Ungerade Anzahl an Hexzeichen (%1)</translation>
+        <translation type="vanished">Ungerade Anzahl an Hexzeichen (%1)</translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="426"/>
         <source>Error parsing hex string</source>
-        <translation>Fehler beim Parsen der Hex Zeichenkette</translation>
+        <translation type="vanished">Fehler beim Parsen der Hex Zeichenkette</translation>
     </message>
 </context>
 <context>
