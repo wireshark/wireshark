@@ -2117,7 +2117,6 @@ static gint dissect_mq_pmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                     proto_tree_add_item(mq_tree, hf_mq_pmo_newmsghandle, tvb, offset + 8, 8, p_mq_parm->mq_int_enc);
                     proto_tree_add_item(mq_tree, hf_mq_pmo_action, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
                     proto_tree_add_item(mq_tree, hf_mq_pmo_publevel, tvb, offset + 20, 4, p_mq_parm->mq_int_enc);
-                    offset += 24;
                 }
             }
             if (iVersion >= 2)
