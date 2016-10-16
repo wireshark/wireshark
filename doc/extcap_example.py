@@ -147,21 +147,16 @@ Extcap capture routine
 def unsigned(n):
 	return int(n) & 0xFFFFFFFF
 
-def append_bytes(ba, blist):
-	for c in range(0, len(blist)):
-		ba.append(blist[c])
-	return ba
-
 def pcap_fake_header():
 
 	header = bytearray()
-	header = append_bytes(header, struct.pack('<L', int ('a1b2c3d4', 16) ))
-	header = append_bytes(header, struct.pack('<H', unsigned(2)) ) # Pcap Major Version
-	header = append_bytes(header, struct.pack('<H', unsigned(4)) ) # Pcap Minor Version
-	header = append_bytes(header, struct.pack('<I', int(0))) # Timezone
-	header = append_bytes(header, struct.pack('<I', int(0))) # Accurancy of timestamps
-	header = append_bytes(header, struct.pack('<L', int ('0000ffff', 16) )) # Max Length of capture frame
-	header = append_bytes(header, struct.pack('<L', unsigned(1))) # Ethernet
+	header += struct.pack('<L', int ('a1b2c3d4', 16 ))
+	header += struct.pack('<H', unsigned(2) ) # Pcap Major Version
+	header += struct.pack('<H', unsigned(4) ) # Pcap Minor Version
+	header += struct.pack('<I', int(0)) # Timezone
+	header += struct.pack('<I', int(0)) # Accurancy of timestamps
+	header += struct.pack('<L', int ('0000ffff', 16 )) # Max Length of capture frame
+	header += struct.pack('<L', unsigned(1)) # Ethernet
 	return header
 
 # Calculates and returns the IP checksum based on the given IP Header
@@ -183,37 +178,37 @@ def pcap_fake_package ( message, fake_ip ):
 	caplength = len(message) + 14 + 20
 	timestamp = int(time.time())
 
-	pcap = append_bytes(pcap, struct.pack('<L', unsigned(timestamp) ) ) # timestamp seconds
-	pcap = append_bytes(pcap, struct.pack('<L', 0x00 ) ) # timestamp nanoseconds
-	pcap = append_bytes(pcap, struct.pack('<L', unsigned(caplength) ) ) # length captured
-	pcap = append_bytes(pcap, struct.pack('<L', unsigned(caplength) ) ) # length in frame
+	pcap += struct.pack('<L', unsigned(timestamp ) ) # timestamp seconds
+	pcap += struct.pack('<L', 0x00  ) # timestamp nanoseconds
+	pcap += struct.pack('<L', unsigned(caplength ) ) # length captured
+	pcap += struct.pack('<L', unsigned(caplength ) ) # length in frame
 
 # ETH
-	pcap = append_bytes(pcap, struct.pack('h', 0 )) # source mac
-	pcap = append_bytes(pcap, struct.pack('h', 0 )) # source mac
-	pcap = append_bytes(pcap, struct.pack('h', 0 )) # source mac
-	pcap = append_bytes(pcap, struct.pack('h', 0 )) # dest mac
-	pcap = append_bytes(pcap, struct.pack('h', 0 )) # dest mac
-	pcap = append_bytes(pcap, struct.pack('h', 0 )) # dest mac
-	pcap = append_bytes(pcap, struct.pack('<h', unsigned(8) )) # protocol (ip)
+	pcap += struct.pack('h', 0 ) # source mac
+	pcap += struct.pack('h', 0 ) # source mac
+	pcap += struct.pack('h', 0 ) # source mac
+	pcap += struct.pack('h', 0 ) # dest mac
+	pcap += struct.pack('h', 0 ) # dest mac
+	pcap += struct.pack('h', 0 ) # dest mac
+	pcap += struct.pack('<h', unsigned(8 )) # protocol (ip)
 
 # IP
-	pcap = append_bytes(pcap, struct.pack('b', int ( '45', 16) )) # IP version
-	pcap = append_bytes(pcap, struct.pack('b', int ( '0', 16) )) #
-	pcap = append_bytes(pcap, struct.pack('>H', unsigned(len(message)+20) )) # length of data + payload
-	pcap = append_bytes(pcap, struct.pack('<H', int ( '0', 16) )) # Identification
-	pcap = append_bytes(pcap, struct.pack('b', int ( '40', 16) )) # Don't fragment
-	pcap = append_bytes(pcap, struct.pack('b', int ( '0', 16) )) # Fragment Offset
-	pcap = append_bytes(pcap, struct.pack('b', int ( '40', 16) ))
-	pcap = append_bytes(pcap, struct.pack('B', 0xFE )) # Protocol (2 = unspecified)
-	pcap = append_bytes(pcap, struct.pack('<H', int ( '0000', 16) )) # Checksum
+	pcap += struct.pack('b', int ( '45', 16 )) # IP version
+	pcap += struct.pack('b', int ( '0', 16 )) #
+	pcap += struct.pack('>H', unsigned(len(message)+20) ) # length of data + payload
+	pcap += struct.pack('<H', int ( '0', 16 )) # Identification
+	pcap += struct.pack('b', int ( '40', 16 )) # Don't fragment
+	pcap += struct.pack('b', int ( '0', 16 )) # Fragment Offset
+	pcap += struct.pack('b', int ( '40', 16 ))
+	pcap += struct.pack('B', 0xFE ) # Protocol (2 = unspecified)
+	pcap += struct.pack('<H', int ( '0000', 16 )) # Checksum
 
 	parts = fake_ip.split('.')
 	ipadr = (int(parts[0]) << 24) + (int(parts[1]) << 16) + (int(parts[2]) << 8) + int(parts[3])
-	pcap = append_bytes(pcap, struct.pack('>L', ipadr )) # Source IP
-	pcap = append_bytes(pcap, struct.pack('>L', int ( '7F000001', 16) )) # Dest IP
+	pcap += struct.pack('>L', ipadr ) # Source IP
+	pcap += struct.pack('>L', int ( '7F000001', 16 )) # Dest IP
 
-	pcap = append_bytes(pcap, message)
+	pcap += message
 	return pcap
 
 def extcap_capture(interface, fifo, delay, verify, message, remote, fake_ip):
@@ -234,7 +229,7 @@ def extcap_capture(interface, fifo, delay, verify, message, remote, fake_ip):
 	fh.write (pcap_fake_header())
 
 	while doExit == False:
-		out = str( "%s|%04X%s|%s" % ( remote.strip(), len(message), message, verify ) )
+		out = ("%s|%04X%s|%s" % ( remote.strip(), len(message), message, verify )).encode("utf8")
 		try:
 			fh.write (pcap_fake_package(out, fake_ip))
 			time.sleep(tdelay)
@@ -296,7 +291,7 @@ if __name__ == '__main__':
 
 	try:
 		args, unknown = parser.parse_known_args()
-	except argparse.ArgumentError, exc:
+	except argparse.ArgumentError as exc:
 		print( "%s: %s" % ( exc.argument.dest, exc.message ), file=sys.stderr)
 		fifo_found = 0
 		fifo = ""
