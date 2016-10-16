@@ -2371,7 +2371,7 @@ get_hostname_ss7pc(const guint8 ni, const guint32 pc)
     return tp->name;
 }
 
-void
+static void
 add_ss7pc_name(const guint8 ni, guint32 pc, const gchar *name)
 {
     hashss7pc_t *tp;
@@ -2439,7 +2439,7 @@ read_ss7pcs_file(const char *ss7pcspath)
     return entry_found ? TRUE : FALSE;
 }
 
-void
+static void
 ss7pc_name_lookup_init(void)
 {
     char *ss7pcspath;
