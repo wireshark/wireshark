@@ -787,14 +787,14 @@ wlan_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callb
         str = g_strdup_printf("wlan.bssid==%s", addr_str);
         break;
     case VALUE_SSID_ONLY:
-        str = g_strdup_printf("wlan_mgt.ssid==\"%s\"", format_text(ep->stats.ssid, ep->stats.ssid_len));
+        str = g_strdup_printf("wlan.ssid==\"%s\"", format_text(ep->stats.ssid, ep->stats.ssid_len));
         break;
     case VALUE_BSSID_AND_SSID:
-        str = g_strdup_printf("wlan.bssid==%s && wlan_mgt.ssid==\"%s\"",
+        str = g_strdup_printf("wlan.bssid==%s && wlan.ssid==\"%s\"",
                       addr_str, format_text(ep->stats.ssid, ep->stats.ssid_len));
         break;
     case VALUE_BSSID_OR_SSID:
-        str = g_strdup_printf("wlan.bssid==%s || wlan_mgt.ssid==\"%s\"",
+        str = g_strdup_printf("wlan.bssid==%s || wlan.ssid==\"%s\"",
                       addr_str, format_text(ep->stats.ssid, ep->stats.ssid_len));
         break;
     default:
