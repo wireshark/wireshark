@@ -4155,7 +4155,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         /* UDP */
         {"aruba_erm.udp.ports", "ARUBA_ERM", "udp.port", 10},
         {"diameter.udp.ports", "DIAMETER", "udp.port", 10},
-        {"dmp.udp.ports", "DMP", "udp.port", 10},
+        {"dmp.udp_ports", "DMP", "udp.port", 10},
         {"dns.udp.ports", "DNS", "udp.port", 10},
         {"gsm_ipa.udp_ports", "GSM over IP", "udp.port", 10},
         {"hcrt.dissector_udp_port", "HCrt", "udp.port", 10},
