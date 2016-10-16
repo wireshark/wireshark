@@ -1392,7 +1392,7 @@ raknet_dissect_connected_message(tvbuff_t *tvb, packet_info *pinfo,
 
         if (msg_type & (1 << 5)) { /* hasBAndAS */
             item_size = 4;
-            ti = proto_tree_add_item(raknet_tree, hf_raknet_AS, tvb, offset,
+            proto_tree_add_item(raknet_tree, hf_raknet_AS, tvb, offset,
                                      item_size, ENC_BIG_ENDIAN);
             offset += item_size;
         }
