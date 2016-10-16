@@ -55,6 +55,7 @@ static int hf_tfp_hdr_p = -1;
 static int hf_tfp_hdr_s = -1;
 static int hf_tfp_hdr_m = -1;
 static int hf_tfp_hdr_frame_type = -1;
+static int hf_tfp_amr_rate = -1;
 
 /* initialize the subtree pointers */
 static int ett_tfp = -1;
@@ -90,6 +91,20 @@ static const value_string tfp_frame_type_vals[] = {
 	{ 0, NULL }
 };
 
+static const value_string tfp_amr_len_rate_vals[] = {
+	{  1, "SID_FIRST, ONSET, No speech/data" },
+	{  5, "SID_UPDATE, SID_BAD" },
+	{ 12, "4.75k" },
+	{ 13, "5.15k" },
+	{ 15, "5.90k" },
+	{ 17, "6.70k" },
+	{ 19, "7.40k" },
+	{ 20, "7.95k" },
+	{ 26, "10.2k" },
+	{ 31, "12.2k" },
+	{ 0, NULL }
+};
+
 static int
 dissect_abis_tfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -99,6 +114,7 @@ dissect_abis_tfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	guint32 slot_rate, frame_bits, atsr, seq_nr;
 	guint8 ftype;
 	tvbuff_t *next_tvb;
+	gint len_remain;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFP");
 
@@ -128,6 +144,21 @@ dissect_abis_tfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	while ((tvb_get_guint8(tvb, offset) & 0x01) == 0)
 		offset++;
 	offset++;
+
+	switch (ftype & 0x7F) {
+	case 0: /* TFP-AMR.ind */
+		len_remain = tvb_captured_length_remaining(tvb, offset);
+		proto_tree_add_uint(tfp_tree, hf_tfp_amr_rate, tvb, offset, 0, len_remain);
+		break;
+	case 1: /* TFP-SCCE-AMR.ind */
+		break;
+	case 2: /* TFP-HR.ind */
+		break;
+	case 3: /* TFP-EFR.ind */
+		break;
+	case 4: /* TFP-SCCE-EFR.ind */
+		break;
+	}
 
 	/* FIXME: implement packed frame support */
 	if (slot_rate == 0)
@@ -182,6 +213,11 @@ proto_register_abis_tfp(void)
 		{ &hf_tfp_hdr_frame_type,
 			{ "Frame Type", "gsm_abis_tfp.frame_type",
 			  FT_UINT8, BASE_DEC, VALS(tfp_frame_type_vals), 0x1e,
+			  NULL, HFILL }
+		},
+		{ &hf_tfp_amr_rate,
+			{ "AMR Rate", "gsm_abis_tfp.amr.rate",
+			  FT_UINT8, BASE_DEC, VALS(tfp_amr_len_rate_vals), 0,
 			  NULL, HFILL }
 		},
 	};
