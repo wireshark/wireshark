@@ -2878,24 +2878,26 @@ destroy_dissector_handle(dissector_handle_t handle)
 	wmem_free(wmem_epan_scope(), handle);
 }
 
+static dissector_handle_t
+register_dissector_handle(const char *name, dissector_handle_t handle)
+{
+	/* Make sure the registration is unique */
+	g_assert(g_hash_table_lookup(registered_dissectors, name) == NULL);
+
+	g_hash_table_insert(registered_dissectors, (gpointer)name, handle);
+
+	return handle;
+}
+
 /* Register a new dissector by name. */
 dissector_handle_t
 register_dissector(const char *name, dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
 
-	/* Make sure the registration is unique */
-	g_assert(g_hash_table_lookup(registered_dissectors, name) == NULL);
+	handle = new_dissector_handle(dissector, proto, name);
 
-	handle                = wmem_new(wmem_epan_scope(), struct dissector_handle);
-	handle->name          = name;
-	handle->dissector     = dissector;
-	handle->protocol      = find_protocol_by_id(proto);
-
-	g_hash_table_insert(registered_dissectors, (gpointer)name,
-			    (gpointer) handle);
-
-	return handle;
+	return register_dissector_handle(name, handle);
 }
 
 static gboolean
