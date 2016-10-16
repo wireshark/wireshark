@@ -4991,7 +4991,7 @@ static int dissect_cip_stringi(packet_info *pinfo, proto_tree *tree, proto_item 
     return parsed_len;
 }
 
-int dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+static int dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                          attribute_info_t* attr, int offset, int total_len)
 {
    int i, temp_data, temp_time, hour, min, sec, ms,
