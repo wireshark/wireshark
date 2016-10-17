@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Balint Reczey <balint@balintreczey.hu>
 Standards-Version: 3.9.5
-Build-Depends: libgtk-3-dev, hardening-includes, lsb-release,
+Build-Depends: libgtk-3-dev, lsb-release,
 # enable Qt 5 related dependencies for Qt 5-enabled build
  qtbase5-dev, qtbase5-dev-tools, qttools5-dev, qttools5-dev-tools,
  qtmultimedia5-dev, libqt5svg5-dev,
