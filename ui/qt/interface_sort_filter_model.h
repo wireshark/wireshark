@@ -45,6 +45,7 @@ public:
     bool isInterfaceTypeShown(int ifType) const;
     void setFilterByType(bool filter, bool invert = false);
     bool filterByType() const;
+    void toggleTypeVisibility(int ifType);
 
     QList<int> typesDisplayed();
 

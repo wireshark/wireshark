@@ -68,7 +68,7 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
 #endif
 
     /* TODO: There must be a better way to do this */
-    ifTypeDescription.insert(IF_WIRED, tr("Physical"));
+    ifTypeDescription.insert(IF_WIRED, tr("Wired"));
     ifTypeDescription.insert(IF_AIRPCAP, tr("AirPCAP"));
     ifTypeDescription.insert(IF_PIPE, tr("Pipe"));
     ifTypeDescription.insert(IF_STDIN, tr("STDIN"));
@@ -97,15 +97,11 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
 
     ui->interfaceTree->setItemDelegateForColumn(proxyModel->mapSourceToColumn(IFTREE_COL_STATS), new SparkLineDelegate(this));
 
-    buttonLayout = new QHBoxLayout(ui->wdgButtons);
-
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(interfaceListChanged()));
     connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(interfaceListChanged()));
 
     connect(ui->interfaceTree->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
             this, SLOT(interfaceTreeSelectionChanged(const QItemSelection &, const QItemSelection &)));
-
-    ui->wdgButtons->setLayout(buttonLayout);
 }
 
 InterfaceFrame::~InterfaceFrame()
@@ -113,6 +109,37 @@ InterfaceFrame::~InterfaceFrame()
     delete sourceModel;
     delete proxyModel;
     delete ui;
+}
+
+QMenu * InterfaceFrame::getSelectionMenu()
+{
+    QMenu * contextMenu = new QMenu();
+    QList<int> typesDisplayed = proxyModel->typesDisplayed();
+
+    foreach(int ifType, ifTypeDescription.keys())
+    {
+        if ( ! typesDisplayed.contains(ifType) )
+            continue;
+
+        QAction *endp_action = new QAction(ifTypeDescription[ifType], this);
+        endp_action->setData(qVariantFromValue(ifType));
+        endp_action->setCheckable(true);
+        endp_action->setChecked(proxyModel->isInterfaceTypeShown(ifType));
+        connect(endp_action, SIGNAL(triggered()), this, SLOT(triggeredIfTypeButton()));
+        contextMenu->addAction(endp_action);
+    }
+
+    return contextMenu;
+}
+
+int InterfaceFrame::interfacesHidden()
+{
+    return proxyModel->interfacesHidden();
+}
+
+int InterfaceFrame::interfacesPresent()
+{
+    return sourceModel->rowCount() - proxyModel->interfacesHidden();
 }
 
 void InterfaceFrame::hideEvent(QHideEvent *) {
@@ -142,25 +169,31 @@ void InterfaceFrame::actionButton_toggled(bool checked)
     resetInterfaceTreeDisplay();
 }
 
-QAbstractButton * InterfaceFrame::createButton(QString text, QString prop, QVariant content )
+void InterfaceFrame::triggeredIfTypeButton()
 {
-    QPushButton * button = new QPushButton(text);
-    button->setCheckable(true);
-    if (prop.size() > 0 && prop.compare(BTN_IFTYPE_PROPERTY) == 0)
+    QAction *sender = qobject_cast<QAction *>(QObject::sender());
+    if ( sender )
     {
-        button->setProperty(prop.toStdString().c_str(), content);
-        button->setChecked(proxyModel->isInterfaceTypeShown(content.toInt()));
+        int ifType = sender->data().value<int>();
+        proxyModel->toggleTypeVisibility(ifType);
+
+        resetInterfaceTreeDisplay();
+        emit typeSelectionChanged();
     }
-
-    connect(button, SIGNAL(toggled(bool)), this, SLOT(actionButton_toggled(bool)));
-
-    return (QAbstractButton *)button;
 }
 
 void InterfaceFrame::interfaceListChanged()
 {
     resetInterfaceTreeDisplay();
-    resetInterfaceButtons();
+
+#ifdef HAVE_LIBPCAP
+    if (!stat_timer_) {
+        updateStatistics();
+        stat_timer_ = new QTimer(this);
+        connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
+        stat_timer_->start(stat_update_interval_);
+    }
+#endif
 }
 
 void InterfaceFrame::resetInterfaceTreeDisplay()
@@ -182,37 +215,6 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
         ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_NAME));
         ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_STATS));
     }
-}
-
-void InterfaceFrame::resetInterfaceButtons()
-{
-    QAbstractButton * button = 0;
-
-    ui->wdgTypeSelector->setVisible( proxyModel->typesDisplayed().count() > 1 );
-
-    if ( sourceModel->rowCount() == 0 )
-        return;
-
-    foreach (QWidget * w, ui->wdgButtons->findChildren<QWidget *>())
-        delete w;
-
-    foreach ( int ifType, proxyModel->typesDisplayed() )
-    {
-        QString text = ifTypeDescription[ifType];
-
-        button = createButton(text, BTN_IFTYPE_PROPERTY, ifType);
-
-        buttonLayout->addWidget(button);
-    }
-
-#ifdef HAVE_LIBPCAP
-    if (!stat_timer_) {
-        updateStatistics();
-        stat_timer_ = new QTimer(this);
-        connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
-        stat_timer_->start(stat_update_interval_);
-    }
-#endif
 }
 
 void InterfaceFrame::updateSelectedInterfaces()

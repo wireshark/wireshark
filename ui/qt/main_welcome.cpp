@@ -161,8 +161,11 @@ MainWelcome::MainWelcome(QWidget *parent) :
 
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
+    connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(interfaceListChanged()));
     connect(welcome_ui_->interfaceFrame, SIGNAL(itemSelectionChanged()),
             welcome_ui_->captureFilterComboBox, SIGNAL(interfacesChanged()));
+    connect(welcome_ui_->interfaceFrame, SIGNAL(typeSelectionChanged()),
+                    this, SLOT(interfaceListChanged()));
     connect(welcome_ui_->interfaceFrame, SIGNAL(itemSelectionChanged()), this, SLOT(interfaceSelected()));
     connect(welcome_ui_->captureFilterComboBox->lineEdit(), SIGNAL(textEdited(QString)),
             this, SLOT(captureFilterTextEdited(QString)));
@@ -183,6 +186,36 @@ MainWelcome::MainWelcome(QWidget *parent) :
     blur->setBlurRadius(2);
     welcome_ui_->childContainer->setGraphicsEffect(blur);
 #endif
+
+    welcome_ui_->btnInterfaceType->setStyleSheet(
+            "QPushButton {"
+#ifdef Q_OS_MAC
+            "  border: 1px solid gray;"
+#else
+            "  border: 1px solid palette(shadow);"
+#endif
+            "  border-radius: 3px;"
+            "  padding: 0px 0px 0px 0px;"
+            "  margin-left: 0px;"
+            "  min-width: 20em;"
+            " }"
+
+            "QPushButton::drop-down {"
+            "  subcontrol-origin: padding;"
+            "  subcontrol-position: top right;"
+            "  width: 16px;"
+            "  border-left-width: 0px;"
+            " }"
+
+            "QPushButton::down-arrow {"
+            "  image: url(:/icons/toolbar/14x14/x-filter-dropdown.png);"
+            " }"
+
+            "QPushButton::down-arrow:on { /* shift the arrow when popup is open */"
+            "  top: 1px;"
+            "  left: 1px;"
+            "}"
+            );
 
     splash_overlay_ = new SplashOverlay(this);
 }
@@ -208,6 +241,15 @@ void MainWelcome::setCaptureFilter(const QString capture_filter)
     // CaptureInterfacesDialog. We need to find a good way to handle
     // multiple filters.
     welcome_ui_->captureFilterComboBox->lineEdit()->setText(capture_filter);
+}
+
+void MainWelcome::interfaceListChanged()
+{
+    QString btnText = QString(tr("%1 Interfaces shown, %2 hidden"))
+            .arg(welcome_ui_->interfaceFrame->interfacesPresent())
+            .arg(welcome_ui_->interfaceFrame->interfacesHidden());
+    welcome_ui_->btnInterfaceType->setText(btnText);
+    welcome_ui_->btnInterfaceType->setMenu(welcome_ui_->interfaceFrame->getSelectionMenu());
 }
 
 void MainWelcome::appInitialized()
@@ -238,6 +280,8 @@ void MainWelcome::appInitialized()
 #endif // HAVE_LIBPCAP
 
     welcome_ui_->captureFilterComboBox->setEnabled(true);
+
+    interfaceListChanged();
 
     delete splash_overlay_;
     splash_overlay_ = NULL;

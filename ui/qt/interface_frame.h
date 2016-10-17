@@ -37,6 +37,8 @@
 #include <QHBoxLayout>
 #include <QAbstractButton>
 #include <QTimer>
+#include <QMenu>
+#include <QPushButton>
 
 namespace Ui {
 class InterfaceFrame;
@@ -51,10 +53,14 @@ public:
 
     int interfacesHidden();
 
+    QMenu * getSelectionMenu();
+    int interfacesPresent();
+
 Q_SIGNALS:
     void showExtcapOptions(QString device_name);
     void startCapture();
     void itemSelectionChanged();
+    void typeSelectionChanged();
 
 public slots:
     void updateSelectedInterfaces();
@@ -68,16 +74,12 @@ protected:
 
 private:
 
-    QAbstractButton * createButton(QString text, QString property = QString(), QVariant content = QVariant());
-    void resetInterfaceButtons();
     void resetInterfaceTreeDisplay();
 
     Ui::InterfaceFrame *ui;
 
     InterfaceSortFilterModel * proxyModel;
     InterfaceTreeModel * sourceModel;
-
-    QHBoxLayout * buttonLayout;
 
     QMap<int, QString> ifTypeDescription;
 
@@ -95,6 +97,7 @@ private slots:
 
     void updateStatistics(void);
     void actionButton_toggled(bool checked);
+    void triggeredIfTypeButton();
 };
 
 #endif // INTERFACE_FRAME_H

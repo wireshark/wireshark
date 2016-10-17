@@ -150,6 +150,13 @@ void InterfaceSortFilterModel::setInterfaceTypeVisible(int ifType, bool visible)
     invalidate();
 }
 
+void InterfaceSortFilterModel::toggleTypeVisibility(int ifType)
+{
+    bool checked = isInterfaceTypeShown(ifType);
+
+    setInterfaceTypeVisible(ifType, checked ? false : true);
+}
+
 bool InterfaceSortFilterModel::isInterfaceTypeShown(int ifType) const
 {
     bool result = false;
