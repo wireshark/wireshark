@@ -156,7 +156,7 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Version Number */
 
     raw_octet = tvb_get_guint8(tvb, offset);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Version %d.  ", raw_octet);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " Version %d.  ", raw_octet);
     proto_tree_add_uint(lacpdu_tree, hf_lacp_version_number, tvb,
                         offset, 1, raw_octet);
     offset += 1;
