@@ -295,23 +295,30 @@ static const value_string SUBA_Attributes[] = {
     { 0, NULL}
 };
 
+/* ComMgt class Attributes */
+#define ATTR_CM_REQ             0x0010
+#define ATTR_CM_REJ             0x0012
+#define ATTR_CM_REP             0x0013
+#define ATTR_CM_RTU             0x0014
+#define ATTR_CM_DREQ            0x0015
+#define ATTR_CM_DRSP            0x0016
+
 /* CM Attributes */
 static const value_string CM_Attributes[] = {
-    { 0x0001, "ClassPortInfo"},
-    { 0x0010, "ConnectRequest"},
-    { 0x0011, "MsgRcptAck"},
-    { 0x0012, "ConnectReject"},
-    { 0x0013, "ConnectReply"},
-    { 0x0014, "ReadyToUse"},
-    { 0x0015, "DisconnectRequest"},
-    { 0x0016, "DisconnectReply"},
-    { 0x0017, "ServiceIDResReq"},
-    { 0x0018, "ServiceIDResReqResp"},
-    { 0x0019, "LoadAlternatePath"},
-    { 0x001A, "AlternatePathResponse"},
+    { 0x0001,       "ClassPortInfo"},
+    { ATTR_CM_REQ,  "ConnectRequest"},
+    { 0x0011,       "MsgRcptAck"},
+    { ATTR_CM_REJ,  "ConnectReject"},
+    { ATTR_CM_REP,  "ConnectReply"},
+    { ATTR_CM_RTU,  "ReadyToUse"},
+    { ATTR_CM_DREQ, "DisconnectRequest"},
+    { ATTR_CM_DRSP, "DisconnectReply"},
+    { 0x0017,       "ServiceIDResReq"},
+    { 0x0018,       "ServiceIDResReqResp"},
+    { 0x0019,       "LoadAlternatePath"},
+    { 0x001A,       "AlternatePathResponse"},
     { 0, NULL}
 };
-
 
 /* RMPP Types */
 #define RMPP_NOT_USED 0
@@ -626,6 +633,15 @@ static int hf_cm_rej_rej_info_len = -1;
 static int hf_cm_rej_reason = -1;
 static int hf_cm_rej_add_rej_info = -1;
 static int hf_cm_rej_private_data = -1;
+/* CM DREQ Header */
+static int hf_cm_dreq_localcommid = -1;
+static int hf_cm_dreq_remotecommid = -1;
+static int hf_cm_dreq_remote_qpn = -1;
+static int hf_cm_dreq_privatedata = -1;
+/* CM DRSP Header */
+static int hf_cm_drsp_localcommid = -1;
+static int hf_cm_drsp_remotecommid = -1;
+static int hf_cm_drsp_privatedata = -1;
 /* MAD Base Header */
 static int hf_infiniband_MAD = -1;
 static int hf_infiniband_base_version = -1;
@@ -1161,12 +1177,6 @@ static const value_string Trap_Description[]= {
 /* Performance class Attributes */
 #define ATTR_PORT_COUNTERS      0x0012
 #define ATTR_PORT_COUNTERS_EXT  0x001D
-
-/* ComMgt class Attributes*/
-#define ATTR_CM_REQ             0x0010
-#define ATTR_CM_REP             0x0013
-#define ATTR_CM_RTU             0x0014
-#define ATTR_CM_REJ             0x0012
 
 /* Link Next Header Values */
 #define IBA_GLOBAL 3
@@ -3140,6 +3150,20 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
             proto_tree_add_item(CM_header_tree, hf_cm_rej_add_rej_info, tvb, local_offset, 72, ENC_NA); local_offset += 72;
             /* currently only REQ/REP call subdissectors for the private data */
             proto_tree_add_item(CM_header_tree, hf_cm_rej_private_data, tvb, local_offset, 148, ENC_NA); local_offset += 148;
+            break;
+        case ATTR_CM_DREQ:
+            proto_tree_add_item(CM_header_tree, hf_cm_dreq_localcommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+            proto_tree_add_item(CM_header_tree, hf_cm_dreq_remotecommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+            proto_tree_add_item(CM_header_tree, hf_cm_dreq_remote_qpn, tvb, local_offset, 3, ENC_BIG_ENDIAN);
+            local_offset += 4;  /* skip qpn + reserved */
+            /* currently only REQ/REP call subdissectors for the private data */
+            proto_tree_add_item(CM_header_tree, hf_cm_dreq_privatedata, tvb, local_offset, 220, ENC_NA); local_offset += 220;
+            break;
+        case ATTR_CM_DRSP:
+            proto_tree_add_item(CM_header_tree, hf_cm_drsp_localcommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+            proto_tree_add_item(CM_header_tree, hf_cm_drsp_remotecommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+            /* currently only REQ/REP call subdissectors for the private data */
+            proto_tree_add_item(CM_header_tree, hf_cm_dreq_privatedata, tvb, local_offset, 224, ENC_NA); local_offset += 224;
             break;
         default:
             proto_item_append_text(CM_header_item, " (Dissector Not Implemented)"); local_offset += MAD_DATA_SIZE;
@@ -5708,6 +5732,37 @@ void proto_register_infiniband(void)
                 "PrivateData", "infiniband.cm.rej.private",
                 FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
+        /* IB CM DREQ Header */
+        {&hf_cm_dreq_localcommid, {
+                "Local Communication ID", "infiniband.cm.dreq.localcommid",
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_dreq_remotecommid, {
+                "Remote Communication ID", "infiniband.cm.dreq.remotecommid",
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_dreq_remote_qpn, {
+                "Remote QPN/EECN", "infiniband.cm.req.remoteqpneecn",
+                FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_dreq_privatedata, {
+                "PrivateData", "infiniband.cm.dreq.private",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        /* IB CM DRSP Header */
+        {&hf_cm_drsp_localcommid, {
+                "Local Communication ID", "infiniband.cm.drsp.localcommid",
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_drsp_remotecommid, {
+                "Remote Communication ID", "infiniband.cm.drsp.remotecommid",
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_drsp_privatedata, {
+                "PrivateData", "infiniband.cm.drsp.private",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+
         /* MAD Base Header */
         { &hf_infiniband_MAD, {
                 "MAD (Management Datagram) Common Header", "infiniband.mad",
