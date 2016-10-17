@@ -1064,11 +1064,8 @@ bool QCPLayerable::realVisibility() const
 
   \see selectEvent, deselectEvent, QCustomPlot::setInteractions
 */
-double QCPLayerable::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPLayerable::selectTest(const QPointF & , bool , QVariant * ) const
 {
-  Q_UNUSED(pos)
-  Q_UNUSED(onlySelectable)
-  Q_UNUSED(details)
   return -1.0;
 }
 
@@ -1185,9 +1182,8 @@ void QCPLayerable::applyAntialiasingHint(QCPPainter *painter, bool localAntialia
 
   \see initializeParentPlot
 */
-void QCPLayerable::parentPlotInitialized(QCustomPlot *parentPlot)
+void QCPLayerable::parentPlotInitialized(QCustomPlot * )
 {
-   Q_UNUSED(parentPlot)
 }
 
 /*! \internal
@@ -1251,12 +1247,8 @@ QRect QCPLayerable::clipRect() const
 
   \see selectTest, deselectEvent
 */
-void QCPLayerable::selectEvent(QMouseEvent *event, bool additive, const QVariant &details, bool *selectionStateChanged)
+void QCPLayerable::selectEvent(QMouseEvent * , bool , const QVariant & , bool * )
 {
-  Q_UNUSED(event)
-  Q_UNUSED(additive)
-  Q_UNUSED(details)
-  Q_UNUSED(selectionStateChanged)
 }
 
 /*! \internal
@@ -1271,9 +1263,8 @@ void QCPLayerable::selectEvent(QMouseEvent *event, bool additive, const QVariant
 
   \see selectTest, selectEvent
 */
-void QCPLayerable::deselectEvent(bool *selectionStateChanged)
+void QCPLayerable::deselectEvent(bool * )
 {
-  Q_UNUSED(selectionStateChanged)
 }
 
 
@@ -1998,9 +1989,8 @@ QSize QCPLayoutElement::maximumSizeHint() const
   \warning There may be entries with value 0 in the returned list. (For example, QCPLayoutGrid may have
   empty cells which yield 0 at the respective index.)
 */
-QList<QCPLayoutElement*> QCPLayoutElement::elements(bool recursive) const
+QList<QCPLayoutElement*> QCPLayoutElement::elements(bool ) const
 {
-  Q_UNUSED(recursive)
   return QList<QCPLayoutElement*>();
 }
 
@@ -2015,10 +2005,8 @@ QList<QCPLayoutElement*> QCPLayoutElement::elements(bool recursive) const
   QCPLayoutElement subclasses may reimplement this method to provide more specific selection test
   behaviour.
 */
-double QCPLayoutElement::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPLayoutElement::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
-
   if (onlySelectable)
     return -1;
 
@@ -3305,9 +3293,8 @@ bool QCPLayoutInset::take(QCPLayoutElement *element)
 
   See \ref QCPLayerable::selectTest for a general explanation of this virtual method.
 */
-double QCPLayoutInset::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPLayoutInset::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if (onlySelectable)
     return -1;
 
@@ -5745,9 +5732,8 @@ int QCPAxis::calculateAutoSubTickCount(double tickStep) const
 }
 
 /* inherits documentation from base class */
-void QCPAxis::selectEvent(QMouseEvent *event, bool additive, const QVariant &details, bool *selectionStateChanged)
+void QCPAxis::selectEvent(QMouseEvent * , bool additive, const QVariant &details, bool *selectionStateChanged)
 {
-  Q_UNUSED(event)
   SelectablePart part = details.value<SelectablePart>();
   if (mSelectableParts.testFlag(part))
   {
@@ -7400,10 +7386,8 @@ double QCPAbstractPlottable::distSqrToLine(const QPointF &start, const QPointF &
 }
 
 /* inherits documentation from base class */
-void QCPAbstractPlottable::selectEvent(QMouseEvent *event, bool additive, const QVariant &details, bool *selectionStateChanged)
+void QCPAbstractPlottable::selectEvent(QMouseEvent * , bool additive, const QVariant & , bool *selectionStateChanged)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(details)
   if (mSelectable)
   {
     bool selBefore = mSelected;
@@ -8710,10 +8694,8 @@ QCPItemAnchor *QCPAbstractItem::createAnchor(const QString &name, int anchorId)
 }
 
 /* inherits documentation from base class */
-void QCPAbstractItem::selectEvent(QMouseEvent *event, bool additive, const QVariant &details, bool *selectionStateChanged)
+void QCPAbstractItem::selectEvent(QMouseEvent * , bool additive, const QVariant & , bool *selectionStateChanged)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(details)
   if (mSelectable)
   {
     bool selBefore = mSelected;
@@ -10692,9 +10674,8 @@ QSize QCustomPlot::sizeHint() const
   Event handler for when the QCustomPlot widget needs repainting. This does not cause a \ref replot, but
   draws the internal buffer on the widget surface.
 */
-void QCustomPlot::paintEvent(QPaintEvent *event)
+void QCustomPlot::paintEvent(QPaintEvent * )
 {
-  Q_UNUSED(event);
   QPainter painter(this);
   painter.drawPixmap(0, 0, mPaintBuffer);
 }
@@ -12597,9 +12578,8 @@ void QCPAxisRect::mouseMoveEvent(QMouseEvent *event)
 }
 
 /* inherits documentation from base class */
-void QCPAxisRect::mouseReleaseEvent(QMouseEvent *event)
+void QCPAxisRect::mouseReleaseEvent(QMouseEvent * )
 {
-  Q_UNUSED(event)
   mDragging = false;
   if (mParentPlot->noAntialiasingOnDrag())
   {
@@ -12779,9 +12759,8 @@ void QCPAbstractLegendItem::setSelected(bool selected)
 }
 
 /* inherits documentation from base class */
-double QCPAbstractLegendItem::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPAbstractLegendItem::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if (!mParentPlot) return -1;
   if (onlySelectable && (!mSelectable || !mParentLegend->selectableParts().testFlag(QCPLegend::spItems)))
     return -1;
@@ -12805,10 +12784,8 @@ QRect QCPAbstractLegendItem::clipRect() const
 }
 
 /* inherits documentation from base class */
-void QCPAbstractLegendItem::selectEvent(QMouseEvent *event, bool additive, const QVariant &details, bool *selectionStateChanged)
+void QCPAbstractLegendItem::selectEvent(QMouseEvent * , bool additive, const QVariant & , bool *selectionStateChanged)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(details)
   if (mSelectable && mParentLegend->selectableParts().testFlag(QCPLegend::spItems))
   {
     bool selBefore = mSelected;
@@ -13476,9 +13453,8 @@ double QCPLegend::selectTest(const QPointF &pos, bool onlySelectable, QVariant *
 }
 
 /* inherits documentation from base class */
-void QCPLegend::selectEvent(QMouseEvent *event, bool additive, const QVariant &details, bool *selectionStateChanged)
+void QCPLegend::selectEvent(QMouseEvent * , bool additive, const QVariant &details, bool *selectionStateChanged)
 {
-  Q_UNUSED(event)
   mSelectedParts = selectedParts(); // in case item selection has changed
   if (details.value<SelectablePart>() == spLegendBox && mSelectableParts.testFlag(spLegendBox))
   {
@@ -13515,9 +13491,8 @@ QCP::Interaction QCPAbstractLegendItem::selectionCategory() const
 }
 
 /* inherits documentation from base class */
-void QCPLegend::parentPlotInitialized(QCustomPlot *parentPlot)
+void QCPLegend::parentPlotInitialized(QCustomPlot * )
 {
-  Q_UNUSED(parentPlot)
 }
 
 
@@ -13712,10 +13687,8 @@ QSize QCPPlotTitle::maximumSizeHint() const
 }
 
 /* inherits documentation from base class */
-void QCPPlotTitle::selectEvent(QMouseEvent *event, bool additive, const QVariant &details, bool *selectionStateChanged)
+void QCPPlotTitle::selectEvent(QMouseEvent * , bool additive, const QVariant & , bool *selectionStateChanged)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(details)
   if (mSelectable)
   {
     bool selBefore = mSelected;
@@ -13738,9 +13711,8 @@ void QCPPlotTitle::deselectEvent(bool *selectionStateChanged)
 }
 
 /* inherits documentation from base class */
-double QCPPlotTitle::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPPlotTitle::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if (onlySelectable && !mSelectable)
     return -1;
 
@@ -15027,9 +14999,8 @@ void QCPGraph::clearData()
 }
 
 /* inherits documentation from base class */
-double QCPGraph::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPGraph::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if ((onlySelectable && !mSelectable) || mData->isEmpty())
     return -1;
   if (!mKeyAxis || !mValueAxis) { qDebug() << Q_FUNC_INFO << "invalid key or value axis"; return -1; }
@@ -17081,9 +17052,8 @@ void QCPCurve::clearData()
 }
 
 /* inherits documentation from base class */
-double QCPCurve::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPCurve::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if ((onlySelectable && !mSelectable) || mData->isEmpty())
     return -1;
   if (!mKeyAxis || !mValueAxis) { qDebug() << Q_FUNC_INFO << "invalid key or value axis"; return -1; }
@@ -18773,9 +18743,8 @@ void QCPBars::clearData()
 }
 
 /* inherits documentation from base class */
-double QCPBars::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPBars::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if (onlySelectable && !mSelectable)
     return -1;
   if (!mKeyAxis || !mValueAxis) { qDebug() << Q_FUNC_INFO << "invalid key or value axis"; return -1; }
@@ -19401,9 +19370,8 @@ void QCPStatisticalBox::clearData()
 }
 
 /* inherits documentation from base class */
-double QCPStatisticalBox::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPStatisticalBox::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if (onlySelectable && !mSelectable)
     return -1;
   if (!mKeyAxis || !mValueAxis) { qDebug() << Q_FUNC_INFO << "invalid key or value axis"; return -1; }
@@ -20330,9 +20298,8 @@ void QCPColorMap::clearData()
 }
 
 /* inherits documentation from base class */
-double QCPColorMap::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPColorMap::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if (onlySelectable && !mSelectable)
     return -1;
   if (!mKeyAxis || !mValueAxis) { qDebug() << Q_FUNC_INFO << "invalid key or value axis"; return -1; }
@@ -20885,9 +20852,8 @@ void QCPFinancial::clearData()
 }
 
 /* inherits documentation from base class */
-double QCPFinancial::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPFinancial::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if (onlySelectable && !mSelectable)
     return -1;
   if (!mKeyAxis || !mValueAxis) { qDebug() << Q_FUNC_INFO << "invalid key or value axis"; return -1; }
@@ -21469,9 +21435,8 @@ void QCPItemStraightLine::setSelectedPen(const QPen &pen)
 }
 
 /* inherits documentation from base class */
-double QCPItemStraightLine::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPItemStraightLine::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if (onlySelectable && !mSelectable)
     return -1;
 
@@ -21685,9 +21650,8 @@ void QCPItemLine::setTail(const QCPLineEnding &tail)
 }
 
 /* inherits documentation from base class */
-double QCPItemLine::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPItemLine::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if (onlySelectable && !mSelectable)
     return -1;
 
@@ -21922,9 +21886,8 @@ void QCPItemCurve::setTail(const QCPLineEnding &tail)
 }
 
 /* inherits documentation from base class */
-double QCPItemCurve::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPItemCurve::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if (onlySelectable && !mSelectable)
     return -1;
 
@@ -22072,9 +22035,8 @@ void QCPItemRect::setSelectedBrush(const QBrush &brush)
 }
 
 /* inherits documentation from base class */
-double QCPItemRect::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPItemRect::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if (onlySelectable && !mSelectable)
     return -1;
 
@@ -22329,9 +22291,8 @@ void QCPItemText::setPadding(const QMargins &padding)
 }
 
 /* inherits documentation from base class */
-double QCPItemText::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPItemText::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if (onlySelectable && !mSelectable)
     return -1;
 
@@ -22571,9 +22532,8 @@ void QCPItemEllipse::setSelectedBrush(const QBrush &brush)
 }
 
 /* inherits documentation from base class */
-double QCPItemEllipse::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPItemEllipse::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if (onlySelectable && !mSelectable)
     return -1;
 
@@ -22757,9 +22717,8 @@ void QCPItemPixmap::setSelectedPen(const QPen &pen)
 }
 
 /* inherits documentation from base class */
-double QCPItemPixmap::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPItemPixmap::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if (onlySelectable && !mSelectable)
     return -1;
 
@@ -23090,9 +23049,8 @@ void QCPItemTracer::setInterpolating(bool enabled)
 }
 
 /* inherits documentation from base class */
-double QCPItemTracer::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPItemTracer::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if (onlySelectable && !mSelectable)
     return -1;
 
@@ -23370,9 +23328,8 @@ void QCPItemBracket::setStyle(QCPItemBracket::BracketStyle style)
 }
 
 /* inherits documentation from base class */
-double QCPItemBracket::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double QCPItemBracket::selectTest(const QPointF &pos, bool onlySelectable, QVariant * ) const
 {
-  Q_UNUSED(details)
   if (onlySelectable && !mSelectable)
     return -1;
 
