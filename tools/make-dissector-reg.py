@@ -17,7 +17,7 @@ import hashlib
 from stat import *
 
 VERSION_KEY = '_VERSION'
-CUR_VERSION = '$Id$'
+CUR_VERSION = 'this_is_useless_with_git'
 
 #
 # The first argument is the directory in which the source files live.
