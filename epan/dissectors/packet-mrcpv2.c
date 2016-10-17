@@ -38,9 +38,11 @@
 #include <stdlib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-tcp.h"
 
 #include <wsutil/str_util.h>
+#include <wsutil/strtoi.h>
 
 void proto_register_mrcpv2(void);
 void proto_reg_handoff_mrcpv2(void);
@@ -377,6 +379,8 @@ static int hf_mrcpv2_Voiceprint_Identifier = -1;
 static int hf_mrcpv2_Waveform_URI = -1;
 static int hf_mrcpv2_Weight = -1;
 
+static expert_field ei_mrcpv2_Content_Length_invalid = EI_INIT;
+
 /* Global MRCPv2 port pref */
 #define TCP_DEFAULT_RANGE "6075, 30000-30200" /* Not IANA registered */
 
@@ -433,6 +437,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *response_line_item = NULL;
     proto_item *event_line_item = NULL;
     proto_item *status_code_item = NULL;
+    proto_item *pi = NULL;
 
     gint sp_start;
     gint sp_end;
@@ -507,8 +512,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* check pdu size */
-    pdu_size = atoi(field2);
-    if (pdu_size > tvb_len)
+    if (!ws_strtou32(field2, NULL, &pdu_size) || pdu_size > tvb_len)
         return -1;
 
     /* process MRCP header line */
@@ -718,9 +722,12 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_ID, tvb, offset, linelen, header_value);
                     break;
                 case CONTENT_LENGTH:
-                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_Length, tvb, offset, linelen, header_value);
+                    pi = proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_Length, tvb, offset, linelen, header_value);
                     /* if content length is > 0, then there are some data after the headers */
-                    content_length = atoi(header_value);
+                    if (!ws_strtou32(header_value, NULL, &content_length)) {
+                        content_length = 0;
+                        expert_add_info(pinfo, pi, &ei_mrcpv2_Content_Length_invalid);
+                    }
                     break;
                 case CONTENT_LOCATION:
                     proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_Location, tvb, offset, linelen, header_value);
@@ -959,7 +966,7 @@ get_mrcpv2_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
     gint len_start;
     gint len_end;
     guint8 *msg_len;
-    guint num_msg_len;
+    guint num_msg_len = 0;
 
     /* first string is version */
     len_start = tvb_find_guint8(tvb, offset, MRCPV2_MIN_PDU_LEN, ' ');
@@ -974,7 +981,7 @@ get_mrcpv2_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
     else
         msg_len = tvb_get_string_enc(wmem_packet_scope(), tvb, len_start, len_end - len_start, ENC_ASCII);
 
-    num_msg_len = atoi(msg_len);
+    ws_strtou32(msg_len, NULL, &num_msg_len);
     return num_msg_len;
 }
 
@@ -1017,8 +1024,7 @@ dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     if ((value_size != 1) && (value_size != 2))
         return 0;
     major = tvb_get_string_enc(wmem_packet_scope(), tvb, slash_offset + 1, dot_offset - 1, ENC_ASCII);
-    value = atoi(major);
-    if (value != 2)
+    if (ws_strtou32(major, NULL, &value) || value != 2)
         return 0;
 
     /* get second digit, it should be 0 */
@@ -1033,8 +1039,7 @@ dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         minor = tvb_get_string_enc(wmem_packet_scope(), tvb, dot_offset + 1, MRCPV2_MIN_LENGTH - sp_offset - 1, ENC_ASCII);
         len = sp_offset;
     }
-    value = atoi(minor);
-    if (value != 0)
+    if (ws_strtou32(minor, NULL, &value) || value != 0)
         return 0;
 
     /* if we are here, then we have MRCP v 2.0 protocol, so proceed with the dissection */
@@ -1047,6 +1052,8 @@ dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 void
 proto_register_mrcpv2(void)
 {
+    expert_module_t* expert_mrcpv2;
+
     static hf_register_info hf[] = {
         { &hf_mrcpv2_Request_Line,
             { "Request-Line", "mrcpv2.Request-Line",
@@ -1486,6 +1493,11 @@ proto_register_mrcpv2(void)
         }
     };
 
+    static ei_register_info ei[] = {
+        { &ei_mrcpv2_Content_Length_invalid, { "mrcpv2.Content-Length.invalid", PI_MALFORMED, PI_ERROR,
+        "Content Length must be a string containing an integer", EXPFILL }}
+    };
+
     static gint *ett[] = {
         &ett_mrcpv2,
         &ett_Request_Line,
@@ -1498,6 +1510,9 @@ proto_register_mrcpv2(void)
 
     proto_register_field_array(proto_mrcpv2, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_mrcpv2 = expert_register_protocol(proto_mrcpv2);
+    expert_register_field_array(expert_mrcpv2, ei, array_length(ei));
 }
 
 void
