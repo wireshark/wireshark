@@ -49,8 +49,6 @@ override_dh_auto_install:
 		$(CURDIR)/debian/tmp/usr/share/mime/packages/
 	install -m 644 image/wsicon.svg $(CURDIR)/debian/tmp/usr/share/icons/hicolor/scalable/apps/wireshark.svg
 	install -m 644 wireshark-mime-package.xml $(CURDIR)/debian/tmp/usr/share/mime/packages/wireshark.xml
-	# upstream uses wireshark for binary's name
-	# mv $(CURDIR)/debian/tmp/usr/bin/wireshark $(CURDIR)/debian/tmp/usr/bin/wireshark-qt
 	mkdir -p $(CURDIR)/debian/tmp/etc/wireshark/
 	mv $(CURDIR)/debian/tmp/usr/share/wireshark/init.lua \
 		$(CURDIR)/debian/tmp/etc/wireshark/
