@@ -563,6 +563,16 @@ int main(int argc, char *qt_argv[])
         return 2;
     }
 
+    // Read the dynamic part of the recent file. This determines whether or
+    // not the recent list appears in the main window so the earlier we can
+    // call this the better.
+    if (!recent_read_dynamic(&rf_path, &rf_open_errno)) {
+        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                      "Could not open recent file\n\"%s\": %s.",
+                      rf_path, g_strerror(rf_open_errno));
+        g_free(rf_path);
+    }
+
     splash_update(RA_LISTENERS, NULL, NULL);
 
     /* Register all tap listeners; we do this before we parse the arguments,
@@ -736,15 +746,6 @@ int main(int argc, char *qt_argv[])
     /* For update of WindowTitle (When use gui.window_title preference) */
     main_w->setWSWindowTitle();
 ////////
-
-    /* Read the dynamic part of the recent file, as we have the gui now ready for
-       it. */
-    if (!recent_read_dynamic(&rf_path, &rf_open_errno)) {
-        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                      "Could not open recent file\n\"%s\": %s.",
-                      rf_path, g_strerror(rf_open_errno));
-        g_free(rf_path);
-    }
 
     packet_list_enable_color(recent.packet_list_colorize);
 
