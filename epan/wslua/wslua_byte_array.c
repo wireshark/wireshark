@@ -336,10 +336,7 @@ WSLUA_METAMETHOD ByteArray__tostring(lua_State* L) {
     WSLUA_RETURN(1); /* A hex-ascii string representation of the `ByteArray`. */
 }
 
-/*
- * ByteArray_tvb(name)
- */
-WSLUA_CONSTRUCTOR ByteArray_tvb (lua_State *L) {
+WSLUA_METHOD ByteArray_tvb (lua_State *L) {
     /* Creates a new `Tvb` from a `ByteArray` (it gets added to the current frame too). */
 #define WSLUA_ARG_ByteArray_tvb_NAME 2 /* The name to be given to the new data-source. */
     ByteArray ba = checkByteArray(L,1);

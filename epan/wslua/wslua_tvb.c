@@ -391,11 +391,10 @@ gboolean push_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len) {
 }
 
 
-WSLUA_CONSTRUCTOR TvbRange_tvb (lua_State *L) {
+WSLUA_METHOD TvbRange_tvb(lua_State *L) {
     /* Creates a (sub)`Tvb` from a `TvbRange`. */
-#define WSLUA_ARG_Tvb_new_subset_RANGE 1 /* The `TvbRange` from which to create the new `Tvb`. */
 
-    TvbRange tvbr = checkTvbRange(L,WSLUA_ARG_Tvb_new_subset_RANGE);
+    TvbRange tvbr = checkTvbRange(L,1);
     Tvb tvb;
 
     if (! (tvbr && tvbr->tvb)) return 0;

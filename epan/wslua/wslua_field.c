@@ -308,9 +308,8 @@ static int FieldInfo_get_source(lua_State* L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE FieldInfo_range RO The `TvbRange` covering this field. */
+/* WSLUA_ATTRIBUTE FieldInfo_range RO The `TvbRange` covering the bytes of this field in a Tvb. */
 static int FieldInfo_get_range(lua_State* L) {
-    /* The `TvbRange` covering this field. */
     FieldInfo fi = checkFieldInfo(L,1);
 
     if (push_TvbRange (L, fi->ws_fi->ds_tvb, fi->ws_fi->start, fi->ws_fi->length)) {

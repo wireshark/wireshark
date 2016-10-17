@@ -43,7 +43,7 @@ initialized and before reading any file.
 
 [source,lua]
 ----
-local p_multi = Proto("multi","MultiProto");
+local p_multi = Proto("multi", "MultiProto");
 
 local vs_protos = {
         [2] = "mtp2",
@@ -55,9 +55,9 @@ local vs_protos = {
         [8] = "nbap"
 }
 
-local f_proto = ProtoField.uint8("multi.protocol","Protocol",base.DEC,vs_protos)
-local f_dir = ProtoField.uint8("multi.direction","Direction",base.DEC,{ [1] = "incoming", [0] = "outgoing"})
-local f_text = ProtoField.string("multi.text","Text")
+local f_proto = ProtoField.uint8("multi.protocol", "Protocol", base.DEC, vs_protos)
+local f_dir = ProtoField.uint8("multi.direction", "Direction", base.DEC, { [1] = "incoming", [0] = "outgoing"})
+local f_text = ProtoField.string("multi.text", "Text")
 
 p_multi.fields = { f_proto, f_dir, f_text }
 
@@ -76,23 +76,26 @@ local protos = {
         [11] = DissectorTable.get("ip.proto"):get_dissector(132), -- sctp
 }
 
-function p_multi.dissector(buf,pkt,root)
+function p_multi.dissector(buf, pkt, tree)
 
-        local t = root:add(p_multi,buf(0,2))
-        t:add(f_proto,buf(0,1))
-        t:add(f_dir,buf(1,1))
+        local subtree = tree:add(p_multi, buf(0,2))
+        subtree:add(f_proto, buf(0,1))
+        subtree:add(f_dir, buf(1,1))
 
         local proto_id = buf(0,1):uint()
 
         local dissector = protos[proto_id]
 
         if dissector ~= nil then
-                dissector:call(buf(2):tvb(),pkt,root)
+                -- Dissector was found, invoke subdissector with a new Tvb,
+                -- created from the current buffer (skipping first two bytes).
+                dissector:call(buf(2):tvb(), pkt, tree)
         elseif proto_id < 2 then
-                t:add(f_text,buf(2))
-                -- pkt.cols.info:set(buf(2,buf:len() - 3):string())
+                subtree:add(f_text, buf(2))
+                -- pkt.cols.info:set(buf(2, buf:len() - 3):string())
         else
-                data_dis:call(buf(2):tvb(),pkt,root)
+                -- fallback dissector that just shows the raw data.
+                data_dis:call(buf(2):tvb(), pkt, tree)
         end
 
 end
@@ -100,9 +103,9 @@ end
 local wtap_encap_table = DissectorTable.get("wtap_encap")
 local udp_encap_table = DissectorTable.get("udp.port")
 
-wtap_encap_table:add(wtap.USER15,p_multi)
-wtap_encap_table:add(wtap.USER12,p_multi)
-udp_encap_table:add(7555,p_multi)
+wtap_encap_table:add(wtap.USER15, p_multi)
+wtap_encap_table:add(wtap.USER12, p_multi)
+udp_encap_table:add(7555, p_multi)
 ----
 
 [[wslua_tap_example]]
@@ -167,6 +170,27 @@ register_menu("Test/Packets", menuable_tap, MENU_TOOLS_UNSORTED)
 == Wireshark's Lua API Reference Manual
 
 This Part of the User Guide describes the Wireshark specific functions in the embedded Lua.
+
+Classes group certain functionality, the following notational conventions are
+used:
+
+* 'Class.function()' represents a class method (named 'function') on class
+  'Class', taking no arguments.
+
+* 'Class.function(a)' represents a class method taking one argument.
+
+* 'Class.function(...)' represents a class method taking a variable number of
+  arguments.
+
+* 'class:method()' represents an instance method (named 'method') on an instance
+  of class 'Class', taking no arguments. Note the lowercase notation in the
+  documentation to clarify an instance.
+
+* 'class.prop' represents a property 'prop' on the instance of class 'Class'.
+
+Trying to access a non-existing property, function or method currently gives an
+error, but do not rely on it as the behavior may change in the future.
+
 
 include::{build_dir}/wsluarm_src/wslua_dumper.asciidoc[]
 include::{build_dir}/wsluarm_src/wslua_field.asciidoc[]

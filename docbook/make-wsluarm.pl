@@ -357,6 +357,9 @@ my $out_extension = "asciidoc";
 # XXX: support \" within ""
 my $QUOTED_RE = "\042\050\133^\042\135*\051\042";
 
+# group 1: whole trailing comment (possibly empty), e.g. " /* foo */"
+# group 2: any leading whitespace. XXX why is this not removed using (?:...)
+# group 3: actual comment text, e.g. " foo ".
 my $TRAILING_COMMENT_RE = '((\s*|[\n\r]*)/\*(.*?)\*/)?';
 my $IN_COMMENT_RE       = '[\s\r\n]*((.*?)\*/)?';
 
@@ -460,28 +463,24 @@ sub {
 	push @{${$class}{methods}}, $function;
 } ],
 
-[ '#define WSLUA_(OPT)?ARG_([A-Za-z0-9_]+)_([A-Z0-9]+)\s+\d+' . $TRAILING_COMMENT_RE,
+# Splits "WSLUA_OPTARG_ProtoField_int8_NAME /* food */" into
+# "OPT" (1), "ProtoField_int8" (2), "NAME" (3), ..., ..., " food " (6)
+# Handles functions like "loadfile(filename)" too.
+[ '#define WSLUA_(OPT)?ARG_((?:[A-Za-z0-9]+_)?[a-z0-9_]+)_([A-Z0-9_]+)\s+\d+' . $TRAILING_COMMENT_RE,
 sub {
-	deb ">a=$1=$2=$3=$4=$5=$6=$7=\n";
+	deb ">a=$1=$2=$3=$4=$5=$6=\n";
 	my $name = $1 eq 'OPT' ? "[$3]" : $3;
 	push @{${$function}{arglist}} , $name;
 	${${$function}{args}}{$name} = {descr=>parse_function_arg_desc($6),}
 } ],
 
-[ '\057\052\s*WSLUA_(OPT)?ARG_([A-Za-z0-9_]+)_([A-Z0-9]+)\s*(.*?)\052\057',
+# same as above, except that there is no macro but a (multi-line) comment.
+[ '\057\052\s*WSLUA_(OPT)?ARG_((?:[A-Za-z0-9]+_)?[a-z0-9_]+)_([A-Z0-9_]+)\s*(.*?)\052\057',
 sub {
-	deb ">a=$1=$2=$3=$4=$5=$6=$7=\n";
+	deb ">a=$1=$2=$3=$4\n";
 	my $name = $1 eq 'OPT' ? "[$3]" : $3;
 	push @{${$function}{arglist}} , $name;
 	${${$function}{args}}{$name} = {descr=>parse_function_arg_desc($4),}
-} ],
-
-[ '#define WSLUA_(OPT)?ARG_([A-Za-z0-9]+)_([a-z_]+)_([A-Z0-9]+)\s+\d+' . $TRAILING_COMMENT_RE,
-sub {
-	deb ">ca=$1=$2=$3=$4=$5=$6=$7=\n";
-	my $name = $1 eq 'OPT' ? "[$4]" : $4;
-	push @{${$function}{arglist}} , $name;
-	${${$function}{args}}{$name} = {descr=>parse_function_arg_desc($7),optional => $1 eq '' ? 1 : 0 }
 } ],
 
 [ '/\052\s+WSLUA_ATTRIBUTE\s+([A-Za-z0-9]+)_([a-z_]+)\s+([A-Z]*)\s*(.*?)\052/',
