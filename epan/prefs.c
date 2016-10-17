@@ -2518,6 +2518,11 @@ prefs_register_modules(void)
     prefs_register_uint_custom_preference(console_module, "log.level", "logging level",
         "A bitmask of GLib log levels", &custom_cbs, &prefs.console_log_level);
 
+    prefs_register_bool_preference(console_module, "incomplete_dissectors_check_debug",
+                                   "Print debug line for incomplete dissectors",
+                                   "Look for dissectors that left some bytes undecoded (debug)",
+                                   &prefs.incomplete_dissectors_check_debug);
+
     /* Capture
      * These are preferences that can be read/written using the
      * preference module API.  These preferences still use their own
