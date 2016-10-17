@@ -238,6 +238,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  decode_as_default_reset@Base 1.12.0~rc1
  decode_as_list@Base 1.12.0~rc1
  decode_bits_in_field@Base 1.9.1
+ decode_build_reset_list@Base 2.3.0
+ decode_clear_all@Base 2.3.0
  decode_dcerpc_add_show_list@Base 1.12.0~rc1
  decode_dcerpc_reset_all@Base 1.12.0~rc1
  decode_tcp_ports@Base 1.99.0
@@ -409,10 +411,13 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_xdlc_control@Base 1.9.1
  dissector_add_custom_table_handle@Base 1.99.8
  dissector_add_for_decode_as@Base 1.9.1
+ dissector_add_for_decode_as_with_preference@Base 2.3.0
  dissector_add_guid@Base 2.1.0
  dissector_add_string@Base 1.9.1
  dissector_add_uint@Base 1.9.1
  dissector_add_uint_range@Base 1.12.0~rc1
+ dissector_add_uint_range_with_preference@Base 2.3.0
+ dissector_add_uint_with_preference@Base 2.3.0
  dissector_all_heur_tables_foreach_table@Base 1.9.1
  dissector_all_tables_foreach_changed@Base 1.9.1
  dissector_all_tables_foreach_table@Base 1.9.1
@@ -441,6 +446,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissector_table_allow_decode_as@Base 2.3.0
  dissector_table_foreach@Base 1.9.1
  dissector_table_foreach_handle@Base 1.9.1
+ dissector_table_get_dissector_handle@Base 2.3.0
  dissector_table_get_dissector_handles@Base 1.12.0~rc1
  dissector_table_get_type@Base 1.12.0~rc1
  dissector_try_guid@Base 2.1.0
@@ -832,6 +838,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  link_type_vals@Base 2.1.0
  list_stat_cmd_args@Base 1.9.1
  llc_add_oui@Base 1.9.1
+ load_decode_as_entries@Base 2.3.0
  make_printable_string@Base 1.9.1
  manually_resolve_cleanup@Base 1.12.0~rc1
  mark_frame_as_depended_upon@Base 1.9.1
@@ -1155,8 +1162,12 @@ libwireshark.so.0 libwireshark0 #MINVER#
  q932_PresentedNumberUnscreened_vals@Base 2.1.0
  qs_func_vals@Base 1.9.1
  qs_rate_vals_ext@Base 1.9.1
+ raknet_add_udp_dissector@Base 2.3.0
+ raknet_conversation_set_dissector@Base 2.3.0
+ raknet_delete_udp_dissector@Base 2.3.0
  range_convert_range@Base 1.9.1
  range_convert_str@Base 1.9.1
+ range_convert_str_work@Base 2.3.0
  range_copy@Base 1.9.1
  range_empty@Base 1.9.1
  range_foreach@Base 1.9.1
@@ -1252,6 +1263,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  s1ap_CauseProtocol_vals@Base 1.9.1
  s1ap_CauseRadioNetwork_vals@Base 1.9.1
  s1ap_CauseTransport_vals@Base 1.9.1
+ save_decode_as_entries@Base 2.3.0
  save_disabled_heur_dissector_list@Base 1.99.8
  save_disabled_protos_list@Base 1.12.0~rc1
  sccp_address_signal_values@Base 1.9.1
