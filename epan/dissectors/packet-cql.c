@@ -734,10 +734,10 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 			}
 			/* if the decompression succeeded build the new tvb */
 			if (ret == SNAPPY_OK) {
-				tvb = tvb_new_child_real_data(raw_tvb, decompressed_buffer, orig_size, orig_size);
+				tvb = tvb_new_child_real_data(raw_tvb, decompressed_buffer, (guint32)orig_size, (guint32)orig_size);
 				add_new_data_source(pinfo, tvb, "Decompressed Data");
 				compression_level = CQL_COMPRESSION_SNAPPY;
-				message_length= orig_size;
+				message_length = (guint32)orig_size;
 			}
 		}
 #endif

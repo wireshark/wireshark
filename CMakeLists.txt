@@ -1569,6 +1569,13 @@ if(WIN32)
 				"${_dll_output_dir}"
 		)
 	endif(LUA_FOUND)
+	if (LZ4_FOUND)
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${LZ4_DLL_DIR}/${LZ4_DLL}"
+				"${_dll_output_dir}"
+		)
+	endif(LZ4_FOUND)
 	if (NGHTTP2_FOUND)
 		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -1619,6 +1626,13 @@ if(WIN32)
 				"${_dll_output_dir}/snmp/mibs/tubs"
 		)
 	endif(SMI_FOUND)
+	if (SNAPPY_FOUND)
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${SNAPPY_DLL_DIR}/${SNAPPY_DLL}"
+				"${_dll_output_dir}"
+		)
+	endif(SNAPPY_FOUND)
 	if (WINSPARKLE_FOUND)
 		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy_if_different

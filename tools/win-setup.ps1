@@ -99,8 +99,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2016-09-29"
-$Win32CurrentTag = "2016-09-29"
+$Win64CurrentTag = "2016-10-17"
+$Win32CurrentTag = "2016-10-17"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -113,9 +113,11 @@ $Win64Archives = @{
     "libsmi-svn-40773-win64ws.zip" = "";
     "libssh-0.7.2-win64ws.zip" = "";
     "lua-5.2.4_Win64_dllw4_lib.zip" = "lua5.2.4";
+    "lz4-r131-win64ws.zip" = "";
     "nasm-2.09.08-win32.zip" = "";
     "nghttp2-1.14.0-win64ws.zip" = "";
     "portaudio_v19_2.zip" = "";
+    "snappy-1.1.3-win64ws.zip" = "";
     "upx303w.zip" = "";
     "WinSparkle-0.3-44-g2c8d9d3-win64ws.zip" = "";
     "WpdPack_4_1_2.zip" = "";
@@ -132,9 +134,11 @@ $Win32Archives = @{
     "libsmi-svn-40773-win32ws.zip" = "";
     "libssh-0.7.2-win32ws.zip" = "";
     "lua-5.2.4_Win32_dllw4_lib.zip" = "lua5.2.4";
+    "lz4-r131-win32ws.zip" = "";
     "nasm-2.09.08-win32.zip" = "";
     "nghttp2-1.14.0-win32ws.zip" = "";
     "portaudio_v19_2.zip" = "";
+    "snappy-1.1.3-win32ws.zip" = "";
     "upx303w.zip" = "";
     "WinSparkle-0.3-44-g2c8d9d3-win32ws.zip" = "";
     "WpdPack_4_1_2.zip" = "";
@@ -173,15 +177,17 @@ $CleanupItems = @(
     "kfw-3-2-2-final"
     "kfw-3-2-2-i386-ws-vc6"
     "kfw-3-2-2-x64-ws"
-    "lua5.1.4"
-    "lua5.2.?"
     "libsmi-0.4.8"
     "libsmi-svn-40773-win??ws"
     "libssh-0.7.2-win??ws"
+    "lua5.1.4"
+    "lua5.2.?"
+    "lz4-r131-win??ws"
     "nasm-2.09.08"
     "nghttp2-*-win??ws"
     "portaudio_v19"
     "portaudio_v19_2"
+    "snappy-1.1.3-win??ws"
     "upx301w"
     "upx303w"
     "user-guide"

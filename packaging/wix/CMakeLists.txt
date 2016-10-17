@@ -123,7 +123,8 @@ file(APPEND "${_all_manifest_wix}" "    <DirectoryRef Id=\"INSTALLFOLDER\">\n")
 SET(unique_component "")
 foreach(_dll ${GLIB2_DLLS} ${CARES_DLL} ${GCRYPT_DLLS} ${GEOIP_DLL}
 		${GNUTLS_DLLS} ${KERBEROS_DLLS} ${LIBSSH_DLL} ${LUA_DLL}
-		${NGHTTP2_DLL} ${SMI_DLL} ${WINSPARKLE_DLL} ${ZLIB_DLL}
+		${LZ4_DLL} ${NGHTTP2_DLL} ${SMI_DLL} ${SNAPPY_DLL}
+		${WINSPARKLE_DLL} ${ZLIB_DLL}
 	)
 	#ensure uniqueness of files
 	IF(NOT "${unique_component}" MATCHES "(^|;)${_dll}(;|$)")
@@ -147,7 +148,8 @@ file(APPEND "${_all_manifest_wix}" "    <ComponentGroup Id=\"CG.RequiredDependen
 SET(unique_file "")
 foreach(_dll ${GLIB2_DLLS} ${CARES_DLL} ${GCRYPT_DLLS} ${GEOIP_DLL}
 		${GNUTLS_DLLS} ${KERBEROS_DLLS} ${LIBSSH_DLL} ${LUA_DLL}
-		${NGHTTP2_DLL} ${SMI_DLL} ${WINSPARKLE_DLL} ${ZLIB_DLL}
+		${LZ4_DLL} ${NGHTTP2_DLL} ${SMI_DLL} ${SNAPPY_DLL}
+		${WINSPARKLE_DLL} ${ZLIB_DLL}
 	)
 	#ensure uniqueness of files
 	IF(NOT "${unique_file}" MATCHES "(^|;)${_dll}(;|$)")
