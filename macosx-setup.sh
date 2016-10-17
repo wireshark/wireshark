@@ -1513,7 +1513,7 @@ install_all() {
     #
     if [ ! -z "$installed_nghttp2_version" -a \
               "$installed_nghttp2_version" != "$NGHTTP2_VERSION" ] ; then
-        echo "Installed libssh version is $installed_nghttp2_version"
+        echo "Installed nghttp2 version is $installed_nghttp2_version"
         if [ -z "$NGHTTP2_VERSION" ] ; then
             echo "nghttp2 is not requested"
         else
