@@ -1,0 +1,2 @@
+# the wireshark manpage covers wireshark-gtk, too
+wireshark-gtk: binary-without-manpage usr/bin/wireshark-gtk
