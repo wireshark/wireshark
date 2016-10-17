@@ -521,9 +521,10 @@ static int TreeItem_get_text(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
     gchar label_str[ITEM_LABEL_LENGTH+1];
     gchar *label_ptr;
-    field_info *fi = PITEM_FINFO(ti->item);
 
-    if(fi) {
+    if (ti->item) {
+        field_info *fi = PITEM_FINFO(ti->item);
+
         if (!fi->rep) {
             label_ptr = label_str;
             proto_item_fill_label(fi, label_str);
