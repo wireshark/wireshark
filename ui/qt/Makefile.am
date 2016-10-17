@@ -211,6 +211,7 @@ MOC_HDRS = \
 	import_text_dialog.h				\
 	interface_frame.h				\
 	interface_tree_model.h				\
+	interface_tree_cache_model.h			\
 	interface_sort_filter_model.h			\
 	io_graph_dialog.h				\
 	label_stack.h					\
@@ -486,6 +487,7 @@ WIRESHARK_QT_SRC = \
 	import_text_dialog.cpp				\
 	interface_frame.cpp				\
 	interface_tree_model.cpp			\
+	interface_tree_cache_model.cpp			\
 	interface_sort_filter_model.cpp			\
 	label_stack.cpp					\
 	layout_preferences_frame.cpp			\

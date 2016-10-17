@@ -28,6 +28,8 @@
 #include "capture_opts.h"
 #include "ui/capture_globals.h"
 #include "ui/qt/capture_interfaces_dialog.h"
+#include "ui/qt/interface_tree_cache_model.h"
+#include "ui/qt/interface_sort_filter_model.h"
 #ifdef HAVE_PCAP_REMOTE
 #include "ui/qt/remote_capture_dialog.h"
 #include "ui/qt/remote_settings_dialog.h"
@@ -66,13 +68,6 @@ enum {
     col_p_pipe_
 };
 
-enum
-{
-    col_l_show_,
-    col_l_friendly_name_,
-    col_l_local_name_,
-    col_l_comment_
-};
 
 enum
 {
@@ -100,19 +95,29 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     ui->delRemote->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
-    int one_em = fontMetrics().height();
+    sourceModel = new InterfaceTreeCacheModel(this);
 
-    ui->localList->setColumnWidth(col_l_show_, one_em * 3);
-#ifndef Q_OS_WIN
-    ui->localList->setColumnHidden(col_l_friendly_name_, true);
+    proxyModel = new InterfaceSortFilterModel(this);
+    QList<InterfaceTreeColumns> columns;
+    columns.append(IFTREE_COL_HIDDEN);
+    columns.append(IFTREE_COL_INTERFACE_NAME);
+#ifdef Q_OS_WIN
+    columns.append(IFTREE_COL_NAME);
 #endif
-    ui->localList->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    columns.append(IFTREE_COL_INTERFACE_COMMENT);
+    proxyModel->setColumns(columns);
+    proxyModel->setSourceModel(sourceModel);
+    proxyModel->setFilterHidden(false);
+    proxyModel->setFilterByType(false);
 
+
+    ui->localView->setModel(proxyModel);
+    ui->localView->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_HIDDEN));
+    ui->localView->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_INTERFACE_NAME));
     ui->pipeList->setItemDelegateForColumn(col_p_pipe_, &new_pipe_item_delegate_);
     new_pipe_item_delegate_.setTree(ui->pipeList);
 
     showPipes();
-    showLocalInterfaces();
 
 #if defined(HAVE_PCAP_REMOTE)
     // The default indentation (20) means our checkboxes are shifted too far on Windows.
@@ -127,7 +132,6 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
 
     connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateWidgets()));
     connect(this, SIGNAL(ifsChanged()), parent, SIGNAL(ifsChanged()));
-    connect(ui->localList, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this, SLOT(localListItemDoubleClicked(QTreeWidgetItem *, int)));
 
 #ifdef HAVE_PCAP_REMOTE
     connect(this, SIGNAL(remoteAdded(GList*, remote_options*)), this, SLOT(addRemoteInterfaces(GList*, remote_options*)));
@@ -214,11 +218,12 @@ void ManageInterfacesDialog::showPipes()
 void ManageInterfacesDialog::on_buttonBox_accepted()
 {
     pipeAccepted();
-    localAccepted();
+    sourceModel->save();
 #ifdef HAVE_PCAP_REMOTE
     remoteAccepted();
 #endif
     prefs_main_write();
+    wsApp->refreshLocalInterfaces();
     emit ifsChanged();
 }
 
@@ -316,167 +321,9 @@ void ManageInterfacesDialog::on_pipeList_currentItemChanged(QTreeWidgetItem *, Q
     updateWidgets();
 }
 
-void ManageInterfacesDialog::showLocalInterfaces()
-{
-    guint i;
-    interface_t device;
-    gchar *pr_descr = g_strdup("");
-    char *comment = NULL;
-
-    ui->localList->clear();
-    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (device.local && device.type != IF_PIPE && device.type != IF_STDIN) {
-            QTreeWidgetItem *item = new QTreeWidgetItem(ui->localList);
-            item->setFlags(item->flags() | Qt::ItemIsEditable);
-            if (prefs.capture_device && strstr(prefs.capture_device, device.name)) {
-                // Force the default device to be checked.
-                item->setFlags(item->flags() ^ Qt::ItemIsUserCheckable);
-                item->setCheckState(col_l_show_, Qt::Checked);
-            } else {
-                item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-                item->setCheckState(col_l_show_, device.hidden ? Qt::Unchecked : Qt::Checked);
-            }
-#ifdef _WIN32
-            item->setText(col_l_friendly_name_, device.friendly_name);
-#endif
-            item->setText(col_l_local_name_, device.name);
-
-            comment = capture_dev_user_descr_find(device.name);
-            if (comment) {
-                item->setText(col_l_comment_, comment);
-                g_free(comment);
-            } else if (device.if_info.vendor_description) {
-                item->setText(col_l_comment_, device.if_info.vendor_description);
-            }
-        } else {
-            continue;
-        }
-    }
-    g_free(pr_descr);
-}
-
-void ManageInterfacesDialog::saveLocalHideChanges(QTreeWidgetItem *item)
-{
-    guint i;
-    interface_t device;
-
-    if (!item) {
-        return;
-    }
-
-    QString name = item->text(col_l_local_name_);
-    /* See if this is the currently selected capturing device */
-
-    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (name.compare(device.name)) {
-            continue;
-        }
-        device.hidden = (item->checkState(col_l_show_) == Qt::Checked ? false : true);
-        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-        g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-    }
-}
-
-void ManageInterfacesDialog::saveLocalCommentChanges(QTreeWidgetItem* item)
-{
-    guint i;
-    interface_t device;
-
-    if (!item) {
-        return;
-    }
-
-    QString name = item->text(col_l_local_name_);
-    QString comment = item->text(col_l_comment_);
-    /* See if this is the currently selected capturing device */
-
-    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (name.compare(device.name)) {
-            continue;
-        }
-
-        g_free(device.display_name);
-        device.display_name = get_iface_display_name(comment.toUtf8().constData(), &device.if_info);
-        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-        g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-    }
-}
-
-#if 0 // Not needed?
-void ManageInterfacesDialog::checkBoxChanged(QTreeWidgetItem* item)
-{
-    guint i;
-    interface_t device;
-
-    if (!item) {
-        return;
-    }
-
-    QString name = item->text(col_l_local_name_);
-    /* See if this is the currently selected capturing device */
-
-    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (name.compare(device.name)) {
-            continue;
-        }
-        if (prefs.capture_device && strstr(prefs.capture_device, device.name) && item->checkState() == Qt::Checked) {
-            /* Don't allow current interface to be hidden */
-            QMessageBox::warning(this, tr("Error"),
-                                 tr("Default interface cannot be hidden."));
-            item->setCheckState(Qt::Unchecked);
-            return;
-        }
-    }
-}
-#endif // checkBoxChanged not needed?
-
-void ManageInterfacesDialog::localAccepted()
-{
-
-    if (global_capture_opts.all_ifaces->len > 0) {
-        QStringList hide_list;
-        QStringList comment_list;
-        QTreeWidgetItemIterator it(ui->localList);
-        while (*it) {
-            if ((*it)->checkState(col_l_show_) != Qt::Checked) {
-                hide_list << (*it)->text(col_l_local_name_);
-            }
-
-            if (!(*it)->text(col_l_local_name_).isEmpty()) {
-                comment_list << QString("%1(%2)").arg((*it)->text(col_l_local_name_)).arg((*it)->text(col_l_comment_));
-            }
-
-            saveLocalHideChanges(*it);
-            saveLocalCommentChanges(*it);
-            ++it;
-        }
-        /* write new "hidden" string to preferences */
-        g_free(prefs.capture_devices_hide);
-        gchar *new_hide = qstring_strdup(hide_list.join(","));
-        prefs.capture_devices_hide = new_hide;
-        hide_interface(g_strdup(new_hide));
-
-        /* write new description string to preferences */
-        if (prefs.capture_devices_descr)
-            g_free(prefs.capture_devices_descr);
-        prefs.capture_devices_descr = qstring_strdup(comment_list.join(","));
-    }
-}
-
 void ManageInterfacesDialog::on_buttonBox_helpRequested()
 {
     wsApp->helpTopicAction(HELP_CAPTURE_MANAGE_INTERFACES_DIALOG);
-}
-
-void ManageInterfacesDialog::localListItemDoubleClicked(QTreeWidgetItem * item, int column)
-{
-    if (column == col_l_comment_) {
-        ui->localList->editItem(item, column);
-    }
 }
 
 #ifdef HAVE_PCAP_REMOTE

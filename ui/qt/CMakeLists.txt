@@ -81,6 +81,7 @@ set(WIRESHARK_QT_HEADERS
 	iax2_analysis_dialog.h
 	import_text_dialog.h
 	interface_tree_model.h
+	interface_tree_cache_model.h
 	interface_sort_filter_model.h
 	interface_frame.h
 	io_graph_dialog.h
@@ -241,6 +242,7 @@ set(WIRESHARK_QT_SRC
 	iax2_analysis_dialog.cpp
 	import_text_dialog.cpp
 	interface_tree_model.cpp
+	interface_tree_cache_model.cpp
 	interface_sort_filter_model.cpp
 	interface_frame.cpp
 	label_stack.cpp

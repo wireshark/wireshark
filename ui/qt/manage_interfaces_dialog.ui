@@ -23,7 +23,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="localTab">
       <property name="toolTip">
@@ -34,7 +34,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QTreeWidget" name="localList">
+        <widget class="QTreeView" name="localView">
          <property name="focusPolicy">
           <enum>Qt::NoFocus</enum>
          </property>
@@ -50,26 +50,6 @@
          <property name="itemsExpandable">
           <bool>false</bool>
          </property>
-         <column>
-          <property name="text">
-           <string>Show</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Friendly Name</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Interface Name</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Comment</string>
-          </property>
-         </column>
         </widget>
        </item>
       </layout>

@@ -47,6 +47,7 @@ enum InterfaceTreeColumns
 #endif
     IFTREE_COL_NAME,
     IFTREE_COL_INTERFACE_NAME,
+    IFTREE_COL_INTERFACE_COMMENT,
     IFTREE_COL_HIDDEN,
     IFTREE_COL_TYPE,
     IFTREE_COL_STATS,
@@ -63,6 +64,7 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data (const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     void updateStatistic(unsigned int row);
 #ifdef HAVE_LIBPCAP

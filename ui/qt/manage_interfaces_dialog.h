@@ -27,6 +27,9 @@
 #include <glib.h>
 #include "capture_opts.h"
 
+#include "ui/qt/interface_tree_cache_model.h"
+#include "ui/qt/interface_sort_filter_model.h"
+
 #include "geometry_state_dialog.h"
 #include <QStyledItemDelegate>
 
@@ -78,14 +81,10 @@ private:
     Ui::ManageInterfacesDialog *ui;
     PathChooserDelegate new_pipe_item_delegate_;
 
+    InterfaceTreeCacheModel * sourceModel;
+    InterfaceSortFilterModel * proxyModel;
     void showPipes();
-    void showLocalInterfaces();
     void showRemoteInterfaces();
-    void saveLocalHideChanges(QTreeWidgetItem *item);
-    void saveLocalCommentChanges(QTreeWidgetItem *item);
-#if 0 // Not needed?
-    void checkBoxChanged(QTreeWidgetItem *item);
-#endif
 
 signals:
     void ifsChanged();
@@ -104,8 +103,6 @@ private slots:
     void pipeAccepted();
     void on_pipeList_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
 
-    void localAccepted();
-    void localListItemDoubleClicked(QTreeWidgetItem * item, int column);
 
 #ifdef HAVE_PCAP_REMOTE
     void on_addRemote_clicked();

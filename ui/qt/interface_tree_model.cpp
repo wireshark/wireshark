@@ -115,14 +115,15 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     int row = index.row();
-    int col = index.column();
+    InterfaceTreeColumns col = (InterfaceTreeColumns) index.column();
 
-    /* Data for display in cell */
-    if ( role == Qt::DisplayRole )
+    if ( interfacesLoaded )
     {
-        if ( interfacesLoaded )
+        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, row);
+
+        /* Data for display in cell */
+        if ( role == Qt::DisplayRole )
         {
-            interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, row);
             /* Only the name is being displayed */
             if ( col == IFTREE_COL_NAME )
             {
@@ -138,55 +139,102 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
                 return QString(device.if_info.extcap);
             }
 #endif
-            else if ( col == IFTREE_COL_HIDDEN )
-            {
-                return QVariant::fromValue((bool)device.hidden);
-            }
+
             else if ( col == IFTREE_COL_TYPE )
             {
                 return QVariant::fromValue((int)device.if_info.type);
             }
+            else if ( col == IFTREE_COL_INTERFACE_COMMENT )
+            {
+                QString comment = gchar_free_to_qstring(capture_dev_user_descr_find(device.name));
+                if ( comment.length() > 0 )
+                    return comment;
+                else
+                    return QString(device.if_info.vendor_description);
+            }
+            else
+            {
+                /* Return empty string for every other DisplayRole */
+                return QVariant();
+            }
         }
-
-        /* Return empty string for every other DisplayRole */
-        return QVariant();
-    }
-    /* Used by SparkLineDelegate for loading the data for the statistics line */
-    else if ( role == Qt::UserRole && col == IFTREE_COL_STATS && interfacesLoaded )
-    {
-        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, row);
-        if ( points.contains(device.name) )
-            return qVariantFromValue(points[device.name]);
-    }
+        else if ( role == Qt::CheckStateRole )
+        {
+            if ( col == IFTREE_COL_HIDDEN )
+            {
+                /* Hidden is a de-selection, therefore inverted logic here */
+                return device.hidden ? Qt::Unchecked : Qt::Checked;
+            }
+        }
+        /* Used by SparkLineDelegate for loading the data for the statistics line */
+        else if ( role == Qt::UserRole )
+        {
+            if ( col == IFTREE_COL_STATS )
+            {
+                if ( points.contains(device.name) )
+                    return qVariantFromValue(points[device.name]);
+            }
+            else if ( col == IFTREE_COL_HIDDEN )
+            {
+                return QVariant::fromValue((bool)device.hidden);
+            }
+        }
 #ifdef HAVE_EXTCAP
-    /* Displays the configuration icon for extcap interfaces */
-    else if ( role == Qt::DecorationRole && interfacesLoaded )
-    {
-        if ( col == IFTREE_COL_EXTCAP )
+        /* Displays the configuration icon for extcap interfaces */
+        else if ( role == Qt::DecorationRole )
         {
-            QIcon extcap_icon(StockIcon("x-capture-options"));
-            interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, row);
-            if ( device.if_info.type == IF_EXTCAP )
-                return extcap_icon;
+            if ( col == IFTREE_COL_EXTCAP )
+            {
+                if ( device.if_info.type == IF_EXTCAP )
+                    return QIcon(StockIcon("x-capture-options"));
+            }
         }
-    }
-    else if ( role == Qt::TextAlignmentRole)
-    {
-        if ( col == IFTREE_COL_EXTCAP )
+        else if ( role == Qt::TextAlignmentRole )
         {
-            return Qt::AlignRight;
+            if ( col == IFTREE_COL_EXTCAP )
+            {
+                return Qt::AlignRight;
+            }
         }
-    }
 #endif
-    /* Displays the tooltip for each row */
-    else if ( role == Qt::ToolTipRole )
-    {
-        return toolTipForInterface(row);
+        /* Displays the tooltip for each row */
+        else if ( role == Qt::ToolTipRole )
+        {
+            return toolTipForInterface(row);
+        }
     }
 #else
     Q_UNUSED(index);
     Q_UNUSED(role);
 #endif
+
+    return QVariant();
+}
+
+QVariant InterfaceTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if ( orientation == Qt::Horizontal )
+    {
+        if ( role == Qt::DisplayRole )
+        {
+            if ( section == IFTREE_COL_HIDDEN )
+            {
+                return tr("Show");
+            }
+            else if ( section == IFTREE_COL_INTERFACE_NAME )
+            {
+                return tr("Friendly Name");
+            }
+            else if ( section == IFTREE_COL_INTERFACE_NAME )
+            {
+                return tr("Interface Name");
+            }
+            else if ( section == IFTREE_COL_INTERFACE_COMMENT )
+            {
+                return tr("Comment");
+            }
+        }
+    }
 
     return QVariant();
 }
