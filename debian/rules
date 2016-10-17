@@ -33,9 +33,6 @@ override_dh_auto_configure:
 override_dh_auto_build:
 	$(MAKE) -C $(CURDIR)/obj-* asn1
 	dh_auto_build
-	# some architectures may not support all hardening options but at least
-	# log the build's hardening results
-	-$(MAKE) -C $(CURDIR)/obj-* hardening-check
 	# fix links in documentation
 	sed -i "s|$(CURDIR)/docbook|..|" obj-*/docbook/ws*g_html_chunked/*.html
 
