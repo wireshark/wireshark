@@ -88,10 +88,8 @@ QString InterfaceTreeModel::interfaceError()
     return errorText;
 }
 
-int InterfaceTreeModel::rowCount(const QModelIndex & parent) const
+int InterfaceTreeModel::rowCount(const QModelIndex & ) const
 {
-    Q_UNUSED(parent);
-
 #ifdef HAVE_LIBPCAP
     return (global_capture_opts.all_ifaces ? global_capture_opts.all_ifaces->len : 0);
 #else
@@ -100,10 +98,8 @@ int InterfaceTreeModel::rowCount(const QModelIndex & parent) const
 #endif
 }
 
-int InterfaceTreeModel::columnCount(const QModelIndex & parent) const
+int InterfaceTreeModel::columnCount(const QModelIndex & ) const
 {
-    Q_UNUSED(parent);
-
     /* IFTREE_COL_MAX is not being displayed, it is the definition for the maximum numbers of columns */
     return ((int) IFTREE_COL_MAX);
 }
@@ -187,9 +183,10 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
     {
         return toolTipForInterface(row);
     }
-#endif
+#else
     Q_UNUSED(index);
     Q_UNUSED(role);
+#endif
 
     return QVariant();
 }
