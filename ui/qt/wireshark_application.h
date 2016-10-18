@@ -66,6 +66,7 @@ public:
         CaptureFilterListChanged,
         DisplayFilterListChanged,
         FilterExpressionsChanged,
+        LocalInterfacesChanged,
         NameResolutionChanged,
         PacketDissectionChanged,
         PreferencesChanged,

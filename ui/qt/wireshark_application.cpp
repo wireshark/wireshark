@@ -705,6 +705,9 @@ void WiresharkApplication::emitAppSignal(AppSignal signal)
     case FilterExpressionsChanged:
         emit filterExpressionsChanged();
         break;
+    case LocalInterfacesChanged:
+        emit localInterfaceListChanged();
+        break;
     case NameResolutionChanged:
         emit addressResolutionChanged();
         break;
