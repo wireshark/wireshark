@@ -47,6 +47,16 @@ void PercentBarDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         return;
     }
 
+    // If our value is out range our caller has a bug. Clamp the graph and
+    // Print the numeric value so that the bug is obvious.
+    QString pct_str = QString::number(value, 'f', 1);
+    if (value < 0) {
+        value = 0;
+    }
+    if (value > 100.0) {
+        value = 100.0;
+    }
+
     if (QApplication::style()->objectName().contains("vista")) {
         // QWindowsVistaStyle::drawControl does this internally. Unfortunately there
         // doesn't appear to be a more general way to do this.
@@ -80,7 +90,6 @@ void PercentBarDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     painter->restore();
 
     painter->save();
-    QString pct_str = QString::number(value, 'f', 1);
     painter->setPen(text_color);
     painter->drawText(option.rect, Qt::AlignCenter, pct_str);
     painter->restore();

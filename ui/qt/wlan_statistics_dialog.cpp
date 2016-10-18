@@ -127,10 +127,13 @@ public:
         }
         if (wlan_hdr->type != MGT_BEACON) packets_++;
     }
-    void draw(address *bssid, int num_packets _U_) {
-        if(packets_){
+    void draw(address *bssid, int num_packets) {
+        if(packets_ && num_packets > 0) {
             setData(col_pct_packets_, Qt::UserRole, QVariant::fromValue<double>(packets_ * 100.0 / num_packets));
             setData(col_pct_retry_, Qt::UserRole, QVariant::fromValue<double>(retry_ * 100.0 / packets_));
+        } else {
+            setData(col_pct_packets_, Qt::UserRole, QVariant::fromValue<double>(0));
+            setData(col_pct_retry_, Qt::UserRole, QVariant::fromValue<double>(0));
         }
         setText(col_beacons_, QString::number(sent_));
         setText(col_data_packets_, QString::number(received_));
