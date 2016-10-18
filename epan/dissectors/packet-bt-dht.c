@@ -32,6 +32,9 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
+#include <epan/expert.h>
+
+#include <wsutil/strtoi.h>
 
 void proto_register_bt_dht(void);
 void proto_reg_handoff_bt_dht(void);
@@ -61,6 +64,8 @@ static int hf_bt_dht_id = -1;
 static int hf_ip = -1;
 static int hf_port = -1;
 static int hf_truncated_data = -1;
+
+static expert_field ei_int_string = EI_INIT;
 
 /* tree types */
 static gint ett_bt_dht = -1;
@@ -99,18 +104,21 @@ static inline int
 bencoded_string_length(tvbuff_t *tvb, guint *offset_ptr)
 {
   guint offset, start, len;
+  guint remaining = tvb_captured_length_remaining(tvb, *offset_ptr);
 
   offset = *offset_ptr;
   start = offset;
 
-  while(tvb_get_guint8(tvb, offset) != ':')
+  while(tvb_get_guint8(tvb, offset) != ':' && remaining--)
     ++offset;
 
-  len = atoi(tvb_get_string_enc(wmem_packet_scope(), tvb, start, offset-start, ENC_ASCII));
-  ++offset; /* skip the ':' */
-
-  *offset_ptr = offset;
-  return len;
+  if (remaining && ws_strtou32(tvb_get_string_enc(wmem_packet_scope(), tvb, start, offset-start, ENC_ASCII),
+      NULL, &len)) {
+    ++offset; /* skip the ':' */
+    *offset_ptr = offset;
+    return len;
+  }
+  return 0;
 }
 
 
@@ -122,8 +130,11 @@ bencoded_string_length(tvbuff_t *tvb, guint *offset_ptr)
 static int
 dissect_bencoded_string(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, guint offset, const char **result, gboolean tohex, const char *label )
 {
-  guint string_len;
+  gint string_len;
   string_len = bencoded_string_length(tvb, &offset);
+
+  if (string_len == 0)
+    return 0;
 
   /* fill the return data */
   if( tohex )
@@ -198,6 +209,12 @@ dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     /* a string */
     default:
       offset = dissect_bencoded_string( tvb, pinfo, sub_tree, offset, &result, FALSE, "String" );
+      if (offset == 0)
+      {
+        proto_tree_add_expert(sub_tree, pinfo, &ei_int_string, tvb, offset, -1);
+        /* if offset is not going on, there is no chance to exit the loop, then return*/
+        return 0;
+      }
       break;
     }
   }
@@ -357,6 +374,11 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* dissect the key, it must be a string */
   offset   = dissect_bencoded_string( tvb, pinfo, sub_tree, offset, &key, FALSE, "Key" );
+  if (offset == 0)
+  {
+    proto_tree_add_expert_format(sub_tree, pinfo, &ei_int_string, tvb, offset, -1, "Invalid string for Key");
+    return 0;
+  }
 
   /* If it is a dict, then just do recursion */
   switch( tvb_get_guint8(tvb,offset) )
@@ -417,6 +439,12 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
   }
 
+  if (offset == 0)
+  {
+    proto_tree_add_expert_format(sub_tree, pinfo, &ei_int_string, tvb, offset, -1, "Invalid string for value");
+    return 0;
+  }
+
   if( strlen(key)==1 )
     key = val_to_str_const( key[0], short_key_name_value_string, key );
   if( strlen(val)==1 )
@@ -453,8 +481,14 @@ dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   /* skip the first char('d') */
   offset += 1;
 
-  while( tvb_get_guint8(tvb,offset)!='e' )
+  while( tvb_get_guint8(tvb,offset)!='e' ) {
     offset = dissect_bencoded_dict_entry( tvb, pinfo, sub_tree, offset );
+    if (offset == 0)
+    {
+      proto_tree_add_expert(sub_tree, pinfo, &ei_int_string, tvb, offset, -1);
+      return 0;
+    }
+  }
 
   proto_tree_add_item(sub_tree, hf_bencoded_list_terminator, tvb, offset, 1, ENC_ASCII|ENC_NA);
   offset += 1;
@@ -501,6 +535,8 @@ gboolean dissect_bt_dht_heur (tvbuff_t *tvb, packet_info *pinfo,
 void
 proto_register_bt_dht(void)
 {
+  expert_module_t* expert_bt_dht;
+
   static hf_register_info hf[] = {
     { &hf_bencoded_string,
       { "String", "bt-dht.bencoded.string",
@@ -564,6 +600,11 @@ proto_register_bt_dht(void)
     }
   };
 
+  static ei_register_info ei[] = {
+    { &ei_int_string, { "bt-dht.invalid_string", PI_MALFORMED, PI_ERROR,
+    "String must contain an integer", EXPFILL }}
+  };
+
   /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_bt_dht,
@@ -584,6 +625,9 @@ proto_register_bt_dht(void)
 
   proto_register_field_array(proto_bt_dht, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  expert_bt_dht = expert_register_protocol(proto_bt_dht);
+  expert_register_field_array(expert_bt_dht, ei, array_length(ei));
 }
 
 void
