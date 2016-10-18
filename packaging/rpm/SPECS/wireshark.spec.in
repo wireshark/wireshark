@@ -9,6 +9,7 @@
 %bcond_with	lua
 
 # Set these to 1 if you want to ensure your package includes support for them:
+%global with_lz4_and_snappy 1
 %global with_c_ares 1
 %global with_portaudio 0
 %global with_nghttp2 1
@@ -66,6 +67,20 @@ BuildRequires:	libpcap-devel
 Requires:	libpcap
 BuildRequires:	zlib-devel
 Requires:	zlib
+
+%if %{with_lz4_and_snappy}
+%if 0%{?suse_version}
+BuildRequires:	liblz4-devel
+BuildRequires:	snappy-devel
+Requires:	libsnappy1
+Requires:	liblz4-1
+%else
+BuildRequires:	lz4-devel
+BuildRequires:	snappy-devel
+Requires:	snappy
+Requires:	lz4
+%endif
+%endif
 
 %if %{with_c_ares}
 %if 0%{?suse_version}
@@ -447,6 +462,9 @@ fi
 %endif
 
 %changelog
+* Mon Oct 18 2016 Benoit Canet
+- Add LZ4 and snappy compression support.
+
 * Mon Aug 29 2016 Jeff Morriss
 - Add libnghttp2 (as an option, defaulting to required).
 

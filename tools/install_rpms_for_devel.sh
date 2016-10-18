@@ -37,7 +37,14 @@ then
 	GLIB2="glib2-devel libglib-2_0-0"
 	PCAP="libpcap-devel libpcap1"
 	ZLIB="zlib-devel libz1"
+	SNAPPY="snappy-devel libsnappy1"
+	# The runtime package name changes with the version.  Just pull it
+	# in through the -devel package.
+	LZ4="liblz4-devel"
 	CARES="libcares-devel libcares2"
+	NGHTTP2="nghttp2"
+	# SUSE doesn't split the pod2* commands into a separate package like RH
+	PERLPODS=""
 else
 	if [ ! -r /etc/redhat-release ]
 	then
@@ -57,12 +64,16 @@ else
 	GLIB2="glib2-devel glib2"
 	PCAP="libpcap-devel libpcap"
 	ZLIB="zlib-devel zlib"
+	SNAPPY="snappy-devel snappy"
+	LZ4="lz4 lz4-devel" # May need to enable EPEL
 	CARES="c-ares-devel c-ares"
+	NGHTTP2="libnghttp2"
+	PERLPODS="perl-podlators"
 fi
 
 PKGS="autoconf automake libtool gcc flex bison python perl $GLIB2
 $PCAP $ZLIB lua-devel lua $CARES $GTK3 $GTK2 desktop-file-utils $QT fop
-asciidoc git git-review perl-podlators libnghttp2-devel libnghttp2"
+asciidoc git git-review $PERLPODS libnghttp2-devel $NGHTTP2 $SNAPPY $LZ4"
 
 echo "Run this command (as root):"
 echo
