@@ -43,8 +43,10 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/rtd_table.h>
+#include <epan/expert.h>
 #include "packet-mgcp.h"
 
+#include <wsutil/strtoi.h>
 
 #define TCP_PORT_MGCP_GATEWAY 2427
 #define UDP_PORT_MGCP_GATEWAY 2427
@@ -142,6 +144,8 @@ static int hf_mgcp_rsp_dup = -1;
 static int hf_mgcp_rsp_dup_frame = -1;
 static int hf_mgcp_unknown_parameter = -1;
 static int hf_mgcp_malformed_parameter = -1;
+
+static expert_field ei_mgcp_rsp_rspcode_invalid = EI_INIT;
 
 static const value_string mgcp_return_code_vals[] = {
 	{000, "Response Acknowledgement"},
@@ -1101,9 +1105,9 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	mgcp_call_info_key *new_mgcp_call_key = NULL;
 	mgcp_call_t *mgcp_call = NULL;
 	nstime_t delta;
-	gint rspcode = 0;
 	const gchar *verb_description = "";
 	char code_with_verb[64] = "";  /* To fit "<4-letter-code> (<longest-verb>)" */
+	proto_item* pi;
 
 	static address null_address = ADDRESS_INIT_NONE;
 	tvb_previous_offset = 0;
@@ -1156,11 +1160,13 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				else
 				if (is_mgcp_rspcode(tvb, tvb_previous_offset, tvb_current_len))
 				{
+					gboolean rspcode_valid;
 					mgcp_type = MGCP_RESPONSE;
-					rspcode = atoi(code);
-					mi->rspcode = rspcode;
-					proto_tree_add_uint(tree, hf_mgcp_rsp_rspcode, tvb,
-					                    tvb_previous_offset, tokenlen, rspcode);
+					rspcode_valid = ws_strtou32(code, NULL, &mi->rspcode);
+					pi = proto_tree_add_uint(tree, hf_mgcp_rsp_rspcode, tvb,
+					                    tvb_previous_offset, tokenlen, mi->rspcode);
+					if (!rspcode_valid)
+						expert_add_info(pinfo, pi, &ei_mgcp_rsp_rspcode_invalid);
 				}
 				else
 				{
@@ -1996,6 +2002,8 @@ void proto_reg_handoff_mgcp(void);
 
 void proto_register_mgcp(void)
 {
+	expert_module_t* expert_mgcp;
+
 	static hf_register_info hf[] =
 		{
 			{ &hf_mgcp_req,
@@ -2266,6 +2274,11 @@ void proto_register_mgcp(void)
 			&ett_mgcp_param_localconnectionoptions
 		};
 
+	static ei_register_info ei[] = {
+		{ &ei_mgcp_rsp_rspcode_invalid, { "mgcp.rsp.rspcode.invalid", PI_MALFORMED, PI_ERROR,
+		"RSP code must be a string containing an integer", EXPFILL }}
+	};
+
 	module_t *mgcp_module;
 
 	/* Register protocol */
@@ -2324,6 +2337,10 @@ void proto_register_mgcp(void)
 	mgcp_tap = register_tap("mgcp");
 
 	register_rtd_table(proto_mgcp, NULL, 1, NUM_TIMESTATS, mgcp_mesage_type, mgcpstat_packet, NULL);
+
+	expert_mgcp = expert_register_protocol(proto_mgcp);
+	expert_register_field_array(expert_mgcp, ei, array_length(ei));
+
 }
 
 /* The registration hand-off routine */
