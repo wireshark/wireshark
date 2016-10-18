@@ -43,6 +43,7 @@ enum {
     col_channel_,
     col_ssid_,
     col_pct_packets_,
+    col_pct_retry_,
     col_retry_packets_,
     col_beacons_,
     col_data_packets_,
@@ -125,8 +126,11 @@ public:
         }
         if (wlan_hdr->type != MGT_BEACON) packets_++;
     }
-    void draw(address *bssid, int num_packets) {
-        setData(col_pct_packets_, Qt::UserRole, QVariant::fromValue<double>(packets_ * 100.0 / num_packets));
+    void draw(address *bssid, int num_packets _U_) {
+        if(packets_){
+            setData(col_pct_packets_, Qt::UserRole, QVariant::fromValue<double>(packets_ * 100.0 / num_packets));
+            setData(col_pct_retry_, Qt::UserRole, QVariant::fromValue<double>(retry_ * 100.0 / packets_));
+        }
         setText(col_beacons_, QString::number(sent_));
         setText(col_data_packets_, QString::number(received_));
         setText(col_retry_packets_, QString::number(retry_));
@@ -165,6 +169,7 @@ public:
         case col_others_:
             return other_ < other_row->other_;
         case col_retry_packets_:
+        case col_pct_retry_:
             return retry_ < other_row->retry_;
         default:
             break;
@@ -175,7 +180,8 @@ public:
     QList<QVariant> rowData() {
         return QList<QVariant>()
                 << address_to_qstring(&addr_)
-                << data(col_pct_packets_, Qt::UserRole).toDouble() << retry_
+                << data(col_pct_packets_, Qt::UserRole).toDouble()
+                << data(col_pct_retry_, Qt::UserRole).toDouble() << retry_
                 << sent_ << received_ << probe_req_ << probe_resp_
                 << auth_ << deauth_ << other_ << text(col_protection_);
     }
@@ -367,6 +373,7 @@ public:
     void draw(int num_packets) {
         if (channel_ > 0) setText(col_channel_, QString::number(channel_));
         setData(col_pct_packets_, Qt::UserRole, QVariant::fromValue<double>(packets_ * 100.0 / num_packets));
+        setData(col_pct_retry_, Qt::UserRole, QVariant::fromValue<double>(retry_packet_ * 100.0 / packets_));
         setText(col_retry_packets_, QString::number(retry_packet_));
         setText(col_beacons_, QString::number(beacon_));
         setText(col_data_packets_, QString::number(data_packet_));
@@ -429,6 +436,7 @@ public:
         return QList<QVariant>()
                 << address_to_qstring(&bssid_) << channel_ << text(col_ssid_)
                 << data(col_pct_packets_, Qt::UserRole).toDouble()
+                << data(col_pct_retry_, Qt::UserRole).toDouble()
                 << retry_packet_ << beacon_  << data_packet_ << probe_req_
                 << probe_resp_ << auth_ << deauth_ << other_
                 << text(col_protection_);
@@ -473,9 +481,9 @@ private:
 };
 
 static const QString network_col_0_title_ = QObject::tr("BSSID");
-static const QString network_col_5_title_ = QObject::tr("Beacons");
-static const QString network_col_6_title_ = QObject::tr("Data Pkts");
-static const QString network_col_12_title_ = QObject::tr("Protection");
+static const QString network_col_6_title_ = QObject::tr("Beacons");
+static const QString network_col_7_title_ = QObject::tr("Data Pkts");
+static const QString network_col_13_title_ = QObject::tr("Protection");
 
 static const QString node_col_0_title_ = QObject::tr("Address");
 static const QString node_col_4_title_ = QObject::tr("Pkts Sent");
@@ -490,12 +498,13 @@ WlanStatisticsDialog::WlanStatisticsDialog(QWidget &parent, CaptureFile &cf, con
     loadGeometry(parent.width() * 4 / 5, parent.height() * 3 / 4, "WlanStatisticsDialog");
 
     QStringList header_labels = QStringList()
-            << "" << tr("Channel") << tr("SSID") << tr("Percent Packets") << tr("Retry Packets")
-            << "" << "" << tr("Probe Reqs") << tr("Probe Resp") << tr("Auths")
+            << "" << tr("Channel") << tr("SSID") << tr("Percent Packets") << tr("Percent Retry")
+            << tr("Retry") << "" << "" << tr("Probe Reqs") << tr("Probe Resp") << tr("Auths")
             << tr("Deauths") << tr("Other");
     statsTreeWidget()->setHeaderLabels(header_labels);
     updateHeaderLabels();
     statsTreeWidget()->setItemDelegateForColumn(col_pct_packets_, new PercentBarDelegate());
+    statsTreeWidget()->setItemDelegateForColumn(col_pct_retry_, new PercentBarDelegate());
     statsTreeWidget()->sortByColumn(col_bssid_, Qt::AscendingOrder);
 
     // resizeColumnToContents doesn't work well here, so set sizes manually.
@@ -509,7 +518,7 @@ WlanStatisticsDialog::WlanStatisticsDialog(QWidget &parent, CaptureFile &cf, con
             statsTreeWidget()->setColumnWidth(col, one_em * 8);
             break;
         case col_pct_packets_:
-        case col_retry_packets_:
+        case col_pct_retry_:
         case col_protection_:
             statsTreeWidget()->setColumnWidth(col, one_em * 6);
             break;
@@ -648,9 +657,9 @@ void WlanStatisticsDialog::updateHeaderLabels()
         statsTreeWidget()->headerItem()->setText(col_protection_, node_col_11_title_);
     } else {
         statsTreeWidget()->headerItem()->setText(col_bssid_, network_col_0_title_);
-        statsTreeWidget()->headerItem()->setText(col_beacons_, network_col_5_title_);
-        statsTreeWidget()->headerItem()->setText(col_data_packets_, network_col_6_title_);
-        statsTreeWidget()->headerItem()->setText(col_protection_, network_col_12_title_);
+        statsTreeWidget()->headerItem()->setText(col_beacons_, network_col_6_title_);
+        statsTreeWidget()->headerItem()->setText(col_data_packets_, network_col_7_title_);
+        statsTreeWidget()->headerItem()->setText(col_protection_, network_col_13_title_);
     }
 }
 
