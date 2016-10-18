@@ -116,17 +116,21 @@ QMenu * InterfaceFrame::getSelectionMenu()
     QMenu * contextMenu = new QMenu();
     QList<int> typesDisplayed = proxyModel->typesDisplayed();
 
-    foreach(int ifType, ifTypeDescription.keys())
+    QMap<int, QString>::const_iterator it = ifTypeDescription.constBegin();
+    while(it != ifTypeDescription.constEnd())
     {
-        if ( ! typesDisplayed.contains(ifType) )
-            continue;
+        int ifType = it.key();
 
-        QAction *endp_action = new QAction(ifTypeDescription[ifType], this);
-        endp_action->setData(qVariantFromValue(ifType));
-        endp_action->setCheckable(true);
-        endp_action->setChecked(proxyModel->isInterfaceTypeShown(ifType));
-        connect(endp_action, SIGNAL(triggered()), this, SLOT(triggeredIfTypeButton()));
-        contextMenu->addAction(endp_action);
+        if ( typesDisplayed.contains(ifType) )
+        {
+            QAction *endp_action = new QAction(it.value(), this);
+            endp_action->setData(qVariantFromValue(ifType));
+            endp_action->setCheckable(true);
+            endp_action->setChecked(proxyModel->isInterfaceTypeShown(ifType));
+            connect(endp_action, SIGNAL(triggered()), this, SLOT(triggeredIfTypeButton()));
+            contextMenu->addAction(endp_action);
+        }
+        ++it;
     }
 
     return contextMenu;

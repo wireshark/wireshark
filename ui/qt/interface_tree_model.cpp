@@ -253,8 +253,12 @@ void InterfaceTreeModel::interfaceListChanged()
 {
     emit beginResetModel();
 
-    foreach(QString key, points.keys())
-        points[key]->clear();
+    QMap<QString, PointList *>::const_iterator it = points.constBegin();
+    while(it != points.constEnd())
+    {
+        it.value()->clear();
+        ++it;
+    }
     points.clear();
 
     emit endResetModel();
@@ -412,15 +416,22 @@ bool InterfaceTreeModel::updateSelectedDevices(QItemSelection sourceSelection)
 #ifdef HAVE_LIBPCAP
     QList<int> selectedIndices;
 
-    foreach(QItemSelectionRange selection, sourceSelection)
+    QItemSelection::const_iterator it = sourceSelection.constBegin();
+    while(it != sourceSelection.constEnd())
     {
-        foreach(QModelIndex index, selection.indexes())
+        QModelIndexList indeces = ((QItemSelectionRange) (*it)).indexes();
+
+        QModelIndexList::const_iterator cit = indeces.constBegin();
+        while(cit != indeces.constEnd())
         {
+            QModelIndex index = (QModelIndex) (*cit);
             if ( ! selectedIndices.contains(index.row()) )
             {
                 selectedIndices.append(index.row());
             }
+            ++cit;
         }
+        ++it;
     }
 
     global_capture_opts.num_selected = 0;

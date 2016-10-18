@@ -71,11 +71,13 @@ void InterfaceSortFilterModel::resetPreferenceData()
     if ( stored_prefs.length() > 0 )
     {
         QStringList ifTypesStored = stored_prefs.split(',');
-        foreach(QString val, ifTypesStored)
+        QStringList::const_iterator it = ifTypesStored.constBegin();
+        while(it != ifTypesStored.constEnd())
         {
-            int i_val = val.toInt();
+            int i_val = (*it).toInt();
             if ( ! displayHiddenTypes.contains(i_val) )
                 displayHiddenTypes.append(i_val);
+            ++it;
         }
     }
 
@@ -135,9 +137,11 @@ void InterfaceSortFilterModel::setInterfaceTypeVisible(int ifType, bool visible)
         return;
 
     QString new_pref;
-    foreach(int i, displayHiddenTypes)
+    QList<int>::const_iterator it = displayHiddenTypes.constBegin();
+    while( it != displayHiddenTypes.constEnd() )
     {
-        new_pref.append(QString("%1,").arg(i));
+        new_pref.append(QString("%1,").arg(*it));
+        ++it;
     }
     if (new_pref.length() > 0)
         new_pref = new_pref.left(new_pref.length() - 1);
