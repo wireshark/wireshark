@@ -41,6 +41,12 @@ void proto_reg_handoff_infiniband(void);
 /*Default RRoce UDP port*/
 #define DEFAULT_RROCE_UDP_PORT    4791
 
+/* service id prefix 0x0000000001 is designated for
+ * RDMA IP CM service as per Annex A11.2
+ */
+#define RDMA_IP_CM_SID_PREFIX_MASK 0xFFFFFFFFFF000000
+#define RDMA_IP_CM_SID_PREFIX 0x0000000001000000
+
 /* Wireshark ID */
 static int proto_infiniband = -1;
 static int proto_infiniband_link = -1;
@@ -67,6 +73,7 @@ static gint ett_subn_directed_route = -1;
 static gint ett_subnadmin = -1;
 static gint ett_mad = -1;
 static gint ett_cm = -1;
+static gint ett_cm_sid = -1;
 static gint ett_rmpp = -1;
 static gint ett_subm_attribute = -1;
 static gint ett_suba_attribute = -1;
@@ -563,6 +570,9 @@ static int hf_infiniband_vendor = -1;
 /* CM REQ Header */
 static int hf_cm_req_local_comm_id = -1;
 static int hf_cm_req_service_id = -1;
+static int hf_cm_req_service_id_prefix = -1;
+static int hf_cm_req_service_id_protocol = -1;
+static int hf_cm_req_service_id_dport = -1;
 static int hf_cm_req_local_ca_guid = -1;
 static int hf_cm_req_local_qkey = -1;
 static int hf_cm_req_local_qpn = -1;
@@ -2900,6 +2910,29 @@ static void parse_DEV_MGT(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
     *offset = local_offset;
 }
 
+static void parse_CM_Req_ServiceID(proto_tree *parent_tree, tvbuff_t *tvb, gint *offset, guint64 serviceid)
+{
+    proto_item *service_id_item;
+    proto_tree *service_id_tree;
+    gint        local_offset = *offset;
+
+    if ((serviceid & RDMA_IP_CM_SID_PREFIX_MASK) == RDMA_IP_CM_SID_PREFIX) {
+        service_id_item = proto_tree_add_item(parent_tree, hf_cm_req_service_id, tvb, local_offset, 8, ENC_NA);
+        proto_item_set_text(service_id_item, "%s", "IP CM ServiceID");
+        service_id_tree = proto_item_add_subtree(service_id_item, ett_cm_sid);
+
+        proto_tree_add_item(service_id_tree, hf_cm_req_service_id_prefix, tvb, local_offset, 5, ENC_NA);
+        local_offset += 5;
+        proto_tree_add_item(service_id_tree, hf_cm_req_service_id_protocol, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+        local_offset += 1;
+        proto_tree_add_item(service_id_tree, hf_cm_req_service_id_dport, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+        local_offset += 2;
+    } else {
+        proto_tree_add_item(parent_tree, hf_cm_req_service_id, tvb, local_offset, 8, ENC_BIG_ENDIAN);
+        local_offset += 8;
+    }
+    *offset = local_offset;
+}
 /* Parse Communications Management
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
@@ -2942,8 +2975,10 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
             guint64 serviceid;
             proto_tree_add_item(CM_header_tree, hf_cm_req_local_comm_id, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
             local_offset += 4;  /* skip reserved */
-            proto_tree_add_item(CM_header_tree, hf_cm_req_service_id, tvb, local_offset, 8, ENC_BIG_ENDIAN);
-            serviceid = tvb_get_ntoh64(tvb, local_offset); local_offset += 8;
+
+            serviceid = tvb_get_ntoh64(tvb, local_offset);
+            parse_CM_Req_ServiceID(CM_header_tree, tvb, &local_offset, serviceid);
+
             proto_tree_add_item(CM_header_tree, hf_cm_req_local_ca_guid, tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset += 8;
             local_offset += 4;  /* skip reserved */
             proto_tree_add_item(CM_header_tree, hf_cm_req_local_qkey, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
@@ -3163,7 +3198,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
             proto_tree_add_item(CM_header_tree, hf_cm_drsp_localcommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
             proto_tree_add_item(CM_header_tree, hf_cm_drsp_remotecommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
             /* currently only REQ/REP call subdissectors for the private data */
-            proto_tree_add_item(CM_header_tree, hf_cm_dreq_privatedata, tvb, local_offset, 224, ENC_NA); local_offset += 224;
+            proto_tree_add_item(CM_header_tree, hf_cm_drsp_privatedata, tvb, local_offset, 224, ENC_NA); local_offset += 224;
             break;
         default:
             proto_item_append_text(CM_header_item, " (Dissector Not Implemented)"); local_offset += MAD_DATA_SIZE;
@@ -5461,6 +5496,18 @@ void proto_register_infiniband(void)
                 "ServiceID", "infiniband.cm.req.serviceid",
                 FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
+        {&hf_cm_req_service_id_prefix, {
+                "Prefix", "infiniband.cm.req.serviceid.prefix",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_service_id_protocol, {
+                "Protocol", "infiniband.cm.req.serviceid.protocol",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_service_id_dport, {
+                "Destination Port", "infiniband.cm.req.serviceid.dport",
+                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
         {&hf_cm_req_local_ca_guid, {
                 "Local CA GUID", "infiniband.cm.req.localcaguid",
                 FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
@@ -7385,6 +7432,7 @@ void proto_register_infiniband(void)
         &ett_subn_directed_route,
         &ett_subnadmin,
         &ett_cm,
+        &ett_cm_sid,
         &ett_mad,
         &ett_rmpp,
         &ett_subm_attribute,
