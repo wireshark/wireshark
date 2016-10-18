@@ -80,8 +80,8 @@ am__v_YACC_0 = @echo "  YACC    " $@;
 	$(AM_V_RUNLEX)$(RUNLEX) "$(LEX)" "$(SED)" -o$@ $<
 
 # abi-compliance-checker descriptor
-abi_incdirs = $(subst -I,NEWLINE,$(filter -I%,$(WS_CFLAGS) -I$(abs_top_srcdir) -I$(abs_srcdir)))
-abi_sysdirs = $(subst -isystem,NEWLINE,$(filter -isystem%,$(WS_CFLAGS)))
+abi_incdirs = $(subst -I,NEWLINE,$(filter -I%,$(AM_CPPFLAGS) -I$(abs_top_srcdir) -I$(abs_srcdir)))
+abi_sysdirs = $(subst -isystem,NEWLINE,$(filter -isystem%,$(AM_CPPFLAGS)))
 abi_includes = $(abi_incdirs) $(abi_sysdirs)
 abi-descriptor.xml: ../abi-descriptor.template
 	$(AM_V_SED)$(SED) \
