@@ -187,36 +187,6 @@ MainWelcome::MainWelcome(QWidget *parent) :
     welcome_ui_->childContainer->setGraphicsEffect(blur);
 #endif
 
-    welcome_ui_->btnInterfaceType->setStyleSheet(
-            "QPushButton {"
-#ifdef Q_OS_MAC
-            "  border: 1px solid gray;"
-#else
-            "  border: 1px solid palette(shadow);"
-#endif
-            "  border-radius: 3px;"
-            "  padding: 0px 0px 0px 0px;"
-            "  margin-left: 0px;"
-            "  min-width: 20em;"
-            " }"
-
-            "QPushButton::drop-down {"
-            "  subcontrol-origin: padding;"
-            "  subcontrol-position: top right;"
-            "  width: 16px;"
-            "  border-left-width: 0px;"
-            " }"
-
-            "QPushButton::down-arrow {"
-            "  image: url(:/icons/toolbar/14x14/x-filter-dropdown.png);"
-            " }"
-
-            "QPushButton::down-arrow:on { /* shift the arrow when popup is open */"
-            "  top: 1px;"
-            "  left: 1px;"
-            "}"
-            );
-
     splash_overlay_ = new SplashOverlay(this);
 }
 
@@ -245,9 +215,12 @@ void MainWelcome::setCaptureFilter(const QString capture_filter)
 
 void MainWelcome::interfaceListChanged()
 {
-    QString btnText = QString(tr("%1 Interfaces shown, %2 hidden"))
-            .arg(welcome_ui_->interfaceFrame->interfacesPresent())
-            .arg(welcome_ui_->interfaceFrame->interfacesHidden());
+    QString btnText = tr("All interfaces shown");
+    if (welcome_ui_->interfaceFrame->interfacesHidden() > 0) {
+        btnText = tr("%n interface(s) shown, %1 hidden", "",
+                     welcome_ui_->interfaceFrame->interfacesPresent())
+                .arg(welcome_ui_->interfaceFrame->interfacesHidden());
+    }
     welcome_ui_->btnInterfaceType->setText(btnText);
     welcome_ui_->btnInterfaceType->setMenu(welcome_ui_->interfaceFrame->getSelectionMenu());
 }

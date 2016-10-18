@@ -4543,13 +4543,8 @@ for filter files: %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_frame.ui" line="88"/>
-        <source>Show Interfaces</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="interface_frame.cpp" line="71"/>
-        <source>Physical</source>
+        <source>Wired</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4601,7 +4596,7 @@ for filter files: %2.</source>
 <context>
     <name>InterfaceSortFilterModel</name>
     <message>
-        <location filename="interface_sort_filter_model.cpp" line="251"/>
+        <location filename="interface_sort_filter_model.cpp" line="258"/>
         <source>No interfaces to be displayed. %1 interfaces filtered.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4614,32 +4609,32 @@ for filter files: %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="233"/>
+        <location filename="interface_tree_model.cpp" line="230"/>
         <source>Addresses</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="233"/>
+        <location filename="interface_tree_model.cpp" line="230"/>
         <source>Address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="240"/>
+        <location filename="interface_tree_model.cpp" line="237"/>
         <source>Extcap interface: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="245"/>
+        <location filename="interface_tree_model.cpp" line="242"/>
         <source>No addresses</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="252"/>
+        <location filename="interface_tree_model.cpp" line="249"/>
         <source>No capture filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="257"/>
+        <location filename="interface_tree_model.cpp" line="254"/>
         <source>Capture filter</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6685,22 +6680,22 @@ for filter files: %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="203"/>
+        <location filename="main_welcome.ui" line="210"/>
         <source>Interface list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="206"/>
+        <location filename="main_welcome.ui" line="213"/>
         <source>List of available capture interfaces</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="219"/>
+        <location filename="main_welcome.ui" line="226"/>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="226"/>
+        <location filename="main_welcome.ui" line="233"/>
         <source>&lt;html&gt;&lt;head&gt;
 &lt;style&gt;
 a:link {
@@ -6766,37 +6761,51 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="216"/>
+        <location filename="main_welcome.cpp" line="250"/>
+        <source>All interfaces shown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="main_welcome.cpp" line="252"/>
+        <source>%n interface(s) shown, %1 hidden</source>
+        <oldsource>%Ln interface(s) shown</oldsource>
+        <translation type="unfinished">
+            <numerusform>%n interface shown, %1 hidden</numerusform>
+            <numerusform>%n interfaces shown, %1 hidden</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="main_welcome.cpp" line="263"/>
         <source>You are running Wireshark </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="218"/>
+        <location filename="main_welcome.cpp" line="265"/>
         <source>.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="221"/>
+        <location filename="main_welcome.cpp" line="268"/>
         <source> You receive automatic updates.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="223"/>
+        <location filename="main_welcome.cpp" line="270"/>
         <source> You have disabled automatic updates.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="353"/>
+        <location filename="main_welcome.cpp" line="402"/>
         <source>not found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="435"/>
+        <location filename="main_welcome.cpp" line="484"/>
         <source>Copy file path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="441"/>
+        <location filename="main_welcome.cpp" line="490"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11032,12 +11041,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="418"/>
+        <location filename="main_welcome.cpp" line="467"/>
         <source>Show in Finder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="420"/>
+        <location filename="main_welcome.cpp" line="469"/>
         <source>Show in Folder</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11057,12 +11066,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="803"/>
+        <location filename="../../wireshark-qt.cpp" line="804"/>
         <source>Invalid Display Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="804"/>
+        <location filename="../../wireshark-qt.cpp" line="805"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>
