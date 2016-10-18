@@ -130,7 +130,7 @@ static const value_string CCM_IntervalFieldEncoding[] = {
 };
 static const value_string mdnameformattypes[] = {
 	{ 0, "Reserved for IEEE 802.1" },
-	{ 1, "No Maintenance Domain Name preset" },
+	{ 1, "No Maintenance Domain Name present" },
 	{ 2, "RFC1035 DNS Name" },
 	{ 3, "MAC address + 2-octet integer" },
 	{ 4, "Character String" },
