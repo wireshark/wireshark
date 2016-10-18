@@ -27,7 +27,6 @@
 #   PKCS#12
 #   SNMP
 #   DCERPC NETLOGON
-#   Kerberos
 #   KINK
 #   LDAP
 #   NTLMSSP
@@ -499,6 +498,31 @@ decryption_step_http2() {
 	test_step_ok
 }
 
+# Kerberos
+# Files are from krb-816.zip on the SampleCaptures page.
+KEYTAB_FILE="$TESTS_DIR/keys/krb-816.keytab"
+if [ "$WS_SYSTEM" == "Windows" ] ; then
+	KEYTAB_FILE="`cygpath -w $KEYTAB_FILE`"
+fi
+decryption_step_kerberos() {
+	if [ $HAVE_KERBEROS -ne 0 ]; then
+		test_step_skipped
+		return
+	fi
+	# keyvalue: ccda7d48219f73c3b28311c4ba7242b3
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-Tfields -e kerberos.keyvalue \
+		-o "kerberos.decrypt: TRUE" \
+		-o "kerberos.file: $KEYTAB_FILE" \
+		-r "$CAPTURE_DIR/krb-816.pcap.gz" \
+		| grep "cc:da:7d:48:21:9f:73:c3:b2:83:11:c4:ba:72:42:b3" > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt encrypted with AES-256-GCM-8 packet of IKEv2 exchange"
+		return
+	fi
+	test_step_ok
+}
 
 tshark_decryption_suite() {
 	test_step_add "IEEE 802.11 WPA PSK Decryption" decryption_step_80211_wpa_psk
@@ -531,6 +555,8 @@ tshark_decryption_suite() {
 	test_step_add "IKEv2 Decryption (AES-256-GCM-8)" decryption_step_ikev2_aes256gcm8
 
 	test_step_add "HTTP2 (HPACK)" decryption_step_http2
+
+	test_step_add "Kerberos" decryption_step_kerberos
 }
 
 decryption_cleanup_step() {

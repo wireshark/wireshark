@@ -111,9 +111,14 @@ CAPTURE_DIR="$TESTS_DIR/captures/"
 $TSHARK -v | grep -q "with Lua"
 HAVE_LUA=$?
 
-# Check whether we need to skip a certain decryption test.
+# Check whether we need to skip the HTTP2/HPACK decryption test.
 $TSHARK -v | tr '\n' ' '| grep -q "with nghttp2"
 HAVE_NGHTTP2=$?
+
+# Check whether we need to skip a certain decryption test.
+# XXX What do we print for Nettle?
+$TSHARK -v | tr '\n' ' '| egrep -q "with MIT Kerberos|with Heimdal Kerberos"
+HAVE_KERBEROS=$?
 
 HAVE_ICONV="False"
 hash iconv 2>/dev/null && HAVE_ICONV="True"
