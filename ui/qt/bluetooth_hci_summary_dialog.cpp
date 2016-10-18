@@ -57,7 +57,7 @@ typedef struct _item_data_t {
 Q_DECLARE_METATYPE(item_data_t *)
 
 static gboolean
-bluetooth_device_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *edt, const void* data)
+bluetooth_hci_summary_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *edt, const void* data)
 {
     bluetooth_hci_summary_tapinfo_t *tapinfo = (bluetooth_hci_summary_tapinfo_t *) tapinfo_ptr;
 
@@ -68,7 +68,7 @@ bluetooth_device_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_
 }
 
 static void
-bluetooth_device_tap_reset(void *tapinfo_ptr)
+bluetooth_hci_summary_tap_reset(void *tapinfo_ptr)
 {
     bluetooth_hci_summary_tapinfo_t *tapinfo = (bluetooth_hci_summary_tapinfo_t *) tapinfo_ptr;
 
@@ -77,14 +77,14 @@ bluetooth_device_tap_reset(void *tapinfo_ptr)
 }
 
 static void
-bluetooth_devices_tap(void *data)
+bluetooth_hci_summary_tap(void *data)
 {
     GString *error_string;
 
     error_string = register_tap_listener("bluetooth.hci_summary", data, NULL,
             0,
-            bluetooth_device_tap_reset,
-            bluetooth_device_tap_packet,
+            bluetooth_hci_summary_tap_reset,
+            bluetooth_hci_summary_tap_packet,
             NULL
             );
 
@@ -140,7 +140,7 @@ BluetoothHciSummaryDialog::BluetoothHciSummaryDialog(QWidget &parent, CaptureFil
     item_reason_                  = ui->tableTreeWidget->topLevelItem(12);
     item_hardware_errors_         = ui->tableTreeWidget->topLevelItem(13);
 
-    bluetooth_devices_tap(&tapinfo_);
+    bluetooth_hci_summary_tap(&tapinfo_);
 
     cap_file_.retapPackets();
 }
