@@ -243,10 +243,14 @@ ws_version_info.c: $(top_srcdir)/ws_version_info.c
 # ABI compliance checker can be obtained from
 # http://ispras.linux-foundation.org/index.php/ABI_compliance_checker
 # Checked using version 1.21.12
+#
+# (f)lex generated headers are not part of API and may not include
+# all needed headers for used types
 dumpabi-libwiretap: all abi-descriptor.xml
 	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz
 	mkdir abi-check-headers
 	cp *.h ../ws_symbol_export.h abi-check-headers/
+	rm abi-check-headers/*_lex.h abi-check-headers/ascend.h
 	abi-compliance-checker -log-path abi_logs/log.txt -l libwiretap -v1 `readlink .libs/libwiretap.so | sed 's/.*\.so\.//'` \
 		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml || \
 		cat abi_logs/log.txt
