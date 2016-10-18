@@ -339,26 +339,20 @@ raknet_dissect_unconnected_ping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     gint offset;
 
     sub_tree = init_raknet_offline_message(tvb, pinfo, tree, &offset);
-    if (sub_tree) {
-        gint item_size;
 
-        item_size = 8;
-        proto_tree_add_item(sub_tree, hf_raknet_timestamp, tvb,
-                            offset, item_size, ENC_BIG_ENDIAN);
-        offset += item_size;
+    proto_tree_add_item(sub_tree, hf_raknet_timestamp, tvb,
+                        offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
 
-        item_size = 16;
-        proto_tree_add_item(sub_tree, hf_raknet_offline_message_data_id, tvb, offset,
-                            item_size, ENC_NA);
-        offset += item_size;
+    proto_tree_add_item(sub_tree, hf_raknet_offline_message_data_id, tvb, offset,
+                        16, ENC_NA);
+    offset += 16;
 
-        item_size = 8;
-        proto_tree_add_item(sub_tree, hf_raknet_client_guid, tvb,
-                            offset, item_size, ENC_NA);
-        offset += item_size;
-    }
+    proto_tree_add_item(sub_tree, hf_raknet_client_guid, tvb,
+                        offset, 8, ENC_NA);
+    offset += 8;
 
-    return tvb_reported_length(tvb);
+    return offset;
 }
 
 static int
@@ -369,23 +363,18 @@ raknet_dissect_open_connection_request_1(tvbuff_t *tvb, packet_info *pinfo, prot
     gint offset;
 
     sub_tree = init_raknet_offline_message(tvb, pinfo, tree, &offset);
-    if (sub_tree) {
-        gint item_size;
 
-        item_size = 16;
-        proto_tree_add_item(sub_tree, hf_raknet_offline_message_data_id, tvb, offset,
-                item_size, ENC_NA);
-        offset += item_size;
+    proto_tree_add_item(sub_tree, hf_raknet_offline_message_data_id, tvb, offset,
+                        16, ENC_NA);
+    offset += 16;
 
-        item_size = 1;
-        proto_tree_add_item(sub_tree, hf_raknet_raknet_proto_ver, tvb,
-                offset, item_size, ENC_BIG_ENDIAN);
-        offset += item_size;
+    proto_tree_add_item(sub_tree, hf_raknet_raknet_proto_ver, tvb, offset,
+                        1, ENC_BIG_ENDIAN);
+    offset += 1;
 
-        item_size = -1; /* -1 read to end of tvb buffer */
-        proto_tree_add_item(sub_tree, hf_raknet_null_padding, tvb, offset,
-                item_size, ENC_NA);
-    }
+    /* -1 read to end of tvb buffer */
+    proto_tree_add_item(sub_tree, hf_raknet_null_padding, tvb, offset,
+                        -1, ENC_NA);
 
     return tvb_reported_length(tvb);
 }
@@ -396,49 +385,41 @@ raknet_dissect_open_connection_reply_1(tvbuff_t *tvb, packet_info *pinfo, proto_
 {
     proto_tree *sub_tree;
     gint offset;
+    raknet_session_state_t* state;
 
     sub_tree = init_raknet_offline_message(tvb, pinfo, tree, &offset);
-    if (sub_tree) {
-        gint item_size;
-        raknet_session_state_t* state;
 
-        item_size = 16;
-        proto_tree_add_item(sub_tree, hf_raknet_offline_message_data_id, tvb, offset,
-                item_size, ENC_NA);
-        offset += item_size;
 
-        item_size = 8;
-        proto_tree_add_item(sub_tree, hf_raknet_server_guid, tvb, offset,
-                item_size, ENC_NA);
-        offset += item_size;
+    proto_tree_add_item(sub_tree, hf_raknet_offline_message_data_id, tvb, offset,
+                        16, ENC_NA);
+    offset += 16;
 
-        state = raknet_get_session_state(pinfo);
-        state->use_encryption = tvb_get_guint8(tvb, offset) ? TRUE : FALSE;
+    proto_tree_add_item(sub_tree, hf_raknet_server_guid, tvb, offset,
+                        8, ENC_NA);
+    offset += 8;
 
-        item_size = 1;
-        proto_tree_add_item(sub_tree, hf_raknet_use_encryption, tvb,
-                            offset, item_size, ENC_NA);
-        offset += item_size;
+    state = raknet_get_session_state(pinfo);
+    state->use_encryption = tvb_get_guint8(tvb, offset) ? TRUE : FALSE;
 
-        if (state->use_encryption) {
-            item_size = 4;
-            proto_tree_add_item(sub_tree, hf_raknet_cookie, tvb,
-                                offset, item_size, ENC_BIG_ENDIAN);
-            offset += item_size;
+    proto_tree_add_item(sub_tree, hf_raknet_use_encryption, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
 
-            item_size = 64;
-            proto_tree_add_item(sub_tree, hf_raknet_server_public_key, tvb,
-                                offset, item_size, ENC_NA);
-            offset += item_size;
-        }
+    if (state->use_encryption) {
+        proto_tree_add_item(sub_tree, hf_raknet_cookie, tvb,
+                            offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-        item_size = 2;
-        proto_tree_add_item(sub_tree, hf_raknet_mtu_size, tvb, offset,
-                item_size, ENC_BIG_ENDIAN);
-        offset += item_size;
+        proto_tree_add_item(sub_tree, hf_raknet_server_public_key, tvb,
+                            offset, 64, ENC_NA);
+        offset += 64;
     }
 
-    return tvb_reported_length(tvb);
+    proto_tree_add_item(sub_tree, hf_raknet_mtu_size, tvb, offset,
+                        2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
 }
 
 static int
@@ -447,54 +428,45 @@ raknet_dissect_open_connection_request_2(tvbuff_t *tvb, packet_info *pinfo, prot
 {
     proto_tree *sub_tree;
     gint offset;
+    raknet_session_state_t* state;
 
     sub_tree = init_raknet_offline_message(tvb, pinfo, tree, &offset);
-    if (sub_tree) {
-        gint item_size;
-        raknet_session_state_t* state;
 
-        item_size = 16;
-        proto_tree_add_item(sub_tree, hf_raknet_offline_message_data_id, tvb, offset,
-                item_size, ENC_NA);
-        offset += item_size;
+    proto_tree_add_item(sub_tree, hf_raknet_offline_message_data_id, tvb, offset,
+                        16, ENC_NA);
+    offset += 16;
 
-        state = raknet_get_session_state(pinfo);
-        if (state->use_encryption) {
-            gboolean client_wrote_challenge;
+    state = raknet_get_session_state(pinfo);
+    if (state->use_encryption) {
+        gboolean client_wrote_challenge;
 
-            item_size = 4;
-            proto_tree_add_item(sub_tree, hf_raknet_cookie, tvb, offset,
-                                item_size, ENC_BIG_ENDIAN);
-            offset += item_size;
+        proto_tree_add_item(sub_tree, hf_raknet_cookie, tvb, offset,
+                            4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            client_wrote_challenge = tvb_get_guint8(tvb, offset) ? TRUE : FALSE;
-            item_size = 1;
-            proto_tree_add_item(sub_tree, hf_raknet_client_wrote_challenge, tvb, offset,
-                                item_size, ENC_NA);
-            offset += item_size;
+        client_wrote_challenge = tvb_get_guint8(tvb, offset) ? TRUE : FALSE;
+        proto_tree_add_item(sub_tree, hf_raknet_client_wrote_challenge, tvb, offset,
+                            1, ENC_NA);
+        offset += 1;
 
-            if (client_wrote_challenge) {
-                item_size = RAKNET_CHALLENGE_LENGTH;
-                proto_tree_add_item(sub_tree, hf_raknet_client_challenge, tvb,
-                                    offset, item_size, ENC_NA);
-                offset += item_size;
-            }
+        if (client_wrote_challenge) {
+            proto_tree_add_item(sub_tree, hf_raknet_client_challenge, tvb,
+                                offset, 64, ENC_NA);
+            offset += 64;
         }
-
-        raknet_dissect_system_address(sub_tree, hf_raknet_server_address, tvb, &offset);
-
-        item_size = 2;
-        proto_tree_add_item(sub_tree, hf_raknet_mtu_size, tvb, offset,
-                item_size, ENC_BIG_ENDIAN);
-        offset += item_size;
-
-        item_size = 8;
-        proto_tree_add_item(sub_tree, hf_raknet_client_guid, tvb, offset,
-                item_size, ENC_NA);
-        offset += item_size;
     }
 
-    return tvb_reported_length(tvb);
+    raknet_dissect_system_address(sub_tree, hf_raknet_server_address, tvb, &offset);
+
+    proto_tree_add_item(sub_tree, hf_raknet_mtu_size, tvb, offset,
+                        2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(sub_tree, hf_raknet_client_guid, tvb, offset,
+                        8, ENC_NA);
+    offset += 8;
+
+    return offset;
 }
 
 static int
@@ -505,43 +477,35 @@ raknet_dissect_open_connection_reply_2(tvbuff_t *tvb, packet_info *pinfo, proto_
     gint offset;
 
     sub_tree = init_raknet_offline_message(tvb, pinfo, tree, &offset);
-    if (sub_tree) {
-        gint item_size;
-        gboolean use_encryption;
+    gboolean use_encryption;
 
-        item_size = 16;
-        proto_tree_add_item(sub_tree, hf_raknet_offline_message_data_id, tvb, offset,
-                item_size, ENC_NA);
-        offset += item_size;
+    proto_tree_add_item(sub_tree, hf_raknet_offline_message_data_id, tvb, offset,
+                        16, ENC_NA);
+    offset += 16;
 
-        item_size = 8;
-        proto_tree_add_item(sub_tree, hf_raknet_server_guid, tvb, offset,
-                item_size, ENC_NA);
-        offset += item_size;
+    proto_tree_add_item(sub_tree, hf_raknet_server_guid, tvb, offset,
+                        8, ENC_NA);
+    offset += 8;
 
-        raknet_dissect_system_address(sub_tree, hf_raknet_client_address, tvb, &offset);
+    raknet_dissect_system_address(sub_tree, hf_raknet_client_address, tvb, &offset);
 
-        item_size = 2;
-        proto_tree_add_item(sub_tree, hf_raknet_mtu_size, tvb, offset,
-                item_size, ENC_BIG_ENDIAN);
-        offset += item_size;
+    proto_tree_add_item(sub_tree, hf_raknet_mtu_size, tvb, offset,
+                        2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-        use_encryption = tvb_get_guint8(tvb, offset) ? TRUE : FALSE;
+    use_encryption = tvb_get_guint8(tvb, offset) ? TRUE : FALSE;
 
-        item_size = 1;
-        proto_tree_add_item(sub_tree, hf_raknet_use_encryption, tvb, offset,
-                            item_size, ENC_NA);
-        offset += item_size;
+    proto_tree_add_item(sub_tree, hf_raknet_use_encryption, tvb, offset,
+                        1, ENC_NA);
+    offset += 1;
 
-        if (use_encryption) {
-            item_size = RAKNET_ANSWER_LENGTH;
-            proto_tree_add_item(sub_tree, hf_raknet_server_answer, tvb, offset,
-                                item_size, ENC_NA);
-            offset += item_size;
-        }
+    if (use_encryption) {
+        proto_tree_add_item(sub_tree, hf_raknet_server_answer, tvb, offset,
+                            128, ENC_NA);
+        offset += 128;
     }
 
-    return tvb_reported_length(tvb);
+    return offset;
 }
 
 static int
@@ -552,25 +516,20 @@ raknet_dissect_incompatible_protocol_version(tvbuff_t *tvb, packet_info *pinfo, 
     gint offset;
 
     sub_tree = init_raknet_offline_message(tvb, pinfo, tree, &offset);
-    if (sub_tree) {
-        gint item_size;
 
-        item_size = 1;
-        proto_tree_add_item(sub_tree, hf_raknet_raknet_proto_ver, tvb,
-                offset, item_size, ENC_BIG_ENDIAN);
-        offset += item_size;
+    proto_tree_add_item(sub_tree, hf_raknet_raknet_proto_ver, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
-        item_size = 16;
-        proto_tree_add_item(sub_tree, hf_raknet_offline_message_data_id, tvb, offset,
-                item_size, ENC_NA);
-        offset += item_size;
+    proto_tree_add_item(sub_tree, hf_raknet_offline_message_data_id, tvb, offset,
+                        16, ENC_NA);
+    offset += 16;
 
-        item_size = 8;
-        proto_tree_add_item(sub_tree, hf_raknet_server_guid, tvb, offset,
-                item_size, ENC_NA);
-    }
+    proto_tree_add_item(sub_tree, hf_raknet_server_guid, tvb, offset,
+                        8, ENC_NA);
+    offset += 8;
 
-    return tvb_reported_length(tvb);
+    return offset;
 }
 
 static int
@@ -581,21 +540,16 @@ raknet_dissect_connection_failed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     gint offset;
 
     sub_tree = init_raknet_offline_message(tvb, pinfo, tree, &offset);
-    if (sub_tree) {
-        gint item_size;
 
-        item_size = 16;
-        proto_tree_add_item(sub_tree, hf_raknet_offline_message_data_id, tvb, offset,
-                item_size, ENC_NA);
-        offset += item_size;
+    proto_tree_add_item(sub_tree, hf_raknet_offline_message_data_id, tvb, offset,
+                        16, ENC_NA);
+    offset += 16;
 
-        item_size = 8;
-        proto_tree_add_item(sub_tree, hf_raknet_server_guid, tvb, offset,
-                item_size, ENC_NA);
-        offset += item_size;
-    }
+    proto_tree_add_item(sub_tree, hf_raknet_server_guid, tvb, offset,
+                        8, ENC_NA);
+    offset += 8;
 
-    return tvb_reported_length(tvb);
+    return offset;
 }
 
 static int
@@ -603,131 +557,110 @@ raknet_dissect_unconnected_pong(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                                 void *data _U_)
 {
     proto_tree *sub_tree;
+    guint32 str_size;
     gint offset;
 
     sub_tree = init_raknet_offline_message(tvb, pinfo, tree, &offset);
-    if (sub_tree) {
-        gint item_size;
-        guint32 str_size;
 
-        item_size = 8;
-        proto_tree_add_item(sub_tree, hf_raknet_timestamp, tvb,
-                offset, item_size, ENC_BIG_ENDIAN);
-        offset += item_size;
+    proto_tree_add_item(sub_tree, hf_raknet_timestamp, tvb,
+                        offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
 
-        item_size = 8;
-        proto_tree_add_item(sub_tree, hf_raknet_server_guid, tvb, offset,
-                item_size, ENC_NA);
-        offset += item_size;
+    proto_tree_add_item(sub_tree, hf_raknet_server_guid, tvb, offset,
+                        8, ENC_NA);
+    offset += 8;
 
-        item_size = 16;
-        proto_tree_add_item(sub_tree, hf_raknet_offline_message_data_id, tvb, offset,
-                item_size, ENC_NA);
-        offset += item_size;
+    proto_tree_add_item(sub_tree, hf_raknet_offline_message_data_id, tvb, offset,
+                        16, ENC_NA);
+    offset += 16;
 
-        /* raknet precedes strings with a short (2 bytes) holding string length. */
-        item_size = 2;
-        proto_tree_add_item_ret_uint(sub_tree, hf_raknet_0x1C_server_id_str_len, tvb,
-                                     offset, item_size, ENC_BIG_ENDIAN, &str_size);
-        offset += item_size;
+    /* raknet precedes strings with a short (2 bytes) holding string length. */
+    proto_tree_add_item_ret_uint(sub_tree, hf_raknet_0x1C_server_id_str_len, tvb,
+                                 offset, 2, ENC_BIG_ENDIAN, &str_size);
+    offset += 2;
 
-        proto_tree_add_item(sub_tree, hf_raknet_0x1C_server_id_str, tvb, offset,
-                str_size, ENC_NA|ENC_ASCII);
-    }
+    proto_tree_add_item(sub_tree, hf_raknet_0x1C_server_id_str, tvb, offset,
+                        str_size, ENC_NA|ENC_ASCII);
+    offset += str_size;
 
-    return tvb_reported_length(tvb);
+    return offset;
 }
 
 static int
 raknet_dissect_connected_ping(tvbuff_t *tvb, packet_info *pinfo _U_,
                               proto_tree *tree, void* data _U_)
 {
-    if (tree) {
-        gint item_size;
-        gint offset = 1;
 
-        item_size = 8;
-        proto_tree_add_item(tree, hf_raknet_timestamp, tvb,
-                            offset, item_size, ENC_BIG_ENDIAN);
-        offset += item_size;
-    }
-    return tvb_reported_length(tvb);
+    gint offset = 1;
+
+    proto_tree_add_item(tree, hf_raknet_timestamp, tvb,
+                        offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    return offset;
 }
 
 static int
 raknet_dissect_connected_pong(tvbuff_t *tvb, packet_info *pinfo _U_,
                               proto_tree *tree, void* data _U_)
 {
-    if (tree) {
-        gint item_size;
-        gint offset = 1;
+    gint offset = 1;
 
-        item_size = 8;
-        proto_tree_add_item(tree, hf_raknet_timestamp, tvb,
-                            offset, item_size, ENC_BIG_ENDIAN);
-        offset += item_size;
+    proto_tree_add_item(tree, hf_raknet_timestamp, tvb,
+                        offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
 
-        item_size = 8;
-        proto_tree_add_item(tree, hf_raknet_timestamp, tvb,
-                            offset, item_size, ENC_BIG_ENDIAN);
-        offset += item_size;
-    }
-    return tvb_reported_length(tvb);
+    proto_tree_add_item(tree, hf_raknet_timestamp, tvb,
+                        offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    return offset;
 }
 
 static int
 raknet_dissect_connection_request(tvbuff_t *tvb, packet_info *pinfo _U_,
                                   proto_tree *tree, void* data _U_)
 {
-    if (tree) {
-        gint item_size;
-        gint offset = 1;
-        gboolean use_encryption;
+    gint offset = 1;
+    gboolean use_encryption;
 
-        item_size = 8;
-        proto_tree_add_item(tree, hf_raknet_client_guid, tvb, offset,
-                item_size, ENC_NA);
-        offset += item_size;
+    proto_tree_add_item(tree, hf_raknet_client_guid, tvb, offset,
+                        8, ENC_NA);
+    offset += 8;
 
-        item_size = 8;
-        proto_tree_add_item(tree, hf_raknet_timestamp, tvb,
-                            offset, item_size, ENC_BIG_ENDIAN);
-        offset += item_size;
+    proto_tree_add_item(tree, hf_raknet_timestamp, tvb,
+                        offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
 
-        use_encryption = tvb_get_guint8(tvb, offset) ? TRUE : FALSE;
+    use_encryption = tvb_get_guint8(tvb, offset) ? TRUE : FALSE;
 
-        item_size = 1;
-        proto_tree_add_item(tree, hf_raknet_use_encryption, tvb, offset,
-                            item_size, ENC_NA);
-        offset += item_size;
+    proto_tree_add_item(tree, hf_raknet_use_encryption, tvb, offset,
+                        1, ENC_NA);
+    offset += 1;
 
-        if (use_encryption) {
-            gboolean use_client_key;
+    if (use_encryption) {
+        gboolean use_client_key;
 
-            item_size = RAKNET_PROOF_LENGTH;
-            proto_tree_add_item(tree, hf_raknet_client_proof, tvb, offset,
-                                item_size, ENC_NA);
-            offset += item_size;
+        proto_tree_add_item(tree, hf_raknet_client_proof, tvb, offset,
+                            32, ENC_NA);
+        offset += 32;
 
-            use_client_key = tvb_get_guint8(tvb, offset) ? TRUE : FALSE;
+        use_client_key = tvb_get_guint8(tvb, offset) ? TRUE : FALSE;
 
-            item_size = 1;
-            proto_tree_add_item(tree, hf_raknet_use_client_key, tvb, offset,
-                                item_size, ENC_NA);
-            offset += item_size;
+        proto_tree_add_item(tree, hf_raknet_use_client_key, tvb, offset,
+                            1, ENC_NA);
+        offset += 1;
 
-            if (use_client_key) {
-                item_size = RAKNET_IDENTITY_LENGTH;
-                proto_tree_add_item(tree, hf_raknet_client_identity, tvb, offset,
-                                    item_size, ENC_NA);
-                offset += item_size;
-            }
+        if (use_client_key) {
+            proto_tree_add_item(tree, hf_raknet_client_identity, tvb, offset,
+                                160, ENC_NA);
+            offset += 160;
         }
-
-        item_size = tvb_captured_length_remaining(tvb, offset);
-        proto_tree_add_item(tree, hf_raknet_password, tvb, offset,
-                            item_size, ENC_NA);
     }
+
+    proto_tree_add_item(tree, hf_raknet_password, tvb, offset,
+                       -1, ENC_NA);
+
     return tvb_reported_length(tvb);
 }
 
@@ -735,61 +668,54 @@ static int
 raknet_dissect_connection_request_accepted(tvbuff_t *tvb, packet_info *pinfo _U_,
                                            proto_tree *tree, void* data _U_)
 {
-    if (tree) {
-        gint item_size;
-        gint offset = 1;
-        gint i;
+    gint offset = 1;
+    gint i;
 
-        raknet_dissect_system_address(tree, hf_raknet_client_address, tvb, &offset);
+    raknet_dissect_system_address(tree, hf_raknet_client_address, tvb, &offset);
 
-        item_size = 2;
-        proto_tree_add_item(tree, hf_raknet_system_index, tvb, offset,
-                            item_size, ENC_BIG_ENDIAN);
-        offset += item_size;
+    proto_tree_add_item(tree, hf_raknet_system_index, tvb, offset,
+                        2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-        for (i = 0; i < RAKNET_NUMBER_OF_INTERNAL_IDS; i++) {
-            raknet_dissect_system_address(tree, hf_raknet_internal_address, tvb, &offset);
-        }
-
-        item_size = 8;
-        proto_tree_add_item(tree, hf_raknet_timestamp, tvb,
-                            offset, item_size, ENC_BIG_ENDIAN);
-        offset += item_size;
-
-        item_size = 8;
-        proto_tree_add_item(tree, hf_raknet_timestamp, tvb,
-                            offset, item_size, ENC_BIG_ENDIAN);
-        offset += item_size;
+    for (i = 0; i < RAKNET_NUMBER_OF_INTERNAL_IDS; i++) {
+        raknet_dissect_system_address(tree, hf_raknet_internal_address, tvb, &offset);
     }
-    return tvb_reported_length(tvb);
+
+    proto_tree_add_item(tree, hf_raknet_timestamp, tvb,
+                        offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    proto_tree_add_item(tree, hf_raknet_timestamp, tvb,
+                        offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    return offset;
 }
 
 static int
 raknet_dissect_new_incoming_connection(tvbuff_t *tvb, packet_info *pinfo _U_,
                                        proto_tree *tree, void* data _U_)
 {
-    if (tree) {
-        gint item_size;
-        gint offset = 1;
-        gint i;
 
-        raknet_dissect_system_address(tree, hf_raknet_server_address, tvb, &offset);
+    gint offset = 1;
+    gint i;
 
-        for (i = 0; i < RAKNET_NUMBER_OF_INTERNAL_IDS; i++) {
-            raknet_dissect_system_address(tree, hf_raknet_internal_address, tvb, &offset);
-        }
+    raknet_dissect_system_address(tree, hf_raknet_server_address, tvb, &offset);
 
-        item_size = 8;
-        proto_tree_add_item(tree, hf_raknet_timestamp, tvb,
-                            offset, item_size, ENC_BIG_ENDIAN);
-        offset += item_size;
-
-        item_size = 8;
-        proto_tree_add_item(tree, hf_raknet_timestamp, tvb,
-                            offset, item_size, ENC_BIG_ENDIAN);
-        offset += item_size;
+    for (i = 0; i < RAKNET_NUMBER_OF_INTERNAL_IDS; i++) {
+        raknet_dissect_system_address(tree, hf_raknet_internal_address, tvb, &offset);
     }
-    return tvb_reported_length(tvb);
+
+    proto_tree_add_item(tree, hf_raknet_timestamp, tvb,
+                        offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    proto_tree_add_item(tree, hf_raknet_timestamp, tvb,
+                        offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+
+    return offset;
 }
 
 /*
@@ -918,7 +844,6 @@ static int
 raknet_dissect_ACK(tvbuff_t *tvb, packet_info *pinfo,
                    proto_tree *tree, void* data)
 {
-    gint item_size;
     gint offset = 0;
     proto_tree *sub_tree;
     guint32 count;
@@ -931,10 +856,9 @@ raknet_dissect_ACK(tvbuff_t *tvb, packet_info *pinfo,
         col_add_str(pinfo->cinfo, COL_INFO, "NAK");
     }
 
-    item_size = 2;
     proto_tree_add_item_ret_uint(tree, hf_raknet_NACK_record_count, tvb,
-                                 offset, item_size, ENC_BIG_ENDIAN, &count);
-    offset += item_size;
+                                 offset, 2, ENC_BIG_ENDIAN, &count);
+    offset += 2;
 
     for (i = 0; i < count; i++) {
         proto_item *ti;
@@ -953,22 +877,19 @@ raknet_dissect_ACK(tvbuff_t *tvb, packet_info *pinfo,
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "#%" G_GUINT32_FORMAT, min);
 
-            item_size = 1 + 3;
             ti = proto_tree_add_string_format_value(tree, hf_raknet_packet_number_range, tvb,
                                                     offset, 1 + 3, "",
                                                     "%" G_GUINT32_FORMAT " .. %" G_GUINT32_FORMAT,
                                                     min, min);
             sub_tree = proto_item_add_subtree(ti, ett_raknet_packet_number_range);
 
-            item_size = 1;
             proto_tree_add_item(sub_tree, hf_raknet_range_max_equal_to_min, tvb,
-                                offset, item_size, ENC_NA);
-            offset += item_size;
+                                offset, 1, ENC_NA);
+            offset += 1;
 
-            item_size = 3;
             proto_tree_add_item(sub_tree, hf_raknet_packet_number_min, tvb,
-                                offset, item_size, ENC_LITTLE_ENDIAN);
-            offset += item_size;
+                                offset, 3, ENC_LITTLE_ENDIAN);
+            offset += 3;
         }
         else {
             min = tvb_get_guint24(tvb, offset + 1    , ENC_LITTLE_ENDIAN);
@@ -978,26 +899,22 @@ raknet_dissect_ACK(tvbuff_t *tvb, packet_info *pinfo,
                             "#%" G_GUINT32_FORMAT "..%" G_GUINT32_FORMAT,
                             min, max);
 
-            item_size = 1 + 3 + 3;
             ti = proto_tree_add_string_format_value(tree, hf_raknet_packet_number_range, tvb,
                                                     offset, 1 + 3 + 3, "",
                                                     "%" G_GUINT32_FORMAT " .. %" G_GUINT32_FORMAT, min, max);
             sub_tree = proto_item_add_subtree(ti, ett_raknet_packet_number_range);
 
-            item_size = 1;
             proto_tree_add_item(sub_tree, hf_raknet_range_max_equal_to_min, tvb,
-                                offset, item_size, ENC_NA);
-            offset += item_size;
+                                offset, 1, ENC_NA);
+            offset += 1;
 
-            item_size = 3;
             proto_tree_add_item(sub_tree, hf_raknet_packet_number_min, tvb,
-                                offset, item_size, ENC_LITTLE_ENDIAN);
-            offset += item_size;
+                                offset, 3, ENC_LITTLE_ENDIAN);
+            offset += 3;
 
-            item_size = 3;
             proto_tree_add_item(sub_tree, hf_raknet_packet_number_max, tvb,
-                                offset, item_size, ENC_LITTLE_ENDIAN);
-            offset += item_size;
+                                offset, 3, ENC_LITTLE_ENDIAN);
+            offset += 3;
         }
     }
 
@@ -1007,7 +924,6 @@ raknet_dissect_ACK(tvbuff_t *tvb, packet_info *pinfo,
 static int
 raknet_dissect_common_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *raknet_tree, void *data)
 {
-    gint item_size;
     gint offset = 0;
     gboolean *has_multiple_messages;
     proto_item *ti;
@@ -1040,15 +956,13 @@ raknet_dissect_common_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rak
     msg_tree = proto_item_add_subtree(msg_ti, ett_raknet_message);
     proto_item_append_text(msg_ti, ", ");
 
-    item_size = 1;
     proto_tree_add_bitmask_ret_uint64(msg_tree, tvb, offset, hf_raknet_message_flags,
                                       ett_raknet_message_flags, flag_flds, ENC_NA, &msg_flags);
-    offset += item_size;
+    offset += 1;
 
-    item_size = 2;
     ti = proto_tree_add_item_ret_uint(msg_tree, hf_raknet_payload_length, tvb,
-                                      offset, item_size, ENC_BIG_ENDIAN, &payload_bits);
-    offset += item_size;
+                                      offset, 2, ENC_BIG_ENDIAN, &payload_bits);
+    offset += 2;
     payload_octets = payload_bits / 8 + (payload_bits % 8 > 0); /* ceil(bits / 8) */
     proto_item_append_text(ti, " bits (%" G_GUINT32_FORMAT " octets)", payload_octets);
 
@@ -1059,34 +973,30 @@ raknet_dissect_common_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rak
         reliability == RAKNET_RELIABLE_SEQUENCED ||
         reliability == RAKNET_RELIABLE_ORDERED ) {
 
-        item_size = 3;
         proto_tree_add_item(msg_tree, hf_raknet_reliable_message_number, tvb,
-                            offset, item_size, ENC_LITTLE_ENDIAN);
-        offset += item_size;
+                            offset, 3, ENC_LITTLE_ENDIAN);
+        offset += 3;
     }
 
     if (reliability == RAKNET_UNRELIABLE_SEQUENCED ||
         reliability == RAKNET_RELIABLE_SEQUENCED) {
 
-        item_size = 3;
         proto_tree_add_item(msg_tree, hf_raknet_message_sequencing_index, tvb,
-                            offset, item_size, ENC_LITTLE_ENDIAN);
-        offset += item_size;
+                            offset, 3, ENC_LITTLE_ENDIAN);
+        offset += 3;
     }
 
     if (reliability == RAKNET_UNRELIABLE_SEQUENCED ||
         reliability == RAKNET_RELIABLE_SEQUENCED ||
         reliability == RAKNET_RELIABLE_ORDERED) {
 
-        item_size = 3;
         proto_tree_add_item(msg_tree, hf_raknet_message_ordering_index, tvb,
-                            offset, item_size, ENC_LITTLE_ENDIAN);
-        offset += item_size;
+                            offset, 3, ENC_LITTLE_ENDIAN);
+        offset += 3;
 
-        item_size = 1;
         proto_tree_add_item(msg_tree, hf_raknet_message_ordering_channel, tvb,
-                            offset, item_size, ENC_NA);
-        offset += item_size;
+                            offset, 1, ENC_NA);
+        offset += 1;
     }
 
     if (has_split_packet) {
@@ -1096,20 +1006,18 @@ raknet_dissect_common_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rak
         guint32 split_packet_index;
         fragment_head *frag_msg;
 
-        item_size = 4;
+
         proto_tree_add_item_ret_uint(msg_tree, hf_raknet_split_packet_count, tvb,
-                                     offset, item_size, ENC_BIG_ENDIAN, &split_packet_count);
-        offset += item_size;
+                                     offset, 4, ENC_BIG_ENDIAN, &split_packet_count);
+        offset += 4;
 
-        item_size = 2;
         proto_tree_add_item_ret_uint(msg_tree, hf_raknet_split_packet_id, tvb,
-                                     offset, item_size, ENC_BIG_ENDIAN, &split_packet_id);
-        offset += item_size;
+                                     offset, 2, ENC_BIG_ENDIAN, &split_packet_id);
+        offset += 2;
 
-        item_size = 4;
         proto_tree_add_item_ret_uint(msg_tree, hf_raknet_split_packet_index, tvb,
-                                     offset, item_size, ENC_BIG_ENDIAN, &split_packet_index);
-        offset += item_size;
+                                     offset, 4, ENC_BIG_ENDIAN, &split_packet_index);
+        offset += 4;
 
         /*
          * Reassemble the fragmented packet.
@@ -1385,16 +1293,14 @@ raknet_dissect_connected_message(tvbuff_t *tvb, packet_info *pinfo,
         proto_item_append_text(ti, ", ACK");
         raknet_tree = proto_item_add_subtree(ti, ett_raknet);
 
-        item_size = 1;
         proto_tree_add_bitmask(raknet_tree, tvb, offset, hf_raknet_packet_type,
                                ett_raknet_packet_type, ack_flds, ENC_NA);
-        offset += item_size;
+        offset += 1;
 
         if (msg_type & (1 << 5)) { /* hasBAndAS */
-            item_size = 4;
             proto_tree_add_item(raknet_tree, hf_raknet_AS, tvb, offset,
-                                     item_size, ENC_BIG_ENDIAN);
-            offset += item_size;
+                                4, ENC_BIG_ENDIAN);
+            offset += 4;
         }
 
         if (raknet_tree) {
@@ -1418,10 +1324,9 @@ raknet_dissect_connected_message(tvbuff_t *tvb, packet_info *pinfo,
         proto_item_append_text(ti, ", NAK");
         raknet_tree = proto_item_add_subtree(ti, ett_raknet);
 
-        item_size = 1;
         proto_tree_add_bitmask(raknet_tree, tvb, offset, hf_raknet_packet_type,
                                ett_raknet_packet_type, nak_flds, ENC_NA);
-        offset += item_size;
+        offset += 1;
 
         if (raknet_tree) {
             gboolean is_ACK = FALSE;
@@ -1453,15 +1358,13 @@ raknet_dissect_connected_message(tvbuff_t *tvb, packet_info *pinfo,
         ti = proto_tree_add_item(root_tree, proto_raknet, tvb, 0, 0, ENC_NA);
         raknet_tree = proto_item_add_subtree(ti, ett_raknet);
 
-        item_size = 1;
         proto_tree_add_bitmask(raknet_tree, tvb, offset, hf_raknet_packet_type,
                                ett_raknet_packet_type, common_flds, ENC_NA);
-        offset += item_size;
+        offset += 1;
 
-        item_size = 3;
         proto_tree_add_item_ret_uint(raknet_tree, hf_raknet_packet_number, tvb,
-                                     offset, item_size, ENC_LITTLE_ENDIAN, &packet_number);
-        offset += item_size;
+                                     offset, 3, ENC_LITTLE_ENDIAN, &packet_number);
+        offset += 3;
 
         proto_item_append_text(ti, ", Message #%" G_GUINT32_FORMAT, packet_number);
         col_add_fstr(pinfo->cinfo, COL_INFO, "#%" G_GUINT32_FORMAT ": ", packet_number);
