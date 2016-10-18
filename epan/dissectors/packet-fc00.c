@@ -117,8 +117,6 @@ static inline int Base32_encode(guint8* output,
             return Base32_TOO_BIG;
         }
         output[outIndex++] = kChars[work & 31];
-        bits -= 5;
-        work >>= 5;
     }
     if (outIndex < outputLength) {
         output[outIndex] = '\0';
