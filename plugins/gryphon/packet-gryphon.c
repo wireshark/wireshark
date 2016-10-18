@@ -917,19 +917,19 @@ decode_command(tvbuff_t *tvb, int offset, int dst, proto_tree *pt)
     if (cmd > 0x3F)
         cmd += dst * 256;
 
-    for (i = 0; i < SIZEOF(cmds); i++) {
+    for (i = 0; i < array_length(cmds); i++) {
         if (cmds[i].value == cmd)
             break;
     }
-    if (i >= SIZEOF(cmds) && dst >= SD_KNOWN) {
+    if (i >= array_length(cmds) && dst >= SD_KNOWN) {
         cmd = (cmd & 0xFF) + SD_CARD * 256;
-        for (i = 0; i < SIZEOF(cmds); i++) {
+        for (i = 0; i < array_length(cmds); i++) {
             if (cmds[i].value == cmd)
                 break;
         }
     }
-    if (i >= SIZEOF(cmds))
-        i = SIZEOF(cmds) - 1;
+    if (i >= array_length(cmds))
+        i = array_length(cmds) - 1;
 
     proto_tree_add_string(pt, hf_gryphon_command, tvb, offset, 4, cmds[i].strptr);
     offset += 4;
@@ -955,19 +955,19 @@ decode_response(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     if (cmd > 0x3F)
         cmd += src * 256;
 
-    for (i = 0; i < SIZEOF(cmds); i++) {
+    for (i = 0; i < array_length(cmds); i++) {
         if (cmds[i].value == cmd)
             break;
     }
-    if (i >= SIZEOF(cmds) && src >= SD_KNOWN) {
+    if (i >= array_length(cmds) && src >= SD_KNOWN) {
         cmd = (cmd & 0xFF) + SD_CARD * 256;
-        for (i = 0; i < SIZEOF(cmds); i++) {
+        for (i = 0; i < array_length(cmds); i++) {
             if (cmds[i].value == cmd)
                 break;
         }
     }
-    if (i >= SIZEOF(cmds))
-        i = SIZEOF(cmds) - 1;
+    if (i >= array_length(cmds))
+        i = array_length(cmds) - 1;
     proto_tree_add_string(pt, hf_gryphon_command, tvb, offset, 4, cmds[i].strptr);
     offset += 4;
     msglen -= 4;

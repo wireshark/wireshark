@@ -449,8 +449,6 @@
 #define GLIN    	0x0b	/* LIN TYPE */
 #define GDGLIN08	0x01		/* DG HC08 SUBTYPE */
 
-#define SIZEOF(x)   	(sizeof(x)/sizeof(x[0]))
-
 #define MEMCPY(dest, src, size)     	    \
     memcpy (dest, src, size);	    	    \
     *((dest)+size) = 0;
