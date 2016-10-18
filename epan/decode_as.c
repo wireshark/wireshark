@@ -181,6 +181,7 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
             dissector_handle_t handle;
             ftenum_t selector_type;
             pref_t* pref_value;
+            module_t *module;
 
             selector_type = dissector_table_get_type(sub_dissectors);
 
@@ -206,7 +207,8 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
                     }
 
                     /* Now apply the value data back to dissector table preference */
-                    pref_value = prefs_find_preference(prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(handle))), values[0]);
+                    module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(handle)));
+                    pref_value = prefs_find_preference(module, values[0]);
                     if (pref_value != NULL) {
                         switch(pref_value->type)
                         {
@@ -215,9 +217,11 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
                                preference only supports a single value. This leads to a "last port for
                                dissector in Decode As wins" */
                             *pref_value->varp.uint = (guint)long_value;
+                            module->prefs_changed = TRUE;
                             break;
                         case PREF_DECODE_AS_RANGE:
                             range_add_value(pref_value->varp.range, (guint)long_value);
+                            module->prefs_changed = TRUE;
                             break;
                         default:
                             /* XXX - Worth asserting over? */

@@ -4208,6 +4208,8 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
     guint    uval;
     dissector_table_t sub_dissectors;
     dissector_handle_t handle, tpkt_handle;
+    module_t *module;
+    pref_t *pref;
 
     for (i = 0; i < sizeof(port_prefs)/sizeof(struct port_pref_name); i++)
     {
@@ -4217,6 +4219,14 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
             uval = (guint)strtoul(value, &p, port_prefs[i].base);
             if (p == value || *p != '\0')
                 return FALSE;        /* number was bad */
+
+            module = prefs_find_module((gchar*)port_prefs[i].module_name);
+            pref = prefs_find_preference(module, port_prefs[i].table_name);
+            if (pref != NULL)
+            {
+                module->prefs_changed = TRUE;
+                *pref->varp.uint = uval;
+            }
 
             /* If the value is zero, it wouldn't add to the Decode As tables */
             if (uval != 0)
@@ -4239,25 +4249,15 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
     {
         if (strcmp(pref_name, port_range_prefs[i].pref_name) == 0)
         {
-            range_t *newrange;
             guint32 range_i, range_j;
-            guint32 max_value = 0;
 
             sub_dissectors = find_dissector_table(port_range_prefs[i].table_name);
             if (sub_dissectors != NULL) {
-                /* Max value is based on datatype of dissector table */
                 switch (dissector_table_get_type(sub_dissectors)) {
                 case FT_UINT8:
-                    max_value = 0xFF;
-                    break;
                 case FT_UINT16:
-                    max_value = 0xFFFF;
-                    break;
                 case FT_UINT24:
-                    max_value = 0xFFFFFF;
-                    break;
                 case FT_UINT32:
-                    max_value = 0xFFFFFFFF;
                     break;
 
                 default:
@@ -4265,26 +4265,29 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
                     g_assert_not_reached();
                 }
 
-                if (range_convert_str_work(&newrange, value, max_value,
-                                           TRUE) != CVT_NO_ERROR) {
-                    return FALSE;        /* number was bad */
-                }
+                module = prefs_find_module((gchar*)port_range_prefs[i].module_name);
+                pref = prefs_find_preference(module, port_range_prefs[i].table_name);
+                if (pref != NULL)
+                {
+                    if (!prefs_set_range_value(pref, value, &module->prefs_changed))
+                    {
+                        return FALSE;        /* number was bad */
+                    }
 
-                handle = dissector_table_get_dissector_handle(sub_dissectors, (gchar*)port_range_prefs[i].module_name);
-                if (handle != NULL) {
+                    handle = dissector_table_get_dissector_handle(sub_dissectors, (gchar*)port_range_prefs[i].module_name);
+                    if (handle != NULL) {
 
-                    for (range_i = 0; range_i < newrange->nranges; range_i++) {
-                        for (range_j = newrange->ranges[range_i].low; range_j < newrange->ranges[range_i].high; range_j++) {
-                            dissector_change_uint(port_range_prefs[i].table_name, range_j, handle);
-                            decode_build_reset_list(port_range_prefs[i].table_name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER(range_j), NULL, NULL);
+                        for (range_i = 0; range_i < (*pref->varp.range)->nranges; range_i++) {
+                            for (range_j = (*pref->varp.range)->ranges[range_i].low; range_j < (*pref->varp.range)->ranges[range_i].high; range_j++) {
+                                dissector_change_uint(port_range_prefs[i].table_name, range_j, handle);
+                                decode_build_reset_list(port_range_prefs[i].table_name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER(range_j), NULL, NULL);
+                            }
+
+                            dissector_change_uint(port_range_prefs[i].table_name, (*pref->varp.range)->ranges[range_i].high, handle);
+                            decode_build_reset_list(port_range_prefs[i].table_name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER((*pref->varp.range)->ranges[range_i].high), NULL, NULL);
                         }
-
-                        dissector_change_uint(port_range_prefs[i].table_name, newrange->ranges[range_i].high, handle);
-                        decode_build_reset_list(port_range_prefs[i].table_name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER(newrange->ranges[range_i].high), NULL, NULL);
                     }
                 }
-
-                g_free(newrange);
             }
 
             return TRUE;
