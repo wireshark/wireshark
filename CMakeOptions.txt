@@ -1,7 +1,7 @@
 # Build options for use by CMake
 
 option(BUILD_wireshark     "Build Wireshark" ON)
-option(BUILD_wireshark_gtk "Build Wireshark (GTK+ UI)" ON)
+option(BUILD_wireshark_gtk "Build Wireshark (GTK+ UI)" OFF)
 option(BUILD_tshark        "Build tshark" ON)
 option(BUILD_tfshark       "Build tfshark" ON)
 option(BUILD_rawshark      "Build rawshark" ON)

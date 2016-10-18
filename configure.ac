@@ -256,14 +256,14 @@ AC_ARG_WITH([qt],
 
 AC_ARG_WITH([gtk],
   AC_HELP_STRING( [--with-gtk=@<:@yes/no/2/3@:>@],
-	[use GTK+ @<:@default=yes, if available@:>@]),
+	[use GTK+ @<:@default=no@:>@]),
 	AS_CASE([$withval],
 	  [yes], [with_gtk="3 2 fail"],
 	  [no],  [with_gtk="no"],
 	  [3],   [with_gtk="3 fail3"],
 	  [2],   [with_gtk="2 fail2"],
 	  [AC_MSG_ERROR([--with-gtk must be one of yes/no/2/3])]),
-	with_gtk="3 2")
+	with_gtk="no")
 
 # GnuTLS
 # Version 3.0 switched from LGPLv2.1+ to LGPLv3+, then switched back to

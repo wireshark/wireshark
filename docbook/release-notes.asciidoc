@@ -32,6 +32,7 @@ since version 2.2.0:
   That is, you should make sure the NSIS package is completely uninstalled before
   installing the Windows Installer package and vice-versa.
 * Source packages are now compressed using xz instead of bzip2.
+* GTK+ is disabled by default in Autotools and CMake.
 
 //=== Removed Dissectors
 
