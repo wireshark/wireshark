@@ -77,7 +77,7 @@ bluetooth_hci_summary_tap_reset(void *tapinfo_ptr)
 }
 
 static void
-bluetooth_hci_summary_tap(void *data)
+bluetooth_hci_summary_tap_init(void *data)
 {
     GString *error_string;
 
@@ -140,7 +140,7 @@ BluetoothHciSummaryDialog::BluetoothHciSummaryDialog(QWidget &parent, CaptureFil
     item_reason_                  = ui->tableTreeWidget->topLevelItem(12);
     item_hardware_errors_         = ui->tableTreeWidget->topLevelItem(13);
 
-    bluetooth_hci_summary_tap(&tapinfo_);
+    bluetooth_hci_summary_tap_init(&tapinfo_);
 
     cap_file_.retapPackets();
 }
