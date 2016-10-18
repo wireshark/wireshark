@@ -556,7 +556,6 @@ int main(int argc, char **argv)
 
 	extcap_help_add_option(extcap_conf, "--help", "print this help");
 	extcap_help_add_option(extcap_conf, "--version", "print the version");
-	extcap_help_add_option(extcap_conf, "--verbose", "print more messages");
 	extcap_help_add_option(extcap_conf, "--remote-host <host>", "the remote SSH host");
 	extcap_help_add_option(extcap_conf, "--remote-port <port>", "the remote SSH port (default: 22)");
 	extcap_help_add_option(extcap_conf, "--remote-username <username>", "the remote SSH username (default: the current user)");

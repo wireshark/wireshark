@@ -84,7 +84,6 @@
 
 
 #define EXTCAP_BASE_OPTIONS \
-	{ "debug", optional_argument, NULL, EXTCAP_OPT_DEBUG}, \
 	{ "extcap-interfaces", no_argument, NULL, EXTCAP_OPT_LIST_INTERFACES}, \
 	{ "extcap-version", optional_argument, NULL, EXTCAP_OPT_VERSION}, \
 	{ "extcap-dlts", no_argument, NULL, EXTCAP_OPT_LIST_DLTS}, \
@@ -92,7 +91,8 @@
 	{ "extcap-config", no_argument, NULL, EXTCAP_OPT_CONFIG}, \
 	{ "capture", no_argument, NULL, EXTCAP_OPT_CAPTURE}, \
 	{ "extcap-capture-filter", required_argument,	NULL, EXTCAP_OPT_CAPTURE_FILTER}, \
-	{ "fifo", required_argument, NULL, EXTCAP_OPT_FIFO} \
+	{ "fifo", required_argument, NULL, EXTCAP_OPT_FIFO}, \
+	{ "debug", optional_argument, NULL, EXTCAP_OPT_DEBUG} \
 
 #if defined(_WIN32)
 	BOOLEAN IsHandleRedirected(DWORD handle);

@@ -308,7 +308,6 @@ int main(int argc, char *argv[])
 	g_free(help_header);
 	extcap_help_add_option(extcap_conf, "--help", "print this help");
 	extcap_help_add_option(extcap_conf, "--version", "print the version");
-	extcap_help_add_option(extcap_conf, "--verbose", "print more messages");
 	port_msg = g_strdup_printf("the port to listens on. Default: %u", UDPDUMP_DEFAULT_PORT);
 	extcap_help_add_option(extcap_conf, "--port <port>", port_msg);
 	g_free(port_msg);

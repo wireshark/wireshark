@@ -2584,8 +2584,6 @@ int main(int argc, char **argv) {
     g_free(help_header);
 
     extcap_help_add_option(extcap_conf, "--help", "print this help");
-    extcap_help_add_option(extcap_conf, "--version", "print the version");
-    extcap_help_add_option(extcap_conf, "--verbose", "verbose mode");
     extcap_help_add_option(extcap_conf, "--adb-server-ip <IP>", "the IP address of the ADB server");
     extcap_help_add_option(extcap_conf, "--adb-server-tcp-port <port>", "the TCP port of the ADB server");
     extcap_help_add_option(extcap_conf, "--logcat-text <text>", "logcat text");

@@ -161,7 +161,6 @@ int main(int argc, char *argv[])
 
 	extcap_help_add_option(extcap_conf, "--help", "print this help");
 	extcap_help_add_option(extcap_conf, "--version", "print the version");
-	extcap_help_add_option(extcap_conf, "--verbose", "verbose mode");
 	extcap_help_add_option(extcap_conf, "--maxbytes <bytes>", "max bytes per pack");
 	extcap_help_add_option(extcap_conf, "--count <num>", "number of packets to generate");
 	extcap_help_add_option(extcap_conf, "--random-type", "one random type is chosen for all packets");

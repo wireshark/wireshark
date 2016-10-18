@@ -328,6 +328,8 @@ void extcap_help_add_header(extcap_parameters * extcap, char * help_header)
     extcap_help_add_option(extcap, "--capture", "run the capture");
     extcap_help_add_option(extcap, "--extcap-capture-filter <filter>", "the capture filter");
     extcap_help_add_option(extcap, "--fifo <file>", "dump data to file or fifo");
+    extcap_help_add_option(extcap, "--extcap-version", "print tool version");
+    extcap_help_add_option(extcap, "--debug", "print additional messages");
 }
 
 /*
