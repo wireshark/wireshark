@@ -36,6 +36,8 @@
 #include <epan/show_exception.h>
 #include <epan/addr_resolv.h>
 
+#include <wsutil/strtoi.h>
+
 #include "packet-sdp.h"
 
 /* un-comment the following as well as this line in conversation.c, to enable debug printing */
@@ -196,6 +198,11 @@ static expert_field ei_sdp_invalid_line_equal  = EI_INIT;
 static expert_field ei_sdp_invalid_line_fields = EI_INIT;
 static expert_field ei_sdp_invalid_line_space  = EI_INIT;
 static expert_field ei_sdp_invalid_conversion = EI_INIT;
+static expert_field ei_sdp_invalid_media_port = EI_INIT;
+static expert_field ei_sdp_invalid_sample_rate = EI_INIT;
+static expert_field ei_sdp_invalid_media_format = EI_INIT;
+static expert_field ei_sdp_invalid_crypto_tag = EI_INIT;
+static expert_field ei_sdp_invalid_crypto_mki_length = EI_INIT;
 
 /* patterns used for tvb_ws_mempbrk_pattern_guint8 */
 static ws_mempbrk_pattern pbrk_digits;
@@ -860,13 +867,16 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
  *    video 49170/2 RTP/AVP 31 99
  */
 static void
-dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
+dissect_sdp_media(tvbuff_t *tvb, packet_info* pinfo, proto_item *ti,
                   transport_info_t *transport_info, disposable_media_info_t *media_info) {
     proto_tree *sdp_media_tree;
     gint        offset, next_offset, tokenlen, idx;
     guint8     *media_format;
     gboolean    optional = FALSE;
     proto_item *it;
+    guint16     media_port;
+    gboolean    media_port_valid;
+    proto_item *pi;
 
     offset = 0;
 
@@ -903,8 +913,12 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
                 media_info->media_count));
         if (g_ascii_isdigit(media_info->media_port[media_info->media_count][0])) {
             PROTO_ITEM_SET_HIDDEN(it);
-            proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
-                                atoi(media_info->media_port[media_info->media_count]));
+            media_port_valid = ws_strtou16(media_info->media_port[media_info->media_count], NULL,
+                &media_port);
+            pi = proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
+                                media_port);
+            if (!media_port_valid)
+                expert_add_info(pinfo, pi, &ei_sdp_invalid_media_port);
         }
 
         offset = next_offset + 1;
@@ -930,8 +944,11 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
                 media_info->media_count));
         if (g_ascii_isdigit(media_info->media_port[media_info->media_count][0])) {
             PROTO_ITEM_SET_HIDDEN(it);
-            proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
-                                atoi(media_info->media_port[media_info->media_count]));
+            media_port_valid = ws_strtou16(media_info->media_port[media_info->media_count], NULL, &media_port);
+            pi = proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
+                                media_port);
+            if (!media_port_valid)
+                expert_add_info(pinfo, pi, &ei_sdp_invalid_media_port);
         }
         offset = next_offset + 1;
     }
@@ -1307,6 +1324,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     proto_tree   *sdp_media_attribute_tree, *parameter_item;
     proto_item   *fmtp_item, *media_format_item, *parameter_tree;
     proto_tree   *fmtp_tree;
+    proto_item   *pi;
     gint          offset, next_offset, tokenlen, n, colon_offset;
     /*??guint8   *field_name;*/
     const guint8 *payload_type;
@@ -1318,6 +1336,9 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     gboolean      has_more_pars      = TRUE;
     tvbuff_t     *h245_tvb;
     guint8        master_key_length  = 0, master_salt_length = 0;
+    guint32       crypto_tag;
+    gboolean      crypto_tag_valid;
+    gboolean      mki_len_valid;
 
     offset = 0;
 
@@ -1377,8 +1398,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
             proto_tree_add_item(sdp_media_attribute_tree, hf_media_encoding_name, tvb,
                                 offset, tokenlen, ENC_UTF_8|ENC_NA);
 
-            pt = atoi((const char *)payload_type);
-            if (pt >= SDP_NO_OF_PT) {
+            if (!ws_strtou8(payload_type, NULL, &pt) || pt >= SDP_NO_OF_PT) {
                 return;   /* Invalid */
             }
 
@@ -1392,9 +1412,12 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                 next_offset++;
             }
             tokenlen = next_offset - offset;
-            proto_tree_add_item(sdp_media_attribute_tree, hf_media_sample_rate, tvb,
+            pi = proto_tree_add_item(sdp_media_attribute_tree, hf_media_sample_rate, tvb,
                                 offset, tokenlen, ENC_UTF_8|ENC_NA);
-            transport_info->sample_rate[pt] = atoi(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA));
+            transport_info->sample_rate[pt] = 0;
+            if (!ws_strtou32(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA),
+                    NULL, &transport_info->sample_rate[pt]))
+                expert_add_info(pinfo, pi, &ei_sdp_invalid_sample_rate);
             /* As per RFC2327 it is possible to have multiple Media Descriptions ("m=").
                For example:
 
@@ -1444,9 +1467,10 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                 media_format_item = proto_tree_add_item(sdp_media_attribute_tree,
                                                         hf_media_format, tvb, offset,
                                                         tokenlen, ENC_UTF_8|ENC_NA);
-                media_format = atoi((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA));
-                if (media_format >= SDP_NO_OF_PT) {
-                    return;   /* Invalid */
+                if (!ws_strtou8(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA),
+                        NULL, &media_format) || media_format >= SDP_NO_OF_PT) {
+                    expert_add_info(pinfo, media_format_item, &ei_sdp_invalid_media_format);
+                    return;
                 }
 
                 /* Append encoding name to format if known */
@@ -1522,9 +1546,13 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                     if (str_to_ip((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, address_offset, port_offset-address_offset, ENC_UTF_8|ENC_NA),
                                    &media_info->msrp_ipaddr)) {
                         /* Get port number */
-                        media_info->msrp_port_number = atoi((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, port_offset + 1, port_end_offset - port_offset - 1, ENC_UTF_8|ENC_NA));
-                        /* Set flag so this info can be used */
-                        media_info->msrp_transport_address_set = TRUE;
+                        if (ws_strtou16(tvb_get_string_enc(wmem_packet_scope(), tvb, port_offset + 1,
+                                port_end_offset - port_offset - 1, ENC_UTF_8|ENC_NA), NULL, &media_info->msrp_port_number)) {
+                            /* Set flag so this info can be used */
+                            media_info->msrp_transport_address_set = TRUE;
+                        } else {
+                            media_info->msrp_transport_address_set = FALSE;
+                        }
                     }
                 }
             }
@@ -1584,8 +1612,12 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
             tokenlen = find_next_token_in_line(tvb, sdp_media_attribute_tree, &offset, &next_offset);
             if (tokenlen == 0)
                 return;
-            proto_tree_add_uint(sdp_media_attribute_tree, hf_sdp_crypto_tag, tvb, offset, tokenlen,
-                atoi((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA)));
+            crypto_tag_valid = ws_strtou32(tvb_get_string_enc(wmem_packet_scope(), tvb, offset,
+                tokenlen, ENC_UTF_8|ENC_NA), NULL, &crypto_tag);
+            pi = proto_tree_add_uint(sdp_media_attribute_tree, hf_sdp_crypto_tag, tvb, offset, tokenlen,
+                crypto_tag);
+            if (!crypto_tag_valid)
+                expert_add_info(pinfo, pi, &ei_sdp_invalid_crypto_tag);
             offset = next_offset + 1;
 
             /* crypto-suite */
@@ -1707,9 +1739,12 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
                             /* This will not work if more than one parameter */
                             /* number of octets used for the MKI in the RTP payload */
-                            transport_info->mki_len = atoi((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA));
-                            proto_tree_add_item(parameter_tree, hf_sdp_crypto_mki_length,
+                            mki_len_valid = ws_strtou32(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen,
+                                ENC_UTF_8|ENC_NA), NULL, &transport_info->mki_len);
+                            pi = proto_tree_add_item(parameter_tree, hf_sdp_crypto_mki_length,
                                 tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
+                            if (!mki_len_valid)
+                                expert_add_info(pinfo, pi, &ei_sdp_invalid_crypto_mki_length);
                         }
                     }
                     offset = param_end_offset;
@@ -1747,7 +1782,7 @@ call_sdp_subdissector(tvbuff_t *tvb, packet_info *pinfo, int hf, proto_tree* ti,
     } else if (hf == hf_session_attribute) {
         dissect_sdp_session_attribute(tvb, pinfo, ti);
     } else if (hf == hf_media) {
-        dissect_sdp_media(tvb, ti, transport_info, media_info);
+        dissect_sdp_media(tvb, pinfo, ti, transport_info, media_info);
     } else if (hf == hf_media_attribute) {
         dissect_sdp_media_attribute(tvb, pinfo, ti, length, transport_info, media_info);
     }
@@ -3042,6 +3077,41 @@ proto_register_sdp(void)
             { "sdp.invalid_conversion",
               PI_PROTOCOL, PI_WARN,
               "Invalid conversion",
+              EXPFILL
+            }
+        },
+        { &ei_sdp_invalid_media_port,
+            { "sdp.invalid_media_port",
+              PI_MALFORMED, PI_ERROR,
+              "Invalid media port",
+              EXPFILL
+            }
+        },
+        { &ei_sdp_invalid_sample_rate,
+            { "sdp.invalid_sample_rate",
+              PI_MALFORMED, PI_ERROR,
+              "Invalid sample rate",
+              EXPFILL
+            }
+        },
+        { &ei_sdp_invalid_media_format,
+            { "sdp.invalid_media_format",
+              PI_MALFORMED, PI_ERROR,
+              "Invalid media format",
+              EXPFILL
+            }
+        },
+        { &ei_sdp_invalid_crypto_tag,
+            { "sdp.invalid_crypto_tag",
+              PI_MALFORMED, PI_ERROR,
+              "Invalid crypto tag",
+              EXPFILL
+            }
+        },
+        { &ei_sdp_invalid_crypto_mki_length,
+            { "sdp.invalid_crypto_mki_length",
+              PI_MALFORMED, PI_ERROR,
+              "Invalid crypto mki length",
               EXPFILL
             }
         }
