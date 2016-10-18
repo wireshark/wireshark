@@ -30,6 +30,10 @@
  * as E.212 is still not updated
  * Chinese PLMN codes updated according to http://www.mcc-mnc.com
  */
+/* Iranian PLMN codes (MCC 432) updated according to
+ * http://mcclist.com/mobile-network-codes-country-codes.asp#Iran
+ * due to lack of update in E.212 list
+ */
 
 #include "config.h"
 
@@ -2005,9 +2009,13 @@ static const value_string mcc_mnc_codes[] = {
     {  427060, "Ooredoo Q.S.C./MOI LTE" },
     {  428990, "Mobicom" },
     {  429010, "Nepal Telecommunications" },
-    {  432110, "Telecommunication Company of Iran (TCI)" },
-    {  432140, "Telecommunication Kish Co. (KIFZO)" },
-    {  432190, "Telecommunication Company of Iran (TCI) - Isfahan Celcom GSM" },
+    {  432110, "Mobile Communication of Iran (MCI)" },
+    {  432140, "Telecommunication Kish Co. (TKC/KFZO)" },
+    {  432190, "Mobile Telecommunications Company of Esfahan JV-PJS (MTCE)" },
+    {  432200, "RighTel" },
+    {  432320, "Taliya" },
+    {  432350, "MTN/Irancell" },
+    {  432700, "Telephone Communications Company of Iran (TCI)" },
     {  434010, "Buztel" },
     {  434020, "Uzmacom" },
     {  434040, "Daewoo Unitel" },
