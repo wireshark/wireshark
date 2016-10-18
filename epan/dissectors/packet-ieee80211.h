@@ -242,6 +242,7 @@ typedef struct _wlan_stats {
   guint8 ssid_len;
   guchar ssid[MAX_SSID_LEN];
   gchar protection[MAX_PROTECT_LEN];
+  gboolean fc_retry;
 } wlan_stats_t;
 
 typedef struct _wlan_hdr {

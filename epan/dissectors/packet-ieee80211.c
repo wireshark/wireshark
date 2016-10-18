@@ -12896,6 +12896,7 @@ dissect_frame_control(proto_tree *tree, tvbuff_t *tvb, guint32 option_flags,
     if( IS_RETRY(flags) )
     {
       expert_add_info(pinfo, ti, &ei_ieee80211_fc_retry);
+      wlan_stats.fc_retry = 1;
     }
   }
   proto_tree_add_item(flag_tree, hf_ieee80211_fc_pwr_mgt, tvb, offset, 1, ENC_NA);
