@@ -647,8 +647,10 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
 
     flags = tvb_get_letohl(tvb, ptvcursor_current_offset(csr));
     *n_mac_flags = flags;
+    phdr->phy_info.info_11n.has_bandwidth = TRUE;
     phdr->phy_info.info_11n.has_short_gi = TRUE;
     phdr->phy_info.info_11n.has_greenfield = TRUE;
+    phdr->phy_info.info_11n.bandwidth = ((flags & DOT11N_FLAG_HT40) != 0);
     phdr->phy_info.info_11n.short_gi = ((flags & DOT11N_FLAG_SHORT_GI) != 0);
     phdr->phy_info.info_11n.greenfield = ((flags & DOT11N_FLAG_GREENFIELD) != 0);
     if (DOT11N_IS_AGGREGATE(flags)) {
