@@ -34,6 +34,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 #include <epan/expert.h>
 #include <epan/follow.h>
 #include <epan/addr_resolv.h>
@@ -3266,6 +3267,9 @@ range_add_http_ssl_callback(guint32 port) {
 }
 
 static void reinit_http(void) {
+	pref_t *http_tcp_ports = prefs_find_preference(prefs_find_module("http"), "tcp.port");
+	http_tcp_range = range_copy(*http_tcp_ports->varp.range);
+
 	dissector_delete_uint_range("sctp.port", http_sctp_range, http_sctp_handle);
 	g_free(http_sctp_range);
 	http_sctp_range = range_copy(global_http_sctp_range);
