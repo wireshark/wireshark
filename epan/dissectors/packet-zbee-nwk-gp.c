@@ -143,6 +143,10 @@ typedef struct {
 #define ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_GCLP   0x04
 #define ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_CRP    0x08
 
+/* Definitions for GP Commissioning command Number of server ClusterIDs (bitmask) */
+#define ZBEE_NWK_GP_CMD_COMMISSIONING_CLID_LIST_LEN_SRV 0x0F
+#define ZBEE_NWK_GP_CMD_COMMISSIONING_CLID_LIST_LEN_CLI 0xF0
+
 /* Definitions for GP Decommissioning command opt field (bitmask). */
 #define ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_PAN_ID_PRESENT    0x01
 #define ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_SEC_KEY_PRESENT   0x02
@@ -257,6 +261,14 @@ static int hf_zbee_nwk_gp_cmd_comm_ms_ext_crp = -1;
 static int hf_zbee_nwk_gp_cmd_comm_ms_ext_gclp = -1;
 static int hf_zbee_nwk_gp_cmd_comm_ms_ext_mip = -1;
 static int hf_zbee_nwk_gp_cmd_comm_ms_ext_mmip = -1;
+static int hf_zbee_nwk_gp_cmd_comm_gpd_cmd_num = -1;
+static int hf_zbee_nwk_gp_cmd_comm_gpd_cmd_id_list = -1;
+static int hf_zbee_nwk_gp_cmd_comm_length_of_clid_list = -1;
+static int hf_zbee_nwk_gp_cmd_comm_length_of_clid_list_server = -1;
+static int hf_zbee_nwk_gp_cmd_comm_length_of_clid_list_client = -1;
+static int hf_zbee_nwk_cmd_comm_clid_list_server = -1;
+static int hf_zbee_nwk_cmd_comm_clid_list_client = -1;
+static int hf_zbee_nwk_cmd_comm_cluster_id = -1;
 
 /* Commissioning reply. */
 static int hf_zbee_nwk_gp_cmd_comm_rep_opt = -1;
@@ -307,6 +319,10 @@ static gint ett_zbee_nwk_cmd_ms_ext = -1;
 static gint ett_zbee_nwk_cmd_options = -1;
 static gint ett_zbee_nwk_fcf = -1;
 static gint ett_zbee_nwk_fcf_ext = -1;
+static gint ett_zbee_nwk_cmd_comm_gpd_cmd_id_list = -1;
+static gint ett_zbee_nwk_cmd_comm_length_of_clid_list = -1;
+static gint ett_zbee_nwk_cmd_comm_clid_list_server = -1;
+static gint ett_zbee_nwk_cmd_comm_clid_list_client = -1;
 
 /* Common. */
 static GSList *zbee_gp_keyring = NULL;
@@ -659,6 +675,18 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     guint8 comm_ext_options = 0;
     guint8 ms_ext_options = 0;
     guint16 manufacturer_id = 0;
+
+    guint8 i;
+    guint8 gpd_cmd_num = 0;
+    proto_item *gpd_cmd_list;
+    proto_tree *gpd_cmd_list_tree;
+
+    guint8 length_of_clid_list_bm;
+    guint8 server_clid_num;
+    guint8 client_clid_num;
+    proto_item *server_clid_list, *client_clid_list;
+    proto_tree *server_clid_list_tree, *client_clid_list_tree;
+
     static const int * options[] = {
         &hf_zbee_nwk_gp_cmd_comm_opt_mac_sec_num_cap,
         &hf_zbee_nwk_gp_cmd_comm_opt_rx_on_cap,
@@ -682,6 +710,11 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         &hf_zbee_nwk_gp_cmd_comm_ms_ext_mmip,
         &hf_zbee_nwk_gp_cmd_comm_ms_ext_gclp,
         &hf_zbee_nwk_gp_cmd_comm_ms_ext_crp,
+        NULL
+    };
+    static const int * length_of_clid_list[] = {
+        &hf_zbee_nwk_gp_cmd_comm_length_of_clid_list_server,
+        &hf_zbee_nwk_gp_cmd_comm_length_of_clid_list_client,
         NULL
     };
 
@@ -738,6 +771,58 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, pro
                     proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_manufacturer_dev_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     offset += 2;
                     break;
+            }
+        }
+        if (ms_ext_options & ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_GCLP) {
+            /* Get and display number of GPD commands */
+            gpd_cmd_num = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_gpd_cmd_num, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            /* Display GPD command list */
+            if (gpd_cmd_num > 0) {
+                gpd_cmd_list = proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_gpd_cmd_id_list,
+                    tvb, offset, gpd_cmd_num, ENC_NA);
+                gpd_cmd_list_tree = proto_item_add_subtree(gpd_cmd_list, ett_zbee_nwk_cmd_comm_gpd_cmd_id_list);
+                for (i = 0; i < gpd_cmd_num; i++, offset++) {
+                    /* Display command id */
+                    proto_tree_add_item(gpd_cmd_list_tree, hf_zbee_nwk_gp_command_id,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                }
+            }
+        }
+        if (ms_ext_options & ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_CRP) {
+            /* Get and display Cluster List */
+            length_of_clid_list_bm = tvb_get_guint8(tvb, offset);
+            server_clid_num = (length_of_clid_list_bm & ZBEE_NWK_GP_CMD_COMMISSIONING_CLID_LIST_LEN_SRV) >>
+                ws_ctz(ZBEE_NWK_GP_CMD_COMMISSIONING_CLID_LIST_LEN_SRV);
+            client_clid_num = (length_of_clid_list_bm & ZBEE_NWK_GP_CMD_COMMISSIONING_CLID_LIST_LEN_CLI ) >>
+                ws_ctz(ZBEE_NWK_GP_CMD_COMMISSIONING_CLID_LIST_LEN_CLI);
+
+            proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_cmd_comm_length_of_clid_list,
+                ett_zbee_nwk_cmd_comm_length_of_clid_list, length_of_clid_list, ENC_NA);
+            offset += 1;
+
+            if (server_clid_num > 0) {
+                /* Display server cluster list */
+                server_clid_list = proto_tree_add_item(tree, hf_zbee_nwk_cmd_comm_clid_list_server,
+                    tvb, offset, 2*server_clid_num, ENC_NA);
+                server_clid_list_tree = proto_item_add_subtree(server_clid_list, ett_zbee_nwk_cmd_comm_clid_list_server);
+                /* Retrieve server clusters */
+                for (i = 0; i < server_clid_num; i++, offset += 2) {
+                    proto_tree_add_item(server_clid_list_tree, hf_zbee_nwk_cmd_comm_cluster_id,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                }
+            }
+            if (client_clid_num > 0) {
+                /* Display client cluster list */
+                client_clid_list = proto_tree_add_item(tree, hf_zbee_nwk_cmd_comm_clid_list_client,
+                    tvb, offset, 2*client_clid_num, ENC_NA);
+                client_clid_list_tree = proto_item_add_subtree(client_clid_list, ett_zbee_nwk_cmd_comm_clid_list_client);
+                /* Retrieve client clusters */
+                for (i = 0; i < client_clid_num; i++, offset += 2) {
+                    proto_tree_add_item(client_clid_list_tree, hf_zbee_nwk_cmd_comm_cluster_id,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                }
             }
         }
     }
@@ -1606,6 +1691,38 @@ proto_register_zbee_nwk_gp(void)
             { "Manufacturer Model ID present", "zbee_nwk_gp.cmd.comm.ms_ext.mmip", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_MMIP , NULL, HFILL }},
 
+        { &hf_zbee_nwk_gp_cmd_comm_gpd_cmd_num,
+            { "Number of GPD commands", "zbee_nwk_gp.cmd.comm.gpd_cmd_num", FT_UINT8, BASE_DEC, NULL,
+                0x0 , NULL, HFILL }},
+
+        { &hf_zbee_nwk_gp_cmd_comm_gpd_cmd_id_list,
+            { "GPD CommandID list", "zbee_nwk_gp.cmd.comm.gpd_cmd_id_list", FT_NONE, BASE_NONE, NULL,
+                0x0 , NULL, HFILL }},
+
+          { &hf_zbee_nwk_gp_cmd_comm_length_of_clid_list,
+              { "Length of ClusterID list", "zbee_nwk_gp.cmd.comm.length_of_clid_list", FT_UINT8, BASE_HEX, NULL,
+                  0x0 , NULL, HFILL }},
+
+          { &hf_zbee_nwk_gp_cmd_comm_length_of_clid_list_server,
+              { "Number of server ClusterIDs", "zbee_nwk_gp.cmd.comm.length_of_clid_list_srv", FT_UINT8, BASE_DEC, NULL,
+                  ZBEE_NWK_GP_CMD_COMMISSIONING_CLID_LIST_LEN_SRV, NULL, HFILL }},
+
+          { &hf_zbee_nwk_gp_cmd_comm_length_of_clid_list_client,
+              { "Number of client ClusterIDs", "zbee_nwk_gp.cmd.comm.length_of_clid_list_cli", FT_UINT8, BASE_DEC, NULL,
+                  ZBEE_NWK_GP_CMD_COMMISSIONING_CLID_LIST_LEN_CLI, NULL, HFILL }},
+
+        { &hf_zbee_nwk_cmd_comm_clid_list_server,
+            { "Cluster ID List Server", "zbee_nwk_gp.cmd.comm.clid_list_server", FT_NONE, BASE_NONE, NULL,
+                0x0 , NULL, HFILL }},
+
+        { &hf_zbee_nwk_cmd_comm_clid_list_client,
+            { "ClusterID List Client", "zbee_nwk_gp.cmd.comm.clid_list_client", FT_NONE, BASE_NONE, NULL,
+                0x0 , NULL, HFILL }},
+
+        { &hf_zbee_nwk_cmd_comm_cluster_id,
+            { "Cluster ID", "zbee_nwk_gp.cmd.comm.cluster_id", FT_UINT16, BASE_HEX, NULL,
+                0x0 , NULL, HFILL }},
+
         { &hf_zbee_nwk_gp_cmd_comm_rep_opt_key_encr,
             { "GPD Key Encryption", "zbee_nwk_gp.cmd.comm_reply.opt.sec_key_encr", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_KEY_ENCR, NULL, HFILL }},
@@ -1703,7 +1820,11 @@ proto_register_zbee_nwk_gp(void)
         &ett_zbee_nwk_cmd_ms_ext,
         &ett_zbee_nwk_cmd_options,
         &ett_zbee_nwk_fcf,
-        &ett_zbee_nwk_fcf_ext
+        &ett_zbee_nwk_fcf_ext,
+        &ett_zbee_nwk_cmd_comm_gpd_cmd_id_list,
+        &ett_zbee_nwk_cmd_comm_length_of_clid_list,
+        &ett_zbee_nwk_cmd_comm_clid_list_server,
+        &ett_zbee_nwk_cmd_comm_clid_list_client
     };
 
     static uat_field_t key_uat_fields[] = {
