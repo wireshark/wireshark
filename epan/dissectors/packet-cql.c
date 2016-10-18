@@ -738,6 +738,8 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 				add_new_data_source(pinfo, tvb, "Decompressed Data");
 				compression_level = CQL_COMPRESSION_SNAPPY;
 				message_length = (guint32)orig_size;
+			} else {
+				wmem_free(pinfo->pool, decompressed_buffer);
 			}
 		}
 #endif
