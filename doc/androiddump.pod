@@ -8,6 +8,8 @@ androiddump - Provide interfaces to capture from Android devices
 B<androiddump>
 S<[ B<--help> ]>
 S<[ B<--version> ]>
+S<[ B<--extcap-version> ]>
+S<[ B<--debug> ]>
 S<[ B<--extcap-interfaces> ]>
 S<[ B<--extcap-dlts> ]>
 S<[ B<--extcap-interface>=E<lt>interfaceE<gt> ]>
@@ -58,27 +60,27 @@ Supported interfaces:
 
 =over 4
 
-=item 1. Logcat Main (binary or text)
+=item 1. Logcat Main (binary [<=Jelly Bean] or text)
 
-=item 2. Logcat System (binary or text)
+=item 2. Logcat System (binary [<=Jelly Bean] or text)
 
-=item 3. Logcat Events (binary or text)
+=item 3. Logcat Events (binary [<=Jelly Bean] or text)
 
-=item 4. Logcat Radio (binary or text)
+=item 4. Logcat Radio (binary [<=Jelly Bean] or text)
 
-=item 5. Logcat Crash (text; Lollipop)
+=item 5. Logcat Crash (text; from Lollipop)
 
-=item 6. Bluetooth Hcidump (<Kitkat)
+=item 6. Bluetooth Hcidump [<=Jelly Bean]
 
-=item 7. Bluetooth Bluedroid External Parser (Kitkat)
+=item 7. Bluetooth Bluedroid External Parser [Kitkat]
 
-=item 8. Bluetooth BtsnoopNet (Lollipop)
+=item 8. Bluetooth BtsnoopNet [>=Lollipop]
 
-=item 9. WiFi tcpdump
+=item 9. WiFi tcpdump [need tcpdump on phone]
 
 =back
 
-Please note that it will work also for FirefoxOS.
+Please note that it will work also for FirefoxOS or other Android-based stuffs.
 
 =head1 OPTIONS
 
@@ -91,6 +93,14 @@ Print program arguments.
 =item --version
 
 Print program version.
+
+=item --extcap-version
+
+Print extcapized version.
+
+=item --debug
+
+Print additional messages.
 
 =item --extcap-interfaces
 
@@ -168,11 +178,35 @@ To see interfaces:
     androiddump --extcap-interfaces
 
   Example output:
-    interface {display=Android Logcat Main}{value=android-logcat-main-MSM7627A}
-    interface {display=Android Logcat System}{value=android-logcat-system-MSM7627A}
-    interface {display=Android Logcat Radio}{value=android-logcat-radio-MSM7627A}
-    interface {display=Android Logcat Events}{value=android-logcat-events-MSM7627A}
-    interface {display=Android Bluetooth Hcidump}{value=android-bluetooth-hcidump-MSM7627A}
+    interface {display=Android Logcat Main unknown MSM7627A}{value=android-logcat-main-MSM7627A}
+    interface {display=Android Logcat System unknown MSM7627A}{value=android-logcat-system-MSM7627A}
+    interface {display=Android Logcat Radio unknown MSM7627A}{value=android-logcat-radio-MSM7627A}
+    interface {display=Android Logcat Events unknown MSM7627A}{value=android-logcat-events-MSM7627A}
+    interface {display=Android Bluetooth Hcidump unknown MSM7627A}{value=android-bluetooth-hcidump-MSM7627A}
+
+    Human-readable display name of interfaces contains interface type, one of:
+        android-logcat-main (Android Logcat Main)
+        android-logcat-system (Android Logcat System)
+        android-logcat-radio (Android Logcat Radio)
+        android-logcat-events (Android Logcat Events)
+        android-logcat-text-main (Android Logcat Main)
+        android-logcat-text-system (Android Logcat System)
+        android-logcat-text-radio (Android Logcat Radio)
+        android-logcat-text-events (Android Logcat Events)
+        android-logcat-text-crash (Android Logcat Crash)
+        android-bluetooth-hcidump (Android Bluetooth Hcidump)
+        android-bluetooth-external-parser (Android Bluetooth External Parser)
+        android-bluetooth-btsnoop-net (Android Bluetooth Btsnoop Net)
+        android-wifi-tcpdump (Android WiFi)
+    Then Android Device's name if available, otherwise "unknown".
+    Last part of it is DeviceID - the identificator of the device provided by Android SDK (see "adb devices").
+
+    For example:
+    "Android Logcat Main unknown MSM7627A"
+
+    "Android Logcat Main" - user-friendly type of interface
+    "unknown" - name of Android Device
+    "MSM7627A" - device ID
 
 To see interface DLTs:
 
