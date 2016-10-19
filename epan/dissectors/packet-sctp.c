@@ -660,55 +660,78 @@ static gint sctp_assoc_vtag_cmp(const assoc_info_t *a, const assoc_info_t *b)
 #undef RETURN_DIRECTION
 
 static infodata_t
-find_assoc_index(assoc_info_t* tmpinfo)
+find_assoc_index(assoc_info_t* tmpinfo, gboolean visited)
 {
   assoc_info_t *info = NULL;
   wmem_list_frame_t *elem;
   gboolean cmp = FALSE;
   infodata_t inf;
+  inf.assoc_index = -1;
+  inf.direction = 1;
 
   if (assoc_info_list == NULL) {
     assoc_info_list = wmem_list_new(wmem_file_scope());
   }
 
-  elem = wmem_list_head(assoc_info_list);
-
-  while (elem) {
+  for (elem = wmem_list_head(assoc_info_list); elem; elem = wmem_list_frame_next(elem))
+  {
     info = (assoc_info_t*) wmem_list_frame_data(elem);
-    cmp = sctp_assoc_vtag_cmp(tmpinfo, info);
-    if (cmp < ASSOC_NOT_FOUND) {
-      switch (cmp)
-      {
-        case FORWARD_ADD_FORWARD_VTAG:
-        case BACKWARD_ADD_FORWARD_VTAG:
-          info->verification_tag1 = tmpinfo->verification_tag1;
-          break;
-        case BACKWARD_ADD_BACKWARD_VTAG:
-          info->verification_tag2 = tmpinfo->verification_tag1;
-          break;
+
+    if (!visited) {
+      cmp = sctp_assoc_vtag_cmp(tmpinfo, info);
+      if (cmp < ASSOC_NOT_FOUND) {
+        switch (cmp)
+        {
+          case FORWARD_ADD_FORWARD_VTAG:
+          case BACKWARD_ADD_FORWARD_VTAG:
+            info->verification_tag1 = tmpinfo->verification_tag1;
+            break;
+          case BACKWARD_ADD_BACKWARD_VTAG:
+            info->verification_tag2 = tmpinfo->verification_tag1;
+            break;
+        }
+        if (cmp == FORWARD_STREAM || cmp == FORWARD_ADD_FORWARD_VTAG) {
+          info->direction = 1;
+        } else {
+          info->direction = 2;
+        }
+        inf.assoc_index = info->assoc_index;
+        inf.direction = info->direction;
+        return inf;
       }
-      if (cmp == FORWARD_STREAM || cmp == FORWARD_ADD_FORWARD_VTAG) {
-        info->direction = 1;
-      } else {
-        info->direction = 2;
+    } else {
+      if ((tmpinfo->initiate_tag != 0 && tmpinfo->initiate_tag == info->initiate_tag) ||
+          (tmpinfo->verification_tag1 != 0 && tmpinfo->verification_tag1 == info->verification_tag1) ||
+          (tmpinfo->verification_tag2 != 0 && tmpinfo->verification_tag2 == info->verification_tag2)) {
+        inf.assoc_index = info->assoc_index;
+        inf.direction = info->direction;
+        return inf;
+      } else if ((tmpinfo->verification_tag1 != 0 && tmpinfo->verification_tag1 == info->verification_tag2) ||
+                 (tmpinfo->verification_tag2 != 0 && tmpinfo->verification_tag2 == info->verification_tag1)) {
+        inf.assoc_index = info->assoc_index;
+        if (info->direction == 1)
+          inf.direction = 2;
+        else
+          inf.direction = 1;
+        return inf;
       }
-      inf.assoc_index = info->assoc_index;
-      inf.direction = info->direction;
-      return inf;
     }
-    elem = wmem_list_frame_next(elem);
   }
-  info = wmem_new0(wmem_file_scope(), assoc_info_t);
-  info->assoc_index = num_assocs;
-  info->sport = tmpinfo->sport;
-  info->dport = tmpinfo->dport;
-  info->verification_tag1 = tmpinfo->verification_tag1;
-  info->verification_tag2 = tmpinfo->verification_tag2;
-  info->initiate_tag = tmpinfo->initiate_tag;
-  num_assocs++;
-  wmem_list_prepend(assoc_info_list, info);
-  inf.assoc_index = info->assoc_index;
-  inf.direction = 1;
+
+  if (!elem && !visited) {
+    info = wmem_new0(wmem_file_scope(), assoc_info_t);
+    info->assoc_index = num_assocs;
+    info->sport = tmpinfo->sport;
+    info->dport = tmpinfo->dport;
+    info->verification_tag1 = tmpinfo->verification_tag1;
+    info->verification_tag2 = tmpinfo->verification_tag2;
+    info->initiate_tag = tmpinfo->initiate_tag;
+    num_assocs++;
+    wmem_list_prepend(assoc_info_list, info);
+    inf.assoc_index = info->assoc_index;
+    inf.direction = 1;
+  }
+
   return inf;
 }
 
@@ -4542,7 +4565,7 @@ dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
       tmpinfo.initiate_tag = 0;
     }
 
-    id_dir = find_assoc_index(&tmpinfo);
+    id_dir = find_assoc_index(&tmpinfo, PINFO_FD_VISITED(pinfo));
     sctp_info.assoc_index = id_dir.assoc_index;
     sctp_info.direction = id_dir.direction;
 
