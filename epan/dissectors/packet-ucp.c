@@ -41,6 +41,8 @@
 #include <epan/expert.h>
 #include <epan/stats_tree.h>
 
+#include <wsutil/strtoi.h>
+
 #include "packet-tcp.h"
 
 void proto_register_ucp(void);
@@ -230,7 +232,7 @@ static gint ett_sub              = -1;
 static gint ett_XSer             = -1;
 
 static expert_field ei_ucp_stx_missing = EI_INIT;
-
+static expert_field ei_ucp_intstring_invalid = EI_INIT;
 
 /* Tap */
 static int ucp_tap               = -1;
@@ -889,11 +891,13 @@ ucp_handle_byte(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 }
 
 static guint
-ucp_handle_int(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
+ucp_handle_int(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int field, int *offset)
 {
     gint          idx, len;
     const char   *strval;
     guint         intval = 0;
+    gboolean      intval_valid;
+    proto_item   *pi;
 
     idx = tvb_find_guint8(tvb, *offset, -1, '/');
     if (idx == -1) {
@@ -904,8 +908,11 @@ ucp_handle_int(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
         len = idx - *offset;
     strval = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, len, ENC_ASCII);
     if (len > 0) {
-        intval = atoi(strval);
-        proto_tree_add_uint(tree, field, tvb, *offset, len, intval);
+        intval_valid = ws_strtou32(strval, NULL, &intval);
+        pi = proto_tree_add_uint(tree, field, tvb, *offset, len, intval);
+        if (!intval_valid)
+            expert_add_info_format(pinfo, pi, &ei_ucp_intstring_invalid,
+                "Invalid integer string: %s", strval);
     }
     *offset += len;
     if (idx != -1)
@@ -981,7 +988,7 @@ ucp_handle_data_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
  *                      of next field.
  */
 static void
-ucp_handle_mt(proto_tree *tree, tvbuff_t *tvb, int *offset)
+ucp_handle_mt(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int *offset)
 {
     guint                intval;
 
@@ -1006,7 +1013,7 @@ ucp_handle_mt(proto_tree *tree, tvbuff_t *tvb, int *offset)
             break;
         case '6':
             ucp_handle_data(tree, tvb, hf_ucp_data_section, offset);
-            ucp_handle_int(tree, tvb, hf_ucp_parm_CS, offset);
+            ucp_handle_int(tree, pinfo, tvb, hf_ucp_parm_CS, offset);
             break;
         default:
             break;              /* No data so ? */
@@ -1054,7 +1061,7 @@ ucp_handle_XSer(proto_tree *tree, tvbuff_t *tvb)
 
 #define UcpHandleByte(field)    ucp_handle_byte(tree, tvb, (field), &offset)
 
-#define UcpHandleInt(field)     ucp_handle_int(tree, tvb, (field), &offset)
+#define UcpHandleInt(field)     ucp_handle_int(tree, pinfo, tvb, (field), &offset)
 
 #define UcpHandleTime(field)    ucp_handle_time(tree, tvb, (field), &offset)
 
@@ -1078,7 +1085,7 @@ add_00O(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-add_00R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
+add_00R(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int          offset = 1;
     guint        intval;
@@ -1106,18 +1113,18 @@ add_00R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 }
 
 static void
-add_01O(proto_tree *tree, tvbuff_t *tvb)
+add_01O(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb)
 {                                               /* Call input   */
     int          offset = 1;
 
     UcpHandleString(hf_ucp_parm_AdC);
     UcpHandleString(hf_ucp_parm_OAdC);
     UcpHandleString(hf_ucp_parm_OAC);
-    ucp_handle_mt(tree, tvb, &offset);
+    ucp_handle_mt(tree, pinfo, tvb, &offset);
 }
 
 static void
-add_01R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
+add_01R(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int          offset = 1;
     guint        intval;
@@ -1131,7 +1138,7 @@ add_01R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 }
 
 static void
-add_02O(proto_tree *tree, tvbuff_t *tvb)
+add_02O(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {                                               /* Multiple address call input*/
     int          offset = 1;
     guint        intval;
@@ -1143,13 +1150,13 @@ add_02O(proto_tree *tree, tvbuff_t *tvb)
 
     UcpHandleString(hf_ucp_parm_OAdC);
     UcpHandleString(hf_ucp_parm_OAC);
-    ucp_handle_mt(tree, tvb, &offset);
+    ucp_handle_mt(tree, pinfo, tvb, &offset);
 }
 
-#define add_02R(a, b, c) add_01R(a, b, c)
+#define add_02R(a, b, c, d) add_01R(a, b, c, d)
 
 static void
-add_03O(proto_tree *tree, tvbuff_t *tvb)
+add_03O(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {                                               /* Call input with SS   */
     int          offset = 1;
     guint        intval;
@@ -1172,10 +1179,10 @@ add_03O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleString(hf_ucp_parm_LRC);
     UcpHandleByte(hf_ucp_parm_DD);
     UcpHandleTime(hf_ucp_parm_DDT);    /* DDMMYYHHmm */
-    ucp_handle_mt(tree, tvb, &offset);
+    ucp_handle_mt(tree, pinfo, tvb, &offset);
 }
 
-#define add_03R(a, b, c) add_01R(a, b, c)
+#define add_03R(a, b, c, d) add_01R(a, b, c, d)
 
 static void
 add_04O(proto_tree *tree, tvbuff_t *tvb)
@@ -1189,7 +1196,7 @@ add_04O(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-add_04R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
+add_04R(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int          offset = 1;
     guint        intval;
@@ -1208,7 +1215,7 @@ add_04R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 }
 
 static void
-add_05O(proto_tree *tree, tvbuff_t *tvb)
+add_05O(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {                                               /* Change address list */
     int          offset = 1;
     guint        intval;
@@ -1224,7 +1231,7 @@ add_05O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleByte(hf_ucp_parm_A_D);
 }
 
-#define add_05R(a, b, c) add_01R(a, b, c)
+#define add_05R(a, b, c, d) add_01R(a, b, c, d)
 
 static void
 add_06O(proto_tree *tree, tvbuff_t *tvb)
@@ -1236,7 +1243,7 @@ add_06O(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-add_06R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
+add_06R(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int          offset = 1;
     guint        intval;
@@ -1261,7 +1268,7 @@ add_07O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleString(hf_ucp_parm_NAC);
 }
 
-#define add_07R(a, b, c) add_01R(a, b, c)
+#define add_07R(a, b, c, d) add_01R(a, b, c, d)
 
 static void
 add_08O(proto_tree *tree, tvbuff_t *tvb)
@@ -1279,7 +1286,7 @@ add_08O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleString(hf_ucp_parm_LST);
 }
 
-#define add_08R(a, b, c) add_01R(a, b, c)
+#define add_08R(a, b, c, d) add_01R(a, b, c, d)
 
 static void
 add_09O(proto_tree *tree, tvbuff_t *tvb)
@@ -1291,7 +1298,7 @@ add_09O(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-add_09R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
+add_09R(proto_tree *tree, packet_info *pinfo,tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int          offset = 1;
     guint        intval;
@@ -1309,7 +1316,7 @@ add_09R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 }
 
 static void
-add_10O(proto_tree *tree, tvbuff_t *tvb)
+add_10O(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {                                               /* Change standard text */
     int          offset = 1;
 
@@ -1321,12 +1328,12 @@ add_10O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleInt(hf_ucp_parm_CS);
 }
 
-#define add_10R(a, b, c) add_01R(a, b, c)
+#define add_10R(a, b, c, d) add_01R(a, b, c, d)
 
 #define add_11O(a, b) add_06O(a, b)             /* Request roaming info */
 
 static void
-add_11R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
+add_11R(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int          offset = 1;
     guint        intval;
@@ -1344,7 +1351,7 @@ add_11R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 }
 
 static void
-add_12O(proto_tree *tree, tvbuff_t *tvb)
+add_12O(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {                                               /* Change roaming       */
     int          offset = 1;
     guint        intval;
@@ -1357,11 +1364,11 @@ add_12O(proto_tree *tree, tvbuff_t *tvb)
         UcpHandleString(hf_ucp_parm_GA);
 }
 
-#define add_12R(a, b, c) add_01R(a, b, c)
+#define add_12R(a, b, c, d) add_01R(a, b, c, d)
 
-#define add_13O(a, b) add_06O(a, b)             /* Roaming reset        */
+#define add_13O(a, c) add_06O(a, c)             /* Roaming reset        */
 
-#define add_13R(a, b, c) add_01R(a, b, c)
+#define add_13R(a, b, c, d) add_01R(a, b, c, d)
 
 static void
 add_14O(proto_tree *tree, tvbuff_t *tvb)
@@ -1375,7 +1382,7 @@ add_14O(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-add_14R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
+add_14R(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int          offset = 1;
     guint        intval;
@@ -1408,11 +1415,11 @@ add_15O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleTime(hf_ucp_parm_SP);
 }
 
-#define add_15R(a, b, c) add_01R(a, b, c)
+#define add_15R(a, b, c, d) add_01R(a, b, c, d)
 
 #define add_16O(a, b) add_06O(a, b)             /* Cancel call barring  */
 
-#define add_16R(a, b, c) add_01R(a, b, c)
+#define add_16R(a, b, c, d) add_01R(a, b, c, d)
 
 static void
 add_17O(proto_tree *tree, tvbuff_t *tvb)
@@ -1426,11 +1433,11 @@ add_17O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleTime(hf_ucp_parm_SP);
 }
 
-#define add_17R(a, b, c) add_01R(a, b, c)
+#define add_17R(a, b, c, d) add_01R(a, b, c, d)
 
 #define add_18O(a, b) add_06O(a, b)             /* Cancel call diversion */
 
-#define add_18R(a, b, c) add_01R(a, b, c)
+#define add_18R(a, b, c, d) add_01R(a, b, c, d)
 
 static void
 add_19O(proto_tree *tree, tvbuff_t *tvb)
@@ -1443,18 +1450,18 @@ add_19O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleTime(hf_ucp_parm_SP);
 }
 
-#define add_19R(a, b, c) add_01R(a, b, c)
+#define add_19R(a, b, c, d) add_01R(a, b, c, d)
 
 #define add_20O(a, b) add_06O(a, b)             /* Cancel deferred delivery */
 
-#define add_20R(a, b, c) add_01R(a, b, c)
+#define add_20R(a, b, c, d) add_01R(a, b, c, d)
 
 #define add_21O(a, b) add_06O(a, b)             /* All features reset   */
 
-#define add_21R(a, b, c) add_01R(a, b, c)
+#define add_21R(a, b, c, d) add_01R(a, b, c, d)
 
 static void
-add_22O(proto_tree *tree, tvbuff_t *tvb)
+add_22O(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {                                               /* Call input w. add. CS */
     int          offset = 1;
 
@@ -1465,7 +1472,7 @@ add_22O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleInt(hf_ucp_parm_CS);
 }
 
-#define add_22R(a, b, c) add_01R(a, b, c)
+#define add_22R(a, b, c, d) add_01R(a, b, c, d)
 
 static void
 add_23O(proto_tree *tree, tvbuff_t *tvb)
@@ -1477,7 +1484,7 @@ add_23O(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-add_23R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
+add_23R(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int          offset = 1;
     guint        intval;
@@ -1506,7 +1513,7 @@ add_24O(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-add_24R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
+add_24R(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int          offset = 1;
     guint        intval;
@@ -1579,7 +1586,7 @@ add_24R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 }
 
 static void
-add_30O(proto_tree *tree, tvbuff_t *tvb)
+add_30O(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {                                               /* SMS message transfer */
     int          offset = 1;
 
@@ -1596,7 +1603,7 @@ add_30O(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-add_30R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
+add_30R(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int          offset = 1;
     guint        intval;
@@ -1612,7 +1619,7 @@ add_30R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 }
 
 static void
-add_31O(proto_tree *tree, tvbuff_t *tvb)
+add_31O(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {                                               /* SMT alert            */
     int          offset = 1;
 
@@ -1620,10 +1627,10 @@ add_31O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleInt(hf_ucp_parm_PID);
 }
 
-#define add_31R(a, b, c) add_01R(a, b, c)
+#define add_31R(a, b, c, d) add_01R(a, b, c, d)
 
 static void
-add_5xO(proto_tree *tree, tvbuff_t *tvb)
+add_5xO(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {                                               /* 50-series operations */
     guint        intval;
     int          offset = 1;
@@ -1689,10 +1696,10 @@ add_5xO(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleDataString(hf_ucp_parm_RES5);
 }
 
-#define add_5xR(a, b,c ) add_30R(a, b, c)
+#define add_5xR(a, b, c, d) add_30R(a, b, c, d)
 
 static void
-add_6xO(proto_tree *tree, tvbuff_t *tvb, guint8 OT)
+add_6xO(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint8 OT)
 {                                               /* 60-series operations */
     int          offset = 1;
 
@@ -1719,7 +1726,7 @@ add_6xO(proto_tree *tree, tvbuff_t *tvb, guint8 OT)
     }
 }
 
-#define add_6xR(a, b, c) add_01R(a, b, c)
+#define add_6xR(a, b, c, d) add_01R(a, b, c, d)
 
 /*
  * End of convenient shorthands
@@ -1785,9 +1792,6 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     result = check_ucp(tvb, &endpkt);
 
     O_R = tvb_get_guint8(tvb, UCP_O_R_OFFSET);
-    /*
-     * So do an atoi() on the operation type
-     */
     OT  = tvb_get_guint8(tvb, UCP_OT_OFFSET) - '0';
     OT  = 10 * OT + (tvb_get_guint8(tvb, UCP_OT_OFFSET + 1) - '0');
 
@@ -1851,92 +1855,92 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
         switch (OT) {
             case  0:
-                O_R == 'O' ? add_00O(sub_tree,tmp_tvb) : add_00R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_00O(sub_tree, tmp_tvb) : add_00R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case  1:
-                O_R == 'O' ? add_01O(sub_tree,tmp_tvb) : add_01R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_01O(sub_tree, pinfo, tmp_tvb) : add_01R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case  2:
-                O_R == 'O' ? add_02O(sub_tree,tmp_tvb) : add_02R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_02O(sub_tree, pinfo, tmp_tvb) : add_02R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case  3:
-                O_R == 'O' ? add_03O(sub_tree,tmp_tvb) : add_03R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_03O(sub_tree, pinfo, tmp_tvb) : add_03R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case  4:
-                O_R == 'O' ? add_04O(sub_tree,tmp_tvb) : add_04R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_04O(sub_tree, tmp_tvb) : add_04R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case  5:
-                O_R == 'O' ? add_05O(sub_tree,tmp_tvb) : add_05R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_05O(sub_tree, pinfo, tmp_tvb) : add_05R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case  6:
-                O_R == 'O' ? add_06O(sub_tree,tmp_tvb) : add_06R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_06O(sub_tree, tmp_tvb) : add_06R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case  7:
-                O_R == 'O' ? add_07O(sub_tree,tmp_tvb) : add_07R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_07O(sub_tree,tmp_tvb) : add_07R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case  8:
-                O_R == 'O' ? add_08O(sub_tree,tmp_tvb) : add_08R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_08O(sub_tree,tmp_tvb) : add_08R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case  9:
-                O_R == 'O' ? add_09O(sub_tree,tmp_tvb) : add_09R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_09O(sub_tree,tmp_tvb) : add_09R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 10:
-                O_R == 'O' ? add_10O(sub_tree,tmp_tvb) : add_10R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_10O(sub_tree, pinfo, tmp_tvb) : add_10R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 11:
-                O_R == 'O' ? add_11O(sub_tree,tmp_tvb) : add_11R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_11O(sub_tree,tmp_tvb) : add_11R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 12:
-                O_R == 'O' ? add_12O(sub_tree,tmp_tvb) : add_12R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_12O(sub_tree, pinfo, tmp_tvb) : add_12R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 13:
-                O_R == 'O' ? add_13O(sub_tree,tmp_tvb) : add_13R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_13O(sub_tree, tmp_tvb) : add_13R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 14:
-                O_R == 'O' ? add_14O(sub_tree,tmp_tvb) : add_14R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_14O(sub_tree,tmp_tvb) : add_14R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 15:
-                O_R == 'O' ? add_15O(sub_tree,tmp_tvb) : add_15R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_15O(sub_tree,tmp_tvb) : add_15R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 16:
-                O_R == 'O' ? add_16O(sub_tree,tmp_tvb) : add_16R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_16O(sub_tree,tmp_tvb) : add_16R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 17:
-                O_R == 'O' ? add_17O(sub_tree,tmp_tvb) : add_17R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_17O(sub_tree,tmp_tvb) : add_17R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 18:
-                O_R == 'O' ? add_18O(sub_tree,tmp_tvb) : add_18R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_18O(sub_tree,tmp_tvb) : add_18R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 19:
-                O_R == 'O' ? add_19O(sub_tree,tmp_tvb) : add_19R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_19O(sub_tree,tmp_tvb) : add_19R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 20:
-                O_R == 'O' ? add_20O(sub_tree,tmp_tvb) : add_20R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_20O(sub_tree,tmp_tvb) : add_20R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 21:
-                O_R == 'O' ? add_21O(sub_tree,tmp_tvb) : add_21R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_21O(sub_tree,tmp_tvb) : add_21R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 22:
-                O_R == 'O' ? add_22O(sub_tree,tmp_tvb) : add_22R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_22O(sub_tree, pinfo, tmp_tvb) : add_22R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 23:
-                O_R == 'O' ? add_23O(sub_tree,tmp_tvb) : add_23R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_23O(sub_tree,tmp_tvb) : add_23R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 24:
-                O_R == 'O' ? add_24O(sub_tree,tmp_tvb) : add_24R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_24O(sub_tree,tmp_tvb) : add_24R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 30:
-                O_R == 'O' ? add_30O(sub_tree,tmp_tvb) : add_30R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_30O(sub_tree, pinfo, tmp_tvb) : add_30R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 31:
-                O_R == 'O' ? add_31O(sub_tree,tmp_tvb) : add_31R(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_31O(sub_tree, pinfo, tmp_tvb) : add_31R(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 51: case 52: case 53: case 54: case 55: case 56: case 57:
             case 58:
-                O_R == 'O' ? add_5xO(sub_tree,tmp_tvb) : add_5xR(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_5xO(sub_tree, pinfo, tmp_tvb) : add_5xR(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             case 60: case 61:
-                O_R == 'O' ? add_6xO(sub_tree,tmp_tvb,OT) : add_6xR(sub_tree,tmp_tvb, tap_rec);
+                O_R == 'O' ? add_6xO(sub_tree, pinfo, tmp_tvb,OT) : add_6xR(sub_tree, pinfo, tmp_tvb, tap_rec);
                 break;
             default:
                 break;
@@ -2784,6 +2788,7 @@ proto_register_ucp(void)
 
     static ei_register_info ei[] = {
         { &ei_ucp_stx_missing, { "ucp.stx_missing", PI_MALFORMED, PI_ERROR, "UCP_STX missing, this is not a new packet", EXPFILL }},
+        { &ei_ucp_intstring_invalid, { "ucp.intstring.invalid", PI_MALFORMED, PI_ERROR, "Invalid integer string", EXPFILL }}
     };
 
     module_t *ucp_module;
@@ -2812,7 +2817,6 @@ proto_register_ucp(void)
                                    "\"Allow subdissectors to reassemble TCP streams\" in the "
                                    "TCP protocol settings.",
                                    &ucp_desegment);
-
 }
 
 void
