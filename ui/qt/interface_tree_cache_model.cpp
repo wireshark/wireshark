@@ -28,6 +28,7 @@
 #include "epan/prefs.h"
 
 #include "qt_ui_utils.h"
+#include "ui/capture_globals.h"
 #include "wireshark_application.h"
 
 InterfaceTreeCacheModel::InterfaceTreeCacheModel(QObject *parent) :
