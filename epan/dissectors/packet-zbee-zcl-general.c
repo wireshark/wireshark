@@ -12772,6 +12772,12 @@ static guint hf_zbee_zcl_proxy_sink_tbl_req_fld_app_id = -1;
 static guint hf_zbee_zcl_proxy_sink_tbl_req_fld_req_type = -1;
 static guint hf_zbee_zcl_proxy_sink_tbl_req_index = -1;
 
+/* GP_SINK_TABLE_RESPONSE and GP_PROXY_TABLE_RESPONSE */
+static guint hf_zbee_zcl_proxy_sink_tbl_resp_status = -1;
+static guint hf_zbee_zcl_proxy_sink_tbl_resp_entries_total = -1;
+static guint hf_zbee_zcl_proxy_sink_tbl_resp_start_index = -1;
+static guint hf_zbee_zcl_proxy_sink_tbl_resp_entries_count = -1;
+
 /* GP Sink Table Attribute */
 static gint ett_zbee_gp_sink_tbl = -1;
 static gint ett_zbee_gp_sink_tbl_entry = -1;
@@ -13327,6 +13333,51 @@ dissect_zcl_gp_proxy_sink_table_request(proto_tree *tree, tvbuff_t *tvb, volatil
 } /*dissect_zcl_gp_proxy_sink_table_request*/
 
 /**
+ *      dissect_zcl_gp_proxy_sink_table_response
+ *
+ *      ZigBee ZCL Green Power cluster dissector for Proxy Table response
+ *      and Sink Table Request commands
+ *
+ *      @param tree      - pointer to data tree Wireshark uses to display packet.
+ *      @param tvb       - pointer to buffer containing raw packet.
+ *      @param offset    - pointer to buffer offset
+ *      @param attr_id   - attribute (should be ZBEE_ZCL_ATTR_GPS_SINK_TABLE or
+ *                         ZBEE_ZCL_ATTR_GPP_PROXY_TABLE) that will be reported
+ */
+static void
+dissect_zcl_gp_proxy_sink_table_response(proto_tree *tree, tvbuff_t *tvb, volatile guint *offset, guint16 attr_id)
+{
+    guint8 entries_count, start_index;
+    guint i, stop;
+
+    if ( !((attr_id == ZBEE_ZCL_ATTR_GPS_SINK_TABLE) || (attr_id == ZBEE_ZCL_ATTR_GPP_PROXY_TABLE)) ) {
+        return;
+    }
+
+    proto_tree_add_item(tree, hf_zbee_zcl_proxy_sink_tbl_resp_status, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_proxy_sink_tbl_resp_entries_total, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+    start_index = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_proxy_sink_tbl_resp_start_index, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+    entries_count = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_proxy_sink_tbl_resp_entries_count, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    for (i = 0, stop = 0; i < entries_count && !stop; i++) {
+        switch (attr_id) {
+            case ZBEE_ZCL_ATTR_GPS_SINK_TABLE:
+                stop = !dissect_zbee_zcl_gp_sink_table_entry(tvb, tree, (guint*) offset, start_index + i);
+                break;
+            case ZBEE_ZCL_ATTR_GPP_PROXY_TABLE:
+                stop = !dissect_zbee_zcl_gp_proxy_table_entry(tvb, tree, (guint*) offset, start_index + i);
+                break;
+        }
+    }
+} /*dissect_zcl_gp_proxy_sink_table_response*/
+
+/**
  *      dissect_zbee_zcl_gp
  *
  *      ZigBee ZCL Green Power cluster dissector for wireshark.
@@ -13641,7 +13692,7 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                 dissect_zcl_gp_proxy_sink_table_request(tree, tvb, &offset);
                 break;
             case ZBEE_CMD_ID_GP_PROXY_TABLE_RESPONSE:
-                /* TODO: add command parse */
+                dissect_zcl_gp_proxy_sink_table_response(tree, tvb, &offset, ZBEE_ZCL_ATTR_GPP_PROXY_TABLE);
                 break;
 
             default:
@@ -13803,8 +13854,10 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                 break;
             }
             case ZBEE_ZCL_CMD_ID_GP_TRANS_TBL_RESPONSE:
-            case ZBEE_ZCL_CMD_ID_GP_SINK_TABLE_RESPONSE:
                 /* TODO: add commands parse */
+                break;
+            case ZBEE_ZCL_CMD_ID_GP_SINK_TABLE_RESPONSE:
+                dissect_zcl_gp_proxy_sink_table_response(tree, tvb, &offset, ZBEE_ZCL_ATTR_GPS_SINK_TABLE);
                 break;
             case ZBEE_ZCL_CMD_ID_GP_PROXY_TABLE_REQUEST:
                 dissect_zcl_gp_proxy_sink_table_request(tree, tvb, &offset);
@@ -14201,6 +14254,20 @@ proto_register_zbee_zcl_gp(void)
             VALS(zbee_zcl_gp_proxy_sink_tbl_req_type), ZBEE_ZCL_GP_PROXY_SINK_TBL_REQ_CMD_REQ_TYPE, NULL, HFILL }},
         { &hf_zbee_zcl_proxy_sink_tbl_req_index,
           { "Index", "zbee_zcl_general.gp.proxy_sink_tbl_req.index", FT_UINT8, BASE_DEC,
+            NULL, 0, NULL, HFILL }},
+
+        /* GP Sink Table Response and  GP Proxy Table Response commands */
+        { &hf_zbee_zcl_proxy_sink_tbl_resp_status,
+          { "Status", "zbee_zcl_general.gp.proxy_sink_tbl_resp.status", FT_UINT8, BASE_HEX,
+            VALS(zbee_zcl_status_names), 0, NULL, HFILL }},
+        { &hf_zbee_zcl_proxy_sink_tbl_resp_entries_total,
+          { "Total number of non-empty entries", "zbee_zcl_general.gp.proxy_sink_tbl_resp.entries_total", FT_UINT8, BASE_DEC,
+            NULL, 0, NULL, HFILL }},
+        { &hf_zbee_zcl_proxy_sink_tbl_resp_start_index,
+          { "Start index", "zbee_zcl_general.gp.proxy_sink_tbl_resp.start_index", FT_UINT8, BASE_DEC,
+            NULL, 0, NULL, HFILL }},
+        { &hf_zbee_zcl_proxy_sink_tbl_resp_entries_count,
+          { "Entries count", "zbee_zcl_general.gp.proxy_sink_tbl_resp.entries_count", FT_UINT8, BASE_DEC,
             NULL, 0, NULL, HFILL }},
 
         /* GP Sink Table attribute */
