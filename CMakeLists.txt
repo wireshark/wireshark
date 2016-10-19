@@ -1823,6 +1823,7 @@ if(BUILD_wireshark AND QT_FOUND)
 	endif()
 
 	if(ENABLE_APPLICATION_BUNDLE)
+		add_dependencies(wireshark manpages)
 		set_target_properties(
 			wireshark PROPERTIES
 				MACOSX_BUNDLE_INFO_PLIST ${CMAKE_BINARY_DIR}/packaging/macosx/Info.plist
