@@ -335,7 +335,6 @@ try:
         fh.close()
     else:
         print((final_filename + ' unchanged.'))
-        os.utime(final_filename, None)
 except OSError:
     sys.exit('Unable to write ' + final_filename + '.\n')
 
