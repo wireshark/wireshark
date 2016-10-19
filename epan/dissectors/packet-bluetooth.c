@@ -2624,6 +2624,80 @@ proto_reg_handoff_bluetooth(void)
 /* TODO: Add UUID128 verion of UUID16; UUID32? UUID16? */
 }
 
+static int proto_btad_apple_ibeacon = -1;
+
+static int hf_btad_apple_ibeacon_uuid128 = -1;
+static int hf_btad_apple_ibeacon_major = -1;
+static int hf_btad_apple_ibeacon_minor = -1;
+
+static gint ett_btad_apple_ibeacon = -1;
+
+static dissector_handle_t btad_apple_ibeacon;
+
+void proto_register_btad_apple_ibeacon(void);
+void proto_reg_handoff_btad_apple_ibeacon(void);
+
+
+static gint
+dissect_btad_apple_ibeacon(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree       *main_tree;
+    proto_item       *main_item;
+    gint              offset = 0;
+
+    main_item = proto_tree_add_item(tree, proto_btad_apple_ibeacon, tvb, offset, tvb_captured_length(tvb), ENC_NA);
+    main_tree = proto_item_add_subtree(main_item, ett_btad_apple_ibeacon);
+
+    proto_tree_add_item(main_tree, hf_btad_apple_ibeacon_uuid128, tvb, offset, 16, ENC_NA);
+    offset += 16;
+
+    proto_tree_add_item(main_tree, hf_btad_apple_ibeacon_major, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(main_tree, hf_btad_apple_ibeacon_minor, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+void
+proto_register_btad_apple_ibeacon(void)
+{
+    static hf_register_info hf[] = {
+        {&hf_btad_apple_ibeacon_uuid128,
+            {"UUID",                             "bluetooth.apple.ibeacon.uuid128",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_btad_apple_ibeacon_major,
+          { "Major",                             "bluetooth.apple.ibeacon.major",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btad_apple_ibeacon_minor,
+          { "Minor",                             "bluetooth.apple.ibeacon.minor",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        }
+    };
+
+    static gint *ett[] = {
+        &ett_btad_apple_ibeacon,
+    };
+
+    proto_btad_apple_ibeacon = proto_register_protocol("Apple iBeacon", "iBeacon", "ibeacon");
+    proto_register_field_array(proto_btad_apple_ibeacon, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+    btad_apple_ibeacon = register_dissector("bluetooth.apple.ibeacon", dissect_btad_apple_ibeacon, proto_btad_apple_ibeacon);
+}
+
+
+void
+proto_reg_handoff_btad_apple_ibeacon(void)
+{
+    dissector_add_for_decode_as("btcommon.eir_ad.manufacturer_company_id", btad_apple_ibeacon);
+}
+
 
 static int proto_btad_alt_beacon = -1;
 
