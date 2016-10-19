@@ -572,11 +572,7 @@ void ProtoTree::itemDoubleClick(QTreeWidgetItem *item, int) {
     if (!fi || !fi->hfinfo) return;
 
     if(fi->hfinfo->type == FT_FRAMENUM) {
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
         if (QApplication::queryKeyboardModifiers() & Qt::ShiftModifier) {
-#else
-        if (QApplication::keyboardModifiers() & Qt::ShiftModifier) {
-#endif
             emit openPacketInNewWindow(true);
         } else {
             emit goToPacket(fi->value.value.uinteger);

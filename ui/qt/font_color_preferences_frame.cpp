@@ -81,15 +81,9 @@ void FontColorPreferencesFrame::updateWidgets()
 {
     int margin = style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
 
-#if QT_VERSION < QT_VERSION_CHECK(4, 8, 0)
-    ui->fontPushButton->setText(
-                cur_font_.family() + " " +
-                QString::number(cur_font_.pointSizeF(), 'f', 1));
-#else
     ui->fontPushButton->setText(
                 cur_font_.family() + " " + cur_font_.styleName() + " " +
                 QString::number(cur_font_.pointSizeF(), 'f', 1));
-#endif
     ui->fontSampleLineEdit->setFont(cur_font_);
 
     QString line_edit_ss = QString("QLineEdit { margin-left: %1px; }").arg(margin);

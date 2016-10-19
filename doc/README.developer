@@ -387,11 +387,10 @@ tmpnam is insecure and should not be used any more. Wireshark brings its
 own mkstemp implementation for use on platforms that lack mkstemp.
 Note: mkstemp does not accept NULL as a parameter.
 
-Wireshark supports platforms with GLib 2.16[.x]/GTK+ 2.12[.x]/Qt 4.7[.x] or
-newer. If a Glib/GTK+/Qt mechanism is available only in Glib/GTK+/Qt
-versions newer than 2.16/2.12/4.7 then use "#if GLIB_CHECK_VERSION(...)",
-"#if GTK_CHECK_VERSION(...)" or "#if QT_VERSION_CHECK(...)" to conditionally
-compile code using that mechanism.
+Wireshark supports platforms with GLib 2.22[.x]/GTK+ 2.12[.x]/Qt 4.8[.x] or
+newer. If a Glib/GTK+/Qt mechanism is available only in newer Glib/GTK+/Qt
+versions then use "#if GLIB_CHECK_VERSION(...)", "#if GTK_CHECK_VERSION(...)" or
+"#if QT_VERSION_CHECK(...)" to conditionally compile code using that mechanism.
 
 When different code must be used on UN*X and Win32, use a #if or #ifdef
 that tests _WIN32, not WIN32.  Try to write code portably whenever

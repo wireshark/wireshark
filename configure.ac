@@ -1237,7 +1237,7 @@ GTK2_MIN_VERSION=2.12.0
 AC_SUBST(GTK2_MIN_VERSION)
 GTK3_MIN_VERSION=3.0.0
 AC_SUBST(GTK3_MIN_VERSION)
-QT_MIN_VERSION=4.7.0
+QT_MIN_VERSION=4.8.0
 AC_SUBST(QT_MIN_VERSION)
 # GTK+ and Qt checks; we require GTK+ $GTK2_MIN_VERSION or later or
 # GTK3_MIN_VERSION or later or Qt $QT_MIN_VERSION or later.
@@ -1249,37 +1249,8 @@ AC_SUBST(QT_MIN_VERSION)
 # We don't add $GTK_LIBS or $Qt_LIBS to LIBS, because we don't want to
 # force all programs to be built with GTK+ or Qt.
 #
-# Release dates for GTK+ versions:
-# https://en.wikipedia.org/wiki/GTK+#Releases
-# 2.12.0: 14 Sep 2007
-# 2.14.0: 04 Sep 2008
-# 2.16.0: 13 Mar 2009
-# 2.18.0: 23 Sep 2009
-# 2.20.0: 23 Mar 2010
-# 2.22.0: 23 Sep 2010
-# 2.24.0: 30 Jan 2011
-# 3.0.0:  10 Feb 2011
-# 3.2.0:  25 Sep 2011
-# 3.4.0:  26 Mar 2012
-# 3.6.0:  24 Sep 2012
-# 3.8.0:  25 Mar 2013
-# 3.10.0: 23 Sep 2013
-# 3.12.0: 25 Mar 2014
-# 3.14.0: 30 Sep 2014
-# 3.16.0: 22 Mar 2015
-# 3.18.0  22 Sep 2015
-#
-# Release dates for Qt versions:
-# https://en.wikipedia.org/wiki/List_of_Qt_releases
-# 4.6.0:  01 Dec 2009
-# 4.7.0:  21 Sep 2010
-# 4.8.0:  15 Dec 2011
-# 5.0.0:  19 Dec 2012
-# 5.1.0:  03 Jul 2013
-# 5.2.0:  12 Dec 2013
-# 5.3.0:  20 May 2014
-# 5.4.0:  10 Dec 2015
-# 5.5.0:  01 Jul 2015
+# For a list of library versions and their support across different platforms,
+# see https://wiki.wireshark.org/Development/Support_library_version_tracking
 
 have_qt=no
 have_gtk=no
