@@ -49,6 +49,7 @@ static int hf_bencoded_string = -1;
 static int hf_bencoded_list = -1;
 static int hf_bencoded_dict = -1;
 static int hf_bencoded_dict_entry = -1;
+static int hf_bencoded_list_terminator = -1;
 
 static int hf_bt_dht_error = -1;
 static int hf_bt_dht_peers = -1;
@@ -151,6 +152,8 @@ dissect_bencoded_int(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, gui
   while( tvb_get_guint8(tvb,offset)!='e' )
     offset += 1;
 
+  proto_tree_add_item(tree, hf_bencoded_list_terminator, tvb, offset, 1, ENC_ASCII|ENC_NA);
+
   *result = tvb_get_string_enc( wmem_packet_scope(), tvb, start_offset, offset-start_offset, ENC_ASCII);
   proto_tree_add_string_format( tree, hf_bencoded_int, tvb, start_offset, offset-start_offset, *result,
     "%s: %s", label, *result );
@@ -176,7 +179,6 @@ dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
   /* skip the 'l' */
   offset += 1;
-
   while( (one_byte=tvb_get_guint8(tvb,offset)) != 'e' )
   {
     switch( one_byte )
@@ -199,6 +201,7 @@ dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
       break;
     }
   }
+  proto_tree_add_item(sub_tree, hf_bencoded_list_terminator, tvb, offset, 1, ENC_ASCII|ENC_NA);
   offset += 1;
   return offset;
 }
@@ -278,8 +281,10 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     }
   }
 
-  if (tvb_get_guint8(tvb,offset)=='e') /* list ending delimiter */
+  if (tvb_get_guint8(tvb,offset)=='e') { /* list ending delimiter */
+    proto_tree_add_item(sub_tree, hf_bencoded_list_terminator, tvb, offset, 1, ENC_ASCII|ENC_NA);
     offset++;
+  }
 
   proto_item_set_text( ti, "%s: %d peers", label, peer_index );
   col_append_fstr( pinfo->cinfo, COL_INFO, "reply=%d peers ", peer_index );
@@ -451,6 +456,7 @@ dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   while( tvb_get_guint8(tvb,offset)!='e' )
     offset = dissect_bencoded_dict_entry( tvb, pinfo, sub_tree, offset );
 
+  proto_tree_add_item(sub_tree, hf_bencoded_list_terminator, tvb, offset, 1, ENC_ASCII|ENC_NA);
   offset += 1;
   proto_item_set_len( ti, offset-orig_offset );
 
@@ -515,6 +521,10 @@ proto_register_bt_dht(void)
     { &hf_bencoded_dict_entry,
       { "Dictionary Entry", "bt-dht.bencoded.dict_entry",
         FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
+    },
+    { &hf_bencoded_list_terminator,
+      { "Terminator", "bt-dht.bencoded.list.terminator",
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_bt_dht_error,
       { "Error", "bt-dht.error",
