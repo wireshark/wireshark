@@ -3484,6 +3484,7 @@
 			<enum name="GAN"		code="1002"/>
 			<enum name="HSPA_EVOLUTION"	code="1003"/>
 			<enum name="EUTRAN"		code="1004"/>
+			<enum name="EUTRAN-NB-IoT"	code="1005"/>
 			<enum name="CDMA2000_1X"	code="2000"/>
 			<enum name="HRPD"		code="2001"/>
 			<enum name="UMB"		code="2002"/>
@@ -4763,6 +4764,7 @@
 			<enum name="IPv6" code="1"/>
 			<enum name="IPv4v6" code="2"/>
 			<enum name="IPv4_OR_IPv6" code="3"/>
+			<enum name="Non-IP" code="4"/>
 		</avp>
 		<avp name="Roaming-Restricted-Due-To-Unsupported-Feature" code="1457" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Enumerated"/>

@@ -138,9 +138,24 @@ static int hf_gtpv2_ppsi = -1;
 static int hf_gtpv2_csfbi = -1;
 static int hf_gtpv2_clii = -1;
 static int hf_gtpv2_cpsr = -1;
+static int hf_gtpv2_nsi = -1;
+static int hf_gtpv2_uasi = -1;
+static int hf_gtpv2_dtci = -1;
+static int hf_gtpv2_bdwi = -1;
+static int hf_gtpv2_psci = -1;
 static int hf_gtpv2_pcri = -1;
 static int hf_gtpv2_aosi = -1;
 static int hf_gtpv2_aopi = -1;
+static int hf_gtpv2_roaai = -1;
+static int hf_gtpv2_epcosi = -1;
+static int hf_gtpv2_cpopci = -1;
+static int hf_gtpv2_pmtsmi = -1;
+static int hf_gtpv2_s11tf = -1;
+static int hf_gtpv2_pnsi = -1;
+static int hf_gtpv2_unaccsi = -1;
+static int hf_gtpv2_wpmsi = -1;
+static int hf_gtpv2_enbcrsi = -1;
+static int hf_gtpv2_tspcmi = -1;
 
 
 static int hf_gtpv2_pdn_type = -1;
@@ -1984,13 +1999,42 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
         return;
     }
 
-    /* Octet 9 Spare Spare Spare Spare Spare PCRI AOSI AOPI */
+    /* Octet 9 NSI UASI DTCI BDWI PSCI PCRI AOSI AOPI */
+    proto_tree_add_item(tree, hf_gtpv2_nsi,             tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_uasi,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_dtci,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_bdwi,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_psci,            tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_pcri,            tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_aosi,            tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_aopi,            tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     if (length == 5) {
+        return;
+    }
+
+    /* Octet 10 ROAAI EPCOSI CPOPCI PMTSMI S11TF PNSI UNACCSI WPMSI */
+    proto_tree_add_item(tree, hf_gtpv2_roaai,           tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_epcosi,          tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_cpopci,          tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_pmtsmi,          tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_s11tf,           tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_pnsi,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_unaccsi,         tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_wpmsi,           tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (length == 6){
+        return;
+    }
+
+    /*Octet 11 Spare Spare Spare Spare Spare Spare ENBCRSI TSPCMI */
+    proto_tree_add_item(tree, hf_gtpv2_enbcrsi,         tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_tspcmi,          tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (length == 7){
         return;
     }
 
@@ -2042,6 +2086,7 @@ static const value_string gtpv2_pdn_type_vals[] = {
     {1, "IPv4"},
     {2, "IPv6"},
     {3, "IPv4/IPv6"},
+    {4, "Non-IP"},
     {0, NULL}
 };
 
@@ -2145,6 +2190,7 @@ static const value_string gtpv2_rat_type_vals[] = {
     {5, "HSPA Evolution"},
     {6, "EUTRAN"},
     {7, "Virtual"},
+    {8, "EUTRAN-NB-IoT"},
     {0, NULL}
 };
 static value_string_ext gtpv2_rat_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_rat_type_vals);
@@ -2586,6 +2632,8 @@ static const value_string gtpv2_f_teid_interface_type_vals[] = {
     {35, "S2a TWAN GTP-C interface"},
     {36, "S2a PGW GTP-C interface"},
     {37, "S2a PGW GTP-U interface"},
+    {38, "S11 MME GTP-U interface"},
+    {39, "S11 SGW GTP-U interface"},
     {0, NULL}
 };
 static value_string_ext gtpv2_f_teid_interface_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_f_teid_interface_type_vals);
@@ -7202,8 +7250,28 @@ void proto_register_gtpv2(void)
           FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
         },
         {&hf_gtpv2_cpsr,
-         {"CPSR (CS to PS SRVCC indication)", "gtpv2.cpsr",
+         {"CPSR (CS to PS SRVCC Indication)", "gtpv2.cpsr",
           FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
+        },
+        {&hf_gtpv2_nsi,
+         {"NSI (NBIFOM Support Indication)", "gtpv2.nsi",
+          FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
+        },
+        {&hf_gtpv2_uasi,
+         {"UASI (UE Available for Signalling Indication)", "gtpv2.uasi",
+          FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL}
+        },
+        {&hf_gtpv2_dtci,
+         {"DTCI (Delay Tolerant Connection Indication)", "gtpv2.dtci",
+          FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}
+        },
+        {&hf_gtpv2_bdwi,
+         {"BDWI (Buffered DL Data Waiting Indication)", "gtpv2.bdwi",
+          FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
+        },
+        {&hf_gtpv2_psci,
+         {"PSCI (Pending Subscription Change Indication)", "gtpv2.psci",
+          FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}
         },
         {&hf_gtpv2_pcri,
          {"PCRI (P-CSCF Restoration Indication)", "gtpv2.pcri",
@@ -7215,6 +7283,46 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_aopi,
          {"AOPI (Associate OCI with PGW node's Identity)", "gtpv2.aopi",
+          FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
+        },
+        {&hf_gtpv2_roaai,
+         {"ROAAI (Release Over Any Access Indication)", "gtpv2.roaai",
+          FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
+        },
+        {&hf_gtpv2_epcosi,
+         {"EPCOSI (Extended PCO Support Indication)", "gtpv2.epcosi",
+          FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL}
+        },
+        {&hf_gtpv2_cpopci,
+         {"CPOPCI (Control Plane Only PDN Connection Indication)", "gtpv2.cpopci",
+          FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}
+        },
+        {&hf_gtpv2_pmtsmi,
+         {"PMTSMI (Pending MT Short Message Indication)", "gtpv2.pmtsmi",
+          FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
+        },
+        {&hf_gtpv2_s11tf,
+         {"S11TF (S11-U Tunnel Flag)", "gtpv2.s11tf",
+          FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}
+        },
+        {&hf_gtpv2_pnsi,
+         {"PNSI (Pending Network Initiated PDN Connection Signalling Indication)", "gtpv2.pnsi",
+          FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}
+        },
+        {&hf_gtpv2_unaccsi,
+         {"UNACCSI (UE Not Authorized Cause Code Support Indication)", "gtpv2.unaccsi",
+          FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
+        },
+        {&hf_gtpv2_wpmsi,
+         {"WPMSI (WLCP PDN Connection Modification Support Indication)", "gtpv2.wpmsi",
+          FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
+        },
+        {&hf_gtpv2_enbcrsi,
+         {"ENBCRSI (eNB Change Reporting Support Indication)", "gtpv2.enbcrsi",
+          FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
+        },
+        {&hf_gtpv2_tspcmi,
+         {"TSPCMI (Triggering SGSN Initiated PDP Context Creation/Modification Indication)", "gtpv2.tspcmi",
           FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
         },
         { &hf_gtpv2_pdn_type,
