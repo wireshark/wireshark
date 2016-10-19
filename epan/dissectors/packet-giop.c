@@ -1632,7 +1632,7 @@ void register_giop_user(giop_sub_dissector_t *sub, const gchar *name, int sub_pr
   subh->sub_fn = sub;
   subh->sub_proto = find_protocol_by_id(sub_proto);     /* protocol_t for sub dissectors's proto_register_protocol() */
 
-  giop_sub_list = g_slist_append (giop_sub_list, subh);
+  giop_sub_list = g_slist_prepend (giop_sub_list, subh);
 
 }
 
