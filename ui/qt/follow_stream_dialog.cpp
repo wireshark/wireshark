@@ -389,6 +389,7 @@ void FollowStreamDialog::removeStreamControls()
 void FollowStreamDialog::resetStream()
 {
     GList *cur;
+    follow_record_t *follow_record;
 
     filter_out_filter_.clear();
     text_pos_to_packet_.clear();
@@ -396,13 +397,34 @@ void FollowStreamDialog::resetStream()
         ws_unlink(data_out_filename_.toUtf8().constData());
     }
     for (cur = follow_info_.payload; cur; cur = g_list_next(cur)) {
-        follow_record_t *follow_record = (follow_record_t *)cur->data;
+        follow_record = (follow_record_t *)cur->data;
         if(follow_record->data) {
             g_byte_array_free(follow_record->data, TRUE);
         }
         g_free(follow_record);
     }
     g_list_free(follow_info_.payload);
+
+    //Only TCP stream uses fragments
+    if (follow_type_ == FOLLOW_TCP) {
+        for (cur = follow_info_.fragments[0]; cur; cur = g_list_next(cur)) {
+            follow_record = (follow_record_t *)cur->data;
+            if(follow_record->data) {
+                g_byte_array_free(follow_record->data, TRUE);
+            }
+            g_free(follow_record);
+        }
+        follow_info_.fragments[0] = NULL;
+        for (cur = follow_info_.fragments[1]; cur; cur = g_list_next(cur)) {
+            follow_record = (follow_record_t *)cur->data;
+            if(follow_record->data) {
+                g_byte_array_free(follow_record->data, TRUE);
+            }
+            g_free(follow_record);
+        }
+        follow_info_.fragments[1] = NULL;
+    }
+
     follow_info_.payload = NULL;
     follow_info_.client_port = 0;
 }
