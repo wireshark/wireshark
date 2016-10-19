@@ -41,6 +41,7 @@ set(WIRESHARK_QT_HEADERS
 	capture_info_dialog.h
 	capture_interfaces_dialog.h
 	capture_preferences_frame.h
+	clickable_label.h
 	color_utils.h
 	coloring_rules_dialog.h
 	column_preferences_frame.h
@@ -206,6 +207,7 @@ set(WIRESHARK_QT_SRC
 	capture_info_dialog.cpp
 	capture_interfaces_dialog.cpp
 	capture_preferences_frame.cpp
+	clickable_label.cpp
 	color_utils.cpp
 	coloring_rules_dialog.cpp
 	column_preferences_frame.cpp

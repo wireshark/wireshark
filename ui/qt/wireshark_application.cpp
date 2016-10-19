@@ -1132,6 +1132,19 @@ void WiresharkApplication::loadLanguage(const QString newLanguage)
     }
 }
 
+void WiresharkApplication::doTriggerMenuItem(MainMenuItem menuItem)
+{
+    switch (menuItem)
+    {
+    case FileOpenDialog:
+        emit openCaptureFile(QString(), QString(), WTAP_TYPE_AUTO);
+        break;
+    case CaptureOptionsDialog:
+        emit openCaptureOptions();
+        break;
+    }
+}
+
 /*
  * Editor modelines
  *

@@ -103,6 +103,11 @@ MainWelcome::MainWelcome(QWidget *parent) :
                 "}"
                 )
             .arg(tango_aluminium_4, 6, 16, QChar('0'));   // Text color
+    QString title_button_ss = title_ss + QString(
+            "QLabel::hover {"
+            "  color: #%1;"
+            "}"
+            ).arg(tango_sky_blue_4, 6, 16, QChar('0'));
 
     // XXX Is there a better term than "flavor"? Provider? Admonition (a la DocBook)?
     // Release_source?
@@ -131,8 +136,8 @@ MainWelcome::MainWelcome(QWidget *parent) :
         welcome_ui_->flavorBanner->setText(flavor);
         welcome_ui_->flavorBanner->setStyleSheet(flavor_ss);
     }
-    welcome_ui_->captureLabel->setStyleSheet(title_ss);
-    welcome_ui_->recentLabel->setStyleSheet(title_ss);
+    welcome_ui_->captureLabel->setStyleSheet(title_button_ss);
+    welcome_ui_->recentLabel->setStyleSheet(title_button_ss);
     welcome_ui_->helpLabel->setStyleSheet(title_ss);
 
 #ifdef Q_OS_MAC
@@ -491,6 +496,16 @@ void MainWelcome::removeRecentPath()
     if (cf_path.isEmpty()) return;
 
     wsApp->removeRecentItem(cf_path);
+}
+
+void MainWelcome::on_captureLabel_clicked()
+{
+    wsApp->doTriggerMenuItem(WiresharkApplication::CaptureOptionsDialog);
+}
+
+void MainWelcome::on_recentLabel_clicked()
+{
+    wsApp->doTriggerMenuItem(WiresharkApplication::FileOpenDialog);
 }
 
 /*

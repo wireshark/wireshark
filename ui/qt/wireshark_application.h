@@ -74,6 +74,11 @@ public:
         FieldsChanged
     };
 
+    enum MainMenuItem {
+        FileOpenDialog,
+        CaptureOptionsDialog
+    };
+
     void registerUpdate(register_action_e action, const char *message);
     void emitAppSignal(AppSignal signal);
     // Emitting app signals (PacketDissectionChanged in particular) from
@@ -123,6 +128,8 @@ public:
     QTranslator translatorQt;
     void loadLanguage(const QString language);
 
+    void doTriggerMenuItem(MainMenuItem menuItem);
+
 private:
     bool initialized_;
     bool is_reloading_lua_;
@@ -146,6 +153,7 @@ signals:
     void appInitialized();
     void localInterfaceListChanged();
     void openCaptureFile(QString cf_path, QString display_filter, unsigned int type);
+    void openCaptureOptions();
     void recentFilesRead();
     void updateRecentItemStatus(const QString &filename, qint64 size, bool accessible);
     void splashUpdate(register_action_e action, const char *message);

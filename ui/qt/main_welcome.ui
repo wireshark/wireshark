@@ -118,7 +118,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QLabel" name="recentLabel">
+          <widget class="ClickableLabel" name="recentLabel">
            <property name="text">
             <string>&lt;h2&gt;Open&lt;/h2&gt;</string>
            </property>
@@ -147,7 +147,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="captureLabel">
+       <widget class="ClickableLabel" name="captureLabel">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -315,6 +315,11 @@ a:hover {
    <extends>QFrame</extends>
    <header>accordion_frame.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ClickableLabel</class>
+   <extends>QLabel</extends>
+   <header>clickable_label.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

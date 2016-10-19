@@ -52,6 +52,10 @@ public slots:
 protected:
     void resizeEvent(QResizeEvent *event);
 
+protected slots:
+    void on_recentLabel_clicked();
+    void on_captureLabel_clicked();
+
 private:
     Ui::MainWelcome *welcome_ui_;
 
