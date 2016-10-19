@@ -442,7 +442,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 			info->init              = FALSE;
 			info->initack           = FALSE;
 			info->check_address	= FALSE;
-			info->direction         = 0;
+			info->direction         = sctp_info->direction;
 			info = calc_checksum(sctp_info, info);
 			info->n_packets         = 1;
 			info->error_info_list   = NULL;
@@ -554,13 +554,13 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 					{
 						store = (address *)g_malloc(sizeof (address));
 						alloc_address_tvb(NULL, store, AT_IPv4, 4, sctp_info->tvb[chunk_number], IPV4_ADDRESS_OFFSET);
-						info = add_address(store, info, 1);
+						info = add_address(store, info, info->direction);
 					}
 					else if (type == IPV6ADDRESS_PARAMETER_ID)
 					{
 						store = (address *)g_malloc(sizeof (address));
 						alloc_address_tvb(NULL, store, AT_IPv6, 16, sctp_info->tvb[chunk_number], IPV6_ADDRESS_OFFSET);
-						info = add_address(store, info, 1);
+						info = add_address(store, info, info->direction);
 					}
 				}
 
@@ -743,14 +743,17 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 				addr = (guint8 *)g_malloc(tmp_info.src.len);
 				memcpy(addr,(tmp_info.src.data),tmp_info.src.len);
 				store->data = addr;
-				info  = add_address(store, info, 1);
+				info  = add_address(store, info, info->direction);
 				store = (address *)g_malloc(sizeof (address));
 				store->type = tmp_info.dst.type;
 				store->len  = tmp_info.dst.len;
 				addr = (guint8 *)g_malloc(tmp_info.dst.len);
 				memcpy(addr,(tmp_info.dst.data),tmp_info.dst.len);
 				store->data = addr;
-				info = add_address(store, info, 2);
+				if (info->direction == 1)
+					info = add_address(store, info, 2);
+				else
+					info = add_address(store, info, 1);
 				number = (guint32 *)g_malloc(sizeof(guint32));
 				*number = pinfo->num;
 				info->frame_numbers=g_list_prepend(info->frame_numbers,number);
