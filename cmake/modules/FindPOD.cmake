@@ -3,9 +3,9 @@
 # This module looks for some usual Unix commands.
 #
 
-INCLUDE(FindCygwin)
+include(FindCygwin)
 
-FIND_PROGRAM(POD2MAN_EXECUTABLE
+find_program(POD2MAN_EXECUTABLE
 	NAMES
 		pod2man
 	PATHS
@@ -16,7 +16,7 @@ FIND_PROGRAM(POD2MAN_EXECUTABLE
 		/sbin
 )
 
-FIND_PROGRAM(POD2HTML_EXECUTABLE
+find_program(POD2HTML_EXECUTABLE
 	NAMES
 		pod2html
 	PATHS
@@ -29,20 +29,21 @@ FIND_PROGRAM(POD2HTML_EXECUTABLE
 
 # handle the QUIETLY and REQUIRED arguments and set POD2HTML_FOUND to TRUE if
 # all listed variables are TRUE
-INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(POD DEFAULT_MSG POD2MAN_EXECUTABLE POD2HTML_EXECUTABLE)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(POD DEFAULT_MSG POD2MAN_EXECUTABLE POD2HTML_EXECUTABLE)
 
-MARK_AS_ADVANCED(
+mark_as_advanced(
 	POD2MAN_EXECUTABLE
 	POD2HTML_EXECUTABLE
 )
 
 # run pod2man and pod2html
-MACRO(pod2manhtml _sourcefile _manext)
-	GET_FILENAME_COMPONENT(_basefile ${_sourcefile} NAME)
+macro(pod2manhtml _sourcefile _manext)
+	get_filename_component(_basefile ${_sourcefile} NAME)
 	set(_outman ${_basefile}.${_manext})
 	set(_outhtml ${_basefile}.html)
-	ADD_CUSTOM_COMMAND(
+
+	add_custom_command(
 		OUTPUT
 			${_outman}
 			${_outhtml}
@@ -64,5 +65,17 @@ MACRO(pod2manhtml _sourcefile _manext)
 			${_sourcefile}.pod
 			${CMAKE_SOURCE_DIR}/docbook/ws.css
 	)
-ENDMACRO(pod2manhtml)
+endmacro(pod2manhtml)
 
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#
