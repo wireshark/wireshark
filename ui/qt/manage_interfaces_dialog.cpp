@@ -122,6 +122,7 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
 #if defined(HAVE_PCAP_REMOTE)
     // The default indentation (20) means our checkboxes are shifted too far on Windows.
     // Assume that our disclosure and checkbox controls are square, or at least fit within an em.
+    int one_em = fontMetrics().height();
     ui->remoteList->setIndentation(one_em);
     ui->remoteList->setColumnWidth(col_r_show_, one_em * 4);
     ui->remoteSettings->setEnabled(false);
