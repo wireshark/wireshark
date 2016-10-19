@@ -46,7 +46,6 @@ macro(pod2manhtml _sourcefile _manext)
 	add_custom_command(
 		OUTPUT
 			${_outman}
-			${_outhtml}
 		COMMAND
 			${PERL_EXECUTABLE} ${POD2MAN_EXECUTABLE}
 			--section=${_manext}
@@ -54,6 +53,13 @@ macro(pod2manhtml _sourcefile _manext)
 			--release=${CPACK_PACKAGE_VERSION}
 			${_sourcefile}.pod
 			> ${_outman}
+		DEPENDS
+			${_sourcefile}.pod
+	)
+
+	add_custom_command(
+		OUTPUT
+			${_outhtml}
 		COMMAND
 			${PERL_EXECUTABLE} ${POD2HTML_EXECUTABLE}
 			--title="${_basefile} - The Wireshark Network Analyzer ${CPACK_PACKAGE_VERSION}"
