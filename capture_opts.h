@@ -67,6 +67,7 @@ extern "C" {
 #define LONGOPT_DISABLE_PROTOCOL  130
 #define LONGOPT_ENABLE_HEURISTIC  131
 #define LONGOPT_DISABLE_HEURISTIC 132
+#define LONGOPT_FULL_SCREEN       133
 
 /*
  * Options for capturing common to all capturing programs.
@@ -108,7 +109,8 @@ extern "C" {
     {"linktype",             required_argument, NULL, 'y'}, \
     {"disable-protocol", required_argument, NULL, LONGOPT_DISABLE_PROTOCOL }, \
     {"enable-heuristic", required_argument, NULL, LONGOPT_ENABLE_HEURISTIC }, \
-    {"disable-heuristic", required_argument, NULL, LONGOPT_DISABLE_HEURISTIC },
+    {"disable-heuristic", required_argument, NULL, LONGOPT_DISABLE_HEURISTIC }, \
+    {"fullscreen",           no_argument,       NULL, LONGOPT_FULL_SCREEN },
 
 #define OPTSTRING_CAPTURE_COMMON \
     "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:i:" OPTSTRING_I "Lps:y:"

@@ -154,6 +154,7 @@ private:
     QMap<QAction *, ts_type> td_actions;
     QMap<QAction *, ts_precision> tp_actions;
     QToolBar *filter_expression_toolbar_;
+    bool was_maximized_;
 
     bool capture_stopping_;
     bool capture_filter_valid_;
@@ -282,6 +283,7 @@ public slots:
     void launchRLCGraph(bool channelKnown, guint16 ueid, guint8 rlcMode,
                         guint16 channelType, guint16 channelId, guint8 direction);
 
+    void on_actionViewFullScreen_triggered(bool checked);
 private slots:
     // Manually connected slots (no "on_<object>_<signal>").
 

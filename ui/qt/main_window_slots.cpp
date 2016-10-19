@@ -1394,6 +1394,9 @@ void MainWindow::applyGlobalCommandLineOptions()
             }
         }
     }
+    if (global_commandline_info.full_screen) {
+        this->showFullScreen();
+    }
 }
 
 void MainWindow::redissectPackets()
@@ -3827,6 +3830,21 @@ void MainWindow::on_actionContextFilterFieldReference_triggered()
             .arg(proto_abbrev[0])
             .arg(proto_abbrev);
     QDesktopServices::openUrl(dfref_url);
+}
+
+void MainWindow::on_actionViewFullScreen_triggered(bool checked)
+{
+    if (checked) {
+        // Save the state for future restore
+        was_maximized_ = this->isMaximized();
+        this->showFullScreen();
+    } else {
+        // Restore the previous state
+        if (was_maximized_)
+            this->showMaximized();
+        else
+            this->showNormal();
+    }
 }
 
 #ifdef _MSC_VER

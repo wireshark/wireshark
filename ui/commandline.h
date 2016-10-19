@@ -29,7 +29,7 @@ extern "C" {
 
 extern void commandline_print_usage(gboolean for_help_option);
 
-extern void commandline_early_options(int argc, char *argv[], 
+extern void commandline_early_options(int argc, char *argv[],
     GString *comp_info_str, GString *runtime_info_str);
 
 /* Command-line options that don't have direct API calls to handle the data */
@@ -51,6 +51,7 @@ typedef struct commandline_param_info
     GSList *disable_protocol_slist;
     GSList *enable_heur_slist;
     GSList *disable_heur_slist;
+    gboolean full_screen;
 
 } commandline_param_info_t;
 

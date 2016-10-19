@@ -176,6 +176,7 @@ commandline_print_usage(gboolean for_help_option) {
 #ifndef _WIN32
     fprintf(output, "  --display=DISPLAY        X display to use\n");
 #endif
+    fprintf(output, "  --fullscreen             start Wireshark in full screen\n");
 
 #ifdef _WIN32
     destroy_console();
@@ -396,6 +397,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
     global_commandline_info.disable_protocol_slist = NULL;
     global_commandline_info.enable_heur_slist = NULL;
     global_commandline_info.disable_heur_slist = NULL;
+    global_commandline_info.full_screen = FALSE;
 
     while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
@@ -606,6 +608,9 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                 break;
             case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
                 global_commandline_info.disable_heur_slist = g_slist_append(global_commandline_info.disable_heur_slist, optarg);
+                break;
+            case LONGOPT_FULL_SCREEN:
+                global_commandline_info.full_screen = TRUE;
                 break;
             default:
             case '?':        /* Bad flag - print usage message */

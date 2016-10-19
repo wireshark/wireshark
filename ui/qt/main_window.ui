@@ -141,7 +141,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -343,6 +343,8 @@
     <addaction name="actionViewFilterToolbar"/>
     <addaction name="actionViewWirelessToolbar"/>
     <addaction name="actionViewStatusBar"/>
+    <addaction name="separator"/>
+    <addaction name="actionViewFullScreen"/>
     <addaction name="separator"/>
     <addaction name="actionViewPacketList"/>
     <addaction name="actionViewPacketDetails"/>
@@ -2931,6 +2933,14 @@
    </property>
    <property name="toolTip">
     <string>Copy packet bytes as a Escaped string</string>
+   </property>
+  </action>
+  <action name="actionViewFullScreen">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Full Screen</string>
    </property>
   </action>
  </widget>

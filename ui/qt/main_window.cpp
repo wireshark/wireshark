@@ -287,6 +287,7 @@ MainWindow::MainWindow(QWidget *parent) :
     time_precision_actions_(NULL),
     funnel_statistics_(NULL),
     freeze_focus_(NULL),
+    was_maximized_(false),
     capture_stopping_(false),
     capture_filter_valid_(false)
 #ifdef HAVE_LIBPCAP
@@ -419,6 +420,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
 #ifndef HAVE_LIBPCAP
     main_ui_->menuCapture->setEnabled(false);
+#endif
+
+    // Set OS specific shortcuts for fullscreen mode
+#if defined(Q_OS_MAC) && QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    main_ui_->actionViewFullScreen->setShortcut(QKeySequence::FullScreen);
+#else
+    main_ui_->actionViewFullScreen->setShortcut(QKeySequence(Qt::Key_F11));
 #endif
 
 #if defined(Q_OS_MAC)
@@ -2183,6 +2191,11 @@ void MainWindow::changeEvent(QEvent* event)
             wsApp->loadLanguage(locale);
             }
             break;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+        case QEvent::WindowStateChange:
+            main_ui_->actionViewFullScreen->setChecked(this->isFullScreen());
+            break;
+#endif
         default:
             break;
         }

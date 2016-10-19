@@ -20,6 +20,7 @@ S<[ B<-d> E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt> 
 S<[ B<-D> ]>
 S<[ B<--display=>E<lt>X display to useE<gt> ] >
 S<[ B<-f> E<lt>capture filterE<gt> ]>
+S<[ B<--fullscreen> ]>
 S<[ B<-g> E<lt>packet numberE<gt> ]>
 S<[ B<-h> ]>
 S<[ B<-H> ]>
@@ -363,6 +364,12 @@ the default capture filter expression is used if provided.
 Pre-defined capture filter names, as shown in the GUI menu item Capture->Capture Filters,
 can be used by prefixing the argument with "predef:".
 Example: B<-f "predef:MyPredefinedHostOnlyFilter">
+
+=item --fullscreen
+
+Start Wireshark in full screen mode (kiosk mode). To exit from fullscreen mode,
+open the View menu and select the Full Screen option. Alternatively, press the
+F11 key (or Ctrl + Cmd + F for macOS).
 
 =item -g  E<lt>packet numberE<gt>
 
