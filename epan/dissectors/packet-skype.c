@@ -291,20 +291,21 @@ static gboolean
 test_skype_udp(tvbuff_t *tvb)
 {
 	/* Minimum of 3 bytes, check for valid message type */
-	guint length = tvb_captured_length(tvb);
-	guint8 type = tvb_get_guint8(tvb, 2) & 0xF;
-	if ( length >= 3 &&
-		    ( type == 0   ||
+	if (tvb_captured_length(tvb) > 3)
+	{
+		guint8 type = tvb_get_guint8(tvb, 2) & 0xF;
+		if ( type == 0   ||
 			/* FIXME: Extend this by minimum or exact length per message type */
-		      type == 2   ||
-		      type == 3   ||
-		      type == 5   ||
-		      type == 7   ||
-		      type == 0xd ||
-		      type == 0xf
-		    )
-	) {
-		return TRUE;
+			type == 2   ||
+			type == 3   ||
+			type == 5   ||
+			type == 7   ||
+			type == 0xd ||
+			type == 0xf
+			)
+		{
+			return TRUE;
+		}
 	}
 	return FALSE;
 }
@@ -312,12 +313,11 @@ test_skype_udp(tvbuff_t *tvb)
 static gboolean
 dissect_skype_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	if (pinfo->ptype == PT_UDP) {
-		if ( !test_skype_udp(tvb) ) {
-			return FALSE;
-		}
-		dissect_skype_udp(tvb, pinfo, tree);
+	if ( !test_skype_udp(tvb) ) {
+		return FALSE;
 	}
+
+	dissect_skype_udp(tvb, pinfo, tree);
 	return TRUE;
 }
 
@@ -447,7 +447,6 @@ proto_reg_handoff_skype(void)
 	dissector_add_for_decode_as_with_preference("tcp.port", skype_handle);
 	dissector_add_for_decode_as_with_preference("udp.port", skype_handle);
 
-	heur_dissector_add("tcp", dissect_skype_heur, "Skype over TCP", "skype_tcp", proto_skype, HEURISTIC_DISABLE);
 	heur_dissector_add("udp", dissect_skype_heur, "Skype over UDP", "skype_udp", proto_skype, HEURISTIC_DISABLE);
 }
 
