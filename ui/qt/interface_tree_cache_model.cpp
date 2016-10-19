@@ -231,7 +231,7 @@ QVariant InterfaceTreeCacheModel::data(const QModelIndex &index, int role) const
     int row = index.row();
     InterfaceTreeColumns col = (InterfaceTreeColumns)index.column();
 
-    if ( ( role == Qt::DisplayRole && editableColumns.contains(col) ) ||
+    if ( ( ( role == Qt::DisplayRole || role == Qt::EditRole ) && editableColumns.contains(col) ) ||
             ( role == Qt::CheckStateRole && checkableColumns.contains(col) ) )
     {
         QMap<InterfaceTreeColumns, QVariant> * dataField = 0;
