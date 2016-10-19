@@ -273,7 +273,7 @@ void WirelessFrame::setInterfaceInfo()
 
     if (cur_iface.isEmpty() || cur_chan_idx < 0 || cur_type_idx < 0) return;
 
-#if defined(HAVE_LIBNL) && defined(HAVE_NL80211) && defined(HAVE_PCAP)
+#if defined(HAVE_LIBNL) && defined(HAVE_NL80211) && defined(HAVE_LIBPCAP)
     int frequency = ui->channelComboBox->itemData(cur_chan_idx).toInt();
     int chan_type = ui->channelTypeComboBox->itemData(cur_type_idx).toInt();
     int bandwidth = getBandwidthFromChanType(chan_type);
