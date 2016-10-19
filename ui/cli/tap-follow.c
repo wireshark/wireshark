@@ -93,8 +93,7 @@ follow_free(follow_info_t *follow_info)
   cli_follow_info_t* cli_follow_info = (cli_follow_info_t*)follow_info->gui_data;
 
   g_free(cli_follow_info);
-  g_free(follow_info->filter_out_filter);
-  g_free(follow_info);
+  follow_info_free(follow_info);
 }
 
 #define BYTES_PER_LINE  16

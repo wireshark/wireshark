@@ -1038,29 +1038,14 @@ static void
 follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 {
     follow_info_t *follow_info;
-    follow_record_t *follow_record;
     gtk_follow_info_t *gtk_follow_info;
-    GList *cur;
 
     follow_info = (follow_info_t *)g_object_get_data(G_OBJECT(w), E_FOLLOW_INFO_KEY);
     gtk_follow_info = (gtk_follow_info_t *)follow_info->gui_data;
 
-    for(cur = follow_info->payload; cur; cur = g_list_next(cur))
-        if(cur->data) {
-        follow_record = (follow_record_t *)cur->data;
-            if(follow_record->data)
-                g_byte_array_free(follow_record->data, TRUE);
-
-            g_free(follow_record);
-        }
-
-    g_list_free(follow_info->payload);
-
-    g_free(follow_info->filter_out_filter);
-    free_address(&follow_info->client_ip);
     forget_follow_info(follow_info);
     g_free(gtk_follow_info);
-    g_free(follow_info);
+    follow_info_free(follow_info);
     gtk_widget_destroy(w);
 }
 

@@ -162,6 +162,47 @@ follow_reset_stream(follow_info_t* info)
     info->client_ip.len = 0;
     info->server_ip.type = FT_NONE;
     info->server_ip.len = 0;
+    info->fragments[0] = info->fragments[1] = NULL;
+    info->seq[0] = info->seq[1] = 0;
+}
+
+void
+follow_info_free(follow_info_t* follow_info)
+{
+    GList *cur;
+    follow_record_t *follow_record;
+
+    for(cur = follow_info->payload; cur; cur = g_list_next(cur)) {
+        if(cur->data) {
+            follow_record = (follow_record_t *)cur->data;
+            if(follow_record->data)
+                g_byte_array_free(follow_record->data, TRUE);
+
+            g_free(follow_record);
+        }
+    }
+    g_list_free(follow_info->payload);
+
+    //Only TCP stream uses fragments
+    for (cur = follow_info->fragments[0]; cur; cur = g_list_next(cur)) {
+        follow_record = (follow_record_t *)cur->data;
+        if(follow_record->data) {
+            g_byte_array_free(follow_record->data, TRUE);
+        }
+        g_free(follow_record);
+    }
+    for (cur = follow_info->fragments[1]; cur; cur = g_list_next(cur)) {
+        follow_record = (follow_record_t *)cur->data;
+        if(follow_record->data) {
+            g_byte_array_free(follow_record->data, TRUE);
+        }
+        g_free(follow_record);
+    }
+
+    free_address(&follow_info->client_ip);
+    free_address(&follow_info->server_ip);
+    g_free(follow_info->filter_out_filter);
+    g_free(follow_info);
 }
 
 gboolean

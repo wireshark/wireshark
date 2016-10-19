@@ -88,6 +88,7 @@ typedef frs_return_t (*follow_read_stream_func)(struct _follow_info *follow_info
 typedef struct {
     gboolean is_server;
     guint32 packet_num;
+    guint32 seq; /* TCP only */
     GByteArray *data;
 } follow_record_t;
 
@@ -96,6 +97,8 @@ typedef struct _follow_info {
     char            *filter_out_filter;
     GList           *payload;
     guint           bytes_written[2]; /* Index with FROM_CLIENT or FROM_SERVER for readability. */
+    guint32         seq[2]; /* TCP only */
+    GList           *fragments[2]; /* TCP only */
     guint           client_port;
     guint           server_port;
     address         client_ip;
@@ -200,6 +203,13 @@ WS_DLL_PUBLIC gchar* follow_get_stat_tap_string(register_follow_t* follower);
  * @param info [in] follower info
  */
 WS_DLL_PUBLIC void follow_reset_stream(follow_info_t* info);
+
+/** Free follow_info_t structure
+ * Free everything except the GUI element
+ *
+ * @param follow_info [in] follower info
+ */
+WS_DLL_PUBLIC void follow_info_free(follow_info_t* follow_info);
 
 #ifdef __cplusplus
 }

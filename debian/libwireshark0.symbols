@@ -582,6 +582,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  find_stream_circ@Base 1.9.1
  find_tap_id@Base 1.9.1
  follow_get_stat_tap_string@Base 2.1.0
+ follow_info_free@Base 2.3.0
  follow_iterate_followers@Base 2.1.0
  follow_reset_stream@Base 2.1.0
  follow_tvb_tap_listener@Base 2.1.0
