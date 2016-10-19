@@ -2696,7 +2696,7 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
             mnc,
             val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_codes_ext, ""));
     } else {
-        item = proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
+        item = proto_tree_add_uint_format_value(tree, hf_E212_mnc_id , tvb, start_offset + 1, 2, mnc,
                    "%s (%02u)",
                    val_to_str_ext_const(mcc * 1000 + 10 * mnc, &mcc_mnc_codes_ext, "Unknown"),
                    mnc);
@@ -2707,7 +2707,7 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
             mcc,
             val_to_str_ext_const(mcc,&E212_codes_ext,""),
             mnc,
-            val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_codes_ext, ""));
+            val_to_str_ext_const(mcc * 1000 + 10* mnc, &mcc_mnc_codes_ext, ""));
     }
 
     if (((mnc1 > 9) || (mnc2 > 9) || ((mnc3 > 9) && (mnc3 != 0x0f))) && (mcc_mnc != 0xffffff))
