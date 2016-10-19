@@ -594,11 +594,11 @@ struct _header_field_info {
 #define HFILL -1, 0, HF_REF_TYPE_NONE, -1, NULL
 
 #define HFILL_INIT(hf)   \
-	hf.hfinfo.id			= -1;   \
-	hf.hfinfo.parent		= 0;   \
-	hf.hfinfo.ref_type		= HF_REF_TYPE_NONE;   \
-	hf.hfinfo.same_name_prev_id	= -1;   \
-	hf.hfinfo.same_name_next	= NULL;
+	(hf).hfinfo.id			= -1;   \
+	(hf).hfinfo.parent		= 0;   \
+	(hf).hfinfo.ref_type		= HF_REF_TYPE_NONE;   \
+	(hf).hfinfo.same_name_prev_id	= -1;   \
+	(hf).hfinfo.same_name_next	= NULL;
 
 /** Used when registering many fields at once, using proto_register_field_array() */
 typedef struct hf_register_info {
