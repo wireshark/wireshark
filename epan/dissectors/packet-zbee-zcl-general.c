@@ -12612,6 +12612,63 @@ static const value_string zbee_zcl_gp_proxy_sink_tbl_req_type[] = {
 #define ZBEE_ZCL_GP_SECUR_OPT_SECUR_LEVEL                                              (3<<0)
 #define ZBEE_ZCL_GP_SECUR_OPT_SECUR_KEY_TYPE                                           (7<<2)
 
+/* gppFunctionality attribute */
+#define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_GP_FEATURE                                       (1<<0)
+#define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_DIRECT_COMM                                      (1<<1)
+#define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_DERIVED_GCAST_COMM                               (1<<2)
+#define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_PRE_COMMISSIONED_GCAST_COMM                      (1<<3)
+#define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_FULL_UCAST_COMM                                  (1<<4)
+#define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_LW_UCAST_COMM                                    (1<<5)
+#define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_BIDIR_OP                                         (1<<7)
+#define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_PROXY_TBL_MAINTENANCE                            (1<<8)
+#define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_GP_COMMISSIONING                                 (1<<10)
+#define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_CT_BASED_COMMISSIONING                           (1<<11)
+#define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_MAINTENANCE_OF_GPD                               (1<<12)
+#define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_GPD_SECUR_LVL_00                                 (1<<13)
+#define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_GPD_SECUR_LVL_01                                 (1<<14)
+#define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_GPD_SECUR_LVL_10                                 (1<<15)
+#define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_GPD_SECUR_LVL_11                                 (1<<16)
+#define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_GPD_IEEE_ADDRESS                                 (1<<19)
+/* gppActiveFunctionality attribute */
+#define ZBEE_ZCL_GP_ATTR_GPP_ACTIVE_FUNC_FLD_GP_FUNCTIONALITY                          (1<<0)
+
+/* gpsFunctionality attribute */
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_GP_FEATURE                                       (1<<0)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_DIRECT_COMM                                      (1<<1)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_DERIVED_GCAST_COMM                               (1<<2)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_PRE_COMMISSIONED_GCAST_COMM                      (1<<3)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_FULL_UCAST_COMM                                  (1<<4)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_LW_UCAST_COMM                                    (1<<5)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_PROXIMITY_BIDIR_OP                               (1<<6)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_MULTI_HOP_BIDIR_OP                               (1<<7)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_PROXY_TBL_MAINTENANCE                            (1<<8)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_PROXIMITY_COMMISSIONING                          (1<<9)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_MULTI_HOP_COMMISSIONING                          (1<<10)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_CT_BASED_COMMISSIONING                           (1<<11)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_MAINTENANCE_OF_GPD                               (1<<12)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_GPD_SECUR_LVL_00                                 (1<<13)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_GPD_SECUR_LVL_01                                 (1<<14)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_GPD_SECUR_LVL_10                                 (1<<15)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_GPD_SECUR_LVL_11                                 (1<<16)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_SINK_TBL_BASED_GCAST_FORWARDING                  (1<<17)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_TRANSLATION_TABLE                                (1<<18)
+#define ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_GPD_IEEE_ADDRESS                                 (1<<19)
+/* gpsActiveFunctionality attribute */
+#define ZBEE_ZCL_GP_ATTR_GPS_ACTIVE_FUNC_FLD_GP_FUNCTIONALITY                          (1<<0)
+
+/* gpsCommissioningExitMode attribute */
+#define ZBEE_ZCL_GP_ATTR_GPS_COMM_EXIT_MODE_FLD_ON_COMM_WINDOW_EXPIRE                  (1<<0)
+#define ZBEE_ZCL_GP_ATTR_GPS_COMM_EXIT_MODE_FLD_ON_PAIRING_SUCCESS                     (1<<1)
+#define ZBEE_ZCL_GP_ATTR_GPS_COMM_EXIT_MODE_FLD_ON_GP_PROXY_COMM_MODE                  (1<<2)
+
+/* gpsCommunicationMode attribute */
+#define ZBEE_ZCL_GP_ATTR_GPS_COMMUNICATION_MODE_FLD_MODE                               (3<<0)
+
+/* gpsSecurityLevel attribute */
+#define ZBEE_ZCL_GP_ATTR_GPS_SECUR_LVL_FLD_MIN_GPD_SECUR_LVL                           (3<<0)
+#define ZBEE_ZCL_GP_ATTR_GPS_SECUR_LVL_FLD_PROTECTION_WITH_GP_LINK_KEY                 (1<<2)
+#define ZBEE_ZCL_GP_ATTR_GPS_SECUR_LVL_FLD_INVOLVE_TC                                  (1<<3)
+
 /* Definitions for application IDs. */
 #define ZBEE_ZCL_GP_APP_ID_DEFAULT                                                     0x00
 #define ZBEE_ZCL_GP_APP_ID_ZGP                                                         0x02
@@ -12830,6 +12887,81 @@ static gint hf_zbee_gp_proxy_tbl_entry_ext_options_full_ucast_gps = -1;
 
 static gint ett_zbee_gp_sink_address_list = -1;
 static gint hf_zbee_gp_sink_address_list_length = -1;
+
+/* GP gppFunctionality Attribute */
+static gint ett_zbee_zcl_gp_attr_gpp_func = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_func = -1;
+
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gp_feature = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_direct_comm = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_derived_gcast_comm = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_pre_commissioned_gcast_comm = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_full_ucast_comm = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_lw_ucast_comm = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_bidir_op = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_proxy_tbl_maintenance = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gp_commissioning = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_ct_based_commissioning = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_maintenance_of_gpd = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_00 = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_01 = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_10 = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_11 = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_ieee_address = -1;
+
+/* GP gppActiveFunctionality Attribute */
+static gint ett_zbee_zcl_gp_attr_gpp_active_func = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_active_func = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_active_func_fld_gp_functionality = -1;
+
+/* GP gpsFunctionality Attribute */
+static gint ett_zbee_zcl_gp_attr_gps_func = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func = -1;
+
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_gp_feature = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_direct_comm = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_derived_gcast_comm = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_pre_commissioned_gcast_comm = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_full_ucast_comm = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_lw_ucast_comm = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_proximity_bidir_op = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_multi_hop_bidir_op = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_proxy_tbl_maintenance = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_proximity_commissioning = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_multi_hop_commissioning = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_ct_based_commissioning = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_maintenance_of_gpd = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_00 = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_01 = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_10 = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_11 = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_sink_tbl_based_gcast_forwarding = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_translation_table = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_gpd_ieee_address = -1;
+
+/* GP gppActiveFunctionality Attribute */
+static gint ett_zbee_zcl_gp_attr_gps_active_func = -1;
+static gint hf_zbee_zcl_gp_attr_gps_active_func = -1;
+static gint hf_zbee_zcl_gp_attr_gps_active_func_fld_gp_functionality = -1;
+
+/* GP gpsCommissioningExitMode Attribute */
+static gint ett_zbee_zcl_gp_attr_gps_comm_exit_mode = -1;
+static gint hf_zbee_zcl_gp_attr_gps_comm_exit_mode = -1;
+static gint hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_comm_window_expire = -1;
+static gint hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_pairing_success = -1;
+static gint hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_gp_proxy_comm_mode = -1;
+
+/* GP gpsCommunicationMode Attribute */
+static gint ett_zbee_zcl_gp_attr_gps_communication_mode = -1;
+static gint hf_zbee_zcl_gp_attr_gps_communication_mode = -1;
+static gint hf_zbee_zcl_gp_attr_gps_communication_mode_fld_mode = -1;
+
+/* GP gpsSecurityLevel Attribute */
+static gint ett_zbee_zcl_gp_attr_gps_secur_lvl = -1;
+static gint hf_zbee_zcl_gp_attr_gps_secur_lvl = -1;
+static gint hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_min_gpd_secur_lvl = -1;
+static gint hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_protection_with_gp_link_key = -1;
+static gint hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_involve_tc = -1;
 
 /* reuse ZGPD command names */
 extern value_string_ext zbee_nwk_gp_cmd_names_ext;
@@ -13267,20 +13399,240 @@ dissect_zbee_zcl_gp_proxy_table(tvbuff_t *tvb, proto_tree *tree, guint offset)
     }
 
     while (n_parsed_octets < proxy_tbl_len) {
-      guint old_offset = offset;
-      if (dissect_zbee_zcl_gp_proxy_table_entry(tvb, proxy_tbl_tree, &offset, n_tbl_entries + 1)) {
-          n_parsed_octets += offset - old_offset;
-      }
-      else {
-          /* Bad Proxy Table entry - stop Proxy Table attribute dissection */
-          break;
-      }
+        guint old_offset = offset;
+        if (dissect_zbee_zcl_gp_proxy_table_entry(tvb, proxy_tbl_tree, &offset, n_tbl_entries + 1)) {
+            n_parsed_octets += offset - old_offset;
+        }
+        else {
+            /* Bad Proxy Table entry - stop Proxy Table attribute dissection */
+            break;
+        }
 
-      ++n_tbl_entries;
+        ++n_tbl_entries;
     }
 
     return offset;
 } /*dissect_zbee_zcl_gp_proxy_table*/
+
+/**
+ *      dissect_zbee_zcl_gp_attr_gpp_functionality
+ *
+ *      ZigBee ZCL Green Power gppFunctionality dissector for wireshark.
+ *
+ *      @param tvb    - pointer to buffer containing raw packet.
+ *      @param tree   - pointer to data tree Wireshark uses to display packet.
+ *      @param offset - offset in a buffer
+ *
+ *      @return new offset.
+ */
+static int
+dissect_zbee_zcl_gp_attr_gpp_functionality(tvbuff_t *tvb, proto_tree *tree, guint offset)
+{
+    static const int * n_fields[] = {
+        &hf_zbee_zcl_gp_attr_gpp_func_fld_gp_feature,
+        &hf_zbee_zcl_gp_attr_gpp_func_fld_direct_comm,
+        &hf_zbee_zcl_gp_attr_gpp_func_fld_derived_gcast_comm,
+        &hf_zbee_zcl_gp_attr_gpp_func_fld_pre_commissioned_gcast_comm,
+        &hf_zbee_zcl_gp_attr_gpp_func_fld_full_ucast_comm,
+        &hf_zbee_zcl_gp_attr_gpp_func_fld_lw_ucast_comm,
+        &hf_zbee_zcl_gp_attr_gpp_func_fld_bidir_op,
+        &hf_zbee_zcl_gp_attr_gpp_func_fld_proxy_tbl_maintenance,
+        &hf_zbee_zcl_gp_attr_gpp_func_fld_gp_commissioning,
+        &hf_zbee_zcl_gp_attr_gpp_func_fld_ct_based_commissioning,
+        &hf_zbee_zcl_gp_attr_gpp_func_fld_maintenance_of_gpd,
+        &hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_00,
+        &hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_01,
+        &hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_10,
+        &hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_11,
+        &hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_ieee_address,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_zcl_gp_attr_gpp_func,
+                           ett_zbee_zcl_gp_attr_gpp_func, n_fields, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    return offset;
+} /*dissect_zbee_zcl_gp_attr_gpp_functionality*/
+
+/**
+ *      dissect_zbee_zcl_gp_attr_gpp_active_functionality
+ *
+ *      ZigBee ZCL Green Power gppActiveFunctionality dissector for wireshark.
+ *
+ *      @param tvb    - pointer to buffer containing raw packet.
+ *      @param tree   - pointer to data tree Wireshark uses to display packet.
+ *      @param offset - offset in a buffer
+ *
+ *      @return new offset.
+ */
+static int
+dissect_zbee_zcl_gp_attr_gpp_active_functionality(tvbuff_t *tvb, proto_tree *tree, guint offset)
+{
+    static const int * n_fields[] = {
+        &hf_zbee_zcl_gp_attr_gpp_active_func_fld_gp_functionality,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_zcl_gp_attr_gpp_active_func,
+                           ett_zbee_zcl_gp_attr_gpp_active_func, n_fields, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    return offset;
+} /*dissect_zbee_zcl_gp_attr_gpp_active_functionality*/
+
+/**
+ *      dissect_zbee_zcl_gp_attr_gps_functionality
+ *
+ *      ZigBee ZCL Green Power gpsFunctionality dissector for wireshark.
+ *
+ *      @param tvb    - pointer to buffer containing raw packet.
+ *      @param tree   - pointer to data tree Wireshark uses to display packet.
+ *      @param offset - offset in a buffer
+ *
+ *      @return new offset.
+ */
+static int
+dissect_zbee_zcl_gp_attr_gps_functionality(tvbuff_t *tvb, proto_tree *tree, guint offset)
+{
+    static const int * n_fields[] = {
+        &hf_zbee_zcl_gp_attr_gps_func_fld_gp_feature,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_direct_comm,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_derived_gcast_comm,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_pre_commissioned_gcast_comm,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_full_ucast_comm,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_lw_ucast_comm,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_proximity_bidir_op,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_multi_hop_bidir_op,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_proxy_tbl_maintenance,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_proximity_commissioning,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_multi_hop_commissioning,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_ct_based_commissioning,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_maintenance_of_gpd,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_00,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_01,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_10,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_11,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_sink_tbl_based_gcast_forwarding,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_translation_table,
+        &hf_zbee_zcl_gp_attr_gps_func_fld_gpd_ieee_address,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_zcl_gp_attr_gps_func,
+                           ett_zbee_zcl_gp_attr_gps_func, n_fields, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    return offset;
+} /*dissect_zbee_zcl_gp_attr_gps_functionality*/
+
+/**
+ *      dissect_zbee_zcl_gp_attr_gps_active_functionality
+ *
+ *      ZigBee ZCL Green Power gpsActiveFunctionality dissector for wireshark.
+ *
+ *      @param tvb    - pointer to buffer containing raw packet.
+ *      @param tree   - pointer to data tree Wireshark uses to display packet.
+ *      @param offset - offset in a buffer
+ *
+ *      @return new offset.
+ */
+static int
+dissect_zbee_zcl_gp_attr_gps_active_functionality(tvbuff_t *tvb, proto_tree *tree, guint offset)
+{
+    static const int * n_fields[] = {
+        &hf_zbee_zcl_gp_attr_gps_active_func_fld_gp_functionality,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_zcl_gp_attr_gps_active_func,
+                           ett_zbee_zcl_gp_attr_gps_active_func, n_fields, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    return offset;
+} /*dissect_zbee_zcl_gp_attr_gps_active_functionality*/
+
+/**
+ *      dissect_zbee_zcl_gp_attr_gps_communication_mode
+ *
+ *      ZigBee ZCL Green Power gpsCommunicationMode dissector for wireshark.
+ *
+ *      @param tvb    - pointer to buffer containing raw packet.
+ *      @param tree   - pointer to data tree Wireshark uses to display packet.
+ *      @param offset - offset in a buffer
+ *
+ *      @return new offset.
+ */
+static int
+dissect_zbee_zcl_gp_attr_gps_communication_mode(tvbuff_t *tvb, proto_tree *tree, guint offset)
+{
+    static const int * n_fields[] = {
+        &hf_zbee_zcl_gp_attr_gps_communication_mode_fld_mode,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_zcl_gp_attr_gps_communication_mode,
+                           ett_zbee_zcl_gp_attr_gps_communication_mode, n_fields, ENC_NA);
+    offset += 1;
+
+    return offset;
+} /*dissect_zbee_zcl_gp_attr_gps_communication_mode*/
+
+/**
+ *      dissect_zbee_zcl_gp_attr_gps_comm_exit_mode
+ *
+ *      ZigBee ZCL Green Power gpsCommissioningExitMode dissector for wireshark.
+ *
+ *      @param tvb    - pointer to buffer containing raw packet.
+ *      @param tree   - pointer to data tree Wireshark uses to display packet.
+ *      @param offset - offset in a buffer
+ *
+ *      @return new offset.
+ */
+static int
+dissect_zbee_zcl_gp_attr_gps_comm_exit_mode(tvbuff_t *tvb, proto_tree *tree, guint offset)
+{
+    static const int * n_fields[] = {
+        &hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_comm_window_expire,
+        &hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_pairing_success,
+        &hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_gp_proxy_comm_mode,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_zcl_gp_attr_gps_comm_exit_mode,
+                           ett_zbee_zcl_gp_attr_gps_comm_exit_mode, n_fields, ENC_NA);
+    offset += 1;
+
+    return offset;
+} /*dissect_zbee_zcl_gp_attr_gps_comm_exit_mode*/
+
+/**
+ *      dissect_zbee_zcl_gp_attr_gps_secur_lvl
+ *
+ *      ZigBee ZCL Green Power gpsSecurityLevel dissector for wireshark.
+ *
+ *      @param tvb    - pointer to buffer containing raw packet.
+ *      @param tree   - pointer to data tree Wireshark uses to display packet.
+ *      @param offset - offset in a buffer
+ *
+ *      @return new offset.
+ */
+static int
+dissect_zbee_zcl_gp_attr_gps_secur_lvl(tvbuff_t *tvb, proto_tree *tree, guint offset)
+{
+    static const int * n_fields[] = {
+        &hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_min_gpd_secur_lvl,
+        &hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_protection_with_gp_link_key,
+        &hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_involve_tc,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_zcl_gp_attr_gps_secur_lvl,
+                           ett_zbee_zcl_gp_attr_gps_secur_lvl, n_fields, ENC_NA);
+    offset += 1;
+
+    return offset;
+} /*dissect_zbee_zcl_gp_attr_gps_secur_lvl*/
 
 /**
  *      dissect_zcl_gp_proxy_sink_table_request
@@ -13896,8 +14248,29 @@ dissect_zcl_gp_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16
         case ZBEE_ZCL_ATTR_GPS_SINK_TABLE:
             *offset = dissect_zbee_zcl_gp_sink_table(tvb, tree, *offset);
             break;
+        case ZBEE_ZCL_ATTR_GPS_COMMUNICATION_MODE:
+            *offset = dissect_zbee_zcl_gp_attr_gps_communication_mode(tvb, tree, *offset);
+            break;
+        case ZBEE_ZCL_ATTR_GPS_COMMISSIONING_EXIT_MODE:
+            *offset = dissect_zbee_zcl_gp_attr_gps_comm_exit_mode(tvb, tree, *offset);
+            break;
+        case ZBEE_ZCL_ATTR_GPS_SECURITY_LEVEL:
+            *offset = dissect_zbee_zcl_gp_attr_gps_secur_lvl(tvb, tree, *offset);
+            break;
+        case ZBEE_ZCL_ATTR_GPS_FUNCTIONALITY:
+            *offset = dissect_zbee_zcl_gp_attr_gps_functionality(tvb, tree, *offset);
+            break;
+        case ZBEE_ZCL_ATTR_GPS_ACTIVE_FUNCTIONALITY:
+            *offset = dissect_zbee_zcl_gp_attr_gps_active_functionality(tvb, tree, *offset);
+            break;
         case ZBEE_ZCL_ATTR_GPP_PROXY_TABLE:
             *offset = dissect_zbee_zcl_gp_proxy_table(tvb, tree, *offset);
+            break;
+        case ZBEE_ZCL_ATTR_GPP_FUNCTIONALITY:
+            *offset = dissect_zbee_zcl_gp_attr_gpp_functionality(tvb, tree, *offset);
+            break;
+        case ZBEE_ZCL_ATTR_GPP_ACTIVE_FUNCTIONALITY:
+            *offset = dissect_zbee_zcl_gp_attr_gpp_active_functionality(tvb, tree, *offset);
             break;
         default:
             dissect_zcl_attr_data(tvb, tree, offset, data_type);
@@ -14374,7 +14747,184 @@ proto_register_zbee_zcl_gp(void)
 
         { &hf_zbee_gp_sink_address_list_length,
           { "Sink Address list length", "zbee_zcl_general.gp.sink_addr_list_len", FT_UINT8, BASE_DEC,
-            NULL, 0, NULL, HFILL }}
+            NULL, 0, NULL, HFILL }},
+
+        /* gppFunctionality attribute */
+        { &hf_zbee_zcl_gp_attr_gpp_func,
+          { "gppFunctionality", "zbee_zcl_general.gp.attr.gpp_func", FT_UINT24, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_gp_attr_gpp_func_fld_gp_feature,
+          { "GP feature", "zbee_zcl_general.gp.attr.gpp_func.gp_feature", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_GP_FEATURE, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gpp_func_fld_direct_comm,
+          { "Direct communication", "zbee_zcl_general.gp.attr.gpp_func.direct_comm", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_DIRECT_COMM, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gpp_func_fld_derived_gcast_comm,
+          { "Derived groupcast communication", "zbee_zcl_general.gp.attr.gpp_func.derived_gcast_comm", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_DERIVED_GCAST_COMM, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gpp_func_fld_pre_commissioned_gcast_comm,
+          { "Pre-commissioned groupcast communication", "zbee_zcl_general.gp.attr.gpp_func.pre_commissioned_gcast_comm", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_PRE_COMMISSIONED_GCAST_COMM, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gpp_func_fld_full_ucast_comm,
+          { "Full unicast communication", "zbee_zcl_general.gp.attr.gpp_func.full_ucast_comm", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_FULL_UCAST_COMM, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gpp_func_fld_lw_ucast_comm,
+          { "Lightweight unicast communication", "zbee_zcl_general.gp.attr.gpp_func.lw_ucast_comm", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_LW_UCAST_COMM, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gpp_func_fld_bidir_op,
+          { "Bidirectional operation", "zbee_zcl_general.gp.attr.gpp_func.bidir_op", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_BIDIR_OP, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gpp_func_fld_proxy_tbl_maintenance,
+          { "Proxy Table maintenance", "zbee_zcl_general.gp.attr.gpp_func.proxy_tbl_maintenance", FT_BOOLEAN, 24,
+              NULL, ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_PROXY_TBL_MAINTENANCE, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gpp_func_fld_gp_commissioning,
+          { "GP commissioning", "zbee_zcl_general.gp.attr.gpp_func.gp_commissioning", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_GP_COMMISSIONING, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gpp_func_fld_ct_based_commissioning,
+          { "CT-based commissioning", "zbee_zcl_general.gp.attr.gpp_func.ct_based_commissioning", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_CT_BASED_COMMISSIONING, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gpp_func_fld_maintenance_of_gpd,
+          { "Maintenance of GPD", "zbee_zcl_general.gp.attr.gpp_func.maintenance_of_gpd", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_MAINTENANCE_OF_GPD, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_00,
+          { "gpdSecurityLevel = 0b00", "zbee_zcl_general.gp.attr.gpp_func.gpd_secur_lvl_00", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_GPD_SECUR_LVL_00, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_01,
+          { "Deprecated: gpdSecurityLevel = 0b01", "zbee_zcl_general.gp.attr.gpp_func.gpd_secur_lvl_01", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_GPD_SECUR_LVL_01, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_10,
+          { "gpdSecurityLevel = 0b10", "zbee_zcl_general.gp.attr.gpp_func.gpd_secur_lvl_10", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_GPD_SECUR_LVL_10, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_11,
+          { "gpdSecurityLevel = 0b11", "zbee_zcl_general.gp.attr.gpp_func.gpd_secur_lvl_11", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_GPD_SECUR_LVL_11, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_ieee_address,
+          { "GPD IEEE address", "zbee_zcl_general.gp.attr.gpp_func.gpd_ieee_address", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_GPD_IEEE_ADDRESS, NULL, HFILL }},
+
+        /* gppActiveFunctionality attribute */
+        { &hf_zbee_zcl_gp_attr_gpp_active_func,
+          { "gppActiveFunctionality", "zbee_zcl_general.gp.attr.gpp_active_func", FT_UINT24, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_gp_attr_gpp_active_func_fld_gp_functionality,
+          { "GP functionality", "zbee_zcl_general.gp.attr.gpp_active_func.gp_functionality", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPP_ACTIVE_FUNC_FLD_GP_FUNCTIONALITY, NULL, HFILL }},
+
+        /* gpsFunctionality attribute */
+        { &hf_zbee_zcl_gp_attr_gps_func,
+          { "gpsFunctionality", "zbee_zcl_general.gp.attr.gps_func", FT_UINT24, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_gp_feature,
+          { "GP feature", "zbee_zcl_general.gp.attr.gps_func.gp_feature", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_GP_FEATURE, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_direct_comm,
+          { "Direct communication", "zbee_zcl_general.gp.attr.gps_func.direct_comm", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_DIRECT_COMM, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_derived_gcast_comm,
+          { "Derived groupcast communication", "zbee_zcl_general.gp.attr.gps_func.derived_gcast_comm", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_DERIVED_GCAST_COMM, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_pre_commissioned_gcast_comm,
+          { "Pre-commissioned groupcast communication", "zbee_zcl_general.gp.attr.gps_func.pre_commissioned_gcast_comm", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_PRE_COMMISSIONED_GCAST_COMM, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_full_ucast_comm,
+          { "Full unicast communication", "zbee_zcl_general.gp.attr.gps_func.full_ucast_comm", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_FULL_UCAST_COMM, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_lw_ucast_comm,
+          { "Lightweight unicast communication", "zbee_zcl_general.gp.attr.gps_func.lw_ucast_comm", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_LW_UCAST_COMM, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_proximity_bidir_op,
+          { "Proximity bidirectional operation", "zbee_zcl_general.gp.attr.gps_func.proximity_bidir_op", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_PROXIMITY_BIDIR_OP, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_multi_hop_bidir_op,
+          { "Multi-hop bidirectional operation", "zbee_zcl_general.gp.attr.gps_func.multi_hop_bidir_op", FT_BOOLEAN, 24,
+              NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_MULTI_HOP_BIDIR_OP, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_proxy_tbl_maintenance,
+          { "Proxy Table maintenance", "zbee_zcl_general.gp.attr.gps_func.proxy_tbl_maintenance", FT_BOOLEAN, 24,
+              NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_PROXY_TBL_MAINTENANCE, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_proximity_commissioning,
+          { "Proximity commissioning", "zbee_zcl_general.gp.attr.gps_func.proximity_commissioning", FT_BOOLEAN, 24,
+              NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_PROXIMITY_COMMISSIONING, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_multi_hop_commissioning,
+          { "Multi-hop commissioning","zbee_zcl_general.gp.attr.gps_func.multi_hop_commissioning", FT_BOOLEAN, 24,
+              NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_MULTI_HOP_COMMISSIONING, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_ct_based_commissioning,
+          { "CT-based commissioning", "zbee_zcl_general.gp.attr.gps_func.ct_based_commissioning", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_CT_BASED_COMMISSIONING, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_maintenance_of_gpd,
+          { "Maintenance of GPD", "zbee_zcl_general.gp.attr.gps_func.maintenance_of_gpd", FT_BOOLEAN, 24,
+              NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_MAINTENANCE_OF_GPD, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_00,
+          { "gpdSecurityLevel = 0b00", "zbee_zcl_general.gp.attr.gps_func.gpd_secur_lvl_00", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_GPD_SECUR_LVL_00, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_01,
+          { "Deprecated: gpdSecurityLevel = 0b01", "zbee_zcl_general.gp.attr.gps_func.gpd_secur_lvl_01", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_GPD_SECUR_LVL_01, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_10,
+          { "gpdSecurityLevel = 0b10", "zbee_zcl_general.gp.attr.gps_func.gpd_secur_lvl_10", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_GPD_SECUR_LVL_10, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_11,
+          { "gpdSecurityLevel = 0b11", "zbee_zcl_general.gp.attr.gps_func.gpd_secur_lvl_11", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_GPD_SECUR_LVL_11, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_sink_tbl_based_gcast_forwarding,
+          { "Sink Table-based groupcast forwarding", "zbee_zcl_general.gp.attr.gps_func.sink_tbl_based_gcast_forwarding", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_SINK_TBL_BASED_GCAST_FORWARDING, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_translation_table,
+          { "Translation Table", "zbee_zcl_general.gp.attr.gps_func.translation_table", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_TRANSLATION_TABLE, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_func_fld_gpd_ieee_address,
+          { "GPD IEEE address", "zbee_zcl_general.gp.attr.gps_func.", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_GPD_IEEE_ADDRESS, NULL, HFILL }},
+
+        /* gpsActiveFunctionality attribute */
+        { &hf_zbee_zcl_gp_attr_gps_active_func,
+          { "gpsActiveFunctionality", "zbee_zcl_general.gp.attr.gps_active_func", FT_UINT24, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_gp_attr_gps_active_func_fld_gp_functionality,
+          { "GP functionality", "zbee_zcl_general.gp.attr.gps_active_func.gp_functionality", FT_BOOLEAN, 24,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_ACTIVE_FUNC_FLD_GP_FUNCTIONALITY, NULL, HFILL }},
+
+        /* gpsCommunicationMode attribute */
+        { &hf_zbee_zcl_gp_attr_gps_communication_mode,
+          { "gpsCommunicationMode", "zbee_zcl_general.gp.attr.gps_communication_mode", FT_UINT8, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_gp_attr_gps_communication_mode_fld_mode,
+          { "Mode", "zbee_zcl_general.gp.attr.gps_communication_mode.mode", FT_UINT8, BASE_HEX,
+            VALS(zbee_zcl_gp_communication_modes), ZBEE_ZCL_GP_ATTR_GPS_COMMUNICATION_MODE_FLD_MODE, NULL, HFILL }},
+
+        /* gpsCommissioningExitMode attribute */
+        { &hf_zbee_zcl_gp_attr_gps_comm_exit_mode,
+          { "gpsCommissioningExitMode", "zbee_zcl_general.gp.attr.gps_comm_exit_mode", FT_UINT8, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_comm_window_expire,
+          { "On CommissioningWindow expiration", "zbee_zcl_general.gp.attr.gps_comm_exit_mode.on_comm_window_expire",
+            FT_BOOLEAN, 8, NULL, ZBEE_ZCL_GP_ATTR_GPS_COMM_EXIT_MODE_FLD_ON_COMM_WINDOW_EXPIRE, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_pairing_success,
+          { "On first Pairing success", "zbee_zcl_general.gp.attr.gps_comm_exit_mode.on_pairing_success",
+            FT_BOOLEAN, 8, NULL, ZBEE_ZCL_GP_ATTR_GPS_COMM_EXIT_MODE_FLD_ON_PAIRING_SUCCESS, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_gp_proxy_comm_mode,
+          { "On GP Proxy Commissioning Mode (exit)", "zbee_zcl_general.gp.attr.gps_comm_exit_mode.on_gp_proxy_comm_mode",
+            FT_BOOLEAN, 8, NULL, ZBEE_ZCL_GP_ATTR_GPS_COMM_EXIT_MODE_FLD_ON_GP_PROXY_COMM_MODE, NULL, HFILL }},
+
+        /* gpsSecurityLevel attribute */
+        { &hf_zbee_zcl_gp_attr_gps_secur_lvl,
+          { "gpsSecurityLevel", "zbee_zcl_general.gp.attr.gps_secur_lvl", FT_UINT8, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_min_gpd_secur_lvl,
+          { "Minimal GPD Security Level", "zbee_zcl_general.gp.attr.gps_secur_lvl.min_gpd_secur_lvl", FT_UINT8, BASE_HEX,
+            VALS(zbee_zcl_gp_secur_levels), ZBEE_ZCL_GP_ATTR_GPS_SECUR_LVL_FLD_MIN_GPD_SECUR_LVL, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_protection_with_gp_link_key,
+          { "Protection with  gpLinkKey", "zbee_zcl_general.gp.attr.gps_secur_lvl.protection_with_gp_link_key", FT_BOOLEAN, 8,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_SECUR_LVL_FLD_PROTECTION_WITH_GP_LINK_KEY, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_involve_tc,
+          { "Involve TC", "zbee_zcl_general.gp.attr.gps_secur_lvl.involve_tc", FT_BOOLEAN, 8,
+            NULL, ZBEE_ZCL_GP_ATTR_GPS_SECUR_LVL_FLD_INVOLVE_TC, NULL, HFILL }}
     };
 
     /* ZCL Green Power subtrees */
@@ -14407,7 +14957,14 @@ proto_register_zbee_zcl_gp(void)
         &ett_zbee_gp_proxy_tbl_entry,
         &ett_zbee_gp_proxy_tbl_entry_options,
         &ett_zbee_gp_proxy_tbl_entry_ext_options,
-        &ett_zbee_gp_sink_address_list
+        &ett_zbee_gp_sink_address_list,
+        &ett_zbee_zcl_gp_attr_gpp_func,
+        &ett_zbee_zcl_gp_attr_gpp_active_func,
+        &ett_zbee_zcl_gp_attr_gps_func,
+        &ett_zbee_zcl_gp_attr_gps_active_func,
+        &ett_zbee_zcl_gp_attr_gps_communication_mode,
+        &ett_zbee_zcl_gp_attr_gps_comm_exit_mode,
+        &ett_zbee_zcl_gp_attr_gps_secur_lvl
     };
 
 
