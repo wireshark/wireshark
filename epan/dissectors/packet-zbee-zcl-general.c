@@ -12612,6 +12612,12 @@ static const value_string zbee_zcl_gp_proxy_sink_tbl_req_type[] = {
 #define ZBEE_ZCL_GP_SECUR_OPT_SECUR_LEVEL                                              (3<<0)
 #define ZBEE_ZCL_GP_SECUR_OPT_SECUR_KEY_TYPE                                           (7<<2)
 
+/* Sink Commissioning Mode command */
+#define ZBEE_ZCL_GP_CMD_SINK_COMM_MODE_OPTIONS_FLD_ACTION                              (1<<0)
+#define ZBEE_ZCL_GP_CMD_SINK_COMM_MODE_OPTIONS_FLD_INV_GPM_IN_SECUR                    (1<<1)
+#define ZBEE_ZCL_GP_CMD_SINK_COMM_MODE_OPTIONS_FLD_INV_GPM_IN_PAIRING                  (1<<2)
+#define ZBEE_ZCL_GP_CMD_SINK_COMM_MODE_OPTIONS_FLD_INV_PROXIES                         (1<<3)
+
 /* gppFunctionality attribute */
 #define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_GP_FEATURE                                       (1<<0)
 #define ZBEE_ZCL_GP_ATTR_GPP_FUNC_FLD_DIRECT_COMM                                      (1<<1)
@@ -12834,6 +12840,19 @@ static guint hf_zbee_zcl_proxy_sink_tbl_resp_status = -1;
 static guint hf_zbee_zcl_proxy_sink_tbl_resp_entries_total = -1;
 static guint hf_zbee_zcl_proxy_sink_tbl_resp_start_index = -1;
 static guint hf_zbee_zcl_proxy_sink_tbl_resp_entries_count = -1;
+
+/* GP SINK_COMMISSIONING_MODE */
+static gint ett_zbee_zcl_gp_cmd_sink_comm_mode_options = -1;
+static gint hf_zbee_zcl_gp_cmd_sink_comm_mode_options = -1;
+
+static gint hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_action = -1;
+static gint hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_inv_gpm_in_secur = -1;
+static gint hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_inv_gpm_in_pairing = -1;
+static gint hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_inv_proxies = -1;
+
+static gint hf_zbee_gp_zcl_cmd_sink_comm_mode_gpm_addr_for_secur = -1;
+static gint hf_zbee_gp_zcl_cmd_sink_comm_mode_gpm_addr_for_pairing = -1;
+static gint hf_zbee_gp_zcl_cmd_sink_comm_mode_sink_ep = -1;
 
 /* GP Sink Table Attribute */
 static gint ett_zbee_gp_sink_tbl = -1;
@@ -13730,6 +13749,38 @@ dissect_zcl_gp_proxy_sink_table_response(proto_tree *tree, tvbuff_t *tvb, volati
 } /*dissect_zcl_gp_proxy_sink_table_response*/
 
 /**
+ *      dissect_zcl_gp_sink_comm_mode
+ *
+ *      ZigBee ZCL Green Power cluster dissector for Sink Commissioning Mode
+ *      and Sink Table Request commands
+ *
+ *      @param tree      - pointer to data tree Wireshark uses to display packet.
+ *      @param tvb       - pointer to buffer containing raw packet.
+ *      @param offset    - pointer to buffer offset
+ */
+static void
+dissect_zcl_gp_sink_comm_mode(proto_tree *tree, tvbuff_t *tvb, volatile guint *offset)
+{
+    static const int * n_options[] = {
+        &hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_action,
+        &hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_inv_gpm_in_secur,
+        &hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_inv_gpm_in_pairing,
+        &hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_inv_proxies,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_gp_cmd_sink_comm_mode_options,
+                           ett_zbee_zcl_gp_cmd_sink_comm_mode_options, n_options, ENC_NA);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_gp_zcl_cmd_sink_comm_mode_gpm_addr_for_secur, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_gp_zcl_cmd_sink_comm_mode_gpm_addr_for_pairing, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_gp_zcl_cmd_sink_comm_mode_sink_ep, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_gp_sink_comm_mode*/
+
+/**
  *      dissect_zbee_zcl_gp
  *
  *      ZigBee ZCL Green Power cluster dissector for wireshark.
@@ -14036,6 +14087,8 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             }
 
             case ZBEE_CMD_ID_GP_SINK_COMMISSIONING_MODE:
+                dissect_zcl_gp_sink_comm_mode(tree, tvb, &offset);
+                break;
             case ZBEE_CMD_ID_GP_TRANSLATION_TABLE_UPDATE_COMMAND:
             case ZBEE_CMD_ID_GP_TRANSLATION_TABLE_REQUEST:
                 /* TODO: add commands parse */
@@ -14643,6 +14696,34 @@ proto_register_zbee_zcl_gp(void)
           { "Entries count", "zbee_zcl_general.gp.proxy_sink_tbl_resp.entries_count", FT_UINT8, BASE_DEC,
             NULL, 0, NULL, HFILL }},
 
+        /* GP Sink Commissioning Mode command */
+        { &hf_zbee_zcl_gp_cmd_sink_comm_mode_options,
+          { "Options", "zbee_zcl_general.gp.sink_comm_mode.", FT_UINT8, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_action,
+          { "Action", "zbee_zcl_general.gp.sink_comm_mode.options.action", FT_BOOLEAN, 8,
+            NULL, ZBEE_ZCL_GP_CMD_SINK_COMM_MODE_OPTIONS_FLD_ACTION, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_inv_gpm_in_secur,
+          { "Involve GPM in security", "zbee_zcl_general.gp.sink_comm_mode.options.inv_gpm_in_secur", FT_BOOLEAN, 8,
+            NULL, ZBEE_ZCL_GP_CMD_SINK_COMM_MODE_OPTIONS_FLD_INV_GPM_IN_SECUR, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_inv_gpm_in_pairing,
+          { "Involve GPM in pairing", "zbee_zcl_general.gp.sink_comm_mode.options.inv_gpm_in_pairing", FT_BOOLEAN, 8,
+            NULL, ZBEE_ZCL_GP_CMD_SINK_COMM_MODE_OPTIONS_FLD_INV_GPM_IN_PAIRING, NULL, HFILL }},
+        { &hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_inv_proxies,
+          { "Involve proxies", "zbee_zcl_general.gp.sink_comm_mode.options.inv_proxies", FT_BOOLEAN, 8,
+            NULL, ZBEE_ZCL_GP_CMD_SINK_COMM_MODE_OPTIONS_FLD_INV_PROXIES, NULL, HFILL }},
+
+        { &hf_zbee_gp_zcl_cmd_sink_comm_mode_gpm_addr_for_secur,
+          { "GPM address for security", "zbee_zcl_general.gp.sink_comm_mode.gpm_addr_for_secur", FT_UINT16, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+        { &hf_zbee_gp_zcl_cmd_sink_comm_mode_gpm_addr_for_pairing,
+          { "GPM address for pairing", "zbee_zcl_general.gp.sink_comm_mode.gpm_addr_for_pairing", FT_UINT16, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
+        { &hf_zbee_gp_zcl_cmd_sink_comm_mode_sink_ep,
+          { "Sink Endpoint", "zbee_zcl_general.gp.sink_comm_mode.sink_ep", FT_UINT8, BASE_DEC,
+            NULL, 0, NULL, HFILL }},
+
         /* GP Sink Table attribute */
         { &hf_zbee_gp_sink_tbl_length,
           { "Sink Table length", "zbee_zcl_general.gp.sink_tbl_len", FT_UINT16, BASE_DEC,
@@ -14949,6 +15030,7 @@ proto_register_zbee_zcl_gp(void)
         &ett_zbee_zcl_gp_srv_clusters,
         &ett_zbee_zcl_gp_cli_clusters,
         &ett_zbee_zcl_proxy_sink_tbl_req_options,
+        &ett_zbee_zcl_gp_cmd_sink_comm_mode_options,
         &ett_zbee_gp_sink_tbl,
         &ett_zbee_gp_sink_tbl_entry,
         &ett_zbee_gp_sink_tbl_entry_options,
