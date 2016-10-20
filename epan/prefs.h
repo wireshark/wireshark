@@ -192,6 +192,7 @@ typedef struct _e_prefs {
   layout_pane_content_e gui_layout_content_2;
   layout_pane_content_e gui_layout_content_3;
   gchar       *gui_interfaces_hide_types;
+  gboolean     gui_interfaces_show_hidden;
   gint         console_log_level;
   gchar       *capture_device;
   gchar       *capture_devices_linktypes;

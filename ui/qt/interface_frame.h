@@ -65,7 +65,7 @@ Q_SIGNALS:
 public slots:
     void updateSelectedInterfaces();
     void interfaceListChanged();
-
+    void toggleHiddenInterfaces();
     void getPoints(int idx, PointList *pts);
 
 protected:

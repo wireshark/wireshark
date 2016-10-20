@@ -81,12 +81,26 @@ void InterfaceSortFilterModel::resetPreferenceData()
         }
     }
 
+    _filterHidden = ! prefs.gui_interfaces_show_hidden;
+
     invalidate();
 }
 
 bool InterfaceSortFilterModel::filterHidden() const
 {
     return _filterHidden;
+}
+
+void InterfaceSortFilterModel::toggleFilterHidden()
+{
+    _filterHidden = ! _filterHidden;
+
+    prefs.gui_interfaces_show_hidden = ! _filterHidden;
+
+    prefs_main_write();
+
+    invalidateFilter();
+    invalidate();
 }
 
 bool InterfaceSortFilterModel::filterByType() const

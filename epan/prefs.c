@@ -2495,6 +2495,12 @@ prefs_register_modules(void)
                                    "Show the intelligent scroll bar (a minimap of packet list colors in the scrollbar)",
                                    &prefs.gui_packet_list_show_minimap);
 
+
+    prefs_register_bool_preference(gui_module, "interfaces_show_hidden",
+                                   "Show hidden interfaces",
+                                   "Show all interfaces, including interfaces marked as hidden",
+                                   &prefs.gui_interfaces_show_hidden);
+
     register_string_like_preference(gui_module, "interfaces_hidden_types", "Hide interface types in list",
         "Hide the given interface types in the startup list",
         &prefs.gui_interfaces_hide_types, PREF_STRING, NULL, TRUE);
@@ -3169,6 +3175,7 @@ pre_init_prefs(void)
     prefs.gui_packet_list_show_minimap = TRUE;
     if (prefs.gui_interfaces_hide_types) g_free (prefs.gui_interfaces_hide_types);
     prefs.gui_interfaces_hide_types = g_strdup("");
+    prefs.gui_interfaces_show_hidden = FALSE;
 
     prefs.gui_qt_packet_list_separator = FALSE;
 

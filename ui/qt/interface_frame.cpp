@@ -133,6 +133,13 @@ QMenu * InterfaceFrame::getSelectionMenu()
         ++it;
     }
 
+    contextMenu->addSeparator();
+    QAction * toggleHideAction = new QAction(tr("Show hidden interfaces"), this);
+    toggleHideAction->setCheckable(true);
+    toggleHideAction->setChecked(! proxyModel->filterHidden());
+    connect(toggleHideAction, SIGNAL(triggered()), this, SLOT(toggleHiddenInterfaces()));
+    contextMenu->addAction(toggleHideAction);
+
     return contextMenu;
 }
 
@@ -198,6 +205,13 @@ void InterfaceFrame::interfaceListChanged()
         stat_timer_->start(stat_update_interval_);
     }
 #endif
+}
+
+void InterfaceFrame::toggleHiddenInterfaces()
+{
+    proxyModel->toggleFilterHidden();
+
+    emit typeSelectionChanged();
 }
 
 void InterfaceFrame::resetInterfaceTreeDisplay()

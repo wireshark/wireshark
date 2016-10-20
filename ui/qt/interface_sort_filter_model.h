@@ -40,6 +40,7 @@ public:
     void setFilterHidden(bool filter);
     bool filterHidden() const;
     int interfacesHidden();
+    void toggleFilterHidden();
 
     void setInterfaceTypeVisible(int ifType, bool visible);
     bool isInterfaceTypeShown(int ifType) const;
