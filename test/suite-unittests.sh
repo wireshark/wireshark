@@ -64,47 +64,48 @@ check_dut() {
 		fi
 	else
 		test_step_failed "$1 not found. Have you built test-programs?"
+		return 1
 	fi
 }
 
 unittests_step_exntest() {
-	check_dut exntest
+	check_dut exntest || return
 	ARGS=
 	unittests_step_test
 }
 
 unittests_step_oids_test() {
-	check_dut oids_test
+	check_dut oids_test || return
 	ARGS=
 	unittests_step_test
 }
 
 unittests_step_reassemble_test() {
-	check_dut reassemble_test
+	check_dut reassemble_test || return
 	ARGS=
 	unittests_step_test
 }
 
 unittests_step_tvbtest() {
-	check_dut tvbtest
+	check_dut tvbtest || return
 	ARGS=
 	unittests_step_test
 }
 
 unittests_step_wmem_test() {
-	check_dut wmem_test
+	check_dut wmem_test || return
 	ARGS=--verbose
 	unittests_step_test
 }
 
 unittests_step_ftsanity() {
-	check_dut ftsanity.py
+	check_dut ftsanity.py || return
 	ARGS=$TSHARK_PATH
 	unittests_step_test
 }
 
 unittests_step_fieldcount() {
-	check_dut tshark
+	check_dut tshark || return
 	ARGS="-G fieldcount"
 	unittests_step_test
 }
