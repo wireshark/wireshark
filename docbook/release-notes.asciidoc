@@ -33,6 +33,7 @@ since version 2.2.0:
   installing the Windows Installer package and vice-versa.
 * Source packages are now compressed using xz instead of bzip2.
 * GTK+ is disabled by default in Autotools and CMake.
+* SS7 Point Codes can now be resolved into names with a hosts-like file.
 
 //=== Removed Dissectors
 

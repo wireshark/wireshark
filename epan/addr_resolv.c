@@ -2533,7 +2533,7 @@ addr_resolve_pref_init(module_t *nameres)
             &gbl_resolv_flags.vlan_name);
 
     prefs_register_bool_preference(nameres, "ss7_pc_name",
-        "Resolve SS7 PC",
+        "Resolve SS7 PCs",
         "Resolve SS7 Point Codes to describing names."
         " To do so you need a file called ss7pcs in your"
         " user preference directory. Format of the file is:"
