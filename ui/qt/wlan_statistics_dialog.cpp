@@ -467,7 +467,6 @@ private:
     int deauth_;
     int other_;
     int packets_;
-    int retry_packets_;
 
     // Adding items one at a time is slow. Gather up the stations in a list
     // and add them all at once later.
