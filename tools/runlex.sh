@@ -5,7 +5,6 @@
 # Script to run Flex.
 # First argument is the (quoted) name of the command; if it's null, that
 # means that Flex wasn't found, so we report an error and quit.
-# Second arg is the sed executable
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -29,9 +28,9 @@
 #
 # Get the name of the command to run, and then shift to get the arguments.
 #
-if [ $# -lt 2 ]
+if [ $# -lt 1 ]
 then
-	echo "Usage: runlex <Flex command to run> <path to sed> [ arguments ]" 1>&2
+	echo "Usage: runlex <Flex command to run> [ arguments ]" 1>&2
 	exit 1
 fi
 
@@ -58,17 +57,6 @@ then
 	exit 1
 fi
 
-SED="$1"
-shift
-#
-# Check whether we have sed.
-#
-if [ -z "${SED}" ]
-then
-	echo "Sed was not found" 1>&2
-	exit 1
-fi
-
 #
 # Process the flags.  We don't use getopt because we don't want to
 # embed complete knowledge of what options are supported by Flex.
@@ -83,7 +71,8 @@ do
 		#
 		# Set the output file name.
 		#
-		outfile=`echo "$1" | ${SED} 's/-o\(.*\)/\1/'`
+		# remove the -o prefix using POSIX sh parameter expansion
+		outfile="${1#-o}"
 		;;
 
 	-*)
@@ -109,7 +98,7 @@ done
 # is .../foo.c, the header file will be .../foo_lex.h.
 #
 #echo "Getting header file name"
-header_file=`dirname "$outfile"`/`basename "$outfile" .c`_lex.h
+header_file="${outfile%.c}_lex.h"
 
 #
 # OK, run Flex.

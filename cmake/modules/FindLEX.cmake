@@ -36,7 +36,7 @@ MACRO(ADD_LEX_FILES _source _generated)
 
       ADD_CUSTOM_COMMAND(
         OUTPUT ${_outc} ${_outh}
-        COMMAND ${SH_EXECUTABLE} ${SH_FLAGS1} ${SH_FLAGS2} ${CMAKE_SOURCE_DIR}/tools/runlex.sh ${LEX_EXECUTABLE} ${SED_EXECUTABLE}
+        COMMAND ${SH_EXECUTABLE} ${SH_FLAGS1} ${SH_FLAGS2} ${CMAKE_SOURCE_DIR}/tools/runlex.sh ${LEX_EXECUTABLE}
           -o${_outc}
           ${_in}
         DEPENDS ${_in}

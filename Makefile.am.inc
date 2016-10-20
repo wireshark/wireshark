@@ -77,7 +77,7 @@ am__v_YACC_ = $(am__v_YACC_@AM_DEFAULT_V@)
 am__v_YACC_0 = @echo "  YACC    " $@;
 
 .l.c:
-	$(AM_V_RUNLEX)$(RUNLEX) "$(LEX)" "$(SED)" -o$@ $<
+	$(AM_V_RUNLEX)$(RUNLEX) "$(LEX)" -o$@ $<
 
 # abi-compliance-checker descriptor
 abi_incdirs = $(subst -I,NEWLINE,$(filter -I%,$(AM_CPPFLAGS) -I$(abs_top_srcdir) -I$(abs_srcdir)))
