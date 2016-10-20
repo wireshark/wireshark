@@ -127,6 +127,7 @@ GNUTLS_VERSION=2.12.19
 # features present in all three versions)
 LUA_VERSION=5.2.4
 PORTAUDIO_VERSION=pa_stable_v19_20111121
+SBC_VERSION=1.3
 #
 # XXX - they appear to have an unversioned gzipped tarball for the
 # current version; should we just download that, with some other
@@ -183,6 +184,41 @@ uninstall_xz() {
         fi
 
         installed_xz_version=""
+    fi
+}
+
+install_sbc() {
+    if [ "$SBC_VERSION" -a ! -f sbc-$SBC_VERSION-done ] ; then
+        echo "Downloading, building, and installing sbc:"
+        [ -f sbc-$SBC_VERSION.tar.gz ] || curl -O https://www.kernel.org/pub/linux/bluetooth/sbc-$SBC_VERSION.tar.gz || exit 1
+        gzcat sbc-$SBC_VERSION.tar.gz | tar xf - || exit 1
+        cd sbc-$SBC_VERSION
+        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure --disable-tools --disable-tester --disable-shared || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch sbc-$SBC_VERSION-done
+    fi
+}
+
+uninstall_sbc() {
+    if [ ! -z "$installed_sbc_version" ] ; then
+        echo "Uninstalling sbc:"
+        cd sbc-$installed_sbc_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm sbc-$installed_sbc_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf sbc-$installed_sbc_version
+            rm -rf sbc-$installed_sbc_version.tar.gz
+        fi
+
+        installed_sbc_version=""
     fi
 }
 
@@ -1555,6 +1591,17 @@ install_all() {
         uninstall_geoip -r
     fi
 
+    if [ ! -z "$installed_sbc_version" -a \
+              "$installed_sbc_version" != "$SBC_VERSION" ] ; then
+        echo "Installed SBC version is $installed_sbc_version"
+        if [ -z "$SBC_VERSION" ] ; then
+            echo "SBC is not requested"
+        else
+            echo "Requested SBC version is $SBC_VERSION"
+        fi
+        uninstall_sbc -r
+    fi
+
     if [ ! -z "$installed_portaudio_version" -a \
               "$installed_portaudio_version" != "$PORTAUDIO_VERSION" ] ; then
         echo "Installed PortAudio version is $installed_portaudio_version"
@@ -1917,6 +1964,8 @@ install_all() {
 
     install_portaudio
 
+    install_sbc
+
     install_geoip
 
     install_c_ares
@@ -1949,6 +1998,8 @@ uninstall_all() {
         uninstall_geoip
 
         uninstall_portaudio
+
+        uninstall_sbc
 
         uninstall_lua
 
@@ -2096,6 +2147,7 @@ then
     installed_gnutls_version=`ls gnutls-*-done 2>/dev/null | sed 's/gnutls-\(.*\)-done/\1/'`
     installed_lua_version=`ls lua-*-done 2>/dev/null | sed 's/lua-\(.*\)-done/\1/'`
     installed_portaudio_version=`ls portaudio-*-done 2>/dev/null | sed 's/portaudio-\(.*\)-done/\1/'`
+    installed_sbc_version=`ls sbc-*-done 2>/dev/null | sed 's/sbc-\(.*\)-done/\1/'`
     installed_geoip_version=`ls geoip-*-done 2>/dev/null | sed 's/geoip-\(.*\)-done/\1/'`
     installed_cares_version=`ls c-ares-*-done 2>/dev/null | sed 's/c-ares-\(.*\)-done/\1/'`
     installed_libssh_version=`ls libssh-*-done 2>/dev/null | sed 's/libssh-\(.*\)-done/\1/'`
