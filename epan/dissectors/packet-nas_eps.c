@@ -886,9 +886,9 @@ static const value_string nas_eps_emm_pnb_ciot_vals[] = {
 };
 static const true_false_string nas_eps_emm_saf_value = {
     "Keeping the NAS signalling connection is required after the completion of the"
-        "tracking area updating procedure",
+        " tracking area updating procedure",
     "Keeping the NAS signalling connection is not required after the completion of the"
-        "tracking area updating procedure"
+        " tracking area updating procedure"
 };
 static const true_false_string nas_eps_emm_add_upd_type_value = {
     "SMS only",
