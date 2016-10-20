@@ -128,7 +128,7 @@ trap test_cleanup EXIT
 test_step_prerequisites() {
 
 	NOTFOUND=0
-	for i in "$WIRESHARK" "$WIRESHARK_GTK" "$TSHARK" "$CAPINFOS" "$MERGECAP" "$DUMPCAP" ; do
+	for i in "$WIRESHARK" "$TSHARK" "$CAPINFOS" "$MERGECAP" "$DUMPCAP" ; do
 		if [ ! -x $i ]; then
 			echo "Couldn't find $i"
 			NOTFOUND=1

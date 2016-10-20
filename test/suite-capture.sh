@@ -458,6 +458,12 @@ wireshark_capture_suite() {
 }
 
 wireshark_gtk_capture_suite() {
+	if [ ! -x "$WIRESHARK_GTK" ]; then
+		echo -n ' (no GTK support)'
+		test_step_skipped
+		return
+	fi
+
 	# k: start capture immediately
 	# WIRESHARK_QUIT_AFTER_CAPTURE needs to be set.
 

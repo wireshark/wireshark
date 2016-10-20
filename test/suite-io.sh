@@ -149,12 +149,6 @@ wireshark_io_suite() {
 	test_step_add "Input file" io_step_input_file
 }
 
-wireshark_gtk_io_suite() {
-	# Q: quit after cap, k: start capture immediately
-	DUT="$WIRESHARK_GTK"
-	test_step_add "Input file" io_step_input_file
-}
-
 tshark_io_suite() {
 	DUT=$TSHARK
 	test_step_add "Input file" io_step_input_file
@@ -185,7 +179,6 @@ io_suite() {
 	test_step_set_pre io_cleanup_step
 	test_step_set_post io_cleanup_step
 	test_suite_add "TShark file I/O" tshark_io_suite
-	#test_suite_add "Wireshark file I/O" wireshark_gtk_io_suite
 	#test_suite_add "Dumpcap file I/O" dumpcap_io_suite
 	test_suite_add "Rawshark file I/O" rawshark_io_suite
 }
