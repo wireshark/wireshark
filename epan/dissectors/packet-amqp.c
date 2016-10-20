@@ -3906,7 +3906,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
                                      tvb, offset, size + 2, ENC_NA);
             AMQP_INCREMENT(offset, 2, length);
             format_amqp_0_10_sequence_set(tvb, offset, size, ti);
-            AMQP_INCREMENT(offset, size + 2, length);
+            AMQP_INCREMENT(offset, size, length);
         }
         if (flag1 & 0x02) {
             /*  fragments (command-fragments [array of command-fragment]) */
@@ -3936,7 +3936,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
                                      tvb, offset, size + 2, ENC_NA);
             AMQP_INCREMENT(offset, 2, length);
             format_amqp_0_10_sequence_set(tvb, offset, size, ti);
-            AMQP_INCREMENT(offset, size + 2, length);
+            AMQP_INCREMENT(offset, size, length);
         }
         if (flag1 & 0x02) {
             /*  fragments (command-fragments [array of command-fragment]) */
@@ -4016,7 +4016,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
                                      tvb, offset, size + 2, ENC_NA);
             AMQP_INCREMENT(offset, 2, length);
             format_amqp_0_10_sequence_set(tvb, offset, size, ti);
-            AMQP_INCREMENT(offset, size + 2, length);
+            AMQP_INCREMENT(offset, size, length);
         }
         break;
 
