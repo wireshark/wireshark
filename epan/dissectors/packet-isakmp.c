@@ -1178,8 +1178,8 @@ static const range_string authmeth_v2_type[] = {
   { 3,3,        "DSS Digital Signature" },
   { 4,8,        "RESERVED TO IANA" },
   { 9,9,        "ECDSA with SHA-256 on the P-256 curve" }, /* RFC4754 */
-  { 10,10,      "ECDSA with SHA-256 on the P-256 curve" }, /* RFC4754 */
-  { 11,11,      "ECDSA with SHA-256 on the P-256 curve" }, /* RFC4754 */
+  { 10,10,      "ECDSA with SHA-384 on the P-384 curve" }, /* RFC4754 */
+  { 11,11,      "ECDSA with SHA-512 on the P-521 curve" }, /* RFC4754 */
   { 12,12,      "Generic Secure Password Authentication Method" }, /* RFC6467 */
   { 13,200,     "RESERVED TO IANA" },
   { 201,255,    "PRIVATE USE" },
@@ -1352,7 +1352,7 @@ static const range_string vs_v1_cfgattr[] = {
   { 2,2,         "INTERNAL_IP4_NETMASK" },
   { 3,3,         "INTERNAL_IP4_DNS" },
   { 4,4,         "INTERNAL_IP4_NBNS" },
-  { 5,5,         "INTERNAL_ADDRESS_EXPIREY" },
+  { 5,5,         "INTERNAL_ADDRESS_EXPIRY" },
   { 6,6,         "INTERNAL_IP4_DHCP" },
   { 7,7,         "APPLICATION_VERSION" },
   { 8,8,         "INTERNAL_IP6_ADDRESS" },
@@ -1403,7 +1403,7 @@ static const range_string vs_v2_cfgattr[] = {
   { 2,2,         "INTERNAL_IP4_NETMASK" },
   { 3,3,         "INTERNAL_IP4_DNS" },
   { 4,4,         "INTERNAL_IP4_NBNS" },
-  { 5,5,         "INTERNAL_ADDRESS_EXPIREY" },  /* OBSO */
+  { 5,5,         "INTERNAL_ADDRESS_EXPIRY" },   /* OBSO */
   { 6,6,         "INTERNAL_IP4_DHCP" },
   { 7,7,         "APPLICATION_VERSION" },
   { 8,8,         "INTERNAL_IP6_ADDRESS" },
@@ -3630,7 +3630,7 @@ dissect_ipsec_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *transform
       proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), attr_life_type, "Unknown %d"));
       break;
     case IPSEC_ATTR_LIFE_DURATION:
-      dissect_life_duration(tvb, sub_transform_attr_type_tree, transform_attr_type_item, hf_isakmp_ipsec_attr_life_duration_uint32, hf_isakmp_ipsec_attr_life_duration_uint64, hf_isakmp_ipsec_attr_life_duration_bytes , offset, optlen);
+      dissect_life_duration(tvb, sub_transform_attr_type_tree, transform_attr_type_item, hf_isakmp_ipsec_attr_life_duration_uint32, hf_isakmp_ipsec_attr_life_duration_uint64, hf_isakmp_ipsec_attr_life_duration_bytes, offset, optlen);
       break;
     case IPSEC_ATTR_GROUP_DESC:
       proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ipsec_attr_group_description, tvb, offset, optlen, ENC_BIG_ENDIAN);
@@ -3962,13 +3962,13 @@ dissect_transform(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, pro
       decr->ike_encr_keylen = 0;
       decr->ike_hash_alg = 0;
 #endif
-       while (offset < offset_end) {
-         offset += dissect_ike_attribute(tvb, pinfo, tree, offset
+      while (offset < offset_end) {
+        offset += dissect_ike_attribute(tvb, pinfo, tree, offset
 #ifdef HAVE_LIBGCRYPT
-                                         , decr
+                                        , decr
 #endif
-         );
-       }
+        );
+      }
     }
     else {
        while (offset < offset_end) {
@@ -6050,7 +6050,7 @@ proto_register_isakmp(void)
     { &hf_isakmp_id_data_key_id,
       { "ID_KEY_ID", "isakmp.id.data.key_id",
         FT_BYTES, BASE_NONE, NULL, 0x0,
-        "The type specifies an opaque byte stream which may be used to pass vendor-specific information necessary to identify which pre-hared key should be used to authenticate Aggressive mode negotiations", HFILL }},
+        "The type specifies an opaque byte stream which may be used to pass vendor-specific information necessary to identify which pre-shared key should be used to authenticate Aggressive mode negotiations", HFILL }},
     { &hf_isakmp_id_data_cert,
       { "ID_DER_ASN1_DN", "isakmp.id.data.der_asn1_dn",
         FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -6185,7 +6185,7 @@ proto_register_isakmp(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
-        /* ROHC Attributes Type */
+    /* ROHC Attributes Type */
     { &hf_isakmp_notify_data_rohc_attr.all,
       { "ROHC Attribute Type", "isakmp.notify.data.rohc.attr",
         FT_NONE, BASE_NONE, NULL, 0x00,
@@ -6318,7 +6318,7 @@ proto_register_isakmp(void)
         "Aruba Networks Auth Profile for VIA Client", HFILL }},
 
     { &hf_isakmp_ts_number_of_ts,
-      { "Number of Traffic Selector", "isakmp.ts.number",
+      { "Number of Traffic Selectors", "isakmp.ts.number",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
     { &hf_isakmp_ts_type,
@@ -6652,27 +6652,27 @@ proto_register_isakmp(void)
         FT_UINT16, BASE_DEC, VALS(dh_group), 0x00,
         NULL, HFILL }},
     { &hf_isakmp_ike_attr_group_type,
-      { "Groupe Type", "isakmp.ike.attr.group_type",
+      { "Group Type", "isakmp.ike.attr.group_type",
         FT_UINT16, BASE_DEC, VALS(ike_attr_grp_type), 0x00,
         NULL, HFILL }},
     { &hf_isakmp_ike_attr_group_prime,
-      { "Groupe Prime", "isakmp.ike.attr.group_prime",
+      { "Group Prime", "isakmp.ike.attr.group_prime",
         FT_BYTES, BASE_NONE, NULL, 0x00,
         NULL, HFILL }},
     { &hf_isakmp_ike_attr_group_generator_one,
-      { "Groupe Generator One", "isakmp.ike.attr.group_generator_one",
+      { "Group Generator One", "isakmp.ike.attr.group_generator_one",
         FT_BYTES, BASE_NONE, NULL, 0x00,
         NULL, HFILL }},
     { &hf_isakmp_ike_attr_group_generator_two,
-      { "Groupe Generator Two", "isakmp.ike.attr.group_generator_two",
+      { "Group Generator Two", "isakmp.ike.attr.group_generator_two",
         FT_BYTES, BASE_NONE, NULL, 0x00,
         NULL, HFILL }},
     { &hf_isakmp_ike_attr_group_curve_a,
-      { "Groupe Curve A", "isakmp.ike.attr.group_curve_a",
+      { "Group Curve A", "isakmp.ike.attr.group_curve_a",
         FT_BYTES, BASE_NONE, NULL, 0x00,
         NULL, HFILL }},
     { &hf_isakmp_ike_attr_group_curve_b,
-      { "Groupe Curve B", "isakmp.ike.attr.group_curve_b",
+      { "Group Curve B", "isakmp.ike.attr.group_curve_b",
         FT_BYTES, BASE_NONE, NULL, 0x00,
         NULL, HFILL }},
     { &hf_isakmp_ike_attr_life_type,
@@ -6704,7 +6704,7 @@ proto_register_isakmp(void)
         FT_BYTES, BASE_NONE, NULL, 0x00,
         NULL, HFILL }},
     { &hf_isakmp_ike_attr_group_order,
-      { "Key Length", "isakmp.ike.attr.group_order",
+      { "Group Order", "isakmp.ike.attr.group_order",
         FT_BYTES, BASE_NONE, NULL, 0x00,
         NULL, HFILL }},
 
@@ -6823,7 +6823,7 @@ proto_register_isakmp(void)
         FT_BYTES, BASE_NONE, NULL, 0x00,
         "Generic Secure Password Method", HFILL }},
 
-     /* Config Payload */
+    /* Config Payload */
     { &hf_isakmp_cfg_type_v1,
       { "Type", "isakmp.cfg.type",
          FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(vs_v1_cfgtype), 0x0,
@@ -6837,7 +6837,7 @@ proto_register_isakmp(void)
          FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(vs_v2_cfgtype), 0x0,
          "IKEv2 Config Type", HFILL }},
 
-     /* Config Attributes */
+    /* Config Attributes */
     { &hf_isakmp_cfg_attr.all,
       { "Config Attribute", "isakmp.cfg.attr",
         FT_NONE, BASE_NONE, NULL, 0x00,
