@@ -676,7 +676,7 @@ parse_arg(tvbuff_t     *tvb,
             guint8       *sig_saved;
             gint          starting_offset;
             gint          number_of_items      = 0;
-            guint8        remaining_sig_length = *signature_length;
+            guint8        sig_length_saved;
             gint          packet_length        = (gint)tvb_reported_length(tvb);
 
             header_type_name = "array";
@@ -688,6 +688,7 @@ parse_arg(tvbuff_t     *tvb,
 
             /* *sig_saved will now be the element type after the 'a'. */
             sig_saved = (*signature) + 1;
+            sig_length_saved = *signature_length - 1;
             offset = ROUND_TO_4BYTE(offset);
 
             /* This is the length of the entire array in bytes but does not include the length value. */
@@ -706,12 +707,14 @@ parse_arg(tvbuff_t     *tvb,
 
             offset = starting_offset;
 
+
             while((offset - starting_offset) < length) {
                 guint8 *sig_pointer;
+                guint8 remaining_sig_length;
 
                 number_of_items++;
                 sig_pointer = sig_saved;
-                remaining_sig_length = *signature_length - 1;
+                remaining_sig_length = sig_length_saved;
 
                 offset = parse_arg(tvb,
                                    pinfo,
@@ -727,9 +730,9 @@ parse_arg(tvbuff_t     *tvb,
 
                 /* Set the signature pointer to be just past the type just handled. */
                 *signature = sig_pointer;
+                *signature_length = remaining_sig_length;
             }
 
-            *signature_length = remaining_sig_length;
 
             if(item) {
                 proto_item_append_text(item, " of %d '%c' elements", number_of_items, *sig_saved);
@@ -755,25 +758,28 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_SIGNATURE:  /* AllJoyn signature basic type */
         header_type_name  = "signature";
-        *signature_length = tvb_get_guint8(tvb, offset);
+        length = tvb_get_guint8(tvb, offset);
 
-        if(*signature_length + 2 > tvb_reported_length_remaining(tvb, offset)) {
+        if(length + 2 > tvb_reported_length_remaining(tvb, offset)) {
             gint bytes_left = tvb_reported_length_remaining(tvb, offset);
 
             col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: Signature length is %d. Only %d bytes left in packet.",
-                         (gint)(*signature_length), bytes_left);
+                         length, bytes_left);
             return tvb_reported_length(tvb);
         }
 
         /* Include the terminating '/0'. */
-        length = *signature_length + 1;
+        length++;
 
         proto_tree_add_item(field_tree, hf_alljoyn_mess_body_signature_length, tvb, offset, 1, encoding);
         offset += 1;
 
+        /* Extract signature from tvb and return to caller. */
+        /* XXX should this extract "length - 1" since we always expect /0? */
         proto_tree_add_item(field_tree, hf_alljoyn_mess_body_signature, tvb, offset, length, ENC_ASCII|ENC_NA);
 
         *signature = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
+        *signature_length = length;
 
         if(HDR_SIGNATURE == field_code) {
             col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", *signature);
@@ -1020,7 +1026,7 @@ parse_arg(tvbuff_t     *tvb,
         break;
     }
 
-    if(*signature && ARG_ARRAY != type_id && HDR_INVALID == field_code) {
+    if(*signature && *signature_length > 0 && ARG_ARRAY != type_id && HDR_INVALID == field_code) {
         (*signature)++;
         (*signature_length)--;
     }
@@ -1199,7 +1205,7 @@ handle_message_body_parameters(tvbuff_t    *tvb,
         end_of_body = packet_length;
     }
 
-    while(offset < end_of_body && *signature) {
+    while(offset < end_of_body && signature_length > 0 && signature && *signature) {
         offset = parse_arg(tvb,
                            pinfo,
                            NULL,
