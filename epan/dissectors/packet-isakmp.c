@@ -950,33 +950,37 @@ static const value_string ipsec_attr_sa_direction[] = {
 };
 
 static const value_string ike_attr_authmeth[] = {
-  { 0,  "RESERVED" },
-  { 1,  "PSK" },
-  { 2,  "DSS-SIG" },
-  { 3,  "RSA-SIG" },
-  { 4,  "RSA-ENC" },
-  { 5,  "RSA-Revised-ENC" },
-  { 6,  "Encryption with El-Gamal" },
-  { 7,  "Revised encryption with El-Gamal" },
-  { 8,  "ECDSA signatures" },
-  { 9,  "AES-XCBC-MAC" },
-  { 64221,      "HybridInitRSA" },
-  { 64222,      "HybridRespRSA" },
-  { 64223,      "HybridInitDSS" },
-  { 64224,      "HybridRespDSS" },
-  { 65001,      "XAUTHInitPreShared" },
-  { 65002,      "XAUTHRespPreShared" },
-  { 65003,      "XAUTHInitDSS" },
-  { 65004,      "XAUTHRespDSS" },
-  { 65005,      "XAUTHInitRSA" },
-  { 65006,      "XAUTHRespRSA" },
-  { 65007,      "XAUTHInitRSAEncryption" },
-  { 65008,      "XAUTHRespRSAEncryption" },
-  { 65009,      "XAUTHInitRSARevisedEncryption" },
-  { 65010,      "XAUTHRespRSARevisedEncryption" },
+  /* ipsec-registry.xhtml */
+  { 0,     "RESERVED" },
+  { 1,     "Pre-shared key" },
+  { 2,     "DSS signatures" },
+  { 3,     "RSA signatures" },
+  { 4,     "Encryption with RSA" },
+  { 5,     "Revised encryption with RSA" },
+  { 6,     "Reserved (was Encryption with El-Gamal)" },
+  { 7,     "Reserved (was Revised encryption with El-Gamal)" },
+  { 8,     "Reserved (was ECDSA signatures)" },
+  { 9,     "ECDSA with SHA-256 on the P-256 curve" },
+  { 10,    "ECDSA with SHA-384 on the P-384 curve" },
+  { 11,    "ECDSA with SHA-512 on the P-521 curve" },
+  /* draft-ietf-ipsec-isakmp-hybrid-auth-05 */
+  { 64221, "HybridInitRSA" },
+  { 64222, "HybridRespRSA" },
+  { 64223, "HybridInitDSS" },
+  { 64224, "HybridRespDSS" },
+  /* draft-beaulieu-ike-xauth-02 */
+  { 65001, "XAUTHInitPreShared" },
+  { 65002, "XAUTHRespPreShared" },
+  { 65003, "XAUTHInitDSS" },
+  { 65004, "XAUTHRespDSS" },
+  { 65005, "XAUTHInitRSA" },
+  { 65006, "XAUTHRespRSA" },
+  { 65007, "XAUTHInitRSAEncryption" },
+  { 65008, "XAUTHRespRSAEncryption" },
+  { 65009, "XAUTHInitRSARevisedEncryption" },
+  { 65010, "XAUTHRespRSARevisedEncryption" },
   { 0,  NULL },
 };
-
 
 static const value_string dh_group[] = {
   { 0,  "UNDEFINED - 0" },
@@ -1181,7 +1185,9 @@ static const range_string authmeth_v2_type[] = {
   { 10,10,      "ECDSA with SHA-384 on the P-384 curve" }, /* RFC4754 */
   { 11,11,      "ECDSA with SHA-512 on the P-521 curve" }, /* RFC4754 */
   { 12,12,      "Generic Secure Password Authentication Method" }, /* RFC6467 */
-  { 13,200,     "RESERVED TO IANA" },
+  { 13,13,      "NULL Authentication" },                   /* RFC7619 */
+  { 14,14,      "Digital Signature" },                     /* RFC7427 */
+  { 15,200,     "RESERVED TO IANA" },
   { 201,255,    "PRIVATE USE" },
   { 0,0,        NULL },
 };
@@ -1362,7 +1368,8 @@ static const range_string vs_v1_cfgattr[] = {
   { 12,12,       "INTERNAL_IP6_DHCP" },
   { 13,13,       "INTERNAL_IP4_SUBNET" },
   { 14,14,       "SUPPORTED_ATTRIBUTES" },
-  { 15,16383,    "FUTURE USE"},
+  { 15,15,       "INTERNAL_IP6_SUBNET" },
+  { 16,16383,    "FUTURE USE"},
   { 16384,16386, "PRIVATE USE"},
   { 16387,16387, "CHKPT_DEF_DOMAIN" },
   { 16388,16388, "CHKPT_MAC_ADDRESS" },
