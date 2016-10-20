@@ -5579,7 +5579,7 @@ dissect_enc(tvbuff_t *tvb,
      * We dissect the inner payloads at last in order to ensure displaying Padding, Pad Length and ICD
      * even if the dissection fails. This may occur when the user specify wrong encryption key.
      */
-    if (dissect_payload_now && decr_payloads_tree) {
+    if (dissect_payload_now) {
       dissect_payloads(decr_tvb, decr_payloads_tree, 2, inner_payload, 0, payloads_len, pinfo, 0, is_request, decr_info);
     }
   }else{
