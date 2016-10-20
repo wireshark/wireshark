@@ -273,7 +273,6 @@ static ws_mempbrk_pattern pbrk_whitespace;
 static ws_mempbrk_pattern pbrk_param_end;
 static ws_mempbrk_pattern pbrk_param_end_colon_brackets;
 static ws_mempbrk_pattern pbrk_header_end_dquote;
-static ws_mempbrk_pattern pbrk_quotes;
 static ws_mempbrk_pattern pbrk_tab_sp_fslash;
 static ws_mempbrk_pattern pbrk_addr_end;
 static ws_mempbrk_pattern pbrk_via_param_end;
@@ -1939,12 +1938,11 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 static gint
 dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
 {
-    gint current_offset, par_name_end_offset, queried_offset;
+    gint current_offset, par_name_end_offset, queried_offset, value_offset, value_search_offset;
     gint equals_offset = 0;
     gchar *name;
     header_parameter_t *auth_parameter;
     guint i = 0;
-    gchar c = '\0';
 
     /* skip Spaces and Tabs */
     start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
@@ -1967,25 +1965,30 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
     /* Extract the parameter name */
     name = tvb_get_string_enc(wmem_packet_scope(), tvb, start_offset, par_name_end_offset-start_offset, ENC_UTF_8|ENC_NA);
 
-    /* Find end of parameter, it can be a quoted string so check for quoutes too */
-    queried_offset = tvb_ws_mempbrk_pattern_guint8(tvb, par_name_end_offset, line_end_offset - par_name_end_offset, &pbrk_quotes, &c);
-    if (queried_offset == -1) {
-        /* Last parameter, line end */
-        current_offset = line_end_offset;
-    }else if(c=='"'){
-        /* Do we have a quoted string ? */
-        queried_offset = tvb_find_guint8(tvb, queried_offset+1, line_end_offset - queried_offset, '"');
-        if(queried_offset==-1){
-            /* We have an opening quote but no closing quote. */
-            queried_offset = line_end_offset;
+    value_offset = tvb_skip_wsp(tvb, equals_offset + 1, line_end_offset - (equals_offset + 1));
+    if (tvb_get_guint8(tvb, value_offset) == '\"') {
+        /* quoted value */
+        value_search_offset = value_offset;
+        do {
+            value_search_offset++;
+            queried_offset = tvb_find_guint8 (tvb, value_search_offset, line_end_offset - value_search_offset, '\"');
+        } while ((queried_offset != -1) && (tvb_get_guint8(tvb, queried_offset - 1) == '\\'));
+        if (queried_offset == -1) {
+            /* Closing quote not found, return line end */
+            current_offset = line_end_offset;
+        } else {
+            /* Include closing quotes */
+            current_offset = queried_offset + 1;
         }
-        current_offset =  tvb_find_guint8(tvb, queried_offset+1, line_end_offset - queried_offset, ',');
-        if(current_offset==-1){
+    } else {
+        /* unquoted value */
+        queried_offset = tvb_find_guint8 (tvb, value_offset, line_end_offset - value_offset, ',');
+        if (queried_offset == -1) {
             /* Last parameter, line end */
             current_offset = line_end_offset;
+        } else {
+            current_offset = queried_offset;
         }
-    }else{
-        current_offset = queried_offset;
     }
 
     /* Try to add parameter as a filterable item */
@@ -1996,7 +1999,7 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
         if (g_ascii_strcasecmp(name, auth_parameter->param_name) == 0)
         {
             proto_tree_add_item(tree, *(auth_parameter->hf_item), tvb,
-                                equals_offset+1, current_offset-equals_offset-1,
+                                value_offset, current_offset - value_offset,
                                 ENC_UTF_8|ENC_NA);
             break;
         }
@@ -2008,6 +2011,13 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
         proto_tree_add_format_text(tree, tvb, start_offset, current_offset-start_offset);
     }
 
+    /* Find comma/end of line */
+    queried_offset = tvb_find_guint8 (tvb, current_offset, line_end_offset - current_offset, ',');
+    if (queried_offset == -1) {
+        current_offset = line_end_offset;
+    } else {
+        current_offset = queried_offset;
+    }
     return current_offset;
 }
 
@@ -6788,7 +6798,6 @@ void proto_register_sip(void)
     ws_mempbrk_compile(&pbrk_param_end, ">,;? \r");
     ws_mempbrk_compile(&pbrk_param_end_colon_brackets, ">,;? \r:[]");
     ws_mempbrk_compile(&pbrk_header_end_dquote, "\r\n,;\"");
-    ws_mempbrk_compile(&pbrk_quotes, "'\"");
     ws_mempbrk_compile(&pbrk_tab_sp_fslash, "\t /");
     ws_mempbrk_compile(&pbrk_addr_end, "[] \t:;");
     ws_mempbrk_compile(&pbrk_via_param_end, "\t;, ");
