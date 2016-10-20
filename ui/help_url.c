@@ -76,6 +76,9 @@ topic_online_url(topic_action_e action)
     case(ONLINEPAGE_DOWNLOAD):
         return "https://www.wireshark.org/download.html";
         break;
+    case(ONLINEPAGE_DOCS):
+        return "https://www.wireshark.org/docs/";
+        break;
     case(ONLINEPAGE_USERGUIDE):
         return "https://www.wireshark.org/docs/wsug_html_chunked/";
         break;

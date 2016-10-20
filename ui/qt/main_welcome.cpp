@@ -26,6 +26,7 @@
 #include <epan/prefs.h>
 
 #include "ui/capture_globals.h"
+#include "ui/help_url.h"
 
 #include "ws_version_info.h"
 
@@ -37,6 +38,7 @@
 #include "wireshark_application.h"
 
 #include <QClipboard>
+#include <QDesktopServices>
 #include <QDir>
 #include <QListWidget>
 #include <QMenu>
@@ -97,17 +99,16 @@ MainWelcome::MainWelcome(QWidget *parent) :
             .arg(tango_sky_blue_2, 6, 16, QChar('0'));   // Background color
     welcome_ui_->mainWelcomeBanner->setStyleSheet(welcome_ss);
 
-    QString title_ss = QString(
-                "QLabel {"
-                "  color: #%1;"
-                "}"
-                )
-            .arg(tango_aluminium_4, 6, 16, QChar('0'));   // Text color
-    QString title_button_ss = title_ss + QString(
-            "QLabel::hover {"
+    QString title_button_ss = QString(
+            "QLabel {"
             "  color: #%1;"
             "}"
-            ).arg(tango_sky_blue_4, 6, 16, QChar('0'));
+            "QLabel::hover {"
+            "  color: #%2;"
+            "}"
+            )
+            .arg(tango_aluminium_4, 6, 16, QChar('0'))   // Text color
+            .arg(tango_sky_blue_4, 6, 16, QChar('0'));    // Hover color
 
     // XXX Is there a better term than "flavor"? Provider? Admonition (a la DocBook)?
     // Release_source?
@@ -138,7 +139,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
     }
     welcome_ui_->captureLabel->setStyleSheet(title_button_ss);
     welcome_ui_->recentLabel->setStyleSheet(title_button_ss);
-    welcome_ui_->helpLabel->setStyleSheet(title_ss);
+    welcome_ui_->helpLabel->setStyleSheet(title_button_ss);
 
 #ifdef Q_OS_MAC
     recent_files_->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -501,6 +502,11 @@ void MainWelcome::removeRecentPath()
 void MainWelcome::on_captureLabel_clicked()
 {
     wsApp->doTriggerMenuItem(WiresharkApplication::CaptureOptionsDialog);
+}
+
+void MainWelcome::on_helpLabel_clicked()
+{
+    QDesktopServices::openUrl(QUrl(topic_online_url(ONLINEPAGE_DOCS)));
 }
 
 void MainWelcome::on_recentLabel_clicked()

@@ -55,6 +55,7 @@ protected:
 protected slots:
     void on_recentLabel_clicked();
     void on_captureLabel_clicked();
+    void on_helpLabel_clicked();
 
 private:
     Ui::MainWelcome *welcome_ui_;

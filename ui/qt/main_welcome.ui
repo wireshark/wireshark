@@ -236,7 +236,13 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="helpLabel">
+       <widget class="ClickableLabel" name="helpLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>&lt;h2&gt;Learn&lt;/h2&gt;</string>
         </property>
