@@ -440,6 +440,14 @@ else
 EXTRALINKFLAGS = -export-dynamic
 endif
 
+EPAN_EXTRA_LIBS = \
+	@SSL_LIBS@			\
+	@C_ARES_LIBS@			\
+	@KRB5_LIBS@			\
+	@LIBGCRYPT_LIBS@		\
+	@LIBGNUTLS_LIBS@		\
+	@LIBSMI_LDFLAGS@
+
 # Libraries and plugin flags with which to link wireshark.
 #
 # GTK_CFLAGS/GTK_LIBS is a strict superset of GLIB_CFLAGS/GLIB_LIBS
@@ -454,17 +462,12 @@ wireshark_common_ldadd = \
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
-	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
 	@PCAP_LIBS@			\
-	@C_ARES_LIBS@			\
-	@KRB5_LIBS@			\
 	@APPLICATIONSERVICES_FRAMEWORKS@	\
 	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
 	@COREFOUNDATION_FRAMEWORKS@	\
-	@LIBGCRYPT_LIBS@		\
-	@LIBGNUTLS_LIBS@		\
-	@LIBSMI_LDFLAGS@		\
+	$(EPAN_EXTRA_LIBS)			\
 	@LIBNL_LIBS@
 
 if HAVE_Qt
@@ -519,17 +522,12 @@ tshark_LDADD = \
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
-	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
-	@C_ARES_LIBS@			\
-	@KRB5_LIBS@			\
+	${EPAN_EXTRA_LIBS}	\
 	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
-	@COREFOUNDATION_FRAMEWORKS@	\
-	@LIBGCRYPT_LIBS@		\
-	@LIBGNUTLS_LIBS@		\
-	@LIBSMI_LDFLAGS@
+	@COREFOUNDATION_FRAMEWORKS@
 
 tfshark_SOURCES = \
 	$(SHARK_COMMON_SRC)	\
@@ -547,15 +545,12 @@ tfshark_LDADD = \
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
-	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
-	@KRB5_LIBS@			\
+	${EPAN_EXTRA_LIBS}	\
 	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
-	@COREFOUNDATION_FRAMEWORKS@	\
-	@LIBGNUTLS_LIBS@		\
-	@LIBSMI_LDFLAGS@
+	@COREFOUNDATION_FRAMEWORKS@
 
 rawshark_SOURCES = \
 	$(SHARK_COMMON_SRC)	\
@@ -573,17 +568,12 @@ rawshark_LDADD = \
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
-	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
-	@C_ARES_LIBS@			\
-	@KRB5_LIBS@			\
+	${EPAN_EXTRA_LIBS}	\
 	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
-	@COREFOUNDATION_FRAMEWORKS@	\
-	@LIBGCRYPT_LIBS@		\
-	@LIBGNUTLS_LIBS@		\
-	@LIBSMI_LDFLAGS@
+	@COREFOUNDATION_FRAMEWORKS@
 
 text2pcap_SOURCES = \
 	text2pcap.c		\
@@ -691,15 +681,10 @@ dftest_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	epan/libwireshark.la		\
-	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
-	@C_ARES_LIBS@			\
-	@KRB5_LIBS@			\
-	@LIBGCRYPT_LIBS@		\
-	@LIBGNUTLS_LIBS@		\
-	@LIBSMI_LDFLAGS@
+	${EPAN_EXTRA_LIBS}
 
 echld_test_SOURCES = \
 	echld_test.c			\
