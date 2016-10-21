@@ -6713,10 +6713,136 @@
 				<gavp name="RAN-NAS-Release-Cause"/>
 			</grouped>
 		</avp>
-
+		<avp name="Inter-UE-Transfer" code="3902" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Intra-UE transfer" code="0"/>
+			<enum name="Inter-UE transfer" code="1"/>
+		</avp>
+		<avp name="TWAG-Address" code="3903" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Address"/>
+		</avp>
+		<avp name="Announcement-Information" code="3904" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<grouped>
+			<gavp name="Announcement-Identifier"/>
+			<gavp name="Variable-Part"/>
+			<gavp name="Time-Indicator"/>
+			<gavp name="Quota-Indicator"/>
+			<gavp name="Announcement-Order"/>
+			<gavp name="Play-Alternative"/>
+			<gavp name="Privacy-Indicator"/>
+			<gavp name="Language"/>
+		</grouped>
+	</avp>
+	<avp name="Announcement-Identifier" code="3905" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
+	</avp>
+		<avp name="Announcement-Order" code="3906" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Variable-Part" code="3907" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Variable-Part-Order"/>
+				<gavp name="Variable-Part-Type"/>
+				<gavp name="Variable-Part-Value"/>
+			</grouped>
+		</avp>
+		<avp name="Variable-Part-Order" code="3908" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Variable-Part-Type" code="3909" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+			<enum name="Integer" code="0"/>
+			<enum name="Number" code="1"/>
+			<enum name="Time" code="2"/>
+			<enum name="Date" code="3"/>
+			<enum name="Currency" code="4"/>
+		</avp>
+		<avp name="Variable-Part-Value" code="3910" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Time-Indicator" code="3911" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Quota-Indicator" code="3912" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="QUOTA_IS_NOT_USED_DURING_PLAYBACK" code="0"/>
+			<enum name="QUOTA_IS_USED_DURING_PLAYBACK" code="1"/>
+		</avp>
+		<avp name="Play-Alternative" code="3913" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="served party" code="0"/>
+			<enum name="remote party" code="1"/>
+		</avp>
+		<avp name="Language" code="3914" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Privacy-Indicator" code="3915" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="NOT_PRIVATE" code="0"/>
+			<enum name="PRIVATE" code="1"/>
+		</avp>
+		<avp name="Called-Identity" code="3916" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Called-Identity-Change" code="3917" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Called-Identity"/>
+				<gavp name="Change-Time"/>
+			</grouped>
+		</avp>
+		<avp name="UWAN-User-Location-Info" code="3918" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="UE-Local-IP-Address"/>
+				<gavp name="UDP-Source-Port"/>
+				<gavp name="SSID"/>
+				<gavp name="BSSID"/>
+			</grouped>
+		</avp>
+		<avp name="Monitoring-Event-Configuration-Activity" code="3919" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Monitoring-Event-Report-Data" code="3920" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Event-Timestamp"/>
+				<gavp name="SCEF-Reference-ID"/>
+				<gavp name="SCEF-ID"/>
+				<gavp name="Monitoring-Event-Report-Number"/>
+				<gavp name="Charged-Party"/>
+				<gavp name="Subscription-Id"/>
+				<gavp name="Monitoring-Type"/>
+				<gavp name="Reachability-Information"/>
+				<gavp name="EPS-Location-Information"/>
+				<gavp name="Communication-Failure-Information"/>
+				<gavp name="Number-Of-UE-Per-Location-Report"/>
+			</grouped>
+		</avp>
+		<avp name="Monitoring-Event-Information" code="3921" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Monitoring-Event-Functionality"/>
+				<gavp name="Event-Timestamp"/>
+				<gavp name="SCEF-Reference-ID"/>
+				<gavp name="SCEF-ID"/>
+				<gavp name="Monitoring-Type"/>
+				<gavp name="Maximum-Number-of-Reports"/>
+				<gavp name="Monitoring-Duration"/>
+				<gavp name="Charged-Party"/>
+				<gavp name="Maximum-Detection-Time"/>
+				<gavp name="UE-Reachability-Configuration"/>
+				<gavp name="MONTE-Location-Type"/>
+				<gavp name="Accuracy"/>
+				<gavp name="Number-Of-UE-Per-Location-Configuration"/>
+				<gavp name="Monitoring-Event-Report"/>
+			</grouped>
+		</avp>
+		<avp name="Monitoring-Event-Functionality" code="3922" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Monitoring-Event-Report-Number" code="3923" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
 	</base>
 
-	<!-- ********************************************************************** -->
+  <!-- ********************************************************************** -->
 	<!-- ************************* Application IDs **************************** -->
 	<!-- ********************************************************************** -->
 	<application id="0"		name="Diameter Common Messages"		uri="http://tools.ietf.org/html/rfc6733"/>
