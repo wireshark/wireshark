@@ -29,6 +29,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/prefs.h>
 
 void proto_register_abis_pgsl(void);
 void proto_reg_handoff_abis_pgsl(void);
@@ -79,6 +80,8 @@ static int hf_pgsl_codec_q2 = -1;
 
 /* initialize the subtree pointers */
 static int ett_pgsl = -1;
+
+static gboolean abis_pgsl_ir = FALSE;
 
 #define PGSL_MSG_DLDATA_REQ	1
 #define PGSL_MSG_DLDATA_IND	2
@@ -161,16 +164,18 @@ dissect_abis_pgsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		if (ack_data_ind & 1) {
 			/* Codec Control */
 			proto_tree_add_item(pgsl_tree, hf_pgsl_ucm, tvb, offset, 1, ENC_NA);
-			proto_tree_add_item(pgsl_tree, hf_pgsl_cs, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item_ret_uint(pgsl_tree, hf_pgsl_cs, tvb, offset, 1, ENC_NA, &cs);
 			proto_tree_add_item(pgsl_tree, hf_pgsl_timing_offset, tvb, offset+1, 1, ENC_NA);
 			offset += 2;
 			/* Power Control */
 			proto_tree_add_item(pgsl_tree, hf_pgsl_power_control, tvb, offset++, 1, ENC_NA);
-			/* Incremental Redundancy */
-			proto_tree_add_item(pgsl_tree, hf_pgsl_ir_tfi, tvb, offset, 1, ENC_NA);
-			proto_tree_add_item(pgsl_tree, hf_pgsl_ir_sign_type, tvb, offset, 1, ENC_NA);
-			proto_tree_add_item(pgsl_tree, hf_pgsl_tn_bitmap, tvb, offset+1, 1, ENC_NA);
-			offset += 2;
+			if (abis_pgsl_ir) {
+				/* Incremental Redundancy */
+				proto_tree_add_item(pgsl_tree, hf_pgsl_ir_tfi, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(pgsl_tree, hf_pgsl_ir_sign_type, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(pgsl_tree, hf_pgsl_tn_bitmap, tvb, offset+1, 1, ENC_NA);
+				offset += 2;
+			}
 			/* Data length */
 			proto_tree_add_item_ret_uint(pgsl_tree, hf_pgsl_data_len, tvb, offset++, 1, ENC_NA, &len);
 			/* Data */
@@ -381,10 +386,16 @@ proto_register_abis_pgsl(void)
 	static gint *ett[] = {
 		&ett_pgsl,
 	};
+	module_t *pgsl_module;
 
 	/* assign our custom match functions */
 	proto_abis_pgsl = proto_register_protocol("GSM A-bis P-GSL", "Ericsson GSM A-bis P-GSL",
 						 "gsm_abis_pgsl");
+	pgsl_module = prefs_register_protocol(proto_abis_pgsl, NULL);
+	prefs_register_bool_preference(pgsl_module, "ir",
+					"Incremental Redundancy",
+					"The packets contain the optional Incremental Redundancy (IR) fields",
+					&abis_pgsl_ir);
 
 	proto_register_field_array(proto_abis_pgsl, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
