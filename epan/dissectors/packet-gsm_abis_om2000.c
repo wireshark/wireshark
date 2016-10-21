@@ -1005,6 +1005,15 @@ dissect_om2k_attrs(tvbuff_t *tvb, gint offset, proto_tree *tree)
 		case 0x9d: /* TSs MO State */
 			offset += dissect_tss_mo_state(tvb, offset, tree);
 			break;
+		case 0xa3:
+		case 0xa5:
+		case 0xa6:
+			/* we don't know any of the above, but the
+			 * TLV structure is quite clear in the protocol
+			 * traces */
+			tmp = tvb_get_guint8(tvb, offset++);
+			offset += dissect_om2k_attr_unkn(tvb, offset, tmp, iei, tree);
+			break;
 		case 0x9e:
 		case 0x9f:
 		default:
