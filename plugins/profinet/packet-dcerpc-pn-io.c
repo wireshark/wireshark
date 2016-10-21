@@ -8774,7 +8774,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
 
                     if(fp != NULL) {
                         /* ---- Get VendorID & DeviceID ---- */
-                        while(fp != NULL && fgets(puffer, MAX_LINE_LENGTH, fp) != NULL) {
+                        while(fgets(puffer, MAX_LINE_LENGTH, fp) != NULL) {
                             /* ----- VendorID ------ */
                             if((strstr(puffer, vendorIdStr)) != NULL) {
                                 memset (convertStr, 0, sizeof(*convertStr));
@@ -8802,10 +8802,8 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                             }
                         }
 
-                        if(fclose(fp) == 0) {
-                            /* File close sucessfull */
-                            fp = NULL;
-                        }
+                        fclose(fp);
+                        fp = NULL;
 
                         if(vendorMatch && deviceMatch) {
                             break;        /* Found correct GSD-file! -> Break the searchloop */
@@ -9007,10 +9005,8 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                     }
                 }
 
-                if (fclose(fp) == 0) {
-                    /* File close successful */
-                    fp = NULL;
-                }
+                fclose(fp);
+                fp = NULL;
             }
 
             switch (u16SubmoduleProperties & 0x03) {
