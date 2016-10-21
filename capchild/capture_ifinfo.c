@@ -111,16 +111,29 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
     /* Try to get our interface list */
     ret = sync_interface_list_open(&data, &primary_msg, &secondary_msg, update_cb);
     if (ret != 0) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List failed, error %d, %s (%s)!",
-              *err, primary_msg ? primary_msg : "no message",
-              secondary_msg ? secondary_msg : "no secondary message");
-        if (err_str) {
-            *err_str = primary_msg;
-        } else {
-            g_free(primary_msg);
+#ifdef HAVE_EXTCAP
+        /* Add the extcap interfaces that can exist, even if no native interfaces have been found */
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Loading External Capture Interface List ...");
+        if_list = append_extcap_interface_list(if_list, err_str);
+        /* err_str is ignored, as the error for the interface loading list will take precedence */
+        if ( g_list_length(if_list) == 0 ) {
+#endif
+
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List failed, error %d, %s (%s)!",
+                  *err, primary_msg ? primary_msg : "no message",
+                  secondary_msg ? secondary_msg : "no secondary message");
+            if (err_str) {
+                *err_str = primary_msg;
+            } else {
+                g_free(primary_msg);
+            }
+            g_free(secondary_msg);
+            *err = CANT_GET_INTERFACE_LIST;
+
+#ifdef HAVE_EXTCAP
         }
-        g_free(secondary_msg);
-        *err = CANT_GET_INTERFACE_LIST;
+#endif
+
         return if_list;
     }
 
