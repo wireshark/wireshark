@@ -1,0 +1,67 @@
+before_script:
+  - apt-get update -qq
+  - apt-get install ninja-build -y
+  - ./tools/debian-setup.sh --install-optional -y
+gcc-4:
+  image: gcc:4
+  script:
+    - mkdir build
+    - cd build
+    - cmake -GNinja ..
+    - ninja
+gcc-4-noextcap:
+  image: gcc:4
+  script:
+    - mkdir build
+    - cd build
+    - cmake -GNinja -DENABLE_EXTCAP=OFF ..
+    - ninja
+gcc-4-nopcap:
+  image: gcc:4
+  script:
+    - mkdir build
+    - cd build
+    - cmake -GNinja -DENABLE_PCAP=OFF ..
+    - ninja
+gcc-5:
+  image: gcc:5
+  script:
+    - mkdir build
+    - cd build
+    - cmake -GNinja ..
+    - ninja
+gcc-5-noextcap:
+  image: gcc:5
+  script:
+    - mkdir build
+    - cd build
+    - cmake -GNinja -DENABLE_EXTCAP=OFF ..
+    - ninja
+gcc-5-nopcap:
+  image: gcc:5
+  script:
+    - mkdir build
+    - cd build
+    - cmake -GNinja -DENABLE_PCAP=OFF ..
+    - ninja
+gcc-6:
+  image: gcc:6
+  script:
+    - mkdir build
+    - cd build
+    - cmake -GNinja ..
+    - ninja
+gcc-6-noextcap:
+  image: gcc:6
+  script:
+    - mkdir build
+    - cd build
+    - cmake -GNinja -DENABLE_EXTCAP=OFF ..
+    - ninja
+gcc-6-nopcap:
+  image: gcc:6
+  script:
+    - mkdir build
+    - cd build
+    - cmake -GNinja -DENABLE_PCAP=OFF ..
+    - ninja
