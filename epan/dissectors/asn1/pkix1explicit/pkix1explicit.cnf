@@ -85,6 +85,11 @@ ASIdentifiers		B "1.3.6.1.5.5.7.1.8" "id-pe-autonomousSysIds"
 	if(tvb_reported_length(parameter_tvb)>2)
 		proto_tree_add_item(subtree, hf_pkix1explicit_addressFamily_safi, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
 
+#.TYPE_ATTR
+TeletexDomainDefinedAttribute/type DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+TeletexDomainDefinedAttribute/value DISPLAY = STR_UNICODE
 
 #.END
 

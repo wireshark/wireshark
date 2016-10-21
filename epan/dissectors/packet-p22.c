@@ -1233,7 +1233,8 @@ dissect_p22_SubjectField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
   if(subject)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", tvb_format_text(subject, 0, tvb_reported_length(subject)));
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", tvb_get_string_enc(wmem_packet_scope(), subject, 0,
+                                                                             tvb_reported_length(subject), ENC_T61));
 
 
 
@@ -1490,7 +1491,7 @@ dissect_p22_G3FacsimileBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_p22_Interchange_Data_Element(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 266 "./asn1/p22/p22.cnf"
+#line 279 "./asn1/p22/p22.cnf"
 /* XXX Not implemented yet */
 
 
@@ -1731,7 +1732,7 @@ dissect_p22_BilaterallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_p22_NationallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 269 "./asn1/p22/p22.cnf"
+#line 282 "./asn1/p22/p22.cnf"
 /* XXX Not implemented yet */
 
 
@@ -2701,7 +2702,7 @@ dissect_p22_Precedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_p22_CharacterSetRegistration(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 259 "./asn1/p22/p22.cnf"
+#line 272 "./asn1/p22/p22.cnf"
   guint32 crs;
     offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             1U, 32767U, hf_index, &crs);
@@ -2942,7 +2943,7 @@ dissect_p22_Document_Type_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_p22_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 272 "./asn1/p22/p22.cnf"
+#line 285 "./asn1/p22/p22.cnf"
 /* XXX: Not implemented yet */
 
 
@@ -3098,7 +3099,7 @@ dissect_p22_EnvironmentParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_p22_T_compression_algorithm_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 275 "./asn1/p22/p22.cnf"
+#line 288 "./asn1/p22/p22.cnf"
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
 
@@ -3110,7 +3111,7 @@ dissect_p22_T_compression_algorithm_id(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_p22_T_compression_algorithm_param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 278 "./asn1/p22/p22.cnf"
+#line 291 "./asn1/p22/p22.cnf"
 /* XXX: Not implemented yet */
 
 
@@ -4756,7 +4757,7 @@ void proto_register_p22(void) {
         NULL, HFILL }},
     { &hf_p22_SubjectField_PDU,
       { "SubjectField", "p22.SubjectField",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_STRING, STR_UNICODE, NULL, 0,
         NULL, HFILL }},
     { &hf_p22_ExpiryTimeField_PDU,
       { "ExpiryTimeField", "p22.ExpiryTimeField",
@@ -4824,7 +4825,7 @@ void proto_register_p22(void) {
         NULL, HFILL }},
     { &hf_p22_VideotexData_PDU,
       { "VideotexData", "p22.VideotexData",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_STRING, STR_UNICODE, NULL, 0,
         NULL, HFILL }},
     { &hf_p22_EncryptedParameters_PDU,
       { "EncryptedParameters", "p22.EncryptedParameters_element",
@@ -5100,7 +5101,7 @@ void proto_register_p22(void) {
         "RelatedIPMsField", HFILL }},
     { &hf_p22_subject,
       { "subject", "p22.subject",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_STRING, STR_UNICODE, NULL, 0,
         "SubjectField", HFILL }},
     { &hf_p22_expiry_time,
       { "expiry-time", "p22.expiry_time",
@@ -5160,7 +5161,7 @@ void proto_register_p22(void) {
         "ORName", HFILL }},
     { &hf_p22_free_form_name,
       { "free-form-name", "p22.free_form_name",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_STRING, STR_UNICODE, NULL, 0,
         "FreeFormName", HFILL }},
     { &hf_p22_telephone_number,
       { "telephone-number", "p22.telephone_number",
@@ -5320,7 +5321,7 @@ void proto_register_p22(void) {
         "TeletexNonBasicParameters", HFILL }},
     { &hf_p22_TeletexData_item,
       { "TeletexData item", "p22.TeletexData_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_STRING, STR_UNICODE, NULL, 0,
         "TeletexString", HFILL }},
     { &hf_p22_videotex_parameters,
       { "parameters", "p22.parameters_element",
@@ -5328,7 +5329,7 @@ void proto_register_p22(void) {
         "VideotexParameters", HFILL }},
     { &hf_p22_videotex_data,
       { "data", "p22.data",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_STRING, STR_UNICODE, NULL, 0,
         "VideotexData", HFILL }},
     { &hf_p22_syntax,
       { "syntax", "p22.syntax",

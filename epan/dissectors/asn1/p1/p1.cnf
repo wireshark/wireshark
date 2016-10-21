@@ -1254,5 +1254,51 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 #.FN_HDR MTSBindResult
 	/* TODO: there may be other entry points where this global should be initialized... */
 	actx->subtree.tree = NULL;
+
+#.TYPE_ATTR
+RecipientNumberForAdvice DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+TeletexCommonName DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+TeletexOrganizationName DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+TeletexPersonalName/surname DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+TeletexPersonalName/given-name DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+TeletexPersonalName/initials DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+TeletexPersonalName/generation-qualifier DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+TeletexOrganizationalUnitName DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+UnformattedPostalAddress/teletex-string DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+PDSParameter/teletex-string DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+TeletexDomainDefinedAttribute/type DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+TeletexDomainDefinedAttribute/value DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+TeletexNonBasicParameters/graphic-character-sets DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+TeletexNonBasicParameters/control-character-sets DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+TeletexNonBasicParameters/miscellaneous-terminal-capabilities DISPLAY = STR_UNICODE
+
 #.END
 

@@ -571,7 +571,6 @@ dissect_pkix1explicit_T_addressFamily(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 
 
-
   return offset;
 }
 
@@ -941,11 +940,11 @@ void proto_register_pkix1explicit(void) {
         NULL, HFILL }},
     { &hf_pkix1explicit_type_01,
       { "type", "pkix1explicit.type",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_STRING, STR_UNICODE, NULL, 0,
         "TeletexString", HFILL }},
     { &hf_pkix1explicit_value_01,
       { "value", "pkix1explicit.value",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_STRING, STR_UNICODE, NULL, 0,
         "TeletexString", HFILL }},
     { &hf_pkix1explicit_IPAddrBlocks_item,
       { "IPAddressFamily", "pkix1explicit.IPAddressFamily_element",

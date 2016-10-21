@@ -116,7 +116,11 @@ RTSE-apdus
   tvbuff_t *string = NULL;
   %(DEFAULT_BODY)s
   if(open_request && string)
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_reported_length(string)));
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_get_string_enc(wmem_packet_scope(), string, 0,
+                                                                            tvb_reported_length(string), ENC_T61));
+
+#.TYPE_ATTR
+CallingSSuserReference/t61String DISPLAY = STR_UNICODE
 
 #.FN_PARS CommonReference
   VAL_PTR=&string
@@ -175,5 +179,8 @@ RTSE-apdus
 
   if(reason != -1)
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(reason, rtse_AbortReason_vals, "reason(%%d)"));
+
+#.TYPE_ATTR
+AdditionalReferenceInformation DISPLAY = STR_UNICODE
 
 #.END

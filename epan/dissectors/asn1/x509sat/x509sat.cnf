@@ -393,6 +393,18 @@ XDayOf/fifth				fifth_dayof
   actx->created_item = proto_tree_add_guid(tree, hf_index, tvb, offset, len, &uuid);
 #.END
 
+#.TYPE_ATTR
+DirectoryString/teletexString DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+SyntaxTeletexString DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+SyntaxT61String DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+SyntaxVideotexString DISPLAY = STR_UNICODE
+
 #.END
 
 

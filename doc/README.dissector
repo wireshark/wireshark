@@ -1556,6 +1556,7 @@ currently supported are:
     ENC_MAC_ROMAN - MAC ROMAN
     ENC_CP437 - DOS CP437
     ENC_ASCII_7BITS - 7 bits ASCII
+    ENC_T61 - ITU T.61
 
 Other encodings will be added in the future.
 

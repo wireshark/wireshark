@@ -97,6 +97,9 @@ get_ascii_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
 WS_DLL_PUBLIC guint8 *
 get_ebcdic_string(wmem_allocator_t *scope, const guint8 *ptr, gint length);
 
+WS_DLL_PUBLIC guint8 *
+get_t61_string(wmem_allocator_t *scope, const guint8 *ptr, gint length);
+
 #if 0
 void ASCII_to_EBCDIC(guint8 *buf, guint bytes);
 guint8 ASCII_to_EBCDIC1(guint8 c);

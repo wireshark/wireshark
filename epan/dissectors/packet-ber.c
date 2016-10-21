@@ -1706,21 +1706,11 @@ proto_tree_add_debug_text(tree, "OCTET STRING dissect_ber_octet_string(%s) enter
                 break;
 
             case BER_UNI_TAG_TeletexString:
-                /*
-                 * XXX - the G0 part of this starts out as T.61, not ASCII.
-                 *
-                 * XXX - treat as ASCII for now.
-                 */
-                encoding = ENC_ASCII|ENC_NA;
+                encoding = ENC_T61|ENC_NA;
                 break;
 
             case BER_UNI_TAG_VideotexString:
-                /*
-                 * XXX - the G0 part of this starts out as T.61, not ASCII.
-                 *
-                 * XXX - treat as ASCII for now.
-                 */
-                encoding = ENC_ASCII|ENC_NA;
+                encoding = ENC_T61|ENC_NA;
                 break;
 
             case BER_UNI_TAG_GraphicString:

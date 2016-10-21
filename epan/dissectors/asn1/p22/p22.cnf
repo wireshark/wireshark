@@ -250,7 +250,20 @@ IpnSecurityResponse			B	"2.6.1.18.1"	"id-sec-security-common-fields"
   %(DEFAULT_BODY)s
 
   if(subject)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", tvb_format_text(subject, 0, tvb_reported_length(subject)));
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", tvb_get_string_enc(wmem_packet_scope(), subject, 0,
+                                                                             tvb_reported_length(subject), ENC_T61));
+
+#.TYPE_ATTR
+SubjectField DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+TeletexData/_item DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+FreeFormName DISPLAY = STR_UNICODE
+
+#.TYPE_ATTR
+VideotexData DISPLAY = STR_UNICODE
 
 #.FN_PARS CharacterSetRegistration
   VAL_PTR=&crs

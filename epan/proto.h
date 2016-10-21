@@ -429,6 +429,7 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
 #define ENC_MAC_ROMAN			0x00000030
 #define ENC_CP437			0x00000032
 #define ENC_ASCII_7BITS			0x00000034
+#define ENC_T61				0x00000036
 
 /*
  * TODO:

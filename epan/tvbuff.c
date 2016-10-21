@@ -2476,6 +2476,15 @@ tvb_get_ebcdic_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint 
 	return get_ebcdic_string(scope, ptr, length);
 }
 
+static guint8 *
+tvb_get_t61_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
+{
+	const guint8  *ptr;
+
+	ptr = ensure_contiguous(tvb, offset, length);
+	return get_t61_string(scope, ptr, length);
+}
+
 /*
  * Given a tvbuff, an offset, a length, and an encoding, allocate a
  * buffer big enough to hold a non-null-terminated string of that length
@@ -2635,6 +2644,10 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		 * XXX - multiple "dialects" of EBCDIC?
 		 */
 		strptr = tvb_get_ebcdic_string(scope, tvb, offset, length);
+		break;
+
+	case ENC_T61:
+		strptr = tvb_get_t61_string(scope, tvb, offset, length);
 		break;
 	}
 	return strptr;
@@ -2812,6 +2825,20 @@ tvb_get_ebcdic_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint
 	return get_ebcdic_string(scope, ptr, size);
 }
 
+static guint8 *
+tvb_get_t61_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *lengthp)
+{
+	guint	       size;
+	const guint8  *ptr;
+
+	size = tvb_strsize(tvb, offset);
+	ptr  = ensure_contiguous(tvb, offset, size);
+	/* XXX, conversion between signed/unsigned integer */
+	if (lengthp)
+		*lengthp = size;
+	return get_t61_string(scope, ptr, size);
+}
+
 guint8 *
 tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
@@ -2950,6 +2977,10 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 		 * XXX - multiple "dialects" of EBCDIC?
 		 */
 		strptr = tvb_get_ebcdic_stringz(scope, tvb, offset, lengthp);
+		break;
+
+	case ENC_T61:
+		strptr = tvb_get_t61_stringz(scope, tvb, offset, lengthp);
 		break;
 	}
 
