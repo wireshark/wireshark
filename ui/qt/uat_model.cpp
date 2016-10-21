@@ -47,7 +47,6 @@ Qt::ItemFlags UatModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return 0;
 
-    // Note: Qt::ItemNeverHasChildren is not just for optimization, it avoids crashes too with QTreeView...
     Qt::ItemFlags flags = QAbstractTableModel::flags(index);
     flags |= Qt::ItemIsEditable;
     return flags;
@@ -109,13 +108,23 @@ QVariant UatModel::headerData(int section, Qt::Orientation orientation, int role
     return uat_->fields[section].title;
 }
 
-int UatModel::rowCount(const QModelIndex &/*parent*/) const
+int UatModel::rowCount(const QModelIndex &parent) const
 {
+    // there are no children
+    if (parent.isValid()) {
+        return 0;
+    }
+
     return uat_->raw_data->len;
 }
 
-int UatModel::columnCount(const QModelIndex &/*parent*/) const
+int UatModel::columnCount(const QModelIndex &parent) const
 {
+    // there are no children
+    if (parent.isValid()) {
+        return 0;
+    }
+
     return uat_->ncols;
 }
 
