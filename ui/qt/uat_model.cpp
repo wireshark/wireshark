@@ -179,9 +179,18 @@ bool UatModel::setData(const QModelIndex &index, const QVariant &value, int role
         // The validation status for other columns were also affected by
         // changing this field, mark those as dirty!
         emit dataChanged(this->index(row, updated_cols.first()),
-                         this->index(row, updated_cols.last()), roles);
+                         this->index(row, updated_cols.last())
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+                         , roles
+#endif
+        );
     } else {
-        emit dataChanged(index, index, roles);
+
+        emit dataChanged(index, index
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+                         , roles
+#endif
+        );
     }
     return true;
 }
@@ -252,7 +261,12 @@ bool UatModel::copyRow(int dst_row, int src_row)
 
     QVector<int> roles;
     roles << Qt::EditRole << Qt::BackgroundRole;
-    emit dataChanged(index(dst_row, 0), index(dst_row, columnCount()), roles);
+    emit dataChanged(index(dst_row, 0), index(dst_row, columnCount())
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+                     , roles
+#endif
+    );
+
     return true;
 }
 
