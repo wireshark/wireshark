@@ -4095,7 +4095,10 @@ dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tv
       /* Convert to nstime epoch */
       computed_time = CIP_TIMEBASE+(temp_data*60*60*24);
       date = gmtime(&computed_time);
-      strftime(date_str, 20, "%b %d, %Y", date);
+      if (date != NULL)
+          strftime(date_str, 20, "%b %d, %Y", date);
+      else
+          g_strlcpy(date_str, "Not representable", sizeof date_str);
       proto_tree_add_uint_format_value(tree, *(attr->phf), tvb, offset, 2, temp_data, "%s", date_str);
       consumed = 2;
       break;
