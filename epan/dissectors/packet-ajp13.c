@@ -29,6 +29,8 @@
 #include <epan/proto_data.h>
 #include "packet-tcp.h"
 
+#include <wsutil/strtoi.h>
+
 void proto_register_ajp13(void);
 void proto_reg_handoff_ajp13(void);
 
@@ -679,8 +681,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       pos+=hval_len+2;
     }
 
-    if (cl) {
-      cl = atoi(hval);
+    if (cl && ws_strtou32(hval, NULL, &cl)) {
       cd->content_length = cl;
     }
   }
