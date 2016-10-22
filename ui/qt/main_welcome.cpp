@@ -44,6 +44,7 @@
 #include <QMenu>
 #include <QResizeEvent>
 #include <QTreeWidgetItem>
+#include <QUrl>
 #include <QWidget>
 
 #if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
