@@ -23,7 +23,6 @@
 #include "config.h"
 
 #include <stdio.h>
-#include <stdlib.h>	/* for atoi() */
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
@@ -31,6 +30,8 @@
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/proto_data.h>
+
+#include <wsutil/strtoi.h>
 
 #include <wiretap/catapult_dct2000.h>
 #include "packet-umts_fp.h"
@@ -136,6 +137,7 @@ static int ett_catapult_dct2000_tty = -1;
 
 static expert_field ei_catapult_dct2000_lte_ccpri_status_error = EI_INIT;
 static expert_field ei_catapult_dct2000_error_comment_expert = EI_INIT;
+static expert_field ei_catapult_dct2000_string_invalid = EI_INIT;
 
 static const value_string direction_vals[] = {
     { 0,   "Sent" },
@@ -2096,6 +2098,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     const char         *timestamp_string;
     gint                variant_length;
     const char         *variant_string;
+    guint32             variant;
     gint                outhdr_length;
     const char         *outhdr_string;
     guint8              direction;
@@ -2207,14 +2210,16 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                            variant_string);
 
 
-
     /* FP protocols need info from outhdr attached */
     if ((strcmp(protocol_name, "fp") == 0) ||
         (strncmp(protocol_name, "fp_r", 4) == 0) ||
         (strcmp(protocol_name, "fpiur_r5") == 0)) {
 
         parse_outhdr_string(outhdr_string, outhdr_length);
-        attach_fp_info(pinfo, direction, protocol_name, atoi(variant_string));
+        if (ws_strtou32(variant_string, NULL, &variant))
+            attach_fp_info(pinfo, direction, protocol_name, variant);
+        else
+            expert_add_info(pinfo, ti, &ei_catapult_dct2000_string_invalid);
     }
 
     /* RLC protocols need info from outhdr attached */
@@ -3294,6 +3299,7 @@ void proto_register_catapult_dct2000(void)
     static ei_register_info ei[] = {
         { &ei_catapult_dct2000_lte_ccpri_status_error, { "dct2000.lte.ccpri.status.error", PI_SEQUENCE, PI_ERROR, "CCPRI Indication has error status", EXPFILL }},
         { &ei_catapult_dct2000_error_comment_expert, { "dct2000.error-comment.expert", PI_SEQUENCE, PI_ERROR, "Formatted expert comment", EXPFILL }},
+        { &ei_catapult_dct2000_string_invalid, { "dct2000.string.invalid", PI_MALFORMED, PI_ERROR, "String must contain an integer", EXPFILL }}
     };
 
     module_t *catapult_dct2000_module;
