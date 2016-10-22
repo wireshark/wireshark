@@ -229,9 +229,16 @@ void
 write_pdml_preamble(FILE *fh, const gchar *filename)
 {
     time_t t = time(NULL);
-    char *ts = asctime(localtime(&t));
+    struct tm * timeinfo;
+    char *ts;
 
-    ts[strlen(ts)-1] = 0; /* overwrite \n */
+    /* Create the output */
+    timeinfo = localtime(&t);
+    if (timeinfo != NULL) {
+        ts = asctime(timeinfo);
+        ts[strlen(ts)-1] = 0; /* overwrite \n */
+    } else
+        ts = "Not representable";
 
     fputs("<?xml version=\"1.0\"?>\n", fh);
     fputs("<?xml-stylesheet type=\"text/xsl\" href=\"" PDML2HTML_XSL "\"?>\n", fh);

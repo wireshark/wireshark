@@ -427,13 +427,26 @@ static gboolean commview_dump(wtap_dumper *wdh,
 	cv_hdr.version = 0;
 
 	tm = localtime(&phdr->ts.secs);
-	cv_hdr.year = tm->tm_year + 1900;
-	cv_hdr.month = tm->tm_mon + 1;
-	cv_hdr.day = tm->tm_mday;
-	cv_hdr.hours = tm->tm_hour;
-	cv_hdr.minutes = tm->tm_min;
-	cv_hdr.seconds = tm->tm_sec;
-	cv_hdr.usecs = GUINT32_TO_LE(phdr->ts.nsecs / 1000);
+	if (tm != NULL) {
+		cv_hdr.year = tm->tm_year + 1900;
+		cv_hdr.month = tm->tm_mon + 1;
+		cv_hdr.day = tm->tm_mday;
+		cv_hdr.hours = tm->tm_hour;
+		cv_hdr.minutes = tm->tm_min;
+		cv_hdr.seconds = tm->tm_sec;
+		cv_hdr.usecs = GUINT32_TO_LE(phdr->ts.nsecs / 1000);
+	} else {
+		/*
+		 * Second before the Epoch.
+		 */
+		cv_hdr.year = 1969;
+		cv_hdr.month = 12;
+		cv_hdr.day = 31;
+		cv_hdr.hours = 23;
+		cv_hdr.minutes = 59;
+		cv_hdr.seconds = 59;
+		cv_hdr.usecs = 0;
+	}
 
 	switch(phdr->pkt_encap) {
 

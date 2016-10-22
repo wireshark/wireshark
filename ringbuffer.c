@@ -110,6 +110,12 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
   current_time = time(NULL);
 
   g_snprintf(filenum, sizeof(filenum), "%05u", (rb_data.curr_file_num + 1) % RINGBUFFER_MAX_NUM_FILES);
+  /*
+   * XXX - We trust Windows not to return a time before the Epoch, so
+   * localtime() doesn't return a null pointer.  localtime() can probably
+   * handle pre-Epoch times on most UN*X systems, and we trust them not
+   * to return a time before the Epoch in any case.
+   */
   strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
   rfile->name = g_strconcat(rb_data.fprefix, "_", filenum, "_", timestr,
                             rb_data.fsuffix, NULL);

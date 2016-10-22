@@ -104,6 +104,7 @@ static gchar *logcat_log(const struct dumper_t *dumper, guint32 seconds,
 {
     gchar  time_buffer[15];
     time_t datetime;
+    struct tm *tm;
 
     datetime = (time_t) seconds;
 
@@ -123,20 +124,38 @@ static gchar *logcat_log(const struct dumper_t *dumper, guint32 seconds,
             return g_strdup_printf("%c(%5i:%5i) %s\n",
                     priority, pid, tid, log);
         case WTAP_ENCAP_LOGCAT_TIME:
-            strftime(time_buffer, sizeof(time_buffer), "%m-%d %H:%M:%S",
-                    gmtime(&datetime));
-            return g_strdup_printf("%s.%03i %c/%-8s(%5i): %s\n",
-                    time_buffer, milliseconds, priority, tag, pid, log);
+            tm = gmtime(&datetime);
+            if (tm != NULL) {
+                strftime(time_buffer, sizeof(time_buffer), "%m-%d %H:%M:%S",
+                        tm);
+                return g_strdup_printf("%s.%03i %c/%-8s(%5i): %s\n",
+                        time_buffer, milliseconds, priority, tag, pid, log);
+            } else {
+                return g_strdup_printf("Not representable %c/%-8s(%5i): %s\n",
+                        priority, tag, pid, log);
+            }
         case WTAP_ENCAP_LOGCAT_THREADTIME:
-            strftime(time_buffer, sizeof(time_buffer), "%m-%d %H:%M:%S",
-                    gmtime(&datetime));
-            return g_strdup_printf("%s.%03i %5i %5i %c %-8s: %s\n",
-                    time_buffer, milliseconds, pid, tid, priority, tag, log);
+            tm = gmtime(&datetime);
+            if (tm != NULL) {
+                strftime(time_buffer, sizeof(time_buffer), "%m-%d %H:%M:%S",
+                        tm);
+                return g_strdup_printf("%s.%03i %5i %5i %c %-8s: %s\n",
+                        time_buffer, milliseconds, pid, tid, priority, tag, log);
+            } else {
+                return g_strdup_printf("Not representable %5i %5i %c %-8s: %s\n",
+                        pid, tid, priority, tag, log);
+            }
         case WTAP_ENCAP_LOGCAT_LONG:
-            strftime(time_buffer, sizeof(time_buffer), "%m-%d %H:%M:%S",
-                    gmtime(&datetime));
-            return g_strdup_printf("[ %s.%03i %5i:%5i %c/%-8s ]\n%s\n\n",
-                    time_buffer, milliseconds, pid, tid, priority, tag, log);
+            tm = gmtime(&datetime);
+            if (tm != NULL) {
+                strftime(time_buffer, sizeof(time_buffer), "%m-%d %H:%M:%S",
+                        tm);
+                return g_strdup_printf("[ %s.%03i %5i:%5i %c/%-8s ]\n%s\n\n",
+                        time_buffer, milliseconds, pid, tid, priority, tag, log);
+            } else {
+                return g_strdup_printf("[ Not representable %5i:%5i %c/%-8s ]\n%s\n\n",
+                        pid, tid, priority, tag, log);
+            }
         default:
             return NULL;
     }

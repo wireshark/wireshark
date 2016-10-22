@@ -488,15 +488,18 @@ print_interval_string(char *buf, int buf_len, guint32 interval, io_stat_t *io,
             nsec_val -= 1000;
         }
         tmp = localtime (&sec_val);
-        if (io->interval >= 1000) {
-            g_snprintf(buf, buf_len, "%02d:%02d:%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
-        } else if (io->interval >= 100) {
-            g_snprintf(buf, buf_len, "%02d:%02d:%02d.%1d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/100);
-        } else if (io->interval >= 10) {
-            g_snprintf(buf, buf_len, "%02d:%02d:%02d.%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/10);
-        } else {
-            g_snprintf(buf, buf_len, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val);
-        }
+        if (tmp != NULL) {
+            if (io->interval >= 1000) {
+                g_snprintf(buf, buf_len, "%02d:%02d:%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+            } else if (io->interval >= 100) {
+                g_snprintf(buf, buf_len, "%02d:%02d:%02d.%1d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/100);
+            } else if (io->interval >= 10) {
+                g_snprintf(buf, buf_len, "%02d:%02d:%02d.%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/10);
+            } else {
+                g_snprintf(buf, buf_len, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val);
+            }
+        } else
+            g_snprintf(buf, buf_len, "Time not representable");
     } else {
         if (!ext) {
             g_snprintf(buf, buf_len, "%d.%03d", interval/1000,interval%1000);

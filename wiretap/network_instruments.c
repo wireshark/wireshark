@@ -609,6 +609,7 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err)
     /* create the file comment TLV */
     {
         time(&system_time);
+        /* We trusst the OS not to return a time before the Epoch */
         current_time = localtime(&system_time);
         memset(&comment, 0x00, sizeof(comment));
         g_snprintf(comment, 64, "This capture was saved from Wireshark on %s", asctime(current_time));
