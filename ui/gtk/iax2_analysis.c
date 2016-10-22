@@ -529,7 +529,7 @@ static int iax2_packet_add_info(GtkWidget *list, user_data_t * user_data,
 			tm_tmp->tm_sec,
 			msecs);
 	} else {
-		g_snprintf(timeStr,sizeof(timeStr),"XX/XX/XXXX XX:XX:XX.XXX",
+		g_snprintf(timeStr,sizeof(timeStr),"XX/XX/XXXX XX:XX:XX.XXX");
 	}
 
 	/* Default to using black on white text if nothing below overrides it */
