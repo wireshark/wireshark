@@ -144,85 +144,84 @@ dissect_cryptoauth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     session_state = tvb_get_ntohl(tvb, SESSION_STATE_OFF);
 
-    if (tree) {
-        if ((session_state > 3) && (session_state < G_MAXUINT32)) {
-            ti = proto_tree_add_item(tree, proto_fc00, tvb, 0, SESSION_STATE_LEN, ENC_NA);
-            fc00_tree = proto_item_add_subtree(ti, ett_fc00);
-            proto_tree_add_item(fc00_tree, hf_fc00_session_nonce, tvb,
-                                SESSION_STATE_OFF, SESSION_STATE_LEN, ENC_BIG_ENDIAN);
-
-            payload_len = tvb_reported_length(tvb)-SESSION_STATE_LEN;
-
-            proto_tree_add_item(fc00_tree, hf_fc00_payload, tvb,
-                                SESSION_STATE_LEN, payload_len, ENC_NA);
-
-            return SESSION_STATE_LEN;
-        }
-
-        ti = proto_tree_add_item(tree, proto_fc00, tvb, 0, 120, ENC_NA);
+    if ((session_state > 3) && (session_state < G_MAXUINT32)) {
+        ti = proto_tree_add_item(tree, proto_fc00, tvb, 0, SESSION_STATE_LEN, ENC_NA);
         fc00_tree = proto_item_add_subtree(ti, ett_fc00);
+        proto_tree_add_item(fc00_tree, hf_fc00_session_nonce, tvb,
+                SESSION_STATE_OFF, SESSION_STATE_LEN, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(fc00_tree, hf_fc00_session_state, tvb,
-                            SESSION_STATE_OFF, SESSION_STATE_LEN, ENC_NA);
-
-        ti = proto_tree_add_item(fc00_tree, hf_fc00_auth_challenge, tvb,
-                                 CHALLENGE_OFF, CHALLENGE_LEN, ENC_NA);
-        {
-            proto_tree *auth_tree = proto_item_add_subtree(ti, ett_fc00_auth);
-            proto_tree_add_item(auth_tree, hf_fc00_auth_type, tvb, CHALLENGE_OFF, 1, ENC_NA);
-            proto_tree_add_item(auth_tree, hf_fc00_auth_hash_code, tvb, CHALLENGE_OFF+1, 7, ENC_NA);
-            proto_tree_add_item(auth_tree, hf_fc00_auth_poly, tvb, CHALLENGE_OFF+8, 1, ENC_NA);
-            proto_tree_add_item(auth_tree, hf_fc00_auth_derivations, tvb, CHALLENGE_OFF+8, 2, ENC_NA);
-            proto_tree_add_item(auth_tree, hf_fc00_auth_additional, tvb, CHALLENGE_OFF+10, 2, ENC_NA);
-        }
-
-        proto_tree_add_item(fc00_tree, hf_fc00_random_nonce, tvb,
-                            NONCE_OFF, NONCE_LEN, ENC_NA);
-
-#if GLIB_CHECK_VERSION(2, 36, 0)  /* sha512 support was added in glib 2.36 */
-        {
-            GChecksum *hash  = g_checksum_new(G_CHECKSUM_SHA512);
-            gsize digest_len = g_checksum_type_get_length(G_CHECKSUM_SHA512);
-            proto_tree *key_tree;
-
-            guint8 *raw_key    = (guint8*)wmem_alloc(wmem_packet_scope(), PUBLIC_KEY_LEN);
-            char *encoded_key = (char*)wmem_alloc(wmem_packet_scope(), 53);
-            guint8 *ip_buf    = (guint8*)wmem_alloc(wmem_packet_scope(), digest_len);
-
-            tvb_memcpy(tvb, raw_key, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN);
-
-            Base32_encode((guint8*)encoded_key, 53, raw_key, PUBLIC_KEY_LEN);
-
-            g_checksum_update(hash, (guchar*)raw_key, PUBLIC_KEY_LEN);
-            g_checksum_get_digest(hash, ip_buf, &digest_len);
-            g_checksum_free(hash);
-
-            hash = g_checksum_new(G_CHECKSUM_SHA512);
-            g_checksum_update(hash, (guchar*)ip_buf, digest_len);
-            g_checksum_get_digest(hash, ip_buf, &digest_len);
-            g_checksum_free(hash);
-
-            ti = proto_tree_add_none_format(fc00_tree, hf_fc00_public_key, tvb, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN, "Public Key: %s.k", encoded_key);
-
-            key_tree = proto_item_add_subtree(ti, ett_fc00_key);
-
-            proto_tree_add_ipv6(key_tree, hf_fc00_ip_address, tvb, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN, (struct e_in6_addr*)ip_buf);
-        }
-#else
-        proto_tree_add_expert(fc00_tree, pinfo, &ei_fc00_chksum_unsupported, tvb, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN);
-#endif
-
-        proto_tree_add_item(fc00_tree, hf_fc00_authenticator, tvb,
-                            POLY_AUTH_OFF, POLY_AUTH_LEN, ENC_NA);
-
-        proto_tree_add_item(fc00_tree, hf_fc00_temp_publicy_key, tvb,
-                            TEMP_KEY_OFF, TEMP_KEY_LEN, ENC_NA);
-
-        payload_len = tvb_reported_length(tvb)-(TEMP_KEY_OFF+TEMP_KEY_LEN);
+        payload_len = tvb_reported_length(tvb)-SESSION_STATE_LEN;
 
         proto_tree_add_item(fc00_tree, hf_fc00_payload, tvb,
-                            CRYPTO_HEADER_LEN, payload_len, ENC_NA);
+                SESSION_STATE_LEN, payload_len, ENC_NA);
+
+        return SESSION_STATE_LEN;
     }
+
+    ti = proto_tree_add_item(tree, proto_fc00, tvb, 0, 120, ENC_NA);
+    fc00_tree = proto_item_add_subtree(ti, ett_fc00);
+
+    proto_tree_add_item(fc00_tree, hf_fc00_session_state, tvb,
+            SESSION_STATE_OFF, SESSION_STATE_LEN, ENC_NA);
+
+    ti = proto_tree_add_item(fc00_tree, hf_fc00_auth_challenge, tvb,
+            CHALLENGE_OFF, CHALLENGE_LEN, ENC_NA);
+    {
+        proto_tree *auth_tree = proto_item_add_subtree(ti, ett_fc00_auth);
+        proto_tree_add_item(auth_tree, hf_fc00_auth_type, tvb, CHALLENGE_OFF, 1, ENC_NA);
+        proto_tree_add_item(auth_tree, hf_fc00_auth_hash_code, tvb, CHALLENGE_OFF+1, 7, ENC_NA);
+        proto_tree_add_item(auth_tree, hf_fc00_auth_poly, tvb, CHALLENGE_OFF+8, 1, ENC_NA);
+        proto_tree_add_item(auth_tree, hf_fc00_auth_derivations, tvb, CHALLENGE_OFF+8, 2, ENC_NA);
+        proto_tree_add_item(auth_tree, hf_fc00_auth_additional, tvb, CHALLENGE_OFF+10, 2, ENC_NA);
+    }
+
+    proto_tree_add_item(fc00_tree, hf_fc00_random_nonce, tvb,
+            NONCE_OFF, NONCE_LEN, ENC_NA);
+
+#if GLIB_CHECK_VERSION(2, 36, 0)  /* sha512 support was added in glib 2.36 */
+    if (fc00_tree)
+    {
+        GChecksum *hash  = g_checksum_new(G_CHECKSUM_SHA512);
+        gsize digest_len = g_checksum_type_get_length(G_CHECKSUM_SHA512);
+        proto_tree *key_tree;
+
+        guint8 *raw_key    = (guint8*)wmem_alloc(wmem_packet_scope(), PUBLIC_KEY_LEN);
+        char *encoded_key = (char*)wmem_alloc(wmem_packet_scope(), 53);
+        guint8 *ip_buf    = (guint8*)wmem_alloc(wmem_packet_scope(), digest_len);
+
+        tvb_memcpy(tvb, raw_key, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN);
+
+        Base32_encode((guint8*)encoded_key, 53, raw_key, PUBLIC_KEY_LEN);
+
+        g_checksum_update(hash, (guchar*)raw_key, PUBLIC_KEY_LEN);
+        g_checksum_get_digest(hash, ip_buf, &digest_len);
+        g_checksum_free(hash);
+
+        hash = g_checksum_new(G_CHECKSUM_SHA512);
+        g_checksum_update(hash, (guchar*)ip_buf, digest_len);
+        g_checksum_get_digest(hash, ip_buf, &digest_len);
+        g_checksum_free(hash);
+
+        ti = proto_tree_add_none_format(fc00_tree, hf_fc00_public_key, tvb, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN, "Public Key: %s.k", encoded_key);
+
+        key_tree = proto_item_add_subtree(ti, ett_fc00_key);
+
+        proto_tree_add_ipv6(key_tree, hf_fc00_ip_address, tvb, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN, (struct e_in6_addr*)ip_buf);
+    }
+#else
+    proto_tree_add_expert(fc00_tree, pinfo, &ei_fc00_chksum_unsupported, tvb, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN);
+#endif
+
+    proto_tree_add_item(fc00_tree, hf_fc00_authenticator, tvb,
+            POLY_AUTH_OFF, POLY_AUTH_LEN, ENC_NA);
+
+    proto_tree_add_item(fc00_tree, hf_fc00_temp_publicy_key, tvb,
+            TEMP_KEY_OFF, TEMP_KEY_LEN, ENC_NA);
+
+    payload_len = tvb_reported_length(tvb)-(TEMP_KEY_OFF+TEMP_KEY_LEN);
+
+    proto_tree_add_item(fc00_tree, hf_fc00_payload, tvb,
+            CRYPTO_HEADER_LEN, payload_len, ENC_NA);
 
     return tvb_captured_length(tvb);
 }
