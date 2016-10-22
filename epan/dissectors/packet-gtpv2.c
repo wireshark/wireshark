@@ -446,6 +446,11 @@ static int hf_gtpv2_action_indication_val = -1;
 static int hf_gtpv2_uli_timestamp = -1;
 static int hf_gtpv2_mbms_session_duration_days = -1;
 static int hf_gtpv2_mbms_session_duration_secs = -1;
+static int hf_gtpv2_csg_id = -1;
+static int hf_gtpv2_cmi = -1;
+static int hf_gtpv2_service_indicator = -1;
+static int hf_gtpv2_detach_type = -1;
+static int hf_gtpv2_ldn = -1;
 static int hf_gtpv2_node_features_prn = -1;
 static int hf_gtpv2_node_features_mabr =-1;
 static int hf_gtpv2_node_features_ntsr = -1;
@@ -5382,37 +5387,57 @@ dissect_gtpv2_rfsp_index(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 /* 8.78 CSG ID */
 static void
-dissect_gtpv2_csg_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+dissect_gtpv2_csg_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, 0, 5, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_csg_id, tvb, 0, 4, ENC_BIG_ENDIAN);
+    if (length > 1) {
+        proto_tree_add_item(tree, hf_gtpv2_spare_bytes, tvb, 1, length-1, ENC_NA);
+    }
 }
 
 /* 8.79 CSG Membership Indication (CMI) */
 static void
-dissect_gtpv2_cmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+dissect_gtpv2_cmi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, 0, 7, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_cmi, tvb, 0, 1, ENC_BIG_ENDIAN);
+    if (length > 1) {
+        proto_tree_add_item(tree, hf_gtpv2_spare_bytes, tvb, 1, length-1, ENC_NA);
+    }
 }
 
 /* 8.80 Service indicator */
+static const value_string gtpv2_service_indicator_vals[] = {
+    { 1, "CS call indicator" },
+    { 2, "SMS indicator" },
+    { 0, NULL }
+};
+
 static void
-dissect_gtpv2_service_indicator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+dissect_gtpv2_service_indicator(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    proto_tree_add_item(tree, hf_gtpv2_service_indicator, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* 8.81 Detach Type */
+static const value_string gtpv2_detach_type_vals[] = {
+    { 1, "PS Detach" },
+    { 2, "Combined PS/CS Detach" },
+    { 0, NULL }
+};
+
 static void
-dissect_gtpv2_detach_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+dissect_gtpv2_detach_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    proto_tree_add_item(tree, hf_gtpv2_detach_type, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* 8.82 Local Distinguished Name (LDN) */
 static void
-dissect_gtpv2_ldn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+dissect_gtpv2_ldn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    proto_tree_add_item(tree, hf_gtpv2_ldn, tvb, 0, length, ENC_ASCII|ENC_NA);
 }
 
 /* 8.83 Node Features */
@@ -8664,6 +8689,31 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_mbms_session_duration_secs,
           {"MBMS Session Duration (seconds)", "gtpv2.mbms_session_duration_secs",
            FT_UINT24, BASE_DEC, NULL, 0xFFFF80,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_csg_id,
+          {"CSG ID", "gtpv2.csg_id",
+           FT_UINT32, BASE_HEX, NULL, 0x07ffffff,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_cmi,
+          {"CSG Membership Indication (CMI)", "gtpv2.cmi",
+           FT_BOOLEAN, 8, TFS(&tfs_no_yes), 0x01,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_service_indicator,
+          {"Service Indicator", "gtpv2.service_indicator",
+           FT_UINT8, BASE_DEC, VALS(gtpv2_service_indicator_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_detach_type,
+          {"Detach Type", "gtpv2.detach_type",
+           FT_UINT8, BASE_DEC, VALS(gtpv2_detach_type_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_ldn,
+          {"Local Distinguished Name (LDN)", "gtpv2.ldn",
+           FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
         { &hf_gtpv2_node_features_prn,
