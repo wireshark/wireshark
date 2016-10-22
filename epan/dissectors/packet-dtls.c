@@ -57,6 +57,7 @@
 #include <epan/sctpppids.h>
 #include <epan/exported_pdu.h>
 #include <wsutil/str_util.h>
+#include <wsutil/strtoi.h>
 #include "packet-ssl-utils.h"
 #include "packet-dtls.h"
 
@@ -249,8 +250,8 @@ dtls_parse_uat(void)
     {
       ssldecrypt_assoc_t *d = &(dtlskeylist_uats[i]);
       ssl_parse_key_list(d, dtls_key_hash, "dtls.port", dtls_handle, FALSE);
-      if (key_list_stack)
-        wmem_stack_push(key_list_stack, GUINT_TO_POINTER(atoi(d->port)));
+      if (key_list_stack && ws_strtou32(d->port, NULL, &port))
+        wmem_stack_push(key_list_stack, GUINT_TO_POINTER(port));
     }
   }
 
