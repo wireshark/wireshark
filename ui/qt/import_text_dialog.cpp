@@ -356,7 +356,10 @@ void ImportTextDialog::on_dateTimeLineEdit_textChanged(const QString &time_forma
 
             time(&cur_time);
             cur_tm = localtime(&cur_time);
-            strftime(time_str, 100, ti_ui_->dateTimeLineEdit->text().toUtf8().constData(), cur_tm);
+            if (cur_tm != NULL)
+                strftime(time_str, sizeof time_str, ti_ui_->dateTimeLineEdit->text().toUtf8().constData(), cur_tm);
+            else
+                g_strlcpy(time_str, "Not representable", sizeof time_str);
             ti_ui_->timestampExampleLabel->setText(QString(tr("Example: %1")).arg(time_str));
             time_format_ok_ = true;
         }
