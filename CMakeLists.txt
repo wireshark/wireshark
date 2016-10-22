@@ -1057,7 +1057,7 @@ if (Qt5Widgets_FOUND)
 		set(MOC_OPTIONS -nn)
 	endif()
 # If Qt4: QT_LIBRARIES and QT_INCLUDES are not set above. They require extra magic
-elseif(Qt4_FOUND)
+elseif(QT4_FOUND)
 	include(${QT_USE_FILE})
 	include_directories(${QT_INCLUDE_DIR})
 	message(STATUS "Qt includes: ${QT_INCLUDE_DIR}")
