@@ -2829,6 +2829,12 @@ AC_WIRESHARK_TIMEZONE_ABBREV
 
 AC_WIRESHARK_STRUCT_ST_FLAGS
 
+# We need to know whether "struct stat" has an "st_birthtime" member
+# or an "__st_birthtime" member for the file set dialog.
+
+AC_CHECK_MEMBERS([struct stat.st_birthtime])
+AC_CHECK_MEMBERS([struct stat.__st_birthtime])
+
 # We need to know whether "struct sockaddr" has an "sa_len" member
 # for get_interface_list().
 

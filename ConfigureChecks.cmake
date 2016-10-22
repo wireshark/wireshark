@@ -128,9 +128,11 @@ endif()
 
 #Struct members
 include(CheckStructHasMember)
-check_struct_has_member("struct sockaddr" sa_len   sys/socket.h HAVE_SA_LEN)
-check_struct_has_member("struct stat"     st_flags sys/stat.h   HAVE_ST_FLAGS)
-check_struct_has_member("struct tm"       tm_zone  time.h       HAVE_TM_ZONE)
+check_struct_has_member("struct sockaddr" sa_len         sys/socket.h HAVE_SA_LEN)
+check_struct_has_member("struct stat"     st_flags       sys/stat.h   HAVE_ST_FLAGS)
+check_struct_has_member("struct stat"     st_birthtime   sys/stat.h   HAVE_STAT_ST_BIRTHTIME)
+check_struct_has_member("struct stat"     __st_birthtime sys/stat.h   HAVE_STAT___ST_BIRTHTIME)
+check_struct_has_member("struct tm"       tm_zone        time.h       HAVE_TM_ZONE)
 
 #Symbols but NOT enums or types
 check_symbol_exists(tzname "time.h" HAVE_TZNAME)
