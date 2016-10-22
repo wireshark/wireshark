@@ -59,9 +59,10 @@ const int initial_speaker_col_ = 2;
 const int from_col_ = 3;
 const int to_col_ = 4;
 const int protocol_col_ = 5;
-const int packets_col_ = 6;
-const int state_col_ = 7;
-const int comments_col_ = 8;
+const int duration_col_ = 6;
+const int packets_col_ = 7;
+const int state_col_ = 8;
+const int comments_col_ = 9;
 
 Q_DECLARE_METATYPE(voip_calls_info_t*)
 
@@ -72,7 +73,8 @@ class VoipCallsTreeWidgetItem : public QTreeWidgetItem
 public:
     VoipCallsTreeWidgetItem(QTreeWidget *tree, voip_calls_info_t *call_info) :
         QTreeWidgetItem(tree, voip_calls_type_),
-        call_info_(call_info)
+        call_info_(call_info),
+        mTimeOfDay_(false)
     {
         drawData();
     }
@@ -84,19 +86,27 @@ public:
     }
 
     void drawData() {
+        guint callDuration = nstime_to_sec(&(call_info_->stop_fd->abs_ts)) - nstime_to_sec(&(call_info_->start_fd->abs_ts));
         if (!call_info_) {
             setText(start_time_col_, QObject::tr("Error"));
             return;
         }
 
-        // XXX Pull digit count from capture file precision
-        setText(start_time_col_, QString::number(nstime_to_sec(&(call_info_->start_rel_ts)), 'f', 6));
-        setText(stop_time_col_, QString::number(nstime_to_sec(&(call_info_->stop_rel_ts)), 'f', 6));
+        if (mTimeOfDay_) {
+            setText(start_time_col_, QDateTime::fromTime_t(nstime_to_sec(&(call_info_->start_fd->abs_ts))).toTimeSpec(Qt::LocalTime).toString("yyyy-MM-dd hh:mm:ss"));
+            setText(stop_time_col_, QDateTime::fromTime_t(nstime_to_sec(&(call_info_->stop_fd->abs_ts))).toTimeSpec(Qt::LocalTime).toString("yyyy-MM-dd hh:mm:ss"));
+        } else {
+            // XXX Pull digit count from capture file precision
+            setText(start_time_col_, QString::number(nstime_to_sec(&(call_info_->start_rel_ts)), 'f', 6));
+            setText(stop_time_col_, QString::number(nstime_to_sec(&(call_info_->stop_rel_ts)), 'f', 6));
+        }
+
         setText(initial_speaker_col_, address_to_display_qstring(&(call_info_->initial_speaker)));
         setText(from_col_, call_info_->from_identity);
         setText(to_col_, call_info_->to_identity);
         setText(protocol_col_, ((call_info_->protocol == VOIP_COMMON) && call_info_->protocol_name) ?
                         call_info_->protocol_name : voip_protocol_name[call_info_->protocol]);
+        setText(duration_col_, QString("%1:%2:%3").arg(callDuration / 3600, 2, 10, QChar('0')).arg((callDuration % 3600) / 60, 2, 10, QChar('0')).arg(callDuration % 60, 2, 10, QChar('0')));
         setText(packets_col_, QString::number(call_info_->npackets));
         setText(state_col_, voip_call_state_name[call_info_->call_state]);
 
@@ -157,6 +167,7 @@ public:
         case from_col_:
         case to_col_:
         case protocol_col_:
+        case duration_col_:
         case state_col_:
         case comments_col_:
             return text(col);
@@ -199,8 +210,15 @@ public:
         // Fall back to string comparison
         return QTreeWidgetItem::operator <(other);
     }
+
+    void setTimeOfDay(bool timeOfDay)
+    {
+        mTimeOfDay_ = timeOfDay;
+    }
+
 private:
     voip_calls_info_t *call_info_;
+    bool mTimeOfDay_;
 };
 
 VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flows) :
@@ -357,6 +375,7 @@ void VoipCallsDialog::updateCalls()
     QTreeWidgetItemIterator iter(ui->callTreeWidget);
     while (*iter) {
         VoipCallsTreeWidgetItem *vcti = static_cast<VoipCallsTreeWidgetItem*>(*iter);
+        vcti->setTimeOfDay(ui->todCheckBox->isChecked());
         vcti->drawData();
         ++iter;
     }
@@ -659,6 +678,11 @@ void VoipCallsDialog::on_buttonBox_clicked(QAbstractButton *button)
 void VoipCallsDialog::on_buttonBox_helpRequested()
 {
     wsApp->helpTopicAction(HELP_TELEPHONY_VOIP_CALLS_DIALOG);
+}
+
+void VoipCallsDialog::on_todCheckBox_clicked()
+{
+    updateCalls();
 }
 
 /*

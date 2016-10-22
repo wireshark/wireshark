@@ -100,6 +100,7 @@ private slots:
     void on_actionCopyAsYaml_triggered();
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_buttonBox_helpRequested();
+    void on_todCheckBox_clicked();
 };
 
 #endif // VOIP_CALLS_DIALOG_H
