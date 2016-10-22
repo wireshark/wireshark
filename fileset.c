@@ -49,6 +49,23 @@ typedef struct _fileset {
 /* this is the fileset's global data */
 static fileset set = { NULL, NULL};
 
+/*
+ * Given a stat structure, get the creation time of the file if available,
+ * or 0 if not.
+ */
+#ifdef _WIN32
+  /* Microsoft's documentation says this is the creation time */
+  #define ST_CREATE_TIME(statb) ((statb).st_ctime)
+#else /* _WIN32 */
+  /* UN*X - do we have a creation time? */
+  #if defined(HAVE_STRUCT_STAT_ST_BIRTHTIME)
+    #define ST_CREATE_TIME(statb) ((statb).st_birthtime)
+  #elif defined(HAVE_STRUCT_STAT___ST_BIRTHTIME)
+    #define ST_CREATE_TIME(statb) ((statb).__st_birthtime)
+  #else /* nothing */
+    #define ST_CREATE_TIME(statb) (0)
+  #endif /* creation time on UN*X */
+#endif /* _WIN32 */
 
 /* is this a probable file of a file set (does the naming pattern match)? */
 gboolean
@@ -186,19 +203,7 @@ fileset_update_file(const char *path)
 
             if (entry_list) {
                 entry = (fileset_entry *) entry_list->data;
-#ifdef __WIN32
-                /* Microsoft's documentation says this is the creation time */
-                entry->ctime    = buf.st_ctime;
-#else /* _WIN32 */
-                /* UN*X - do we have a creation time? */
-#if defined(HAVE_STRUCT_STAT_ST_BIRTHTIME)
-                entry->ctime    = buf.st_birthtime;
-#elif defined(HAVE_STRUCT_STAT___ST_BIRTHTIME)
-                entry->ctime    = buf.__st_birthtime;
-#else /* nothing */
-                entry->ctime    = 0;
-#endif /* creation time on UN*X */
-#endif /* _WIN32 */
+                entry->ctime    = ST_CREATE_TIME(buf);
                 entry->mtime    = buf.st_mtime;
                 entry->size     = buf.st_size;
             }
@@ -232,19 +237,7 @@ fileset_add_file(const char *dirname, const char *fname, gboolean current)
 
             entry->fullname = g_strdup(path);
             entry->name     = g_strdup(fname);
-#ifdef __WIN32
-            /* Microsoft's documentation says this is the creation time */
-            entry->ctime    = buf.st_ctime;
-#else /* _WIN32 */
-            /* UN*X - do we have a creation time? */
-#if defined(HAVE_STRUCT_STAT_ST_BIRTHTIME)
-            entry->ctime    = buf.st_birthtime;
-#elif defined(HAVE_STRUCT_STAT___ST_BIRTHTIME)
-            entry->ctime    = buf.__st_birthtime;
-#else /* nothing */
-            entry->ctime    = 0;
-#endif /* creation time on UN*X */
-#endif /* _WIN32 */
+            entry->ctime    = ST_CREATE_TIME(buf);
             entry->mtime    = buf.st_mtime;
             entry->size     = buf.st_size;
             entry->current  = current;
