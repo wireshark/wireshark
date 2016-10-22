@@ -1736,31 +1736,46 @@ static int dissect_l2tp_broadband_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pr
  */
 
 /* Dissect a single variable-length Ericsson Transport Configuration Group */
-static int dissect_l2tp_ericsson_transp_cfg(tvbuff_t *tvb, proto_tree *tree)
+static int dissect_l2tp_ericsson_transp_cfg(tvbuff_t *tvb, proto_tree *parent_tree)
 {
     int offset = 0;
-    guint32 num_sapis, i;
+    guint32 i, num_sapis;
+    proto_tree *tree;
 
-    proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_group_id, tvb, offset++, 1, ENC_NA);
-    proto_tree_add_item_ret_uint(tree, hf_l2tp_ericsson_tcg_num_sapis, tvb, offset++, 1, ENC_NA, &num_sapis);
-    for (i = 0; i < num_sapis; i++) {
-        proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_sapi, tvb, offset++, 1, ENC_NA);
+    while (tvb_reported_length_remaining(tvb, offset) >= 8) {
+        tree = proto_tree_add_subtree_format(parent_tree, tvb, 0, -1, ett_l2tp_ericsson_tcg,
+                                             NULL, "Transport Config Bundling Group");
+        proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_group_id, tvb, offset++, 1, ENC_NA);
+        proto_tree_add_item_ret_uint(tree, hf_l2tp_ericsson_tcg_num_sapis, tvb, offset++, 1, ENC_NA, &num_sapis);
+        for (i = 0; i < num_sapis; i++) {
+            proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_sapi, tvb, offset++, 1, ENC_NA);
+        }
+        proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_ip, tvb, offset, 4, ENC_NA);
+        offset += 4;
+        proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_dscp, tvb, offset++, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_crc32_enable, tvb, offset++, 1, ENC_NA);
+        /* Three more unknown bytes at the end of the group, like 05 01 2C */
+        offset += 3;
     }
-    proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_ip, tvb, offset, 4, ENC_NA);
-    offset += 4;
-    proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_dscp, tvb, offset++, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_crc32_enable, tvb, offset++, 1, ENC_NA);
 
     return offset;
 }
 
 /* Dissect a single 3-byte Ericsson TEI-to-SC Map */
-static int dissect_l2tp_ericsson_tei_sc_map(tvbuff_t *tvb, proto_tree *tree)
+static int dissect_l2tp_ericsson_tei_sc_map(tvbuff_t *tvb, proto_tree *parent_tree)
 {
-    proto_tree_add_item(tree, hf_l2tp_ericsson_map_tei_low, tvb, 0, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_l2tp_ericsson_map_tei_high, tvb, 1, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_l2tp_ericsson_map_sc, tvb, 2, 1, ENC_NA);
-    return 3;
+    int i = 0, offset = 0;
+    proto_tree *tree;
+
+    while (tvb_reported_length_remaining(tvb, offset) >= 3) {
+        tree = proto_tree_add_subtree_format(parent_tree, tvb, offset++, 3, ett_l2tp_ericsson_map,
+                                             NULL, "Transport Config Bundling Group %u", i);
+        proto_tree_add_item(tree, hf_l2tp_ericsson_map_tei_low, tvb, offset++, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_l2tp_ericsson_map_tei_high, tvb, offset++, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_l2tp_ericsson_map_sc, tvb, offset++, 1, ENC_NA);
+        i++;
+    }
+    return offset;
 }
 
 static int dissect_l2tp_ericsson_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 ccid)
@@ -1771,8 +1786,7 @@ static int dissect_l2tp_ericsson_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     guint16     avp_len;
     guint16     ver_len_hidden;
     guint32     msg_type;
-    guint32     num_maps, i;
-    proto_tree *l2tp_avp_tree, *l2tp_avp_tree_sub;
+    proto_tree *l2tp_avp_tree;
     tvbuff_t   *tcg_tvb;
 
     ver_len_hidden  = tvb_get_ntohs(tvb, offset);
@@ -1834,19 +1848,12 @@ static int dissect_l2tp_ericsson_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_tc_num_groups, tvb, offset+2, 1, ENC_NA);
         /* FIXME: iterate over multiple groups */
         tcg_tvb = tvb_new_subset_length(tvb, offset+3, avp_len-3);
-        l2tp_avp_tree_sub = proto_tree_add_subtree_format(l2tp_avp_tree, tvb, 0, -1, ett_l2tp_ericsson_tcg,
-                                                          NULL, "Transport Config Bundling Group");
-        dissect_l2tp_ericsson_transp_cfg(tcg_tvb, l2tp_avp_tree_sub);
+        dissect_l2tp_ericsson_transp_cfg(tcg_tvb, l2tp_avp_tree);
         break;
     case ERICSSNN_TEI_TO_SC_MAP:
-        proto_tree_add_item_ret_uint(l2tp_avp_tree, hf_l2tp_ericsson_tc_num_maps, tvb, offset++, 1, ENC_NA, &num_maps);
-        /* iterate over multiple groups */
-        for (i = 0; i < num_maps; i++) {
-                tcg_tvb = tvb_new_subset_length(tvb, offset, 3);
-                l2tp_avp_tree_sub = proto_tree_add_subtree_format(l2tp_avp_tree, tvb, 0, -1, ett_l2tp_ericsson_map,
-                                                          NULL, "Transport Config Bundling Group %u", i);
-                offset += dissect_l2tp_ericsson_tei_sc_map(tcg_tvb, l2tp_avp_tree_sub);
-        }
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_tc_num_maps, tvb, offset++, 1, ENC_NA);
+        tcg_tvb = tvb_new_subset_length(tvb, offset, avp_len);
+        offset += dissect_l2tp_ericsson_tei_sc_map(tcg_tvb, l2tp_avp_tree);
         break;
 
     default:
