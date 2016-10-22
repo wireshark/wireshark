@@ -103,9 +103,19 @@ void FileSetDialog::addFile(fileset_entry *entry) {
     created = nameToDate(entry->name);
     if(created.length() < 1) {
         /* if this file doesn't follow the file set pattern, */
-        /* use the creation time of that file */
+        /* use the creation time of that file if available */
         /* http://en.wikipedia.org/wiki/ISO_8601 */
-        created = QDateTime::fromTime_t(entry->ctime).toLocalTime().toString("yyyy-MM-dd HH:mm:ss");
+        /*
+         * macOS provides 0 if the file system doesn't support the
+         * creation time; FreeBSD provides -1.
+         *
+         * If this OS doesn't provide the creation time with stat(),
+         * it will be 0.
+         */
+        if (entry->ctime > 0)
+            created = QDateTime::fromTime_t(entry->ctime).toLocalTime().toString("yyyy-MM-dd HH:mm:ss");
+        else
+            created = "Not available";
     }
 
     modified = QDateTime::fromTime_t(entry->mtime).toLocalTime().toString("yyyy-MM-dd HH:mm:ss");
