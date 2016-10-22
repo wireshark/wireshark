@@ -34,8 +34,11 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/proto_data.h>
+#include <epan/expert.h>
 
 #include <wsutil/str_util.h>
+#include <wsutil/strtoi.h>
+
 #include "packet-ssl.h"
 #include "packet-ssl-utils.h"
 
@@ -64,6 +67,8 @@ static int hf_pop_data_fragment_error = -1;
 static int hf_pop_data_fragment_count = -1;
 static int hf_pop_data_reassembled_in = -1;
 static int hf_pop_data_reassembled_length = -1;
+
+static expert_field ei_pop_resp_tot_len_invalid = EI_INIT;
 
 static gint ett_pop = -1;
 static gint ett_pop_reqresp = -1;
@@ -289,10 +294,12 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (data_val->msg_request) {
           /* this is a response to a RETR or TOP command */
 
-          if (g_ascii_strncasecmp(line, "+OK ", 4) == 0) {
+          if (g_ascii_strncasecmp(line, "+OK ", 4) == 0 && strlen(line) > 4) {
             /* the message will be sent - work out how many bytes */
             data_val->msg_read_len = 0;
-            data_val->msg_tot_len = atoi(line + 4);
+            data_val->msg_tot_len = 0;
+            if (sscanf(line, "%*s %u %*s", &data_val->msg_tot_len) != 1)
+              expert_add_info(pinfo, ti, &ei_pop_resp_tot_len_invalid);
           }
           data_val->msg_request = FALSE;
         }
@@ -378,6 +385,8 @@ static void pop_data_reassemble_cleanup (void)
 void
 proto_register_pop(void)
 {
+  expert_module_t* expert_pop;
+
   static hf_register_info hf[] = {
     { &hf_pop_response,
       { "Response",           "pop.response",
@@ -439,6 +448,11 @@ proto_register_pop(void)
         NULL, 0x00, "The total length of the reassembled payload", HFILL } },
   };
 
+  static ei_register_info ei[] = {
+    { &ei_pop_resp_tot_len_invalid, { "pop.response.tot_len.invalid", PI_MALFORMED, PI_ERROR,
+      "Length must be a string containing an integer", EXPFILL }}
+  };
+
   static gint *ett[] = {
     &ett_pop,
     &ett_pop_reqresp,
@@ -463,6 +477,9 @@ proto_register_pop(void)
     "Whether the POP dissector should reassemble RETR and TOP responses and spanning multiple TCP segments."
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &pop_data_desegment);
+
+  expert_pop = expert_register_protocol(proto_pop);
+  expert_register_field_array(expert_pop, ei, array_length(ei));
 }
 
 void
