@@ -230,13 +230,15 @@ write_pdml_preamble(FILE *fh, const gchar *filename)
 {
     time_t t = time(NULL);
     struct tm * timeinfo;
-    char *ts;
+    char *fmt_ts;
+    const char *ts;
 
     /* Create the output */
     timeinfo = localtime(&t);
     if (timeinfo != NULL) {
-        ts = asctime(timeinfo);
-        ts[strlen(ts)-1] = 0; /* overwrite \n */
+        fmt_ts = asctime(timeinfo);
+        fmt_ts[strlen(fmt_ts)-1] = 0; /* overwrite \n */
+        ts = fmt_ts;
     } else
         ts = "Not representable";
 
