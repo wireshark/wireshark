@@ -126,6 +126,20 @@ wmem_list_find(wmem_list_t *list, const void *data)
     return NULL;
 }
 
+wmem_list_frame_t *
+wmem_list_find_custom(wmem_list_t *list, const void *data, GCompareFunc compare_func)
+{
+    wmem_list_frame_t *cur;
+
+    for (cur = list->head; cur != NULL; cur = cur->next) {
+        if (compare_func(cur->data, data) == 0) {
+            return cur;
+        }
+    }
+
+    return NULL;
+}
+
 void
 wmem_list_prepend(wmem_list_t *list, void *data)
 {

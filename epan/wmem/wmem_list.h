@@ -88,6 +88,10 @@ wmem_list_frame_t *
 wmem_list_find(wmem_list_t *list, const void *data);
 
 WS_DLL_PUBLIC
+wmem_list_frame_t *
+wmem_list_find_custom(wmem_list_t *list, const void *data, GCompareFunc func);
+
+WS_DLL_PUBLIC
 void
 wmem_list_prepend(wmem_list_t *list, void *data);
 
