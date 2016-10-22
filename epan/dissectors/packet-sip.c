@@ -46,6 +46,7 @@
 #include <epan/uat.h>
 
 #include <wsutil/str_util.h>
+#include <wsutil/strtoi.h>
 
 #include "packet-ssl.h"
 
@@ -262,6 +263,9 @@ static expert_field ei_sip_header_not_terminated = EI_INIT;
 static expert_field ei_sip_odd_register_response = EI_INIT;
 #endif
 static expert_field ei_sip_sipsec_malformed = EI_INIT;
+static expert_field ei_sip_via_sent_by_port = EI_INIT;
+static expert_field ei_sip_content_length_invalid = EI_INIT;
+static expert_field ei_sip_Status_Code_invalid = EI_INIT;
 
 /* patterns used for tvb_ws_mempbrk_pattern_guint8 */
 static ws_mempbrk_pattern pbrk_comma_semi;
@@ -1877,13 +1881,16 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
          * etc, do. But legally "exPiRes = value" is also legit.
          */
         if (tvb_strncaseeql(tvb, contact_params_start_offset, "expires=", 8) == 0) {
+            gint32 expire;
             /* if the expires param value is 0, then it's de-registering
              * this assumes the message is a REGISTER request/response, but these
              * contacts_expires_0/contacts_expires_unknown variables only get used then,
              * so that's ok
              */
-            if (atoi(tvb_get_string_enc(wmem_packet_scope(), tvb, contact_params_start_offset+8,
-                        current_offset - (contact_params_start_offset+8), ENC_UTF_8|ENC_NA)) == 0) {
+            if (!ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(), tvb, contact_params_start_offset+8,
+                    current_offset - (contact_params_start_offset+8), ENC_UTF_8|ENC_NA), NULL, &expire))
+                return contact_params_start_offset+8;
+            if (expire == 0) {
                 (*contacts_expires_0)++;
                 /* it is actually unusual - arguably invalid - for a SIP REGISTER
                  * 200 OK _response_ to contain Contacts with expires=0.
@@ -2460,10 +2467,15 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
                     if (current_offset > port_offset)
                     {
                         /* Add address port number to tree */
-                        int port = atoi(tvb_get_string_enc(wmem_packet_scope(), tvb, port_offset,
-                                                           current_offset - port_offset, ENC_UTF_8|ENC_NA));
-                        proto_tree_add_uint(tree, hf_sip_via_sent_by_port, tvb, port_offset,
+                        guint16 port;
+                        gboolean port_valid;
+                        proto_item* pi;
+                        port_valid = ws_strtou16(tvb_get_string_enc(wmem_packet_scope(), tvb, port_offset,
+                            current_offset - port_offset, ENC_UTF_8|ENC_NA), NULL, &port);
+                        pi = proto_tree_add_uint(tree, hf_sip_via_sent_by_port, tvb, port_offset,
                                             current_offset - port_offset, port);
+                        if (!port_valid)
+                            expert_add_info(pinfo, pi, &ei_sip_via_sent_by_port);
                     }
                     else
                     {
@@ -3688,13 +3700,15 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     case POS_CONTENT_LENGTH :
                     {
                         char *value = tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset, value_len, ENC_UTF_8|ENC_NA);
-                        content_length = atoi(value);
+                        gboolean content_length_valid = ws_strtou32(value, NULL, &content_length);
 
                         sip_element_item = proto_tree_add_uint(hdr_tree,
                                                hf_header_array[hf_index], tvb,
                                                offset, next_offset - offset,
                                                content_length);
                         sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+                        if (!content_length_valid)
+                            expert_add_info(pinfo, sip_element_item, &ei_sip_content_length_invalid);
 
                         break;
                     }
@@ -4351,6 +4365,8 @@ static void
 dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint line_end, gint offset)
 {
     gint response_code = 0;
+    gboolean response_code_valid;
+    proto_item* pi;
     int diag_len;
     tvbuff_t *next_tvb;
 
@@ -4361,10 +4377,13 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gin
      * space at the beginning of the line, for the same reason.
      */
     offset = offset + SIP2_HDR_LEN + 1;
-    response_code = atoi((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 3, ENC_UTF_8|ENC_NA));
+    response_code_valid = ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 3,
+        ENC_UTF_8|ENC_NA), NULL, &response_code);
 
     /* Add numerical response code to tree */
-    proto_tree_add_uint(tree, hf_sip_Status_Code, tvb, offset, 3, response_code);
+    pi = proto_tree_add_uint(tree, hf_sip_Status_Code, tvb, offset, 3, response_code);
+    if (!response_code_valid)
+        expert_add_info(pinfo, pi, &ei_sip_Status_Code_invalid);
 
     /* Add response code for sending to tap */
     stat_info->response_code = response_code;
@@ -6617,6 +6636,9 @@ void proto_register_sip(void)
         { &ei_sip_odd_register_response, { "sip.response.unusual", PI_RESPONSE_CODE, PI_WARN, "SIP Response is unusual", EXPFILL }},
 #endif
         { &ei_sip_sipsec_malformed, { "sip.sec_mechanism.malformed", PI_MALFORMED, PI_WARN, "SIP Security-mechanism header malformed", EXPFILL }},
+        { &ei_sip_via_sent_by_port, { "sip.Via.sent-by.port.invalid", PI_MALFORMED, PI_NOTE, "Invalid SIP Via sent-by-port", EXPFILL }},
+        { &ei_sip_content_length_invalid, { "sip.content_length.invalid", PI_MALFORMED, PI_NOTE, "Invalid content_length", EXPFILL }},
+        { &ei_sip_Status_Code_invalid, { "sip.Status-Code.invalid", PI_MALFORMED, PI_NOTE, "Invalid Status-Code", EXPFILL }}
     };
 
     module_t *sip_module;
