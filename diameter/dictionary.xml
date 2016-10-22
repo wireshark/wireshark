@@ -3435,6 +3435,10 @@
 			<enum name="QCI_7" 	code="7"/>
 			<enum name="QCI_8"	code="8"/>
 			<enum name="QCI_9"	code="9"/>
+			<enum name="QCI_65"	code="65"/>
+			<enum name="QCI_66"	code="66"/>
+			<enum name="QCI_69"	code="69"/>
+			<enum name="QCI_70"	code="70"/>
 			<!-- The values shall be used to indicate standardized characteristics associated with standardized QCI values from
 				3GPP TS 23.203 -->
 		</avp>
