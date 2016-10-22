@@ -390,9 +390,11 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
 
                 if (!ok_r1 && !ok_r2) {
                     cmp_val = 0;
-                } else if (!ok_r1 || num_r1 < num_r2) {
+                } else if (!ok_r1 || (ok_r2 && num_r1 < num_r2)) {
+                    // either r1 is invalid (and sort it before others) or both
+                    // r1 and r2 are valid (sort normally)
                     cmp_val = -1;
-                } else if (!ok_r2 || num_r1 > num_r2) {
+                } else if (!ok_r2 || (ok_r1 && num_r1 > num_r2)) {
                     cmp_val = 1;
                 }
             } else {
