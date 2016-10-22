@@ -99,8 +99,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2016-10-17"
-$Win32CurrentTag = "2016-10-17"
+$Win64CurrentTag = "2016-10-22"
+$Win32CurrentTag = "2016-10-22"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -117,6 +117,7 @@ $Win64Archives = @{
     "nasm-2.09.08-win32.zip" = "";
     "nghttp2-1.14.0-win64ws.zip" = "";
     "portaudio_v19_2.zip" = "";
+    "sbc-1.3-win64ws.zip" = "";
     "snappy-1.1.3-win64ws.zip" = "";
     "upx303w.zip" = "";
     "WinSparkle-0.3-44-g2c8d9d3-win64ws.zip" = "";
@@ -138,6 +139,7 @@ $Win32Archives = @{
     "nasm-2.09.08-win32.zip" = "";
     "nghttp2-1.14.0-win32ws.zip" = "";
     "portaudio_v19_2.zip" = "";
+    "sbc-1.3-win32ws.zip" = "";
     "snappy-1.1.3-win32ws.zip" = "";
     "upx303w.zip" = "";
     "WinSparkle-0.3-44-g2c8d9d3-win32ws.zip" = "";
@@ -187,6 +189,7 @@ $CleanupItems = @(
     "nghttp2-*-win??ws"
     "portaudio_v19"
     "portaudio_v19_2"
+    "sbc-1.3-win??ws"
     "snappy-1.1.3-win??ws"
     "upx301w"
     "upx303w"

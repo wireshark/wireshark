@@ -1586,6 +1586,13 @@ if(WIN32)
 				"${_dll_output_dir}"
 		)
 	endif(NGHTTP2_FOUND)
+	if (SBC_FOUND)
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${SBC_DLL_DIR}/${SBC_DLL}"
+				"${_dll_output_dir}"
+		)
+	endif(SBC_FOUND)
 	if (SMI_FOUND)
 		# Wireshark.nsi wants SMI_DIR which is the base SMI directory
 		get_filename_component(SMI_DIR ${SMI_DLL_DIR} DIRECTORY)
