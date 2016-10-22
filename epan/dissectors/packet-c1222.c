@@ -1559,7 +1559,7 @@ static int dissect_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-c1222-fn.c ---*/
-#line 1042 "./asn1/c1222/packet-c1222-template.c"
+#line 1041 "./asn1/c1222/packet-c1222-template.c"
 
 /**
  * Dissects a a full (reassembled) C12.22 message.
@@ -1951,7 +1951,7 @@ void proto_register_c1222(void) {
         "OCTET_STRING_SIZE_CONSTR002", HFILL }},
 
 /*--- End of included file: packet-c1222-hfarr.c ---*/
-#line 1329 "./asn1/c1222/packet-c1222-template.c"
+#line 1328 "./asn1/c1222/packet-c1222-template.c"
   };
 
   /* List of subtrees */
@@ -1974,7 +1974,7 @@ void proto_register_c1222(void) {
     &ett_c1222_Calling_authentication_value_c1221_U,
 
 /*--- End of included file: packet-c1222-ettarr.c ---*/
-#line 1339 "./asn1/c1222/packet-c1222-template.c"
+#line 1338 "./asn1/c1222/packet-c1222-template.c"
   };
 
   static ei_register_info ei[] = {
