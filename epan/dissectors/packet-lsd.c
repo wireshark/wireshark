@@ -62,15 +62,15 @@ parse_string_field(proto_tree *tree, int hf, packet_info *pinfo, tvbuff_t *tvb, 
   {
       field_and_value = wmem_strsplit(wmem_packet_scope(), str, ":", 1);
       p = field_and_value[1];
-      while(g_ascii_isspace(*p))
+      if (p) {
+        while(g_ascii_isspace(*p))
           p++;
-      proto_tree_add_string(tree, hf, tvb, offset, *linelen, p);
+        proto_tree_add_string(tree, hf, tvb, offset, *linelen, p);
+        return TRUE;
+      }
   }
-  else
-  {
-    ti = proto_tree_add_string_format(tree, hf, tvb, offset, *linelen, str, "%s", str);
-    expert_add_info_format(pinfo, ti, &ei_lsd_field, "%s field malformed", hf_info->name);
-  }
+  ti = proto_tree_add_string_format(tree, hf, tvb, offset, *linelen, str, "%s", str);
+  expert_add_info_format(pinfo, ti, &ei_lsd_field, "%s field malformed", hf_info->name);
 
   return TRUE;
 }
