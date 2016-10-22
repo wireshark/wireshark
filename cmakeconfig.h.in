@@ -295,7 +295,7 @@
 #cmakedefine HAVE_REMOTE 1
 
 /* Define if sa_len field exists in struct sockaddr */
-#cmakedefine HAVE_SOCKADDR_SA_LEN 1
+#cmakedefine HAVE_STRUCT_SOCKADDR_SA_LEN 1
 
 /* Define to 1 if you want to playing SBC by standalone BlueZ SBC library */
 #cmakedefine HAVE_SBC 1
@@ -322,7 +322,7 @@
 #cmakedefine HAVE_STRUCT_STAT_ST_BIRTHTIME 1
 
 /* Define if st_flags field exists in struct stat */
-#cmakedefine HAVE_STAT_ST_FLAGS 1
+#cmakedefine HAVE_STRUCT_STAT_ST_FLAGS 1
 
 /* Define to 1 if `__st_birthtime' is a member of `struct stat'. */
 #cmakedefine HAVE_STRUCT_STAT___ST_BIRTHTIME 1

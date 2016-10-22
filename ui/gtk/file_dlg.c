@@ -304,9 +304,9 @@ file_target_unwritable_ui(GtkWidget *chooser_w, char *cf_name)
     return TRUE;
   }
 
-  /* OK, we have the permission bits and, if HAVE_STAT_ST_FLAGS is defined,
-     the flags.  (If we don't, we don't worry about it.) */
-#ifdef HAVE_STAT_ST_FLAGS
+  /* OK, we have the permission bits and, if HAVE_STRUCT_STAT_ST_FLAGS
+     is defined, the flags.  (If we don't, we don't worry about it.) */
+#ifdef HAVE_STRUCT_STAT_ST_FLAGS
   if (statbuf.st_flags & UF_IMMUTABLE) {
     display_basename = g_filename_display_basename(cf_name);
     msg_dialog = gtk_message_dialog_new(GTK_WINDOW(chooser_w),
@@ -325,7 +325,7 @@ file_target_unwritable_ui(GtkWidget *chooser_w, char *cf_name)
                                         display_basename);
     g_free(display_basename);
   } else
-#endif /* HAVE_STAT_ST_FLAGS */
+#endif /* HAVE_STRUCT_STAT_ST_FLAGS */
   if ((statbuf.st_mode & (S_IWUSR|S_IWGRP|S_IWOTH)) == 0) {
     display_basename = g_filename_display_basename(cf_name);
     msg_dialog = gtk_message_dialog_new(GTK_WINDOW(chooser_w),
@@ -358,7 +358,7 @@ file_target_unwritable_ui(GtkWidget *chooser_w, char *cf_name)
       return FALSE;
     }
 
-#ifdef HAVE_STAT_ST_FLAGS
+#ifdef HAVE_STRUCT_STAT_ST_FLAGS
     /* OK, they want to overwrite the file.  If it has the "user
        immutable" flag, we have to turn that off first, so we
        can move on top of, or overwrite, the file. */
