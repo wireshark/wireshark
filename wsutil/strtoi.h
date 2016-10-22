@@ -29,6 +29,10 @@
 
 #include "ws_symbol_export.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * \brief Convert a decimal string to a signed/unsigned int, with error checks.
  * \param str The string to convert
@@ -68,6 +72,10 @@ WS_DLL_PUBLIC gboolean ws_hexstrtou64(const gchar* str, const gchar** endptr, gu
 WS_DLL_PUBLIC gboolean ws_hexstrtou32(const gchar* str, const gchar** endptr, guint32* cint);
 WS_DLL_PUBLIC gboolean ws_hexstrtou16(const gchar* str, const gchar** endptr, guint16* cint);
 WS_DLL_PUBLIC gboolean ws_hexstrtou8 (const gchar* str, const gchar** endptr, guint8*  cint);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif
 
