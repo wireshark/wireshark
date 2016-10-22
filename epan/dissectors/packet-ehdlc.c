@@ -47,6 +47,12 @@ static int hf_ehdlc_tei = -1;
 static int hf_ehdlc_c_r = -1;
 
 static int hf_ehdlc_xid_payload = -1;
+static int hf_ehdlc_xid_win_tx = -1;
+static int hf_ehdlc_xid_win_rx = -1;
+static int hf_ehdlc_xid_ack_tmr_ms = -1;
+static int hf_ehdlc_xid_format_id = -1;
+static int hf_ehdlc_xid_group_id = -1;
+static int hf_ehdlc_xid_len = -1;
 static int hf_ehdlc_control = -1;
 
 static int hf_ehdlc_p = -1;
@@ -93,6 +99,7 @@ static const xdlc_cf_items ehdlc_cf_items_ext = {
 
 /* Initialize the subtree pointers */
 static gint ett_ehdlc = -1;
+static gint ett_ehdlc_xid = -1;
 static gint ett_ehdlc_control = -1;
 
 enum {
@@ -148,6 +155,54 @@ static guint8 sapi_from_csapi(guint8 csapi)
 }
 
 static dissector_handle_t sub_handles[SUB_MAX];
+
+static int
+dissect_ehdlc_xid(proto_tree *tree, tvbuff_t *tvb, guint base_offset, guint len)
+{
+	guint offset = base_offset;
+	proto_item *ti;
+	proto_tree *xid_tree;
+
+	/* XID is formatted like ISO 8885, typically we see
+	 * something like
+	 * 82		format identifier
+	 * 80		group identifier
+	 * 00 09 	length
+	 * 07 01 05 	Window Size Tx
+	 * 09 01 04	Ack Timer (msec)
+	 * 08 01 05	Window Size Rx */
+	ti = proto_tree_add_item(tree, hf_ehdlc_xid_payload,
+				 tvb, offset, len, ENC_NA);
+	xid_tree = proto_item_add_subtree(ti, ett_ehdlc_xid);
+
+	proto_tree_add_item(xid_tree, hf_ehdlc_xid_format_id, tvb, offset++, 1, ENC_NA);
+	proto_tree_add_item(xid_tree, hf_ehdlc_xid_group_id, tvb, offset++, 1, ENC_NA);
+	proto_tree_add_item(xid_tree, hf_ehdlc_xid_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	while (tvb_reported_length_remaining(tvb, offset) >= 2) {
+		guint8 iei = tvb_get_guint8(tvb, offset++);
+		guint8 ie_len = tvb_get_guint8(tvb, offset++);
+
+		switch (iei) {
+		case 0x07:
+			proto_tree_add_item(xid_tree, hf_ehdlc_xid_win_tx, tvb,
+					offset, ie_len, ENC_NA);
+			break;
+		case 0x08:
+			proto_tree_add_item(xid_tree, hf_ehdlc_xid_win_rx, tvb,
+					offset, ie_len, ENC_NA);
+			break;
+		case 0x09:
+			proto_tree_add_item(xid_tree, hf_ehdlc_xid_ack_tmr_ms, tvb,
+					offset, ie_len, ENC_NA);
+			break;
+		}
+		offset += ie_len;
+	}
+
+	return offset - base_offset;
+}
 
 /* Code to actually dissect the packets */
 static int
@@ -239,17 +294,8 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 				break;
 			}
 		} else if (control == (XDLC_U | XDLC_XID)) {
-			/* XID is formatted like ISO 8885, typically we see
- 			 * something like
-			 * 82		format identifier
-			 * 80		group identifier
-			 * 00 09 	length
-			 * 07 01 05 	Window Size Tx
-			 * 09 01 04	Ack Timer (msec)
-			 * 08 01 05	Window Size Rx */
-			proto_tree_add_item(ehdlc_tree, hf_ehdlc_xid_payload,
-					    tvb, offset+header_length,
-					    len-header_length, ENC_NA);
+			dissect_ehdlc_xid(ehdlc_tree, tvb, offset+header_length,
+					  len-header_length);
 		}
 
 		if (len == 0)
@@ -297,6 +343,36 @@ proto_register_ehdlc(void)
 		{ &hf_ehdlc_xid_payload,
 		  { "XID Payload", "ehdlc.xid_payload",
 		    FT_BYTES, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_ehdlc_xid_win_tx,
+		  { "Transmit Window", "ehdlc.xid.win_tx",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_ehdlc_xid_win_rx,
+		  { "Receive Window", "ehdlc.xid.win_rx",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_ehdlc_xid_ack_tmr_ms,
+		  { "Timer (ms)", "ehdlc.xid.ack_tmr_ms",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_ehdlc_xid_format_id,
+		  { "Format Identifier", "ehdlc.xid.format_id",
+		    FT_UINT8, BASE_HEX, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_ehdlc_xid_group_id,
+		  { "Group Identifier", "ehdlc.xid.group_id",
+		    FT_UINT8, BASE_HEX, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_ehdlc_xid_len,
+		  { "XID Length", "ehdlc.xid.len",
+		    FT_UINT16, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_ehdlc_control,
@@ -368,6 +444,7 @@ proto_register_ehdlc(void)
 
 	static gint *ett[] = {
 		&ett_ehdlc,
+		&ett_ehdlc_xid,
 		&ett_ehdlc_control,
 	};
 
