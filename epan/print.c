@@ -246,9 +246,16 @@ void
 write_pdml_preamble(FILE *fh, const gchar *filename)
 {
     time_t t = time(NULL);
-    char *ts = asctime(localtime(&t));
+    struct tm * timeinfo;
+    char *ts;
 
-    ts[strlen(ts)-1] = 0; /* overwrite \n */
+    /* Create the output */
+    timeinfo = localtime(&t);
+    if (timeinfo != NULL) {
+        ts = asctime(timeinfo);
+        ts[strlen(ts)-1] = 0; /* overwrite \n */
+    } else
+        ts = "Not representable";
 
     fprintf(fh, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
     fprintf(fh, "<?xml-stylesheet type=\"text/xsl\" href=\"" PDML2HTML_XSL "\"?>\n");
@@ -333,7 +340,10 @@ write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar *
 
     /* Create the output */
     timeinfo = localtime(&t);
-    strftime(ts, 30, "%Y-%m-%d", timeinfo);
+    if (timeinfo != NULL)
+        strftime(ts, sizeof ts, "%Y-%m-%d", timeinfo);
+    else
+        g_strlcpy(ts, "XXXX-XX-XX", sizeof ts); /* XXX - better way of saying "Not representable"? */
 
     if (!is_first)
         fputs("  ,\n", fh);
@@ -381,7 +391,10 @@ write_ek_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **p
 
     /* Create the output */
     timeinfo = localtime(&t);
-    strftime(ts, 30, "%Y-%m-%d", timeinfo);
+    if (timeinfo != NULL)
+        strftime(ts, sizeof ts, "%Y-%m-%d", timeinfo);
+    else
+        g_strlcpy(ts, "XXXX-XX-XX", sizeof ts); /* XXX - better way of saying "Not representable"? */
 
     fprintf(fh, "{\"index\" : {\"_index\": \"packets-%s\", \"_type\": \"pcap_file\", \"_score\": null}}\n", ts);
     /* Timestamp added for time indexing in Elasticsearch */

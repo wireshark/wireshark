@@ -330,7 +330,7 @@ welcome_header_set_message(gchar *msg) {
     if (msg) {
         g_string_append(message, msg);
     } else { /* Use our default header */
-        if ((now->tm_mon == 3 && now->tm_mday == 1) || (now->tm_mon == 6 && now->tm_mday == 14)) {
+        if (now != NULL && ((now->tm_mon == 3 && now->tm_mday == 1) || (now->tm_mon == 6 && now->tm_mday == 14))) {
             g_string_append(message, "Sniffing the glue that holds the Internet together");
         } else {
             g_string_append(message, prefs.gui_start_title);

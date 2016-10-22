@@ -1801,6 +1801,7 @@ parse_options (int argc, char *argv[])
     }
 
     ts_sec = time(0);               /* initialize to current time */
+    /* We trust the OS to return a time after the Epoch. */
     timecode_default = *localtime(&ts_sec);
     timecode_default.tm_isdst = -1; /* Unknown for now, depends on time given to the strptime() function */
 

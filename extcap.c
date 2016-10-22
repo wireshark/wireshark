@@ -1127,6 +1127,10 @@ gboolean extcap_create_pipe(char ** fifo)
     SECURITY_ATTRIBUTES security;
     /* create pipename */
     current_time = time(NULL);
+    /*
+     * XXX - we trust Windows not to return a time before the Epoch here,
+     * so we won't get a null pointer back from localtime().
+     */
     strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
     pipename = g_strconcat ( "\\\\.\\pipe\\", EXTCAP_PIPE_PREFIX, "_", timestr, NULL );
 

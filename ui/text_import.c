@@ -938,6 +938,7 @@ text_import(text_import_info_t *info)
     packet_start = 0;
     packet_preamble_len = 0;
     ts_sec = time(0);            /* initialize to current time */
+    /* We trust the OS not to provide a time before the Epoch. */
     timecode_default = *localtime(&ts_sec);
     timecode_default.tm_isdst = -1;     /* Unknown for now, depends on time given to the strptime() function */
     ts_usec = 0;

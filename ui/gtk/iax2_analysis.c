@@ -516,14 +516,21 @@ static int iax2_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	then = pinfo->abs_ts.secs;
 	msecs = (guint16)(pinfo->abs_ts.nsecs/1000000);
 	tm_tmp = localtime(&then);
-	g_snprintf(timeStr,sizeof(timeStr),"%02d/%02d/%04d %02d:%02d:%02d.%03d",
-		tm_tmp->tm_mon + 1,
-		tm_tmp->tm_mday,
-		tm_tmp->tm_year + 1900,
-		tm_tmp->tm_hour,
-		tm_tmp->tm_min,
-		tm_tmp->tm_sec,
-		msecs);
+	if (tm_tmp != NULL) {
+		/*
+		 * XXX - somewhat US-centric here.
+		 */
+		g_snprintf(timeStr,sizeof(timeStr),"%02d/%02d/%04d %02d:%02d:%02d.%03d",
+			tm_tmp->tm_mon + 1,
+			tm_tmp->tm_mday,
+			tm_tmp->tm_year + 1900,
+			tm_tmp->tm_hour,
+			tm_tmp->tm_min,
+			tm_tmp->tm_sec,
+			msecs);
+	} else {
+		g_snprintf(timeStr,sizeof(timeStr),"XX/XX/XXXX XX:XX:XX.XXX",
+	}
 
 	/* Default to using black on white text if nothing below overrides it */
 	g_snprintf(color_str,sizeof(color_str),"#ffffffffffff");

@@ -204,6 +204,7 @@ create_tempfile(char **namebuf, const char *pfx, const char *sfx)
   _tzset();
 #endif
   current_time = time(NULL);
+  /* We trust the OS not to return a time before the Epoch. */
   strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
   sep[0] = G_DIR_SEPARATOR;
   tmp_file = g_strconcat(tmp_dir, sep, safe_pfx, "_", timestr, "_", TMP_FILE_SUFFIX, sfx, NULL);

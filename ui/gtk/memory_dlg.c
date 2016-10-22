@@ -130,15 +130,18 @@ print_interval_string(char *buf, int buf_len, guint32 interval, io_stat_t *io)
         nsec_val -= 1000;
     }
     tmp = localtime (&sec_val);
-    if (INTERVAL >= 1000) {
-        g_snprintf(buf, buf_len, "%02d:%02d:%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
-    } else if (INTERVAL >= 100) {
-        g_snprintf(buf, buf_len, "%02d:%02d:%02d.%1d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/100);
-    } else if (INTERVAL >= 10) {
-        g_snprintf(buf, buf_len, "%02d:%02d:%02d.%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/10);
-    } else {
-        g_snprintf(buf, buf_len, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val);
-    }
+    if (tmp != NULL) {
+        if (INTERVAL >= 1000) {
+            g_snprintf(buf, buf_len, "%02d:%02d:%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+        } else if (INTERVAL >= 100) {
+            g_snprintf(buf, buf_len, "%02d:%02d:%02d.%1d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/100);
+        } else if (INTERVAL >= 10) {
+            g_snprintf(buf, buf_len, "%02d:%02d:%02d.%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/10);
+        } else {
+            g_snprintf(buf, buf_len, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val);
+        }
+    } else
+        g_snprintf(buf, buf_len, "XX:XX:XX");
 }
 
 static void

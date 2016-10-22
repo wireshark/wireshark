@@ -160,15 +160,23 @@ fileset_dlg_add_file(fileset_entry *entry, void *window _U_) {
         /* if this file doesn't follow the file set pattern, */
         /* use the creation time of that file */
         local = localtime(&entry->ctime);
-        created = g_strdup_printf("%04u-%02u-%02u %02u:%02u:%02u",
-                                  local->tm_year+1900, local->tm_mon+1, local->tm_mday,
-                                  local->tm_hour, local->tm_min, local->tm_sec);
+        if (local != NULL) {
+            created = g_strdup_printf("%04u-%02u-%02u %02u:%02u:%02u",
+                                      local->tm_year+1900, local->tm_mon+1, local->tm_mday,
+                                      local->tm_hour, local->tm_min, local->tm_sec);
+        } else {
+            created = g_strdup("Time not representable");
+        }
     }
 
     local = localtime(&entry->mtime);
-    modified = g_strdup_printf("%04u-%02u-%02u %02u:%02u:%02u",
-        local->tm_year+1900, local->tm_mon+1, local->tm_mday,
-        local->tm_hour, local->tm_min, local->tm_sec);
+    if (local != NULL) {
+        modified = g_strdup_printf("%04u-%02u-%02u %02u:%02u:%02u",
+            local->tm_year+1900, local->tm_mon+1, local->tm_mday,
+            local->tm_hour, local->tm_min, local->tm_sec);
+    } else {
+        modified = g_strdup("Time not representable");
+    }
     size = g_strdup_printf("%" G_GINT64_MODIFIER "d Bytes", entry->size);
 
     fs_rb = gtk_radio_button_new_with_label_from_widget(

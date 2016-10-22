@@ -1303,7 +1303,10 @@ channel_draw(rtp_channel_info_t *rci)
 			if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb_view_as_time_of_day))) {
 				seconds = rci->start_time_abs.secs + i * MULT / sample_rate;
 				timestamp = localtime(&seconds);
-				g_snprintf(label_string, MAX_TIME_LABEL, "%02d:%02d:%02d", timestamp->tm_hour, timestamp->tm_min, timestamp->tm_sec);
+				if (timestamp != NULL
+					g_snprintf(label_string, MAX_TIME_LABEL, "%02d:%02d:%02d", timestamp->tm_hour, timestamp->tm_min, timestamp->tm_sec);
+				else
+					g_snprintf(label_string, MAX_TIME_LABEL, "XX:XX:XX");
 			} else {
 				g_snprintf(label_string, MAX_TIME_LABEL, "%.0f s", floor(nstime_to_sec(&rci->start_time_abs)) + i*MULT/sample_rate);
 			}
@@ -1451,7 +1454,10 @@ channel_draw(rtp_channel_info_t *rci)
 				if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb_view_as_time_of_day))) {
 					seconds = rci->start_time_abs.secs + i * MULT / sample_rate;
 					timestamp = localtime(&seconds);
-					g_snprintf(label_string, MAX_TIME_LABEL, "%02d:%02d:%02d", timestamp->tm_hour, timestamp->tm_min, timestamp->tm_sec);
+					if (timestamp != NULL)
+						g_snprintf(label_string, MAX_TIME_LABEL, "%02d:%02d:%02d", timestamp->tm_hour, timestamp->tm_min, timestamp->tm_sec);
+					else
+						g_snprintf(label_string, MAX_TIME_LABEL, "XX:XX:XX");
 				} else {
 					g_snprintf(label_string, MAX_TIME_LABEL, "%.0f s", floor(nstime_to_sec(&rci->start_time_abs)) + i*MULT/sample_rate);
 				}
