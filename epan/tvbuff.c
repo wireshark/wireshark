@@ -1580,9 +1580,16 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 				/* setting it to "now" for now */
 				time_t time_now = time(NULL);
 				struct tm *tm_now = gmtime(&time_now);
-				tm.tm_year = tm_now->tm_year;
-				tm.tm_mon  = tm_now->tm_mon;
-				tm.tm_mday = tm_now->tm_mday;
+				if (tm_now != NULL) {
+					tm.tm_year = tm_now->tm_year;
+					tm.tm_mon  = tm_now->tm_mon;
+					tm.tm_mday = tm_now->tm_mday;
+				} else {
+					/* The second before the Epoch */
+					tm.tm_year = 69;
+					tm.tm_mon = 12;
+					tm.tm_mday = 31;
+				}
 				end = ptr + num_chars;
 				errno = 0;
 

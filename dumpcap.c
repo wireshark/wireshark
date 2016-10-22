@@ -4501,10 +4501,6 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 #endif
     }
 
-    /* create a "timestamp" */
-    time(&curr);
-    today = localtime(&curr);
-
     switch(log_level & G_LOG_LEVEL_MASK) {
     case G_LOG_LEVEL_ERROR:
         level = "Err ";
@@ -4535,11 +4531,20 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
         /* normal user messages without additional infos */
         msg =  g_strdup_printf("%s\n", message);
     } else {
+        /* create a "timestamp" */
+        time(&curr);
+        today = localtime(&curr);
+
         /* info/debug messages with additional infos */
-        msg = g_strdup_printf("%02u:%02u:%02u %8s %s %s\n",
-                              today->tm_hour, today->tm_min, today->tm_sec,
-                              log_domain != NULL ? log_domain : "",
-                              level, message);
+        if (today != NULL)
+            msg = g_strdup_printf("%02u:%02u:%02u %8s %s %s\n",
+                                  today->tm_hour, today->tm_min, today->tm_sec,
+                                  log_domain != NULL ? log_domain : "",
+                                  level, message);
+        else
+            msg = g_strdup_printf("Time not representable %8s %s %s\n",
+                                  log_domain != NULL ? log_domain : "",
+                                  level, message);
     }
 
     /* DEBUG & INFO msgs (if we're debugging today)                 */

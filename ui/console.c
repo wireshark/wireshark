@@ -91,11 +91,16 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
         /* create a "timestamp" */
         time(&curr);
         today = localtime(&curr);
-
-        fprintf(stderr, "%02d:%02d:%02d %8s %s %s\n",
-                today->tm_hour, today->tm_min, today->tm_sec,
-                log_domain != NULL ? log_domain : "",
-                level, message);
+        if (today != NULL) {
+                fprintf(stderr, "%02d:%02d:%02d %8s %s %s\n",
+                        today->tm_hour, today->tm_min, today->tm_sec,
+                        log_domain != NULL ? log_domain : "",
+                        level, message);
+        } else {
+                fprintf(stderr, "Time not representable %8s %s %s\n",
+                        log_domain != NULL ? log_domain : "",
+                        level, message);
+        }
 #ifdef _WIN32
         if(log_level & G_LOG_LEVEL_ERROR) {
             /* wait for a key press before the following error handler will terminate the program

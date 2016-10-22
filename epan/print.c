@@ -246,9 +246,16 @@ void
 write_pdml_preamble(FILE *fh, const gchar *filename)
 {
     time_t t = time(NULL);
-    char *ts = asctime(localtime(&t));
+    struct tm * timeinfo;
+    char *ts;
 
-    ts[strlen(ts)-1] = 0; /* overwrite \n */
+    /* Create the output */
+    timeinfo = localtime(&t);
+    if (timeinfo != NULL) {
+        ts = asctime(timeinfo);
+        ts[strlen(ts)-1] = 0; /* overwrite \n */
+    } else
+        ts = "Not representable";
 
     fputs("<?xml version=\"1.0\"?>\n", fh);
     fputs("<?xml-stylesheet type=\"text/xsl\" href=\"" PDML2HTML_XSL "\"?>\n", fh);
@@ -329,7 +336,10 @@ write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar *
 
     /* Create the output */
     timeinfo = localtime(&t);
-    strftime(ts, 30, "%Y-%m-%d", timeinfo);
+    if (timeinfo != NULL)
+        strftime(ts, sizeof ts, "%Y-%m-%d", timeinfo);
+    else
+        g_strlcpy(ts, "XXXX-XX-XX", sizeof ts); /* XXX - better way of saying "Not representable"? */
 
     if (!is_first)
         fputs("  ,\n", fh);
@@ -379,7 +389,10 @@ write_ek_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **p
 
     /* Create the output */
     timeinfo = localtime(&t);
-    strftime(ts, 30, "%Y-%m-%d", timeinfo);
+    if (timeinfo != NULL)
+        strftime(ts, sizeof ts, "%Y-%m-%d", timeinfo);
+    else
+        g_strlcpy(ts, "XXXX-XX-XX", sizeof ts); /* XXX - better way of saying "Not representable"? */
 
     /* Get frame protocol's finfo. */
     finfo_array = proto_find_finfo(edt->tree, proto_frame);
