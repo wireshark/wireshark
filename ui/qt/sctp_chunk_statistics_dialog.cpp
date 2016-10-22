@@ -23,6 +23,8 @@
 #include <ui_sctp_chunk_statistics_dialog.h>
 #include "uat_dialog.h"
 
+#include <wsutil/strtoi.h>
+
 #include <string>
 
 
@@ -148,7 +150,8 @@ void SCTPChunkStatisticsDialog::fillTable(bool all)
             /* Get rid of the quotation marks */
             QString ch = QString(token).mid(1, (int)strlen(token)-2);
             g_strlcpy(id, qPrintable(ch), sizeof id);
-            temp.id = atoi(id);
+            if (!ws_strtoi32(id, NULL, &temp.id))
+                continue;
             temp.hide = 0;
             temp.name[0] = '\0';
             while(token != NULL) {
