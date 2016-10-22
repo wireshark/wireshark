@@ -271,6 +271,7 @@ static int hf_diameter_3gpp_imeisv = -1;
 static int hf_diameter_3gpp_af_charging_identifier = -1;
 static int hf_diameter_3gpp_af_application_identifier = -1;
 static int hf_diameter_3gpp_charging_rule_name = -1;
+static int hf_diameter_3gpp_monitoring_key = -1;
 static int hf_diameter_3gpp_mbms_bearer_event = -1;
 static int hf_diameter_3gpp_mbms_bearer_event_bit0 = -1;
 static int hf_diameter_3gpp_mbms_bearer_result = -1;
@@ -1139,6 +1140,30 @@ dissect_diameter_3gpp_charging_rule_name(tvbuff_t *tvb, packet_info *pinfo _U_, 
     return length;
 }
 
+/*
+ * AVP Code: 1066 Monitoring-key
+ */
+static int
+dissect_diameter_3gpp_monitoring_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    proto_item *item;
+    int offset = 0, i;
+    int length = tvb_reported_length(tvb);
+    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
+
+    if (tree){
+        for (i = 0; i < length; i++)
+            if (!g_ascii_isprint(tvb_get_guint8(tvb, i)))
+                return length;
+
+        item = proto_tree_add_item_ret_string(tree, hf_diameter_3gpp_monitoring_key, tvb, offset, length,
+                                              ENC_UTF_8 | ENC_NA, wmem_packet_scope(), (const guint8**)&diam_sub_dis->avp_str);
+        PROTO_ITEM_SET_GENERATED(item);
+    }
+
+    return length;
+}
+
 /* AVP Code: 1082 Credit-Management-Status */
 static int
 dissect_diameter_3gpp_credit_management_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -1931,7 +1956,10 @@ proto_reg_handoff_diameter_3gpp(void)
     /* AVP Code: 1005 Charging-Rule-Name */
     dissector_add_uint("diameter.3gpp", 1005, create_dissector_handle(dissect_diameter_3gpp_charging_rule_name, proto_diameter_3gpp));
 
-    /* AVP Code: 1005 Credit-Management-Status */
+    /* AVP Code: 1066 Monitoring-Key */
+    dissector_add_uint("diameter.3gpp", 1066, create_dissector_handle(dissect_diameter_3gpp_monitoring_key, proto_diameter_3gpp));
+
+    /* AVP Code: 1082 Credit-Management-Status */
     dissector_add_uint("diameter.3gpp", 1082, create_dissector_handle(dissect_diameter_3gpp_credit_management_status, proto_diameter_3gpp));
 
     /* AVP Code: 1242 location estimate */
@@ -3411,6 +3439,11 @@ proto_register_diameter_3gpp(void)
         },
         { &hf_diameter_3gpp_charging_rule_name,
             { "Charging-Rule-Name", "diameter.3gpp.charging_rule_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_monitoring_key,
+            { "Monitoring-Key", "diameter.3gpp.monitoring_key",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
