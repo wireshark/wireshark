@@ -272,7 +272,7 @@ get_interface_list(int *err, char **err_str)
 		}
 
 	next:
-#ifdef HAVE_SOCKADDR_SA_LEN
+#ifdef HAVE_STRUCT_SOCKADDR_SA_LEN
 		ifr = (struct ifreq *) ((char *) ifr +
 		    (ifr->ifr_addr.sa_len > sizeof(ifr->ifr_addr) ?
 			ifr->ifr_addr.sa_len : sizeof(ifr->ifr_addr)) +
