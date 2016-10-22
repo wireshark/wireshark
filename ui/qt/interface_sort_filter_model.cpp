@@ -246,6 +246,9 @@ QModelIndex InterfaceSortFilterModel::mapToSource(const QModelIndex &proxyIndex)
     if ( ! proxyIndex.isValid() )
         return QModelIndex();
 
+    if ( ! sourceModel() )
+        return QModelIndex();
+
     QModelIndex baseIndex = QSortFilterProxyModel::mapToSource(proxyIndex);
     QModelIndex newIndex = sourceModel()->index(baseIndex.row(), _columns.at(proxyIndex.column()));
 
