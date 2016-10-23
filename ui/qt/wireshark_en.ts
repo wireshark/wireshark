@@ -2536,12 +2536,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="file_set_dialog.cpp" line="115"/>
+        <location filename="file_set_dialog.cpp" line="125"/>
         <source>Open this capture file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="file_set_dialog.cpp" line="126"/>
+        <location filename="file_set_dialog.cpp" line="136"/>
         <source>%1 File%2 in Set</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4310,17 +4310,17 @@ for filter files: %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="360"/>
+        <location filename="import_text_dialog.cpp" line="363"/>
         <source>Example: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="364"/>
+        <location filename="import_text_dialog.cpp" line="367"/>
         <source>&lt;i&gt;(Wrong date format)&lt;/i&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="368"/>
+        <location filename="import_text_dialog.cpp" line="371"/>
         <source>&lt;i&gt;(No format will be applied)&lt;/i&gt;</source>
         <translation type="unfinished"></translation>
     </message>

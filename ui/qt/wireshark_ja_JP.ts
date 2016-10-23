@@ -2543,12 +2543,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>何もキャプチャが読み込まれていません</translation>
     </message>
     <message>
-        <location filename="file_set_dialog.cpp" line="115"/>
+        <location filename="file_set_dialog.cpp" line="125"/>
         <source>Open this capture file</source>
         <translation>このキャプチャファイルを開く</translation>
     </message>
     <message>
-        <location filename="file_set_dialog.cpp" line="126"/>
+        <location filename="file_set_dialog.cpp" line="136"/>
         <source>%1 File%2 in Set</source>
         <translation>セット内の %1 ファイル %2</translation>
     </message>
@@ -4328,17 +4328,17 @@ for filter files: %2.</source>
         <translation>テキストファイルをインポート</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="360"/>
+        <location filename="import_text_dialog.cpp" line="363"/>
         <source>Example: %1</source>
         <translation>例: %1</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="364"/>
+        <location filename="import_text_dialog.cpp" line="367"/>
         <source>&lt;i&gt;(Wrong date format)&lt;/i&gt;</source>
         <translation>&lt;i&gt;(誤ったデータ形式)&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="368"/>
+        <location filename="import_text_dialog.cpp" line="371"/>
         <source>&lt;i&gt;(No format will be applied)&lt;/i&gt;</source>
         <translation>&lt;i&gt;(どの形式も適用されません)&lt;/i&gt;</translation>
     </message>
