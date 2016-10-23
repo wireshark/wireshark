@@ -140,12 +140,28 @@
         <translation>Salva come immagine</translation>
     </message>
     <message>
-        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="316"/>
+        <location filename="bluetooth_att_server_attributes_dialog.ui" line="200"/>
+        <location filename="bluetooth_att_server_attributes_dialog.ui" line="203"/>
+        <source>Mark/Unmark Row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.ui" line="206"/>
+        <source>CtrlM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.ui" line="211"/>
+        <source>Mark/Unmark Cell</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="368"/>
         <source>Save Table Image</source>
         <translation>Salva immagine tabella</translation>
     </message>
     <message>
-        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="318"/>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="370"/>
         <source>PNG Image (*.png)</source>
         <translation>Immagine PNG (*.png)</translation>
     </message>
@@ -279,7 +295,7 @@
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="206"/>
-        <location filename="bluetooth_device_dialog.cpp" line="588"/>
+        <location filename="bluetooth_device_dialog.cpp" line="640"/>
         <source>%1 changes</source>
         <translation>%1 modifiche</translation>
     </message>
@@ -304,37 +320,53 @@
         <translation>Salva come immagine</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="182"/>
+        <location filename="bluetooth_device_dialog.ui" line="243"/>
+        <location filename="bluetooth_device_dialog.ui" line="246"/>
+        <source>Mark/Unmark Row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="249"/>
+        <source>CtrlM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.ui" line="254"/>
+        <source>Mark/Unmark Cell</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_device_dialog.cpp" line="187"/>
         <source>Unknown</source>
         <translation>Sconosciuto</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="191"/>
+        <location filename="bluetooth_device_dialog.cpp" line="196"/>
         <source>Bluetooth Device - %1%2</source>
         <translation>Dispositivo Bluetooth - %1%2</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="523"/>
+        <location filename="bluetooth_device_dialog.cpp" line="575"/>
         <source>enabled</source>
         <translation>abilitato</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="523"/>
+        <location filename="bluetooth_device_dialog.cpp" line="575"/>
         <source>disabled</source>
         <translation>disabilitato</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="531"/>
+        <location filename="bluetooth_device_dialog.cpp" line="583"/>
         <source>%1 ms (%2 slots)</source>
         <translation>%1 ms (%2 slot)</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="623"/>
+        <location filename="bluetooth_device_dialog.cpp" line="675"/>
         <source>Save Table Image</source>
         <translation>Salva immagine tabella</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="625"/>
+        <location filename="bluetooth_device_dialog.cpp" line="677"/>
         <source>PNG Image (*.png)</source>
         <translation>Immagine PNG (*.png)</translation>
     </message>
@@ -403,7 +435,7 @@
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="146"/>
-        <location filename="bluetooth_devices_dialog.cpp" line="331"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="385"/>
         <source>%1 items; Right click for more option; Double click for device details</source>
         <translation>%1 elementi; clic del tasto destro per altre opzioni; doppio clic per i dettagli del dispositivo</translation>
     </message>
@@ -428,18 +460,34 @@
         <translation>Salva come immagine</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="292"/>
-        <location filename="bluetooth_devices_dialog.cpp" line="312"/>
+        <location filename="bluetooth_devices_dialog.ui" line="183"/>
+        <location filename="bluetooth_devices_dialog.ui" line="186"/>
+        <source>Mark/Unmark Row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_devices_dialog.ui" line="189"/>
+        <source>CtrlM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_devices_dialog.ui" line="194"/>
+        <source>Mark/Unmark Cell</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_devices_dialog.cpp" line="346"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="366"/>
         <source>true</source>
         <translation>vero</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="400"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="454"/>
         <source>Save Table Image</source>
         <translation>Salva immagine tabella</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="402"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="456"/>
         <source>PNG Image (*.png)</source>
         <translation>Immagine PNG (*.png)</translation>
     </message>
@@ -622,67 +670,88 @@
         <translation>Errori hardware</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="565"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="552"/>
+        <source>Display filter:</source>
+        <translation type="unfinished">Filtro di visualizzazione:</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="575"/>
         <source>All Interfaces</source>
         <translation>Tutte le interfacce</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="580"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="590"/>
         <source>All Adapters</source>
         <translation>Tutte le schede</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="607"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="617"/>
         <source>Copy Cell</source>
         <translation>Copia cella</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="612"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="622"/>
         <source>Copy Rows</source>
         <translation>Copia righe</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="617"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="627"/>
         <source>Copy All</source>
         <translation>Copia tutto</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="622"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="632"/>
         <source>Save as image</source>
         <translation>Salva come immagine</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="310"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="637"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="640"/>
+        <source>Mark/Unmark Row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="643"/>
+        <source>Ctrl+M</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="648"/>
+        <source>Mark/Unmark Cell</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="362"/>
         <source>Unknown</source>
         <translation>Sconosciuto</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="328"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="380"/>
         <source>Adapter %1</source>
         <translation>Scheda %1</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="416"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="466"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="503"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="537"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="574"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="608"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="468"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="518"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="555"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="589"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="626"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="660"/>
         <source>Frame %1</source>
         <translation>Frame %1</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="526"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="578"/>
         <source>Pending</source>
         <translation>In corso</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="719"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="771"/>
         <source>Save Table Image</source>
         <translation>Salva immagine tabella</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="721"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="773"/>
         <source>PNG Image (*.png)</source>
         <translation>Immagine PNG (*.png)</translation>
     </message>
@@ -2738,12 +2807,12 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Nessuna cattura caricata</translation>
     </message>
     <message>
-        <location filename="file_set_dialog.cpp" line="116"/>
+        <location filename="file_set_dialog.cpp" line="126"/>
         <source>Open this capture file</source>
         <translation>Apri questo file di cattura</translation>
     </message>
     <message numerus="yes">
-        <location filename="file_set_dialog.cpp" line="127"/>
+        <location filename="file_set_dialog.cpp" line="137"/>
         <source>%Ln File(s) in Set</source>
         <oldsource>%1 File%2 in Set</oldsource>
         <translation>
@@ -3273,7 +3342,7 @@ per i file di filtro: %2.</translation>
         <translation>Esempio di filtro deprecato</translation>
     </message>
     <message>
-        <location filename="font_color_preferences_frame.cpp" line="195"/>
+        <location filename="font_color_preferences_frame.cpp" line="189"/>
         <source>Font</source>
         <translation>Carattere</translation>
     </message>
@@ -4624,17 +4693,17 @@ per i file di filtro: %2.</translation>
         <translation>Importa da file di testo</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="369"/>
+        <location filename="import_text_dialog.cpp" line="372"/>
         <source>Example: %1</source>
         <translation>Esempio: %1</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="373"/>
+        <location filename="import_text_dialog.cpp" line="376"/>
         <source>&lt;i&gt;(Wrong date format)&lt;/i&gt;</source>
         <translation>&lt;i&gt;(Formato della data errato)&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="377"/>
+        <location filename="import_text_dialog.cpp" line="380"/>
         <source>&lt;i&gt;(No format will be applied)&lt;/i&gt;</source>
         <translation>&lt;i&gt;(Nessun formato sarà applicato)&lt;/i&gt;</translation>
     </message>
@@ -4652,13 +4721,8 @@ per i file di filtro: %2.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_frame.ui" line="88"/>
-        <source>Show Interfaces</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="interface_frame.cpp" line="71"/>
-        <source>Physical</source>
+        <source>Wired</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4706,11 +4770,16 @@ per i file di filtro: %2.</translation>
         <source>Virtual</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="interface_frame.cpp" line="137"/>
+        <source>Show hidden interfaces</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InterfaceSortFilterModel</name>
     <message>
-        <location filename="interface_sort_filter_model.cpp" line="251"/>
+        <location filename="interface_sort_filter_model.cpp" line="279"/>
         <source>No interfaces to be displayed. %1 interfaces filtered.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4758,32 +4827,52 @@ per i file di filtro: %2.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="233"/>
+        <location filename="interface_tree_model.cpp" line="222"/>
+        <source>Show</source>
+        <translation type="unfinished">Mostra</translation>
+    </message>
+    <message>
+        <location filename="interface_tree_model.cpp" line="226"/>
+        <source>Friendly Name</source>
+        <translation type="unfinished">Nome intuitivo</translation>
+    </message>
+    <message>
+        <location filename="interface_tree_model.cpp" line="230"/>
+        <source>Interface Name</source>
+        <translation type="unfinished">Nome dell&apos;interfaccia</translation>
+    </message>
+    <message>
+        <location filename="interface_tree_model.cpp" line="234"/>
+        <source>Comment</source>
+        <translation type="unfinished">Commento</translation>
+    </message>
+    <message>
+        <location filename="interface_tree_model.cpp" line="282"/>
         <source>Addresses</source>
         <translation type="unfinished">Indirizzi</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="233"/>
+        <location filename="interface_tree_model.cpp" line="282"/>
         <source>Address</source>
         <translation type="unfinished">Indirizzo</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="240"/>
+        <location filename="interface_tree_model.cpp" line="289"/>
         <source>Extcap interface: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="245"/>
+        <location filename="interface_tree_model.cpp" line="294"/>
         <source>No addresses</source>
         <translation type="unfinished">Nessun indirizzo</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="252"/>
+        <location filename="interface_tree_model.cpp" line="301"/>
         <source>No capture filter</source>
         <translation type="unfinished">Nessun filtro di cattura</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="257"/>
+        <location filename="interface_tree_model.cpp" line="306"/>
         <source>Capture filter</source>
         <translation type="unfinished">Filtro di cattura</translation>
     </message>
@@ -6843,52 +6932,57 @@ per i file di filtro: %2.</translation>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Benvenuto in Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="123"/>
+        <location filename="main_welcome.ui" line="129"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a file on your file system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_welcome.ui" line="132"/>
         <source>&lt;h2&gt;Open&lt;/h2&gt;</source>
         <translation>&lt;h2&gt;Apri&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="136"/>
+        <location filename="main_welcome.ui" line="145"/>
         <source>Recent capture files</source>
         <translation>File di cattura recenti</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="139"/>
+        <location filename="main_welcome.ui" line="148"/>
         <source>Capture files that have been opened previously</source>
         <translation>I file di cattura che sono stati aperti precedentemente</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="152"/>
+        <location filename="main_welcome.ui" line="167"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cattura i pacchetti live dalla tua rete.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="155"/>
+        <location filename="main_welcome.ui" line="170"/>
         <source>&lt;h2&gt;Capture&lt;/h2&gt;</source>
         <translation>&lt;h2&gt;Cattura&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="174"/>
+        <location filename="main_welcome.ui" line="189"/>
         <source>…using this filter:</source>
         <translation>...usando questo filtro:</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="203"/>
+        <location filename="main_welcome.ui" line="225"/>
         <source>Interface list</source>
         <translation>Elenco delle interfacce</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="206"/>
+        <location filename="main_welcome.ui" line="228"/>
         <source>List of available capture interfaces</source>
         <translation>Elenco delle interfacce di cattura disponibili</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="219"/>
+        <location filename="main_welcome.ui" line="247"/>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
         <translation>&lt;h2&gt;Impara&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="226"/>
+        <location filename="main_welcome.ui" line="254"/>
         <source>&lt;html&gt;&lt;head&gt;
 &lt;style&gt;
 a:link {
@@ -6984,37 +7078,50 @@ a:hover {
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="216"/>
+        <location filename="main_welcome.cpp" line="225"/>
+        <source>All interfaces shown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="main_welcome.cpp" line="227"/>
+        <source>%n interface(s) shown, %1 hidden</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="main_welcome.cpp" line="238"/>
         <source>You are running Wireshark </source>
         <translation>Stai eseguendo Wireshark </translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="218"/>
+        <location filename="main_welcome.cpp" line="240"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="221"/>
+        <location filename="main_welcome.cpp" line="243"/>
         <source> You receive automatic updates.</source>
         <translation> Ricevi aggiornamenti automatici.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="223"/>
+        <location filename="main_welcome.cpp" line="245"/>
         <source> You have disabled automatic updates.</source>
         <translation>Hai disabilitato gli aggiornamenti automatici.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="353"/>
+        <location filename="main_welcome.cpp" line="377"/>
         <source>not found</source>
         <translation>non trovato</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="435"/>
+        <location filename="main_welcome.cpp" line="459"/>
         <source>Copy file path</source>
         <translation>Copia percorso del file</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="441"/>
+        <location filename="main_welcome.cpp" line="465"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9670,105 +9777,99 @@ a:hover {
         <translation>Interfacce locali</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.ui" line="55"/>
-        <location filename="manage_interfaces_dialog.ui" line="180"/>
+        <location filename="manage_interfaces_dialog.ui" line="160"/>
         <source>Show</source>
         <translation>Mostra</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.ui" line="60"/>
         <source>Friendly Name</source>
-        <translation>Nome intuitivo</translation>
+        <translation type="vanished">Nome intuitivo</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.ui" line="65"/>
         <source>Interface Name</source>
-        <translation>Nome dell&apos;interfaccia</translation>
+        <translation type="vanished">Nome dell&apos;interfaccia</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.ui" line="70"/>
         <source>Comment</source>
-        <translation>Commento</translation>
+        <translation type="vanished">Commento</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.ui" line="79"/>
+        <location filename="manage_interfaces_dialog.ui" line="59"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a pipe to capture from or remove an existing pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Aggiungi una pipe da cui catturare o rimuovi una pipe esistente dall&apos;elenco.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.ui" line="82"/>
+        <location filename="manage_interfaces_dialog.ui" line="62"/>
         <source>Pipes</source>
         <translation>Pipe</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.ui" line="116"/>
+        <location filename="manage_interfaces_dialog.ui" line="96"/>
         <source>Named Pipe Path</source>
         <translation>Percorso pipe con nome</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.ui" line="126"/>
+        <location filename="manage_interfaces_dialog.ui" line="106"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a new pipe using default settings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Aggiungi una nuova pipe usando le impostazioni predefinite.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.ui" line="140"/>
+        <location filename="manage_interfaces_dialog.ui" line="120"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rimuovi la pipe selezionata dall&apos;elenco.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.ui" line="170"/>
+        <location filename="manage_interfaces_dialog.ui" line="150"/>
         <source>Remote Interfaces</source>
         <translation>Interfacce remote</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.ui" line="185"/>
+        <location filename="manage_interfaces_dialog.ui" line="165"/>
         <source>Host / Device URL</source>
         <translation>URL dell&apos;host / dispositivo</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.ui" line="195"/>
+        <location filename="manage_interfaces_dialog.ui" line="175"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a remote host and its interfaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Aggiungi un host remoto e le sue interfacce&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.ui" line="209"/>
+        <location filename="manage_interfaces_dialog.ui" line="189"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected host from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rimuovi l&apos;host selezionato dall&apos;elenco.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.ui" line="236"/>
+        <location filename="manage_interfaces_dialog.ui" line="216"/>
         <source>Remote Settings</source>
         <translation>Impostazioni remote</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.ui" line="249"/>
+        <location filename="manage_interfaces_dialog.ui" line="229"/>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="175"/>
+        <location filename="manage_interfaces_dialog.cpp" line="180"/>
         <source>This version of Wireshark does not save pipe settings.</source>
         <translation>Questa versione di Wireshark non può salvare le impostazioni della pipe.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="179"/>
+        <location filename="manage_interfaces_dialog.cpp" line="184"/>
         <source>This version of Wireshark does not save remote settings.</source>
         <translation>Questa versione di Wireshark non può salvare le impostazioni remote.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="181"/>
+        <location filename="manage_interfaces_dialog.cpp" line="186"/>
         <source>This version of Wireshark does not support remote interfaces.</source>
         <translation>Questa versione di Wireshark non supporta le interfacce remote.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="428"/>
         <source>Error</source>
-        <translation>Errore</translation>
+        <translation type="vanished">Errore</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="429"/>
         <source>Default interface cannot be hidden.</source>
-        <translation>L&apos;interfaccia predefinita non può essere nascosta.</translation>
+        <translation type="vanished">L&apos;interfaccia predefinita non può essere nascosta.</translation>
     </message>
 </context>
 <context>
@@ -10289,12 +10390,12 @@ a:hover {
 <context>
     <name>PathChooserDelegate</name>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="817"/>
+        <location filename="manage_interfaces_dialog.cpp" line="665"/>
         <source>Browse</source>
         <translation>Sfoglia</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="870"/>
+        <location filename="manage_interfaces_dialog.cpp" line="718"/>
         <source>Open Pipe</source>
         <translation>Apri una pipe</translation>
     </message>
@@ -10951,7 +11052,7 @@ a:hover {
         <translation>Non mostrare più questo messaggio.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="225"/>
+        <location filename="manage_interfaces_dialog.cpp" line="231"/>
         <source>New Pipe</source>
         <translation>Nuova pipe</translation>
     </message>
@@ -11001,57 +11102,57 @@ a:hover {
         <translation>Sfoglia</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="133"/>
+        <location filename="wlan_statistics_dialog.cpp" line="144"/>
         <source>Base station</source>
         <translation>Stazione base</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="211"/>
+        <location filename="wlan_statistics_dialog.cpp" line="229"/>
         <source>&lt;Broadcast&gt;</source>
         <translation>&lt;Broadcast&gt;</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="213"/>
+        <location filename="wlan_statistics_dialog.cpp" line="231"/>
         <source>&lt;Hidden&gt;</source>
         <translation>&lt;Hidden&gt;</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="455"/>
+        <location filename="wlan_statistics_dialog.cpp" line="482"/>
         <source>BSSID</source>
         <translation>BSSID</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="456"/>
+        <location filename="wlan_statistics_dialog.cpp" line="483"/>
         <source>Beacons</source>
         <translation>Beacon</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="457"/>
+        <location filename="wlan_statistics_dialog.cpp" line="484"/>
         <source>Data Pkts</source>
         <translation>Pacchetti di dati</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="458"/>
+        <location filename="wlan_statistics_dialog.cpp" line="485"/>
         <source>Protection</source>
         <translation>Protezione</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="460"/>
+        <location filename="wlan_statistics_dialog.cpp" line="487"/>
         <source>Address</source>
         <translation>Indirizzo</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="461"/>
+        <location filename="wlan_statistics_dialog.cpp" line="488"/>
         <source>Pkts Sent</source>
         <translation>Pacchetti inviati</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="462"/>
+        <location filename="wlan_statistics_dialog.cpp" line="489"/>
         <source>Pkts Received</source>
         <translation>Pacchetti ricevuti</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="463"/>
+        <location filename="wlan_statistics_dialog.cpp" line="490"/>
         <source>Comment</source>
         <translation>Commento</translation>
     </message>
@@ -11272,12 +11373,12 @@ a:hover {
         <translation>Priorità</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="418"/>
+        <location filename="main_welcome.cpp" line="442"/>
         <source>Show in Finder</source>
         <translation>Mostra in Finder</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="420"/>
+        <location filename="main_welcome.cpp" line="444"/>
         <source>Show in Folder</source>
         <translation>Mostra nella cartella</translation>
     </message>
@@ -11297,12 +11398,12 @@ a:hover {
         <translation>DLT %1</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="803"/>
+        <location filename="../../wireshark-qt.cpp" line="806"/>
         <source>Invalid Display Filter</source>
         <translation type="unfinished">Filtro di visualizzazione non valido</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="804"/>
+        <location filename="../../wireshark-qt.cpp" line="807"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15601,47 +15702,57 @@ a:hover {
 <context>
     <name>WlanStatisticsDialog</name>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="469"/>
+        <location filename="wlan_statistics_dialog.cpp" line="496"/>
         <source>Wireless LAN Statistics</source>
         <translation>Statistiche wireless LAN</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="473"/>
+        <location filename="wlan_statistics_dialog.cpp" line="500"/>
         <source>Channel</source>
         <translation>Canale</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="473"/>
+        <location filename="wlan_statistics_dialog.cpp" line="500"/>
         <source>SSID</source>
         <translation>SSID</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="473"/>
+        <location filename="wlan_statistics_dialog.cpp" line="500"/>
         <source>Percent Packets</source>
         <translation>Percentuale pacchetti</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="474"/>
+        <location filename="wlan_statistics_dialog.cpp" line="500"/>
+        <source>Percent Retry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="wlan_statistics_dialog.cpp" line="501"/>
         <source>Probe Reqs</source>
         <translation>Richieste probe</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="474"/>
+        <location filename="wlan_statistics_dialog.cpp" line="501"/>
         <source>Probe Resp</source>
         <translation>Risposte probe</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="474"/>
+        <location filename="wlan_statistics_dialog.cpp" line="501"/>
         <source>Auths</source>
         <translation>Auth</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="475"/>
+        <location filename="wlan_statistics_dialog.cpp" line="501"/>
+        <source>Retry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="wlan_statistics_dialog.cpp" line="502"/>
         <source>Deauths</source>
         <translation>Deauth</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="475"/>
+        <location filename="wlan_statistics_dialog.cpp" line="502"/>
         <source>Other</source>
         <translation>Altro</translation>
     </message>
