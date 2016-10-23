@@ -205,7 +205,7 @@ static void uat_key_record_post_update(void) {
         key_record.frame_num = ZBEE_SEC_PC_KEY; /* means it's a user PC key */
         key_record.label = g_strdup(uat_key_records[i].label);
         if (zbee_security_parse_key(uat_key_records[i].string, key, uat_key_records[i].byte_order)) {
-            memcpy(&key_record.key, key, ZBEE_SEC_CONST_KEYSIZE);
+            memcpy(key_record.key, key, ZBEE_SEC_CONST_KEYSIZE);
             zbee_pc_keyring = g_slist_prepend(zbee_pc_keyring, g_memdup(&key_record, sizeof(key_record_t)));
         }
     }
