@@ -307,6 +307,10 @@ typedef struct {
     guint8 key[ZBEE_SEC_CONST_KEYSIZE];
 } uat_key_record_t;
 
+static const guint8 empty_key[ZBEE_SEC_CONST_KEYSIZE] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
 static uat_key_record_t *gp_uat_key_records = NULL;
 static uat_t *zbee_gp_sec_key_table_uat;
 
@@ -627,6 +631,18 @@ uat_key_record_update_cb(void *r, char **err)
         }
     }
     return TRUE;
+}
+
+static void uat_key_record_post_update_cb(void) {
+    guint i;
+
+    for (i = 0; i < num_uat_key_records; i++) {
+        if (memcmp(gp_uat_key_records[i].key, empty_key, ZBEE_SEC_CONST_KEYSIZE) == 0) {
+            /* key was not loaded from string yet */
+            zbee_gp_security_parse_key(gp_uat_key_records[i].string, gp_uat_key_records[i].key,
+                                       gp_uat_key_records[i].byte_order);
+        }
+    }
 }
 
 /**
@@ -1362,7 +1378,7 @@ gp_init_zbee_security(void)
     for (i = 0; gp_uat_key_records && (i < num_uat_key_records); i++) {
         key_record.frame_num = 0;
         key_record.label = g_strdup(gp_uat_key_records[i].label);
-        memcpy(&key_record.key, &gp_uat_key_records[i].key, ZBEE_SEC_CONST_KEYSIZE);
+        memcpy(key_record.key, gp_uat_key_records[i].key, ZBEE_SEC_CONST_KEYSIZE);
         zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup(&key_record, sizeof(key_record_t)));
     }
 }
@@ -1668,7 +1684,7 @@ proto_register_zbee_nwk_gp(void)
 
     zbee_gp_sec_key_table_uat = uat_new("ZigBee GP Security Keys", sizeof(uat_key_record_t), "zigbee_gp_keys", TRUE,
         &gp_uat_key_records, &num_uat_key_records, UAT_AFFECTS_DISSECTION, NULL, uat_key_record_copy_cb,
-        uat_key_record_update_cb, uat_key_record_free_cb, NULL, key_uat_fields);
+        uat_key_record_update_cb, uat_key_record_free_cb, uat_key_record_post_update_cb, key_uat_fields);
 
     prefs_register_uat_preference(gp_zbee_prefs, "gp_key_table", "Pre-configured GP Security Keys",
         "Pre-configured GP Security Keys.", zbee_gp_sec_key_table_uat);
