@@ -2734,12 +2734,12 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <translation>Nie załadowano pliku przechwytywania</translation>
     </message>
     <message>
-        <location filename="file_set_dialog.cpp" line="116"/>
+        <location filename="file_set_dialog.cpp" line="126"/>
         <source>Open this capture file</source>
         <translation>Otwórz plik przechwytywania</translation>
     </message>
     <message numerus="yes">
-        <location filename="file_set_dialog.cpp" line="127"/>
+        <location filename="file_set_dialog.cpp" line="137"/>
         <source>%Ln File(s) in Set</source>
         <oldsource>%1 File%2 in Set</oldsource>
         <translation>
@@ -4620,17 +4620,17 @@ dla plików filtrów: %2.</translation>
         <translation>Importuj plik tekstowy</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="369"/>
+        <location filename="import_text_dialog.cpp" line="372"/>
         <source>Example: %1</source>
         <translation>Przykład: %1</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="373"/>
+        <location filename="import_text_dialog.cpp" line="376"/>
         <source>&lt;i&gt;(Wrong date format)&lt;/i&gt;</source>
         <translation>&lt;i&gt;(Niepoprawny format daty)&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="377"/>
+        <location filename="import_text_dialog.cpp" line="380"/>
         <source>&lt;i&gt;(No format will be applied)&lt;/i&gt;</source>
         <translation>&lt;i&gt;(Żaden format nie będzie zastosowany)&lt;/i&gt;</translation>
     </message>

@@ -2736,12 +2736,12 @@ si vous voulez utiliser des fichiers multiples.</translation>
         <translation>Aucune capture chargée</translation>
     </message>
     <message>
-        <location filename="file_set_dialog.cpp" line="116"/>
+        <location filename="file_set_dialog.cpp" line="126"/>
         <source>Open this capture file</source>
         <translation>Ouvrir le fichier de capture</translation>
     </message>
     <message numerus="yes">
-        <location filename="file_set_dialog.cpp" line="127"/>
+        <location filename="file_set_dialog.cpp" line="137"/>
         <source>%Ln File(s) in Set</source>
         <oldsource>%1 File%2 in Set</oldsource>
         <translation type="unfinished">
@@ -4626,17 +4626,17 @@ pour fichiers de filtre : %2.</translation>
         <translation>Importer Fichier Texte</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="369"/>
+        <location filename="import_text_dialog.cpp" line="372"/>
         <source>Example: %1</source>
         <translation>Exemple: %1</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="373"/>
+        <location filename="import_text_dialog.cpp" line="376"/>
         <source>&lt;i&gt;(Wrong date format)&lt;/i&gt;</source>
         <translation>&lt;i&gt;(Mauvais format de date)&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="377"/>
+        <location filename="import_text_dialog.cpp" line="380"/>
         <source>&lt;i&gt;(No format will be applied)&lt;/i&gt;</source>
         <translation>&lt;I&gt;(Aucun format sera appliqué)&lt;/i&gt;</translation>
     </message>
