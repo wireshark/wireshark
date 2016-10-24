@@ -318,8 +318,16 @@ static int hf_bthci_evt_le_peer_address_type = -1;
 static int hf_bthci_evt_le_local_rpa = -1;
 static int hf_bthci_evt_le_peer_rpa = -1;
 static int hf_bthci_evt_le_con_interval = -1;
+static int hf_bthci_evt_le_min_interval = -1;
+static int hf_bthci_evt_le_max_interval = -1;
 static int hf_bthci_evt_le_con_latency = -1;
 static int hf_bthci_evt_le_supervision_timeout = -1;
+static int hf_bthci_evt_le_max_tx_octets = -1;
+static int hf_bthci_evt_le_max_tx_time = -1;
+static int hf_bthci_evt_le_max_rx_octets = -1;
+static int hf_bthci_evt_le_max_rx_time = -1;
+static int hf_bthci_evt_le_local_p_256_public_key = -1;
+static int hf_bthci_evt_le_dhkey = -1;
 static int hf_bthci_evt_encrypted_diversifier = -1;
 static int hf_bthci_evt_le_master_clock_accuracy = -1;
 static int hf_bthci_evt_num_reports = -1;
@@ -2097,11 +2105,65 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             offset += 2;
             break;
         case 0x06: /* LE Remote Connection Parameter Request */
-        case 0x07: /* LE Data Length Change */
-        case 0x08: /* LE Read Local P-256 Public Key Complete */
-        case 0x09: /* LE Generate DHKey Complete */
+            proto_tree_add_item(tree, hf_bthci_evt_connection_handle,             tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            item = proto_tree_add_item(tree, hf_bthci_evt_le_min_interval,        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g msec)", tvb_get_letohs(tvb, offset) * 1.25);
+            offset += 2;
+
+            item = proto_tree_add_item(tree, hf_bthci_evt_le_max_interval,        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g msec)", tvb_get_letohs(tvb, offset) * 1.25);
+            offset += 2;
+
+            item = proto_tree_add_item(tree, hf_bthci_evt_le_con_latency,         tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (number events)");
+            offset += 2;
+
+            item = proto_tree_add_item(tree, hf_bthci_evt_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g sec)", tvb_get_letohs(tvb, offset) * 0.01);
+            offset += 2;
+
             break;
-/* TODO */
+        case 0x07: /* LE Data Length Change */
+            proto_tree_add_item(tree, hf_bthci_evt_connection_handle,             tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_le_max_tx_octets,              tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_le_max_tx_time,                tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_le_max_rx_octets,              tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_le_max_rx_time,                tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 0x08: /* LE Read Local P-256 Public Key Complete */
+            proto_tree_add_item(tree, hf_bthci_evt_status,                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_le_local_p_256_public_key,     tvb, offset, 64, ENC_NA);
+            offset += 64;
+
+            add_opcode(opcode_list, 0x2025, COMMAND_STATUS_NORMAL); /* LE Read Local P-256 Public Key */
+
+            break;
+        case 0x09: /* LE Generate DHKey Complete */
+            proto_tree_add_item(tree, hf_bthci_evt_status,                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_le_dhkey,                      tvb, offset, 32, ENC_NA);
+            offset += 32;
+
+            add_opcode(opcode_list, 0x2026, COMMAND_STATUS_NORMAL); /* LE Generate DHKey */
+
+            break;
         case 0x0A: /* LE Enhanced Connection Complete */
             proto_tree_add_item(tree, hf_bthci_evt_status,                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
             status = tvb_get_guint8(tvb, offset);
@@ -2177,6 +2239,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             }
 
             add_opcode(opcode_list, 0x200D, COMMAND_STATUS_NORMAL); /* LE Create Connection */
+
             break;
         case 0x0B: /* LE Direct Advertising Report */
 /* TODO */
@@ -5974,6 +6037,16 @@ proto_register_bthci_evt(void)
            FT_UINT8, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
         },
+        { &hf_bthci_evt_le_local_p_256_public_key,
+          { "Local-256_Public_Key", "bthci_evt.le_local_p_256_public_key",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_dhkey,
+          { "DHKey", "bthci_evt.dhkey",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_bthci_evt_sync_rtx_window,
           {"Retransmit Window", "bthci_evt.sync_rtx_window",
            FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -6379,6 +6452,16 @@ proto_register_bthci_evt(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_bthci_evt_le_min_interval,
+          { "Min Connection Interval", "bthci_evt.le_min_interval",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_max_interval,
+          { "Min Connection Interval", "bthci_evt.le_max_interval",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_bthci_evt_le_con_latency,
           { "Connection Latency", "bthci_evt.le_con_latency",
             FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -6386,6 +6469,26 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_le_supervision_timeout,
           { "Supervision Timeout", "bthci_evt.le_supv_timeout",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_max_tx_octets,
+          { "Max TX Octets", "bthci_evt.max_tx_octets",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_max_tx_time,
+          { "Max TX Time", "bthci_evt.max_tx_time",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_max_rx_octets,
+          { "Max RX Octets", "bthci_evt.max_rx_octets",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_max_rx_time,
+          { "Max RX Time", "bthci_evt.max_rx_time",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },

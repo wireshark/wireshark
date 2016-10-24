@@ -1294,6 +1294,8 @@ value_string_ext bthci_cmd_auth_req_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_a
 const value_string bthci_cmd_address_types_vals[] = {
     { 0x00, "Public Device Address" },
     { 0x01, "Random Device Address" },
+    { 0x02, "Public Identity Address (Corresponds to Resolved Private Address)" },
+    { 0x03, "Random (Static) Identity Address (Corresponds to Resolved Private Address)" },
     { 0, NULL }
 };
 
