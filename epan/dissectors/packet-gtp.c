@@ -6003,7 +6003,7 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
              * SAI is defined in sub-clause 9.2.3.9 of 3GPP TS 25.413 [7].
              */
             /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 4) */
-            be_cell_id_aux(tvb, tree, pinfo, offset, length - 1, NULL, 0, 4);
+            be_cell_id_type(tvb, tree, pinfo, offset, length - 1, NULL, 0, 4,E212_SAI);
             offset = offset + 5;
             proto_tree_add_item(tree, hf_gtp_ext_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
@@ -6101,7 +6101,7 @@ decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
              * SAI is defined in sub-clause 9.2.3.9 of 3GPP TS 25.413 [7].
              */
             /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 4) */
-            be_cell_id_aux(tvb, ext_tree, pinfo, offset, length - 1, NULL, 0, 4);
+            be_cell_id_type(tvb, ext_tree, pinfo, offset, length - 1, NULL, 0, 4,E212_SAI);
             offset = offset + 5;
             proto_tree_add_item(ext_tree, hf_gtp_ext_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;

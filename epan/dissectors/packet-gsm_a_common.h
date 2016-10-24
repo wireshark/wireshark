@@ -72,6 +72,7 @@
 #include <epan/proto.h>
 
 #include "packet-sccp.h"
+#include "packet-e212.h"
 #include "ws_symbol_export.h"
 
 /* PROTOTYPES/FORWARDS */
@@ -631,6 +632,7 @@ void bssmap_new_bss_to_old_bss_info(tvbuff_t *tvb, proto_tree *tree, packet_info
 void dtap_mm_mm_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 
 guint16 be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc);
+guint16 be_cell_id_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc, e212_number_type_t number_type);
 guint16 be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 be_chan_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 be_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);

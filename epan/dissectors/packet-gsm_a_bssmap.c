@@ -1577,7 +1577,7 @@ be_lsa_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
  * Formats everything after the discriminator, shared function
  */
 guint16
-be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc)
+be_cell_id_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc, e212_number_type_t number_type)
 {
     guint32 value;
     guint32 curr_offset;
@@ -1613,9 +1613,9 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
         /* FALLTHRU */
     case 0x0c:  /* For identification of a UTRAN cell for cell load information: */
         if (disc != 0x0b)
-            curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_NONE, TRUE);
+            curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, number_type, TRUE);
         else
-            curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_NONE, FALSE);
+            curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, number_type, FALSE);
         /* FALLTHRU */
 
     case 0x01:
@@ -1695,6 +1695,12 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
     }
 
     return(curr_offset - offset);
+}
+
+guint16
+be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc)
+{
+    return be_cell_id_type(tvb, tree, pinfo, offset, len, add_string, string_len, disc, E212_NONE);
 }
 
 static guint16
