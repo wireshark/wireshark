@@ -306,8 +306,6 @@ static int hf_bthci_evt_le_supported_host = -1;
 static int hf_bthci_evt_le_simultaneous_host = -1;
 static int hf_bthci_evt_le_acl_data_pkt_len = -1;
 static int hf_bthci_evt_total_num_le_acl_data_pkts = -1;
-static int hf_bthci_evt_le_features = -1;
-static int hf_bthci_evt_le_feature_00 = -1;
 static int hf_bthci_evt_white_list_size = -1;
 static int hf_bthci_evt_le_channel_map = -1;
 static int hf_bthci_evt_encrypted_data = -1;
@@ -370,6 +368,29 @@ static int hf_response_in_frame = -1;
 static int hf_command_pending_time_delta = -1;
 static int hf_command_response_time_delta = -1;
 static int hf_pending_response_time_delta = -1;
+static int hf_bthci_evt_le_features = -1;
+static int hf_bthci_evt_le_features_encryption = -1;
+static int hf_bthci_evt_le_features_connection_parameters_request_procedure = -1;
+static int hf_bthci_evt_le_features_extended_reject_indication = -1;
+static int hf_bthci_evt_le_features_slave_initiated_features_exchange = -1;
+static int hf_bthci_evt_le_features_ping = -1;
+static int hf_bthci_evt_le_features_data_packet_length_extension = -1;
+static int hf_bthci_evt_le_features_ll_privacy = -1;
+static int hf_bthci_evt_le_features_extended_scanner_filter_policies = -1;
+static int hf_bthci_evt_le_features_reserved = -1;
+
+static const int *hfx_bthci_evt_le_features[] = {
+    &hf_bthci_evt_le_features_encryption,
+    &hf_bthci_evt_le_features_connection_parameters_request_procedure,
+    &hf_bthci_evt_le_features_extended_reject_indication,
+    &hf_bthci_evt_le_features_slave_initiated_features_exchange,
+    &hf_bthci_evt_le_features_ping,
+    &hf_bthci_evt_le_features_data_packet_length_extension,
+    &hf_bthci_evt_le_features_ll_privacy,
+    &hf_bthci_evt_le_features_extended_scanner_filter_policies,
+    &hf_bthci_evt_le_features_reserved,
+    NULL
+};
 
 static expert_field ei_event_undecoded = EI_INIT;
 static expert_field ei_event_unknown_event = EI_INIT;
@@ -387,6 +408,7 @@ static gint ett_lmp_subtree = -1;
 static gint ett_ptype_subtree = -1;
 static gint ett_le_state_subtree = -1;
 static gint ett_le_channel_map = -1;
+static gint ett_le_features = -1;
 static gint ett_expert = -1;
 
 extern value_string_ext ext_usb_vendors_vals;
@@ -2091,7 +2113,8 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
             proto_tree_add_item(tree, hf_bthci_evt_connection_handle,             tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
-            proto_tree_add_item(tree, hf_bthci_evt_le_feature_00,                 tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_evt_le_features, ett_le_features, hfx_bthci_evt_le_features, ENC_LITTLE_ENDIAN);
             offset += 8;
 
             add_opcode(opcode_list, 0x2016, COMMAND_STATUS_NORMAL); /* LE Read Remote Used Features */
@@ -3783,16 +3806,9 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
             offset += 1;
 
-            if (tree) {
-                proto_item *ti_le_features;
-                proto_item *ti_le_subtree;
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_evt_le_features, ett_le_features, hfx_bthci_evt_le_features, ENC_LITTLE_ENDIAN);
+            offset += 8;
 
-                ti_le_features = proto_tree_add_item(tree, hf_bthci_evt_le_features, tvb, offset, 8, ENC_NA);
-                ti_le_subtree = proto_item_add_subtree(ti_le_features, ett_lmp_subtree);
-
-                proto_tree_add_item(ti_le_subtree,hf_bthci_evt_le_feature_00, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                offset += 8;
-            }
             break;
         case 0x2007: /* LE Read Advertising Channel Tx Power */
         {
@@ -6392,16 +6408,6 @@ proto_register_bthci_evt(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_le_features,
-          { "Supported LE Features", "bthci_evt.le_features",
-            FT_NONE, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_bthci_evt_le_feature_00,
-          { "LE Encryption",        "bthci_evt.le_features.encryption",
-            FT_BOOLEAN, 8, NULL, 0x01,
-            NULL, HFILL }
-        },
         { &hf_bthci_evt_white_list_size,
           { "White List Size",        "bthci_evt.le_white_list_size",
             FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -6702,6 +6708,56 @@ proto_register_bthci_evt(void)
             FT_DOUBLE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
+        { &hf_bthci_evt_le_features,
+          { "Supported LE Features",                       "bthci_evt.le_features",
+            FT_UINT64, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_encryption,
+          { "LE Encryption",                               "bthci_evt.le_features.encryption",
+            FT_BOOLEAN, 64, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_connection_parameters_request_procedure,
+          { "Connection Parameters Request Procedure",     "bthci_evt.le_features.connection_parameters_request_procedure",
+            FT_BOOLEAN, 64, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_extended_reject_indication,
+          { "Extended Reject Indication",                  "bthci_evt.le_features.extended_reject_indication",
+            FT_BOOLEAN, 64, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_slave_initiated_features_exchange,
+          { "Slave-Initiated Features Exchange",           "bthci_evt.le_features.slave_initiated_features_exchange",
+            FT_BOOLEAN, 64, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_ping,
+          { "Ping",                                        "bthci_evt.le_features.ping",
+            FT_BOOLEAN, 64, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_data_packet_length_extension,
+          { "Data Packet Length Extension",                "bthci_evt.le_features.data_packet_length_extension",
+            FT_BOOLEAN, 64, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_ll_privacy,
+          { "LL Privacy",                                  "bthci_evt.le_features.ll_privacy",
+            FT_BOOLEAN, 64, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_extended_scanner_filter_policies,
+          { "Extended Scanner Filter Policies",            "bthci_evt.le_features.extended_scanner_filter_policies",
+            FT_BOOLEAN, 64, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_reserved,
+            { "Reserved",                                  "bthci_evt.pending_response_delta",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFF00),
+            NULL, HFILL }
+        },
     };
 
     static ei_register_info ei[] = {
@@ -6720,6 +6776,7 @@ proto_register_bthci_evt(void)
         &ett_ptype_subtree,
         &ett_le_state_subtree,
         &ett_le_channel_map,
+        &ett_le_features,
         &ett_expert
     };
 
