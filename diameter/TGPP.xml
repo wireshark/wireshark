@@ -1401,6 +1401,30 @@
 	<avp name="BSSGP-Cause" code="4309" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 		<type type-name="Unsigned32"/>
 	</avp>
+	<avp name="Serving-PLMN-Rate-Control" code="4310" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+		<grouped>
+			<gavp name="Uplink-Rate-Limit"/>
+			<gavp name="Downlink-Rate-Limit"/>
+		</grouped>
+	</avp>
+	<avp name="Uplink-Rate-Limit" code="4311" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Downlink-Rate-Limit" code="4312" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="RRC-Cause-Counter" code="4318" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+		<grouped>
+			<gavp name="Counter-Value"/>
+			<gavp name="RRC-Counter-Timestamp"/>
+		</grouped>
+	</avp>
+	<avp name="Counter-Value" code="4319" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="RRC-Counter-Timestamp" code="4320" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+		<type type-name="Time"/>
+	</avp>
 	<!--
 	Note: The AVP codes from 4300 to 4399 are reserved for TS 29.128
 	-->

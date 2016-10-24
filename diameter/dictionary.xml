@@ -2961,7 +2961,7 @@
 				<gavp name="Node-Id"/>
 				<gavp name="3GPP-PDP-Type"/>
 				<gavp name="PDP-Address"/>
-				<gavp name="PDP-Address_Prefix-Length"/>
+				<gavp name="PDP-Address-Prefix-Length"/>
 				<gavp name="Dynamic-Address-Flag"/>
 				<gavp name="Dynamic-Address-Flag-Extension"/>
 				<gavp name="QoS-Information"/>
@@ -6842,6 +6842,10 @@
 		<avp name="ePDG-Address" code="3425" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="IPAddress"/>
 		</avp>
+		<!--
+		Note: The AVP codes from 3400 to 3499 are reserved for TS 32.299
+		-->
+
 		<avp name="Enhanced-Diagnostics" code="3901" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="RAN-NAS-Release-Cause"/>
@@ -7036,35 +7040,18 @@
 		<avp name="Rate-Control-Time-Unit" code="3939" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Serving-PLMN-Rate-Control" code="4310" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
-			<grouped>
-				<gavp name="Uplink-Rate-Limit"/>
-				<gavp name="Downlink-Rate-Limit"/>
-			</grouped>
-		</avp>
-		<avp name="Uplink-Rate-Limit" code="4311" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
-			<type type-name="Unsigned32"/>
-		</avp>
-		<avp name="Downlink-Rate-Limit" code="4312" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
-			<type type-name="Unsigned32"/>
-		</avp>
-		<avp name="RRC-Cause-Counter" code="4318" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
-			<grouped>
-				<gavp name="Counter-Value"/>
-				<gavp name="RRC-Counter-Timestamp"/>
-			</grouped>
-		</avp>
-		<avp name="Counter-Value" code="4319" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
-			<type type-name="Unsigned32"/>
-		</avp>
-		<avp name="RRC-Counter-Timestamp" code="4320" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
-			<type type-name="Time"/>
-		</avp>
-		<avp name="Charging-Per-IP-CAN-Session-Indicator" code="4400" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP"2>
+		<!--
+		Note: The AVP codes from 3900 to 3999 are reserved for TS 29.128
+		-->
+
+		<avp name="Charging-Per-IP-CAN-Session-Indicator" code="4400" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="Inactive" code="0"/>
 			<enum name="Active" code="1"/>
 		</avp>
+		<!--
+		Note: The AVP codes from 4400 to 4499 are reserved for TS 32.299
+		-->
 	</base>
 
 	<!-- ********************************************************************** -->
