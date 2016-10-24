@@ -407,11 +407,29 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                     item = proto_tree_add_int64(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,checkInt64(L,1));
                     break;
                 case FT_IPv4:
-                    item = proto_tree_add_ipv4(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,*((const guint32*)(checkAddress(L,1)->data)));
+                    {
+                        Address addr = checkAddress(L,1);
+                        if (addr->type != AT_IPv4) {
+                            luaL_error(L, "Expected IPv4 address for FT_IPv4 field");
+                            return 0;
+                        }
+
+                        item = proto_tree_add_ipv4(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,*((const guint32*)(addr->data)));
+                    }
+                    break;
+                case FT_IPv6:
+                    {
+                        Address addr = checkAddress(L,1);
+                        if (addr->type != AT_IPv6) {
+                            luaL_error(L, "Expected IPv6 address for FT_IPv6 field");
+                            return 0;
+                        }
+
+                        item = proto_tree_add_ipv6(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, (struct e_in6_addr *)addr->data);
+                    }
                     break;
                 case FT_ETHER:
                 case FT_UINT_BYTES:
-                case FT_IPv6:
                 case FT_IPXNET:
                 case FT_GUID:
                 case FT_OID:

@@ -794,6 +794,29 @@ WSLUA_METHOD TvbRange_le_ipv4(lua_State* L) {
     WSLUA_RETURN(1); /* The IPv4 `Address` object. */
 }
 
+WSLUA_METHOD TvbRange_ipv6(lua_State* L) {
+    /* Get an IPv6 Address from a `TvbRange`, as an `Address` object. */
+    TvbRange tvbr = checkTvbRange(L,1);
+    Address addr;
+
+    if ( !(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    if (tvbr->len != 16) {
+        WSLUA_ERROR(TvbRange_ipv6,"The range must be 16 octets long");
+        return 0;
+    }
+
+    addr = g_new(address,1);
+    alloc_address_tvb(NULL,addr,AT_IPv6,16,tvbr->tvb->ws_tvb,tvbr->offset);
+    pushAddress(L,addr);
+
+    WSLUA_RETURN(1); /* The IPv6 `Address` object. */
+}
+
 WSLUA_METHOD TvbRange_ether(lua_State* L) {
     /* Get an Ethernet Address from a `TvbRange`, as an `Address` object. */
     TvbRange tvbr = checkTvbRange(L,1);
@@ -1372,6 +1395,7 @@ WSLUA_METHODS TvbRange_methods[] = {
     WSLUA_CLASS_FNREG(TvbRange,ether),
     WSLUA_CLASS_FNREG(TvbRange,ipv4),
     WSLUA_CLASS_FNREG(TvbRange,le_ipv4),
+    WSLUA_CLASS_FNREG(TvbRange,ipv6),
     WSLUA_CLASS_FNREG(TvbRange,nstime),
     WSLUA_CLASS_FNREG(TvbRange,le_nstime),
     WSLUA_CLASS_FNREG(TvbRange,string),
