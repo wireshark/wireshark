@@ -74,6 +74,7 @@ static gint ett_subnadmin = -1;
 static gint ett_mad = -1;
 static gint ett_cm = -1;
 static gint ett_cm_sid = -1;
+static gint ett_cm_ipcm = -1;
 static gint ett_rmpp = -1;
 static gint ett_subm_attribute = -1;
 static gint ett_suba_attribute = -1;
@@ -625,6 +626,18 @@ static int hf_cm_req_alt_reserved1 = -1;
 static int hf_cm_req_local_ACK_timeout = -1;
 static int hf_cm_req_alt_reserved2 = -1;
 static int hf_cm_req_private_data = -1;
+static int hf_cm_req_ip_cm_req_msg = -1;
+static int hf_cm_req_ip_cm_majv = -1;
+static int hf_cm_req_ip_cm_minv = -1;
+static int hf_cm_req_ip_cm_ipv = -1;
+static int hf_cm_req_ip_cm_res = -1;
+static int hf_cm_req_ip_cm_sport = -1;
+static int hf_cm_req_ip_cm_dip6 = -1;
+static int hf_cm_req_ip_cm_sip6 = -1;
+static int hf_cm_req_ip_cm_dip4 = -1;
+static int hf_cm_req_ip_cm_sip4 = -1;
+static int hf_ip_cm_req_consumer_private_data = -1;
+
 /* CM REP Header */
 static int hf_cm_rep_localcommid = -1;
 static int hf_cm_rep_remotecommid = -1;
@@ -2922,11 +2935,12 @@ static void parse_DEV_MGT(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
     *offset = local_offset;
 }
 
-static void parse_CM_Req_ServiceID(proto_tree *parent_tree, tvbuff_t *tvb, gint *offset, guint64 serviceid)
+static gboolean parse_CM_Req_ServiceID(proto_tree *parent_tree, tvbuff_t *tvb, gint *offset, guint64 serviceid)
 {
     proto_item *service_id_item;
     proto_tree *service_id_tree;
     gint        local_offset = *offset;
+    gboolean ip_cm_sid;
 
     if ((serviceid & RDMA_IP_CM_SID_PREFIX_MASK) == RDMA_IP_CM_SID_PREFIX) {
         service_id_item = proto_tree_add_item(parent_tree, hf_cm_req_service_id, tvb, local_offset, 8, ENC_NA);
@@ -2939,11 +2953,14 @@ static void parse_CM_Req_ServiceID(proto_tree *parent_tree, tvbuff_t *tvb, gint 
         local_offset += 1;
         proto_tree_add_item(service_id_tree, hf_cm_req_service_id_dport, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
+        ip_cm_sid = TRUE;
     } else {
         proto_tree_add_item(parent_tree, hf_cm_req_service_id, tvb, local_offset, 8, ENC_BIG_ENDIAN);
         local_offset += 8;
+        ip_cm_sid = FALSE;
     }
     *offset = local_offset;
+    return ip_cm_sid;
 }
 
 static void save_conversation_info(packet_info *pinfo, guint8 *local_gid, guint8 *remote_gid,
@@ -2987,6 +3004,45 @@ static void save_conversation_info(packet_info *pinfo, guint8 *local_gid, guint8
     }
 }
 
+static void parse_IP_CM_Req_Msg(proto_tree *parent_tree, tvbuff_t *tvb, gint local_offset)
+{
+    proto_item *private_data_item;
+    proto_tree *private_data_tree;
+    guint8 ipv;
+
+    private_data_item = proto_tree_add_item(parent_tree, hf_cm_req_ip_cm_req_msg, tvb, local_offset, 36, ENC_NA);
+    proto_item_set_text(private_data_item, "%s", "IP CM Private Data");
+    private_data_tree = proto_item_add_subtree(private_data_item, ett_cm_ipcm);
+
+    proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_majv, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_minv, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    local_offset += 1;
+    ipv = tvb_get_guint8(tvb, local_offset) & 0xf0 >> 4;
+
+    proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_ipv, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_res, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    local_offset += 1;
+    proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_sport, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+    local_offset += 2;
+
+    if (ipv == 4) {
+        /* skip first 12 bytes of zero for dip */
+        proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_dip4, tvb, local_offset + 12, 4, ENC_NA);
+        local_offset += 16;
+        /* skip first 12 bytes of zero for sip */
+        proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_sip4, tvb, local_offset + 12, 4, ENC_NA);
+    } else {
+        proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_dip6, tvb, local_offset, 16, ENC_NA);
+        local_offset += 16;
+        proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_sip6, tvb, local_offset, 16, ENC_NA);
+    }
+    local_offset += 16;
+
+    /* finally add the consumer specific private data as undecoded data */
+    proto_tree_add_item(private_data_tree, hf_ip_cm_req_consumer_private_data,
+                        tvb, local_offset, 56, ENC_NA);
+}
+
 static void parse_CM_Req(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
                          MAD_Data *MadData, proto_tree *CM_header_tree)
 {
@@ -2998,6 +3054,7 @@ static void parse_CM_Req(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *t
     guint32 local_qpn;
     guint32 local_lid;
     guint32 remote_lid;
+    gboolean ip_cm_sid;
 
     local_gid  = (guint8 *)wmem_alloc(wmem_packet_scope(), GID_SIZE);
     remote_gid = (guint8 *)wmem_alloc(wmem_packet_scope(), GID_SIZE);
@@ -3008,7 +3065,7 @@ static void parse_CM_Req(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *t
     proto_tree_add_item(CM_header_tree, hf_infiniband_reserved4, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
 
     serviceid = tvb_get_ntoh64(tvb, local_offset);
-    parse_CM_Req_ServiceID(CM_header_tree, tvb, &local_offset, serviceid);
+    ip_cm_sid = parse_CM_Req_ServiceID(CM_header_tree, tvb, &local_offset, serviceid);
 
     proto_tree_add_item(CM_header_tree, hf_cm_req_local_ca_guid, tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset += 8;
     proto_tree_add_item(CM_header_tree, hf_infiniband_reserved4, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
@@ -3067,11 +3124,17 @@ static void parse_CM_Req(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *t
 
     save_conversation_info(pinfo, local_gid, remote_gid, local_qpn, local_lid, remote_lid, serviceid, MadData);
 
+    if (ip_cm_sid) {
+        /* decode IP CM service specific private data */
+        parse_IP_CM_Req_Msg(CM_header_tree, tvb, local_offset);
+    } else {
+        /* Add the undecoded private data anyway as RDMA CM private data */
+        proto_tree_add_item(CM_header_tree, hf_cm_req_private_data, tvb, local_offset, 92, ENC_NA);
+    }
+
     /* give a chance for subdissectors to analyze the private data */
     next_tvb = tvb_new_subset_length(tvb, local_offset, 92);
-    if (! dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, &hdtbl_entry, NULL) )
-        /* if none reported success, add this as raw "data" */
-        proto_tree_add_item(CM_header_tree, hf_cm_req_private_data, tvb, local_offset, 92, ENC_NA);
+    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, &hdtbl_entry, NULL);
 
     local_offset += 92;
     *offset = local_offset;
@@ -5756,6 +5819,51 @@ void proto_register_infiniband(void)
                 "PrivateData", "infiniband.cm.req.private",
                 FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
+        {&hf_cm_req_ip_cm_req_msg, {
+                "IP CM Request Msg", "infiniband.cm.req.ip_cm",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_ip_cm_majv, {
+                "IP CM Major Version", "infiniband.cm.req.ip_cm.majv",
+                FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL}
+        },
+        {&hf_cm_req_ip_cm_minv, {
+                "IP CM Minor Version", "infiniband.cm.req.ip_cm.minv",
+                FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL}
+        },
+        {&hf_cm_req_ip_cm_ipv, {
+                "IP CM IP Version", "infiniband.cm.req.ip_cm.ipv",
+                FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL}
+        },
+        {&hf_cm_req_ip_cm_res, {
+                "IP CM Reserved", "infiniband.cm.req.ip_cm.reserved",
+                FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL}
+        },
+        {&hf_cm_req_ip_cm_sport, {
+                "IP CM Source Port", "infiniband.cm.req.ip_cm.sport",
+                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_ip_cm_dip6, {
+                "IP CM Destination IP", "infiniband.cm.req.ip_cm.dip6",
+                FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_ip_cm_sip6, {
+                "IP CM Source IP", "infiniband.cm.req.ip_cm.sip6",
+                FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_ip_cm_dip4, {
+                "IP CM Destination IP", "infiniband.cm.req.ip_cm.dip4",
+                FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_ip_cm_sip4, {
+                "IP CM Source IP", "infiniband.cm.req.ip_cm.sip4",
+                FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+
+        {&hf_ip_cm_req_consumer_private_data, {
+                "IP CM Consumer PrivateData", "infiniband.cm.req.ip_cm.private",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
         /* CM REP Header */
         {&hf_cm_rep_localcommid, {
                 "Local Communication ID", "infiniband.cm.rep",
@@ -7519,6 +7627,7 @@ void proto_register_infiniband(void)
         &ett_subnadmin,
         &ett_cm,
         &ett_cm_sid,
+        &ett_cm_ipcm,
         &ett_mad,
         &ett_rmpp,
         &ett_subm_attribute,
