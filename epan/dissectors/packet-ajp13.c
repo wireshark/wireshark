@@ -27,6 +27,7 @@
 
 #include <epan/packet.h>
 #include <epan/proto_data.h>
+#include <epan/expert.h>
 #include "packet-tcp.h"
 
 #include <wsutil/strtoi.h>
@@ -232,6 +233,8 @@ static int hf_ajp13_rstatus= -1;
 static int hf_ajp13_rsmsg  = -1;
 static int hf_ajp13_data   = -1;
 static gint ett_ajp13 = -1;
+
+static expert_field ei_ajp13_content_length_invalid = EI_INIT;
 
 /*
  * Request/response header codes. Common headers are stored as ints in
@@ -640,10 +643,9 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   for(i=0; i<nhdr; i++) {
 
     guint8 hcd;
-    guint8 hid;
+    guint8 hid = 0;
     const gchar* hname = NULL;
     int hpos = pos;
-    int cl = 0;
     const gchar *hval;
     guint16 hval_len, hname_len;
 
@@ -652,6 +654,8 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     hcd = tvb_get_guint8(tvb, pos);
 
     if (hcd == 0xA0) {
+      proto_item* pi;
+
       pos+=1;
       hid = tvb_get_guint8(tvb, pos);
       pos+=1;
@@ -661,13 +665,15 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
       hval = ajp13_get_nstring(tvb, pos, &hval_len);
 
-      proto_tree_add_string_format(ajp13_tree, *req_headers[hid],
+      pi = proto_tree_add_string_format(ajp13_tree, *req_headers[hid],
                                      tvb, hpos, 2+hval_len+2, hval,
                                      "%s", hval);
-      pos+=hval_len+2;
 
-      if (hid == 0x08)
-        cl = 1;
+      if (hid == 0x08 && !ws_strtou32(hval, NULL, &cd->content_length)) {
+        expert_add_info(pinfo, pi, &ei_ajp13_content_length_invalid);
+      }
+
+      pos+=hval_len+2;
     } else {
       hname = ajp13_get_nstring(tvb, pos, &hname_len);
       pos+=hname_len+2;
@@ -679,10 +685,6 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
                                      wmem_strdup_printf(wmem_packet_scope(), "%s: %s", hname, hval),
                                      "%s: %s", hname, hval);
       pos+=hval_len+2;
-    }
-
-    if (cl && ws_strtou32(hval, NULL, &cl)) {
-      cd->content_length = cl;
     }
   }
 
@@ -869,6 +871,8 @@ dissect_ajp13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 void
 proto_register_ajp13(void)
 {
+  expert_module_t* expert_ajp13;
+
   static hf_register_info hf[] = {
     { &hf_ajp13_magic,
       { "Magic",  "ajp13.magic", FT_BYTES, BASE_NONE, NULL, 0x0, "Magic Number",
@@ -1100,6 +1104,11 @@ proto_register_ajp13(void)
     },
   };
 
+  static ei_register_info ei[] = {
+    { &ei_ajp13_content_length_invalid, { "ajp13.content_length.invalid", PI_MALFORMED, PI_ERROR,
+      "Content-Length must be a string containing an integer", EXPFILL }}
+  };
+
   static gint *ett[] = {
     &ett_ajp13,
   };
@@ -1111,6 +1120,8 @@ proto_register_ajp13(void)
   proto_register_field_array(proto_ajp13, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  expert_ajp13 = expert_register_protocol(proto_ajp13);
+  expert_register_field_array(expert_ajp13, ei, array_length(ei));
 }
 
 
