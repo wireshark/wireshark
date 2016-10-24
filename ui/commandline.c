@@ -183,6 +183,17 @@ commandline_print_usage(gboolean for_help_option) {
 #endif
 }
 
+/*
+ * For long options with no corresponding short options, we define values
+ * outside the range of ASCII graphic characters, make that the last
+ * component of the entry for the long option, and have a case for that
+ * option in the switch statement.
+ *
+ * We also pick values > 65535, so as to leave values from 128 to 65535
+ * for capture options.
+ */
+#define LONGOPT_FULL_SCREEN       65536
+
 #define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:d:g:Hh" "jJ:kK:lm:nN:o:P:r:R:St:u:vw:X:Y:z:"
 static const struct option long_options[] = {
         {"help", no_argument, NULL, 'h'},
@@ -190,6 +201,7 @@ static const struct option long_options[] = {
         {"read-filter", required_argument, NULL, 'R' },
         {"display-filter", required_argument, NULL, 'Y' },
         {"version", no_argument, NULL, 'v'},
+        {"fullscreen", no_argument, NULL, LONGOPT_FULL_SCREEN },
         LONGOPT_CAPTURE_COMMON
         {0, 0, 0, 0 }
     };
