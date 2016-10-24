@@ -2865,8 +2865,8 @@
 			<enum name="CHANGEINQOS_TRAFFIC_HANDLING_PRIORITY" code="21"/>
 			<enum name="CHANGEINQOS_GUARANTEED_BIT_RATE_FOR_UPLINK" code="22"/>
 			<enum name="CHANGEINQOS_GUARANTEED_BIT_RATE_FOR_DOWNLINK" code="23"/>
+			<enum name="CHANGEINQOS_APN_AGGREGATE_MAXIMUM_BIT_RATE" code="24"/>
 
-			<enum name="Undefined" code="24"/>
 			<enum name="Undefined" code="25"/>
 			<enum name="Undefined" code="26"/>
 			<enum name="Undefined" code="27"/>
@@ -2911,7 +2911,8 @@
 
 			<enum name="CHANGE_IN_SERVICE_CONDITION" code="60"/>
 			<enum name="CHANGE_IN_SERVING_NODE" code="61"/>
-			<enum name="Undefined" code="62"/>
+			<enum name="CHANGE_IN_ACCESS_FOR_A_SERVICE_DATA_FLOW" code="62"/>
+
 			<enum name="Undefined" code="63"/>
 			<enum name="Undefined" code="64"/>
 			<enum name="Undefined" code="65"/>
@@ -2923,6 +2924,9 @@
 			<enum name="CHANGE_IN_USER_CSG_INFORMATION" code="70"/>
 			<enum name="CHANGE_IN_HYBRID_SUBSCRIBED_USER_CSG_INFORMATION" code="71"/>
 			<enum name="CHANGE_IN_HYBRID_UNSUBSCRIBED_USER_CSG_INFORMATION" code="72"/>
+			<enum name="CHANGE_OF_UE_PRESENCE_IN_PRESENCE_REPORTING_AREA" code="73"/>
+			<enum name="CHANGE_IN_SERVING_PLMN_RATE_CONTROL" code="74"/>
+			<enum name="CHANGE_IN_APN_RATE_CONTROL" code="75"/>
 		</avp>
 		<avp name="Quota-Holding-Time" code="871" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
@@ -2957,12 +2961,16 @@
 				<gavp name="Node-Id"/>
 				<gavp name="3GPP-PDP-Type"/>
 				<gavp name="PDP-Address"/>
+				<gavp name="PDP-Address_Prefix-Length"/>
 				<gavp name="Dynamic-Address-Flag"/>
 				<gavp name="Dynamic-Address-Flag-Extension"/>
-				<gavp name="3GPP-GPRS-Negotiated-QoS-Profile"/> <!-- ??-->
 				<gavp name="QoS-Information"/>
 				<gavp name="SGSN-Address"/>
 				<gavp name="GGSN-Address"/>
+				<gavp name="TDF-IP-Address"/>
+				<gavp name="SGW-Address"/>
+				<gavp name="ePDG-Address"/>
+				<gavp name="TWAG-Address"/>
 				<gavp name="CG-Address"/>
 				<gavp name="Serving-Node-Type"/>
 				<gavp name="SGW-Change"/>
@@ -2977,9 +2985,15 @@
 				<gavp name="Charging-Characteristics-Selection-Mode"/>
 				<gavp name="3GPP-SGSN-MCC-MNC"/>
 				<gavp name="3GPP-MS-TimeZone"/>
-				<gavp name="3GPP-CAMEL-Charging-Info"/>		<!-- ??-->
 				<gavp name="Charging-Rule-Base-Name"/>
+				<gavp name="ADC-Rule-Base-Name"/>
 				<gavp name="3GPP-User-Location-Info"/>
+				<gavp name="User-Location-Info-Time"/>
+				<gavp name="User-CSG-Information"/>
+				<gavp name="Presence-Reporting-Area-Information"/>
+				<gavp name="3GPP2-BSID"/>
+				<gavp name="TWAN-User-Location-Info"/>
+				<gavp name="UWAN-User-Location-Info"/>
 				<gavp name="3GPP-RAT-Type"/>
 				<gavp name="PS-Furnish-Charging-Information"/>
 				<gavp name="PDP-Context-Type"/>
@@ -2993,6 +3007,23 @@
 				<gavp name="Change-Condition"/>
 				<gavp name="Diagnostics"/>
 				<gavp name="Low-Priority-Indicator"/>
+				<gavp name="NBIFOM-Mode"/>
+				<gavp name="NBIFOM-Support"/>
+				<gavp name="MME-Number-for-MT-SMS"/>
+				<gavp name="MME-Name"/>
+				<gavp name="MME-Realm"/>
+				<gavp name="Logical-Access-ID"/>
+				<gavp name="Physical-Access-ID"/>
+				<gavp name="Fixed-User-Location-Info"/>
+				<gavp name="CN-Operator-Selection-Entity"/>
+				<gavp name="Enhanced-Diagnostics"/>
+				<gavp name="SGi-PtP-Tunnelling-Method"/>
+				<gavp name="CP-CIoT-EPS-Optimisation-Indicator"/>
+				<gavp name="UNI-PDU-CP-Only-Flag"/>
+				<gavp name="Serving-PLMN-Rate-Control"/>
+				<gavp name="APN-Rate-Control"/>
+				<gavp name="Charging-Per-IP-CAN-Session-Indicator"/>
+				<gavp name="RRC-Cause-Counter"/>
 			</grouped>
 		</avp>
 		<avp name="WLAN-Information" code="875" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
@@ -5677,14 +5708,13 @@
 				<gavp name="Charging-Rule-Base-Name"/>
 				<gavp name="Accounting-Input-Octets"/>
 				<gavp name="Accounting-Output-Octets"/>
-				<gavp name="Accounting-Input-Packets"/>
-				<gavp name="Accounting-Output-Packets"/>
 				<gavp name="Local-Sequence-Number"/>
 				<gavp name="QoS-Information"/>
 				<gavp name="Rating-Group"/>
 				<gavp name="Change-Time"/>
 				<gavp name="Service-Identifier"/>
 				<gavp name="Service-Specific-Info"/>
+				<gavp name="ADC-Rule-Base-Name"/>
 				<gavp name="SGSN-Address"/>
 				<gavp name="Time-First-Usage"/>
 				<gavp name="Time-Last-Usage"/>
@@ -5692,6 +5722,15 @@
 				<gavp name="Change-Condition"/>
 				<gavp name="3GPP-User-Location-Info"/>
 				<gavp name="3GPP2-BSID"/>
+				<gavp name="UWAN-User-Location-Info"/>
+				<gavp name="Sponsor-Identity"/>
+				<gavp name="Application-Service-Provider-Identity"/>
+				<gavp name="Presence-Reporting-Area-Status"/>
+				<gavp name="User-CSG-Information"/>
+				<gavp name="3GPP-RAT-Type"/>
+				<gavp name="Related-Change-Condition-Information"/>
+				<gavp name="Serving-PLMN-Rate-Control"/>
+				<gavp name="APN-Rate-Control"/>
 			</grouped>
 		</avp>
 		<avp name="Start-Time" code="2041" vendor-bit="must" vendor-id="TGPP">
@@ -5713,12 +5752,21 @@
 			<grouped>
 				<gavp name="QoS-Information"/>
 				<gavp name="Accounting-Input-Octets"/>
-				<gavp name="Accounting-Input-Packets"/>
 				<gavp name="Accounting-Output-Octets"/>
-				<gavp name="Accounting-Output-Packets"/>
 				<gavp name="Change-Condition"/>
 				<gavp name="Change-Time"/>
 				<gavp name="3GPP-User-Location-Info"/>
+				<gavp name="UWAN-User-Location-Info"/>
+				<gavp name="3GPP-Charging-Id"/>
+				<gavp name="Presence-Reporting-Area-Status"/>
+				<gavp name="User-CSG-Information"/>
+				<gavp name="3GPP-RAT-Type"/>
+				<gavp name="Access-Availability-Change-Reason"/>
+				<gavp name="Related-Change-Condition-Information"/>
+				<gavp name="Diagnostics"/>
+				<gavp name="Enhanced-Diagnostics"/>
+				<gavp name="CP-CIoT-EPS-Optimisation-Indicator"/>
+				<gavp name="Serving-PLMN-Rate-Control"/>
 			</grouped>
 		</avp>
 		<avp name="Serving-Node-Type" code="2047" vendor-bit="must" vendor-id="TGPP">
@@ -6786,6 +6834,11 @@
 		<avp name="MTC-IWF-Address" code="3406" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="IPAddress"/>
 		</avp>
+		<avp name="CN-Operator-Selection-Entity" code="3421" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="The serving network has been selected by the UE" code="0"/>
+			<enum name="The serving network has been selected by the network" code="1"/>
+		</avp>
 		<avp name="ePDG-Address" code="3425" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="IPAddress"/>
 		</avp>
@@ -6921,9 +6974,97 @@
 		<avp name="Monitoring-Event-Report-Number" code="3923" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<!--
-		Note: The AVP codes from 3900 to 3999 are reserved for TS 29.299
-		-->
+		<avp name="Related-Change-Condition-Information" code="3925" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<grouped>
+				<gavp name="SGSN-Address"/>
+				<gavp name="Change-Condition"/>
+				<gavp name="3GPP-User-Location-Info"/>
+				<gavp name="3GPP2-BSID"/>
+				<gavp name="UWAN-User-Location-Info"/>
+				<gavp name="Presence-Reporting-Area-Status"/>
+				<gavp name="User-CSG-Information"/>
+				<gavp name="3GPP-RAT-Type"/>
+			</grouped>
+		</avp>
+		<avp name="CP-CIoT-EPS-Optimisation-Indicator" code="3930" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Not Apply" code ="0"/>
+			<enum name="Apply" code="1"/>
+		</avp>
+		<avp name="SGi-PtP-Tunnelling-Method" code="3931" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="UDP_IP_based" code="0"/>
+			<enum name="Others" code="1"/>
+		</avp>
+		<avp name="UNI-PDU-CP-Only-Flag" code="3932" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="UNI-PDU-both-UP-CP" code="0"/>
+			<enum name="UNI-PDU-CP-Only" code="1"/>
+		</avp>
+		<avp name="APN-Rate-Control" code="3933" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<grouped>
+				<gavp name="APN-Rate-Control-Uplink"/>
+				<gavp name="APN-Rate-Control-Downlink"/>
+			</grouped>
+		</avp>
+		<avp name="APN-Rate-Control-Downlink" code="3934" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Rate-Control-Time-Unit"/>
+				<gavp name="Rate-Control-Max-Rate"/>
+				<gavp name="Rate-Control-Max-Message-Size"/>
+			</grouped>
+		</avp>
+		<avp name="APN-Rate-Control-Uplink" code="3935" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Additional-Exception-Reports"/>
+				<gavp name="Rate-Control-Time-Unit"/>
+				<gavp name="Rate-Control-Max-Rate"/>
+				<gavp name="Rate-Control-Max-Message-Size"/>
+			</grouped>
+		</avp>
+		<avp name="Additional-Exception-Reports" code="3936" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Not Allowed" code="0"/>
+			<enum name="Allowed" code="1"/>
+		</avp>
+		<avp name="Rate-Control-Max-Message-Size" code="3937" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Rate-Control-Max-Rate" code="3938" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Rate-Control-Time-Unit" code="3939" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Serving-PLMN-Rate-Control" code="4310" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Uplink-Rate-Limit"/>
+				<gavp name="Downlink-Rate-Limit"/>
+			</grouped>
+		</avp>
+		<avp name="Uplink-Rate-Limit" code="4311" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Downlink-Rate-Limit" code="4312" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="RRC-Cause-Counter" code="4318" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Counter-Value"/>
+				<gavp name="RRC-Counter-Timestamp"/>
+			</grouped>
+		</avp>
+		<avp name="Counter-Value" code="4319" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="RRC-Counter-Timestamp" code="4320" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="Charging-Per-IP-CAN-Session-Indicator" code="4400" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP"2>
+			<type type-name="Enumerated"/>
+			<enum name="Inactive" code="0"/>
+			<enum name="Active" code="1"/>
+		</avp>
 	</base>
 
 	<!-- ********************************************************************** -->
