@@ -1972,6 +1972,24 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
     subevent_code = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_bthci_evt_le_meta_subevent, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
+    if (have_tap_listener(bluetooth_hci_summary_tap)) {
+        bluetooth_hci_summary_tap_t  *tap_hci_summary;
+
+        tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
+
+        tap_hci_summary->interface_id  = bluetooth_data->interface_id;
+        tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
+
+        tap_hci_summary->type = BLUETOOTH_HCI_SUMMARY_SUBEVENT;
+        tap_hci_summary->event = 0x3E; /* LE Meta */
+        tap_hci_summary->subevent = subevent_code;
+        if (try_val_to_str(subevent_code, evt_le_meta_subevent))
+            tap_hci_summary->name = val_to_str(subevent_code, evt_le_meta_subevent, "Unknown 0x%04x");
+        else
+            tap_hci_summary->name = NULL;
+        tap_queue_packet(bluetooth_hci_summary_tap, pinfo, tap_hci_summary);
+    }
+
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str(subevent_code, evt_le_meta_subevent, "Unknown 0x%02x"));
 
     offset += 1;

@@ -109,6 +109,11 @@
      </column>
      <column>
       <property name="text">
+       <string>Subevent</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
        <string>Status</string>
       </property>
      </column>
@@ -133,6 +138,9 @@
       </property>
       <property name="text">
        <string>0x01</string>
+      </property>
+      <property name="text">
+       <string/>
       </property>
       <property name="text">
        <string/>
@@ -182,6 +190,9 @@
        <string/>
       </property>
       <property name="text">
+       <string/>
+      </property>
+      <property name="text">
        <string>0</string>
       </property>
      </item>
@@ -191,6 +202,9 @@
       </property>
       <property name="text">
        <string>0x03</string>
+      </property>
+      <property name="text">
+       <string/>
       </property>
       <property name="text">
        <string/>
@@ -240,6 +254,9 @@
        <string/>
       </property>
       <property name="text">
+       <string/>
+      </property>
+      <property name="text">
        <string>0</string>
       </property>
      </item>
@@ -249,6 +266,9 @@
       </property>
       <property name="text">
        <string>0x05</string>
+      </property>
+      <property name="text">
+       <string/>
       </property>
       <property name="text">
        <string/>
@@ -298,6 +318,9 @@
        <string/>
       </property>
       <property name="text">
+       <string/>
+      </property>
+      <property name="text">
        <string>0</string>
       </property>
      </item>
@@ -307,6 +330,9 @@
       </property>
       <property name="text">
        <string>0x08</string>
+      </property>
+      <property name="text">
+       <string/>
       </property>
       <property name="text">
        <string/>
@@ -356,6 +382,9 @@
        <string/>
       </property>
       <property name="text">
+       <string/>
+      </property>
+      <property name="text">
        <string>0</string>
       </property>
      </item>
@@ -385,12 +414,18 @@
        <string/>
       </property>
       <property name="text">
+       <string/>
+      </property>
+      <property name="text">
        <string>0</string>
       </property>
      </item>
      <item>
       <property name="text">
        <string>Unknown OGF</string>
+      </property>
+      <property name="text">
+       <string/>
       </property>
       <property name="text">
        <string/>
@@ -443,12 +478,18 @@
        <string/>
       </property>
       <property name="text">
+       <string/>
+      </property>
+      <property name="text">
        <string>0</string>
       </property>
      </item>
      <item>
       <property name="text">
        <string>Status</string>
+      </property>
+      <property name="text">
+       <string/>
       </property>
       <property name="text">
        <string/>
@@ -501,12 +542,18 @@
        <string/>
       </property>
       <property name="text">
+       <string/>
+      </property>
+      <property name="text">
        <string>0</string>
       </property>
      </item>
      <item>
       <property name="text">
        <string>Hardware Errors</string>
+      </property>
+      <property name="text">
+       <string/>
       </property>
       <property name="text">
        <string/>

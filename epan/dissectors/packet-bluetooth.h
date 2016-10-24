@@ -256,6 +256,7 @@ enum bluetooth_hci_summary_type {
     BLUETOOTH_HCI_SUMMARY_OPCODE,
     BLUETOOTH_HCI_SUMMARY_EVENT_OPCODE,
     BLUETOOTH_HCI_SUMMARY_EVENT,
+    BLUETOOTH_HCI_SUMMARY_SUBEVENT,
     BLUETOOTH_HCI_SUMMARY_VENDOR_OPCODE,
     BLUETOOTH_HCI_SUMMARY_VENDOR_EVENT_OPCODE,
     BLUETOOTH_HCI_SUMMARY_VENDOR_EVENT,
@@ -272,6 +273,7 @@ typedef struct _bluetooth_hci_summary_tap_t {
     guint16                          ocf;
     guint8                           ogf;
     guint8                           event;
+    guint8                           subevent;
     guint8                           status;
     guint8                           reason;
     guint8                           hardware_error;
