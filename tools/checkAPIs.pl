@@ -56,6 +56,7 @@ my %APIs = (
                 # and "Deprecated CRT Functions"
                 # https://msdn.microsoft.com/en-us/library/ms235384.aspx
                 #
+                'atoi', # use wsutil/strtoi.h functions
                 'gets',
                 'sprintf',
                 'g_sprintf',
@@ -159,13 +160,7 @@ my %APIs = (
                 # "I" isn't always the upper-case form of "i", and "i" isn't
                 # always the lower-case form of "I").  Use the g_ascii_* version
                 # instead.
-                'toupper',
-
-                # use wsutil/ws_strtoi.h function
-                # because of the wide use of atoi, we keep it in soft-deprecation status
-                # until we approach its complete removal, otherwise windows buildbot
-                # will keep to stuck with error.
-                'atoi',
+                'toupper'
             ] },
 
         # APIs that SHOULD NOT be used in Wireshark (any more)
