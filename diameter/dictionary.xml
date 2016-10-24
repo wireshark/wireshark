@@ -155,87 +155,86 @@
 		-->
 		<command name="Ericsson Binding-Data"		code="8388657" vendor-id="None"/>
 		<!--
-      8388658 3GPP2 Subscriber-Information-Request/Answer (SIR/SIA) [3GPP2 X.S0068][Jun_Wang]
-      8388659 Verizon Session Data Recovery Request/Answer (SDR/SDA) [Niranjan_Avula]
-      8388660 Nokia Core Service Request/Answer (CSR/CSA) [Timo_Perala]
-      8388661 Nokia Extended Command Request/Answer (ECR/ECA) [Timo_Perala]
-      8388662 GCS-Action-Request/Answer (GAR/GAA) [3GPP TS 29.468][Kimmo_Kymalainen]
-      8388663 GCS-Notification-Request/Answer (GNR/GNA) [3GPP TS 29.468][Kimmo_Kymalainen]
-      8388664 ProSe-Subscriber-Information-Request/Answer (PIR/PIA) [3GPP TS 29.344][Kimmo_Kymalainen]  TGPP.xml
-      8388665 Update-ProSe-Subscriber-Data-Request/Answer (UPR/UPA) [3GPP TS 29.344][Kimmo_Kymalainen]  TGPP.xml
-      8388666 ProSe-Notify-Request/Answer (PNR/PNA) [3GPP TS 29.344][Kimmo_Kymalainen]                  TGPP.xml
-      8388667 Reset-Request/Answer (RSR/RSA) [3GPP TS 29.344][Kimmo_Kymalainen]                         TGPP.xml
-      8388668 ProSe-Authorization-Request/Answer (PAR/PAA) [3GPP TS 29.345][Kimmo_Kymalainen]
-      8388669 ProSe-Discovery-Request/Answer (PDR/PDA) [3GPP TS 29.345][Kimmo_Kymalainen]
-      8388670 ProSe-Match-Request/Answer (PMR/PMA) [3GPP TS 29.345][Kimmo_Kymalainen]
-      8388671 ProSe-Match-Report-Info-Request/Answer (PIR/PIA) [3GPP TS 29.345][Kimmo_Kymalainen]
-      8388672 ProSe-Proximity-Request/Answer (PRR/PRA) [3GPP TS 29.345][Kimmo_Kymalainen]
-      8388673 ProSe-Location-Update-Request (PLR/PLA) [3GPP TS 29.345][Kimmo_Kymalainen]
-      8388674 ProSe-Alert-Request/Answer (ALR/ALA) [3GPP TS 29.345][Kimmo_Kymalainen]
-      8388675 ProSe-Cancellation-Request/Answer (RPR/RPA) [3GPP TS 29.345][Kimmo_Kymalainen]
-      8388676 ProXimity-Action-Request/Answer (PXR/PXA) [3GPP TS 29.343][Kimmo_Kymalainen]
-      8388677 Rivada Xd DSC-Registration-Request/Answer (DDRR/DDRA) [Vincent_D_Onofrio]
-      8388678 Rivada Xd Heart-Beat-Request/Answer (DHBR/DHBA) [Vincent_D_Onofrio]
-      8388679 Rivada Xd Cell-Info-Transfer-Request/Answer (DCTR/DCTA) [Vincent_D_Onofrio]
-      8388680 Rivada Xd Cell-Info-Notification-Request/Answer (DCNR/DCNA) [Vincent_D_Onofrio]
-      8388681 Rivada Xd Cell-Info-Modification-Request/Answer (DIMR/DIMA) [Vincent_D_Onofrio]
-      8388682 Rivada Xd Cell-Info-Modification-Notification-Request/Answer (DINR/DINA) [Vincent_D_Onofrio]
-      8388683 Rivada Xd Resource-Allocation-Request/Answer (DRAR/DRAA) [Vincent_D_Onofrio]
-      8388684 Rivada Xd Resource-Allocation-Notification-Request/Answer (DANR/DANA) [Vincent_D_Onofrio]
-      8388685 Rivada Xd Resource-Modification-Request/Answer (DRMR/DRMA) [Vincent_D_Onofrio]
-      8388686 Rivada Xd Resource-Modification-Notification-Request/Answer (DMNR/DMNA) [Vincent_D_Onofrio]
-      8388687 Rivada Xd Resource-Hold-Request/Answer (DRHR/DRHA) [Vincent_D_Onofrio]
-      8388688 Rivada Xd Resource-Hold-Notification-Request/Answer (DHNR/DHNA) [Vincent_D_Onofrio]
-      8388689 Rivada Xd Resource-Resume-Request/Answer (DRSR/DRSA) [Vincent_D_Onofrio]
-      8388690 Rivada Xd Resource-Resume-Notification-Request/Answer (DSNR/DSNA) [Vincent_D_Onofrio]
-      8388691 Rivada Xd Resource-Usage-Update-Request/Answer (DRUR/DRUA) [Vincent_D_Onofrio]
-      8388692 Rivada Xd Resource-Usage-Notification-Request/Answer (DUNR/DUNA) [Vincent_D_Onofrio]
-      8388693 Rivada Xd Resource-Release-Request/Answer (DRRR/DRRA) [Vincent_D_Onofrio]
-      8388694 Rivada Xd Resource-Release-Notification-Request/Answer (DRNR/DRNA) [Vincent_D_Onofrio]
-      8388695 Rivada Xm Resource-Allocation-Request/Answer (MRAR/MRAA) [Vincent_D_Onofrio]
-      8388696 Rivada Xm Resource-Hold-Request/Answer (MRHR/MRHA) [Vincent_D_Onofrio]
-      8388697 Rivada Xm Resource-Release-Request/Answer (MRRR/MRRA) [Vincent_D_Onofrio]
-      8388698 Rivada Xm Resource-Modify-Request/Answer (MRMR/MRMA) [Vincent_D_Onofrio]
-      8388699 Rivada Xm Resource-Allocation-Notify-Request/Answer (MANR/MANA) [Vincent_D_Onofrio]
-      8388700 Rivada Xm Resource-Resume-Request/Answer (MRSR/MRSA) Vincent_D_Onofrio]
-      8388701 Rivada Xm Add-UE-Context-Request/Answer (MAUR/MAUA) [Vincent_D_Onofrio]
-      8388702 Rivada Xm Update-UE-Context-Request/Answer (MUUR/MUUA) [Vincent_D_Onofrio]
-      8388703 Rivada Xm Delete-UE-Context-Request/Answer (MDUR/MDUA) [Vincent_D_Onofrio]
-      8388704 Rivada Xm Detach-UE-Request/Answer (MDTR/MDTA) [Vincent_D_Onofrio]
-      8388705 Rivada Xm Page-UE-Request/Answer (MPUR/MPUA)[Vincent_D_Onofrio]
-      8388706 Rivada Xm Heart-Beat-Request/Answer (MHBR/MHBA) [Vincent_D_Onofrio]
-      8388707 Rivada Xa DPC-Registration-Request/Answer (ADRR/ADRA) [Vincent_D_Onofrio]
-      8388708 Rivada Xa Heart-Beat-Request/Answer (AHBR/AHBA) [Vincent_D_Onofrio]
-      8388709 Rivada Xa Resource-Allocation-Request/Answer (ARAR/ARAA) [Vincent_D_Onofrio]
-      8388710 Rivada Xa Resource-Release-Request/Answer (ARRR/ARRA) [Vincent_D_Onofrio]
-      8388711 Rivada Xa Resource-Release-Notification-Request/Answer (ARNR/ARNA) [Vincent_D_Onofrio]
-      8388712 Rivada Xh User-Data-Request/Answer (HUDR/HUDA) [Vincent_D_Onofrio]
-      8388713 ProSe-Initial-Location-Information-Request/Answer (PSR/PSA) [3GPP TS 29.344][Kimmo_Kymalainen] TGPP.xml
-      8388714 Nokia Session-Sync-Request/Answer (SSR/SSA) [Timo_Perala]
-      8388715 Nokia Session-Mass-Sync-Request/Answer (SMR/SMA) [Timo_Perala]
-      8388716 Nokia Fetch-Session-Request/Answer (FSR/FSA) [Timo_Perala]
-      -->
-     <command name="Ericsson Trace-Report"		code="8388717" vendor-id="None"/>
-     <command name="Configuration-Information"		code="8388718" vendor-id="None"/>
-     <command name="Reporting-Information"		code="8388719" vendor-id="None"/>
-     <command name="Non-Aggregated-RUCI-Report"		code="8388720" vendor-id="None"/>
-     <command name="Aggregated-RUCI-Report"		code="8388721" vendor-id="None"/>
-     <command name="Modify-Uecontext"		code="8388722" vendor-id="None"/>
-    <!--
-      8388723 Background-Data-Transfer-Request/Answer (BTR/BTA) [3GPP TS 29.154][Kimmo_Kymalainen]
-      8388724 Network-Status-Request/Answer (NSR/NSA) [3GPP TS 29.153][Kimmo_Kymalainen]
-      8388725 Network-Status-Continuous-Report-Request/Answer (NCR/NCA) [3GPP TS 29.153][Kimmo_Kymalainen]
-      8388726 NIDD-Information-Request/Answer (NIR/NIA) [3GPP TS 29.336][Kimmo_Kymalainen]
-      8388727 ProXimity-Application-Request/Answer (XAR/XAA) [3GPP TS 29.343][Kimmo_Kymalainen]
-      8388728 Data-Pull-Request/Answer (DPR/DPA) [3GPP TS 29.283][Kimmo_Kymalainen]
-      8388729 Data-Update-Request/Answer (DMR/DMA) [3GPP TS 29.283][Kimmo_Kymalainen]
-      8388730 Notification-Data-Request/Answer (NDR/NDA) [3GPP TS 29.283][Kimmo_Kymalainen]
-      8388731 TSSF-Notification-Request/Answer (TNR/TNA) [3GPP TS 29.212][Kimmo_Kymalainen]
-      8388732 Connection-Management-Request/Answer (CMR/CMA) [3GPP TS 29.128][Kimmo_Kymalainen]
-      8388733 MO-Data-Request/Answer (ODR/ODA) [3GPP TS 29.128][Kimmo_Kymalainen]
-      8388734 MT-Data-Request/Answer (TDR/TDA) [3GPP TS 29.128][Kimmo_Kymalainen]
-
-    -->
+			8388658 3GPP2 Subscriber-Information-Request/Answer (SIR/SIA) [3GPP2 X.S0068][Jun_Wang]
+			8388659 Verizon Session Data Recovery Request/Answer (SDR/SDA) [Niranjan_Avula]
+			8388660 Nokia Core Service Request/Answer (CSR/CSA) [Timo_Perala]
+			8388661 Nokia Extended Command Request/Answer (ECR/ECA) [Timo_Perala]
+			8388662 GCS-Action-Request/Answer (GAR/GAA) [3GPP TS 29.468][Kimmo_Kymalainen]
+			8388663 GCS-Notification-Request/Answer (GNR/GNA) [3GPP TS 29.468][Kimmo_Kymalainen]
+			8388664 ProSe-Subscriber-Information-Request/Answer (PIR/PIA) [3GPP TS 29.344][Kimmo_Kymalainen]  TGPP.xml
+			8388665 Update-ProSe-Subscriber-Data-Request/Answer (UPR/UPA) [3GPP TS 29.344][Kimmo_Kymalainen]  TGPP.xml
+			8388666 ProSe-Notify-Request/Answer (PNR/PNA) [3GPP TS 29.344][Kimmo_Kymalainen]                  TGPP.xml
+			8388667 Reset-Request/Answer (RSR/RSA) [3GPP TS 29.344][Kimmo_Kymalainen]                         TGPP.xml
+			8388668 ProSe-Authorization-Request/Answer (PAR/PAA) [3GPP TS 29.345][Kimmo_Kymalainen]
+			8388669 ProSe-Discovery-Request/Answer (PDR/PDA) [3GPP TS 29.345][Kimmo_Kymalainen]
+			8388670 ProSe-Match-Request/Answer (PMR/PMA) [3GPP TS 29.345][Kimmo_Kymalainen]
+			8388671 ProSe-Match-Report-Info-Request/Answer (PIR/PIA) [3GPP TS 29.345][Kimmo_Kymalainen]
+			8388672 ProSe-Proximity-Request/Answer (PRR/PRA) [3GPP TS 29.345][Kimmo_Kymalainen]
+			8388673 ProSe-Location-Update-Request (PLR/PLA) [3GPP TS 29.345][Kimmo_Kymalainen]
+			8388674 ProSe-Alert-Request/Answer (ALR/ALA) [3GPP TS 29.345][Kimmo_Kymalainen]
+			8388675 ProSe-Cancellation-Request/Answer (RPR/RPA) [3GPP TS 29.345][Kimmo_Kymalainen]
+			8388676 ProXimity-Action-Request/Answer (PXR/PXA) [3GPP TS 29.343][Kimmo_Kymalainen]
+			8388677 Rivada Xd DSC-Registration-Request/Answer (DDRR/DDRA) [Vincent_D_Onofrio]
+			8388678 Rivada Xd Heart-Beat-Request/Answer (DHBR/DHBA) [Vincent_D_Onofrio]
+			8388679 Rivada Xd Cell-Info-Transfer-Request/Answer (DCTR/DCTA) [Vincent_D_Onofrio]
+			8388680 Rivada Xd Cell-Info-Notification-Request/Answer (DCNR/DCNA) [Vincent_D_Onofrio]
+			8388681 Rivada Xd Cell-Info-Modification-Request/Answer (DIMR/DIMA) [Vincent_D_Onofrio]
+			8388682 Rivada Xd Cell-Info-Modification-Notification-Request/Answer (DINR/DINA) [Vincent_D_Onofrio]
+			8388683 Rivada Xd Resource-Allocation-Request/Answer (DRAR/DRAA) [Vincent_D_Onofrio]
+			8388684 Rivada Xd Resource-Allocation-Notification-Request/Answer (DANR/DANA) [Vincent_D_Onofrio]
+			8388685 Rivada Xd Resource-Modification-Request/Answer (DRMR/DRMA) [Vincent_D_Onofrio]
+			8388686 Rivada Xd Resource-Modification-Notification-Request/Answer (DMNR/DMNA) [Vincent_D_Onofrio]
+			8388687 Rivada Xd Resource-Hold-Request/Answer (DRHR/DRHA) [Vincent_D_Onofrio]
+			8388688 Rivada Xd Resource-Hold-Notification-Request/Answer (DHNR/DHNA) [Vincent_D_Onofrio]
+			8388689 Rivada Xd Resource-Resume-Request/Answer (DRSR/DRSA) [Vincent_D_Onofrio]
+			8388690 Rivada Xd Resource-Resume-Notification-Request/Answer (DSNR/DSNA) [Vincent_D_Onofrio]
+			8388691 Rivada Xd Resource-Usage-Update-Request/Answer (DRUR/DRUA) [Vincent_D_Onofrio]
+			8388692 Rivada Xd Resource-Usage-Notification-Request/Answer (DUNR/DUNA) [Vincent_D_Onofrio]
+			8388693 Rivada Xd Resource-Release-Request/Answer (DRRR/DRRA) [Vincent_D_Onofrio]
+			8388694 Rivada Xd Resource-Release-Notification-Request/Answer (DRNR/DRNA) [Vincent_D_Onofrio]
+			8388695 Rivada Xm Resource-Allocation-Request/Answer (MRAR/MRAA) [Vincent_D_Onofrio]
+			8388696 Rivada Xm Resource-Hold-Request/Answer (MRHR/MRHA) [Vincent_D_Onofrio]
+			8388697 Rivada Xm Resource-Release-Request/Answer (MRRR/MRRA) [Vincent_D_Onofrio]
+			8388698 Rivada Xm Resource-Modify-Request/Answer (MRMR/MRMA) [Vincent_D_Onofrio]
+			8388699 Rivada Xm Resource-Allocation-Notify-Request/Answer (MANR/MANA) [Vincent_D_Onofrio]
+			8388700 Rivada Xm Resource-Resume-Request/Answer (MRSR/MRSA) Vincent_D_Onofrio]
+			8388701 Rivada Xm Add-UE-Context-Request/Answer (MAUR/MAUA) [Vincent_D_Onofrio]
+			8388702 Rivada Xm Update-UE-Context-Request/Answer (MUUR/MUUA) [Vincent_D_Onofrio]
+			8388703 Rivada Xm Delete-UE-Context-Request/Answer (MDUR/MDUA) [Vincent_D_Onofrio]
+			8388704 Rivada Xm Detach-UE-Request/Answer (MDTR/MDTA) [Vincent_D_Onofrio]
+			8388705 Rivada Xm Page-UE-Request/Answer (MPUR/MPUA)[Vincent_D_Onofrio]
+			8388706 Rivada Xm Heart-Beat-Request/Answer (MHBR/MHBA) [Vincent_D_Onofrio]
+			8388707 Rivada Xa DPC-Registration-Request/Answer (ADRR/ADRA) [Vincent_D_Onofrio]
+			8388708 Rivada Xa Heart-Beat-Request/Answer (AHBR/AHBA) [Vincent_D_Onofrio]
+			8388709 Rivada Xa Resource-Allocation-Request/Answer (ARAR/ARAA) [Vincent_D_Onofrio]
+			8388710 Rivada Xa Resource-Release-Request/Answer (ARRR/ARRA) [Vincent_D_Onofrio]
+			8388711 Rivada Xa Resource-Release-Notification-Request/Answer (ARNR/ARNA) [Vincent_D_Onofrio]
+			8388712 Rivada Xh User-Data-Request/Answer (HUDR/HUDA) [Vincent_D_Onofrio]
+			8388713 ProSe-Initial-Location-Information-Request/Answer (PSR/PSA) [3GPP TS 29.344][Kimmo_Kymalainen] TGPP.xml
+			8388714 Nokia Session-Sync-Request/Answer (SSR/SSA) [Timo_Perala]
+			8388715 Nokia Session-Mass-Sync-Request/Answer (SMR/SMA) [Timo_Perala]
+			8388716 Nokia Fetch-Session-Request/Answer (FSR/FSA) [Timo_Perala]
+		-->
+		<command name="Ericsson Trace-Report"		code="8388717" vendor-id="None"/>
+		<command name="Configuration-Information"		code="8388718" vendor-id="None"/>
+		<command name="Reporting-Information"		code="8388719" vendor-id="None"/>
+		<command name="Non-Aggregated-RUCI-Report"		code="8388720" vendor-id="None"/>
+		<command name="Aggregated-RUCI-Report"		code="8388721" vendor-id="None"/>
+		<command name="Modify-Uecontext"		code="8388722" vendor-id="None"/>
+		<!--
+			8388723 Background-Data-Transfer-Request/Answer (BTR/BTA) [3GPP TS 29.154][Kimmo_Kymalainen]
+			8388724 Network-Status-Request/Answer (NSR/NSA) [3GPP TS 29.153][Kimmo_Kymalainen]
+			8388725 Network-Status-Continuous-Report-Request/Answer (NCR/NCA) [3GPP TS 29.153][Kimmo_Kymalainen]
+			8388726 NIDD-Information-Request/Answer (NIR/NIA) [3GPP TS 29.336][Kimmo_Kymalainen]
+			8388727 ProXimity-Application-Request/Answer (XAR/XAA) [3GPP TS 29.343][Kimmo_Kymalainen]
+			8388728 Data-Pull-Request/Answer (DPR/DPA) [3GPP TS 29.283][Kimmo_Kymalainen]
+			8388729 Data-Update-Request/Answer (DMR/DMA) [3GPP TS 29.283][Kimmo_Kymalainen]
+			8388730 Notification-Data-Request/Answer (NDR/NDA) [3GPP TS 29.283][Kimmo_Kymalainen]
+			8388731 TSSF-Notification-Request/Answer (TNR/TNA) [3GPP TS 29.212][Kimmo_Kymalainen]
+			8388732 Connection-Management-Request/Answer (CMR/CMA) [3GPP TS 29.128][Kimmo_Kymalainen]
+			8388733 MO-Data-Request/Answer (ODR/ODA) [3GPP TS 29.128][Kimmo_Kymalainen]
+			8388734 MT-Data-Request/Answer (TDR/TDA) [3GPP TS 29.128][Kimmo_Kymalainen]
+		-->
 		<!--
 			8388658-16777213 Unassigned
 			16777214 Experimental code [RFC3588]
@@ -6657,8 +6656,86 @@
 		<avp name="External-Identifier" code="3111" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
+		<avp name="Monitoring-Event-Report" code="3123" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="SCEF-Reference-ID"/>
+				<gavp name="SCEF-ID"/>
+				<gavp name="Visited-PLMN-Id"/>
+				<gavp name="Roaming-Information"/>
+				<gavp name="IMEI-Change"/>
+				<gavp name="Reachability-Information"/>
+				<gavp name="EPS-Location-Information"/>
+				<gavp name="Monitoring-Type"/>
+				<gavp name="Event-Handling"/>
+				<!-- gavp name="Service-Report"/ -->
+			</grouped>
+		</avp>
+		<avp name="SCEF-Reference-ID" code="3124" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="SCEF-ID" code="3125" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="SCEF-Reference-ID-for-Deletion" code="3126" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Monitoring-Type" code="3127" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Maximum-Number-of-Reports" code="3128" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="UE-Reachability-Configuration" code="3129" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Reachability-Type"/>
+				<gavp name="Maximum-Latency"/>
+				<gavp name="Maximum-Response-Time"/>
+			</grouped>
+		</avp>
+		<avp name="Monitoring-Duration" code="3130" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="Maximum-Detection-Time" code="3131" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Reachability-Type" code="3132" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Maximum-Latency" code="3133" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Maximum-Response-Time" code="3134" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Location-Information-Configuration" code="3135" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="MONTE-Location-Type"/>
+				<gavp name="Accuracy"/>
+			</grouped>
+		</avp>
+		<avp name="MONTE-Location-Type" code="3136" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Accuracy" code="3137" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Association-Type" code="3138" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Roaming-Information" code="3139" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Reachability-Information" code="3140" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="IMEI-Change" code="3141" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Event-Handling" code="3149" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
 		<!--
-		Note: The AVP codes from 3112 to 3199 are reserved for TS 29.336
+		Note: The AVP codes from 3100 to 3199 are reserved for TS 29.336
 		-->
 
 		<avp name="SM-Delivery-Outcome-T4" code="3200" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
@@ -6723,7 +6800,7 @@
 			<enum name="Inter-UE transfer" code="1"/>
 		</avp>
 		<avp name="TWAG-Address" code="3903" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="Announcement-Information" code="3904" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 		<grouped>
@@ -6736,10 +6813,10 @@
 			<gavp name="Privacy-Indicator"/>
 			<gavp name="Language"/>
 		</grouped>
-	</avp>
-	<avp name="Announcement-Identifier" code="3905" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-		<type type-name="Unsigned32"/>
-	</avp>
+		</avp>
+		<avp name="Announcement-Identifier" code="3905" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
 		<avp name="Announcement-Order" code="3906" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
@@ -6844,9 +6921,12 @@
 		<avp name="Monitoring-Event-Report-Number" code="3923" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
+		<!--
+		Note: The AVP codes from 3900 to 3999 are reserved for TS 29.299
+		-->
 	</base>
 
-  <!-- ********************************************************************** -->
+	<!-- ********************************************************************** -->
 	<!-- ************************* Application IDs **************************** -->
 	<!-- ********************************************************************** -->
 	<application id="0"		name="Diameter Common Messages"		uri="http://tools.ietf.org/html/rfc6733"/>
@@ -7000,7 +7080,6 @@
 16777343 Sandvine Location Relay Service [Inian_Vasanth]
 16777344 Sandvine Fairshare Traffic Management Service [Inian_Vasanth]
 16777345 3GPP S6t [3GPP TS 29.336][Kimmo_Kymalainen]
-16777346 3GPP T6a/T6b [3GPP TS 29.128][Kimmo_Kymalainen]
 16777347 3GPP Ns [3GPP TS 29.153][Kimmo_Kymalainen]
 16777348 3GPP Nt [3GPP TS 29.154][Kimmo_Kymalainen]
   -->
