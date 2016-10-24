@@ -1111,7 +1111,6 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 	else if (type2 == STTYPE_CHARCONST) {
 		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_CHARCONST)\n"));
 		s = (char*)stnode_data(st_arg2);
-		len_range = drange_get_total_length(sttype_range_drange(st_arg1));
 		if (strcmp(relation_string, "matches") == 0) {
 			/* Convert to a FT_PCRE */
 			fvalue = dfilter_fvalue_from_unparsed(dfw, FT_PCRE, s, FALSE);
