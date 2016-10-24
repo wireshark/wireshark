@@ -1115,11 +1115,11 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 		if (strcmp(relation_string, "matches") == 0) {
 			/* Convert to a FT_PCRE */
 			fvalue = dfilter_fvalue_from_unparsed(dfw, FT_PCRE, s, FALSE);
+		} else {
+			/* The RHS should be FT_BYTES, but a character is just a
+			 * one-byte byte string. */
+			fvalue = charconst_to_bytes(dfw, s, allow_partial_value);
 		}
-
-		/* The RHS should be FT_BYTES, but a character is just a
-		 * one-byte byte string. */
-		fvalue = charconst_to_bytes(dfw, s, allow_partial_value);
 		if (!fvalue) {
 			DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_UNPARSED): Could not convert from string!\n"));
 			THROW(TypeError);
