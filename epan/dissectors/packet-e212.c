@@ -2724,10 +2724,16 @@ static int hf_E212_mcc  = -1;
 static int hf_E212_mcc_lai = -1;
 static int hf_E212_mcc_sai = -1;
 static int hf_E212_mcc_rai = -1;
+static int hf_E212_mcc_cgi = -1;
+static int hf_E212_mcc_ecgi = -1;
+static int hf_E212_mcc_tai = -1;
 static int hf_E212_mnc  = -1;
 static int hf_E212_mnc_lai = -1;
 static int hf_E212_mnc_sai = -1;
 static int hf_E212_mnc_rai = -1;
+static int hf_E212_mnc_cgi = -1;
+static int hf_E212_mnc_ecgi = -1;
+static int hf_E212_mnc_tai = -1;
 
 static int ett_e212_imsi = -1;
 
@@ -2816,6 +2822,18 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     case E212_SAI:
         hf_E212_mcc_id = hf_E212_mcc_sai;
         hf_E212_mnc_id = hf_E212_mnc_sai;
+        break;
+    case E212_CGI:
+        hf_E212_mcc_id = hf_E212_mcc_cgi;
+        hf_E212_mnc_id = hf_E212_mnc_cgi;
+        break;
+    case E212_ECGI:
+        hf_E212_mcc_id = hf_E212_mcc_ecgi;
+        hf_E212_mnc_id = hf_E212_mnc_ecgi;
+        break;
+    case E212_TAI:
+        hf_E212_mcc_id = hf_E212_mcc_tai;
+        hf_E212_mnc_id = hf_E212_mnc_tai;
         break;
     default:
         hf_E212_mcc_id = hf_E212_mcc;
@@ -3200,6 +3218,21 @@ proto_register_e212(void)
         FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
         "Mobile Country Code MCC", HFILL }
     },
+    { &hf_E212_mcc_cgi,
+        { "Mobile Country Code (MCC)","e212.cgi.mcc",
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        "Mobile Country Code MCC", HFILL }
+    },
+    { &hf_E212_mcc_ecgi,
+        { "Mobile Country Code (MCC)","e212.ecgi.mcc",
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        "Mobile Country Code MCC", HFILL }
+    },
+    { &hf_E212_mcc_tai,
+        { "Mobile Country Code (MCC)","e212.tai.mcc",
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        "Mobile Country Code MCC", HFILL }
+    },
     { &hf_E212_mnc,
         { "Mobile Network Code (MNC)","e212.mnc",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -3217,6 +3250,21 @@ proto_register_e212(void)
     },
     { &hf_E212_mnc_sai,
         { "Mobile Network Code (MNC)","e212.sai.mnc",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Mobile network code", HFILL }
+    },
+    { &hf_E212_mnc_cgi,
+        { "Mobile Network Code (MNC)","e212.cgi.mnc",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Mobile network code", HFILL }
+    },
+    { &hf_E212_mnc_ecgi,
+        { "Mobile Network Code (MNC)","e212.ecgi.mnc",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Mobile network code", HFILL }
+    },
+    { &hf_E212_mnc_tai,
+        { "Mobile Network Code (MNC)","e212.tai.mnc",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Mobile network code", HFILL }
     },
