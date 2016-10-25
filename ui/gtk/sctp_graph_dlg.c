@@ -29,7 +29,7 @@
 
 #include <gtk/gtk.h>
 
-
+#include <wsutil/strtoi.h>
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/dlg_utils.h"
@@ -1862,10 +1862,11 @@ static int
 rint (double x)
 {
 	char *buf;
-	int i,dec,sig;
+	int i = 0
+	int dec,sig;
 
 	buf = _fcvt(x, 0, &dec, &sig);
-	i = atoi(buf);
+	ws_strtoi32(buf, NULL, &i);
 	if(sig == 1) {
 		i = i * -1;
 	}

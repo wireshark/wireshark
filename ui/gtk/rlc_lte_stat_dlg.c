@@ -41,6 +41,8 @@
 #include "ui/simple_dialog.h"
 #include <epan/stat_groups.h>
 
+#include <wsutil/strtoi.h>
+
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/tap_param_dlg.h"
@@ -1155,7 +1157,7 @@ static void ul_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
     /* Read SN to filter on (if present) */
     sn_string = gtk_entry_get_text(GTK_ENTRY(hs->sn_filter_te));
     if (strlen(sn_string) > 0) {
-        sn = atoi(sn_string);
+        ws_strtoi32(sn_string, NULL, &sn);
     }
 
     if (!get_channel_selection(hs, &ueid, &rlcMode, &channelType, &channelId)) {
@@ -1184,7 +1186,7 @@ static void dl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
     /* Read SN to filter on (if present) */
     sn_string = gtk_entry_get_text(GTK_ENTRY(hs->sn_filter_te));
     if (strlen(sn_string) > 0) {
-        sn = atoi(sn_string);
+        ws_strtoi32(sn_string, NULL, &sn);
     }
 
     if (!get_channel_selection(hs, &ueid, &rlcMode, &channelType, &channelId)) {
@@ -1213,7 +1215,7 @@ static void uldl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
     /* Read SN to filter on (if present) */
     sn_string = gtk_entry_get_text(GTK_ENTRY(hs->sn_filter_te));
     if (strlen(sn_string) > 0) {
-        sn = atoi(sn_string);
+        ws_strtoi32(sn_string, NULL, &sn);
     }
 
     if (!get_channel_selection(hs, &ueid, &rlcMode, &channelType, &channelId)) {

@@ -51,6 +51,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+#include <wsutil/strtoi.h>
+
 #ifndef HAVE_LRINT
 #define lrint   rint
 #endif
@@ -2705,10 +2707,11 @@ static void rlc_lte_make_elmtlist(struct gtk_rlc_graph *g)
 static int rint(double x)
 {
     char *buf;
-    int i,dec,sig;
+    int i = 0;
+    int dec,sig;
 
     buf = _fcvt(x, 0, &dec, &sig);
-    i = atoi(buf);
+    ws_strtoi32(buf, NULL, &i);
     if (sig == 1) {
         i = i * -1;
     }

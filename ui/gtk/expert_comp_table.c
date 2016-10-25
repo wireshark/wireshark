@@ -37,6 +37,7 @@
 #include "ui/simple_dialog.h"
 
 #include <wsutil/utf8_entities.h>
+#include <wsutil/strtoi.h>
 
 #include "ui/gtk/expert_comp_table.h"
 #include "ui/gtk/filter_utils.h"
@@ -115,9 +116,10 @@ proto_sort_func(GtkTreeModel *model,
     }
     else {
         if (grp == packet) {
-          gint int_a = atoi(str_a);
-          gint int_b = atoi(str_b);
-          if (int_a == int_b)
+          gint int_a = 0;
+          gint int_b = 0;
+          if (!ws_strtoi32(str_a, NULL, &int_a) || !ws_strtoi32(str_b, NULL, &int_b) ||
+                  int_a == int_b)
               ret = 0;
           else if (int_a < int_b)
               ret = -1;
@@ -577,6 +579,7 @@ expert_goto_pkt_cb (GtkTreeSelection *selection, gpointer data _U_)
     GtkTreeIter iter;
     GtkTreeModel *model;
     gchar *pkt;
+    gint32 pkt_num = 0;
     gchar *grp;
 
     if (gtk_tree_selection_get_selected (selection, &model, &iter))
@@ -589,7 +592,8 @@ expert_goto_pkt_cb (GtkTreeSelection *selection, gpointer data _U_)
                             -1);
 
         if (strcmp(grp, packet)==0) {
-            cf_goto_frame(&cfile, atoi(pkt));
+            if (ws_strtoi32(pkt, NULL, &pkt_num))
+              cf_goto_frame(&cfile, pkt_num);
         }
         g_free (pkt);
     }

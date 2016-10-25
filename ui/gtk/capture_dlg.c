@@ -35,6 +35,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/strtoi.h>
 
 #include "ui/capture.h"
 #include "caputils/capture_ifinfo.h"
@@ -2666,7 +2667,12 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
       break;
     }
   }
-  marked_row = atoi(gtk_tree_path_to_string(path));
+  // not sure if this can happen, just to be sure...
+  if (gtk_tree_path_get_depth(path) == 0) {
+    marked_row = 0;
+  } else {
+    marked_row = gtk_tree_path_get_indices(path)[0];
+  }
   opt_edit_w = dlg_window_new("Edit Interface Settings");
   gtk_window_set_modal(GTK_WINDOW(opt_edit_w), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (opt_edit_w), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -3584,15 +3590,23 @@ pipe_del_bt_clicked_cb(GtkWidget *w _U_, gpointer data _U_)
   GtkTreeModel     *model, *optmodel;
   GtkTreeIter       iter, optiter;
   GtkTreeView      *if_cb;
+  GtkTreePath      *path;
   gchar            *name, *optname = NULL;
   guint             i;
+  gint32            num;
 
   sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(pipe_l));
   /* If something was selected */
 
   if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
     gtk_tree_model_get(model, &iter, 0, &name, -1);
-    if (name != NULL && atoi(gtk_tree_model_get_string_from_iter(model, &iter)) < (gint)global_capture_opts.all_ifaces->len) {
+    path = gtk_tree_model_get_path(model, &iter);
+    if (gtk_tree_path_get_depth(path) == 0) {
+      num = 0;
+    } else {
+      num = gtk_tree_path_get_indices(path)[0];
+    }
+    if (name != NULL && num < (gint)global_capture_opts.all_ifaces->len) {
       for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         if (strcmp(g_array_index(global_capture_opts.all_ifaces, interface_t, i).name, name) == 0) {
           g_array_remove_index(global_capture_opts.all_ifaces, i);
@@ -5837,7 +5851,13 @@ activate_monitor(GtkTreeViewColumn *tree_column _U_, GtkCellRenderer *renderer,
 {
   interface_t  device;
   GtkTreePath *path  = gtk_tree_model_get_path(tree_model, iter);
-  int          indx = atoi(gtk_tree_path_to_string(path));
+  int          indx = 0;
+
+  if (gtk_tree_path_get_depth(path) == 0) {
+    indx = 0;
+  } else {
+    indx = gtk_tree_path_get_indices(path)[0];
+  }
 
   device = g_array_index(global_capture_opts.all_ifaces, interface_t, indx);
 
