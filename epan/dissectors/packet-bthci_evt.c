@@ -378,6 +378,17 @@ static int hf_bthci_evt_le_features_data_packet_length_extension = -1;
 static int hf_bthci_evt_le_features_ll_privacy = -1;
 static int hf_bthci_evt_le_features_extended_scanner_filter_policies = -1;
 static int hf_bthci_evt_le_features_reserved = -1;
+static int hf_bthci_evt_mws_number_of_transports = -1;
+static int hf_bthci_evt_mws_transport_layers = -1;
+static int hf_bthci_evt_mws_transport_layers_item = -1;
+static int hf_bthci_evt_mws_transport_layer = -1;
+static int hf_bthci_evt_mws_number_of_baud_rates = -1;
+static int hf_bthci_evt_mws_to_mws_baud_rates = -1;
+static int hf_bthci_evt_mws_to_mws_baud_rates_tranport_item = -1;
+static int hf_bthci_evt_mws_to_mws_baud_rate = -1;
+static int hf_bthci_evt_mws_from_mws_baud_rates = -1;
+static int hf_bthci_evt_mws_from_mws_baud_rates_tranport_item = -1;
+static int hf_bthci_evt_mws_from_mws_baud_rate = -1;
 
 static const int *hfx_bthci_evt_le_features[] = {
     &hf_bthci_evt_le_features_encryption,
@@ -409,6 +420,12 @@ static gint ett_ptype_subtree = -1;
 static gint ett_le_state_subtree = -1;
 static gint ett_le_channel_map = -1;
 static gint ett_le_features = -1;
+static gint ett_mws_transport_layers = -1;
+static gint ett_mws_transport_layers_item = -1;
+static gint ett_mws_to_mws_baud_rates = -1;
+static gint ett_mws_to_mws_baud_rates_transport_item = -1;
+static gint ett_mws_from_mws_baud_rates = -1;
+static gint ett_mws_from_mws_baud_rates_transport_item = -1;
 static gint ett_expert = -1;
 
 extern value_string_ext ext_usb_vendors_vals;
@@ -503,6 +520,8 @@ static const value_string evt_code_vals[] = {
     {0x54, "Slave Page Response Timeout"},
     {0x55, "Connectionless Slave Broadcast Channel Map Change"},
     {0x56, "Inquiry Response Notification"},
+    /* Core 4*/
+    {0x57, "Authenticated Payload Timeout Expired"},
     /* Other */
     {0xfe, "Bluetooth Logo Testing"},
     {0xff, "Vendor-Specific"},
@@ -749,6 +768,13 @@ static const value_string evt_air_mode_vals[] = {
     { 0x01,  "A-law log" },
     { 0x02,  "CVSD" },
     { 0x03,  "Transparent Data" },
+    { 0, NULL }
+};
+
+static const value_string mws_transport_layer_vals[] = {
+    { 0x00,  "Disabled" },
+    { 0x01,  "WCI-1 Transport" },
+    { 0x02,  "WCI-2 Transport" },
     { 0, NULL }
 };
 
@@ -3945,6 +3971,107 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             break;
         }
 
+        case 0x140C: /* Get MWS Transport Layer Configuration */ {
+            guint8       transports;
+            guint8       i_transport;
+            guint16      baud_rates = 0;
+            guint16      i_baud_rate;
+            gint32       baud_rate_to;
+            proto_item  *sub_item;
+            proto_tree  *sub_tree;
+            proto_item  *sub2_item;
+            proto_tree  *sub2_tree;
+            gint         offset_baud_rates;
+
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            status = tvb_get_guint8(tvb, offset);
+            send_hci_summary_status_tap(status, pinfo, bluetooth_data);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_mws_number_of_transports, tvb, offset, 1, ENC_NA);
+            transports = tvb_get_guint8(tvb, offset);
+            offset += 1;
+
+            sub_item = proto_tree_add_item(tree, hf_bthci_evt_mws_transport_layers, tvb, offset, transports * 2, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_mws_transport_layers);
+
+            offset_baud_rates = offset = 1;
+
+            for (i_transport = 0; i_transport < transports; i_transport += 1) {
+                sub2_item = proto_tree_add_item(sub_tree, hf_bthci_evt_mws_transport_layers_item, tvb, offset, transports * 2, ENC_NA);
+                sub2_tree = proto_item_add_subtree(sub2_item, ett_mws_transport_layers_item);
+                proto_item_append_text(sub2_item, " #%u", i_transport + 1);
+
+                proto_tree_add_item(sub2_tree, hf_bthci_evt_mws_transport_layer, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(sub2_tree, hf_bthci_evt_mws_number_of_baud_rates, tvb, offset, 1, ENC_NA);
+                baud_rates += tvb_get_guint8(tvb, offset);
+                offset += 1;
+            }
+
+            sub_item = proto_tree_add_item(tree, hf_bthci_evt_mws_to_mws_baud_rates, tvb, offset, baud_rates * 4, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_mws_to_mws_baud_rates);
+
+            baud_rate_to = -1;
+            i_transport = 1;
+            sub2_tree = sub_tree;
+            for (i_baud_rate = 0; i_baud_rate < baud_rates; i_baud_rate += 1) {
+                if (baud_rate_to == -1 || baud_rate_to == i_baud_rate) {
+                    baud_rate_to = tvb_get_guint8(tvb, offset_baud_rates + (i_transport - 1) * 2);
+                    sub2_item = proto_tree_add_item(sub_tree, hf_bthci_evt_mws_to_mws_baud_rates_tranport_item, tvb, offset, (baud_rate_to -  i_baud_rate) * 4, ENC_NA);
+                    proto_item_append_text(sub2_item, " #%u", i_transport);
+                    sub2_tree = proto_item_add_subtree(sub2_item, ett_mws_to_mws_baud_rates_transport_item);
+                    i_transport += 1;
+                }
+
+                proto_tree_add_item(sub2_tree, hf_bthci_evt_mws_to_mws_baud_rate, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+            }
+
+            sub_item = proto_tree_add_item(tree, hf_bthci_evt_mws_from_mws_baud_rates, tvb, offset, baud_rates * 4, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_mws_from_mws_baud_rates);
+
+            baud_rate_to = -1;
+            i_transport = 1;
+            sub2_tree = sub_tree;
+            for (i_baud_rate = 0; i_baud_rate < baud_rates; i_baud_rate += 1) {
+                if (baud_rate_to == -1 || baud_rate_to == i_baud_rate) {
+                    baud_rate_to = tvb_get_guint8(tvb, offset_baud_rates + (i_transport - 1) * 2);
+                    sub2_item = proto_tree_add_item(sub_tree, hf_bthci_evt_mws_from_mws_baud_rates_tranport_item, tvb, offset, (baud_rate_to -  i_baud_rate) * 4, ENC_NA);
+                    proto_item_append_text(sub2_item, " #%u", i_transport);
+                    sub2_tree = proto_item_add_subtree(sub2_item, ett_mws_from_mws_baud_rates_transport_item);
+                    i_transport += 1;
+                }
+
+                proto_tree_add_item(sub2_tree, hf_bthci_evt_mws_from_mws_baud_rate, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+            }
+            break; }
+
+        case 0x0C7A: /* Write Secure Connections Host Support */
+        case 0x2020: /* LE Remote Connection Parameter Request Reply */
+        case 0x2021: /* LE Remote Connection Parameter Request Negative Reply */
+        case 0x2022: /* LE Set Data Length */
+        case 0x2023: /* LE Read Suggested Default Data Length */
+        case 0x2024: /* LE Write Suggested Default Data Length */
+        case 0x2025: /* LE Read Local P-256 Public Key */
+        case 0x2026: /* LE Generate DHKey */
+        case 0x2027: /* LE Add Device to Resolving List */
+        case 0x2028: /* LE Remove Device From Resolving List */
+        case 0x2029: /* LE Clear Resolving List */
+        case 0x202A: /* LE Read Resolving List Size */
+        case 0x202B: /* LE Read Peer Resolvable Address */
+        case 0x202C: /* LE Read Local Resolvable Address */
+        case 0x202D: /* LE Set Address Resolution Enable */
+        case 0x202E: /* LE Set Resolvable Private Address Timeout */
+        case 0x202F: /* LE Read Maximum Data Length */
+/* TODO */
+            proto_tree_add_expert(tree, pinfo, &ei_event_undecoded, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+            offset += tvb_reported_length_remaining(tvb, offset);
+
+            break;
+
         default:
             proto_tree_add_expert(tree, pinfo, &ei_event_unknown_command, tvb, offset, tvb_captured_length_remaining(tvb, offset));
             offset += tvb_reported_length_remaining(tvb, offset);
@@ -4729,6 +4856,12 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             offset = dissect_bthci_evt_amp_status_change(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
+        case 0x56: /* Inquiry Response Notification */
+            proto_tree_add_item(bthci_evt_tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+
         case 0x4e: /* Triggered Clock Capture */
         case 0x4f: /* Synchronization Train Complete */
         case 0x50: /* Synchronization Train Received */
@@ -4737,7 +4870,6 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         case 0x53: /* Truncated Page Complete */
         case 0x54: /* Slave Page Response Timeout */
         case 0x55: /* Connectionless Slave Broadcast Channel Map Change */
-        case 0x56: /* Inquiry Response Notification */
         case 0xfe: /* Bluetooth Logo Testing */
 /* TODO: Implement above cases */
             proto_tree_add_expert(bthci_evt_tree, pinfo, &ei_event_undecoded, tvb, offset, tvb_captured_length_remaining(tvb, offset));
@@ -6776,6 +6908,61 @@ proto_register_bthci_evt(void)
             FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFF00),
             NULL, HFILL }
         },
+        { &hf_bthci_evt_mws_number_of_transports,
+          { "Number of Transports",                        "bthci_evt.mws.number_of_transports",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_transport_layers,
+          { "Transport Layers",                            "bthci_evt.mws.transport_layers",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_transport_layers_item,
+          { "Transport Layer Item",                        "bthci_evt.mws.transport_layers.item",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_transport_layer,
+          { "Transport Layer",                             "bthci_evt.mws.transport_layers.item.transport_layer",
+            FT_UINT8, BASE_HEX, VALS(mws_transport_layer_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_number_of_baud_rates,
+          { "Number of Baud Rates",                        "bthci_evt.mws.number_of_baud_rates",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_to_mws_baud_rates,
+          { "To MWS Baud Rates",                           "bthci_evt.mws.to_mws_baud_rates",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_to_mws_baud_rates_tranport_item,
+          { "To MWS Baud Rates Item",                      "bthci_evt.mws.to_mws_baud_rates.item",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_to_mws_baud_rate,
+          { "To MWS Baud Rate",                            "bthci_evt.mws.to_mws_baud_rates.item.baud_rate",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_from_mws_baud_rates,
+          { "From MWS Baud Rates",                         "bthci_evt.mws.from_mws_baud_rates",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_from_mws_baud_rates_tranport_item,
+          { "From MWS Baud Rates Item",                    "bthci_evt.mws.from_mws_baud_rates.item",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_from_mws_baud_rate,
+          { "From MWS Baud Rate",                          "bthci_evt.mws.from_mws_baud_rates.item.baud_rate",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        }
     };
 
     static ei_register_info ei[] = {
@@ -6795,6 +6982,12 @@ proto_register_bthci_evt(void)
         &ett_le_state_subtree,
         &ett_le_channel_map,
         &ett_le_features,
+        &ett_mws_transport_layers,
+        &ett_mws_transport_layers_item,
+        &ett_mws_to_mws_baud_rates,
+        &ett_mws_to_mws_baud_rates_transport_item,
+        &ett_mws_from_mws_baud_rates,
+        &ett_mws_from_mws_baud_rates_transport_item,
         &ett_expert
     };
 

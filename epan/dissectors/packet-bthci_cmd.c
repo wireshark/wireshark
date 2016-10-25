@@ -668,7 +668,8 @@ value_string_ext bthci_cmd_ogf_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ogf_va
     { (base) | 0x041,  "Set Connectionless Slave Broadcast" }, \
     { (base) | 0x042,  "Set Connectionless Slave Broadcast Receive" }, \
     { (base) | 0x043,  "Start Synchronization Train" }, \
-    { (base) | 0x044,  "Receive Synchronization Train" }
+    { (base) | 0x044,  "Receive Synchronization Train" }, \
+    { (base) | 0x045,  "Remove OOB Extended Data Request Reply" } \
 
 static const value_string bthci_cmd_ocf_link_control_vals[] = {
     LINK_CONTROL_VALS(0x0), \
@@ -800,7 +801,16 @@ value_string_ext bthci_cmd_ocf_link_policy_vals_ext = VALUE_STRING_EXT_INIT(bthc
     { (base) | 0x075,  "Delete Reserved LT_ADDR" }, \
     { (base) | 0x076,  "Set Connectionless Slave Broadcast Data" }, \
     { (base) | 0x077,  "Read Synchronization Train Parameters" }, \
-    { (base) | 0x078,  "Write Synchronization Train Parameters" }
+    { (base) | 0x078,  "Write Synchronization Train Parameters" }, \
+    { (base) | 0x079,  "Read Secure Connections Host Support" }, \
+    { (base) | 0x07A,  "Write Secure Connections Host Support" }, \
+    { (base) | 0x07B,  "Read Authenticated Payload Timeout" }, \
+    { (base) | 0x07C,  "Write Authenticated Payload Timeout" }, \
+    { (base) | 0x07D,  "Read Local OOB Extended Data" }, \
+    { (base) | 0x07E,  "Read Extended Page Timeout" }, \
+    { (base) | 0x07F,  "Write Extended Page Timeout" }, \
+    { (base) | 0x080,  "Read Extended Inquiry Length" }, \
+    { (base) | 0x081,  "Write Extended Inquiry Length" }
 
 static const value_string bthci_cmd_ocf_host_controller_and_baseband_vals[] = {
     HOST_CONTROLLER_AND_BASEBAND_VALS(0x0),
@@ -862,7 +872,8 @@ value_string_ext bthci_cmd_ocf_status_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd
     { (base) | 0x004,  "Write Simple Pairing Debug Mode" }, \
     { (base) | 0x007,  "Enable AMP Receiver Reports" }, \
     { (base) | 0x008,  "AMP Test End" }, \
-    { (base) | 0x009,  "AMP Test" }
+    { (base) | 0x009,  "AMP Test" }, \
+    { (base) | 0x00A,  "Write Secure Connections Test Mode" }
 
 static const value_string bthci_cmd_ocf_testing_vals[] = {
     TESTING_VALS(0x0),
@@ -2119,6 +2130,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
         case 0x0042: /* Set Connectionless Slave Broadcast Receive */
         case 0x0043: /* Start Synchronization Train */
         case 0x0044: /* Receive Synchronization Train */
+        case 0x0045: /* Remove OOB Extended Data Request Reply */
 /* TODO: Implement above cases */
             proto_tree_add_expert(tree, pinfo, &ei_command_undecoded, tvb, offset, -1);
             offset += tvb_reported_length_remaining(tvb, offset);
@@ -2884,6 +2896,15 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
         case 0x076: /* Set Connectionless Slave Broadcast Data */
         case 0x077: /* Read Synchronization Train Parameters */
         case 0x078: /* Write Synchronization Train Parameters */
+        case 0x079: /* Read Secure Connections Host Support */
+        case 0x07A: /* Write Secure Connections Host Support */
+        case 0x07B: /* Read Authenticated Payload Timeout */
+        case 0x07C: /* Write Authenticated Payload Timeout */
+        case 0x07D: /* Read Local OOB Extended Data */
+        case 0x07E: /* Read Extended Page Timeout */
+        case 0x07F: /* Write Extended Page Timeout */
+        case 0x080: /* Read Extended Inquiry Length */
+        case 0x081: /* Write Extended Inquiry Length */
 /* TODO: Implement above cases */
             proto_tree_add_expert(tree, pinfo, &ei_command_undecoded, tvb, offset, -1);
             offset += tvb_reported_length_remaining(tvb, offset);
@@ -3020,9 +3041,11 @@ dissect_testing_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
             break;
 
         case 0x009: /* AMP Test */
-/* TODO: Implement above cases */
+        case 0x00A: /* Write Secure Connections Test Mode */
+/* TODO */
             proto_tree_add_expert(tree, pinfo, &ei_command_undecoded, tvb, offset, -1);
             offset += tvb_reported_length_remaining(tvb, offset);
+
             break;
 
         default:
