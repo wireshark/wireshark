@@ -1768,7 +1768,7 @@ static int dissect_l2tp_ericsson_tei_sc_map(tvbuff_t *tvb, proto_tree *parent_tr
     proto_tree *tree;
 
     while (tvb_reported_length_remaining(tvb, offset) >= 3) {
-        tree = proto_tree_add_subtree_format(parent_tree, tvb, offset++, 3, ett_l2tp_ericsson_map,
+        tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, 3, ett_l2tp_ericsson_map,
                                              NULL, "Transport Config Bundling Group %u", i);
         proto_tree_add_item(tree, hf_l2tp_ericsson_map_tei_low, tvb, offset++, 1, ENC_NA);
         proto_tree_add_item(tree, hf_l2tp_ericsson_map_tei_high, tvb, offset++, 1, ENC_NA);
