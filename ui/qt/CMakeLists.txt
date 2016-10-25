@@ -102,6 +102,7 @@ set(WIRESHARK_QT_HEADERS
 	manage_interfaces_dialog.h
 	module_preferences_scroll_area.h
 	mtp3_summary_dialog.h
+	numeric_value_chooser_delegate.h
 	multicast_statistics_dialog.h
 	overlay_scroll_bar.h
 	packet_comment_dialog.h
@@ -263,6 +264,7 @@ set(WIRESHARK_QT_SRC
 	main_window_slots.cpp
 	manage_interfaces_dialog.cpp
 	module_preferences_scroll_area.cpp
+	numeric_value_chooser_delegate.cpp
 	overlay_scroll_bar.cpp
 	packet_comment_dialog.cpp
 	packet_dialog.cpp

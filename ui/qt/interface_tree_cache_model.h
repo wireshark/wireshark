@@ -57,6 +57,7 @@ private:
 
     bool changeIsAllowed(InterfaceTreeColumns col) const;
     bool isAllowedToBeChanged(const QModelIndex &index) const;
+    bool isAllowedToBeEdited(const QModelIndex &index) const;
 
 };
 #endif /* INTERFACE_TREE_CACHE_MODEL_H_ */

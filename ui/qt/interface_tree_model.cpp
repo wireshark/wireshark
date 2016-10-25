@@ -45,6 +45,8 @@
 #include "extcap.h"
 #endif
 
+const QString InterfaceTreeModel::DefaultNumericValue = tr("default");
+
 /**
  * This is the data model for interface trees. It implies, that the index within
  * global_capture_opts.all_ifaces is identical to the row. This is always the case, even
@@ -133,13 +135,27 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
             {
                 return QString(device.name);
             }
+            else if ( col == IFTREE_COL_CAPTURE_FILTER )
+            {
+                if ( device.cfilter && strlen(device.cfilter) > 0 )
+                    return html_escape(QString(device.cfilter));
+            }
 #ifdef HAVE_EXTCAP
             else if ( col == IFTREE_COL_EXTCAP_PATH )
             {
                 return QString(device.if_info.extcap);
             }
 #endif
-
+            else if ( col == IFTREE_COL_SNAPLEN )
+            {
+                return device.has_snaplen ? QString::number(device.snaplen) : DefaultNumericValue;
+            }
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
+            else if ( col == IFTREE_COL_BUFFERLEN )
+            {
+                return QString::number(device.buffer);
+            }
+#endif
             else if ( col == IFTREE_COL_TYPE )
             {
                 return QVariant::fromValue((int)device.if_info.type);
@@ -151,6 +167,19 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
                     return comment;
                 else
                     return QString(device.if_info.vendor_description);
+            }
+            else if ( col == IFTREE_COL_DLT )
+            {
+                QString linkname = QObject::tr("DLT %1").arg(device.active_dlt);
+                for (GList *list = device.links; list != NULL; list = g_list_next(list)) {
+                    link_row *linkr = (link_row*)(list->data);
+                    if (linkr->dlt != -1 && linkr->dlt == device.active_dlt) {
+                        linkname = linkr->name;
+                        break;
+                    }
+                }
+
+                return linkname;
             }
             else
             {
@@ -165,6 +194,16 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
                 /* Hidden is a de-selection, therefore inverted logic here */
                 return device.hidden ? Qt::Unchecked : Qt::Checked;
             }
+            else if ( col == IFTREE_COL_PROMISCUOUSMODE )
+            {
+                return device.pmode ? Qt::Checked : Qt::Unchecked;
+            }
+#ifdef HAVE_PCAP_CREATE
+            else if ( col == IFTREE_COL_MONITOR_MODE )
+            {
+                return device.monitor_mode_enabled ? Qt::Checked : Qt::Unchecked;
+            }
+#endif
         }
         /* Used by SparkLineDelegate for loading the data for the statistics line */
         else if ( role == Qt::UserRole )
@@ -232,6 +271,34 @@ QVariant InterfaceTreeModel::headerData(int section, Qt::Orientation orientation
             else if ( section == IFTREE_COL_INTERFACE_COMMENT )
             {
                 return tr("Comment");
+            }
+            else if ( section == IFTREE_COL_DLT )
+            {
+                return tr("Link-Layer Header");
+            }
+            else if ( section == IFTREE_COL_PROMISCUOUSMODE )
+            {
+                return tr("Promiscuous");
+            }
+            else if ( section == IFTREE_COL_SNAPLEN )
+            {
+                return tr("Snaplen (B)");
+            }
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
+            else if ( section == IFTREE_COL_BUFFERLEN )
+            {
+                return tr("Buffer (MB)");
+            }
+#endif
+#ifdef HAVE_PCAP_CREATE
+            else if ( section == IFTREE_COL_MONITOR_MODE )
+            {
+                return tr("Monitor Mode");
+            }
+#endif
+            else if ( section == IFTREE_COL_CAPTURE_FILTER )
+            {
+                return tr("Capture Filter");
             }
         }
     }

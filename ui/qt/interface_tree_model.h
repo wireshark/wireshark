@@ -49,8 +49,18 @@ enum InterfaceTreeColumns
     IFTREE_COL_INTERFACE_NAME,
     IFTREE_COL_INTERFACE_COMMENT,
     IFTREE_COL_HIDDEN,
+    IFTREE_COL_DLT,
+    IFTREE_COL_PROMISCUOUSMODE,
     IFTREE_COL_TYPE,
     IFTREE_COL_STATS,
+    IFTREE_COL_SNAPLEN,
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
+    IFTREE_COL_BUFFERLEN,
+#endif
+#ifdef HAVE_PCAP_CREATE
+    IFTREE_COL_MONITOR_MODE,
+#endif
+    IFTREE_COL_CAPTURE_FILTER,
     IFTREE_COL_MAX /* is not being displayed, it is the definition for the maximum numbers of columns */
 };
 
@@ -76,6 +86,8 @@ public:
     bool updateSelectedDevices(QItemSelection sourceSelection);
 
     QVariant getColumnContent(int idx, int col, int role = Qt::DisplayRole);
+
+    static const QString DefaultNumericValue;
 
 public slots:
     void getPoints(int idx, PointList *pts);

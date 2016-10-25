@@ -29,6 +29,9 @@
 
 #include "qt_ui_utils.h"
 #include "ui/capture_globals.h"
+
+#include "wiretap/wtap.h"
+
 #include "wireshark_application.h"
 
 InterfaceTreeCacheModel::InterfaceTreeCacheModel(QObject *parent) :
@@ -42,9 +45,13 @@ InterfaceTreeCacheModel::InterfaceTreeCacheModel(QObject *parent) :
     QIdentityProxyModel::setSourceModel(sourceModel);
     storage = new QMap<int, QMap<InterfaceTreeColumns, QVariant> *>();
 
-    checkableColumns << IFTREE_COL_HIDDEN;
+    checkableColumns << IFTREE_COL_HIDDEN << IFTREE_COL_PROMISCUOUSMODE << IFTREE_COL_MONITOR_MODE;
 
-    editableColumns << IFTREE_COL_INTERFACE_COMMENT;
+    editableColumns << IFTREE_COL_INTERFACE_COMMENT << IFTREE_COL_SNAPLEN;
+
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
+    editableColumns << IFTREE_COL_BUFFERLEN;
+#endif
 }
 
 InterfaceTreeCacheModel::~InterfaceTreeCacheModel()
@@ -77,8 +84,7 @@ void InterfaceTreeCacheModel::save()
     if ( storage->count() == 0 )
         return;
 
-    QStringList hideList;
-    QStringList commentList;
+    QMap<char**, QStringList> prefStorage;
 
     for(unsigned int idx = 0; idx < global_capture_opts.all_ifaces->len; idx++)
     {
@@ -100,12 +106,51 @@ void InterfaceTreeCacheModel::save()
 
                 /* Setting the field values for each individual saved value cannot be generic, as the
                  * struct cannot be accessed generically. Therefore below, each individually changed
-                 * value has to be handled separately */
+                 * value has to be handled separately. Comments are stored only in the preference file
+                 * and applied to the data name during loading. Therefore comments are not handled here */
 
                 if ( col == IFTREE_COL_HIDDEN )
                 {
                     device.hidden = saveValue.toBool();
                 }
+#ifdef HAVE_EXTCAP
+                else if ( device.if_info.type == IF_EXTCAP )
+                {
+                    /* extcap interfaces do not have the following columns.
+                     * ATTENTION: all generic columns must be added, BEFORE this
+                     * if-clause, or they will be ignored for extcap interfaces */
+                }
+#endif
+                else if ( col == IFTREE_COL_PROMISCUOUSMODE )
+                {
+                    device.pmode = saveValue.toBool();
+                }
+#ifdef HAVE_PCAP_CREATE
+                else if ( col == IFTREE_COL_MONITOR_MODE )
+                {
+                    device.monitor_mode_enabled = saveValue.toBool();
+                }
+#endif
+                else if ( col == IFTREE_COL_SNAPLEN )
+                {
+                    int iVal = saveValue.toInt();
+                    if ( iVal != WTAP_MAX_PACKET_SIZE )
+                    {
+                        device.has_snaplen = true;
+                        device.snaplen = iVal;
+                    }
+                    else
+                    {
+                        device.has_snaplen = false;
+                        device.snaplen = WTAP_MAX_PACKET_SIZE;
+                    }
+                }
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
+                else if ( col == IFTREE_COL_BUFFERLEN )
+                {
+                    device.buffer = saveValue.toInt();
+                }
+#endif
 
                 global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, idx);
                 g_array_insert_val(global_capture_opts.all_ifaces, idx, device);
@@ -116,18 +161,68 @@ void InterfaceTreeCacheModel::save()
 
         QVariant content = getColumnContent(idx, IFTREE_COL_HIDDEN, Qt::CheckStateRole);
         if ( content.isValid() && static_cast<Qt::CheckState>(content.toInt()) == Qt::Unchecked )
-                hideList << QString(device.name);
+                prefStorage[&prefs.capture_devices_hide] << QString(device.name);
 
         content = getColumnContent(idx, IFTREE_COL_INTERFACE_COMMENT);
         if ( content.isValid() && content.toString().size() > 0 )
-            commentList << QString("%1(%2)").arg(device.name).arg(content.toString());
+            prefStorage[&prefs.capture_devices_descr] << QString("%1(%2)").arg(device.name).arg(content.toString());
+
+        bool allowExtendedColumns = true;
+#ifdef HAVE_EXTCAP
+        if ( device.if_info.type == IF_EXTCAP )
+            allowExtendedColumns = false;
+#endif
+        if ( allowExtendedColumns )
+        {
+            content = getColumnContent(idx, IFTREE_COL_PROMISCUOUSMODE, Qt::CheckStateRole);
+            if ( content.isValid() )
+            {
+                bool value = static_cast<Qt::CheckState>(content.toInt()) == Qt::Checked;
+                prefStorage[&prefs.capture_devices_pmode]  << QString("%1(%2)").arg(device.name).arg(value ? 1 : 0);
+            }
+
+#ifdef HAVE_PCAP_CREATE
+            content = getColumnContent(idx, IFTREE_COL_MONITOR_MODE, Qt::CheckStateRole);
+            if ( content.isValid() && static_cast<Qt::CheckState>(content.toInt()) == Qt::Checked )
+                    prefStorage[&prefs.capture_devices_monitor_mode] << QString(device.name);
+#endif
+
+            content = getColumnContent(idx, IFTREE_COL_SNAPLEN);
+            if ( content.isValid() )
+            {
+                int value = content.toInt();
+                prefStorage[&prefs.capture_devices_snaplen]  <<
+                        QString("%1:%2(%3)").arg(device.name).
+                        arg(device.has_snaplen ? 1 : 0).
+                        arg(device.has_snaplen ? value : WTAP_MAX_PACKET_SIZE);
+            }
+
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
+            content = getColumnContent(idx, IFTREE_COL_BUFFERLEN);
+            if ( content.isValid() )
+            {
+                int value = content.toInt();
+                if ( value != -1 )
+                {
+                    prefStorage[&prefs.capture_devices_buffersize]  <<
+                            QString("%1(%2)").arg(device.name).
+                            arg(value);
+                }
+            }
+#endif
+        }
     }
 
-    g_free(prefs.capture_devices_hide);
-    prefs.capture_devices_hide = qstring_strdup(hideList.join(","));
+    QMap<char**, QStringList>::const_iterator it = prefStorage.constBegin();
+    while ( it != prefStorage.constEnd() )
+    {
+        char ** key = it.key();
 
-    g_free(prefs.capture_devices_descr);
-    prefs.capture_devices_descr = qstring_strdup(commentList.join(","));
+        g_free(*key);
+        *key = qstring_strdup(it.value().join(","));
+
+        ++it;
+    }
 }
 
 int InterfaceTreeCacheModel::rowCount(const QModelIndex & parent) const
@@ -140,6 +235,37 @@ bool InterfaceTreeCacheModel::changeIsAllowed(InterfaceTreeColumns col) const
     if ( editableColumns.contains(col) || checkableColumns.contains(col) )
         return true;
     return false;
+}
+
+/* This checks if the column can be edited for the given index. This differs from
+ * isAllowedToBeChanged in such a way, that it is only used in flags and not any
+ * other method.*/
+bool InterfaceTreeCacheModel::isAllowedToBeEdited(const QModelIndex &index) const
+{
+    if ( ! index.isValid() || ! global_capture_opts.all_ifaces )
+         return false;
+
+     int idx = index.row();
+     if ( (unsigned int) idx >= global_capture_opts.all_ifaces->len )
+         return false;
+
+     interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
+
+     InterfaceTreeColumns col = (InterfaceTreeColumns) index.column();
+#ifdef HAVE_EXTCAP
+     if ( device.if_info.type == IF_EXTCAP )
+     {
+         /* extcap interfaces do not have those settings */
+         if ( col == IFTREE_COL_PROMISCUOUSMODE || col == IFTREE_COL_SNAPLEN )
+             return false;
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
+         if ( col == IFTREE_COL_BUFFERLEN )
+             return false;
+#endif
+     }
+#endif
+
+     return true;
 }
 
 bool InterfaceTreeCacheModel::isAllowedToBeChanged(const QModelIndex &index) const
@@ -175,15 +301,15 @@ Qt::ItemFlags InterfaceTreeCacheModel::flags(const QModelIndex &index) const
 
     InterfaceTreeColumns col = (InterfaceTreeColumns) index.column();
 
-    if ( changeIsAllowed(col) && isAllowedToBeChanged(index) )
+    if ( changeIsAllowed(col) && isAllowedToBeChanged(index) && isAllowedToBeEdited(index) )
     {
         if ( checkableColumns.contains(col) )
         {
-            flags = Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+            flags |= Qt::ItemIsUserCheckable;
         }
         else
         {
-            flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+            flags |= Qt::ItemIsEditable;
         }
     }
 
@@ -205,6 +331,8 @@ bool InterfaceTreeCacheModel::setData(const QModelIndex &index, const QVariant &
     {
         if ( changeIsAllowed( col ) )
         {
+            QVariant saveValue = value;
+
             QMap<InterfaceTreeColumns, QVariant> * dataField = 0;
             /* obtain the list of already stored changes for this row. If none exist
              * create a new storage row for this entry */
@@ -214,7 +342,7 @@ bool InterfaceTreeCacheModel::setData(const QModelIndex &index, const QVariant &
                 storage->insert(row, dataField);
             }
 
-            dataField->insert(col, value);
+            dataField->insert(col, saveValue);
 
             return true;
         }
@@ -231,17 +359,27 @@ QVariant InterfaceTreeCacheModel::data(const QModelIndex &index, int role) const
     int row = index.row();
     InterfaceTreeColumns col = (InterfaceTreeColumns)index.column();
 
-    if ( ( ( role == Qt::DisplayRole || role == Qt::EditRole ) && editableColumns.contains(col) ) ||
-            ( role == Qt::CheckStateRole && checkableColumns.contains(col) ) )
+    if ( isAllowedToBeEdited(index) )
     {
-        QMap<InterfaceTreeColumns, QVariant> * dataField = 0;
-        if ( ( dataField = storage->value(row, 0) ) != 0 )
+        if ( ( ( role == Qt::DisplayRole || role == Qt::EditRole ) && editableColumns.contains(col) ) ||
+                ( role == Qt::CheckStateRole && checkableColumns.contains(col) ) )
         {
-            if ( dataField->contains(col) )
+            QMap<InterfaceTreeColumns, QVariant> * dataField = 0;
+            if ( ( dataField = storage->value(row, 0) ) != 0 )
             {
-                return dataField->value(col, QVariant());
+                if ( dataField->contains(col) )
+                {
+                    return dataField->value(col, QVariant());
+                }
             }
         }
+    }
+    else
+    {
+        if ( role == Qt::CheckStateRole )
+            return QVariant();
+        else if ( role == Qt::DisplayRole )
+            return QString("-");
     }
 
     return sourceModel->data(index, role);
