@@ -173,6 +173,8 @@ static int hf_l2tp_ericsson_tcg_sapi = -1;
 static int hf_l2tp_ericsson_tcg_ip = -1;
 static int hf_l2tp_ericsson_tcg_dscp = -1;
 static int hf_l2tp_ericsson_tcg_crc32_enable = -1;
+static int hf_l2tp_ericsson_tcg_bundling_tout = -1;
+static int hf_l2tp_ericsson_tcg_bundling_max_pkt = -1;
 static int hf_l2tp_ericsson_tc_num_maps = -1;
 static int hf_l2tp_ericsson_map_tei_low = -1;
 static int hf_l2tp_ericsson_map_tei_high = -1;
@@ -1754,8 +1756,9 @@ static int dissect_l2tp_ericsson_transp_cfg(tvbuff_t *tvb, proto_tree *parent_tr
         offset += 4;
         proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_dscp, tvb, offset++, 1, ENC_NA);
         proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_crc32_enable, tvb, offset++, 1, ENC_NA);
-        /* Three more unknown bytes at the end of the group, like 05 01 2C */
-        offset += 3;
+        proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_bundling_tout, tvb, offset++, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_bundling_max_pkt, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
     }
 
     return offset;
@@ -3589,6 +3592,14 @@ proto_register_l2tp(void)
 
         { &hf_l2tp_ericsson_tcg_crc32_enable,
           { "CRC32 Enabled", "l2tp.ericsson.crc32_en", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_tcg_bundling_tout,
+          { "TCG Bundling Timeout (ms)", "l2tp.ericsson.gcg.bundle_tout", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_ericsson_tcg_bundling_max_pkt,
+          { "TCG Bundling Max Packet Size", "l2tp.ericsson.tcg.bundle_max_pkt", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_l2tp_ericsson_tc_num_maps,
