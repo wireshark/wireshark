@@ -3735,7 +3735,7 @@ dissect_mpl_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
     }
 
     remaining = tvb_captured_length_remaining(tvb, body_offset);
-    while (remaining > length_of_fixed_part) {
+    while (remaining >= length_of_fixed_part) {
         seed_info_index++;
 
         seed_info_tree = proto_tree_add_subtree_format(tree, tvb, body_offset, length_of_fixed_part, ett_icmpv6_mpl_seed_info, NULL,
