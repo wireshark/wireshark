@@ -32,6 +32,13 @@ gboolean ws_strtoi64(const gchar* str, const gchar** endptr, gint64* cint)
 	gchar* end;
 	gint64 val;
 
+	g_assert(cint);
+
+	if (!str) {
+		errno = EINVAL;
+		return FALSE;
+	}
+
 	errno = 0;
 	val = g_ascii_strtoll(str, &end, 10);
 	if ((val == 0 && end == str) || (endptr == NULL && *end != '\0')) {
@@ -111,6 +118,13 @@ static gboolean ws_basestrtou64(const gchar* str, const gchar** endptr, guint64*
 {
 	gchar* end;
 	guint64 val;
+
+	g_assert(cint);
+
+	if (!str) {
+		errno = EINVAL;
+		return FALSE;
+	}
 
 	if (str[0] == '-' || str[0] == '+') {
 		/*
