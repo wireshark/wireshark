@@ -39,31 +39,6 @@ class QStandardItemModel;
 
 class QLineEdit;
 
-class PathChooserDelegate : public QStyledItemDelegate
-{
-    Q_OBJECT
-
-private:
-    QTreeWidget* tree_;
-    mutable QTreeWidgetItem *path_item_;
-    mutable QWidget *path_editor_;
-    mutable QLineEdit *path_le_;
-
-public:
-    PathChooserDelegate(QObject *parent = 0);
-    ~PathChooserDelegate();
-
-    void setTree(QTreeWidget* tree) { tree_ = tree; }
-
-protected:
-    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    void updateEditorGeometry (QWidget * editor, const QStyleOptionViewItem & option, const QModelIndex & index) const;
-
-private slots:
-    void stopEditor();
-    void browse_button_clicked();
-};
-
 
 namespace Ui {
 class ManageInterfacesDialog;
@@ -79,11 +54,11 @@ public:
 
 private:
     Ui::ManageInterfacesDialog *ui;
-    PathChooserDelegate new_pipe_item_delegate_;
 
     InterfaceTreeCacheModel * sourceModel;
     InterfaceSortFilterModel * proxyModel;
-    void showPipes();
+    InterfaceSortFilterModel * pipeProxyModel;
+
     void showRemoteInterfaces();
 
 signals:
@@ -100,9 +75,8 @@ private slots:
 
     void on_addPipe_clicked();
     void on_delPipe_clicked();
-    void pipeAccepted();
-    void on_pipeList_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
 
+    void onSelectionChanged(const QItemSelection &sel, const QItemSelection &desel);
 
 #ifdef HAVE_PCAP_REMOTE
     void on_addRemote_clicked();

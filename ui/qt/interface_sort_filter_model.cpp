@@ -21,6 +21,7 @@
  */
 
 #include "ui/qt/interface_tree_model.h"
+#include "ui/qt/interface_tree_cache_model.h"
 #include "ui/qt/interface_sort_filter_model.h"
 
 #include <glib.h>
@@ -36,6 +37,11 @@
 InterfaceSortFilterModel::InterfaceSortFilterModel(QObject *parent) :
         QSortFilterProxyModel(parent)
 {
+    resetAllFilter();
+}
+
+void InterfaceSortFilterModel::resetAllFilter()
+{
     _filterHidden = true;
     _filterTypes = true;
     _invertTypeFilter = false;
@@ -44,6 +50,9 @@ InterfaceSortFilterModel::InterfaceSortFilterModel(QObject *parent) :
     /* Adding all columns, to have a default setting */
     for ( int col = 0; col < IFTREE_COL_MAX; col++ )
         _columns.append((InterfaceTreeColumns)col);
+
+    invalidateFilter();
+    invalidate();
 }
 
 void InterfaceSortFilterModel::setStoreOnChange(bool storeOnChange)
@@ -214,8 +223,21 @@ bool InterfaceSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex
     if ( sourceModel()->rowCount() == 0 )
         return false;
 
-    int type = ((InterfaceTreeModel *)sourceModel())->getColumnContent(idx, IFTREE_COL_TYPE).toInt();
-    bool hidden = ((InterfaceTreeModel *)sourceModel())->getColumnContent(idx, IFTREE_COL_HIDDEN, Qt::UserRole).toBool();
+    int type = -1;
+    bool hidden = false;
+
+    if (dynamic_cast<InterfaceTreeCacheModel*>(sourceModel()) != 0)
+    {
+        type = ((InterfaceTreeCacheModel *)sourceModel())->getColumnContent(idx, IFTREE_COL_TYPE).toInt();
+        hidden = ((InterfaceTreeCacheModel *)sourceModel())->getColumnContent(idx, IFTREE_COL_HIDDEN, Qt::UserRole).toBool();
+    }
+    else if (dynamic_cast<InterfaceTreeModel*>(sourceModel()) != 0)
+    {
+        type = ((InterfaceTreeModel *)sourceModel())->getColumnContent(idx, IFTREE_COL_TYPE).toInt();
+        hidden = ((InterfaceTreeModel *)sourceModel())->getColumnContent(idx, IFTREE_COL_HIDDEN, Qt::UserRole).toBool();
+    }
+    else
+        return false;
 
     if ( hidden && _filterHidden )
         return false;

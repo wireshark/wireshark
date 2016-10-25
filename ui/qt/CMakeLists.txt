@@ -111,6 +111,7 @@ set(WIRESHARK_QT_HEADERS
 	packet_list.h
 	packet_list_model.h
 	packet_range_group_box.h
+	path_chooser_delegate.h
 	percent_bar_delegate.h
 	preference_editor_frame.h
 	preferences_dialog.h
@@ -273,6 +274,7 @@ set(WIRESHARK_QT_SRC
 	packet_list_model.cpp
 	packet_list_record.cpp
 	packet_range_group_box.cpp
+	path_chooser_delegate.cpp
 	percent_bar_delegate.cpp
 	preference_editor_frame.cpp
 	preferences_dialog.cpp

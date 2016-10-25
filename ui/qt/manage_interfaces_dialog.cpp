@@ -22,9 +22,9 @@
 #include <glib.h>
 #include "manage_interfaces_dialog.h"
 #include <ui_manage_interfaces_dialog.h>
+
 #include "epan/prefs.h"
 #include "epan/to_str.h"
-#include "ui/last_open_dir.h"
 #include "capture_opts.h"
 #include "ui/capture_globals.h"
 #include "ui/qt/capture_interfaces_dialog.h"
@@ -48,6 +48,8 @@
 #ifdef HAVE_LIBPCAP
 
 #include "ui/capture_ui_utils.h"
+
+#include "ui/qt/path_chooser_delegate.h"
 
 #include <QCheckBox>
 #include <QFileDialog>
@@ -90,7 +92,7 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
 
 #ifdef Q_OS_MAC
     ui->addPipe->setAttribute(Qt::WA_MacSmallSize, true);
-    ui->addPipe->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->delPipe->setAttribute(Qt::WA_MacSmallSize, true);
     ui->addRemote->setAttribute(Qt::WA_MacSmallSize, true);
     ui->delRemote->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
@@ -110,14 +112,27 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     proxyModel->setFilterHidden(false);
     proxyModel->setFilterByType(false);
 
-
     ui->localView->setModel(proxyModel);
     ui->localView->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_HIDDEN));
     ui->localView->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_INTERFACE_NAME));
-    ui->pipeList->setItemDelegateForColumn(col_p_pipe_, &new_pipe_item_delegate_);
-    new_pipe_item_delegate_.setTree(ui->pipeList);
 
-    showPipes();
+    pipeProxyModel = new InterfaceSortFilterModel(this);
+    columns.clear();
+    columns.append(IFTREE_COL_PIPE_PATH);
+    pipeProxyModel->setColumns(columns);
+    pipeProxyModel->setSourceModel(sourceModel);
+    pipeProxyModel->setFilterHidden(true);
+    pipeProxyModel->setFilterByType(true, true);
+    pipeProxyModel->setInterfaceTypeVisible(IF_PIPE, false);
+    ui->pipeView->setModel(pipeProxyModel);
+    ui->delPipe->setEnabled(pipeProxyModel->rowCount() > 0);
+
+    ui->pipeView->setItemDelegateForColumn(
+            pipeProxyModel->mapSourceToColumn(IFTREE_COL_PIPE_PATH), new PathChooserDelegate()
+            );
+    connect(ui->pipeView->selectionModel(),
+            SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), this,
+            SLOT(onSelectionChanged(const QItemSelection &, const QItemSelection &)));
 
 #if defined(HAVE_PCAP_REMOTE)
     // The default indentation (20) means our checkboxes are shifted too far on Windows.
@@ -128,7 +143,7 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     ui->remoteSettings->setEnabled(false);
     showRemoteInterfaces();
 #else
-    ui->remoteTab->setEnabled(false);
+    ui->tabWidget->removeTab(tab_remote_);
 #endif
 
     connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateWidgets()));
@@ -149,15 +164,14 @@ ManageInterfacesDialog::~ManageInterfacesDialog()
     delete ui;
 }
 
+void ManageInterfacesDialog::onSelectionChanged(const QItemSelection &sel, const QItemSelection &)
+{
+    ui->delPipe->setEnabled( sel.count() > 0 );
+}
+
 void ManageInterfacesDialog::updateWidgets()
 {
     QString hint;
-
-    if (ui->pipeList->selectedItems().length() > 0) {
-        ui->delPipe->setEnabled(true);
-    } else {
-        ui->delPipe->setEnabled(false);
-    }
 
 #ifdef HAVE_PCAP_REMOTE
     bool enable_del_remote = false;
@@ -195,30 +209,8 @@ void ManageInterfacesDialog::updateWidgets()
     ui->hintLabel->setText(hint);
 }
 
-void ManageInterfacesDialog::showPipes()
-{
-    ui->pipeList->clear();
-
-    if (global_capture_opts.all_ifaces->len > 0) {
-        interface_t device;
-
-        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-
-            /* Continue if capture device is hidden */
-            if (device.hidden || device.type != IF_PIPE) {
-                continue;
-            }
-            QTreeWidgetItem *item = new QTreeWidgetItem(ui->pipeList);
-            item->setFlags(item->flags() | Qt::ItemIsEditable);
-            item->setText(col_p_pipe_, device.display_name);
-        }
-    }
-}
-
 void ManageInterfacesDialog::on_buttonBox_accepted()
 {
-    pipeAccepted();
     sourceModel->save();
 #ifdef HAVE_PCAP_REMOTE
     remoteAccepted();
@@ -228,97 +220,37 @@ void ManageInterfacesDialog::on_buttonBox_accepted()
     emit ifsChanged();
 }
 
-const QString new_pipe_default_ = QObject::tr("New Pipe");
 void ManageInterfacesDialog::on_addPipe_clicked()
 {
-    QTreeWidgetItem *item = new QTreeWidgetItem(ui->pipeList);
-    item->setText(col_p_pipe_, new_pipe_default_);
-    item->setFlags(item->flags() | Qt::ItemIsEditable);
-    ui->pipeList->setCurrentItem(item);
-    ui->pipeList->editItem(item, col_p_pipe_);
-}
+    interface_t * device = g_new0(interface_t, 1);
 
-void ManageInterfacesDialog::pipeAccepted()
-{
-    interface_t device;
-
-    // First clear the current pipes
-    for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        /* Continue if capture device is hidden or not a pipe */
-        if (device.hidden || device.type != IF_PIPE) {
-            continue;
-        }
-        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-        capture_opts_free_interface_t(&device);
-    }
-
-    // Next rebuild a fresh list
-    QTreeWidgetItemIterator it(ui->pipeList);
-    while (*it) {
-        QString pipe_name = (*it)->text(col_p_pipe_);
-        if (pipe_name.isEmpty() || pipe_name == new_pipe_default_) {
-            ++it;
-            continue;
-        }
-
-        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            // Instead of just deleting the device we might want to add a hint label
-            // and let the user know what's going to happen.
-            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if (pipe_name.compare(device.name) == 0) { // Duplicate
-                ++it;
-                continue;
-            }
-        }
-
-        memset(&device, 0, sizeof(device));
-        device.name         = qstring_strdup(pipe_name);
-        device.display_name = g_strdup(device.name);
-        device.hidden       = FALSE;
-        device.selected     = TRUE;
-        device.type         = IF_PIPE;
-        device.pmode        = global_capture_opts.default_options.promisc_mode;
-        device.has_snaplen  = global_capture_opts.default_options.has_snaplen;
-        device.snaplen      = global_capture_opts.default_options.snaplen;
-        device.cfilter      = g_strdup(global_capture_opts.default_options.cfilter);
-        device.addresses    = NULL;
-        device.no_addresses = 0;
-        device.last_packets = 0;
-        device.links        = NULL;
+    device->name = qstring_strdup(tr("New Pipe"));
+    device->display_name = g_strdup(device->name);
+    device->hidden       = FALSE;
+    device->selected     = TRUE;
+    device->pmode        = global_capture_opts.default_options.promisc_mode;
+    device->has_snaplen  = global_capture_opts.default_options.has_snaplen;
+    device->snaplen      = global_capture_opts.default_options.snaplen;
+    device->cfilter      = g_strdup(global_capture_opts.default_options.cfilter);
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
-        device.buffer       = DEFAULT_CAPTURE_BUFFER_SIZE;
+    device->buffer       = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
-        device.active_dlt = -1;
-        device.locked = FALSE;
-        device.if_info.name = g_strdup(device.name);
-        device.if_info.friendly_name = NULL;
-        device.if_info.vendor_description = NULL;
-        device.if_info.addrs = NULL;
-        device.if_info.loopback = FALSE;
-        device.if_info.type = IF_PIPE;
-#ifdef HAVE_EXTCAP
-        device.if_info.extcap = NULL;
-        device.external_cap_args_settings = NULL;
-#endif
-#if defined(HAVE_PCAP_CREATE)
-        device.monitor_mode_enabled = FALSE;
-        device.monitor_mode_supported = FALSE;
-#endif
-        global_capture_opts.num_selected++;
-        g_array_append_val(global_capture_opts.all_ifaces, device);
-        ++it;
-    }
+    device->active_dlt = -1;
+    device->if_info.name = g_strdup(device->name);
+    device->if_info.type = IF_PIPE;
+
+    sourceModel->addDevice(device);
+    updateWidgets();
 }
 
 void ManageInterfacesDialog::on_delPipe_clicked()
 {
-    // We're just managing a list of strings at this point.
-    delete ui->pipeList->currentItem();
-}
+    /* Get correct selection and tell the source model to delete the itm. pipe view only
+     * displays IF_PIPE devices, therefore this will only delete pipes, and this is set
+     * to only select single items. */
+    QModelIndex selIndex = ui->pipeView->selectionModel()->selectedIndexes().at(0);
 
-void ManageInterfacesDialog::on_pipeList_currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)
-{
+    sourceModel->deleteDevice( pipeProxyModel->mapToSource(selIndex) );
     updateWidgets();
 }
 
@@ -637,89 +569,6 @@ void ManageInterfacesDialog::setRemoteSettings(interface_t *iface)
     }
 }
 #endif // HAVE_PCAP_REMOTE
-
-PathChooserDelegate::PathChooserDelegate(QObject *parent)
-    : QStyledItemDelegate(parent), tree_(NULL), path_item_(NULL), path_editor_(NULL), path_le_(NULL)
-{
-}
-
-PathChooserDelegate::~PathChooserDelegate()
-{
-}
-
-QWidget* PathChooserDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &) const
-{
-    QTreeWidgetItem *item = tree_->currentItem();
-    if (!item) {
-        return NULL;
-    }
-    path_item_ = item;
-
-    path_editor_ = new QWidget(parent);
-    QHBoxLayout *hbox = new QHBoxLayout(path_editor_);
-    path_editor_->setLayout(hbox);
-    path_le_ = new QLineEdit(path_editor_);
-    QPushButton *pb = new QPushButton(path_editor_);
-
-    path_le_->setText(item->text(col_p_pipe_));
-    pb->setText(QString(tr("Browse" UTF8_HORIZONTAL_ELLIPSIS)));
-
-    hbox->setContentsMargins(0, 0, 0, 0);
-    hbox->addWidget(path_le_);
-    hbox->addWidget(pb);
-    hbox->setSizeConstraint(QLayout::SetMinimumSize);
-
-    // Grow the item to match the editor. According to the QAbstractItemDelegate
-    // documenation we're supposed to reimplement sizeHint but this seems to work.
-    QSize size = option.rect.size();
-    size.setHeight(qMax(option.rect.height(), hbox->sizeHint().height()));
-    item->setData(col_p_pipe_, Qt::SizeHintRole, size);
-
-    path_le_->selectAll();
-    path_editor_->setFocusProxy(path_le_);
-    path_editor_->setFocusPolicy(path_le_->focusPolicy());
-
-    connect(path_le_, SIGNAL(destroyed()), this, SLOT(stopEditor()));
-    connect(pb, SIGNAL(pressed()), this, SLOT(browse_button_clicked()));
-    return path_editor_;
-}
-
-void PathChooserDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &) const
-{
-    QRect rect = option.rect;
-
-    // Make sure the editor doesn't get squashed.
-    editor->adjustSize();
-    rect.setHeight(qMax(option.rect.height(), editor->height()));
-    editor->setGeometry(rect);
-}
-
-void PathChooserDelegate::stopEditor()
-{
-    path_item_->setData(col_p_pipe_, Qt::SizeHintRole, QVariant());
-    path_item_->setText(col_p_pipe_, path_le_->text());
-}
-
-void PathChooserDelegate::browse_button_clicked()
-{
-    char *open_dir = NULL;
-
-    switch (prefs.gui_fileopen_style) {
-
-    case FO_STYLE_LAST_OPENED:
-        open_dir = get_last_open_dir();
-        break;
-
-    case FO_STYLE_SPECIFIED:
-        if (prefs.gui_fileopen_dir[0] != '\0')
-            open_dir = prefs.gui_fileopen_dir;
-        break;
-    }
-    QString file_name = QFileDialog::getOpenFileName(tree_, tr("Open Pipe"), open_dir);
-    if (!file_name.isEmpty()) {
-        path_le_->setText(file_name);
-    }
-}
 
 #endif /* HAVE_LIBPCAP */
 

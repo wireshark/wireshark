@@ -45,16 +45,26 @@ public:
 
     QVariant getColumnContent(int idx, int col, int role = Qt::DisplayRole);
 
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+
     void reset(int row);
     void save();
 
+    void addDevice(interface_t * newDevice);
+    void deleteDevice(const QModelIndex &index);
+
 private:
     InterfaceTreeModel * sourceModel;
+
+    QList<interface_t *> newDevices;
+
+    void saveNewDevices();
 
     QMap<int, QMap<InterfaceTreeColumns, QVariant> *> * storage;
     QList<InterfaceTreeColumns> editableColumns;
     QList<InterfaceTreeColumns> checkableColumns;
 
+    interface_t * lookup(const QModelIndex &index) const;
     bool changeIsAllowed(InterfaceTreeColumns col) const;
     bool isAllowedToBeChanged(const QModelIndex &index) const;
     bool isAllowedToBeEdited(const QModelIndex &index) const;

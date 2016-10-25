@@ -50,7 +50,7 @@ InterfaceTreeCacheModel::InterfaceTreeCacheModel(QObject *parent) :
     checkableColumns << IFTREE_COL_MONITOR_MODE;
 #endif
 
-    editableColumns << IFTREE_COL_INTERFACE_COMMENT << IFTREE_COL_SNAPLEN;
+    editableColumns << IFTREE_COL_INTERFACE_COMMENT << IFTREE_COL_SNAPLEN << IFTREE_COL_PIPE_PATH;
 
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     editableColumns << IFTREE_COL_BUFFERLEN;
@@ -59,6 +59,13 @@ InterfaceTreeCacheModel::InterfaceTreeCacheModel(QObject *parent) :
 
 InterfaceTreeCacheModel::~InterfaceTreeCacheModel()
 {
+    /* This list should only exist, if the dialog is closed, without calling save first */
+    if ( newDevices.size() > 0 )
+    {
+        qDeleteAll(newDevices);
+        newDevices.clear();
+    }
+
     delete storage;
     delete sourceModel;
 }
@@ -82,6 +89,60 @@ QVariant InterfaceTreeCacheModel::getColumnContent(int idx, int col, int role)
     return InterfaceTreeCacheModel::data(index(idx, col), role);
 }
 
+void InterfaceTreeCacheModel::saveNewDevices()
+{
+    QList<interface_t *>::const_iterator it = newDevices.constBegin();
+    /* idx is used for iterating only over the indices of the new devices. As all new
+     * devices are stored with an index higher then sourceModel->rowCount(), we start
+     * only with those storage indices.
+     * it is just the iterator over the new devices. A new device must not necessarily
+     * have storage, which will lead to that device not being stored in global_capture_opts */
+    for (int idx = sourceModel->rowCount(); it != newDevices.constEnd(); ++it, idx++)
+    {
+        interface_t * device = (interface_t *)(*it);
+        bool useDevice = false;
+
+        QMap<InterfaceTreeColumns, QVariant> * dataField = storage->value(idx, 0);
+        /* When devices are being added, they are added using generic values. So only devices
+         * whose data have been changed should be used from here on out. */
+        if ( dataField != 0 )
+        {
+            if ( device->if_info.type != IF_PIPE )
+            {
+                continue;
+            }
+
+            if ( device->if_info.type == IF_PIPE )
+            {
+                QVariant saveValue = dataField->value(IFTREE_COL_PIPE_PATH);
+                if ( saveValue.isValid() )
+                {
+                    g_free(device->if_info.name);
+                    device->if_info.name = qstring_strdup(saveValue.toString());
+
+                    g_free(device->name);
+                    device->name = qstring_strdup(saveValue.toString());
+
+                    g_free(device->display_name);
+                    device->display_name = qstring_strdup(saveValue.toString());
+                    useDevice = true;
+                }
+            }
+
+            if ( useDevice )
+                g_array_append_val(global_capture_opts.all_ifaces, *device);
+
+        }
+
+        /* All entries of this new devices have been considered */
+        storage->remove(idx);
+        delete dataField;
+    }
+
+    qDeleteAll(newDevices);
+    newDevices.clear();
+}
+
 void InterfaceTreeCacheModel::save()
 {
     if ( storage->count() == 0 )
@@ -89,9 +150,13 @@ void InterfaceTreeCacheModel::save()
 
     QMap<char**, QStringList> prefStorage;
 
+    /* Storing new devices first including their changed values */
+    saveNewDevices();
+
     for(unsigned int idx = 0; idx < global_capture_opts.all_ifaces->len; idx++)
     {
         interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
+
         if (! device.name )
             continue;
 
@@ -108,7 +173,7 @@ void InterfaceTreeCacheModel::save()
                 QVariant saveValue = it.value();
 
                 /* Setting the field values for each individual saved value cannot be generic, as the
-                 * struct cannot be accessed generically. Therefore below, each individually changed
+                 * struct cannot be accessed in a generic way. Therefore below, each individually changed
                  * value has to be handled separately. Comments are stored only in the preference file
                  * and applied to the data name during loading. Therefore comments are not handled here */
 
@@ -226,11 +291,13 @@ void InterfaceTreeCacheModel::save()
 
         ++it;
     }
+
+    wsApp->emitAppSignal(WiresharkApplication::LocalInterfacesChanged);
 }
 
 int InterfaceTreeCacheModel::rowCount(const QModelIndex & parent) const
 {
-    return sourceModel->rowCount(parent);
+    return sourceModel->rowCount(parent) + newDevices.size();
 }
 
 bool InterfaceTreeCacheModel::changeIsAllowed(InterfaceTreeColumns col) const
@@ -240,54 +307,70 @@ bool InterfaceTreeCacheModel::changeIsAllowed(InterfaceTreeColumns col) const
     return false;
 }
 
+interface_t * InterfaceTreeCacheModel::lookup(const QModelIndex &index) const
+{
+    interface_t * result = 0;
+
+    if ( ! index.isValid() )
+        return result;
+    if ( ! global_capture_opts.all_ifaces && newDevices.size() == 0 )
+        return result;
+
+    int idx = index.row();
+
+    if ( (unsigned int) idx >= global_capture_opts.all_ifaces->len )
+    {
+        idx = idx - global_capture_opts.all_ifaces->len;
+        if ( idx < newDevices.size() )
+            result = newDevices[idx];
+    }
+    else
+    {
+        result = &g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
+    }
+
+    return result;
+}
+
 /* This checks if the column can be edited for the given index. This differs from
  * isAllowedToBeChanged in such a way, that it is only used in flags and not any
  * other method.*/
 bool InterfaceTreeCacheModel::isAllowedToBeEdited(const QModelIndex &index) const
 {
-    if ( ! index.isValid() || ! global_capture_opts.all_ifaces )
-         return false;
+    interface_t * device = lookup(index);
+    if ( device == 0 )
+        return false;
 
-     int idx = index.row();
-     if ( (unsigned int) idx >= global_capture_opts.all_ifaces->len )
-         return false;
-
-     interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
-
-     InterfaceTreeColumns col = (InterfaceTreeColumns) index.column();
+    InterfaceTreeColumns col = (InterfaceTreeColumns) index.column();
 #ifdef HAVE_EXTCAP
-     if ( device.if_info.type == IF_EXTCAP )
-     {
-         /* extcap interfaces do not have those settings */
-         if ( col == IFTREE_COL_PROMISCUOUSMODE || col == IFTREE_COL_SNAPLEN )
-             return false;
+    if ( device->if_info.type == IF_EXTCAP )
+    {
+        /* extcap interfaces do not have those settings */
+        if ( col == IFTREE_COL_PROMISCUOUSMODE || col == IFTREE_COL_SNAPLEN )
+            return false;
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
-         if ( col == IFTREE_COL_BUFFERLEN )
-             return false;
+        if ( col == IFTREE_COL_BUFFERLEN )
+            return false;
 #endif
-     }
+    }
 #endif
 
-     return true;
+    return true;
 }
 
 bool InterfaceTreeCacheModel::isAllowedToBeChanged(const QModelIndex &index) const
 {
-    if ( ! index.isValid() || ! global_capture_opts.all_ifaces )
-        return false;
+    interface_t * device = lookup(index);
 
-    int idx = index.row();
-    if ( (unsigned int) idx >= global_capture_opts.all_ifaces->len )
+    if ( device == 0 )
         return false;
-
-    interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
 
     InterfaceTreeColumns col = (InterfaceTreeColumns) index.column();
     if ( col == IFTREE_COL_HIDDEN )
     {
         if ( prefs.capture_device )
         {
-            if ( ! g_strcmp0(prefs.capture_device, device.display_name) )
+            if ( ! g_strcmp0(prefs.capture_device, device->display_name) )
                 return false;
         }
     }
@@ -360,6 +443,7 @@ QVariant InterfaceTreeCacheModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     int row = index.row();
+
     InterfaceTreeColumns col = (InterfaceTreeColumns)index.column();
 
     if ( isAllowedToBeEdited(index) )
@@ -385,7 +469,112 @@ QVariant InterfaceTreeCacheModel::data(const QModelIndex &index, int role) const
             return QString("-");
     }
 
-    return sourceModel->data(index, role);
+    if ( row >= sourceModel->rowCount() )
+    {
+        /* Handle all fields, which will have to be displayed for new devices. Only pipes
+         * are supported at the moment, so the information to be displayed is pretty limited.
+         * After saving, the devices are stored in global_capture_opts and no longer
+         * classify as new devices. */
+        interface_t * device = lookup(index);
+
+        if ( device != 0 )
+        {
+            if ( role == Qt::DisplayRole || role == Qt::EditRole )
+            {
+                if ( col == IFTREE_COL_PIPE_PATH ||
+                        col == IFTREE_COL_NAME ||
+                        col == IFTREE_COL_INTERFACE_NAME )
+                {
+
+                    QMap<InterfaceTreeColumns, QVariant> * dataField = 0;
+                    if ( ( dataField = storage->value(row, 0) ) != 0 &&
+                            dataField->contains(IFTREE_COL_PIPE_PATH) )
+                    {
+                        return dataField->value(IFTREE_COL_PIPE_PATH, QVariant());
+                    }
+                    else
+                        return QString(device->name);
+                }
+                else if ( col == IFTREE_COL_TYPE )
+                {
+                    return QVariant::fromValue((int)device->if_info.type);
+                }
+            }
+            else if ( role == Qt::CheckStateRole )
+            {
+                if ( col == IFTREE_COL_HIDDEN )
+                {
+                    /* Hidden is a de-selection, therefore inverted logic here */
+                    return device->hidden ? Qt::Unchecked : Qt::Checked;
+                }
+            }
+        }
+    }
+    else
+        return sourceModel->data(index, role);
+
+    return QVariant();
+}
+
+QModelIndex InterfaceTreeCacheModel::index(int row, int column, const QModelIndex &parent) const
+{
+    if ( row >= sourceModel->rowCount() && ( row - sourceModel->rowCount() ) < newDevices.count() )
+    {
+        return createIndex(row, column, (void *)0);
+    }
+
+    return sourceModel->index(row, column, parent);
+}
+
+void InterfaceTreeCacheModel::addDevice(interface_t * newDevice)
+{
+    emit beginInsertRows(QModelIndex(), rowCount(), rowCount());
+    newDevices << newDevice;
+    emit endInsertRows();
+}
+
+void InterfaceTreeCacheModel::deleteDevice(const QModelIndex &index)
+{
+    if ( ! index.isValid() )
+        return;
+
+    emit beginRemoveRows(QModelIndex(), index.row(), index.row());
+
+    int row = index.row();
+
+    /* device is in newDevices */
+    if ( row >= sourceModel->rowCount() )
+    {
+        int newDeviceIdx = row - sourceModel->rowCount();
+
+        newDevices.removeAt(newDeviceIdx);
+        if ( storage->contains(index.row()) )
+            storage->remove(index.row());
+
+        /* The storage array has to be resorted, if the index, that was removed
+         * had been in the middle of the array. Can't start at index.row(), as
+         * it may not be contained in storage
+         * We must iterate using a list, not an iterator, otherwise the change
+         * will fold on itself. */
+        QList<int> storageKeys = storage->keys();
+        for ( int i = 0; i < storageKeys.size(); ++i )
+        {
+            int key = storageKeys.at(i);
+            if ( key > index.row() )
+            {
+                storage->insert(key - 1, storage->value(key));
+                storage->remove(key);
+            }
+        }
+
+        emit endRemoveRows();
+    }
+    else
+    {
+        g_array_remove_index(global_capture_opts.all_ifaces, row);
+        emit endRemoveRows();
+        wsApp->emitAppSignal(WiresharkApplication::LocalInterfacesChanged);
+    }
 }
 
 /*

@@ -61,6 +61,7 @@ enum InterfaceTreeColumns
     IFTREE_COL_MONITOR_MODE,
 #endif
     IFTREE_COL_CAPTURE_FILTER,
+    IFTREE_COL_PIPE_PATH,
     IFTREE_COL_MAX /* is not being displayed, it is the definition for the maximum numbers of columns */
 };
 

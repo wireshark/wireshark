@@ -63,7 +63,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QTreeWidget" name="pipeList">
+        <widget class="QTreeView" name="pipeView">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -91,11 +91,6 @@
          <property name="itemsExpandable">
           <bool>false</bool>
          </property>
-         <column>
-          <property name="text">
-           <string>Named Pipe Path</string>
-          </property>
-         </column>
         </widget>
        </item>
        <item>

@@ -135,6 +135,10 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
             {
                 return QString(device.name);
             }
+            else if ( col == IFTREE_COL_PIPE_PATH )
+            {
+                return QString(device.if_info.name);
+            }
             else if ( col == IFTREE_COL_CAPTURE_FILTER )
             {
                 if ( device.cfilter && strlen(device.cfilter) > 0 )
@@ -264,9 +268,13 @@ QVariant InterfaceTreeModel::headerData(int section, Qt::Orientation orientation
             {
                 return tr("Friendly Name");
             }
-            else if ( section == IFTREE_COL_INTERFACE_NAME )
+            else if ( section == IFTREE_COL_NAME )
             {
                 return tr("Interface Name");
+            }
+            else if ( section == IFTREE_COL_PIPE_PATH )
+            {
+                return tr("Local Pipe Path");
             }
             else if ( section == IFTREE_COL_INTERFACE_COMMENT )
             {

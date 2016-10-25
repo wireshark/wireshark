@@ -235,6 +235,7 @@ MOC_HDRS = \
 	numeric_value_chooser_delegate.h		\
 	overlay_scroll_bar.h				\
 	packet_comment_dialog.h				\
+	path_chooser_delegate.h				\
 	packet_dialog.h					\
 	packet_format_group_box.h			\
 	packet_list.h					\
@@ -517,6 +518,7 @@ WIRESHARK_QT_SRC = \
 	packet_list_model.cpp				\
 	packet_list_record.cpp				\
 	packet_range_group_box.cpp			\
+	path_chooser_delegate.cpp			\
 	percent_bar_delegate.cpp			\
 	preference_editor_frame.cpp			\
 	preferences_dialog.cpp				\

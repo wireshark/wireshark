@@ -38,6 +38,7 @@ public:
     InterfaceSortFilterModel(QObject *parent);
 
     void setStoreOnChange(bool storeOnChange);
+    void resetAllFilter();
 
     void setFilterHidden(bool filter);
     bool filterHidden() const;
