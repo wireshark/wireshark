@@ -287,63 +287,53 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                         offset, 2, raw_word);
     offset += 2;
 
-    if (tree)
-    {
-        proto_tree_add_bitmask_with_flags(lacpdu_tree, tvb, offset, hf_lacp_partner_state,
-                           ett_lacp_p_flags, partner_flags, ENC_NA, BMT_NO_INT|BMT_NO_TFS|BMT_NO_FALSE);
+    proto_tree_add_bitmask_with_flags(lacpdu_tree, tvb, offset, hf_lacp_partner_state, ett_lacp_p_flags, partner_flags, ENC_NA, BMT_NO_INT|BMT_NO_TFS|BMT_NO_FALSE);
 
-        ti = proto_tree_add_string(lacpdu_tree, hf_lacp_partner_state_str, tvb, offset, 1, lacp_state_flags_to_str(tvb_get_guint8(tvb, offset)));
-        PROTO_ITEM_SET_GENERATED(ti);
-        offset += 1;
+    ti = proto_tree_add_string(lacpdu_tree, hf_lacp_partner_state_str, tvb, offset, 1, lacp_state_flags_to_str(tvb_get_guint8(tvb, offset)));
+    PROTO_ITEM_SET_GENERATED(ti);
+    offset += 1;
 
-        /* Partner Reserved */
+    /* Partner Reserved */
 
-        proto_tree_add_item(lacpdu_tree, hf_lacp_partner_reserved, tvb,
-                offset, 3, ENC_NA);
-        offset += 3;
+    proto_tree_add_item(lacpdu_tree, hf_lacp_partner_reserved, tvb, offset, 3, ENC_NA);
+    offset += 3;
 
-        /* Collector Type */
+    /* Collector Type */
 
-        proto_tree_add_item(lacpdu_tree, hf_lacp_coll_type, tvb,
-                offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
+    proto_tree_add_item(lacpdu_tree, hf_lacp_coll_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
-        /* Collector Info Length */
+    /* Collector Info Length */
 
-        proto_tree_add_item(lacpdu_tree, hf_lacp_coll_info_len, tvb,
-                offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
+    proto_tree_add_item(lacpdu_tree, hf_lacp_coll_info_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
-        /* Collector Max Delay */
+    /* Collector Max Delay */
 
-        proto_tree_add_item(lacpdu_tree, hf_lacp_coll_max_delay, tvb,
-                offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+    proto_tree_add_item(lacpdu_tree, hf_lacp_coll_max_delay, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-        /* Collector Reserved */
+    /* Collector Reserved */
 
-        proto_tree_add_item(lacpdu_tree, hf_lacp_coll_reserved, tvb,
-                offset, 12, ENC_NA);
-        offset += 12;
+    proto_tree_add_item(lacpdu_tree, hf_lacp_coll_reserved, tvb, offset, 12, ENC_NA);
+    offset += 12;
 
-        /* Terminator Type */
+    /* Terminator Type */
 
-        proto_tree_add_item(lacpdu_tree, hf_lacp_term_type, tvb,
-                offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
+    proto_tree_add_item(lacpdu_tree, hf_lacp_term_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
-        /* Terminator Info Length */
+    /* Terminator Info Length */
 
-        proto_tree_add_item(lacpdu_tree, hf_lacp_term_len, tvb,
-                offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
+    proto_tree_add_item(lacpdu_tree, hf_lacp_term_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
-        /* Terminator Reserved */
+    /* Terminator Reserved */
 
-        proto_tree_add_item(lacpdu_tree, hf_lacp_term_reserved, tvb,
-                offset, 50, ENC_NA);
-    }
-    return tvb_captured_length(tvb);
+    proto_tree_add_item(lacpdu_tree, hf_lacp_term_reserved, tvb, offset, 50, ENC_NA);
+    offset += 50;
+
+    return offset;
 }
 
 /* Register the protocol with Wireshark */
