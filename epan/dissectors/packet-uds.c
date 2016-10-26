@@ -86,10 +86,10 @@ void proto_reg_handoff_uds(void);
 #define UDS_DSC_TYPE_LEN         1
 #define UDS_DSC_PARAMETER_RECORD_OFFSET  (UDS_DSC_TYPE_OFFSET + UDS_DSC_TYPE_LEN)
 
-#define UDS_DSC_TYPES_DEFAULT_SESSION                 1
-#define UDS_DSC_TYPES_PROGRAMMING_SESSION             2
-#define UDS_DSC_TYPES_EXTENDED_DIAGNOSTIC_SESSION     3
-#define UDS_DSC_TYPES_SAFTY_SYSTEM_DIAGNOSTIC_SESSION 4
+#define UDS_DSC_TYPES_DEFAULT_SESSION                   1
+#define UDS_DSC_TYPES_PROGRAMMING_SESSION               2
+#define UDS_DSC_TYPES_EXTENDED_DIAGNOSTIC_SESSION       3
+#define UDS_DSC_TYPES_SAFETY_SYSTEM_DIAGNOSTIC_SESSION  4
 
 #define UDS_ER_TYPE_OFFSET   (UDS_DATA_OFFSET + 0)
 #define UDS_ER_TYPE_LEN      1
@@ -248,7 +248,7 @@ static const value_string uds_dsc_types[] = {
         {UDS_DSC_TYPES_DEFAULT_SESSION,                 "Default Session"},
         {UDS_DSC_TYPES_PROGRAMMING_SESSION,             "Programming Session"},
         {UDS_DSC_TYPES_EXTENDED_DIAGNOSTIC_SESSION,     "Extended Diagnostic Session"},
-        {UDS_DSC_TYPES_SAFTY_SYSTEM_DIAGNOSTIC_SESSION, "Safty System Diagnostic Session"},
+        {UDS_DSC_TYPES_SAFETY_SYSTEM_DIAGNOSTIC_SESSION, "Safety System Diagnostic Session"},
         {0, NULL}
 };
 
