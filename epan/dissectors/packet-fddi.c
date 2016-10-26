@@ -58,6 +58,8 @@ static int fddi_tap = -1;
 
 static dissector_handle_t fddi_handle, fddi_bitswapped_handle;
 
+static capture_dissector_handle_t llc_cap_handle;
+
 static gboolean fddi_padding = FALSE;
 
 #define FDDI_PADDING            ((fddi_padding) ? 3 : 0)
@@ -232,7 +234,7 @@ capture_fddi(const guchar *pd, int offset, int len, capture_packet_info_t *cpinf
     case FDDI_FC_LLC_ASYNC + 13 :
     case FDDI_FC_LLC_ASYNC + 14 :
     case FDDI_FC_LLC_ASYNC + 15 :
-      return capture_llc(pd, offset, len, cpinfo, pseudo_header);
+      return call_capture_dissector(llc_cap_handle, pd, offset, len, cpinfo, pseudo_header);
   } /* fc */
 
   return FALSE;
@@ -534,6 +536,8 @@ proto_register_fddi(void)
 void
 proto_reg_handoff_fddi(void)
 {
+  capture_dissector_handle_t fddi_cap_handle;
+
   /*
    * Get a handle for the LLC dissector.
    */
@@ -542,8 +546,11 @@ proto_reg_handoff_fddi(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED,
                      fddi_bitswapped_handle);
 
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_FDDI, capture_fddi, proto_fddi);
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED, capture_fddi, proto_fddi);
+  fddi_cap_handle = create_capture_dissector_handle(capture_fddi, proto_fddi);
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI, fddi_cap_handle);
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED, fddi_cap_handle);
+
+  llc_cap_handle = find_capture_dissector("llc");
 }
 
 /*

@@ -3822,10 +3822,12 @@ void
 proto_reg_handoff_ospf(void)
 {
     dissector_handle_t ospf_handle;
+    capture_dissector_handle_t ospf_cap_handle;
 
     ospf_handle = create_dissector_handle(dissect_ospf, proto_ospf);
     dissector_add_uint("ip.proto", IP_PROTO_OSPF, ospf_handle);
-    register_capture_dissector("ip.proto", IP_PROTO_OSPF, capture_ospf, proto_ospf);
+    ospf_cap_handle = create_capture_dissector_handle(capture_ospf, proto_ospf);
+    capture_dissector_add_uint("ip.proto", IP_PROTO_OSPF, ospf_cap_handle);
 }
 
 /*

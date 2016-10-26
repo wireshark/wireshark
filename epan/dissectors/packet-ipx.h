@@ -147,8 +147,6 @@ struct ipx_rip_packet
 extern value_string_ext ipx_socket_vals_ext;
 extern value_string_ext novell_server_vals_ext;
 
-gboolean capture_ipx(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
-
 /*
  * Structure passed to SPX subdissectors, containing information from
  * the SPX header that might be useful to the subdissector.

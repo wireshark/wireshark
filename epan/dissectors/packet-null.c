@@ -63,6 +63,7 @@ static const value_string family_vals[] = {
 };
 
 static dissector_handle_t ppp_hdlc_handle;
+static capture_dissector_handle_t ppp_hdlc_cap_handle;
 
 static gboolean
 capture_null( const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_ )
@@ -258,7 +259,7 @@ capture_null( const guchar *pd, int offset _U_, int len, capture_packet_info_t *
     /*
      * Hand it to PPP.
      */
-    return capture_ppp_hdlc(pd, 0, len, cpinfo, pseudo_header);
+    return call_capture_dissector(ppp_hdlc_cap_handle, pd, 0, len, cpinfo, pseudo_header);
   } else {
     /*
      * Treat it as a normal DLT_NULL header.
@@ -315,43 +316,8 @@ capture_null( const guchar *pd, int offset _U_, int len, capture_packet_info_t *
      */
     if (null_header > IEEE_802_3_MAX_LEN)
       return try_capture_dissector("ethertype", null_header, pd, 4, len, cpinfo, pseudo_header);
-    else {
-
-      switch (null_header) {
-
-      case BSD_AF_INET:
-        return capture_ip(pd, 4, len, cpinfo, pseudo_header);
-
-      case BSD_AF_INET6_BSD:
-      case BSD_AF_INET6_FREEBSD:
-      case BSD_AF_INET6_DARWIN:
-        return capture_ipv6(pd, 4, len, cpinfo, pseudo_header);
-      }
-    }
-  }
-
-  return FALSE;
-}
-
-static gboolean
-capture_loop( const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_ )
-{
-  guint32 loop_family;
-
-  if (!BYTES_ARE_IN_FRAME(0, len, (int)sizeof(loop_family)))
-    return FALSE;
-
-  loop_family = pntoh32(&pd[0]);
-
-  switch (loop_family) {
-
-  case BSD_AF_INET:
-    return capture_ip(pd, 4, len, cpinfo, pseudo_header);
-
-  case BSD_AF_INET6_BSD:
-  case BSD_AF_INET6_FREEBSD:
-  case BSD_AF_INET6_DARWIN:
-    return capture_ipv6(pd, 4, len, cpinfo, pseudo_header);
+    else
+      return try_capture_dissector("null.bsd", null_header, pd, 4, len, cpinfo, pseudo_header);
   }
 
   return FALSE;
@@ -526,12 +492,15 @@ proto_register_null(void)
   /* subdissector code */
   null_dissector_table = register_dissector_table("null.type",
                                                   "Null type", proto_null, FT_UINT32, BASE_DEC);
+
+  register_capture_dissector_table("null.bsd", "Null/Loopback BSD AF");
 }
 
 void
 proto_reg_handoff_null(void)
 {
   dissector_handle_t null_handle, loop_handle;
+  capture_dissector_handle_t null_cap_handle;
 
   /*
    * Get a handle for the PPP-in-HDLC-like-framing dissector and
@@ -547,8 +516,11 @@ proto_reg_handoff_null(void)
   loop_handle = create_dissector_handle(dissect_loop, proto_null);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LOOP, loop_handle);
 
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_NULL, capture_null, proto_null);
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_LOOP, capture_loop, proto_null);
+  null_cap_handle = create_capture_dissector_handle(capture_null, proto_null);
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_NULL, null_cap_handle);
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_LOOP, null_cap_handle);
+
+  ppp_hdlc_cap_handle = find_capture_dissector("ppp_hdlc");
 }
 
 /*

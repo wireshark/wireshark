@@ -121,12 +121,15 @@ void
 proto_reg_handoff_ap1394(void)
 {
   dissector_handle_t ap1394_handle;
+  capture_dissector_handle_t ap1394_cap_handle;
 
   ethertype_subdissector_table = find_dissector_table("ethertype");
 
   ap1394_handle = create_dissector_handle(dissect_ap1394, proto_ap1394);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_APPLE_IP_OVER_IEEE1394, ap1394_handle);
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_APPLE_IP_OVER_IEEE1394, capture_ap1394, proto_ap1394);
+
+  ap1394_cap_handle = create_capture_dissector_handle(capture_ap1394, proto_ap1394);
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_APPLE_IP_OVER_IEEE1394, ap1394_cap_handle);
 }
 
 /*

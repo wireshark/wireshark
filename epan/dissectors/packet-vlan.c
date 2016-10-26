@@ -47,6 +47,9 @@ static gboolean vlan_summary_in_tree = TRUE;
 static dissector_handle_t vlan_handle;
 static dissector_handle_t ethertype_handle;
 
+static capture_dissector_handle_t llc_cap_handle;
+static capture_dissector_handle_t ipx_cap_handle;
+
 static header_field_info *hfi_vlan = NULL;
 
 #define VLAN_HFI_INIT HFI_INIT(proto_vlan)
@@ -112,9 +115,9 @@ capture_vlan(const guchar *pd, int offset, int len, capture_packet_info_t *cpinf
   encap_proto = pntoh16( &pd[offset+2] );
   if ( encap_proto <= IEEE_802_3_MAX_LEN) {
     if ( pd[offset+4] == 0xff && pd[offset+5] == 0xff ) {
-      return capture_ipx(pd,offset+4,len, cpinfo, pseudo_header);
+      return call_capture_dissector(ipx_cap_handle, pd,offset+4,len, cpinfo, pseudo_header);
     } else {
-      return capture_llc(pd,offset+4,len, cpinfo, pseudo_header);
+      return call_capture_dissector(llc_cap_handle, pd,offset+4,len, cpinfo, pseudo_header);
     }
   }
 
@@ -273,11 +276,13 @@ proto_reg_handoff_vlan(void)
 {
   static gboolean prefs_initialized = FALSE;
   static unsigned int old_q_in_q_ethertype;
+  capture_dissector_handle_t vlan_cap_handle;
 
   if (!prefs_initialized)
   {
     dissector_add_uint("ethertype", ETHERTYPE_VLAN, vlan_handle);
-    register_capture_dissector("ethertype", ETHERTYPE_VLAN, capture_vlan, hfi_vlan->id);
+    vlan_cap_handle = create_capture_dissector_handle(capture_vlan, hfi_vlan->id);
+    capture_dissector_add_uint("ethertype", ETHERTYPE_VLAN, vlan_cap_handle);
 
     prefs_initialized = TRUE;
   }
@@ -290,6 +295,9 @@ proto_reg_handoff_vlan(void)
   ethertype_handle = find_dissector_add_dependency("ethertype", hfi_vlan->id);
 
   dissector_add_uint("ethertype", q_in_q_ethertype, vlan_handle);
+
+  llc_cap_handle = find_capture_dissector("llc");
+  ipx_cap_handle = find_capture_dissector("ipx");
 }
 
 /*

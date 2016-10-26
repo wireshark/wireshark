@@ -2047,6 +2047,7 @@ proto_reg_handoff_atalk(void)
   dissector_handle_t atp_handle;
   dissector_handle_t zip_ddp_handle;
   dissector_handle_t rtmp_data_handle, llap_handle;
+  capture_dissector_handle_t llap_cap_handle;
 
   ddp_short_handle = create_dissector_handle(dissect_ddp_short, proto_ddp);
   ddp_handle = create_dissector_handle(dissect_ddp, proto_ddp);
@@ -2078,7 +2079,8 @@ proto_reg_handoff_atalk(void)
 
   llap_handle = create_dissector_handle(dissect_llap, proto_llap);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LOCALTALK, llap_handle);
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_LOCALTALK, capture_llap, proto_llap);
+  llap_cap_handle = create_capture_dissector_handle(capture_llap, proto_llap);
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_LOCALTALK, llap_cap_handle);
 
   register_init_routine( atp_init);
   register_cleanup_routine( atp_cleanup);

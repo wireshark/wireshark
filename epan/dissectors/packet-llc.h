@@ -24,11 +24,7 @@
 
 #include "ws_symbol_export.h"
 
-gboolean capture_llc(const guchar *, int, int, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
-
 extern const value_string sap_vals[];
-
-gboolean capture_snap(const guchar *, int, int, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
 
 void dissect_snap(tvbuff_t *, int, packet_info *, proto_tree *,
     proto_tree *, int, int, int, int, int);

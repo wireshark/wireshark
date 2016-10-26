@@ -51,7 +51,6 @@
 #include <epan/xdlc.h>
 #include <epan/ax25_pids.h>
 #include <epan/ipproto.h>
-#include "packet-ax25.h"
 
 #define STRLEN	80
 
@@ -63,6 +62,8 @@ void proto_reg_handoff_ax25(void);
 
 /* Dissector table */
 static dissector_table_t ax25_dissector_table;
+
+static capture_dissector_handle_t ax25_cap_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_ax25		= -1;
@@ -411,6 +412,8 @@ proto_register_ax25(void)
 	/* Register dissector table for protocol IDs */
 	ax25_dissector_table = register_dissector_table("ax25.pid", "AX.25 protocol ID", proto_ax25, FT_UINT8, BASE_HEX);
 	register_capture_dissector_table("ax25.pid", "AX.25");
+
+	ax25_cap_handle = register_capture_dissector("ax25", capture_ax25, proto_ax25);
 }
 
 void
@@ -419,7 +422,7 @@ proto_reg_handoff_ax25(void)
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_AX25, ax25_handle);
 	dissector_add_uint("ip.proto", IP_PROTO_AX25, ax25_handle);
 
-	register_capture_dissector("wtap_encap", WTAP_ENCAP_AX25, capture_ax25, proto_ax25);
+	capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_AX25, ax25_cap_handle);
 }
 
 /*

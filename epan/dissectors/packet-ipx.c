@@ -1584,6 +1584,8 @@ proto_register_ipx(void)
 	ipx_tap=register_tap("ipx");
 
 	register_conversation_table(proto_ipx, TRUE, ipx_conversation_packet, ipx_hostlist_packet);
+
+	register_capture_dissector("ipx", capture_ipx, proto_ipx);
 }
 
 void
@@ -1592,6 +1594,7 @@ proto_reg_handoff_ipx(void)
 	dissector_handle_t ipx_handle, spx_handle;
 	dissector_handle_t ipxsap_handle, ipxrip_handle;
 	dissector_handle_t serialization_handle, ipxmsg_handle;
+	capture_dissector_handle_t ipx_cap_handle;
 
 	ipx_handle = find_dissector("ipx");
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_IPX, ipx_handle);
@@ -1624,11 +1627,12 @@ proto_reg_handoff_ipx(void)
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPX_MESSAGE, ipxmsg_handle);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPX_MESSAGE1, ipxmsg_handle);
 
-	register_capture_dissector("ethertype", ETHERTYPE_IPX, capture_ipx, proto_ipx);
-	register_capture_dissector("ppp_hdlc", PPP_IPX, capture_ipx, proto_ipx);
-	register_capture_dissector("sll.ltype", LINUX_SLL_P_802_3, capture_ipx, proto_ipx);
-	register_capture_dissector("llc.dsap", SAP_NETWARE1, capture_ipx, proto_ipx);
-	register_capture_dissector("llc.dsap", SAP_NETWARE2, capture_ipx, proto_ipx);
+	ipx_cap_handle = find_capture_dissector("ipx");
+	capture_dissector_add_uint("ethertype", ETHERTYPE_IPX, ipx_cap_handle);
+	capture_dissector_add_uint("ppp_hdlc", PPP_IPX, ipx_cap_handle);
+	capture_dissector_add_uint("sll.ltype", LINUX_SLL_P_802_3, ipx_cap_handle);
+	capture_dissector_add_uint("llc.dsap", SAP_NETWARE1, ipx_cap_handle);
+	capture_dissector_add_uint("llc.dsap", SAP_NETWARE2, ipx_cap_handle);
 }
 
 /*

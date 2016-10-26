@@ -22,8 +22,6 @@
 #ifndef __PACKET_ISL_H__
 #define __PACKET_ISL_H__
 
-gboolean capture_isl(const guchar *, int, int, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
-
 void dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int fcs_len);
 

@@ -892,8 +892,6 @@ proto_reg_handoff_shim6(void)
 
     shim6_handle = create_dissector_handle(dissect_shim6, proto_shim6);
     dissector_add_uint("ip.proto", IP_PROTO_SHIM6, shim6_handle);
-
-    register_capture_dissector("ip.proto", IP_PROTO_SHIM6, capture_ipv6_exthdr, proto_shim6);
 }
 
 /*

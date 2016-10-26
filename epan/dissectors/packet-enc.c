@@ -167,11 +167,13 @@ void
 proto_reg_handoff_enc(void)
 {
   dissector_handle_t enc_handle;
+  capture_dissector_handle_t enc_cap_handle;
 
   enc_handle  = create_dissector_handle(dissect_enc, proto_enc);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ENC, enc_handle);
 
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_ENC, capture_enc, proto_enc);
+  enc_cap_handle = create_capture_dissector_handle(capture_enc, proto_enc);
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_ENC, enc_cap_handle);
 }
 
 /*

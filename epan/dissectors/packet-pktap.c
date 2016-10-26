@@ -78,6 +78,7 @@ static gint ett_pktap = -1;
 static expert_field ei_pktap_hdrlen_too_short = EI_INIT;
 
 static dissector_handle_t pktap_handle;
+static capture_dissector_handle_t eth_cap_handle;
 
 /*
  * XXX - these are little-endian in the captures I've seen, but Apple
@@ -110,7 +111,7 @@ capture_pktap(const guchar *pd, int offset _U_, int len, capture_packet_info_t *
 	switch (dlt) {
 
 	case 1: /* DLT_EN10MB */
-		return capture_eth(pd, hdrlen, len, cpinfo, pseudo_header);
+		return call_capture_dissector(eth_cap_handle, pd, hdrlen, len, cpinfo, pseudo_header);
 
 	}
 
@@ -274,6 +275,8 @@ proto_register_pktap(void)
 void
 proto_reg_handoff_pktap(void)
 {
+	capture_dissector_handle_t pktap_cap_handle;
+
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_PKTAP, pktap_handle);
 
 	pcap_pktdata_handle = find_dissector_add_dependency("pcap_pktdata", proto_pktap);
@@ -282,8 +285,11 @@ proto_reg_handoff_pktap(void)
 		uses DLT_USER2 for PKTAP; if you are using DLT_USER2 for your
 		own purposes, feel free to call your own capture_ routine for
 		WTAP_ENCAP_USER2. */
-	register_capture_dissector("wtap_encap", WTAP_ENCAP_PKTAP, capture_pktap, proto_pktap);
-	register_capture_dissector("wtap_encap", WTAP_ENCAP_USER2, capture_pktap, proto_pktap);
+	pktap_cap_handle = create_capture_dissector_handle(capture_pktap, proto_pktap);
+	capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_PKTAP, pktap_cap_handle);
+	capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_USER2, pktap_cap_handle);
+
+	eth_cap_handle = find_capture_dissector("eth");
 }
 
 /*

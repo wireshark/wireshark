@@ -267,10 +267,12 @@ void
 proto_reg_handoff_i2c(void)
 {
 	dissector_handle_t i2c_handle;
+	capture_dissector_handle_t i2c_cap_handle;
 
 	i2c_handle = create_dissector_handle(dissect_i2c, proto_i2c);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_I2C, i2c_handle);
-	register_capture_dissector("wtap_encap", WTAP_ENCAP_I2C, capture_i2c, proto_i2c);
+	i2c_cap_handle = create_capture_dissector_handle(capture_i2c, proto_i2c);
+	capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_I2C, i2c_cap_handle);
 }
 
 /*

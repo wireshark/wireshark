@@ -5047,6 +5047,9 @@ static dissector_handle_t llc_handle;
 static dissector_handle_t ipx_handle;
 static dissector_handle_t eth_withoutfcs_handle;
 
+static capture_dissector_handle_t llc_cap_handle;
+static capture_dissector_handle_t ipx_cap_handle;
+
 static int wlan_tap = -1;
 
 static const value_string access_network_type_vals[] = {
@@ -5615,12 +5618,12 @@ capture_ieee80211_common(const guchar * pd, int offset, int len,
         }
 #endif
         if ((pd[offset+hdr_length] == 0xff) && (pd[offset+hdr_length+1] == 0xff))
-          return capture_ipx (pd, offset+hdr_length, len, cpinfo, pseudo_header);
+          return call_capture_dissector (ipx_cap_handle, pd, offset+hdr_length, len, cpinfo, pseudo_header);
         else if ((pd[offset+hdr_length] == 0x00) && (pd[offset+hdr_length+1] == 0x00))
-          return capture_llc (pd, offset + hdr_length + 2, len, cpinfo, pseudo_header);
+          return call_capture_dissector (llc_cap_handle, pd, offset + hdr_length + 2, len, cpinfo, pseudo_header);
       }
       else {
-        return capture_llc (pd, offset + hdr_length, len, cpinfo, pseudo_header);
+        return call_capture_dissector (llc_cap_handle, pd, offset + hdr_length, len, cpinfo, pseudo_header);
       }
       break;
     }
@@ -27155,6 +27158,9 @@ proto_register_ieee80211(void)
   register_dissector("wlan_bsfc",               dissect_ieee80211_bsfc,               proto_wlan);
   register_dissector("wlan_noqos",              dissect_ieee80211_noqos,              proto_wlan);
 
+  register_capture_dissector("ieee80211", capture_ieee80211, proto_wlan);
+  register_capture_dissector("ieee80211_datapad", capture_ieee80211_datapad, proto_wlan);
+
   register_init_routine(wlan_defragment_init);
   register_cleanup_routine(wlan_defragment_cleanup);
   register_init_routine(wlan_retransmit_init);
@@ -27365,6 +27371,7 @@ proto_reg_handoff_ieee80211(void)
 {
   dissector_handle_t data_encap_handle, centrino_handle;
   dissector_handle_t wlan_rsna_eapol_wpa_key_handle, wlan_rsna_eapol_rsn_key_handle, wlan_withoutfcs_handle;
+  capture_dissector_handle_t ieee80211_cap_handle;
 
   /*
    * Get handles for the LLC, IPX and Ethernet  dissectors.
@@ -27373,15 +27380,19 @@ proto_reg_handoff_ieee80211(void)
   ipx_handle            = find_dissector_add_dependency("ipx", proto_wlan);
   eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_wlan);
 
+  llc_cap_handle = find_capture_dissector("llc");
+  ipx_cap_handle = find_capture_dissector("ipx");
+
   ieee80211_handle = find_dissector("wlan");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11, ieee80211_handle);
 
   centrino_handle = create_dissector_handle( dissect_ieee80211_centrino, proto_centrino );
   dissector_add_uint("ethertype", ETHERTYPE_CENTRINO_PROMISC, centrino_handle);
 
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_IEEE_802_11, capture_ieee80211, proto_wlan);
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_IEEE_802_11_WITH_RADIO, capture_ieee80211, proto_wlan);
-  register_capture_dissector("ppi", 105 /* DLT_DLT_IEEE802_11 */, capture_ieee80211, proto_wlan);
+  ieee80211_cap_handle = find_capture_dissector("ieee80211");
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11, ieee80211_cap_handle);
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_WITH_RADIO, ieee80211_cap_handle);
+  capture_dissector_add_uint("ppi", 105 /* DLT_DLT_IEEE802_11 */, ieee80211_cap_handle);
 
   /* Register handoff to Aruba GRE */
   dissector_add_uint("gre.proto", GRE_ARUBA_8200, ieee80211_handle);

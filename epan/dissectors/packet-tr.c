@@ -129,6 +129,8 @@ static const value_string direction_vals[] = {
 static dissector_handle_t trmac_handle;
 static dissector_handle_t llc_handle;
 
+static capture_dissector_handle_t llc_cap_handle;
+
 static const char* tr_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
 {
 	if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_ETHER))
@@ -359,7 +361,7 @@ capture_tr(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo,
 	/* The package is either MAC (0) or LLC (1)*/
 	switch (frame_type) {
 		case 1:
-			return capture_llc(pd, offset, len, cpinfo, pseudo_header);
+			return call_capture_dissector(llc_cap_handle, pd, offset, len, cpinfo, pseudo_header);
 	}
 
 	return FALSE;
@@ -794,12 +796,15 @@ proto_register_tr(void)
 	tr_tap=register_tap("tr");
 
 	register_conversation_table(proto_tr, TRUE, tr_conversation_packet, tr_hostlist_packet);
+
+	register_capture_dissector("tr", capture_tr, proto_tr);
 }
 
 void
 proto_reg_handoff_tr(void)
 {
 	dissector_handle_t tr_handle;
+	capture_dissector_handle_t tr_cap_handle;
 
 	/*
 	 * Get handles for the TR MAC and LLC dissectors.
@@ -811,9 +816,12 @@ proto_reg_handoff_tr(void)
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_TOKEN_RING, tr_handle);
 	dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_TOKENRING, tr_handle);
 
-	register_capture_dissector("wtap_encap", WTAP_ENCAP_TOKEN_RING, capture_tr, proto_tr);
-	register_capture_dissector("atm_lane", TRAF_ST_LANE_802_5, capture_tr, proto_tr);
-	register_capture_dissector("atm_lane", TRAF_ST_LANE_802_5_MC, capture_tr, proto_tr);
+	tr_cap_handle = find_capture_dissector("tr");
+	capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_TOKEN_RING, tr_cap_handle);
+	capture_dissector_add_uint("atm_lane", TRAF_ST_LANE_802_5, tr_cap_handle);
+	capture_dissector_add_uint("atm_lane", TRAF_ST_LANE_802_5_MC, tr_cap_handle);
+
+	llc_cap_handle = find_capture_dissector("llc");
 }
 
 /*

@@ -26,7 +26,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/capture_dissectors.h>
 #include <epan/expert.h>
 #include <wiretap/wtap.h>
 
@@ -118,8 +117,6 @@ proto_reg_handoff_clip(void)
   clip_handle = create_dissector_handle(dissect_clip, proto_clip);
       /* XXX - no protocol, can't be disabled */
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LINUX_ATM_CLIP, clip_handle);
-
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_LINUX_ATM_CLIP, capture_ip, proto_clip);
 }
 
 /*

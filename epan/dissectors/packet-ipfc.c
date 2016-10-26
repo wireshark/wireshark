@@ -44,6 +44,7 @@ static int hf_ipfc_network_sa = -1;
 /* Initialize the subtree pointers */
 static gint ett_ipfc = -1;
 static dissector_handle_t llc_handle;
+static capture_dissector_handle_t llc_cap_handle;
 
 static gboolean
 capture_ipfc (const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
@@ -51,7 +52,7 @@ capture_ipfc (const guchar *pd, int offset _U_, int len, capture_packet_info_t *
   if (!BYTES_ARE_IN_FRAME(0, len, 16))
     return FALSE;
 
-  return capture_llc(pd, 16, len, cpinfo, pseudo_header);
+  return call_capture_dissector(llc_cap_handle, pd, 16, len, cpinfo, pseudo_header);
 }
 
 static int
@@ -122,13 +123,17 @@ void
 proto_reg_handoff_ipfc (void)
 {
     dissector_handle_t ipfc_handle;
+    capture_dissector_handle_t ipfc_cap_handle;
 
     ipfc_handle = create_dissector_handle (dissect_ipfc, proto_ipfc);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_IP_OVER_FC, ipfc_handle);
 
     llc_handle = find_dissector_add_dependency("llc", proto_ipfc);
 
-    register_capture_dissector("wtap_encap", WTAP_ENCAP_IP_OVER_FC, capture_ipfc, proto_ipfc);
+    ipfc_cap_handle = create_capture_dissector_handle(capture_ipfc, proto_ipfc);
+    capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_IP_OVER_FC, ipfc_cap_handle);
+
+    llc_cap_handle = find_capture_dissector("llc");
 }
 
 /*

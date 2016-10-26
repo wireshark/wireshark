@@ -359,6 +359,8 @@ proto_register_sll(void)
 void
 proto_reg_handoff_sll(void)
 {
+	capture_dissector_handle_t sll_cap_handle;
+
 	/*
 	 * Get handles for the IPX and LLC dissectors.
 	 */
@@ -367,7 +369,8 @@ proto_reg_handoff_sll(void)
 	netlink_handle = find_dissector_add_dependency("netlink", proto_sll);
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_SLL, sll_handle);
-	register_capture_dissector("wtap_encap", WTAP_ENCAP_SLL, capture_sll, hfi_sll->id);
+	sll_cap_handle = create_capture_dissector_handle(capture_sll, proto_sll);
+	capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_SLL, sll_cap_handle);
 }
 
 /*

@@ -51,8 +51,6 @@ typedef struct _ws_ip
 #define IPDSFIELD_ECN_MASK      0x03
 #define IPDSFIELD_ECN(dsfield)  ((dsfield) & IPDSFIELD_ECN_MASK)
 
-gboolean capture_ip(const guchar *, int, int, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
-
 gboolean ip_try_dissect(gboolean heur_first, guint nxt, tvbuff_t *tvb,
                         packet_info *pinfo, proto_tree *tree, ws_ip *iph);
 

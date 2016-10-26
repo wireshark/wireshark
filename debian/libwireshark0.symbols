@@ -94,6 +94,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  bytes_to_str@Base 1.99.2
  bytestring_to_str@Base 1.9.1
  call_ber_oid_callback@Base 1.9.1
+ call_capture_dissector@Base 2.3.0
  call_data_dissector@Base 2.1.0
  call_dissector@Base 1.9.1
  call_dissector_only@Base 1.9.1
@@ -102,6 +103,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  call_per_oid_callback@Base 1.99.1
  camelSRTtype_naming@Base 1.9.1
  camel_opr_code_strings@Base 1.9.1
+ capture_dissector_add_uint@Base 2.3.0
  capture_dissector_get_count@Base 2.1.0
  capture_dissector_increment_count@Base 2.1.0
  check_xdlc_control@Base 1.9.1
@@ -194,6 +196,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  crc32_mpeg2_tvb_seed@Base 1.9.1
  crc32c_tvb_offset_calculate@Base 1.99.0
  crc6_compute_tvb@Base 1.99.0
+ create_capture_dissector_handle@Base 2.3.0
  create_dissector_handle@Base 2.1.0
  create_dissector_handle_with_name@Base 2.1.0
  dcerpc_get_proto_hf_opnum@Base 2.1.0
@@ -563,6 +566,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  filter_expression_new@Base 1.9.1
  filter_expression_free@Base 1.99.3
  find_and_mark_frame_depended_upon@Base 1.12.0~rc1
+ find_capture_dissector@Base 2.3.0
  find_circuit@Base 1.9.1
  find_conversation@Base 1.9.1
  find_conversation_filter@Base 2.0.0

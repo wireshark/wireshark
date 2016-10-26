@@ -43,6 +43,10 @@ static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t ppp_hdlc_handle;
 
+static capture_dissector_handle_t ip_cap_handle;
+static capture_dissector_handle_t ipv6_cap_handle;
+static capture_dissector_handle_t ppp_hdlc_cap_handle;
+
 static gboolean
 capture_raw(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
@@ -55,21 +59,21 @@ capture_raw(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cp
    * sometimes.  This check should be removed when 2.2 is out.
    */
   if (BYTES_ARE_IN_FRAME(0,len,2) && pd[0] == 0xff && pd[1] == 0x03) {
-    return capture_ppp_hdlc(pd, 0, len, cpinfo, pseudo_header);
+    return call_capture_dissector(ppp_hdlc_cap_handle, pd, 0, len, cpinfo, pseudo_header);
   }
   /* The Linux ISDN driver sends a fake MAC address before the PPP header
    * on its ippp interfaces... */
   else if (BYTES_ARE_IN_FRAME(0,len,8) && pd[6] == 0xff && pd[7] == 0x03) {
-    return capture_ppp_hdlc(pd, 6, len, cpinfo, pseudo_header);
+    return call_capture_dissector(ppp_hdlc_cap_handle, pd, 6, len, cpinfo, pseudo_header);
   }
   /* ...except when it just puts out one byte before the PPP header... */
   else if (BYTES_ARE_IN_FRAME(0,len,3) && pd[1] == 0xff && pd[2] == 0x03) {
-    return capture_ppp_hdlc(pd, 1, len, cpinfo, pseudo_header);
+    return call_capture_dissector(ppp_hdlc_cap_handle, pd, 1, len, cpinfo, pseudo_header);
   }
   /* ...and if the connection is currently down, it sends 10 bytes of zeroes
    * instead of a fake MAC address and PPP header. */
   else if (BYTES_ARE_IN_FRAME(0,len,10) && memcmp(pd, zeroes, 10) == 0) {
-    return capture_ip(pd, 10, len, cpinfo, pseudo_header);
+    return call_capture_dissector(ip_cap_handle, pd, 10, len, cpinfo, pseudo_header);
   }
   else {
     /*
@@ -80,12 +84,12 @@ capture_raw(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cp
 
       case 0x40:
         /* IPv4 */
-        return capture_ip(pd, 0, len, cpinfo, pseudo_header);
+        return call_capture_dissector(ip_cap_handle, pd, 0, len, cpinfo, pseudo_header);
 
 #if 0
       case 0x60:
         /* IPv6 */
-        return capture_ipv6(pd, 0, len, cpinfo, pseudo_header);
+        return call_capture_dissector(ipv6_cap_handle, pd, 0, len, cpinfo, pseudo_header);
 #endif
       }
     }
@@ -179,6 +183,8 @@ proto_register_raw(void)
 void
 proto_reg_handoff_raw(void)
 {
+  capture_dissector_handle_t raw_cap_handle;
+
   /*
    * Get handles for the IP, IPv6, undissected-data, and
    * PPP-in-HDLC-like-framing dissectors.
@@ -187,7 +193,12 @@ proto_reg_handoff_raw(void)
   ipv6_handle = find_dissector_add_dependency("ipv6", proto_raw);
   ppp_hdlc_handle = find_dissector_add_dependency("ppp_hdlc", proto_raw);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP, raw_handle);
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_RAW_IP, capture_raw, proto_raw);
+  raw_cap_handle = create_capture_dissector_handle(capture_raw, proto_raw);
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP, raw_cap_handle);
+
+  ip_cap_handle = find_capture_dissector("ip");
+  ipv6_cap_handle = find_capture_dissector("ipv6");
+  ppp_hdlc_cap_handle = find_capture_dissector("ppp_hdlc");
 }
 
 /*

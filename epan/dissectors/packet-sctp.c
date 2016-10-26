@@ -5117,12 +5117,14 @@ void
 proto_reg_handoff_sctp(void)
 {
   dissector_handle_t sctp_handle;
+  capture_dissector_handle_t sctp_cap_handle;
 
   sctp_handle = find_dissector("sctp");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_SCTP, sctp_handle);
   dissector_add_uint("ip.proto", IP_PROTO_SCTP, sctp_handle);
   dissector_add_uint_with_preference("udp.port", UDP_TUNNELING_PORT, sctp_handle);
-  register_capture_dissector("ip.proto", IP_PROTO_SCTP, capture_sctp, proto_sctp);
+  sctp_cap_handle = create_capture_dissector_handle(capture_sctp, proto_sctp);
+  capture_dissector_add_uint("ip.proto", IP_PROTO_SCTP, sctp_cap_handle);
 }
 
 /*

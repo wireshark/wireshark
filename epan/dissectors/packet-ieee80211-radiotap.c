@@ -221,6 +221,9 @@ static expert_field ei_radiotap_present = EI_INIT;
 
 static dissector_handle_t ieee80211_radio_handle;
 
+static capture_dissector_handle_t ieee80211_cap_handle;
+static capture_dissector_handle_t ieee80211_datapad_cap_handle;
+
 static int radiotap_tap = -1;
 
 /* Settings */
@@ -628,9 +631,9 @@ capture_radiotap(const guchar * pd, int offset, int len, capture_packet_info_t *
 
 	/* 802.11 header follows */
 	if (rflags & IEEE80211_RADIOTAP_F_DATAPAD)
-		return capture_ieee80211_datapad(pd, offset + it_len, len, cpinfo, pseudo_header);
+		return call_capture_dissector(ieee80211_datapad_cap_handle, pd, offset + it_len, len, cpinfo, pseudo_header);
 
-	return capture_ieee80211(pd, offset + it_len, len, cpinfo, pseudo_header);
+	return call_capture_dissector(ieee80211_cap_handle, pd, offset + it_len, len, cpinfo, pseudo_header);
 }
 
 static int
@@ -2776,6 +2779,7 @@ void proto_register_radiotap(void)
 void proto_reg_handoff_radiotap(void)
 {
 	dissector_handle_t radiotap_handle;
+	capture_dissector_handle_t radiotap_cap_handle;
 
 	/* handle for 802.11+radio information dissector */
 	ieee80211_radio_handle = find_dissector_add_dependency("wlan_radio", proto_radiotap);
@@ -2785,7 +2789,11 @@ void proto_reg_handoff_radiotap(void)
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_RADIOTAP,
 			   radiotap_handle);
 
-	register_capture_dissector("wtap_encap", WTAP_ENCAP_IEEE_802_11_RADIOTAP, capture_radiotap, proto_radiotap);
+	radiotap_cap_handle = create_capture_dissector_handle(capture_radiotap, proto_radiotap);
+	capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_RADIOTAP, radiotap_cap_handle);
+
+	ieee80211_cap_handle = find_capture_dissector("ieee80211");
+	ieee80211_datapad_cap_handle = find_capture_dissector("ieee80211_datapad");
 }
 
 /*

@@ -92,6 +92,9 @@ static expert_field ei_eth_len = EI_INIT;
 
 static dissector_handle_t fw1_handle;
 static dissector_handle_t ethertype_handle;
+static capture_dissector_handle_t isl_cap_handle;
+static capture_dissector_handle_t ipx_cap_handle;
+static capture_dissector_handle_t llc_cap_handle;
 static heur_dissector_list_t heur_subdissector_list;
 static heur_dissector_list_t eth_trailer_subdissector_list;
 
@@ -209,7 +212,7 @@ capture_eth(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo
     if ((pd[offset] == 0x01 || pd[offset] == 0x0C) && pd[offset+1] == 0x00
         && pd[offset+2] == 0x0C && pd[offset+3] == 0x00
         && pd[offset+4] == 0x00) {
-      return capture_isl(pd, offset, len, cpinfo, pseudo_header);
+      return call_capture_dissector(isl_cap_handle, pd, offset, len, cpinfo, pseudo_header);
     }
   }
 
@@ -266,9 +269,9 @@ capture_eth(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo
 
   switch (ethhdr_type) {
     case ETHERNET_802_3:
-      return capture_ipx(pd, offset, len, cpinfo, pseudo_header);
+      return call_capture_dissector(ipx_cap_handle, pd, offset, len, cpinfo, pseudo_header);
     case ETHERNET_802_2:
-      return capture_llc(pd, offset, len, cpinfo, pseudo_header);
+      return call_capture_dissector(llc_cap_handle, pd, offset, len, cpinfo, pseudo_header);
     case ETHERNET_II:
       return try_capture_dissector("ethertype", etype, pd, offset, len, cpinfo, pseudo_header);
   }
@@ -995,12 +998,15 @@ proto_register_eth(void)
 
   register_conversation_table(proto_eth, TRUE, eth_conversation_packet, eth_hostlist_packet);
   register_conversation_filter("eth", "Ethernet", eth_filter_valid, eth_build_filter);
+
+  register_capture_dissector("eth", capture_eth, proto_eth);
 }
 
 void
 proto_reg_handoff_eth(void)
 {
   dissector_handle_t eth_handle, eth_withoutfcs_handle, eth_maybefcs_handle;
+  capture_dissector_handle_t eth_cap_handle;
 
   /* Get a handle for the Firewall-1 dissector. */
   fw1_handle = find_dissector_add_dependency("fw1", proto_eth);
@@ -1038,11 +1044,16 @@ proto_reg_handoff_eth(void)
 
   dissector_add_for_decode_as("pcli.payload", eth_withoutfcs_handle);
 
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_ETHERNET, capture_eth, proto_eth);
-  register_capture_dissector("atm_lane", TRAF_ST_LANE_802_3, capture_eth, proto_eth);
-  register_capture_dissector("atm_lane", TRAF_ST_LANE_802_3_MC, capture_eth, proto_eth);
-  register_capture_dissector("ppi", 1 /* DLT_EN10MB */, capture_eth, proto_eth);
-  register_capture_dissector("sll.ltype", LINUX_SLL_P_ETHERNET, capture_eth, proto_eth);
+  eth_cap_handle = find_capture_dissector("eth");
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_ETHERNET, eth_cap_handle);
+  capture_dissector_add_uint("atm_lane", TRAF_ST_LANE_802_3, eth_cap_handle);
+  capture_dissector_add_uint("atm_lane", TRAF_ST_LANE_802_3_MC, eth_cap_handle);
+  capture_dissector_add_uint("ppi", 1 /* DLT_EN10MB */, eth_cap_handle);
+  capture_dissector_add_uint("sll.ltype", LINUX_SLL_P_ETHERNET, eth_cap_handle);
+
+  isl_cap_handle = find_capture_dissector("isl");
+  ipx_cap_handle = find_capture_dissector("ipx");
+  llc_cap_handle = find_capture_dissector("llc");
 }
 
 /*

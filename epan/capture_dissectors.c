@@ -36,7 +36,7 @@ struct capture_dissector_table {
 
 struct capture_dissector_handle
 {
-    guint32 pattern;
+    const char *name;
     capture_dissector_t dissector;
     protocol_t* protocol;
 };
@@ -45,6 +45,8 @@ typedef struct capture_dissector_count
 {
     guint32 count;
 } capture_dissector_count_t;
+
+static GHashTable *registered_dissectors = NULL;
 
 static GHashTable *capture_dissector_tables = NULL;
 
@@ -59,12 +61,14 @@ destroy_capture_dissector_table(void *data)
 
 void capture_dissector_init(void)
 {
+    registered_dissectors = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
     capture_dissector_tables = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, destroy_capture_dissector_table);
 }
 
 void capture_dissector_cleanup(void)
 {
     g_hash_table_destroy(capture_dissector_tables);
+    g_hash_table_destroy(registered_dissectors);
 }
 
 void register_capture_dissector_table(const char *name, const char *ui_name)
@@ -84,10 +88,47 @@ void register_capture_dissector_table(const char *name, const char *ui_name)
 
 }
 
-void register_capture_dissector(const char* name, const guint32 pattern, capture_dissector_t dissector, const int proto)
+static capture_dissector_handle_t
+new_capture_dissector_handle(capture_dissector_t dissector, int proto, const char *name)
+{
+    struct capture_dissector_handle* handle;
+
+    handle                = wmem_new(wmem_epan_scope(), struct capture_dissector_handle);
+    handle->name          = name;
+    handle->dissector     = dissector;
+    handle->protocol      = find_protocol_by_id(proto);
+    return handle;
+}
+
+capture_dissector_handle_t
+create_capture_dissector_handle(capture_dissector_t dissector, const int proto)
+{
+    return new_capture_dissector_handle(dissector, proto, NULL);
+}
+
+capture_dissector_handle_t find_capture_dissector(const char *name)
+{
+    return (capture_dissector_handle_t)g_hash_table_lookup(registered_dissectors, name);
+}
+
+capture_dissector_handle_t register_capture_dissector(const char *name, capture_dissector_t dissector, int proto)
+{
+    capture_dissector_handle_t handle;
+
+    /* Make sure the registration is unique */
+    g_assert(g_hash_table_lookup(registered_dissectors, name) == NULL);
+
+    handle = new_capture_dissector_handle(dissector, proto, name);
+    g_hash_table_insert(registered_dissectors, (gpointer)name, handle);
+    return handle;
+}
+
+void capture_dissector_add_uint(const char *name, const guint32 pattern, capture_dissector_handle_t handle)
 {
     struct capture_dissector_table*	sub_dissectors;
-    struct capture_dissector_handle *handle;
+
+    if (handle == NULL)
+        return;
 
     /* Make sure table exists */
     sub_dissectors = (struct capture_dissector_table*)g_hash_table_lookup( capture_dissector_tables, name );
@@ -102,18 +143,13 @@ void register_capture_dissector(const char* name, const guint32 pattern, capture
     /* Make sure the registration is unique */
     g_assert(g_hash_table_lookup(sub_dissectors->hash_table, GUINT_TO_POINTER(pattern)) == NULL);
 
-    handle                = wmem_new(wmem_epan_scope(), struct capture_dissector_handle);
-    handle->pattern       = pattern;
-    handle->dissector     = dissector;
-    handle->protocol      = find_protocol_by_id(proto);
-
     g_hash_table_insert(sub_dissectors->hash_table, GUINT_TO_POINTER(pattern), (gpointer) handle);
 }
 
 gboolean try_capture_dissector(const char* name, const guint32 pattern, const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
     struct capture_dissector_table*	sub_dissectors;
-    struct capture_dissector_handle* handle;
+    capture_dissector_handle_t handle;
 
     sub_dissectors = (struct capture_dissector_table*)g_hash_table_lookup( capture_dissector_tables, name );
     if (sub_dissectors == NULL)
@@ -122,10 +158,17 @@ gboolean try_capture_dissector(const char* name, const guint32 pattern, const gu
         return FALSE;
     }
 
-    handle = (struct capture_dissector_handle *)g_hash_table_lookup(sub_dissectors->hash_table, GUINT_TO_POINTER(pattern));
+    handle = (capture_dissector_handle_t)g_hash_table_lookup(sub_dissectors->hash_table, GUINT_TO_POINTER(pattern));
     if (handle == NULL)
         return FALSE;
 
+    return handle->dissector(pd, offset, len, cpinfo, pseudo_header);
+}
+
+gboolean call_capture_dissector(capture_dissector_handle_t handle, const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
+{
+    if (handle == NULL)
+        return FALSE;
     return handle->dissector(pd, offset, len, cpinfo, pseudo_header);
 }
 

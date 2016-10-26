@@ -5982,8 +5982,11 @@ proto_register_icmpv6(void)
 void
 proto_reg_handoff_icmpv6(void)
 {
+    capture_dissector_handle_t icmpv6_cap_handle;
+
     dissector_add_uint("ip.proto", IP_PROTO_ICMPV6, icmpv6_handle);
-    register_capture_dissector("ip.proto", IP_PROTO_ICMPV6, capture_icmpv6, proto_icmpv6);
+    icmpv6_cap_handle = create_capture_dissector_handle(capture_icmpv6, proto_icmpv6);
+    capture_dissector_add_uint("ip.proto", IP_PROTO_ICMPV6, icmpv6_cap_handle);
 
     /*
      * Get a handle for the IPv6 dissector.

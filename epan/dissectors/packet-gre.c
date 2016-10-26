@@ -754,10 +754,12 @@ void
 proto_reg_handoff_gre(void)
 {
     dissector_handle_t gre_handle;
+    capture_dissector_handle_t gre_cap_handle;
 
     gre_handle = create_dissector_handle(dissect_gre, proto_gre);
     dissector_add_uint("ip.proto", IP_PROTO_GRE, gre_handle);
-    register_capture_dissector("ip.proto", IP_PROTO_GRE, capture_gre, proto_gre);
+    gre_cap_handle = create_capture_dissector_handle(capture_gre, proto_gre);
+    capture_dissector_add_uint("ip.proto", IP_PROTO_GRE, gre_cap_handle);
 }
 
 /*

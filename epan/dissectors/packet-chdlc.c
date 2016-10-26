@@ -88,6 +88,8 @@ static gint ett_slarp = -1;
 
 static dissector_table_t subdissector_table;
 
+static capture_dissector_handle_t ip_cap_handle;
+
 static const value_string chdlc_address_vals[] = {
   {CHDLC_ADDR_UNICAST,   "Unicast"},
   {CHDLC_ADDR_MULTICAST, "Multicast"},
@@ -118,7 +120,7 @@ capture_chdlc( const guchar *pd, int offset, int len, capture_packet_info_t *cpi
 
   switch (pntoh16(&pd[offset + 2])) {
     case ETHERTYPE_IP:
-      return capture_ip(pd, offset + 4, len, cpinfo, pseudo_header);
+      return call_capture_dissector(ip_cap_handle, pd, offset + 4, len, cpinfo, pseudo_header);
   }
 
   return FALSE;
@@ -245,12 +247,15 @@ proto_register_chdlc(void)
         &chdlc_fcs_decode,
         fcs_options, ENC_BIG_ENDIAN);
 
+  register_capture_dissector("chdlc", capture_chdlc, proto_chdlc);
+
 }
 
 void
 proto_reg_handoff_chdlc(void)
 {
   dissector_handle_t chdlc_handle;
+  capture_dissector_handle_t chdlc_cap_handle;
 
   chdlc_handle = find_dissector("chdlc");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_CHDLC, chdlc_handle);
@@ -258,7 +263,10 @@ proto_reg_handoff_chdlc(void)
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_CHDLC, chdlc_handle);
   dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_CHDLC, chdlc_handle);
 
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_CHDLC, capture_chdlc, proto_chdlc);
+  chdlc_cap_handle = find_capture_dissector("chdlc");
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_CHDLC, chdlc_cap_handle);
+
+  ip_cap_handle = find_capture_dissector("ip");
 }
 
 

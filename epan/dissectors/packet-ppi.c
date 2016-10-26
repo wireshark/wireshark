@@ -1499,6 +1499,8 @@ proto_register_ppi(void)
 void
 proto_reg_handoff_ppi(void)
 {
+    capture_dissector_handle_t ppi_cap_handle;
+
     ieee80211_radio_handle = find_dissector_add_dependency("wlan_radio", proto_ppi);
     pcap_pktdata_handle = find_dissector_add_dependency("pcap_pktdata", proto_ppi);
     ppi_gps_handle = find_dissector_add_dependency("ppi_gps", proto_ppi);
@@ -1508,7 +1510,8 @@ proto_reg_handoff_ppi(void)
     ppi_fnet_handle = find_dissector_add_dependency("ppi_fnet", proto_ppi);
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_PPI, ppi_handle);
-    register_capture_dissector("wtap_encap", WTAP_ENCAP_PPI, capture_ppi, proto_ppi);
+    ppi_cap_handle = create_capture_dissector_handle(capture_ppi, proto_ppi);
+    capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_PPI, ppi_cap_handle);
 }
 
 /*

@@ -39,6 +39,9 @@ static dissector_handle_t wlancap_handle;
 static dissector_handle_t ieee80211_handle;
 static dissector_handle_t ieee80211_radio_handle;
 
+static capture_dissector_handle_t ieee80211_cap_handle;
+static capture_dissector_handle_t wlancap_cap_handle;
+
 static int proto_prism = -1;
 
 /* Prism radio header */
@@ -251,7 +254,7 @@ capture_prism(const guchar *pd, int offset, int len, capture_packet_info_t *cpin
   cookie = pntoh32(pd);
   if ((cookie == WLANCAP_MAGIC_COOKIE_V1) ||
       (cookie == WLANCAP_MAGIC_COOKIE_V2)) {
-    return capture_wlancap(pd, offset, len, cpinfo, pseudo_header);
+    return call_capture_dissector(wlancap_cap_handle, pd, offset, len, cpinfo, pseudo_header);
   }
 
   /* Prism header */
@@ -261,7 +264,7 @@ capture_prism(const guchar *pd, int offset, int len, capture_packet_info_t *cpin
   offset += PRISM_HEADER_LENGTH;
 
   /* 802.11 header follows */
-  return capture_ieee80211(pd, offset, len, cpinfo, pseudo_header);
+  return call_capture_dissector(ieee80211_cap_handle, pd, offset, len, cpinfo, pseudo_header);
 }
 
 static int
@@ -561,12 +564,18 @@ void proto_register_ieee80211_prism(void)
 
 void proto_reg_handoff_ieee80211_prism(void)
 {
+  capture_dissector_handle_t ieee80211_prism_cap_handle;
+
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_PRISM, prism_handle);
   ieee80211_handle = find_dissector_add_dependency("wlan", proto_prism);
   ieee80211_radio_handle = find_dissector_add_dependency("wlan_radio", proto_prism);
   wlancap_handle = find_dissector_add_dependency("wlancap", proto_prism);
 
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_IEEE_802_11_PRISM, capture_prism, proto_prism);
+  ieee80211_prism_cap_handle = create_capture_dissector_handle(capture_prism, proto_prism);
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_PRISM, ieee80211_prism_cap_handle);
+
+  ieee80211_cap_handle = find_capture_dissector("ieee80211");
+  wlancap_cap_handle = find_capture_dissector("wlancap");
 }
 
 /*

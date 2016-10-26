@@ -79,6 +79,7 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 #include <epan/exported_pdu.h>
 #include <epan/proto_data.h>
 #include <epan/decode_as.h>
+#include <epan/capture_dissectors.h>
 
 /* If you want to be able to decrypt or Check Authentication of ESP packets you MUST define this : */
 #ifdef HAVE_LIBGCRYPT
@@ -2484,6 +2485,7 @@ void
 proto_reg_handoff_ipsec(void)
 {
   dissector_handle_t esp_handle, ah_handle, ipcomp_handle;
+  capture_dissector_handle_t ah_cap_handle;
 
   data_handle = find_dissector("data");
   ah_handle = find_dissector("ah");
@@ -2494,7 +2496,9 @@ proto_reg_handoff_ipsec(void)
   dissector_add_uint("ip.proto", IP_PROTO_IPCOMP, ipcomp_handle);
 
   ip_dissector_table = find_dissector_table("ip.proto");
-  register_capture_dissector("ip.proto", IP_PROTO_AH, capture_ah, proto_ah);
+
+  ah_cap_handle = create_capture_dissector_handle(capture_ah, proto_ah);
+  capture_dissector_add_uint("ip.proto", IP_PROTO_AH, ah_cap_handle);
 
   exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_3);
 }

@@ -615,8 +615,11 @@ proto_register_netrom(void)
 void
 proto_reg_handoff_netrom(void)
 {
+	capture_dissector_handle_t netrom_cap_handle;
+
 	dissector_add_uint( "ax25.pid", AX25_P_NETROM, create_dissector_handle( dissect_netrom, proto_netrom ) );
-	register_capture_dissector("ax25.pid", AX25_P_NETROM, capture_netrom, proto_netrom);
+	netrom_cap_handle = create_capture_dissector_handle(capture_netrom, proto_netrom);
+	capture_dissector_add_uint("ax25.pid", AX25_P_NETROM, netrom_cap_handle);
 
 	ip_handle   = find_dissector_add_dependency( "ip", proto_netrom );
 }

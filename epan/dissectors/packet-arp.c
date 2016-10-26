@@ -105,6 +105,8 @@ static dissector_handle_t arp_handle;
 static dissector_handle_t atmarp_handle;
 static dissector_handle_t ax25arp_handle;
 
+static capture_dissector_handle_t arp_cap_handle;
+
 /* Used for determining if frequency of ARP requests constitute a storm */
 #define STORM    1
 #define NO_STORM 2
@@ -2023,6 +2025,8 @@ proto_register_arp(void)
 
   register_init_routine(&arp_init_protocol);
   register_cleanup_routine(&arp_cleanup_protocol);
+
+  arp_cap_handle = register_capture_dissector("arp", capture_arp, proto_arp);
 }
 
 void
@@ -2035,8 +2039,8 @@ proto_reg_handoff_arp(void)
   dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_RARP_1201, arp_handle);
   dissector_add_uint("ax25.pid", AX25_P_ARP, arp_handle);
   dissector_add_uint("gre.proto", ETHERTYPE_ARP, arp_handle);
-  register_capture_dissector("ethertype", ETHERTYPE_ARP, capture_arp, proto_arp);
-  register_capture_dissector("ax25.pid", AX25_P_ARP, capture_arp, proto_arp);
+  capture_dissector_add_uint("ethertype", ETHERTYPE_ARP, arp_cap_handle);
+  capture_dissector_add_uint("ax25.pid", AX25_P_ARP, arp_cap_handle);
 }
 
 /*

@@ -39,8 +39,6 @@
 #include <epan/etypes.h>
 #include <epan/capture_dissectors.h>
 
-#include "packet-ax25.h"
-
 #define STRLEN	80
 
 #define BPQ_HEADER_SIZE	2 /* length of bpq_len */
@@ -50,6 +48,8 @@ void proto_reg_handoff_bpq(void);
 
 static dissector_handle_t bpq_handle;
 static dissector_handle_t ax25_handle;
+
+static capture_dissector_handle_t ax25_cap_handle;
 
 static int proto_bpq            = -1;
 static int hf_bpq_len		= -1;
@@ -112,7 +112,7 @@ capture_bpq( const guchar *pd, int offset, int len, capture_packet_info_t *cpinf
 
 	l_offset = offset;
 	l_offset += BPQ_HEADER_SIZE; /* step over bpq header to point at the AX.25 packet*/
-	return capture_ax25( pd, l_offset, len, cpinfo, pseudo_header );
+	return call_capture_dissector( ax25_cap_handle, pd, l_offset, len, cpinfo, pseudo_header );
 }
 
 void
@@ -146,12 +146,16 @@ proto_register_bpq(void)
 void
 proto_reg_handoff_bpq(void)
 {
+	capture_dissector_handle_t bpq_cap_handle;
+
 	dissector_add_uint("ethertype", ETHERTYPE_BPQ, bpq_handle);
-	register_capture_dissector("ethertype", ETHERTYPE_BPQ, capture_bpq, proto_bpq);
+	bpq_cap_handle = create_capture_dissector_handle(capture_bpq, proto_bpq);
+	capture_dissector_add_uint("ethertype", ETHERTYPE_BPQ, bpq_cap_handle);
 
 	/* BPQ is only implemented for AX.25 */
 	ax25_handle     = find_dissector_add_dependency( "ax25", proto_bpq );
 
+	ax25_cap_handle = find_capture_dissector( "ax25" );
 }
 
 /*

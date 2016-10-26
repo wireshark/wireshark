@@ -2026,6 +2026,7 @@ void proto_register_icmp(void)
 void proto_reg_handoff_icmp(void)
 {
 	dissector_handle_t icmp_handle;
+	capture_dissector_handle_t icmp_cap_handle;
 
 	/*
 	 * Get handle for the IP dissector.
@@ -2034,7 +2035,8 @@ void proto_reg_handoff_icmp(void)
 	icmp_handle = find_dissector("icmp");
 
 	dissector_add_uint("ip.proto", IP_PROTO_ICMP, icmp_handle);
-	register_capture_dissector("ip.proto", IP_PROTO_ICMP, capture_icmp, proto_icmp);
+	icmp_cap_handle = create_capture_dissector_handle(capture_icmp, proto_icmp);
+	capture_dissector_add_uint("ip.proto", IP_PROTO_ICMP, icmp_cap_handle);
 }
 
 /*

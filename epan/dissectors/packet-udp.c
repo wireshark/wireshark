@@ -1267,11 +1267,15 @@ proto_register_udp(void)
 void
 proto_reg_handoff_udp(void)
 {
+  capture_dissector_handle_t udp_cap_handle;
+
   dissector_add_uint("ip.proto", IP_PROTO_UDP, udp_handle);
   dissector_add_uint("ip.proto", IP_PROTO_UDPLITE, udplite_handle);
 
-  register_capture_dissector("ip.proto", IP_PROTO_UDP, capture_udp, hfi_udp->id);
-  register_capture_dissector("ip.proto", IP_PROTO_UDPLITE, capture_udp, hfi_udplite->id);
+  udp_cap_handle = create_capture_dissector_handle(capture_udp, hfi_udp->id);
+  capture_dissector_add_uint("ip.proto", IP_PROTO_UDP, udp_cap_handle);
+  udp_cap_handle = create_capture_dissector_handle(capture_udp, hfi_udplite->id);
+  capture_dissector_add_uint("ip.proto", IP_PROTO_UDPLITE, udp_cap_handle);
 
   udp_tap = register_tap("udp");
   udp_follow_tap = register_tap("udp_follow");

@@ -7307,6 +7307,7 @@ void
 proto_reg_handoff_tcp(void)
 {
     dissector_handle_t tcp_handle;
+    capture_dissector_handle_t tcp_cap_handle;
 
     tcp_handle = find_dissector("tcp");
     dissector_add_uint("ip.proto", IP_PROTO_TCP, tcp_handle);
@@ -7315,7 +7316,8 @@ proto_reg_handoff_tcp(void)
     tcp_tap = register_tap("tcp");
     tcp_follow_tap = register_tap("tcp_follow");
 
-    register_capture_dissector("ip.proto", IP_PROTO_TCP, capture_tcp, proto_tcp);
+    tcp_cap_handle = create_capture_dissector_handle(capture_tcp, proto_tcp);
+    capture_dissector_add_uint("ip.proto", IP_PROTO_TCP, tcp_cap_handle);
 
     mptcp_tap = register_tap("mptcp");
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_4);

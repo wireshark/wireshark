@@ -2004,6 +2004,8 @@ proto_register_atm(void)
 void
 proto_reg_handoff_atm(void)
 {
+  capture_dissector_handle_t atm_cap_handle;
+
   /*
    * Get handles for the Ethernet, Token Ring, Frame Relay, LLC,
    * SSCOP, LANE, and ILMI dissectors.
@@ -2023,8 +2025,11 @@ proto_reg_handoff_atm(void)
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS_UNTRUNCATED,
                 atm_untruncated_handle);
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_ATM_PDUS, capture_atm, proto_atm);
-  register_capture_dissector("atm.aal5.type", TRAF_LANE, capture_lane, proto_atm_lane);
+
+  atm_cap_handle = create_capture_dissector_handle(capture_atm, proto_atm);
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS, atm_cap_handle);
+  atm_cap_handle = create_capture_dissector_handle(capture_lane, proto_atm_lane);
+  capture_dissector_add_uint("atm.aal5.type", TRAF_LANE, atm_cap_handle);
 }
 
 /*

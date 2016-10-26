@@ -288,6 +288,7 @@ static heur_dissector_list_t heur_subdissector_list;
 static dissector_table_t ip_dissector_table;
 
 static dissector_handle_t ipv6_handle;
+static capture_dissector_handle_t ip_cap_handle;
 
 
 /* IP structs and definitions */
@@ -3127,6 +3128,8 @@ proto_register_ip(void)
   register_decode_as(&ip_da);
   register_conversation_table(proto_ip, TRUE, ip_conversation_packet, ip_hostlist_packet);
   register_conversation_filter("ip", "IPv4", ip_filter_valid, ip_build_filter);
+
+  ip_cap_handle = register_capture_dissector("ip", capture_ip, proto_ip);
 }
 
 void
@@ -3134,6 +3137,8 @@ proto_reg_handoff_ip(void)
 {
   dissector_handle_t ip_handle;
   dissector_handle_t ipv4_handle;
+  capture_dissector_handle_t clip_cap_handle;
+  int proto_clip;
 
   ip_handle = find_dissector("ip");
   ipv6_handle = find_dissector("ipv6");
@@ -3167,11 +3172,21 @@ proto_reg_handoff_ip(void)
   dissector_add_uint("vxlan.next_proto", VXLAN_IPV4, ip_handle);
 
   heur_dissector_add("tipc", dissect_ip_heur, "IP over TIPC", "ip_tipc", proto_ip, HEURISTIC_ENABLE);
-  register_capture_dissector("ethertype", ETHERTYPE_IP, capture_ip, proto_ip);
-  register_capture_dissector("ax25.pid", AX25_P_IP, capture_ip, proto_ip);
-  register_capture_dissector("enc", BSD_AF_INET, capture_ip, proto_ip);
-  register_capture_dissector("ppp_hdlc", PPP_IP, capture_ip, proto_ip);
-  register_capture_dissector("llc.dsap", SAP_IP, capture_ip, proto_ip);
+
+  capture_dissector_add_uint("ethertype", ETHERTYPE_IP, ip_cap_handle);
+  capture_dissector_add_uint("ax25.pid", AX25_P_IP, ip_cap_handle);
+  capture_dissector_add_uint("enc", BSD_AF_INET, ip_cap_handle);
+  capture_dissector_add_uint("ppp_hdlc", PPP_IP, ip_cap_handle);
+  capture_dissector_add_uint("llc.dsap", SAP_IP, ip_cap_handle);
+  capture_dissector_add_uint("null.bsd", BSD_AF_INET, ip_cap_handle);
+  capture_dissector_add_uint("fr.nlpid", NLPID_IP, ip_cap_handle);
+
+  /* Classic IP uses the same capture function, but wants its own
+     protocol associated with it.  To eliminate linking dependencies,
+     just add it here */
+  proto_clip = proto_get_id_by_filter_name( "clip" );
+  clip_cap_handle = register_capture_dissector("clip", capture_ip, proto_clip);
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_LINUX_ATM_CLIP, clip_cap_handle);
 }
 
 /*

@@ -53,6 +53,9 @@ static int arcnet_address_type = -1;
 
 static dissector_table_t arcnet_dissector_table;
 
+static capture_dissector_handle_t ip_cap_handle;
+static capture_dissector_handle_t arp_cap_handle;
+
 /* Cache protocol for packet counting */
 static int proto_ipx = -1;
 
@@ -95,7 +98,7 @@ capture_arcnet_common(const guchar *pd, int offset, int len, capture_packet_info
 
   case ARCNET_PROTO_IP_1051:
     /* No fragmentation stuff in the header */
-    return capture_ip(pd, offset + 1, len, cpinfo, pseudo_header);
+    return call_capture_dissector(ip_cap_handle, pd, offset + 1, len, cpinfo, pseudo_header);
 
   case ARCNET_PROTO_IP_1201:
     /*
@@ -135,14 +138,14 @@ capture_arcnet_common(const guchar *pd, int offset, int len, capture_packet_info
          type appears after the padding. */
       offset += 4;
     }
-    return capture_ip(pd, offset + 3, len, cpinfo, pseudo_header);
+    return call_capture_dissector(ip_cap_handle, pd, offset + 3, len, cpinfo, pseudo_header);
 
   case ARCNET_PROTO_ARP_1051:
   case ARCNET_PROTO_ARP_1201:
     /*
      * XXX - do we have to worry about fragmentation for ARP?
      */
-    return capture_arp(pd, offset + 1, len, cpinfo, pseudo_header);
+    return call_capture_dissector(arp_cap_handle, pd, offset + 1, len, cpinfo, pseudo_header);
 
   case ARCNET_PROTO_IPX:
     capture_dissector_increment_count(cpinfo, proto_ipx);
@@ -402,6 +405,7 @@ void
 proto_reg_handoff_arcnet (void)
 {
   dissector_handle_t arcnet_handle, arcnet_linux_handle;
+  capture_dissector_handle_t arcnet_cap_handle;
 
   arcnet_handle = create_dissector_handle (dissect_arcnet, proto_arcnet);
   dissector_add_uint ("wtap_encap", WTAP_ENCAP_ARCNET, arcnet_handle);
@@ -411,8 +415,13 @@ proto_reg_handoff_arcnet (void)
 
   proto_ipx = proto_get_id_by_filter_name("ipx");
 
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_ARCNET_LINUX, capture_arcnet, proto_arcnet);
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_ARCNET, capture_arcnet_has_exception, proto_arcnet);
+  arcnet_cap_handle = create_capture_dissector_handle(capture_arcnet, proto_arcnet);
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_ARCNET_LINUX, arcnet_cap_handle);
+  arcnet_cap_handle = create_capture_dissector_handle(capture_arcnet_has_exception, proto_arcnet);
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_ARCNET, arcnet_cap_handle);
+
+  ip_cap_handle = find_capture_dissector("ip");
+  arp_cap_handle = find_capture_dissector("arp");
 }
 
 /*

@@ -31,9 +31,6 @@
 #define CHDLC_ADDR_UNICAST	0x0f
 #define CHDLC_ADDR_MULTICAST	0x8f
 
-extern
-gboolean capture_chdlc(const guchar *, int, int, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
-
 extern const value_string chdlc_vals[];
 
 void

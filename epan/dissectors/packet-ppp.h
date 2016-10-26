@@ -25,9 +25,6 @@
 #include <epan/params.h>
 #include "ws_symbol_export.h"
 
-extern
-gboolean capture_ppp_hdlc(const guchar *, int, int, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_);
-
 tvbuff_t *decode_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fh_tree, int fcs_decode, int proto_offset);
 
 /*

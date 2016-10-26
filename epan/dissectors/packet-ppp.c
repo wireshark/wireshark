@@ -450,6 +450,8 @@ static dissector_handle_t chdlc_handle;
 static dissector_handle_t eth_withfcs_handle;
 static dissector_handle_t eth_withoutfcs_handle;
 
+static capture_dissector_handle_t chdlc_cap_handle;
+
 static const value_string ppp_direction_vals[] = {
     {P2P_DIR_RECV, "DCE->DTE"},
     {P2P_DIR_SENT, "DTE->DCE"},
@@ -1941,7 +1943,7 @@ capture_ppp_hdlc(const guchar *pd, int offset, int len, capture_packet_info_t *c
         return FALSE;
 
     if (pd[0] == CHDLC_ADDR_UNICAST || pd[0] == CHDLC_ADDR_MULTICAST)
-        return capture_chdlc(pd, offset, len, cpinfo, pseudo_header);
+        return call_capture_dissector(chdlc_cap_handle, pd, offset, len, cpinfo, pseudo_header);
 
     if (!BYTES_ARE_IN_FRAME(offset, len, 4))
         return FALSE;
@@ -5595,12 +5597,14 @@ proto_register_ppp_raw_hdlc(void)
     proto_register_field_array(proto_ppp_hdlc, hf, array_length(hf));
 
     register_capture_dissector_table("ppp_hdlc", "PPP-HDLC");
+    register_capture_dissector("ppp_hdlc", capture_ppp_hdlc, proto_ppp_hdlc);
 }
 
 void
 proto_reg_handoff_ppp_raw_hdlc(void)
 {
     dissector_handle_t ppp_raw_hdlc_handle;
+    capture_dissector_handle_t ppp_hdlc_cap_handle;
 
     ppp_raw_hdlc_handle = create_dissector_handle(dissect_ppp_raw_hdlc, proto_ppp);
 
@@ -5608,8 +5612,13 @@ proto_reg_handoff_ppp_raw_hdlc(void)
     dissector_add_uint("gre.proto", ETHERTYPE_3GPP2, ppp_raw_hdlc_handle);
 
     heur_dissector_add("usb.bulk", dissect_ppp_usb, "PPP USB bulk endpoint", "ppp_usb_bulk", proto_ppp, HEURISTIC_ENABLE);
-    register_capture_dissector("wtap_encap", WTAP_ENCAP_PPP, capture_ppp_hdlc, proto_ppp_hdlc);
-    register_capture_dissector("sll.ltype", LINUX_SLL_P_PPPHDLC, capture_ppp_hdlc, proto_ppp_hdlc);
+
+    ppp_hdlc_cap_handle = find_capture_dissector("ppp_hdlc");
+    capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_PPP, ppp_hdlc_cap_handle);
+    capture_dissector_add_uint("sll.ltype", LINUX_SLL_P_PPPHDLC, ppp_hdlc_cap_handle);
+    capture_dissector_add_uint("fr.nlpid", NLPID_PPP, ppp_hdlc_cap_handle);
+
+    chdlc_cap_handle = find_capture_dissector("chdlc");
 }
 
 /*

@@ -25,6 +25,7 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
+#include <epan/capture_dissectors.h>
 
 #include "packet-isl.h"
 #include "packet-eth.h"
@@ -87,6 +88,9 @@ static gint ett_isl_dst = -1;
 static dissector_handle_t eth_withfcs_handle;
 static dissector_handle_t tr_handle;
 
+static capture_dissector_handle_t eth_cap_handle;
+static capture_dissector_handle_t tr_cap_handle;
+
 gboolean
 capture_isl(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
@@ -101,11 +105,11 @@ capture_isl(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo
 
   case TYPE_ETHER:
     offset += 14+12;    /* skip the header */
-    return capture_eth(pd, offset, len, cpinfo, pseudo_header);
+    return call_capture_dissector(eth_cap_handle, pd, offset, len, cpinfo, pseudo_header);
 
   case TYPE_TR:
     offset += 14+17;    /* skip the header */
-    return capture_tr(pd, offset, len, cpinfo, pseudo_header);
+    return call_capture_dissector(tr_cap_handle, pd, offset, len, cpinfo, pseudo_header);
     break;
   }
 
@@ -400,6 +404,8 @@ proto_register_isl(void)
   proto_isl = proto_register_protocol("Cisco ISL", "ISL", "isl");
   proto_register_field_array(proto_isl, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  register_capture_dissector("isl", capture_isl, proto_isl);
 }
 
 void
@@ -410,6 +416,9 @@ proto_reg_handoff_isl(void)
    */
   eth_withfcs_handle = find_dissector_add_dependency("eth_withfcs", proto_isl);
   tr_handle = find_dissector_add_dependency("tr", proto_isl);
+
+  eth_cap_handle = find_capture_dissector("eth");
+  tr_cap_handle = find_capture_dissector("tr");
 }
 
 /*

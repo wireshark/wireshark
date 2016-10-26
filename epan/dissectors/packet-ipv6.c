@@ -3533,6 +3533,8 @@ proto_register_ipv6(void)
 
     register_conversation_table(proto_ipv6, TRUE, ipv6_conversation_packet, ipv6_hostlist_packet);
     register_conversation_filter("ipv6", "IPv6", ipv6_filter_valid, ipv6_build_filter);
+
+    register_capture_dissector("ipv6", capture_ipv6, proto_ipv6);
 }
 
 void
@@ -3543,6 +3545,8 @@ proto_reg_handoff_ipv6(void)
     dissector_handle_t ipv6_routing_handle;
     dissector_handle_t ipv6_fraghdr_handle;
     dissector_handle_t ipv6_dstopts_handle;
+    capture_dissector_handle_t ipv6_cap_handle;
+    capture_dissector_handle_t ipv6_ext_cap_handle;
 
     ipv6_handle = find_dissector("ipv6");
     dissector_add_uint("ethertype", ETHERTYPE_IPv6, ipv6_handle);
@@ -3582,12 +3586,23 @@ proto_reg_handoff_ipv6(void)
     dissector_add_uint("ip.proto", IP_PROTO_DSTOPTS, ipv6_dstopts_handle);
 
     ip_dissector_table = find_dissector_table("ip.proto");
-    register_capture_dissector("ethertype", ETHERTYPE_IPv6, capture_ipv6, proto_ipv6);
-    register_capture_dissector("enc", BSD_AF_INET6_BSD, capture_ipv6, proto_ipv6);
-    register_capture_dissector("ip.proto", IP_PROTO_HOPOPTS, capture_ipv6_exthdr, proto_ipv6_hopopts);
-    register_capture_dissector("ip.proto", IP_PROTO_ROUTING, capture_ipv6_exthdr, proto_ipv6_routing);
-    register_capture_dissector("ip.proto", IP_PROTO_FRAGMENT, capture_ipv6_exthdr, proto_ipv6_fraghdr);
-    register_capture_dissector("ip.proto", IP_PROTO_DSTOPTS, capture_ipv6_exthdr, proto_ipv6_dstopts);
+
+    ipv6_cap_handle = find_capture_dissector("ipv6");
+    capture_dissector_add_uint("ethertype", ETHERTYPE_IPv6, ipv6_cap_handle);
+    capture_dissector_add_uint("enc", BSD_AF_INET6_BSD, ipv6_cap_handle);
+    capture_dissector_add_uint("null.bsd", BSD_AF_INET6_BSD, ipv6_cap_handle);
+    capture_dissector_add_uint("null.bsd", BSD_AF_INET6_FREEBSD, ipv6_cap_handle);
+    capture_dissector_add_uint("null.bsd", BSD_AF_INET6_DARWIN, ipv6_cap_handle);
+    capture_dissector_add_uint("fr.nlpid", NLPID_IP6, ipv6_cap_handle);
+
+    ipv6_ext_cap_handle = create_capture_dissector_handle(capture_ipv6_exthdr, proto_ipv6_hopopts);
+    capture_dissector_add_uint("ip.proto", IP_PROTO_HOPOPTS, ipv6_ext_cap_handle);
+    ipv6_ext_cap_handle = create_capture_dissector_handle(capture_ipv6_exthdr, proto_ipv6_routing);
+    capture_dissector_add_uint("ip.proto", IP_PROTO_ROUTING, ipv6_ext_cap_handle);
+    ipv6_ext_cap_handle = create_capture_dissector_handle(capture_ipv6_exthdr, proto_ipv6_fraghdr);
+    capture_dissector_add_uint("ip.proto", IP_PROTO_FRAGMENT, ipv6_ext_cap_handle);
+    ipv6_ext_cap_handle = create_capture_dissector_handle(capture_ipv6_exthdr, proto_ipv6_dstopts);
+    capture_dissector_add_uint("ip.proto", IP_PROTO_DSTOPTS, ipv6_ext_cap_handle);
 }
 
 /*

@@ -1467,7 +1467,6 @@ DISSECTOR_INCLUDES = \
 	packet-atalk.h		\
 	packet-atm.h		\
 	packet-atn-ulcs.h	\
-	packet-ax25.h		\
 	packet-bacapp.h		\
 	packet-ber.h		\
 	packet-bfd.h		\

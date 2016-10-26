@@ -34,6 +34,7 @@
 #include <epan/bridged_pids.h>
 #include <epan/ppptypes.h>
 #include <epan/arcnet_pids.h>
+#include <epan/nlpid.h>
 #include "packet-fc.h"
 #include "packet-ip.h"
 #include "packet-ipx.h"
@@ -247,40 +248,6 @@ llc_add_oui(guint32 oui, const char *table_name, const char *table_ui_name,
 }
 
 gboolean
-capture_llc(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_) {
-
-	int		is_snap;
-	guint16		control;
-	int		llc_header_len;
-
-	if (!BYTES_ARE_IN_FRAME(offset, len, 2))
-		return FALSE;
-
-	is_snap = (pd[offset] == SAP_SNAP) && (pd[offset+1] == SAP_SNAP);
-	llc_header_len = 2;	/* DSAP + SSAP */
-
-	/*
-	 * XXX - the page referred to in the comment above about the
-	 * Command/Response bit also implies that LLC Type 2 always
-	 * uses extended operation, so we don't need to determine
-	 * whether it's basic or extended operation; is that the case?
-	 */
-	control = get_xdlc_control(pd, offset+2, pd[offset+1] & SSAP_CR_BIT);
-	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
-	if (!BYTES_ARE_IN_FRAME(offset, len, llc_header_len))
-		return FALSE;
-
-	if (!XDLC_IS_INFORMATION(control))
-		return FALSE;
-
-	if (is_snap)
-		return capture_snap(pd, offset+llc_header_len, len, cpinfo, pseudo_header);
-
-	/* non-SNAP */
-	return try_capture_dissector("llc.dsap", pd[offset], pd, offset + llc_header_len, len, cpinfo, pseudo_header);
-}
-
-gboolean
 capture_snap(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint32		oui;
@@ -319,6 +286,40 @@ capture_snap(const guchar *pd, int offset, int len, capture_packet_info_t *cpinf
 	}
 
 	return FALSE;
+}
+
+gboolean
+capture_llc(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_) {
+
+	int		is_snap;
+	guint16		control;
+	int		llc_header_len;
+
+	if (!BYTES_ARE_IN_FRAME(offset, len, 2))
+		return FALSE;
+
+	is_snap = (pd[offset] == SAP_SNAP) && (pd[offset+1] == SAP_SNAP);
+	llc_header_len = 2;	/* DSAP + SSAP */
+
+	/*
+	 * XXX - the page referred to in the comment above about the
+	 * Command/Response bit also implies that LLC Type 2 always
+	 * uses extended operation, so we don't need to determine
+	 * whether it's basic or extended operation; is that the case?
+	 */
+	control = get_xdlc_control(pd, offset+2, pd[offset+1] & SSAP_CR_BIT);
+	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
+	if (!BYTES_ARE_IN_FRAME(offset, len, llc_header_len))
+		return FALSE;
+
+	if (!XDLC_IS_INFORMATION(control))
+		return FALSE;
+
+	if (is_snap)
+		return capture_snap(pd, offset+llc_header_len, len, cpinfo, pseudo_header);
+
+	/* non-SNAP */
+	return try_capture_dissector("llc.dsap", pd[offset], pd, offset + llc_header_len, len, cpinfo, pseudo_header);
 }
 
 /* Used only for U frames */
@@ -815,6 +816,8 @@ proto_register_llc(void)
 	register_capture_dissector_table("llc.dsap", "LLC");
 
 	register_dissector("llc", dissect_llc, proto_llc);
+
+	register_capture_dissector("llc", capture_llc, proto_llc);
 }
 
 void
@@ -856,6 +859,8 @@ void
 proto_reg_handoff_llc(void)
 {
 	dissector_handle_t llc_handle;
+	capture_dissector_handle_t llc_cap_handle;
+	capture_dissector_handle_t llc_snap_handle;
 
 	/*
 	 * Get handles for the BPDU, Ethernet, FDDI, Token Ring and
@@ -897,9 +902,14 @@ proto_reg_handoff_llc(void)
 	dissector_add_uint("juniper.proto", JUNIPER_PROTO_LLC, llc_handle);
 	dissector_add_uint("juniper.proto", JUNIPER_PROTO_LLC_SNAP, llc_handle);
 
-	register_capture_dissector("ethertype", ETHERTYPE_JUMBO_LLC, capture_llc, proto_llc);
-	register_capture_dissector("atm.aal5.type", TRAF_LLCMX, capture_llc, proto_llc);
-	register_capture_dissector("sll.ltype", LINUX_SLL_P_802_2, capture_llc, proto_llc);
+	llc_cap_handle = find_capture_dissector("llc");
+	capture_dissector_add_uint("ethertype", ETHERTYPE_JUMBO_LLC, llc_cap_handle);
+	capture_dissector_add_uint("atm.aal5.type", TRAF_LLCMX, llc_cap_handle);
+	capture_dissector_add_uint("sll.ltype", LINUX_SLL_P_802_2, llc_cap_handle);
+
+	llc_snap_handle = register_capture_dissector("llc_snap", capture_snap, proto_llc);
+	capture_dissector_add_uint("fr.nlpid", NLPID_SNAP, llc_snap_handle);
+
 
 	/*
 	 * Register all the fields for PIDs for various OUIs.

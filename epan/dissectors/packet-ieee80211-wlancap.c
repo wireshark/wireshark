@@ -71,6 +71,8 @@ static int hf_wlancap_padding = -1;
 static gint ett_wlancap = -1;
 
 static dissector_handle_t wlancap_handle;
+static capture_dissector_handle_t wlancap_cap_handle;
+static capture_dissector_handle_t ieee80211_cap_handle;
 
 gboolean
 capture_wlancap(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
@@ -88,7 +90,7 @@ capture_wlancap(const guchar *pd, int offset, int len, capture_packet_info_t *cp
   offset += length;
 
   /* 802.11 header follows */
-  return capture_ieee80211(pd, offset, len, cpinfo, pseudo_header);
+  return call_capture_dissector(ieee80211_cap_handle, pd, offset, len, cpinfo, pseudo_header);
 }
 
 /*
@@ -842,12 +844,16 @@ void proto_register_ieee80211_wlancap(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_AVS,
                      wlancap_handle);
   proto_register_subtree_array(tree_array, array_length(tree_array));
+
+  wlancap_cap_handle = register_capture_dissector("wlancap", capture_wlancap, proto_wlancap);
 }
 
 void proto_reg_handoff_ieee80211_wlancap(void)
 {
   ieee80211_radio_handle = find_dissector_add_dependency("wlan_radio", proto_wlancap);
-  register_capture_dissector("wtap_encap", WTAP_ENCAP_IEEE_802_11_AVS, capture_wlancap, proto_wlancap);
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_AVS, wlancap_cap_handle);
+
+  ieee80211_cap_handle = find_capture_dissector("ieee80211");
 }
 
 /*
