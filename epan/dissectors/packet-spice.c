@@ -731,11 +731,11 @@ static int hf_spice_lz_magic = -1;
 static int hf_spice_lz_rgb_image_size = -1;
 static int hf_spice_lz_plt_data = -1;
 static int hf_spice_glyph_flags = -1;
-static int hf_spice_pallete_offset = -1;
+static int hf_spice_palette_offset = -1;
 #if 0
 static int hf_spice_lz_jpeg_image_size = -1;
 #endif
-static int hf_spice_pallete = -1;
+static int hf_spice_palette = -1;
 static int hf_spice_selected_authentication_mechanism_length = -1;
 static int hf_spice_display_reset_message = -1;
 static int hf_spice_topdown_flag = -1;
@@ -816,7 +816,7 @@ dissect_Pixmap(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     proto_item *ti;
     proto_tree *Pixmap_tree;
     guint32     PixmapSize;
-    guint32     strides, height, pallete_ptr;
+    guint32     strides, height, palette_ptr;
 
     Pixmap_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_Pixmap, &ti, "Pixmap"); /* size is fixed later */
     proto_tree_add_item(Pixmap_tree, hf_pixmap_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -831,7 +831,7 @@ dissect_Pixmap(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     strides = tvb_get_letohl(tvb, offset);
     proto_tree_add_item(Pixmap_tree, hf_pixmap_stride, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    pallete_ptr = tvb_get_letohl(tvb, offset);
+    palette_ptr = tvb_get_letohl(tvb, offset);
     proto_tree_add_item(Pixmap_tree, hf_pixmap_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     PixmapSize = height * strides;
@@ -839,8 +839,8 @@ dissect_Pixmap(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     proto_tree_add_bytes_format(Pixmap_tree, hf_spice_pixmap_pixels, tvb, offset, PixmapSize, NULL,
                                 "Pixmap pixels (%d bytes)", PixmapSize);
     offset += PixmapSize;
-    /* FIXME: compute pallete size */
-    proto_tree_add_bytes_format(Pixmap_tree, hf_spice_pallete, tvb, offset, 0, NULL, "Pallete (offset from message start - %u)", pallete_ptr);
+    /* FIXME: compute palette size */
+    proto_tree_add_bytes_format(Pixmap_tree, hf_spice_palette, tvb, offset, 0, NULL, "Palette (offset from message start - %u)", palette_ptr);
     /*TODO: complete pixmap dissection */
 
     return PixmapSize + 18;
@@ -1127,7 +1127,7 @@ dissect_ImageLZ_PLT(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     offset += 4;
 
     pal_size = tvb_get_letohl(tvb, offset);
-    proto_tree_add_uint_format_value(LZ_PLT_tree, hf_spice_pallete_offset, tvb, offset, 4, pal_size, "%u bytes", pal_size); /* TODO: not sure it's correct */
+    proto_tree_add_uint_format_value(LZ_PLT_tree, hf_spice_palette_offset, tvb, offset, 4, pal_size, "%u bytes", pal_size); /* TODO: not sure it's correct */
     offset += 4;
 
     dissect_ImageLZ_common_header(tvb, LZ_PLT_tree, offset);
@@ -4432,7 +4432,7 @@ proto_register_spice(void)
         },
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_spice_pixmap_pixels, { "Pixmap pixels", "spice.pixmap_pixels", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_spice_pallete, { "Pallete", "spice.pallete", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_spice_palette, { "Palette", "spice.palette", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_spice_cursor_data, { "Cursor data", "spice.cursor_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_spice_quic_image_size, { "QUIC image size", "spice.quic_image_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_spice_quic_magic, { "QUIC magic", "spice.quic_magic", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -4448,7 +4448,7 @@ proto_register_spice(void)
       { &hf_spice_lz_rgb_image_size, { "LZ RGB image size", "spice.lz_rgb_image_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_spice_lz_plt_flag, { "LZ_PLT Flag", "spice.lz_plt_flag", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_spice_lz_plt_image_size, { "LZ PLT image size", "spice.lz_plt_image_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_spice_pallete_offset, { "pallete offset", "spice.pallete_offset", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_spice_palette_offset, { "palette offset", "spice.palette_offset", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_spice_lz_plt_data, { "LZ_PLT data", "spice.lz_plt_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_spice_zlib_stream, { "ZLIB stream", "spice.zlib_stream", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_spice_image_from_cache, { "Image from Cache", "spice.image_from_cache", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
