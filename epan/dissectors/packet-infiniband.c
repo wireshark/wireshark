@@ -2963,6 +2963,35 @@ static gboolean parse_CM_Req_ServiceID(proto_tree *parent_tree, tvbuff_t *tvb, g
     return ip_cm_sid;
 }
 
+static guint64 make_hash_key(guint64 transcationID, address *addr)
+{
+    guint64 hash_key;
+
+    hash_key = transcationID;
+    hash_key = add_address_to_hash64(hash_key, addr);
+    return hash_key;
+}
+
+static connection_context* lookup_connection(guint64 transcationID, address *addr)
+{
+    connection_context *connection;
+    guint64 hash_key;
+
+    hash_key = make_hash_key(transcationID, addr);
+
+    connection = (connection_context *)g_hash_table_lookup(CM_context_table, &hash_key);
+    return connection;
+}
+
+static void remove_connection(guint64 transcationID,  address *addr)
+{
+    guint64 hash_key;
+
+    hash_key = make_hash_key(transcationID, addr);
+
+    g_hash_table_remove(CM_context_table, &hash_key);
+}
+
 static void save_conversation_info(packet_info *pinfo, guint8 *local_gid, guint8 *remote_gid,
                                    guint32 local_qpn, guint32 local_lid, guint32 remote_lid,
                                    guint64 serviceid, MAD_Data *MadData)
@@ -2987,9 +3016,8 @@ static void save_conversation_info(packet_info *pinfo, guint8 *local_gid, guint8
         connection->service_id = serviceid;
 
         /* save the context to the context hash table, for retrieval when the corresponding
-           CM REP message arrives*/
-        *hash_key = MadData->transactionID;
-        *hash_key = add_address_to_hash64(*hash_key, &pinfo->src);
+           CM REP message arrives */
+        *hash_key = make_hash_key(MadData->transactionID, &pinfo->src);
         g_hash_table_replace(CM_context_table, hash_key, connection);
 
         /* Now we create a conversation for the CM exchange. This uses both
@@ -3140,6 +3168,68 @@ static void parse_CM_Req(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *t
     *offset = local_offset;
 }
 
+static void attach_connection_to_pinfo(packet_info *pinfo, connection_context *connection)
+{
+    address req_addr,
+            resp_addr;  /* we'll fill these in and pass them to conversation_new */
+    conversation_t *conv;
+    conversation_infiniband_data *proto_data = NULL;
+
+    proto_data = wmem_new(wmem_file_scope(), conversation_infiniband_data);
+    proto_data->service_id = connection->service_id;
+
+    /* RC traffic never(?) includes a field indicating the source QPN, so
+       the destination host knows it only from previous context (a single
+       QPN on the host that is part of an RC can only receive traffic from
+       that RC). For this reason we do not register conversations with both
+       sides, but rather we register the same conversation twice - once for
+       each side of the Reliable Connection. */
+
+    /* first register the conversation using the GIDs */
+    set_address(&req_addr, AT_IB, GID_SIZE, connection->req_gid);
+    set_address(&resp_addr, AT_IB, GID_SIZE, connection->resp_gid);
+
+    conv = conversation_new(pinfo->num, &req_addr, &req_addr,
+                            PT_IBQP, connection->req_qp, connection->req_qp, NO_ADDR2|NO_PORT2);
+    conversation_add_proto_data(conv, proto_infiniband, proto_data);
+    conv = conversation_new(pinfo->num, &resp_addr, &resp_addr,
+                            PT_IBQP, connection->resp_qp, connection->resp_qp, NO_ADDR2|NO_PORT2);
+    conversation_add_proto_data(conv, proto_infiniband, proto_data);
+
+    /* next, register the conversation using the LIDs */
+    set_address(&req_addr, AT_IB, sizeof(guint16), &(connection->req_lid));
+    set_address(&resp_addr, AT_IB, sizeof(guint16), &(connection->resp_lid));
+
+    conv = conversation_new(pinfo->num, &req_addr, &req_addr,
+                            PT_IBQP, connection->req_qp, connection->req_qp, NO_ADDR2|NO_PORT2);
+    conversation_add_proto_data(conv, proto_infiniband, proto_data);
+    conv = conversation_new(pinfo->num, &resp_addr, &resp_addr,
+                            PT_IBQP, connection->resp_qp, connection->resp_qp, NO_ADDR2|NO_PORT2);
+    conversation_add_proto_data(conv, proto_infiniband, proto_data);
+}
+
+static void update_conversation_info(packet_info *pinfo,
+                                     guint32 remote_qpn,
+                                     MAD_Data *MadData)
+{
+    /* the following saves information about the conversation this packet defines,
+       so there's no point in doing it more than once per packet */
+    if (!pinfo->fd->flags.visited) {
+        /* get the previously saved context for this connection */
+        connection_context *connection;
+
+        connection = lookup_connection(MadData->transactionID, &pinfo->dst);
+
+        /* if an appropriate connection was not found there's something wrong, but nothing we can
+           do about it here - so just skip saving the context */
+        if (connection) {
+            connection->resp_qp = remote_qpn;
+
+            attach_connection_to_pinfo(pinfo, connection);
+        }
+    }
+}
+
 static void parse_CM_Rsp(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
                          MAD_Data *MadData, proto_tree *CM_header_tree)
 {
@@ -3169,72 +3259,103 @@ static void parse_CM_Rsp(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *t
     proto_tree_add_item(CM_header_tree, hf_cm_rep_srq, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(CM_header_tree, hf_cm_rep_reserved, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
     proto_tree_add_item(CM_header_tree, hf_cm_rep_localcaguid, tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset += 8;
+    proto_tree_add_item(CM_header_tree, hf_cm_rep_privatedata, tvb, local_offset, 196, ENC_NA);
 
-    /* the following saves information about the conversation this packet defines,
-       so there's no point in doing it more than once per packet */
-    if (!pinfo->fd->flags.visited)
-    {
-        /* get the previously saved context for this connection */
-        connection_context *connection;
-        guint64 hash_key;
-        hash_key = MadData->transactionID;
-        hash_key = add_address_to_hash64(hash_key, &pinfo->dst);
-        connection = (connection_context *)g_hash_table_lookup(CM_context_table, &hash_key);
-
-        /* if an appropriate connection was not found there's something wrong, but nothing we can
-           do about it here - so just skip saving the context */
-        if (connection)
-        {
-            address req_addr,
-                    resp_addr;  /* we'll fill these in and pass them to conversation_new */
-            conversation_t *conv;
-            conversation_infiniband_data *proto_data = NULL;
-
-            connection->resp_qp = remote_qpn;
-
-            proto_data = wmem_new(wmem_file_scope(), conversation_infiniband_data);
-            proto_data->service_id = connection->service_id;
-
-            /* RC traffic never(?) includes a field indicating the source QPN, so
-               the destination host knows it only from previous context (a single
-               QPN on the host that is part of an RC can only receive traffic from
-               that RC). For this reason we do not register conversations with both
-               sides, but rather we register the same conversation twice - once for
-               each side of the Reliable Connection. */
-
-            /* first register the conversation using the GIDs */
-            set_address(&req_addr, AT_IB, GID_SIZE, connection->req_gid);
-            set_address(&resp_addr, AT_IB, GID_SIZE, connection->resp_gid);
-
-            conv = conversation_new(pinfo->num, &req_addr, &req_addr,
-                                    PT_IBQP, connection->req_qp, connection->req_qp, NO_ADDR2|NO_PORT2);
-            conversation_add_proto_data(conv, proto_infiniband, proto_data);
-            conv = conversation_new(pinfo->num, &resp_addr, &resp_addr,
-                                    PT_IBQP, connection->resp_qp, connection->resp_qp, NO_ADDR2|NO_PORT2);
-            conversation_add_proto_data(conv, proto_infiniband, proto_data);
-
-            /* next, register the conversation using the LIDs */
-            set_address(&req_addr, AT_IB, sizeof(guint16), &(connection->req_lid));
-            set_address(&resp_addr, AT_IB, sizeof(guint16), &(connection->resp_lid));
-
-            conv = conversation_new(pinfo->num, &req_addr, &req_addr,
-                                    PT_IBQP, connection->req_qp, connection->req_qp, NO_ADDR2|NO_PORT2);
-            conversation_add_proto_data(conv, proto_infiniband, proto_data);
-            conv = conversation_new(pinfo->num, &resp_addr, &resp_addr,
-                                    PT_IBQP, connection->resp_qp, connection->resp_qp, NO_ADDR2|NO_PORT2);
-            conversation_add_proto_data(conv, proto_infiniband, proto_data);
-
-            g_hash_table_remove(CM_context_table, &hash_key);
-        }
-    }
+    update_conversation_info(pinfo, remote_qpn, MadData);
 
     /* give a chance for subdissectors to get the private data */
     next_tvb = tvb_new_subset_length(tvb, local_offset, 196);
-    if (! dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, &hdtbl_entry, NULL) )
-        /* if none reported success, add this as raw "data" */
-        proto_tree_add_item(CM_header_tree, hf_cm_rep_privatedata, tvb, local_offset, 196, ENC_NA);
+    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, &hdtbl_entry, NULL);
 
     local_offset += 196;
+    *offset = local_offset;
+}
+
+static connection_context*
+try_connection_dissectors(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb,
+                          address *addr, MAD_Data *MadData, gint pdata_offset, gint pdata_length)
+{
+    tvbuff_t *next_tvb;
+    heur_dtbl_entry_t *hdtbl_entry;
+    connection_context *connection;
+
+    connection = lookup_connection(MadData->transactionID, addr);
+    if (connection)
+        attach_connection_to_pinfo(pinfo, connection);
+
+    next_tvb = tvb_new_subset_length(tvb, pdata_offset, pdata_length);
+    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, &hdtbl_entry, NULL);
+    return connection;
+}
+
+static void parse_CM_Rtu(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
+                         MAD_Data *MadData, proto_tree *CM_header_tree)
+{
+    gint     local_offset;
+
+    local_offset = *offset;
+    proto_tree_add_item(CM_header_tree, hf_cm_rtu_localcommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+    proto_tree_add_item(CM_header_tree, hf_cm_rtu_remotecommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+    proto_tree_add_item(CM_header_tree, hf_cm_rtu_privatedata, tvb, local_offset, 224, ENC_NA);
+    try_connection_dissectors(parentTree, pinfo, tvb, &pinfo->src, MadData, local_offset, 224);
+    local_offset += 224;
+    *offset = local_offset;
+}
+
+static void parse_CM_Rej(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
+                         MAD_Data *MadData, proto_tree *CM_header_tree)
+{
+    gint     local_offset;
+
+    local_offset = *offset;
+    proto_tree_add_item(CM_header_tree, hf_cm_rej_local_commid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+    proto_tree_add_item(CM_header_tree, hf_cm_rej_remote_commid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+    proto_tree_add_item(CM_header_tree, hf_cm_rej_msg_rej, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(CM_header_tree, hf_cm_rej_msg_reserved0, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
+    proto_tree_add_item(CM_header_tree, hf_cm_rej_rej_info_len, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(CM_header_tree, hf_cm_rej_msg_reserved1, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
+    proto_tree_add_item(CM_header_tree, hf_cm_rej_reason, tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 2;
+    proto_tree_add_item(CM_header_tree, hf_cm_rej_add_rej_info, tvb, local_offset, 72, ENC_NA); local_offset += 72;
+    proto_tree_add_item(CM_header_tree, hf_cm_rej_private_data, tvb, local_offset, 148, ENC_NA);
+
+    try_connection_dissectors(parentTree, pinfo, tvb, &pinfo->dst, MadData, local_offset, 148);
+    local_offset += 148;
+    *offset = local_offset;
+}
+
+static void parse_CM_DReq(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
+                         MAD_Data *MadData, proto_tree *CM_header_tree)
+{
+    gint     local_offset;
+
+    local_offset = *offset;
+    proto_tree_add_item(CM_header_tree, hf_cm_dreq_localcommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+    proto_tree_add_item(CM_header_tree, hf_cm_dreq_remotecommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+    proto_tree_add_item(CM_header_tree, hf_cm_dreq_remote_qpn, tvb, local_offset, 3, ENC_BIG_ENDIAN); local_offset += 3;
+    proto_tree_add_item(CM_header_tree, hf_infiniband_reserved1, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
+    proto_tree_add_item(CM_header_tree, hf_cm_dreq_privatedata, tvb, local_offset, 220, ENC_NA);
+    try_connection_dissectors(parentTree, pinfo, tvb, &pinfo->src, MadData, local_offset, 220);
+    local_offset += 220;
+    *offset = local_offset;
+}
+
+static void parse_CM_DRsp(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
+                          MAD_Data *MadData, proto_tree *CM_header_tree)
+{
+    connection_context *connection;
+    gint     local_offset;
+
+    local_offset = *offset;
+    proto_tree_add_item(CM_header_tree, hf_cm_drsp_localcommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+    proto_tree_add_item(CM_header_tree, hf_cm_drsp_remotecommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+    proto_tree_add_item(CM_header_tree, hf_cm_drsp_privatedata, tvb, local_offset, 224, ENC_NA);
+
+    /* connection is closing so remove entry from the connection table */
+    connection = try_connection_dissectors(parentTree, pinfo, tvb, &pinfo->dst, MadData, local_offset, 224);
+    if (connection)
+        remove_connection(MadData->transactionID, &pinfo->dst);
+
+    local_offset += 224;
     *offset = local_offset;
 }
 
@@ -3274,36 +3395,16 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
             parse_CM_Rsp(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree);
             break;
         case ATTR_CM_RTU:
-            proto_tree_add_item(CM_header_tree, hf_cm_rtu_localcommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
-            proto_tree_add_item(CM_header_tree, hf_cm_rtu_remotecommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
-            /* currently only REQ/REP call subdissectors for the private data */
-            proto_tree_add_item(CM_header_tree, hf_cm_rtu_privatedata, tvb, local_offset, 224, ENC_NA); local_offset += 224;
+            parse_CM_Rtu(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree);
             break;
         case ATTR_CM_REJ:
-            proto_tree_add_item(CM_header_tree, hf_cm_rej_local_commid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
-            proto_tree_add_item(CM_header_tree, hf_cm_rej_remote_commid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
-            proto_tree_add_item(CM_header_tree, hf_cm_rej_msg_rej, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(CM_header_tree, hf_cm_rej_msg_reserved0, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
-            proto_tree_add_item(CM_header_tree, hf_cm_rej_rej_info_len, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(CM_header_tree, hf_cm_rej_msg_reserved1, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
-            proto_tree_add_item(CM_header_tree, hf_cm_rej_reason, tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 2;
-            proto_tree_add_item(CM_header_tree, hf_cm_rej_add_rej_info, tvb, local_offset, 72, ENC_NA); local_offset += 72;
-            /* currently only REQ/REP call subdissectors for the private data */
-            proto_tree_add_item(CM_header_tree, hf_cm_rej_private_data, tvb, local_offset, 148, ENC_NA); local_offset += 148;
+            parse_CM_Rej(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree);
             break;
         case ATTR_CM_DREQ:
-            proto_tree_add_item(CM_header_tree, hf_cm_dreq_localcommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
-            proto_tree_add_item(CM_header_tree, hf_cm_dreq_remotecommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
-            proto_tree_add_item(CM_header_tree, hf_cm_dreq_remote_qpn, tvb, local_offset, 3, ENC_BIG_ENDIAN); local_offset += 3;
-            proto_tree_add_item(CM_header_tree, hf_infiniband_reserved1, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
-            /* currently only REQ/REP call subdissectors for the private data */
-            proto_tree_add_item(CM_header_tree, hf_cm_dreq_privatedata, tvb, local_offset, 220, ENC_NA); local_offset += 220;
+            parse_CM_DReq(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree);
             break;
         case ATTR_CM_DRSP:
-            proto_tree_add_item(CM_header_tree, hf_cm_drsp_localcommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
-            proto_tree_add_item(CM_header_tree, hf_cm_drsp_remotecommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
-            /* currently only REQ/REP call subdissectors for the private data */
-            proto_tree_add_item(CM_header_tree, hf_cm_drsp_privatedata, tvb, local_offset, 224, ENC_NA); local_offset += 224;
+            parse_CM_DRsp(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree);
             break;
         default:
             proto_item_append_text(CM_header_item, " (Dissector Not Implemented)"); local_offset += MAD_DATA_SIZE;
