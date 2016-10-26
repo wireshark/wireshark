@@ -16,6 +16,9 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QTreeWidget" name="hierStatsTreeWidget">
+     <property name="uniformRowHeights">
+      <bool>true</bool>
+     </property>
      <attribute name="headerDefaultSectionSize">
       <number>50</number>
      </attribute>
