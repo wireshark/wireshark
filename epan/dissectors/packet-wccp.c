@@ -1817,7 +1817,7 @@ dissect_wccp2_extended_assignment_data_element(tvbuff_t *tvb, int offset, gint l
       (length == (assignment_length + 4)))
     {
       expert_add_info_format(pinfo, element_item, &ei_wccp_assignment_length_bad,
-                             "Assignment length is %d but %d remain in the packet. Assuming that this is wrong as this is only 4 bytes to small, proceding with the assumption it is %d",
+                             "Assignment length is %d but %d remain in the packet. Assuming that this is wrong as this is only 4 bytes too small, proceeding with the assumption it is %d",
                              assignment_length, length, length);
       assignment_length = length;
     }
