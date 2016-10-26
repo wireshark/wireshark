@@ -442,7 +442,7 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
                                                      pref->desc);
                     break;
                 default:
-                    WSLUA_ERROR(Prefs__newindex,"Unknow Pref type");
+                    WSLUA_ERROR(Prefs__newindex,"Unknown Pref type");
                     break;
             }
 
@@ -487,7 +487,7 @@ WSLUA_METAMETHOD Prefs__index(lua_State* L) {
                     wmem_free(NULL, push_str);
                     }
                     break;
-                default: WSLUA_ERROR(Prefs__index,"Unknow Pref type"); return 0;
+                default: WSLUA_ERROR(Prefs__index,"Unknown Pref type"); return 0;
             }
             WSLUA_RETURN(1); /* The current value of the preference. */
         }
