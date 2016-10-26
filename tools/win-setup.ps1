@@ -99,8 +99,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2016-10-22"
-$Win32CurrentTag = "2016-10-22"
+$Win64CurrentTag = "2016-10-26"
+$Win32CurrentTag = "2016-10-26"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -111,7 +111,7 @@ $Win64Archives = @{
     "gtk+-bundle_2.24.23-3.39-2_win64ws.zip" = "gtk2";
     "kfw-3-2-2-x64-ws.zip" = "";
     "libsmi-svn-40773-win64ws.zip" = "";
-    "libssh-0.7.2-win64ws.zip" = "";
+    "libssh-0.7.3-win64ws.zip" = "";
     "lua-5.2.4_Win64_dllw4_lib.zip" = "lua5.2.4";
     "lz4-r131-win64ws.zip" = "";
     "nasm-2.09.08-win32.zip" = "";
@@ -133,7 +133,7 @@ $Win32Archives = @{
     "gtk+-bundle_2.24.23-1.1-1_win32ws.zip" = "gtk2";
     "kfw-3-2-2-i386-ws-vc6.zip" = "";
     "libsmi-svn-40773-win32ws.zip" = "";
-    "libssh-0.7.2-win32ws.zip" = "";
+    "libssh-0.7.3-win32ws.zip" = "";
     "lua-5.2.4_Win32_dllw4_lib.zip" = "lua5.2.4";
     "lz4-r131-win32ws.zip" = "";
     "nasm-2.09.08-win32.zip" = "";
@@ -181,7 +181,7 @@ $CleanupItems = @(
     "kfw-3-2-2-x64-ws"
     "libsmi-0.4.8"
     "libsmi-svn-40773-win??ws"
-    "libssh-0.7.2-win??ws"
+    "libssh-0.7.?-win??ws"
     "lua5.1.4"
     "lua5.2.?"
     "lz4-r131-win??ws"
