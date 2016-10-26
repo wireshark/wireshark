@@ -37,6 +37,8 @@ class InterfaceSortFilterModel : public QSortFilterProxyModel
 public:
     InterfaceSortFilterModel(QObject *parent);
 
+    void setStoreOnChange(bool storeOnChange);
+
     void setFilterHidden(bool filter);
     bool filterHidden() const;
     int interfacesHidden();
@@ -66,6 +68,7 @@ private:
     bool _filterHidden;
     bool _filterTypes;
     bool _invertTypeFilter;
+    bool _storeOnChange;
 
     QList<int> displayHiddenTypes;
 

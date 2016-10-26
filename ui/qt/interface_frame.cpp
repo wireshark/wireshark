@@ -91,7 +91,7 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
     columns.append(IFTREE_COL_NAME);
     columns.append(IFTREE_COL_STATS);
     proxyModel->setColumns(columns);
-
+    proxyModel->setStoreOnChange(true);
     proxyModel->setSourceModel(sourceModel);
     ui->interfaceTree->setModel(proxyModel);
 

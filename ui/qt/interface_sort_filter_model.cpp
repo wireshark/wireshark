@@ -39,14 +39,21 @@ InterfaceSortFilterModel::InterfaceSortFilterModel(QObject *parent) :
     _filterHidden = true;
     _filterTypes = true;
     _invertTypeFilter = false;
+    _storeOnChange = false;
 
     /* Adding all columns, to have a default setting */
     for ( int col = 0; col < IFTREE_COL_MAX; col++ )
         _columns.append((InterfaceTreeColumns)col);
+}
 
-    connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(resetPreferenceData()));
-
-    resetPreferenceData();
+void InterfaceSortFilterModel::setStoreOnChange(bool storeOnChange)
+{
+    _storeOnChange = storeOnChange;
+    if ( storeOnChange )
+    {
+        connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(resetPreferenceData()));
+        resetPreferenceData();
+    }
 }
 
 void InterfaceSortFilterModel::setFilterHidden(bool filter)
@@ -95,9 +102,12 @@ void InterfaceSortFilterModel::toggleFilterHidden()
 {
     _filterHidden = ! _filterHidden;
 
-    prefs.gui_interfaces_show_hidden = ! _filterHidden;
+    if ( _storeOnChange )
+    {
+        prefs.gui_interfaces_show_hidden = ! _filterHidden;
 
-    prefs_main_write();
+        prefs_main_write();
+    }
 
     invalidateFilter();
     invalidate();
@@ -150,19 +160,22 @@ void InterfaceSortFilterModel::setInterfaceTypeVisible(int ifType, bool visible)
         /* Nothing should have changed */
         return;
 
-    QString new_pref;
-    QList<int>::const_iterator it = displayHiddenTypes.constBegin();
-    while( it != displayHiddenTypes.constEnd() )
+    if ( _storeOnChange )
     {
-        new_pref.append(QString("%1,").arg(*it));
-        ++it;
+        QString new_pref;
+        QList<int>::const_iterator it = displayHiddenTypes.constBegin();
+        while( it != displayHiddenTypes.constEnd() )
+        {
+            new_pref.append(QString("%1,").arg(*it));
+            ++it;
+        }
+        if (new_pref.length() > 0)
+            new_pref = new_pref.left(new_pref.length() - 1);
+
+        prefs.gui_interfaces_hide_types = qstring_strdup(new_pref);
+
+        prefs_main_write();
     }
-    if (new_pref.length() > 0)
-        new_pref = new_pref.left(new_pref.length() - 1);
-
-    prefs.gui_interfaces_hide_types = qstring_strdup(new_pref);
-
-    prefs_main_write();
 
     invalidateFilter();
     invalidate();
