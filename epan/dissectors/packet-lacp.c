@@ -93,6 +93,8 @@ static int hf_lacp_term_type = -1;
 static int hf_lacp_term_len = -1;
 static int hf_lacp_term_reserved = -1;
 
+static int hf_lacp_vendor = -1;
+
 /* Initialise the subtree pointers */
 
 static gint ett_lacp = -1;
@@ -141,7 +143,7 @@ static const char * lacp_state_flags_to_str(guint32 value)
 static int
 dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    int     offset = 0;
+    int     offset = 0, length_remaining;
     guint16 raw_word;
     guint8  raw_octet;
 
@@ -332,6 +334,13 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     proto_tree_add_item(lacpdu_tree, hf_lacp_term_reserved, tvb, offset, 50, ENC_NA);
     offset += 50;
+
+    length_remaining = tvb_reported_length_remaining(tvb, offset);
+
+    if(length_remaining) {
+        proto_tree_add_item(lacpdu_tree, hf_lacp_vendor, tvb, offset, length_remaining, ENC_NA);
+        offset += length_remaining;
+    }
 
     return offset;
 }
@@ -562,6 +571,11 @@ proto_register_lacp(void)
           { "Reserved",        "lacp.term_reserved",
             FT_BYTES,    BASE_NONE,    NULL,    0x0,
             NULL, HFILL }},
+
+        { &hf_lacp_vendor,
+          { "Unknown vendor",        "lacp.vendor",
+            FT_BYTES,    BASE_NONE,    NULL,    0x0,
+            "Some extra bytes (Vendor Specific ?)", HFILL }},
     };
 
     /* Setup protocol subtree array */
