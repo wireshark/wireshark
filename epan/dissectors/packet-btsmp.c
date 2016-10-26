@@ -57,6 +57,10 @@ static int hf_btsmp_initiator_key_distribution = -1;
 static int hf_btsmp_responder_key_distribution = -1;
 static int hf_bd_addr = -1;
 static int hf_address_type = -1;
+static int hf_btsmp_public_key_x = -1;
+static int hf_btsmp_public_key_y = -1;
+static int hf_btsmp_dhkey_check = -1;
+static int hf_btsmp_notification_type = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_btsmp = -1;
@@ -76,8 +80,11 @@ static const value_string opcode_vals[] = {
     {0x07, "Master Identification"},
     {0x08, "Identity Information"},
     {0x09, "Identity Address Information"},
-    {0x0a, "Signing Information"},
-    {0x0b, "Security Request"},
+    {0x0A, "Signing Information"},
+    {0x0B, "Security Request"},
+    {0x0C, "Pairing Public Key"},
+    {0x0D, "Pairing DHKey Check"},
+    {0x0E, "Pairing Keypress Notification"},
     {0x0, NULL}
 };
 
@@ -116,7 +123,20 @@ static const value_string reason_vals[] = {
     {0x07, "Command Not Supported"},
     {0x08, "Unspecified Reason"},
     {0x09, "Repeated Attempts"},
-    {0x0a, "Invalid Parameters"},
+    {0x0A, "Invalid Parameters"},
+    {0x0B, "DHKey Check Failed"},
+    {0x0C, "Numeric Comparison Failed"},
+    {0x0D, "BR/EDR pairing in progress"},
+    {0x0E, "Cross-transport Key Derivation/Generation not allowed"},
+    {0x0, NULL}
+};
+
+static const value_string notification_type_vals[] = {
+    {0x00, "Passkey Entry Started"},
+    {0x01, "Passkey Digit Entered"},
+    {0x02, "Passkey Digit Erased"},
+    {0x03, "Passkey Cleared"},
+    {0x04, "Passkey Entry Completed"},
     {0x0, NULL}
 };
 
@@ -294,16 +314,35 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         offset = dissect_bd_addr(hf_bd_addr, pinfo, st, tvb, offset, FALSE, interface_id, adapter_id, NULL);
         break;
 
-    case 0x0a: /* Signing Information */
+    case 0x0A: /* Signing Information */
         proto_tree_add_item(st, hf_btsmp_signature_key, tvb, offset, 16, ENC_NA);
         offset += 16;
         break;
 
-     case 0x0b: /* Security Request */
+     case 0x0B: /* Security Request */
         col_append_str(pinfo->cinfo, COL_INFO, ": ");
         offset = dissect_btsmp_auth_req(tvb, offset, pinfo, st);
         break;
 
+    case 0x0C: /* Pairing Public Key */
+        proto_tree_add_item(st, hf_btsmp_public_key_x, tvb, offset, 32, ENC_NA);
+        offset += 32;
+
+        proto_tree_add_item(st, hf_btsmp_public_key_y, tvb, offset, 32, ENC_NA);
+        offset += 32;
+
+        break;
+    case 0x0D: /* Pairing DHKey Check" */
+        proto_tree_add_item(st, hf_btsmp_dhkey_check, tvb, offset, 16, ENC_NA);
+        offset += 16;
+
+        break;
+    case 0x0E: /* Pairing Keypress Notification */
+        proto_tree_add_item(st, hf_btsmp_notification_type, tvb, offset, 1, ENC_NA);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(tvb_get_guint8(tvb, offset), notification_type_vals, "<unknown>"));
+        offset += 1;
+
+        break;
     default:
         break;
     }
@@ -424,7 +463,27 @@ proto_register_btsmp(void)
             { "Address Type", "btsmp.address_type",
             FT_UINT8, BASE_HEX, VALS(bluetooth_address_type_vals), 0x0,
             NULL, HFILL }
-        }
+        },
+        {&hf_btsmp_public_key_x,
+            {"Public Key X", "btsmp.public_key_x",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btsmp_public_key_y,
+            {"Public Key Y", "btsmp.public_key_y",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btsmp_dhkey_check,
+            {"DHKey Check", "btsmp.dhkey_check",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btsmp_notification_type,
+            {"Notification Type", "btsmp.notification_type",
+            FT_UINT8, BASE_HEX, VALS(notification_type_vals), 0x0,
+            NULL, HFILL}
+        },
     };
 
     /* Setup protocol subtree array */
