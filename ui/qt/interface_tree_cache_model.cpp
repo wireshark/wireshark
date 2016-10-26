@@ -45,7 +45,10 @@ InterfaceTreeCacheModel::InterfaceTreeCacheModel(QObject *parent) :
     QIdentityProxyModel::setSourceModel(sourceModel);
     storage = new QMap<int, QMap<InterfaceTreeColumns, QVariant> *>();
 
-    checkableColumns << IFTREE_COL_HIDDEN << IFTREE_COL_PROMISCUOUSMODE << IFTREE_COL_MONITOR_MODE;
+    checkableColumns << IFTREE_COL_HIDDEN << IFTREE_COL_PROMISCUOUSMODE;
+#ifdef HAVE_PCAP_CREATE
+    checkableColumns << IFTREE_COL_MONITOR_MODE;
+#endif
 
     editableColumns << IFTREE_COL_INTERFACE_COMMENT << IFTREE_COL_SNAPLEN;
 
