@@ -752,6 +752,7 @@ static expert_field ei_gsm_a_dtap_end_mark_unexpected = EI_INIT;
 static expert_field ei_gsm_a_dtap_extraneous_data = EI_INIT;
 static expert_field ei_gsm_a_dtap_missing_mandatory_element = EI_INIT;
 static expert_field ei_gsm_a_dtap_coding_scheme = EI_INIT;
+static expert_field ei_gsm_a_dtap_ti_not_valid = EI_INIT;
 
 
 static dissector_table_t u2u_dissector_table;
@@ -6746,6 +6747,10 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     if ((((oct_1 & DTAP_TI_MASK) >> 4) & DTAP_TIE_PRES_MASK) == DTAP_TIE_PRES_MASK)
     {
+        if (len == 2) {
+            proto_tree_add_expert(tree, pinfo, &ei_gsm_a_dtap_ti_not_valid, tvb, offset, 1);
+            return len;
+        }
         /*
          * eventhough we don't know if a TI should be in the message yet
          * we rely on the TI/SKIP indicator to be 0 to avoid taking this
@@ -8228,7 +8233,8 @@ proto_register_gsm_a_dtap(void)
         { &ei_gsm_a_dtap_keypad_info_not_dtmf_digit, { "gsm_a.dtap.keypad_info_not_dtmf_digit", PI_MALFORMED, PI_WARN, "Keypad information contains character that is not a DTMF digit", EXPFILL }},
         { &ei_gsm_a_dtap_extraneous_data, { "gsm_a.dtap.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
         { &ei_gsm_a_dtap_missing_mandatory_element, { "gsm_a.dtap.missing_mandatory_element", PI_PROTOCOL, PI_WARN, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
-        { &ei_gsm_a_dtap_coding_scheme, { "gsm_a.dtap.coding_scheme.unknown", PI_PROTOCOL, PI_WARN, "Text string encoded according to an unknown Coding Scheme", EXPFILL }},
+        { &ei_gsm_a_dtap_coding_scheme, { "gsm_a.dtap.coding_scheme.unknown", PI_PROTOCOL, PI_WARN, "Text string encoded according to an unknown Coding Scheme", EXPFILL } },
+        { &ei_gsm_a_dtap_ti_not_valid,{ "gsm_a.dtap.ti_not_valid", PI_PROTOCOL, PI_ERROR, "If TI bits = 7, lenght must be > 2", EXPFILL } },
     };
 
     expert_module_t* expert_a_dtap;
