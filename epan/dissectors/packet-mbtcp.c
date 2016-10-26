@@ -2084,6 +2084,9 @@ proto_reg_handoff_mbrtu(void)
 
     dissector_add_uint("mbtcp.prot_id", MODBUS_PROTOCOL_ID, modbus_handle);
     dissector_add_for_decode_as("rtacser.data", mbrtu_handle);
+    dissector_add_for_decode_as("usb.device", mbrtu_handle);
+    dissector_add_for_decode_as("usb.product", mbrtu_handle);
+    dissector_add_for_decode_as("usb.protocol", mbrtu_handle);
 
 }
 
