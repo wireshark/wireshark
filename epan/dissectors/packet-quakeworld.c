@@ -350,7 +350,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 {
 	proto_tree	*cl_tree;
 	proto_tree	*text_tree = NULL;
-	proto_item	*pi;
+	proto_item	*pi = NULL;
 	guint8		*text;
 	int		len;
 	int		offset;
