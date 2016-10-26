@@ -223,7 +223,6 @@ static gint ett_dhcpv6_bulk_leasequery = -1;
 static gint ett_dhcpv6_bulk_leasequery_options = -1;
 
 static expert_field ei_dhcpv6_bulk_leasequery_bad_query_type = EI_INIT;
-static expert_field ei_dhcpv6_bulk_leasequery_no_lq_relay_data = EI_INIT;
 static expert_field ei_dhcpv6_bulk_leasequery_bad_msg_type = EI_INIT;
 
 static dissector_handle_t dhcpv6_handle;
@@ -1884,10 +1883,6 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
 
-        if (protocol == proto_dhcpv6_bulk_leasequery) {
-            expert_add_info(pinfo, option_item, &ei_dhcpv6_bulk_leasequery_no_lq_relay_data);
-        }
-
         proto_tree_add_item(subtree, hf_lq_relay_data_peer_addr, tvb, off, 16, ENC_NA);
         proto_tree_add_item(subtree, hf_lq_relay_data_msg, tvb, off+16, optlen - 16, ENC_ASCII|ENC_NA);
         break;
@@ -2417,7 +2412,6 @@ proto_register_dhcpv6(void)
 
     static ei_register_info ei_bulk_leasequery[] = {
         { &ei_dhcpv6_bulk_leasequery_bad_query_type, { "dhcpv6.bulk_leasequery.bad_query_type", PI_MALFORMED, PI_WARN, "LQ-QUERY: Query types only supported by Bulk Leasequery", EXPFILL }},
-        { &ei_dhcpv6_bulk_leasequery_no_lq_relay_data, { "dhcpv6.bulk_leasequery.no_lq_relay_data", PI_MALFORMED, PI_WARN, "LQ_RELAY_DATA: Not allowed in Bulk Leasequery", EXPFILL }},
         { &ei_dhcpv6_bulk_leasequery_bad_msg_type, { "dhcpv6.bulk_leasequery.bad_msg_type", PI_MALFORMED, PI_WARN, "Message Type %d not allowed by DHCPv6 Bulk Leasequery", EXPFILL }},
     };
 
