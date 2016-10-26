@@ -61,8 +61,8 @@ U3V descriptor constants
 #define U3V_ABRM_TIMESTAMP_LATCH 0x000001F8
 #define U3V_ABRM_TIMESTAMP_INCREMENT 0x000001FC
 #define U3V_ABRM_ACCESS_PRIVILEGE 0x00000204
-#define U3V_ABRM_PROTOCOL_ENDIANESS 0x00000208
-#define U3V_ABRM_IMPLEMENTATION_ENDIANESS 0x0000020C
+#define U3V_ABRM_PROTOCOL_ENDIANNESS 0x00000208
+#define U3V_ABRM_IMPLEMENTATION_ENDIANNESS 0x0000020C
 #define U3V_SBRM_U3V_VERSION 0x00000000
 #define U3V_SBRM_U3VCP_CAPABILITY_REGISTER 0x00000004
 #define U3V_SBRM_U3VCP_CONFIGURATION_REGISTER 0x0000000C
@@ -457,8 +457,8 @@ static int hf_u3v_bootstrap_Timestamp = -1;
 static int hf_u3v_bootstrap_Timestamp_Latch = -1;
 static int hf_u3v_bootstrap_Timestamp_Increment = -1;
 static int hf_u3v_bootstrap_Access_Privilege = -1;
-static int hf_u3v_bootstrap_Protocol_Endianess = -1;
-static int hf_u3v_bootstrap_Implementation_Endianess = -1;
+static int hf_u3v_bootstrap_Protocol_Endianness = -1;
+static int hf_u3v_bootstrap_Implementation_Endianness = -1;
 static int hf_u3v_bootstrap_U3V_Version = -1;
 static int hf_u3v_bootstrap_U3VCP_Capability_Register = -1;
 static int hf_u3v_bootstrap_U3VCP_Configuration_Register = -1;
@@ -648,8 +648,8 @@ static const value_string bootstrap_register_names_abrm[] =
     { U3V_ABRM_TIMESTAMP_LATCH, "[Timestamp_Latch]" },
     { U3V_ABRM_TIMESTAMP_INCREMENT, "[Timestamp_Increment]" },
     { U3V_ABRM_ACCESS_PRIVILEGE, "[Access_Privilege]" },
-    { U3V_ABRM_PROTOCOL_ENDIANESS, "[Protocol_Endianess]" },
-    { U3V_ABRM_IMPLEMENTATION_ENDIANESS, "[Implementation_Endianess]" },
+    { U3V_ABRM_PROTOCOL_ENDIANNESS, "[Protocol_Endianness]" },
+    { U3V_ABRM_IMPLEMENTATION_ENDIANNESS, "[Implementation_Endianness]" },
     { 0, NULL }
 };
 
@@ -1135,11 +1135,11 @@ dissect_u3v_register(guint64 addr, proto_tree *branch, tvbuff_t *tvb, gint offse
         case U3V_ABRM_ACCESS_PRIVILEGE:
             proto_tree_add_item(branch, hf_u3v_bootstrap_Access_Privilege, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             break;
-        case U3V_ABRM_PROTOCOL_ENDIANESS:
-            proto_tree_add_item(branch, hf_u3v_bootstrap_Protocol_Endianess, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        case U3V_ABRM_PROTOCOL_ENDIANNESS:
+            proto_tree_add_item(branch, hf_u3v_bootstrap_Protocol_Endianness, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             break;
-        case U3V_ABRM_IMPLEMENTATION_ENDIANESS:
-            proto_tree_add_item(branch, hf_u3v_bootstrap_Implementation_Endianess, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        case U3V_ABRM_IMPLEMENTATION_ENDIANNESS:
+            proto_tree_add_item(branch, hf_u3v_bootstrap_Implementation_Endianness, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             break;
         default:
             isABRM = FALSE;
@@ -2260,16 +2260,16 @@ static hf_register_info hf[] =
     "Access Privilege. Not used for these specification.", HFILL
     } },
 
-    { &hf_u3v_bootstrap_Protocol_Endianess,
-    { "Protocol Endianess", "u3v.bootstrap.Protocol_Endianess",
+    { &hf_u3v_bootstrap_Protocol_Endianness,
+    { "Protocol Endianness", "u3v.bootstrap.Protocol_Endianness",
     FT_UINT32, BASE_DEC, NULL, 0x0,
-    "Endianess of protocol fields and bootstrap registers. Only little endian is supported by these specification.", HFILL
+    "Endianness of protocol fields and bootstrap registers. Only little endian is supported by these specification.", HFILL
     } },
 
-    { &hf_u3v_bootstrap_Implementation_Endianess,
-    { "Device Endianess", "u3v.bootstrap.Implementation_Endianess",
+    { &hf_u3v_bootstrap_Implementation_Endianness,
+    { "Device Endianness", "u3v.bootstrap.Implementation_Endianness",
     FT_UINT32, BASE_DEC, NULL, 0x0,
-    "Endianess of device implementation registers.  Only little endian is supported by these specification.", HFILL
+    "Endianness of device implementation registers.  Only little endian is supported by these specification.", HFILL
     } },
 
     { &hf_u3v_bootstrap_U3V_Version,
