@@ -53,7 +53,7 @@ ID3v1 ::= SEQUENCE {
 		southern-rock(56), comedy(57), cult(58), gangsta(59),
 		top-40(60), christian-rap(61), pop-funk(62), jungle(63),
 		native-american(64), cabaret(65), new-wave(66),
-		psychadelic(67), rave(68), showtunes(69), trailer(70),
+		psychedelic(67), rave(68), showtunes(69), trailer(70),
 		lo-fi(71), tribal(72), acid-punk(73), acid-jazz(74),
 		polka(75), retro(76), musical(77), rock-and-roll(78),
 		hard-rock(79), folk(80), folk-rock(81), national-folk(82),

@@ -348,7 +348,7 @@ static const value_string mpeg_audio_T_genre_vals[] = {
   {  64, "native-american" },
   {  65, "cabaret" },
   {  66, "new-wave" },
-  {  67, "psychadelic" },
+  {  67, "psychedelic" },
   {  68, "rave" },
   {  69, "showtunes" },
   {  70, "trailer" },
