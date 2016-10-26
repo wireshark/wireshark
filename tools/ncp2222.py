@@ -2968,7 +2968,7 @@ NDSRequestFlags                 = bitfield16("nds_request_flags", "NDS Request F
         bf_boolean16(0x0800, "nds_request_flags_dn_ref", "Down Referral"),
 ])
 NDSStatus                       = uint32("nds_status", "NDS Status")
-NetBIOSBroadcastWasPropogated   = uint32("netbios_broadcast_was_propogated", "NetBIOS Broadcast Was Propogated")
+NetBIOSBroadcastWasPropagated   = uint32("netbios_broadcast_was_propagated", "NetBIOS Broadcast Was Propagated")
 NetIDNumber                     = uint32("net_id_number", "Net ID Number")
 NetIDNumber.Display("BASE_HEX")
 NetAddress                      = nbytes32("address", "Address")
@@ -11332,7 +11332,7 @@ def define_ncp2222():
             rec( 56, 2, IncomingPacketDiscardedNoDGroup ),
             rec( 58, 2, OutgoingPacketDiscardedNoTurboBuffer ),
             rec( 60, 2, IPXNotMyNetwork ),
-            rec( 62, 4, NetBIOSBroadcastWasPropogated ),
+            rec( 62, 4, NetBIOSBroadcastWasPropagated ),
             rec( 66, 4, TotalOtherPackets ),
             rec( 70, 4, TotalRoutedPackets ),
      ])
