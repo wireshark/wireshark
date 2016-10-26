@@ -160,38 +160,6 @@ static void per_check_items(guint32 cnt, int min_len, int max_len, asn1_ctx_t *a
 	}
 }
 
-static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, guint32 length)
-{
-	tvbuff_t *sub_tvb = NULL;
-	guint32 boffset = offset >> 3;
-	unsigned int i, shift0, shift1;
-	guint8 octet0, octet1, *buf;
-	guint32 actual_length;
-
-	/*  XXX - why are we doing this?  Shouldn't we throw an exception if we've
-	 *  been asked to decode more octets than exist?
-	 */
-	actual_length = tvb_captured_length_remaining(tvb,boffset);
-	if (length <= actual_length)
-		actual_length = length;
-
-	if (offset & 0x07) {  /* unaligned */
-		shift1 = offset & 0x07;
-		shift0 = 8 - shift1;
-		buf = (guint8 *)wmem_alloc(actx->pinfo->pool, actual_length);
-		octet0 = tvb_get_guint8(tvb, boffset);
-		for (i=0; i<actual_length; i++) {
-			octet1 = octet0;
-			octet0 = tvb_get_guint8(tvb, boffset + i + 1);
-			buf[i] = (octet1 << shift1) | (octet0 >> shift0);
-		}
-		sub_tvb = tvb_new_child_real_data(tvb, buf, actual_length, length);
-		add_new_data_source(actx->pinfo, sub_tvb, "Unaligned OCTET STRING");
-	} else {  /* aligned */
-		sub_tvb = tvb_new_subset(tvb, boffset, actual_length, length);
-	}
-	return sub_tvb;
-}
 
 void dissect_per_not_decoded_yet(proto_tree* tree, packet_info* pinfo, tvbuff_t *tvb, const char* reason)
 {
@@ -218,7 +186,11 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 	end_offset = offset + type_length * 8;
 
 	if (variant==CB_NEW_DISSECTOR) {
-		val_tvb = new_octet_aligned_subset(tvb, offset, actx, type_length);
+		val_tvb = tvb_new_octet_aligned(tvb, offset, type_length * 8);
+		/* Add new data source if the offet was unaligned */
+		if ((offset & 7) != 0) {
+			add_new_data_source(actx->pinfo, val_tvb, "Unaligned OCTET STRING");
+		}
 		if (hfi) {
 			if (IS_FT_UINT(hfi->type)||IS_FT_INT(hfi->type)) {
 				if (IS_FT_UINT(hfi->type))
@@ -958,7 +930,11 @@ dissect_per_any_oid(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
 
 	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_object_identifier_length, &length);
 	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
-	val_tvb = new_octet_aligned_subset(tvb, offset, actx, length);
+	val_tvb = tvb_new_octet_aligned(tvb, offset, length * 8);
+	/* Add new data source if the offet was unaligned */
+	if ((offset & 7) != 0) {
+		add_new_data_source(actx->pinfo, val_tvb, "Unaligned OCTET STRING");
+	}
 
 	hfi = proto_registrar_get_nth(hf_index);
 	if ((is_absolute && hfi->type == FT_OID) || (is_absolute && hfi->type == FT_REL_OID)) {
@@ -1624,7 +1600,11 @@ dissect_per_real(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tr
 
 	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_real_length, &val_length);
 	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
-	val_tvb = new_octet_aligned_subset(tvb, offset, actx, val_length);
+	val_tvb = tvb_new_octet_aligned(tvb, offset, val_length * 8);
+	/* Add new data source if the offet was unaligned */
+	if ((offset & 7) != 0) {
+		add_new_data_source(actx->pinfo, val_tvb, "Unaligned OCTET STRING");
+	}
 	end_offset = offset + val_length * 8;
 
 	val = asn1_get_real(tvb_get_ptr(val_tvb, 0, val_length), val_length);
@@ -2262,7 +2242,11 @@ DEBUG_ENTRY("dissect_per_octet_string");
 		/* 16.6 if length is fixed and less than or equal to two bytes*/
 		val_start = offset>>3;
 		val_length = min_len;
-		out_tvb = new_octet_aligned_subset(tvb, offset, actx, val_length);
+		out_tvb = tvb_new_octet_aligned(tvb, offset, val_length * 8);
+		/* Add new data source if the offet was unaligned */
+		if ((offset & 7) != 0) {
+			add_new_data_source(actx->pinfo, out_tvb, "Unaligned OCTET STRING");
+		}
 		offset+=min_len*8;
 
 	} else if ((min_len==max_len)&&(min_len<65536)) {
@@ -2274,7 +2258,10 @@ DEBUG_ENTRY("dissect_per_octet_string");
 		}
 		val_start = offset>>3;
 		val_length = min_len;
-		out_tvb = new_octet_aligned_subset(tvb, offset, actx, val_length);
+		out_tvb = tvb_new_octet_aligned(tvb, offset, val_length * 8);
+		if ((offset & 7) != 0) {
+			add_new_data_source(actx->pinfo, out_tvb, "Unaligned OCTET STRING");
+		}
 		offset+=min_len*8;
 
 	} else {  /* 16.8 */
@@ -2294,7 +2281,10 @@ DEBUG_ENTRY("dissect_per_octet_string");
 			if (actx->aligned){
 				BYTE_ALIGN_OFFSET(offset);
 			}
-			out_tvb = new_octet_aligned_subset(tvb, offset, actx, length);
+			out_tvb = tvb_new_octet_aligned(tvb, offset, length * 8);
+			if ((offset & 7) != 0) {
+				add_new_data_source(actx->pinfo, out_tvb, "Unaligned OCTET STRING");
+			}
 		} else {
 			val_start = offset>>3;
 		}
@@ -2542,7 +2532,10 @@ call_per_oid_callback(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_
 	end_offset = offset + type_length;
 
 
-	val_tvb = new_octet_aligned_subset(tvb, offset, actx, type_length);
+	val_tvb = tvb_new_octet_aligned(tvb, offset, type_length);
+	if ((offset & 7) != 0) {
+		add_new_data_source(actx->pinfo, val_tvb, "Unaligned OCTET STRING");
+	}
 
 	if (oid == NULL ||
 		((len = dissector_try_string(per_oid_dissector_table, oid, val_tvb, pinfo, tree, actx)) == 0))
