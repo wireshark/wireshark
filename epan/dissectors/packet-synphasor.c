@@ -1249,7 +1249,7 @@ void proto_register_synphasor(void)
 		  TFS(&conf_formatb0names), 0x1, NULL, HFILL }},
 
 		{ &hf_conf_fnom,
-		{ "Nominal line freqency", "synphasor.conf.fnom", FT_BOOLEAN, 16,
+		{ "Nominal line frequency", "synphasor.conf.fnom", FT_BOOLEAN, 16,
 		  TFS(&conf_fnomnames), 0x0001, NULL, HFILL }},
 
 		{ &hf_conf_cfgcnt,
