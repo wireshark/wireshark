@@ -180,7 +180,7 @@ sub _CheckParams {
 	while(($prm,$value)=splice(@$inarray,0,2)) {
         $prm=uc($prm);
 			exists($$checklist{$prm})
-		or	croak("Unknow parameter '$prm'");
+		or	croak("Unknown parameter '$prm'");
 			ref($value) eq $$checklist{$prm}
 		or	croak("Invalid value for parameter '$prm'");
         $prm=unpack('@2A*',$prm);
