@@ -101,8 +101,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2016-09-29"
-$Win32CurrentTag = "2016-09-29"
+$Win64CurrentTag = "2016-10-26"
+$Win32CurrentTag = "2016-10-26"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -113,7 +113,7 @@ $Win64Archives = @{
     "gtk+-bundle_2.24.23-3.39-2_win64ws.zip" = "gtk2";
     "kfw-3-2-2-x64-ws.zip" = "";
     "libsmi-svn-40773-win64ws.zip" = "";
-    "libssh-0.7.2-win64ws.zip" = "";
+    "libssh-0.7.3-win64ws.zip" = "";
     "nasm-2.09.08-win32.zip" = "";
     "portaudio_v19_2.zip" = "";
     "upx303w.zip" = "";
@@ -130,7 +130,7 @@ $Win32Archives = @{
     "gtk+-bundle_2.24.23-1.1-1_win32ws.zip" = "gtk2";
     "kfw-3-2-2-i386-ws-vc6.zip" = "";
     "libsmi-svn-40773-win32ws.zip" = "";
-    "libssh-0.7.2-win32ws.zip" = "";
+    "libssh-0.7.3-win32ws.zip" = "";
     "nasm-2.09.08-win32.zip" = "";
     "portaudio_v19_2.zip" = "";
     "upx303w.zip" = "";
@@ -183,7 +183,7 @@ $CleanupItems = @(
     "lua5.2.?"
     "libsmi-0.4.8"
     "libsmi-svn-40773-win??ws"
-    "libssh-0.7.2-win??ws"
+    "libssh-0.7.?-win??ws"
     "nasm-2.09.08"
     "portaudio_v19"
     "portaudio_v19_2"
