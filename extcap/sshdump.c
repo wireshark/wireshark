@@ -127,7 +127,6 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 	gchar* cmdline;
 	ssh_channel channel;
 	char* quoted_iface = NULL;
-	char* default_filter = NULL;
 	char* quoted_filter = NULL;
 	char* count_str = NULL;
 	unsigned int remote_port = 22;
@@ -155,10 +154,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 		g_debug("Remote capture command has disabled other options");
 	} else {
 		quoted_iface = g_shell_quote(iface);
-		default_filter = local_interfaces_to_filter(remote_port);
-		if (!cfilter)
-			cfilter = default_filter;
-		quoted_filter = g_shell_quote(cfilter);
+		quoted_filter = (cfilter ? g_shell_quote(cfilter) : "");
 		if (count > 0)
 			count_str = g_strdup_printf("-c %u", count);
 
@@ -175,7 +171,6 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 	}
 
 	g_free(quoted_iface);
-	g_free(default_filter);
 	g_free(quoted_filter);
 	g_free(cmdline);
 	if (count_str)
