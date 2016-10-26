@@ -333,8 +333,8 @@ static int hf_bthci_cmd_plaintext_data = -1;
 static int hf_bthci_cmd_random_number = -1;
 static int hf_bthci_cmd_encrypted_diversifier = -1;
 static int hf_bthci_cmd_le_long_term_key = -1;
-static int hf_bthci_cmd_rx_freqency = -1;
-static int hf_bthci_cmd_tx_freqency = -1;
+static int hf_bthci_cmd_rx_frequency = -1;
+static int hf_bthci_cmd_tx_frequency = -1;
 static int hf_bthci_cmd_test_data_length = -1;
 static int hf_bthci_cmd_test_packet_payload = -1;
 static int hf_bthci_cmd_parameter = -1;
@@ -3224,13 +3224,13 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             break;
 
         case 0x001d: /* LE Receiver Test */
-            item = proto_tree_add_item(tree, hf_bthci_cmd_rx_freqency, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            item = proto_tree_add_item(tree, hf_bthci_cmd_rx_frequency, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%d MHz)",  2402 + 2*tvb_get_guint8(tvb, offset));
             offset++;
             break;
 
         case 0x001e: /* LE Transmitter Test */
-            item = proto_tree_add_item(tree, hf_bthci_cmd_tx_freqency, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            item = proto_tree_add_item(tree, hf_bthci_cmd_tx_frequency, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%d MHz)",  2402 + 2*tvb_get_guint8(tvb, offset));
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_test_data_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -5051,13 +5051,13 @@ proto_register_bthci_cmd(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_bthci_cmd_rx_freqency,
-          { "Rx Frequency", "bthci_cmd.rx_freqency",
+        { &hf_bthci_cmd_rx_frequency,
+          { "Rx Frequency", "bthci_cmd.rx_frequency",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_bthci_cmd_tx_freqency,
-          { "Tx Frequency", "bthci_cmd.tx_freqency",
+        { &hf_bthci_cmd_tx_frequency,
+          { "Tx Frequency", "bthci_cmd.tx_frequency",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
