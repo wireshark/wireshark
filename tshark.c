@@ -1266,7 +1266,7 @@ main(int argc, char *argv[])
                         "\t\"json\"   Packet Summary, an JSON-based format for the details\n"
                         "\t         summary information of a decoded packet. This information is \n"
                         "\t         equivalent to the packet details printed with the -V flag.\n"
-                        "\t\"ek\"   Packet Summary, an EK JSON-based format for the bulk insert \n"
+                        "\t\"ek\"     Packet Summary, an EK JSON-based format for the bulk insert \n"
                         "\t         into elastic search cluster. This information is \n"
                         "\t         equivalent to the packet details printed with the -V flag.\n"
                         "\t\"text\"   Text of a human-readable one-line summary of each of the\n"
