@@ -24,6 +24,8 @@
 
 #include "tap_parameter_dialog.h"
 
+class QElapsedTimer;
+
 class WlanStatisticsDialog : public TapParameterDialog
 {
     Q_OBJECT
@@ -36,6 +38,9 @@ protected:
 
 private:
     int packet_count_;
+    int cur_network_;
+    QElapsedTimer *add_station_timer_;
+
 
     // Callbacks for register_tap_listener
     static void tapReset(void *ws_dlg_ptr);
@@ -46,6 +51,7 @@ private:
 
 private slots:
     virtual void fillTree();
+    void addStationTreeItems();
     void updateHeaderLabels();
     void captureFileClosing();
 };

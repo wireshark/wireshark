@@ -27,6 +27,7 @@
 
 #include <epan/dissectors/packet-ieee80211.h>
 
+#include <QElapsedTimer>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 
@@ -491,7 +492,9 @@ static const QString node_col_11_title_ = QObject::tr("Comment");
 
 WlanStatisticsDialog::WlanStatisticsDialog(QWidget &parent, CaptureFile &cf, const char *filter) :
     TapParameterDialog(parent, cf, HELP_STATS_WLAN_TRAFFIC_DIALOG),
-    packet_count_(0)
+    packet_count_(0),
+    cur_network_(0),
+    add_station_timer_(0)
 {
     setWindowSubtitle(tr("Wireless LAN Statistics"));
     loadGeometry(parent.width() * 4 / 5, parent.height() * 3 / 4, "WlanStatisticsDialog");
@@ -535,12 +538,15 @@ WlanStatisticsDialog::WlanStatisticsDialog(QWidget &parent, CaptureFile &cf, con
         setDisplayFilter(filter);
     }
 
+    add_station_timer_ = new QElapsedTimer();
+
     connect(statsTreeWidget(), SIGNAL(itemSelectionChanged()),
             this, SLOT(updateHeaderLabels()));
 }
 
 WlanStatisticsDialog::~WlanStatisticsDialog()
 {
+    delete add_station_timer_;
 }
 
 void WlanStatisticsDialog::tapReset(void *ws_dlg_ptr)
@@ -567,6 +573,8 @@ gboolean WlanStatisticsDialog::tapPacket(void *ws_dlg_ptr, _packet_info *, epan_
 
     ws_dlg->packet_count_++;
 
+    // XXX This is very slow for large numbers of networks. We might be
+    // able to store networks in a cache keyed on BSSID+SSID instead.
     WlanNetworkTreeWidgetItem *wn_ti = NULL;
     for (int i = 0; i < ws_dlg->statsTreeWidget()->topLevelItemCount(); i++) {
         QTreeWidgetItem *ti = ws_dlg->statsTreeWidget()->topLevelItem(i);
@@ -634,16 +642,32 @@ void WlanStatisticsDialog::fillTree()
         return;
     }
 
+    statsTreeWidget()->setSortingEnabled(false);
     cap_file_.retapPackets();
     tapDraw(this);
     removeTapListeners();
+    statsTreeWidget()->setSortingEnabled(true);
 
-    for (int i = 0; i < statsTreeWidget()->topLevelItemCount(); i++) {
-        QTreeWidgetItem *ti = statsTreeWidget()->topLevelItem(i);
+    // Don't freeze if we have a large number of stations.
+    cur_network_ = 0;
+    QTimer::singleShot(0, this, SLOT(addStationTreeItems()));
+}
+
+static const int add_station_interval_ = 5; // ms
+void WlanStatisticsDialog::addStationTreeItems()
+{
+    add_station_timer_->start();
+    while (add_station_timer_->elapsed() < add_station_interval_ && cur_network_ < statsTreeWidget()->topLevelItemCount()) {
+        QTreeWidgetItem *ti = statsTreeWidget()->topLevelItem(cur_network_);
         if (ti->type() != wlan_network_row_type_) continue;
 
         WlanNetworkTreeWidgetItem *wn_ti = static_cast<WlanNetworkTreeWidgetItem*>(ti);
         wn_ti->addStations();
+        ++cur_network_;
+    }
+
+    if (cur_network_ < statsTreeWidget()->topLevelItemCount()) {
+        QTimer::singleShot(0, this, SLOT(addStationTreeItems()));
     }
 }
 
