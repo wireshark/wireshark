@@ -27,11 +27,13 @@ noinst_LTLIBRARIES = libairpdcap.la
 
 include Custom.common
 
-libairpdcap_la_SOURCES =	\
+CRYPT_SOURCES =			\
 	airpdcap.c		\
 	airpdcap_ccmp.c		\
 	airpdcap_rijndael.c	\
-	airpdcap_tkip.c		\
+	airpdcap_tkip.c
+
+CRYPT_INCLUDES = 		\
 	airpdcap_debug.h	\
 	airpdcap_interop.h	\
 	airpdcap_int.h		\
@@ -40,7 +42,11 @@ libairpdcap_la_SOURCES =	\
 	airpdcap_user.h		\
 	airpdcap_ws.h		\
 	kasumi.h		\
-	wep-wpadefs.h		\
+	wep-wpadefs.h
+
+libairpdcap_la_SOURCES =	\
+	$(CRYPT_SOURCES)	\
+	$(CRYPT_INCLUDES)	\
 	$(CUSTOM_CRYPTO_SRC)
 
 EXTRA_DIST = \
@@ -61,4 +67,4 @@ MAINTAINERCLEANFILES =	\
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \
 	-sourcedir=$(srcdir) \
-	$(libairpdcap_la_SOURCES)
+	$(CRYPT_SOURCES)
