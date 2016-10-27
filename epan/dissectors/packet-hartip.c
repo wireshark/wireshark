@@ -1944,7 +1944,7 @@ proto_register_hartip(void)
         NULL, HFILL }
     },
     { &hf_hartip_pt_rsp_pv_transfer_function_code,
-      { "PV Transfer Funciton Code",                   "hart_ip.pt.rsp.pv_transfer_function_code",
+      { "PV Transfer Function Code",                   "hart_ip.pt.rsp.pv_transfer_function_code",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
