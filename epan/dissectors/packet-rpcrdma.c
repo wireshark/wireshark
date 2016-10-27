@@ -498,7 +498,7 @@ proto_register_rpcordma(void)
             NULL, 0, NULL, HFILL }
         },
         { &hf_rpcordma_position,
-          { "Postion in XDR", "rpcordma.position",
+          { "Position in XDR", "rpcordma.position",
             FT_UINT32, BASE_HEX,
             NULL, 0, NULL, HFILL }
         },
