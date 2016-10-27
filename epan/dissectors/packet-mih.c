@@ -699,7 +699,7 @@ static const value_string reg_request_code_vals[] = {
 };
 
 static const value_string ip_renewal_vals[] = {
-{0, "Change Not Requiered"},
+{0, "Change Not Required"},
 {1, "Change Required"},
 {0, NULL}
 };
