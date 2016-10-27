@@ -4402,7 +4402,7 @@ proto_register_homeplug_av(void)
         { "Action required", "homeplug_av.host_action_ind.action",
           FT_UINT8, BASE_HEX, VALS(homeplug_av_host_action_vals), 0x00, NULL, HFILL }
       },
-      /* Embedded Host Action Required Reponse */
+      /* Embedded Host Action Required Response */
       { &hf_homeplug_av_host_action_rsp,
         { "Embedded Host Action Required Response", "homeplug_av.host_action_rsp",
           FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
