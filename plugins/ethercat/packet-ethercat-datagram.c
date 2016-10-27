@@ -2423,7 +2423,7 @@ void proto_register_ecat(void)
              FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0001, NULL, HFILL }
          },
          { &hf_ecat_reg_esc_features_smaddrrestrict,
-           {"SM adressing restriction",		"ecat.reg.features.smaddrrestrict",
+           {"SM addressing restriction",		"ecat.reg.features.smaddrrestrict",
              FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0002, NULL, HFILL }
          },
          { &hf_ecat_reg_esc_features_dcsupport,
