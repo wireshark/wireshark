@@ -2386,7 +2386,7 @@ proto_register_glusterfs(void)
 				NULL, 0, NULL, HFILL }
 		},
 		{ &hf_glusterfs_namelen,
-			{ "Name Lenth", "glusterfs.namelen", FT_UINT32, BASE_DEC,
+			{ "Name Length", "glusterfs.namelen", FT_UINT32, BASE_DEC,
 				NULL, 0, NULL, HFILL }
 		},
 		{ &hf_glusterfs_linkname,
