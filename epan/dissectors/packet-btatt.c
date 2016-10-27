@@ -10706,12 +10706,12 @@ proto_register_btatt(void)
             NULL, HFILL}
         },
         {&hf_btatt_characteristic_presentation_namespace_description,
-            {"Namespace Descrition", "btatt.characteristic_presentation.namespace_description",
+            {"Namespace Description", "btatt.characteristic_presentation.namespace_description",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_characteristic_presentation_namespace_description_btsig,
-            {"Namespace Descrition", "btatt.characteristic_presentation.namespace_description",
+            {"Namespace Description", "btatt.characteristic_presentation.namespace_description",
             FT_UINT16, BASE_HEX, VALS(characteristic_presentation_namespace_description_btsig_vals), 0x0,
             NULL, HFILL}
         },
