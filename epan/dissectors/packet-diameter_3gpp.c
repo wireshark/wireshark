@@ -2458,7 +2458,7 @@ proto_register_diameter_3gpp(void)
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_feature_list1_s6a_flags_bit26,
-            { "UE Reachability Notifcation", "diameter.3gpp.feature_list1_s6a_flags_bit26",
+            { "UE Reachability Notification", "diameter.3gpp.feature_list1_s6a_flags_bit26",
             FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x04000000,
             NULL, HFILL }
         },
