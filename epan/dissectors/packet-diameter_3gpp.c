@@ -402,6 +402,20 @@ dissect_diameter_3gpp_sgsn_ipv6_address(tvbuff_t *tvb, packet_info *pinfo, proto
 
 }
 
+/*
+ *  AVP Code: 18 SGSN-MNC-MCC
+ */
+static int
+dissect_diameter_3gpp_sgsn_mnc_mcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    guint32 str_len;
+
+    str_len = tvb_reported_length(tvb);
+    dissect_e212_mcc_mnc_in_utf8_address(tvb, pinfo, tree, 0);
+
+    return str_len;
+}
+
 /* AVP Code: 20 3GPP-IMEISV
 * 3GPP TS 29.061
 */
@@ -1864,6 +1878,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 15 3GPP-SGSN-IPv6-Address */
     dissector_add_uint("diameter.3gpp", 15, create_dissector_handle(dissect_diameter_3gpp_sgsn_ipv6_address, proto_diameter_3gpp));
+
+    /* AVP Code: 18 3GPP-SGSN-MNC-MCC */
+    dissector_add_uint("diameter.3gpp", 18, create_dissector_handle(dissect_diameter_3gpp_sgsn_mnc_mcc, proto_diameter_3gpp));
 
     /* AVP Code: 20 3GPP-IMEISV */
     dissector_add_uint("diameter.3gpp", 20, create_dissector_handle(dissect_diameter_3gpp_imeisv, proto_diameter_3gpp));

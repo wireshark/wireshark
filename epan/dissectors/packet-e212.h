@@ -49,6 +49,9 @@ int dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 WS_DLL_PUBLIC
 int dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 
+WS_DLL_PUBLIC
+int dissect_e212_mcc_mnc_in_utf8_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset);
+
 /**
  *
  * Given a tvbuff, an offset into the tvbuff, and a length that starts

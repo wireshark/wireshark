@@ -321,6 +321,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_e212_imsi@Base 1.99.0
  dissect_e212_mcc_mnc@Base 1.9.1
  dissect_e212_mcc_mnc_in_address@Base 1.9.1
+ dissect_e212_mcc_mnc_in_utf8_address@Base 2.3.0
  dissect_e212_utf8_imsi@Base 1.99.0
  dissect_gsm_map_GlobalCellId@Base 1.9.1
  dissect_gsm_map_IMSI@Base 1.9.1
