@@ -1891,7 +1891,7 @@ if(ENABLE_APPLICATION_BUNDLE)
 		GENERATED 1
 	)
 
-	# Wireshark.app/Contents/Resources/share/man/man1
+	# Wireshark.app/Contents/Resources/share/man/man4
 	set_source_files_properties(${BUNDLE_RESOURCE_SHARE_MAN4_FILES} PROPERTIES
 		MACOSX_PACKAGE_LOCATION Resources/share/man/man4
 		GENERATED 1
