@@ -53,6 +53,8 @@ static int hf_btsmp_max_enc_key_size = -1;
 static int hf_btsmp_key_dist_enc = -1;
 static int hf_btsmp_key_dist_id = -1;
 static int hf_btsmp_key_dist_sign = -1;
+static int hf_btsmp_key_dist_linkkey = -1;
+static int hf_btsmp_key_dist_reserved = -1;
 static int hf_btsmp_ediv = -1;
 static int hf_btsmp_authreq = -1;
 static int hf_btsmp_initiator_key_distribution = -1;
@@ -208,6 +210,9 @@ dissect_btsmp_key_dist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
     proto_tree_add_item(st_param, hf_btsmp_key_dist_enc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(st_param, hf_btsmp_key_dist_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(st_param, hf_btsmp_key_dist_sign, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(st_param, hf_btsmp_key_dist_linkkey, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(st_param, hf_btsmp_key_dist_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(ti_param, ": ");
     if (param & 0x01) {
         proto_item_append_text(ti_param, "LTK ");
         col_append_str(pinfo->cinfo, COL_INFO, "LTK ");
@@ -219,6 +224,14 @@ dissect_btsmp_key_dist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
     if (param & 0x04) {
         proto_item_append_text(ti_param, "CSRK ");
         col_append_str(pinfo->cinfo, COL_INFO, "CSRK ");
+    }
+    if (param & 0x08) {
+        proto_item_append_text(ti_param, "Linkkey ");
+        col_append_str(pinfo->cinfo, COL_INFO, "Linkkey ");
+    }
+    if (param & 0xF0) {
+        proto_item_append_text(ti_param, "Reserved ");
+        col_append_str(pinfo->cinfo, COL_INFO, "Reserved ");
     }
 
     return offset + 1;
@@ -452,17 +465,27 @@ proto_register_btsmp(void)
         },
         {&hf_btsmp_key_dist_enc,
             {"Encryption Key (LTK)", "btsmp.key_dist_enc",
-            FT_UINT8, BASE_DEC, NULL, 0x01,
+            FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL}
         },
         {&hf_btsmp_key_dist_id,
             {"Id Key (IRK)", "btsmp.key_dist_id",
-            FT_UINT8, BASE_DEC, NULL, 0x02,
+            FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL}
         },
         {&hf_btsmp_key_dist_sign,
             {"Signature Key (CSRK)", "btsmp.key_dist_sign",
-            FT_UINT8, BASE_DEC, NULL, 0x04,
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btsmp_key_dist_linkkey,
+            {"Link Key", "btsmp.key_dist_linkkey",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL}
+        },
+        {&hf_btsmp_key_dist_reserved,
+            {"Reserved", "btsmp.key_dist_reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xF0,
             NULL, HFILL}
         },
         {&hf_btsmp_ediv,
