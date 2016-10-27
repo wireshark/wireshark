@@ -171,7 +171,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
    * call won't throw an exception.
    */
   linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-  line = tvb_get_ptr(tvb, offset, linelen);
+  line = wmem_strndup(wmem_packet_scope(), tvb_get_ptr(tvb, offset, linelen), linelen);
 
   if (pinfo->match_uint == pinfo->destport) {
     is_request = TRUE;
@@ -294,7 +294,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (data_val->msg_request) {
           /* this is a response to a RETR or TOP command */
 
-          if (g_ascii_strncasecmp(line, "+OK ", 4) == 0 && strlen(line) > 4) {
+          if (g_ascii_strncasecmp(line, "+OK ", 4) == 0 && linelen > 4) {
             /* the message will be sent - work out how many bytes */
             data_val->msg_read_len = 0;
             data_val->msg_tot_len = 0;
