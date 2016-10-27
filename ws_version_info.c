@@ -377,7 +377,7 @@ const char *
 get_ws_vcs_version_info(void)
 {
 #ifdef VCSVERSION
-	return VERSION " (" VCSVERSION " from " VCSBRANCH ")";
+	return VERSION " (" VCSVERSION ")";
 #else
 	return VERSION;
 #endif
