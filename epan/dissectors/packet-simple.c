@@ -603,7 +603,7 @@ void proto_register_simple(void)
           { "DX Common TOMS/BOMS", "simple.status.dx_flag.common_toms_boms", FT_BOOLEAN, 16, NULL, 0x4,
             NULL, HFILL }},
         { &hf_simple_status_dx_flag_simple_receive,
-          { "DX SIMPLE Recieve", "simple.status.dx_flag.simple_receive", FT_BOOLEAN, 16, NULL, 0x8,
+          { "DX SIMPLE Receive", "simple.status.dx_flag.simple_receive", FT_BOOLEAN, 16, NULL, 0x8,
             NULL, HFILL }},
         { &hf_simple_status_dx_flag_simple_transmit,
           { "DX SIMPLE Transmit", "simple.status.dx_flag.simple_transmit", FT_BOOLEAN, 16, NULL, 0x10,
