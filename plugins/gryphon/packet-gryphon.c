@@ -543,8 +543,8 @@ static const value_string operators[] = {
     {UVALUE_GE,                     "Greater than or equal to (unsigned)"},
     {UVALUE_LT,                     "Less than (unsigned)"},
     {UVALUE_LE,                     "Less than or equal to (unsigned)"},
-    {DIG_LOW_TO_HIGH,               "Digital, low to high transistion"},
-    {DIG_HIGH_TO_LOW,               "Digital, high to low transistion"},
+    {DIG_LOW_TO_HIGH,               "Digital, low to high transition"},
+    {DIG_HIGH_TO_LOW,               "Digital, high to low transition"},
     {DIG_TRANSITION,                "Digital, change of state"},
     {0,                 NULL},
 };
