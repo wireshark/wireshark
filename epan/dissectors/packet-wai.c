@@ -166,7 +166,7 @@ static const value_string wai_type_names [] = {
 
 static const value_string wai_attr_type_names [] = {
     { 1, "Signature"},
-    { 2, "Certificate Authentification Result"},
+    { 2, "Certificate Authentication Result"},
     { 3, "Identity List"},
     { 0, NULL }
 };
