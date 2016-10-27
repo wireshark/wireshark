@@ -607,7 +607,7 @@ enum QuicErrorCode {
     QUIC_TOO_MANY_RTOS = 85,
 
     /* Crypto errors. */
-    /* Hanshake failed. */
+    /* Handshake failed. */
     QUIC_HANDSHAKE_FAILED = 28,
     /* Handshake message contained out of order tags. */
     QUIC_CRYPTO_TAGS_OUT_OF_ORDER = 29,
@@ -721,7 +721,7 @@ static const value_string error_code_vals[] = {
     { QUIC_CONNECTION_TIMED_OUT, "We hit our prenegotiated (or default) timeout" },
     { QUIC_ERROR_MIGRATING_ADDRESS, "There was an error encountered migrating addresses" },
     { QUIC_PACKET_WRITE_ERROR, "There was an error while writing to the socket" },
-    { QUIC_HANDSHAKE_FAILED, "Hanshake failed" },
+    { QUIC_HANDSHAKE_FAILED, "Handshake failed" },
     { QUIC_CRYPTO_TAGS_OUT_OF_ORDER, "Handshake message contained out of order tags" },
     { QUIC_CRYPTO_TOO_MANY_ENTRIES, "Handshake message contained too many entries" },
     { QUIC_CRYPTO_INVALID_VALUE_LENGTH, "Handshake message contained an invalid value length" },
