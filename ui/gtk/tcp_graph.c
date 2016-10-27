@@ -4500,7 +4500,7 @@ static int rint(double x)
     int dec, sig;
 
     buf = _fcvt(x, 0, &dec, &sig);
-    ws_strtoi32(buf, NULL. &i);
+    ws_strtoi32(buf, NULL, &i);
     if (sig == 1) {
         i = i * -1;
     }

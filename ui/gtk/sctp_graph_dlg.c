@@ -1862,7 +1862,7 @@ static int
 rint (double x)
 {
 	char *buf;
-	int i = 0
+	int i = 0;
 	int dec,sig;
 
 	buf = _fcvt(x, 0, &dec, &sig);
