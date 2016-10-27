@@ -1489,8 +1489,8 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
     /* Between the challenge and the user provided password, we can build the
        NTLMSSP key and initialize the cipher if we are not in EXTENDED SECURITY
        in this case we need the client challenge as well*/
-    /* BTW this is true just if we are in LM Authentification if not the logic is a bit different.
-     * Right now it's not very clear what is LM Authentification it __seems__ to be when
+    /* BTW this is true just if we are in LM Authentication if not the logic is a bit different.
+     * Right now it's not very clear what is LM Authentication it __seems__ to be when
      * NEGOTIATE NT ONLY is not set and NEGOSIATE EXTENDED SECURITY is not set as well*/
     if (!(conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY))
     {
