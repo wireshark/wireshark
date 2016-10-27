@@ -194,7 +194,7 @@ void proto_register_carp(void)
            NULL, HFILL }},
 
         { &hf_carp_advskew,
-          {"Advertisment Skew", "carp.advskew",
+          {"Advertisement Skew", "carp.advskew",
            FT_UINT8, BASE_DEC, NULL, 0x0,
            NULL, HFILL }},
 
