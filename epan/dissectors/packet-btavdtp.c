@@ -2321,7 +2321,7 @@ proto_register_btavdtp(void)
             NULL, HFILL }
         },
         { &hf_btavdtp_sbc_min_bitpool,
-            { "Minumum Bitpool",                "btavdtp.codec.sbc.minimum_bitpool",
+            { "Minimum Bitpool",                "btavdtp.codec.sbc.minimum_bitpool",
             FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
