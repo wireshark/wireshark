@@ -635,23 +635,15 @@ sub update_versioned_files
 
 sub new_version_h
 {
-	my $VCS_REVISION;
-
 	if ($git_description) {
-		$VCS_REVISION = "#define VCSVERSION \"" .
-			$git_description . "\"\n" .
-			"#define VCSBRANCH \"" . $repo_branch . "\"\n";
-	} elsif ($last_change && $num_commits) {
-		$VCS_REVISION = "#define VCSVERSION \"" . $vcs_name . " Rev " .
-			$num_commits . "\"\n" .
-			"#define VCSBRANCH \"" . $repo_branch . "\"\n";
-	} else {
-		$VCS_REVISION = "#define VCSVERSION \"" . $vcs_name .
-			" Rev Unknown\"\n" .
-			"#define VCSBRANCH \"unknown\"\n";
+		return "#define VCSVERSION \"$git_description from $repo_branch\"\n";
 	}
 
-	return $VCS_REVISION;
+	if ($last_change && $num_commits) {
+		return "#define VCSVERSION \"$vcs_name Rev $num_commits from $repo_branch\"\n";
+	}
+
+	return "#define VCSVERSION \"$vcs_name Rev Unknown from unknown\"\n";
 }
 
 # Print the version control system's version to $version_file.
@@ -661,7 +653,7 @@ sub print_VCS_REVISION
 	my $VCS_REVISION = new_version_h();
 	my $needs_update = 1;
 	if (open(OLDREV, "<$version_file")) {
-		my $old_VCS_REVISION = <OLDREV> . <OLDREV>;
+		my $old_VCS_REVISION = <OLDREV>;
 		if ($old_VCS_REVISION eq $VCS_REVISION) {
 			$needs_update = 0;
 		}
