@@ -451,7 +451,7 @@ static const value_string ieee802154_cmd_names[] = {
     { IEEE802154_CMD_DSME_GTS_RSP,              "DSME GTS Response"},
     { IEEE802154_CMD_DSME_GTS_NOTIFY,           "DSME GTS Notify"},
     { IEEE802154_CMD_DSME_INFO_REQ,             "DSME Information Request"},
-    { IEEE802154_CMD_DSME_INFO_RSP,             "DSME Information Reponse"},
+    { IEEE802154_CMD_DSME_INFO_RSP,             "DSME Information Response"},
     { IEEE802154_CMD_DSME_BEACON_ALLOC_NOTIFY,  "DSME Beacon Allocation Notification"},
     { IEEE802154_CMD_DSME_BEACON_COLL_NOTIFY,   "DSME Beacon Collision Notification"},
     { IEEE802154_CMD_DSME_LINK_REPORT,          "DSME Link Report"},
