@@ -260,7 +260,7 @@ static const value_string terminal_types_vals[] = {
     {0x0605, "S/PDIF interface"},
     {0x0606, "1394 DA stream"},
     {0x0607, "1394 DV stream soudtrack"},
-    /* Embedded Funciton Terminal Types */
+    /* Embedded Function Terminal Types */
     {0x0700, "Embedded Undefined"},
     {0x0701, "Level Calibration Noise Source"},
     {0x0702, "Equalization Noise"},
