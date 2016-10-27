@@ -1296,7 +1296,7 @@ static const string_string pi_service_names[] = {
     { "_N_CHKDNO",                          "PI-Service _N_CHKDNO (Check whether the tools have unique D numbers)" },
     { "_N_CONFIG",                          "PI-Service _N_CONFIG (Reconfigures machine data)" },
     { "_N_CRCEDN",                          "PI-Service _N_CRCEDN (Creates a cutting edge by specifying an edge no.)" },
-    { "_N_DELECE",                          "PI-Service _N_DELECE (Deletes a cutting egde)" },
+    { "_N_DELECE",                          "PI-Service _N_DELECE (Deletes a cutting edge)" },
     { "_N_CREACE",                          "PI-Service _N_CREACE (Creates a cutting edge)" },
     { "_N_CREATO",                          "PI-Service _N_CREATO (Creates a tool)" },
     { "_N_DELETO",                          "PI-Service _N_DELETO (Deletes tool)" },
