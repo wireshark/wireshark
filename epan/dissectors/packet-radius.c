@@ -1763,7 +1763,7 @@ is_radius(tvbuff_t *tvb)
 
 /*
  * returns true if the response authenticator is valid
- * input: tvb of the reponse, corresponding request authenticator
+ * input: tvb of the response, corresponding request authenticator
  * uses the shared secret to calculate the Response authenticator
  * and checks with the current.
  * see RFC 2865, packet format page 16
@@ -2637,7 +2637,7 @@ proto_register_radius(void)
 	prefs_register_string_preference(radius_module, "shared_secret", "Shared Secret",
 					 "Shared secret used to decode User Passwords and validate Response Authenticators",
 					 &shared_secret);
-	prefs_register_bool_preference(radius_module, "validate_authenticator", "Validate Reponse Authenticator",
+	prefs_register_bool_preference(radius_module, "validate_authenticator", "Validate Response Authenticator",
 				       "Whether to check or not if Response Authenticator is correct. You need to define shared secret for this to work.",
 				       &validate_authenticator);
 	prefs_register_bool_preference(radius_module, "show_length", "Show AVP Lengths",
