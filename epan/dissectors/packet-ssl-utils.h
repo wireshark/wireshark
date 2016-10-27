@@ -1036,12 +1036,12 @@ ssl_common_dissect_t name = {   \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_psk_identity_auth_modes_length,                 \
-      { "Authentification Modes length", prefix ".handshake.extensions.psk.identity.auth_modes_length", \
+      { "Authentication Modes length", prefix ".handshake.extensions.psk.identity.auth_modes_length",   \
         FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_psk_identity_auth_mode,                         \
-      { "Authentification Mode", prefix ".handshake.extensions.psk.identity.auth_mode", \
+      { "Authentication Mode", prefix ".handshake.extensions.psk.identity.auth_mode",   \
         FT_UINT8, BASE_DEC, VALS(tls_hello_ext_psk_auth_mode), 0x0,     \
         NULL, HFILL }                                                   \
     },                                                                  \
