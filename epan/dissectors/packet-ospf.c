@@ -3599,7 +3599,7 @@ proto_register_ospf(void)
          { "(MC) Multicast", "ospf.v3.prefix.options.mc", FT_BOOLEAN, 8,
            TFS(&tfs_set_notset), OSPF_V3_PREFIX_OPTION_MC, NULL, HFILL }},
         {&hf_ospf_v3_prefix_option_p,
-         { "(P) Propogate", "ospf.v3.prefix.options.p", FT_BOOLEAN, 8,
+         { "(P) Propagate", "ospf.v3.prefix.options.p", FT_BOOLEAN, 8,
            TFS(&tfs_set_notset), OSPF_V3_PREFIX_OPTION_P, NULL, HFILL }},
 
         /* Dynamic Hostname contained in the Opaque RI LSA - dynamic hostname TLV*/
