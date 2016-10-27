@@ -2793,7 +2793,7 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
 }
 
 
-/* Dissect a single Random Access Reponse body */
+/* Dissect a single Random Access Response body */
 static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                               proto_item *pdu_ti,
                               gint offset, guint8 rapid, mac_lte_info *p_mac_lte_info)
@@ -3030,7 +3030,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 
 #define MAX_RAR_PDUS 64
-/* Dissect Random Access Reponse (RAR) PDU */
+/* Dissect Random Access Response (RAR) PDU */
 static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *pdu_ti,
                         gint offset, mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info)
 {
