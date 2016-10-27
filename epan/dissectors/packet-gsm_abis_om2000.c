@@ -545,7 +545,7 @@ static const value_string om2k_attr_id_vals[] = {
 	{ 0x0007, "Input BS_AG_BLKS_RES" },
 	{ 0x001d, "Input FN Offset" },
 	{ 0x002f, "Power GMSK" },
-	{ 0x0033, "Reciever Diversity" },
+	{ 0x0033, "Receiver Diversity" },
 	{ 0x0037, "Power 8-PSK" },
 	{ 0x003a, "TF Mode" },
 	{ 0x0043, "File Supported Functions OML I" },
