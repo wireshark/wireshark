@@ -845,7 +845,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     nw_connection = (header.conn_high*256)+header.conn_low;
 
     /* Ok, we need to track the conversation so that we can
-     * determine if a new server session is occuring for this
+     * determine if a new server session is occurring for this
      * connection.
      */
     conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
