@@ -560,7 +560,7 @@ static const value_string mausb_cancel_transfer_status_string[] = {
     { 1, "Canceled before any data was moved"},
     { 2, "Canceled after some data was moved"},
     { 3, "Transfer completed"},
-    { 4, "Transfer not yet recieved"},
+    { 4, "Transfer not yet received"},
     { 5, "Transfer cleared without any data moved"},
     { 0, NULL}
 };
