@@ -406,7 +406,9 @@ create_shb_header(const merge_in_file_t *in_files, const guint in_file_count,
     shb_data->section_length = -1;
     /* TODO: handle comments from each file being merged */
     opt_len = comment_gstr->len;
-    wtap_block_set_nth_string_option_value(shb_hdr, OPT_COMMENT, 0, g_string_free(comment_gstr, TRUE), opt_len); /* section comment */
+    opt_str = g_string_free(comment_gstr, FALSE);
+    wtap_block_set_nth_string_option_value(shb_hdr, OPT_COMMENT, 0, opt_str, opt_len); /* section comment */
+    g_free(opt_str);
     /*
      * XXX - and how do we preserve all the OPT_SHB_HARDWARE, OPT_SHB_OS,
      * and OPT_SHB_USERAPPL values from all the previous files?
