@@ -9860,7 +9860,7 @@ proto_register_smb2(void)
 
 		{ &hf_smb2_fsctl_odx_xfer_length,
 			{ "TransferLength", "smb2.fsctl.odx.xfer_length", FT_UINT64, BASE_DEC,
-			NULL, 0, "Length Transfered", HFILL }
+			NULL, 0, "Length Transferred", HFILL }
 		},
 
 		{ &hf_smb2_fsctl_odx_token_offset,
