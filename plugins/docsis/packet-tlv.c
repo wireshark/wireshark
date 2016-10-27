@@ -5879,9 +5879,9 @@ proto_register_docsis_tlv (void)
       "SA Descriptor", HFILL}
     },
     {&hf_docsis_tlv_init_ch_timeout,
-     {"52 Intializing Channel Timeout", "docsis_tlv.init_ch_timeout",
+     {"52 Initializing Channel Timeout", "docsis_tlv.init_ch_timeout",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Intializing Channel Timeout", HFILL}
+      "Initializing Channel Timeout", HFILL}
     },
 #if 0
     {&hf_docsis_tlv_ch_asgn,
