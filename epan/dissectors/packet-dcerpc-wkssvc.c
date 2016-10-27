@@ -850,7 +850,7 @@ static const true_false_string wkssvc_joinflags_WKSSVC_JOIN_FLAGS_DOMAIN_JOIN_IF
    "Do not allow join to a new domain if the computer is already joined to a domain",
 };
 static const true_false_string wkssvc_joinflags_WKSSVC_JOIN_FLAGS_WIN9X_UPGRADE_tfs = {
-   "The join operation is occuring as part of an upgrade of Windows 9x",
+   "The join operation is occurring as part of an upgrade of Windows 9x",
    "The join operation is not part of a Windows 9x upgrade",
 };
 static const true_false_string wkssvc_joinflags_WKSSVC_JOIN_FLAGS_ACCOUNT_DELETE_tfs = {
