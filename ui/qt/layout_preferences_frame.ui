@@ -50,7 +50,7 @@
         <bool>true</bool>
        </property>
        <attribute name="buttonGroup">
-        <string notr="true">layoyutButtonGroup</string>
+        <string notr="true">layoutButtonGroup</string>
        </attribute>
       </widget>
      </item>
@@ -73,7 +73,7 @@
         <bool>true</bool>
        </property>
        <attribute name="buttonGroup">
-        <string notr="true">layoyutButtonGroup</string>
+        <string notr="true">layoutButtonGroup</string>
        </attribute>
       </widget>
      </item>
@@ -96,7 +96,7 @@
         <bool>true</bool>
        </property>
        <attribute name="buttonGroup">
-        <string notr="true">layoyutButtonGroup</string>
+        <string notr="true">layoutButtonGroup</string>
        </attribute>
       </widget>
      </item>
@@ -119,7 +119,7 @@
         <bool>true</bool>
        </property>
        <attribute name="buttonGroup">
-        <string notr="true">layoyutButtonGroup</string>
+        <string notr="true">layoutButtonGroup</string>
        </attribute>
       </widget>
      </item>
@@ -142,7 +142,7 @@
         <bool>true</bool>
        </property>
        <attribute name="buttonGroup">
-        <string notr="true">layoyutButtonGroup</string>
+        <string notr="true">layoutButtonGroup</string>
        </attribute>
       </widget>
      </item>
@@ -165,7 +165,7 @@
         <bool>true</bool>
        </property>
        <attribute name="buttonGroup">
-        <string notr="true">layoyutButtonGroup</string>
+        <string notr="true">layoutButtonGroup</string>
        </attribute>
       </widget>
      </item>
@@ -378,7 +378,7 @@
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="layoyutButtonGroup"/>
+  <buttongroup name="layoutButtonGroup"/>
   <buttongroup name="pane2ButtonGroup"/>
   <buttongroup name="pane3ButtonGroup"/>
   <buttongroup name="pane1ButtonGroup"/>
