@@ -178,7 +178,6 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     guint8 len = 0;
     heur_dtbl_entry_t *hdtbl_entry;
-    const guint8 *strptr = NULL;
     tvbuff_t *next_tvb;
 
     len = tvb_get_guint8(tvb, offset);
@@ -188,17 +187,13 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += len;
     len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_hpfeeds_chan_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-
-    /* get the channel name as ephemeral string to pass it to the heuristic decoders */
-    proto_tree_add_item_ret_string(tree, hf_hpfeeds_channel, tvb, offset, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &strptr);
-    offset += len;
+    offset += len + 1;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
     /* try the heuristic dissectors */
     if (try_heuristic) {
-        if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, (void*)strptr)) {
+        if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
             return;
         }
     }
