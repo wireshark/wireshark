@@ -373,6 +373,7 @@ static gint ett_ieee802154_psie_long = -1;
 static gint ett_ieee802154_psie_long_bitmap = -1;
 static gint ett_ieee802154_psie_enh_beacon_flt = -1;
 static gint ett_ieee802154_psie_enh_beacon_flt_bitmap = -1;
+static gint ett_ieee802154_psie_slotframe_link_slotframes = -1;
 static gint ett_ieee802154_zigbee = -1;
 static gint ett_ieee802154_zboss = -1;
 static gint ett_ieee802154_p_ie_sixtop = -1;
@@ -1763,25 +1764,37 @@ dissect_802154_p_ie_sh_mlme_tsch_slotframe_link(tvbuff_t *tvb, proto_tree *p_inf
     guint8      nb_links_aux;
     proto_tree *p_inf_elem_tree_mlme_payload = NULL;
     proto_tree *p_inf_elem_tree_mlme_payload_data = NULL;
+    proto_tree *p_inf_elem_tree_psie_slotframe_link_slotframes = NULL;
+    guint8      slotframe_index;
     nb_slotframes       = tvb_get_guint8(tvb, *offset);
     nb_slotframes_aux   = nb_slotframes;
 
+    p_inf_elem_tree_mlme_payload = proto_tree_add_subtree_format(p_inf_elem_tree_mlme, tvb, *offset, psie_remaining, ett_ieee802154_mlme_payload, NULL,
+                                                                 "Data: Slotframe and Link IE");
+    proto_tree_add_item(p_inf_elem_tree_mlme_payload, hf_ieee802154_p_ie_mlme_sh_tsch_slotf_link_nb_slotf, tvb, (*offset), 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    slotframe_index = 1;
     while ( nb_slotframes_aux > 0 ){
-        nb_links            = tvb_get_guint8(tvb, *offset+4);
+        nb_links            = tvb_get_guint8(tvb, *offset+3);
         nb_links_aux        = nb_links;
 
-        p_inf_elem_tree_mlme_payload = proto_tree_add_subtree_format(p_inf_elem_tree_mlme, tvb, *offset, psie_remaining, ett_ieee802154_mlme_payload, NULL,
-                    "Data: Slotframe and Link IE");
-        proto_tree_add_item(p_inf_elem_tree_mlme_payload, hf_ieee802154_p_ie_mlme_sh_tsch_slotf_link_nb_slotf, tvb, (*offset), 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(p_inf_elem_tree_mlme_payload, hf_ieee802154_p_ie_mlme_sh_tsch_slotf_link_slotf_handle, tvb, (*offset) + 1 , 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(p_inf_elem_tree_mlme_payload, hf_ieee802154_p_ie_mlme_sh_tsch_slotf_link_slotf_size, tvb, (*offset) + 2, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(p_inf_elem_tree_mlme_payload, hf_ieee802154_p_ie_mlme_sh_tsch_slotf_link_nb_links, tvb, (*offset) + 4, 1, ENC_LITTLE_ENDIAN);
+        p_inf_elem_tree_psie_slotframe_link_slotframes =
+          proto_tree_add_subtree_format(p_inf_elem_tree_mlme_payload,
+                                        tvb, *offset, 4 + 5 * nb_links_aux,
+                                        ett_ieee802154_psie_slotframe_link_slotframes,
+                                        NULL, "Slotframes [%u]", slotframe_index);
+        slotframe_index += 1;
+
+        proto_tree_add_item(p_inf_elem_tree_psie_slotframe_link_slotframes, hf_ieee802154_p_ie_mlme_sh_tsch_slotf_link_slotf_handle, tvb, (*offset), 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(p_inf_elem_tree_psie_slotframe_link_slotframes, hf_ieee802154_p_ie_mlme_sh_tsch_slotf_link_slotf_size, tvb, (*offset) + 1, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(p_inf_elem_tree_psie_slotframe_link_slotframes, hf_ieee802154_p_ie_mlme_sh_tsch_slotf_link_nb_links, tvb, (*offset) + 3, 1, ENC_LITTLE_ENDIAN);
 
         nb_slotframes_aux -= 1;
-        *offset += 5;
+        *offset += 4;
         while (nb_links_aux > 0) {
 
-            p_inf_elem_tree_mlme_payload_data = proto_tree_add_subtree_format(p_inf_elem_tree_mlme_payload, tvb, *offset, 5, ett_ieee802154_mlme_payload_data, NULL,
+            p_inf_elem_tree_mlme_payload_data = proto_tree_add_subtree_format(p_inf_elem_tree_psie_slotframe_link_slotframes, tvb, *offset, 5, ett_ieee802154_mlme_payload_data, NULL,
                     "Data: Link Information");
             proto_tree_add_item(p_inf_elem_tree_mlme_payload_data, hf_ieee802154_p_ie_mlme_sh_tsch_slotf_link_timeslot, tvb, (*offset), 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(p_inf_elem_tree_mlme_payload_data, hf_ieee802154_p_ie_mlme_sh_tsch_slotf_link_channel_offset, tvb, (*offset) + 2, 2, ENC_LITTLE_ENDIAN);
@@ -3890,6 +3903,7 @@ void proto_register_ieee802154(void)
         &ett_ieee802154_psie_long_bitmap,
         &ett_ieee802154_psie_enh_beacon_flt,
         &ett_ieee802154_psie_enh_beacon_flt_bitmap,
+        &ett_ieee802154_psie_slotframe_link_slotframes,
         &ett_ieee802154_zigbee,
         &ett_ieee802154_zboss,
         &ett_ieee802154_p_ie_sixtop,
