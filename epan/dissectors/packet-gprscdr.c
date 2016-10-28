@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-gprscdr.c                                                           */
-/* asn2wrs.py -b -p gprscdr -c ./gprscdr.cnf -s ./packet-gprscdr-template -D . -O ../.. GenericChargingDataTypesV1250.asn GPRSChargingDataTypesV641.asn GPRSChargingDataTypesV1260.asn */
+/* asn2wrs.py -b -p gprscdr -c ./gprscdr.cnf -s ./packet-gprscdr-template -D . -O ../.. GenericChargingDataTypesV1400.asn GPRSChargingDataTypesV641.asn GPRSChargingDataTypesV1400.asn */
 
 /* Input file: packet-gprscdr-template.c */
 
@@ -62,6 +62,7 @@ static int hf_gprscdr_manufacturerSpecificCause = -1;  /* ManagementExtension */
 static int hf_gprscdr_positionMethodFailureCause = -1;  /* PositionMethodFailure_Diagnostic */
 static int hf_gprscdr_unauthorizedLCSClientCause = -1;  /* UnauthorizedLCSClient_Diagnostic */
 static int hf_gprscdr_diameterResultCodeAndExperimentalResult = -1;  /* INTEGER */
+static int hf_gprscdr_rANNASCause = -1;           /* OCTET_STRING */
 static int hf_gprscdr_iPBinaryAddress = -1;       /* IPBinaryAddress */
 static int hf_gprscdr_iPTextRepresentedAddress = -1;  /* IPTextRepresentedAddress */
 static int hf_gprscdr_iPBinV4Address = -1;        /* IPBinV4Address */
@@ -71,6 +72,12 @@ static int hf_gprscdr_iPBinV6AddressWithPrefix = -1;  /* IPBinV6AddressWithPrefi
 static int hf_gprscdr_pDPAddressPrefixLength = -1;  /* PDPAddressPrefixLength */
 static int hf_gprscdr_iPTextV4Address = -1;       /* IA5String_SIZE_7_15 */
 static int hf_gprscdr_iPTextV6Address = -1;       /* IA5String_SIZE_15_45 */
+static int hf_gprscdr_lcsClientExternalID = -1;   /* LCSClientExternalID */
+static int hf_gprscdr_lcsClientDialedByMS = -1;   /* AddressString */
+static int hf_gprscdr_lcsClientInternalID = -1;   /* LCSClientInternalID */
+static int hf_gprscdr_locationAreaCode = -1;      /* LocationAreaCode */
+static int hf_gprscdr_cellId = -1;                /* CellId */
+static int hf_gprscdr_mCC_MNC = -1;               /* MCC_MNC */
 static int hf_gprscdr_ManagementExtensions_item = -1;  /* ManagementExtension */
 static int hf_gprscdr_tMGI = -1;                  /* TMGI */
 static int hf_gprscdr_mBMSSessionIdentity = -1;   /* MBMSSessionIdentity */
@@ -83,6 +90,8 @@ static int hf_gprscdr_mBMSServiceArea = -1;       /* MBMSServiceArea */
 static int hf_gprscdr_requiredMBMSBearerCaps = -1;  /* RequiredMBMSBearerCapabilities */
 static int hf_gprscdr_mBMSGWAddress = -1;         /* GSNAddress */
 static int hf_gprscdr_cNIPMulticastDistribution = -1;  /* CNIPMulticastDistribution */
+static int hf_gprscdr_mBMSDataTransferStart = -1;  /* MBMSTime */
+static int hf_gprscdr_mBMSDataTransferStop = -1;  /* MBMSTime */
 static int hf_gprscdr_serviceSpecificData = -1;   /* GraphicString */
 static int hf_gprscdr_serviceSpecificType = -1;   /* INTEGER */
 static int hf_gprscdr_subscriptionIDType = -1;    /* SubscriptionIDType */
@@ -140,7 +149,6 @@ static int hf_gprscdr_servedIMEI = -1;            /* IMEI */
 static int hf_gprscdr_sgsnAddress_01 = -1;        /* GSNAddress */
 static int hf_gprscdr_msNetworkCapability = -1;   /* MSNetworkCapability */
 static int hf_gprscdr_routingArea = -1;           /* RoutingAreaCode */
-static int hf_gprscdr_locationAreaCode = -1;      /* LocationAreaCode */
 static int hf_gprscdr_cellIdentifier = -1;        /* CellId */
 static int hf_gprscdr_ggsnAddressUsed = -1;       /* GSNAddress */
 static int hf_gprscdr_sgsnChange = -1;            /* SGSNChange */
@@ -185,12 +193,19 @@ static int hf_gprscdr_sgsnPDPRecord_01 = -1;      /* SGSNPDPRecord */
 static int hf_gprscdr_ggsnPDPRecord_01 = -1;      /* GGSNPDPRecordV750 */
 static int hf_gprscdr_sgsnSMORecord_01 = -1;      /* SGSNSMORecord */
 static int hf_gprscdr_sgsnSMTRecord_01 = -1;      /* SGSNSMTRecord */
+static int hf_gprscdr_sgsnMTLCSRecord = -1;       /* SGSNMTLCSRecord */
+static int hf_gprscdr_sgsnMOLCSRecord = -1;       /* SGSNMOLCSRecord */
+static int hf_gprscdr_sgsnNILCSRecord = -1;       /* SGSNNILCSRecord */
 static int hf_gprscdr_egsnPDPRecord_01 = -1;      /* EGSNPDPRecordV750 */
+static int hf_gprscdr_sgsnMBMSRecord = -1;        /* SGSNMBMSRecord */
+static int hf_gprscdr_ggsnMBMSRecord = -1;        /* GGSNMBMSRecord */
 static int hf_gprscdr_sGWRecord = -1;             /* SGWRecord */
 static int hf_gprscdr_pGWRecord = -1;             /* PGWRecord */
+static int hf_gprscdr_gwMBMSRecord = -1;          /* GWMBMSRecord */
 static int hf_gprscdr_tDFRecord = -1;             /* TDFRecord */
 static int hf_gprscdr_iPERecord = -1;             /* IPERecord */
 static int hf_gprscdr_ePDGRecord = -1;            /* EPDGRecord */
+static int hf_gprscdr_tWAGRecord = -1;            /* TWAGRecord */
 static int hf_gprscdr_s_GWAddress = -1;           /* GSNAddress */
 static int hf_gprscdr_servingNodeAddress = -1;    /* SEQUENCE_OF_GSNAddress */
 static int hf_gprscdr_servingNodeAddress_item = -1;  /* GSNAddress */
@@ -222,6 +237,12 @@ static int hf_gprscdr_cNOperatorSelectionEnt = -1;  /* CNOperatorSelectionEntity
 static int hf_gprscdr_presenceReportingAreaInfo = -1;  /* PresenceReportingAreaInfo */
 static int hf_gprscdr_lastUserLocationInformation = -1;  /* OCTET_STRING */
 static int hf_gprscdr_lastMSTimeZone = -1;        /* MSTimeZone */
+static int hf_gprscdr_enhancedDiagnostics = -1;   /* EnhancedDiagnostics */
+static int hf_gprscdr_cPCIoTEPSOptimisationIndicator = -1;  /* CPCIoTEPSOptimisationIndicator */
+static int hf_gprscdr_uNIPDUCPOnlyFlag = -1;      /* UNIPDUCPOnlyFlag */
+static int hf_gprscdr_servingPLMNRateControl = -1;  /* ServingPLMNRateControl */
+static int hf_gprscdr_pDPPDNTypeExtension = -1;   /* PDPPDNTypeExtension */
+static int hf_gprscdr_mOExceptionDataCounter = -1;  /* MOExceptionDataCounter */
 static int hf_gprscdr_p_GWAddress = -1;           /* GSNAddress */
 static int hf_gprscdr_listOfServiceData_02 = -1;  /* SEQUENCE_OF_ChangeOfServiceCondition */
 static int hf_gprscdr_listOfServiceData_item_02 = -1;  /* ChangeOfServiceCondition */
@@ -230,6 +251,12 @@ static int hf_gprscdr_served3gpp2MEID = -1;       /* OCTET_STRING */
 static int hf_gprscdr_threeGPP2UserLocationInformation = -1;  /* OCTET_STRING */
 static int hf_gprscdr_tWANUserLocationInformation = -1;  /* TWANUserLocationInfo */
 static int hf_gprscdr_ePCQoSInformation = -1;     /* EPCQoSInformation */
+static int hf_gprscdr_nBIFOMMode = -1;            /* NBIFOMMode */
+static int hf_gprscdr_nBIFOMSupport = -1;         /* NBIFOMSupport */
+static int hf_gprscdr_uWANUserLocationInformation = -1;  /* UWANUserLocationInfo */
+static int hf_gprscdr_sGiPtPTunnellingMethod = -1;  /* SGiPtPTunnellingMethod */
+static int hf_gprscdr_aPNRateControl = -1;        /* APNRateControl */
+static int hf_gprscdr_chargingPerIPCANSessionIndicator = -1;  /* ChargingPerIPCANSessionIndicator */
 static int hf_gprscdr_tDFAddress = -1;            /* GSNAddress */
 static int hf_gprscdr_tDFiPv6AddressUsed = -1;    /* GSNAddress */
 static int hf_gprscdr_tDFPLMNIdentifier = -1;     /* PLMN_Id */
@@ -244,6 +271,8 @@ static int hf_gprscdr_servedIPCANsessionAddressExt = -1;  /* PDPAddress */
 static int hf_gprscdr_iPEdgeiPv6AddressUsed = -1;  /* GSNAddress */
 static int hf_gprscdr_ePDGAddressUsed = -1;       /* GSNAddress */
 static int hf_gprscdr_ePDGiPv6AddressUsed = -1;   /* GSNAddress */
+static int hf_gprscdr_tWAGAddressUsed = -1;       /* GSNAddress */
+static int hf_gprscdr_tWAGiPv6AddressUsed = -1;   /* GSNAddress */
 static int hf_gprscdr_changeLocation = -1;        /* SEQUENCE_OF_ChangeLocation */
 static int hf_gprscdr_changeLocation_item = -1;   /* ChangeLocation */
 static int hf_gprscdr_cAMELInformationMM = -1;    /* CAMELInformationMM */
@@ -254,10 +283,41 @@ static int hf_gprscdr_servingNodeiPv6Address_01 = -1;  /* GSNAddress */
 static int hf_gprscdr_mMEName = -1;               /* DiameterIdentity */
 static int hf_gprscdr_mMERealm = -1;              /* DiameterIdentity */
 static int hf_gprscdr_originatingAddress = -1;    /* AddressString */
+static int hf_gprscdr_lcsClientType = -1;         /* LCSClientType */
+static int hf_gprscdr_lcsClientIdentity = -1;     /* LCSClientIdentity */
+static int hf_gprscdr_locationType = -1;          /* LocationType */
+static int hf_gprscdr_lcsQos = -1;                /* LCSQoSInfo */
+static int hf_gprscdr_lcsPriority = -1;           /* LCS_Priority */
+static int hf_gprscdr_mlcNumber = -1;             /* ISDN_AddressString */
+static int hf_gprscdr_measurementDuration = -1;   /* CallDuration */
+static int hf_gprscdr_notificationToMSUser = -1;  /* NotificationToMSUser */
+static int hf_gprscdr_privacyOverride = -1;       /* NULL */
+static int hf_gprscdr_location = -1;              /* LocationAreaAndCell */
+static int hf_gprscdr_locationEstimate = -1;      /* Ext_GeographicalInformation */
+static int hf_gprscdr_positioningData = -1;       /* PositioningData */
+static int hf_gprscdr_lcsCause = -1;              /* LCSCause */
+static int hf_gprscdr_locationMethod = -1;        /* LocationMethod */
+static int hf_gprscdr_listofRAs = -1;             /* SEQUENCE_OF_RAIdentity */
+static int hf_gprscdr_listofRAs_item = -1;        /* RAIdentity */
+static int hf_gprscdr_listOfTrafficVolumes_02 = -1;  /* SEQUENCE_OF_ChangeOfMBMSCondition */
+static int hf_gprscdr_listOfTrafficVolumes_item_02 = -1;  /* ChangeOfMBMSCondition */
+static int hf_gprscdr_numberofReceivingUE = -1;   /* INTEGER */
+static int hf_gprscdr_mbmsInformation = -1;       /* MBMSInformation */
+static int hf_gprscdr_listofDownstreamNodes = -1;  /* SEQUENCE_OF_GSNAddress */
+static int hf_gprscdr_listofDownstreamNodes_item = -1;  /* GSNAddress */
+static int hf_gprscdr_mbmsGWAddress = -1;         /* GSNAddress */
+static int hf_gprscdr_commonTeid = -1;            /* CTEID */
+static int hf_gprscdr_iPMulticastSourceAddress = -1;  /* PDPAddress */
 static int hf_gprscdr_physicalAccessID = -1;      /* UTF8String */
 static int hf_gprscdr_logicalAccessID = -1;       /* OCTET_STRING */
 static int hf_gprscdr_aFChargingIdentifier = -1;  /* AFChargingIdentifier */
 static int hf_gprscdr_flows = -1;                 /* Flows */
+static int hf_gprscdr_aPNRateControlUplink = -1;  /* APNRateControlParameters */
+static int hf_gprscdr_aPNRateControlDownlink = -1;  /* APNRateControlParameters */
+static int hf_gprscdr_additionalExceptionReports = -1;  /* AdditionalExceptionReports */
+static int hf_gprscdr_rateControlTimeUnit = -1;   /* RateControlTimeUnit */
+static int hf_gprscdr_rateControlMaxRate = -1;    /* INTEGER */
+static int hf_gprscdr_rateControlMaxMessageSize = -1;  /* DataVolume */
 static int hf_gprscdr_sCFAddress = -1;            /* SCFAddress */
 static int hf_gprscdr_serviceKey = -1;            /* ServiceKey */
 static int hf_gprscdr_defaultTransactionHandling = -1;  /* DefaultGPRS_Handling */
@@ -274,6 +334,10 @@ static int hf_gprscdr_cAMELSMSCAddress = -1;      /* AddressString */
 static int hf_gprscdr_smsReferenceNumber = -1;    /* CallReferenceNumber */
 static int hf_gprscdr_changeCondition_01 = -1;    /* ChangeCondition */
 static int hf_gprscdr_presenceReportingAreaStatus = -1;  /* PresenceReportingAreaStatus */
+static int hf_gprscdr_accessAvailabilityChangeReason = -1;  /* AccessAvailabilityChangeReason */
+static int hf_gprscdr_relatedChangeOfCharCondition = -1;  /* RelatedChangeOfCharCondition */
+static int hf_gprscdr_dataVolumeMBMSUplink = -1;  /* DataVolumeMBMS */
+static int hf_gprscdr_dataVolumeMBMSDownlink = -1;  /* DataVolumeMBMS */
 static int hf_gprscdr_serviceConditionChange_01 = -1;  /* ServiceConditionChange */
 static int hf_gprscdr_qoSInformationNeg_01 = -1;  /* EPCQoSInformation */
 static int hf_gprscdr_serviceSpecificInfo = -1;   /* SEQUENCE_OF_ServiceSpecificInfo */
@@ -281,9 +345,9 @@ static int hf_gprscdr_serviceSpecificInfo_item = -1;  /* ServiceSpecificInfo */
 static int hf_gprscdr_sponsorIdentity = -1;       /* OCTET_STRING */
 static int hf_gprscdr_applicationServiceProviderIdentity = -1;  /* OCTET_STRING */
 static int hf_gprscdr_aDCRuleBaseName = -1;       /* ADCRuleBaseName */
+static int hf_gprscdr_relatedChangeOfServiceCondition = -1;  /* RelatedChangeOfServiceCondition */
 static int hf_gprscdr_routingAreaCode = -1;       /* RoutingAreaCode */
-static int hf_gprscdr_cellId = -1;                /* CellId */
-static int hf_gprscdr_mCC_MNC = -1;               /* PLMN_Id */
+static int hf_gprscdr_mCC_MNC_01 = -1;            /* PLMN_Id */
 static int hf_gprscdr_qCI = -1;                   /* INTEGER */
 static int hf_gprscdr_maxRequestedBandwithUL = -1;  /* INTEGER */
 static int hf_gprscdr_maxRequestedBandwithDL = -1;  /* INTEGER */
@@ -300,15 +364,21 @@ static int hf_gprscdr_bSSID = -1;                 /* OCTET_STRING */
 static int hf_gprscdr_mediaComponentNumber = -1;  /* INTEGER */
 static int hf_gprscdr_flowNumber = -1;            /* T_flowNumber */
 static int hf_gprscdr_flowNumber_item = -1;       /* INTEGER */
+static int hf_gprscdr_counterValue = -1;          /* INTEGER */
+static int hf_gprscdr_counterTimestamp = -1;      /* TimeStamp */
 static int hf_gprscdr_iPAddress = -1;             /* IPAddress */
 static int hf_gprscdr_presenceReportingAreaIdentifier = -1;  /* OCTET_STRING */
 static int hf_gprscdr_pSFreeFormatData = -1;      /* FreeFormatData */
 static int hf_gprscdr_pSFFDAppendIndicator = -1;  /* FFDAppendIndicator */
+static int hf_gprscdr_sPLMNDLRateControlValue = -1;  /* INTEGER */
+static int hf_gprscdr_sPLMNULRateControlValue = -1;  /* INTEGER */
 static int hf_gprscdr_timeQuotaType = -1;         /* TimeQuotaType */
 static int hf_gprscdr_baseTimeInterval = -1;      /* INTEGER */
 static int hf_gprscdr_cSGId = -1;                 /* CSGId */
 static int hf_gprscdr_cSGAccessMode = -1;         /* CSGAccessMode */
 static int hf_gprscdr_cSGMembershipIndication = -1;  /* NULL */
+static int hf_gprscdr_uELocalIPAddress = -1;      /* IPAddress */
+static int hf_gprscdr_uDPSourcePort = -1;         /* OCTET_STRING_SIZE_2 */
 /* named bits */
 static int hf_gprscdr_LevelOfCAMELService_basic = -1;
 static int hf_gprscdr_LevelOfCAMELService_callDurationSupervision = -1;
@@ -395,6 +465,11 @@ static int hf_gprscdr_ServiceConditionChange_eCGIChange = -1;
 static int hf_gprscdr_ServiceConditionChange_tAIChange = -1;
 static int hf_gprscdr_ServiceConditionChange_userLocationChange = -1;
 static int hf_gprscdr_ServiceConditionChange_userCSGInformationChange = -1;
+static int hf_gprscdr_ServiceConditionChange_presenceInPRAChange = -1;
+static int hf_gprscdr_ServiceConditionChange_accessChangeOfSDF = -1;
+static int hf_gprscdr_ServiceConditionChange_indirectServiceConditionChange = -1;
+static int hf_gprscdr_ServiceConditionChange_servingPLMNRateControlChange = -1;
+static int hf_gprscdr_ServiceConditionChange_aPNRateControlChange = -1;
 
 /*--- End of included file: packet-gprscdr-hf.c ---*/
 #line 45 "./asn1/gprscdr/packet-gprscdr-template.c"
@@ -407,12 +482,15 @@ static int ett_gprscdr_managementextension_information = -1;
 /*--- Included file: packet-gprscdr-ett.c ---*/
 #line 1 "./asn1/gprscdr/packet-gprscdr-ett.c"
 static gint ett_gprscdr_Diagnostics = -1;
+static gint ett_gprscdr_EnhancedDiagnostics = -1;
 static gint ett_gprscdr_IPAddress = -1;
 static gint ett_gprscdr_IPBinaryAddress = -1;
 static gint ett_gprscdr_IPBinV6AddressWithOrWithoutPrefixLength = -1;
 static gint ett_gprscdr_IPBinV6AddressWithPrefixLength = -1;
 static gint ett_gprscdr_IPTextRepresentedAddress = -1;
+static gint ett_gprscdr_LCSClientIdentity = -1;
 static gint ett_gprscdr_LevelOfCAMELService = -1;
+static gint ett_gprscdr_LocationAreaAndCell = -1;
 static gint ett_gprscdr_ManagementExtensions = -1;
 static gint ett_gprscdr_MBMSInformation = -1;
 static gint ett_gprscdr_ServiceSpecificInfo = -1;
@@ -445,17 +523,29 @@ static gint ett_gprscdr_SEQUENCE_OF_ChangeOfServiceCondition = -1;
 static gint ett_gprscdr_TDFRecord = -1;
 static gint ett_gprscdr_IPERecord = -1;
 static gint ett_gprscdr_EPDGRecord = -1;
+static gint ett_gprscdr_TWAGRecord = -1;
 static gint ett_gprscdr_SGSNMMRecord = -1;
 static gint ett_gprscdr_SEQUENCE_OF_ChangeLocation = -1;
 static gint ett_gprscdr_SGSNPDPRecord = -1;
 static gint ett_gprscdr_SGSNSMORecord = -1;
 static gint ett_gprscdr_SGSNSMTRecord = -1;
+static gint ett_gprscdr_SGSNMTLCSRecord = -1;
+static gint ett_gprscdr_SGSNMOLCSRecord = -1;
+static gint ett_gprscdr_SGSNNILCSRecord = -1;
+static gint ett_gprscdr_SGSNMBMSRecord = -1;
+static gint ett_gprscdr_SEQUENCE_OF_RAIdentity = -1;
+static gint ett_gprscdr_SEQUENCE_OF_ChangeOfMBMSCondition = -1;
+static gint ett_gprscdr_GGSNMBMSRecord = -1;
+static gint ett_gprscdr_GWMBMSRecord = -1;
 static gint ett_gprscdr_AccessLineIdentifier = -1;
 static gint ett_gprscdr_AFRecordInformation = -1;
+static gint ett_gprscdr_APNRateControl = -1;
+static gint ett_gprscdr_APNRateControlParameters = -1;
 static gint ett_gprscdr_CAMELInformationMM = -1;
 static gint ett_gprscdr_CAMELInformationPDP = -1;
 static gint ett_gprscdr_CAMELInformationSMS = -1;
 static gint ett_gprscdr_ChangeOfCharCondition = -1;
+static gint ett_gprscdr_ChangeOfMBMSCondition = -1;
 static gint ett_gprscdr_ChangeOfServiceCondition = -1;
 static gint ett_gprscdr_SEQUENCE_OF_ServiceSpecificInfo = -1;
 static gint ett_gprscdr_ChangeLocation = -1;
@@ -465,13 +555,18 @@ static gint ett_gprscdr_SEQUENCE_OF_TimeStamp = -1;
 static gint ett_gprscdr_FixedUserLocationInformation = -1;
 static gint ett_gprscdr_Flows = -1;
 static gint ett_gprscdr_T_flowNumber = -1;
+static gint ett_gprscdr_MOExceptionDataCounter = -1;
 static gint ett_gprscdr_PDPAddress = -1;
 static gint ett_gprscdr_PresenceReportingAreaInfo = -1;
 static gint ett_gprscdr_PSFurnishChargingInformation = -1;
+static gint ett_gprscdr_RelatedChangeOfCharCondition = -1;
+static gint ett_gprscdr_RelatedChangeOfServiceCondition = -1;
 static gint ett_gprscdr_ServiceConditionChange = -1;
+static gint ett_gprscdr_ServingPLMNRateControl = -1;
 static gint ett_gprscdr_TimeQuotaMechanism = -1;
 static gint ett_gprscdr_TWANUserLocationInfo = -1;
 static gint ett_gprscdr_UserCSGInformation = -1;
+static gint ett_gprscdr_UWANUserLocationInfo = -1;
 
 /*--- End of included file: packet-gprscdr-ett.c ---*/
 #line 51 "./asn1/gprscdr/packet-gprscdr-template.c"
@@ -493,6 +588,12 @@ static const value_string gprscdr_daylight_saving_time_vals[] = {
 
 /*--- Included file: packet-gprscdr-fn.c ---*/
 #line 1 "./asn1/gprscdr/packet-gprscdr-fn.c"
+/*--- Cyclic dependencies ---*/
+
+/* RelatedChangeOfServiceCondition -> RelatedChangeOfServiceCondition */
+static int dissect_gprscdr_RelatedChangeOfServiceCondition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 
 
 static int
@@ -628,6 +729,22 @@ dissect_gprscdr_CellId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
+static const value_string gprscdr_CNIPMulticastDistribution_vals[] = {
+  {   0, "nO-IP-MULTICAST" },
+  {   1, "iP-MULTICAST" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gprscdr_CNIPMulticastDistribution(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
 
 static int
 dissect_gprscdr_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -659,7 +776,7 @@ dissect_gprscdr_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_gprscdr_T_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 69 "./asn1/gprscdr/gprscdr.cnf"
+#line 44 "./asn1/gprscdr/gprscdr.cnf"
 
   proto_tree *ext_tree;
   ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gprscdr_managementextension_information, NULL, "Information");
@@ -730,6 +847,30 @@ static int
 dissect_gprscdr_DiameterIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t EnhancedDiagnostics_sequence[] = {
+  { &hf_gprscdr_rANNASCause , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_EnhancedDiagnostics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   EnhancedDiagnostics_sequence, hf_index, ett_gprscdr_EnhancedDiagnostics);
 
   return offset;
 }
@@ -899,6 +1040,42 @@ dissect_gprscdr_GSNAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
+
+static int
+dissect_gprscdr_LCSCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t LCSClientIdentity_sequence[] = {
+  { &hf_gprscdr_lcsClientExternalID, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_LCSClientExternalID },
+  { &hf_gprscdr_lcsClientDialedByMS, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_AddressString },
+  { &hf_gprscdr_lcsClientInternalID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_LCSClientInternalID },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_LCSClientIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   LCSClientIdentity_sequence, hf_index, ett_gprscdr_LCSClientIdentity);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_LCSQoSInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
 static const asn_namedbit LevelOfCAMELService_bits[] = {
   {  0, &hf_gprscdr_LevelOfCAMELService_basic, -1, -1, "basic", NULL },
   {  1, &hf_gprscdr_LevelOfCAMELService_callDurationSupervision, -1, -1, "callDurationSupervision", NULL },
@@ -936,6 +1113,32 @@ dissect_gprscdr_LocationAreaCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 }
 
 
+
+static int
+dissect_gprscdr_MCC_MNC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t LocationAreaAndCell_sequence[] = {
+  { &hf_gprscdr_locationAreaCode, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprscdr_LocationAreaCode },
+  { &hf_gprscdr_cellId      , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_CellId },
+  { &hf_gprscdr_mCC_MNC     , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MCC_MNC },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_LocationAreaAndCell(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   LocationAreaAndCell_sequence, hf_index, ett_gprscdr_LocationAreaAndCell);
+
+  return offset;
+}
+
+
 static const ber_sequence_t ManagementExtensions_set_of[1] = {
   { &hf_gprscdr_ManagementExtensions_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gprscdr_ManagementExtension },
 };
@@ -944,6 +1147,75 @@ static int
 dissect_gprscdr_ManagementExtensions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  ManagementExtensions_set_of, hf_index, ett_gprscdr_ManagementExtensions);
+
+  return offset;
+}
+
+
+static const value_string gprscdr_MBMS2G3GIndicator_vals[] = {
+  {   0, "twoG" },
+  {   1, "threeG" },
+  {   2, "twoG-AND-threeG" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gprscdr_MBMS2G3GIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_TMGI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_MBMSSessionIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const value_string gprscdr_MBMSServiceType_vals[] = {
+  {   0, "mULTICAST" },
+  {   1, "bROADCAST" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gprscdr_MBMSServiceType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string gprscdr_MBMSUserServiceType_vals[] = {
+  {   0, "dOWNLOAD" },
+  {   1, "sTREAMING" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gprscdr_MBMSUserServiceType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -958,6 +1230,61 @@ dissect_gprscdr_RoutingAreaCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
   return offset;
 }
 
+
+
+static int
+dissect_gprscdr_MBMSServiceArea(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_RequiredMBMSBearerCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_MBMSTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t MBMSInformation_set[] = {
+  { &hf_gprscdr_tMGI        , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_TMGI },
+  { &hf_gprscdr_mBMSSessionIdentity, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MBMSSessionIdentity },
+  { &hf_gprscdr_mBMSServiceType, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MBMSServiceType },
+  { &hf_gprscdr_mBMSUserServiceType, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MBMSUserServiceType },
+  { &hf_gprscdr_mBMS2G3GIndicator, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MBMS2G3GIndicator },
+  { &hf_gprscdr_fileRepairSupported, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_BOOLEAN },
+  { &hf_gprscdr_rAI         , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RoutingAreaCode },
+  { &hf_gprscdr_mBMSServiceArea, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MBMSServiceArea },
+  { &hf_gprscdr_requiredMBMSBearerCaps, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RequiredMBMSBearerCapabilities },
+  { &hf_gprscdr_mBMSGWAddress, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
+  { &hf_gprscdr_cNIPMulticastDistribution, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_CNIPMulticastDistribution },
+  { &hf_gprscdr_mBMSDataTransferStart, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MBMSTime },
+  { &hf_gprscdr_mBMSDataTransferStop, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MBMSTime },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_MBMSInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              MBMSInformation_set, hf_index, ett_gprscdr_MBMSInformation);
+
+  return offset;
+}
 
 
 
@@ -982,7 +1309,7 @@ dissect_gprscdr_MSISDN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_gprscdr_MSTimeZone(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 118 "./asn1/gprscdr/gprscdr.cnf"
+#line 93 "./asn1/gprscdr/gprscdr.cnf"
 /*
  *
  * 1.Octet: Time Zone and 2. Octet: Daylight saving time, see TS 29.060 [75]
@@ -1012,6 +1339,16 @@ dissect_gprscdr_MSTimeZone(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
                         );
 
 
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_PositioningData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
 
   return offset;
 }
@@ -1117,12 +1454,20 @@ static const value_string gprscdr_RecordType_vals[] = {
   {  92, "tDFRecord" },
   {  95, "iPERecord" },
   {  96, "ePDGRecord" },
+  {  97, "tWAGRecord" },
   {  83, "mMTelRecord" },
   {  87, "mSCsRVCCRecord" },
   {  88, "mMTRFRecord" },
   {  99, "iCSRegisterRecord" },
   {  93, "sCSMORecord" },
   {  94, "sCSMTRecord" },
+  { 100, "pFDDRecord" },
+  { 101, "pFEDRecord" },
+  { 102, "pFDCRecord" },
+  { 103, "mECORecord" },
+  { 104, "mERERecord" },
+  { 105, "cPDTSCERecord" },
+  { 106, "cPDTSNNRecord" },
   { 0, NULL }
 };
 
@@ -1229,7 +1574,7 @@ dissect_gprscdr_SubscriptionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_gprscdr_TimeStamp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 79 "./asn1/gprscdr/gprscdr.cnf"
+#line 54 "./asn1/gprscdr/gprscdr.cnf"
 /*
  *
  * The contents of this field are a compact form of the UTCTime format
@@ -1394,16 +1739,6 @@ dissect_gprscdr_ChangeConditionV651(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_gprscdr_FailureHandlingContinue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_gprscdr_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
 
   return offset;
 }
@@ -1721,7 +2056,7 @@ dissect_gprscdr_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_gprscdr_PLMN_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 145 "./asn1/gprscdr/gprscdr.cnf"
+#line 120 "./asn1/gprscdr/gprscdr.cnf"
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
 
@@ -1790,7 +2125,7 @@ static const ber_sequence_t ChangeLocation_sequence[] = {
   { &hf_gprscdr_routingAreaCode, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_RoutingAreaCode },
   { &hf_gprscdr_cellId      , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_CellId },
   { &hf_gprscdr_changeTime  , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
-  { &hf_gprscdr_mCC_MNC     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PLMN_Id },
+  { &hf_gprscdr_mCC_MNC_01  , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PLMN_Id },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1831,6 +2166,7 @@ static const value_string gprscdr_CauseForRecClosing_vals[] = {
   {  24, "sGSNPLMNIDChange" },
   {  25, "sGWChange" },
   {  26, "aPNAMBRChange" },
+  {  27, "mOExceptionDataCounterReceipt" },
   {  52, "unauthorizedRequestingNetwork" },
   {  53, "unauthorizedLCSClient" },
   {  54, "positionMethodFailure" },
@@ -2539,6 +2875,12 @@ static const value_string gprscdr_ChangeCondition_vals[] = {
   {  11, "tAIChange" },
   {  12, "userLocationChange" },
   {  13, "userCSGInformationChange" },
+  {  14, "presenceInPRAChange" },
+  {  15, "removalOfAccess" },
+  {  16, "unusabilityOfAccess" },
+  {  17, "indirectChangeCondition" },
+  {  18, "userPlaneToUEChange" },
+  {  19, "servingPLMNRateControlChange" },
   { 0, NULL }
 };
 
@@ -2631,6 +2973,87 @@ dissect_gprscdr_UserCSGInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
+
+static int
+dissect_gprscdr_AccessAvailabilityChangeReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_OCTET_STRING_SIZE_2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t UWANUserLocationInfo_sequence[] = {
+  { &hf_gprscdr_uELocalIPAddress, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_IPAddress },
+  { &hf_gprscdr_uDPSourcePort, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING_SIZE_2 },
+  { &hf_gprscdr_sSID        , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
+  { &hf_gprscdr_bSSID       , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_UWANUserLocationInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   UWANUserLocationInfo_sequence, hf_index, ett_gprscdr_UWANUserLocationInfo);
+
+  return offset;
+}
+
+
+static const ber_sequence_t RelatedChangeOfCharCondition_sequence[] = {
+  { &hf_gprscdr_changeCondition_01, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_gprscdr_ChangeCondition },
+  { &hf_gprscdr_changeTime  , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_userLocationInformation, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
+  { &hf_gprscdr_presenceReportingAreaStatus, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PresenceReportingAreaStatus },
+  { &hf_gprscdr_userCSGInformation, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_UserCSGInformation },
+  { &hf_gprscdr_rATType     , BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RATType },
+  { &hf_gprscdr_uWANUserLocationInformation, BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_gprscdr_UWANUserLocationInfo },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_RelatedChangeOfCharCondition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   RelatedChangeOfCharCondition_sequence, hf_index, ett_gprscdr_RelatedChangeOfCharCondition);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_CPCIoTEPSOptimisationIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ServingPLMNRateControl_sequence[] = {
+  { &hf_gprscdr_sPLMNDLRateControlValue, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
+  { &hf_gprscdr_sPLMNULRateControlValue, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_ServingPLMNRateControl(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ServingPLMNRateControl_sequence, hf_index, ett_gprscdr_ServingPLMNRateControl);
+
+  return offset;
+}
+
+
 static const ber_sequence_t ChangeOfCharCondition_sequence[] = {
   { &hf_gprscdr_qosRequested, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_QoSInformation },
   { &hf_gprscdr_qosNegotiated, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_QoSInformation },
@@ -2643,6 +3066,14 @@ static const ber_sequence_t ChangeOfCharCondition_sequence[] = {
   { &hf_gprscdr_chargingID  , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingID },
   { &hf_gprscdr_presenceReportingAreaStatus, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PresenceReportingAreaStatus },
   { &hf_gprscdr_userCSGInformation, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_UserCSGInformation },
+  { &hf_gprscdr_diagnostics , BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_Diagnostics },
+  { &hf_gprscdr_enhancedDiagnostics, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_EnhancedDiagnostics },
+  { &hf_gprscdr_rATType     , BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RATType },
+  { &hf_gprscdr_accessAvailabilityChangeReason, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_AccessAvailabilityChangeReason },
+  { &hf_gprscdr_uWANUserLocationInformation, BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_UWANUserLocationInfo },
+  { &hf_gprscdr_relatedChangeOfCharCondition, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RelatedChangeOfCharCondition },
+  { &hf_gprscdr_cPCIoTEPSOptimisationIndicator, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_CPCIoTEPSOptimisationIndicator },
+  { &hf_gprscdr_servingPLMNRateControl, BER_CLASS_CON, 20, BER_FLAGS_IMPLTAG, dissect_gprscdr_ServingPLMNRateControl },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2828,6 +3259,247 @@ dissect_gprscdr_SGSNSMTRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
+static const ber_sequence_t SGSNMTLCSRecord_set[] = {
+  { &hf_gprscdr_recordType_01, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprscdr_RecordType },
+  { &hf_gprscdr_recordingEntity, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_RecordingEntity },
+  { &hf_gprscdr_lcsClientType, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_LCSClientType },
+  { &hf_gprscdr_lcsClientIdentity, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_gprscdr_LCSClientIdentity },
+  { &hf_gprscdr_servedIMSI  , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_gprscdr_servedMSISDN, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MSISDN },
+  { &hf_gprscdr_sgsnAddress_01, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
+  { &hf_gprscdr_locationType, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_LocationType },
+  { &hf_gprscdr_lcsQos      , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LCSQoSInfo },
+  { &hf_gprscdr_lcsPriority , BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_LCS_Priority },
+  { &hf_gprscdr_mlcNumber   , BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_gsm_map_ISDN_AddressString },
+  { &hf_gprscdr_eventTimeStamp, BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_measurementDuration, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_CallDuration },
+  { &hf_gprscdr_notificationToMSUser, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NotificationToMSUser },
+  { &hf_gprscdr_privacyOverride, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NULL },
+  { &hf_gprscdr_location    , BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LocationAreaAndCell },
+  { &hf_gprscdr_routingArea , BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RoutingAreaCode },
+  { &hf_gprscdr_locationEstimate, BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_Ext_GeographicalInformation },
+  { &hf_gprscdr_positioningData, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PositioningData },
+  { &hf_gprscdr_lcsCause    , BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LCSCause },
+  { &hf_gprscdr_diagnostics , BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_Diagnostics },
+  { &hf_gprscdr_nodeID      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NodeID },
+  { &hf_gprscdr_localSequenceNumber, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LocalSequenceNumber },
+  { &hf_gprscdr_chargingCharacteristics, BER_CLASS_CON, 23, BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingCharacteristics },
+  { &hf_gprscdr_chChSelectionMode, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ChChSelectionMode },
+  { &hf_gprscdr_rATType     , BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RATType },
+  { &hf_gprscdr_recordExtensions, BER_CLASS_CON, 26, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ManagementExtensions },
+  { &hf_gprscdr_causeForRecClosing_01, BER_CLASS_CON, 27, BER_FLAGS_IMPLTAG, dissect_gprscdr_CauseForRecClosing },
+  { &hf_gprscdr_servingNodePLMNIdentifier, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PLMN_Id },
+  { &hf_gprscdr_cNOperatorSelectionEnt, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_CNOperatorSelectionEntity },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_SGSNMTLCSRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SGSNMTLCSRecord_set, hf_index, ett_gprscdr_SGSNMTLCSRecord);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SGSNMOLCSRecord_set[] = {
+  { &hf_gprscdr_recordType_01, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprscdr_RecordType },
+  { &hf_gprscdr_recordingEntity, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_RecordingEntity },
+  { &hf_gprscdr_lcsClientType, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_LCSClientType },
+  { &hf_gprscdr_lcsClientIdentity, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LCSClientIdentity },
+  { &hf_gprscdr_servedIMSI  , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_gprscdr_servedMSISDN, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MSISDN },
+  { &hf_gprscdr_sgsnAddress_01, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
+  { &hf_gprscdr_locationMethod, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_gsm_ss_LocationMethod },
+  { &hf_gprscdr_lcsQos      , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LCSQoSInfo },
+  { &hf_gprscdr_lcsPriority , BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_LCS_Priority },
+  { &hf_gprscdr_mlcNumber   , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ISDN_AddressString },
+  { &hf_gprscdr_eventTimeStamp, BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_measurementDuration, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_CallDuration },
+  { &hf_gprscdr_location    , BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LocationAreaAndCell },
+  { &hf_gprscdr_routingArea , BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RoutingAreaCode },
+  { &hf_gprscdr_locationEstimate, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_Ext_GeographicalInformation },
+  { &hf_gprscdr_positioningData, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PositioningData },
+  { &hf_gprscdr_lcsCause    , BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LCSCause },
+  { &hf_gprscdr_diagnostics , BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_Diagnostics },
+  { &hf_gprscdr_nodeID      , BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NodeID },
+  { &hf_gprscdr_localSequenceNumber, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LocalSequenceNumber },
+  { &hf_gprscdr_chargingCharacteristics, BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingCharacteristics },
+  { &hf_gprscdr_chChSelectionMode, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ChChSelectionMode },
+  { &hf_gprscdr_rATType     , BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RATType },
+  { &hf_gprscdr_recordExtensions, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ManagementExtensions },
+  { &hf_gprscdr_causeForRecClosing_01, BER_CLASS_CON, 25, BER_FLAGS_IMPLTAG, dissect_gprscdr_CauseForRecClosing },
+  { &hf_gprscdr_servingNodePLMNIdentifier, BER_CLASS_CON, 26, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PLMN_Id },
+  { &hf_gprscdr_cNOperatorSelectionEnt, BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_CNOperatorSelectionEntity },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_SGSNMOLCSRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SGSNMOLCSRecord_set, hf_index, ett_gprscdr_SGSNMOLCSRecord);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SGSNNILCSRecord_set[] = {
+  { &hf_gprscdr_recordType_01, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprscdr_RecordType },
+  { &hf_gprscdr_recordingEntity, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_RecordingEntity },
+  { &hf_gprscdr_lcsClientType, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_LCSClientType },
+  { &hf_gprscdr_lcsClientIdentity, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LCSClientIdentity },
+  { &hf_gprscdr_servedIMSI  , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_gprscdr_servedMSISDN, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MSISDN },
+  { &hf_gprscdr_sgsnAddress_01, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
+  { &hf_gprscdr_servedIMEI  , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMEI },
+  { &hf_gprscdr_lcsQos      , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LCSQoSInfo },
+  { &hf_gprscdr_lcsPriority , BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_LCS_Priority },
+  { &hf_gprscdr_mlcNumber   , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ISDN_AddressString },
+  { &hf_gprscdr_eventTimeStamp, BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_measurementDuration, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_CallDuration },
+  { &hf_gprscdr_location    , BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LocationAreaAndCell },
+  { &hf_gprscdr_routingArea , BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RoutingAreaCode },
+  { &hf_gprscdr_locationEstimate, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_Ext_GeographicalInformation },
+  { &hf_gprscdr_positioningData, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PositioningData },
+  { &hf_gprscdr_lcsCause    , BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LCSCause },
+  { &hf_gprscdr_diagnostics , BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_Diagnostics },
+  { &hf_gprscdr_nodeID      , BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NodeID },
+  { &hf_gprscdr_localSequenceNumber, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LocalSequenceNumber },
+  { &hf_gprscdr_chargingCharacteristics, BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingCharacteristics },
+  { &hf_gprscdr_chChSelectionMode, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ChChSelectionMode },
+  { &hf_gprscdr_rATType     , BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RATType },
+  { &hf_gprscdr_recordExtensions, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ManagementExtensions },
+  { &hf_gprscdr_causeForRecClosing_01, BER_CLASS_CON, 25, BER_FLAGS_IMPLTAG, dissect_gprscdr_CauseForRecClosing },
+  { &hf_gprscdr_servingNodePLMNIdentifier, BER_CLASS_CON, 26, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PLMN_Id },
+  { &hf_gprscdr_cNOperatorSelectionEnt, BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_CNOperatorSelectionEntity },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_SGSNNILCSRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SGSNNILCSRecord_set, hf_index, ett_gprscdr_SGSNNILCSRecord);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_RAIdentity_sequence_of[1] = {
+  { &hf_gprscdr_listofRAs_item, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsm_map_RAIdentity },
+};
+
+static int
+dissect_gprscdr_SEQUENCE_OF_RAIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_RAIdentity_sequence_of, hf_index, ett_gprscdr_SEQUENCE_OF_RAIdentity);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_DataVolumeMBMS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ChangeOfMBMSCondition_sequence[] = {
+  { &hf_gprscdr_qosRequested, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_QoSInformation },
+  { &hf_gprscdr_qosNegotiated, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_QoSInformation },
+  { &hf_gprscdr_dataVolumeMBMSUplink, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_DataVolumeMBMS },
+  { &hf_gprscdr_dataVolumeMBMSDownlink, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_gprscdr_DataVolumeMBMS },
+  { &hf_gprscdr_changeCondition_01, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_gprscdr_ChangeCondition },
+  { &hf_gprscdr_changeTime  , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_failureHandlingContinue, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_FailureHandlingContinue },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_ChangeOfMBMSCondition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ChangeOfMBMSCondition_sequence, hf_index, ett_gprscdr_ChangeOfMBMSCondition);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_ChangeOfMBMSCondition_sequence_of[1] = {
+  { &hf_gprscdr_listOfTrafficVolumes_item_02, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gprscdr_ChangeOfMBMSCondition },
+};
+
+static int
+dissect_gprscdr_SEQUENCE_OF_ChangeOfMBMSCondition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_ChangeOfMBMSCondition_sequence_of, hf_index, ett_gprscdr_SEQUENCE_OF_ChangeOfMBMSCondition);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SGSNMBMSRecord_set[] = {
+  { &hf_gprscdr_recordType_01, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprscdr_RecordType },
+  { &hf_gprscdr_ggsnAddress , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
+  { &hf_gprscdr_chargingID  , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingID },
+  { &hf_gprscdr_listofRAs   , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_RAIdentity },
+  { &hf_gprscdr_accessPointNameNI, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_AccessPointNameNI },
+  { &hf_gprscdr_servedPDPAddress, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_PDPAddress },
+  { &hf_gprscdr_listOfTrafficVolumes_02, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_ChangeOfMBMSCondition },
+  { &hf_gprscdr_recordOpeningTime, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_duration    , BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_gprscdr_CallDuration },
+  { &hf_gprscdr_causeForRecClosing_01, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_gprscdr_CauseForRecClosing },
+  { &hf_gprscdr_diagnostics , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_Diagnostics },
+  { &hf_gprscdr_recordSequenceNumber, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
+  { &hf_gprscdr_nodeID      , BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NodeID },
+  { &hf_gprscdr_recordExtensions, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ManagementExtensions },
+  { &hf_gprscdr_localSequenceNumber, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LocalSequenceNumber },
+  { &hf_gprscdr_sgsnPLMNIdentifier, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PLMN_Id },
+  { &hf_gprscdr_numberofReceivingUE, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
+  { &hf_gprscdr_mbmsInformation, BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MBMSInformation },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_SGSNMBMSRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SGSNMBMSRecord_set, hf_index, ett_gprscdr_SGSNMBMSRecord);
+
+  return offset;
+}
+
+
+static const ber_sequence_t GGSNMBMSRecord_set[] = {
+  { &hf_gprscdr_recordType_01, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprscdr_RecordType },
+  { &hf_gprscdr_ggsnAddress , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
+  { &hf_gprscdr_chargingID  , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingID },
+  { &hf_gprscdr_listofDownstreamNodes, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_GSNAddress },
+  { &hf_gprscdr_accessPointNameNI, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_AccessPointNameNI },
+  { &hf_gprscdr_servedPDPAddress, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_PDPAddress },
+  { &hf_gprscdr_listOfTrafficVolumes_02, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_ChangeOfMBMSCondition },
+  { &hf_gprscdr_recordOpeningTime, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_duration    , BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_gprscdr_CallDuration },
+  { &hf_gprscdr_causeForRecClosing_01, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_gprscdr_CauseForRecClosing },
+  { &hf_gprscdr_diagnostics , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_Diagnostics },
+  { &hf_gprscdr_recordSequenceNumber, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
+  { &hf_gprscdr_nodeID      , BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NodeID },
+  { &hf_gprscdr_recordExtensions, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ManagementExtensions },
+  { &hf_gprscdr_localSequenceNumber, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LocalSequenceNumber },
+  { &hf_gprscdr_mbmsInformation, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MBMSInformation },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_GGSNMBMSRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              GGSNMBMSRecord_set, hf_index, ett_gprscdr_GGSNMBMSRecord);
+
+  return offset;
+}
+
+
 
 static int
 dissect_gprscdr_SGWChange(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -2860,6 +3532,40 @@ static int
 dissect_gprscdr_PresenceReportingAreaInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PresenceReportingAreaInfo_sequence, hf_index, ett_gprscdr_PresenceReportingAreaInfo);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_UNIPDUCPOnlyFlag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_PDPPDNTypeExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t MOExceptionDataCounter_sequence[] = {
+  { &hf_gprscdr_counterValue, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
+  { &hf_gprscdr_counterTimestamp, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_MOExceptionDataCounter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   MOExceptionDataCounter_sequence, hf_index, ett_gprscdr_MOExceptionDataCounter);
 
   return offset;
 }
@@ -2915,6 +3621,12 @@ static const ber_sequence_t SGWRecord_set[] = {
   { &hf_gprscdr_presenceReportingAreaInfo, BER_CLASS_CON, 54, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PresenceReportingAreaInfo },
   { &hf_gprscdr_lastUserLocationInformation, BER_CLASS_CON, 55, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
   { &hf_gprscdr_lastMSTimeZone, BER_CLASS_CON, 56, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MSTimeZone },
+  { &hf_gprscdr_enhancedDiagnostics, BER_CLASS_CON, 57, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_EnhancedDiagnostics },
+  { &hf_gprscdr_cPCIoTEPSOptimisationIndicator, BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_CPCIoTEPSOptimisationIndicator },
+  { &hf_gprscdr_uNIPDUCPOnlyFlag, BER_CLASS_CON, 60, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_UNIPDUCPOnlyFlag },
+  { &hf_gprscdr_servingPLMNRateControl, BER_CLASS_CON, 61, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ServingPLMNRateControl },
+  { &hf_gprscdr_pDPPDNTypeExtension, BER_CLASS_CON, 62, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PDPPDNTypeExtension },
+  { &hf_gprscdr_mOExceptionDataCounter, BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MOExceptionDataCounter },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2961,6 +3673,11 @@ static const asn_namedbit ServiceConditionChange_bits[] = {
   { 30, &hf_gprscdr_ServiceConditionChange_tAIChange, -1, -1, "tAIChange", NULL },
   { 31, &hf_gprscdr_ServiceConditionChange_userLocationChange, -1, -1, "userLocationChange", NULL },
   { 32, &hf_gprscdr_ServiceConditionChange_userCSGInformationChange, -1, -1, "userCSGInformationChange", NULL },
+  { 33, &hf_gprscdr_ServiceConditionChange_presenceInPRAChange, -1, -1, "presenceInPRAChange", NULL },
+  { 34, &hf_gprscdr_ServiceConditionChange_accessChangeOfSDF, -1, -1, "accessChangeOfSDF", NULL },
+  { 35, &hf_gprscdr_ServiceConditionChange_indirectServiceConditionChange, -1, -1, "indirectServiceConditionChange", NULL },
+  { 36, &hf_gprscdr_ServiceConditionChange_servingPLMNRateControlChange, -1, -1, "servingPLMNRateControlChange", NULL },
+  { 37, &hf_gprscdr_ServiceConditionChange_aPNRateControlChange, -1, -1, "aPNRateControlChange", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
@@ -2998,6 +3715,103 @@ dissect_gprscdr_ADCRuleBaseName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 }
 
 
+static const ber_sequence_t RelatedChangeOfServiceCondition_sequence[] = {
+  { &hf_gprscdr_userLocationInformation, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
+  { &hf_gprscdr_threeGPP2UserLocationInformation, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
+  { &hf_gprscdr_presenceReportingAreaStatus, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PresenceReportingAreaStatus },
+  { &hf_gprscdr_userCSGInformation, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_UserCSGInformation },
+  { &hf_gprscdr_rATType     , BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RATType },
+  { &hf_gprscdr_uWANUserLocationInformation, BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_UWANUserLocationInfo },
+  { &hf_gprscdr_relatedChangeOfServiceCondition, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RelatedChangeOfServiceCondition },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_RelatedChangeOfServiceCondition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   RelatedChangeOfServiceCondition_sequence, hf_index, ett_gprscdr_RelatedChangeOfServiceCondition);
+
+  return offset;
+}
+
+
+static const value_string gprscdr_AdditionalExceptionReports_vals[] = {
+  {   0, "notAllowed" },
+  {   1, "allowed" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gprscdr_AdditionalExceptionReports(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string gprscdr_RateControlTimeUnit_vals[] = {
+  {   0, "unrestricted" },
+  {   1, "minute" },
+  {   2, "hour" },
+  {   3, "day" },
+  {   4, "week" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gprscdr_RateControlTimeUnit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_DataVolume(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t APNRateControlParameters_sequence[] = {
+  { &hf_gprscdr_additionalExceptionReports, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_AdditionalExceptionReports },
+  { &hf_gprscdr_rateControlTimeUnit, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RateControlTimeUnit },
+  { &hf_gprscdr_rateControlMaxRate, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
+  { &hf_gprscdr_rateControlMaxMessageSize, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_DataVolume },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_APNRateControlParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   APNRateControlParameters_sequence, hf_index, ett_gprscdr_APNRateControlParameters);
+
+  return offset;
+}
+
+
+static const ber_sequence_t APNRateControl_sequence[] = {
+  { &hf_gprscdr_aPNRateControlUplink, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_APNRateControlParameters },
+  { &hf_gprscdr_aPNRateControlDownlink, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_APNRateControlParameters },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_APNRateControl(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   APNRateControl_sequence, hf_index, ett_gprscdr_APNRateControl);
+
+  return offset;
+}
+
+
 static const ber_sequence_t ChangeOfServiceCondition_sequence[] = {
   { &hf_gprscdr_ratingGroup , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_RatingGroupId },
   { &hf_gprscdr_chargingRuleBaseName, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingRuleBaseName },
@@ -3026,6 +3840,11 @@ static const ber_sequence_t ChangeOfServiceCondition_sequence[] = {
   { &hf_gprscdr_aDCRuleBaseName, BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ADCRuleBaseName },
   { &hf_gprscdr_presenceReportingAreaStatus, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PresenceReportingAreaStatus },
   { &hf_gprscdr_userCSGInformation, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_UserCSGInformation },
+  { &hf_gprscdr_rATType     , BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RATType },
+  { &hf_gprscdr_uWANUserLocationInformation, BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_UWANUserLocationInfo },
+  { &hf_gprscdr_relatedChangeOfServiceCondition, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RelatedChangeOfServiceCondition },
+  { &hf_gprscdr_servingPLMNRateControl, BER_CLASS_CON, 35, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ServingPLMNRateControl },
+  { &hf_gprscdr_aPNRateControl, BER_CLASS_CON, 36, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_APNRateControl },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3061,6 +3880,70 @@ static int
 dissect_gprscdr_TWANUserLocationInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TWANUserLocationInfo_sequence, hf_index, ett_gprscdr_TWANUserLocationInfo);
+
+  return offset;
+}
+
+
+static const value_string gprscdr_NBIFOMMode_vals[] = {
+  {   0, "uEINITIATED" },
+  {   1, "nETWORKINITIATED" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gprscdr_NBIFOMMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string gprscdr_NBIFOMSupport_vals[] = {
+  {   0, "nBIFOMNotSupported" },
+  {   1, "nBIFOMSupported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gprscdr_NBIFOMSupport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string gprscdr_SGiPtPTunnellingMethod_vals[] = {
+  {   0, "uDPIPbased" },
+  {   1, "others" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gprscdr_SGiPtPTunnellingMethod(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string gprscdr_ChargingPerIPCANSessionIndicator_vals[] = {
+  {   0, "inactive" },
+  {   1, "active" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gprscdr_ChargingPerIPCANSessionIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -3121,6 +4004,17 @@ static const ber_sequence_t PGWRecord_set[] = {
   { &hf_gprscdr_presenceReportingAreaInfo, BER_CLASS_CON, 56, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PresenceReportingAreaInfo },
   { &hf_gprscdr_lastUserLocationInformation, BER_CLASS_CON, 57, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
   { &hf_gprscdr_lastMSTimeZone, BER_CLASS_CON, 58, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MSTimeZone },
+  { &hf_gprscdr_enhancedDiagnostics, BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_EnhancedDiagnostics },
+  { &hf_gprscdr_nBIFOMMode  , BER_CLASS_CON, 60, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NBIFOMMode },
+  { &hf_gprscdr_nBIFOMSupport, BER_CLASS_CON, 61, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NBIFOMSupport },
+  { &hf_gprscdr_uWANUserLocationInformation, BER_CLASS_CON, 62, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_UWANUserLocationInfo },
+  { &hf_gprscdr_sGiPtPTunnellingMethod, BER_CLASS_CON, 64, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SGiPtPTunnellingMethod },
+  { &hf_gprscdr_uNIPDUCPOnlyFlag, BER_CLASS_CON, 65, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_UNIPDUCPOnlyFlag },
+  { &hf_gprscdr_servingPLMNRateControl, BER_CLASS_CON, 66, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ServingPLMNRateControl },
+  { &hf_gprscdr_aPNRateControl, BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_APNRateControl },
+  { &hf_gprscdr_chargingPerIPCANSessionIndicator, BER_CLASS_CON, 68, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingPerIPCANSessionIndicator },
+  { &hf_gprscdr_pDPPDNTypeExtension, BER_CLASS_CON, 68, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PDPPDNTypeExtension },
+  { &hf_gprscdr_mOExceptionDataCounter, BER_CLASS_CON, 69, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MOExceptionDataCounter },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3128,6 +4022,48 @@ static int
 dissect_gprscdr_PGWRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               PGWRecord_set, hf_index, ett_gprscdr_PGWRecord);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_CTEID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t GWMBMSRecord_set[] = {
+  { &hf_gprscdr_recordType_01, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprscdr_RecordType },
+  { &hf_gprscdr_mbmsGWAddress, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
+  { &hf_gprscdr_chargingID  , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingID },
+  { &hf_gprscdr_listofDownstreamNodes, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_GSNAddress },
+  { &hf_gprscdr_accessPointNameNI, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_AccessPointNameNI },
+  { &hf_gprscdr_pdpPDNType  , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PDPType },
+  { &hf_gprscdr_servedPDPPDNAddress, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_PDPAddress },
+  { &hf_gprscdr_listOfTrafficVolumes_02, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_ChangeOfMBMSCondition },
+  { &hf_gprscdr_recordOpeningTime, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_duration    , BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_gprscdr_CallDuration },
+  { &hf_gprscdr_causeForRecClosing_01, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_gprscdr_CauseForRecClosing },
+  { &hf_gprscdr_diagnostics , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_Diagnostics },
+  { &hf_gprscdr_recordSequenceNumber, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
+  { &hf_gprscdr_nodeID      , BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NodeID },
+  { &hf_gprscdr_recordExtensions, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ManagementExtensions },
+  { &hf_gprscdr_localSequenceNumber, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LocalSequenceNumber },
+  { &hf_gprscdr_mbmsInformation, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MBMSInformation },
+  { &hf_gprscdr_commonTeid  , BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_CTEID },
+  { &hf_gprscdr_iPMulticastSourceAddress, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_PDPAddress },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_GWMBMSRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              GWMBMSRecord_set, hf_index, ett_gprscdr_GWMBMSRecord);
 
   return offset;
 }
@@ -3319,6 +4255,9 @@ static const ber_sequence_t EPDGRecord_set[] = {
   { &hf_gprscdr_ePDGiPv6AddressUsed, BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
   { &hf_gprscdr_p_GWiPv6AddressUsed, BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
   { &hf_gprscdr_retransmission, BER_CLASS_CON, 51, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NULL },
+  { &hf_gprscdr_enhancedDiagnostics, BER_CLASS_CON, 52, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_EnhancedDiagnostics },
+  { &hf_gprscdr_uWANUserLocationInformation, BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_UWANUserLocationInfo },
+  { &hf_gprscdr_userLocationInfoTime, BER_CLASS_CON, 54, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3331,18 +4270,74 @@ dissect_gprscdr_EPDGRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
+static const ber_sequence_t TWAGRecord_set[] = {
+  { &hf_gprscdr_recordType_01, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprscdr_RecordType },
+  { &hf_gprscdr_servedIMSI  , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_gprscdr_tWAGAddressUsed, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
+  { &hf_gprscdr_chargingID  , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingID },
+  { &hf_gprscdr_accessPointNameNI, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_AccessPointNameNI },
+  { &hf_gprscdr_pdpPDNType  , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PDPType },
+  { &hf_gprscdr_servedPDPPDNAddress, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_PDPAddress },
+  { &hf_gprscdr_dynamicAddressFlag, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_DynamicAddressFlag },
+  { &hf_gprscdr_listOfTrafficVolumes_01, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_ChangeOfCharCondition },
+  { &hf_gprscdr_recordOpeningTime, BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_duration    , BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_gprscdr_CallDuration },
+  { &hf_gprscdr_causeForRecClosing_01, BER_CLASS_CON, 15, BER_FLAGS_IMPLTAG, dissect_gprscdr_CauseForRecClosing },
+  { &hf_gprscdr_diagnostics , BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_Diagnostics },
+  { &hf_gprscdr_recordSequenceNumber, BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
+  { &hf_gprscdr_nodeID      , BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NodeID },
+  { &hf_gprscdr_recordExtensions, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ManagementExtensions },
+  { &hf_gprscdr_localSequenceNumber, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LocalSequenceNumber },
+  { &hf_gprscdr_apnSelectionMode, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_APNSelectionMode },
+  { &hf_gprscdr_servedMSISDN, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MSISDN },
+  { &hf_gprscdr_chargingCharacteristics, BER_CLASS_CON, 23, BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingCharacteristics },
+  { &hf_gprscdr_chChSelectionMode, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ChChSelectionMode },
+  { &hf_gprscdr_servedIMEI  , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMEI },
+  { &hf_gprscdr_rATType     , BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RATType },
+  { &hf_gprscdr_sGWChange   , BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SGWChange },
+  { &hf_gprscdr_p_GWAddressUsed, BER_CLASS_CON, 36, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
+  { &hf_gprscdr_p_GWPLMNIdentifier, BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PLMN_Id },
+  { &hf_gprscdr_startTime   , BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_stopTime    , BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_pDNConnectionChargingID, BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingID },
+  { &hf_gprscdr_servedPDPPDNAddressExt, BER_CLASS_CON, 43, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_PDPAddress },
+  { &hf_gprscdr_dynamicAddressFlagExt, BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_DynamicAddressFlag },
+  { &hf_gprscdr_tWAGiPv6AddressUsed, BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
+  { &hf_gprscdr_p_GWiPv6AddressUsed, BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
+  { &hf_gprscdr_retransmission, BER_CLASS_CON, 51, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NULL },
+  { &hf_gprscdr_enhancedDiagnostics, BER_CLASS_CON, 52, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_EnhancedDiagnostics },
+  { &hf_gprscdr_tWANUserLocationInformation, BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_TWANUserLocationInfo },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_TWAGRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TWAGRecord_set, hf_index, ett_gprscdr_TWAGRecord);
+
+  return offset;
+}
+
+
 const value_string gprscdr_GPRSRecord_vals[] = {
   {  20, "sgsnPDPRecord" },
   {  21, "ggsnPDPRecord" },
   {  22, "sgsnMMRecord" },
   {  23, "sgsnSMORecord" },
   {  24, "sgsnSMTRecord" },
+  {  25, "sgsnMTLCSRecord" },
+  {  26, "sgsnMOLCSRecord" },
+  {  27, "sgsnNILCSRecord" },
   {  70, "egsnPDPRecord" },
+  {  76, "sgsnMBMSRecord" },
+  {  77, "ggsnMBMSRecord" },
   {  78, "sGWRecord" },
   {  79, "pGWRecord" },
+  {  86, "gwMBMSRecord" },
   {  92, "tDFRecord" },
   {  95, "iPERecord" },
   {  96, "ePDGRecord" },
+  {  97, "tWAGRecord" },
   { 0, NULL }
 };
 
@@ -3352,18 +4347,25 @@ static const ber_choice_t GPRSRecord_choice[] = {
   {  22, &hf_gprscdr_sgsnMMRecord, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNMMRecord },
   {  23, &hf_gprscdr_sgsnSMORecord_01, BER_CLASS_CON, 23, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNSMORecord },
   {  24, &hf_gprscdr_sgsnSMTRecord_01, BER_CLASS_CON, 24, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNSMTRecord },
+  {  25, &hf_gprscdr_sgsnMTLCSRecord, BER_CLASS_CON, 25, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNMTLCSRecord },
+  {  26, &hf_gprscdr_sgsnMOLCSRecord, BER_CLASS_CON, 26, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNMOLCSRecord },
+  {  27, &hf_gprscdr_sgsnNILCSRecord, BER_CLASS_CON, 27, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNNILCSRecord },
   {  70, &hf_gprscdr_egsnPDPRecord_01, BER_CLASS_CON, 70, BER_FLAGS_IMPLTAG, dissect_gprscdr_EGSNPDPRecordV750 },
+  {  76, &hf_gprscdr_sgsnMBMSRecord, BER_CLASS_CON, 76, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNMBMSRecord },
+  {  77, &hf_gprscdr_ggsnMBMSRecord, BER_CLASS_CON, 77, BER_FLAGS_IMPLTAG, dissect_gprscdr_GGSNMBMSRecord },
   {  78, &hf_gprscdr_sGWRecord   , BER_CLASS_CON, 78, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGWRecord },
   {  79, &hf_gprscdr_pGWRecord   , BER_CLASS_CON, 79, BER_FLAGS_IMPLTAG, dissect_gprscdr_PGWRecord },
+  {  86, &hf_gprscdr_gwMBMSRecord, BER_CLASS_CON, 86, BER_FLAGS_IMPLTAG, dissect_gprscdr_GWMBMSRecord },
   {  92, &hf_gprscdr_tDFRecord   , BER_CLASS_CON, 92, BER_FLAGS_IMPLTAG, dissect_gprscdr_TDFRecord },
   {  95, &hf_gprscdr_iPERecord   , BER_CLASS_CON, 95, BER_FLAGS_IMPLTAG, dissect_gprscdr_IPERecord },
   {  96, &hf_gprscdr_ePDGRecord  , BER_CLASS_CON, 96, BER_FLAGS_IMPLTAG, dissect_gprscdr_EPDGRecord },
+  {  97, &hf_gprscdr_tWAGRecord  , BER_CLASS_CON, 97, BER_FLAGS_IMPLTAG, dissect_gprscdr_TWAGRecord },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
 int
 dissect_gprscdr_GPRSRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 157 "./asn1/gprscdr/gprscdr.cnf"
+#line 132 "./asn1/gprscdr/gprscdr.cnf"
 proto_item *item;
 gint branch_taken, t_offset = offset;
 gint32   tag;
@@ -3457,6 +4459,10 @@ proto_register_gprscdr(void)
       { "diameterResultCodeAndExperimentalResult", "gprscdr.diameterResultCodeAndExperimentalResult",
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
+    { &hf_gprscdr_rANNASCause,
+      { "rANNASCause", "gprscdr.rANNASCause",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
     { &hf_gprscdr_iPBinaryAddress,
       { "iPBinaryAddress", "gprscdr.iPBinaryAddress",
         FT_UINT32, BASE_DEC, VALS(gprscdr_IPBinaryAddress_vals), 0,
@@ -3493,29 +4499,53 @@ proto_register_gprscdr(void)
       { "iPTextV6Address", "gprscdr.iPTextV6Address",
         FT_STRING, BASE_NONE, NULL, 0,
         "IA5String_SIZE_15_45", HFILL }},
+    { &hf_gprscdr_lcsClientExternalID,
+      { "lcsClientExternalID", "gprscdr.lcsClientExternalID_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_lcsClientDialedByMS,
+      { "lcsClientDialedByMS", "gprscdr.lcsClientDialedByMS",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "AddressString", HFILL }},
+    { &hf_gprscdr_lcsClientInternalID,
+      { "lcsClientInternalID", "gprscdr.lcsClientInternalID",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_LCSClientInternalID_vals), 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_locationAreaCode,
+      { "locationAreaCode", "gprscdr.locationAreaCode",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_cellId,
+      { "cellId", "gprscdr.cellId",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_mCC_MNC,
+      { "mCC-MNC", "gprscdr.mCC_MNC",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_gprscdr_ManagementExtensions_item,
       { "ManagementExtension", "gprscdr.ManagementExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_tMGI,
-      { "tMGI", "gprscdr.tMGI_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "tMGI", "gprscdr.tMGI",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_mBMSSessionIdentity,
-      { "mBMSSessionIdentity", "gprscdr.mBMSSessionIdentity_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "mBMSSessionIdentity", "gprscdr.mBMSSessionIdentity",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_mBMSServiceType,
-      { "mBMSServiceType", "gprscdr.mBMSServiceType_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "mBMSServiceType", "gprscdr.mBMSServiceType",
+        FT_UINT32, BASE_DEC, VALS(gprscdr_MBMSServiceType_vals), 0,
         NULL, HFILL }},
     { &hf_gprscdr_mBMSUserServiceType,
-      { "mBMSUserServiceType", "gprscdr.mBMSUserServiceType_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "mBMSUserServiceType", "gprscdr.mBMSUserServiceType",
+        FT_UINT32, BASE_DEC, VALS(gprscdr_MBMSUserServiceType_vals), 0,
         NULL, HFILL }},
     { &hf_gprscdr_mBMS2G3GIndicator,
-      { "mBMS2G3GIndicator", "gprscdr.mBMS2G3GIndicator_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "mBMS2G3GIndicator", "gprscdr.mBMS2G3GIndicator",
+        FT_UINT32, BASE_DEC, VALS(gprscdr_MBMS2G3GIndicator_vals), 0,
         NULL, HFILL }},
     { &hf_gprscdr_fileRepairSupported,
       { "fileRepairSupported", "gprscdr.fileRepairSupported",
@@ -3526,21 +4556,29 @@ proto_register_gprscdr(void)
         FT_BYTES, BASE_NONE, NULL, 0,
         "RoutingAreaCode", HFILL }},
     { &hf_gprscdr_mBMSServiceArea,
-      { "mBMSServiceArea", "gprscdr.mBMSServiceArea_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "mBMSServiceArea", "gprscdr.mBMSServiceArea",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_requiredMBMSBearerCaps,
-      { "requiredMBMSBearerCaps", "gprscdr.requiredMBMSBearerCaps_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "requiredMBMSBearerCaps", "gprscdr.requiredMBMSBearerCaps",
+        FT_BYTES, BASE_NONE, NULL, 0,
         "RequiredMBMSBearerCapabilities", HFILL }},
     { &hf_gprscdr_mBMSGWAddress,
       { "mBMSGWAddress", "gprscdr.mBMSGWAddress",
         FT_UINT32, BASE_DEC, VALS(gprscdr_IPAddress_vals), 0,
         "GSNAddress", HFILL }},
     { &hf_gprscdr_cNIPMulticastDistribution,
-      { "cNIPMulticastDistribution", "gprscdr.cNIPMulticastDistribution_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "cNIPMulticastDistribution", "gprscdr.cNIPMulticastDistribution",
+        FT_UINT32, BASE_DEC, VALS(gprscdr_CNIPMulticastDistribution_vals), 0,
         NULL, HFILL }},
+    { &hf_gprscdr_mBMSDataTransferStart,
+      { "mBMSDataTransferStart", "gprscdr.mBMSDataTransferStart",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "MBMSTime", HFILL }},
+    { &hf_gprscdr_mBMSDataTransferStop,
+      { "mBMSDataTransferStop", "gprscdr.mBMSDataTransferStop",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "MBMSTime", HFILL }},
     { &hf_gprscdr_serviceSpecificData,
       { "serviceSpecificData", "gprscdr.serviceSpecificData",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -3769,10 +4807,6 @@ proto_register_gprscdr(void)
       { "routingArea", "gprscdr.routingArea",
         FT_BYTES, BASE_NONE, NULL, 0,
         "RoutingAreaCode", HFILL }},
-    { &hf_gprscdr_locationAreaCode,
-      { "locationAreaCode", "gprscdr.locationAreaCode",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_gprscdr_cellIdentifier,
       { "cellIdentifier", "gprscdr.cellIdentifier",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -3949,16 +4983,40 @@ proto_register_gprscdr(void)
       { "sgsnSMTRecord", "gprscdr.sgsnSMTRecord_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_gprscdr_sgsnMTLCSRecord,
+      { "sgsnMTLCSRecord", "gprscdr.sgsnMTLCSRecord_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_sgsnMOLCSRecord,
+      { "sgsnMOLCSRecord", "gprscdr.sgsnMOLCSRecord_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_sgsnNILCSRecord,
+      { "sgsnNILCSRecord", "gprscdr.sgsnNILCSRecord_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_gprscdr_egsnPDPRecord_01,
       { "egsnPDPRecord", "gprscdr.egsnPDPRecord_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "EGSNPDPRecordV750", HFILL }},
+    { &hf_gprscdr_sgsnMBMSRecord,
+      { "sgsnMBMSRecord", "gprscdr.sgsnMBMSRecord_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_ggsnMBMSRecord,
+      { "ggsnMBMSRecord", "gprscdr.ggsnMBMSRecord_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_gprscdr_sGWRecord,
       { "sGWRecord", "gprscdr.sGWRecord_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_pGWRecord,
       { "pGWRecord", "gprscdr.pGWRecord_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_gwMBMSRecord,
+      { "gwMBMSRecord", "gprscdr.gwMBMSRecord_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_tDFRecord,
@@ -3971,6 +5029,10 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
     { &hf_gprscdr_ePDGRecord,
       { "ePDGRecord", "gprscdr.ePDGRecord_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_tWAGRecord,
+      { "tWAGRecord", "gprscdr.tWAGRecord_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_s_GWAddress,
@@ -4097,6 +5159,30 @@ proto_register_gprscdr(void)
       { "lastMSTimeZone", "gprscdr.lastMSTimeZone",
         FT_BYTES, BASE_NONE, NULL, 0,
         "MSTimeZone", HFILL }},
+    { &hf_gprscdr_enhancedDiagnostics,
+      { "enhancedDiagnostics", "gprscdr.enhancedDiagnostics_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_cPCIoTEPSOptimisationIndicator,
+      { "cPCIoTEPSOptimisationIndicator", "gprscdr.cPCIoTEPSOptimisationIndicator",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_uNIPDUCPOnlyFlag,
+      { "uNIPDUCPOnlyFlag", "gprscdr.uNIPDUCPOnlyFlag",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_servingPLMNRateControl,
+      { "servingPLMNRateControl", "gprscdr.servingPLMNRateControl_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_pDPPDNTypeExtension,
+      { "pDPPDNTypeExtension", "gprscdr.pDPPDNTypeExtension",
+        FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_mOExceptionDataCounter,
+      { "mOExceptionDataCounter", "gprscdr.mOExceptionDataCounter_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_gprscdr_p_GWAddress,
       { "p-GWAddress", "gprscdr.p_GWAddress",
         FT_UINT32, BASE_DEC, VALS(gprscdr_IPAddress_vals), 0,
@@ -4128,6 +5214,30 @@ proto_register_gprscdr(void)
     { &hf_gprscdr_ePCQoSInformation,
       { "ePCQoSInformation", "gprscdr.ePCQoSInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_nBIFOMMode,
+      { "nBIFOMMode", "gprscdr.nBIFOMMode",
+        FT_UINT32, BASE_DEC, VALS(gprscdr_NBIFOMMode_vals), 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_nBIFOMSupport,
+      { "nBIFOMSupport", "gprscdr.nBIFOMSupport",
+        FT_UINT32, BASE_DEC, VALS(gprscdr_NBIFOMSupport_vals), 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_uWANUserLocationInformation,
+      { "uWANUserLocationInformation", "gprscdr.uWANUserLocationInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UWANUserLocationInfo", HFILL }},
+    { &hf_gprscdr_sGiPtPTunnellingMethod,
+      { "sGiPtPTunnellingMethod", "gprscdr.sGiPtPTunnellingMethod",
+        FT_UINT32, BASE_DEC, VALS(gprscdr_SGiPtPTunnellingMethod_vals), 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_aPNRateControl,
+      { "aPNRateControl", "gprscdr.aPNRateControl_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_chargingPerIPCANSessionIndicator,
+      { "chargingPerIPCANSessionIndicator", "gprscdr.chargingPerIPCANSessionIndicator",
+        FT_UINT32, BASE_DEC, VALS(gprscdr_ChargingPerIPCANSessionIndicator_vals), 0,
         NULL, HFILL }},
     { &hf_gprscdr_tDFAddress,
       { "tDFAddress", "gprscdr.tDFAddress",
@@ -4185,6 +5295,14 @@ proto_register_gprscdr(void)
       { "ePDGiPv6AddressUsed", "gprscdr.ePDGiPv6AddressUsed",
         FT_UINT32, BASE_DEC, VALS(gprscdr_IPAddress_vals), 0,
         "GSNAddress", HFILL }},
+    { &hf_gprscdr_tWAGAddressUsed,
+      { "tWAGAddressUsed", "gprscdr.tWAGAddressUsed",
+        FT_UINT32, BASE_DEC, VALS(gprscdr_IPAddress_vals), 0,
+        "GSNAddress", HFILL }},
+    { &hf_gprscdr_tWAGiPv6AddressUsed,
+      { "tWAGiPv6AddressUsed", "gprscdr.tWAGiPv6AddressUsed",
+        FT_UINT32, BASE_DEC, VALS(gprscdr_IPAddress_vals), 0,
+        "GSNAddress", HFILL }},
     { &hf_gprscdr_changeLocation,
       { "changeLocation", "gprscdr.changeLocation",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -4225,6 +5343,106 @@ proto_register_gprscdr(void)
       { "originatingAddress", "gprscdr.originatingAddress",
         FT_BYTES, BASE_NONE, NULL, 0,
         "AddressString", HFILL }},
+    { &hf_gprscdr_lcsClientType,
+      { "lcsClientType", "gprscdr.lcsClientType",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_lcs_LCSClientType_vals), 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_lcsClientIdentity,
+      { "lcsClientIdentity", "gprscdr.lcsClientIdentity_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_locationType,
+      { "locationType", "gprscdr.locationType_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_lcsQos,
+      { "lcsQos", "gprscdr.lcsQos",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "LCSQoSInfo", HFILL }},
+    { &hf_gprscdr_lcsPriority,
+      { "lcsPriority", "gprscdr.lcsPriority",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "LCS_Priority", HFILL }},
+    { &hf_gprscdr_mlcNumber,
+      { "mlcNumber", "gprscdr.mlcNumber",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "ISDN_AddressString", HFILL }},
+    { &hf_gprscdr_measurementDuration,
+      { "measurementDuration", "gprscdr.measurementDuration",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "CallDuration", HFILL }},
+    { &hf_gprscdr_notificationToMSUser,
+      { "notificationToMSUser", "gprscdr.notificationToMSUser",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_ms_NotificationToMSUser_vals), 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_privacyOverride,
+      { "privacyOverride", "gprscdr.privacyOverride_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_location,
+      { "location", "gprscdr.location_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "LocationAreaAndCell", HFILL }},
+    { &hf_gprscdr_locationEstimate,
+      { "locationEstimate", "gprscdr.locationEstimate",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "Ext_GeographicalInformation", HFILL }},
+    { &hf_gprscdr_positioningData,
+      { "positioningData", "gprscdr.positioningData",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_lcsCause,
+      { "lcsCause", "gprscdr.lcsCause",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_locationMethod,
+      { "locationMethod", "gprscdr.locationMethod",
+        FT_UINT32, BASE_DEC, VALS(gsm_ss_LocationMethod_vals), 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_listofRAs,
+      { "listofRAs", "gprscdr.listofRAs",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_OF_RAIdentity", HFILL }},
+    { &hf_gprscdr_listofRAs_item,
+      { "RAIdentity", "gprscdr.RAIdentity",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_listOfTrafficVolumes_02,
+      { "listOfTrafficVolumes", "gprscdr.listOfTrafficVolumes",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_OF_ChangeOfMBMSCondition", HFILL }},
+    { &hf_gprscdr_listOfTrafficVolumes_item_02,
+      { "ChangeOfMBMSCondition", "gprscdr.ChangeOfMBMSCondition_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_numberofReceivingUE,
+      { "numberofReceivingUE", "gprscdr.numberofReceivingUE",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER", HFILL }},
+    { &hf_gprscdr_mbmsInformation,
+      { "mbmsInformation", "gprscdr.mbmsInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_listofDownstreamNodes,
+      { "listofDownstreamNodes", "gprscdr.listofDownstreamNodes",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_OF_GSNAddress", HFILL }},
+    { &hf_gprscdr_listofDownstreamNodes_item,
+      { "GSNAddress", "gprscdr.GSNAddress",
+        FT_UINT32, BASE_DEC, VALS(gprscdr_IPAddress_vals), 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_mbmsGWAddress,
+      { "mbmsGWAddress", "gprscdr.mbmsGWAddress",
+        FT_UINT32, BASE_DEC, VALS(gprscdr_IPAddress_vals), 0,
+        "GSNAddress", HFILL }},
+    { &hf_gprscdr_commonTeid,
+      { "commonTeid", "gprscdr.commonTeid",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "CTEID", HFILL }},
+    { &hf_gprscdr_iPMulticastSourceAddress,
+      { "iPMulticastSourceAddress", "gprscdr.iPMulticastSourceAddress",
+        FT_UINT32, BASE_DEC, VALS(gprscdr_PDPAddress_vals), 0,
+        "PDPAddress", HFILL }},
     { &hf_gprscdr_physicalAccessID,
       { "physicalAccessID", "gprscdr.physicalAccessID",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -4241,6 +5459,30 @@ proto_register_gprscdr(void)
       { "flows", "gprscdr.flows_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_gprscdr_aPNRateControlUplink,
+      { "aPNRateControlUplink", "gprscdr.aPNRateControlUplink_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "APNRateControlParameters", HFILL }},
+    { &hf_gprscdr_aPNRateControlDownlink,
+      { "aPNRateControlDownlink", "gprscdr.aPNRateControlDownlink_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "APNRateControlParameters", HFILL }},
+    { &hf_gprscdr_additionalExceptionReports,
+      { "additionalExceptionReports", "gprscdr.additionalExceptionReports",
+        FT_UINT32, BASE_DEC, VALS(gprscdr_AdditionalExceptionReports_vals), 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_rateControlTimeUnit,
+      { "rateControlTimeUnit", "gprscdr.rateControlTimeUnit",
+        FT_INT32, BASE_DEC, VALS(gprscdr_RateControlTimeUnit_vals), 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_rateControlMaxRate,
+      { "rateControlMaxRate", "gprscdr.rateControlMaxRate",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER", HFILL }},
+    { &hf_gprscdr_rateControlMaxMessageSize,
+      { "rateControlMaxMessageSize", "gprscdr.rateControlMaxMessageSize",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "DataVolume", HFILL }},
     { &hf_gprscdr_sCFAddress,
       { "sCFAddress", "gprscdr.sCFAddress",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -4305,6 +5547,22 @@ proto_register_gprscdr(void)
       { "presenceReportingAreaStatus", "gprscdr.presenceReportingAreaStatus",
         FT_UINT32, BASE_DEC, VALS(gprscdr_PresenceReportingAreaStatus_vals), 0,
         NULL, HFILL }},
+    { &hf_gprscdr_accessAvailabilityChangeReason,
+      { "accessAvailabilityChangeReason", "gprscdr.accessAvailabilityChangeReason",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_relatedChangeOfCharCondition,
+      { "relatedChangeOfCharCondition", "gprscdr.relatedChangeOfCharCondition_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_dataVolumeMBMSUplink,
+      { "dataVolumeMBMSUplink", "gprscdr.dataVolumeMBMSUplink",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "DataVolumeMBMS", HFILL }},
+    { &hf_gprscdr_dataVolumeMBMSDownlink,
+      { "dataVolumeMBMSDownlink", "gprscdr.dataVolumeMBMSDownlink",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "DataVolumeMBMS", HFILL }},
     { &hf_gprscdr_serviceConditionChange_01,
       { "serviceConditionChange", "gprscdr.serviceConditionChange",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -4333,15 +5591,15 @@ proto_register_gprscdr(void)
       { "aDCRuleBaseName", "gprscdr.aDCRuleBaseName",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_gprscdr_relatedChangeOfServiceCondition,
+      { "relatedChangeOfServiceCondition", "gprscdr.relatedChangeOfServiceCondition_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_gprscdr_routingAreaCode,
       { "routingAreaCode", "gprscdr.routingAreaCode",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_gprscdr_cellId,
-      { "cellId", "gprscdr.cellId",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_gprscdr_mCC_MNC,
+    { &hf_gprscdr_mCC_MNC_01,
       { "mCC-MNC", "gprscdr.mCC_MNC",
         FT_BYTES, BASE_NONE, NULL, 0,
         "PLMN_Id", HFILL }},
@@ -4409,6 +5667,14 @@ proto_register_gprscdr(void)
       { "flowNumber item", "gprscdr.flowNumber_item",
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
+    { &hf_gprscdr_counterValue,
+      { "counterValue", "gprscdr.counterValue",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER", HFILL }},
+    { &hf_gprscdr_counterTimestamp,
+      { "counterTimestamp", "gprscdr.counterTimestamp",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "TimeStamp", HFILL }},
     { &hf_gprscdr_iPAddress,
       { "iPAddress", "gprscdr.iPAddress",
         FT_UINT32, BASE_DEC, VALS(gprscdr_IPAddress_vals), 0,
@@ -4425,6 +5691,14 @@ proto_register_gprscdr(void)
       { "pSFFDAppendIndicator", "gprscdr.pSFFDAppendIndicator",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "FFDAppendIndicator", HFILL }},
+    { &hf_gprscdr_sPLMNDLRateControlValue,
+      { "sPLMNDLRateControlValue", "gprscdr.sPLMNDLRateControlValue",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER", HFILL }},
+    { &hf_gprscdr_sPLMNULRateControlValue,
+      { "sPLMNULRateControlValue", "gprscdr.sPLMNULRateControlValue",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER", HFILL }},
     { &hf_gprscdr_timeQuotaType,
       { "timeQuotaType", "gprscdr.timeQuotaType",
         FT_UINT32, BASE_DEC, VALS(gprscdr_TimeQuotaType_vals), 0,
@@ -4445,6 +5719,14 @@ proto_register_gprscdr(void)
       { "cSGMembershipIndication", "gprscdr.cSGMembershipIndication_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_gprscdr_uELocalIPAddress,
+      { "uELocalIPAddress", "gprscdr.uELocalIPAddress",
+        FT_UINT32, BASE_DEC, VALS(gprscdr_IPAddress_vals), 0,
+        "IPAddress", HFILL }},
+    { &hf_gprscdr_uDPSourcePort,
+      { "uDPSourcePort", "gprscdr.uDPSourcePort",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_2", HFILL }},
     { &hf_gprscdr_LevelOfCAMELService_basic,
       { "basic", "gprscdr.basic",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -4785,6 +6067,26 @@ proto_register_gprscdr(void)
       { "userCSGInformationChange", "gprscdr.userCSGInformationChange",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChange_presenceInPRAChange,
+      { "presenceInPRAChange", "gprscdr.presenceInPRAChange",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChange_accessChangeOfSDF,
+      { "accessChangeOfSDF", "gprscdr.accessChangeOfSDF",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChange_indirectServiceConditionChange,
+      { "indirectServiceConditionChange", "gprscdr.indirectServiceConditionChange",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChange_servingPLMNRateControlChange,
+      { "servingPLMNRateControlChange", "gprscdr.servingPLMNRateControlChange",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChange_aPNRateControlChange,
+      { "aPNRateControlChange", "gprscdr.aPNRateControlChange",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
 
 /*--- End of included file: packet-gprscdr-hfarr.c ---*/
 #line 77 "./asn1/gprscdr/packet-gprscdr-template.c"
@@ -4800,12 +6102,15 @@ proto_register_gprscdr(void)
 /*--- Included file: packet-gprscdr-ettarr.c ---*/
 #line 1 "./asn1/gprscdr/packet-gprscdr-ettarr.c"
     &ett_gprscdr_Diagnostics,
+    &ett_gprscdr_EnhancedDiagnostics,
     &ett_gprscdr_IPAddress,
     &ett_gprscdr_IPBinaryAddress,
     &ett_gprscdr_IPBinV6AddressWithOrWithoutPrefixLength,
     &ett_gprscdr_IPBinV6AddressWithPrefixLength,
     &ett_gprscdr_IPTextRepresentedAddress,
+    &ett_gprscdr_LCSClientIdentity,
     &ett_gprscdr_LevelOfCAMELService,
+    &ett_gprscdr_LocationAreaAndCell,
     &ett_gprscdr_ManagementExtensions,
     &ett_gprscdr_MBMSInformation,
     &ett_gprscdr_ServiceSpecificInfo,
@@ -4838,17 +6143,29 @@ proto_register_gprscdr(void)
     &ett_gprscdr_TDFRecord,
     &ett_gprscdr_IPERecord,
     &ett_gprscdr_EPDGRecord,
+    &ett_gprscdr_TWAGRecord,
     &ett_gprscdr_SGSNMMRecord,
     &ett_gprscdr_SEQUENCE_OF_ChangeLocation,
     &ett_gprscdr_SGSNPDPRecord,
     &ett_gprscdr_SGSNSMORecord,
     &ett_gprscdr_SGSNSMTRecord,
+    &ett_gprscdr_SGSNMTLCSRecord,
+    &ett_gprscdr_SGSNMOLCSRecord,
+    &ett_gprscdr_SGSNNILCSRecord,
+    &ett_gprscdr_SGSNMBMSRecord,
+    &ett_gprscdr_SEQUENCE_OF_RAIdentity,
+    &ett_gprscdr_SEQUENCE_OF_ChangeOfMBMSCondition,
+    &ett_gprscdr_GGSNMBMSRecord,
+    &ett_gprscdr_GWMBMSRecord,
     &ett_gprscdr_AccessLineIdentifier,
     &ett_gprscdr_AFRecordInformation,
+    &ett_gprscdr_APNRateControl,
+    &ett_gprscdr_APNRateControlParameters,
     &ett_gprscdr_CAMELInformationMM,
     &ett_gprscdr_CAMELInformationPDP,
     &ett_gprscdr_CAMELInformationSMS,
     &ett_gprscdr_ChangeOfCharCondition,
+    &ett_gprscdr_ChangeOfMBMSCondition,
     &ett_gprscdr_ChangeOfServiceCondition,
     &ett_gprscdr_SEQUENCE_OF_ServiceSpecificInfo,
     &ett_gprscdr_ChangeLocation,
@@ -4858,13 +6175,18 @@ proto_register_gprscdr(void)
     &ett_gprscdr_FixedUserLocationInformation,
     &ett_gprscdr_Flows,
     &ett_gprscdr_T_flowNumber,
+    &ett_gprscdr_MOExceptionDataCounter,
     &ett_gprscdr_PDPAddress,
     &ett_gprscdr_PresenceReportingAreaInfo,
     &ett_gprscdr_PSFurnishChargingInformation,
+    &ett_gprscdr_RelatedChangeOfCharCondition,
+    &ett_gprscdr_RelatedChangeOfServiceCondition,
     &ett_gprscdr_ServiceConditionChange,
+    &ett_gprscdr_ServingPLMNRateControl,
     &ett_gprscdr_TimeQuotaMechanism,
     &ett_gprscdr_TWANUserLocationInfo,
     &ett_gprscdr_UserCSGInformation,
+    &ett_gprscdr_UWANUserLocationInfo,
 
 /*--- End of included file: packet-gprscdr-ettarr.c ---*/
 #line 86 "./asn1/gprscdr/packet-gprscdr-template.c"
