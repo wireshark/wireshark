@@ -1533,7 +1533,6 @@ static expert_field ei_amqp_unknown_amqp_command = EI_INIT;
 static expert_field ei_amqp_unknown_amqp_type = EI_INIT;
 static expert_field ei_amqp_invalid_number_of_params = EI_INIT;
 static expert_field ei_amqp_size_exceeds_65K = EI_INIT;
-static expert_field ei_amqp_amqp_1_0_frame_length_exceeds_65K = EI_INIT;
 static expert_field ei_amqp_array_type_unknown = EI_INIT;
 
 /*  Various enumerations  */
@@ -6029,13 +6028,22 @@ dissect_amqp_1_0_map(tvbuff_t *tvb,
         return tvb_reported_length_remaining(tvb, orig_offset);
     }
 
-    map_tree = proto_tree_add_none_format(item,
+    if (proto_registrar_get_ftype(hf_amqp_type) != FT_NONE) {
+        map_tree = proto_tree_add_item(item,
+                                          hf_amqp_type,
+                                          tvb,
+                                          offset-1,
+                                          element_size+1+count_len,
+                                          ENC_NA);
+    } else {
+        map_tree = proto_tree_add_none_format(item,
                                           hf_amqp_type,
                                           tvb,
                                           offset-1,
                                           element_size+1+count_len,
                                           "%s",
                                           name ? name : proto_registrar_get_name(hf_amqp_type));
+    }
     offset += (count_len*2);
 
     if (element_count > 0)
@@ -6466,14 +6474,6 @@ dissect_amqp_1_0_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_tree_add_item(amqp_tree, hf_amqp_1_0_doff, tvb, 4, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(amqp_tree, hf_amqp_1_0_type, tvb, 5, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(amqp_tree, hf_amqp_channel,  tvb, 6, 2, ENC_BIG_ENDIAN);
-
-    /* XXX: The original code used only the low-order 16 bits of the 32 bit length
-     *      field from the PDU as the length to dissect */
-    if (length > 0xFFFF)
-    {
-        length = 0xFFFF;
-        expert_add_info(pinfo, size_item, &ei_amqp_amqp_1_0_frame_length_exceeds_65K);
-    }
 
     offset     = 4*tvb_get_guint8(tvb,4); /* i.e. 4*DOFF */
     frame_type = tvb_get_guint8(tvb, 5);
@@ -10074,6 +10074,7 @@ get_amqp_1_0_type_formatter(tvbuff_t *tvb,
                 *hf_amqp_type = *(amqp_1_0_defined_types[i].hf_amqp_type);
                 *hf_amqp_subtype_count = amqp_1_0_defined_types[i].hf_amqp_subtype_count;
                 *hf_amqp_subtypes = amqp_1_0_defined_types[i].hf_amqp_subtypes;
+                break;
             }
         }
         /* now take the real primitive format code */
@@ -13326,7 +13327,6 @@ proto_register_amqp(void)
         { &ei_amqp_unknown_amqp_command, { "amqp.unknown.amqp_command", PI_PROTOCOL, PI_ERROR, "Unknown AMQP command", EXPFILL }},
         { &ei_amqp_unknown_amqp_type,  { "amqp.unknown.amqp_type", PI_PROTOCOL, PI_ERROR, "Unknown AMQP type", EXPFILL }},
         { &ei_amqp_invalid_number_of_params, { "amqp.invalid.params_number", PI_PROTOCOL, PI_ERROR, "Invalid number of parameters", EXPFILL }},
-        { &ei_amqp_amqp_1_0_frame_length_exceeds_65K, { "amqp.amqp_1_0_frame_length_exceeds_65K", PI_PROTOCOL, PI_WARN, "Frame length exceeds 65K; Dissection limited to 65K", EXPFILL}},
         { &ei_amqp_size_exceeds_65K, { "amqp.size_exceeds_65K", PI_PROTOCOL, PI_WARN, "Size field exceeds 65K; Dissection limited to 65K", EXPFILL}},
         { &ei_amqp_array_type_unknown, { "amqp.array_type_unknown", PI_PROTOCOL, PI_WARN, "Array type unknown", EXPFILL}},
     };
