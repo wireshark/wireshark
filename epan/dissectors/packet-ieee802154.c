@@ -1522,15 +1522,16 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     }
 
     /* presense of Payload IEs is defined by the termination of the Header IEs */
+    offset = 0;
     if (packet->payload_ie_present) {
-        offset += dissect_ieee802154_payload_ie(tvb, pinfo, ieee802154_tree, offset);
+        offset += dissect_ieee802154_payload_ie(payload_tvb, pinfo, ieee802154_tree, offset);
     }
 
     if ((packet->version == IEEE802154_VERSION_2015) && (packet->frame_type == IEEE802154_FCF_CMD)) {
         /* In 802.15.4e and later the Command Id follows the Payload IEs. */
-        packet->command_id = tvb_get_guint8(tvb, offset);
+        packet->command_id = tvb_get_guint8(payload_tvb, offset);
         if (tree) {
-            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_cmd_id, tvb, offset, 1, packet->command_id);
+            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_cmd_id, payload_tvb, offset, 1, packet->command_id);
         }
         offset++;
 
@@ -1543,12 +1544,17 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         }
     }
 
+    if (offset > 0) {
+      payload_tvb = tvb_new_subset_remaining(payload_tvb, offset);
+      offset = 0;
+    }
+
     /* If it is ok to dissect bad FCS, FCS might be absent, so still dissect
      * commands like Association request. */
     if ((!ieee802154_fcs_ok
          /* If either ZBOSS traffic dump or TI CC2{45}xx, FCS must be present. */
          && !(options & (DISSECT_IEEE802154_OPTION_ZBOSS | DISSECT_IEEE802154_OPTION_CC24xx)))
-        || tvb_captured_length_remaining(tvb, offset) > IEEE802154_FCS_LEN) {
+        || tvb_captured_length(payload_tvb) > 0) {
         /*
          * Wrap the sub-dissection in a try/catch block in case the payload is
          * broken. First we store the current protocol so we can fix it if an
