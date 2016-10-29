@@ -1260,7 +1260,7 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	/* Save string to dcv->private_data */
 	if (options & CB_STR_SAVE) {
 		dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-		dcv->private_data = s;
+		dcv->private_data = wmem_strdup(wmem_file_scope(), s);
 	}
 }
 
@@ -1323,7 +1323,7 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	if (options & CB_STR_SAVE) {
 		dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
-		dcv->private_data = s;
+		dcv->private_data = wmem_strdup(wmem_file_scope(), s);
 	}
 }
 
