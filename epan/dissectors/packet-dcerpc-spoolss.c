@@ -627,7 +627,7 @@ dissect_SYSTEM_TIME_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset =  dissect_SYSTEM_TIME(
 		tvb, offset, pinfo, tree, di, drep, NULL, FALSE, &str);
-	dcv->private_data = str;
+	dcv->private_data = wmem_strdup(wmem_file_scope(), str);
 
 	return offset;
 }
