@@ -489,7 +489,7 @@ capture_remote_combo_add_recent(const gchar *s)
 
   if (valp) {
     /* Found value 3, this is the authentication type */
-    auth_type = strtol(valp->data, &p, 0);
+    auth_type = (gint)strtol(valp->data, &p, 0);
     if (p != valp->data && *p == '\0') {
       rh->auth_type = auth_type;
     }

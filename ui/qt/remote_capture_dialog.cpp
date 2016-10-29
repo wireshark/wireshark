@@ -38,8 +38,6 @@
 
 #include <QMessageBox>
 
-static guint num_selected = 0;
-
 RemoteCaptureDialog::RemoteCaptureDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::RemoteCaptureDialog)
