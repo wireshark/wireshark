@@ -67,8 +67,10 @@ if (POLICY CMP0054)
 	cmake_policy(SET CMP0054 OLD)
 endif()
 
-# See https://cmake.org/Wiki/CMake_RPATH_handling
-set(MACOSX_RPATH ON)
+# Set old behaviour for MACOSX_RPATH
+if (POLICY CMP0042)
+	cmake_policy(SET CMP0042 OLD)
+endif()
 
 # If our target platform is enforced by our generator, set
 # WIRESHARK_TARGET_PLATFORM accordingly. Otherwise use
