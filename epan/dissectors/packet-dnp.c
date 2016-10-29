@@ -3253,18 +3253,18 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_tree *al_tree;
     guint8      tr_ctl, tr_seq;
     gboolean    tr_fir, tr_fin;
-    guint8     *tmp, *tmp_ptr;
+    guint8     *al_buffer, *al_buffer_ptr;
     guint8      data_len;
     int         data_offset;
     gboolean    crc_OK = FALSE;
     tvbuff_t   *next_tvb;
     guint       i;
-  static const int * transport_flags[] = {
-    &hf_dnp3_tr_fin,
-    &hf_dnp3_tr_fir,
-    &hf_dnp3_tr_seq,
-    NULL
-  };
+    static const int * transport_flags[] = {
+      &hf_dnp3_tr_fin,
+      &hf_dnp3_tr_fir,
+      &hf_dnp3_tr_seq,
+      NULL
+    };
 
     /* get the transport layer byte */
     tr_ctl = tvb_get_guint8(tvb, offset);
@@ -3286,8 +3286,8 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
     /* XXX - check for dl_len <= 5 */
     data_len = dl_len - 5;
-    tmp = (guint8 *)wmem_alloc(pinfo->pool, data_len);
-    tmp_ptr = tmp;
+    al_buffer = (guint8 *)wmem_alloc(pinfo->pool, data_len);
+    al_buffer_ptr = al_buffer;
     i = 0;
     data_offset = 1;  /* skip the transport layer byte when assembling chunks */
     while (data_len > 0)
@@ -3298,10 +3298,10 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
       chk_size = MIN(data_len, AL_MAX_CHUNK_SIZE);
       chk_ptr  = tvb_get_ptr(tvb, offset, chk_size);
-      memcpy(tmp_ptr, chk_ptr + data_offset, chk_size - data_offset);
+      memcpy(al_buffer_ptr, chk_ptr + data_offset, chk_size - data_offset);
       calc_crc = calculateCRC(chk_ptr, chk_size);
       offset  += chk_size;
-      tmp_ptr += chk_size - data_offset;
+      al_buffer_ptr += chk_size - data_offset;
       act_crc  = tvb_get_letohs(tvb, offset);
       offset  += 2;
       crc_OK   = calc_crc == act_crc;
@@ -3329,7 +3329,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       tvbuff_t *al_tvb;
       gboolean  save_fragmented;
 
-      al_tvb = tvb_new_child_real_data(tvb, tmp, (guint) (tmp_ptr-tmp), (gint) (tmp_ptr-tmp));
+      al_tvb = tvb_new_child_real_data(tvb, al_buffer, (guint) (al_buffer_ptr-al_buffer), (gint) (al_buffer_ptr-al_buffer));
 
       /* Check for fragmented packet */
       save_fragmented = pinfo->fragmented;
