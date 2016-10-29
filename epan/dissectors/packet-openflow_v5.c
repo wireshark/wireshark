@@ -871,6 +871,7 @@ static expert_field ei_openflow_v5_queue_desc_prop_undecoded = EI_INIT;
 static expert_field ei_openflow_v5_async_config_prop_undecoded = EI_INIT;
 static expert_field ei_openflow_v5_bundle_prop_undecoded = EI_INIT;
 static expert_field ei_openflow_v5_message_undecoded = EI_INIT;
+static expert_field ei_openflow_v5_length_too_short = EI_INIT;
 
 static const value_string openflow_v5_version_values[] = {
     { 0x05, "1.4" },
@@ -1306,8 +1307,13 @@ dissect_openflow_match_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     match_length = tvb_get_ntohs(tvb, offset);
     pad_length = (match_length + 7)/8*8 - match_length;
     proto_item_set_len(ti, match_length + pad_length);
-    proto_tree_add_item(match_tree, hf_openflow_v5_match_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(match_tree, hf_openflow_v5_match_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
+
+    if (match_length < 4) {
+        expert_add_info(pinfo, ti, &ei_openflow_v5_length_too_short);
+        return offset;
+    }
 
     /* body */
     switch (match_type) {
@@ -1381,7 +1387,7 @@ dissect_openflow_meter_band_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     /* uint16_t len; */
     band_len = tvb_get_ntohs(tvb, offset);
     proto_item_set_len(ti, band_len);
-    proto_tree_add_item(band_tree, hf_openflow_v5_meter_band_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(band_tree, hf_openflow_v5_meter_band_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
     /* uint32_t rate; */
@@ -1391,6 +1397,11 @@ dissect_openflow_meter_band_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     /* uint32_t burst_size; */
     proto_tree_add_item(band_tree, hf_openflow_v5_meter_band_burst_size, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
+
+    if (band_len < 12) {
+        expert_add_info(pinfo, ti, &ei_openflow_v5_length_too_short);
+        return offset;
+    }
 
     switch (band_type) {
     case OFPMBT_DROP:
@@ -4991,12 +5002,17 @@ dissect_openflow_queue_desc_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     /* uint16_t len; */
     prop_len = tvb_get_ntohs(tvb, offset);
     proto_item_set_len(ti, prop_len);
-    proto_tree_add_item(prop_tree, hf_openflow_v5_queue_desc_prop_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(prop_tree, hf_openflow_v5_queue_desc_prop_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
     /* uint8_t pad[4]; */
     proto_tree_add_item(prop_tree, hf_openflow_v5_queue_desc_prop_pad, tvb, offset, 4, ENC_NA);
     offset+=4;
+
+    if (prop_len < 8) {
+        expert_add_info(pinfo, ti, &ei_openflow_v5_length_too_short);
+        return offset;
+    }
 
     switch (prop_type) {
     case OFPQDPT_MIN_RATE:
@@ -5131,6 +5147,7 @@ dissect_openflow_flow_update_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     guint16 update_len;
     guint16 update_event;
     gint32 update_end;
+    proto_item *ti;
 
     update_len = tvb_get_ntohs(tvb, offset);
     update_end = offset + update_len;
@@ -5140,9 +5157,16 @@ dissect_openflow_flow_update_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     /* uint16_t length; */
     proto_tree_add_item(update_tree, hf_openflow_v5_flow_update_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
 
     /* uint16_t event; */
-    proto_tree_add_item(update_tree, hf_openflow_v5_flow_update_event, tvb, offset, 2, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(update_tree, hf_openflow_v5_flow_update_event, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    if (update_len < 4) {
+        expert_add_info(pinfo, ti, &ei_openflow_v5_length_too_short);
+        return offset;
+    }
 
     switch (update_event) {
     case OFPFME_INITIAL:
@@ -9817,6 +9841,10 @@ proto_register_openflow_v5(void)
         {&ei_openflow_v5_message_undecoded,
             { "openflow_v5.message.undecoded", PI_UNDECODED, PI_NOTE,
               "Unknown message body.", EXPFILL }
+        },
+        {&ei_openflow_v5_length_too_short,
+            { "openflow_v5.message.length_too_short", PI_MALFORMED, PI_ERROR,
+              "Length is too short.", EXPFILL }
         }
     };
 
