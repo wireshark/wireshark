@@ -592,12 +592,17 @@ static int hf_dnp3_ctl_dfc = -1;
 static int hf_dnp3_dst = -1;
 static int hf_dnp3_src = -1;
 static int hf_dnp3_addr = -1;
-static int hf_dnp_hdr_CRC = -1;
-static int hf_dnp_hdr_CRC_bad = -1;
+static int hf_dnp3_data_hdr_crc = -1;
+static int hf_dnp3_data_hdr_crc_status = -1;
 static int hf_dnp3_tr_ctl = -1;
 static int hf_dnp3_tr_fin = -1;
 static int hf_dnp3_tr_fir = -1;
 static int hf_dnp3_tr_seq = -1;
+static int hf_dnp3_data_chunk = -1;
+static int hf_dnp3_data_chunk_len = -1;
+static int hf_dnp3_data_chunk_crc = -1;
+static int hf_dnp3_data_chunk_crc_status = -1;
+/* Added for Application Layer Decoding */
 static int hf_dnp3_al_ctl = -1;
 static int hf_dnp3_al_fir = -1;
 static int hf_dnp3_al_fin = -1;
@@ -605,7 +610,6 @@ static int hf_dnp3_al_con = -1;
 static int hf_dnp3_al_uns = -1;
 static int hf_dnp3_al_seq = -1;
 static int hf_dnp3_al_func = -1;
-/* Added for Application Layer Decoding */
 static int hf_dnp3_al_iin = -1;
 static int hf_dnp3_al_iin_bmsg = -1;
 static int hf_dnp3_al_iin_cls1d = -1;
@@ -743,7 +747,6 @@ static int hf_dnp3_al_file_string_length = -1;
 static int hf_dnp3_al_file_name = -1;
 static int hf_dnp3_al_octet_string = -1;
 static int hf_dnp3_unknown_data_chunk = -1;
-static int hf_dnp3_application_chunk = -1;
 
 /***************************************************************************/
 /* Value String Look-Ups */
@@ -1270,7 +1273,8 @@ static gint ett_dnp3 = -1;
 static gint ett_dnp3_dl = -1;
 static gint ett_dnp3_dl_ctl = -1;
 static gint ett_dnp3_tr_ctl = -1;
-static gint ett_dnp3_al_data = -1;
+static gint ett_dnp3_dl_data = -1;
+static gint ett_dnp3_dl_chunk = -1;
 static gint ett_dnp3_al = -1;
 static gint ett_dnp3_al_ctl = -1;
 static gint ett_dnp3_al_obj_point_tcc = -1;
@@ -1288,8 +1292,9 @@ static gint ett_dnp3_al_obj_point_perms = -1;
 static expert_field ei_dnp_num_items_neg = EI_INIT;
 static expert_field ei_dnp_invalid_length = EI_INIT;
 static expert_field ei_dnp_iin_abnormal = EI_INIT;
+static expert_field ei_dnp3_data_hdr_crc_incorrect = EI_INIT;
+static expert_field ei_dnp3_data_chunk_crc_incorrect = EI_INIT;
 /* Generated from convert_proto_tree_add_text.pl */
-static expert_field ei_dnp3_crc_failed = EI_INIT;
 #if 0
 static expert_field ei_dnp3_buffering_user_data_until_final_frame_is_received = EI_INIT;
 #endif
@@ -3124,7 +3129,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   gboolean     dl_prm;
   guint8       dl_len, dl_ctl, dl_func;
   const gchar *func_code_str;
-  guint16      dl_dst, dl_src, dl_crc, calc_dl_crc;
+  guint16      dl_dst, dl_src, calc_dl_crc;
 
   /* Make entries in Protocol column and Info column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNP 3.0");
@@ -3228,20 +3233,10 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   offset += 2;
 
   /* and header CRC */
-  dl_crc = tvb_get_letohs(tvb, offset);
   calc_dl_crc = calculateCRCtvb(tvb, 0, DNP_HDR_LEN - 2);
-  if (dl_crc == calc_dl_crc)
-    proto_tree_add_uint_format_value(dl_tree, hf_dnp_hdr_CRC, tvb, offset, 2,
-                               dl_crc, "0x%04x [correct]", dl_crc);
-  else
-  {
-    hidden_item = proto_tree_add_boolean(dl_tree, hf_dnp_hdr_CRC_bad, tvb,
-                                         offset, 2, TRUE);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-    proto_tree_add_uint_format_value(dl_tree, hf_dnp_hdr_CRC, tvb, offset, 2,
-                               dl_crc, "0x%04x [incorrect, should be 0x%04x]",
-                               dl_crc, calc_dl_crc);
-  }
+  proto_tree_add_checksum(dl_tree, tvb, offset, hf_dnp3_data_hdr_crc,
+                          hf_dnp3_data_hdr_crc_status, &ei_dnp3_data_hdr_crc_incorrect,
+                          pinfo, calc_dl_crc, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
   offset += 2;
 
   /* If the DataLink function is 'Request Link Status' or 'Status of Link',
@@ -3250,12 +3245,14 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   if ((dl_func != DL_FUNC_LINK_STAT) && (dl_func != DL_FUNC_STAT_LINK) &&
       (dl_func != DL_FUNC_RESET_LINK) && (dl_func != DL_FUNC_ACK))
   {
-    proto_tree *al_tree;
+    proto_tree *data_tree;
+    proto_item *data_ti;
     guint8      tr_ctl, tr_seq;
     gboolean    tr_fir, tr_fin;
     guint8     *al_buffer, *al_buffer_ptr;
     guint8      data_len;
-    int         data_offset;
+    int         data_start = offset;
+    int         tl_offset;
     gboolean    crc_OK = FALSE;
     tvbuff_t   *next_tvb;
     guint       i;
@@ -3279,8 +3276,8 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     if (tr_fin) proto_item_append_text(tc, "FIN, ");
     proto_item_append_text(tc, "Sequence %u)", tr_seq);
 
-    /* Allocate AL chunk tree */
-    al_tree = proto_tree_add_subtree(dnp3_tree, tvb, offset + 1, -1, ett_dnp3_al_data, NULL, "Application data chunks");
+    /* Add data chunk tree */
+    data_tree = proto_tree_add_subtree(dnp3_tree, tvb, offset, -1, ett_dnp3_dl_data, &data_ti, "Data Chunks");
 
     /* extract the application layer data, validating the CRCs */
 
@@ -3289,41 +3286,46 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     al_buffer = (guint8 *)wmem_alloc(pinfo->pool, data_len);
     al_buffer_ptr = al_buffer;
     i = 0;
-    data_offset = 1;  /* skip the transport layer byte when assembling chunks */
+    tl_offset = 1;  /* skip the initial transport layer byte when assembling chunks for the application layer tvb */
     while (data_len > 0)
     {
       guint8        chk_size;
       const guint8 *chk_ptr;
+      proto_tree   *chk_tree;
+      proto_item   *chk_len_ti;
       guint16       calc_crc, act_crc;
 
       chk_size = MIN(data_len, AL_MAX_CHUNK_SIZE);
       chk_ptr  = tvb_get_ptr(tvb, offset, chk_size);
-      memcpy(al_buffer_ptr, chk_ptr + data_offset, chk_size - data_offset);
-      calc_crc = calculateCRC(chk_ptr, chk_size);
+      memcpy(al_buffer_ptr, chk_ptr + tl_offset, chk_size - tl_offset);
+      al_buffer_ptr += chk_size - tl_offset;
+
+      chk_tree = proto_tree_add_subtree_format(data_tree, tvb, offset, chk_size + 2, ett_dnp3_dl_chunk, NULL, "Data Chunk: %u", i);
+      proto_tree_add_item(chk_tree, hf_dnp3_data_chunk, tvb, offset, chk_size, ENC_NA);
+      chk_len_ti = proto_tree_add_uint(chk_tree, hf_dnp3_data_chunk_len, tvb, offset, 0, chk_size);
+      PROTO_ITEM_SET_GENERATED(chk_len_ti);
+
       offset  += chk_size;
-      al_buffer_ptr += chk_size - data_offset;
+
+      calc_crc = calculateCRC(chk_ptr, chk_size);
+      proto_tree_add_checksum(chk_tree, tvb, offset, hf_dnp3_data_chunk_crc,
+                              hf_dnp3_data_chunk_crc_status, &ei_dnp3_data_chunk_crc_incorrect,
+                              pinfo, calc_crc, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
       act_crc  = tvb_get_letohs(tvb, offset);
       offset  += 2;
       crc_OK   = calc_crc == act_crc;
-      if (crc_OK)
+      if (!crc_OK)
       {
-        proto_tree_add_bytes_format(al_tree, hf_dnp3_application_chunk, tvb, offset - (chk_size + 2), chk_size + 2,
-                            NULL, "Application Chunk %u Len: %u CRC 0x%04x",
-                            i, chk_size, act_crc);
-        data_len -= chk_size;
-      }
-      else
-      {
-        proto_tree_add_bytes_format(al_tree, hf_dnp3_application_chunk, tvb, offset - (chk_size + 2), chk_size + 2,
-                            NULL, "Application Chunk %u Len: %u Bad CRC got 0x%04x expected 0x%04x",
-                            i, chk_size, act_crc, calc_crc);
+        /* Don't trust the rest of the data, get out of here */
         break;
       }
+      data_len -= chk_size;
       i++;
-      data_offset = 0;  /* copy all of the rest of the chunks */
+      tl_offset = 0;  /* copy all the data in the rest of the chunks */
     }
+    proto_item_set_len(data_ti, offset - data_start);
 
-    /* if all crc OK, set up new tvb */
+    /* if crc OK, set up new tvb */
     if (crc_OK)
     {
       tvbuff_t *al_tvb;
@@ -3415,7 +3417,6 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     {
       /* CRC error - throw away the data. */
       next_tvb = NULL;
-      proto_tree_add_expert_format(dnp3_tree, pinfo, &ei_dnp3_crc_failed, tvb, 11, -1, "CRC failed, %u chunks", i);
     }
 
     /* Dissect any completed Application Layer message */
@@ -3669,15 +3670,15 @@ proto_register_dnp3(void)
         "Source or Destination Address", HFILL }
     },
 
-    { &hf_dnp_hdr_CRC,
-      { "CRC", "dnp3.hdr.CRC",
+    { &hf_dnp3_data_hdr_crc,
+      { "Data Link Header checksum", "dnp3.hdr.CRC",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
 
-    { &hf_dnp_hdr_CRC_bad,
-      { "Bad CRC", "dnp3.hdr.CRC_bad",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+    { &hf_dnp3_data_hdr_crc_status,
+        { "Data Link Header Checksum Status", "dnp.hdr.CRC.status",
+        FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
         NULL, HFILL }
     },
 
@@ -3703,6 +3704,30 @@ proto_register_dnp3(void)
       { "Sequence", "dnp3.tr.seq",
         FT_UINT8, BASE_DEC, NULL, DNP3_TR_SEQ,
         "Frame Sequence Number", HFILL }
+    },
+
+    { &hf_dnp3_data_chunk,
+      { "Data Chunk", "dnp.data_chunk",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_dnp3_data_chunk_len,
+      { "Data Chunk length", "dnp.data_chunk_len",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_dnp3_data_chunk_crc,
+      { "Data Chunk checksum", "dnp.data_chunk.CRC",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_dnp3_data_chunk_crc_status,
+        { "Data Chunk Checksum Status", "dnp.data_chunk.CRC.status",
+        FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+        NULL, HFILL }
     },
 
     { &hf_dnp3_al_ctl,
@@ -4522,7 +4547,6 @@ proto_register_dnp3(void)
     { &hf_dnp3_al_file_name, { "File Name", "dnp3.al.file_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_dnp3_al_octet_string, { "Octet String", "dnp3.al.octet_string", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_dnp3_unknown_data_chunk, { "Unknown Data Chunk", "dnp3.al.unknown_data_chunk", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_dnp3_application_chunk, { "Application Chunk", "dnp.application_chunk", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
   };
 
@@ -4532,7 +4556,8 @@ proto_register_dnp3(void)
     &ett_dnp3_dl,
     &ett_dnp3_dl_ctl,
     &ett_dnp3_tr_ctl,
-    &ett_dnp3_al_data,
+    &ett_dnp3_dl_data,
+    &ett_dnp3_dl_chunk,
     &ett_dnp3_al,
     &ett_dnp3_al_ctl,
     &ett_dnp3_al_obj_point_tcc,
@@ -4551,12 +4576,14 @@ proto_register_dnp3(void)
      { &ei_dnp_num_items_neg, { "dnp3.num_items_neg", PI_MALFORMED, PI_ERROR, "Negative number of items", EXPFILL }},
      { &ei_dnp_invalid_length, { "dnp3.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
      { &ei_dnp_iin_abnormal, { "dnp3.iin_abnormal", PI_PROTOCOL, PI_WARN, "IIN Abnormality", EXPFILL }},
+     { &ei_dnp3_data_hdr_crc_incorrect, { "dnp3.hdr.CRC.incorrect", PI_CHECKSUM, PI_WARN, "Data Link Header Checksum incorrect", EXPFILL }},
+     { &ei_dnp3_data_chunk_crc_incorrect, { "dnp3.data_chunk.CRC.incorrect", PI_CHECKSUM, PI_WARN, "Data Chunk Checksum incorrect", EXPFILL }},
       /* Generated from convert_proto_tree_add_text.pl */
 #if 0
       { &ei_dnp3_buffering_user_data_until_final_frame_is_received, { "dnp3.buffering_user_data_until_final_frame_is_received", PI_PROTOCOL, PI_WARN, "Buffering User Data Until Final Frame is Received..", EXPFILL }},
 #endif
-      { &ei_dnp3_crc_failed, { "dnp.crc_failed", PI_PROTOCOL, PI_WARN, "CRC failed", EXPFILL }},
-  };
+    };
+
   module_t *dnp3_module;
   expert_module_t* expert_dnp3;
 
@@ -4585,7 +4612,6 @@ proto_register_dnp3(void)
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &dnp3_desegment);
 }
-
 
 void
 proto_reg_handoff_dnp3(void)
