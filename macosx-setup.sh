@@ -136,7 +136,7 @@ GEOIP_VERSION=1.4.8
 
 CARES_VERSION=1.10.0
 
-LIBSSH_VERSION=0.7.2
+LIBSSH_VERSION=0.7.3
 
 DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 
@@ -1435,7 +1435,7 @@ uninstall_c_ares() {
 install_libssh() {
     if [ "$LIBSSH_VERSION" -a ! -f libssh-$LIBSSH_VERSION-done ] ; then
         echo "Downloading, building, and installing libssh:"
-        [ -f libssh-$LIBSSH_VERSION.tar.xz ] || curl -L -O https://red.libssh.org/attachments/download/177/libssh-$LIBSSH_VERSION.tar.xz || exit 1
+        [ -f libssh-$LIBSSH_VERSION.tar.xz ] || curl -L -O https://red.libssh.org/attachments/download/195/libssh-$LIBSSH_VERSION.tar.xz || exit 1
         xzcat libssh-$LIBSSH_VERSION.tar.xz | tar xf - || exit 1
         cd libssh-$LIBSSH_VERSION
         mkdir build
@@ -1450,22 +1450,7 @@ install_libssh() {
 
 uninstall_libssh() {
     if [ ! -z "$installed_libssh_version" ] ; then
-        echo "Uninstalling libssh:"
-        cd libssh-$installed_libssh_version
-        $DO_MAKE_UNINSTALL || exit 1
-        make distclean || exit 1
-        cd ..
-        rm libssh-$installed_libssh_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf libssh-$installed_libssh_version
-            rm -rf libssh-$installed_libssh_version.tar.xz
-        fi
-
-        installed_libssh_version=""
+        echo "Sadly, libssh uses cmake, and doesn't support uninstall."
     fi
 }
 
