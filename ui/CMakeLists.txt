@@ -27,6 +27,7 @@ set(COMMON_UI_SRC
 	commandline.c
 	console.c
 	decode_as_utils.c
+	dissect_opts.c
 	export_object.c
 	export_object_dicom.c
 	export_object_http.c

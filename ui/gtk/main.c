@@ -110,6 +110,7 @@
 #include "ui/software_update.h"
 #include "ui/ui_util.h"
 #include "ui/util.h"
+#include "ui/dissect_opts.h"
 #include "ui/commandline.h"
 
 #ifdef HAVE_LIBPCAP
@@ -2462,25 +2463,25 @@ main(int argc, char *argv[])
         set_disabled_heur_dissector_list();
     }
 
-    if(global_commandline_info.disable_protocol_slist) {
+    if(global_dissect_options.disable_protocol_slist) {
         GSList *proto_disable;
-        for (proto_disable = global_commandline_info.disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
+        for (proto_disable = global_dissect_options.disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
         {
             proto_disable_proto_by_name((char*)proto_disable->data);
         }
     }
 
-    if(global_commandline_info.enable_heur_slist) {
+    if(global_dissect_options.disable_heur_slist) {
         GSList *heur_enable;
-        for (heur_enable = global_commandline_info.enable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable))
+        for (heur_enable = global_dissect_options.disable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable))
         {
             proto_enable_heuristic_by_name((char*)heur_enable->data, TRUE);
         }
     }
 
-    if(global_commandline_info.disable_heur_slist) {
+    if(global_dissect_options.disable_heur_slist) {
         GSList *heur_disable;
-        for (heur_disable = global_commandline_info.disable_heur_slist; heur_disable != NULL; heur_disable = g_slist_next(heur_disable))
+        for (heur_disable = global_dissect_options.disable_heur_slist; heur_disable != NULL; heur_disable = g_slist_next(heur_disable))
         {
             proto_enable_heuristic_by_name((char*)heur_disable->data, FALSE);
         }

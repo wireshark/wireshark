@@ -48,7 +48,6 @@
 #include <epan/proto.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
-#include <epan/timestamp.h>
 #include <epan/stat_tap_ui.h>
 
 #include "capture_opts.h"
@@ -64,6 +63,8 @@
 #endif
 
 #include "../file.h"
+
+#include "ui/dissect_opts.h"
 
 #include "ui/commandline.h"
 
@@ -189,12 +190,12 @@ commandline_print_usage(gboolean for_help_option) {
  * component of the entry for the long option, and have a case for that
  * option in the switch statement.
  *
- * We also pick values > 65535, so as to leave values from 128 to 65535
- * for capture options.
+ * We also pick values >= 65536, so as to leave values from 128 to 65535
+ * for capture and dissection options.
  */
 #define LONGOPT_FULL_SCREEN       65536
 
-#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:d:g:Hh" "jJ:kK:lm:nN:o:P:r:R:St:u:vw:X:Y:z:"
+#define OPTSTRING OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "C:g:Hh" "jJ:kK:lm:nN:o:P:r:R:Su:vw:X:Y:z:"
 static const struct option long_options[] = {
         {"help", no_argument, NULL, 'h'},
         {"read-file", required_argument, NULL, 'r' },
@@ -203,6 +204,7 @@ static const struct option long_options[] = {
         {"version", no_argument, NULL, 'v'},
         {"fullscreen", no_argument, NULL, LONGOPT_FULL_SCREEN },
         LONGOPT_CAPTURE_COMMON
+        LONGOPT_DISSECT_COMMON
         {0, 0, 0, 0 }
     };
 static const char optstring[] = OPTSTRING;
@@ -400,15 +402,11 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
     global_commandline_info.cf_name = NULL;
     global_commandline_info.rfilter = NULL;
     global_commandline_info.dfilter = NULL;
-    global_commandline_info.time_format = TS_NOT_SET;
 #ifdef HAVE_LIBPCAP
     global_commandline_info.start_capture = FALSE;
     global_commandline_info.list_link_layer_types = FALSE;
     global_commandline_info.quit_after_cap = getenv("WIRESHARK_QUIT_AFTER_CAPTURE") ? TRUE : FALSE;
 #endif
-    global_commandline_info.disable_protocol_slist = NULL;
-    global_commandline_info.enable_heur_slist = NULL;
-    global_commandline_info.disable_heur_slist = NULL;
     global_commandline_info.full_screen = FALSE;
 
     while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
@@ -456,10 +454,6 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
             /*** all non capture option specific ***/
             case 'C':
                 /* Configuration profile settings were already processed just ignore them this time*/
-                break;
-            case 'd':        /* Decode as rule */
-                if (!decode_as_command_option(optarg))
-                    exit(1);
                 break;
             case 'j':        /* Search backwards for a matching packet from filter in option J */
                 global_commandline_info.jump_backwards = SD_BACKWARD;
@@ -546,37 +540,6 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
             case 'R':        /* Read file filter */
                 global_commandline_info.rfilter = optarg;
                 break;
-            case 't':        /* Time stamp type */
-                if (strcmp(optarg, "r") == 0)
-                    global_commandline_info.time_format = TS_RELATIVE;
-                else if (strcmp(optarg, "a") == 0)
-                    global_commandline_info.time_format = TS_ABSOLUTE;
-                else if (strcmp(optarg, "ad") == 0)
-                    global_commandline_info.time_format = TS_ABSOLUTE_WITH_YMD;
-                else if (strcmp(optarg, "adoy") == 0)
-                    global_commandline_info.time_format = TS_ABSOLUTE_WITH_YDOY;
-                else if (strcmp(optarg, "d") == 0)
-                    global_commandline_info.time_format = TS_DELTA;
-                else if (strcmp(optarg, "dd") == 0)
-                    global_commandline_info.time_format = TS_DELTA_DIS;
-                else if (strcmp(optarg, "e") == 0)
-                    global_commandline_info.time_format = TS_EPOCH;
-                else if (strcmp(optarg, "u") == 0)
-                    global_commandline_info.time_format = TS_UTC;
-                else if (strcmp(optarg, "ud") == 0)
-                    global_commandline_info.time_format = TS_UTC_WITH_YMD;
-                else if (strcmp(optarg, "udoy") == 0)
-                    global_commandline_info.time_format = TS_UTC_WITH_YDOY;
-                else {
-                    cmdarg_err("Invalid time stamp type \"%s\"", optarg);
-                    cmdarg_err_cont("It must be \"a\" for absolute, \"ad\" for absolute with YYYY-MM-DD date,");
-                    cmdarg_err_cont("\"adoy\" for absolute with YYYY/DOY date, \"d\" for delta,");
-                    cmdarg_err_cont("\"dd\" for delta displayed, \"e\" for epoch, \"r\" for relative,");
-                    cmdarg_err_cont("\"u\" for absolute UTC, \"ud\" for absolute UTC with YYYY-MM-DD date,");
-                    cmdarg_err_cont("or \"udoy\" for absolute UTC with YYYY/DOY date.");
-                    exit(1);
-                }
-                break;
             case 'u':        /* Seconds type */
                 if (strcmp(optarg, "s") == 0)
                     timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
@@ -612,14 +575,12 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                     exit(1);
                 }
                 break;
+            case 'd':        /* Decode as rule */
+            case 't':        /* time stamp type */
             case LONGOPT_DISABLE_PROTOCOL: /* disable dissection of protocol */
-                global_commandline_info.disable_protocol_slist = g_slist_append(global_commandline_info.disable_protocol_slist, optarg);
-                break;
             case LONGOPT_ENABLE_HEURISTIC: /* enable heuristic dissection of protocol */
-                global_commandline_info.enable_heur_slist = g_slist_append(global_commandline_info.enable_heur_slist, optarg);
-                break;
             case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
-                global_commandline_info.disable_heur_slist = g_slist_append(global_commandline_info.disable_heur_slist, optarg);
+                dissect_opts_add_opt(opt, optarg);
                 break;
             case LONGOPT_FULL_SCREEN:
                 global_commandline_info.full_screen = TRUE;

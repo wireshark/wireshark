@@ -34,11 +34,13 @@
 #include <windows.h>
 #endif
 
-#include "ui/commandline.h"
+#include "ui/dissect_opts.h"
 
 #ifdef HAVE_LIBPCAP
 #include "ui/capture.h"
 #endif
+
+#include "ui/commandline.h"
 
 #include "epan/color_filters.h"
 
@@ -1384,12 +1386,12 @@ void MainWindow::startInterfaceCapture(bool valid, const QString capture_filter)
 
 void MainWindow::applyGlobalCommandLineOptions()
 {
-    if (global_commandline_info.time_format != TS_NOT_SET) {
+    if (global_dissect_options.time_format != TS_NOT_SET) {
         foreach (QAction* tda, td_actions.keys()) {
-            if (global_commandline_info.time_format == td_actions[tda]) {
+            if (global_dissect_options.time_format == td_actions[tda]) {
                 tda->setChecked(true);
-                recent.gui_time_format = global_commandline_info.time_format;
-                timestamp_set_type(global_commandline_info.time_format);
+                recent.gui_time_format = global_dissect_options.time_format;
+                timestamp_set_type(global_dissect_options.time_format);
                 break;
             }
         }

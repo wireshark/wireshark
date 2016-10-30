@@ -50,8 +50,8 @@ extern "C" {
  * component of the entry for the long option, and have a case for that
  * option in the switch statement.
  *
- * We also pick values <= 65535, so as to leave values > 65535 for
- * options specific to a program.
+ * We also pick values < 4096, so as to leave values >= 4096 for
+ * other long options.
  *
  * NOTE:
  * for tshark, we're using a leading - in the optstring to prevent getopt()
@@ -61,15 +61,6 @@ extern "C" {
  * values outside the range of ASCII graphic characters.
  */
 #define LONGOPT_NUM_CAP_COMMENT 128
-
-/*
- * Non-capture long-only options should start here, to avoid collision
- * with capture options.
- */
-#define MIN_NON_CAPTURE_LONGOPT  129
-#define LONGOPT_DISABLE_PROTOCOL  130
-#define LONGOPT_ENABLE_HEURISTIC  131
-#define LONGOPT_DISABLE_HEURISTIC 132
 
 /*
  * Options for capturing common to all capturing programs.
@@ -109,9 +100,6 @@ extern "C" {
     {"no-promiscuous-mode",  no_argument,       NULL, 'p'}, \
     {"snapshot-length",      required_argument, NULL, 's'}, \
     {"linktype",             required_argument, NULL, 'y'}, \
-    {"disable-protocol", required_argument, NULL, LONGOPT_DISABLE_PROTOCOL }, \
-    {"enable-heuristic", required_argument, NULL, LONGOPT_ENABLE_HEURISTIC }, \
-    {"disable-heuristic", required_argument, NULL, LONGOPT_DISABLE_HEURISTIC }, \
 
 #define OPTSTRING_CAPTURE_COMMON \
     "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:i:" OPTSTRING_I "Lps:y:"

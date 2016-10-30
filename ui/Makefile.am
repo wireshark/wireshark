@@ -54,6 +54,7 @@ WIRESHARK_UI_SRC = \
 	commandline.c		\
 	console.c		\
 	decode_as_utils.c	\
+	dissect_opts.c		\
 	export_object.c		\
 	export_object_dicom.c	\
 	export_object_http.c	\
@@ -99,6 +100,7 @@ WIRESHARK_UI_INCLUDES = \
 	commandline.h		\
 	console.h		\
 	decode_as_utils.h	\
+	dissect_opts.h		\
 	export_object.h		\
 	export_pdu_ui_utils.h	\
 	last_open_dir.h		\

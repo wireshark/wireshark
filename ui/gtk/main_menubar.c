@@ -39,6 +39,7 @@
 #include <epan/color_filters.h>
 
 #include "ui/commandline.h"
+#include "ui/dissect_opts.h"
 #include "ui/main_statusbar.h"
 #include "ui/preference_utils.h"
 #include "ui/recent.h"
@@ -3174,8 +3175,8 @@ menus_init(void)
                                     G_N_ELEMENTS(main_menu_bar_toggle_action_entries),  /* the number of entries */
                                     NULL);                                              /* data to pass to the action callbacks */
 
-        if (global_commandline_info.time_format != TS_NOT_SET) {
-            recent.gui_time_format = global_commandline_info.time_format;
+        if (global_dissect_options.time_format != TS_NOT_SET) {
+            recent.gui_time_format = global_dissect_options.time_format;
         }
         gtk_action_group_add_radio_actions  (main_menu_bar_action_group,                 /* the action group */
                                     main_menu_bar_radio_view_time_entries,               /* an array of radio action descriptions  */
@@ -4253,8 +4254,8 @@ menu_recent_read_finished(void)
     main_widgets_rearrange();
 
     /* Update the time format if we had a command line value. */
-    if (global_commandline_info.time_format != TS_NOT_SET) {
-        recent.gui_time_format = global_commandline_info.time_format;
+    if (global_dissect_options.time_format != TS_NOT_SET) {
+        recent.gui_time_format = global_dissect_options.time_format;
     }
 
     /* XXX Fix me */

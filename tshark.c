@@ -86,6 +86,7 @@
 #include "ui/decode_as_utils.h"
 #include "ui/cli/tshark-tap.h"
 #include "ui/tap_export_pdu.h"
+#include "ui/dissect_opts.h"
 #include "register.h"
 #include "filter_files.h"
 #include <epan/epan_dissect.h>
@@ -541,6 +542,7 @@ main(int argc, char *argv[])
     {"help", no_argument, NULL, 'h'},
     {"version", no_argument, NULL, 'v'},
     LONGOPT_CAPTURE_COMMON
+    LONGOPT_DISSECT_COMMON
     {0, 0, 0, 0 }
   };
   gboolean             arg_error = FALSE;
@@ -589,9 +591,6 @@ main(int argc, char *argv[])
   char                 badopt;
   int                  log_flags;
   gchar               *output_only = NULL;
-  GSList              *disable_protocol_slist = NULL;
-  GSList              *enable_heur_slist = NULL;
-  GSList              *disable_heur_slist = NULL;
   gchar               *volatile pdu_export_arg = NULL;
   exp_pdu_t            exp_pdu_tap_data;
 
@@ -614,7 +613,7 @@ main(int argc, char *argv[])
  * We do *not* use a leading - because the behavior of a leading - is
  * platform-dependent.
  */
-#define OPTSTRING "+2" OPTSTRING_CAPTURE_COMMON "C:d:e:E:F:gG:hH:j:" "K:lnN:o:O:PqQr:R:S:t:T:u:U:vVw:W:xX:Y:z:"
+#define OPTSTRING "+2" OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "C:e:E:F:gG:hH:j:" "K:lnN:o:O:PqQr:R:S:T:u:U:vVw:W:xX:Y:z:"
 
   static const char    optstring[] = OPTSTRING;
 
@@ -1028,10 +1027,6 @@ main(int argc, char *argv[])
     case 'C':
       /* already processed; just ignore it now */
       break;
-    case 'd':        /* Decode as rule */
-      if (!decode_as_command_option(optarg))
-        return 1;
-      break;
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
     case 'K':        /* Kerberos keytab file */
       read_keytab_file(optarg);
@@ -1184,42 +1179,6 @@ main(int argc, char *argv[])
     case 'S':        /* Set the line Separator to be printed between packets */
       separator = optarg;
       break;
-    case 't':        /* Time stamp type */
-      if (strcmp(optarg, "r") == 0)
-        timestamp_set_type(TS_RELATIVE);
-      else if (strcmp(optarg, "a") == 0)
-        timestamp_set_type(TS_ABSOLUTE);
-      else if (strcmp(optarg, "ad") == 0)
-        timestamp_set_type(TS_ABSOLUTE_WITH_YMD);
-      else if (strcmp(optarg, "adoy") == 0)
-        timestamp_set_type(TS_ABSOLUTE_WITH_YDOY);
-      else if (strcmp(optarg, "d") == 0)
-        timestamp_set_type(TS_DELTA);
-      else if (strcmp(optarg, "dd") == 0)
-        timestamp_set_type(TS_DELTA_DIS);
-      else if (strcmp(optarg, "e") == 0)
-        timestamp_set_type(TS_EPOCH);
-      else if (strcmp(optarg, "u") == 0)
-        timestamp_set_type(TS_UTC);
-      else if (strcmp(optarg, "ud") == 0)
-        timestamp_set_type(TS_UTC_WITH_YMD);
-      else if (strcmp(optarg, "udoy") == 0)
-        timestamp_set_type(TS_UTC_WITH_YDOY);
-      else {
-        cmdarg_err("Invalid time stamp type \"%s\"; it must be one of:", optarg);
-        cmdarg_err_cont("\t\"a\"    for absolute\n"
-                        "\t\"ad\"   for absolute with YYYY-MM-DD date\n"
-                        "\t\"adoy\" for absolute with YYYY/DOY date\n"
-                        "\t\"d\"    for delta\n"
-                        "\t\"dd\"   for delta displayed\n"
-                        "\t\"e\"    for epoch\n"
-                        "\t\"r\"    for relative\n"
-                        "\t\"u\"    for absolute UTC\n"
-                        "\t\"ud\"   for absolute UTC with YYYY-MM-DD date\n"
-                        "\t\"udoy\" for absolute UTC with YYYY/DOY date");
-        return 1;
-      }
-      break;
     case 'T':        /* printing Type */
       print_packet_info = TRUE;
       if (strcmp(optarg, "text") == 0) {
@@ -1351,14 +1310,12 @@ main(int argc, char *argv[])
         return 1;
       }
       break;
+    case 'd':        /* Decode as rule */
+    case 't':        /* Time stamp type */
     case LONGOPT_DISABLE_PROTOCOL: /* disable dissection of protocol */
-      disable_protocol_slist = g_slist_append(disable_protocol_slist, optarg);
-      break;
     case LONGOPT_ENABLE_HEURISTIC: /* enable heuristic dissection of protocol */
-      enable_heur_slist = g_slist_append(enable_heur_slist, optarg);
-      break;
     case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
-      disable_heur_slist = g_slist_append(disable_heur_slist, optarg);
+      dissect_opts_add_opt(opt, optarg);
       break;
 
     default:
@@ -1693,34 +1650,36 @@ main(int argc, char *argv[])
     }
   }
 
+  timestamp_set_type(global_dissect_options.time_format);
+
   /* disabled protocols as per configuration file */
   if (gdp_path == NULL && dp_path == NULL) {
     set_disabled_protos_list();
     set_disabled_heur_dissector_list();
   }
 
-  if(disable_protocol_slist) {
-      GSList *proto_disable;
-      for (proto_disable = disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
-      {
-          proto_disable_proto_by_name((char*)proto_disable->data);
-      }
+  if(global_dissect_options.disable_protocol_slist) {
+    GSList *proto_disable;
+    for (proto_disable = global_dissect_options.disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
+    {
+      proto_disable_proto_by_name((char*)proto_disable->data);
+    }
   }
 
-  if(enable_heur_slist) {
-      GSList *heur_enable;
-      for (heur_enable = enable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable))
-      {
-          proto_enable_heuristic_by_name((char*)heur_enable->data, TRUE);
-      }
+  if(global_dissect_options.disable_heur_slist) {
+    GSList *heur_enable;
+    for (heur_enable = global_dissect_options.disable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable))
+    {
+      proto_enable_heuristic_by_name((char*)heur_enable->data, TRUE);
+    }
   }
 
-  if(disable_heur_slist) {
-      GSList *heur_disable;
-      for (heur_disable = disable_heur_slist; heur_disable != NULL; heur_disable = g_slist_next(heur_disable))
-      {
-          proto_enable_heuristic_by_name((char*)heur_disable->data, FALSE);
-      }
+  if(global_dissect_options.disable_heur_slist) {
+    GSList *heur_disable;
+    for (heur_disable = global_dissect_options.disable_heur_slist; heur_disable != NULL; heur_disable = g_slist_next(heur_disable))
+    {
+      proto_enable_heuristic_by_name((char*)heur_disable->data, FALSE);
+    }
   }
 
   /* Build the column format array */
