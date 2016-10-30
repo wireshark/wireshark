@@ -11343,6 +11343,7 @@ p-net-local     34378/udp # P-Net on IP local [Kurt_Nissen] [Kurt_Nissen] 2004-0
 p-net-remote    34379/tcp # P-Net on IP remote [Kurt_Nissen] [Kurt_Nissen] 2004-02
 p-net-remote    34379/udp # P-Net on IP remote [Kurt_Nissen] [Kurt_Nissen] 2004-02
 dhanalakshmi    34567/tcp # dhanalakshmi.org EDI Service [Girish_Gopalakrishna] [Girish_Gopalakrishna] 2010-04-20
+edi_service     34567/udp # dhanalakshmi.org EDI Service [Girish_Gopalakrishna] [Girish_Gopalakrishna] 2016-10-26
 profinet-rt     34962/tcp # PROFInet RT Unicast [Peter_Wenzel] [Peter_Wenzel] 2004-11
 profinet-rt     34962/udp # PROFInet RT Unicast [Peter_Wenzel] [Peter_Wenzel] 2004-11
 profinet-rtm    34963/tcp # PROFInet RT Multicast [Peter_Wenzel] [Peter_Wenzel] 2004-11
