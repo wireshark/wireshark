@@ -59,17 +59,25 @@ InterfaceTreeCacheModel::InterfaceTreeCacheModel(QObject *parent) :
 
 InterfaceTreeCacheModel::~InterfaceTreeCacheModel()
 {
+#ifdef HAVE_LIBPCAP
     /* This list should only exist, if the dialog is closed, without calling save first */
     if ( newDevices.size() > 0 )
     {
         qDeleteAll(newDevices);
         newDevices.clear();
     }
+#endif
 
     delete storage;
     delete sourceModel;
 }
 
+QVariant InterfaceTreeCacheModel::getColumnContent(int idx, int col, int role)
+{
+    return InterfaceTreeCacheModel::data(index(idx, col), role);
+}
+
+#ifdef HAVE_LIBPCAP
 void InterfaceTreeCacheModel::reset(int row)
 {
     if ( row < 0 )
@@ -82,11 +90,6 @@ void InterfaceTreeCacheModel::reset(int row)
         if ( storage->count() > row )
             storage->remove(storage->keys().at(row));
     }
-}
-
-QVariant InterfaceTreeCacheModel::getColumnContent(int idx, int col, int role)
-{
-    return InterfaceTreeCacheModel::data(index(idx, col), role);
 }
 
 void InterfaceTreeCacheModel::saveNewDevices()
@@ -150,8 +153,10 @@ void InterfaceTreeCacheModel::save()
 
     QMap<char**, QStringList> prefStorage;
 
+
     /* Storing new devices first including their changed values */
     saveNewDevices();
+
 
     for(unsigned int idx = 0; idx < global_capture_opts.all_ifaces->len; idx++)
     {
@@ -294,10 +299,15 @@ void InterfaceTreeCacheModel::save()
 
     wsApp->emitAppSignal(WiresharkApplication::LocalInterfacesChanged);
 }
+#endif
 
 int InterfaceTreeCacheModel::rowCount(const QModelIndex & parent) const
 {
-    return sourceModel->rowCount(parent) + newDevices.size();
+    int totalCount = sourceModel->rowCount(parent);
+#ifdef HAVE_LIBPCAP
+    totalCount += newDevices.size();
+#endif
+    return totalCount;
 }
 
 bool InterfaceTreeCacheModel::changeIsAllowed(InterfaceTreeColumns col) const
@@ -307,6 +317,7 @@ bool InterfaceTreeCacheModel::changeIsAllowed(InterfaceTreeColumns col) const
     return false;
 }
 
+#ifdef HAVE_LIBPCAP
 interface_t * InterfaceTreeCacheModel::lookup(const QModelIndex &index) const
 {
     interface_t * result = 0;
@@ -331,12 +342,16 @@ interface_t * InterfaceTreeCacheModel::lookup(const QModelIndex &index) const
 
     return result;
 }
+#endif
 
 /* This checks if the column can be edited for the given index. This differs from
  * isAllowedToBeChanged in such a way, that it is only used in flags and not any
  * other method.*/
 bool InterfaceTreeCacheModel::isAllowedToBeEdited(const QModelIndex &index) const
 {
+    Q_UNUSED(index);
+
+#ifdef HAVE_LIBPCAP
     interface_t * device = lookup(index);
     if ( device == 0 )
         return false;
@@ -355,11 +370,15 @@ bool InterfaceTreeCacheModel::isAllowedToBeEdited(const QModelIndex &index) cons
     }
 #endif
 
+#endif
     return true;
 }
 
 bool InterfaceTreeCacheModel::isAllowedToBeChanged(const QModelIndex &index) const
 {
+    Q_UNUSED(index);
+
+#ifdef HAVE_LIBPCAP
     interface_t * device = lookup(index);
 
     if ( device == 0 )
@@ -374,6 +393,7 @@ bool InterfaceTreeCacheModel::isAllowedToBeChanged(const QModelIndex &index) con
                 return false;
         }
     }
+#endif
 
     return true;
 }
@@ -469,7 +489,12 @@ QVariant InterfaceTreeCacheModel::data(const QModelIndex &index, int role) const
             return QString("-");
     }
 
-    if ( row >= sourceModel->rowCount() )
+    if ( row < sourceModel->rowCount() )
+    {
+        return sourceModel->data(index, role);
+    }
+#ifdef HAVE_LIBPCAP
+    else
     {
         /* Handle all fields, which will have to be displayed for new devices. Only pipes
          * are supported at the moment, so the information to be displayed is pretty limited.
@@ -510,12 +535,12 @@ QVariant InterfaceTreeCacheModel::data(const QModelIndex &index, int role) const
             }
         }
     }
-    else
-        return sourceModel->data(index, role);
+#endif
 
     return QVariant();
 }
 
+#ifdef HAVE_LIBPCAP
 QModelIndex InterfaceTreeCacheModel::index(int row, int column, const QModelIndex &parent) const
 {
     if ( row >= sourceModel->rowCount() && ( row - sourceModel->rowCount() ) < newDevices.count() )
@@ -576,6 +601,7 @@ void InterfaceTreeCacheModel::deleteDevice(const QModelIndex &index)
         wsApp->emitAppSignal(WiresharkApplication::LocalInterfacesChanged);
     }
 }
+#endif
 
 /*
  * Editor modelines
