@@ -2222,13 +2222,13 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <translation>Okno</translation>
     </message>
     <message>
-        <location filename="dissector_tables_dialog.ui" line="21"/>
+        <location filename="dissector_tables_dialog.ui" line="24"/>
         <location filename="dissector_tables_dialog.cpp" line="258"/>
         <source>Table Name</source>
         <translation>Nazwa Tabeli</translation>
     </message>
     <message>
-        <location filename="dissector_tables_dialog.ui" line="26"/>
+        <location filename="dissector_tables_dialog.ui" line="29"/>
         <location filename="dissector_tables_dialog.cpp" line="270"/>
         <source>Short Name</source>
         <translation>Krótka Nazwa</translation>
@@ -10445,72 +10445,72 @@ text-decoration: underline;
         <translation>Okno</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="27"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="30"/>
         <source>Protocol</source>
         <translation>Protokół</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="32"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="35"/>
         <source>Percent Packets</source>
         <translation>Pakiety [%]</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="37"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="40"/>
         <source>Packets</source>
         <translation>Pakiety</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="42"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="45"/>
         <source>Percent Bytes</source>
         <translation>Bajty [%]</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="47"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="50"/>
         <source>Bytes</source>
         <translation>Bajtów</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="52"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="55"/>
         <source>Bits/s</source>
         <translation>Bity/s</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="57"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="60"/>
         <source>End Packets</source>
         <translation>Krańcowych pakietów</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="62"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="65"/>
         <source>End Bytes</source>
         <translation>Krańcowych bajtów</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="67"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="70"/>
         <source>End Bits/s</source>
         <translation>Krańcowych bitów/s</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="75"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="78"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Podpowiedź.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="95"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="98"/>
         <source>Copy as CSV</source>
         <translation>Kopiuj jako CSV</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="98"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="101"/>
         <source>Copy stream list as CSV.</source>
         <translation>Kopiuj listę strumieni jako CSV.</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="103"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="106"/>
         <source>Copy as YAML</source>
         <translation>Kopiuj jako YAML</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="106"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="109"/>
         <source>Copy stream list as YAML.</source>
         <translation>Kopiuj listę strumieni jako YAML.</translation>
     </message>
@@ -11624,223 +11624,223 @@ text-decoration: underline;
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Przewodni&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Powrotny&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="68"/>
+        <location filename="rtp_analysis_dialog.ui" line="71"/>
         <source>Forward</source>
         <translation>Przewodni</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="72"/>
+        <location filename="rtp_analysis_dialog.ui" line="75"/>
         <source>Packet</source>
         <translation>Pakiet</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="77"/>
+        <location filename="rtp_analysis_dialog.ui" line="80"/>
         <source>Sequence</source>
         <translation>Numer sekwencyjny</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="82"/>
+        <location filename="rtp_analysis_dialog.ui" line="85"/>
         <source>Delta (ms)</source>
         <translation>Delta (ms)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="87"/>
+        <location filename="rtp_analysis_dialog.ui" line="90"/>
         <source>Jitter (ms)</source>
         <oldsource>Jitter</oldsource>
         <translation>Jitter (ms)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="92"/>
+        <location filename="rtp_analysis_dialog.ui" line="95"/>
         <source>Skew</source>
         <translation>Odchylenie</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="97"/>
+        <location filename="rtp_analysis_dialog.ui" line="100"/>
         <source>Bandwidth</source>
         <translation>Pasmo</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="102"/>
+        <location filename="rtp_analysis_dialog.ui" line="105"/>
         <source>Marker</source>
         <translation>Znacznik</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="107"/>
+        <location filename="rtp_analysis_dialog.ui" line="110"/>
         <source>Status</source>
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="122"/>
+        <location filename="rtp_analysis_dialog.ui" line="128"/>
         <source>Reverse</source>
         <translation>Powrotny</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="132"/>
+        <location filename="rtp_analysis_dialog.ui" line="138"/>
         <source>Graph</source>
         <translation>Wykres</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="143"/>
+        <location filename="rtp_analysis_dialog.ui" line="149"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości jitter strumienia przewodniego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="146"/>
+        <location filename="rtp_analysis_dialog.ui" line="152"/>
         <source>Forward Jitter</source>
         <translation>Jitter przewodniego</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="166"/>
+        <location filename="rtp_analysis_dialog.ui" line="172"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości różnic strumienia przewodniego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="169"/>
+        <location filename="rtp_analysis_dialog.ui" line="175"/>
         <source>Forward Difference</source>
         <translation>Różnica przewodniego</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="189"/>
+        <location filename="rtp_analysis_dialog.ui" line="195"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości delt strumienia przewodniego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="192"/>
+        <location filename="rtp_analysis_dialog.ui" line="198"/>
         <source>Forward Delta</source>
         <translation>Delta przewodniego</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="216"/>
+        <location filename="rtp_analysis_dialog.ui" line="222"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości jitter strumienia powrotnego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="219"/>
+        <location filename="rtp_analysis_dialog.ui" line="225"/>
         <source>Reverse Jitter</source>
         <translation>Jitter powrotnego</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="239"/>
+        <location filename="rtp_analysis_dialog.ui" line="245"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości różnic strumienia powrotnego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="242"/>
+        <location filename="rtp_analysis_dialog.ui" line="248"/>
         <source>Reverse Difference</source>
         <translation>Różnica powrotnego</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="262"/>
+        <location filename="rtp_analysis_dialog.ui" line="268"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości delt strumienia powrotnego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="265"/>
+        <location filename="rtp_analysis_dialog.ui" line="271"/>
         <source>Reverse Delta</source>
         <translation>Delta powrotnego</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="295"/>
+        <location filename="rtp_analysis_dialog.ui" line="301"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Podpowiedź.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="327"/>
+        <location filename="rtp_analysis_dialog.ui" line="333"/>
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="330"/>
+        <location filename="rtp_analysis_dialog.ui" line="336"/>
         <source>Save the audio data for both channels.</source>
         <translation>Zapisz dane audio dla obu kanałów.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="335"/>
+        <location filename="rtp_analysis_dialog.ui" line="341"/>
         <source>Forward Stream Audio</source>
         <translation>Przewodni strumień audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="338"/>
+        <location filename="rtp_analysis_dialog.ui" line="344"/>
         <source>Save the forward stream audio data.</source>
         <translation>Zapisz dane przewodniego strumienia audio.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="343"/>
+        <location filename="rtp_analysis_dialog.ui" line="349"/>
         <source>Reverse Stream Audio</source>
         <translation>Powrotny strumień audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="346"/>
+        <location filename="rtp_analysis_dialog.ui" line="352"/>
         <source>Save the reverse stream audio data.</source>
         <translation>Zapisz dane powrotnego strumienia audio.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="351"/>
+        <location filename="rtp_analysis_dialog.ui" line="357"/>
         <source>CSV</source>
         <translation>CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="354"/>
+        <location filename="rtp_analysis_dialog.ui" line="360"/>
         <source>Save both tables as CSV.</source>
         <translation>Zapisz obie tabele jako CSV.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="359"/>
+        <location filename="rtp_analysis_dialog.ui" line="365"/>
         <source>Forward Stream CSV</source>
         <translation>Strumień przewodni CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="362"/>
+        <location filename="rtp_analysis_dialog.ui" line="368"/>
         <source>Save the forward table as CSV.</source>
         <translation>Zapisz tabelę strumienia przewodniego jako CSV.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="367"/>
+        <location filename="rtp_analysis_dialog.ui" line="373"/>
         <source>Reverse Stream CSV</source>
         <translation>Strumień powrotny CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="370"/>
+        <location filename="rtp_analysis_dialog.ui" line="376"/>
         <source>Save the reverse table as CSV.</source>
         <translation>Zapisz tabelę strumienia powrotnego jako CSV.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="375"/>
+        <location filename="rtp_analysis_dialog.ui" line="381"/>
         <source>Save Graph</source>
         <translation>Zapisz wykres</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="378"/>
+        <location filename="rtp_analysis_dialog.ui" line="384"/>
         <source>Save the graph image.</source>
         <translation>Zapisz obraz wykresu.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="383"/>
+        <location filename="rtp_analysis_dialog.ui" line="389"/>
         <source>Go to Packet</source>
         <translation>Idź do pakietu</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="386"/>
+        <location filename="rtp_analysis_dialog.ui" line="392"/>
         <source>Select the corresponding packet in the packet list.</source>
         <translation>Zaznacz odpowiedni pakiet na liście pakietów.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="389"/>
+        <location filename="rtp_analysis_dialog.ui" line="395"/>
         <source>G</source>
         <translation>G</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="394"/>
+        <location filename="rtp_analysis_dialog.ui" line="400"/>
         <source>Next Problem Packet</source>
         <translation>Następny problematyczny pakiet</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="397"/>
+        <location filename="rtp_analysis_dialog.ui" line="403"/>
         <source>Go to the next problem packet</source>
         <translation>Idź do następnego pakietu z problemem.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="400"/>
+        <location filename="rtp_analysis_dialog.ui" line="406"/>
         <source>N</source>
         <translation>N</translation>
     </message>
@@ -12017,57 +12017,57 @@ text-decoration: underline;
         <translation>Odtwarzacz RTP</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="32"/>
+        <location filename="rtp_player_dialog.ui" line="35"/>
         <source>Source Address</source>
         <translation>Adres źródłowy</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="37"/>
+        <location filename="rtp_player_dialog.ui" line="40"/>
         <source>Source Port</source>
         <translation>Port źródłowy</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="42"/>
+        <location filename="rtp_player_dialog.ui" line="45"/>
         <source>Destination Address</source>
         <translation>Adres docelowy</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="47"/>
+        <location filename="rtp_player_dialog.ui" line="50"/>
         <source>Destination Port</source>
         <translation>Port docelowy</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="52"/>
+        <location filename="rtp_player_dialog.ui" line="55"/>
         <source>SSRC</source>
         <translation>SSRC</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="57"/>
+        <location filename="rtp_player_dialog.ui" line="60"/>
         <source>Setup Frame</source>
         <translation>Ramka konfiguracji</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="62"/>
+        <location filename="rtp_player_dialog.ui" line="65"/>
         <source>Packets</source>
         <translation>Pakiety</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="67"/>
+        <location filename="rtp_player_dialog.ui" line="70"/>
         <source>Time Span (s)</source>
         <translation>Okres czasu (s)</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="72"/>
+        <location filename="rtp_player_dialog.ui" line="75"/>
         <source>Sample Rate (Hz)</source>
         <translation>Próbkowanie (Hz)</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="77"/>
+        <location filename="rtp_player_dialog.ui" line="80"/>
         <source>Payloads</source>
         <translation>Dane</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="86"/>
+        <location filename="rtp_player_dialog.ui" line="89"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
@@ -12114,32 +12114,32 @@ text-decoration: underline;
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="110"/>
+        <location filename="rtp_player_dialog.ui" line="113"/>
         <source>&lt;small&gt;&lt;i&gt;No audio&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Brak audio&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="162"/>
+        <location filename="rtp_player_dialog.ui" line="165"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="165"/>
+        <location filename="rtp_player_dialog.ui" line="168"/>
         <source>Jitter Buffer:</source>
         <translation>Bufor Jitter:</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="172"/>
+        <location filename="rtp_player_dialog.ui" line="175"/>
         <source>The simulated jitter buffer in milliseconds.</source>
         <translation>Symulowany bufor jitter w milisekundach.</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="204"/>
+        <location filename="rtp_player_dialog.ui" line="207"/>
         <source>Playback Timing:</source>
         <translation>Czas strumienia:</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="211"/>
+        <location filename="rtp_player_dialog.ui" line="214"/>
         <source>&lt;strong&gt;Jitter Buffer&lt;/strong&gt;: Use jitter buffer to simulate the RTP stream as heard by the end user.
 &lt;br/&gt;
 &lt;strong&gt;RTP Timestamp&lt;/strong&gt;: Use RTP Timestamp instead of the arriving packet time. This will not reproduce the RTP stream as the user heard it, but is useful when the RTP is being tunneled and the original packet timing is missing.
@@ -12157,168 +12157,168 @@ text-decoration: underline;
 &lt;strong&gt;Tryb ciągły&lt;/strong&gt;: Ignoruje wszelkie znaczniki czasu i odgrywa strumień poskładany z przychodzących pakietów.</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="219"/>
+        <location filename="rtp_player_dialog.ui" line="222"/>
         <source>Jitter Buffer</source>
         <translation>Buforowanie jitter</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="224"/>
+        <location filename="rtp_player_dialog.ui" line="227"/>
         <source>RTP Timestamp</source>
         <translation>RTP Timestamp</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="229"/>
+        <location filename="rtp_player_dialog.ui" line="232"/>
         <source>Uninterrupted Mode</source>
         <translation>Tryb ciągły</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="250"/>
+        <location filename="rtp_player_dialog.ui" line="253"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;View the timestamps as time of day (checked) or seconds since beginning of capture (unchecked).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokazuj znaczniki czasu jak czas dnia (zaznaczone) lub sekundy od początku przechwytywania (niezaznaczone).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="253"/>
+        <location filename="rtp_player_dialog.ui" line="256"/>
         <source>Time of Day</source>
         <translation>Czas dnia</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="272"/>
+        <location filename="rtp_player_dialog.ui" line="275"/>
         <source>Reset Graph</source>
         <translation>Resetuj wykres</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="275"/>
+        <location filename="rtp_player_dialog.ui" line="278"/>
         <source>Reset the graph to its initial state.</source>
         <translation>Resetuj wykres do stanu początkowego.</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="278"/>
+        <location filename="rtp_player_dialog.ui" line="281"/>
         <source>0</source>
         <translation>0</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="283"/>
         <location filename="rtp_player_dialog.ui" line="286"/>
+        <location filename="rtp_player_dialog.ui" line="289"/>
         <source>Zoom In</source>
         <translation>Powiększ</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="289"/>
+        <location filename="rtp_player_dialog.ui" line="292"/>
         <source>+</source>
         <translation>+</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="294"/>
         <location filename="rtp_player_dialog.ui" line="297"/>
+        <location filename="rtp_player_dialog.ui" line="300"/>
         <source>Zoom Out</source>
         <translation>Pomniejsz</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="300"/>
+        <location filename="rtp_player_dialog.ui" line="303"/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="305"/>
         <location filename="rtp_player_dialog.ui" line="308"/>
+        <location filename="rtp_player_dialog.ui" line="311"/>
         <source>Move Left 10 Pixels</source>
         <translation>Przesuń w lewo o 10 pikseli</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="311"/>
+        <location filename="rtp_player_dialog.ui" line="314"/>
         <source>Left</source>
         <translation>W lewo</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="316"/>
         <location filename="rtp_player_dialog.ui" line="319"/>
+        <location filename="rtp_player_dialog.ui" line="322"/>
         <source>Move Right 10 Pixels</source>
         <translation>Przesuń w prawo o 10 pikseli</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="322"/>
+        <location filename="rtp_player_dialog.ui" line="325"/>
         <source>Right</source>
         <translation>W prawo</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="327"/>
         <location filename="rtp_player_dialog.ui" line="330"/>
+        <location filename="rtp_player_dialog.ui" line="333"/>
         <source>Move Left 1 Pixels</source>
         <translation>Przesuń w lewo o 1 piksel</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="333"/>
+        <location filename="rtp_player_dialog.ui" line="336"/>
         <source>Shift+Left</source>
         <translation>Shift+w lewo</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="338"/>
         <location filename="rtp_player_dialog.ui" line="341"/>
+        <location filename="rtp_player_dialog.ui" line="344"/>
         <source>Move Right 1 Pixels</source>
         <translation>Przesuń w prawo o 1 piksel</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="344"/>
+        <location filename="rtp_player_dialog.ui" line="347"/>
         <source>Shift+Right</source>
         <translation>Shift+w prawo</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="349"/>
+        <location filename="rtp_player_dialog.ui" line="352"/>
         <source>Go To Packet Under Cursor</source>
         <translation>Idź do pakietu pod kursorem</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="352"/>
+        <location filename="rtp_player_dialog.ui" line="355"/>
         <source>Go to packet currently under the cursor</source>
         <translation>Idź do pakietu pod kursorem</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="355"/>
+        <location filename="rtp_player_dialog.ui" line="358"/>
         <source>G</source>
         <translation>G</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="360"/>
+        <location filename="rtp_player_dialog.ui" line="363"/>
         <source>Drag / Zoom</source>
         <translation>Przeciągnij / Powiększ/pomniejsz</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="363"/>
+        <location filename="rtp_player_dialog.ui" line="366"/>
         <source>Toggle mouse drag / zoom behavior</source>
         <translation>Przełącz mysz pomiędzy funkcją przeciągnięcia a powiększenia/pomniejszenia</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="366"/>
+        <location filename="rtp_player_dialog.ui" line="369"/>
         <source>Z</source>
         <translation>ZZ</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="371"/>
+        <location filename="rtp_player_dialog.ui" line="374"/>
         <source>Capture / Session Time Origin</source>
         <translation>Czas sesji / przechwytywania</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="374"/>
+        <location filename="rtp_player_dialog.ui" line="377"/>
         <source>Toggle capture / session time origin</source>
         <translation>Przełącz między czasem przechwytywania a sesji</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="377"/>
+        <location filename="rtp_player_dialog.ui" line="380"/>
         <source>T</source>
         <translation>T</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="382"/>
+        <location filename="rtp_player_dialog.ui" line="385"/>
         <source>Crosshairs</source>
         <translation>Wskaźniki</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="385"/>
+        <location filename="rtp_player_dialog.ui" line="388"/>
         <source>Toggle crosshairs</source>
         <translation>Przełącz wskaźnik wykresu</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="388"/>
+        <location filename="rtp_player_dialog.ui" line="391"/>
         <source>Space</source>
         <translation>Spacja</translation>
     </message>
@@ -15005,49 +15005,49 @@ text-decoration: underline;
         <translation>Okno</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="24"/>
+        <location filename="tap_parameter_dialog.ui" line="27"/>
         <source>Item</source>
         <translation>Pozycja</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="32"/>
+        <location filename="tap_parameter_dialog.ui" line="35"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Podpowiedź.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="44"/>
+        <location filename="tap_parameter_dialog.ui" line="47"/>
         <source>Display filter:</source>
         <translation>Filtr wyświetlania:</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="54"/>
+        <location filename="tap_parameter_dialog.ui" line="57"/>
         <source>Regenerate statistics using this display filter</source>
         <translation>Odśwież statystyki używając filtru wyświetlania</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="57"/>
+        <location filename="tap_parameter_dialog.ui" line="60"/>
         <source>Apply</source>
         <translation>Zastosuj</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="76"/>
+        <location filename="tap_parameter_dialog.ui" line="79"/>
         <location filename="tap_parameter_dialog.cpp" line="90"/>
         <source>Copy</source>
         <translation>Kopiuj</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="79"/>
+        <location filename="tap_parameter_dialog.ui" line="82"/>
         <source>Copy a text representation of the tree to the clipboard</source>
         <translation>Kopiuj reprezentację tekstową drzewa do schowka</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="87"/>
+        <location filename="tap_parameter_dialog.ui" line="90"/>
         <source>Save as…</source>
         <oldsource>Save as...</oldsource>
         <translation>Zapisz jako…</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="90"/>
+        <location filename="tap_parameter_dialog.ui" line="93"/>
         <source>Save the displayed data in various formats</source>
         <translation>Zapisywanie wyświetlonych dane w różnych formatach</translation>
     </message>
@@ -15258,82 +15258,82 @@ text-decoration: underline;
 <context>
     <name>VoipCallsDialog</name>
     <message>
-        <location filename="voip_calls_dialog.ui" line="33"/>
+        <location filename="voip_calls_dialog.ui" line="36"/>
         <source>Start Time</source>
         <translation>Czas start</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="38"/>
+        <location filename="voip_calls_dialog.ui" line="41"/>
         <source>Stop Time</source>
         <translation>Czas stop</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="43"/>
+        <location filename="voip_calls_dialog.ui" line="46"/>
         <source>Initial Speaker</source>
         <translation>Domyślny Głośnik</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="48"/>
+        <location filename="voip_calls_dialog.ui" line="51"/>
         <source>From</source>
         <translation>Od</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="53"/>
+        <location filename="voip_calls_dialog.ui" line="56"/>
         <source>To</source>
         <translation>Do</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="58"/>
+        <location filename="voip_calls_dialog.ui" line="61"/>
         <source>Protocol</source>
         <translation>Protokół</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="63"/>
+        <location filename="voip_calls_dialog.ui" line="66"/>
         <source>Packets</source>
         <translation>Pakiety</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="68"/>
+        <location filename="voip_calls_dialog.ui" line="71"/>
         <source>State</source>
         <translation>Stan</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="73"/>
+        <location filename="voip_calls_dialog.ui" line="76"/>
         <source>Comments</source>
         <translation>Komentarze</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="81"/>
+        <location filename="voip_calls_dialog.ui" line="84"/>
         <source>&lt;small&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="98"/>
+        <location filename="voip_calls_dialog.ui" line="101"/>
         <source>Select &amp;All</source>
         <translation>Zaznacz wszystkie</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="101"/>
+        <location filename="voip_calls_dialog.ui" line="104"/>
         <source>Select all calls</source>
         <translation>Zaznacz wszystkie połączenia</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="109"/>
+        <location filename="voip_calls_dialog.ui" line="112"/>
         <source>Copy as CSV</source>
         <translation>Kopiuj jako CSV</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="112"/>
+        <location filename="voip_calls_dialog.ui" line="115"/>
         <source>Copy stream list as CSV.</source>
         <translation>Kopiuj listę strumieni jako CSV.</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="117"/>
+        <location filename="voip_calls_dialog.ui" line="120"/>
         <source>Copy as YAML</source>
         <translation>Kopiuj jako YAML</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="120"/>
+        <location filename="voip_calls_dialog.ui" line="123"/>
         <source>Copy stream list as YAML.</source>
         <translation>Kopiuj listę strumieni jako YAML.</translation>
     </message>

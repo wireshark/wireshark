@@ -2222,13 +2222,13 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>对话框</translation>
     </message>
     <message>
-        <location filename="dissector_tables_dialog.ui" line="21"/>
+        <location filename="dissector_tables_dialog.ui" line="24"/>
         <location filename="dissector_tables_dialog.cpp" line="258"/>
         <source>Table Name</source>
         <translation>表名</translation>
     </message>
     <message>
-        <location filename="dissector_tables_dialog.ui" line="26"/>
+        <location filename="dissector_tables_dialog.ui" line="29"/>
         <location filename="dissector_tables_dialog.cpp" line="270"/>
         <source>Short Name</source>
         <translation>短名称</translation>
@@ -10432,72 +10432,72 @@ text-decoration: underline;
         <translation>对话框</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="27"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="30"/>
         <source>Protocol</source>
         <translation>协议</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="32"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="35"/>
         <source>Percent Packets</source>
         <translation>按分组百分比</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="37"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="40"/>
         <source>Packets</source>
         <translation>分组</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="42"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="45"/>
         <source>Percent Bytes</source>
         <translation>按字节百分比</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="47"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="50"/>
         <source>Bytes</source>
         <translation>字节</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="52"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="55"/>
         <source>Bits/s</source>
         <translation>比特/秒</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="57"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="60"/>
         <source>End Packets</source>
         <translation>End Packets</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="62"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="65"/>
         <source>End Bytes</source>
         <translation>End Bytes</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="67"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="70"/>
         <source>End Bits/s</source>
         <translation>End Bits/s</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="75"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="78"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;提示&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="95"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="98"/>
         <source>Copy as CSV</source>
         <translation>复制为 CSV</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="98"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="101"/>
         <source>Copy stream list as CSV.</source>
         <translation>复制流列表为 CSV。</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="103"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="106"/>
         <source>Copy as YAML</source>
         <translation>复制为YAML</translation>
     </message>
     <message>
-        <location filename="protocol_hierarchy_dialog.ui" line="106"/>
+        <location filename="protocol_hierarchy_dialog.ui" line="109"/>
         <source>Copy stream list as YAML.</source>
         <translation>复制流列表为YAML。</translation>
     </message>
@@ -11611,223 +11611,223 @@ text-decoration: underline;
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;正向&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;反向&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="68"/>
+        <location filename="rtp_analysis_dialog.ui" line="71"/>
         <source>Forward</source>
         <translation>正向</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="72"/>
+        <location filename="rtp_analysis_dialog.ui" line="75"/>
         <source>Packet</source>
         <translation>分组</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="77"/>
+        <location filename="rtp_analysis_dialog.ui" line="80"/>
         <source>Sequence</source>
         <translation>序列</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="82"/>
+        <location filename="rtp_analysis_dialog.ui" line="85"/>
         <source>Delta (ms)</source>
         <translation>Delta (ms)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="87"/>
+        <location filename="rtp_analysis_dialog.ui" line="90"/>
         <source>Jitter (ms)</source>
         <oldsource>Jitter</oldsource>
         <translation>抖动 (ms)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="92"/>
+        <location filename="rtp_analysis_dialog.ui" line="95"/>
         <source>Skew</source>
         <translation>扭曲</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="97"/>
+        <location filename="rtp_analysis_dialog.ui" line="100"/>
         <source>Bandwidth</source>
         <translation>带宽</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="102"/>
+        <location filename="rtp_analysis_dialog.ui" line="105"/>
         <source>Marker</source>
         <translation>标记</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="107"/>
+        <location filename="rtp_analysis_dialog.ui" line="110"/>
         <source>Status</source>
         <translation>状态</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="122"/>
+        <location filename="rtp_analysis_dialog.ui" line="128"/>
         <source>Reverse</source>
         <translation>反向</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="132"/>
+        <location filename="rtp_analysis_dialog.ui" line="138"/>
         <source>Graph</source>
         <translation>图形</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="143"/>
+        <location filename="rtp_analysis_dialog.ui" line="149"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏正向抖动值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="146"/>
+        <location filename="rtp_analysis_dialog.ui" line="152"/>
         <source>Forward Jitter</source>
         <translation>正向抖动</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="166"/>
+        <location filename="rtp_analysis_dialog.ui" line="172"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏正向差异值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="169"/>
+        <location filename="rtp_analysis_dialog.ui" line="175"/>
         <source>Forward Difference</source>
         <translation>正向差异</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="189"/>
+        <location filename="rtp_analysis_dialog.ui" line="195"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏正向 delta 值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="192"/>
+        <location filename="rtp_analysis_dialog.ui" line="198"/>
         <source>Forward Delta</source>
         <translation>正向 Delta</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="216"/>
+        <location filename="rtp_analysis_dialog.ui" line="222"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏反向抖动值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="219"/>
+        <location filename="rtp_analysis_dialog.ui" line="225"/>
         <source>Reverse Jitter</source>
         <translation>反向抖动</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="239"/>
+        <location filename="rtp_analysis_dialog.ui" line="245"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏反向差异值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="242"/>
+        <location filename="rtp_analysis_dialog.ui" line="248"/>
         <source>Reverse Difference</source>
         <translation>反向差异</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="262"/>
+        <location filename="rtp_analysis_dialog.ui" line="268"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏反向 delta 值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="265"/>
+        <location filename="rtp_analysis_dialog.ui" line="271"/>
         <source>Reverse Delta</source>
         <translation>反向 Delta</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="295"/>
+        <location filename="rtp_analysis_dialog.ui" line="301"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;提示&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="327"/>
+        <location filename="rtp_analysis_dialog.ui" line="333"/>
         <source>Audio</source>
         <translation>音频</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="330"/>
+        <location filename="rtp_analysis_dialog.ui" line="336"/>
         <source>Save the audio data for both channels.</source>
         <translation>保存两个频道的音频数据。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="335"/>
+        <location filename="rtp_analysis_dialog.ui" line="341"/>
         <source>Forward Stream Audio</source>
         <translation>正向音频流</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="338"/>
+        <location filename="rtp_analysis_dialog.ui" line="344"/>
         <source>Save the forward stream audio data.</source>
         <translation>保存正向音频流数据。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="343"/>
+        <location filename="rtp_analysis_dialog.ui" line="349"/>
         <source>Reverse Stream Audio</source>
         <translation>反向音频流</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="346"/>
+        <location filename="rtp_analysis_dialog.ui" line="352"/>
         <source>Save the reverse stream audio data.</source>
         <translation>保存反向音频流数据。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="351"/>
+        <location filename="rtp_analysis_dialog.ui" line="357"/>
         <source>CSV</source>
         <translation>CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="354"/>
+        <location filename="rtp_analysis_dialog.ui" line="360"/>
         <source>Save both tables as CSV.</source>
         <translation>两个表另存为 CSV。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="359"/>
+        <location filename="rtp_analysis_dialog.ui" line="365"/>
         <source>Forward Stream CSV</source>
         <translation>正向流 CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="362"/>
+        <location filename="rtp_analysis_dialog.ui" line="368"/>
         <source>Save the forward table as CSV.</source>
         <translation>正向表另存为 CSV。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="367"/>
+        <location filename="rtp_analysis_dialog.ui" line="373"/>
         <source>Reverse Stream CSV</source>
         <translation>反向流 CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="370"/>
+        <location filename="rtp_analysis_dialog.ui" line="376"/>
         <source>Save the reverse table as CSV.</source>
         <translation>反向表另存为 CSV。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="375"/>
+        <location filename="rtp_analysis_dialog.ui" line="381"/>
         <source>Save Graph</source>
         <translation>保存图表</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="378"/>
+        <location filename="rtp_analysis_dialog.ui" line="384"/>
         <source>Save the graph image.</source>
         <translation>保存图表图像。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="383"/>
+        <location filename="rtp_analysis_dialog.ui" line="389"/>
         <source>Go to Packet</source>
         <translation>转至分组</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="386"/>
+        <location filename="rtp_analysis_dialog.ui" line="392"/>
         <source>Select the corresponding packet in the packet list.</source>
         <translation>选择分组列表中对应的分组。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="389"/>
+        <location filename="rtp_analysis_dialog.ui" line="395"/>
         <source>G</source>
         <translation>G</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="394"/>
+        <location filename="rtp_analysis_dialog.ui" line="400"/>
         <source>Next Problem Packet</source>
         <translation>下一个问题分组</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="397"/>
+        <location filename="rtp_analysis_dialog.ui" line="403"/>
         <source>Go to the next problem packet</source>
         <translation>转至下一个问题分组</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="400"/>
+        <location filename="rtp_analysis_dialog.ui" line="406"/>
         <source>N</source>
         <translation>N</translation>
     </message>
@@ -12004,57 +12004,57 @@ text-decoration: underline;
         <translation>RTP 播放器</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="32"/>
+        <location filename="rtp_player_dialog.ui" line="35"/>
         <source>Source Address</source>
         <translation>源地址</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="37"/>
+        <location filename="rtp_player_dialog.ui" line="40"/>
         <source>Source Port</source>
         <translation>源端口</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="42"/>
+        <location filename="rtp_player_dialog.ui" line="45"/>
         <source>Destination Address</source>
         <translation>目的地址</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="47"/>
+        <location filename="rtp_player_dialog.ui" line="50"/>
         <source>Destination Port</source>
         <translation>目的端口</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="52"/>
+        <location filename="rtp_player_dialog.ui" line="55"/>
         <source>SSRC</source>
         <translation>SSRC</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="57"/>
+        <location filename="rtp_player_dialog.ui" line="60"/>
         <source>Setup Frame</source>
         <translation>设置帧</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="62"/>
+        <location filename="rtp_player_dialog.ui" line="65"/>
         <source>Packets</source>
         <translation>分组</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="67"/>
+        <location filename="rtp_player_dialog.ui" line="70"/>
         <source>Time Span (s)</source>
         <translation>时间跨度 (s)</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="72"/>
+        <location filename="rtp_player_dialog.ui" line="75"/>
         <source>Sample Rate (Hz)</source>
         <translation>采样率 (Hz)</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="77"/>
+        <location filename="rtp_player_dialog.ui" line="80"/>
         <source>Payloads</source>
         <translation>载荷</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="86"/>
+        <location filename="rtp_player_dialog.ui" line="89"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
@@ -12101,32 +12101,32 @@ text-decoration: underline;
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="110"/>
+        <location filename="rtp_player_dialog.ui" line="113"/>
         <source>&lt;small&gt;&lt;i&gt;No audio&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;无音频&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="162"/>
+        <location filename="rtp_player_dialog.ui" line="165"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="165"/>
+        <location filename="rtp_player_dialog.ui" line="168"/>
         <source>Jitter Buffer:</source>
         <translation>抖动缓冲区：</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="172"/>
+        <location filename="rtp_player_dialog.ui" line="175"/>
         <source>The simulated jitter buffer in milliseconds.</source>
         <translation>以毫秒为单位的模拟的抖动缓冲区。</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="204"/>
+        <location filename="rtp_player_dialog.ui" line="207"/>
         <source>Playback Timing:</source>
         <translation>播放时间：</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="211"/>
+        <location filename="rtp_player_dialog.ui" line="214"/>
         <source>&lt;strong&gt;Jitter Buffer&lt;/strong&gt;: Use jitter buffer to simulate the RTP stream as heard by the end user.
 &lt;br/&gt;
 &lt;strong&gt;RTP Timestamp&lt;/strong&gt;: Use RTP Timestamp instead of the arriving packet time. This will not reproduce the RTP stream as the user heard it, but is useful when the RTP is being tunneled and the original packet timing is missing.
@@ -12144,168 +12144,168 @@ text-decoration: underline;
 &lt;strong&gt;不间断模式&lt;/strong&gt;: 忽略 RTP 时间戳。播放流认为它是完整的。 这在 RTP 时间戳缺失时非常有用。</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="219"/>
+        <location filename="rtp_player_dialog.ui" line="222"/>
         <source>Jitter Buffer</source>
         <translation>抖动缓冲区</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="224"/>
+        <location filename="rtp_player_dialog.ui" line="227"/>
         <source>RTP Timestamp</source>
         <translation>RTP 时间戳</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="229"/>
+        <location filename="rtp_player_dialog.ui" line="232"/>
         <source>Uninterrupted Mode</source>
         <translation>不间断模式</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="250"/>
+        <location filename="rtp_player_dialog.ui" line="253"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;View the timestamps as time of day (checked) or seconds since beginning of capture (unchecked).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;以当天时间形式查看时间戳（选中状态）或者以自捕捉以来的秒数（未选中状态）&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="253"/>
+        <location filename="rtp_player_dialog.ui" line="256"/>
         <source>Time of Day</source>
         <translation>当天时间</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="272"/>
+        <location filename="rtp_player_dialog.ui" line="275"/>
         <source>Reset Graph</source>
         <translation>复位图形</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="275"/>
+        <location filename="rtp_player_dialog.ui" line="278"/>
         <source>Reset the graph to its initial state.</source>
         <translation>复位图形到初始状态。</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="278"/>
+        <location filename="rtp_player_dialog.ui" line="281"/>
         <source>0</source>
         <translation>0</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="283"/>
         <location filename="rtp_player_dialog.ui" line="286"/>
+        <location filename="rtp_player_dialog.ui" line="289"/>
         <source>Zoom In</source>
         <translation>放大</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="289"/>
+        <location filename="rtp_player_dialog.ui" line="292"/>
         <source>+</source>
         <translation>+</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="294"/>
         <location filename="rtp_player_dialog.ui" line="297"/>
+        <location filename="rtp_player_dialog.ui" line="300"/>
         <source>Zoom Out</source>
         <translation>缩小</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="300"/>
+        <location filename="rtp_player_dialog.ui" line="303"/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="305"/>
         <location filename="rtp_player_dialog.ui" line="308"/>
+        <location filename="rtp_player_dialog.ui" line="311"/>
         <source>Move Left 10 Pixels</source>
         <translation>左移10像素</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="311"/>
+        <location filename="rtp_player_dialog.ui" line="314"/>
         <source>Left</source>
         <translation>左键</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="316"/>
         <location filename="rtp_player_dialog.ui" line="319"/>
+        <location filename="rtp_player_dialog.ui" line="322"/>
         <source>Move Right 10 Pixels</source>
         <translation>右移10像素</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="322"/>
+        <location filename="rtp_player_dialog.ui" line="325"/>
         <source>Right</source>
         <translation>右方向键</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="327"/>
         <location filename="rtp_player_dialog.ui" line="330"/>
+        <location filename="rtp_player_dialog.ui" line="333"/>
         <source>Move Left 1 Pixels</source>
         <translation>左移10像素 {1 ?}</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="333"/>
+        <location filename="rtp_player_dialog.ui" line="336"/>
         <source>Shift+Left</source>
         <translation>Shift+左方向键</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="338"/>
         <location filename="rtp_player_dialog.ui" line="341"/>
+        <location filename="rtp_player_dialog.ui" line="344"/>
         <source>Move Right 1 Pixels</source>
         <translation>右移1像素</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="344"/>
+        <location filename="rtp_player_dialog.ui" line="347"/>
         <source>Shift+Right</source>
         <translation>Shift+右方向键</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="349"/>
+        <location filename="rtp_player_dialog.ui" line="352"/>
         <source>Go To Packet Under Cursor</source>
         <translation>跳转到光标所在的分组</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="352"/>
+        <location filename="rtp_player_dialog.ui" line="355"/>
         <source>Go to packet currently under the cursor</source>
         <translation>跳转到当前光标所在的分组</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="355"/>
+        <location filename="rtp_player_dialog.ui" line="358"/>
         <source>G</source>
         <translation>G</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="360"/>
+        <location filename="rtp_player_dialog.ui" line="363"/>
         <source>Drag / Zoom</source>
         <translation>拖拽/缩放</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="363"/>
+        <location filename="rtp_player_dialog.ui" line="366"/>
         <source>Toggle mouse drag / zoom behavior</source>
         <translation>切换鼠标拖拽/缩放行为</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="366"/>
+        <location filename="rtp_player_dialog.ui" line="369"/>
         <source>Z</source>
         <translation>Z</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="371"/>
+        <location filename="rtp_player_dialog.ui" line="374"/>
         <source>Capture / Session Time Origin</source>
         <translation>捕获/会话时间起源</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="374"/>
+        <location filename="rtp_player_dialog.ui" line="377"/>
         <source>Toggle capture / session time origin</source>
         <translation>切换捕获/会话时间起源</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="377"/>
+        <location filename="rtp_player_dialog.ui" line="380"/>
         <source>T</source>
         <translation>T</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="382"/>
+        <location filename="rtp_player_dialog.ui" line="385"/>
         <source>Crosshairs</source>
         <translation>十字线</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="385"/>
+        <location filename="rtp_player_dialog.ui" line="388"/>
         <source>Toggle crosshairs</source>
         <translation>切换十字线</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="388"/>
+        <location filename="rtp_player_dialog.ui" line="391"/>
         <source>Space</source>
         <translation>空格键</translation>
     </message>
@@ -14962,49 +14962,49 @@ text-decoration: underline;
         <translation>对话框</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="24"/>
+        <location filename="tap_parameter_dialog.ui" line="27"/>
         <source>Item</source>
         <translation>项目</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="32"/>
+        <location filename="tap_parameter_dialog.ui" line="35"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;一个提示。&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="44"/>
+        <location filename="tap_parameter_dialog.ui" line="47"/>
         <source>Display filter:</source>
         <translation>显示过滤器:</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="54"/>
+        <location filename="tap_parameter_dialog.ui" line="57"/>
         <source>Regenerate statistics using this display filter</source>
         <translation>使用此显示过滤器重新生成统计</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="57"/>
+        <location filename="tap_parameter_dialog.ui" line="60"/>
         <source>Apply</source>
         <translation>应用</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="76"/>
+        <location filename="tap_parameter_dialog.ui" line="79"/>
         <location filename="tap_parameter_dialog.cpp" line="90"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="79"/>
+        <location filename="tap_parameter_dialog.ui" line="82"/>
         <source>Copy a text representation of the tree to the clipboard</source>
         <translation>复制表示树的文本到剪贴板</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="87"/>
+        <location filename="tap_parameter_dialog.ui" line="90"/>
         <source>Save as…</source>
         <oldsource>Save as...</oldsource>
         <translation>另存为…</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="90"/>
+        <location filename="tap_parameter_dialog.ui" line="93"/>
         <source>Save the displayed data in various formats</source>
         <translation>使用不同的格式保存显示的数据</translation>
     </message>
@@ -15215,82 +15215,82 @@ text-decoration: underline;
 <context>
     <name>VoipCallsDialog</name>
     <message>
-        <location filename="voip_calls_dialog.ui" line="33"/>
+        <location filename="voip_calls_dialog.ui" line="36"/>
         <source>Start Time</source>
         <translation>开始时间</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="38"/>
+        <location filename="voip_calls_dialog.ui" line="41"/>
         <source>Stop Time</source>
         <translation>结束时间</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="43"/>
+        <location filename="voip_calls_dialog.ui" line="46"/>
         <source>Initial Speaker</source>
         <translation>呼叫发起方</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="48"/>
+        <location filename="voip_calls_dialog.ui" line="51"/>
         <source>From</source>
         <translation>从</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="53"/>
+        <location filename="voip_calls_dialog.ui" line="56"/>
         <source>To</source>
         <translation>到</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="58"/>
+        <location filename="voip_calls_dialog.ui" line="61"/>
         <source>Protocol</source>
         <translation>协议</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="63"/>
+        <location filename="voip_calls_dialog.ui" line="66"/>
         <source>Packets</source>
         <translation>分组</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="68"/>
+        <location filename="voip_calls_dialog.ui" line="71"/>
         <source>State</source>
         <translation>状态</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="73"/>
+        <location filename="voip_calls_dialog.ui" line="76"/>
         <source>Comments</source>
         <translation>注释</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="81"/>
+        <location filename="voip_calls_dialog.ui" line="84"/>
         <source>&lt;small&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="98"/>
+        <location filename="voip_calls_dialog.ui" line="101"/>
         <source>Select &amp;All</source>
         <translation>全选(&amp;A)</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="101"/>
+        <location filename="voip_calls_dialog.ui" line="104"/>
         <source>Select all calls</source>
         <translation>选择所有呼叫</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="109"/>
+        <location filename="voip_calls_dialog.ui" line="112"/>
         <source>Copy as CSV</source>
         <translation>复制为 CSV</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="112"/>
+        <location filename="voip_calls_dialog.ui" line="115"/>
         <source>Copy stream list as CSV.</source>
         <translation>复制流列表为 CSV。</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="117"/>
+        <location filename="voip_calls_dialog.ui" line="120"/>
         <source>Copy as YAML</source>
         <translation>复制为 YAML</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="120"/>
+        <location filename="voip_calls_dialog.ui" line="123"/>
         <source>Copy stream list as YAML.</source>
         <translation>复制流列表为 YAML。</translation>
     </message>
