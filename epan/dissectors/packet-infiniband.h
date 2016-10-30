@@ -31,6 +31,7 @@
 /* infiniband-specific information for conversations */
 typedef struct {
     guint64 service_id;         /* service id specified when the (RC) channel was set-up */
+    gboolean client_to_server;  /* message direction */
 } conversation_infiniband_data;
 
 /* OpCodeValues
@@ -108,12 +109,21 @@ typedef struct {
 #define UC_RDMA_WRITE_ONLY              42 /*0x00101010 */
 #define UC_RDMA_WRITE_ONLY_IMM          43 /*0x00101011 */
 
+/* ComMgt class Attributes */
+#define ATTR_CM_REQ             0x0010
+#define ATTR_CM_REJ             0x0012
+#define ATTR_CM_REP             0x0013
+#define ATTR_CM_RTU             0x0014
+#define ATTR_CM_DREQ            0x0015
+#define ATTR_CM_DRSP            0x0016
+
 /*
  * Private data passed from the infiniband dissector to payload subdissectors.
  */
 struct infinibandinfo {
     guint8 opCode;              /* OpCode from BTH header. */
     gboolean dctConnect;        /* indicator for DCT connect/disconnect */
+    guint16 cm_attribute_id;    /* attribute id for CM messages */
 };
 
 #endif

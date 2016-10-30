@@ -303,14 +303,6 @@ static const value_string SUBA_Attributes[] = {
     { 0, NULL}
 };
 
-/* ComMgt class Attributes */
-#define ATTR_CM_REQ             0x0010
-#define ATTR_CM_REJ             0x0012
-#define ATTR_CM_REP             0x0013
-#define ATTR_CM_RTU             0x0014
-#define ATTR_CM_DREQ            0x0015
-#define ATTR_CM_DRSP            0x0016
-
 /* CM Attributes */
 static const value_string CM_Attributes[] = {
     { 0x0001,       "ClassPortInfo"},
@@ -601,6 +593,8 @@ static int hf_cm_req_primary_local_lid = -1;
 static int hf_cm_req_primary_remote_lid = -1;
 static int hf_cm_req_primary_local_gid = -1;
 static int hf_cm_req_primary_remote_gid = -1;
+static int hf_cm_req_primary_local_gid_ipv4 = -1;
+static int hf_cm_req_primary_remote_gid_ipv4 = -1;
 static int hf_cm_req_primary_flow_label = -1;
 static int hf_cm_req_primary_reserved0 = -1;
 static int hf_cm_req_primary_packet_rate = -1;
@@ -1597,7 +1591,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     /* General Variables */
     gboolean bthFollows = FALSE;    /* Tracks if we are parsing a BTH.  This is a significant decision point */
-    struct infinibandinfo info = { 0, FALSE };
+    struct infinibandinfo info = { 0, FALSE, 0};
     gint32 nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
     guint8 nxtHdr = 0;              /* Keyed off for header dissection order */
     guint16 packetLength = 0;       /* Packet Length.  We track this as tvb_length - offset.   */
@@ -2567,7 +2561,6 @@ static void parse_PAYLOAD(proto_tree *parentTree,
 
         }
 
-
         /*parse_RWH(parentTree, tvb, &local_offset, pinfo, top_tree);*/
 
         /* Will contain ICRC <and maybe VCRC> = 4 or 4+2 (crclen) */
@@ -3007,8 +3000,14 @@ static void save_conversation_info(packet_info *pinfo, guint8 *local_gid, guint8
 
         /* create a new connection context and store it in the hash table */
         connection = (connection_context *)g_malloc(sizeof(connection_context));
-        memcpy(&(connection->req_gid), local_gid, GID_SIZE);
-        memcpy(&(connection->resp_gid), remote_gid, GID_SIZE);
+
+        if (pinfo->dst.type == AT_IPv4) {
+            memcpy(&(connection->req_gid), local_gid, 4);
+            memcpy(&(connection->resp_gid), remote_gid, 4);
+        } else {
+            memcpy(&(connection->req_gid), local_gid, GID_SIZE);
+            memcpy(&(connection->resp_gid), remote_gid, GID_SIZE);
+        }
         connection->req_lid = local_lid;
         connection->resp_lid = remote_lid;
         connection->req_qp = local_qpn;
@@ -3025,6 +3024,7 @@ static void save_conversation_info(packet_info *pinfo, guint8 *local_gid, guint8
            QPN */
         proto_data = wmem_new(wmem_file_scope(), conversation_infiniband_data);
         proto_data->service_id = connection->service_id;
+        proto_data->client_to_server = TRUE;
 
         conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
                                 PT_IBQP, pinfo->srcport, pinfo->destport, 0);
@@ -3038,14 +3038,15 @@ static void parse_IP_CM_Req_Msg(proto_tree *parent_tree, tvbuff_t *tvb, gint loc
     proto_tree *private_data_tree;
     guint8 ipv;
 
-    private_data_item = proto_tree_add_item(parent_tree, hf_cm_req_ip_cm_req_msg, tvb, local_offset, 36, ENC_NA);
+    private_data_item = proto_tree_add_item(parent_tree, hf_cm_req_ip_cm_req_msg, tvb, local_offset, 92, ENC_NA);
     proto_item_set_text(private_data_item, "%s", "IP CM Private Data");
     private_data_tree = proto_item_add_subtree(private_data_item, ett_cm_ipcm);
 
     proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_majv, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_minv, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
-    ipv = tvb_get_guint8(tvb, local_offset) & 0xf0 >> 4;
+
+    ipv = (tvb_get_guint8(tvb, local_offset) & 0xf0) >> 4;
 
     proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_ipv, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_res, tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -3072,7 +3073,7 @@ static void parse_IP_CM_Req_Msg(proto_tree *parent_tree, tvbuff_t *tvb, gint loc
 }
 
 static void parse_CM_Req(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
-                         MAD_Data *MadData, proto_tree *CM_header_tree)
+                         MAD_Data *MadData, proto_tree *CM_header_tree, struct infinibandinfo *info)
 {
     tvbuff_t *next_tvb;
     heur_dtbl_entry_t *hdtbl_entry;
@@ -3083,9 +3084,6 @@ static void parse_CM_Req(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *t
     guint32 local_lid;
     guint32 remote_lid;
     gboolean ip_cm_sid;
-
-    local_gid  = (guint8 *)wmem_alloc(wmem_packet_scope(), GID_SIZE);
-    remote_gid = (guint8 *)wmem_alloc(wmem_packet_scope(), GID_SIZE);
 
     local_offset = *offset;
 
@@ -3121,10 +3119,28 @@ static void parse_CM_Req(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *t
     local_lid = tvb_get_ntohs(tvb, local_offset); local_offset += 2;
     proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_lid, tvb, local_offset, 2, ENC_BIG_ENDIAN);
     remote_lid = tvb_get_ntohs(tvb, local_offset); local_offset += 2;
-    proto_tree_add_item(CM_header_tree, hf_cm_req_primary_local_gid, tvb, local_offset, 16, ENC_NA);
-    tvb_get_ipv6(tvb, local_offset, (struct e_in6_addr*)local_gid); local_offset += 16;
-    proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_gid, tvb, local_offset, 16, ENC_NA);
-    tvb_get_ipv6(tvb, local_offset, (struct e_in6_addr*)remote_gid); local_offset += 16;
+
+    if (pinfo->dst.type == AT_IPv4) {
+        local_gid  = (guint8 *)wmem_alloc(wmem_packet_scope(), 4);
+        proto_tree_add_item(CM_header_tree, hf_cm_req_primary_local_gid_ipv4, tvb, local_offset + 12, 4, ENC_NA);
+        (*(guint32*)local_gid) = tvb_get_ipv4(tvb, local_offset + 12);
+        local_offset += 16;
+
+        remote_gid = (guint8 *)wmem_alloc(wmem_packet_scope(), 4);
+        proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_gid_ipv4, tvb, local_offset + 12, 4, ENC_NA);
+        (*(guint32*)remote_gid) = tvb_get_ipv4(tvb, local_offset + 12);
+    } else {
+        local_gid = (guint8 *)wmem_alloc(wmem_packet_scope(), GID_SIZE);
+        proto_tree_add_item(CM_header_tree, hf_cm_req_primary_local_gid, tvb, local_offset, 16, ENC_NA);
+        tvb_get_ipv6(tvb, local_offset, (struct e_in6_addr*)local_gid);
+        local_offset += 16;
+
+        remote_gid = (guint8 *)wmem_alloc(wmem_packet_scope(), GID_SIZE);
+        proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_gid, tvb, local_offset, 16, ENC_NA);
+        tvb_get_ipv6(tvb, local_offset, (struct e_in6_addr*)remote_gid);
+    }
+    local_offset += 16;
+
     proto_tree_add_item(CM_header_tree, hf_cm_req_primary_flow_label, tvb, local_offset, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(CM_header_tree, hf_cm_req_primary_reserved0, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(CM_header_tree, hf_cm_req_primary_packet_rate, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 4;
@@ -3162,21 +3178,39 @@ static void parse_CM_Req(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *t
 
     /* give a chance for subdissectors to analyze the private data */
     next_tvb = tvb_new_subset_length(tvb, local_offset, 92);
-    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, &hdtbl_entry, NULL);
+    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, &hdtbl_entry, info);
 
     local_offset += 92;
     *offset = local_offset;
+}
+
+static void
+create_conv_and_add_proto_data(packet_info *pinfo, guint64 service_id,
+                               gboolean client_to_server,
+                               address *addr, const guint16 lid,
+                               const guint32 port, const guint options)
+{
+    conversation_t *conv;
+    conversation_infiniband_data *proto_data = NULL;
+
+    proto_data = wmem_new(wmem_file_scope(), conversation_infiniband_data);
+    proto_data->service_id = service_id;
+    proto_data->client_to_server = client_to_server;
+    conv = conversation_new(pinfo->num, addr, addr,
+                            PT_IBQP, port, port, options);
+    conversation_add_proto_data(conv, proto_infiniband, proto_data);
+
+    /* next, register the conversation using the LIDs */
+    set_address(addr, AT_IB, sizeof(guint16), &lid);
+    conv = conversation_new(pinfo->num, addr, addr,
+                            PT_IBQP, port, port, options);
+    conversation_add_proto_data(conv, proto_infiniband, proto_data);
 }
 
 static void attach_connection_to_pinfo(packet_info *pinfo, connection_context *connection)
 {
     address req_addr,
             resp_addr;  /* we'll fill these in and pass them to conversation_new */
-    conversation_t *conv;
-    conversation_infiniband_data *proto_data = NULL;
-
-    proto_data = wmem_new(wmem_file_scope(), conversation_infiniband_data);
-    proto_data->service_id = connection->service_id;
 
     /* RC traffic never(?) includes a field indicating the source QPN, so
        the destination host knows it only from previous context (a single
@@ -3185,27 +3219,29 @@ static void attach_connection_to_pinfo(packet_info *pinfo, connection_context *c
        sides, but rather we register the same conversation twice - once for
        each side of the Reliable Connection. */
 
-    /* first register the conversation using the GIDs */
-    set_address(&req_addr, AT_IB, GID_SIZE, connection->req_gid);
-    set_address(&resp_addr, AT_IB, GID_SIZE, connection->resp_gid);
+    if (pinfo->dst.type == AT_IPv4) {
+        set_address(&req_addr, AT_IPv4, 4, connection->req_gid);
+        set_address(&resp_addr, AT_IPv4, 4, connection->resp_gid);
+    } else if (pinfo->dst.type == AT_IPv6) {
+        set_address(&req_addr, AT_IPv6, GID_SIZE, connection->req_gid);
+        set_address(&resp_addr, AT_IPv6, GID_SIZE, connection->resp_gid);
+    } else {
+        set_address(&req_addr, AT_IB, GID_SIZE, connection->req_gid);
+        set_address(&resp_addr, AT_IB, GID_SIZE, connection->resp_gid);
+    }
 
-    conv = conversation_new(pinfo->num, &req_addr, &req_addr,
-                            PT_IBQP, connection->req_qp, connection->req_qp, NO_ADDR2|NO_PORT2);
-    conversation_add_proto_data(conv, proto_infiniband, proto_data);
-    conv = conversation_new(pinfo->num, &resp_addr, &resp_addr,
-                            PT_IBQP, connection->resp_qp, connection->resp_qp, NO_ADDR2|NO_PORT2);
-    conversation_add_proto_data(conv, proto_infiniband, proto_data);
+    /* create conversations:
+     * first for client to server direction and
+     * sedond for server to client direction so that upper level protocols
+     * can do appropriate dissection depending on the message direction.
+     */
+    create_conv_and_add_proto_data(pinfo, connection->service_id, FALSE,
+                                   &req_addr, connection->req_lid,
+                                   connection->req_qp, NO_ADDR2|NO_PORT2);
 
-    /* next, register the conversation using the LIDs */
-    set_address(&req_addr, AT_IB, sizeof(guint16), &(connection->req_lid));
-    set_address(&resp_addr, AT_IB, sizeof(guint16), &(connection->resp_lid));
-
-    conv = conversation_new(pinfo->num, &req_addr, &req_addr,
-                            PT_IBQP, connection->req_qp, connection->req_qp, NO_ADDR2|NO_PORT2);
-    conversation_add_proto_data(conv, proto_infiniband, proto_data);
-    conv = conversation_new(pinfo->num, &resp_addr, &resp_addr,
-                            PT_IBQP, connection->resp_qp, connection->resp_qp, NO_ADDR2|NO_PORT2);
-    conversation_add_proto_data(conv, proto_infiniband, proto_data);
+    create_conv_and_add_proto_data(pinfo, connection->service_id, TRUE,
+                                   &resp_addr, connection->resp_lid,
+                                   connection->resp_qp, NO_ADDR2|NO_PORT2);
 }
 
 static void update_conversation_info(packet_info *pinfo,
@@ -3231,7 +3267,7 @@ static void update_conversation_info(packet_info *pinfo,
 }
 
 static void parse_CM_Rsp(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
-                         MAD_Data *MadData, proto_tree *CM_header_tree)
+                         MAD_Data *MadData, proto_tree *CM_header_tree, struct infinibandinfo *info)
 {
     tvbuff_t *next_tvb;
     heur_dtbl_entry_t *hdtbl_entry;
@@ -3265,7 +3301,7 @@ static void parse_CM_Rsp(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *t
 
     /* give a chance for subdissectors to get the private data */
     next_tvb = tvb_new_subset_length(tvb, local_offset, 196);
-    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, &hdtbl_entry, NULL);
+    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, &hdtbl_entry, info);
 
     local_offset += 196;
     *offset = local_offset;
@@ -3273,7 +3309,8 @@ static void parse_CM_Rsp(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *t
 
 static connection_context*
 try_connection_dissectors(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb,
-                          address *addr, MAD_Data *MadData, gint pdata_offset, gint pdata_length)
+                          address *addr, MAD_Data *MadData, struct infinibandinfo *info,
+                          gint pdata_offset, gint pdata_length)
 {
     tvbuff_t *next_tvb;
     heur_dtbl_entry_t *hdtbl_entry;
@@ -3284,12 +3321,14 @@ try_connection_dissectors(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
         attach_connection_to_pinfo(pinfo, connection);
 
     next_tvb = tvb_new_subset_length(tvb, pdata_offset, pdata_length);
-    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, &hdtbl_entry, NULL);
+    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree,
+                            &hdtbl_entry, info);
     return connection;
 }
 
 static void parse_CM_Rtu(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
-                         MAD_Data *MadData, proto_tree *CM_header_tree)
+                         MAD_Data *MadData, proto_tree *CM_header_tree,
+                         struct infinibandinfo *info)
 {
     gint     local_offset;
 
@@ -3297,13 +3336,14 @@ static void parse_CM_Rtu(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *t
     proto_tree_add_item(CM_header_tree, hf_cm_rtu_localcommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
     proto_tree_add_item(CM_header_tree, hf_cm_rtu_remotecommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
     proto_tree_add_item(CM_header_tree, hf_cm_rtu_privatedata, tvb, local_offset, 224, ENC_NA);
-    try_connection_dissectors(parentTree, pinfo, tvb, &pinfo->src, MadData, local_offset, 224);
+    try_connection_dissectors(parentTree, pinfo, tvb, &pinfo->src, MadData, info, local_offset, 224);
     local_offset += 224;
     *offset = local_offset;
 }
 
 static void parse_CM_Rej(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
-                         MAD_Data *MadData, proto_tree *CM_header_tree)
+                         MAD_Data *MadData, proto_tree *CM_header_tree,
+                         struct infinibandinfo *info)
 {
     gint     local_offset;
 
@@ -3318,13 +3358,14 @@ static void parse_CM_Rej(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *t
     proto_tree_add_item(CM_header_tree, hf_cm_rej_add_rej_info, tvb, local_offset, 72, ENC_NA); local_offset += 72;
     proto_tree_add_item(CM_header_tree, hf_cm_rej_private_data, tvb, local_offset, 148, ENC_NA);
 
-    try_connection_dissectors(parentTree, pinfo, tvb, &pinfo->dst, MadData, local_offset, 148);
+    try_connection_dissectors(parentTree, pinfo, tvb, &pinfo->dst, MadData, info, local_offset, 148);
     local_offset += 148;
     *offset = local_offset;
 }
 
 static void parse_CM_DReq(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
-                         MAD_Data *MadData, proto_tree *CM_header_tree)
+                         MAD_Data *MadData, proto_tree *CM_header_tree,
+                         struct infinibandinfo *info)
 {
     gint     local_offset;
 
@@ -3334,13 +3375,14 @@ static void parse_CM_DReq(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
     proto_tree_add_item(CM_header_tree, hf_cm_dreq_remote_qpn, tvb, local_offset, 3, ENC_BIG_ENDIAN); local_offset += 3;
     proto_tree_add_item(CM_header_tree, hf_infiniband_reserved1, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
     proto_tree_add_item(CM_header_tree, hf_cm_dreq_privatedata, tvb, local_offset, 220, ENC_NA);
-    try_connection_dissectors(parentTree, pinfo, tvb, &pinfo->src, MadData, local_offset, 220);
+    try_connection_dissectors(parentTree, pinfo, tvb, &pinfo->src, MadData, info, local_offset, 220);
     local_offset += 220;
     *offset = local_offset;
 }
 
 static void parse_CM_DRsp(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
-                          MAD_Data *MadData, proto_tree *CM_header_tree)
+                          MAD_Data *MadData, proto_tree *CM_header_tree,
+                          struct infinibandinfo *info)
 {
     connection_context *connection;
     gint     local_offset;
@@ -3351,7 +3393,7 @@ static void parse_CM_DRsp(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
     proto_tree_add_item(CM_header_tree, hf_cm_drsp_privatedata, tvb, local_offset, 224, ENC_NA);
 
     /* connection is closing so remove entry from the connection table */
-    connection = try_connection_dissectors(parentTree, pinfo, tvb, &pinfo->dst, MadData, local_offset, 224);
+    connection = try_connection_dissectors(parentTree, pinfo, tvb, &pinfo->dst, MadData, info, local_offset, 224);
     if (connection)
         remove_connection(MadData->transactionID, &pinfo->dst);
 
@@ -3366,6 +3408,7 @@ static void parse_CM_DRsp(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
 static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
 {
     MAD_Data    MadData;
+    struct infinibandinfo info = { 0, FALSE, 0};
     gint        local_offset;
     const char *label;
     proto_item *CM_header_item;
@@ -3378,7 +3421,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
     }
     local_offset = *offset;
 
-    CM_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 140, ENC_NA);
+    CM_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 232, ENC_NA);
 
     label = val_to_str_const(MadData.attributeID, CM_Attributes, "(Unknown CM Attribute)");
 
@@ -3389,22 +3432,28 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
 
     switch (MadData.attributeID) {
         case ATTR_CM_REQ:
-            parse_CM_Req(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree);
+            info.cm_attribute_id = ATTR_CM_REQ;
+            parse_CM_Req(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
             break;
         case ATTR_CM_REP:
-            parse_CM_Rsp(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree);
+            info.cm_attribute_id = ATTR_CM_REP;
+            parse_CM_Rsp(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
             break;
         case ATTR_CM_RTU:
-            parse_CM_Rtu(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree);
+            info.cm_attribute_id = ATTR_CM_RTU;
+            parse_CM_Rtu(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
             break;
         case ATTR_CM_REJ:
-            parse_CM_Rej(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree);
+            info.cm_attribute_id = ATTR_CM_REJ;
+            parse_CM_Rej(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
             break;
         case ATTR_CM_DREQ:
-            parse_CM_DReq(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree);
+            info.cm_attribute_id = ATTR_CM_DREQ;
+            parse_CM_DReq(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
             break;
         case ATTR_CM_DRSP:
-            parse_CM_DRsp(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree);
+            info.cm_attribute_id = ATTR_CM_DRSP;
+            parse_CM_DRsp(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
             break;
         default:
             proto_item_append_text(CM_header_item, " (Dissector Not Implemented)"); local_offset += MAD_DATA_SIZE;
@@ -5166,7 +5215,7 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     MAD_Data          MadData;
 
     /* BTH - Base Trasport Header */
-    struct infinibandinfo info = { 0, FALSE};
+    struct infinibandinfo info = { 0, FALSE, 0};
     gint bthSize = 12;
     void *src_addr,                 /* the address to be displayed in the source/destination columns */
          *dst_addr;                 /* (lid/gid number) will be stored here */
@@ -5820,6 +5869,14 @@ void proto_register_infiniband(void)
                 "Primary Remote Port GID", "infiniband.cm.req.prim_remotegid",
                 FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
+        {&hf_cm_req_primary_local_gid_ipv4, {
+                "Primary Local Port GID", "infiniband.cm.req.prim_localgid_ipv4",
+                FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_primary_remote_gid_ipv4, {
+                "Primary Remote Port GID", "infiniband.cm.req.prim_remotegid_ipv4",
+                FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
         {&hf_cm_req_primary_flow_label, {
                 "Primary Flow Label", "infiniband.cm.req.prim_flowlabel",
                 FT_UINT32, BASE_HEX, NULL, 0xfffff000, NULL, HFILL}
@@ -5960,7 +6017,6 @@ void proto_register_infiniband(void)
                 "IP CM Source IP", "infiniband.cm.req.ip_cm.sip4",
                 FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
-
         {&hf_ip_cm_req_consumer_private_data, {
                 "IP CM Consumer PrivateData", "infiniband.cm.req.ip_cm.private",
                 FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
