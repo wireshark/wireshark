@@ -136,7 +136,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   proto_tree             *pop_tree, *reqresp_tree;
   proto_item             *ti;
   gint                   offset = 0;
-  const guchar           *line;
+  guchar                 *line;
   gint                   next_offset;
   int                    linelen;
   int                    tokenlen;
@@ -165,13 +165,11 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   /*
    * Find the end of the first line.
-   *
-   * Note that "tvb_find_line_end()" will return a value that is
-   * not longer than what's in the buffer, so the "tvb_get_ptr()"
-   * call won't throw an exception.
    */
   linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-  line = wmem_strndup(wmem_packet_scope(), tvb_get_ptr(tvb, offset, linelen), linelen);
+  line = (guchar*)wmem_alloc(wmem_packet_scope(), linelen+1);
+  tvb_memcpy(tvb, line, offset, linelen);
+  line[linelen] = '\0';
 
   if (pinfo->match_uint == pinfo->destport) {
     is_request = TRUE;
