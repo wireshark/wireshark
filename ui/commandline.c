@@ -580,7 +580,8 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
             case LONGOPT_DISABLE_PROTOCOL: /* disable dissection of protocol */
             case LONGOPT_ENABLE_HEURISTIC: /* enable heuristic dissection of protocol */
             case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
-                dissect_opts_add_opt(opt, optarg);
+                if (!dissect_opts_handle_opt(opt, optarg))
+                   exit(1);
                 break;
             case LONGOPT_FULL_SCREEN:
                 global_commandline_info.full_screen = TRUE;

@@ -52,13 +52,13 @@ dissect_opts_init(void)
     global_dissect_options.disable_heur_slist = NULL;
 }
 
-void
-dissect_opts_add_opt(int opt, char *optarg_str_p)
+gboolean
+dissect_opts_handle_opt(int opt, char *optarg_str_p)
 {
     switch(opt) {
     case 'd':        /* Decode as rule */
         if (!decode_as_command_option(optarg_str_p))
-             exit(1);
+             return FALSE;
         break;
     case 't':        /* Time stamp type */
         if (strcmp(optarg_str_p, "r") == 0)
@@ -93,7 +93,7 @@ dissect_opts_add_opt(int opt, char *optarg_str_p)
                             "\t\"u\"    for absolute UTC\n"
                             "\t\"ud\"   for absolute UTC with YYYY-MM-DD date\n"
                             "\t\"udoy\" for absolute UTC with YYYY/DOY date");
-            exit(1);
+            return FALSE;
         }
         break;
     case LONGOPT_DISABLE_PROTOCOL: /* disable dissection of protocol */
@@ -109,6 +109,7 @@ dissect_opts_add_opt(int opt, char *optarg_str_p)
         /* the caller is responsible to send us only the right opt's */
         g_assert_not_reached();
     }
+    return TRUE;
 }
 
 /*

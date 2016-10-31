@@ -82,9 +82,13 @@ extern dissect_options global_dissect_options;
 extern void
 dissect_opts_init(void);
 
-/* set a command line option value */
-extern void
-dissect_opts_add_opt(int opt, char *optarg_str_p);
+/*
+ * Handle a command line option.
+ * Returns TRUE if the option is valid, FALSE if not; an error message
+ * is reported with cmdarg_err() if it's not valid.
+ */
+extern gboolean
+dissect_opts_handle_opt(int opt, char *optarg_str_p);
 
 #ifdef __cplusplus
 }

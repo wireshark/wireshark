@@ -1315,7 +1315,8 @@ main(int argc, char *argv[])
     case LONGOPT_DISABLE_PROTOCOL: /* disable dissection of protocol */
     case LONGOPT_ENABLE_HEURISTIC: /* enable heuristic dissection of protocol */
     case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
-      dissect_opts_add_opt(opt, optarg);
+      if (!dissect_opts_handle_opt(opt, optarg))
+          return 1;
       break;
 
     default:
