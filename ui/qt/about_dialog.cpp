@@ -148,7 +148,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose, true);
-    QFile f_authors;
     QFile f_license;
     const char *constpath;
     QString message;
@@ -189,17 +188,9 @@ AboutDialog::AboutDialog(QWidget *parent) :
         ui->label_logo->setPixmap(QPixmap(":/about/wssplash_dev.png"));
 #endif
 
-
     /* Authors */
-
-    f_authors.setFileName(get_datafile_path("AUTHORS-SHORT"));
-    f_authors.open(QFile::ReadOnly | QFile::Text);
-    QTextStream ReadFile_authors(&f_authors);
-    ReadFile_authors.setCodec("UTF-8");
-
     ui->pte_Authors->setFont(wsApp->monospaceFont());
-    ui->pte_Authors->insertPlainText(ReadFile_authors.readAll());
-    ui->pte_Authors->moveCursor(QTextCursor::Start);
+    this->addAuthors(NULL);
 
     /* Folders */
 
@@ -350,6 +341,32 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->pte_License->setFont(wsApp->monospaceFont());
     ui->pte_License->insertPlainText(ReadFile_license.readAll());
     ui->pte_License->moveCursor(QTextCursor::Start);
+
+    connect(ui->searchAuthors, SIGNAL(textChanged(const QString &)), this, SLOT(updateAuthors(const QString &)));
+}
+
+void AboutDialog::addAuthors(const QString& filter)
+{
+    QFile f_authors;
+
+    f_authors.setFileName(get_datafile_path("AUTHORS-SHORT"));
+    f_authors.open(QFile::ReadOnly | QFile::Text);
+    QTextStream ReadFile_authors(&f_authors);
+    ReadFile_authors.setCodec("UTF-8");
+
+    ui->pte_Authors->clear();
+    ui->pte_Authors->moveCursor(QTextCursor::Start);
+    while (!ReadFile_authors.atEnd()) {
+        QString line = ReadFile_authors.readLine();
+        if (line.contains(filter, Qt::CaseInsensitive))
+            ui->pte_Authors->appendPlainText(line);
+    }
+    ui->pte_Authors->moveCursor(QTextCursor::Start);
+}
+
+void AboutDialog::updateAuthors(const QString& filter)
+{
+    this->addAuthors(filter);
 }
 
 AboutDialog::~AboutDialog()

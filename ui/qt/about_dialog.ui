@@ -23,7 +23,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="documentMode">
       <bool>false</bool>
@@ -156,6 +156,13 @@
        <string>Authors</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLineEdit" name="searchAuthors">
+         <property name="placeholderText">
+          <string>Search Authors</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QPlainTextEdit" name="pte_Authors">
          <property name="readOnly">

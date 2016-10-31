@@ -38,8 +38,12 @@ public:
 
     const QString about_folders_row(const char *, const QString dir, const char *typ_file);
     const QString plugins_scan();
+
+public slots:
+    void updateAuthors(const QString&);
 private:
     Ui::AboutDialog *ui;
+    void addAuthors(const QString&);
 };
 
 #endif // ABOUT_DIALOG_H
