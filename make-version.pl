@@ -106,6 +106,7 @@ my $srcdir = ".";
 my $info_cmd = "";
 my $verbose = 0;
 my $devnull = File::Spec->devnull();
+my $enable_vcsversion = 1;
 
 # Ensure we run with correct locale
 $ENV{LANG} = "C";
@@ -126,6 +127,8 @@ sub read_repo_info {
 	my $repo_version;
 	my $do_hack = 1;
 	my $info_source = "Unknown";
+	my $is_git_repo = 0;
+	my $git_cdir;
 
 	# Make sure git is available.
 	if (!`$git_executable --version`) {
@@ -140,6 +143,7 @@ sub read_repo_info {
 	if (-e "$srcdir/.git" && ! -d "$srcdir/.git/svn") {
 		$info_source = "Command line (git)";
 		$version_pref{"git_client"} = 1;
+		$is_git_repo = 1;
 	} elsif (-d "$srcdir/.svn" or -d "$srcdir/../.svn") {
 		$info_source = "Command line (svn info)";
 		$info_cmd = "cd $srcdir; svn info";
@@ -147,6 +151,16 @@ sub read_repo_info {
 	} elsif (-d "$srcdir/.git/svn") {
 		$info_source = "Command line (git-svn)";
 		$info_cmd = "(cd $srcdir; $git_executable svn info)";
+		$is_git_repo = 1;
+	}
+
+	# Check whether to include VCS version information in version.h
+	if ($is_git_repo) {
+		chomp($git_cdir = qx{git --git-dir="$srcdir/.git" rev-parse --git-common-dir 2> $devnull});
+		if ($git_cdir && -f "$git_cdir/wireshark-disable-versioning") {
+			print_diag "Header versioning disabled using git override.\n";
+			$enable_vcsversion = 0;
+		}
 	}
 
 	#Git can give us:
@@ -587,9 +601,7 @@ sub update_versioned_files
 
 sub new_version_h
 {
-	my $set_header = shift @_;
-
-	if (!$set_header) {
+	if (!$enable_vcsversion) {
 		return "/* #undef VCSVERSION */\n";
 	}
 
@@ -610,16 +622,8 @@ sub print_VCS_REVISION
 {
 	my $VCS_REVISION;
 	my $needs_update = 1;
-	my $set_header = 1;
-	my $git_cdir;
 
-	chomp($git_cdir = qx{git --git-dir="$srcdir/.git" rev-parse --git-common-dir 2> $devnull});
-	if ($git_cdir && -f "$git_cdir/wireshark-disable-versioning") {
-		print_diag "Header versioning disabled using git override.\n";
-		$set_header = 0;
-	}
-
-	$VCS_REVISION = new_version_h($set_header);
+	$VCS_REVISION = new_version_h();
 	if (open(OLDREV, "<$version_file")) {
 		my $old_VCS_REVISION = <OLDREV>;
 		if ($old_VCS_REVISION eq $VCS_REVISION) {
@@ -636,7 +640,7 @@ sub print_VCS_REVISION
 		print VER "$VCS_REVISION";
 		close VER;
 		print "$version_file has been updated.\n";
-	} elsif (!$set_header) {
+	} elsif (!$enable_vcsversion) {
 		print "$version_file disabled.\n";
 	} else {
 		print "$version_file unchanged.\n";
