@@ -42,11 +42,30 @@ enum {
     MPLS_LABEL_INVALID           = -1
 };
 
-/* As per RFC 6428 http://tools.ietf.org/html/rfc6428, Section: 3.3 */
-#define ACH_TYPE_BFD_CC               0x0022
-#define ACH_TYPE_BFD_CV               0x0023
-/* As RFC 6426:http://tools.ietf.org/html/rfc6426, Section: 7.4 */
-#define ACH_TYPE_ONDEMAND_CV          0x0025
+/* As per RFC 5885 */
+#define PW_ACH_TYPE_BFD               0x0007
+/* As per RFC 6374 */
+#define PW_ACH_TYPE_DLM               0x000A
+#define PW_ACH_TYPE_ILM               0x000B
+#define PW_ACH_TYPE_DM                0x000C
+#define PW_ACH_TYPE_DLM_DM            0x000D
+#define PW_ACH_TYPE_ILM_DM            0x000E
+/* As per RFC 4385 clause 6 */
+#define PW_ACH_TYPE_IPV4              0x0021
+/* As per RFC 6428 Section 3.3 */
+#define PW_ACH_TYPE_BFD_CC            0x0022
+#define PW_ACH_TYPE_BFD_CV            0x0023
+/* As per RFC 6378 */
+#define PW_ACH_TYPE_PSC               0x0024
+/* As per RFC 6426 Section 7.4 */
+#define PW_ACH_TYPE_ONDEMAND_CV       0x0025
+/* As per RFC 6478 */
+#define PW_ACH_TYPE_PW_OAM            0x0027
+/* As per RFC 4385 clause 6 */
+#define PW_ACH_TYPE_IPV6              0x0057
+/* As per RFC 6427 */
+#define PW_ACH_TYPE_MPLSTP_FM         0x0058
+
 
 /* MPLS over UDP http://tools.ietf.org/html/draft-ietf-mpls-in-udp-11,
  * udp destination port as defined in

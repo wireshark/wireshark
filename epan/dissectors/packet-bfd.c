@@ -870,9 +870,9 @@ proto_reg_handoff_bfd(void)
     bfd_control_handle = find_dissector("bfd");
     dissector_add_uint_range_with_preference("udp.port", UDP_PORT_RANGE_BFD, bfd_control_handle);
 
-    dissector_add_uint("pwach.channel_type", ACH_TYPE_BFD_CC, bfd_control_handle);
-    dissector_add_uint("pwach.channel_type", ACH_TYPE_BFD_CV, bfd_control_handle);
-    dissector_add_uint("pwach.channel_type", 0x7, bfd_control_handle); /* PWACH-encapsulated BFD, RFC 5885 */
+    dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_BFD_CC, bfd_control_handle);
+    dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_BFD_CV, bfd_control_handle);
+    dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_BFD, bfd_control_handle);
 }
 
 /*

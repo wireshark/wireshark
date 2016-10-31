@@ -29,6 +29,7 @@
 #include "config.h"
 #include <epan/packet.h>
 #include "packet-bfd.h"
+#include "packet-mpls.h"
 
 void proto_register_mplstp_lock(void);
 void proto_register_mplstp_fm(void);
@@ -344,7 +345,7 @@ proto_reg_handoff_mplstp_fm(void)
   dissector_handle_t mplstp_fm_handle;
 
   mplstp_fm_handle = create_dissector_handle( dissect_mplstp_fm, proto_mplstp_fm );
-  dissector_add_uint("pwach.channel_type", 0x0058, mplstp_fm_handle); /* KM: MPLSTP FM, RFC 6427 */
+  dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_MPLSTP_FM, mplstp_fm_handle);
 }
 
 /*

@@ -292,7 +292,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         call_data_dissector(next_tvb, pinfo, tree);
     }
 
-    if (channel_type == ACH_TYPE_BFD_CV)
+    if (channel_type == PW_ACH_TYPE_BFD_CV)
     {
         /* The BFD dissector has already been called, this is called in addition
            XXX - Perhaps a new dissector function that combines both is preferred.*/

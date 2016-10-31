@@ -52,6 +52,7 @@
 #include "packet-juniper.h"
 #include "packet-sflow.h"
 #include "packet-vxlan.h"
+#include "packet-mpls.h"
 
 #ifdef HAVE_GEOIP_V6
 #include <GeoIP.h>
@@ -3565,7 +3566,7 @@ proto_reg_handoff_ipv6(void)
     dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_IPv6, ipv6_handle);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_IP6, ipv6_handle);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_MPLS_IP6, ipv6_handle);
-    dissector_add_uint("pwach.channel_type", 0x57, ipv6_handle); /* IPv6, RFC4385 clause 6. */
+    dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_IPV6, ipv6_handle);
     dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_IPv6, ipv6_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP6, ipv6_handle);
     dissector_add_uint("enc", BSD_AF_INET6_BSD, ipv6_handle);

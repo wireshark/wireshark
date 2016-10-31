@@ -2558,7 +2558,7 @@ proto_reg_handoff_mpls_echo(void)
     mpls_echo_handle = create_dissector_handle(dissect_mpls_echo, proto_mpls_echo);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_MPLS_ECHO, mpls_echo_handle);
 
-    dissector_add_uint("pwach.channel_type", ACH_TYPE_ONDEMAND_CV, mpls_echo_handle);
+    dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_ONDEMAND_CV, mpls_echo_handle);
 }
 
 /*

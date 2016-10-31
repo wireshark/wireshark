@@ -57,6 +57,7 @@
 #include "packet-gre.h"
 #include "packet-l2tp.h"
 #include "packet-vxlan.h"
+#include "packet-mpls.h"
 
 #ifdef HAVE_GEOIP
 #include <GeoIP.h>
@@ -3162,7 +3163,7 @@ proto_reg_handoff_ip(void)
   dissector_add_uint("ax25.pid", AX25_P_IP, ip_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_IP, ip_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_MPLS_IP, ip_handle);
-  dissector_add_uint("pwach.channel_type", 0x21, ip_handle); /* IPv4, RFC4385 clause 6. */
+  dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_IPV4, ip_handle);
   dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_IPv4, ip_handle);
   dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_IP, ip_handle);
   dissector_add_for_decode_as_with_preference("udp.port", ip_handle);

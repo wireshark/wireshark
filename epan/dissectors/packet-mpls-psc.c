@@ -29,6 +29,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include "packet-mpls.h"
 
 void proto_register_mpls_psc(void);
 void proto_reg_handoff_mpls_psc(void);
@@ -241,7 +242,7 @@ proto_reg_handoff_mpls_psc(void)
     dissector_handle_t mpls_psc_handle;
 
     mpls_psc_handle    = create_dissector_handle( dissect_mpls_psc, proto_mpls_psc );
-    dissector_add_uint("pwach.channel_type", 0x0024, mpls_psc_handle); /* FF: PSC, RFC 6378 */
+    dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_PSC, mpls_psc_handle);
 }
 
 /*
