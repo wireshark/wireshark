@@ -1202,3 +1202,7 @@ endif
 # Update AUTHORS file with entries from git shortlog
 gen-authors:
 	cd $(top_srcdir) && $(PERL) tools/generate_authors.pl AUTHORS.src > AUTHORS
+
+dist-hook:
+	printf "git_description=%s\n" "$$(git -C $(top_srcdir) describe)" \
+		> $(top_distdir)/version.conf
