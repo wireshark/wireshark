@@ -69,16 +69,12 @@
 #include <epan/addr_resolv.h>
 #include "ui/util.h"
 #include "ui/decode_as_utils.h"
+#include "ui/dissect_opts.h"
 #include "register.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/ex-opt.h>
-
-#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-#include <epan/asn1.h>
-#include <epan/dissectors/packet-kerberos.h>
-#endif
 
 #ifdef HAVE_EXTCAP
 #include "extcap.h"
@@ -688,15 +684,6 @@ main(int argc, char *argv[])
     case 'C':
       /* already processed; just ignore it now */
       break;
-    case 'd':        /* Decode as rule */
-      if (!decode_as_command_option(optarg))
-        return 1;
-      break;
-#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-    case 'K':        /* Kerberos keytab file */
-      read_keytab_file(optarg);
-      break;
-#endif
     case 'e':
       /* Field entry */
       output_fields_add(output_fields, optarg);
@@ -767,42 +754,6 @@ main(int argc, char *argv[])
     case 'S':        /* Set the line Separator to be printed between packets */
       separator = g_strdup(optarg);
       break;
-    case 't':        /* Time stamp type */
-      if (strcmp(optarg, "r") == 0)
-        timestamp_set_type(TS_RELATIVE);
-      else if (strcmp(optarg, "a") == 0)
-        timestamp_set_type(TS_ABSOLUTE);
-      else if (strcmp(optarg, "ad") == 0)
-        timestamp_set_type(TS_ABSOLUTE_WITH_YMD);
-      else if (strcmp(optarg, "adoy") == 0)
-        timestamp_set_type(TS_ABSOLUTE_WITH_YDOY);
-      else if (strcmp(optarg, "d") == 0)
-        timestamp_set_type(TS_DELTA);
-      else if (strcmp(optarg, "dd") == 0)
-        timestamp_set_type(TS_DELTA_DIS);
-      else if (strcmp(optarg, "e") == 0)
-        timestamp_set_type(TS_EPOCH);
-      else if (strcmp(optarg, "u") == 0)
-        timestamp_set_type(TS_UTC);
-      else if (strcmp(optarg, "ud") == 0)
-        timestamp_set_type(TS_UTC_WITH_YMD);
-      else if (strcmp(optarg, "udoy") == 0)
-        timestamp_set_type(TS_UTC_WITH_YDOY);
-      else {
-        cmdarg_err("Invalid time stamp type \"%s\"; it must be one of:", optarg);
-        cmdarg_err_cont("\t\"a\"    for absolute\n"
-                        "\t\"ad\"   for absolute with YYYY-MM-DD date\n"
-                        "\t\"adoy\" for absolute with YYYY/DOY date\n"
-                        "\t\"d\"    for delta\n"
-                        "\t\"dd\"   for delta displayed\n"
-                        "\t\"e\"    for epoch\n"
-                        "\t\"r\"    for relative\n"
-                        "\t\"u\"    for absolute UTC\n"
-                        "\t\"ud\"   for absolute UTC with YYYY-MM-DD date\n"
-                        "\t\"udoy\" for absolute UTC with YYYY/DOY date");
-        return 1;
-      }
-      break;
     case 'T':        /* printing Type */
       if (strcmp(optarg, "text") == 0) {
         output_action = WRITE_TEXT;
@@ -840,18 +791,6 @@ main(int argc, char *argv[])
                         "\t         packets, or a multi-line view of the details of each of the\n"
                         "\t         packets, depending on whether the -V flag was specified.\n"
                         "\t         This is the default.");
-        return 1;
-      }
-      break;
-    case 'u':        /* Seconds type */
-      if (strcmp(optarg, "s") == 0)
-        timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
-      else if (strcmp(optarg, "hms") == 0)
-        timestamp_set_seconds_type(TS_SECONDS_HOUR_MIN_SEC);
-      else {
-        cmdarg_err("Invalid seconds type \"%s\"; it must be one of:", optarg);
-        cmdarg_err_cont("\t\"s\"   for seconds\n"
-                        "\t\"hms\" for hours, minutes and seconds");
         return 1;
       }
       break;
@@ -902,6 +841,13 @@ main(int argc, char *argv[])
         list_stat_cmd_args();
         return 1;
       }
+      break;
+    case 'd':        /* Decode as rule */
+    case 'K':        /* Kerberos keytab file */
+    case 't':        /* Time stamp type */
+    case 'u':        /* Seconds type */
+      if (!dissect_opts_handle_opt(opt, optarg))
+          return 1;
       break;
     default:
     case '?':        /* Bad flag - print usage message */

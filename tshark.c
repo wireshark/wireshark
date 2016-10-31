@@ -98,11 +98,6 @@
 #include <epan/ex-opt.h>
 #include <epan/exported_pdu.h>
 
-#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-#include <epan/asn1.h>
-#include <epan/dissectors/packet-kerberos.h>
-#endif
-
 #include "capture_opts.h"
 
 #include "caputils/capture-pcap-util.h"
@@ -588,7 +583,6 @@ main(int argc, char *argv[])
   dfilter_t           *dfcode = NULL;
   gchar               *err_msg;
   e_prefs             *prefs_p;
-  char                 badopt;
   int                  log_flags;
   gchar               *output_only = NULL;
   gchar               *volatile pdu_export_arg = NULL;
@@ -613,7 +607,7 @@ main(int argc, char *argv[])
  * We do *not* use a leading - because the behavior of a leading - is
  * platform-dependent.
  */
-#define OPTSTRING "+2" OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "C:e:E:F:gG:hH:j:" "K:lnN:o:O:PqQr:R:S:T:u:U:vVw:W:xX:Y:z:"
+#define OPTSTRING "+2" OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "C:e:E:F:gG:hH:j:lo:O:PqQr:R:S:T:U:vVw:W:xX:Y:z:"
 
   static const char    optstring[] = OPTSTRING;
 
@@ -1027,11 +1021,6 @@ main(int argc, char *argv[])
     case 'C':
       /* already processed; just ignore it now */
       break;
-#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-    case 'K':        /* Kerberos keytab file */
-      read_keytab_file(optarg);
-      break;
-#endif
     case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
       if_list = capture_interface_list(&err, &err_str,NULL);
@@ -1124,23 +1113,6 @@ main(int argc, char *argv[])
       capture_option_specified = TRUE;
       arg_error = TRUE;
 #endif
-      break;
-    case 'n':        /* No name resolution */
-      disable_name_resolution();
-      break;
-    case 'N':        /* Select what types of addresses/port #s to resolve */
-      badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
-      if (badopt != '\0') {
-        cmdarg_err("-N specifies unknown resolving option '%c'; valid options are:",
-                   badopt);
-        cmdarg_err_cont("\t'd' to enable address resolution from captured DNS packets\n"
-                        "\t'm' to enable MAC address resolution\n"
-                        "\t'n' to enable network address resolution\n"
-                        "\t'N' to enable using external resolvers (e.g., DNS)\n"
-                        "\t    for network address resolution\n"
-                        "\t't' to enable transport-layer port number resolution");
-        return 1;
-      }
       break;
     case 'o':        /* Override preference from command line */
       switch (prefs_set_pref(optarg)) {
@@ -1235,18 +1207,6 @@ main(int argc, char *argv[])
         return 1;
       }
       break;
-    case 'u':        /* Seconds type */
-      if (strcmp(optarg, "s") == 0)
-        timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
-      else if (strcmp(optarg, "hms") == 0)
-        timestamp_set_seconds_type(TS_SECONDS_HOUR_MIN_SEC);
-      else {
-        cmdarg_err("Invalid seconds type \"%s\"; it must be one of:", optarg);
-        cmdarg_err_cont("\t\"s\"   for seconds\n"
-                        "\t\"hms\" for hours, minutes and seconds");
-        return 1;
-      }
-      break;
     case 'U':        /* Export PDUs to file */
     {
         GSList *export_pdu_tap_name_list = NULL;
@@ -1311,14 +1271,17 @@ main(int argc, char *argv[])
       }
       break;
     case 'd':        /* Decode as rule */
+    case 'K':        /* Kerberos keytab file */
+    case 'n':        /* No name resolution */
+    case 'N':        /* Select what types of addresses/port #s to resolve */
     case 't':        /* Time stamp type */
+    case 'u':        /* Seconds type */
     case LONGOPT_DISABLE_PROTOCOL: /* disable dissection of protocol */
     case LONGOPT_ENABLE_HEURISTIC: /* enable heuristic dissection of protocol */
     case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
       if (!dissect_opts_handle_opt(opt, optarg))
           return 1;
       break;
-
     default:
     case '?':        /* Bad flag - print usage message */
       switch(optopt) {

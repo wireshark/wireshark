@@ -31,9 +31,15 @@
 
 #include <glib.h>
 
+#include <epan/prefs.h>
 #include <epan/timestamp.h>
+#include <epan/addr_resolv.h>
 
 #include "ui/decode_as_utils.h"
+
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+#include <epan/dissectors/read_keytab_file.h>
+#endif
 
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
@@ -55,10 +61,37 @@ dissect_opts_init(void)
 gboolean
 dissect_opts_handle_opt(int opt, char *optarg_str_p)
 {
+    char badopt;
+
     switch(opt) {
     case 'd':        /* Decode as rule */
         if (!decode_as_command_option(optarg_str_p))
              return FALSE;
+        break;
+    case 'K':        /* Kerberos keytab file */
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+        read_keytab_file(optarg_str_p);
+#else
+        cmdarg_err("-K specified, but Kerberos keytab file support isn't present");
+        return FALSE;
+#endif
+        break;
+    case 'n':        /* No name resolution */
+        disable_name_resolution();
+        break;
+    case 'N':        /* Select what types of addresses/port #s to resolve */
+        badopt = string_to_name_resolve(optarg_str_p, &gbl_resolv_flags);
+        if (badopt != '\0') {
+            cmdarg_err("-N specifies unknown resolving option '%c'; valid options are:",
+                       badopt);
+            cmdarg_err_cont("\t'd' to enable address resolution from captured DNS packets\n"
+                            "\t'm' to enable MAC address resolution\n"
+                            "\t'n' to enable network address resolution\n"
+                            "\t'N' to enable using external resolvers (e.g., DNS)\n"
+                            "\t    for network address resolution\n"
+                            "\t't' to enable transport-layer port number resolution");
+            return FALSE;
+        }
         break;
     case 't':        /* Time stamp type */
         if (strcmp(optarg_str_p, "r") == 0)
@@ -93,6 +126,18 @@ dissect_opts_handle_opt(int opt, char *optarg_str_p)
                             "\t\"u\"    for absolute UTC\n"
                             "\t\"ud\"   for absolute UTC with YYYY-MM-DD date\n"
                             "\t\"udoy\" for absolute UTC with YYYY/DOY date");
+            return FALSE;
+        }
+        break;
+    case 'u':        /* Seconds type */
+        if (strcmp(optarg_str_p, "s") == 0)
+            timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
+        else if (strcmp(optarg_str_p, "hms") == 0)
+            timestamp_set_seconds_type(TS_SECONDS_HOUR_MIN_SEC);
+        else {
+            cmdarg_err("Invalid seconds type \"%s\"; it must be one of:", optarg_str_p);
+            cmdarg_err_cont("\t\"s\"   for seconds\n"
+                            "\t\"hms\" for hours, minutes and seconds");
             return FALSE;
         }
         break;

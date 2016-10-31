@@ -48,6 +48,8 @@
 #include "packet-smb-common.h"
 #include "packet-dcerpc-nt.h"
 
+#include "read_keytab_file.h"
+
 #include <wsutil/wsgcrypt.h>
 
 #define NT_STATUS_PENDING	0x00000103

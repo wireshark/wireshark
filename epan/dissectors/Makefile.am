@@ -1817,6 +1817,7 @@ DISSECTOR_INCLUDES = \
 	packet-zbee-zdp.h	\
 	packet-zep.h		\
 	packet-ziop.h		\
+	read_keytab_file.h	\
 	$(GENERATED_HEADER_FILES)	\
 	$(CUSTOM_HEADER_FILES)
 

@@ -92,12 +92,6 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 
 extern gboolean krb_decrypt;
 
-WS_DLL_PUBLIC
-void read_keytab_file(const char *);
-
-WS_DLL_PUBLIC
-void read_keytab_file_from_preferences(void);
-
 #endif /* HAVE_KERBEROS */
 
 #include "packet-kerberos-exp.h"

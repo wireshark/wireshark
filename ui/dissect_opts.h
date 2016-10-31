@@ -66,7 +66,7 @@ extern "C" {
     {"disable-heuristic", required_argument, NULL, LONGOPT_DISABLE_HEURISTIC }, \
 
 #define OPTSTRING_DISSECT_COMMON \
-    "d:t:"
+    "d:K:nN:t:u:"
 
 /** Capture options coming from user interface */
 typedef struct dissect_options_tag {

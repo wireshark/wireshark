@@ -43,7 +43,6 @@
 #include <wsutil/filesystem.h>
 
 #include <epan/ex-opt.h>
-#include <epan/addr_resolv.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/prefs.h>
@@ -56,11 +55,6 @@
 #include "console.h"
 #include "recent.h"
 #include "decode_as_utils.h"
-
-#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-#include <epan/asn1.h>
-#include <epan/dissectors/packet-kerberos.h>
-#endif
 
 #include "../file.h"
 
@@ -195,7 +189,7 @@ commandline_print_usage(gboolean for_help_option) {
  */
 #define LONGOPT_FULL_SCREEN       65536
 
-#define OPTSTRING OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "C:g:Hh" "jJ:kK:lm:nN:o:P:r:R:Su:vw:X:Y:z:"
+#define OPTSTRING OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "C:g:Hh" "jJ:klm:o:P:r:R:Svw:X:Y:z:"
 static const struct option long_options[] = {
         {"help", no_argument, NULL, 'h'},
         {"read-file", required_argument, NULL, 'r' },
@@ -357,7 +351,6 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
 #else
     gboolean capture_option_specified;
 #endif
-    char badopt;
 
     /*
      * To reset the options parser, set optreset to 1 on platforms that
@@ -445,12 +438,6 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
 #endif
                 break;
 
-#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-            case 'K':        /* Kerberos keytab file */
-                read_keytab_file(optarg);
-                break;
-#endif
-
             /*** all non capture option specific ***/
             case 'C':
                 /* Configuration profile settings were already processed just ignore them this time*/
@@ -479,17 +466,6 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                 capture_option_specified = TRUE;
                 arg_error = TRUE;
 #endif
-                break;
-            case 'n':        /* No name resolution */
-                disable_name_resolution();
-                break;
-            case 'N':        /* Select what types of addresses/port #s to resolve */
-                badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
-                if (badopt != '\0') {
-                    cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'd', m', 'n', 'N', and 't'",
-                               badopt);
-                    exit(1);
-                }
                 break;
             case 'o':        /* Override preference from command line */
                 switch (prefs_set_pref(optarg)) {
@@ -540,17 +516,6 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
             case 'R':        /* Read file filter */
                 global_commandline_info.rfilter = optarg;
                 break;
-            case 'u':        /* Seconds type */
-                if (strcmp(optarg, "s") == 0)
-                    timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
-                else if (strcmp(optarg, "hms") == 0)
-                    timestamp_set_seconds_type(TS_SECONDS_HOUR_MIN_SEC);
-                else {
-                    cmdarg_err("Invalid seconds type \"%s\"", optarg);
-                    cmdarg_err_cont("It must be \"s\" for seconds or \"hms\" for hours, minutes and seconds.");
-                    exit(1);
-                }
-                break;
             case 'X':
                 /* ext ops were already processed just ignore them this time*/
                 break;
@@ -576,7 +541,11 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                 }
                 break;
             case 'd':        /* Decode as rule */
+            case 'K':        /* Kerberos keytab file */
+            case 'n':        /* No name resolution */
+            case 'N':        /* Select what types of addresses/port #s to resolve */
             case 't':        /* time stamp type */
+            case 'u':        /* Seconds type */
             case LONGOPT_DISABLE_PROTOCOL: /* disable dissection of protocol */
             case LONGOPT_ENABLE_HEURISTIC: /* enable heuristic dissection of protocol */
             case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */

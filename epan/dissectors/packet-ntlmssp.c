@@ -52,6 +52,8 @@
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 
+#include "read_keytab_file.h"
+
 #include "packet-ntlmssp.h"
 
 void proto_register_ntlmssp(void);

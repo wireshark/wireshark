@@ -73,6 +73,8 @@
 #include "packet-cms.h"
 #include "packet-windows-common.h"
 
+#include "read_keytab_file.h"
+
 #include "packet-dcerpc-netlogon.h"
 #include "packet-dcerpc.h"
 

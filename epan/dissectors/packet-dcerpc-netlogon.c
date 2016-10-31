@@ -41,6 +41,8 @@
 /* for keytab format */
 #include <epan/asn1.h>
 #include "packet-kerberos.h"
+/* for routines to read the keytab file */
+#include "read_keytab_file.h"
 /* for decoding */
 
 void proto_register_dcerpc_netlogon(void);
