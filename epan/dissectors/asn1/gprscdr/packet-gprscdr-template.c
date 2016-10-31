@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- * References: 3GPP TS 32.298
+ * References: 3GPP TS 32.298 V14.0.0
  */
 
 #include "config.h"

@@ -31,9 +31,9 @@ set( EXT_ASN_FILE_LIST
 )
 
 set( ASN_FILE_LIST
-	GenericChargingDataTypesV1400.asn
+	GenericChargingDataTypes.asn
 	GPRSChargingDataTypesV641.asn
-	GPRSChargingDataTypesV1400.asn
+	GPRSChargingDataTypes.asn
 )
 
 set( EXTRA_DIST
