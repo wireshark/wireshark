@@ -40,6 +40,7 @@ endif
 libwsutil_nonrepl_INCLUDES = \
 	adler32.h		\
 	aes.h			\
+	base32.h		\
 	base64.h		\
 	bits_count_ones.h	\
 	bits_ctz.h		\
@@ -118,6 +119,7 @@ libwsutil_la_SOURCES = \
 	adler32.c		\
 	aes.c			\
 	airpdcap_wep.c		\
+	base32.c		\
 	base64.c		\
 	bitswap.c		\
 	buffer.c		\

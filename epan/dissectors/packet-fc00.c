@@ -31,6 +31,7 @@
 
 #include <epan/expert.h>
 #include <epan/packet.h>
+#include <wsutil/base32.h>
 
 /* Prototypes */
 /* (Required to prevent [-Wmissing-prototypes] warnings */
@@ -85,50 +86,6 @@ static const value_string session_states[] = {
     { 4, "repeated Key" },
     { 0, NULL }
 };
-
-/*
- * Cjdns style base32 encoding
- */
-
-/** Returned by Base32_decode() if the input is not valid base32. */
-#define Base32_BAD_INPUT -1
-/** Returned by Base32_decode() or Base32_encode() if the output buffer is too small. */
-#define Base32_TOO_BIG -2
-
-static inline int Base32_encode(guint8* output,
-                                const guint32 outputLength,
-                                const guint8* in,
-                                const guint32 inputLength)
-{
-    guint32 outIndex = 0;
-    guint32 inIndex = 0;
-    guint32 work = 0;
-    guint32 bits = 0;
-    static const guint8* kChars = (guint8*) "0123456789bcdfghjklmnpqrstuvwxyz";
-    while (inIndex < inputLength) {
-        work |= ((unsigned) in[inIndex++]) << bits;
-        bits += 8;
-        while (bits >= 5) {
-            if (outIndex >= outputLength) {
-                return Base32_TOO_BIG;
-            }
-            output[outIndex++] = kChars[work & 31];
-            bits -= 5;
-            work >>= 5;
-        }
-    }
-    if (bits) {
-        if (outIndex >= outputLength) {
-            return Base32_TOO_BIG;
-        }
-        output[outIndex++] = kChars[work & 31];
-    }
-    if (outIndex < outputLength) {
-        output[outIndex] = '\0';
-    }
-    return outIndex;
-}
-
 
 /* Code to actually dissect the packets */
 static int
@@ -191,7 +148,7 @@ dissect_cryptoauth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
         tvb_memcpy(tvb, raw_key, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN);
 
-        Base32_encode((guint8*)encoded_key, 53, raw_key, PUBLIC_KEY_LEN);
+        ws_base32_decode((guint8*)encoded_key, 53, raw_key, PUBLIC_KEY_LEN);
 
         g_checksum_update(hash, (guchar*)raw_key, PUBLIC_KEY_LEN);
         g_checksum_get_digest(hash, ip_buf, &digest_len);

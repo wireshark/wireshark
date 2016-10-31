@@ -169,6 +169,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_add_crash_info@Base 1.10.0
  ws_ascii_strnatcasecmp@Base 1.99.1
  ws_ascii_strnatcmp@Base 1.99.1
+ ws_base32_decode@Base 2.3.0
  ws_base64_decode_inplace@Base 1.12.0~rc1
  ws_buffer_append@Base 1.99.0
  ws_buffer_assure_space@Base 1.99.0
