@@ -109,6 +109,8 @@ static void print_pdml_geninfo(proto_tree *tree, FILE *fh);
 
 static void proto_tree_get_node_field_values(proto_node *node, gpointer data);
 
+static gboolean json_is_first;
+
 /* Cache the protocols and field handles that the print functionality needs
    This helps break explicit dependency on the dissectors. */
 static int proto_data = -1;
@@ -270,6 +272,7 @@ void
 write_json_preamble(FILE *fh)
 {
     fputs("[\n", fh);
+    json_is_first = TRUE;
 }
 
 /* Check if the str match the protocolfilter. json_filter is space
@@ -331,7 +334,6 @@ write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar *
     char ts[30];
     time_t t = time(NULL);
     struct tm * timeinfo;
-    static gboolean is_first = TRUE;
 
     g_assert(edt);
     g_assert(fh);
@@ -343,10 +345,10 @@ write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar *
     else
         g_strlcpy(ts, "XXXX-XX-XX", sizeof ts); /* XXX - better way of saying "Not representable"? */
 
-    if (!is_first)
+    if (!json_is_first)
         fputs("  ,\n", fh);
     else
-        is_first = FALSE;
+        json_is_first = FALSE;
 
     fputs("  {\n", fh);
     fprintf(fh, "    \"_index\": \"packets-%s\",\n", ts);
@@ -1513,7 +1515,7 @@ print_escaped_bare(FILE *fh, const char *unescaped_string, gboolean change_dot)
             if (g_ascii_isprint(*p))
                 fputc(*p, fh);
             else {
-                g_snprintf(temp_str, sizeof(temp_str), "\\u00%u", (guint8)*p);
+                g_snprintf(temp_str, sizeof(temp_str), "\\u00%02x", (guint8)*p);
                 fputs(temp_str, fh);
             }
         }
