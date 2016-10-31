@@ -130,17 +130,16 @@ sub read_repo_info {
 	my $is_git_repo = 0;
 	my $git_cdir;
 
-	# Make sure git is available.
-	if (!`$git_executable --version`) {
-		print STDERR "Git unavailable. Git revision will be missing from version string.\n";
-		return;
-	}
 
 	if ($version_pref{"pkg_enable"} > 0) {
 		$package_format = $version_pref{"pkg_format"};
 	}
 
-	if (-e "$srcdir/.git" && ! -d "$srcdir/.git/svn") {
+	# For tarball releases, do not invoke git at all and instead rely on
+	# versioning information that was provided at tarball creation time.
+	if ($version_pref{"git_description"}) {
+		$info_source = "version.conf file";
+	} elsif (-e "$srcdir/.git" && ! -d "$srcdir/.git/svn") {
 		$info_source = "Command line (git)";
 		$version_pref{"git_client"} = 1;
 		$is_git_repo = 1;
@@ -152,6 +151,12 @@ sub read_repo_info {
 		$info_source = "Command line (git-svn)";
 		$info_cmd = "(cd $srcdir; $git_executable svn info)";
 		$is_git_repo = 1;
+	}
+
+	# Make sure git is available.
+	if ($is_git_repo && !`$git_executable --version`) {
+		print STDERR "Git unavailable. Git revision will be missing from version string.\n";
+		return;
 	}
 
 	# Check whether to include VCS version information in version.h
@@ -186,7 +191,12 @@ sub read_repo_info {
 	# Refs: git ls-remote code.wireshark.org:wireshark
 	# ea19c7f952ce9fc53fe4c223f1d9d6797346258b (r48972, changed version to 1.11.0)
 
-	if ($version_pref{"git_client"}) {
+	if ($version_pref{"git_description"}) {
+		$git_description = $version_pref{"git_description"};
+		$do_hack = 0;
+		# Assume format like v2.3.0rc0-1342-g7bdcf75
+		$commit_id = ($git_description =~ /([0-9a-f]+)$/)[0];
+	} elsif ($version_pref{"git_client"}) {
 		eval {
 			use warnings "all";
 			no warnings "all";
@@ -606,7 +616,10 @@ sub new_version_h
 	}
 
 	if ($git_description) {
-		return "#define VCSVERSION \"$git_description from $repo_branch\"\n";
+		# Do not bother adding the git branch, the git describe output
+		# normally contains the base tag and commit ID which is more
+		# than sufficient to determine the actual source tree.
+		return "#define VCSVERSION \"$git_description\"\n";
 	}
 
 	if ($last_change && $num_commits) {
