@@ -8517,6 +8517,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			case FT_INT56:
 			case FT_INT64:
 				proto_tree_add_int64(tree, **fields, tvb, offset, len, (gint64)value);
+				break;
 
 			case FT_BOOLEAN:
 				proto_tree_add_boolean64(tree, **fields, tvb, offset, len, value);
