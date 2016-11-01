@@ -1,7 +1,7 @@
 /* packet-gtpv2.c
  *
  * Routines for GTPv2 dissection
- * Copyright 2009 - 2015, Anders Broman <anders.broman [at] ericsson.com>
+ * Copyright 2009 - 2016, Anders Broman <anders.broman [at] ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -559,6 +559,7 @@ static int hf_gtpv2_twan_relay_id_ipv4 = -1;
 static int hf_gtpv2_twan_relay_id_ipv6 = -1;
 static int hf_gtpv2_twan_circuit_id_len = -1;
 static int hf_gtpv2_twan_circuit_id = -1;
+static int hf_gtpv2_integer_number_val = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -625,6 +626,7 @@ static expert_field ei_gtpv2_fq_csid_type_bad = EI_INIT;
 static expert_field ei_gtpv2_mbms_session_duration_days = EI_INIT;
 static expert_field ei_gtpv2_mbms_session_duration_secs = EI_INIT;
 static expert_field ei_gtpv2_ie = EI_INIT;
+static expert_field ei_gtpv2_int_size_not_handled = EI_INIT;
 
 
 /* Definition of User Location Info (AVP 22) masks */
@@ -693,10 +695,13 @@ static const value_string gtpv2_message_type_vals[] = {
     { 35, "Modify Bearer Response"},
     { 36, "Delete Session Request"},
     { 37, "Delete Session Response"},
-    /* SGSN to PGW (S4, S5/S8) */
+    /* SGSN/MME to PGW (S4/S11, S5/S8) */
     { 38, "Change Notification Request"},
     { 39, "Change Notification Response"},
-    /* 40-63 For future use */
+    /* MME to PGW (S11, S5/S8) */
+    { 40, "Remote UE Report Notification" },
+    { 41, "Remote UE Report Acknowledge" },
+    /* 42-63 For future use */
     /* Messages without explicit response */
     { 64, "Modify Bearer Command"},                          /* (MME/SGSN to PGW -S11/S4, S5/S8) */
     { 65, "Modify Bearer Failure Indication"},               /*(PGW to MME/SGSN -S5/S8, S11/S4) */
@@ -709,7 +714,7 @@ static const value_string gtpv2_message_type_vals[] = {
     { 72, "Trace Session Deactivation"},
     { 73, "Stop Paging Indication"},
     /* 74-94 For future use */
-    /* PDN-GW to SGSN/MME (S5/S8, S4/S11) */
+    /* PGW to SGSN/MME/ TWAN/ePDG (S5/S8, S4/S11, S2a, S2b) */
     { 95, "Create Bearer Request"},
     { 96, "Create Bearer Response"},
     { 97, "Update Bearer Request"},
@@ -719,7 +724,10 @@ static const value_string gtpv2_message_type_vals[] = {
     /* PGW to MME, MME to PGW, SGW to PGW, SGW to MME (S5/S8, S11) */
     {101, "Delete PDN Connection Set Request"},
     {102, "Delete PDN Connection Set Response"},
-    /* 103-127 For future use */
+    /* PGW to SGSN/MME(S5, S4/S11) */
+    {103, "PGW Downlink Triggering Notification" },
+    {104, "PGW Downlink Triggering Acknowledge" },
+    /* 105-127 For future use */
     /* MME to MME, SGSN to MME, MME to SGSN, SGSN to SGSN (S3/10/S16) */
     {128, "Identification Request"},
     {129, "Identification Response"},
@@ -744,8 +752,10 @@ static const value_string gtpv2_message_type_vals[] = {
     {153, "Alert MME Notification"},
     {154, "Alert MME Acknowledge"},
     {155, "UE Activity Notification"},
-    {156, "UE Activity Acknowledge"},
-    /* 157 to 159 For future use */
+    {156, "UE Activity Acknowledge" },
+    {157, "ISR Status Indication" },
+    {158, "UE Registration Query Request" },
+    {159, "UE Registration Query Response" },
     /* MME to SGW (S11) */
     {160, "Create Forwarding Tunnel Request"},
     {161, "Create Forwarding Tunnel Response"},
@@ -783,6 +793,7 @@ static const value_string gtpv2_message_type_vals[] = {
     {235, "MBMS Session Stop Request"},
     {236, "MBMS Session Stop Response"},
     /* 237 to 239 For future use */
+    /* Reserved for Sv interface (see also types 25 to 31)	TS 29.280 */
     {240, "SRVCC CS to PS Response"},               /* 5.2.9  3GPP TS 29.280 V11.5.0 (2013-09) */
     {241, "SRVCC CS to PS Complete Notification"},  /* 5.2.10 3GPP TS 29.280 V11.5.0 (2013-09) */
     {242, "SRVCC CS to PS Complete Acknowledge"},   /* 5.2.11 3GPP TS 29.280 V11.5.0 (2013-09) */
@@ -919,8 +930,8 @@ static value_string_ext gtpv2_message_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv
 #define GTPV2_IE_TRUST_WLAN_MODE_IND    174
 #define GTPV2_IE_NODE_NUMBER            175
 #define GTPV2_IE_NODE_IDENTIFIER        176
-#define GTPV2_IE_PRES_REP_AREA_ACT  177
-#define GTPV2_IE_PRES_REP_AREA_INF  178
+#define GTPV2_IE_PRES_REP_AREA_ACT      177
+#define GTPV2_IE_PRES_REP_AREA_INF      178
 #define GTPV2_IE_TWAN_ID_TS             179
 #define GTPV2_IE_OVERLOAD_CONTROL_INF   180
 #define GTPV2_IE_LOAD_CONTROL_INF       181
@@ -929,7 +940,26 @@ static value_string_ext gtpv2_message_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv
 #define GTPV2_IE_APN_AND_REL_CAP        184
 /* 185: WLAN Offloadability Indication*/
 #define GTPV2_IE_PAGING_AND_SERVICE_INF 186
+#define GTPV2_IE_INTEGER_NUMBER         187
+/*
+188	Millisecond Time Stamp
+189	Monitoring Event Information
+190	ECGI List
+191	Remote UE Context
+192	Remote User ID
+193	Remote UE IP information
+194	CIoT Optimizations Support Indication
+195	SCEF PDN Connection
+196	Header Compression Configuration
+197	Extended Protocol Configuration Options (ePCO)
+198	Serving PLMN Rate Control
+199	Counter
+200 to 253	Spare. For future use.
+254	Special IE type for IE Type Extension
+255	Private Extension
+256 to 65535	Spare. For future use.
 
+*/
 /* 169 to 254 reserved for future use */
 #define GTPV2_IE_PRIVATE_EXT            255
 
@@ -949,7 +979,6 @@ static const value_string gtpv2_element_type_vals[] = {
     {  1, "International Mobile Subscriber Identity (IMSI)"},                   /* Variable Length / 8.3 */
     {  2, "Cause"},                                                             /* Variable Length / 8.4 */
     {  3, "Recovery (Restart Counter)"},                                        /* Variable Length / 8.5 */
-                                                                                /* 4-34 Reserved for S101 interface Extendable / See 3GPP TS 29.276 [14] */
                                                                                 /* 4-34 Reserved for S101 interface Extendable / See 3GPP TS 29.276 [14] */
                                                                                 /* 35-50  / See 3GPP TS 29.276 */
 /*Start SRVCC Messages ETSI TS 129 280 V10.1.0 (2011-06) 6.1*/
@@ -1095,8 +1124,8 @@ static const value_string gtpv2_element_type_vals[] = {
     {196, "Header Compression Configuration"},                                  /* Extendable / 8.127 */
     {197, "Extended Protocol Configuration Options(ePCO)"},                     /* Variable Length / 8.128 */
     {198, "Serving PLMN Rate Control"},                                         /* Extendable / 8.129 */
-        /* 199 to 254    Spare. For future use.    */
-
+    {199, "Counter" },                                                          /* Extendable / 8.130 */
+                                                                                /* 1200 to 254    Spare. For future use.    */
     {255, "Private Extension"},                                                 /* Variable Length / 8.67 */
     {0, NULL}
 };
@@ -6307,6 +6336,28 @@ dissect_gtpv2_paging_and_service_inf(tvbuff_t *tvb, packet_info *pinfo _U_, prot
         proto_tree_add_item(tree, hf_gtpv2_ppi_value, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
 }
+/*
+ * 8.118        Integer Number
+ */
+static void
+dissect_gtpv2_integer_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+{
+    int offset = 0;
+    /* The Integer Number value shall be encoded as further described below for the following information elements:
+     * Maximum Wait Time IE:  the length shall be set to 2, i.e. the integer number value shall be encoded as a 16 bit unsigned integer.
+     * DL Buffering Suggested Packet Count IE: the length shall be set to 1 or 2;
+     * UE Usage Type IE: the length shall be set to 1, i.e. the integer number value shall be encoded as a 8 bit unsigned integer as specified in subclause 7.3.202 of 3GPP TS 29.272 [70].
+     */
+    if (length <= 4) {
+        /* Only handle up to 32 bits for now */
+        proto_tree_add_item(tree, hf_gtpv2_integer_number_val, tvb, offset, length, ENC_BIG_ENDIAN);
+    } else {
+        /* value not handled, yet*/
+        proto_tree_add_expert(tree, pinfo, &ei_gtpv2_int_size_not_handled, tvb, offset, length);
+
+    }
+
+}
 
 typedef struct _gtpv2_ie {
     int ie_type;
@@ -6449,7 +6500,7 @@ static const gtpv2_ie_t gtpv2_ies[] = {
                                                                            /* 185, 8.116 WLAN Offloadability Indication */
 
     {GTPV2_IE_PAGING_AND_SERVICE_INF, dissect_gtpv2_paging_and_service_inf}, /* 186, 8.117 Paging and Service Information */
-                                                                             /* 187, 8.118 Integer Number */
+    { GTPV2_IE_INTEGER_NUMBER, dissect_gtpv2_integer_number },               /* 187, 8.118 Integer Number */
                                                                              /* 188, 8.119 Millisecond Time Stamp */
                                                                              /* 189, 8.120 Monitoring Event Information */
                                                                              /* 190, 8.121 ECGI List */
@@ -8966,6 +9017,7 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_twan_relay_id_ipv6,{ "Relay Identity", "gtpv2.twan_id.relay_id_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
       { &hf_gtpv2_twan_circuit_id_len,{ "Relay Identity Type Length", "gtpv2.twan_id.relay_id_type_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
       { &hf_gtpv2_twan_circuit_id,{ "Circuit-ID", "gtpv2.twan_id.circuit_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_integer_number_val,{ "Value", "gtpv2.integer_number_val", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     };
 
     static gint *ett_gtpv2_array[] = {
@@ -9036,6 +9088,7 @@ void proto_register_gtpv2(void)
         { &ei_gtpv2_mbms_session_duration_days, { "gtpv2.mbms_session_duration_days.invalid", PI_PROTOCOL, PI_WARN, "Days out of allowed range", EXPFILL }},
         { &ei_gtpv2_mbms_session_duration_secs, { "gtpv2.mbms_session_duration_secs.unknown", PI_PROTOCOL, PI_WARN, "Seconds out of allowed range", EXPFILL }},
         { &ei_gtpv2_ie, { "gtpv2.ie_type.reserved", PI_PROTOCOL, PI_WARN, "IE type Zero is Reserved and should not be used", EXPFILL }},
+        { &ei_gtpv2_int_size_not_handled,{ "gtpv2.ie_type.int_size_not_handled", PI_PROTOCOL, PI_WARN, "Integer size not handled yet", EXPFILL } },
     };
 
     expert_module_t* expert_gtpv2;
