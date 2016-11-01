@@ -181,8 +181,9 @@ static int hf_gtp_qos_trans_delay = -1;
 static int hf_gtp_qos_traf_handl_prio = -1;
 static int hf_gtp_qos_guar_ul = -1;
 static int hf_gtp_qos_guar_dl = -1;
-static int hf_gtp_qos_src_stat_desc = -1;
+static int hf_gtp_qos_spare4 = -1;
 static int hf_gtp_qos_sig_ind = -1;
+static int hf_gtp_qos_src_stat_desc = -1;
 static int hf_gtp_qos_arp = -1;
 static int hf_gtp_qos_arp_pvi = -1;
 static int hf_gtp_qos_arp_pl = -1;
@@ -504,8 +505,9 @@ static const value_string next_extension_header_fieldvals[] = {
 #define GTP_EXT_QOS_SDU_ERR_RATIO_MASK          0x0F
 #define GTP_EXT_QOS_TRANS_DELAY_MASK            0xFC
 #define GTP_EXT_QOS_TRAF_HANDL_PRIORITY_MASK    0x03
-#define GTP_EXT_QOS_SRC_STAT_DESC_MASK          0x0F
+#define GTP_EXT_QOS_SPARE4_MASK                 0xE0
 #define GTP_EXT_QOS_SIG_IND_MASK                0x10
+#define GTP_EXT_QOS_SRC_STAT_DESC_MASK          0x0F
 
 /* Definition of Radio Priority's masks */
 #define GTPv1_EXT_RP_NSAPI_MASK         0xF0
@@ -4544,7 +4546,7 @@ decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
     guint8      res_ber, sdu_err_ratio;
     guint8      trans_delay, traf_handl_prio;
     guint8      guar_ul, guar_dl, guar_ul_ext, guar_dl_ext, guar_ul_ext2 = 0, guar_dl_ext2 = 0;
-    guint8      src_stat_desc, sig_ind;
+    guint8      src_stat_desc, sig_ind, spare4;
     proto_tree *ext_tree_qos;
     int         mss, mu, md, gu, gd;
     guint8      arp, qci;
@@ -4763,16 +4765,18 @@ decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
         /* Octet 13 */
         guar_dl         = wrapped_tvb_get_guint8(tvb, offset + (11 - 1) * utf8_type + 1, utf8_type);
 
-        src_stat_desc = 0;
+        spare4        = 0;
         sig_ind       = 0;
+        src_stat_desc = 0;
         max_dl_ext    = 0;
         guar_dl_ext   = 0;
         max_ul_ext    = 0;
         guar_ul_ext   = 0;
 
         if (length > 13 ||((type == 2) && (length == 13))) {
-            src_stat_desc = wrapped_tvb_get_guint8(tvb, offset + (12 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_SRC_STAT_DESC_MASK;
+            spare4        = wrapped_tvb_get_guint8(tvb, offset + (12 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_SPARE4_MASK;
             sig_ind       = wrapped_tvb_get_guint8(tvb, offset + (12 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_SIG_IND_MASK;
+            src_stat_desc = wrapped_tvb_get_guint8(tvb, offset + (12 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_SRC_STAT_DESC_MASK;
         }
         if (length > 14) {
             max_dl_ext  = wrapped_tvb_get_guint8(tvb, offset + (13 - 1) * utf8_type + 1, utf8_type);
@@ -4877,8 +4881,9 @@ decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
         }
 
         if(length > 13 ||((type == 2) && (length == 13))) {
-            proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_src_stat_desc, tvb, offset + (12 - 1) * utf8_type + 1, utf8_type, src_stat_desc);
+            proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_spare4, tvb, offset + (12 - 1) * utf8_type + 1, utf8_type, spare4);
             proto_tree_add_boolean(ext_tree_qos, hf_gtp_qos_sig_ind, tvb, offset + (12 - 1) * utf8_type + 1, utf8_type, sig_ind);
+            proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_src_stat_desc, tvb, offset + (12 - 1) * utf8_type + 1, utf8_type, src_stat_desc);
         }
 
 
@@ -9255,14 +9260,19 @@ proto_register_gtp(void)
            FT_UINT8, BASE_DEC, VALS(qos_guar_dl), 0,
            NULL, HFILL}
         },
-        {&hf_gtp_qos_src_stat_desc,
-         { "Source Statistics Descriptor", "gtp.src_stat_desc",
-           FT_UINT8, BASE_DEC, VALS(src_stat_desc_vals), GTP_EXT_QOS_SRC_STAT_DESC_MASK,
-           NULL, HFILL}
+        {&hf_gtp_qos_spare4,
+         { "Spare", "gtp.qos_spare4",
+           FT_UINT8, BASE_DEC, NULL, GTP_EXT_QOS_SPARE4_MASK,
+           "Spare (shall be sent as '000' )", HFILL}
         },
         {&hf_gtp_qos_sig_ind,
          { "Signalling Indication", "gtp.sig_ind",
            FT_BOOLEAN, 8, TFS(&gtp_sig_ind), GTP_EXT_QOS_SIG_IND_MASK,
+           NULL, HFILL}
+        },
+        {&hf_gtp_qos_src_stat_desc,
+         { "Source Statistics Descriptor", "gtp.src_stat_desc",
+           FT_UINT8, BASE_DEC, VALS(src_stat_desc_vals), GTP_EXT_QOS_SRC_STAT_DESC_MASK,
            NULL, HFILL}
         },
         { &hf_gtp_qos_arp,
