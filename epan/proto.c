@@ -8897,6 +8897,8 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 	guint64            available_bits = 0;
 	guint64            tmpval;
 	header_field_info *hf;
+	guint32            integer32;
+	gint               no_of_bits;
 
 	if (len < 0 || len > 8)
 		g_assert_not_reached();
@@ -8962,22 +8964,10 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 		tmpval = (value & hf->bitmask) >> hfinfo_bitshift(hf);
 
 		switch (hf->type) {
-		case FT_INT8:
 		case FT_UINT8:
-		case FT_INT16:
 		case FT_UINT16:
-		case FT_INT24:
 		case FT_UINT24:
-		case FT_INT32:
 		case FT_UINT32:
-		case FT_INT40:
-		case FT_UINT40:
-		case FT_INT48:
-		case FT_UINT48:
-		case FT_INT56:
-		case FT_UINT56:
-		case FT_INT64:
-		case FT_UINT64:
 			if (hf->display == BASE_CUSTOM) {
 				gchar lbl[ITEM_LABEL_LENGTH];
 				const custom_fmt_func_t fmtfunc = (const custom_fmt_func_t)hf->strings;
@@ -9007,6 +8997,118 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			}
 
 			break;
+
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+			integer32 = (guint32) tmpval;
+			if (hf->bitmask) {
+				no_of_bits = ws_count_ones(hf->bitmask);
+				integer32 = ws_sign_ext32(integer32, no_of_bits);
+			}
+			if (hf->display == BASE_CUSTOM) {
+				gchar lbl[ITEM_LABEL_LENGTH];
+				const custom_fmt_func_t fmtfunc = (const custom_fmt_func_t)hf->strings;
+
+				DISSECTOR_ASSERT(fmtfunc);
+				fmtfunc(lbl, (gint32) integer32);
+				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
+						hf->name, lbl);
+				first = FALSE;
+			}
+			else if (hf->strings) {
+				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
+						hf->name, hf_try_val_to_str_const((gint32) integer32, hf, "Unknown"));
+				first = FALSE;
+			}
+			else if (!(flags & BMT_NO_INT)) {
+				char buf[32];
+				const char *out;
+
+				if (!first) {
+					proto_item_append_text(item, ", ");
+				}
+
+				out = hfinfo_number_value_format(hf, buf, (gint32) integer32);
+				proto_item_append_text(item, "%s: %s", hf->name, out);
+				first = FALSE;
+			}
+
+			break;
+
+		case FT_UINT40:
+		case FT_UINT48:
+		case FT_UINT56:
+		case FT_UINT64:
+			if (hf->display == BASE_CUSTOM) {
+				gchar lbl[ITEM_LABEL_LENGTH];
+				const custom_fmt_func_64_t fmtfunc = (const custom_fmt_func_64_t)hf->strings;
+
+				DISSECTOR_ASSERT(fmtfunc);
+				fmtfunc(lbl, tmpval);
+				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
+						hf->name, lbl);
+				first = FALSE;
+			}
+			else if (hf->strings) {
+				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
+						hf->name, hf_try_val64_to_str_const(tmpval, hf, "Unknown"));
+				first = FALSE;
+			}
+			else if (!(flags & BMT_NO_INT)) {
+				char buf[48];
+				const char *out;
+
+				if (!first) {
+					proto_item_append_text(item, ", ");
+				}
+
+				out = hfinfo_number_value_format64(hf, buf, tmpval);
+				proto_item_append_text(item, "%s: %s", hf->name, out);
+				first = FALSE;
+			}
+
+			break;
+
+		case FT_INT40:
+		case FT_INT48:
+		case FT_INT56:
+		case FT_INT64:
+			if (hf->bitmask) {
+				no_of_bits = ws_count_ones(hf->bitmask);
+				tmpval = ws_sign_ext64(tmpval, no_of_bits);
+			}
+			if (hf->display == BASE_CUSTOM) {
+				gchar lbl[ITEM_LABEL_LENGTH];
+				const custom_fmt_func_64_t fmtfunc = (const custom_fmt_func_64_t)hf->strings;
+
+				DISSECTOR_ASSERT(fmtfunc);
+				fmtfunc(lbl, (gint64) tmpval);
+				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
+						hf->name, lbl);
+				first = FALSE;
+			}
+			else if (hf->strings) {
+				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
+						hf->name, hf_try_val64_to_str_const((gint64) tmpval, hf, "Unknown"));
+				first = FALSE;
+			}
+			else if (!(flags & BMT_NO_INT)) {
+				char buf[48];
+				const char *out;
+
+				if (!first) {
+					proto_item_append_text(item, ", ");
+				}
+
+				out = hfinfo_number_value_format64(hf, buf, (gint64) tmpval);
+				proto_item_append_text(item, "%s: %s", hf->name, out);
+				first = FALSE;
+			}
+
+			break;
+
 		case FT_BOOLEAN:
 			if (hf->strings && !(flags & BMT_NO_TFS)) {
 				/* If we have true/false strings, emit full - otherwise messages
