@@ -4301,7 +4301,7 @@ static gint parse_FabricInfoRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *
     local_offset += 4;
     proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumOmittedISLs, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     local_offset += 4;
-    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_Reserved, tvb, local_offset, 92, ENC_BIG_ENDIAN);
+    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_Reserved, tvb, local_offset, 92, ENC_NA);
     local_offset += 92;
 
     return local_offset;
@@ -10363,7 +10363,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_FabricInfoRecord_Reserved, {
                 "Reserved (92 Bytes)", "opa.fabricinforecord.reserved",
-                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
 
 /*****************
