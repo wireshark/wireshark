@@ -252,6 +252,7 @@ static int hf_gtp_bssgp_ra_discriminator = -1;
 static int hf_gtp_sapi = -1;
 static int hf_gtp_xid_par_len = -1;
 static int hf_gtp_rep_act_type = -1;
+static int hf_gtp_correlation_id = -1;
 static int hf_gtp_earp_pvi = -1;
 static int hf_gtp_earp_pl = -1;
 static int hf_gtp_earp_pci = -1;
@@ -7093,8 +7094,8 @@ decode_gtp_corrl_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+
+    proto_tree_add_item(ext_tree, hf_gtp_correlation_id,  tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return 3 + length;
 
@@ -9617,6 +9618,11 @@ proto_register_gtp(void)
         {&hf_gtp_rep_act_type,
          { "Action", "gtp.ms_inf_chg_rep_act",
            FT_UINT8, BASE_DEC, VALS(chg_rep_act_type_vals), 0xFF,
+           NULL, HFILL}
+        },
+        {&hf_gtp_correlation_id,
+         { "Correlation-ID", "gtp.correlation_id",
+           FT_UINT8, BASE_DEC, NULL, 0,
            NULL, HFILL}
         },
         {&hf_gtp_earp_pvi,
