@@ -11,10 +11,10 @@
 
 === Introduction
 
-Along with the main application, Wireshark comes with an array of command line
-tools which can be helpful for specialized tasks. These tools will be described
-in this chapter. You can find more information about each command in the
-link:wireshark-man-page-reference:[][Manual Pages].
+Along with the main application, Wireshark comes with an array of
+command line tools which can be helpful for specialized tasks. These
+tools will be described in this chapter. You can find more information
+about each command in the link:{wireshark-man-page-url}[Manual Pages].
 
 [[AppToolstshark]]
 
@@ -150,8 +150,7 @@ save into. In addition, you will have to terminate the capture with ^C when you
 believe you have captured enough packets.
 
 +tcpdump+ is not part of the Wireshark distribution. You can get it from
-link:$$http://www.tcpdump.org/:[]$$[http://www.tcpdump.org] or as a standard
-package in most Linux distributions.
+{tcpdump-main-url} or as a standard package in most Linux distributions.
 
 [[AppToolsdumpcap]]
 

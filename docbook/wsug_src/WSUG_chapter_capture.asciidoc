@@ -38,9 +38,9 @@ The capture engine still lacks the following features:
 
 === Prerequisites
 
-Setting up Wireshark to capture packets for the first time can be tricky. A
-comprehensive guide ``How To setup a Capture'' is available at
-link:wireshark-wiki-site:[]CaptureSetup[wireshark-wiki-site:[]CaptureSetup].
+Setting up Wireshark to capture packets for the first time can be
+tricky. A comprehensive guide ``How To setup a Capture'' is available at
+{wireshark-wiki-url}CaptureSetup.
 
 Here are some common pitfalls:
 
@@ -247,7 +247,7 @@ $ echo 1 >/proc/sys/net/core/bpf_jit_enable
 ----
 
 if it is not enabled already. To make the change persistent you can use
-link:sysfs-web-site:[][sysfsutils].
+link:{sysfs-main-url}[sysfsutils].
 ====
 
 _Manage Interfaces_::
@@ -272,11 +272,11 @@ _Use multiple files_::
 Instead of using a single file Wireshark will automatically switch to a new
 one if a specific trigger condition is reached.
 
-_Use pcap-ng format_::
-This checkbox allows you to specify that Wireshark saves the captured packets in
-pcap-ng format. This next generation capture file format is currently in
-development. If more than one interface is chosen for capturing, this checkbox
-is set by default. See link:wireshark-wiki-site:[]Development/PcapNg[wireshark-wiki-site:[]Development/PcapNg] for more details on
+_Use pcap-ng format_:: This checkbox allows you to specify that
+Wireshark saves the captured packets in pcap-ng format. This next
+generation capture file format is currently in development. If more than
+one interface is chosen for capturing, this checkbox is set by default.
+See {wireshark-wiki-url}Development/PcapNg for more details on
 pcap-ng.
 
 _Next file every n megabyte(s)_::
@@ -392,7 +392,7 @@ If some other process has put the interface in promiscuous mode you may be
 capturing in promiscuous mode even if you turn off this option.
 
 Even in promiscuous mode you still won't necessarily see all packets on your LAN
-segment. See link:wireshark-faq-url:[]#promiscsniff[the Wireshark FAQ] for more information.
+segment. See link:{wireshark-faq-url}#promiscsniff[the Wireshark FAQ] for more information.
 ====
 
 _Limit each packet to n bytes_::
@@ -533,11 +533,11 @@ This dialog and capability is only available on Microsoft Windows. On Linux/Unix
 you can achieve the same effect (securely) through an SSH tunnel.
 ====
 
-The Remote Packet Capture Protocol service must first be running on the target
-platform before Wireshark can connect to it. The easiest way is to install
-WinPcap from link:winpcap-download-page:[][winpcap-download-page:[]] on the target. Once
-installation is completed go to the Services control panel, find the Remote
-Packet Capture Protocol service and start it.
+The Remote Packet Capture Protocol service must first be running on the
+target platform before Wireshark can connect to it. The easiest way is
+to install WinPcap from {winpcap-download-url} on the target. Once
+installation is completed go to the Services control panel, find the
+Remote Packet Capture Protocol service and start it.
 
 [NOTE]
 ====
@@ -742,11 +742,10 @@ to be read by an application that doesn't support SunATM headers, select ``RFC
 
 === Filtering while capturing
 
-Wireshark uses the libpcap filter language for capture filters. A brief overview
-of the syntax follows. Complete documentation can be found in the
-link:pcap-filter-man-page-url:[][pcap-filter man page]. You can find a lot of
-Capture Filter examples at
-link:wireshark-wiki-site:[]CaptureFilters[wireshark-wiki-site:[]CaptureFilters].
+Wireshark uses the libpcap filter language for capture filters. A brief
+overview of the syntax follows. Complete documentation can be found in
+the link:{pcap-filter-man-page-url}[pcap-filter man page]. You can find
+a lot of Capture Filter examples at {wireshark-wiki-url}CaptureFilters.
 
 You enter the capture filter into the ``Filter'' field of the Wireshark
 ``Capture Options'' dialog box, as shown in <<ChCapCaptureOptionsDialog>>.
@@ -839,10 +838,10 @@ _ether|ip broadcast|multicast_::
 This primitive allows you to filter on either Ethernet or IP broadcasts or
 multicasts.
 
-_&lt;expr&gt; relop &lt;expr&gt;_::
-This primitive allows you to create complex filter expressions that select bytes
-or ranges of bytes in packets. Please see the pcap-filter man page at
-link:pcap-filter-man-page-url:[][pcap-filter-man-page-url:[]] for more details.
+_&lt;expr&gt; relop &lt;expr&gt;_:: This primitive allows you to create
+complex filter expressions that select bytes or ranges of bytes in
+packets. Please see the pcap-filter man page at
+{pcap-filter-man-page-url} for more details.
 
 
 [[ChCapCaptureAutoFilterSection]]
@@ -912,7 +911,7 @@ dialog'' option in the Capture Options dialog box.
 
 A running capture session will be stopped in one of the following ways:
 
-. Using the button:[Stop[ button from the ``Capture Info'' dialog box.
+. Using the button:[Stop] button from the ``Capture Info'' dialog box.
 
 [NOTE]
 ====

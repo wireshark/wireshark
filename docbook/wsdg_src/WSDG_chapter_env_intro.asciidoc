@@ -19,7 +19,7 @@ development in general.
 
 Well, if you want to start Wireshark development, you might already
 know what Wireshark is doing. If not, please have a look at the
-wireshark-users-guide-url:[][Wireshark User's Guide],
+link:{wireshark-users-guide-url}[Wireshark User's Guide],
 which will provide a lot of general information about it.
 
 [[ChIntroPlatforms]]
@@ -36,7 +36,7 @@ it's thus available on a wide variety of platforms.
 
 If a binary package is not available for your platform, you should
 download the source and try to build it. Please report your experiences
-to mailto:wireshark-dev-list-email:[][wireshark-dev-list-email:[]].
+to mailto:{wireshark-dev-list-email}[].
 
 Binary packages are available for the following platforms along with many
 others:
@@ -109,11 +109,12 @@ Wireshark was initially developed by Gerald Combs. Ongoing development
 and maintenance of Wireshark is handled by the Wireshark core developers,
 a loose group of individuals who fix bugs and provide new functionality.
 
-There have also been a large number of people who have contributed protocol
-dissectors and other improvements to Wireshark, and it is expected that this
-will continue. You can find a list of the people who have contributed code to
-Wireshark by checking the About dialog box of Wireshark, or have a look at the
-wireshark-authors-url:[] page on the Wireshark web site.
+There have also been a large number of people who have contributed
+protocol dissectors and other improvements to Wireshark, and it is
+expected that this will continue. You can find a list of the people who
+have contributed code to Wireshark by checking the About dialog box of
+Wireshark, or have a look at the {wireshark-authors-url} page on the
+Wireshark web site.
 
 The communication between the developers is usually done through the developer
 mailing list, which can be joined by anyone interested in the development
@@ -149,7 +150,7 @@ the target system.
 ==== Open Source Software
 
 Wireshark is an open source software (OSS) project, and is released under
-the gpl-url:[][GNU General Public License] (GPL).
+the link:{gplv2-url}[GNU General Public License] (GPL).
 You can freely use Wireshark on any number of computers you like, without
 worrying about license keys or fees or such. In addition, all source
 code is freely available under the GPL. Because of that, it is very easy
@@ -180,19 +181,19 @@ community:
 
 The Wireshark source code and binary packages for some platforms are all
 available on the download page of the Wireshark website:
-wireshark-download-page:[].
+{wireshark-download-url}.
 
 
 [[ChIntroReleases]]
 
 === Releases and distributions
 
-The officially released files can be found at: wireshark-download-page:[]. A new
-Wireshark version is released after significant changes compared to the last
-release are completed or a serious security issue is encountered. The typical
-release schedule is about every 4-8 weeks (although this may vary).
-There are two kinds of distributions: binary and source; both have their
-advantages and disadvantages.
+The officially released files can be found at {wireshark-download-url}.
+A new Wireshark version is released after significant changes compared
+to the last release are completed or a serious security issue is
+encountered. The typical release schedule is about every 4-8 weeks
+(although this may vary).  There are two kinds of distributions: binary
+and source; both have their advantages and disadvantages.
 
 [[ChIntroReleaseBinary]]
 
@@ -331,13 +332,13 @@ course).
 ==== Website
 
 You will find lots of useful information on the Wireshark homepage at
-wireshark-web-site:[].
+{wireshark-main-url}.
 
 [[ChIntroWiki]]
 
 ==== Wiki
 
-The Wireshark Wiki at wireshark-wiki-site:[] provides a wide range
+The Wireshark Wiki at {wireshark-wiki-url} provides a wide range
 of information related to Wireshark and packet capturing in general.
 You will find a lot of information not part of this developer's guide. For
 example, there is an explanation how to capture on a switched network,
@@ -363,9 +364,9 @@ subscribed to the mailing lists.
 You will find the FAQ inside Wireshark by clicking the menu item
 Help/Contents and selecting the FAQ page in the upcoming dialog.
 
-An online version is available at the Wireshark website: wireshark-faq-url:[].
-You might prefer this online version as it's typically more up to date and the
-HTML format is easier to use.
+An online version is available at the Wireshark website:
+{wireshark-faq-url}. You might prefer this online version as it's
+typically more up to date and the HTML format is easier to use.
 
 [[ChIntroOtherSources]]
 
@@ -424,10 +425,10 @@ repository, join this list. Details about the GIT repository can be
 found in <<ChSrcGitRepository>>.
 
 You can subscribe to each of these lists from the Wireshark web site:
-wireshark-mailing-lists-url:[]. From there, you can choose which mailing list you
-want to subscribe to by clicking on the Subscribe/Unsubscribe/Options button
-under the title of the relevant list. The links to the archives are included on
-that page as well.
+{wireshark-mailing-lists-url}. From there, you can choose which mailing
+list you want to subscribe to by clicking on the
+Subscribe/Unsubscribe/Options button under the title of the relevant
+list. The links to the archives are included on that page as well.
 
 [TIP]
 .The archives are searchable
@@ -442,19 +443,20 @@ someone answers your question.
 ==== Bug database (Bugzilla)
 
 The Wireshark community collects bug reports in a Bugzilla database at
-wireshark-bugs-site:[]. This database is filled with manually filed bug reports,
-usually after some discussion on wireshark-dev, and automatic bug reports from
-the Buildbot tools.
+{wireshark-bugs-url}. This database is filled with manually filed bug
+reports, usually after some discussion on wireshark-dev, and automatic
+bug reports from the Buildbot tools.
 
 [[ChIntroQA]]
 
 ==== Q&amp;A Site
 
-The Wireshark Q and A site at wireshark-qa-url:[] offers a resource where
+The Wireshark Q&amp;A site at {wireshark-qa-url} offers a resource where
 questions and answers come together. You have the option to search what
-questions were asked before and what answers were given by people who knew about
-the issue. Answers are graded, so you can pick out the best ones easily. If your
-issue isn't discussed before you can post one yourself.
+questions were asked before and what answers were given by people who
+knew about the issue. Answers are graded, so you can pick out the best
+ones easily. If your issue isn't discussed before you can post one
+yourself.
 
 [[ChIntroReportProblems]]
 
@@ -543,8 +545,8 @@ If you do not have `gdb` available, you
 will have to check out your operating system's debugger.
 ====
 
-You should mail the traceback to the
-mailto:wireshark-dev-list-email:[][wireshark-dev mailing list], or attach it to your bug report.
+You should mail the traceback to mailto:{wireshark-dev-list-email}[] or attach it
+to your bug report.
 
 ==== Reporting Crashes on Windows platforms
 

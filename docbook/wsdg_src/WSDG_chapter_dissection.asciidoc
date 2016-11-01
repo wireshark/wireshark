@@ -1178,7 +1178,7 @@ I have also had comments/feedback that this tool would be good for say a CORBA
 class when teaching students what CORBA traffic looks like ``on the wire''.
 
 It is also COOL to work on a great Open Source project such as the case with
-``Wireshark'' (link:$$wireshark-web-site:[]$$[wireshark-web-site:[]] )
+``Wireshark'' ({wireshark-main-url})
 
 
 ==== How to use idl2wrs

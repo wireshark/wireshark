@@ -13,7 +13,8 @@ Requirements are listed below.
 The guides and release notes are written in AsciiDoc (http://asciidoc.org),
 but use many Asciidoctor (http://asciidoctor.org/) markup extensions which
 are provided in asciidoctor-asciidoc.conf. The documentation toolchain may
-switch exclusively to Asciidoctor at some point in the future.
+switch exclusively to Asciidoctor at some point in the future. See the
+AsciiDoctor section at the end of this document for details.
 
 To get HTML, PDF or other output formats, conversions are done using XSL
 stylesheets, which provides a flexible way for these conversions.
@@ -244,3 +245,20 @@ Using the prefix wsdg_ instead of wsug_ will build the same targets but for the
 Wireshark Developer's Guide.
 
 The makefile is written to be run with make on UNIX/Linux platforms.
+
+AsciiDoctor
+-----------
+
+At the time of this writing (November 2016) the AsciiDoctor project is much
+more active than AsciiDoc. At some point it might be worth the effort to
+migrate to AsciiDoctor. To do so we'd have to do the following at a minimum:
+
+- Require Ruby + AsciiDoctor or Java + AsciiDoctorj to build the documentation.
+
+- Either port the macros in asciidoc.conf to AsciiDoctor or stop using them.
+
+- Restrict ourselves to decimal entities since the PDF renderer doesn't
+  support hexadecimal ones:
+  https://github.com/asciidoctor/asciidoctorj/issues/439
+
+- Choose a "compat" mode: http://asciidoctor.org/docs/migration/

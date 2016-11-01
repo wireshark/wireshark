@@ -471,25 +471,25 @@ sub update_configure_ac
 	print "$filepath has been updated.\n";
 }
 
-# Read docbook/asciidoc.conf, then write it back out with an updated
+# Read docbook/attributes.asciidoc, then write it back out with an updated
 # wireshark-version replacement line.
-sub update_release_notes
+sub update_attributes_asciidoc
 {
 	my $line;
 	my $contents = "";
 	my $version = "";
-	my $filepath = "$srcdir/docbook/asciidoc.conf";
+	my $filepath = "$srcdir/docbook/attributes.asciidoc";
 
 	open(ADOC_CONF, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <ADOC_CONF>) {
-		# wireshark-version:\[\]=1.9.1
+		# :wireshark-version: 2.3.1
 
-		if ($line =~ /^wireshark-version=.*([\r\n]+)$/) {
-			$line = sprintf("wireshark-version=%d.%d.%d$1",
+		if ($line =~ /^:wireshark-version:.*([\r\n]+)$/) {
+			$line = sprintf(":wireshark-version: %d.%d.%d$1",
 					$version_pref{"version_major"},
 					$version_pref{"version_minor"},
 					$version_pref{"version_micro"},
-				       );
+					);
 		}
 		$contents .= $line
 	}
@@ -602,7 +602,7 @@ sub update_versioned_files
 	&update_cmakelists_txt;
 	&update_configure_ac;
 	if ($set_version) {
-		&update_release_notes;
+		&update_attributes_asciidoc;
 		&update_debian_changelog;
 		&update_automake_lib_releases;
 		&update_cmake_lib_releases;
@@ -753,7 +753,7 @@ make-version.pl [options] [source directory]
     --print-vcs                Print the vcs version to standard output
     --set-version, -v          Set the major, minor, and micro versions in
                                the top-level CMakeLists.txt, configure.ac,
-                               docbook/asciidoc.conf, debian/changelog,
+                               docbook/attributes.asciidoc, debian/changelog,
                                the Makefile.am for all libraries, and the
                                CMakeLists.txt for all libraries.
                                Resets the release information when used by

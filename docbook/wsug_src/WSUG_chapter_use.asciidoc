@@ -529,7 +529,7 @@ image::wsug_graphics/ws-analyze-menu.png[{screenshot-attrs}]
 |menu:User Specified Decodes...[]   ||This menu item allows the user to force Wireshark to decode certain packets as a particular protocol, see <<ChAdvDecodeAsShow>>
 |menu:Follow TCP Stream[]           ||This menu item brings up a separate window and displays all the TCP segments captured that are on the same TCP connection as a selected packet, see <<ChAdvFollowTCPSection>>
 |menu:Follow UDP Stream[]           ||Same functionality as ``Follow TCP Stream'' but for UDP streams.
-|menu:Follow SSL Stream[]           ||Same functionality as ``Follow TCP Stream'' but for SSL streams. See the wiki page on wireshark-wiki-site:[]SSL[SSL] for instructions on providing SSL keys.
+|menu:Follow SSL Stream[]           ||Same functionality as ``Follow TCP Stream'' but for SSL streams. See the wiki page on link:{wireshark-wiki-url}SSL[SSL] for instructions on providing SSL keys.
 |menu:Expert Info[]                 ||Open a dialog showing some expert information about the captured packets. The amount of information will depend on the protocol and varies from  very detailed to non-existent. XXX - add a new section about this and link from here
 |menu:Conversation Filter[...]      ||In this menu you will find conversation filter for various protocols.
 |===============
@@ -667,11 +667,11 @@ image::wsug_graphics/ws-help-menu.png[{screenshot-attrs}]
 |Menu Item|Accelerator|Description
 |menu:Contents[]|F1| This menu item brings up a basic help system.
 |menu:Manual Pages[...]|| This menu item starts a Web browser showing one of the locally installed html manual pages.
-|menu:Website[]|| This menu item starts a Web browser showing the webpage from: link:$$wireshark-web-site:[]$$[wireshark-web-site:[]].
+|menu:Website[]|| This menu item starts a Web browser showing the webpage from: link:{wireshark-main-url}[].
 |menu:FAQ's[]|| This menu item starts a Web browser showing various FAQ's.
-|menu:Downloads[]|| This menu item starts a Web browser showing the downloads from: link:$$wireshark-web-site:[]$$[wireshark-web-site:[]].
-|menu:Wiki[]|| This menu item starts a Web browser showing the front page from: link:$$wireshark-wiki-site:[]$$[wireshark-wiki-site:[]].
-|menu:Sample Captures[]|| This menu item starts a Web browser showing the sample captures from: link:$$wireshark-wiki-site:[]$$[wireshark-wiki-site:[]].
+|menu:Downloads[]|| This menu item starts a Web browser showing the downloads from: link:{wireshark-download-url}[].
+|menu:Wiki[]|| This menu item starts a Web browser showing the front page from: link:{wireshark-wiki-url}[].
+|menu:Sample Captures[]|| This menu item starts a Web browser showing the sample captures from: link:{wireshark-wiki-url}SampleCaptures[].
 |menu:About Wireshark[]|| This menu item brings up an information window that provides various detailed information items on Wireshark, such as how it's build, the plugins loaded, the used folders, ...
 
 |===============

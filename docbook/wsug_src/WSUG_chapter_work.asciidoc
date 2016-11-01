@@ -255,7 +255,7 @@ sections provide more information on doing this.
 [TIP]
 ====
 You will find a lot of Display Filter examples at the _Wireshark Wiki Display
-Filter page_ at: wireshark-wiki-site:[]DisplayFilters.
+Filter page_ at: link:{wireshark-wiki-url}DisplayFilters[].
 ====
 
 ==== Display filter fields

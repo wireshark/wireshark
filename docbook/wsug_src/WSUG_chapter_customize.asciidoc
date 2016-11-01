@@ -456,17 +456,18 @@ result in a window that updates in semi-real time.
 
 === Packet colorization
 
-A very useful mechanism available in Wireshark is packet colorization. You can
-set up Wireshark so that it will colorize packets according to a display filter.
-This allows you to emphasize the packets you might be interested in.
+A very useful mechanism available in Wireshark is packet colorization.
+You can set up Wireshark so that it will colorize packets according to a
+display filter.  This allows you to emphasize the packets you might be
+interested in.
 
-You can find a lot of coloring rule examples at the _Wireshark Wiki Coloring
-Rules page_ at
-link:wireshark-wiki-site:[]ColoringRules[wireshark-wiki-site:[]ColoringRules].
+You can find a lot of coloring rule examples at the _Wireshark Wiki
+Coloring Rules page_ at {wireshark-wiki-url}ColoringRules.
 
-There are two types of coloring rules in Wireshark: temporary rules that are
-only in effect until you quit the program, and permanent rules that are saved
-in a preference file so that they are available the next time you run Wireshark.
+There are two types of coloring rules in Wireshark: temporary rules that
+are only in effect until you quit the program, and permanent rules that
+are saved in a preference file so that they are available the next time
+you run Wireshark.
 
 Temporary rules can be added by selecting a packet and pressing the kbd:[Ctrl]
 key together with one of the number keys. This will create a coloring rule based

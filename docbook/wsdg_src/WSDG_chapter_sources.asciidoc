@@ -129,12 +129,12 @@ Age: a few minutes.
 You can use a Git client to download the source code from Wireshark's code
 review system. Anyone can clone from the anonymous git URL:
 
-* wireshark-git-anonhttp-url:[]
+* {wireshark-git-anonhttp-url}
 
 If you create a Gerrit account you can clone from an authenticated URL:
 
-* wireshark-git-ssh-url:[]
-* wireshark-git-http-url:[]
+* {wireshark-git-ssh-url}
+* {wireshark-git-http-url}
 
 SSH lets you use Gerrit on the
 https://code.wireshark.org/review/Documentation/cmd-index.html#_server[command line].
@@ -147,7 +147,7 @@ The following example shows how to get up and running on the command
 line. See <<ChToolsGit>> for information on installing and configuring
 graphical Git and Gerrit clients.
 
-. Sign in to wireshark-code-review-url:[] using OpenID (click Register or Sign
+. Sign in to {wireshark-code-review-url} using OpenID (click Register or Sign
 In in the upper right corner of the web page). Follow the login instructions.
 
 . In the upper right corner of the web page, click on your account name and
@@ -242,11 +242,10 @@ be downloaded.
 
 Age: a few minutes (same as anonymous Git access).
 
-The entire source tree of the Git repository is available via
-a web interface at wireshark-code-browse-url:[].  You can view each
-revision of a particular file, as well as diffs between different
-revisions. You can also download individual files but not entire
-directories.
+The entire source tree of the Git repository is available via a web
+interface at {wireshark-code-browse-url}. You can view each revision of
+a particular file, as well as diffs between different revisions. You can
+also download individual files but not entire directories.
 
 
 [[ChSrcBuildbot]]
@@ -259,8 +258,8 @@ possible (e.g. because of a restrictive firewall).
 Age: some number of minutes (a bit older than the Git access).
 
 The Buildbot server will automatically start to generate a snapshot of
-Wireshark's source tree after a source code change is committed.
-These snapshots can be found at wireshark-snapshots-url:[].
+Wireshark's source tree after a source code change is committed. These
+snapshots can be found at {wireshark-snapshots-url}.
 
 If Git access isn't possible, e.g. if the connection to the server
 isn't possible because of a corporate firewall, the sources can be
@@ -277,10 +276,10 @@ Recommended for building pristine packages.
 
 Age: from days to weeks.
 
-The official source releases can be found at
-wireshark-download-page:[].  You should use these sources if you want
-to build Wireshark on your platform for with minimal or no changes,
-such Linux distribution packages.
+The official source releases can be found at {wireshark-download-url}.
+You should use these sources if you want to build Wireshark on your
+platform for with minimal or no changes, such Linux distribution
+packages.
 
 The differences between the released sources and the sources in the
 Git repository will keep on growing until the next release is made.
@@ -301,7 +300,7 @@ Git repository.
 ====
 As development evolves, the Wireshark sources are compilable
 most of the time -- but not always. You should take a look at
-wireshark-buildbot-url:[] before fetching or pulling to make
+{wireshark-buildbot-url} before fetching or pulling to make
 sure the builds are in good shape.
 ====
 
@@ -447,13 +446,13 @@ be informative when things don't work as expected.
 
 ==== Win32 native
 
-During the build all relevant program files are collected in a subdirectory
-`run\RelWithDebInfo`. You can run the program from there by
+During the build all relevant program files are collected in a
+subdirectory `run\RelWithDebInfo`. You can run the program from there by
 launching the Wireshark.exe executable.
 
-The older GTK based version is also available in the same
-subdirectory.  You can run the program from there by launching the
-wireshark-gtk.exe executable.
+The older GTK based version is also available in the same subdirectory.
+You can run the program from there by launching the wireshark-gtk.exe
+executable.
 
 
 [[ChSrcDebug]]
@@ -561,7 +560,7 @@ the following benefits by contributing your improvements:
 There's no direct way to push changes to the Git repository. Only a few people
 are authorised to actually make changes to the source code (check-in changed
 files). If you want to submit your changes, you should upload them to the code
-review system at wireshark-code-review-url:[]. This requires you to set up git
+review system at {wireshark-code-review-url}. This requires you to set up git
 as described at <<ChSrcGit>>.
 
 [[ChSrcDiffWhat]]
@@ -681,7 +680,7 @@ as described at <<ChSrcGit>>.
 // do a diff, you should
 // have two source trees on your computer, one with your working copy
 // (containing your changes), and one with the "official" source tree
-// (hopefully the latest SVN files) from wireshark-web-site:[].
+// (hopefully the latest SVN files) from {wireshark-main-url}.
 //
 // If you have only changed a single file, you could type something like
 // this:
@@ -816,16 +815,16 @@ You'll take a capture file containing packets affecting your dissector
 and the fuzz test will randomly change bytes in this file, so that unusual
 code paths in your dissector are checked. There are tools available to
 automatically do this on any number of input files, see:
-wireshark-wiki-site:[]FuzzTesting[] for details.
+{wireshark-wiki-url}FuzzTesting for details.
 
 [[ChSrcUpload]]
 
 ==== Uploading your changes
 
-When you're satisfied with your changes (and obtained any necessary approval
-from your organization) you can upload them for review at
-wireshark-code-review-url:[]. This requires a Gerrit Code Review account as
-described at <<ChSrcGitRepository>>.
+When you're satisfied with your changes (and obtained any necessary
+approval from your organization) you can upload them for review at
+{wireshark-code-review-url}. This requires a Gerrit Code Review account
+as described at <<ChSrcGitRepository>>.
 
 Changes should be pushed to a
 https://code.wireshark.org/review/Documentation/user-upload.html#push_create[magical "refs/for" branch]

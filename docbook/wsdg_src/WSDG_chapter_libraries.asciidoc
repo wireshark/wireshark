@@ -237,7 +237,7 @@ to Wireshark's core functionality.
 ==== Unix: libpcap
 
 If this library isn't already installed or available as a package for your
-platform, you can get it at http://www.tcpdump.org/[].
+platform, you can get it at {tcpdump-main-url}.
 
 [[ChLibsWinpPcap]]
 

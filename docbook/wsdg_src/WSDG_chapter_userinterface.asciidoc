@@ -147,7 +147,7 @@ it's not strictly required:
 
 - An `updateWidgets()` method, which enables and disables widgets depending on
   the current state and constraints of the dialog. For example, the Coloring
-  Rules dialog disables the button:[Save] button if the user has entered an
+  Rules dialog disables the *Save* button if the user has entered an
   invalid display filter.
 - A `hintLabel()` widget subclassed from `QLabel` or `ElidedLabel`, placed just
   above the dialog button box. The hint label provides guidance and feedback to
@@ -222,11 +222,13 @@ http://qt-project.org/doc/qt-4.8/linguist-manual.html[its manual].
 You can also manage translations online with
 https://www.transifex.com/projects/p/wireshark/[Transifex].
 
-Each week translations are automatically synchronized with the source code through the following steps:
-* pull ts from Transifex
-* lupdate ts file
-* push and commit on Gerrit
-* push ts on Transifex
+Each week translations are automatically synchronized with the source
+code through the following steps:
+
+- pull ts from Transifex
+- lupdate ts file
+- push and commit on Gerrit
+- push ts on Transifex
 
 
 ==== Other Issues and Information

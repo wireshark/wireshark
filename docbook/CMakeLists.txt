@@ -308,7 +308,11 @@ set( WSDG_BUILT_DEPS ws.css wsluarm )
 if(ENABLE_HTML_GUIDES OR ENABLE_PDF_GUIDES OR ENABLE_CHM_GUIDES)
 	# Generate the DocBook sources of user and developer guides
 
-	set( ASCIIDOC_CONF_FILES asciidoc.conf asciidoctor-asciidoc.conf )
+	set( ASCIIDOC_CONF_FILES
+		asciidoc.conf
+		asciidoctor-asciidoc.conf
+		attributes.asciidoc
+	)
 
 	ASCIIDOC2DOCBOOK(user-guide.asciidoc ASCIIDOC_CONF_FILES WSUG_SOURCE WSUG_BUILT_DEPS)
 	add_custom_target(user_guide_docbook DEPENDS generate_user-guide.xml)

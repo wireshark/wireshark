@@ -447,9 +447,8 @@ If it's 3 o'clock in Berlin it's 2 o'clock in UTC ``at the same moment''.
 Be aware that at a few places on earth don't use time zones with even hour
 offsets (e.g. New Delhi uses UTC+05:30)!
 
-Further information can be found at:
-link:wikipedia-web-site:[]Time_zone[wikipedia-web-site:[]Time_zone] and
-link:wikipedia-web-site:[]Coordinated_Universal_Time[wikipedia-web-site:[]Coordinated_Universal_Time].
+Further information can be found at: {wikipedia-main-url}Time_zone and
+{wikipedia-main-url}Coordinated_Universal_Time.
 ****
 
 
@@ -470,12 +469,11 @@ Australia).
 Keep in mind: UTC remains the same all year around, regardless of DST!
 
 Further information can be found at
-link:wikipedia-web-site:[]Daylight_saving[wikipedia-web-site:[]Daylight_saving].
+link:{wikipedia-main-url}Daylight_saving[].
 ****
 
 Further time zone and DST information can be found at
-link:greenwichmeantime-web-site:[][greenwichmeantime-web-site:[]] and
-link:timeanddate-web-site:[][timeanddate-web-site:[]].
+{greenwichmeantime-main-url} and {timeanddate-main-url}.
 
 ==== Set your computer's time correctly!
 
@@ -503,8 +501,7 @@ before, you are simply in a different time zone with a different local time.
 You can use the Network Time Protocol (NTP) to automatically adjust your
 computer to the correct time, by synchronizing it to Internet NTP clock servers.
 NTP clients are available for all operating systems that Wireshark supports (and
-for a lot more), for examples see:
-link:ntp-web-site:[][ntp-web-site:[]].
+for a lot more), for examples see {ntp-main-url}.
 
 
 ==== Wireshark and Time Zones
@@ -794,7 +791,7 @@ medium, the importance of error detection, the processor load to perform the
 calculation, the performance needed and many other things.
 
 Further information about checksums can be found at:
-link:wikipedia-web-site:[]Checksum[wikipedia-web-site:[]Checksum].
+{wikipedia-main-url}Checksum.
 ****
 
 ==== Wireshark checksum validation

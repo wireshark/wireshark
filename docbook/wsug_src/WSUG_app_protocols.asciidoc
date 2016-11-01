@@ -12,7 +12,7 @@ tcp.port).
 
 A comprehensive list of all protocols and protocol fields can be found
 in the ``Display Filter Reference'' at
-link:wireshark-display-filter-reference:[][wireshark-display-filter-reference:[]]
+{wireshark-display-filter-reference-url}
 
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSUG Appendix Protocols -->

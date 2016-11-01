@@ -1,0 +1,71 @@
+// Common attributes
+
+:wireshark-version: 2.3.0
+
+//
+// URLs
+//
+
+// Wireshark top level URLs (sites)
+:wireshark-main-url: https://www.wireshark.org/
+:wireshark-bugs-url: https://bugs.wireshark.org/
+:wireshark-code-review-url: https://code.wireshark.org/review
+:wireshark-qa-url: https://ask.wireshark.org/
+:wireshark-wiki-url: https://wiki.wireshark.org/
+
+// Wireshark secondary URLs (pages)
+:wireshark-authors-url: {wireshark-main-url}about.html#authors
+:wireshark-buildbot-url: https://buildbot.wireshark.org/trunk/waterfall
+:wireshark-code-browse-url: {wireshark-code-review-url}/gitweb?p=wireshark.git
+:wireshark-developers-guide-url: {wireshark-main-url}docs/
+:wireshark-display-filter-reference-url: {wireshark-main-url}docs/dfref/
+:wireshark-download-url: {wireshark-main-url}download.html
+:wireshark-faq-url: {wireshark-main-url}faq.html
+:wireshark-git-anonhttp-url: {wireshark-code-review-url}/wireshark
+:wireshark-git-http-url: https://your.username@code.wireshark.org/review/wireshark
+:wireshark-git-ssh-url: ssh://your.username@code.wireshark.org:29418/wireshark
+:wireshark-mailing-lists-url: {wireshark-main-url}lists/
+:wireshark-man-page-url: {wireshark-main-url}docs/man-pages/
+:wireshark-snapshots-url: {wireshark-main-url}download/automated/src/
+:wireshark-users-guide-url: {wireshark-main-url}docs/
+
+// External URLs
+:tcpdump-main-url: http://www.tcpdump.org/
+:pcap-filter-man-page-url: {tcpdump-main-url}manpages/pcap-filter.7.html
+
+:winpcap-main-url: https://www.winpcap.org/
+:winpcap-download-url: {winpcap-main-url}install/
+
+:sysfs-main-url: http://linux-diag.sourceforge.net/Sysfsutils.html
+:wikipedia-main-url: https://en.wikipedia.org/wiki/
+
+:greenwichmeantime-main-url: http://wwp.greenwichmeantime.com/
+:timeanddate-main-url: http://www.timeanddate.com/worldclock/
+:ntp-main-url: http://www.ntp.org/
+
+:gplv2-url: https://www.gnu.org/licenses/gpl-2.0.html
+
+// Email addresses
+:at-separator: &#91;AT&#93;
+:wireshark-dev-list-email: wireshark-dev{at-separator}wireshark.org
+:wsdg-author-email: ulf.lamping{at-separator}web.de
+:wsdg-author-email2: graham.bloice{at-separator}trihedral.com
+
+:wsug-author-email: ulf.lamping{at-separator}web.de
+:wsug-author-email2: rsharpe{at-separator}ns.aus.com
+:wsug-author-email3: hagbard{at-separator}physics.rutgers.edu
+:wsug-author-email4: luis{at-separator}ontanon.org
+
+//
+// Image formatting
+//
+
+// "scaledwidth" only applies to PDF output
+:pdf-scaledwidth: scaledwidth="85%"
+:screenshot-attrs: scaledwidth="85%"
+:small-screenshot-attrs: scaledwidth="35%"
+:toolbar-icon-attrs: height=24,width=24
+:related-attrs: height=18
+// XXX height=22 results in content-height="22px" in the .fo file. Not sure
+// how to make scaledwidth take precedence.
+:statusbar-attrs: scaledwidth="85%",height=22

@@ -82,11 +82,11 @@ image::wsug_graphics/ws-main.png[{screenshot-attrs}]
 
 ==== Live capture from many different network media
 
-Wireshark can capture traffic from many different network media types - and
-despite its name - including wireless LAN as well. Which media types are
-supported, depends on many things like the operating system you are using. An
-overview of the supported media types can be found at
-wireshark-wiki-site:[]CaptureSetup/NetworkMedia[].
+Wireshark can capture traffic from many different network media types -
+and despite its name - including wireless LAN as well. Which media types
+are supported, depends on many things like the operating system you are
+using. An overview of the supported media types can be found at
+link:{wireshark-wiki-url}CaptureSetup/NetworkMedia[].
 
 ==== Import files from many other capture programs
 
@@ -106,7 +106,7 @@ for a great many protocols: see <<AppProtocols>>.
 ==== Open Source Software
 
 Wireshark is an open source software project, and is released under the
-gpl-url:[][GNU General Public License] (GPL). You can freely use
+{gplv2-url}[GNU General Public License] (GPL). You can freely use
 Wireshark on any number of computers you like, without worrying about license
 keys or fees or such. In addition, all source code is freely available under the
 GPL. Because of that, it is very easy for people to add new protocols to
@@ -146,7 +146,7 @@ space is always a good idea.
 ====
 
 If Wireshark runs out of memory it will crash. See
-wireshark-wiki-site:[]KnownBugs/OutOfMemory[] for details and workarounds.
+{wireshark-wiki-url}KnownBugs/OutOfMemory for details and workarounds.
 
 Although Wireshark captures packets using a separate process the main interface
 is single-threaded and won't benefit much from multi-core systems.
@@ -171,15 +171,15 @@ is single-threaded and won't benefit much from multi-core systems.
 * A supported network card for capturing
 
   - Ethernet. Any card supported by Windows should work. See the wiki pages on
-    wireshark-wiki-site:[]CaptureSetup/Ethernet[Ethernet capture] and
-    wireshark-wiki-site:[]CaptureSetup/Offloading[offloading] for issues that
+    link:{wireshark-wiki-url}CaptureSetup/Ethernet[Ethernet capture] and
+    link:{wireshark-wiki-url}CaptureSetup/Offloading[offloading] for issues that
     may affect your environment.
 
-  - 802.11. See the wireshark-wiki-site:[]CaptureSetup/WLAN#Windows[Wireshark
+  - 802.11. See the {wireshark-wiki-url}CaptureSetup/WLAN#Windows[Wireshark
     wiki page]. Capturing raw 802.11 information may be difficult without
     special equipment.
 
-  - Other media. See wireshark-wiki-site:[]CaptureSetup/NetworkMedia[]
+  - Other media. See link:{wireshark-wiki-url}CaptureSetup/NetworkMedia[].
 
 Older versions of Windows which are outside Microsoft's extended lifecycle
 support window are no longer supported. It is often difficult or impossible to
@@ -188,20 +188,19 @@ party libraries on which we depend or due to necessary features that are only
 present in newer versions of Windows (such as hardened security or memory
 management).
 
-Wireshark 1.12 was the last release branch to support Windows Server 2003.
-Wireshark 1.10 was the last branch to officially support Windows XP.
-See the
-wireshark-wiki-site:[]Development/LifeCycle[Wireshark release lifecycle] page
-for more details.
+Wireshark 1.12 was the last release branch to support Windows Server
+2003. Wireshark 1.10 was the last branch to officially support Windows
+XP. See the link:{wireshark-wiki-url}Development/LifeCycle[Wireshark
+release lifecycle] page for more details.
 
 ==== UNIX / Linux
 
 Wireshark runs on most UNIX and UNIX-like platforms including OS X and
-Linux. The system requirements should be comparable to the Windows values listed
-above.
+Linux. The system requirements should be comparable to the Windows
+values listed above.
 
-Binary packages are available for most Unices and Linux distributions including
-the following platforms:
+Binary packages are available for most Unices and Linux distributions
+including the following platforms:
 
 * Apple OS X
 
@@ -227,18 +226,18 @@ the following platforms:
 
 * Canonical Ubuntu
 
-If a binary package is not available for your platform you can download the
-source and try to build it. Please report your experiences to
-mailto:wireshark-dev-list-email:[][wireshark-dev-list-email:[]].
+If a binary package is not available for your platform you can download
+the source and try to build it. Please report your experiences to
+mailto:{wireshark-dev-list-email}[].
 
 [[ChIntroDownload]]
 
 === Where to get Wireshark
 
 You can get the latest copy of the program from the Wireshark website at
-wireshark-download-page:[][wireshark-download-page:[]]. The download page should
-automatically highlight the appropriate download for your platform and direct you
-to the nearest mirror. Official Windows and OS X installers are signed by
+{wireshark-download-url}. The download page should automatically
+highlight the appropriate download for your platform and direct you to
+the nearest mirror. Official Windows and OS X installers are signed by
 the *Wireshark Foundation*.
 
 A new Wireshark version typically becomes available each month or two.
@@ -293,14 +292,14 @@ Wireshark was initially developed by Gerald Combs. Ongoing development and
 maintenance of Wireshark is handled by the Wireshark team, a loose group of
 individuals who fix bugs and provide new functionality.
 
-There have also been a large number of people who have contributed protocol
-dissectors to Wireshark, and it is expected that this will continue. You can
-find a list of the people who have contributed code to Wireshark by checking the
-about dialog box of Wireshark, or at the wireshark-authors-url:[][authors] page
-on the Wireshark web site.
+There have also been a large number of people who have contributed
+protocol dissectors to Wireshark, and it is expected that this will
+continue. You can find a list of the people who have contributed code to
+Wireshark by checking the about dialog box of Wireshark, or at the
+link:{wireshark-authors-url}[authors] page on the Wireshark web site.
 
 Wireshark is an open source software project, and is released under the
-gpl-url:[][GNU General Public License] (GPL) version 2. All source code is
+{gplv2-url}[GNU General Public License] (GPL) version 2. All source code is
 freely available under the GPL. You are welcome to modify Wireshark to suit your
 own needs, and it would be appreciated if you contribute your improvements back
 to the Wireshark team.
@@ -321,9 +320,9 @@ You gain three benefits by contributing your improvements back to the community:
   (which is done often), you can get a new Wireshark version from the website
   and your changes will already be included without any effort for you.
 
-The Wireshark source code and binary kits for some platforms are all available
-on the download page of the Wireshark website:
-wireshark-download-page:[][wireshark-download-page:[]].
+The Wireshark source code and binary kits for some platforms are all
+available on the download page of the Wireshark website:
+{wireshark-download-url}.
 
 [[ChIntroHelp]]
 
@@ -337,13 +336,13 @@ may be of interest to you (well, besides this guide of course).
 ==== Website
 
 You will find lots of useful information on the Wireshark homepage at
-wireshark-web-site:[][wireshark-web-site:[]].
+{wireshark-main-url}.
 
 [[ChIntroWiki]]
 
 ==== Wiki
 
-The Wireshark Wiki at wireshark-wiki-site:[][wireshark-wiki-site:[]] provides a
+The Wireshark Wiki at {wireshark-wiki-url} provides a
 wide range of information related to Wireshark and packet capture in general.
 You will find a lot of information not part of this user's guide. For example,
 there is an explanation how to capture on a switched network, an ongoing effort
@@ -357,11 +356,12 @@ simply using your web browser.
 
 ==== Q&amp;A Site
 
-The Wireshark Q&amp;A site at wireshark-qa-url:[][wireshark-qa-url:[]] offers a
-resource where questions and answers come together. You have the option to
-search what questions were asked before and what answers were given by people
-who knew about the issue. Answers are graded, so you can pick out the best ones
-easily. If your question hasn't been discussed before you can post one yourself.
+The Wireshark Q&amp;A site at {wireshark-qa-url} offers a resource where
+questions and answers come together. You have the option to search what
+questions were asked before and what answers were given by people who
+knew about the issue. Answers are graded, so you can pick out the best
+ones easily. If your question hasn't been discussed before you can post
+one yourself.
 
 [[ChIntroFAQ]]
 
@@ -382,10 +382,9 @@ mailing lists.
 You will find the FAQ inside Wireshark by clicking the menu item Help/Contents
 and selecting the FAQ page in the dialog shown.
 
-An online version is available at the Wireshark website:
-link:$$wireshark-faq-url:[]$$[wireshark-faq-url:[]]. You might prefer this
-online version, as it's typically more up to date and the HTML format is easier
-to use.
+An online version is available at the Wireshark website at
+{wireshark-faq-url}. You might prefer this online version, as it's
+typically more up to date and the HTML format is easier to use.
 
 [[ChIntroMailingLists]]
 
@@ -406,10 +405,10 @@ _wireshark-dev_::
     developing a protocol dissector, join this list.
 
 You can subscribe to each of these lists from the Wireshark web site:
-wireshark-mailing-lists-url:[][wireshark-mailing-lists-url:[]]. From
-there, you can choose which mailing list you want to subscribe to by clicking on
-the Subscribe/Unsubscribe/Options button under the title of the relevant list.
-The links to the archives are included on that page as well.
+{wireshark-mailing-lists-url}. From there, you can choose which mailing
+list you want to subscribe to by clicking on the
+Subscribe/Unsubscribe/Options button under the title of the relevant
+list.  The links to the archives are included on that page as well.
 
 [TIP]
 .The lists are archived
@@ -476,15 +475,14 @@ backtrace
 
 If you do not have `gdb` available, you will have to check out your operating system's debugger.
 
-Mail `backtrace.txt` to
-mailto:wireshark-dev-list-email:[][wireshark-dev-list-email:[]].
+Mail `backtrace.txt` to mailto:{wireshark-dev-list-email}[].
 
 ==== Reporting Crashes on Windows platforms
 
 The Windows distributions don't contain the symbol files (.pdb) because they are
 very large. You can download them separately at
-wireshark-web-site:[]download/win32/all-versions[] and
-wireshark-web-site:[]download/win64/all-versions[]
+{wireshark-main-url}download/win32/all-versions/ and
+{wireshark-main-url}download/win64/all-versions/ .
 
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSUG Chapter 1 -->

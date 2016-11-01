@@ -221,6 +221,7 @@ COMMON_GRAPHICS = \
 # user-guide.xml must be first in the list (to match $<)
 WSUG_DIST =	\
 	user-guide.asciidoc	\
+	attributes.asciidoc	\
 	GPL_appendix.asciidoc	\
 	custom_layer_chm.xsl	\
 	custom_layer_pdf.xsl	\
@@ -233,6 +234,7 @@ WSUG_SOURCE = $(WSUG_GENERATED_SOURCE) $(WSUG_DIST)
 # developer-guide.asciidoc must be first in the list (to match $<)
 WSDG_DIST =	\
 	developer-guide.asciidoc	\
+	attributes.asciidoc	\
 	GPL_appendix.asciidoc	\
 	custom_layer_chm.xsl	\
 	custom_layer_pdf.xsl	\
@@ -244,6 +246,7 @@ WSDG_SOURCE = $(WSDG_GENERATED_SOURCE) $(WSDG_DIST)
 
 RELEASE_NOTES_SOURCE = \
 	release-notes.asciidoc	\
+	attributes.asciidoc	\
 	asciidoc.conf		\
 	asciidoctor-asciidoc.conf
 

@@ -12,7 +12,7 @@
 
 As with all things there must be a beginning and so it is with Wireshark. To
 use Wireshark you must first install it. If you are running Windows or OS X
-you can download an official release at wireshark-download-page:[], install it,
+you can download an official release at {wireshark-download-url}, install it,
 and skip the rest of this chapter.
 
 If you are running another operating system such as Linux or FreeBSD you might
@@ -38,9 +38,9 @@ The following are the general steps you would use:
 
 === Obtaining the source and binary distributions
 
-You can obtain both source and binary distributions from the Wireshark web site:
-wireshark-web-site:[]. Select the download link and then select the desired
-binary or source package.
+You can obtain both source and binary distributions from the Wireshark
+web site: {wireshark-download-url}. Select the download link and then
+select the desired binary or source package.
 
 [NOTE]
 .Download all required files
@@ -70,10 +70,11 @@ Wireshark-win64-{wireshark-version}.exe installs Wireshark {wireshark-version}
 for 64-bit Windows. The Wireshark installer includes WinPcap which is required
 for packet capture.
 
-Simply download the Wireshark installer from: wireshark-download-page:[] and
-execute it. Official packages are signed by the *Wireshark Foundation*. You can
-choose to install several optional components and select the location of the
-installed package. The default settings are recommended for most users.
+Simply download the Wireshark installer from {wireshark-download-url}
+and execute it. Official packages are signed by the *Wireshark
+Foundation*. You can choose to install several optional components and
+select the location of the installed package. The default settings are
+recommended for most users.
 
 [[ChBuildInstallWinComponents]]
 
@@ -94,7 +95,7 @@ On the _Choose Components_ page of the installer you can select from the followi
 
   - *Tree Statistics Plugins* - Extended statistics.
 
-  - *Mate - Meta Analysis and Tracing Engine* - User configurable extension(s) of the display filter engine, see wireshark-wiki-site:[]Mate for details.
+  - *Mate - Meta Analysis and Tracing Engine* - User configurable extension(s) of the display filter engine, see {wireshark-wiki-url}Mate for details.
 
   - *SNMP MIBs* - SNMP MIBs for a more detailed SNMP dissection.
 
@@ -149,8 +150,8 @@ traffic but you will still be able to open saved capture files. By default the
 latest version of WinPcap will be installed. If you don't wish to do this or if
 you wish to reinstall WinPcap you can check the _Install WinPcap_ box as needed.
 
-For more information about WinPcap see winpcap-web-site:[] and
-wireshark-wiki-site:[]WinPcap.
+For more information about WinPcap see {winpcap-main-url} and
+{wireshark-wiki-url}WinPcap.
 
 
 [[ChBuildInstallWinWiresharkCommandLine]]
@@ -191,9 +192,9 @@ The following is only necessary if you want to use a different version than the
 one included in the Wireshark installer, e.g. because a new WinPcap version was
 released.
 
-Additional WinPcap versions (including newer alpha or beta releases) can be
-downloaded from the main WinPcap site: winpcap-web-site:[]. The _Installer for
-Windows_ supports modern Windows operating systems.
+Additional WinPcap versions (including newer alpha or beta releases) can
+be downloaded from the main WinPcap site at {winpcap-main-url}. The
+_Installer for Windows_ supports modern Windows operating systems.
 
 [[ChBuildInstallWinWiresharkUpdate]]
 
@@ -214,9 +215,10 @@ remain unchanged.
 
 ==== Update WinPcap
 
-New versions of WinPcap are less frequently available. You will find WinPcap
-update instructions the WinPcap web site at winpcap-web-site:[]. You may have to
-reboot your machine after installing a new WinPcap version.
+New versions of WinPcap are less frequently available. You will find
+WinPcap update instructions the WinPcap web site at {winpcap-main-url}.
+You may have to reboot your machine after installing a new WinPcap
+version.
 
 [[ChBuildInstallWinUninstall]]
 
@@ -257,9 +259,9 @@ included _Read me first_ file for more details.
 
 === Building Wireshark from source under UNIX
 
-Building Wireshark requires the proper build environment including a compiler
-and many supporting libraries. See the Developer's Guide at
-wireshark-developers-guide-url:[] for more information.
+Building Wireshark requires the proper build environment including a
+compiler and many supporting libraries. See the Developer's Guide at
+{wireshark-developers-guide-url} for more information.
 
 Use the following general steps to build Wireshark from source under UNIX or Linux:
 
@@ -428,10 +430,10 @@ We strongly recommended that you use the binary installer for Windows unless you
 want to start developing Wireshark on the Windows platform.
 
 For further information how to build Wireshark for Windows from the sources
-see the Developer's Guide at wireshark-developers-guide-url:[]
+see the Developer's Guide at {wireshark-developers-guide-url}.
 
 You may also want to have a look at the Development Wiki
-(wireshark-wiki-site:[]Development) for the latest available development
+({wireshark-wiki-url}Development) for the latest available development
 documentation.
 
 ++++++++++++++++++++++++++++++++++++++

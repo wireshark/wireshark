@@ -52,8 +52,7 @@ streams of a selected IAX2 call along with a graph.
 The VoIP Calls window shows a list of all detected VoIP calls in the captured
 traffic. It finds calls by their signaling.
 
-More details can be found on the
-link:wireshark-wiki-site:[]VoIP_calls[wireshark-wiki-site:[]VoIP_calls] page.
+More details can be found on the {wireshark-wiki-url}VoIP_calls page.
 
 [[ChTelRtpPlayer]]
 
@@ -62,7 +61,7 @@ this feature your version of Wireshark must support audio and the codecs
 used by each RTP stream.
 
 More details can be found on the
-link:wireshark-wiki-site:[]VoIP_calls[wireshark-wiki-site:[]VoIP_calls] page.
+{wireshark-wiki-url}VoIP_calls page.
 
 [[ChTelLTEMACTraffic]]
 
@@ -109,7 +108,7 @@ The protocol specific statistics windows display detailed information of
 specific protocols and might be described in a later version of this document.
 
 Some of these statistics are described at the
-link:wireshark-wiki-site:[]Statistics[wireshark-wiki-site:[]Statistics] pages.
+{wireshark-wiki-url}Statistics pages.
 
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSUG Chapter Telephony -->

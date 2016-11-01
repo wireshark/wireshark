@@ -25,10 +25,10 @@ This book will explain all the basics and also some of the advanced features
 that Wireshark provides. As Wireshark has become a very complex program since
 the early days, not every feature of Wireshark may be explained in this book.
 
-This book is not intended to explain network sniffing in general and it will not
-provide details about specific network protocols. A lot of useful information
-regarding these topics can be found at the Wireshark Wiki at
-wireshark-wiki-site:[][wireshark-wiki-site:[]]
+This book is not intended to explain network sniffing in general and it
+will not provide details about specific network protocols. A lot of
+useful information regarding these topics can be found at the Wireshark
+Wiki at link:{wireshark-wiki-url}[].
 
 By reading this book, you will learn how to install Wireshark, how to use the
 basic elements of the graphical user interface (such as the menu) and what's
@@ -71,12 +71,13 @@ Wireshark project from who sections of this document borrow heavily:
 
 === About this document
 
-This book was originally developed by mailto:wsug-author-email2:[][Richard
+This book was originally developed by mailto:{wsug-author-email2}[Richard
 Sharpe] with funds provided from the Wireshark Fund. It was updated by
-mailto:wsug-author-email3:[][Ed Warnicke] and more recently redesigned and
-updated by mailto:wsug-author-email:[][Ulf Lamping].
+mailto:{wsug-author-email3}[Ed Warnicke] and more recently redesigned and
+updated by mailto:{wsug-author-email}[Ulf Lamping].
 
-It was originally written in DocBook/XML and converted to AsciiDoc by Gerald Combs.
+It was originally written in DocBook/XML and converted to AsciiDoc by
+Gerald Combs.
 
 You will find some specially marked parts in this book:
 
@@ -102,11 +103,12 @@ Tips are helpful for your everyday work using Wireshark.
 
 === Where to get the latest copy of this document?
 
-The latest copy of this documentation can always be found at wireshark-users-guide-url:[][].
+The latest copy of this documentation can always be found at
+{wireshark-users-guide-url}.
 
 [[PreFeedback]]
 
 === Providing feedback about this document
 
-Should you have any feedback about this document, please send it to the authors
-through mailto:wireshark-dev-list-email:[][wireshark-dev-list-email:[]].
+Should you have any feedback about this document, please send it to the
+authors through mailto:{wireshark-dev-list-email}[].
