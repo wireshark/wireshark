@@ -565,7 +565,7 @@ static const value_string mausb_cancel_transfer_status_string[] = {
     { 0, NULL}
 };
 
-#define MAUSB_CANCEL_TRANSFER_STATUS_MASK 0x03
+#define MAUSB_CANCEL_TRANSFER_STATUS_MASK 0x07
 
 #define MAUSB_CLEAR_TRANSFERS_RESP_NUM_MASK 0x1f
 #define MAUSB_CLEAR_TRANSFERS_STATUS_MASK 0x01
