@@ -200,8 +200,11 @@ static int hf_gtp_rab_gtpu_dn = -1;
 static int hf_gtp_rab_gtpu_up = -1;
 static int hf_gtp_rab_pdu_dn = -1;
 static int hf_gtp_rab_pdu_up = -1;
+static int hf_gtp_uli_geo_loc_type = -1;
+static int hf_gtp_cgi_ci = -1;
+static int hf_gtp_sai_sac = -1;
 static int hf_gtp_rai_rac = -1;
-static int hf_gtp_rai_lac = -1;
+static int hf_gtp_lac = -1;
 static int hf_gtp_tac = -1;
 static int hf_gtp_eci = -1;
 static int hf_gtp_ranap_cause = -1;
@@ -243,8 +246,6 @@ static int hf_gtp_ext_length = -1;
 static int hf_gtp_utran_field = -1;
 static int hf_gtp_ext_apn_res = -1;
 static int hf_gtp_ext_rat_type = -1;
-static int hf_gtp_ext_geo_loc_type = -1;
-static int hf_gtp_ext_sac = -1;
 static int hf_gtp_ext_imeisv = -1;
 static int hf_gtp_target_rnc_id = -1;
 static int hf_gtp_target_ext_rnc_id = -1;
@@ -392,7 +393,6 @@ static gint ett_gtp_net_cap = -1;
 static gint ett_gtp_tmgi = -1;
 static gint ett_gtp_cdr_ver = -1;
 static gint ett_gtp_cdr_dr = -1;
-static gint ett_gtp_uli_rai = -1;
 static gint ett_gtp_mm_cntxt = -1;
 static gint ett_gtp_utran_cont = -1;
 
@@ -1746,6 +1746,19 @@ static const value_string chg_rep_act_type_vals[] = {
     {0, "Stop Reporting"},
     {1, "Start Reporting CGI/SAI"},
     {2, "Start Reporting RAI"},
+    {0, NULL}
+};
+
+
+static const value_string geographic_location_type[] = {
+    {0, "Cell Global Identification (CGI)"},
+    {1, "Service Area Identity (SAI)"},
+    {2, "Routing Area Identification (RAI)"},
+/* reserved for future used (3-->127) */
+    {128, "Tracking Area identity (TAI)"},                                              /* Radius */
+    {129, "E-UTRAN Cell Global Identification (ECGI)"},                                 /* Radius */
+    {130, "Tracking Area identity & E-UTRAN Cell Global Identification (TAI & ECGI)"},  /* Radius */
+/* reserved for future used (131-->255) */
     {0, NULL}
 };
 
@@ -3581,7 +3594,7 @@ decode_gtp_rai(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
                             val_to_str_ext_const(GTP_EXT_RAI, &gtp_val_ext, "Unknown message"));
 
     dissect_e212_mcc_mnc(tvb, pinfo, ext_tree_rai, offset+1, E212_RAI, TRUE);
-    proto_tree_add_item(ext_tree_rai, hf_gtp_rai_lac, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree_rai, hf_gtp_lac, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ext_tree_rai, hf_gtp_rai_rac, tvb, offset + 6, 1, ENC_BIG_ENDIAN);
 
     return 7;
@@ -5559,7 +5572,7 @@ decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree
     offset+=3;
 
     /* Octet 7-8 LAC */
-    proto_tree_add_item(ext_tree, hf_gtp_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
     /* Octet 9 RAC */
     proto_tree_add_item(ext_tree, hf_gtp_rai_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5990,28 +6003,32 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
     proto_item* ti;
 
     /* Geographic Location Type */
-    ti = proto_tree_add_item(tree, hf_gtp_ext_geo_loc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     geo_loc_type = tvb_get_guint8(tvb, offset);
+    ti = proto_tree_add_uint(tree, hf_gtp_uli_geo_loc_type, tvb, offset, 1, geo_loc_type);
     offset++;
 
-   switch(geo_loc_type) {
+    switch(geo_loc_type) {
         case 0:
             /* Geographic Location field included and it holds the Cell Global
              * Identification (CGI) of where the user currently is registered.
              * CGI is defined in sub-clause 4.3.1 of 3GPP TS 23.003 [2].
              */
-            /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 0) */
-            be_cell_id_type(tvb, tree, pinfo, offset, length - 1, NULL, 0, 0, E212_CGI);
+            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_CGI, TRUE);
+            offset+=3;
+            proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_gtp_cgi_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case 1:
             /* Geographic Location field included and it holds the Service
              * Area Identity (SAI) of where the user currently is registered.
              * SAI is defined in sub-clause 9.2.3.9 of 3GPP TS 25.413 [7].
              */
-            /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 4) */
-            be_cell_id_type(tvb, tree, pinfo, offset, length - 1, NULL, 0, 4,E212_SAI);
-            offset = offset + 5;
-            proto_tree_add_item(tree, hf_gtp_ext_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_SAI, TRUE);
+            offset+=3;
+            proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_gtp_sai_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case 2:
             /* Geographic Location field included and it holds the Routing
@@ -6021,9 +6038,9 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
              */
             dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_RAI, TRUE);
             offset+=3;
-            proto_tree_add_item(tree, hf_gtp_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
-            proto_tree_add_item(tree, hf_gtp_rai_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_gtp_rai_rac, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case 128:
             /* Geographic Location field included and it holds the Tracking
@@ -6075,7 +6092,7 @@ decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
 {
 
     guint16     length;
-    proto_tree *ext_tree, *rai_tree;
+    proto_tree *ext_tree;
     guint8      geo_loc_type;
     proto_item* ti;
 
@@ -6086,10 +6103,11 @@ decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
+
     /* Geographic Location Type */
-    ti = proto_tree_add_item(ext_tree, hf_gtp_ext_geo_loc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     geo_loc_type = tvb_get_guint8(tvb, offset);
+    ti = proto_tree_add_uint(ext_tree, hf_gtp_uli_geo_loc_type, tvb, offset, 1, geo_loc_type);
+
     offset++;
 
     switch(geo_loc_type) {
@@ -6098,18 +6116,22 @@ decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
              * Identification (CGI) of where the user currently is registered.
              * CGI is defined in sub-clause 4.3.1 of 3GPP TS 23.003 [2].
              */
-            /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 0) */
-            be_cell_id_type(tvb, ext_tree, pinfo, offset, length - 1, NULL, 0, 0, E212_CGI);
+            dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, E212_CGI, TRUE);
+            offset+=3;
+            proto_tree_add_item(ext_tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(ext_tree, hf_gtp_cgi_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case 1:
             /* Geographic Location field included and it holds the Service
              * Area Identity (SAI) of where the user currently is registered.
              * SAI is defined in sub-clause 9.2.3.9 of 3GPP TS 25.413 [7].
              */
-            /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 4) */
-            be_cell_id_type(tvb, ext_tree, pinfo, offset, length - 1, NULL, 0, 4,E212_SAI);
-            offset = offset + 5;
-            proto_tree_add_item(ext_tree, hf_gtp_ext_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, E212_SAI, TRUE);
+            offset+=3;
+            proto_tree_add_item(ext_tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(ext_tree, hf_gtp_sai_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case 2:
             /* Geographic Location field included and it holds the Routing
@@ -6117,13 +6139,11 @@ decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
              * registered. RAI is defined in sub-clause 4.2 of 3GPP TS 23.003
              * [2].
              */
-            rai_tree = proto_tree_add_subtree(ext_tree, tvb, offset + 1, 7, ett_gtp_uli_rai, NULL, "Routeing Area Identity (RAI)");
-
-            dissect_e212_mcc_mnc(tvb, pinfo, rai_tree, offset, E212_RAI, TRUE);
+            dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, E212_RAI, TRUE);
             offset+=3;
-            proto_tree_add_item(rai_tree, hf_gtp_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ext_tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
-            proto_tree_add_item(rai_tree, hf_gtp_rai_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ext_tree, hf_gtp_rai_rac, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         default:
             expert_add_info(pinfo, ti, &ei_gtp_ext_geo_loc_type);
@@ -9365,20 +9385,35 @@ proto_register_gtp(void)
            FT_UINT16, BASE_DEC, NULL, 0,
            "Uplink next PDCP-PDU sequence number", HFILL}
         },
-        {&hf_gtp_rai_rac,
-         { "RAC", "gtp.rac",
-           FT_UINT8, BASE_DEC, NULL, 0,
-           "Routing Area Code", HFILL}
+        {&hf_gtp_uli_geo_loc_type,
+         { "Geographic Location Type", "gtp.geo_loc_type",
+           FT_UINT8, BASE_DEC, VALS(geographic_location_type),  0,
+           NULL, HFILL}
         },
-        {&hf_gtp_rai_lac,
-         { "LAC", "gtp.lac",
+        {&hf_gtp_cgi_ci,
+         { "Cell ID (CI)", "gtp.cgi_ci",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_sai_sac,
+         { "Service Area Code (SAC)", "gtp.sai_sac",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_rai_rac,
+         { "Routing Area Code (RAC)", "gtp.rai_rac",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_lac,
+         { "Location Area Code (LAC)", "gtp.lac",
            FT_UINT16, BASE_DEC, NULL, 0,
-           "Location Area Code", HFILL}
+           NULL, HFILL}
         },
         { &hf_gtp_tac,
           {"TAC", "gtp.tac",
            FT_UINT16, BASE_DEC, NULL, 0,
-           "Tracking Area Code", HFILL}
+           NULL, HFILL}
         },
         { &hf_gtp_eci,
           {"ECI", "gtp.eci",
@@ -9578,16 +9613,6 @@ proto_register_gtp(void)
         {&hf_gtp_ext_rat_type,
          { "RAT Type", "gtp.ext_rat_type",
            FT_UINT8, BASE_DEC, VALS(gtp_ext_rat_type_vals), 0x0,
-           NULL, HFILL}
-        },
-        {&hf_gtp_ext_geo_loc_type,
-         { "Geographic Location Type", "gtp.ext_geo_loc_type",
-           FT_UINT8, BASE_DEC, NULL, 0x0,
-           NULL, HFILL}
-        },
-        {&hf_gtp_ext_sac,
-         { "SAC", "gtp.ext_sac",
-           FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_gtp_ext_imeisv,
@@ -9958,7 +9983,7 @@ proto_register_gtp(void)
     };
 
     /* Setup protocol subtree array */
-#define GTP_NUM_INDIVIDUAL_ELEMS    28
+#define GTP_NUM_INDIVIDUAL_ELEMS    27
     static gint *ett_gtp_array[GTP_NUM_INDIVIDUAL_ELEMS + NUM_GTP_IES];
 
     ett_gtp_array[0] = &ett_gtp;
@@ -9967,28 +9992,27 @@ proto_register_gtp(void)
     ett_gtp_array[3] = &ett_gtp_cdr_dr;
     ett_gtp_array[4] = &ett_gtp_qos;
     ett_gtp_array[5] = &ett_gtp_qos_arp;
-    ett_gtp_array[6] = &ett_gtp_uli_rai;
-    ett_gtp_array[7] = &ett_gtp_flow_ii;
-    ett_gtp_array[8] = &ett_gtp_ext_hdr;
-    ett_gtp_array[9] = &ett_gtp_rp;
-    ett_gtp_array[10] = &ett_gtp_pkt_flow_id;
-    ett_gtp_array[11] = &ett_gtp_data_resp;
-    ett_gtp_array[12] = &ett_gtp_cdr_ver;
-    ett_gtp_array[13] = &ett_gtp_tmgi;
-    ett_gtp_array[14] = &ett_gtp_trip;
-    ett_gtp_array[15] = &ett_gtp_quint;
-    ett_gtp_array[16] = &ett_gtp_drx;
-    ett_gtp_array[17] = &ett_gtp_net_cap;
-    ett_gtp_array[18] = &ett_gtp_can_pack;
-    ett_gtp_array[19] = &ett_gtp_proto;
-    ett_gtp_array[20] = &ett_gtp_gsn_addr;
-    ett_gtp_array[21] = &ett_gtp_tft;
-    ett_gtp_array[22] = &ett_gtp_rab_setup;
-    ett_gtp_array[23] = &ett_gtp_hdr_list;
-    ett_gtp_array[24] = &ett_gtp_rel_pack;
-    ett_gtp_array[25] = &ett_gtp_node_addr;
-    ett_gtp_array[26] = &ett_gtp_mm_cntxt;
-    ett_gtp_array[27] = &ett_gtp_utran_cont;
+    ett_gtp_array[6] = &ett_gtp_flow_ii;
+    ett_gtp_array[7] = &ett_gtp_ext_hdr;
+    ett_gtp_array[8] = &ett_gtp_rp;
+    ett_gtp_array[9] = &ett_gtp_pkt_flow_id;
+    ett_gtp_array[10] = &ett_gtp_data_resp;
+    ett_gtp_array[11] = &ett_gtp_cdr_ver;
+    ett_gtp_array[12] = &ett_gtp_tmgi;
+    ett_gtp_array[13] = &ett_gtp_trip;
+    ett_gtp_array[14] = &ett_gtp_quint;
+    ett_gtp_array[15] = &ett_gtp_drx;
+    ett_gtp_array[16] = &ett_gtp_net_cap;
+    ett_gtp_array[17] = &ett_gtp_can_pack;
+    ett_gtp_array[18] = &ett_gtp_proto;
+    ett_gtp_array[19] = &ett_gtp_gsn_addr;
+    ett_gtp_array[20] = &ett_gtp_tft;
+    ett_gtp_array[21] = &ett_gtp_rab_setup;
+    ett_gtp_array[22] = &ett_gtp_hdr_list;
+    ett_gtp_array[23] = &ett_gtp_rel_pack;
+    ett_gtp_array[24] = &ett_gtp_node_addr;
+    ett_gtp_array[25] = &ett_gtp_mm_cntxt;
+    ett_gtp_array[26] = &ett_gtp_utran_cont;
 
     last_offset = GTP_NUM_INDIVIDUAL_ELEMS;
 
