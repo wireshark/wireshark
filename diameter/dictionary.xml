@@ -6834,13 +6834,138 @@
 		<avp name="MTC-IWF-Address" code="3406" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="IPAddress"/>
 		</avp>
+		<avp name="SM-Device-Trigger-Indicator" code="3407" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Not DeviceTrigger" code="0"/>
+			<enum name="DeviceTrigger" code="1"/>
+		</avp>
+		<avp name="SM-Sequence-Number" code="3408" mandatory="must" vendor-bit="must" protected="may" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="SMS-Result" code="3409" mandatory="must" vendor-bit="must" protected="may" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="VCS-Information" code="3410" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Bearer-Capability"/>
+				<gavp name="Network-Call-Reference-Number"/>
+				<gavp name="MSC-Address"/>
+				<gavp name="Basic-Service-Code"/>
+				<gavp name="ISUP-Location-Number"/>
+				<gavp name="VLR-Number"/>
+				<gavp name="Forwarding-Pending"/>
+				<gavp name="ISUP-Release-Cause"/>
+				<gavp name="Start-Time"/>
+				<gavp name="Start-of-Charging"/>
+				<gavp name="Stop-Time"/>
+				<gavp name="PS-Free-Format-Data"/>
+			</grouped>
+		</avp>
+		<avp name="Basic-Service-Code" code="3411" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Bearer-Service"/>
+				<gavp name="Teleservice"/>
+			</grouped>
+		</avp>
+		<avp name="Bearer-Capability" code="3412" mandatory="must" vendor-bit="must" protected="may" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Teleservice" code="3413" mandatory="must" vendor-bit="must" protected="may" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="ISUP-Location-Number" code="3414" mandatory="must" vendor-bit="must" protected="may" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Forwarding-Pending" code="3415" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Forwarding not pending" code="0"/>
+			<enum name="Forwarding pending" code="1"/>
+		</avp>
+		<avp name="ISUP-Release-Cause" code="3416" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="ISUP-Cause-Location"/>
+				<gavp name="ISUP-Cause-Value"/>
+				<gavp name="ISUP-Cause-Diagnostics"/>
+			</grouped>
+		</avp>
+		<avp name="MSC-Address" code="3417" mandatory="must" vendor-bit="must" protected="may" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Network-Call-Reference-Number" code="3418" mandatory="must" vendor-bit="must" protected="may" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Start-of-Charging" code="3419" mandatory="must" vendor-bit="must" protected="may" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="VLR-Number" code="3420" mandatory="must" vendor-bit="must" protected="may" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
 		<avp name="CN-Operator-Selection-Entity" code="3421" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="The serving network has been selected by the UE" code="0"/>
 			<enum name="The serving network has been selected by the network" code="1"/>
 		</avp>
+		<avp name="ISUP-Cause-Diagnostics" code="3422" mandatory="must" vendor-bit="must" protected="may" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="ISUP-Cause-Location" code="3423" mandatory="must" vendor-bit="must" protected="may" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="ISUP-Cause-Value" code="3424" mandatory="must" vendor-bit="must" protected="may" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
 		<avp name="ePDG-Address" code="3425" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="Announcing-UE-HPLMN-Identifier" code="3426" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Announcing-UE-VPLMN-Identifier" code="3427" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Coverage-Status" code="3428" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Out of coverage" code="0"/>
+			<enum name="In coverage" code="1"/>
+		</avp>
+		<avp name="Layer-2-Group-ID" code="3429" mandatory="must" vendor-bit="must" protected="may" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Monitored-PLMN-Identifier" code="3430" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Monitoring-UE-HPLMN-Identifier" code="3431" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Monitoring-UE-Identifier" code="3432" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Monitoring-UE-VPLMN-Identifier" code="3433" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="PC3-Control-Protocol-Cause" code="3434" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="PC3-EPC-Control-Protocol-Cause" code="3435" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Requested-PLMN-Identifier" code="3436" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Requestor-PLMN-Identifier" code="3437" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Role-Of-ProSe-Function" code="3438" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="HPLMN" code="0"/>
+			<enum name="VPLMN" code="0"/>
+			<enum name="Local PLMN" code="0"/>
+		</avp>
+		<avp name="Usage-Information-Report-Sequence-Number" code="3439" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="ProSe-3rd-Party-Application-ID" code="3440" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
 		</avp>
 		<!--
 		Note: The AVP codes from 3400 to 3499 are reserved for TS 32.299
@@ -7041,7 +7166,7 @@
 			<type type-name="Unsigned32"/>
 		</avp>
 		<!--
-		Note: The AVP codes from 3900 to 3999 are reserved for TS 29.128
+		Note: The AVP codes from 3900 to 3999 are reserved for TS 32.299
 		-->
 
 		<avp name="Charging-Per-IP-CAN-Session-Indicator" code="4400" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
@@ -7201,6 +7326,7 @@
 	<application id="16777340"	name="3GPP PC6/PC7"			uri="http://www.3gpp.org/ftp/Specs/html-info/29345.htm"/>
 	<!-- application 16777341	is defined in Nokia.xml -->
 	<application id="16777342"	name="3GPP Np"				uri="http://www.3gpp.org/ftp/Specs/html-info/29217.htm"/>
+	<!-- application 16777346	is defined in TGPP.xml -->
 	<application id="16777999"	name="S6b Application (One-AAA)"	uri="none"/>
   <!--
 16777341 Nokia Sdr Application [Timo_Perala]

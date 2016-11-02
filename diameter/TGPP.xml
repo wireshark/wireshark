@@ -1413,6 +1413,15 @@
 	<avp name="Downlink-Rate-Limit" code="4312" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
 		<type type-name="Unsigned32"/>
 	</avp>
+	<avp name="Extended-PCO" code="4313" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="SCEF-Wait-Time" code="4316" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+		<type type-name="Time"/>
+	</avp>
+	<avp name="CMR-Flags" code="4317" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
+	</avp>
 	<avp name="RRC-Cause-Counter" code="4318" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
 		<grouped>
 			<gavp name="Counter-Value"/>
